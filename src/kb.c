@@ -208,6 +208,14 @@ int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
     return kb_find_neg(kb, &f) != NULL;
 }
 
+int kb_is_conflicted(const KB *kb, const char *pred,
+                     const char *const *args, size_t argc) {
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return 0;
+    return kb_find(kb, &f) != NULL && kb_find_neg(kb, &f) != NULL;
+}
+
 /* ----------------------------------------------------------------------------
  * rules
  * ------------------------------------------------------------------------- */

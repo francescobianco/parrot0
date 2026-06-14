@@ -352,6 +352,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *subj = w[1];
             const char *args[] = {subj, obj};
             if (!kb_knows_pred(b->kb, rel)) idk(rel, out, out_size);
+            else if (kb_is_conflicted(b->kb, rel, args, 2))
+                put("Conflicted.", out, out_size);
             else put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.",
                      out, out_size);
             return 1;
@@ -399,6 +401,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *subj = w[1];
         const char *args[] = {subj};
         if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        else if (kb_is_conflicted(b->kb, cls, args, 1))
+            put("Conflicted.", out, out_size);
         else put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
         return 1;
     }
@@ -544,7 +548,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen19-conflict";
+    return "gen20-query-conflict";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

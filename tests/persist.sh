@@ -19,6 +19,8 @@ sess="$tmp/session.pl"
 neg="$tmp/negative.pl"
 corrbase="$tmp/correction-base.pl"
 corrsess="$tmp/correction-session.pl"
+binbase="$tmp/binary-conflict-base.pl"
+binsess="$tmp/binary-conflict-session.pl"
 
 pass=0
 fail=0
@@ -91,11 +93,23 @@ report="$(printf 'what do you know about socrates?
 /quit
 ' \
       | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" 2>/dev/null)"
-if [ "$out" = "No." ] && [ "$report" = "socrates is conflicted about being a man." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
+if [ "$out" = "Conflicted." ] && [ "$report" = "socrates is conflicted about being a man." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
     ok "session negative exposes conflict with base fact"
 else
     no "expected session correction to preserve and report base conflict"
 fi
+
+# 9) Binary ground queries also expose exact persisted conflicts.
+printf 'parent(ada, bob).
+' > "$binbase"
+printf 'not(parent(ada, bob)).
+' > "$binsess"
+out="$(printf 'is ada the parent of bob?
+/quit
+' \
+      | PARROT0_BASE="$binbase" PARROT0_SESSION="$binsess" "$BIN" 2>/dev/null)"
+if [ "$out" = "Conflicted." ]; then ok "binary ground conflict is query-visible"
+else no "expected binary conflict query to be Conflicted. got [$out]"; fi
 
 echo "---"
 echo "passed: $pass, failed: $fail"

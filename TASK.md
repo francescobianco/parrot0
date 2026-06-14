@@ -4,30 +4,28 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen20 — conflict-aware ground queries
-## (TASKLIST T3, query semantics slice)
+## Goal: gen21 — conflict-aware explanations
+## (TASKLIST T3/T2 overlap)
 
-gen19 preserves source disagreement and exposes it in direct belief reports, but
-`is X a Y?` still answers `No.` when a matching positive and negative fact both
-exist. That is deterministic, but it hides the disagreement.
+gen20 makes exact conflicts visible to yes/no queries, but `why is X a Y?` can
+still render a proof for the positive side of a conflicted claim. That makes a
+disputed claim look settled.
 
 ### Design question
-What is the smallest query-level status that exposes exact ground conflicts
-without changing the solver into full truth maintenance?
+What is the smallest explanation-level behavior that respects exact conflicts
+without building source-level proof trees?
 
-Candidate: add `kb_is_conflicted(pred,args)` for exact positive+negative ground
-facts. The NL ground-query surfaces check it before `kb_query`; if conflicted,
-answer `Conflicted.`. Variable queries can remain positive-fact enumeration for
-now, with the conflict visible through direct reports.
+Candidate: before `kb_explain`, the explanation surface checks
+`kb_is_conflicted(pred,args)`. If conflicted, it returns a compact conflict
+message instead of proving either side.
 
 ### Acceptance
-- If base says `man(socrates).` and session says `not(man(socrates)).`, `is
-  socrates a man?` answers `Conflicted.`.
-- Same-session correction still answers `No.`, not `Conflicted.`.
-- Unknown predicates still answer `I don't know about <pred>.`.
-- Binary ground queries get the same exact-conflict treatment if a conflict is
-  present in KB state.
+- If base says `man(socrates).` and session says `not(man(socrates)).`, `why is
+  socrates a man?` reports conflict rather than `man(socrates) is a known fact.`.
+- Non-conflicted explanations keep the gen14 proof behavior.
+- False non-conflicted claims still say no proof was found.
+- Tests cover unary and binary explanation surfaces where possible.
 
 ### Notes
-- This is exact-ground conflict only. Derived conflicts and variable-query
-  conflict summaries are later work.
+- Do not invent source explanations yet. This generation only prevents disputed
+  claims from being explained as settled truths.

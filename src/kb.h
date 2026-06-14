@@ -56,6 +56,10 @@ int    kb_assert_neg(KB *kb, const char *pred, const char *const *args,
 int    kb_is_negated(const KB *kb, const char *pred, const char *const *args,
                      size_t argc);
 
+/* True if the exact ground fact has both positive and negative direct support. */
+int    kb_is_conflicted(const KB *kb, const char *pred,
+                        const char *const *args, size_t argc);
+
 /* Assert a definite rule of the form  head(X) :- body(X)  (unary, one shared
  * variable — the shape gen6 needs). Idempotent. Returns 1 if stored/known. */
 int    kb_assert_rule(KB *kb, const char *head, const char *body);

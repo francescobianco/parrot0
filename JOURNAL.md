@@ -4,6 +4,30 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen20: conflict-aware ground queries (T3 slice)
+
+**Changed:** `brain.c` → `gen20-query-conflict`; `kb_is_conflicted` in `kb.{h,c}`.
+- Exact positive+negative ground collisions now have a query-visible status.
+- Unary and binary ground NL queries check `kb_is_conflicted` before `kb_query`
+  and answer `Conflicted.` when direct support disagrees.
+- Same-session correction still settles to a negative fact and answers `No.`.
+- Persistence tests now cover both unary base/session conflict and binary exact
+  conflict loaded from knowledge files.
+
+**Why:** gen19 preserved disagreement but ground queries still flattened it into
+`No.`. This makes the response layer expose the T3 status directly.
+
+**Observed:** all suites green — 11 conversation, 10 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** exact-ground only. Variable queries and derived
+conflicts remain deliberately out of scope.
+
+**Next:** make explanations conflict-aware so `why ...?` does not cite one side
+of a disputed claim as if it were settled.
+
+---
+
 ## 2026-06-15 — gen19: source-aware conflict sketch (T3 slice)
 
 **Changed:** `brain.c` → `gen19-conflict`; conflict preservation in `kb.c`.
