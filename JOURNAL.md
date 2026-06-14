@@ -4,6 +4,37 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-14 — gen10: retraction & correction
+
+**Changed:** `brain.c` → `gen10-retract`; `kb_retract()` in `kb.{h,c}`.
+- `kb_retract(pred, args, argc)`: removes a ground fact if present, preserving
+  the order of the rest (closed-world correction — remove the positive fact,
+  not store an explicit negation).
+- `mod_knowledge`: "forget that <x> is a/an <y>" and "<x> is not a/an <y>" →
+  retract `y(x)`; reports "Forgotten: y(x)." or "I didn't know that anyway."
+- New `tests/cases/retract.chat`, incl. **rule interaction**: retracting the
+  supporting fact makes the derived conclusion underivable again.
+
+**Why:** Understanding means being wrong and fixing it. Knowledge (and the
+saved session delta) can now be corrected, not only extended — the first of the
+defences D5.1 lists for the brittleness of forged expertise.
+
+**Observed:** 9 conversation + 5 persistence checks green.
+
+**Decision deferred (provenance):** retraction removes from RAM only. Retracting
+a `base` fact thus reappears on next boot (base file unchanged). Whether to
+record "tombstones" for base corrections is left to a later gen — noted here so
+it isn't forgotten.
+
+**Method watch (D5.1):** gen10 is a genuine capability (correction), justified
+independently — not speculative plumbing. No pivot signal yet.
+
+**Next:** gen11 — n-ary relations + multi-goal rule bodies (e.g.
+`grandparent(X,Z) :- parent(X,Y), parent(Y,Z)`): the representation jump the
+grammar expert will need. Keep a concrete grammar north-star in view (D5.1).
+
+---
+
 ## 2026-06-14 — gen9: persistent, human-readable, composable knowledge
 
 **Changed:** `brain.c` → `gen9-persist`; persistence + provenance in

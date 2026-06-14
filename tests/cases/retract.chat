@@ -1,0 +1,32 @@
+# Generation 10: retraction & correction — knowledge can be fixed, not only grown.
+> socrates is a man
+< Learned: man(socrates).
+> is socrates a man?
+< Yes.
+# "forget that X is a Y" removes the fact.
+> forget that socrates is a man
+< Forgotten: man(socrates).
+> is socrates a man?
+< No.
+# "X is not a Y" is also a correction (retract the positive fact).
+> bob is a dog
+< Learned: dog(bob).
+> bob is not a dog
+< Forgotten: dog(bob).
+> is bob a dog?
+< No.
+# Retracting something unknown is graceful.
+> forget that plato is a man
+< I didn't know that anyway.
+# Retraction interacts with rules: remove the supporting fact and the
+# derived conclusion goes away too.
+> plato is a man
+< Learned: man(plato).
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+> is plato a mortal?
+< Yes.
+> forget that plato is a man
+< Forgotten: man(plato).
+> is plato a mortal?
+< No.

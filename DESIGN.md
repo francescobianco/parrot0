@@ -93,6 +93,38 @@ brittle (natural language is all exceptions). The defences are the same as
 elsewhere: per-domain held-out tests, retraction/correction (gen10), and later
 confidence/negation — competence must be earned on unseen cases.
 
+### D5.1 — The method choice: primitives-first (with a pivot duty)
+
+We chose **primitives-first** (build the logic engine — n-ary relations,
+multi-goal rules, richer parsing — *then* forge the grammar expert) over
+**domain-pull** (start the grammar domain immediately and let its needs pull
+the primitives).
+
+- **Bought:** reusable, domain-agnostic foundations; a clean engine/domain
+  boundary; less rework; clean per-primitive tests.
+- **Given up:** fast demonstrable expertise; early discovery of what real
+  expertise demands; protection against building the *wrong* primitives (YAGNI);
+  the reflexive intake bootstrap, deferred.
+- **Tension:** this leans *against* PRINCIPLES.md's "emergence over design —
+  structure appears because a task demanded it." We traded a little
+  methodological purity for foundational solidity. It is **reversible** at any
+  generation.
+
+**Mitigation — the north-star:** keep a concrete grammar task visible while
+building primitives, and validate each primitive against that real need (a dose
+of domain-pull inside primitives-first).
+
+**PIVOT DUTY (standing instruction from the user to the agent).** The agent
+running the loop is responsible for **detecting and calling the switch to
+domain-pull** the moment primitives-first has betrayed the emergence principle
+*without benefit*. Do not wait to be told. Concrete signals — if these recur
+and no reuse payoff materialises, pivot:
+1. A primitive is being built that no concrete domain need justifies (speculative).
+2. A generation passes its tests but advances no real expertise (plumbing for
+   plumbing's sake).
+3. A primitive has to be reworked because it was shaped without a domain.
+4. The north-star grammar task keeps getting deferred.
+
 **Decision.** No index until a profile shows linear scans are the bottleneck.
 When that day comes, the first step is an **in-RAM index** (`predicate ->
 facts/rules` hashmap) to make resolution sub-linear — *not* on-disk paging.

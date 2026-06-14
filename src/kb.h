@@ -39,6 +39,11 @@ void   kb_destroy(KB *kb);
  *   0  rejected (bad arity, over-long term, or KB full). */
 int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc);
 
+/* Retract a ground fact if present, preserving the order of the rest. Returns
+ * 1 if a fact was removed, 0 if it wasn't there. (Closed-world correction:
+ * remove the positive fact rather than store an explicit negation.) */
+int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc);
+
 /* Assert a definite rule of the form  head(X) :- body(X)  (unary, one shared
  * variable — the shape gen6 needs). Idempotent. Returns 1 if stored/known. */
 int    kb_assert_rule(KB *kb, const char *head, const char *body);

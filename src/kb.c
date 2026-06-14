@@ -116,6 +116,22 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     return 1;
 }
 
+int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return 0;
+
+    for (size_t i = 0; i < kb->n; i++) {
+        if (fact_eq(&kb->facts[i], &f)) {
+            memmove(&kb->facts[i], &kb->facts[i + 1],
+                    (kb->n - i - 1) * sizeof *kb->facts);
+            kb->n--;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 int kb_assert_rule(KB *kb, const char *head, const char *body) {
     if (!kb || !term_ok(head) || !term_ok(body)) return 0;
 
