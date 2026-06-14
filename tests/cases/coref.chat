@@ -1,0 +1,17 @@
+# Generation 22: minimal discourse coreference for unary factual turns.
+> he is a pilot
+< I don't know who he refers to.
+> dana is a pilot
+< Learned: pilot(dana).
+> she is a teacher
+< Learned: teacher(dana).
+> is she a pilot?
+< Yes.
+> she is not a robot
+< Learned: not robot(dana).
+> is her a robot?
+< No.
+> what do you know about her?
+< dana is a pilot; dana is a teacher; dana is not a robot.
+> why is she a teacher?
+< teacher(dana) is a known fact.

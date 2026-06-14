@@ -4,31 +4,31 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen22 — minimal discourse coreference
-## (SuperGLUE-like driver: linguistic foundations)
+## Goal: gen23 — tiny textual entailment surface
+## (SuperGLUE-like driver: short-text inference)
 
-The benchmark-driver note in DESIGN D8 says SuperGLUE-like pressure should test
-language understanding, context and coreference. parrot0 currently treats
-pronouns as literal constants: after `dana is a pilot`, `she is a teacher` would
-store `teacher(she)` instead of resolving `she -> dana`.
+gen22 added a minimal discourse pointer for pronoun coreference. The next
+SuperGLUE-like pressure is short-text entailment: given a compact premise and a
+hypothesis, parrot0 should decide whether the hypothesis follows from the KB
+state it can build from the premise.
 
 ### Design question
-What is the smallest useful coreference mechanism that improves short factual
-discourse without pretending to solve full natural-language reference?
+What is the smallest entailment interface that reuses the existing KB instead of
+creating a separate benchmark-only path?
 
-Candidate: keep the most recent concrete entity mentioned in the knowledge
-surface. Resolve `he/she/it/they/him/her/them` to that entity for unary factual
-assertions, unary ground queries and direct belief reports. If no antecedent is
-known, answer that the referent is unknown.
+Candidate: support a constrained single-turn form such as
+`premise: <fact or rule>; hypothesis: <query>`. Parse the premise through the
+same knowledge machinery, then answer whether the hypothesis is proven,
+conflicted, false or unknown using existing query statuses.
 
 ### Acceptance
-- `dana is a pilot` then `she is a teacher` stores `teacher(dana)`.
-- `is she a pilot?` resolves to `dana` and answers `Yes.`.
-- `what do you know about her?` reports facts about `dana`.
-- A pronoun before any antecedent is rejected honestly.
-- Keep the scope explicit: no gender/number semantics, no multi-candidate
-  resolution, no cross-module memory yet.
+- A premise fact plus matching hypothesis returns entailed.
+- A premise rule plus fact can entail a derived hypothesis.
+- A negative/conflicted hypothesis reports the appropriate status, not just
+  false.
+- Held-out names/predicates prove the path is structural, not string-specific.
 
 ### Notes
-- This is a SuperGLUE-like foundation slice, not a full benchmark implementation.
-- Prefer one deterministic discourse pointer over a speculative reference model.
+- This is a SuperGLUE-like micro-driver, not an implementation of the external
+  benchmark dataset.
+- Keep the grammar tiny and explicit; do not build a general text parser yet.

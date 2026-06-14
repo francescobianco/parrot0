@@ -26,6 +26,8 @@ struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
     char name[64];         /* the user's name, once they tell us */
     int  has_name;         /* whether `name` is set */
+    char last_entity[KB_TERM_LEN]; /* most recent concrete KB entity */
+    int  has_last_entity;  /* whether `last_entity` is set */
     KB  *kb;               /* the knowledge base (gen4+) */
 };
 
@@ -191,6 +193,33 @@ static int is_article(const char *w) {
     return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
 }
 
+/* Minimal discourse coreference (gen22): pronouns resolve to the most recent
+ * concrete entity mentioned in the knowledge surface. */
+static int is_entity_pronoun(const char *w) {
+    return strcmp(w, "he") == 0 || strcmp(w, "she") == 0 ||
+           strcmp(w, "it") == 0 || strcmp(w, "they") == 0 ||
+           strcmp(w, "him") == 0 || strcmp(w, "her") == 0 ||
+           strcmp(w, "them") == 0;
+}
+
+static int resolve_entity(Brain *b, const char *word, const char **entity,
+                          char *out, size_t out_size) {
+    if (!is_entity_pronoun(word)) { *entity = word; return 1; }
+    if (b->has_last_entity) { *entity = b->last_entity; return 1; }
+
+    char msg[160];
+    snprintf(msg, sizeof msg, "I don't know who %s refers to.", word);
+    put(msg, out, out_size);
+    return 0;
+}
+
+static void remember_entity(Brain *b, const char *word, const char *entity) {
+    if (is_entity_pronoun(word) || !entity || strlen(entity) >= KB_TERM_LEN)
+        return;
+    snprintf(b->last_entity, sizeof b->last_entity, "%s", entity);
+    b->has_last_entity = 1;
+}
+
 /* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
  * see DESIGN.md D6 — to become emergent meta-knowledge). */
 static void idk(const char *pred, char *out, size_t out_size) {
@@ -236,8 +265,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
     if (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
         is_article(w[3])) {
-        const char *args[] = {w[2]};
+        const char *subj;
+        if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
         explain_reply(b, w[4], args, 1, out, out_size);
+        remember_entity(b, w[2], subj);
         return 1;
     }
     /* explanation: "why is <x> the <rel> of <y>?" -> proof of rel(x, y) */
@@ -252,14 +284,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "do") == 0 &&
         strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
         strcmp(w[4], "about") == 0) {
+        const char *entity;
+        if (!resolve_entity(b, w[5], &entity, out, out_size)) return 1;
         char desc[1024];
-        if (kb_describe_entity(b->kb, w[5], desc, sizeof desc)) {
+        if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
             put(desc, out, out_size);
         } else {
             char msg[160];
-            snprintf(msg, sizeof msg, "I don't know anything about %s.", w[5]);
+            snprintf(msg, sizeof msg, "I don't know anything about %s.", entity);
             put(msg, out, out_size);
         }
+        remember_entity(b, w[5], entity);
         return 1;
     }
 
@@ -300,7 +335,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* retract: "forget that <x> is a/an <y>" -> remove y(x) */
     if (nw == 6 && strcmp(w[0], "forget") == 0 && strcmp(w[1], "that") == 0 &&
         strcmp(w[3], "is") == 0 && is_article(w[4])) {
-        const char *subj = w[2], *cl = w[5];
+        const char *subj, *cl = w[5];
+        if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         char msg[128];
         if (kb_retract(b->kb, cl, args, 1))
@@ -308,13 +344,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         else
             snprintf(msg, sizeof msg, "I didn't know that anyway.");
         put(msg, out, out_size);
+        remember_entity(b, w[2], subj);
         return 1;
     }
 
     /* explicit negative correction: "<x> is not a/an <y>" -> not y(x) */
     if (nw == 5 && strcmp(w[1], "is") == 0 && strcmp(w[2], "not") == 0 &&
         is_article(w[3])) {
-        const char *subj = w[0], *cl = w[4];
+        const char *subj, *cl = w[4];
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         char msg[128];
         if (kb_assert_neg(b->kb, cl, args, 1))
@@ -322,6 +360,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         else
             snprintf(msg, sizeof msg, "I couldn't store that.");
         put(msg, out, out_size);
+        remember_entity(b, w[0], subj);
         return 1;
     }
 
@@ -403,18 +442,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* ground query: "is <x> a <y>?" -> y(x)? */
     if (strcmp(w[0], "is") == 0) {
-        const char *subj = w[1];
+        const char *subj;
+        if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1))
             put("Conflicted.", out, out_size);
         else put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
+        remember_entity(b, w[1], subj);
         return 1;
     }
 
     /* assert: "<x> is a <y>" -> y(x) */
     if (strcmp(w[1], "is") == 0) {
-        const char *subj = w[0];
+        const char *subj;
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         if (kb_assert(b->kb, cls, args, 1)) {
             char msg[128];
@@ -423,6 +465,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         } else {
             put("I couldn't store that.", out, out_size);
         }
+        remember_entity(b, w[0], subj);
         return 1;
     }
 
@@ -553,7 +596,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen21-explain-conflict";
+    return "gen22-coref";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
