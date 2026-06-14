@@ -4,6 +4,34 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-14 — gen8: identity & self-reflection ("I know that I am")
+
+**Changed:** `brain.c` → `gen8-self`; new `mod_self`.
+- At birth `brain_create` writes the agent into its own KB: `i_am(parrot0).`
+  and one `module(<name>)` per **registered** module (reified from the registry
+  — self-description can't drift from real structure). These are `reflective`
+  facts: regenerated every boot, not meant to persist (DESIGN.md D3).
+- `mod_self` answers introspection by *querying that self-model*: "who/what are
+  you?" → `i_am(X)`; "do you exist?" → resolves `i_am`; "what can you do?" →
+  lists `module(X)`.
+- New `tests/cases/self.chat`, incl. the reflexive payoff: "who is a module?"
+  resolves over the self-model with the **same** engine as world knowledge.
+
+**Why:** The identity principle (PRINCIPLES.md). The reflexive closure of the
+method: the agent gets a model of itself, in the same substrate it uses for the
+world, derived from real state (anti-impostor — no `printf "I am conscious"`).
+
+**Observed:** `make test` green (8 cases). Live: "who is a module?" →
+memory, self, knowledge, greet, farewell — the agent reading its own structure.
+Honest scope: this is the structural *precondition* for self-knowledge; no
+claim about felt experience.
+
+**Next:** gen9 — persistence: human-readable knowledge files, base+session
+joined at load, save only the session delta, provenance per clause (DESIGN.md
+D1–D3).
+
+---
+
 ## 2026-06-14 — gen7: induction — learning rules from facts ("training")
 
 **Changed:** `brain.c` → `gen7-induce`; `kb_induce()` in `kb.{h,c}`.

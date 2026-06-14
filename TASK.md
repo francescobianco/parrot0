@@ -1,33 +1,37 @@
 # Current task
 
 > One goal at a time. When it's done, replace this with the next one.
-> See LOOP.md for how to work a task, and PRINCIPLES.md for why.
+> See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
+> architectural decisions.
 
-## Goal: gen8 — identity & self-reflection ("I know that I am")
+## Goal: gen9 — persistent, human-readable, composable knowledge
 
-The KB spine (facts → unification → rules → induction) is in place. Now apply
-the identity principle from PRINCIPLES.md: give parrot0 a **self-model held in
-its own KB**, and let it answer introspective questions from *real state*, not
-hard-coded strings.
+Today the KB is session-only: it lives in RAM and dies at `/quit`. Give parrot0
+durable knowledge as **human-readable Prolog-like text** (DESIGN.md D1–D3),
+loaded fully into RAM, composable from layers, with correct save.
 
 ### Idea
-- At birth, the agent asserts facts about itself: `i_am(parrot0).` and one
-  `module(<name>)` per **actually registered** module (reified from the
-  registry, so the self-description can't drift from reality).
-- New introspective surfaces, answered by querying that self-model:
-  - "who are you?" / "what are you?" → from `i_am(...)`.
-  - "what can you do?" → list the modules from `module(...)`.
-- Optionally: "do you exist?" → resolves `i_am(X)` → yes, "I am parrot0."
+- A text format that round-trips: `man(socrates).` and `mortal(X) :- man(X).`,
+  one clause per line, comments with `%` ignored.
+- `kb_load(path)`: parse a file and union its clauses into the KB (so multiple
+  files **join** — e.g. a base file + a session file).
+- `kb_save(path, which)`: serialise clauses back to text. Provenance per clause
+  (`base` / `session` / `induced` / `reflective`); save writes only the chosen
+  layer (default: `session` + `induced`), and NEVER the `reflective` self-model.
+- Wire into the app: load `knowledge/base.pl` (+ `knowledge/session.pl` if
+  present) at startup; a `/save` command (or save on `/quit`) writes the session
+  delta back. Keep `main.c` changes minimal.
 
 ### Acceptance
-- Self-facts are derived from the registry, NOT a literal list (anti-impostor).
-  Adding/removing a module changes the introspective answer automatically.
-- All existing tests still pass unchanged.
-- New `tests/cases/self.chat` exercises the introspective queries.
-- Bump `brain_version()` to `gen8-...`.
+- A fact taught in one run is present in the next run (after save), proven by a
+  test that runs the binary twice against a temp knowledge file.
+- Loading base + session yields the union (a "join" test).
+- Saving never duplicates base clauses and never writes reflective facts.
+- All existing tests still pass; new `tests/cases/*` (or a small script) covers
+  load/save round-trip.
+- Bump `brain_version()` to `gen9-...`.
 
 ### Notes
-- This is the reflexive closure of the method (PRINCIPLES.md): the agent gets a
-  model of itself in the same substrate it uses for the world.
-- Keep honest: we build the structural precondition for self-knowledge; we make
-  no claim about felt experience.
+- Parser stays small but forgiving (trim, skip blanks/comments); reject
+  malformed lines without crashing.
+- Defer any indexing (DESIGN.md D4) — this task is about persistence, not speed.

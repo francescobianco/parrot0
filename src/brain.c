@@ -287,10 +287,80 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: self --------------------------------------------------------
+ * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
+ * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
+ * and one `module(<name>)` per registered part (asserted at birth — see
+ * brain_create). This module answers introspective questions by *querying that
+ * model*, so the answers are derived from real state, never hard-coded.
+ */
+static int mod_self(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+    while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
+
+    const char *var[] = {NULL};
+
+    /* "who/what are you?" -> from i_am(X) */
+    if (strcmp(buf, "who are you") == 0 || strcmp(buf, "what are you") == 0) {
+        char id[4][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
+        if (k > 0) {
+            char msg[128];
+            snprintf(msg, sizeof msg, "I am %s.", id[0]);
+            put(msg, out, out_size);
+        } else {
+            put("I don't know what I am.", out, out_size);
+        }
+        return 1;
+    }
+
+    /* "do you exist?" -> resolves i_am(X) */
+    if (strcmp(buf, "do you exist") == 0) {
+        char id[4][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
+        char msg[128];
+        if (k > 0) snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
+        else       snprintf(msg, sizeof msg, "I'm not sure.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* "what can you do?" -> list the modules from module(X) */
+    if (strcmp(buf, "what can you do") == 0 ||
+        strcmp(buf, "what do you do") == 0) {
+        char mods[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "module", var, 1, mods, 64);
+        if (k == 0) { put("Nothing yet.", out, out_size); return 1; }
+        char list[512];
+        size_t off = 0;
+        for (size_t i = 0; i < k && off < sizeof list; i++) {
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                    "%s%s", i ? ", " : "", mods[i]);
+        }
+        char msg[600];
+        snprintf(msg, sizeof msg, "My modules are: %s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
- * behaviour, touch only this table — not brain_respond()'s control flow. */
+ * behaviour, touch only this table — not brain_respond()'s control flow.
+ * (This table is also reified into the KB as module(...) facts at birth, so
+ * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
     {"memory",    mod_memory},
+    {"self",      mod_self},
     {"knowledge", mod_knowledge},
     {"greet",     mod_greet},
     {"farewell",  mod_farewell},
@@ -306,6 +376,16 @@ Brain *brain_create(void) {
     if (!b) return NULL;
     b->kb = kb_create();
     if (!b->kb) { free(b); return NULL; }
+
+    /* Reflective self-model: the agent writes itself into its own KB, derived
+     * from real structure (PRINCIPLES.md). These facts are regenerated every
+     * boot — they are NOT meant to be persisted (see DESIGN.md, provenance). */
+    const char *me[] = {"parrot0"};
+    kb_assert(b->kb, "i_am", me, 1);
+    for (size_t i = 0; i < registry_len; i++) {
+        const char *m[] = {registry[i].name};
+        kb_assert(b->kb, "module", m, 1);
+    }
     return b;
 }
 
@@ -316,7 +396,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen7-induce";
+    return "gen8-self";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

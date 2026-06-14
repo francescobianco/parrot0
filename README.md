@@ -42,10 +42,13 @@ See **[LOOP.md](LOOP.md)** for the full protocol.
 |-------------------|---------------------------------------------------|
 | `src/main.c`      | Stable I/O shell (REPL, chat protocol)            |
 | `src/brain.c/.h`  | The brain — **this is what evolves**              |
+| `src/kb.c/.h`     | Knowledge base — facts, rules, resolution, induction |
 | `tests/`          | Conversation test harness + cases                 |
 | `Makefile`        | `make` / `chat` / `test` / `loop` / `clean`       |
 | `TASK.md`         | The current goal for the loop                      |
 | `LOOP.md`         | The self-improvement protocol                      |
+| `PRINCIPLES.md`   | The founding *why* of the experiment               |
+| `DESIGN.md`       | Architectural decisions (e.g. knowledge persistence) |
 | `JOURNAL.md`      | Generation-by-generation history                   |
 
 ## Build targets

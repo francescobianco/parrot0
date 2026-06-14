@@ -1,0 +1,20 @@
+# Generation 8: identity & self-reflection — answered from the self-model
+# the agent wrote into its own KB at birth (derived from real state).
+> who are you?
+< I am parrot0.
+> what are you?
+< I am parrot0.
+> do you exist?
+< Yes, I am parrot0.
+# Capabilities are reported from the ACTUAL registry, reified as facts.
+> what can you do?
+< My modules are: memory, self, knowledge, greet, farewell.
+# The reflexive payoff: the self-model is queried by the SAME logic engine as
+# world knowledge — "who is a module?" resolves over module(X).
+> who is a module?
+< memory, self, knowledge, greet, farewell.
+# Ordinary world knowledge still works alongside the self-model.
+> socrates is a man
+< Learned: man(socrates).
+> who is a man?
+< socrates.
