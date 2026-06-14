@@ -1,0 +1,68 @@
+/*
+ * main.c - the I/O shell of parrot0. STABLE.
+ *
+ * This file is intentionally boring and should rarely change: it owns the
+ * read-eval-print loop, line buffering and the chat protocol, so that the
+ * self-improvement loop can focus entirely on src/brain.c.
+ *
+ * Protocol (kept deterministic & test-friendly):
+ *   - Reads one line of user input per turn from stdin.
+ *   - Writes exactly one line of response to stdout (and flushes).
+ *   - Decorative prompts go to stderr, so piping stdin/stdout stays clean
+ *     for the test harness.
+ *   - Input "/quit", "/exit" or EOF (Ctrl-D) ends the session.
+ */
+#include "brain.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define LINE_MAX_LEN 4096
+#define RESP_MAX_LEN 8192
+
+static void chomp(char *s) {
+    size_t n = strlen(s);
+    while (n > 0 && (s[n - 1] == '\n' || s[n - 1] == '\r')) {
+        s[--n] = '\0';
+    }
+}
+
+int main(void) {
+    Brain *brain = brain_create();
+    if (!brain) {
+        fprintf(stderr, "parrot0: out of memory\n");
+        return 1;
+    }
+
+    fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit)\n",
+            brain_version());
+
+    char line[LINE_MAX_LEN];
+    char resp[RESP_MAX_LEN];
+
+    for (;;) {
+        fprintf(stderr, "you> ");
+        fflush(stderr);
+
+        if (!fgets(line, sizeof line, stdin)) {
+            break; /* EOF / Ctrl-D */
+        }
+        chomp(line);
+
+        if (strcmp(line, "/quit") == 0 || strcmp(line, "/exit") == 0) {
+            break;
+        }
+        if (line[0] == '\0') {
+            continue; /* ignore empty turns */
+        }
+
+        brain_respond(brain, line, resp, sizeof resp);
+        printf("%s\n", resp);
+        fflush(stdout);
+    }
+
+    fprintf(stderr, "\nparrot0: bye\n");
+    brain_destroy(brain);
+    return 0;
+}

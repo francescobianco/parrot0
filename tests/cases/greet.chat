@@ -1,0 +1,19 @@
+# Generation 1: greetings & farewells become intent, not echo.
+> hello
+< Hi there!
+> hi
+< Hi there!
+> hey
+< Hi there!
+# case-insensitive + surrounding spaces are tolerated
+> HELLO
+< Hi there!
+>   hey
+< Hi there!
+> bye
+< Goodbye!
+> goodbye
+< Goodbye!
+# anything unrecognised still parrots (no regression)
+> tell me about C
+< tell me about C

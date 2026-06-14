@@ -1,0 +1,8 @@
+# The parrot fallback: anything without recognised intent is echoed verbatim.
+# (Greetings/farewells are handled in greet.chat as of gen1.)
+> how are you?
+< how are you?
+> 12345
+< 12345
+> the quick brown fox
+< the quick brown fox
