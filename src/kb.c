@@ -248,15 +248,20 @@ static int unify_term_term(Subst *s, const Term *g, const Term *h) {
     return 1;
 }
 
-/* Rename a rule's variables to a unique frame (standardize-apart). */
-static void rename_term(const Term *src, int frame, Term *dst) {
+/* Rename a rule's variables to a unique frame (standardize-apart). Each named
+ * variable becomes "name_<frame>" (shared across the clause); each anonymous
+ * "_" becomes a FRESH variable (via *anon), so distinct "_" never alias. */
+static void rename_term(const Term *src, int frame, int *anon, Term *dst) {
     strcpy(dst->pred, src->pred);
     dst->argc = src->argc;
     for (size_t i = 0; i < src->argc; i++) {
-        if (is_var(src->args[i]))
-            snprintf(dst->args[i], KB_TERM_LEN, "%s_%d", src->args[i], frame);
+        const char *a = src->args[i];
+        if (strcmp(a, "_") == 0)
+            snprintf(dst->args[i], KB_TERM_LEN, "_A%d_%d", frame, (*anon)++);
+        else if (is_var(a))
+            snprintf(dst->args[i], KB_TERM_LEN, "%s_%d", a, frame);
         else
-            strcpy(dst->args[i], src->args[i]);
+            strcpy(dst->args[i], a);
     }
 }
 
@@ -305,8 +310,9 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             continue;
 
         int fr = ++S->frame;
+        int anon = 0; /* fresh-anonymous counter, shared across this clause */
         Term rhead;
-        rename_term(&R->head, fr, &rhead);
+        rename_term(&R->head, fr, &anon, &rhead);
         Subst s2 = *s;
         if (!unify_term_term(&s2, g, &rhead)) continue;
 
@@ -315,7 +321,7 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         int overflow = 0;
         for (size_t b = 0; b < R->nbody; b++) {
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
-            rename_term(&R->body[b], fr, &ng[m++]);
+            rename_term(&R->body[b], fr, &anon, &ng[m++]);
         }
         for (size_t k = idx + 1; k < ngoals && !overflow; k++) {
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }

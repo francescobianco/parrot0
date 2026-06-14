@@ -39,6 +39,11 @@ expect "irregular plural"           "what is the plural of child?" "children."
 expect "countable via plural rule"  "is dog a countable?"          "Yes."
 expect "non-countable"              "is language a countable?"     "No."
 
+# bidirectional relations + anonymous-variable rules (T1).
+expect "singular form (object query)" "what is the singular of dogs?" "dog."
+expect "has_plural via anon rule"     "is dogs a has_plural?"         "Yes."
+expect "not a plural form"            "is dog a has_plural?"          "No."
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]

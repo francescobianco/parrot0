@@ -22,4 +22,8 @@ word(X) :- adjective(X).
 plural(dog, dogs).
 plural(cat, cats).
 plural(child, children).
-countable(X) :- plural(X, _).
+singular(dogs, dog).
+singular(cats, cat).
+singular(children, child).
+countable(X) :- plural(X, _).      % X has some plural form
+has_plural(Y) :- plural(_, Y).     % Y is some word's plural form

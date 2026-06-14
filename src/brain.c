@@ -487,7 +487,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen12-relquery";
+    return "gen13-anon";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

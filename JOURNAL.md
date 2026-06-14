@@ -4,6 +4,35 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen13: real anonymous variables + bidirectional relations (T1)
+
+**Changed:** `brain.c` → `gen13-anon`; `rename_term` in `kb.c` fixed.
+- **Bug fix (introduced in gen12):** distinct `_` in one clause were renamed to
+  the *same* name, aliasing them. Now each `_` becomes a FRESH variable
+  (`_A<frame>_<n>`) via a per-clause anonymous counter; named vars still share
+  per frame.
+- `knowledge/grammar.pl`: `singular/2` facts and `has_plural(Y) :- plural(_, Y)`
+  (anonymous var in subject position), complementing `countable/1`.
+- Tests: grammar.sh +singular/has_plural; new `tests/anon.sh` proves two `_`
+  are independent using held-out `edge/related` (anti-impostor: not morphology).
+
+**Why:** First TASKLIST item (T1), and it was *pulled* — gen12's morphology
+needed anonymous vars, and the implementation hid a real aliasing defect. Fixed
+the engine correctly rather than papering over it.
+
+**Observed:** all green — 14 grammar + 2 anon + every prior suite. The
+`related(X) :- edge(X,_), edge(_,X)` case is true only because the two `_` no
+longer alias (verified: would be false if aliased).
+
+**Method watch (D5.1):** healthy — a correctness fix demanded by a real rule
+shape; no speculative work.
+
+**Next (TASKLIST T2):** proof traces / explanations — "why is socrates a
+mortal?" → a chain derived from the proof tree (the first explicit internal
+representation of reasoning steps).
+
+---
+
 ## 2026-06-15 — gen12: flexible relation queries (object position)
 
 **Changed:** `brain.c` → `gen12-relquery`; grammar domain extended.

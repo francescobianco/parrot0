@@ -2,31 +2,36 @@
 
 > One goal at a time. When it's done, replace this with the next one.
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
-> architectural decisions (incl. D5.1: primitives-first + the pivot duty).
+> architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: grammar v2 — sentence structure (try-first, domain-pull)
+## Goal: gen14 — proof traces / explanations (TASKLIST T2)
 
-The grammar expert can do parts of speech and morphology. The next competence
-it pulls toward is **sentence well-formedness**: e.g. "a (toy) sentence is a
-noun followed by a verb".
+parrot0 can answer from rules; now it should be able to **explain the proof**
+that made an answer true. This is the first explicit internal representation of
+reasoning steps — a candidate piece of the hidden architecture (PRINCIPLES.md).
 
-### Discipline (D5.1 — try before you build)
-1. FIRST attempt to express this with the **current** primitives only — e.g. a
-   relation `next(w1, w2)` for adjacency plus a multi-goal rule
-   `sentence(A, B) :- noun(A), next(A, B), verb(B).` in `knowledge/grammar.pl`,
-   queried with existing NL. Write `tests/grammar.sh` cases for it.
-2. ONLY if it genuinely cannot be expressed, identify the missing primitive
-   (sequences/list terms? a sentence-as-structure?) and make THAT the next gen,
-   citing the concrete blocker. Do not pre-build sequence machinery on a hunch.
+### Idea
+- Give the solver an optional **proof trace** alongside boolean success: when a
+  goal succeeds, record which fact closed it, or which rule fired plus the
+  proofs of its sub-goals (a small proof tree).
+- NL surface: "why is <x> a <y>?" and "why is <x> the <rel> of <y>?" →
+  - fact: `mortal(socrates) because man(socrates).` (or "... because it's a
+    known fact." for a base fact with no further proof)
+  - rule: name the rule and recurse into sub-goals; for multi-goal rules report
+    the supporting goals and the shared binding (e.g. `Y = bob`).
+  - false claim: "I can't show that." — never invent a reason.
 
 ### Acceptance
-- A well-formed toy sentence is recognised; an ill-formed one is rejected, via
-  the existing engine if at all possible.
-- All existing tests still pass.
-- Only bump `brain_version()` if step 2 forced an engine/NL change.
+- "why is socrates a mortal?" (with `man(socrates).`, `mortal(X):-man(X).`)
+  yields a chain naming `man(socrates)`.
+- A grandparent "why" names both `parent` facts and the intermediate binding.
+- A false "why" reports no proof, inventing nothing.
+- All existing tests pass; new `tests/*` cover fact / unary-rule / multi-goal
+  explanations with held-out predicates (anti-impostor: derived from the proof
+  tree, not canned English).
+- Bump `brain_version()` to `gen14-...`.
 
-### Notes
-- This is the moment to watch the reflexive payoff (PRINCIPLES.md): once the
-  agent has real sentence structure, it becomes the substrate for *parsing*
-  input better — the language-improves-intake loop. But don't force it; let the
-  need be demonstrated.
+### Notes (method watch — D5.1)
+- Add a proof-returning sibling to the solver without breaking `kb_query` /
+  `kb_match` callers. Keep the trace structure small and inspectable — it may
+  become reusable (planning, truth maintenance) later.
