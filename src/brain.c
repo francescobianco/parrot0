@@ -191,6 +191,14 @@ static int is_article(const char *w) {
     return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
 }
 
+/* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
+ * see DESIGN.md D6 — to become emergent meta-knowledge). */
+static void idk(const char *pred, char *out, size_t out_size) {
+    char msg[160];
+    snprintf(msg, sizeof msg, "I don't know about %s.", pred);
+    put(msg, out, out_size);
+}
+
 /* Answer a "why ...?" by rendering the proof, or admit there is none. */
 static void explain_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
@@ -305,6 +313,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * rel(X, y); object unknown: "what is the <rel> of <y>?" -> rel(y, X) */
         if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
             strcmp(w[1], "is") == 0) {
+            if (!kb_knows_pred(b->kb, rel)) { idk(rel, out, out_size); return 1; }
             const char *who_pat[]  = {NULL, obj};   /* rel(X, y) */
             const char *what_pat[] = {obj, NULL};   /* rel(y, X) */
             const char *const *pat =
@@ -327,7 +336,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (strcmp(w[0], "is") == 0) {
             const char *subj = w[1];
             const char *args[] = {subj, obj};
-            put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.", out, out_size);
+            if (!kb_knows_pred(b->kb, rel)) idk(rel, out, out_size);
+            else put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.",
+                     out, out_size);
             return 1;
         }
 
@@ -351,6 +362,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
     if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
         strcmp(w[1], "is") == 0) {
+        if (!kb_knows_pred(b->kb, cls)) { idk(cls, out, out_size); return 1; }
         const char *pat[] = {NULL}; /* one variable in arg 0 */
         char hits[64][KB_TERM_LEN];
         size_t k = kb_match(b->kb, cls, pat, 1, hits, 64);
@@ -371,7 +383,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (strcmp(w[0], "is") == 0) {
         const char *subj = w[1];
         const char *args[] = {subj};
-        put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
+        if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        else put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
         return 1;
     }
 
@@ -516,7 +529,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen15-unknown";
+    return "gen16-idk";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

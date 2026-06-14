@@ -13,9 +13,10 @@
 < Learned: dog(rex).
 > what is a dog?
 < rex.
-# No matches -> graceful answer.
+# Predicate never mentioned -> "I don't know" (gen16), distinct from a known
+# predicate with no members ("Nobody that I know of.").
 > who is a robot?
-< Nobody that I know of.
+< I don't know about robot.
 # Ground query still works (no regression).
 > is socrates a man?
 < Yes.

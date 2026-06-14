@@ -4,6 +4,38 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen16: epistemic unknowns for unseen predicates (T16, part 2)
+
+**Changed:** `brain.c` → `gen16-idk`; `kb_knows_pred` in `kb.{h,c}`.
+- Query surfaces now distinguish an unknown predicate from a known-but-false
+  goal. A never-mentioned class/relation answers "I don't know about <pred>.";
+  once the predicate is known, unprovable members still answer "No." or
+  "Nobody that I know of." as before.
+- `kb_knows_pred` checks facts and rule heads; `brain.c` uses it before unary
+  and binary ground/list queries.
+- Tests updated deliberately for the new semantics, including retraction of the
+  last fact making a predicate unknown again.
+- `DESIGN.md` records this as a hardcoded scaffold, not the destination:
+  epistemic policy should eventually move into reflective meta-knowledge.
+
+**Why:** Completes TASKLIST T16 after gen15 handled not-understood input. The
+agent now has two separate failure modes: "I don't understand that yet." for
+parse failure, and "I don't know about <pred>." for well-formed questions whose
+predicate is outside its known domain.
+
+**Observed:** all suites green — 10 conversation, 5 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** useful but temporary. The C check is intentionally
+small and documented because the north-star is reflection + negation-as-failure
+inside the KB, not permanent epistemic branching in `brain.c`.
+
+**Next:** TASKLIST T3, first narrow slice — distinguish explicit negative
+correction from simple forgetting, without building the full belief-status
+architecture up front.
+
+---
+
 ## 2026-06-15 — gen15: the parrot grows up — honest non-understanding (T16, part 1)
 
 **Changed:** `brain.c` → `gen15-unknown`.

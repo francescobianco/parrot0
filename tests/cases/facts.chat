@@ -1,8 +1,8 @@
 # Generation 4: a ground knowledge base — assert facts, query under
 # the closed-world assumption.
-# Unknown before being told (closed-world: absent => false).
+# Predicate never mentioned -> honest "I don't know" (gen16), not a false "No.".
 > is socrates a man?
-< No.
+< I don't know about man.
 # Teach a fact; it echoes the learned Prolog term.
 > socrates is a man
 < Learned: man(socrates).

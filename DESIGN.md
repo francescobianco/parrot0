@@ -129,3 +129,40 @@ and no reuse payoff materialises, pivot:
 When that day comes, the first step is an **in-RAM index** (`predicate ->
 facts/rules` hashmap) to make resolution sub-linear — *not* on-disk paging.
 Out-of-core knowledge is the last resort, gated on KB > RAM.
+
+## D6 — Behaviour as knowledge; a reflective kernel (north-star)
+
+Two user provocations converge into one direction:
+- **Non-knowledge should not be hardcoded.** The policy for "I don't know vs
+  No" should *emerge*, prolog-like, from a higher abstraction of knowledge —
+  i.e. **epistemic policy as meta-knowledge** (rules that reason about the
+  agent's own knowledge).
+- **Domain theory should be *enabling*, not peripheral.** Putting the *theory*
+  of grammar in the KB elevates it from edge/dialogic facts ("is dog a noun?")
+  to **enabling knowledge**: the machinery the agent *runs on* to parse and
+  understand language.
+
+Both say the same thing: **shrink the hardcoded C; grow behaviour as KB
+knowledge.** The C kernel trends toward a minimal **reflective meta-interpreter**;
+epistemics, parsing and grammar live as inspectable, editable knowledge. This
+meta-circular shape may itself be a piece of the hidden architecture the
+experiment seeks (PRINCIPLES.md).
+
+Enabling primitives this needs (engine, kept minimal, each tested alone):
+- **Reflection** — the KB can reason about itself (which predicates/rules
+  exist; is a goal provable). Extends the gen8 self-model (reify structure as
+  facts) to the whole schema.
+- **Negation-as-failure** (`\+` / `not`) — lets a rule say "if not provable /
+  not known, then ...".
+- **Parsing-as-rules** (TASKLIST T5, later) — NL patterns become knowledge, not
+  C string templates.
+
+With these, "I don't know vs No" becomes a rule in `knowledge/epistemics.pl`,
+and grammar becomes the engine the parser runs on — enabling, not peripheral.
+
+**Sequencing & honesty.** gen16 implements the hybrid epistemic distinction as a
+**hardcoded C scaffold** (`kb_knows_pred` + `brain.c` branches) to get the
+behaviour now, per the user's "via ibrida". It is explicitly a SCAFFOLD to be
+**subsumed** by emergent meta-knowledge once reflection + negation-as-failure
+land. Mark it; do not entrench it. Caveat: meta-circular designs are powerful
+but can get hard to debug and slow — keep the kernel small.

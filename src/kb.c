@@ -685,6 +685,15 @@ int kb_save(const KB *kb, const char *path, int origin_mask) {
     return count;
 }
 
+int kb_knows_pred(const KB *kb, const char *pred) {
+    if (!kb || !pred) return 0;
+    for (size_t i = 0; i < kb->n; i++)
+        if (strcmp(kb->facts[i].pred, pred) == 0) return 1;
+    for (size_t i = 0; i < kb->nr; i++)
+        if (strcmp(kb->rules[i].head.pred, pred) == 0) return 1;
+    return 0;
+}
+
 size_t kb_size(const KB *kb) {
     return kb ? kb->n : 0;
 }

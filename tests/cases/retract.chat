@@ -3,18 +3,18 @@
 < Learned: man(socrates).
 > is socrates a man?
 < Yes.
-# "forget that X is a Y" removes the fact.
+# "forget that X is a Y" removes the fact (and with it, knowledge of `man`).
 > forget that socrates is a man
 < Forgotten: man(socrates).
 > is socrates a man?
-< No.
+< I don't know about man.
 # "X is not a Y" is also a correction (retract the positive fact).
 > bob is a dog
 < Learned: dog(bob).
 > bob is not a dog
 < Forgotten: dog(bob).
 > is bob a dog?
-< No.
+< I don't know about dog.
 # Retracting something unknown is graceful.
 > forget that plato is a man
 < I didn't know that anyway.

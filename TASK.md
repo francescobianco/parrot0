@@ -4,38 +4,33 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen16 — epistemic states: distinguish "I don't know" from "No."
-## (TASKLIST T16 part 2, overlaps T3/T11)
+## Goal: gen17 — explicit negative knowledge vs forgetting
+## (TASKLIST T3, first narrow slice)
 
-gen15 made *not-understood* honest. The remaining half: *not-known*. Today a
-well-formed query about something absent answers a confident "No." / "Nobody"
-(closed-world conflating unknown with false). Add a genuine **unknown** state.
+gen16 treats a predicate with no remaining facts/rules as unknown. That is fine
+for "forget that X is a Y", but it makes an explicit correction ("X is not a Y")
+look identical to simple absence. Start T3 by separating those two cases.
 
-### The design question to resolve first
-When is a failed query "No." vs "I don't know"? Candidate (test it, don't
-assume): if the queried **predicate is entirely unknown** (no fact mentions it,
-no rule head defines it) → "I don't know about <pred>."; if the predicate is
-known but the goal isn't provable → "No." (closed-world *within* a known
-domain). Watch the interaction with retraction (retracting the last fact of a
-predicate makes it unknown again — is that the desired semantics?).
+### Design question
+What is the smallest belief-status layer that can represent **known false**
+without committing to the full future contradiction/conflict architecture?
 
-### Idea
-- `kb_knows_pred(pred)`: any fact with that predicate, or any rule head.
-- Query surfaces ("is X a Y?", "is X the rel of Y?", "who/what is the rel of
-  Y?") consult it: unknown predicate → "I don't know about <pred>."; else the
-  current Yes/No/list/Nobody.
+Candidate: store explicit negative ground facts in a separate KB layer or API,
+query them before positive proof, and keep them visible enough that
+`kb_knows_pred(pred)` still regards the predicate as known.
 
 ### Acceptance
-- "is zorp a blarg?" (blarg never mentioned) → "I don't know about blarg.";
-  after teaching some `blarg`, an absent member → "No."
-- Existing tests reconciled with the chosen semantics (some `No.` answers about
-  never-mentioned predicates may legitimately become "I don't know"); update
-  them deliberately, not reflexively.
-- New `tests/*` for the unknown-predicate distinction with held-out predicates.
-- Bump `brain_version()` to `gen16-...`.
+- After `bob is not a dog`, "is bob a dog?" returns `No.` because the negative
+  correction is known, not because `dog` is unknown.
+- `forget that bob is a dog` still removes only the positive fact; if no
+  positive or negative knowledge remains about `dog`, "is bob a dog?" returns
+  "I don't know about dog.".
+- A positive assertion should clear the matching negative assertion, and a
+  negative assertion should clear the matching positive assertion.
+- Persistence remains honest: saved session knowledge preserves explicit
+  corrections enough that reload answers the same way.
+- Tests cover held-out predicates; no string-specific shortcut.
 
-### Notes (method watch — D5.1)
-- This is genuinely subtle (open vs closed world). Keep the rule simple and
-  documented; if it fights retraction or rules, reconsider the semantics before
-  piling on special cases. Consider whether this wants a small `DESIGN.md` note
-  on parrot0's epistemic stance.
+### Notes
+- Do not build full source disagreement or derived-belief truth maintenance
+  yet. This generation only earns explicit known-false ground facts.

@@ -29,7 +29,7 @@ expect "verb membership"        "is run a verb?"   "Yes."
 expect "POS is exclusive"       "is dog a verb?"   "No."
 expect "derived word (noun)"    "is dog a word?"   "Yes."
 expect "derived word (verb)"    "is run a word?"   "Yes."
-expect "non-word"               "is dog a banana?" "No."
+expect "unknown category"       "is dog a banana?" "I don't know about banana."
 expect "all words (disjunction)" "who is a word?" \
        "dog, cat, language, run, speak, red, quick."
 

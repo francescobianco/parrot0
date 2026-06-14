@@ -95,6 +95,13 @@ int    kb_save(const KB *kb, const char *path, int origin_mask);
 int    kb_explain(KB *kb, const char *pred, const char *const *args,
                   size_t argc, char *out, size_t out_size);
 
+/* True if the predicate is known at all — mentioned by any fact or any rule
+ * head. Used (gen16) to tell the *not-known* ("I don't know about <pred>") from
+ * the closed-world *false* ("No.") within a known domain. NOTE: a scaffold —
+ * DESIGN.md D6 plans to replace this hardcoded epistemic check with emergent
+ * meta-knowledge (reflection + negation-as-failure). */
+int    kb_knows_pred(const KB *kb, const char *pred);
+
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);
 
