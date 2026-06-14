@@ -4,6 +4,42 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen11: n-ary relations + multi-goal rules (general SLD)
+
+**Changed:** `brain.c` → `gen11-relations`; `kb.c` engine rewritten.
+- New general term representation (constants vs variables by case), a real
+  **unification** with a substitution + binding chains, and **SLD resolution
+  with backtracking** and **standardize-apart** (rule vars renamed per frame).
+- Rules are now `head :- goal1, goal2, ...` (multi-goal bodies). `kb_assert_rule`
+  still builds the unary `head(X):-body(X)` so gen6/induction are unchanged;
+  the loader (`kb_load`) parses general rules (top-level comma split), `kb_save`
+  serialises them back.
+- `kb_query` (any arity, facts+rules) and `kb_match` (collect variable bindings)
+  both run through the new solver — old unary behaviour preserved exactly.
+- `mod_knowledge`: binary surface "<x> is the <rel> of <y>" (assert / ground
+  query / "who is the <rel> of <y>?").
+- New `tests/cases/relations.chat` and `tests/multigoal.sh` (grandparent via a
+  two-goal rule with a shared intermediate variable, incl. variable query).
+
+**Why:** The representation jump D5 flagged as a prerequisite for the grammar
+expert. North-star check (D5.1): n-ary relations + conjunctive rules are
+genuinely demanded by grammar — agreement (subject↔verb), dependency
+(head↔modifier), precedence, and "sentence = NP then VP" style rules are all
+≥2-place relations and multi-goal. Not speculative; the family-tree test is just
+the cleanest demonstration of a general engine.
+
+**Observed:** 10 conversation + 5 persistence + 3 multi-goal checks green. The
+engine rewrite preserved every prior test (the solver reduces to the old
+behaviour on unary goals).
+
+**Method watch (D5.1):** no pivot signal — this primitive is pulled by a real
+grammar need and reused engine-wide.
+
+**Next:** gen12 — richer NL parsing, so knowledge can be stated more naturally
+than the fixed templates (the bridge toward the grammar expert in gen13).
+
+---
+
 ## 2026-06-14 — gen10: retraction & correction
 
 **Changed:** `brain.c` → `gen10-retract`; `kb_retract()` in `kb.{h,c}`.

@@ -268,6 +268,49 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* --- binary relations: "<x> is the <rel> of <y>" (gen11) --- */
+    if (nw == 6 && strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
+        const char *rel = w[3], *obj = w[5];
+
+        /* variable query: "who is the <rel> of <y>?" -> rel(X, y) */
+        if (strcmp(w[0], "who") == 0 && strcmp(w[1], "is") == 0) {
+            const char *pat[] = {NULL, obj};
+            char hits[64][KB_TERM_LEN];
+            size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
+            if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
+            char list[512];
+            size_t off = 0;
+            for (size_t i = 0; i < k && off < sizeof list; i++)
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s", i ? ", " : "", hits[i]);
+            char msg[600];
+            snprintf(msg, sizeof msg, "%s.", list);
+            put(msg, out, out_size);
+            return 1;
+        }
+
+        /* ground query: "is <x> the <rel> of <y>?" -> rel(x, y)? */
+        if (strcmp(w[0], "is") == 0) {
+            const char *subj = w[1];
+            const char *args[] = {subj, obj};
+            put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.", out, out_size);
+            return 1;
+        }
+
+        /* assert: "<x> is the <rel> of <y>" -> rel(x, y) */
+        if (strcmp(w[1], "is") == 0) {
+            const char *subj = w[0];
+            const char *args[] = {subj, obj};
+            char msg[160];
+            if (kb_assert(b->kb, rel, args, 2))
+                snprintf(msg, sizeof msg, "Learned: %s(%s, %s).", rel, subj, obj);
+            else
+                snprintf(msg, sizeof msg, "I couldn't store that.");
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
     if (nw != 4 || !is_article(w[2])) return 0;
     const char *cls = w[3];
 
@@ -439,7 +482,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen10-retract";
+    return "gen11-relations";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

@@ -1,0 +1,18 @@
+# Generation 11: binary relations — assert and query relations between things.
+> tom is the parent of bob
+< Learned: parent(tom, bob).
+> is tom the parent of bob?
+< Yes.
+# Relations are directional.
+> is bob the parent of tom?
+< No.
+> bob is the parent of ann
+< Learned: parent(bob, ann).
+# Variable query on either position.
+> who is the parent of ann?
+< bob.
+> who is the parent of bob?
+< tom.
+# Unknown relation -> graceful.
+> who is the parent of zara?
+< Nobody that I know of.

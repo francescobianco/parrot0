@@ -34,6 +34,7 @@ chat: build
 test: build
 	@./tests/run.sh
 	@./tests/persist.sh
+	@./tests/multigoal.sh
 
 loop:
 	@cat LOOP.md
