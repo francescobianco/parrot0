@@ -1,0 +1,26 @@
+# Generation 7: induction — learn rules from the facts (the "training").
+> socrates is a man
+< Learned: man(socrates).
+> socrates is a mortal
+< Learned: mortal(socrates).
+> plato is a man
+< Learned: man(plato).
+> plato is a mortal
+< Learned: mortal(plato).
+# A counterexample for the reverse direction: a mortal who is not a man.
+> rex is a dog
+< Learned: dog(rex).
+> rex is a mortal
+< Learned: mortal(rex).
+# Induce: every man is mortal (2+ examples, no counterexample); NOT the
+# reverse (rex is mortal but not a man), and NOT dog->mortal (only 1 example).
+> generalize
+< Induced: mortal(X) :- man(X).
+# The induced rule generalizes to a brand-new individual never seen as mortal.
+> aristotle is a man
+< Learned: man(aristotle).
+> is aristotle a mortal?
+< Yes.
+# Nothing left to learn from the current facts.
+> generalize
+< Nothing new to generalize.

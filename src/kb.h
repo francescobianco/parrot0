@@ -32,8 +32,33 @@ void   kb_destroy(KB *kb);
  *   0  rejected (bad arity, over-long term, or KB full). */
 int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc);
 
-/* Query a ground fact. Returns 1 if present (true under closed-world), else 0. */
+/* Assert a definite rule of the form  head(X) :- body(X)  (unary, one shared
+ * variable — the shape gen6 needs). Idempotent. Returns 1 if stored/known. */
+int    kb_assert_rule(KB *kb, const char *head, const char *body);
+
+/* Query a fact. For unary queries this performs backward-chaining resolution
+ * over facts AND rules (with a depth limit); for other arities it is a direct
+ * ground lookup. Returns 1 if provable (closed-world), else 0. */
 int    kb_query(KB *kb, const char *pred, const char *const *args, size_t argc);
+
+/* Match a pattern where any arg may be a VARIABLE, signalled by passing NULL
+ * in args[i]. For every stored fact that unifies (predicate, arity, and all
+ * ground args equal), the binding of the FIRST variable slot is appended to
+ * `out` (each entry up to KB_TERM_LEN). Results are in insertion order. Returns
+ * the number of bindings written (capped at `max`). */
+size_t kb_match(const KB *kb, const char *pred, const char *const *args,
+                size_t argc, char out[][KB_TERM_LEN], size_t max);
+
+/* Induce definite rules from the ground facts — parrot0's deterministic,
+ * legible analogue of "training" (see PRINCIPLES.md). For unary predicates
+ * P, Q with P != Q: if EVERY constant c with fact P(c) also has fact Q(c),
+ * and there are at least `min_support` such constants, induce Q(X) :- P(X).
+ * Newly induced rules are asserted into the KB and reported via out_head /
+ * out_body (each up to KB_TERM_LEN). Returns the number induced (capped at
+ * `max`). Rules already present are not re-induced. */
+size_t kb_induce(KB *kb, size_t min_support,
+                 char out_head[][KB_TERM_LEN], char out_body[][KB_TERM_LEN],
+                 size_t max);
 
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);

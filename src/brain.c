@@ -9,9 +9,10 @@
  *
  * Modules may be stateless (greet, farewell), stateful (memory carries the
  * user's name across turns), or front-ends to a sub-system of their own
- * (knowledge talks to the kb.* fact store — the first fractal split). New
- * parts (and parts-of-parts) are meant to EMERGE here as future tasks demand
- * them — we do not pre-design a taxonomy.
+ * (knowledge talks to the kb.* engine — facts, unification, rules + resolution,
+ * and induction of rules from facts; the first fractal split). New parts (and
+ * parts-of-parts) are meant to EMERGE here as future tasks demand them — we do
+ * not pre-design a taxonomy.
  */
 #include "brain.h"
 #include "kb.h"
@@ -205,9 +206,73 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     char *w[8];
     size_t nw = split_words(buf, w, 8);
 
+    /* induction ("training"): "generalize" / "learn" -> induce rules from
+     * the facts and report what was learned. */
+    if (nw == 1 && (strcmp(w[0], "generalize") == 0 ||
+                    strcmp(w[0], "learn") == 0)) {
+        char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
+        size_t k = kb_induce(b->kb, 2, heads, bodies, 16);
+        if (k == 0) { put("Nothing new to generalize.", out, out_size); return 1; }
+        char msg[600];
+        size_t off = (size_t)snprintf(msg, sizeof msg, "Induced: ");
+        for (size_t i = 0; i < k && off < sizeof msg; i++) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s%s(X) :- %s(X)", i ? "; " : "",
+                                    heads[i], bodies[i]);
+        }
+        if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* rule: "every <y> is a/an <z>" -> z(X) :- y(X) */
+    if (nw == 5 && strcmp(w[0], "every") == 0 && strcmp(w[2], "is") == 0 &&
+        is_article(w[3])) {
+        const char *body = w[1], *head = w[4];
+        if (kb_assert_rule(b->kb, head, body)) {
+            char msg[128];
+            snprintf(msg, sizeof msg, "Learned rule: %s(X) :- %s(X).",
+                     head, body);
+            put(msg, out, out_size);
+        } else {
+            put("I couldn't store that rule.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (nw != 4 || !is_article(w[2])) return 0;
+    const char *cls = w[3];
+
+    /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
+    if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
+        strcmp(w[1], "is") == 0) {
+        const char *pat[] = {NULL}; /* one variable in arg 0 */
+        char hits[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, cls, pat, 1, hits, 64);
+        if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
+        char list[512];
+        size_t off = 0;
+        for (size_t i = 0; i < k && off < sizeof list; i++) {
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                    "%s%s", i ? ", " : "", hits[i]);
+        }
+        char msg[600];
+        snprintf(msg, sizeof msg, "%s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* ground query: "is <x> a <y>?" -> y(x)? */
+    if (strcmp(w[0], "is") == 0) {
+        const char *subj = w[1];
+        const char *args[] = {subj};
+        put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
     /* assert: "<x> is a <y>" -> y(x) */
-    if (nw == 4 && strcmp(w[1], "is") == 0 && is_article(w[2])) {
-        const char *subj = w[0], *cls = w[3];
+    if (strcmp(w[1], "is") == 0) {
+        const char *subj = w[0];
         const char *args[] = {subj};
         if (kb_assert(b->kb, cls, args, 1)) {
             char msg[128];
@@ -216,14 +281,6 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         } else {
             put("I couldn't store that.", out, out_size);
         }
-        return 1;
-    }
-
-    /* query: "is <x> a <y>" -> y(x)? */
-    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(w[2])) {
-        const char *subj = w[1], *cls = w[3];
-        const char *args[] = {subj};
-        put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
         return 1;
     }
 
@@ -259,7 +316,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen4-facts";
+    return "gen7-induce";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

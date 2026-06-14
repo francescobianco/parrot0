@@ -4,6 +4,81 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-14 — gen7: induction — learning rules from facts ("training")
+
+**Changed:** `brain.c` → `gen7-induce`; `kb_induce()` in `kb.{h,c}`.
+- `kb_induce(min_support)`: ILP-lite. For unary predicates P, Q (P≠Q), if every
+  constant with `P(c)` also has `Q(c)` and there are ≥ `min_support` such
+  constants, it induces and asserts `Q(X) :- P(X)`. Deterministic order;
+  already-known rules are skipped. Helpers `fact_present`, `rule_exists`.
+- `mod_knowledge`: trigger words `"generalize"` / `"learn"` run induction and
+  report the rules learned (or "Nothing new to generalize.").
+- New `tests/cases/induce.chat`: induces `mortal(X):-man(X)` (≥2 examples, no
+  counterexample), rejects the reverse (a mortal who isn't a man) and the
+  single-example `dog`, then shows the learned rule generalizing to a new
+  individual.
+
+**Why:** This is the experiment's deterministic, legible analogue of "training"
+(PRINCIPLES.md). The agent now *creates structure* (rules) from data, rather
+than being handed it. Rules induced this way generalize to unseen individuals
+via gen6 resolution — the anti-impostor property made concrete.
+
+**Observed:** `make test` green (7 cases). A live note worth keeping: with
+*symmetric* evidence (every man is mortal AND every mortal is a man among the
+known individuals), induction learns BOTH directions — correct given the data,
+but a vivid demonstration of **over-generalization from few examples**, the
+core ILP/impostor risk. Counterexamples (gen-?) and confidence are the cure.
+
+**Next:** gen8 — identity & self-reflection: reify the agent into its own KB
+(`i_am(parrot0).`, `module(...)`) and answer introspective queries from real
+state. See PRINCIPLES.md, "I know that I am".
+
+---
+
+## 2026-06-14 — gen6: rules + backward-chaining resolution
+
+**Changed:** `brain.c` → `gen6-rules`; rules + resolution in `kb.{h,c}`.
+- `kb_assert_rule(head, body)`: stores definite rules `head(X) :- body(X)`.
+- `prove1()`: backward chaining over facts + rules with a depth guard
+  (`KB_MAX_DEPTH`) against cyclic rules. `kb_query` now resolves unary goals.
+- `kb_match` for unary variable queries now resolves over rules too (walks
+  known constants, keeps the provable ones, distinct + in first-seen order).
+- `mod_knowledge`: new surface `"every <y> is a/an <z>"` → rule `z(X):-y(X)`.
+- New `tests/cases/rules.chat`: derivation, transitive chaining, and
+  **generalization to a never-asserted subject** through a rule.
+
+**Why:** This is where parrot0 stops *storing* answers and starts *deriving*
+them — the anti-impostor move from PRINCIPLES.md. "Is plato a mortal?" is true
+without ever being told, because `mortal(X):-man(X)` + `man(plato)`.
+
+**Observed:** `make test` green (6 cases). Transitive chains and new-subject
+generalization both work.
+
+**Next:** gen7 — induction: learn the rules themselves from the facts ("the
+training").
+
+---
+
+## 2026-06-14 — gen5: variables + unification
+
+**Changed:** `brain.c` → `gen5-unify`; new `kb_match()` in `kb.{h,c}`.
+- `kb_match()`: a pattern where any arg can be a variable (signalled by NULL);
+  returns the binding of the first variable for every unifying fact, in
+  insertion order.
+- `mod_knowledge` rewritten/reordered: `"who/what is a <y>?"` → `y(X)` and
+  lists the matches; ground query and assert kept, ordering fixed so a
+  question word is never mistaken for a subject.
+- New `tests/cases/unify.chat`.
+
+**Why:** Unification is the load-bearing primitive for rules (gen6) and
+induction (gen7) — built minimal but correct, with deterministic ordering.
+
+**Observed:** `make test` green (5 cases). "who is a man?" → all men, in order.
+
+**Next:** gen6 — rules + backward-chaining resolution.
+
+---
+
 ## 2026-06-14 — gen4: the knowledge base spine begins (ground facts)
 
 **Changed:** `brain.c` → `gen4-facts`; new sub-system `src/kb.{h,c}`.

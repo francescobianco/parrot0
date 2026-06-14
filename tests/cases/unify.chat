@@ -1,0 +1,21 @@
+# Generation 5: variable queries resolved by unification over the facts.
+> socrates is a man
+< Learned: man(socrates).
+> plato is a man
+< Learned: man(plato).
+> aristotle is a man
+< Learned: man(aristotle).
+# "who is a X?" binds the variable to every matching subject, in order.
+> who is a man?
+< socrates, plato, aristotle.
+# "what is a X?" works the same way.
+> rex is a dog
+< Learned: dog(rex).
+> what is a dog?
+< rex.
+# No matches -> graceful answer.
+> who is a robot?
+< Nobody that I know of.
+# Ground query still works (no regression).
+> is socrates a man?
+< Yes.

@@ -3,29 +3,31 @@
 > One goal at a time. When it's done, replace this with the next one.
 > See LOOP.md for how to work a task, and PRINCIPLES.md for why.
 
-## Goal: gen5 — variables + unification
+## Goal: gen8 — identity & self-reflection ("I know that I am")
 
-gen4 gave us a ground fact store with closed-world query. The next rung of the
-Prolog-like spine: let queries carry **variables**, resolved by **unification**
-against the stored facts.
+The KB spine (facts → unification → rules → induction) is in place. Now apply
+the identity principle from PRINCIPLES.md: give parrot0 a **self-model held in
+its own KB**, and let it answer introspective questions from *real state*, not
+hard-coded strings.
 
 ### Idea
-- A query term may contain a variable (e.g. `man(X)`); answering it means
-  finding all facts that unify and binding the variable.
-- NL surface: `"who is a <y>?"` / `"what is a <y>?"` → query `y(X)` and report
-  the matching subject(s).
-- Implement unification at the `kb.*` level (ground-vs-pattern for now), and a
-  query that returns bindings, not just a yes/no.
+- At birth, the agent asserts facts about itself: `i_am(parrot0).` and one
+  `module(<name>)` per **actually registered** module (reified from the
+  registry, so the self-description can't drift from reality).
+- New introspective surfaces, answered by querying that self-model:
+  - "who are you?" / "what are you?" → from `i_am(...)`.
+  - "what can you do?" → list the modules from `module(...)`.
+- Optionally: "do you exist?" → resolves `i_am(X)` → yes, "I am parrot0."
 
 ### Acceptance
+- Self-facts are derived from the registry, NOT a literal list (anti-impostor).
+  Adding/removing a module changes the introspective answer automatically.
 - All existing tests still pass unchanged.
-- `"who is a man?"` after asserting `man(socrates)`, `man(plato)` lists both.
-- A `"who is a <y>?"` with no matches answers gracefully (e.g. "Nobody that I
-  know of.").
-- New `tests/cases/*.chat` exercises variable queries.
-- Bump `brain_version()` to `gen5-...`.
+- New `tests/cases/self.chat` exercises the introspective queries.
+- Bump `brain_version()` to `gen8-...`.
 
 ### Notes
-- Keep unification minimal but *correct* — it is the load-bearing primitive for
-  rules (gen6) and induction (gen7). Don't cut corners here.
-- Deterministic ordering of results (insertion order) so tests are stable.
+- This is the reflexive closure of the method (PRINCIPLES.md): the agent gets a
+  model of itself in the same substrate it uses for the world.
+- Keep honest: we build the structural precondition for self-knowledge; we make
+  no claim about felt experience.

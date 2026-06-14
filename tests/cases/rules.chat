@@ -1,0 +1,25 @@
+# Generation 6: rules + backward-chaining resolution.
+> socrates is a man
+< Learned: man(socrates).
+# A rule, not a fact: every man is a mortal.
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+# Derived, not stored: resolution proves it via the rule.
+> is socrates a mortal?
+< Yes.
+# Rule chains transitively.
+> every mortal is a being
+< Learned rule: being(X) :- mortal(X).
+> is socrates a being?
+< Yes.
+# Generalization to a NEW subject through the rule (never asserted mortal).
+> plato is a man
+< Learned: man(plato).
+> is plato a mortal?
+< Yes.
+# Variable query includes rule-derived members, in order.
+> who is a mortal?
+< socrates, plato.
+# Unknown subject stays false under closed-world.
+> is rex a mortal?
+< No.
