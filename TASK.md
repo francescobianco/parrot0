@@ -4,28 +4,31 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen21 — conflict-aware explanations
-## (TASKLIST T3/T2 overlap)
+## Goal: gen22 — minimal discourse coreference
+## (SuperGLUE-like driver: linguistic foundations)
 
-gen20 makes exact conflicts visible to yes/no queries, but `why is X a Y?` can
-still render a proof for the positive side of a conflicted claim. That makes a
-disputed claim look settled.
+The benchmark-driver note in DESIGN D8 says SuperGLUE-like pressure should test
+language understanding, context and coreference. parrot0 currently treats
+pronouns as literal constants: after `dana is a pilot`, `she is a teacher` would
+store `teacher(she)` instead of resolving `she -> dana`.
 
 ### Design question
-What is the smallest explanation-level behavior that respects exact conflicts
-without building source-level proof trees?
+What is the smallest useful coreference mechanism that improves short factual
+discourse without pretending to solve full natural-language reference?
 
-Candidate: before `kb_explain`, the explanation surface checks
-`kb_is_conflicted(pred,args)`. If conflicted, it returns a compact conflict
-message instead of proving either side.
+Candidate: keep the most recent concrete entity mentioned in the knowledge
+surface. Resolve `he/she/it/they/him/her/them` to that entity for unary factual
+assertions, unary ground queries and direct belief reports. If no antecedent is
+known, answer that the referent is unknown.
 
 ### Acceptance
-- If base says `man(socrates).` and session says `not(man(socrates)).`, `why is
-  socrates a man?` reports conflict rather than `man(socrates) is a known fact.`.
-- Non-conflicted explanations keep the gen14 proof behavior.
-- False non-conflicted claims still say no proof was found.
-- Tests cover unary and binary explanation surfaces where possible.
+- `dana is a pilot` then `she is a teacher` stores `teacher(dana)`.
+- `is she a pilot?` resolves to `dana` and answers `Yes.`.
+- `what do you know about her?` reports facts about `dana`.
+- A pronoun before any antecedent is rejected honestly.
+- Keep the scope explicit: no gender/number semantics, no multi-candidate
+  resolution, no cross-module memory yet.
 
 ### Notes
-- Do not invent source explanations yet. This generation only prevents disputed
-  claims from being explained as settled truths.
+- This is a SuperGLUE-like foundation slice, not a full benchmark implementation.
+- Prefer one deterministic discourse pointer over a speculative reference model.

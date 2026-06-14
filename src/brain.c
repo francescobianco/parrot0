@@ -202,6 +202,11 @@ static void idk(const char *pred, char *out, size_t out_size) {
 /* Answer a "why ...?" by rendering the proof, or admit there is none. */
 static void explain_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
+    if (kb_is_conflicted(b->kb, pred, args, argc)) {
+        put("I have conflicting evidence for that.", out, out_size);
+        return;
+    }
+
     char ex[512];
     if (kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
         char msg[600];
@@ -548,7 +553,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen20-query-conflict";
+    return "gen21-explain-conflict";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

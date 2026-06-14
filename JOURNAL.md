@@ -4,6 +4,30 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen21: conflict-aware explanations (T3/T2 slice)
+
+**Changed:** `brain.c` → `gen21-explain-conflict`.
+- `explain_reply` now checks exact conflicts before rendering a proof.
+- A disputed claim answers `I have conflicting evidence for that.` instead of
+  citing the positive side as settled.
+- Persistence tests cover unary and binary conflicted explanations.
+- `DESIGN.md` now records the user's benchmark-driver framing: SuperGLUE,
+  MMLU and BIG-Bench Hard adapted as diagnostic pressure for parrot0.
+
+**Why:** gen20 made yes/no queries conflict-aware; explanations needed the same
+honesty so proof traces do not launder disputed claims into facts.
+
+**Observed:** all suites green — 11 conversation, 10 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** still exact-ground. No source proof tree yet; this only
+prevents an actively conflicted claim from being explained as settled.
+
+**Next:** start applying the benchmark-driver frame with a SuperGLUE-like
+foundation slice: minimal discourse coreference for short factual turns.
+
+---
+
 ## 2026-06-15 — gen20: conflict-aware ground queries (T3 slice)
 
 **Changed:** `brain.c` → `gen20-query-conflict`; `kb_is_conflicted` in `kb.{h,c}`.

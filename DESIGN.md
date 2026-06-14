@@ -186,3 +186,32 @@ forgetting. gen20 makes exact ground conflicts query-visible as `Conflicted.`.
 **Future pressure.** Conflict reporting, negative evidence through rules, and
 truth maintenance belong in later T3 generations, ideally moving toward the
 reflective/meta-knowledge direction in D6.
+
+
+## D8 — Benchmark drivers: SuperGLUE, MMLU, BIG-Bench Hard
+
+**Decision.** Use three external benchmark families as *diagnostic drivers* for
+parrot0's evolution, adapted to its deterministic C/KB architecture rather than
+copied wholesale.
+
+- **SuperGLUE driver:** pressure the linguistic foundations — language
+  understanding, short-text inference, coreference, contextual interpretation
+  and compact logical reasoning. If these fail, higher capabilities will be
+  brittle.
+- **MMLU driver:** pressure internal knowledge retrieval, question
+  understanding, disciplinary reasoning and transfer across domains. For
+  parrot0 this means small curated domain files plus held-out questions, not a
+  memorized multiple-choice corpus.
+- **BIG-Bench Hard driver:** pressure true multi-step reasoning — composed
+  inference chains, nontrivial logical steps and tasks that cannot be solved by
+  simple memory lookup.
+
+**How to use them.** Each future generation can be tagged with the benchmark
+pressure it serves (`SuperGLUE-like`, `MMLU-like`, `BBH-like`). The benchmark is
+not the goal by itself; it is a lens for discovering what parrot0 lacks and
+where the next tested capability should grow.
+
+**Ordering implication.** SuperGLUE-like foundations come first because weak
+language understanding collapses downstream RAG/agent/tool/coding-like tasks.
+MMLU-like domain transfer and BBH-like multi-step reasoning should then keep the
+system honest as knowledge and solver depth grow.

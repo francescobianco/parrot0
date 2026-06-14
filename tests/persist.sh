@@ -93,7 +93,11 @@ report="$(printf 'what do you know about socrates?
 /quit
 ' \
       | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" 2>/dev/null)"
-if [ "$out" = "Conflicted." ] && [ "$report" = "socrates is conflicted about being a man." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
+why="$(printf 'why is socrates a man?
+/quit
+' \
+      | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" 2>/dev/null)"
+if [ "$out" = "Conflicted." ] && [ "$report" = "socrates is conflicted about being a man." ] && [ "$why" = "I have conflicting evidence for that." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
     ok "session negative exposes conflict with base fact"
 else
     no "expected session correction to preserve and report base conflict"
@@ -108,8 +112,15 @@ out="$(printf 'is ada the parent of bob?
 /quit
 ' \
       | PARROT0_BASE="$binbase" PARROT0_SESSION="$binsess" "$BIN" 2>/dev/null)"
-if [ "$out" = "Conflicted." ]; then ok "binary ground conflict is query-visible"
-else no "expected binary conflict query to be Conflicted. got [$out]"; fi
+why="$(printf 'why is ada the parent of bob?
+/quit
+' \
+      | PARROT0_BASE="$binbase" PARROT0_SESSION="$binsess" "$BIN" 2>/dev/null)"
+if [ "$out" = "Conflicted." ] && [ "$why" = "I have conflicting evidence for that." ]; then
+    ok "binary ground conflict is query-visible"
+else
+    no "expected binary conflict query/explanation to be conflicted. got [$out] / [$why]"
+fi
 
 echo "---"
 echo "passed: $pass, failed: $fail"
