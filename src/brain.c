@@ -7,12 +7,14 @@
  * (produces a response) or declines (passes it on). If nobody claims it,
  * parrot0 falls back to its oldest instinct: echo.
  *
- * Modules may be stateless (greet, farewell) or stateful (memory carries the
- * user's name across turns via `Brain`). New parts (and parts-of-parts) are
- * meant to EMERGE here as future tasks demand them — we do not pre-design a
- * taxonomy.
+ * Modules may be stateless (greet, farewell), stateful (memory carries the
+ * user's name across turns), or front-ends to a sub-system of their own
+ * (knowledge talks to the kb.* fact store — the first fractal split). New
+ * parts (and parts-of-parts) are meant to EMERGE here as future tasks demand
+ * them — we do not pre-design a taxonomy.
  */
 #include "brain.h"
+#include "kb.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -23,6 +25,7 @@ struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
     char name[64];         /* the user's name, once they tell us */
     int  has_name;         /* whether `name` is set */
+    KB  *kb;               /* the knowledge base (gen4+) */
 };
 
 /* ----------------------------------------------------------------------------
@@ -157,12 +160,83 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: knowledge ---------------------------------------------------
+ * The first step of the Prolog-like spine (see PRINCIPLES.md). It translates
+ * a sliver of natural language into ground facts and ground queries over the
+ * knowledge base:
+ *
+ *   "<x> is a <y>"   /  "<x> is an <y>"   ->  assert y(x)
+ *   "is <x> a <y>?"  /  "is <x> an <y>?"  ->  query  y(x)   (closed-world)
+ *
+ * Only single-word x and y for now; richer terms emerge in later generations.
+ */
+
+/* Split `s` (modified in place) into up to `max` whitespace-separated words,
+ * storing pointers in `argv`. Returns the word count. */
+static size_t split_words(char *s, char **argv, size_t max) {
+    size_t n = 0;
+    char *p = s;
+    while (*p && n < max) {
+        while (*p && isspace((unsigned char)*p)) *p++ = '\0';
+        if (!*p) break;
+        argv[n++] = p;
+        while (*p && !isspace((unsigned char)*p)) p++;
+    }
+    return n;
+}
+
+/* "a" or "an" — the article that separates subject from class. */
+static int is_article(const char *w) {
+    return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
+}
+
+static int mod_knowledge(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    /* Work on a mutable copy with any trailing '?' stripped. */
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<x> is a <y>" -> y(x) */
+    if (nw == 4 && strcmp(w[1], "is") == 0 && is_article(w[2])) {
+        const char *subj = w[0], *cls = w[3];
+        const char *args[] = {subj};
+        if (kb_assert(b->kb, cls, args, 1)) {
+            char msg[128];
+            snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
+            put(msg, out, out_size);
+        } else {
+            put("I couldn't store that.", out, out_size);
+        }
+        return 1;
+    }
+
+    /* query: "is <x> a <y>" -> y(x)? */
+    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(w[2])) {
+        const char *subj = w[1], *cls = w[3];
+        const char *args[] = {subj};
+        put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
  * behaviour, touch only this table — not brain_respond()'s control flow. */
 static const Module registry[] = {
-    {"memory",   mod_memory},
-    {"greet",    mod_greet},
-    {"farewell", mod_farewell},
+    {"memory",    mod_memory},
+    {"knowledge", mod_knowledge},
+    {"greet",     mod_greet},
+    {"farewell",  mod_farewell},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
 
@@ -172,15 +246,20 @@ static const size_t registry_len = sizeof registry / sizeof registry[0];
 
 Brain *brain_create(void) {
     Brain *b = calloc(1, sizeof *b);
-    return b; /* may be NULL; caller handles it */
+    if (!b) return NULL;
+    b->kb = kb_create();
+    if (!b->kb) { free(b); return NULL; }
+    return b;
 }
 
 void brain_destroy(Brain *b) {
+    if (!b) return;
+    kb_destroy(b->kb);
     free(b);
 }
 
 const char *brain_version(void) {
-    return "gen3-memory";
+    return "gen4-facts";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

@@ -4,6 +4,32 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-14 — gen4: the knowledge base spine begins (ground facts)
+
+**Changed:** `brain.c` → `gen4-facts`; new sub-system `src/kb.{h,c}`.
+- `kb.{h,c}`: a ground fact store — `kb_assert` / `kb_query` over atoms like
+  `man(socrates)`, closed-world (absent => false), idempotent, growable.
+- New `mod_knowledge` (a module that fronts the KB — the first **fractal
+  split**: a part with its own sub-system): translates NL ⇄ facts:
+  `"X is a/an Y"` → assert `y(x)`; `"is X a/an Y?"` → query `y(x)`.
+- `Brain` now owns a `KB *`; create/destroy manage its lifecycle.
+- New `tests/cases/facts.chat` locks assert/query, "an", no cross-leak between
+  predicates/subjects, and no regression on non-knowledge turns.
+
+**Why:** This is the substrate for the Prolog-like direction (PRINCIPLES.md +
+the gen4–gen7 ladder). gen3's name memory was a 1-fact KB; gen4 generalises it
+into a real store with closed-world querying. Representation (pred + ground
+args) is chosen to admit variables (gen5), rules (gen6), induction (gen7)
+without a rewrite.
+
+**Observed:** `make test` green (4 cases). The fractal split happened
+*because the domain demanded it* — knowledge earned its own file.
+
+**Next:** See `TASK.md` — gen5: variables + unification, so queries like
+"who is a man?" resolve against the facts.
+
+---
+
 ## 2026-06-14 — gen3: the first stateful part (session memory)
 
 **Changed:** `brain.c` → `gen3-memory`.

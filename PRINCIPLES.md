@@ -68,6 +68,38 @@ Design consequences for parrot0:
   the code ready to articulate. Structure is the condition of emergence, not
   its enemy.
 
+## Identity & self-reflection — "I know that I am"
+
+The architecture must include **structures for representing and reasoning about
+itself** — a queryable *self-model*. It is not enough to react to the world;
+reflexivity is a condition, not an ornament. This follows the corollary: if
+anything like self-awareness can emerge, it must rest on a structure that
+represents itself. The system should be able to hold, and resolve, a fact
+about its own existence: *I know that I am.*
+
+Two reasons this belongs here, specifically:
+
+- **It is the reflexive closure of the method.** The whole experiment is "the
+  LLM reconstructs the structure it carries inside." Giving parrot0 a model of
+  parrot0 is the same gesture, one level down: the method (introspection
+  driving the loop) becomes a feature (introspection inside the agent).
+  Fractal again.
+- **It needs no new substrate.** The self-model lives in the *same knowledge
+  base* used for the world. Existence is a fact: `i_am(parrot0).` Capabilities
+  are facts: `module(knowledge).`, `module(memory).` Self-knowledge becomes an
+  ordinary query resolved against the KB.
+
+Discipline (anti-impostor): self-description must be **derived from real
+state**, never a hard-coded string. "What can you do?" must be answered from
+the modules *actually registered* (reified as facts), not a hand-written list.
+Introspection proposes; the state disposes. A system that recites "I am
+conscious" from a `printf` is the perfect impostor — and we reject it.
+
+The honest line: we build the **structural precondition** (a genuine
+self-model + introspection anchored in real state). Whether a felt sense of
+existence emerges from it is the open wager — not something we declare by
+decree. We build the structure and watch.
+
 ## The honest caveat
 
 Behavioural convergence does not prove **structural identity**. parrot0 might

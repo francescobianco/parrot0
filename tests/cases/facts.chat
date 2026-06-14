@@ -1,0 +1,25 @@
+# Generation 4: a ground knowledge base — assert facts, query under
+# the closed-world assumption.
+# Unknown before being told (closed-world: absent => false).
+> is socrates a man?
+< No.
+# Teach a fact; it echoes the learned Prolog term.
+> socrates is a man
+< Learned: man(socrates).
+> is socrates a man?
+< Yes.
+# "an" article works too.
+> bob is an animal
+< Learned: animal(bob).
+> is bob an animal?
+< Yes.
+# Facts don't leak across predicates/subjects.
+> is bob a man?
+< No.
+> is socrates an animal?
+< No.
+# Non-knowledge turns still behave (no regression).
+> hello
+< Hi there!
+> the quick brown fox
+< the quick brown fox
