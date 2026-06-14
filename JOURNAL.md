@@ -4,6 +4,32 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen12: flexible relation queries (object position)
+
+**Changed:** `brain.c` → `gen12-relquery`; grammar domain extended.
+- `mod_knowledge`: "what is the <rel> of <y>?" → `rel(y, X)` (unknown in the
+  object position), complementing "who is the <rel> of <y>?" → `rel(X, y)`.
+- `knowledge/grammar.pl`: morphology — `plural(dog, dogs).` (+ irregular
+  `child/children`) and `countable(X) :- plural(X, _).` (anonymous variable).
+- `tests/grammar.sh` extended: object-position query + the countable rule.
+
+**Why (D5.1 — domain-pulled, not speculative):** grammar v0 itself pulled this
+— "what is the plural of dog?" needs the variable in the object slot, which the
+prior NL couldn't express. Built exactly that, no more. Confirms the loop: the
+domain asks, the primitive answers.
+
+**Observed:** all green — conversation + persistence + multigoal + 11 grammar
+checks (incl. irregular plural and the anonymous-variable rule).
+
+**Method watch (D5.1):** healthy — primitive justified by a concrete demand and
+immediately consumed by the domain.
+
+**Next:** grammar pulls toward sentence structure (word order / well-formedness).
+First *try* it with current primitives; build new ones only if it genuinely
+can't be expressed (domain-pull discipline).
+
+---
+
 ## 2026-06-15 — expertise track: the first forged expert — grammar v0
 
 **Changed:** no engine change (`brain_version` stays `gen11-relations`).

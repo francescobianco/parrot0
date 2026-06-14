@@ -272,9 +272,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (nw == 6 && strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
         const char *rel = w[3], *obj = w[5];
 
-        /* variable query: "who is the <rel> of <y>?" -> rel(X, y) */
-        if (strcmp(w[0], "who") == 0 && strcmp(w[1], "is") == 0) {
-            const char *pat[] = {NULL, obj};
+        /* variable query, subject unknown: "who is the <rel> of <y>?" ->
+         * rel(X, y); object unknown: "what is the <rel> of <y>?" -> rel(y, X) */
+        if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
+            strcmp(w[1], "is") == 0) {
+            const char *who_pat[]  = {NULL, obj};   /* rel(X, y) */
+            const char *what_pat[] = {obj, NULL};   /* rel(y, X) */
+            const char *const *pat =
+                (strcmp(w[0], "what") == 0) ? what_pat : who_pat;
             char hits[64][KB_TERM_LEN];
             size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
             if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
@@ -482,7 +487,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen11-relations";
+    return "gen12-relquery";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

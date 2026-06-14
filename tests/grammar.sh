@@ -33,6 +33,12 @@ expect "non-word"               "is dog a banana?" "No."
 expect "all words (disjunction)" "who is a word?" \
        "dog, cat, language, run, speak, red, quick."
 
+# morphology (gen12): object-position variable query + a rule using it.
+expect "plural form (object query)" "what is the plural of dog?"  "dogs."
+expect "irregular plural"           "what is the plural of child?" "children."
+expect "countable via plural rule"  "is dog a countable?"          "Yes."
+expect "non-countable"              "is language a countable?"     "No."
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]

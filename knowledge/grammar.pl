@@ -17,3 +17,9 @@ adjective(quick).
 word(X) :- noun(X).
 word(X) :- verb(X).
 word(X) :- adjective(X).
+
+% --- morphology: plural forms, and the derived "countable" category ---
+plural(dog, dogs).
+plural(cat, cats).
+plural(child, children).
+countable(X) :- plural(X, _).

@@ -4,30 +4,29 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions (incl. D5.1: primitives-first + the pivot duty).
 
-## Goal: gen12 — flexible relation queries (pulled by grammar/morphology)
+## Goal: grammar v2 — sentence structure (try-first, domain-pull)
 
-**Why now (D5.1 — a real pull, not a guess):** grammar v0 works, but extending
-it to morphology immediately hit a wall: "what is the plural of dog?" wants the
-variable in the *object* position (`plural(dog, X)`), while today's NL only
-offers "who is the <rel> of <y>?" (`rel(X, y)`). The grammar domain is pulling
-for queries that can put the unknown in either argument position. This is the
-first domain-justified primitive — build exactly what it asked for, no more.
+The grammar expert can do parts of speech and morphology. The next competence
+it pulls toward is **sentence well-formedness**: e.g. "a (toy) sentence is a
+noun followed by a verb".
 
-### Idea
-- NL surface: "what is the <rel> of <y>?" → `rel(y, X)` (unknown in arg 1),
-  complementing the existing "who is the <rel> of <y>?" → `rel(X, y)`.
-- Then morphology becomes expressible in `knowledge/grammar.pl`:
-  `plural(dog, dogs).` and a rule `countable(X) :- plural(X, _).`
-- Report the bound value(s) the same way as other variable queries.
+### Discipline (D5.1 — try before you build)
+1. FIRST attempt to express this with the **current** primitives only — e.g. a
+   relation `next(w1, w2)` for adjacency plus a multi-goal rule
+   `sentence(A, B) :- noun(A), next(A, B), verb(B).` in `knowledge/grammar.pl`,
+   queried with existing NL. Write `tests/grammar.sh` cases for it.
+2. ONLY if it genuinely cannot be expressed, identify the missing primitive
+   (sequences/list terms? a sentence-as-structure?) and make THAT the next gen,
+   citing the concrete blocker. Do not pre-build sequence machinery on a hunch.
 
 ### Acceptance
-- After `plural(dog, dogs).`, "what is the plural of dog?" → "dogs."
-- `countable(X) :- plural(X, _)` resolves ("is dog a countable?" → "Yes.").
-- All existing tests still pass; extend `tests/grammar.sh` with the morphology
-  competence; bump `brain_version()` to `gen12-...` (this one IS an engine/NL
-  change).
+- A well-formed toy sentence is recognised; an ill-formed one is rejected, via
+  the existing engine if at all possible.
+- All existing tests still pass.
+- Only bump `brain_version()` if step 2 forced an engine/NL change.
 
-### Notes (method watch — D5.1)
-- Keep it to what grammar asked for. If a second domain later needs the same
-  flexibility, good — that confirms reuse. Don't pre-build positions/arities no
-  domain needs yet.
+### Notes
+- This is the moment to watch the reflexive payoff (PRINCIPLES.md): once the
+  agent has real sentence structure, it becomes the substrate for *parsing*
+  input better — the language-improves-intake loop. But don't force it; let the
+  need be demonstrated.
