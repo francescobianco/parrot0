@@ -4,6 +4,52 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-14 — gen3: the first stateful part (session memory)
+
+**Changed:** `brain.c` → `gen3-memory`.
+- `Brain` now carries `name` + `has_name` across turns.
+- New `mod_memory` (registered first): learns "my name is <X>" (preserving
+  original case), recalls on "what is my name?" and phrasing variants, handles
+  the not-yet-known case, and supports updating the name.
+- Added `copy_trim()` / `skip_ws()` helpers; included `<stdio.h>` for snprintf.
+- New `tests/cases/memory.chat` locks it in, including recall *across* an
+  intervening greeting (real cross-turn context).
+
+**Why:** Up to gen2 the brain was purely reactive — each turn answered in
+isolation. Reasoning needs context that persists. This is the smallest honest
+step into statefulness, and it exercises a module reading/writing `Brain`.
+
+**Observed:** `make test` green (3 cases). Greeting between teach and recall
+does not disturb memory — modules compose cleanly through the registry.
+
+**Next:** See `TASK.md` — gen4: let a module *decompose* into sub-parts
+(fractal articulation), or add light reflection/transformation. One step.
+
+---
+
+## 2026-06-14 — gen2: the brain becomes a system of parts
+
+**Changed:** `brain.c` → `gen2-modular`.
+- Introduced a **module protocol**: `Handler` = a part that, given normalized
+  input, either claims the turn (writes a response, returns 1) or declines (0).
+- Added an ordered **registry** of modules; `brain_respond()` walks it and the
+  first claimer wins; otherwise the gen0 parrot echo fires.
+- Re-expressed gen1's greeting & farewell logic as two modules
+  (`mod_greet`, `mod_farewell`). Behaviour identical, now articulated.
+
+**Why:** PRINCIPLES.md's corollary — structure is functional to emergence. The
+brain must be able to become a system of cooperating parts. This is the
+*capacity* to articulate; no module taxonomy is pre-designed.
+
+**Observed:** `make test` green with the existing cases unchanged — proof the
+refactor preserved behaviour exactly. Adding/removing a behaviour now touches
+only the registry table, not the dispatch flow.
+
+**Next:** See `TASK.md` — gen3: the first *stateful* part (session memory),
+which also exercises a module reading/writing `Brain` state.
+
+---
+
 ## 2026-06-14 — gen1: first intent (greetings & farewells)
 
 **Changed:** `brain.c` → `gen1-greet`.

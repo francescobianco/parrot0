@@ -3,30 +3,29 @@
 > One goal at a time. When it's done, replace this with the next one.
 > See LOOP.md for how to work a task, and PRINCIPLES.md for why.
 
-## Goal: gen2 — make the brain articulable (a module registry)
+## Goal: gen4 — fractal articulation (a part made of parts)
 
-Per PRINCIPLES.md's corollary, the brain must be able to become *a system of
-cooperating parts*, fractally. gen1 is still a flat chain of `if`s inside
-`brain_respond()`. Introduce the **infrastructure** for articulation — without
-designing the eventual modules.
+So far the registry is flat: modules are siblings. PRINCIPLES.md says the
+organization is *fractal* — any part is itself a local system. Take the first
+step toward depth: let one module be, internally, its own little registry of
+sub-parts.
 
 ### Idea
-- A "module" is a small unit that, given normalized input, may either *handle*
-  it (produce a response) or *decline* (pass to the next).
-- The brain holds an ordered **registry** of modules; `brain_respond()` walks
-  it and uses the first handler that claims the turn; if none do, it parrots.
-- Re-express gen1's greeting/farewell logic as the first two modules, so
-  behaviour is unchanged but now lives in articulated parts.
+- Pick a domain that naturally splits (candidate: a "smalltalk" module that
+  dispatches to sub-parts like "how are you", "what can you do", "thanks").
+- Implement it so the parent module owns its own ordered list of sub-handlers
+  and delegates to them — the same claim/decline protocol, one level down.
+- This proves the protocol composes recursively, without yet building a deep
+  tree.
 
 ### Acceptance
-- All existing tests (`greet.chat`, `parrot.chat`) still pass unchanged.
-- `brain.c` no longer hard-codes intents inline; they are modules in a registry.
-- A module can be added/removed by touching only the registry, not
-  `brain_respond()`'s control flow.
-- Bump `brain_version()` to `gen2-...`.
+- All existing tests still pass unchanged.
+- At least one module visibly delegates to ≥2 internal sub-parts.
+- A new `tests/cases/*.chat` exercises the nested behaviour.
+- Bump `brain_version()` to `gen4-...`.
 
 ### Notes
-- Keep it pure, deterministic, dependency-free.
-- Do NOT pre-invent a taxonomy of modules — only what gen1 already needs.
-  The point is the *capacity* to articulate, so future tasks can grow parts
-  (and parts-of-parts) as they become necessary.
+- Keep the recursion shallow and honest — depth should appear because the
+  domain demanded it, not for its own sake.
+- Watch for the impostor risk (PRINCIPLES.md): prefer behaviours that compose
+  or generalise over canned one-liners, when a choice presents itself.

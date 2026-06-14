@@ -1,4 +1,4 @@
-a# parrot0
+# parrot0
 
 A self-evolving conversational agent written in **pure C**.
 
