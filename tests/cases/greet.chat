@@ -14,6 +14,6 @@
 < Goodbye!
 > goodbye
 < Goodbye!
-# anything unrecognised still parrots (no regression)
+# anything unrecognised -> honest non-understanding (gen15; was echo)
 > tell me about C
-< tell me about C
+< I don't understand that yet.

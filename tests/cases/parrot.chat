@@ -1,8 +1,14 @@
-# The parrot fallback: anything without recognised intent is echoed verbatim.
-# (Greetings/farewells are handled in greet.chat as of gen1.)
+# Generation 15: the parrot grows up. Input it can't parse is met with an
+# honest admission of non-understanding — not echoed (the gen0 parrot is
+# retired), and not a wrong "No." (TASKLIST T16).
 > how are you?
-< how are you?
+< I don't understand that yet.
 > 12345
-< 12345
+< I don't understand that yet.
 > the quick brown fox
-< the quick brown fox
+< I don't understand that yet.
+# Other languages / gibberish: same honest fallthrough (not memorised strings).
+> bonjour comment vas-tu
+< I don't understand that yet.
+> asdf qwerty zxcv
+< I don't understand that yet.

@@ -4,6 +4,35 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen15: the parrot grows up — honest non-understanding (T16, part 1)
+
+**Changed:** `brain.c` → `gen15-unknown`.
+- The not-understood fallback is no longer the **gen0 parrot echo**. Input no
+  module can parse now gets an honest "I don't understand that yet." — the
+  founding parrot identity is deliberately outgrown (it was always gen0).
+- Tests updated where echo was the expectation: `parrot.chat` repurposed to the
+  non-understanding contract (incl. other-language/gibberish fallthrough);
+  `greet.chat` and `facts.chat` no-regression lines updated.
+
+**Why:** Raised by the user — handle what the agent does NOT understand. A chat
+probe confirmed three failure modes: not-understood was *echoed* (misleading),
+not-known was a confident "No."/"Nobody" (closed-world conflating unknown with
+false). gen15 fixes the first (clean, low-risk). The epistemic *not-known* half
+(distinguish "I don't know" from "No.") is subtler — entangled with closed-world
+and retraction — and is left, with the probe findings, as TASKLIST T16 part 2.
+
+**Observed:** all 39 checks green. Live: French/gibberish → honest admission;
+known templates and proofs unaffected.
+
+**Method watch (D5.1):** an identity decision (retiring the parrot) made under
+the user's explicit interest; reversible. The harder epistemic part is
+deliberately deferred rather than rushed.
+
+**Next:** TASKLIST T16 part 2 (not-known epistemic states) and/or T3
+(contradiction/belief) — both want a true/false/unknown response layer.
+
+---
+
 ## 2026-06-15 — gen14: proof traces / explanations (T2)
 
 **Changed:** `brain.c` → `gen14-explain`; `kb_explain` + `prove_seq_ex` in

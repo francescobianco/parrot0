@@ -361,6 +361,57 @@ Anti-impostor check:
 - Use a fresh domain fixture for each run. The binary must not know the domain
   names in advance.
 
+## T16 - Handling the unknown and the not-understood (study + design)
+
+Goal: parrot0 should deal gracefully and *distinctly* with two different gaps:
+- the NOT-KNOWN (epistemic): a well-formed query about something absent from the
+  KB — today answered "No." under closed-world, which wrongly conflates *false*
+  with *unknown*;
+- the NOT-UNDERSTOOD (linguistic): input it cannot parse at all — a different
+  language, gibberish, a malformed or off-topic sentence — today silently
+  *parroted* by the gen0 echo fallback.
+
+Method: these patterns should EMERGE from testing in chat with inputs it does
+not understand. Probe with other languages, gibberish, half-sentences, empty
+intent, questions about unknown entities, contradictory framings — and let the
+failures show what categories the agent actually needs.
+
+Tests (to be shaped by probing):
+- A clearly unparseable line is met with an honest non-understanding, not an
+  echo and not a wrong "No.".
+- A well-formed query about an unknown entity distinguishes "I don't know" from
+  "No." where the difference matters.
+- The response names, when possible, what would resolve the gap (which fact,
+  which parse).
+- Held-out: new gibberish / new unknown entities behave the same (not hard-coded
+  to specific strings).
+
+Hypotheses of evolution:
+- Dispatch needs a real "not understood" outcome distinct from "no module
+  claimed it -> echo". This RETIRES or reshapes the founding parrot-echo
+  fallback — a deliberate identity decision (the parrot was always gen0, to be
+  outgrown). `tests/cases/parrot.chat` would change.
+- The response layer needs epistemic states (true / false / unknown / not-
+  understood), overlapping with T3 and T11.
+- A "parse coverage" / confidence signal may be needed to decide when to admit
+  non-understanding vs attempt a best-effort interpretation.
+
+Anti-impostor check:
+- No special-casing fixed unknown strings. Non-understanding must be a general
+  fallthrough property, provable with novel inputs.
+
+Observed (probe, 2026-06-15) — current behaviour on inputs it can't handle:
+- French / gibberish / "the the the" / "run" / "42"  -> ECHOED verbatim (the
+  gen0 parrot), giving no sign it didn't understand.
+- "is zorp a blarg?" (unknown entities, well-formed)  -> "No." (closed-world
+  conflates *unknown* with *false*).
+- "who is the president of france?" (relation, unknown) -> "Nobody that I know
+  of." (same conflation, relational form).
+Diagnosis: the agent NEVER admits ignorance — it echoes, denies, or empties.
+Three outcomes to design: not-understood (retire/reshape echo), not-known-class
+("No." -> "I don't know"?), not-known-relation ("Nobody" -> "I don't know"?).
+The first two touch founding behaviour (parrot identity; closed-world denial).
+
 ---
 
 ## Suggested ordering

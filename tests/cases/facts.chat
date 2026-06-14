@@ -18,8 +18,8 @@
 < No.
 > is socrates an animal?
 < No.
-# Non-knowledge turns still behave (no regression).
+# Non-knowledge turns still behave; unparseable input -> honest admission.
 > hello
 < Hi there!
 > the quick brown fox
-< the quick brown fox
+< I don't understand that yet.

@@ -516,7 +516,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen14-explain";
+    return "gen15-unknown";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
@@ -533,10 +533,12 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         }
     }
 
-    /* Fallback (gen0 instinct): parrot the input back, verbatim. */
-    size_t n = strlen(input);
-    if (n >= out_size) n = out_size - 1;
-    memcpy(out, input, n);
-    out[n] = '\0';
-    return n;
+    /* Not-understood fallback. gen0 parroted the input; from gen15 the agent
+     * outgrows the parrot and admits non-understanding honestly instead of
+     * mirroring (TASKLIST T16). Distinguishing the *not-known* (a well-formed
+     * query about something absent) from the *not-understood* (unparseable
+     * input) is the remaining, subtler half left in T16. */
+    size_t n = (size_t)snprintf(out, out_size,
+                                "I don't understand that yet.");
+    return n < out_size ? n : out_size - 1;
 }
