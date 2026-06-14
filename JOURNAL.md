@@ -4,6 +4,33 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen19: source-aware conflict sketch (T3 slice)
+
+**Changed:** `brain.c` → `gen19-conflict`; conflict preservation in `kb.c`.
+- Positive/negative exact opposites still overwrite within the same provenance
+  layer, so same-session correction remains simple.
+- Opposite claims from distinct layers are preserved. A session negative can now
+  coexist with a base positive instead of deleting it from RAM.
+- `kb_describe_entity` renders exact positive/negative collisions as a direct
+  conflict, e.g. `socrates is conflicted about being a man.`.
+- Persistence tests now cover base/session disagreement while retaining the
+  same-session correction behavior from gen17.
+
+**Why:** T3 needs disagreement to be representable before it can be reasoned
+about. This keeps correction cheap while preserving a real source boundary.
+
+**Observed:** all suites green — 11 conversation, 9 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** still deliberately narrow. Conflict is exact-ground
+only and reported in the direct belief surface; query/explanation semantics are
+left for the next small steps rather than guessed wholesale.
+
+**Next:** make ground yes/no queries conflict-aware so disagreement is not
+silently flattened into `No.`.
+
+---
+
 ## 2026-06-15 — gen18: direct belief reports for entities (T3 slice)
 
 **Changed:** `brain.c` → `gen18-beliefs`; `kb_describe_entity` in `kb.{h,c}`.

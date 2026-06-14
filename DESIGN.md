@@ -176,10 +176,12 @@ clears the exact negative; a negative assertion clears the exact positive.
 Session negatives load after base facts, so they can act as tombstones for base
 claims without editing the curated base file.
 
-**Boundary.** This is not full contradiction handling. The system still does
-not preserve two disagreeing sources, compute support sets for derived beliefs,
-or explain conflicts. It only represents known-false ground claims well enough
-to distinguish correction from forgetting.
+**Boundary.** gen19 preserves exact positive/negative disagreement across
+provenance layers and reports it in direct belief summaries. This is still not
+full contradiction handling: the system does not compute support sets for
+derived beliefs or resolve conflicts. It only represents known-false and
+known-conflicted ground claims well enough to distinguish correction from
+forgetting.
 
 **Future pressure.** Conflict reporting, negative evidence through rules, and
 truth maintenance belong in later T3 generations, ideally moving toward the

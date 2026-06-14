@@ -87,10 +87,14 @@ out="$(printf 'is socrates a man?
 /quit
 ' \
       | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" 2>/dev/null)"
-if [ "$out" = "No." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
-    ok "session negative corrects base fact"
+report="$(printf 'what do you know about socrates?
+/quit
+' \
+      | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" 2>/dev/null)"
+if [ "$out" = "No." ] && [ "$report" = "socrates is conflicted about being a man." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
+    ok "session negative exposes conflict with base fact"
 else
-    no "expected session correction to override base fact"
+    no "expected session correction to preserve and report base conflict"
 fi
 
 echo "---"

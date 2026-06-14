@@ -144,6 +144,18 @@ static int fact_remove(Fact *facts, size_t *n, const Fact *needle) {
     return 0;
 }
 
+static int fact_remove_origin(Fact *facts, size_t *n, const Fact *needle,
+                              int origin) {
+    for (size_t i = 0; i < *n; i++) {
+        if (fact_eq(&facts[i], needle) && facts[i].origin == origin) {
+            memmove(&facts[i], &facts[i + 1], (*n - i - 1) * sizeof *facts);
+            (*n)--;
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int fact_append(Fact **facts, size_t *n, size_t *cap, const Fact *f) {
     if (*n == *cap) {
         size_t next = *cap ? *cap * 2 : 16;
@@ -162,7 +174,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    fact_remove(kb->neg, &kb->nn, &f);
+    fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin);
     if (kb_find(kb, &f)) return 1; /* already known — idempotent */
     f.origin = kb->origin;
     return fact_append(&kb->facts, &kb->n, &kb->cap, &f);
@@ -182,7 +194,7 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    fact_remove(kb->facts, &kb->n, &f);
+    fact_remove_origin(kb->facts, &kb->n, &f, kb->origin);
     if (kb_find_neg(kb, &f)) return 1; /* already known false */
     f.origin = kb->origin;
     return fact_append(&kb->neg, &kb->nn, &kb->ncap, &f);
@@ -786,6 +798,21 @@ static void render_fact_direct(const Fact *f, const char *entity, int neg,
     if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
 }
 
+static void render_conflict_direct(const Fact *f, const char *entity,
+                                   char *buf, size_t sz) {
+    if (f->argc == 1 && strcmp(f->args[0], entity) == 0) {
+        snprintf(buf, sz, "%s is conflicted about being a %s", entity, f->pred);
+        return;
+    }
+
+    int off = snprintf(buf, sz, "conflict: %s(", f->pred);
+    for (size_t i = 0; i < f->argc && off > 0 && (size_t)off < sz; i++) {
+        off += snprintf(buf + off, sz - (size_t)off, "%s%s",
+                        i ? ", " : "", f->args[i]);
+    }
+    if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
+}
+
 static int append_piece(char *out, size_t out_size, size_t *off,
                         const char *piece) {
     if (*off >= out_size) return 0;
@@ -811,13 +838,14 @@ int kb_describe_entity(const KB *kb, const char *entity,
         const Fact *f = &kb->facts[i];
         if (!fact_mentions(f, entity)) continue;
         char piece[220];
-        render_fact_direct(f, entity, 0, piece, sizeof piece);
+        if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
+        else render_fact_direct(f, entity, 0, piece, sizeof piece);
         if (!append_piece(out, out_size, &off, piece)) break;
         count++;
     }
     for (size_t i = 0; i < kb->nn; i++) {
         const Fact *f = &kb->neg[i];
-        if (!fact_mentions(f, entity)) continue;
+        if (!fact_mentions(f, entity) || kb_find(kb, f)) continue;
         char piece[220];
         render_fact_direct(f, entity, 1, piece, sizeof piece);
         if (!append_piece(out, out_size, &off, piece)) break;

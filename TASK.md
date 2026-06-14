@@ -4,33 +4,30 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen19 — source-aware conflict sketch
-## (TASKLIST T3, next slice)
+## Goal: gen20 — conflict-aware ground queries
+## (TASKLIST T3, query semantics slice)
 
-gen17 stores explicit negatives by clearing the matching positive, and gen18 can
-report direct beliefs. That is enough for correction, but it cannot yet represent
-source disagreement: two sources that assert opposite claims collapse into the
-last-loaded state.
+gen19 preserves source disagreement and exposes it in direct belief reports, but
+`is X a Y?` still answers `No.` when a matching positive and negative fact both
+exist. That is deterministic, but it hides the disagreement.
 
 ### Design question
-What is the smallest representation that can preserve a real conflict without
-breaking the useful correction behavior from gen17?
+What is the smallest query-level status that exposes exact ground conflicts
+without changing the solver into full truth maintenance?
 
-Candidate: keep exact positive/negative overwrite for same-session user
-correction, but introduce enough provenance/status metadata to detect when a
-base claim and a session claim disagree. The first user-facing payoff can be a
-belief report that says a claim is conflicted instead of silently choosing one.
+Candidate: add `kb_is_conflicted(pred,args)` for exact positive+negative ground
+facts. The NL ground-query surfaces check it before `kb_query`; if conflicted,
+answer `Conflicted.`. Variable queries can remain positive-fact enumeration for
+now, with the conflict visible through direct reports.
 
 ### Acceptance
-- If base says `man(socrates).` and session says `not(man(socrates)).`, a direct
-  report for socrates exposes the disagreement instead of only showing one side.
-- Same-session correction remains simple: `bob is a dog` then `bob is not a dog`
-  should still settle to the explicit negative unless a distinct source boundary
-  is present.
-- Existing query behavior remains deterministic while conflict query semantics
-  are designed explicitly.
-- Tests cover held-out predicates and both base/session and same-session cases.
+- If base says `man(socrates).` and session says `not(man(socrates)).`, `is
+  socrates a man?` answers `Conflicted.`.
+- Same-session correction still answers `No.`, not `Conflicted.`.
+- Unknown predicates still answer `I don't know about <pred>.`.
+- Binary ground queries get the same exact-conflict treatment if a conflict is
+  present in KB state.
 
 ### Notes
-- Do not rush full truth maintenance. This generation is about preserving and
-  exposing source disagreement, not solving every derived conflict.
+- This is exact-ground conflict only. Derived conflicts and variable-query
+  conflict summaries are later work.

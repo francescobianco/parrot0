@@ -37,7 +37,8 @@ void   kb_destroy(KB *kb);
  * Idempotent (asserting a known fact is a no-op). Returns:
  *   1  fact is now in the KB (added or already present),
  *   0  rejected (bad arity, over-long term, or KB full).
- * Clears the matching explicit negative fact, if any. */
+ * Clears the matching explicit negative fact from the same provenance layer, if
+ * any; opposite claims from distinct layers are preserved as conflicts. */
 int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc);
 
 /* Retract a positive ground fact if present, preserving the order of the rest.
@@ -46,7 +47,8 @@ int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc)
 int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc);
 
 /* Assert an explicit negative ground fact: known-false `pred(args...)`.
- * Idempotent. Clears the matching positive fact, if any. */
+ * Idempotent. Clears the matching positive fact from the same provenance layer,
+ * if any; opposite claims from distinct layers are preserved as conflicts. */
 int    kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                      size_t argc);
 

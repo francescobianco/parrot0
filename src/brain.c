@@ -544,7 +544,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen18-beliefs";
+    return "gen19-conflict";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
