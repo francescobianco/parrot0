@@ -24,6 +24,8 @@
 #define KB_MAX_GOALS 64 /* resolvent size ceiling                      */
 #define KB_MAX_DEPTH 64 /* resolution recursion guard (cyclic rules)   */
 #define KB_MAX_BIND  128/* bindings per substitution                   */
+#define KB_PROOF_LEN 480/* max length of a rendered proof string       */
+#define KB_PROOF_PG  16 /* goals tracked while building an explanation */
 
 /* A term: predicate + args. An arg is a constant (lowercase atom) or a
  * variable (starts uppercase or '_'). Facts are ground terms; rule heads and
@@ -383,6 +385,100 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     Subst s = { .n = 0 };
     solve(&S, &g, 1, 0, &s, 0);
     return S.count;
+}
+
+/* ----------------------------------------------------------------------------
+ * explanation: prove a goal AND render its proof tree (gen14)
+ * ------------------------------------------------------------------------- */
+
+/* Render a goal grounded by the substitution into "pred(a, b)" form. */
+static void render_goal(const Subst *s, const Term *g, char *buf, size_t sz) {
+    int off = snprintf(buf, sz, "%s(", g->pred);
+    for (size_t i = 0; i < g->argc && off > 0 && (size_t)off < sz; i++) {
+        const char *v = resolve(s, g->args[i]);
+        off += snprintf(buf + off, sz - (size_t)off, "%s%s", i ? ", " : "", v);
+    }
+    if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
+}
+
+/* Prove goals[idx..n-1] and, on success, render each goal's proof into
+ * out[idx..n-1]. A goal proven by a fact renders as the ground goal; a goal
+ * proven by a rule renders as "<goal> because <sub0> and <sub1> ...". The
+ * resolvent trick (body ++ continuation) keeps backtracking correct; the first
+ * `nbody` resulting proofs belong to the rule's body, the rest to the
+ * continuation. */
+static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
+                        const Subst *s, int depth, int *frame,
+                        char out[][KB_PROOF_LEN]) {
+    if (idx == n) return 1;
+    if (idx >= KB_PROOF_PG) return 0;
+    const Term *g = &goals[idx];
+
+    for (size_t i = 0; i < kb->n; i++) {            /* close by a fact */
+        Subst s2 = *s;
+        if (unify_term_fact(&s2, g, &kb->facts[i])) {
+            if (prove_seq_ex(kb, goals, n, idx + 1, &s2, depth, frame, out)) {
+                render_goal(&s2, g, out[idx], KB_PROOF_LEN);
+                return 1;
+            }
+        }
+    }
+
+    if (depth > KB_MAX_DEPTH) return 0;
+    for (size_t r = 0; r < kb->nr; r++) {           /* expand a rule */
+        const Rule *R = &kb->rules[r];
+        if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
+            continue;
+        int fr = ++(*frame), anon = 0;
+        Term rhead;
+        rename_term(&R->head, fr, &anon, &rhead);
+        Subst s2 = *s;
+        if (!unify_term_term(&s2, g, &rhead)) continue;
+
+        Term comb[KB_PROOF_PG];
+        size_t m = 0;
+        int overflow = 0;
+        for (size_t b = 0; b < R->nbody; b++) {
+            if (m >= KB_PROOF_PG) { overflow = 1; break; }
+            rename_term(&R->body[b], fr, &anon, &comb[m++]);
+        }
+        for (size_t k = idx + 1; k < n && !overflow; k++) {
+            if (m >= KB_PROOF_PG) { overflow = 1; break; }
+            comb[m++] = goals[k];
+        }
+        if (overflow) continue;
+
+        char cout[KB_PROOF_PG][KB_PROOF_LEN];
+        if (prove_seq_ex(kb, comb, m, 0, &s2, depth + 1, frame, cout)) {
+            char head[KB_PROOF_LEN];
+            render_goal(&s2, g, head, sizeof head);
+            int off = snprintf(out[idx], KB_PROOF_LEN, "%s because ", head);
+            for (size_t b = 0; b < R->nbody && off > 0 &&
+                               (size_t)off < KB_PROOF_LEN; b++) {
+                off += snprintf(out[idx] + off, KB_PROOF_LEN - (size_t)off,
+                                "%s%s", b ? " and " : "", cout[b]);
+            }
+            for (size_t k = idx + 1; k < n; k++)
+                strcpy(out[k], cout[R->nbody + (k - (idx + 1))]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int kb_explain(KB *kb, const char *pred, const char *const *args,
+               size_t argc, char *out, size_t out_size) {
+    if (!kb || argc > KB_MAX_ARGS || out_size == 0) return 0;
+    Term g;
+    if (!term_make(&g, pred, args, argc)) return 0;
+
+    char proofs[KB_PROOF_PG][KB_PROOF_LEN];
+    Subst s = { .n = 0 };
+    int frame = 0;
+    if (!prove_seq_ex(kb, &g, 1, 0, &s, 0, &frame, proofs)) return 0;
+
+    snprintf(out, out_size, "%s", proofs[0]);
+    return 1;
 }
 
 /* ----------------------------------------------------------------------------

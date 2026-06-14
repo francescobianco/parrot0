@@ -191,6 +191,20 @@ static int is_article(const char *w) {
     return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
 }
 
+/* Answer a "why ...?" by rendering the proof, or admit there is none. */
+static void explain_reply(Brain *b, const char *pred, const char *const *args,
+                          size_t argc, char *out, size_t out_size) {
+    char ex[512];
+    if (kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
+        char msg[600];
+        if (strstr(ex, " because ")) snprintf(msg, sizeof msg, "%s.", ex);
+        else snprintf(msg, sizeof msg, "%s is a known fact.", ex);
+        put(msg, out, out_size);
+    } else {
+        put("I can't show that.", out, out_size);
+    }
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -205,6 +219,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
+
+    /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
+    if (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
+        is_article(w[3])) {
+        const char *args[] = {w[2]};
+        explain_reply(b, w[4], args, 1, out, out_size);
+        return 1;
+    }
+    /* explanation: "why is <x> the <rel> of <y>?" -> proof of rel(x, y) */
+    if (nw == 7 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
+        strcmp(w[3], "the") == 0 && strcmp(w[5], "of") == 0) {
+        const char *args[] = {w[2], w[6]};
+        explain_reply(b, w[4], args, 2, out, out_size);
+        return 1;
+    }
 
     /* induction ("training"): "generalize" / "learn" -> induce rules from
      * the facts and report what was learned. */
@@ -487,7 +516,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen13-anon";
+    return "gen14-explain";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

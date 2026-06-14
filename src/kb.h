@@ -88,6 +88,13 @@ int    kb_load(KB *kb, const char *path);
  * written, or -1 on error. */
 int    kb_save(const KB *kb, const char *path, int origin_mask);
 
+/* Prove a goal AND, if provable, write a one-line explanation of the proof into
+ * `out` — e.g. "mortal(socrates) because man(socrates)" — derived from the
+ * actual proof tree (facts, rule chains, multi-goal bodies with their
+ * bindings). Returns 1 if proven (out filled), 0 if not (out untouched). */
+int    kb_explain(KB *kb, const char *pred, const char *const *args,
+                  size_t argc, char *out, size_t out_size);
+
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);
 

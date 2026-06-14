@@ -37,6 +37,7 @@ test: build
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh
+	@./tests/explain.sh
 
 loop:
 	@cat LOOP.md

@@ -4,6 +4,38 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen14: proof traces / explanations (T2)
+
+**Changed:** `brain.c` → `gen14-explain`; `kb_explain` + `prove_seq_ex` in
+`kb.c`.
+- `prove_seq_ex`: a proof-rendering resolver. On success it renders each goal's
+  proof — a fact as the ground goal, a rule as "<goal> because <sub> and
+  <sub>..." — using the resolvent trick (body ++ continuation) so backtracking
+  stays correct while the proof tree is reconstructed.
+- `kb_explain(pred, args, argc, out)`: prove a goal and render a one-line proof.
+- `mod_knowledge`: "why is <x> a/an <y>?" and "why is <x> the <rel> of <y>?";
+  base facts answer "<goal> is a known fact."; unprovable → "I can't show that."
+  (invents nothing).
+- New `tests/explain.sh`: fact, one-step rule, rule chain, multi-goal + binding,
+  and a false claim — held-out predicates so the text comes from the proof.
+
+**Why:** TASKLIST T2. The proof tree is the **first explicit internal
+representation of reasoning steps** (PRINCIPLES.md) — the agent can now show
+*how* it knows, not just *what*.
+
+**Observed:** all suites green incl. 5 explanation checks (e.g. "being(socrates)
+because mortal(socrates) because man(socrates)").
+
+**Method watch (D5.1):** healthy — a proof-returning sibling added without
+touching `kb_query`/`kb_match` callers; the trace is reusable later (planning,
+truth maintenance).
+
+**Next:** study/handle the UNKNOWN and the NOT-UNDERSTOOD (new TASKLIST T16,
+raised by the user) — and TASKLIST T3 (contradiction/belief). The first forces
+a decision about the founding parrot-echo fallback.
+
+---
+
 ## 2026-06-15 — gen13: real anonymous variables + bidirectional relations (T1)
 
 **Changed:** `brain.c` → `gen13-anon`; `rename_term` in `kb.c` fixed.
