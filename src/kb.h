@@ -105,6 +105,13 @@ int    kb_save(const KB *kb, const char *path, int origin_mask);
 int    kb_explain(KB *kb, const char *pred, const char *const *args,
                   size_t argc, char *out, size_t out_size);
 
+/* Render direct ground facts about `entity` into `out`, e.g.
+ * "socrates is a man; socrates is not a dog.". This is a report over stored
+ * facts only: it does not include derived beliefs. Returns 1 if anything direct
+ * was known, else 0. */
+int    kb_describe_entity(const KB *kb, const char *entity,
+                          char *out, size_t out_size);
+
 /* True if the predicate is known at all — mentioned by any fact or any rule
  * head, or explicit negative fact. Used (gen16+) to tell the *not-known*
  * ("I don't know about <pred>") from the closed-world *false* ("No.")

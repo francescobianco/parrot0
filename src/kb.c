@@ -759,6 +759,80 @@ int kb_save(const KB *kb, const char *path, int origin_mask) {
     return count;
 }
 
+
+/* ----------------------------------------------------------------------------
+ * direct belief reports (gen18)
+ * ------------------------------------------------------------------------- */
+
+static int fact_mentions(const Fact *f, const char *entity) {
+    for (size_t i = 0; i < f->argc; i++) {
+        if (strcmp(f->args[i], entity) == 0) return 1;
+    }
+    return 0;
+}
+
+static void render_fact_direct(const Fact *f, const char *entity, int neg,
+                               char *buf, size_t sz) {
+    if (f->argc == 1 && strcmp(f->args[0], entity) == 0) {
+        snprintf(buf, sz, "%s is %sa %s", entity, neg ? "not " : "", f->pred);
+        return;
+    }
+
+    int off = snprintf(buf, sz, "%s%s(", neg ? "not " : "", f->pred);
+    for (size_t i = 0; i < f->argc && off > 0 && (size_t)off < sz; i++) {
+        off += snprintf(buf + off, sz - (size_t)off, "%s%s",
+                        i ? ", " : "", f->args[i]);
+    }
+    if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
+}
+
+static int append_piece(char *out, size_t out_size, size_t *off,
+                        const char *piece) {
+    if (*off >= out_size) return 0;
+    int n = snprintf(out + *off, out_size - *off, "%s%s",
+                     *off ? "; " : "", piece);
+    if (n < 0) return 0;
+    if ((size_t)n >= out_size - *off) {
+        out[out_size - 1] = '\0';
+        return 0;
+    }
+    *off += (size_t)n;
+    return 1;
+}
+
+int kb_describe_entity(const KB *kb, const char *entity,
+                       char *out, size_t out_size) {
+    if (!kb || !term_ok(entity) || !out || out_size == 0) return 0;
+    out[0] = '\0';
+
+    size_t off = 0;
+    int count = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (!fact_mentions(f, entity)) continue;
+        char piece[220];
+        render_fact_direct(f, entity, 0, piece, sizeof piece);
+        if (!append_piece(out, out_size, &off, piece)) break;
+        count++;
+    }
+    for (size_t i = 0; i < kb->nn; i++) {
+        const Fact *f = &kb->neg[i];
+        if (!fact_mentions(f, entity)) continue;
+        char piece[220];
+        render_fact_direct(f, entity, 1, piece, sizeof piece);
+        if (!append_piece(out, out_size, &off, piece)) break;
+        count++;
+    }
+    if (count == 0) return 0;
+    if (off + 1 < out_size) {
+        out[off++] = '.';
+        out[off] = '\0';
+    } else {
+        out[out_size - 1] = '\0';
+    }
+    return 1;
+}
+
 int kb_knows_pred(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
     for (size_t i = 0; i < kb->n; i++)

@@ -1,0 +1,13 @@
+# Generation 18: direct belief reports expose stored positive and negative facts.
+> what do you know about rhea?
+< I don't know anything about rhea.
+> rhea is a pilot
+< Learned: pilot(rhea).
+> rhea is the parent of sam
+< Learned: parent(rhea, sam).
+> rhea is not a robot
+< Learned: not robot(rhea).
+> what do you know about rhea?
+< rhea is a pilot; parent(rhea, sam); rhea is not a robot.
+> what do you know about sam?
+< parent(rhea, sam).

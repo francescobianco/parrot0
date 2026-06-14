@@ -243,6 +243,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* direct belief report: "what do you know about <x>?" */
+    if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "do") == 0 &&
+        strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
+        strcmp(w[4], "about") == 0) {
+        char desc[1024];
+        if (kb_describe_entity(b->kb, w[5], desc, sizeof desc)) {
+            put(desc, out, out_size);
+        } else {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know anything about %s.", w[5]);
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
     /* induction ("training"): "generalize" / "learn" -> induce rules from
      * the facts and report what was learned. */
     if (nw == 1 && (strcmp(w[0], "generalize") == 0 ||
@@ -529,7 +544,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen17-negative";
+    return "gen18-beliefs";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

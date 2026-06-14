@@ -4,6 +4,33 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen18: direct belief reports for entities (T3 slice)
+
+**Changed:** `brain.c` → `gen18-beliefs`; `kb_describe_entity` in `kb.{h,c}`.
+- New surface: `what do you know about <x>?` reports direct ground facts about
+  an entity.
+- Positive unary facts render as `x is a pred`; explicit negative unary facts
+  render as `x is not a pred`; relation facts render as their direct KB term.
+- The report is intentionally direct-only: it does not list derived facts or
+  hide that gap behind speculation.
+- New `tests/cases/belief.chat` covers unknown entity, positive fact, relation
+  fact, negative fact and reverse relation lookup.
+
+**Why:** T3 needs belief status to be visible, not only queryable one predicate
+at a time. This gives users a compact window into the KB state created by gen17.
+
+**Observed:** all suites green — 11 conversation, 9 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** small reporting API, no new inference semantics. It
+keeps the next pressure visible: source-aware conflict reporting and derived
+belief summaries need more structure than a direct fact scan.
+
+**Next:** continue T3 toward source-aware belief status: stop treating every
+positive/negative collision as a silent overwrite once distinct sources matter.
+
+---
+
 ## 2026-06-15 — gen17: explicit negative knowledge (T3 slice)
 
 **Changed:** `brain.c` → `gen17-negative`; `kb.{h,c}` gained explicit negative
