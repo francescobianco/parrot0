@@ -16,6 +16,9 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 base="$tmp/base.pl"
 sess="$tmp/session.pl"
+neg="$tmp/negative.pl"
+corrbase="$tmp/correction-base.pl"
+corrsess="$tmp/correction-session.pl"
 
 pass=0
 fail=0
@@ -51,6 +54,44 @@ printf '/save\n/quit\n' \
     | PARROT0_BASE="$base" PARROT0_SESSION="$sess" "$BIN" >/dev/null 2>&1
 if grep -Fxq 'man(plato).' "$sess"; then no "base clause duplicated into session"
 else ok "save writes only the session delta"; fi
+
+# 6) Explicit negative knowledge persists and reloads as known false.
+printf 'zara is not a quoll\n/save\n/quit\n' \
+    | PARROT0_BASE= PARROT0_SESSION="$neg" "$BIN" >/dev/null 2>&1
+if grep -Fxq 'not(quoll(zara)).' "$neg"; then ok "saved negative fact is human-readable"
+else no "expected negative quoll fact in session file"; fi
+
+out="$(printf 'is zara a quoll?\n/quit\n' \
+      | PARROT0_BASE= PARROT0_SESSION="$neg" "$BIN" 2>/dev/null)"
+if [ "$out" = "No." ]; then ok "negative knowledge survives across runs"
+else no "after negative reload expected No. got [$out]"; fi
+
+# 7) A later positive assertion clears the matching persisted negative fact.
+printf 'zara is a quoll\n/save\n/quit\n' \
+    | PARROT0_BASE= PARROT0_SESSION="$neg" "$BIN" >/dev/null 2>&1
+if grep -Fxq 'quoll(zara).' "$neg" && ! grep -Fxq 'not(quoll(zara)).' "$neg"; then
+    ok "positive assertion clears saved negative fact"
+else
+    no "expected positive quoll fact without matching negative"
+fi
+
+# 8) A session negative fact can correct a base positive fact without editing base.
+printf 'man(socrates).
+' > "$corrbase"
+printf 'socrates is not a man
+/save
+/quit
+' \
+    | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" >/dev/null 2>&1
+out="$(printf 'is socrates a man?
+/quit
+' \
+      | PARROT0_BASE="$corrbase" PARROT0_SESSION="$corrsess" "$BIN" 2>/dev/null)"
+if [ "$out" = "No." ] && grep -Fxq 'not(man(socrates)).' "$corrsess" && grep -Fxq 'man(socrates).' "$corrbase"; then
+    ok "session negative corrects base fact"
+else
+    no "expected session correction to override base fact"
+fi
 
 echo "---"
 echo "passed: $pass, failed: $fail"

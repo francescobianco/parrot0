@@ -4,6 +4,37 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen17: explicit negative knowledge (T3 slice)
+
+**Changed:** `brain.c` → `gen17-negative`; `kb.{h,c}` gained explicit negative
+facts.
+- `kb_assert_neg` stores known-false ground facts separately from positive
+  facts. Positive and negative assertions clear their exact opposite, so the KB
+  does not keep both for the same ground claim.
+- Ground queries treat an explicit negative as known false; `kb_knows_pred`
+  counts negative facts so a predicate can be known even when it has no positive
+  members.
+- Persistence now round-trips `not(pred(args)).` session clauses. A session
+  negative can override a base positive fact without editing the base file.
+- `bob is not a dog` is no longer just forgetting: it records `not dog(bob)` and
+  later answers `No.` for the known-false claim.
+
+**Why:** First narrow slice of TASKLIST T3. gen16 separated unknown predicates
+from false answers; gen17 separates simple absence/forgetting from explicit
+negative correction.
+
+**Observed:** all suites green — 10 conversation, 9 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** still a scaffold, but a useful one: the representation
+is minimal, ground-only, and does not pretend to solve conflicts or derived
+truth maintenance yet.
+
+**Next:** continue T3 with a direct belief-status report: let the user ask what
+is known about an entity and see positive and negative ground facts.
+
+---
+
 ## 2026-06-15 — gen16: epistemic unknowns for unseen predicates (T16, part 2)
 
 **Changed:** `brain.c` → `gen16-idk`; `kb_knows_pred` in `kb.{h,c}`.

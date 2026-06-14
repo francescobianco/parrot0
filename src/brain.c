@@ -291,16 +291,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* retract (correction): "<x> is not a/an <y>" -> remove y(x) */
+    /* explicit negative correction: "<x> is not a/an <y>" -> not y(x) */
     if (nw == 5 && strcmp(w[1], "is") == 0 && strcmp(w[2], "not") == 0 &&
         is_article(w[3])) {
         const char *subj = w[0], *cl = w[4];
         const char *args[] = {subj};
         char msg[128];
-        if (kb_retract(b->kb, cl, args, 1))
-            snprintf(msg, sizeof msg, "Forgotten: %s(%s).", cl, subj);
+        if (kb_assert_neg(b->kb, cl, args, 1))
+            snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
         else
-            snprintf(msg, sizeof msg, "I didn't know that anyway.");
+            snprintf(msg, sizeof msg, "I couldn't store that.");
         put(msg, out, out_size);
         return 1;
     }
@@ -529,7 +529,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen16-idk";
+    return "gen17-negative";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

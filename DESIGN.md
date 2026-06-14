@@ -166,3 +166,21 @@ behaviour now, per the user's "via ibrida". It is explicitly a SCAFFOLD to be
 **subsumed** by emergent meta-knowledge once reflection + negation-as-failure
 land. Mark it; do not entrench it. Caveat: meta-circular designs are powerful
 but can get hard to debug and slow — keep the kernel small.
+
+
+## D7 — Explicit negatives are a narrow belief-status layer
+
+**Decision.** gen17 adds explicit negative ground facts, persisted as
+`not(pred(args)).`, as a minimal T3 belief-status layer. A positive assertion
+clears the exact negative; a negative assertion clears the exact positive.
+Session negatives load after base facts, so they can act as tombstones for base
+claims without editing the curated base file.
+
+**Boundary.** This is not full contradiction handling. The system still does
+not preserve two disagreeing sources, compute support sets for derived beliefs,
+or explain conflicts. It only represents known-false ground claims well enough
+to distinguish correction from forgetting.
+
+**Future pressure.** Conflict reporting, negative evidence through rules, and
+truth maintenance belong in later T3 generations, ideally moving toward the
+reflective/meta-knowledge direction in D6.

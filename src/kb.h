@@ -36,13 +36,23 @@ void   kb_destroy(KB *kb);
 /* Assert a ground fact: predicate `pred` with `argc` ground argument atoms.
  * Idempotent (asserting a known fact is a no-op). Returns:
  *   1  fact is now in the KB (added or already present),
- *   0  rejected (bad arity, over-long term, or KB full). */
+ *   0  rejected (bad arity, over-long term, or KB full).
+ * Clears the matching explicit negative fact, if any. */
 int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc);
 
-/* Retract a ground fact if present, preserving the order of the rest. Returns
- * 1 if a fact was removed, 0 if it wasn't there. (Closed-world correction:
- * remove the positive fact rather than store an explicit negation.) */
+/* Retract a positive ground fact if present, preserving the order of the rest.
+ * Returns 1 if a fact was removed, 0 if it was not there. Does not remove
+ * explicit negative knowledge. */
 int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc);
+
+/* Assert an explicit negative ground fact: known-false `pred(args...)`.
+ * Idempotent. Clears the matching positive fact, if any. */
+int    kb_assert_neg(KB *kb, const char *pred, const char *const *args,
+                     size_t argc);
+
+/* True if the exact ground fact is explicitly known false. */
+int    kb_is_negated(const KB *kb, const char *pred, const char *const *args,
+                     size_t argc);
 
 /* Assert a definite rule of the form  head(X) :- body(X)  (unary, one shared
  * variable — the shape gen6 needs). Idempotent. Returns 1 if stored/known. */
@@ -96,8 +106,9 @@ int    kb_explain(KB *kb, const char *pred, const char *const *args,
                   size_t argc, char *out, size_t out_size);
 
 /* True if the predicate is known at all — mentioned by any fact or any rule
- * head. Used (gen16) to tell the *not-known* ("I don't know about <pred>") from
- * the closed-world *false* ("No.") within a known domain. NOTE: a scaffold —
+ * head, or explicit negative fact. Used (gen16+) to tell the *not-known*
+ * ("I don't know about <pred>") from the closed-world *false* ("No.")
+ * within a known domain. NOTE: a scaffold —
  * DESIGN.md D6 plans to replace this hardcoded epistemic check with emergent
  * meta-knowledge (reflection + negation-as-failure). */
 int    kb_knows_pred(const KB *kb, const char *pred);

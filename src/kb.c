@@ -8,6 +8,7 @@
  *   - induction of rules from facts (kb_induce)    (gen7)
  *   - human-readable persistence + provenance      (gen9)
  *   - retraction / correction (kb_retract)         (gen10)
+ *   - explicit negative ground facts                (gen17)
  *   - n-ary relations + multi-goal rules + general SLD resolution with
  *     backtracking and standardize-apart           (gen11)
  * Everything is held in RAM (DESIGN.md D1); the file format is transparent
@@ -55,6 +56,9 @@ struct KB {
     Fact  *facts;
     size_t n;
     size_t cap;
+    Fact  *neg;
+    size_t nn;
+    size_t ncap;
     Rule  *rules;
     size_t nr;
     size_t rcap;
@@ -74,6 +78,7 @@ void kb_set_origin(KB *kb, int origin) {
 void kb_destroy(KB *kb) {
     if (!kb) return;
     free(kb->facts);
+    free(kb->neg);
     free(kb->rules);
     free(kb);
 }
@@ -113,11 +118,42 @@ static int fact_eq(const Fact *a, const Fact *b) {
     return 1;
 }
 
-static const Fact *kb_find(const KB *kb, const Fact *needle) {
-    for (size_t i = 0; i < kb->n; i++) {
-        if (fact_eq(&kb->facts[i], needle)) return &kb->facts[i];
+static const Fact *fact_find(const Fact *facts, size_t n, const Fact *needle) {
+    for (size_t i = 0; i < n; i++) {
+        if (fact_eq(&facts[i], needle)) return &facts[i];
     }
     return NULL;
+}
+
+static const Fact *kb_find(const KB *kb, const Fact *needle) {
+    return fact_find(kb->facts, kb->n, needle);
+}
+
+static const Fact *kb_find_neg(const KB *kb, const Fact *needle) {
+    return fact_find(kb->neg, kb->nn, needle);
+}
+
+static int fact_remove(Fact *facts, size_t *n, const Fact *needle) {
+    for (size_t i = 0; i < *n; i++) {
+        if (fact_eq(&facts[i], needle)) {
+            memmove(&facts[i], &facts[i + 1], (*n - i - 1) * sizeof *facts);
+            (*n)--;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int fact_append(Fact **facts, size_t *n, size_t *cap, const Fact *f) {
+    if (*n == *cap) {
+        size_t next = *cap ? *cap * 2 : 16;
+        Fact *grown = realloc(*facts, next * sizeof *grown);
+        if (!grown) return 0;
+        *facts = grown;
+        *cap = next;
+    }
+    (*facts)[(*n)++] = *f;
+    return 1;
 }
 
 int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
@@ -126,34 +162,38 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
+    fact_remove(kb->neg, &kb->nn, &f);
     if (kb_find(kb, &f)) return 1; /* already known — idempotent */
     f.origin = kb->origin;
-
-    if (kb->n == kb->cap) {
-        size_t cap = kb->cap ? kb->cap * 2 : 16;
-        Fact *grown = realloc(kb->facts, cap * sizeof *grown);
-        if (!grown) return 0;
-        kb->facts = grown;
-        kb->cap = cap;
-    }
-    kb->facts[kb->n++] = f;
-    return 1;
+    return fact_append(&kb->facts, &kb->n, &kb->cap, &f);
 }
 
 int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
+    return fact_remove(kb->facts, &kb->n, &f);
+}
 
-    for (size_t i = 0; i < kb->n; i++) {
-        if (fact_eq(&kb->facts[i], &f)) {
-            memmove(&kb->facts[i], &kb->facts[i + 1],
-                    (kb->n - i - 1) * sizeof *kb->facts);
-            kb->n--;
-            return 1;
-        }
-    }
-    return 0;
+int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
+                  size_t argc) {
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return 0;
+
+    fact_remove(kb->facts, &kb->n, &f);
+    if (kb_find_neg(kb, &f)) return 1; /* already known false */
+    f.origin = kb->origin;
+    return fact_append(&kb->neg, &kb->nn, &kb->ncap, &f);
+}
+
+int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
+                  size_t argc) {
+    if (!kb || argc > KB_MAX_ARGS) return 0;
+    Fact f;
+    if (!fact_make(&f, pred, args, argc)) return 0;
+    return kb_find_neg(kb, &f) != NULL;
 }
 
 /* ----------------------------------------------------------------------------
@@ -350,6 +390,8 @@ static int term_make(Term *t, const char *pred, const char *const *args,
 
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
+    if (kb_is_negated(kb, pred, args, argc)) return 0;
+
     Term g;
     if (!term_make(&g, pred, args, argc)) return 0;
 
@@ -576,6 +618,18 @@ static int parse_to_term(const char *s, Term *t) {
     return parse_term(s, t->pred, t->args, &t->argc);
 }
 
+static int parse_neg_term(const char *s, char *pred,
+                          char args[][KB_TERM_LEN], size_t *argc) {
+    size_t n = strlen(s);
+    if (n < 7 || strncmp(s, "not(", 4) != 0 || s[n - 1] != ')') return 0;
+    char inner[1024];
+    size_t len = n - 5; /* strip "not(" and the final ')' */
+    if (len == 0 || len >= sizeof inner) return 0;
+    memcpy(inner, s + 4, len);
+    inner[len] = '\0';
+    return parse_term(inner, pred, args, argc);
+}
+
 /* Split a rule body into goal strings on top-level (depth-0) commas. The
  * input buffer is modified in place. */
 static size_t split_goals(char *body, char *goals[], size_t max) {
@@ -614,6 +668,16 @@ int kb_load(KB *kb, const char *path) {
             while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
         }
         if (n == 0) continue;
+
+        char neg_pred[KB_TERM_LEN];
+        char neg_args[KB_MAX_ARGS][KB_TERM_LEN];
+        size_t neg_argc;
+        if (parse_neg_term(s, neg_pred, neg_args, &neg_argc)) {
+            const char *argp[KB_MAX_ARGS];
+            for (size_t i = 0; i < neg_argc; i++) argp[i] = neg_args[i];
+            if (kb_assert_neg(kb, neg_pred, argp, neg_argc)) count++;
+            continue;
+        }
 
         char *arrow = strstr(s, ":-");
         if (arrow) {                                /* rule: head :- goals */
@@ -669,6 +733,16 @@ int kb_save(const KB *kb, const char *path, int origin_mask) {
         fprintf(f, ").\n");
         count++;
     }
+    for (size_t i = 0; i < kb->nn; i++) {
+        const Fact *fa = &kb->neg[i];
+        if (!(fa->origin & origin_mask)) continue;
+        fprintf(f, "not(%s(", fa->pred);
+        for (size_t j = 0; j < fa->argc; j++) {
+            fprintf(f, "%s%s", j ? ", " : "", fa->args[j]);
+        }
+        fprintf(f, ")).\n");
+        count++;
+    }
     for (size_t i = 0; i < kb->nr; i++) {
         const Rule *r = &kb->rules[i];
         if (!(r->origin & origin_mask)) continue;
@@ -689,6 +763,8 @@ int kb_knows_pred(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
     for (size_t i = 0; i < kb->n; i++)
         if (strcmp(kb->facts[i].pred, pred) == 0) return 1;
+    for (size_t i = 0; i < kb->nn; i++)
+        if (strcmp(kb->neg[i].pred, pred) == 0) return 1;
     for (size_t i = 0; i < kb->nr; i++)
         if (strcmp(kb->rules[i].head.pred, pred) == 0) return 1;
     return 0;

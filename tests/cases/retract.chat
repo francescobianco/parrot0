@@ -8,13 +8,20 @@
 < Forgotten: man(socrates).
 > is socrates a man?
 < I don't know about man.
-# "X is not a Y" is also a correction (retract the positive fact).
+# "X is not a Y" stores explicit negative knowledge and clears positive fact.
 > bob is a dog
 < Learned: dog(bob).
 > bob is not a dog
-< Forgotten: dog(bob).
+< Learned: not dog(bob).
 > is bob a dog?
-< I don't know about dog.
+< No.
+> who is a dog?
+< Nobody that I know of.
+# A later positive assertion clears the matching negative fact.
+> bob is a dog
+< Learned: dog(bob).
+> is bob a dog?
+< Yes.
 # Retracting something unknown is graceful.
 > forget that plato is a man
 < I didn't know that anyway.
