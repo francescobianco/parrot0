@@ -4,6 +4,30 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — expertise track: the first forged expert — grammar v0
+
+**Changed:** no engine change (`brain_version` stays `gen11-relations`).
+- `knowledge/grammar.pl`: parts of speech (`noun`/`verb`/`adjective`) + category
+  rules `word(X) :- noun(X). word(X) :- verb(X). word(X) :- adjective(X).`
+  (multiple clauses per head = disjunction — exercised live).
+- `tests/grammar.sh`: loads the domain and proves competence (POS membership,
+  derived `word/1`, negatives, `who is a word?`).
+
+**Why (pivot duty exercised — D5.1):** the planned "richer NL parsing" primitive
+was speculative (parsing before any grammar knowledge is backwards). Switched to
+**domain-pull**: forge a real, tested expert slice on the existing engine. This
+also surfaced an axis insight — **expertise (knowledge + tests) is orthogonal to
+brain/engine generations**; a forged expert needs no version bump.
+
+**Observed:** 7 grammar checks green, all prior tests still green. The
+forge-an-expert pipeline (D5: clauses + tests + exported predicates) works end
+to end. Exports `noun/verb/adjective/word` for higher layers.
+
+**Next:** let the grammar domain pull the next need (morphology? sentence
+structure? then parsing) — the demand, not a guess, picks what comes next.
+
+---
+
 ## 2026-06-15 — gen11: n-ary relations + multi-goal rules (general SLD)
 
 **Changed:** `brain.c` → `gen11-relations`; `kb.c` engine rewritten.

@@ -35,6 +35,7 @@ test: build
 	@./tests/run.sh
 	@./tests/persist.sh
 	@./tests/multigoal.sh
+	@./tests/grammar.sh
 
 loop:
 	@cat LOOP.md
