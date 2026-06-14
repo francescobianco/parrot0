@@ -33,6 +33,7 @@ chat: build
 
 test: build
 	@./tests/run.sh
+	@./tests/persist.sh
 
 loop:
 	@cat LOOP.md

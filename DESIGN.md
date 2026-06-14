@@ -55,7 +55,43 @@ file), `induced` (created by `kb_induce`), or `reflective` (the self-model:
 - **Keep induction honest.** Induce from `base`/`session` facts; mark results
   `induced` so they aren't mistaken for given data on the next run.
 
-## D4 — Indexing is deferred (in-RAM first, disk last)
+## D5 — Growth by "forging experts": expertise as composable, tested domains
+
+**Decision (direction).** parrot0 grows by becoming an *expert*, one domain at a
+time, where each domain is **usable on its own** and a **substrate** for the
+next. This is the intended large-scale use of the layered knowledge from D1-D3.
+
+**An expertise domain is a triple:**
+1. **clauses** — a knowledge file (e.g. `knowledge/grammar.pl`): the domain's
+   facts + rules;
+2. **tests** — the held-out tasks that *demonstrate* competence (anti-impostor:
+   expertise is shown by doing, not declared by accumulating rules);
+3. **exported predicates** — the interface higher domains may build on.
+
+"Usable" := passes its tests. "Substrate" := exports predicates. Forging an
+expert is therefore a sequence of loop iterations whose acceptance criterion is
+"passes the domain's tests".
+
+**It is a dependency DAG, not a flat list.** Domains stack: rhetoric presupposes
+grammar. Each domain exports predicates the layers above consume. Breadth
+emerges; the load-bearing structure is the dependency depth.
+
+**Language is the root, chosen deliberately.** parrot0's intake (NL → facts)
+is today hard-coded patterns. Making *language/grammar* the first forged expert
+is the highest-leverage move because it is **reflexive**: better language
+expertise improves the very mechanism by which all later knowledge enters. It
+mirrors the experiment's own reflexive method (PRINCIPLES.md) at the knowledge
+level: the knowledge that improves how knowledge arrives.
+
+**Roadmap implication.** Reaching real grammar/rhetoric needs richer
+representation than today's unary facts: n-ary **relations** → rules with
+multi-goal bodies → richer parsing → scaled induction. The near-term logic
+generations are the prerequisites for the first forged expert.
+
+**Honest caveat.** Symbolic domain expertise is exactly where GOFAI was
+brittle (natural language is all exceptions). The defences are the same as
+elsewhere: per-domain held-out tests, retraction/correction (gen10), and later
+confidence/negation — competence must be earned on unseen cases.
 
 **Decision.** No index until a profile shows linear scans are the bottleneck.
 When that day comes, the first step is an **in-RAM index** (`predicate ->

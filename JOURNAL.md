@@ -4,6 +4,38 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-14 — gen9: persistent, human-readable, composable knowledge
+
+**Changed:** `brain.c` → `gen9-persist`; persistence + provenance in
+`kb.{h,c}`; knowledge loading wired into `main.c`.
+- Provenance per clause (`KB_BASE`/`KB_SESSION`/`KB_INDUCED`/`KB_REFLECTIVE`),
+  set via `kb_set_origin`; induced rules tagged `KB_INDUCED`; the self-model
+  tagged `KB_REFLECTIVE`.
+- `kb_load(path)`: parses Prolog-like text (`pred(a, b).`, `head(X):-body(X).`,
+  `%` comments) and **unions** clauses into the KB — so files JOIN.
+- `kb_save(path, mask)`: writes back only the selected layers, same readable
+  format. `brain_save_session` persists `SESSION|INDUCED`, never reflective.
+- `main.c`: loads `knowledge/base.pl` + `knowledge/session.pl` (paths via
+  `PARROT0_BASE`/`PARROT0_SESSION`; empty disables — used for hermetic tests);
+  `/save` command writes the session delta.
+- `knowledge/base.pl` seed added; `session.pl` gitignored. New
+  `tests/persist.sh` (round-trip, no-reflective-leak, base+session join, no
+  base duplication); `tests/run.sh` made hermetic.
+
+**Why:** DESIGN.md D1-D3. Knowledge becomes a durable, transparent artifact:
+readable, hand-editable, diffable in git, and composable (base + discovered).
+New knowledge from conversation is saved in the *same* format and can be
+promoted session→base by moving lines.
+
+**Observed:** 8 conversation + 5 persistence checks green. A fresh parrot0 now
+boots already knowing its base, and facts taught in one run survive into the
+next.
+
+**Next:** gen10 — retraction & correction: "forget that X is a Y" / "X is not a
+Y", so knowledge (and the saved delta) can be corrected, not only grown.
+
+---
+
 ## 2026-06-14 — gen8: identity & self-reflection ("I know that I am")
 
 **Changed:** `brain.c` → `gen8-self`; new `mod_self`.

@@ -15,6 +15,9 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 
+# Hermetic: disable knowledge-file loading so cases don't depend on knowledge/.
+export PARROT0_BASE= PARROT0_SESSION=
+
 if [ ! -x "$BIN" ]; then
     echo "test: binary not built ($BIN)" >&2
     exit 1

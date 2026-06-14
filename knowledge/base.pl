@@ -1,0 +1,11 @@
+% parrot0 base knowledge — curated, human-readable, hand-editable.
+% Format: one clause per line. Facts: pred(arg, ...).  Rules: head(X) :- body(X).
+% Loaded fully into RAM at startup and JOINed with knowledge/session.pl.
+% See DESIGN.md (D1-D3) and PRINCIPLES.md.
+
+% --- a tiny seed so a fresh parrot0 already knows something ---
+man(socrates).
+man(plato).
+
+% every man is mortal (a rule, derived on demand by resolution)
+mortal(X) :- man(X).

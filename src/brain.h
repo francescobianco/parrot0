@@ -32,4 +32,13 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size);
  * Bump this whenever the algorithm meaningfully changes. */
 const char *brain_version(void);
 
+/* Load a knowledge file into the brain's KB. `as_base` non-zero tags the
+ * loaded clauses as base knowledge, otherwise as session knowledge. An
+ * empty/NULL path or missing file is a no-op. Returns clauses loaded. */
+int brain_load(Brain *b, const char *path, int as_base);
+
+/* Persist the session delta (session + induced clauses, never the reflective
+ * self-model) to `path`. Returns clauses written, or -1 on error. */
+int brain_save_session(Brain *b, const char *path);
+
 #endif /* PARROT0_BRAIN_H */

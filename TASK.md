@@ -4,34 +4,33 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions.
 
-## Goal: gen9 — persistent, human-readable, composable knowledge
+## Goal: gen10 — retraction & correction
 
-Today the KB is session-only: it lives in RAM and dies at `/quit`. Give parrot0
-durable knowledge as **human-readable Prolog-like text** (DESIGN.md D1–D3),
-loaded fully into RAM, composable from layers, with correct save.
+So far knowledge only grows. Real understanding also means being *wrong and
+fixing it*. Let parrot0 retract knowledge, so the KB (and the saved session
+delta) can be corrected, not only extended.
 
 ### Idea
-- A text format that round-trips: `man(socrates).` and `mortal(X) :- man(X).`,
-  one clause per line, comments with `%` ignored.
-- `kb_load(path)`: parse a file and union its clauses into the KB (so multiple
-  files **join** — e.g. a base file + a session file).
-- `kb_save(path, which)`: serialise clauses back to text. Provenance per clause
-  (`base` / `session` / `induced` / `reflective`); save writes only the chosen
-  layer (default: `session` + `induced`), and NEVER the `reflective` self-model.
-- Wire into the app: load `knowledge/base.pl` (+ `knowledge/session.pl` if
-  present) at startup; a `/save` command (or save on `/quit`) writes the session
-  delta back. Keep `main.c` changes minimal.
+- `kb_retract(pred, args, argc)`: remove a ground fact if present (returns
+  whether something was removed). Optionally `kb_retract_rule(head, body)`.
+- NL surface in `mod_knowledge`:
+  - "forget that <x> is a <y>" → retract `y(x)`.
+  - "<x> is not a <y>" → retract `y(x)` (and confirm).
+- After retraction, queries reflect the change immediately, and `/save` writes
+  the corrected delta.
 
 ### Acceptance
-- A fact taught in one run is present in the next run (after save), proven by a
-  test that runs the binary twice against a temp knowledge file.
-- Loading base + session yields the union (a "join" test).
-- Saving never duplicates base clauses and never writes reflective facts.
-- All existing tests still pass; new `tests/cases/*` (or a small script) covers
-  load/save round-trip.
-- Bump `brain_version()` to `gen9-...`.
+- Teaching then retracting a fact makes the query go back to "No.".
+- Retraction is reported clearly; retracting an unknown fact says so gracefully.
+- Retraction interacts sanely with rules (retracting `man(socrates)` makes
+  `mortal(socrates)` underivable if it depended only on that fact).
+- All existing tests still pass; new `tests/cases/*` (or persist check) covers
+  retract + corrected save.
+- Bump `brain_version()` to `gen10-...`.
 
 ### Notes
-- Parser stays small but forgiving (trim, skip blanks/comments); reject
-  malformed lines without crashing.
-- Defer any indexing (DESIGN.md D4) — this task is about persistence, not speed.
+- Keep closed-world semantics: "X is not a Y" means *remove the positive
+  fact*, not store an explicit negation (negation is a larger, later step).
+- Watch provenance: retracting a `base` fact in a session — does it persist?
+  For now, retraction removes from RAM; decide later whether to record
+  "tombstones" for base corrections. Note the decision in DESIGN.md if taken.

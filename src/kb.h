@@ -20,6 +20,13 @@
 #define KB_MAX_ARGS 4   /* arity ceiling for now */
 #define KB_TERM_LEN 64  /* max length of a predicate or argument atom */
 
+/* Provenance of a clause (bit flags, so save can select layers). See DESIGN.md
+ * D3: knowledge is composed from layers, and only some are persisted. */
+#define KB_BASE       1 /* curated, hand-authorable, long-lived             */
+#define KB_SESSION    2 /* asserted this run / loaded from a session file   */
+#define KB_INDUCED    4 /* created by kb_induce                             */
+#define KB_REFLECTIVE 8 /* the self-model (i_am/module) — never persisted   */
+
 typedef struct KB KB;
 
 /* Create / destroy a knowledge base. Returns NULL on allocation failure. */
@@ -59,6 +66,22 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
 size_t kb_induce(KB *kb, size_t min_support,
                  char out_head[][KB_TERM_LEN], char out_body[][KB_TERM_LEN],
                  size_t max);
+
+/* Set the provenance tag applied to clauses asserted from now on (default
+ * KB_SESSION). Used to mark a file as base vs session at load time. */
+void   kb_set_origin(KB *kb, int origin);
+
+/* Load clauses from a human-readable Prolog-like file and union them into the
+ * KB (so multiple files JOIN). Format: one clause per line, `pred(a, b).` or
+ * `head(X) :- body(X).`, blank lines and `%` comments ignored, malformed lines
+ * skipped. An empty/NULL path or a missing file is a no-op. Returns the number
+ * of clauses loaded. */
+int    kb_load(KB *kb, const char *path);
+
+/* Write clauses whose provenance matches `origin_mask` (e.g. KB_SESSION |
+ * KB_INDUCED) to `path`, in the same readable format. Returns the number
+ * written, or -1 on error. */
+int    kb_save(const KB *kb, const char *path, int origin_mask);
 
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);

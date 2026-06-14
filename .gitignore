@@ -2,6 +2,9 @@
 /obj/
 /bin/
 
+# generated session knowledge (base.pl is curated & tracked)
+/knowledge/session.pl
+
 # editor / OS noise
 *.o
 *.out

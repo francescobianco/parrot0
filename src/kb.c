@@ -1,13 +1,19 @@
 /*
- * kb.c - ground fact store (gen4).
+ * kb.c - parrot0's logic engine (gen4-gen9).
  *
- * The simplest knowledge base that is still honestly a knowledge base: a flat
- * set of ground facts with assert + closed-world query. No variables, no
- * rules, no inference yet — those are later generations. The point of gen4 is
- * the substrate everything else will stand on.
+ * Grown one generation at a time into a small Prolog-like core:
+ *   - ground facts + closed-world query           (gen4)
+ *   - unification / variable queries (kb_match)   (gen5)
+ *   - definite rules + backward-chaining (prove1) (gen6)
+ *   - induction of rules from facts (kb_induce)   (gen7)
+ *   - human-readable persistence + provenance     (gen9)
+ * Everything is held in RAM (DESIGN.md D1); the file format is transparent
+ * text so knowledge stays inspectable, diffable and hand-editable.
  */
 #include "kb.h"
 
+#include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -15,12 +21,14 @@ typedef struct {
     char   pred[KB_TERM_LEN];
     size_t argc;
     char   args[KB_MAX_ARGS][KB_TERM_LEN];
+    int    origin;
 } Fact;
 
 /* A definite rule  head(X) :- body(X)  (unary, one shared variable). */
 typedef struct {
     char head[KB_TERM_LEN];
     char body[KB_TERM_LEN];
+    int  origin;
 } Rule;
 
 #define KB_MAX_DEPTH 64 /* resolution recursion guard (cyclic rules) */
@@ -32,11 +40,17 @@ struct KB {
     Rule  *rules;
     size_t nr;
     size_t rcap;
+    int    origin; /* provenance tag for newly asserted clauses */
 };
 
 KB *kb_create(void) {
     KB *kb = calloc(1, sizeof *kb);
+    if (kb) kb->origin = KB_SESSION; /* default provenance */
     return kb; /* may be NULL; caller handles it */
+}
+
+void kb_set_origin(KB *kb, int origin) {
+    if (kb) kb->origin = origin;
 }
 
 void kb_destroy(KB *kb) {
@@ -89,6 +103,7 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!fact_make(&f, pred, args, argc)) return 0;
 
     if (kb_find(kb, &f)) return 1; /* already known — idempotent */
+    f.origin = kb->origin;
 
     if (kb->n == kb->cap) {
         size_t cap = kb->cap ? kb->cap * 2 : 16;
@@ -119,6 +134,7 @@ int kb_assert_rule(KB *kb, const char *head, const char *body) {
     memset(&r, 0, sizeof r);
     strcpy(r.head, head);
     strcpy(r.body, body);
+    r.origin = kb->origin;
     kb->rules[kb->nr++] = r;
     return 1;
 }
@@ -221,6 +237,9 @@ size_t kb_induce(KB *kb, size_t min_support,
                  size_t max) {
     if (!kb) return 0;
 
+    int saved_origin = kb->origin;
+    kb->origin = KB_INDUCED; /* tag everything we induce */
+
     /* Distinct unary predicates, in first-seen order (deterministic). */
     char preds[256][KB_TERM_LEN];
     size_t np = 0;
@@ -258,7 +277,115 @@ size_t kb_induce(KB *kb, size_t min_support,
             }
         }
     }
+
+    kb->origin = saved_origin;
     return found;
+}
+
+/* ----------------------------------------------------------------------------
+ * persistence: human-readable, Prolog-like text (DESIGN.md D1-D3)
+ * ------------------------------------------------------------------------- */
+
+/* Parse "pred(a, b, ...)" into predicate + ground args. Returns 1 on success.
+ * The shared variable in rule terms (e.g. the X in "mortal(X)") is parsed as
+ * an ordinary arg; callers that only need the predicate ignore it. */
+static int parse_term(const char *s, char *pred,
+                      char args[][KB_TERM_LEN], size_t *argc) {
+    while (*s && isspace((unsigned char)*s)) s++;
+    const char *lp = strchr(s, '(');
+    const char *rp = lp ? strrchr(lp, ')') : NULL;
+    if (!lp || !rp || rp < lp) return 0;
+
+    size_t plen = (size_t)(lp - s);
+    while (plen > 0 && isspace((unsigned char)s[plen - 1])) plen--;
+    if (plen == 0 || plen >= KB_TERM_LEN) return 0;
+    memcpy(pred, s, plen);
+    pred[plen] = '\0';
+
+    *argc = 0;
+    const char *p = lp + 1;
+    while (p < rp) {
+        while (p < rp && isspace((unsigned char)*p)) p++;
+        const char *start = p;
+        while (p < rp && *p != ',') p++;
+        const char *end = p;
+        while (end > start && isspace((unsigned char)end[-1])) end--;
+        size_t alen = (size_t)(end - start);
+        if (alen == 0 || alen >= KB_TERM_LEN || *argc >= KB_MAX_ARGS) return 0;
+        memcpy(args[*argc], start, alen);
+        args[*argc][alen] = '\0';
+        (*argc)++;
+        if (p < rp && *p == ',') p++;
+    }
+    return *argc > 0;
+}
+
+int kb_load(KB *kb, const char *path) {
+    if (!kb || !path || !*path) return 0;
+    FILE *f = fopen(path, "r");
+    if (!f) return 0; /* missing file: a no-op */
+
+    char line[1024];
+    int count = 0;
+    while (fgets(line, sizeof line, f)) {
+        char *s = line;
+        while (*s && isspace((unsigned char)*s)) s++;
+        size_t n = strlen(s);
+        while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
+        if (n == 0 || s[0] == '%') continue;       /* blank / comment */
+        if (s[n - 1] == '.') {                      /* drop the clause dot */
+            s[--n] = '\0';
+            while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
+        }
+        if (n == 0) continue;
+
+        char pred[KB_TERM_LEN], pred2[KB_TERM_LEN];
+        char a[KB_MAX_ARGS][KB_TERM_LEN];
+        size_t ac;
+
+        char *arrow = strstr(s, ":-");
+        if (arrow) {                                /* rule: head :- body */
+            *arrow = '\0';
+            if (parse_term(s, pred, a, &ac) &&
+                parse_term(arrow + 2, pred2, a, &ac)) {
+                if (kb_assert_rule(kb, pred, pred2)) count++;
+            }
+        } else {                                    /* fact */
+            if (parse_term(s, pred, a, &ac)) {
+                const char *argp[KB_MAX_ARGS];
+                for (size_t i = 0; i < ac; i++) argp[i] = a[i];
+                if (kb_assert(kb, pred, argp, ac)) count++;
+            }
+        }
+    }
+    fclose(f);
+    return count;
+}
+
+int kb_save(const KB *kb, const char *path, int origin_mask) {
+    if (!kb || !path || !*path) return -1;
+    FILE *f = fopen(path, "w");
+    if (!f) return -1;
+
+    int count = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *fa = &kb->facts[i];
+        if (!(fa->origin & origin_mask)) continue;
+        fprintf(f, "%s(", fa->pred);
+        for (size_t j = 0; j < fa->argc; j++) {
+            fprintf(f, "%s%s", j ? ", " : "", fa->args[j]);
+        }
+        fprintf(f, ").\n");
+        count++;
+    }
+    for (size_t i = 0; i < kb->nr; i++) {
+        const Rule *r = &kb->rules[i];
+        if (!(r->origin & origin_mask)) continue;
+        fprintf(f, "%s(X) :- %s(X).\n", r->head, r->body);
+        count++;
+    }
+    fclose(f);
+    return count;
 }
 
 size_t kb_size(const KB *kb) {

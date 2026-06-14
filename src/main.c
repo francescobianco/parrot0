@@ -35,8 +35,18 @@ int main(void) {
         return 1;
     }
 
-    fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit)\n",
-            brain_version());
+    /* Knowledge layers: a curated base file + a session file of discovered
+     * facts, joined into RAM at startup. Paths come from the environment
+     * (empty disables loading — used by the hermetic test harness). */
+    const char *base = getenv("PARROT0_BASE");
+    const char *sess = getenv("PARROT0_SESSION");
+    if (!base) base = "knowledge/base.pl";
+    if (!sess) sess = "knowledge/session.pl";
+    brain_load(brain, base, 1);
+    brain_load(brain, sess, 0);
+
+    fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit, "
+                    "'/save' to persist)\n", brain_version());
 
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];
@@ -52,6 +62,13 @@ int main(void) {
 
         if (strcmp(line, "/quit") == 0 || strcmp(line, "/exit") == 0) {
             break;
+        }
+        if (strcmp(line, "/save") == 0) {
+            int n = brain_save_session(brain, sess);
+            if (n >= 0) fprintf(stderr, "parrot0: saved %d clause(s) to %s\n",
+                                n, sess);
+            else        fprintf(stderr, "parrot0: could not save to %s\n", sess);
+            continue;
         }
         if (line[0] == '\0') {
             continue; /* ignore empty turns */

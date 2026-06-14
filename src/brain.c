@@ -378,15 +378,30 @@ Brain *brain_create(void) {
     if (!b->kb) { free(b); return NULL; }
 
     /* Reflective self-model: the agent writes itself into its own KB, derived
-     * from real structure (PRINCIPLES.md). These facts are regenerated every
-     * boot — they are NOT meant to be persisted (see DESIGN.md, provenance). */
+     * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
+     * regenerated every boot and NEVER persisted (DESIGN.md D3). */
+    kb_set_origin(b->kb, KB_REFLECTIVE);
     const char *me[] = {"parrot0"};
     kb_assert(b->kb, "i_am", me, 1);
     for (size_t i = 0; i < registry_len; i++) {
         const char *m[] = {registry[i].name};
         kb_assert(b->kb, "module", m, 1);
     }
+    kb_set_origin(b->kb, KB_SESSION); /* conversation default */
     return b;
+}
+
+int brain_load(Brain *b, const char *path, int as_base) {
+    if (!b || !b->kb) return 0;
+    kb_set_origin(b->kb, as_base ? KB_BASE : KB_SESSION);
+    int n = kb_load(b->kb, path);
+    kb_set_origin(b->kb, KB_SESSION); /* back to conversation default */
+    return n;
+}
+
+int brain_save_session(Brain *b, const char *path) {
+    if (!b || !b->kb) return -1;
+    return kb_save(b->kb, path, KB_SESSION | KB_INDUCED);
 }
 
 void brain_destroy(Brain *b) {
@@ -396,7 +411,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen8-self";
+    return "gen9-persist";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
