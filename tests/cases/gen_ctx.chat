@@ -1,0 +1,17 @@
+# gen38: longer context via trigram backoff. The decode loop now conditions on
+# the previous TWO words (cont2), backing off to the bigram when the 2-word
+# context is unseen. This lets the same middle word continue differently
+# depending on what came before it -- conditioning on more of the running
+# output, the way an LLM does. Frequency choice is reused. Held-out tokens.
+> learn sequence: red apple pie
+< Learned 2 transition(s).
+> learn sequence: green apple juice
+< Learned 2 transition(s).
+# "apple" is ambiguous as a bigram, but the trigram context decides:
+> say red
+< red apple pie
+> say green
+< green apple juice
+# No 2-word context (single seed) -> back off to the bigram model.
+> say apple
+< apple pie

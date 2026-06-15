@@ -4,31 +4,30 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen38 — longer context via trigram backoff (decode loop, step 3)
+## Goal: gen40 — critical decoding (decode loop, step 5, capstone)
 
-gen36/gen37 condition only on the single previous word (Markov-1). An LLM
-conditions on a long running context. The next honest step is to condition on
-the previous *two* words, backing off to one when the longer context is unseen.
+The decode loop (gen36–gen38) generates fluent learned language; gen39 makes it
+verbalize what it reasons. The capstone makes reasoning *constrain* generation:
+the learned language model must not utter a claim the system knows to be false.
 
 ### Design question
-How does parrot0 learn and use a 2-word context without abandoning the bigram
-model it already has?
+How does the decoder reject a continuation that would produce a known-false
+claim, without breaking the ordinary generative loop?
 
-Candidate: alongside `cont(prev, word, count)`, learn `cont2(p1, p2, word,
-count)` (4-ary; KB_MAX_ARGS is 4) from triples in `learn sequence`. In the
-decode loop, track the last two emitted words; if a `cont2(last2, last1, ?)`
-exists, choose the highest-count among those; otherwise BACK OFF to the gen37
-bigram choice. Frequency choice (argmax, insertion-order tie-break) is reused.
+Candidate: when the running output is of the form "<x> is a", treat each
+candidate next word `y` as the claim `y(x)`; skip any candidate for which
+`kb_is_negated(y, x)` (or conflicted) holds, and take the next-best continuation
+instead. Generation thus cannot assert something the KB rejects, while
+unconstrained text is unaffected.
 
 ### Acceptance
-- A trigram context disambiguates where the bigram is ambiguous (e.g. the same
-  middle word continues differently depending on the word before it).
-- When no trigram context matches, generation backs off to the bigram model and
-  still works.
-- Counts drive the trigram choice exactly as for bigrams.
-- Held-out tokens prove it is context-driven, not canned.
+- A continuation that would state a KB-known-false claim is skipped; the
+  next-best (still frequency-ranked) continuation is emitted instead.
+- When no claim is at stake, generation is identical to gen38.
+- If every candidate is blocked, generation stops rather than lying.
+- Held-out tokens prove it is belief-driven, not canned.
 
 ### Notes
-- Reuse `learn_transition`/`next_word` shapes; keep determinism.
-- Log the backoff policy (and any 4-ary representation choice) in JOURNAL
-  "Decisions".
+- This is the point of the whole arc: generation that is *critically* filtered
+  by inference — the LLM-like surface, disciplined by the KB's beliefs.
+- Keep determinism; log the filter's scope/limits in JOURNAL "Decisions".

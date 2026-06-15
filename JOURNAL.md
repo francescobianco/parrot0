@@ -9,6 +9,34 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15l — verbalization speaks the provable closure, positives only
+gen39's `describe <x>` enumerates unary predicates and verbalizes each one x is
+*provably* a member of (including rule-derived), always as "x is a <pred>".
+- **Bought:** reasoning-grounded generation — the system *says* what it can
+  prove, derived beliefs included, grounded in real KB state (the dual of the
+  "x is a y" parser), not a canned phrase.
+- **Gave up:** article correctness (always "a", never "an"); negatives,
+  relations, and quantities are not verbalized (only positive unary classes);
+  ordering is facts-then-rule-heads, not salience; cost is O(predicates × proof)
+  per describe.
+- **Revisit if:** output needs fluent articles, or must speak negative /
+  relational / quantitative beliefs, or the predicate set grows large enough
+  that re-proving every one per `describe` is too costly.
+
+### D-2026-06-15k — context is a fixed 2-gram with hard backoff to 1-gram
+gen38 conditions on the previous two words via `cont2`, falling back fully to
+the bigram when no trigram continuation exists.
+- **Bought:** real disambiguation (the same word continues differently by
+  context) reusing the frequency machinery, and robustness via backoff when the
+  longer context is unseen.
+- **Gave up:** arbitrary context length (fixed at two; no 4/5-grams), and
+  *interpolation* between orders — backoff is hard, so any trigram continuation
+  overrides the bigram even if its count is 1 against a strong bigram. Storage
+  also roughly doubles (`cont` + `cont2`).
+- **Revisit if:** generation needs longer or variable context (then a general
+  n-gram over a context *list* beats fixed `cont2`), or hard backoff makes
+  visibly bad choices (then interpolation / smoothing across orders).
+
 ### D-2026-06-15j — generation uses deterministic argmax over counts, not sampling
 gen37 keeps a frequency count per transition and decodes by choosing the
 highest-count continuation (tie → insertion order).
@@ -185,6 +213,57 @@ inference type the KB lacked, each held-out tested, none faked. parrot0 now has
 eleven cooperating parts. The standing gap remains open-prose extraction
 coverage; everything built composes through `read:` when the prose happens to
 fit parrot0's grammar.
+
+## 2026-06-15 — gen39: grounded verbalization (decode loop, step 4)
+
+**Changed:** `brain.c` → `gen39-verbalize`; new `kb_unary_predicates` in `kb.c`.
+- `kb_unary_predicates` returns the distinct unary predicate symbols (from facts
+  and rule heads). `describe <x>` (in `mod_gen`) verbalizes every class x is
+  *provably* in — `kb_query` per predicate, so rule-derived beliefs are spoken,
+  not just stored facts. Honest empty case: "I have nothing to say about <x>."
+- `tests/cases/gen_describe.chat` (held-out tokens): derived beliefs verbalized,
+  contrast with the direct-only "what do you know about", and the empty case.
+
+**Decision logged:** D-2026-06-15l (provable closure, positives only, "a").
+
+**Why this serves the goal:** the previous decode steps generate *language*;
+this one makes generation *say what the system reasons* — it turns the proof
+closure back into sentences, the bridge from inference to expression. Critical
+reasoning starts to become something parrot0 can *utter*, grounded in state.
+
+**Observed:** all suites green (26 conversation cases).
+
+**Next:** see `TASK.md` — gen40 (capstone): critical decoding — let the KB's
+beliefs *constrain* generation, so the learned language model cannot utter a
+claim the system knows to be false.
+
+---
+
+## 2026-06-15 — gen38: longer context via trigram backoff (decode loop, step 3)
+
+**Changed:** `brain.c` → `gen38-trigram-backoff`.
+- Learns `cont2(p1, p2, word, count)` (4-ary) alongside the bigram. Factored the
+  argmax-over-counts logic into `best_continuation` (used by both bigram and
+  trigram). `next_word_ctx` prefers the 2-word context and backs off to the
+  bigram when no trigram continuation exists. `generate_from` now tracks the
+  previous two emitted words.
+- Existing gen tests unchanged: single-path sequences decode identically; the
+  reported transition count stays the bigram-pair count.
+- `tests/cases/gen_ctx.chat` (held-out tokens): trigram disambiguation of a
+  shared middle word, plus bigram backoff for a bare seed.
+
+**Decision logged:** D-2026-06-15k (fixed 2-gram, hard backoff).
+
+**Why this serves the goal:** generation now conditions on more of its own
+running output — the same step that lets an LLM's context disambiguate — while
+staying deterministic and induced from data.
+
+**Observed:** all suites green (25 conversation cases).
+
+**Next:** see `TASK.md` — gen39: grounded verbalization (turn KB facts into
+generated sentences), connecting the decode machinery to actual reasoning.
+
+---
 
 ## 2026-06-15 — gen37: frequency-weighted continuation (decode loop, step 2)
 

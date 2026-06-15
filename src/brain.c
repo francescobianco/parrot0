@@ -1147,40 +1147,90 @@ static void learn_transition(Brain *b, const char *prev, const char *word) {
     kb_assert(b->kb, "cont", args, 3);
 }
 
-/* Pick the next word after `prev`, or return 0 if no continuation is known.
- * gen37 policy: the highest-count continuation (the deterministic analogue of
- * the most-probable next token), tie-broken by insertion order. */
-static int next_word(Brain *b, const char *prev, char *word, size_t wsize) {
-    const char *pat[] = {prev, NULL, NULL};
+/* Learn one trigram transition (p1 p2)->word with a count (gen38). */
+static void learn_transition2(Brain *b, const char *p1, const char *p2,
+                              const char *word) {
+    const char *pat[] = {p1, p2, word, NULL};
+    char cnt[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont2", pat, 4, cnt, 4);
+    long n = 1;
+    if (k > 0) {
+        n = strtol(cnt[0], NULL, 10) + 1;
+        const char *old[] = {p1, p2, word, cnt[0]};
+        kb_retract(b->kb, "cont2", old, 4);
+    }
+    char ns[32];
+    snprintf(ns, sizeof ns, "%ld", n);
+    const char *args[] = {p1, p2, word, ns};
+    kb_assert(b->kb, "cont2", args, 4);
+}
+
+/* Pick the highest-count continuation of `prev` from a relation, or return 0.
+ * `argc` is 3 for the bigram cont(prev, word, count). Tie -> insertion order. */
+static int best_continuation(Brain *b, const char *rel, const char *const *ctx,
+                             size_t ctxn, char *word, size_t wsize) {
+    /* ctx holds the ground context words; the word slot + count slot are vars */
+    const char *pat[KB_MAX_ARGS];
+    for (size_t i = 0; i < ctxn; i++) pat[i] = ctx[i];
+    pat[ctxn] = NULL;       /* word */
+    pat[ctxn + 1] = NULL;   /* count */
+    size_t argc = ctxn + 2;
+
     char words[64][KB_TERM_LEN];
-    size_t k = kb_match(b->kb, "cont", pat, 3, words, 64);
+    size_t k = kb_match(b->kb, rel, pat, argc, words, 64);
     if (k == 0) return 0;
 
     long best = -1;
     size_t bi = 0;
     for (size_t i = 0; i < k; i++) {
-        const char *cpat[] = {prev, words[i], NULL};
+        const char *cpat[KB_MAX_ARGS];
+        for (size_t j = 0; j < ctxn; j++) cpat[j] = ctx[j];
+        cpat[ctxn] = words[i];
+        cpat[ctxn + 1] = NULL;
         char cnt[4][KB_TERM_LEN];
-        size_t ck = kb_match(b->kb, "cont", cpat, 3, cnt, 4);
+        size_t ck = kb_match(b->kb, rel, cpat, argc, cnt, 4);
         long c = (ck > 0) ? strtol(cnt[0], NULL, 10) : 0;
-        if (c > best) { best = c; bi = i; } /* strict > keeps the first on ties */
+        if (c > best) { best = c; bi = i; } /* strict > keeps first on ties */
     }
     snprintf(word, wsize, "%s", words[bi]);
     return 1;
+}
+
+/* Bigram next word (gen37): highest-count continuation of one previous word. */
+static int next_word(Brain *b, const char *prev, char *word, size_t wsize) {
+    const char *ctx[] = {prev};
+    return best_continuation(b, "cont", ctx, 1, word, wsize);
+}
+
+/* Context-aware next word (gen38): prefer the 2-word context via cont2; if no
+ * trigram continuation exists, BACK OFF to the bigram model. */
+static int next_word_ctx(Brain *b, const char *p2, const char *p1,
+                         char *word, size_t wsize) {
+    if (p2) {
+        const char *ctx[] = {p2, p1};
+        if (best_continuation(b, "cont2", ctx, 2, word, wsize)) return 1;
+    }
+    return next_word(b, p1, word, wsize);
 }
 
 static void generate_from(Brain *b, const char *seed, char *out, size_t out_size) {
     char cur[KB_TERM_LEN];
     snprintf(cur, sizeof cur, "%s", seed);
 
+    char prev2[KB_TERM_LEN];
+    int have_prev2 = 0;
+
     char line[1024];
     size_t off = (size_t)snprintf(line, sizeof line, "%s", cur);
 
     for (int step = 0; step < 24; step++) {        /* bound guards cycles */
         char nxt[KB_TERM_LEN];
-        if (!next_word(b, cur, nxt, sizeof nxt)) break;
+        const char *p2 = have_prev2 ? prev2 : NULL;
+        if (!next_word_ctx(b, p2, cur, nxt, sizeof nxt)) break;
         if (off < sizeof line)
             off += (size_t)snprintf(line + off, sizeof line - off, " %s", nxt);
+        snprintf(prev2, sizeof prev2, "%s", cur);
+        have_prev2 = 1;
         snprintf(cur, sizeof cur, "%s", nxt);
     }
     put(line, out, out_size);
@@ -1201,7 +1251,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i + 1 < nw; i++) {
             if (strlen(w[i]) >= KB_TERM_LEN || strlen(w[i + 1]) >= KB_TERM_LEN)
                 continue;
-            learn_transition(b, w[i], w[i + 1]);
+            learn_transition(b, w[i], w[i + 1]);            /* bigram  */
+            if (i + 2 < nw && strlen(w[i + 2]) < KB_TERM_LEN)
+                learn_transition2(b, w[i], w[i + 1], w[i + 2]); /* trigram */
             pairs++;
         }
         char msg[128];
@@ -1220,6 +1272,39 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 8);
     if (nw == 2 && strcmp(w[0], "say") == 0) {
         generate_from(b, w[1], out, out_size);
+        return 1;
+    }
+
+    /* grounded verbalization (gen39): "describe <x>" generates a sentence for
+     * every class x is *provably* a member of — including beliefs reached only
+     * through rules, not just stored facts. Reasoning turned back into language,
+     * and grounded in real KB state rather than a canned phrase. */
+    if (nw == 2 && strcmp(w[0], "describe") == 0) {
+        const char *x = w[1];
+        char preds[128][KB_TERM_LEN];
+        size_t k = kb_unary_predicates(b->kb, preds, 128);
+        char line[1024];
+        size_t off = 0, hits = 0;
+        for (size_t i = 0; i < k; i++) {
+            const char *a[] = {x};
+            if (!kb_is_conflicted(b->kb, preds[i], a, 1) &&
+                kb_query(b->kb, preds[i], a, 1)) {
+                if (off < sizeof line)
+                    off += (size_t)snprintf(line + off, sizeof line - off,
+                                            "%s%s is a %s", hits ? ". " : "",
+                                            x, preds[i]);
+                hits++;
+            }
+        }
+        if (hits == 0) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I have nothing to say about %s.", x);
+            put(msg, out, out_size);
+        } else {
+            if (off < sizeof line)
+                snprintf(line + off, sizeof line - off, ".");
+            put(line, out, out_size);
+        }
         return 1;
     }
 
@@ -1476,7 +1561,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen37-frequency";
+    return "gen39-verbalize";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

@@ -126,6 +126,12 @@ int    kb_describe_entity(const KB *kb, const char *entity,
  * meta-knowledge (reflection + negation-as-failure). */
 int    kb_knows_pred(const KB *kb, const char *pred);
 
+/* Collect the distinct UNARY predicate symbols known to the KB — those that
+ * appear as a 1-arg fact or as a 1-arg rule head. Used by grounded
+ * verbalization (gen39) to enumerate the classes an entity might belong to,
+ * including ones reachable only through rules. Returns the count (capped). */
+size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
+
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);
 

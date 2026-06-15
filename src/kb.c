@@ -886,6 +886,17 @@ int kb_knows_pred(const KB *kb, const char *pred) {
     return 0;
 }
 
+size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
+    if (!kb) return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < kb->n; i++)
+        if (kb->facts[i].argc == 1) push_unique(out, &n, max, kb->facts[i].pred);
+    for (size_t i = 0; i < kb->nr; i++)
+        if (kb->rules[i].head.argc == 1)
+            push_unique(out, &n, max, kb->rules[i].head.pred);
+    return n;
+}
+
 size_t kb_size(const KB *kb) {
     return kb ? kb->n : 0;
 }
