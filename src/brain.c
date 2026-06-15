@@ -212,6 +212,7 @@ static const char *canonical_token(const char *w) {
         {"un",  "a"}, {"uno", "a"}, {"una", "a"},
         {"ogni","every"},
         {"chi", "who"},
+        {"non", "not"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -646,9 +647,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* explicit negative correction: "<x> is not a/an <y>" -> not y(x) */
-    if (nw == 5 && strcmp(w[1], "is") == 0 && strcmp(w[2], "not") == 0 &&
-        is_article(w[3])) {
+    /* explicit negative correction, order-insensitive (gen44): both English
+     * "<x> is not a <y>" and the Italian-canonicalized "<x> not is a <y>" mean
+     * not y(x). Detected by ROLE not position: subject first, article at nw-2,
+     * class last, and the two middle tokens are exactly {is, not} in any order.
+     * Word order is surface, not meaning, so one parser serves both languages
+     * (the multilingual probe's gen43 finding). Question words are excluded so a
+     * negated query is not mistaken for an assertion. */
+    if (nw == 5 && is_article(w[3]) &&
+        strcmp(w[0], "who") != 0 && strcmp(w[0], "what") != 0 &&
+        strcmp(w[0], "is") != 0 &&
+        ((strcmp(w[1], "is") == 0) || (strcmp(w[2], "is") == 0)) &&
+        ((strcmp(w[1], "not") == 0) || (strcmp(w[2], "not") == 0))) {
         const char *subj, *cl = w[4];
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
@@ -1662,7 +1672,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen43-multilingual-canon";
+    return "gen44-roles-over-order";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

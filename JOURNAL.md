@@ -258,6 +258,33 @@ time.
 
 ---
 
+## 2026-06-15 — gen44: roles over word order (syntax-agnostic negation)
+
+**Changed:** `brain.c` → `gen44-roles-over-order`; lexicon += `non→not`.
+- The negative-claim parser no longer keys on token positions. It detects the
+  claim by ROLE: subject is the first token, the article sits at `nw-2`, the
+  class is last, and the two middle tokens are exactly `{is, not}` in any order
+  (question words excluded). So "x is not a y" and Italian-canonicalized
+  "x not is a y" both reduce to `not y(x)` through one parser.
+- New `tests/cases/negation.it.chat`; English negation (`retract.chat`,
+  `belief.chat`) unchanged.
+
+**Why:** TASK gen44 — the gen43 probe exposed that "reasoning" was partly English
+word order. Italian negation moves "non" before the copula; canonicalizing words
+isn't enough when the core reads positions. The honest fix is to read roles, not
+positions — one frame, not a second per-language branch (which would be the
+phrasebook LOOP.md forbids).
+
+**Observed:** "tweety non è un uccello" → `not uccello(tweety)`, query flips to
+"No"; English negation byte-identical. Full suite green (32 + 10 + 3 + 14 + 2 +
+5 + 4).
+
+**Next:** the bench. `make bench-superglue` reports 0% — investigate whether
+that is honest incapacity (open-domain prose vs parrot0's tiny grammar, per
+D-2026-06-15e) or a scoring/format bug, and let the finding drive gen45+.
+
+---
+
 ## 2026-06-15 — gen43: multilingual as a generalization probe
 
 **Changed:** `brain.c` → `gen43-multilingual-canon`; `LOOP.md`, `TASK.md`.

@@ -1,0 +1,22 @@
+# gen44: roles over word order (Italian negation). The multilingual probe
+# (gen43) exposed that the core keyed on English token POSITIONS: Italian
+# "x non è un y" canonicalizes to "x not is a y" -- same words, different order
+# than English "x is not a y" -- and the position parser rejected it. gen44
+# detects the negative claim by ROLE (subject first, article at nw-2, class
+# last, middle two = {is, not} in any order), so one parser serves both
+# languages. No second per-language branch -- the frame absorbed the order.
+> tweety è un uccello
+< Learned: uccello(tweety).
+> è tweety un uccello?
+< Yes.
+# "tweety non è un uccello" -> canon "tweety not is a uccello" -> not uccello(tweety).
+> tweety non è un uccello
+< Learned: not uccello(tweety).
+# The belief flips, proven through the same closed-world query path.
+> è tweety un uccello?
+< No.
+# A fresh subject, negative-first, still resolves by role.
+> rex non è un gatto
+< Learned: not gatto(rex).
+> è rex un gatto?
+< No.
