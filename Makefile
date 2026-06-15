@@ -4,6 +4,10 @@
 #   make            build bin/parrot0
 #   make chat       build, then talk to it interactively
 #   make test       build, then run the conversation test suite
+#   make bench      build, then run all local benchmark-driver suites
+#   make bench-superglue  run official SuperGLUE validation benchmark
+#   make bench-mmlu       run MMLU-like local benchmark slices
+#   make bench-bbh        run BIG-Bench Hard-like local benchmark slices
 #   make loop       print the self-improvement loop protocol
 #   make clean      remove build artifacts
 
@@ -12,8 +16,10 @@ CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -O2
 SRC     := $(wildcard src/*.c)
 OBJ     := $(SRC:src/%.c=obj/%.o)
 BIN     := bin/parrot0
+BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
+BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test loop clean
+.PHONY: all build chat test bench bench-superglue bench-superglue-local bench-mmlu bench-bbh loop clean
 
 all: build
 
@@ -38,6 +44,21 @@ test: build
 	@./tests/grammar.sh
 	@./tests/anon.sh
 	@./tests/explain.sh
+
+bench: build
+	@./tests/bench.sh all
+
+bench-superglue: build
+	@$(BENCH_PY) ./tests/bench_superglue.py --binary ./$(BIN) --cache-dir $(BENCH_CACHE)
+
+bench-superglue-local: build
+	@./tests/bench.sh superglue
+
+bench-mmlu: build
+	@./tests/bench.sh mmlu
+
+bench-bbh: build
+	@./tests/bench.sh bbh
 
 loop:
 	@cat LOOP.md

@@ -10,3 +10,7 @@
 *.out
 .DS_Store
 *.swp
+# local Python benchmark dependencies
+/.venv/
+/.cache/
+__pycache__/
