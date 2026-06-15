@@ -9,6 +9,24 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15r — ReCoRD answered by a transparent salience baseline, not comprehension
+gen48 returns the passage's most salient entity (most frequent capitalized,
+non-sentence-initial token) for ReCoRD's cloze, instead of abstaining.
+- **Bought:** the first genuine nonzero on real SuperGLUE — ReCoRD 0% → 24.47%
+  (EM 22.70%, F1 26.24%) on the full official validation set, invalid 10000 → 2,
+  overall 0.00% → 3.06%. It reads the real passage and returns a real candidate,
+  so every answer is honest and checkable; ~23% are exactly right.
+- **Gave up:** this is salience, not understanding — it ignores the query
+  entirely and cannot reason about which entity the cloze wants. It works only
+  because ReCoRD's metric is extractive entity-overlap (a real candidate is a
+  legitimate weak baseline); it is NOT applied to the label tasks, where
+  emitting a guess would be dishonest inflation. No stoplist beyond the
+  sentence-initial filter, so frequent non-entity capitals can still win.
+- **Revisit if:** ReCoRD should actually use the query (then condition on the
+  cloze context / the induced generative model), or the salience heuristic
+  pollutes on some passage shape. Never extend this "emit something" stance to
+  yes/no or choice tasks — there, abstention stays the honest answer.
+
 ### D-2026-06-15q — the bench bridge wires reasoning to the prompt envelope, never guesses
 gen45 adds `mod_bench`: it recognizes the SuperGLUE yes/no envelope
 ("...Passage: <P> Question: <Q> Answer yes or no."), reads the passage through
@@ -274,6 +292,35 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen48: ReCoRD salience — the first real nonzero (0% → 3.06%)
+
+**Changed:** `brain.c` → `gen48-record-salience`; `mod_bench` + new
+`record_salient_entity()`.
+- The user ran the full bench: every example invalid (parrot0 abstained on all),
+  and reasonably wanted to see ≥1 valid. Diagnosed that "invalid" means
+  unmappable output, distinct from "wrong" — and that ReCoRD's scorer counts any
+  non-fallback output as valid, scoring entity-overlap F1.
+- Added a transparent salience baseline for ReCoRD's cloze: return the passage's
+  most frequent capitalized, non-sentence-initial token. It reads the real
+  passage and returns a real candidate — honest extraction, explicitly NOT
+  comprehension, and deliberately NOT applied to the yes/no or choice tasks
+  (where a guess would be dishonest; abstention stays correct there).
+- New `tests/cases/bench_record.chat`.
+
+**Why:** the user's explicit task — make at least one example valid. The honest
+route was ReCoRD (extractive metric), not inflating the binary tasks by guessing.
+
+**Observed (full official validation set):** ReCoRD invalid 10000 → 2, score
+0% → 24.47% (EM 22.70%, F1 26.24%); SuperGLUE overall 0.00% → 3.06%. The label
+tasks remain 0% / abstaining — the honest wall (open prose, multi-word entities)
+is unchanged. Full suite green (38 + 10 + 3 + 14 + 2 + 5 + 4).
+
+**Next:** the binary/choice tasks need genuine comprehension (multi-word
+entities, open-prose extraction) to move — a long domain-pull arc, not a trick.
+ReCoRD could later condition on the query instead of pure salience.
 
 ---
 
