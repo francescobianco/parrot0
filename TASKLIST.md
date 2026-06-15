@@ -88,6 +88,30 @@ focused clarifying question, or admit the *specific* gap — never the flat wall
 the default. Ties T11 (uncertainty) and T16 (not-understood). The frequency of
 the wall response is itself a metric to drive down.
 
+### C0b - chatsim: the LLM-simulated-user benchmark (DONE, gen54)
+A cheap opencode-GO model role-plays a mutable human chatting with parrot0
+(`tests/chatsim.py`, `make chat-sim`); transcripts in `tests/chat/sim/`; reports
+wall-rate / repetition-rate. The adversarial, generative complement to C0.
+Baseline measured: wall ~88%, repetition ~77%. Non-deterministic, not in
+`make test`.
+
+### C5a - Kill the broken record (TOP, from the chatsim analysis)
+The single biggest naturalness killer the simulated users exposed: parrot0 repeats
+"I don't understand that yet." VERBATIM (88% of turns, 77% immediately repeated),
+and the humans call it out ("broken record", "are you even trying"). Structural
+fix (not a phrasebook): track the last reply and NEVER repeat the fallback
+verbatim; rotate a few honest non-understanding MOVES that redirect or invite
+("I didn't catch that — can you put it another way?", "I'm not sure I followed.
+What would you like to know?"), and where possible reflect a content word from the
+user's message. Measure with chatsim: repetition-rate must fall.
+
+### C2b - Mixed-act turns (greeting/thanks must not hijack content)
+chatsim showed "hey so like what even are you?" → "Hi there!" and a sarcastic
+"thanks" → "You're welcome!": a leading social marker owned a turn that also
+carried a real question. Fix: a marker may claim the turn only when the message is
+marker-dominated (short / no question / no other content); otherwise acknowledge
+briefly AND let content modules address the substance.
+
 These C-tasks are the path from "comforting bench numbers" to the intelligence
 we actually expect. Promote one at a time into TASK.md, smallest tested step
 first, each earning both a `.chat` case and a C0 dialogue.

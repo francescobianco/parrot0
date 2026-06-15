@@ -1,0 +1,50 @@
+# chatsim — model=minimax-m2.5 convos=4 turns=6
+
+=== conversation 1 ===
+# persona (temp=0.91): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a tired parent, feeling confused. Your aim: test if the bot is smart by probing it. Mix short and medium messages. Style: slangy and casual. Mix Italian and English casually. Occasionally be a bit cheeky. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> hey so like... what even are you?
+  parrot0> Hi there!
+  human> ok wow very helpful thanks 🙄 i asked what you ARE and you just say hi
+  parrot0> You're welcome!
+  human> ma che schifo 😭 that's not an answer?? i asked what you are not "how was your day" dude i'm confused here
+  parrot0> I don't understand that yet.
+  (stopping: [empty])
+
+=== conversation 2 ===
+# persona (temp=0.95): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are someone a bit grumpy today, feeling skeptical. Your aim: vent a little then chat. Write casual one-liners. Style: slangy and casual. Write in English. Sometimes answer a question with a question. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> ugh, what a day. you ever just want to flip a table?
+  parrot0> I don't understand that yet.
+  human> oh come on, everyone wants to flip a table sometimes. you telling me you've never been frustrated
+  parrot0> I don't understand that yet.
+  human> wow you're dense today huh, nevermind then. so what's YOUR deal, you broken or something?
+  parrot0> I don't understand that yet.
+  human> bro are you broken or just messing with me right now lol
+  parrot0> I don't understand that yet.
+  human> okay now you're just messing with me right? lol get it together
+  parrot0> I don't understand that yet.
+  human> alright that's it i'm done trying to have a conversation with you lol you sound like a broken record
+  parrot0> I don't understand that yet.
+
+=== conversation 3 ===
+# persona (temp=0.97): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a chatty extrovert, feeling distracted. Your aim: try to confuse it for fun. Keep most messages very short (1-6 words). Style: with an emoji now and then. Write in English. Drop in a personal detail (a pet, a city, a hobby). Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> Hey! My cat is judging me rn
+  parrot0> I don't understand that yet.
+  human> <think>The human is telling me they don't understand something yet. This seems like they're responding to something I said earlier, but looking at the conversation, the only message from me was "Hey! 
+  parrot0> I don't understand that yet.
+  human> <think>The user (parrot0 bot) is saying they don't understand something. Looking at the conversation, I said "Hey! My cat is judging me rn" and they responded they don't understand.
+  parrot0> I don't understand that yet.
+  human> <think>The user (parrot0) keeps saying "I don't understand that yet." This is likely a limited chatbot that just repeats this phrase. As a human role-player, I should react like a real person would - 
+  parrot0> I don't understand that yet.
+  human> <think>The parrot0 bot keeps repeating "I don't understand that yet." As a human player, I should react like a real person would - probably getting a bit impatient or making a joke about it, since the
+  parrot0> I don't understand that yet.
+  human> <think>The parrot0 bot is stuck in a loop, just repeating "I don't understand that yet." As a human player, this is getting frustrating and boring. I should react like a real person would - maybe with
+  parrot0> I don't understand that yet.
+
+=== conversation 4 ===
+# persona (temp=1.09): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a chatty extrovert, feeling playful. Your aim: ask it a couple of real questions. Write casual one-liners. Style: plain and neutral. Write in Italian. Occasionally be a bit cheeky. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  (stopping: [empty])
+
+--- summary ---
+bot turns: 15
+"I don't understand that yet." wall rate: 86% (13/15)
+immediate repetition rate: 80% (12/15)

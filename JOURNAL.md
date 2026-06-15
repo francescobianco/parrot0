@@ -9,6 +9,26 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15x — an LLM-simulated user is the adversarial conversation benchmark
+gen54 adds `tests/chatsim.py` (`make chat-sim`): a cheap opencode-GO model
+(minimax-m2.5, base https://opencode.ai/zen/go/v1) role-plays a HIGHLY VARIABLE
+human (randomized persona: identity/mood/verbosity/language/quirk + high temp) and
+drives multi-turn chats with parrot0; every exchange is logged, with wall-rate and
+repetition-rate as naturalness proxies. Complements C0 (hand-scripted,
+deterministic).
+- **Bought:** open-ended, adversarial conversation pressure that surfaces failures
+  scripted cases miss — and quantifies the felt experience (first run: wall rate
+  ~88%, immediate-repetition ~77%). The simulated humans react like real users
+  ("broken record", "are you even trying"), which is exactly the signal we need.
+- **Gave up:** non-deterministic and external (network, API key, small cost), so
+  it is NOT in `make test` — a measuring/exploration tool, not a gate. The cheap
+  model sometimes breaks character or leaks chain-of-thought (partly filtered);
+  metrics are proxies, not ground truth. Needs an explicit User-Agent (the gateway
+  403s urllib's default).
+- **Revisit if:** the model's persona quality is too poor to be a fair user (try
+  another GO model), or we need deterministic replay (seed + record/replay
+  transcripts).
+
 ### D-2026-06-15w — shell knowledge is compositional & data-driven (knowledge/bash.pl), case-tagged for the resolver
 gen53 (Mission M1, step 1) answers "what does <cmd> do?" by parsing the command
 line into (command, flags, args) and composing the answer from `cmd`/`flag`
@@ -394,6 +414,42 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen54: chatsim — LLM-simulated-user conversation benchmark + analysis
+
+**Changed:** new `tests/chatsim.py`, `make chat-sim`, transcripts under
+`tests/chat/sim/`. No `brain.c` change — this builds an instrument and analyzes,
+like gen50 (C0).
+
+**Built:** a cheap opencode-GO model impersonates a mutable human (randomized
+persona, high temperature) and chats with parrot0 for several turns; transcripts
+logged; wall-rate / repetition-rate reported (Decision D-2026-06-15x).
+
+**Analysis (first runs, ~7 conversations):**
+- **Wall rate ~88%, immediate-repetition ~77%.** The dominant experience is
+  "I don't understand that yet." repeated VERBATIM — a broken record. This is the
+  #1 naturalness killer (two compounded problems: coverage, and identical
+  repetition even when it can't engage).
+- **Social over-firing on mixed turns:** "hey so like what even are you?" →
+  "Hi there!" (a leading greeting hijacked a real question); sarcastic "thanks" →
+  "You're welcome!". First-marker-wins is wrong when the message also carries
+  content/a question.
+- **No uptake of affect/continuity:** users vent ("what a day", "my cat knocked
+  over my water") → wall. No backchannel, no acknowledgement, no memory.
+- **Held up (good):** C1/C2 generalized under adversarial paraphrase — "hiya
+  parrot0 how are you" → wellbeing; "Bye" → "Goodbye!".
+
+**Interventions recorded (TASKLIST C-series), ranked by impact:**
+1. **C5a — kill the broken record:** never repeat the fallback verbatim; rotate
+   honest, varied non-understanding moves that REDIRECT/invite, reflecting a user
+   word where possible. Metric: repetition-rate must drop.
+2. **C2b — mixed-act turns:** a greeting/thanks marker may own the turn only when
+   the message is marker-dominated; otherwise acknowledge + address the content.
+3. **C3/C4 — memory & continuity** (already queued): acknowledge what was said.
+
+**Next:** gen55 = C5a (the highest-impact naturalness fix), measured by chatsim.
 
 ---
 

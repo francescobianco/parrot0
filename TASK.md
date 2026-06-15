@@ -4,34 +4,34 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen54 — M1 step 2: pipelines + oracle-grounded output
+## Goal: gen55 — C5a: kill the broken record
 
-Mission M1 (POSIX/bash) is underway. gen53 gave compositional single-command
-understanding ("ls -la" composed from ls + l + a) from committed
-`knowledge/bash.pl`, case-sensitive and honest on unknowns (`tests/posix.sh`).
+gen54 built chatsim (`make chat-sim`): a cheap opencode-GO model role-plays a
+mutable human and chats with parrot0. It exposed the dominant naturalness killer:
+parrot0 repeats "I don't understand that yet." VERBATIM — wall rate ~88%,
+immediate-repetition ~77% — and the simulated users call it out ("broken
+record", "are you even trying"). This is the highest-impact fix.
 
-Two natural next steps, both deepening COMPOSITION and bringing in the
-deterministic shell ORACLE:
-
-1. **Pipelines.** "what does `cat f | grep x` do?" composes the two commands'
-   effects: "prints file contents, then keeps the lines matching a pattern."
-   Parse on `|`, describe each stage from the gen53 `cmd`/`flag` facts, join.
-2. **Oracle-grounded output prediction.** For pure deterministic commands
-   (start with `echo`), predict the actual output and VERIFY it by running the
-   real shell in the test — the purest embodiment of the oracle (no authored
-   description, truth is computed and checked).
+### Design question
+Without faking understanding, can the fallback stop being a robotic constant?
+Structural approach (not a phrasebook): the brain tracks its LAST reply and never
+repeats the fallback verbatim; it rotates a few honest non-understanding MOVES
+that REDIRECT or invite ("I didn't catch that — can you say it another way?",
+"I'm not sure I followed. What would you like to know?"), and where possible
+REFLECTS a content word from the user's message so the reply feels heard.
 
 ### Acceptance
-- A pipeline never stored verbatim is explained by composing its stages
-   (held-out); the order is preserved.
-- "what is the output of echo hello world?" → "hello world", and the test
-   confirms it equals the real `echo hello world`.
-- Existing gen53 behaviour and all suites unchanged; new cases in
-   `tests/posix.sh`; knowledge stays in committed `knowledge/bash.pl`.
+- The same fallback is never emitted twice in a row; consecutive unparseable
+  inputs get different, honest, non-understanding responses.
+- Where the message has a salient content word, the fallback reflects it
+  ("Hmm, I don't know about <word> yet.").
+- chatsim repetition-rate drops materially vs the gen54 baseline (~77%); the wall
+  no longer dominates verbatim. Add a deterministic `tests/cases/*.chat` locking
+  the no-verbatim-repeat behaviour; English + Italian.
+- Still honest: it must not pretend to understand; it admits the gap, just not
+  robotically.
 
 ### Notes
-- Keep it structural and oracle-checkable; do not author per-command outputs.
-- C-series (conversational intelligence) is parked at gen52/C2 with C3 (personal
-  memory: "dog named Rex") next when we return to it — felt-intelligence 82%.
-- Later M1: intent → command ("how would you do this in POSIX?"), and
-  multi-file knowledge loading so `make chat` sees bash.pl by default.
+- Needs a tiny bit of brain state (last response). Keep it minimal.
+- Then C2b (mixed-act turns), then C3/C4 (memory) — the remaining chatsim gaps.
+- Parked: M1 step 2 (shell pipelines + oracle output) from the POSIX arc.
