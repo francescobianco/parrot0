@@ -1,0 +1,29 @@
+# gen31: coreference decision — "does <a> refer to <b>?", the yes/no judgement
+# the first SuperGLUE WSC question asks. Built on gen22's discourse model (a
+# pronoun resolves to the most recent concrete entity). We judge against that
+# salience state; full WSC syntactic binding is out of scope (Decision
+# D-2026-06-15d). Held-out entities.
+#
+# With no antecedent yet, a pronoun resolves to nothing -> admit, don't guess.
+> does he refer to dana?
+< I don't know who he refers to.
+# A concrete mention sets the discourse entity.
+> dana is a pilot
+< Learned: pilot(dana).
+# Now the pronoun co-refers with dana, and not with a different name.
+> does she refer to dana?
+< Yes.
+> does her refer to mara?
+< No.
+# A newer mention moves salience; the pronoun follows it.
+> mara is a teacher
+< Learned: teacher(mara).
+> does she refer to mara?
+< Yes.
+> does she refer to dana?
+< No.
+# Two concrete mentions co-refer iff they are the same entity.
+> does dana refer to dana?
+< Yes.
+> does dana refer to mara?
+< No.

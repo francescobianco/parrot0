@@ -9,6 +9,20 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15d — coreference judged only against last-entity salience
+gen31 answers "does <a> refer to <b>?" using gen22's model (a pronoun resolves
+to the single most-recent concrete entity); two concrete names co-refer iff
+identical.
+- **Bought:** a real coreference *decision* with zero new state — it reads the
+  salience already maintained — and honest abstention when nothing is salient.
+- **Gave up:** gender/number agreement (`he`, `she`, `it`, `they` all resolve
+  to the same last entity), any choice among *multiple* candidate antecedents,
+  and the actual WSC difficulty (binding by syntax/world knowledge, e.g.
+  "anyone … him"). Only the most-recent entity can ever be the antecedent.
+- **Revisit if:** a task needs agreement features, more than one live referent,
+  or binding that depends on sentence structure. Then the discourse model must
+  grow from one `last_entity` slot to a set of typed, ranked mentions.
+
 ### D-2026-06-15c — causation is a flat, non-transitive directed relation
 gen30 models cause/effect as a single binary fact `causes(a, b)` with no
 chaining and no typing.
@@ -54,6 +68,46 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen31: coreference decision (WSC road)
+
+**Method (domain-pull, continued):** the first SuperGLUE WSC question asks
+whether two spans ("anyone" / "him") refer to the same entity. parrot0 had a
+discourse model (gen22) but no way to be *asked* the co-reference question.
+
+**Changed:** `brain.c` → `gen31-coref-decision`.
+- New cooperating part `mod_coref` (registry-reified; self-model now lists it).
+  Surface `does <a> refer to <b>?` answered from the existing salience state: a
+  pronoun co-refers with `b` iff its resolved antecedent (the most-recent
+  entity) is `b`; two concrete mentions co-refer iff identical; a pronoun with
+  no antecedent is admitted (`I don't know who <p> refers to.`).
+- Reuses gen22's `is_entity_pronoun` and `last_entity` — no new discourse state.
+- `tests/cases/wsc.chat` (held-out `dana/mara`): no-antecedent admission, a
+  pronoun following salience as it moves, and the same-entity identity case.
+  `self.chat` capability list legitimately gained `coref`.
+
+**Decision logged:** D-2026-06-15d (coreference judged only against the single
+last-entity salience slot).
+
+**Why:** Turns existing discourse state into an explicit judgement. The deferred
+piece is reading mentions out of prose and binding them by syntax — the real
+WSC challenge — which we do not fake.
+
+**Observed:** all suites green (18 conversation cases). Bench WSC still 0 — the
+co-reference is stated turn-by-turn here, not extracted from a sentence.
+
+**Closing the 4-iteration domain-pull run (gen28–gen31):** capturing one real
+benchmark question per task surfaced four distinct reasoning primitives parrot0
+was missing — magnitude-from-facts, a 3-way entailment verdict, cause/effect,
+and a coreference decision — each now built and held-out tested. The recurring,
+honest finding is that the wall is not reasoning but **input**: every task is
+blocked on turning natural-language passages into the `pred(args)` facts these
+primitives consume. That extractor is the next, larger investment — and the one
+thing we have repeatedly refused to fake.
+
+**Next:** see `TASK.md`.
 
 ---
 

@@ -951,6 +951,50 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: coref -------------------------------------------------------
+ * Coreference decision (gen31). gen22 gave parrot0 a discourse model — a
+ * pronoun resolves to the most recent concrete entity — but nothing could *ask*
+ * whether two mentions co-refer. The first SuperGLUE WSC question is exactly
+ * that yes/no judgement. This part answers `does <a> refer to <b>?` from the
+ * existing salience state: a pronoun co-refers with `b` iff its resolved
+ * antecedent is `b`; two concrete mentions co-refer iff they are the same
+ * entity; a pronoun with no antecedent is admitted, not guessed. Full WSC-style
+ * syntactic binding (which mention a pronoun is bound to by grammar) is out of
+ * scope — we judge against the last-entity model already in place. */
+static int mod_coref(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+    if (nw != 5 || strcmp(w[0], "does") != 0 || strcmp(w[2], "refer") != 0 ||
+        strcmp(w[3], "to") != 0)
+        return 0;
+
+    const char *a = w[1], *target = w[4];
+    if (is_entity_pronoun(a)) {
+        if (!b->has_last_entity) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know who %s refers to.", a);
+            put(msg, out, out_size);
+            return 1;
+        }
+        put(strcmp(b->last_entity, target) == 0 ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    /* two concrete mentions co-refer iff they name the same entity */
+    put(strcmp(a, target) == 0 ? "Yes." : "No.", out, out_size);
+    return 1;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -1028,6 +1072,7 @@ static const Module registry[] = {
     {"compare",   mod_compare},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
+    {"coref",     mod_coref},
     {"knowledge", mod_knowledge},
     {"greet",     mod_greet},
     {"farewell",  mod_farewell},
@@ -1078,7 +1123,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen30-causal";
+    return "gen31-coref-decision";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

@@ -4,32 +4,38 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen31 — coreference decision (WSC road)
+## Goal: gen32 — the missing bridge: a minimal text → facts extractor
 
-Domain-pull continues. The first SuperGLUE WSC question asks whether two spans
-("anyone" / "him") refer to the same entity — a yes/no *coreference decision*.
-parrot0 has a discourse model (gen22: pronouns resolve to the most recent
-concrete entity) but cannot yet be *asked* whether two mentions corefer.
+The gen28–gen31 domain-pull run reached one conclusion four times: parrot0 now
+has the *reasoning* primitives the first SuperGLUE questions need (magnitude,
+3-way entailment, cause/effect, coreference), but every task still scores 0
+because nothing turns a natural-language passage into the `pred(args)` facts
+those primitives consume. Input, not inference, is the wall. This is the
+deferred investment all four iterations named — now the goal.
 
 ### Design question
-What is the smallest surface that turns the existing salience/coreference state
-into an explicit yes/no judgement between two mentions, without a full anaphora
-resolver?
+What is the smallest *honest* extractor that lifts explicit, well-formed
+statements out of a multi-sentence passage into KB facts — without pretending
+to do open-domain understanding?
 
-Candidate: `does <a> refer to <b>?` answered from coreference state — yes when
-`a` is a pronoun whose resolved antecedent is `b` (or when `a` and `b` are the
-same entity), no otherwise; admit when there is nothing to resolve. Stay with
-the last-entity discourse model already in place; full WSC-style syntactic
-binding is out of scope.
+Candidate: a sentence splitter + a pass that feeds each clause to the existing
+`mod_knowledge` / `mod_quantity` / `mod_cause` parsers, asserting whatever
+parses and ignoring (counting) what does not. Then a benchmark prompt can be
+fed whole: extract from the passage, answer from the question. Start with
+synthetic passages built only from already-parseable sentence shapes; real
+SuperGLUE prose stays mostly unparseable and that must show honestly as a low,
+non-zero extraction rate — never a hardcoded answer.
 
 ### Acceptance
-- After a mention sets the discourse entity, `does <pronoun> refer to <x>?`
-  answers yes/no correctly.
-- A pronoun with no antecedent is admitted, not guessed.
-- A non-matching antecedent answers no.
-- Held-out entities prove it is state-based, not canned.
+- A passage of several known-shape sentences populates the KB with the right
+  facts; unparseable sentences are skipped and counted, not invented.
+- A question answered after extraction matches what the same facts would give
+  if asserted one per turn.
+- Held-out content proves it is extraction, not memorization.
+- Honest reporting: extraction coverage on real prose is measured, not faked.
 
 ### Notes
 - Discovery tooling stays (`PARROT0_TRACE` + `--max-examples 1`).
-- Do not hardcode benchmark answers; the prose→mentions bridge is deferred like
-  the other extraction gaps. See JOURNAL "Decisions".
+- This is the line we kept refusing to cross by faking; cross it by *building*
+  a real (if minimal) extractor, never by hardcoding benchmark labels.
+  See JOURNAL "Decisions" for the provisional choices this may force.
