@@ -17,3 +17,16 @@
 < Entailed: dax(io) because glorp(io).
 > explain premise: zara is not a quoll; hypothesis: is zara a quoll?
 < Contradicted.
+# Generation 29: SuperGLUE CB-style 3-way verdict — the same solver, collapsed
+# into CB's label space (entailment / contradiction / neutral). Both "unknown"
+# and "conflicted" map to neutral (Decision D-2026-06-15b). Held-out predicates.
+> label premise: io is a glorp and every glorp is a dax; hypothesis: is io a dax?
+< Entailment.
+> label premise: zara is not a quoll; hypothesis: is zara a quoll?
+< Contradiction.
+> label premise: kito is a bird; hypothesis: is kito a mammal?
+< Neutral.
+> label premise: kito is a bird and luma is a mammal; hypothesis: is kito a mammal?
+< Neutral.
+> label premise: base says nora is a pilot and session says nora is not a pilot; hypothesis: is nora a pilot?
+< Neutral.

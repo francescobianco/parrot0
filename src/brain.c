@@ -325,7 +325,15 @@ static int apply_premises(Brain *tmp, char *premises) {
     return 1;
 }
 
-static void entailment_status(Brain *tmp, const char *hyp, int explain,
+/* Entailment surface modes. PLAIN/EXPLAIN speak parrot0's own 4-valued
+ * epistemic vocabulary; LABEL collapses it into SuperGLUE CB's 3-way label
+ * space (entailment / contradiction / neutral), discovered from the CB probe.
+ * The collapse is a real decision: both "unknown" (predicate never seen) and
+ * "conflicted" (contradictory evidence) become neutral — see Decision
+ * D-2026-06-15b. */
+enum { ENT_PLAIN = 0, ENT_EXPLAIN = 1, ENT_LABEL = 2 };
+
+static void entailment_status(Brain *tmp, const char *hyp, int mode,
                               char *out, size_t out_size) {
     char hbuf[256];
     size_t len = strlen(hyp);
@@ -354,10 +362,14 @@ static void entailment_status(Brain *tmp, const char *hyp, int explain,
         return;
     }
 
-    if (!kb_knows_pred(tmp->kb, pred)) put("Unknown.", out, out_size);
-    else if (kb_is_conflicted(tmp->kb, pred, args, argc)) put("Conflicted.", out, out_size);
+    if (!kb_knows_pred(tmp->kb, pred))
+        put(mode == ENT_LABEL ? "Neutral." : "Unknown.", out, out_size);
+    else if (kb_is_conflicted(tmp->kb, pred, args, argc))
+        put(mode == ENT_LABEL ? "Neutral." : "Conflicted.", out, out_size);
     else if (kb_query(tmp->kb, pred, args, argc)) {
-        if (!explain) {
+        if (mode == ENT_LABEL) {
+            put("Entailment.", out, out_size);
+        } else if (mode == ENT_PLAIN) {
             put("Entailed.", out, out_size);
         } else {
             char ex[512];
@@ -373,12 +385,14 @@ static void entailment_status(Brain *tmp, const char *hyp, int explain,
             }
         }
     }
-    else if (kb_is_negated(tmp->kb, pred, args, argc)) put("Contradicted.", out, out_size);
-    else put("Not entailed.", out, out_size);
+    else if (kb_is_negated(tmp->kb, pred, args, argc))
+        put(mode == ENT_LABEL ? "Contradiction." : "Contradicted.", out, out_size);
+    else
+        put(mode == ENT_LABEL ? "Neutral." : "Not entailed.", out, out_size);
 }
 
 static int entailment_reply(const char *premises, const char *hypothesis,
-                            int explain, char *out, size_t out_size) {
+                            int mode, char *out, size_t out_size) {
     Brain tmp;
     memset(&tmp, 0, sizeof tmp);
     tmp.kb = kb_create();
@@ -399,7 +413,7 @@ static int entailment_reply(const char *premises, const char *hypothesis,
         return 1;
     }
 
-    entailment_status(&tmp, trim_mut((char *)hypothesis), explain, out, out_size);
+    entailment_status(&tmp, trim_mut((char *)hypothesis), mode, out, out_size);
     kb_destroy(tmp.kb);
     return 1;
 }
@@ -416,11 +430,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     memcpy(buf, norm, len + 1);
     if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
 
-    int explain_entailment = 0;
+    int entail_mode = ENT_PLAIN;
     char *premise_start = NULL;
     if (strncmp(buf, "explain premise:", 16) == 0) {
-        explain_entailment = 1;
+        entail_mode = ENT_EXPLAIN;
         premise_start = buf + 16;
+    } else if (strncmp(buf, "label premise:", 14) == 0) {
+        entail_mode = ENT_LABEL;
+        premise_start = buf + 14;
     } else if (strncmp(buf, "premise:", 8) == 0) {
         premise_start = buf + 8;
     }
@@ -433,7 +450,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         *hyp = '\0';
         hyp += strlen("; hypothesis:");
         return entailment_reply(trim_mut(premise_start), trim_mut(hyp),
-                                explain_entailment, out, out_size);
+                                entail_mode, out, out_size);
     }
 
     char *choice_start = NULL;
@@ -965,7 +982,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen28-quantity-facts";
+    return "gen29-cb-3way";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

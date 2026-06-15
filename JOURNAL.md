@@ -9,6 +9,22 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15b — CB's "neutral" absorbs both "unknown" and "conflicted"
+gen29 maps parrot0's 4-valued entailment status onto CB's 3 labels. Entailed →
+entailment, negated → contradiction, and **both** "predicate never seen"
+(unknown) and "contradictory evidence" (conflicted) → neutral.
+- **Bought:** an exact fit to CB's label space (`entailment`/`contradiction`/
+  `neutral`) with no new solver — just a presentation mode over the gen23
+  engine, and `neutral` is the safe verdict when we genuinely cannot commit.
+- **Gave up:** the distinction between *ignorance* (nothing known) and
+  *conflict* (known contradiction) — two very different epistemic states now
+  look identical to a CB consumer. Arguably a flat contradiction in the
+  premises should read as "contradiction", not "neutral".
+- **Revisit if:** a benchmark or task rewards separating abstain-from-ignorance
+  from abstain-from-conflict, or treats premise-internal contradiction as a
+  "contradiction" label. Then LABEL mode needs a distinct mapping for
+  conflicted (and possibly a 4th outcome surfaced to the caller).
+
 ### D-2026-06-15a — quantities stored as string-atom values in a 3-ary fact
 gen28 represents a magnitude as `quantity(entity, unit, value)` where `value`
 is an ordinary KB atom (e.g. `"1.3"`), parsed back to a double only at compare
@@ -23,6 +39,40 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen29: SuperGLUE CB 3-way entailment verdict
+
+**Method (domain-pull, continued):** the captured first CB question ends
+"Answer entailment, contradiction, or neutral." parrot0 already *reasons* about
+entailment (gen23) but spoke a 4-valued vocabulary (Entailed / Contradicted /
+Not entailed / Unknown). The pull is a principled collapse into CB's 3 labels,
+with `neutral` as a first-class abstention.
+
+**Changed:** `brain.c` → `gen29-cb-3way`.
+- Generalized the entailment surface from a binary `explain` flag to a `mode`
+  enum (`ENT_PLAIN` / `ENT_EXPLAIN` / `ENT_LABEL`). New prefix `label premise:
+  ...; hypothesis: ...` returns exactly `Entailment.` / `Contradiction.` /
+  `Neutral.` — the words SuperGLUE CB's parser maps to its label space.
+- Reuses the gen23 solver untouched; LABEL is purely a presentation of the
+  existing verdict. Unknown and conflicted both render `Neutral.`
+- Five held-out `label premise:` cases added to `entail.chat` (entailment,
+  contradiction, and the three neutral routes).
+
+**Decision logged:** D-2026-06-15b (neutral absorbs unknown + conflicted).
+
+**Why:** Aligns parrot0's existing inference with a real benchmark's answer
+space. As with the others, the missing piece for CB end-to-end is turning the
+prose premise/hypothesis into facts — not built, not faked.
+
+**Observed:** all suites green (16 conversation cases incl. the new labels).
+Bench CB still scores 0 — correct: the natural-language premise isn't parsed
+into the `pred(args)` the surface needs.
+
+**Next:** see `TASK.md` — gen30 pulls COPA: a cause/effect reasoning primitive
+(`causes(a, b)`), the first genuinely *new* inference parrot0 lacks, rather
+than a remapping of an existing one.
 
 ---
 
