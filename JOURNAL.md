@@ -2,6 +2,37 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## 2026-06-16 - gen69: C6 step 2 — polar meta-questions
+
+**Changed:** `brain.c` -> `gen69-polar-meta`.
+- Extended `mod_meta` with honest, state-grounded answers for small polar
+  meta-questions: presence ("are you there?" / "ci sei?"), channel
+  ("can you hear me?" / "mi senti?"), and identity ("are you a bot?" /
+  "sei un bot?").
+- Presence gets a simple "Yes, I'm here."; channel honestly denies audio
+  ("No, I only read text. I can't hear audio."); identity is answered from the
+  reflective `i_am(parrot0)` fact so the claim is never hardcoded.
+- Italian cues live in the same `mod_meta` module with no Italian-only branch.
+  The canonicalizer maps "un" -> "a", so both "sei un bot" and "sei a bot"
+  cues are accepted and the same code path answers.
+- Added `tests/cases/polar_meta.chat` and `tests/cases/polar_meta.it.chat` as a
+  bilingual ratchet.
+
+**Why:** C6 step 2 asked for broader polar conversational questions not to fall
+into the knowledge fallback. The new failing tests showed they did — "are you
+there?" hit "I don't understand that yet.", "can you hear me?" was met with
+"Hmm, I don't know about hear yet.", and "are you a bot?" also walling.
+
+**Observed:** First run failed on the Italian bot case until the canonicalized
+form "sei a bot" was also accepted; after that `make test` is green: 60 chat
+cases plus persist, multigoal, grammar, anon, explain, howknow, booklearn,
+POSIX and POSIX-oracle suites.
+
+**Next:** C6 step 3 should run `make chat-sim` to measure whether these
+meta/casual walls are actually reduced in adversarial conversation before
+expanding the class further.
+
+
 ## 2026-06-16 - gen68: meta-conversation wall
 
 **Changed:** `brain.c` -> `gen68-meta-conversation`.

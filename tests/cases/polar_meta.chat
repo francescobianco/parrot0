@@ -1,0 +1,8 @@
+# gen69 (C6 step 2): polar meta-conversation questions should be answered
+# from self/conversation state, not from world knowledge or generic fallback.
+> are you there?
+< Yes, I'm here.
+> can you hear me?
+< No, I only read text. I can't hear audio.
+> are you a bot?
+< Yes, I am parrot0.

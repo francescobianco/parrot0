@@ -2199,6 +2199,46 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* C6 step 2: small polar meta-questions about presence, channel, and
+     * identity. Answers are honest and state-grounded: text input is available,
+     * audio is not, and the identity claim comes from i_am(parrot0). */
+    int presence = cue(buf, "are you there") ||
+                   cue(buf, "ci sei") ||
+                   cue(buf, "sei li");
+    if (presence) {
+        put("Yes, I'm here.", out, out_size);
+        return 1;
+    }
+
+    int channel = cue(buf, "can you hear me") ||
+                  cue(buf, "do you hear me") ||
+                  cue(buf, "mi senti") ||
+                  cue(buf, "mi ascolti");
+    if (channel) {
+        put("No, I only read text. I can't hear audio.", out, out_size);
+        return 1;
+    }
+
+    int bot = cue(buf, "are you a bot") ||
+              cue(buf, "are you an ai") ||
+              cue(buf, "are you a robot") ||
+              cue(buf, "sei un bot") ||
+              cue(buf, "sei un robot") ||
+              cue(buf, "sei a bot") ||
+              cue(buf, "sei a robot");
+    if (bot) {
+        const char *var[] = {NULL};
+        char id[4][KB_TERM_LEN];
+        size_t k = b->kb ? kb_match(b->kb, "i_am", var, 1, id, 4) : 0;
+        char msg[128];
+        if (k > 0)
+            snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
+        else
+            snprintf(msg, sizeof msg, "Yes, I am parrot0.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
     int repeat = cue(buf, "why do you keep saying") ||
                  cue(buf, "why keep saying") ||
                  cue(buf, "keep repeating") ||
@@ -3114,7 +3154,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen68-meta-conversation";
+    return "gen69-polar-meta";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
