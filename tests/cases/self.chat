@@ -11,6 +11,11 @@
 # module(...) jargon dump it used to be.
 > what can you do?
 < I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
+# gen64 (chat-sim driven): the capability intent is robust to chat-register
+# shorthand. "u" -> "you" via canonicalization, so "what can u do?" reaches the
+# same self-model answer instead of walling — the form many real users type.
+> what can u do?
+< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?

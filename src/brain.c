@@ -422,6 +422,12 @@ static const char *canonical_token(const char *w) {
         {"anche","also"},
         {"causa","causes"},
         {"cos'è", "what is"},
+        /* Chat-register shorthand (gen64), not a second language. "u"/"r" are
+         * English letters, but never stand-alone English *words*; in a chat
+         * agent a lone "u"/"r" overwhelmingly means you/are ("what can u do?",
+         * "who r u?"). Folding them here routes every intent through the same
+         * canonical path instead of accreting shorthand cues per module. */
+        {"u",   "you"}, {"r",  "are"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -2130,8 +2136,8 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                      cue(buf, "capabilit") || cue(buf, "you able to") ||
                      cue(buf, "you help with") || cue(buf, "can you help") ||
                      /* Italian cues */
-                     cue(buf, "cosa sai fare") || cue(buf, "cosa puoi fare") ||
-                     cue(buf, "che cosa sai fare");
+                     cue(buf, "cosa sai fare") || cue(buf, "puoi fare") ||
+                     cue(buf, "sai fare") || cue(buf, "che cosa sai fare");
 
     /* capability is the more specific intent ("what are you ABLE TO DO" also
      * contains the identity cue "what are you"), so test it first. Describe what
@@ -2832,7 +2838,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen63-robust-mixed-turns";
+    return "gen64-capability-robust-shorthand";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

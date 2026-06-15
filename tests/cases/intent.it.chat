@@ -8,3 +8,8 @@
 < I am parrot0.
 > cosa sai fare?
 < I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
+# gen64: the "puoi fare" variant ("che puoi fare?") reaches the same intent
+# through the same cue path — robustness from cues + canonicalization, not a
+# duplicated handler. ("che" is left untouched; the "puoi fare" cue carries it.)
+> che puoi fare?
+< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
