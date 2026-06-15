@@ -215,3 +215,68 @@ where the next tested capability should grow.
 language understanding collapses downstream RAG/agent/tool/coding-like tasks.
 MMLU-like domain transfer and BBH-like multi-step reasoning should then keep the
 system honest as knowledge and solver depth grow.
+
+
+## D-prop1 — Generative inference loop (PROPOSED, not yet built)
+
+> Proposed by F. (2026-06-15). Recorded for assessment; implementation deferred
+> pending a decision. This is a *direction*, not a single generation.
+
+**The idea.** Today `brain_respond()` runs inference **once** over the whole
+input and emits a whole reply. The proposal is to make generation **iterative
+and autoregressive**, the shape an LLM decodes in — but driven by **repeated
+deterministic inference** instead of a neural forward pass. Each step:
+
+1. infer over the current working context;
+2. emit the **next single token** of the answer;
+3. **append that token** back onto the working context;
+4. re-infer, conditioned on input + what has been emitted so far;
+5. repeat until a stop condition, so the answer grows as a *stream the system
+   conditions on as it produces it*.
+
+**Why it fits the thesis (the case for).** This is arguably the most faithful
+behavioural mirror of the real mechanism PRINCIPLES.md targets: large models
+*are* autoregressive — they reconstruct meaning by conditioning each next token
+on their own running output. Giving parrot0 the same loop shape is the
+reflexive-closure move the principles favour (the method becomes a feature, one
+level down). It also pushes articulation: it cleanly separates the **inference
+step** ("what comes next given the context") from the **generation control**
+(feedback, halting) — two things the current "a module claims the whole turn"
+design fuses. Complex replies could then *emerge* from many small inference
+steps rather than one monolithic responder.
+
+**The hard parts (the honest caveats).**
+- **What is a "token", and what infers it?** An LLM has a distribution over a
+  vocabulary; Prolog inference yields a derivation, not a next-word
+  distribution. The loop needs a genuinely new relation — something like
+  `next(Context, Word)` — that the KB can *resolve*. parrot0 has nothing like a
+  generative grammar today; its modules emit whole strings.
+- **Termination.** Needs an explicit stop token / end relation, or "no further
+  continuation provable", with a hard step bound (re-inferring a growing
+  context is O(n) per token, O(n²) per stream).
+- **Choice among continuations.** If several continuations are provable, which
+  wins? LLMs sample; pure Prolog takes the first solution under search order,
+  which may be arbitrary. A *principled* deterministic ranking is needed — and
+  any ranking is itself a small design choice (ideally itself knowledge, e.g.
+  `weight(Word, Context)`), to stay inside "determinism, no magic".
+- **The impostor risk (the crux).** If the continuation knowledge is a
+  hand-authored phrasebook, the loop degrades into an elaborate template engine
+  — exactly the `printf` parrot PRINCIPLES.md rejects. The honest version
+  requires the continuation relation to be **derived** (induced from facts /
+  conversation, or composed from real KB content), not canned.
+
+**Assessment / recommended shape.** Worth pursuing — it is the most
+structurally LLM-like mechanism proposed so far and sits squarely on the
+founding wager. But it is a large pivot (from "modules emit whole replies" to "a
+decoder over a continuation relation"), so it should enter as **small,
+reversible, tested steps**, not at once:
+
+1. A `decode` loop in the brain driving **one explicit continuation relation**
+   in the KB, with an explicit stop token and a deterministic, principled choice
+   rule — proven end-to-end on a held-out toy grammar of a few words.
+2. Only once the *loop shape* is proven, tackle the real source of continuation
+   knowledge (inducing/deriving `next/weight`), which is the part that decides
+   whether this is genuine emergence or a disguised parrot.
+
+Keep the existing single-shot path while the loop is proven beside it; promote
+only when tests show the streamed answer is at least as honest.

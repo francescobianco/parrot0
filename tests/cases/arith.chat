@@ -1,0 +1,24 @@
+# gen35: arithmetic over numbers -- pulled by BoolQ #6 ("can an odd number be
+# divided by an even number"). gen27/gen28 could only order magnitudes; this
+# computes with them. Tiny operator set; literal numbers via parse_num. Integral
+# results print as integers, non-integral compactly (Decision D-2026-06-15h).
+> what is 2 plus 2?
+< 4.
+> what is 10 minus 3?
+< 7.
+> what is 4 times 5?
+< 20.
+# A non-integral result keeps its fraction.
+> what is 1 plus 1.3?
+< 2.3.
+# Divisibility by integer remainder.
+> is 9 divisible by 3?
+< Yes.
+> is 9 divisible by 2?
+< No.
+# Division by zero is refused, not crashed.
+> is 8 divisible by 0?
+< I can't divide by zero.
+# Non-numbers are declined and fall through honestly.
+> what is gold plus silver?
+< I don't understand that yet.

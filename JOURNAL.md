@@ -9,6 +9,19 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15h — arithmetic results print integral when integral
+gen35 formats a computed value as a clean integer when it is integral
+(`2 plus 2` → `4`), else compactly via `%g` (`1 plus 1.3` → `2.3`).
+- **Bought:** natural-looking answers (`4`, not `4.0`) that the SuperGLUE
+  parsers and humans read without noise, and large integers avoid scientific
+  notation (whole-number path uses `%lld`).
+- **Gave up:** controlled precision on irrational/long-fraction results (`%g`
+  rounds to 6 significant digits), and a single canonical numeric type — values
+  flip between integer and float presentation by content.
+- **Revisit if:** a task needs fixed decimal places, exact rational output, or a
+  stable numeric type across operations. Then introduce an explicit number
+  representation/printer rather than per-result formatting.
+
 ### D-2026-06-15g — conjunction is two-conjunct, unary-only, AND-only
 gen34 answers exactly `z(x) AND z(y)` and `y(x) AND z(x)` — two conjuncts, over
 unary class membership, joined by AND.
@@ -108,6 +121,52 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen35: arithmetic / divisibility (BoolQ #6 road)
+
+**Method (domain-pull):** captured BoolQ #6, "can an odd number be divided by
+an even number" — a question about *computing* with numbers, not just ordering
+them, which gen27/gen28 never did.
+
+**Changed:** `brain.c` → `gen35-arithmetic`.
+- New cooperating part `mod_arith` (registry-reified; self-model lists it).
+  `what is <a> plus/minus/times <b>?` → the computed value; `is <a> divisible
+  by <b>?` → yes/no by integer remainder. Literal numbers via the shared
+  `parse_num`; division by zero refused; non-numbers declined (fall through).
+  No `math.h` — integral detection by `long long` round-trip.
+- `tests/cases/arith.chat` (held-out values): the three ops, a fractional
+  result, divisibility yes/no, zero-divisor refusal, non-number decline.
+
+**Decision logged:** D-2026-06-15h (integral results print as integers).
+
+**Why:** Directly revisits D-2026-06-15a — numbers are no longer purely inert;
+parrot0 can compute, not only compare. (The KB representation is still a string
+atom; computation happens at the surface, which is enough for this step.)
+
+**Observed:** all suites green (22 conversation cases).
+
+**Closing the second 4-iteration run (gen32–gen35):** gen32 built the long-
+deferred text→facts bridge (honest ~0 coverage on real prose, but real); gen33–
+gen35 then resumed domain-pull on freshly captured questions, adding
+equivalence, conjunction, and arithmetic — each a distinct representation or
+inference type the KB lacked, each held-out tested, none faked. parrot0 now has
+eleven cooperating parts. The standing gap remains open-prose extraction
+coverage; everything built composes through `read:` when the prose happens to
+fit parrot0's grammar.
+
+## Proposed direction (not yet built) — generative inference loop
+
+Idea (F., 2026-06-15): today `brain_respond` infers once over the whole input
+and emits a whole answer. The proposal is to make generation *iterative and
+autoregressive*, the way an LLM decodes token by token — but with **repeated
+Prolog-style inference** instead of a neural forward pass. Each step infers,
+emits the next single token, appends that token back onto the working input, and
+re-infers — so the answer grows as a stream the system conditions on as it goes.
+See `DESIGN.md` (D-prop1) for the fuller writeup, open questions, and my
+assessment. Logged here so it is not lost; implementation deferred pending a
+decision.
 
 ---
 

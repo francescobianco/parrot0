@@ -777,6 +777,73 @@ static int mod_compare(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: arith -------------------------------------------------------
+ * Arithmetic over numbers (gen35). gen27/gen28 could *order* magnitudes but
+ * never *compute* with them — numbers were inert (Decision D-2026-06-15a). The
+ * first SuperGLUE BoolQ #6 ("can an odd number be divided by an even number")
+ * is about arithmetic. This part computes `what is <a> plus/minus/times <b>?`
+ * and decides `is <a> divisible by <b>?` by integer remainder, over literal
+ * numbers (parsed with the shared `parse_num`). Operator set kept tiny on
+ * purpose; non-numbers are declined and fall through. */
+
+/* Format a value as a clean integer when it is integral, else compactly. */
+static void format_num(double v, char *buf, size_t sz) {
+    long long iv = (long long)v;
+    if ((double)iv == v) snprintf(buf, sz, "%lld", iv);
+    else                 snprintf(buf, sz, "%g", v);
+}
+
+static int mod_arith(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)b; (void)raw;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* "what is <a> plus/minus/times <b>?" -> the computed value */
+    if (nw == 5 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0) {
+        double a, c;
+        if (!parse_num(w[2], &a) || !parse_num(w[4], &c)) return 0;
+        double r;
+        if (strcmp(w[3], "plus") == 0)       r = a + c;
+        else if (strcmp(w[3], "minus") == 0) r = a - c;
+        else if (strcmp(w[3], "times") == 0) r = a * c;
+        else return 0;
+        char num[64], msg[80];
+        format_num(r, num, sizeof num);
+        snprintf(msg, sizeof msg, "%s.", num);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* "is <a> divisible by <b>?" -> yes/no via integer remainder */
+    if (nw == 5 && strcmp(w[0], "is") == 0 && strcmp(w[2], "divisible") == 0 &&
+        strcmp(w[3], "by") == 0) {
+        double a, c;
+        if (!parse_num(w[1], &a) || !parse_num(w[4], &c)) return 0;
+        if (c == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+        long long ai = (long long)a, ci = (long long)c;
+        int divisible;
+        if ((double)ai == a && (double)ci == c) {
+            divisible = (ai % ci == 0);
+        } else {
+            double q = a / c;
+            double rem = a - c * (double)(long long)q;
+            divisible = (rem > -1e-9 && rem < 1e-9);
+        }
+        put(divisible ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: quantity ----------------------------------------------------
  * Quantities as knowledge (gen28). gen27 could compare two literal numbers;
  * this part lets a magnitude be *stated, recalled, and compared as a fact*, so
@@ -1238,6 +1305,7 @@ static const Module registry[] = {
     {"memory",    mod_memory},
     {"self",      mod_self},
     {"compare",   mod_compare},
+    {"arith",     mod_arith},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"same",      mod_same},
@@ -1294,7 +1362,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen34-conjunction";
+    return "gen35-arithmetic";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

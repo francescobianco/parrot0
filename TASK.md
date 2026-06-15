@@ -4,32 +4,25 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen35 — numeric arithmetic / divisibility (BoolQ #6 road)
+## Goal: gen36 — decide the next pivot (extraction coverage vs generative loop)
 
-Domain-pull continues. BoolQ #6 is "can an odd number be divided by an even
-number" (gold: yes) — a question about *numbers and arithmetic*, which parrot0
-still cannot do: gen27/gen28 only *compared* magnitudes, never computed with
-them. This also directly revisits Decision D-2026-06-15a (numbers are inert
-string atoms).
+Two 4-iteration domain-pull runs (gen28–gen35) built eleven cooperating parts
+and confirmed the standing wall: open-prose extraction coverage. Two candidate
+next directions are on the table — pick one before coding gen36:
 
-### Design question
-What is the smallest arithmetic primitive that lets parrot0 actually compute on
-numbers — not just order them — without turning into a calculator language?
-
-Candidate: `what is <a> plus/minus/times <b>?` → the computed value; and
-`is <a> divisible by <b>?` → yes/no via integer remainder. Pure literal numbers
-first (like gen27's `mod_compare`), parsed with the existing `parse_num`. Keep
-the operator set tiny and the surface fixed.
-
-### Acceptance
-- `what is <a> plus <b>?` (and minus/times) returns the correct number.
-- `is <a> divisible by <b>?` answers yes/no by remainder; division by zero is
-  refused, not crashed.
-- Non-numbers are declined and fall through honestly (as gen27 does).
-- Held-out values prove it computes, not memorizes.
+1. **Raise extraction coverage** (continue the proven road): add a few more
+   real sentence shapes / light paraphrase handling to `mod_reader`'s parser
+   chain so `read:` lifts more of actual SuperGLUE prose, measured honestly by
+   the skipped count. Low risk, incremental.
+2. **Generative inference loop** (DESIGN D-prop1, proposed by F.): pivot toward
+   autoregressive generation via repeated inference. Higher value (most
+   structurally LLM-like mechanism yet) but a large pivot; start with the
+   smallest tested decode loop over one continuation relation, single-shot path
+   kept beside it.
 
 ### Notes
 - Discovery tooling stays (`PARROT0_TRACE` + `--max-examples 1`).
-- If integer-vs-float formatting forces a choice (e.g. `2 plus 2` → `4` vs
-  `4.0`), make it and log it in JOURNAL "Decisions".
-- Do not hardcode benchmark answers.
+- If (2) is chosen, the crux to protect against is the phrasebook impostor: the
+  continuation relation must be derived from real KB state, not hand-authored.
+- Do not hardcode benchmark answers. See JOURNAL "Decisions" for the
+  provisional choices the recent gens may force a revisit of.
