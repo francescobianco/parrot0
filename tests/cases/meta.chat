@@ -1,0 +1,12 @@
+# gen68: meta-conversation questions are about the exchange itself, not facts.
+# The answers are grounded in local conversational state and limits.
+> are you paying attention?
+< Yes. I read each message in this conversation.
+> are you even reading my messages?
+< I am reading this conversation turn by turn.
+> what are you up to?
+< I'm tracking this conversation; this is turn 3.
+> do you understand me?
+< I understand some patterns, and I say when I do not.
+> why do you keep saying that?
+< I repeat when no module can claim the message; that is a gap to improve.

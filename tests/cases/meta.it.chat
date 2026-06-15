@@ -1,0 +1,11 @@
+# gen68 Italian mirror: same meta-conversation code path, Italian surface cues.
+> mi stai ascoltando?
+< Yes. I read each message in this conversation.
+> mi stai ascoltando davvero?
+< I am reading this conversation turn by turn.
+> che stai facendo?
+< I'm tracking this conversation; this is turn 3.
+> capisci quello che dico?
+< I understand some patterns, and I say when I do not.
+> perche continui a dirlo?
+< I repeat when no module can claim the message; that is a gap to improve.

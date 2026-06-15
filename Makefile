@@ -63,6 +63,7 @@ test: build
 	@./tests/anon.sh
 	@./tests/explain.sh
 	@./tests/howknow.sh
+	@./tests/booklearn.sh
 	@./tests/posix.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
 

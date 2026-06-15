@@ -1495,6 +1495,55 @@ static size_t learn_word_stream(Brain *b, char **w, size_t nw) {
     return pairs;
 }
 
+/* Start each `read:` passage as a fresh corpus for generation. The reader still
+ * accumulates extracted facts in the KB, but the continuation model represents
+ * the most recently read passage, so a held-out second passage can measurably
+ * shift `say <seed>` instead of tying the first passage by insertion order. */
+static void clear_generation_model(Brain *b) {
+    if (!b || !b->kb) return;
+
+    char prevs[128][KB_TERM_LEN];
+    const char *any3[] = {NULL, NULL, NULL};
+    size_t np = kb_match(b->kb, "cont", any3, 3, prevs, 128);
+    for (size_t i = 0; i < np; i++) {
+        const char *word_pat[] = {prevs[i], NULL, NULL};
+        char words[128][KB_TERM_LEN];
+        size_t nw = kb_match(b->kb, "cont", word_pat, 3, words, 128);
+        for (size_t j = 0; j < nw; j++) {
+            const char *cnt_pat[] = {prevs[i], words[j], NULL};
+            char counts[16][KB_TERM_LEN];
+            size_t nc = kb_match(b->kb, "cont", cnt_pat, 3, counts, 16);
+            for (size_t k = 0; k < nc; k++) {
+                const char *old[] = {prevs[i], words[j], counts[k]};
+                kb_retract(b->kb, "cont", old, 3);
+            }
+        }
+    }
+
+    char p1s[128][KB_TERM_LEN];
+    const char *any4[] = {NULL, NULL, NULL, NULL};
+    size_t n1 = kb_match(b->kb, "cont2", any4, 4, p1s, 128);
+    for (size_t i = 0; i < n1; i++) {
+        const char *p2_pat[] = {p1s[i], NULL, NULL, NULL};
+        char p2s[128][KB_TERM_LEN];
+        size_t n2 = kb_match(b->kb, "cont2", p2_pat, 4, p2s, 128);
+        for (size_t j = 0; j < n2; j++) {
+            const char *word_pat[] = {p1s[i], p2s[j], NULL, NULL};
+            char words[128][KB_TERM_LEN];
+            size_t nw = kb_match(b->kb, "cont2", word_pat, 4, words, 128);
+            for (size_t k = 0; k < nw; k++) {
+                const char *cnt_pat[] = {p1s[i], p2s[j], words[k], NULL};
+                char counts[16][KB_TERM_LEN];
+                size_t nc = kb_match(b->kb, "cont2", cnt_pat, 4, counts, 16);
+                for (size_t m = 0; m < nc; m++) {
+                    const char *old[] = {p1s[i], p2s[j], words[k], counts[m]};
+                    kb_retract(b->kb, "cont2", old, 4);
+                }
+            }
+        }
+    }
+}
+
 /* Look up the stored count for a transition, or 0 if absent. `argc` counts the
  * context+word slots (2 for cont, 3 for cont2); the trailing count slot is the
  * variable kb_match binds. */
@@ -1745,6 +1794,7 @@ static int mod_reader(Brain *b, const char *norm, const char *raw,
     buf[plen] = '\0';
 
     size_t learned = 0, skipped = 0;
+    clear_generation_model(b);
     read_passage(b, buf, &learned, &skipped);
 
     char msg[128];
@@ -2094,6 +2144,73 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
     /* two concrete mentions co-refer iff they name the same entity */
     put(strcmp(a, target) == 0 ? "Yes." : "No.", out, out_size);
     return 1;
+}
+
+/* --- module: meta --------------------------------------------------------
+ * Meta-conversation is not world knowledge: the user is asking about this
+ * exchange itself (attention, reading, understanding, repetition, current
+ * activity). Answer from local state and limits instead of falling through to
+ * the knowledge fallback or the identity module. */
+static int mod_meta(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    while (len > 0 && (buf[len - 1] == '?' || buf[len - 1] == '!' ||
+                       buf[len - 1] == '.' || buf[len - 1] == ' '))
+        buf[--len] = '\0';
+
+    int attention = cue(buf, "paying attention") ||
+                    cue(buf, "reading my messages") ||
+                    cue(buf, "read my messages") ||
+                    cue(buf, "listening") ||
+                    cue(buf, "ascoltando") ||
+                    cue(buf, "mi ascolti");
+    if (attention) {
+        if (strcmp(b->last_reply, "Yes. I read each message in this conversation.") == 0)
+            put("I am reading this conversation turn by turn.", out, out_size);
+        else
+            put("Yes. I read each message in this conversation.", out, out_size);
+        return 1;
+    }
+
+    int activity = cue(buf, "what are you up to") ||
+                   cue(buf, "what are you doing") ||
+                   cue(buf, "che stai facendo") ||
+                   cue(buf, "cosa stai facendo");
+    if (activity) {
+        char msg[128];
+        snprintf(msg, sizeof msg, "I'm tracking this conversation; this is turn %lu.",
+                 b->turns);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    int understand = cue(buf, "do you understand me") ||
+                     cue(buf, "understand what i say") ||
+                     cue(buf, "capisci") ||
+                     cue(buf, "capire quello");
+    if (understand) {
+        put("I understand some patterns, and I say when I do not.", out, out_size);
+        return 1;
+    }
+
+    int repeat = cue(buf, "why do you keep saying") ||
+                 cue(buf, "why keep saying") ||
+                 cue(buf, "keep repeating") ||
+                 cue(buf, "perche continui") ||
+                 cue(buf, "perché continui");
+    if (repeat) {
+        put("I repeat when no module can claim the message; that is a gap to improve.",
+            out, out_size);
+        return 1;
+    }
+
+    return 0;
 }
 
 /* --- module: self --------------------------------------------------------
@@ -2923,6 +3040,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
     {"memory",    mod_memory},
+    {"meta",      mod_meta},
     {"self",      mod_self},
     {"compare",   mod_compare},
     {"arith",     mod_arith},
@@ -2996,7 +3114,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen66-grounded-fallback-lexicon";
+    return "gen68-meta-conversation";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

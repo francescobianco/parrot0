@@ -4,43 +4,33 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-> gen66 (grounded fallback + lexical knowledge layer) is DONE — see JOURNAL.
+> gen67 (M2 step 1, measurable book learning shift) is DONE — see JOURNAL.
+> gen68 (meta-conversation wall: attention/reading/understanding/repetition) is DONE — see JOURNAL.
 > gen65 symbolic challenge remains parked as the S-series in TASKLIST.md.
 
-## Goal: M2 step 1 — learning from books (linguistic track)
+## Goal: C6 step 2 — answer simple polar meta-questions without pretending
 
-M2: demonstrate that parrot0 has *learned* from reading a book or passage.
-
-M2 has two honest tracks:
-- (a) **Linguistic/distributional** — already possible: `read:` induces the
-  continuation model (`cont`/`cont2`) from prose, so reading book A vs book B
-  changes what `say` produces. This generation makes that learning *measurable*
-  and *held-out*.
-- (b) **Propositional** — gated by the open-prose extraction wall; left for a
-  later generation.
-
-This generation targets track (a).
+Latest chat-sim transcripts and gen68 showed that parrot0 can now answer a
+small set of meta-conversation questions from local state: attention, reading,
+understanding limits, current activity, and repetition. The next wall is broader
+polar conversational questions that are not facts about the world and should not
+fall into the knowledge fallback.
 
 ### Design question
-How can we prove, with a test, that reading a passage changes the induced
-language model in the expected direction? Approach: a new `tests/booklearn.sh`
-that loads a hermetic passage, runs `say <seed>`, checks that the continuation
-matches the passage; then loads a *different* passage, runs the same `say`, and
-checks that the continuation shifted. Both passages are short, test-committed
-prose so the result is deterministic and reproducible.
+Can parrot0 classify a small yes/no conversational act such as "are you there?",
+"can you hear me?", "are you a bot?", or Italian mirrors, and answer from its
+self/conversation state without claiming human senses or open-domain knowledge?
 
 ### Acceptance
-- After `read: the otter swims downstream. the otter swims often.`, `say the`
-  produces "the otter swims ..." (already true; this generation locks it as a
-  regression test).
-- After a second `read:` with a disjoint passage (`the robot walks slowly. the
-  robot walks daily.`), `say the` produces "the robot walks ..." instead.
-- Add `tests/booklearn.sh` to `make test`.
+- Add held-out English and Italian cases for presence/channel questions.
+- Answers must be honest and state-grounded: e.g. text input is available, audio
+  hearing is not, identity comes from `i_am(parrot0)`.
+- Avoid duplicating content logic in an Italian-only branch; extend cues or the
+  canonicalization layer only where the same module owns both languages.
+- `make test` must pass.
 
 ### Notes
-- Track (b) remains parked until the multi-word-entity / open-prose extraction
-  wall is addressed.
-- If another `make chat-sim` round is requested, the next improvement should
-  probably target generic yes/no/casual questions or better wellbeing handling
-  (e.g. "what are you up to?"), because the latest transcript shows the
-  remaining wall-rate is dominated by those, not by mixed-act hijacks.
+- M2 propositional book learning remains parked until the multi-word-entity /
+  open-prose extraction wall is addressed.
+- The next chat-sim round should measure whether these meta/casual walls are
+  actually reduced before expanding the class further.

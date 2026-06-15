@@ -2,6 +2,59 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## 2026-06-16 - gen68: meta-conversation wall
+
+**Changed:** `brain.c` -> `gen68-meta-conversation`.
+- Added `mod_meta`, registered before `self`, for questions about the exchange
+  itself: attention/reading, current activity, understanding limits, and why the
+  bot repeats itself.
+- Responses are grounded in local state and limits: `turns`, `last_reply`, and
+  the fact that unmatched turns fall through the module registry. The module
+  does not claim open-domain understanding.
+- Added `tests/cases/meta.chat` and `tests/cases/meta.it.chat` as a bilingual
+  ratchet. Updated `self.chat` because the reflective module list now honestly
+  includes `meta`.
+
+**Why:** the proposed emergence test exposed a real wall: "are you paying
+attention?", "are you even reading my messages?", "do you understand me?" and
+Italian mirrors fell into generic fallback or lexical ignorance; "what are you
+up to?" was hijacked by the identity cue. These are not world-fact questions;
+they are meta-conversation acts and need a separate structure.
+
+**Observed:** first test run failed exactly on the new cases until `meta` was
+registered before `self`; after updating the reflective module-list expectation,
+`make test` is green: 58 chat cases plus persist, multigoal, grammar, anon,
+explain, howknow, booklearn, POSIX and POSIX-oracle suites.
+
+**Next:** C6 step 2 should broaden this carefully to polar channel/presence
+questions ("are you there?", "can you hear me?", Italian mirrors) while staying
+honest about text-only input and self-state.
+
+
+## 2026-06-16 - gen67: measurable book learning shift
+
+**Changed:** `brain.c` -> `gen67-book-learning-shift`.
+- `read:` now starts a fresh generative corpus by clearing only the induced
+  `cont`/`cont2` continuation facts before ingesting the new passage.
+- Extracted facts still accumulate in the KB; only the distributional language
+  model is replaced, so `say <seed>` reflects the most recently read text.
+- Added `tests/booklearn.sh` and wired it into `make test`: otter prose first
+  drives `say the` to "the otter swims downstream", then disjoint robot prose
+  shifts the same held-out seed to "the robot walks slowly".
+
+**Why:** M2 step 1 needs a deterministic, held-out proof that reading a passage
+changes the induced language model. The previous cumulative counts tied the
+second passage with the first and insertion order kept generation on the older
+text, so the learning signal was not measurable.
+
+**Observed:** `make test` green: 56 chat cases plus persist, multigoal, grammar,
+anon, explain, howknow, new booklearn, POSIX and POSIX-oracle suites.
+
+**Next:** M2 track (a) is now locked as a regression. The propositional book
+learning track remains gated by open-prose extraction; otherwise the next useful
+conversation improvement is the parked generic yes/no/casual-question wall.
+
+
 ## 2026-06-15 — gen66: grounded fallback + lexical knowledge layer
 
 **Changed:** `brain.c` -> `gen66-grounded-fallback-lexicon`.
