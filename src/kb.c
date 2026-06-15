@@ -841,6 +841,14 @@ static int append_piece(char *out, size_t out_size, size_t *off,
     return 1;
 }
 
+/* Continuation transitions (cont/cont2) are generative-model machinery, not
+ * world beliefs about an entity (gen41): a passage fed to `read:` populates the
+ * KB with both. Introspection ("what do you know about x?") should report
+ * knowledge, not the language model's internals, so these are filtered out. */
+static int is_model_pred(const char *pred) {
+    return strcmp(pred, "cont") == 0 || strcmp(pred, "cont2") == 0;
+}
+
 int kb_describe_entity(const KB *kb, const char *entity,
                        char *out, size_t out_size) {
     if (!kb || !term_ok(entity) || !out || out_size == 0) return 0;
@@ -850,7 +858,7 @@ int kb_describe_entity(const KB *kb, const char *entity,
     int count = 0;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
-        if (!fact_mentions(f, entity)) continue;
+        if (!fact_mentions(f, entity) || is_model_pred(f->pred)) continue;
         char piece[220];
         if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
         else render_fact_direct(f, entity, 0, piece, sizeof piece);

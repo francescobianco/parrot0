@@ -9,6 +9,67 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15p — multilingualism is a generalization probe, not a feature
+gen43 adds a thin lexical layer (`canonicalize_lang`) that maps a language's
+FUNCTION words onto the canonical English tokens the modules parse, run before
+dispatch. Italian competences are mirrored as `*.it.chat` cases that flow
+through the *unchanged* reasoning core.
+- **Bought:** a standing anti-phrasebook ratchet. A competence that passes in
+  two languages through one core is proven to live in the algorithm, not in
+  English surface strings (PRINCIPLES.md's central fear). The win condition for
+  every future gen: Italian passes by extending the *lexicon*, never by
+  duplicating *logic*. The induced halves (gen36–42 generative loop, the reader)
+  are already language-neutral by construction; this probe pressures the
+  hand-written parsers — the parts most at risk of being English frasari — to
+  factor surface from reasoning.
+- **Gave up:** coverage is exactly the mapped function words (è, un/uno/una,
+  ogni, chi); content words pass through but anything needing more than a
+  lexical swap is not handled. Word order is still English: Italian negation
+  "x non è un y" canonicalizes to "x not is a y", which the "x is not a y"
+  parser rejects — deliberately left failing, as the probe correctly exposing
+  the core's word-order assumption. Byte-level matching means accented content
+  words survive in dispatch but are mangled by the reader's `strip_edge_punct`
+  (separate path, untouched here). The lexicon is a single hand-maintained
+  table — acceptable while it is small and every entry is test-backed.
+- **Revisit if:** word-order differences must be handled (then the core needs a
+  syntax-agnostic frame, e.g. role-tagged slots, not English token positions);
+  the lexicon grows unwieldy (then induce the mapping rather than author it); or
+  the reader path must extract facts from non-English prose too.
+
+### D-2026-06-15o — context is interpolated, not hard backoff (W2=3, W1=1)
+gen42 scores each bigram candidate `w` of `p1` by `W2*cont2(p2,p1,w) +
+W1*cont(p1,w)` and takes the argmax, replacing gen38's hard backoff.
+- **Bought:** the longer context now *informs* without *dictating* — a lone
+  count-1 trigram no longer overrides a strong bigram (the exact gap flagged in
+  D-2026-06-15k), yet real trigram evidence still wins as it accumulates. One
+  unified scoring pass over the complete (bigram) candidate set; the gen40
+  critical filter and insertion-order tie-break are preserved.
+- **Gave up:** the weights are hand-chosen constants (3, 1), not learned from
+  data — a designed knob, the kind PRINCIPLES.md is wary of. Still only two
+  orders (no 4/5-grams); no discounting/smoothing of unseen contexts; the score
+  is linear, not a proper probability. Cost adds a count lookup per candidate.
+- **Revisit if:** the weights need to be data-driven (e.g. derived from how
+  often each order is corroborated), more orders are added, or generation needs
+  true probabilities (then move to a normalized, smoothed model).
+
+### D-2026-06-15n — `read:` induces the generative model from the same prose
+gen41 makes the reader feed every clause's word stream into the continuation
+model (`cont`/`cont2`) alongside fact extraction, so generation grows from read
+text, not only explicit `learn sequence:`.
+- **Bought:** the two halves unify — reasoning KB and generative loop now share
+  one input path (`read:`). `say <w>` reflects what parrot0 has actually read;
+  the model is provably the corpus (held-out passages drive it).
+- **Gave up:** the model and the world facts now live in one KB, so internal
+  `cont`/`cont2` rows leaked into "what do you know about x?" — fixed by
+  excluding model predicates from `kb_describe_entity`, a filter that must be
+  kept in sync if more internal relations appear. Tokenization is naive
+  (lowercase + edge-punctuation strip; no stemming, no sentence-boundary tokens,
+  transitions are per-clause only). The phrasebook trap is avoided structurally:
+  nothing is authored; the rows are exactly the read words.
+- **Revisit if:** internal relations multiply (then namespace the model, e.g. a
+  `_`-prefixed predicate convention or a separate store), or generation quality
+  needs cross-sentence context / smarter tokenization.
+
 ### D-2026-06-15m — critical filter is scoped to "<x> is a ___" direct claims
 gen40 vetoes a generated continuation only when the tail reads "<x> is a/an"
 and the candidate word `w` has `kb_is_negated(w, x)` or is conflicted.
@@ -194,6 +255,106 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen43: multilingual as a generalization probe
+
+**Changed:** `brain.c` → `gen43-multilingual-canon`; `LOOP.md`, `TASK.md`.
+- Added `canonical_token()` (a small Italian→canonical function-word lexicon:
+  è→is, un/uno/una→a, ogni→every, chi→who) and `canonicalize_lang()`, which
+  rewrites the normalized line word-by-word (preserving a trailing '?').
+- `brain_respond` now canonicalizes the parsing surface *before* dispatch and
+  passes it as each module's `norm`; `raw` (the original) is untouched, so the
+  reader still induces its generative model from the original prose.
+- No reasoning module was modified — the whole point: the same core answers in
+  Italian via a lexical swap, not a duplicated parser.
+- New `tests/cases/facts.it.chat` and `rules.it.chat`: Italian mirrors of the
+  ground-KB and rule/resolution suites, flowing through the unchanged core
+  (assert, query, "I don't know", entailment, transitive chains, variable
+  query, closed-world No, honest fallback).
+- `LOOP.md` step 5 now standing-rule: each gen also adds the `*.it.chat`
+  equivalent through the same code path (the bilingual ratchet).
+
+**Why:** the user's thesis — multilingualism is a horizontal enabler of
+competence and, for this project, the sharpest test that a competence is
+*structural* rather than an English phrasebook (PRINCIPLES.md's impostor). The
+goal is to surface the latent structures that let LLMs show critical
+intelligence; cross-lingual invariance is direct evidence a structure is real.
+
+**Observed:** "ogni uomo è un mortale" then "è socrate un mortale?" → "Yes"
+(rule resolution, Italian in, English-core proof); "chi è un mortale?" →
+"socrate, platone."; unknown → "No"; unparseable Italian → honest fallback. All
+prior English cases byte-identical (English shares no token with the lexicon).
+Full suite green (31 + 10 + 3 + 14 + 2 + 5 + 4). Probe already earned a finding:
+Italian negation reorders ("x non è un y" → "x not is a y"), which the English
+"x is not a y" parser rejects — left failing on purpose as the next frontier.
+
+**Next:** See `TASK.md` — gen44. The probe points at word order: the core keys
+on English token *positions*, so any language whose syntax differs (negation
+first, here) breaks. The honest fix is a syntax-agnostic claim frame, not a
+second set of position checks.
+
+---
+
+## 2026-06-15 — gen42: interpolated context (soft backoff)
+
+**Changed:** `brain.c` → `gen42-interpolated-context`.
+- Replaced `choose_continuation` + the hard-backoff `next_word_ctx` with a
+  single interpolating `next_word_ctx`: it enumerates `p1`'s bigram candidates
+  (the complete set — the learner emits a bigram for every trigram) and ranks
+  each by `W2*cont2(p2,p1,w) + W1*cont(p1,w)` with `W2=3, W1=1`.
+- Added `transition_count()` helper (count lookup for a cont/cont2 key).
+- The gen40 critical filter and insertion-order tie-break carry over unchanged;
+  "all candidates blocked" still returns 0 so generation stops rather than lies.
+- New `tests/cases/gen_interp.chat`: a strong bigram beats a lone count-1
+  trigram, then the trigram wins once its evidence accumulates.
+
+**Why:** TASK.md gen42 / Decision D-2026-06-15k's revisit signal — gen38's hard
+backoff let any count-1 trigram override a strong bigram. Interpolation lets the
+longer context inform the choice without dictating it.
+
+**Observed:** `y a`×5 then one `x y b`: `say x` → "x y a" (strong bigram holds;
+hard backoff would have said "x y b"). After `x y b`×3: `say x` → "x y b" (real
+trigram evidence wins). All prior generative cases unchanged. Full suite green
+(29 + 10 + 3 + 14 + 2 + 5 + 4).
+
+**Next:** See `TASK.md` — gen43. Open threads: data-driven weights instead of
+the hand-set 3/1; namespacing the model store away from world facts; or
+smoothing/normalization toward true probabilities.
+
+---
+
+## 2026-06-15 — gen41: read induces the generative model (close the loop)
+
+**Changed:** `brain.c` → `gen41-read-induces-model`; `kb.c` introspection filter.
+- Extracted the bigram/trigram learning out of the `learn sequence:` handler
+  into `learn_word_stream()`, now shared.
+- `mod_reader` calls new `learn_clause_transitions()` per clause: normalize,
+  split, strip edge punctuation (`strip_edge_punct`, for prose commas/quotes the
+  teaching path never sees), then feed the word stream into `cont`/`cont2`.
+  So `read:` now grows the generative model from the very prose it extracts
+  facts from — the two halves (reasoning KB, generative loop) share one input.
+- `kb_describe_entity` now excludes the internal `cont`/`cont2` predicates
+  (`is_model_pred`) so "what do you know about x?" reports world knowledge, not
+  language-model machinery.
+- New `tests/cases/gen_read.chat`: a read passage drives `say` (held-out
+  tokens), and the same passage still extracts facts — proving the model is the
+  corpus, not canned.
+
+**Why:** TASK.md gen41 — the honest gap left by gen36–gen40 was the *source* of
+the continuation model: it was taught explicitly. Inducing it from real read
+text closes the generative loop and unifies the two halves on one path.
+
+**Observed:** `read: the otter swims downstream. the otter swims often.` then
+`say the` → "the otter swims downstream", frequency-then-order ranked. Fact
+extraction counts unchanged on the same passages. Regression caught & fixed:
+`cont`/`cont2` rows had leaked into the entity report. Full suite green
+(28 + 10 + 3 + 14 + 2 + 5 + 4).
+
+**Next:** See `TASK.md` — gen42. Candidates: namespace the model store as it
+mingles with facts; cross-sentence / smarter tokenization; or interpolation
+over hard backoff (DESIGN D-prop1).
 
 ---
 

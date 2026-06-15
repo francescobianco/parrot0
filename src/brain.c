@@ -193,6 +193,57 @@ static int is_article(const char *w) {
     return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
 }
 
+/* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
+ * Map one FUNCTION word of any supported language onto the canonical (English)
+ * token the reasoning modules already parse, or NULL to leave it untouched.
+ * Content words are opaque symbols and are never listed, so the same reasoning
+ * core answers in any language whose function words are mapped — *no module is
+ * duplicated*. Only tokens that cannot occur in English are listed, so English
+ * input is provably unaffected. The competence is thus shown to live in the
+ * algorithm, not in English surface strings; where a language needs more than a
+ * lexical swap (e.g. Italian negation "x non è un y" reorders to "x not is a y",
+ * not the English "x is not a y"), that is the probe correctly exposing a
+ * word-order assumption the core still bakes in — a future iteration, not a
+ * second phrasebook. */
+static const char *canonical_token(const char *w) {
+    static const struct { const char *src, *dst; } lex[] = {
+        /* Italian */
+        {"è",   "is"},
+        {"un",  "a"}, {"uno", "a"}, {"una", "a"},
+        {"ogni","every"},
+        {"chi", "who"},
+    };
+    for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
+        if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
+    return NULL;
+}
+
+/* Rewrite a normalized line, canonicalizing each word's function-word form.
+ * A trailing '?' is kept on its token so question parsers still see it. For
+ * all-English input every token maps to NULL, so the output equals the input
+ * (modulo whitespace already collapsed by the parsers' tokenizer). */
+static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
+    if (out_size == 0) return;
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) { snprintf(out, out_size, "%s", norm); return; }
+    memcpy(buf, norm, len + 1);
+
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    size_t off = 0;
+    out[0] = '\0';
+    for (size_t i = 0; i < nw && off + 1 < out_size; i++) {
+        char *tok = w[i];
+        size_t tl = strlen(tok);
+        const char *tail = "";
+        if (tl > 0 && tok[tl - 1] == '?') { tok[tl - 1] = '\0'; tail = "?"; }
+        const char *canon = canonical_token(tok);
+        off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                i ? " " : "", canon ? canon : tok, tail);
+    }
+}
+
 /* Minimal discourse coreference (gen22): pronouns resolve to the most recent
  * concrete entity mentioned in the knowledge surface. */
 static int is_entity_pronoun(const char *w) {
@@ -1165,24 +1216,53 @@ static void learn_transition2(Brain *b, const char *p1, const char *p2,
     kb_assert(b->kb, "cont2", args, 4);
 }
 
-/* Choose the highest-count continuation in `rel` for context `ctx`, applying
- * the gen40 CRITICAL FILTER: if `subj` is non-NULL, the running output is a
- * claim "<subj> is a ___", so any candidate word `w` for which the KB knows
- * `w(subj)` to be false or conflicted is skipped — the learned language model
- * is not allowed to utter a belief the system rejects. Tie -> insertion order.
- * Returns 0 = no candidates, 1 = chose an allowed word, 2 = candidates existed
- * but every one was blocked (so the caller should stop rather than lie). */
-static int choose_continuation(Brain *b, const char *rel, const char *const *ctx,
-                               size_t ctxn, const char *subj,
-                               char *word, size_t wsize) {
-    const char *pat[KB_MAX_ARGS];
-    for (size_t i = 0; i < ctxn; i++) pat[i] = ctx[i];
-    pat[ctxn] = NULL;       /* word  */
-    pat[ctxn + 1] = NULL;   /* count */
-    size_t argc = ctxn + 2;
+/* Learn the bigram (cont) and trigram (cont2) transitions across a word stream,
+ * returning the number of bigram pairs learned. Shared by `learn sequence:` and
+ * the reader (gen41) so the generative model can grow from the same prose the
+ * fact extractor reads, not only from explicit teaching. */
+static size_t learn_word_stream(Brain *b, char **w, size_t nw) {
+    size_t pairs = 0;
+    for (size_t i = 0; i + 1 < nw; i++) {
+        if (strlen(w[i]) >= KB_TERM_LEN || strlen(w[i + 1]) >= KB_TERM_LEN)
+            continue;
+        learn_transition(b, w[i], w[i + 1]);                /* bigram  */
+        if (i + 2 < nw && strlen(w[i + 2]) < KB_TERM_LEN)
+            learn_transition2(b, w[i], w[i + 1], w[i + 2]); /* trigram */
+        pairs++;
+    }
+    return pairs;
+}
 
+/* Look up the stored count for a transition, or 0 if absent. `argc` counts the
+ * context+word slots (2 for cont, 3 for cont2); the trailing count slot is the
+ * variable kb_match binds. */
+static long transition_count(Brain *b, const char *rel,
+                             const char *const *key, size_t keyn) {
+    const char *pat[KB_MAX_ARGS];
+    for (size_t i = 0; i < keyn; i++) pat[i] = key[i];
+    pat[keyn] = NULL; /* count */
+    char cnt[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, rel, pat, keyn + 1, cnt, 4);
+    return (k > 0) ? strtol(cnt[0], NULL, 10) : 0;
+}
+
+/* Choose the next word by INTERPOLATING the bigram and trigram evidence
+ * (gen42), replacing gen38's hard backoff. Each bigram candidate `w` of `p1`
+ * scores W2*cont2(p2,p1,w) + W1*cont(p1,w): the longer context informs the
+ * choice without dictating it, so a single count-1 trigram no longer overrides
+ * a strong bigram (Decision D-2026-06-15k). Every trigram continuation has a
+ * matching bigram (the learner emits both), so the bigram set is the complete
+ * candidate set. The gen40 CRITICAL FILTER still applies: when `subj` is set
+ * the running output is a claim "<subj> is a ___", and any `w` the KB knows
+ * `w(subj)` false/conflicted is skipped. Tie -> insertion order. Returns 1 if a
+ * word was chosen, 0 if there are no candidates or every one was blocked (the
+ * caller then stops rather than utter a falsehood). */
+static int next_word_ctx(Brain *b, const char *p2, const char *p1,
+                         const char *subj, char *word, size_t wsize) {
+    const long W2 = 3, W1 = 1; /* trigram weight dominates but does not dictate */
+    const char *pat[] = {p1, NULL, NULL};
     char words[64][KB_TERM_LEN];
-    size_t k = kb_match(b->kb, rel, pat, argc, words, 64);
+    size_t k = kb_match(b->kb, "cont", pat, 3, words, 64);
     if (k == 0) return 0;
 
     long best = -1;
@@ -1195,34 +1275,19 @@ static int choose_continuation(Brain *b, const char *rel, const char *const *ctx
                 kb_is_conflicted(b->kb, words[i], a, 1))
                 continue; /* would assert a known-false claim: refuse to say it */
         }
-        const char *cpat[KB_MAX_ARGS];
-        for (size_t j = 0; j < ctxn; j++) cpat[j] = ctx[j];
-        cpat[ctxn] = words[i];
-        cpat[ctxn + 1] = NULL;
-        char cnt[4][KB_TERM_LEN];
-        size_t ck = kb_match(b->kb, rel, cpat, argc, cnt, 4);
-        long c = (ck > 0) ? strtol(cnt[0], NULL, 10) : 0;
-        if (c > best) { best = c; bi = i; found = 1; } /* strict > -> first tie */
+        const char *bkey[] = {p1, words[i]};
+        long c1 = transition_count(b, "cont", bkey, 2);
+        long c2 = 0;
+        if (p2) {
+            const char *tkey[] = {p2, p1, words[i]};
+            c2 = transition_count(b, "cont2", tkey, 3);
+        }
+        long score = W2 * c2 + W1 * c1;
+        if (score > best) { best = score; bi = i; found = 1; } /* > -> first tie */
     }
-    if (!found) return 2; /* candidates existed, all blocked */
+    if (!found) return 0; /* candidates existed, all blocked -> stop */
     snprintf(word, wsize, "%s", words[bi]);
     return 1;
-}
-
-/* Context-aware next word: prefer the 2-word context (cont2), backing off to
- * the bigram (cont) when no trigram continuation exists. The critical filter
- * (`subj`) is threaded through both levels (gen38 backoff + gen40 filter). */
-static int next_word_ctx(Brain *b, const char *p2, const char *p1,
-                         const char *subj, char *word, size_t wsize) {
-    if (p2) {
-        const char *ctx[] = {p2, p1};
-        int s = choose_continuation(b, "cont2", ctx, 2, subj, word, wsize);
-        if (s == 1) return 1;
-        if (s == 2) return 0; /* trigram candidates all blocked -> stop */
-        /* s == 0: no trigram context, fall through to the bigram model */
-    }
-    const char *ctx[] = {p1};
-    return choose_continuation(b, "cont", ctx, 1, subj, word, wsize) == 1;
 }
 
 static void generate_from(Brain *b, const char *seed, char *out, size_t out_size) {
@@ -1264,15 +1329,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         snprintf(rem, sizeof rem, "%s", norm + 15);
         char *w[64];
         size_t nw = split_words(rem, w, 64);
-        size_t pairs = 0;
-        for (size_t i = 0; i + 1 < nw; i++) {
-            if (strlen(w[i]) >= KB_TERM_LEN || strlen(w[i + 1]) >= KB_TERM_LEN)
-                continue;
-            learn_transition(b, w[i], w[i + 1]);            /* bigram  */
-            if (i + 2 < nw && strlen(w[i + 2]) < KB_TERM_LEN)
-                learn_transition2(b, w[i], w[i + 1], w[i + 2]); /* trigram */
-            pairs++;
-        }
+        size_t pairs = learn_word_stream(b, w, nw);
         char msg[128];
         snprintf(msg, sizeof msg, "Learned %zu transition(s).", pairs);
         put(msg, out, out_size);
@@ -1339,6 +1396,32 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
  * It does NOT understand open-domain prose — it lifts only the sentence shapes
  * parrot0 already knows. The honest signal is the skipped count: on real
  * SuperGLUE prose it will be high. */
+/* Strip leading/trailing non-alphanumerics from a token, in place (gen41).
+ * Real prose carries commas and quotes the `learn sequence:` path never sees;
+ * trimming them keeps the induced continuation model keyed on words, not
+ * "word," vs "word". Word-internal characters (apostrophes) are preserved. */
+static char *strip_edge_punct(char *t) {
+    while (*t && !isalnum((unsigned char)*t)) t++;
+    size_t n = strlen(t);
+    while (n > 0 && !isalnum((unsigned char)t[n - 1])) t[--n] = '\0';
+    return t;
+}
+
+/* Induce continuation transitions from one clause's word stream (gen41): the
+ * generative model grows from the same sentences the extractor reads. */
+static void learn_clause_transitions(Brain *b, const char *clause) {
+    char nbuf[256];
+    normalize(clause, nbuf, sizeof nbuf);
+    char *tw[64];
+    size_t tnw = split_words(nbuf, tw, 64);
+    size_t m = 0;
+    for (size_t i = 0; i < tnw; i++) {
+        char *c = strip_edge_punct(tw[i]);
+        if (*c) tw[m++] = c;
+    }
+    learn_word_stream(b, tw, m);
+}
+
 static int extract_clause(Brain *b, char *clause) {
     char *c = trim_mut(clause);
     if (!*c) return 0;
@@ -1388,6 +1471,7 @@ static int mod_reader(Brain *b, const char *norm, const char *raw,
         }
         char saved = *q;
         *q = '\0';
+        learn_clause_transitions(b, p);   /* gen41: feed the generative model */
         if (extract_clause(b, p)) learned++;
         else if (*trim_mut(p)) skipped++;
         if (saved == '\0') break;
@@ -1578,7 +1662,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen40-critical-decode";
+    return "gen43-multilingual-canon";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
@@ -1588,9 +1672,16 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char norm[256];
     normalize(input, norm, sizeof norm);
 
+    /* gen43: canonicalize the parsing surface (function words -> English tokens)
+     * before dispatch, so the reasoning core answers in any mapped language
+     * without duplicating a module. `raw` (input) is left untouched, so the
+     * reader still induces its generative model from the original prose. */
+    char canon[256];
+    canonicalize_lang(norm, canon, sizeof canon);
+
     /* Walk the registry; first module to claim the turn wins. */
     for (size_t i = 0; i < registry_len; i++) {
-        if (registry[i].handle(b, norm, input, out, out_size)) {
+        if (registry[i].handle(b, canon, input, out, out_size)) {
             return strlen(out);
         }
     }

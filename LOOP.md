@@ -28,7 +28,14 @@ from iterating this loop.
    moves toward the task. Prefer one idea per iteration.
 4. **Implement.** Edit `brain.c`. Bump `brain_version()` if behaviour changed.
 5. **Encode the expectation.** Add/adjust a case in `tests/cases/*.chat` that
-   captures the new behaviour you want to hold forever.
+   captures the new behaviour you want to hold forever. **Then add the
+   equivalent `tests/cases/*.it.chat` case** that exercises the *same* behaviour
+   in Italian through the *same* code path (gen43). This is the bilingual
+   ratchet: a competence proven in two languages lives in the algorithm, not in
+   an English phrasebook (PRINCIPLES.md). If the Italian case passes only by
+   *duplicating logic* (not by extending the `canonicalize_lang` lexicon), stop
+   — that is the signal the logic was overfit to English; fix the core instead.
+   Italian is not scored by the bench; it is the internal generalization probe.
 6. **Verify.** `make test` must pass (old behaviour preserved, new behaviour
    present). `make chat` should feel better.
 7. **Record.** Append a dated entry to `JOURNAL.md`: what changed, why, what

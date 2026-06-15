@@ -1,0 +1,31 @@
+# gen43: multilingual as a generalization probe (Italian mirror of facts.chat).
+# The SAME ground-knowledge reasoning core answers in Italian -- not a second
+# parser, but a thin lexical layer (canonicalize_lang) mapping function words
+# (è->is, un/uno/una->a) onto the canonical tokens the modules already parse.
+# Content words (uomo, animale, ...) are opaque symbols, untouched. If this
+# passed only by duplicating logic it would be a phrasebook; it passes because
+# the competence is in the algorithm. The bench is English-only, so this is an
+# internal adapting track, not a scored claim.
+# Predicate never mentioned -> honest "I don't know".
+> è socrate un uomo?
+< I don't know about uomo.
+# Teach a fact; the learned Prolog term keeps the Italian content word.
+> socrate è un uomo
+< Learned: uomo(socrate).
+> è socrate un uomo?
+< Yes.
+# "uno"/"una" article variants canonicalize to the same article.
+> marco è uno studente
+< Learned: studente(marco).
+> anna è una donna
+< Learned: donna(anna).
+> è anna una donna?
+< Yes.
+# Facts don't leak across predicates/subjects.
+> è anna un uomo?
+< No.
+> è socrate una donna?
+< No.
+# Unparseable Italian -> honest admission, same as the English fallback.
+> la veloce volpe marrone
+< I don't understand that yet.
