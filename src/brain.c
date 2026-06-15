@@ -856,6 +856,101 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: cause -------------------------------------------------------
+ * Causal reasoning (gen30). Pulled by the first SuperGLUE COPA question ("The
+ * man turned on the faucet. effect: toilet filled / water flowed") — picking a
+ * plausible cause or effect, a directed relation parrot0 never had. A causal
+ * link is the binary fact `causes(a, b)` (a causes b). This part asserts and
+ * queries it in both directions and runs the COPA-shaped two-way chooser over
+ * *stated* causal facts. Commonsense causality (COPA's real difficulty —
+ * knowing faucets fill spouts) is deliberately out of scope; we build the
+ * relation and the chooser, not a world model. */
+static int mod_cause(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    /* chooser: "effect of <a>: <c1> or <c2>" / "cause of <a>: <c1> or <c2>" */
+    int eff = -1;
+    char *rest = NULL;
+    if (strncmp(buf, "effect of ", 10) == 0) { eff = 1; rest = buf + 10; }
+    else if (strncmp(buf, "cause of ", 9) == 0) { eff = 0; rest = buf + 9; }
+    if (rest) {
+        char *colon = strchr(rest, ':');
+        char *orp = colon ? strstr(colon, " or ") : NULL;
+        if (colon && orp) {
+            *colon = '\0';
+            *orp = '\0';
+            const char *a = trim_mut(rest);
+            const char *c1 = trim_mut(colon + 1);
+            const char *c2 = trim_mut(orp + 4);
+            const char *p1[2], *p2[2];
+            if (eff) { p1[0]=a; p1[1]=c1; p2[0]=a; p2[1]=c2; }
+            else     { p1[0]=c1; p1[1]=a; p2[0]=c2; p2[1]=a; }
+            int ok1 = kb_query(b->kb, "causes", p1, 2);
+            int ok2 = kb_query(b->kb, "causes", p2, 2);
+            char msg[160];
+            if (ok1 && !ok2)      snprintf(msg, sizeof msg, "%s.", c1);
+            else if (ok2 && !ok1) snprintf(msg, sizeof msg, "%s.", c2);
+            else if (ok1 && ok2)  snprintf(msg, sizeof msg, "Both.");
+            else                  snprintf(msg, sizeof msg, "Neither.");
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<a> causes <b>" -> causes(a, b) */
+    if (nw == 3 && strcmp(w[1], "causes") == 0) {
+        const char *args[] = {w[0], w[2]};
+        char msg[160];
+        if (kb_assert(b->kb, "causes", args, 2))
+            snprintf(msg, sizeof msg, "Learned: causes(%s, %s).", w[0], w[2]);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* query: "what is the effect/cause of <x>?" -> causes(x, ?) / causes(?, x) */
+    if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
+        strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0 &&
+        (strcmp(w[3], "effect") == 0 || strcmp(w[3], "cause") == 0)) {
+        int want_eff = strcmp(w[3], "effect") == 0;
+        const char *x = w[5];
+        const char *pat_eff[] = {x, NULL};   /* causes(x, ?) -> effects */
+        const char *pat_cause[] = {NULL, x}; /* causes(?, x) -> causes  */
+        char hits[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "causes", want_eff ? pat_eff : pat_cause,
+                            2, hits, 64);
+        if (k == 0) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x);
+            put(msg, out, out_size);
+            return 1;
+        }
+        char list[512];
+        size_t off = 0;
+        for (size_t i = 0; i < k && off < sizeof list; i++)
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                    "%s%s", i ? ", " : "", hits[i]);
+        char msg[600];
+        snprintf(msg, sizeof msg, "%s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -932,6 +1027,7 @@ static const Module registry[] = {
     {"self",      mod_self},
     {"compare",   mod_compare},
     {"quantity",  mod_quantity},
+    {"cause",     mod_cause},
     {"knowledge", mod_knowledge},
     {"greet",     mod_greet},
     {"farewell",  mod_farewell},
@@ -982,7 +1078,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen29-cb-3way";
+    return "gen30-causal";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

@@ -1,0 +1,24 @@
+# gen30: cause/effect reasoning — a directed relation causes(a, b) parrot0
+# never had, pulled by the first SuperGLUE COPA question ("The man turned on
+# the faucet. effect: toilet filled / water flowed"). We test the relation and
+# the COPA-shaped two-way chooser over STATED causal facts; commonsense
+# causality (knowing a faucet produces water) is out of scope.
+> faucet causes water
+< Learned: causes(faucet, water).
+> rain causes flood
+< Learned: causes(rain, flood).
+> what is the effect of faucet?
+< water.
+> what is the cause of flood?
+< rain.
+# The COPA shape: pick the candidate that is the known effect / cause.
+> effect of faucet: toilet or water?
+< water.
+> cause of flood: rain or moon?
+< rain.
+# Neither candidate qualifies -> say so, don't guess.
+> effect of faucet: toilet or sink?
+< Neither.
+# Unknown direction is admitted.
+> what is the effect of moon?
+< I don't know the effect of moon.

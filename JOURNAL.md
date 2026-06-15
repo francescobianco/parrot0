@@ -9,6 +9,21 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15c — causation is a flat, non-transitive directed relation
+gen30 models cause/effect as a single binary fact `causes(a, b)` with no
+chaining and no typing.
+- **Bought:** a genuinely new inference (direction-sensitive cause/effect +
+  the COPA chooser) with one relation and reuse of `kb_query`/`kb_match`; the
+  chooser is honest (`Both.`/`Neither.` when the evidence doesn't decide).
+- **Gave up:** transitivity (a→b, b→c does not yield a→c), any distinction
+  between necessary / sufficient / contributing causes, and temporal ordering.
+  `causes` is also a plain fact, so it does not (yet) compose with rules the
+  way unary predicates do in the resolver.
+- **Revisit if:** a task needs multi-step causal chains, "what ultimately
+  caused X", or reasoning about cause *strength*/necessity. Then promote
+  `causes` into the rule/resolution machinery (transitive closure) and/or add a
+  cause-type argument.
+
 ### D-2026-06-15b — CB's "neutral" absorbs both "unknown" and "conflicted"
 gen29 maps parrot0's 4-valued entailment status onto CB's 3 labels. Entailed →
 entailment, negated → contradiction, and **both** "predicate never seen"
@@ -39,6 +54,39 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen30: cause/effect reasoning (COPA road)
+
+**Method (domain-pull, continued):** the first COPA question ("The man turned
+on the faucet. effect: toilet filled / water flowed") needs *causal* inference
+— the first feature in this run that is a genuinely new relation, not a remap
+of something parrot0 already did.
+
+**Changed:** `brain.c` → `gen30-causal`.
+- New cooperating part `mod_cause` (registry-reified; self-model now lists it).
+  Relation `causes(a, b)`. Surfaces: `<a> causes <b>` (assert); `what is the
+  effect of <a>?` → `causes(a, ?)`; `what is the cause of <a>?` → `causes(?,
+  a)`; and the COPA-shaped chooser `effect of <a>: <c1> or <c2>?` /
+  `cause of ...` → the candidate that is the known effect/cause, or
+  `Both.`/`Neither.`
+- Intercepts `effect`/`cause` as causal queries before `knowledge` could treat
+  them as ordinary binary relations.
+- Unknown directions admitted, never guessed.
+- `tests/cases/cause.chat` (held-out atoms `faucet/water/rain/flood`), shaped
+  like COPA #0. `self.chat` capability list legitimately gained `cause`.
+
+**Decision logged:** D-2026-06-15c (flat, non-transitive causation).
+
+**Why:** Adds a real inference type the KB lacked. The deferred piece is, again,
+the bridge from prose ("turned on the faucet") to `causes(a, b)` — not faked.
+
+**Observed:** all suites green (17 conversation cases). Bench COPA still 0 — the
+choices are full sentences we don't parse into causal atoms.
+
+**Next:** see `TASK.md` — gen31 pulls WSC: a coreference *decision* ("do these
+two mentions refer to the same thing?"), building on the gen22 discourse model.
 
 ---
 
