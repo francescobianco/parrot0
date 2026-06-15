@@ -9,6 +9,20 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15j — generation uses deterministic argmax over counts, not sampling
+gen37 keeps a frequency count per transition and decodes by choosing the
+highest-count continuation (tie → insertion order).
+- **Bought:** the LLM behaviour — follow the most-probable next token — while
+  staying fully deterministic and legible; the distribution is *induced from
+  data*, and a learned majority can flip the choice.
+- **Gave up:** sampling and diversity (pure argmax is repetitive — no
+  temperature, no variety); smoothing (unseen continuations are just absent);
+  cheap updates (counts are maintained by retract+reassert, O(facts) per
+  transition, and stored as unbounded integer atoms).
+- **Revisit if:** generation needs variety (would require a *deterministic*
+  diversification, since real sampling would break the no-magic rule) or counts
+  need normalization/smoothing for longer corpora.
+
 ### D-2026-06-15i — generative loop: induced Markov-1, first-continuation, bounded
 gen36's decode loop conditions on one previous word, picks the first provable
 continuation by insertion order, and halts when no continuation is provable or
@@ -171,6 +185,31 @@ inference type the KB lacked, each held-out tested, none faked. parrot0 now has
 eleven cooperating parts. The standing gap remains open-prose extraction
 coverage; everything built composes through `read:` when the prose happens to
 fit parrot0's grammar.
+
+## 2026-06-15 — gen37: frequency-weighted continuation (decode loop, step 2)
+
+**Changed:** `brain.c` → `gen37-frequency`.
+- Transitions now carry a count: `cont(prev, word, count)`. New
+  `learn_transition` reads the current count, retracts, and asserts the
+  incremented fact (the KB has no in-place update). `next_word` now gathers all
+  continuations of `prev`, reads each count, and returns the argmax — tie-broken
+  by insertion order. Decoding follows the *most frequent* continuation.
+- `tests/cases/gen_freq.chat` (held-out tokens): majority wins, a learned flip
+  when the count overtakes, and deterministic tie-breaking.
+
+**Decision logged:** D-2026-06-15j (deterministic argmax over counts, not
+sampling).
+
+**Why this serves the goal:** this is the deterministic, legible analogue of an
+LLM's next-token *probability* — the model's behaviour is now driven by what it
+has seen most, not by authoring order, yet remains fully reproducible.
+
+**Observed:** all suites green (24 conversation cases).
+
+**Next:** see `TASK.md` — gen38: longer context (trigram with backoff), so
+generation conditions on more than the single previous word.
+
+---
 
 ## 2026-06-15 — gen36: the generative inference loop (D-prop1, step 1)
 

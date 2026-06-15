@@ -4,30 +4,31 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen37 — frequency-weighted continuation (decode loop, step 2)
+## Goal: gen38 — longer context via trigram backoff (decode loop, step 3)
 
-gen36 proved the autoregressive loop but always takes the first continuation by
-insertion order. An LLM follows the *most probable* next token. The
-deterministic, legible analogue is the *most frequent* learned continuation.
+gen36/gen37 condition only on the single previous word (Markov-1). An LLM
+conditions on a long running context. The next honest step is to condition on
+the previous *two* words, backing off to one when the longer context is unseen.
 
 ### Design question
-How does parrot0 keep a count per transition (the KB has no in-place update) and
-choose the highest-count continuation deterministically?
+How does parrot0 learn and use a 2-word context without abandoning the bigram
+model it already has?
 
-Candidate: store `cont(prev, word, count)` with `count` a number atom; on
-learning a transition, look up the current count, retract the old fact, assert
-the incremented one. In `next_word`, gather the candidate words for `prev`,
-read each one's count, and pick the maximum — tie-break by insertion order so
-the choice stays deterministic.
+Candidate: alongside `cont(prev, word, count)`, learn `cont2(p1, p2, word,
+count)` (4-ary; KB_MAX_ARGS is 4) from triples in `learn sequence`. In the
+decode loop, track the last two emitted words; if a `cont2(last2, last1, ?)`
+exists, choose the highest-count among those; otherwise BACK OFF to the gen37
+bigram choice. Frequency choice (argmax, insertion-order tie-break) is reused.
 
 ### Acceptance
-- Re-learning a transition increases its count (verifiable).
-- `say <w>` follows the highest-count continuation, not merely the first.
-- Ties fall back to insertion order (still deterministic).
-- Held-out tokens prove it is frequency-driven, not canned.
+- A trigram context disambiguates where the bigram is ambiguous (e.g. the same
+  middle word continues differently depending on the word before it).
+- When no trigram context matches, generation backs off to the bigram model and
+  still works.
+- Counts drive the trigram choice exactly as for bigrams.
+- Held-out tokens prove it is context-driven, not canned.
 
 ### Notes
-- This is the deterministic analogue of next-token probability, not sampling —
-  no randomness (PRINCIPLES: determinism, no magic).
-- Reuse `kb_match`/`kb_retract`/`kb_assert`; log any representation choice in
-  JOURNAL "Decisions".
+- Reuse `learn_transition`/`next_word` shapes; keep determinism.
+- Log the backoff policy (and any 4-ary representation choice) in JOURNAL
+  "Decisions".

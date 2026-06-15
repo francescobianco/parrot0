@@ -1128,14 +1128,44 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
  * provable continuation (insertion order); frequency-weighted choice and longer
  * context arrive in later generations. */
 
-/* Pick the next word after `prev` from the cont() relation, or return 0 if no
- * continuation is known. gen36 policy: first by insertion order. */
+/* Learn one transition prev->word, keeping a frequency count. The KB has no
+ * in-place update, so we read the current count, retract the old fact, and
+ * assert the incremented one (gen37). */
+static void learn_transition(Brain *b, const char *prev, const char *word) {
+    const char *pat[] = {prev, word, NULL};
+    char cnt[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont", pat, 3, cnt, 4);
+    long n = 1;
+    if (k > 0) {
+        n = strtol(cnt[0], NULL, 10) + 1;
+        const char *old[] = {prev, word, cnt[0]};
+        kb_retract(b->kb, "cont", old, 3);
+    }
+    char ns[32];
+    snprintf(ns, sizeof ns, "%ld", n);
+    const char *args[] = {prev, word, ns};
+    kb_assert(b->kb, "cont", args, 3);
+}
+
+/* Pick the next word after `prev`, or return 0 if no continuation is known.
+ * gen37 policy: the highest-count continuation (the deterministic analogue of
+ * the most-probable next token), tie-broken by insertion order. */
 static int next_word(Brain *b, const char *prev, char *word, size_t wsize) {
     const char *pat[] = {prev, NULL, NULL};
-    char hits[64][KB_TERM_LEN];
-    size_t k = kb_match(b->kb, "cont", pat, 3, hits, 64);
+    char words[64][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont", pat, 3, words, 64);
     if (k == 0) return 0;
-    snprintf(word, wsize, "%s", hits[0]);
+
+    long best = -1;
+    size_t bi = 0;
+    for (size_t i = 0; i < k; i++) {
+        const char *cpat[] = {prev, words[i], NULL};
+        char cnt[4][KB_TERM_LEN];
+        size_t ck = kb_match(b->kb, "cont", cpat, 3, cnt, 4);
+        long c = (ck > 0) ? strtol(cnt[0], NULL, 10) : 0;
+        if (c > best) { best = c; bi = i; } /* strict > keeps the first on ties */
+    }
+    snprintf(word, wsize, "%s", words[bi]);
     return 1;
 }
 
@@ -1171,8 +1201,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i + 1 < nw; i++) {
             if (strlen(w[i]) >= KB_TERM_LEN || strlen(w[i + 1]) >= KB_TERM_LEN)
                 continue;
-            const char *args[] = {w[i], w[i + 1], "1"};
-            if (kb_assert(b->kb, "cont", args, 3)) pairs++;
+            learn_transition(b, w[i], w[i + 1]);
+            pairs++;
         }
         char msg[128];
         snprintf(msg, sizeof msg, "Learned %zu transition(s).", pairs);
@@ -1446,7 +1476,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen36-decode-loop";
+    return "gen37-frequency";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

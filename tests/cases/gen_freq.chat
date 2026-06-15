@@ -1,0 +1,27 @@
+# gen37: frequency-weighted continuation -- the deterministic analogue of
+# next-token probability. Each transition keeps a count; decode follows the
+# most-frequent continuation, tie-broken by insertion order. No randomness.
+# Held-out tokens; counts accumulate across turns in one session.
+> learn sequence: the cat ran
+< Learned 2 transition(s).
+> learn sequence: the cat ran
+< Learned 2 transition(s).
+> learn sequence: the dog slept
+< Learned 2 transition(s).
+# the->cat seen twice, the->dog once: the majority continuation wins.
+> say the
+< the cat ran
+# Teach "the dog" until it overtakes; the choice flips -- driven by counts.
+> learn sequence: the dog slept
+< Learned 2 transition(s).
+> learn sequence: the dog slept
+< Learned 2 transition(s).
+> say the
+< the dog slept
+# Equal counts fall back to insertion order, still deterministic.
+> learn sequence: pivot left
+< Learned 1 transition(s).
+> learn sequence: pivot right
+< Learned 1 transition(s).
+> say pivot
+< pivot left
