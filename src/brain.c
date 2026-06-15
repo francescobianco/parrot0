@@ -998,6 +998,54 @@ static int mod_same(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: conj --------------------------------------------------------
+ * Conjunctive membership (gen34). Multi-fact reasoning (the MultiRC family)
+ * needs combining several facts in one judgement; every prior query asked about
+ * a single goal. This part answers two AND-shaped questions — `are <x> and <y>
+ * both a <z>?` (z(x) AND z(y)) and `is <x> both a <y> and a <z>?` (y(x) AND
+ * z(x)) — by routing EACH conjunct through `kb_query`, so rule-derived
+ * membership counts exactly as it does for a single query. No new solver:
+ * AND-composition is just two resolver calls. An unknown class is admitted. */
+static int mod_conj(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[10];
+    size_t nw = split_words(buf, w, 10);
+
+    /* "are <x> and <y> both a/an <z>?" -> z(x) AND z(y) */
+    if (nw == 7 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
+        strcmp(w[4], "both") == 0 && is_article(w[5])) {
+        const char *z = w[6], *x = w[1], *y = w[3];
+        if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
+        const char *ax[] = {x}, *ay[] = {y};
+        int yes = kb_query(b->kb, z, ax, 1) && kb_query(b->kb, z, ay, 1);
+        put(yes ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    /* "is <x> both a/an <y> and a/an <z>?" -> y(x) AND z(x) */
+    if (nw == 8 && strcmp(w[0], "is") == 0 && strcmp(w[2], "both") == 0 &&
+        is_article(w[3]) && strcmp(w[5], "and") == 0 && is_article(w[6])) {
+        const char *x = w[1], *y = w[4], *z = w[7];
+        if (!kb_knows_pred(b->kb, y)) { idk(y, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
+        const char *a[] = {x};
+        int yes = kb_query(b->kb, y, a, 1) && kb_query(b->kb, z, a, 1);
+        put(yes ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: reader ------------------------------------------------------
  * The text -> facts bridge (gen32). The gen28–gen31 domain-pull run reached one
  * conclusion four times: the reasoning primitives exist, but nothing turns a
@@ -1193,6 +1241,7 @@ static const Module registry[] = {
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"same",      mod_same},
+    {"conj",      mod_conj},
     {"coref",     mod_coref},
     {"reader",    mod_reader},
     {"knowledge", mod_knowledge},
@@ -1245,7 +1294,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen33-same";
+    return "gen34-conjunction";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

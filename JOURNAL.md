@@ -9,6 +9,19 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15g — conjunction is two-conjunct, unary-only, AND-only
+gen34 answers exactly `z(x) AND z(y)` and `y(x) AND z(x)` — two conjuncts, over
+unary class membership, joined by AND.
+- **Bought:** multi-fact composition with no solver change — each conjunct is an
+  ordinary `kb_query`, so rules apply per conjunct for free.
+- **Gave up:** n-ary conjunction (three+ subjects/classes), disjunction (OR),
+  negation of a conjunct, and conjunction over relations/quantities. The surface
+  is fixed-shape, not a general boolean query language.
+- **Revisit if:** a task needs OR, more than two conjuncts, or boolean
+  combination over relations. Then the right move is a small goal-list query
+  (a conjunction/disjunction of arbitrary goals) feeding the resolver, replacing
+  these two hand-shaped forms.
+
 ### D-2026-06-15f — sameness is symmetric but not transitive, and inert
 gen33's `same(a, b)` is stored both ways (symmetric) but is a plain fact with
 no closure and no property transfer.
@@ -95,6 +108,34 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen34: conjunctive membership (multi-fact AND)
+
+**Method (domain-pull):** MultiRC-style questions combine several facts in one
+judgement; the smallest such step parrot0 lacked is a two-subject AND.
+
+**Changed:** `brain.c` → `gen34-conjunction`.
+- New cooperating part `mod_conj` (registry-reified; self-model lists it).
+  `are <x> and <y> both a <z>?` → `z(x) AND z(y)`; `is <x> both a <y> and a
+  <z>?` → `y(x) AND z(x)`. Each conjunct is a separate `kb_query`, so
+  rule-derived membership composes for free; an unknown class is admitted via
+  the gen16 `idk`.
+- `tests/cases/conj.chat` (held-out preds, facts loaded through `read:`):
+  rule-derived AND, closed-world `No` when one conjunct fails, unknown-class
+  admission.
+
+**Decision logged:** D-2026-06-15g (two-conjunct, unary-only, AND-only).
+
+**Why:** First multi-hop composition, built as two resolver calls rather than
+new machinery — AND emerges from the existing solver.
+
+**Observed:** all suites green (21 conversation cases).
+
+**Next:** see `TASK.md` — gen35: numeric arithmetic/divisibility (BoolQ #6, "can
+an odd number be divided by an even number"), which also revisits Decision
+D-2026-06-15a (quantities as inert string atoms).
 
 ---
 

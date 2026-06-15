@@ -1,0 +1,20 @@
+# gen34: conjunctive membership -- multi-fact AND, the smallest multi-hop step
+# (MultiRC family). Each conjunct goes through kb_query, so rule-derived
+# membership counts just like a single query; no new solver. Held-out predicates,
+# and the facts arrive via the gen32 reader to keep the whole stack exercised.
+> read: socrates is a man. plato is a man. every man is a mortal. zeus is a god.
+< Learned 4 fact(s), skipped 0.
+# Both subjects are mortal -- via the rule, not a stored fact.
+> are socrates and plato both a mortal?
+< Yes.
+# Two classes of one subject, both holding (one direct, one rule-derived).
+> is socrates both a man and a mortal?
+< Yes.
+# One conjunct fails -> the whole AND is no (zeus is not mortal).
+> are socrates and zeus both a mortal?
+< No.
+> is zeus both a god and a mortal?
+< No.
+# An unknown class is admitted, not guessed.
+> are socrates and plato both a dragon?
+< I don't know about dragon.

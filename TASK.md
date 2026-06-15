@@ -4,30 +4,32 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen34 — conjunctive membership ("are <x> and <y> both a <z>?")
+## Goal: gen35 — numeric arithmetic / divisibility (BoolQ #6 road)
 
-Domain-pull continues toward multi-fact reasoning. MultiRC-style questions need
-combining several facts in one judgement; the smallest such step parrot0 lacks
-is a conjunctive yes/no over two subjects (or two classes). Today every query
-asks about a single ground goal.
+Domain-pull continues. BoolQ #6 is "can an odd number be divided by an even
+number" (gold: yes) — a question about *numbers and arithmetic*, which parrot0
+still cannot do: gen27/gen28 only *compared* magnitudes, never computed with
+them. This also directly revisits Decision D-2026-06-15a (numbers are inert
+string atoms).
 
 ### Design question
-What is the smallest conjunctive query that reuses the existing resolver
-(`kb_query`, which already chains rules) for each conjunct, so AND-composition
-emerges without new solver machinery?
+What is the smallest arithmetic primitive that lets parrot0 actually compute on
+numbers — not just order them — without turning into a calculator language?
 
-Candidate: `are <x> and <y> both a/an <z>?` → yes iff `z(x)` AND `z(y)`; and
-optionally `is <x> both a/an <y> and a/an <z>?` → yes iff `y(x)` AND `z(x)`.
-Each conjunct goes through `kb_query` (so rule-derived membership counts);
-answer no if either fails, and admit an unknown class rather than guess.
+Candidate: `what is <a> plus/minus/times <b>?` → the computed value; and
+`is <a> divisible by <b>?` → yes/no via integer remainder. Pure literal numbers
+first (like gen27's `mod_compare`), parsed with the existing `parse_num`. Keep
+the operator set tiny and the surface fixed.
 
 ### Acceptance
-- `are <x> and <y> both a <z>?` is yes only when both hold (incl. via rules).
-- `is <x> both a <y> and a <z>?` is yes only when both classes hold.
-- Unknown class → admitted (the gen16 "I don't know about <z>"), not guessed.
-- Held-out predicates prove it is conjunction over the resolver, not canned.
+- `what is <a> plus <b>?` (and minus/times) returns the correct number.
+- `is <a> divisible by <b>?` answers yes/no by remainder; division by zero is
+  refused, not crashed.
+- Non-numbers are declined and fall through honestly (as gen27 does).
+- Held-out values prove it computes, not memorizes.
 
 ### Notes
 - Discovery tooling stays (`PARROT0_TRACE` + `--max-examples 1`).
-- Reuse `kb_query`/`kb_knows_pred`; do not add a new solver. Conjuncts should
-  benefit from rules exactly as single queries do.
+- If integer-vs-float formatting forces a choice (e.g. `2 plus 2` → `4` vs
+  `4.0`), make it and log it in JOURNAL "Decisions".
+- Do not hardcode benchmark answers.
