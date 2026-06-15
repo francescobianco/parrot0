@@ -94,6 +94,66 @@ first, each earning both a `.chat` case and a C0 dialogue.
 
 ---
 
+## M-series — Knowledge-acquisition missions (noted 2026-06-15, to process next)
+
+Two owner missions about parrot0 *acquiring* knowledge from a source and
+carrying it forward. Shared requirement: **persist what is learned into a
+committed `knowledge/*.pl` file** (the existing format: human-readable facts /
+rules, loaded at boot; `brain_save_session` already serializes `KB_INDUCED`, so
+both extracted facts and the induced `cont`/`cont2` model persist). This makes
+learning **cumulative, auditable, and version-controlled** — you can `git diff`
+what parrot0 learned. Both stay pure C, no runtime model.
+
+### M1 - POSIX sh / bash knowledge from a deterministic oracle
+Goal: parrot0 answers "what does this command/script do?", "what happens if I run
+X?", "how would you do this in POSIX?".
+
+Why this is the strong first mission: shell commands have DETERMINISTIC effects,
+and the agent can RUN them — so the shell is a free **oracle of truth**. We can
+generate verified command→effect data AND, crucially, *test* genuine learning by
+predicting the effect of commands/combinations never explicitly taught.
+
+The structural challenge (anti-phrasebook): do NOT settle for a "command X → does
+Y" dictionary. Aim for COMPOSITIONALITY — a micro-grammar of the shell
+(command / flags / args / pipes / redirection) + semantics of primitive commands
++ composition rules, so `cat f | grep x` is understood as "filter lines of f by
+x" from parts. Start narrow (a handful of commands), prove on held-out
+combinations.
+
+Acceptance (to refine):
+- Effect of a single command with flags is answered from learned semantics.
+- Effect of a PIPELINE never taught verbatim is composed correctly (held-out).
+- An intent → command translation ("how in POSIX?") for a small task set.
+- Every claim is checkable against the real shell; learned semantics persisted to
+  `knowledge/bash.pl` and committed.
+Anti-impostor: predict an unseen command combination; the shell oracle judges.
+
+### M2 - Learning knowledge from books
+Goal: demonstrate that after parrot0 reads a book, it has *learned* from it.
+
+Honest split of "learning from a book":
+- (a) LINGUISTIC/distributional — already real (gen41): reading prose induces the
+  generative model, so reading book A vs B changes what `say` produces. Provable
+  now (the model is the corpus). Quick, convincing demonstration.
+- (b) PROPOSITIONAL (facts) — gated by the extraction grammar; real book prose is
+  mostly skipped today (the multi-word-entity / open-prose wall, see gen49 / the
+  current TASK arc). This is the long pull.
+
+Acceptance (to refine):
+- Read a passage/chapter; show a measurable, held-out change (generation
+  reflects it; some facts extracted and queryable).
+- The learned knowledge is persisted to a committed `knowledge/<book>.pl` and
+  reloads on next boot (cumulative across commits).
+Anti-impostor: held-out questions answerable only from the read text, not seeded.
+
+Ordering: do M1 first — the shell oracle lets us build the learn → verify →
+persist machinery where truth is free, then transfer it to books (M2), which have
+no oracle. The persist-into-commits mechanism serves both from day one. These are
+parallel to the C-series (conversational intelligence); sequence them per what
+the owner wants to process next.
+
+---
+
 ## T1 - Bidirectional relations and real anonymous variables
 
 Goal: complete the relation-query primitive pulled by morphology, then remove
