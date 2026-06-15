@@ -1,16 +1,20 @@
-# Generation 15: the parrot grows up. Input it can't parse is met with an
-# honest admission of non-understanding — not echoed (the gen0 parrot is
-# retired), and not a wrong "No." (TASKLIST T16).
-# (gen52: "how are you?" is now a recognized social act, so it is no longer an
-# example of non-understanding — replaced with genuinely unparseable prose.)
+# gen15 retired the gen0 parrot-echo: unparseable input gets honest
+# non-understanding, never an echo and never a wrong "No.".
+# gen55 (C5a) makes that honesty NON-REPEATING: the chatsim users showed that
+# repeating "I don't understand that yet." verbatim is the #1 naturalness killer
+# (a broken record). The classic line is fine ONCE, but a consecutive repeat
+# varies — reflecting a salient word from the user, or an honest redirect — so no
+# two replies in a row are identical. It still never feigns understanding.
 > tell me a story about dragons
 < I don't understand that yet.
+# would repeat -> vary (no content word in "12345" -> an honest redirect)
 > 12345
-< I don't understand that yet.
+< I didn't quite catch that. What would you like to know?
+# previous reply was not the classic wall, so the classic wall is fine again
 > the quick brown fox
 < I don't understand that yet.
-# Other languages / gibberish: same honest fallthrough (not memorised strings).
+# would repeat -> reflect a salient word so it feels heard (held-out: any word)
 > bonjour comment vas-tu
-< I don't understand that yet.
+< Hmm, I don't know about bonjour yet.
 > asdf qwerty zxcv
 < I don't understand that yet.

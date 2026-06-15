@@ -10,11 +10,11 @@
 # module set (a module absent from the KB contributes nothing) — not the
 # module(...) jargon dump it used to be.
 > what can you do?
-< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me.
+< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< memory, self, compare, arith, quantity, cause, same, conj, gen, coref, bench, reader, shell, knowledge, social.
+< memory, self, compare, arith, quantity, cause, same, conj, gen, coref, bench, reader, shell, knowledge, discourse, social.
 # Ordinary world knowledge still works alongside the self-model.
 > socrates is a man
 < Learned: man(socrates).

@@ -1,0 +1,9 @@
+# gen60 (C5b): shorter recall shape for personal memory.
+> I have a dog named Rex
+< Got it: your dog is called Rex.
+> what is my dog?
+< Your dog is Rex.
+> my cat is Luna
+< Got it: your cat is Luna.
+> what is my cat?
+< Your cat is Luna.

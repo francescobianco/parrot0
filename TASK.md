@@ -4,34 +4,42 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen55 — C5a: kill the broken record
+## Goal: gen64 — M2 step 1: learning from books (linguistic track)
 
-gen54 built chatsim (`make chat-sim`): a cheap opencode-GO model role-plays a
-mutable human and chats with parrot0. It exposed the dominant naturalness killer:
-parrot0 repeats "I don't understand that yet." VERBATIM — wall rate ~88%,
-immediate-repetition ~77% — and the simulated users call it out ("broken
-record", "are you even trying"). This is the highest-impact fix.
+The previous task (gen63) completed a chat-sim driven pass that hardened the
+dialogue-act layer. The next parked mission is M2: demonstrate that parrot0 has
+*learned* from reading a book or passage.
+
+M2 has two honest tracks:
+- (a) **Linguistic/distributional** — already possible: `read:` induces the
+  continuation model (`cont`/`cont2`) from prose, so reading book A vs book B
+  changes what `say` produces. This generation makes that learning *measurable*
+  and *held-out*.
+- (b) **Propositional** — gated by the open-prose extraction wall; left for a
+  later generation.
+
+This generation targets track (a).
 
 ### Design question
-Without faking understanding, can the fallback stop being a robotic constant?
-Structural approach (not a phrasebook): the brain tracks its LAST reply and never
-repeats the fallback verbatim; it rotates a few honest non-understanding MOVES
-that REDIRECT or invite ("I didn't catch that — can you say it another way?",
-"I'm not sure I followed. What would you like to know?"), and where possible
-REFLECTS a content word from the user's message so the reply feels heard.
+How can we prove, with a test, that reading a passage changes the induced
+language model in the expected direction? Approach: a new `tests/booklearn.sh`
+that loads a hermetic passage, runs `say <seed>`, checks that the continuation
+matches the passage; then loads a *different* passage, runs the same `say`, and
+checks that the continuation shifted. Both passages are short, test-committed
+prose so the result is deterministic and reproducible.
 
 ### Acceptance
-- The same fallback is never emitted twice in a row; consecutive unparseable
-  inputs get different, honest, non-understanding responses.
-- Where the message has a salient content word, the fallback reflects it
-  ("Hmm, I don't know about <word> yet.").
-- chatsim repetition-rate drops materially vs the gen54 baseline (~77%); the wall
-  no longer dominates verbatim. Add a deterministic `tests/cases/*.chat` locking
-  the no-verbatim-repeat behaviour; English + Italian.
-- Still honest: it must not pretend to understand; it admits the gap, just not
-  robotically.
+- After `read: the otter swims downstream. the otter swims often.`, `say the`
+  produces "the otter swims ..." (already true; this generation locks it as a
+  regression test).
+- After a second `read:` with a disjoint passage (`the robot walks slowly. the
+  robot walks daily.`), `say the` produces "the robot walks ..." instead.
+- Add `tests/booklearn.sh` to `make test`.
 
 ### Notes
-- Needs a tiny bit of brain state (last response). Keep it minimal.
-- Then C2b (mixed-act turns), then C3/C4 (memory) — the remaining chatsim gaps.
-- Parked: M1 step 2 (shell pipelines + oracle output) from the POSIX arc.
+- Track (b) remains parked until the multi-word-entity / open-prose extraction
+  wall is addressed.
+- If another `make chat-sim` round is requested, the next improvement should
+  probably target generic yes/no/casual questions or better wellbeing handling
+  (e.g. "what are you up to?"), because the latest transcript shows the
+  remaining wall-rate is dominated by those, not by mixed-act hijacks.

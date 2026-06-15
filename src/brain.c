@@ -14,6 +14,7 @@
  * parts-of-parts) are meant to EMERGE here as future tasks demand them — we do
  * not pre-design a taxonomy.
  */
+#define _POSIX_C_SOURCE 200809L
 #include "brain.h"
 #include "kb.h"
 
@@ -21,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
@@ -28,7 +30,22 @@ struct Brain {
     int  has_name;         /* whether `name` is set */
     char last_entity[KB_TERM_LEN]; /* most recent concrete KB entity */
     int  has_last_entity;  /* whether `last_entity` is set */
+    char last_reply[256];  /* our previous response — so we don't repeat it (gen55) */
+    unsigned long fallbacks; /* how many not-understood turns — rotates variants */
     KB  *kb;               /* the knowledge base (gen4+) */
+
+    /* gen57: personal-possession display table. The KB treats uppercase-initial
+     * atoms as variables, so the lookup key is lowercased while the original
+     * casing is remembered here for natural replies. */
+    char possessions[8][2][64];
+    size_t possession_count;
+
+    /* gen58: rolling discourse-memory topics. Each turn contributes its content
+     * words (non-stopword, alphabetic, len>=3) to a small recent buffer so the
+     * agent can answer "what did we talk about?" from real state. */
+#define BRAIN_TOPICS_MAX 4
+    char topics[BRAIN_TOPICS_MAX][32];
+    size_t topic_count;
 };
 
 /* ----------------------------------------------------------------------------
@@ -54,6 +71,13 @@ static int matches_any(const char *s, const char *const *words) {
         if (strcmp(s, *words) == 0) return 1;
     }
     return 0;
+}
+
+/* Return the index of token `t` in `w[0..nw)`, or `nw` if absent. */
+static size_t find_token(char **w, size_t nw, const char *t) {
+    for (size_t i = 0; i < nw; i++)
+        if (strcmp(w[i], t) == 0) return i;
+    return nw;
 }
 
 /* True if needle occurs anywhere in haystack — the keyword-cue test behind
@@ -106,10 +130,74 @@ typedef struct {
  * into the dialogue-act layer `mod_social` (defined near the registry, where
  * split_words is in scope) — the phatic register as a structure, not a list. */
 
+/* Forward declarations: the possession frame in mod_memory needs the same
+ * tokenizer and article test used later by the knowledge modules; discourse
+ * memory needs the stoplist and edge-punctuation stripper from the bench
+ * baseline helpers. */
+static size_t split_words(char *s, char **argv, size_t max);
+static int is_article(const char *w);
+static int is_stopword(const char *w);
+static char *strip_edge_punct(char *t);
+
+/* Copy the last whitespace-separated word of `raw` into `dst`, preserving its
+ * original casing and trimming trailing punctuation/whitespace. Used to keep
+ * proper names (Rex, Luna) intact while matching on the normalized surface. */
+static void copy_last_word(char *dst, size_t dst_size, const char *raw) {
+    size_t n = strlen(raw);
+    while (n > 0 && isspace((unsigned char)raw[n - 1])) n--;
+    while (n > 0 && ispunct((unsigned char)raw[n - 1])) n--;
+    size_t end = n;
+    while (n > 0 && !isspace((unsigned char)raw[n - 1])) n--;
+    size_t len = end - n;
+    if (len >= dst_size) len = dst_size - 1;
+    memcpy(dst, raw + n, len);
+    dst[len] = '\0';
+}
+
+/* Personal-possession display helpers (gen57). The KB key is lowercased because
+ * uppercase-initial atoms are read as variables; the original casing lives here
+ * so replies feel natural. */
+static void lowercase_copy(char *dst, size_t dst_size, const char *src) {
+    size_t i = 0;
+    for (; src[i] && i + 1 < dst_size; i++)
+        dst[i] = (char)tolower((unsigned char)src[i]);
+    dst[i] = '\0';
+}
+
+static void remember_possession(Brain *b, const char *thing, const char *name) {
+    if (b->possession_count >= 8) return;
+    size_t slot = b->possession_count;
+    for (size_t i = 0; i < b->possession_count; i++) {
+        if (strcmp(b->possessions[i][0], thing) == 0) { slot = i; break; }
+    }
+    copy_trim(b->possessions[slot][0], sizeof b->possessions[slot][0], thing);
+    copy_trim(b->possessions[slot][1], sizeof b->possessions[slot][1], name);
+    if (slot == b->possession_count) b->possession_count++;
+
+    char thing_key[64], name_key[64];
+    lowercase_copy(thing_key, sizeof thing_key, thing);
+    lowercase_copy(name_key, sizeof name_key, name);
+    const char *args[] = {thing_key, name_key};
+    kb_assert(b->kb, "called", args, 2);
+}
+
+static const char *find_possession_name(Brain *b, const char *thing) {
+    for (size_t i = 0; i < b->possession_count; i++)
+        if (strcmp(b->possessions[i][0], thing) == 0)
+            return b->possessions[i][1];
+    return NULL;
+}
+
 /* --- module: memory ------------------------------------------------------
  * The first *stateful* part: it learns the user's name and recalls it. This
  * is where the brain stops being purely reactive and starts carrying context
- * across turns. */
+ * across turns.
+ *
+ * gen57 (C3): it also learns small personal-fact frames: "I have a <thing>
+ * named <name>" and "my <thing> is <name>", stored as `called(thing, name)`
+ * and queried by "what is my <thing> called?". "call me <X>" / Italian
+ * "chiamami <X>" / "mi chiamo <X>" extend the name-teaching path.
+ */
 static int mod_memory(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     if (!b) return 0;
@@ -136,6 +224,130 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         snprintf(msg, sizeof msg, "Nice to meet you, %s!", b->name);
         put(msg, out, out_size);
         return 1;
+    }
+
+    /* Teach: "call me <X>" and Italian equivalents (chiamami / mi chiamo). */
+    static const char *const call_me = "call me ";
+    static const char *const chiamami = "chiamami ";
+    static const char *const mi_chiamo = "mi chiamo ";
+    const char *name_from = NULL;
+    if (strncmp(norm, call_me, strlen(call_me)) == 0)
+        name_from = raw + strlen(call_me);
+    else if (strncmp(norm, chiamami, strlen(chiamami)) == 0)
+        name_from = raw + strlen(chiamami);
+    else if (strncmp(norm, mi_chiamo, strlen(mi_chiamo)) == 0)
+        name_from = raw + strlen(mi_chiamo);
+    if (name_from) {
+        const char *name = skip_ws(name_from);
+        if (*name == '\0') {
+            put("I didn't catch your name.", out, out_size);
+            return 1;
+        }
+        copy_trim(b->name, sizeof b->name, name);
+        b->has_name = 1;
+        char msg[128];
+        snprintf(msg, sizeof msg, "Nice to meet you, %s!", b->name);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Personal possession frame: "I have a <thing> named <name>",
+     * "my <thing> is <name>", "my <thing> is called <name>", plus their
+     * Italian canonicalizations. The parser searches for the content frame
+     * inside the token stream so a leading social marker ("hi, my dog...")
+     * does not derail the content module. */
+    {
+        char buf[256];
+        size_t len = strlen(norm);
+        if (len < sizeof buf) {
+            memcpy(buf, norm, len + 1);
+            if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+            char *w[12];
+            size_t nw = split_words(buf, w, 12);
+
+            /* "I have a <thing> named <name>" */
+            {
+                size_t i = find_token(w, nw, "i");
+                if (i + 4 < nw && strcmp(w[i + 1], "have") == 0 &&
+                    is_article(w[i + 2]) && strcmp(w[i + 4], "named") == 0) {
+                    const char *thing = w[i + 3];
+                    char n[64];
+                    copy_last_word(n, sizeof n, raw);
+                    remember_possession(b, thing, n);
+                    char msg[160];
+                    fprintf(stderr, "[DEBUG] raw='%s' n='%s'\n", raw, n);
+                    snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+
+            /* "my <thing> is <name>" and "my <thing> is called <name>" */
+            {
+                size_t i = find_token(w, nw, "my");
+                if (i + 3 < nw && strcmp(w[i + 2], "is") == 0) {
+                    const char *thing = w[i + 1];
+                    char n[64];
+                    copy_last_word(n, sizeof n, raw);
+                    int has_called = (i + 4 < nw && strcmp(w[i + 3], "called") == 0);
+                    if (has_called) {
+                        remember_possession(b, thing, n);
+                        char msg[160];
+                        snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
+                        put(msg, out, out_size);
+                        return 1;
+                    } else {
+                        remember_possession(b, thing, n);
+                        char msg[160];
+                        snprintf(msg, sizeof msg, "Got it: your %s is %s.", thing, n);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
+            }
+
+            /* Queries: "what is my <thing> called?" and "what is my <thing>?" */
+            {
+                size_t i = find_token(w, nw, "what");
+                if (i + 2 < nw && strcmp(w[i + 1], "is") == 0) {
+                    size_t m = find_token(w + i, nw - i, "my");
+                    if (m < nw - i) m += i;
+                    if (m + 1 < nw) {
+                        const char *thing = w[m + 1];
+                        int has_called = (m + 2 < nw);
+                        if (has_called) {
+                            char tmp[64];
+                            snprintf(tmp, sizeof tmp, "%s", w[m + 2]);
+                            has_called = (strcmp(strip_edge_punct(tmp), "called") == 0);
+                        }
+                        if (strcmp(thing, "name") == 0) {
+                            if (b->has_name) {
+                                char msg[128];
+                                snprintf(msg, sizeof msg, "Your name is %s.", b->name);
+                                put(msg, out, out_size);
+                            } else {
+                                put("I don't know your name yet.", out, out_size);
+                            }
+                            return 1;
+                        }
+                        const char *n = find_possession_name(b, thing);
+                        char msg[160];
+                        if (!n) {
+                            snprintf(msg, sizeof msg,
+                                     "I don't know what your %s is called.", thing);
+                            put(msg, out, out_size);
+                            return 1;
+                        }
+                        if (has_called)
+                            snprintf(msg, sizeof msg, "%s.", n);
+                        else
+                            snprintf(msg, sizeof msg, "Your %s is %s.", thing, n);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
+            }
+        }
     }
 
     /* Recall: "what is my name?" */
@@ -200,11 +412,16 @@ static const char *canonical_token(const char *w) {
         /* Italian */
         {"è",   "is"},
         {"un",  "a"}, {"uno", "a"}, {"una", "a"},
+        {"mio", "my"}, {"mia", "my"},
+        {"ho",  "i have"},
+        {"chiamato", "named"},
+        {"si",  "is"}, {"chiama", "called"},
         {"ogni","every"},
         {"chi", "who"},
         {"non", "not"},
         {"anche","also"},
         {"causa","causes"},
+        {"cos'è", "what is"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -539,6 +756,25 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
+
+    /* gen59 (C5): "what is <x>?" is a natural way to ask for a description of
+     * an entity. Reuse the existing belief-report path; decline if x is an
+     * article or common function word so "what is a ...?" still falls through. */
+    if (nw == 3 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
+        !is_article(w[2]) && !is_stopword(w[2])) {
+        const char *entity;
+        if (!resolve_entity(b, w[2], &entity, out, out_size)) return 1;
+        char desc[1024];
+        if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
+            put(desc, out, out_size);
+        } else {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know anything about %s.", entity);
+            put(msg, out, out_size);
+        }
+        remember_entity(b, w[2], entity);
+        return 1;
+    }
 
     /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
     if (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
@@ -1881,6 +2117,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
      * from cue matching + the KB, not from a list of accepted sentences. */
     int identity = cue(buf, "your name") || cue(buf, "who are you") ||
                    cue(buf, "who re you") || cue(buf, "what are you") ||
+                   cue(buf, "what exactly are you") ||
                    cue(buf, "call you") || cue(buf, "about yourself") ||
                    cue(buf, "who r u") || cue(buf, "your identity") ||
                    /* Italian cues (the bilingual ratchet). NB: input is already
@@ -1912,6 +2149,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             {"reader",    "read a short passage and pull out facts"},
             {"coref",     "track what a pronoun refers to"},
             {"gen",       "continue a sequence you teach me"},
+            {"discourse", "remember what we talked about"},
         };
         char list[600];
         size_t off = 0, n = 0;
@@ -1945,49 +2183,29 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
 }
 
 /* --- module: shell -------------------------------------------------------
- * POSIX/shell knowledge — Mission M1, step 1 (gen53). Answers "what does <cmd>
- * do?" / "explain <cmd>" by PARSING the command line into (command, flags, args)
- * and COMPOSING the answer from learned `cmd`/`flag` facts (knowledge/bash.pl,
- * carried in the commits) — so "ls -la" is explained by composing ls + l + a
- * even though that combination is not stored. This is shell *structure*, not a
- * command dictionary. Reads `raw`, not `norm`: the shell is case-sensitive
- * (-r != -R), so flag case must survive normalization. */
+ * POSIX/shell knowledge — Mission M1, step 1 (gen53) + step 2 (gen61).
+ * Answers "what does <cmd> do?" / "explain <cmd>" by PARSING the command line
+ * into (command, flags, args) and COMPOSING the answer from learned `cmd`/`flag`
+ * facts (knowledge/bash.pl, carried in the commits) — so "ls -la" is explained
+ * by composing ls + l + a even though that combination is not stored.
+ *
+ * gen61 extends this to simple PIPELINES: "cmd1 | cmd2" is explained by
+ * describing each segment and joining them with "then". This is still shell
+ * *structure*, not a dictionary. Reads `raw`, not `norm`: the shell is
+ * case-sensitive (-r != -R), so flag case must survive normalization. */
 static void de_underscore(const char *in, char *out, size_t n) {
     size_t i = 0;
     for (; in[i] && i + 1 < n; i++) out[i] = (in[i] == '_') ? ' ' : in[i];
     out[i] = '\0';
 }
 
-static int mod_shell(Brain *b, const char *norm, const char *raw,
-                     char *out, size_t out_size) {
-    if (!b || !b->kb) return 0;
-    (void)norm;
-
-    /* lowercased probe to detect the question shape; the command line is sliced
-     * from raw with case preserved. */
-    char low[256], rw[256];
-    size_t rl = strlen(raw);
-    if (rl >= sizeof rw) return 0;
-    memcpy(rw, raw, rl + 1);
-    while (rl > 0 && (rw[rl-1]=='?'||rw[rl-1]=='.'||rw[rl-1]==' '||rw[rl-1]=='\n'))
-        rw[--rl] = '\0';
-    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)rw[i]);
-
-    char *cl;
-    if (strncmp(low, "what does ", 10) == 0) {
-        size_t tl = rl;
-        if (tl >= 3 && strcmp(low + tl - 3, " do") == 0) rw[tl - 3] = '\0';
-        else if (tl >= 5 && strcmp(low + tl - 5, " mean") == 0) rw[tl - 5] = '\0';
-        else return 0;
-        cl = rw + 10;
-    } else if (strncmp(low, "explain ", 8) == 0) {
-        cl = rw + 8;
-    } else {
-        return 0;
-    }
-
+/* Describe a single shell command line (no pipeline) into `desc`.
+ * Returns 1 if it wrote a description or a clear "unknown command" admission,
+ * 0 if the input is not clearly shell syntax and should be declined. */
+static int describe_command(Brain *b, const char *cmdline,
+                            char *desc, size_t desc_size) {
     char clbuf[256];
-    snprintf(clbuf, sizeof clbuf, "%s", cl);
+    snprintf(clbuf, sizeof clbuf, "%s", cmdline);
     char *w[64];
     size_t nw = split_words(clbuf, w, 64);
     if (nw == 0) return 0;
@@ -2014,9 +2232,7 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
         /* unknown command: only claim the turn when it is clearly shell syntax
          * (a flag is present), so we don't hijack "what does a bird do?". */
         if (!has_flag) return 0;
-        char msg[160];
-        snprintf(msg, sizeof msg, "I don't know the command %s.", lc);
-        put(msg, out, out_size);
+        snprintf(desc, desc_size, "I don't know the command %s.", lc);
         return 1;
     }
 
@@ -2056,13 +2272,315 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    char msg[900];
-    size_t o = (size_t)snprintf(msg, sizeof msg, "%s %s", lc, base);
-    if (kn) o += (size_t)snprintf(msg + o, sizeof msg - o, ", %s", known);
-    if (o < sizeof msg) o += (size_t)snprintf(msg + o, sizeof msg - o, ".");
-    if (un && o < sizeof msg)
-        snprintf(msg + o, sizeof msg - o,
+    size_t o = (size_t)snprintf(desc, desc_size, "%s %s", lc, base);
+    if (kn) o += (size_t)snprintf(desc + o, desc_size - o, ", %s", known);
+    if (o < desc_size) o += (size_t)snprintf(desc + o, desc_size - o, ".");
+    if (un && o < desc_size)
+        snprintf(desc + o, desc_size - o,
                  " I don't know the option %s.", unknown);
+    return 1;
+}
+
+/* gen62: oracle-grounded output prediction for a small allow-list of PURE
+ * shell commands. Only active when PARROT0_ORACLE=1, so the default build never
+ * executes arbitrary shell code. */
+
+/* True if s contains only safe shell token characters (alphanumerics, -, _, .). */
+static int safe_token(const char *s) {
+    for (size_t i = 0; s[i]; i++) {
+        if (isalnum((unsigned char)s[i])) continue;
+        if (strchr("-_.", s[i])) continue;
+        return 0;
+    }
+    return *s != '\0';
+}
+
+/* True if every command in the pipeline is in the pure allow-list. */
+static int pipeline_is_pure(char **segs, size_t nseg) {
+    static const char *pure[] = {"echo", "wc", "cat", "pwd", NULL};
+    for (size_t i = 0; i < nseg; i++) {
+        char buf[256];
+        snprintf(buf, sizeof buf, "%s", segs[i]);
+        char *w[64];
+        size_t nw = split_words(buf, w, 64);
+        if (nw == 0) return 0;
+        int ok = 0;
+        for (size_t j = 0; pure[j] && !ok; j++)
+            if (strcmp(w[0], pure[j]) == 0) ok = 1;
+        if (!ok) return 0;
+        for (size_t j = 0; j < nw; j++)
+            if (!safe_token(w[j])) return 0;
+    }
+    return 1;
+}
+
+/* Simulate one pure command segment. `input` is its stdin; output is written
+ * to `out` (with the trailing newline the real command would produce). */
+static int simulate_pure(const char *input, const char *cmdline,
+                         char *out, size_t out_size) {
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", cmdline);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw == 0) return 0;
+
+    if (strcmp(w[0], "echo") == 0) {
+        size_t o = 0;
+        for (size_t i = 1; i < nw && o + 1 < out_size; i++) {
+            if (i > 1) out[o++] = ' ';
+            size_t l = strlen(w[i]);
+            if (l > out_size - o - 1) l = out_size - o - 1;
+            memcpy(out + o, w[i], l);
+            o += l;
+        }
+        if (o + 1 < out_size) out[o++] = '\n';
+        out[o] = '\0';
+        return 1;
+    }
+
+    if (strcmp(w[0], "pwd") == 0) {
+        if (getcwd(out, (int)out_size)) {
+            size_t o = strlen(out);
+            if (o + 1 < out_size) out[o++] = '\n';
+            out[o] = '\0';
+        } else {
+            snprintf(out, out_size, "\n");
+        }
+        return 1;
+    }
+
+    if (strcmp(w[0], "cat") == 0) {
+        /* cat with no file arguments copies stdin to stdout */
+        if (nw == 1) {
+            snprintf(out, out_size, "%s", input);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(w[0], "wc") == 0) {
+        int count_words = 0;
+        for (size_t i = 1; i < nw; i++)
+            if (strcmp(w[i], "-w") == 0) count_words = 1;
+        if (!count_words) return 0;
+        size_t n = 0;
+        const char *p = input;
+        while (*p) {
+            while (*p && isspace((unsigned char)*p)) p++;
+            if (*p) n++;
+            while (*p && !isspace((unsigned char)*p)) p++;
+        }
+        snprintf(out, out_size, "%zu\n", n);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* Simulate a pure pipeline by threading stdin/stdout through each segment. */
+static int simulate_pipeline(const char *pipeline,
+                             char *out, size_t out_size) {
+    char pipebuf[512];
+    size_t len = strlen(pipeline);
+    if (len >= sizeof pipebuf) return 0;
+    memcpy(pipebuf, pipeline, len + 1);
+
+    char *segs[8];
+    size_t nseg = 0;
+    char *p = pipebuf;
+    while (p && *p && nseg < 8) {
+        char *next = strchr(p, '|');
+        if (next) *next++ = '\0';
+        while (*p && isspace((unsigned char)*p)) p++;
+        segs[nseg++] = p;
+        p = next;
+    }
+    if (!pipeline_is_pure(segs, nseg)) return 0;
+
+    char buf[4096];
+    buf[0] = '\0';
+    for (size_t i = 0; i < nseg; i++) {
+        char next[4096];
+        if (!simulate_pure(buf, segs[i], next, sizeof next)) return 0;
+        snprintf(buf, sizeof buf, "%s", next);
+    }
+    snprintf(out, out_size, "%s", buf);
+    return 1;
+}
+
+/* Run the real shell command via popen and capture its stdout. */
+static int run_shell(const char *cmd, char *out, size_t out_size) {
+    FILE *f = popen(cmd, "r");
+    if (!f) return 0;
+    size_t n = fread(out, 1, out_size - 1, f);
+    out[n] = '\0';
+    pclose(f);
+    return 1;
+}
+
+static int mod_shell(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    (void)norm;
+
+    /* lowercased probe to detect the question shape; the command line is sliced
+     * from raw with case preserved. */
+    char low[256], rw[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof rw) return 0;
+    memcpy(rw, raw, rl + 1);
+    while (rl > 0 && (rw[rl-1]=='?'||rw[rl-1]=='.'||rw[rl-1]==' '||rw[rl-1]=='\n'))
+        rw[--rl] = '\0';
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)rw[i]);
+
+    /* gen62: oracle-grounded output prediction for pure commands.
+     * Only runs when PARROT0_ORACLE=1. */
+    const char *oracle_env = getenv("PARROT0_ORACLE");
+    int oracle_on = oracle_env && strcmp(oracle_env, "1") == 0;
+    const char *pred_cmd = NULL;
+    if (oracle_on && strncmp(low, "what does ", 10) == 0) {
+        const char *print_pos = strstr(low + 10, " print");
+        if (print_pos) {
+            size_t cmdlen = (size_t)(print_pos - (low + 10));
+            rw[10 + cmdlen] = '\0';
+            pred_cmd = rw + 10;
+        }
+    } else if (oracle_on && strncmp(low, "predict the output of ", 22) == 0) {
+        pred_cmd = rw + 22;
+    }
+    if (pred_cmd) {
+        char predicted[4096], actual[4096];
+        if (!simulate_pipeline(pred_cmd, predicted, sizeof predicted)) {
+            put("I can't predict the output of that yet.", out, out_size);
+            return 1;
+        }
+        char safe_cmd[512];
+        snprintf(safe_cmd, sizeof safe_cmd, "%s", pred_cmd);
+        if (!run_shell(safe_cmd, actual, sizeof actual)) {
+            put("I couldn't run the shell oracle.", out, out_size);
+            return 1;
+        }
+        if (strcmp(predicted, actual) == 0) {
+            char show[4096];
+            snprintf(show, sizeof show, "%s", predicted);
+            size_t sl = strlen(show);
+            if (sl > 0 && show[sl - 1] == '\n') show[sl - 1] = '\0';
+            char msg[256];
+            snprintf(msg, sizeof msg, "It prints: %s.", show);
+            put(msg, out, out_size);
+        } else {
+            char msg[16384];
+            snprintf(msg, sizeof msg,
+                     "I predicted [%s] but the shell said [%s].",
+                     predicted, actual);
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
+    char *cl;
+    if (strncmp(low, "what does ", 10) == 0) {
+        size_t tl = rl;
+        if (tl >= 3 && strcmp(low + tl - 3, " do") == 0) rw[tl - 3] = '\0';
+        else if (tl >= 5 && strcmp(low + tl - 5, " mean") == 0) rw[tl - 5] = '\0';
+        else return 0;
+        cl = rw + 10;
+    } else if (strncmp(low, "explain ", 8) == 0) {
+        cl = rw + 8;
+    } else {
+        return 0;
+    }
+
+    /* gen61: simple pipeline support. Split on '|' and compose descriptions. */
+    char pipeline[256];
+    snprintf(pipeline, sizeof pipeline, "%s", cl);
+    if (strchr(pipeline, '|')) {
+        char *segs[8];
+        size_t nseg = 0;
+        char *p = pipeline;
+        while (p && *p && nseg < 8) {
+            char *next = strchr(p, '|');
+            if (next) *next++ = '\0';
+            while (*p && isspace((unsigned char)*p)) p++;
+            segs[nseg++] = p;
+            p = next;
+        }
+        char desc[8][512];
+        size_t got = 0;
+        for (size_t i = 0; i < nseg; i++) {
+            if (describe_command(b, segs[i], desc[got], sizeof desc[got])) {
+                size_t dl = strlen(desc[got]);
+                if (dl > 0 && desc[got][dl - 1] == '.')
+                    desc[got][dl - 1] = '\0';
+                got++;
+            }
+        }
+        if (got == 0) return 0;
+        char msg[2048];
+        size_t o = (size_t)snprintf(msg, sizeof msg, "%s", desc[0]);
+        for (size_t i = 1; i < got && o < sizeof msg; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, ", then %s", desc[i]);
+        if (o < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    return describe_command(b, cl, out, out_size) ? 1 : 0;
+}
+
+/* --- module: discourse ---------------------------------------------------
+ * gen58: a minimal discourse memory. The brain keeps a small rolling buffer of
+ * recent content words extracted from user turns, and this module answers
+ * summary questions from that real state rather than a canned line.
+ * The topic extraction is intentionally shallow — non-stopword alphabetic
+ * tokens, len>=3 — so it stays honest and testable; it is not a summarizer. */
+static void update_topics(Brain *b, const char *norm) {
+    if (!b) return;
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) len = sizeof buf - 1;
+    memcpy(buf, norm, len + 1);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strlen(t) < 3 || !isalpha((unsigned char)t[0]) || is_stopword(t))
+            continue;
+        int dup = 0;
+        for (size_t j = 0; j < b->topic_count; j++)
+            if (strcmp(b->topics[j], t) == 0) { dup = 1; break; }
+        if (dup) continue;
+        if (b->topic_count < BRAIN_TOPICS_MAX) {
+            copy_trim(b->topics[b->topic_count], sizeof b->topics[b->topic_count], t);
+            b->topic_count++;
+        }
+    }
+}
+
+static int mod_discourse(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+    int summary = cue(norm, "what did we talk about") ||
+                  cue(norm, "what were we talking about") ||
+                  cue(norm, "what have we talked about") ||
+                  cue(norm, "cosa abbiamo detto") ||
+                  cue(norm, "di cosa abbiamo parlato");
+    if (!summary) return 0;
+    if (b->topic_count == 0) {
+        put("We haven't talked about much yet.", out, out_size);
+        return 1;
+    }
+    char msg[256];
+    size_t off = (size_t)snprintf(msg, sizeof msg, "We talked about ");
+    for (size_t i = 0; i < b->topic_count && off < sizeof msg; i++) {
+        const char *sep;
+        if (i == 0) sep = "";
+        else if (i + 1 == b->topic_count) sep = " and ";
+        else sep = ", ";
+        off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s", sep, b->topics[i]);
+    }
+    if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
     put(msg, out, out_size);
     return 1;
 }
@@ -2082,11 +2600,98 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
  *      claimed, arriving as the opener, is by exclusion a phatic contact act —
  *      so a novel minimal opener is handled without being listed, answered with
  *      an opening that invites content (honest: it does not feign understanding).
- * Runs last (before the not-understood fallback), so content always wins. */
+ * Runs last (before the not-understood fallback), so content always wins.
+ *
+ * gen56 (C2b): a social marker must not hijack a turn that also carries real
+ * content. "hi, what can you do?" and "thanks, that was wrong" are MIXED acts:
+ * the marker acknowledges, but the substance is answered by a content module.
+ * We detect mixed turns by the co-occurrence of a phatic marker with a question
+ * word or with explicit negative/corrective content after thanks. */
 static int tok_in(char **w, size_t nw, const char *const *set) {
-    for (size_t i = 0; i < nw; i++)
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
         for (const char *const *s = set; *s; s++)
-            if (strcmp(w[i], *s) == 0) return 1;
+            if (strcmp(t, *s) == 0) return 1;
+    }
+    return 0;
+}
+
+/* True for a token that contributes real lexical content: long enough, not a
+ * stopword, and not itself a social marker. Used to separate phatic-only turns
+ * from mixed turns that carry substance beyond the marker. */
+static int is_substantive(const char *t) {
+    char tmp[64];
+    if (strlen(t) >= sizeof tmp) return 0;
+    strcpy(tmp, t);
+    const char *s = strip_edge_punct(tmp);
+    if (strlen(s) < 3) return 0;
+    if (is_stopword(s)) return 0;
+    static const char *const social[] = {
+        "hello","hi","hey","hiya","yo","salve","ehi","buongiorno","buonasera",
+        "hello!","howdy","bye","goodbye","farewell","addio","arrivederci",
+        "ciao","thanks","thx","ty","grazie","thank","grazia", NULL
+    };
+    if (matches_any(s, social)) return 0;
+    return 1;
+}
+
+/* True if the line contains a question word — a strong signal that the turn
+ * carries an information request a content module should answer. */
+static int has_question_word(const char *buf, char **w, size_t nw) {
+    static const char *const qwords[] = {
+        "who","what","where","when","why","how","which",
+        "chi","che","cosa","dove","quando","perche","perché","come", NULL
+    };
+    if (tok_in(w, nw, qwords)) return 1;
+    if (cue(buf, "what") || cue(buf, "who") || cue(buf, "where") ||
+        cue(buf, "when")  || cue(buf, "why") || cue(buf, "how") ||
+        cue(buf, "which") || cue(buf, "chi") || cue(buf, "cosa") ||
+        cue(buf, "dove")  || cue(buf, "quando") || cue(buf, "perche") ||
+        cue(buf, "perché") || cue(buf, "come"))
+        return 1;
+    return 0;
+}
+
+/* True when the substantive part of the turn is itself a wellbeing check-in;
+ * such turns are still owned by the social module (marker + wellbeing is not a
+ * mixed act we want to decline). */
+static int is_wellbeing_content(const char *buf) {
+    return cue(buf, "how are you") || cue(buf, "how r u") ||
+           cue(buf, "how do you do") || cue(buf, "how is it going") ||
+           cue(buf, "come stai") || cue(buf, "come va");
+}
+
+/* A mixed act combines a social marker with substantive content. If mixed, the
+ * social module declines so the content module can own the turn. */
+static int is_mixed_turn(const char *buf, char **w, size_t nw,
+                         int has_opening, int has_closing, int has_thanks,
+                         int has_ambiguous) {
+    int has_marker = has_opening || has_closing || has_thanks || has_ambiguous;
+    if (!has_marker) return 0;
+
+    /* question word + marker -> substance wins ("hey, who are you?"),
+     * unless the substance is a wellbeing check the social module handles. */
+    if (has_question_word(buf, w, nw) && !is_wellbeing_content(buf)) return 1;
+
+    /* marker + substantive content -> substance wins
+     * ("Hello there, I hope you don't mind me reaching out.")
+     * Thanks-based turns are not mixed here; they have their own rule below. */
+    if ((has_opening || has_closing || has_ambiguous) && !has_thanks) {
+        if (is_wellbeing_content(buf)) return 0;
+        for (size_t i = 0; i < nw; i++)
+            if (is_substantive(w[i])) return 1;
+    }
+
+    /* thanks + explicit negative/corrective content is not a plain thank-you */
+    if (has_thanks) {
+        if (cue(buf, "wrong") || cue(buf, "bad") || cue(buf, "not") ||
+            cue(buf, "no") || cue(buf, "sbagliato") || cue(buf, "errore") ||
+            cue(buf, "male"))
+            return 1;
+    }
+
     return 0;
 }
 
@@ -2116,9 +2721,21 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     static const char *const thanks[]   = {"thanks","thx","ty","grazie", NULL};
     static const char *const ambiguous[] = {"ciao", NULL}; /* hello AND bye */
 
+    int has_opening = tok_in(w, nw, opening) || cue(buf, "good morning") ||
+                      cue(buf, "good evening") || cue(buf, "good afternoon");
+    int has_closing = tok_in(w, nw, closing) || cue(buf, "see you") ||
+                      cue(buf, "a presto");
+    int has_thanks  = tok_in(w, nw, thanks) || cue(buf, "thank you") ||
+                      cue(buf, "thank u");
+    int has_ambiguous = tok_in(w, nw, ambiguous);
+
+    /* gen56/gen63: if the turn is mixed, let content modules handle the substance. */
+    if (is_mixed_turn(buf, w, nw, has_opening, has_closing, has_thanks,
+                      has_ambiguous))
+        return 0;
+
     /* gratitude */
-    if (tok_in(w, nw, thanks) || cue(buf, "thank you") || cue(buf, "thank u"))
-        { put("You're welcome!", out, out_size); return 1; }
+    if (has_thanks) { put("You're welcome!", out, out_size); return 1; }
 
     /* wellbeing check-in */
     if (cue(buf, "how are you") || cue(buf, "how r u") ||
@@ -2133,11 +2750,8 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     }
 
     /* explicit opening / closing markers */
-    if (tok_in(w, nw, opening) || cue(buf, "good morning") ||
-        cue(buf, "good evening") || cue(buf, "good afternoon"))
-        { put("Hi there!", out, out_size); return 1; }
-    if (tok_in(w, nw, closing) || cue(buf, "see you") || cue(buf, "a presto"))
-        { put("Goodbye!", out, out_size); return 1; }
+    if (has_opening) { put("Hi there!", out, out_size); return 1; }
+    if (has_closing) { put("Goodbye!", out, out_size); return 1; }
 
     /* the elimination move: a single contentless word as the opener is, by
      * exclusion, phatic contact — greet and invite content, without listing it.
@@ -2169,6 +2783,7 @@ static const Module registry[] = {
     {"reader",    mod_reader},
     {"shell",     mod_shell},
     {"knowledge", mod_knowledge},
+    {"discourse", mod_discourse},
     {"social",    mod_social},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
@@ -2217,7 +2832,52 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen53-shell-knowledge";
+    return "gen63-robust-mixed-turns";
+}
+
+/* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
+ * showed that repeating "I don't understand that yet." verbatim is the #1
+ * naturalness killer (a broken record). So the classic line is kept for a LONE
+ * occurrence (no test churn, still honest), but when it would repeat our previous
+ * reply we vary — reflecting a salient word from the user so it feels heard, else
+ * rotating honest redirects. It never feigns understanding. */
+static void not_understood(Brain *b, const char *canon,
+                           char *out, size_t out_size) {
+    static const char *const v[] = {
+        "I'm not sure I followed. Can you say it another way?",
+        "I didn't quite catch that. What would you like to know?",
+        "Hmm, that's a bit beyond me right now.",
+        "I don't understand that yet.",
+    };
+    const size_t NV = sizeof v / sizeof v[0];
+    const char *classic = "I don't understand that yet.";
+
+    if (!b || strcmp(classic, b->last_reply) != 0) { /* fine to say it once */
+        put(classic, out, out_size);
+        if (b) b->fallbacks++;
+        return;
+    }
+
+    /* it would repeat -> vary. Prefer reflecting a salient content word. */
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", canon);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    const char *sw = NULL;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strlen(t) >= 4 && isalpha((unsigned char)t[0]) && !is_stopword(t)) {
+            sw = t; break;
+        }
+    }
+    char cand[256];
+    unsigned long k = b->fallbacks;
+    if (sw) snprintf(cand, sizeof cand, "Hmm, I don't know about %s yet.", sw);
+    else    snprintf(cand, sizeof cand, "%s", v[k % NV]);
+    for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
+        snprintf(cand, sizeof cand, "%s", v[(k + t) % NV]);
+    put(cand, out, out_size);
+    b->fallbacks++;
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
@@ -2235,18 +2895,26 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     canonicalize_lang(norm, canon, sizeof canon);
 
     /* Walk the registry; first module to claim the turn wins. */
+    int handled = 0, handled_by_discourse = 0;
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
-            return strlen(out);
+            handled = 1;
+            if (strcmp(registry[i].name, "discourse") == 0) handled_by_discourse = 1;
+            if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            break;
         }
     }
 
-    /* Not-understood fallback. gen0 parroted the input; from gen15 the agent
-     * outgrows the parrot and admits non-understanding honestly instead of
-     * mirroring (TASKLIST T16). Distinguishing the *not-known* (a well-formed
-     * query about something absent) from the *not-understood* (unparseable
-     * input) is the remaining, subtler half left in T16. */
-    size_t n = (size_t)snprintf(out, out_size,
-                                "I don't understand that yet.");
-    return n < out_size ? n : out_size - 1;
+    /* gen58: update the rolling discourse topic buffer from the current turn,
+     * but a summary question should not add its own words to the buffer. */
+    if (handled && !handled_by_discourse) update_topics(b, canon);
+
+    /* If no module claimed the turn, fall back to the honest not-understood reply
+     * (gen15 retired the gen0 parrot-echo; gen55 made it non-repeating).
+     * Honest admission, never a mirror or a wrong "No.". */
+    if (!handled) {
+        not_understood(b, canon, out, out_size);
+        if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+    }
+    return strlen(out);
 }

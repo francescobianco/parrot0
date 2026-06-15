@@ -50,6 +50,11 @@ expect "unknown command (shell syntax)" "what does foobar -x do?" \
 # a non-shell question is NOT hijacked (no flag, first token not a command)
 expect "does not hijack natural question" "what does a bird do?" \
     "I don't understand that yet."
+# gen61: pipelines are composed from per-command descriptions (held-out combos)
+expect "pipeline composition" "what does cat file | grep x do?" \
+    "cat prints file contents, then grep prints lines matching a pattern."
+expect "explain pipeline with flags" "explain ls -l | sort" \
+    "ls lists directory contents, in long format, then sort sorts lines of text."
 
 echo "---"
 echo "passed: $pass, failed: $fail"

@@ -55,6 +55,7 @@ test: build
 	@./tests/explain.sh
 	@./tests/howknow.sh
 	@./tests/posix.sh
+	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
 
 bench: build
 	@./tests/bench.sh all

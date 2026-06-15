@@ -1,0 +1,81 @@
+# chatsim — model=minimax-m2.5 convos=5 turns=6
+
+=== conversation 1 ===
+# persona (temp=0.92): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a sceptical software tester, feeling cheerful. Your aim: just make small talk. Keep most messages very short (1-6 words). Style: lowercase, no punctuation. Write in English. Occasionally change the topic abruptly. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> hey
+  parrot0> Hi there!
+  human> hey what are you up to
+  parrot0> I am parrot0.
+  human> wait what
+  parrot0> I don't understand that yet.
+  human> you just said you are parrot0 lol
+  parrot0> Hmm, I don't know about just yet.
+  human> okay thats weird but whatever lol
+  parrot0> I don't understand that yet.
+  human> wow okay helpful
+  parrot0> Hmm, I don't know about okay yet.
+
+=== conversation 2 ===
+# persona (temp=1.02): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a busy office worker on a coffee break, feeling enthusiastic. Your aim: try to confuse it for fun. Write casual one-liners. Style: lowercase, no punctuation. Write in English. Occasionally be a bit cheeky. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> hey so i heard you can talk about literally anything right
+  parrot0> I don't understand that yet.
+  human> oh wow you cant even handle a simple yes or no question huh
+  parrot0> Hmm, I don't know about cant yet.
+  human> lol what kind of answer is that i just asked you a normal question
+  parrot0> I don't understand that yet.
+  human> okay now youre just doing that on purpose right
+  parrot0> Hmm, I don't know about okay yet.
+  human> bro you keep doing the same thing over and over again
+  parrot0> I don't understand that yet.
+  human> wow you really are stuck in a loop huh you need a software update or something
+  parrot0> Hmm, I don't know about really yet.
+
+=== conversation 3 ===
+# persona (temp=1.15): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a cheerful small-talker, feeling warm. Your aim: vent a little then chat. Mix short and medium messages. Style: fairly formal. Write in English. Drop in a personal detail (a pet, a city, a hobby). Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> Hi there!
+  parrot0> Hi there!
+  human> Hi! Lovely to have someone
+  parrot0> I don't understand that yet.
+  human> Oh, sorry — I meant it's nice to have a bit of company, that's all. Are you new to this? I'm still figuring it out myself, to be honest. By
+  parrot0> Hmm, I don't know about sorry yet.
+  human> Fair enough, I'll take it back then. Sometimes I overthink what I say. Anyway, how's your day going? I spent way too long today
+  parrot0> I don't understand that yet.
+  human> Okay, you're going to keep saying that, aren't you? That's a bit of a conversation killer, honestly. Are you actually parsing what I'm writing or just running some kind
+  parrot0> Hmm, I don't know about okay yet.
+  human> Alright, I'm going to be honest — this is
+  parrot0> I don't understand that yet.
+
+=== conversation 4 ===
+# persona (temp=1.18): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a blunt engineer, feeling skeptical. Your aim: try to confuse it for fun. Keep most messages very short (1-6 words). Style: plain and neutral. Mix Italian and English casually.  Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> hey, you work?
+  parrot0> I don't understand that yet.
+  human> che significa? just yes or no
+  parrot0> Hmm, I don't know about significa yet.
+  human> molto utile, thanks
+  parrot0> You're welcome!
+  human> aspetta, why you're welcome? i didn't thank you for anything lol
+  parrot0> I don't understand that yet.
+  human> ok you're useless, ciao
+  parrot0> Hmm, I don't know about you're yet.
+  human> lol sei rotto proprio
+  parrot0> I don't understand that yet.
+
+=== conversation 5 ===
+# persona (temp=1.01): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a blunt engineer, feeling enthusiastic. Your aim: try to confuse it for fun. Write casual one-liners. Style: lowercase, no punctuation. Write in English. Occasionally change the topic abruptly. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> hey so do you even know what year it is
+  parrot0> I don't understand that yet.
+  human> ok thats fine i guess its not like time matters or whatever
+  parrot0> Hmm, I don't know about thats yet.
+  human> hey did anyone ever tell you that you talk like a broken toaster
+  parrot0> I don't understand that yet.
+  human> ok robots cant learn apparently thats your whole thing huh
+  parrot0> Hmm, I don't know about robots yet.
+  human> you keep saying yet like youre gonna wake up one day and suddenly get it
+  parrot0> I don't understand that yet.
+  human> what if i just asked you what color is a Tuesday
+  parrot0> Hmm, I don't know about just yet.
+
+--- summary ---
+bot turns: 30
+"I don't understand that yet." wall rate: 46% (14/30)
+immediate repetition rate: 6% (2/30)

@@ -1,0 +1,10 @@
+# gen59 (C5): best-effort over the blank wall. "what is <X>?" reuses the KB
+# description path instead of falling back when X is known.
+> Socrates is a man
+< Learned: man(socrates).
+> Socrates is a mortal
+< Learned: mortal(socrates).
+> what is Socrates?
+< socrates is a man; socrates is a mortal.
+> what is a_flamingo?
+< I don't know anything about a_flamingo.

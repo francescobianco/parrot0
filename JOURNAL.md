@@ -2,6 +2,185 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## 2026-06-15 — gen63: C2c — chat-sim driven robust mixed turns
+
+**Changed:** `brain.c` → `gen63-robust-mixed-turns`; ran `make chat-sim` and used
+its failure modes to harden the dialogue-act layer.
+- `tok_in` now strips edge punctuation, so "Hello." and "hello" match the same
+  marker.
+- `is_mixed_turn` now treats any opening/closing/ambiguous marker + substantive
+  content as a mixed act, not only marker + question word. Wellbeing checks
+  ("how are you" / "come stai") are still owned by the social module.
+- `mod_memory` possession frame is now position-robust: it finds "my" / "i have"
+  / "what is ... my" inside the token stream, so a leading social marker no
+  longer derails "hi, my dog is called Rex" or "buongiorno, il mio cane si
+  chiama Rex".
+- Fixed a long-standing bug in `copy_last_word` that left trailing punctuation
+  on names (causing replies like "Rex..").
+- Added Italian canonicalizations: `mio`/`mia` → `my`, `si` → `is`,
+  `chiama` → `called`.
+- Extended `mod_self` identity cues to recognize "what exactly are you?".
+- Updated/added bilingual ratchet cases: `tests/cases/mixed.chat`,
+  `tests/cases/mixed.it.chat`.
+
+**Why:** the LLM-simulated users repeatedly opened with a social marker and then
+added content ("Hello. What exactly are you?", "Hi, my dog is called Rex");
+without punctuation stripping and the broader mixed-act rule the social module
+hijacked the turn.
+
+**Observed:** `make test` green (53 chat + all other suites). Re-ran
+`make chat-sim`: wall rate moved from 50% → 46%, immediate repetition from 7%
+→ 6%; the remaining failures are mostly open-domain yes/no/casual questions
+outside current reasoning coverage, not mixed-act hijacks.
+
+**Next:** M2 step 1 — learning from books (linguistic/distributional track) or
+continue tightening the social layer if another chat-sim round is requested.
+
+## 2026-06-15 — gen60: C5b — personal memory recall via "what is my <thing>?"
+
+**Changed:** `brain.c` → `gen60-personal-recall`; `mod_memory` extended with a
+shorter recall shape for possessions and Italian equivalents.
+- "what is my <thing>?" now looks up the gen57 possession table and answers
+  "Your <thing> is <name>."; if unknown it honestly declines so the fallback can
+  answer.
+- Italian "cos'è il mio cane?" / "cos'è la mia gatta?" flow through the same
+  lookup after canonicalization of "cos'è" and the function words.
+- Added lexicon entries `ho` → `i have` and `chiamato` → `named` so Italian
+  assertions like "ho un cane chiamato Rex" assert into the same possession
+  frame.
+- New `tests/cases/memory_recall.chat` + `memory_recall.it.chat`.
+
+**Why:** "what is my dog?" is a very natural follow-up to "I have a dog named
+Rex." Reusing the existing possession table keeps the change small and honest.
+
+**Observed:** "what is my dog?" → "Your dog is Rex."; "cos'è il mio cane?" →
+"Your cane is Rex."; unknown possessions fall through. `make test` green
+(53 unit + …). The Italian content word "cane" is left untranslated — the
+bilingual ratchet is satisfied by the shared frame, not by a content-word
+phrasebook.
+
+**Next:** M1 step 2 (shell pipelines) or a deeper C5 move (focused
+clarification questions).
+
+## 2026-06-15 — gen61: M1 step 2 — shell pipelines
+
+**Changed:** `brain.c` → `gen61-shell-pipelines`; `mod_shell` refactored into a
+reusable `describe_command()` helper plus pipeline composition.
+- A command line containing `|` is split into segments; each segment is
+  described with the existing per-command composition logic, and the results
+  are joined with ", then ".
+- Unknown commands in a pipeline are still admitted (if they carry a flag); the
+  composition survives partial knowledge.
+- New `tests/posix.sh` cases: "what does cat file | grep x do?" and
+  "explain ls -l | sort".
+
+**Why:** the POSIX mission explicitly asks for COMPOSITION across pipes, not a
+pipeline dictionary. Reusing the single-command descriptor keeps the structure
+small and honest.
+
+**Observed:** `cat file | grep x` → "cat prints file contents, then grep prints
+lines matching a pattern."; `ls -l | sort` composes flags + base effects across
+both commands. `make test` green (53 unit + 10 persist + 11 posix + …).
+
+**Next:** gen62 = M1 step 3 — oracle-grounded output prediction for pure
+commands (e.g. predict what `echo hello world` prints, verified by running the
+real shell).
+
+## 2026-06-15 — gen62: M1 step 3 — oracle-grounded output prediction
+
+**Changed:** `brain.c` → `gen62-oracle-prediction`; `mod_shell` now predicts and
+verifies the output of small pure shell commands.
+- Added a pure-command simulator for `echo`, `pwd`, `cat` (pass-through), and
+  `wc -w`, plus a tiny pipeline runner.
+- New oracle handler recognizes "what does <cmd> print?" and "predict the output
+  of <cmd>". It simulates the output, runs the real command via `popen`, and
+  reports match or honest mismatch.
+- Security discipline: only active when `PARROT0_ORACLE=1`; tokens are
+  allow-listed and sanitized; no redirections/variables/globs.
+- New `tests/posix_oracle.sh` (gated by `PARROT0_ORACLE=1`) and wired into
+  `make test`.
+
+**Why:** M1's strongest signal is a verifiable prediction against the free shell
+oracle. This is the first step from "describes" to "shows".
+
+**Observed:** `echo hello world`, `echo a b c | wc -w`, and `echo hi | cat` all
+predict correctly and match the real shell. `make test` green (53 unit + 10
+persist + 11 posix + 4 posix_oracle + …).
+
+**Next:** M2 step 1 — learning from books, linguistic/distributional track:
+read a passage and show a held-out change in the induced generative model.
+
+## 2026-06-15 — gen59: C5 — best-effort over the blank wall
+
+**Changed:** `brain.c` → `gen59-blankwall-effort`; `mod_knowledge` now handles
+"what is <X>?" / Italian "cos'è <X>?" as a request to describe entity X.
+- Added `cos'è` → `what is` to the canonicalization lexicon so the Italian form
+  flows through the same parser.
+- The handler reuses `kb_describe_entity` (the same path as "what do you know
+  about <X>?"); unknown entities get the honest "I don't know anything about..."
+  rather than a generic wall.
+- New `tests/cases/blankwall.chat` + `blankwall.it.chat`.
+
+**Why:** C5 aims to make the fallback specific. "what is X?" is a very common
+surface shape that previously hit "I don't understand" even when X was known.
+
+**Observed:** After asserting facts about Socrates/Socrate, "what is Socrates?"
+and "cos'è Socrate?" return the KB description; unknown entities are honestly
+admitted. `make test` green (51 unit + …).
+
+**Next:** gen60 = C5b — extend best-effort to personal memory ("what is my
+<thing>?" from the possession table), then M1 step 2 (shell pipelines).
+
+## 2026-06-15 — gen58: C4 — discourse memory
+
+**Changed:** `brain.c` → `gen58-discourse-memory`; new `mod_discourse` and rolling
+`topics` buffer in `Brain`; `mod_self` capability list updated.
+- `update_topics()` extracts content words (non-stopword, alphabetic, len>=3)
+  from each handled turn into a 4-slot recent buffer.
+- `mod_discourse` answers "what did we talk about?", "what were we talking
+  about?", and Italian "cosa abbiamo detto?" / "di cosa abbiamo parlato?" from
+  the real buffer, not a canned line.
+- Summary questions do not add their own words to the topic buffer (the dispatch
+  result controls whether `update_topics` runs).
+- New `tests/cases/discourse.chat` + `discourse.it.chat`; updated `self.chat`,
+  `intent.chat`, `intent.it.chat`, `mixed.chat` for the new `discourse` module.
+
+**Why:** parrot0 felt amnesic in conversation. C4 gives it the smallest honest
+structure for referring back to the running dialogue: a derived topic list.
+
+**Observed:** After "I have a dog named Rex" and "what is 2 plus 2?", the
+summary returns the real recent content words. Italian summary path works.
+`make test` green (49 unit + …). The buffer is tiny and static — a deliberate
+first step, not a real summarizer.
+
+**Next:** gen59 = C5 — best-effort over the blank wall (e.g. "what is X?" from
+KB description, focused clarification when possible).
+
+## 2026-06-15 — gen56: C2b — mixed-act turns
+
+**Changed:** `brain.c` → `gen56-mixed-act-turns`; `mod_social` now declines turns
+that combine a phatic marker with substantive content.
+- Added `has_question_word()` and `is_mixed_turn()` helpers.
+- A social marker (opening/closing/thanks) plus a question word ("hi, what can
+  you do?", "hey, who are you?", "ciao, chi sei?") is treated as a content turn.
+- `thanks` followed by explicit negative/corrective content ("thanks, that was
+  wrong", "grazie, era sbagliato") is no longer answered with "You're welcome!";
+  it falls through to content modules / honest fallback.
+- Marker-only turns and wellbeing checks are preserved.
+- New `tests/cases/mixed.chat` + `mixed.it.chat` (bilingual ratchet).
+
+**Why:** chatsim (gen54) showed `mod_social` over-claiming mixed turns: "hey so
+like what even are you?" → "Hi there!" and sarcastic "thanks" → "You're
+welcome!". The fix is structural: the phatic register must not eclipse content.
+
+**Observed:** "hi, what can you do?" → capability list; "hey, who are you?" →
+"I am parrot0."; "thanks, that was wrong" → honest fallback; "ciao, chi sei?"
+→ identity; "ciao" (marker-only) still greets. `make test` green (45 unit + 10
+persist + …). Social cases unchanged.
+
+**Next:** gen57 = C3 — natural assertion + personal memory ("I have a dog named
+Rex" → "what is my dog called?" → "Rex").
+
 ## Decisions (revisitable)
 
 > Choices made under uncertainty that a future iteration may overturn. Each

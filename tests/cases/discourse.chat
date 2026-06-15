@@ -1,0 +1,8 @@
+# gen58 (C4): discourse memory. The bot tracks recent content words and can
+# answer "what did we talk about?" from that real state.
+> I have a dog named Rex
+< Got it: your dog is called Rex.
+> what is 2 plus 2?
+< 4.
+> what did we talk about?
+< We talked about dog, named, rex and plus.
