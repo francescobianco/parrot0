@@ -4,35 +4,34 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen53 — C3: natural assertion + personal memory ("listen to me")
+## Goal: gen54 — M1 step 2: pipelines + oracle-grounded output
 
-Conversational-intelligence pivot. felt-intelligence (`make chat-bench`) has
-climbed 36% (gen50) → 64% (gen51, C1 intent) → 82% (gen52, C2 dialogue acts).
-The remaining benchmark MISSes are the turns that make a bot feel like it is
-*listening*: "I have a dog named Rex" then "what is my dog called?" → "Rex"
-(C3), and "what did we just talk about?" (C4).
+Mission M1 (POSIX/bash) is underway. gen53 gave compositional single-command
+understanding ("ls -la" composed from ls + l + a) from committed
+`knowledge/bash.pl`, case-sensitive and honest on unknowns (`tests/posix.sh`).
 
-This is C3: parse first-person / natural-shape facts about the user and answer
-from them.
+Two natural next steps, both deepening COMPOSITION and bringing in the
+deterministic shell ORACLE:
 
-### Design question
-Can the existing memory + KB carry first-person possessions/attributes —
-"I have a dog named Rex", "my dog is Rex", "call me Sam", "I like jazz" — as
-relations (e.g. `has(user, dog)`, `named(dog, rex)` or `my(dog, rex)`), so
-"what is my dog called?" resolves from them? Keep it structural: a small set of
-possessive/naming patterns mapped to relations, not canned Q→A pairs.
+1. **Pipelines.** "what does `cat f | grep x` do?" composes the two commands'
+   effects: "prints file contents, then keeps the lines matching a pattern."
+   Parse on `|`, describe each stage from the gen53 `cmd`/`flag` facts, join.
+2. **Oracle-grounded output prediction.** For pure deterministic commands
+   (start with `echo`), predict the actual output and VERIFY it by running the
+   real shell in the test — the purest embodiment of the oracle (no authored
+   description, truth is computed and checked).
 
 ### Acceptance
-- "I have a dog named Rex" (and "my dog is Rex") remembered; "what is my dog
-  called?" / "what is the name of my dog?" → "Rex".
-- "call me Sam" then "what is my name?" distinguishes the USER's name from the
-  bot's identity (gen51).
-- Held-out possessions/attributes and varied phrasing work (cue/role based, not
-  fixed strings); the dog turns in `tests/chat/intro.dlg` flip to OK.
-- English + Italian per the bilingual ratchet.
+- A pipeline never stored verbatim is explained by composing its stages
+   (held-out); the order is preserved.
+- "what is the output of echo hello world?" → "hello world", and the test
+   confirms it equals the real `echo hello world`.
+- Existing gen53 behaviour and all suites unchanged; new cases in
+   `tests/posix.sh`; knowledge stays in committed `knowledge/bash.pl`.
 
 ### Notes
-- Builds on the memory module and overlaps T6 (working memory). Watch the
-  first-person/second-person distinction (my vs your) — pronoun roles matter.
-- Then C4 (discourse memory: "what did we just talk about?") and C5 (retire the
-  blank wall) close out the first felt-intelligence pass.
+- Keep it structural and oracle-checkable; do not author per-command outputs.
+- C-series (conversational intelligence) is parked at gen52/C2 with C3 (personal
+  memory: "dog named Rex") next when we return to it — felt-intelligence 82%.
+- Later M1: intent → command ("how would you do this in POSIX?"), and
+  multi-file knowledge loading so `make chat` sees bash.pl by default.

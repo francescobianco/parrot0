@@ -121,12 +121,17 @@ x" from parts. Start narrow (a handful of commands), prove on held-out
 combinations.
 
 Acceptance (to refine):
-- Effect of a single command with flags is answered from learned semantics.
-- Effect of a PIPELINE never taught verbatim is composed correctly (held-out).
+- [DONE gen53] Effect of a single command with flags, composed from learned
+  semantics (`knowledge/bash.pl`, committed); held-out flag combinations work;
+  case-sensitive; honest on unknowns; `tests/posix.sh`.
+- [next] Effect of a PIPELINE never taught verbatim is composed correctly
+  (held-out) — compose command effects across `|`.
+- [next] Oracle-grounded output PREDICTION for pure commands (e.g. echo),
+  verified by running the real shell.
 - An intent → command translation ("how in POSIX?") for a small task set.
-- Every claim is checkable against the real shell; learned semantics persisted to
-  `knowledge/bash.pl` and committed.
 Anti-impostor: predict an unseen command combination; the shell oracle judges.
+Open wiring: default `make chat` loads base.pl only — shell knowledge needs
+`PARROT0_BASE=knowledge/bash.pl` until multi-file knowledge loading exists.
 
 ### M2 - Learning knowledge from books
 Goal: demonstrate that after parrot0 reads a book, it has *learned* from it.

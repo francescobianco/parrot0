@@ -48,6 +48,7 @@ test: build
 	@./tests/anon.sh
 	@./tests/explain.sh
 	@./tests/howknow.sh
+	@./tests/posix.sh
 
 bench: build
 	@./tests/bench.sh all

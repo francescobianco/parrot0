@@ -1944,6 +1944,129 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: shell -------------------------------------------------------
+ * POSIX/shell knowledge — Mission M1, step 1 (gen53). Answers "what does <cmd>
+ * do?" / "explain <cmd>" by PARSING the command line into (command, flags, args)
+ * and COMPOSING the answer from learned `cmd`/`flag` facts (knowledge/bash.pl,
+ * carried in the commits) — so "ls -la" is explained by composing ls + l + a
+ * even though that combination is not stored. This is shell *structure*, not a
+ * command dictionary. Reads `raw`, not `norm`: the shell is case-sensitive
+ * (-r != -R), so flag case must survive normalization. */
+static void de_underscore(const char *in, char *out, size_t n) {
+    size_t i = 0;
+    for (; in[i] && i + 1 < n; i++) out[i] = (in[i] == '_') ? ' ' : in[i];
+    out[i] = '\0';
+}
+
+static int mod_shell(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    (void)norm;
+
+    /* lowercased probe to detect the question shape; the command line is sliced
+     * from raw with case preserved. */
+    char low[256], rw[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof rw) return 0;
+    memcpy(rw, raw, rl + 1);
+    while (rl > 0 && (rw[rl-1]=='?'||rw[rl-1]=='.'||rw[rl-1]==' '||rw[rl-1]=='\n'))
+        rw[--rl] = '\0';
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)rw[i]);
+
+    char *cl;
+    if (strncmp(low, "what does ", 10) == 0) {
+        size_t tl = rl;
+        if (tl >= 3 && strcmp(low + tl - 3, " do") == 0) rw[tl - 3] = '\0';
+        else if (tl >= 5 && strcmp(low + tl - 5, " mean") == 0) rw[tl - 5] = '\0';
+        else return 0;
+        cl = rw + 10;
+    } else if (strncmp(low, "explain ", 8) == 0) {
+        cl = rw + 8;
+    } else {
+        return 0;
+    }
+
+    char clbuf[256];
+    snprintf(clbuf, sizeof clbuf, "%s", cl);
+    char *w[64];
+    size_t nw = split_words(clbuf, w, 64);
+    if (nw == 0) return 0;
+
+    const char *command = NULL;
+    int has_flag = 0;
+    for (size_t i = 0; i < nw; i++) {
+        if (w[i][0] == '-') has_flag = 1;
+        else if (!command) command = w[i];
+    }
+    if (!command) return 0;
+
+    /* command name is matched lowercased (commands are lowercase); look it up */
+    char lc[KB_TERM_LEN];
+    size_t ci = 0;
+    for (; command[ci] && ci + 1 < sizeof lc; ci++)
+        lc[ci] = (char)tolower((unsigned char)command[ci]);
+    lc[ci] = '\0';
+
+    const char *cpat[] = {lc, NULL};
+    char eff[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cmd", cpat, 2, eff, 4);
+    if (k == 0) {
+        /* unknown command: only claim the turn when it is clearly shell syntax
+         * (a flag is present), so we don't hijack "what does a bird do?". */
+        if (!has_flag) return 0;
+        char msg[160];
+        snprintf(msg, sizeof msg, "I don't know the command %s.", lc);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    char base[256];
+    de_underscore(eff[0], base, sizeof base);
+
+    char known[512]; size_t ko = 0, kn = 0;
+    char unknown[160]; size_t uo = 0, un = 0;
+    for (size_t i = 0; i < nw; i++) {
+        if (w[i][0] != '-') continue;
+        if (w[i][1] == '-') { /* long option: keep whole, do not split chars */
+            uo += (size_t)snprintf(unknown + uo, sizeof unknown - uo,
+                                   "%s%s", un ? ", " : "", w[i]);
+            un++;
+            continue;
+        }
+        for (const char *f = w[i] + 1; *f; f++) {
+            /* the resolver reads an uppercase-initial atom as a variable, so an
+             * uppercase flag (-R) is looked up case-tagged as "u_r". */
+            char fs[8];
+            if (isupper((unsigned char)*f))
+                snprintf(fs, sizeof fs, "u_%c", (char)tolower((unsigned char)*f));
+            else
+                snprintf(fs, sizeof fs, "%c", *f);
+            const char *fpat[] = {lc, fs, NULL};
+            char fe[4][KB_TERM_LEN];
+            if (kb_match(b->kb, "flag", fpat, 3, fe, 4) > 0) {
+                char ph[160]; de_underscore(fe[0], ph, sizeof ph);
+                ko += (size_t)snprintf(known + ko, sizeof known - ko,
+                                       "%s%s", kn ? ", " : "", ph);
+                kn++;
+            } else {
+                uo += (size_t)snprintf(unknown + uo, sizeof unknown - uo,
+                                       "%s-%c", un ? ", " : "", *f);
+                un++;
+            }
+        }
+    }
+
+    char msg[900];
+    size_t o = (size_t)snprintf(msg, sizeof msg, "%s %s", lc, base);
+    if (kn) o += (size_t)snprintf(msg + o, sizeof msg - o, ", %s", known);
+    if (o < sizeof msg) o += (size_t)snprintf(msg + o, sizeof msg - o, ".");
+    if (un && o < sizeof msg)
+        snprintf(msg + o, sizeof msg - o,
+                 " I don't know the option %s.", unknown);
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* --- module: social ------------------------------------------------------
  * The dialogue-act layer (gen52). parrot0 had only CONTENT modules
  * (assert/query/reason); a curt "ciao" or "thanks" carries no proposition, so it
@@ -2044,6 +2167,7 @@ static const Module registry[] = {
     {"coref",     mod_coref},
     {"bench",     mod_bench},
     {"reader",    mod_reader},
+    {"shell",     mod_shell},
     {"knowledge", mod_knowledge},
     {"social",    mod_social},
 };
@@ -2093,7 +2217,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen52-dialogue-acts";
+    return "gen53-shell-knowledge";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

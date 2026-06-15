@@ -9,6 +9,28 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15w — shell knowledge is compositional & data-driven (knowledge/bash.pl), case-tagged for the resolver
+gen53 (Mission M1, step 1) answers "what does <cmd> do?" by parsing the command
+line into (command, flags, args) and composing the answer from `cmd`/`flag`
+facts in the committed `knowledge/bash.pl`.
+- **Bought:** the first knowledge-acquisition mission, done as STRUCTURE not a
+  dictionary — "ls -la" is explained by composing ls + l + a though that combo is
+  not stored (held-out composition is the anti-impostor test). Knowledge lives in
+  a human-readable, version-controlled `.pl` (carried in the commits, per the
+  owner). Honest about unknown flags/commands; does not hijack non-shell "what
+  does X do?" (only claims a known command or clear shell syntax).
+- **Gave up / discovered:** the resolver reads an uppercase-initial atom as a
+  VARIABLE (the `mortal(X)` convention), so an uppercase flag (-R) silently
+  became a wildcard matching any flag — a real KB-representation constraint.
+  Fixed by case-tagging uppercase flags as `u_<letter>` (e.g. `flag(ls, u_r,
+  …)`), keeping every atom lowercase-initial and ground. Descriptions are
+  authored English (underscored atoms), not yet oracle-verified; default
+  `make chat` loads `base.pl`, so shell knowledge needs `PARROT0_BASE=
+  knowledge/bash.pl` until multi-file knowledge loading exists.
+- **Revisit if:** output PREDICTION (oracle-grounded, e.g. echo) or PIPELINE
+  composition is needed (then compose effects across `|`); or knowledge loading
+  should merge several domain files by default.
+
 ### D-2026-06-15v — trivial openers handled as a dialogue-act layer, not a bigger greeting list
 gen52 answers a curt "ciao" / "thanks" / "how are you" via `mod_social`, a
 speech-act layer: it classifies the PHATIC register (open/close/thanks/wellbeing)
@@ -372,6 +394,37 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen53: M1 step 1 — compositional shell knowledge
+
+**Changed:** `brain.c` → `gen53-shell-knowledge`; new `mod_shell` (+
+`de_underscore`); new committed `knowledge/bash.pl`; `tests/posix.sh` + Makefile.
+- First step of Mission M1 (POSIX/bash). `mod_shell` parses "what does <cmdline>
+  do?" / "explain <cmdline>" into command + flags + args and COMPOSES the answer
+  from `cmd(name, effect)` / `flag(name, f, effect)` facts in `knowledge/bash.pl`
+  — so "ls -la" is explained from ls + l + a without that combo being stored.
+- Reads `raw` (the shell is case-sensitive: -r ≠ -R). Discovered the resolver
+  treats uppercase-initial atoms as variables, so uppercase flags are case-tagged
+  `u_<letter>` (Decision D-2026-06-15w). Honest on unknown flags/commands; does
+  not hijack non-shell "what does X do?".
+- `tests/posix.sh` (loads bash.pl via PARROT0_BASE, like grammar.sh): held-out
+  composition, case sensitivity, unknown flag/command, non-hijack. Updated
+  `self.chat` (module list += shell).
+
+**Why:** owner picked M1 first. Per the agreed framing: the shell is a
+deterministic oracle and the target is COMPOSITION, not a command dictionary;
+knowledge is carried in the commits as data.
+
+**Observed:** "what does ls -la do?" → "ls lists directory contents, in long
+format, including hidden entries."; "-r" vs "-R" distinguished; "-lq" admits the
+unknown -q while composing -l; "what does a bird do?" not hijacked. Suite green
+(43 unit + 9 posix); chat-bench unchanged (82%).
+
+**Next:** gen54 — extend M1 to PIPELINES ("cat f | grep x" composes two command
+effects) and/or oracle-grounded output prediction (echo), the parts where the
+deterministic shell can verify predictions directly.
 
 ---
 

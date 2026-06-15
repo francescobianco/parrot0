@@ -1,0 +1,76 @@
+% parrot0 POSIX/shell knowledge — Mission M1, step 1 (gen53).
+% Curated, human-readable, hand-editable, VERSION-CONTROLLED knowledge: what
+% parrot0 has "learned" about the shell is carried here, in the commits.
+% Format mirrors knowledge/base.pl — one clause per line.
+%
+%   cmd(NAME, EFFECT).        a command and its base effect (effect is one
+%                             underscored phrase; the shell module de-underscores
+%                             it when answering "what does NAME do?")
+%   flag(NAME, F, EFFECT).    what option -F adds to command NAME
+%
+% The point is NOT a command dictionary but COMPOSITION: "what does ls -la do?"
+% is answered by composing ls + l + a even though that combination is not stored.
+% Load it with:  PARROT0_BASE=knowledge/bash.pl make chat
+
+% --- ls ---
+cmd(ls, lists_directory_contents).
+flag(ls, a, including_hidden_entries).
+flag(ls, l, in_long_format).
+flag(ls, h, with_human_readable_sizes).
+flag(ls, t, sorted_by_modification_time).
+flag(ls, r, in_reverse_order).
+% NB: parrot0's resolver treats an uppercase-initial atom as a VARIABLE, so an
+% uppercase flag like -R must be encoded case-tagged ("u_r") to stay a ground
+% atom. The shell module maps an uppercase flag char to this token.
+flag(ls, u_r, descending_into_subdirectories).
+
+% --- cat ---
+cmd(cat, prints_file_contents).
+flag(cat, n, numbering_every_line).
+
+% --- grep ---
+cmd(grep, prints_lines_matching_a_pattern).
+flag(grep, i, ignoring_case).
+flag(grep, v, inverting_the_match).
+flag(grep, n, showing_line_numbers).
+flag(grep, c, counting_matches).
+flag(grep, r, searching_recursively).
+
+% --- rm ---
+cmd(rm, removes_files).
+flag(rm, r, recursively).
+flag(rm, f, without_prompting).
+flag(rm, i, prompting_before_each_removal).
+
+% --- cp / mv ---
+cmd(cp, copies_files).
+flag(cp, r, recursively).
+flag(cp, f, forcing_overwrite).
+cmd(mv, moves_or_renames_files).
+
+% --- mkdir ---
+cmd(mkdir, creates_directories).
+flag(mkdir, p, creating_parent_directories_as_needed).
+
+% --- wc ---
+cmd(wc, counts_lines_words_and_bytes).
+flag(wc, l, counting_lines).
+flag(wc, w, counting_words).
+flag(wc, c, counting_bytes).
+
+% --- sort / uniq ---
+cmd(sort, sorts_lines_of_text).
+flag(sort, r, in_reverse_order).
+flag(sort, n, numerically).
+flag(sort, u, removing_duplicates).
+cmd(uniq, filters_adjacent_duplicate_lines).
+flag(uniq, c, prefixing_each_line_with_its_count).
+
+% --- misc primitives ---
+cmd(pwd, prints_the_working_directory).
+cmd(echo, prints_its_arguments).
+cmd(touch, creates_empty_files_or_updates_timestamps).
+cmd(head, prints_the_first_lines_of_a_file).
+cmd(tail, prints_the_last_lines_of_a_file).
+cmd(chmod, changes_file_permissions).
+flag(chmod, u_r, recursively).
