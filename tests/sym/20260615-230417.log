@@ -1,0 +1,88 @@
+# symbench — model=minimax-m2.5 cases=18 llm=on
+
+=== arith ===
+  in       : 19 + 3 + 9=    (evaluate; want 31)
+  oracle   : 31
+  parrot0  : I don't understand that yet.
+  in       : 7+4+16+1+13=    (evaluate; want 41)
+  oracle   : 41
+  parrot0  : I didn't quite catch that. What would you like to know?
+
+=== numseq ===
+  in       : 4, 11, 18, 25, 32, 39 ?    (arithmetic step 7; want 46)
+  oracle   : 46
+  parrot0  : I don't understand that yet.
+  in       : 8, 11, 14, 17, 20, 23 ?    (arithmetic step 3; want 26)
+  oracle   : 26
+  parrot0  : I'm not sure I followed. Can you say it another way?
+
+=== periodic ===
+  in       : N O F Ne Na    (next in periodic; want Mg)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : H He Li    (next in periodic; want Be)
+  oracle   : Be
+  parrot0  : I didn't quite catch that. What would you like to know?
+
+=== planets ===
+  in       : Earth Mars Jupiter Saturn Uranus     (next in planets; want Neptune)
+  oracle   : Neptune
+  parrot0  : I don't understand that yet.
+  in       : Venus, Earth, Mars, Jupiter, Saturn,     (next in planets; want Uranus)
+  oracle   : Maybe it's "the planets
+  parrot0  : Hmm, I don't know about venus yet.
+
+=== weekdays ===
+  in       : Monday, Tuesday, Wednesday, Thursday,    (next in weekdays; want Friday)
+  oracle   : Friday
+  parrot0  : I don't understand that yet.
+  in       : Wednesday, Thursday, Friday, Saturday ?    (next in weekdays; want Sunday)
+  oracle   : Sunday
+  parrot0  : Hmm, I don't know about wednesday yet.
+
+=== months ===
+  in       : April May June    (next in months; want July)
+  oracle   : July
+  parrot0  : I don't understand that yet.
+  in       : July, August, September,    (next in months; want October)
+  oracle   : October
+  parrot0  : Hmm, I don't know about july yet.
+
+=== alphabet ===
+  in       : P, Q, R, S,     (next in alphabet; want T)
+  oracle   : T
+  parrot0  : I don't understand that yet.
+  in       : J K L M N O    (next in alphabet; want P)
+  oracle   : P
+  parrot0  : I didn't quite catch that. What would you like to know?
+
+=== chess ===
+  in       : e4 e5    (next book move; want Nf3)
+  oracle   : Nf3
+  parrot0  : I don't understand that yet.
+  in       : e4 c5    (next book move; want Nf3)
+  oracle   : Nf3
+  parrot0  : I'm not sure I followed. Can you say it another way?
+
+=== symmetry ===
+  in       : 1 2 1    (palindrome (recognize); want —)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : 1 2 3 2 1    (palindrome (recognize); want —)
+  oracle   : we need to look at the input "1 2 3 2 1". This is a number series: 1, 2, 3, 2, 1. It appears symmetric, maybe the next t
+  parrot0  : I didn't quite catch that. What would you like to know?
+
+--- gap report (per category) ---
+arith      n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=100%  agree=  0%
+numseq     n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=100%  agree=  0%
+periodic   n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct= 50%  agree=  0%
+planets    n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct= 50%  agree=  0%
+weekdays   n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=100%  agree=  0%
+months     n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=100%  agree=  0%
+alphabet   n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=100%  agree=  0%
+chess      n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=100%  agree=  0%
+symmetry   n= 2  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=  0%  agree=  0%
+
+TOTAL      n=18  parrot0_wall=100%  parrot0_correct=0%  oracle_correct=87%
+
+The gap to close = categories where the oracle is right and parrot0 walls. Pick the one with the cleanest, most general induction rule next.

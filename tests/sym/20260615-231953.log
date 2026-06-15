@@ -1,0 +1,127 @@
+# symbench (cryptic stimuli) — model=kimi-k2.6 cases=32 llm=on
+
+=== leet ===
+  in       : c0d3    (alt symbols (leetspeak))
+  oracle   : Leetspeak! What are we compiling?
+  parrot0  : Hi there! What would you like to talk about?
+  in       : 70o15    (alt symbols (leetspeak))
+  oracle   : - 7 = T
+  parrot0  : I don't understand that yet.
+  in       : 8o0813s    (alt symbols (leetspeak))
+  oracle   : - Could be "boobies" in leet speak. That's a very common internet pattern. 8=B, o=o,
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : n015e    (alt symbols (leetspeak))
+  oracle   : Noise?
+  parrot0  : I don't understand that yet.
+
+=== morse ===
+  in       : ... --- ...    (Morse (SOS))
+  oracle   : SOS — classic distress call. Everything okay?
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : .... .. -.-. .- -..    (Morse word)
+  oracle   : Or "HI C A D" — maybe it's an acronym or
+  parrot0  : I don't understand that yet.
+  in       : .- .-..     (Morse fragment)
+  oracle   : Morse code: AL. Hey Al!
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : ... --- ...    (Morse of a word)
+  oracle   : SOS in Morse — you okay?
+  parrot0  : I don't understand that yet.
+
+=== notes ===
+  in       : do re mi    (musical notes)
+  oracle   : fa so la ti do!
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : do re mi fa sol la si    (musical notes)
+  oracle   : Solfège scale — fixed-do or movable-do?
+  parrot0  : I don't understand that yet.
+  in       : do mi sol    (musical notes)
+  oracle   : "Ah, a major triad in solfège — tonic, third, fifth." -> This is clear, names the pattern,
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : do re mi do    (musical notes)
+  oracle   : That's good. Or: "Solfège! Are you warming up?
+  parrot0  : I don't understand that yet.
+
+=== symmetry ===
+  in       : abccba    (symmetric string / palindrome)
+  oracle   : A tidy palindrome — perfect mirror symmetry.
+  parrot0  : Hmm, I don't know about abccba yet.
+  in       : racecar    (symmetric string / palindrome)
+  oracle   : A classic palindrome! 🏎️
+  parrot0  : I don't understand that yet.
+  in       : level    (symmetric string / palindrome)
+  oracle   : Nice palindrome.
+  parrot0  : Hmm, I don't know about level yet.
+  in       : 12321    (symmetric string / palindrome)
+  oracle   : A numeric palindrome — count up, then back down.
+  parrot0  : I don't understand that yet.
+
+=== code ===
+  in       : def foo(    (incomplete code fragment)
+  oracle   : Looks like the start of a Python function — what’s the parameter?
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : for i in range(    (incomplete code fragment)
+  oracle   : Let's keep
+  parrot0  : I don't understand that yet.
+  in       : if x ==    (incomplete code fragment)
+  oracle   : Unfinished equality check—what’s `x` being compared to?
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : while True:    (incomplete code fragment)
+  oracle   : Ah, the infinite loop. What's the escape plan?
+  parrot0  : I don't understand that yet.
+
+=== ascii ===
+  in       : :-)    (single-line ASCII / pattern)
+  oracle   : Hey there! Nice to see a friendly face. :-)
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : :-(    (single-line ASCII / pattern)
+  oracle   : Oh, a frown! What's got you down?
+  parrot0  : I don't understand that yet.
+  in       : <(^_^)>    (single-line ASCII / pattern)
+  oracle   : A cheerful little bug waving hello!
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : ¯\_(ツ)_/¯    (single-line ASCII / pattern)
+  oracle   : Mood.
+  parrot0  : I don't understand that yet.
+
+=== cryptic ===
+  in       : 404    (cryptic token / code)
+  oracle   : Not found? I'm right here.
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : 0x1F    (cryptic token / code)
+  oracle   : Hex 31 — the ASCII Unit Separator. Up to something low-level?
+  parrot0  : I don't understand that yet.
+  in       : ::1    (cryptic token / code)
+  oracle   : IPv6 loopback — home sweet home.
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : /dev/null    (cryptic token / code)
+  oracle   : Everything I say goes straight into the bit bucket, huh?
+  parrot0  : I don't understand that yet.
+
+=== art2d ===
+  in       :   /\  ⏎   /  \  ⏎  /____\    (2-D ASCII art (multi-line))
+  oracle   : A little pyramid! Building something?
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : +--+  ⏎  |  |  ⏎  +--+    (2-D ASCII art (multi-line))
+  oracle   : An empty ASCII box — what's inside?
+  parrot0  : I don't understand that yet.
+  in       : *  ⏎  **  ⏎  ***    (2-D ASCII art (multi-line))
+  oracle   : A tiny star staircase — going up?
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : ^_^    (2-D ASCII art (multi-line))
+  oracle   : Right back at you! ^_^
+  parrot0  : I don't understand that yet.
+
+--- behaviour report (engagement, not correctness) ---
+leet       n= 4  parrot0_wall= 75%  parrot0_engaged= 25%
+morse      n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+notes      n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+symmetry   n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+code       n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+ascii      n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+cryptic    n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+art2d      n= 4  parrot0_wall=100%  parrot0_engaged=  0%
+
+TOTAL      n=32  parrot0_wall=96%  parrot0_engaged=3%
+
+Read the transcript, not a score: the question is HOW the oracle engages cryptic input (names it, plays along, asks) and how to grow parrot0 toward that, instead of walling. No answer is ever hardcoded.

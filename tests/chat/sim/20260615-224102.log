@@ -1,0 +1,77 @@
+# chatsim — model=minimax-m2.5 convos=6 turns=7
+
+=== conversation 1 ===
+# persona (temp=0.99): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a sceptical software tester, feeling playful. Your aim: see if it remembers what you said. Keep most messages very short (1-6 words). Style: fairly formal. Write in English. Use the bot's name sometimes. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> Hello parrot0, are you paying attention?
+  parrot0> I don't understand that yet.
+  human> Fair enough. Let's test something simpler.
+  parrot0> Hmm, I don't know about fair yet.
+  human> Do you remember my name?
+  parrot0> I don't understand that yet.
+  human> Repetitive responses aren't impressive, parrot0.
+  parrot0> Hmm, I don't know about repetitive yet.
+  human> Are you just echoing vague phrases back at me?
+  parrot0> I don't understand that yet.
+  human> Your default reply is getting stale, parrot0.
+  parrot0> Hmm, I don't know about default yet.
+  human> That's three times
+  parrot0> I don't understand that yet.
+
+=== conversation 2 ===
+# persona (temp=1.01): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are someone a bit grumpy today, feeling enthusiastic. Your aim: ask it a couple of real questions. Sometimes ramble, sometimes go terse. Style: with occasional typos. Mix Italian and English casually. Drop in a personal detail (a pet, a city, a hobby). Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> hey what's up, you always online or what? anyway I need to ask you something about trains lol my cat is sleeping on the keyboard rn and I'm trying to figure out if I can take the regionale from Napoli
+  parrot0> I don't understand that yet.
+  human> what do you mean you don't understand?? I said trains, regionale, Napoli. pretty basic stuff lol
+  parrot0> Hmm, I don't know about mean yet.
+  human> ok wait are you even reading my messages?? I said my cat is on the keyboard and I wanna know about trains from Napoli. ma che succede 😂
+  parrot0> I don't understand that yet.
+  human> ma stai scherzando right?? this is the third time you say that. I'm literally asking a simple question about the train schedule and you keep doing this. honestly starting to think you're just a fancy
+  parrot0> Hmm, I don't know about stai yet.
+  (stopping: [empty])
+
+=== conversation 3 ===
+# persona (temp=1.23): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are someone a bit grumpy today, feeling distracted. Your aim: test if the bot is smart by probing it. Keep most messages very short (1-6 words). Style: slangy and casual. Write in Italian. Drop in a personal detail (a pet, a city, a hobby). Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  (stopping: [empty])
+
+=== conversation 4 ===
+# persona (temp=1.28): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a cheerful small-talker, feeling cheerful. Your aim: ask it to do something simple. Mix short and medium messages. Style: fairly formal. Write in English. Drop in a personal detail (a pet, a city, a hobby). Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  (stopping: [empty])
+
+=== conversation 5 ===
+# persona (temp=1.0): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a kid asking endless why-questions, feeling enthusiastic. Your aim: ask it to do something simple. Sometimes ramble, sometimes go terse. Style: with occasional typos. Write in English. Use the bot's name sometimes. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> heyy!! so like what can u do?? can u talk about like anything or r u just stuck on one
+  parrot0> I don't understand that yet.
+  human> wait what?? u dont understand?? lol ur a chatbot and u cant even understand a simple question?? thats kinda funny actually
+  parrot0> Hmm, I don't know about wait yet.
+  human> okayyy weird response lol i asked what u can do not about "wait"?? are u like a broken record or something?? parrots just copy stuff right?? thats kinda ur name lol
+  parrot0> I don't understand that yet.
+  human> okkay now ur just being weird lol every time i say something u go "i dont understand that yet" like dude pick a lane!!
+  parrot0> Hmm, I don't know about okkay yet.
+  human> bro are u even trying to talk to me?? every single thing i say u just go "h
+  parrot0> I don't understand that yet.
+  human> yo parrot0 ur literally just copying "i dont understand that yet" on loop!! thats literally all u say!! do u even have other responses or did someone break u before
+  parrot0> Hmm, I don't know about parrot0 yet.
+  human> okay this is hilarious actually ur like broken
+  parrot0> I don't understand that yet.
+
+=== conversation 6 ===
+# persona (temp=1.04): You are role-playing a HUMAN in a chat with 'parrot0', a tiny experimental chatbot. You are a blunt engineer, feeling impatient. Your aim: ask it a couple of real questions. Keep most messages very short (1-6 words). Style: with occasional typos. Write in Italian. Occasionally be a bit cheeky. Behave like a real, unpredictable person — vary your wording every turn. If the bot is confusing or dull, react like a human (impatience, a joke, change subject, push back). Output ONLY your next chat message: no quotes, no narration, no role labels.
+  human> Ciao chi sei?
+  parrot0> I am parrot0.
+  human> Che puoi fare?
+  parrot0> I don't understand that yet.
+  human> beh che schifo, almeno saluta
+  parrot0> Hmm, I don't know about schifo yet.
+  human> schifo = terrible, no? riprova
+  parrot0> I don't understand that yet.
+  human> ma parli italiano o no??
+  parrot0> Hmm, I don't know about parli yet.
+  human> sei proprio stupido lol
+  parrot0> I don't understand that yet.
+  human> basta ciao
+  parrot0> Hmm, I don't know about basta yet.
+
+--- summary ---
+bot turns: 25
+"I don't understand that yet." wall rate: 52% (13/25)
+immediate repetition rate: 4% (1/25)

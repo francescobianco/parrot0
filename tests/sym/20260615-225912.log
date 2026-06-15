@@ -1,0 +1,115 @@
+# symbench — model=minimax-m2.5 cases=27 llm=on
+
+=== arith ===
+  in       : 19 + 3 + 9=    (evaluate; want 31)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : 7+4+16+1+13=    (evaluate; want 41)
+  oracle   : [empty]
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : 15+9=    (evaluate; want 24)
+  oracle   : 24
+  parrot0  : I don't understand that yet.
+
+=== numseq ===
+  in       : 4, 11, 18, 25, 32, 39 ?    (arithmetic step 7; want 46)
+  oracle   : [empty]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : 8, 11, 14, 17, 20, 23 ?    (arithmetic step 3; want 26)
+  oracle   : 26
+  parrot0  : I don't understand that yet.
+  in       : 0, 5, 10, 15, 20 ...    (arithmetic step 5; want 25)
+  oracle   : 25
+  parrot0  : I didn't quite catch that. What would you like to know?
+
+=== periodic ===
+  in       : N O F Ne Na    (next in periodic; want Mg)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : H He Li    (next in periodic; want Be)
+  oracle   : [empty]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : C N O     (next in periodic; want F)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+
+=== planets ===
+  in       : Earth Mars Jupiter Saturn Uranus     (next in planets; want Neptune)
+  oracle   : [empty]
+  parrot0  : Hmm, I don't know about earth yet.
+  in       : Venus, Earth, Mars, Jupiter, Saturn,     (next in planets; want Uranus)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : Venus, Earth, Mars, Jupiter    (next in planets; want Saturn)
+  oracle   : [empty]
+  parrot0  : Hmm, I don't know about venus yet.
+
+=== weekdays ===
+  in       : Monday, Tuesday, Wednesday, Thursday,    (next in weekdays; want Friday)
+  oracle   : Thus answer: Friday
+  parrot0  : I don't understand that yet.
+  in       : Wednesday, Thursday, Friday, Saturday ?    (next in weekdays; want Sunday)
+  oracle   : [empty]
+  parrot0  : Hmm, I don't know about wednesday yet.
+  in       : Tuesday, Wednesday, Thursday, Friday, Saturday    (next in weekdays; want Sunday)
+  oracle   : Sunday
+  parrot0  : I don't understand that yet.
+
+=== months ===
+  in       : April May June    (next in months; want July)
+  oracle   : [empty]
+  parrot0  : Hmm, I don't know about april yet.
+  in       : July, August, September,    (next in months; want October)
+  oracle   : October
+  parrot0  : I don't understand that yet.
+  in       : April May June ...    (next in months; want July)
+  oracle   : [empty]
+  parrot0  : Hmm, I don't know about april yet.
+
+=== alphabet ===
+  in       : P, Q, R, S,     (next in alphabet; want T)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : J K L M N O    (next in alphabet; want P)
+  oracle   : [empty]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : T U V W X    (next in alphabet; want Y)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+
+=== chess ===
+  in       : e4 e5    (next book move; want Nf3)
+  oracle   : [empty]
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : e4 c5    (next book move; want Nf3)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : d4 d5    (next book move; want c4)
+  oracle   : [empty]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+
+=== symmetry ===
+  in       : 1 2 1    (palindrome (recognize); want —)
+  oracle   : [empty]
+  parrot0  : I don't understand that yet.
+  in       : 1 2 3 2 1    (palindrome (recognize); want —)
+  oracle   : We need to parse the problem. The user gave a raw sequence: "1 2 3 2 1". They request: "Infer the single implied task — evaluate the expression, or give the ONE most likely next element/term that cont
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : 1 2 3 2 1    (palindrome (recognize); want —)
+  oracle   : We have a prompt: "You are given a single line of raw symbols with no instructions: it may be a math expression, a number series, a run of chemical element symbols, a chess opening, an ordered list (p
+  parrot0  : I don't understand that yet.
+
+--- gap report (per category) ---
+arith      n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct= 33%  agree=  0%
+numseq     n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct= 66%  agree=  0%
+periodic   n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=  0%  agree=  0%
+planets    n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=  0%  agree=  0%
+weekdays   n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct= 66%  agree=  0%
+months     n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct= 33%  agree=  0%
+alphabet   n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=  0%  agree=  0%
+chess      n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=  0%  agree=  0%
+symmetry   n= 3  parrot0_wall=100%  parrot0_correct=  0%  oracle_correct=  0%  agree=  0%
+
+TOTAL      n=27  parrot0_wall=100%  parrot0_correct=0%  oracle_correct=25%
+
+The gap to close = categories where the oracle is right and parrot0 walls. Pick the one with the cleanest, most general induction rule next.

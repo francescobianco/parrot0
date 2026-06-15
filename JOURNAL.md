@@ -2,6 +2,79 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## 2026-06-15 — symbench: the CRYPTIC-stimulus behaviour challenge (tooling)
+
+**Changed:** Added a second generative discovery harness, sibling to chatsim.
+- `tests/symbench.py` + `make sym-bench`: a non-reasoning oracle LLM and parrot0
+  are each fed short, OPEN-ENDED symbolic stimuli with NO checkable answer —
+  leetspeak (`h3ll0`), Morse (`... --- ...`), musical notes (`do re mi`),
+  symmetric strings/palindromes (`abccba`), incomplete code fragments
+  (`def foo(`), single-line ASCII faces (`<(^_^)>`, `¯\_(ツ)_/¯`), cryptic tokens
+  (`0x1F`, `::1`, `/dev/null`), and small 2-D ASCII art. Same provider/auth as
+  chatsim (opencode-GO, `$OPENCODE_API_KEY`); transcripts in `tests/sym/`.
+- Default model is a NON-reasoning instruct model (`kimi-k2.6`); a thinking
+  model leaks its plain-text working into the reply line. parrot0 is one-line
+  in/out, so 2-D art is flattened (rows joined by ` / `) before feeding it —
+  itself a finding (parrot0 cannot receive a multi-line turn).
+
+**Why (corrected after F.'s steer):** we do NOT grade correctness. My first cut
+used verifiable puzzles (series, arithmetic, ordered lists) — wrong: the oracle
+is not a grader, it is a FREE BEHAVIOURAL SIGNAL. The mission (PRINCIPLES.md) is
+to recover, behaviourally, the structure the LLM runs in latent space; the
+question is HOW an LLM reacts to ambiguity it can't "solve", so parrot0 can be
+grown toward that. So the stimuli are deliberately cryptic/open and the only
+metric is engagement (does parrot0 react at all), with the side-by-side
+transcript as the real artifact. No answer is ever hardcoded.
+
+**Observed:** first run (seed 3, kimi-k2.6) — **parrot0 walls 96%**; the oracle
+engages ~100% with a strikingly consistent, inducible move: it RECOGNIZES AND
+NAMES THE REGISTER ("A classic palindrome!", "SOS in Morse", "Solfège scale",
+"the start of a Python function", "IPv6 loopback", "An empty ASCII box") and
+then engages (plays along / asks a follow-up / reflects mood). parrot0 even said
+"Hmm, I don't know about abccba yet" of a palindrome it could recognize from
+form alone.
+
+**Next:** gen65 (see TASK.md) — a symbolic-REGISTER recognizer: classify the
+stimulus's genre from cheap structural features (charset, symmetry, token shape)
+and reply by NAMING it + light engagement, instead of walling. Classifying form
+is honest reasoning, not hardcoding the oracle's words.
+
+## 2026-06-15 — gen64: chat-sim driven capability robustness (shorthand + IT)
+
+**Changed:** `brain.c` → `gen64-capability-robust-shorthand`; ran `make chat-sim`
+(6 convos × 7 turns, wall rate 52%) and pulled the most recurrent, cleanly-fixable
+gap from the transcript.
+- Added chat-register shorthand to `canonical_token`: `u` → `you`, `r` → `are`.
+  These are English letters but never stand-alone English *words*; in a chat
+  agent a lone "u"/"r" overwhelmingly means you/are. Folding them at the
+  canonicalization layer routes *every* intent through the one canonical path
+  (capability, identity, …) instead of accreting per-module shorthand cues —
+  the existing "who r u" / "who re you" identity cues are now reachable
+  structurally, and "what r u?" answers "I am parrot0" for free.
+- Broadened the Italian capability cues in `mod_self`: `puoi fare` / `sai fare`,
+  so "che puoi fare?" reaches the same self-model answer as "cosa sai fare?"
+  ("che" is left untouched; the substring cue carries it).
+- Bilingual ratchet: `tests/cases/self.chat` ("what can u do?") and
+  `tests/cases/intent.it.chat` ("che puoi fare?").
+
+**Why:** in the transcript the LLM-simulated users repeatedly asked capability
+questions in the forms real people type — "what can u do??" and "che puoi
+fare?" — and parrot0 walled on every one, despite already owning a grounded,
+self-model-derived capability answer for "what can you do?". The competence
+existed; only the *surface robustness* was missing. The fix extends real
+structure (canonicalization lexicon + cue set), not a phrasebook.
+
+**Observed:** `make test` green (54 chat cases + all other suites, 0 failures).
+Manual check: "what can u do?", "che puoi fare?", "who r u?", "what r u?" all
+resolve to the right self-model intent.
+
+**Next:** the same transcript shows the residual wall is now dominated by
+open-domain meta/yes-no questions ("are you paying attention?", "are you even
+reading my messages?") and by the fallback word-pick claiming ignorance of
+words it shouldn't (its own name "parrot0"; Italian function words "stai",
+"parli", "basta" leaking past the English-only `is_stopword`). Those are the
+next two candidate iterations. M2 step 1 (learning from books) remains parked.
+
 ## 2026-06-15 — gen63: C2c — chat-sim driven robust mixed turns
 
 **Changed:** `brain.c` → `gen63-robust-mixed-turns`; ran `make chat-sim` and used

@@ -19,7 +19,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test chat-bench chat-sim bench bench-superglue bench-superglue-local bench-mmlu bench-bbh loop clean
+.PHONY: all build chat test chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh loop clean
 
 all: build
 
@@ -45,6 +45,15 @@ chat-bench: build
 # proxies. Not part of `make test` (non-deterministic, external).
 chat-sim: build
 	@$(BENCH_PY) ./tests/chatsim.py
+
+# Cryptic-stimulus challenge: a non-reasoning oracle LLM vs parrot0 on short,
+# OPEN-ENDED symbolic stimuli with no checkable answer — ASCII art, odd
+# symmetries, leetspeak, Morse, musical notes, incomplete code. We study HOW the
+# LLM behaves (it names the register and engages), not whether it is "correct".
+# Same provider/auth as chat-sim ($OPENCODE_API_KEY). Logs to tests/sym/ and
+# prints an engagement report. Pass --no-llm for a free parrot0-only run.
+sym-bench: build
+	@$(BENCH_PY) ./tests/symbench.py
 
 test: build
 	@./tests/run.sh
