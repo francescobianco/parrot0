@@ -1,0 +1,11 @@
+# gen66: fallback reflection is grounded in KB/self-knowledge.
+# It must not claim ignorance of parrot0, which is known through i_am(parrot0),
+# and it must use KB stopword facts for supported Italian function words.
+> tell me blargle
+< I don't understand that yet.
+> parrot0 !!!
+< I didn't quite catch that. What would you like to know?
+> another blargle
+< I don't understand that yet.
+> ma stai scherzando?
+< Hmm, I don't know about scherzando yet.

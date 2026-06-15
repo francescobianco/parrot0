@@ -4,40 +4,10 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-> gen65 (symbolic-register recognition) is DONE — see JOURNAL. The whole
-> SYMBOLIC challenge is parked as the S-series in TASKLIST.md (owner asked to
-> resume it later: S2 decoding, S3 cryptic-token registers + multi-line intake).
+> gen66 (grounded fallback + lexical knowledge layer) is DONE — see JOURNAL.
+> gen65 symbolic challenge remains parked as the S-series in TASKLIST.md.
 
-## Goal: gen66 — fallback word-pick must be grounded (don't deny what you know)
-
-(chat-sim finding) gen64 made the capability intent robust to chat-register
-shorthand ("what can u do?" via `u`→`you`) and the Italian "che puoi fare?"
-variant. The fresh transcript exposes the next clean gap: the not-understood
-fallback reflects a "salient content word" ("Hmm, I don't know about X yet.")
-but picks words it should never disclaim —
-- its OWN NAME ("Hmm, I don't know about parrot0 yet.") while it demonstrably
-  knows `i_am(parrot0)`; a self-contradiction;
-- Italian function words ("stai", "parli", "basta") that leak past the
-  English-only `is_stopword`.
-
-### Design question
-The fallback's word reflection is a *claim about self-knowledge*. Before
-asserting ignorance of word X it should consult the KB / self-model: skip X if
-it is the agent's own name (`i_am`) or a known subject, and skip mere function
-words in any *supported* language (the bilingual probe shows `is_stopword` is
-English-only — extend it, don't duplicate). If no genuinely-unknown content
-word remains, fall back to a neutral non-repeating admission.
-
-### Acceptance
-- After the agent has its birth self-model, a turn whose only salient word is
-  "parrot0" must NOT produce "...I don't know about parrot0 yet."
-- An Italian turn like "ma stai scherzando?" must not pick "stai" as the
-  unknown word.
-- `make test` stays green; add cases capturing both.
-
----
-
-## Parked: M2 step 1 — learning from books (linguistic track)
+## Goal: M2 step 1 — learning from books (linguistic track)
 
 M2: demonstrate that parrot0 has *learned* from reading a book or passage.
 

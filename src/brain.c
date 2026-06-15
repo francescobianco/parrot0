@@ -136,7 +136,7 @@ typedef struct {
  * baseline helpers. */
 static size_t split_words(char *s, char **argv, size_t max);
 static int is_article(const char *w);
-static int is_stopword(const char *w);
+static int is_stopword(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
 
 /* Copy the last whitespace-separated word of `raw` into `dst`, preserving its
@@ -767,7 +767,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * an entity. Reuse the existing belief-report path; decline if x is an
      * article or common function word so "what is a ...?" still falls through. */
     if (nw == 3 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
-        !is_article(w[2]) && !is_stopword(w[2])) {
+        !is_article(w[2]) && !is_stopword(b, w[2])) {
         const char *entity;
         if (!resolve_entity(b, w[2], &entity, out, out_size)) return 1;
         char desc[1024];
@@ -1771,31 +1771,31 @@ static int mod_reader(Brain *b, const char *norm, const char *raw,
  * helpers back transparent lexical-overlap baselines: shallow, content-derived,
  * deterministic, near chance — explicitly NOT comprehension. Reasoning still
  * takes precedence where it applies (BoolQ); the baseline is only the fallback.
- * A common English stoplist keeps overlap on content words. */
-static int is_stopword(const char *w) {
-    static const char *sw[] = {
-        "the","a","an","is","are","was","were","of","to","in","on","at","and",
-        "or","for","with","that","this","it","its","as","by","be","been","being",
-        "has","have","had","do","does","did","from","but","not","no","yes","than",
-        "then","so","if","into","out","up","down","over","under","what","which",
-        "who","whom","whose","when","where","why","how","there","here","their",
-        "they","them","he","she","his","her","you","your","we","our","us","i",
-        "my","me","him","will","would","can","could","should","shall","may",
-        "might","must","also","more","most","some","any","all","each","other",
-        "such","about","after","before","between","while","because", NULL };
-    for (size_t i = 0; sw[i]; i++) if (strcmp(w, sw[i]) == 0) return 1;
-    return 0;
+ * A KB-backed stopword relation keeps overlap on content words. */
+static int is_stopword(Brain *b, const char *w) {
+    if (!b || !b->kb || !w || !*w) return 0;
+    char atom[KB_TERM_LEN];
+    size_t i = 0, j = 0;
+    for (; w[i] && j + 1 < sizeof atom; i++) {
+        unsigned char ch = (unsigned char)w[i];
+        if (ch == 39 || ch == 96) continue; /* apostrophe/backtick */
+        atom[j++] = (char)(ch < 128 ? tolower(ch) : ch);
+    }
+    if (w[i]) return 0;
+    atom[j] = 0;
+    const char *args[] = {atom};
+    return kb_query(b->kb, "stopword", args, 1);
 }
 
 /* Percentage of a's content tokens that also occur in b (0..100), or -1 when a
  * has no content tokens. Case-insensitive, exact word match (not substring). */
-static int overlap_pct(const char *a, const char *b) {
+static int overlap_pct(Brain *b, const char *a, const char *text) {
     char ab[1024], bb[4096];
     size_t la = strlen(a); if (la >= sizeof ab) la = sizeof ab - 1;
     for (size_t i = 0; i < la; i++) ab[i] = (char)tolower((unsigned char)a[i]);
     ab[la] = '\0';
-    size_t lb = strlen(b); if (lb >= sizeof bb) lb = sizeof bb - 1;
-    for (size_t i = 0; i < lb; i++) bb[i] = (char)tolower((unsigned char)b[i]);
+    size_t lb = strlen(text); if (lb >= sizeof bb) lb = sizeof bb - 1;
+    for (size_t i = 0; i < lb; i++) bb[i] = (char)tolower((unsigned char)text[i]);
     bb[lb] = '\0';
 
     char *aw[256]; size_t na = split_words(ab, aw, 256);
@@ -1805,7 +1805,7 @@ static int overlap_pct(const char *a, const char *b) {
     size_t total = 0, hit = 0;
     for (size_t i = 0; i < na; i++) {
         char *t = strip_edge_punct(aw[i]);
-        if (strlen(t) < 3 || is_stopword(t)) continue;
+        if (strlen(t) < 3 || is_stopword(b, t)) continue;
         total++;
         for (size_t j = 0; j < nb; j++)
             if (*bw[j] && strcmp(t, bw[j]) == 0) { hit++; break; }
@@ -1908,7 +1908,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         slice_between(low, low, rlen, "premise:", "question:", prem, sizeof prem);
         slice_between(low, low, rlen, "choice 1:", "choice 2:", c1, sizeof c1);
         slice_between(low, low, rlen, "choice 2:", "answer", c2, sizeof c2);
-        int o1 = overlap_pct(c1, prem), o2 = overlap_pct(c2, prem);
+        int o1 = overlap_pct(b, c1, prem), o2 = overlap_pct(b, c2, prem);
         put(o2 > o1 ? "2" : "1", out, out_size);
         return 1;
     }
@@ -1918,7 +1918,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         char prem[3072], hyp[1024];
         slice_between(low, low, rlen, "premise:", "hypothesis:", prem, sizeof prem);
         slice_between(low, low, rlen, "hypothesis:", "answer", hyp, sizeof hyp);
-        int ov = overlap_pct(hyp, prem);
+        int ov = overlap_pct(b, hyp, prem);
         if (strstr(low, "neutral")) { /* CB lists neutral; RTE does not */
             int neg = strstr(hyp, " not ") || strstr(hyp, "n't") ||
                       strstr(hyp, " never ") || strstr(prem, " never ");
@@ -1939,7 +1939,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         slice_between(low, low, rlen, "paragraph:", "question:", para, sizeof para);
         slice_between(low, low, rlen, "candidate answer:",
                       "is this answer correct", ans, sizeof ans);
-        int ov = overlap_pct(ans, para);
+        int ov = overlap_pct(b, ans, para);
         put(ov >= 50 ? "yes" : "no", out, out_size);
         return 1;
     }
@@ -1949,7 +1949,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         char s1[1024], s2[1024];
         slice_between(low, low, rlen, "sentence 1:", "sentence 2:", s1, sizeof s1);
         slice_between(low, low, rlen, "sentence 2:", "word:", s2, sizeof s2);
-        int ov = overlap_pct(s1, s2);
+        int ov = overlap_pct(b, s1, s2);
         put(ov >= 50 ? "yes" : "no", out, out_size);
         return 1;
     }
@@ -1959,7 +1959,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         char sp1[256], sp2[256];
         slice_between(low, low, rlen, "span 1:", "span 2:", sp1, sizeof sp1);
         slice_between(low, low, rlen, "span 2:", "answer", sp2, sizeof sp2);
-        int ov = overlap_pct(sp1, sp2);
+        int ov = overlap_pct(b, sp1, sp2);
         put(ov >= 50 ? "yes" : "no", out, out_size);
         return 1;
     }
@@ -2016,7 +2016,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
     /* not derivable -> lexical-overlap baseline (question grounded in passage).
      * A valid, content-derived guess near chance — labeled as a baseline, not
      * reasoning (gen49). */
-    int ov = overlap_pct(question, passage);
+    int ov = overlap_pct(b, question, passage);
     put(ov >= 50 ? "yes" : "no", out, out_size);
     return 1;
 
@@ -2550,7 +2550,7 @@ static void update_topics(Brain *b, const char *norm) {
     size_t nw = split_words(buf, w, 64);
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (strlen(t) < 3 || !isalpha((unsigned char)t[0]) || is_stopword(t))
+        if (strlen(t) < 3 || !isalpha((unsigned char)t[0]) || is_stopword(b, t))
             continue;
         int dup = 0;
         for (size_t j = 0; j < b->topic_count; j++)
@@ -2627,13 +2627,13 @@ static int tok_in(char **w, size_t nw, const char *const *set) {
 /* True for a token that contributes real lexical content: long enough, not a
  * stopword, and not itself a social marker. Used to separate phatic-only turns
  * from mixed turns that carry substance beyond the marker. */
-static int is_substantive(const char *t) {
+static int is_substantive(Brain *b, const char *t) {
     char tmp[64];
     if (strlen(t) >= sizeof tmp) return 0;
     strcpy(tmp, t);
     const char *s = strip_edge_punct(tmp);
     if (strlen(s) < 3) return 0;
-    if (is_stopword(s)) return 0;
+    if (is_stopword(b, s)) return 0;
     static const char *const social[] = {
         "hello","hi","hey","hiya","yo","salve","ehi","buongiorno","buonasera",
         "hello!","howdy","bye","goodbye","farewell","addio","arrivederci",
@@ -2671,7 +2671,7 @@ static int is_wellbeing_content(const char *buf) {
 
 /* A mixed act combines a social marker with substantive content. If mixed, the
  * social module declines so the content module can own the turn. */
-static int is_mixed_turn(const char *buf, char **w, size_t nw,
+static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
                          int has_opening, int has_closing, int has_thanks,
                          int has_ambiguous) {
     int has_marker = has_opening || has_closing || has_thanks || has_ambiguous;
@@ -2687,7 +2687,7 @@ static int is_mixed_turn(const char *buf, char **w, size_t nw,
     if ((has_opening || has_closing || has_ambiguous) && !has_thanks) {
         if (is_wellbeing_content(buf)) return 0;
         for (size_t i = 0; i < nw; i++)
-            if (is_substantive(w[i])) return 1;
+            if (is_substantive(b, w[i])) return 1;
     }
 
     /* thanks + explicit negative/corrective content is not a plain thank-you */
@@ -2736,7 +2736,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     int has_ambiguous = tok_in(w, nw, ambiguous);
 
     /* gen56/gen63: if the turn is mixed, let content modules handle the substance. */
-    if (is_mixed_turn(buf, w, nw, has_opening, has_closing, has_thanks,
+    if (is_mixed_turn(b, buf, w, nw, has_opening, has_closing, has_thanks,
                       has_ambiguous))
         return 0;
 
@@ -2952,6 +2952,16 @@ Brain *brain_create(void) {
     b->kb = kb_create();
     if (!b->kb) { free(b); return NULL; }
 
+    /* Curated lexical knowledge used by the kernel itself. It lives in the
+     * knowledge layer, not as C word arrays; loading it as base keeps it out of
+     * session saves while tests stay independent of world knowledge files. */
+    const char *lexicon = getenv("PARROT0_LEXICON");
+    if (!lexicon) lexicon = "knowledge/lexicon.pl";
+    if (*lexicon) {
+        kb_set_origin(b->kb, KB_BASE);
+        kb_load(b->kb, lexicon);
+    }
+
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
      * regenerated every boot and NEVER persisted (DESIGN.md D3). */
@@ -2986,7 +2996,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen65-symbolic-register-recognition";
+    return "gen66-grounded-fallback-lexicon";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3020,7 +3030,12 @@ static void not_understood(Brain *b, const char *canon,
     const char *sw = NULL;
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (strlen(t) >= 4 && isalpha((unsigned char)t[0]) && !is_stopword(t)) {
+        char desc[256];
+        int known = b && b->kb &&
+                    (kb_knows_pred(b->kb, t) ||
+                     kb_describe_entity(b->kb, t, desc, sizeof desc));
+        if (strlen(t) >= 4 && isalpha((unsigned char)t[0]) &&
+            !is_stopword(b, t) && !known) {
             sw = t; break;
         }
     }

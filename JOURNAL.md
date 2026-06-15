@@ -2,6 +2,38 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## 2026-06-15 — gen66: grounded fallback + lexical knowledge layer
+
+**Changed:** `brain.c` -> `gen66-grounded-fallback-lexicon`.
+- Removed the hardcoded C stopword array from `is_stopword`; the filter now
+  queries `stopword(Word)` through the KB.
+- Added `knowledge/lexicon.pl` as a curated lexical knowledge layer, loaded as
+  `KB_BASE` at brain birth so it is available even when world/session files are
+  disabled and is never persisted into session saves.
+- Routed benchmark overlap, discourse topic extraction, mixed-turn detection and
+  the fallback word picker through the KB-backed stopword relation.
+- Grounded fallback reflection: before saying `I do not know about X yet`, the
+  brain skips X when it is already a known predicate or a describable entity in
+  the KB/self-model, so `parrot0` is not denied while `i_am(parrot0)` exists.
+- Added `tests/cases/fallback_grounded.chat` for the self-name and Italian
+  `stai` regression.
+
+**Why:** the project thesis rejects convenient self-report and hardcoded policy
+when the same behaviour can be represented as inspectable knowledge. The
+fallback sentence is an epistemic claim, so it must be disposed by the KB rather
+than by a local word array.
+
+**Observed:** `make test` green: 56 chat cases plus persist, multigoal, grammar,
+anon, explain, howknow, POSIX and POSIX-oracle suites. The first test draft
+showed an interaction with gen65 (`parrot0` alone is classified as leetspeak), so
+coverage now uses `parrot0 !!!` to exercise the fallback path while keeping
+`parrot0` the only salient content word.
+
+**Next:** continue migrating closed-class lexical constants in `brain.c` into
+knowledge predicates where doing so improves behaviour without building a grand
+up-front taxonomy.
+
+
 ## 2026-06-15 — gen65: symbolic-register recognition (sym-bench driven)
 
 **Changed:** `brain.c` → `gen65-symbolic-register-recognition`; added
