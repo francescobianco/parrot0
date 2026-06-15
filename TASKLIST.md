@@ -53,12 +53,13 @@ a felt-intelligence %. Baseline at gen50: **36% (4/11 turns)**. Without this we
 would keep mistaking bench points for progress. Still TODO: more held-out
 dialogues that vary names/order, and tighten the metric if it over-credits.
 
-### C1 - Paraphrase-robust intent (kill the rigid template)
-The #1 felt-intelligence bug. The same intent must be reached from many
-phrasings: identity ("who are you?", "what is your name?", "what should I call
-you?"), capability, etc. Generalize the gen44 "roles over order" lesson into
-keyword/role intent matching, not exact token positions. Anti-impostor: new
-phrasings of a known intent, never seen in tests, must work.
+### C1 - Paraphrase-robust intent (DONE for identity+capability, gen51)
+The #1 felt-intelligence bug. Done for identity and capability: `cue()`-based
+intent over many phrasings (EN + IT), answered from the self-model; capability
+now plain-language. Felt-intelligence 36% → 64%. Held-out phrasings pass
+(`intent.chat`, `intent.it.chat`, `identity_paraphrase.dlg`). Still TODO: extend
+the cue approach to the other intents as they arrive, and watch for cue
+collisions (Decision D-2026-06-15u).
 
 ### C2 - Social register, in plain language
 Graceful handling of the phatic layer: greeting variants, "how are you?",

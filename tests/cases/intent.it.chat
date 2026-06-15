@@ -1,0 +1,10 @@
+# gen51 (C1) bilingual ratchet: Italian phrasings reach the SAME intent through
+# the same cue path (canonicalization turns "chi" -> "who", so the identity cue
+# sees "who sei"). Answers are English for now -- output localization is a later
+# task; what is proven multilingual here is the INTENT recognition.
+> chi sei?
+< I am parrot0.
+> come ti chiami?
+< I am parrot0.
+> cosa sai fare?
+< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me.

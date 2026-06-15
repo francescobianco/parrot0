@@ -9,6 +9,25 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15u — intent by keyword cues, not rigid templates (and not a phrasebook)
+gen51 matches conversational intent (identity, capability) with small keyword
+cue sets (`cue()` = substring test) and answers from the self-model, replacing
+exact-string `strcmp`.
+- **Bought:** paraphrase robustness — "who are you?", "what is your name?",
+  "what should I call you?", "tell me about yourself" all land, as do Italian
+  cues. Felt-intelligence 36% → 64%. Capability now reads in plain language,
+  grounded in the real module set.
+- **Gave up:** cues can over-fire (an unrelated sentence containing "your name"
+  would trigger identity) and need ordering (capability before identity, since
+  "what are you ABLE TO DO" contains the identity cue "what are you"). The cue
+  lists are hand-maintained per intent/language — defensible while small and
+  each is test-backed, but it is the phrasebook risk's near edge: the guard is
+  that the ANSWER is derived from the KB, never canned, and held-out phrasings
+  must pass.
+- **Revisit if:** cue collisions cause wrong intents (then need a scored
+  intent classifier over features, not flat substring OR), or the lists grow
+  unwieldy (then learn intent patterns as data, cf. TASKLIST T5).
+
 ### D-2026-06-15t — build the conversation benchmark (C0) BEFORE the conversational features
 Chosen between "C0 first" and "C1 first" (owner delegated the call). Built C0
 first: `tests/chatbench.sh` + `tests/chat/*.dlg`, a soft (substring, normalized)
@@ -329,6 +348,34 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen51: C1 — paraphrase-robust intent (felt-intelligence 36% → 64%)
+
+**Changed:** `brain.c` → `gen51-robust-intent`; `mod_self` rewritten; `cue()`
+helper.
+- Replaced exact-`strcmp` identity/capability matching with keyword-cue intent
+  detection (Decision D-2026-06-15u). Identity and capability are each reached
+  from many phrasings (incl. Italian cues — the bilingual ratchet), answered from
+  the self-model. "what can you do?" now reads in plain language grounded in the
+  real module set, not the `module(...)` jargon dump.
+- Capability tested before identity (the latter's cue is a substring of "what are
+  you able to do").
+- New `tests/cases/intent.chat` + `intent.it.chat` (held-out phrasings);
+  `tests/chat/identity_paraphrase.dlg` (held-out benchmark dialogue); `self.chat`
+  updated to the plain-language capability answer.
+
+**Why:** C1 in TASKLIST — the rigid template was the #1 felt-intelligence bug.
+Measured on C0 (gen50), not just unit cases.
+
+**Observed:** `make chat-bench` 36% → 64% (11/17 turns). Identity/capability
+paraphrases land in EN and IT; held-out phrasings pass (cue recognition, not
+enumerated strings). Unit suite green (40 + …).
+
+**Next:** gen52 = C2 — social register ("how are you?", "thanks", greeting
+variants) in plain language; then C3 (natural assertion + personal memory), the
+"I have a dog named Rex" turns still missing on the benchmark.
 
 ---
 

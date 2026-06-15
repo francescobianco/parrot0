@@ -56,6 +56,12 @@ static int matches_any(const char *s, const char *const *words) {
     return 0;
 }
 
+/* True if needle occurs anywhere in haystack — the keyword-cue test behind
+ * paraphrase-robust intent (gen51): one intent reached from many phrasings. */
+static int cue(const char *haystack, const char *needle) {
+    return strstr(haystack, needle) != NULL;
+}
+
 /* Return a pointer past leading whitespace in `s`. */
 static const char *skip_ws(const char *s) {
     while (*s && isspace((unsigned char)*s)) s++;
@@ -1885,45 +1891,68 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
 
     const char *var[] = {NULL};
 
-    /* "who/what are you?" -> from i_am(X) */
-    if (strcmp(buf, "who are you") == 0 || strcmp(buf, "what are you") == 0) {
-        char id[4][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
-        if (k > 0) {
-            char msg[128];
-            snprintf(msg, sizeof msg, "I am %s.", id[0]);
-            put(msg, out, out_size);
-        } else {
-            put("I don't know what I am.", out, out_size);
-        }
-        return 1;
-    }
+    /* gen51 (C1): recognize intent by KEYWORD CUES, not one rigid template, so
+     * many phrasings of the same question land. The answer is still derived from
+     * the real self-model (i_am / module facts), never canned — robustness comes
+     * from cue matching + the KB, not from a list of accepted sentences. */
+    int identity = cue(buf, "your name") || cue(buf, "who are you") ||
+                   cue(buf, "who re you") || cue(buf, "what are you") ||
+                   cue(buf, "call you") || cue(buf, "about yourself") ||
+                   cue(buf, "who r u") || cue(buf, "your identity") ||
+                   /* Italian cues (the bilingual ratchet). NB: input is already
+                    * canonicalized, so "chi" has become "who" -> "who sei". */
+                   cue(buf, "who sei") || cue(buf, "come ti chiami") ||
+                   cue(buf, "il tuo nome");
+    int exists = cue(buf, "you exist") || cue(buf, "are you real") ||
+                 cue(buf, "esisti");
+    int capability = cue(buf, "can you do") || cue(buf, "what do you do") ||
+                     cue(buf, "capabilit") || cue(buf, "you able to") ||
+                     cue(buf, "you help with") || cue(buf, "can you help") ||
+                     /* Italian cues */
+                     cue(buf, "cosa sai fare") || cue(buf, "cosa puoi fare") ||
+                     cue(buf, "che cosa sai fare");
 
-    /* "do you exist?" -> resolves i_am(X) */
-    if (strcmp(buf, "do you exist") == 0) {
-        char id[4][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
-        char msg[128];
-        if (k > 0) snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
-        else       snprintf(msg, sizeof msg, "I'm not sure.");
+    /* capability is the more specific intent ("what are you ABLE TO DO" also
+     * contains the identity cue "what are you"), so test it first. Describe what
+     * the registered modules let me do, in plain language (not the module(...)
+     * jargon) — grounded in the real module set, a module absent contributes
+     * nothing. */
+    if (capability) {
+        static const struct { const char *mod, *say; } cap[] = {
+            {"knowledge", "answer questions about facts and rules"},
+            {"arith",     "do simple arithmetic"},
+            {"cause",     "reason about cause and effect"},
+            {"compare",   "compare quantities"},
+            {"same",      "tell whether two things are the same"},
+            {"memory",    "remember things you tell me"},
+            {"reader",    "read a short passage and pull out facts"},
+            {"coref",     "track what a pronoun refers to"},
+            {"gen",       "continue a sequence you teach me"},
+        };
+        char list[600];
+        size_t off = 0, n = 0;
+        for (size_t i = 0; i < sizeof cap / sizeof cap[0]; i++) {
+            const char *m[] = {cap[i].mod};
+            if (!kb_query(b->kb, "module", m, 1)) continue;
+            const char *sep = (n == 0) ? "" : ", ";
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                    "%s%s", sep, cap[i].say);
+            n++;
+        }
+        char msg[700];
+        if (n == 0) snprintf(msg, sizeof msg, "Not much yet.");
+        else snprintf(msg, sizeof msg, "I can %s.", list);
         put(msg, out, out_size);
         return 1;
     }
 
-    /* "what can you do?" -> list the modules from module(X) */
-    if (strcmp(buf, "what can you do") == 0 ||
-        strcmp(buf, "what do you do") == 0) {
-        char mods[64][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, "module", var, 1, mods, 64);
-        if (k == 0) { put("Nothing yet.", out, out_size); return 1; }
-        char list[512];
-        size_t off = 0;
-        for (size_t i = 0; i < k && off < sizeof list; i++) {
-            off += (size_t)snprintf(list + off, sizeof list - off,
-                                    "%s%s", i ? ", " : "", mods[i]);
-        }
-        char msg[600];
-        snprintf(msg, sizeof msg, "My modules are: %s.", list);
+    if (identity || exists) {
+        char id[4][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
+        char msg[128];
+        if (k == 0) snprintf(msg, sizeof msg, "I don't know what I am.");
+        else if (exists) snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
+        else snprintf(msg, sizeof msg, "I am %s.", id[0]);
         put(msg, out, out_size);
         return 1;
     }
@@ -1998,7 +2027,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen49-bench-baselines";
+    return "gen51-robust-intent";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
