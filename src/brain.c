@@ -213,6 +213,7 @@ static const char *canonical_token(const char *w) {
         {"ogni","every"},
         {"chi", "who"},
         {"non", "not"},
+        {"anche","also"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -665,6 +666,24 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char msg[128];
         if (kb_assert_neg(b->kb, cl, args, 1))
             snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        remember_entity(b, w[0], subj);
+        return 1;
+    }
+
+    /* additional class (gen46): "<x> is also a/an <y>" -> y(x). Explanatory
+     * prose adds classes incrementally ("a dolphin is also a mammal"); it is the
+     * same assertion as "x is a y", one more membership. */
+    if (nw == 5 && strcmp(w[1], "is") == 0 && strcmp(w[2], "also") == 0 &&
+        is_article(w[3])) {
+        const char *subj, *cl = w[4];
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        char msg[128];
+        if (kb_assert(b->kb, cl, args, 1))
+            snprintf(msg, sizeof msg, "Learned: %s(%s).", cl, subj);
         else
             snprintf(msg, sizeof msg, "I couldn't store that.");
         put(msg, out, out_size);
@@ -1759,7 +1778,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen45-bench-bridge";
+    return "gen46-additional-class";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

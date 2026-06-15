@@ -277,6 +277,25 @@ time.
 
 ---
 
+## 2026-06-15 — gen46: additional-class assertion ("x is also a y")
+
+**Changed:** `brain.c` → `gen46-additional-class`; lexicon += `anche→also`.
+- `mod_knowledge` now parses "<x> is also a/an <y>" → y(x): explanatory prose
+  adds memberships incrementally; the same assertion, one more class.
+- Tests `alsoclass.chat` + `alsoclass.it.chat` (the bilingual ratchet: Italian
+  "x è anche un y" canonicalizes through the same parser).
+
+**Why:** growing the extractor one honest real-prose shape at a time, the
+bench-measured path. The dominant real-SuperGLUE wall is still multi-word
+entities and open prose (acknowledged); this is a small, genuine widening.
+
+**Observed:** "flipper is also a mammal" → mammal(flipper), both memberships
+hold; Italian mirror identical. Full suite green (35 + 10 + 3 + 14 + 2 + 5 + 4).
+
+**Next:** gen47 — coordinated subjects ("x and y are z").
+
+---
+
 ## 2026-06-15 — gen45: the benchmark bridge (0% was no bridge + no guessing)
 
 **Changed:** `brain.c` → `gen45-bench-bridge`; new `mod_bench` module.
