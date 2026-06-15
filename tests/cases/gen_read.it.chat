@@ -1,0 +1,15 @@
+# gen47: the induced generative loop is language-neutral BY CONSTRUCTION.
+# gen41 made `read:` induce the continuation model from the read prose itself;
+# nothing in it is English-specific, so reading Italian prose induces an Italian
+# model and `say` speaks Italian -- with zero language-specific code. This is the
+# deep point of the probe: the *induced* half was multilingual all along; only
+# the hand-written parsers needed the canonicalization layer.
+> read: il gatto dorme sul divano. il gatto dorme spesso.
+< Learned 0 fact(s), skipped 2.
+# Generation reflects the read Italian text, frequency-then-order ranked.
+> say il
+< il gatto dorme sul divano
+> say gatto
+< gatto dorme sul divano
+> say dorme
+< dorme sul divano

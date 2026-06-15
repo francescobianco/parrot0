@@ -1,0 +1,13 @@
+# gen47: the multilingual probe reaches causation. "fuoco causa fumo"
+# canonicalizes (causa->causes) and asserts causes(fuoco, fumo) through the same
+# mod_cause. The striking part: the fact is read back by the ENGLISH query --
+# proof the two languages share ONE language-neutral KB, not parallel stores.
+> fuoco causa fumo
+< Learned: causes(fuoco, fumo).
+# Asserted in Italian, queried in English: same relation, same KB.
+> what is the effect of fuoco?
+< fumo.
+> pioggia causa alluvione
+< Learned: causes(pioggia, alluvione).
+> what is the cause of alluvione?
+< pioggia.

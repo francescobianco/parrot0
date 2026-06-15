@@ -277,6 +277,31 @@ time.
 
 ---
 
+## 2026-06-15 — gen47: multilingual causation + cross-lingual generation
+
+**Changed:** `brain.c` → `gen47-multilingual-cause`; lexicon += `causa→causes`.
+- The multilingual probe now reaches causation: "fuoco causa fumo" →
+  causes(fuoco, fumo) through the unchanged `mod_cause`. New `cause.it.chat`
+  asserts in Italian and reads back via the ENGLISH query — proof the languages
+  share one language-neutral KB, not parallel stores.
+- Locked the cross-lingual generative invariant in `gen_read.it.chat`: gen41's
+  induced continuation model is language-neutral *by construction*, so reading
+  Italian prose makes `say` speak Italian with zero language-specific code. No
+  new code needed — the induced half was multilingual all along; only the
+  hand-written parsers required the gen43 canonicalization layer.
+
+**Why:** consolidating the gen43 thesis — the structures that emerged (induced
+model) are inherently language-agnostic; the authored ones are not. Naming that
+boundary sharply is the probe doing its job.
+
+**Observed:** Italian causal assert + English readback share the KB; Italian
+`read:`/`say` round-trips. Full suite green (37 + 10 + 3 + 14 + 2 + 5 + 4).
+
+**Next:** gen48 — honest full-bench measurement + the long-arc wall (multi-word
+entities) recorded as the next real domain-pull target.
+
+---
+
 ## 2026-06-15 — gen46: additional-class assertion ("x is also a y")
 
 **Changed:** `brain.c` → `gen46-additional-class`; lexicon += `anche→also`.

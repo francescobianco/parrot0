@@ -214,6 +214,7 @@ static const char *canonical_token(const char *w) {
         {"chi", "who"},
         {"non", "not"},
         {"anche","also"},
+        {"causa","causes"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -1778,7 +1779,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen46-additional-class";
+    return "gen47-multilingual-cause";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
