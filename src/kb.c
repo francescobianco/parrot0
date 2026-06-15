@@ -432,9 +432,15 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     if (!term_ok(pred)) return 0;
     strcpy(g.pred, pred);
     g.argc = argc;
+    /* Each NULL slot is a DISTINCT fresh variable; we collect the first one.
+     * (Naming every NULL the same would force those slots to be equal — e.g.
+     * cont(prev, ?, ?) would wrongly require word == count.) */
     int hasvar = 0;
     for (size_t i = 0; i < argc; i++) {
-        if (args[i] == NULL) { strcpy(g.args[i], "Q"); hasvar = 1; }
+        if (args[i] == NULL) {
+            if (!hasvar) { strcpy(g.args[i], "Q"); hasvar = 1; }
+            else snprintf(g.args[i], KB_TERM_LEN, "Q%zu", i);
+        }
         else { if (!term_ok(args[i])) return 0; strcpy(g.args[i], args[i]); }
     }
 

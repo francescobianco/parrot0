@@ -1113,6 +1113,89 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: gen ---------------------------------------------------------
+ * Generative inference loop (gen36 — DESIGN D-prop1). The brain's other modules
+ * infer ONCE and emit a whole reply. This part generates *autoregressively*,
+ * the shape an LLM decodes in, but driven by repeated deterministic inference
+ * instead of a neural forward pass: emit a word, append it to the working
+ * context, re-infer the next word conditioned on what was just produced, and
+ * repeat until no continuation is provable (or a step bound).
+ *
+ * The continuation knowledge is NOT hand-authored (that would be the phrasebook
+ * impostor PRINCIPLES.md rejects): it is *induced from examples* as facts
+ * `cont(prev, word, count)`. `learn sequence: a b c` asserts the adjacent
+ * transitions; `say <w>` runs the loop from a seed. gen36 chooses the first
+ * provable continuation (insertion order); frequency-weighted choice and longer
+ * context arrive in later generations. */
+
+/* Pick the next word after `prev` from the cont() relation, or return 0 if no
+ * continuation is known. gen36 policy: first by insertion order. */
+static int next_word(Brain *b, const char *prev, char *word, size_t wsize) {
+    const char *pat[] = {prev, NULL, NULL};
+    char hits[64][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont", pat, 3, hits, 64);
+    if (k == 0) return 0;
+    snprintf(word, wsize, "%s", hits[0]);
+    return 1;
+}
+
+static void generate_from(Brain *b, const char *seed, char *out, size_t out_size) {
+    char cur[KB_TERM_LEN];
+    snprintf(cur, sizeof cur, "%s", seed);
+
+    char line[1024];
+    size_t off = (size_t)snprintf(line, sizeof line, "%s", cur);
+
+    for (int step = 0; step < 24; step++) {        /* bound guards cycles */
+        char nxt[KB_TERM_LEN];
+        if (!next_word(b, cur, nxt, sizeof nxt)) break;
+        if (off < sizeof line)
+            off += (size_t)snprintf(line + off, sizeof line - off, " %s", nxt);
+        snprintf(cur, sizeof cur, "%s", nxt);
+    }
+    put(line, out, out_size);
+}
+
+static int mod_gen(Brain *b, const char *norm, const char *raw,
+                   char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    /* learn the continuation relation from an example: "learn sequence: a b c" */
+    if (strncmp(norm, "learn sequence:", 15) == 0) {
+        char rem[512];
+        snprintf(rem, sizeof rem, "%s", norm + 15);
+        char *w[64];
+        size_t nw = split_words(rem, w, 64);
+        size_t pairs = 0;
+        for (size_t i = 0; i + 1 < nw; i++) {
+            if (strlen(w[i]) >= KB_TERM_LEN || strlen(w[i + 1]) >= KB_TERM_LEN)
+                continue;
+            const char *args[] = {w[i], w[i + 1], "1"};
+            if (kb_assert(b->kb, "cont", args, 3)) pairs++;
+        }
+        char msg[128];
+        snprintf(msg, sizeof msg, "Learned %zu transition(s).", pairs);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* generate from a seed: "say <word>" */
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+    if (nw == 2 && strcmp(w[0], "say") == 0) {
+        generate_from(b, w[1], out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: reader ------------------------------------------------------
  * The text -> facts bridge (gen32). The gen28–gen31 domain-pull run reached one
  * conclusion four times: the reasoning primitives exist, but nothing turns a
@@ -1310,6 +1393,7 @@ static const Module registry[] = {
     {"cause",     mod_cause},
     {"same",      mod_same},
     {"conj",      mod_conj},
+    {"gen",       mod_gen},
     {"coref",     mod_coref},
     {"reader",    mod_reader},
     {"knowledge", mod_knowledge},
@@ -1362,7 +1446,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen35-arithmetic";
+    return "gen36-decode-loop";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

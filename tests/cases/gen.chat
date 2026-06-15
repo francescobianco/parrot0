@@ -1,0 +1,23 @@
+# gen36: the generative inference loop (DESIGN D-prop1). parrot0 generates
+# autoregressively -- emit a word, append it to the working context, re-infer
+# the next word, repeat -- but driven by repeated deterministic inference, not a
+# neural pass. The continuation relation cont(prev, word) is INDUCED from
+# examples ("learn sequence:"), never hand-authored, so this is a tiny learned
+# language model, not a phrasebook. gen36 picks the first continuation by
+# insertion order; frequency weighting comes in gen37. Held-out tokens.
+> learn sequence: alpha beta gamma delta
+< Learned 3 transition(s).
+# Decode from a seed: follow the learned transitions until none remain.
+> say alpha
+< alpha beta gamma delta
+> say gamma
+< gamma delta
+# A seed with no learned continuation generates just itself -- no invention.
+> say lonely
+< lonely
+# The loop conditions on its own output: a cycle in the data streams until the
+# step bound, rather than looping forever.
+> learn sequence: ping pong ping
+< Learned 2 transition(s).
+> say ping
+< ping pong ping pong ping pong ping pong ping pong ping pong ping pong ping pong ping pong ping pong ping pong ping pong ping

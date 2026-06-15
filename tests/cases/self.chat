@@ -8,11 +8,11 @@
 < Yes, I am parrot0.
 # Capabilities are reported from the ACTUAL registry, reified as facts.
 > what can you do?
-< My modules are: memory, self, compare, arith, quantity, cause, same, conj, coref, reader, knowledge, greet, farewell.
+< My modules are: memory, self, compare, arith, quantity, cause, same, conj, gen, coref, reader, knowledge, greet, farewell.
 # The reflexive payoff: the self-model is queried by the SAME logic engine as
 # world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< memory, self, compare, arith, quantity, cause, same, conj, coref, reader, knowledge, greet, farewell.
+< memory, self, compare, arith, quantity, cause, same, conj, gen, coref, reader, knowledge, greet, farewell.
 # Ordinary world knowledge still works alongside the self-model.
 > socrates is a man
 < Learned: man(socrates).

@@ -9,6 +9,22 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15i — generative loop: induced Markov-1, first-continuation, bounded
+gen36's decode loop conditions on one previous word, picks the first provable
+continuation by insertion order, and halts when no continuation is provable or
+at a 24-step bound. Transitions are induced from examples (`cont(prev, word)`),
+not authored.
+- **Bought:** a complete, legible autoregressive loop whose language is *learned
+  from data*, not canned — the honest version of the proposal. Also forced a
+  real fix to `kb_match` (distinct variables per NULL slot), which was silently
+  requiring multi-variable patterns to be equal.
+- **Gave up:** probability (always first, frequency ignored), context beyond the
+  immediately preceding word (Markov-1), and graceful stopping (a hard step
+  bound truncates cycles/long output).
+- **Revisit if:** generation should follow the *most frequent* continuation
+  (gen37), condition on more of its own output (gen38), or stop by a learned
+  end-of-sequence rather than a bound.
+
 ### D-2026-06-15h — arithmetic results print integral when integral
 gen35 formats a computed value as a clean integer when it is integral
 (`2 plus 2` → `4`), else compactly via `%g` (`1 plus 1.3` → `2.3`).
@@ -156,7 +172,42 @@ eleven cooperating parts. The standing gap remains open-prose extraction
 coverage; everything built composes through `read:` when the prose happens to
 fit parrot0's grammar.
 
-## Proposed direction (not yet built) — generative inference loop
+## 2026-06-15 — gen36: the generative inference loop (D-prop1, step 1)
+
+**Direction:** Carte blanche to advance the main goal (an architecture that
+exports critical reasoning like LLMs). Chose to build the proposed generative
+inference loop — the most structurally LLM-like mechanism on the table — as a
+5-step arc (gen36–gen40), each held-out tested, deliberately avoiding the
+phrasebook impostor by *inducing* the language from data and later *constraining
+it by reasoning*.
+
+**Changed:** `brain.c` → `gen36-decode-loop`; one correctness fix in `kb.c`.
+- New cooperating part `mod_gen` (registry-reified; self-model lists it).
+  `learn sequence: a b c` induces transitions `cont(prev, word, 1)`; `say <w>`
+  runs the autoregressive loop: emit, append, re-infer the next word from
+  `cont`, repeat until no continuation (or a 24-step bound).
+- `kb.c`: `kb_match` now gives each `NULL` slot a *distinct* fresh variable
+  (was naming them all `Q`, which forced those slots equal — so `cont(prev, ?,
+  ?)` wrongly required word == count). Single-NULL callers are unaffected.
+- `tests/cases/gen.chat` (held-out tokens): decode to termination, seed with no
+  continuation, and a learned cycle streaming to the step bound.
+
+**Decision logged:** D-2026-06-15i (induced Markov-1, first-continuation,
+bounded).
+
+**Why this serves the goal:** it is the LLM decoding *shape* — autoregressive,
+conditioning on its own output — but realized as repeated deterministic
+inference over induced knowledge. The loop is proven; the next steps make it
+probabilistic, longer-context, grounded, and finally belief-constrained.
+
+**Observed:** all suites green (23 conversation cases).
+
+**Next:** see `TASK.md` — gen37: frequency-weighted continuation (the
+deterministic analogue of next-token probability).
+
+---
+
+## Proposed direction (being built) — generative inference loop
 
 Idea (F., 2026-06-15): today `brain_respond` infers once over the whole input
 and emits a whole answer. The proposal is to make generation *iterative and
