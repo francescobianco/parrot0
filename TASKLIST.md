@@ -46,11 +46,12 @@ real conversational failures (domain-pull from dialogue). Keep the no-phrasebook
 discipline: robustness must come from role/keyword recognition and the existing
 KB, not from enumerating fixed strings.
 
-### C0 - A held-out conversation benchmark (build FIRST)
-The anti-self-deception tool. A set of scripted multi-turn dialogues
-(`tests/cases/chat/*.dlg` or similar) with expected response *qualities*, run
-like the test suite, plus a felt-intelligence score. Without this we will keep
-mistaking bench points for progress. Held-out dialogues; vary names/order.
+### C0 - A held-out conversation benchmark (DONE, gen50)
+The anti-self-deception tool. Built: `tests/chatbench.sh` + `tests/chat/*.dlg`
+(soft substring, normalized, multi-turn scorer) and `make chat-bench`, reporting
+a felt-intelligence %. Baseline at gen50: **36% (4/11 turns)**. Without this we
+would keep mistaking bench points for progress. Still TODO: more held-out
+dialogues that vary names/order, and tighten the metric if it over-credits.
 
 ### C1 - Paraphrase-robust intent (kill the rigid template)
 The #1 felt-intelligence bug. The same intent must be reached from many

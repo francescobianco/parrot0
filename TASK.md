@@ -4,15 +4,15 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen50 — paraphrase-robust intent (start killing the "I don't understand" wall)
+## Goal: gen51 — paraphrase-robust intent (start killing the "I don't understand" wall)
 
-PIVOT. The SuperGLUE bench now reads 46% with zero invalid (gen45–gen49), but
-that is single-turn classification + shallow baselines — in real chat parrot0
-feels immediately unintelligent. See TASKLIST.md "C-series" for the full plan
-and the honest observed session. The loop now optimizes the felt experience, not
-the bench.
+PIVOT (in progress). The SuperGLUE bench reads 46% with zero invalid
+(gen45–gen49) but that is single-turn classification + shallow baselines — in
+real chat parrot0 feels immediately unintelligent. gen50 built C0, the
+felt-intelligence conversation benchmark (`make chat-bench`); honest baseline
+**36% (4/11)**. The loop now optimizes that number, not the bench.
 
-This is C1 (TASKLIST), the highest-impact first step: the same intent must be
+This is C1 (TASKLIST), the highest-impact climb: the same intent must be
 reachable from many phrasings, not one rigid template. Today "who are you?" works
 but "what is your name?" / "what should I call you?" hit the wall.
 
@@ -33,10 +33,10 @@ self-model (not canned strings)?
   English + Italian per the bilingual ratchet.
 
 ### Notes
-- Build C0 (the held-out conversation benchmark, TASKLIST) alongside this so
-  felt-intelligence progress is measurable and we stop mistaking bench points
-  for it.
+- Measure every step with `make chat-bench` (C0, built gen50). The identity and
+  capability turns in `tests/chat/intro.dlg` should flip from MISS to OK.
 - No phrasebook: robustness from keyword/role matching + the KB, never a list of
-  fixed accepted sentences.
+  fixed accepted sentences. Add held-out phrasings to a sibling `.dlg` to prove
+  it generalizes.
 - Then C2 (social register) and C3 (natural assertion + personal memory) — the
   next felt-intelligence wins.

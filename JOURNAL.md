@@ -9,6 +9,25 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15t — build the conversation benchmark (C0) BEFORE the conversational features
+Chosen between "C0 first" and "C1 first" (owner delegated the call). Built C0
+first: `tests/chatbench.sh` + `tests/chat/*.dlg`, a soft (substring, normalized)
+multi-turn scorer reporting a felt-intelligence %, plus `make chat-bench`.
+- **Bought:** an anti-self-deception instrument. The whole bench saga proved we
+  optimize whatever we measure and feel good about it; now every C-series gen is
+  scored against real first-impression dialogue, not isolated `.chat` cases. The
+  honest baseline is recorded: 36% (4/11 turns land).
+- **Gave up:** this generation ships no behaviour change (no `brain.c` edit, no
+  version bump) — pure instrument. Soft substring matching can over-credit (a
+  reply containing the key word by accident) or under-credit (a good answer
+  phrased without the key word); the expected strings are author-chosen targets,
+  so the metric is only as honest as the dialogue design. It is a proxy for
+  "feels intelligent," not a proof.
+- **Revisit if:** the score climbs while chat still feels bad (then the
+  dialogues/metric are too lax — tighten them, add held-out sessions), or the
+  substring match produces obviously wrong credit (then move to per-turn rubric
+  matching). Retract only if a better felt-intelligence measure replaces it.
+
 ### D-2026-06-15s — every bench task gets a valid baseline answer (no abstain), but baselines ≠ intelligence
 gen49 makes parrot0 emit a mappable answer for every SuperGLUE task: reasoning
 first where it applies (BoolQ), then a transparent lexical-overlap baseline
@@ -310,6 +329,33 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen50: C0 — the felt-intelligence conversation benchmark
+
+**Changed:** new `tests/chatbench.sh`, `tests/chat/intro.dlg`, `make chat-bench`.
+No `brain.c` change — this generation builds the *instrument*, not a feature.
+- After the bench arc (gen45–49) read a comforting 46% while chat felt
+  unintelligent, the owner delegated the next call. I chose to build the
+  conversation benchmark FIRST (Decision D-2026-06-15t): a soft, multi-turn
+  scorer over `tests/chat/*.dlg` that reports a felt-intelligence % — so the
+  C-series (TASKLIST) is measured against real first-impression dialogue.
+- `intro.dlg` encodes the honest first session (identity, capability, personal
+  memory, social register, arithmetic, discourse recall) with the answers a
+  *satisfying* bot would give.
+
+**Why:** the lesson of the whole project — you optimize what you measure. Without
+this instrument we would keep mistaking bench points for conversational
+intelligence.
+
+**Observed:** baseline felt-intelligence **36% (4/11)** — only greeting,
+identity ("who are you?"), farewell, and "what is 2 plus 2?" land; name-asking,
+capability-in-plain-language, personal memory, "how are you?", thanks, and
+discourse recall all miss. Unit suite still green (38 + …).
+
+**Next:** gen51 = C1 — paraphrase-robust intent (TASKLIST), the highest-impact
+climb on this benchmark.
 
 ---
 
