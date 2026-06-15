@@ -102,25 +102,9 @@ typedef struct {
     Handler     handle;
 } Module;
 
-/* --- module: greeting ---------------------------------------------------- */
-static int mod_greet(Brain *b, const char *norm, const char *raw,
-                     char *out, size_t out_size) {
-    (void)b; (void)raw;
-    static const char *const greetings[] = {"hello", "hi", "hey", NULL};
-    if (!matches_any(norm, greetings)) return 0;
-    put("Hi there!", out, out_size);
-    return 1;
-}
-
-/* --- module: farewell ---------------------------------------------------- */
-static int mod_farewell(Brain *b, const char *norm, const char *raw,
-                        char *out, size_t out_size) {
-    (void)b; (void)raw;
-    static const char *const farewells[] = {"bye", "goodbye", NULL};
-    if (!matches_any(norm, farewells)) return 0;
-    put("Goodbye!", out, out_size);
-    return 1;
-}
+/* Greetings & farewells (gen1) were the first intents. gen52 generalizes them
+ * into the dialogue-act layer `mod_social` (defined near the registry, where
+ * split_words is in scope) — the phatic register as a structure, not a list. */
 
 /* --- module: memory ------------------------------------------------------
  * The first *stateful* part: it learns the user's name and recalls it. This
@@ -1960,6 +1944,89 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: social ------------------------------------------------------
+ * The dialogue-act layer (gen52). parrot0 had only CONTENT modules
+ * (assert/query/reason); a curt "ciao" or "thanks" carries no proposition, so it
+ * hit the blank wall and the agent felt dumb. This part recognizes the PHATIC
+ * register — utterances whose function is to open/close/maintain the channel —
+ * by communicative ACT, not by enumerating canned replies:
+ *   1. a small CLOSED-CLASS marker set (greetings/closings/thanks/wellbeing),
+ *      multilingual — the "function words" of conversation, like articles, not
+ *      content (matched whole-token, so "hi" never fires inside "which");
+ *   2. DISCOURSE POSITION (`b->turns`): the same "ciao" opens early and closes
+ *      late — structure disambiguating what vocabulary cannot;
+ *   3. the ELIMINATION move: a single contentless word that NO content module
+ *      claimed, arriving as the opener, is by exclusion a phatic contact act —
+ *      so a novel minimal opener is handled without being listed, answered with
+ *      an opening that invites content (honest: it does not feign understanding).
+ * Runs last (before the not-understood fallback), so content always wins. */
+static int tok_in(char **w, size_t nw, const char *const *set) {
+    for (size_t i = 0; i < nw; i++)
+        for (const char *const *s = set; *s; s++)
+            if (strcmp(w[i], *s) == 0) return 1;
+    return 0;
+}
+
+static int mod_social(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    while (len > 0 && (buf[len-1]=='?'||buf[len-1]=='!'||buf[len-1]=='.'||buf[len-1]==' '))
+        buf[--len] = '\0';
+    if (len == 0) return 0;
+
+    char tmp[256];
+    memcpy(tmp, buf, len + 1);
+    char *w[64];
+    size_t nw = split_words(tmp, w, 64);
+    if (nw == 0) return 0;
+
+    static const char *const opening[]  = {"hello","hi","hey","hiya","yo","salve",
+        "ehi","buongiorno","buonasera","hello!","howdy", NULL};
+    static const char *const closing[]  = {"bye","goodbye","farewell","addio",
+        "arrivederci", NULL};
+    static const char *const thanks[]   = {"thanks","thx","ty","grazie", NULL};
+    static const char *const ambiguous[] = {"ciao", NULL}; /* hello AND bye */
+
+    /* gratitude */
+    if (tok_in(w, nw, thanks) || cue(buf, "thank you") || cue(buf, "thank u"))
+        { put("You're welcome!", out, out_size); return 1; }
+
+    /* wellbeing check-in */
+    if (cue(buf, "how are you") || cue(buf, "how r u") ||
+        cue(buf, "how do you do") || cue(buf, "how is it going") ||
+        cue(buf, "come stai") || cue(buf, "come va"))
+        { put("I'm well, thanks. How can I help?", out, out_size); return 1; }
+
+    /* position-disambiguated ambiguous marker: "ciao" opens early, closes late */
+    if (tok_in(w, nw, ambiguous)) {
+        put(b->turns <= 2 ? "Hi there!" : "Goodbye!", out, out_size);
+        return 1;
+    }
+
+    /* explicit opening / closing markers */
+    if (tok_in(w, nw, opening) || cue(buf, "good morning") ||
+        cue(buf, "good evening") || cue(buf, "good afternoon"))
+        { put("Hi there!", out, out_size); return 1; }
+    if (tok_in(w, nw, closing) || cue(buf, "see you") || cue(buf, "a presto"))
+        { put("Goodbye!", out, out_size); return 1; }
+
+    /* the elimination move: a single contentless word as the opener is, by
+     * exclusion, phatic contact — greet and invite content, without listing it.
+     * Pure numbers are not contact, so require an alphabetic token. */
+    if (nw == 1 && b->turns <= 1 && isalpha((unsigned char)w[0][0])) {
+        put("Hi there! What would you like to talk about?", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
  * behaviour, touch only this table — not brain_respond()'s control flow.
  * (This table is also reified into the KB as module(...) facts at birth, so
@@ -1978,8 +2045,7 @@ static const Module registry[] = {
     {"bench",     mod_bench},
     {"reader",    mod_reader},
     {"knowledge", mod_knowledge},
-    {"greet",     mod_greet},
-    {"farewell",  mod_farewell},
+    {"social",    mod_social},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
 
@@ -2027,7 +2093,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen51-robust-intent";
+    return "gen52-dialogue-acts";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

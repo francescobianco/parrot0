@@ -14,7 +14,7 @@
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< memory, self, compare, arith, quantity, cause, same, conj, gen, coref, bench, reader, knowledge, greet, farewell.
+< memory, self, compare, arith, quantity, cause, same, conj, gen, coref, bench, reader, knowledge, social.
 # Ordinary world knowledge still works alongside the self-model.
 > socrates is a man
 < Learned: man(socrates).

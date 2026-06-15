@@ -61,11 +61,14 @@ now plain-language. Felt-intelligence 36% → 64%. Held-out phrasings pass
 the cue approach to the other intents as they arrive, and watch for cue
 collisions (Decision D-2026-06-15u).
 
-### C2 - Social register, in plain language
-Graceful handling of the phatic layer: greeting variants, "how are you?",
-"thanks", "bye", and "what can you do?" answered in *user* terms (capabilities
-described from real modules, not the `module(...)` jargon list). Small surface,
-huge first impression. Keep it minimal and honest, not a canned script.
+### C2 - Social register, in plain language (DONE, gen52)
+Done as a dialogue-act layer `mod_social` (Decision D-2026-06-15v): phatic moves
+recognized by communicative ACT — closed-class markers + discourse position
+(same "ciao" opens early / closes late) + an elimination move (a contentless
+first-turn word is by exclusion phatic contact, so novel openers work unlisted).
+Greeting/thanks/wellbeing/farewell, EN + IT. Felt-intelligence 64% → 82%.
+Unified gen1's greet/farewell into it. TODO: learned act classification (no
+markers) and real closing detection instead of the turn<=2 rule.
 
 ### C3 - Natural assertion + personal memory ("listen to me")
 First-person and natural-shape facts: "I have a dog named Rex", "my dog is

@@ -1,7 +1,9 @@
 # Generation 15: the parrot grows up. Input it can't parse is met with an
 # honest admission of non-understanding — not echoed (the gen0 parrot is
 # retired), and not a wrong "No." (TASKLIST T16).
-> how are you?
+# (gen52: "how are you?" is now a recognized social act, so it is no longer an
+# example of non-understanding — replaced with genuinely unparseable prose.)
+> tell me a story about dragons
 < I don't understand that yet.
 > 12345
 < I don't understand that yet.

@@ -9,6 +9,30 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15v — trivial openers handled as a dialogue-act layer, not a bigger greeting list
+gen52 answers a curt "ciao" / "thanks" / "how are you" via `mod_social`, a
+speech-act layer: it classifies the PHATIC register (open/close/thanks/wellbeing)
+rather than matching content. The owner asked for this explicitly *as a
+structural challenge* — handle banal openings without growing the parrot.
+- **Bought:** the missing structure (dialogue acts) that the felt experience
+  demanded. Three signals, none a content phrasebook: (1) a closed-class marker
+  set (conversation's "function words", like articles — multilingual,
+  whole-token matched); (2) DISCOURSE POSITION (`b->turns`) disambiguating the
+  same word — "ciao" opens early, closes late; (3) the ELIMINATION move — a
+  single contentless first-turn word, claimed by no content module, is by
+  exclusion phatic contact, so novel openers ("ahoy") are handled without being
+  listed, answered with an invitation (honest, no feigned understanding).
+  Felt-intelligence 64% → 82%. Unified gen1's greet/farewell into this layer.
+- **Gave up:** the marker lists are still hand-maintained per language (the near
+  edge of the phrasebook risk, mitigated: the RESPONSE is one generic act-reply,
+  not a per-input canned line, and the elimination move needs no list). The
+  elimination move can mis-greet a genuine 1-word query on turn 1 (rare in this
+  grammar; numbers excluded). Position disambiguation for "ciao" is a blunt
+  turn<=2 rule, not real closing detection.
+- **Revisit if:** acts must be recognized without ANY marker (then need a
+  learned act classifier, cf. T5/T11), or the turn-based "ciao" rule mislabels
+  in real dialogue (then detect closing from discourse state, not just count).
+
 ### D-2026-06-15u — intent by keyword cues, not rigid templates (and not a phrasebook)
 gen51 matches conversational intent (identity, capability) with small keyword
 cue sets (`cue()` = substring test) and answers from the self-model, replacing
@@ -348,6 +372,35 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen52: C2 — the dialogue-act layer (felt-intelligence 64% → 82%)
+
+**Changed:** `brain.c` → `gen52-dialogue-acts`; new `mod_social` (+ `tok_in`);
+removed `mod_greet`/`mod_farewell` (unified into it).
+- The owner asked to handle "banal openings" (a curt "ciao") as an intellectual
+  challenge — find the STRUCTURE, not pad the parrot. Answer: a speech-act layer
+  for the phatic register (Decision D-2026-06-15v): closed-class markers +
+  discourse position (`b->turns`) + an elimination move (a contentless first-turn
+  word, unclaimed by content, is by exclusion phatic contact → greet & invite).
+- "ciao" opens early and closes late from position alone; a novel opener "ahoy"
+  is handled without being listed.
+- New `social.chat`, `social.it.chat`, `social_opener.chat`,
+  `tests/chat/social.dlg`-style coverage via existing dialogues; updated
+  `parrot.chat` ("how are you?" is now a recognized act) and `self.chat` (module
+  list: greet/farewell → social).
+
+**Why:** C2 in TASKLIST, but reframed by the owner's challenge into the missing
+*dialogue-act* structure — reusable for C4/C5 and turn-taking, not a one-off.
+
+**Observed:** "ciao"/"hello"/"yo"/"buongiorno" → greeting; "thanks"/"grazie" →
+acknowledgement; "how are you?"/"come stai?" → wellbeing; "ahoy" (novel opener)
+→ invitation; "ciao" late → farewell. `make chat-bench` 64% → 82% (14/17). Unit
+suite green (43 + …). Remaining misses are personal memory and discourse recall.
+
+**Next:** gen53 = C3 — natural assertion + personal memory ("I have a dog named
+Rex" → "what is my dog called?" → "Rex"), the dog turns still missing.
 
 ---
 
