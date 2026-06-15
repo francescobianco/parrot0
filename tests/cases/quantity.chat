@@ -1,0 +1,30 @@
+# gen28: quantities as knowledge — assert, recall, and compare magnitudes that
+# live in the KB (quantity(entity, unit, value)). This lifts gen27's literal
+# comparator into a fact-driven one: the comparison can now be *stated in
+# language* rather than handed two raw numbers.
+#
+# The shape mirrors BoolQ #0 ("does ethanol take more energy than it produces"),
+# reduced to its two extracted quantities — energy input vs energy output. We
+# test the reasoning over stated quantities; prose->facts extraction is not yet
+# built (see Decisions D-2026-06-15a).
+> input has 1 energy
+< Learned: input has 1 energy.
+> output has 1.3 energy
+< Learned: output has 1.3 energy.
+> how many energy does output have?
+< output has 1.3 energy.
+# The BoolQ verdict, reached by comparing stated quantities: input < output.
+> does input have more energy than output?
+< No.
+> does output have more energy than input?
+< Yes.
+> does input have less energy than output?
+< Yes.
+# A missing quantity is admitted, never invented.
+> does input have more energy than rival?
+< I don't know how many energy rival has.
+> how many energy does rival have?
+< I don't know how many energy rival has.
+# Non-quantity "has" statements are declined here and fall through.
+> alice has a cat
+< I don't understand that yet.

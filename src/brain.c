@@ -247,6 +247,39 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
     }
 }
 
+/* Answer "how do you know <goal>?" by reading the proof trace and reporting
+ * its *depth* — the number of inference steps. A goal proved straight from a
+ * stored fact is DIRECT (zero rule applications); a goal proved through rules
+ * is MULTI-STEP, and we report how many steps. The step count is the number of
+ * " because " links the proof renderer emits, i.e. one per rule application
+ * along the chain — so this is a property of the actual proof structure, not a
+ * canned label. A goal with no proof is refused, never invented (gen26). */
+static void howknow_reply(Brain *b, const char *pred, const char *const *args,
+                          size_t argc, char *out, size_t out_size) {
+    if (kb_is_conflicted(b->kb, pred, args, argc)) {
+        put("I have conflicting evidence for that.", out, out_size);
+        return;
+    }
+
+    char ex[512];
+    if (!kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
+        put("I can't show that.", out, out_size);
+        return;
+    }
+
+    size_t steps = 0;
+    for (const char *p = ex; (p = strstr(p, " because ")) != NULL; p += 9)
+        steps++;
+
+    char msg[640];
+    if (steps == 0)
+        snprintf(msg, sizeof msg, "Directly: %s is a known fact.", ex);
+    else
+        snprintf(msg, sizeof msg, "By %zu step%s of reasoning: %s.",
+                 steps, steps == 1 ? "" : "s", ex);
+    put(msg, out, out_size);
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size);
 
@@ -464,6 +497,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* proof depth (gen26): "how do you know <x> is a/an <y>?" -> classify the
+     * proof of y(x) as direct (fact) vs multi-step (rule chain) reasoning. */
+    if (nw == 8 && strcmp(w[0], "how") == 0 && strcmp(w[1], "do") == 0 &&
+        strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
+        strcmp(w[5], "is") == 0 && is_article(w[6])) {
+        const char *subj;
+        if (!resolve_entity(b, w[4], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        howknow_reply(b, w[7], args, 1, out, out_size);
+        remember_entity(b, w[4], subj);
+        return 1;
+    }
+
     /* direct belief report: "what do you know about <x>?" */
     if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "do") == 0 &&
         strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
@@ -656,6 +702,143 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: compare -----------------------------------------------------
+ * Ordinal reasoning over quantities (gen27). Discovered by domain-pull: the
+ * first official SuperGLUE/BoolQ question parrot0 was shown asks whether
+ * ethanol "take[s] more energy ... than [it] produces" — a *comparison of two
+ * magnitudes*, a kind of reasoning the KB (symbolic atoms only) could not do.
+ * This part answers the comparison itself: "is <a> more/less than <b>?" over
+ * numbers, returning a closed yes/no. It is the reasoning primitive on the
+ * path to such questions; turning a passage into the two numbers is a separate,
+ * larger feature (NL extraction) we deliberately do NOT fake here. */
+static int parse_num(const char *s, double *out) {
+    if (!*s) return 0;
+    char *end;
+    double v = strtod(s, &end);
+    if (end == s) return 0;
+    while (*end && isspace((unsigned char)*end)) end++;
+    if (*end != '\0') return 0;
+    *out = v;
+    return 1;
+}
+
+/* The shared magnitude test: is `a` more (greater=1) / less (greater=0) than
+ * `c`? Both mod_compare (literal numbers) and mod_quantity (numbers looked up
+ * from the KB) route their decision through this one comparator. */
+static int magnitude_more(double a, double c, int greater) {
+    return greater ? (a > c) : (a < c);
+}
+
+/* Map "more"/"greater" -> 1, "less"/"fewer" -> 0, anything else -> -1. */
+static int compare_word(const char *w) {
+    if (strcmp(w, "more") == 0 || strcmp(w, "greater") == 0) return 1;
+    if (strcmp(w, "less") == 0 || strcmp(w, "fewer") == 0) return 0;
+    return -1;
+}
+
+static int mod_compare(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)b; (void)raw;
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+    if (nw != 5 || strcmp(w[0], "is") != 0 || strcmp(w[3], "than") != 0)
+        return 0;
+
+    int greater = compare_word(w[2]);
+    if (greater < 0) return 0;
+
+    double a, c;
+    if (!parse_num(w[1], &a) || !parse_num(w[4], &c)) return 0; /* not numbers */
+
+    put(magnitude_more(a, c, greater) ? "Yes." : "No.", out, out_size);
+    return 1;
+}
+
+/* --- module: quantity ----------------------------------------------------
+ * Quantities as knowledge (gen28). gen27 could compare two literal numbers;
+ * this part lets a magnitude be *stated, recalled, and compared as a fact*, so
+ * the comparison primitive can be driven from language rather than from
+ * pre-extracted numbers — the next step the BoolQ probe pulled. A quantity is
+ * a 3-ary fact `quantity(entity, unit, value)`; the value rides in the KB as a
+ * string atom and is parsed back with parse_num when compared. Turning prose
+ * into these facts (open-domain extraction) is deliberately still out of scope:
+ * we build the reasoning, not a passage parser. */
+static int mod_quantity(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<x> has <n> <unit>" -> quantity(x, unit, n) */
+    if (nw == 4 && strcmp(w[1], "has") == 0) {
+        double v;
+        if (!parse_num(w[2], &v)) return 0; /* not a quantity; let others try */
+        const char *args[] = {w[0], w[3], w[2]};
+        char msg[160];
+        if (kb_assert(b->kb, "quantity", args, 3))
+            snprintf(msg, sizeof msg, "Learned: %s has %s %s.", w[0], w[2], w[3]);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* recall: "how many <unit> does <x> have" -> quantity(x, unit, ?) */
+    if (nw == 6 && strcmp(w[0], "how") == 0 && strcmp(w[1], "many") == 0 &&
+        strcmp(w[3], "does") == 0 && strcmp(w[5], "have") == 0) {
+        const char *unit = w[2], *x = w[4];
+        const char *pat[] = {x, unit, NULL};
+        char hits[4][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "quantity", pat, 3, hits, 4);
+        char msg[160];
+        if (k == 0)
+            snprintf(msg, sizeof msg, "I don't know how many %s %s has.", unit, x);
+        else
+            snprintf(msg, sizeof msg, "%s has %s %s.", x, hits[0], unit);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* compare: "does <x> have more/less <unit> than <y>" */
+    if (nw == 7 && strcmp(w[0], "does") == 0 && strcmp(w[2], "have") == 0 &&
+        strcmp(w[5], "than") == 0) {
+        int greater = compare_word(w[3]);
+        if (greater < 0) return 0;
+        const char *unit = w[4], *x = w[1], *y = w[6];
+        const char *px[] = {x, unit, NULL}, *py[] = {y, unit, NULL};
+        char hx[4][KB_TERM_LEN], hy[4][KB_TERM_LEN];
+        size_t kx = kb_match(b->kb, "quantity", px, 3, hx, 4);
+        size_t ky = kb_match(b->kb, "quantity", py, 3, hy, 4);
+        if (kx == 0 || ky == 0) {
+            char msg[200];
+            snprintf(msg, sizeof msg, "I don't know how many %s %s has.",
+                     unit, kx == 0 ? x : y);
+            put(msg, out, out_size);
+            return 1;
+        }
+        double a, c;
+        if (!parse_num(hx[0], &a) || !parse_num(hy[0], &c)) return 0;
+        put(magnitude_more(a, c, greater) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -730,6 +913,8 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
 static const Module registry[] = {
     {"memory",    mod_memory},
     {"self",      mod_self},
+    {"compare",   mod_compare},
+    {"quantity",  mod_quantity},
     {"knowledge", mod_knowledge},
     {"greet",     mod_greet},
     {"farewell",  mod_farewell},
@@ -780,7 +965,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen25-mmlu-choice";
+    return "gen28-quantity-facts";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

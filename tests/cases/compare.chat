@@ -1,0 +1,23 @@
+# gen27: ordinal reasoning over quantities — "is <a> more/less than <b>?".
+# Discovered by domain-pull from the first official SuperGLUE/BoolQ question
+# ("does ethanol take more energy ... than [it] produces"): comparing two
+# magnitudes is a reasoning primitive the symbolic KB lacked.
+#
+# The decisive case is the ethanol one, reduced to its extracted quantities
+# (energy in = 1, energy out = 1.3): "take more than it produces?" -> No,
+# which is BoolQ #0's gold label. We test the *reasoning*, not the passage.
+> is 1 more than 1.3?
+< No.
+> is 8 more than 1?
+< Yes.
+> is 1 less than 1.3?
+< Yes.
+> is 3 more than 3?
+< No.
+> is 2.5 greater than 2.49?
+< Yes.
+> is 4 fewer than 10?
+< Yes.
+# Non-numbers are declined honestly, not guessed at.
+> is five more than apples?
+< I don't understand that yet.

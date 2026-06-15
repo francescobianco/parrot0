@@ -41,7 +41,7 @@ case "$bench" in
         title="BIG-Bench Hard-like local benchmark"
         description="multi-step reasoning, proof chains, composed inference"
         chat_cases=(rules.chat entail.chat)
-        suites=(multigoal.sh explain.sh)
+        suites=(multigoal.sh explain.sh howknow.sh)
         ;;
     all)
         "$0" superglue

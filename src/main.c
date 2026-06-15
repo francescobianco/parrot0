@@ -28,6 +28,20 @@ static void chomp(char *s) {
     }
 }
 
+/* Opt-in input capture (off unless PARROT0_TRACE names a file). Appends every
+ * received input line so the self-improvement loop can SEE exactly what a
+ * benchmark feeds parrot0 — a discovery tool for which reasoning features to
+ * build next, never a runtime behaviour. Stays in the I/O shell because what
+ * arrives on stdin is the shell's concern, not the brain's. */
+static void trace_input(const char *line) {
+    const char *path = getenv("PARROT0_TRACE");
+    if (!path || !*path) return;
+    FILE *f = fopen(path, "a");
+    if (!f) return;
+    fprintf(f, "%s\n", line);
+    fclose(f);
+}
+
 int main(void) {
     Brain *brain = brain_create();
     if (!brain) {
@@ -59,6 +73,7 @@ int main(void) {
             break; /* EOF / Ctrl-D */
         }
         chomp(line);
+        trace_input(line);
 
         if (strcmp(line, "/quit") == 0 || strcmp(line, "/exit") == 0) {
             break;

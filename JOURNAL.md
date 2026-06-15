@@ -2,6 +2,152 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## Decisions (revisitable)
+
+> Choices made under uncertainty that a future iteration may overturn. Each
+> records what taking that road **bought** us, what we **gave up** by taking it,
+> and the **revisit-if** signal that should send us back to change it. Newest on
+> top. These are explicitly provisional — not commitments.
+
+### D-2026-06-15a — quantities stored as string-atom values in a 3-ary fact
+gen28 represents a magnitude as `quantity(entity, unit, value)` where `value`
+is an ordinary KB atom (e.g. `"1.3"`), parsed back to a double only at compare
+time.
+- **Bought:** numbers enter the KB with **zero** changes to kb.c — they reuse
+  `kb_assert`/`kb_match`/persistence exactly as symbolic atoms, so the smallest
+  possible step gave the comparison primitive a knowledge source.
+- **Gave up:** the KB has no notion of *number*. No arithmetic, no ordering at
+  the KB level, no unit checking, and two different values for the same
+  (entity, unit) silently coexist as distinct facts (recall returns the first).
+- **Revisit if:** a task needs arithmetic (sums, ratios — BoolQ's "1 unit
+  creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
+  conversion, or single-valued "latest wins" updates. Any of these means
+  promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen28: quantities as knowledge (text-driven comparison)
+
+**Method (domain-pull, continued):** gen27 surfaced that the BoolQ probe needs
+its two magnitudes to come from *knowledge*, not from raw numbers handed to the
+comparator. So gen28 lets a quantity be stated, recalled, and compared as a
+fact — closing the gap between "parrot0 can compare 1 and 1.3" and "parrot0 can
+be *told* the two energy figures and compare them".
+
+**Changed:** `brain.c` → `gen28-quantity-facts`.
+- New cooperating part `mod_quantity` (registry-reified; self-model now lists
+  it). Surfaces: `<x> has <n> <unit>` → asserts `quantity(x, unit, n)`;
+  `how many <unit> does <x> have?` → recalls it; `does <x> have more/less
+  <unit> than <y>?` → looks both up and routes the decision through the SAME
+  `magnitude_more` comparator gen27 introduced (refactored into a shared
+  helper, with `compare_word` for the more/less lexicon).
+- Missing quantities are admitted (`I don't know how many ...`), never guessed;
+  non-numeric `has` statements decline and fall through to `knowledge`.
+- `tests/cases/quantity.chat` (held-out entities/units), shaped like BoolQ #0's
+  energy-in vs energy-out: `does input have more energy than output?` → `No.`
+- `self.chat` capability list legitimately gained `quantity`.
+
+**Decision logged:** D-2026-06-15a (quantities as string atoms, not a numeric
+KB type).
+
+**Why:** Keeps walking the discovered road without faking the hard part. The
+comparison can now be driven from language; what still blocks BoolQ end-to-end
+is turning a *passage* into these quantity facts.
+
+**Observed:** all suites green (run 16, grammar 14, persist 10, multigoal 3,
+anon 2, explain 5, howknow 4). Bench BoolQ still 0 — correctly: no extractor.
+
+**Next:** see `TASK.md` — gen29 pulls the next task (CB): a 3-way entailment
+verdict (entailment / contradiction / neutral) over the existing entailment
+solver, mapped to the benchmark's own label space.
+
+---
+
+## 2026-06-15 — gen27: quantity comparison, discovered by domain-pull
+
+**Method:** This generation was not chosen a priori — it was *discovered*. New
+opt-in input capture in the I/O shell (`PARROT0_TRACE=<file>`, off by default,
+appends every received line) let me see exactly what `make bench-superglue`
+feeds parrot0. Running it limited to one example (`--max-examples 1`) showed
+all 8 tasks return `invalid`, and captured the first BoolQ question verbatim:
+*"does ethanol take more energy make that produces"* (gold: **no** — the
+passage says ethanol returns 1.3–8 energy units per unit invested).
+
+**Discovery analysis (what answering it honestly requires):**
+1. passage → facts (open-domain NL extraction) — large, deliberately NOT faked;
+2. question → query (map "more … than" to a comparison);
+3. **comparison of two magnitudes** — a reasoning primitive the symbolic KB
+   simply did not have;
+4. yes/no framing.
+
+#3 is the smallest genuine feature on the path, and the question pulls it
+directly. So:
+
+**Changed:** `brain.c` → `gen27-quantity-compare`.
+- New cooperating part `mod_compare` (registry-reified, so the self-model now
+  lists it): answers `is <a> more/less/greater/fewer than <b>?` over numbers,
+  returning a closed yes/no via `parse_num` + a magnitude test. Non-numbers are
+  declined (falls through to the honest "I don't understand"), never guessed.
+- `tests/cases/compare.chat` (held-out numbers). The decisive case is the
+  ethanol question reduced to its extracted quantities — `is 1 more than 1.3?`
+  → `No.`, i.e. BoolQ #0's gold label, reached by *reasoning*, not lookup.
+- `self.chat` updated: the capability list legitimately gained `compare`.
+
+**Why:** Honest feature discovery, per the user's framing — not to trick the
+benchmark but to find the reasoning features worth investing in. The benchmark
+*pulls* the primitive; we build the primitive, not the answer.
+
+**Observed:** all suites green. The comparison reasoning is correct and the
+bench still scores 0 on BoolQ — correctly, because we did NOT build the passage
+extractor. That extractor (NL → quantity facts) is the next, larger investment
+this loop surfaced.
+
+**Method watch (D5.1):** the line between primitive and cheat is sharp here —
+we built `is a more than b?` (general, held-out tested) and refused to hardcode
+`ethanol → no`. Capture is a discovery tool, off in every normal run.
+
+**Next:** see `TASK.md` — gen28: the question→query bridge and a minimal
+passage→facts surface, so the comparison primitive can be *driven* from text
+rather than from pre-extracted numbers.
+
+---
+
+## 2026-06-15 — gen26: proof depth — direct fact vs multi-step reasoning
+
+**Changed:** `brain.c` → `gen26-proof-depth`.
+- Added the surface `how do you know <x> is a/an <y>?` (`howknow_reply` +
+  one parse branch in `mod_knowledge`). It is the BBH-like micro-driver: it
+  distinguishes a belief held *directly* (a stored fact) from one *reached by
+  reasoning* (a rule chain).
+- No new solver machinery (per TASK note): it reuses `kb_explain` and counts
+  the ` because ` links in the rendered proof — one per rule application — so
+  the reported step count is a property of the actual proof tree, not a label.
+  Direct fact → `Directly: quux(zibo) is a known fact.`; a two-rule chain →
+  `By 2 steps of reasoning: warg(zibo) because flob(zibo) because quux(zibo).`
+- Conflicts and unprovable goals are handled honestly (`I have conflicting
+  evidence`, `I can't show that`) — a false claim never invents a chain.
+- New `tests/howknow.sh` (held-out nonsense predicates `quux/flob/warg`),
+  wired into `make test` and the `bench-bbh` suite list.
+
+**Why:** gen23–gen25 covered entailment and multiple-choice retrieval, all of
+which can be answered by a *single* lookup or rule step. The BBH family
+pressures *composed* inference, so the first probe is the one that can tell
+direct memory from a multi-step proof and report the depth.
+
+**Observed:** all suites green; the probe reports 0/1/2-step correctly and
+refuses `plouf is a warg`. Held-out predicates confirm the classification is
+proof-structure based, not English recognition.
+
+**Method watch (D5.1):** step count = ` because ` links = rule applications
+along the leftmost spine; a single rule over a multi-goal body (e.g.
+grandparent) is one step, which is the honest reading. Surface is unary only
+for now (binary relations would exceed the 8-word split) — extend if a task
+demands it.
+
+**Next:** see `TASK.md` — gen27 carries proof depth into the *entailment*
+driver, so a hypothesis can be reported as directly vs multi-step entailed
+(composed inference end to end).
+
 ---
 
 ## 2026-06-15 — gen25: MMLU-like multiple-choice class questions

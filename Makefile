@@ -44,6 +44,7 @@ test: build
 	@./tests/grammar.sh
 	@./tests/anon.sh
 	@./tests/explain.sh
+	@./tests/howknow.sh
 
 bench: build
 	@./tests/bench.sh all
