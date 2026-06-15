@@ -1,0 +1,27 @@
+# gen33: equivalence / sameness — pulled by BoolQ #1 ("is house tax and
+# property tax are same"). A symmetric relation same(a, b) parrot0 lacked,
+# distinct from class membership. We test stated equivalences; deciding
+# sameness from prose is out of scope (but reachable via read:). Held-out names.
+> housetax is the same as propertytax
+< Learned: same(housetax, propertytax).
+# Symmetric: order of the two names does not matter.
+> are housetax and propertytax the same?
+< Yes.
+> are propertytax and housetax the same?
+< Yes.
+# An unrelated pair is not the same -- no guessing.
+> are housetax and incometax the same?
+< No.
+# Identical names are trivially the same.
+> are gold and gold the same?
+< Yes.
+# Equivalence is extractable through the gen32 reader, and still symmetric.
+> read: alpha is the same as beta. gamma is a star.
+< Learned 2 fact(s), skipped 0.
+> are beta and alpha the same?
+< Yes.
+# Non-transitive by design (Decision D-2026-06-15f): a=b and b=c is not a=c.
+> beta is the same as delta
+< Learned: same(beta, delta).
+> are alpha and delta the same?
+< No.

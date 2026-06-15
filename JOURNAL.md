@@ -9,6 +9,18 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15f — sameness is symmetric but not transitive, and inert
+gen33's `same(a, b)` is stored both ways (symmetric) but is a plain fact with
+no closure and no property transfer.
+- **Bought:** equivalence questions answered by direct symmetric lookup, with
+  no graph machinery; identical names short-circuit to yes.
+- **Gave up:** transitivity (`a=b`, `b=c` does not give `a=c`) and *inheritance*
+  — declaring `a` the same as `b` does not transfer `b`'s classes/facts to `a`.
+  `same` sits beside knowledge, not inside the resolver.
+- **Revisit if:** a task needs equivalence chains, or sameness to propagate
+  properties (true synonymy: if `a` = `b` then `a` is whatever `b` is). Then
+  `same` must become transitively closed and feed the unary resolver.
+
 ### D-2026-06-15e — extraction reuses the existing clause parsers, no new grammar
 gen32's `read:` extractor splits on sentence punctuation and feeds each clause
 to the parsers parrot0 already has (quantity, cause, knowledge).
@@ -83,6 +95,33 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen33: equivalence / sameness relation (BoolQ #1 road)
+
+**Method (domain-pull):** captured BoolQ #1, "is house tax and property tax are
+same" (gold: yes) — a sameness question parrot0 could not represent.
+
+**Changed:** `brain.c` → `gen33-same`.
+- New cooperating part `mod_same` (registry-reified; self-model lists it).
+  `<x> is the same as <y>` asserts `same(x, y)` *both ways* (symmetric);
+  `are <x> and <y> the same?` answers from it, with identical names trivially
+  yes and unknown pairs answered no.
+- Wired into `extract_clause`, so equivalences are now extractable via `read:`.
+- `tests/cases/same.chat` (held-out names): symmetry, the unrelated-pair no,
+  extraction through the reader, and the non-transitive boundary.
+
+**Decision logged:** D-2026-06-15f (symmetric, non-transitive, inert).
+
+**Why:** A distinct relation type (equivalence) the KB lacked, kept separate
+from class membership. The prose→`same(a,b)` decision (real BoolQ difficulty)
+stays out of scope but is reachable through gen32's reader.
+
+**Observed:** all suites green (20 conversation cases).
+
+**Next:** see `TASK.md` — gen34: conjunctive membership ("are <x> and <y> both a
+<z>?"), the multi-fact AND that MultiRC-style multi-sentence reasoning pulls.
 
 ---
 

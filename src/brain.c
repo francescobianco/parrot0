@@ -951,6 +951,53 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: same --------------------------------------------------------
+ * Equivalence between entities (gen33). Pulled by BoolQ #1 ("is house tax and
+ * property tax are same"): a question about *sameness*, which parrot0 had no
+ * way to represent or answer without conflating it with class membership. A
+ * `same(a, b)` fact is stored in both directions so the relation is symmetric;
+ * `are <x> and <y> the same?` answers from it (identical names are trivially
+ * the same). It is NOT transitively closed — see Decision D-2026-06-15f. */
+static int mod_same(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<x> is the same as <y>" -> same(x, y) (stored both ways) */
+    if (nw == 6 && strcmp(w[1], "is") == 0 && strcmp(w[2], "the") == 0 &&
+        strcmp(w[3], "same") == 0 && strcmp(w[4], "as") == 0) {
+        const char *fwd[] = {w[0], w[5]}, *bwd[] = {w[5], w[0]};
+        int ok = kb_assert(b->kb, "same", fwd, 2) &&
+                 kb_assert(b->kb, "same", bwd, 2);
+        char msg[160];
+        if (ok) snprintf(msg, sizeof msg, "Learned: same(%s, %s).", w[0], w[5]);
+        else    snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* query: "are <x> and <y> the same?" -> same(x, y)? */
+    if (nw == 6 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
+        strcmp(w[4], "the") == 0 && strcmp(w[5], "same") == 0) {
+        const char *x = w[1], *y = w[3];
+        if (strcmp(x, y) == 0) { put("Yes.", out, out_size); return 1; }
+        const char *args[] = {x, y};
+        put(kb_query(b->kb, "same", args, 2) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: reader ------------------------------------------------------
  * The text -> facts bridge (gen32). The gen28–gen31 domain-pull run reached one
  * conclusion four times: the reasoning primitives exist, but nothing turns a
@@ -972,6 +1019,7 @@ static int extract_clause(Brain *b, char *clause) {
     char resp[256];
     if (mod_quantity(b, norm, c, resp, sizeof resp) ||
         mod_cause(b, norm, c, resp, sizeof resp) ||
+        mod_same(b, norm, c, resp, sizeof resp) ||
         mod_knowledge(b, norm, c, resp, sizeof resp)) {
         return strncmp(resp, "Learned", 7) == 0; /* an assertion, not a query */
     }
@@ -1144,6 +1192,7 @@ static const Module registry[] = {
     {"compare",   mod_compare},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
+    {"same",      mod_same},
     {"coref",     mod_coref},
     {"reader",    mod_reader},
     {"knowledge", mod_knowledge},
@@ -1196,7 +1245,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen32-reader";
+    return "gen33-same";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
