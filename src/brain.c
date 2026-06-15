@@ -951,6 +951,78 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: reader ------------------------------------------------------
+ * The text -> facts bridge (gen32). The gen28–gen31 domain-pull run reached one
+ * conclusion four times: the reasoning primitives exist, but nothing turns a
+ * passage into the `pred(args)` facts they consume. This part is the smallest
+ * honest extractor: `read: <passage>` splits the passage into clauses on
+ * sentence punctuation and feeds each, in turn, to the existing assertion
+ * parsers (quantity, cause, knowledge). Whatever parses is asserted into the
+ * real session KB; whatever does not is skipped and *counted*, never invented.
+ * It does NOT understand open-domain prose — it lifts only the sentence shapes
+ * parrot0 already knows. The honest signal is the skipped count: on real
+ * SuperGLUE prose it will be high. */
+static int extract_clause(Brain *b, char *clause) {
+    char *c = trim_mut(clause);
+    if (!*c) return 0;
+    char norm[256];
+    normalize(c, norm, sizeof norm);
+    if (!*norm) return 0;
+
+    char resp[256];
+    if (mod_quantity(b, norm, c, resp, sizeof resp) ||
+        mod_cause(b, norm, c, resp, sizeof resp) ||
+        mod_knowledge(b, norm, c, resp, sizeof resp)) {
+        return strncmp(resp, "Learned", 7) == 0; /* an assertion, not a query */
+    }
+    return 0;
+}
+
+static int mod_reader(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    if (!b) return 0;
+    if (strncmp(norm, "read:", 5) != 0) return 0;
+
+    /* Take the passage from `raw` (not the 255-char-truncated `norm`) so long
+     * passages survive; per-clause normalization lowercases/trims afterwards. */
+    const char *colon = strchr(raw, ':');
+    const char *passage = colon ? colon + 1 : raw;
+    char buf[4096];
+    size_t plen = strlen(passage);
+    if (plen >= sizeof buf) plen = sizeof buf - 1;
+    memcpy(buf, passage, plen);
+    buf[plen] = '\0';
+
+    size_t learned = 0, skipped = 0;
+    char *p = buf;
+    while (*p) {
+        char *q = p;
+        while (*q) {
+            char ch = *q;
+            if (ch == ';' || ch == '!' || ch == '?') break;
+            if (ch == '.') {
+                /* a decimal point between digits (1.3) is not a boundary */
+                char prev = (q > p) ? q[-1] : '\0';
+                if (!(isdigit((unsigned char)prev) &&
+                      isdigit((unsigned char)q[1]))) break;
+            }
+            q++;
+        }
+        char saved = *q;
+        *q = '\0';
+        if (extract_clause(b, p)) learned++;
+        else if (*trim_mut(p)) skipped++;
+        if (saved == '\0') break;
+        p = q + 1;
+    }
+
+    char msg[128];
+    snprintf(msg, sizeof msg, "Learned %zu fact(s), skipped %zu.",
+             learned, skipped);
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* --- module: coref -------------------------------------------------------
  * Coreference decision (gen31). gen22 gave parrot0 a discourse model — a
  * pronoun resolves to the most recent concrete entity — but nothing could *ask*
@@ -1073,6 +1145,7 @@ static const Module registry[] = {
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"coref",     mod_coref},
+    {"reader",    mod_reader},
     {"knowledge", mod_knowledge},
     {"greet",     mod_greet},
     {"farewell",  mod_farewell},
@@ -1123,7 +1196,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen31-coref-decision";
+    return "gen32-reader";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

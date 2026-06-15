@@ -9,6 +9,21 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15e — extraction reuses the existing clause parsers, no new grammar
+gen32's `read:` extractor splits on sentence punctuation and feeds each clause
+to the parsers parrot0 already has (quantity, cause, knowledge).
+- **Bought:** a real text→facts path with *zero* new parsing machinery — every
+  sentence shape parrot0 already learns becomes extractable for free, and the
+  skipped count is an honest, built-in coverage meter (0/8 on the real ethanol
+  passage, proving nothing is faked).
+- **Gave up:** anything outside parrot0's tiny grammar is invisible (~0% on real
+  SuperGLUE prose); no sub-sentence/clausal parsing, no paraphrase, no
+  cross-sentence anaphora at extraction time. Splitting is punctuation-based —
+  decimal-aware (`1.3`) but naive about abbreviations (`U.S.`).
+- **Revisit if:** we need real coverage on natural prose. Then the investment is
+  an actual grammar / learned extraction patterns, not more hand-written
+  sentence shapes — or if abbreviation dots start corrupting clause splits.
+
 ### D-2026-06-15d — coreference judged only against last-entity salience
 gen31 answers "does <a> refer to <b>?" using gen22's model (a pronoun resolves
 to the single most-recent concrete entity); two concrete names co-refer iff
@@ -68,6 +83,38 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen32: the text → facts bridge (a minimal extractor)
+
+**Method:** This is the investment the gen28–gen31 run named four times: the
+reasoning existed; turning prose into facts did not. Built the smallest honest
+extractor rather than continuing to defer it.
+
+**Changed:** `brain.c` → `gen32-reader`.
+- New cooperating part `mod_reader` (registry-reified; self-model lists it).
+  `read: <passage>` splits the passage into clauses (decimal-safe punctuation
+  splitter) and feeds each to `mod_quantity`/`mod_cause`/`mod_knowledge` via the
+  helper `extract_clause`. Parsed clauses are asserted into the live session KB;
+  the rest are skipped and counted. Reply: `Learned N fact(s), skipped M.`
+- Uses `raw` (not the 255-char `norm`) so long passages survive.
+- End-to-end verified: after `read:`ing a 6-sentence passage, the gen28–gen31
+  primitives answer correctly from the *extracted* facts (magnitude, cause,
+  rule-derived membership, quantity recall).
+
+**Decision logged:** D-2026-06-15e (reuse existing parsers, no new grammar).
+
+**Why honest, not faked:** run on the *real* BoolQ ethanol passage the extractor
+reports `Learned 0, skipped 8` — the prose is outside parrot0's grammar, and the
+extractor says so instead of inventing facts. The bridge is real; its coverage
+on open prose is honestly ~0, which is the true state of the art here.
+
+**Observed:** all suites green (19 conversation cases incl. `reader.chat`).
+
+**Next:** see `TASK.md` — gen33 returns to domain-pull on a *second* captured
+question (BoolQ #1, "is house tax and property tax are same"): an equivalence /
+sameness relation parrot0 lacks.
 
 ---
 
