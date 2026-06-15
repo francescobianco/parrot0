@@ -18,7 +18,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LINE_MAX_LEN 4096
+/* Long enough to hold a whole benchmark prompt (passage+question) on one line;
+ * fgets would otherwise split a long passage across reads, hiding its tail
+ * markers from the brain (gen49). */
+#define LINE_MAX_LEN 65536
 #define RESP_MAX_LEN 8192
 
 static void chomp(char *s) {

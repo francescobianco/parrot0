@@ -13,6 +13,8 @@
 # Known-but-false predicate -> closed-world "no".
 > SuperGLUE BoolQ. Passage: rex is a dog. rex is not a cat. Question: is rex a cat? Answer yes or no.
 < no
-# Open prose that does not parse -> honest abstention, never a guess.
+# Open prose that does not parse -> reasoning abstains, so a lexical-overlap
+# BASELINE answers (gen49): "mood"/"tense" do not occur in the passage -> "no".
+# Valid and content-derived, near chance -- labeled a baseline, not reasoning.
 > SuperGLUE BoolQ. Passage: the weather was lovely and everyone felt calm. Question: was the mood tense? Answer yes or no.
-< I don't understand that yet.
+< no

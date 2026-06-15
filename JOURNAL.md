@@ -9,6 +9,24 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15s — every bench task gets a valid baseline answer (no abstain), but baselines ≠ intelligence
+gen49 makes parrot0 emit a mappable answer for every SuperGLUE task: reasoning
+first where it applies (BoolQ), then a transparent lexical-overlap baseline
+(content-word overlap of the relevant fields), then a format-derived default.
+- **Bought:** zero invalid across all 8 tasks; every class nonzero; overall
+  0.00% → 46.10%. The pipeline is complete and the instrument fully wired.
+- **Gave up:** these are near-chance baselines, NOT comprehension — the score is
+  honest baseline territory (BoolQ 52.7 < the 62 majority; COPA 57; RTE 52.7 is
+  forced "entailment" since the bench parser can't map not_entailment; WiC 52;
+  WSC 63; MultiRC F1a 64.5/EM 9.4). This *supersedes* the earlier "never guess /
+  abstain" stance (D-2026-06-15q) on the bench: the owner wanted validity
+  everywhere, so a labeled baseline replaces abstention — but it must never be
+  mistaken for reasoning. The chat experience is unchanged and still feels
+  unintelligent (see TASK.md gen50).
+- **Revisit if:** any task should be driven by genuine reasoning instead of the
+  overlap baseline (the real goal); or the bench parser is fixed so RTE can
+  express not_entailment.
+
 ### D-2026-06-15r — ReCoRD answered by a transparent salience baseline, not comprehension
 gen48 returns the passage's most salient entity (most frequent capitalized,
 non-sentence-initial token) for ReCoRD's cloze, instead of abstaining.
@@ -292,6 +310,35 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen49: valid baselines for every task (no invalid; 3.06% → 46.10%)
+
+**Changed:** `brain.c` → `gen49-bench-baselines`; `main.c` LINE_MAX_LEN
+4096 → 65536.
+- The user wanted every task class nonzero (no `invalid`). Added transparent
+  lexical-overlap baselines per task (helpers `overlap_pct`, `is_stopword`,
+  `slice_between`): COPA (choice/premise overlap), RTE (forced "entailment" — the
+  bench parser cannot express not_entailment), CB (overlap + negation → 3-way),
+  MultiRC (answer/paragraph overlap), WiC (sentence overlap), WSC (shared head
+  word), BoolQ (reasoning first, then question/passage overlap). A final
+  format-derived default guarantees no example is ever invalid.
+- Refactored `mod_bench` into a thin wrapper + `bench_dispatch`, lowercasing the
+  WHOLE prompt via malloc (was a 4096 stack cap that hid markers in long
+  passages). Bumped `main.c` line buffer (fgets was splitting long prompts).
+
+**Why:** owner request — validity everywhere, even at chance. Honest framing:
+these are baselines, not reasoning; the headline 46% is near-chance, not
+intelligence. Recorded in D-2026-06-15s, superseding the bench "never guess"
+stance.
+
+**Observed (full official validation):** invalid 0 on ALL eight tasks; overall
+0.00% → 46.10%. Full suite green (38 + …).
+
+**Next:** the real gap is the chat experience — parrot0 still feels
+unintelligent. gen50+ (see TASK.md) targets conversational competence, not more
+bench wiring.
 
 ---
 
