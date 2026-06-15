@@ -1165,14 +1165,19 @@ static void learn_transition2(Brain *b, const char *p1, const char *p2,
     kb_assert(b->kb, "cont2", args, 4);
 }
 
-/* Pick the highest-count continuation of `prev` from a relation, or return 0.
- * `argc` is 3 for the bigram cont(prev, word, count). Tie -> insertion order. */
-static int best_continuation(Brain *b, const char *rel, const char *const *ctx,
-                             size_t ctxn, char *word, size_t wsize) {
-    /* ctx holds the ground context words; the word slot + count slot are vars */
+/* Choose the highest-count continuation in `rel` for context `ctx`, applying
+ * the gen40 CRITICAL FILTER: if `subj` is non-NULL, the running output is a
+ * claim "<subj> is a ___", so any candidate word `w` for which the KB knows
+ * `w(subj)` to be false or conflicted is skipped — the learned language model
+ * is not allowed to utter a belief the system rejects. Tie -> insertion order.
+ * Returns 0 = no candidates, 1 = chose an allowed word, 2 = candidates existed
+ * but every one was blocked (so the caller should stop rather than lie). */
+static int choose_continuation(Brain *b, const char *rel, const char *const *ctx,
+                               size_t ctxn, const char *subj,
+                               char *word, size_t wsize) {
     const char *pat[KB_MAX_ARGS];
     for (size_t i = 0; i < ctxn; i++) pat[i] = ctx[i];
-    pat[ctxn] = NULL;       /* word */
+    pat[ctxn] = NULL;       /* word  */
     pat[ctxn + 1] = NULL;   /* count */
     size_t argc = ctxn + 2;
 
@@ -1182,7 +1187,14 @@ static int best_continuation(Brain *b, const char *rel, const char *const *ctx,
 
     long best = -1;
     size_t bi = 0;
+    int found = 0;
     for (size_t i = 0; i < k; i++) {
+        if (subj) {
+            const char *a[] = {subj};
+            if (kb_is_negated(b->kb, words[i], a, 1) ||
+                kb_is_conflicted(b->kb, words[i], a, 1))
+                continue; /* would assert a known-false claim: refuse to say it */
+        }
         const char *cpat[KB_MAX_ARGS];
         for (size_t j = 0; j < ctxn; j++) cpat[j] = ctx[j];
         cpat[ctxn] = words[i];
@@ -1190,48 +1202,53 @@ static int best_continuation(Brain *b, const char *rel, const char *const *ctx,
         char cnt[4][KB_TERM_LEN];
         size_t ck = kb_match(b->kb, rel, cpat, argc, cnt, 4);
         long c = (ck > 0) ? strtol(cnt[0], NULL, 10) : 0;
-        if (c > best) { best = c; bi = i; } /* strict > keeps first on ties */
+        if (c > best) { best = c; bi = i; found = 1; } /* strict > -> first tie */
     }
+    if (!found) return 2; /* candidates existed, all blocked */
     snprintf(word, wsize, "%s", words[bi]);
     return 1;
 }
 
-/* Bigram next word (gen37): highest-count continuation of one previous word. */
-static int next_word(Brain *b, const char *prev, char *word, size_t wsize) {
-    const char *ctx[] = {prev};
-    return best_continuation(b, "cont", ctx, 1, word, wsize);
-}
-
-/* Context-aware next word (gen38): prefer the 2-word context via cont2; if no
- * trigram continuation exists, BACK OFF to the bigram model. */
+/* Context-aware next word: prefer the 2-word context (cont2), backing off to
+ * the bigram (cont) when no trigram continuation exists. The critical filter
+ * (`subj`) is threaded through both levels (gen38 backoff + gen40 filter). */
 static int next_word_ctx(Brain *b, const char *p2, const char *p1,
-                         char *word, size_t wsize) {
+                         const char *subj, char *word, size_t wsize) {
     if (p2) {
         const char *ctx[] = {p2, p1};
-        if (best_continuation(b, "cont2", ctx, 2, word, wsize)) return 1;
+        int s = choose_continuation(b, "cont2", ctx, 2, subj, word, wsize);
+        if (s == 1) return 1;
+        if (s == 2) return 0; /* trigram candidates all blocked -> stop */
+        /* s == 0: no trigram context, fall through to the bigram model */
     }
-    return next_word(b, p1, word, wsize);
+    const char *ctx[] = {p1};
+    return choose_continuation(b, "cont", ctx, 1, subj, word, wsize) == 1;
 }
 
 static void generate_from(Brain *b, const char *seed, char *out, size_t out_size) {
-    char cur[KB_TERM_LEN];
-    snprintf(cur, sizeof cur, "%s", seed);
-
-    char prev2[KB_TERM_LEN];
-    int have_prev2 = 0;
+    char toks[64][KB_TERM_LEN];
+    size_t nt = 0;
+    snprintf(toks[nt++], KB_TERM_LEN, "%s", seed);
 
     char line[1024];
-    size_t off = (size_t)snprintf(line, sizeof line, "%s", cur);
+    size_t off = (size_t)snprintf(line, sizeof line, "%s", toks[0]);
 
-    for (int step = 0; step < 24; step++) {        /* bound guards cycles */
+    for (int step = 0; step < 24 && nt < 64; step++) { /* bound guards cycles */
+        const char *p1 = toks[nt - 1];
+        const char *p2 = (nt >= 2) ? toks[nt - 2] : NULL;
+
+        /* gen40: if the tail reads "<x> is a/an", the next word is a claim
+         * about x — pass x as the subject so the filter can veto false ones. */
+        const char *subj = NULL;
+        if (nt >= 3 && strcmp(toks[nt - 2], "is") == 0 &&
+            (strcmp(toks[nt - 1], "a") == 0 || strcmp(toks[nt - 1], "an") == 0))
+            subj = toks[nt - 3];
+
         char nxt[KB_TERM_LEN];
-        const char *p2 = have_prev2 ? prev2 : NULL;
-        if (!next_word_ctx(b, p2, cur, nxt, sizeof nxt)) break;
+        if (!next_word_ctx(b, p2, p1, subj, nxt, sizeof nxt)) break;
         if (off < sizeof line)
             off += (size_t)snprintf(line + off, sizeof line - off, " %s", nxt);
-        snprintf(prev2, sizeof prev2, "%s", cur);
-        have_prev2 = 1;
-        snprintf(cur, sizeof cur, "%s", nxt);
+        snprintf(toks[nt++], KB_TERM_LEN, "%s", nxt);
     }
     put(line, out, out_size);
 }
@@ -1561,7 +1578,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen39-verbalize";
+    return "gen40-critical-decode";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

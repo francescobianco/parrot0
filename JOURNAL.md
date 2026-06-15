@@ -9,6 +9,21 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15m — critical filter is scoped to "<x> is a ___" direct claims
+gen40 vetoes a generated continuation only when the tail reads "<x> is a/an"
+and the candidate word `w` has `kb_is_negated(w, x)` or is conflicted.
+- **Bought:** the arc's whole point — generation provably cannot assert a
+  unary claim the KB knows false, and it *stops rather than lies* when every
+  candidate is blocked. Reasoning disciplines language.
+- **Gave up:** coverage — only the "is a" claim surface is recognized (not
+  relations, quantities, or other phrasings); the check is *direct* negation,
+  so a claim contradicted only via rules slips through; subject detection is
+  positional (three tokens back), brittle to other shapes.
+- **Revisit if:** generation must be constrained for relational/quantitative
+  claims, or must catch rule-derived contradictions — then the filter should
+  prove `not w(x)` with the full solver instead of checking `kb_is_negated`,
+  and recognize claim surfaces more generally.
+
 ### D-2026-06-15l — verbalization speaks the provable closure, positives only
 gen39's `describe <x>` enumerates unary predicates and verbalizes each one x is
 *provably* a member of (including rule-derived), always as "x is a <pred>".
@@ -213,6 +228,44 @@ inference type the KB lacked, each held-out tested, none faked. parrot0 now has
 eleven cooperating parts. The standing gap remains open-prose extraction
 coverage; everything built composes through `read:` when the prose happens to
 fit parrot0's grammar.
+
+## 2026-06-15 — gen40: critical decoding (decode loop, step 5 — capstone)
+
+**Changed:** `brain.c` → `gen40-critical-decode`.
+- `choose_continuation` (replacing `best_continuation`) takes an optional claim
+  `subj` and skips any candidate `w` with `kb_is_negated(w, subj)` / conflicted,
+  returning a tri-state (none / chose / all-blocked). `next_word_ctx` threads
+  `subj` through trigram+bigram and stops when all candidates are blocked.
+  `generate_from` tracks the emitted token list and, when the tail is "<x> is
+  a/an", passes `x` as the claim subject.
+- `tests/cases/gen_critical.chat` (held-out tokens): the more-frequent but
+  false continuation is vetoed; with every candidate blocked it halts at "a"
+  rather than lying; non-claim generation is unaffected.
+
+**Decision logged:** D-2026-06-15m (filter scoped to direct "is a" claims).
+
+**Why this is the capstone:** the learned generator (gen36–gen38) is fluent but
+amoral — it says whatever it saw most. gen39 made it *say what it reasons*;
+gen40 makes reasoning *forbid what it must not say*. That junction — a
+generative, autoregressive surface whose every step can be vetoed by inference —
+is the architecture this run was aiming for: critical reasoning exported as
+generation, the way LLMs produce language but here deterministic and auditable.
+
+**Observed:** all suites green (27 conversation cases).
+
+**Closing the generative-loop arc (gen36–gen40):** parrot0 now has a deterministic
+autoregressive decoder — induced from data (gen36), frequency-ranked (gen37),
+context-backed-off (gen38), able to verbalize its reasoning (gen39), and
+constrained by its beliefs (gen40). It is the structural shape of LLM decoding,
+realized in pure C as repeated inference, and deliberately built to resist the
+phrasebook impostor: the language is learned, and the truth filter is the KB.
+Open fronts (see Decisions D-i…D-m): diversity vs. determinism, interpolation
+over hard backoff, deriving the model from real text, and proving rule-derived
+contradictions in the filter.
+
+**Next:** see `TASK.md`.
+
+---
 
 ## 2026-06-15 — gen39: grounded verbalization (decode loop, step 4)
 
