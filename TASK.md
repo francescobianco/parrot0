@@ -4,38 +4,39 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen49 — multi-word entities (the real-bench wall)
+## Goal: gen50 — paraphrase-robust intent (start killing the "I don't understand" wall)
 
-The bench is now a live instrument (gen45) and earned its first real nonzero:
-ReCoRD 0% → 24.47% via a transparent salience baseline (gen48), lifting overall
-SuperGLUE 0.00% → 3.06%. The label tasks (BoolQ, RTE, CB, COPA, WiC, WSC) are
-still 0% — they need genuine comprehension, and the single biggest blocker is
-that parrot0 treats every entity/class as ONE token. Real prose says "property
-tax", "house tax", "United States" — multi-word noun phrases the extractor and
-the query parsers cannot represent.
+PIVOT. The SuperGLUE bench now reads 46% with zero invalid (gen45–gen49), but
+that is single-turn classification + shallow baselines — in real chat parrot0
+feels immediately unintelligent. See TASKLIST.md "C-series" for the full plan
+and the honest observed session. The loop now optimizes the felt experience, not
+the bench.
+
+This is C1 (TASKLIST), the highest-impact first step: the same intent must be
+reachable from many phrasings, not one rigid template. Today "who are you?" works
+but "what is your name?" / "what should I call you?" hit the wall.
 
 ### Design question
-Can a multi-word noun phrase be carried as a single canonical atom (e.g.
-`property_tax`) so the existing reasoning works unchanged on it? Candidate: a
-chunking pass that joins adjacent capitalized words (and known noun phrases)
-into one token before dispatch — the smallest step that lets "X or 'Y' is a Z"
-and "is X and Y the same?" reach the `same` module on a real BoolQ example
-(validation #2, label yes, is genuinely within parrot0's `same` reasoning once
-the entities are single atoms).
+Can intent be matched by ROLE/KEYWORDS rather than exact token positions —
+generalizing the gen44 "roles over order" lesson — so a small set of identity
+and capability phrasings all resolve to the same answer, derived from the real
+self-model (not canned strings)?
 
 ### Acceptance
-- A real BoolQ/validation example whose answer is derivable by parrot0's
-  reasoning (start with the property-tax sameness example) becomes VALID and
-  CORRECT through genuine inference — measured against the live bench.
-- All existing English + Italian `.chat` cases unchanged (single-word entities
-  still work); the chunker must not corrupt them.
-- The bilingual ratchet holds: the chunker is language-neutral (operates on
-  surface tokens, not English-specific words).
+- Identity intent: "who are you?", "what is your name?", "what should I call
+  you?", "what are you?" all answer from the self-model (`i_am(parrot0)`).
+- Capability intent: "what can you do?" answers in plain language (capabilities,
+  not the `module(...)` jargon list).
+- Held-out phrasings of these intents (not in any test) also resolve — proof it
+  is keyword/role recognition, not enumerated strings.
+- A `tests/cases/*.chat` (and, once C0 exists, a dialogue case) locks it in;
+  English + Italian per the bilingual ratchet.
 
 ### Notes
-- This is genuine structure the domain demanded (PRINCIPLES.md), not a trick:
-  multi-word reference is a real latent structure LLMs handle effortlessly.
-- Keep it minimal and reversible; chunk conservatively (capitalized runs,
-  quoted spans) before attempting general noun-phrase detection.
-- Never inflate the label tasks by guessing; abstention stays the honest answer
-  until reasoning genuinely covers the example.
+- Build C0 (the held-out conversation benchmark, TASKLIST) alongside this so
+  felt-intelligence progress is measurable and we stop mistaking bench points
+  for it.
+- No phrasebook: robustness from keyword/role matching + the KB, never a list of
+  fixed accepted sentences.
+- Then C2 (social register) and C3 (natural assertion + personal memory) — the
+  next felt-intelligence wins.

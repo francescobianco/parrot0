@@ -46,6 +46,7 @@ See **[LOOP.md](LOOP.md)** for the full protocol.
 | `tests/`          | Conversation test harness + cases                 |
 | `Makefile`        | `make` / `chat` / `test` / `loop` / `clean`       |
 | `TASK.md`         | The current goal for the loop                      |
+| `TASKLIST.md`     | The longer proving ground — the backlog of goals beyond the current one |
 | `LOOP.md`         | The self-improvement protocol                      |
 | `PRINCIPLES.md`   | The founding *why* of the experiment               |
 | `DESIGN.md`       | Architectural decisions (e.g. knowledge persistence) |

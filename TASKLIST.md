@@ -20,6 +20,75 @@ Acceptance discipline:
 
 ---
 
+## C-series — Conversational intelligence (TOP PRIORITY from 2026-06-15)
+
+Why this jumps the queue: the SuperGLUE bench is *comforting but misleading*.
+After gen45–gen49 it reads 46% overall with zero invalid — yet that score comes
+from single-turn classification with the context handed in, plus shallow
+lexical-overlap baselines and entity salience. In an actual chat the bot feels
+**immediately unintelligent**. Bench accuracy and felt intelligence are
+different axes; we optimized the measurable one and the experience did not move.
+
+Observed chat (2026-06-15), one honest session:
+- "what is your name?" -> "I don't understand that yet."  (but "who are you?"
+  -> "I am parrot0." — only the exact template matches)
+- "what can you do?" -> dumps internal module names (jargon, not capabilities)
+- "I have a dog named Rex" / "what is my dog called?" -> not understood (only the
+  rigid "X is a Y" assertion shape parses)
+- "how are you?", "thanks", "tell me about yourself", "2+2",
+  "what did we just talk about?" -> "I don't understand that yet."
+Diagnosis: parrot0 answers only a narrow set of rigid templates; **everything
+else hits the "I don't understand" wall**, which is the dominant first
+impression. The reasoning core is real but unreachable through natural language.
+
+Strategy: make *chat* the primary instrument, not the bench. Drive the loop from
+real conversational failures (domain-pull from dialogue). Keep the no-phrasebook
+discipline: robustness must come from role/keyword recognition and the existing
+KB, not from enumerating fixed strings.
+
+### C0 - A held-out conversation benchmark (build FIRST)
+The anti-self-deception tool. A set of scripted multi-turn dialogues
+(`tests/cases/chat/*.dlg` or similar) with expected response *qualities*, run
+like the test suite, plus a felt-intelligence score. Without this we will keep
+mistaking bench points for progress. Held-out dialogues; vary names/order.
+
+### C1 - Paraphrase-robust intent (kill the rigid template)
+The #1 felt-intelligence bug. The same intent must be reached from many
+phrasings: identity ("who are you?", "what is your name?", "what should I call
+you?"), capability, etc. Generalize the gen44 "roles over order" lesson into
+keyword/role intent matching, not exact token positions. Anti-impostor: new
+phrasings of a known intent, never seen in tests, must work.
+
+### C2 - Social register, in plain language
+Graceful handling of the phatic layer: greeting variants, "how are you?",
+"thanks", "bye", and "what can you do?" answered in *user* terms (capabilities
+described from real modules, not the `module(...)` jargon list). Small surface,
+huge first impression. Keep it minimal and honest, not a canned script.
+
+### C3 - Natural assertion + personal memory ("listen to me")
+First-person and natural-shape facts: "I have a dog named Rex", "my dog is
+Rex", "I like jazz", "call me Sam" -> remembered and queryable ("what is my dog
+called?" -> "Rex"). Makes the bot feel like it is listening. Builds on the
+memory module and T6 working memory. Anti-impostor: held-out
+possessions/attributes, varied phrasing.
+
+### C4 - Discourse memory ("what did we talk about?")
+Track the running conversation (topics, recent entities, the last few turns) so
+parrot0 can summarize or refer back. Conversational continuity is a core signal
+of a mind that is present. Overlaps gen22 salience and T6.
+
+### C5 - Best-effort over the blank wall (retire "I don't understand that yet.")
+When nothing parses, do something useful: extract whatever is parseable, make a
+focused clarifying question, or admit the *specific* gap — never the flat wall as
+the default. Ties T11 (uncertainty) and T16 (not-understood). The frequency of
+the wall response is itself a metric to drive down.
+
+These C-tasks are the path from "comforting bench numbers" to the intelligence
+we actually expect. Promote one at a time into TASK.md, smallest tested step
+first, each earning both a `.chat` case and a C0 dialogue.
+
+---
+
 ## T1 - Bidirectional relations and real anonymous variables
 
 Goal: complete the relation-query primitive pulled by morphology, then remove
