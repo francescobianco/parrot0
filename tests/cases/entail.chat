@@ -1,0 +1,13 @@
+# Generation 23: tiny SuperGLUE-like textual entailment surface.
+> premise: rhea is a pilot; hypothesis: is rhea a pilot?
+< Entailed.
+> premise: io is a glorp and every glorp is a dax; hypothesis: is io a dax?
+< Entailed.
+> premise: zara is not a quoll; hypothesis: is zara a quoll?
+< Contradicted.
+> premise: base says nora is a pilot and session says nora is not a pilot; hypothesis: is nora a pilot?
+< Conflicted.
+> premise: kito is a bird and luma is a mammal; hypothesis: is kito a mammal?
+< Not entailed.
+> premise: kito is a bird; hypothesis: is kito a mammal?
+< Unknown.

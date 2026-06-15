@@ -248,16 +248,136 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
 }
 
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size);
+
+static char *trim_mut(char *s) {
+    while (*s && isspace((unsigned char)*s)) s++;
+    size_t n = strlen(s);
+    while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
+    return s;
+}
+
+static int apply_premise_clause(Brain *tmp, char *clause) {
+    clause = trim_mut(clause);
+    if (*clause == '\0') return 1;
+
+    int origin = KB_SESSION;
+    if (strncmp(clause, "base says ", 10) == 0) {
+        origin = KB_BASE;
+        clause = trim_mut(clause + 10);
+    } else if (strncmp(clause, "session says ", 13) == 0) {
+        origin = KB_SESSION;
+        clause = trim_mut(clause + 13);
+    }
+
+    kb_set_origin(tmp->kb, origin);
+    char discard[256];
+    int claimed = mod_knowledge(tmp, clause, clause, discard, sizeof discard);
+    kb_set_origin(tmp->kb, KB_SESSION);
+    return claimed && strncmp(discard, "I couldn't", 10) != 0 &&
+           strncmp(discard, "I don't understand", 18) != 0;
+}
+
+static int apply_premises(Brain *tmp, char *premises) {
+    char *p = premises;
+    while (p && *p) {
+        char *next = strstr(p, " and ");
+        if (next) {
+            *next = '\0';
+            next += 5;
+        }
+        if (!apply_premise_clause(tmp, p)) return 0;
+        p = next;
+    }
+    return 1;
+}
+
+static void entailment_status(Brain *tmp, const char *hyp,
+                              char *out, size_t out_size) {
+    char hbuf[256];
+    size_t len = strlen(hyp);
+    if (len >= sizeof hbuf) { put("I don't understand that entailment yet.", out, out_size); return; }
+    memcpy(hbuf, hyp, len + 1);
+    if (len > 0 && hbuf[len - 1] == '?') hbuf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(hbuf, w, 8);
+    const char *pred = NULL;
+    const char *args[2];
+    size_t argc = 0;
+
+    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(w[2])) {
+        pred = w[3];
+        args[0] = w[1];
+        argc = 1;
+    } else if (nw == 6 && strcmp(w[0], "is") == 0 &&
+               strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
+        pred = w[3];
+        args[0] = w[1];
+        args[1] = w[5];
+        argc = 2;
+    } else {
+        put("I don't understand that entailment yet.", out, out_size);
+        return;
+    }
+
+    if (!kb_knows_pred(tmp->kb, pred)) put("Unknown.", out, out_size);
+    else if (kb_is_conflicted(tmp->kb, pred, args, argc)) put("Conflicted.", out, out_size);
+    else if (kb_query(tmp->kb, pred, args, argc)) put("Entailed.", out, out_size);
+    else if (kb_is_negated(tmp->kb, pred, args, argc)) put("Contradicted.", out, out_size);
+    else put("Not entailed.", out, out_size);
+}
+
+static int entailment_reply(const char *premises, const char *hypothesis,
+                            char *out, size_t out_size) {
+    Brain tmp;
+    memset(&tmp, 0, sizeof tmp);
+    tmp.kb = kb_create();
+    if (!tmp.kb) { put("I couldn't evaluate that entailment.", out, out_size); return 1; }
+
+    char pbuf[512];
+    size_t plen = strlen(premises);
+    if (plen >= sizeof pbuf) {
+        kb_destroy(tmp.kb);
+        put("I don't understand that entailment yet.", out, out_size);
+        return 1;
+    }
+    memcpy(pbuf, premises, plen + 1);
+
+    if (!apply_premises(&tmp, pbuf)) {
+        kb_destroy(tmp.kb);
+        put("I don't understand that entailment yet.", out, out_size);
+        return 1;
+    }
+
+    entailment_status(&tmp, trim_mut((char *)hypothesis), out, out_size);
+    kb_destroy(tmp.kb);
+    return 1;
+}
+
+static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
 
     /* Work on a mutable copy with any trailing '?' stripped. */
-    char buf[256];
+    char buf[512];
     size_t len = strlen(norm);
     if (len >= sizeof buf) return 0;
     memcpy(buf, norm, len + 1);
     if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    if (strncmp(buf, "premise:", 8) == 0) {
+        char *hyp = strstr(buf, "; hypothesis:");
+        if (!hyp) {
+            put("I don't understand that entailment yet.", out, out_size);
+            return 1;
+        }
+        *hyp = '\0';
+        hyp += strlen("; hypothesis:");
+        return entailment_reply(trim_mut(buf + 8), trim_mut(hyp),
+                                out, out_size);
+    }
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
@@ -596,7 +716,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen22-coref";
+    return "gen23-entailment";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

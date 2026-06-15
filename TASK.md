@@ -4,31 +4,28 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen23 — tiny textual entailment surface
-## (SuperGLUE-like driver: short-text inference)
+## Goal: gen24 — explainable textual entailment
+## (SuperGLUE-like driver + T2 proof trace reuse)
 
-gen22 added a minimal discourse pointer for pronoun coreference. The next
-SuperGLUE-like pressure is short-text entailment: given a compact premise and a
-hypothesis, parrot0 should decide whether the hypothesis follows from the KB
-state it can build from the premise.
+gen23 can label a constrained premise/hypothesis pair, but an entailed answer is
+opaque. Since gen14 already built proof traces, reuse that machinery inside the
+entailment micro-driver.
 
 ### Design question
-What is the smallest entailment interface that reuses the existing KB instead of
-creating a separate benchmark-only path?
+What is the smallest syntax that asks for an entailment proof without widening
+the parser?
 
-Candidate: support a constrained single-turn form such as
-`premise: <fact or rule>; hypothesis: <query>`. Parse the premise through the
-same knowledge machinery, then answer whether the hypothesis is proven,
-conflicted, false or unknown using existing query statuses.
+Candidate: support `explain premise: ...; hypothesis: ...`. It uses the same
+temporary KB as gen23, but if the hypothesis is entailed it returns the proof
+trace. Non-entailed statuses stay compact and honest.
 
 ### Acceptance
-- A premise fact plus matching hypothesis returns entailed.
-- A premise rule plus fact can entail a derived hypothesis.
-- A negative/conflicted hypothesis reports the appropriate status, not just
-  false.
-- Held-out names/predicates prove the path is structural, not string-specific.
+- A fact entailment explains as a known fact.
+- A rule+fact entailment explains the proof chain.
+- Contradicted/conflicted/unknown hypotheses keep their status and do not invent
+  a proof.
+- Existing gen23 label-only entailment remains unchanged.
 
 ### Notes
-- This is a SuperGLUE-like micro-driver, not an implementation of the external
-  benchmark dataset.
-- Keep the grammar tiny and explicit; do not build a general text parser yet.
+- This is still a micro-driver. Do not add broad text parsing; reuse the exact
+  gen23 hypothesis grammar.

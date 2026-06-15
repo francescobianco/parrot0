@@ -4,6 +4,36 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen23: tiny textual entailment surface (SuperGLUE-like)
+
+**Changed:** `brain.c` → `gen23-entailment`.
+- Added a constrained single-turn entailment form:
+  `premise: <clauses>; hypothesis: <query>`.
+- Premises are evaluated in a temporary KB, so benchmark probes do not pollute
+  session knowledge.
+- Multiple premise clauses can be separated with `and`; `base says` / `session
+  says` prefixes let the micro-driver create source conflicts structurally.
+- Entailment returns `Entailed.`, `Not entailed.`, `Contradicted.`,
+  `Conflicted.` or `Unknown.` using the same KB statuses as normal queries.
+- New `tests/cases/entail.chat` covers fact entailment, rule+fact derivation,
+  explicit negative contradiction, source conflict, false known-domain and
+  unknown-domain cases.
+
+**Why:** This is the first short-text inference slice from the SuperGLUE-like
+benchmark driver in DESIGN D8, kept small enough to reuse the existing KB rather
+than add a benchmark-only parser.
+
+**Observed:** all suites green — 13 conversation, 10 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** the grammar is intentionally tiny. The value is the
+status pipeline and temporary-KB driver, not broad natural-language parsing.
+
+**Next:** add an explainable entailment variant so entailed answers can expose
+the proof path instead of returning only a label.
+
+---
+
 ## 2026-06-15 — gen22: minimal discourse coreference (SuperGLUE-like)
 
 **Changed:** `brain.c` → `gen22-coref`.
