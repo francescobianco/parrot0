@@ -4,43 +4,38 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen44 — a syntax-agnostic claim frame (word order is not meaning)
+## Goal: gen49 — multi-word entities (the real-bench wall)
 
-gen43 made multilingualism a standing generalization probe (Decision
-D-2026-06-15p): each gen mirrors its competence in Italian through the same core
-via a thin function-word lexicon. The probe immediately earned a finding it was
-built to find: the reasoning core keys on English token *positions*, so a
-language whose syntax differs breaks even when every word is mapped.
-
-The sharp case: negation. English "x is not a y" → the parser checks
-`w[1]=="is" && w[2]=="not"`. Italian is "x non è un y", which canonicalizes to
-"x not is a y" — same words, different order — and the position check rejects it.
-Adding a second position check for the Italian order would be exactly the
-phrasebook LOOP.md forbids. The honest fix is to stop treating word order as
-meaning.
+The bench is now a live instrument (gen45) and earned its first real nonzero:
+ReCoRD 0% → 24.47% via a transparent salience baseline (gen48), lifting overall
+SuperGLUE 0.00% → 3.06%. The label tasks (BoolQ, RTE, CB, COPA, WiC, WSC) are
+still 0% — they need genuine comprehension, and the single biggest blocker is
+that parrot0 treats every entity/class as ONE token. Real prose says "property
+tax", "house tax", "United States" — multi-word noun phrases the extractor and
+the query parsers cannot represent.
 
 ### Design question
-Can claim parsing recognize the *roles* (subject, copula, polarity, class)
-rather than fixed positions — so "x is not a y" and "x not is a y" (and other
-orderings) reduce to the same `not y(x)`? Candidate: a small role-tagging pass
-that classifies each token (copula `is`, polarity `not`, article, else
-content/subject/class by position relative to the copula), then builds the claim
-from roles. Keep it minimal — cover the affirmative and negative unary claim
-first, the shapes already tested.
+Can a multi-word noun phrase be carried as a single canonical atom (e.g.
+`property_tax`) so the existing reasoning works unchanged on it? Candidate: a
+chunking pass that joins adjacent capitalized words (and known noun phrases)
+into one token before dispatch — the smallest step that lets "X or 'Y' is a Z"
+and "is X and Y the same?" reach the `same` module on a real BoolQ example
+(validation #2, label yes, is genuinely within parrot0's `same` reasoning once
+the entities are single atoms).
 
 ### Acceptance
-- `tests/cases/retract.it.chat` (or a negation `.it.chat`) proves "x non è un y"
-  asserts `not y(x)`, through the same core, with NO new position-based branch
-  per language.
-- All existing English cases (incl. negation in `retract.chat`/`belief.chat`)
-  behave identically.
-- The role frame is shared: adding the next language's negation needs only its
-  function words in the lexicon, not new parsing logic.
+- A real BoolQ/validation example whose answer is derivable by parrot0's
+  reasoning (start with the property-tax sameness example) becomes VALID and
+  CORRECT through genuine inference — measured against the live bench.
+- All existing English + Italian `.chat` cases unchanged (single-word entities
+  still work); the chunker must not corrupt them.
+- The bilingual ratchet holds: the chunker is language-neutral (operates on
+  surface tokens, not English-specific words).
 
 ### Notes
-- This is the core becoming *syntax-agnostic* where it was English-bound — the
-  deeper structure the probe is pulling toward (PRINCIPLES.md: structure appears
-  because the task demanded it).
-- Scope discipline: do unary affirmative + negative claims first. Relations,
-  quantities, questions come later, one probe-driven step at a time.
-- Do not hardcode outputs; do not add a per-language parser. Extend the frame.
+- This is genuine structure the domain demanded (PRINCIPLES.md), not a trick:
+  multi-word reference is a real latent structure LLMs handle effortlessly.
+- Keep it minimal and reversible; chunk conservatively (capitalized runs,
+  quoted spans) before attempting general noun-phrase detection.
+- Never inflate the label tasks by guessing; abstention stays the honest answer
+  until reasoning genuinely covers the example.
