@@ -1449,22 +1449,10 @@ static int extract_clause(Brain *b, char *clause) {
     return 0;
 }
 
-static int mod_reader(Brain *b, const char *norm, const char *raw,
-                      char *out, size_t out_size) {
-    if (!b) return 0;
-    if (strncmp(norm, "read:", 5) != 0) return 0;
-
-    /* Take the passage from `raw` (not the 255-char-truncated `norm`) so long
-     * passages survive; per-clause normalization lowercases/trims afterwards. */
-    const char *colon = strchr(raw, ':');
-    const char *passage = colon ? colon + 1 : raw;
-    char buf[4096];
-    size_t plen = strlen(passage);
-    if (plen >= sizeof buf) plen = sizeof buf - 1;
-    memcpy(buf, passage, plen);
-    buf[plen] = '\0';
-
-    size_t learned = 0, skipped = 0;
+/* Split a mutable passage buffer into sentence clauses and feed each to the
+ * extractor (facts) and the generative model (transitions). Shared by the
+ * reader and the bench bridge (gen45). Counts assertions and skips. */
+static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) {
     char *p = buf;
     while (*p) {
         char *q = p;
@@ -1482,17 +1470,115 @@ static int mod_reader(Brain *b, const char *norm, const char *raw,
         char saved = *q;
         *q = '\0';
         learn_clause_transitions(b, p);   /* gen41: feed the generative model */
-        if (extract_clause(b, p)) learned++;
-        else if (*trim_mut(p)) skipped++;
+        if (extract_clause(b, p)) (*learned)++;
+        else if (*trim_mut(p)) (*skipped)++;
         if (saved == '\0') break;
         p = q + 1;
     }
+}
+
+static int mod_reader(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    if (!b) return 0;
+    if (strncmp(norm, "read:", 5) != 0) return 0;
+
+    /* Take the passage from `raw` (not the 255-char-truncated `norm`) so long
+     * passages survive; per-clause normalization lowercases/trims afterwards. */
+    const char *colon = strchr(raw, ':');
+    const char *passage = colon ? colon + 1 : raw;
+    char buf[4096];
+    size_t plen = strlen(passage);
+    if (plen >= sizeof buf) plen = sizeof buf - 1;
+    memcpy(buf, passage, plen);
+    buf[plen] = '\0';
+
+    size_t learned = 0, skipped = 0;
+    read_passage(b, buf, &learned, &skipped);
 
     char msg[128];
     snprintf(msg, sizeof msg, "Learned %zu fact(s), skipped %zu.",
              learned, skipped);
     put(msg, out, out_size);
     return 1;
+}
+
+/* --- module: bench -------------------------------------------------------
+ * gen45: the bridge from a benchmark prompt envelope to parrot0's own
+ * reasoning. The SuperGLUE driver wraps each example as one line, e.g.
+ * "SuperGLUE BoolQ. Passage: <P> Question: <Q> Answer yes or no." parrot0
+ * matched none of it and abstained, scoring 0% — worse than a coin flip,
+ * because it never guesses. This part recognizes the yes/no envelope, READS the
+ * passage through the existing extractor (open prose still mostly skips — the
+ * honest wall, D-2026-06-15e), then ANSWERS the question through the existing
+ * query modules, emitting yes/no ONLY when the answer is derivable. It still
+ * never guesses: an underivable question abstains, so the score reflects real
+ * reasoning coverage, not luck. The reasoning is unchanged; this is I/O wiring,
+ * not a phrasebook. */
+static int mod_bench(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    if (!b) return 0;
+    /* cheap pre-filter (the marker is early, within the truncated norm) */
+    if (!strstr(norm, "passage:")) return 0;
+
+    /* Work from raw (norm is truncated to 255). Lowercase a copy to find the
+     * markers; byte offsets map 1:1 back to raw (markers are ASCII). */
+    char low[4096];
+    size_t rlen = strlen(raw);
+    if (rlen >= sizeof low) rlen = sizeof low - 1;
+    for (size_t i = 0; i < rlen; i++)
+        low[i] = (char)tolower((unsigned char)raw[i]);
+    low[rlen] = '\0';
+
+    char *lp = strstr(low, "passage:");
+    char *lq = strstr(low, "question:");
+    if (!lp || !lq || lq < lp) return 0;
+
+    size_t pass_off = (size_t)(lp - low) + strlen("passage:");
+    size_t ques_off = (size_t)(lq - low);
+    size_t qstart   = ques_off + strlen("question:");
+
+    /* passage = raw[pass_off .. ques_off) */
+    char passage[4096];
+    size_t plen = ques_off > pass_off ? ques_off - pass_off : 0;
+    if (plen >= sizeof passage) plen = sizeof passage - 1;
+    memcpy(passage, raw + pass_off, plen);
+    passage[plen] = '\0';
+
+    /* question = raw[qstart .. end), cut at the trailing "answer ..." tail */
+    char question[1024];
+    size_t qlen = rlen > qstart ? rlen - qstart : 0;
+    if (qlen >= sizeof question) qlen = sizeof question - 1;
+    memcpy(question, raw + qstart, qlen);
+    question[qlen] = '\0';
+    char *tail = strstr(low + qstart, "answer");
+    if (tail) {
+        size_t cut = (size_t)(tail - (low + qstart));
+        if (cut < sizeof question) question[cut] = '\0';
+    }
+
+    /* read the passage (asserts whatever parses; open prose mostly skips) */
+    size_t learned = 0, skipped = 0;
+    read_passage(b, passage, &learned, &skipped);
+
+    /* route the question through the existing query modules */
+    char qn[512], qc[512];
+    normalize(question, qn, sizeof qn);
+    canonicalize_lang(qn, qc, sizeof qc);
+    size_t L = strlen(qc);
+    if (L > 0 && L + 1 < sizeof qc && qc[L - 1] != '?') {
+        qc[L] = '?'; qc[L + 1] = '\0';
+    }
+
+    char resp[256];
+    int answered =
+        mod_knowledge(b, qc, qc, resp, sizeof resp) ||
+        mod_compare(b, qc, qc, resp, sizeof resp) ||
+        mod_same(b, qc, qc, resp, sizeof resp) ||
+        mod_conj(b, qc, qc, resp, sizeof resp);
+    if (answered && strcmp(resp, "Yes.") == 0) { put("yes", out, out_size); return 1; }
+    if (answered && strcmp(resp, "No.") == 0)  { put("no",  out, out_size); return 1; }
+
+    return 0; /* never guess: abstain, and let the honest fallback answer */
 }
 
 /* --- module: coref -------------------------------------------------------
@@ -1621,6 +1707,7 @@ static const Module registry[] = {
     {"conj",      mod_conj},
     {"gen",       mod_gen},
     {"coref",     mod_coref},
+    {"bench",     mod_bench},
     {"reader",    mod_reader},
     {"knowledge", mod_knowledge},
     {"greet",     mod_greet},
@@ -1672,7 +1759,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen44-roles-over-order";
+    return "gen45-bench-bridge";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

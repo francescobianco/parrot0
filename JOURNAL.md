@@ -9,6 +9,25 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 > and the **revisit-if** signal that should send us back to change it. Newest on
 > top. These are explicitly provisional — not commitments.
 
+### D-2026-06-15q — the bench bridge wires reasoning to the prompt envelope, never guesses
+gen45 adds `mod_bench`: it recognizes the SuperGLUE yes/no envelope
+("...Passage: <P> Question: <Q> Answer yes or no."), reads the passage through
+the existing extractor, routes the question through the existing query modules,
+and emits yes/no ONLY when the answer is derivable — otherwise it abstains.
+- **Bought:** the bench becomes a live domain-pull instrument instead of a flat
+  0. On in-grammar examples parrot0 now answers by real reasoning; the score
+  reflects genuine extraction+inference coverage and will move as the grammar
+  grows. No reasoning was added or faked — pure I/O wiring.
+- **Gave up:** real SuperGLUE validation is still 0% (measured: every BoolQ /
+  MultiRC example abstains) because open-domain prose does not fit parrot0's
+  tiny grammar — the honest wall (D-2026-06-15e). Abstaining scores below a coin
+  flip on binary tasks; that is the deliberate price of never guessing
+  (PRINCIPLES.md). Only the BoolQ/MultiRC "Passage/Question" shape is bridged;
+  COPA/RTE/CB/WiC/WSC envelopes are not yet routed.
+- **Revisit if:** a real example becomes answerable (then it is the extraction
+  grammar that must grow, not the bridge); or other task envelopes should be
+  routed to their matching reasoning (entailment, coref, comparison).
+
 ### D-2026-06-15p — multilingualism is a generalization probe, not a feature
 gen43 adds a thin lexical layer (`canonicalize_lang`) that maps a language's
 FUNCTION words onto the canonical English tokens the modules parse, run before
@@ -255,6 +274,39 @@ time.
   creates 1.3" is already a ratio), ordering/`max` over many quantities, unit
   conversion, or single-valued "latest wins" updates. Any of these means
   promoting quantities to a typed numeric term in kb.c instead of a string atom.
+
+---
+
+## 2026-06-15 — gen45: the benchmark bridge (0% was no bridge + no guessing)
+
+**Changed:** `brain.c` → `gen45-bench-bridge`; new `mod_bench` module.
+- Diagnosed `make bench-superglue` = 0%: the driver wraps each example as one
+  prose line ("SuperGLUE BoolQ. Passage: … Question: … Answer yes or no."), which
+  matched no module, so parrot0 emitted "I don't understand that yet." → the
+  bench scored every example *invalid* (worse than a coin flip, the price of
+  abstaining instead of guessing). Empirically confirmed: boolq/multirc 100%
+  invalid.
+- Factored the reader's clause loop into `read_passage()`; added `mod_bench`,
+  which recognizes the envelope, reads the passage (extractor), routes the
+  question through the existing query modules, and emits yes/no only when
+  derivable — else abstains. No reasoning added or faked; pure I/O wiring.
+- New `tests/cases/bench.chat` (in-grammar yes, closed-world no, prose abstain);
+  updated `self.chat` (the reified module list now includes `bench`).
+
+**Why:** the user ran the real bench and reasonably expected a nonzero. The
+honest cause was the missing bridge between the bench's prompt format and
+parrot0's reasoning — not (only) a reasoning gap. Wiring it makes the bench a
+live measuring instrument for genuine progress, per the project's domain-pull
+method, without compromising the no-guessing principle.
+
+**Observed:** in-grammar BoolQ envelope → "yes"/"no" by real proof; open prose →
+honest abstain. Real validation still 0% (measured), because Wikipedia prose
+does not parse — the bottleneck is now provably the extraction grammar, not the
+I/O. Full suite green (33 + 10 + 3 + 14 + 2 + 5 + 4).
+
+**Next:** grow the extractor toward real prose shapes that actually occur in the
+bench (alias/sameness, appositives), measuring each against the live bench so
+any nonzero is earned by reasoning — gen46+.
 
 ---
 
