@@ -292,7 +292,7 @@ static int apply_premises(Brain *tmp, char *premises) {
     return 1;
 }
 
-static void entailment_status(Brain *tmp, const char *hyp,
+static void entailment_status(Brain *tmp, const char *hyp, int explain,
                               char *out, size_t out_size) {
     char hbuf[256];
     size_t len = strlen(hyp);
@@ -323,13 +323,29 @@ static void entailment_status(Brain *tmp, const char *hyp,
 
     if (!kb_knows_pred(tmp->kb, pred)) put("Unknown.", out, out_size);
     else if (kb_is_conflicted(tmp->kb, pred, args, argc)) put("Conflicted.", out, out_size);
-    else if (kb_query(tmp->kb, pred, args, argc)) put("Entailed.", out, out_size);
+    else if (kb_query(tmp->kb, pred, args, argc)) {
+        if (!explain) {
+            put("Entailed.", out, out_size);
+        } else {
+            char ex[512];
+            if (kb_explain(tmp->kb, pred, args, argc, ex, sizeof ex)) {
+                char msg[640];
+                if (strstr(ex, " because "))
+                    snprintf(msg, sizeof msg, "Entailed: %s.", ex);
+                else
+                    snprintf(msg, sizeof msg, "Entailed: %s is a known fact.", ex);
+                put(msg, out, out_size);
+            } else {
+                put("Entailed.", out, out_size);
+            }
+        }
+    }
     else if (kb_is_negated(tmp->kb, pred, args, argc)) put("Contradicted.", out, out_size);
     else put("Not entailed.", out, out_size);
 }
 
 static int entailment_reply(const char *premises, const char *hypothesis,
-                            char *out, size_t out_size) {
+                            int explain, char *out, size_t out_size) {
     Brain tmp;
     memset(&tmp, 0, sizeof tmp);
     tmp.kb = kb_create();
@@ -350,7 +366,7 @@ static int entailment_reply(const char *premises, const char *hypothesis,
         return 1;
     }
 
-    entailment_status(&tmp, trim_mut((char *)hypothesis), out, out_size);
+    entailment_status(&tmp, trim_mut((char *)hypothesis), explain, out, out_size);
     kb_destroy(tmp.kb);
     return 1;
 }
@@ -367,7 +383,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     memcpy(buf, norm, len + 1);
     if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
 
-    if (strncmp(buf, "premise:", 8) == 0) {
+    int explain_entailment = 0;
+    char *premise_start = NULL;
+    if (strncmp(buf, "explain premise:", 16) == 0) {
+        explain_entailment = 1;
+        premise_start = buf + 16;
+    } else if (strncmp(buf, "premise:", 8) == 0) {
+        premise_start = buf + 8;
+    }
+    if (premise_start) {
         char *hyp = strstr(buf, "; hypothesis:");
         if (!hyp) {
             put("I don't understand that entailment yet.", out, out_size);
@@ -375,8 +399,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         *hyp = '\0';
         hyp += strlen("; hypothesis:");
-        return entailment_reply(trim_mut(buf + 8), trim_mut(hyp),
-                                out, out_size);
+        return entailment_reply(trim_mut(premise_start), trim_mut(hyp),
+                                explain_entailment, out, out_size);
     }
 
     char *w[8];
@@ -716,7 +740,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen23-entailment";
+    return "gen24-explain-entailment";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {

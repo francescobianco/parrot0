@@ -4,6 +4,32 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen24: explainable textual entailment (SuperGLUE-like)
+
+**Changed:** `brain.c` → `gen24-explain-entailment`.
+- Added `explain premise: ...; hypothesis: ...` alongside the gen23 label-only
+  entailment form.
+- Entailed hypotheses reuse `kb_explain` inside the temporary entailment KB.
+- Fact entailment reports a known fact; rule+fact entailment reports the proof
+  chain.
+- Contradicted/conflicted/unknown hypotheses keep their status instead of
+  inventing an explanation.
+
+**Why:** Short-text inference should not only label entailment; it should expose
+why the label follows when the KB can prove it. This reuses the proof machinery
+from T2 rather than adding a benchmark-only explanation path.
+
+**Observed:** all suites green — 13 conversation, 10 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** the syntax remains deliberately narrow. This is a
+proof-bearing entailment probe, not general NLI parsing.
+
+**Next:** add a small MMLU-like multiple-choice driver over KB knowledge to
+pressure retrieval, question understanding and domain transfer.
+
+---
+
 ## 2026-06-15 — gen23: tiny textual entailment surface (SuperGLUE-like)
 
 **Changed:** `brain.c` → `gen23-entailment`.

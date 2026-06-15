@@ -11,3 +11,9 @@
 < Not entailed.
 > premise: kito is a bird; hypothesis: is kito a mammal?
 < Unknown.
+> explain premise: rhea is a pilot; hypothesis: is rhea a pilot?
+< Entailed: pilot(rhea) is a known fact.
+> explain premise: io is a glorp and every glorp is a dax; hypothesis: is io a dax?
+< Entailed: dax(io) because glorp(io).
+> explain premise: zara is not a quoll; hypothesis: is zara a quoll?
+< Contradicted.
