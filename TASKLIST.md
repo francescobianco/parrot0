@@ -118,6 +118,47 @@ first, each earning both a `.chat` case and a C0 dialogue.
 
 ---
 
+## S-series — Symbolic register & cryptic stimuli (PARKED, resume later)
+
+A third discovery channel besides prose (chatsim) and benchmarks (SuperGLUE):
+`make sym-bench` (`tests/symbench.py`) feeds short, OPEN-ENDED *cryptic symbolic*
+stimuli — leetspeak, Morse, musical notes, palindromes/symmetry, incomplete
+code, ASCII faces, 2-D ASCII art, cryptic tokens — to a non-reasoning oracle LLM
+and to parrot0, side by side. It is NOT graded for correctness: the oracle is a
+free BEHAVIOURAL signal (how does an LLM react to ambiguity it can't "solve"?);
+the metric is engagement (react vs wall) and the transcript is the artifact.
+See memory `symbolic-discovery-harness` + `oracle-is-behavioural-signal`.
+
+The owner's intent: keep this challenge alive and resume it later, growing
+parrot0 toward the LLM's behaviour without ever pasting the oracle's words.
+
+### S1 - Register recognition (DONE, gen65)
+The LLM's first move on a non-prose stimulus is to NAME its register, then
+engage; parrot0 walled (even of a palindrome it could see from form). Built
+`mod_symbolic`: classifies by cheap structural features (Morse charset, palindrome
+symmetry, solfège token set, leet letter+digit mix, code brackets/keywords) and
+names the register — no decoding, no hardcoded answer; conservative so prose is
+never hijacked. sym-bench engagement: parrot0 wall 96% → 35% (engaged 3% → 64%).
+Tests: `tests/cases/symbolic.chat` + `symbolic.it.chat` (palindrome/solfège are
+language-neutral — the bilingual ratchet proves the competence is structural).
+
+### S2 - Decoding after recognition (next, when resumed)
+Recognition before decoding was deliberate. The next pulls, smallest first:
+- Morse → text (`... --- ...` → "SOS"); the dot/dash alphabet as committed
+  knowledge, decode as algorithm.
+- Leetspeak → word (`h3ll0` → "hello") via the digit→letter substitution map.
+- Palindrome / motif continuation (mirror or repeat the pattern).
+Each must stay structural and prove on held-out stimuli.
+
+### S3 - Cryptic-token register & multi-line intake (later)
+- The `cryptic` family (`0x1F`, `::1`, `/dev/null`, `404`) is the largest
+  residual wall — domain-tagged identifiers (hex, IP, HTTP status, paths). Needs
+  a small committed knowledge file of token shapes, recognized by pattern.
+- 2-D ASCII art exposed that parrot0 cannot receive a MULTI-LINE turn (the I/O
+  shell is one line in / one line out). Revisit only if a real task demands it.
+
+---
+
 ## M-series — Knowledge-acquisition missions (noted 2026-06-15, to process next)
 
 Two owner missions about parrot0 *acquiring* knowledge from a source and

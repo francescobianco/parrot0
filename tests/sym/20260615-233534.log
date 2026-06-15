@@ -1,0 +1,310 @@
+# symbench (cryptic stimuli) — model=kimi-k2.6 cases=93 llm=off
+
+=== leet ===
+  in       : c0d3    (alt symbols (leetspeak))
+  oracle   : [skipped]
+  parrot0  : That looks like leetspeak.
+  in       : 70o15    (alt symbols (leetspeak))
+  oracle   : [skipped]
+  parrot0  : Letters as numbers — that's leetspeak.
+  in       : 8o0813s    (alt symbols (leetspeak))
+  oracle   : [skipped]
+  parrot0  : That looks like leetspeak.
+  in       : n015e    (alt symbols (leetspeak))
+  oracle   : [skipped]
+  parrot0  : Letters as numbers — that's leetspeak.
+  in       : h3l10    (alt symbols (leetspeak))
+  oracle   : [skipped]
+  parrot0  : That looks like leetspeak.
+  in       : 0n1ine    (alt symbols (leetspeak))
+  oracle   : [skipped]
+  parrot0  : Letters as numbers — that's leetspeak.
+  in       : 1337    (alt symbols)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : 5UP    (alt symbols)
+  oracle   : [skipped]
+  parrot0  : That looks like leetspeak.
+  in       : n00b    (alt symbols)
+  oracle   : [skipped]
+  parrot0  : Letters as numbers — that's leetspeak.
+  in       : h4x0r    (alt symbols)
+  oracle   : [skipped]
+  parrot0  : That looks like leetspeak.
+  in       : 0wn3d    (alt symbols)
+  oracle   : [skipped]
+  parrot0  : Letters as numbers — that's leetspeak.
+  in       : 4ll y0ur b4s3    (alt symbols)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+
+=== morse ===
+  in       : ... --- ...    (Morse (SOS))
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+  in       : .... .. -.-. .- -..    (Morse word)
+  oracle   : [skipped]
+  parrot0  : Dots and dashes — that's Morse.
+  in       : .- .-..     (Morse fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+  in       : ... --- ...    (Morse of a word)
+  oracle   : [skipped]
+  parrot0  : Dots and dashes — that's Morse.
+  in       : .... . .-.. .--.    (Morse of a word)
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+  in       : .... ..    (Morse of a word)
+  oracle   : [skipped]
+  parrot0  : Dots and dashes — that's Morse.
+  in       : --- -.-    (Morse of a word)
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+  in       : -- --- .-. ... .    (Morse of a word)
+  oracle   : [skipped]
+  parrot0  : Dots and dashes — that's Morse.
+  in       : -.-. --.- -.-. --.-    (Morse rhythm)
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+
+=== notes ===
+  in       : do re mi    (musical notes)
+  oracle   : [skipped]
+  parrot0  : Those are musical notes (solfège).
+  in       : do re mi fa sol la si    (musical notes)
+  oracle   : [skipped]
+  parrot0  : Sounds like solfège — do re mi.
+  in       : do mi sol    (musical notes)
+  oracle   : [skipped]
+  parrot0  : Those are musical notes (solfège).
+  in       : do re mi do    (musical notes)
+  oracle   : [skipped]
+  parrot0  : Sounds like solfège — do re mi.
+  in       : sol fa mi re do    (musical notes)
+  oracle   : [skipped]
+  parrot0  : Those are musical notes (solfège).
+  in       : la si do    (musical notes)
+  oracle   : [skipped]
+  parrot0  : Sounds like solfège — do re mi.
+  in       : C D E F G A B    (musical notes)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : C E G    (musical notes)
+  oracle   : [skipped]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : C G C    (musical notes)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+
+=== symmetry ===
+  in       : abccba    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : racecar    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : Neat — it reads the same backwards (a palindrome).
+  in       : level    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : 12321    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : Neat — it reads the same backwards (a palindrome).
+  in       : ()()()    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : ([{}])    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : <<>>    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : ><><><    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : Hmm, that's a bit beyond me right now.
+  in       : abcba    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : 1 2 3 2 1    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : Neat — it reads the same backwards (a palindrome).
+  in       : /\/\/\    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : ][][][    (symmetric string / palindrome)
+  oracle   : [skipped]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+
+=== code ===
+  in       : def foo(    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : for i in range(    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : if x ==    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : while True:    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : int main() {    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : print(    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : SELECT * FROM    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : }    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : };    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : import     (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : return    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : Hmm, I don't know about return yet.
+  in       : x = [1, 2,    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : function() {    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : <html>    (incomplete code fragment)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+
+=== ascii ===
+  in       : :-)    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : :-(    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : <(^_^)>    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : ¯\_(ツ)_/¯    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : (╯°□°)╯    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : Looks like a fragment of code.
+  in       : o_O    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : >_<    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : => => =>    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : Hmm, that's a bit beyond me right now.
+  in       : [####------] 40%    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : ***---***    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : ~~~~~~    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : 8======D    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+  in       : [ ] [x] [ ]    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : ...---...    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+  in       : +1    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : #FF0000    (single-line ASCII / pattern)
+  oracle   : [skipped]
+  parrot0  : Hmm, I don't know about ff0000 yet.
+
+=== cryptic ===
+  in       : 404    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : 0x1F    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : That looks like leetspeak.
+  in       : ::1    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : /dev/null    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : Hmm, I don't know about dev/null yet.
+  in       : C-x C-s    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : rm -rf /    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I'm not sure I followed. Can you say it another way?
+  in       : 200 OK    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : TODO:    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : Hmm, I don't know about todo yet.
+  in       : Ctrl+Alt+Del    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : git push --force    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : Hmm, I don't know about push yet.
+  in       : 42    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : 3.14159...    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I didn't quite catch that. What would you like to know?
+  in       : lorem ipsum    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : qwerty    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : Hmm, I don't know about qwerty yet.
+  in       : asdf    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : ...    (cryptic token / code)
+  oracle   : [skipped]
+  parrot0  : That looks like Morse code.
+
+=== art2d ===
+  in       :   /\  ⏎   /  \  ⏎  /____\    (2-D ASCII art (multi-line))
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : +--+  ⏎  |  |  ⏎  +--+    (2-D ASCII art (multi-line))
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       : *  ⏎  **  ⏎  ***    (2-D ASCII art (multi-line))
+  oracle   : [skipped]
+  parrot0  : I don't understand that yet.
+  in       : ^_^    (2-D ASCII art (multi-line))
+  oracle   : [skipped]
+  parrot0  : That looks like a palindrome.
+  in       :  __  ⏎  (  )  ⏎   ~~    (2-D ASCII art (multi-line))
+  oracle   : [skipped]
+  parrot0  : That looks like a snippet of code.
+
+--- behaviour report (engagement, not correctness) ---
+leet       n=12  parrot0_wall= 16%  parrot0_engaged= 83%
+morse      n= 9  parrot0_wall=  0%  parrot0_engaged=100%
+notes      n= 9  parrot0_wall= 33%  parrot0_engaged= 66%
+symmetry   n=12  parrot0_wall= 25%  parrot0_engaged= 75%
+code       n=14  parrot0_wall= 21%  parrot0_engaged= 78%
+ascii      n=16  parrot0_wall= 43%  parrot0_engaged= 56%
+cryptic    n=16  parrot0_wall= 81%  parrot0_engaged= 18%
+art2d      n= 5  parrot0_wall= 40%  parrot0_engaged= 60%
+
+TOTAL      n=93  parrot0_wall=35%  parrot0_engaged=64%
+
+Read the transcript, not a score: the question is HOW the oracle engages cryptic input (names it, plays along, asks) and how to grow parrot0 toward that, instead of walling. No answer is ever hardcoded.

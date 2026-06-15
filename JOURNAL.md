@@ -2,6 +2,41 @@
 
 Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
+## 2026-06-15 — gen65: symbolic-register recognition (sym-bench driven)
+
+**Changed:** `brain.c` → `gen65-symbolic-register-recognition`; added
+`mod_symbolic` (registry, before `discourse`/`social`).
+- Recovers the LLM's first move on a cryptic stimulus — NAME its register — by
+  classifying structural FORM on `raw` (symbols are the signal; `normalize`
+  keeps internal punctuation but canonicalization could perturb tokens):
+  Morse (charset `.-` + spaces, ≥3 marks), palindrome (equals its reverse,
+  spaces dropped; pure-letter runs need len ≥ 5 so "wow"/"mom" stay phatic),
+  solfège (≥3 tokens all in do/re/mi/…), leetspeak (single token mixing letters
+  and leet digits), code fragment (brackets/operators `(){};` `==`, `<html`,
+  `select * from`, or a block keyword + trailing `:`).
+- Decodes NOTHING (recognition before decoding) and hardcodes no oracle wording —
+  it classifies form. Conservative + late in the registry, so content modules win
+  first and plain prose is never hijacked. Replies vary (two phrasings, flip only
+  to avoid an immediate repeat).
+- Tests: `tests/cases/symbolic.chat` + `symbolic.it.chat` (palindrome/solfège are
+  language-neutral — the ratchet shows the competence is structural, not English
+  lexical); updated `self.chat`'s module list to include `symbolic`.
+
+**Why:** the cryptic-stimulus challenge (sym-bench) showed parrot0 walling 96% —
+even saying "I don't know about abccba yet" of a palindrome it could detect from
+form alone — while the LLM consistently recognized and named the register. That
+naming move is a clean structural primitive: the gap to close first.
+
+**Observed:** `make test` green (55 chat cases + all suites). `make sym-bench
+--no-llm` engagement: **parrot0 wall 96% → 35% (engaged 3% → 64%)**; recognizers
+fire across leet/morse/notes/symmetry/code/ascii. Residual walls are mostly the
+`cryptic` token family (`0x1F`, `::1`, `/dev/null`) and bare ASCII faces.
+
+**Next:** S-series parked in TASKLIST.md (owner asked to resume later): S2
+decoding after recognition (Morse→text, leet→word), S3 cryptic-token registers
++ multi-line intake. M2 books and the fallback-grounding finding also remain
+parked.
+
 ## 2026-06-15 — symbench: the CRYPTIC-stimulus behaviour challenge (tooling)
 
 **Changed:** Added a second generative discovery harness, sibling to chatsim.

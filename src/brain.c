@@ -2770,6 +2770,153 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: symbolic ----------------------------------------------------
+ * Register recognition over symbolic FORM (gen65, sym-bench driven). The
+ * cryptic-stimulus challenge (`make sym-bench`) showed the LLM's first move on
+ * a non-prose stimulus is to NAME its register — "a palindrome", "Morse", "a
+ * code snippet", "solfège" — then engage, whereas parrot0 walled (even saying
+ * "I don't know about abccba yet" of a palindrome it could see from form). This
+ * module recovers that move: it CLASSIFIES the stimulus by cheap structural
+ * features and names it. It decodes nothing (recognition before decoding) and
+ * hardcodes no oracle wording — classifying form is honest reasoning. It works
+ * on `raw` because the symbols are the signal; it is deliberately conservative
+ * so plain prose is never hijacked, and sits late in the registry so genuine
+ * content modules (arith, shell, knowledge, …) get the turn first. */
+
+/* True if `s` (already lowercased) is non-trivially symmetric: equals its own
+ * reverse once spaces are dropped, length >= 3, not all-identical, and — for a
+ * pure-letter run — length >= 5, so 3-letter interjections ("wow", "mom") are
+ * left to the phatic layer rather than called palindromes. */
+static int looks_palindrome(const char *s) {
+    char c[256]; size_t n = 0; int has_nonletter = 0;
+    for (size_t i = 0; s[i] && n + 1 < sizeof c; i++) {
+        if (isspace((unsigned char)s[i])) continue;
+        if (!isalpha((unsigned char)s[i])) has_nonletter = 1;
+        c[n++] = s[i];
+    }
+    c[n] = '\0';
+    if (n < 3) return 0;
+    if (!has_nonletter && n < 5) return 0;
+    int all_same = 1;
+    for (size_t i = 1; i < n; i++) if (c[i] != c[0]) { all_same = 0; break; }
+    if (all_same) return 0;
+    for (size_t i = 0, j = n - 1; i < j; i++, j--)
+        if (c[i] != c[j]) return 0;
+    return 1;
+}
+
+/* Morse iff the trimmed input is only '.', '-', spaces, with >= 3 dot/dash. */
+static int looks_morse(const char *s) {
+    size_t marks = 0;
+    for (size_t i = 0; s[i]; i++) {
+        if (s[i] == '.' || s[i] == '-') marks++;
+        else if (!isspace((unsigned char)s[i])) return 0;
+    }
+    return marks >= 3;
+}
+
+/* Solfège iff >= 3 space-separated tokens and every one is a note name. The
+ * >= 3 floor keeps lone "do"/"la"/"mi" (English/Italian words) out. Copies its
+ * argument because split_words mutates the buffer. */
+static int looks_solfege(const char *s) {
+    static const char *notes[] = {"do","re","mi","fa","sol","la","si","ti",NULL};
+    char buf[256]; copy_trim(buf, sizeof buf, s);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw < 3) return 0;
+    for (size_t i = 0; i < nw; i++) {
+        int ok = 0;
+        for (size_t k = 0; notes[k]; k++) if (strcmp(w[i], notes[k]) == 0) { ok = 1; break; }
+        if (!ok) return 0;
+    }
+    return 1;
+}
+
+/* Leetspeak iff a single token (no spaces), len >= 3, mixing ascii letters with
+ * leet digits (0,1,3,4,5,7), e.g. "h3ll0", "n00b". */
+static int looks_leet(const char *s) {
+    int letter = 0, leetdigit = 0;
+    for (size_t i = 0; s[i]; i++) {
+        unsigned char ch = (unsigned char)s[i];
+        if (isspace(ch)) return 0;
+        if (isalpha(ch)) letter = 1;
+        else if (strchr("013457", (char)ch)) leetdigit = 1;
+        else if (!isdigit(ch)) return 0;  /* punctuation -> not a plain leet word */
+    }
+    return letter && leetdigit && strlen(s) >= 3;
+}
+
+/* Code fragment iff it carries a structural code signal: a bracket/operator
+ * rare in chat prose, or a code keyword opening a block ("while True:"). */
+static int looks_code(const char *s, char **w, size_t nw) {
+    if (cue(s, "(") || cue(s, "{") || cue(s, "}") || cue(s, ";") ||
+        cue(s, "==") || cue(s, "<html") || cue(s, "select * from"))
+        return 1;
+    /* keyword + trailing ':' (e.g. "while true:", "for x in y:") */
+    size_t len = strlen(s);
+    if (nw >= 1 && len > 0 && s[len - 1] == ':') {
+        static const char *kw[] = {"while","for","if","def","class","else",
+                                   "elif","try","with",NULL};
+        for (size_t k = 0; kw[k]; k++)
+            if (strcmp(w[0], kw[k]) == 0) return 1;
+    }
+    return 0;
+}
+
+/* Name the register, but if that exact line was our previous reply (two
+ * same-register stimuli in a row), use the alternate phrasing instead — the
+ * same non-repetition discipline the fallback uses, so a run of cryptic inputs
+ * does not feel canned. The canonical phrasing `a` is the default, so a single
+ * occurrence is stable (and testable). */
+static int name_register(Brain *b, const char *a, const char *alt,
+                         char *out, size_t out_size) {
+    const char *pick = (b && strcmp(a, b->last_reply) == 0) ? alt : a;
+    put(pick, out, out_size);
+    return 1;
+}
+
+static int mod_symbolic(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)norm;
+    if (!raw) return 0;
+
+    char s[256];
+    copy_trim(s, sizeof s, raw);          /* keep symbols; trim edges only */
+    if (s[0] == '\0') return 0;
+    char lc[256]; size_t i = 0;
+    for (; s[i] && i + 1 < sizeof lc; i++) lc[i] = (char)tolower((unsigned char)s[i]);
+    lc[i] = '\0';
+
+    /* Morse is the strictest charset, so test it first. */
+    if (looks_morse(lc))
+        return name_register(b, "That looks like Morse code.",
+                             "Dots and dashes — that's Morse.", out, out_size);
+
+    /* tokenize a throwaway copy for the code check (split_words mutates it);
+     * the other detectors read `lc`, which stays intact. */
+    char tok[256]; copy_trim(tok, sizeof tok, lc);
+    char *w[64]; size_t nw = split_words(tok, w, 64);
+
+    if (looks_solfege(lc))
+        return name_register(b, "Those are musical notes (solfège).",
+                             "Sounds like solfège — do re mi.", out, out_size);
+
+    if (looks_palindrome(lc))
+        return name_register(b, "That looks like a palindrome.",
+                             "Neat — it reads the same backwards (a palindrome).",
+                             out, out_size);
+
+    if (looks_leet(lc))
+        return name_register(b, "That looks like leetspeak.",
+                             "Letters as numbers — that's leetspeak.", out, out_size);
+
+    if (looks_code(lc, w, nw))
+        return name_register(b, "That looks like a snippet of code.",
+                             "Looks like a fragment of code.", out, out_size);
+
+    return 0;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
  * behaviour, touch only this table — not brain_respond()'s control flow.
  * (This table is also reified into the KB as module(...) facts at birth, so
@@ -2789,6 +2936,7 @@ static const Module registry[] = {
     {"reader",    mod_reader},
     {"shell",     mod_shell},
     {"knowledge", mod_knowledge},
+    {"symbolic",  mod_symbolic},
     {"discourse", mod_discourse},
     {"social",    mod_social},
 };
@@ -2838,7 +2986,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen64-capability-robust-shorthand";
+    return "gen65-symbolic-register-recognition";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

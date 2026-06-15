@@ -1,0 +1,21 @@
+# Generation 65 (sym-bench driven): symbolic-register recognition. The
+# cryptic-stimulus challenge showed the LLM's first move is to NAME the register
+# of a non-prose stimulus, not wall. parrot0 now classifies by structural form
+# (no decoding, no hardcoded answer) and names it. Replies vary to avoid repeats,
+# so these cases assert a stable opener — the second phrasing is exercised live.
+> abccba
+< That looks like a palindrome.
+> ... --- ...
+< That looks like Morse code.
+> def foo(
+< That looks like a snippet of code.
+> h3ll0
+< That looks like leetspeak.
+> do re mi fa sol
+< Those are musical notes (solfège).
+# Numeric palindrome (spaces dropped) is still recognized from form.
+> 1 2 3 2 1
+< That looks like a palindrome.
+# Guard: plain prose must NOT be hijacked by any recognizer — it falls through.
+> the otter swims downstream
+< I don't understand that yet.

@@ -4,60 +4,11 @@
 > See LOOP.md for how to work a task, PRINCIPLES.md for why, DESIGN.md for
 > architectural decisions. TASKLIST.md is the longer proving ground.
 
-## Goal: gen65 — symbolic-REGISTER recognition (C3): name it, don't wall
+> gen65 (symbolic-register recognition) is DONE — see JOURNAL. The whole
+> SYMBOLIC challenge is parked as the S-series in TASKLIST.md (owner asked to
+> resume it later: S2 decoding, S3 cryptic-token registers + multi-line intake).
 
-A new discovery channel landed: `make sym-bench` (`tests/symbench.py`) — the
-CRYPTIC-stimulus challenge. A non-reasoning oracle LLM (kimi-k2.6) and parrot0
-are each fed short, OPEN-ENDED symbolic stimuli with NO checkable answer
-(leetspeak, Morse, musical notes, palindromes, incomplete code, ASCII faces,
-cryptic tokens). We do NOT grade correctness — the oracle is a free behavioural
-signal. First run (2026-06-15): **parrot0 walls 96%**; the oracle engages ~100%
-with one consistent, inducible move — it **recognizes and NAMES the register**
-("a palindrome", "SOS in Morse", "solfège", "the start of a Python function",
-"IPv6 loopback", "an ASCII box"), then engages lightly (plays along / asks).
-
-The structure to extract is therefore a **register classifier over symbolic
-form**, not a puzzle solver. Classify the stimulus's genre from cheap, honest
-structural features and reply by naming it (and a light, varied engagement),
-instead of walling. This classifies FORM — it does not paste the oracle's words.
-
-Detectable registers (start with the highest-signal, structurally cleanest):
-1. **Palindrome / symmetry** — token (or char) sequence equals its reverse
-   (`abccba`, `12321`, `1 2 3 2 1`). Reply: "That looks like a palindrome." It
-   is shameful that parrot0 today says "I don't know about abccba yet" — it has
-   the string; symmetry is a pure structural test.
-2. **Morse** — input is only `.`, `-`, and spaces. Reply: "That looks like Morse
-   code." (Decoding is a later, optional step; recognition comes first.)
-3. **Code fragment** — contains code punctuation/keywords (`def `, `for `, `(`,
-   `{`, `==`, `SELECT`). Reply: "That looks like a snippet of code."
-4. **Solfège / notes** — tokens drawn from {do,re,mi,fa,sol,la,si,ti}. Reply:
-   "Those are musical notes (solfège)."
-5. **Leetspeak** — a word with digit-for-letter substitutions (`h3ll0`, `1337`).
-   Reply: name it as leetspeak (decoding optional later).
-
-### Acceptance
-- `abccba` and `1 2 3 2 1` → a palindrome/symmetry recognition (NOT a wall, NOT
-  "I don't know about abccba yet").
-- `... --- ...` → recognized as Morse.
-- `def foo(` → recognized as a code fragment.
-- `do re mi` → recognized as musical notes.
-- Bilingual ratchet: the same recognizers fire on Italian framing where it
-  applies (notes `do re mi` are already language-neutral; a palindrome is
-  language-neutral) — proving the competence is structural, not English lexical.
-- Plain prose ("the otter swims downstream") must NOT be hijacked by any
-  recognizer.
-
-### Notes
-- Recognition before decoding: naming the register is the LLM's first move and
-  the cleanest structural primitive. Decoding (Morse→text, leet→word,
-  palindrome continuation) can follow in later generations if sym-bench shows it
-  is worth it.
-- Keep replies varied/non-repeating (reuse the non-repetition discipline from
-  the fallback) so a session of cryptic inputs doesn't feel canned.
-
----
-
-## Parked: gen — fallback word-pick must be grounded (don't deny what you know)
+## Goal: gen66 — fallback word-pick must be grounded (don't deny what you know)
 
 (chat-sim finding) gen64 made the capability intent robust to chat-register
 shorthand ("what can u do?" via `u`→`you`) and the Italian "che puoi fare?"
