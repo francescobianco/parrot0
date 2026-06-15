@@ -4,6 +4,34 @@ Newest entries on top. One entry per iteration of the loop (see LOOP.md).
 
 ---
 
+## 2026-06-15 — gen25: MMLU-like multiple-choice class questions
+
+**Changed:** `brain.c` → `gen25-mmlu-choice`.
+- Added `which is a/an <class>: a, b, c?` as a tiny multiple-choice interface
+  over KB knowledge.
+- Choices are evaluated by querying `<class>(choice)`, so rule-derived
+  membership works the same as direct facts.
+- Multiple correct choices are listed; known-domain no-match returns
+  `None of them.`; unknown class predicates still use the gen16 `I don't know`
+  response.
+- New `tests/cases/mmlu.chat` covers direct retrieval, rule-derived transfer,
+  multiple answers, known-domain no-match and unknown-domain handling.
+
+**Why:** First MMLU-like micro-driver from DESIGN D8. It pressures question
+understanding, internal knowledge retrieval and domain transfer without importing
+or memorizing an external dataset.
+
+**Observed:** all suites green — 14 conversation, 10 persistence, 3 multigoal,
+14 grammar, 2 anonymous-var, 5 explanation checks.
+
+**Method watch (D5.1):** choices are single-token and class-only by design. This
+is the smallest useful multiple-choice pressure, not a broad exam parser.
+
+**Next:** apply the BIG-Bench Hard driver with an explicit multi-step reasoning
+probe over composed rules.
+
+---
+
 ## 2026-06-15 — gen24: explainable textual entailment (SuperGLUE-like)
 
 **Changed:** `brain.c` → `gen24-explain-entailment`.

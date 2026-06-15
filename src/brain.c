@@ -403,6 +403,46 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                 explain_entailment, out, out_size);
     }
 
+    char *choice_start = NULL;
+    if (strncmp(buf, "which is a ", 11) == 0) choice_start = buf + 11;
+    else if (strncmp(buf, "which is an ", 12) == 0) choice_start = buf + 12;
+    if (choice_start) {
+        char *colon = strchr(choice_start, ':');
+        if (!colon) {
+            put("I don't understand that question yet.", out, out_size);
+            return 1;
+        }
+        *colon = '\0';
+        const char *cls = trim_mut(choice_start);
+        if (!kb_knows_pred(b->kb, cls)) { idk(cls, out, out_size); return 1; }
+
+        char *choices = colon + 1;
+        char list[512];
+        size_t off = 0, hits = 0;
+        while (choices && *choices) {
+            char *next = strchr(choices, ',');
+            if (next) *next++ = '\0';
+            char *choice = trim_mut(choices);
+            if (*choice && strlen(choice) < KB_TERM_LEN) {
+                const char *args[] = {choice};
+                if (!kb_is_conflicted(b->kb, cls, args, 1) &&
+                    kb_query(b->kb, cls, args, 1)) {
+                    off += (size_t)snprintf(list + off, sizeof list - off,
+                                            "%s%s", hits ? ", " : "", choice);
+                    hits++;
+                }
+            }
+            choices = next;
+        }
+        if (hits == 0) put("None of them.", out, out_size);
+        else {
+            char msg[600];
+            snprintf(msg, sizeof msg, "%s.", list);
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
     char *w[8];
     size_t nw = split_words(buf, w, 8);
 
@@ -740,7 +780,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen24-explain-entailment";
+    return "gen25-mmlu-choice";
 }
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
