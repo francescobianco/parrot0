@@ -1524,7 +1524,26 @@ static int mod_cause(Brain *b, const char *norm, const char *raw,
         const char *pat_cause[] = {NULL, x}; /* causes(?, x) -> causes  */
         char hits[64][KB_TERM_LEN];
         size_t k = kb_match(b->kb, "causes", want_eff ? pat_eff : pat_cause,
-                            2, hits, 64);
+                             2, hits, 64);
+        /* gen90: also find indirect/transitive causes. */
+        {
+            char mid[64][KB_TERM_LEN];
+            size_t kmid = kb_match(b->kb, "causes",
+                                    want_eff ? pat_eff : pat_cause, 2, mid, 64);
+            for (size_t m = 0; m < kmid && k < 64; m++) {
+                const char *indirect[] = {mid[m], NULL};
+                const char *indirect_rev[] = {NULL, mid[m]};
+                char chain[64][KB_TERM_LEN];
+                size_t kc = kb_match(b->kb, "causes",
+                                      want_eff ? indirect : indirect_rev, 2, chain, 64);
+                for (size_t c = 0; c < kc && k < 64; c++) {
+                    int dup = 0;
+                    for (size_t d = 0; d < k; d++)
+                        if (strcmp(hits[d], chain[c]) == 0) { dup = 1; break; }
+                    if (!dup) snprintf(hits[k++], KB_TERM_LEN, "%s (via %s)", chain[c], mid[m]);
+                }
+            }
+        }
         if (k == 0) {
             char msg[160];
             snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x);
@@ -3830,7 +3849,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen89-what-taught";
+    return "gen90-causal-chain";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
