@@ -82,6 +82,9 @@ bench-mmlu: build
 bench-bbh: build
 	@./tests/bench.sh bbh
 
+impersonate: build
+	@./tests/impersonate.sh
+
 loop:
 	@cat LOOP.md
 
