@@ -51,9 +51,9 @@ struct Brain {
     char entities[8][64];
     size_t entity_count;
 
-    /* gen84: hypothesis mode — temporary facts scoped to one query. */
-    int  in_hypothesis;   /* true while handling a "suppose..." turn */
-    KB  *hypo_kb;         /* temporary KB with hypothesized facts */
+    /* gen93: goals buffer — "remember to X", "what are my goals?" */
+    char goals[8][128];
+    size_t goal_count;
 
     /* gen57: personal-possession display table. The KB treats uppercase-initial
      * atoms as variables, so the lookup key is lowercased while the original
@@ -2545,6 +2545,17 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen93: goal tracking */
+    {
+        int g = strncmp(buf,"remember to ",12)==0 || strncmp(buf,"ricordati di ",13)==0;
+        if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+12+(buf[2]=="c"?13:12)); put("Ok, noted.",out,out_size); return 1; }
+        if(cue(buf,"my goals")||cue(buf,"miei obiettivi")){
+            if(!b->goal_count) put("No goals set.",out,out_size);
+            else { char l[1024]=""; for(size_t i=0;i<b->goal_count;i++){char t[200];snprintf(t,200,"%zu) %s. ",i+1,b->goals[i]);strcat(l,t);} put(l,out,out_size); }
+            return 1;
+        }
+    }
+
     /* gen85: "explain more" / "in more detail" — re-render last proof. */
     int explain_more = cue(buf, "explain more") ||
                        cue(buf, "in more detail") ||
@@ -3877,7 +3888,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen93-correct";
+    return "gen109-correct";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
