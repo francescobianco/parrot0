@@ -2517,6 +2517,21 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     /* gen76: "how do you know? ... */
     /* (already above) */
 
+    /* gen91: "are you sure?" / "how confident?" */
+    {
+        int sure = cue(buf, "are you sure") || cue(buf, "how confident") ||
+                   cue(buf, "how sure") || cue(buf, "sei sicuro");
+        if (sure) {
+            if (b->has_last_proof) {
+                int is_direct = strstr(b->last_proof, " because ") == NULL;
+                put(is_direct ? "Yes, that's a directly stored fact."
+                              : "I'm confident — derived through logical rules.",
+                    out, out_size);
+            } else put("I can't verify — no proof was stored.", out, out_size);
+            return 1;
+        }
+    }
+
     /* gen85: "explain more" / "in more detail" — re-render last proof. */
     int explain_more = cue(buf, "explain more") ||
                        cue(buf, "in more detail") ||
@@ -3849,7 +3864,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen90-causal-chain";
+    return "gen92-correct";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
