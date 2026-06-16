@@ -2532,6 +2532,19 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen92: correction — "no, that's wrong. X is a Y." or "no, X is not a Y." */
+    {
+        int correction = (cue(buf, "no that") && cue(buf, "wrong")) ||
+                         (cue(buf, "no, that") && cue(buf, "wrong")) ||
+                         (buf[0] == 'n' && buf[1] == 'o' && buf[2] == ' ' &&
+                          cue(buf, "wrong"));
+        if (correction) {
+            put("I see. If I said something incorrect, please tell me the right "
+                "fact and I'll learn it.", out, out_size);
+            return 1;
+        }
+    }
+
     /* gen85: "explain more" / "in more detail" — re-render last proof. */
     int explain_more = cue(buf, "explain more") ||
                        cue(buf, "in more detail") ||
@@ -3864,7 +3877,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen92-correct";
+    return "gen93-correct";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
