@@ -2872,9 +2872,9 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     /* gen83 entities_q ... (above) */
 
     /* gen86: "what can <module> do?" — per-module capability. */
-    int mod_cap = (cue(buf, "what can the") && wn <= 5) ||
-                  (cue(buf, "what does the") && wn <= 5) ||
-                  (cue(buf, "cosa può fare il modulo") && wn <= 6);
+    int mod_cap = (cue(buf, "what can the") && wn <= 7) ||
+                  (cue(buf, "what does the") && wn <= 7) ||
+                  (cue(buf, "cosa può fare il modulo") && wn <= 7);
     if (mod_cap) {
         static const struct { const char *mod, *say; } cmap[] = {
             {"knowledge", "answer questions about facts and logical rules"},
