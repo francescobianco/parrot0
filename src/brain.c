@@ -3632,7 +3632,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen79-emergent-induction";
+    return "gen80-decompose";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3685,6 +3685,97 @@ static void not_understood(Brain *b, const char *canon,
     b->fallbacks++;
 }
 
+/* gen80: true if word `w` is a likely intent-marker that starts a sub-turn
+ * after a discourse connector like "e"/"and" in a compound utterance. */
+static int is_intent_starter(const char *w) {
+    static const char *const starters[] = {
+        "chi", "che", "cosa", "come", "dove", "quando", "perche", "perché",
+        "ricordati", "dimmi", "spiegami", "chiamami", "insegnami", "parlami",
+        "what", "who", "where", "when", "why", "how",
+        "remember", "tell", "explain", "call", "teach", "say",
+        "is", "are", "does", "do", "can", "every", "forget",
+        "learn", "describe", "read", "show",
+        NULL
+    };
+    for (const char *const *s = starters; *s; s++)
+        if (strcmp(w, *s) == 0) return 1;
+    return 0;
+}
+
+/* gen80: split `canon` on discourse connectors where the second half starts
+ * with an intent marker, dispatch each sub-turn, and join responses. Returns
+ * 1 if decomposition was applied, 0 to use normal dispatch. */
+static int decompose_and_dispatch(Brain *b, const char *canon, const char *input,
+                                   char *out, size_t out_size) {
+    /* Don't decompose structured prompts — they have their own parser. */
+    if (strncmp(canon, "premise:", 8) == 0 ||
+        strncmp(canon, "label premise:", 14) == 0 ||
+        strncmp(canon, "explain premise:", 16) == 0 ||
+        strncmp(canon, "superglue", 9) == 0 ||
+        strncmp(canon, "effect of ", 10) == 0 ||
+        strncmp(canon, "cause of ", 9) == 0 ||
+        strncmp(canon, "read:", 5) == 0 ||
+        strncmp(canon, "learn sequence:", 15) == 0)
+        return 0;
+
+    const char *connectors[] = {" e ", " and ", " ed ", NULL};
+    const char *conn = NULL;
+    size_t conn_len = 0;
+    for (const char *const *c = connectors; *c; c++) {
+        const char *pos = strstr(canon, *c);
+        if (pos && (!conn || pos < conn)) { conn = pos; conn_len = strlen(*c); }
+    }
+    if (!conn) return 0;
+
+    const char *after = conn + conn_len;
+    while (*after && isspace((unsigned char)*after)) after++;
+    if (!*after) return 0;
+
+    char first_word[64]; size_t fw = 0;
+    while (after[fw] && !isspace((unsigned char)after[fw]) && fw + 1 < 64)
+        { first_word[fw] = (char)tolower((unsigned char)after[fw]); fw++; }
+    first_word[fw] = '\0';
+
+    if (!is_intent_starter(first_word)) return 0;
+
+    char sub1[256], sub2[256];
+    size_t cpos = (size_t)(conn - canon);
+    size_t len = strlen(canon);
+    if (cpos >= sizeof sub1) cpos = sizeof sub1 - 1;
+    memcpy(sub1, canon, cpos); sub1[cpos] = '\0';
+    size_t s2len = len - cpos - conn_len;
+    if (s2len >= sizeof sub2) s2len = sizeof sub2 - 1;
+    memcpy(sub2, conn + conn_len, s2len); sub2[s2len] = '\0';
+
+    char r1[1024] = "", r2[1024] = "";
+    int h1 = 0, h1_disc = 0, h2 = 0;
+
+    for (size_t i = 0; i < registry_len; i++) {
+        if (registry[i].handle(b, sub1, input, r1, sizeof r1)) {
+            h1 = 1;
+            if (strcmp(registry[i].name, "discourse") == 0) h1_disc = 1;
+            if (b) {
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", r1);
+                snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            }
+            break;
+        }
+    }
+    if (!h1) return 0; /* first sub-turn unclaimed → fall through to normal dispatch */
+
+    for (size_t i = 0; i < registry_len; i++) {
+        if (registry[i].handle(b, sub2, input, r2, sizeof r2)) {
+            h2 = 1; break;
+        }
+    }
+    if (!h2) return 0; /* second sub-turn unclaimed → fall through to normal dispatch */
+
+    snprintf(out, out_size, "%s%s%s", r1,
+             (r2[0] && r1[0]) ? " " : "", r2);
+    if (!h1_disc) update_topics(b, sub1);
+    return 1;
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) b->turns++;
@@ -3698,6 +3789,11 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * reader still induces its generative model from the original prose. */
     char canon[256];
     canonicalize_lang(norm, canon, sizeof canon);
+
+    /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
+     * before the normal single-turn dispatch. */
+    if (b && decompose_and_dispatch(b, canon, input, out, out_size))
+        return strlen(out);
 
     /* Walk the registry; first module to claim the turn wins. */
     int handled = 0, handled_by_discourse = 0;

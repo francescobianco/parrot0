@@ -1,0 +1,20 @@
+# gen80: turn decomposition by discourse operators. Compound turns like
+# "chi sei e cosa sai fare?" are split on "e"/"and" when the second half
+# starts with a clear intent marker. Both sub-turns must be claimed by a
+# module, otherwise the normal single-turn dispatch handles the full turn.
+# Italian: two independent questions.
+> chi sei e cosa sai fare?
+< I am parrot0. I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
+# English: fact + query.
+> rex is a dog and is fido a dog?
+< Learned: dog(rex). No.
+# "and" inside a conjunctive query is NOT split because "fido" isn't
+# an intent starter.
+> are rex and fido both a dog?
+< No.
+# Two independent queries.
+> what is 2 plus 2 and is 9 divisible by 3?
+< 4. Yes.
+# Only one recognized intent in sub1 — decomposition falls back to normal.
+> chi sei e ricordati che mi chiamo Francesco
+< I am parrot0.
