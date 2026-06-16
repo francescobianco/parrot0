@@ -974,6 +974,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen96: bulk forget — "forget everything about <x>" */
     /* retract: "forget that <x> is a/an <y>" -> remove y(x) */
     if (nw == 6 && strcmp(w[0], "forget") == 0 && strcmp(w[1], "that") == 0 &&
         strcmp(w[3], "is") == 0 && is_article(w[4])) {
@@ -3888,7 +3889,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen95-complete";
+    return "gen96-forget-bulk";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
