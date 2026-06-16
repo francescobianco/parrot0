@@ -19,7 +19,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh loop clean
+.PHONY: all build chat test chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate loop clean
 
 all: build
 

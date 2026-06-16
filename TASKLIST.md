@@ -236,6 +236,68 @@ first, each earning both a `.chat` case and a C0 dialogue.
 
 ---
 
+## I-series — Impersonation & role-playing (from impersonate benchmark, gen100)
+
+The `make impersonate` benchmark exposes that parrot0 cannot hold a character.
+`tests/impersonate.sh` sends 10 role-play scenarios; baseline score is 15%
+(only arithmetic passes in-role; identity always returns "parrot0").
+
+### I1 - Role uptake (C15 in TASK.md)
+Goal: recognize "you are X" / "pretend you are X" / "sei X" as a role-assignment
+prompt, store the role in `Brain.current_role`, and have identity queries
+answer from the role.
+
+Acceptance:
+- "pretend you are a dog named Rex" → "what is your name?" → "Rex" (not parrot0).
+- "sei dante alighieri" → "chi sei?" → "dante" (not parrot0).
+- Italian and English role prompts work through the same code path.
+
+Anti-impostor: held-out role names and languages.
+
+### I2 - Role exit
+Goal: "stop pretending" / "be yourself" / "torna te stesso" clears the role
+and restores the self-model.
+
+Acceptance:
+- After role X → identity returns X. After exit → identity returns parrot0.
+- Exit works from any role without knowing the role name.
+
+### I3 - Role-scoped knowledge
+Goal: when a role is active, facts about that role can be queried. The role
+prompt itself may carry knowledge ("you are a spy. your code is 007").
+
+Acceptance:
+- "you are a spy. your code is 007" → "what is your code?" → "007."
+- Role facts do not persist after role exit (scoped).
+- Role facts are queryable via the normal KB path.
+
+Anti-impostor: held-out role names and secret facts.
+
+### I4 - Multi-turn role consistency
+Goal: maintain role identity across multiple turns without re-stating it.
+
+Acceptance:
+- Turn 1: "you are Sherlock Holmes." Turn 5: "who are you?" → "Sherlock Holmes."
+- Role persists until explicit exit or new role assignment.
+
+### I5 - Role-appropriate responses
+Goal: capability and meta questions answered from role perspective.
+
+Acceptance:
+- As a dog: "what can you do?" → "I can bark, fetch, and wag my tail."
+- As a math teacher: "what can you do?" → appropriate teacher capabilities.
+- Responses derived from role-tagged facts, not canned strings.
+
+### I6 - Role knowledge persistence
+Goal: facts learned in-role can be saved and reloaded as role-specific knowledge
+files (`knowledge/role_dante.pl`).
+
+Acceptance:
+- After teaching facts as Dante, save → reload → Dante still knows them.
+- Other roles don't see Dante's facts.
+
+---
+
 ## S-series — Symbolic register & cryptic stimuli (PARKED, resume later)
 
 A third discovery channel besides prose (chatsim) and benchmarks (SuperGLUE):
