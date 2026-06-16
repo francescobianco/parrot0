@@ -1,0 +1,14 @@
+# gen75: flexible arith parser -- bilingual ratchet. Italian "cos'è" maps to
+# "what is" via canonicalization; the compact-form and symbol-operator paths
+# are language-neutral, so the same arith code answers.
+> cos'è 2 + 2
+< 4.
+> cos'è 10 - 3
+< 7.
+> cos'è 2+2
+< 4.
+> cos'è 3*7
+< 21.
+# Word numbers still fall through.
+> cos'è due più due
+< I don't understand that yet.

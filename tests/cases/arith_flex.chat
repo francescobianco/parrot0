@@ -1,0 +1,35 @@
+# gen75: flexible arith parser -- handles symbol operators (+, -, *) and
+# compact forms (2+2), plus position-robust matching via search instead of
+# rigid word positions. The existing arith.chat cases are preserved.
+# Symbol operators with spaces.
+> what is 2 + 2
+< 4.
+> what is 10 - 3
+< 7.
+> what is 4 * 5
+< 20.
+# Compact form without spaces around the operator.
+> what is 2+2
+< 4.
+> what is 10-3
+< 7.
+> what is 4*5
+< 20.
+# Compact form with decimal numbers.
+> what is 1.5+2.5
+< 4.
+# Word operators still work (backward compat, also covered by arith.chat).
+> what is 3 plus 4
+< 7.
+# Position-robust: extra words between "is" and the numbers.
+> what is the result of 6 plus 2
+< 8.
+# Non-numbers still fall through.
+> what is gold + silver
+< I don't understand that yet.
+# Successful turn resets the fallback state so the classic line can fire.
+> what is 10 + 2
+< 12.
+# Word numbers fall through (parse_num requires digits).
+> what is two plus two
+< I don't understand that yet.

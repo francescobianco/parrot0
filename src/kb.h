@@ -132,7 +132,18 @@ int    kb_knows_pred(const KB *kb, const char *pred);
  * including ones reachable only through rules. Returns the count (capped). */
 size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
 
+/* Collect all distinct predicate symbols (any arity). gen77 for self-model
+ * introspection: "what predicates do you know?". Returns count (capped). */
+size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
+
+/* Write all facts in the KB to out as human-readable lines, one per fact,
+ * truncated to out_size. Returns 1, 0 if empty. gen77. */
+int    kb_dump_all(const KB *kb, char *out, size_t out_size);
+
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);
+
+/* Count direct stored facts for a predicate (no rule resolution). gen77. */
+size_t kb_pred_fact_count(const KB *kb, const char *pred);
 
 #endif /* PARROT0_KB_H */

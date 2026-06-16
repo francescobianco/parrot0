@@ -1,0 +1,28 @@
+# gen79: emergent rule induction. After each RULE assertion, kb_induce runs
+# and any newly discovered implications are announced as "Induced: ...".
+# The induction is statistical: implications hold where ALL known entities
+# of one class are also in another (minimum 2 support).
+# Setup: 3 dogs, 2 pets. Lassie is a dog but not a pet.
+> rex is a dog
+< Learned: dog(rex).
+> fido is a dog
+< Learned: dog(fido).
+> lassie is a dog
+< Learned: dog(lassie).
+> rex is a pet
+< Learned: pet(rex).
+> fido is a pet
+< Learned: pet(fido).
+# Rule: every pet is a dog (true). No new inductions because
+# the reverse (dog→pet) is false (lassie is a dog but not a pet).
+> every pet is a dog
+< Learned rule: dog(X) :- pet(X).
+# Add a third category shared by rex and fido but NOT lassie.
+> rex is a happy
+< Learned: happy(rex).
+> fido is a happy
+< Learned: happy(fido).
+# Rule: every pet is happy. Since all pets = rex, fido = all happy,
+# induction finds bidirectional implications with happy.
+> every pet is a happy
+< Learned rule: happy(X) :- pet(X). Induced: dog(X) :- happy(X). pet(X) :- happy(X).

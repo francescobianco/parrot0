@@ -1,0 +1,32 @@
+# gen77: self-model introspection depth. Internal predicates are filtered
+# so "what do you know?" shows only user-facing knowledge.
+# Start with zero user-facing facts.
+> what do you know?
+< I know 0 fact(s) across 0 predicate(s). Ask me about a specific topic.
+> how many facts do you know?
+< I know 0 fact(s).
+> what predicates do you know?
+< I don't know any predicates yet.
+> show me your knowledge
+< I know 0 fact(s) total.
+# Teach some facts and re-query.
+> rex is a dog
+< Learned: dog(rex).
+> fido is a dog
+< Learned: dog(fido).
+> every dog is a mammal
+< Learned rule: mammal(X) :- dog(X).
+# Direct facts only: dog(rex), dog(fido). mammal is rule-derived.
+> what do you know?
+< I know 2 fact(s) across 1 predicate(s). Ask me about a specific topic.
+> how many facts do you know?
+< I know 2 fact(s).
+> what predicates do you know?
+< I know these predicates: dog.
+> show me your knowledge
+< Here is everything I know: dog(rex). dog(fido).
+# Identity and capability still work.
+> who are you?
+< I am parrot0.
+> what can you do?
+< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.

@@ -34,6 +34,15 @@ struct Brain {
     unsigned long fallbacks; /* how many not-understood turns — rotates variants */
     KB  *kb;               /* the knowledge base (gen4+) */
 
+    /* gen76: proof trace. When a module answers a KB-backed query, it stores the
+     * proof chain here so a follow-up "how do you know?" can cite real state. */
+    char last_proof[512];
+    int  has_last_proof;
+
+    /* gen78: module activation tracking. Stores which module claimed the last
+     * turn, so "which part of you answered that?" reads real state. */
+    char last_module[32];
+
     /* gen57: personal-possession display table. The KB treats uppercase-initial
      * atoms as variables, so the lookup key is lowercased while the original
      * casing is remembered here for natural replies. */
@@ -108,6 +117,13 @@ static size_t put(const char *text, char *out, size_t out_size) {
     memcpy(out, text, n);
     out[n] = '\0';
     return n;
+}
+
+/* gen76: store a proof trace so a follow-up "how do you know?" can cite it. */
+static void store_proof(Brain *b, const char *proof) {
+    if (!b || !proof || !*proof) return;
+    snprintf(b->last_proof, sizeof b->last_proof, "%s", proof);
+    b->has_last_proof = 1;
 }
 
 /* ----------------------------------------------------------------------------
@@ -494,6 +510,26 @@ static void remember_entity(Brain *b, const char *word, const char *entity) {
     b->has_last_entity = 1;
 }
 
+/* gen79: run rule induction over the current KB and, if any new rules are
+ * found, append them to `out`. Returns number of rules induced. */
+static size_t auto_induce(Brain *b, char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
+    size_t k = kb_induce(b->kb, 2, heads, bodies, 16);
+    if (k == 0) return 0;
+    size_t out_len = strlen(out);
+    if (out_len + 2 < out_size) {
+        out[out_len] = ' '; out[out_len + 1] = '\0';
+        out_len++;
+    }
+    for (size_t i = 0; i < k && out_len + 1 < out_size; i++) {
+        out_len += (size_t)snprintf(out + out_len, out_size - out_len,
+                                     "%s%s(X) :- %s(X).",
+                                     i ? " " : "Induced: ", heads[i], bodies[i]);
+    }
+    return k;
+}
+
 /* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
  * see DESIGN.md D6 — to become emergent meta-knowledge). */
 static void idk(const char *pred, char *out, size_t out_size) {
@@ -516,6 +552,7 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
         if (strstr(ex, " because ")) snprintf(msg, sizeof msg, "%s.", ex);
         else snprintf(msg, sizeof msg, "%s is a known fact.", ex);
         put(msg, out, out_size);
+        store_proof(b, ex);
     } else {
         put("I can't show that.", out, out_size);
     }
@@ -552,6 +589,7 @@ static void howknow_reply(Brain *b, const char *pred, const char *const *args,
         snprintf(msg, sizeof msg, "By %zu step%s of reasoning: %s.",
                  steps, steps == 1 ? "" : "s", ex);
     put(msg, out, out_size);
+    store_proof(b, ex);
 }
 
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
@@ -780,6 +818,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char desc[1024];
         if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
             put(desc, out, out_size);
+            store_proof(b, desc);
         } else {
             char msg[160];
             snprintf(msg, sizeof msg, "I don't know anything about %s.", entity);
@@ -866,6 +905,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "Learned rule: %s(X) :- %s(X).",
                      head, body);
             put(msg, out, out_size);
+            auto_induce(b, out, out_size);
         } else {
             put("I couldn't store that rule.", out, out_size);
         }
@@ -1013,9 +1053,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
-        else if (kb_is_conflicted(b->kb, cls, args, 1))
+        else if (kb_is_conflicted(b->kb, cls, args, 1)) {
             put("Conflicted.", out, out_size);
-        else put(kb_query(b->kb, cls, args, 1) ? "Yes." : "No.", out, out_size);
+            char ex[512];
+            if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
+                store_proof(b, ex);
+        }
+        else {
+            int yes = kb_query(b->kb, cls, args, 1);
+            put(yes ? "Yes." : "No.", out, out_size);
+            if (yes) {
+                char ex[512];
+                if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
+                    store_proof(b, ex);
+            }
+        }
         remember_entity(b, w[1], subj);
         return 1;
     }
@@ -1113,6 +1165,23 @@ static void format_num(double v, char *buf, size_t sz) {
     else                 snprintf(buf, sz, "%g", v);
 }
 
+/* True if `s` is a supported arithmetic operator keyword or symbol. */
+static int is_arith_op(const char *s) {
+    return strcmp(s, "plus") == 0 || strcmp(s, "minus") == 0 ||
+           strcmp(s, "times") == 0 ||
+           strcmp(s, "+") == 0 || strcmp(s, "-") == 0 || strcmp(s, "*") == 0;
+}
+
+/* Apply an arithmetic operator, returning the result. Sets *ok=0 for unknown ops. */
+static double apply_arith_op(const char *op, double a, double c, int *ok) {
+    *ok = 1;
+    if (strcmp(op, "plus") == 0 || strcmp(op, "+") == 0) return a + c;
+    if (strcmp(op, "minus") == 0 || strcmp(op, "-") == 0) return a - c;
+    if (strcmp(op, "times") == 0 || strcmp(op, "*") == 0) return a * c;
+    *ok = 0;
+    return 0;
+}
+
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)b; (void)raw;
@@ -1126,27 +1195,103 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     char *w[8];
     size_t nw = split_words(buf, w, 8);
 
-    /* "what is <a> plus/minus/times <b>?" -> the computed value */
-    if (nw == 5 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0) {
+    /* Expand tokens containing embedded operators (e.g. "2+2" -> "2","+","2").
+     * Pure numbers (which may start with '-') are left intact so parse_num works.
+     * The expansion is done in a secondary buffer; `ew` points into it. */
+    char exbuf[256];
+    size_t exoff = 0;
+    char *ew[24];
+    size_t enw = 0;
+    for (size_t i = 0; i < nw && enw < 24; i++) {
+        const char *s = w[i];
+        size_t sl = strlen(s);
+        int has_embedded_op = 0;
+        for (size_t j = 0; j < sl; j++) {
+            if (s[j] == '+' || s[j] == '*' || s[j] == '/') has_embedded_op = 1;
+            else if (s[j] == '-' && j > 0) has_embedded_op = 1;
+        }
+        double v;
+        int is_num = parse_num(s, &v);
+        if (!is_num && has_embedded_op) {
+            size_t start = 0;
+            for (size_t j = 0; j <= sl && enw < 24; j++) {
+                int boundary = (j == sl || s[j] == '+' || s[j] == '*' ||
+                    s[j] == '/' || (s[j] == '-' && j > 0));
+                if (boundary) {
+                    if (j > start && exoff + (j - start) + 1 <= sizeof exbuf) {
+                        memcpy(exbuf + exoff, s + start, j - start);
+                        exbuf[exoff + (j - start)] = '\0';
+                        ew[enw++] = exbuf + exoff;
+                        exoff += (j - start) + 1;
+                    }
+                    if (j < sl && exoff + 2 <= sizeof exbuf) {
+                        exbuf[exoff] = s[j];
+                        exbuf[exoff + 1] = '\0';
+                        ew[enw++] = exbuf + exoff;
+                        exoff += 2;
+                    }
+                    start = j + 1;
+                }
+            }
+        } else {
+            if (exoff + sl + 1 <= sizeof exbuf) {
+                memcpy(exbuf + exoff, s, sl);
+                exbuf[exoff + sl] = '\0';
+                ew[enw++] = exbuf + exoff;
+                exoff += sl + 1;
+            }
+        }
+    }
+
+    /* Exact-shape arith: "what is <a> OP <b>?" with expanded tokens. */
+    if (enw == 5 && strcmp(ew[0], "what") == 0 && strcmp(ew[1], "is") == 0 &&
+        is_arith_op(ew[3])) {
         double a, c;
-        if (!parse_num(w[2], &a) || !parse_num(w[4], &c)) return 0;
-        double r;
-        if (strcmp(w[3], "plus") == 0)       r = a + c;
-        else if (strcmp(w[3], "minus") == 0) r = a - c;
-        else if (strcmp(w[3], "times") == 0) r = a * c;
-        else return 0;
-        char num[64], msg[80];
-        format_num(r, num, sizeof num);
-        snprintf(msg, sizeof msg, "%s.", num);
-        put(msg, out, out_size);
-        return 1;
+        if (parse_num(ew[2], &a) && parse_num(ew[4], &c)) {
+            int ok;
+            double r = apply_arith_op(ew[3], a, c, &ok);
+            if (ok) {
+                char num[64], msg[80];
+                format_num(r, num, sizeof num);
+                snprintf(msg, sizeof msg, "%s.", num);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* Flexible search: find "what"+"is", then scan for NUM OP NUM anywhere after.
+     * "what is the result of 2 plus 3", "what is 2 + 3" (already matched above). */
+    {
+        size_t wi = find_token(ew, enw, "what");
+        if (wi < enw) {
+            size_t si = find_token(ew + wi, enw - wi, "is");
+            if (si < enw - wi) {
+                si += wi;
+                for (size_t i = si + 1; i + 2 < enw; i++) {
+                    if (!is_arith_op(ew[i + 1])) continue;
+                    double a, c;
+                    if (parse_num(ew[i], &a) && parse_num(ew[i + 2], &c)) {
+                        int ok;
+                        double r = apply_arith_op(ew[i + 1], a, c, &ok);
+                        if (ok) {
+                            char num[64], msg[80];
+                            format_num(r, num, sizeof num);
+                            snprintf(msg, sizeof msg, "%s.", num);
+                            put(msg, out, out_size);
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /* "is <a> divisible by <b>?" -> yes/no via integer remainder */
-    if (nw == 5 && strcmp(w[0], "is") == 0 && strcmp(w[2], "divisible") == 0 &&
-        strcmp(w[3], "by") == 0) {
+    if (enw == 5 && strcmp(ew[0], "is") == 0 && strcmp(ew[2], "divisible") == 0 &&
+        strcmp(ew[3], "by") == 0) {
         double a, c;
-        if (!parse_num(w[1], &a) || !parse_num(w[4], &c)) return 0;
+        if (!parse_num(ew[1], &a) || !parse_num(ew[4], &c)) return 0;
         if (c == 0) { put("I can't divide by zero.", out, out_size); return 1; }
         long long ai = (long long)a, ci = (long long)c;
         int divisible;
@@ -2257,6 +2402,40 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen76: "how do you know?" / "why?" referring to the previous answer.
+     * Reads from the proof trace stored by the last KB-backed response.
+     * Only claims short follow-up forms (≤4 words) so full-pattern queries like
+     * "how do you know x is a y?" fall through to mod_knowledge unchanged. */
+    {
+        size_t wn = 0, in_word = 0;
+        for (size_t i = 0; i < len; i++) {
+            if (buf[i] == ' ') in_word = 0;
+            else if (!in_word) { wn++; in_word = 1; }
+        }
+        int howknow = ((cue(buf, "how do you know") && wn <= 4)) ||
+                      ((cue(buf, "why do you say that") && wn <= 5)) ||
+                      (wn == 1 && strcmp(buf, "why") == 0) ||
+                      ((cue(buf, "perché lo dici") && wn <= 3)) ||
+                      ((cue(buf, "come lo sai") && wn <= 3));
+        if (howknow) {
+            if (b->has_last_proof) {
+                char msg[640];
+                size_t plen = strlen(b->last_proof);
+                if (plen > 0 && b->last_proof[plen - 1] == '.')
+                    snprintf(msg, sizeof msg, "Because %s", b->last_proof);
+                else
+                    snprintf(msg, sizeof msg, "Because %s.", b->last_proof);
+                put(msg, out, out_size);
+                b->has_last_proof = 0;
+            } else {
+                put("I haven't answered a knowledge-based question yet, so I "
+                    "don't have a proof to share.",
+                    out, out_size);
+            }
+            return 1;
+        }
+    }
+
     /* gen72: clarification requests — the user wants to understand the bot,
      * not a fact about the world. */
     int clarify = cue(buf, "what do you mean") ||
@@ -2305,6 +2484,65 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
     }
 
     return 0;
+}
+
+/* gen77: introspection helpers — filter internal predicates so "what do you
+ * know?" shows only user-facing knowledge, not KB machinery. */
+static int is_internal_pred(const char *pred) {
+    static const char *internal[] = {
+        "stopword", "social_marker", "social_pattern", "question_word",
+        "reaction_word", "i_am", "module", "cont", "cont2",
+        "cmd", "flag", NULL
+    };
+    for (size_t i = 0; internal[i]; i++)
+        if (strcmp(pred, internal[i]) == 0) return 1;
+    return 0;
+}
+
+static size_t kb_user_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
+    char preds[128][KB_TERM_LEN];
+    size_t np = kb_predicates(kb, preds, 128);
+    size_t n = 0;
+    for (size_t i = 0; i < np && n < max; i++)
+        if (!is_internal_pred(preds[i]) && kb_pred_fact_count(kb, preds[i]) > 0) {
+            snprintf(out[n], KB_TERM_LEN, "%s", preds[i]);
+            n++;
+        }
+    return n;
+}
+
+static size_t kb_user_facts(const KB *kb) {
+    if (!kb) return 0;
+    char preds[128][KB_TERM_LEN];
+    size_t np = kb_predicates(kb, preds, 128);
+    size_t total = 0;
+    for (size_t i = 0; i < np; i++) {
+        if (is_internal_pred(preds[i])) continue;
+        total += kb_pred_fact_count(kb, preds[i]);
+    }
+    return total;
+}
+
+static int kb_dump_user(const KB *kb, char *out, size_t out_size) {
+    if (!kb || !out || out_size == 0) return 0;
+    char preds[128][KB_TERM_LEN];
+    size_t np = kb_predicates(kb, preds, 128);
+    size_t off = 0, written = 0;
+    for (size_t p = 0; p < np && off + 1 < out_size; p++) {
+        if (is_internal_pred(preds[p])) continue;
+        if (kb_pred_fact_count(kb, preds[p]) == 0) continue;
+        const char *pat[] = {NULL};
+        char hits[256][KB_TERM_LEN];
+        size_t nh = kb_match(kb, preds[p], pat, 1, hits, 256);
+        for (size_t h = 0; h < nh && off + 1 < out_size; h++) {
+            off += (size_t)snprintf(out + off, out_size - off, "%s(%s). ",
+                                     preds[p], hits[h]);
+            written++;
+        }
+    }
+    if (off > 0 && out[off - 1] == ' ') out[--off] = '\0';
+    if (written == 0) out[0] = '\0';
+    return written > 0;
 }
 
 /* --- module: self --------------------------------------------------------
@@ -2382,6 +2620,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         if (n == 0) snprintf(msg, sizeof msg, "Not much yet.");
         else snprintf(msg, sizeof msg, "I can %s.", list);
         put(msg, out, out_size);
+        store_proof(b, "This is derived from my registered module list.");
         return 1;
     }
 
@@ -2389,10 +2628,122 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         char id[4][KB_TERM_LEN];
         size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
         char msg[128];
+        char proof[160];
         if (k == 0) snprintf(msg, sizeof msg, "I don't know what I am.");
-        else if (exists) snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
-        else snprintf(msg, sizeof msg, "I am %s.", id[0]);
+        else if (exists) {
+            snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
+            snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]);
+        }
+        else {
+            snprintf(msg, sizeof msg, "I am %s.", id[0]);
+            snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]);
+        }
         put(msg, out, out_size);
+        if (k > 0) store_proof(b, proof);
+        return 1;
+    }
+
+    /* gen77: self-model introspection — the architecture made queryable.
+     * Each cue is guarded by word count so full queries (e.g. "what do you
+     * know about X?") fall through to mod_knowledge unchanged. */
+
+    /* Quick word-count helper (buf is stripped of trailing punctuation). */
+    size_t wn = 0, inw = 0;
+    for (size_t i = 0; i < len; i++) {
+        if (buf[i] == ' ') inw = 0;
+        else if (!inw) { wn++; inw = 1; }
+    }
+
+    /* "how many facts do you know?" → kb_user_facts */
+    int fact_count = (cue(buf, "how many facts") && wn <= 6) ||
+                     (cue(buf, "quanti fatti") && wn <= 5);
+    if (fact_count) {
+        char msg[128];
+        snprintf(msg, sizeof msg, "I know %zu fact(s).", kb_user_facts(b->kb));
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* "what predicates do you know?" / "what topics do you know about?" */
+    int pred_list = (cue(buf, "what predicates") && wn <= 5) ||
+                    (cue(buf, "what topics") && wn <= 6) ||
+                    (cue(buf, "quali predicati") && wn <= 4);
+    if (pred_list) {
+        char preds[128][KB_TERM_LEN];
+        size_t np = kb_user_predicates(b->kb, preds, 128);
+        if (np == 0) { put("I don't know any predicates yet.", out, out_size); return 1; }
+        char list[1024];
+        size_t off = 0;
+        for (size_t i = 0; i < np && off < sizeof list; i++)
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                     "%s%s", i ? ", " : "", preds[i]);
+        char msg[1100];
+        if (off < sizeof list)
+            snprintf(msg, sizeof msg, "I know these predicates: %s.", list);
+        else
+            snprintf(msg, sizeof msg, "I know %zu distinct predicate(s).", np);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* "show me your knowledge" / "dump everything" */
+    int show_knowledge = (cue(buf, "show me your knowledge") && wn <= 5) ||
+                         (cue(buf, "show me what you know") && wn <= 7) ||
+                         (cue(buf, "dump everything") && wn <= 3) ||
+                         (cue(buf, "dump what you know") && wn <= 6) ||
+                         (cue(buf, "mostrami la conoscenza") && wn <= 4);
+    if (show_knowledge) {
+        char dump[4096];
+        if (kb_dump_user(b->kb, dump, sizeof dump)) {
+            char msg[4200];
+            snprintf(msg, sizeof msg, "Here is everything I know: %s", dump);
+            put(msg, out, out_size);
+        } else {
+            char msg[128];
+            snprintf(msg, sizeof msg, "I know %zu fact(s) total.", kb_user_facts(b->kb));
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
+    /* "what do you know?" → stats overview. Only claims short forms;
+     * "what do you know about X?" has more words and reaches mod_knowledge. */
+    int what_know = (cue(buf, "what do you know") && wn <= 4) ||
+                    (cue(buf, "cosa sai") && wn <= 3);
+    if (what_know) {
+        size_t nfacts = kb_user_facts(b->kb);
+        char preds[128][KB_TERM_LEN];
+        size_t np = kb_user_predicates(b->kb, preds, 128);
+        char msg[256];
+        snprintf(msg, sizeof msg,
+                 "I know %zu fact(s) across %zu predicate(s). Ask me about a specific topic.",
+                 nfacts, np);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* gen78: "which part of you answered that?" / "what module handled that?"
+     * Reads from the last_module stored by the dispatch loop. */
+    int which_module = (cue(buf, "which part of you") && wn <= 6) ||
+                       (cue(buf, "what module") && wn <= 4) ||
+                       (cue(buf, "who answered") && wn <= 4) ||
+                       (cue(buf, "quale parte di te") && wn <= 6) ||
+                       (cue(buf, "quale modulo") && wn <= 4);
+    if (which_module) {
+        if (b->last_module[0]) {
+            char msg[160];
+            if (strcmp(b->last_module, "fallback") == 0)
+                snprintf(msg, sizeof msg,
+                         "No module could handle that — it fell through to "
+                         "the not-understood fallback.");
+            else
+                snprintf(msg, sizeof msg,
+                         "The '%s' module answered your last question.",
+                         b->last_module);
+            put(msg, out, out_size);
+        } else {
+            put("I haven't answered anything yet.", out, out_size);
+        }
         return 1;
     }
 
@@ -3281,7 +3632,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen74-contractions";
+    return "gen79-emergent-induction";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3354,7 +3705,10 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
             handled = 1;
             if (strcmp(registry[i].name, "discourse") == 0) handled_by_discourse = 1;
-            if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            if (b) {
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            }
             break;
         }
     }
@@ -3368,7 +3722,10 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * Honest admission, never a mirror or a wrong "No.". */
     if (!handled) {
         not_understood(b, canon, out, out_size);
-        if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        if (b) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", "fallback");
+        }
     }
     return strlen(out);
 }

@@ -1,5 +1,173 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen79: emergent rule induction from conversation
+
+**Changed:** `brain.c` → `gen79-emergent-induction`.
+
+- Added `auto_induce()` helper that runs `kb_induce(b->kb, 2, ...)` and appends
+  any newly discovered rules to the response as "Induced: ...".
+- `auto_induce()` is called after rule assertions ("every X is a Y") and
+  additional-class assertions ("X is also a Y"). Individual fact assertions
+  do NOT trigger induction to avoid spurious bidirectional rules and to
+  preserve backward compatibility with the explicit "generalize" flow.
+- Induction is the statistical/implicational kind: if ALL known entities of
+  predicate P are also in predicate Q (minimum 2 support), and the rule
+  Q(X):-P(X) is not already present, it is induced.
+- New `tests/cases/emerge.chat` (11 turns): demonstrates transitive chain
+  induction (pet→dog, pet→happy → happy→dog induced), and that the induced
+  rules are queryable.
+
+**Why:** the architecture that manifests intelligence should be capable of
+noticing structural patterns in the data it holds — the seed of generalization.
+Previously, induction was only client-initiated ("generalize"). Now it runs
+reactively when a new rule is taught, connecting dots the user didn't explicitly
+state. This is a small step toward emergent structure from conversation.
+
+**Observed:** `make test` green: 73 chat cases + all suites. After teaching
+"every pet is a dog" (with 3 dogs but only 2 pets), no spurious reverse rule.
+After "every pet is a happy" (2 shared entities), induction correctly finds
+that all known happy entities are dogs: dog(X) :- happy(X), pet(X) :- happy(X).
+
+**Next:** Continue tightening the conversational experience. The dominant
+residual gaps are: open-domain Italian content words, multi-intent turn
+decomposition (C6), and pronoun/clitic resolution (C10). The architecture
+pieces are in place; the rest is growing coverage.
+
+## 2026-06-17 — gen78: module activation tracking
+
+**Changed:** `brain.c` → `gen78-modtrack`; `Brain` struct extended.
+
+- Added `last_module[32]` to `Brain`. The dispatch loop in `brain_respond` now
+  stores the name of whichever module claimed the turn (or "fallback" if none
+  did). This makes the module decomposition visible from within the agent.
+- Extended `mod_self` with a new introspection query: "which part of you
+  answered that?", "what module handled that?", Italian "quale modulo?".
+  The answer is read from `last_module` — always grounded in real state.
+- New `tests/cases/modtrack.chat` (8 turns): tracks identity, arith, and
+  fallback modules across turns, with Italian cues.
+
+**Why:** the articulated architecture (PRINCIPLES.md) must be self-aware. The
+agent knows it IS a registry of cooperating modules (`module(...)` facts), but
+it couldn't report WHICH module was active on a given turn. This closes that
+gap: the decomposition is now introspectable per-turn.
+
+## 2026-06-17 — gen77: self-model introspection depth
+
+**Changed:** `brain.c` → `gen77-introspect`; `kb.c` / `kb.h` extended with
+`kb_predicates()`, `kb_dump_all()`, `kb_pred_fact_count()`.
+
+- Added three new kb.c functions: `kb_predicates` (all distinct predicate symbols,
+  any arity), `kb_dump_all` (all facts as Prolog-like text), and
+  `kb_pred_fact_count` (direct stored facts for a predicate, no rule resolution).
+- Added introspection helpers in brain.c: `is_internal_pred` filters out KB
+  machinery predicates (stopword, social_marker, social_pattern, question_word,
+  reaction_word, i_am, module, cont, cont2, cmd, flag), `kb_user_facts` counts
+  only user-facing direct facts, `kb_user_predicates` lists only predicates with
+  stored facts, `kb_dump_user` dumps user-facing facts.
+- Extended `mod_self` with four new introspection queries (each guarded by word
+  count to avoid stealing "what do you know about X?" from mod_knowledge):
+  - "what do you know?" → stats: fact count across predicate count
+  - "how many facts do you know?" → numeric count
+  - "what predicates do you know?" → list of predicate names
+  - "show me your knowledge" / "dump everything" → full fact listing
+- New `tests/cases/introspect.chat` (12 turns): zero-knowledge start, incremental
+  learning, predicate listing, full dump. The architecture is now queryable from
+  within.
+
+**Why:** the self-model must be queryable (PRINCIPLES.md). Before this iteration,
+the KB was opaque to the user. Now "what do you know?" produces a honest, derived
+answer from real KB state — not a hand-written string. Internal predicates are
+filtered so the user sees only their own knowledge, not the machinery. This is
+the reflexive closure: the system can introspect on its own knowledge.
+
+**Observed:** `make test` green: 71 chat cases + all suites. "what do you know?"
+→ "I know 0 fact(s) across 0 predicate(s)." After teaching dog(rex), dog(fido):
+"I know 2 fact(s) across 1 predicate(s)." "show me your knowledge" →
+"dog(rex). dog(fido)." Rule-derived facts (mammal via every dog is a mammal) are
+not double-counted because the count uses direct stored facts only.
+
+**Next:** gen78 — module activation tracking. Track which modules claim which
+turns so "which part of you answered my last question?" is answerable from real
+state.
+
+## 2026-06-17 — gen76: proof trace as structured memory
+
+**Changed:** `brain.c` → `gen76-proof-trace`; `Brain` struct extended; `mod_meta`
+extended with follow-up proof retrieval.
+
+- Added `last_proof[512]` and `has_last_proof` to the `Brain` struct. A helper
+  `store_proof()` lets any module deposit a proof trace after a KB-backed answer.
+- `mod_knowledge`: ground queries ("is x a y?" → Yes), entity descriptions
+  ("what is x?"), and the existing `explain_reply`/`howknow_reply` paths all
+  store the proof chain from `kb_explain` or `kb_describe_entity`.
+- `mod_self`: identity answers ("I am parrot0.") store the reflective fact
+  `i_am(parrot0)` as proof; capability answers store a note about the module
+  registry.
+- `mod_meta`: added a short-form follow-up handler for "how do you know?",
+  "why?", "perché lo dici?", "come lo sai?" that reads from the stored proof.
+  Only claims short forms (≤4 words for "how do you know") so the full-pattern
+  "how do you know <x> is a <y>?" still reaches `mod_knowledge` unchanged.
+- The stored proof is consumed on first read (`has_last_proof` cleared) to
+  prevent stale answers; a bare "why?" after a non-KB answer honestly admits
+  there is no proof to share.
+
+**Why:** the architecture that manifests intelligence must make reasoning
+traceable. Previously, proofs existed only ephemerally in `kb_explain` — they
+were rendered and discarded. Now they persist across turns as inspectable state.
+The self-model answers are also grounded: "I am parrot0 because i_am(parrot0)
+is a reflective fact in my knowledge base." This is the reflexive closure
+PRINCIPLES.md demands — introspection anchored in real state.
+
+**Observed:** `make test` green: 70 chat cases + all suites (including howknow
+persistence). "is rex a dog?" → "Yes." → "how do you know?" → "Because dog(rex)."
+Rule-derived: "is rex a mammal?" → "Yes." → "how do you know?" → "Because
+mammal(rex) because dog(rex)." Self-model: "who are you?" → "I am parrot0." →
+"how do you know?" → "Because i_am(parrot0) is a reflective fact in my knowledge
+base." Bilingual ratchet: Italian "come lo sai?" reads the same stored proof.
+
+**Next:** gen77 — self-model introspection depth. Extend the self-model to answer
+"show me your knowledge", "what facts support X?", "dump what you know" from
+real KB state.
+
+## 2026-06-17 — gen75: flexible arith parser (C9)
+
+**Changed:** `brain.c` → `gen75-flexible-arith`; `mod_arith` rewritten.
+
+- Made the arith parser position-robust: instead of requiring exact `nw==5` with
+  fixed positions, the parser now splits tokens containing embedded operators
+  (e.g. `2+2` → `2`, `+`, `2`) and supports both an exact-shape match on expanded
+  tokens AND a flexible search that finds `what`+`is`, then scans for
+  `NUMBER OPERATOR NUMBER` anywhere in the token stream.
+- Added `is_arith_op()` and `apply_arith_op()` helpers that recognize both word
+  operators (`plus`, `minus`, `times`) and symbol operators (`+`, `-`, `*`).
+- Token expansion: a token like `2+2` that mixes digits and operators is split on
+  operators; pure numbers (including negative numbers like `-2`) are left intact
+  so `parse_num` works. Compact forms with spaces (`2 + 2`) are already
+  space-split into separate tokens by the tokenizer.
+- The divisibility parser (`is <a> divisible by <b>?`) now uses expanded tokens
+  for consistency.
+- New `tests/cases/arith_flex.chat` (12 turns): symbol operators, compact forms,
+  position-robust matching, word-operator backward compat, and declined
+  non-numbers. Bilingual ratchet `tests/cases/arith_flex.it.chat` (5 turns):
+  Italian "cos'è" canonicalizes to "what is" and the same arith core answers.
+
+**Why:** C9 from TASK.md — the rigid `nw==5` check with word-position dependency
+blocked natural phrasings like "what is 2 + 2" (symbol operator) and "what is
+2+2" (compact form). The gen74 contraction canonicalization made "whats 2+2" →
+"what is 2+2", but the arith parser required exact word counts and position,
+rejecting the compact form. A position-robust parser using `find_token()` and
+`parse_num()` over tokens catches all variants.
+
+**Observed:** `make test` green: 69 chat cases + all suites. "what is 2+2" → "4.",
+"what is 10 - 3" → "7.", "what is 4 * 5" → "20.", "what is the result of 6
+plus 2" → "8." (position-robust). Non-numbers ("gold + silver") and word-numbers
+("two plus two") fall through. Italian "cos'è 2+2" → "4." through canonicalization.
+
+**Next:** gen76 — proof trace as structured memory. When the KB answers a query,
+store the proof chain so "how did you know?" can be answered from real state
+rather than recomputed each time. The goal is to make reasoning traceable —
+part of the architecture that manifests intelligence.
+
 ## 2026-06-16 — gen74: chat contractions + "sup" marker + i_am rendering + wellbeing patterns
 
 **Changed:** `brain.c` → `gen74-contractions`; `knowledge/social.pl` expanded;

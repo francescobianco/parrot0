@@ -930,6 +930,44 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
     return n;
 }
 
+size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
+    if (!kb) return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < kb->n; i++)
+        push_unique(out, &n, max, kb->facts[i].pred);
+    for (size_t i = 0; i < kb->nr; i++)
+        push_unique(out, &n, max, kb->rules[i].head.pred);
+    return n;
+}
+
+int kb_dump_all(const KB *kb, char *out, size_t out_size) {
+    if (!kb || !out || out_size == 0) return 0;
+    size_t off = 0;
+    size_t written = 0;
+    for (size_t i = 0; i < kb->n && off + 1 < out_size; i++) {
+        Fact *f = &kb->facts[i];
+        off += (size_t)snprintf(out + off, out_size - off, "%s(", f->pred);
+        for (size_t j = 0; j < f->argc; j++)
+            off += (size_t)snprintf(out + off, out_size - off, "%s%s",
+                                     j ? ", " : "", f->args[j]);
+        off += (size_t)snprintf(out + off, out_size - off, "). ");
+        written++;
+    }
+    if (off > 0 && off + 1 < out_size) {
+        if (out[off - 1] == ' ') out[--off] = '\0';
+    }
+    if (written == 0) out[0] = '\0';
+    return written > 0;
+}
+
 size_t kb_size(const KB *kb) {
     return kb ? kb->n : 0;
+}
+
+size_t kb_pred_fact_count(const KB *kb, const char *pred) {
+    if (!kb || !pred) return 0;
+    size_t count = 0;
+    for (size_t i = 0; i < kb->n; i++)
+        if (strcmp(kb->facts[i].pred, pred) == 0) count++;
+    return count;
 }
