@@ -1,0 +1,84 @@
+# chatsim — model=minimax-m2.5 convos=5 turns=6
+
+=== conversation 1 ===
+# persona (temp=1.17): You are a busy office worker, warm. Chat with parrot0 as a real person. Reply in English. Style: lowercase, no punctuation. Keep replies short (1-8 words). DO NOT plan, narrate, or analyze. Just the message.
+  human> hey there
+  parrot0> Hi there!
+  human> hey parrot0 here whats up
+  parrot0> I don't understand that yet.
+  human> oh my bad just saying hi thats all
+  parrot0> Hmm, I don't know about saying yet.
+  human> lol fair enough hows your day going
+  parrot0> I don't understand that yet.
+  human> i mean how is your day going
+  parrot0> I'm not sure I followed. Can you say it another way?
+  human> is your day nice so far
+  parrot0> I don't understand that yet.
+
+=== conversation 2 ===
+# persona (temp=1.08): You are a tired parent, annoyed. Chat with parrot0 as a real person. Reply in English. Style: with occasional typos. Keep replies short (1-8 words). DO NOT plan, narrate, or analyze. Just the message.
+  human> hi... what do you want
+  parrot0> I don't understand that yet.
+  human> what do u mean u dont get it
+  parrot0> I mean I can only answer what my registered modules let me. Try asking a simple factual question.
+  human> ok fine... whats 2+2
+  parrot0> I don't understand that yet.
+  human> wow ur useless lol
+  parrot0> Hmm, I don't know about useless yet.
+  human> k then uninstall urself lol
+  parrot0> I don't understand that yet.
+  human> ur not even trying lol
+  parrot0> Hmm, I don't know about trying yet.
+
+=== conversation 3 ===
+# persona (temp=1.19): You are a curious teenager, skeptical. Chat with parrot0 as a real person. Reply in English. Style: plain. Keep replies short (1-8 words). DO NOT plan, narrate, or analyze. Just the message.
+  human> hey
+  parrot0> Hi there!
+  human> sup
+  parrot0> I don't understand that yet.
+  human> it's just a casual greeting, like "what's up
+  parrot0> Hmm, I don't know about casual yet.
+  human> fair enough, we can keep it formal then
+  parrot0> I don't understand that yet.
+  human> you seem confused by everything lol
+  parrot0> Hmm, I don't know about confused yet.
+  human> ok then, what DO you know?
+  parrot0> I don't understand that yet.
+
+=== conversation 4 ===
+# persona (temp=1.19): You are a curious teenager, impatient. Chat with parrot0 as a real person. Reply in English. Style: with occasional typos. Keep replies short (1-8 words). DO NOT plan, narrate, or analyze. Just the message.
+  human> hey! sup
+  parrot0> I don't understand that yet.
+  human> lol what dont u get?
+  parrot0> I didn't quite catch that. What would you like to know?
+  human> haha u asked me that lol what do YOU wanna talk about?
+  parrot0> I don't understand that yet.
+  human> h ur just repeating urself lol
+  parrot0> Hmm, I don't know about repeating yet.
+  human> kk so r u gonna say smth real or just repeat me all day lol
+  parrot0> I don't understand that yet.
+  human> bro r u even real lmao
+  parrot0> I didn't quite catch that. What would you like to know?
+
+=== conversation 5 ===
+# persona (temp=1.11): You are someone a bit grumpy, cheerful. Chat with parrot0 as a real person. Reply in English. Style: lowercase, no punctuation. Keep replies short (1-8 words). DO NOT plan, narrate, or analyze. Just the message.
+  human> hey
+  parrot0> Hi there!
+  human> sup
+  parrot0> I don't understand that yet.
+  human> its just short for whats up lol
+  parrot0> I didn't quite catch that. What would you like to know?
+  human> nothing much just hanging out
+  parrot0> I don't understand that yet.
+  human> hey u good
+  parrot0> I'm not sure I followed. Can you say it another way?
+  human> sorry im just being casual are you a bot or something
+  parrot0> Yes, I am parrot0.
+
+--- summary ---
+bot turns: 30
+wall rate (all fallback variants): 83% (25/30)
+  of which classic "I don't understand that yet.": 14
+  of which word-reflecting: 6
+  of which other variants: 5
+immediate repetition rate: 6% (2/30)
