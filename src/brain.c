@@ -429,6 +429,12 @@ static const char *canonical_token(const char *w) {
          * "who r u?"). Folding them here routes every intent through the same
          * canonical path instead of accreting shorthand cues per module. */
         {"u",   "you"}, {"r",  "are"},
+        /* gen74: chat-register contractions — common abbreviated forms that
+         * real users type. Expanding them into their canonical spaced forms
+         * lets the existing parsers (arith, knowledge, identity) work on
+         * contracted input without duplicating logic. */
+        {"whats", "what is"}, {"whos", "who is"}, {"wheres", "where is"},
+        {"dont",  "do not"},  {"cant", "can not"}, {"pls", "please"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -2251,6 +2257,53 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen72: clarification requests — the user wants to understand the bot,
+     * not a fact about the world. */
+    int clarify = cue(buf, "what do you mean") ||
+                  cue(buf, "explain yourself") ||
+                  cue(buf, "explain what you mean") ||
+                  cue(buf, "spiegati") ||
+                  cue(buf, "spiegami") ||
+                  cue(buf, "cosa intendi") ||
+                  cue(buf, "che vuoi dire");
+    if (clarify) {
+        put("I mean I can only answer what my registered modules let me. "
+            "Try asking a simple factual question.",
+            out, out_size);
+        return 1;
+    }
+
+    /* User admits they don't understand the bot — different from the bot
+     * not understanding the user (which is the fallback). */
+    int user_lost = cue(buf, "i don't get it") ||
+                    cue(buf, "i don't understand you") ||
+                    cue(buf, "not capisco") ||
+                    cue(buf, "not i have capito") ||
+                    cue(buf, "not ti capisco");
+    if (user_lost) {
+        put("I understand some patterns and I say when I do not. "
+            "Try a shorter or simpler question.",
+            out, out_size);
+        return 1;
+    }
+
+    /* Help-offer reversal: the user offers to help the bot. The bot is not
+     * a person that needs help — redirect honestly. */
+    int help_offer = cue(buf, "how can i help you") ||
+                     cue(buf, "let me help you") ||
+                     cue(buf, "i should be helping you") ||
+                     cue(buf, "i should help you") ||
+                     cue(buf, "come posso aiutarti") ||
+                     cue(buf, "ti aiuto io") ||
+                     cue(buf, "am io che aiuto te") ||
+                     cue(buf, "posso aiutarti");
+    if (help_offer) {
+        put("I'm a chatbot, not a person — I don't need help. "
+            "But you can ask me questions and I'll try to answer.",
+            out, out_size);
+        return 1;
+    }
+
     return 0;
 }
 
@@ -2771,13 +2824,68 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
  * the marker acknowledges, but the substance is answered by a content module.
  * We detect mixed turns by the co-occurrence of a phatic marker with a question
  * word or with explicit negative/corrective content after thanks. */
-static int tok_in(char **w, size_t nw, const char *const *set) {
+/* gen73: social register as KB knowledge (PLAN.md Phase 3). The word lists
+ * formerly hardcoded in C arrays now live in knowledge/social.pl. */
+static int is_social_marker(Brain *b, const char *type, const char *word) {
+    if (!b || !b->kb) return 0;
+    const char *args[] = {type, word};
+    return kb_query(b->kb, "social_marker", args, 2);
+}
+
+static int has_social_pattern(Brain *b, const char *type, const char *text) {
+    if (!b || !b->kb) return 0;
+    const char *pat[] = {type, NULL};
+    char patterns[64][KB_TERM_LEN];
+    size_t n = kb_match(b->kb, "social_pattern", pat, 2, patterns, 64);
+    for (size_t i = 0; i < n; i++)
+        if (strstr(text, patterns[i]) != NULL) return 1;
+    return 0;
+}
+
+static int tok_is_marker(Brain *b, const char *type, char **w, size_t nw) {
+    if (!b) return 0;
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (is_social_marker(b, type, t)) return 1;
+    }
+    return 0;
+}
+
+static int has_any_question(Brain *b, const char *buf, char **w, size_t nw) {
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (t && *t && b && b->kb) {
+            const char *args[] = {t};
+            if (kb_query(b->kb, "question_word", args, 1)) return 1;
+        }
+    }
+    /* fallback substring cue for multi-word question forms */
+    const char *qc[] = {"who","what","where","when","why","how","which",
+                        "chi","che","cosa","dove","quando","perche","perché","come"};
+    for (size_t i = 0; i < sizeof qc / sizeof qc[0]; i++)
+        if (cue(buf, qc[i])) return 1;
+    return 0;
+}
+
+/* Keep tok_in for social[] check in is_substantive (the list of words that
+ * should not count as content); gen73: also backed by social_marker KB facts. */
+static int tok_in(Brain *b, char **w, size_t nw, const char *const *set) {
     for (size_t i = 0; i < nw; i++) {
         char tmp[64];
         snprintf(tmp, sizeof tmp, "%s", w[i]);
         const char *t = strip_edge_punct(tmp);
         for (const char *const *s = set; *s; s++)
             if (strcmp(t, *s) == 0) return 1;
+        /* also check KB social_marker facts for all types */
+        if (is_social_marker(b, "opening", t) ||
+            is_social_marker(b, "closing", t) ||
+            is_social_marker(b, "thanks", t) ||
+            is_social_marker(b, "apology", t) ||
+            is_social_marker(b, "ambiguous", t)) return 1;
     }
     return 0;
 }
@@ -2792,37 +2900,22 @@ static int is_substantive(Brain *b, const char *t) {
     const char *s = strip_edge_punct(tmp);
     if (strlen(s) < 3) return 0;
     if (is_stopword(b, s)) return 0;
-    static const char *const social[] = {
-        "hello","hi","hey","hiya","yo","salve","ehi","buongiorno","buonasera",
-        "hello!","howdy","bye","goodbye","farewell","addio","arrivederci",
-        "ciao","thanks","thx","ty","grazie","thank","grazia",
-        "sorry","scusa","scusate","scusi","dispiace", NULL
-    };
-    if (matches_any(s, social)) return 0;
+    /* gen73: markers come from KB social_marker facts */
+    if (is_social_marker(b, "opening", s) ||
+        is_social_marker(b, "closing", s) ||
+        is_social_marker(b, "thanks", s) ||
+        is_social_marker(b, "apology", s) ||
+        is_social_marker(b, "ambiguous", s)) return 0;
     return 1;
-}
-
-/* True if the line contains a question word — a strong signal that the turn
- * carries an information request a content module should answer. */
-static int has_question_word(const char *buf, char **w, size_t nw) {
-    static const char *const qwords[] = {
-        "who","what","where","when","why","how","which",
-        "chi","che","cosa","dove","quando","perche","perché","come", NULL
-    };
-    if (tok_in(w, nw, qwords)) return 1;
-    if (cue(buf, "what") || cue(buf, "who") || cue(buf, "where") ||
-        cue(buf, "when")  || cue(buf, "why") || cue(buf, "how") ||
-        cue(buf, "which") || cue(buf, "chi") || cue(buf, "cosa") ||
-        cue(buf, "dove")  || cue(buf, "quando") || cue(buf, "perche") ||
-        cue(buf, "perché") || cue(buf, "come"))
-        return 1;
-    return 0;
 }
 
 /* True when the substantive part of the turn is itself a wellbeing check-in;
  * such turns are still owned by the social module (marker + wellbeing is not a
  * mixed act we want to decline). */
 static int is_wellbeing_content(const char *buf) {
+    /* gen73: patterns from social_pattern(wellbeing, ...) are matched by
+     * has_social_pattern in mod_social; this fast substring check stays
+     * as a guard in is_mixed_turn. */
     return cue(buf, "how are you") || cue(buf, "how r u") ||
            cue(buf, "how do you do") || cue(buf, "how is it going") ||
            cue(buf, "come stai") || cue(buf, "come va");
@@ -2838,7 +2931,7 @@ static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
 
     /* question word + marker -> substance wins ("hey, who are you?"),
      * unless the substance is a wellbeing check the social module handles. */
-    if (has_question_word(buf, w, nw) && !is_wellbeing_content(buf)) return 1;
+    if (has_any_question(b, buf, w, nw) && !is_wellbeing_content(buf)) return 1;
 
     /* marker + substantive content -> substance wins
      * ("Hello there, I hope you don't mind me reaching out.")
@@ -2879,23 +2972,16 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(tmp, w, 64);
     if (nw == 0) return 0;
 
-    static const char *const opening[]  = {"hello","hi","hey","hiya","yo","salve",
-        "ehi","buongiorno","buonasera","hello!","howdy", NULL};
-    static const char *const closing[]  = {"bye","goodbye","farewell","addio",
-        "arrivederci", NULL};
-    static const char *const thanks[]   = {"thanks","thx","ty","grazie", NULL};
-    static const char *const apology[]  = {"sorry","scusa","scusate","scusi",
-        "dispiace", NULL};
-    static const char *const ambiguous[] = {"ciao", NULL}; /* hello AND bye */
-
-    int has_opening = tok_in(w, nw, opening) || cue(buf, "good morning") ||
-                      cue(buf, "good evening") || cue(buf, "good afternoon");
-    int has_closing = tok_in(w, nw, closing) || cue(buf, "see you") ||
-                      cue(buf, "a presto");
-    int has_thanks  = tok_in(w, nw, thanks) || cue(buf, "thank you") ||
-                      cue(buf, "thank u");
-    int has_apology = tok_in(w, nw, apology) || cue(buf, "mi dispiace");
-    int has_ambiguous = tok_in(w, nw, ambiguous);
+    /* gen73: all markers now come from knowledge/social.pl via KB queries. */
+    int has_opening   = tok_is_marker(b, "opening", w, nw) ||
+                        has_social_pattern(b, "opening", buf);
+    int has_closing   = tok_is_marker(b, "closing", w, nw) ||
+                        has_social_pattern(b, "closing", buf);
+    int has_thanks    = tok_is_marker(b, "thanks", w, nw) ||
+                        has_social_pattern(b, "thanks", buf);
+    int has_apology   = tok_is_marker(b, "apology", w, nw) ||
+                        has_social_pattern(b, "apology", buf);
+    int has_ambiguous = tok_is_marker(b, "ambiguous", w, nw);
 
     /* gen56/gen63/gen71: if the turn is mixed, let content modules handle the substance. */
     if (is_mixed_turn(b, buf, w, nw, has_opening, has_closing, has_thanks,
@@ -2908,14 +2994,12 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     /* apology — "scusa", "sorry", "mi dispiace" etc. */
     if (has_apology) { put("No problem.", out, out_size); return 1; }
 
-    /* wellbeing check-in */
-    if (cue(buf, "how are you") || cue(buf, "how r u") ||
-        cue(buf, "how do you do") || cue(buf, "how is it going") ||
-        cue(buf, "come stai") || cue(buf, "come va"))
+    /* wellbeing check-in — gen73: patterns from knowledge/social.pl */
+    if (has_social_pattern(b, "wellbeing", buf))
         { put("I'm well, thanks. How can I help?", out, out_size); return 1; }
 
     /* position-disambiguated ambiguous marker: "ciao" opens early, closes late */
-    if (tok_in(w, nw, ambiguous)) {
+    if (has_ambiguous) {
         put(b->turns <= 2 ? "Hi there!" : "Goodbye!", out, out_size);
         return 1;
     }
@@ -2923,6 +3007,22 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     /* explicit opening / closing markers */
     if (has_opening) { put("Hi there!", out, out_size); return 1; }
     if (has_closing) { put("Goodbye!", out, out_size); return 1; }
+
+    /* gen72/gen73: laughter and conversational reactions — from knowledge/social.pl */
+    int has_reaction = 0;
+    for (size_t i = 0; i < nw && !has_reaction; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (t && *t && b && b->kb) {
+            const char *args[] = {t};
+            if (kb_query(b->kb, "reaction_word", args, 1)) has_reaction = 1;
+        }
+    }
+    if (has_reaction && nw <= 3) {
+        put(":) Glad you're enjoying the conversation.", out, out_size);
+        return 1;
+    }
 
     /* the elimination move: a single contentless word as the opener is, by
      * exclusion, phatic contact — greet and invite content, without listing it.
@@ -2967,6 +3067,19 @@ static int looks_palindrome(const char *s) {
     if (all_same) return 0;
     for (size_t i = 0, j = n - 1; i < j; i++, j--)
         if (c[i] != c[j]) return 0;
+    /* gen72: short palindromes with only 2 distinct letters (e.g. "ahaha",
+     * "ohoho") are conversational interjections, not deliberate palindromes.
+     * Let the social module handle them instead of hijacking with "That looks
+     * like a palindrome." */
+    if (!has_nonletter && n < 7) {
+        int distinct = 0;
+        char seen[26] = {0};
+        for (size_t i = 0; i < n; i++)
+            seen[c[i] - 'a'] = 1;
+        for (size_t i = 0; i < 26; i++)
+            if (seen[i]) distinct++;
+        if (distinct <= 2) return 0;
+    }
     return 1;
 }
 
@@ -3128,6 +3241,12 @@ Brain *brain_create(void) {
         kb_load(b->kb, lexicon);
     }
 
+    /* gen73 (PLAN.md Phase 3): social markers, question words and reaction words
+     * live in knowledge/social.pl, not as hardcoded C arrays. The KB is the
+     * single source of truth; the C code queries it at runtime. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "knowledge/social.pl");
+
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
      * regenerated every boot and NEVER persisted (DESIGN.md D3). */
@@ -3162,7 +3281,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen71-apology-social";
+    return "gen74-contractions";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

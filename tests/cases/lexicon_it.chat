@@ -1,0 +1,14 @@
+# gen72: Italian conversational content words added to lexicon.pl as stopwords
+# no longer trigger the word-reflecting fallback ("Hmm, I don't know about X").
+# Instead they get the classic or generic fallback. Bilingual ratchet:
+# the same stopword mechanism works for both languages.
+> dimmi niente
+< I don't understand that yet.
+> ancora niente
+< I didn't quite catch that. What would you like to know?
+> ehi tranquillo
+< Hi there!
+> questo e un casino
+< I don't understand that yet.
+> parliamo di formaggio
+< I'm not sure I followed. Can you say it another way?

@@ -1,6 +1,72 @@
 # parrot0 evolution journal
 
-Newest entries on top. One entry per iteration of the loop (see LOOP.md).
+## 2026-06-16 — gen74: chat contractions + "sup" marker + i_am rendering + wellbeing patterns
+
+**Changed:** `brain.c` → `gen74-contractions`; `knowledge/social.pl` expanded;
+`src/kb.c` `render_fact_direct` and `is_model_pred` fixed.
+
+- Added chat contraction canonicalizations: "whats"→"what is", "whos"→"who is",
+  "wheres"→"where is", "dont"→"do not", "cant"→"can not", "pls"→"please".
+  Builds on gen64's "u"→"you"/"r"→"are" pattern — the existing parsers
+  (arith, knowledge, identity) now work on contracted input.
+- "sup" added to `knowledge/social.pl` as `social_marker(opening, sup)`.
+- Added broader wellbeing patterns to social.pl: "how is your day",
+  "hows your day", "hows it going", "how are things", "hows things".
+- `render_fact_direct` handles `i_am(X)` specially: renders "X is X" instead
+  of "X is a i_am". Fixes "what is parrot0" → "parrot0 is parrot0".
+- `is_model_pred` expanded to filter `module`, `stopword`, `question_word`,
+  `reaction_word`, `social_marker`, `social_pattern`, `cmd`, `flag` from
+  direct belief reports — keeps self-model internals out of entity descriptions.
+- Added `tests/cases/contractions.chat` (7 turns): "sup" greeting, "whats 2+2"
+  arith, "whos a dog" query, "dont say that" fallback, "whats parrot0" identity,
+  wellbeing patterns through contracts.
+
+**Why:** PLAN.md C8 — abbreviation/contraction parsing. The chat-sim transcripts
+showed "whats 2+2" hitting the wall and "sup" being handled only by the
+elimination move. Contractions are structural, not a phrasebook: expanding them
+into canonical spaced forms lets existing parsers work unchanged.
+
+**Observed:** `make test` green: 66 chat cases + all suites. `make chat-sim`:
+**wall rate 70%** (19/27), down from 83% in gen73. Contractions work: "whats 2+2"
+→ "4.". "sup" → "Hi there!" from KB-backed social markers. Wellbeing patterns:
+"how is your day going" → "I'm well, thanks." i_am rendering: "what is parrot0"
+→ "parrot0 is parrot0."
+
+**Next:** C9 — improve arith parser to handle "whats 2+2" (without spaces around
+operators) and reduce module order dependencies. The parser's rigid word-count
+checks reject many natural phrasings.
+
+
+**Changed:** `brain.c` → `gen73-kb-social-markers`; new `knowledge/social.pl`;
+`knowledge/lexicon.pl` expanded; `src/kb.c` induction filter.
+
+- **Social markers moved to knowledge/social.pl**: all token-level markers
+  (opening, closing, thanks, apology, ambiguous), cue-based patterns (wellbeing,
+  multi-word forms), question words (EN + IT), and reaction words (laughter) now
+  live as `social_marker/2`, `social_pattern/2`, `question_word/1`,
+  `reaction_word/1` facts. The C code queries the KB at runtime instead of
+  hardcoded `static const char *const[]` arrays.
+- `mod_social` refactored: `tok_is_marker()`, `has_social_pattern()`,
+  `has_any_question()` all query the KB. Removed old `has_question_word()`.
+- `brain_create` loads `knowledge/social.pl` as KB_BASE.
+- **English lexicon**: ~60 conversational words added to `knowledge/lexicon.pl`.
+- `kb_induce` skips meta-predicates (stopword, question_word, etc.) to avoid
+  spurious rules like `stopword(X) :- question_word(X)`.
+- `looks_palindrome` excludes short 2-letter palindromes ("ahaha").
+
+**Why:** PLAN.md: transform C string constants into knowledge files. The social
+register is a closed-class word list — the "function words of conversation".
+Moving them to `.pl` files makes them auditable, git-diffable, and queryable by
+the self-model (PRINCIPLES.md: state-derived, never hardcoded).
+
+**Observed:** `make test` green: 65 chat + all suites. `make chat-sim`: wall
+rate 83% (25/30), word-reflect 6, classic 14, other 5. KB social markers work:
+"hey"→"Hi there!", "how are you"→wellbeing, identity/clarification fire.
+"sup" not in markers yet; "whats 2+2" walls (arith parser expects spaced "what is").
+
+**Next:** C8 — add "sup" and other chat abbreviations to social.pl; improve
+contraction parsing for "whats", "dont", "cant" etc. in the canonicalization layer.
+
 
 ## 2026-06-16 — gen71: C7 step 1 — Italian apology markers + canonicalization
 

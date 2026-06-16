@@ -570,6 +570,20 @@ size_t kb_induce(KB *kb, size_t min_support,
     char preds[256][KB_TERM_LEN];
     size_t np = 0;
     for (size_t i = 0; i < kb->n; i++) {
+        /* gen73: skip meta-knowledge predicates (lexicon, social, reflective).
+         * Induction should operate on domain facts, not on curated word lists. */
+        const char *mp = kb->facts[i].pred;
+        if (strcmp(mp, "stopword") == 0 ||
+            strcmp(mp, "question_word") == 0 ||
+            strcmp(mp, "reaction_word") == 0 ||
+            strcmp(mp, "social_marker") == 0 ||
+            strcmp(mp, "social_pattern") == 0 ||
+            strcmp(mp, "i_am") == 0 ||
+            strcmp(mp, "module") == 0 ||
+            strcmp(mp, "cmd") == 0 ||
+            strcmp(mp, "flag") == 0 ||
+            strcmp(mp, "cont") == 0 ||
+            strcmp(mp, "cont2") == 0) continue;
         if (kb->facts[i].argc == 1) push_unique(preds, &np, 256, kb->facts[i].pred);
     }
 
@@ -798,7 +812,13 @@ static int fact_mentions(const Fact *f, const char *entity) {
 }
 
 static void render_fact_direct(const Fact *f, const char *entity, int neg,
-                               char *buf, size_t sz) {
+                                char *buf, size_t sz) {
+    /* gen74: i_am(X) means X asserts its own identity — render "X is X." */
+    if (strcmp(f->pred, "i_am") == 0 && f->argc == 1 &&
+        strcmp(f->args[0], entity) == 0) {
+        snprintf(buf, sz, "%s is %s", entity, entity);
+        return;
+    }
     if (f->argc == 1 && strcmp(f->args[0], entity) == 0) {
         snprintf(buf, sz, "%s is %sa %s", entity, neg ? "not " : "", f->pred);
         return;
@@ -846,7 +866,12 @@ static int append_piece(char *out, size_t out_size, size_t *off,
  * KB with both. Introspection ("what do you know about x?") should report
  * knowledge, not the language model's internals, so these are filtered out. */
 static int is_model_pred(const char *pred) {
-    return strcmp(pred, "cont") == 0 || strcmp(pred, "cont2") == 0;
+    return strcmp(pred, "cont") == 0 || strcmp(pred, "cont2") == 0 ||
+           strcmp(pred, "module") == 0 ||
+           strcmp(pred, "stopword") == 0 || strcmp(pred, "question_word") == 0 ||
+           strcmp(pred, "reaction_word") == 0 || strcmp(pred, "social_marker") == 0 ||
+           strcmp(pred, "social_pattern") == 0 ||
+           strcmp(pred, "cmd") == 0 || strcmp(pred, "flag") == 0;
 }
 
 int kb_describe_entity(const KB *kb, const char *entity,

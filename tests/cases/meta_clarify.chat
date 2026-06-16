@@ -1,0 +1,20 @@
+# gen72: mod_meta clarification patterns — "what do you mean", "explain yourself",
+# Italian "spiegati", "cosa intendi", user non-understanding, help-offer reversal.
+# Also Italian lexicon expansion prevents word-reflecting for ~50 common
+# conversational content words.
+> what do you mean
+< I mean I can only answer what my registered modules let me. Try asking a simple factual question.
+> spiegati
+< I mean I can only answer what my registered modules let me. Try asking a simple factual question.
+> cosa intendi
+< I mean I can only answer what my registered modules let me. Try asking a simple factual question.
+> i don't get it
+< I understand some patterns and I say when I do not. Try a shorter or simpler question.
+> non capisco
+< I understand some patterns and I say when I do not. Try a shorter or simpler question.
+> how can i help you
+< I'm a chatbot, not a person — I don't need help. But you can ask me questions and I'll try to answer.
+> come posso aiutarti
+< I'm a chatbot, not a person — I don't need help. But you can ask me questions and I'll try to answer.
+> ti aiuto io
+< I'm a chatbot, not a person — I don't need help. But you can ask me questions and I'll try to answer.
