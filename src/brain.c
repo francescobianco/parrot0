@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 struct Brain {
@@ -42,6 +43,9 @@ struct Brain {
     /* gen78: module activation tracking. Stores which module claimed the last
      * turn, so "which part of you answered that?" reads real state. */
     char last_module[32];
+
+    /* gen82: session start time for "how long have we been talking?" */
+    time_t start_time;
 
     /* gen57: personal-possession display table. The KB treats uppercase-initial
      * atoms as variables, so the lookup key is lowercased while the original
@@ -2342,6 +2346,37 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen82: session statistics — "how many turns?", "how long?" */
+    int turn_count = cue(buf, "how many turns") ||
+                     cue(buf, "how many messages") ||
+                     cue(buf, "quanti turni") ||
+                     cue(buf, "quanti messaggi");
+    if (turn_count) {
+        char msg[96];
+        snprintf(msg, sizeof msg, "We've exchanged %lu turn(s).", b->turns);
+        put(msg, out, out_size);
+        return 1;
+    }
+    int session_time = cue(buf, "how long have we been talking") ||
+                       cue(buf, "how long has this been") ||
+                       cue(buf, "da quanto tempo parliamo") ||
+                       cue(buf, "da quanto parliamo");
+    if (session_time) {
+        time_t now = time(NULL);
+        long elapsed = (long)(now - b->start_time);
+        char msg[128];
+        if (elapsed < 60)
+            snprintf(msg, sizeof msg, "We've been talking for %ld second(s).", elapsed);
+        else if (elapsed < 3600)
+            snprintf(msg, sizeof msg, "We've been talking for %ld minute(s) and %ld second(s).",
+                     elapsed / 60, elapsed % 60);
+        else
+            snprintf(msg, sizeof msg, "We've been talking for %ld hour(s) and %ld minute(s).",
+                     elapsed / 3600, (elapsed % 3600) / 60);
+        put(msg, out, out_size);
+        return 1;
+    }
+
     int understand = cue(buf, "do you understand me") ||
                      cue(buf, "understand what i say") ||
                      cue(buf, "capisci") ||
@@ -3581,6 +3616,7 @@ Brain *brain_create(void) {
     if (!b) return NULL;
     b->kb = kb_create();
     if (!b->kb) { free(b); return NULL; }
+    b->start_time = time(NULL);
 
     /* Curated lexical knowledge used by the kernel itself. It lives in the
      * knowledge layer, not as C word arrays; loading it as base keeps it out of
@@ -3632,7 +3668,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen81-priority";
+    return "gen82-session-stats";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
