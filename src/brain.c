@@ -51,6 +51,10 @@ struct Brain {
     char entities[8][64];
     size_t entity_count;
 
+    /* gen84: hypothesis mode — temporary facts scoped to one query. */
+    int  in_hypothesis;   /* true while handling a "suppose..." turn */
+    KB  *hypo_kb;         /* temporary KB with hypothesized facts */
+
     /* gen57: personal-possession display table. The KB treats uppercase-initial
      * atoms as variables, so the lookup key is lowercased while the original
      * casing is remembered here for natural replies. */
@@ -742,6 +746,56 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
+
+    /* gen84: hypothesis mode — "suppose <fact>, then <query>" */
+    if (strncmp(norm, "suppose ", 8) == 0) {
+        const char *rest = norm + 8;
+        const char *then_pos = strstr(rest, " then ");
+        const char *allora_pos = strstr(rest, " allora ");
+        const char *sep = then_pos ? then_pos : allora_pos;
+        size_t sep_len = then_pos ? 6 : (allora_pos ? 8 : 0);
+        if (sep && sep_len) {
+            char supp[256], query_text[256];
+            size_t slen = (size_t)(sep - rest);
+            if (slen >= sizeof supp) slen = sizeof supp - 1;
+            memcpy(supp, rest, slen); supp[slen] = '\0';
+            /* Strip trailing punctuation from the supposition. */
+            while (slen > 0 && (supp[slen-1] == ',' || supp[slen-1] == '.' ||
+                   supp[slen-1] == ';' || supp[slen-1] == ' '))
+                supp[--slen] = '\0';
+            snprintf(query_text, sizeof query_text, "%s", sep + sep_len);
+            char sn[256], sc[256];
+            normalize(supp, sn, sizeof sn);
+            canonicalize_lang(sn, sc, sizeof sc);
+            /* Assert supposition, then query. */
+            Brain hypo = {0};
+            hypo.kb = kb_create();
+            if (!hypo.kb) return 0;
+            kb_set_origin(hypo.kb, KB_SESSION);
+            char discard[256];
+            mod_knowledge(&hypo, sc, sc, discard, sizeof discard);
+            char qn[256], qc[256];
+            normalize(query_text, qn, sizeof qn);
+            canonicalize_lang(qn, qc, sizeof qc);
+            char qbuf[256];
+            size_t ql = strlen(qc);
+            if (ql >= sizeof qbuf) ql = sizeof qbuf - 1;
+            memcpy(qbuf, qc, ql + 1);
+            if (ql > 0 && qbuf[ql - 1] == '?') qbuf[ql - 1] = '\0';
+            char *qw[8];
+            size_t qnw = split_words(qbuf, qw, 8);
+            if (qnw == 4 && strcmp(qw[0], "is") == 0 && is_article(qw[2])) {
+                const char *args[] = {qw[1]};
+                int yes = kb_query(hypo.kb, qw[3], args, 1);
+                put(yes ? "Yes, under that supposition." : "No, even with that supposition.",
+                    out, out_size);
+            } else {
+                put("I supposed that. What should I check?", out, out_size);
+            }
+            kb_destroy(hypo.kb);
+            return 1;
+        }
+    }
 
     /* Work on a mutable copy with any trailing '?' stripped. */
     char buf[512];
@@ -3692,7 +3746,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen83-entities";
+    return "gen84-hypothesis";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
