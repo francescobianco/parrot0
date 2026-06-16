@@ -2871,7 +2871,25 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
 
     /* gen83 entities_q ... (above) */
 
-    /* gen86: "what can <module> do?" — per-module capability. */
+    /* gen86 mod_cap ... (above) */
+
+    /* gen89: "what have I taught you?" — show only session facts. */
+    int taught_q = (cue(buf, "what have i taught you") && wn <= 6) ||
+                   (cue(buf, "what did i teach you") && wn <= 6) ||
+                   (cue(buf, "cosa ti ho insegnato") && wn <= 5);
+    if (taught_q) {
+        /* Dump only user-facing predicates, regardless of origin.
+         * kb_user_facts already filters internal predicates. */
+        char dump[4096];
+        if (kb_dump_user(b->kb, dump, sizeof dump)) {
+            char msg[4200];
+            snprintf(msg, sizeof msg, "You taught me: %s", dump);
+            put(msg, out, out_size);
+        } else {
+            put("You haven't taught me any facts yet.", out, out_size);
+        }
+        return 1;
+    }
     int mod_cap = (cue(buf, "what can the") && wn <= 7) ||
                   (cue(buf, "what does the") && wn <= 7) ||
                   (cue(buf, "cosa può fare il modulo") && wn <= 7);
@@ -3812,7 +3830,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen88-negation-of-intent";
+    return "gen89-what-taught";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
