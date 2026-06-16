@@ -47,6 +47,10 @@ struct Brain {
     /* gen82: session start time for "how long have we been talking?" */
     time_t start_time;
 
+    /* gen83: named-entity candidates extracted from user turns. */
+    char entities[8][64];
+    size_t entity_count;
+
     /* gen57: personal-possession display table. The KB treats uppercase-initial
      * atoms as variables, so the lookup key is lowercased while the original
      * casing is remembered here for natural replies. */
@@ -2782,6 +2786,26 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen83: "what names have I mentioned?" / "who have I talked about?" */
+    int entities_q = (cue(buf, "what names have i") && wn <= 6) ||
+                     (cue(buf, "who have i mentioned") && wn <= 5) ||
+                     (cue(buf, "who have i talked about") && wn <= 7) ||
+                     (cue(buf, "quali nomi ho menzionato") && wn <= 5);
+    if (entities_q) {
+        if (b->entity_count == 0) {
+            put("You haven't mentioned any names I recognized.", out, out_size);
+        } else {
+            char list[512]; size_t off = 0;
+            for (size_t i = 0; i < b->entity_count && off < sizeof list; i++)
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                         "%s%s", i ? ", " : "", b->entities[i]);
+            char msg[600];
+            snprintf(msg, sizeof msg, "You mentioned: %s.", list);
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
     return 0;
 }
 
@@ -3668,7 +3692,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen82-session-stats";
+    return "gen83-entities";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3840,6 +3864,27 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
 
     /* Walk the registry; first module to claim the turn wins. */
     int handled = 0, handled_by_discourse = 0;
+
+    /* gen83: extract capitalized words as named-entity candidates. */
+    if (b) {
+        char rbuf[256];
+        snprintf(rbuf, sizeof rbuf, "%s", input);
+        char *rw[64];
+        size_t rnw = split_words(rbuf, rw, 64);
+        for (size_t i = 0; i < rnw && b->entity_count < 8; i++) {
+            if (isupper((unsigned char)rw[i][0]) && strlen(rw[i]) >= 2) {
+                int dup = 0;
+                for (size_t j = 0; j < b->entity_count; j++)
+                    if (strcmp(b->entities[j], rw[i]) == 0) { dup = 1; break; }
+                if (!dup) {
+                    snprintf(b->entities[b->entity_count],
+                             sizeof b->entities[0], "%s", rw[i]);
+                    b->entity_count++;
+                }
+            }
+        }
+    }
+
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
             handled = 1;

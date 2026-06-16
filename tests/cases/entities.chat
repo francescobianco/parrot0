@@ -1,0 +1,8 @@
+# gen83: named entity detection. Capitalized words in user turns are
+# collected as entity candidates throughout the session.
+> my dog is called Rex
+< Got it: your dog is called Rex.
+> I also know Luna and Max
+< I don't understand that yet.
+> what names have i mentioned?
+< You mentioned: Rex, Luna, Max.
