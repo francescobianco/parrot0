@@ -22,72 +22,60 @@ BASE = "https://opencode.ai/zen/go/v1/chat/completions"
 
 # --- persona components: assembled randomly so the human is mutable over time ---
 WHO = [
-    "a curious teenager", "a busy office worker on a coffee break",
-    "an elderly person new to computers", "a non-native English speaker",
-    "a sceptical software tester", "a chatty extrovert", "a tired parent",
-    "a bored student", "a poet who likes wordplay", "a blunt engineer",
-    "a kid asking endless why-questions", "someone a bit grumpy today",
-    "a cheerful small-talker",
+    "a curious teenager", "a busy office worker", "an elderly person",
+    "a non-native speaker", "a sceptical tester", "a chatty person",
+    "a tired parent", "a bored student", "a blunt engineer",
+    "someone a bit grumpy", "a cheerful person",
 ]
 MOOD = ["cheerful", "impatient", "confused", "playful", "skeptical", "warm",
-        "distracted", "deadpan", "enthusiastic", "a little annoyed"]
-VERBOSITY = ["Keep most messages very short (1-6 words).",
-             "Write casual one-liners.",
-             "Sometimes ramble, sometimes go terse.",
-             "Mix short and medium messages."]
+        "distracted", "deadpan", "enthusiastic", "annoyed"]
+LANG = ["English", "English", "Italian", "Italian and English mixed"]
 STYLE = ["lowercase, no punctuation", "with occasional typos",
-         "with an emoji now and then", "fairly formal", "slangy and casual",
-         "plain and neutral"]
-LANG = ["Write in English.", "Write in English.",
-        "Write in Italian.", "Mix Italian and English casually."]
-GOAL = ["just make small talk", "test if the bot is smart by probing it",
-        "ask it a couple of real questions", "vent a little then chat",
-        "ask it to do something simple", "see if it remembers what you said",
-        "greet it and see what happens", "try to confuse it for fun"]
-QUIRK = ["Occasionally change the topic abruptly.",
-         "Sometimes answer a question with a question.",
-         "Drop in a personal detail (a pet, a city, a hobby).",
-         "Now and then react to how the bot is doing (bored/impressed/puzzled).",
-         "Use the bot's name sometimes.",
-         "Occasionally be a bit cheeky.", ""]
+         "short messages", "casual", "plain"]
 
 def persona() -> str:
+    """Return a minimal system prompt — one line, no meta-task framing."""
+    who = random.choice(WHO)
+    mood = random.choice(MOOD)
+    lang = random.choice(LANG)
+    style = random.choice(STYLE)
     return (
-        f"You are role-playing a HUMAN in a chat with 'parrot0', a tiny "
-        f"experimental chatbot. You are {random.choice(WHO)}, feeling "
-        f"{random.choice(MOOD)}. Your aim: {random.choice(GOAL)}. "
-        f"{random.choice(VERBOSITY)} Style: {random.choice(STYLE)}. "
-        f"{random.choice(LANG)} {random.choice(QUIRK)} "
-        f"Behave like a real, unpredictable person — vary your wording every turn. "
-        f"If the bot is confusing or dull, react like a human (impatience, a joke, "
-        f"change subject, push back). Output ONLY your next chat message: no quotes, "
-        f"no narration, no role labels."
-    ).replace("\n", " ")
+        f"You are {who}, {mood}. Chat with parrot0 as a real person. "
+        f"Reply in {lang}. Style: {style}. "
+        f"Keep replies short (1-8 words). "
+        f"DO NOT plan, narrate, or analyze. Just the message."
+    )
 
 def call_model(key: str, model: str, messages: list, temperature: float) -> str:
     body = json.dumps({"model": model, "messages": messages,
                        "max_tokens": 120, "temperature": temperature}).encode()
     req = urllib.request.Request(BASE, data=body, method="POST", headers={
         "Authorization": f"Bearer {key}", "Content-Type": "application/json",
-        # the gateway 403s urllib's default UA; send an explicit one
         "User-Agent": "parrot0-chatsim/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=90) as r:
             d = json.loads(r.read())
     except urllib.error.HTTPError as e:
         return f"[model error {e.code}]"
-    except Exception as e:  # network/timeout
+    except Exception as e:
         return f"[model error {e}]"
     try:
         c = d["choices"][0]["message"]["content"] or ""
     except Exception:
         return "[empty]"
-    # some models leak chain-of-thought into content; strip it
+    # strip think tags and filter meta/planning lines
     c = re.sub(r"<think>.*?</think>", "", c, flags=re.S)
     c = c.replace("<think>", "").replace("</think>", "").strip()
+    _META = ("the user", "the human", "the parrot", "the bot ", "i need to",
+             "i should", "looking at", "previous", "conversation history",
+             "system prompt", "my role", "role-playing", "output only",
+             "key character", "key constraint", "current state:",
+             "wait,", "let me", "actually,", "1.", "- system:",
+             "characteristics:", "constraints to")
     for ln in c.split("\n"):
-        ln = ln.strip()
-        if ln and not ln.lower().startswith(("the user", "the human", "the parrot")):
+        ln = ln.strip().strip('"').strip("'")
+        low = ln.lower()
+        if ln and len(ln) >= 2 and not any(low.startswith(p) for p in _META):
             return ln[:200]
     return "[empty]"
 
@@ -106,11 +94,10 @@ def run_conversation(key, model, turns, log) -> list:
                 msgs.append({"role": "assistant", "content": h})
                 msgs.append({"role": "user", "content": b})
             if not history:
-                msgs.append({"role": "user",
-                             "content": "(You open the chat with parrot0. Write your first message.)"})
+                msgs.append({"role": "user", "content": "say hi"})
             human = call_model(key, model, msgs, temp)
             if human.startswith("[model error") or human == "[empty]":
-                time.sleep(1.5)  # transient: one retry
+                time.sleep(1.5)
                 human = call_model(key, model, msgs, temp)
             if human.startswith("[model error") or human == "[empty]":
                 log(f"  (stopping: {human})"); break
@@ -151,13 +138,32 @@ def main() -> int:
         log(f"\n=== conversation {i+1} ===")
         all_bot += run_conversation(key, args.model, args.turns, log)
 
-    # naturalness proxies
-    wall = sum(1 for b in all_bot if b == "I don't understand that yet.")
+    # naturalness proxies — gen70: wall rate now catches the varied fallback
+    # responses gen55 introduced, not only the classic line.
+    _WALL_PATTERNS = [
+        "I don't understand that yet.",
+        "I'm not sure I followed",
+        "I didn't quite catch that",
+        "Hmm, that's a bit beyond me right now",
+        "Hmm, I don't know about ",
+    ]
+    def _is_wall(s: str) -> bool:
+        if not s: return False
+        for p in _WALL_PATTERNS:
+            if p in s: return True
+        return False
+    wall = sum(1 for b in all_bot if _is_wall(b))
     dup = sum(1 for j in range(1, len(all_bot)) if all_bot[j] and all_bot[j] == all_bot[j-1])
     n = len(all_bot) or 1
+    classic_ct = sum(1 for b in all_bot if b == "I don't understand that yet.")
+    reflect_ct = sum(1 for b in all_bot if b.startswith("Hmm, I don't know about "))
+    other_wall = wall - classic_ct - reflect_ct
     log("\n--- summary ---")
     log(f"bot turns: {len(all_bot)}")
-    log(f'"I don\'t understand that yet." wall rate: {100*wall//n}% ({wall}/{n})')
+    log(f"wall rate (all fallback variants): {100*wall//n}% ({wall}/{n})")
+    log(f'  of which classic "I don\'t understand that yet.": {classic_ct}')
+    log(f"  of which word-reflecting: {reflect_ct}")
+    log(f"  of which other variants: {other_wall}")
     log(f"immediate repetition rate: {100*dup//n}% ({dup}/{n})")
     with open(out, "w") as f: f.write("\n".join(lines) + "\n")
     log(f"\ntranscript saved: {out}")

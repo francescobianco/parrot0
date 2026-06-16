@@ -422,6 +422,7 @@ static const char *canonical_token(const char *w) {
         {"anche","also"},
         {"causa","causes"},
         {"cos'è", "what is"},
+        {"sono", "am"},
         /* Chat-register shorthand (gen64), not a second language. "u"/"r" are
          * English letters, but never stand-alone English *words*; in a chat
          * agent a lone "u"/"r" overwhelmingly means you/are ("what can u do?",
@@ -2794,7 +2795,8 @@ static int is_substantive(Brain *b, const char *t) {
     static const char *const social[] = {
         "hello","hi","hey","hiya","yo","salve","ehi","buongiorno","buonasera",
         "hello!","howdy","bye","goodbye","farewell","addio","arrivederci",
-        "ciao","thanks","thx","ty","grazie","thank","grazia", NULL
+        "ciao","thanks","thx","ty","grazie","thank","grazia",
+        "sorry","scusa","scusate","scusi","dispiace", NULL
     };
     if (matches_any(s, social)) return 0;
     return 1;
@@ -2830,8 +2832,8 @@ static int is_wellbeing_content(const char *buf) {
  * social module declines so the content module can own the turn. */
 static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
                          int has_opening, int has_closing, int has_thanks,
-                         int has_ambiguous) {
-    int has_marker = has_opening || has_closing || has_thanks || has_ambiguous;
+                         int has_apology, int has_ambiguous) {
+    int has_marker = has_opening || has_closing || has_thanks || has_apology || has_ambiguous;
     if (!has_marker) return 0;
 
     /* question word + marker -> substance wins ("hey, who are you?"),
@@ -2841,7 +2843,7 @@ static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
     /* marker + substantive content -> substance wins
      * ("Hello there, I hope you don't mind me reaching out.")
      * Thanks-based turns are not mixed here; they have their own rule below. */
-    if ((has_opening || has_closing || has_ambiguous) && !has_thanks) {
+    if ((has_opening || has_closing || has_apology || has_ambiguous) && !has_thanks) {
         if (is_wellbeing_content(buf)) return 0;
         for (size_t i = 0; i < nw; i++)
             if (is_substantive(b, w[i])) return 1;
@@ -2882,6 +2884,8 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     static const char *const closing[]  = {"bye","goodbye","farewell","addio",
         "arrivederci", NULL};
     static const char *const thanks[]   = {"thanks","thx","ty","grazie", NULL};
+    static const char *const apology[]  = {"sorry","scusa","scusate","scusi",
+        "dispiace", NULL};
     static const char *const ambiguous[] = {"ciao", NULL}; /* hello AND bye */
 
     int has_opening = tok_in(w, nw, opening) || cue(buf, "good morning") ||
@@ -2890,15 +2894,19 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
                       cue(buf, "a presto");
     int has_thanks  = tok_in(w, nw, thanks) || cue(buf, "thank you") ||
                       cue(buf, "thank u");
+    int has_apology = tok_in(w, nw, apology) || cue(buf, "mi dispiace");
     int has_ambiguous = tok_in(w, nw, ambiguous);
 
-    /* gen56/gen63: if the turn is mixed, let content modules handle the substance. */
+    /* gen56/gen63/gen71: if the turn is mixed, let content modules handle the substance. */
     if (is_mixed_turn(b, buf, w, nw, has_opening, has_closing, has_thanks,
-                      has_ambiguous))
+                      has_apology, has_ambiguous))
         return 0;
 
     /* gratitude */
     if (has_thanks) { put("You're welcome!", out, out_size); return 1; }
+
+    /* apology — "scusa", "sorry", "mi dispiace" etc. */
+    if (has_apology) { put("No problem.", out, out_size); return 1; }
 
     /* wellbeing check-in */
     if (cue(buf, "how are you") || cue(buf, "how r u") ||
@@ -3154,7 +3162,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen69-polar-meta";
+    return "gen71-apology-social";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3192,7 +3200,7 @@ static void not_understood(Brain *b, const char *canon,
         int known = b && b->kb &&
                     (kb_knows_pred(b->kb, t) ||
                      kb_describe_entity(b->kb, t, desc, sizeof desc));
-        if (strlen(t) >= 4 && isalpha((unsigned char)t[0]) &&
+        if (strlen(t) >= 6 && isalpha((unsigned char)t[0]) &&
             !is_stopword(b, t) && !known) {
             sw = t; break;
         }

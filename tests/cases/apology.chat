@@ -1,0 +1,16 @@
+# gen71: apology markers in mod_social — "sorry", "scusa", "scusate", "scusi",
+# "mi dispiace" are recognised as phatic apology acts and answered with
+# "No problem.". Mixed turns (apology + content) are declined so content
+# modules handle the substance. Bilingual ratchet: EN + IT.
+> scusa
+< No problem.
+> sorry
+< No problem.
+> scusate
+< No problem.
+> mi dispiace
+< No problem.
+> scusa, puoi aiutarmi?
+< I don't understand that yet.
+> mi dispiace, ho sbagliato
+< Hmm, I don't know about sbagliato yet.

@@ -177,3 +177,4 @@ stopword(fra).
 stopword(stai).
 stopword(parli).
 stopword(basta).
+stopword(dispiace).

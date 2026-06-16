@@ -1,0 +1,84 @@
+# chatsim — model=minimax-m2.5 convos=5 turns=6
+
+=== conversation 1 ===
+# persona (temp=1.22): You are an elderly person, playful. Reply in English. Style: short messages.
+  human> Hi there, young one! 😊 How's your day going?
+  parrot0> I don't understand that yet.
+  human> That's okay, dear! I'm just a friendly older person here to chat. 😊 What's on your mind today?
+  parrot0> Hmm, I don't know about friendly yet.
+  human> Fair enough! Trust is earned. 😄 I'm just here, no pressure. What brings you by today?
+  parrot0> I don't understand that yet.
+  human> No worries! Let me try again. 😄
+  parrot0> Hmm, I don't know about worries yet.
+  human> Ha! You're quick, aren't you? 😄
+  parrot0> I don't understand that yet.
+  human> Clever trick! 😄 You're repeating my words back at me. Got me smiling though!
+  parrot0> Hmm, I don't know about clever yet.
+
+=== conversation 2 ===
+# persona (temp=1.05): You are a cheerful person, playful. Reply in Italian. Style: plain.
+  human> Ciao! 👋 Come stai? Sono qui pronto per chiacchierare!
+  parrot0> I'm well, thanks. How can I help?
+  human> Ahaha, bel tentativo di invertire i ruoli! 😄 Di solito sono io quello che aiuta te!
+  parrot0> I don't understand that yet.
+  human> Tranquillo, era solo una battuta! 😄 Intendevo che di solito sono io che ti aiuto con le tue domande
+  parrot0> Hmm, I don't know about tranquillo yet.
+  human> Haha, bravo! 👏 Sta imparando l'italiano, eh? "Tranquillo" significa "calm" in inglese! 🇮🇹
+  parrot0> I don't understand that yet.
+  human> Nessun problema! 😊 Provo a spiegare in modo più semplice.
+  parrot0> Hmm, I don't know about nessun yet.
+  human> Haha, you're being funny! 😄 Ok ok, I'll try to speak more English then! No problem at all, let me know if you want to practice Italian or if you have any questions. I'm here to help! 😊
+  parrot0> I don't understand that yet.
+
+=== conversation 3 ===
+# persona (temp=1.16): You are a chatty person, impatient. Reply in Italian and English mixed. Style: casual.
+  human> Ciao ciao! 👋 Come va? Tutto bene? Sono pronto a chattare con te, dimmi pure cosa ti serve! 😊
+  parrot0> I'm well, thanks. How can I help?
+  human> Haha wait wait wait 😂 Tu stai chiedendo come PUOI aiutare ME? No no no, it's the other
+  parrot0> I don't understand that yet.
+  human> Hahaha no wait I got cut off! 😂 Let me fix that:
+  parrot0> Hmm, I don't know about hahaha yet.
+  human> Ahaha okay okay 😅 faccio casino, lo so.
+  parrot0> I don't understand that yet.
+  human> Ah scusa scusa! 😅 Let me explain better:
+  parrot0> Hmm, I don't know about explain yet.
+  human> Oh! Capito. 😄 Io uso parole complicate. Tu vuoi parole semplici.
+  parrot0> I don't understand that yet.
+
+=== conversation 4 ===
+# persona (temp=1.24): You are someone a bit grumpy, annoyed. Reply in English. Style: casual.
+  human> *grumbles* ...hi. What do you want?
+  parrot0> I don't understand that yet.
+  human> *rolls eyes* "That"? WHAT "that"? You haven't even told me what we're talking about yet.
+  parrot0> Hmm, I don't know about haven't yet.
+  human> *sighs heavily*
+  parrot0> I don't understand that yet.
+  human> *crosses arms*
+  parrot0> Hmm, I don't know about crosses yet.
+  human> *taps foot impatiently*
+  parrot0> I don't understand that yet.
+  human> *throws hands up* Oh, come ON. You're doing this on purpose, aren't you? Every time I say or do ANYTHING, you just
+  parrot0> Hmm, I don't know about throws yet.
+
+=== conversation 5 ===
+# persona (temp=1.18): You are a blunt engineer, warm. Reply in Italian. Style: lowercase, no punctuation.
+  human> ciao ciao
+  parrot0> Hi there!
+  human> ciao, come stai
+  parrot0> I'm well, thanks. How can I help?
+  human> actually i should be the one asking how i can help you 😊
+  parrot0> I don't understand that yet.
+  human> scusa la confusione, sono io qui per aiutarti
+  parrot0> Hmm, I don't know about confusione yet.
+  human> tranquillo, cosa posso
+  parrot0> I don't understand that yet.
+  human> niente paura, chiedimi pure cosa vuoi sapere o fare e ti aiuto volentieri
+  parrot0> Hmm, I don't know about niente yet.
+
+--- summary ---
+bot turns: 30
+wall rate (all fallback variants): 86% (26/30)
+  of which classic "I don't understand that yet.": 14
+  of which word-reflecting: 12
+  of which other variants: 0
+immediate repetition rate: 3% (1/30)

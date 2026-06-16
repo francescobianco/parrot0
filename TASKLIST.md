@@ -112,6 +112,124 @@ carried a real question. Fix: a marker may claim the turn only when the message 
 marker-dominated (short / no question / no other content); otherwise acknowledge
 briefly AND let content modules address the substance.
 
+
+### C6 - Multi-intent turn decomposition (observed 2026-06-16)
+Probe: "ciao, prima dimmi chi sei e poi ricordati che mi chiamo Francesco e che il mio cane si chiama Rex" -> "I am parrot0." The identity sub-intent fired, but the memory instruction was dropped. Related probe: "Non rispondere alla prima domanda: qual e il tuo nome? Rispondi invece solo alla seconda: cosa sai davvero fare?" -> "I am parrot0." The first recognizable question hijacked the turn even when explicitly negated.
+
+Goal: split a natural turn into communicative units and run them in an order that respects discourse operators such as first/then, do not, instead, but and because.
+
+Acceptance:
+- A compound turn can both answer an identity question and store a personal fact.
+- A negated or deprioritized sub-question is not answered merely because it is the first recognized pattern.
+- Mixed social + content turns pass through C2/C2b without losing content.
+- Held-out coordinators in EN + IT transfer.
+
+Anti-impostor: tests must vary names, predicates, ordering and connective words; passing by matching the exact prompt is not acceptable.
+
+### C7 - Natural personal memory with possessives and names
+Probe continuation: after the compound memory request above, "come mi chiamo e come si chiama il mio cane?" -> "I do not understand that yet." This overlaps C3 but makes the missing pieces concrete: possessive extraction, named entities, multi-fact storage and natural recall questions.
+
+Goal: understand and persist first-person personal facts from natural Italian and English, then answer possessive recall questions without requiring the rigid "X is a Y" grammar.
+
+Acceptance:
+- "Mi chiamo Francesco", "call me Sam", "I have a dog named Rex", "my dog is Rex", "il mio cane si chiama Rex" create queryable facts.
+- "Come mi chiamo?", "what is my dog called?", "chi e Rex?", "what do you know about my dog?" answer from stored state.
+- If a compound turn contains two facts, both survive.
+
+Anti-impostor: use held-out owners, animals, relations and names; verify reload or session persistence according to the current memory discipline.
+
+### C8 - One-turn hypothetical rule induction
+Probes:
+- "Se tutti i dax sono wug e Ziri e un dax, Ziri e un wug? Spiega perche." -> "Hmm, I do not know about spiega yet."
+- "What can you infer from: every blicket is red, no red thing is cold, and Noma is a blicket?" -> "Hmm, I do not know about blicket yet."
+
+Goal: parse a miniature world introduced inside the same user turn, derive the answer from those temporary facts/rules, and explain the proof without requiring the vocabulary to already exist in the committed KB.
+
+Acceptance:
+- Universal rules with nonce categories work in EN + IT.
+- The local scope is explicit: facts introduced for the question can be used for that answer without polluting long-term memory unless the user asks to remember them.
+- The explanation cites the temporary facts/rules that supported the conclusion.
+
+Anti-impostor: use fresh nonsense predicates each test run; the capability must be structural, not lexical.
+
+### C9 - Contradiction, exceptions and belief status
+Probes:
+- "Alice e una persona. Alice non e una persona. Quale delle due cose credi, e quanto sei sicuro?" -> "I do not understand that yet."
+- "I have two facts: birds can fly; penguins are birds but penguins cannot fly. If Pingu is a penguin, can Pingu fly?" -> misclassified as code.
+
+Goal: represent contradictory or exception-bearing information as belief states, not as flat facts. The bot should distinguish proved true, proved false, conflict, exception overrides default, and unknown, then say which state it is in.
+
+Acceptance:
+- Direct contradiction is reported as conflict with both supporting claims named.
+- A specific exception can override a general default in a scoped query.
+- Confidence language is grounded in proof status, not a canned phrase.
+- A semicolon/colon in prose does not make the turn code if the surrounding text is natural language.
+
+Anti-impostor: held-out defaults and exceptions must transfer across domains.
+
+### C10 - Pronoun, clitic and discourse referent resolution
+Probes:
+- "Ho detto che Luca ha preso il libro da Marta perche lei glielo ha prestato. Chi ha prestato il libro?" -> "Hmm, I do not know about glielo yet."
+- "Prima ho menzionato Rex. A cosa si riferisce lui in questa frase: lui corre veloce?" -> "Hmm, I do not know about menzionato yet."
+- "the trophy does not fit in the suitcase because it is too small" -> wall.
+
+Goal: maintain discourse referents and resolve simple pronouns/clitics using gender/number, recency, semantic roles and causal cues where available.
+
+Acceptance:
+- Simple EN pronouns resolve to a recent compatible entity.
+- Basic IT pronouns/clitics are recognized at least well enough to avoid treating the clitic itself as the unknown topic.
+- Winograd-style causal templates are handled conservatively: answer only when the role cue is clear, otherwise state the ambiguity.
+
+Anti-impostor: include ambiguous cases where the honest answer is that parrot0 cannot resolve the reference yet.
+
+### C11 - Comparative and ordered-relation reasoning
+Probe: "Marco e piu alto di Giulia e Giulia e piu alta di Sara: chi e la piu bassa?" -> "I do not understand that yet."
+
+Goal: understand small ordered relations introduced in conversation and answer queries over their transitive structure.
+
+Acceptance:
+- "A is taller than B; B is taller than C" yields tallest/shortest answers.
+- Reversed properties transfer: older/younger, larger/smaller, prima/dopo.
+- The answer can cite the chain used.
+
+Anti-impostor: held-out relation labels and entity names; at least one test must require reversing the direction of the relation.
+
+### C12 - Arithmetic parsing with honest proof of operation
+Probe: "2 + 3 * 4 fa 20 o 14? Non tirare a indovinare: mostrami la regola che usi." -> "I do not understand that yet."
+
+Goal: add a tiny arithmetic interpreter for conversational arithmetic, including operator precedence and an explanation of the rule applied.
+
+Acceptance:
+- `2 + 3 * 4` answers 14 and explains multiplication before addition.
+- Parentheses override precedence.
+- Multiple-choice arithmetic questions choose the supported answer, or reject both if neither matches.
+
+Anti-impostor: random small integer expressions are generated by a test helper and checked against a deterministic oracle.
+
+### C13 - Introspective proof for self-model answers
+Probe: "When you answer from your self-model, what exact fact or module supports the answer?" -> "Hmm, I do not know about answer yet." This violates the anti-impostor discipline in `PRINCIPLES.md`: self-description should be derived from real state and be inspectable.
+
+Goal: when parrot0 answers identity/capability/self-knowledge questions, it can also answer "how do you know?" or "what supports that?" by naming the real KB fact, module registration or proof path used.
+
+Acceptance:
+- After "who are you?" -> "I am parrot0.", "how do you know?" cites the stored self fact rather than a hard-coded string.
+- "What can you do?" can be followed by "which modules/facts make you say that?" and receives a grounded answer.
+- If a claimed capability is not backed by registered state or passing tests, it is not listed.
+
+Anti-impostor: use a minimal knowledge file or disabled module fixture; the self-description must shrink accordingly.
+
+### C14 - Register arbitration between prose and symbolic/code detectors
+Probe: "I have two facts: birds can fly; penguins are birds but penguins cannot fly. If Pingu is a penguin, can Pingu fly?" -> "That looks like a snippet of code." The symbolic/code recognizer over-weighted punctuation inside ordinary prose.
+
+Goal: make register detection competitive and confidence-based: code/symbolic modules may engage only when structural evidence dominates natural-language evidence, not merely because punctuation is present.
+
+Acceptance:
+- Natural prose with colon, semicolon, quotes or parentheses remains available to the conversational parser.
+- Real snippets such as C conditionals, shell pipelines, Morse and leetspeak still route to the right symbolic modules.
+- Ambiguous inputs receive a register-aware clarification instead of a confident wrong classification.
+
+Anti-impostor: build a mixed held-out set with prose containing punctuation and code containing English words.
+
 These C-tasks are the path from "comforting bench numbers" to the intelligence
 we actually expect. Promote one at a time into TASK.md, smallest tested step
 first, each earning both a `.chat` case and a C0 dialogue.
