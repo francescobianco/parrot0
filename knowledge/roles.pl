@@ -1,0 +1,39 @@
+% parrot0 role/character world-knowledge (gen101, C15).
+%
+% When parrot0 is asked to impersonate, two sources combine:
+%   1. the ROLE itself — name, kind, and inline attributes — is PARSED from the
+%      user's setup utterance ("a dog named Rex", "your code is 007"). That is
+%      genuine language uptake, not stored here.
+%   2. what parrot0 KNOWS about that kind or figure — a dog barks, Dante wrote
+%      the Commedia, Cleopatra ruled Egypt — lives here as ordinary facts the
+%      engine queries. This is world knowledge as data (DESIGN.md D5), not a C
+%      phrasebook: the C handler is generic over these predicates.
+% Loaded as base by brain_create, so it is never persisted to a session file.
+
+% trait(Kind, Action): a characteristic action a kind can affirm ("do you X?").
+trait(dog, bark).
+trait(dog, woof).
+trait(cat, meow).
+trait(robot, compute).
+trait(robot, process).
+trait(spy, observe).
+
+% employer(Kind, Org): who a kind of person works for.
+employer(spy, agency).
+
+% likes_color(Kind, Color): a default favourite, for childlike roles.
+likes_color(child, blue).
+
+% profession(Figure, Role): what a named figure is known as.
+profession(dante, poeta).
+profession(cleopatra, queen).
+profession(sherlock, detective).
+
+% wrote(Figure, Work): authored works.
+wrote(dante, divina_commedia).
+
+% rules_over(Figure, Place): the dominion of a ruler.
+rules_over(cleopatra, egypt).
+
+% title(Figure, Title): a formal title.
+title(cleopatra, queen).

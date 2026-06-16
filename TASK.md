@@ -2,38 +2,32 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-> gen80-100 done — 20 iterations: decomposition, priority, session stats, entities,
-> hypothesis, explanation depth, module caps, negation, causal chains, confidence,
-> correction, goals, bulk-forget, KB completion, impersonation benchmark.
+> gen80-101 done — decomposition, priority, session stats, entities, hypothesis,
+> explanation depth, module caps, negation, causal chains, confidence, correction,
+> goals, bulk-forget, KB completion, impersonation benchmark, role memory.
 
-## Goal: C15 — Role/character memory (from impersonation benchmark)
+## Done recently
 
-`make impersonate` baseline: **15%** (3/19 checks). Only arithmetic works in-role;
-all identity questions return "I am parrot0." regardless of the role prompt.
+- **gen101 (C15) — role/character memory.** `make impersonate` 15% → **100%**.
+  `mod_role` parses role uptake from the user's words, answers in character from
+  role state + `knowledge/roles.pl`, and keeps a **layered self-model**: a
+  truth-probe ("really" / "davvero") pierces any role back to parrot0.
+  (I-series I1–I4 done.)
+- **gen102 (L11) — structural analogy.** `mod_analogy` solves "A is to B as C is
+  to ?" by finding a KB relation and transferring it — derived, not stored;
+  both directions; bilingual; held-out triples pass. First answer parrot0 was
+  never told.
 
-The impersonation benchmark (`tests/impersonate.sh`) exposes three architectural gaps:
+### Next candidate — pick the smallest high-surprise rung
 
-1. **No role uptake**: "pretend you are X" / "you are now X" falls through to the
-   fallback. No module handles role-assignment prompts.
-2. **Immutable self-model**: `i_am(parrot0)` is generated at boot and never
-   changes. Identity queries always return "parrot0" even after "your name is
-   now Mario".
-3. **No role-scoped knowledge**: When asked in-character questions ("cosa hai
-   scritto?" as Dante), there's no KB with role-specific facts to query.
+The **L-series** (TASKLIST.md) maps a 20-rung ability ladder onto parrot0. The
+honest next pulls, where behaviour cannot be templated, are:
+- **L10** few-shot pattern induction in one turn,
+- **L16** self-correction that re-derives the dependent conclusion,
+- **L1** streamed generation over a continuation relation (D-prop1),
+- **L20** meta-strategy introspection ("why did you answer *that way*?").
 
-### Design
-
-Add a `current_role` field to `Brain`. When set (via "you are X" / "pretend you
-are X" / "sei X"), identity queries (`mod_self`) answer from the role instead of
-`i_am(parrot0)`. A role prompt should also load associated knowledge facts.
-"Stop pretending" / "be yourself" clears the role and restores the self-model.
-
-### Acceptance
-- "pretend you are a dog named Rex" → "what is your name?" → "Rex."
-- "your name is now Mario" → "who are you?" → "Mario."
-- "stop pretending" → "who are you?" → "I am parrot0."
-- `make impersonate` score improves from 15% → ≥40%.
-- `make test` must stay green.
+Choose one, smallest-first, drive it from a held-out test, keep `make test` green.
 
 ---
 

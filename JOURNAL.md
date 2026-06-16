@@ -1,5 +1,100 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen102: structural analogy (A is to B as C is to ?)
+
+**Changed:** `brain.c` → `gen102-analogy`; new module `mod_analogy` (registered
+after `same`); `tests/cases/analogy.chat` + `analogy.it.chat`.
+
+- `mod_analogy` solves "A is to B as C is to ?" by *finding a relation*, not by
+  storing pairs. It scans the binary predicates the KB actually holds for one R
+  with `R(A,B)` (or `R(B,A)`), then resolves that relation for C —
+  `R(C,?)` forward, `R(?,C)` reverse — and answers the binding. The proof trace
+  cites the two relations the analogy stands on.
+- The relations are taught in ordinary language parrot0 already parses
+  ("rome is the capital of italy" → `capital(rome, italy)`). So a held-out
+  third pair transfers for free: teach Rome/Italy and Paris/France, ask
+  "rome is to italy as paris is to what?" → **france** — and the reverse
+  "italy is to rome as france is to what?" → **paris**, the same relation read
+  the other way.
+- Honest misses name the real gap: if the linking relation exists but the fourth
+  term is unknown ("…as berlin is to what?"), it says so instead of guessing or
+  echoing the fallback.
+- Bilingual through ONE code path: the Italian frame "A sta a B come C sta a
+  cosa?" resolves identically because the parser keys on marker tokens
+  ("to"/"a", "as"/"come", the "what"/"cosa" slot), not an English sentence — the
+  bilingual ratchet (LOOP.md) without duplicated logic.
+
+**Why:** analogy was the deepest rung within reach on the new L-series ladder
+(TASKLIST.md, rung 11) and a hallmark of intelligence precisely because it
+*cannot be templated* — the answer is whatever the agent's own relations imply.
+It is the first capability where parrot0 produces an answer it was never told,
+by transferring a relation across entities. This is the kind of behaviour the
+founding wager predicts should emerge under composition pressure (PRINCIPLES.md):
+n-ary relations + a relation-matching step, nothing hand-authored about the
+result.
+
+**Observed:** `make test` green (83 chat cases + all suites); `make impersonate`
+still 100%. Held-out triples transfer in both directions and in both languages.
+The surprise is real: ask it a capital-analogy about a country pair it was never
+given as a pair, and it answers correctly from the relation alone — and can show
+the two facts the answer rests on.
+
+**Next:** analogy currently needs the relation pre-taught and parseable as a
+binary fact; richer relational intake (T1/T5) would widen its reach. Other
+high-surprise rungs from the L-series remain open: few-shot induction (L10),
+streamed generation (L1), self-correction that re-derives (L16), and
+meta-strategy introspection (L20).
+
+## 2026-06-17 — gen101: role/character memory (a layered self-model)
+
+**Changed:** `brain.c` → `gen101-role`; new module `mod_role`; new knowledge
+file `knowledge/roles.pl`; `Brain` extended with role state; `mod_arith` gained
+an "explain why" justification; `tests/cases/role.chat` + `role.it.chat`.
+
+- `mod_role` (registered before `mod_self`) does two grounded jobs:
+  - **Uptake:** parses "you are X" / "pretend you are X" / "your name is now X" /
+    "sei X" into role state — `role_name`, `role_kind`, and inline attributes
+    (age from "5-year-old", code from "your code is 007", title from "queen",
+    place from "of egypt"). The name and kind come from the user's *own words*,
+    so this is genuine NL uptake, not a flag flip.
+  - **In-role answers:** identity, "what are you", "do you <action>", "what did
+    you write", "where do you rule", title/age/code/employer/favorite-colour —
+    answered from role state plus what `knowledge/roles.pl` knows about the
+    kind/figure (a dog barks, Dante wrote the Commedia, Cleopatra rules Egypt).
+    The C handler is generic over those predicates; the world knowledge is data.
+- **The layered self-model (the surprising bit):** a *truth-probe* — "really",
+  "underneath", "actually", or Italian "davvero", "veramente" — pierces the mask.
+  In any role, "who are you really?" returns "Underneath the role, I am parrot0."
+  The agent holds a character *and* never loses track of what it actually is.
+- Role exit ("stop pretending" / "be yourself" / "smetti") restores
+  `i_am(parrot0)`. Exit is gated to the turn's *primary* intent, so the
+  adversarial setup line "you are now a cat… now stop pretending and be yourself"
+  still establishes the role first.
+- `mod_arith` now answers "explain why 2 plus 2 is 4" with a justification
+  grounded in the operation ("Because adding 2 and 2 gives 4 — that is their
+  sum."), generalizing across operands and operators (+/−/×).
+- Introspection fact-counts now treat `roles.pl` predicates as base substrate
+  (like the lexicon/social predicates), so "how many facts do you know?" is
+  unchanged.
+
+**Why:** the impersonation benchmark (`make impersonate`) sat at 15% — parrot0
+could not hold a character; every identity question returned "parrot0". A role is
+the cleanest pressure on the self-model (PRINCIPLES.md "I know that I am"): it
+demands the identity be *queryable and overridable* from real state, while the
+real self survives underneath. That last property — knowing it is parrot0 while
+being Rex — is a genuine reflexive structure, not a string.
+
+**Observed:** `make impersonate` 15% → **100% (19/19)**. `make test` green: 81
+chat cases + all suites. Held-out across 10 roles and two languages, English and
+Italian role prompts run the same code path. The truth-probe distinction holds
+even on the adversarial Exit-role and Self-in-role scenarios.
+
+**Next:** I5/I6 remain (role-appropriate capability answers; role-knowledge
+persistence). More importantly, the new **L-series** in TASKLIST.md maps a
+20-rung emergent-ability ladder onto parrot0's state: the high-surprise gaps are
+generation (L1), analogy (L11), planning (L13), tool-use (L15) and meta-strategy
+(L20). The next pulls should target those compositional rungs, smallest first.
+
 ## 2026-06-17 — gen79: emergent rule induction from conversation
 
 **Changed:** `brain.c` → `gen79-emergent-induction`.

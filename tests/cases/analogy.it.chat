@@ -1,0 +1,12 @@
+# gen102 (L11) — the bilingual ratchet (LOOP.md). The SAME analogy code reads
+# the Italian frame "A sta a B come C sta a ?" because it keys on the marker
+# tokens ("a" / "come" / "cosa"), not on an English sentence. No duplicated
+# logic: the competence lives in the algorithm, proving it generalizes.
+
+> rome is the capital of italy
+< Learned: capital(rome, italy).
+> paris is the capital of france
+< Learned: capital(paris, france).
+# "rome is to italy as paris is to what" — in Italian, same resolution -> france.
+> rome sta a italy come paris sta a cosa?
+< france.

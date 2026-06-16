@@ -1,0 +1,26 @@
+# gen102 (L11): structural analogy "A is to B as C is to ?". The answer is NOT
+# stored anywhere — it is DERIVED from a binary relation the KB holds. The
+# relations are taught in ordinary form ("X is the capital of Y" -> capital(X,Y));
+# the analogy then transfers to a held-out pair the system was never given.
+
+> rome is the capital of italy
+< Learned: capital(rome, italy).
+> paris is the capital of france
+< Learned: capital(paris, france).
+
+# Forward: find capital(rome, italy), then resolve capital(paris, ?) -> france.
+> rome is to italy as paris is to what?
+< france.
+# The proof is real — it cites the two relations the analogy stands on.
+> how do you know?
+< Because capital(rome, italy) holds, and capital(paris, france) — so france.
+
+# Reverse direction: the SAME relation read the other way. italy:rome :: france:?
+# resolves capital(?, france) -> paris. Structural, not a memorized pair.
+> italy is to rome as france is to what?
+< paris.
+
+# Honest miss: the analogy SHAPE is recognized, the relation is found, but the
+# fourth term is unknown — say exactly that instead of guessing or echoing.
+> rome is to italy as berlin is to what?
+< rome and italy are related by capital, but I don't know that relation for berlin.

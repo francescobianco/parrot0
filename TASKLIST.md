@@ -241,8 +241,14 @@ first, each earning both a `.chat` case and a C0 dialogue.
 The `make impersonate` benchmark exposes that parrot0 cannot hold a character.
 `tests/impersonate.sh` sends 10 role-play scenarios; baseline score is 15%
 (only arithmetic passes in-role; identity always returns "parrot0").
+**gen101 (C15): score 15% → 100% (19/19).** I1–I4 done; I5–I6 remain.
 
-### I1 - Role uptake (C15 in TASK.md)
+### I1 - Role uptake (C15 in TASK.md) — DONE, gen101
+Done: `mod_role` parses "you are X" / "pretend you are X" / "your name is now X" /
+"sei X" into role state (name, kind, inline attributes), placed before `mod_self`
+so role identity wins. Name/kind come from the user's words; truth-probes
+("really", "underneath", "davvero") pierce the mask back to parrot0 — a layered
+self-model, not a flag. `role.chat` / `role.it.chat` ratchet it bilingually.
 Goal: recognize "you are X" / "pretend you are X" / "sei X" as a role-assignment
 prompt, store the role in `Brain.current_role`, and have identity queries
 answer from the role.
@@ -254,31 +260,24 @@ Acceptance:
 
 Anti-impostor: held-out role names and languages.
 
-### I2 - Role exit
-Goal: "stop pretending" / "be yourself" / "torna te stesso" clears the role
-and restores the self-model.
+### I2 - Role exit — DONE, gen101
+Done: "stop pretending" / "be yourself" / "smetti" clears the role and restores
+`i_am(parrot0)`. Clear is gated to the *primary* intent of the turn, so a setup
+line ending "…and be yourself" still establishes the role first (the adversarial
+Exit-role scenario). Exit needs no knowledge of the role name.
 
-Acceptance:
-- After role X → identity returns X. After exit → identity returns parrot0.
-- Exit works from any role without knowing the role name.
+### I3 - Role-scoped knowledge — DONE, gen101
+Done two ways, both grounded: (a) inline attributes parsed from the setup
+utterance ("your secret code is 007" → code, "queen of egypt" → title+place,
+"5-year-old" → age); (b) world knowledge about the kind/figure queried from
+`knowledge/roles.pl` (a dog barks, Dante wrote the Commedia, Cleopatra rules
+Egypt) — data, not a C phrasebook; the handler is generic over the predicates.
+Role state is session-scoped and cleared on exit.
 
-### I3 - Role-scoped knowledge
-Goal: when a role is active, facts about that role can be queried. The role
-prompt itself may carry knowledge ("you are a spy. your code is 007").
-
-Acceptance:
-- "you are a spy. your code is 007" → "what is your code?" → "007."
-- Role facts do not persist after role exit (scoped).
-- Role facts are queryable via the normal KB path.
-
-Anti-impostor: held-out role names and secret facts.
-
-### I4 - Multi-turn role consistency
-Goal: maintain role identity across multiple turns without re-stating it.
-
-Acceptance:
-- Turn 1: "you are Sherlock Holmes." Turn 5: "who are you?" → "Sherlock Holmes."
-- Role persists until explicit exit or new role assignment.
+### I4 - Multi-turn role consistency — DONE, gen101
+Done: role lives in `Brain` and persists across turns until explicit exit or a
+new role assignment. The impersonate benchmark exercises 2–3 turns per role.
+Still worth a longer held-out probe (5+ turns, interleaved non-role turns).
 
 ### I5 - Role-appropriate responses
 Goal: capability and meta questions answered from role perspective.
@@ -295,6 +294,129 @@ files (`knowledge/role_dante.pl`).
 Acceptance:
 - After teaching facts as Dante, save → reload → Dante still knows them.
 - Other roles don't see Dante's facts.
+
+---
+
+## L-series — The emergent-ability ladder (annotated map, 2026-06-17)
+
+> Provenance: the user supplied a 20-rung ladder of abilities that emerge, in
+> roughly this order, as language models scale. We do NOT take it as a build
+> order — parrot0 grows by behavioural pressure, not by decree (PRINCIPLES.md,
+> PLAN.md). We take it as a **diagnostic coordinate system**: a way to ask, for
+> each rung, *does parrot0 already do this, and if not, what real task would
+> pull it?* The honest test is always transfer to held-out cases, never a demo.
+>
+> The ladder is a near-perfect restatement of the founding wager: these are the
+> functional structures training carves into an LLM. If our behavioural
+> reconstruction is on the right track, the same structures should be the ones a
+> sufficiently hard, composed conversation forces parrot0 to grow. So the ladder
+> doubles as a falsification grid — rungs where parrot0 stays stuck under real
+> pressure are where the wager is being tested hardest.
+>
+> Status legend: ✅ has a tested behaviour · 🟡 partial / narrow · ⬜ absent.
+
+| # | Ability (rung)                         | parrot0 | Where it lives / what would pull it |
+|---|----------------------------------------|---------|-------------------------------------|
+| 1 | Statistical text completion            | 🟡 | gen41 `cont/cont2` generative reader; single-shot, induced not sampled. → **L1** |
+| 2 | Correct grammar & syntax               | 🟡 | canonicalize_lang lexicon + intent shapes; no real grammar. → T4, T5 |
+| 3 | Memorized factual knowledge            | ✅ | KB facts/rules, `knowledge/*.pl`, describe-entity. |
+| 4 | Classification & categorization        | ✅ | unary predicates + induced `Q(X):-P(X)`; SuperGLUE driver. |
+| 5 | Translation between languages          | 🟡 | EN↔IT canonicalization (function words) is interlingua-ish, not translation. → **L5** |
+| 6 | Summary & paraphrase                   | 🟡 | discourse-memory "what did we talk about?"; no true summarization. → **L6** |
+| 7 | Long-paragraph contextual understanding| 🟡 | `read:` extracts facts from a short passage; no long-context tracking. → T12 |
+| 8 | Simple inference (if A then B)         | ✅ | rules + backward-chaining resolution (gen6+). |
+| 9 | Short multi-step reasoning             | ✅ | transitive chains, proof traces, BBH-like driver (gen90/76). |
+| 10| In-context (few-shot) learning         | 🟡 | one-turn hypothetical rules (gen84) + induction; no example-pattern few-shot. → **L10** |
+| 11| Abstraction & analogy                  | 🟡 | **gen102 `mod_analogy`**: "A is to B as C is to ?" resolves over KB relations, both directions, bilingual. Needs richer relational intake to widen. → **L11** done (narrow), T1/T5 to extend |
+| 12| Elementary programming                 | 🟡 | POSIX-shell oracle (`mod_shell`) interprets/explains commands; doesn't synthesize. → M1, **L12** |
+| 13| Procedure planning                     | ⬜ | goal tracking exists (gen93); no ordered plan to a goal. → T7, **L13** |
+| 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
+| 15| Tool use                               | ⬜ | deterministic oracles exist as *tests*; the brain never *calls* one mid-turn. → **L15** |
+| 16| Self-correction                        | 🟡 | correction acknowledgment (gen92) + retract/belief status (T3); doesn't re-derive a fixed answer. → T10, **L16** |
+| 17| Advanced mathematical reasoning        | 🟡 | arithmetic + a new "explain why" justification (gen101); no algebra/word-problems. → C12, **L17** |
+| 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
+| 19| Autonomous agents                      | ⬜ | no perceive→decide→act loop; the generative-inference proposal (D-prop1) is the nearest seed. |
+| 20| Meta-reasoning (reason about reasoning)| 🟡 | proof-depth introspection (gen26/77), module-attribution (gen78), confidence (gen91); reasons about *results*, not its *strategy*. → T9, **L20** |
+
+**Reading of the map.** parrot0 is strong on the *symbolic-reasoning* rungs
+(3, 4, 8, 9) — exactly where a Prolog-shaped core should be — and on the
+*self-model* rungs in a shallow way (20). It is weak precisely where LLMs feel
+magical: generation/completion (1), abstraction/analogy (11), planning (13),
+tool use (15), and meta-strategy (20-deep). Those are the rungs most likely to
+"genuinely surprise": they need composition, not another template. The next
+concrete pulls, smallest-first:
+
+### L1 - Streamed generation over a continuation relation
+Pull rung 1 honestly via the generative-inference loop (DESIGN.md D-prop1):
+a `decode` loop driving one `next(Context, Word)` relation with an explicit stop
+token and a principled deterministic choice rule, proven on a held-out toy
+grammar. Impostor guard: the continuation knowledge must be *derived/induced*,
+never a canned phrasebook. Smallest step in D-prop1's plan first.
+
+### L5 - Minimal grounded translation
+Pull rung 5 past function-word canonicalization: translate a *content* clause
+EN→IT (and back) by resolving a bilingual `gloss(Word, Lang, Word)` relation in
+the KB plus the existing structural map, so "the dog runs" → "il cane corre"
+transfers to held-out nouns/verbs. Anti-impostor: held-out vocabulary, both
+directions, same code path. Cross-ref T4 (morphology/agreement).
+
+### L6 - Extractive summary of a session/passage
+Pull rung 6: "summarize what we said" / "riassumi" returns the salient asserted
+facts (subject–relation–object), ranked by recency/frequency, not a topic-word
+list. Held-out: a passage fed via `read:` then summarized; the summary names
+facts the KB actually holds. Cross-ref C4, T12.
+
+### L10 - Few-shot pattern induction in one turn
+Pull rung 10: given 2–3 labelled examples in a single turn ("apple→fruit,
+carrot→vegetable, banana→?"), induce the mapping and apply it to a held-out
+probe. This is induction (gen7) pulled by an in-context framing rather than a
+batch over the KB. Anti-impostor: novel categories/items each test.
+
+### L11 - Structural analogy (A:B :: C:?) — DONE (narrow), gen102
+Done: `mod_analogy` finds a binary relation R with R(A,B) (or R(B,A)) among the
+KB's facts and resolves it for C — forward R(C,?) and reverse R(?,C). Answer is
+derived, never a stored pair, so held-out triples transfer; proof cites both
+relations; bilingual via marker tokens. `analogy.chat` / `analogy.it.chat`.
+**Still narrow:** the relation must be pre-taught and parseable as a binary fact
+("X is the capital of Y"). Extend via richer relational intake (T1, T5) and
+chained/derived relations. Cross-ref T8, T13.
+
+### L12 - One-line program synthesis from a spec
+Pull rung 12 (inverse of `mod_shell`): "count the lines in a file" → emit
+`wc -l <file>`, grounded in the same `cmd/flag` knowledge the interpreter reads.
+Held-out specs over known commands. Cross-ref M1.
+
+### L13 - Ordered procedure to a goal
+Pull rung 13: "how do I make tea?" / a goal with prerequisites → an ordered list
+of steps from `requires(Step, Pre)` facts (a tiny planner / topological order).
+Cross-ref T7. Gate L14 (complex programming) on this + L12.
+
+### L15 - Mid-turn tool call to a deterministic oracle
+Pull rung 15: let the brain *invoke* a deterministic oracle within a turn
+(e.g. the POSIX oracle, an arithmetic evaluator) and fold the result into the
+reply, with the call recorded in the proof trace. The honest seam between
+"reason" and "act". Anti-impostor: the oracle is real, not a stubbed string.
+
+### L16 - Self-correction that re-derives the answer
+Pull rung 16 past acknowledgment (gen92): after a correction retracts a premise,
+parrot0 *recomputes* the dependent conclusion and states the change ("then it is
+no longer mortal"). Cross-ref T3, T10. Needs dependency from premise to
+conclusion (truth maintenance, lightweight).
+
+### L17 - One-step algebra / word problems
+Pull rung 17: solve "x + 3 = 7" and one-sentence word problems by mapping prose
+to an arithmetic relation, then solving for the unknown. Builds on gen101's
+operation-grounded explanation. Anti-impostor: held-out numbers and phrasings.
+
+### L18 - Competing/sequenced goals
+Pull rung 18 past decomposition (gen80): when two goals conflict or must be
+ordered, choose/sequence them and say why. Cross-ref T6, T7.
+
+### L20 - Reasoning about its own strategy
+Pull rung 20 to depth: not just "how do you know?" (proof depth) but "why did you
+answer *that way*?" — report which module fired and why it was preferred over
+the others that also matched. Extends gen78 module-attribution into a queryable
+account of *control*, not just *result*. Cross-ref T9, D6.
 
 ---
 

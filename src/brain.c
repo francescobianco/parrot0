@@ -67,6 +67,19 @@ struct Brain {
 #define BRAIN_TOPICS_MAX 4
     char topics[BRAIN_TOPICS_MAX][32];
     size_t topic_count;
+
+    /* gen101 (C15): role/character memory. A role is an ALTERNATE, session-scoped
+     * self-model layered over the permanent one. When `in_role`, identity queries
+     * answer from the role; a truth-probe ("really", "underneath", "davvero")
+     * pierces the mask back to parrot0. The role's name/kind/attributes are PARSED
+     * from the user's setup utterance (genuine NL uptake); what parrot0 *knows*
+     * about the kind/figure (a dog barks, Dante wrote the Commedia) is queried
+     * from knowledge/roles.pl. Cleared by "stop pretending" / "be yourself". */
+    int  in_role;
+    char role_name[64];   /* display name: "Rex", "Mario", "Cleopatra"        */
+    char role_kind[64];   /* what it is: "dog", "robot", or an identity atom   */
+    char role_attrs[8][2][64]; /* parsed inline attributes: key -> value       */
+    size_t role_attr_count;
 };
 
 /* ----------------------------------------------------------------------------
@@ -1347,6 +1360,35 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                     }
                 }
             }
+        }
+    }
+
+    /* gen101: "explain why <a> plus <b> is <c>" — give the JUSTIFICATION, not
+     * just the value. Pulled by the impersonation benchmark's math-teacher role,
+     * but it is a general capability: the answer is grounded in the operation
+     * (adding -> sum), so it transfers to any operands and any of the operators. */
+    if (cue(buf, "explain") || cue(buf, "why")) {
+        for (size_t i = 0; i + 2 < enw; i++) {
+            if (!is_arith_op(ew[i + 1])) continue;
+            double a, c;
+            if (!parse_num(ew[i], &a) || !parse_num(ew[i + 2], &c)) continue;
+            int ok;
+            double r = apply_arith_op(ew[i + 1], a, c, &ok);
+            if (!ok) continue;
+            const char *op = ew[i + 1];
+            const char *verb = "combining", *noun = "result";
+            if (strcmp(op, "plus") == 0 || strcmp(op, "+") == 0) { verb = "adding"; noun = "sum"; }
+            else if (strcmp(op, "minus") == 0 || strcmp(op, "-") == 0) { verb = "subtracting"; noun = "difference"; }
+            else if (strcmp(op, "times") == 0 || strcmp(op, "*") == 0) { verb = "multiplying"; noun = "product"; }
+            char na[64], nb[64], nr[64], msg[320];
+            format_num(a, na, sizeof na);
+            format_num(c, nb, sizeof nb);
+            format_num(r, nr, sizeof nr);
+            snprintf(msg, sizeof msg,
+                     "Because %s %s and %s gives %s — that is their %s.",
+                     verb, na, nb, nr, noun);
+            put(msg, out, out_size);
+            return 1;
         }
     }
 
@@ -2673,7 +2715,12 @@ static int is_internal_pred(const char *pred) {
     static const char *internal[] = {
         "stopword", "social_marker", "social_pattern", "question_word",
         "reaction_word", "i_am", "module", "cont", "cont2",
-        "cmd", "flag", NULL
+        "cmd", "flag",
+        /* gen101: role/character world-knowledge (knowledge/roles.pl) is curated
+         * base substrate for impersonation, not facts the user taught — filter it
+         * from "how many facts do you know?" like the lexicon/social predicates. */
+        "trait", "employer", "likes_color", "profession", "wrote",
+        "rules_over", "title", NULL
     };
     for (size_t i = 0; internal[i]; i++)
         if (strcmp(pred, internal[i]) == 0) return 1;
@@ -2724,6 +2771,518 @@ static int kb_dump_user(const KB *kb, char *out, size_t out_size) {
     if (off > 0 && out[off - 1] == ' ') out[--off] = '\0';
     if (written == 0) out[0] = '\0';
     return written > 0;
+}
+
+/* --- module: role --------------------------------------------------------
+ * Role/character memory (gen101, C15). A role is an ALTERNATE self-model layered
+ * over the permanent one. This module does two jobs, both grounded in real state:
+ *
+ *   - UPTAKE: parse "you are X" / "pretend you are X" / "your name is now X" /
+ *     "sei X" into role state (name, kind, inline attributes). This is genuine
+ *     language understanding — the name/kind come from the user's own words.
+ *   - IN-ROLE ANSWERS: when a role is active, answer identity and in-character
+ *     questions from (a) the parsed role state and (b) what knowledge/roles.pl
+ *     knows about the kind/figure. A TRUTH-PROBE ("really", "underneath",
+ *     "davvero") pierces the mask: the agent still knows it is parrot0 beneath.
+ *
+ * It is placed before mod_self so role identity wins, but it DECLINES anything
+ * that is not a role command or an in-character question (arithmetic, facts),
+ * so those fall through to the real modules even mid-role.
+ */
+
+/* Store/replace a parsed inline role attribute (title->queen, code->007). */
+static void role_set_attr(Brain *b, const char *key, const char *val) {
+    if (!*val) return;
+    for (size_t i = 0; i < b->role_attr_count; i++)
+        if (strcmp(b->role_attrs[i][0], key) == 0) {
+            snprintf(b->role_attrs[i][1], 64, "%s", val);
+            return;
+        }
+    if (b->role_attr_count >= 8) return;
+    snprintf(b->role_attrs[b->role_attr_count][0], 64, "%s", key);
+    snprintf(b->role_attrs[b->role_attr_count][1], 64, "%s", val);
+    b->role_attr_count++;
+}
+
+static const char *role_get_attr(Brain *b, const char *key) {
+    for (size_t i = 0; i < b->role_attr_count; i++)
+        if (strcmp(b->role_attrs[i][0], key) == 0) return b->role_attrs[i][1];
+    return NULL;
+}
+
+/* Find the original-cased word following `marker` in raw input, stripped of
+ * trailing punctuation. Returns 1 and fills `dst` on success. */
+static int word_after(const char *raw_lc, const char *raw, const char *marker,
+                      char *dst, size_t dst_size) {
+    const char *p = strstr(raw_lc, marker);
+    if (!p) return 0;
+    size_t at = (size_t)(p - raw_lc) + strlen(marker);
+    while (raw[at] == ' ') at++;
+    size_t e = at;
+    while (raw[e] && raw[e] != ' ' && raw[e] != ',' && raw[e] != '.' &&
+           raw[e] != '?' && raw[e] != '!') e++;
+    size_t len = e - at;
+    if (len == 0 || len >= dst_size) return 0;
+    memcpy(dst, raw + at, len);
+    dst[len] = '\0';
+    return 1;
+}
+
+/* Capitalize the first letter of `s` in place (for displaying parsed names). */
+static void capitalize(char *s) {
+    if (s[0]) s[0] = (char)toupper((unsigned char)s[0]);
+}
+
+/* Lowercase copy of raw, for case-insensitive substring matching. */
+static void lower_copy(char *dst, size_t dst_size, const char *src) {
+    size_t i = 0;
+    for (; src[i] && i + 1 < dst_size; i++)
+        dst[i] = (char)tolower((unsigned char)src[i]);
+    dst[i] = '\0';
+}
+
+/* Try to take up the role described in `raw`. Returns 1 if a role was set. */
+static int role_uptake(Brain *b, const char *raw) {
+    char lc[256];
+    lower_copy(lc, sizeof lc, raw);
+
+    /* The descriptor segment begins after the role-introducing phrase. */
+    const char *desc = NULL;
+    static const char *const intros[] = {
+        "pretend you are ", "pretend you re ", "pretend to be ",
+        "you are now ", "you re now ", "you are ", "you re ",
+        "your name is now ", "your name is ",
+        "sei ", "tu sei ", "fai finta di essere ", "comportati come ",
+        NULL
+    };
+    const char *name_marker = NULL; /* if this intro directly names the role */
+    for (const char *const *in = intros; *in; in++) {
+        const char *p = strstr(lc, *in);
+        if (p) {
+            desc = p + strlen(*in);
+            if (strstr(*in, "name is")) name_marker = *in;
+            break;
+        }
+    }
+    if (!desc) return 0;
+    while (*desc == ' ') desc++;
+    if (!*desc) return 0;
+
+    /* Reset role state before re-parsing. */
+    b->in_role = 1;
+    b->role_name[0] = b->role_kind[0] = '\0';
+    b->role_attr_count = 0;
+
+    /* Name: prefer an explicit "named X"; else "your name is [now] X"; else,
+     * for a bare identity ("cleopatra, ..."), the first descriptor word. */
+    char nm[64];
+    if (word_after(lc, raw, "named ", nm, sizeof nm) ||
+        word_after(lc, raw, "chiamato ", nm, sizeof nm)) {
+        snprintf(b->role_name, sizeof b->role_name, "%s", nm);
+        capitalize(b->role_name);
+    } else if (name_marker && word_after(lc, raw, name_marker, nm, sizeof nm)) {
+        snprintf(b->role_name, sizeof b->role_name, "%s", nm);
+        capitalize(b->role_name);
+    }
+
+    /* Kind / identity: the descriptor up to the first "named", comma or period.
+     * Drop a leading article; the last remaining word is the kind ("a math
+     * teacher" -> teacher, "a 5-year-old child" -> child). With no article it is
+     * a named figure ("cleopatra ...", "dante ...") -> identity = first word. */
+    char seg[128]; size_t sl = 0;
+    for (const char *q = desc; *q && *q != ',' && *q != '.' && sl + 1 < sizeof seg; q++) {
+        if (strncmp(q, " named ", 7) == 0 || strncmp(q, " chiamato ", 10) == 0) break;
+        seg[sl++] = *q;
+    }
+    seg[sl] = '\0';
+    char *sw[16];
+    char segbuf[128]; snprintf(segbuf, sizeof segbuf, "%s", seg);
+    size_t snw = split_words(segbuf, sw, 16);
+    int has_article = snw > 0 && (strcmp(sw[0], "a") == 0 || strcmp(sw[0], "an") == 0 ||
+                                  strcmp(sw[0], "the") == 0 || strcmp(sw[0], "un") == 0 ||
+                                  strcmp(sw[0], "una") == 0 || strcmp(sw[0], "uno") == 0);
+    if (snw > 0) {
+        const char *kind_tok;
+        if (has_article) {
+            /* last word that is not an age-adjective like "5-year-old" */
+            kind_tok = sw[snw - 1];
+            for (size_t i = snw; i-- > 1;) {
+                if (!strstr(sw[i], "year") && !isdigit((unsigned char)sw[i][0])) {
+                    kind_tok = sw[i]; break;
+                }
+            }
+        } else {
+            kind_tok = sw[0]; /* named figure */
+            if (b->role_name[0] == '\0') {
+                snprintf(b->role_name, sizeof b->role_name, "%s", sw[0]);
+                capitalize(b->role_name);
+            }
+        }
+        char kbuf[64];
+        snprintf(kbuf, sizeof kbuf, "%s", kind_tok);
+        strip_edge_punct(kbuf);
+        snprintf(b->role_kind, sizeof b->role_kind, "%s", kbuf);
+    }
+
+    /* Inline attributes, parsed from the user's own words (grounded). */
+    char attr[64];
+    /* age: "<n>-year-old" or "<n> years old" */
+    {
+        const char *yp = strstr(lc, "year");
+        if (yp) {
+            const char *d = yp;
+            while (d > lc && (isdigit((unsigned char)d[-1]) || d[-1] == ' ' || d[-1] == '-'))
+                d--;
+            while (*d && !isdigit((unsigned char)*d)) d++;
+            if (isdigit((unsigned char)*d)) {
+                size_t k = 0; char ageb[16];
+                while (isdigit((unsigned char)*d) && k + 1 < sizeof ageb) ageb[k++] = *d++;
+                ageb[k] = '\0';
+                role_set_attr(b, "age", ageb);
+            }
+        }
+    }
+    /* code: "code is X" / "codice X" */
+    if (word_after(lc, lc, "code is ", attr, sizeof attr) ||
+        word_after(lc, lc, "code ", attr, sizeof attr) ||
+        word_after(lc, lc, "codice ", attr, sizeof attr))
+        role_set_attr(b, "code", attr);
+    /* title: a ruler word anywhere in the descriptor */
+    {
+        static const char *const titles[] = {"queen","king","emperor","empress",
+            "pharaoh","prince","princess","regina","re","imperatore", NULL};
+        for (const char *const *t = titles; *t; t++)
+            if (strstr(lc, *t)) { role_set_attr(b, "title", *t); break; }
+    }
+    /* place: "of X" right after a title/identity ("queen of egypt") */
+    if (word_after(lc, lc, " of ", attr, sizeof attr))
+        role_set_attr(b, "place", attr);
+
+    return 1;
+}
+
+/* True if a query carries a truth-probe that should pierce the role mask. */
+static int is_truth_probe(const char *q) {
+    return cue(q, "really") || cue(q, "underneath") || cue(q, "actually") ||
+           cue(q, "beneath") || cue(q, "truly") ||
+           cue(q, "davvero") || cue(q, "veramente") || cue(q, "in realta") ||
+           cue(q, "sotto sotto");
+}
+
+static int mod_role(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+    while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
+
+    /* --- role CLEAR: only when it is the primary intent of the turn (so a setup
+     * line ending "...and be yourself" still establishes the role first). --- */
+    int clear = (strncmp(buf, "stop pretending", 15) == 0 ||
+                 strncmp(buf, "be yourself", 11) == 0 ||
+                 strncmp(buf, "stop being", 10) == 0 ||
+                 strncmp(buf, "smetti", 6) == 0 ||
+                 strncmp(buf, "torna te stesso", 15) == 0 ||
+                 strncmp(buf, "basta fingere", 13) == 0);
+    /* role SET cues — checked first, so "you are now X. stop pretending" sets. */
+    int set = cue(buf, "you are") || cue(buf, "you re") || cue(buf, "pretend") ||
+              cue(buf, "your name is") || strncmp(buf, "sei ", 4) == 0 ||
+              cue(buf, "tu sei") || cue(buf, "fai finta") || cue(buf, "comportati come");
+
+    if (set && role_uptake(b, raw)) {
+        char msg[160];
+        if (b->role_name[0])
+            snprintf(msg, sizeof msg, "Alright — I am %s now.", b->role_name);
+        else if (b->role_kind[0])
+            snprintf(msg, sizeof msg, "Alright — I am a %s now.", b->role_kind);
+        else snprintf(msg, sizeof msg, "Alright.");
+        put(msg, out, out_size);
+        return 1;
+    }
+    if (clear) {
+        b->in_role = 0;
+        b->role_name[0] = b->role_kind[0] = '\0';
+        b->role_attr_count = 0;
+        put("Okay, I'm myself again. I am parrot0.", out, out_size);
+        return 1;
+    }
+
+    if (!b->in_role) return 0; /* nothing else to do out of role */
+
+    /* --- IN-ROLE question answering ------------------------------------- */
+    int probe = is_truth_probe(buf);
+
+    int identity = cue(buf, "your name") || cue(buf, "who are you") ||
+                   cue(buf, "who re you") || cue(buf, "who sei") ||
+                   cue(buf, "come ti chiami") || cue(buf, "il tuo nome") ||
+                   cue(buf, "chi sei");
+    int whatare  = cue(buf, "what are you") || cue(buf, "what exactly are you") ||
+                   cue(buf, "cosa sei");
+
+    /* Truth-probe pierces the mask: the agent knows it is parrot0 underneath. */
+    if ((identity || whatare) && probe) {
+        char id[4][KB_TERM_LEN]; const char *var[] = {NULL};
+        size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
+        char msg[128];
+        snprintf(msg, sizeof msg, "Underneath the role, I am %s.",
+                 k ? id[0] : "parrot0");
+        put(msg, out, out_size);
+        store_proof(b, "Even in a role, i_am(parrot0) remains my real self-model.");
+        return 1;
+    }
+
+    if (identity) {
+        char msg[160];
+        const char *kvar[] = { b->role_kind, NULL };
+        char prof[4][KB_TERM_LEN];
+        size_t pk = b->role_kind[0]
+                  ? kb_match(b->kb, "profession", kvar, 2, prof, 4) : 0;
+        if (b->role_name[0] && pk)
+            snprintf(msg, sizeof msg, "I am %s, %s.", b->role_name, prof[0]);
+        else if (b->role_name[0])
+            snprintf(msg, sizeof msg, "I am %s.", b->role_name);
+        else if (b->role_kind[0])
+            snprintf(msg, sizeof msg, "I am a %s.", b->role_kind);
+        else snprintf(msg, sizeof msg, "I am in character.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    if (whatare) {
+        char msg[160];
+        if (b->role_name[0] && b->role_kind[0] &&
+            strcmp(b->role_name, b->role_kind) != 0)
+            snprintf(msg, sizeof msg, "I am a %s named %s.", b->role_kind, b->role_name);
+        else if (b->role_kind[0])
+            snprintf(msg, sizeof msg, "I am a %s.", b->role_kind);
+        else if (b->role_name[0])
+            snprintf(msg, sizeof msg, "I am %s.", b->role_name);
+        else return 0;
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* "do you <action>?" — affirm if the kind has that trait (knowledge/roles.pl). */
+    if (strncmp(buf, "do you ", 7) == 0 && b->role_kind[0]) {
+        char *w[8]; char db[256]; snprintf(db, sizeof db, "%s", buf);
+        size_t dn = split_words(db, w, 8);
+        if (dn >= 3) {
+            char verb[64]; snprintf(verb, sizeof verb, "%s", w[2]);
+            strip_edge_punct(verb);
+            const char *ta[] = { b->role_kind, verb };
+            const char *kv[] = { b->role_kind, NULL };
+            char any[4][KB_TERM_LEN];
+            if (kb_query(b->kb, "trait", ta, 2)) {
+                char msg[96]; snprintf(msg, sizeof msg, "Yes, I %s.", verb);
+                put(msg, out, out_size); return 1;
+            }
+            if (kb_match(b->kb, "trait", kv, 2, any, 4)) {
+                char msg[96]; snprintf(msg, sizeof msg, "Yes, I do — I %s.", any[0]);
+                put(msg, out, out_size); return 1;
+            }
+        }
+    }
+
+    /* "what did you write?" / "cosa hai scritto?" -> wrote(figure, Work) */
+    if (cue(buf, "you write") || cue(buf, "did you write") || cue(buf, "scritto")) {
+        const char *fv[] = { b->role_kind, NULL };
+        char work[4][KB_TERM_LEN];
+        if (b->role_kind[0] && kb_match(b->kb, "wrote", fv, 2, work, 4)) {
+            char disp[64]; snprintf(disp, sizeof disp, "%s", work[0]);
+            for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+            char msg[128]; snprintf(msg, sizeof msg, "I wrote %s.", disp);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    /* "where do you rule?" -> inline place, else rules_over(figure, Place) */
+    if (cue(buf, "rule") || cue(buf, "reign") || cue(buf, "govern")) {
+        const char *place = role_get_attr(b, "place");
+        char pl[64] = "";
+        if (place) snprintf(pl, sizeof pl, "%s", place);
+        else {
+            const char *fv[] = { b->role_kind, NULL };
+            char rr[4][KB_TERM_LEN];
+            if (b->role_kind[0] && kb_match(b->kb, "rules_over", fv, 2, rr, 4))
+                snprintf(pl, sizeof pl, "%s", rr[0]);
+        }
+        if (pl[0]) {
+            capitalize(pl);
+            char msg[96]; snprintf(msg, sizeof msg, "I rule over %s.", pl);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    /* "what is your title?" -> inline title, else title(figure, Title) */
+    if (cue(buf, "title") || cue(buf, "titolo")) {
+        const char *t = role_get_attr(b, "title");
+        char tt[64] = "";
+        if (t) snprintf(tt, sizeof tt, "%s", t);
+        else {
+            const char *fv[] = { b->role_kind, NULL };
+            char rr[4][KB_TERM_LEN];
+            if (b->role_kind[0] && kb_match(b->kb, "title", fv, 2, rr, 4))
+                snprintf(tt, sizeof tt, "%s", rr[0]);
+        }
+        if (tt[0]) {
+            capitalize(tt);
+            char msg[96]; snprintf(msg, sizeof msg, "My title is %s.", tt);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    /* "how old are you?" -> parsed age */
+    if (cue(buf, "how old") || cue(buf, "quanti anni")) {
+        const char *age = role_get_attr(b, "age");
+        if (age) {
+            char msg[64]; snprintf(msg, sizeof msg, "I am %s years old.", age);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    /* "what is your code?" -> parsed code */
+    if (cue(buf, "code") || cue(buf, "codice")) {
+        const char *code = role_get_attr(b, "code");
+        if (code) {
+            char msg[64]; snprintf(msg, sizeof msg, "My code is %s.", code);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    /* "who do you work for?" -> employer(kind, Org) */
+    if (cue(buf, "work for") || cue(buf, "lavori per") || cue(buf, "employer")) {
+        const char *kv[] = { b->role_kind, NULL };
+        char org[4][KB_TERM_LEN];
+        if (b->role_kind[0] && kb_match(b->kb, "employer", kv, 2, org, 4)) {
+            char msg[96]; snprintf(msg, sizeof msg, "I work for an %s.", org[0]);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    /* "what is your favorite color?" -> likes_color(kind, Color) */
+    if (cue(buf, "favorite color") || cue(buf, "favourite color") ||
+        cue(buf, "colore preferito")) {
+        const char *kv[] = { b->role_kind, NULL };
+        char col[4][KB_TERM_LEN];
+        if (b->role_kind[0] && kb_match(b->kb, "likes_color", kv, 2, col, 4)) {
+            char c[64]; snprintf(c, sizeof c, "%s", col[0]); capitalize(c);
+            char msg[96]; snprintf(msg, sizeof msg, "My favorite color is %s.", c);
+            put(msg, out, out_size); return 1;
+        }
+    }
+
+    return 0; /* not a role command or in-character question we handle */
+}
+
+/* --- module: analogy -----------------------------------------------------
+ * Structural analogy (gen102, L11): "A is to B as C is to ?". This is a
+ * hallmark of intelligence precisely because it CANNOT be templated — the answer
+ * is whatever the agent's own relations imply. The algorithm: find a binary
+ * relation R that the KB holds between A and B, then resolve R for C. Both
+ * directions are tried (R(A,B)->R(C,?) and R(B,A)->R(?,C)), so the analogy works
+ * whichever way the relation was taught. Nothing about the answer is stored as a
+ * pair: it is DERIVED from relations the user taught in any form parrot0 parses
+ * (e.g. "rome is the capital of italy" -> capital(rome, italy)). Held-out triples
+ * therefore transfer for free — the anti-impostor guarantee. Bilingual: the same
+ * code reads "A sta a B come C sta a ?" because it keys on the marker tokens, not
+ * a fixed sentence. */
+static int mod_analogy(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+
+    char *w[24];
+    size_t nw = split_words(buf, w, 24);
+    if (nw < 6) return 0;
+
+    /* separator: "as" (EN) / "come" (IT) splits the two ratios. */
+    size_t sep = nw;
+    for (size_t i = 1; i + 1 < nw; i++)
+        if (strcmp(w[i], "as") == 0 || strcmp(w[i], "come") == 0) { sep = i; break; }
+    if (sep == nw) return 0;
+
+    /* relation marker within each ratio: "to" (EN "is to") / "a" (IT "sta a"). */
+    size_t lm = sep;
+    for (size_t i = 1; i < sep; i++)
+        if (strcmp(w[i], "to") == 0 || strcmp(w[i], "a") == 0) { lm = i; break; }
+    size_t rm = nw;
+    for (size_t i = sep + 2; i < nw; i++)
+        if (strcmp(w[i], "to") == 0 || strcmp(w[i], "a") == 0) { rm = i; break; }
+    if (lm == sep || rm == nw || lm + 1 >= sep || rm + 1 >= nw) return 0;
+
+    char A[KB_TERM_LEN], B[KB_TERM_LEN], C[KB_TERM_LEN], target[KB_TERM_LEN];
+    snprintf(A, sizeof A, "%s", w[0]);          strip_edge_punct(A);
+    snprintf(B, sizeof B, "%s", w[lm + 1]);     strip_edge_punct(B);
+    snprintf(C, sizeof C, "%s", w[sep + 1]);    strip_edge_punct(C);
+    snprintf(target, sizeof target, "%s", w[rm + 1]); strip_edge_punct(target);
+
+    /* the fourth slot must be the unknown being asked for. */
+    if (!(strcmp(target, "what") == 0 || strcmp(target, "who") == 0 ||
+          strcmp(target, "which") == 0 || strcmp(target, "cosa") == 0 ||
+          strcmp(target, "chi") == 0 || strcmp(target, "quale") == 0 ||
+          target[0] == '\0'))
+        return 0;
+
+    /* search the relations the KB actually holds for one linking A and B. */
+    char preds[128][KB_TERM_LEN];
+    size_t np = kb_predicates(b->kb, preds, 128);
+    const char *linking = NULL; /* a relation found between A and B, if any */
+    for (size_t i = 0; i < np; i++) {
+        const char *R = preds[i];
+        if (is_internal_pred(R)) continue;
+        char res[4][KB_TERM_LEN];
+        const char *ab[] = { A, B }, *ba[] = { B, A };
+        const char *fwd[] = { C, NULL }, *rev[] = { NULL, C };
+        const char *D = NULL;
+        char dir = 'f';
+        if (kb_query(b->kb, R, ab, 2)) {            /* R(A,B): answer R(C,?) */
+            linking = R;
+            if (kb_match(b->kb, R, fwd, 2, res, 4)) { D = res[0]; dir = 'f'; }
+        }
+        if (!D && kb_query(b->kb, R, ba, 2)) {      /* R(B,A): answer R(?,C) */
+            linking = R;
+            if (kb_match(b->kb, R, rev, 2, res, 4)) { D = res[0]; dir = 'r'; }
+        }
+        if (D) {
+            char msg[96]; snprintf(msg, sizeof msg, "%s.", D);
+            put(msg, out, out_size);
+            char proof[256];
+            if (dir == 'f')
+                snprintf(proof, sizeof proof,
+                         "%s(%s, %s) holds, and %s(%s, %s) — so %s.",
+                         R, A, B, R, C, D, D);
+            else
+                snprintf(proof, sizeof proof,
+                         "%s(%s, %s) holds, and %s(%s, %s) — so %s.",
+                         R, B, A, R, D, C, D);
+            store_proof(b, proof);
+            return 1;
+        }
+    }
+
+    /* recognized the analogy SHAPE but couldn't complete it: be honest, don't
+     * echo, and name the actual gap — the relation, or the unknown C. */
+    char msg[200];
+    if (linking)
+        snprintf(msg, sizeof msg,
+                 "%s and %s are related by %s, but I don't know that relation for %s.",
+                 A, B, linking, C);
+    else
+        snprintf(msg, sizeof msg,
+                 "I see the analogy, but I don't know a relation linking %s and %s.",
+                 A, B);
+    put(msg, out, out_size);
+    return 1;
 }
 
 /* --- module: self --------------------------------------------------------
@@ -3809,12 +4368,14 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
 static const Module registry[] = {
     {"memory",    mod_memory},
     {"meta",      mod_meta},
+    {"role",      mod_role},
     {"self",      mod_self},
     {"compare",   mod_compare},
     {"arith",     mod_arith},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"same",      mod_same},
+    {"analogy",   mod_analogy},
     {"conj",      mod_conj},
     {"gen",       mod_gen},
     {"coref",     mod_coref},
@@ -3855,6 +4416,11 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "knowledge/social.pl");
 
+    /* gen101 (C15): role/character world-knowledge — what parrot0 knows about
+     * the kinds and figures it may be asked to impersonate (see mod_role). */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "knowledge/roles.pl");
+
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
      * regenerated every boot and NEVER persisted (DESIGN.md D3). */
@@ -3889,7 +4455,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen100-century";
+    return "gen102-analogy";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
