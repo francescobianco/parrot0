@@ -2495,10 +2495,39 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen76: "how do you know?" / "why?" referring to the previous answer.
-     * Reads from the proof trace stored by the last KB-backed response.
-     * Only claims short follow-up forms (≤4 words) so full-pattern queries like
-     * "how do you know x is a y?" fall through to mod_knowledge unchanged. */
+    /* gen76: "how do you know? ... */
+    /* (already above) */
+
+    /* gen85: "explain more" / "in more detail" — re-render last proof. */
+    int explain_more = cue(buf, "explain more") ||
+                       cue(buf, "in more detail") ||
+                       cue(buf, "tell me more") ||
+                       cue(buf, "spiega meglio") ||
+                       cue(buf, "più nel dettaglio");
+    if (explain_more) {
+        if (b->has_last_proof) {
+            char msg[640];
+            size_t plen = strlen(b->last_proof);
+            int is_chain = strstr(b->last_proof, " because ") != NULL;
+            if (is_chain)
+                snprintf(msg, sizeof msg,
+                         "The reasoning chain is: %s. Each 'because' is one "
+                         "inference step applying a rule to known facts.",
+                         b->last_proof);
+            else if (plen > 0 && b->last_proof[plen - 1] == '.')
+                snprintf(msg, sizeof msg, "This is a direct fact: %s I store it "
+                         "explicitly in my knowledge base, so it needs no "
+                         "further justification.", b->last_proof);
+            else
+                snprintf(msg, sizeof msg, "The supporting fact is: %s. This is "
+                         "stored directly in my knowledge base.", b->last_proof);
+            put(msg, out, out_size);
+        } else {
+            put("There is no recent reasoning to explain in more detail.",
+                out, out_size);
+        }
+        return 1;
+    }
     {
         size_t wn = 0, in_word = 0;
         for (size_t i = 0; i < len; i++) {
@@ -2840,7 +2869,41 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen83: "what names have I mentioned?" / "who have I talked about?" */
+    /* gen83 entities_q ... (above) */
+
+    /* gen86: "what can <module> do?" — per-module capability. */
+    int mod_cap = (cue(buf, "what can the") && wn <= 5) ||
+                  (cue(buf, "what does the") && wn <= 5) ||
+                  (cue(buf, "cosa può fare il modulo") && wn <= 6);
+    if (mod_cap) {
+        static const struct { const char *mod, *say; } cmap[] = {
+            {"knowledge", "answer questions about facts and logical rules"},
+            {"arith",     "compute arithmetic (plus, minus, times, divisible by)"},
+            {"cause",     "reason about cause and effect relations"},
+            {"compare",   "compare magnitudes (more/less than)"},
+            {"memory",    "remember your name, possessions, and personal facts"},
+            {"reader",    "read a passage and extract known fact patterns"},
+            {"shell",     "explain shell commands and predict their output"},
+            {"gen",       "generate text continuations from learned sequences"},
+            {"self",      "answer questions about my own identity and capabilities"},
+            {"meta",      "handle meta-conversation (attention, understanding)"},
+            {"discourse", "remember what topics we discussed"},
+            {"social",    "handle greetings, thanks, and social conventions"},
+            {"symbolic",  "recognize symbolic patterns (Morse, leet, palindromes)"},
+        };
+        for (size_t i = 0; i < sizeof cmap / sizeof cmap[0]; i++) {
+            if (cue(buf, cmap[i].mod)) {
+                char msg[256];
+                snprintf(msg, sizeof msg, "The %s module can %s.",
+                         cmap[i].mod, cmap[i].say);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+        put("I don't have a module by that name. Ask 'what can you do?' for a list.",
+            out, out_size);
+        return 1;
+    }
     int entities_q = (cue(buf, "what names have i") && wn <= 6) ||
                      (cue(buf, "who have i mentioned") && wn <= 5) ||
                      (cue(buf, "who have i talked about") && wn <= 7) ||
@@ -3246,7 +3309,10 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
                   cue(norm, "what were we talking about") ||
                   cue(norm, "what have we talked about") ||
                   cue(norm, "cosa abbiamo detto") ||
-                  cue(norm, "di cosa abbiamo parlato");
+                  cue(norm, "di cosa abbiamo parlato") ||
+                  cue(norm, "summarize") ||
+                  cue(norm, "riassumi") ||
+                  cue(norm, "riassunto");
     if (!summary) return 0;
     if (b->topic_count == 0) {
         put("We haven't talked about much yet.", out, out_size);
@@ -3746,7 +3812,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen84-hypothesis";
+    return "gen88-negation-of-intent";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3817,6 +3883,12 @@ static int is_intent_starter(const char *w) {
     return 0;
 }
 
+/* gen88: true if word `w` is a negation marker that should cause the sub-turn
+ * to be suppressed (e.g., "dont answer", "non rispondere"). */
+static int is_negation_marker(const char *w) {
+    return strcmp(w, "dont") == 0 || strcmp(w, "non") == 0 || strcmp(w, "not") == 0;
+}
+
 /* gen80: split `canon` on discourse connectors where the second half starts
  * with an intent marker, dispatch each sub-turn, and join responses. Returns
  * 1 if decomposition was applied, 0 to use normal dispatch. */
@@ -3868,9 +3940,22 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
 
     char r1[1024] = "", r2[1024] = "";
     int h1 = 0, h1_disc = 0, h2 = 0;
+    int negate1 = 0, negate2 = 0;
+
+    /* gen88: check if either sub-turn starts with a negation marker. */
+    {
+        char *sw[8]; char b1[256], b2[256];
+        snprintf(b1, sizeof b1, "%s", sub1);
+        snprintf(b2, sizeof b2, "%s", sub2);
+        size_t n1 = split_words(b1, sw, 8);
+        if (n1 > 0 && is_negation_marker(sw[0])) negate1 = 1;
+        size_t n2 = split_words(b2, sw, 8);
+        if (n2 > 0 && is_negation_marker(sw[0])) negate2 = 1;
+    }
 
     if (!is_but) {
         for (size_t i = 0; i < registry_len; i++) {
+            if (negate1) break; /* gen88: skip negated sub-turn */
             if (registry[i].handle(b, sub1, input, r1, sizeof r1)) {
                 h1 = 1;
                 if (strcmp(registry[i].name, "discourse") == 0) h1_disc = 1;
@@ -3881,15 +3966,16 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
                 break;
             }
         }
-        if (!h1) return 0;
+        if (!h1 && !negate1) return 0;
     } /* first sub-turn unclaimed → fall through to normal dispatch */
 
     for (size_t i = 0; i < registry_len; i++) {
+        if (negate2) break; /* gen88: skip negated sub-turn */
         if (registry[i].handle(b, sub2, input, r2, sizeof r2)) {
             h2 = 1; break;
         }
     }
-    if (!h2) return 0; /* second sub-turn unclaimed → fall through to normal dispatch */
+    if (!h2 && !negate2) return 0;
 
     snprintf(out, out_size, "%s%s%s", r1,
              (r2[0] && r1[0]) ? " " : "", r2);
