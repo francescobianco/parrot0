@@ -3632,7 +3632,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen80-decompose";
+    return "gen81-priority";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -3691,10 +3691,11 @@ static int is_intent_starter(const char *w) {
     static const char *const starters[] = {
         "chi", "che", "cosa", "come", "dove", "quando", "perche", "perché",
         "ricordati", "dimmi", "spiegami", "chiamami", "insegnami", "parlami",
+        "prima", "poi", "non",
         "what", "who", "where", "when", "why", "how",
         "remember", "tell", "explain", "call", "teach", "say",
         "is", "are", "does", "do", "can", "every", "forget",
-        "learn", "describe", "read", "show",
+        "learn", "describe", "read", "show", "first", "then", "dont",
         NULL
     };
     for (const char *const *s = starters; *s; s++)
@@ -3718,12 +3719,16 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         strncmp(canon, "learn sequence:", 15) == 0)
         return 0;
 
-    const char *connectors[] = {" e ", " and ", " ed ", NULL};
+    const char *connectors[] = {" e ", " and ", " ed ", " ma ", " but ", NULL};
     const char *conn = NULL;
     size_t conn_len = 0;
+    int is_but = 0;
     for (const char *const *c = connectors; *c; c++) {
         const char *pos = strstr(canon, *c);
-        if (pos && (!conn || pos < conn)) { conn = pos; conn_len = strlen(*c); }
+        if (pos && (!conn || pos < conn)) {
+            conn = pos; conn_len = strlen(*c);
+            is_but = (strcmp(*c, " ma ") == 0 || strcmp(*c, " but ") == 0);
+        }
     }
     if (!conn) return 0;
 
@@ -3750,18 +3755,20 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
     char r1[1024] = "", r2[1024] = "";
     int h1 = 0, h1_disc = 0, h2 = 0;
 
-    for (size_t i = 0; i < registry_len; i++) {
-        if (registry[i].handle(b, sub1, input, r1, sizeof r1)) {
-            h1 = 1;
-            if (strcmp(registry[i].name, "discourse") == 0) h1_disc = 1;
-            if (b) {
-                snprintf(b->last_reply, sizeof b->last_reply, "%s", r1);
-                snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+    if (!is_but) {
+        for (size_t i = 0; i < registry_len; i++) {
+            if (registry[i].handle(b, sub1, input, r1, sizeof r1)) {
+                h1 = 1;
+                if (strcmp(registry[i].name, "discourse") == 0) h1_disc = 1;
+                if (b) {
+                    snprintf(b->last_reply, sizeof b->last_reply, "%s", r1);
+                    snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+                }
+                break;
             }
-            break;
         }
-    }
-    if (!h1) return 0; /* first sub-turn unclaimed → fall through to normal dispatch */
+        if (!h1) return 0;
+    } /* first sub-turn unclaimed → fall through to normal dispatch */
 
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, sub2, input, r2, sizeof r2)) {
@@ -3772,7 +3779,7 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
 
     snprintf(out, out_size, "%s%s%s", r1,
              (r2[0] && r1[0]) ? " " : "", r2);
-    if (!h1_disc) update_topics(b, sub1);
+    if (!is_but && h1 && !h1_disc) update_topics(b, sub1);
     return 1;
 }
 

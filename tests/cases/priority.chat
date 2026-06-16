@@ -1,0 +1,15 @@
+# gen81: priority operators + "but"/"ma" negation.
+# "but": second sub-turn overrides; only the second is answered.
+# First make cat and gatto known predicates so closed-world "No." applies.
+> felix is a cat
+< Learned: cat(felix).
+> rex is a dog but is rex a cat?
+< No.
+# "ma" (Italian but): the correction wins.
+> felix è un gatto
+< Learned: gatto(felix).
+> rex è un cane ma è rex un gatto?
+< No.
+# Compound with expanded starters: "dimmi" triggers split.
+> dimmi chi sei e cosa sai fare?
+< I am parrot0. I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
