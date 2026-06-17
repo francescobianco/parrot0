@@ -322,8 +322,8 @@ Acceptance:
 | 3 | Memorized factual knowledge            | ✅ | KB facts/rules, `knowledge/*.pl`, describe-entity. |
 | 4 | Classification & categorization        | ✅ | unary predicates + induced `Q(X):-P(X)`; SuperGLUE driver. |
 | 5 | Translation between languages          | 🟡 | EN↔IT canonicalization (function words) is interlingua-ish, not translation. → **L5** |
-| 6 | Summary & paraphrase                   | 🟡 | discourse-memory "what did we talk about?"; no true summarization. → **L6** |
-| 7 | Long-paragraph contextual understanding| 🟡 | `read:` extracts facts from a short passage; no long-context tracking. → T12 |
+| 6 | Summary & paraphrase                   | 🟢 | gen121 `mod_summary`: EXTRACTIVE summary — ranks the propositions a `read:` passage actually yielded by concept centrality, quotes the top real sentences; gen123 query-focused digest ("what did you learn about X?"). Bilingual (reader canonicalizes each clause). Honest skip count. |
+| 7 | Long-paragraph contextual understanding| 🟡 | `read:` extracts facts from a passage; gen122 `mod_summary` gist ("what is this about?" → central concept + most salient sentence) and gen123 focused comprehension read off the extracted propositions. Limited by the reader's clause grammar (is-a/cause/capital). → widen grammar, T12 |
 | 8 | Simple inference (if A then B)         | ✅ | rules + backward-chaining resolution (gen6+). |
 | 9 | Short multi-step reasoning             | ✅ | transitive chains, proof traces, BBH-like driver (gen90/76). |
 | 10| In-context (few-shot) learning         | 🟢 | gen104 `mod_fewshot` (numeric/suffix/prefix/relational); gen118 `mod_induce` fits a GENERATIVE law from integer transitions (affine a·n+b, else a parity-split rule) — re-derives Collatz from data, runs/continues it; gen120 `mod_verify` TESTS a held-out transition against the induced law (confirm/refute). |
@@ -369,11 +369,19 @@ the KB plus the existing structural map, so "the dog runs" → "il cane corre"
 transfers to held-out nouns/verbs. Anti-impostor: held-out vocabulary, both
 directions, same code path. Cross-ref T4 (morphology/agreement).
 
-### L6 - Extractive summary of a session/passage
-Pull rung 6: "summarize what we said" / "riassumi" returns the salient asserted
-facts (subject–relation–object), ranked by recency/frequency, not a topic-word
-list. Held-out: a passage fed via `read:` then summarized; the summary names
-facts the KB actually holds. Cross-ref C4, T12.
+### L6 - Extractive summary of a session/passage — DONE, gen121–123
+Done: `mod_summary` remembers the original sentences a `read:` passage yielded
+and answers "summarize"/"riassumi" by scoring each by concept centrality (content
+words' recurrence across the passage) and quoting the top REAL sentences in
+original order — not a topic-word list. gen122 adds the GIST ("what is this
+about?" → central concept + most salient sentence); gen123 adds query-FOCUSED
+comprehension ("what did you learn about X?" → the sentences about X, honest when
+silent). The reader canonicalizes each clause before extraction, so Italian
+passages parse through the same path and the summary quotes the original Italian.
+`summary.chat`/`.it`, `comprehension.chat`/`.it`. **Open:** the reader's clause
+grammar is narrow (is-a/cause/capital), so a real paper's SVO sentences are
+honestly skipped — widening it is the next pull; abstractive merge; multi-`read:`
+long documents. Cross-ref C4, T12.
 
 ### L10 - Few-shot pattern induction in one turn — DONE, gen104
 Done: `mod_fewshot` parses 2+ "in -> out" exemplars and a "probe -> ?" on one

@@ -1,0 +1,14 @@
+# gen121 (L6) — bilingual ratchet for the extractive summary. The reader now
+# canonicalizes each clause's function words (gen43's interlingua) BEFORE
+# extraction, so an Italian sentence is parsed into the SAME fact by the SAME
+# modules — no duplicated reader. The original Italian surface sentence is what
+# the summary quotes; the salience ranking is language-agnostic.
+
+# An Italian passage about planets; the function words (è, un) canonicalize so
+# the facts extract through the shared path.
+> read: Mercurio è un pianeta. Venere è un pianeta. Marte è un pianeta. Marte è rosso.
+< Learned 3 fact(s), skipped 1.
+# The summary surfaces the three planet sentences (the salient concept), quoted
+# in their original Italian, and omits the lone "Marte è rosso".
+> riassumi
+< In short: Mercurio è un pianeta. Venere è un pianeta. Marte è un pianeta.

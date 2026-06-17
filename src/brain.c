@@ -68,6 +68,15 @@ struct Brain {
     char topics[BRAIN_TOPICS_MAX][32];
     size_t topic_count;
 
+    /* gen121 (L6): the propositions a `read:` passage actually yielded — the
+     * original surface sentences whose facts were extracted into the KB. An
+     * extractive summary ranks THESE by concept centrality and returns the most
+     * salient real sentences; comprehension (gen123) filters them by topic. The
+     * "skipped" count the reader reports is the honest complement. */
+#define BRAIN_PROPS_MAX 24
+    char props[BRAIN_PROPS_MAX][192];
+    size_t prop_count;
+
     /* gen101 (C15): role/character memory. A role is an ALTERNATE, session-scoped
      * self-model layered over the permanent one. When `in_role`, identity queries
      * answer from the role; a truth-probe ("really", "underneath", "davvero")
@@ -2758,14 +2767,35 @@ static int extract_clause(Brain *b, char *clause) {
     normalize(c, norm, sizeof norm);
     if (!*norm) return 0;
 
+    /* gen121: canonicalize the clause's function words to English tokens before
+     * extraction (gen43's interlingua), so an Italian sentence is parsed into the
+     * SAME fact by the SAME modules — no duplicated reader. The original surface
+     * sentence is what a later summary quotes, so the Italian text is preserved. */
+    char canon[256];
+    canonicalize_lang(norm, canon, sizeof canon);
+
     char resp[256];
-    if (mod_quantity(b, norm, c, resp, sizeof resp) ||
-        mod_cause(b, norm, c, resp, sizeof resp) ||
-        mod_same(b, norm, c, resp, sizeof resp) ||
-        mod_knowledge(b, norm, c, resp, sizeof resp)) {
+    if (mod_quantity(b, canon, c, resp, sizeof resp) ||
+        mod_cause(b, canon, c, resp, sizeof resp) ||
+        mod_same(b, canon, c, resp, sizeof resp) ||
+        mod_knowledge(b, canon, c, resp, sizeof resp)) {
         return strncmp(resp, "Learned", 7) == 0; /* an assertion, not a query */
     }
     return 0;
+}
+
+/* gen121 (L6): remember a surface sentence whose facts were extracted, so a
+ * later summary can quote real sentences. Trimmed, de-duplicated, capped. */
+static void store_proposition(Brain *b, char *clause) {
+    if (!b) return;
+    char *c = trim_mut(clause);
+    if (!*c) return;
+    for (size_t i = 0; i < b->prop_count; i++)
+        if (strcmp(b->props[i], c) == 0) return;
+    if (b->prop_count < BRAIN_PROPS_MAX) {
+        snprintf(b->props[b->prop_count], sizeof b->props[0], "%s", c);
+        b->prop_count++;
+    }
 }
 
 /* Split a mutable passage buffer into sentence clauses and feed each to the
@@ -2788,8 +2818,15 @@ static void read_passage(Brain *b, char *buf, size_t *learned, size_t *skipped) 
         }
         char saved = *q;
         *q = '\0';
+        /* gen121: keep the original surface sentence before extraction trims it,
+         * so a later summary can quote real sentences, not reconstructed facts. */
+        char original[192];
+        snprintf(original, sizeof original, "%s", p);
         learn_clause_transitions(b, p);   /* gen41: feed the generative model */
-        if (extract_clause(b, p)) (*learned)++;
+        if (extract_clause(b, p)) {
+            (*learned)++;
+            store_proposition(b, original);
+        }
         else if (*trim_mut(p)) (*skipped)++;
         if (saved == '\0') break;
         p = q + 1;
@@ -2813,6 +2850,7 @@ static int mod_reader(Brain *b, const char *norm, const char *raw,
 
     size_t learned = 0, skipped = 0;
     clear_generation_model(b);
+    b->prop_count = 0;     /* gen121: each `read:` is a fresh passage to summarize */
     read_passage(b, buf, &learned, &skipped);
 
     char msg[128];
@@ -5762,6 +5800,163 @@ static void update_topics(Brain *b, const char *norm) {
     }
 }
 
+/* gen121 (L6): the content words of proposition `i`, lowercased. A content word
+ * is alphabetic, length >= 3, not a stop-word — the same shallow, honest filter
+ * update_topics uses. Returns how many were written. */
+static size_t prop_content_words(Brain *b, size_t i, char words[][KB_TERM_LEN],
+                                 size_t max) {
+    char buf[192]; snprintf(buf, sizeof buf, "%s", b->props[i]);
+    for (char *p = buf; *p; p++) *p = (char)tolower((unsigned char)*p);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    size_t n = 0;
+    for (size_t j = 0; j < nw && n < max; j++) {
+        char *t = strip_edge_punct(w[j]);
+        if (strlen(t) < 3 || !isalpha((unsigned char)t[0]) || is_stopword(b, t))
+            continue;
+        int dup = 0;
+        for (size_t k = 0; k < n; k++) if (strcmp(words[k], t) == 0) { dup = 1; break; }
+        if (dup) continue;
+        snprintf(words[n], KB_TERM_LEN, "%s", t); n++;
+    }
+    return n;
+}
+
+/* gen121 (L6): a real EXTRACTIVE summary. The shallow topic-word answer in
+ * mod_discourse was honest but not a summary. This ranks the propositions a
+ * `read:` passage actually yielded by CONCEPT CENTRALITY — each sentence scored
+ * by how often its content words recur across the whole passage, so the
+ * sentences about the most-connected concepts surface — and quotes the top few
+ * REAL sentences, in original order for readability. It summarizes only what was
+ * genuinely parsed into facts; whatever the reader skipped is, honestly, not
+ * here. Held-out: any passage of parseable propositions transfers. */
+static int mod_summary(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+    int want_sum = cue(norm, "summarize") || cue(norm, "summary") ||
+                   cue(norm, "riassumi") || cue(norm, "riassunto") ||
+                   cue(norm, "in short") || cue(norm, "in breve");
+    /* gen122: the GIST — the single central concept and the most salient
+     * sentence, for "what is this about?" rather than a multi-sentence digest. */
+    int want_gist = cue(norm, "what is this about") || cue(norm, "what's this about") ||
+                    cue(norm, "what is it about") || cue(norm, "what's it about") ||
+                    cue(norm, "main point") || cue(norm, "the gist") ||
+                    cue(norm, "di cosa parla") || cue(norm, "punto principale");
+
+    /* gen123: query-FOCUSED comprehension — "what did you learn/read about X?"
+     * pulls the sentences about X. Gated to learn/read phrasing so a bare "what
+     * do you know about X" stays with mod_knowledge's entity description; this is
+     * the PASSAGE digest. The focus word follows "about"/"di"/"su". */
+    int focus_intent = cue(norm, "learn about") || cue(norm, "learned about") ||
+                       cue(norm, "read about") || cue(norm, "imparato") ||
+                       cue(norm, "letto") || (want_sum && cue(norm, "about"));
+    char focus[KB_TERM_LEN] = "";
+    if (focus_intent) {
+        const char *mk = strstr(norm, "about ");
+        if (mk) mk += 6;
+        else if ((mk = strstr(norm, " su "))) mk += 4;
+        else if ((mk = strstr(norm, " di "))) mk += 4;
+        if (mk) {
+            size_t k = 0;
+            while (*mk && !isalnum((unsigned char)*mk)) mk++;
+            while (*mk && (isalnum((unsigned char)*mk)) && k + 1 < sizeof focus)
+                focus[k++] = (char)tolower((unsigned char)*mk++);
+            focus[k] = '\0';
+        }
+    }
+    int want_focus = (*focus && strcmp(focus,"this") && strcmp(focus,"it") &&
+                      !is_stopword(b, focus));
+    if ((!want_sum && !want_gist && !want_focus) || b->prop_count == 0) return 0;
+
+    /* Global content-word frequencies across all propositions. */
+    char vocab[128][KB_TERM_LEN]; size_t freq[128]; size_t nv = 0;
+    char words[24][KB_TERM_LEN];
+    for (size_t i = 0; i < b->prop_count; i++) {
+        size_t nwc = prop_content_words(b, i, words, 24);
+        for (size_t j = 0; j < nwc; j++) {
+            size_t v; for (v = 0; v < nv; v++) if (strcmp(vocab[v], words[j]) == 0) break;
+            if (v == nv && nv < 128) { snprintf(vocab[nv], KB_TERM_LEN, "%s", words[j]); freq[nv]=0; nv++; }
+            if (v < 128) freq[v]++;
+        }
+    }
+
+    /* Score each proposition = sum of its content words' global frequencies. */
+    long score[BRAIN_PROPS_MAX];
+    for (size_t i = 0; i < b->prop_count; i++) {
+        size_t nwc = prop_content_words(b, i, words, 24);
+        long s = 0;
+        for (size_t j = 0; j < nwc; j++)
+            for (size_t v = 0; v < nv; v++)
+                if (strcmp(vocab[v], words[j]) == 0) { s += (long)freq[v]; break; }
+        score[i] = s;
+    }
+
+    /* gen123: a focused digest — the sentences whose content words include the
+     * focus, in original order. Honest when the passage says nothing about it. */
+    if (want_focus) {
+        char msg[640]; size_t o = (size_t)snprintf(msg, sizeof msg, "About %s:", focus);
+        size_t hits = 0; char words[24][KB_TERM_LEN];
+        for (size_t i = 0; i < b->prop_count; i++) {
+            size_t nwc = prop_content_words(b, i, words, 24);
+            int has = 0;
+            for (size_t j = 0; j < nwc; j++) if (strcmp(words[j], focus) == 0) { has = 1; break; }
+            if (!has) continue;
+            char s[192]; snprintf(s, sizeof s, "%s", b->props[i]);
+            size_t sl = strlen(s);
+            while (sl > 0 && (s[sl-1]=='.'||s[sl-1]==' ')) s[--sl] = '\0';
+            o += (size_t)snprintf(msg + o, sizeof msg - o, " %s.", s);
+            hits++;
+        }
+        if (hits == 0)
+            snprintf(msg, sizeof msg, "The passage doesn't say anything about %s.", focus);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* gen122: the gist — the most central concept (highest content-word
+     * frequency) and the single most salient sentence (highest score). */
+    if (want_gist) {
+        size_t cv = 0;
+        for (size_t v = 1; v < nv; v++) if (freq[v] > freq[cv]) cv = v;
+        size_t ti = 0;
+        for (size_t i = 1; i < b->prop_count; i++) if (score[i] > score[ti]) ti = i;
+        char s[192]; snprintf(s, sizeof s, "%s", b->props[ti]);
+        size_t sl = strlen(s);
+        while (sl > 0 && (s[sl-1]=='.'||s[sl-1]==' ')) s[--sl] = '\0';
+        char msg[320];
+        snprintf(msg, sizeof msg, "Mainly about %s: %s.", nv ? vocab[cv] : "", s);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Select the top-k indices (k = up to 3), ties broken by original order. */
+    size_t k = b->prop_count < 3 ? b->prop_count : 3;
+    int chosen[BRAIN_PROPS_MAX]; size_t nc = 0;
+    for (size_t pick = 0; pick < k; pick++) {
+        long best = -1; size_t bi = 0; int found = 0;
+        for (size_t i = 0; i < b->prop_count; i++) {
+            int taken = 0; for (size_t c = 0; c < nc; c++) if (chosen[c]==(int)i) { taken=1; break; }
+            if (taken) continue;
+            if (!found || score[i] > best) { best = score[i]; bi = i; found = 1; }
+        }
+        if (found) chosen[nc++] = (int)bi;
+    }
+    /* Emit the chosen sentences in original passage order. */
+    int order[BRAIN_PROPS_MAX]; size_t no = 0;
+    for (size_t i = 0; i < b->prop_count; i++)
+        for (size_t c = 0; c < nc; c++) if (chosen[c]==(int)i) { order[no++]=(int)i; break; }
+
+    char msg[640]; size_t o = (size_t)snprintf(msg, sizeof msg, "In short:");
+    for (size_t i = 0; i < no; i++) {
+        char s[192]; snprintf(s, sizeof s, "%s", b->props[order[i]]);
+        size_t sl = strlen(s);
+        while (sl > 0 && (s[sl-1]=='.'||s[sl-1]==' ')) s[--sl] = '\0';
+        o += (size_t)snprintf(msg + o, sizeof msg - o, " %s.", s);
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_discourse(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -6219,6 +6414,7 @@ static const Module registry[] = {
     {"shell",     mod_shell},
     {"knowledge", mod_knowledge},
     {"symbolic",  mod_symbolic},
+    {"summary",   mod_summary},
     {"discourse", mod_discourse},
     {"social",    mod_social},
 };
@@ -6290,7 +6486,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen120-verify";
+    return "gen123-focus";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

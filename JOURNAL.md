@@ -1,5 +1,55 @@
 # parrot0 evolution journal
 
+## 2026-06-18 — gen121–123: reading a passage and summarizing it (L6 / L7)
+
+> Prompted by F.'s wish: "feed parrot0 a paper and ask for a summary." Honest
+> scope first — parrot0 will NOT comprehend a dense arbitrary PDF like an LLM;
+> faking that is the perfect impostor PRINCIPLES.md rejects. What it CAN do
+> honestly: read a passage of parseable propositions (it already extracts facts
+> via `read:`), and summarize by RANKING the real extracted propositions by
+> structural salience — returning actual sentences, and admitting what it
+> skipped. That "skipped N" is the honesty; the limitation is the experiment
+> working as intended.
+
+**gen121 (L6) — extractive summary by concept centrality.** `mod_summary` (new,
+before `discourse`). Every successfully-extracted clause is remembered as its
+original surface sentence (`store_proposition`, capture in `read_passage`).
+"summarize"/"riassumi" scores each sentence by how often its content words recur
+across the passage and quotes the top few REAL sentences, in original order — the
+sentences about the most-connected concept surface. The reader now canonicalizes
+each clause (gen43 interlingua) BEFORE extraction, so an Italian passage parses
+into the SAME facts through the SAME modules (no duplicated reader); the summary
+quotes the original Italian. `summary.chat`/`.it`.
+
+**gen122 (L7) — the gist.** "what is this about?"/"di cosa parla?" returns the
+single most central concept (highest content-word frequency) and the single most
+salient sentence — the thesis, not a digest. Shares gen121's salience
+computation. `comprehension.chat`/`.it`.
+
+**gen123 (L6/L7) — query-focused comprehension.** "what did you learn about X?"
+/"cosa hai imparato su X?" returns only the sentences about X, in order — gated to
+learn/read phrasing so a bare "what do you know about X" still gets
+mod_knowledge's entity description. Honest when the passage is silent on X ("The
+passage doesn't say anything about saturn."). `comprehension.chat`/`.it`.
+
+**Why:** rungs 5/6/7 were parrot0's weakest — exactly where "understanding" is
+hardest to fake, so the anti-impostor discipline bites hardest. An honest
+extractive summarizer grounded in really-extracted propositions (with an honest
+skip count) is the in-spirit answer to the paper-summary wish.
+
+**Observed:** `make test` green (175 checks). End-to-end on a 7-sentence
+"mini-paper": learned 4, **skipped 3** (the SVO sentences it can't parse), and
+summarized/gisted/focused only from the 4 it genuinely understood — faithful, not
+fabricated. Salience is derived (held-out passages/topics transfer); the à-in-
+"città" tokenizer limit (concept word truncates at the accented byte) is a
+pre-existing UTF-8 gap, sidestepped in IT tests, noted for later.
+
+**Next (open):** widen the reader's clause grammar (SVO verbs → relations) so
+more of a real passage is captured; abstractive compression (merge sentences
+sharing a subject); summary-of-summary for multi-`read:` long documents.
+
+---
+
 ## 2026-06-18 — gen120: hypothesis testing / falsification — the capstone (rung 19 + rung 16)
 
 **Changed:** `brain.c` → `gen120-verify`; new `mod_verify` (registered after

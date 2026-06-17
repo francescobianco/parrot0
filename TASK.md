@@ -8,6 +8,13 @@
 
 ## Done recently
 
+- **gen121–123 (L6/L7) — read a passage and summarize it.** `mod_summary`:
+  gen121 extractive summary (rank the really-extracted propositions by concept
+  centrality, quote the top real sentences); gen122 the gist ("what is this
+  about?" → central concept + most salient sentence); gen123 query-focused
+  comprehension ("what did you learn about X?"). Reader canonicalizes each clause
+  so Italian parses through the same path; honest skip count + honest "doesn't say
+  anything about X". `summary.chat`/`.it`, `comprehension.chat`/`.it`.
 - **gen120 (rung 19 + 16) — hypothesis testing / falsification.** `mod_verify`
   induces a law from examples, then judges a held-out transition against it —
   confirm or refute, naming the predicted value ("predicts 10 -> 21, not 20").

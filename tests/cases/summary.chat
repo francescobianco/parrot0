@@ -1,0 +1,22 @@
+# gen121 (L6): a real EXTRACTIVE summary. The shallow topic-word answer
+# (mod_discourse) was honest but not a summary. After `read:` ingests a passage,
+# mod_summary ranks the propositions it ACTUALLY extracted by concept centrality
+# — each sentence scored by how often its content words recur across the passage,
+# so the sentences about the most-connected concept surface — and quotes the top
+# real sentences, in original order. It summarizes only what was parsed into
+# facts; whatever the reader skipped is, honestly, not in the summary.
+
+# A six-sentence passage about planets; every sentence parses into a fact.
+> read: Mercury is a planet. Venus is a planet. Mars is a planet. Earth is a planet. Earth is a home. Pluto is a dwarf.
+< Learned 6 fact(s), skipped 0.
+# The summary surfaces the planet-central sentences, not "Earth is a home" or the
+# lone "Pluto is a dwarf" — salience, not order or keywords.
+> summarize
+< In short: Mercury is a planet. Venus is a planet. Earth is a planet.
+
+# Held-out passage (different concept): the central concept "dog" is surfaced; the
+# selection is computed, not memorized.
+> read: Rex is a dog. Fido is a dog. Spot is a dog. Rex is a pet. Fido is a puppy.
+< Learned 5 fact(s), skipped 0.
+> summarize
+< In short: Rex is a dog. Fido is a dog. Spot is a dog.
