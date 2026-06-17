@@ -1,5 +1,44 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen107: one-step algebra — solving for an unknown (L17)
+
+**Changed:** `brain.c` → `gen107-algebra`; new module `mod_algebra` (registered
+before `arith`); helpers `algebra_op`, `algebra_tokenize`, `algebra_is_filler`;
+`tests/cases/algebra.chat` + `algebra.it.chat`; self-model module list updated.
+
+- **From computing to inverting.** gen35 could evaluate `a op b`; L17 solves an
+  equation with one unknown and one operation by applying the **inverse**
+  operation — `x + 3 = 7` ⇒ `x = 7 - 3 = 4`. The unknown is not on the answer
+  side to begin with, so reaching it is a genuine reasoning step, not a lookup.
+- **All four operations, both inverse directions, any slot.** `2 * x = 10` ⇒ 5
+  (÷), `x / 3 = 6` ⇒ 18 and `20 / x = 4` ⇒ 5 (the unknown in the denominator
+  inverts the other way), `12 + n = 30` ⇒ 18, and the operation may sit on either
+  side of `=` (`5 = x - 2` ⇒ 7). It declines honestly when there is no finite
+  solution (`10 / x = 0`), and plain arithmetic without `=` still falls through
+  to `mod_arith` (the module returns immediately when the input has no `=`, so
+  reordering it before `arith` is safe).
+- **The proof is the derivation.** "how do you know?" → "Because x + 3 = 7, so
+  x = 7 - 3 = 4." — it states the inverse it applied, derived from the equation
+  itself, not a canned line.
+- **Bilingual nearly for free.** An equation is symbolic, so `x + 3 = 7` is
+  identical in any language; only the leading filler ("solve"/"risolvi") and the
+  spelled-out operators ("minus"/"meno", "times"/"per") differ, and those map
+  onto the same canonical operators. Same solver, same code path
+  (`algebra.it.chat`).
+
+**Why:** rung 17 of the L-series. Solving for an unknown by inverting an operation
+is a small but unmistakable act of reasoning — the first time parrot0 works
+*backwards* from a result to a cause in the numeric domain, mirroring how it
+already re-derives class-conclusions (gen103) in the symbolic one.
+
+**Observed:** `make test` green (93 chat cases + all suites); `make impersonate`
+still 100%. The strategy trace (gen105) automatically picked up `algebra` in its
+account of which modules were consulted — the self-model staying honest as the
+structure grows.
+
+**Next:** word problems (prose → arithmetic relation → solve), two-step
+equations, and weight-as-KB-knowledge for the generation loop (D-prop1 step 2).
+
 ## 2026-06-17 — gen106: a learned end-of-sequence token (L1)
 
 **Changed:** `brain.c` → `gen106-stoptoken`; `learn_word_stream` rewritten to

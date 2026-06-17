@@ -8,6 +8,12 @@
 
 ## Done recently
 
+- **gen107 (L17) — one-step algebra.** `mod_algebra` solves an equation with one
+  unknown and one operation by applying the inverse: `x + 3 = 7` ⇒ `x = 4`. All
+  four ops, both inverse directions (incl. unknown in a denominator), any operand
+  slot, either side of `=`; declines on no finite solution; plain arith (no `=`)
+  falls through. Proof states the inversion. Bilingual (symbolic core + filler/op
+  words). `algebra.chat` / `algebra.it.chat`.
 - **gen106 (L1) — a learned end-of-sequence token.** The autoregressive decode
   loop (gen36–42, induced `cont`/`cont2` continuation relation) gains a learned
   STOP: `learn_word_stream` induces a transition to `end_of_seq` at every

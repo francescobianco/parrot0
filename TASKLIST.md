@@ -333,7 +333,7 @@ Acceptance:
 | 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
 | 15| Tool use                               | ⬜ | deterministic oracles exist as *tests*; the brain never *calls* one mid-turn. → **L15** |
 | 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); bilingual. → **L16** done (class-level), T10 to extend to relations/derived chains |
-| 17| Advanced mathematical reasoning        | 🟡 | arithmetic + a new "explain why" justification (gen101); no algebra/word-problems. → C12, **L17** |
+| 17| Advanced mathematical reasoning        | 🟢 | gen107 `mod_algebra`: one-step equation solving by inverse operation (`x + 3 = 7` ⇒ 4), all ops, any slot, either side. Word-problems/two-step still open. |
 | 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
 | 19| Autonomous agents                      | ⬜ | no perceive→decide→act loop; the generative-inference proposal (D-prop1) is the nearest seed. |
 | 20| Meta-reasoning (reason about reasoning)| 🟢 | gen105 `mod_strategy`: "why did you answer *that way*?" reports the real dispatch trace (declined modules, winner, first-match-wins rule). Reasons about *control* now, not only results. Counterfactual ("what else matched") still open. |
@@ -418,10 +418,15 @@ order). `rederive.chat` / `rederive.it.chat`. **To extend:** binary relations,
 multi-step derived chains, and conclusions stated via other modules. Cross-ref
 T3, T10.
 
-### L17 - One-step algebra / word problems
-Pull rung 17: solve "x + 3 = 7" and one-sentence word problems by mapping prose
-to an arithmetic relation, then solving for the unknown. Builds on gen101's
-operation-grounded explanation. Anti-impostor: held-out numbers and phrasings.
+### L17 - One-step algebra / word problems — DONE (equations), gen107
+Done (equation form): `mod_algebra` solves an equation with one unknown and one
+operation by applying the inverse — `x + 3 = 7` ⇒ 4, `2 * x = 10` ⇒ 5,
+`20 / x = 4` ⇒ 5 (unknown in denominator), `5 = x - 2` ⇒ 7 (op on either side).
+Fires only when `=` is present, so plain arithmetic falls through to `mod_arith`.
+Proof states the inversion. Bilingual: the equation is symbolic, only filler and
+op words differ (`algebra.chat` / `algebra.it.chat`). **Still open:** one-sentence
+WORD problems (prose → relation → solve) and two-step / multi-operation equations.
+Anti-impostor: held-out numbers and phrasings.
 
 ### L18 - Competing/sequenced goals
 Pull rung 18 past decomposition (gen80): when two goals conflict or must be

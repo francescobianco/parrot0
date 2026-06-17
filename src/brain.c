@@ -1511,6 +1511,146 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: algebra (L17) ------------------------------------------------
+ * One-step equation solving: "x + 3 = 7" -> x = 4. gen35 could COMPUTE a op b;
+ * L17 INVERTS it — given an equation with one unknown and one operation, solve
+ * for the unknown by applying the inverse operation. This is a genuine reasoning
+ * step (the unknown is never on the answer side to begin with), not a lookup. It
+ * reuses the same number parsing/formatting as mod_arith, and is symbolic — the
+ * equation "x - 4 = 1" is identical in any language, so the bilingual ratchet is
+ * almost free (only leading filler words differ). Operators: + - * / (symbols)
+ * and the plus/minus/times words, EN+IT. '-' is always a binary operator here
+ * (no negative-literal operands), which keeps one-step school algebra simple. */
+static char algebra_op(const char *s) {
+    if (!strcmp(s, "+") || !strcmp(s, "plus")  || !strcmp(s, "più"))  return '+';
+    if (!strcmp(s, "-") || !strcmp(s, "minus") || !strcmp(s, "meno")) return '-';
+    if (!strcmp(s, "*") || !strcmp(s, "times") || !strcmp(s, "per"))  return '*';
+    if (!strcmp(s, "/")) return '/';
+    return 0;
+}
+
+/* Split on whitespace and on the operator/equals chars (+ - * / =), each of the
+ * latter emitted as its own one-char token. Tokens point into `store`. */
+static size_t algebra_tokenize(const char *s, char store[][KB_TERM_LEN],
+                               char *toks[], size_t max) {
+    size_t n = 0, k = 0;
+    while (s[k] && n < max) {
+        while (s[k] && isspace((unsigned char)s[k])) k++;
+        if (!s[k]) break;
+        char c = s[k];
+        if (c == '+' || c == '-' || c == '*' || c == '/' || c == '=') {
+            store[n][0] = c; store[n][1] = '\0'; toks[n] = store[n]; n++; k++;
+            continue;
+        }
+        size_t m = 0;
+        while (s[k] && !isspace((unsigned char)s[k]) && s[k] != '+' &&
+               s[k] != '-' && s[k] != '*' && s[k] != '/' && s[k] != '=' &&
+               m + 1 < KB_TERM_LEN) {
+            store[n][m++] = s[k++];
+        }
+        store[n][m] = '\0'; toks[n] = store[n]; n++;
+    }
+    return n;
+}
+
+static int algebra_is_filler(const char *s) {
+    static const char *const f[] = {
+        "solve","find","what","is","the","value","of","for","if","compute",
+        "calculate","please","equation",
+        "risolvi","trova","quanto","vale","il","valore","di","se","calcola",
+        "equazione", NULL };
+    return matches_any(s, f);
+}
+
+static int mod_algebra(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)raw;
+    if (!strchr(norm, '=')) return 0;            /* an equation has '=' */
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+
+    char store[24][KB_TERM_LEN]; char *t[24];
+    size_t nt = algebra_tokenize(buf, store, t, 24);
+
+    /* drop a leading run of filler words ("solve", "risolvi", ...). */
+    size_t s0 = 0;
+    while (s0 < nt && algebra_is_filler(t[s0])) s0++;
+    char **tk = t + s0; size_t n = nt - s0;
+
+    /* locate the single '=' */
+    size_t eq = n;
+    for (size_t i = 0; i < n; i++) if (strcmp(tk[i], "=") == 0) {
+        if (eq != n) return 0;                   /* more than one '=' */
+        eq = i;
+    }
+    if (eq == n) return 0;
+    size_t ln = eq, rn = n - eq - 1;             /* token counts each side */
+
+    /* exactly one side is "operand OP operand" (3 tokens), the other a lone
+     * operand (1 token). Canonicalize to: a <op> b = c. */
+    char *ta, *tb, *tc; char op;
+    if (ln == 3 && rn == 1) {
+        ta = tk[0]; op = algebra_op(tk[1]); tb = tk[2]; tc = tk[eq + 1];
+    } else if (ln == 1 && rn == 3) {
+        ta = tk[eq + 1]; op = algebra_op(tk[eq + 2]); tb = tk[eq + 3]; tc = tk[0];
+    } else {
+        return 0;
+    }
+    if (!op) return 0;
+
+    /* exactly one of ta, tb, tc is the unknown (a non-numeric identifier). */
+    double av, bv, cv;
+    int na = parse_num(ta, &av), nb = parse_num(tb, &bv), nc = parse_num(tc, &cv);
+    int unknowns = (!na) + (!nb) + (!nc);
+    if (unknowns != 1) return 0;
+
+    const char *x; double r; char rhs[96];   /* rhs = the inverse expression */
+    if (!nc) {                                 /* tc unknown: just compute ta op tb */
+        x = tc;
+        switch (op) {
+            case '+': r = av + bv; break;
+            case '-': r = av - bv; break;
+            case '*': r = av * bv; break;
+            case '/': if (bv == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+                      r = av / bv; break;
+            default: return 0;
+        }
+        snprintf(rhs, sizeof rhs, "%g %c %g", av, op, bv);
+    } else if (!na) {                          /* ta unknown: invert around ta */
+        x = ta;
+        switch (op) {
+            case '+': r = cv - bv; snprintf(rhs, sizeof rhs, "%g - %g", cv, bv); break;
+            case '-': r = cv + bv; snprintf(rhs, sizeof rhs, "%g + %g", cv, bv); break;
+            case '*': if (bv == 0) return 0; r = cv / bv; snprintf(rhs, sizeof rhs, "%g / %g", cv, bv); break;
+            case '/': r = cv * bv; snprintf(rhs, sizeof rhs, "%g * %g", cv, bv); break;
+            default: return 0;
+        }
+    } else {                                   /* tb unknown: invert around tb */
+        x = tb;
+        switch (op) {
+            case '+': r = cv - av; snprintf(rhs, sizeof rhs, "%g - %g", cv, av); break;
+            case '-': r = av - cv; snprintf(rhs, sizeof rhs, "%g - %g", av, cv); break;
+            case '*': if (av == 0) return 0; r = cv / av; snprintf(rhs, sizeof rhs, "%g / %g", cv, av); break;
+            case '/': if (cv == 0) return 0; r = av / cv; snprintf(rhs, sizeof rhs, "%g / %g", av, cv); break;
+            default: return 0;
+        }
+    }
+
+    char num[64]; format_num(r, num, sizeof num);
+    char msg[96]; snprintf(msg, sizeof msg, "%s = %s.", x, num);
+    put(msg, out, out_size);
+
+    char proof[256];
+    snprintf(proof, sizeof proof,
+             "%s %c %s = %s, so %s = %s = %s.", ta, op, tb, tc, x, rhs, num);
+    store_proof(b, proof);
+    return 1;
+}
+
 /* --- module: quantity ----------------------------------------------------
  * Quantities as knowledge (gen28). gen27 could compare two literal numbers;
  * this part lets a magnitude be *stated, recalled, and compared as a fact*, so
@@ -4793,6 +4933,7 @@ static const Module registry[] = {
     {"self",      mod_self},
     {"fewshot",   mod_fewshot},
     {"compare",   mod_compare},
+    {"algebra",   mod_algebra},
     {"arith",     mod_arith},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
@@ -4877,7 +5018,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen106-stoptoken";
+    return "gen107-algebra";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

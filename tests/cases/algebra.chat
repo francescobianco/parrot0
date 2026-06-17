@@ -1,0 +1,42 @@
+# gen107 (L17): one-step algebra. gen35 could COMPUTE a op b; L17 INVERTS it —
+# given an equation with one unknown and one operation, solve for the unknown by
+# applying the inverse operation. The unknown is never on the answer side to
+# begin with, so this is a genuine reasoning step, not a lookup. Held-out
+# numbers and phrasings; the same number parsing/formatting as mod_arith.
+
+# Addition: unknown on the left -> subtract.
+> x + 3 = 7
+< x = 4.
+# The proof shows the inversion it performed, derived from the equation itself.
+> how do you know?
+< Because x + 3 = 7, so x = 7 - 3 = 4.
+
+# Subtraction inverts to addition.
+> x - 4 = 1
+< x = 5.
+
+# Multiplication inverts to division.
+> 2 * x = 10
+< x = 5.
+
+# Division inverts to multiplication; unknown in the denominator works too.
+> x / 3 = 6
+< x = 18.
+> 20 / x = 4
+< x = 5.
+
+# The unknown can be any identifier and sit in any operand slot.
+> 12 + n = 30
+< n = 18.
+
+# The equation may be written with the operation on the RIGHT of the '=' too.
+> 5 = x - 2
+< x = 7.
+
+# Plain arithmetic (no '=') is untouched: it still falls through to mod_arith.
+> what is 2 + 2
+< 4.
+
+# No finite solution (would divide by zero) -> decline honestly, never invent.
+> 10 / x = 0
+< I don't understand that yet.
