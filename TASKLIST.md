@@ -438,8 +438,11 @@ Word problems (gen109): `mod_wordproblem` maps a one-sentence problem to an
 operation chosen from SEMANTIC cues (gain/lose/group/share verbs, comparison
 phrasings), then solves — held-out numbers AND verbs transfer; "how many more …
 than" correctly maps to subtraction; declines without a clear cue. Bilingual cues
-(`wordproblem.chat`/`.it`). **Still open:** two-step / multi-operation problems,
-prose with number words ("three").
+(`wordproblem.chat`/`.it`). gen112 adds number WORDS ("three", "twenty-one",
+"two hundred", EN+IT). gen113 adds two-step equations (coefficient on the unknown,
+"2x + 1 = 7" → 3; one-step "5y = 20" → 4). gen114 adds multi-step word problems
+(3+ numbers folded as an additive/subtractive chain). **Still open:** mixed ×/÷
+mid-chain, explicit-star two-step ("2 * x + 1 = 7").
 
 ### L18 - Competing/sequenced goals
 Pull rung 18 past decomposition (gen80): when two goals conflict or must be
