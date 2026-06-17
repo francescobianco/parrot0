@@ -1,5 +1,56 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen106: a learned end-of-sequence token (L1)
+
+**Changed:** `brain.c` → `gen106-stoptoken`; `learn_word_stream` rewritten to
+track sentence boundaries and induce a transition to a `GEN_STOP` sentinel at
+every boundary (terminal `.`/`!`/`?` or end-of-stream), resetting the rolling
+context so no bigram/trigram bridges a boundary; `generate_from` halts when the
+decode chooses STOP; `tests/cases/gen_stop.chat` + `gen_stop.it.chat`.
+
+- **The decode loop already existed (gen36–42).** parrot0 generates
+  autoregressively — emit a word, append to context, re-infer — over a `cont`/
+  `cont2` continuation relation **induced from prose** (never a phrasebook), with
+  a frequency-interpolated deterministic choice. The honest gap vs D-prop1 was
+  precise: **no learned stop.** Decoding halted on a 24-step ceiling, so a cyclic
+  grammar streamed "the cat sat the cat sat the…" until an arbitrary cutoff —
+  not where the model learned utterances *end*.
+- **gen106 closes it.** STOP is induced exactly like any other transition, from
+  the sentence boundaries in the taught text, and competes in the same frequency
+  model. So decoding ends because the model **learned to end** — the deterministic
+  analogue of the EOS token an LLM emits.
+- **The surprise (where I stopped).** `learn sequence: the cat sat . the cat sat .
+  the cat sat the mat .` then `say the` → **"the cat sat"**. The data contains the
+  continuation "sat the mat", yet the model halts after "sat" — because it learned
+  that stopping there is *more frequent* (2 ends vs 1 continuation). The learned
+  end-of-sequence **outweighs a real continuation** by evidence. That is genuine
+  termination modelling, not a rule I wrote: STOP is just another outcome the
+  frequency model ranks, and here it wins.
+- **Honesty preserved.** A cyclic grammar with no learned boundary ("ping pong
+  ping") has no dominant STOP, so the step bound remains the backstop (D-prop1
+  explicitly allows it) — it streams, bounded, rather than inventing a halt it
+  never learned. The diagnosis trap of the day: a leading `_` makes a KB atom a
+  *variable* (Prolog convention, kb.c), so the first sentinel `_stop_` was a
+  silent wildcard; `end_of_seq` (lowercase-initial, mid-underscore) is a true
+  constant the prose tokenizer can never produce.
+- **Bilingual ratchet (LOOP.md):** the boundary induction is structural, not
+  lexical, so the same loop learns to stop in Italian ("il gatto dorme . … sul
+  letto ." → "il gatto dorme") through one code path.
+
+**Why:** rung 1 of the L-series, and the most structurally LLM-like mechanism in
+the design (DESIGN.md D-prop1): a decoder over a continuation relation, now with a
+*learned* halt. It is the smallest honest step that was still undone — proven
+end-to-end on a held-out toy grammar, with the stop derived, never canned.
+
+**Observed:** `make test` green (91 chat cases + all suites); existing gen tests
+unchanged (terminal words previously ran out of transitions; now they halt on a
+learned STOP at the *same* point, so behaviour is identical except where STOP
+genuinely dominates). `make impersonate` still 100%.
+
+**Next:** weight the continuation choice as KB knowledge (`weight(Word, Context)`
+per D-prop1) rather than a Brain-side policy; induce STOP-aware generation from
+read passages directly; and the counterfactual upgrade to L20.
+
 ## 2026-06-17 — gen105: reasoning about its own strategy (L20)
 
 **Changed:** `brain.c` → `gen105-strategy`; new module `mod_strategy`

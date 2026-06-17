@@ -8,6 +8,15 @@
 
 ## Done recently
 
+- **gen106 (L1) — a learned end-of-sequence token.** The autoregressive decode
+  loop (gen36–42, induced `cont`/`cont2` continuation relation) gains a learned
+  STOP: `learn_word_stream` induces a transition to `end_of_seq` at every
+  sentence boundary, so decoding halts because the model *learned* where
+  utterances end, not at the 24-step ceiling. STOP competes in the same
+  frequency model and can outweigh a real continuation (`the cat sat . the cat
+  sat . the cat sat the mat .` ⇒ `say the` ⇒ "the cat sat"). Cyclic grammars
+  with no learned boundary still stream to the bounded backstop. Bilingual.
+  `gen_stop.chat` / `gen_stop.it.chat`.
 - **gen105 (L20) — reasoning about its own strategy.** `mod_strategy` answers
   "why did you answer *that way*?" from the real dispatch trace: the modules that
   ran and declined, the one that claimed the turn, and the first-match-wins rule.

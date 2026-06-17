@@ -317,7 +317,7 @@ Acceptance:
 
 | # | Ability (rung)                         | parrot0 | Where it lives / what would pull it |
 |---|----------------------------------------|---------|-------------------------------------|
-| 1 | Statistical text completion            | 🟡 | gen41 `cont/cont2` generative reader; single-shot, induced not sampled. → **L1** |
+| 1 | Statistical text completion            | 🟢 | gen36–42 autoregressive decode over induced `cont/cont2`; gen106 adds a LEARNED end-of-sequence (`end_of_seq`) so it halts where utterances end, not at a step bound. Weight-as-KB still future. |
 | 2 | Correct grammar & syntax               | 🟡 | canonicalize_lang lexicon + intent shapes; no real grammar. → T4, T5 |
 | 3 | Memorized factual knowledge            | ✅ | KB facts/rules, `knowledge/*.pl`, describe-entity. |
 | 4 | Classification & categorization        | ✅ | unary predicates + induced `Q(X):-P(X)`; SuperGLUE driver. |
@@ -346,12 +346,18 @@ tool use (15), and meta-strategy (20-deep). Those are the rungs most likely to
 "genuinely surprise": they need composition, not another template. The next
 concrete pulls, smallest-first:
 
-### L1 - Streamed generation over a continuation relation
-Pull rung 1 honestly via the generative-inference loop (DESIGN.md D-prop1):
-a `decode` loop driving one `next(Context, Word)` relation with an explicit stop
-token and a principled deterministic choice rule, proven on a held-out toy
-grammar. Impostor guard: the continuation knowledge must be *derived/induced*,
-never a canned phrasebook. Smallest step in D-prop1's plan first.
+### L1 - Streamed generation over a continuation relation — DONE, gen106
+Done (D-prop1 step 1, fully). The decode loop, induced `cont`/`cont2` relation,
+and frequency-interpolated deterministic choice existed since gen36–42; gen106
+added the missing piece — an **explicit, learned stop token** (`end_of_seq`).
+`learn_word_stream` induces a transition to STOP at each sentence boundary
+(terminal punctuation or end-of-stream), resetting context so nothing bridges a
+boundary; STOP competes in the same frequency model, so decoding halts where the
+model *learned* utterances end — and a learned STOP can outweigh a real
+continuation (proven on a held-out toy grammar). Cyclic grammars with no learned
+boundary still hit the bounded backstop. Bilingual (`gen_stop.chat` /
+`gen_stop.it.chat`). **Still future (D-prop1 step 2):** make the choice ranking
+itself KB knowledge (`weight(Word, Context)`) rather than a Brain-side policy.
 
 ### L5 - Minimal grounded translation
 Pull rung 5 past function-word canonicalization: translate a *content* clause

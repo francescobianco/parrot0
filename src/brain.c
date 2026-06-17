@@ -1814,6 +1814,17 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
  * provable continuation (insertion order); frequency-weighted choice and longer
  * context arrive in later generations. */
 
+/* gen106 (L1): the explicit end-of-sequence token. D-prop1 calls for "an
+ * explicit stop token / end relation" so decoding halts because the model
+ * LEARNED where utterances end — not merely because a step bound cut it off.
+ * It is a sentinel atom that begins with a lowercase letter (so the KB reads it
+ * as a constant, not a variable — leading uppercase OR '_' means variable,
+ * kb.c) and embeds underscores so the whitespace/prose tokenizer can never
+ * produce it as a real word. It is learned, never hand-authored, from sentence
+ * boundaries in the very text taught (a terminal '.'/'!'/'?' or end-of-stream),
+ * so STOP is induced exactly like every other transition. */
+#define GEN_STOP "end_of_seq"
+
 /* Learn one transition prev->word, keeping a frequency count. The KB has no
  * in-place update, so we read the current count, retract the old fact, and
  * assert the incremented one (gen37). */
@@ -1855,16 +1866,46 @@ static void learn_transition2(Brain *b, const char *p1, const char *p2,
  * returning the number of bigram pairs learned. Shared by `learn sequence:` and
  * the reader (gen41) so the generative model can grow from the same prose the
  * fact extractor reads, not only from explicit teaching. */
+/* gen106 (L1): true if `tok` ends a sentence, stripping the trailing terminal
+ * punctuation in place so the cleaned word is still learned. A lone "." returns
+ * a boundary with an emptied token. */
+static int is_sentence_boundary(char *tok) {
+    size_t n = strlen(tok);
+    if (n == 0) return 0;
+    char c = tok[n - 1];
+    if (c != '.' && c != '!' && c != '?') return 0;
+    while (n > 0 && (tok[n - 1] == '.' || tok[n - 1] == '!' || tok[n - 1] == '?'))
+        tok[--n] = '\0';
+    return 1;
+}
+
+/* gen106 (L1): learn the bigram (cont) and trigram (cont2) transitions across a
+ * word stream, INCLUDING a learned end-of-sequence: at every sentence boundary
+ * (terminal punctuation or end-of-stream) the last real word gets a transition
+ * to GEN_STOP, and the rolling context resets so no transition bridges the
+ * boundary. Returns the number of (non-STOP) bigram pairs learned — the count
+ * the "learn sequence:" reply reports, unchanged from gen41. Shared by
+ * `learn sequence:` and the reader, so the generative model grows from the same
+ * prose the fact extractor reads. */
 static size_t learn_word_stream(Brain *b, char **w, size_t nw) {
     size_t pairs = 0;
-    for (size_t i = 0; i + 1 < nw; i++) {
-        if (strlen(w[i]) >= KB_TERM_LEN || strlen(w[i + 1]) >= KB_TERM_LEN)
-            continue;
-        learn_transition(b, w[i], w[i + 1]);                /* bigram  */
-        if (i + 2 < nw && strlen(w[i + 2]) < KB_TERM_LEN)
-            learn_transition2(b, w[i], w[i + 1], w[i + 2]); /* trigram */
-        pairs++;
+    const char *p1 = NULL, *p2 = NULL; /* rolling context, reset at boundaries */
+    for (size_t i = 0; i < nw; i++) {
+        if (strlen(w[i]) >= KB_TERM_LEN) { p2 = NULL; p1 = NULL; continue; }
+        int boundary = is_sentence_boundary(w[i]); /* may empty the token */
+        const char *cur = w[i];
+        if (*cur) {
+            if (p1) { learn_transition(b, p1, cur); pairs++; }
+            if (p2 && p1) learn_transition2(b, p2, p1, cur);
+            p2 = p1; p1 = cur;
+        }
+        if (boundary && p1) {                       /* learned end-of-sequence */
+            learn_transition(b, p1, GEN_STOP);
+            if (p2) learn_transition2(b, p2, p1, GEN_STOP);
+            p2 = NULL; p1 = NULL;                    /* do not bridge sentences */
+        }
     }
+    if (p1) learn_transition(b, p1, GEN_STOP);       /* end-of-stream is a stop */
     return pairs;
 }
 
@@ -1995,6 +2036,7 @@ static void generate_from(Brain *b, const char *seed, char *out, size_t out_size
 
         char nxt[KB_TERM_LEN];
         if (!next_word_ctx(b, p2, p1, subj, nxt, sizeof nxt)) break;
+        if (strcmp(nxt, GEN_STOP) == 0) break; /* gen106: learned end-of-sequence */
         if (off < sizeof line)
             off += (size_t)snprintf(line + off, sizeof line - off, " %s", nxt);
         snprintf(toks[nt++], KB_TERM_LEN, "%s", nxt);
@@ -4835,7 +4877,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen105-strategy";
+    return "gen106-stoptoken";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
