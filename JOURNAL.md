@@ -1,5 +1,45 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen103: self-correction that re-derives (L16)
+
+**Changed:** `brain.c` → `gen103-rederive`; `Brain` remembers the last stated
+class-conclusion; `note_consequence` + `goal_truth` helpers; a core parser fix
+(trailing `?` = interrogation); `tests/cases/rederive.chat` + `rederive.it.chat`.
+
+- The resolver already re-derives at query time (a retracted premise silently
+  breaks a rule-backed conclusion). gen103 makes the agent **volunteer that
+  consequence**: when a correction flips a conclusion it previously stated, it
+  says so in the same turn — "Learned: not man(socrates). Then socrates is no
+  longer a mortal." — and the reverse, "Now tweety is a flyer after all."
+- Causality gate: the agent snapshots the goal's truth *before* the mutation and
+  speaks only if *this* correction flipped it (and only for a *downstream*
+  predicate, not a restatement of what was asserted). So a flip that already
+  happened on an earlier turn is never announced belatedly, and unrelated
+  assertions stay silent.
+- **Core fix for the bilingual ratchet (LOOP.md):** Italian queries are
+  subject-first ("socrates è un mortale?"), which the parser took as an
+  assertion. Rather than add an Italian-only branch, the fix is general: a
+  trailing `?` marks interrogation independent of word order, so "<x> is a <y>?"
+  routes to the query path in both languages. The same re-derivation +
+  announcement then fires in Italian through one code path — exactly the
+  "fix the core, don't duplicate" discipline.
+
+**Why:** rung 16 of the L-series. Self-correction past mere acknowledgment
+(gen92) is a genuinely intelligent behaviour: the agent tracks the dependency
+from premise to conclusion and notices, unprompted, when a correction undermines
+something it told you. It is the conversational face of truth maintenance, built
+on resolution that was already there — the structure earned its keep.
+
+**Observed:** `make test` green (85 chat cases + all suites); `make impersonate`
+still 100%. The retract.chat regression during development (a belated note on an
+unrelated assertion) is exactly what the before-snapshot gate fixed — and it is
+now covered by the "no spurious note" case.
+
+**Next:** remaining L-series surprises — few-shot induction (L10), streamed
+generation (L1), and meta-strategy introspection (L20, "why did you answer *that
+way*?"). The interrogative-`?` fix also widens Italian query coverage generally,
+which may unblock other bilingual cases.
+
 ## 2026-06-17 — gen102: structural analogy (A is to B as C is to ?)
 
 **Changed:** `brain.c` → `gen102-analogy`; new module `mod_analogy` (registered

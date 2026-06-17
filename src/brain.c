@@ -80,6 +80,15 @@ struct Brain {
     char role_kind[64];   /* what it is: "dog", "robot", or an identity atom   */
     char role_attrs[8][2][64]; /* parsed inline attributes: key -> value       */
     size_t role_attr_count;
+
+    /* gen103 (L16): the last class-conclusion the agent stated, e.g. "is socrates
+     * a mortal?" -> mortal(socrates)=yes. When a later correction changes the KB,
+     * the agent RE-DERIVES this goal and proactively announces the consequence
+     * ("Then socrates is no longer a mortal.") — joined-up self-correction. */
+    char last_goal_pred[KB_TERM_LEN];
+    char last_goal_arg[KB_TERM_LEN];
+    int  last_goal_yes;
+    int  has_last_goal;
 };
 
 /* ----------------------------------------------------------------------------
@@ -149,6 +158,42 @@ static void store_proof(Brain *b, const char *proof) {
     if (!b || !proof || !*proof) return;
     snprintf(b->last_proof, sizeof b->last_proof, "%s", proof);
     b->has_last_proof = 1;
+}
+
+/* gen103 (L16): current truth of the last stated class-conclusion, or -1 if none
+ * is remembered. Used to snapshot the goal right before a correction. */
+static int goal_truth(Brain *b) {
+    if (!b || !b->kb || !b->has_last_goal) return -1;
+    const char *args[] = { b->last_goal_arg };
+    return kb_query(b->kb, b->last_goal_pred, args, 1);
+}
+
+/* gen103 (L16): after a correction changes the KB, re-derive the last stated
+ * class-conclusion. If THIS correction flipped its truth (compared to `before`,
+ * the snapshot taken just before the mutation), append a sentence announcing the
+ * consequence to `out` — a correction's downstream effect is volunteered, not
+ * waited for. `just_asserted` is the predicate the correction touched: we only
+ * speak up when the affected conclusion is a *different*, downstream predicate —
+ * the genuinely joined-up case, not a restatement of what was just asserted. The
+ * `before` gate means a flip that already happened on an earlier turn (e.g. via
+ * "forget") is never announced belatedly on an unrelated later assertion. */
+static void note_consequence(Brain *b, const char *just_asserted, int before,
+                             char *out, size_t out_size) {
+    if (!b || !b->kb || !b->has_last_goal || before < 0) return;
+    if (just_asserted && strcmp(just_asserted, b->last_goal_pred) == 0) return;
+    int now = goal_truth(b);
+    if (now == before) return; /* this correction changed nothing downstream */
+    char note[200];
+    if (before && !now)
+        snprintf(note, sizeof note, " Then %s is no longer a %s.",
+                 b->last_goal_arg, b->last_goal_pred);
+    else
+        snprintf(note, sizeof note, " Now %s is a %s after all.",
+                 b->last_goal_arg, b->last_goal_pred);
+    size_t cur = strlen(out);
+    if (cur + strlen(note) + 1 < out_size)
+        memcpy(out + cur, note, strlen(note) + 1);
+    b->last_goal_yes = now; /* keep the memory consistent for further turns */
 }
 
 /* ----------------------------------------------------------------------------
@@ -810,12 +855,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* Work on a mutable copy with any trailing '?' stripped. */
+    /* Work on a mutable copy with any trailing '?' stripped. Remember whether the
+     * turn was a question: a trailing '?' marks interrogation independently of
+     * word order, so the subject-first interrogative "socrates is a man?" (the
+     * Italian shape "socrates è un uomo?") is a QUERY, not an assertion — one
+     * core rule serving both languages (gen103, the bilingual ratchet). */
     char buf[512];
     size_t len = strlen(norm);
     if (len >= sizeof buf) return 0;
     memcpy(buf, norm, len + 1);
-    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+    int interrogative = (len > 0 && buf[len - 1] == '?');
+    if (interrogative) buf[len - 1] = '\0';
 
     int entail_mode = ENT_PLAIN;
     char *premise_start = NULL;
@@ -1020,11 +1070,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         char msg[128];
+        int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         if (kb_assert_neg(b->kb, cl, args, 1))
             snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
         else
             snprintf(msg, sizeof msg, "I couldn't store that.");
         put(msg, out, out_size);
+        note_consequence(b, cl, before, out, out_size); /* gen103 (L16) */
         remember_entity(b, w[0], subj);
         return 1;
     }
@@ -1143,8 +1195,40 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
                     store_proof(b, ex);
             }
+            /* gen103 (L16): remember this conclusion so a later correction can
+             * re-derive it and flag the consequence. */
+            snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
+            snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
+            b->last_goal_yes = yes;
+            b->has_last_goal = 1;
         }
         remember_entity(b, w[1], subj);
+        return 1;
+    }
+
+    /* subject-first interrogative: "<x> is a <y>?" -> y(x)? (the Italian shape
+     * "<x> è un <y>?"). A trailing '?' makes this a QUERY, not an assertion, so
+     * the same conclusion-memory + consequence machinery (gen103/L16) fires in
+     * both languages through one path. */
+    if (interrogative && strcmp(w[1], "is") == 0) {
+        const char *subj;
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        else if (kb_is_conflicted(b->kb, cls, args, 1)) put("Conflicted.", out, out_size);
+        else {
+            int yes = kb_query(b->kb, cls, args, 1);
+            put(yes ? "Yes." : "No.", out, out_size);
+            if (yes) {
+                char ex[512];
+                if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex)) store_proof(b, ex);
+            }
+            snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
+            snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
+            b->last_goal_yes = yes;
+            b->has_last_goal = 1;
+        }
+        remember_entity(b, w[0], subj);
         return 1;
     }
 
@@ -1153,10 +1237,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *subj;
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
+        int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         if (kb_assert(b->kb, cls, args, 1)) {
             char msg[128];
             snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
             put(msg, out, out_size);
+            note_consequence(b, cls, before, out, out_size); /* gen103 (L16) */
         } else {
             put("I couldn't store that.", out, out_size);
         }
@@ -4455,7 +4541,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen102-analogy";
+    return "gen103-rederive";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

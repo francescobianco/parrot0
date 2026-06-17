@@ -1,0 +1,30 @@
+# gen103 (L16): self-correction that RE-DERIVES. The engine already resolves
+# rules at query time, so a retracted premise silently changes a conclusion.
+# This generation makes the agent VOLUNTEER that downstream effect: when a
+# correction flips a conclusion it previously stated, it says so unprompted.
+
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+> socrates is a man
+< Learned: man(socrates).
+# The agent states (and remembers) a derived conclusion.
+> is socrates a mortal?
+< Yes.
+# Correcting the premise retracts man(socrates); the agent re-derives the
+# conclusion and announces the consequence in the SAME turn — joined-up reasoning.
+> socrates is not a man
+< Learned: not man(socrates). Then socrates is no longer a mortal.
+
+# It also volunteers a NEWLY-enabled conclusion. Ask first (records "No"), then
+# supply the missing premise: the derived class now holds, and it says so.
+> every bird is a flyer
+< Learned rule: flyer(X) :- bird(X).
+> is tweety a flyer?
+< No.
+> tweety is a bird
+< Learned: bird(tweety). Now tweety is a flyer after all.
+
+# No spurious note: an unrelated assertion that does not change the remembered
+# conclusion stays silent.
+> plato is a man
+< Learned: man(plato).

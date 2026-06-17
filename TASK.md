@@ -17,15 +17,19 @@
   to ?" by finding a KB relation and transferring it — derived, not stored;
   both directions; bilingual; held-out triples pass. First answer parrot0 was
   never told.
+- **gen103 (L16) — self-correction that re-derives.** A correction that flips a
+  previously-stated conclusion is recomputed and the consequence volunteered
+  ("no longer a mortal"). A core parser fix (trailing `?` = query, any word
+  order) makes it bilingual through one path.
 
 ### Next candidate — pick the smallest high-surprise rung
 
 The **L-series** (TASKLIST.md) maps a 20-rung ability ladder onto parrot0. The
 honest next pulls, where behaviour cannot be templated, are:
 - **L10** few-shot pattern induction in one turn,
-- **L16** self-correction that re-derives the dependent conclusion,
 - **L1** streamed generation over a continuation relation (D-prop1),
-- **L20** meta-strategy introspection ("why did you answer *that way*?").
+- **L20** meta-strategy introspection ("why did you answer *that way*?"),
+- **L17** one-step algebra / word problems.
 
 Choose one, smallest-first, drive it from a held-out test, keep `make test` green.
 

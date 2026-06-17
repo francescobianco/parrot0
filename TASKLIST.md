@@ -332,7 +332,7 @@ Acceptance:
 | 13| Procedure planning                     | ⬜ | goal tracking exists (gen93); no ordered plan to a goal. → T7, **L13** |
 | 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
 | 15| Tool use                               | ⬜ | deterministic oracles exist as *tests*; the brain never *calls* one mid-turn. → **L15** |
-| 16| Self-correction                        | 🟡 | correction acknowledgment (gen92) + retract/belief status (T3); doesn't re-derive a fixed answer. → T10, **L16** |
+| 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); bilingual. → **L16** done (class-level), T10 to extend to relations/derived chains |
 | 17| Advanced mathematical reasoning        | 🟡 | arithmetic + a new "explain why" justification (gen101); no algebra/word-problems. → C12, **L17** |
 | 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
 | 19| Autonomous agents                      | ⬜ | no perceive→decide→act loop; the generative-inference proposal (D-prop1) is the nearest seed. |
@@ -397,11 +397,14 @@ Pull rung 15: let the brain *invoke* a deterministic oracle within a turn
 reply, with the call recorded in the proof trace. The honest seam between
 "reason" and "act". Anti-impostor: the oracle is real, not a stubbed string.
 
-### L16 - Self-correction that re-derives the answer
-Pull rung 16 past acknowledgment (gen92): after a correction retracts a premise,
-parrot0 *recomputes* the dependent conclusion and states the change ("then it is
-no longer mortal"). Cross-ref T3, T10. Needs dependency from premise to
-conclusion (truth maintenance, lightweight).
+### L16 - Self-correction that re-derives the answer — DONE (class-level), gen103
+Done: the agent remembers the last class-conclusion it stated; when a correction
+flips it (gated to *this* mutation, by a before-snapshot), it volunteers the
+consequence ("Then socrates is no longer a mortal." / "Now tweety is a flyer
+after all."). Bilingual via a core parser fix (trailing `?` = query, any word
+order). `rederive.chat` / `rederive.it.chat`. **To extend:** binary relations,
+multi-step derived chains, and conclusions stated via other modules. Cross-ref
+T3, T10.
 
 ### L17 - One-step algebra / word problems
 Pull rung 17: solve "x + 3 = 7" and one-sentence word problems by mapping prose
