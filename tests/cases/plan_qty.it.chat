@@ -1,0 +1,11 @@
+# gen110 (L13+) — the bilingual ratchet (LOOP.md). Conjunction and quantities go
+# through the SAME list parser in Italian: "per X serve/servono A e B", with
+# optional leading numbers. The separators ("e") and filler are language-mapped;
+# the planning and the amount annotation are identical to English.
+
+> per torta serve impasto e forno
+< Learned 2 prerequisites for torta.
+> per impasto servono 3 uova e 2 farina
+< Learned 2 prerequisites for impasto.
+> come faccio la torta?
+< To make torta: 3 uova, 2 farina, impasto, forno, then torta.

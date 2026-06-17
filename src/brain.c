@@ -1660,10 +1660,11 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
  * recomputed from the scattered facts each time, so a goal the system was taught
  * only as loose prerequisites yields a coherent procedure (anti-impostor: the
  * order is reasoned, not recited). Cycles are detected and reported. */
-static int plan_dfs(Brain *b, const char *node,
+static int plan_dfs(Brain *b, const char *node, const char *parent,
                     char done[][KB_TERM_LEN], size_t *ndone,
                     char stack[][KB_TERM_LEN], size_t depth,
-                    char order[][KB_TERM_LEN], size_t *norder, size_t maxn) {
+                    char order[][KB_TERM_LEN], char par[][KB_TERM_LEN],
+                    size_t *norder, size_t maxn) {
     for (size_t i = 0; i < *ndone; i++)
         if (strcmp(done[i], node) == 0) return 1;        /* already placed */
     for (size_t i = 0; i < depth; i++)
@@ -1675,14 +1676,52 @@ static int plan_dfs(Brain *b, const char *node,
     const char *pat[] = { node, NULL };
     size_t k = kb_match(b->kb, "requires", pat, 2, pre, 64);
     for (size_t j = 0; j < k; j++)
-        if (!plan_dfs(b, pre[j], done, ndone, stack, depth + 1, order, norder, maxn))
+        if (!plan_dfs(b, pre[j], node, done, ndone, stack, depth + 1,
+                      order, par, norder, maxn))
             return 0;
 
     if (*norder < maxn && *ndone < maxn) {
-        snprintf(order[*norder], KB_TERM_LEN, "%s", node); (*norder)++;
-        snprintf(done[*ndone], KB_TERM_LEN, "%s", node);   (*ndone)++;
+        snprintf(order[*norder], KB_TERM_LEN, "%s", node);
+        snprintf(par[*norder], KB_TERM_LEN, "%s", parent);   /* who needs it */
+        (*norder)++;
+        snprintf(done[*ndone], KB_TERM_LEN, "%s", node);     (*ndone)++;
     }
     return 1;
+}
+
+/* gen110: learn a prerequisite LIST from one sentence — conjunction and optional
+ * quantities. "cake requires eggs and flour" -> two requires() facts; "batter
+ * requires 3 eggs and 2 flour" also records amount(batter, eggs, 3) etc. Each
+ * item is an optional leading number then a single step token; "and"/"e"/","/"of"
+ * are skipped. Returns the count learned and writes the reply. */
+static size_t plan_learn_list(Brain *b, const char *goal, char **w,
+                              size_t start, size_t nw, char *out, size_t out_size) {
+    long pend = -1; size_t learned = 0; char last_step[KB_TERM_LEN] = "";
+    for (size_t i = start; i < nw; i++) {
+        char *tk = strip_edge_punct(w[i]);
+        if (!*tk) continue;
+        if (!strcmp(tk, "and") || !strcmp(tk, "e") || !strcmp(tk, "ed") ||
+            !strcmp(tk, "of") || !strcmp(tk, "di")) continue;
+        double v;
+        if (parse_num(tk, &v)) { pend = (long)v; continue; }
+        const char *ar[] = { goal, tk };
+        kb_assert(b->kb, "requires", ar, 2);
+        if (pend >= 0) {
+            char qs[24]; snprintf(qs, sizeof qs, "%ld", pend);
+            const char *aq[] = { goal, tk, qs };
+            kb_assert(b->kb, "amount", aq, 3);
+        }
+        pend = -1; learned++;
+        snprintf(last_step, sizeof last_step, "%s", tk);
+    }
+    if (learned == 0) return 0;
+    char msg[256];
+    if (learned == 1)
+        snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", goal, last_step);
+    else
+        snprintf(msg, sizeof msg, "Learned %zu prerequisites for %s.", learned, goal);
+    put(msg, out, out_size);
+    return learned;
 }
 
 static int mod_plan(Brain *b, const char *norm, const char *raw,
@@ -1698,24 +1737,15 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     char *w[32];
     size_t nw = split_words(buf, w, 32);
 
-    /* intake: "X requires Y" / "X needs Y" -> requires(X, Y). */
-    if (nw == 3 && (strcmp(w[1], "requires") == 0 || strcmp(w[1], "needs") == 0 ||
+    /* intake: "X requires/needs <list>" — conjunction + optional quantities. */
+    if (nw >= 3 && (strcmp(w[1], "requires") == 0 || strcmp(w[1], "needs") == 0 ||
                     strcmp(w[1], "richiede") == 0)) {
-        const char *args[] = { w[0], w[2] };
-        kb_assert(b->kb, "requires", args, 2);
-        char msg[128];
-        snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", w[0], w[2]);
-        put(msg, out, out_size);
-        return 1;
+        if (plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
     }
-    /* Italian intake: "per X serve Y" (to X you need Y) -> requires(X, Y). */
-    if (nw == 4 && strcmp(w[0], "per") == 0 && strcmp(w[2], "serve") == 0) {
-        const char *args[] = { w[1], w[3] };
-        kb_assert(b->kb, "requires", args, 2);
-        char msg[128];
-        snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", w[1], w[3]);
-        put(msg, out, out_size);
-        return 1;
+    /* Italian intake: "per X serve/servono <list>" (to X you need ...). */
+    if (nw >= 4 && strcmp(w[0], "per") == 0 &&
+        (strcmp(w[2], "serve") == 0 || strcmp(w[2], "servono") == 0)) {
+        if (plan_learn_list(b, w[1], w, 3, nw, out, out_size)) return 1;
     }
 
     /* query: "how do I make X" / "how to make X" / "steps to/for X" /
@@ -1746,9 +1776,10 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    char done[32][KB_TERM_LEN], stack[32][KB_TERM_LEN], order[32][KB_TERM_LEN];
+    char done[32][KB_TERM_LEN], stack[32][KB_TERM_LEN];
+    char order[32][KB_TERM_LEN], par[32][KB_TERM_LEN];
     size_t ndone = 0, norder = 0;
-    if (!plan_dfs(b, goal, done, &ndone, stack, 0, order, &norder, 32)) {
+    if (!plan_dfs(b, goal, "", done, &ndone, stack, 0, order, par, &norder, 32)) {
         char msg[128];
         snprintf(msg, sizeof msg,
                  "The steps for %s have a circular prerequisite — I can't order them.",
@@ -1757,12 +1788,21 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* render the topological order as the procedure (prerequisites first). */
+    /* render the topological order as the procedure (prerequisites first),
+     * annotating a step with the quantity its requirer asked for, if known. */
     char line[1024]; size_t off = 0;
-    for (size_t i = 0; i < norder; i++)
-        off += (size_t)snprintf(line + off, off < sizeof line ? sizeof line - off : 0,
-                                "%s%s", i ? (i + 1 == norder ? ", then " : ", ") : "",
-                                order[i]);
+    for (size_t i = 0; i < norder; i++) {
+        const char *sep = i ? (i + 1 == norder ? ", then " : ", ") : "";
+        char amt[4][KB_TERM_LEN];
+        const char *apat[] = { par[i], order[i], NULL };
+        size_t na = par[i][0] ? kb_match(b->kb, "amount", apat, 3, amt, 4) : 0;
+        if (na > 0)
+            off += (size_t)snprintf(line + off, off < sizeof line ? sizeof line - off : 0,
+                                    "%s%s %s", sep, amt[0], order[i]);
+        else
+            off += (size_t)snprintf(line + off, off < sizeof line ? sizeof line - off : 0,
+                                    "%s%s", sep, order[i]);
+    }
     char msg[1100];
     snprintf(msg, sizeof msg, "To make %s: %s.", goal, line);
     put(msg, out, out_size);
@@ -5231,7 +5271,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen109-wordproblem";
+    return "gen110-planlist";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
