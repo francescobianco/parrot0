@@ -1,0 +1,34 @@
+# gen116 (rung 19): the autonomous ACT-LOOP — parrot0's first perceive ->
+# decide -> act -> observe cycle. gen115 made a single tool call; this REPEATS
+# one to pursue a goal. Given a start value, an operation, and a stop condition,
+# the agent OBSERVES the current value, DECIDES whether the goal is met, and if
+# not ACTS by applying the operation through the arithmetic oracle — then
+# observes again, and repeats. The trajectory and step count are PRODUCED by
+# running the loop, not by a formula, so held-out start/op/target transfer.
+
+# Double until a threshold is reached (>=): 48 < 50 so it acts once more to 96.
+> start at 3 and double until you reach 50
+< Reached 96 after 5 steps: 3 -> 6 -> 12 -> 24 -> 48 -> 96.
+
+# The proof trace is the real loop: the count is the number of oracle calls (the
+# agent's actions), and the trajectory is what it observed — not a stored string.
+> how do you know?
+< Because act-loop: 5 oracle calls, 3 -> 6 -> 12 -> 24 -> 48 -> 96.
+
+# Held-out operation (+7) and a strict comparator (pass = >): stops at 36 > 30.
+> start at 1, add 7 until you pass 30
+< Reached 36 after 5 steps: 1 -> 8 -> 15 -> 22 -> 29 -> 36.
+
+# A shrinking loop with the division oracle: halve until below 5. Non-integer
+# values are fine — the trajectory is whatever the oracle actually computes.
+> start at 100, halve until below 5
+< Reached 3.125 after 5 steps: 100 -> 50 -> 25 -> 12.5 -> 6.25 -> 3.125.
+
+# Held-out operation (x3) with exceed (>): 54 -> 162 crosses 100.
+> start at 2, multiply by 3 until exceed 100
+< Reached 162 after 4 steps: 2 -> 6 -> 18 -> 54 -> 162.
+
+# Anti-impostor: a step that makes no progress can never reach the goal, and the
+# no-progress guard reports that honestly instead of spinning forever.
+> start at 5, add 0 until reach 99
+< Starting from 5, that step never reaches 99 — the goal can't be met this way.

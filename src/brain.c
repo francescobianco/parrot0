@@ -1424,6 +1424,7 @@ static double apply_arith_op(const char *op, double a, double c, int *ok) {
     if (strcmp(op, "plus") == 0 || strcmp(op, "+") == 0) return a + c;
     if (strcmp(op, "minus") == 0 || strcmp(op, "-") == 0) return a - c;
     if (strcmp(op, "times") == 0 || strcmp(op, "*") == 0) return a * c;
+    if (strcmp(op, "/") == 0) { if (c == 0) { *ok = 0; return 0; } return a / c; }
     *ok = 0;
     return 0;
 }
@@ -4810,6 +4811,351 @@ static int simulate_pipeline(const char *pipeline,
     return 1;
 }
 
+/* gen115 (L15): the first deliberate mid-turn TOOL CALL — the honest seam
+ * between "reason" and "act". Until now every module answered by lookup,
+ * inference, or inline computation. This one ACTS: it recognizes a question it
+ * cannot resolve by knowing (how many words are in this text?), compiles it to a
+ * real command, and INVOKES a deterministic oracle — the pure POSIX pipeline
+ * simulator (no subprocess, no network) — then folds the computed result back
+ * into the reply, naming the exact command it ran so the call is observable, not
+ * a stubbed constant. Held-out text transfers because the count is produced by
+ * the oracle, not stored. The tool call is also recorded as the proof trace.
+ * This is the structural precondition for agency (rung 19): a brain that can
+ * reach outside its own deduction to a tool and bring the answer back. */
+static int mod_tool(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+
+    char low[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof low) return 0;
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* Fire only on an explicit word-count request (EN + IT). */
+    int want_words = cue(low, "how many words") || cue(low, "count the words") ||
+                     cue(low, "quante parole")  || cue(low, "conta le parole");
+    if (!want_words) return 0;
+
+    /* The text to count: prefer everything after a ':'; else after " in ". */
+    const char *p = strchr(low, ':');
+    if (p) p++;
+    else { p = strstr(low, " in "); if (p) p += 4; }
+    if (!p) return 0;
+    while (*p && isspace((unsigned char)*p)) p++;
+    if (!*p) return 0;
+
+    char text[256];
+    snprintf(text, sizeof text, "%s", p);
+    size_t tl = strlen(text);
+    while (tl > 0 && (text[tl-1]=='?' || text[tl-1]=='.' || text[tl-1]=='!' ||
+                      isspace((unsigned char)text[tl-1])))
+        text[--tl] = '\0';
+    if (tl == 0) return 0;
+
+    /* Compile the tool call and run the REAL deterministic oracle. */
+    char cmd[320];
+    snprintf(cmd, sizeof cmd, "echo %s | wc -w", text);
+    char result[64];
+    if (!simulate_pipeline(cmd, result, sizeof result)) {
+        put("I can only count plain words for now (letters and digits, no punctuation).",
+            out, out_size);
+        return 1;
+    }
+    size_t resl = strlen(result);
+    while (resl > 0 && (result[resl-1]=='\n' || result[resl-1]==' '))
+        result[--resl] = '\0';
+
+    char msg[640];
+    snprintf(msg, sizeof msg, "%s. (I ran the tool: %s.)", result, cmd);
+    put(msg, out, out_size);
+
+    char proof[640];
+    snprintf(proof, sizeof proof, "tool call %s = %s", cmd, result);
+    store_proof(b, proof);
+    return 1;
+}
+
+/* gen116 (rung 19): the autonomous ACT-LOOP — parrot0's first perceive ->
+ * decide -> act -> observe cycle, and the seed of agency. gen115 made a single
+ * tool call; this REPEATS one to pursue a goal. Given a start value, an
+ * operation, and a stop condition ("start at 3, double until you reach 50") the
+ * agent loops: it OBSERVES the current value, DECIDES whether the goal is met,
+ * and if not it ACTS by applying the operation through the arithmetic oracle,
+ * then observes the new value — and repeats until the goal holds. The trajectory
+ * and the step count are PRODUCED by running the loop, never a closed-form
+ * formula, so held-out start/op/target transfer. A bounded step cap (and a
+ * no-progress guard) keep an unreachable goal honest ("can't reach ...") instead
+ * of spinning forever. This stands on gen115's reason/act seam and turns it into
+ * the structural precondition for an autonomous agent (ladder rung 19). */
+enum agent_cmp { AGT_GE, AGT_GT, AGT_LE, AGT_LT };
+
+static int agent_goal_met(double cur, double t, enum agent_cmp cmp) {
+    switch (cmp) {
+        case AGT_GE: return cur >= t - 1e-9;
+        case AGT_GT: return cur >  t + 1e-9;
+        case AGT_LE: return cur <= t + 1e-9;
+        case AGT_LT: return cur <  t - 1e-9;
+    }
+    return 0;
+}
+
+/* gen117 (rung 19, deeper): one step of an act-loop is no longer a FIXED
+ * operation — it is CHOSEN by observing the state. A single branch clause ("if
+ * it is even, halve it" / "triple it and add 1") is parsed into a short sequence
+ * of operations the agent applies in order when that branch is taken. */
+typedef struct { char op; double k; } AgentOp;
+
+static size_t parse_branch_ops(const char *clause, AgentOp *ops, size_t max) {
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", clause);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    size_t n = 0;
+    char pend = 0;                       /* an operator still awaiting its operand */
+    for (size_t i = 0; i < nw && n < max; i++) {
+        char *t = strip_edge_punct(w[i]);
+        double v;
+        if (pend && parse_value(t, &v)) { ops[n].op = pend; ops[n].k = v; n++; pend = 0; continue; }
+        if (!strcmp(t, "double") || !strcmp(t, "raddoppia"))     { ops[n].op='*'; ops[n].k=2; n++; }
+        else if (!strcmp(t, "triple") || !strcmp(t, "triplica")) { ops[n].op='*'; ops[n].k=3; n++; }
+        else if (!strcmp(t, "halve")  || !strcmp(t, "dimezza"))  { ops[n].op='/'; ops[n].k=2; n++; }
+        else if (!strcmp(t,"add")||!strcmp(t,"plus")||!strcmp(t,"aggiungi")||!strcmp(t,"somma")) pend='+';
+        else if (!strcmp(t,"subtract")||!strcmp(t,"minus")||!strcmp(t,"sottrai")||!strcmp(t,"togli")) pend='-';
+        else if (!strcmp(t,"multiply")||!strcmp(t,"times")||!strcmp(t,"moltiplica")) pend='*';
+        else if (!strcmp(t,"divide")||!strcmp(t,"dividi")||!strcmp(t,"diviso")) pend='/';
+    }
+    return n;
+}
+
+/* Copy [from, end) into out, NUL-terminated and length-clamped. */
+static void agent_slice(const char *from, const char *end, char *out, size_t out_size) {
+    size_t len = (size_t)(end - from);
+    if (len >= out_size) len = out_size - 1;
+    memcpy(out, from, len); out[len] = '\0';
+}
+
+static int mod_agent(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+
+    char low[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof low) return 0;
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* Must look like an iterate-until-goal instruction: a start anchor and an
+     * "until" boundary. Without both, this is not our turn. */
+    int has_start = cue(low, "start") || cue(low, "begin") || cue(low, "parti") ||
+                    cue(low, "inizia") || cue(low, "comincia");
+    char *until = strstr(low, "until");
+    if (!until) { char *u2 = strstr(low, "finch"); if (u2) until = u2; }
+    if (!until) { char *u3 = strstr(low, "fino a"); if (u3) until = u3; }
+    if (!has_start || !until) return 0;
+
+    /* gen117: the BRANCHING act-loop. If the instruction carries a parity
+     * condition ("if it is even ... if it is odd ..."), the action each step is
+     * not fixed but DECIDED by observing the current value's parity, then the
+     * chosen branch's operation sequence is applied. The classic witness is the
+     * Collatz process — halve when even, triple-and-add-one when odd, until it
+     * reaches 1 — whose step count is famously unpredictable, so the answer can
+     * only come from actually running the loop, never a formula. */
+    const char *ce = strstr(low, "even"); if (!ce) ce = strstr(low, "pari");
+    const char *co = strstr(low, "odd");  if (!co) co = strstr(low, "dispari");
+    if (ce && co) {
+        {
+            /* Each branch clause runs from its parity marker to the next marker
+             * (or to the goal), so one branch never bleeds into the next — works
+             * the same for "if even ... if odd" and "se pari ... se dispari". */
+            const char *end_e = until, *end_o = until;
+            if (co > ce && co < end_e) end_e = co;
+            if (ce > co && ce < end_o) end_o = ce;
+            char ec[256], oc[256];
+            agent_slice(ce, end_e, ec, sizeof ec);
+            agent_slice(co, end_o, oc, sizeof oc);
+            AgentOp even_ops[4], odd_ops[4];
+            size_t ne = parse_branch_ops(ec, even_ops, 4);
+            size_t no = parse_branch_ops(oc, odd_ops, 4);
+
+            /* start value: the first number before the first branch marker. */
+            const char *first = (ce < co) ? ce : co;
+            char head[256];
+            size_t hl = (size_t)(first - low);
+            if (hl >= sizeof head) hl = sizeof head - 1;
+            memcpy(head, low, hl); head[hl] = '\0';
+            char hb[256]; snprintf(hb, sizeof hb, "%s", head);
+            char *hw[64]; size_t hnw = split_words(hb, hw, 64);
+            double snums[8]; size_t sn = collect_numbers(hw, hnw, snums, 8);
+
+            /* target: the first number in the goal clause (after "until"). */
+            char gb[256]; snprintf(gb, sizeof gb, "%s", until);
+            char *gw[64]; size_t gnw = split_words(gb, gw, 64);
+            double gnums[8]; size_t gn = collect_numbers(gw, gnw, gnums, 8);
+
+            if (ne > 0 && no > 0 && sn > 0 && gn > 0) {
+                double cur = snums[0], target = gnums[0];
+                long steps = 0; const long CAP = 1000000;
+                char traj[480], nb[64];
+                format_num(cur, nb, sizeof nb);
+                size_t to = (size_t)snprintf(traj, sizeof traj, "%s", nb);
+                int truncated = 0;
+                while (!(cur >= target - 1e-9 && cur <= target + 1e-9) &&
+                       steps < CAP) {
+                    long long iv = (long long)cur;
+                    int even = ((double)iv == cur) && (iv % 2 == 0);
+                    const AgentOp *seq = even ? even_ops : odd_ops;
+                    size_t nseq = even ? ne : no;
+                    double before = cur;
+                    for (size_t s = 0; s < nseq; s++) {
+                        int ok; char o[2] = { seq[s].op, 0 };
+                        double nx = apply_arith_op(o, cur, seq[s].k, &ok);
+                        if (ok) cur = nx;
+                    }
+                    if (cur == before) break;       /* no-progress guard */
+                    steps++;
+                    format_num(cur, nb, sizeof nb);
+                    if (steps <= 8)
+                        to += (size_t)snprintf(traj + to, sizeof traj - to, " -> %s", nb);
+                    else if (!truncated) {
+                        to += (size_t)snprintf(traj + to, sizeof traj - to, " -> ...");
+                        truncated = 1;
+                    }
+                }
+                if (truncated)
+                    snprintf(traj + to, sizeof traj - to, " -> %s", nb);
+
+                char msg[640];
+                if (cur >= target - 1e-9 && cur <= target + 1e-9) {
+                    format_num(target, nb, sizeof nb);
+                    snprintf(msg, sizeof msg, "Reached %s after %ld step%s: %s.",
+                             nb, steps, steps == 1 ? "" : "s", traj);
+                } else {
+                    snprintf(msg, sizeof msg,
+                             "It didn't settle within %ld steps.", CAP);
+                }
+                put(msg, out, out_size);
+                char proof[512];
+                snprintf(proof, sizeof proof,
+                         "branching act-loop: %ld observed steps, %s", steps, traj);
+                store_proof(b, proof);
+                return 1;
+            }
+        }
+    }
+
+    /* Split into the left clause (start + operation) and the right clause
+     * (the goal), then read the numbers out of each. */
+    size_t cut = (size_t)(until - low);
+    char left[256], right[256];
+    snprintf(left, sizeof left, "%.*s", (int)cut, low);
+    snprintf(right, sizeof right, "%s", until);
+
+    double lnums[8], rnums[8];
+    char lb[256], rb[256];
+    snprintf(lb, sizeof lb, "%s", left);
+    snprintf(rb, sizeof rb, "%s", right);
+    char *lw[64], *rw[64];
+    size_t lnw = split_words(lb, lw, 64);
+    size_t rnw = split_words(rb, rw, 64);
+    size_t ln = collect_numbers(lw, lnw, lnums, 8);
+    size_t rn = collect_numbers(rw, rnw, rnums, 8);
+    if (ln == 0 || rn == 0) return 0;
+
+    double start = lnums[0];
+    double target = rnums[0];
+
+    /* Read the operation from the left clause. Word-named operators (double,
+     * halve, triple) carry their operand; the rest take the second number. */
+    const char *op = NULL; double k = 0;
+    if (cue(left, "double") || cue(left, "raddoppi"))      { op = "*"; k = 2; }
+    else if (cue(left, "triple") || cue(left, "triplic"))  { op = "*"; k = 3; }
+    else if (cue(left, "halve")  || cue(left, "dimezz"))   { op = "/"; k = 2; }
+    else if (ln >= 2) {
+        k = lnums[1];
+        if (cue(left, "add") || cue(left, "plus") || cue(left, "aggiung") ||
+            cue(left, "somma") || cue(left, "più"))            op = "+";
+        else if (cue(left, "subtract") || cue(left, "minus") ||
+                 cue(left, "sottra") || cue(left, "togli"))    op = "-";
+        else if (cue(left, "multiply") || cue(left, "times") ||
+                 cue(left, "moltiplic"))                       op = "*";
+        else if (cue(left, "divide") || cue(left, "dividi") ||
+                 cue(left, "diviso"))                          op = "/";
+    }
+    if (!op) return 0;
+
+    /* Read the goal comparator from the right clause; if unstated, infer it from
+     * whether the operation grows or shrinks the value. */
+    enum agent_cmp cmp;
+    int have_cmp = 1;
+    if (cue(right, "exceed") || cue(right, "pass") || cue(right, "above") ||
+        cue(right, "over") || cue(right, "more than") || cue(right, "surpass") ||
+        cue(right, "super") || cue(right, "oltre"))            cmp = AGT_GT;
+    else if (cue(right, "reach") || cue(right, "at least") ||
+             cue(right, "almeno") || cue(right, "raggiung"))   cmp = AGT_GE;
+    else if (cue(right, "at most") || cue(right, "al massimo")) cmp = AGT_LE;
+    else if (cue(right, "below") || cue(right, "under") ||
+             cue(right, "less than") || cue(right, "beneath") ||
+             cue(right, "sotto") || cue(right, "minore"))      cmp = AGT_LT;
+    else have_cmp = 0;
+    if (!have_cmp) {
+        int grows = (strcmp(op, "+") == 0) ||
+                    (strcmp(op, "*") == 0 && k > 1);
+        cmp = grows ? AGT_GE : AGT_LE;
+    }
+
+    /* Run the loop. Build a trajectory string as we go (head, then an ellipsis
+     * for long runs, then the tail). The step count is the number of real
+     * oracle calls — the agent's actions. */
+    const long CAP = 100000;
+    double cur = start;
+    long steps = 0;
+    char traj[480];
+    char nb[64];
+    format_num(cur, nb, sizeof nb);
+    size_t to = (size_t)snprintf(traj, sizeof traj, "%s", nb);
+    int truncated = 0;
+
+    while (!agent_goal_met(cur, target, cmp) && steps < CAP) {
+        int ok;
+        double next = apply_arith_op(op, cur, k, &ok);
+        if (!ok) break;
+        if (next == cur) break;             /* no-progress guard */
+        cur = next;
+        steps++;
+        format_num(cur, nb, sizeof nb);
+        if (steps <= 10) {
+            to += (size_t)snprintf(traj + to, sizeof traj - to, " -> %s", nb);
+        } else if (!truncated) {
+            to += (size_t)snprintf(traj + to, sizeof traj - to, " -> ...");
+            truncated = 1;
+        }
+    }
+    if (truncated) /* always show where it ended up */
+        snprintf(traj + to, sizeof traj - to, " -> %s", nb);
+
+    char msg[640];
+    if (agent_goal_met(cur, target, cmp)) {
+        format_num(cur, nb, sizeof nb);
+        snprintf(msg, sizeof msg, "Reached %s after %ld step%s: %s.",
+                 nb, steps, steps == 1 ? "" : "s", traj);
+    } else {
+        char sb[64], tb[64];
+        format_num(start, sb, sizeof sb);
+        format_num(target, tb, sizeof tb);
+        snprintf(msg, sizeof msg,
+                 "Starting from %s, that step never reaches %s — the goal can't "
+                 "be met this way.", sb, tb);
+    }
+    put(msg, out, out_size);
+
+    char proof[512];
+    snprintf(proof, sizeof proof, "act-loop: %ld oracle call%s, %s",
+             steps, steps == 1 ? "" : "s", traj);
+    store_proof(b, proof);
+    return 1;
+}
+
 /* Run the real shell command via popen and capture its stdout. */
 static int run_shell(const char *cmd, char *out, size_t out_size) {
     FILE *f = popen(cmd, "r");
@@ -5399,6 +5745,8 @@ static const Module registry[] = {
     {"arith",     mod_arith},
     {"plan",      mod_plan},
     {"wordproblem", mod_wordproblem},
+    {"agent",     mod_agent},
+    {"tool",      mod_tool},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"same",      mod_same},
@@ -5482,7 +5830,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen114-multistep";
+    return "gen117-branch";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

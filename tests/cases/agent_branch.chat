@@ -1,0 +1,21 @@
+# gen117 (rung 19, deeper): the OBSERVATION-DRIVEN branching act-loop. In gen116
+# the agent's action was a fixed operation; here the action each step is CHOSEN
+# by observing the state. A two-branch rule ("if it is even, halve it; if it is
+# odd, triple it and add 1") is parsed into per-branch operation sequences, and
+# the loop applies the branch that the current value's parity selects — until the
+# goal is reached. This is the Collatz process: its step count is famously
+# unpredictable, so the answer can ONLY come from running the loop, never a
+# formula. parrot0 has no model inside — it reads the rule and iterates it.
+
+# Collatz from 27 takes 111 steps. A long trajectory is shown head ... tail.
+> start at 27. if it is even, halve it. if it is odd, triple it and add 1. repeat until it reaches 1.
+< Reached 1 after 111 steps: 27 -> 82 -> 41 -> 124 -> 62 -> 31 -> 94 -> 47 -> 142 -> ... -> 1.
+
+# The proof trace is the real loop — 111 OBSERVED steps, not a stored answer.
+> how do you know?
+< Because branching act-loop: 111 observed steps, 27 -> 82 -> 41 -> 124 -> 62 -> 31 -> 94 -> 47 -> 142 -> ... -> 1.
+
+# Held-out start (6): a different, fully-shown trajectory of 8 steps — the count
+# is produced by iterating the same rule, never memorized.
+> start at 6. if it is even, halve it. if it is odd, triple it and add 1. repeat until it reaches 1.
+< Reached 1 after 8 steps: 6 -> 3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1.

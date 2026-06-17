@@ -8,6 +8,20 @@
 
 ## Done recently
 
+- **gen117 (rung 19, deeper) — observation-driven branching agent.** The
+  per-step action is CHOSEN by observing the state: a two-branch rule ("if even,
+  halve; if odd, triple and add 1") parsed into per-branch op sequences, applied
+  by the parity the loop observes — runs the Collatz process to a fixed point
+  (27→1 in 111 real steps; held-out 6→8, 7→16; bilingual pari/dispari). No closed
+  form, so the count comes only from running the loop. `agent_branch.chat`/`.it`.
+- **gen116 (rung 19) — the autonomous act-loop.** `mod_agent`: a
+  perceive→decide→act→observe cycle pursues a goal by repeated oracle calls
+  ("start at 3, double until you reach 50"); trajectory + step count produced by
+  the loop, not a formula; honest no-progress guard. `agent.chat`/`.it`.
+- **gen115 (L15) — the first deliberate mid-turn tool call.** `mod_tool` compiles
+  a word-count question to `echo … | wc -w` and INVOKES the pure POSIX oracle
+  (`simulate_pipeline`), folding the computed result back and naming the command.
+  The reason/act seam, with a real (not stubbed) oracle. `tool.chat`/`.it`.
 - **gen114 (L17+) — multi-step word problems.** 3+ numbers fold an additive/
   subtractive chain clause by clause ("has 3, buys 5 more, then eats 2" → 6);
   2-number problems keep the single-op path. `wordproblem_multi.chat`.

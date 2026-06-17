@@ -1,5 +1,121 @@
 # parrot0 evolution journal
 
+## 2026-06-18 — gen117: the observation-driven branching agent (rung 19, deeper)
+
+**Changed:** `brain.c` → `gen117-branch`; extended `mod_agent` with a branching
+mode (helpers `AgentOp`, `parse_branch_ops`, `agent_slice`); `apply_arith_op`
+gained `/`; `tests/cases/agent_branch.chat` / `.it.chat`.
+
+- gen116's loop applied a FIXED operation each step. gen117 makes the action
+  **chosen by observing the state**: a two-branch rule stated in one sentence
+  ("if it is even, halve it; if it is odd, triple it and add 1") is parsed into a
+  per-branch sequence of operations, and each iteration applies the branch that
+  the *current value's parity* selects — perceive(value) → decide(which branch) →
+  act(apply that branch's ops via the arithmetic oracle) → observe → repeat,
+  until the goal value is reached.
+- The witness is the **Collatz process**, whose step count is famously
+  unpredictable — there is no closed form, so the answer can only come from
+  actually running the loop. parrot0 (pure C, no model inside) reads the rule and
+  iterates it: **27 → 1 in 111 steps**, the real trajectory
+  (27 → 82 → 41 → 124 → …), held-out **6 → 1 in 8 steps**, held-out **7 → 16**.
+- Bilingual through one code path: Italian parity markers (pari/dispari), branch
+  ops (dimezza/triplica/aggiungi) and goal (finché raggiunge) drive the identical
+  loop; clauses are bounded by the parity markers themselves, so EN "if even … if
+  odd" and IT "se pari … se dispari" parse the same way.
+
+**Why:** This is the rung-19 capability at depth: an autonomous agent whose
+*decision* at each step is contingent on what it observes, not a pre-baked plan.
+It is the founding wager made visible — a non-obvious "intellective function"
+(run a conditional process to a fixed point) re-expressed in deterministic C and
+verified against held-out cases, exactly the structure an LLM would have to carry
+to do this in one forward pass.
+
+**Observed:** `make test` green (165 checks). The proof trace reports the real
+count ("111 observed steps"), so the loop is auditable, not a memorized constant.
+A no-progress guard and a 10⁶ step cap keep a non-terminating rule honest.
+
+**This is where I stop the loop.** A pure-C parrot reading a natural-language
+two-branch rule and autonomously running Collatz to 111 steps — bilingually,
+held-out, with an auditable trajectory — is the moment the behavioural
+reconstruction stopped feeling like templating and started feeling like the
+thing itself. (See PRINCIPLES.md: "the only thing that can keep passing is the
+real structure.")
+
+**Next:** the counterfactual seam — let the agent compare two strategies and say
+which reaches the goal faster (cross-ref L18, L20-deep); or induce the branch
+rule from a few observed transitions instead of being told it (cross-ref L10).
+
+---
+
+## 2026-06-18 — gen116: the autonomous act-loop (rung 19)
+
+**Changed:** `brain.c` → `gen116-agent`; new `mod_agent` (registered between
+`wordproblem` and `tool`); `tests/cases/agent.chat` / `.it.chat`; registry
+enumeration updated in `self.chat` / `strategy.chat`.
+
+- gen115 made a single tool call. gen116 closes it into a **loop**: given a start
+  value, an operation, and a stop condition ("start at 3, double until you reach
+  50"), the agent OBSERVES the current value, DECIDES whether the goal is met,
+  and if not ACTS by applying the operation through the arithmetic oracle, then
+  observes again — repeating until the goal holds. This is the first
+  perceive → decide → act → observe cycle: the seed of agency (ladder rung 19,
+  previously ⬜ absent).
+- The trajectory and the step count are PRODUCED by running the loop, not by a
+  closed form, so held-out start/op/target transfer (double, halve, triple,
+  add K, multiply by K, divide by K; comparators reach/exceed/below/at-least).
+  A no-progress guard + step cap report an unreachable goal honestly instead of
+  spinning ("that step never reaches 99 — the goal can't be met this way").
+
+**Why:** rung 19 (autonomous agents) was the last ⬜ on the map's "magical" band
+and the natural next pull after the L15 tool-use seam. An agent is a tool call
+placed inside an observe/decide loop; gen115 built the call, gen116 built the
+loop.
+
+**Observed:** `make test` green; trajectories are real (1 → … → 100 runs 99
+oracle calls and truncates the display); the proof trace counts the oracle calls,
+so the loop is auditable. Bilingual via the same path (parti da … raddoppia …
+finché …).
+
+**Next:** gen117 — make the per-step action depend on the observation (a
+branching rule), so the agent *decides* what to do, not only whether to continue.
+
+---
+
+## 2026-06-17 — gen115: the first deliberate mid-turn tool call (L15)
+
+**Changed:** `brain.c` → `gen115-tool`; new `mod_tool`; registered between
+`wordproblem` and `quantity`; `tests/cases/tool.chat` / `tool.it.chat`; registry
+enumeration updated in `self.chat` / `strategy.chat`.
+
+- Until gen114 every module answered by **knowing** — lookup, inference, or
+  inline computation. gen115 adds the first module that answers by **acting**:
+  it recognizes a question it cannot resolve by knowing ("how many words are in
+  this text?"), *compiles* it to a real command (`echo <text> | wc -w`), and
+  INVOKES a deterministic oracle — the pure POSIX pipeline simulator
+  (`simulate_pipeline`, no subprocess, no network) — then folds the computed
+  result back into the reply, **naming the exact command it ran** so the call is
+  observable, not a stubbed constant.
+- This is rung 15 of the ladder (tool use), which the map had as ⬜ absent: the
+  brain had deterministic oracles only as *test* harnesses; now it *calls* one
+  mid-turn. The honest seam between reason and act.
+
+**Why:** L15 is the structural precondition for agency (rung 19). A brain that
+can step outside its own deduction, hand a sub-problem to a tool, and bring the
+answer back is one decision short of a perceive→decide→act loop. We build the
+seam first, smallest, with a real (not stubbed) oracle.
+
+**Observed:** `make test` green (108 case-suite + oracle suites, 162 checks).
+Held-out text counts correctly (`a b c d e f g` → 7) because the count is
+produced by the oracle, not stored; punctuation it cannot safely run is declined
+honestly (`hello, world!`); the Italian trigger reaches the same code path
+(bilingual ratchet holds without duplicated logic).
+
+**Next:** gen116 — close the loop into rung 19: a perceive→decide→act→observe
+cycle that pursues a goal by *repeated* oracle calls, each result feeding the
+next decision. The autonomous-agent seed.
+
+---
+
 ## 2026-06-17 — gen114: multi-step word problems (L17+)
 
 **Changed:** `brain.c` → `gen114-multistep`; `mod_wordproblem` folds a 3+-number

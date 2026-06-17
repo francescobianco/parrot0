@@ -26,4 +26,4 @@
 > xyzzy plugh
 < I don't understand that yet.
 > why did you answer that way?
-< I try my modules in a fixed order and the first one that matches wins. Last turn memory, meta, role, self, fewshot, compare, algebra, arith, plan, wordproblem, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, symbolic, discourse, social each looked and declined, and nothing else claimed it, so I fell back to an honest "I don't understand."
+< I try my modules in a fixed order and the first one that matches wins. Last turn memory, meta, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, symbolic, discourse, social each looked and declined, and nothing else claimed it, so I fell back to an honest "I don't understand."

@@ -331,11 +331,11 @@ Acceptance:
 | 12| Elementary programming                 | 🟡 | POSIX-shell oracle (`mod_shell`) interprets/explains commands; doesn't synthesize. → M1, **L12** |
 | 13| Procedure planning                     | 🟢 | gen108 `mod_plan`: requires(Goal,Step) facts → topologically-sorted plan (DFS), prereqs before dependents, derived not stored; cycle/unknown handled. |
 | 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
-| 15| Tool use                               | ⬜ | deterministic oracles exist as *tests*; the brain never *calls* one mid-turn. → **L15** |
+| 15| Tool use                               | 🟢 | gen115 `mod_tool`: the brain COMPILES a word-count question to `echo … \| wc -w` and INVOKES the pure POSIX oracle (`simulate_pipeline`) mid-turn, folding the computed result back and naming the command it ran. The reason/act seam, with a real (not stubbed) oracle. |
 | 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); bilingual. → **L16** done (class-level), T10 to extend to relations/derived chains |
 | 17| Advanced mathematical reasoning        | 🟢 | gen107 `mod_algebra` (equations) + gen109 `mod_wordproblem` (prose → relation → solve, semantic cues). Two-step / multi-op still open. |
 | 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
-| 19| Autonomous agents                      | ⬜ | no perceive→decide→act loop; the generative-inference proposal (D-prop1) is the nearest seed. |
+| 19| Autonomous agents                      | 🟢 | gen116 `mod_agent`: a perceive→decide→act→observe loop pursues a goal by repeated oracle calls ("double until you reach 50"); gen117 makes the per-step action OBSERVATION-DRIVEN (branching: "if even halve, if odd triple+1, until 1") and runs the Collatz process — 27→1 in 111 real steps, held-out, bilingual, auditable trajectory. Counterfactual/strategy-comparison still open. |
 | 20| Meta-reasoning (reason about reasoning)| 🟢 | gen105 `mod_strategy`: "why did you answer *that way*?" reports the real dispatch trace (declined modules, winner, first-match-wins rule). Reasons about *control* now, not only results. Counterfactual ("what else matched") still open. |
 
 **Reading of the map.** parrot0 is strong on the *symbolic-reasoning* rungs
@@ -414,11 +414,29 @@ and oven" learns two facts; "batter requires 3 eggs and 2 flour" records
 **To extend:** alternative recipes, cost/ordering preferences. Gate L14 (complex
 programming) on this + L12.
 
-### L15 - Mid-turn tool call to a deterministic oracle
-Pull rung 15: let the brain *invoke* a deterministic oracle within a turn
-(e.g. the POSIX oracle, an arithmetic evaluator) and fold the result into the
-reply, with the call recorded in the proof trace. The honest seam between
-"reason" and "act". Anti-impostor: the oracle is real, not a stubbed string.
+### L15 - Mid-turn tool call to a deterministic oracle — DONE, gen115
+Done: `mod_tool` recognizes a question it cannot answer by knowing (how many
+words are in this text?), COMPILES it to a real command (`echo <text> | wc -w`),
+and INVOKES a deterministic oracle — the pure POSIX pipeline simulator
+(`simulate_pipeline`, no subprocess/network) — then folds the computed result
+back, naming the exact command it ran so the call is observable, not a stubbed
+string. Held-out text transfers (count is produced, not stored); punctuation it
+can't safely run is declined honestly; bilingual (`tool.chat`/`.it`). The honest
+seam between "reason" and "act", and the precondition for rung 19.
+
+### L19 - Autonomous agents — DONE (seed), gen116/gen117
+Done: `mod_agent` is a perceive→decide→act→observe loop. gen116 pursues a goal by
+*repeating* one oracle call ("start at 3, double until you reach 50") — the
+trajectory and step count are produced by running the loop, with a no-progress
+guard + cap for unreachable goals. gen117 makes the per-step action
+**observation-driven**: a two-branch rule ("if even, halve; if odd, triple and
+add 1") is parsed into per-branch operation sequences and the loop applies the
+branch the current value's parity selects — running the Collatz process to a
+fixed point (27→1 in 111 real steps; held-out 6→8, 7→16; bilingual via
+pari/dispari). The step count has no closed form, so the answer can only come
+from running the loop. `agent.chat`/`.it`, `agent_branch.chat`/`.it`. **Still
+open:** induce the branch rule from observed transitions (cross-ref L10);
+counterfactual strategy comparison (cross-ref L18, L20-deep).
 
 ### L16 - Self-correction that re-derives the answer — DONE (class-level), gen103
 Done: the agent remembers the last class-conclusion it stated; when a correction

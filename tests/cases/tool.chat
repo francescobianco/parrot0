@@ -1,0 +1,24 @@
+# gen115 (L15): the first deliberate mid-turn TOOL CALL — the honest seam
+# between "reason" and "act". A word-count question can't be answered by lookup
+# or inference, so the brain COMPILES it to a real command and INVOKES a
+# deterministic oracle (the pure POSIX pipeline simulator — no subprocess), then
+# folds the computed result back, naming the exact command it ran so the call is
+# observable, not a stubbed constant. Held-out text transfers because the count
+# is PRODUCED by the oracle, never stored.
+
+# Six words, counted by the tool.
+> how many words in: the cat sat on the mat
+< 6. (I ran the tool: echo the cat sat on the mat | wc -w.)
+
+# Held-out text (different length) — the count is computed, not memorized.
+> how many words in: a b c d e f g
+< 7. (I ran the tool: echo a b c d e f g | wc -w.)
+
+# A different cue phrasing reaches the same tool.
+> count the words in: one two three
+< 3. (I ran the tool: echo one two three | wc -w.)
+
+# Anti-impostor: the oracle is real and pure — punctuation it cannot safely run
+# is declined honestly, never faked.
+> how many words in: hello, world!
+< I can only count plain words for now (letters and digits, no punctuation).
