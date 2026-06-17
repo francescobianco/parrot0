@@ -96,7 +96,7 @@ struct Brain {
      * actual execution path and the first-match-wins control rule, not a
      * confabulated story. Committed only on non-introspective turns, so asking
      * about the strategy never overwrites the trace it is asking about. */
-    char trace_declined[24][24];
+    char trace_declined[32][24];
     size_t trace_declined_n;
     char trace_winner[24];
     int  has_trace;
@@ -1770,6 +1770,94 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     char proof[256];
     snprintf(proof, sizeof proof,
              "ordered by prerequisites: each step follows everything it requires.");
+    store_proof(b, proof);
+    return 1;
+}
+
+/* --- module: wordproblem (L17 prose) --------------------------------------
+ * One-sentence word problems: prose -> arithmetic relation -> solve. gen107
+ * solved a symbolic equation; this maps a natural-language problem onto an
+ * operation and computes it. The operation is chosen from SEMANTIC cues (verbs
+ * of gaining/losing/grouping/sharing, and comparison phrasings), not exact
+ * sentence templates — so held-out numbers AND held-out verbs transfer. It is
+ * deliberately conservative: it fires only on a "how many/much" question with at
+ * least two numbers and a recognized cue, and DECLINES otherwise (anti-impostor:
+ * never guess an operation). Natural language is all exceptions (DESIGN.md D5),
+ * so this targets the canonical school phrasings and reads the first two numbers
+ * in order (total/dividend first, as those phrasings put it). Bilingual cues. */
+static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
+                           char *out, size_t out_size) {
+    (void)norm;
+    char q[256]; normalize(raw, q, sizeof q);          /* intact, un-canonicalized */
+
+    /* question guard: only attempt on an explicit "how many / how much / quanti…" */
+    if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant")))
+        return 0;
+
+    /* collect the numbers in reading order. */
+    char buf[256]; snprintf(buf, sizeof buf, "%s", q);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    double nums[16]; size_t nn = 0;
+    for (size_t i = 0; i < nw && nn < 16; i++) {
+        double v; char *t = strip_edge_punct(w[i]);
+        if (parse_num(t, &v)) nums[nn++] = v;
+    }
+    if (nn < 2) return 0;
+    double a = nums[0], c = nums[1];
+
+    /* choose the operation by cue, in a priority that resolves overlaps:
+     * division, then comparison-difference / removal (both '-'), then
+     * multiplication, then addition. */
+    char op = 0;
+    if (cue(q, "shared") || cue(q, "share") || cue(q, "divided") ||
+        cue(q, "divide") || cue(q, "split") || cue(q, "among") ||
+        cue(q, "equally") || cue(q, "divis") || cue(q, "condivi") ||
+        cue(q, "ripartit"))
+        op = '/';
+    else if (cue(q, "how many more") || cue(q, "how much more") ||
+             cue(q, "how many fewer") || cue(q, "how many less") ||
+             cue(q, "more than") || cue(q, "fewer than") ||
+             cue(q, "difference") || cue(q, "quanti in più") ||
+             cue(q, "differenza") ||
+             cue(q, "ate") || cue(q, "eats") || cue(q, "lost") ||
+             cue(q, "loses") || cue(q, "gave") || cue(q, "gives away") ||
+             cue(q, "left") || cue(q, "remain") || cue(q, "fewer") ||
+             cue(q, "spent") || cue(q, "spends") || cue(q, "sold") ||
+             cue(q, "sells") || cue(q, "broke") || cue(q, "removed") ||
+             cue(q, "drops") || cue(q, " away") || cue(q, "mangi") ||
+             cue(q, "pers") || cue(q, "perde") || cue(q, "regal") ||
+             cue(q, "vend") || cue(q, "riman") || cue(q, "spend"))
+        op = '-';
+    else if (cue(q, "each") || cue(q, "times") || cue(q, "groups of") ||
+             cue(q, "rows of") || cue(q, "boxes of") || cue(q, "ciascun") ||
+             cue(q, "ognuno") || cue(q, "ogni"))
+        op = '*';
+    else if (cue(q, "more") || cue(q, "gets") || cue(q, "got") ||
+             cue(q, "gains") || cue(q, "buys") || cue(q, "buy") ||
+             cue(q, "found") || cue(q, "finds") || cue(q, "altogether") ||
+             cue(q, "total") || cue(q, "in all") || cue(q, "combined") ||
+             cue(q, "receive") || cue(q, "plus") || cue(q, "adds") ||
+             cue(q, "compra") || cue(q, "trova") || cue(q, "totale") ||
+             cue(q, "insieme") || cue(q, "ancora") || cue(q, "aggiun"))
+        op = '+';
+    if (!op) return 0;
+
+    double r;
+    switch (op) {
+        case '+': r = a + c; break;
+        case '-': r = a - c; break;
+        case '*': r = a * c; break;
+        case '/': if (c == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+                  r = a / c; break;
+        default: return 0;
+    }
+
+    char num[64]; format_num(r, num, sizeof num);
+    char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+    put(msg, out, out_size);
+
+    char proof[128];
+    snprintf(proof, sizeof proof, "I read it as %g %c %g = %s.", a, op, c, num);
     store_proof(b, proof);
     return 1;
 }
@@ -5059,6 +5147,7 @@ static const Module registry[] = {
     {"algebra",   mod_algebra},
     {"arith",     mod_arith},
     {"plan",      mod_plan},
+    {"wordproblem", mod_wordproblem},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"same",      mod_same},
@@ -5142,7 +5231,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen108-plan";
+    return "gen109-wordproblem";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -5357,7 +5446,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
 
     /* gen105 (L20): record the real control-flow trace of this turn — the
      * modules consulted that declined, then the one that claimed it. */
-    char declined[24][24]; size_t ndecl = 0;
+    char declined[32][24]; size_t ndecl = 0;
     const char *winner = "fallback";
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
@@ -5370,7 +5459,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
             }
             break;
         }
-        if (ndecl < 24) snprintf(declined[ndecl++], sizeof declined[0], "%s",
+        if (ndecl < 32) snprintf(declined[ndecl++], sizeof declined[0], "%s",
                                  registry[i].name);
     }
 

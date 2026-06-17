@@ -1,0 +1,39 @@
+# gen109 (L17, prose): one-sentence word problems — prose -> arithmetic relation
+# -> solve. gen107 solved a symbolic equation; this maps a natural-language
+# problem onto an operation chosen from SEMANTIC cues (verbs of gaining/losing/
+# grouping/sharing, and comparison phrasings), then computes it. Held-out numbers
+# AND held-out verbs, so it is cue-based, not a sentence-template phrasebook. It
+# fires only on a "how many/much" question with >= 2 numbers and a known cue, and
+# declines otherwise (anti-impostor: never guess an operation).
+
+# Addition: "gets ... more".
+> Tom has 6 apples and gets 5 more. How many apples does he have?
+< 11.
+# The proof shows the relation it read the prose as.
+> how do you know?
+< Because I read it as 6 + 5 = 11.
+
+# Subtraction: "ate ... left".
+> Mary baked 12 cookies and ate 4. How many are left?
+< 8.
+
+# Multiplication: "with N ... each".
+> There are 7 boxes with 3 balls each. How many balls in total?
+< 21.
+
+# Division: "shared among".
+> 15 candies are shared among 5 kids. How many does each get?
+< 3.
+
+# Held-out VERB ("loses" was never in an earlier case) still maps to subtraction.
+> Sam has 9 marbles and loses 2. How many does he have?
+< 7.
+
+# Comparison is the subtle one: bare "more" means addition, but "how many MORE
+# ... than" is a difference -> subtraction. The cue priority gets it right.
+> Anna has 10 stamps and Ben has 4. How many more does Anna have?
+< 6.
+
+# No two numbers / no operation cue -> decline honestly, never fabricate.
+> The sky is blue. How many clouds are there?
+< I don't understand that yet.

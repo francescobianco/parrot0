@@ -1,0 +1,14 @@
+# gen109 (L17, prose) — the bilingual ratchet (LOOP.md). The operation is chosen
+# from semantic cues, so Italian verbs (compra/mangia/ciascuna) map to the same
+# operators through the same code path — no English sentence templates. Numbers
+# are language-neutral; only the cue words differ. Same solver.
+
+# "compra" (buys) -> addition.
+> Marco ha 8 mele e ne compra 5. Quante mele ha?
+< 13.
+# "mangia" + "rimangono" (eats / are left) -> subtraction.
+> Anna aveva 10 caramelle e ne mangia 3. Quante ne rimangono?
+< 7.
+# "ciascuna" (each) -> multiplication.
+> Ci sono 6 scatole con 4 palline ciascuna. Quante palline in totale?
+< 24.
