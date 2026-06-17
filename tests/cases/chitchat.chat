@@ -1,0 +1,37 @@
+# gen125 (chatsim-pulled): the AFFECTIVE / phatic register. The sim transcripts
+# were full of casual social moves parrot0 could only meet with the bare wall —
+# laughter and emoji, frustration at its own repetition, encouragement, banter,
+# offers to switch language, filler. mod_chitchat (last in the registry) answers
+# the TONE in register, honestly admitting parrot0 is small and never claiming to
+# have parsed the content. It fires ONLY on a real affective cue, so genuine
+# content questions still get the honest wall.
+
+# Frustration at the bot's repetition -> honest acknowledgement of limits.
+> you keep saying the same thing
+< I know I repeat myself — I'm a small bot and honest about my limits. What would you like to try?
+
+# Encouragement -> gracious, honest.
+> no worries, you will learn
+< Thanks — I'm learning as we go.
+
+# An offer to switch language -> meet it in register.
+> can we talk in italian instead
+< We can chat in either language — I'll do my best.
+
+# Conversational filler -> light engagement, not a wall.
+> just bored, nothing much
+< Happy to just chat. Anything you're curious about?
+
+# Agreement with parrot0's self-description -> acknowledge and move on.
+> fair enough, makes sense
+< Glad that lands. What would you like to do next?
+
+# Generic affective contact (emoji) -> in-register engagement (the generic reply
+# rotates across turns so it never becomes a broken record; this is turn 6).
+> squawk 🦜
+< I'm enjoying this — what's on your mind?
+
+# Anti-impostor: a real knowledge question carries no affective cue, so it still
+# gets the honest wall — chitchat must never swallow genuine questions.
+> is the sky blue?
+< I don't understand that yet.

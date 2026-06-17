@@ -49,6 +49,36 @@ is_wall() {
   return 1
 }
 
+# True if an INPUT line is not a genuine human message but simulated-user noise:
+# the persona LLM leaking its chain-of-thought, system prompt, or stage notes.
+# A wall on such a line is NOT a parrot0 growth edge — parrot0 is right to wall a
+# non-message — so it must not keep a log alive. We never make parrot0 "answer"
+# these (that would be faking); we just stop counting them as gaps.
+is_garbage() {
+  local s; s="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  case "$s" in
+    "<think>"*|"- system:"*|"user:"*|"system:"*) return 0 ;;
+    *"key constraints"*|*"key characteristics"*) return 0 ;;
+    *"role-playing"*|*"role playing"*|*"roleplay a human"*) return 0 ;;
+    *"stay in character"*|*"in character as"*|*"as the human"*) return 0 ;;
+    *"as a human i should"*|*"as a human player"*|*"as a kid asking"*) return 0 ;;
+    *"system prompt"*) return 0 ;;
+    *"conversation history"*|*"previous context"*|*"previous message"*) return 0 ;;
+    *"previous turn"*|*"looking at the previous"*|*"let me look at"*) return 0 ;;
+    *"i need to stay"*|*"i need to respond"*|*"i should respond"*) return 0 ;;
+    *"constraints to remember"*|*"my role:"*|*"my aim"*) return 0 ;;
+    *"let me think of a good opening"*|*"let me restart fresh"*) return 0 ;;
+    *"i could:"*|*"i should:"*|*"do not plan"*|*"output only"*) return 0 ;;
+    *"now they're saying they don't understand"*) return 0 ;;
+    *"this seems like an odd response"*) return 0 ;;
+    *"- be a busy office worker"*|*"feeling cheerful"*|*"feeling playful"*) return 0 ;;
+    [0-9]". "*|[0-9]") "*) return 0 ;;          # "1. ...", "2) ..." analysis list
+    *"current state:"*|*"bot is being"*|*"i can be slightly"*) return 0 ;;
+    *"opening the chat"*|*"write the first message"*|*"the bot is"*) return 0 ;;
+  esac
+  return 1
+}
+
 shopt -s nullglob
 logs=("$SIM"/*.log)
 if [ ${#logs[@]} -eq 0 ]; then
@@ -66,7 +96,9 @@ for log in "${logs[@]}"; do
   [ "$nconv" -eq 0 ] && nconv=1
 
   total=0
-  walls=0
+  walls=0       # all not-understood replies
+  real=0        # walls on genuine human messages (the actual growth edges)
+  garbage=0     # walls on simulated-user noise (not parrot0's failure)
   fails=()
 
   for ((c = 1; c <= nconv; c++)); do
@@ -83,21 +115,30 @@ for log in "${logs[@]}"; do
       reply="${replies[$i]-}"
       if is_wall "$reply"; then
         walls=$((walls + 1))
-        fails+=("${inputs[$i]}")
+        if is_garbage "${inputs[$i]}"; then
+          garbage=$((garbage + 1))
+        else
+          real=$((real + 1))
+          fails+=("${inputs[$i]}")
+        fi
       fi
     done
   done
 
   if [ "$total" -eq 0 ]; then
-    printf 'EMPTY  %-22s (no real turns)            -> delete\n' "$name"
+    printf 'EMPTY  %-22s (no real turns)                 -> delete\n' "$name"
     [ "$APPLY" -eq 1 ] && rm -f "$log"
     deleted=$((deleted + 1))
-  elif [ "$walls" -eq 0 ]; then
-    printf 'CLEAN  %-22s (%2d inputs, 0 walls)        -> delete\n' "$name" "$total"
+  elif [ "$real" -eq 0 ] && [ "$walls" -eq 0 ]; then
+    printf 'CLEAN  %-22s (%2d inputs, 0 walls)             -> delete\n' "$name" "$total"
+    [ "$APPLY" -eq 1 ] && rm -f "$log"
+    deleted=$((deleted + 1))
+  elif [ "$real" -eq 0 ]; then
+    printf 'STALE  %-22s (%2d garbage walls, 0 real)       -> delete\n' "$name" "$garbage"
     [ "$APPLY" -eq 1 ] && rm -f "$log"
     deleted=$((deleted + 1))
   else
-    printf 'KEEP   %-22s (%2d inputs, %2d walls)\n' "$name" "$total" "$walls"
+    printf 'KEEP   %-22s (%2d real walls, %2d garbage)\n' "$name" "$real" "$garbage"
     for f in "${fails[@]}"; do
       printf '         wall <- %s\n' "$f"
       gap_count["$f"]=$(( ${gap_count["$f"]:-0} + 1 ))

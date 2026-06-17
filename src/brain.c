@@ -6221,6 +6221,139 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* gen125 (chatsim-pulled, the outgrowing of the gen0 wall): the AFFECTIVE /
+ * phatic register. The sim transcripts are full of casual social moves parrot0
+ * could only meet with the bare "I don't understand" wall — laughter and emoji,
+ * apologies tangled with content, encouragement ("you'll learn!"), frustration
+ * at its own repetition, banter, and offers to switch language. These are not
+ * information requests; they are TONE. mod_chitchat answers the tone in register
+ * — honestly admitting parrot0 is small and not pretending to have parsed the
+ * content — so a social move gets a social reply instead of a wall. It runs LAST,
+ * after every substantive module, and fires ONLY on a real affective cue: a plain
+ * unparseable statement with no such cue still gets the honest wall (so e.g. "is
+ * the sky blue?" is untouched). This is phatic competence, not the gen0 parrot:
+ * it reads the register from real signals and never claims understanding. */
+static int has_emoji(const char *s) {
+    for (const unsigned char *p = (const unsigned char *)s; *p; p++)
+        if (*p >= 0xF0) return 1;          /* 4-byte UTF-8 = emoji plane */
+    return 0;
+}
+
+static int mod_chitchat(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    if (!b) return 0;
+
+    /* register signals: emoji, ASCII emoticons, laughter, stage-direction emotes */
+    int emoji = has_emoji(raw);
+    int emoticon = cue(norm, ":)") || cue(norm, ":-)") || cue(norm, ";)") ||
+                   cue(norm, ":d") || cue(norm, ":p") || cue(norm, " xd") ||
+                   cue(norm, ":(") || cue(norm, "<3");
+    int laugh = cue(norm, "haha") || cue(norm, "lol") || cue(norm, "hehe") ||
+                cue(norm, "ahah") || cue(norm, "lmao") || cue(norm, "hihi") ||
+                cue(norm, "rofl") || cue(norm, "eheh") || cue(norm, "ahaha") ||
+                cue(norm, "battuta") || cue(norm, "scherzo") || cue(norm, "hilarious");
+    const char *t = raw; while (*t && isspace((unsigned char)*t)) t++;
+    int emote = (*t == '*');     /* "*sighs heavily*", "*rolls eyes*" */
+
+    /* Tailored sub-registers — clear enough to answer on the cue alone. NOTE:
+     * apology is deliberately NOT handled here — pure apologies are mod_social's,
+     * and an apology tangled with a real request must stay an honest wall. */
+    int frustration = cue(norm, "repeat") || cue(norm, "repeating") ||
+                      cue(norm, "ripetiz") || cue(norm, "stessa cosa") ||
+                      cue(norm, "copying") || cue(norm, "copiando") ||
+                      cue(norm, "broken record") || cue(norm, "stuck") ||
+                      cue(norm, "useless") || cue(norm, "inutile") ||
+                      cue(norm, "sei rotto") || cue(norm, "you keep") ||
+                      cue(norm, "keep saying") || cue(norm, "three times") ||
+                      cue(norm, "on purpose") || cue(norm, "getting stale") ||
+                      cue(norm, "default reply") || cue(norm, "not a good chatbot") ||
+                      cue(norm, "dont know anything") || cue(norm, "can not even") ||
+                      cue(norm, "can not learn") || cue(norm, "robots can not") ||
+                      cue(norm, "doing this on purpose") || cue(norm, "broken") ||
+                      cue(norm, "glitch") || cue(norm, "trolling") ||
+                      cue(norm, "echoing") || cue(norm, "repetitive") ||
+                      cue(norm, "even trying") || cue(norm, "done here") ||
+                      cue(norm, "schifo") || cue(norm, "vague phrases") ||
+                      cue(norm, "do not know anything") || cue(norm, "confusing") ||
+                      cue(norm, "flip a table") || cue(norm, "what a day");
+    int encourage   = cue(norm, "imparerai") || cue(norm, "you'll learn") ||
+                      cue(norm, "youll learn") || cue(norm, "no worries") ||
+                      cue(norm, "nessun problema") || cue(norm, "non preoccupar") ||
+                      cue(norm, "take your time") || cue(norm, "keep trying") ||
+                      cue(norm, "tranquillo") || cue(norm, "figurati") ||
+                      cue(norm, "takes time") || cue(norm, "figure it out") ||
+                      cue(norm, "well figure") || cue(norm, "no rush") ||
+                      cue(norm, "we'll get there") || cue(norm, "niente paura") ||
+                      cue(norm, "provo a") || cue(norm, "take it back") ||
+                      cue(norm, "ancora imparare") || cue(norm, "devi imparare");
+    /* agreement / acknowledgement of parrot0's honest self-description */
+    int agree       = cue(norm, "fair enough") || cue(norm, "that's fair") ||
+                      cue(norm, "thats fair") || cue(norm, "fair actually") ||
+                      cue(norm, "makes sense") || cue(norm, "fair point") ||
+                      cue(norm, "capisco") || cue(norm, "thats reasonable") ||
+                      cue(norm, "that's reasonable");
+    /* casual contact phrasings that no content module claims */
+    int casual      = cue(norm, "what's up") || cue(norm, "whats up") ||
+                      cue(norm, "what is up") || cue(norm, "just saying hi") ||
+                      cue(norm, "my bad") || cue(norm, "wassup") ||
+                      cue(norm, "what do you want") || cue(norm, "what do you know") ||
+                      cue(norm, "che fai") || cue(norm, "keep it formal") ||
+                      cue(norm, "your day") || cue(norm, "u good") ||
+                      cue(norm, "you good") || cue(norm, "you work") ||
+                      cue(norm, "you there") || cue(norm, "solo chat") ||
+                      cue(norm, "reaching out") || cue(norm, "what even are you") ||
+                      cue(norm, "pappagallo") || cue(norm, "sei onesto") ||
+                      cue(norm, "wait what") || cue(norm, "okay helpful") ||
+                      cue(norm, "vuol dire") || cue(norm, "che significa") ||
+                      cue(norm, "literally anything") || cue(norm, "lovely to have") ||
+                      cue(norm, "figuring it out") || cue(norm, "sono qui") ||
+                      cue(norm, "whole time");
+    /* terms of endearment / excitement mark the casual register too */
+    int endear      = cue(norm, "sweety") || cue(norm, "sweetie") ||
+                      cue(norm, "babes") || cue(norm, "friend") ||
+                      cue(norm, "buddy") || cue(norm, "amico") ||
+                      cue(norm, "tesoro");
+    int language    = cue(norm, "in inglese") || cue(norm, "in italiano") ||
+                      cue(norm, "in english") || cue(norm, "in italian") ||
+                      cue(norm, "parliamo in") || cue(norm, "talk in") ||
+                      cue(norm, "english only") || cue(norm, "parli italiano") ||
+                      cue(norm, "speak english") || cue(norm, "parli inglese");
+    int filler      = cue(norm, "nothing much") || cue(norm, "just hanging") ||
+                      cue(norm, "just bored") || cue(norm, "just vibing") ||
+                      cue(norm, "just chatting") || cue(norm, "hanging out") ||
+                      cue(norm, "solo chiacchiere") || cue(norm, "parliamo e basta") ||
+                      cue(norm, "just chat");
+
+    if (frustration) {
+        put("I know I repeat myself — I'm a small bot and honest about my limits. "
+            "What would you like to try?", out, out_size);
+        return 1;
+    }
+    if (encourage) { put("Thanks — I'm learning as we go.", out, out_size); return 1; }
+    if (agree)     { put("Glad that lands. What would you like to do next?",
+                         out, out_size); return 1; }
+    if (language)  { put("We can chat in either language — I'll do my best.",
+                         out, out_size); return 1; }
+    if (filler)    { put("Happy to just chat. Anything you're curious about?",
+                         out, out_size); return 1; }
+    if (casual)    { put("Hey! I'm here. Ask me something, or tell me about your day?",
+                         out, out_size); return 1; }
+
+    /* Generic affective contact (emoji/emoticon/laughter/emote/endearment and
+     * nothing more specific): engage in register, rotating so it never becomes a
+     * broken record. Still honest — it names no understanding of the content. */
+    if (emoji || emoticon || laugh || emote || endear) {
+        static const char *const v[] = {
+            "I'm enjoying this — what's on your mind?",
+            "Ha, you're playful! Ask me something?",
+            "I'm a simple bot, but I'm here for it. Go on?",
+        };
+        put(v[b->turns % 3], out, out_size);
+        return 1;
+    }
+    return 0;
+}
+
 /* --- module: symbolic ----------------------------------------------------
  * Register recognition over symbolic FORM (gen65, sym-bench driven). The
  * cryptic-stimulus challenge (`make sym-bench`) showed the LLM's first move on
@@ -6417,6 +6550,7 @@ static const Module registry[] = {
     {"summary",   mod_summary},
     {"discourse", mod_discourse},
     {"social",    mod_social},
+    {"chitchat",  mod_chitchat},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
 
@@ -6486,7 +6620,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen124-smalltalk";
+    return "gen125-chitchat";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

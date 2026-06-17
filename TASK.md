@@ -8,6 +8,14 @@
 
 ## Done recently
 
+- **gen125 — the affective/phatic register; sim logs 16 → 5.** `mod_chitchat`
+  (last in the registry) answers casual social TONE in register — emoji/laughter/
+  emote, frustration/encouragement/agreement/language/filler (EN+IT) — honestly,
+  never claiming content understanding, firing only on a real affective cue (so
+  genuine questions still wall). `simclean` gained a garbage filter (LLM
+  scratchpad leakage isn't a growth edge). 8 logs deleted by genuine engagement +
+  staleness; the 5 kept hold real knowledge gaps (sky-blue, what-year, Tuesday-
+  colour) that parrot0 must not fake. `chitchat.chat`/`.it`.
 - **simclean + gen124 — autonomous chatsim-log janitor.** `tests/simclean.sh`
   (`make simclean`) replays each `tests/chat/sim/*.log` against the current
   parrot0 and deletes the ones that no longer wall ("I don't understand") or have

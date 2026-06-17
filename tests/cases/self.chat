@@ -19,7 +19,7 @@
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< induce, verify, memory, meta, strategy, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, symbolic, summary, discourse, social.
+< induce, verify, memory, meta, strategy, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, symbolic, summary, discourse, social, chitchat.
 # Ordinary world knowledge still works alongside the self-model.
 > socrates is a man
 < Learned: man(socrates).

@@ -1,5 +1,54 @@
 # parrot0 evolution journal
 
+## 2026-06-18 — gen125: the affective register, and emptying the sim logs
+
+**Goal (F.):** empty the chatsim logs by EVOLVING parrot0 so it stops walling —
+not by silencing the honest wall. Driven straight off `simclean`'s replay.
+
+**Changed:** `brain.c` → `gen125-chitchat`; new `mod_chitchat` (registered LAST,
+the final catcher before the wall); `tests/simclean.sh` gains a garbage filter;
+`tests/cases/chitchat.chat` / `.it.chat`; registry enumeration updated; **8 sim
+logs deleted** (16 → 5).
+
+- **mod_chitchat — the AFFECTIVE / phatic register.** The sim transcripts are
+  mostly TONE, not information requests: laughter and emoji, frustration at
+  parrot0's repetition, encouragement ("you'll learn!"), banter, offers to switch
+  language, casual filler. mod_chitchat reads the register from real signals
+  (emoji = 4-byte UTF-8; ASCII emoticons; laughter; `*emote*`; bounded
+  frustration / encouragement / agreement / language / filler cue sets, EN+IT)
+  and answers IN REGISTER — honestly naming parrot0 as a small bot and never
+  claiming to have parsed the content. It runs last and fires ONLY on a real
+  affective cue, so a genuine question with no such cue still gets the honest
+  wall. This is the principled outgrowing of the gen0 "I don't understand"
+  relic — phatic competence, not the gen0 parrot reborn.
+- **simclean garbage filter.** A wall is only a growth edge if the INPUT was a
+  real human message. Many sim turns are the persona LLM leaking its own
+  scratchpad / system prompt (`<think>…`, `Key constraints:`, `I am role-playing
+  a HUMAN`, numbered analysis, `Current state:`). `is_garbage()` recognizes those;
+  a log whose only remaining walls are garbage is STALE (a broken sim run, no
+  utility) and pruned. parrot0 still walls them — we never fake a reply; the tool
+  just stops counting non-messages as gaps.
+
+**Result:** 16 logs → **5**. Deleted: 3 empty (model-error) earlier, then 5
+emptied by genuine in-register engagement + 3 STALE (all-garbage). The **5 kept**
+logs each still hold a genuine KNOWLEDGE gap — "is the sky blue", "what color is a
+Tuesday", "do you know what year it is", "do you remember my name", "my cat
+knocked over my glass". parrot0 honestly can't (and must not fake) those — they
+are legitimate growth edges, so those logs correctly persist. This is the honest
+floor: the affective register is now handled; what remains is real ignorance, not
+a register gap.
+
+**Discipline note (primitives-first duty).** The general capability here is
+register DETECTION (emoji/laughter/emote/encouragement/frustration). The long
+tail of specific banter phrases is phrasebook, and I stopped adding cues once the
+residue was genuine knowledge gaps rather than tone — faking answers to "what
+color is a Tuesday" would be the impostor the whole experiment rejects.
+
+**Observed:** `make test` green (178 checks). `make simclean` is idempotent and
+autonomous; re-running after a future world-knowledge generation would prune more.
+
+---
+
 ## 2026-06-18 — simclean: an autonomous chatsim-log janitor (+ gen124)
 
 **Changed:** new `tests/simclean.sh`; `make simclean` target; `knowledge/social.pl`
