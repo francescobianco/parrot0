@@ -8,6 +8,18 @@
 
 ## Done recently
 
+- **gen120 (rung 19 + 16) — hypothesis testing / falsification.** `mod_verify`
+  induces a law from examples, then judges a held-out transition against it —
+  confirm or refute, naming the predicted value ("predicts 10 -> 21, not 20").
+  Closes observe→hypothesize→plan→test. `agent_verify.chat`/`.it`.
+- **gen119 (rung 19 + 13) — goal-directed search (planner).** `mod_search` runs
+  BFS over a set of available actions to synthesize the SHORTEST sequence
+  reaching a target ("from 3, using x3 and +1, reach 28"); honest on
+  unreachable. `agent_search.chat`/`.it`.
+- **gen118 (rung 19 + L10) — rule induction from data.** `mod_induce` fits a
+  generative law (affine, else parity-split) from integer transitions — re-derives
+  Collatz from examples and runs it; declines outside its hypothesis space.
+  `agent_induce.chat`/`.it`.
 - **gen117 (rung 19, deeper) — observation-driven branching agent.** The
   per-step action is CHOSEN by observing the state: a two-branch rule ("if even,
   halve; if odd, triple and add 1") parsed into per-branch op sequences, applied

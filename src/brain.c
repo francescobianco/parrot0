@@ -5156,6 +5156,463 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen118 (rung 19 + L10, deeper): rule INDUCTION from observed transitions. In
+ * gen117 the agent was TOLD the law ("if even halve, if odd triple+1"); here it
+ * DISCOVERS it. Shown a handful of integer transitions ("6 -> 3, 3 -> 10,
+ * 10 -> 5, 5 -> 16"), it fits a hypothesis — first a single global operation,
+ * else a PARITY-SPLIT rule — and then applies it: continue a sequence, give the
+ * next value, or state the rule. The striking witness is that the SAME data that
+ * defines the Collatz step lets parrot0 re-derive Collatz with nobody telling it,
+ * then run it. This is program induction: recovering a generative function from
+ * examples, the core of in-context learning, in deterministic C. */
+typedef struct {
+    int    conditional;          /* 0 = one global op sequence; 1 = parity split */
+    AgentOp even_ops[3]; size_t ne;
+    AgentOp odd_ops[3];  size_t no;
+} InducedRule;
+
+/* Fit one class of (in -> out) integer pairs to a short operation sequence.
+ * Tries, in order: constant, add/subtract, multiply, divide, then affine a*n+b.
+ * Returns 1 and writes ops on success. The identity map is rejected as
+ * uninformative (it would make a sequence never progress). */
+static int fit_class(const long *in, const long *out, size_t n,
+                     AgentOp *ops, size_t *nops) {
+    if (n == 0) return 0;
+    /* constant: every output identical (independent of input). */
+    int all_const = 1;
+    for (size_t i = 1; i < n; i++) if (out[i] != out[0]) { all_const = 0; break; }
+    if (all_const && n >= 2) {
+        ops[0].op='*'; ops[0].k=0; ops[1].op='+'; ops[1].k=(double)out[0]; *nops=2; return 1;
+    }
+    /* add/subtract a constant. */
+    long d = out[0] - in[0]; int add_ok = (d != 0);
+    for (size_t i = 1; i < n && add_ok; i++) if (out[i]-in[i] != d) add_ok = 0;
+    if (add_ok) { ops[0].op='+'; ops[0].k=(double)d; *nops=1; return 1; }
+    /* multiply by a constant. */
+    if (in[0] != 0 && out[0] % in[0] == 0) {
+        long r = out[0]/in[0]; int mul_ok = (r != 1);
+        for (size_t i = 0; i < n && mul_ok; i++)
+            if (in[i]==0 || out[i] != r*in[i]) mul_ok = 0;
+        if (mul_ok) { ops[0].op='*'; ops[0].k=(double)r; *nops=1; return 1; }
+    }
+    /* divide by a constant. */
+    if (out[0] != 0 && in[0] % out[0] == 0) {
+        long dv = in[0]/out[0]; int div_ok = (dv != 1);
+        for (size_t i = 0; i < n && div_ok; i++)
+            if (out[i]==0 || in[i] != dv*out[i]) div_ok = 0;
+        if (div_ok) { ops[0].op='/'; ops[0].k=(double)dv; *nops=1; return 1; }
+    }
+    /* affine a*n+b, needs two distinct inputs; a integer. */
+    for (size_t j = 1; j < n; j++) {
+        if (in[j] == in[0]) continue;
+        long num = out[j]-out[0], den = in[j]-in[0];
+        if (num % den != 0) break;
+        long a = num/den, bb = out[0] - a*in[0];
+        int ok = 1;
+        for (size_t i = 0; i < n && ok; i++) if (out[i] != a*in[i]+bb) ok = 0;
+        if (ok && !(a==1 && bb==0)) {
+            size_t k = 0;
+            if (a != 1) { ops[k].op='*'; ops[k].k=(double)a; k++; }
+            if (bb != 0 || k == 0) { ops[k].op='+'; ops[k].k=(double)bb; k++; }
+            *nops = k; return 1;
+        }
+        break;
+    }
+    return 0;
+}
+
+static double apply_rule(const InducedRule *r, double cur) {
+    const AgentOp *seq; size_t n;
+    if (r->conditional) {
+        long long iv = (long long)cur;
+        int even = ((double)iv == cur) && (iv % 2 == 0);
+        seq = even ? r->even_ops : r->odd_ops;
+        n   = even ? r->ne       : r->no;
+    } else { seq = r->even_ops; n = r->ne; }
+    for (size_t s = 0; s < n; s++) {
+        int ok; char o[2] = { seq[s].op, 0 };
+        double nx = apply_arith_op(o, cur, seq[s].k, &ok);
+        if (ok) cur = nx;
+    }
+    return cur;
+}
+
+/* Render an op sequence as a compact algebraic expression in n. */
+static void describe_ops(const AgentOp *ops, size_t n, char *buf, size_t sz) {
+    char ka[64], kb[64];
+    if (n == 2 && ops[0].op=='*' && ops[0].k==0 && ops[1].op=='+') {
+        format_num(ops[1].k, ka, sizeof ka); snprintf(buf, sz, "%s", ka); return;
+    }
+    if (n == 1 && ops[0].op=='/') {
+        format_num(ops[0].k, ka, sizeof ka); snprintf(buf, sz, "n / %s", ka); return;
+    }
+    if (n == 1 && ops[0].op=='*') {
+        format_num(ops[0].k, ka, sizeof ka); snprintf(buf, sz, "%sn", ka); return;
+    }
+    if (n == 1 && ops[0].op=='+') {
+        double k = ops[0].k; format_num(k<0?-k:k, ka, sizeof ka);
+        snprintf(buf, sz, "n %s %s", k<0?"-":"+", ka); return;
+    }
+    if (n == 2 && ops[0].op=='*' && ops[1].op=='+') {
+        double k = ops[1].k; format_num(ops[0].k, ka, sizeof ka);
+        format_num(k<0?-k:k, kb, sizeof kb);
+        snprintf(buf, sz, "%sn %s %s", ka, k<0?"-":"+", kb); return;
+    }
+    snprintf(buf, sz, "n"); /* identity / unknown shape */
+}
+
+/* Fit a rule to (in -> out) pairs and describe it. Returns 1 on success, 0 if
+ * nothing in the hypothesis space fits. Shared by gen118 (use a rule) and gen120
+ * (test a rule). A conditional rule needs >= 2 examples per parity class so a
+ * stray pair can't overfit a spurious branch. */
+static int induce_rule(const long *in, const long *out, size_t npair,
+                       InducedRule *r, char *rule, size_t rulesz) {
+    memset(r, 0, sizeof *r);
+    int fitted = 0;
+    if (fit_class(in, out, npair, r->even_ops, &r->ne)) {
+        r->conditional = 0; fitted = 1;
+    } else {
+        long ein[16], eout[16], oin[16], oout[16]; size_t en=0, on=0;
+        for (size_t i = 0; i < npair && en < 16 && on < 16; i++) {
+            if (in[i] % 2 == 0) { ein[en]=in[i]; eout[en]=out[i]; en++; }
+            else                { oin[on]=in[i]; oout[on]=out[i]; on++; }
+        }
+        if (en >= 2 && on >= 2 &&
+            fit_class(ein, eout, en, r->even_ops, &r->ne) &&
+            fit_class(oin, oout, on, r->odd_ops, &r->no)) {
+            r->conditional = 1; fitted = 1;
+        }
+    }
+    if (!fitted) return 0;
+    if (r->conditional) {
+        char e[64], o[64];
+        describe_ops(r->even_ops, r->ne, e, sizeof e);
+        describe_ops(r->odd_ops,  r->no, o, sizeof o);
+        snprintf(rule, rulesz, "if even: %s; if odd: %s", e, o);
+    } else {
+        char g[64]; describe_ops(r->even_ops, r->ne, g, sizeof g);
+        snprintf(rule, rulesz, "f(n) = %s", g);
+    }
+    return 1;
+}
+
+static int mod_induce(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+
+    char low[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof low) return 0;
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* Must carry the intent to USE an induced rule, distinct from a fewshot
+     * "probe -> ?" line. */
+    enum { Q_NONE, Q_CONT, Q_NEXT, Q_RULE } q = Q_NONE;
+    const char *np = NULL;             /* where the query's argument starts */
+    const char *m;
+    if ((m = strstr(low, "continue from")))      { q = Q_CONT; np = m + 13; }
+    else if ((m = strstr(low, "continua da")))   { q = Q_CONT; np = m + 11; }
+    else if ((m = strstr(low, "what comes after"))){ q = Q_NEXT; np = m + 16; }
+    else if ((m = strstr(low, "cosa viene dopo"))){ q = Q_NEXT; np = m + 15; }
+    else if ((m = strstr(low, "apply it to")))   { q = Q_NEXT; np = m + 11; }
+    else if ((m = strstr(low, "applicala a")))   { q = Q_NEXT; np = m + 11; }
+    else if (strstr(low,"what is the rule") || strstr(low,"what's the rule") ||
+             strstr(low,"qual è la regola") || strstr(low,"quale regola") ||
+             strstr(low,"che regola")) q = Q_RULE;
+    if (q == Q_NONE) return 0;
+
+    /* Parse the transition pairs. Examples live before the query phrase. */
+    char ex[256];
+    size_t exlen = m ? (size_t)(m - low) : strlen(low);
+    if (exlen >= sizeof ex) exlen = sizeof ex - 1;
+    memcpy(ex, low, exlen); ex[exlen] = '\0';
+
+    char buf[256]; size_t bn = 0;
+    for (const char *p = ex; *p && bn + 4 < sizeof buf; ) {
+        if (p[0]=='-' && p[1]=='>') { buf[bn++]=' '; buf[bn++]='\x1f'; buf[bn++]=' '; p+=2; }
+        else if ((unsigned char)p[0]==0xE2 && (unsigned char)p[1]==0x86 &&
+                 (unsigned char)p[2]==0x92) { buf[bn++]=' '; buf[bn++]='\x1f'; buf[bn++]=' '; p+=3; }
+        else if (*p==',' || *p==';') { buf[bn++]=' '; p++; }
+        else buf[bn++]=*p++;
+    }
+    buf[bn] = '\0';
+    char *w[96]; size_t nw = split_words(buf, w, 96);
+
+    long in[16], out_[16]; size_t npair = 0;
+    for (size_t i = 0; i + 2 < nw && npair < 16; ) {
+        double a, c;
+        if (strcmp(w[i+1], "\x1f")==0 && parse_value(strip_edge_punct(w[i]), &a) &&
+            parse_value(strip_edge_punct(w[i+2]), &c) &&
+            (double)(long)a==a && (double)(long)c==c) {
+            in[npair]=(long)a; out_[npair]=(long)c; npair++; i+=3;
+        } else i++;
+    }
+    if (npair < 2) return 0;
+
+    /* Induce a rule from the examples. If nothing fits, claim the turn (the
+     * examples are unmistakably ours) but decline honestly. */
+    InducedRule r; char rule[160];
+    if (!induce_rule(in, out_, npair, &r, rule, sizeof rule)) {
+        put("Those examples don't all follow one rule I can express yet.",
+            out, out_size);
+        return 1;
+    }
+
+    char msg[640];
+    if (q == Q_RULE) {
+        snprintf(msg, sizeof msg, "The rule is %s.", rule);
+        put(msg, out, out_size);
+        store_proof(b, rule);
+        return 1;
+    }
+
+    /* Q_CONT / Q_NEXT need the query argument N — copy just its digits/sign so
+     * trailing punctuation ("12.", "10?") doesn't defeat the parse. */
+    while (np && *np && !(isdigit((unsigned char)*np) ||
+           (*np=='-' && isdigit((unsigned char)np[1])))) np++;
+    char numbuf[32]; size_t kk = 0;
+    if (np && *np == '-') numbuf[kk++] = *np++;
+    while (np && *np && isdigit((unsigned char)*np) && kk + 1 < sizeof numbuf)
+        numbuf[kk++] = *np++;
+    numbuf[kk] = '\0';
+    double n0;
+    if (kk == 0 || !parse_value(numbuf, &n0)) {
+        put("I found the rule but not the number to apply it to.", out, out_size);
+        store_proof(b, rule);
+        return 1;
+    }
+
+    if (q == Q_NEXT) {
+        double v = apply_rule(&r, n0);
+        char nb[64]; format_num(v, nb, sizeof nb);
+        snprintf(msg, sizeof msg, "%s. (rule: %s.)", nb, rule);
+        put(msg, out, out_size);
+        char proof[256]; snprintf(proof, sizeof proof, "induced %s", rule);
+        store_proof(b, proof);
+        return 1;
+    }
+
+    /* Q_CONT: run the induced rule from N, stopping at the 1-attractor, a fixed
+     * point, or a term cap — and show the trajectory it generated. */
+    double cur = n0;
+    char traj[400], nb[64];
+    format_num(cur, nb, sizeof nb);
+    size_t to = (size_t)snprintf(traj, sizeof traj, "%s", nb);
+    for (int step = 0; step < 14; step++) {
+        if (cur >= 1 - 1e-9 && cur <= 1 + 1e-9) break;
+        double nx = apply_rule(&r, cur);
+        if (nx == cur) break;            /* fixed point */
+        cur = nx;
+        format_num(cur, nb, sizeof nb);
+        to += (size_t)snprintf(traj + to, sizeof traj - to, " -> %s", nb);
+        if (to > sizeof traj - 40) break;
+    }
+    snprintf(msg, sizeof msg, "%s. (induced %s.)", traj, rule);
+    put(msg, out, out_size);
+    store_proof(b, traj);
+    return 1;
+}
+
+/* gen119 (rung 19 + rung 13, deeper): goal-directed SEARCH — the planner agent.
+ * gen116 iterated ONE given action; gen118 INDUCED a rule. gen119 is the
+ * deductive complement: given a start, a target, and a SET of available actions
+ * ("from 3, using times 3 and add 1, reach 28"), the agent SEARCHES the action
+ * space with breadth-first search and synthesizes the SHORTEST sequence of tool
+ * calls that reaches the goal — means-ends problem solving. The plan is not
+ * stored; it is found each time, so held-out start/target/ops transfer, and it
+ * is verified by replaying it (the trajectory shown is the real one). A node cap
+ * and a value-range prune keep the search bounded and honest about failure. */
+static void search_op_label(const AgentOp *op, char *buf, size_t sz) {
+    char k[32]; format_num(op->k, k, sizeof k);
+    snprintf(buf, sz, "%c%s", op->op, k);
+}
+
+static int mod_search(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+
+    char low[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof low) return 0;
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* Gate: an explicit action set ("using …") and a reach-target marker. */
+    const char *uk = strstr(low, "using"); if (!uk) uk = strstr(low, "usando");
+    if (!uk) return 0;
+    const char *rk = NULL; const char *cues[] =
+        { "reach", "make", "get to", "raggiungere", "arrivare a", "ottenere", NULL };
+    for (size_t i = 0; cues[i]; i++) { const char *p = strstr(low, cues[i]);
+        if (p && p > uk && (!rk || p < rk)) rk = p; }
+    if (!rk) return 0;
+
+    /* start: first number before "using". */
+    char head[256]; size_t hl = (size_t)(uk - low);
+    if (hl >= sizeof head) hl = sizeof head - 1;
+    memcpy(head, low, hl); head[hl] = '\0';
+    char hb[256]; snprintf(hb, sizeof hb, "%s", head);
+    char *hw[64]; size_t hnw = split_words(hb, hw, 64);
+    double snums[8]; size_t sn = collect_numbers(hw, hnw, snums, 8);
+    if (sn == 0) return 0;
+
+    /* available actions: the op sequence parsed from between "using" and the
+     * reach marker — each parsed op is a SEPARATE available action. */
+    char opreg[256]; size_t ol = (size_t)(rk - (uk + 5));
+    const char *ops_start = uk + 5;
+    if (ol >= sizeof opreg) ol = sizeof opreg - 1;
+    memcpy(opreg, ops_start, ol); opreg[ol] = '\0';
+    AgentOp acts[6]; size_t nacts = parse_branch_ops(opreg, acts, 6);
+    if (nacts == 0) return 0;
+
+    /* target: first number after the reach marker. */
+    char tail[128]; snprintf(tail, sizeof tail, "%s", rk);
+    char *tw[64]; size_t tnw = split_words(tail, tw, 64);
+    double tnums[8]; size_t tn = collect_numbers(tw, tnw, tnums, 8);
+    if (tn == 0) return 0;
+
+    double start = snums[0], target = tnums[0];
+
+    /* Breadth-first search. Each node remembers its parent and the action taken,
+     * so the shortest plan can be reconstructed. Visited values are kept unique;
+     * states wandering far outside [−,+] the target range are pruned. */
+    enum { CAP = 6000 };
+    static double val[CAP]; static int par[CAP]; static int act[CAP];
+    size_t nnodes = 0, qh = 0;
+    double lo = -1e6, hi = (target > 0 ? target : -target) * 8 + 2000;
+    val[nnodes] = start; par[nnodes] = -1; act[nnodes] = -1; nnodes++;
+    int goal = (start == target) ? 0 : -1;
+
+    while (qh < nnodes && goal < 0) {
+        double cur = val[qh];
+        for (size_t a = 0; a < nacts && goal < 0; a++) {
+            int ok; char o[2] = { acts[a].op, 0 };
+            double nx = apply_arith_op(o, cur, acts[a].k, &ok);
+            if (!ok) continue;
+            if ((double)(long long)nx != nx) continue;   /* integer states only */
+            if (nx < lo || nx > hi) continue;
+            int seen = 0;
+            for (size_t i = 0; i < nnodes; i++) if (val[i] == nx) { seen = 1; break; }
+            if (seen) continue;
+            if (nnodes >= CAP) { qh = nnodes; break; }   /* exhausted budget */
+            val[nnodes] = nx; par[nnodes] = (int)qh; act[nnodes] = (int)a;
+            if (nx == target) goal = (int)nnodes;
+            nnodes++;
+        }
+        qh++;
+    }
+
+    if (goal < 0) {
+        char sb[64], tb[64]; format_num(start, sb, sizeof sb);
+        format_num(target, tb, sizeof tb);
+        char msg[256];
+        snprintf(msg, sizeof msg,
+                 "I couldn't reach %s from %s with those operations.", tb, sb);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Reconstruct the plan from the goal node back to the start. */
+    int chain[64]; size_t clen = 0;
+    for (int i = goal; i >= 0 && clen < 64; i = par[i]) chain[clen++] = i;
+
+    char traj[400]; size_t to = 0;
+    char nb[64];
+    format_num(val[chain[clen - 1]], nb, sizeof nb);
+    to += (size_t)snprintf(traj + to, sizeof traj - to, "%s", nb);
+    for (size_t i = clen - 1; i-- > 0; ) {
+        int node = chain[i];
+        char lbl[40]; search_op_label(&acts[act[node]], lbl, sizeof lbl);
+        format_num(val[node], nb, sizeof nb);
+        to += (size_t)snprintf(traj + to, sizeof traj - to, " -[%s]-> %s", lbl, nb);
+        if (to > sizeof traj - 48) break;
+    }
+
+    size_t steps = clen - 1;
+    char sb[64], tb[64]; format_num(start, sb, sizeof sb); format_num(target, tb, sizeof tb);
+    char msg[520];
+    snprintf(msg, sizeof msg, "Reached %s from %s in %zu step%s: %s.",
+             tb, sb, steps, steps == 1 ? "" : "s", traj);
+    put(msg, out, out_size);
+    char proof[460];
+    snprintf(proof, sizeof proof, "search plan (%zu steps): %s", steps, traj);
+    store_proof(b, proof);
+    return 1;
+}
+
+/* gen120 (rung 19 + rung 16, the capstone): hypothesis TESTING / falsification.
+ * gen118 forms a law from examples; gen120 puts it on trial. Shown examples plus
+ * a held-out transition ("… does 10 -> 21 fit?"), the agent induces the rule from
+ * the examples, applies it to the test input, and either CONFIRMS the transition
+ * or REFUTES it — naming exactly what the rule predicted instead. This closes the
+ * loop the whole experiment runs (observe → hypothesize → predict → TEST) as a
+ * feature inside the agent: PRINCIPLES.md's "introspection proposes; the tests
+ * dispose", one level down. A wrong datum cannot hide — the predicted value is
+ * computed, not asserted. */
+static int mod_verify(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+
+    char low[256];
+    size_t rl = strlen(raw);
+    if (rl >= sizeof low) return 0;
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* Intent to judge a transition against a rule. */
+    if (!(strstr(low,"fit") || strstr(low,"consistent") || strstr(low,"refute") ||
+          strstr(low,"hold") || strstr(low,"coerente") || strstr(low,"rispetta")))
+        return 0;
+
+    /* Tokenize, turning arrows into a sentinel, and collect integer pairs. */
+    char buf[256]; size_t bn = 0;
+    for (const char *p = low; *p && bn + 4 < sizeof buf; ) {
+        if (p[0]=='-' && p[1]=='>') { buf[bn++]=' '; buf[bn++]='\x1f'; buf[bn++]=' '; p+=2; }
+        else if ((unsigned char)p[0]==0xE2 && (unsigned char)p[1]==0x86 &&
+                 (unsigned char)p[2]==0x92) { buf[bn++]=' '; buf[bn++]='\x1f'; buf[bn++]=' '; p+=3; }
+        else if (*p==',' || *p==';') { buf[bn++]=' '; p++; }
+        else buf[bn++]=*p++;
+    }
+    buf[bn] = '\0';
+    char *w[96]; size_t nw = split_words(buf, w, 96);
+    long in[16], out_[16]; size_t npair = 0;
+    for (size_t i = 0; i + 2 < nw && npair < 16; ) {
+        double a, c;
+        if (strcmp(w[i+1], "\x1f")==0 && parse_value(strip_edge_punct(w[i]), &a) &&
+            parse_value(strip_edge_punct(w[i+2]), &c) &&
+            (double)(long)a==a && (double)(long)c==c) {
+            in[npair]=(long)a; out_[npair]=(long)c; npair++; i+=3;
+        } else i++;
+    }
+    if (npair < 3) return 0;        /* need >= 2 examples + 1 test transition */
+
+    /* The last transition is the one under test; the rest are the evidence. */
+    long tin = in[npair-1], tout = out_[npair-1];
+    size_t nex = npair - 1;
+
+    InducedRule r; char rule[160];
+    if (!induce_rule(in, out_, nex, &r, rule, sizeof rule)) {
+        put("Those examples don't all follow one rule I can express yet.",
+            out, out_size);
+        return 1;
+    }
+
+    double pred = apply_rule(&r, (double)tin);
+    char ib[64], tb[64], pb[64];
+    format_num((double)tin, ib, sizeof ib);
+    format_num((double)tout, tb, sizeof tb);
+    format_num(pred, pb, sizeof pb);
+    char msg[400];
+    if (pred == (double)tout)
+        snprintf(msg, sizeof msg, "Yes — %s -> %s fits the rule (%s).", ib, tb, rule);
+    else
+        snprintf(msg, sizeof msg,
+                 "No — the rule (%s) predicts %s -> %s, not %s.", rule, ib, pb, tb);
+    put(msg, out, out_size);
+    store_proof(b, rule);
+    return 1;
+}
+
 /* Run the real shell command via popen and capture its stdout. */
 static int run_shell(const char *cmd, char *out, size_t out_size) {
     FILE *f = popen(cmd, "r");
@@ -5734,6 +6191,8 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
  * (This table is also reified into the KB as module(...) facts at birth, so
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
+    {"induce",    mod_induce},
+    {"verify",    mod_verify},
     {"memory",    mod_memory},
     {"meta",      mod_meta},
     {"strategy",  mod_strategy},
@@ -5746,6 +6205,7 @@ static const Module registry[] = {
     {"plan",      mod_plan},
     {"wordproblem", mod_wordproblem},
     {"agent",     mod_agent},
+    {"search",    mod_search},
     {"tool",      mod_tool},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
@@ -5830,7 +6290,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen117-branch";
+    return "gen120-verify";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

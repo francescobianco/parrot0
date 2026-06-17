@@ -326,16 +326,16 @@ Acceptance:
 | 7 | Long-paragraph contextual understanding| 🟡 | `read:` extracts facts from a short passage; no long-context tracking. → T12 |
 | 8 | Simple inference (if A then B)         | ✅ | rules + backward-chaining resolution (gen6+). |
 | 9 | Short multi-step reasoning             | ✅ | transitive chains, proof traces, BBH-like driver (gen90/76). |
-| 10| In-context (few-shot) learning         | 🟢 | gen104 `mod_fewshot`: induces a shared rule (numeric/suffix/prefix/relational) from in-turn exemplars, applies to held-out probe. DONE. |
+| 10| In-context (few-shot) learning         | 🟢 | gen104 `mod_fewshot` (numeric/suffix/prefix/relational); gen118 `mod_induce` fits a GENERATIVE law from integer transitions (affine a·n+b, else a parity-split rule) — re-derives Collatz from data, runs/continues it; gen120 `mod_verify` TESTS a held-out transition against the induced law (confirm/refute). |
 | 11| Abstraction & analogy                  | 🟡 | **gen102 `mod_analogy`**: "A is to B as C is to ?" resolves over KB relations, both directions, bilingual. Needs richer relational intake to widen. → **L11** done (narrow), T1/T5 to extend |
-| 12| Elementary programming                 | 🟡 | POSIX-shell oracle (`mod_shell`) interprets/explains commands; doesn't synthesize. → M1, **L12** |
+| 12| Elementary programming                 | 🟡 | POSIX-shell oracle (`mod_shell`) interprets/explains; gen119 `mod_search` SYNTHESIZES a program (shortest action sequence) via BFS to reach a goal. Symbolic, not source-text, synthesis. → M1, **L12** |
 | 13| Procedure planning                     | 🟢 | gen108 `mod_plan`: requires(Goal,Step) facts → topologically-sorted plan (DFS), prereqs before dependents, derived not stored; cycle/unknown handled. |
 | 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
 | 15| Tool use                               | 🟢 | gen115 `mod_tool`: the brain COMPILES a word-count question to `echo … \| wc -w` and INVOKES the pure POSIX oracle (`simulate_pipeline`) mid-turn, folding the computed result back and naming the command it ran. The reason/act seam, with a real (not stubbed) oracle. |
-| 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); bilingual. → **L16** done (class-level), T10 to extend to relations/derived chains |
+| 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); gen120 `mod_verify` falsifies an induced law against a held-out datum, naming the predicted value. → T10 to extend to relations/derived chains |
 | 17| Advanced mathematical reasoning        | 🟢 | gen107 `mod_algebra` (equations) + gen109 `mod_wordproblem` (prose → relation → solve, semantic cues). Two-step / multi-op still open. |
 | 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
-| 19| Autonomous agents                      | 🟢 | gen116 `mod_agent`: a perceive→decide→act→observe loop pursues a goal by repeated oracle calls ("double until you reach 50"); gen117 makes the per-step action OBSERVATION-DRIVEN (branching: "if even halve, if odd triple+1, until 1") and runs the Collatz process — 27→1 in 111 real steps, held-out, bilingual, auditable trajectory. Counterfactual/strategy-comparison still open. |
+| 19| Autonomous agents                      | 🟢 | gen116 `mod_agent` perceive→decide→act→observe loop; gen117 observation-driven branching (Collatz, 27→1 in 111 real steps); gen118 INDUCE a law from data; gen119 `mod_search` PLAN via BFS to a goal; gen120 `mod_verify` TEST a law (falsify). The full arc act→iterate→decide→induce→plan→test — a small complete autonomous reasoner. Counterfactual/strategy-comparison still open. |
 | 20| Meta-reasoning (reason about reasoning)| 🟢 | gen105 `mod_strategy`: "why did you answer *that way*?" reports the real dispatch trace (declined modules, winner, first-match-wins rule). Reasons about *control* now, not only results. Counterfactual ("what else matched") still open. |
 
 **Reading of the map.** parrot0 is strong on the *symbolic-reasoning* rungs
@@ -423,6 +423,22 @@ back, naming the exact command it ran so the call is observable, not a stubbed
 string. Held-out text transfers (count is produced, not stored); punctuation it
 can't safely run is declined honestly; bilingual (`tool.chat`/`.it`). The honest
 seam between "reason" and "act", and the precondition for rung 19.
+
+### The agent arc — gen115→gen120 (the autonomous-reasoner spine)
+A complete small reasoner grew over six generations, each held-out + bilingual:
+- **gen115 ACT** (`mod_tool`) — compile a question to a command, invoke a real
+  oracle, fold the result (L15).
+- **gen116 ITERATE** (`mod_agent`) — perceive→decide→act→observe loop to a goal
+  (rung 19).
+- **gen117 DECIDE** — the per-step action chosen by observing state (parity
+  branch); runs Collatz, 27→1 in 111 real steps.
+- **gen118 INDUCE** (`mod_induce`) — fit a generative law (affine, else
+  parity-split) from transitions; re-derives Collatz from data, runs it (L10).
+- **gen119 PLAN** (`mod_search`) — BFS over the action space synthesizes the
+  shortest program reaching a target (rung 13 inside rung 19).
+- **gen120 TEST** (`mod_verify`) — judge a held-out transition against an induced
+  law, confirm or refute with the predicted value (rung 16). Closes
+  observe→hypothesize→plan→test, the experiment's own epistemology as a feature.
 
 ### L19 - Autonomous agents — DONE (seed), gen116/gen117
 Done: `mod_agent` is a perceive→decide→act→observe loop. gen116 pursues a goal by

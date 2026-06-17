@@ -1,0 +1,27 @@
+# gen118 (rung 19 + L10, deeper): rule INDUCTION from observed transitions. In
+# gen117 the agent was TOLD the law; here it DISCOVERS it. Shown a handful of
+# integer transitions, it fits a hypothesis — a single global operation, else a
+# parity-split rule (>= 2 examples per branch, so one stray pair can't overfit) —
+# then applies it. The striking witness: the same data that defines the Collatz
+# step lets parrot0 re-derive Collatz with nobody telling it, and run it.
+
+# DISCOVER the Collatz rule from five transitions — no one named it.
+> 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. what is the rule?
+< The rule is if even: n / 2; if odd: 3n + 1.
+
+# Then USE the induced rule: continue from a held-out start, running it to 1.
+> 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. continue from 12.
+< 12 -> 6 -> 3 -> 10 -> 5 -> 16 -> 8 -> 4 -> 2 -> 1. (induced if even: n / 2; if odd: 3n + 1.)
+
+# A global affine law (2n+1) induced from three points, applied to a held-out 10.
+> 2 -> 5, 3 -> 7, 5 -> 11. what comes after 10?
+< 21. (rule: f(n) = 2n + 1.)
+
+# A subtractive law (n-3) — the induction is general, not Collatz-specific.
+> 10 -> 7, 20 -> 17, 8 -> 5. what comes after 100?
+< 97. (rule: f(n) = n - 3.)
+
+# Anti-impostor: n-squared is outside the (linear/affine/parity) hypothesis
+# space, so it is declined honestly rather than fitted with a spurious rule.
+> 3 -> 9, 4 -> 16, 5 -> 25. what is the rule?
+< Those examples don't all follow one rule I can express yet.

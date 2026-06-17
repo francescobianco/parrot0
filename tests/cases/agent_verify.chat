@@ -1,0 +1,24 @@
+# gen120 (rung 19 + rung 16, the capstone): hypothesis TESTING / falsification.
+# gen118 forms a law from examples; gen120 puts it on trial. Shown examples plus
+# a held-out transition, the agent induces the rule from the examples, applies it
+# to the test input, and either CONFIRMS the transition or REFUTES it — naming
+# what the rule predicted instead. This closes the loop the whole experiment runs
+# (observe -> hypothesize -> predict -> TEST) as a feature inside the agent.
+
+# A transition consistent with the induced affine rule is confirmed.
+> 2 -> 5, 3 -> 7, 5 -> 11. does 10 -> 21 fit?
+< Yes — 10 -> 21 fits the rule (f(n) = 2n + 1).
+
+# A wrong datum cannot hide: the rule predicts 21, so 10 -> 20 is refuted, with
+# the prediction named (the predicted value is computed, not asserted).
+> 2 -> 5, 3 -> 7, 5 -> 11. does 10 -> 20 fit?
+< No — the rule (f(n) = 2n + 1) predicts 10 -> 21, not 20.
+
+# The same trial against an induced CONDITIONAL (Collatz) rule: 7 -> 22 is the
+# odd branch (3n+1) and is confirmed.
+> 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. does 7 -> 22 fit the rule?
+< Yes — 7 -> 22 fits the rule (if even: n / 2; if odd: 3n + 1).
+
+# And a violation of the even branch is refuted with the real Collatz value.
+> 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. does 8 -> 5 fit the rule?
+< No — the rule (if even: n / 2; if odd: 3n + 1) predicts 8 -> 4, not 5.

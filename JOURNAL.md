@@ -1,5 +1,115 @@
 # parrot0 evolution journal
 
+## 2026-06-18 — gen120: hypothesis testing / falsification — the capstone (rung 19 + rung 16)
+
+**Changed:** `brain.c` → `gen120-verify`; new `mod_verify` (registered after
+`induce`); induction refactored into a shared `induce_rule` helper used by both
+`mod_induce` and `mod_verify`; `tests/cases/agent_verify.chat` / `.it.chat`;
+registry enumeration updated in `self.chat` / `strategy.chat` / `strategy.it.chat`.
+
+- gen118 forms a law from data; gen120 puts it **on trial**. Shown examples plus
+  a held-out transition ("… does 10 -> 21 fit?"), the agent induces the rule from
+  the examples, applies it to the test input, and CONFIRMS or REFUTES the
+  transition — naming exactly what the rule predicted when it refutes ("the rule
+  (f(n) = 2n + 1) predicts 10 -> 21, not 20"). Works against affine rules and
+  induced CONDITIONAL (Collatz) rules ("8 -> 5" is refuted: the even branch
+  predicts 8 -> 4). Bilingual ("9 -> 28 è coerente?", "rispetta la regola?").
+- The predicted value is COMPUTED, never asserted, so a wrong datum cannot hide.
+  This is exactly PRINCIPLES.md's epistemology — "introspection proposes; the
+  tests dispose" — now a feature *inside* the agent: the system that was built by
+  observe→hypothesize→test can itself observe, hypothesize, and test. Fractal.
+
+**Why:** this closes the scientific loop the experiment embodies. Over gen115–120
+the agent grew the full arc: ACT (115) → ITERATE (116) → DECIDE-by-observation
+(117) → INDUCE a law (118) → PLAN/search to a goal (119) → TEST the law (120).
+Together they are a small but complete autonomous reasoner — perceive, decide,
+act, learn, plan, and falsify — reconstructed in deterministic C and held to
+account by held-out, bilingual tests.
+
+**Observed:** `make test` green (171 checks). The induced rule is the proof
+trace; confirmation and refutation both cite it; the refutation's predicted value
+is the real `apply_rule` output.
+
+**Next (open):** induce rules over a richer hypothesis space (quadratic, mod,
+two-feature); let `verify` propose the minimal correction to a refuted rule
+(self-correction over induced laws, cross-ref gen103); compose search with an
+induced goal-test instead of a literal target.
+
+---
+
+## 2026-06-18 — gen119: goal-directed search, the planner agent (rung 19 + rung 13)
+
+**Changed:** `brain.c` → `gen119-search`; new `mod_search` (registered after
+`agent`); helper `search_op_label`; `tests/cases/agent_search.chat` / `.it.chat`;
+registry enumeration updated in `self.chat` / `strategy.chat`.
+
+- gen116 iterated ONE given action; gen118 INDUCED a rule from data; gen119 is
+  the deductive complement — **means-ends search**. Given a start, a target, and
+  a SET of available actions ("from 3, using times 3 and add 1, reach 28"), the
+  agent runs breadth-first search over the action space and synthesizes the
+  **shortest** sequence of tool calls that reaches the goal: 3 -[×3]-> 9 -[×3]->
+  27 -[+1]-> 28. BFS guarantees optimality; a node cap + value-range prune bound
+  the search and make failure honest ("I couldn't reach 7 from 2 with those
+  operations" when only doubling can't make an odd number).
+- The plan is found each turn, never stored, so held-out start/target/action-set
+  transfer (5→7 via ×2,−3; 1→20 via +2,+2,×2,×2; Italian 4→13 via ×3,+1). The
+  trajectory shown is the real replayed path, and it is the proof trace.
+
+**Why:** an autonomous agent must not only run or infer a procedure but
+**construct** one to hit a goal it was given. Planning (rung 13) inside the
+agent loop (rung 19) is goal-directed problem solving — searching possibility
+space, the deductive half of the loop whose inductive half was gen118.
+
+**Observed:** `make test` green (169 checks). Plans are BFS-optimal and verified
+by replay; unreachable goals are admitted, not faked.
+
+**Next:** gen120 — the test/falsify half: induce a rule, then judge a held-out
+transition against it (confirm or refute, naming what the rule predicted),
+closing observe → hypothesize → plan → **test**.
+
+---
+
+## 2026-06-18 — gen118: rule induction from observed transitions (rung 19 + L10)
+
+**Changed:** `brain.c` → `gen118-induce`; new `mod_induce` (registered FIRST, so
+its very specific trigger — ≥2 integer "a -> b" pairs plus a use-intent — gets
+first crack before `memory` can mistake "what is the rule?" for a possession
+query); helpers `InducedRule`, `fit_class`, `apply_rule`, `describe_ops`;
+`tests/cases/agent_induce.chat` / `.it.chat`; registry enumeration updated in
+`self.chat` / `strategy.chat` / `strategy.it.chat`.
+
+- gen117 was TOLD the law. gen118 DISCOVERS it. Shown a handful of integer
+  transitions, the agent fits a hypothesis — first a single global operation
+  (`fit_class` tries constant, add/sub, multiply, divide, then affine a·n+b),
+  else a **parity-split** rule (≥2 examples per branch, so a stray pair can't
+  overfit a spurious branch) — then USES it: state the rule, give the next
+  value, or continue the sequence (reusing gen117's loop machinery).
+- The headline: the SAME data that defines the Collatz step lets parrot0
+  **re-derive Collatz with nobody telling it** — `6→3, 3→10, 10→5, 5→16, 4→2`
+  ⇒ "if even: n / 2; if odd: 3n + 1" — then run it (`continue from 12` →
+  12→6→3→10→5→16→8→4→2→1). Global affine (`2→5, 3→7, 5→11` ⇒ f(n)=2n+1 ⇒ 21),
+  subtractive (n−3), multiplicative (3n) all transfer; a held-out conditional
+  rule in Italian (even: n/2, odd: 2n+2) runs through the same path. n² is
+  **declined honestly** ("don't all follow one rule I can express yet") — the
+  hypothesis space is bounded and admitted, not faked.
+
+**Why:** program induction — recovering a generative function from examples — is
+the core of in-context learning, the most LLM-shaped capability of all. gen117
+ran a given program; gen118 *infers* the program. It is the inductive half of
+the scientific loop the experiment itself runs (observe → hypothesize), now a
+feature inside the agent (fractal, per PRINCIPLES.md).
+
+**Observed:** `make test` green (167 checks). The induced rule is reported and
+stored as the proof, so "how do you know?" cites the discovered law and the real
+trajectory — auditable, not memorized.
+
+**Next:** gen119 — the deductive/planning half: search the action space for a
+sequence that REACHES a goal (means-ends), then gen120 — TEST a hypothesis
+against held-out data (falsification), closing the observe→hypothesize→plan→test
+loop.
+
+---
+
 ## 2026-06-18 — gen117: the observation-driven branching agent (rung 19, deeper)
 
 **Changed:** `brain.c` → `gen117-branch`; extended `mod_agent` with a branching

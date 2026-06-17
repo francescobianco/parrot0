@@ -1,0 +1,13 @@
+# gen119 (rung 19 + rung 13) — bilingual ratchet for the planner agent. The same
+# breadth-first search over the action space runs from an Italian instruction:
+# the planning competence lives in the algorithm. Only the framing words differ
+# (da, usando, raggiungere); the actions, the search, and the plan report — with
+# its real replayed trajectory — are shared.
+
+# Synthesize the shortest plan from 4 to 13 with {x3, +1}: x3, +1.
+> da 4, usando times 3 and add 1, raggiungere 13.
+< Reached 13 from 4 in 2 steps: 4 -[*3]-> 12 -[+1]-> 13.
+
+# A held-out goal: from 2 to 24 with {+2, x2} — the shortest plan is 4 steps.
+> da 2, usando add 2 and times 2, raggiungere 24.
+< Reached 24 from 2 in 4 steps: 2 -[+2]-> 4 -[+2]-> 6 -[*2]-> 12 -[*2]-> 24.
