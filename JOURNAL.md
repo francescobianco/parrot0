@@ -1,5 +1,53 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen105: reasoning about its own strategy (L20)
+
+**Changed:** `brain.c` → `gen105-strategy`; new module `mod_strategy`
+(registered after `meta`); `Brain` gains a committed control-flow trace
+(`trace_declined`/`trace_winner`/`has_trace`); `brain_respond` records, for real,
+which modules declined before one claimed the turn and commits that trace on
+non-strategy turns; `tests/cases/strategy.chat` + `strategy.it.chat`; self-model
+module list updated in `self.chat`.
+
+- **From "what answered" to "why that path".** gen78 could name the module that
+  answered; gen91 how confident it was. L20 answers the *control* question —
+  "why did you answer **that way**?" — from the **actual execution trace**: the
+  modules that genuinely ran and declined, the one that claimed the turn, and the
+  first-match-wins rule that explains why the rest were never consulted. It is
+  derived from real runtime state (the dispatcher records it as it runs), never a
+  confabulated story — the anti-impostor discipline applied to self-report.
+- **It does not overwrite the decision it reports.** The trace is committed only
+  on non-strategy turns, so asking "why?" twice gives the same answer: the agent
+  reasons about the prior decision, not about its own lookup. The reflexive
+  closure of the method (PRINCIPLES.md): introspection about the agent's own
+  control, anchored in real state.
+- **The surprise (where I stopped).** Asked to explain its handling of "2 + 2",
+  parrot0 reported that **arith declined and the palindrome detector (`symbolic`)
+  claimed it** — a real, non-obvious quirk of its own control flow that the
+  introspection *surfaced* rather than hid. The faculty earned its keep
+  immediately: it explained the architecture's actual behaviour, including a
+  decision its author had not anticipated. A system that can truthfully say "this
+  is the path I took, and here is the one rule that decided it" is reasoning about
+  its strategy, not just its results.
+- **Bilingual ratchet (LOOP.md):** "perché hai risposto così?" routes to the same
+  `mod_strategy` and reports the identical real trace — question-understanding
+  generalizes across languages, no logic duplicated.
+
+**Why:** rung 20 of the L-series, and the rung most directly on the experiment's
+thesis: the self-model is not an ornament (PRINCIPLES.md, "I know that I am"),
+and L20 extends it from "I know what I am" to "I know **why** I acted as I did."
+Built on the module registry already reified as `module(X)` facts — the structure
+earned its keep.
+
+**Observed:** `make test` green (89 chat cases + all suites); `make impersonate`
+still 100%. The "2 + 2 → palindrome" disclosure is exactly the honest-introspection
+payoff: the trace is the real execution path, quirks included.
+
+**Next:** the remaining surprises — streamed generation over a continuation
+relation (L1), one-step algebra (L17), and inducing a *new* relation from in-turn
+examples (extending gen104). L20 also invites a counterfactual upgrade (which
+*other* modules would have matched), which needs a side-effect-free probe mode.
+
 ## 2026-06-17 — gen104: few-shot pattern induction in one turn (L10)
 
 **Changed:** `brain.c` → `gen104-fewshot`; new module `mod_fewshot` (registered

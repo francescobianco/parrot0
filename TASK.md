@@ -8,6 +8,13 @@
 
 ## Done recently
 
+- **gen105 (L20) — reasoning about its own strategy.** `mod_strategy` answers
+  "why did you answer *that way*?" from the real dispatch trace: the modules that
+  ran and declined, the one that claimed the turn, and the first-match-wins rule.
+  Derived from runtime state, never confabulated; committed only on non-strategy
+  turns so it doesn't overwrite the decision it reports. Surfaced a real quirk
+  ("2 + 2" → palindrome detector, not arith). Bilingual. `strategy.chat` /
+  `strategy.it.chat`.
 - **gen104 (L10) — few-shot pattern induction in one turn.** `mod_fewshot`
   reads 2+ "in -> out" exemplars and a "probe -> ?" on one line, induces the
   rule they share, and applies it to the held-out probe — answer *derived*,

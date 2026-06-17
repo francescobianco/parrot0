@@ -89,6 +89,17 @@ struct Brain {
     char last_goal_arg[KB_TERM_LEN];
     int  last_goal_yes;
     int  has_last_goal;
+
+    /* gen105 (L20): control-flow trace of the previous substantive turn. The
+     * dispatcher records, for real, which modules were consulted and declined
+     * before one claimed the turn — so "why did you answer that way?" reports the
+     * actual execution path and the first-match-wins control rule, not a
+     * confabulated story. Committed only on non-introspective turns, so asking
+     * about the strategy never overwrites the trace it is asking about. */
+    char trace_declined[24][24];
+    size_t trace_declined_n;
+    char trace_winner[24];
+    int  has_trace;
 };
 
 /* ----------------------------------------------------------------------------
@@ -3576,6 +3587,82 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: strategy (L20) -----------------------------------------------
+ * Reasoning about its OWN strategy, not just its results. gen78 could say which
+ * module answered ("I used my X module"); gen91 how confident it was. L20 asks
+ * the control question — "why did you answer *that way*?" — and answers it from
+ * the real execution trace the dispatcher recorded: the modules it actually
+ * consulted and that declined, the one that claimed the turn, and the
+ * first-match-wins rule that explains why the rest were never reached. This is
+ * the reflexive closure of the method (PRINCIPLES.md): introspection about the
+ * agent's own control, derived from real runtime state, never a hardcoded story.
+ * It declines anything that is not this meta-question, so normal turns are not
+ * hijacked — and crucially its own turn does NOT overwrite the trace it reports
+ * (the dispatcher commits the trace only on non-strategy turns). */
+static int mod_strategy(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+    const char *buf = norm;
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+    size_t wn = 0; { char wb[256]; snprintf(wb, sizeof wb, "%s", norm);
+                     char *w[64]; wn = split_words(wb, w, 64); }
+
+    int ask = ((cue(buf, "why did you answer that way")) ||
+               (cue(buf, "why did you respond that way")) ||
+               (cue(buf, "why that way")) ||
+               (cue(buf, "why did you choose") && wn <= 7) ||
+               (cue(buf, "how did you decide") && wn <= 6) ||
+               (cue(buf, "perché hai risposto così")) ||
+               (cue(buf, "perché così") && wn <= 4) ||
+               (cue(buf, "come hai deciso") && wn <= 5));
+    if (!ask) return 0;
+
+    if (!b->has_trace) {
+        put("I haven't answered anything substantive yet, so there's no decision "
+            "to explain.", out, out_size);
+        return 1;
+    }
+
+    /* Build the declined-module list, skipping my own name (strategy is always
+     * consulted before the winner on a normal turn; reporting it is just noise). */
+    char declined[512] = ""; size_t nlisted = 0;
+    for (size_t i = 0; i < b->trace_declined_n; i++) {
+        if (strcmp(b->trace_declined[i], "strategy") == 0) continue;
+        if (nlisted) strncat(declined, ", ", sizeof declined - strlen(declined) - 1);
+        strncat(declined, b->trace_declined[i], sizeof declined - strlen(declined) - 1);
+        nlisted++;
+    }
+
+    char msg[800];
+    if (strcmp(b->trace_winner, "fallback") == 0) {
+        if (nlisted)
+            snprintf(msg, sizeof msg,
+                     "I try my modules in a fixed order and the first one that "
+                     "matches wins. Last turn %s each looked and declined, and "
+                     "nothing else claimed it, so I fell back to an honest "
+                     "\"I don't understand.\"", declined);
+        else
+            snprintf(msg, sizeof msg,
+                     "No module matched your last turn, so I fell back to an "
+                     "honest \"I don't understand.\"");
+    } else if (nlisted) {
+        snprintf(msg, sizeof msg,
+                 "I try my modules in a fixed order and the first one that matches "
+                 "wins. Last turn %s looked first and declined; then '%s' claimed "
+                 "it — so the modules after '%s' were never consulted.",
+                 declined, b->trace_winner, b->trace_winner);
+    } else {
+        snprintf(msg, sizeof msg,
+                 "I try my modules in a fixed order and the first one that matches "
+                 "wins. Last turn '%s' was the first to match and claimed it, so "
+                 "the modules after it were never consulted.",
+                 b->trace_winner);
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -4659,6 +4746,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
 static const Module registry[] = {
     {"memory",    mod_memory},
     {"meta",      mod_meta},
+    {"strategy",  mod_strategy},
     {"role",      mod_role},
     {"self",      mod_self},
     {"fewshot",   mod_fewshot},
@@ -4747,7 +4835,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen104-fewshot";
+    return "gen105-strategy";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -4960,9 +5048,14 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         }
     }
 
+    /* gen105 (L20): record the real control-flow trace of this turn — the
+     * modules consulted that declined, then the one that claimed it. */
+    char declined[24][24]; size_t ndecl = 0;
+    const char *winner = "fallback";
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
             handled = 1;
+            winner = registry[i].name;
             if (strcmp(registry[i].name, "discourse") == 0) handled_by_discourse = 1;
             if (b) {
                 snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
@@ -4970,6 +5063,20 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
             }
             break;
         }
+        if (ndecl < 24) snprintf(declined[ndecl++], sizeof declined[0], "%s",
+                                 registry[i].name);
+    }
+
+    /* Commit the trace for "why did you answer that way?" — but NOT when this
+     * turn was itself that introspective question, so it reports the decision it
+     * is being asked about, not its own lookup. */
+    if (b && strcmp(winner, "strategy") != 0) {
+        b->trace_declined_n = ndecl;
+        for (size_t i = 0; i < ndecl; i++)
+            snprintf(b->trace_declined[i], sizeof b->trace_declined[0], "%s",
+                     declined[i]);
+        snprintf(b->trace_winner, sizeof b->trace_winner, "%s", winner);
+        b->has_trace = 1;
     }
 
     /* gen58: update the rolling discourse topic buffer from the current turn,

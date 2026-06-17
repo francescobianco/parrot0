@@ -336,7 +336,7 @@ Acceptance:
 | 17| Advanced mathematical reasoning        | 🟡 | arithmetic + a new "explain why" justification (gen101); no algebra/word-problems. → C12, **L17** |
 | 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
 | 19| Autonomous agents                      | ⬜ | no perceive→decide→act loop; the generative-inference proposal (D-prop1) is the nearest seed. |
-| 20| Meta-reasoning (reason about reasoning)| 🟡 | proof-depth introspection (gen26/77), module-attribution (gen78), confidence (gen91); reasons about *results*, not its *strategy*. → T9, **L20** |
+| 20| Meta-reasoning (reason about reasoning)| 🟢 | gen105 `mod_strategy`: "why did you answer *that way*?" reports the real dispatch trace (declined modules, winner, first-match-wins rule). Reasons about *control* now, not only results. Counterfactual ("what else matched") still open. |
 
 **Reading of the map.** parrot0 is strong on the *symbolic-reasoning* rungs
 (3, 4, 8, 9) — exactly where a Prolog-shaped core should be — and on the
@@ -421,11 +421,17 @@ operation-grounded explanation. Anti-impostor: held-out numbers and phrasings.
 Pull rung 18 past decomposition (gen80): when two goals conflict or must be
 ordered, choose/sequence them and say why. Cross-ref T6, T7.
 
-### L20 - Reasoning about its own strategy
-Pull rung 20 to depth: not just "how do you know?" (proof depth) but "why did you
-answer *that way*?" — report which module fired and why it was preferred over
-the others that also matched. Extends gen78 module-attribution into a queryable
-account of *control*, not just *result*. Cross-ref T9, D6.
+### L20 - Reasoning about its own strategy — DONE (trace-level), gen105
+Done: `mod_strategy` answers "why did you answer *that way*?" from the **real
+dispatch trace** the brain records as it runs — the modules consulted that
+declined, the one that claimed the turn, and the first-match-wins rule that
+explains why the rest were never reached. Derived from runtime state, never
+confabulated; committed only on non-strategy turns so the question never
+overwrites the decision it reports. Surfaced a genuine control quirk ("2 + 2" is
+claimed by the palindrome detector, not arith). Bilingual (`strategy.chat` /
+`strategy.it.chat`). **Still open:** the counterfactual — which *other* modules
+would also have matched — needs a side-effect-free probe mode (most modules
+mutate state), so it cannot re-run the registry safely yet. Cross-ref T9, D6.
 
 ---
 
