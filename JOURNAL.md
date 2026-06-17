@@ -1,5 +1,56 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen104: few-shot pattern induction in one turn (L10)
+
+**Changed:** `brain.c` → `gen104-fewshot`; new module `mod_fewshot` (registered
+after `self`, before `compare`); helpers `common_prefix_len`,
+`common_suffix_len`, `fs_parse_int`; `tests/cases/fewshot.chat` +
+`fewshot.it.chat`; self-model module list updated in `self.chat`.
+
+- **The signature emergent ability of LLMs — in-context learning — built
+  deterministically.** Given 2+ labelled examples and a probe on one line
+  ("cat -> cats, dog -> dogs, bird -> ?"), parrot0 induces the rule the examples
+  *share* and applies it to a held-out item. The answer is **never stored**: it
+  is derived from the exemplars present in this very turn. Novel items each test,
+  so no phrasebook can fake it (PRINCIPLES.md anti-impostor).
+- **Four rule families, first consistent across ALL examples wins:** (1) numeric
+  constant delta or exact ratio; (2) suffix transform (drop k chars, append a
+  string — covers "+s", "+ing", and replacement like "y"->"ier"); (3) the
+  symmetric prefix transform (prepend "un"); (4) **relational** — the examples
+  all instantiate one binary relation the KB holds, so parrot0 *infers which
+  relation the task is* (out of every predicate it knows) and resolves the probe
+  from world knowledge. No rule fits => it declines honestly, never guesses.
+- **The surprise (where I stopped).** parrot0 was told three *separate* facts —
+  `capital(rome,italy)`, `capital(paris,france)`, `capital(berlin,germany)`.
+  Given only `rome -> italy, paris -> france, berlin -> ?` it deduced the latent
+  relation is `capital`, answered **germany**, *and ran it backwards*
+  (`germany -> berlin`). It inferred the **task** from the examples — not the
+  answer — exactly the in-context-learning move, composed from few-shot framing +
+  KB resolution + bidirectional relational reasoning. The string-transform path
+  would have produced garbage on `rome -> italy`; the system correctly fell
+  through to semantic induction and picked the *right* predicate.
+- **Bilingual ratchet (LOOP.md):** the same code reads Italian exemplars
+  ("gatto -> gatti, cane -> cani, topo -> ?" -> topi) because it keys on the
+  arrow markers and the *structure* of the transformation, not on any English
+  word. No logic duplicated — the competence is structural by construction.
+
+**Why:** rung 10 of the L-series, the one most identified with what made large
+models astonishing — learning a task from a handful of in-prompt examples. Doing
+it in deterministic C, with the answer derived (never canned), is a direct
+behavioural reconstruction of the latent capability the experiment targets
+(PRINCIPLES.md). The relational case is the load-bearing one: it is genuine
+composition (task-inference over the whole KB), not another template.
+
+**Observed:** `make test` green (87 chat cases + all suites); `make impersonate`
+still 100%. Honest miss on semantic opposites ("red -> blue, hot -> cold, up ->
+?") is covered — the system names the gap instead of fabricating.
+
+**Next:** the remaining high-surprise rungs — meta-strategy introspection (L20,
+"why did you answer *that way*?"), streamed generation over a continuation
+relation (L1), one-step algebra (L17). Few-shot relational induction also opens
+a path to inducing *new* relations from in-turn examples, not just selecting
+known ones.
+
 ## 2026-06-17 — gen103: self-correction that re-derives (L16)
 
 **Changed:** `brain.c` → `gen103-rederive`; `Brain` remembers the last stated

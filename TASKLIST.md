@@ -326,7 +326,7 @@ Acceptance:
 | 7 | Long-paragraph contextual understanding| 🟡 | `read:` extracts facts from a short passage; no long-context tracking. → T12 |
 | 8 | Simple inference (if A then B)         | ✅ | rules + backward-chaining resolution (gen6+). |
 | 9 | Short multi-step reasoning             | ✅ | transitive chains, proof traces, BBH-like driver (gen90/76). |
-| 10| In-context (few-shot) learning         | 🟡 | one-turn hypothetical rules (gen84) + induction; no example-pattern few-shot. → **L10** |
+| 10| In-context (few-shot) learning         | 🟢 | gen104 `mod_fewshot`: induces a shared rule (numeric/suffix/prefix/relational) from in-turn exemplars, applies to held-out probe. DONE. |
 | 11| Abstraction & analogy                  | 🟡 | **gen102 `mod_analogy`**: "A is to B as C is to ?" resolves over KB relations, both directions, bilingual. Needs richer relational intake to widen. → **L11** done (narrow), T1/T5 to extend |
 | 12| Elementary programming                 | 🟡 | POSIX-shell oracle (`mod_shell`) interprets/explains commands; doesn't synthesize. → M1, **L12** |
 | 13| Procedure planning                     | ⬜ | goal tracking exists (gen93); no ordered plan to a goal. → T7, **L13** |
@@ -366,11 +366,17 @@ facts (subject–relation–object), ranked by recency/frequency, not a topic-wo
 list. Held-out: a passage fed via `read:` then summarized; the summary names
 facts the KB actually holds. Cross-ref C4, T12.
 
-### L10 - Few-shot pattern induction in one turn
-Pull rung 10: given 2–3 labelled examples in a single turn ("apple→fruit,
-carrot→vegetable, banana→?"), induce the mapping and apply it to a held-out
-probe. This is induction (gen7) pulled by an in-context framing rather than a
-batch over the KB. Anti-impostor: novel categories/items each test.
+### L10 - Few-shot pattern induction in one turn — DONE, gen104
+Done: `mod_fewshot` parses 2+ "in -> out" exemplars and a "probe -> ?" on one
+line, induces the rule they share, applies it to the held-out probe (answer
+derived, never stored). Four families, first consistent fit wins: numeric
+delta/ratio; suffix transform (drop k, append s); prefix transform; and
+**relational** — infer which binary KB relation the examples instantiate (over
+all predicates) and resolve the probe from world knowledge, both directions.
+Honest decline when no rule fits. Bilingual by structure (`fewshot.chat` /
+`fewshot.it.chat`). **To extend:** *induce* a new relation from in-turn pairs
+(not only select a known one); mixed/compositional rules; ranking when several
+fit. Cross-ref L11, gen7 induction.
 
 ### L11 - Structural analogy (A:B :: C:?) — DONE (narrow), gen102
 Done: `mod_analogy` finds a binary relation R with R(A,B) (or R(B,A)) among the

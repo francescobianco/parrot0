@@ -8,6 +8,15 @@
 
 ## Done recently
 
+- **gen104 (L10) — few-shot pattern induction in one turn.** `mod_fewshot`
+  reads 2+ "in -> out" exemplars and a "probe -> ?" on one line, induces the
+  rule they share, and applies it to the held-out probe — answer *derived*,
+  never stored. Four families: numeric delta/ratio, suffix transform, prefix
+  transform, and **relational** (infer which KB relation the examples instantiate
+  and resolve the probe from world knowledge — e.g. capital(rome,italy) +
+  capital(paris,france) taught separately ⇒ "rome -> italy, paris -> france,
+  berlin -> ?" ⇒ germany, and backwards). Bilingual via structure, not words.
+  `fewshot.chat` / `fewshot.it.chat`.
 - **gen101 (C15) — role/character memory.** `make impersonate` 15% → **100%**.
   `mod_role` parses role uptake from the user's words, answers in character from
   role state + `knowledge/roles.pl`, and keeps a **layered self-model**: a

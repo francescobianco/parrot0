@@ -1,0 +1,57 @@
+# gen104 (L10): few-shot pattern induction in ONE turn — the signature emergent
+# ability of LLMs (in-context learning), done deterministically. Given 2+
+# labelled examples and a probe on a single line, parrot0 induces the rule the
+# examples SHARE and applies it to a held-out item. The answer is NEVER stored:
+# it is derived from the exemplars present in this very turn. Novel items each
+# time, so no phrasebook can fake it (PRINCIPLES.md, anti-impostor).
+
+# Suffix transform — append "s". parrot0 was never told the plural of "bird".
+> cat -> cats, dog -> dogs, bird -> ?
+< birds.
+# The proof is real: it names the two examples and the rule it induced from them.
+> how do you know?
+< Because the examples cat -> cats and dog -> dogs share the rule "append 's'", so bird -> birds.
+
+# Suffix transform with a longer affix — "+ing". Held-out verb.
+> go -> going, see -> seeing, read -> ?
+< reading.
+
+# Suffix REPLACEMENT (not just append): drop the last char, append another.
+> happy -> happier, lazy -> lazier, easy -> ?
+< easier.
+
+# Prefix transform — prepend "un". Symmetric to the suffix case.
+> happy -> unhappy, kind -> unkind, fair -> ?
+< unfair.
+
+# Numeric: a constant delta induced from the examples (+2), applied to a probe.
+> 1 -> 3, 4 -> 6, 10 -> ?
+< 12.
+
+# Numeric: an exact ratio (x3), held-out probe.
+> 2 -> 6, 3 -> 9, 5 -> ?
+< 15.
+
+# SEMANTIC few-shot: the examples are not a string/number transform at all —
+# they instantiate a RELATION. parrot0 was told three separate capital facts;
+# from two example pairs it INFERS that the task is "capital of", then resolves
+# the held-out probe from world knowledge. It deduced the task, not the answer.
+> rome is the capital of italy
+< Learned: capital(rome, italy).
+> paris is the capital of france
+< Learned: capital(paris, france).
+> berlin is the capital of germany
+< Learned: capital(berlin, germany).
+> rome -> italy, paris -> france, berlin -> ?
+< germany.
+# The proof names the relation it inferred from the exemplars — derived, real.
+> how do you know?
+< Because the examples rome -> italy and paris -> france share the rule "capital(x, y)", so berlin -> germany.
+# Same relation read BACKWARDS: the examples flip it, parrot0 follows. germany->berlin.
+> italy -> rome, france -> paris, germany -> ?
+< berlin.
+
+# Honest miss: the shape is a few-shot frame, but no string, number, OR known
+# relation fits. parrot0 says so rather than guessing a continuation.
+> red -> blue, hot -> cold, up -> ?
+< I see 2 examples, but I can't find one rule that fits them all.

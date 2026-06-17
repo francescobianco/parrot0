@@ -3371,6 +3371,211 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: fewshot (L10) ------------------------------------------------
+ * In-context (few-shot) learning, in ONE turn. Given 2+ labelled examples and a
+ * probe on a single line — "cat -> cats, dog -> dogs, bird -> ?" — induce the
+ * transformation the examples SHARE and apply it to the probe. The answer is
+ * never stored anywhere: it is derived from the exemplars present in this very
+ * turn, the deterministic analogue of an LLM conditioning on its prompt's
+ * examples. Novel items each time => no phrasebook can fake it (PRINCIPLES.md).
+ *
+ * Transformations tried, first one consistent across ALL examples wins:
+ *   1. numeric  — a constant delta (out = in + k) or ratio (out = in * k);
+ *   2. suffix   — strip a constant suffix, append a constant one (covers "+s",
+ *                 "+ing", and replacement like "o"->"i", "y"->"ier");
+ *   3. prefix   — the symmetric variant (e.g. prepend "un").
+ * No transform fits every example -> decline (return 0): honest, never guess.
+ *
+ * Detection keys on the unambiguous shape (>= 2 arrow markers "->" / "→" and a
+ * probe whose output is "?"), so ordinary prose is never hijacked. */
+static size_t common_prefix_len(const char *a, const char *b) {
+    size_t i = 0;
+    while (a[i] && b[i] && a[i] == b[i]) i++;
+    return i;
+}
+static size_t common_suffix_len(const char *a, const char *b) {
+    size_t la = strlen(a), lb = strlen(b), i = 0;
+    while (i < la && i < lb && a[la - 1 - i] == b[lb - 1 - i]) i++;
+    return i;
+}
+static int fs_parse_int(const char *s, long *v) {
+    if (!*s) return 0;
+    char *end;
+    long x = strtol(s, &end, 10);
+    if (end == s || *end != '\0') return 0;
+    *v = x;
+    return 1;
+}
+
+static int mod_fewshot(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)raw;
+
+    /* Rewrite into a tokenizable buffer: arrows ("->" or UTF-8 "→") become the
+     * sentinel token '\x1f'; pair separators (',' ';') become spaces. */
+    char buf[256];
+    size_t bn = 0;
+    for (const char *p = norm; *p && bn + 4 < sizeof buf; ) {
+        if (p[0] == '-' && p[1] == '>') {
+            buf[bn++] = ' '; buf[bn++] = '\x1f'; buf[bn++] = ' '; p += 2;
+        } else if ((unsigned char)p[0] == 0xE2 && (unsigned char)p[1] == 0x86 &&
+                   (unsigned char)p[2] == 0x92) {
+            buf[bn++] = ' '; buf[bn++] = '\x1f'; buf[bn++] = ' '; p += 3;
+        } else if (*p == ',' || *p == ';') {
+            buf[bn++] = ' '; p++;
+        } else {
+            buf[bn++] = *p++;
+        }
+    }
+    buf[bn] = '\0';
+
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    /* Expect a run of triples "in ARROW out"; the last triple is the probe. */
+    if (nw < 9 || nw % 3 != 0) return 0;            /* need >= 3 triples */
+    size_t npair = nw / 3;
+    for (size_t i = 0; i < npair; i++)
+        if (strcmp(w[i * 3 + 1], "\x1f") != 0) return 0;  /* not our shape */
+    if (w[(npair - 1) * 3 + 2][0] != '?') return 0;       /* probe out = "?" */
+
+    const char *probe_in = w[(npair - 1) * 3];
+    size_t nex = npair - 1;                          /* example pairs */
+    if (nex < 2) return 0;
+
+    const char *in[16], *ot[16];
+    if (nex > 16) nex = 16;
+    for (size_t i = 0; i < nex; i++) { in[i] = w[i * 3]; ot[i] = w[i * 3 + 2]; }
+
+    char result[KB_TERM_LEN] = "";
+    char rule[160] = "";
+
+    /* (1) numeric: constant delta, else constant exact ratio. */
+    long iv[16], ov[16], pv; int allnum = fs_parse_int(probe_in, &pv);
+    for (size_t i = 0; i < nex && allnum; i++)
+        if (!fs_parse_int(in[i], &iv[i]) || !fs_parse_int(ot[i], &ov[i]))
+            allnum = 0;
+    if (allnum) {
+        long d = ov[0] - iv[0]; int delta_ok = 1;
+        for (size_t i = 1; i < nex; i++) if (ov[i] - iv[i] != d) { delta_ok = 0; break; }
+        if (delta_ok) {
+            snprintf(result, sizeof result, "%ld", pv + d);
+            snprintf(rule, sizeof rule, "add %ld", d);
+        } else if (iv[0] != 0 && ov[0] % iv[0] == 0) {
+            long r = ov[0] / iv[0]; int ratio_ok = 1;
+            for (size_t i = 0; i < nex; i++)
+                if (iv[i] == 0 || ov[i] % iv[i] != 0 || ov[i] / iv[i] != r) { ratio_ok = 0; break; }
+            if (ratio_ok) {
+                snprintf(result, sizeof result, "%ld", pv * r);
+                snprintf(rule, sizeof rule, "multiply by %ld", r);
+            }
+        }
+    }
+
+    /* (2) suffix transform: drop D chars from the end, append the string ADD.
+     * Derived from the first example, then required to hold for every example. */
+    if (!*result) {
+        size_t p0 = common_prefix_len(in[0], ot[0]);
+        size_t drop = strlen(in[0]) - p0;
+        const char *add = ot[0] + p0;
+        int ok = (drop != 0 || *add);            /* reject the identity map */
+        for (size_t i = 1; i < nex && ok; i++) {
+            size_t pi = common_prefix_len(in[i], ot[i]);
+            if (strlen(in[i]) - pi != drop || strcmp(ot[i] + pi, add) != 0) ok = 0;
+        }
+        if (ok && strlen(probe_in) >= drop) {
+            size_t keep = strlen(probe_in) - drop;
+            if (keep + strlen(add) < sizeof result) {
+                memcpy(result, probe_in, keep);
+                strcpy(result + keep, add);
+                if (drop) snprintf(rule, sizeof rule, "drop %zu, append '%s'", drop, add);
+                else      snprintf(rule, sizeof rule, "append '%s'", add);
+            }
+        }
+    }
+
+    /* (3) prefix transform: drop D chars from the front, prepend the string ADD. */
+    if (!*result) {
+        size_t s0 = common_suffix_len(in[0], ot[0]);
+        size_t drop = strlen(in[0]) - s0;
+        size_t addlen = strlen(ot[0]) - s0;
+        char add[KB_TERM_LEN];
+        if (addlen < sizeof add) {
+            memcpy(add, ot[0], addlen); add[addlen] = '\0';
+            int ok = (drop != 0 || addlen);
+            for (size_t i = 1; i < nex && ok; i++) {
+                size_t si = common_suffix_len(in[i], ot[i]);
+                if (strlen(in[i]) - si != drop ||
+                    strlen(ot[i]) - si != addlen ||
+                    strncmp(ot[i], add, addlen) != 0) ok = 0;
+            }
+            if (ok && strlen(probe_in) >= drop) {
+                const char *tail = probe_in + drop;
+                if (addlen + strlen(tail) < sizeof result) {
+                    strcpy(result, add); strcat(result, tail);
+                    snprintf(rule, sizeof rule, "prepend '%s'", add);
+                }
+            }
+        }
+    }
+
+    /* (4) relational: the examples all instantiate ONE relation the KB holds;
+     * infer which, then resolve it for the probe. This is few-shot at the
+     * SEMANTIC level — the model deduces the task ("these are capital-of pairs")
+     * from the exemplars and answers a held-out probe from world knowledge it
+     * was told only as separate facts, never as a pair in this format. */
+    if (!*result && b && b->kb) {
+        char preds[128][KB_TERM_LEN];
+        size_t np = kb_predicates(b->kb, preds, 128);
+        for (size_t pi = 0; pi < np && !*result; pi++) {
+            const char *R = preds[pi];
+            if (is_internal_pred(R)) continue;
+            int fwd = 1, rev = 1;
+            for (size_t i = 0; i < nex; i++) {
+                const char *ab[] = { in[i], ot[i] }, *ba[] = { ot[i], in[i] };
+                if (!kb_query(b->kb, R, ab, 2)) fwd = 0;
+                if (!kb_query(b->kb, R, ba, 2)) rev = 0;
+            }
+            char res[4][KB_TERM_LEN];
+            if (fwd) {
+                const char *q[] = { probe_in, NULL };
+                if (kb_match(b->kb, R, q, 2, res, 4)) {
+                    snprintf(result, sizeof result, "%s", res[0]);
+                    snprintf(rule, sizeof rule, "%s(x, y)", R);
+                }
+            }
+            if (!*result && rev) {
+                const char *q[] = { NULL, probe_in };
+                if (kb_match(b->kb, R, q, 2, res, 4)) {
+                    snprintf(result, sizeof result, "%s", res[0]);
+                    snprintf(rule, sizeof rule, "%s(y, x)", R);
+                }
+            }
+        }
+    }
+
+    if (!*result) {
+        /* recognized the few-shot shape but no single rule fits all examples:
+         * be honest, name the gap, never guess a continuation. */
+        char msg[200];
+        snprintf(msg, sizeof msg,
+                 "I see %zu examples, but I can't find one rule that fits them all.",
+                 nex);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    char msg[96];
+    snprintf(msg, sizeof msg, "%s.", result);
+    put(msg, out, out_size);
+
+    char proof[256];
+    snprintf(proof, sizeof proof,
+             "the examples %s -> %s and %s -> %s share the rule \"%s\", so %s -> %s.",
+             in[0], ot[0], in[1], ot[1], rule, probe_in, result);
+    store_proof(b, proof);
+    return 1;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -4456,6 +4661,7 @@ static const Module registry[] = {
     {"meta",      mod_meta},
     {"role",      mod_role},
     {"self",      mod_self},
+    {"fewshot",   mod_fewshot},
     {"compare",   mod_compare},
     {"arith",     mod_arith},
     {"quantity",  mod_quantity},
@@ -4541,7 +4747,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen103-rederive";
+    return "gen104-fewshot";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
