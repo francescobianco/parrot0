@@ -2373,9 +2373,23 @@ static long transition_count(Brain *b, const char *rel,
  * `w(subj)` false/conflicted is skipped. Tie -> insertion order. Returns 1 if a
  * word was chosen, 0 if there are no candidates or every one was blocked (the
  * caller then stops rather than utter a falsehood). */
+/* gen111 (D-prop1 step 2): the decoder's choice ranking is itself KB knowledge.
+ * The interpolation coefficients live as `weight(trigram, N)` / `weight(bigram,
+ * N)` facts, read here with a fallback default — so the generation POLICY is
+ * inspectable and editable knowledge, not hardcoded C (DESIGN.md D6). Editing the
+ * fact (e.g. "set trigram weight to 0") changes which continuation wins. */
+static long gen_weight(Brain *b, const char *kind, long dflt) {
+    if (!b || !b->kb) return dflt;
+    const char *pat[] = { kind, NULL };
+    char v[2][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "weight", pat, 2, v, 2);
+    return k ? strtol(v[0], NULL, 10) : dflt;
+}
+
 static int next_word_ctx(Brain *b, const char *p2, const char *p1,
                          const char *subj, char *word, size_t wsize) {
-    const long W2 = 3, W1 = 1; /* trigram weight dominates but does not dictate */
+    /* trigram weight dominates but does not dictate — now read from the KB. */
+    const long W2 = gen_weight(b, "trigram", 3), W1 = gen_weight(b, "bigram", 1);
     const char *pat[] = {p1, NULL, NULL};
     char words[64][KB_TERM_LEN];
     size_t k = kb_match(b->kb, "cont", pat, 3, words, 64);
@@ -2464,6 +2478,32 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     if (nw == 2 && strcmp(w[0], "say") == 0) {
         generate_from(b, w[1], out, out_size);
         return 1;
+    }
+
+    /* gen111: edit the decoder's choice policy as knowledge —
+     * "set trigram weight to N" / "set bigram weight to N" updates the
+     * weight(kind, N) fact next_word_ctx reads, so generation behaviour is
+     * steered by editable KB knowledge, not hardcoded coefficients (D-prop1). */
+    if (nw == 5 && strcmp(w[0], "set") == 0 && strcmp(w[2], "weight") == 0 &&
+        strcmp(w[3], "to") == 0 &&
+        (strcmp(w[1], "trigram") == 0 || strcmp(w[1], "bigram") == 0)) {
+        double v;
+        if (parse_num(w[4], &v)) {
+            const char *kp[] = { w[1], NULL };
+            char old[8][KB_TERM_LEN];
+            size_t k = kb_match(b->kb, "weight", kp, 2, old, 8);
+            for (size_t i = 0; i < k; i++) {
+                const char *o[] = { w[1], old[i] };
+                kb_retract(b->kb, "weight", o, 2);
+            }
+            char ns[24]; snprintf(ns, sizeof ns, "%ld", (long)v);
+            const char *ar[] = { w[1], ns };
+            kb_assert(b->kb, "weight", ar, 2);
+            char msg[96];
+            snprintf(msg, sizeof msg, "Ok, %s weight is now %ld.", w[1], (long)v);
+            put(msg, out, out_size);
+            return 1;
+        }
     }
 
     /* grounded verbalization (gen39): "describe <x>" generates a sentence for
@@ -5271,7 +5311,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen110-planlist";
+    return "gen111-genweight";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

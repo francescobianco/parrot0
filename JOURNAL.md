@@ -1,5 +1,79 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen111: the generation policy as editable knowledge (D-prop1 step 2)
+
+**Changed:** `brain.c` → `gen111-genweight`; `next_word_ctx` reads its
+interpolation coefficients from `weight(trigram, N)` / `weight(bigram, N)` facts
+(helper `gen_weight`, default 3/1); `mod_gen` gains a "set <kind> weight to N"
+intake; `tests/cases/gen_weight.chat` + `gen_weight.it.chat`.
+
+- **The decoder's ranking is now knowledge, not code.** D-prop1 step 2 asked for
+  the continuation *choice* to stop being a hardcoded design decision. The counts
+  were already in the KB (`cont`/`cont2`); gen111 lifts the last hardcoded piece
+  — how much trigram vs bigram evidence weighs — into editable facts. Editing the
+  fact changes the behaviour.
+- **The demonstration.** Taught two contexts that disagree (`red apple` has only
+  ever continued to *pie*; the bigram `apple →` favours *juice*, seen twice),
+  `say red` → "red apple pie" (trigram context wins). Then `set trigram weight to
+  0`, and the *same* seed on the *same* data → "red apple **juice**": the bigram
+  majority now decides. The generation policy was steered by editing one fact,
+  not the C (DESIGN.md D6: shrink hardcoded C, grow behaviour as knowledge).
+- **Bilingual (LOOP.md):** the weighted choice is over symbolic tokens, so the
+  identical flip works on Italian words (`gen_weight.it.chat`) through one path.
+
+**Why:** completes the L1 generation loop's honest arc — the decode loop (gen36),
+frequency counts (gen37), context (gen38–42), a learned stop (gen106), and now an
+inspectable, editable choice policy. The mechanism the experiment most wants to
+mirror (autoregressive decoding) is now fully legible: every part is either
+induced data or queryable knowledge.
+
+**Observed:** `make test` green (101 chat cases + all suites). Existing gen tests
+unchanged — `gen_weight` falls back to the old 3/1 defaults when no weight fact
+exists.
+
+## 2026-06-17 — gen110: planner prerequisites with conjunction + quantities (L13+)
+
+**Changed:** `brain.c` → `gen110-planlist`; `mod_plan` intake parses a
+prerequisite LIST (helper `plan_learn_list`); `plan_dfs` tracks each step's
+requirer so amounts render against the right step; `tests/cases/plan_qty.chat` +
+`plan_qty.it.chat`.
+
+- **One sentence, several prerequisites.** "cake requires batter and oven" learns
+  two `requires()` facts; "batter requires 3 eggs and 2 flour" also records
+  `amount(batter, eggs, 3)` and `amount(batter, flour, 2)`. The plan renders each
+  step annotated with the quantity its requirer asked for — "To make cake: 3
+  eggs, 2 flour, batter, oven, then cake." Single-prerequisite intake stays
+  backward-compatible.
+- This works *because* `decompose_and_dispatch` only splits on a connector when
+  the following word is an intent-starter (a content step word is not), so the
+  conjunction reaches the planner intact. Bilingual: "per X serve/servono A e B".
+
+**Why:** richer intake for the planner (L13), and a step toward recipes that carry
+real structure (amounts) rather than bare prerequisite names.
+
+## 2026-06-17 — gen109: one-sentence word problems (L17, prose)
+
+**Changed:** `brain.c` → `gen109-wordproblem`; new module `mod_wordproblem`
+(registered after `plan`); `tests/cases/wordproblem.chat` + `wordproblem.it.chat`;
+dispatch-trace array bumped to 32 (registry now 25 modules).
+
+- **Prose → relation → solve.** gen107 solved a symbolic equation; gen109 maps a
+  natural-language problem onto an operation and computes it. The operation is
+  chosen from **semantic cues** (verbs of gaining/losing/grouping/sharing, and
+  comparison phrasings), not sentence templates — so held-out numbers AND
+  held-out verbs ("loses" was never seen) transfer.
+- **The subtle one.** Bare "more" is an addition cue ("gets 5 more"), but "how
+  many **more** … than" is a *difference* — subtraction. Cue priority resolves it:
+  "Anna has 10 stamps and Ben has 4. How many more does Anna have?" → 6.
+- **Honesty by construction.** It fires only on a "how many/much" question with ≥2
+  numbers and a recognized cue, and declines otherwise ("The sky is blue. How many
+  clouds…" → not understood) — never guessing an operation. Natural language is
+  all exceptions (DESIGN.md D5), so this targets the canonical school phrasings;
+  the decline is what keeps it honest. Bilingual cues (compra/mangia/ciascuna).
+
+**Why:** rung 17 in its prose form — the bridge from language to computation, the
+first time parrot0 reads a story problem and turns it into arithmetic.
+
 ## 2026-06-17 — gen108: ordered procedure to a goal — a tiny planner (L13)
 
 **Changed:** `brain.c` → `gen108-plan`; new module `mod_plan` (registered after

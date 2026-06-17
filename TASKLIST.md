@@ -317,7 +317,7 @@ Acceptance:
 
 | # | Ability (rung)                         | parrot0 | Where it lives / what would pull it |
 |---|----------------------------------------|---------|-------------------------------------|
-| 1 | Statistical text completion            | 🟢 | gen36–42 autoregressive decode over induced `cont/cont2`; gen106 adds a LEARNED end-of-sequence (`end_of_seq`) so it halts where utterances end, not at a step bound. Weight-as-KB still future. |
+| 1 | Statistical text completion            | 🟢 | gen36–42 autoregressive decode over induced `cont/cont2`; gen106 LEARNED end-of-sequence; gen111 choice policy as editable `weight()` knowledge. Loop fully legible: induced data + queryable policy. |
 | 2 | Correct grammar & syntax               | 🟡 | canonicalize_lang lexicon + intent shapes; no real grammar. → T4, T5 |
 | 3 | Memorized factual knowledge            | ✅ | KB facts/rules, `knowledge/*.pl`, describe-entity. |
 | 4 | Classification & categorization        | ✅ | unary predicates + induced `Q(X):-P(X)`; SuperGLUE driver. |
@@ -333,7 +333,7 @@ Acceptance:
 | 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
 | 15| Tool use                               | ⬜ | deterministic oracles exist as *tests*; the brain never *calls* one mid-turn. → **L15** |
 | 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); bilingual. → **L16** done (class-level), T10 to extend to relations/derived chains |
-| 17| Advanced mathematical reasoning        | 🟢 | gen107 `mod_algebra`: one-step equation solving by inverse operation (`x + 3 = 7` ⇒ 4), all ops, any slot, either side. Word-problems/two-step still open. |
+| 17| Advanced mathematical reasoning        | 🟢 | gen107 `mod_algebra` (equations) + gen109 `mod_wordproblem` (prose → relation → solve, semantic cues). Two-step / multi-op still open. |
 | 18| Multi-goal coordination                | 🟡 | multi-intent turn decomposition (gen80); goals don't compete/sequence. → T6, **L18** |
 | 19| Autonomous agents                      | ⬜ | no perceive→decide→act loop; the generative-inference proposal (D-prop1) is the nearest seed. |
 | 20| Meta-reasoning (reason about reasoning)| 🟢 | gen105 `mod_strategy`: "why did you answer *that way*?" reports the real dispatch trace (declined modules, winner, first-match-wins rule). Reasons about *control* now, not only results. Counterfactual ("what else matched") still open. |
@@ -356,8 +356,11 @@ boundary; STOP competes in the same frequency model, so decoding halts where the
 model *learned* utterances end — and a learned STOP can outweigh a real
 continuation (proven on a held-out toy grammar). Cyclic grammars with no learned
 boundary still hit the bounded backstop. Bilingual (`gen_stop.chat` /
-`gen_stop.it.chat`). **Still future (D-prop1 step 2):** make the choice ranking
-itself KB knowledge (`weight(Word, Context)`) rather than a Brain-side policy.
+`gen_stop.it.chat`). **D-prop1 step 2 DONE, gen111:** the choice ranking is now KB
+knowledge — `next_word_ctx` reads its trigram/bigram interpolation weights from
+`weight(kind, N)` facts (default 3/1); "set trigram weight to 0" flips a decode
+choice (`red apple pie` → `red apple juice`), proving the policy is editable data,
+not hardcoded C. `gen_weight.chat` / `gen_weight.it.chat`.
 
 ### L5 - Minimal grounded translation
 Pull rung 5 past function-word canonicalization: translate a *content* clause
@@ -405,9 +408,11 @@ prerequisites before dependents, the sequence derived from the DAG each time,
 never stored. Detects cycles and unknown goals and reports them honestly.
 Bilingual: intake "per X serve Y", query "come faccio/si fa X?" (how-to detected
 from the original input so it survives canonicalization). `plan.chat` /
-`plan.it.chat`. **To extend:** prerequisites with quantities/conjunction
-("needs 2 eggs and flour"), alternative recipes, cost/ordering preferences. Gate
-L14 (complex programming) on this + L12.
+`plan.it.chat`. gen110 adds **conjunction + quantities**: "cake requires batter
+and oven" learns two facts; "batter requires 3 eggs and 2 flour" records
+`amount()` and the plan shows "3 eggs, 2 flour, …" (`plan_qty.chat`/`.it`).
+**To extend:** alternative recipes, cost/ordering preferences. Gate L14 (complex
+programming) on this + L12.
 
 ### L15 - Mid-turn tool call to a deterministic oracle
 Pull rung 15: let the brain *invoke* a deterministic oracle within a turn
@@ -424,15 +429,17 @@ order). `rederive.chat` / `rederive.it.chat`. **To extend:** binary relations,
 multi-step derived chains, and conclusions stated via other modules. Cross-ref
 T3, T10.
 
-### L17 - One-step algebra / word problems — DONE (equations), gen107
-Done (equation form): `mod_algebra` solves an equation with one unknown and one
+### L17 - One-step algebra / word problems — DONE (equations + prose), gen107/109
+Equations (gen107): `mod_algebra` solves an equation with one unknown and one
 operation by applying the inverse — `x + 3 = 7` ⇒ 4, `2 * x = 10` ⇒ 5,
 `20 / x = 4` ⇒ 5 (unknown in denominator), `5 = x - 2` ⇒ 7 (op on either side).
-Fires only when `=` is present, so plain arithmetic falls through to `mod_arith`.
-Proof states the inversion. Bilingual: the equation is symbolic, only filler and
-op words differ (`algebra.chat` / `algebra.it.chat`). **Still open:** one-sentence
-WORD problems (prose → relation → solve) and two-step / multi-operation equations.
-Anti-impostor: held-out numbers and phrasings.
+Fires only when `=` is present. Proof states the inversion. `algebra.chat`/`.it`.
+Word problems (gen109): `mod_wordproblem` maps a one-sentence problem to an
+operation chosen from SEMANTIC cues (gain/lose/group/share verbs, comparison
+phrasings), then solves — held-out numbers AND verbs transfer; "how many more …
+than" correctly maps to subtraction; declines without a clear cue. Bilingual cues
+(`wordproblem.chat`/`.it`). **Still open:** two-step / multi-operation problems,
+prose with number words ("three").
 
 ### L18 - Competing/sequenced goals
 Pull rung 18 past decomposition (gen80): when two goals conflict or must be

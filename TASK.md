@@ -8,6 +8,18 @@
 
 ## Done recently
 
+- **gen111 (D-prop1 step 2) — generation policy as editable knowledge.**
+  `next_word_ctx` reads its trigram/bigram interpolation weights from
+  `weight(kind, N)` facts (default 3/1); "set trigram weight to 0" flips a
+  decode choice (`red apple pie` → `red apple juice`). The decoder's ranking is
+  now inspectable KB knowledge, not hardcoded C. `gen_weight.chat` / `.it`.
+- **gen110 (L13+) — planner conjunction + quantities.** "cake requires batter
+  and oven" learns two facts; "batter requires 3 eggs and 2 flour" records
+  `amount()` and the plan shows "3 eggs, 2 flour, …". `plan_qty.chat` / `.it`.
+- **gen109 (L17 prose) — one-sentence word problems.** `mod_wordproblem` maps
+  prose to an operation by semantic cues (held-out numbers and verbs), incl. the
+  "how many more … than" → subtraction case; declines without a clear cue.
+  `wordproblem.chat` / `.it`.
 - **gen108 (L13) — ordered procedure to a goal (a tiny planner).** `mod_plan`
   takes `requires(Goal, Step)` facts taught in any order and answers "how do I
   make X?" with a topologically-sorted plan (DFS), prerequisites before
