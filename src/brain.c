@@ -1663,6 +1663,33 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     if (eq == n) return 0;
     size_t ln = eq, rn = n - eq - 1;             /* token counts each side */
 
+    /* gen113: one-step coefficient form, "5y = 20" -> y = 4. One side is a bare
+     * number, the other a coefficient*variable token (a number alone would be
+     * trivial, so we require the coefficient). */
+    if (ln == 1 && rn == 1) {
+        const char *lhs = tk[0], *rhs = tk[eq + 1];
+        double lv, rv; int lnum = parse_value(lhs, &lv), rnum = parse_value(rhs, &rv);
+        const char *unk = NULL; double val = 0;
+        if (lnum && !rnum) { unk = rhs; val = lv; }
+        else if (rnum && !lnum) { unk = lhs; val = rv; }
+        if (!unk) return 0;
+        size_t d = 0; while (isdigit((unsigned char)unk[d]) || unk[d] == '.') d++;
+        if (d == 0 || unk[d] == '\0') return 0;  /* no coefficient -> trivial */
+        char cb[32]; if (d >= sizeof cb) return 0;
+        memcpy(cb, unk, d); cb[d] = '\0';
+        double coef = strtod(cb, NULL);
+        if (coef == 0) return 0;
+        double res = val / coef; const char *var = unk + d;
+        char num[64]; format_num(res, num, sizeof num);
+        char msg[96]; snprintf(msg, sizeof msg, "%s = %s.", var, num);
+        put(msg, out, out_size);
+        char proof[256];
+        snprintf(proof, sizeof proof, "%s = %g, so %s = %g / %g = %s.",
+                 unk, val, var, val, coef, num);
+        store_proof(b, proof);
+        return 1;
+    }
+
     /* exactly one side is "operand OP operand" (3 tokens), the other a lone
      * operand (1 token). Canonicalize to: a <op> b = c. */
     char *ta, *tb, *tc; char op;
@@ -1714,13 +1741,38 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen113: two-step linear form — the unknown may carry a coefficient written
+     * adjacently ("2x"). Then r is the value the term `coef*var` must equal, so
+     * the variable is r / coef. This turns "2x + 1 = 7" into x = (7-1)/2 = 3. */
+    char varname[KB_TERM_LEN]; double coef; int two_step = 0;
+    {
+        size_t d = 0;
+        while (isdigit((unsigned char)x[d]) || x[d] == '.') d++;
+        if (d > 0 && x[d] != '\0' && d < sizeof varname) {
+            char cb[32]; if (d < sizeof cb) {
+                memcpy(cb, x, d); cb[d] = '\0';
+                coef = strtod(cb, NULL);
+                if (coef != 0) {
+                    snprintf(varname, sizeof varname, "%s", x + d);
+                    r /= coef; two_step = 1;
+                }
+            }
+        }
+    }
+
     char num[64]; format_num(r, num, sizeof num);
-    char msg[96]; snprintf(msg, sizeof msg, "%s = %s.", x, num);
+    char msg[96];
+    snprintf(msg, sizeof msg, "%s = %s.", two_step ? varname : x, num);
     put(msg, out, out_size);
 
     char proof[256];
-    snprintf(proof, sizeof proof,
-             "%s %c %s = %s, so %s = %s = %s.", ta, op, tb, tc, x, rhs, num);
+    if (two_step)
+        snprintf(proof, sizeof proof,
+                 "%s %c %s = %s, so %s = %s, and %s = %s.",
+                 ta, op, tb, tc, x, rhs, varname, num);
+    else
+        snprintf(proof, sizeof proof,
+                 "%s %c %s = %s, so %s = %s = %s.", ta, op, tb, tc, x, rhs, num);
     store_proof(b, proof);
     return 1;
 }
@@ -5382,7 +5434,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen112-numwords";
+    return "gen113-twostep";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
