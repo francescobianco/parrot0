@@ -60,6 +60,17 @@ social_pattern(wellbeing, hows your day).
 social_pattern(wellbeing, hows it going).
 social_pattern(wellbeing, how are things).
 social_pattern(wellbeing, hows things).
+% gen124: casual small-talk openers the chatsim transcripts kept walling on —
+% phatic contact, not information requests. Patterns are matched against the
+% CANONICALIZED text, so "whats up" appears here as its expansion "what is up"
+% (gen74 contraction map), while the apostrophe form "what's up" is left intact.
+social_pattern(wellbeing, what is up).
+social_pattern(wellbeing, what's up).
+social_pattern(wellbeing, wassup).
+social_pattern(wellbeing, you good).
+social_pattern(wellbeing, u good).
+social_pattern(wellbeing, you doing ok).
+social_pattern(opening, you there).
 
 % --- question words (signal an information request) ---
 question_word(who).

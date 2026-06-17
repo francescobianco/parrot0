@@ -1,0 +1,29 @@
+# gen124 (discovery-harness pull): casual small-talk phrasings the chatsim
+# transcripts (tests/chat/sim/) kept walling on. These are phatic contact, not
+# information requests, so they belong to the social register (mod_social) — and
+# the fix is DATA: new social_pattern facts in knowledge/social.pl, matched
+# against the canonicalized text. No C change beyond the version bump. Held-out:
+# any phrasing carrying one of these cues lands, not just these exact lines.
+
+# "what's up" and its contraction-expanded twin "whats up" -> what is up.
+> what's up?
+< I'm well, thanks. How can I help?
+> whats up
+< I'm well, thanks. How can I help?
+> wassup
+< I'm well, thanks. How can I help?
+
+# "you good" / "u good" — a wellbeing check in chat shorthand.
+> you good?
+< I'm well, thanks. How can I help?
+> u good
+< I'm well, thanks. How can I help?
+
+# "you there?" is phatic presence-contact -> a greeting, not a wall.
+> you there?
+< Hi there!
+
+# Anti-impostor: a real world-knowledge question parrot0 wasn't taught still gets
+# the honest wall — small-talk patterns must not swallow genuine questions.
+> is the sky blue?
+< I don't understand that yet.

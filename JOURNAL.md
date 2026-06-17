@@ -1,5 +1,51 @@
 # parrot0 evolution journal
 
+## 2026-06-18 — simclean: an autonomous chatsim-log janitor (+ gen124)
+
+**Changed:** new `tests/simclean.sh`; `make simclean` target; `knowledge/social.pl`
+gains small-talk patterns; `brain.c` → `gen124-smalltalk`; `tests/cases/smalltalk.chat`;
+deleted 3 graduated logs from `tests/chat/sim/`.
+
+- **The tool.** `simclean` replays every `tests/chat/sim/*.log` against the
+  CURRENT parrot0 — each `=== conversation ===` block as a fresh session — and
+  classifies the log by whether parrot0 still falls back to its honest "I don't
+  understand" wall (the whole rotating not_understood family, not just the
+  classic line). A log that no longer walls has graduated (parrot0 outgrew it) and
+  is deleted; a log with no real turns (model-error stubs) is deleted; a log that
+  still walls is KEPT and its failing inputs printed — those are the live growth
+  edges. Autonomous by default (`make simclean`), `-n`/`ARGS=-n` for a dry run.
+- **First run.** Deleted 3 empty `[model error 401]` logs. 13 kept. Crucially,
+  most remaining walls are NOT growth edges parrot0 should chase: simulated-user
+  LLM scratchpad leakage (`<think>…`, `Key constraints:`), role-play stage
+  directions (`*grumbles*`), and deliberate gibberish the personas use to confuse
+  the bot. parrot0 *should* wall those — so those logs correctly persist as honest
+  gap-markers, and only the empties were prunable. Honest, not contrived.
+- **gen124 (the incremental evolve).** Among the walls were genuine, recurring
+  PHATIC phrasings parrot0 ought to handle: "what's up" / "whats up" / "wassup" /
+  "you good" / "u good" / "you there?". The fix is DATA — new `social_pattern`
+  facts in `knowledge/social.pl` (gen73's design: the social register is
+  knowledge, not C arrays), matched against the CANONICALIZED text (so "whats up"
+  is listed as its contraction-expansion "what is up", gen74). No C change beyond
+  the version bump. `is the sky blue?` still walls honestly — small-talk patterns
+  must not swallow real questions.
+
+**Why:** this is the discovery harness made operational (see the superglue/
+behavioural-signal notes): the sim logs are pulled, replayed, and pruned, and the
+legitimate gaps among them pull a real (small, honest, general) improvement —
+exactly "let structure appear because the tasks demanded it." The tool also stops
+the log dir from growing without bound.
+
+**Observed:** `make test` green (176 checks); `make simclean` deletes 3, keeps 13.
+No log was one-small-fix from clean (every kept log carries hard noise), so gen124
+improves conversational quality and trims walls broadly without faking
+comprehension of gibberish.
+
+**Next:** when a future generation genuinely closes a kept log's remaining
+*legitimate* gaps, re-running `make simclean` will prune it automatically — the
+incremental loop the tool is built for.
+
+---
+
 ## 2026-06-18 — gen121–123: reading a passage and summarizing it (L6 / L7)
 
 > Prompted by F.'s wish: "feed parrot0 a paper and ask for a summary." Honest

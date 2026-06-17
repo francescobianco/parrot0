@@ -19,7 +19,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate loop clean
+.PHONY: all build chat test chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -84,6 +84,13 @@ bench-bbh: build
 
 impersonate: build
 	@./tests/impersonate.sh
+
+# Autonomous chatsim-log janitor: replay each tests/chat/sim/*.log against the
+# CURRENT parrot0 and delete the ones that no longer wall ("I don't understand")
+# — they have graduated and no longer expose a growth edge. Logs that still wall
+# are kept and their failing inputs printed. Pass ARGS=-n for a dry run.
+simclean: build
+	@./tests/simclean.sh $(ARGS)
 
 loop:
 	@cat LOOP.md

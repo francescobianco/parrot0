@@ -8,6 +8,13 @@
 
 ## Done recently
 
+- **simclean + gen124 — autonomous chatsim-log janitor.** `tests/simclean.sh`
+  (`make simclean`) replays each `tests/chat/sim/*.log` against the current
+  parrot0 and deletes the ones that no longer wall ("I don't understand") or have
+  no real turns; keeps the rest and prints their failing inputs. First run pruned
+  3 empty model-error logs. gen124: the legitimate phatic walls it surfaced
+  ("what's up", "you good", "you there?") fixed as DATA in `knowledge/social.pl`.
+  `smalltalk.chat`.
 - **gen121–123 (L6/L7) — read a passage and summarize it.** `mod_summary`:
   gen121 extractive summary (rank the really-extracted propositions by concept
   centrality, quote the top real sentences); gen122 the gist ("what is this
