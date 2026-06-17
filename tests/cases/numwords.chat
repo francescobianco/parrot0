@@ -1,0 +1,25 @@
+# gen112: number words in prose. The word-problem and algebra parsers now read
+# number WORDS as well as digits ("three apples", "twelve cookies"), including
+# hyphenated compounds ("twenty-one") and multipliers ("two hundred"). The
+# mapping is content-word only, so it is language-neutral by construction. Held-
+# out words and phrasings; nothing depends on the surrounding sentence template.
+
+# Addition with words.
+> Tom has three apples and gets five more. How many apples does he have?
+< 8.
+
+# Subtraction with words.
+> Mary baked twelve cookies and ate four. How many are left?
+< 8.
+
+# Hyphenated tens-unit compound, multiplied.
+> There are twenty-one boxes with two balls each. How many balls in total?
+< 42.
+
+# Multiplier word: "two hundred".
+> A truck carries two hundred crates split among four stores. How many each?
+< 50.
+
+# Number words flow into the algebra solver too: "x plus three = seven".
+> x plus three = seven
+< x = 4.

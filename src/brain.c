@@ -1284,6 +1284,79 @@ static int parse_num(const char *s, double *out) {
     return 1;
 }
 
+/* gen112: value of a SINGLE number word (English or Italian), 0–90 plus the
+ * multipliers hundred/thousand. Returns 1 on a hit. Content words only — no
+ * function-word collision, so it is language-neutral by construction. */
+static int single_word_number(const char *s, double *out) {
+    static const struct { const char *w; double v; } t[] = {
+        {"zero",0},{"one",1},{"two",2},{"three",3},{"four",4},{"five",5},
+        {"six",6},{"seven",7},{"eight",8},{"nine",9},{"ten",10},{"eleven",11},
+        {"twelve",12},{"thirteen",13},{"fourteen",14},{"fifteen",15},
+        {"sixteen",16},{"seventeen",17},{"eighteen",18},{"nineteen",19},
+        {"twenty",20},{"thirty",30},{"forty",40},{"fifty",50},{"sixty",60},
+        {"seventy",70},{"eighty",80},{"ninety",90},{"hundred",100},
+        {"thousand",1000},
+        /* Italian */
+        {"uno",1},{"due",2},{"tre",3},{"quattro",4},{"cinque",5},{"sei",6},
+        {"sette",7},{"otto",8},{"nove",9},{"dieci",10},{"undici",11},
+        {"dodici",12},{"tredici",13},{"quattordici",14},{"quindici",15},
+        {"sedici",16},{"diciassette",17},{"diciotto",18},{"diciannove",19},
+        {"venti",20},{"trenta",30},{"quaranta",40},{"cinquanta",50},
+        {"sessanta",60},{"settanta",70},{"ottanta",80},{"novanta",90},
+        {"cento",100},{"mille",1000},
+    };
+    for (size_t i = 0; i < sizeof t / sizeof t[0]; i++)
+        if (strcmp(s, t[i].w) == 0) { *out = t[i].v; return 1; }
+    return 0;
+}
+
+/* A number WORD, including a hyphenated tens-unit compound ("twenty-one"). */
+static int word_number(const char *s, double *out) {
+    const char *hy = strchr(s, '-');
+    if (hy) {
+        char head[KB_TERM_LEN];
+        size_t hn = (size_t)(hy - s);
+        if (hn < sizeof head) {
+            memcpy(head, s, hn); head[hn] = '\0';
+            double tens, unit;
+            if (single_word_number(head, &tens) && tens >= 20 &&
+                (long)tens % 10 == 0 &&
+                single_word_number(hy + 1, &unit) && unit >= 1 && unit <= 9) {
+                *out = tens + unit; return 1;
+            }
+        }
+    }
+    return single_word_number(s, out);
+}
+
+/* Parse a value that may be a digit literal OR a number word. */
+static int parse_value(const char *s, double *out) {
+    return parse_num(s, out) || word_number(s, out);
+}
+
+/* gen112: collect the numbers in a token stream, reading digits AND number
+ * words, merging spaced word compounds ("twenty five" -> 25) and multipliers
+ * ("two hundred" -> 200). Merges apply only to WORD numbers, so two adjacent
+ * digit quantities stay distinct. Returns how many were written (capped). */
+static size_t collect_numbers(char **w, size_t nw, double *nums, size_t max) {
+    size_t nn = 0; int prev_word = 0;
+    for (size_t i = 0; i < nw && nn < max; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t) { prev_word = 0; continue; }
+        double v; int isword = 0;
+        if (!parse_num(t, &v)) { isword = word_number(t, &v); if (!isword) { prev_word = 0; continue; } }
+        if (isword && (v == 100 || v == 1000) && nn > 0 && nums[nn - 1] < v) {
+            nums[nn - 1] *= v; prev_word = 1; continue;          /* "two hundred" */
+        }
+        if (isword && prev_word && nn > 0 && nums[nn - 1] >= 20 &&
+            (long)nums[nn - 1] % 10 == 0 && v >= 1 && v <= 9) {
+            nums[nn - 1] += v; prev_word = 1; continue;          /* "twenty five" */
+        }
+        nums[nn++] = v; prev_word = isword;
+    }
+    return nn;
+}
+
 /* The shared magnitude test: is `a` more (greater=1) / less (greater=0) than
  * `c`? Both mod_compare (literal numbers) and mod_quantity (numbers looked up
  * from the KB) route their decision through this one comparator. */
@@ -1602,9 +1675,10 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     }
     if (!op) return 0;
 
-    /* exactly one of ta, tb, tc is the unknown (a non-numeric identifier). */
+    /* exactly one of ta, tb, tc is the unknown (a non-numeric identifier).
+     * Operands may be digits or number words ("x plus three = seven"). */
     double av, bv, cv;
-    int na = parse_num(ta, &av), nb = parse_num(tb, &bv), nc = parse_num(tc, &cv);
+    int na = parse_value(ta, &av), nb = parse_value(tb, &bv), nc = parse_value(tc, &cv);
     int unknowns = (!na) + (!nb) + (!nc);
     if (unknowns != 1) return 0;
 
@@ -1834,14 +1908,11 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant")))
         return 0;
 
-    /* collect the numbers in reading order. */
+    /* collect the numbers in reading order (digits and number words). */
     char buf[256]; snprintf(buf, sizeof buf, "%s", q);
     char *w[64]; size_t nw = split_words(buf, w, 64);
-    double nums[16]; size_t nn = 0;
-    for (size_t i = 0; i < nw && nn < 16; i++) {
-        double v; char *t = strip_edge_punct(w[i]);
-        if (parse_num(t, &v)) nums[nn++] = v;
-    }
+    double nums[16];
+    size_t nn = collect_numbers(w, nw, nums, 16);
     if (nn < 2) return 0;
     double a = nums[0], c = nums[1];
 
@@ -1877,7 +1948,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
              cue(q, "found") || cue(q, "finds") || cue(q, "altogether") ||
              cue(q, "total") || cue(q, "in all") || cue(q, "combined") ||
              cue(q, "receive") || cue(q, "plus") || cue(q, "adds") ||
-             cue(q, "compra") || cue(q, "trova") || cue(q, "totale") ||
+             cue(q, "compr") || cue(q, "trov") || cue(q, "totale") ||
              cue(q, "insieme") || cue(q, "ancora") || cue(q, "aggiun"))
         op = '+';
     if (!op) return 0;
@@ -5311,7 +5382,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen111-genweight";
+    return "gen112-numwords";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -1,0 +1,11 @@
+# gen112 — the bilingual ratchet (LOOP.md). Italian number words (due, tre,
+# venti, cinque) parse through the SAME single_word_number table and the same
+# collector. Verb cues are matched on stems ("compr", "mangi") so conjugations
+# vary freely. Same code path, no English templates.
+
+# "ho due ... compro tre" -> two plus three.
+> ho due mele e ne compro tre. quante mele ho?
+< 5.
+# "venti ... mangia cinque" -> twenty minus five (word tens + word unit).
+> Marco ha venti caramelle e ne mangia cinque. Quante ne rimangono?
+< 15.
