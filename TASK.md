@@ -8,6 +8,12 @@
 
 ## Done recently
 
+- **gen108 (L13) — ordered procedure to a goal (a tiny planner).** `mod_plan`
+  takes `requires(Goal, Step)` facts taught in any order and answers "how do I
+  make X?" with a topologically-sorted plan (DFS), prerequisites before
+  dependents — derived, never stored. Honest on unknown goals and circular
+  prerequisites. Bilingual ("per X serve Y" / "come faccio X?"). `plan.chat` /
+  `plan.it.chat`.
 - **gen107 (L17) — one-step algebra.** `mod_algebra` solves an equation with one
   unknown and one operation by applying the inverse: `x + 3 = 7` ⇒ `x = 4`. All
   four ops, both inverse directions (incl. unknown in a denominator), any operand

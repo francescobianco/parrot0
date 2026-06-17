@@ -1,5 +1,50 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen108: ordered procedure to a goal — a tiny planner (L13)
+
+**Changed:** `brain.c` → `gen108-plan`; new module `mod_plan` (registered after
+`arith`); helper `plan_dfs` (DFS topological sort with cycle detection);
+`tests/cases/plan.chat` + `plan.it.chat`; self-model module list updated.
+
+- **Planning over the KB.** Prerequisites are taught as `requires(Goal, Step)`
+  facts in ANY order ("cake requires batter", "batter requires eggs", scrambled);
+  "how do I make cake?" returns a correctly **ordered** procedure, computed by a
+  depth-first topological sort of the dependency DAG so every step precedes what
+  depends on it. The sequence is **never stored** — it is recomputed from the
+  loose facts each time, so a goal taught only as scattered prerequisites yields
+  a coherent plan it was never given (anti-impostor: the order is *reasoned*).
+- **The surprise (where I stopped).** Taught the four cake prerequisites in a
+  deliberately useless order, parrot0 answered `how do I make cake?` with
+  **"To make cake: eggs, flour, batter, oven, then cake."** — eggs and flour
+  (which have no prerequisites) before the batter that needs them, batter and
+  oven before the cake. It assembled a multi-step plan from facts that, on their
+  own, said nothing about sequence. A transitive chain orders just as cleanly
+  (`kettle → hot_water → tea`). This is composition into genuinely new structure,
+  not retrieval.
+- **Honest edges.** A goal with no known prerequisites is admitted unknown ("I
+  don't know the steps to make pizza yet"); a circular prerequisite is detected
+  and reported ("...have a circular prerequisite — I can't order them") rather
+  than looping or guessing. The proof states the ordering principle.
+- **Bilingual (LOOP.md):** the planner is symbolic over `requires()`, so the same
+  sort serves Italian — intake "per X serve Y", query "come faccio/si fa ...?".
+  The how-to phrasing is detected from the ORIGINAL input, not the canonicalized
+  surface, so "come si fa" survives the Italian function-word mapping
+  (`si`→`is`). `plan.it.chat`.
+
+**Why:** rung 13 of the L-series — a true planner, the first time parrot0 turns a
+web of relations into an ordered course of action. Two diagnosis traps worth
+recording: (1) `split_words` null-terminates its buffer in place, so the post-split
+`buf` is only its first word as a C string — cue checks must read the intact
+string; (2) a trailing-article fallback wrongly rewrote single-letter goals, and
+canonicalization hides Italian cues — both fixed by reading the original input.
+
+**Observed:** `make test` green (95 chat cases + all suites); `make impersonate`
+still 100%. The gen105 strategy trace again absorbed the new `plan` module with no
+changes — the self-model tracking real structure as it grows.
+
+**Next:** prerequisites with quantities/conjunction, word problems (L17 prose),
+and weight-as-KB-knowledge for the generation loop (D-prop1 step 2).
+
 ## 2026-06-17 — gen107: one-step algebra — solving for an unknown (L17)
 
 **Changed:** `brain.c` → `gen107-algebra`; new module `mod_algebra` (registered

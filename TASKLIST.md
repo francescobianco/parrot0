@@ -329,7 +329,7 @@ Acceptance:
 | 10| In-context (few-shot) learning         | 🟢 | gen104 `mod_fewshot`: induces a shared rule (numeric/suffix/prefix/relational) from in-turn exemplars, applies to held-out probe. DONE. |
 | 11| Abstraction & analogy                  | 🟡 | **gen102 `mod_analogy`**: "A is to B as C is to ?" resolves over KB relations, both directions, bilingual. Needs richer relational intake to widen. → **L11** done (narrow), T1/T5 to extend |
 | 12| Elementary programming                 | 🟡 | POSIX-shell oracle (`mod_shell`) interprets/explains commands; doesn't synthesize. → M1, **L12** |
-| 13| Procedure planning                     | ⬜ | goal tracking exists (gen93); no ordered plan to a goal. → T7, **L13** |
+| 13| Procedure planning                     | 🟢 | gen108 `mod_plan`: requires(Goal,Step) facts → topologically-sorted plan (DFS), prereqs before dependents, derived not stored; cycle/unknown handled. |
 | 14| Complex programming                    | ⬜ | far rung; gated on L12 + planning. |
 | 15| Tool use                               | ⬜ | deterministic oracles exist as *tests*; the brain never *calls* one mid-turn. → **L15** |
 | 16| Self-correction                        | 🟡 | **gen103**: a correction that flips a previously-stated conclusion is re-derived and the consequence volunteered ("no longer a mortal"); bilingual. → **L16** done (class-level), T10 to extend to relations/derived chains |
@@ -398,10 +398,16 @@ Pull rung 12 (inverse of `mod_shell`): "count the lines in a file" → emit
 `wc -l <file>`, grounded in the same `cmd/flag` knowledge the interpreter reads.
 Held-out specs over known commands. Cross-ref M1.
 
-### L13 - Ordered procedure to a goal
-Pull rung 13: "how do I make tea?" / a goal with prerequisites → an ordered list
-of steps from `requires(Step, Pre)` facts (a tiny planner / topological order).
-Cross-ref T7. Gate L14 (complex programming) on this + L12.
+### L13 - Ordered procedure to a goal — DONE, gen108
+Done: `mod_plan` takes `requires(Goal, Step)` facts (taught in any order) and
+answers "how do I make X?" with a topologically-sorted plan via DFS post-order —
+prerequisites before dependents, the sequence derived from the DAG each time,
+never stored. Detects cycles and unknown goals and reports them honestly.
+Bilingual: intake "per X serve Y", query "come faccio/si fa X?" (how-to detected
+from the original input so it survives canonicalization). `plan.chat` /
+`plan.it.chat`. **To extend:** prerequisites with quantities/conjunction
+("needs 2 eggs and flour"), alternative recipes, cost/ordering preferences. Gate
+L14 (complex programming) on this + L12.
 
 ### L15 - Mid-turn tool call to a deterministic oracle
 Pull rung 15: let the brain *invoke* a deterministic oracle within a turn

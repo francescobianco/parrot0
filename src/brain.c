@@ -1651,6 +1651,129 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: plan (L13) ---------------------------------------------------
+ * Ordered procedure to a goal: a tiny planner. Prerequisites are taught as
+ * `requires(Goal, Step)` facts in ANY order ("cake requires batter", "batter
+ * requires eggs"); asking "how do I make cake?" returns a correctly ORDERED
+ * plan, derived by a depth-first topological sort of the dependency DAG so every
+ * step precedes what depends on it. The sequence is never stored — it is
+ * recomputed from the scattered facts each time, so a goal the system was taught
+ * only as loose prerequisites yields a coherent procedure (anti-impostor: the
+ * order is reasoned, not recited). Cycles are detected and reported. */
+static int plan_dfs(Brain *b, const char *node,
+                    char done[][KB_TERM_LEN], size_t *ndone,
+                    char stack[][KB_TERM_LEN], size_t depth,
+                    char order[][KB_TERM_LEN], size_t *norder, size_t maxn) {
+    for (size_t i = 0; i < *ndone; i++)
+        if (strcmp(done[i], node) == 0) return 1;        /* already placed */
+    for (size_t i = 0; i < depth; i++)
+        if (strcmp(stack[i], node) == 0) return 0;       /* back-edge => cycle */
+    if (depth >= maxn) return 0;
+    snprintf(stack[depth], KB_TERM_LEN, "%s", node);
+
+    char pre[64][KB_TERM_LEN];
+    const char *pat[] = { node, NULL };
+    size_t k = kb_match(b->kb, "requires", pat, 2, pre, 64);
+    for (size_t j = 0; j < k; j++)
+        if (!plan_dfs(b, pre[j], done, ndone, stack, depth + 1, order, norder, maxn))
+            return 0;
+
+    if (*norder < maxn && *ndone < maxn) {
+        snprintf(order[*norder], KB_TERM_LEN, "%s", node); (*norder)++;
+        snprintf(done[*ndone], KB_TERM_LEN, "%s", node);   (*ndone)++;
+    }
+    return 1;
+}
+
+static int mod_plan(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+
+    char *w[32];
+    size_t nw = split_words(buf, w, 32);
+
+    /* intake: "X requires Y" / "X needs Y" -> requires(X, Y). */
+    if (nw == 3 && (strcmp(w[1], "requires") == 0 || strcmp(w[1], "needs") == 0 ||
+                    strcmp(w[1], "richiede") == 0)) {
+        const char *args[] = { w[0], w[2] };
+        kb_assert(b->kb, "requires", args, 2);
+        char msg[128];
+        snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", w[0], w[2]);
+        put(msg, out, out_size);
+        return 1;
+    }
+    /* Italian intake: "per X serve Y" (to X you need Y) -> requires(X, Y). */
+    if (nw == 4 && strcmp(w[0], "per") == 0 && strcmp(w[2], "serve") == 0) {
+        const char *args[] = { w[1], w[3] };
+        kb_assert(b->kb, "requires", args, 2);
+        char msg[128];
+        snprintf(msg, sizeof msg, "Learned: requires(%s, %s).", w[1], w[3]);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* query: "how do I make X" / "how to make X" / "steps to/for X" /
+     * "come faccio/si fa ... X". The goal is the last content word. */
+    /* Detect the how-to phrasing on the ORIGINAL input (normalized for case),
+     * not the canonicalized `norm`: canonicalize_lang rewrites Italian function
+     * words (e.g. "si" -> "is"), which would hide "come si fa". And we read this
+     * intact copy, never `buf`, which split_words just null-terminated in place. */
+    char q[256]; normalize(raw, q, sizeof q);
+    int howto = (cue(q, "how") && cue(q, "make")) || cue(q, "how to") ||
+                strncmp(q, "steps", 5) == 0 || cue(q, "steps to") ||
+                cue(q, "steps for") ||
+                (cue(q, "come") && (cue(q, "faccio") || cue(q, "fare") ||
+                                    cue(q, "si fa")));
+    if (!howto || nw < 2) return 0;
+
+    char goal[KB_TERM_LEN];
+    snprintf(goal, sizeof goal, "%s", w[nw - 1]);
+    strip_edge_punct(goal);
+
+    /* a goal we have no prerequisites for is honestly unknown. */
+    const char *pat[] = { goal, NULL };
+    char pre0[4][KB_TERM_LEN];
+    if (kb_match(b->kb, "requires", pat, 2, pre0, 4) == 0) {
+        char msg[128];
+        snprintf(msg, sizeof msg, "I don't know the steps to make %s yet.", goal);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    char done[32][KB_TERM_LEN], stack[32][KB_TERM_LEN], order[32][KB_TERM_LEN];
+    size_t ndone = 0, norder = 0;
+    if (!plan_dfs(b, goal, done, &ndone, stack, 0, order, &norder, 32)) {
+        char msg[128];
+        snprintf(msg, sizeof msg,
+                 "The steps for %s have a circular prerequisite — I can't order them.",
+                 goal);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* render the topological order as the procedure (prerequisites first). */
+    char line[1024]; size_t off = 0;
+    for (size_t i = 0; i < norder; i++)
+        off += (size_t)snprintf(line + off, off < sizeof line ? sizeof line - off : 0,
+                                "%s%s", i ? (i + 1 == norder ? ", then " : ", ") : "",
+                                order[i]);
+    char msg[1100];
+    snprintf(msg, sizeof msg, "To make %s: %s.", goal, line);
+    put(msg, out, out_size);
+
+    char proof[256];
+    snprintf(proof, sizeof proof,
+             "ordered by prerequisites: each step follows everything it requires.");
+    store_proof(b, proof);
+    return 1;
+}
+
 /* --- module: quantity ----------------------------------------------------
  * Quantities as knowledge (gen28). gen27 could compare two literal numbers;
  * this part lets a magnitude be *stated, recalled, and compared as a fact*, so
@@ -4935,6 +5058,7 @@ static const Module registry[] = {
     {"compare",   mod_compare},
     {"algebra",   mod_algebra},
     {"arith",     mod_arith},
+    {"plan",      mod_plan},
     {"quantity",  mod_quantity},
     {"cause",     mod_cause},
     {"same",      mod_same},
@@ -5018,7 +5142,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen107-algebra";
+    return "gen108-plan";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
