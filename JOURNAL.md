@@ -1,5 +1,48 @@
 # parrot0 evolution journal
 
+## 2026-06-17 — gen114: multi-step word problems (L17+)
+
+**Changed:** `brain.c` → `gen114-multistep`; `mod_wordproblem` folds a 3+-number
+additive/subtractive chain clause by clause (helper `wp_removal_word`);
+`tests/cases/wordproblem_multi.chat`.
+
+- With three or more numbers, the solver stops looking for a single operation and
+  instead folds left to right: the first number is the base, each later clause
+  adds (default) or subtracts (if it carries a removal verb), with clauses split
+  on then/and/poi/e and commas. "Tom has 3 apples, buys 5 more, then eats 2" →
+  3 + 5 − 2 = 6; "Anna had 10 marbles, lost 3, then found 4" → 11 (held-out
+  verbs). Two-number problems keep the gen109 single-operation path unchanged.
+- Honest scope: multi-step assumes an additive/subtractive chain (the common
+  school shape); mixed ×/÷ mid-chain is out of scope. Bilingual via the same
+  removal stems and separators.
+
+## 2026-06-17 — gen113: two-step linear equations (L17+)
+
+**Changed:** `brain.c` → `gen113-twostep`; `mod_algebra` handles a coefficient on
+the unknown and a one-step coefficient form; `tests/cases/algebra2.chat` +
+`algebra2.it.chat`.
+
+- A coefficient written adjacently to the unknown ("2x") is split off: solve for
+  the value of the term `coef·var` by inverting the additive part, then divide by
+  the coefficient. "2x + 1 = 7" → 2x = 6 → x = 3; "3x − 2 = 10" → x = 4;
+  "10 = 2x + 4" → x = 3. The one-step form "5y = 20" → y = 4 (either side). The
+  proof shows both inversion steps. "x = 5" (no coefficient, nothing to solve)
+  declines. Bilingual (symbolic core + filler/op words).
+
+## 2026-06-17 — gen112: number words in prose (L17 support)
+
+**Changed:** `brain.c` → `gen112-numwords`; helpers `single_word_number`,
+`word_number`, `parse_value`, `collect_numbers`; wired into `mod_wordproblem` and
+`mod_algebra`; `tests/cases/numwords.chat` + `numwords.it.chat`.
+
+- The word-problem and algebra parsers now read number WORDS as well as digits:
+  "three apples", "twelve cookies", hyphenated compounds ("twenty-one"), spaced
+  compounds ("twenty five"), and multipliers ("two hundred" → 200). The mapping
+  is content-word only, so it is language-neutral by construction (EN+IT);
+  Italian verb cues were broadened to stems ("compr", "mangi") so conjugations
+  vary freely. Number words flow into the algebra solver too ("x plus three =
+  seven" → x = 4).
+
 ## 2026-06-17 — gen111: the generation policy as editable knowledge (D-prop1 step 2)
 
 **Changed:** `brain.c` → `gen111-genweight`; `next_word_ctx` reads its

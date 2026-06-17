@@ -1950,7 +1950,21 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
  * least two numbers and a recognized cue, and DECLINES otherwise (anti-impostor:
  * never guess an operation). Natural language is all exceptions (DESIGN.md D5),
  * so this targets the canonical school phrasings and reads the first two numbers
- * in order (total/dividend first, as those phrasings put it). Bilingual cues. */
+ * in order (total/dividend first, as those phrasings put it). Bilingual cues.
+ *
+ * gen114: with three or more numbers it folds a multi-STEP additive/subtractive
+ * chain ("has 3, buys 5 more, then eats 2" -> 3 + 5 - 2 = 6): each clause's sign
+ * is + unless the clause carries a removal verb, and clauses split on
+ * then/and/poi/e and commas. */
+static int wp_removal_word(const char *t) {
+    static const char *const ex[] = {
+        "ate","eats","lost","loses","gave","gives","spent","spends","sold",
+        "sells","broke","removed","removes","dropped","drops","used", NULL };
+    for (size_t i = 0; ex[i]; i++) if (strcmp(t, ex[i]) == 0) return 1;
+    return strstr(t, "mangi") || strstr(t, "perso") || strstr(t, "perde") ||
+           strstr(t, "regal") || strstr(t, "vend")  || strstr(t, "spes");
+}
+
 static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
     (void)norm;
@@ -1966,6 +1980,40 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     double nums[16];
     size_t nn = collect_numbers(w, nw, nums, 16);
     if (nn < 2) return 0;
+
+    /* gen114: 3+ numbers -> multi-step additive/subtractive fold, clause by
+     * clause. The first number is the base; each later number is added, or
+     * subtracted if its clause carries a removal verb. Clauses split on
+     * then/and/poi/e and on a trailing comma. */
+    if (nn >= 3) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", q);
+        char *tw[64]; size_t tnw = split_words(sb, tw, 64);
+        double result = 0; int have = 0, sign = 1;
+        for (size_t i = 0; i < tnw; i++) {
+            size_t L = strlen(tw[i]);
+            int trailing = L > 0 && (tw[i][L - 1] == ',' || tw[i][L - 1] == ';');
+            char *t = strip_edge_punct(tw[i]);
+            if (!*t) { if (trailing) sign = 1; continue; }
+            if (!strcmp(t, "then") || !strcmp(t, "and") || !strcmp(t, "poi") ||
+                !strcmp(t, "e") || !strcmp(t, "ed")) { sign = 1; continue; }
+            if (wp_removal_word(t)) sign = -1;
+            double v;
+            if (parse_value(t, &v)) {
+                if (!have) { result = v; have = 1; }
+                else result += sign * v;
+            }
+            if (trailing) sign = 1;
+        }
+        char num[64]; format_num(result, num, sizeof num);
+        char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+        put(msg, out, out_size);
+        char proof[160];
+        snprintf(proof, sizeof proof,
+                 "I folded the steps left to right to %s.", num);
+        store_proof(b, proof);
+        return 1;
+    }
+
     double a = nums[0], c = nums[1];
 
     /* choose the operation by cue, in a priority that resolves overlaps:
@@ -5434,7 +5482,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen113-twostep";
+    return "gen114-multistep";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

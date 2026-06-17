@@ -1,0 +1,15 @@
+# gen114: multi-step word problems. With three or more numbers, the solver folds
+# an additive/subtractive chain left to right, clause by clause: the first number
+# is the base, each later clause adds (default) or subtracts (if it carries a
+# removal verb). Clauses split on then/and/poi/e and on commas. Held-out numbers
+# and verbs; two-number problems still take the single-operation path.
+
+# Add then subtract: 3 + 5 - 2 = 6.
+> Tom has 3 apples, buys 5 more, then eats 2. How many apples does he have?
+< 6.
+# Subtract then add, held-out verbs (lost/found): 10 - 3 + 4 = 11.
+> Anna had 10 marbles, lost 3, then found 4. How many does she have?
+< 11.
+# Three additions: 2 + 3 + 4 = 9.
+> A box has 2 red, 3 blue and 4 green pens. How many pens in all?
+< 9.

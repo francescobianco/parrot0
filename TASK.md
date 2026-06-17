@@ -8,6 +8,15 @@
 
 ## Done recently
 
+- **gen114 (L17+) — multi-step word problems.** 3+ numbers fold an additive/
+  subtractive chain clause by clause ("has 3, buys 5 more, then eats 2" → 6);
+  2-number problems keep the single-op path. `wordproblem_multi.chat`.
+- **gen113 (L17+) — two-step linear equations.** Coefficient on the unknown
+  ("2x + 1 = 7" → 3) solved by inverting the additive part then dividing by the
+  coefficient; one-step "5y = 20" → 4. `algebra2.chat` / `.it`.
+- **gen112 (L17 support) — number words in prose.** Word problems and equations
+  read number words ("three", "twenty-one", "two hundred"), EN+IT, via
+  `collect_numbers`/`parse_value`. `numwords.chat` / `.it`.
 - **gen111 (D-prop1 step 2) — generation policy as editable knowledge.**
   `next_word_ctx` reads its trigram/bigram interpolation weights from
   `weight(kind, N)` facts (default 3/1); "set trigram weight to 0" flips a
