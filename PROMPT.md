@@ -1,16 +1,16 @@
 # The standing prompt
 
-> Preserved verbatim (translated context below). This is the directive that
-> governs the LOOP.md iterations in this session and the spirit of the work.
+> The directive that governs the LOOP.md iterations and the spirit of the work.
+> The Italian below is the canonical form (grammar and phrasing corrected from
+> the original dictation); the English is the working translation.
 
-## Original (IT)
+## Originale (IT)
 
-> fai una diverse iterazioni di LOOP.md fermati quando il risultato che ottime
-> ti strabilia e ti lascia spizzato per le capacita intelletive raggiunte,
-> ricorda che la missione e sempre quella far emergere le strutture che sono
-> presenti all'interno delle spazio latente degli llm e che configurano le
-> funzioni intellettive mostrate. Conserva questo prompt dentro il file
-> PROMPT.md
+> Esegui diverse iterazioni di LOOP.md. Fermati quando il risultato che ottieni
+> ti strabilia e ti lascia spiazzato per le capacità intellettive raggiunte.
+> Ricorda che la missione è sempre quella di far emergere le strutture presenti
+> all'interno dello spazio latente degli LLM, quelle che configurano le funzioni
+> intellettive mostrate. Conserva questo prompt nel file PROMPT.md.
 
 ## Working translation (EN)
 
