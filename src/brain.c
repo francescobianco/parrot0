@@ -7337,6 +7337,16 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
     const char *clause = NULL;
     int contrastive = 0;
     int optimal = 0;
+    int simulate = 0;
+
+    static const char *const sim_pre[] = {
+        "try the easiest way to make ", "simulate the easiest way to make ",
+        "prova il modo piu facile per rendere ", "prova il modo più facile per rendere ", NULL
+    };
+    for (const char *const *p = sim_pre; *p; p++) {
+        size_t L = strlen(*p);
+        if (strncmp(norm, *p, L) == 0) { clause = norm + L; optimal = 1; simulate = 1; break; }
+    }
 
     static const char *const opt_pre[] = {
         "what is the easiest way to make ", "what's the easiest way to make ",
@@ -7399,7 +7409,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
 
     if (optimal) {
         size_t nrules = kb_rules_for_head(b->kb, pred, 1);
-        size_t best_n = 999, best_r = 0;
+        size_t best_n = 999;
         char best_roots[16][KB_TERM_LEN];
         char best_rule[200]; best_rule[0] = '\0';
         for (size_t r = 0; r < nrules; r++) {
@@ -7409,14 +7419,13 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                                                   roots, 16, rule, sizeof rule);
             if (nr > 0 && nr < best_n) {
                 best_n = nr;
-                best_r = r;
                 snprintf(best_rule, sizeof best_rule, "%s", rule);
                 for (size_t i = 0; i < nr; i++)
                     snprintf(best_roots[i], KB_TERM_LEN, "%s", roots[i]);
             }
         }
 
-        char msg[1024];
+        char msg[1400];
         if (best_n == 999) {
             snprintf(msg, sizeof msg,
                      "I can see rules for %s, but no missing premise plan stands out.",
@@ -7428,10 +7437,32 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                                        no < sizeof need ? sizeof need - no : 0,
                                        "%s%s is a %s", i ? " and " : "",
                                        arg, best_roots[i]);
-            snprintf(msg, sizeof msg,
-                     "The easiest way is to tell me that %s — %zu missing premise%s via %s -> %s.",
-                     need, best_n, best_n == 1 ? "" : "s", best_rule, pred);
-            (void)best_r;
+            if (simulate) {
+                for (size_t i = 0; i < best_n; i++) {
+                    const char *ra[] = {arg};
+                    kb_set_origin(b->kb, KB_SESSION);
+                    kb_assert(b->kb, best_roots[i], ra, 1);
+                }
+                int ok = kb_query(b->kb, pred, gargs, 1);
+                char ex[512] = "";
+                if (ok) kb_explain(b->kb, pred, gargs, 1, ex, sizeof ex);
+                for (size_t i = 0; i < best_n; i++) {
+                    const char *ra[] = {arg};
+                    kb_retract(b->kb, best_roots[i], ra, 1);
+                }
+                if (ok)
+                    snprintf(msg, sizeof msg,
+                             "Hypothetically adding %s makes %s a %s: %s. I restored the KB after the simulation.",
+                             need, arg, pred, ex);
+                else
+                    snprintf(msg, sizeof msg,
+                             "I tried the cheapest plan (%s), but it still did not derive %s(%s). I restored the KB.",
+                             need, pred, arg);
+            } else {
+                snprintf(msg, sizeof msg,
+                         "The easiest way is to tell me that %s — %zu missing premise%s via %s -> %s.",
+                         need, best_n, best_n == 1 ? "" : "s", best_rule, pred);
+            }
         }
         put(msg, out, out_size);
         return 1;
@@ -7776,7 +7807,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen138-optimal-abduction";
+    return "gen139-hypothetical-repair";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

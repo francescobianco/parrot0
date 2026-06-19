@@ -51,6 +51,11 @@
 < Learned: dog(rex). Now rex is a pet after all.
 > what is the easiest way to make rex a champion?
 < The easiest way is to tell me that rex is a prepared — 1 missing premise via prepared and dog -> champion.
+> try the easiest way to make rex a champion
+< Hypothetically adding rex is a prepared makes rex a champion: champion(rex) because prepared(rex) and dog(rex). I restored the KB after the simulation.
+> is rex a champion?
+< No.
+
 
 # gen138 stress probe: ten alternatives; the best one is last and partly satisfied.
 > every alpha beta gamma is a marker
@@ -77,6 +82,11 @@
 < Learned: token(zed).
 > what is the easiest way to make zed a marker?
 < The easiest way is to tell me that zed is a shortcut — 1 missing premise via shortcut and token -> marker.
+> simulate the easiest way to make zed a marker
+< Hypothetically adding zed is a shortcut makes zed a marker: marker(zed) because shortcut(zed) and token(zed). I restored the KB after the simulation.
+> is zed a marker?
+< No.
+
 
 
 

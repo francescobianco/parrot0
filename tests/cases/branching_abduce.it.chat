@@ -22,5 +22,10 @@
 < Learned: cane(rex). Now rex is a animale after all.
 > modo piu facile per rendere rex un campione?
 < The easiest way is to tell me that rex is a preparato — 1 missing premise via cane and preparato -> campione.
+> prova il modo piu facile per rendere rex un campione
+< Hypothetically adding rex is a preparato makes rex a campione: campione(rex) because cane(rex) and preparato(rex). I restored the KB after the simulation.
+> rex è un campione?
+< No.
+
 
 

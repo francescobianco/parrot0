@@ -1,5 +1,14 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen139: hypothetical repair simulation — plan, prove, restore
+
+**Goal (PROMPT.md, double-ambitious run):** move beyond choosing an intervention into running it inside a temporary world. Modern LLMs routinely reason under assumptions; parrot0 now gets a deterministic, inspectable version of that: apply the cheapest abductive repair hypothetically, prove the consequence, then restore the real state.
+
+**Changed:** `brain.c` -> `gen139-hypothetical-repair`: easiest-way prompts gain a simulation form (`try/simulate the easiest way ...`). The module asserts the selected missing root facts as session facts, queries and explains the target, then retracts those temporary facts. The answer includes both the hypothetical additions and the real proof. Tests check the footprint explicitly by asking the same goal afterward and expecting `No`.
+
+**Observed.** This closes a loop that matters: abduction proposes, optimization selects, simulation verifies, rollback preserves reality. That is a compact belief-space operation, not a phrasebook response. The 10-alternative stress simulation confirms the same machinery still selects the late cheapest path, proves it, and leaves no trace.
+
+
 ## 2026-06-20 — gen138: optimal abduction — choosing the cheapest repair
 
 **Goal (PROMPT.md, ambitious run):** gain ground on the LLM gap by moving from explanation to action selection. The recent generations could enumerate why a goal fails; this one asks which intervention is cheapest across alternative derivations, conjunctive bodies, chained missing premises, and facts already known.

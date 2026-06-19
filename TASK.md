@@ -8,6 +8,9 @@
 
 ## Done recently
 
+- **gen139 — hypothetical repair simulation (plan -> proof -> restore).** The optimal abductive plan can now be simulated: "try the easiest way to make X a Y" temporarily asserts the missing root facts, proves the goal with `kb_explain`, reports the proof, then retracts the temporary facts so the live KB remains unchanged. Ratcheted with EN/IT footprint checks and a 10-alternative stress simulation. `branching_abduce.chat`/`.it`.
+
+
 - **gen138 — optimal abduction (lowest-cost repair plan).** `mod_abduce` now answers "what is the easiest way to make X a Y?" by scoring every rule alternative by missing root premises, skipping already-known conjuncts, and choosing the cheapest plan. This composes branching, conjunction, chain-rooting, and current KB state. Ratcheted with EN/IT minimal cases and a 10-alternative stress probe where the best path is last and partly satisfied. `branching_abduce.chat`/`.it`.
 
 
