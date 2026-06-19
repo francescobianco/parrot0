@@ -236,6 +236,96 @@ first, each earning both a `.chat` case and a C0 dialogue.
 
 ---
 
+## E-series — Emergence audit and intelligence-gap pressure tests
+
+Judgment after gen140: parrot0 shows real local emergence, but not broad general intelligence. The strongest signal is compositional reuse: the same KB/rule substrate now supports deduction, abduction, counterfactual removal, robustness checks, optimal repair, hypothetical simulation and proof traces. That is more than a phrasebook.
+
+The weakest signal is still the human surface. Casual talk, unclear turns, pragmatic intent, long dialogue memory and non-technical interaction are still shallow and often cue-driven. Current intelligence is best described as inspectable proto-symbolic competence with emergent local composition; it is not yet LLM-like semantic fluency.
+
+These tasks measure whether future gains are structural rather than cosmetic.
+
+### E1 - Compositional emergence benchmark
+Goal: create held-out dialogues where success requires three or more existing subsystems in the same conversation, without adding a task-specific module.
+
+Acceptance:
+- At least one dialogue composes natural input, KB facts/rules, abduction or simulation, and proof/explanation.
+- At least one dialogue composes social register, personal memory, discourse reference and a follow-up question.
+- The score records whether the case passed unchanged, required only generic parser work, or required a special-case handler.
+
+Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set.
+
+### E2 - Conversational repair loop
+Goal: when a user says something unclear, ask a specific clarification, store the pending intent, and resume it after the user answers.
+
+Acceptance:
+- Ambiguous pronouns or missing objects trigger a narrow clarification rather than the wall.
+- The next user answer fills the pending slot and the original task continues.
+- The repair state expires when the topic clearly changes.
+
+Anti-impostor: tests must include vague casual turns from non-technical users, not only formal prompts.
+
+### E3 - Pragmatic intent beyond cue lists
+Goal: infer speech acts such as boredom, hesitation, disagreement, thanks-with-content, topic change and soft requests from turn shape and context, not only from exact markers.
+
+Acceptance:
+- "tell me something", "I do not know what to say", "can we talk about X", and "thanks, but..." route to different conversational moves.
+- Italian equivalents transfer without duplicating every phrase.
+- Mixed social + content turns preserve the content task.
+
+Anti-impostor: adding one more list of fixed phrases is not enough; success must transfer to unseen phrasings.
+
+### E4 - User model for ordinary conversation
+Goal: remember lightweight personal context that makes casual talk feel continuous: name, preferences, current mood/topic, important entities, and prior stated constraints.
+
+Acceptance:
+- A later turn can refer to a stored preference or mood without the user restating it.
+- The bot distinguishes durable memory from temporary session context.
+- The bot can answer "what do you remember about me?" with grounded, limited claims.
+
+Anti-impostor: memory must survive paraphrased recall questions and must not invent unstated traits.
+
+### E5 - Open-domain humility protocol
+Goal: when asked for knowledge outside its world model, parrot0 should state the exact gap and offer useful next actions instead of pretending or collapsing into generic failure.
+
+Acceptance:
+- Unknown world facts produce a scoped answer such as what is missing, what can be taught, or what can be reasoned from given facts.
+- Capability questions do not overclaim beyond implemented modules and passing tests.
+- The fallback never repeats verbatim twice in a row in a normal chat.
+
+Anti-impostor: the response must mention the relevant missing predicate, relation, memory or tool, not a generic apology.
+
+### E6 - Long casual conversation benchmark
+Goal: add a 50-turn non-technical conversation benchmark that stresses naturalness, continuity, repair, boredom handling, topic changes and contradictions.
+
+Acceptance:
+- Track wall rate, repetition rate, repair success, continuity references, contradiction handling and user-model precision.
+- Include at least one Italian run and one mixed English/Italian run.
+- Require a 10x harder stress set after the minimal feature works, per LOOP.md.
+
+Anti-impostor: benchmark turns must be varied enough that memorized transcripts fail.
+
+### E7 - Local-world working memory
+Goal: handle temporary fictional or task-local worlds across several turns, with explicit scope and expiry.
+
+Acceptance:
+- Facts introduced for a puzzle or story are usable in later turns of that local context.
+- The same names can mean different things in separate scoped worlds.
+- The user can ask what is currently assumed and receive the active temporary facts.
+
+Anti-impostor: local facts must not leak into permanent memory unless explicitly requested.
+
+### E8 - Metacognitive calibration
+Goal: make parrot0 report what supports an answer, what would change it, and how certain it is based on proof state rather than tone.
+
+Acceptance:
+- For known, inferred, conflicted, hypothetical and unknown answers, the bot gives different confidence language grounded in state.
+- "Why do you think that?" and "what would make you change your mind?" work after ordinary answers.
+- Self-descriptions shrink when supporting modules/facts are disabled in a fixture.
+
+Anti-impostor: confidence cannot be a canned adjective; it must follow the actual proof or memory status.
+
+---
+
 ## I-series — Impersonation & role-playing (from impersonate benchmark, gen100)
 
 The `make impersonate` benchmark exposes that parrot0 cannot hold a character.
