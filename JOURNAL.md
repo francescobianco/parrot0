@@ -1,5 +1,14 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen136: chained why-not — contrastive root cause
+
+**Goal (PROMPT.md run):** stress gen135 instead of trusting the toy case. A failed-goal question should not stop at the first missing premise when that premise is itself derivable; it should keep walking backward to the root fact the user could actually supply.
+
+**Changed:** `brain.c` -> `gen136-chained-why-not`: the contrastive branch in `mod_abduce` detects missing derived premises and reuses `abduce_roots` / `abduce_spine`, so "why isn't rex a mortal?" over `mortal <- man <- human` reports the missing root `human(rex)` and the spine. Added EN/IT ratchets plus a 9-link English stress probe in `abduce_chain.chat` to satisfy the new LOOP.md stress rule.
+
+**Observed.** The feature now answers a stronger question: not merely "which local condition failed?" but "where does the proof tree bottom out?" The 9-link trial is the useful signal: the same tiny recursive structure survives a much deeper chain without new cases.
+
+
 ## 2026-06-20 — gen135: contrastive abduction — explaining why-not
 
 **Goal (PROMPT.md run):** turn a failed class conclusion into a reasoned answer to "why not?". The abduction machinery could already say what would make a goal true; a conversational reasoner should also explain why it is not true by naming the missing premises.

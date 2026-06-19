@@ -8,6 +8,9 @@
 
 ## Done recently
 
+- **gen136 — chained contrastive abduction (root-cause why-not).** Contrastive why-not now follows the same backward chain as ordinary abduction: if the missing immediate premise is itself derived, `mod_abduce` reports the root premise and spine ("missing rex is a human; by human -> man -> mortal") instead of stopping at the first failed link. Ratcheted with a minimal EN/IT chain and a 9-link English stress probe per LOOP.md. `abduce_chain.chat`/`.it`.
+
+
 - **gen135 — contrastive abduction (why-not).** `mod_abduce` now answers failed-goal questions like "why isn't rex a goodboy?" / "perche rex non e un bravo?" by reading the same rule body used for abduction and naming the missing conjuncts that block the proof. The trigger is local to abduction, so Italian meta/strategy "perche" cues keep their old modules. `abduce.chat`/`.it`.
 
 

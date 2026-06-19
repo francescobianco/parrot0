@@ -38,13 +38,17 @@ from iterating this loop.
    Italian is not scored by the bench; it is the internal generalization probe.
 6. **Verify.** `make test` must pass (old behaviour preserved, new behaviour
    present). `make chat` should feel better.
-7. **Record.** Append a dated entry to `JOURNAL.md`: what changed, why, what
+7. **Stress the feature.** When experimenting with a new feature, first try it
+   with basic, minimal experiments. Once it works, immediately run a trial set
+   roughly **10x more complex** to see whether the structure generalizes or only
+   survives the toy case.
+8. **Record.** Append a dated entry to `JOURNAL.md`: what changed, why, what
    you observed, what's next.
-8. **Commit & push.** Run `convcommit` to commit the iteration and push it to the
+9. **Commit & push.** Run `convcommit` to commit the iteration and push it to the
    remote (e.g. `convcommit -t feat -s brain -m 'genN — one-line summary' -a -p`).
    Every iteration ends with a pushed commit, so each generation is an atomic,
    recoverable step on the remote — never batch several generations into one push.
-9. **Iterate.** Go back to step 1.
+10. **Iterate.** Go back to step 1.
 
 ## Principles
 

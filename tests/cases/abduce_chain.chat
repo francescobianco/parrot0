@@ -20,6 +20,31 @@
 # past it to the root premise (human) and shows the spine it would travel.
 > what would make socrates a mortal?
 < If you told me that socrates is a human, then socrates would be a mortal — by human -> man -> mortal.
+> why isn't socrates a mortal?
+< socrates is not a mortal because I am missing the root premise: socrates is a human. By human -> man -> mortal.
+
+# gen136 stress probe: the same contrastive why-not over a much deeper chain.
+> every event is a trace
+< Learned rule: trace(X) :- event(X).
+> every change is an event
+< Learned rule: event(X) :- change(X).
+> every motion is a change
+< Learned rule: change(X) :- motion(X).
+> every energy is a motion
+< Learned rule: motion(X) :- energy(X).
+> every heat is an energy
+< Learned rule: energy(X) :- heat(X).
+> every fire is a heat
+< Learned rule: heat(X) :- fire(X).
+> every flame is a fire
+< Learned rule: fire(X) :- flame(X).
+> every ember is a flame
+< Learned rule: flame(X) :- ember(X).
+> every spark is an ember
+< Learned rule: ember(X) :- spark(X).
+> why isn't zed a trace?
+< zed is not a trace because I am missing the root premise: zed is a spark. By spark -> ember -> flame -> fire -> heat -> energy -> motion -> change -> event -> trace.
+
 
 # Supply the root: the consequence propagates the WHOLE chain (human -> man ->
 # mortal) and gen103 volunteers it — abduction and self-correction, end to end.
