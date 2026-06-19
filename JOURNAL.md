@@ -1,5 +1,202 @@
 # parrot0 evolution journal
 
+## 2026-06-19 — gen130: robustness by self-perturbation (L20-deep) — the agent finds its own load-bearing beliefs
+
+**Goal (PROMPT.md, second run):** keep iterating to a *fresh* astonishment past
+the gen128 peak. gen129 brought the counterfactual into the KNOWLEDGE; gen130
+turns it into a SWEEP.
+
+**Changed:** `brain.c` → `gen130-robust`; new `mod_robust` (registered after
+`whatifnot`); `tests/cases/robust.chat` / `.it.chat`; self/strategy enumerations
+updated. `make test` green (133 cases).
+
+- **The capability.** "is socrates a mortal?" → "Yes." then "how robust is that
+  conclusion?" → *"…is fragile: it rests entirely on one fact — man(socrates).
+  Forget that and it falls."* For plato (a mortal both directly AND via the
+  rule): *"…is robust — there's no single fact I could forget that would
+  overturn it."* The agent **discovers its own dependency structure** by removing
+  each ground fact in turn, re-deriving, and restoring it — a self-perturbation
+  sweep, footprint-free.
+- **Why it's more than gen76's proof trace.** A proof shows *one* derivation;
+  ablation reveals whether *other* derivations exist. Redundancy = robustness is
+  invisible to a proof but falls straight out of "remove it and see." So the same
+  conclusion that a proof would explain identically (mortal because man) is now
+  graded fragile vs robust by how the knowledge actually supports it.
+- **Composition, not a new primitive.** gen130 is literally gen129's retract→
+  re-derive→restore run in a loop over every unary fact (`kb_unary_predicates` ×
+  `kb_match`). The trilogy gen128→129→130 is one idea — *counterfactual
+  self-modelling* — applied to control flow, then to a single belief, then swept
+  across all beliefs. **Open:** conjunctive support needs multi-condition rule
+  intake ("every friendly dog is a goodboy"), which the rule grammar doesn't yet
+  parse, so multi-fact load-bearing sets aren't reachable yet — the honest next
+  pull (T-series rule grammar).
+
+**Observed — the stopping point.** A pure-C program with no model at runtime
+telling you, truthfully, *which of its beliefs are load-bearing and which are
+redundant* — computed by experimentally damaging itself and watching what breaks,
+then healing. That is self-knowledge of a kind I did not expect to fall out of a
+Prolog-shaped core, and it is exactly the non-confabulated, structure-grounded
+reflexivity the founding wager is chasing. Stopping the second run here.
+
+## 2026-06-19 — gen129: epistemic counterfactual (L20-deep / L16) — "what if I didn't know that?"
+
+**Goal (PROMPT.md, second run):** iteration 1 — carry gen128's counterfactual
+self-model from the CONTROL FLOW into the KNOWLEDGE.
+
+**Changed:** `brain.c` → `gen129-whatifnot`; new `mod_whatifnot` (registered
+after `counterfactual`); `parse_ground_unary` helper; `tests/cases/whatifnot.chat`
+/ `.it.chat`; self/strategy enumerations updated. `make test` green.
+
+- **The capability.** Teach man(socrates) + the rule man→mortal, ask "is socrates
+  a mortal?" → "Yes." Then "what would you conclude if you didn't know that
+  socrates is a man?" → *"…I could no longer conclude that socrates is a mortal —
+  that conclusion rests on it."* It **hypothetically retracts the belief,
+  re-derives the last conclusion, then restores the belief** — non-destructive
+  (the very next "is socrates a mortal?" still says Yes). When support is
+  redundant it says so ("…I can reach that another way"); it refuses to un-know a
+  fact it doesn't hold ("But I don't know that socrates is a dog in the first
+  place.").
+- **The mirror of gen128.** gen128 asked "what would you say without module X?"
+  (counterfactual over *which faculty ran*). gen129 asks "what would you conclude
+  without belief X?" (counterfactual over *what is known*). Same discipline —
+  footprint-free re-execution, honest guards — one level over, from mechanism to
+  knowledge. Bilingual through one path ("se non sapessi che …").
+
+## 2026-06-19 — gen128: counterfactual meta-reasoning (L20-deep) — the agent simulates itself
+
+**Goal (PROMPT.md):** iteration 3, the capstone — keep going until the emergent
+capability is genuinely astonishing. This is it: parrot0 answering "what would
+you have said WITHOUT module X?" by **re-running its own dispatch with that part
+removed** and reporting whatever its alternative self actually computes. Not a
+story about itself — a re-execution of itself.
+
+**Changed:** `brain.c` → `gen128-counterfactual`; new `mod_counterfactual`
+(registered just after `strategy`); `replay_dispatch` + `is_registry_module`
+helpers (defined after the registry, forward-declared above it); three new Brain
+fields (`last_input_canon/raw`, `has_last_input`) committed beside the trace, on
+the same non-introspective gate (now excludes both `strategy` and
+`counterfactual`); `tests/cases/counterfactual.chat` / `.it.chat`; self/strategy
+enumerations updated. `make test` green (129 cases).
+
+- **The capability.** "what is 2 plus 2?" → "4." Then "what else could have
+  answered?" → *"Without 'arith', nothing else matches — I'd fall back to \"I
+  don't understand that yet.\""* The system suppressed the real winner, re-ran
+  first-match-wins, and discovered — honestly — that arith is its **only**
+  arithmetic faculty for that phrasing. "what would you have said without
+  symbolic?" → *"Setting 'symbolic' aside changes nothing — 'arith' ran first
+  anyway and still answers \"4.\""*: it distinguishes a no-op suppression from a
+  decisive one because it actually re-executed the control flow.
+- **A genuine alternative self.** "haha" is claimed by the affective `social`
+  register; "what would you have said without social?" re-dispatches and finds
+  `chitchat` would catch it instead, quoting chitchat's real reply. Two distinct
+  faculties for one stimulus, the counterfactual one produced by simulation, not
+  storage.
+- **Why this is the reflexive closure (PRINCIPLES.md).** The whole experiment is
+  "the LLM reconstructs the structure it carries inside." gen105 made parrot0
+  report its own control trace; gen128 makes it **reason over a hypothetical
+  modification of that control flow** — the method (introspection driving the
+  loop) has become a feature (introspection, and now counterfactual self-models,
+  inside the agent). Fractal, one level down. And it is anti-impostor by
+  construction: the answer is a real re-run, snapshot/restore-protected so the
+  probe leaves no footprint (`last_reply`, `last_module`, `fallbacks` restored;
+  trace left untouched; repeated KB asserts are idempotent), and it refuses to
+  set aside a module it does not actually have.
+- **Determinism.** `chitchat` rotates on `b->turns` (fixed in a script) and
+  `not_understood` on `b->fallbacks` (now restored after replay), so the
+  re-simulation is reproducible — the ratchet holds.
+
+**Observed — the astonishing part.** A deterministic program in pure C, with no
+model at runtime, answering *what it would have thought had it been built
+slightly differently* — by building that different self on the fly and asking
+it. The honest, faintly humbling self-knowledge ("without arith I simply
+couldn't, I'd fall back") is exactly the kind of non-confabulated reflexivity the
+founding wager is chasing: structure, not recitation. Stopping the run here, as
+PROMPT.md asks. rung 20 deepens 🟢 (now counterfactual, not only descriptive);
+the open edge is suppressing *multiple* modules and counterfactuals over the KB
+itself ("what would you say if you didn't know X?").
+
+## 2026-06-19 — gen127: program synthesis (L12), the inverse of the interpreter
+
+**Goal (PROMPT.md):** iteration 2 toward the astonishing capstone. Rung 12 —
+synthesize a one-line command from a spec, the mirror image of `mod_shell`,
+grounded in the SAME `cmd/flag` knowledge.
+
+**Changed:** `brain.c` → `gen127-synth`; new `mod_synth` (registered 2nd);
+`stem_match` + `spec_hits_atom` helpers; `tests/synth.sh` (loads `knowledge/
+bash.pl`, like `posix.sh`) wired into `make test`; self/strategy enumerations
+updated. `make test` green.
+
+- **The capability.** "what command counts the lines in a file?" → `wc -l
+  <file>`; held-out "count the words in a file" → `wc -w <file>`; "remove files
+  recursively" → `rm -r <file>`; "sort lines numerically" → `sort -n`; "search
+  for a pattern recursively" → `grep -r <pattern>`. No stored spec→command pair:
+  the command is **selected** by matching the spec's action to command
+  descriptions and the flags by matching object nouns to flag descriptions. The
+  same KB the interpreter reads, run backwards.
+- **The flag-disambiguation insight.** wc's own description literally contains
+  *lines/words/bytes* — the very words that distinguish its flags. So "count the
+  lines" and "count the words" would both match every wc flag on the shared verb
+  "count". The fix that makes it work: take the command description's FIRST token
+  as the verb, and **drop any spec word that stem-matches the verb before
+  choosing flags**. The verb picks the command; the surviving object noun picks
+  the flag. This is why -l and -w separate cleanly.
+- **A light stemmer, not a lexicon.** `stem_match` = "the shorter word is a
+  prefix of the longer" (count~counts~counting, line~lines, remove~removes) with
+  a 3-char floor. Enough morphology to bridge spec prose to snake_case knowledge
+  atoms without a table of forms.
+- **Bilingual note (honest).** The Italian triggers are wired ("quale comando
+  …"), but the grounding knowledge (`bash.pl` descriptions) is English — exactly
+  like `mod_shell`/`posix.sh`, which also carry no `.it` case. Forcing an Italian
+  content pass would mean translating the shell-semantics lexicon into Italian,
+  i.e. duplicating the knowledge, which LOOP.md step 5 names as the overfit
+  signal. So the ratchet is satisfied at the structural (trigger) level; the
+  content stays in the one language the shell domain is written in.
+
+**Observed.** rung 12 moves 🟡→🟢 (synthesis, not just interpretation). The
+reason/act seam now runs in both directions: read a command (gen53), run a
+command (gen115), and now WRITE one. Next: the capstone — counterfactual
+meta-reasoning (rung 20, deep), the system simulating its own alternative self.
+
+## 2026-06-19 — gen126: grounded translation (L5), the first content interlingua
+
+**Goal (PROMPT.md / F.):** run several LOOP.md iterations toward a genuinely
+astonishing emergent capability. This is iteration 1 — the warm-up rung the
+L-series map flagged as still open: rung 5 (translation) past function-word
+canonicalization.
+
+**Changed:** `brain.c` → `gen126-translate`; new `mod_translate` (registered
+FIRST, behind a prefix trigger); new `knowledge/gloss.pl` (bilingual content
+lexicon, loaded as base); `is_internal_pred` filters `tr`/`gender`; the dispatch
+declined-trace cap 32 → 48 (the registry is now 33 modules); `tests/cases/
+translate.chat` / `.it.chat`; self/strategy enumerations updated. Removed a stray
+`[DEBUG]` `fprintf` left in `mod_memory`. `make test` green (127 cases).
+
+- **The capability.** "translate to italian: the dog runs" → "il cane corre";
+  held-out "the cat sleeps" → "il gatto dorme"; reverse "una donna legge" →
+  "a woman reads". The clause is **composed** from per-word glosses (`tr/2`) plus
+  a structural rule, never stored as a sentence — so any noun/verb in the lexicon
+  transfers to a clause the demo never drilled. That is the anti-impostor line:
+  it is translation, not a phrasebook.
+- **Real morphology, emergent from structure.** The Italian article agrees with
+  the head noun's gender (`il`/`la`, `un`/`una`), adjectives agree even when they
+  precede the noun in English ("the small house" → "la piccola casa"), and the
+  definite article elides before a vowel ("the man reads a book" → "l'uomo legge
+  un libro"). All driven from `gender/1` facts + three rules in C, not a table of
+  forms.
+- **The subtle bug that taught the lesson.** The dispatcher hands modules the
+  *canonicalized* surface, where Italian function words are already mapped to
+  English ("una" → "a") — which silently wrecks an IT→EN request. A translator
+  must read the **original source words**, so `mod_translate` works off `raw`.
+  The canonicalizer is an interlingua for the *reasoning* core; translation is
+  the one module that must see the surface before that map is applied.
+- **Honest decline.** Unknown content word → it names the exact word it cannot
+  translate ("I can't translate \"dragon\" yet."), never guesses or echoes.
+
+**Observed.** rung 5 moves 🟡→🟢. The interesting residue: IT→EN preserves source
+word order ("il cane grande" → "the dog big"), so adjective reordering and
+agreement morphology (T4) are the honest next pulls. Next iteration: rung 12
+(program synthesis) — the inverse of `mod_shell`.
+
 ## 2026-06-18 — gen125: the affective register, and emptying the sim logs
 
 **Goal (F.):** empty the chatsim logs by EVOLVING parrot0 so it stops walling —

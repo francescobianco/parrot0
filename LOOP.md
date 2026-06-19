@@ -40,7 +40,11 @@ from iterating this loop.
    present). `make chat` should feel better.
 7. **Record.** Append a dated entry to `JOURNAL.md`: what changed, why, what
    you observed, what's next.
-8. **Iterate.** Go back to step 1.
+8. **Commit & push.** Run `convcommit` to commit the iteration and push it to the
+   remote (e.g. `convcommit -t feat -s brain -m 'genN — one-line summary' -a -p`).
+   Every iteration ends with a pushed commit, so each generation is an atomic,
+   recoverable step on the remote — never batch several generations into one push.
+9. **Iterate.** Go back to step 1.
 
 ## Principles
 

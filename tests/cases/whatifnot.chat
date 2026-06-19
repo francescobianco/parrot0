@@ -1,0 +1,40 @@
+# gen129 (L20-deep / L16): EPISTEMIC counterfactual — the knowledge-sibling of
+# gen128's control-flow counterfactual. "What would you conclude if you didn't
+# know that <fact>?" HYPOTHETICALLY retracts a believed fact from the live KB,
+# RE-DERIVES the last stated conclusion, reports whether it survives, then
+# RESTORES the fact — footprint-free. Dependency made explicit by removal.
+
+# Guard: nothing concluded yet, so there is nothing whose support to test.
+> what would you conclude if you didn't know that socrates is a man?
+< Ask me whether something holds first — then I can tell you what that conclusion rests on.
+
+> socrates is a man
+< Learned: man(socrates).
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+# This conclusion is DERIVED (man -> mortal), and remembered as the last goal.
+> is socrates a mortal?
+< Yes.
+
+# Un-know the supporting fact and re-derive: the conclusion falls. Computed by a
+# real retract+re-derive, not asserted.
+> what would you conclude if you didn't know that socrates is a man?
+< If I didn't know that socrates is a man, I could no longer conclude that socrates is a mortal — that conclusion rests on it.
+# Non-destructive: the belief was restored, so the conclusion still holds now.
+> is socrates a mortal?
+< Yes.
+
+# Honest: it will only un-know something it actually believes.
+> what would you conclude if you didn't know that socrates is a dog?
+< But I don't know that socrates is a dog in the first place.
+
+# INDEPENDENT support: plato is a mortal both directly AND via the rule, so
+# un-knowing one route leaves the conclusion standing — it can reach it another way.
+> plato is a man
+< Learned: man(plato).
+> plato is a mortal
+< Learned: mortal(plato).
+> is plato a mortal?
+< Yes.
+> what would you conclude if you didn't know that plato is a man?
+< Even without knowing that plato is a man, plato would still be a mortal — I can reach that another way.

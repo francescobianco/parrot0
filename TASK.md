@@ -8,6 +8,39 @@
 
 ## Done recently
 
+- **gen130 (L20-deep) — robustness by self-perturbation.** `mod_robust`
+  stress-tests the last conclusion by ablating EACH ground unary fact in turn
+  (retract → re-derive → restore) and reporting whether it is FRAGILE (one
+  load-bearing fact, named) or ROBUST (no single point of failure). Composes
+  gen129's ablation into a sweep; surfaces redundancy a proof trace can't.
+  `robust.chat`/`.it`. Open: conjunctive support (needs multi-condition rules).
+- **gen129 (L20-deep / L16) — epistemic counterfactual.** `mod_whatifnot`: "what
+  would you conclude if you didn't know that <fact>?" hypothetically retracts a
+  belief, re-derives the last conclusion, then RESTORES it (footprint-free) —
+  reporting dependency ("rests on it"), redundancy ("another way"), or honest
+  ignorance. The knowledge-sibling of gen128's control-flow counterfactual.
+  `whatifnot.chat`/`.it`.
+- **gen128 (L20-deep) — counterfactual meta-reasoning.** `mod_counterfactual`
+  answers "what would you have said WITHOUT module X?" / "what else matched?" by
+  RE-RUNNING its own first-match-wins dispatch over the previous turn with that
+  module suppressed (`replay_dispatch`), reporting whatever the alternative self
+  actually computes — a no-op suppression vs a decisive one vs an honest fallback
+  are distinguished because the control flow is really re-executed. Footprint-free
+  (snapshot/restore of `last_reply`/`last_module`/`fallbacks`); refuses unknown
+  modules. The reflexive closure of gen105 `mod_strategy`.
+  `counterfactual.chat`/`.it`.
+- **gen127 (L12) — program synthesis, the inverse of `mod_shell`.** `mod_synth`
+  maps a natural spec to a one-line command grounded in the SAME `cmd/flag`
+  knowledge the interpreter reads: the action verb picks the command, the object
+  noun picks the flag ("count the lines in a file" → `wc -l <file>`, "count the
+  words" → `wc -w`). Held-out specs over known commands; honest decline. The verb
+  is dropped before flag selection so the object noun disambiguates. `synth.sh`.
+- **gen126 (L5) — grounded translation.** `mod_translate` composes a clause
+  translation EN↔IT from per-word glosses (`tr/2`, `knowledge/gloss.pl`) plus a
+  structural article rule (gender agreement, adjective agreement, vowel elision),
+  never a stored sentence — held-out vocab transfers both directions. Reads the
+  raw source (not the canonicalized surface, which would map "una"→"a").
+  `translate.chat`/`.it`.
 - **gen125 — the affective/phatic register; sim logs 16 → 5.** `mod_chitchat`
   (last in the registry) answers casual social TONE in register — emoji/laughter/
   emote, frustration/encouragement/agreement/language/filler (EN+IT) — honestly,

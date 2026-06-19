@@ -105,10 +105,18 @@ struct Brain {
      * actual execution path and the first-match-wins control rule, not a
      * confabulated story. Committed only on non-introspective turns, so asking
      * about the strategy never overwrites the trace it is asking about. */
-    char trace_declined[32][24];
+    char trace_declined[48][24];
     size_t trace_declined_n;
     char trace_winner[24];
     int  has_trace;
+
+    /* gen128 (L20-deep): the previous substantive turn's inputs, kept verbatim
+     * so mod_counterfactual can RE-RUN the dispatch with a module suppressed and
+     * report what the agent WOULD have answered — its alternative self, computed
+     * not confabulated. Stored alongside the trace (same non-introspective gate). */
+    char last_input_canon[256];
+    char last_input_raw[256];
+    int  has_last_input;
 };
 
 /* ----------------------------------------------------------------------------
@@ -381,7 +389,6 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     copy_last_word(n, sizeof n, raw);
                     remember_possession(b, thing, n);
                     char msg[160];
-                    fprintf(stderr, "[DEBUG] raw='%s' n='%s'\n", raw, n);
                     snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
                     put(msg, out, out_size);
                     return 1;
@@ -3500,7 +3507,10 @@ static int is_internal_pred(const char *pred) {
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */
         "trait", "employer", "likes_color", "profession", "wrote",
-        "rules_over", "title", NULL
+        "rules_over", "title",
+        /* gen126: the bilingual content lexicon (knowledge/gloss.pl) is base
+         * substrate for mod_translate, not facts the user taught — filter it. */
+        "tr", "gender", NULL
     };
     for (size_t i = 0; internal[i]; i++)
         if (strcmp(pred, internal[i]) == 0) return 1;
@@ -6514,16 +6524,663 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: translate (gen126, L5) -------------------------------------
+ * Grounded translation of a short clause, EN<->IT, COMPOSED from per-word
+ * glosses (tr/2 in knowledge/gloss.pl) plus a structural article rule, never
+ * a stored sentence. So any noun/verb in the lexicon transfers to a held-out
+ * clause: this is translation, not a phrasebook. Honest decline on an unknown
+ * content word (it names the word it cannot translate).
+ *
+ * Shapes handled: [det] noun [adj] verb, and [det] noun. Italian gives the
+ * noun's gendered article (il/la, un/una) and post-posed agreeing adjective.
+ */
+
+/* Look up the Italian gloss of an English word, or vice-versa. dir = 1 means
+ * en->it (match arg0, return arg1); dir = 0 means it->en (match arg1, return
+ * arg0). Returns 1 and fills `out` on success. */
+static int gloss_lookup(Brain *b, const char *word, int dir,
+                        char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char hits[1][KB_TERM_LEN];
+    const char *args_en2it[] = {word, NULL};   /* tr(word, ?) */
+    const char *args_it2en[] = {NULL, word};   /* tr(?, word) */
+    size_t n = kb_match(b->kb, "tr", dir ? args_en2it : args_it2en, 2, hits, 1);
+    if (n == 0) return 0;
+    put(hits[0], out, out_size);
+    return 1;
+}
+
+/* Agree an Italian masculine-singular adjective with the noun's gender:
+ * -o -> -a for feminine (piccolo -> piccola); invariant adjectives (grande)
+ * and others are left unchanged. */
+static void agree_adj(char *adj, char gender) {
+    size_t n = strlen(adj);
+    if (gender == 'f' && n > 0 && adj[n - 1] == 'o') adj[n - 1] = 'a';
+}
+
+static int is_en_det(const char *w) {
+    return strcmp(w, "the") == 0 || strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
+}
+static int is_it_det(const char *w) {
+    return strcmp(w, "il") == 0 || strcmp(w, "la") == 0 ||
+           strcmp(w, "lo") == 0 || strcmp(w, "un") == 0 ||
+           strcmp(w, "una") == 0 || strcmp(w, "uno") == 0;
+}
+
+static int mod_translate(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+
+    /* A translator must read the ORIGINAL source words, not the canonicalized
+     * surface (which maps Italian function words to English and would wreck an
+     * IT->EN request). So we work off `raw`, lowercased here. */
+    char low[256];
+    lowercase_copy(low, sizeof low, raw);
+
+    int to_it;
+    const char *clause = NULL;
+    static const struct { const char *p; int to_it; } pats[] = {
+        {"translate to italian:", 1}, {"translate into italian:", 1},
+        {"translate to english:", 0}, {"translate into english:", 0},
+        {"traduci in italiano:", 1},  {"traduci in inglese:", 0},
+    };
+    for (size_t i = 0; i < sizeof pats / sizeof pats[0]; i++) {
+        size_t L = strlen(pats[i].p);
+        if (strncmp(low, pats[i].p, L) == 0) {
+            to_it = pats[i].to_it;
+            clause = low + L;
+            goto found;
+        }
+    }
+    return 0;
+found:
+    while (*clause && isspace((unsigned char)*clause)) clause++;
+    if (!*clause) { put("Translate what?", out, out_size); return 1; }
+
+    char buf[256];
+    copy_trim(buf, sizeof buf, clause);
+    /* strip a trailing terminal punctuation so it doesn't ride on the verb */
+    size_t bl = strlen(buf);
+    while (bl > 0 && (buf[bl-1] == '.' || buf[bl-1] == '?' || buf[bl-1] == '!'))
+        buf[--bl] = '\0';
+    char *w[32];
+    size_t nw = split_words(buf, w, 32);
+    if (nw == 0) { put("Translate what?", out, out_size); return 1; }
+
+    char result[512] = "";
+    size_t rn = 0;
+
+    /* First pass (EN->IT): find the clause's head-noun gender so the article
+     * AND any adjective (which precedes the noun in English) agree with it. */
+    char clause_gender = 'm';
+    if (to_it) {
+        for (size_t i = 0; i < nw; i++) {
+            char *tok = strip_edge_punct(w[i]);
+            char it_word[KB_TERM_LEN];
+            if (gloss_lookup(b, tok, 1, it_word, sizeof it_word)) {
+                char hits[1][KB_TERM_LEN];
+                const char *ga[] = {it_word, NULL};
+                if (kb_match(b->kb, "gender", ga, 2, hits, 1) == 1) {
+                    clause_gender = (hits[0][0] == 'f') ? 'f' : 'm';
+                    break;
+                }
+            }
+        }
+    }
+
+    for (size_t i = 0; i < nw; i++) {
+        char *tok = strip_edge_punct(w[i]);
+        char piece[KB_TERM_LEN] = "";
+
+        if (to_it && is_en_det(tok)) {
+            /* the Italian article agrees with the clause's head-noun gender,
+             * and elides before a vowel-initial noun (il/la -> l', una -> un'). */
+            int indef = (strcmp(tok, "a") == 0 || strcmp(tok, "an") == 0);
+            const char *art = indef ? (clause_gender == 'f' ? "una" : "un")
+                                    : (clause_gender == 'f' ? "la" : "il");
+            int vowel_next = 0;
+            if (i + 1 < nw) {
+                char *nx = strip_edge_punct(w[i + 1]);
+                char nt[KB_TERM_LEN];
+                if (gloss_lookup(b, nx, 1, nt, sizeof nt))
+                    vowel_next = strchr("aeiou", nt[0]) != NULL;
+            }
+            if (vowel_next && !indef)            art = "l'";
+            else if (vowel_next && indef && clause_gender == 'f') art = "un'";
+            snprintf(piece, sizeof piece, "%s", art);
+        } else if (!to_it && is_it_det(tok)) {
+            int indef = (strcmp(tok, "un") == 0 || strcmp(tok, "una") == 0 ||
+                         strcmp(tok, "uno") == 0);
+            snprintf(piece, sizeof piece, "%s", indef ? "a" : "the");
+        } else {
+            if (!gloss_lookup(b, tok, to_it, piece, sizeof piece)) {
+                char msg[160];
+                snprintf(msg, sizeof msg,
+                         "I can't translate \"%s\" yet.", tok);
+                put(msg, out, out_size);
+                return 1;
+            }
+            if (to_it) {
+                /* a noun carries a gender fact; anything else translatable in a
+                 * noun phrase is an adjective and agrees with the head noun. */
+                char hits[1][KB_TERM_LEN];
+                const char *ga[] = {piece, NULL};
+                if (kb_match(b->kb, "gender", ga, 2, hits, 1) == 0)
+                    agree_adj(piece, clause_gender);
+            }
+        }
+
+        size_t pl = strlen(piece);
+        if (rn + pl + 2 < sizeof result) {
+            /* no space after an elided article (l'uomo, un'amica) */
+            if (rn && result[rn - 1] != '\'') result[rn++] = ' ';
+            memcpy(result + rn, piece, pl + 1);
+            rn += pl;
+        }
+    }
+
+    put(result, out, out_size);
+    return 1;
+}
+
+/* --- module: synth (gen127, L12) ----------------------------------------
+ * The INVERSE of mod_shell: synthesize a one-line shell command from a natural
+ * spec ("count the lines in a file" -> "wc -l <file>"), grounded in the SAME
+ * cmd/flag knowledge the interpreter reads (knowledge/bash.pl). The command is
+ * SELECTED by matching the spec's action against command descriptions, and its
+ * FLAGS by matching the spec's object nouns against flag descriptions — never a
+ * stored spec->command pair, so held-out specs over known commands transfer.
+ *
+ * The flag-disambiguation trick: a command description like wc's
+ * "counts_lines_words_and_bytes" already contains the words (lines/words/bytes)
+ * that distinguish its flags. So we drop any spec word that stem-matches the
+ * command's VERB (the first description token) before choosing flags — the verb
+ * picks the command, the surviving object noun picks the flag.
+ */
+
+/* Light stemmer: true if the shorter of a,b is a prefix of the longer (count ~
+ * counts ~ counting, line ~ lines, remove ~ removes). Requires >=3 shared chars
+ * to avoid spurious hits; otherwise demands exact equality. */
+static int stem_match(const char *a, const char *b) {
+    size_t la = strlen(a), lb = strlen(b);
+    size_t m = la < lb ? la : lb;
+    if (m < 3) return strcmp(a, b) == 0;
+    return strncmp(a, b, m) == 0;
+}
+
+/* Does spec word `sw` stem-match any '_'-separated token of snake_case `atom`?
+ * If `verb_out` is non-NULL it receives the atom's FIRST token (the verb). */
+static int spec_hits_atom(const char *sw, const char *atom, char *verb_out,
+                          size_t verb_size) {
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", atom);
+    int hit = 0, first = 1;
+    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_")) {
+        if (first && verb_out) { snprintf(verb_out, verb_size, "%s", tok); first = 0; }
+        else first = 0;
+        if (strlen(tok) >= 3 && stem_match(sw, tok)) hit = 1;
+    }
+    return hit;
+}
+
+static int mod_synth(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !b->kb) return 0;
+
+    char low[256];
+    lowercase_copy(low, sizeof low, raw);
+
+    static const char *const triggers[] = {
+        "what command ", "which command ",
+        "write a command to ", "write a command that ",
+        "give me a command to ", "give me a command that ",
+        "synthesize a command to ", "synthesize a command that ",
+        "quale comando ", "che comando ", "scrivi un comando per ",
+        NULL,
+    };
+    const char *spec = NULL;
+    for (const char *const *t = triggers; *t; t++) {
+        size_t L = strlen(*t);
+        if (strncmp(low, *t, L) == 0) { spec = low + L; break; }
+    }
+    if (!spec) return 0;
+    /* strip a leading relative ("that counts" already handled; "counts ..." is
+     * fine) and trailing punctuation */
+    char spec_buf[256];
+    copy_trim(spec_buf, sizeof spec_buf, spec);
+    size_t sl = strlen(spec_buf);
+    while (sl > 0 && (spec_buf[sl-1]=='?'||spec_buf[sl-1]=='.'||spec_buf[sl-1]=='!'))
+        spec_buf[--sl] = '\0';
+
+    /* spec content words */
+    char wb[256]; snprintf(wb, sizeof wb, "%s", spec_buf);
+    char *sw[32]; size_t nsw = split_words(wb, sw, 32);
+    char words[32][KB_TERM_LEN]; size_t nw = 0;
+    int wants_file = 0, wants_pattern = 0;
+    for (size_t i = 0; i < nsw && nw < 32; i++) {
+        char *t = strip_edge_punct(sw[i]);
+        if (strcmp(t, "file") == 0 || strcmp(t, "files") == 0) wants_file = 1;
+        if (strcmp(t, "pattern") == 0 || strcmp(t, "string") == 0) wants_pattern = 1;
+        if (strlen(t) >= 3 && isalpha((unsigned char)t[0]) && !is_stopword(b, t))
+            snprintf(words[nw++], KB_TERM_LEN, "%s", t);
+    }
+    if (nw == 0) { put("Specify what the command should do.", out, out_size); return 1; }
+
+    /* enumerate known commands; score each by spec-word matches on its desc */
+    char cmds[64][KB_TERM_LEN];
+    const char *cpat[] = {NULL, NULL};
+    size_t ncmd = kb_match(b->kb, "cmd", cpat, 2, cmds, 64);
+    const char *best = NULL; int best_score = 0; char best_verb[KB_TERM_LEN] = "";
+    for (size_t i = 0; i < ncmd; i++) {
+        char desc[1][KB_TERM_LEN];
+        const char *dq[] = {cmds[i], NULL};
+        if (kb_match(b->kb, "cmd", dq, 2, desc, 1) != 1) continue;
+        int score = 0; char verb[KB_TERM_LEN] = "";
+        for (size_t j = 0; j < nw; j++) {
+            char v[KB_TERM_LEN];
+            if (spec_hits_atom(words[j], desc[0], v, sizeof v)) score++;
+            if (!verb[0]) snprintf(verb, sizeof verb, "%s", v);
+        }
+        if (score > best_score) {
+            best_score = score; best = cmds[i];
+            snprintf(best_verb, sizeof best_verb, "%s", verb);
+        }
+    }
+    if (!best) {
+        put("I don't know a command for that yet.", out, out_size);
+        return 1;
+    }
+
+    /* choose flags: object nouns (spec words NOT stem-matching the verb) that
+     * hit a flag's description. Preserve KB order, dedup. */
+    char flags[16]; size_t nf = 0;
+    char fletters[32][KB_TERM_LEN];
+    const char *fpat[] = {best, NULL, NULL};
+    size_t nfl = kb_match(b->kb, "flag", fpat, 3, fletters, 32);
+    for (size_t i = 0; i < nfl && nf < sizeof flags - 1; i++) {
+        char fdesc[1][KB_TERM_LEN];
+        const char *fq[] = {best, fletters[i], NULL};
+        if (kb_match(b->kb, "flag", fq, 3, fdesc, 1) != 1) continue;
+        /* single-letter flags only (the synthesizable short options) */
+        if (strlen(fletters[i]) != 1) continue;
+        int selected = 0;
+        for (size_t j = 0; j < nw; j++) {
+            if (best_verb[0] && stem_match(words[j], best_verb)) continue; /* the verb */
+            if (spec_hits_atom(words[j], fdesc[0], NULL, 0)) { selected = 1; break; }
+        }
+        if (selected) {
+            int dup = 0;
+            for (size_t k = 0; k < nf; k++) if (flags[k] == fletters[i][0]) dup = 1;
+            if (!dup) flags[nf++] = fletters[i][0];
+        }
+    }
+    flags[nf] = '\0';
+
+    char cmd[128];
+    size_t o = (size_t)snprintf(cmd, sizeof cmd, "%s", best);
+    if (nf) o += (size_t)snprintf(cmd + o, sizeof cmd - o, " -%s", flags);
+    if (wants_pattern) o += (size_t)snprintf(cmd + o, sizeof cmd - o, " <pattern>");
+    if (wants_file)    o += (size_t)snprintf(cmd + o, sizeof cmd - o, " <file>");
+
+    char msg[160];
+    snprintf(msg, sizeof msg, "%s", cmd);
+    put(msg, out, out_size);
+    return 1;
+}
+
+/* --- module: counterfactual (gen128, L20-deep) --------------------------
+ * The reflexive closure of mod_strategy. gen105 reported the REAL trace ("why
+ * did you answer that way?"). This module answers the COUNTERFACTUAL: "what
+ * would you have said WITHOUT the <X> module?" / "what else could have answered?"
+ * — and it does not confabulate. It RE-RUNS its own dispatch over the previous
+ * turn's input with one module suppressed, and reports whatever the alternative
+ * self actually computes. A deterministic C program simulating itself with a
+ * part removed: the method (introspection driving the loop) becomes a feature
+ * (introspection inside the agent), exactly the fractal move PRINCIPLES.md asks.
+ *
+ * Defined here (above the registry it walks) via a forward-declared replay helper
+ * that is implemented after the registry table. */
+static int replay_dispatch(Brain *b, const char *canon, const char *raw,
+                           const char *suppress, char *who, size_t who_size,
+                           char *out, size_t out_size);
+static int is_registry_module(const char *name); /* defined after the table */
+static void not_understood(Brain *b, const char *canon, char *out, size_t out_size);
+
+static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
+                              char *out, size_t out_size) {
+    if (!b) return 0;
+    (void)norm;
+
+    char low[256];
+    lowercase_copy(low, sizeof low, raw);
+
+    /* "what else matched / could have answered / would have answered" — suppress
+     * the actual winner and report the runner-up. */
+    int else_form =
+        cue(low, "what else matched") || cue(low, "what else could have") ||
+        cue(low, "what else would have") || cue(low, "anything else match") ||
+        cue(low, "cos'altro") || cue(low, "cosa altro") ||
+        cue(low, "che altro");
+
+    /* "without <X>" / "senza <X>" — suppress a named module. */
+    const char *wp = strstr(low, "without ");
+    if (!wp) wp = strstr(low, "senza ");
+    int without_form = (wp != NULL);
+
+    /* Only engage on a genuine counterfactual question shape. */
+    int question_shape =
+        cue(low, "would you have") || cue(low, "would you say") ||
+        cue(low, "avresti") || else_form;
+    if (!without_form && !else_form) return 0;
+    if (without_form && !question_shape) return 0;
+
+    if (!b->has_last_input || !b->has_trace) {
+        put("I don't have a previous turn to reconsider yet.", out, out_size);
+        return 1;
+    }
+
+    char suppress[32] = "";
+    if (without_form) {
+        const char *p = wp + (low[wp - low] == 'w' ? 8 : 6); /* past "without "/"senza " */
+        while (*p && isspace((unsigned char)*p)) p++;
+        /* skip a leading article: "without the X module" / "senza il modulo X" */
+        char tok[32]; size_t n = 0;
+        const char *q = p;
+        /* pull up to two words; if first is article/"module", take the next */
+        for (int grabbed = 0; grabbed < 3 && *q; grabbed++) {
+            n = 0;
+            while (*q && !isspace((unsigned char)*q) && n + 1 < sizeof tok) {
+                char c = *q++;
+                if (c == '?' || c == '.' || c == '!') break;
+                tok[n++] = c;
+            }
+            tok[n] = '\0';
+            while (*q && isspace((unsigned char)*q)) q++;
+            if (n == 0) continue;
+            if (strcmp(tok, "the") == 0 || strcmp(tok, "il") == 0 ||
+                strcmp(tok, "module") == 0 || strcmp(tok, "modulo") == 0 ||
+                strcmp(tok, "a") == 0)
+                continue; /* skip filler, take the real module name next */
+            snprintf(suppress, sizeof suppress, "%s", tok);
+            break;
+        }
+        if (!suppress[0] || !is_registry_module(suppress)) {
+            char msg[128];
+            snprintf(msg, sizeof msg,
+                     "I don't have a module called \"%s\" to set aside.",
+                     suppress[0] ? suppress : "that");
+            put(msg, out, out_size);
+            return 1;
+        }
+    } else {
+        /* else-form: suppress the recorded winner. */
+        snprintf(suppress, sizeof suppress, "%s", b->trace_winner);
+        if (strcmp(suppress, "fallback") == 0) {
+            put("Nothing claimed the last turn — there was no winner to set aside.",
+                out, out_size);
+            return 1;
+        }
+    }
+
+    char who[32] = "", ans[512] = "";
+    int claimed = replay_dispatch(b, b->last_input_canon, b->last_input_raw,
+                                  suppress, who, sizeof who, ans, sizeof ans);
+
+    char msg[768];
+    if (!claimed) {
+        snprintf(msg, sizeof msg,
+                 "Without '%s', nothing else matches — I'd fall back to \"%s\"",
+                 suppress, ans);
+    } else if (strcmp(who, b->trace_winner) == 0) {
+        snprintf(msg, sizeof msg,
+                 "Setting '%s' aside changes nothing — '%s' ran first anyway and "
+                 "still answers \"%s\"", suppress, who, ans);
+    } else {
+        snprintf(msg, sizeof msg,
+                 "Without '%s', the next module that matches is '%s', and it would "
+                 "answer \"%s\"", suppress, who, ans);
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
+/* --- module: whatifnot (gen129, L20-deep / L16) -------------------------
+ * The EPISTEMIC sibling of mod_counterfactual. gen128 asked "what would you say
+ * without module X?" (counterfactual over the CONTROL FLOW). This asks "what
+ * would you conclude if you didn't know that <fact>?" — a counterfactual over
+ * the KNOWLEDGE. It HYPOTHETICALLY retracts a believed fact from the live KB,
+ * RE-DERIVES the last stated conclusion, reports whether it still stands, then
+ * RESTORES the fact — footprint-free, exactly the gen128 discipline one level
+ * down (belief instead of module). This is how the agent learns which of its
+ * conclusions DEPEND on which of its beliefs: dependency made explicit by
+ * removal, not asserted. Builds on gen103's re-derivation (note_consequence)
+ * but driven by a hypothetical un-knowing rather than a real correction.
+ */
+
+/* Parse a simple ground unary fact clause ("socrates is a man" / "socrates is
+ * mortal") into pred + single arg. Returns 1 on success. */
+static int parse_ground_unary(const char *clause, char *pred, size_t ps,
+                              char *arg, size_t as) {
+    char buf[256];
+    copy_trim(buf, sizeof buf, clause);
+    size_t n = strlen(buf);
+    while (n > 0 && (buf[n-1]=='?'||buf[n-1]=='.'||buf[n-1]==','||buf[n-1]==' '))
+        buf[--n] = '\0';
+    char *w[12];
+    size_t nw = split_words(buf, w, 12);
+    if (nw >= 4 && strcmp(w[1], "is") == 0 && is_article(w[2])) {
+        snprintf(pred, ps, "%s", w[3]); snprintf(arg, as, "%s", w[0]); return 1;
+    }
+    if (nw == 3 && strcmp(w[1], "is") == 0) {
+        snprintf(pred, ps, "%s", w[2]); snprintf(arg, as, "%s", w[0]); return 1;
+    }
+    return 0;
+}
+
+static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !b->kb) return 0;
+
+    char low[256];
+    lowercase_copy(low, sizeof low, raw);
+
+    /* locate the un-known fact after the trigger phrase (read from raw so the
+     * fact clause keeps its original words for parsing). */
+    const char *fact = NULL;
+    static const char *const markers[] = {
+        "didn't know that ", "didnt know that ",
+        "did not know that ", "didn't know ", "didnt know ", "did not know ",
+        "non sapessi che ", "non sapessi ",
+        NULL,
+    };
+    for (const char *const *m = markers; *m; m++) {
+        const char *p = strstr(low, *m);
+        if (p) { fact = p + strlen(*m); break; }
+    }
+    /* alternative shape: "if <subject> weren't / were not a <class>" */
+    char alt[128] = "";
+    if (!fact) {
+        const char *p = strstr(low, "if ");
+        const char *neg = NULL;
+        if (p) {
+            const char *cands[] = {" weren't ", " werent ", " were not ",
+                                   " wasn't ", " wasnt ", " was not ",
+                                   " non fosse ", NULL};
+            for (size_t i = 0; cands[i]; i++) {
+                const char *q = strstr(p, cands[i]);
+                if (q) { neg = q;
+                    /* subject = words between "if " and the negation */
+                    size_t slen = (size_t)(neg - (p + 3));
+                    char subj[64]; if (slen >= sizeof subj) slen = sizeof subj - 1;
+                    memcpy(subj, p + 3, slen); subj[slen] = '\0';
+                    const char *cls = neg + strlen(cands[i]);
+                    /* class = up to comma/question */
+                    char clsbuf[64]; size_t k = 0;
+                    while (cls[k] && cls[k] != ',' && cls[k] != '?' && k+1 < sizeof clsbuf)
+                        { clsbuf[k] = cls[k]; k++; }
+                    clsbuf[k] = '\0';
+                    snprintf(alt, sizeof alt, "%s is %s", subj, clsbuf);
+                    fact = alt;
+                    break;
+                }
+            }
+        }
+    }
+    if (!fact) return 0;
+
+    /* must be a genuine "what would you conclude / would X still" question */
+    int q = cue(low, "conclude") || cue(low, "still") || cue(low, "concluderesti") ||
+            cue(low, "ancora") || strstr(low, "what would") || strstr(low, "cosa");
+    if (!q) return 0;
+
+    if (!b->has_last_goal) {
+        put("Ask me whether something holds first — then I can tell you what that "
+            "conclusion rests on.", out, out_size);
+        return 1;
+    }
+
+    /* parse the fact (canonicalized so Italian clauses go through one path) */
+    char fc[256];
+    { char n1[256]; normalize(fact, n1, sizeof n1); canonicalize_lang(n1, fc, sizeof fc); }
+    char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
+    if (!parse_ground_unary(fc, pred, sizeof pred, arg, sizeof arg)) {
+        put("I can only reconsider a simple 'X is a Y' fact for now.", out, out_size);
+        return 1;
+    }
+    const char *fargs[] = {arg};
+    if (!kb_query(b->kb, pred, fargs, 1)) {
+        char msg[200];
+        snprintf(msg, sizeof msg,
+                 "But I don't know that %s is a %s in the first place.", arg, pred);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* hypothetically un-know the fact, re-derive, then restore it */
+    int before = goal_truth(b);
+    int removed = kb_retract(b->kb, pred, fargs, 1);
+    int after = goal_truth(b);
+    if (removed) { kb_set_origin(b->kb, KB_SESSION); kb_assert(b->kb, pred, fargs, 1); }
+
+    char msg[400];
+    if (before == 1 && after == 0) {
+        snprintf(msg, sizeof msg,
+                 "If I didn't know that %s is a %s, I could no longer conclude that "
+                 "%s is a %s — that conclusion rests on it.",
+                 arg, pred, b->last_goal_arg, b->last_goal_pred);
+    } else if (before == 1 && after == 1) {
+        snprintf(msg, sizeof msg,
+                 "Even without knowing that %s is a %s, %s would still be a %s — I "
+                 "can reach that another way.",
+                 arg, pred, b->last_goal_arg, b->last_goal_pred);
+    } else {
+        snprintf(msg, sizeof msg,
+                 "That wouldn't change my conclusion about %s either way.",
+                 b->last_goal_arg);
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
+/* --- module: robust (gen130, L20-deep) ----------------------------------
+ * Composes gen129's single-belief ablation into a SWEEP: it stress-tests the
+ * last stated conclusion by hypothetically removing EACH ground unary fact in
+ * turn (retract -> re-derive -> restore) and collecting the ones whose removal
+ * overturns it. The result is dependency structure the agent discovers about
+ * ITSELF by systematic self-perturbation: a FRAGILE conclusion hangs on one
+ * load-bearing fact; a ROBUST one survives the loss of any single belief. This
+ * is knowledge gen76's proof trace cannot give — a proof shows one derivation;
+ * ablation reveals whether OTHER derivations exist (redundancy = robustness).
+ */
+static int mod_robust(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !b->kb) return 0;
+
+    char low[256];
+    lowercase_copy(low, sizeof low, raw);
+    int trig = cue(low, "robust") || cue(low, "fragile") ||
+               cue(low, "load-bearing") || cue(low, "load bearing") ||
+               cue(low, "stress-test") || cue(low, "stress test") ||
+               cue(low, "depend on") || cue(low, "rest on") ||
+               cue(low, "solida") || cue(low, "dipende") || cue(low, "si regge");
+    if (!trig) return 0;
+
+    if (!b->has_last_goal) {
+        put("Ask me whether something holds first — then I can stress-test it.",
+            out, out_size);
+        return 1;
+    }
+    if (goal_truth(b) != 1) {
+        put("That isn't something I currently conclude, so there's nothing to "
+            "stress-test.", out, out_size);
+        return 1;
+    }
+
+    /* sweep every ground unary fact: remove it, re-derive, restore, record the
+     * load-bearing ones. */
+    char preds[64][KB_TERM_LEN];
+    size_t np = kb_unary_predicates(b->kb, preds, 64);
+    char crit[16][96];
+    size_t ncrit = 0;
+    for (size_t p = 0; p < np; p++) {
+        char consts[128][KB_TERM_LEN];
+        const char *pat[] = {NULL};
+        size_t nc = kb_match(b->kb, preds[p], pat, 1, consts, 128);
+        for (size_t c = 0; c < nc; c++) {
+            const char *a[] = {consts[c]};
+            if (!kb_retract(b->kb, preds[p], a, 1)) continue;
+            int after = goal_truth(b);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, preds[p], a, 1); /* restore — footprint-free */
+            if (after == 0 && ncrit < 16)
+                snprintf(crit[ncrit++], sizeof crit[0], "%s(%s)", preds[p], consts[c]);
+        }
+    }
+
+    char msg[640];
+    if (ncrit == 0) {
+        snprintf(msg, sizeof msg,
+                 "My conclusion that %s is a %s is robust — there's no single fact "
+                 "I could forget that would overturn it.",
+                 b->last_goal_arg, b->last_goal_pred);
+    } else if (ncrit == 1) {
+        snprintf(msg, sizeof msg,
+                 "My conclusion that %s is a %s is fragile: it rests entirely on one "
+                 "fact — %s. Forget that and it falls.",
+                 b->last_goal_arg, b->last_goal_pred, crit[0]);
+    } else {
+        size_t o = (size_t)snprintf(msg, sizeof msg,
+                 "My conclusion that %s is a %s rests on %zu load-bearing facts: ",
+                 b->last_goal_arg, b->last_goal_pred, ncrit);
+        for (size_t i = 0; i < ncrit && o < sizeof msg; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+                                  i ? ", " : "", crit[i]);
+        if (o < sizeof msg)
+            snprintf(msg + o, sizeof msg - o, ". Removing any one would overturn it.");
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
  * behaviour, touch only this table — not brain_respond()'s control flow.
  * (This table is also reified into the KB as module(...) facts at birth, so
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
+    {"translate", mod_translate},
+    {"synth",     mod_synth},
     {"induce",    mod_induce},
     {"verify",    mod_verify},
     {"memory",    mod_memory},
     {"meta",      mod_meta},
     {"strategy",  mod_strategy},
+    {"counterfactual", mod_counterfactual},
+    {"whatifnot", mod_whatifnot},
+    {"robust",    mod_robust},
     {"role",      mod_role},
     {"self",      mod_self},
     {"fewshot",   mod_fewshot},
@@ -6553,6 +7210,51 @@ static const Module registry[] = {
     {"chitchat",  mod_chitchat},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
+
+/* gen128: true if `name` is a real module in the registry. */
+static int is_registry_module(const char *name) {
+    for (size_t i = 0; i < registry_len; i++)
+        if (strcmp(registry[i].name, name) == 0) return 1;
+    return 0;
+}
+
+/* gen128: re-run the first-match-wins dispatch over a stored turn with module
+ * `suppress` skipped. Writes the claiming module's name into `who` and its reply
+ * into `out`; returns 1 if some module claimed it, 0 if it fell through to the
+ * honest fallback (out then holds that fallback line). This is parrot0
+ * simulating its own counterfactual self, so we protect the live conversation
+ * state: the volatile last_reply/last_module are snapshotted and restored, and
+ * the trace is left untouched (the candidate handlers write only to `out`; any
+ * KB assertion they repeat for this same turn is idempotent). */
+static int replay_dispatch(Brain *b, const char *canon, const char *raw,
+                           const char *suppress, char *who, size_t who_size,
+                           char *out, size_t out_size) {
+    char saved_reply[256], saved_module[32];
+    unsigned long saved_fallbacks = b->fallbacks;
+    snprintf(saved_reply, sizeof saved_reply, "%s", b->last_reply);
+    snprintf(saved_module, sizeof saved_module, "%s", b->last_module);
+
+    int claimed = 0;
+    for (size_t i = 0; i < registry_len; i++) {
+        if (strcmp(registry[i].name, suppress) == 0) continue; /* the removed part */
+        if (strcmp(registry[i].name, "counterfactual") == 0) continue; /* no self-recursion */
+        if (registry[i].handle(b, canon, raw, out, out_size)) {
+            snprintf(who, who_size, "%s", registry[i].name);
+            claimed = 1;
+            break;
+        }
+    }
+    if (!claimed) {
+        snprintf(who, who_size, "fallback");
+        not_understood(b, canon, out, out_size);
+    }
+
+    /* restore the live state so the counterfactual probe leaves no footprint */
+    snprintf(b->last_reply, sizeof b->last_reply, "%s", saved_reply);
+    snprintf(b->last_module, sizeof b->last_module, "%s", saved_module);
+    b->fallbacks = saved_fallbacks;
+    return claimed;
+}
 
 /* ----------------------------------------------------------------------------
  * brain lifecycle + dispatch
@@ -6585,6 +7287,11 @@ Brain *brain_create(void) {
      * the kinds and figures it may be asked to impersonate (see mod_role). */
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "knowledge/roles.pl");
+
+    /* gen126 (L5): bilingual content lexicon used by mod_translate to COMPOSE a
+     * clause translation from word glosses + a structural article rule. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "knowledge/gloss.pl");
 
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
@@ -6620,7 +7327,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen125-chitchat";
+    return "gen130-robust";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -6835,7 +7542,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
 
     /* gen105 (L20): record the real control-flow trace of this turn — the
      * modules consulted that declined, then the one that claimed it. */
-    char declined[32][24]; size_t ndecl = 0;
+    char declined[48][24]; size_t ndecl = 0;
     const char *winner = "fallback";
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
@@ -6848,20 +7555,25 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
             }
             break;
         }
-        if (ndecl < 32) snprintf(declined[ndecl++], sizeof declined[0], "%s",
+        if (ndecl < 48) snprintf(declined[ndecl++], sizeof declined[0], "%s",
                                  registry[i].name);
     }
 
-    /* Commit the trace for "why did you answer that way?" — but NOT when this
-     * turn was itself that introspective question, so it reports the decision it
-     * is being asked about, not its own lookup. */
-    if (b && strcmp(winner, "strategy") != 0) {
+    /* Commit the trace for "why did you answer that way?" and the verbatim input
+     * for "what would you have said without X?" — but NOT when this turn was
+     * itself one of those introspective questions, so each reports the decision
+     * it is being asked about, not its own lookup. */
+    if (b && strcmp(winner, "strategy") != 0 &&
+        strcmp(winner, "counterfactual") != 0) {
         b->trace_declined_n = ndecl;
         for (size_t i = 0; i < ndecl; i++)
             snprintf(b->trace_declined[i], sizeof b->trace_declined[0], "%s",
                      declined[i]);
         snprintf(b->trace_winner, sizeof b->trace_winner, "%s", winner);
         b->has_trace = 1;
+        snprintf(b->last_input_canon, sizeof b->last_input_canon, "%s", canon);
+        snprintf(b->last_input_raw, sizeof b->last_input_raw, "%s", input);
+        b->has_last_input = 1;
     }
 
     /* gen58: update the rolling discourse topic buffer from the current turn,

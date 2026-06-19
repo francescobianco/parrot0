@@ -1,0 +1,36 @@
+# gen126 (L5): grounded translation, EN<->IT. The clause translation is
+# COMPOSED from per-word glosses (tr/2 in knowledge/gloss.pl) plus a structural
+# article rule — never a stored sentence. So vocabulary the demo never drills
+# transfers: this is translation, not a phrasebook.
+
+# Determiner + noun + verb. "the" becomes the gendered Italian article.
+> translate to italian: the dog runs
+< il cane corre
+
+# Held-out content words through the SAME path (different noun, different verb).
+> translate to italian: the cat sleeps
+< il gatto dorme
+
+# Feminine head noun pulls the feminine article AND agrees the adjective
+# (piccolo -> piccola), even though the adjective precedes the noun in English.
+> translate to italian: the small house
+< la piccola casa
+
+# Indefinite article, feminine: a white door -> una bianca porta.
+> translate to italian: a white door
+< una bianca porta
+
+# A four-word clause with a bare direct object (no article) — still compositional.
+> translate to italian: the child drinks water
+< il bambino beve acqua
+
+# Reverse direction over the SAME relation read the other way: IT -> EN.
+> translate to english: il gatto dorme
+< the cat sleeps
+
+> translate to english: una donna legge
+< a woman reads
+
+# Honest decline: it names the exact word it has no gloss for, never guesses.
+> translate to italian: the dragon runs
+< I can't translate "dragon" yet.

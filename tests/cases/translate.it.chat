@@ -1,0 +1,25 @@
+# gen126 (L5), Italian probe: the SAME translator driven with the Italian
+# marker "traduci ...". The bilingual ratchet — if these pass it is because the
+# composition is language-neutral (gloss + article rule), not an English-only
+# phrasebook. Translation must read the ORIGINAL source words, so mod_translate
+# works off the raw input, not the canonicalized surface.
+
+# IT -> EN: "traduci in inglese:" reads the Italian clause and composes English.
+> traduci in inglese: il bambino beve acqua
+< the child drinks water
+
+> traduci in inglese: la donna apre la porta
+< the woman opens the door
+
+# EN -> IT through the Italian marker "traduci in italiano:". The article elides
+# before the vowel-initial noun (il uomo -> l'uomo).
+> traduci in italiano: the man reads a book
+< l'uomo legge un libro
+
+# Held-out: a friend arrives -> un amico arriva (masculine indefinite).
+> traduci in italiano: a friend arrives
+< un amico arriva
+
+# Honest decline names the untranslatable word.
+> traduci in italiano: the dragon sleeps
+< I can't translate "dragon" yet.

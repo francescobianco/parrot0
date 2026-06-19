@@ -1,0 +1,39 @@
+# gen128 (L20-deep): COUNTERFACTUAL meta-reasoning — the reflexive closure of
+# mod_strategy. gen105 reported the real trace ("why did you answer that way?").
+# This answers "what would you have said WITHOUT module X?" and it does not
+# confabulate: it RE-RUNS its own first-match-wins dispatch over the previous
+# turn with one module suppressed, and reports whatever its alternative self
+# actually computes. A deterministic C program simulating itself with a part
+# removed — introspection-as-method become introspection-as-feature (PRINCIPLES).
+
+# Guard: there is no previous turn to reconsider yet.
+> what would you have said without arith?
+< I don't have a previous turn to reconsider yet.
+
+# Establish a real turn: arith computes it.
+> what is 2 plus 2?
+< 4.
+
+# "what else could have answered?" suppresses the actual WINNER (arith) and
+# re-dispatches. The honest, slightly humbling result: arith is parrot0's only
+# arithmetic faculty for this phrasing, so nothing else matches — it would fall
+# back. This is COMPUTED by re-simulation, not asserted.
+> what else could have answered?
+< Without 'arith', nothing else matches — I'd fall back to "I don't understand that yet."
+
+# Suppressing a NON-winner changes nothing: arith still ran first. The system
+# knows the difference because it actually re-ran the control flow.
+> what would you have said without symbolic?
+< Setting 'symbolic' aside changes nothing — 'arith' ran first anyway and still answers "4."
+
+# It will only set aside a module it really has (grounded in the registry).
+> what would you have said without the frobnicator module?
+< I don't have a module called "frobnicator" to set aside.
+
+# A genuine ALTERNATIVE SELF: 'haha' is claimed by the affective 'social'
+# register; with social set aside, the 'chitchat' register catches it — a
+# different real faculty, its reply produced by re-simulation, not a stored line.
+> haha
+< :) Glad you're enjoying the conversation.
+> what would you have said without social?
+< Without 'social', the next module that matches is 'chitchat', and it would answer "Ha, you're playful! Ask me something?"
