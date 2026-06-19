@@ -8,6 +8,9 @@
 
 ## Done recently
 
+- **gen135 — contrastive abduction (why-not).** `mod_abduce` now answers failed-goal questions like "why isn't rex a goodboy?" / "perche rex non e un bravo?" by reading the same rule body used for abduction and naming the missing conjuncts that block the proof. The trigger is local to abduction, so Italian meta/strategy "perche" cues keep their old modules. `abduce.chat`/`.it`.
+
+
 - **gen134 — branching abduction (enumerating the hypothesis space).** When >1
   rule concludes a goal, `mod_abduce` offers every alternative ("either rex is a
   cat, or rex is a dog — any one would make rex a pet") via new

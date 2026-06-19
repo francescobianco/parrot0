@@ -547,7 +547,8 @@ static const char *canonical_token(const char *w) {
          * lets the existing parsers (arith, knowledge, identity) work on
          * contracted input without duplicating logic. */
         {"whats", "what is"}, {"whos", "who is"}, {"wheres", "where is"},
-        {"dont",  "do not"},  {"cant", "can not"}, {"pls", "please"},
+        {"dont",  "do not"},  {"cant", "can not"}, {"isnt", "is not"},
+        {"isn't", "is not"}, {"pls", "please"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
@@ -7234,7 +7235,8 @@ static int parse_goal_loose(const char *clause, char *pred, size_t ps,
         char *t = strip_edge_punct(w[i]);
         if (strcmp(t,"is")==0 || strcmp(t,"be")==0 || strcmp(t,"a")==0 ||
             strcmp(t,"an")==0 || strcmp(t,"to")==0 || strcmp(t,"the")==0 ||
-            strcmp(t,"would")==0 || strcmp(t,"still")==0)
+            strcmp(t,"would")==0 || strcmp(t,"still")==0 ||
+            strcmp(t,"not")==0)
             continue;
         if (nk < 16) snprintf(kept[nk++], KB_TERM_LEN, "%s", t);
     }
@@ -7299,7 +7301,23 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         NULL,
     };
     const char *clause = NULL;
-    for (const char *const *p = pre; *p; p++) {
+    int contrastive = 0;
+
+    static const char *const neg_pre[] = {
+        "why is not ", "why is ", "why ", "perché ", "perche ", NULL
+    };
+    for (const char *const *p = neg_pre; *p; p++) {
+        size_t L = strlen(*p);
+        if (strncmp(norm, *p, L) != 0) continue;
+        const char *cand = norm + L;
+        if (strstr(cand, " not ") || strncmp(cand, "not ", 4) == 0) {
+            clause = cand;
+            contrastive = 1;
+            break;
+        }
+    }
+
+    for (const char *const *p = pre; !clause && *p; p++) {
         size_t L = strlen(*p);
         if (strncmp(norm, *p, L) == 0) { clause = norm + L; break; }
     }
@@ -7334,10 +7352,38 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen134: more than one rule concludes the goal -> enumerate the ALTERNATIVE
-     * explanations (the abductive hypothesis space): "Either X is a cat, or X is
-     * a dog — any one would make X a pet." Each alternative names only its
-     * missing conjuncts. (One rule falls through to the gen131/132 path.) */
+    /* gen135: contrastive why-not questions reuse the abductive machinery: if a
+     * goal fails, report the missing rule premises that block it. Ordinary
+     * what-would-make questions still use the gen131-134 paths below. */
+    if (contrastive) {
+        char missing[400]; size_t mo = 0; int nm = 0;
+        char rule[200]; size_t ro = 0;
+        for (size_t i = 0; i < nb; i++) {
+            const char *pa[] = {arg};
+            if (!kb_query(b->kb, bodies[i], pa, 1)) {
+                mo += (size_t)snprintf(missing + mo,
+                                       mo < sizeof missing ? sizeof missing - mo : 0,
+                                       "%s%s is a %s", nm ? " and " : "",
+                                       arg, bodies[i]);
+                nm++;
+            }
+            ro += (size_t)snprintf(rule + ro,
+                                   ro < sizeof rule ? sizeof rule - ro : 0,
+                                   "%s%s", i ? " and " : "", bodies[i]);
+        }
+        char msg[1024];
+        if (nm > 0)
+            snprintf(msg, sizeof msg,
+                     "%s is not a %s because I am missing: %s. The rule is %s -> %s.",
+                     arg, pred, missing, rule, pred);
+        else
+            snprintf(msg, sizeof msg,
+                     "I have the premises for %s to be a %s, but I still cannot derive it.",
+                     arg, pred);
+        put(msg, out, out_size);
+        return 1;
+    }
+
     size_t nrules = kb_rules_for_head(b->kb, pred, 1);
     if (nrules > 1) {
         char alts[400]; size_t ao = 0; size_t shown = 0;
@@ -7575,7 +7621,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen134-branching-abduce";
+    return "gen135-contrastive-abduce";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

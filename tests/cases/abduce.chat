@@ -24,6 +24,15 @@
 < Learned: man(socrates). Now socrates is a mortal after all.
 > is socrates a mortal?
 < Yes.
+# gen135: contrastive why-not uses the same missing-premise analysis, but now
+# explains a failed conclusion directly instead of requiring "what would make".
+> every friendly dog is a goodboy
+< Learned rule: goodboy(X) :- friendly(X), dog(X).
+> rex is a dog
+< Learned: dog(rex).
+> why isn't rex a goodboy?
+< rex is not a goodboy because I am missing: rex is a friendly. The rule is friendly and dog -> goodboy.
+
 
 # Now the goal HOLDS, so the same question is deduction, not abduction: it cites
 # the real proof instead of an antecedent.

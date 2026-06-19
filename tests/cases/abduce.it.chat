@@ -8,3 +8,13 @@
 < No.
 > cosa renderebbe socrate un mortale?
 < If you told me that socrate is a uomo, then socrate would be a mortale — that's the rule uomo -> mortale.
+
+# gen135, Italian probe: "perché ... non" canonicalizes into the same contrastive
+# why-not path and names the missing conjunct from the real rule body.
+> ogni cane amichevole è un bravo
+< Learned rule: bravo(X) :- cane(X), amichevole(X).
+> rex è un cane
+< Learned: cane(rex).
+> perché rex non è un bravo?
+< rex is not a bravo because I am missing: rex is a amichevole. The rule is cane and amichevole -> bravo.
+

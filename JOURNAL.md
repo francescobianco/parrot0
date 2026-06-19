@@ -1,5 +1,14 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen135: contrastive abduction — explaining why-not
+
+**Goal (PROMPT.md run):** turn a failed class conclusion into a reasoned answer to "why not?". The abduction machinery could already say what would make a goal true; a conversational reasoner should also explain why it is not true by naming the missing premises.
+
+**Changed:** `brain.c` -> `gen135-contrastive-abduce`: `mod_abduce` recognizes contrastive negative questions such as "why isn't rex a goodboy?" / "perche rex non e un bravo?", parses the same goal shape, and reports the missing rule-body conjuncts from the real KB rule. Added English and Italian ratchets in `abduce.chat` / `.it`.
+
+**Observed.** This is the abductive loop turned sideways: not "what hypothesis would make P true?" but "which required support for P is absent?" The answer is no longer a bare No; it exposes the failed proof boundary.
+
+
 ## 2026-06-20 — gen134: branching abduction — enumerating the hypothesis space
 
 **Goal (PROMPT.md, fifth run):** the open edge gen131/132 named — BRANCHING
