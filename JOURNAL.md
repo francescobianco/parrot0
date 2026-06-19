@@ -1,5 +1,14 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen140: conversation companion — everyday talk without pretending
+
+**Goal:** improve basic casual conversation for non-technical users. The recent generations made parrot0 stronger at formal reasoning, but a normal interlocutor often starts with "I don't know what to say", "can we just talk", "I'm tired", or "tell me something". Those should not hit the wall, but the answer must stay honest: guide the conversation without inventing feelings, facts, or broad competence.
+
+**Changed:** `brain.c` -> `gen140-conversation-companion`: `mod_chitchat` gains companion-style cue classes for no-topic turns, casual talk invitations, low-energy mood, and upbeat acknowledgements. `mod_gen` now declines the ambiguous `say something` so it can fall through to chitchat instead of literally generating "something". Italian canonicalized cues (`non` -> `not`, `sono` -> `am`) are covered without stealing substantive turns like "parliamo di formaggio".
+
+**Observed.** The improvement is conversational texture: parrot0 now gives a usable next move instead of a wall, while still keeping the user inside domains it can handle (remember a fact, reason about a small statement, continue the thread). The 10-turn stress set is deliberately mundane; passing it means the agent is less brittle at the doorway of conversation, where non-technical users live.
+
+
 ## 2026-06-20 — gen139: hypothetical repair simulation — plan, prove, restore
 
 **Goal (PROMPT.md, double-ambitious run):** move beyond choosing an intervention into running it inside a temporary world. Modern LLMs routinely reason under assumptions; parrot0 now gets a deterministic, inspectable version of that: apply the cheapest abductive repair hypothetically, prove the consequence, then restore the real state.

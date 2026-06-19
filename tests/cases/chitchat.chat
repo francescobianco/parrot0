@@ -20,7 +20,7 @@
 
 # Conversational filler -> light engagement, not a wall.
 > just bored, nothing much
-< Happy to just chat. Anything you're curious about?
+< Happy to just chat. Tell me a little, and I'll follow the thread as best I can.
 
 # Agreement with parrot0's self-description -> acknowledge and move on.
 > fair enough, makes sense
@@ -35,3 +35,41 @@
 # gets the honest wall — chitchat must never swallow genuine questions.
 > is the sky blue?
 < I don't understand that yet.
+
+# gen140: companion-style casual conversation. These are non-technical,
+# non-knowledge turns from ordinary users; answer naturally without pretending
+# to know facts or feelings.
+> i don't know what to say
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> tell me something
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> can we just talk
+< Happy to just chat. Tell me a little, and I'll follow the thread as best I can.
+> im tired
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> that's cool
+< Nice. Tell me what made it good, or give me a small thing to reason about.
+
+# gen140 stress set: ten casual/non-technical openings, all should avoid the wall
+# while staying honest and steering toward a tractable conversation.
+> no idea what to say
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> say something
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> entertain me
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> rough day
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> bad day
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> just talk
+< Happy to just chat. Tell me a little, and I'll follow the thread as best I can.
+> lets talk
+< Happy to just chat. Tell me a little, and I'll follow the thread as best I can.
+> im happy
+< Nice. Tell me what made it good, or give me a small thing to reason about.
+> great day
+< Nice. Tell me what made it good, or give me a small thing to reason about.
+> cool
+< Nice. Tell me what made it good, or give me a small thing to reason about.
+

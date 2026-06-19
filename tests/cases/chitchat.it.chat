@@ -10,3 +10,16 @@
 # Italian offer to switch language.
 > ok parliamo in inglese
 < We can chat in either language — I'll do my best.
+
+# gen140: Italian casual companion cues through the same chitchat branches.
+> non so cosa dire
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> dimmi qualcosa
+< We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.
+> facciamo due chiacchiere
+< Happy to just chat. Tell me a little, and I'll follow the thread as best I can.
+> sono stanco
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> che bello
+< Nice. Tell me what made it good, or give me a small thing to reason about.
+

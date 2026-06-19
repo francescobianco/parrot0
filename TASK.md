@@ -8,6 +8,9 @@
 
 ## Done recently
 
+- **gen140 — conversation companion register.** `mod_chitchat` now handles ordinary non-technical talk openings: no-topic turns ("I don't know what to say"), requests for conversational scaffolding ("say something"), casual talk invitations, low-energy mood, and upbeat acknowledgements. It stays anti-impostor: it guides toward tractable conversation rather than pretending world knowledge or empathy. Ratcheted with EN/IT minimal cases plus a 10-turn casual stress set. `chitchat.chat`/`.it`.
+
+
 - **gen139 — hypothetical repair simulation (plan -> proof -> restore).** The optimal abductive plan can now be simulated: "try the easiest way to make X a Y" temporarily asserts the missing root facts, proves the goal with `kb_explain`, reports the proof, then retracts the temporary facts so the live KB remains unchanged. Ratcheted with EN/IT footprint checks and a 10-alternative stress simulation. `branching_abduce.chat`/`.it`.
 
 

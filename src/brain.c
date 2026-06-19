@@ -2703,6 +2703,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     char *w[8];
     size_t nw = split_words(buf, w, 8);
     if (nw == 2 && strcmp(w[0], "say") == 0) {
+        if (strcmp(w[1], "something") == 0) return 0; /* companion cue */
         generate_from(b, w[1], out, out_size);
         return 1;
     }
@@ -6371,7 +6372,30 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                       cue(norm, "just bored") || cue(norm, "just vibing") ||
                       cue(norm, "just chatting") || cue(norm, "hanging out") ||
                       cue(norm, "solo chiacchiere") || cue(norm, "parliamo e basta") ||
-                      cue(norm, "just chat");
+                      cue(norm, "just chat") || cue(norm, "just talk") ||
+                      cue(norm, "can we talk") || cue(norm, "lets talk") ||
+                      cue(norm, "let us talk") || cue(norm, "parliamo e basta") ||
+                      cue(norm, "facciamo due chiacchiere");
+    int no_topic    = cue(norm, "i do not know what to say") ||
+                      cue(norm, "i don't know what to say") ||
+                      cue(norm, "i dont know what to say") ||
+                      cue(norm, "non so cosa dire") || cue(norm, "not so cosa dire") ||
+                      cue(norm, "boh") || cue(norm, "no idea what to say") ||
+                      cue(norm, "say something") || cue(norm, "tell me something") ||
+                      cue(norm, "dimmi qualcosa") || cue(norm, "intrattienimi") ||
+                      cue(norm, "entertain me");
+    int mood_down   = cue(norm, "i am tired") || cue(norm, "im tired") ||
+                      cue(norm, "sono stanco") || cue(norm, "sono stanca") ||
+                      cue(norm, "am stanco") || cue(norm, "am stanca") ||
+                      cue(norm, "bad day") || cue(norm, "giornata no") ||
+                      cue(norm, "mi annoio") || cue(norm, "sono annoiato") ||
+                      cue(norm, "sono annoiata") || cue(norm, "rough day") ||
+                      cue(norm, "not feeling great");
+    int mood_up     = cue(norm, "i am happy") || cue(norm, "im happy") ||
+                      cue(norm, "sono felice") || cue(norm, "great day") ||
+                      cue(norm, "bella giornata") || cue(norm, "that is cool") ||
+                      cue(norm, "thats cool") || cue(norm, "che bello") ||
+                      cue(norm, "nice") || cue(norm, "cool");
 
     if (frustration) {
         put("I know I repeat myself — I'm a small bot and honest about my limits. "
@@ -6383,7 +6407,13 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                          out, out_size); return 1; }
     if (language)  { put("We can chat in either language — I'll do my best.",
                          out, out_size); return 1; }
-    if (filler)    { put("Happy to just chat. Anything you're curious about?",
+    if (no_topic)  { put("We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.",
+                         out, out_size); return 1; }
+    if (mood_down) { put("Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.",
+                         out, out_size); return 1; }
+    if (mood_up)   { put("Nice. Tell me what made it good, or give me a small thing to reason about.",
+                         out, out_size); return 1; }
+    if (filler)    { put("Happy to just chat. Tell me a little, and I'll follow the thread as best I can.",
                          out, out_size); return 1; }
     if (casual)    { put("Hey! I'm here. Ask me something, or tell me about your day?",
                          out, out_size); return 1; }
@@ -7807,7 +7837,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen139-hypothetical-repair";
+    return "gen140-conversation-companion";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
