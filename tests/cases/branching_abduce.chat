@@ -42,9 +42,46 @@
 > why isn't zed a signal?
 < zed is not a signal because every alternative is blocked: alpha -> signal needs zed is a alpha; beta -> signal needs zed is a beta; gamma -> signal needs zed is a gamma; delta -> signal needs zed is a delta; epsilon -> signal needs zed is a epsilon; zeta -> signal needs zed is a zeta; eta -> signal needs zed is a eta; theta -> signal needs zed is a theta; iota -> signal needs zed is a iota; kappa -> signal needs zed is a kappa.
 
+# gen138: optimal abduction chooses the lowest-cost way across alternatives.
+> every prepared dog is a champion
+< Learned rule: champion(X) :- prepared(X), dog(X).
+> every royal vip is a champion
+< Learned rule: champion(X) :- royal(X), vip(X).
+> rex is a dog
+< Learned: dog(rex). Now rex is a pet after all.
+> what is the easiest way to make rex a champion?
+< The easiest way is to tell me that rex is a prepared — 1 missing premise via prepared and dog -> champion.
+
+# gen138 stress probe: ten alternatives; the best one is last and partly satisfied.
+> every alpha beta gamma is a marker
+< Learned rule: marker(X) :- alpha(X), beta(X), gamma(X).
+> every delta epsilon zeta is a marker
+< Learned rule: marker(X) :- delta(X), epsilon(X), zeta(X).
+> every eta theta iota is a marker
+< Learned rule: marker(X) :- eta(X), theta(X), iota(X).
+> every kappa lambda mu is a marker
+< Learned rule: marker(X) :- kappa(X), lambda(X), mu(X).
+> every nu xi omicron is a marker
+< Learned rule: marker(X) :- nu(X), xi(X), omicron(X).
+> every pi rho sigma is a marker
+< Learned rule: marker(X) :- pi(X), rho(X), sigma(X).
+> every tau upsilon phi is a marker
+< Learned rule: marker(X) :- tau(X), upsilon(X), phi(X).
+> every xchi psi omega is a marker
+< Learned rule: marker(X) :- xchi(X), psi(X), omega(X).
+> every red blue green is a marker
+< Learned rule: marker(X) :- red(X), blue(X), green(X).
+> every shortcut token is a marker
+< Learned rule: marker(X) :- shortcut(X), token(X).
+> zed is token
+< Learned: token(zed).
+> what is the easiest way to make zed a marker?
+< The easiest way is to tell me that zed is a shortcut — 1 missing premise via shortcut and token -> marker.
+
+
 
 # Take one branch; the consequence is volunteered (gen103) and the goal holds.
 > rex is a cat
-< Learned: cat(rex). Now rex is a pet after all.
+< Learned: cat(rex).
 > is rex a pet?
 < Yes.

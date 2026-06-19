@@ -1,5 +1,14 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen138: optimal abduction — choosing the cheapest repair
+
+**Goal (PROMPT.md, ambitious run):** gain ground on the LLM gap by moving from explanation to action selection. The recent generations could enumerate why a goal fails; this one asks which intervention is cheapest across alternative derivations, conjunctive bodies, chained missing premises, and facts already known.
+
+**Changed:** `brain.c` -> `gen138-optimal-abduction`: `mod_abduce` recognizes easiest-way prompts and scores every rule alternative by the count of missing ROOT premises. Satisfied conjuncts cost zero; missing derived predicates are pushed backward through `abduce_roots`; the lowest-cost alternative is reported as an actionable repair plan. Added EN/IT ratchets plus a 10-alternative stress case where the best path appears last and is partly satisfied.
+
+**Observed.** This is no longer just abductive explanation; it is a small planner over the hypothesis space. In `champion <- prepared & dog` versus `champion <- royal & vip`, knowing `dog(rex)` makes the first route cost one and the second cost two, so parrot0 selects the cheaper intervention. The 10-way stress probe shows the selector is scanning and scoring alternatives, not reciting the first plausible rule.
+
+
 ## 2026-06-20 — gen137: branching why-not — every blocked path
 
 **Goal (PROMPT.md run):** finish the contrastive side of the abductive lattice. Gen136 could explain a failed chain, but a goal with several alternative derivations still reported only the first blocked rule. A real why-not answer must show that every possible path is blocked.

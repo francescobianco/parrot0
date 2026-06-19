@@ -13,3 +13,14 @@
 > perché rex non è un animale?
 < rex is not a animale because every alternative is blocked: gatto -> animale needs rex is a gatto; cane -> animale needs rex is a cane.
 
+# gen138, Italian probe: optimal abduction through the same rule-cost path.
+> ogni cane preparato è un campione
+< Learned rule: campione(X) :- cane(X), preparato(X).
+> ogni nobile vip è un campione
+< Learned rule: campione(X) :- nobile(X), vip(X).
+> rex è un cane
+< Learned: cane(rex). Now rex is a animale after all.
+> modo piu facile per rendere rex un campione?
+< The easiest way is to tell me that rex is a preparato — 1 missing premise via cane and preparato -> campione.
+
+

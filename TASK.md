@@ -8,6 +8,9 @@
 
 ## Done recently
 
+- **gen138 — optimal abduction (lowest-cost repair plan).** `mod_abduce` now answers "what is the easiest way to make X a Y?" by scoring every rule alternative by missing root premises, skipping already-known conjuncts, and choosing the cheapest plan. This composes branching, conjunction, chain-rooting, and current KB state. Ratcheted with EN/IT minimal cases and a 10-alternative stress probe where the best path is last and partly satisfied. `branching_abduce.chat`/`.it`.
+
+
 - **gen137 — branching contrastive abduction (all alternatives blocked).** Why-not over a goal with multiple rule alternatives now enumerates every blocked derivation instead of citing only the first rule (`cat -> pet needs rex is a cat; dog -> pet needs rex is a dog`). The branch also roots missing derived premises per alternative. Ratcheted with EN/IT minimal cases and a 10-alternative English stress probe per LOOP.md. `branching_abduce.chat`/`.it`.
 
 

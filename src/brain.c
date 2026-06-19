@@ -7287,6 +7287,40 @@ static void abduce_spine(KB *kb, const char *pred, char *out, size_t out_size) {
                               "%s%s", (i + 1 < n) ? " -> " : "", chain[i]);
 }
 
+static size_t add_missing_root(char roots[][KB_TERM_LEN], size_t nr,
+                               size_t maxr, const char *pred) {
+    for (size_t i = 0; i < nr; i++)
+        if (strcmp(roots[i], pred) == 0) return nr;
+    if (nr < maxr) snprintf(roots[nr++], KB_TERM_LEN, "%.*s", KB_TERM_LEN - 1, pred);
+    return nr;
+}
+
+/* gen138: cost one alternative by the ROOT facts still needed to make it true.
+ * Already-satisfied body predicates cost zero; derived missing predicates are
+ * pushed backward to their roots, so the score is over acquirable facts. */
+static size_t abduce_rule_missing_roots(KB *kb, const char *head, size_t rule_idx,
+                                        const char *arg,
+                                        char roots[][KB_TERM_LEN], size_t maxr,
+                                        char *rule, size_t rule_size) {
+    roots[0][0] = 0;
+    char rb[8][KB_TERM_LEN];
+    size_t nrb = kb_nth_rule_body_preds(kb, head, 1, rule_idx, rb, 8);
+    size_t nr = 0, ro = 0;
+    if (rule_size) rule[0] = 0;
+    for (size_t i = 0; i < nrb; i++) {
+        ro += (size_t)snprintf(rule + ro, ro < rule_size ? rule_size - ro : 0,
+                               "%s%s", i ? " and " : "", rb[i]);
+        const char *pa[] = {arg};
+        if (kb_query(kb, rb[i], pa, 1)) continue;
+        char sub[8][KB_TERM_LEN];
+        if (kb_rule_body_preds(kb, rb[i], 1, sub, 8) > 0)
+            nr = abduce_roots(kb, rb[i], arg, 0, roots, maxr, nr);
+        else
+            nr = add_missing_root(roots, nr, maxr, rb[i]);
+    }
+    return nr;
+}
+
 static int mod_abduce(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     (void)raw;
@@ -7302,6 +7336,17 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
     };
     const char *clause = NULL;
     int contrastive = 0;
+    int optimal = 0;
+
+    static const char *const opt_pre[] = {
+        "what is the easiest way to make ", "what's the easiest way to make ",
+        "easiest way to make ", "least i need to know for ",
+        "modo piu facile per rendere ", "modo più facile per rendere ", NULL
+    };
+    for (const char *const *p = opt_pre; *p; p++) {
+        size_t L = strlen(*p);
+        if (strncmp(norm, *p, L) == 0) { clause = norm + L; optimal = 1; break; }
+    }
 
     static const char *const neg_pre[] = {
         "why is not ", "why is ", "why ", "perché ", "perche ", NULL
@@ -7348,6 +7393,46 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         snprintf(msg, sizeof msg,
                  "I have no rule that would make anything a %s, so I can't say "
                  "what would.", pred);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    if (optimal) {
+        size_t nrules = kb_rules_for_head(b->kb, pred, 1);
+        size_t best_n = 999, best_r = 0;
+        char best_roots[16][KB_TERM_LEN];
+        char best_rule[200]; best_rule[0] = '\0';
+        for (size_t r = 0; r < nrules; r++) {
+            char roots[16][KB_TERM_LEN];
+            char rule[200];
+            size_t nr = abduce_rule_missing_roots(b->kb, pred, r, arg,
+                                                  roots, 16, rule, sizeof rule);
+            if (nr > 0 && nr < best_n) {
+                best_n = nr;
+                best_r = r;
+                snprintf(best_rule, sizeof best_rule, "%s", rule);
+                for (size_t i = 0; i < nr; i++)
+                    snprintf(best_roots[i], KB_TERM_LEN, "%s", roots[i]);
+            }
+        }
+
+        char msg[1024];
+        if (best_n == 999) {
+            snprintf(msg, sizeof msg,
+                     "I can see rules for %s, but no missing premise plan stands out.",
+                     pred);
+        } else {
+            char need[500]; size_t no = 0;
+            for (size_t i = 0; i < best_n; i++)
+                no += (size_t)snprintf(need + no,
+                                       no < sizeof need ? sizeof need - no : 0,
+                                       "%s%s is a %s", i ? " and " : "",
+                                       arg, best_roots[i]);
+            snprintf(msg, sizeof msg,
+                     "The easiest way is to tell me that %s — %zu missing premise%s via %s -> %s.",
+                     need, best_n, best_n == 1 ? "" : "s", best_rule, pred);
+            (void)best_r;
+        }
         put(msg, out, out_size);
         return 1;
     }
@@ -7691,7 +7776,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen137-branching-why-not";
+    return "gen138-optimal-abduction";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
