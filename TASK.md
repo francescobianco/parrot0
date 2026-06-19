@@ -8,6 +8,13 @@
 
 ## Done recently
 
+- **gen133 — conjunctive concepts (the keystone).** "every friendly dog is a
+  goodboy" → `goodboy(X) :- friendly(X), dog(X)` via new `kb_assert_rule_n`; a
+  guarded article-free intake ("rex is friendly" → `friendly(rex)`, only when the
+  class is a rule-body predicate via `kb_rule_body_mentions`). One change closed
+  three open edges at once: gen130 multi-fact robustness, gen131/132 conjunctive
+  abduction, gen103 self-correction through a conjunctive rule — no module
+  changed, the parts were already general. `conjunction.chat`/`.it`.
 - **gen132 (L16/L19) — chained abduction.** `mod_abduce` now recurses backward
   (`abduce_roots`/`abduce_spine`): when the missing premise is itself derived,
   it chains to the ROOT fact and reports the inference spine ("by human -> man ->

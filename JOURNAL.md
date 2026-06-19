@@ -1,5 +1,51 @@
 # parrot0 evolution journal
 
+## 2026-06-19 — gen133: conjunctive concepts — the keystone that closes three open edges
+
+**Goal (PROMPT.md, fourth run):** the honest open edge named at the end of both
+gen130 and gen132 was the same thing — CONJUNCTIVE rule bodies. The SLD engine
+has supported multi-goal rules since gen11 (`KB_MAX_BODY 8`); only the intake was
+missing. Add it, and the conjunctive cases the recent generations promised fall
+into place at once.
+
+**Changed:** `kb.{h,c}` gain `kb_assert_rule_n` (assert head :- b0,…,bn) and
+`kb_rule_body_mentions`; `KB_MAX_BODY` promoted to `kb.h`. `brain.c` →
+`gen133-conjunction`: the "every …" intake generalizes to a conjunction of the
+modifiers before the head noun; a guarded ARTICLE-FREE assertion ("rex is
+friendly") fires only when the class is a rule-body predicate; `mod_abduce` names
+only the MISSING conjunct. No new module. New `conjunction.chat` / `.it`. `make
+test` green, no regressions.
+
+- **The capability.** "every friendly dog is a goodboy" → `goodboy(X) :-
+  friendly(X), dog(X)`. Then the whole recent toolchain works conjunctively in one
+  conversation: "rex is a dog" (one conjunct), "what would make rex a goodboy?" →
+  *"If you told me that rex is a friendly … — that's the rule friendly and dog ->
+  goodboy"* (abduction names only the missing conjunct), "rex is friendly"
+  (article-free, accepted because `friendly` is a known rule class) → *"Now rex is
+  a goodboy after all"* (gen103), and finally *"…rests on 2 load-bearing facts:
+  dog(rex), friendly(rex)"* — the multi-fact robustness gen130 explicitly could
+  not reach.
+- **Why it's a keystone, not a feature.** One intake change retroactively
+  completed three earlier generations: gen130's multi-fact robustness, gen131/132's
+  conjunctive abduction, and gen103's self-correction now propagating through a
+  conjunctive rule. Nothing about those modules changed — they were already
+  general; they had just never been fed a conjunction. The articulated structure
+  (PRINCIPLES.md) paid off: the parts were waiting for the data.
+- **The article-free intake is principled, not loose.** "X is Y" without an
+  article asserts `Y(X)` ONLY when `Y` is a predicate some rule body depends on
+  (`kb_rule_body_mentions`). So "rex is friendly" lands as `friendly(rex)` while
+  "this is great" still falls through — the grammar widened exactly as far as a
+  learned concept licenses, no further.
+
+**Observed.** The astonishing thing this run was not a new trick but COHERENCE:
+teach one conjunctive concept and five generations spanning self-correction,
+abduction, chaining and robustness immediately cooperate over it, in two
+languages, with no glue code. That convergence — independently grown parts
+snapping together the moment the representation supports them — is the clearest
+sign yet that the structure is real and not a pile of special cases. Stopping the
+fourth run here. Open: branching rules (abduction reports one explanation),
+disjunctive concepts ("a cat or a dog"), n-ary conjuncts in robustness display.
+
 ## 2026-06-19 — gen132: chained abduction (L16/L19) — backward inference to the root premise
 
 **Goal (PROMPT.md, third run, capstone):** the backward dual of gen130's forward

@@ -1048,14 +1048,25 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* rule: "every <y> is a/an <z>" -> z(X) :- y(X) */
-    if (nw == 5 && strcmp(w[0], "every") == 0 && strcmp(w[2], "is") == 0 &&
-        is_article(w[3])) {
-        const char *body = w[1], *head = w[4];
-        if (kb_assert_rule(b->kb, head, body)) {
-            char msg[128];
-            snprintf(msg, sizeof msg, "Learned rule: %s(X) :- %s(X).",
-                     head, body);
+    /* rule: "every <body...> is a/an <head>" -> head(X) :- body0(X), …
+     * gen133 generalizes the single-body form to a CONJUNCTION: the modifiers
+     * before the head noun become conjoined premises, e.g. "every friendly dog
+     * is a goodboy" -> goodboy(X) :- friendly(X), dog(X). nw==5 (one body word)
+     * stays exactly the old single-body rule, so prior behaviour is preserved. */
+    if (nw >= 5 && nw <= 4 + KB_MAX_BODY && strcmp(w[0], "every") == 0 &&
+        strcmp(w[nw - 3], "is") == 0 && is_article(w[nw - 2])) {
+        const char *head = w[nw - 1];
+        const char *bodies[KB_MAX_BODY];
+        size_t nbody = nw - 4; /* body words are w[1 .. nw-4] */
+        for (size_t i = 0; i < nbody; i++) bodies[i] = w[1 + i];
+        if (kb_assert_rule_n(b->kb, head, bodies, nbody)) {
+            char msg[256];
+            size_t o = (size_t)snprintf(msg, sizeof msg, "Learned rule: %s(X) :- ",
+                                        head);
+            for (size_t i = 0; i < nbody && o < sizeof msg; i++)
+                o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s(X)",
+                                      i ? ", " : "", bodies[i]);
+            if (o < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
             put(msg, out, out_size);
             auto_induce(b, out, out_size);
         } else {
@@ -1175,6 +1186,33 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             else
                 snprintf(msg, sizeof msg, "I couldn't store that.");
             put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen133: article-free class assertion "<x> is <adj>" -> adj(x), but ONLY
+     * when adj is a predicate some rule body already depends on. This makes the
+     * conjuncts of a learned conjunctive concept ("every friendly dog is a
+     * goodboy") assertable in natural English ("rex is friendly"), without the
+     * frame ever firing on arbitrary "X is Y" prose. */
+    if (nw == 3 && strcmp(w[1], "is") == 0 &&
+        !is_stopword(b, w[0]) && isalpha((unsigned char)w[0][0])) {
+        char clsbuf[KB_TERM_LEN];
+        snprintf(clsbuf, sizeof clsbuf, "%s", w[2]);
+        char *cl2 = strip_edge_punct(clsbuf);
+        if (kb_rule_body_mentions(b->kb, cl2)) {
+            const char *subj;
+            if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+            const char *args[] = {subj};
+            char msg[128];
+            int before = b->has_last_goal ? goal_truth(b) : -1;
+            if (kb_assert(b->kb, cl2, args, 1))
+                snprintf(msg, sizeof msg, "Learned: %s(%s).", cl2, subj);
+            else
+                snprintf(msg, sizeof msg, "I couldn't store that.");
+            put(msg, out, out_size);
+            remember_entity(b, w[0], subj);
+            note_consequence(b, cl2, before, out, out_size);
             return 1;
         }
     }
@@ -7321,11 +7359,18 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
                  "If you told me that %s, then %s would be a %s — by %s.",
                  prem, arg, pred, spine);
     } else {
-        char prem[400]; size_t po = 0;
+        /* name only the MISSING conjuncts as the premise to supply, but show the
+         * full rule body so the rule itself is reported faithfully. */
+        char prem[400]; size_t po = 0; int np_missing = 0;
         char rule[200]; size_t ro = 0;
         for (size_t i = 0; i < nb; i++) {
-            po += (size_t)snprintf(prem + po, po < sizeof prem ? sizeof prem - po : 0,
-                                   "%s%s is a %s", i ? " and " : "", arg, bodies[i]);
+            const char *pa[] = {arg};
+            if (!kb_query(b->kb, bodies[i], pa, 1)) {
+                po += (size_t)snprintf(prem + po, po < sizeof prem ? sizeof prem - po : 0,
+                                       "%s%s is a %s", np_missing ? " and " : "",
+                                       arg, bodies[i]);
+                np_missing++;
+            }
             ro += (size_t)snprintf(rule + ro, ro < sizeof rule ? sizeof rule - ro : 0,
                                    "%s%s", i ? " and " : "", bodies[i]);
         }
@@ -7499,7 +7544,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen132-abduce-chain";
+    return "gen133-conjunction";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

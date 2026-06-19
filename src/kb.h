@@ -19,6 +19,7 @@
 
 #define KB_MAX_ARGS 4   /* arity ceiling for now */
 #define KB_TERM_LEN 64  /* max length of a predicate or argument atom */
+#define KB_MAX_BODY 8   /* goals per rule body (conjunctive rules) */
 
 /* Provenance of a clause (bit flags, so save can select layers). See DESIGN.md
  * D3: knowledge is composed from layers, and only some are persisted. */
@@ -63,6 +64,14 @@ int    kb_is_conflicted(const KB *kb, const char *pred,
 /* Assert a definite rule of the form  head(X) :- body(X)  (unary, one shared
  * variable — the shape gen6 needs). Idempotent. Returns 1 if stored/known. */
 int    kb_assert_rule(KB *kb, const char *head, const char *body);
+
+/* Assert a CONJUNCTIVE unary rule  head(X) :- body[0](X), …, body[n-1](X)
+ * (gen133). All goals share the single variable X. Idempotent (an identical
+ * rule is not duplicated). nbody must be 1..KB_MAX_BODY. Returns 1 on success
+ * (or if already present), 0 on error. With nbody==1 it is equivalent to
+ * kb_assert_rule. */
+int    kb_assert_rule_n(KB *kb, const char *head,
+                        const char *const *bodies, size_t nbody);
 
 /* Query a fact. For unary queries this performs backward-chaining resolution
  * over facts AND rules (with a depth limit); for other arities it is a direct
@@ -125,6 +134,12 @@ int    kb_describe_entity(const KB *kb, const char *entity,
  * DESIGN.md D6 plans to replace this hardcoded epistemic check with emergent
  * meta-knowledge (reflection + negation-as-failure). */
 int    kb_knows_pred(const KB *kb, const char *pred);
+
+/* True if `pred` appears as a BODY goal in any rule (gen133). Lets the intake
+ * accept "X is friendly" without an article precisely — and only — when
+ * "friendly" is a class some rule already depends on, so the article-free frame
+ * cannot hijack arbitrary "X is Y" prose. */
+int    kb_rule_body_mentions(const KB *kb, const char *pred);
 
 /* Collect the distinct UNARY predicate symbols known to the KB — those that
  * appear as a 1-arg fact or as a 1-arg rule head. Used by grounded

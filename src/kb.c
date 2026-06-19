@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define KB_MAX_BODY  8  /* goals per rule body                         */
+/* KB_MAX_BODY is declared in kb.h (part of kb_assert_rule_n's contract). */
 #define KB_MAX_GOALS 64 /* resolvent size ceiling                      */
 #define KB_MAX_DEPTH 64 /* resolution recursion guard (cyclic rules)   */
 #define KB_MAX_BIND  128/* bindings per substitution                   */
@@ -252,6 +252,36 @@ int kb_assert_rule(KB *kb, const char *head, const char *body) {
     strcpy(r.head.pred, head);  r.head.argc = 1;     strcpy(r.head.args[0], "X");
     r.nbody = 1;
     strcpy(r.body[0].pred, body); r.body[0].argc = 1; strcpy(r.body[0].args[0], "X");
+    r.origin = kb->origin;
+    return kb_add_rule(kb, &r);
+}
+
+int kb_assert_rule_n(KB *kb, const char *head,
+                     const char *const *bodies, size_t nbody) {
+    if (!kb || !term_ok(head) || nbody == 0 || nbody > KB_MAX_BODY) return 0;
+    for (size_t i = 0; i < nbody; i++)
+        if (!term_ok(bodies[i])) return 0;
+    if (nbody == 1) return kb_assert_rule(kb, head, bodies[0]); /* idempotent path */
+
+    /* idempotent: an identical conjunctive rule is not duplicated */
+    for (size_t r = 0; r < kb->nr; r++) {
+        const Rule *R = &kb->rules[r];
+        if (R->nbody != nbody || strcmp(R->head.pred, head) != 0) continue;
+        int same = 1;
+        for (size_t b = 0; b < nbody; b++)
+            if (strcmp(R->body[b].pred, bodies[b]) != 0) { same = 0; break; }
+        if (same) return 1;
+    }
+
+    Rule r;
+    memset(&r, 0, sizeof r);
+    strcpy(r.head.pred, head); r.head.argc = 1; strcpy(r.head.args[0], "X");
+    r.nbody = nbody;
+    for (size_t b = 0; b < nbody; b++) {
+        strcpy(r.body[b].pred, bodies[b]);
+        r.body[b].argc = 1;
+        strcpy(r.body[b].args[0], "X");
+    }
     r.origin = kb->origin;
     return kb_add_rule(kb, &r);
 }
@@ -916,6 +946,14 @@ int kb_knows_pred(const KB *kb, const char *pred) {
         if (strcmp(kb->neg[i].pred, pred) == 0) return 1;
     for (size_t i = 0; i < kb->nr; i++)
         if (strcmp(kb->rules[i].head.pred, pred) == 0) return 1;
+    return 0;
+}
+
+int kb_rule_body_mentions(const KB *kb, const char *pred) {
+    if (!kb || !pred) return 0;
+    for (size_t r = 0; r < kb->nr; r++)
+        for (size_t b = 0; b < kb->rules[r].nbody; b++)
+            if (strcmp(kb->rules[r].body[b].pred, pred) == 0) return 1;
     return 0;
 }
 
