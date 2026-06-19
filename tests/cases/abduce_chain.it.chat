@@ -1,0 +1,12 @@
+# gen132 (L16/L19), Italian probe: the SAME multi-step backward chaining reached
+# through the Italian trigger ("cosa renderebbe …"). One mechanism, two
+# languages, one code path — the bilingual ratchet over a two-link rule chain.
+
+> ogni uomo è un mortale
+< Learned rule: mortale(X) :- uomo(X).
+> ogni umano è un uomo
+< Learned rule: uomo(X) :- umano(X).
+> socrate è un mortale?
+< No.
+> cosa renderebbe socrate un mortale?
+< If you told me that socrate is a umano, then socrate would be a mortale — by umano -> uomo -> mortale.

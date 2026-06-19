@@ -8,6 +8,12 @@
 
 ## Done recently
 
+- **gen132 (L16/L19) — chained abduction.** `mod_abduce` now recurses backward
+  (`abduce_roots`/`abduce_spine`): when the missing premise is itself derived,
+  it chains to the ROOT fact and reports the inference spine ("by human -> man ->
+  mortal"). Supplying the root propagates the whole chain forward (gen103). The
+  backward dual of gen130's forward sweep. gen131 one-step format preserved.
+  `abduce_chain.chat`/`.it`.
 - **gen131 (L16/L19) — abduction (inference to the missing premise).** `mod_abduce`
   runs the rule engine BACKWARDS: from a goal that doesn't hold, find a rule whose
   head matches and name the body premise that would entail it ("If you told me

@@ -7206,6 +7206,47 @@ static int parse_goal_loose(const char *clause, char *pred, size_t ps,
     return 1;
 }
 
+/* gen132: backward chaining for abduction. Collect the ROOT premises that would
+ * make goal `pred(arg)` hold — the unsatisfied predicates with no rule of their
+ * own, reached by following rule bodies down. A body already true is satisfied
+ * (skipped); a body with its own rule recurses; a body that is neither is a
+ * root to acquire. Dedups; depth-guarded. Returns the new root count. */
+static size_t abduce_roots(KB *kb, const char *pred, const char *arg, int depth,
+                           char roots[][KB_TERM_LEN], size_t maxr, size_t nr) {
+    if (depth > 16) return nr;
+    char bodies[8][KB_TERM_LEN];
+    size_t nb = kb_rule_body_preds(kb, pred, 1, bodies, 8);
+    if (nb == 0) { /* no rule defines pred -> it is itself a root premise */
+        for (size_t i = 0; i < nr; i++)
+            if (strcmp(roots[i], pred) == 0) return nr; /* dedup */
+        if (nr < maxr) snprintf(roots[nr++], KB_TERM_LEN, "%s", pred);
+        return nr;
+    }
+    for (size_t i = 0; i < nb; i++) {
+        const char *a[] = {arg};
+        if (kb_query(kb, bodies[i], a, 1)) continue; /* already satisfied */
+        nr = abduce_roots(kb, bodies[i], arg, depth + 1, roots, maxr, nr);
+    }
+    return nr;
+}
+
+/* gen132: build the linear rule spine "root -> … -> goal" by following the FIRST
+ * body predicate at each level until a predicate with no rule. */
+static void abduce_spine(KB *kb, const char *pred, char *out, size_t out_size) {
+    char chain[16][KB_TERM_LEN]; size_t n = 0;
+    char cur[KB_TERM_LEN]; snprintf(cur, sizeof cur, "%s", pred);
+    for (int d = 0; d < 16 && n < 16; d++) {
+        snprintf(chain[n++], KB_TERM_LEN, "%s", cur);
+        char bodies[8][KB_TERM_LEN];
+        if (kb_rule_body_preds(kb, cur, 1, bodies, 8) == 0) break;
+        snprintf(cur, sizeof cur, "%s", bodies[0]);
+    }
+    size_t o = 0;
+    for (size_t i = n; i-- > 0;) /* reverse: root first */
+        o += (size_t)snprintf(out + o, o < out_size ? out_size - o : 0,
+                              "%s%s", (i + 1 < n) ? " -> " : "", chain[i]);
+}
+
 static int mod_abduce(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     (void)raw;
@@ -7255,20 +7296,43 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* name the premises that, grounded on `arg`, would entail the goal */
-    char prem[400]; size_t po = 0;
-    char rule[200]; size_t ro = 0;
+    /* gen132: is any immediate premise itself DERIVABLE (has its own rule) and
+     * unsatisfied? Then a single step doesn't reach acquirable facts — chain
+     * backwards to the ROOT premises and show the rule spine. Otherwise keep the
+     * gen131 one-step message (the immediate body IS the root). */
+    int deeper = 0;
     for (size_t i = 0; i < nb; i++) {
-        po += (size_t)snprintf(prem + po, po < sizeof prem ? sizeof prem - po : 0,
-                               "%s%s is a %s", i ? " and " : "", arg, bodies[i]);
-        ro += (size_t)snprintf(rule + ro, ro < sizeof rule ? sizeof rule - ro : 0,
-                               "%s%s", i ? " and " : "", bodies[i]);
+        const char *pa[] = {arg};
+        char sub[8][KB_TERM_LEN];
+        if (!kb_query(b->kb, bodies[i], pa, 1) &&
+            kb_rule_body_preds(b->kb, bodies[i], 1, sub, 8) > 0) { deeper = 1; break; }
     }
 
-    char msg[760];
-    snprintf(msg, sizeof msg,
-             "If you told me that %s, then %s would be a %s — that's the rule %s -> %s.",
-             prem, arg, pred, rule, pred);
+    char msg[800];
+    if (deeper) {
+        char roots[16][KB_TERM_LEN];
+        size_t nr = abduce_roots(b->kb, pred, arg, 0, roots, 16, 0);
+        char prem[400]; size_t po = 0;
+        for (size_t i = 0; i < nr; i++)
+            po += (size_t)snprintf(prem + po, po < sizeof prem ? sizeof prem - po : 0,
+                                   "%s%s is a %s", i ? " and " : "", arg, roots[i]);
+        char spine[256]; abduce_spine(b->kb, pred, spine, sizeof spine);
+        snprintf(msg, sizeof msg,
+                 "If you told me that %s, then %s would be a %s — by %s.",
+                 prem, arg, pred, spine);
+    } else {
+        char prem[400]; size_t po = 0;
+        char rule[200]; size_t ro = 0;
+        for (size_t i = 0; i < nb; i++) {
+            po += (size_t)snprintf(prem + po, po < sizeof prem ? sizeof prem - po : 0,
+                                   "%s%s is a %s", i ? " and " : "", arg, bodies[i]);
+            ro += (size_t)snprintf(rule + ro, ro < sizeof rule ? sizeof rule - ro : 0,
+                                   "%s%s", i ? " and " : "", bodies[i]);
+        }
+        snprintf(msg, sizeof msg,
+                 "If you told me that %s, then %s would be a %s — that's the rule %s -> %s.",
+                 prem, arg, pred, rule, pred);
+    }
     put(msg, out, out_size);
     return 1;
 }
@@ -7435,7 +7499,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen131-abduce";
+    return "gen132-abduce-chain";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

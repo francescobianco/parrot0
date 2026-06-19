@@ -1,5 +1,41 @@
 # parrot0 evolution journal
 
+## 2026-06-19 — gen132: chained abduction (L16/L19) — backward inference to the root premise
+
+**Goal (PROMPT.md, third run, capstone):** the backward dual of gen130's forward
+ablation sweep. gen131 abduced ONE missing premise; gen132 chains backward
+through a multi-rule derivation to the ROOT fact you could actually supply.
+
+**Changed:** `brain.c` → `gen132-abduce-chain`; `mod_abduce` gains recursive
+`abduce_roots` + `abduce_spine`; reporting is adaptive (gen131's one-step message
+when the immediate premise is the root, a chain message when it is itself
+derived). No new module, no registry change. New `abduce_chain.chat` / `.it`.
+`make test` green; gen131 cases unchanged (no regression).
+
+- **The capability.** Two rules, mortal←man←human, nothing known. "is socrates a
+  mortal?" → "No." "what would make socrates a mortal?" → *"If you told me that
+  socrates is a human, then socrates would be a mortal — by human -> man ->
+  mortal."* The agent recurses past `man` (itself derived, so not directly
+  acquirable) to the root `human`, and reports the spine it would travel.
+- **End-to-end composition — the stunning part.** Supply the root ("socrates is a
+  human") and the consequence propagates the WHOLE chain, gen103 announcing
+  *"Learned: human(socrates). Now socrates is a mortal after all."* Backward
+  abduction names the root; forward self-correction fires it through two rules to
+  the conclusion. The agent reasoned both directions over the same chain.
+- **The inference structure is now closed in both directions.** Forward: deduction
+  (gen6/8), the forward robustness sweep (gen130). Backward: counterfactual
+  subtraction (gen129), single-step abduction (gen131), and now chained abduction
+  to the root (gen132). The rule engine is exercised forwards and backwards, one
+  step and swept, additively and subtractively — the full lattice of inference
+  over a definite-clause KB, all in deterministic C, all tested in two languages.
+
+**Observed — stopping the third run here.** Watching parrot0 walk a rule chain
+backwards to tell you the one fact it would need, then — the instant you give it
+— walk the same chain forwards to the conclusion and volunteer it, is the moment
+PROMPT.md asks for. No model at runtime; just structure, exercised in every
+direction it admits. The honest open edge: branching rules (it reports the first
+explanation, not all), and conjunctive bodies still need multi-condition intake.
+
 ## 2026-06-19 — gen131: abduction (L16/L19) — running the rule engine backwards
 
 **Goal (PROMPT.md, third run):** a fresh astonishment. The self-modelling trilogy

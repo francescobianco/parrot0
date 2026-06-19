@@ -1,0 +1,29 @@
+# gen132 (L16/L19): CHAINED abduction — the backward dual of gen130's forward
+# sweep. When the premise that would entail a goal is ITSELF derivable, the rule
+# engine runs backwards through the whole chain to the ROOT fact you could
+# actually supply, and reports the inference spine. Multi-step inference to the
+# missing premise, computed from the real rules.
+
+# No rule at all: honestly nothing would make it so.
+> what would make socrates a wizard?
+< I have no rule that would make anything a wizard, so I can't say what would.
+
+# A two-link chain: mortal <- man <- human. Nothing about socrates is known yet.
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+> every human is a man
+< Learned rule: man(X) :- human(X).
+> is socrates a mortal?
+< No.
+
+# One step (man) wouldn't be acquirable — it's derived too — so abduction chains
+# past it to the root premise (human) and shows the spine it would travel.
+> what would make socrates a mortal?
+< If you told me that socrates is a human, then socrates would be a mortal — by human -> man -> mortal.
+
+# Supply the root: the consequence propagates the WHOLE chain (human -> man ->
+# mortal) and gen103 volunteers it — abduction and self-correction, end to end.
+> socrates is a human
+< Learned: human(socrates). Now socrates is a mortal after all.
+> is socrates a mortal?
+< Yes.
