@@ -1023,3 +1023,28 @@ size_t kb_rule_body_preds(const KB *kb, const char *head, size_t argc,
     }
     return 0;
 }
+
+size_t kb_rules_for_head(const KB *kb, const char *head, size_t argc) {
+    if (!kb || !head) return 0;
+    size_t count = 0;
+    for (size_t r = 0; r < kb->nr; r++)
+        if (kb->rules[r].head.argc == argc &&
+            strcmp(kb->rules[r].head.pred, head) == 0) count++;
+    return count;
+}
+
+size_t kb_nth_rule_body_preds(const KB *kb, const char *head, size_t argc,
+                              size_t idx, char out_body[][KB_TERM_LEN], size_t max) {
+    if (!kb || !head || max == 0) return 0;
+    size_t seen = 0;
+    for (size_t r = 0; r < kb->nr; r++) {
+        const Rule *R = &kb->rules[r];
+        if (R->head.argc != argc || strcmp(R->head.pred, head) != 0) continue;
+        if (seen++ != idx) continue;
+        size_t n = 0;
+        for (size_t b = 0; b < R->nbody && n < max; b++)
+            snprintf(out_body[n++], KB_TERM_LEN, "%s", R->body[b].pred);
+        return n;
+    }
+    return 0;
+}

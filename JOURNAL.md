@@ -1,5 +1,40 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen134: branching abduction — enumerating the hypothesis space
+
+**Goal (PROMPT.md, fifth run):** the open edge gen131/132 named — BRANCHING
+rules. Abduction reported one explanation; when several rules conclude the same
+goal there are several ways, and a reasoner should offer them all.
+
+**Changed:** `kb.{h,c}` gain `kb_rules_for_head` + `kb_nth_rule_body_preds`;
+`brain.c` → `gen134-branching-abduce`: `mod_abduce` detects when >1 rule shares
+the goal's head and enumerates each ALTERNATIVE (each naming only its own missing
+conjuncts); one rule still takes the gen131/132 path unchanged. New
+`branching_abduce.chat` / `.it`. `make test` green, no regressions, no new
+warnings.
+
+- **The capability.** Two rules cat→pet and dog→pet; "what would make rex a
+  pet?" → *"There's more than one way: either rex is a cat, or rex is a dog — any
+  one would make rex a pet."* The agent reads the alternatives out of its real
+  rule set and presents the disjunctive hypothesis space, then — supply one
+  branch ("rex is a cat") — gen103 volunteers *"Now rex is a pet after all."*
+- **The inference lattice is now structurally complete.** Over a definite-clause
+  KB the agent does: forward deduction (gen6/8) and forward robustness sweep
+  (gen130); backward counterfactual subtraction (gen129); and abduction in all
+  three shapes — single (gen131), chained to the root (gen132), and now branching
+  across alternatives (gen134) — plus conjunctive bodies (gen133) cutting across
+  all of them. Each was pulled by a real conversational task, none designed up
+  front, and they compose without glue. That is the articulated structure of
+  PRINCIPLES.md made visible: one rule engine, exercised in every direction and
+  multiplicity it admits.
+
+**Observed.** "There's more than one way: either … or …" is a small sentence with
+a large meaning: the agent is no longer reporting THE reason but surveying the
+SPACE of reasons. Disjunctive hypothesis enumeration is a recognizably
+intelligent move, and it fell out of one read over the rule table. Stopping the
+fifth run here. Open: disjunctive bodies inside one rule ("a pet is a cat or a
+dog"), ranking alternatives by plausibility, branching inside the chained case.
+
 ## 2026-06-19 — gen133: conjunctive concepts — the keystone that closes three open edges
 
 **Goal (PROMPT.md, fourth run):** the honest open edge named at the end of both

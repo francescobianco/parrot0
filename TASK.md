@@ -8,6 +8,12 @@
 
 ## Done recently
 
+- **gen134 — branching abduction (enumerating the hypothesis space).** When >1
+  rule concludes a goal, `mod_abduce` offers every alternative ("either rex is a
+  cat, or rex is a dog — any one would make rex a pet") via new
+  `kb_rules_for_head`/`kb_nth_rule_body_preds`; single-rule path unchanged.
+  Completes the abduction triad (single/chained/branching) and the inference
+  lattice over definite clauses. `branching_abduce.chat`/`.it`.
 - **gen133 — conjunctive concepts (the keystone).** "every friendly dog is a
   goodboy" → `goodboy(X) :- friendly(X), dog(X)` via new `kb_assert_rule_n`; a
   guarded article-free intake ("rex is friendly" → `friendly(rex)`, only when the

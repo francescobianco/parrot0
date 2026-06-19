@@ -1,0 +1,12 @@
+# gen134, Italian probe: the SAME enumeration of alternative explanations through
+# the Italian trigger ("cosa renderebbe …"). Two rules conclude animale; both
+# ways are offered. One mechanism, two languages, one code path.
+
+> ogni gatto è un animale
+< Learned rule: animale(X) :- gatto(X).
+> ogni cane è un animale
+< Learned rule: animale(X) :- cane(X).
+> rex è un animale?
+< No.
+> cosa renderebbe rex un animale?
+< There's more than one way: either rex is a gatto, or rex is a cane — any one would make rex a animale.

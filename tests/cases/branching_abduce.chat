@@ -1,0 +1,23 @@
+# gen134 (L16/L19): BRANCHING abduction — enumerating the hypothesis space. When
+# several rules conclude the same goal, abduction reports every ALTERNATIVE
+# explanation, not just the first. Closes the open edge gen131/132 flagged. The
+# alternatives are read from the real rule set (kb_rules_for_head /
+# kb_nth_rule_body_preds), each naming only its own missing premises.
+
+# Two independent rules conclude pet: cat -> pet and dog -> pet.
+> every cat is a pet
+< Learned rule: pet(X) :- cat(X).
+> every dog is a pet
+< Learned rule: pet(X) :- dog(X).
+> is rex a pet?
+< No.
+
+# Abduction now offers BOTH ways — the disjunctive hypothesis space.
+> what would make rex a pet?
+< There's more than one way: either rex is a cat, or rex is a dog — any one would make rex a pet.
+
+# Take one branch; the consequence is volunteered (gen103) and the goal holds.
+> rex is a cat
+< Learned: cat(rex). Now rex is a pet after all.
+> is rex a pet?
+< Yes.

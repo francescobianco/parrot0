@@ -7334,6 +7334,37 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen134: more than one rule concludes the goal -> enumerate the ALTERNATIVE
+     * explanations (the abductive hypothesis space): "Either X is a cat, or X is
+     * a dog — any one would make X a pet." Each alternative names only its
+     * missing conjuncts. (One rule falls through to the gen131/132 path.) */
+    size_t nrules = kb_rules_for_head(b->kb, pred, 1);
+    if (nrules > 1) {
+        char alts[400]; size_t ao = 0; size_t shown = 0;
+        for (size_t r = 0; r < nrules; r++) {
+            char rb[8][KB_TERM_LEN];
+            size_t nrb = kb_nth_rule_body_preds(b->kb, pred, 1, r, rb, 8);
+            char one[200]; size_t oo = 0; int miss = 0;
+            for (size_t i = 0; i < nrb; i++) {
+                const char *pa[] = {arg};
+                if (kb_query(b->kb, rb[i], pa, 1)) continue; /* satisfied conjunct */
+                oo += (size_t)snprintf(one + oo, oo < sizeof one ? sizeof one - oo : 0,
+                                       "%s%s is a %s", miss ? " and " : "", arg, rb[i]);
+                miss++;
+            }
+            if (!miss) continue; /* this rule is already fully satisfied */
+            ao += (size_t)snprintf(alts + ao, ao < sizeof alts ? sizeof alts - ao : 0,
+                                   "%s%s", shown ? ", or " : "", one);
+            shown++;
+        }
+        char msg[600];
+        snprintf(msg, sizeof msg,
+                 "There's more than one way: either %s — any one would make %s a %s.",
+                 alts, arg, pred);
+        put(msg, out, out_size);
+        return 1;
+    }
+
     /* gen132: is any immediate premise itself DERIVABLE (has its own rule) and
      * unsatisfied? Then a single step doesn't reach acquirable facts — chain
      * backwards to the ROOT premises and show the rule spine. Otherwise keep the
@@ -7346,7 +7377,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
             kb_rule_body_preds(b->kb, bodies[i], 1, sub, 8) > 0) { deeper = 1; break; }
     }
 
-    char msg[800];
+    char msg[1024];
     if (deeper) {
         char roots[16][KB_TERM_LEN];
         size_t nr = abduce_roots(b->kb, pred, arg, 0, roots, 16, 0);
@@ -7544,7 +7575,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen133-conjunction";
+    return "gen134-branching-abduce";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

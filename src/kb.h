@@ -170,4 +170,14 @@ size_t kb_pred_fact_count(const KB *kb, const char *pred);
 size_t kb_rule_body_preds(const KB *kb, const char *head, size_t argc,
                           char out_body[][KB_TERM_LEN], size_t max);
 
+/* Branching abduction (gen134): how many rules have head predicate `head` with
+ * arity `argc` — i.e. how many distinct ways the goal could be derived. */
+size_t kb_rules_for_head(const KB *kb, const char *head, size_t argc);
+
+/* Body predicates of the `idx`-th (0-based) rule whose head is `head`/`argc`,
+ * written into out_body[] (each KB_TERM_LEN). Returns the body count, or 0 if
+ * there is no such rule. Lets the caller enumerate each ALTERNATIVE explanation. */
+size_t kb_nth_rule_body_preds(const KB *kb, const char *head, size_t argc,
+                              size_t idx, char out_body[][KB_TERM_LEN], size_t max);
+
 #endif /* PARROT0_KB_H */
