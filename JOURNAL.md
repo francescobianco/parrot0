@@ -1,5 +1,14 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen137: branching why-not — every blocked path
+
+**Goal (PROMPT.md run):** finish the contrastive side of the abductive lattice. Gen136 could explain a failed chain, but a goal with several alternative derivations still reported only the first blocked rule. A real why-not answer must show that every possible path is blocked.
+
+**Changed:** `brain.c` -> `gen137-branching-why-not`: the contrastive branch of `mod_abduce` now detects multiple rules for the goal and enumerates the missing support for each alternative. If an alternative contains a derived missing premise, it roots that premise through `abduce_roots`. Added EN/IT minimal ratchets and a 10-alternative English stress probe in `branching_abduce.chat`.
+
+**Observed.** The answer changed from a local excuse to a coverage proof: "rex is not a pet" because cat->pet and dog->pet are both blocked. The 10-way stress test matters: the mechanism is a traversal over the rule table, not a two-case phrase.
+
+
 ## 2026-06-20 — gen136: chained why-not — contrastive root cause
 
 **Goal (PROMPT.md run):** stress gen135 instead of trusting the toy case. A failed-goal question should not stop at the first missing premise when that premise is itself derivable; it should keep walking backward to the root fact the user could actually supply.

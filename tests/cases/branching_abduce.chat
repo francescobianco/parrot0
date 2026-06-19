@@ -15,6 +15,33 @@
 # Abduction now offers BOTH ways — the disjunctive hypothesis space.
 > what would make rex a pet?
 < There's more than one way: either rex is a cat, or rex is a dog — any one would make rex a pet.
+> why isn't rex a pet?
+< rex is not a pet because every alternative is blocked: cat -> pet needs rex is a cat; dog -> pet needs rex is a dog.
+
+# gen137 stress probe: ten independent alternatives, all blocked.
+> every alpha is a signal
+< Learned rule: signal(X) :- alpha(X).
+> every beta is a signal
+< Learned rule: signal(X) :- beta(X).
+> every gamma is a signal
+< Learned rule: signal(X) :- gamma(X).
+> every delta is a signal
+< Learned rule: signal(X) :- delta(X).
+> every epsilon is a signal
+< Learned rule: signal(X) :- epsilon(X).
+> every zeta is a signal
+< Learned rule: signal(X) :- zeta(X).
+> every eta is a signal
+< Learned rule: signal(X) :- eta(X).
+> every theta is a signal
+< Learned rule: signal(X) :- theta(X).
+> every iota is a signal
+< Learned rule: signal(X) :- iota(X).
+> every kappa is a signal
+< Learned rule: signal(X) :- kappa(X).
+> why isn't zed a signal?
+< zed is not a signal because every alternative is blocked: alpha -> signal needs zed is a alpha; beta -> signal needs zed is a beta; gamma -> signal needs zed is a gamma; delta -> signal needs zed is a delta; epsilon -> signal needs zed is a epsilon; zeta -> signal needs zed is a zeta; eta -> signal needs zed is a eta; theta -> signal needs zed is a theta; iota -> signal needs zed is a iota; kappa -> signal needs zed is a kappa.
+
 
 # Take one branch; the consequence is volunteered (gen103) and the goal holds.
 > rex is a cat

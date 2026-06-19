@@ -8,6 +8,9 @@
 
 ## Done recently
 
+- **gen137 — branching contrastive abduction (all alternatives blocked).** Why-not over a goal with multiple rule alternatives now enumerates every blocked derivation instead of citing only the first rule (`cat -> pet needs rex is a cat; dog -> pet needs rex is a dog`). The branch also roots missing derived premises per alternative. Ratcheted with EN/IT minimal cases and a 10-alternative English stress probe per LOOP.md. `branching_abduce.chat`/`.it`.
+
+
 - **gen136 — chained contrastive abduction (root-cause why-not).** Contrastive why-not now follows the same backward chain as ordinary abduction: if the missing immediate premise is itself derived, `mod_abduce` reports the root premise and spine ("missing rex is a human; by human -> man -> mortal") instead of stopping at the first failed link. Ratcheted with a minimal EN/IT chain and a 9-link English stress probe per LOOP.md. `abduce_chain.chat`/`.it`.
 
 

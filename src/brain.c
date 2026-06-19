@@ -7352,59 +7352,103 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen135/gen136: contrastive why-not questions reuse the abductive
-     * machinery. If the missing premise is itself derived, keep walking
-     * backwards and report the root premise, not just the first failed link. */
+    /* gen135-137: contrastive why-not questions reuse the abductive machinery.
+     * A failed goal may have one rule, a chain, or several alternative rules;
+     * explain the blocked proof shape that is actually present in the KB. */
     if (contrastive) {
-        int deeper_missing = 0;
-        for (size_t i = 0; i < nb; i++) {
-            const char *pa[] = {arg};
-            char sub[8][KB_TERM_LEN];
-            if (!kb_query(b->kb, bodies[i], pa, 1) &&
-                kb_rule_body_preds(b->kb, bodies[i], 1, sub, 8) > 0) {
-                deeper_missing = 1;
-                break;
-            }
-        }
+        size_t crules = kb_rules_for_head(b->kb, pred, 1);
+        char msg[1400];
 
-        char msg[1024];
-        if (deeper_missing) {
-            char roots[16][KB_TERM_LEN];
-            size_t nr = abduce_roots(b->kb, pred, arg, 0, roots, 16, 0);
-            char missing[400]; size_t mo = 0;
-            for (size_t i = 0; i < nr; i++)
-                mo += (size_t)snprintf(missing + mo,
-                                       mo < sizeof missing ? sizeof missing - mo : 0,
-                                       "%s%s is a %s", i ? " and " : "",
-                                       arg, roots[i]);
-            char spine[256]; abduce_spine(b->kb, pred, spine, sizeof spine);
+        if (crules > 1) {
+            char alts[1000]; alts[0] = '\0'; size_t ao = 0; size_t shown = 0;
+            for (size_t r = 0; r < crules; r++) {
+                char rb[8][KB_TERM_LEN];
+                size_t nrb = kb_nth_rule_body_preds(b->kb, pred, 1, r, rb, 8);
+                char rule[200]; size_t ro = 0;
+                char need[300]; need[0] = '\0'; size_t no = 0; size_t nn = 0;
+                for (size_t i = 0; i < nrb; i++) {
+                    const char *pa[] = {arg};
+                    ro += (size_t)snprintf(rule + ro,
+                                           ro < sizeof rule ? sizeof rule - ro : 0,
+                                           "%s%s", i ? " and " : "", rb[i]);
+                    if (kb_query(b->kb, rb[i], pa, 1)) continue;
+                    char sub[8][KB_TERM_LEN];
+                    if (kb_rule_body_preds(b->kb, rb[i], 1, sub, 8) > 0) {
+                        char roots[16][KB_TERM_LEN];
+                        size_t nr = abduce_roots(b->kb, rb[i], arg, 0, roots, 16, 0);
+                        for (size_t j = 0; j < nr; j++)
+                            no += (size_t)snprintf(need + no,
+                                                   no < sizeof need ? sizeof need - no : 0,
+                                                   "%s%s is a %s", nn ? " and " : "",
+                                                   arg, roots[j]), nn++;
+                    } else {
+                        no += (size_t)snprintf(need + no,
+                                               no < sizeof need ? sizeof need - no : 0,
+                                               "%s%s is a %s", nn ? " and " : "",
+                                               arg, rb[i]);
+                        nn++;
+                    }
+                }
+                if (nn == 0) continue;
+                ao += (size_t)snprintf(alts + ao,
+                                       ao < sizeof alts ? sizeof alts - ao : 0,
+                                       "%s%s -> %s needs %s", shown ? "; " : "",
+                                       rule, pred, need);
+                shown++;
+            }
             snprintf(msg, sizeof msg,
-                     "%s is not a %s because I am missing the root premise: %s. By %s.",
-                     arg, pred, missing, spine);
+                     "%s is not a %s because every alternative is blocked: %s.",
+                     arg, pred, alts);
         } else {
-            char missing[400]; size_t mo = 0; int nm = 0;
-            char rule[200]; size_t ro = 0;
+            int deeper_missing = 0;
             for (size_t i = 0; i < nb; i++) {
                 const char *pa[] = {arg};
-                if (!kb_query(b->kb, bodies[i], pa, 1)) {
+                char sub[8][KB_TERM_LEN];
+                if (!kb_query(b->kb, bodies[i], pa, 1) &&
+                    kb_rule_body_preds(b->kb, bodies[i], 1, sub, 8) > 0) {
+                    deeper_missing = 1;
+                    break;
+                }
+            }
+
+            if (deeper_missing) {
+                char roots[16][KB_TERM_LEN];
+                size_t nr = abduce_roots(b->kb, pred, arg, 0, roots, 16, 0);
+                char missing[400]; size_t mo = 0;
+                for (size_t i = 0; i < nr; i++)
                     mo += (size_t)snprintf(missing + mo,
                                            mo < sizeof missing ? sizeof missing - mo : 0,
-                                           "%s%s is a %s", nm ? " and " : "",
-                                           arg, bodies[i]);
-                    nm++;
+                                           "%s%s is a %s", i ? " and " : "",
+                                           arg, roots[i]);
+                char spine[256]; abduce_spine(b->kb, pred, spine, sizeof spine);
+                snprintf(msg, sizeof msg,
+                         "%s is not a %s because I am missing the root premise: %s. By %s.",
+                         arg, pred, missing, spine);
+            } else {
+                char missing[400]; size_t mo = 0; int nm = 0;
+                char rule[200]; size_t ro = 0;
+                for (size_t i = 0; i < nb; i++) {
+                    const char *pa[] = {arg};
+                    if (!kb_query(b->kb, bodies[i], pa, 1)) {
+                        mo += (size_t)snprintf(missing + mo,
+                                               mo < sizeof missing ? sizeof missing - mo : 0,
+                                               "%s%s is a %s", nm ? " and " : "",
+                                               arg, bodies[i]);
+                        nm++;
+                    }
+                    ro += (size_t)snprintf(rule + ro,
+                                           ro < sizeof rule ? sizeof rule - ro : 0,
+                                           "%s%s", i ? " and " : "", bodies[i]);
                 }
-                ro += (size_t)snprintf(rule + ro,
-                                       ro < sizeof rule ? sizeof rule - ro : 0,
-                                       "%s%s", i ? " and " : "", bodies[i]);
+                if (nm > 0)
+                    snprintf(msg, sizeof msg,
+                             "%s is not a %s because I am missing: %s. The rule is %s -> %s.",
+                             arg, pred, missing, rule, pred);
+                else
+                    snprintf(msg, sizeof msg,
+                             "I have the premises for %s to be a %s, but I still cannot derive it.",
+                             arg, pred);
             }
-            if (nm > 0)
-                snprintf(msg, sizeof msg,
-                         "%s is not a %s because I am missing: %s. The rule is %s -> %s.",
-                         arg, pred, missing, rule, pred);
-            else
-                snprintf(msg, sizeof msg,
-                         "I have the premises for %s to be a %s, but I still cannot derive it.",
-                         arg, pred);
         }
         put(msg, out, out_size);
         return 1;
@@ -7647,7 +7691,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen136-chained-why-not";
+    return "gen137-branching-why-not";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
