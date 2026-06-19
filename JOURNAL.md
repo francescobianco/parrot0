@@ -1,5 +1,40 @@
 # parrot0 evolution journal
 
+## 2026-06-19 — gen131: abduction (L16/L19) — running the rule engine backwards
+
+**Goal (PROMPT.md, third run):** a fresh astonishment. The self-modelling trilogy
+(gen128–130) was all SUBTRACTIVE — remove and watch. gen131 inverts it: from a
+goal that does NOT hold, find the belief that WOULD entail it. Inference to the
+missing premise — abduction.
+
+**Changed:** `kb.{h,c}` gain `kb_rule_body_preds` (read a rule's body predicates
+by head — the spine's first backward-introspection query); `brain.c` →
+`gen131-abduce`; new `mod_abduce` (+ `parse_goal_loose`), registered after
+`robust`; `tests/cases/abduce.chat` / `.it.chat`; enumerations updated. `make
+test` green.
+
+- **The capability.** Teach the rule man→mortal but not the premise; "is socrates
+  a mortal?" → "No." Then "what would make socrates a mortal?" → *"If you told me
+  that socrates is a man, then socrates would be a mortal — that's the rule man ->
+  mortal."* It runs the rule engine **backwards**: head matches the goal, the
+  body predicate is the premise to acquire. Honest when no rule could entail it
+  ("I have no rule that would make anything a wizard"); defers to deduction with
+  the real proof when the goal already holds.
+- **Emergent cross-generation composition.** Supply exactly the abduced premise
+  ("socrates is a man") and gen103's self-correction fires unbidden: *"Learned:
+  man(socrates). Now socrates is a mortal after all."* Abduction names what's
+  missing; the moment it arrives, the consequence machinery announces what the
+  abduction predicted. Two generations, written months apart in the loop's time,
+  closing a loop together — nobody wired that interaction; it fell out of the
+  shared KB.
+- **The inference triad is now complete.** Deduction (gen6/8, forward), the
+  counterfactual subtraction of gen129 ("remove a belief → does it fall?"), and
+  now abduction (gen131, "what belief would raise it?"). Three directions through
+  the one rule engine — the shape of logical inference itself, re-expressed in
+  deterministic C. **Open:** abductive CHAINING (when the missing premise is
+  itself derivable, recurse to the root facts) — the backward dual of gen130's
+  forward sweep.
+
 ## 2026-06-19 — gen130: robustness by self-perturbation (L20-deep) — the agent finds its own load-bearing beliefs
 
 **Goal (PROMPT.md, second run):** keep iterating to a *fresh* astonishment past

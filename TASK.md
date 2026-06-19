@@ -8,6 +8,14 @@
 
 ## Done recently
 
+- **gen131 (L16/L19) — abduction (inference to the missing premise).** `mod_abduce`
+  runs the rule engine BACKWARDS: from a goal that doesn't hold, find a rule whose
+  head matches and name the body premise that would entail it ("If you told me
+  socrates is a man, then socrates would be a mortal — that's the rule man ->
+  mortal"). New spine query `kb_rule_body_preds`. Honest when no rule applies;
+  defers to deduction (with proof) when the goal already holds. Composes with
+  gen103: supply the abduced premise and the consequence is volunteered.
+  `abduce.chat`/`.it`.
 - **gen130 (L20-deep) — robustness by self-perturbation.** `mod_robust`
   stress-tests the last conclusion by ablating EACH ground unary fact in turn
   (retract → re-derive → restore) and reporting whether it is FRAGILE (one

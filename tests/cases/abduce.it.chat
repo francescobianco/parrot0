@@ -1,0 +1,10 @@
+# gen131 (L16/L19), Italian probe: the SAME backward rule-search reached through
+# the Italian trigger ("cosa renderebbe …"). Predicates are Italian words
+# (uomo/mortale) but the abductive mechanism is identical — bilingual ratchet.
+
+> ogni uomo è un mortale
+< Learned rule: mortale(X) :- uomo(X).
+> socrate è un mortale?
+< No.
+> cosa renderebbe socrate un mortale?
+< If you told me that socrate is a uomo, then socrate would be a mortale — that's the rule uomo -> mortale.

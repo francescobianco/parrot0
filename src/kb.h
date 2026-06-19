@@ -146,4 +146,13 @@ size_t kb_size(const KB *kb);
 /* Count direct stored facts for a predicate (no rule resolution). gen77. */
 size_t kb_pred_fact_count(const KB *kb, const char *pred);
 
+/* Abduction support (gen131): find the FIRST rule whose head predicate is
+ * `head` with arity `argc`, and write its body goal predicates into out_body[]
+ * (each up to KB_TERM_LEN), returning the body count. 0 if no such rule exists.
+ * The current rules are variable-sharing (head(X) :- b0(X), b1(X), …), so the
+ * caller can ground each body predicate with the head's argument to recover the
+ * premises that WOULD entail the goal. Capped at `max`. */
+size_t kb_rule_body_preds(const KB *kb, const char *head, size_t argc,
+                          char out_body[][KB_TERM_LEN], size_t max);
+
 #endif /* PARROT0_KB_H */

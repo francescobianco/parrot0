@@ -7166,6 +7166,113 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: abduce (gen131, L16/L19) -----------------------------------
+ * The INVERSE of deduction and the mirror of gen129's subtraction. gen129 asked
+ * "remove this belief — does the conclusion fall?" abduction asks the opposite:
+ * the conclusion does NOT hold — what belief WOULD make it hold? It runs the
+ * rule engine BACKWARDS: find a rule whose head is the goal, and name the body
+ * premise(s) that, if believed, would entail it ("If you told me socrates is a
+ * man, then socrates would be a mortal — that's the rule man -> mortal"). This
+ * is inference to the missing premise, computed from the real rules, not
+ * guessed. Honest when nothing could entail it, and defers to deduction when the
+ * goal already holds.
+ */
+
+/* Loose parse of a goal clause into (arg, pred): drop the copula/article/
+ * infinitive filler and take the first surviving token as the subject and the
+ * last as the class. Handles "socrates a mortal", "socrates be a mortal",
+ * "socrates to be a mortal". Returns 1 on a clean two-token reading. */
+static int parse_goal_loose(const char *clause, char *pred, size_t ps,
+                            char *arg, size_t as) {
+    char buf[256];
+    copy_trim(buf, sizeof buf, clause);
+    size_t n = strlen(buf);
+    while (n > 0 && (buf[n-1]=='?'||buf[n-1]=='.'||buf[n-1]=='!'||buf[n-1]==','))
+        buf[--n] = '\0';
+    char *w[16];
+    size_t nw = split_words(buf, w, 16);
+    char kept[16][KB_TERM_LEN]; size_t nk = 0;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strcmp(t,"is")==0 || strcmp(t,"be")==0 || strcmp(t,"a")==0 ||
+            strcmp(t,"an")==0 || strcmp(t,"to")==0 || strcmp(t,"the")==0 ||
+            strcmp(t,"would")==0 || strcmp(t,"still")==0)
+            continue;
+        if (nk < 16) snprintf(kept[nk++], KB_TERM_LEN, "%s", t);
+    }
+    if (nk < 2) return 0;
+    snprintf(arg, as, "%s", kept[0]);
+    snprintf(pred, ps, "%s", kept[nk - 1]);
+    return 1;
+}
+
+static int mod_abduce(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    /* trigger + clause extraction from the canonicalized surface */
+    static const char *const pre[] = {
+        "what would make ", "what makes ", "what would let ",
+        "why might ", "why would ", "why could ", "how could ", "how can ",
+        "what would you need to know for ", "what do you need to know for ",
+        "cosa renderebbe ", "cosa servirebbe per ", "che cosa renderebbe ",
+        NULL,
+    };
+    const char *clause = NULL;
+    for (const char *const *p = pre; *p; p++) {
+        size_t L = strlen(*p);
+        if (strncmp(norm, *p, L) == 0) { clause = norm + L; break; }
+    }
+    if (!clause) return 0;
+
+    char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
+    if (!parse_goal_loose(clause, pred, sizeof pred, arg, sizeof arg)) {
+        put("Tell me what you'd like me to account for, as 'X is a Y'.",
+            out, out_size);
+        return 1;
+    }
+
+    const char *gargs[] = {arg};
+    if (kb_query(b->kb, pred, gargs, 1)) {
+        char ex[400], msg[480];
+        if (kb_explain(b->kb, pred, gargs, 1, ex, sizeof ex) && strstr(ex, " because "))
+            snprintf(msg, sizeof msg, "I already conclude that: %s.", ex);
+        else
+            snprintf(msg, sizeof msg, "I already know that %s is a %s.", arg, pred);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    char bodies[8][KB_TERM_LEN];
+    size_t nb = kb_rule_body_preds(b->kb, pred, 1, bodies, 8);
+    if (nb == 0) {
+        char msg[200];
+        snprintf(msg, sizeof msg,
+                 "I have no rule that would make anything a %s, so I can't say "
+                 "what would.", pred);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* name the premises that, grounded on `arg`, would entail the goal */
+    char prem[400]; size_t po = 0;
+    char rule[200]; size_t ro = 0;
+    for (size_t i = 0; i < nb; i++) {
+        po += (size_t)snprintf(prem + po, po < sizeof prem ? sizeof prem - po : 0,
+                               "%s%s is a %s", i ? " and " : "", arg, bodies[i]);
+        ro += (size_t)snprintf(rule + ro, ro < sizeof rule ? sizeof rule - ro : 0,
+                               "%s%s", i ? " and " : "", bodies[i]);
+    }
+
+    char msg[760];
+    snprintf(msg, sizeof msg,
+             "If you told me that %s, then %s would be a %s — that's the rule %s -> %s.",
+             prem, arg, pred, rule, pred);
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
  * behaviour, touch only this table — not brain_respond()'s control flow.
  * (This table is also reified into the KB as module(...) facts at birth, so
@@ -7181,6 +7288,7 @@ static const Module registry[] = {
     {"counterfactual", mod_counterfactual},
     {"whatifnot", mod_whatifnot},
     {"robust",    mod_robust},
+    {"abduce",    mod_abduce},
     {"role",      mod_role},
     {"self",      mod_self},
     {"fewshot",   mod_fewshot},
@@ -7327,7 +7435,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen130-robust";
+    return "gen131-abduce";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

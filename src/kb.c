@@ -971,3 +971,17 @@ size_t kb_pred_fact_count(const KB *kb, const char *pred) {
         if (strcmp(kb->facts[i].pred, pred) == 0) count++;
     return count;
 }
+
+size_t kb_rule_body_preds(const KB *kb, const char *head, size_t argc,
+                          char out_body[][KB_TERM_LEN], size_t max) {
+    if (!kb || !head || max == 0) return 0;
+    for (size_t r = 0; r < kb->nr; r++) {
+        const Rule *R = &kb->rules[r];
+        if (R->head.argc != argc || strcmp(R->head.pred, head) != 0) continue;
+        size_t n = 0;
+        for (size_t b = 0; b < R->nbody && n < max; b++)
+            snprintf(out_body[n++], KB_TERM_LEN, "%s", R->body[b].pred);
+        return n;
+    }
+    return 0;
+}

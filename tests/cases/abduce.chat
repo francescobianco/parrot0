@@ -1,0 +1,31 @@
+# gen131 (L16/L19): ABDUCTION — inference to the missing premise, the inverse of
+# deduction and the mirror of gen129's subtraction. gen129 removed a belief and
+# watched a conclusion fall; abduction starts from a conclusion that does NOT
+# hold and runs the rule engine BACKWARDS to name the belief that would entail
+# it. Computed from the real rules (kb_rule_body_preds), not guessed.
+
+# No rule concludes "wizard", so there is honestly nothing that would make it so.
+> what would make socrates a wizard?
+< I have no rule that would make anything a wizard, so I can't say what would.
+
+# Teach the rule but NOT its premise: socrates is not (yet) provably mortal.
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+> is socrates a mortal?
+< No.
+
+# Abduction: the goal fails, so name the premise that WOULD entail it.
+> what would make socrates a mortal?
+< If you told me that socrates is a man, then socrates would be a mortal — that's the rule man -> mortal.
+
+# Supply exactly that premise — and gen103's self-correction volunteers the
+# downstream consequence the abduction predicted. Two generations composing.
+> socrates is a man
+< Learned: man(socrates). Now socrates is a mortal after all.
+> is socrates a mortal?
+< Yes.
+
+# Now the goal HOLDS, so the same question is deduction, not abduction: it cites
+# the real proof instead of an antecedent.
+> why might socrates be a mortal?
+< I already conclude that: mortal(socrates) because man(socrates).
