@@ -1,0 +1,12 @@
+% skill: persuasion — communication domain.
+
+skill(persuade).
+skill_domain(persuade, communication).
+skill_description(persuade, "persuasion — influence beliefs, attitudes, or actions through reasoned argument").
+
+persuade_method(logos, "appeal to logic — use evidence, data, and rational argument").
+persuade_method(ethos, "appeal to credibility — establish authority, trustworthiness, and good character").
+persuade_method(pathos, "appeal to emotion — connect with values, hopes, fears, and empathy").
+persuade_method(preempt_counterarguments, "anticipate and address objections before they are raised").
+persuade_method(social_proof, "show that others have made similar decisions or hold similar views").
+persuade_method(framing, "present information in a way that highlights desired interpretations").

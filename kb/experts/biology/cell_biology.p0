@@ -1,0 +1,42 @@
+% expert: cell biology — biology domain.
+% cell structure, organelles, functions, division.
+
+expert(cell_biology).
+expert_domain(cell_biology, biology).
+expert_description(cell_biology, "cell biology — cell structure, organelles, membrane transport, cell division").
+
+% --- cell types ---
+cell_type(prokaryotic, "simple cell without a nucleus or membrane-bound organelles — bacteria, archaea").
+cell_type(eukaryotic, "complex cell with a nucleus and membrane-bound organelles — plants, animals, fungi").
+cell_type(stem_cell, "undifferentiated cell capable of becoming many different cell types").
+cell_type(neuron, "specialized cell that transmits nerve impulses").
+cell_type(erythrocyte, "red blood cell — carries oxygen, lacks nucleus in mammals").
+
+% --- organelles ---
+organelle(nucleus, "contains DNA — control center of the cell").
+organelle(mitochondrion, "powerhouse of the cell — site of aerobic respiration, produces ATP").
+organelle(ribosome, "site of protein synthesis — reads mRNA and assembles amino acids").
+organelle(endoplasmic_reticulum, "network of membranes — rough ER has ribosomes, smooth ER synthesizes lipids").
+organelle(golgi_apparatus, "modifies, sorts, and packages proteins for transport").
+organelle(lysosome, "contains digestive enzymes — breaks down waste and foreign material").
+organelle(chloroplast, "site of photosynthesis in plant cells — contains chlorophyll").
+organelle(cell_membrane, "phospholipid bilayer — selectively permeable barrier").
+organelle(cell_wall, "rigid outer layer of plant, fungal, and bacterial cells — provides structure").
+organelle(cytoskeleton, "network of protein filaments — maintains shape, enables movement").
+organelle(vacuole, "storage sac for water, nutrients, and waste — large in plant cells").
+
+% --- transport ---
+transport_type(diffusion, "passive movement of particles from high to low concentration").
+transport_type(osmosis, "diffusion of water across a selectively permeable membrane").
+transport_type(active_transport, "movement against concentration gradient — requires ATP energy").
+transport_type(endocytosis, "cell engulfs material by wrapping membrane around it").
+transport_type(exocytosis, "cell expels material by vesicle fusing with membrane").
+
+% --- cell division ---
+division_type(mitosis, "cell division producing two identical diploid daughter cells — growth, repair").
+division_type(meiosis, "cell division producing four haploid gametes — sexual reproduction").
+division_phase(interphase, "G1, S, G2 phases — cell grows and replicates DNA before dividing").
+division_phase(prophase, "chromosomes condense, nuclear envelope breaks down, spindle forms").
+division_phase(metaphase, "chromosomes align at the equatorial plate").
+division_phase(anaphase, "sister chromatids separate and move to opposite poles").
+division_phase(telophase, "nuclear envelopes reform, chromosomes decondense").

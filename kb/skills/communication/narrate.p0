@@ -1,0 +1,12 @@
+% skill: narration — communication domain.
+
+skill(narrate).
+skill_domain(narrate, communication).
+skill_description(narrate, "narration — tell stories with structure, engagement, and purpose").
+
+narrate_method(hook, "start with something surprising, intriguing, or emotionally engaging").
+narrate_method(plot_arc, "structure the story: exposition, rising action, climax, falling action, resolution").
+narrate_method(character_perspective, "tell the story from a specific character's point of view").
+narrate_method(sensory_immersion, "use vivid sensory details to create a mental picture — sights, sounds, feelings").
+narrate_method(thematic_message, "weave an underlying theme or moral through the narrative").
+narrate_method(pacing, "vary the rhythm — speed up for action, slow down for reflection").

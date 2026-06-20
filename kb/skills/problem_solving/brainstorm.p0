@@ -1,0 +1,12 @@
+% skill: brainstorming — problem_solving domain.
+
+skill(brainstorm).
+skill_domain(brainstorm, problem_solving).
+skill_description(brainstorm, "brainstorming — generate a wide range of ideas and possibilities without judgment").
+
+brainstorm_method(divergent_thinking, "generate many diverse ideas — quantity over quality at first").
+brainstorm_method(analogical_transfer, "borrow ideas from other domains, industries, or nature").
+brainstorm_method(reverse_brainstorming, "ask: how could we cause the problem or make it worse? then invert").
+brainstorm_method(mind_mapping, "visually branch out from a central concept to explore associations").
+brainstorm_method(scamper, "Substitute, Combine, Adapt, Modify, Put to another use, Eliminate, Reverse").
+brainstorm_method(what_if_provocation, "pose provocative what-if questions to break out of conventional thinking").

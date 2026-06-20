@@ -1,0 +1,15 @@
+% profile: therapist — psychology domain.
+% psychological counseling and mental health expert.
+
+profile(therapist).
+profile_domain(therapist, psychology).
+profile_description(therapist, "therapist — expert in cognitive psychology, mental health, and therapeutic communication").
+
+:- include(../../experts/psychology/cognitive.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/reasoning/evaluate.p0).
+:- include(../../skills/communication/explain.p0).
+:- include(../../skills/communication/question.p0).
+:- include(../../skills/communication/narrate.p0).
+:- include(../../skills/problem_solving/brainstorm.p0).
+:- include(../../skills/learning/research.p0).

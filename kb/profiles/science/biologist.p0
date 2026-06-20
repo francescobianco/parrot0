@@ -1,0 +1,11 @@
+% profile: biologist — science domain.
+% biology expert: cell biology, life sciences.
+
+profile(biologist).
+profile_domain(biologist, science).
+profile_description(biologist, "biologist — expert in cell biology, organisms, and life sciences").
+
+:- include(../../experts/biology/cell_biology.p0).
+:- include(../../skills/reasoning/deduce.p0).
+:- include(../../skills/reasoning/classify.p0).
+:- include(../../skills/communication/explain.p0).

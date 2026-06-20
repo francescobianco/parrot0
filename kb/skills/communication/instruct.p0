@@ -1,0 +1,12 @@
+% skill: instruction — communication domain.
+
+skill(instruct).
+skill_domain(instruct, communication).
+skill_description(instruct, "instruction — give clear, actionable, step-by-step guidance").
+
+instruct_method(step_sequence, "break the task into numbered, sequential steps").
+instruct_method(check_understanding, "ask the learner to confirm or demonstrate comprehension after key steps").
+instruct_method(prerequisite_check, "verify the learner has the required knowledge or tools before starting").
+instruct_method(errror_anticipation, "warn about common mistakes before they happen — watch out for X").
+instruct_method(scaffolding, "start with guided support, gradually reduce assistance").
+instruct_method(visualize, "use diagrams, tables, or mental imagery to make instructions concrete").

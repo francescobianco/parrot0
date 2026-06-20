@@ -1,0 +1,12 @@
+% skill: translation — communication domain.
+
+skill(translate).
+skill_domain(translate, communication).
+skill_description(translate, "translation — transfer meaning accurately between languages preserving nuance").
+
+translate_method(direct_translation, "word-for-word translation where structures and idioms align").
+translate_method(idiomatic_translation, "translate the meaning of expressions, not the literal words").
+translate_method(contextual_adaptation, "adjust for cultural context, register, and audience expectations").
+translate_method(back_translation, "translate back to the source language to verify meaning is preserved").
+translate_method(register_match, "match formality level and tone to the target language's norms").
+translate_method(ambiguity_resolution, "disambiguate words with multiple meanings using context").

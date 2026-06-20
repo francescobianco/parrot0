@@ -1,0 +1,14 @@
+% profile: manager — business domain.
+% business management and leadership expert.
+
+profile(manager).
+profile_domain(manager, business).
+profile_description(manager, "manager — expert in finance, strategy, and organizational leadership").
+
+:- include(../../experts/business/finance.p0).
+:- include(../../skills/reasoning/plan.p0).
+:- include(../../skills/reasoning/prioritize.p0).
+:- include(../../skills/reasoning/evaluate.p0).
+:- include(../../skills/communication/instruct.p0).
+:- include(../../skills/communication/persuade.p0).
+:- include(../../skills/problem_solving/decompose.p0).

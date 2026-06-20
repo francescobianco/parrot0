@@ -1,0 +1,15 @@
+% profile: designer — engineering domain.
+% systems design and engineering expert.
+
+profile(designer).
+profile_domain(designer, engineering).
+profile_description(designer, "systems designer — expert in systems engineering, architecture, and design principles").
+
+:- include(../../experts/engineering/systems.p0).
+:- include(../../skills/reasoning/plan.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/reasoning/prioritize.p0).
+:- include(../../skills/problem_solving/decompose.p0).
+:- include(../../skills/problem_solving/troubleshoot.p0).
+:- include(../../skills/creativity/ideate.p0).
+:- include(../../skills/communication/describe.p0).

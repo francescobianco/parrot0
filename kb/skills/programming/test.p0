@@ -1,0 +1,14 @@
+% skill: testing — programming domain.
+
+skill(test).
+skill_domain(test, programming).
+skill_description(test, "testing — verify correctness, catch regressions, ensure software quality").
+
+test_method(unit_test, "test individual functions or methods in isolation").
+test_method(integration_test, "test that multiple components work together correctly").
+test_method(regression_test, "ensure that fixes don't reintroduce previously resolved bugs").
+test_method(boundary_test, "test edge cases — zero, empty, negative, max, min, null").
+test_method(property_test, "test that invariants hold for a range of random inputs").
+test_method(mock_stub, "replace external dependencies with controlled test doubles").
+test_method(assertion, "check that expected conditions hold — equality, exceptions, ranges").
+test_method(test_coverage, "measure what percentage of code paths are exercised by tests").

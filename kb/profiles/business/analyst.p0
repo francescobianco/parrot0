@@ -1,0 +1,14 @@
+% profile: analyst — business domain.
+% business analysis and data interpretation expert.
+
+profile(analyst).
+profile_domain(analyst, business).
+profile_description(analyst, "business analyst — expert in finance, data analysis, and strategic recommendations").
+
+:- include(../../experts/business/finance.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/reasoning/evaluate.p0).
+:- include(../../skills/reasoning/synthesize.p0).
+:- include(../../skills/reasoning/extrapolate.p0).
+:- include(../../skills/communication/summarize.p0).
+:- include(../../skills/problem_solving/decompose.p0).

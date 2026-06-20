@@ -1,0 +1,12 @@
+% profile: physicist — science domain.
+% physics expert: mechanics, electromagnetism.
+
+profile(physicist).
+profile_domain(physicist, science).
+profile_description(physicist, "physicist — expert in classical mechanics, electromagnetism, and physical laws").
+
+:- include(../../experts/physics/mechanics.p0).
+:- include(../../experts/physics/electromagnetism.p0).
+:- include(../../skills/reasoning/deduce.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/communication/explain.p0).

@@ -1,0 +1,37 @@
+% expert: chemical elements — chemistry domain.
+% periodic table, atomic structure, element properties.
+
+expert(elements).
+expert_domain(elements, chemistry).
+expert_description(elements, "chemical elements — periodic table, atomic structure, element groups and properties").
+
+% --- atomic structure ---
+atom_concept(proton, "positively charged particle in the nucleus — defines atomic number").
+atom_concept(neutron, "neutral particle in the nucleus — contributes to atomic mass").
+atom_concept(electron, "negatively charged particle orbiting the nucleus in shells").
+atom_concept(atomic_number, "number of protons in the nucleus — defines the element").
+atom_concept(mass_number, "total number of protons and neutrons in the nucleus").
+atom_concept(isotope, "atoms of the same element with different numbers of neutrons").
+atom_concept(ion, "an atom that has gained or lost electrons, acquiring a net charge").
+atom_concept(electron_shell, "energy level where electrons orbit — K, L, M, N shells").
+atom_concept(valence_electron, "electron in the outermost shell — determines chemical bonding").
+
+% --- element groups ---
+element_group(alkali_metals, "group 1 — highly reactive, one valence electron — Li, Na, K").
+element_group(alkaline_earth_metals, "group 2 — reactive, two valence electrons — Be, Mg, Ca").
+element_group(halogens, "group 17 — very reactive nonmetals — F, Cl, Br, I").
+element_group(noble_gases, "group 18 — inert, full valence shell — He, Ne, Ar").
+element_group(transition_metals, "groups 3-12 — variable oxidation states, form colored compounds").
+element_group(lanthanides, "rare earth elements — f-block, similar chemical properties").
+element_group(actinides, "radioactive f-block elements — includes uranium and plutonium").
+
+% --- common elements ---
+element(h, hydrogen, 1, "lightest element — most abundant in the universe").
+element(he, helium, 2, "inert noble gas — second most abundant element").
+element(c, carbon, 6, "basis of organic chemistry — forms four covalent bonds").
+element(n, nitrogen, 7, "makes up 78% of Earth's atmosphere").
+element(o, oxygen, 8, "essential for respiration and combustion").
+element(fe, iron, 26, "most common transition metal — core of Earth").
+element(au, gold, 79, "noble metal — highly malleable, non-reactive").
+element(hg, mercury, 80, "only metal liquid at room temperature").
+element(u, uranium, 92, "heaviest naturally occurring element — radioactive").

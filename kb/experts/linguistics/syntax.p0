@@ -1,0 +1,43 @@
+% expert: syntax — linguistics domain.
+% sentence structure, phrase grammar, parse trees.
+
+expert(syntax).
+expert_domain(syntax, linguistics).
+expert_description(syntax, "syntax — sentence structure, phrase grammar, syntactic categories, parse trees").
+
+% --- syntactic categories ---
+syntactic_category(noun, "word that names a person, place, thing, or idea — head of noun phrase").
+syntactic_category(verb, "word that expresses action, occurrence, or state — head of verb phrase").
+syntactic_category(adjective, "word that modifies a noun or pronoun").
+syntactic_category(adverb, "word that modifies a verb, adjective, or another adverb").
+syntactic_category(preposition, "word showing relationship between a noun and another element").
+syntactic_category(conjunction, "word that connects words, phrases, or clauses").
+syntactic_category(determiner, "word that introduces a noun phrase — the, a, this, my").
+syntactic_category(pronoun, "word that substitutes for a noun or noun phrase").
+
+% --- phrase types ---
+phrase_type(noun_phrase, "a phrase headed by a noun — the big red dog").
+phrase_type(verb_phrase, "a phrase headed by a verb — is running quickly").
+phrase_type(prepositional_phrase, "a preposition followed by a noun phrase — on the table").
+phrase_type(adjective_phrase, "a phrase headed by an adjective — very tall").
+phrase_type(adverb_phrase, "a phrase headed by an adverb — quite slowly").
+
+% --- clause types ---
+clause_type(independent, "a clause that can stand alone as a complete sentence").
+clause_type(dependent, "a clause that cannot stand alone — requires an independent clause").
+clause_type(relative, "a dependent clause that modifies a noun — the book that I read").
+clause_type(adverbial, "a dependent clause that modifies a verb — when it rains").
+
+% --- sentence patterns ---
+sentence_pattern(svo, "subject-verb-object — the most common pattern in English").
+sentence_pattern(sv, "subject-verb — intransitive — birds fly").
+sentence_pattern(svc, "subject-verb-complement — she is a doctor").
+sentence_pattern(svoo, "subject-verb-object-object — ditransitive — I gave her a book").
+sentence_pattern(svoc, "subject-verb-object-complement — they elected him president").
+
+% --- grammatical relations ---
+grammatical_relation(subject, "the entity performing the action or being described").
+grammatical_relation(direct_object, "the entity directly receiving the action").
+grammatical_relation(indirect_object, "the entity indirectly affected by the action").
+grammatical_relation(complement, "a word or phrase that completes the meaning of the predicate").
+grammatical_relation(modifier, "a word or phrase that adds information to another element").

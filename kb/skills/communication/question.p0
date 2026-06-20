@@ -1,0 +1,12 @@
+% skill: questioning — communication domain.
+
+skill(question).
+skill_domain(question, communication).
+skill_description(question, "questioning — formulate effective questions to elicit information and understanding").
+
+question_method(open_ended, "questions that require more than yes/no — what, how, why, describe").
+question_method(socratic, "guided questioning to lead someone to discover answers themselves").
+question_method(five_whys, "ask why repeatedly to drill down to root causes").
+question_method(clarification, "restate and ask for precision — do you mean X, or rather Y?").
+question_method(probing, "follow up on answers to dig deeper — can you tell me more about that?").
+question_method(hypothetical, "pose what-if scenarios to explore possibilities — what would happen if...?").

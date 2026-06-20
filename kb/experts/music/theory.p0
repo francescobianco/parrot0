@@ -1,0 +1,45 @@
+% expert: music theory — music domain.
+% notation, harmony, rhythm, scales, composition.
+
+expert(music_theory).
+expert_domain(music_theory, music).
+expert_description(music_theory, "music theory — notation, scales, harmony, rhythm, form, composition").
+
+% --- fundamentals ---
+music_concept(pitch, "perceived frequency of a sound — how high or low a note is").
+music_concept(rhythm, "pattern of sounds and silences in time — beat, tempo, meter").
+music_concept(melody, "sequence of notes that is perceived as a single coherent entity").
+music_concept(harmony, "simultaneous combination of notes — chords and chord progressions").
+music_concept(dynamics, "volume of sound — from pianissimo to fortissimo").
+music_concept(timbre, "tone color or quality that distinguishes different instruments or voices").
+music_concept(texture, "how melodic, rhythmic, and harmonic layers combine — monophonic, polyphonic").
+music_concept(form, "overall structure of a musical composition — sonata, rondo, binary").
+music_concept(tempo, "speed of the underlying beat — measured in BPM").
+music_concept(notation, "system of written symbols representing musical sounds").
+
+% --- scales ---
+scale_type(major, "whole-whole-half-whole-whole-whole-half pattern — bright, happy sound").
+scale_type(natural_minor, "whole-half-whole-whole-half-whole-whole pattern — sad, somber sound").
+scale_type(harmonic_minor, "natural minor with raised 7th degree — creates a leading tone").
+scale_type(melodic_minor, "raised 6th and 7th ascending, natural minor descending").
+scale_type(chromatic, "all 12 notes within an octave — half steps only").
+scale_type(pentatonic, "five-note scale — common in folk and blues music").
+scale_type(whole_tone, "six-note scale made entirely of whole steps — dreamy, ambiguous").
+
+% --- intervals ---
+interval(unison, "same note — 0 semitones").
+interval(minor_second, "1 semitone — dissonant, like Jaws theme").
+interval(major_second, "2 semitones — whole step").
+interval(minor_third, "3 semitones — basis of minor chord").
+interval(major_third, "4 semitones — basis of major chord").
+interval(perfect_fourth, "5 semitones — stable, open sound").
+interval(perfect_fifth, "7 semitones — most consonant interval after unison/octave").
+interval(octave, "12 semitones — doubling of frequency, same note name").
+
+% --- chords ---
+chord_type(major_triad, "root + major third + perfect fifth — happy, stable").
+chord_type(minor_triad, "root + minor third + perfect fifth — sad, melancholy").
+chord_type(diminished_triad, "root + minor third + diminished fifth — tense, unstable").
+chord_type(augmented_triad, "root + major third + augmented fifth — mysterious, floating").
+chord_type(diminished_seventh, "stacked minor thirds — highly dissonant, leads to resolution").
+chord_type(dominant_seventh, "major triad plus minor seventh — strong pull to tonic").

@@ -1,0 +1,12 @@
+% skill: extrapolation — reasoning domain.
+
+skill(extrapolate).
+skill_domain(extrapolate, reasoning).
+skill_description(extrapolate, "extrapolation — extend known patterns to predict future outcomes or fill gaps").
+
+extrapolate_method(trend_projection, "extend an observed trend forward in time or across data points").
+extrapolate_method(interpolation, "estimate values within the range of known data points").
+extrapolate_method(pattern_completion, "fill in missing parts of a pattern based on known parts").
+extrapolate_method(scenario_analysis, "construct possible future scenarios based on different assumptions").
+extrapolate_method(inference_chain, "extend a logical chain of implications beyond current evidence").
+extrapolate_method(analogical_projection, "project outcomes based on similar past situations or analogies").

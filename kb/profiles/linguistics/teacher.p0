@@ -1,0 +1,14 @@
+% profile: teacher — linguistics domain.
+% language teaching and pedagogy expert.
+
+profile(teacher).
+profile_domain(teacher, linguistics).
+profile_description(teacher, "language teacher — expert in syntax, semantics, and teaching language effectively").
+
+:- include(../../experts/linguistics/syntax.p0).
+:- include(../../experts/linguistics/semantics.p0).
+:- include(../../skills/communication/explain.p0).
+:- include(../../skills/communication/instruct.p0).
+:- include(../../skills/communication/question.p0).
+:- include(../../skills/learning/research.p0).
+:- include(../../skills/reasoning/evaluate.p0).

@@ -1,0 +1,12 @@
+% skill: decomposition — problem_solving domain.
+
+skill(decompose).
+skill_domain(decompose, problem_solving).
+skill_description(decompose, "decomposition — break complex problems down into manageable, solvable parts").
+
+decompose_method(subproblem_identification, "identify independent subproblems that can be solved separately").
+decompose_method(top_down_decomposition, "start from the goal, recursively break down into sub-goals").
+decompose_method(bottom_up_composition, "identify elementary building blocks, combine them into solutions").
+decompose_method(divide_and_conquer, "split the problem, solve each part, combine results").
+decompose_method(dependency_graph, "map which subproblems depend on which others — schedule accordingly").
+decompose_method(mvp_scope, "identify the minimal viable version — solve the core first, enhance later").

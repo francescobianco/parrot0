@@ -1,0 +1,39 @@
+% expert: mechanics — physics domain.
+% classical mechanics, forces, motion, energy.
+
+expert(mechanics).
+expert_domain(mechanics, physics).
+expert_description(mechanics, "classical mechanics — forces, motion, energy, momentum, gravitation").
+
+% --- fundamental quantities ---
+mechanics_concept(force, "a push or pull that changes an object's motion — F = ma").
+mechanics_concept(mass, "a measure of an object's inertia and gravitational attraction").
+mechanics_concept(acceleration, "rate of change of velocity — a = dv/dt").
+mechanics_concept(velocity, "rate of change of position with direction — v = ds/dt").
+mechanics_concept(momentum, "product of mass and velocity — p = mv").
+mechanics_concept(energy, "capacity to do work — exists as kinetic, potential, thermal, etc.").
+mechanics_concept(work, "energy transferred by a force acting over a distance — W = F * d").
+mechanics_concept(power, "rate of doing work — P = W/t").
+mechanics_concept(torque, "rotational force about an axis — tau = r x F").
+mechanics_concept(inertia, "resistance of an object to changes in its velocity").
+mechanics_concept(friction, "force resisting relative motion of surfaces in contact").
+mechanics_concept(tension, "pulling force transmitted through a string, cable, or rod").
+
+% --- laws ---
+mechanics_law("Newton's first law", "an object remains at rest or in uniform motion unless acted upon by a force").
+mechanics_law("Newton's second law", "F = ma — force equals mass times acceleration").
+mechanics_law("Newton's third law", "for every action there is an equal and opposite reaction").
+mechanics_law("law of universal gravitation", "F = G*m1*m2 / r^2 — every mass attracts every other mass").
+mechanics_law("conservation of energy", "energy cannot be created or destroyed, only transformed").
+mechanics_law("conservation of momentum", "in a closed system, total momentum remains constant").
+
+% --- energy types ---
+energy_type(kinetic, "energy of motion — KE = 1/2 * m * v^2").
+energy_type(potential_gravitational, "energy due to position in a gravitational field — PE = mgh").
+energy_type(potential_elastic, "energy stored in deformed elastic objects — PE = 1/2 * k * x^2").
+
+% --- motion types ---
+motion_type(linear, "motion along a straight line with constant or varying velocity").
+motion_type(projectile, "curved path of an object under gravity after an initial velocity").
+motion_type(circular, "motion along a circular path — involves centripetal acceleration").
+motion_type(simple_harmonic, "periodic oscillation about an equilibrium position — e.g. spring, pendulum").

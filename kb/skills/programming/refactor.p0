@@ -1,0 +1,13 @@
+% skill: refactoring — programming domain.
+
+skill(refactor).
+skill_domain(refactor, programming).
+skill_description(refactor, "refactoring — improve code structure without changing external behavior").
+
+refactor_method(extract_function, "move a block of code into a named function with a clear purpose").
+refactor_method(rename, "give variables, functions, and classes names that reveal intent").
+refactor_method(eliminate_duplication, "find repeated code and unify into a single source of truth").
+refactor_method(simplify_conditional, "replace complex conditionals with guard clauses, polymorphism, or lookup tables").
+refactor_method(split_module, "break a large module into smaller, focused modules with clear responsibilities").
+refactor_method(replace_magic_number, "replace literal numbers with named constants that explain meaning").
+refactor_method(invert_dependency, "depend on abstractions, not concrete implementations").

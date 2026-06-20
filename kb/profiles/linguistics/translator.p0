@@ -1,0 +1,14 @@
+% profile: translator — linguistics domain.
+% language translation and cross-lingual communication expert.
+
+profile(translator).
+profile_domain(translator, linguistics).
+profile_description(translator, "translator — expert in syntax, semantics, and cross-language translation").
+
+:- include(../../experts/linguistics/syntax.p0).
+:- include(../../experts/linguistics/semantics.p0).
+:- include(../../skills/communication/explain.p0).
+:- include(../../skills/communication/describe.p0).
+:- include(../../skills/communication/translate.p0).
+:- include(../../skills/reasoning/compare.p0).
+:- include(../../skills/reasoning/analyze.p0).

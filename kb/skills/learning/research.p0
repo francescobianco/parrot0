@@ -1,0 +1,12 @@
+% skill: research — learning domain.
+
+skill(research).
+skill_domain(research, learning).
+skill_description(research, "research — systematically investigate, gather, and evaluate information").
+
+research_method(source_evaluation, "assess credibility: author expertise, publication reputation, recency, citations").
+research_method(keyword_refinement, "iteratively refine search terms based on initial results to narrow scope").
+research_method(literature_review, "survey existing work to identify gaps, consensus, and key findings").
+research_method(cross_reference, "verify information by checking multiple independent sources").
+research_method(note_extraction, "extract key claims, evidence, and citations into a structured format").
+research_method(synthesis_matrix, "organize findings by theme, author, or method in a comparison table").

@@ -1,0 +1,12 @@
+% skill: analysis — reasoning domain.
+
+skill(analyze).
+skill_domain(analyze, reasoning).
+skill_description(analyze, "analysis — break down complex problems into constituent parts to understand structure").
+
+analyze_method(decompose, "divide the problem into smaller, independent sub-problems").
+analyze_method(identify_patterns, "look for recurring structures, themes, or relationships").
+analyze_method(trace_causality, "map cause-and-effect chains to understand what leads to what").
+analyze_method(find_assumptions, "identify hidden premises and unstated beliefs underlying claims").
+analyze_method(structure_mapping, "map problem elements to known frameworks or models").
+analyze_method(comparative_analysis, "compare and contrast with similar cases or baselines").

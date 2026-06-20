@@ -1,0 +1,12 @@
+% skill: classification — reasoning domain.
+
+skill(classify).
+skill_domain(classify, reasoning).
+skill_description(classify, "classification — organize items into categories based on shared properties").
+
+classify_method(taxonomy, "build a hierarchical tree of categories and subcategories").
+classify_method(dichotomous_key, "use a series of binary choices to narrow down classification").
+classify_method(clustering, "group items by similarity — items within a cluster are more alike").
+classify_method(decision_tree, "follow a branching path of attribute-based decisions").
+classify_method(feature_extraction, "identify the most discriminative features that define each class").
+classify_method(exemplar_matching, "compare to prototype examples of each category").

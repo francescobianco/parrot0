@@ -1,0 +1,12 @@
+% skill: memorization — learning domain.
+
+skill(memorize).
+skill_domain(memorize, learning).
+skill_description(memorize, "memorization — encode, store, and retrieve information effectively").
+
+memorize_method(spaced_repetition, "review material at increasing intervals — minutes, hours, days, weeks").
+memorize_method(elaborative_encoding, "connect new information to existing knowledge through meaning").
+memorize_method(mnemonic_device, "use acronyms, rhymes, or vivid imagery to encode information").
+memorize_method(chunking, "group related items into larger meaningful units — reduce cognitive load").
+memorize_method(method_of_loci, "associate items with familiar physical locations — memory palace").
+memorize_method(active_recall, "test yourself on material rather than re-reading — retrieval strengthens memory").

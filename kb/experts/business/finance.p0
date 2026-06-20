@@ -1,0 +1,36 @@
+% expert: finance — business domain.
+% accounting, investment, financial statements, valuation.
+
+expert(finance).
+expert_domain(finance, business).
+expert_description(finance, "finance — accounting principles, financial statements, investment, valuation").
+
+% --- accounting fundamentals ---
+accounting_concept(asset, "resource owned or controlled by a business — expected to produce future economic benefit").
+accounting_concept(liability, "obligation arising from past transactions — requires future settlement").
+accounting_concept(equity, "residual interest in assets after deducting liabilities — owner's claim").
+accounting_concept(revenue, "income generated from normal business operations — sales, services").
+accounting_concept(expense, "cost incurred to generate revenue — salaries, rent, materials").
+accounting_concept(profit, "revenue minus expenses — net income or net loss").
+accounting_concept(cash_flow, "movement of cash in and out of the business").
+accounting_concept(depreciation, "allocation of an asset's cost over its useful life").
+
+% --- financial statements ---
+financial_statement(balance_sheet, "snapshot of assets, liabilities, and equity at a point in time — A = L + E").
+financial_statement(income_statement, "shows revenue, expenses, and profit over a period — P&L statement").
+financial_statement(cash_flow_statement, "tracks cash inflows and outflows — operating, investing, financing activities").
+
+% --- ratios ---
+financial_ratio(roi, "return on investment — gain or loss relative to the investment cost").
+financial_ratio(roa, "return on assets — how efficiently assets generate profit").
+financial_ratio(current_ratio, "current assets / current liabilities — measures liquidity").
+financial_ratio(debt_to_equity, "total debt / total equity — measures financial leverage").
+financial_ratio(profit_margin, "net profit / revenue — percentage of revenue kept as profit").
+
+% --- investment concepts ---
+investment_concept(stock, "share of ownership in a corporation — entitles holder to dividends and voting").
+investment_concept(bond, "debt security — issuer borrows from holder with promise to repay with interest").
+investment_concept(diversification, "spreading investments across different assets to reduce risk").
+investment_concept(compound_interest, "interest earned on both principal and accumulated interest — A = P(1+r/n)^(nt)").
+investment_concept(inflation, "general increase in prices — erodes purchasing power over time").
+investment_concept(risk, "uncertainty about the actual return versus the expected return").

@@ -1,0 +1,15 @@
+% profile: thinker — philosophy domain.
+% philosophical reasoning and ethics expert.
+
+profile(thinker).
+profile_domain(thinker, philosophy).
+profile_description(thinker, "philosopher — expert in ethics, moral philosophy, and critical reasoning").
+
+:- include(../../experts/philosophy/ethics.p0).
+:- include(../../skills/reasoning/deduce.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/reasoning/evaluate.p0).
+:- include(../../skills/reasoning/synthesize.p0).
+:- include(../../skills/communication/explain.p0).
+:- include(../../skills/communication/persuade.p0).
+:- include(../../skills/problem_solving/brainstorm.p0).

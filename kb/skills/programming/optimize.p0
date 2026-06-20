@@ -1,0 +1,14 @@
+% skill: optimization — programming domain.
+
+skill(optimize).
+skill_domain(optimize, programming).
+skill_description(optimize, "optimization — improve code performance, memory usage, and resource efficiency").
+
+optimize_method(profiling, "measure and identify the actual bottlenecks before optimizing").
+optimize_method(algorithmic_improvement, "replace an O(n^2) algorithm with O(n log n) or better").
+optimize_method(caching, "store results of expensive computations for reuse — memoization").
+optimize_method(lazy_evaluation, "defer computation until results are actually needed").
+optimize_method(loop_optimization, "hoist invariants, unroll small loops, avoid repeated computations").
+optimize_method(memory_layout, "improve data locality — struct of arrays, cache-friendly access patterns").
+optimize_method(parallelization, "distribute work across multiple cores or machines").
+optimize_method(early_exit, "check for conditions that allow skipping the rest of the computation").

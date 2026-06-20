@@ -1,0 +1,12 @@
+% skill: prioritization — reasoning domain.
+
+skill(prioritize).
+skill_domain(prioritize, reasoning).
+skill_description(prioritize, "prioritization — rank items, tasks, or options by importance and urgency").
+
+prioritize_method(urgency_importance_matrix, "classify tasks into four quadrants: urgent-important, not urgent-important, urgent-not-important, not urgent-not-important").
+prioritize_method(moscow, "categorize as Must-have, Should-have, Could-have, or Won't-have").
+prioritize_method(pareto_analysis, "identify the 20% of items that produce 80% of the results").
+prioritize_method(weighted_scoring, "assign scores to items across weighted criteria and rank by total").
+prioritize_method(dependency_sorting, "order items so prerequisites come before dependents").
+prioritize_method(impact_effort_matrix, "map items by impact vs effort — high impact, low effort first").

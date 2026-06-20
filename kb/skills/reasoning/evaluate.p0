@@ -1,0 +1,12 @@
+% skill: evaluation — reasoning domain.
+
+skill(evaluate).
+skill_domain(evaluate, reasoning).
+skill_description(evaluate, "evaluation — assess quality, validity, and importance using defined criteria").
+
+evaluate_method(criteria_check, "measure against explicit criteria or standards").
+evaluate_method(strength_weakness, "list strengths and weaknesses of an argument, design, or solution").
+evaluate_method(cost_benefit, "weigh expected costs against expected benefits").
+evaluate_method(risk_assessment, "identify potential risks and estimate their likelihood and impact").
+evaluate_method(evidence_check, "verify that claims are supported by sufficient and reliable evidence").
+evaluate_method(consistency_check, "check for logical contradictions or inconsistencies").

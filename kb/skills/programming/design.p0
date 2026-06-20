@@ -1,0 +1,13 @@
+% skill: design — programming domain.
+
+skill(design).
+skill_domain(design, programming).
+skill_description(design, "software design — plan architecture, choose patterns, make structural decisions").
+
+design_method(solid_principles, "apply SRP, OCP, LSP, ISP, DIP for maintainable OO design").
+design_method(design_pattern, "apply known solutions to recurring problems — factory, observer, strategy").
+design_method(interface_first, "define interfaces and contracts before implementing").
+design_method(separation_of_concerns, "keep unrelated responsibilities in separate modules").
+design_method(data_driven_design, "let the data model and data flow shape the architecture").
+design_method(yagni, "you ain't gonna need it — don't build features until they are needed").
+design_method(kiss, "keep it simple, stupid — prefer simple, obvious solutions over clever ones").

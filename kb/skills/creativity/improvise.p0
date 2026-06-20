@@ -1,0 +1,12 @@
+% skill: improvisation — creativity domain.
+
+skill(improvise).
+skill_domain(improvise, creativity).
+skill_description(improvise, "improvisation — adapt and create spontaneously in the moment").
+
+improvise_method(yes_and, "accept what is offered and build upon it — never block").
+improvise_method(find_the_offer, "identify actionable elements in whatever input is given").
+improvise_method(embrace_constraints, "treat limitations as creative challenges rather than obstacles").
+improvise_method(rapid_prototype, "build a minimal working version quickly, iterate based on feedback").
+improvise_method(availability_bias, "use whatever tools, knowledge, or resources are immediately at hand").
+improvise_method(error_recovery, "when something goes wrong, incorporate it as if it were intended").

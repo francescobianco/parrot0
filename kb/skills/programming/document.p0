@@ -1,0 +1,12 @@
+% skill: documentation — programming domain.
+
+skill(document).
+skill_domain(document, programming).
+skill_description(document, "documentation — write clear, useful documentation for code and APIs").
+
+document_method(api_reference, "document each function: signature, parameters, return value, exceptions, examples").
+document_method(module_overview, "explain the module's purpose, design, and key abstractions").
+document_method(usage_example, "provide runnable, copy-pasteable examples showing common use cases").
+document_method(inline_comment, "explain why something is done, not what is done — intent over mechanics").
+document_method(readme, "provide getting-started guide: install, configure, quickstart, contribute").
+document_method(architecture_doc, "describe system design: components, data flow, rationale for key decisions").

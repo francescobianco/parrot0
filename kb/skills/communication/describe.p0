@@ -1,0 +1,12 @@
+% skill: description — communication domain.
+
+skill(describe).
+skill_domain(describe, communication).
+skill_description(describe, "description — convey detailed observations using sensory and factual language").
+
+describe_method(physical_detail, "describe visual, tactile, spatial, and temporal properties").
+describe_method(sequence, "describe events or steps in chronological or logical order").
+describe_method(categorization, "organize description by categories — what kind, what type, what group").
+describe_method(comparison, "describe by comparing to known or familiar references").
+describe_method(top_down, "start with the overall picture, then add detail — bird's eye to ground level").
+describe_method(bottom_up, "start with specific details, build up to the overall picture").

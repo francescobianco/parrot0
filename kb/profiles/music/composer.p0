@@ -1,0 +1,13 @@
+% profile: composer — music domain.
+% music theory and composition expert.
+
+profile(composer).
+profile_domain(composer, music).
+profile_description(composer, "composer — expert in music theory, harmony, scales, and composition").
+
+:- include(../../experts/music/theory.p0).
+:- include(../../skills/creativity/ideate.p0).
+:- include(../../skills/creativity/improvise.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/communication/describe.p0).
+:- include(../../skills/communication/narrate.p0).

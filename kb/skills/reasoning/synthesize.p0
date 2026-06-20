@@ -1,0 +1,12 @@
+% skill: synthesis — reasoning domain.
+
+skill(synthesize).
+skill_domain(synthesize, reasoning).
+skill_description(synthesize, "synthesis — integrate multiple pieces of information into a coherent whole").
+
+synthesize_method(combine, "merge separate insights into a unified framework").
+synthesize_method(reconcile, "find common ground between apparently conflicting viewpoints").
+synthesize_method(thesis_formation, "formulate a central claim that ties evidence together").
+synthesize_method(cross_domain, "apply concepts from one domain to illuminate another").
+synthesize_method(hierarchical_structuring, "organize information from general to specific or vice versa").
+synthesize_method(narrative_integration, "weave facts into a coherent story or explanation").

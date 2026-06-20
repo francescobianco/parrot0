@@ -1,0 +1,12 @@
+% skill: troubleshooting — problem_solving domain.
+
+skill(troubleshoot).
+skill_domain(troubleshoot, problem_solving).
+skill_description(troubleshoot, "troubleshooting — systematically diagnose and resolve problems").
+
+troubleshoot_method(reproduce, "reliably reproduce the issue before attempting to fix it").
+troubleshoot_method(isolate, "narrow down the cause by eliminating variables one at a time").
+troubleshoot_method(bisect, "binary-search through changes or inputs to find the breaking point").
+troubleshoot_method(log_analysis, "read and interpret logs to trace the sequence of events leading to failure").
+troubleshoot_method(hypothesis_test, "form a hypothesis about the cause, test it, accept or reject").
+troubleshoot_method(check_assumptions, "verify that underlying assumptions about the system actually hold").

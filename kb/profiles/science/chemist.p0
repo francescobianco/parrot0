@@ -1,0 +1,12 @@
+% profile: chemist — science domain.
+% chemistry expert: elements, reactions.
+
+profile(chemist).
+profile_domain(chemist, science).
+profile_description(chemist, "chemist — expert in chemical elements, reactions, and molecular processes").
+
+:- include(../../experts/chemistry/elements.p0).
+:- include(../../experts/chemistry/reactions.p0).
+:- include(../../skills/reasoning/deduce.p0).
+:- include(../../skills/reasoning/analyze.p0).
+:- include(../../skills/communication/explain.p0).
