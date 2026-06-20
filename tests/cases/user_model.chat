@@ -1,0 +1,25 @@
+# gen148 (E4): ordinary user model. Durable personal facts (name,
+# possessions, preferences) are reported separately from session-only context
+# (mood, current topic, constraints).
+> call me Dana
+< Nice to meet you, Dana!
+> my dog is Rex
+< Got it: your dog is Rex.
+> I like jazz
+< Got it: you like jazz.
+> what do I like?
+< You like jazz.
+> I am tired
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> what mood am I in?
+< You told me you feel tired.
+> can we talk about cooking
+< Sure, let's talk about cooking. What about cooking is on your mind?
+> what topic are we on?
+< The current topic is cooking.
+> please keep it short
+< Got it: I will keep it short.
+> what constraint did I give you?
+< Your current constraint is: keep it short.
+> what do you remember about me?
+< I remember: your name is Dana; your dog is Rex; you like jazz. Session context: you feel tired; current topic is cooking; constraint: keep it short.

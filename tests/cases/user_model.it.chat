@@ -1,0 +1,17 @@
+# gen148 (E4): Italian probe through the same user-model state.
+> mi chiamo Lia
+< Nice to meet you, Lia!
+> mi piace cinema
+< Got it: you like cinema.
+> cosa mi piace?
+< You like cinema.
+> sono stanca
+< Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.
+> come mi sento?
+< You told me you feel tired.
+> possiamo parlare di cucina
+< Sure, let's talk about cucina. What about cucina is on your mind?
+> di cosa parliamo?
+< The current topic is cucina.
+> cosa ricordi di me?
+< I remember: your name is Lia; you like cinema. Session context: you feel tired; current topic is cucina.

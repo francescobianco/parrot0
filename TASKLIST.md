@@ -291,8 +291,12 @@ Acceptance:
 
 Anti-impostor: adding one more list of fixed phrases is not enough; success must transfer to unseen phrasings.
 
-### E4 - User model for ordinary conversation
+### E4 - User model for ordinary conversation — DONE (seed), gen148
 Goal: remember lightweight personal context that makes casual talk feel continuous: name, preferences, current mood/topic, important entities, and prior stated constraints.
+gen148: `mod_memory` now stores one lightweight preference (`I like jazz`, `mi piace cinema`, `I prefer tea`), one current conversational constraint, and can answer specific preference/mood/topic/constraint questions plus `what do you remember about me?`. The summary separates durable personal facts (name, possessions, preference) from session context (current mood, current topic, constraint). `mod_chitchat` records mood/boredom while preserving its existing replies, and `mod_pragma` records the current topic when it already accepts a topic-change turn. EN+IT ratchets plus a 10x stress set in `user_model.chat`/`.it`/`_stress.chat`. Long-chat benchmark moved felt landing 85% -> 87%, wall 9% -> 7%, continuity 71% -> 76%, topic changes 85% -> 100%.
+
+Open within E4: multiple preferences, explicit persistence policy for durable facts, richer paraphrases such as `come mi chiamo?`, and actually obeying remembered constraints in downstream modules.
+
 
 Acceptance:
 - A later turn can refer to a stored preference or mood without the user restating it.

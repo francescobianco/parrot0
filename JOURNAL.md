@@ -1,4 +1,14 @@
 # parrot0 evolution journal
+## 2026-06-20 - gen148: user-model context, separated from session state
+
+**Goal (E4):** make ordinary conversation remember more than rigid name and possession frames: preference, mood, current topic and constraints, then answer `what do you remember about me?` without inventing unstated traits and while distinguishing durable personal facts from temporary session context.
+
+**Self-challenge parity:** parrot0 gave only the generic gen145 loop answer: identify missing behavior, choose a module, add EN/IT tests, bump version, journal. It did not name `mod_memory`, nor the key implementation constraint: mood/topic should be recorded by the modules that already answer those turns (`mod_chitchat`, `mod_pragma`) so existing social replies do not regress.
+
+**Changed:** `brain.c` -> `gen148-user-model-context`. The Brain now has a lightweight user-model overlay: one preference, one session mood, one current topic and one current constraint. `mod_memory` learns `I like X` / `I prefer X` / `mi piace X` / `preferisco X`, learns simple constraints such as `keep it short` and `avoid technical`, answers specific preference/mood/topic/constraint questions, and summarizes `what do you remember about me?` as durable personal facts plus `Session context`. `mod_chitchat` records tired/happy/bored mood while preserving its existing replies; `mod_pragma` records the current topic when the topic-change move already fires. Ratchets: `user_model.chat`, `user_model.it.chat`, and a 10x `user_model_stress.chat`.
+
+**Observed:** `make test` is green (156 chat cases). The gen147 long-chat benchmark now moves in the intended places: felt landing 85% -> 87%, wall 9% -> 7%, continuity 71% -> 76%, topic changes 85% -> 100%; repair and contradiction are unchanged. Remaining gaps are now clearer: Italian `come mi chiamo?` still misses, discourse summary still loses some concrete topics, and remembered constraints are reported but not yet obeyed by downstream modules.
+
 ## 2026-06-20 - gen147: long-chat benchmark as a pressure gauge
 
 **Goal (E6):** add a 50-turn non-technical conversation benchmark that measures the felt continuity of a session, not just isolated exact-match unit cases. The benchmark must track wall rate, immediate repetition, repair success, continuity references, contradiction handling and user-model precision, with Italian and mixed EN/IT runs plus a 10x stress set.

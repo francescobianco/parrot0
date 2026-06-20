@@ -2,18 +2,19 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - E4: User model for ordinary conversation
+## Active task - E1: Compositional emergence benchmark
 
-Goal: remember lightweight personal context that makes casual talk feel continuous: name, preferences, current mood/topic, important entities, and prior stated constraints.
+Goal: create held-out dialogues where success requires three or more existing subsystems in the same conversation, without adding a task-specific module.
 
 Acceptance:
-- A later turn can refer to a stored preference or mood without the user restating it.
-- The bot distinguishes durable memory from temporary session context.
-- The bot can answer "what do you remember about me?" with grounded, limited claims.
+- At least one dialogue composes natural input, KB facts/rules, abduction or simulation, and proof/explanation.
+- At least one dialogue composes social register, personal memory, discourse reference and a follow-up question.
+- The score records whether the case passed unchanged, required only generic parser work, or required a special-case handler.
 
-Anti-impostor: memory must survive paraphrased recall questions and must not invent unstated traits.
-
+Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set.
 ## Done recently
+- **gen148 - user-model context for ordinary conversation (E4).** `mod_memory` now remembers a preference and a current constraint, answers specific preference/mood/topic/constraint questions, and summarizes `what do you remember about me?` with durable personal facts separated from session context. `mod_chitchat` records mood/boredom while preserving its existing replies; `mod_pragma` records the current topic when it already accepts a topic-change turn. EN/IT ratchets plus 10x stress. Long-chat moved felt landing 85% -> 87%, wall 9% -> 7%, continuity 71% -> 76%, topic changes 85% -> 100%.
+
 
 - **gen147 - long casual conversation benchmark (E6).** Added `make long-chat-bench` and a deterministic long-chat suite under `tests/longchat/`: a 5-turn smoke run, a 16-turn Italian run, and a 50-turn mixed EN/IT stress session. The harness tracks landing rate, wall rate, immediate repetition, repair success, continuity references, contradiction handling, user-model precision, boredom handling and topic-change handling. No runtime behavior changed; this generation creates the pressure gauge for the next conversation tasks.
 

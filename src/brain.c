@@ -61,6 +61,19 @@ struct Brain {
     char possessions[8][2][64];
     size_t possession_count;
 
+    /* gen148 (E4): lightweight user model for ordinary conversation. Durable
+     * personal facts are separate from session-only context so "what do you
+     * remember about me?" can be grounded without overclaiming permanence. */
+    char user_preference_verb[16];
+    char user_preference_value[64];
+    int  has_user_preference;
+    char user_mood[64];
+    int  has_user_mood;
+    char current_topic[64];
+    int  has_current_topic;
+    char user_constraint[96];
+    int  has_user_constraint;
+
     /* gen58: rolling discourse-memory topics. Each turn contributes its content
      * words (non-stopword, alphabetic, len>=3) to a small recent buffer so the
      * agent can answer "what did we talk about?" from real state. */
@@ -538,6 +551,157 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 }
             }
         }
+    }
+
+    /* gen148 (E4): ordinary user-model facts beyond name/possessions. */
+    {
+        const char *val_from = NULL;
+        const char *verb = NULL;
+        if (strncmp(norm, "i like ", 7) == 0) {
+            val_from = raw + 7; verb = "like";
+        } else if (strncmp(norm, "i prefer ", 9) == 0) {
+            val_from = raw + 9; verb = "prefer";
+        } else if (strncmp(norm, "mi piace ", 9) == 0) {
+            val_from = raw + 9; verb = "like";
+        } else if (strncmp(norm, "preferisco ", 11) == 0) {
+            val_from = raw + 11; verb = "prefer";
+        }
+        if (val_from) {
+            char val[64];
+            copy_trim(val, sizeof val, skip_ws(val_from));
+            if (val[0] == 0) {
+                put("I did not catch the preference.", out, out_size);
+                return 1;
+            }
+            snprintf(b->user_preference_verb, sizeof b->user_preference_verb, "%s", verb);
+            snprintf(b->user_preference_value, sizeof b->user_preference_value, "%s", val);
+            b->has_user_preference = 1;
+            char msg[160];
+            snprintf(msg, sizeof msg, "Got it: you %s %s.", verb, val);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    if (cue(norm, "keep it short") || cue(norm, "be brief") ||
+        cue(norm, "short answers") || cue(norm, "risposte brevi") ||
+        cue(norm, "sii breve")) {
+        snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "keep it short");
+        b->has_user_constraint = 1;
+        put("Got it: I will keep it short.", out, out_size);
+        return 1;
+    }
+    if (cue(norm, "not too technical") || cue(norm, "avoid technical") ||
+        cue(norm, "non essere tecnico") || cue(norm, "non troppo tecnico")) {
+        snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "avoid technical detail");
+        b->has_user_constraint = 1;
+        put("Got it: I will avoid technical detail.", out, out_size);
+        return 1;
+    }
+
+    if (cue(norm, "what do i like") || cue(norm, "what do i prefer") ||
+        cue(norm, "cosa mi piace") || cue(norm, "cosa preferisco")) {
+        if (b->has_user_preference) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "You %s %s.",
+                     b->user_preference_verb, b->user_preference_value);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know your preference yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what mood") || cue(norm, "how do i feel") ||
+        cue(norm, "come mi sento") || cue(norm, "che umore")) {
+        if (b->has_user_mood) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "You told me you feel %s.", b->user_mood);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know your current mood yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what topic") || cue(norm, "which topic") ||
+        cue(norm, "what are we talking about") || cue(norm, "di cosa parliamo") ||
+        cue(norm, "di cosa stiamo parlando")) {
+        if (b->has_current_topic) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "The current topic is %s.", b->current_topic);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know the current topic yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what constraint") || cue(norm, "what did i ask you to keep in mind") ||
+        cue(norm, "what should you remember for this chat") || cue(norm, "che vincolo")) {
+        if (b->has_user_constraint) {
+            char msg[192];
+            snprintf(msg, sizeof msg, "Your current constraint is: %s.", b->user_constraint);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know any current constraint yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what do you remember about me") ||
+        cue(norm, "what do you know about me") || cue(norm, "cosa ricordi di me") ||
+        cue(norm, "cosa sai di me")) {
+        char msg[640];
+        size_t off = 0;
+        int any = 0;
+        off = (size_t)snprintf(msg, sizeof msg, "I remember:");
+        if (b->has_name && off < sizeof msg) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s your name is %s", any ? ";" : "", b->name);
+            any = 1;
+        }
+        for (size_t i = 0; i < b->possession_count && off < sizeof msg; i++) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s your %s is %s", any ? ";" : "",
+                                    b->possessions[i][0], b->possessions[i][1]);
+            any = 1;
+        }
+        if (b->has_user_preference && off < sizeof msg) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s you %s %s", any ? ";" : "",
+                                    b->user_preference_verb, b->user_preference_value);
+            any = 1;
+        }
+        if (!any) {
+            off = (size_t)snprintf(msg, sizeof msg,
+                                   "I remember no durable personal facts yet.");
+        } else if (off < sizeof msg) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off, ".");
+        }
+
+        int session = b->has_user_mood || b->has_current_topic || b->has_user_constraint;
+        if (session && off < sizeof msg) {
+            int s = 0;
+            off += (size_t)snprintf(msg + off, sizeof msg - off, " Session context:");
+            if (b->has_user_mood && off < sizeof msg) {
+                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                        "%s you feel %s", s ? ";" : "", b->user_mood);
+                s = 1;
+            }
+            if (b->has_current_topic && off < sizeof msg) {
+                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                        "%s current topic is %s", s ? ";" : "", b->current_topic);
+                s = 1;
+            }
+            if (b->has_user_constraint && off < sizeof msg) {
+                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                        "%s constraint: %s", s ? ";" : "", b->user_constraint);
+            }
+            if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
+        }
+        put(msg, out, out_size);
+        return 1;
     }
 
     /* Recall: "what is my name?" */
@@ -6602,7 +6766,8 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                       cue(norm, "say something") || cue(norm, "tell me something") ||
                       cue(norm, "dimmi qualcosa") || cue(norm, "intrattienimi") ||
                       cue(norm, "entertain me");
-    int mood_down   = cue(norm, "i am tired") || cue(norm, "im tired") ||
+    int mood_bored  = cue(norm, "i am bored") || cue(norm, "im bored");
+    int mood_down   = mood_bored || cue(norm, "i am tired") || cue(norm, "im tired") ||
                       cue(norm, "sono stanco") || cue(norm, "sono stanca") ||
                       cue(norm, "am stanco") || cue(norm, "am stanca") ||
                       cue(norm, "bad day") || cue(norm, "giornata no") ||
@@ -6627,10 +6792,20 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                          out, out_size); return 1; }
     if (no_topic)  { put("We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.",
                          out, out_size); return 1; }
-    if (mood_down) { put("Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.",
-                         out, out_size); return 1; }
-    if (mood_up)   { put("Nice. Tell me what made it good, or give me a small thing to reason about.",
-                         out, out_size); return 1; }
+    if (mood_down) {
+        snprintf(b->user_mood, sizeof b->user_mood, "%s", mood_bored ? "bored" : "tired");
+        b->has_user_mood = 1;
+        put("Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.",
+            out, out_size);
+        return 1;
+    }
+    if (mood_up) {
+        snprintf(b->user_mood, sizeof b->user_mood, "%s", "happy");
+        b->has_user_mood = 1;
+        put("Nice. Tell me what made it good, or give me a small thing to reason about.",
+            out, out_size);
+        return 1;
+    }
     if (filler)    { put("Happy to just chat. Tell me a little, and I'll follow the thread as best I can.",
                          out, out_size); return 1; }
     if (casual)    { put("Hey! I'm here. Ask me something, or tell me about your day?",
@@ -6972,6 +7147,8 @@ static int mod_pragma(Brain *b, const char *norm, const char *raw,
         int invite = switch_verb || (modal_open && frame);
         char topic[40];
         if (invite && topic_object(w, nw, topic, sizeof topic)) {
+            snprintf(b->current_topic, sizeof b->current_topic, "%s", topic);
+            b->has_current_topic = 1;
             char msg[160];
             snprintf(msg, sizeof msg,
                      "Sure, let's talk about %s. What about %s is on your mind?",
@@ -9344,7 +9521,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen146-open-domain-humility";
+    return "gen148-user-model-context";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
