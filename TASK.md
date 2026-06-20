@@ -12,9 +12,10 @@ Acceptance:
 - The score records whether the case passed unchanged, required only generic parser work, or required a special-case handler.
 
 Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set.
-## Done recently
-- **gen148 - user-model context for ordinary conversation (E4).** `mod_memory` now remembers a preference and a current constraint, answers specific preference/mood/topic/constraint questions, and summarizes `what do you remember about me?` with durable personal facts separated from session context. `mod_chitchat` records mood/boredom while preserving its existing replies; `mod_pragma` records the current topic when it already accepts a topic-change turn. EN/IT ratchets plus 10x stress. Long-chat moved felt landing 85% -> 87%, wall 9% -> 7%, continuity 71% -> 76%, topic changes 85% -> 100%.
 
+## Done recently
+
+- **gen148 - user-model context for ordinary conversation (E4).** `mod_memory` now remembers a preference and a current constraint, answers specific preference/mood/topic/constraint questions, and summarizes `what do you remember about me?` with durable personal facts separated from session context. `mod_chitchat` records mood/boredom while preserving its existing replies; `mod_pragma` records the current topic when it already accepts a topic-change turn. EN/IT ratchets plus 10x stress. Long-chat moved felt landing 85% -> 87%, wall 9% -> 7%, continuity 71% -> 76%, topic changes 85% -> 100%.
 
 - **gen147 - long casual conversation benchmark (E6).** Added `make long-chat-bench` and a deterministic long-chat suite under `tests/longchat/`: a 5-turn smoke run, a 16-turn Italian run, and a 50-turn mixed EN/IT stress session. The harness tracks landing rate, wall rate, immediate repetition, repair success, continuity references, contradiction handling, user-model precision, boredom handling and topic-change handling. No runtime behavior changed; this generation creates the pressure gauge for the next conversation tasks.
 
