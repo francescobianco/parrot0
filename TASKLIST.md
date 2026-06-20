@@ -315,8 +315,12 @@ Acceptance:
 
 Anti-impostor: the response must mention the relevant missing predicate, relation, memory or tool, not a generic apology.
 
-### E6 - Long casual conversation benchmark
+### E6 - Long casual conversation benchmark — DONE (seed), gen147
 Goal: add a 50-turn non-technical conversation benchmark that stresses naturalness, continuity, repair, boredom handling, topic changes and contradictions.
+
+gen147: `make long-chat-bench` adds a deterministic metric harness over `tests/longchat/*.dlg`. It runs one session per file, soft-matches satisfying answer substrings, and reports landing rate, wall rate, immediate repetition, repair success, continuity references, contradiction handling, user-model precision, boredom handling and topic-change handling. The suite includes a 5-turn smoke run, a 16-turn Italian run, and a 50-turn mixed EN/IT stress run (71 total turns). Baseline on gen146: felt landing 85% (61/71), wall 9% (7/71), repetition 1% (1/71), repair 75% (6/8), continuity 71% (15/21), contradiction 100% (8/8), user-model 93% (14/15).
+
+Open within E6: make the long-chat score trendable over commits, add generated held-out variants, and connect misses directly to the next task selection.
 
 Acceptance:
 - Track wall rate, repetition rate, repair success, continuity references, contradiction handling and user-model precision.

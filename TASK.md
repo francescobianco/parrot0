@@ -2,18 +2,20 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - E6: Long casual conversation benchmark
+## Active task - E4: User model for ordinary conversation
 
-Goal: add a 50-turn non-technical conversation benchmark that stresses naturalness, continuity, repair, boredom handling, topic changes and contradictions.
+Goal: remember lightweight personal context that makes casual talk feel continuous: name, preferences, current mood/topic, important entities, and prior stated constraints.
 
 Acceptance:
-- Track wall rate, repetition rate, repair success, continuity references, contradiction handling and user-model precision.
-- Include at least one Italian run and one mixed English/Italian run.
-- Require a 10x harder stress set after the minimal feature works, per LOOP.md.
+- A later turn can refer to a stored preference or mood without the user restating it.
+- The bot distinguishes durable memory from temporary session context.
+- The bot can answer "what do you remember about me?" with grounded, limited claims.
 
-Anti-impostor: benchmark turns must be varied enough that memorized transcripts fail.
+Anti-impostor: memory must survive paraphrased recall questions and must not invent unstated traits.
 
 ## Done recently
+
+- **gen147 - long casual conversation benchmark (E6).** Added `make long-chat-bench` and a deterministic long-chat suite under `tests/longchat/`: a 5-turn smoke run, a 16-turn Italian run, and a 50-turn mixed EN/IT stress session. The harness tracks landing rate, wall rate, immediate repetition, repair success, continuity references, contradiction handling, user-model precision, boredom handling and topic-change handling. No runtime behavior changed; this generation creates the pressure gauge for the next conversation tasks.
 
 - **gen146 - open-domain humility protocol (E5).** `mod_knowledge` now gives scoped humility answers for open-domain fact questions that fall outside the KB/tool model: missing binary relations (`capital`, `mayor`), missing unary proof support (`blue(sky)`), and missing clock/calendar facts/tools (`current_year`). It names the exact gap and suggests teaching facts/rules or giving a passage, without pretending to know the answer. EN/IT ratchets plus a 10-turn stress block. `blankwall.chat`, `blankwall.it.chat`.
 

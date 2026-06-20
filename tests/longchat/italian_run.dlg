@@ -1,0 +1,50 @@
+# gen147 E6 Italian run: non-technical conversation in Italian surface forms.
+# Some expected substrings are aspirational: misses are the measured growth edge.
+> ciao
+< hi there
+@ natural
+> mi chiamo Sofia
+< Sofia
+@ user_model
+> come mi chiamo?
+< Sofia
+@ user_model continuity
+> ho un cane chiamato Nilo
+< Nilo
+@ user_model
+> cos'è il mio cane?
+< Nilo
+@ user_model continuity
+> non so cosa dire
+< start simple
+@ boredom
+> possiamo parlare di cucina
+< cucina
+@ topic
+> ogni cane è un mammifero
+< mammifero
+@ natural
+> è esso un cane?
+< refer
+@ repair
+> Nilo è un cane
+< Yes
+@ repair continuity
+> Sara è una persona
+< persona(sara)
+@ natural
+> Sara non è una persona
+< not persona(sara)
+@ contradiction
+> Sara è una persona?
+< No
+@ contradiction
+> perché lo pensi?
+< conflicting
+@ contradiction
+> cosa ti farebbe cambiare idea?
+< claimed both
+@ contradiction
+> grazie
+< welcome
+@ natural

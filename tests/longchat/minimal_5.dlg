@@ -1,0 +1,17 @@
+# gen147 E6 smoke benchmark: five turns prove the metric harness before the
+# 50-turn stress run. Expected lines are satisfying substrings, not exact tests.
+> hi
+< hi there
+@ natural
+> call me Mina
+< Mina
+@ user_model
+> what is my name?
+< Mina
+@ user_model continuity
+> what is it plus 10
+< what number
+@ repair
+> 7
+< 17
+@ repair

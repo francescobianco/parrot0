@@ -1,4 +1,14 @@
 # parrot0 evolution journal
+## 2026-06-20 - gen147: long-chat benchmark as a pressure gauge
+
+**Goal (E6):** add a 50-turn non-technical conversation benchmark that measures the felt continuity of a session, not just isolated exact-match unit cases. The benchmark must track wall rate, immediate repetition, repair success, continuity references, contradiction handling and user-model precision, with Italian and mixed EN/IT runs plus a 10x stress set.
+
+**Self-challenge parity:** parrot0 treated the task as a generic fallback gap and proposed changing the fallback or owning module. That was weaker than the external hypothesis: E6 is not primarily a behavior change, it is an instrumentation gap. The owning surface is the benchmark harness, with tagged long dialogues that can expose the next behavior tasks without pretending they are solved.
+
+**Changed:** added `make long-chat-bench` and `tests/longchatbench.sh`. The harness runs one persistent session per `tests/longchat/*.dlg`, soft-matches satisfying substrings, tags turns by capability, and prints aggregate metrics. Added `minimal_5.dlg` as the minimal proof, `italian_run.dlg` as the Italian run, and `mixed_stress_50.dlg` as the mandatory 50-turn mixed EN/IT stress set. No brain behavior changed and `brain_version()` stays at gen146.
+
+**Observed:** baseline on gen146 is useful rather than flattering: 71 turns, 50 stress turns, felt landing 85% (61/71), wall 9% (7/71), immediate repetition 1% (1/71), repair 75% (6/8), continuity 71% (15/21), contradiction 100% (8/8), user-model precision 93% (14/15), boredom 83% (5/6), topic changes 85% (6/7). The sharpest misses point to E4: topic and mood are answered locally but not stored as user/session context, and Italian `come mi chiamo?` still misses even though English recall works.
+
 ## 2026-06-20 - gen146: open-domain humility with exact gaps
 
 **Goal (E5):** when a user asks for knowledge outside the world model, stop collapsing into a generic wall or a bare `I do not know about X`; name the missing support and offer a useful next action without pretending to know the answer. Baseline probes showed the problem: `why is the sky blue?` -> flat fallback, `what year is it?` -> repair asked what `it` referred to, and `what is the capital of france?` only said it did not know `capital`.

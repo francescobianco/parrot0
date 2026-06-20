@@ -1,0 +1,154 @@
+# gen147 E6 stress benchmark: 50-turn mixed English/Italian casual session.
+# This is the mandatory 10x set after minimal_5.dlg. It varies names, topics,
+# languages, discourse moves and expected capabilities so a short transcript
+# memorizer does not satisfy the suite.
+> hi
+< hi there
+@ natural
+> call me Mira
+< Mira
+@ user_model
+> I have a dog named Rex
+< Rex
+@ user_model
+> what is my dog called?
+< Rex
+@ user_model continuity
+> what did we just talk about?
+< dog
+@ continuity
+> I am bored
+< chat
+@ boredom
+> let us talk about cooking
+< cooking
+@ topic
+> what topic did I choose?
+< cooking
+@ continuity topic
+> every dog is a mammal
+< mammal
+@ natural
+> is it a mammal?
+< refer
+@ repair
+> Rex is a dog
+< Yes
+@ repair continuity
+> why do you think that?
+< mammal(rex)
+@ continuity
+> switch topic to music
+< music
+@ topic
+> by the way what is 2 plus 2
+< 4
+@ natural
+> grazie
+< welcome
+@ natural
+> possiamo parlare di cinema
+< cinema
+@ topic
+> sono stanco
+< low-energy
+@ boredom
+> dimmi qualcosa
+< start simple
+@ boredom
+> comunque what is my name?
+< Mira
+@ user_model continuity
+> Alice is a person
+< person(alice)
+@ natural
+> Alice is not a person
+< not person(alice)
+@ contradiction
+> is Alice a person?
+< No
+@ contradiction
+> why do you think that?
+< conflicting
+@ contradiction
+> what would make you change your mind?
+< trust
+@ contradiction
+> my cat is Luna
+< Luna
+@ user_model
+> what is my cat called?
+< Luna
+@ user_model continuity
+> in this story Zed is a dragon
+< Zed
+@ continuity
+> who is Zed?
+< dragon
+@ continuity
+> what is assumed?
+< Zed
+@ continuity
+> forget this world
+< Forgotten
+@ continuity
+> who is Zed?
+< do not know
+@ continuity
+> ciao
+< hi there
+@ natural
+> mi chiamo Paolo
+< Paolo
+@ user_model
+> what is my name?
+< Paolo
+@ user_model continuity
+> facciamo due chiacchiere
+< just chat
+@ boredom
+> allora possiamo parlare di libri
+< libri
+@ topic
+> what did we just talk about?
+< libri
+@ continuity
+> what is it plus 10
+< what number
+@ repair
+> 32
+< 42
+@ repair
+> thank you
+< welcome
+@ natural
+> what is the capital of france?
+< relation capital
+@ natural
+> why is the sky blue?
+< blue(sky)
+@ natural
+> I do not know what to say
+< start simple
+@ boredom
+> okay, is Rex a mammal?
+< Yes
+@ continuity
+> tell me about our conversation
+< Rex
+@ continuity
+> non sono d'accordo
+< went wrong
+@ natural
+> could we chat about gardens
+< gardens
+@ topic
+> what is my dog called again?
+< Rex
+@ user_model continuity
+> bye
+< goodbye
+@ natural
+> what can you do?
+< i can
+@ natural

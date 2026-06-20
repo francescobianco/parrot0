@@ -4,6 +4,7 @@
 #   make            build bin/parrot0
 #   make chat       build, then talk to it interactively
 #   make test       build, then run the conversation test suite
+#   make long-chat-bench  build, then run the 50-turn long-chat metrics
 #   make bench      build, then run all local benchmark-driver suites
 #   make bench-superglue  run official SuperGLUE validation benchmark
 #   make bench-mmlu       run MMLU-like local benchmark slices
@@ -19,7 +20,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat test chat-bench long-chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -39,6 +40,9 @@ chat: build
 
 chat-bench: build
 	@./tests/chatbench.sh
+
+long-chat-bench: build
+	@./tests/longchatbench.sh
 
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
