@@ -95,3 +95,6 @@ profile_description(agi, "super expert across all domains: programming, mathemat
 % --- learning skills ---
 :- include(../skills/learning/memorize.p0).
 :- include(../skills/learning/research.p0).
+% --- autonomous Wikipedia learning ---
+:- include(../learning/learned.p0).
+

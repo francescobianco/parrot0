@@ -71,7 +71,8 @@ test: build
 	@./tests/anon.sh
 	@./tests/explain.sh
 	@./tests/howknow.sh
-	@./tests/booklearn.sh
+	@./tests/booklearn.sh	@./tests/wiki_learning.sh
+
 	@./tests/posix.sh
 	@./tests/synth.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh

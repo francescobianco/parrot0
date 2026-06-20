@@ -1,0 +1,42 @@
+name: Wikipedia learner
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wikipedia-learner
+  cancel-in-progress: false
+
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Process one Wikipedia page
+        run: python3 scripts/learn.py
+
+      - name: Commit and push learning updates
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No learning updates to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kb/learning
+          git commit -m "learn wikipedia page"
+          git push

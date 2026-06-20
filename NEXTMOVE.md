@@ -1,139 +1,409 @@
-# NEXTMOVE — resume point
+# NEXTMOVE - Wikipedia learning handoff
 
-> Handoff to resume cleanly. Read **PROMPT.md** (standing directive) and
-> **PRINCIPLES.md** (the why) first. Delete this file once its plan is folded
-> into the JOURNAL / done.
+Last updated: 2026-06-21. This file replaces the older gen160 resume note for now.
+The active task is the autonomous Wikipedia learning pipeline requested today.
 
-Last updated: 2026-06-21. Branch: `main`, all committed + pushed.
-HEAD: `gen159` (`brain_version()` -> `gen159-typed-relations`).
-Build/test: `make test` GREEN (157 chat cases + all `.sh` suites; `knowledge.sh`
-has 22 cases). Working tree is CLEAN — nothing half-done.
+## User Goal
 
-## How to run
+Build a deterministic self-learning workflow, without AI, that runs hourly on GitHub Actions:
+
+1. Read a curated, organized list of Wikipedia pages.
+2. Pick one page per run, round-robin.
+3. Download the page as Markdown.
+4. Extract acquired concepts deterministically.
+5. Update `kb/` with the learned knowledge.
+6. Write operational logs for the learning event.
+7. Commit and push the new knowledge, Markdown snapshot, state, index, and logs.
+
+Additional requirement added by the user: operational logs must be committed and pushed together with the learned knowledge. They are not just debug output; they are calibration data for improving the continuous learning process.
+
+Additional semantic requirement: create a logical connection with the learning event, so after a learning run parrot0 can be prompted to extract everything learned in that session. The intended shape is an event id like `learn_2026_06_21t..._prime_number`, with KB facts linking:
+
+- event -> concept key
+- event -> domain
+- event -> Markdown snapshot
+- event -> operational log
+- event -> Wikipedia revision/time
+
+A prompt like `what do you know about <event_id>` should surface the session summary through the normal KB description path.
+
+## Important Instruction
+
+The user explicitly asked to edit local files with `rap --help` / `rap`, not `apply_patch`.
+Use `rap` for remaining local edits.
+
+Useful commands:
+
 ```sh
-make            # build (headers tracked since gen152)
-make test       # full suite
-make chat       # interactive, loads kb/profiles/agi.p0
-printf 'is the heart part of the circulatory system\n/quit\n' \
-  | PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+rap --help
+rap inv list
+rap inv get learn_py
+rap inv path learn_py
 ```
-Hermetic `tests/cases/*.chat` run with `PARROT0_BASE=` (NO kb/). Knowledge
-behavior is tested in the KB-loading `.sh` suites (knowledge/experts/profiles/
-skills). kb/ is now organized: `kb/core/` (boot substrate), `kb/experts/`,
-`kb/skills/`, `kb/profiles/` — no loose top-level files.
 
-## >>> RESUME HERE: gen160 — multi-hop part_of chains (IN PROGRESS, not started in code)
+## Current Worktree State
 
-The session built a derived, typed knowledge graph (gen155–159, see below). The
-graph is currently ONE level deep: organ -> system (heart -> circulatory). The
-next ambitious step the owner approved is to **enrich the KB with a higher level
-so `part_of` chains transitively** through the resolution engine:
-`heart -> circulatory -> human_body`.
+The tree is dirty and only partially prepared. Do not assume anything is finished.
 
-I had fully designed it before stopping. Three changes, in order:
+Current untracked paths seen during handoff:
 
-### 1. Enrich `kb/experts/medicine/anatomy.p0` with the organism level
-Add (after the body-systems section), naming the 8 system keys exactly:
+```text
+?? .github/
+?? kb/learning/
+?? scripts/
+?? tests/fixtures/
+?? tests/wiki_learning.sh
 ```
-% --- the organism: the level above the systems ---
-organism(human_body, "the circulatory, respiratory, nervous, digestive, skeletal, muscular, immune and endocrine systems").
-```
-- KEY must be `human_body`, NOT `body` and NOT `organism`-as-key. Reason: `body`
-  collides (it appears in many descriptions like "longest bone in the body", and
-  as a concept key it would hijack the gen155 femur similarity test). `human_body`
-  is distinctive, stays one token through `split_words` (underscores are kept —
-  `half_life` works), and appears in no other description, so no false mentions.
-- Predicate is `organism` (≠ `body_system`), so the gen159 TYPE GATE
-  (`valid_member`: member and container must have different predicates) lets
-  `part_of(circulatory, human_body)` through while still blocking sibling junk.
 
-### 2. Fix the container threshold in `kb_derive_part_of` (`src/kb.c`)
-Currently a predicate is a "container" only if **>=2 of its FACTS** name another
-concept key (`pcnt[p]++` once per fact). A single high-level `organism` fact names
-8 systems but is only ONE fact -> would fail. Change to count **total mentions**:
-in the per-predicate loop (around line 1231–1243, the `names_other`/`pcnt[p]++`
-block), count how many valid keys each fact names and do `pcnt[p] += kcount`
-(threshold stays `>= 2`). Verify number_property stays NON-container (composite
-names prime = 1 mention < 2) and body_system / organism become containers. After
-the change, scan what got materialized to be sure no junk predicate crossed the
-threshold:
+Existing untracked user content before this task:
+
+```text
+kb/learning/sources.tsv
+```
+
+Do not delete `kb/learning/sources.tsv`; it already contains the curated starter page list organized by domain.
+
+Files/directories created during the interrupted implementation:
+
+```text
+.github/workflows/wikipedia-learn.yml       # currently empty
+kb/learning/learned.p0                      # currently empty or header-only depending on resume point
+kb/learning/sources.tsv                     # existing source list, preserve it
+scripts/learn.py                            # currently only placeholder text
+/tests/fixtures/wiki/prime_number.json      # currently empty
+tests/wiki_learning.sh                      # currently empty
+```
+
+`rap inv list` currently includes:
+
+```text
+codex_test
+learn_py
+plan_md
+nextmove_wiki
+```
+
+The complete draft implementation of `scripts/learn.py` was stored in rap inventory as `learn_py`, but was not yet applied to `scripts/learn.py` when the user paused.
+
+Inventory path observed:
+
+```text
+/home/francesco/.rap/project/-home-francesco-Develop-_-parrot0/inventory/learn_py
+```
+
+## Resume Steps
+
+### 1. Apply the Python learner draft
+
+`scripts/learn.py` currently has a small placeholder. Replace the whole file with the stored inventory:
+
 ```sh
-# quick check: print derived part_of by instrumenting, or just probe queries
+rap lr scripts/learn.py 1 6 @inv:learn_py
 ```
 
-### 3. Add the transitivity rule (binary, 3 vars) — load it from a file
-The `kb_assert_rule*` C API is UNARY-only; it CANNOT express
-`part_of(X,Z) :- part_of(X,Y), part_of(Y,Z)`. But the gen11 resolver + the `.p0`
-loader handle general n-ary multi-var rules (cf. the grandparent rule in T2). So
-add this line to `kb/core/base.p0`:
+If the placeholder line count changed, check it first:
+
+```sh
+wc -l scripts/learn.py
+sed -n '1,20p' scripts/learn.py
 ```
-part_of(X, Z) :- part_of(X, Y), part_of(Y, Z).
+
+The draft script is pure Python stdlib. It is designed to:
+
+- read `kb/learning/sources.tsv`
+- maintain `kb/learning/state.json`
+- maintain `kb/learning/index.json`
+- fetch Wikipedia REST summary and action API wikitext
+- write Markdown snapshots under `kb/learning/pages/`
+- write operational logs under `kb/learning/logs/`
+- regenerate `kb/learning/learned.p0`
+- create event facts in `learned.p0`
+- support `--fixture` for offline tests
+
+Expected generated KB predicates include:
+
+```prolog
+wiki_concept(prime_number, mathematics, "natural number greater than 1 that is not a product of two smaller natural numbers").
+learning_event(learn_..., "learned prime_number: ...").
+learning_event_time(learn_..., "2026-...").
+learning_event_domain(learn_..., mathematics).
+learning_event_concept(learn_..., prime_number).
+learning_event_revision(learn_..., rev_123456789).
+learning_event_markdown(learn_..., "kb/learning/pages/prime_number.md").
+learning_event_log(learn_..., "kb/learning/logs/learn_....json").
 ```
-base.p0 is loaded by `make chat` and the `.sh` suites (PARROT0_BASE=
-kb/core/base.p0); hermetic `.chat` tests don't load base (harmless there). The
-materialized `part_of` facts + this rule make `kb_query` chain.
 
-### Expected results to ratchet (in tests/knowledge.sh, anatomy profile)
-- `is the heart part of human_body` -> Yes  (CHAINED: heart->circulatory->human_body via the rule + kb_query)
-- `is circulatory part of human_body` -> Yes  (direct)
-- `what is part of human_body` -> "human_body contains: circulatory, respiratory, nervous, digestive, skeletal, muscular, immune, endocrine."  (kb_match is facts-only = direct members; that's fine)
-- `is the heart part of the digestive system` -> still No  (no path; transitivity must not create false chains)
+This event linkage is the answer to the user's newest requirement: a session can be queried through the event entity.
 
-### Watchouts
-- Recursion: the transitivity rule is recursive; the resolver has KB_MAX_DEPTH=64.
-  The graph is shallow (2 hops) so Yes-queries resolve fast; No-queries exhaust
-  but are bounded. If a query loops or is slow, reconsider.
-- `kb_match` ("what is part of Y", the members query in mod_knowledge) is likely
-  facts-only (no rules) — so members stays DIRECT (systems for human_body, organs
-  for a system). That's the intended behavior; don't "fix" it.
-- The relational query parser lives in `mod_knowledge` (src/brain.c, the gen157/
-  gen158 block ~line 1317+). It already skips category nouns (system/group/...);
-  `human_body` is a plain key so it just works. Two-key proof needs `w[0]=="is"`.
+### 2. Fill the workflow
 
-## Session arc so far (gen151–159, all pushed, green)
+Create `.github/workflows/wikipedia-learn.yml` with:
 
-| gen | what |
-|-----|------|
-| 151 | knowledge SPEAKS — verbalize `pred(key,"desc")`, broaden "what is X" intake |
-| 152 | engine holds STRING LITERALS — quote-aware parse_term, KB_TERM_LEN 64->128; ~280 dead facts recovered; Makefile header-dep ABI fix |
-| 153 | restored truncated descriptions (math/medicine/programming); placebo tests -> real domain assertions |
-| 154 | reorganized kb/ (kb/core + experts taxonomy, no loose files) |
-| 155 | concept recall by structural SIMILARITY (cognate-tolerant, cross-lingual) |
-| 156 | idf weighting — rare words dominate, breaks agi-scale ties |
-| 157 | EMERGENT relations from text ("heart part of?" -> circulatory, never asserted) |
-| 158 | relations as PROVABLE facts — materialize part_of/2, prove/members/container queries |
-| 159 | TYPE GATE — part_of only crosses taxonomic levels; kills skeletal/muscular false positive |
-| 160 | **(NEXT)** multi-hop chains — add organism level + transitivity rule |
+```yaml
+name: Wikipedia learner
 
-Key code: similarity recall + relation derivation all in `src/kb.c`
-(`kb_nearest_concept`, `kb_concept_mentioning`, `kb_derive_part_of`,
-`concept_pred`/`valid_member`, `word_sim`/`concept_tokens`); query wiring in
-`mod_knowledge` (src/brain.c). part_of materialized once on first `brain_respond`
-(guard `b->relations_derived`), tagged KB_REFLECTIVE (never persisted).
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
 
-## Standing debt (from the KB audit, still open)
-- Truncated descriptions in the OTHER expert/skill domains: `kb/experts/{physics,
-  chemistry,biology,linguistics,business,philosophy,music,psychology}/` and most
-  of `kb/skills/`. The engine holds full text now (gen152), so just restore them.
-  Find: `grep -rnoE '"[^"]{56,63}"' kb/` then read each (truncated ones end
-  mid-word). Done: math, medicine, programming-core.
-- Malformed fact `flag(ls, u_r, ...)` in `kb/experts/programming/shell.p0` (no
-  such ls flag; should be R) — left untouched to avoid perturbing posix tests.
+permissions:
+  contents: write
 
-## The deeper frontier (the LLM gap, after gen160)
-- **Bilingual descriptions**: cross-lingual recall (gen155) only works for
-  cognates because descriptions are English. Italian/English `gloss`-style
-  descriptions would let SEMANTIC (not only cognate) similarity cross languages.
-- **A sliver of syntax**: the modifier-vs-head problem (gen158's skeletal case,
-  worked around by the type gate) and descriptive queries that embed a concept
-  name as a modifier ("the bone that protects the brain" -> wants skull, gets
-  brain) need light POS/dependency signal — the recurring wall PRINCIPLES.md
-  predicts: the missing learned metric/structure.
+concurrency:
+  group: wikipedia-learner
+  cancel-in-progress: false
 
-## LOOP discipline (LOOP.md)
-Smallest tested step; bump `brain_version()` if behavior changed; EN ratchet AND
-the IT equivalent through the SAME path (extend `canonicalize_lang`, never
-duplicate logic); ~10x stress after it works; dated JOURNAL.md entry (newest at
-top); commit+push with `convcommit -t <type> -s <scope> -m "genN - summary" -a -p`.
-Tests are the ratchet; emergence over design; stay pure C. Use `rap` for literal
-edits (not sed/perl): `rap -no-backup s [-all] FILE OLD NEW`.
+jobs:
+  learn:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Process one Wikipedia page
+        run: python3 scripts/learn.py
+
+      - name: Commit and push learning updates
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No learning updates to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add kb/learning
+          git commit -m "learn wikipedia page"
+          git push
+```
+
+Note: the workflow commits only `kb/learning` at runtime. That includes learned facts, Markdown pages, state, index, and logs. The script/workflow/test files themselves should be committed manually once implementation is complete.
+
+### 3. Seed the generated KB file
+
+`kb/learning/learned.p0` should start as:
+
+```prolog
+% Generated by scripts/learn.py from curated Wikipedia pages.
+% Do not hand-edit generated facts; edit kb/learning/sources.tsv instead.
+% No AI is used: each wiki_concept comes from a deterministic summary rule.
+% Learning events connect concepts, Markdown snapshots, and operational logs.
+```
+
+After the first real or fixture run, `learn.py` will regenerate it with facts.
+
+### 4. Add the offline fixture
+
+Fill `tests/fixtures/wiki/prime_number.json` with:
+
+```json
+{
+  "summary": {
+    "content_urls": {
+      "desktop": {
+        "page": "https://en.wikipedia.org/wiki/Prime_number"
+      }
+    },
+    "description": "integer greater than 1 that has no positive divisors other than 1 and itself",
+    "extract": "A prime number is a natural number greater than 1 that is not a product of two smaller natural numbers. Prime numbers are central objects in number theory.",
+    "pageid": 247,
+    "revision": 123456789,
+    "title": "Prime number"
+  },
+  "page": {
+    "fullurl": "https://en.wikipedia.org/wiki/Prime_number",
+    "pageid": 247,
+    "revisions": [
+      {
+        "revid": 123456789,
+        "timestamp": "2026-01-01T00:00:00Z"
+      }
+    ]
+  },
+  "wikitext": "{{Short description|Natural number greater than 1 with no divisors other than 1 and itself}}\n'''Prime numbers''' are studied in [[number theory]].\n\n== Properties ==\n* A prime has exactly two positive divisors.\n"
+}
+```
+
+### 5. Add the offline regression test
+
+Fill `tests/wiki_learning.sh` with:
+
+```sh
+#!/usr/bin/env bash
+# Offline regression for the deterministic Wikipedia learner.
+set -eu
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TMP="${TMPDIR:-/tmp}/parrot0-wiki-learning.$$"
+trap 'rm -rf "$TMP"' EXIT
+
+mkdir -p "$TMP/pages" "$TMP/logs"
+cat >"$TMP/sources.tsv" <<'EOF'
+# domain<TAB>title
+mathematics	Prime number
+EOF
+
+python3 "$ROOT/scripts/learn.py" \
+    --sources "$TMP/sources.tsv" \
+    --kb "$TMP/learned.p0" \
+    --state "$TMP/state.json" \
+    --manifest "$TMP/index.json" \
+    --pages-dir "$TMP/pages" \
+    --logs-dir "$TMP/logs" \
+    --source-index 0 \
+    --fixture "$ROOT/tests/fixtures/wiki/prime_number.json" >/dev/null
+
+grep -F 'wiki_concept(prime_number, mathematics, "natural number greater than 1 that is not a product of two smaller natural numbers").' "$TMP/learned.p0" >/dev/null
+grep -F 'learning_event_concept(' "$TMP/learned.p0" >/dev/null
+grep -F 'learning_event_log(' "$TMP/learned.p0" >/dev/null
+grep -F '# Prime number' "$TMP/pages/prime_number.md" >/dev/null
+grep -F '## Properties' "$TMP/pages/prime_number.md" >/dev/null
+python3 -m json.tool "$TMP/state.json" >/dev/null
+python3 -m json.tool "$TMP/index.json" >/dev/null
+test -n "$(find "$TMP/logs" -type f -name 'learn_*.json' -print -quit)"
+
+echo "PASS wiki_learning: deterministic Wikipedia learner"
+```
+
+Then make it executable:
+
+```sh
+chmod +x tests/wiki_learning.sh
+```
+
+### 6. Load learned knowledge in the AGI profile
+
+In `kb/profiles/agi.p0`, after the learning skills block:
+
+```prolog
+% --- learning skills ---
+:- include(../skills/learning/memorize.p0).
+:- include(../skills/learning/research.p0).
+
+% --- autonomous Wikipedia learning ---
+:- include(../learning/learned.p0).
+```
+
+This makes learned `wiki_concept(...)` and `learning_event(...)` facts available when running:
+
+```sh
+PARROT0_PROFILE=kb/profiles/agi.p0 make chat
+```
+
+### 7. Add the test to Makefile
+
+In the `test:` target, after `@./tests/booklearn.sh`, add:
+
+```make
+	@./tests/wiki_learning.sh
+```
+
+### 8. Verify locally
+
+Run:
+
+```sh
+python3 -m py_compile scripts/learn.py
+bash -n tests/wiki_learning.sh
+./tests/wiki_learning.sh
+make test
+```
+
+A real Wikipedia fetch can be tested with:
+
+```sh
+python3 scripts/learn.py --source-index 0
+```
+
+Network may be restricted locally. If it fails with DNS/network sandboxing, request escalation or leave the real fetch to GitHub Actions. The offline fixture test should be enough for deterministic behavior.
+
+### 9. Inspect generated learning output after a fixture or real run
+
+Expected files after a run:
+
+```text
+kb/learning/learned.p0
+kb/learning/index.json
+kb/learning/state.json
+kb/learning/pages/<concept>.md
+kb/learning/logs/<event_id>.json
+```
+
+Check the event linkage:
+
+```sh
+rg -n "learning_event|wiki_concept" kb/learning/learned.p0
+python3 -m json.tool kb/learning/state.json
+python3 -m json.tool kb/learning/index.json
+```
+
+The event id in `state.json:last_processed.event_id` is the prompt handle for the session.
+
+Example prompt target after a real run:
+
+```text
+what do you know about learn_2026_06_21t012345z_prime_number
+```
+
+Because `learning_event(<event>, "...").` and related event facts mention the event id, `kb_describe_entity` should be able to surface the session summary and the paths to the Markdown/log files.
+
+## Source List Already Present
+
+`kb/learning/sources.tsv` is a curated starter list. It already contains domains such as:
+
+- mathematics
+- physics
+- chemistry
+- biology
+- medicine
+- computer_science
+- astronomy
+
+The script should preserve comments and use only non-comment rows in `<domain><TAB><Wikipedia title>` format.
+
+## Design Notes
+
+No AI is involved. Extraction is deterministic:
+
+- summary comes from Wikipedia REST `page/summary`
+- page text comes from MediaWiki API revisions
+- Markdown conversion strips common wikitext structures with simple deterministic rules
+- concept definition comes from the first summary sentence and a small title/verb pattern
+- logs are JSON and committed for later calibration
+
+Keep the pipeline idempotent where practical:
+
+- `learned.p0` is regenerated from `index.json`
+- one run appends one learning event
+- one page key maps to one Markdown snapshot path
+- repeated pages update the concept entry but preserve event history
+
+## Final Commit Scope Tomorrow
+
+When complete and verified, commit these groups together:
+
+```text
+.github/workflows/wikipedia-learn.yml
+scripts/learn.py
+kb/learning/sources.tsv
+kb/learning/learned.p0
+kb/profiles/agi.p0
+Makefile
+tests/wiki_learning.sh
+tests/fixtures/wiki/prime_number.json
+```
+
+Do not commit local temporary test output from `/tmp`.
+
+Do not run destructive cleanup. The tree was already dirty with untracked `kb/learning/`; treat it as user content.
+
+## Current Status
+
+Paused intentionally at the user's request. No final verification has been run yet. The next action is to apply `@inv:learn_py` into `scripts/learn.py`, then fill the remaining empty files with the contents above using `rap`.

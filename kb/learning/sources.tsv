@@ -1,0 +1,47 @@
+# parrot0 learning sources — curated Wikipedia pages.
+# Format:  <domain><TAB><Wikipedia title>
+# The learner (scripts/learn.py) walks this list round-robin, one page per run
+# (hourly on GitHub Actions), fetches the page, extracts the lead-sentence
+# definition DETERMINISTICALLY (no AI), and writes a concept() fact into
+# kb/learning/learned.p0. Keep this organized by domain; add/remove freely —
+# this is the dial we turn to steer what parrot0 teaches itself.
+
+# === mathematics ===
+mathematics	Prime number
+mathematics	Fibonacci number
+mathematics	Pythagorean theorem
+mathematics	Derivative
+mathematics	Logarithm
+
+# === physics ===
+physics	Newton's laws of motion
+physics	Entropy
+physics	Electromagnetism
+physics	Special relativity
+physics	Quantum mechanics
+
+# === chemistry ===
+chemistry	Periodic table
+chemistry	Covalent bond
+chemistry	Catalysis
+
+# === biology ===
+biology	Cell (biology)
+biology	DNA
+biology	Photosynthesis
+biology	Evolution
+
+# === medicine ===
+medicine	Immune system
+medicine	Antibiotic
+medicine	Neuron
+
+# === computer_science ===
+computer_science	Algorithm
+computer_science	Binary search algorithm
+computer_science	Hash table
+computer_science	Turing machine
+
+# === astronomy ===
+astronomy	Black hole
+astronomy	Galaxy
