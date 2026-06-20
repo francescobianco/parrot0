@@ -897,6 +897,21 @@ static void render_fact_direct(const Fact *f, const char *entity, int neg,
         return;
     }
 
+    /* gen151: description-bearing knowledge facts pred(key, "human text") — the
+     * gen150 expert/skill convention. Speak the description instead of dumping
+     * the raw clause: math_op(addition, "combining ...") -> "addition is
+     * combining ...". General over every domain's description facts, so held-out
+     * concepts verbalize through the same path (no per-concept phrasebook). */
+    if (f->argc == 2 && f->args[1][0] == '"') {
+        char d[KB_TERM_LEN];
+        snprintf(d, sizeof d, "%s", f->args[1]);
+        size_t dl = strlen(d);
+        if (dl > 0 && d[dl - 1] == '"') d[--dl] = '\0';
+        const char *desc = (d[0] == '"') ? d + 1 : d;
+        snprintf(buf, sz, "%s%s is %s", neg ? "not " : "", f->args[0], desc);
+        return;
+    }
+
     int off = snprintf(buf, sz, "%s%s(", neg ? "not " : "", f->pred);
     for (size_t i = 0; i < f->argc && off > 0 && (size_t)off < sz; i++) {
         off += snprintf(buf + off, sz - (size_t)off, "%s%s",
@@ -947,6 +962,27 @@ static int is_model_pred(const char *pred) {
            strcmp(pred, "cmd") == 0 || strcmp(pred, "flag") == 0;
 }
 
+/* gen151: structural metadata predicates — registry/relation plumbing from the
+ * gen150 expert/skill/profile architecture and the coding substrate. They carry
+ * no conversational content about an entity (they would render as raw clauses
+ * like expert_domain(arithmetic, mathematics)), so a "what is X?" description
+ * skips them and speaks only the content facts. */
+static int is_struct_pred(const char *pred) {
+    static const char *const s[] = {
+        "expert", "expert_domain", "skill", "skill_domain",
+        "profile", "profile_domain", "profile_description",
+        "expert_description", "skill_description",
+        "code_action", "code_template", "code_target", "code_pattern",
+        "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
+        "compiled_language", "interpreted_language", "paradigm", "typed",
+        "data_structure", "complexity", "faster_than",
+        "fix", "fix_suggestion", "review_check", "review_pattern",
+        "tr", "gender", "trait", NULL,
+    };
+    for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;
+    return 0;
+}
+
 int kb_describe_entity(const KB *kb, const char *entity,
                        char *out, size_t out_size) {
     if (!kb || !term_ok(entity) || !out || out_size == 0) return 0;
@@ -956,7 +992,8 @@ int kb_describe_entity(const KB *kb, const char *entity,
     int count = 0;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
-        if (!fact_mentions(f, entity) || is_model_pred(f->pred)) continue;
+        if (!fact_mentions(f, entity) || is_model_pred(f->pred) ||
+            is_struct_pred(f->pred)) continue;
         char piece[220];
         if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
         else render_fact_direct(f, entity, 0, piece, sizeof piece);

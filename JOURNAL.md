@@ -1,5 +1,52 @@
 # parrot0 evolution journal
-## 2026-06-20 - gen148: user-model context, separated from session state
+## 2026-06-21 - gen151: the gen150 expert knowledge learns to SPEAK
+
+**Goal (owner-driven, PRINCIPLES.md):** the owner ran `make chat` on the agi
+profile and saw the new gen150/150b domain knowledge fail the founding
+discipline: asking "what is addition" printed the RAW Prolog clause
+`math_op(addition, "combining two numbers to get their sum").` instead of
+dialoguing. gen150b was, in the owner's words, *fatta male* — the knowledge was
+loaded but inert: dumped as clauses, filtered as "internal substrate", and
+unreachable through natural questions. Bring it to the level of the rest:
+knowledge must be SPOKEN from real state, anti-impostor, general.
+
+**Self-challenge parity:** not run as a formal probe this iteration (the failure
+was observed directly in chat, the strongest pull there is).
+
+**Changed:** `brain.c` -> `gen151-knowledge-speaks`, plus `kb.c`.
+1. `render_fact_direct` (kb.c): a description-bearing fact `pred(key, "human
+   text")` — the gen150 expert/skill convention — is now VERBALIZED ("addition
+   is combining two numbers to get their sum.") instead of rendered as a raw
+   clause. General over every domain, so held-out concepts speak through the
+   same path; no per-concept phrasebook.
+2. `kb_describe_entity` (kb.c): a new `is_struct_pred` skips structural metadata
+   (expert/skill/profile registration, code_* templates, the coding substrate,
+   role `trait`) so a description never leaks plumbing as raw Prolog.
+3. `mod_knowledge` (brain.c): the description intake is broadened past the bare
+   "what is X?" to an article, a multiword topic, or a "tell me about X" frame
+   ("what is the heart", "what is the circulatory system", "tell me about pi").
+   Each content word is tried as the concept key; it CLAIMS only on a real KB
+   hit, so the indefinite membership query "what is a dog?" and the relational
+   "what is the plural of dog?" are left to their existing handlers and unknown
+   topics still fall through — the wall is never widened.
+4. `tests/knowledge.sh` (new, wired into `make test`): REAL domain-knowledge
+   assertions (arithmetic, anatomy) in EN + IT — replacing the placebo style of
+   the gen150b tests, which only checked `is socrates a man -> Yes`. The IT
+   question hits the same render path: the bilingual ratchet.
+
+**Observed.** `make test` green (157 chat cases + all `.sh` suites). On the agi
+profile, "what is addition / the heart / the circulatory system" and "tell me
+about pi" now answer in plain language. TWO deeper gen150b debts are now exposed
+and are the next pulls (NOT fixed here): (a) the KB parser `parse_term` splits
+arguments on commas with NO quote-awareness, so the 132 descriptions containing
+commas are MANGLED into garbage multi-arg facts; (b) `term_ok` rejects any atom
+>= 64 chars, so the 148 descriptions longer than that are SILENTLY DROPPED at
+load. The "English-prose-in-an-atom" pattern exceeds what the engine can
+represent — gen152 must teach the parser real quoted string literals and give
+descriptions the capacity to survive intact, then the expert/profile/skill tests
+can assert genuine knowledge instead of `is socrates a man -> Yes`.
+
+
 
 **Goal (E4):** make ordinary conversation remember more than rigid name and possession frames: preference, mood, current topic and constraints, then answer `what do you remember about me?` without inventing unstated traits and while distinguishing durable personal facts from temporary session context.
 

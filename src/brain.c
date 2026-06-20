@@ -1311,6 +1311,41 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen151: natural access to gen150 domain knowledge (experts/skills). Beyond
+     * the bare "what is X?" above, accept an article, a multiword topic, or a
+     * "tell me about X" framing: "what is the heart", "what is a prime",
+     * "what is the circulatory system", "tell me about pi". Each content word is
+     * tried as the concept key; the first that has a KB description is spoken.
+     * Claims ONLY on a hit, so unknown topics still fall through to the humility
+     * blocks above and the fallback below — this never widens the wall. */
+    {
+        size_t start = 0;
+        if (nw >= 3 && strcmp(w[0], "what") == 0 &&
+            (strcmp(w[1], "is") == 0 || strcmp(w[1], "are") == 0)) start = 2;
+        else if (nw >= 4 && strcmp(w[0], "tell") == 0 &&
+                 strcmp(w[1], "me") == 0 && strcmp(w[2], "about") == 0) start = 3;
+        /* "what is a/an X?" is the membership query (list the X's), handled
+         * downstream — not a description request. Leave it alone. */
+        if (start == 2 && (strcmp(w[2], "a") == 0 || strcmp(w[2], "an") == 0))
+            start = 0;
+        /* "what is the <rel> of <obj>?" is a relational query, handled elsewhere;
+         * an "of"/"di" marker means this is not a plain description request. */
+        for (size_t i = start; start && i < nw; i++)
+            if (strcmp(w[i], "of") == 0 || strcmp(w[i], "di") == 0) start = 0;
+        if (start) {
+            for (size_t i = start; i < nw; i++) {
+                if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                char desc[1024];
+                if (kb_describe_entity(b->kb, w[i], desc, sizeof desc)) {
+                    put(desc, out, out_size);
+                    store_proof(b, desc);
+                    remember_entity(b, w[i], w[i]);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
     if (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
         is_article(w[3])) {
@@ -9990,7 +10025,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen150b-granular-kb";
+    return "gen151-knowledge-speaks";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -74,6 +74,7 @@ test: build
 	@./tests/experts.sh
 	@./tests/profiles.sh
 	@./tests/skills.sh
+	@./tests/knowledge.sh
 
 bench: build
 	@./tests/bench.sh all
