@@ -1129,6 +1129,47 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
     return 0;
 }
 
+/* gen157: true if `term` is the key of some description-bearing concept fact. */
+int kb_is_concept_key(const KB *kb, const char *term) {
+    if (!kb || !term) return 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (strcmp(f->args[0], term) == 0) return 1;
+    }
+    return 0;
+}
+
+/* gen157: relational reasoning DERIVED from unstructured descriptions. parrot0
+ * was never told "heart is part of circulatory" — but the circulatory
+ * description NAMES the heart, so the containment relation can be recovered from
+ * the text. Find the concept whose description mentions `term` (a different
+ * concept), recovering an emergent taxonomy that was never asserted as facts. */
+int kb_concept_mentioning(const KB *kb, const char *term,
+                          char *key_out, size_t key_sz,
+                          char *desc_out, size_t desc_sz) {
+    if (!kb || !term || !key_out || !desc_out) return 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (strcmp(f->args[0], term) == 0) continue;   /* a concept never contains itself */
+        char ctoks[96][KB_TERM_LEN];
+        size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
+        for (size_t c = 0; c < nc; c++) {
+            if (word_sim(term, ctoks[c])) {
+                snprintf(key_out, key_sz, "%s", f->args[0]);
+                char d[KB_TERM_LEN]; snprintf(d, sizeof d, "%s", f->args[f->argc - 1]);
+                size_t dl = strlen(d); if (dl && d[dl - 1] == '"') d[--dl] = '\0';
+                snprintf(desc_out, desc_sz, "%s", d[0] == '"' ? d + 1 : d);
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 int kb_knows_pred(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
     for (size_t i = 0; i < kb->n; i++)

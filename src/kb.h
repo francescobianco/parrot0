@@ -139,6 +139,17 @@ int    kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
                           char *key_out, size_t key_sz,
                           char *desc_out, size_t desc_sz);
 
+/* gen157: true if `term` is the key of a description-bearing concept fact. */
+int    kb_is_concept_key(const KB *kb, const char *term);
+
+/* gen157: recover an emergent containment relation — the concept whose
+ * description NAMES `term` (e.g. circulatory's description names the heart, so
+ * "what is the heart part of?" -> circulatory). Derived from text, never
+ * asserted. Writes key/description, returns 1 on a hit. */
+int    kb_concept_mentioning(const KB *kb, const char *term,
+                             char *key_out, size_t key_sz,
+                             char *desc_out, size_t desc_sz);
+
 /* True if the predicate is known at all — mentioned by any fact or any rule
  * head, or explicit negative fact. Used (gen16+) to tell the *not-known*
  * ("I don't know about <pred>") from the closed-world *false* ("No.")

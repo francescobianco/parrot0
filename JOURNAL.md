@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen157: relations that emerge from the text (never asserted)
+
+**Goal (owner: "more ambitious experiments"):** stop polishing the glossary and
+make parrot0 REASON over the knowledge. The most striking thing a flat glossary
+can be made to do is yield a structure nobody put there: parrot0 was never told
+"the heart is part of the circulatory system", yet the circulatory DESCRIPTION
+names the heart — so the containment relation is latent in the text and can be
+recovered. A taxonomy emerging from unstructured descriptions.
+
+**Changed:** `kb.c`/`kb.h` + `brain.c` -> `gen157-emergent-relations`.
+- `kb_concept_mentioning` (kb.c): find the concept whose description NAMES a given
+  term (cognate/morphology-tolerant via `word_sim`), and `kb_is_concept_key` to
+  gate on a term parrot0 actually knows as a concept.
+- `mod_knowledge` (brain.c): a containment frame — "what is X part of?", "what
+  contains X?", "what system is X part of?", IT "di cosa fa parte X" / "cosa
+  contiene X" — finds the known concept X in the turn and answers with the
+  concept whose text mentions it. Runs before the describe block so "what is X
+  part of" is not answered with X's own definition. Fires only with a containment
+  cue AND a known concept, so ordinary "what is X" is untouched.
+
+**Observed — the ambitious result.** parrot0 now answers questions whose answer
+was NEVER stored as a fact: "what is the heart part of?" -> circulatory; "what
+contains the lungs?" -> respiratory; "what system is the liver part of?" ->
+digestive; "di cosa fa parte heart" -> circulatory (same derivation, IT cue). The
+relation is computed from the glossary text at query time. And it stays HONEST:
+"what is the femur part of?" walls, because nothing in the KB's text places the
+femur in a system — parrot0 does not fabricate a container. This composes the
+gen150 knowledge, the gen155/156 token machinery and the symbolic dispatch into a
+behaviour none of them had alone (TASKLIST E1, compositional emergence).
+`tests/knowledge.sh`: EN heart/liver, the IT cue, and the no-fabrication negative.
+
+**Next pulls:** let the recovered relation feed the proof engine (assert it as a
+derived `part_of` so "is the heart in the circulatory system?" and chains work);
+relax the concept-key gate so a term that is only MENTIONED (insulin -> pancreas)
+can still be placed, without losing precision.
+
 ## 2026-06-21 - gen156: a learned metric (idf) for the similarity recall
 
 **Goal (NEXTMOVE pull #1):** gen155's overlap recall was NOISY at agi scale —

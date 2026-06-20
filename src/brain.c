@@ -1313,6 +1313,37 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen157: emergent relational reasoning over descriptions. parrot0 was never
+     * told "heart is part of circulatory" — but the circulatory DESCRIPTION names
+     * the heart, so "what is the heart part of?" / "what contains the lungs?" /
+     * "di cosa fa parte heart" recovers the container from the text. The relation
+     * is DERIVED, never asserted: a taxonomy emerging from the glossary. Runs
+     * before the describe block so "what is X part of" is not answered with X's
+     * own definition. Fires only with a containment cue AND a known concept. */
+    {
+        char low[256]; lowercase_copy(low, sizeof low, raw);
+        int want_container =
+            cue(norm, "part of") || cue(norm, "belong") ||
+            cue(norm, "contains") || cue(norm, "contain ") ||
+            cue(norm, "includes") || cue(norm, "include ") ||
+            cue(low, "fa parte") || cue(low, "contiene") || cue(low, "contengono");
+        if (want_container) {
+            const char *x = NULL;
+            for (size_t i = 0; i < nw; i++)
+                if (kb_is_concept_key(b->kb, w[i])) { x = w[i]; break; }
+            char ckey[128], cdesc[1024];
+            if (x && kb_concept_mentioning(b->kb, x, ckey, sizeof ckey,
+                                           cdesc, sizeof cdesc)) {
+                char msg[1200];
+                snprintf(msg, sizeof msg, "%s is part of %s: %s.", x, ckey, cdesc);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                remember_entity(b, x, x);
+                return 1;
+            }
+        }
+    }
+
     /* gen151: natural access to gen150 domain knowledge (experts/skills). Beyond
      * the bare "what is X?" above, accept an article, a multiword topic, or a
      * "tell me about X" framing: "what is the heart", "what is a prime",
@@ -10055,7 +10086,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen156-idf-weighting";
+    return "gen157-emergent-relations";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -98,6 +98,31 @@ expect "idf breaks agi-scale tie: pumps blood -> heart" \
     "profiles/agi.p0" \
     "You might mean heart: muscular pump circulating blood through the body."
 
+# gen157: EMERGENT relational reasoning. parrot0 was never told "heart is part of
+# circulatory" — it RECOVERS the relation because the circulatory description
+# names the heart. A taxonomy derived from unstructured text, not asserted facts.
+expect "emergent containment: heart -> circulatory" \
+    "what is the heart part of" \
+    "experts/medicine/anatomy.p0" \
+    "heart is part of circulatory: heart and blood vessels -- transports blood, oxygen and nutrients."
+
+expect "emergent containment: liver -> digestive" \
+    "what system is the liver part of" \
+    "experts/medicine/anatomy.p0" \
+    "liver is part of digestive: stomach, intestines and liver -- breaks down and absorbs food."
+
+# Bilingual: the IT containment cue "fa parte" reaches the SAME derivation.
+expect "IT emergent containment: di cosa fa parte heart" \
+    "di cosa fa parte heart" \
+    "experts/medicine/anatomy.p0" \
+    "heart is part of circulatory: heart and blood vessels -- transports blood, oxygen and nutrients."
+
+# Honest: a concept nothing places in the text must NOT be invented a container.
+expect "no fabricated relation: femur is unplaced" \
+    "what is the femur part of" \
+    "experts/medicine/anatomy.p0" \
+    "I don't understand that yet."
+
 # An unknown topic must NOT be force-fit to a concept (precision over recall).
 expect "honest miss: unknown topic does not fuzzy-fire" \
     "what is the weather like today" \
