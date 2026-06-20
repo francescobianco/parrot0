@@ -3,7 +3,7 @@
 % Load with: PARROT0_PROFILE=kb/profiles/agi.p0 make chat
 
 profile(agi).
-profile_description(agi, "super expert — all domains, all capabilities. Programming, mathematics, medicine, reasoning, communication.").
+profile_description(agi, "super expert — all domains, all capabilities. Programming, mathematics, medicine, physics, chemistry, biology, linguistics, business, philosophy, engineering, music, psychology, reasoning, communication.").
 
 % --- programming experts ---
 :- include(../experts/programming/c.p0).
@@ -21,17 +21,77 @@ profile_description(agi, "super expert — all domains, all capabilities. Progra
 :- include(../experts/medicine/anatomy.p0).
 :- include(../experts/medicine/pharmacology.p0).
 
+% --- physics experts ---
+:- include(../experts/physics/mechanics.p0).
+:- include(../experts/physics/electromagnetism.p0).
+
+% --- chemistry experts ---
+:- include(../experts/chemistry/elements.p0).
+:- include(../experts/chemistry/reactions.p0).
+
+% --- biology experts ---
+:- include(../experts/biology/cell_biology.p0).
+
+% --- linguistics experts ---
+:- include(../experts/linguistics/syntax.p0).
+:- include(../experts/linguistics/semantics.p0).
+
+% --- business experts ---
+:- include(../experts/business/finance.p0).
+
+% --- philosophy experts ---
+:- include(../experts/philosophy/ethics.p0).
+
+% --- engineering experts ---
+:- include(../experts/engineering/systems.p0).
+
+% --- music experts ---
+:- include(../experts/music/theory.p0).
+
+% --- psychology experts ---
+:- include(../experts/psychology/cognitive.p0).
+
 % --- programming skills ---
 :- include(../skills/programming/explain.p0).
 :- include(../skills/programming/fix.p0).
 :- include(../skills/programming/generate.p0).
 :- include(../skills/programming/review.p0).
+:- include(../skills/programming/optimize.p0).
+:- include(../skills/programming/document.p0).
+:- include(../skills/programming/test.p0).
+:- include(../skills/programming/refactor.p0).
+:- include(../skills/programming/design.p0).
 
 % --- reasoning skills ---
 :- include(../skills/reasoning/deduce.p0).
 :- include(../skills/reasoning/compare.p0).
 :- include(../skills/reasoning/plan.p0).
+:- include(../skills/reasoning/analyze.p0).
+:- include(../skills/reasoning/evaluate.p0).
+:- include(../skills/reasoning/synthesize.p0).
+:- include(../skills/reasoning/classify.p0).
+:- include(../skills/reasoning/prioritize.p0).
+:- include(../skills/reasoning/extrapolate.p0).
 
 % --- communication skills ---
 :- include(../skills/communication/explain.p0).
 :- include(../skills/communication/summarize.p0).
+:- include(../skills/communication/describe.p0).
+:- include(../skills/communication/instruct.p0).
+:- include(../skills/communication/persuade.p0).
+:- include(../skills/communication/question.p0).
+:- include(../skills/communication/narrate.p0).
+:- include(../skills/communication/translate.p0).
+
+% --- problem solving skills ---
+:- include(../skills/problem_solving/decompose.p0).
+:- include(../skills/problem_solving/troubleshoot.p0).
+:- include(../skills/problem_solving/brainstorm.p0).
+
+% --- creativity skills ---
+:- include(../skills/creativity/ideate.p0).
+:- include(../skills/creativity/improvise.p0).
+
+% --- learning skills ---
+:- include(../skills/learning/memorize.p0).
+:- include(../skills/learning/research.p0).
