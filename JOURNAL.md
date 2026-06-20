@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen158: the emergent relation becomes a provable fact
+
+**Goal (continuation):** gen157 RECOVERED "heart is part of circulatory" from the
+text but answered it as a string. Make it a FIRST-CLASS fact so the resolution
+engine can prove and query it — the flat glossary becomes a reasonable graph.
+
+**Changed:** `kb.c`/`kb.h` + `brain.c` -> `gen158-relations-as-facts`.
+- `kb_derive_part_of` (kb.c): after the whole KB is loaded, materialize
+  `part_of/2` facts from the descriptions — but ONLY from CONTAINER predicates,
+  detected structurally as predicates whose facts repeatedly name OTHER concept
+  keys (body_system names organs; number_property names almost none). So a mere
+  mention ("composite is a number that is not prime") is NOT turned into a
+  containment. Facts are KB_REFLECTIVE (regenerated each boot, never persisted).
+  Materialized once on the first `brain_respond` (guarded by `relations_derived`).
+- `mod_knowledge` (brain.c): three relational shapes over the materialized facts —
+  PROOF "is X part of Y?" (`kb_query`, real resolution) -> Yes/No; MEMBERS "what
+  is part of Y?" (`kb_match` inverse) -> the list; plus the gen157 CONTAINER
+  "what is X part of?". A trailing category noun ("the nervous SYSTEM") is treated
+  as the frame, not the target, even though "system" is a concept elsewhere.
+- `kb_concept_mentioning` now matches EXACTLY (not cognate), so a containment
+  claim never rests on a near-match (respiratory ~ responses). `part_of` is added
+  to `is_struct_pred` so describe stays clean.
+
+**Observed — the graph reasons.** "is the heart part of the circulatory system?"
+-> Yes (PROVED from a fact derived from text); "is the heart part of the
+digestive system?" -> No; "what is part of the digestive system?" -> stomach,
+intestines, liver (organs recovered from the prose "stomach, intestines and
+liver", never stored as relations); brain->nervous, lungs->respiratory hold
+across the agi profile. The mention!=containment safeguard holds (prime is NOT
+part of composite). `tests/knowledge.sh` ratchets prove/disprove/members.
+
+**The honest limit (the syntax frontier, again).** Text ambiguity still leaks:
+the muscular description says "skeletal, smooth and cardiac muscles", where
+"skeletal" is an ADJECTIVE (skeletal muscle), yet "skeletal" is also the name of
+a body system — so `part_of(skeletal, muscular)` is materialized falsely. The
+container detection got the predicate right; the individual mention is
+adjectival. Distinguishing modifier from head needs the sliver of syntax the
+discrete matcher still lacks — the same wall gen155-157 hit. parrot0 now has a
+knowledge graph it can prove over; making that graph trustworthy is the next
+pull (POS-ish gating: a mention counts only as a noun head, not a modifier).
+
 ## 2026-06-21 - gen157: relations that emerge from the text (never asserted)
 
 **Goal (owner: "more ambitious experiments"):** stop polishing the glossary and

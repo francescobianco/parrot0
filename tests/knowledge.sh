@@ -123,6 +123,25 @@ expect "no fabricated relation: femur is unplaced" \
     "experts/medicine/anatomy.p0" \
     "I don't understand that yet."
 
+# gen158: the derived relation is now a FIRST-CLASS part_of/2 fact the resolution
+# engine PROVES and queries in both directions.
+expect "prove derived relation: heart in circulatory" \
+    "is the heart part of the circulatory system" \
+    "experts/medicine/anatomy.p0" \
+    "Yes, heart is part of circulatory."
+
+expect "disprove (honest): heart not in digestive" \
+    "is the heart part of the digestive system" \
+    "experts/medicine/anatomy.p0" \
+    "No, I have no evidence that heart is part of digestive."
+
+# Inverse query: list what a system contains — organs recovered from the
+# description "stomach, intestines and liver", never asserted as relations.
+expect "inverse query: members of the digestive system" \
+    "what is part of the digestive system" \
+    "experts/medicine/anatomy.p0" \
+    "digestive contains: stomach, intestines, liver."
+
 # An unknown topic must NOT be force-fit to a concept (precision over recall).
 expect "honest miss: unknown topic does not fuzzy-fire" \
     "what is the weather like today" \

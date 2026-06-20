@@ -150,6 +150,13 @@ int    kb_concept_mentioning(const KB *kb, const char *term,
                              char *key_out, size_t key_sz,
                              char *desc_out, size_t desc_sz);
 
+/* gen158: materialize the emergent containment relation as first-class part_of/2
+ * facts (KB_REFLECTIVE, never persisted), so the resolution engine can prove and
+ * query it. Only CONTAINER predicates (those whose facts repeatedly name other
+ * concept keys) are materialized, so a mere mention is not mistaken for
+ * containment. Returns the number of relations added. */
+int    kb_derive_part_of(KB *kb);
+
 /* True if the predicate is known at all — mentioned by any fact or any rule
  * head, or explicit negative fact. Used (gen16+) to tell the *not-known*
  * ("I don't know about <pred>") from the closed-world *false* ("No.")

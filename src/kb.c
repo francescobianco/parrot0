@@ -990,7 +990,9 @@ static int is_struct_pred(const char *pred) {
         "compiled_language", "interpreted_language", "paradigm", "typed",
         "data_structure", "complexity", "faster_than",
         "fix", "fix_suggestion", "review_check", "review_pattern",
-        "tr", "gender", "trait", NULL,
+        "tr", "gender", "trait",
+        "part_of", /* gen158: a derived relation, not a describable concept */
+        NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;
     return 0;
@@ -1158,7 +1160,9 @@ int kb_concept_mentioning(const KB *kb, const char *term,
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
-            if (word_sim(term, ctoks[c])) {
+            /* EXACT mention (gen158): a containment claim must not rest on a
+             * cognate near-match (respiratory ~ responses). */
+            if (strcmp(term, ctoks[c]) == 0) {
                 snprintf(key_out, key_sz, "%s", f->args[0]);
                 char d[KB_TERM_LEN]; snprintf(d, sizeof d, "%s", f->args[f->argc - 1]);
                 size_t dl = strlen(d); if (dl && d[dl - 1] == '"') d[--dl] = '\0';
@@ -1168,6 +1172,76 @@ int kb_concept_mentioning(const KB *kb, const char *term,
         }
     }
     return 0;
+}
+
+/* gen158: MATERIALIZE the emergent containment relation as first-class part_of/2
+ * facts so the resolution engine can PROVE and query it ("is the heart part of
+ * circulatory?" -> Yes; "what is part of circulatory?" -> heart). The danger is
+ * that a mention is not a containment ("composite is a number that is not
+ * prime"), so we only materialize from CONTAINER predicates — detected
+ * structurally as predicates whose facts repeatedly name OTHER concept keys
+ * (body_system names organs; number_property names almost none). No hardcoded
+ * domain list; the facts are KB_REFLECTIVE so they regenerate each boot and are
+ * never persisted. Returns the number of relations added. */
+static int str_in(const char set[][KB_TERM_LEN], size_t n, const char *s) {
+    for (size_t i = 0; i < n; i++) if (strcmp(set[i], s) == 0) return 1;
+    return 0;
+}
+
+int kb_derive_part_of(KB *kb) {
+    if (!kb) return 0;
+    const size_t n0 = kb->n;
+
+    /* collect the concept keys once (exact membership, not cognate) */
+    char keys[512][KB_TERM_LEN]; size_t nkeys = 0;
+    for (size_t i = 0; i < n0 && nkeys < 512; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        int dup = 0;
+        for (size_t k = 0; k < nkeys; k++) if (strcmp(keys[k], f->args[0]) == 0) { dup = 1; break; }
+        if (!dup) snprintf(keys[nkeys++], KB_TERM_LEN, "%s", f->args[0]);
+    }
+
+    /* per-predicate count of facts that name some OTHER concept key */
+    char preds[128][KB_TERM_LEN]; int pcnt[128]; size_t npreds = 0;
+    for (size_t i = 0; i < n0; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        char ctoks[96][KB_TERM_LEN];
+        size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
+        int names_other = 0;
+        for (size_t c = 0; c < nc; c++)
+            if (strcmp(ctoks[c], f->args[0]) != 0 && str_in(keys, nkeys, ctoks[c])) { names_other = 1; break; }
+        if (!names_other) continue;
+        size_t p = 0; for (; p < npreds; p++) if (strcmp(preds[p], f->pred) == 0) break;
+        if (p == npreds && npreds < 128) { snprintf(preds[npreds], KB_TERM_LEN, "%s", f->pred); pcnt[npreds] = 0; npreds++; }
+        if (p < 128) pcnt[p]++;
+    }
+
+    /* materialize part_of for facts of container predicates (>=2 such facts) */
+    int saved = kb->origin;
+    kb_set_origin(kb, KB_REFLECTIVE);
+    int added = 0;
+    for (size_t i = 0; i < n0; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        int container = 0;
+        for (size_t p = 0; p < npreds; p++)
+            if (strcmp(preds[p], f->pred) == 0) { container = (pcnt[p] >= 2); break; }
+        if (!container) continue;
+        char ctoks[96][KB_TERM_LEN];
+        size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
+        for (size_t c = 0; c < nc; c++) {
+            if (strcmp(ctoks[c], f->args[0]) == 0 || !str_in(keys, nkeys, ctoks[c])) continue;
+            const char *args[2] = { ctoks[c], f->args[0] };
+            if (kb_assert(kb, "part_of", args, 2)) added++;
+        }
+    }
+    kb_set_origin(kb, saved);
+    return added;
 }
 
 int kb_knows_pred(const KB *kb, const char *pred) {

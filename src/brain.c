@@ -31,6 +31,7 @@ struct Brain {
     int  has_name;         /* whether `name` is set */
     char last_entity[KB_TERM_LEN]; /* most recent concrete KB entity */
     int  has_last_entity;  /* whether `last_entity` is set */
+    int  relations_derived; /* gen158: part_of/2 materialized from descriptions once */
     char last_reply[256];  /* our previous response — so we don't repeat it (gen55) */
     unsigned long fallbacks; /* how many not-understood turns — rotates variants */
     KB  *kb;               /* the knowledge base (gen4+) */
@@ -1328,9 +1329,66 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             cue(norm, "includes") || cue(norm, "include ") ||
             cue(low, "fa parte") || cue(low, "contiene") || cue(low, "contengono");
         if (want_container) {
-            const char *x = NULL;
+            /* concept keys in the turn, and the index of the containment cue.
+             * A trailing category noun ("the nervous SYSTEM") is the frame, not
+             * the target — skip it even though "system" is a concept elsewhere. */
+            const char *keys[8]; size_t keypos[8], nk = 0;
+            for (size_t i = 0; i < nw && nk < 8; i++) {
+                if (!strcmp(w[i], "system") || !strcmp(w[i], "group") ||
+                    !strcmp(w[i], "class") || !strcmp(w[i], "family") ||
+                    !strcmp(w[i], "category") || !strcmp(w[i], "type") ||
+                    !strcmp(w[i], "kind") || !strcmp(w[i], "set")) continue;
+                if (kb_is_concept_key(b->kb, w[i])) { keys[nk] = w[i]; keypos[nk] = i; nk++; }
+            }
+            size_t cuei = nw;
             for (size_t i = 0; i < nw; i++)
-                if (kb_is_concept_key(b->kb, w[i])) { x = w[i]; break; }
+                if (!strcmp(w[i], "part") || !strcmp(w[i], "contains") ||
+                    !strcmp(w[i], "contain") || !strcmp(w[i], "includes") ||
+                    !strcmp(w[i], "include") || !strcmp(w[i], "contiene") ||
+                    !strcmp(w[i], "contengono")) { cuei = i; break; }
+
+            /* gen158 (proof): "is X part of Y?" — PROVE it against the
+             * materialized part_of/2 fact derived from the descriptions. */
+            if (nk >= 2 && strcmp(w[0], "is") == 0) {
+                const char *xx = keys[0], *yy = keys[nk - 1];
+                const char *args[2] = { xx, yy };
+                char msg[200];
+                if (kb_query(b->kb, "part_of", args, 2))
+                    snprintf(msg, sizeof msg, "Yes, %s is part of %s.", xx, yy);
+                else
+                    snprintf(msg, sizeof msg,
+                             "No, I have no evidence that %s is part of %s.", xx, yy);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                return 1;
+            }
+
+            /* gen158 (members): "what is part of Y?" / "what is in Y?" — the
+             * inverse query over part_of, listing what Y contains. */
+            int key_before_cue = 0;
+            for (size_t i = 0; i < nk; i++) if (keypos[i] < cuei) key_before_cue = 1;
+            if (nk >= 1 && cuei < nw && !key_before_cue && keypos[nk - 1] > cuei) {
+                const char *yy = keys[nk - 1];
+                char members[16][KB_TERM_LEN];
+                const char *args[2] = { NULL, yy };
+                size_t m = kb_match(b->kb, "part_of", args, 2, members, 16);
+                if (m > 0) {
+                    char msg[512];
+                    int off = snprintf(msg, sizeof msg, "%s contains: ", yy);
+                    for (size_t i = 0; i < m && off > 0 && (size_t)off < sizeof msg; i++)
+                        off += snprintf(msg + off, sizeof msg - (size_t)off, "%s%s",
+                                        i ? ", " : "", members[i]);
+                    if (off > 0 && (size_t)off < sizeof msg)
+                        snprintf(msg + off, sizeof msg - (size_t)off, ".");
+                    put(msg, out, out_size);
+                    store_proof(b, msg);
+                    return 1;
+                }
+            }
+
+            /* gen157 (container): "what is X part of?" — the concept whose text
+             * names X, recovered on demand. */
+            const char *x = (nk >= 1) ? keys[0] : NULL;
             char ckey[128], cdesc[1024];
             if (x && kb_concept_mentioning(b->kb, x, ckey, sizeof ckey,
                                            cdesc, sizeof cdesc)) {
@@ -10086,7 +10144,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen157-emergent-relations";
+    return "gen158-relations-as-facts";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -10260,6 +10318,15 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) b->turns++;
+
+    /* gen158: once the whole KB (base + profile) is loaded, materialize the
+     * part_of/2 relation latent in the concept descriptions, so the resolution
+     * engine can prove and query it. Done on the first turn, when loading is
+     * complete; KB_REFLECTIVE so it never persists. */
+    if (b && b->kb && !b->relations_derived) {
+        kb_derive_part_of(b->kb);
+        b->relations_derived = 1;
+    }
 
     char norm[256];
     normalize(input, norm, sizeof norm);
