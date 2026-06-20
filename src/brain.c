@@ -129,7 +129,47 @@ struct Brain {
     int  pending_repair;        /* a clarification is open, awaiting an answer  */
     char pending_canon[256];    /* the stored incomplete turn (canonicalized)   */
     char pending_slot[16];      /* the token to fill (the unresolved pronoun)   */
+
+    /* gen142 (E8): metacognitive calibration. The agent reports HOW it knows the
+     * last conclusion, with confidence language computed from the real proof state
+     * rather than a canned adjective. Two small pieces of session state the proof
+     * substrate would otherwise lose:
+     *  - ASSUMED facts: a standing "suppose X." asserts X into the session KB AND
+     *    is recorded here, so a later ordinary answer that rests on X is graded
+     *    HYPOTHETICAL (detected by ablation: removing the assumed fact flips the
+     *    goal) and "drop the assumption" is offered as what would change it.
+     *  - CONFLICT: when the user states both "X is a Y" and "X is not a Y" about
+     *    the same atom this session, the contradiction is recorded so the goal is
+     *    graded CONFLICTED and BOTH claims are named — the KB's last-write-wins
+     *    override would otherwise erase the losing claim. This is real recorded
+     *    conversational state, not a tone. */
+    char assumed_pred[8][KB_TERM_LEN];
+    char assumed_arg[8][KB_TERM_LEN];
+    size_t assumed_n;
+    char conflict_pred[KB_TERM_LEN]; /* last self-contradicted (pred,arg)         */
+    char conflict_arg[KB_TERM_LEN];
+    int  has_conflict;
 };
+
+/* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity
+ * `positive`. If the OPPOSITE polarity is currently in the KB (the about-to-be
+ * overwritten claim), the user has contradicted themselves about this atom this
+ * session — remember it so a later "is X a Y?" / "why?" is graded CONFLICTED and
+ * BOTH claims can be named, even though the KB's last-write-wins assert will
+ * erase the losing fact. Called BEFORE the assert. Only direct fact-vs-fact
+ * contradictions about the SAME atom are recorded — a grounded signal, not tone. */
+static void note_contradiction(Brain *b, const char *pred, const char *arg,
+                               int positive) {
+    if (!b || !b->kb) return;
+    const char *a[] = {arg};
+    int opposite = positive ? kb_is_negated(b->kb, pred, a, 1)
+                            : kb_query(b->kb, pred, a, 1);
+    if (opposite) {
+        snprintf(b->conflict_pred, sizeof b->conflict_pred, "%s", pred);
+        snprintf(b->conflict_arg, sizeof b->conflict_arg, "%s", arg);
+        b->has_conflict = 1;
+    }
+}
 
 /* ----------------------------------------------------------------------------
  * small text utilities shared by modules
@@ -1128,6 +1168,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *args[] = {subj};
         char msg[128];
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
+        note_contradiction(b, cl, subj, 0); /* gen142 (E8): self-contradiction? */
         if (kb_assert_neg(b->kb, cl, args, 1))
             snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
         else
@@ -1322,6 +1363,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
+        note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
         if (kb_assert(b->kb, cls, args, 1)) {
             char msg[128];
             snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
@@ -7403,6 +7445,255 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: calibrate (gen142, E8) -------------------------------------
+ * Metacognitive calibration: the agent reports HOW it knows the last
+ * conclusion, with confidence language COMPUTED from the real proof state, never
+ * a canned adjective. It distinguishes FIVE epistemic states of the last stated
+ * goal and answers two follow-ups from each:
+ *   KNOWN        — a directly stored fact (proof has no "because").
+ *   INFERRED     — derived through a rule/chain (proof contains "because").
+ *   CONFLICTED   — the user has asserted both polarities about this atom; the
+ *                  KB's last-write-wins override hid one claim, but the
+ *                  contradiction was recorded, so both are named.
+ *   HYPOTHETICAL — the conclusion rests on a standing "suppose X." assumption
+ *                  (detected by ablation: removing the assumed fact flips it).
+ *   UNKNOWN      — nothing supports it: predicate unknown, or no proof.
+ * "Why do you think that?" reports the support + the state's confidence; "what
+ * would make you change your mind?" reports the real lever — for KNOWN/INFERRED
+ * the load-bearing facts found by the same ablation sweep mod_robust uses, for
+ * HYPOTHETICAL the assumption to drop, for CONFLICTED the source to adjudicate,
+ * for UNKNOWN the fact that would settle it. All grounded in state.
+ *
+ * It also owns the standing supposition: a bare "suppose X." (no "then", which
+ * mod_knowledge's one-shot form needs) asserts X as a SESSION fact and records
+ * it as an assumption, so subsequent ordinary answers can be graded hypothetical.
+ */
+enum epi_state { EPI_UNKNOWN, EPI_KNOWN, EPI_INFERRED, EPI_CONFLICTED, EPI_HYPO };
+
+/* Which assumed fact (if any) the last goal's truth depends on: remove each
+ * assumed fact, re-derive, restore; return the index whose removal flips the
+ * goal from true to not-provable, else -1. Footprint-free (restores). */
+static int calib_hypo_support(Brain *b) {
+    if (!b || !b->kb || !b->has_last_goal || b->assumed_n == 0) return -1;
+    if (goal_truth(b) != 1) return -1;
+    for (size_t i = 0; i < b->assumed_n; i++) {
+        const char *a[] = {b->assumed_arg[i]};
+        if (!kb_query(b->kb, b->assumed_pred[i], a, 1)) continue;
+        if (!kb_retract(b->kb, b->assumed_pred[i], a, 1)) continue;
+        int after = goal_truth(b);
+        kb_set_origin(b->kb, KB_SESSION);
+        kb_assert(b->kb, b->assumed_pred[i], a, 1); /* restore */
+        if (after == 0) return (int)i;
+    }
+    return -1;
+}
+
+/* Classify the epistemic state of the last stated goal from real KB/proof
+ * state. `hypo_idx` (out) receives the assumed-fact index if HYPOTHETICAL. */
+static enum epi_state calib_classify(Brain *b, int *hypo_idx) {
+    *hypo_idx = -1;
+    if (!b || !b->kb || !b->has_last_goal) return EPI_UNKNOWN;
+    const char *a[] = {b->last_goal_arg};
+    /* conflict the user actually produced about this exact atom */
+    if (b->has_conflict &&
+        strcmp(b->conflict_pred, b->last_goal_pred) == 0 &&
+        strcmp(b->conflict_arg, b->last_goal_arg) == 0)
+        return EPI_CONFLICTED;
+    /* a direct fact-vs-fact conflict still standing in the KB */
+    if (kb_is_conflicted(b->kb, b->last_goal_pred, a, 1)) return EPI_CONFLICTED;
+    if (!kb_knows_pred(b->kb, b->last_goal_pred)) return EPI_UNKNOWN;
+    if (goal_truth(b) != 1) return EPI_UNKNOWN; /* not currently concluded */
+    int hi = calib_hypo_support(b);
+    if (hi >= 0) { *hypo_idx = hi; return EPI_HYPO; }
+    /* known vs inferred from the proof shape */
+    if (b->has_last_proof && strstr(b->last_proof, " because ")) return EPI_INFERRED;
+    return EPI_KNOWN;
+}
+
+/* Append the load-bearing facts of the last goal (the ones whose removal
+ * overturns it) into `buf`; returns how many were found. Reuses the same
+ * retract/re-derive/restore sweep as mod_robust — the genuine "what would change
+ * my mind" lever for a derived or fact-backed conclusion. */
+static size_t calib_load_bearing(Brain *b, char buf[][96], size_t max) {
+    size_t n = 0;
+    char preds[64][KB_TERM_LEN];
+    size_t np = kb_unary_predicates(b->kb, preds, 64);
+    for (size_t p = 0; p < np && n < max; p++) {
+        char consts[128][KB_TERM_LEN];
+        const char *pat[] = {NULL};
+        size_t nc = kb_match(b->kb, preds[p], pat, 1, consts, 128);
+        for (size_t c = 0; c < nc && n < max; c++) {
+            const char *a[] = {consts[c]};
+            if (!kb_retract(b->kb, preds[p], a, 1)) continue;
+            int after = goal_truth(b);
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, preds[p], a, 1); /* restore */
+            if (after == 0)
+                snprintf(buf[n++], 96, "%s is a %s", consts[c], preds[p]);
+        }
+    }
+    return n;
+}
+
+static int mod_calibrate(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+
+    char low[256];
+    lowercase_copy(low, sizeof low, raw);
+
+    /* (1) standing supposition: "suppose X." / "assume X." / "supponi X." with
+     * NO "then" (the one-shot "suppose X then Y" stays with mod_knowledge). It
+     * asserts X as a session fact AND records it as an assumption so later
+     * answers that rest on it grade HYPOTHETICAL. */
+    {
+        const char *rest = NULL;
+        static const char *const sup[] = {
+            "suppose that ", "suppose ", "assume that ", "assume ",
+            "let's say ", "lets say ", "supponi che ", "supponi ",
+            "assumi che ", "assumi ", NULL };
+        for (const char *const *m = sup; *m; m++)
+            if (strncmp(norm, *m, strlen(*m)) == 0) { rest = norm + strlen(*m); break; }
+        if (rest && !strstr(rest, " then ") && !strstr(rest, " allora ")) {
+            char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
+            if (parse_ground_unary(rest, pred, sizeof pred, arg, sizeof arg)) {
+                const char *a[] = {arg};
+                kb_set_origin(b->kb, KB_SESSION);
+                kb_assert(b->kb, pred, a, 1);
+                if (b->assumed_n < 8) {
+                    snprintf(b->assumed_pred[b->assumed_n], KB_TERM_LEN, "%s", pred);
+                    snprintf(b->assumed_arg[b->assumed_n], KB_TERM_LEN, "%s", arg);
+                    b->assumed_n++;
+                }
+                char msg[200];
+                snprintf(msg, sizeof msg,
+                         "All right — assuming %s is a %s. Anything I conclude from "
+                         "it will be conditional on that.", arg, pred);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* (2) metacognitive follow-ups. Two intents, recognized by communicative
+     * cue, both answered from the last goal's epistemic state. */
+    int why_think = cue(low, "why do you think") || cue(low, "why do you believe") ||
+                    cue(low, "what makes you think") || cue(low, "what makes you say") ||
+                    cue(low, "how certain") || cue(low, "how do you rate") ||
+                    cue(low, "perché lo pensi") || cue(low, "perche lo pensi") ||
+                    cue(low, "perché lo credi") || cue(low, "perche lo credi") ||
+                    cue(low, "quanto sei certo");
+    int change_mind = cue(low, "change your mind") || cue(low, "change my mind") ||
+                      cue(low, "make you reconsider") || cue(low, "would you reconsider") ||
+                      cue(low, "prove you wrong") || cue(low, "what would change") ||
+                      cue(low, "cambiare idea") || cue(low, "farti ricredere");
+    if (!why_think && !change_mind) return 0;
+
+    if (!b->has_last_goal) {
+        put("Ask me whether something holds first — then I can tell you how I know "
+            "it and what would change my mind.", out, out_size);
+        return 1;
+    }
+
+    int hypo_idx = -1;
+    enum epi_state st = calib_classify(b, &hypo_idx);
+    char msg[640];
+
+    if (why_think) {
+        switch (st) {
+        case EPI_KNOWN:
+            snprintf(msg, sizeof msg,
+                     "I'm certain: %s is a %s is a fact you stated directly, so I "
+                     "hold it as known, not inferred.",
+                     b->last_goal_arg, b->last_goal_pred);
+            break;
+        case EPI_INFERRED:
+            snprintf(msg, sizeof msg,
+                     "I'm confident but it's derived, not given: %s. I concluded it "
+                     "by applying a rule, so it's only as sound as those premises.",
+                     b->has_last_proof ? b->last_proof : "a rule chain");
+            break;
+        case EPI_CONFLICTED:
+            snprintf(msg, sizeof msg,
+                     "I'm genuinely unsure — I hold conflicting claims about %s: you "
+                     "told me it is a %s and also that it is not. Until that's "
+                     "resolved I can't commit either way.",
+                     b->last_goal_arg, b->last_goal_pred);
+            break;
+        case EPI_HYPO:
+            snprintf(msg, sizeof msg,
+                     "Only conditionally: %s is a %s holds because I'm ASSUMING %s is "
+                     "a %s. Drop that assumption and I'd have no ground for it.",
+                     b->last_goal_arg, b->last_goal_pred,
+                     b->assumed_arg[hypo_idx], b->assumed_pred[hypo_idx]);
+            break;
+        default: /* EPI_UNKNOWN */
+            snprintf(msg, sizeof msg,
+                     "I don't actually think that — I have no support for %s being a "
+                     "%s, so I can't claim it either way.",
+                     b->last_goal_arg, b->last_goal_pred);
+            break;
+        }
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* change_mind */
+    switch (st) {
+    case EPI_KNOWN:
+        snprintf(msg, sizeof msg,
+                 "Learning that %s is NOT a %s — that's the single fact it rests on, "
+                 "so contradicting it would overturn my belief.",
+                 b->last_goal_arg, b->last_goal_pred);
+        break;
+    case EPI_INFERRED: {
+        char crit[8][96];
+        size_t nc = calib_load_bearing(b, crit, 8);
+        if (nc == 0)
+            snprintf(msg, sizeof msg,
+                     "Nothing simple — I can reach that another way, so no single "
+                     "fact I drop would change it.");
+        else if (nc == 1)
+            snprintf(msg, sizeof msg,
+                     "It hangs on one premise: if I learned that %s were false, I'd "
+                     "stop concluding %s is a %s.",
+                     crit[0], b->last_goal_arg, b->last_goal_pred);
+        else {
+            size_t o = (size_t)snprintf(msg, sizeof msg,
+                     "It hangs on %zu premises — overturning any one would change it: ",
+                     nc);
+            for (size_t i = 0; i < nc && o < sizeof msg; i++)
+                o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+                                      i ? ", " : "", crit[i]);
+            if (o < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+        }
+        break;
+    }
+    case EPI_CONFLICTED:
+        snprintf(msg, sizeof msg,
+                 "Telling me which to trust — you've claimed both that %s is a %s and "
+                 "that it is not. Retract one and I'd settle on the other.",
+                 b->last_goal_arg, b->last_goal_pred);
+        break;
+    case EPI_HYPO:
+        snprintf(msg, sizeof msg,
+                 "Dropping the assumption — I only conclude %s is a %s because I'm "
+                 "supposing %s is a %s. Withdraw that and the conclusion goes with it.",
+                 b->last_goal_arg, b->last_goal_pred,
+                 b->assumed_arg[hypo_idx], b->assumed_pred[hypo_idx]);
+        break;
+    default: /* EPI_UNKNOWN */
+        snprintf(msg, sizeof msg,
+                 "Learning whether %s is a %s at all — right now I have no support "
+                 "either way, so any fact about it would be new ground.",
+                 b->last_goal_arg, b->last_goal_pred);
+        break;
+    }
+    put(msg, out, out_size);
+    (void)norm;
+    return 1;
+}
+
 /* --- module: abduce (gen131, L16/L19) -----------------------------------
  * The INVERSE of deduction and the mirror of gen129's subtraction. gen129 asked
  * "remove this belief — does the conclusion fall?" abduction asks the opposite:
@@ -7859,6 +8150,7 @@ static const Module registry[] = {
     {"counterfactual", mod_counterfactual},
     {"whatifnot", mod_whatifnot},
     {"robust",    mod_robust},
+    {"calibrate", mod_calibrate},
     {"abduce",    mod_abduce},
     {"role",      mod_role},
     {"self",      mod_self},
@@ -8024,7 +8316,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen141-conversational-repair";
+    return "gen142-metacognitive-calibration";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

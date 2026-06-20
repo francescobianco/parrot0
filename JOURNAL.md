@@ -1,5 +1,57 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen142: metacognitive calibration — confidence from proof STATE
+
+**Goal (PROMPT.md run, E-series E8):** make parrot0 report HOW it knows an answer,
+with DIFFERENT confidence language for a directly KNOWN fact, an INFERRED
+conclusion, a CONFLICTED belief, a HYPOTHETICAL conclusion, and an UNKNOWN — each
+grounded in the real proof state, never a canned adjective. "Why do you think
+that?" and "what would make you change your mind?" must work after an ordinary
+answer, answered from REAL proof/memory state.
+
+**Changed:** `brain.c` -> `gen142-metacognitive-calibration`. New `mod_calibrate`,
+registered between `robust` and `abduce` (the introspection cluster, and before
+abduce so "what would make you change your mind?" is not mis-parsed by abduction's
+"what would make X a Y"). It classifies the last stated goal into five epistemic
+states from real state — `calib_classify` — and answers the two follow-ups from
+each. KNOWN vs INFERRED is read off the proof shape (`last_proof` contains
+" because " iff a rule fired). HYPOTHETICAL is DETECTED, not flagged: a standing
+"suppose X." (no "then", so it doesn't collide with mod_knowledge's one-shot form)
+asserts X as a session fact and records it in new Brain fields
+(`assumed_pred/arg/assumed_n`); a later conclusion is graded hypothetical only when
+ablation (`calib_hypo_support`: retract the assumed fact, re-derive, restore) shows
+it actually rests on the assumption — so the assumption feeding a RULE chain is
+caught too. CONFLICTED is recorded honestly: the KB's assert is last-write-wins and
+erases the losing claim, so `note_contradiction` (called at both assert sites) snaps
+a `conflict_pred/arg` when the user states both polarities about one atom, and BOTH
+claims are named. "What would change your mind?" reuses the same retract/re-derive/
+restore sweep as `mod_robust` (`calib_load_bearing`) to name the genuine load-bearing
+facts. EN + IT ratchets (`calibrate.chat`/`.it`) plus a ~10x `calibrate_stress.chat`
+covering all five states, both follow-ups, interleaved held-out nonsense predicates,
+and the compositional hypothetical-feeds-rule case. The `self` and `strategy`/`.it`
+trace expectations gained `calibrate` between `robust` and `abduce` (it really runs
+there).
+
+**Observed.** The five answers are genuinely different *kinds* of confidence, and
+each follows the proof, not the phrasing: "I'm certain … stated directly" (KNOWN)
+vs "I'm confident but it's derived … only as sound as those premises" (INFERRED)
+vs "I'm genuinely unsure — I hold conflicting claims" (CONFLICTED) vs "Only
+conditionally … because I'm ASSUMING" (HYPOTHETICAL) vs "I don't actually think
+that — I have no support" (UNKNOWN). The strongest signal is that HYPOTHETICAL is
+inferred by ablation rather than a mood flag: `suppose krill is a vorp` + `every
+vorp is a zonk` + `is krill a zonk?` → Yes, but graded conditional because removing
+the assumed `vorp(krill)` overturns the *derived* `zonk` — the assumption is tracked
+THROUGH the rule. The same machinery surfaced a real, honest quirk: a deep chain
+sometimes forward-materializes the intermediate fact, so removing the root premise
+alone leaves a redundant derivation and "what would change my mind?" truthfully says
+"I can reach that another way" — calibrate and robust agree because they read the
+same state. Open edges: a query whose PREDICATE is entirely unknown never sets a
+goal, so it gets an honest "ask me first" rather than the UNKNOWN epistemic line
+(UNKNOWN is reached via known-predicate/unknown-entity); CONFLICTED via rule-derived
+positive vs explicit negative is detected only through the recorded user
+contradiction, not yet a general belief-status layer (C9/T3 remain).
+
+
 ## 2026-06-20 — gen141: conversational repair loop — clarify, hold, resume
 
 **Goal (PROMPT.md run, E-series E2):** attack the weakest signal the emergence

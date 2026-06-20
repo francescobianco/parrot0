@@ -322,8 +322,21 @@ Acceptance:
 
 Anti-impostor: local facts must not leak into permanent memory unless explicitly requested.
 
-### E8 - Metacognitive calibration
+### E8 - Metacognitive calibration — DONE (seed), gen142
 Goal: make parrot0 report what supports an answer, what would change it, and how certain it is based on proof state rather than tone.
+
+gen142: `mod_calibrate` classifies the last stated goal into five epistemic states
+from REAL proof state — KNOWN (direct fact) / INFERRED (proof has "because") /
+CONFLICTED (recorded self-contradiction; both claims named) / HYPOTHETICAL (a
+standing "suppose X." the conclusion rests on, found by ablation) / UNKNOWN (no
+support) — and answers "why do you think that?" and "what would make you change
+your mind?" from each, with DIFFERENT grounded language. The lever for KNOWN/
+INFERRED is the load-bearing facts found by the same retract/re-derive/restore
+sweep as mod_robust. Brain gains `assumed_*` (suppositions) and `conflict_*`
+(recorded contradictions). `calibrate.chat`/`.it`, `calibrate_stress.chat`. Open:
+UNKNOWN needs a query whose predicate IS known (an entirely-unknown predicate sets
+no goal); CONFLICTED is detected from the recorded user contradiction, not yet a
+general belief-status layer (cross-ref C9/T3).
 
 Acceptance:
 - For known, inferred, conflicted, hypothetical and unknown answers, the bot gives different confidence language grounded in state.
