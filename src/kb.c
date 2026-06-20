@@ -1073,8 +1073,34 @@ static size_t concept_tokens(const char *s, char toks[][KB_TERM_LEN], size_t max
 int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
                        char *key_out, size_t key_sz,
                        char *desc_out, size_t desc_sz) {
-    if (!kb || nq == 0 || !key_out || !desc_out) return 0;
-    int best = 0, second = 0;
+    if (!kb || nq == 0 || nq > 64 || !key_out || !desc_out) return 0;
+
+    /* gen156: idf-like weighting. A learned metric is what an LLM has and parrot0
+     * lacks; the cheapest honest analogue derived from the corpus (the KB
+     * itself) is INVERSE DOCUMENT FREQUENCY — a query word that matches many
+     * concepts ("number", "blood", "system") is uninformative and must count
+     * less than a rare, discriminative one. Pass 1 measures each query word's
+     * document frequency across the concept descriptions; pass 2 scores overlap
+     * weighted by 1/df, so ties that plain counting could not break ("the bone
+     * that protects the brain": skull vs skeletal) resolve toward the concept
+     * the rarer words point at. */
+    size_t df[64] = {0};
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        char ctoks[96][KB_TERM_LEN];
+        size_t nc = concept_tokens(f->args[0], ctoks, 96);
+        nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
+        for (size_t q = 0; q < nq; q++)
+            for (size_t c = 0; c < nc; c++)
+                if (word_sim(qwords[q], ctoks[c])) { df[q]++; break; }
+    }
+    double w[64];
+    for (size_t q = 0; q < nq; q++) w[q] = 1.0 / (double)(df[q] ? df[q] : 1);
+
+    double bestw = 0.0, secondw = 0.0;
+    int bestcount = 0;
     const Fact *bestf = NULL;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
@@ -1083,21 +1109,22 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[0], ctoks, 96);
         nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
-        int score = 0;
+        double sw = 0.0; int cnt = 0;
         for (size_t q = 0; q < nq; q++)
             for (size_t c = 0; c < nc; c++)
-                if (word_sim(qwords[q], ctoks[c])) { score++; break; }
-        if (score > best) { second = best; best = score; bestf = f; }
-        else if (score > second) second = score;
+                if (word_sim(qwords[q], ctoks[c])) { sw += w[q]; cnt++; break; }
+        if (sw > bestw) { secondw = bestw; bestw = sw; bestcount = cnt; bestf = f; }
+        else if (sw > secondw) secondw = sw;
     }
-    /* Need real evidence (>=2 overlapping words) AND a clear winner over the
-     * runner-up, so one coincidental token never triggers a confident guess. */
-    if (best >= 2 && best - second >= 1 && bestf) {
+    /* Need real evidence (>=2 overlapping words) AND a clear WEIGHTED winner over
+     * the runner-up, so one coincidental token never triggers a confident guess
+     * and a genuinely symmetric tie still abstains. */
+    if (bestcount >= 2 && bestf && bestw - secondw >= 0.15 * bestw) {
         snprintf(key_out, key_sz, "%s", bestf->args[0]);
         char d[KB_TERM_LEN]; snprintf(d, sizeof d, "%s", bestf->args[bestf->argc - 1]);
         size_t dl = strlen(d); if (dl && d[dl - 1] == '"') d[--dl] = '\0';
         snprintf(desc_out, desc_sz, "%s", d[0] == '"' ? d + 1 : d);
-        return best;
+        return bestcount;
     }
     return 0;
 }

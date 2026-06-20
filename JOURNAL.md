@@ -1,4 +1,38 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen156: a learned metric (idf) for the similarity recall
+
+**Goal (NEXTMOVE pull #1):** gen155's overlap recall was NOISY at agi scale —
+common words ("number", "blood", "system") counted as much as discriminative
+ones, so near-equal concepts tied and the recall ABSTAINED. The honest fix is the
+cheapest *learned metric* derivable from the corpus itself: inverse document
+frequency.
+
+**Changed:** `kb_nearest_concept` (`src/kb.c`) -> `gen156-idf-weighting`. A first
+pass measures each query word's document frequency across the concept
+descriptions; a second pass scores overlap weighted by `1/df`, so a word that
+matches many concepts contributes little and a rare, discriminative word
+dominates. The fire gate keeps the >=2-word evidence requirement and now demands
+a clear *weighted* margin (best - second >= 15% of best), so a genuinely
+symmetric tie still abstains.
+
+**Observed.** A clean held-out win: "what is the organ that pumps blood" WALLED
+under gen155 (an agi-scale tie on the common word "blood") and now resolves to
+**heart**, because "pump" is rare (high weight) and "blood" common (low). The
+gen155 ratchets (femur by property, addition by paraphrase, the IT cross-lingual
+cognate case, the honest-miss negative) still pass. `tests/knowledge.sh` adds the
+idf tie-break case under the full agi profile.
+
+**Honest limits (unchanged frontier).** idf does NOT reach the NEXTMOVE example
+"the bone that protects the brain -> skull": there "brain" is itself an exact
+concept key, so exact-match precedence answers *brain* before the fuzzy path ever
+runs — a DESCRIPTIVE query containing a concept name as a modifier is a different,
+harder problem (it needs the matcher to know "brain" is the object of "protects",
+i.e. a little syntax). And at agi scale the guess is still only a guess: "the
+operation that combines two numbers" now leans to *expression* over *addition*
+because the category word "operation" is rare in descriptions. Both are why the
+answer stays hedged. Next pulls: down-weight category/frame words, and the
+modifier-vs-head distinction (a sliver of structure the discrete matcher lacks).
+
 ## 2026-06-21 - gen155: the first brick of a similarity space
 
 **Goal (the biggest gap, owner-endorsed):** an LLM generalises by proximity in a

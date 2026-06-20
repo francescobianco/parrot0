@@ -10055,7 +10055,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen155-similarity-recall";
+    return "gen156-idf-weighting";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

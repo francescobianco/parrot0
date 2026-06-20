@@ -90,6 +90,14 @@ expect "IT cross-lingual cognate recall: -> pi" \
     "experts/mathematics/arithmetic.p0" \
     "You might mean pi: 3.14159... -- the ratio of a circle's circumference to its diameter."
 
+# gen156: idf weighting breaks an agi-SCALE tie that made gen155 abstain. With
+# hundreds of concepts, "blood" is common (low weight) and "pump" is rare (high),
+# so the heart wins clearly where plain counting tied and walled.
+expect "idf breaks agi-scale tie: pumps blood -> heart" \
+    "what is the organ that pumps blood" \
+    "profiles/agi.p0" \
+    "You might mean heart: muscular pump circulating blood through the body."
+
 # An unknown topic must NOT be force-fit to a concept (precision over recall).
 expect "honest miss: unknown topic does not fuzzy-fire" \
     "what is the weather like today" \
