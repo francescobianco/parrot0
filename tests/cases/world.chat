@@ -1,0 +1,35 @@
+# gen142 (E7): local-world working memory. A TEMPORARY, named scope for a
+# fiction or task. Facts introduced "in this story" live in a session overlay,
+# are usable in later turns, can be inspected ("what is assumed?"), and tear down
+# cleanly — nothing leaks into permanent memory (the KB).
+
+# 1. Enter a scope with an inline clause; the fact lands in the world overlay.
+> in this story rex is a dragon
+< In the story world, rex is a dragon.
+
+# 2. The world fact is usable on a later turn.
+> is rex a dragon?
+< Yes.
+
+# 3. "what is assumed?" reads the active overlay back — grounded, not canned.
+> what is assumed?
+< In the story world I am assuming: rex is a dragon.
+
+# 4. "who is X?" lists X's classes in this world.
+> who is rex?
+< In the story world, rex is a dragon.
+
+# 5. A class never assumed in this world is honestly unknown, not false.
+> is rex a knight?
+< Not assumed in the story world.
+
+# 6. A second turn can extend the same world.
+> rex is a hero
+< In the story world, rex is a hero.
+
+# 7. Tearing the world down drops exactly its facts; nothing reached memory, so
+#    the same query is now unknown at the permanent layer (no leak).
+> forget this world
+< Forgotten the story world; none of it reached my memory.
+> is rex a dragon?
+< I don't know about dragon.

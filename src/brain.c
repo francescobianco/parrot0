@@ -149,6 +149,31 @@ struct Brain {
     char conflict_pred[KB_TERM_LEN]; /* last self-contradicted (pred,arg)         */
     char conflict_arg[KB_TERM_LEN];
     int  has_conflict;
+
+    /* gen143 (E7): local-world working memory. A "world" is a TEMPORARY, named
+     * scope for a fiction or a task — facts introduced for a puzzle or story that
+     * must be usable across later turns WITHOUT leaking into permanent memory
+     * (the KB). Worlds form a stack: entering one (by intro phrase or by name)
+     * makes it the active scope; assertions land in `wfacts` tagged with the
+     * world's id, queries consult the active world's overlay before the KB, and
+     * the same subject can mean different things in two different worlds. The
+     * user can ask "what is assumed?" to read the active overlay back, and tear a
+     * world down ("forget that world") to drop exactly its facts — nothing
+     * persists, nothing reaches kb_save. A small fixed pool keeps it deterministic
+     * and pure-C; overflow degrades to "no room", never to a leak. */
+#define BRAIN_WORLDS_MAX 8
+#define BRAIN_WFACTS_MAX 64
+    char worlds[BRAIN_WORLDS_MAX][48];  /* world name by id (display + lookup)   */
+    int  world_live[BRAIN_WORLDS_MAX];  /* 1 while the world exists (not torn down)*/
+    size_t world_count;                 /* ids ever allocated (monotonic)         */
+    int  active_world;                  /* id of the current scope, or -1 if none */
+    struct {
+        int  world;                     /* owning world id                        */
+        char subj[KB_TERM_LEN];         /* the entity                             */
+        char pred[KB_TERM_LEN];         /* the class it belongs to in this world  */
+        int  neg;                       /* 1 if asserted false in this world      */
+    } wfacts[BRAIN_WFACTS_MAX];
+    size_t wfact_count;
 };
 
 /* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity
@@ -594,6 +619,14 @@ static const char *canonical_token(const char *w) {
          * are deliberately left out to avoid colliding with article parsing. */
         {"esso", "it"}, {"essa", "it"}, {"essi", "they"}, {"esse", "they"},
         {"lui", "he"}, {"lei", "she"},
+        /* gen142 (E7): local-world vocabulary so the scoped-world module reaches
+         * the SAME path in Italian. "mondo"/"storia" name a scope; "assunto"/
+         * "assume" are the inspect cue ("cosa è assunto?" -> "what is assumed").
+         * These cannot occur as English words, so English input is unaffected. */
+        {"mondo", "world"}, {"storia", "story"},
+        {"nel", "in the"}, {"nella", "in the"},
+        {"questo", "this"}, {"questa", "this"},
+        {"assunto", "assumed"}, {"dimentica", "forget"},
         /* Chat-register shorthand (gen64), not a second language. "u"/"r" are
          * English letters, but never stand-alone English *words*; in a chat
          * agent a lone "u"/"r" overwhelmingly means you/are ("what can u do?",
@@ -7078,6 +7111,452 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: world (gen142, E7) — local-world working memory ----------------
+ * A real interlocutor can hold a TEMPORARY fictional or task-local world across
+ * several turns — "in this story Rex is a dragon" — use those facts later, run a
+ * SECOND world where the same name means something else, answer "what is
+ * assumed?", and TEAR a world down so nothing leaks into what it permanently
+ * believes. parrot0 had only one flat belief store: "rex is a dragon" wrote a
+ * permanent fact. This module gives it scoped working memory.
+ *
+ * Mechanism (all in Brain state, never the persisted KB):
+ *   ENTER   "in the <name> world/story[:] ..." or "start a world called <name>"
+ *           or "in this story/world ..." (an anonymous scratch world) makes a
+ *           named world the ACTIVE scope. An intro phrase with a trailing clause
+ *           ("in this story rex is a dragon") enters the world AND asserts.
+ *   ASSERT  while a world is active, "X is a/an Y" (or "X is not a Y") lands in
+ *           the overlay tagged with the world id — NOT in the KB.
+ *   QUERY   while a world is active, "is X a Y?" / "who is X?" / "what is X?" read
+ *           the overlay first; the same X can answer differently in two worlds.
+ *   INSPECT "what is assumed?" / "what is true in this world?" lists the active
+ *           overlay — grounded in real state, not a canned line.
+ *   SWITCH  "in the <name> world" with no clause re-activates an existing world.
+ *   EXIT    "forget/end/close the <name> world", "forget this world", "leave the
+ *           world" tears down (or deactivates) the scope; its facts vanish.
+ * Registered right after repair, before the KB modules, so a world assertion
+ * pre-empts the permanent learner exactly when a scope is open.
+ */
+
+/* find an existing live world by name, or -1. */
+static int world_find(Brain *b, const char *name) {
+    for (size_t i = 0; i < b->world_count; i++)
+        if (b->world_live[i] && strcmp(b->worlds[i], name) == 0) return (int)i;
+    return -1;
+}
+
+/* enter (creating if needed) the world `name`; returns its id, or -1 if full. */
+static int world_enter(Brain *b, const char *name) {
+    int id = world_find(b, name);
+    if (id >= 0) { b->active_world = id; return id; }
+    if (b->world_count >= BRAIN_WORLDS_MAX) return -1;
+    id = (int)b->world_count++;
+    snprintf(b->worlds[id], sizeof b->worlds[0], "%s", name);
+    b->world_live[id] = 1;
+    b->active_world = id;
+    return id;
+}
+
+/* tear a world down: drop every overlay fact tagged with it, mark it dead, and
+ * clear the active scope if it was the one removed. Returns 1 if it existed. */
+static int world_teardown(Brain *b, int id) {
+    if (id < 0 || (size_t)id >= b->world_count || !b->world_live[id]) return 0;
+    size_t w = 0;
+    for (size_t r = 0; r < b->wfact_count; r++)
+        if (b->wfacts[r].world != id)
+            b->wfacts[w++] = b->wfacts[r];
+    b->wfact_count = w;
+    b->world_live[id] = 0;
+    if (b->active_world == id) b->active_world = -1;
+    return 1;
+}
+
+/* record subj/pred (possibly negated) in the active world, replacing any prior
+ * claim about the same subj/pred in THIS world. Returns 1 on success. */
+static int world_assert(Brain *b, const char *subj, const char *pred, int neg) {
+    int id = b->active_world;
+    if (id < 0) return 0;
+    for (size_t i = 0; i < b->wfact_count; i++)
+        if (b->wfacts[i].world == id &&
+            strcmp(b->wfacts[i].subj, subj) == 0 &&
+            strcmp(b->wfacts[i].pred, pred) == 0) {
+            b->wfacts[i].neg = neg;
+            return 1;
+        }
+    if (b->wfact_count >= BRAIN_WFACTS_MAX) return 0;
+    size_t s = b->wfact_count++;
+    snprintf(b->wfacts[s].subj, sizeof b->wfacts[s].subj, "%s", subj);
+    snprintf(b->wfacts[s].pred, sizeof b->wfacts[s].pred, "%s", pred);
+    b->wfacts[s].world = id;
+    b->wfacts[s].neg = neg;
+    return 1;
+}
+
+/* query the active world for subj being a pred: +1 yes, -1 explicit no, 0 silent. */
+static int world_query(Brain *b, const char *subj, const char *pred) {
+    int id = b->active_world;
+    if (id < 0) return 0;
+    for (size_t i = 0; i < b->wfact_count; i++)
+        if (b->wfacts[i].world == id &&
+            strcmp(b->wfacts[i].subj, subj) == 0 &&
+            strcmp(b->wfacts[i].pred, pred) == 0)
+            return b->wfacts[i].neg ? -1 : 1;
+    return 0;
+}
+
+/* "a" or "an" for the class word `p`, for natural replies ("is a dragon"). */
+static const char *world_art(const char *p) {
+    char c = (char)tolower((unsigned char)p[0]);
+    return (c=='a'||c=='e'||c=='i'||c=='o'||c=='u') ? "an" : "a";
+}
+
+/* strip a leading article from a multi-word remainder pointer-style: returns the
+ * pointer just past "a "/"an " if present, else the original. */
+static const char *skip_article(const char *s) {
+    if (strncmp(s, "a ", 2) == 0) return s + 2;
+    if (strncmp(s, "an ", 3) == 0) return s + 3;
+    return s;
+}
+
+/* True if `w` is a noun naming a local scope ("world"/"story"/"scenario"). */
+static int is_world_noun(const char *w) {
+    return strcmp(w, "world") == 0 || strcmp(w, "story") == 0 ||
+           strcmp(w, "scenario") == 0 || strcmp(w, "puzzle") == 0;
+}
+
+/* Try to ASSERT/QUERY a single "X is [a] Y" clause inside the active world.
+ * Returns 1 if it claimed the clause (writing `out`), 0 if the shape didn't fit.
+ * `interrogative` marks a trailing '?' so subject-first questions are queries. */
+static int world_clause(Brain *b, const char *clause, int interrogative,
+                        char *out, size_t out_size) {
+    char cb[256];
+    copy_trim(cb, sizeof cb, clause);
+    size_t n = strlen(cb);
+    while (n > 0 && (cb[n-1]=='?'||cb[n-1]=='.'||cb[n-1]==','||cb[n-1]==' '))
+        cb[--n] = '\0';
+    char *w[8];
+    size_t nw = split_words(cb, w, 8);
+
+    /* QUERY: "is X [a] Y" */
+    if (nw >= 3 && strcmp(w[0], "is") == 0) {
+        const char *subj = w[1];
+        size_t pi = 2;
+        if (is_article(w[2]) && nw >= 4) pi = 3;
+        if (pi != nw - 1) return 0;            /* one-word class only, for now */
+        const char *pred = w[pi];
+        int r = world_query(b, subj, pred);
+        if (r > 0)      put("Yes.", out, out_size);
+        else if (r < 0) put("No.", out, out_size);
+        else {
+            char m[160];
+            snprintf(m, sizeof m, "Not assumed in the %s world.",
+                     b->worlds[b->active_world]);
+            put(m, out, out_size);
+        }
+        return 1;
+    }
+
+    /* QUERY: subject-first interrogative "X is [a] Y?" (the Italian shape
+     * "rex è un drago?" canonicalizes here; same rule serves both languages). */
+    if (interrogative && nw >= 3 && strcmp(w[1], "is") == 0 &&
+        strcmp(w[0], "who") != 0 && strcmp(w[0], "what") != 0) {
+        const char *subj = w[0];
+        size_t pi = 2;
+        if (strcmp(w[2], "not") == 0 && nw >= 4) pi = 3;
+        if (pi < nw && is_article(w[pi]) && pi + 1 < nw) pi++;
+        if (pi != nw - 1) return 0;
+        const char *pred = w[pi];
+        int r = world_query(b, subj, pred);
+        if (r > 0)      put("Yes.", out, out_size);
+        else if (r < 0) put("No.", out, out_size);
+        else {
+            char m[160];
+            snprintf(m, sizeof m, "Not assumed in the %s world.",
+                     b->worlds[b->active_world]);
+            put(m, out, out_size);
+        }
+        return 1;
+    }
+
+    /* QUERY: "who is X" / "what is X" -> list X's classes in this world. */
+    if (nw == 3 && (strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
+        strcmp(w[1], "is") == 0) {
+        const char *subj = w[2];
+        char list[400]; size_t off = 0, hits = 0;
+        for (size_t i = 0; i < b->wfact_count; i++)
+            if (b->wfacts[i].world == b->active_world &&
+                !b->wfacts[i].neg &&
+                strcmp(b->wfacts[i].subj, subj) == 0) {
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s %s", hits ? ", " : "",
+                                        world_art(b->wfacts[i].pred),
+                                        b->wfacts[i].pred);
+                hits++;
+            }
+        if (hits == 0) {
+            char m[160];
+            snprintf(m, sizeof m, "I have no assumptions about %s in the %s world.",
+                     subj, b->worlds[b->active_world]);
+            put(m, out, out_size);
+        } else {
+            char m[480];
+            snprintf(m, sizeof m, "In the %s world, %s is %s.",
+                     b->worlds[b->active_world], subj, list);
+            put(m, out, out_size);
+        }
+        return 1;
+    }
+
+    /* ASSERT: "X is [a] Y" or "X is not [a] Y" (subject-first, no trailing '?'). */
+    if (!interrogative && nw >= 3 && strcmp(w[1], "is") == 0) {
+        const char *subj = w[0];
+        size_t pi = 2; int neg = 0;
+        if (strcmp(w[2], "not") == 0 && nw >= 4) { neg = 1; pi = 3; }
+        if (pi < nw && is_article(w[pi]) && pi + 1 < nw) pi++;
+        if (pi != nw - 1) return 0;            /* one-word class only, for now */
+        const char *pred = w[pi];
+        if (!world_assert(b, subj, pred, neg)) {
+            put("This world is full; I can't assume more here.", out, out_size);
+            return 1;
+        }
+        char m[300];
+        snprintf(m, sizeof m, "In the %s world, %s is%s %s %s.",
+                 b->worlds[b->active_world], subj, neg ? " not" : "",
+                 world_art(pred), pred);
+        put(m, out, out_size);
+        return 1;
+    }
+    return 0;
+}
+
+static int mod_world(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+
+    char buf[512];
+    size_t len = strlen(norm);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    int interrogative = (len > 0 && buf[len-1] == '?');
+
+    /* -- INSPECT: "what is assumed?" / "what is true in this/the <name> world?" -
+     * Gated on an active world, so the "is assumed"/"assumed" cue (which also
+     * catches the Italian "cosa è assunto?" -> "...is assumed?") cannot fire in
+     * ordinary prose where no scope is open. */
+    if (b->active_world >= 0 &&
+        (strstr(norm, "is assumed") || strstr(norm, "what do you assume") ||
+         strstr(norm, "what is true in this") ||
+         strstr(norm, "what is true in the") ||
+         strstr(norm, "what holds in this"))) {
+        int id = b->active_world;
+        char list[480]; size_t off = 0, hits = 0;
+        for (size_t i = 0; i < b->wfact_count; i++)
+            if (b->wfacts[i].world == id) {
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s is%s %s %s", hits ? "; " : "",
+                                        b->wfacts[i].subj,
+                                        b->wfacts[i].neg ? " not" : "",
+                                        world_art(b->wfacts[i].pred),
+                                        b->wfacts[i].pred);
+                hits++;
+            }
+        char m[600];
+        if (hits == 0)
+            snprintf(m, sizeof m, "Nothing is assumed yet in the %s world.",
+                     b->worlds[id]);
+        else
+            snprintf(m, sizeof m, "In the %s world I am assuming: %s.",
+                     b->worlds[id], list);
+        put(m, out, out_size);
+        return 1;
+    }
+
+    /* -- EXIT: tear down or leave a world. -------------------------------------- */
+    {
+        char *w[12]; char tb[512];
+        snprintf(tb, sizeof tb, "%s", buf);
+        size_t nw = split_words(tb, w, 12);
+        /* "forget/end/close/leave [this|the] [<name>] world/story" */
+        int teardown = 0, leave_only = 0;
+        if (nw >= 2 && (strcmp(w[0], "forget") == 0 || strcmp(w[0], "end") == 0 ||
+                        strcmp(w[0], "close") == 0 || strcmp(w[0], "drop") == 0))
+            teardown = 1;
+        else if (nw >= 2 && strcmp(w[0], "leave") == 0)
+            { teardown = 1; leave_only = 1; }
+        if (teardown) {
+            /* find the world noun and an optional name token before it */
+            int has_world_noun = 0; const char *named = NULL;
+            for (size_t i = 1; i < nw; i++) {
+                char *t = strip_edge_punct(w[i]);
+                if (is_world_noun(t)) {
+                    has_world_noun = 1;
+                    if (i >= 1) {
+                        char *prev = strip_edge_punct(w[i-1]);
+                        if (!is_article(prev) && strcmp(prev, "this") != 0 &&
+                            strcmp(prev, "the") != 0 && strcmp(prev, "that") != 0 &&
+                            !is_world_noun(prev) && strcmp(prev, "forget") != 0 &&
+                            strcmp(prev, "end") != 0 && strcmp(prev, "close") != 0 &&
+                            strcmp(prev, "leave") != 0 && strcmp(prev, "drop") != 0)
+                            named = prev;
+                    }
+                    break;
+                }
+            }
+            if (has_world_noun) {
+                int id = named ? world_find(b, named) : b->active_world;
+                if (id < 0) {
+                    put("There is no such world open.", out, out_size);
+                    return 1;
+                }
+                char nm[48]; snprintf(nm, sizeof nm, "%s", b->worlds[id]);
+                if (leave_only) {
+                    /* leave: deactivate but keep the world and its facts alive */
+                    if (b->active_world == id) b->active_world = -1;
+                    char m[120];
+                    snprintf(m, sizeof m, "Left the %s world.", nm);
+                    put(m, out, out_size);
+                } else {
+                    world_teardown(b, id);
+                    char m[140];
+                    snprintf(m, sizeof m,
+                             "Forgotten the %s world; none of it reached my memory.",
+                             nm);
+                    put(m, out, out_size);
+                }
+                return 1;
+            }
+        }
+    }
+
+    /* -- ENTER (+ optional inline clause): an intro phrase opens a scope. ------- */
+    {
+        const char *rest = NULL; char wname[48] = "";
+        /* "in the <name> world[:] ..." / "in the <name> story ..." */
+        const char *p = NULL;
+        if (strncmp(buf, "in the ", 7) == 0)      p = buf + 7;
+        else if (strncmp(buf, "in this ", 8) == 0) {
+            /* anonymous scratch scope: name it after the noun (world/story). */
+            const char *q = buf + 8;
+            char first[32]; size_t fi = 0;
+            while (q[fi] && !isspace((unsigned char)q[fi]) && fi+1 < sizeof first)
+                { first[fi] = q[fi]; fi++; }
+            first[fi] = '\0';
+            char bare[32]; snprintf(bare, sizeof bare, "%s", first);
+            if (is_world_noun(strip_edge_punct(bare))) {
+                snprintf(wname, sizeof wname, "%s", strip_edge_punct(bare));
+                rest = q + fi;
+            }
+        }
+        if (p && !*wname) {
+            /* read tokens until the world noun. The NAME is the adjacent content
+             * token: before the noun in English ("saga world"), or after it in
+             * Italian ("mondo saga" -> "world saga"). The clause begins after the
+             * name token, wherever it sits. */
+            char nb[512]; snprintf(nb, sizeof nb, "%s", p);
+            char *nw_[12]; size_t nn = split_words(nb, nw_, 12);
+            for (size_t i = 0; i < nn; i++) {
+                char *t = strip_edge_punct(nw_[i]);
+                if (is_world_noun(t)) {
+                    size_t name_idx = i; /* default: no name -> use the noun word */
+                    char *before = (i >= 1) ? strip_edge_punct(nw_[i-1]) : NULL;
+                    if (before && !is_article(before) &&
+                        strcmp(before, "the") != 0 && strcmp(before, "this") != 0 &&
+                        strcmp(before, "that") != 0) {
+                        snprintf(wname, sizeof wname, "%s", before);
+                        name_idx = i; /* clause starts after the noun */
+                    } else if (i + 1 < nn) {
+                        char *after_tok = strip_edge_punct(nw_[i+1]);
+                        /* the next token names the world only if it isn't itself
+                         * the start of a clause ("X is …"); else stay anonymous. */
+                        int looks_clause = (i + 2 < nn) &&
+                            strcmp(strip_edge_punct(nw_[i+2]), "is") == 0;
+                        if (!looks_clause && *after_tok) {
+                            snprintf(wname, sizeof wname, "%s", after_tok);
+                            name_idx = i + 1; /* clause starts after the name */
+                        } else {
+                            snprintf(wname, sizeof wname, "%s", t);
+                            name_idx = i;
+                        }
+                    } else {
+                        snprintf(wname, sizeof wname, "%s", t);
+                        name_idx = i;
+                    }
+                    /* rest = original text after token `name_idx` in `p` */
+                    const char *after = p;
+                    for (size_t k = 0; k <= name_idx; k++) {
+                        after = strchr(after, ' ');
+                        if (!after) break;
+                        after++;
+                    }
+                    rest = after ? after : "";
+                    break;
+                }
+            }
+        }
+        if (*wname) {
+            int id = world_enter(b, wname);
+            if (id < 0) { put("I can't open another world right now.", out, out_size);
+                          return 1; }
+            /* an inline clause after the noun (skip a leading colon / "where") */
+            const char *clause = rest ? rest : "";
+            while (*clause == ':' || *clause == ',' || isspace((unsigned char)*clause))
+                clause++;
+            if (strncmp(clause, "where ", 6) == 0) clause += 6;
+            if (*clause) {
+                char ans[300];
+                if (world_clause(b, clause, interrogative, ans, sizeof ans)) {
+                    put(ans, out, out_size);
+                    return 1;
+                }
+            }
+            char m[160];
+            snprintf(m, sizeof m,
+                     "Opened the %s world. Tell me what is true in it.", wname);
+            put(m, out, out_size);
+            return 1;
+        }
+        /* "start/open a world called <name>" / "new world <name>" */
+        if (strncmp(buf, "start a ", 8) == 0 || strncmp(buf, "open a ", 7) == 0 ||
+            strncmp(buf, "new ", 4) == 0) {
+            char *w2[12]; char sb[256]; snprintf(sb, sizeof sb, "%s", buf);
+            size_t nn = split_words(sb, w2, 12);
+            int wn_idx = -1;
+            for (size_t i = 0; i < nn; i++)
+                if (is_world_noun(strip_edge_punct(w2[i]))) { wn_idx = (int)i; break; }
+            if (wn_idx >= 0) {
+                const char *name = NULL;
+                /* prefer the token after "called"/"named", else the one after noun */
+                for (size_t i = 0; i + 1 < nn; i++) {
+                    char *t = strip_edge_punct(w2[i]);
+                    if (strcmp(t, "called") == 0 || strcmp(t, "named") == 0)
+                        { name = strip_edge_punct(w2[i+1]); break; }
+                }
+                if (!name && (size_t)wn_idx + 1 < nn)
+                    name = strip_edge_punct(w2[wn_idx + 1]);
+                if (name && *name) {
+                    int id = world_enter(b, name);
+                    if (id < 0) { put("I can't open another world right now.",
+                                      out, out_size); return 1; }
+                    char m[160];
+                    snprintf(m, sizeof m,
+                             "Opened the %s world. Tell me what is true in it.", name);
+                    put(m, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* -- IN-SCOPE assertion/query while a world is active. ---------------------- */
+    if (b->active_world >= 0) {
+        const char *clause = (const char *)skip_article(buf);
+        if (world_clause(b, clause, interrogative, out, out_size))
+            return 1;
+    }
+
+    return 0;
+}
+
 /* --- module: repair (gen141, E2) — the conversational repair loop -----------
  * The weakest signal in the emergence audit (E-series) is the human surface:
  * vague turns hit the wall. A real interlocutor, asked something it cannot pin
@@ -8140,6 +8619,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
     {"repair",    mod_repair},
+    {"world",     mod_world},
     {"translate", mod_translate},
     {"synth",     mod_synth},
     {"induce",    mod_induce},
@@ -8255,6 +8735,7 @@ Brain *brain_create(void) {
     b->kb = kb_create();
     if (!b->kb) { free(b); return NULL; }
     b->start_time = time(NULL);
+    b->active_world = -1; /* gen142 (E7): no local world is open at birth */
 
     /* Curated lexical knowledge used by the kernel itself. It lives in the
      * knowledge layer, not as C word arrays; loading it as base keeps it out of
@@ -8316,7 +8797,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen142-metacognitive-calibration";
+    return "gen143-local-world-memory";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

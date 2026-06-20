@@ -1,5 +1,58 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen143: local-world working memory — scoped fictions that don't leak
+
+> Integration note: produced in parallel with gen142 by a worktree subagent
+> (E7), integrated on top of gen142 as the next generation.
+
+**Goal (PROMPT.md run, E-series E7):** handle temporary fictional or task-local
+worlds across several turns, with explicit scope and expiry. Until now parrot0
+had ONE flat belief store: "rex is a dragon" wrote a permanent fact. A real
+interlocutor can hold a fiction ("in this story Rex is a dragon"), use it later,
+run a SECOND world where the same name means something else, answer "what is
+assumed?", and TEAR a world down so none of it pollutes what it permanently
+believes. This generation builds exactly that scoped working memory.
+
+**Changed:** `brain.c` -> `gen143-local-world-memory`. New `mod_world`,
+registered SECOND (right after `repair`, before the KB modules) so a world
+assertion pre-empts the permanent learner precisely when a scope is open. The
+Brain gains a small fixed pool of named worlds (`worlds`/`world_live`/
+`active_world`) and an overlay of `(world, subj, pred, neg)` facts (`wfacts`) —
+all in session state, NEVER the persisted KB. ENTER: "in the <name> world/story
+..." / "in this story ..." / "start a world called <name>" opens (or re-opens)
+a scope; an inline clause after the noun is asserted into it. ASSERT: while a
+world is active, "X is [a] Y" / "X is not [a] Y" lands in the overlay tagged with
+the world id. QUERY: "is X a Y?" (and the subject-first interrogative "X is a Y?"
+the Italian shape canonicalizes to) / "who is X?" / "what is X?" read the active
+overlay first, so the SAME name answers differently in two worlds. INSPECT: "what
+is assumed?" lists the active overlay, grounded in real state. EXIT: "forget/end/
+close the <name> world" tears the scope down (dropping exactly its facts);
+"leave the world" deactivates it but keeps it alive. The name can sit before the
+world noun (English "saga world") or after it (Italian "mondo saga") — one parser
+serves both orders. `canonicalize_lang` gained the local-world lexicon
+(`mondo`->world, `storia`->story, `nel`/`nella`->`in the`, `questo`/`questa`->
+this, `assunto`->assumed, `dimentica`->forget) so the IT probe reaches the SAME
+code path; the inspect cue is the unambiguous "is assumed", gated on an open
+scope so it never fires in ordinary prose. Ratchets: `world.chat`/`.it` and a
+~20-turn `world_stress.chat`. The `self` and `strategy`/`strategy.it` trace
+expectations gained `world` after `repair` (the module really runs there).
+
+**Observed.** This is parrot0's first scoped belief layer — facts that are real
+and usable yet provably temporary. The stress run is the useful signal: three
+overlapping worlds (saga / office / dream) hold conflicting claims about the SAME
+entities (rex, max), switching re-activates the right overlay, "what is assumed?"
+reads each back, and after teardown the permanent layer answers "I don't know
+about dragon" — the anti-impostor leak check passes (a `/save` writes only the
+real `human(bob)` fact, never any world fact). What surprised me: the cleanest
+seam turned out to be ACTIVATION, not nesting — "leave the world" returns control
+to the permanent KB so ordinary teaching works again, and "in the <name> world"
+with no clause is simply re-activation; expiry and scope fell out of the same two
+operations. Open edges: classes are single-word only (no "real animal"); worlds
+don't yet inherit from the permanent KB or from an enclosing world (truly nested
+scopes); and "remember this world for real" (promote an overlay into permanent
+memory on request, the one sanctioned leak E7 allows) is not wired yet.
+
+
 ## 2026-06-20 — gen142: metacognitive calibration — confidence from proof STATE
 
 **Goal (PROMPT.md run, E-series E8):** make parrot0 report HOW it knows an answer,

@@ -2,6 +2,9 @@
 /obj/
 /bin/
 
+# agent harness state (subagent worktrees, local settings)
+/.claude/
+
 # generated session knowledge (base.pl is curated & tracked)
 /knowledge/session.pl
 

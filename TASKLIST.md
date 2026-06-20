@@ -312,8 +312,20 @@ Acceptance:
 
 Anti-impostor: benchmark turns must be varied enough that memorized transcripts fail.
 
-### E7 - Local-world working memory
+### E7 - Local-world working memory — DONE (seed), gen143
 Goal: handle temporary fictional or task-local worlds across several turns, with explicit scope and expiry.
+
+gen143: `mod_world` gives parrot0 a scoped belief overlay held in session state,
+never the persisted KB. ENTER ("in the <name> world ..." / "start a world called
+X") opens a named scope; while it is active "X is [a] Y" assertions and "is X a
+Y?" / "who is X?" queries hit the overlay, so the same name means different
+things in different worlds. "what is assumed?" reads the active overlay back.
+EXIT ("forget/leave the world") tears a scope down or deactivates it; a `/save`
+after worlds writes only real KB facts — no leak. EN+IT through one code path
+(`world.chat`/`.it`, ~20-turn `world_stress.chat` with three overlapping worlds).
+Open within E7: single-word classes only; nested scopes inheriting from an
+enclosing world; and "remember this world for real" (the one sanctioned
+promotion into permanent memory).
 
 Acceptance:
 - Facts introduced for a puzzle or story are usable in later turns of that local context.
