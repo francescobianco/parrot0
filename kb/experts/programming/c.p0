@@ -3,7 +3,7 @@
 
 expert(c).
 expert_domain(c, programming).
-expert_description(c, "C language — syntax, semantics, standard library, idioms, common errors").
+expert_description(c, "C language -- syntax semantics standard library idioms com").
 
 % --- C keywords ---
 keyword(c, if).

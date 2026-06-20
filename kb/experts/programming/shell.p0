@@ -3,7 +3,7 @@
 
 expert(shell).
 expert_domain(shell, programming).
-expert_description(shell, "POSIX shell — commands, flags, pipelines, composition").
+expert_description(shell, "POSIX shell -- commands flags pipelines composition").
 
 cmd(ls, lists_directory_contents).
 flag(ls, a, including_hidden_entries).

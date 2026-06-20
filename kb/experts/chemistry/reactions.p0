@@ -3,36 +3,36 @@
 
 expert(reactions).
 expert_domain(reactions, chemistry).
-expert_description(reactions, "chemical reactions — types, stoichiometry, kinetics, thermodynamics, equilibrium").
+expert_description(reactions, "chemical reactions -- types stoichiometry kinetics thermody").
 
 % --- reaction types ---
-reaction_type(synthesis, "two or more substances combine to form one product — A + B -> AB").
-reaction_type(decomposition, "one compound breaks into two or more substances — AB -> A + B").
-reaction_type(single_displacement, "one element replaces another in a compound — A + BC -> AC + B").
-reaction_type(double_displacement, "two compounds exchange ions — AB + CD -> AD + CB").
-reaction_type(combustion, "substance reacts rapidly with oxygen, releasing heat and light").
-reaction_type(redox, "electrons are transferred between reactants — changes oxidation states").
-reaction_type(acid_base, "proton transfer from an acid to a base — produces salt and water").
+reaction_type(synthesis, "two or more substances combine to form one product").
+reaction_type(decomposition, "one compound breaks into two or more substances").
+reaction_type(single_displacement, "one element replaces another in a compound").
+reaction_type(double_displacement, "two compounds exchange ions -- AB + CD -> AD + CB").
+reaction_type(combustion, "substance reacts rapidly with oxygen releasing heat and ligh").
+reaction_type(redox, "electrons are transferred between reactants").
+reaction_type(acid_base, "proton transfer from an acid to a base").
 reaction_type(polymerization, "small monomers join to form a large polymer chain").
-reaction_type(hydrolysis, "water breaks a chemical bond — opposite of condensation").
+reaction_type(hydrolysis, "water breaks a chemical bond -- opposite of condensation").
 
 % --- stoichiometry ---
-chem_concept(mole, "6.022 * 10^23 particles — amount of substance in grams equal to formula weight").
-chem_concept(molar_mass, "mass of one mole of a substance — g/mol").
-chem_concept(limiting_reagent, "reactant that runs out first — determines the amount of product").
-chem_concept(yield, "amount of product obtained — theoretical yield vs actual yield").
-chem_concept(concentration, "amount of solute per unit volume — molarity M = mol/L").
+chem_concept(mole, "6.022 * 10^23 particles").
+chem_concept(molar_mass, "mass of one mole of a substance -- g/mol").
+chem_concept(limiting_reagent, "reactant that runs out first").
+chem_concept(yield, "amount of product obtained").
+chem_concept(concentration, "amount of solute per unit volume -- molarity M = mol/L").
 
 % --- kinetics and equilibrium ---
 chem_concept(reaction_rate, "speed at which reactants are consumed or products formed").
 chem_concept(catalyst, "substance that speeds up a reaction without being consumed").
 chem_concept(activation_energy, "minimum energy needed for a reaction to occur").
 chem_concept(chemical_equilibrium, "state where forward and reverse reaction rates are equal").
-chem_concept(le_chatelier_principle, "a system at equilibrium shifts to counteract any imposed change").
+chem_concept(le_chatelier_principle, "a system at equilibrium shifts to counteract any imposed chan").
 
 % --- energetics ---
-chem_concept(exothermic, "reaction that releases heat — delta H is negative").
-chem_concept(endothermic, "reaction that absorbs heat — delta H is positive").
-chem_concept(enthalpy, "total heat content of a system — H").
-chem_concept(entropy, "measure of disorder or randomness — S").
-chem_concept(gibbs_free_energy, "energy available to do work — delta G = delta H - T*delta S").
+chem_concept(exothermic, "reaction that releases heat -- delta H is negative").
+chem_concept(endothermic, "reaction that absorbs heat -- delta H is positive").
+chem_concept(enthalpy, "total heat content of a system -- H").
+chem_concept(entropy, "measure of disorder or randomness -- S").
+chem_concept(gibbs_free_energy, "energy available to do work -- delta G = delta H - T*delta S").

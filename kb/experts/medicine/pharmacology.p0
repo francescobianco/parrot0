@@ -3,22 +3,22 @@
 
 expert(pharmacology).
 expert_domain(pharmacology, medicine).
-expert_description(pharmacology, "pharmacology — drug classes, mechanisms, common medications, interactions").
+expert_description(pharmacology, "pharmacology -- drug classes mechanisms common medications ").
 
 % --- drug classes ---
-drug_class(antibiotic, "kills or inhibits bacterial growth — e.g. penicillin, amoxicillin").
-drug_class(analgesic, "relieves pain — e.g. paracetamol, ibuprofen, morphine").
-drug_class(antiinflammatory, "reduces inflammation — e.g. corticosteroids, NSAIDs").
-drug_class(antiviral, "inhibits viral replication — e.g. acyclovir, oseltamivir").
-drug_class(antifungal, "treats fungal infections — e.g. fluconazole, clotrimazole").
-drug_class(antidepressant, "treats depression — e.g. fluoxetine, sertraline").
-drug_class(antihypertensive, "lowers blood pressure — e.g. ACE inhibitors, beta blockers").
-drug_class(antidiabetic, "controls blood sugar — e.g. metformin, insulin").
+drug_class(antibiotic, "kills or inhibits bacterial growth").
+drug_class(analgesic, "relieves pain -- e.g. paracetamol ibuprofen morphine").
+drug_class(antiinflammatory, "reduces inflammation -- e.g. corticosteroids NSAIDs").
+drug_class(antiviral, "inhibits viral replication -- e.g. acyclovir oseltamivir").
+drug_class(antifungal, "treats fungal infections -- e.g. fluconazole clotrimazole").
+drug_class(antidepressant, "treats depression -- e.g. fluoxetine sertraline").
+drug_class(antihypertensive, "lowers blood pressure -- e.g. ACE inhibitors beta blockers").
+drug_class(antidiabetic, "controls blood sugar -- e.g. metformin insulin").
 drug_class(vaccine, "stimulates immune response to prevent disease").
-drug_class(anesthetic, "induces loss of sensation — e.g. lidocaine, propofol").
+drug_class(anesthetic, "induces loss of sensation -- e.g. lidocaine propofol").
 
 % --- administration routes ---
-admin_route(oral, "taken by mouth — swallowed as pill, capsule, or liquid").
+admin_route(oral, "taken by mouth -- swallowed as pill capsule or liquid").
 admin_route(intravenous, "injected directly into a vein").
 admin_route(intramuscular, "injected into muscle tissue").
 admin_route(sublingual, "placed under the tongue for absorption").
@@ -27,8 +27,8 @@ admin_route(inhalation, "breathed into the lungs as aerosol or powder").
 
 % --- concepts ---
 pharma_concept(half_life, "time for the drug concentration in blood to halve").
-pharma_concept(bioavailability, "fraction of the administered dose reaching systemic circulation").
+pharma_concept(bioavailability, "fraction of the administered dose reaching systemic circulati").
 pharma_concept(therapeutic_window, "range between minimum effective dose and toxic dose").
 pharma_concept(side_effect, "unintended effect of a drug beyond its therapeutic action").
 pharma_concept(contraindication, "condition where a drug should not be used due to risk").
-pharma_concept(drug_interaction, "one drug affecting the activity of another when taken together").
+pharma_concept(drug_interaction, "one drug affecting the activity of another when taken togethe").

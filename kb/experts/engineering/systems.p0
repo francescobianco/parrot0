@@ -3,41 +3,41 @@
 
 expert(systems_engineering).
 expert_domain(systems_engineering, engineering).
-expert_description(systems_engineering, "systems engineering — systems thinking, design, architecture, lifecycle, trade-offs").
+expert_description(systems_engineering, "systems engineering -- systems thinking design architecture ").
 
 % --- fundamentals ---
-engineering_concept(system, "a set of interrelated components working together to achieve a common goal").
+engineering_concept(system, "a set of interrelated components working together to achieve ").
 engineering_concept(subsystem, "a self-contained functional unit within a larger system").
-engineering_concept(interface, "the boundary where two components or systems meet and interact").
-engineering_concept(requirement, "a formal statement of what a system must do or a constraint it must satisfy").
+engineering_concept(interface, "the boundary where two components or systems meet and interac").
+engineering_concept(requirement, "a formal statement of what a system must do or a constraint i").
 engineering_concept(specification, "a detailed description of technical requirements and design").
-engineering_concept(constraint, "a limitation or restriction on the design or operation of a system").
-engineering_concept(trade_off, "compromise between competing objectives — cost, performance, time").
-engineering_concept(optimization, "finding the best solution within given constraints and objectives").
+engineering_concept(constraint, "a limitation or restriction on the design or operation of a s").
+engineering_concept(trade_off, "compromise between competing objectives").
+engineering_concept(optimization, "finding the best solution within given constraints and object").
 
 % --- lifecycle phases ---
-lifecycle_phase(concept, "initial idea — needs analysis, feasibility study, high-level requirements").
-lifecycle_phase(design, "detailed definition of system architecture, components, and interfaces").
-lifecycle_phase(implementation, "building, coding, manufacturing — turning designs into reality").
+lifecycle_phase(concept, "initial idea -- needs analysis feasibility study high-level ").
+lifecycle_phase(design, "detailed definition of system architecture components and i").
+lifecycle_phase(implementation, "building coding manufacturing").
 lifecycle_phase(integration, "combining components and verifying they work together").
-lifecycle_phase(verification, "confirming the system meets its specified requirements — testing").
+lifecycle_phase(verification, "confirming the system meets its specified requirements").
 lifecycle_phase(validation, "confirming the system meets user needs and intended purpose").
 lifecycle_phase(deployment, "releasing the system to operational use").
-lifecycle_phase(maintenance, "ongoing support — fixing issues, updating, improving").
+lifecycle_phase(maintenance, "ongoing support -- fixing issues updating improving").
 lifecycle_phase(retirement, "decommissioning the system at end of useful life").
 
 % --- design principles ---
-design_principle(modularity, "divide the system into independent, interchangeable modules").
+design_principle(modularity, "divide the system into independent interchangeable modules").
 design_principle(abstraction, "hide complexity behind simplified interfaces").
 design_principle(encapsulation, "restrict access to internal details of a component").
 design_principle(redundancy, "duplicate critical components to increase reliability").
 design_principle(fail_safe, "system defaults to a safe state when a failure occurs").
-design_principle(resilience, "ability to recover quickly from failures and continue operating").
+design_principle(resilience, "ability to recover quickly from failures and continue operati").
 design_principle(scalability, "ability to handle increased load by adding resources").
 design_principle(interoperability, "ability to work with other systems and exchange information").
 
 % --- analysis methods ---
-analysis_method(root_cause_analysis, "systematic process to identify the fundamental origin of a problem").
-analysis_method(fmea, "failure mode and effects analysis — identify potential failures and their impacts").
+analysis_method(root_cause_analysis, "systematic process to identify the fundamental origin of a pr").
+analysis_method(fmea, "failure mode and effects analysis").
 analysis_method(cost_benefit_analysis, "compare the costs of a decision against its expected benefits").
 analysis_method(risk_analysis, "identify and assess factors that could jeopardize success").

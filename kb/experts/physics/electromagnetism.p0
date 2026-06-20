@@ -3,33 +3,33 @@
 
 expert(electromagnetism).
 expert_domain(electromagnetism, physics).
-expert_description(electromagnetism, "electromagnetism — electric fields, magnetic fields, circuits, EM waves").
+expert_description(electromagnetism, "electromagnetism -- electric fields magnetic fields circuits").
 
 % --- fundamentals ---
-em_concept(electric_charge, "fundamental property of matter — positive or negative, measured in coulombs").
+em_concept(electric_charge, "fundamental property of matter").
 em_concept(electric_field, "region around a charge where it exerts force on other charges").
-em_concept(electric_potential, "potential energy per unit charge — measured in volts").
-em_concept(current, "flow of electric charge — I = dQ/dt, measured in amperes").
-em_concept(resistance, "opposition to current flow — V = IR, measured in ohms").
+em_concept(electric_potential, "potential energy per unit charge -- measured in volts").
+em_concept(current, "flow of electric charge -- I = dQ/dt measured in amperes").
+em_concept(resistance, "opposition to current flow -- V = IR measured in ohms").
 em_concept(voltage, "electric potential difference between two points").
-em_concept(capacitance, "ability to store electric charge — C = Q/V, measured in farads").
-em_concept(inductance, "opposition to change in current — measured in henries").
+em_concept(capacitance, "ability to store electric charge").
+em_concept(inductance, "opposition to change in current -- measured in henries").
 em_concept(magnetic_field, "field produced by moving charges or magnetic materials").
 em_concept(flux, "amount of field passing through a surface").
 em_concept(electromagnetic_induction, "generation of EMF by changing magnetic flux").
-em_concept(electromagnetic_wave, "self-propagating wave of electric and magnetic fields — light is one").
+em_concept(electromagnetic_wave, "self-propagating wave of electric and magnetic fields").
 
 % --- laws ---
-em_law("Coulomb's law", "F = k*q1*q2 / r^2 — force between two point charges").
-em_law("Ohm's law", "V = IR — voltage equals current times resistance").
-em_law("Faraday's law", "induced EMF is proportional to the rate of change of magnetic flux").
-em_law("Ampere's law", "magnetic field around a closed loop is proportional to the current").
-em_law("Maxwell's equations", "four equations describing how electric and magnetic fields interact").
+em_law("Coulomb's law", "F = k*q1*q2 / r^2 -- force between two point charges").
+em_law("Ohm's law", "V = IR -- voltage equals current times resistance").
+em_law("Faraday's law", "induced EMF is proportional to the rate of change of magnetic").
+em_law("Ampere's law", "magnetic field around a closed loop is proportional to the cu").
+em_law("Maxwell's equations", "four equations describing how electric and magnetic fields in").
 
 % --- circuit elements ---
-circuit_element(resistor, "limits current — dissipates energy as heat").
-circuit_element(capacitor, "stores energy in an electric field — blocks DC").
-circuit_element(inductor, "stores energy in a magnetic field — resists current changes").
+circuit_element(resistor, "limits current -- dissipates energy as heat").
+circuit_element(capacitor, "stores energy in an electric field -- blocks DC").
+circuit_element(inductor, "stores energy in a magnetic field -- resists current changes").
 circuit_element(diode, "allows current to flow in one direction only").
 circuit_element(transistor, "amplifies or switches electronic signals").
-circuit_element(battery, "converts chemical energy to electrical energy — DC source").
+circuit_element(battery, "converts chemical energy to electrical energy -- DC source").

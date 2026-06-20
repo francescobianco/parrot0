@@ -3,18 +3,18 @@
 
 expert(algebra).
 expert_domain(algebra, mathematics).
-expert_description(algebra, "algebra — equations, functions, polynomials, linear systems, variables").
+expert_description(algebra, "algebra -- equations functions polynomials linear systems ").
 
 % --- equation solving ---
 algebra_concept(variable, "a symbol representing an unknown value").
 algebra_concept(equation, "a statement that two expressions are equal").
-algebra_concept(expression, "a combination of numbers, variables, and operations").
+algebra_concept(expression, "a combination of numbers variables and operations").
 algebra_concept(coefficient, "a number multiplying a variable").
-algebra_concept(linear_equation, "an equation of degree 1 — graph is a straight line").
-algebra_concept(quadratic_equation, "an equation of degree 2 — graph is a parabola").
+algebra_concept(linear_equation, "an equation of degree 1 -- graph is a straight line").
+algebra_concept(quadratic_equation, "an equation of degree 2 -- graph is a parabola").
 algebra_concept(system, "a set of equations with shared variables").
 algebra_concept(solution, "a value or set of values that satisfies an equation").
-algebra_concept(inequality, "a relation comparing two expressions with <, >, <=, or >=").
+algebra_concept(inequality, "a relation comparing two expressions with < > <= or >=").
 algebra_concept(function, "a relation mapping each input to exactly one output").
 
 % --- polynomial facts ---

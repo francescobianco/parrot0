@@ -3,37 +3,37 @@
 
 expert(semantics).
 expert_domain(semantics, linguistics).
-expert_description(semantics, "semantics — meaning, lexical relations, compositionality, reference, pragmatics").
+expert_description(semantics, "semantics -- meaning lexical relations compositionality ref").
 
 % --- meaning types ---
-meaning_type(denotation, "the literal, dictionary definition of a word or phrase").
-meaning_type(connotation, "the emotional or cultural associations of a word beyond its literal meaning").
-meaning_type(reference, "the relationship between a linguistic expression and the entity it points to").
-meaning_type(sense, "the mental concept or way of presenting a referent — determines reference").
-meaning_type(proposition, "the abstract meaning of a declarative sentence — can be true or false").
+meaning_type(denotation, "the literal dictionary definition of a word or phrase").
+meaning_type(connotation, "the emotional or cultural associations of a word beyond its l").
+meaning_type(reference, "the relationship between a linguistic expression and the enti").
+meaning_type(sense, "the mental concept or way of presenting a referent").
+meaning_type(proposition, "the abstract meaning of a declarative sentence").
 
 % --- lexical relations ---
-lexical_relation(synonymy, "two words with the same or very similar meaning — big/large").
-lexical_relation(antonymy, "two words with opposite meanings — hot/cold").
-lexical_relation(hyponymy, "a word whose meaning is included in another — dog is a hyponym of animal").
-lexical_relation(hypernymy, "a word whose meaning includes another — animal is a hypernym of dog").
-lexical_relation(meronymy, "a part-whole relationship — wheel is a meronym of car").
-lexical_relation(polysemy, "one word with multiple related meanings — head of a person/head of a pin").
-lexical_relation(homonymy, "two words that sound the same but have unrelated meanings — bat/animal, bat/stick").
+lexical_relation(synonymy, "two words with the same or very similar meaning -- big/large").
+lexical_relation(antonymy, "two words with opposite meanings -- hot/cold").
+lexical_relation(hyponymy, "a word whose meaning is included in another").
+lexical_relation(hypernymy, "a word whose meaning includes another").
+lexical_relation(meronymy, "a part-whole relationship -- wheel is a meronym of car").
+lexical_relation(polysemy, "one word with multiple related meanings").
+lexical_relation(homonymy, "two words that sound the same but have unrelated meanings").
 
 % --- semantic composition ---
-semantic_principle(compositionality, "the meaning of a complex expression is determined by its parts and how they combine").
+semantic_principle(compositionality, "the meaning of a complex expression is determined by its part").
 semantic_principle(truth_conditions, "the conditions under which a proposition is true").
-semantic_principle(entailment, "sentence A entails B if whenever A is true, B must also be true").
-semantic_principle(presupposition, "background assumption that must be true for a sentence to be meaningful").
-semantic_principle(implicature, "what is suggested beyond the literal meaning — conversational inference").
+semantic_principle(entailment, "sentence A entails B if whenever A is true B must also be tr").
+semantic_principle(presupposition, "background assumption that must be true for a sentence to be ").
+semantic_principle(implicature, "what is suggested beyond the literal meaning").
 
 % --- thematic roles ---
-thematic_role(agent, "the entity that performs the action — John opened the door").
-thematic_role(patient, "the entity that undergoes the action — John opened the door").
-thematic_role(theme, "the entity that moves or is located — the ball rolled").
-thematic_role(instrument, "the means by which an action is performed — cut with a knife").
-thematic_role(experiencer, "the entity that perceives or feels — Mary likes chocolate").
-thematic_role(goal, "the destination or endpoint — walk to the store").
-thematic_role(source, "the origin or starting point — came from Rome").
-thematic_role(location, "the place where an action occurs — sitting on the chair").
+thematic_role(agent, "the entity that performs the action -- John opened the door").
+thematic_role(patient, "the entity that undergoes the action -- John opened the door").
+thematic_role(theme, "the entity that moves or is located -- the ball rolled").
+thematic_role(instrument, "the means by which an action is performed -- cut with a knife").
+thematic_role(experiencer, "the entity that perceives or feels -- Mary likes chocolate").
+thematic_role(goal, "the destination or endpoint -- walk to the store").
+thematic_role(source, "the origin or starting point -- came from Rome").
+thematic_role(location, "the place where an action occurs -- sitting on the chair").

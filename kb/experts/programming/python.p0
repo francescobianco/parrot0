@@ -2,7 +2,7 @@
 
 expert(python).
 expert_domain(python, programming).
-expert_description(python, "Python language — syntax, semantics, builtins, common errors").
+expert_description(python, "Python language -- syntax semantics builtins common errors").
 
 % --- Python keywords ---
 keyword(python, def).

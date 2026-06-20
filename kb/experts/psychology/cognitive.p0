@@ -3,43 +3,43 @@
 
 expert(cognitive_psychology).
 expert_domain(cognitive_psychology, psychology).
-expert_description(cognitive_psychology, "cognitive psychology — perception, attention, memory, learning, reasoning, decision-making").
+expert_description(cognitive_psychology, "cognitive psychology -- perception attention memory learnin").
 
 % --- perception ---
 perception_concept(sensation, "detection of physical stimuli by sensory organs").
 perception_concept(perception, "interpretation and organization of sensory information").
-perception_concept(attention, "selective focus on specific stimuli while filtering out others").
-perception_concept(gestalt, "the whole is different from the sum of its parts — perceptual organization").
-perception_concept(top_down_processing, "using prior knowledge and expectations to interpret sensory input").
-perception_concept(bottom_up_processing, "building perception from raw sensory data without prior knowledge").
+perception_concept(attention, "selective focus on specific stimuli while filtering out other").
+perception_concept(gestalt, "the whole is different from the sum of its parts").
+perception_concept(top_down_processing, "using prior knowledge and expectations to interpret sensory i").
+perception_concept(bottom_up_processing, "building perception from raw sensory data without prior knowl").
 
 % --- memory ---
-memory_type(sensory_memory, "brief storage of sensory information — iconic (visual), echoic (auditory)").
-memory_type(short_term_memory, "temporary storage — capacity ~7 +/- 2 items, duration ~20-30 seconds").
-memory_type(working_memory, "active manipulation of information in short-term memory — Baddeley's model").
+memory_type(sensory_memory, "brief storage of sensory information").
+memory_type(short_term_memory, "temporary storage -- capacity ~7 +/- 2 items duration ~20-30 ").
+memory_type(working_memory, "active manipulation of information in short-term memory").
 memory_type(long_term_memory, "relatively permanent storage with unlimited capacity").
-memory_type(episodic_memory, "memory of personal experiences and events — autobiographical").
-memory_type(semantic_memory, "memory of facts, concepts, and general knowledge").
-memory_type(procedural_memory, "memory for skills and how to do things — implicit, automatic").
-memory_concept(encoding, "process of converting information into a form that can be stored").
+memory_type(episodic_memory, "memory of personal experiences and events -- autobiographical").
+memory_type(semantic_memory, "memory of facts concepts and general knowledge").
+memory_type(procedural_memory, "memory for skills and how to do things -- implicit automatic").
+memory_concept(encoding, "process of converting information into a form that can be sto").
 memory_concept(retrieval, "process of accessing stored information").
 memory_concept(forgetting, "loss or inability to retrieve previously stored information").
-memory_concept(chunking, "grouping individual pieces of information into larger meaningful units").
+memory_concept(chunking, "grouping individual pieces of information into larger meaning").
 
 % --- reasoning and biases ---
-cognitive_bias(confirmation_bias, "tendency to search for or interpret information that confirms preexisting beliefs").
-cognitive_bias(anchoring, "relying too heavily on the first piece of information encountered").
+cognitive_bias(confirmation_bias, "tendency to search for or interpret information that confirms").
+cognitive_bias(anchoring, "relying too heavily on the first piece of information encount").
 cognitive_bias(availability_heuristic, "judging likelihood based on how easily examples come to mind").
-cognitive_bias(framing_effect, "decisions influenced by how information is presented rather than the facts").
-cognitive_bias(dunning_kruger_effect, "unskilled individuals overestimate their ability; experts underestimate").
-cognitive_bias(hindsight_bias, "seeing events as predictable after they have occurred — I-knew-it-all-along").
-cognitive_bias(fundamental_attribution_error, "overemphasizing personality and underestimating situational factors").
+cognitive_bias(framing_effect, "decisions influenced by how information is presented rather t").
+cognitive_bias(dunning_kruger_effect, "unskilled individuals overestimate their ability").
+cognitive_bias(hindsight_bias, "seeing events as predictable after they have occurred").
+cognitive_bias(fundamental_attribution_error, "overemphasizing personality and underestimating situational f").
 
 % --- learning ---
-learning_type(classical_conditioning, "learning by association — Pavlov's dogs, stimulus-response pairing").
-learning_type(operant_conditioning, "learning from consequences — reinforcement and punishment — Skinner").
-learning_type(observational_learning, "learning by watching others — Bandura's social learning theory").
-learning_type(insight_learning, "sudden understanding of a problem's solution — aha moment — Kohler").
+learning_type(classical_conditioning, "learning by association").
+learning_type(operant_conditioning, "learning from consequences -- reinforcement and punishment").
+learning_type(observational_learning, "learning by watching others").
+learning_type(insight_learning, "sudden understanding of a problem's solution -- aha moment").
 reinforcement_type(positive_reinforcement, "adding a pleasant stimulus to increase behavior").
 reinforcement_type(negative_reinforcement, "removing an unpleasant stimulus to increase behavior").
 reinforcement_type(positive_punishment, "adding an unpleasant stimulus to decrease behavior").

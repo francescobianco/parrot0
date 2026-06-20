@@ -3,36 +3,36 @@
 
 expert(ethics).
 expert_domain(ethics, philosophy).
-expert_description(ethics, "ethics — moral philosophy, normative frameworks, meta-ethics, applied ethics").
+expert_description(ethics, "ethics -- moral philosophy normative frameworks meta-ethics ").
 
 % --- major frameworks ---
-ethical_framework(utilitarianism, "actions are right if they maximize happiness for the greatest number — Bentham, Mill").
-ethical_framework(deontology, "actions are right if they follow moral rules or duties regardless of consequences — Kant").
-ethical_framework(virtue_ethics, "focus on character and virtues rather than rules or consequences — Aristotle").
-ethical_framework(contractarianism, "morality arises from social contracts for mutual benefit — Hobbes, Rawls").
-ethical_framework(care_ethics, "emphasizes relationships, empathy, and responsibility to others — Gilligan").
-ethical_framework(natural_law, "morality is grounded in human nature and discoverable by reason — Aquinas").
-ethical_framework(existentialism, "individuals must create their own meaning and moral values — Sartre, Nietzsche").
+ethical_framework(utilitarianism, "actions are right if they maximize happiness for the greatest").
+ethical_framework(deontology, "actions are right if they follow moral rules or duties regard").
+ethical_framework(virtue_ethics, "focus on character and virtues rather than rules or consequen").
+ethical_framework(contractarianism, "morality arises from social contracts for mutual benefit").
+ethical_framework(care_ethics, "emphasizes relationships empathy and responsibility to othe").
+ethical_framework(natural_law, "morality is grounded in human nature and discoverable by reas").
+ethical_framework(existentialism, "individuals must create their own meaning and moral values").
 
 % --- key concepts ---
 ethics_concept(moral_dilemma, "a situation where two or more moral principles conflict").
-ethics_concept(categorical_imperative, "Kant's rule: act only according to maxims you could will as universal law").
-ethics_concept(greatest_happiness_principle, "Bentham's principle: the right action maximizes overall happiness").
-ethics_concept(golden_mean, "Aristotle's concept: virtue lies at the mean between excess and deficiency").
-ethics_concept(veil_of_ignorance, "Rawls' thought experiment: design society without knowing your place in it").
-ethics_concept(moral_relativism, "moral judgments are relative to cultural, social, or personal standards").
-ethics_concept(moral_realism, "moral facts exist independently of human beliefs and attitudes").
-ethics_concept(eudaimonia, "flourishing or living well — the ultimate goal in virtue ethics").
+ethics_concept(categorical_imperative, "Kant's rule: act only according to maxims you could will as u").
+ethics_concept(greatest_happiness_principle, "Bentham's principle: the right action maximizes overall happi").
+ethics_concept(golden_mean, "Aristotle's concept: virtue lies at the mean between excess a").
+ethics_concept(veil_of_ignorance, "Rawls' thought experiment").
+ethics_concept(moral_relativism, "moral judgments are relative to cultural social or personal").
+ethics_concept(moral_realism, "moral facts exist independently of human beliefs and attitude").
+ethics_concept(eudaimonia, "flourishing or living well").
 
 % --- applied ethics ---
-ethics_domain(bioethics, "ethical issues in medicine, research, and life sciences").
-ethics_domain(environmental_ethics, "moral obligations toward the natural world and future generations").
-ethics_domain(business_ethics, "ethical principles in commerce — fairness, transparency, corporate responsibility").
-ethics_domain(ai_ethics, "moral considerations in artificial intelligence — bias, autonomy, accountability").
+ethics_domain(bioethics, "ethical issues in medicine research and life sciences").
+ethics_domain(environmental_ethics, "moral obligations toward the natural world and future generat").
+ethics_domain(business_ethics, "ethical principles in commerce").
+ethics_domain(ai_ethics, "moral considerations in artificial intelligence").
 
 % --- key thinkers ---
-ethicist(aristotle, "384-322 BCE — Nicomachean Ethics, virtue ethics, eudaimonia, the golden mean").
-ethicist(immanuel_kant, "1724-1804 — Groundwork of the Metaphysics of Morals, categorical imperative").
-ethicist(john_stuart_mill, "1806-1873 — Utilitarianism, harm principle, liberty").
-ethicist(jeremy_bentham, "1748-1832 — founder of utilitarianism, hedonic calculus").
-ethicist(friedrich_nietzsche, "1844-1900 — critique of traditional morality, will to power, beyond good and evil").
+ethicist(aristotle, "384-322 BCE -- Nicomachean Ethics virtue ethics eudaimonia ").
+ethicist(immanuel_kant, "1724-1804 -- Groundwork of the Metaphysics of Morals categori").
+ethicist(john_stuart_mill, "1806-1873 -- Utilitarianism harm principle liberty").
+ethicist(jeremy_bentham, "1748-1832 -- founder of utilitarianism hedonic calculus").
+ethicist(friedrich_nietzsche, "1844-1900 -- critique of traditional morality will to power ").
