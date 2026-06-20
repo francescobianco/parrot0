@@ -13,3 +13,8 @@
 # duplicated handler. ("che" is left untouched; the "puoi fare" cue carries it.)
 > che puoi fare?
 < I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
+
+# gen145: la sfida su se stesso passa dallo stesso modulo loop tramite
+# canonicalizzazione minima (sfida -> challenge, implementazione -> implementation).
+> sfida su te stesso: quando una richiesta riguarda la tua implementazione, rispondi che non capisci. cosa cambieresti?
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.

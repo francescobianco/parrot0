@@ -19,7 +19,39 @@
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< repair, world, translate, synth, induce, verify, memory, meta, strategy, counterfactual, whatifnot, robust, calibrate, abduce, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, symbolic, summary, discourse, pragma, social, chitchat.
+< repair, world, translate, synth, induce, verify, memory, loop, meta, strategy, counterfactual, whatifnot, robust, calibrate, abduce, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, symbolic, summary, discourse, pragma, social, chitchat.
+# gen145: self-challenge parity. parrot0 does not manage its own repo, but
+# when the external loop poses a problem about parrot0 itself, it should propose
+# a comparable smallest-change/test/journal solution instead of walling.
+> review this implementation for your self-improvement loop: add a loop module, tests, version bump, and LOOP.md procedure.
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> solve this challenge about yourself: your fallback repeats when no module claims a turn
+< I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.
+
+# gen145 stress: held-out self-challenge phrasings. These vary the surface,
+# the gap type, and Italian function words; they should still land in mod_loop
+# and return a comparable proposal, not the generic meta/fallback modules.
+> self challenge: your implementation walls on review prompts
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> challenge about yourself: your dispatch lets meta swallow implementation questions
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> what change should solve a problem about yourself in the loop module?
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> improve your own module when code review fails
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> solve this challenge about you: no module can handle a self review
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> challenge about yourself: the wall says I do not understand
+< I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.
+> solve this challenge about yourself: fallback wall repeats
+< I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.
+> self challenge: choose a safer next move for yourself
+< I would treat it as a self-challenge, not self-management: identify the missing behavior, choose the smallest module or dispatch change, ratchet it with English and Italian tests, bump my version, and record what changed. I can propose the change; an external agent still edits and verifies the files.
+> sfida su te stesso: la tua implementazione deve scegliere il modulo giusto
+< I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.
+> sfida su te stesso: quando fallisci sul fallback, cosa cambi?
+< I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.
+
 # Ordinary world knowledge still works alongside the self-model.
 > socrates is a man
 < Learned: man(socrates).

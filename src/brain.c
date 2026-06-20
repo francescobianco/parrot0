@@ -614,6 +614,14 @@ static const char *canonical_token(const char *w) {
         /* gen142 (E3): Italian modals so the pragmatic topic-intro / disagreement
          * shapes fire through the SAME mod_pragma path (no phrase duplication). */
         {"possiamo","can"}, {"potremmo","could"},
+        {"sfida", "challenge"}, {"risolvere", "solve"}, {"risolveresti", "solve"},
+        {"migliorare", "improve"}, {"miglioreresti", "improve"},
+        {"implementazione", "implementation"}, {"modifica", "change"},
+        {"codice", "code"},
+        {"stesso", "yourself"}, {"stessa", "yourself"}, {"te", "you"},
+        {"tuo", "your"}, {"tua", "your"}, {"riguarda", "about"},
+        {"fallisci", "fail"}, {"fallisce", "fail"},
+
         {"cos'è", "what is"},
         {"sono", "am"},
         /* gen141: subject pronouns, so the repair loop's referential-gap probe
@@ -4489,6 +4497,64 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
                  b->trace_winner);
     }
     put(msg, out, out_size);
+    return 1;
+}
+
+/* --- module: loop --------------------------------------------------------
+ * Self-challenge parity for the external LOOP.md driver. This is deliberately
+ * not self-management: parrot0 does not edit files, run tests, commit, or choose
+ * its own next task. It answers a narrower conversational challenge: when the
+ * external agent poses a problem about parrot0 itself, propose a comparable
+ * engineering move in the same discipline the loop uses - smallest behavioral
+ * change, executable ratchet, version bump, and journaled observation. */
+static int mod_loop(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    char pre[256];
+    normalize((raw && *raw) ? raw : norm, pre, sizeof pre);
+    for (size_t i = 0; pre[i]; i++)
+        if (ispunct((unsigned char)pre[i]) && pre[i] != '-') pre[i] = ' ';
+
+    char buf[256];
+    canonicalize_lang(pre, buf, sizeof buf);
+    size_t len = strlen(buf);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+    while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
+
+    int self_ref = cue(buf, "yourself") || cue(buf, "about yourself") ||
+                   cue(buf, "about you") || cue(buf, "your own") ||
+                   cue(buf, "you fail") || cue(buf, "your implementation") ||
+                   cue(buf, "your loop") || cue(buf, "your module");
+    int trigger = cue(buf, "self-challenge") || cue(buf, "self challenge") ||
+                  (cue(buf, "challenge") && self_ref) ||
+                  (cue(buf, "solve") && cue(buf, "challenge") && self_ref) ||
+                  (cue(buf, "improve") && self_ref) ||
+                  (cue(buf, "review this implementation") &&
+                   (self_ref || cue(buf, "loop"))) ||
+                  (cue(buf, "problem") && self_ref &&
+                   (cue(buf, "solve") || cue(buf, "what should") ||
+                    cue(buf, "what change")));
+    if (!trigger) return 0;
+    int fallback_gap = cue(buf, "fallback") || cue(buf, "wall") ||
+                       cue(buf, "do not understand") ||
+                       cue(buf, "not understand") || cue(buf, "dont understand") ||
+                       cue(buf, "repeat");
+    int strong_implementation_gap = cue(buf, "implementation") || cue(buf, "code") ||
+                                    cue(buf, "patch") || cue(buf, "dispatch") ||
+                                    cue(buf, "loop");
+    int implementation_gap = strong_implementation_gap ||
+                             cue(buf, "module") || cue(buf, "modulo");
+
+    if (implementation_gap && (!fallback_gap || strong_implementation_gap)) {
+        put("I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.",
+            out, out_size);
+    } else if (fallback_gap) {
+        put("I would treat it as a fallback gap: make the fallback or owning module handle that turn without pretending to understand, ratchet it with held-out English and Italian chats, bump my version, and record whether the wall got smaller. I can propose the change; an external agent still edits and verifies the files.",
+            out, out_size);
+    } else {
+        put("I would treat it as a self-challenge, not self-management: identify the missing behavior, choose the smallest module or dispatch change, ratchet it with English and Italian tests, bump my version, and record what changed. I can propose the change; an external agent still edits and verifies the files.",
+            out, out_size);
+    }
+    store_proof(b, "loop self-challenge parity: classify the gap, name the smallest behavior change, require tests, version, and journal, and keep file edits external.");
     return 1;
 }
 
@@ -8982,6 +9048,7 @@ static const Module registry[] = {
     {"induce",    mod_induce},
     {"verify",    mod_verify},
     {"memory",    mod_memory},
+    {"loop",      mod_loop},
     {"meta",      mod_meta},
     {"strategy",  mod_strategy},
     {"counterfactual", mod_counterfactual},
@@ -9212,7 +9279,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen144-pragmatic-shape";
+    return "gen145-self-challenge-parity";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

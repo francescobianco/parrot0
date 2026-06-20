@@ -6,4 +6,4 @@
 > gatto -> gatti, cane -> cani, topo -> ?
 < topi.
 > perché hai risposto così?
-< I try my modules in a fixed order and the first one that matches wins. Last turn repair, world, translate, synth, induce, verify, memory, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.
+< I try my modules in a fixed order and the first one that matches wins. Last turn repair, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.

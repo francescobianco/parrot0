@@ -12,6 +12,14 @@
 > target each) and integrated sequentially onto main — same loop discipline, one
 > atomic pushed commit per generation.
 
+- **gen145 — self-challenge parity, not self-management.** `mod_loop` lets
+  parrot0 answer explicit challenges about its own implementation by proposing a
+  comparable loop-shaped solution: missing behavior, owning module/dispatch point,
+  smallest deterministic change, EN/IT tests, version bump, and journal entry.
+  It does not edit, test, commit, push, or choose tasks; the external loop still
+  owns action and verification. `LOOP.md` now requires this parity probe before
+  implementation, with a 10-turn held-out stress block. `self.chat`, `intent.it.chat`.
+
 - **gen144 — pragmatic intent from turn shape (E3).** `mod_pragma` classifies a
   turn on a small SHAPE FEATURE vector (opener class, hedge, negation+stance
   predicate, contrastive, open-quantifier object, topic-intro frame, content
