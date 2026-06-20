@@ -301,8 +301,12 @@ Acceptance:
 
 Anti-impostor: memory must survive paraphrased recall questions and must not invent unstated traits.
 
-### E5 - Open-domain humility protocol
+### E5 - Open-domain humility protocol — DONE (seed), gen146
 Goal: when asked for knowledge outside its world model, parrot0 should state the exact gap and offer useful next actions instead of pretending or collapsing into generic failure.
+
+gen146: `mod_knowledge` handles a seed set of open-domain humility gaps without answering from general knowledge: missing binary relations (`what is the capital of france?` -> relation `capital` missing), missing unary proof support (`why is the sky blue?` -> no `blue(sky)` fact/rule/cause), and missing current-time support (`what year/date/time/day is it?` -> no `current_*` fact or clock/calendar tool). It preserves the existing concise KB `idk` for formal KB queries. EN+IT relation ratchet plus a 10-turn stress block in `blankwall.chat`/`.it`.
+
+Open within E5: broader wh-forms (`where/when/how`), weather/news/current-events as explicit tool gaps, and richer teaching suggestions that match natural parsers exactly.
 
 Acceptance:
 - Unknown world facts produce a scoped answer such as what is missing, what can be taught, or what can be reasoned from given facts.

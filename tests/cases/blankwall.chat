@@ -8,3 +8,36 @@
 < socrates is a man; socrates is a mortal.
 > what is a_flamingo?
 < I don't know anything about a_flamingo.
+
+# gen146 (E5): open-domain humility. These are not answered from general
+# knowledge; parrot0 names the exact missing relation/predicate/tool and offers
+# a useful next action.
+> what is the capital of france?
+< I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from.
+> why is the sky blue?
+< I do not know why sky is blue: I have no blue(sky) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
+> what year is it?
+< I do not know the current year: I have no current_year fact or clock/calendar tool. Tell me the year, or give facts I can reason from.
+
+# 10x stress: held-out relation/predicate/current-tool gaps. The response must
+# stay scoped to the missing support, never pretend to know the world fact.
+> who is the mayor of rome?
+< I do not know the relation mayor yet, so I cannot answer the mayor of rome. You can teach me with thing is the mayor of rome, or give facts/rules to reason from.
+> what is capital of narnia?
+< I do not know the relation capital yet, so I cannot answer the capital of narnia. You can teach me with thing is the capital of narnia, or give facts/rules to reason from.
+> why is luna bright?
+< I do not know why luna is bright: I have no bright(luna) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
+> why is the ocean salty?
+< I do not know why ocean is salty: I have no salty(ocean) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
+> what date is it?
+< I do not know the current date: I have no current_date fact or clock/calendar tool. Tell me the date, or give facts I can reason from.
+> what time is it?
+< I do not know the current time: I have no current_time fact or clock/calendar tool. Tell me the time, or give facts I can reason from.
+> what day is it?
+< I do not know the current day: I have no current_day fact or clock/calendar tool. Tell me the day, or give facts I can reason from.
+> who is the inventor of frobnitz?
+< I do not know the relation inventor yet, so I cannot answer the inventor of frobnitz. You can teach me with thing is the inventor of frobnitz, or give facts/rules to reason from.
+> why is ziri invisible?
+< I do not know why ziri is invisible: I have no invisible(ziri) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
+> what is the weather of milan?
+< I do not know the relation weather yet, so I cannot answer the weather of milan. You can teach me with thing is the weather of milan, or give facts/rules to reason from.

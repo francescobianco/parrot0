@@ -608,6 +608,7 @@ static const char *canonical_token(const char *w) {
         {"si",  "is"}, {"chiama", "called"},
         {"ogni","every"},
         {"chi", "who"},
+
         {"non", "not"},
         {"anche","also"},
         {"causa","causes"},
@@ -617,7 +618,8 @@ static const char *canonical_token(const char *w) {
         {"sfida", "challenge"}, {"risolvere", "solve"}, {"risolveresti", "solve"},
         {"migliorare", "improve"}, {"miglioreresti", "improve"},
         {"implementazione", "implementation"}, {"modifica", "change"},
-        {"codice", "code"},
+        {"codice", "code"}, {"capitale", "capital"},
+
         {"stesso", "yourself"}, {"stessa", "yourself"}, {"te", "you"},
         {"tuo", "your"}, {"tua", "your"}, {"riguarda", "about"},
         {"fallisci", "fail"}, {"fallisce", "fail"},
@@ -1062,6 +1064,60 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
+
+    /* gen146 (E5): open-domain humility for questions that look like world
+     * facts but fall outside the current KB/tool model. This does not answer
+     * from general knowledge; it names the missing predicate/relation/tool and
+     * gives the user a useful next action. */
+    if (nw == 4 && strcmp(w[0], "what") == 0 && strcmp(w[2], "is") == 0 &&
+        strcmp(w[3], "it") == 0 &&
+        (strcmp(w[1], "year") == 0 || strcmp(w[1], "date") == 0 ||
+         strcmp(w[1], "day") == 0 || strcmp(w[1], "time") == 0)) {
+        char pred[64];
+        snprintf(pred, sizeof pred, "current_%s", w[1]);
+        char msg[256];
+        snprintf(msg, sizeof msg,
+                 "I do not know the current %s: I have no %s fact or clock/calendar tool. Tell me the %s, or give facts I can reason from.",
+                 w[1], pred, w[1]);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    if ((nw == 6 && (strcmp(w[0], "what") == 0 || strcmp(w[0], "who") == 0) &&
+         strcmp(w[1], "is") == 0 && strcmp(w[2], "the") == 0 &&
+         (strcmp(w[4], "of") == 0 || strcmp(w[4], "di") == 0)) ||
+        (nw == 5 && (strcmp(w[0], "what") == 0 || strcmp(w[0], "who") == 0) &&
+         strcmp(w[1], "is") == 0 &&
+         (strcmp(w[3], "of") == 0 || strcmp(w[3], "di") == 0))) {
+        const char *rel = (nw == 6) ? w[3] : w[2];
+        const char *obj = (nw == 6) ? w[5] : w[4];
+        if (!kb_knows_pred(b->kb, rel)) {
+            char msg[320];
+            snprintf(msg, sizeof msg,
+                     "I do not know the relation %s yet, so I cannot answer the %s of %s. You can teach me with thing is the %s of %s, or give facts/rules to reason from.",
+                     rel, rel, obj, rel, obj);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    if ((nw == 4 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0) ||
+        (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
+         strcmp(w[2], "the") == 0)) {
+        const char *subj = (nw == 4) ? w[2] : w[3];
+        const char *pred = (nw == 4) ? w[3] : w[4];
+        const char *args[] = {subj};
+        char ex[512];
+        if (!kb_knows_pred(b->kb, pred) ||
+            !kb_explain(b->kb, pred, args, 1, ex, sizeof ex)) {
+            char msg[320];
+            snprintf(msg, sizeof msg,
+                     "I do not know why %s is %s: I have no %s(%s) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.",
+                     subj, pred, pred, subj);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
 
     /* gen59 (C5): "what is <x>?" is a natural way to ask for a description of
      * an entity. Reuse the existing belief-report path; decline if x is an
@@ -8106,6 +8162,15 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     if (!is_question_opener(w[0])) return 0;     /* only questions/commands */
     if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
     if (b->has_last_entity) return 0;            /* a referent is available */
+    /* gen146 (E5): "what year/time/date/day is it" is not a referential
+     * gap. There is no hidden entity for "it"; the honest gap is that parrot0
+     * has no clock/calendar fact or tool, so let the knowledge humility path
+     * name that instead of opening a repair loop. */
+    if (nw == 4 && strcmp(w[0], "what") == 0 && strcmp(w[2], "is") == 0 &&
+        strcmp(strip_edge_punct(w[3]), "it") == 0 &&
+        (strcmp(w[1], "year") == 0 || strcmp(w[1], "date") == 0 ||
+         strcmp(w[1], "day") == 0 || strcmp(w[1], "time") == 0))
+        return 0;
 
     const char *pron = NULL;
     for (size_t i = 1; i < nw; i++) {
@@ -9279,7 +9344,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen145-self-challenge-parity";
+    return "gen146-open-domain-humility";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

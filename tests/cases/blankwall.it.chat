@@ -6,3 +6,10 @@
 < Learned: mortale(socrate).
 > cos'è Socrate?
 < socrate is a uomo; socrate is a mortale.
+
+# gen146 (E5): stessa umiltà open-domain sulla relazione mancante, attraverso
+# lo stesso parser E5 (cos'è -> what is; capitale -> capital; di locale).
+> cos'è capitale di francia?
+< I do not know the relation capital yet, so I cannot answer the capital of francia. You can teach me with thing is the capital of francia, or give facts/rules to reason from.
+> cos'è sindaco di roma?
+< I do not know the relation sindaco yet, so I cannot answer the sindaco of roma. You can teach me with thing is the sindaco of roma, or give facts/rules to reason from.

@@ -1,4 +1,14 @@
 # parrot0 evolution journal
+## 2026-06-20 - gen146: open-domain humility with exact gaps
+
+**Goal (E5):** when a user asks for knowledge outside the world model, stop collapsing into a generic wall or a bare `I do not know about X`; name the missing support and offer a useful next action without pretending to know the answer. Baseline probes showed the problem: `why is the sky blue?` -> flat fallback, `what year is it?` -> repair asked what `it` referred to, and `what is the capital of france?` only said it did not know `capital`.
+
+**Self-challenge parity:** gen145 `mod_loop` proposed the right loop shape but not the concrete owner. The external hypothesis was sharper: this is a knowledge-humility gap, so the smallest change belongs in `mod_knowledge`, with one repair exception for current-time questions that are not referential gaps.
+
+**Changed:** `brain.c` -> `gen146-open-domain-humility`. `mod_knowledge` now recognizes three open-domain gap families before the old KB patterns: missing binary relations (`capital/mayor/inventor/weather`), missing unary proof support (`blue(sky)`, `salty(ocean)`), and missing current clock/calendar support (`current_year/current_date/current_time/current_day`). Each answer names the missing relation, predicate, or tool and suggests teaching facts/rules or giving a passage. `mod_repair` now lets `what year/time/date/day is it?` pass through instead of asking for a referent. Italian relation probes reach the same path through existing contraction canonicalization plus `capitale -> capital`; `di` is accepted only inside the E5 relation parser, not globally. Ratchets: `blankwall.chat` / `.it`, including a 10-turn stress block.
+
+**Observed:** the 10x stress was useful: a tempting global `cosa -> what` mapping broke eight Italian regressions (`abduce.it`, `chitchat.it`, discourse/meta cases, etc.), so it was removed. The final implementation keeps broad Italian cues intact and confines the new behavior to exact E5 shapes. `make test` is green.
+
 ## 2026-06-20 — gen145: self-challenge parity, not self-management
 
 **Goal:** evolve the loop so parrot0 can face challenges about itself in the same spirit as an external agent: it should not edit files, run tests, choose tasks, commit, or push, but it should be able to propose a comparable solution when the external loop presents a self-challenge. Baseline probe: `review this implementation for your self-improvement loop...` fell through every module to the fallback; only `mod_strategy` could explain that all modules declined. That is useful introspection, but not yet help on the solution.

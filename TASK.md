@@ -2,24 +2,22 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-> gen80-101 done — decomposition, priority, session stats, entities, hypothesis,
-> explanation depth, module caps, negation, causal chains, confidence, correction,
-> goals, bulk-forget, KB completion, impersonation benchmark, role memory.
+## Active task - E6: Long casual conversation benchmark
+
+Goal: add a 50-turn non-technical conversation benchmark that stresses naturalness, continuity, repair, boredom handling, topic changes and contradictions.
+
+Acceptance:
+- Track wall rate, repetition rate, repair success, continuity references, contradiction handling and user-model precision.
+- Include at least one Italian run and one mixed English/Italian run.
+- Require a 10x harder stress set after the minimal feature works, per LOOP.md.
+
+Anti-impostor: benchmark turns must be varied enough that memorized transcripts fail.
 
 ## Done recently
 
-> gen142–144 were explored in parallel by three worktree subagents (one E-series
-> target each) and integrated sequentially onto main — same loop discipline, one
-> atomic pushed commit per generation.
+- **gen146 - open-domain humility protocol (E5).** `mod_knowledge` now gives scoped humility answers for open-domain fact questions that fall outside the KB/tool model: missing binary relations (`capital`, `mayor`), missing unary proof support (`blue(sky)`), and missing clock/calendar facts/tools (`current_year`). It names the exact gap and suggests teaching facts/rules or giving a passage, without pretending to know the answer. EN/IT ratchets plus a 10-turn stress block. `blankwall.chat`, `blankwall.it.chat`.
 
-- **gen145 — self-challenge parity, not self-management.** `mod_loop` lets
-  parrot0 answer explicit challenges about its own implementation by proposing a
-  comparable loop-shaped solution: missing behavior, owning module/dispatch point,
-  smallest deterministic change, EN/IT tests, version bump, and journal entry.
-  It does not edit, test, commit, push, or choose tasks; the external loop still
-  owns action and verification. `LOOP.md` now requires this parity probe before
-  implementation, with a 10-turn held-out stress block. `self.chat`, `intent.it.chat`.
-
+- **gen145 - self-challenge parity, not self-management.** `mod_loop` lets parrot0 answer explicit challenges about its own implementation by proposing a comparable loop-shaped solution: missing behavior, owning module/dispatch point, smallest deterministic change, EN/IT tests, version bump, and journal entry. It does not edit, test, commit, push, or choose tasks; the external loop still owns action and verification. `LOOP.md` now requires this parity probe before implementation, with a 10-turn held-out stress block. `self.chat`, `intent.it.chat`.
 - **gen144 — pragmatic intent from turn shape (E3).** `mod_pragma` classifies a
   turn on a small SHAPE FEATURE vector (opener class, hedge, negation+stance
   predicate, contrastive, open-quantifier object, topic-intro frame, content
