@@ -18,7 +18,7 @@ fi
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-base="$tmp/world.pl"
+base="$tmp/world.p0"
 
 cat > "$base" <<'EOF'
 quux(zibo).

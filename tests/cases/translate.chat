@@ -1,5 +1,5 @@
 # gen126 (L5): grounded translation, EN<->IT. The clause translation is
-# COMPOSED from per-word glosses (tr/2 in knowledge/gloss.pl) plus a structural
+# COMPOSED from per-word glosses (tr/2 in kb/gloss.p0) plus a structural
 # article rule — never a stored sentence. So vocabulary the demo never drills
 # transfers: this is translation, not a phrasebook.
 

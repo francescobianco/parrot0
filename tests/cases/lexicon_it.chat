@@ -1,4 +1,4 @@
-# gen72: Italian conversational content words added to lexicon.pl as stopwords
+# gen72: Italian conversational content words added to lexicon.p0 as stopwords
 # no longer trigger the word-reflecting fallback ("Hmm, I don't know about X").
 # Instead they get the classic or generic fallback. Bilingual ratchet:
 # the same stopword mechanism works for both languages.

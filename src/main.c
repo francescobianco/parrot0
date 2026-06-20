@@ -57,10 +57,11 @@ int main(void) {
      * (empty disables loading — used by the hermetic test harness). */
     const char *base = getenv("PARROT0_BASE");
     const char *sess = getenv("PARROT0_SESSION");
-    if (!base) base = "knowledge/base.pl";
-    if (!sess) sess = "knowledge/session.pl";
+    if (!base) base = "kb/base.p0";
+    if (!sess) sess = "kb/session.p0";
     brain_load(brain, base, 1);
     brain_load(brain, sess, 0);
+    brain_load(brain, "kb/coding.p0", 1); /* gen149: coding domain knowledge */
 
     fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit, "
                     "'/save' to persist)\n", brain_version());

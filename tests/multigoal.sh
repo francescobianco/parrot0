@@ -15,7 +15,7 @@ fi
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-base="$tmp/family.pl"
+base="$tmp/family.p0"
 
 cat > "$base" <<'EOF'
 % a two-goal rule with a shared intermediate variable Y

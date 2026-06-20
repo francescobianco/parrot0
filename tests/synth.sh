@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 # gen127 (L12): program synthesis — the INVERSE of mod_shell. Loads the SAME
-# knowledge/bash.pl the interpreter reads and proves we can go from a natural
+# kb/bash.p0 the interpreter reads and proves we can go from a natural
 # spec to a one-line command: the action picks the command, the object noun
 # picks the flag. Held-out specs over known commands; honest decline otherwise.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
-BASH_KB="$ROOT/knowledge/bash.pl"
+BASH_KB="$ROOT/kb/bash.p0"
 
 if [ ! -x "$BIN" ]; then
     echo "synth: binary not built ($BIN)" >&2

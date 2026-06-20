@@ -21,7 +21,7 @@ fi
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-base="$tmp/graph.pl"
+base="$tmp/graph.p0"
 
 cat > "$base" <<'EOF'
 edge(a, b).

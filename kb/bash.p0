@@ -1,7 +1,7 @@
 % parrot0 POSIX/shell knowledge — Mission M1, step 1 (gen53).
 % Curated, human-readable, hand-editable, VERSION-CONTROLLED knowledge: what
 % parrot0 has "learned" about the shell is carried here, in the commits.
-% Format mirrors knowledge/base.pl — one clause per line.
+% Format mirrors kb/base.p0 — one clause per line.
 %
 %   cmd(NAME, EFFECT).        a command and its base effect (effect is one
 %                             underscored phrase; the shell module de-underscores
@@ -10,7 +10,7 @@
 %
 % The point is NOT a command dictionary but COMPOSITION: "what does ls -la do?"
 % is answered by composing ls + l + a even though that combination is not stored.
-% Load it with:  PARROT0_BASE=knowledge/bash.pl make chat
+% Load it with:  PARROT0_BASE=kb/bash.p0 make chat
 
 % --- ls ---
 cmd(ls, lists_directory_contents).

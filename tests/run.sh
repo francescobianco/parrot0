@@ -15,7 +15,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 
-# Hermetic: disable knowledge-file loading so cases don't depend on knowledge/.
+# Hermetic: disable knowledge-file loading so cases don't depend on kb/.
 export PARROT0_BASE= PARROT0_SESSION=
 
 if [ ! -x "$BIN" ]; then

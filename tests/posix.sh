@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Mission M1, step 1 (gen53): POSIX/shell knowledge. Loads knowledge/bash.pl and
+# Mission M1, step 1 (gen53): POSIX/shell knowledge. Loads kb/bash.p0 and
 # proves COMPOSITIONAL understanding of a command line — base effect + each flag,
 # composed even for combinations not stored — plus case-sensitivity (-r vs -R),
 # honest unknown flags/commands, and that it does not hijack non-shell questions.
@@ -8,7 +8,7 @@ set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
-BASH_KB="$ROOT/knowledge/bash.pl"
+BASH_KB="$ROOT/kb/bash.p0"
 
 if [ ! -x "$BIN" ]; then
     echo "posix: binary not built ($BIN)" >&2

@@ -143,7 +143,7 @@ Missioni:
 - POSIX shell come dominio-oracolo deterministico;
 - lettura di testi con estrazione di fatti;
 - induzione di regole da esempi;
-- persistenza in `knowledge/*.pl`;
+- persistenza in `kb/*.p0`;
 - diff leggibile di cio che e stato appreso;
 - test su combinazioni mai insegnate verbatim.
 
@@ -239,7 +239,7 @@ Parrot0 usa regole temporanee, nonce words, comparativi, aritmetica e proof trac
 Parrot0 mantiene entita, temi e correzioni per piu turni, poi riassume cosa e successo.
 
 ### M3 - Apprendimento auditabile
-Parrot0 acquisisce conoscenza da shell o testo, la persiste in `knowledge/*.pl`, e risponde a domande held-out.
+Parrot0 acquisisce conoscenza da shell o testo, la persiste in `kb/*.p0`, e risponde a domande held-out.
 
 ### M4 - Self-model operativo
 Parrot0 descrive capacita, limiti e identita da stato reale, e sa spiegare il supporto delle proprie risposte.

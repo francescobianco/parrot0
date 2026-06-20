@@ -414,7 +414,7 @@ Exit-role scenario). Exit needs no knowledge of the role name.
 Done two ways, both grounded: (a) inline attributes parsed from the setup
 utterance ("your secret code is 007" → code, "queen of egypt" → title+place,
 "5-year-old" → age); (b) world knowledge about the kind/figure queried from
-`knowledge/roles.pl` (a dog barks, Dante wrote the Commedia, Cleopatra rules
+`kb/roles.p0` (a dog barks, Dante wrote the Commedia, Cleopatra rules
 Egypt) — data, not a C phrasebook; the handler is generic over the predicates.
 Role state is session-scoped and cleared on exit.
 
@@ -433,7 +433,7 @@ Acceptance:
 
 ### I6 - Role knowledge persistence
 Goal: facts learned in-role can be saved and reloaded as role-specific knowledge
-files (`knowledge/role_dante.pl`).
+files (`kb/role_dante.p0`).
 
 Acceptance:
 - After teaching facts as Dante, save → reload → Dante still knows them.
@@ -463,7 +463,7 @@ Acceptance:
 |---|----------------------------------------|---------|-------------------------------------|
 | 1 | Statistical text completion            | 🟢 | gen36–42 autoregressive decode over induced `cont/cont2`; gen106 LEARNED end-of-sequence; gen111 choice policy as editable `weight()` knowledge. Loop fully legible: induced data + queryable policy. |
 | 2 | Correct grammar & syntax               | 🟡 | canonicalize_lang lexicon + intent shapes; no real grammar. → T4, T5 |
-| 3 | Memorized factual knowledge            | ✅ | KB facts/rules, `knowledge/*.pl`, describe-entity. |
+| 3 | Memorized factual knowledge            | ✅ | KB facts/rules, `kb/*.p0`, describe-entity. |
 | 4 | Classification & categorization        | ✅ | unary predicates + induced `Q(X):-P(X)`; SuperGLUE driver. |
 | 5 | Translation between languages          | 🟢 | **gen126 `mod_translate`**: clause-level EN↔IT COMPOSED from per-word glosses (`tr/2`) + a structural article/agreement/elision rule — held-out vocab transfers both directions; honest decline names the untranslatable word. Beyond function-word canonicalization. |
 | 6 | Summary & paraphrase                   | 🟢 | gen121 `mod_summary`: EXTRACTIVE summary — ranks the propositions a `read:` passage actually yielded by concept centrality, quotes the top real sentences; gen123 query-focused digest ("what did you learn about X?"). Bilingual (reader canonicalizes each clause). Honest skip count. |
@@ -693,7 +693,7 @@ Each must stay structural and prove on held-out stimuli.
 
 Two owner missions about parrot0 *acquiring* knowledge from a source and
 carrying it forward. Shared requirement: **persist what is learned into a
-committed `knowledge/*.pl` file** (the existing format: human-readable facts /
+committed `kb/*.p0` file** (the existing format: human-readable facts /
 rules, loaded at boot; `brain_save_session` already serializes `KB_INDUCED`, so
 both extracted facts and the induced `cont`/`cont2` model persist). This makes
 learning **cumulative, auditable, and version-controlled** — you can `git diff`
@@ -717,7 +717,7 @@ combinations.
 
 Acceptance (to refine):
 - [DONE gen53] Effect of a single command with flags, composed from learned
-  semantics (`knowledge/bash.pl`, committed); held-out flag combinations work;
+  semantics (`kb/bash.p0`, committed); held-out flag combinations work;
   case-sensitive; honest on unknowns; `tests/posix.sh`.
 - [next] Effect of a PIPELINE never taught verbatim is composed correctly
   (held-out) — compose command effects across `|`.
@@ -725,8 +725,8 @@ Acceptance (to refine):
   verified by running the real shell.
 - An intent → command translation ("how in POSIX?") for a small task set.
 Anti-impostor: predict an unseen command combination; the shell oracle judges.
-Open wiring: default `make chat` loads base.pl only — shell knowledge needs
-`PARROT0_BASE=knowledge/bash.pl` until multi-file knowledge loading exists.
+Open wiring: default `make chat` loads base.p0 only — shell knowledge needs
+`PARROT0_BASE=kb/bash.p0` until multi-file knowledge loading exists.
 
 ### M2 - Learning knowledge from books
 Goal: demonstrate that after parrot0 reads a book, it has *learned* from it.
@@ -742,7 +742,7 @@ Honest split of "learning from a book":
 Acceptance (to refine):
 - Read a passage/chapter; show a measurable, held-out change (generation
   reflects it; some facts extracted and queryable).
-- The learned knowledge is persisted to a committed `knowledge/<book>.pl` and
+- The learned knowledge is persisted to a committed `kb/<book>.p0` and
   reloads on next boot (cumulative across commits).
 Anti-impostor: held-out questions answerable only from the read text, not seeded.
 

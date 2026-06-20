@@ -62,7 +62,7 @@ time, where each domain is **usable on its own** and a **substrate** for the
 next. This is the intended large-scale use of the layered knowledge from D1-D3.
 
 **An expertise domain is a triple:**
-1. **clauses** — a knowledge file (e.g. `knowledge/grammar.pl`): the domain's
+1. **clauses** — a knowledge file (e.g. `kb/grammar.p0`): the domain's
    facts + rules;
 2. **tests** — the held-out tasks that *demonstrate* competence (anti-impostor:
    expertise is shown by doing, not declared by accumulating rules);
@@ -157,7 +157,7 @@ Enabling primitives this needs (engine, kept minimal, each tested alone):
 - **Parsing-as-rules** (TASKLIST T5, later) — NL patterns become knowledge, not
   C string templates.
 
-With these, "I don't know vs No" becomes a rule in `knowledge/epistemics.pl`,
+With these, "I don't know vs No" becomes a rule in `kb/epistemics.p0`,
 and grammar becomes the engine the parser runs on — enabling, not peripheral.
 
 **Sequencing & honesty.** gen16 implements the hybrid epistemic distinction as a

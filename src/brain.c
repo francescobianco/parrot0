@@ -96,7 +96,7 @@ struct Brain {
      * pierces the mask back to parrot0. The role's name/kind/attributes are PARSED
      * from the user's setup utterance (genuine NL uptake); what parrot0 *knows*
      * about the kind/figure (a dog barks, Dante wrote the Commedia) is queried
-     * from knowledge/roles.pl. Cleared by "stop pretending" / "be yourself". */
+     * from kb/roles.p0. Cleared by "stop pretending" / "be yourself". */
     int  in_role;
     char role_name[64];   /* display name: "Rex", "Mario", "Cleopatra"        */
     char role_kind[64];   /* what it is: "dog", "robot", or an identity atom   */
@@ -3867,14 +3867,19 @@ static int is_internal_pred(const char *pred) {
         "stopword", "social_marker", "social_pattern", "question_word",
         "reaction_word", "i_am", "module", "cont", "cont2",
         "cmd", "flag",
-        /* gen101: role/character world-knowledge (knowledge/roles.pl) is curated
+        /* gen101: role/character world-knowledge (kb/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */
         "trait", "employer", "likes_color", "profession", "wrote",
         "rules_over", "title",
-        /* gen126: the bilingual content lexicon (knowledge/gloss.pl) is base
+        /* gen126: the bilingual content lexicon (kb/gloss.p0) is base
          * substrate for mod_translate, not facts the user taught — filter it. */
-        "tr", "gender", NULL
+        "tr", "gender",
+        /* gen149: coding-domain knowledge (kb/coding.p0) is technical
+         * substrate for mod_code, not conversational content — filter it. */
+        "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
+        "error", "concept", "algorithm", "faster_than",
+        NULL
     };
     for (size_t i = 0; internal[i]; i++)
         if (strcmp(pred, internal[i]) == 0) return 1;
@@ -3935,7 +3940,7 @@ static int kb_dump_user(const KB *kb, char *out, size_t out_size) {
  *     "sei X" into role state (name, kind, inline attributes). This is genuine
  *     language understanding — the name/kind come from the user's own words.
  *   - IN-ROLE ANSWERS: when a role is active, answer identity and in-character
- *     questions from (a) the parsed role state and (b) what knowledge/roles.pl
+ *     questions from (a) the parsed role state and (b) what kb/roles.p0
  *     knows about the kind/figure. A TRUTH-PROBE ("really", "underneath",
  *     "davvero") pierces the mask: the agent still knows it is parrot0 beneath.
  *
@@ -4220,7 +4225,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* "do you <action>?" — affirm if the kind has that trait (knowledge/roles.pl). */
+    /* "do you <action>?" — affirm if the kind has that trait (kb/roles.p0). */
     if (strncmp(buf, "do you ", 7) == 0 && b->role_kind[0]) {
         char *w[8]; char db[256]; snprintf(db, sizeof db, "%s", buf);
         size_t dn = split_words(db, w, 8);
@@ -5059,7 +5064,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
  * POSIX/shell knowledge — Mission M1, step 1 (gen53) + step 2 (gen61).
  * Answers "what does <cmd> do?" / "explain <cmd>" by PARSING the command line
  * into (command, flags, args) and COMPOSING the answer from learned `cmd`/`flag`
- * facts (knowledge/bash.pl, carried in the commits) — so "ls -la" is explained
+ * facts (kb/bash.p0, carried in the commits) — so "ls -la" is explained
  * by composing ls + l + a even though that combination is not stored.
  *
  * gen61 extends this to simple PIPELINES: "cmd1 | cmd2" is explained by
@@ -6443,7 +6448,7 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
  * We detect mixed turns by the co-occurrence of a phatic marker with a question
  * word or with explicit negative/corrective content after thanks. */
 /* gen73: social register as KB knowledge (PLAN.md Phase 3). The word lists
- * formerly hardcoded in C arrays now live in knowledge/social.pl. */
+ * formerly hardcoded in C arrays now live in kb/social.p0. */
 static int is_social_marker(Brain *b, const char *type, const char *word) {
     if (!b || !b->kb) return 0;
     const char *args[] = {type, word};
@@ -6590,7 +6595,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(tmp, w, 64);
     if (nw == 0) return 0;
 
-    /* gen73: all markers now come from knowledge/social.pl via KB queries. */
+    /* gen73: all markers now come from kb/social.p0 via KB queries. */
     int has_opening   = tok_is_marker(b, "opening", w, nw) ||
                         has_social_pattern(b, "opening", buf);
     int has_closing   = tok_is_marker(b, "closing", w, nw) ||
@@ -6612,7 +6617,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     /* apology — "scusa", "sorry", "mi dispiace" etc. */
     if (has_apology) { put("No problem.", out, out_size); return 1; }
 
-    /* wellbeing check-in — gen73: patterns from knowledge/social.pl */
+    /* wellbeing check-in — gen73: patterns from kb/social.p0 */
     if (has_social_pattern(b, "wellbeing", buf))
         { put("I'm well, thanks. How can I help?", out, out_size); return 1; }
 
@@ -6626,7 +6631,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     if (has_opening) { put("Hi there!", out, out_size); return 1; }
     if (has_closing) { put("Goodbye!", out, out_size); return 1; }
 
-    /* gen72/gen73: laughter and conversational reactions — from knowledge/social.pl */
+    /* gen72/gen73: laughter and conversational reactions — from kb/social.p0 */
     int has_reaction = 0;
     for (size_t i = 0; i < nw && !has_reaction; i++) {
         char tmp[64];
@@ -7022,9 +7027,7 @@ static int has_content_predicate(Brain *b, const char *canon, char **w, size_t n
         if (!t || !*t) continue;
         if (isdigit((unsigned char)t[0])) return 1;
         if (b && b->kb && strlen(t) >= 3) {
-            char desc[256];
-            if (kb_knows_pred(b->kb, t) ||
-                kb_describe_entity(b->kb, t, desc, sizeof desc)) return 1;
+            if (kb_knows_pred(b->kb, t) && !is_internal_pred(t)) return 1;
         }
     }
     return 0;
@@ -7300,6 +7303,436 @@ static int name_register(Brain *b, const char *a, const char *alt,
     return 1;
 }
 
+/* --- module: code (gen149) -----------------------------------------------
+ * Basic inline-code assistant. Handles queries about small code snippets
+ * passed directly in the prompt: "what is wrong with this code", "debug this",
+ * "fix this", "what language is this", "is this valid C", "explain this code".
+ * Extracts the code portion, identifies the language (C vs Python), runs simple
+ * syntactic checks (missing semicolons, type mismatches, unclosed strings,
+ * unbalanced braces/parens, undefined functions), and reports findings.
+ * Grounded in kb/coding.p0 — the KB is the source of truth for
+ * keywords, stdlib functions, error patterns and fix suggestions. */
+
+static int find_code_section(const char *input, char *code, size_t code_size) {
+    const char *p = input;
+    while (*p && *p != ':') p++;
+    if (*p == ':') {
+        p++;
+        while (*p && isspace((unsigned char)*p)) p++;
+        size_t n = 0;
+        while (*p && n + 1 < code_size) { code[n++] = *p; p++; }
+        while (n > 0 && isspace((unsigned char)code[n - 1])) n--;
+        code[n] = '\0';
+        return n > 1;
+    }
+    return 0;
+}
+
+static int identify_code_lang(const char *code, Brain *b) {
+    int c_kw = 0, py_kw = 0;
+    if (b && b->kb) {
+        char buf[512]; snprintf(buf, sizeof buf, "%s", code);
+        char *w[128]; size_t nw = split_words(buf, w, 128);
+        for (size_t i = 0; i < nw; i++) {
+            char *t = w[i]; size_t tl = strlen(t);
+            while (tl > 0 && (t[tl-1] == ';' || t[tl-1] == ':' ||
+                              t[tl-1] == '(' || t[tl-1] == ')')) { t[tl-1] = '\0'; tl--; }
+            if (tl < 2) continue;
+            const char *args_c[] = {"c", t};
+            if (kb_query(b->kb, "keyword", args_c, 2)) c_kw++;
+            const char *args_py[] = {"python", t};
+            if (kb_query(b->kb, "keyword", args_py, 2)) py_kw++;
+        }
+    }
+    /* Surface features — used as tiebreaker and also when KB is sparse.
+     * C markers: int, void, #include, semicolons, braces, printf, scanf, malloc.
+     * Python markers: def, import, print(, : after for/if/while/def/class, indentation. */
+    if (strstr(code, "int ") || strstr(code, "void ") || strstr(code, "char ") ||
+        strstr(code, "#include") || strstr(code, "printf(") || strstr(code, "scanf(") ||
+        strstr(code, "malloc("))
+        c_kw += 2;
+    if (strstr(code, "def ") || strstr(code, "import ") || strstr(code, "print(") ||
+        strstr(code, "class ") || strstr(code, "elif ") || strstr(code, "lambda ") ||
+        strstr(code, "self.") || strstr(code, "__init__"))
+        py_kw += 2;
+    /* Semicolons and braces strongly suggest C over Python */
+    if (strchr(code, ';') || strchr(code, '{'))
+        c_kw++;
+    if (c_kw > py_kw) return 1;  /* C */
+    if (py_kw > c_kw) return 2;  /* Python */
+    return 0;                    /* unknown */
+}
+
+static int check_missing_semicolons(const char *code, char *findings,
+                                     size_t findings_size) {
+    int issues = 0;
+    /* Check each physical line: if it looks like a C statement but doesn't
+     * end with ; or {, flag it. Also check statements before closing braces. */
+    char buf[1024]; snprintf(buf, sizeof buf, "%s", code);
+    char *lines[64]; int nl = 0;
+    char *save = NULL;
+    char *tok = strtok_r(buf, "\n", &save);
+    while (tok && nl < 64) { lines[nl++] = tok; tok = strtok_r(NULL, "\n", &save); }
+    if (nl == 0) {
+        char cpy[1024]; snprintf(cpy, sizeof cpy, "%s", code);
+        lines[0] = cpy; nl = 1;
+    }
+    static const char *const kw[] = {"int","char","float","double","void","long","return",NULL};
+    for (int i = 0; i < nl; i++) {
+        char *l = lines[i]; while (*l && isspace((unsigned char)*l)) l++;
+        if (!*l || l[0] == '#') continue;
+        size_t len = strlen(l);
+        while (len > 0 && isspace((unsigned char)l[len-1])) l[--len] = '\0';
+        if (len == 0) continue;
+        if (l[len-1] == ';' || l[len-1] == '{') continue;
+        /* Extract first word */
+        char fw[64] = {0};
+        { const char *p = l; while (*p && isspace((unsigned char)*p)) p++;
+          size_t fwl = 0; while (*p && !isspace((unsigned char)*p) && *p != '(' && fwl < 63)
+              fw[fwl++] = (char)tolower((unsigned char)*p++); fw[fwl] = '\0'; }
+        int is_kw = 0;
+        for (const char *const *k = kw; *k; k++)
+            if (strcmp(fw, *k) == 0) { is_kw = 1; break; }
+        if (is_kw && l[len-1] != '}') issues++;
+        /* Check for statement before closing brace: scan for "keyword ... }"
+         * e.g. "int main() { return 0 }" — "return 0 }" has no semicolon */
+        if (l[len-1] == '}' && strchr(l, '{')) {
+            const char *p = l;
+            while ((p = strstr(p, "return ")) != NULL) {
+                const char *q = p + 7; while (*q && isspace((unsigned char)*q)) q++;
+                /* Find next } or end */
+                const char *br = strchr(q, '}');
+                size_t n = br ? (size_t)(br - p) : strlen(p);
+                if (n > 0 && p[n-1] != ';') { issues++; break; }
+                p++;
+            }
+        }
+    }
+    if (issues == 1)
+        snprintf(findings, findings_size, "Missing semicolon at the end of a statement.");
+    else if (issues > 1)
+        snprintf(findings, findings_size, "Missing semicolons at the end of %d statements.", issues);
+    return issues;
+}
+
+static int check_type_mismatch(const char *code, char *findings,
+                                size_t findings_size) {
+    /* Simple patterns: "int x = \"...\"" (string assigned to int)
+     *                 "char y = 42" (number assigned to char pointer) */
+    if (strstr(code, "int ") && strstr(code, "= \"") && strstr(code, "\"")) {
+        snprintf(findings, findings_size,
+            "Type mismatch: a string is assigned to an int variable. "
+            "Use char * or char[] for strings.");
+        return 1;
+    }
+    /* char *x = number (without quotes) */
+    { const char *cp = code;
+      while ((cp = strstr(cp, "char *")) != NULL) {
+          const char *eq = strstr(cp, "=");
+          if (eq) {
+              const char *v = eq + 1;
+              while (*v && isspace((unsigned char)*v)) v++;
+              if (*v == '\"' || isalpha((unsigned char)*v)) {
+                  int has_digit = 0;
+                  for (const char *d = v; *d && *d != ';' && *d != '\n'; d++)
+                      if (isdigit((unsigned char)*d)) { has_digit = 1; break; }
+                  if (has_digit && !strstr(v, "\"")) {
+                      snprintf(findings, findings_size,
+                          "Suspicious assignment: a number assigned to a char * variable. "
+                          "If this is meant as a character literal, use single quotes: 'x'.");
+                      return 1;
+                  }
+              }
+          }
+          cp++;
+      }
+    }
+    return 0;
+}
+
+static int check_unclosed_string(const char *code, char *findings,
+                                  size_t findings_size) {
+    int quotes = 0;
+    for (const char *p = code; *p; p++)
+        if (*p == '\"' && (p == code || *(p-1) != '\\')) quotes++;
+    if (quotes % 2 != 0) {
+        snprintf(findings, findings_size,
+            "Unclosed string literal: there is an odd number of double-quote characters.");
+        return 1;
+    }
+    return 0;
+}
+
+static int check_balanced_braces(const char *code, char *findings,
+                                  size_t findings_size) {
+    int open = 0;
+    for (const char *p = code; *p; p++) {
+        if (*p == '{') open++;
+        if (*p == '}') open--;
+    }
+    if (open > 0) {
+        snprintf(findings, findings_size,
+            "Unbalanced braces: %d more opening brace(s) than closing.", open);
+        return 1;
+    }
+    if (open < 0) {
+        snprintf(findings, findings_size,
+            "Unbalanced braces: %d more closing brace(s) than opening.", -open);
+        return 1;
+    }
+    return 0;
+}
+
+static int check_balanced_parens(const char *code, char *findings,
+                                  size_t findings_size) {
+    int open = 0;
+    for (const char *p = code; *p; p++) {
+        if (*p == '(') open++;
+        if (*p == ')') open--;
+    }
+    if (open != 0) {
+        snprintf(findings, findings_size,
+            "Unbalanced parentheses: %d more %s than %s.",
+            open > 0 ? open : -open,
+            open > 0 ? "opening" : "closing",
+            open > 0 ? "closing" : "opening");
+        return 1;
+    }
+    return 0;
+}
+
+static int check_unknown_function(const char *code, Brain *b, char *findings,
+                                   size_t findings_size) {
+    if (!b || !b->kb) return 0;
+    char buf[1024]; snprintf(buf, sizeof buf, "%s", code);
+    char *w[128]; size_t nw = split_words(buf, w, 128);
+    for (size_t i = 0; i < nw; i++) {
+        char *t = w[i]; size_t tl = strlen(t);
+        /* Look for word followed by ( */
+        if (i + 1 < nw && w[i+1][0] == '(' && tl > 1 && isalpha((unsigned char)t[0])) {
+            char fname[64]; size_t fn = 0;
+            for (size_t j = 0; j < tl && fn < sizeof(fname)-1; j++)
+                fname[fn++] = (char)tolower((unsigned char)t[j]);
+            fname[fn] = '\0';
+            /* Skip known keywords */
+            if (strcmp(fname, "if") == 0 || strcmp(fname, "while") == 0 ||
+                strcmp(fname, "for") == 0 || strcmp(fname, "return") == 0 ||
+                strcmp(fname, "sizeof") == 0 || strcmp(fname, "switch") == 0)
+                continue;
+            /* Check against KB */
+            { const char *fa[] = { fname };
+            if (!kb_query(b->kb, "c_stdlib", fa, 1)) {
+                size_t fl = strlen(t);
+                if (fl < sizeof(fname)) {
+                    snprintf(findings, findings_size,
+                        "Unknown function: \"%.*s\" is not a standard C library function. "
+                        "Did you spell it correctly or forget an #include?", (int)fl, t);
+                    return 1;
+                }
+            }
+            }
+        }
+    }
+    return 0;
+}
+
+static void lang_name(int lang, char *out, size_t out_size) {
+    if (lang == 1) snprintf(out, out_size, "C");
+    else if (lang == 2) snprintf(out, out_size, "Python");
+    else snprintf(out, out_size, "unknown");
+}
+
+static int mod_code(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)norm;
+    if (!raw) return 0;
+
+    char s[512]; copy_trim(s, sizeof s, raw);
+    if (!*s) return 0;
+
+    int qtype = 0; /* 0=none 1=wrong/debug 2=fix 3=what-lang 4=valid 5=explain */
+    if (cue(s, "what is wrong") || cue(s, "what s wrong") ||
+        cue(s, "debug") || cue(s, "find the bug") || cue(s, "find the error") ||
+        cue(s, "cosa non va") || cue(s, "trova l errore") || cue(s, "debugga")) {
+        qtype = 1;
+    } else if (cue(s, "fix this") || cue(s, "correct this") ||
+               cue(s, "correggi questo") || cue(s, "aggiusta")) {
+        qtype = 2;
+    } else if (cue(s, "what language is this") ||
+               cue(s, "che linguaggio")) {
+        qtype = 3;
+    } else if (cue(s, "is this valid") || cue(s, "e valido") ||
+               cue(s, "is this correct")) {
+        qtype = 4;
+    } else if (cue(s, "explain this code") || cue(s, "spiega questo codice") ||
+               cue(s, "what does this code do") || cue(s, "cosa fa questo codice")) {
+        qtype = 5;
+    } else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
+               (strstr(s, "in C") || strstr(s, "in Python") || strstr(s, "in programming"))) {
+        /* Concept query handled by mod_knowledge via KB concept() facts */
+        return 0;
+    }
+    if (!qtype) return 0;
+
+    char code[512] = {0};
+    if (!find_code_section(s, code, sizeof code)) {
+        /* Try without colon: if the query is short and followed by code-like content */
+        const char *c = s;
+        while (*c && *c != ':') c++;
+        if (!*c) return 0; /* no colon, can't extract code */
+        return 0;
+    }
+
+    /* Identify language */
+    int lang = identify_code_lang(code, b);
+
+    /* For language-only queries */
+    if (qtype == 3) {
+        char ln[32]; lang_name(lang, ln, sizeof ln);
+        if (lang == 0) {
+            snprintf(out, out_size, "I can not identify the language. "
+                     "It does not look like C or Python to me.");
+        } else {
+            snprintf(out, out_size, "This looks like %s code.", ln);
+        }
+        return 1;
+    }
+
+    /* For explain queries */
+    if (qtype == 5) {
+        char ln[32]; lang_name(lang, ln, sizeof ln);
+        snprintf(out, out_size, "This is a %s code snippet.", ln);
+        if (strstr(code, "printf")) {
+            size_t l = strlen(out);
+            snprintf(out + l, out_size - l, " It prints output using printf.");
+        }
+        if (strstr(code, "return")) {
+            size_t l = strlen(out);
+            snprintf(out + l, out_size - l, " It returns a value.");
+        }
+        if (strstr(code, "for ") || strstr(code, "while ")) {
+            size_t l = strlen(out);
+            snprintf(out + l, out_size - l, " It contains a loop.");
+        }
+        return 1;
+    }
+
+    /* Run checks (focus on C; Python checks are minimal) */
+    char findings[512] = {0};
+    int errors = 0;
+
+    if (lang == 1) {  /* C */
+        char r[256];
+        if (check_missing_semicolons(code, r, sizeof r)) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+        if (check_type_mismatch(code, r, sizeof r)) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+        if (check_unclosed_string(code, r, sizeof r)) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+        if (check_balanced_braces(code, r, sizeof r)) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+        if (check_balanced_parens(code, r, sizeof r)) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+        if (check_unknown_function(code, b, r, sizeof r)) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+    } else if (lang == 2) {  /* Python */
+        if (strstr(code, "def ") || strstr(code, "if ") || strstr(code, "for ") ||
+            strstr(code, "while ") || strstr(code, "class ") || strstr(code, "elif ")) {
+            /* Check for missing colon: the line ends without : */
+            char buf[1024]; snprintf(buf, sizeof buf, "%s", code);
+            char *lines[64]; int nl = 0;
+            char *save = NULL;
+            char *tok = strtok_r(buf, "\n", &save);
+            while (tok && nl < 64) { lines[nl++] = tok; tok = strtok_r(NULL, "\n", &save); }
+            for (int i = 0; i < nl; i++) {
+                char *l = lines[i]; while (*l && isspace((unsigned char)*l)) l++;
+                char tmp[256]; snprintf(tmp, sizeof tmp, "%s", l);
+                char *tw[64]; size_t tnw = split_words(tmp, tw, 64);
+                if (tnw > 0 && (strcmp(tw[0], "def") == 0 || strcmp(tw[0], "if") == 0 ||
+                    strcmp(tw[0], "for") == 0 || strcmp(tw[0], "while") == 0 ||
+                    strcmp(tw[0], "class") == 0 || strcmp(tw[0], "elif") == 0 ||
+                    strcmp(tw[0], "else") == 0 || strcmp(tw[0], "try") == 0 ||
+                    strcmp(tw[0], "except") == 0)) {
+                    size_t len = strlen(l);
+                    if (len > 0 && l[len - 1] != ':') {
+                        snprintf(findings, sizeof findings,
+                            "Missing colon: the line starting with \"%s\" needs a colon at the end.", tw[0]);
+                        errors++;
+                        break;
+                    }
+                }
+            }
+        }
+        if (strstr(code, "print") && !strstr(code, "print(")) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol,
+                "Python 3 requires parentheses for print: use print(...) not print ...");
+            errors++;
+        }
+    }
+
+    if (errors == 0 && (qtype == 1 || qtype == 2)) {
+        snprintf(out, out_size, "I did not find obvious errors in this code snippet. "
+                 "(I only check basic syntax: semicolons, braces, parentheses, "
+                 "string quotes, and known function names.)");
+        return 1;
+    }
+
+    if (qtype == 1) {
+        /* Strip trailing ". " */
+        size_t fl = strlen(findings);
+        while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';
+        snprintf(out, out_size, "%s found: %s.", errors == 1 ? "Issue" : "Issues", findings);
+    } else if (qtype == 2) {
+        size_t fl = strlen(findings);
+        while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';
+        if (strstr(findings, "semicolon"))
+            snprintf(out, out_size, "Fix: add a semicolon at the end of each statement.");
+        else if (strstr(findings, "Type mismatch"))
+            snprintf(out, out_size, "Fix: change the variable type or the value to make them compatible.");
+        else if (strstr(findings, "string"))
+            snprintf(out, out_size, "Fix: add the closing double-quote.");
+        else if (strstr(findings, "braces"))
+            snprintf(out, out_size, "Fix: add or remove braces to balance them.");
+        else if (strstr(findings, "parentheses"))
+            snprintf(out, out_size, "Fix: add or remove parentheses to balance them.");
+        else if (strstr(findings, "function"))
+            snprintf(out, out_size, "Fix: check the function name spelling or include the right header. Did you mean printf instead of print?");
+        else if (strstr(findings, "colon"))
+            snprintf(out, out_size, "Fix: add a colon at the end of the block-introducing line.");
+        else
+            snprintf(out, out_size, "I did not find a clear fix. Can you describe what behavior you expect?");
+    } else if (qtype == 4) {
+        if (errors == 0)
+            snprintf(out, out_size, "This code looks valid at first glance (basic syntax checks pass).");
+        else {
+            size_t fl = strlen(findings);
+            while (fl > 0 && (findings[fl-1] == ' ' || findings[fl-1] == '.')) findings[--fl] = '\0';
+            snprintf(out, out_size, "Not valid: %s.", findings);
+        }
+    }
+
+    return 1;
+}
+
 static int mod_symbolic(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)norm;
@@ -7344,7 +7777,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
 
 /* --- module: translate (gen126, L5) -------------------------------------
  * Grounded translation of a short clause, EN<->IT, COMPOSED from per-word
- * glosses (tr/2 in knowledge/gloss.pl) plus a structural article rule, never
+ * glosses (tr/2 in kb/gloss.p0) plus a structural article rule, never
  * a stored sentence. So any noun/verb in the lexicon transfers to a held-out
  * clause: this is translation, not a phrasebook. Honest decline on an unknown
  * content word (it names the word it cannot translate).
@@ -7505,7 +7938,7 @@ found:
 /* --- module: synth (gen127, L12) ----------------------------------------
  * The INVERSE of mod_shell: synthesize a one-line shell command from a natural
  * spec ("count the lines in a file" -> "wc -l <file>"), grounded in the SAME
- * cmd/flag knowledge the interpreter reads (knowledge/bash.pl). The command is
+ * cmd/flag knowledge the interpreter reads (kb/bash.p0). The command is
  * SELECTED by matching the spec's action against command descriptions, and its
  * FLAGS by matching the spec's object nouns against flag descriptions — never a
  * stored spec->command pair, so held-out specs over known commands transfer.
@@ -9320,6 +9753,7 @@ static const Module registry[] = {
     {"reader",    mod_reader},
     {"shell",     mod_shell},
     {"knowledge", mod_knowledge},
+    {"code",      mod_code},
     {"symbolic",  mod_symbolic},
     {"summary",   mod_summary},
     {"discourse", mod_discourse},
@@ -9465,27 +9899,27 @@ Brain *brain_create(void) {
      * knowledge layer, not as C word arrays; loading it as base keeps it out of
      * session saves while tests stay independent of world knowledge files. */
     const char *lexicon = getenv("PARROT0_LEXICON");
-    if (!lexicon) lexicon = "knowledge/lexicon.pl";
+    if (!lexicon) lexicon = "kb/lexicon.p0";
     if (*lexicon) {
         kb_set_origin(b->kb, KB_BASE);
         kb_load(b->kb, lexicon);
     }
 
     /* gen73 (PLAN.md Phase 3): social markers, question words and reaction words
-     * live in knowledge/social.pl, not as hardcoded C arrays. The KB is the
+     * live in kb/social.p0, not as hardcoded C arrays. The KB is the
      * single source of truth; the C code queries it at runtime. */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "knowledge/social.pl");
+    kb_load(b->kb, "kb/social.p0");
 
     /* gen101 (C15): role/character world-knowledge — what parrot0 knows about
      * the kinds and figures it may be asked to impersonate (see mod_role). */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "knowledge/roles.pl");
+    kb_load(b->kb, "kb/roles.p0");
 
     /* gen126 (L5): bilingual content lexicon used by mod_translate to COMPOSE a
      * clause translation from word glosses + a structural article rule. */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "knowledge/gloss.pl");
+    kb_load(b->kb, "kb/gloss.p0");
 
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
@@ -9521,7 +9955,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen148-user-model-context";
+    return "gen149-coding-ground";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

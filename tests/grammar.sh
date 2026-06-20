@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 #
 # Grammar expert v0 (DESIGN.md D5): the first forged domain. Loads
-# knowledge/grammar.pl and proves competence — parts of speech, the derived
+# kb/grammar.p0 and proves competence — parts of speech, the derived
 # word/1 category (via disjunctive rules), negatives, and a variable query.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
-GRAMMAR="$ROOT/knowledge/grammar.pl"
+GRAMMAR="$ROOT/kb/grammar.p0"
 
 if [ ! -x "$BIN" ]; then
     echo "grammar: binary not built ($BIN)" >&2

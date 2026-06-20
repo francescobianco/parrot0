@@ -1,7 +1,7 @@
 # gen124 (discovery-harness pull): casual small-talk phrasings the chatsim
 # transcripts (tests/chat/sim/) kept walling on. These are phatic contact, not
 # information requests, so they belong to the social register (mod_social) — and
-# the fix is DATA: new social_pattern facts in knowledge/social.pl, matched
+# the fix is DATA: new social_pattern facts in kb/social.p0, matched
 # against the canonicalized text. No C change beyond the version bump. Held-out:
 # any phrasing carrying one of these cues lands, not just these exact lines.
 

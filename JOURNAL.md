@@ -584,8 +584,8 @@ synthesize a one-line command from a spec, the mirror image of `mod_shell`,
 grounded in the SAME `cmd/flag` knowledge.
 
 **Changed:** `brain.c` → `gen127-synth`; new `mod_synth` (registered 2nd);
-`stem_match` + `spec_hits_atom` helpers; `tests/synth.sh` (loads `knowledge/
-bash.pl`, like `posix.sh`) wired into `make test`; self/strategy enumerations
+`stem_match` + `spec_hits_atom` helpers; `tests/synth.sh` (loads `kb/
+bash.p0`, like `posix.sh`) wired into `make test`; self/strategy enumerations
 updated. `make test` green.
 
 - **The capability.** "what command counts the lines in a file?" → `wc -l
@@ -607,7 +607,7 @@ updated. `make test` green.
   a 3-char floor. Enough morphology to bridge spec prose to snake_case knowledge
   atoms without a table of forms.
 - **Bilingual note (honest).** The Italian triggers are wired ("quale comando
-  …"), but the grounding knowledge (`bash.pl` descriptions) is English — exactly
+  …"), but the grounding knowledge (`bash.p0` descriptions) is English — exactly
   like `mod_shell`/`posix.sh`, which also carry no `.it` case. Forcing an Italian
   content pass would mean translating the shell-semantics lexicon into Italian,
   i.e. duplicating the knowledge, which LOOP.md step 5 names as the overfit
@@ -627,7 +627,7 @@ L-series map flagged as still open: rung 5 (translation) past function-word
 canonicalization.
 
 **Changed:** `brain.c` → `gen126-translate`; new `mod_translate` (registered
-FIRST, behind a prefix trigger); new `knowledge/gloss.pl` (bilingual content
+FIRST, behind a prefix trigger); new `kb/gloss.p0` (bilingual content
 lexicon, loaded as base); `is_internal_pred` filters `tr`/`gender`; the dispatch
 declined-trace cap 32 → 48 (the registry is now 33 modules); `tests/cases/
 translate.chat` / `.it.chat`; self/strategy enumerations updated. Removed a stray
@@ -710,7 +710,7 @@ autonomous; re-running after a future world-knowledge generation would prune mor
 
 ## 2026-06-18 — simclean: an autonomous chatsim-log janitor (+ gen124)
 
-**Changed:** new `tests/simclean.sh`; `make simclean` target; `knowledge/social.pl`
+**Changed:** new `tests/simclean.sh`; `make simclean` target; `kb/social.p0`
 gains small-talk patterns; `brain.c` → `gen124-smalltalk`; `tests/cases/smalltalk.chat`;
 deleted 3 graduated logs from `tests/chat/sim/`.
 
@@ -731,7 +731,7 @@ deleted 3 graduated logs from `tests/chat/sim/`.
 - **gen124 (the incremental evolve).** Among the walls were genuine, recurring
   PHATIC phrasings parrot0 ought to handle: "what's up" / "whats up" / "wassup" /
   "you good" / "u good" / "you there?". The fix is DATA — new `social_pattern`
-  facts in `knowledge/social.pl` (gen73's design: the social register is
+  facts in `kb/social.p0` (gen73's design: the social register is
   knowledge, not C arrays), matched against the CANONICALIZED text (so "whats up"
   is listed as its contraction-expansion "what is up", gen74). No C change beyond
   the version bump. `is the sky blue?` still walls honestly — small-talk patterns
@@ -1469,7 +1469,7 @@ meta-strategy introspection (L20).
 ## 2026-06-17 — gen101: role/character memory (a layered self-model)
 
 **Changed:** `brain.c` → `gen101-role`; new module `mod_role`; new knowledge
-file `knowledge/roles.pl`; `Brain` extended with role state; `mod_arith` gained
+file `kb/roles.p0`; `Brain` extended with role state; `mod_arith` gained
 an "explain why" justification; `tests/cases/role.chat` + `role.it.chat`.
 
 - `mod_role` (registered before `mod_self`) does two grounded jobs:
@@ -1480,7 +1480,7 @@ an "explain why" justification; `tests/cases/role.chat` + `role.it.chat`.
     so this is genuine NL uptake, not a flag flip.
   - **In-role answers:** identity, "what are you", "do you <action>", "what did
     you write", "where do you rule", title/age/code/employer/favorite-colour —
-    answered from role state plus what `knowledge/roles.pl` knows about the
+    answered from role state plus what `kb/roles.p0` knows about the
     kind/figure (a dog barks, Dante wrote the Commedia, Cleopatra rules Egypt).
     The C handler is generic over those predicates; the world knowledge is data.
 - **The layered self-model (the surprising bit):** a *truth-probe* — "really",
@@ -1494,7 +1494,7 @@ an "explain why" justification; `tests/cases/role.chat` + `role.it.chat`.
 - `mod_arith` now answers "explain why 2 plus 2 is 4" with a justification
   grounded in the operation ("Because adding 2 and 2 gives 4 — that is their
   sum."), generalizing across operands and operators (+/−/×).
-- Introspection fact-counts now treat `roles.pl` predicates as base substrate
+- Introspection fact-counts now treat `roles.p0` predicates as base substrate
   (like the lexicon/social predicates), so "how many facts do you know?" is
   unchanged.
 
@@ -1686,15 +1686,15 @@ part of the architecture that manifests intelligence.
 
 ## 2026-06-16 — gen74: chat contractions + "sup" marker + i_am rendering + wellbeing patterns
 
-**Changed:** `brain.c` → `gen74-contractions`; `knowledge/social.pl` expanded;
+**Changed:** `brain.c` → `gen74-contractions`; `kb/social.p0` expanded;
 `src/kb.c` `render_fact_direct` and `is_model_pred` fixed.
 
 - Added chat contraction canonicalizations: "whats"→"what is", "whos"→"who is",
   "wheres"→"where is", "dont"→"do not", "cant"→"can not", "pls"→"please".
   Builds on gen64's "u"→"you"/"r"→"are" pattern — the existing parsers
   (arith, knowledge, identity) now work on contracted input.
-- "sup" added to `knowledge/social.pl` as `social_marker(opening, sup)`.
-- Added broader wellbeing patterns to social.pl: "how is your day",
+- "sup" added to `kb/social.p0` as `social_marker(opening, sup)`.
+- Added broader wellbeing patterns to social.p0: "how is your day",
   "hows your day", "hows it going", "how are things", "hows things".
 - `render_fact_direct` handles `i_am(X)` specially: renders "X is X" instead
   of "X is a i_am". Fixes "what is parrot0" → "parrot0 is parrot0".
@@ -1721,10 +1721,10 @@ operators) and reduce module order dependencies. The parser's rigid word-count
 checks reject many natural phrasings.
 
 
-**Changed:** `brain.c` → `gen73-kb-social-markers`; new `knowledge/social.pl`;
-`knowledge/lexicon.pl` expanded; `src/kb.c` induction filter.
+**Changed:** `brain.c` → `gen73-kb-social-markers`; new `kb/social.p0`;
+`kb/lexicon.p0` expanded; `src/kb.c` induction filter.
 
-- **Social markers moved to knowledge/social.pl**: all token-level markers
+- **Social markers moved to kb/social.p0**: all token-level markers
   (opening, closing, thanks, apology, ambiguous), cue-based patterns (wellbeing,
   multi-word forms), question words (EN + IT), and reaction words (laughter) now
   live as `social_marker/2`, `social_pattern/2`, `question_word/1`,
@@ -1732,15 +1732,15 @@ checks reject many natural phrasings.
   hardcoded `static const char *const[]` arrays.
 - `mod_social` refactored: `tok_is_marker()`, `has_social_pattern()`,
   `has_any_question()` all query the KB. Removed old `has_question_word()`.
-- `brain_create` loads `knowledge/social.pl` as KB_BASE.
-- **English lexicon**: ~60 conversational words added to `knowledge/lexicon.pl`.
+- `brain_create` loads `kb/social.p0` as KB_BASE.
+- **English lexicon**: ~60 conversational words added to `kb/lexicon.p0`.
 - `kb_induce` skips meta-predicates (stopword, question_word, etc.) to avoid
   spurious rules like `stopword(X) :- question_word(X)`.
 - `looks_palindrome` excludes short 2-letter palindromes ("ahaha").
 
 **Why:** PLAN.md: transform C string constants into knowledge files. The social
 register is a closed-class word list — the "function words of conversation".
-Moving them to `.pl` files makes them auditable, git-diffable, and queryable by
+Moving them to `.p0` files makes them auditable, git-diffable, and queryable by
 the self-model (PRINCIPLES.md: state-derived, never hardcoded).
 
 **Observed:** `make test` green: 65 chat + all suites. `make chat-sim`: wall
@@ -1748,13 +1748,13 @@ rate 83% (25/30), word-reflect 6, classic 14, other 5. KB social markers work:
 "hey"→"Hi there!", "how are you"→wellbeing, identity/clarification fire.
 "sup" not in markers yet; "whats 2+2" walls (arith parser expects spaced "what is").
 
-**Next:** C8 — add "sup" and other chat abbreviations to social.pl; improve
+**Next:** C8 — add "sup" and other chat abbreviations to social.p0; improve
 contraction parsing for "whats", "dont", "cant" etc. in the canonicalization layer.
 
 
 ## 2026-06-16 — gen71: C7 step 1 — Italian apology markers + canonicalization
 
-**Changed:** `brain.c` → `gen71-apology-social`; `knowledge/lexicon.pl`; `tests/chatsim.py`.
+**Changed:** `brain.c` → `gen71-apology-social`; `kb/lexicon.p0`; `tests/chatsim.py`.
 
 - Added apology marker set in `mod_social`: "sorry", "scusa", "scusate", "scusi",
   "dispiace" + cue("mi dispiace"). Pure apologies get "No problem."; mixed turns
@@ -1764,7 +1764,7 @@ contraction parsing for "whats", "dont", "cant" etc. in the canonicalization lay
   claimed by the social layer.
 - Added "sono" → "am" to the canonicalization lexicon (safe: "sono" is never a
   standalone English word).
-- Added "dispiace" to `knowledge/lexicon.pl` as a stopword so the fallback word
+- Added "dispiace" to `kb/lexicon.p0` as a stopword so the fallback word
   picker skips it.
 - Simplified chatsim persona prompt: shorter system message, strict "DO NOT plan"
   guard, first-turn bootstrap reduced to "say hi".
@@ -1921,7 +1921,7 @@ conversation improvement is the parked generic yes/no/casual-question wall.
 **Changed:** `brain.c` -> `gen66-grounded-fallback-lexicon`.
 - Removed the hardcoded C stopword array from `is_stopword`; the filter now
   queries `stopword(Word)` through the KB.
-- Added `knowledge/lexicon.pl` as a curated lexical knowledge layer, loaded as
+- Added `kb/lexicon.p0` as a curated lexical knowledge layer, loaded as
   `KB_BASE` at brain birth so it is available even when world/session files are
   disabled and is never persisted into session saves.
 - Routed benchmark overlap, discourse topic extraction, mixed-turn detection and
@@ -2262,14 +2262,14 @@ deterministic).
   another GO model), or we need deterministic replay (seed + record/replay
   transcripts).
 
-### D-2026-06-15w — shell knowledge is compositional & data-driven (knowledge/bash.pl), case-tagged for the resolver
+### D-2026-06-15w — shell knowledge is compositional & data-driven (kb/bash.p0), case-tagged for the resolver
 gen53 (Mission M1, step 1) answers "what does <cmd> do?" by parsing the command
 line into (command, flags, args) and composing the answer from `cmd`/`flag`
-facts in the committed `knowledge/bash.pl`.
+facts in the committed `kb/bash.p0`.
 - **Bought:** the first knowledge-acquisition mission, done as STRUCTURE not a
   dictionary — "ls -la" is explained by composing ls + l + a though that combo is
   not stored (held-out composition is the anti-impostor test). Knowledge lives in
-  a human-readable, version-controlled `.pl` (carried in the commits, per the
+  a human-readable, version-controlled `.p0` (carried in the commits, per the
   owner). Honest about unknown flags/commands; does not hijack non-shell "what
   does X do?" (only claims a known command or clear shell syntax).
 - **Gave up / discovered:** the resolver reads an uppercase-initial atom as a
@@ -2278,8 +2278,8 @@ facts in the committed `knowledge/bash.pl`.
   Fixed by case-tagging uppercase flags as `u_<letter>` (e.g. `flag(ls, u_r,
   …)`), keeping every atom lowercase-initial and ground. Descriptions are
   authored English (underscored atoms), not yet oracle-verified; default
-  `make chat` loads `base.pl`, so shell knowledge needs `PARROT0_BASE=
-  knowledge/bash.pl` until multi-file knowledge loading exists.
+  `make chat` loads `base.p0`, so shell knowledge needs `PARROT0_BASE=
+  kb/bash.p0` until multi-file knowledge loading exists.
 - **Revisit if:** output PREDICTION (oracle-grounded, e.g. echo) or PIPELINE
   composition is needed (then compose effects across `|`); or knowledge loading
   should merge several domain files by default.
@@ -2689,16 +2689,16 @@ logged; wall-rate / repetition-rate reported (Decision D-2026-06-15x).
 ## 2026-06-15 — gen53: M1 step 1 — compositional shell knowledge
 
 **Changed:** `brain.c` → `gen53-shell-knowledge`; new `mod_shell` (+
-`de_underscore`); new committed `knowledge/bash.pl`; `tests/posix.sh` + Makefile.
+`de_underscore`); new committed `kb/bash.p0`; `tests/posix.sh` + Makefile.
 - First step of Mission M1 (POSIX/bash). `mod_shell` parses "what does <cmdline>
   do?" / "explain <cmdline>" into command + flags + args and COMPOSES the answer
-  from `cmd(name, effect)` / `flag(name, f, effect)` facts in `knowledge/bash.pl`
+  from `cmd(name, effect)` / `flag(name, f, effect)` facts in `kb/bash.p0`
   — so "ls -la" is explained from ls + l + a without that combo being stored.
 - Reads `raw` (the shell is case-sensitive: -r ≠ -R). Discovered the resolver
   treats uppercase-initial atoms as variables, so uppercase flags are case-tagged
   `u_<letter>` (Decision D-2026-06-15w). Honest on unknown flags/commands; does
   not hijack non-shell "what does X do?".
-- `tests/posix.sh` (loads bash.pl via PARROT0_BASE, like grammar.sh): held-out
+- `tests/posix.sh` (loads bash.p0 via PARROT0_BASE, like grammar.sh): held-out
   composition, case sensitivity, unknown flag/command, non-hijack. Updated
   `self.chat` (module list += shell).
 
@@ -3920,7 +3920,7 @@ a decision about the founding parrot-echo fallback.
   the *same* name, aliasing them. Now each `_` becomes a FRESH variable
   (`_A<frame>_<n>`) via a per-clause anonymous counter; named vars still share
   per frame.
-- `knowledge/grammar.pl`: `singular/2` facts and `has_plural(Y) :- plural(_, Y)`
+- `kb/grammar.p0`: `singular/2` facts and `has_plural(Y) :- plural(_, Y)`
   (anonymous var in subject position), complementing `countable/1`.
 - Tests: grammar.sh +singular/has_plural; new `tests/anon.sh` proves two `_`
   are independent using held-out `edge/related` (anti-impostor: not morphology).
@@ -3947,7 +3947,7 @@ representation of reasoning steps).
 **Changed:** `brain.c` → `gen12-relquery`; grammar domain extended.
 - `mod_knowledge`: "what is the <rel> of <y>?" → `rel(y, X)` (unknown in the
   object position), complementing "who is the <rel> of <y>?" → `rel(X, y)`.
-- `knowledge/grammar.pl`: morphology — `plural(dog, dogs).` (+ irregular
+- `kb/grammar.p0`: morphology — `plural(dog, dogs).` (+ irregular
   `child/children`) and `countable(X) :- plural(X, _).` (anonymous variable).
 - `tests/grammar.sh` extended: object-position query + the countable rule.
 
@@ -3971,7 +3971,7 @@ can't be expressed (domain-pull discipline).
 ## 2026-06-15 — expertise track: the first forged expert — grammar v0
 
 **Changed:** no engine change (`brain_version` stays `gen11-relations`).
-- `knowledge/grammar.pl`: parts of speech (`noun`/`verb`/`adjective`) + category
+- `kb/grammar.p0`: parts of speech (`noun`/`verb`/`adjective`) + category
   rules `word(X) :- noun(X). word(X) :- verb(X). word(X) :- adjective(X).`
   (multiple clauses per head = disjunction — exercised live).
 - `tests/grammar.sh`: loads the domain and proves competence (POS membership,
@@ -4070,10 +4070,10 @@ grammar expert will need. Keep a concrete grammar north-star in view (D5.1).
   `%` comments) and **unions** clauses into the KB — so files JOIN.
 - `kb_save(path, mask)`: writes back only the selected layers, same readable
   format. `brain_save_session` persists `SESSION|INDUCED`, never reflective.
-- `main.c`: loads `knowledge/base.pl` + `knowledge/session.pl` (paths via
+- `main.c`: loads `kb/base.p0` + `kb/session.p0` (paths via
   `PARROT0_BASE`/`PARROT0_SESSION`; empty disables — used for hermetic tests);
   `/save` command writes the session delta.
-- `knowledge/base.pl` seed added; `session.pl` gitignored. New
+- `kb/base.p0` seed added; `session.p0` gitignored. New
   `tests/persist.sh` (round-trip, no-reflective-leak, base+session join, no
   base duplication); `tests/run.sh` made hermetic.
 

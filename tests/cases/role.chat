@@ -1,7 +1,7 @@
 # gen101 (C15): role/character memory. A role is an ALTERNATE self-model layered
 # over the permanent one. The name/kind/attributes are PARSED from the user's
 # setup utterance (genuine uptake); what parrot0 knows about the kind/figure is
-# queried from knowledge/roles.pl. A truth-probe pierces the mask back to parrot0.
+# queried from kb/roles.p0. A truth-probe pierces the mask back to parrot0.
 
 # Uptake: "pretend you are a dog named Rex" -> name=Rex (from the user's words),
 # kind=dog. Identity questions then answer in character.
@@ -10,7 +10,7 @@
 > what is your name?
 < I am Rex.
 # In-character behaviour: "do you bark?" is affirmed because trait(dog, bark)
-# is in knowledge/roles.pl — world knowledge as data, not a C phrasebook.
+# is in kb/roles.p0 — world knowledge as data, not a C phrasebook.
 > do you bark?
 < Yes, I bark.
 # The layered self-model: a truth-probe ("really") pierces the role. The agent
@@ -33,7 +33,7 @@
 < Yes, I compute.
 
 # Inline attributes are parsed from the user's own words and queried back:
-# code from "your secret code is 007", employer from roles.pl.
+# code from "your secret code is 007", employer from roles.p0.
 > you are a spy named Shadow. your secret code is 007.
 < Alright — I am Shadow now.
 > what is your code?
@@ -41,7 +41,7 @@
 > who do you work for?
 < I work for an agency.
 
-# A named figure (no article) -> identity. roles.pl supplies the dominion and
+# A named figure (no article) -> identity. roles.p0 supplies the dominion and
 # the figure's profession; the engine, not C, looks them up.
 > you are cleopatra, queen of egypt.
 < Alright — I am Cleopatra now.

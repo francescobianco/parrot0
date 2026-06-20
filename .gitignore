@@ -5,8 +5,8 @@
 # agent harness state (subagent worktrees, local settings)
 /.claude/
 
-# generated session knowledge (base.pl is curated & tracked)
-/knowledge/session.pl
+# generated session knowledge (base.p0 is curated & tracked)
+/kb/session.p0
 
 # editor / OS noise
 *.o

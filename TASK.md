@@ -126,7 +126,7 @@ Anti-impostor: fresh names, predicates, orderings and social wrappers must be ge
   words" → `wc -w`). Held-out specs over known commands; honest decline. The verb
   is dropped before flag selection so the object noun disambiguates. `synth.sh`.
 - **gen126 (L5) — grounded translation.** `mod_translate` composes a clause
-  translation EN↔IT from per-word glosses (`tr/2`, `knowledge/gloss.pl`) plus a
+  translation EN↔IT from per-word glosses (`tr/2`, `kb/gloss.p0`) plus a
   structural article rule (gender agreement, adjective agreement, vowel elision),
   never a stored sentence — held-out vocab transfers both directions. Reads the
   raw source (not the canonicalized surface, which would map "una"→"a").
@@ -144,7 +144,7 @@ Anti-impostor: fresh names, predicates, orderings and social wrappers must be ge
   parrot0 and deletes the ones that no longer wall ("I don't understand") or have
   no real turns; keeps the rest and prints their failing inputs. First run pruned
   3 empty model-error logs. gen124: the legitimate phatic walls it surfaced
-  ("what's up", "you good", "you there?") fixed as DATA in `knowledge/social.pl`.
+  ("what's up", "you good", "you there?") fixed as DATA in `kb/social.p0`.
   `smalltalk.chat`.
 - **gen121–123 (L6/L7) — read a passage and summarize it.** `mod_summary`:
   gen121 extractive summary (rank the really-extracted propositions by concept
@@ -239,7 +239,7 @@ Anti-impostor: fresh names, predicates, orderings and social wrappers must be ge
   `fewshot.chat` / `fewshot.it.chat`.
 - **gen101 (C15) — role/character memory.** `make impersonate` 15% → **100%**.
   `mod_role` parses role uptake from the user's words, answers in character from
-  role state + `knowledge/roles.pl`, and keeps a **layered self-model**: a
+  role state + `kb/roles.p0`, and keeps a **layered self-model**: a
   truth-probe ("really" / "davvero") pierces any role back to parrot0.
   (I-series I1–I4 done.)
 - **gen102 (L11) — structural analogy.** `mod_analogy` solves "A is to B as C is

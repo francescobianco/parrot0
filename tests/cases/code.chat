@@ -1,0 +1,37 @@
+# gen149: inline code debugging — mod_code module.
+# Basic checks: missing semicolons, type mismatches, unclosed strings,
+# unbalanced braces/parens, unknown functions, language identification.
+# The module is grounded in kb/coding.p0; these tests prove the
+# behaviour emerges from the KB, not from hardcoded strings.
+
+# --- missing semicolon (declaration without ;) ---
+> what is wrong with this code: int x = 5
+< Issue found: Missing semicolon at the end of a statement.
+
+# --- missing semicolon (return without ; before }) ---
+> what is wrong with this code: int main() { return 0 }
+< Issue found: Missing semicolon at the end of a statement.
+
+# --- type mismatch (string assigned to int) ---
+> what is wrong with this code: int x = "hello";
+< Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings.
+
+# --- language identification: C ---
+> what language is this code: int main(void) { return 0; }
+< This looks like C code.
+
+# --- language identification: Python ---
+> what language is this code: def foo(): pass
+< This looks like Python code.
+
+# --- fix suggestion (for a missing-semicolon case) ---
+> fix this code: int x = "hello"
+< Fix: add a semicolon at the end of each statement.
+
+# --- valid code ---
+> is this valid C: int x = 5;
+< This code looks valid at first glance (basic syntax checks pass).
+
+# --- explain code ---
+> explain this code: printf("hello");
+< This is a C code snippet. It prints output using printf.

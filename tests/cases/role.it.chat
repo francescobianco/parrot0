@@ -3,7 +3,7 @@
 # identity, role-scoped knowledge query, and the truth-probe ("davvero").
 
 # "sei dante alighieri, il sommo poeta" -> identity=Dante. profession(dante,poeta)
-# from roles.pl enriches the identity answer; wrote(dante, divina_commedia)
+# from roles.p0 enriches the identity answer; wrote(dante, divina_commedia)
 # answers "cosa hai scritto?".
 > sei dante alighieri, il sommo poeta.
 < Alright — I am Dante now.

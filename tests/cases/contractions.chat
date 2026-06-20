@@ -1,6 +1,6 @@
 # gen74: chat contraction canonicalization. Common abbreviated forms
 # are expanded to canonical spaced forms so existing parsers work.
-# "sup" added to social.pl as an opening marker.
+# "sup" added to social.p0 as an opening marker.
 > sup
 < Hi there!
 > whats 2 plus 2
@@ -11,7 +11,7 @@
 < I don't understand that yet.
 > whats parrot0
 < parrot0 is parrot0.
-# broader wellbeing patterns from social.pl
+# broader wellbeing patterns from social.p0
 > how is your day going
 < I'm well, thanks. How can I help?
 > hows your day

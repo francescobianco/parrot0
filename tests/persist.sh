@@ -14,13 +14,13 @@ fi
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-base="$tmp/base.pl"
-sess="$tmp/session.pl"
-neg="$tmp/negative.pl"
-corrbase="$tmp/correction-base.pl"
-corrsess="$tmp/correction-session.pl"
-binbase="$tmp/binary-conflict-base.pl"
-binsess="$tmp/binary-conflict-session.pl"
+base="$tmp/base.p0"
+sess="$tmp/session.p0"
+neg="$tmp/negative.p0"
+corrbase="$tmp/correction-base.p0"
+corrsess="$tmp/correction-session.p0"
+binbase="$tmp/binary-conflict-base.p0"
+binsess="$tmp/binary-conflict-session.p0"
 
 pass=0
 fail=0
