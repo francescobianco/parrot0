@@ -1,0 +1,47 @@
+# gen142 (E3) STRESS: ~14 HELD-OUT phrasings the classifier was NOT coded
+# against (none appear in pragma.chat or in mod_pragma's cue strings), across all
+# the speech acts. Passing this proves the routing comes from turn-SHAPE FEATURES
+# (opener class, content predicate, negation, stance predicate, hedge, open
+# quantifier, topic frame), not a memorized phrase table — the anti-impostor
+# crux of E3. Includes mixed social+content turns where the CONTENT task survives.
+
+# --- soft request: a fresh imperative shape with an open-quantifier object.
+> say anything that comes to mind
+< Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.
+> share something with me please
+< Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.
+
+# --- hesitation: held-out hedge wordings (suppose / probably).
+> honestly i suppose it could be
+< No pressure — we can take it slowly. What's on your mind?
+> i probably misunderstood you
+< No pressure — we can take it slowly. What's on your mind?
+
+# --- disagreement: held-out negated stance predicates (correct / convinced).
+> that is not quite correct though
+< Fair enough — tell me where I went wrong, and we can take it from there.
+> i am not convinced
+< Fair enough — tell me where I went wrong, and we can take it from there.
+
+# --- topic change: held-out modal/switch openers and fresh objects.
+> can we move on to jazz
+< Sure, let's talk about jazz. What about jazz is on your mind?
+> shall we discuss painting
+< Sure, let's talk about painting. What about painting is on your mind?
+> let us switch to gardening
+< Sure, let's talk about gardening. What about gardening is on your mind?
+
+# --- MIXED social + content (the content task must survive the wrapper):
+#     opener + a teaching/query pair, opener + arithmetic, opener + personal
+#     memory with proper-name casing preserved. Each opener is peeled and the
+#     residue re-dispatched, so the real task runs.
+> plato is a philosopher
+< Learned: philosopher(plato).
+> okay is plato a philosopher
+< Yes.
+> so what is 5 plus 6
+< 11.
+> well, remember my dog is Bruno
+< Got it: your dog is Bruno.
+> what is my dog called
+< Bruno.

@@ -272,8 +272,17 @@ Acceptance:
 
 Anti-impostor: tests must include vague casual turns from non-technical users, not only formal prompts.
 
-### E3 - Pragmatic intent beyond cue lists
+### E3 - Pragmatic intent beyond cue lists — DONE (seed), gen144
 Goal: infer speech acts such as boredom, hesitation, disagreement, thanks-with-content, topic change and soft requests from turn shape and context, not only from exact markers.
+
+gen144: `mod_pragma` classifies a turn on a small SHAPE FEATURE vector (opener
+class, hedge, negation+stance-predicate, contrastive connective, open-quantifier
+object, topic-intro frame, content-predicate gate) and routes each speech act to
+a different move; a pre-dispatch `pragma_peel` normalizes a leading discourse
+opener away so mixed social+content turns keep their content task. 12/14 held-out
+stress phrasings classify correctly, EN+IT through one path. Open within E3:
+morphological negation of stance predicates; commit the steered topic into
+discourse memory. `pragma.chat`/`.it`, `pragma_stress.chat`.
 
 Acceptance:
 - "tell me something", "I do not know what to say", "can we talk about X", and "thanks, but..." route to different conversational moves.

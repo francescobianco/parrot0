@@ -611,6 +611,9 @@ static const char *canonical_token(const char *w) {
         {"non", "not"},
         {"anche","also"},
         {"causa","causes"},
+        /* gen142 (E3): Italian modals so the pragmatic topic-intro / disagreement
+         * shapes fire through the SAME mod_pragma path (no phrase duplication). */
+        {"possiamo","can"}, {"potremmo","could"},
         {"cos'è", "what is"},
         {"sono", "am"},
         /* gen141: subject pronouns, so the repair loop's referential-gap probe
@@ -6526,6 +6529,360 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: pragma (gen142, E3) -----------------------------------------
+ * Pragmatic intent from turn SHAPE, not from a phrase list. mod_chitchat /
+ * mod_social already cover the AFFECTIVE register, but they do it with growing
+ * cue lists: a held-out phrasing of the same speech act ("give me something to
+ * think about", "could we chat about cheese", "i have no clue what to talk
+ * about", "anyway, is socrates a man") still hits the wall. This module infers
+ * the SPEECH ACT from structural FEATURES of the turn and routes each act to a
+ * DIFFERENT conversational move, so unseen phrasings transfer.
+ *
+ * The features (computed once, below), never a memorized string:
+ *   - opener class of the first content token: a DISCOURSE marker (anyway, so,
+ *     well, ok, "by the way") vs a SOFT-REQUEST verb (tell/give/say) vs a MODAL
+ *     invitation (can/could/shall + we);
+ *   - a TOPIC-INTRO frame ("about/discuss/talk about/switch to <X>") + its object;
+ *   - HEDGE markers (maybe/guess/suppose/dunno/"not sure"/perhaps) = hesitation;
+ *   - NEGATION (not/no/never) and a CONTRASTIVE connective (but/however/though);
+ *   - a STANCE object (you/that/this/right/agree/sense) = the thing disagreed with;
+ *   - presence of a CONTENT PREDICATE: a token a content module could act on — a
+ *     digit/arith operator, a known KB predicate or entity, or an assertion shape;
+ *   - word count / question form.
+ *
+ * Routing (each a distinct MOVE):
+ *   1. discourse-marker opener + residual content  -> STRIP the opener and
+ *      re-dispatch the residue, so the content task SURVIVES the social wrapper
+ *      ("anyway, is socrates a man" -> answers the question; "by the way, what is
+ *      2 plus 2" -> 4). Re-entrancy-guarded.
+ *   2. soft request with no content object ("tell me something", "give me
+ *      something to think about", "say anything") -> invite a topic.
+ *   3. topic-intro with an object ("can we talk about cheese", "let us switch to
+ *      football") -> acknowledge and steer onto X, naming X (pulled from the turn).
+ *   4. hesitation (hedge markers, no content) -> reassure, lower the stakes.
+ *   5. disagreement (negation about a stance object, no content) -> accept the
+ *      pushback, invite the correction.
+ * Pure content/questions never reach here (the module runs late); a marker-only
+ * turn that matches none of these is declined so social/chitchat still answer. */
+
+/* first ALPHABETIC content token (strips edge punctuation) into dst; returns
+ * its index in w[] or nw if none. */
+static size_t first_word_tok(char **w, size_t nw, char *dst, size_t dstn) {
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (t && isalpha((unsigned char)t[0])) {
+            snprintf(dst, dstn, "%s", t);
+            return i;
+        }
+    }
+    if (dstn) dst[0] = '\0';
+    return nw;
+}
+
+/* a leading DISCOURSE marker: a connective whose only job is to manage the
+ * channel/turn, carrying no propositional content. Single-token forms plus the
+ * two-token "by the way". Detected by position (the opener), so it can be peeled
+ * off without touching the content that follows. */
+static int is_discourse_opener(char **w, size_t nw, size_t *skip) {
+    if (nw == 0) return 0;
+    char tmp[64];
+    snprintf(tmp, sizeof tmp, "%s", w[0]);
+    const char *t = strip_edge_punct(tmp);
+    static const char *const one[] = {
+        "anyway", "anyhow", "so", "well", "ok", "okay", "now", "look", "listen",
+        "actually", "right", "alright", "hey", "um", "uh", "hmm",
+        "comunque", "allora", "insomma", "senti", "guarda", "dunque", "beh",
+        NULL
+    };
+    /* "by the way" -> skip 3 tokens */
+    if (nw >= 3 && strcmp(t, "by") == 0) {
+        char a[64], c[64];
+        snprintf(a, sizeof a, "%s", w[1]); snprintf(c, sizeof c, "%s", w[2]);
+        if (strcmp(strip_edge_punct(a), "the") == 0 &&
+            strcmp(strip_edge_punct(c), "way") == 0) { *skip = 3; return 1; }
+    }
+    for (const char *const *p = one; *p; p++)
+        if (strcmp(t, *p) == 0) { *skip = 1; return 1; }
+    return 0;
+}
+
+/* a hedge / hesitation marker anywhere in the turn. */
+static int has_hedge(char **w, size_t nw) {
+    static const char *const h[] = {
+        "maybe", "perhaps", "guess", "suppose", "dunno", "probably", "unsure",
+        "kinda", "sorta", "idk", "forse", "magari", "boh", "credo",
+        NULL
+    };
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        for (const char *const *p = h; *p; p++)
+            if (strcmp(t, *p) == 0) return 1;
+    }
+    return 0;
+}
+
+/* a contrastive connective anywhere in the turn. */
+static int has_contrastive(char **w, size_t nw) {
+    static const char *const c[] = {
+        "but", "however", "though", "although", "yet",
+        "pero", "per`o", "tuttavia", "invece",
+        NULL
+    };
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        for (const char *const *p = c; *p; p++)
+            if (strcmp(t, *p) == 0) return 1;
+    }
+    return 0;
+}
+
+/* a negation marker anywhere in the turn. */
+static int has_negation(char **w, size_t nw) {
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (strcmp(t, "not") == 0 || strcmp(t, "no") == 0 ||
+            strcmp(t, "never") == 0 || strcmp(t, "dont") == 0 ||
+            strcmp(t, "nor") == 0) return 1;
+    }
+    return 0;
+}
+
+/* True if token `t` is a STANCE PREDICATE: a word that, when negated, expresses
+ * a disagreement about the prior claim — "(don't) agree", "(not) right/sure/
+ * true/correct/convinced", "(doesn't) make sense". These are PREDICATES, not
+ * mere objects: "that"/"you" alone are not stance ("dont say that" is an order,
+ * not a disagreement), so the move keys on the predicate. */
+static int is_stance_pred(const char *t) {
+    static const char *const s[] = {
+        "agree", "right", "sure", "true", "correct", "convinced", "sense",
+        "convince", "persuaded", "ragione", "giusto", "vero", "accordo",
+        "sicuro", "convinto", "convince", "d'accordo", NULL
+    };
+    for (const char *const *p = s; *p; p++)
+        if (strcmp(t, *p) == 0) return 1;
+    return 0;
+}
+
+/* A disagreement is a NEGATED stance predicate ("i don't agree", "that is not
+ * right", "not so sure", "non sono d'accordo"), or the standalone verb
+ * "disagree"/"dissento". Shape, not phrase: any negation co-occurring with a
+ * stance predicate in a short turn reads as pushback. */
+static int is_disagreement(char **w, size_t nw) {
+    int neg = 0, stance = 0, plain = 0;
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (strcmp(t, "not") == 0 || strcmp(t, "no") == 0 ||
+            strcmp(t, "never") == 0 || strcmp(t, "dont") == 0) neg = 1;
+        if (is_stance_pred(t)) stance = 1;
+        if (strcmp(t, "disagree") == 0 || strcmp(t, "dissento") == 0 ||
+            strcmp(t, "dubito") == 0) plain = 1;
+    }
+    return plain || (neg && stance);
+}
+
+/* True if token is an OPEN QUANTIFIER object — the placeholder a content-free
+ * soft request reaches for ("something", "anything", "qualcosa", "qualunque
+ * cosa"). A CONCRETE object ("a story", "about C") is not open, so "tell me a
+ * story" stays a real (unfulfillable) request and hits the honest wall instead
+ * of this fill-the-silence move. */
+static int has_open_quantifier(char **w, size_t nw) {
+    static const char *const q[] = {
+        "something", "anything", "qualcosa", "qualunque", "whatever", NULL
+    };
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        for (const char *const *p = q; *p; p++)
+            if (strcmp(t, *p) == 0) return 1;
+    }
+    return 0;
+}
+
+/* True if the turn carries a CONTENT PREDICATE — something a content module
+ * could actually act on. This is the gate that keeps the pragmatic moves from
+ * swallowing real tasks: a digit or arithmetic operator, an assertion shape
+ * (" is a "/" is an "), or a token that is a known KB predicate or entity. */
+static int has_content_predicate(Brain *b, const char *canon, char **w, size_t nw) {
+    if (cue(canon, " is a ") || cue(canon, " is an ") ||
+        cue(canon, " plus ") || cue(canon, " minus ") ||
+        cue(canon, " times ") || cue(canon, "+") || cue(canon, "-") ||
+        cue(canon, "*") || cue(canon, "=")) return 1;
+    for (size_t i = 0; i < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        if (!t || !*t) continue;
+        if (isdigit((unsigned char)t[0])) return 1;
+        if (b && b->kb && strlen(t) >= 3) {
+            char desc[256];
+            if (kb_knows_pred(b->kb, t) ||
+                kb_describe_entity(b->kb, t, desc, sizeof desc)) return 1;
+        }
+    }
+    return 0;
+}
+
+/* Pull the TOPIC object out of a topic-intro frame: the head noun after
+ * "about/discuss/discutere/switch to/change to/parlare di/parliamo di". Returns
+ * 1 and writes the object (first substantive token after the cue) into dst. */
+static int topic_object(char **w, size_t nw, char *dst, size_t dstn) {
+    static const char *const after[] = {
+        "about", "discuss", "to", "of", "di", "su", NULL
+    };
+    for (size_t i = 0; i + 1 < nw; i++) {
+        char tmp[64];
+        snprintf(tmp, sizeof tmp, "%s", w[i]);
+        const char *t = strip_edge_punct(tmp);
+        int is_after = 0;
+        for (const char *const *p = after; *p; p++)
+            if (strcmp(t, *p) == 0) { is_after = 1; break; }
+        if (!is_after) continue;
+        for (size_t j = i + 1; j < nw; j++) {
+            char o[64];
+            snprintf(o, sizeof o, "%s", w[j]);
+            const char *ot = strip_edge_punct(o);
+            /* the head noun: first alphabetic token that is not a bare article.
+             * We deliberately do NOT filter on the general stopword lexicon — a
+             * topic word like "formaggio" happens to be listed there for a
+             * chitchat test, but after "di"/"about" it is the genuine topic. */
+            static const char *const arts[] = {
+                "the","a","an","il","lo","la","i","gli","le","un","una","uno",NULL
+            };
+            int art = 0;
+            for (const char *const *p = arts; *p; p++)
+                if (strcmp(ot, *p) == 0) { art = 1; break; }
+            if (ot && isalpha((unsigned char)ot[0]) && strlen(ot) >= 3 && !art) {
+                snprintf(dst, dstn, "%s", ot);
+                return 1;
+            }
+        }
+    }
+    if (dstn) dst[0] = '\0';
+    return 0;
+}
+
+static int mod_pragma(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+
+    /* work on a trimmed copy of the canonicalized surface (`norm` is the
+     * canonicalized input; `raw` is the original). */
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    while (len > 0 && (buf[len-1]=='?'||buf[len-1]=='!'||buf[len-1]=='.'||buf[len-1]==' '||buf[len-1]==','))
+        buf[--len] = '\0';
+    if (len == 0) return 0;
+
+    char tmp[256];
+    memcpy(tmp, buf, len + 1);
+    char *w[64];
+    size_t nw = split_words(tmp, w, 64);
+    if (nw == 0) return 0;
+
+    char first[64];
+    first_word_tok(w, nw, first, sizeof first);
+
+    int content = has_content_predicate(b, buf, w, nw);
+
+    /* The pragmatic moves claim ONLY contentless turns, so a real task is never
+     * swallowed. (A discourse-marker opener wrapping content — "anyway, is
+     * socrates a man" — was already peeled and re-dispatched by pragma_peel in
+     * brain_respond BEFORE the registry ran, so the content was handled there;
+     * what reaches here is a turn with no actionable content predicate.) */
+    if (content) return 0;
+
+    int hedge       = has_hedge(w, nw);
+    int contrastive = has_contrastive(w, nw);
+    int negation    = has_negation(w, nw);
+    int disagree    = is_disagreement(w, nw);
+
+    /* ---- MOVE 5: disagreement. A NEGATED stance predicate ("i don't agree",
+     * "that's not right", "non sono d'accordo"), or a contrastive pushback that
+     * also negates ("nice try, but no") — with no content to act on. Keys on the
+     * stance predicate, so an imperative like "dont say that" is NOT disagreement. */
+    if (disagree || (contrastive && negation && nw <= 8)) {
+        put("Fair enough — tell me where I went wrong, and we can take it from there.",
+            out, out_size);
+        return 1;
+    }
+
+    /* ---- MOVE 4: hesitation. A hedge with nothing concrete to chew on. */
+    if (hedge && nw <= 9) {
+        put("No pressure — we can take it slowly. What's on your mind?",
+            out, out_size);
+        return 1;
+    }
+
+    /* ---- MOVE 3: topic introduction / change. A modal/imperative invitation
+     * ("can we talk about X", "let us switch to X", "let's discuss X") naming an
+     * object X — steer onto X by name. */
+    {
+        /* A topic-CHANGE invitation: either a MODAL opener proposing it ("can we
+         * …", "could we …", "shall we …", "let us …", "possiamo/potremmo …"
+         * canonicalize to can/could) OR an explicit switch/change verb. A bare
+         * "talk about X" / "parliamo di X" with no modal is left to the filler
+         * register (chitchat), so we don't override the gen140 decision that a
+         * casual "parliamo di formaggio" is just filler — the proposal SHAPE (a
+         * modal asking permission to change topic) is the discriminating cue. */
+        int modal_open = strcmp(first, "can") == 0 || strcmp(first, "could") == 0 ||
+                         strcmp(first, "shall") == 0 || strcmp(first, "lets") == 0 ||
+                         strcmp(first, "let") == 0;
+        int switch_verb = cue(buf, "switch to") || cue(buf, "change to") ||
+                          cue(buf, "move on to") || cue(buf, "cambiamo");
+        int frame = cue(buf, "talk about") || cue(buf, "chat about") ||
+                    cue(buf, "discuss") || cue(buf, "talk of") ||
+                    cue(buf, "parlare di") || cue(buf, "parliamo di") ||
+                    cue(buf, "discutere") || cue(buf, "discutiamo");
+        int invite = switch_verb || (modal_open && frame);
+        char topic[40];
+        if (invite && topic_object(w, nw, topic, sizeof topic)) {
+            char msg[160];
+            snprintf(msg, sizeof msg,
+                     "Sure, let's talk about %s. What about %s is on your mind?",
+                     topic, topic);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* ---- MOVE 2: soft request. An imperative directed at me ("tell/give/show
+     * me", "say") with NO content object — an open request to fill the silence. */
+    {
+        int soft = strcmp(first, "tell") == 0 || strcmp(first, "give") == 0 ||
+                   strcmp(first, "say") == 0 || strcmp(first, "show") == 0 ||
+                   strcmp(first, "share") == 0 || strcmp(first, "dimmi") == 0 ||
+                   strcmp(first, "dammi") == 0 || strcmp(first, "raccontami") == 0;
+        /* OPEN-ended only: the object must be a quantifier placeholder
+         * ("something/anything/qualcosa"), which is what distinguishes a
+         * fill-the-silence request from a real (often unfulfillable) one — "tell
+         * me a story about dragons" / "tell me about C" name a CONCRETE object, so
+         * they fall through to the honest wall, not this move. The bare 3-token
+         * "tell me something" family stays chitchat's established no-topic
+         * register, so we require >= 4 tokens here and leave those to chitchat. */
+        if (soft && has_open_quantifier(w, nw) && nw >= 4 && nw <= 8) {
+            put("Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.",
+                out, out_size);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 /* --- module: symbolic ----------------------------------------------------
  * Register recognition over symbolic FORM (gen65, sym-bench driven). The
  * cryptic-stimulus challenge (`make sym-bench`) showed the LLM's first move on
@@ -8657,6 +9014,7 @@ static const Module registry[] = {
     {"symbolic",  mod_symbolic},
     {"summary",   mod_summary},
     {"discourse", mod_discourse},
+    {"pragma",    mod_pragma},
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
 };
@@ -8692,6 +9050,63 @@ static int repair_dispatch(Brain *b, const char *canon, const char *raw,
         }
     }
     not_understood(b, canon, out, out_size);
+    return 0;
+}
+
+/* gen142 (E3): peel a leading DISCOURSE-MARKER opener off a turn and re-dispatch
+ * the residue through the WHOLE registry, so a content task survives the social
+ * wrapper ("anyway, is socrates a man" -> "Yes."; "by the way what is 2 plus 2"
+ * -> "4."). This runs as a pre-dispatch normalization in brain_respond — BEFORE
+ * the registry — because a content module earlier than pragma would otherwise
+ * mis-parse the wrapped turn (e.g. the extra opener tokens shift memory's
+ * "what is my X" window onto "plus"). A channel-management opener is not content;
+ * normalizing it away is the same gesture as canonicalize_lang, one level up.
+ *
+ * The peel is conservative: it fires only when (a) a real discourse opener leads,
+ * (b) there is residue after it, and (c) some module ACTUALLY claims the residue.
+ * If the residue is unclaimed we return 0 and the original turn is dispatched
+ * normally (so e.g. "anyway, i guess maybe" still reaches mod_pragma's hesitation
+ * move on its own shape). The RAW residue is rebuilt by skipping the same leading
+ * word-count from the original input, preserving proper-name casing ("well,
+ * remember my dog is Rex" keeps "Rex"). */
+static int pragma_peel(Brain *b, const char *canon, const char *raw,
+                       char *out, size_t out_size) {
+    char buf[256];
+    size_t len = strlen(canon);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, canon, len + 1);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw == 0) return 0;
+
+    size_t skip = 0;
+    if (!is_discourse_opener(w, nw, &skip) || skip >= nw) return 0;
+
+    char residue[256]; size_t off = 0; residue[0] = '\0';
+    for (size_t i = skip; i < nw && off + 1 < sizeof residue; i++)
+        off += (size_t)snprintf(residue + off, sizeof residue - off,
+                                "%s%s", i > skip ? " " : "", w[i]);
+    if (!residue[0]) return 0;
+
+    /* matching RAW residue: skip the same leading word count (and a trailing
+     * comma the opener often carries), keep original casing. */
+    char raw_res[256]; { const char *p = raw ? raw : ""; size_t s = 0;
+        while (*p && s < skip) {
+            while (*p && isspace((unsigned char)*p)) p++;
+            while (*p && !isspace((unsigned char)*p)) p++;
+            s++;
+        }
+        while (*p && (isspace((unsigned char)*p) || *p == ',')) p++;
+        snprintf(raw_res, sizeof raw_res, "%s", p);
+    }
+
+    for (size_t i = 0; i < registry_len; i++) {
+        if (registry[i].handle(b, residue, raw_res, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            return 1;
+        }
+    }
     return 0;
 }
 
@@ -8797,7 +9212,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen143-local-world-memory";
+    return "gen144-pragmatic-shape";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -8985,6 +9400,14 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))
+        return strlen(out);
+
+    /* gen142 (E3): peel a leading discourse-marker opener and re-dispatch the
+     * residue, so a content task wrapped in a channel-management opener survives
+     * ("anyway, is socrates a man" -> "Yes."). Only claims when the residue is
+     * actually owned by a module; otherwise the original turn dispatches normally
+     * and its pragmatic shape is read by mod_pragma. */
+    if (b && pragma_peel(b, canon, input, out, out_size))
         return strlen(out);
 
     /* Walk the registry; first module to claim the turn wins. */

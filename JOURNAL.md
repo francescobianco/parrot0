@@ -1,5 +1,76 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen144: pragmatic intent from turn SHAPE, not cue lists
+
+> Integration note: produced in parallel with gen142/gen143 by a worktree
+> subagent (E3), integrated on top of gen143 as the next generation.
+
+**Goal (PROMPT.md run, E-series E3):** the emergence audit named the human
+surface as the weakest signal, and `mod_chitchat`/`mod_social` meet it with
+GROWING CUE LISTS — so a held-out phrasing of the same speech act still hits the
+wall. Probing confirmed it: "give me something to think about", "could we chat
+about cheese", "i do not really agree with you", "anyway, is socrates a man",
+"by the way what is 2 plus 2" all walled (the last two even CORRUPTED the content
+parse — the extra opener tokens shifted memory's "what is my X" window onto
+"plus"). E3 demands: infer the SPEECH ACT from turn SHAPE, route each act to a
+DIFFERENT move, and TRANSFER to unseen phrasings — never another phrase table.
+
+**Changed:** `brain.c` → `gen144-pragmatic-shape`. New `mod_pragma`, registered
+LATE (after `discourse`, before `social`/`chitchat`) so genuine content/question
+turns win first. It classifies a turn on SHAPE FEATURES, never a memorized
+string: (1) the OPENER class of the first content token — a discourse marker
+(anyway/so/well/ok/"by the way") vs a soft-request verb (tell/give/say/share) vs
+a modal invitation (can/could/shall/let); (2) a HEDGE marker anywhere
+(maybe/suppose/probably/forse/magari); (3) NEGATION + a STANCE PREDICATE
+(agree/right/sure/true/correct/convinced/sense — keyed on the PREDICATE so an
+imperative "dont say that" is not disagreement); (4) a CONTRASTIVE connective
+(but/however/though); (5) an OPEN-QUANTIFIER object (something/anything/qualcosa —
+what separates a fill-the-silence request from a real one: "tell me a story about
+dragons" names a CONCRETE object and stays an honest wall); (6) a TOPIC-INTRO
+frame (modal/switch verb + talk-about/discuss/parlare-di + an object pulled by
+SHAPE — the head noun after the frame); (7) presence of a CONTENT PREDICATE
+(digit/operator/"is a"/known KB pred or entity) — the gate that makes every
+pragmatic move claim ONLY contentless turns, so a real task is never swallowed.
+Five distinct moves result: soft-request→invite a thread; hesitation→lower the
+stakes; disagreement→accept the pushback; topic-change→steer onto X by name;
+(boredom/no-topic stays chitchat's established register).
+
+The mixed social+content case is solved structurally by a PRE-DISPATCH peel
+(`pragma_peel` in `brain_respond`, beside `decompose_and_dispatch`): a leading
+discourse-marker opener is not content, so it is normalized away — like
+`canonicalize_lang`, one level up — and the residue is re-dispatched through the
+WHOLE registry. "anyway, is socrates a man" → "Yes."; "by the way what is 2 plus
+2" → "4."; "well, remember my dog is Bruno" keeps "Bruno" (the RAW residue is
+rebuilt by skipping the same leading word-count, preserving proper-name casing).
+The peel only claims when a module actually owns the residue, else the original
+turn dispatches normally and its pragmatic shape is read by `mod_pragma`. No new
+Brain field was needed (the early re-entrancy guard was removed once the peel
+moved pre-dispatch). Italian transfers through the SAME path via three small
+`canonicalize_lang` additions (`possiamo`→can, `potremmo`→could) plus
+shape-cue recognition of `qualcosa`/`d'accordo`/`parlare di`/`comunque` — no
+phrasing duplicated. Ratchets: `pragma.chat` / `.it`, plus a 14-turn held-out
+`pragma_stress.chat` (none of its phrasings appear in the code), including three
+mixed social+content turns where the content task survives. The `self` registry
+listing and the `strategy` declined-trace gained `pragma` in the right position
+(the module really runs there).
+
+**Observed.** The win is that the moves come from a small FEATURE VECTOR, not a
+list: 12 of 14 stress phrasings never seen by the code classify correctly, across
+five acts, in both languages — and the two misses are honest lexical bounds
+("unconvinced" is a different lemma than the "convinced" stance predicate; bare
+"parliamo di X" with no modal is deliberately left to filler per the gen140
+decision). The most satisfying part is the peel: it revealed that a chatty opener
+was not just unhandled but actively CORRUPTING content modules downstream (a
+latent `mod_memory` window bug only "anyway/by the way"-padding triggered).
+Treating the opener as a function word to be normalized — rather than a phrase to
+be matched — fixed the surface AND the content path with one structural move.
+Open edges: stance predicates are still a finite set (no morphological
+"un-"/"dis-" negation, so "unconvinced" slips); the topic move recognizes the
+INVITATION but does not yet COMMIT the new topic into discourse memory; and a
+soft request with a concrete object correctly walls rather than attempting the
+(unfulfillable) content — humility, but a future pull could name the gap.
+
+
 ## 2026-06-20 — gen143: local-world working memory — scoped fictions that don't leak
 
 > Integration note: produced in parallel with gen142 by a worktree subagent
