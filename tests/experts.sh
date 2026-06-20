@@ -11,7 +11,7 @@ pass=0 fail=0
 expect_profile() { # desc input profile expected
     local got
     got="$(printf '%s\n/quit\n' "$2" \
-          | PARROT0_BASE="$ROOT/kb/base.p0" PARROT0_SESSION= PARROT0_PROFILE="$ROOT/kb/$3" "$BIN" 2>/dev/null | head -1)"
+          | PARROT0_BASE="$ROOT/kb/core/base.p0" PARROT0_SESSION= PARROT0_PROFILE="$ROOT/kb/$3" "$BIN" 2>/dev/null | head -1)"
     if [ "$got" = "$4" ]; then echo "PASS expert: $1"; pass=$((pass+1))
     else echo "FAIL expert: $1 — want [$4] got [$got]" >&2; fail=$((fail+1)); fi
 }

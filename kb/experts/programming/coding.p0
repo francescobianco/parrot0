@@ -1,0 +1,7 @@
+% coding knowledge — gen149 ground layer, restructured gen150, relocated gen154.
+% Loaded at boot by main.c; chains the programming experts via :- include.
+% Includes resolve relative to THIS file's directory (kb/experts/programming/).
+
+:- include(c.p0).
+:- include(python.p0).
+:- include(debug.p0).

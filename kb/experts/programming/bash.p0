@@ -10,7 +10,7 @@
 %
 % The point is NOT a command dictionary but COMPOSITION: "what does ls -la do?"
 % is answered by composing ls + l + a even though that combination is not stored.
-% Load it with:  PARROT0_BASE=kb/bash.p0 make chat
+% Load it with:  PARROT0_BASE=kb/experts/programming/bash.p0 make chat
 
 % --- ls ---
 cmd(ls, lists_directory_contents).

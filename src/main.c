@@ -60,11 +60,11 @@ int main(void) {
     const char *base = getenv("PARROT0_BASE");
     const char *sess = getenv("PARROT0_SESSION");
     const char *profile = getenv("PARROT0_PROFILE");
-    if (!base) base = "kb/base.p0";
-    if (!sess) sess = "kb/session.p0";
+    if (!base) base = "kb/core/base.p0";
+    if (!sess) sess = "kb/core/session.p0";
     brain_load(brain, base, 1);
     brain_load(brain, sess, 0);
-    brain_load(brain, "kb/coding.p0", 1); /* gen149: coding domain knowledge */
+    brain_load(brain, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain knowledge */
     if (profile && *profile)
         brain_load(brain, profile, 1);    /* gen150: expert/skill profile */
 

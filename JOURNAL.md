@@ -1,4 +1,36 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen154: organize kb/ — no loose files, substrate vs domain
+
+**Goal (owner directive):** move every kb/ file that sits loose at the top level
+into its appropriate sub-folder, creating a dedicated folder where needed. The
+gen150 taxonomy (experts/skills/profiles) had left nine files scattered at the
+root, mixing always-loaded engine substrate with domain knowledge.
+
+**Changed (layout + load paths, no behavior change):**
+- New `kb/core/` for the always-loaded boot substrate: `base.p0`, `session.p0`,
+  `lexicon.p0`, `gloss.p0`, `social.p0`, `roles.p0`. These are not domain
+  knowledge — they are the engine's language/identity layer, loaded
+  unconditionally by `brain_create`/`main`.
+- Domain knowledge moved into the taxonomy: `grammar.p0` -> `experts/
+  linguistics/grammar.p0`; `bash.p0` -> `experts/programming/bash.p0`;
+  `coding.p0` -> `experts/programming/coding.p0` (its `:- include` paths fixed to
+  be relative to its new directory — includes resolve against the including
+  file's dir).
+- Load paths updated: `main.c` (base/session/coding), `brain.c` (lexicon/social/
+  roles/gloss), `.gitignore` (session), and the test harnesses (`experts.sh`,
+  `profiles.sh`, `skills.sh`, `knowledge.sh` base; `posix.sh`/`synth.sh`/
+  `posix_oracle.sh` bash; `grammar.sh` grammar). Stale path mentions in comments
+  were updated with `rap`.
+- `kb/` top level now contains ONLY the four taxonomy directories (core,
+  experts, skills, profiles) — no loose files.
+
+**Observed.** Clean rebuild + full `make test` green; the agi profile and the
+default `make chat` load behave exactly as before (the move is path-only). The
+version string advances to gen154 to mark the integrated state (gen151 speak +
+gen152 engine + gen153 data repair + gen154 layout). Remaining debt unchanged:
+truncated descriptions in the science/humanities/skills files, and the malformed
+`flag(ls, u_r, ...)` in shell.p0.
+
 ## 2026-06-21 - gen153: restore truncated knowledge + real domain tests
 
 **Goal (owner audit, continued):** with the engine able to hold full strings

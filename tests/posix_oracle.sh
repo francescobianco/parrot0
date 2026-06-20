@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 # Mission M1, step 3 (gen62): oracle-grounded output prediction.
-# Loads kb/bash.p0 and verifies that parrot0 can PREDICT the output of
+# Loads kb/experts/programming/bash.p0 and verifies that parrot0 can PREDICT the output of
 # small pure shell commands, then check that prediction against the real shell.
 # This script only runs when PARROT0_ORACLE=1.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
-BASH_KB="$ROOT/kb/bash.p0"
+BASH_KB="$ROOT/kb/experts/programming/bash.p0"
 
 if [ ! -x "$BIN" ]; then
     echo "posix_oracle: binary not built ($BIN)" >&2

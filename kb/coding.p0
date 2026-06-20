@@ -1,6 +1,0 @@
-% coding knowledge — gen149 ground layer, restructured gen150.
-% Loaded at boot by main.c; chains programming experts and skills via :- include.
-
-:- include(experts/programming/c.p0).
-:- include(experts/programming/python.p0).
-:- include(experts/programming/debug.p0).

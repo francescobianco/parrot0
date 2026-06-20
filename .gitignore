@@ -6,7 +6,7 @@
 /.claude/
 
 # generated session knowledge (base.p0 is curated & tracked)
-/kb/session.p0
+/kb/core/session.p0
 
 # editor / OS noise
 *.o

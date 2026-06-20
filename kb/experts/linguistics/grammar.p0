@@ -1,6 +1,6 @@
 % parrot0 grammar expertise — v0: parts of speech.
 % The first forged expert (DESIGN.md D5). Load it as a knowledge layer:
-%   PARROT0_BASE=kb/grammar.p0 make chat
+%   PARROT0_BASE=kb/experts/linguistics/grammar.p0 make chat
 % Exports the predicates: noun/1, verb/1, adjective/1, word/1.
 
 % --- parts of speech (facts) ---

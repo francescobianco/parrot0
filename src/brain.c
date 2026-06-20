@@ -96,7 +96,7 @@ struct Brain {
      * pierces the mask back to parrot0. The role's name/kind/attributes are PARSED
      * from the user's setup utterance (genuine NL uptake); what parrot0 *knows*
      * about the kind/figure (a dog barks, Dante wrote the Commedia) is queried
-     * from kb/roles.p0. Cleared by "stop pretending" / "be yourself". */
+     * from kb/core/roles.p0. Cleared by "stop pretending" / "be yourself". */
     int  in_role;
     char role_name[64];   /* display name: "Rex", "Mario", "Cleopatra"        */
     char role_kind[64];   /* what it is: "dog", "robot", or an identity atom   */
@@ -3919,15 +3919,15 @@ static int is_internal_pred(const char *pred) {
         "stopword", "social_marker", "social_pattern", "question_word",
         "reaction_word", "i_am", "module", "cont", "cont2",
         "cmd", "flag",
-        /* gen101: role/character world-knowledge (kb/roles.p0) is curated
+        /* gen101: role/character world-knowledge (kb/core/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */
         "trait", "employer", "likes_color", "profession", "wrote",
         "rules_over", "title",
-        /* gen126: the bilingual content lexicon (kb/gloss.p0) is base
+        /* gen126: the bilingual content lexicon (kb/core/gloss.p0) is base
          * substrate for mod_translate, not facts the user taught — filter it. */
         "tr", "gender",
-        /* gen149: coding-domain knowledge (kb/coding.p0) is technical
+        /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
         "error", "concept", "algorithm", "faster_than",
@@ -4010,7 +4010,7 @@ static int kb_dump_user(const KB *kb, char *out, size_t out_size) {
  *     "sei X" into role state (name, kind, inline attributes). This is genuine
  *     language understanding — the name/kind come from the user's own words.
  *   - IN-ROLE ANSWERS: when a role is active, answer identity and in-character
- *     questions from (a) the parsed role state and (b) what kb/roles.p0
+ *     questions from (a) the parsed role state and (b) what kb/core/roles.p0
  *     knows about the kind/figure. A TRUTH-PROBE ("really", "underneath",
  *     "davvero") pierces the mask: the agent still knows it is parrot0 beneath.
  *
@@ -4295,7 +4295,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* "do you <action>?" — affirm if the kind has that trait (kb/roles.p0). */
+    /* "do you <action>?" — affirm if the kind has that trait (kb/core/roles.p0). */
     if (strncmp(buf, "do you ", 7) == 0 && b->role_kind[0]) {
         char *w[8]; char db[256]; snprintf(db, sizeof db, "%s", buf);
         size_t dn = split_words(db, w, 8);
@@ -5134,7 +5134,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
  * POSIX/shell knowledge — Mission M1, step 1 (gen53) + step 2 (gen61).
  * Answers "what does <cmd> do?" / "explain <cmd>" by PARSING the command line
  * into (command, flags, args) and COMPOSING the answer from learned `cmd`/`flag`
- * facts (kb/bash.p0, carried in the commits) — so "ls -la" is explained
+ * facts (kb/experts/programming/bash.p0, carried in the commits) — so "ls -la" is explained
  * by composing ls + l + a even though that combination is not stored.
  *
  * gen61 extends this to simple PIPELINES: "cmd1 | cmd2" is explained by
@@ -6518,7 +6518,7 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
  * We detect mixed turns by the co-occurrence of a phatic marker with a question
  * word or with explicit negative/corrective content after thanks. */
 /* gen73: social register as KB knowledge (PLAN.md Phase 3). The word lists
- * formerly hardcoded in C arrays now live in kb/social.p0. */
+ * formerly hardcoded in C arrays now live in kb/core/social.p0. */
 static int is_social_marker(Brain *b, const char *type, const char *word) {
     if (!b || !b->kb) return 0;
     const char *args[] = {type, word};
@@ -6665,7 +6665,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(tmp, w, 64);
     if (nw == 0) return 0;
 
-    /* gen73: all markers now come from kb/social.p0 via KB queries. */
+    /* gen73: all markers now come from kb/core/social.p0 via KB queries. */
     int has_opening   = tok_is_marker(b, "opening", w, nw) ||
                         has_social_pattern(b, "opening", buf);
     int has_closing   = tok_is_marker(b, "closing", w, nw) ||
@@ -6687,7 +6687,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     /* apology — "scusa", "sorry", "mi dispiace" etc. */
     if (has_apology) { put("No problem.", out, out_size); return 1; }
 
-    /* wellbeing check-in — gen73: patterns from kb/social.p0 */
+    /* wellbeing check-in — gen73: patterns from kb/core/social.p0 */
     if (has_social_pattern(b, "wellbeing", buf))
         { put("I'm well, thanks. How can I help?", out, out_size); return 1; }
 
@@ -6701,7 +6701,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     if (has_opening) { put("Hi there!", out, out_size); return 1; }
     if (has_closing) { put("Goodbye!", out, out_size); return 1; }
 
-    /* gen72/gen73: laughter and conversational reactions — from kb/social.p0 */
+    /* gen72/gen73: laughter and conversational reactions — from kb/core/social.p0 */
     int has_reaction = 0;
     for (size_t i = 0; i < nw && !has_reaction; i++) {
         char tmp[64];
@@ -7380,7 +7380,7 @@ static int name_register(Brain *b, const char *a, const char *alt,
  * Extracts the code portion, identifies the language (C vs Python), runs simple
  * syntactic checks (missing semicolons, type mismatches, unclosed strings,
  * unbalanced braces/parens, undefined functions), and reports findings.
- * Grounded in kb/coding.p0 — the KB is the source of truth for
+ * Grounded in kb/experts/programming/coding.p0 — the KB is the source of truth for
  * keywords, stdlib functions, error patterns and fix suggestions. */
 
 static int find_code_section(const char *input, char *code, size_t code_size) {
@@ -7847,7 +7847,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
 
 /* --- module: translate (gen126, L5) -------------------------------------
  * Grounded translation of a short clause, EN<->IT, COMPOSED from per-word
- * glosses (tr/2 in kb/gloss.p0) plus a structural article rule, never
+ * glosses (tr/2 in kb/core/gloss.p0) plus a structural article rule, never
  * a stored sentence. So any noun/verb in the lexicon transfers to a held-out
  * clause: this is translation, not a phrasebook. Honest decline on an unknown
  * content word (it names the word it cannot translate).
@@ -8008,7 +8008,7 @@ found:
 /* --- module: synth (gen127, L12) ----------------------------------------
  * The INVERSE of mod_shell: synthesize a one-line shell command from a natural
  * spec ("count the lines in a file" -> "wc -l <file>"), grounded in the SAME
- * cmd/flag knowledge the interpreter reads (kb/bash.p0). The command is
+ * cmd/flag knowledge the interpreter reads (kb/experts/programming/bash.p0). The command is
  * SELECTED by matching the spec's action against command descriptions, and its
  * FLAGS by matching the spec's object nouns against flag descriptions — never a
  * stored spec->command pair, so held-out specs over known commands transfer.
@@ -9969,27 +9969,27 @@ Brain *brain_create(void) {
      * knowledge layer, not as C word arrays; loading it as base keeps it out of
      * session saves while tests stay independent of world knowledge files. */
     const char *lexicon = getenv("PARROT0_LEXICON");
-    if (!lexicon) lexicon = "kb/lexicon.p0";
+    if (!lexicon) lexicon = "kb/core/lexicon.p0";
     if (*lexicon) {
         kb_set_origin(b->kb, KB_BASE);
         kb_load(b->kb, lexicon);
     }
 
     /* gen73 (PLAN.md Phase 3): social markers, question words and reaction words
-     * live in kb/social.p0, not as hardcoded C arrays. The KB is the
+     * live in kb/core/social.p0, not as hardcoded C arrays. The KB is the
      * single source of truth; the C code queries it at runtime. */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "kb/social.p0");
+    kb_load(b->kb, "kb/core/social.p0");
 
     /* gen101 (C15): role/character world-knowledge — what parrot0 knows about
      * the kinds and figures it may be asked to impersonate (see mod_role). */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "kb/roles.p0");
+    kb_load(b->kb, "kb/core/roles.p0");
 
     /* gen126 (L5): bilingual content lexicon used by mod_translate to COMPOSE a
      * clause translation from word glosses + a structural article rule. */
     kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "kb/gloss.p0");
+    kb_load(b->kb, "kb/core/gloss.p0");
 
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
@@ -10025,7 +10025,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen151-knowledge-speaks";
+    return "gen154-knowledge-organized";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
