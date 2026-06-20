@@ -142,6 +142,14 @@ expect "inverse query: members of the digestive system" \
     "experts/medicine/anatomy.p0" \
     "digestive contains: stomach, intestines, liver."
 
+# gen159: type/level gate. "skeletal" appears as an ADJECTIVE in the muscular
+# description ("skeletal ... muscles"); both are body_system (siblings), and a
+# system is never part of a sibling system — so the false relation is rejected.
+expect "type gate: a system is not part of a sibling system" \
+    "is skeletal part of muscular" \
+    "experts/medicine/anatomy.p0" \
+    "No, I have no evidence that skeletal is part of muscular."
+
 # An unknown topic must NOT be force-fit to a concept (precision over recall).
 expect "honest miss: unknown topic does not fuzzy-fire" \
     "what is the weather like today" \

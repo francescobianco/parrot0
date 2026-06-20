@@ -1148,6 +1148,9 @@ int kb_is_concept_key(const KB *kb, const char *term) {
  * description NAMES the heart, so the containment relation can be recovered from
  * the text. Find the concept whose description mentions `term` (a different
  * concept), recovering an emergent taxonomy that was never asserted as facts. */
+static const char *concept_pred(const KB *kb, const char *key);
+static int valid_member(const KB *kb, const char *mem, const char *contpred);
+
 int kb_concept_mentioning(const KB *kb, const char *term,
                           char *key_out, size_t key_sz,
                           char *desc_out, size_t desc_sz) {
@@ -1157,6 +1160,7 @@ int kb_concept_mentioning(const KB *kb, const char *term,
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
         if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
         if (strcmp(f->args[0], term) == 0) continue;   /* a concept never contains itself */
+        if (!valid_member(kb, term, f->pred)) continue; /* gen159: sibling, not a part */
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
@@ -1188,6 +1192,27 @@ static int str_in(const char set[][KB_TERM_LEN], size_t n, const char *s) {
     return 0;
 }
 
+/* gen159: the predicate ("taxonomic level") of the concept keyed by `key`. */
+static const char *concept_pred(const KB *kb, const char *key) {
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (strcmp(f->args[0], key) == 0) return f->pred;
+    }
+    return NULL;
+}
+
+/* gen159: a valid containment crosses TWO taxonomic levels (an organ is part of
+ * a system); two concepts of the SAME predicate are siblings, never nested. This
+ * type gate kills the text-ambiguity false positive where a system name appears
+ * as an ADJECTIVE in a sibling's description ("skeletal ... muscles" in the
+ * muscular system). `mem` is a concept key, `contpred` the container's predicate. */
+static int valid_member(const KB *kb, const char *mem, const char *contpred) {
+    const char *mp = concept_pred(kb, mem);
+    return mp && strcmp(mp, contpred) != 0;
+}
+
 int kb_derive_part_of(KB *kb) {
     if (!kb) return 0;
     const size_t n0 = kb->n;
@@ -1213,7 +1238,8 @@ int kb_derive_part_of(KB *kb) {
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         int names_other = 0;
         for (size_t c = 0; c < nc; c++)
-            if (strcmp(ctoks[c], f->args[0]) != 0 && str_in(keys, nkeys, ctoks[c])) { names_other = 1; break; }
+            if (strcmp(ctoks[c], f->args[0]) != 0 && str_in(keys, nkeys, ctoks[c]) &&
+                valid_member(kb, ctoks[c], f->pred)) { names_other = 1; break; }
         if (!names_other) continue;
         size_t p = 0; for (; p < npreds; p++) if (strcmp(preds[p], f->pred) == 0) break;
         if (p == npreds && npreds < 128) { snprintf(preds[npreds], KB_TERM_LEN, "%s", f->pred); pcnt[npreds] = 0; npreds++; }
@@ -1236,6 +1262,7 @@ int kb_derive_part_of(KB *kb) {
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
             if (strcmp(ctoks[c], f->args[0]) == 0 || !str_in(keys, nkeys, ctoks[c])) continue;
+            if (!valid_member(kb, ctoks[c], f->pred)) continue; /* sibling, not a part */
             const char *args[2] = { ctoks[c], f->args[0] };
             if (kb_assert(kb, "part_of", args, 2)) added++;
         }

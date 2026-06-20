@@ -1,4 +1,37 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen159: a type gate makes the derived graph trustworthy
+
+**Goal (owner: make the graph affidabile):** gen158 materialized part_of/2 from
+descriptions but text ambiguity leaked one false relation — the muscular
+description says "skeletal, smooth and cardiac muscles", where "skeletal" is an
+ADJECTIVE (skeletal muscle), yet it is also a body-system name, so
+part_of(skeletal, muscular) was asserted falsely.
+
+**Insight:** the robust signal here is NOT part-of-speech (the word "skeletal" is
+genuinely ambiguous) but TAXONOMIC LEVEL. A valid containment crosses two levels
+— an organ is part of a system — whereas two concepts of the SAME predicate are
+SIBLINGS and never nested. skeletal and muscular are both `body_system`; a system
+is not part of a sibling system.
+
+**Changed:** `kb.c` -> `gen159-typed-relations`. New `concept_pred` (the
+predicate/level of a concept key) and `valid_member` (member and container must
+have DIFFERENT predicates). The gate is applied in all three places that infer
+containment: the container-predicate detection, the `part_of` materialization,
+and the on-demand `kb_concept_mentioning`. No parsing, no hardcoded domain list —
+a structural type constraint.
+
+**Observed.** "is skeletal part of muscular?" -> No (the false relation is gone);
+"what is the skeletal system part of?" -> honest wall. Every true relation
+survives: heart/brain/liver -> their systems (Yes), members queries intact. The
+derived knowledge graph is now trustworthy: every part_of in it crosses a real
+taxonomic level. `tests/knowledge.sh` ratchets the rejected sibling relation
+(22 cases). The arc gen155->159 — recall by similarity, idf metric, relations
+from text, relations as facts, typed relations — turned a flat, half-broken
+glossary into a small reasoned-over knowledge graph, each step held-out + the
+honest limit named. The standing frontier is unchanged and now sharper: deeper
+multi-hop chains need taxonomic levels the data does not yet encode (organ ->
+system -> organism), and cross-language semantics need bilingual descriptions.
+
 ## 2026-06-21 - gen158: the emergent relation becomes a provable fact
 
 **Goal (continuation):** gen157 RECOVERED "heart is part of circulatory" from the
