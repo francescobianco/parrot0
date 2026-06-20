@@ -254,8 +254,16 @@ Acceptance:
 
 Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set.
 
-### E2 - Conversational repair loop
+### E2 - Conversational repair loop — DONE (seed), gen141
 Goal: when a user says something unclear, ask a specific clarification, store the pending intent, and resume it after the user answers.
+
+gen141: `mod_repair` implements the clarify→store→resume bridge for referential
+gaps (pronoun with no antecedent; arithmetic operand named by a pronoun). The
+next turn fills the slot — a teaching answer resolves by coreference, else a
+referent/number is substituted — and the original intent re-runs; a fresh
+question expires the pending state. Open within E2: fill MULTIPLE slots, and
+clarify missing objects in imperative commands ("fix it"), not only question-form
+gaps. `repair.chat`/`.it`, `repair_stress.chat`.
 
 Acceptance:
 - Ambiguous pronouns or missing objects trigger a narrow clarification rather than the wall.

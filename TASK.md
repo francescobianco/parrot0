@@ -8,6 +8,17 @@
 
 ## Done recently
 
+- **gen141 — conversational repair loop (E2).** `mod_repair` (registered first)
+  turns a referential gap from a wall into a clarify→store→resume bridge across
+  turns. A pronoun query with no antecedent ("is it a mammal?") or an arithmetic
+  operand named by a pronoun ("what is it plus 10") opens a narrow clarification
+  and stores the unfinished turn; the next turn fills the slot (a teaching answer
+  resolves it by coreference, else a referent/number is substituted) and the
+  ORIGINAL intent is re-dispatched for real; a fresh question instead expires the
+  pending state. Composes with arithmetic, teaching, coref and rule derivation —
+  no special-case glue. EN/IT ratchets + a ~10-episode stress probe.
+  `repair.chat`/`.it`, `repair_stress.chat`.
+
 - **gen140 — conversation companion register.** `mod_chitchat` now handles ordinary non-technical talk openings: no-topic turns ("I don't know what to say"), requests for conversational scaffolding ("say something"), casual talk invitations, low-energy mood, and upbeat acknowledgements. It stays anti-impostor: it guides toward tractable conversation rather than pretending world knowledge or empathy. Ratcheted with EN/IT minimal cases plus a 10-turn casual stress set. `chitchat.chat`/`.it`.
 
 

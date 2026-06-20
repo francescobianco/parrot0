@@ -1,0 +1,34 @@
+# gen141 (E2): the conversational repair loop. A turn with a referential gap a
+# resolver cannot fill does NOT hit the wall — the agent asks a narrow
+# clarification, STORES the unfinished intent, and RESUMES it on the next turn.
+# Single-turn window: the very next turn answers it or the topic clearly changed
+# and it expires. Registered FIRST so it pre-empts the wall and catches the answer.
+
+# 1. An arithmetic operand named by a pronoun: ask for a NUMBER, then resume the
+#    real computation. (Numbers set no discourse entity, so this stays "cold".)
+> what is it plus 10
+< What number should I use for "it"?
+> 21
+< 31.
+
+# 2. A cold pronoun query opens a clarification; a fresh question instead of an
+#    answer EXPIRES the pending repair and is handled on its own terms.
+> is it a mammal?
+< Who or what does "it" refer to?
+> what is 2 plus 2
+< 4.
+
+# 3. A teaching answer ("rex is a dog") runs first — it asserts the fact AND sets
+#    the discourse entity — so the stored pronoun now resolves by coreference and
+#    the ORIGINAL question is answered for real.
+> every dog is a mammal
+< Learned rule: mammal(X) :- dog(X).
+> is it a mammal?
+< Who or what does "it" refer to?
+> rex is a dog
+< Yes.
+
+# 4. With a referent now available, a pronoun resolves directly — repair stays out
+#    of the way and the normal path answers honestly (no clarification loop).
+> is it an animal?
+< I don't know about animal.

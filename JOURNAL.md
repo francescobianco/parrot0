@@ -1,5 +1,47 @@
 # parrot0 evolution journal
 
+## 2026-06-20 — gen141: conversational repair loop — clarify, hold, resume
+
+**Goal (PROMPT.md run, E-series E2):** attack the weakest signal the emergence
+audit named — the human surface. Vague turns hit the wall. A real interlocutor,
+asked something it cannot pin down ("is it a mammal?" with no antecedent, "what
+is it plus 10" with no number), does not collapse; it asks a narrow
+clarification, holds the unfinished thought, and resumes it once answered. This
+generation builds exactly that as a stateful bridge across two turns.
+
+**Changed:** `brain.c` -> `gen141-conversational-repair`. New `mod_repair`,
+registered FIRST so it both pre-empts the wall and catches the answer. Brain
+gains a single-turn pending slot (`pending_repair`/`pending_canon`/`pending_slot`).
+OPEN: a question whose referential slot is an unresolved entity pronoun (and no
+antecedent exists) stores the turn and asks specifically — "What number should I
+use for X?" when an arithmetic operator is present, else "Who or what does X
+refer to?". RESUME: the next turn fills the slot — if it is itself a teaching
+assertion ("rex is a dog") it runs first so coreference resolves the stored
+pronoun; otherwise a concrete referent token is substituted in — then the
+ORIGINAL turn is re-dispatched through the registry (new `repair_dispatch`, NOT
+footprint-free: a resumed assertion really learns, a resumed query really runs).
+EXPIRE: if the next turn is plainly a new intent, the pending state is dropped and
+that turn handled normally. Added `esso/essa/lui/lei/...` subject-pronoun mappings
+to `canonicalize_lang` so the Italian probe reaches the same path. Ratchets:
+`repair.chat` / `.it`, plus a ~10-episode `repair_stress.chat`. The `strategy` and
+`self` trace/registry expectations gained `repair` at the front (the module really
+runs first).
+
+**Observed.** This is the first turn-bridging *intent* in the agent: it does not
+just answer the current line, it keeps an unfinished goal alive and finishes it on
+the user's reply. "what is it plus 10" -> "What number should I use for 'it'?" ->
+"21" -> "31." composes the repair loop with arithmetic; "is it a mammal?" ->
+clarify -> "rex is a dog" -> "Yes." composes it with teaching AND coreference AND
+rule derivation — four subsystems, no special-case glue, exactly the compositional
+emergence E1 asks for. The 10x stress run is the useful signal: every OPEN /
+clarify / store / resume held across varied operators, both operand slots, and an
+interleaved expiry; the only misses were *downstream* targets the arithmetic
+module doesn't support ("divided by", "half of") and a double-pronoun turn
+(two slots, one fill) — bounds of what repair resumes into, not of the loop
+itself. Open: fill multiple slots; clarify missing objects in imperative
+commands ("fix it"), not only question-form gaps.
+
+
 ## 2026-06-20 — gen140: conversation companion — everyday talk without pretending
 
 **Goal:** improve basic casual conversation for non-technical users. The recent generations made parrot0 stronger at formal reasoning, but a normal interlocutor often starts with "I don't know what to say", "can we just talk", "I'm tired", or "tell me something". Those should not hit the wall, but the answer must stay honest: guide the conversation without inventing feelings, facts, or broad competence.

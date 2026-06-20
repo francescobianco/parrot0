@@ -117,6 +117,18 @@ struct Brain {
     char last_input_canon[256];
     char last_input_raw[256];
     int  has_last_input;
+
+    /* gen141 (E2): conversational repair loop. When a turn carries a referential
+     * gap that resolution cannot fill — a pronoun with no antecedent, or an
+     * arithmetic slot named by a pronoun — the agent does NOT wall. It asks a
+     * narrow clarification, STORES the incomplete turn here, and on the next turn
+     * fills the slot and RESUMES the original intent through the normal dispatch.
+     * The pending state is single-turn: the very next turn either answers it or
+     * the topic clearly changed, in which case it expires. This is a stateful
+     * bridge across turns, not a phrasebook reply. */
+    int  pending_repair;        /* a clarification is open, awaiting an answer  */
+    char pending_canon[256];    /* the stored incomplete turn (canonicalized)   */
+    char pending_slot[16];      /* the token to fill (the unresolved pronoun)   */
 };
 
 /* ----------------------------------------------------------------------------
@@ -536,6 +548,12 @@ static const char *canonical_token(const char *w) {
         {"causa","causes"},
         {"cos'è", "what is"},
         {"sono", "am"},
+        /* gen141: subject pronouns, so the repair loop's referential-gap probe
+         * (a pronoun with no antecedent) reaches the SAME code path in Italian.
+         * These are unambiguous subject forms; "lo"/"la"/"li" (clitics/articles)
+         * are deliberately left out to avoid colliding with article parsing. */
+        {"esso", "it"}, {"essa", "it"}, {"essi", "they"}, {"esse", "they"},
+        {"lui", "he"}, {"lei", "she"},
         /* Chat-register shorthand (gen64), not a second language. "u"/"r" are
          * English letters, but never stand-alone English *words*; in a chat
          * agent a lone "u"/"r" overwhelmingly means you/are ("what can u do?",
@@ -6916,6 +6934,9 @@ static int replay_dispatch(Brain *b, const char *canon, const char *raw,
                            char *out, size_t out_size);
 static int is_registry_module(const char *name); /* defined after the table */
 static void not_understood(Brain *b, const char *canon, char *out, size_t out_size);
+static int repair_dispatch(Brain *b, const char *canon, const char *raw,
+                           char *out, size_t out_size); /* gen141, after the table */
+static int is_intent_starter(const char *w);           /* gen80, after the table */
 
 static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
                               char *out, size_t out_size) {
@@ -7011,6 +7032,153 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
                  "Without '%s', the next module that matches is '%s', and it would "
                  "answer \"%s\"", suppress, who, ans);
     }
+    put(msg, out, out_size);
+    return 1;
+}
+
+/* --- module: repair (gen141, E2) — the conversational repair loop -----------
+ * The weakest signal in the emergence audit (E-series) is the human surface:
+ * vague turns hit the wall. A real interlocutor, asked something it cannot pin
+ * down — "is it a mammal?" with no antecedent, "what is it plus 10" with no
+ * number — does not collapse into "I don't understand". It asks a NARROW
+ * clarification, holds the unfinished thought, and RESUMES it once answered.
+ *
+ * This module is that loop, as a stateful bridge across two turns:
+ *   OPEN   a question whose referential slot (an entity pronoun) cannot be
+ *          resolved -> store the turn, ask specifically what the slot means.
+ *   RESUME the next turn fills the slot. If it is itself a teachable assertion
+ *          ("rex is a dog") it runs first, so coreference now resolves the
+ *          stored pronoun; otherwise a concrete referent token is substituted
+ *          into the stored turn. Either way the ORIGINAL intent is re-dispatched
+ *          through the normal registry and its real answer returned.
+ *   EXPIRE if the next turn is plainly a new intent (a fresh question/command),
+ *          the pending state is dropped and that turn handled normally.
+ * The window is a single turn: clarification is consumed immediately, never
+ * lingering to hijack later conversation. It is registered FIRST so it can both
+ * pre-empt the wall and catch the answer before any other module.
+ *
+ * Defined above the registry it resumes through, via a forward-declared helper
+ * implemented after the registry table (same shape as mod_counterfactual). */
+
+/* first word is an interrogative/auxiliary that opens a question */
+static int is_question_opener(const char *w) {
+    static const char *const q[] = {
+        "is", "are", "was", "were", "does", "do", "did", "can", "could",
+        "will", "would", "should", "what", "who", "where", "when", "why",
+        "how", NULL };
+    for (const char *const *p = q; *p; p++)
+        if (strcmp(w, *p) == 0) return 1;
+    return 0;
+}
+
+/* an arithmetic operator cue, so the clarification can ask for a NUMBER rather
+ * than a referent when the gap is an operand. */
+static int has_arith_cue(Brain *b, char **w, size_t nw) {
+    static const char *const ops[] = {
+        "plus", "minus", "times", "divided", "multiplied", "double", "triple",
+        "half", "square", "sum", "product", NULL };
+    (void)b;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strpbrk(t, "+-*/")) return 1;
+        for (const char *const *p = ops; *p; p++)
+            if (strcmp(t, *p) == 0) return 1;
+    }
+    return 0;
+}
+
+static int mod_repair(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    if (!b) return 0;
+
+    /* -- RESUME: a clarification is open; this turn should fill the slot. ---- */
+    if (b->pending_repair) {
+        b->pending_repair = 0;               /* single-turn window: consume it */
+        char saved_canon[256], saved_slot[16];
+        snprintf(saved_canon, sizeof saved_canon, "%s", b->pending_canon);
+        snprintf(saved_slot,  sizeof saved_slot,  "%s", b->pending_slot);
+
+        char tb[256]; snprintf(tb, sizeof tb, "%s", norm);
+        char *tw[64]; size_t tnw = split_words(tb, tw, 64);
+        if (tnw == 0) return 0;
+
+        /* If the user changed the subject instead of answering, expire and let
+         * normal dispatch handle this turn fresh (acceptance: repair state
+         * expires when the topic clearly changes). */
+        if (is_question_opener(tw[0]) || is_intent_starter(tw[0]) ||
+            strstr(norm, "refer to"))
+            return 0;
+
+        /* Let a teachable answer act first: "rex is a dog" asserts the fact and
+         * sets the discourse entity, so the stored pronoun resolves by coref. */
+        int had = b->has_last_entity;
+        char prev[KB_TERM_LEN];
+        snprintf(prev, sizeof prev, "%s", b->last_entity);
+        char ans[512] = "";
+        repair_dispatch(b, norm, raw, ans, sizeof ans);
+        int entity_set = b->has_last_entity &&
+                         (!had || strcmp(prev, b->last_entity) != 0);
+
+        char resumed[256];
+        if (entity_set) {
+            snprintf(resumed, sizeof resumed, "%s", saved_canon);
+        } else {
+            /* substitute the slot with a concrete referent token from the answer
+             * (the last content word/number: "the dog rex" -> rex, "21" -> 21). */
+            const char *ref = NULL;
+            for (size_t i = tnw; i-- > 0; ) {
+                char *t = strip_edge_punct(tw[i]);
+                if (!*t || is_entity_pronoun(t) || is_stopword(b, t)) continue;
+                if (isalpha((unsigned char)t[0]) || isdigit((unsigned char)t[0])) {
+                    ref = t; break;
+                }
+            }
+            if (!ref) return 0;              /* no usable answer -> expire */
+            char cb[256]; snprintf(cb, sizeof cb, "%s", saved_canon);
+            char *cw[64]; size_t cnw = split_words(cb, cw, 64);
+            size_t pos = 0; int replaced = 0; resumed[0] = '\0';
+            for (size_t i = 0; i < cnw && pos < sizeof resumed; i++) {
+                const char *piece = cw[i];
+                char bare[64]; snprintf(bare, sizeof bare, "%s", cw[i]);
+                if (!replaced && strcmp(strip_edge_punct(bare), saved_slot) == 0) {
+                    piece = ref; replaced = 1;
+                }
+                pos += (size_t)snprintf(resumed + pos, sizeof resumed - pos,
+                                        "%s%s", i ? " " : "", piece);
+            }
+            if (!replaced) snprintf(resumed, sizeof resumed, "%s", saved_canon);
+        }
+
+        repair_dispatch(b, resumed, raw, out, out_size);
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "repair");
+        return 1;
+    }
+
+    /* -- OPEN: detect a referential gap and ask a narrow clarification. ------ */
+    char buf[256]; snprintf(buf, sizeof buf, "%s", norm);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    if (nw < 2) return 0;
+    if (!is_question_opener(w[0])) return 0;     /* only questions/commands */
+    if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
+    if (b->has_last_entity) return 0;            /* a referent is available */
+
+    const char *pron = NULL;
+    for (size_t i = 1; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (is_entity_pronoun(t)) { pron = t; break; }
+    }
+    if (!pron) return 0;
+
+    snprintf(b->pending_canon, sizeof b->pending_canon, "%s", norm);
+    snprintf(b->pending_slot, sizeof b->pending_slot, "%s", pron);
+    b->pending_repair = 1;
+
+    char msg[160];
+    if (has_arith_cue(b, w, nw))
+        snprintf(msg, sizeof msg, "What number should I use for \"%s\"?", pron);
+    else
+        snprintf(msg, sizeof msg, "Who or what does \"%s\" refer to?", pron);
     put(msg, out, out_size);
     return 1;
 }
@@ -7680,6 +7848,7 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
  * (This table is also reified into the KB as module(...) facts at birth, so
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
+    {"repair",    mod_repair},
     {"translate", mod_translate},
     {"synth",     mod_synth},
     {"induce",    mod_induce},
@@ -7736,6 +7905,24 @@ static int is_registry_module(const char *name) {
  * state: the volatile last_reply/last_module are snapshotted and restored, and
  * the trace is left untouched (the candidate handlers write only to `out`; any
  * KB assertion they repeat for this same turn is idempotent). */
+/* gen141: dispatch a (possibly reconstructed) turn through the registry, skipping
+ * the repair module itself so a resumed turn cannot re-open a clarification. Unlike
+ * replay_dispatch this is NOT footprint-free: a resumed assertion really learns and
+ * a resumed query really runs — resuming the original intent is the whole point. */
+static int repair_dispatch(Brain *b, const char *canon, const char *raw,
+                           char *out, size_t out_size) {
+    for (size_t i = 0; i < registry_len; i++) {
+        if (strcmp(registry[i].name, "repair") == 0) continue;
+        if (registry[i].handle(b, canon, raw, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            return 1;
+        }
+    }
+    not_understood(b, canon, out, out_size);
+    return 0;
+}
+
 static int replay_dispatch(Brain *b, const char *canon, const char *raw,
                            const char *suppress, char *who, size_t who_size,
                            char *out, size_t out_size) {
@@ -7837,7 +8024,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen140-conversation-companion";
+    return "gen141-conversational-repair";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
