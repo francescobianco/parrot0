@@ -8,6 +8,30 @@
 
 ## Done recently
 
+> gen142–144 were explored in parallel by three worktree subagents (one E-series
+> target each) and integrated sequentially onto main — same loop discipline, one
+> atomic pushed commit per generation.
+
+- **gen144 — pragmatic intent from turn shape (E3).** `mod_pragma` classifies a
+  turn on a small SHAPE FEATURE vector (opener class, hedge, negation+stance
+  predicate, contrastive, open-quantifier object, topic-intro frame, content
+  gate) and routes each speech act to a different move; a pre-dispatch
+  `pragma_peel` normalizes a leading discourse opener away so mixed social+content
+  turns keep their content task. Generalizes to held-out phrasings, EN/IT one
+  path. `pragma.chat`/`.it`, `pragma_stress.chat`.
+
+- **gen143 — local-world working memory (E7).** `mod_world` gives parrot0 a
+  scoped, session-only belief overlay: "in this story rex is a dragon" is usable
+  across turns, the same name means different things in different worlds, "what is
+  assumed?" reads the active scope back, and tearing a world down leaks nothing
+  into the persisted KB. `world.chat`/`.it`, `world_stress.chat`.
+
+- **gen142 — metacognitive calibration (E8).** `mod_calibrate` reports HOW it
+  knows the last conclusion with confidence language COMPUTED from proof state —
+  KNOWN / INFERRED / CONFLICTED / HYPOTHETICAL (detected by ablation through a
+  standing assumption) / UNKNOWN — and answers "why?" and "what would change your
+  mind?" from the same real state. `calibrate.chat`/`.it`, `calibrate_stress.chat`.
+
 - **gen141 — conversational repair loop (E2).** `mod_repair` (registered first)
   turns a referential gap from a wall into a clarify→store→resume bridge across
   turns. A pronoun query with no antecedent ("is it a mammal?") or an arithmetic
