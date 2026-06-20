@@ -36,7 +36,7 @@ bin obj:
 	@mkdir -p $@
 
 chat: build
-	@./$(BIN)
+	@PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 
 chat-bench: build
 	@./tests/chatbench.sh
