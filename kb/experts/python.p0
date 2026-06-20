@@ -1,0 +1,65 @@
+% expert: Python language — syntax, semantics, builtins, idioms, errors.
+% gen150.
+
+expert(python).
+expert_description(python, "Python language — syntax, semantics, builtins, common errors").
+
+% --- Python keywords ---
+keyword(python, def).
+keyword(python, if).
+keyword(python, elif).
+keyword(python, else).
+keyword(python, for).
+keyword(python, while).
+keyword(python, import).
+keyword(python, from).
+keyword(python, class).
+keyword(python, return).
+keyword(python, try).
+keyword(python, except).
+keyword(python, with).
+keyword(python, as).
+keyword(python, pass).
+keyword(python, break).
+keyword(python, continue).
+keyword(python, yield).
+keyword(python, lambda).
+keyword(python, and).
+keyword(python, or).
+keyword(python, not).
+keyword(python, in).
+keyword(python, is).
+keyword(python, raise).
+keyword(python, finally).
+
+% --- Python builtins ---
+py_builtin(print).
+py_builtin(len).
+py_builtin(range).
+py_builtin(input).
+py_builtin(int).
+py_builtin(str).
+py_builtin(float).
+py_builtin(list).
+py_builtin(dict).
+py_builtin(set).
+py_builtin(tuple).
+py_builtin(open).
+py_builtin(type).
+py_builtin(sum).
+py_builtin(max).
+py_builtin(min).
+py_builtin(sorted).
+py_builtin(abs).
+py_builtin(bool).
+py_builtin(zip).
+py_builtin(map).
+py_builtin(filter).
+py_builtin(any).
+py_builtin(all).
+
+% --- Python-specific facts ---
+language(python).
+interpreted_language(python).
+paradigm(python, multi_paradigm).
+typed(python, dynamic).

@@ -342,6 +342,7 @@ static size_t split_words(char *s, char **argv, size_t max);
 static int is_article(const char *w);
 static int is_stopword(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
+static int is_internal_pred(const char *pred);
 
 /* Copy the last whitespace-separated word of `raw` into `dst`, preserving its
  * original casing and trimming trailing punctuation/whitespace. Used to keep
@@ -883,17 +884,24 @@ static size_t auto_induce(Brain *b, char *out, size_t out_size) {
     char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
     size_t k = kb_induce(b->kb, 2, heads, bodies, 16);
     if (k == 0) return 0;
+    /* Filter out emergent rules whose head or body is an internal predicate
+     * (coding knowledge, social markers, etc.) — those are infrastructure,
+     * not domain reasoning. */
+    size_t kept = 0;
     size_t out_len = strlen(out);
-    if (out_len + 2 < out_size) {
-        out[out_len] = ' '; out[out_len + 1] = '\0';
-        out_len++;
+    for (size_t i = 0; i < k; i++) {
+        if (is_internal_pred(heads[i]) || is_internal_pred(bodies[i])) continue;
+        if (out_len + 2 < out_size) {
+            if (kept == 0) {
+                if (out_len > 0) { out[out_len] = ' '; out[out_len + 1] = '\0'; out_len++; }
+            }
+            out_len += (size_t)snprintf(out + out_len, out_size - out_len,
+                                         "%s%s(X) :- %s(X).",
+                                         kept ? " " : "Induced: ", heads[i], bodies[i]);
+            kept++;
+        }
     }
-    for (size_t i = 0; i < k && out_len + 1 < out_size; i++) {
-        out_len += (size_t)snprintf(out + out_len, out_size - out_len,
-                                     "%s%s(X) :- %s(X).",
-                                     i ? " " : "Induced: ", heads[i], bodies[i]);
-    }
-    return k;
+    return kept;
 }
 
 /* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
@@ -1358,13 +1366,22 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     strcmp(w[0], "learn") == 0)) {
         char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
         size_t k = kb_induce(b->kb, 2, heads, bodies, 16);
-        if (k == 0) { put("Nothing new to generalize.", out, out_size); return 1; }
+        /* Filter internal predicates (gen150) */
+        size_t kept = 0;
+        char fheads[16][KB_TERM_LEN], fbodies[16][KB_TERM_LEN];
+        for (size_t i = 0; i < k; i++) {
+            if (is_internal_pred(heads[i]) || is_internal_pred(bodies[i])) continue;
+            snprintf(fheads[kept], KB_TERM_LEN, "%s", heads[i]);
+            snprintf(fbodies[kept], KB_TERM_LEN, "%s", bodies[i]);
+            kept++;
+        }
+        if (kept == 0) { put("Nothing new to generalize.", out, out_size); return 1; }
         char msg[600];
         size_t off = (size_t)snprintf(msg, sizeof msg, "Induced: ");
-        for (size_t i = 0; i < k && off < sizeof msg; i++) {
+        for (size_t i = 0; i < kept && off < sizeof msg; i++) {
             off += (size_t)snprintf(msg + off, sizeof msg - off,
                                     "%s%s(X) :- %s(X)", i ? "; " : "",
-                                    heads[i], bodies[i]);
+                                    fheads[i], fbodies[i]);
         }
         if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
         put(msg, out, out_size);
@@ -3879,6 +3896,14 @@ static int is_internal_pred(const char *pred) {
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
         "error", "concept", "algorithm", "faster_than",
+        /* gen150: expert/skill/profile domain knowledge — structural metadata,
+         * not conversational content. */
+        "expert", "expert_description", "skill", "skill_description",
+        "profile", "profile_description",
+        "compiled_language", "interpreted_language", "paradigm", "typed",
+        "data_structure", "complexity", "fix_suggestion", "fix",
+        "review_check", "review_pattern", "code_action", "code_template",
+        "code_target",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

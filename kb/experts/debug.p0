@@ -1,0 +1,43 @@
+% expert: debugging — error patterns, detection rules, fix suggestions.
+% gen150.
+
+expert(debug).
+expert_description(debug, "code debugging — error patterns, detection rules, fix suggestions").
+
+% --- error types ---
+error(missing_semicolon, "A statement is missing a semicolon at the end").
+error(type_mismatch, "A value is assigned to a variable of incompatible type").
+error(unclosed_string, "A string literal is missing its closing quote").
+error(unknown_function, "A function name is not recognized as a standard library function").
+error(unbalanced_braces, "The number of opening and closing braces do not match").
+error(unbalanced_parens, "The number of opening and closing parentheses do not match").
+error(missing_colon, "A block-introducing statement is missing its colon").
+error(missing_return, "A non-void function is missing a return statement").
+error(undeclared_variable, "A variable is used without being declared").
+error(segfault, "Accessing memory the program does not own").
+error(null_pointer, "Dereferencing a null pointer").
+error(buffer_overflow, "Writing beyond the bounds of an allocated buffer").
+error(memory_leak, "Allocated memory is never freed").
+error(infinite_loop, "A loop condition never becomes false").
+error(off_by_one, "An index is one position off the correct range").
+error(uninitialized_variable, "A variable is read before being assigned a value").
+error(unreachable_code, "Code that can never be executed").
+error(dead_code, "Code that computes values that are never used").
+
+% --- fix suggestions ---
+fix(missing_semicolon, "add a semicolon at the end of the statement").
+fix(type_mismatch, "match the value type to the declared variable type, or change the variable type").
+fix(unclosed_string, "add the closing double-quote to the string literal").
+fix(unknown_function, "check the function spelling or include the right header").
+fix(unbalanced_braces, "ensure every opening brace has a matching closing brace").
+fix(unbalanced_parens, "ensure every opening parenthesis has a matching closing one").
+fix(missing_colon, "add a colon at the end of the block-introducing line").
+fix(missing_return, "add a return statement matching the function's return type").
+fix(undeclared_variable, "declare the variable with its type before using it").
+fix(segfault, "check pointer validity before dereferencing").
+fix(null_pointer, "add a null check before using the pointer").
+fix(buffer_overflow, "check array bounds and allocated buffer size").
+fix(memory_leak, "add a free call for every malloc/calloc/realloc").
+fix(infinite_loop, "ensure the loop condition eventually becomes false").
+fix(off_by_one, "check the loop bounds — it is likely one too many or one too few").
+fix(uninitialized_variable, "initialize the variable before reading it").

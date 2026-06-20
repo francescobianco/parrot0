@@ -1,0 +1,33 @@
+% skill: code explanation — describe what code does in plain language.
+% gen150.
+
+skill(explain).
+skill_description(explain, "code explanation — describe what code does in plain language").
+
+% --- programming concepts (queryable by mod_knowledge) ---
+concept(variable, "a named storage location that holds a value of a specific type").
+concept(function, "a named block of code that performs a specific task and can return a value").
+concept(loop, "a control structure that repeats a block of code while a condition holds").
+concept(type, "the classification of data that determines what operations can be performed on it").
+concept(compiler, "a program that translates source code into machine code").
+concept(interpreter, "a program that executes source code directly, line by line").
+concept(syntax_error, "a mistake in the grammar rules of the language — the code cannot be parsed").
+concept(logic_error, "the code runs but produces incorrect results — the algorithm is flawed").
+concept(runtime_error, "an error that occurs during program execution, such as division by zero").
+concept(pointer, "a variable that stores the memory address of another variable").
+concept(array, "a contiguous block of memory holding elements of the same type").
+concept(string, "a sequence of characters, often null-terminated in C").
+concept(algorithm, "a step-by-step procedure for solving a problem").
+concept(data_structure, "a way of organizing and storing data for efficient access and modification").
+concept(complexity, "a measure of how the resources needed by an algorithm grow with input size").
+concept(recursion, "a function that calls itself to solve smaller instances of the same problem").
+concept(iteration, "repeating a block of code using loops rather than recursive calls").
+concept(hash_table, "a data structure that maps keys to values for fast lookup").
+concept(binary_search, "an efficient algorithm for finding an item in a sorted list by repeatedly halving the search space").
+concept(segmentation_fault, "a runtime error caused by accessing memory the program does not own").
+concept(memory_leak, "a bug where allocated memory is never freed").
+concept(api, "Application Programming Interface — a set of functions for building software").
+concept(debugging, "the process of finding and fixing errors in code").
+concept(refactoring, "restructuring existing code without changing its external behavior").
+concept(unit_test, "a test that verifies a single function or module works correctly").
+concept(integration_test, "a test that verifies multiple components work together correctly").

@@ -1,0 +1,24 @@
+% skill: code review — patterns for reviewing code quality.
+% gen150.
+
+skill(review).
+skill_description(review, "code review — patterns for reviewing code quality").
+
+% --- review checks ---
+review_check(naming, "are variable and function names descriptive and consistent?").
+review_check(comments, "are there comments explaining why, not just what?").
+review_check(error_handling, "are error returns and edge cases handled?").
+review_check(memory, "is every allocation matched with a deallocation?").
+review_check(bounds, "are array and buffer accesses within allocated bounds?").
+review_check(null_check, "are pointers checked for null before use?").
+review_check(const_correct, "are parameters marked const where appropriate?").
+review_check(duplication, "is there duplicated code that could be extracted into a function?").
+review_check(complexity, "are functions small and focused on a single task?").
+review_check(formatting, "is the code consistently indented and formatted?").
+
+% --- review patterns ---
+review_pattern(magic_number, "replace magic numbers with named constants").
+review_pattern(long_function, "split long functions into smaller, focused helpers").
+review_pattern(deep_nesting, "reduce nesting depth by early returns and guard clauses").
+review_pattern(goto, "avoid goto — use structured control flow instead").
+review_pattern(global_var, "minimize global variables — pass state explicitly through parameters").

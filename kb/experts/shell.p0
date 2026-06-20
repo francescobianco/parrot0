@@ -1,0 +1,73 @@
+% expert: shell/CLI — POSIX commands, flags, pipelines, composition.
+% gen150: extracted from kb/bash.p0.
+
+expert(shell).
+expert_description(shell, "POSIX shell — commands, flags, pipelines, composition").
+
+% --- ls ---
+cmd(ls, lists_directory_contents).
+flag(ls, a, including_hidden_entries).
+flag(ls, l, in_long_format).
+flag(ls, h, with_human_readable_sizes).
+flag(ls, t, sorted_by_modification_time).
+flag(ls, r, in_reverse_order).
+flag(ls, u_r, descending_into_subdirectories).
+
+% --- cat ---
+cmd(cat, prints_file_contents).
+flag(cat, n, numbering_every_line).
+
+% --- grep ---
+cmd(grep, prints_lines_matching_a_pattern).
+flag(grep, i, ignoring_case).
+flag(grep, v, inverting_the_match).
+flag(grep, n, showing_line_numbers).
+flag(grep, c, counting_matches).
+flag(grep, r, searching_recursively).
+
+% --- rm ---
+cmd(rm, removes_files).
+flag(rm, r, recursively).
+flag(rm, f, without_prompting).
+flag(rm, i, prompting_before_each_removal).
+
+% --- cp / mv ---
+cmd(cp, copies_files).
+flag(cp, r, recursively).
+flag(cp, f, forcing_overwrite).
+cmd(mv, moves_or_renames_files).
+
+% --- mkdir ---
+cmd(mkdir, creates_directories).
+flag(mkdir, p, creating_parent_directories_as_needed).
+
+% --- wc ---
+cmd(wc, counts_lines_words_and_bytes).
+flag(wc, l, counting_lines).
+flag(wc, w, counting_words).
+flag(wc, c, counting_bytes).
+
+% --- sort / uniq ---
+cmd(sort, sorts_lines_of_text).
+flag(sort, n, numerically).
+flag(sort, r, in_reverse).
+flag(sort, u, removing_duplicates).
+cmd(uniq, removes_adjacent_duplicate_lines).
+
+% --- find ---
+cmd(find, searches_for_files_in_a_directory_hierarchy).
+
+% --- head / tail ---
+cmd(head, outputs_the_first_part_of_a_file).
+flag(head, n, limiting_to_a_specific_number_of_lines).
+cmd(tail, outputs_the_last_part_of_a_file).
+flag(tail, n, limiting_to_a_specific_number_of_lines).
+
+% --- echo / pwd ---
+cmd(echo, prints_its_arguments).
+cmd(pwd, prints_the_current_working_directory).
+
+% --- chmod / chown ---
+cmd(chmod, changes_file_permissions).
+flag(chmod, r, recursively).
+cmd(chown, changes_file_ownership).

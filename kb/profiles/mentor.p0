@@ -1,0 +1,11 @@
+% profile: mentor — teaching profile focused on explanation and concepts.
+% gen150.
+% Load with: PARROT0_PROFILE=kb/profiles/mentor.p0 make chat
+
+profile(mentor).
+profile_description(mentor, "teaching mentor — focuses on explanation, concepts, and guided learning").
+
+:- include(../experts/c.p0).
+:- include(../experts/python.p0).
+:- include(../experts/algo.p0).
+:- include(../skills/explain.p0).

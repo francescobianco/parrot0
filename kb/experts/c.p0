@@ -1,0 +1,93 @@
+% expert: C language — syntax, semantics, stdlib, idioms, errors.
+% gen150: extracted from kb/coding.p0 into an expert domain file.
+
+expert(c).
+expert_description(c, "C language — syntax, semantics, standard library, idioms, common errors").
+
+% --- C keywords ---
+keyword(c, if).
+keyword(c, else).
+keyword(c, while).
+keyword(c, for).
+keyword(c, return).
+keyword(c, int).
+keyword(c, char).
+keyword(c, void).
+keyword(c, float).
+keyword(c, double).
+keyword(c, struct).
+keyword(c, typedef).
+keyword(c, sizeof).
+keyword(c, switch).
+keyword(c, case).
+keyword(c, break).
+keyword(c, continue).
+keyword(c, const).
+keyword(c, static).
+keyword(c, extern).
+keyword(c, unsigned).
+keyword(c, long).
+keyword(c, short).
+keyword(c, enum).
+keyword(c, union).
+keyword(c, do).
+keyword(c, goto).
+
+% --- C types ---
+ctype(int).
+ctype(char).
+ctype(float).
+ctype(double).
+ctype(void).
+ctype(long).
+ctype(short).
+ctype(unsigned).
+
+% --- C standard library functions ---
+c_stdlib(printf).
+c_stdlib(scanf).
+c_stdlib(malloc).
+c_stdlib(free).
+c_stdlib(calloc).
+c_stdlib(realloc).
+c_stdlib(fopen).
+c_stdlib(fclose).
+c_stdlib(fread).
+c_stdlib(fwrite).
+c_stdlib(fprintf).
+c_stdlib(sprintf).
+c_stdlib(strcmp).
+c_stdlib(strcpy).
+c_stdlib(strlen).
+c_stdlib(strcat).
+c_stdlib(strncmp).
+c_stdlib(memcpy).
+c_stdlib(memset).
+c_stdlib(memmove).
+c_stdlib(atoi).
+c_stdlib(atof).
+c_stdlib(exit).
+c_stdlib(qsort).
+c_stdlib(abs).
+c_stdlib(pow).
+c_stdlib(sqrt).
+c_stdlib(time).
+c_stdlib(rand).
+c_stdlib(srand).
+
+% --- C headers ---
+c_header(stdio).
+c_header(stdlib).
+c_header(string).
+c_header(math).
+c_header(time).
+c_header(ctype).
+c_header(stdbool).
+c_header(stddef).
+
+% --- C-specific facts ---
+language(c).
+compiled_language(c).
+paradigm(c, imperative).
+paradigm(c, procedural).
+typed(c, static).

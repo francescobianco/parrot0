@@ -71,6 +71,9 @@ test: build
 	@./tests/posix.sh
 	@./tests/synth.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
+	@./tests/experts.sh
+	@./tests/profiles.sh
+	@./tests/skills.sh
 
 bench: build
 	@./tests/bench.sh all

@@ -54,14 +54,19 @@ int main(void) {
 
     /* Knowledge layers: a curated base file + a session file of discovered
      * facts, joined into RAM at startup. Paths come from the environment
-     * (empty disables loading — used by the hermetic test harness). */
+     * (empty disables loading — used by the hermetic test harness).
+     * gen150: PARROT0_PROFILE loads a knowledge profile (e.g. profiles/agi.p0)
+     * that chains experts and skills via :- include directives. */
     const char *base = getenv("PARROT0_BASE");
     const char *sess = getenv("PARROT0_SESSION");
+    const char *profile = getenv("PARROT0_PROFILE");
     if (!base) base = "kb/base.p0";
     if (!sess) sess = "kb/session.p0";
     brain_load(brain, base, 1);
     brain_load(brain, sess, 0);
     brain_load(brain, "kb/coding.p0", 1); /* gen149: coding domain knowledge */
+    if (profile && *profile)
+        brain_load(brain, profile, 1);    /* gen150: expert/skill profile */
 
     fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit, "
                     "'/save' to persist)\n", brain_version());

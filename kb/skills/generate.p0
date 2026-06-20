@@ -1,0 +1,22 @@
+% skill: code generation — compose code from patterns and templates.
+% gen150.
+
+skill(generate).
+skill_description(generate, "code generation — compose code from patterns and templates").
+
+% --- code actions (verbs that trigger generation) ---
+code_action(generate, "generate").
+code_action(create, "create").
+code_action(write, "write").
+code_action(genera, "generate").
+code_action(crea, "create").
+code_action(scrivi, "write").
+
+% --- code templates (parameterized skeletons) ---
+% BODY is replaced with the target-specific code
+code_template(c, main, "int main(void) {\n    BODY\n    return 0;\n}").
+
+% --- code targets -> body content ---
+code_target("hello world", c, "printf(\"hello world\\n\");").
+code_target("ciao mondo", c, "printf(\"ciao mondo\\n\");").
+code_target("echo input", c, "char buf[256];\nfgets(buf, sizeof buf, stdin);\nprintf(\"%s\", buf);").

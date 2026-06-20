@@ -1,0 +1,16 @@
+% profile: agi — the super expert. Union of all profiles, experts, and skills.
+% gen150.
+% Load with: PARROT0_PROFILE=kb/profiles/agi.p0 make chat
+
+profile(agi).
+profile_description(agi, "super expert — the union of all profiles, experts and skills. Every domain, every capability.").
+
+:- include(../experts/c.p0).
+:- include(../experts/python.p0).
+:- include(../experts/shell.p0).
+:- include(../experts/debug.p0).
+:- include(../experts/algo.p0).
+:- include(../skills/explain.p0).
+:- include(../skills/fix.p0).
+:- include(../skills/generate.p0).
+:- include(../skills/review.p0).

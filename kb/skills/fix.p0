@@ -1,0 +1,23 @@
+% skill: bug fixing — diagnose and suggest fixes for code errors.
+% gen150.
+
+skill(fix).
+skill_description(fix, "bug fixing — diagnose and suggest fixes for code errors").
+
+% --- fix suggestions tied to error types ---
+fix_suggestion(missing_semicolon, "add a semicolon at the end of the statement").
+fix_suggestion(type_mismatch, "match the value type to the declared variable type, or change the variable type").
+fix_suggestion(unclosed_string, "add the closing double-quote to the string literal").
+fix_suggestion(unknown_function, "check the function spelling or include the right header file").
+fix_suggestion(unbalanced_braces, "ensure every opening brace has a matching closing brace").
+fix_suggestion(unbalanced_parens, "ensure every opening parenthesis has a matching closing parenthesis").
+fix_suggestion(missing_colon, "add a colon at the end of the block-introducing line").
+fix_suggestion(missing_return, "add a return statement that matches the function's return type").
+fix_suggestion(undeclared_variable, "declare the variable with its type before using it").
+fix_suggestion(segfault, "check that the pointer is not null and points to valid memory").
+fix_suggestion(null_pointer, "add a null check before dereferencing the pointer").
+fix_suggestion(buffer_overflow, "check array bounds and ensure the index stays within the allocated size").
+fix_suggestion(memory_leak, "add a free call for every malloc, calloc, or realloc").
+fix_suggestion(infinite_loop, "ensure the loop condition eventually evaluates to false").
+fix_suggestion(off_by_one, "check the loop bounds — arrays in C are 0-indexed, so valid indices are 0 to n-1").
+fix_suggestion(uninitialized_variable, "initialize the variable with a value before reading from it").

@@ -725,6 +725,15 @@ int kb_load(KB *kb, const char *path) {
     FILE *f = fopen(path, "r");
     if (!f) return 0; /* missing file: a no-op */
 
+    /* Resolve the directory of the current file for relative includes. */
+    char dir[512] = {0};
+    {   const char *slash = strrchr(path, '/');
+        if (slash) {
+            size_t dlen = (size_t)(slash - path);
+            if (dlen < sizeof dir) { memcpy(dir, path, dlen); dir[dlen] = '\0'; }
+        }
+    }
+
     char line[1024];
     int count = 0;
     while (fgets(line, sizeof line, f)) {
@@ -738,6 +747,40 @@ int kb_load(KB *kb, const char *path) {
             while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
         }
         if (n == 0) continue;
+
+        /* gen150: :- include(relative_path). directive.
+         * Resolves the path relative to the directory of the current file,
+         * then recursively loads the included file. Skip in the count (the
+         * included file counts its own clauses). */
+        if (strncmp(s, ":- include(", 11) == 0) {
+            char inc_path[512];
+            size_t plen = n;
+            const char *start = s + 11;
+            const char *end = s + plen - 1; /* before the trailing '.' we stripped */
+            if (*end == ')') {
+                size_t ilen = (size_t)(end - start);
+                if (ilen > 0 && ilen < sizeof inc_path) {
+                    memcpy(inc_path, start, ilen);
+                    inc_path[ilen] = '\0';
+                    /* trim whitespace/quotes around the path */
+                    char *ip = inc_path;
+                    while (*ip && isspace((unsigned char)*ip)) ip++;
+                    if (*ip == '"' || *ip == '\'') { ip++; inc_path[ilen-1] = '\0'; }
+                    size_t iplen = strlen(ip);
+                    while (iplen > 0 && (isspace((unsigned char)ip[iplen-1]) ||
+                           ip[iplen-1] == '"' || ip[iplen-1] == '\''))
+                        ip[--iplen] = '\0';
+                    /* resolve relative to dir */
+                    char full[768];
+                    if (dir[0] && ip[0] != '/')
+                        snprintf(full, sizeof full, "%s/%s", dir, ip);
+                    else
+                        snprintf(full, sizeof full, "%s", ip);
+                    kb_load(kb, full);
+                }
+            }
+            continue;
+        }
 
         char neg_pred[KB_TERM_LEN];
         char neg_args[KB_MAX_ARGS][KB_TERM_LEN];
