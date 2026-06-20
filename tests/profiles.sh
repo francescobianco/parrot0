@@ -55,17 +55,17 @@ expect "reviewer: C code" \
     "profiles/programming/reviewer.p0" \
     "This looks like C code."
 
-# --- science/mathematician ---
-expect "mathematician: loads without error" \
-    "is socrates a man" \
+# --- science/mathematician: chains the maths experts, so its knowledge speaks ---
+expect "mathematician: defines addition (via included expert)" \
+    "what is addition" \
     "profiles/science/mathematician.p0" \
-    "Yes."
+    "addition is combining two numbers to get their sum."
 
 # --- science/doctor ---
-expect "doctor: loads without error" \
-    "is socrates a man" \
+expect "doctor: defines the heart (via included expert)" \
+    "what is the heart" \
     "profiles/science/doctor.p0" \
-    "Yes."
+    "heart is muscular pump circulating blood through the body."
 
 # --- agi: all domains ---
 expect "agi: C code recognized" \

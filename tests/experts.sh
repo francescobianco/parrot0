@@ -42,32 +42,33 @@ expect_profile "debug: fix exists" \
     "experts/programming/debug.p0" \
     "Fix: add a semicolon at the end of each statement."
 
-# --- mathematics experts ---
-expect_profile "arithmetic: loads" \
-    "is socrates a man" \
+# --- mathematics experts: assert the actual DOMAIN KNOWLEDGE, spoken (gen151+),
+#     not the placebo "is socrates a man -> Yes" that any profile passes. ---
+expect_profile "arithmetic: defines addition" \
+    "what is addition" \
     "experts/mathematics/arithmetic.p0" \
-    "Yes."
+    "addition is combining two numbers to get their sum."
 
-expect_profile "algebra: loads" \
-    "is socrates a man" \
+expect_profile "algebra: defines variable" \
+    "what is variable" \
     "experts/mathematics/algebra.p0" \
-    "Yes."
+    "variable is a symbol representing an unknown value."
 
-expect_profile "geometry: loads" \
-    "is socrates a man" \
+expect_profile "geometry: states pythagorean theorem" \
+    "what is pythagorean" \
     "experts/mathematics/geometry.p0" \
-    "Yes."
+    "pythagorean is in a right triangle, a^2 + b^2 = c^2."
 
 # --- medicine experts ---
-expect_profile "anatomy: loads" \
-    "is socrates a man" \
+expect_profile "anatomy: defines the heart" \
+    "what is the heart" \
     "experts/medicine/anatomy.p0" \
-    "Yes."
+    "heart is muscular pump circulating blood through the body."
 
-expect_profile "pharmacology: loads" \
-    "is socrates a man" \
+expect_profile "pharmacology: defines half_life" \
+    "what is half_life" \
     "experts/medicine/pharmacology.p0" \
-    "Yes."
+    "half_life is time for the drug concentration in blood to halve."
 
 echo "---"
 echo "passed: $pass, failed: $fail"

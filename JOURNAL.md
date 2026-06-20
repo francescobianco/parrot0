@@ -1,4 +1,33 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen153: restore truncated knowledge + real domain tests
+
+**Goal (owner audit, continued):** with the engine able to hold full strings
+(gen152), repair the gen150b data the author had hand-truncated mid-word to fit
+the old 64-char cap, and replace the PLACEBO knowledge tests that asserted
+nothing.
+
+**Changed (data + tests, no engine change):**
+- Restored complete descriptions in the core demoed domains: `arithmetic`,
+  `algebra`, `anatomy`, `pharmacology`, `algo`, `c`, `debug` — e.g. "...to its
+  di" -> "...to its diameter", "directing r" -> "directing responses", "sorted
+  ar" -> "sorted array", "fix suggest" -> "fix suggestions". Commas inside the
+  prose are now safe (gen152), so multi-clause descriptions read naturally.
+- `experts.sh`, `profiles.sh`, `skills.sh`: the math/medicine/reasoning/
+  communication cases asserted `is socrates a man -> Yes` (true under EVERY
+  profile from base.p0 — they tested only that the file loaded). Rewrote them to
+  query the actual knowledge: "what is addition", "what is pythagorean", "what is
+  the heart", "what is half_life", "what is modus_ponens" — each asserting the
+  spoken definition. The tests now fail if the domain knowledge is missing.
+- `tests/knowledge.sh`: updated the brain expectation to the restored full text.
+
+**Observed.** `make test` green. The expert/profile/skill suites now genuinely
+exercise the knowledge they name. REMAINING (next pulls): the same truncation
+repair across the science (physics/chemistry/biology), humanities (linguistics/
+business/philosophy/music/psychology) and the rest of the skills files; and a
+couple of malformed facts the audit flagged, e.g. `flag(ls, u_r, ...)` in
+shell.p0 (no such ls flag — left untouched to avoid perturbing the posix tests
+until addressed deliberately).
+
 ## 2026-06-21 - gen152: the KB engine learns to hold a string literal
 
 **Goal (owner-driven audit, PRINCIPLES.md):** the owner asked me to study all the

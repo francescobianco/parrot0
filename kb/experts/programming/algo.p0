@@ -3,23 +3,23 @@
 
 expert(algo).
 expert_domain(algo, programming).
-expert_description(algo, "algorithms -- classic algorithms data structures complexity ").
+expert_description(algo, "algorithms -- classic algorithms, data structures and complexity").
 
 algorithm(quicksort, sorting, "O(n log n) average -- partitions around a pivot and recurses").
-algorithm(mergesort, sorting, "O(n log n) -- divides sorts halves then merges").
+algorithm(mergesort, sorting, "O(n log n) -- divides, sorts halves, then merges").
 algorithm(bubblesort, sorting, "O(n^2) -- repeatedly swaps adjacent elements until sorted").
 algorithm(insertionsort, sorting, "O(n^2) -- builds the sorted array one element at a time").
 algorithm(heapsort, sorting, "O(n log n) -- uses a binary heap data structure").
 
-algorithm(binary_search, searching, "O(log n) -- repeatedly halves the search space on a sorted ar").
+algorithm(binary_search, searching, "O(log n) -- repeatedly halves the search space on a sorted array").
 algorithm(linear_search, searching, "O(n) -- checks each element one by one").
 
-data_structure(array, "contiguous memory O(1) random access O(n) insert/delete").
-data_structure(linked_list, "nodes with pointers O(1) insert/delete at head O(n) search").
-data_structure(hash_table, "key-value mapping O(1) average lookup/insert/delete").
-data_structure(binary_tree, "hierarchical structure O(log n) balanced search").
-data_structure(stack, "LIFO push and pop at top").
-data_structure(queue, "FIFO enqueue at back dequeue from front").
+data_structure(array, "contiguous memory -- O(1) random access, O(n) insert/delete").
+data_structure(linked_list, "nodes with pointers -- O(1) insert/delete at head, O(n) search").
+data_structure(hash_table, "key-value mapping -- O(1) average lookup/insert/delete").
+data_structure(binary_tree, "hierarchical structure -- O(log n) balanced search").
+data_structure(stack, "LIFO -- push and pop at the top").
+data_structure(queue, "FIFO -- enqueue at the back, dequeue from the front").
 data_structure(graph, "vertices and edges used for networks and relations").
 
 complexity(o1, constant, "takes the same time regardless of input size").

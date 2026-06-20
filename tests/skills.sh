@@ -32,22 +32,22 @@ expect "generate: debug works" \
     "skills/programming/generate.p0" \
     "Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings."
 
-# --- reasoning skills ---
-expect "deduce: loads" \
-    "is socrates a man" \
+# --- reasoning skills: assert the procedural knowledge they carry, spoken ---
+expect "deduce: knows modus ponens" \
+    "what is modus_ponens" \
     "skills/reasoning/deduce.p0" \
-    "Yes."
+    "modus_ponens is if A is true and A implies B, then B is true."
 
-expect "compare: loads" \
-    "is socrates a man" \
+expect "compare: knows the complexity dimension" \
+    "what is complexity" \
     "skills/reasoning/compare.p0" \
-    "Yes."
+    "complexity is number of parts or steps — simpler, more complex."
 
 # --- communication skills ---
-expect "explain_comm: loads" \
-    "is socrates a man" \
+expect "explain_comm: knows the definition method" \
+    "what is definition" \
     "skills/communication/explain.p0" \
-    "Yes."
+    "definition is state what the concept is in one clear sentence."
 
 echo "---"
 echo "passed: $pass, failed: $fail"

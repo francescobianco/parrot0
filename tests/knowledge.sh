@@ -44,7 +44,7 @@ expect "anatomy: what is the femur" \
 expect "anatomy: tell me about the brain" \
     "tell me about the brain" \
     "experts/medicine/anatomy.p0" \
-    "brain is control center processing sensory information and directing r."
+    "brain is control center processing sensory information and directing responses."
 
 # --- gen152: facts the old engine MANGLED (commas) or DROPPED (>63 chars) now
 #     load intact through quote-aware parse_term + the 128-char atom capacity. ---

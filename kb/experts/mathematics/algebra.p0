@@ -3,7 +3,7 @@
 
 expert(algebra).
 expert_domain(algebra, mathematics).
-expert_description(algebra, "algebra -- equations functions polynomials linear systems ").
+expert_description(algebra, "algebra -- equations, functions, polynomials and linear systems").
 
 % --- equation solving ---
 algebra_concept(variable, "a symbol representing an unknown value").
