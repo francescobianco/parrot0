@@ -130,6 +130,15 @@ int    kb_explain(KB *kb, const char *pred, const char *const *args,
 int    kb_describe_entity(const KB *kb, const char *entity,
                           char *out, size_t out_size);
 
+/* gen155: recall the description-bearing concept whose key+description best
+ * OVERLAP the query's content words `qwords` (cognate-tolerant, so it crosses
+ * EN<->IT for loanwords). Writes the winning key/description and returns the
+ * overlap score, or 0 if no concept clears the threshold and margin. The first
+ * brick of a similarity space, derived from real KB structure, not enumeration. */
+int    kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
+                          char *key_out, size_t key_sz,
+                          char *desc_out, size_t desc_sz);
+
 /* True if the predicate is known at all — mentioned by any fact or any rule
  * head, or explicit negative fact. Used (gen16+) to tell the *not-known*
  * ("I don't know about <pred>") from the closed-world *false* ("No.")

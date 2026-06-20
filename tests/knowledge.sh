@@ -69,6 +69,33 @@ expect "IT: cos'e multiplication" \
     "experts/mathematics/arithmetic.p0" \
     "multiplication is repeated addition of a number."
 
+# --- gen155: concept recall by SIMILARITY (no exact key named). Generalises to
+#     held-out paraphrases via structural overlap with the KB's descriptions —
+#     the first brick of a similarity space, not another cue list. ---
+expect "recall by property (held-out): longest bone -> femur" \
+    "what is the longest bone in the body" \
+    "experts/medicine/anatomy.p0" \
+    "You might mean femur: thigh bone -- longest and strongest bone in the body."
+
+expect "recall by paraphrase (held-out): combines two numbers -> addition" \
+    "what is the operation that combines two numbers" \
+    "experts/mathematics/arithmetic.p0" \
+    "You might mean addition: combining two numbers to get their sum."
+
+# Cross-lingual: an Italian query resolves to an English-described concept via
+# COGNATE overlap (circonferenza~circumference, diametro~diameter) — similarity
+# crossing the language barrier with no translation table.
+expect "IT cross-lingual cognate recall: -> pi" \
+    "qual è il rapporto tra circonferenza e diametro" \
+    "experts/mathematics/arithmetic.p0" \
+    "You might mean pi: 3.14159... -- the ratio of a circle's circumference to its diameter."
+
+# An unknown topic must NOT be force-fit to a concept (precision over recall).
+expect "honest miss: unknown topic does not fuzzy-fire" \
+    "what is the weather like today" \
+    "experts/medicine/anatomy.p0" \
+    "I don't understand that yet."
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]

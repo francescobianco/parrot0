@@ -790,6 +790,8 @@ static const char *canonical_token(const char *w) {
         {"fallisci", "fail"}, {"fallisce", "fail"},
 
         {"cos'è", "what is"},
+        {"qual", "what"},  /* gen155: "qual è ..." -> "what is ..." reaches the
+                            * same concept-recall path as English. */
         {"sono", "am"},
         /* gen141: subject pronouns, so the repair loop's referential-gap probe
          * (a pronoun with no antecedent) reaches the SAME code path in Italian.
@@ -1333,6 +1335,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = start; start && i < nw; i++)
             if (strcmp(w[i], "of") == 0 || strcmp(w[i], "di") == 0) start = 0;
         if (start) {
+            /* An exact concept key named directly ("what is the heart") always
+             * wins — a precise match must beat a fuzzy guess. */
             for (size_t i = start; i < nw; i++) {
                 if (is_article(w[i]) || is_stopword(b, w[i])) continue;
                 char desc[1024];
@@ -1342,6 +1346,32 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     remember_entity(b, w[i], w[i]);
                     return 1;
                 }
+            }
+            /* gen155: no exact key — recall the concept whose description
+             * structurally OVERLAPS the query (similarity, not a cue list):
+             * "what is the longest bone in the body" -> femur. Hedged ("You
+             * might mean ...") because it is a best guess from overlap, and
+             * fires only with >=2 matching words and a clear winner, so a bare
+             * concept name (one content word) and genuinely unknown topics fall
+             * through unharmed. Discrete overlap is noisier than an LLM's
+             * continuous space; precision is bought with the margin + hedge. */
+            const char *qw[24]; size_t nq = 0;
+            for (size_t i = start; i < nw && nq < 24; i++) {
+                if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                if (!strcmp(w[i], "mean") || !strcmp(w[i], "means") ||
+                    !strcmp(w[i], "thing") || !strcmp(w[i], "called") ||
+                    !strcmp(w[i], "definition")) continue;
+                qw[nq++] = w[i];
+            }
+            char ckey[128], cdesc[1024];
+            if (nq >= 2 &&
+                kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc)) {
+                char msg[1200];
+                snprintf(msg, sizeof msg, "You might mean %s: %s.", ckey, cdesc);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                remember_entity(b, ckey, ckey);
+                return 1;
             }
         }
     }
@@ -10025,7 +10055,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen154-knowledge-organized";
+    return "gen155-similarity-recall";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -1031,6 +1031,77 @@ int kb_describe_entity(const KB *kb, const char *entity,
     return 1;
 }
 
+/* gen155: the first brick of a SIMILARITY SPACE. An LLM generalises by vector
+ * proximity; in discrete C the honest analogue is structural overlap derived
+ * from the KB's own descriptions — not an enumerated synonym table. Two words
+ * count as similar if equal or sharing a >=4-char prefix, so the match is
+ * morphology- and even COGNATE-tolerant (circonferenza ~ circumference), letting
+ * recall cross EN<->IT for loanwords with no translation list. */
+static int word_sim(const char *a, const char *b) {
+    if (strcmp(a, b) == 0) return 1;
+    size_t la = strlen(a), lb = strlen(b);
+    if (la < 4 || lb < 4) return 0;          /* short words must match exactly */
+    size_t m = la < lb ? la : lb, p = 0;
+    while (p < m && a[p] == b[p]) p++;
+    return p >= 4;
+}
+
+/* Tokenise a snake_case key OR a quoted description into lowercased content
+ * tokens (>=3 chars, minus a tiny stoplist and punctuation). */
+static size_t concept_tokens(const char *s, char toks[][KB_TERM_LEN], size_t max) {
+    static const char *const stop[] = {"the","and","its","their","that","for",
+        "with","two","one","into","from","each","than","not", NULL};
+    size_t n = 0;
+    char buf[KB_TERM_LEN]; snprintf(buf, sizeof buf, "%s", s);
+    for (char *q = buf; *q; q++) *q = (char)tolower((unsigned char)*q);
+    char *p = buf;
+    while (*p && n < max) {
+        while (*p && !isalpha((unsigned char)*p)) p++;
+        char *start = p;
+        while (*p && isalpha((unsigned char)*p)) p++;
+        size_t len = (size_t)(p - start);
+        if (len >= 3 && len < KB_TERM_LEN) {
+            char t[KB_TERM_LEN]; memcpy(t, start, len); t[len] = '\0';
+            int isstop = 0;
+            for (size_t i = 0; stop[i]; i++) if (strcmp(t, stop[i]) == 0) { isstop = 1; break; }
+            if (!isstop) snprintf(toks[n++], KB_TERM_LEN, "%s", t);
+        }
+    }
+    return n;
+}
+
+int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
+                       char *key_out, size_t key_sz,
+                       char *desc_out, size_t desc_sz) {
+    if (!kb || nq == 0 || !key_out || !desc_out) return 0;
+    int best = 0, second = 0;
+    const Fact *bestf = NULL;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        char ctoks[96][KB_TERM_LEN];
+        size_t nc = concept_tokens(f->args[0], ctoks, 96);
+        nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
+        int score = 0;
+        for (size_t q = 0; q < nq; q++)
+            for (size_t c = 0; c < nc; c++)
+                if (word_sim(qwords[q], ctoks[c])) { score++; break; }
+        if (score > best) { second = best; best = score; bestf = f; }
+        else if (score > second) second = score;
+    }
+    /* Need real evidence (>=2 overlapping words) AND a clear winner over the
+     * runner-up, so one coincidental token never triggers a confident guess. */
+    if (best >= 2 && best - second >= 1 && bestf) {
+        snprintf(key_out, key_sz, "%s", bestf->args[0]);
+        char d[KB_TERM_LEN]; snprintf(d, sizeof d, "%s", bestf->args[bestf->argc - 1]);
+        size_t dl = strlen(d); if (dl && d[dl - 1] == '"') d[--dl] = '\0';
+        snprintf(desc_out, desc_sz, "%s", d[0] == '"' ? d + 1 : d);
+        return best;
+    }
+    return 0;
+}
+
 int kb_knows_pred(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
     for (size_t i = 0; i < kb->n; i++)

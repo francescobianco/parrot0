@@ -1,4 +1,47 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen155: the first brick of a similarity space
+
+**Goal (the biggest gap, owner-endorsed):** an LLM generalises by proximity in a
+continuous meaning-space; parrot0 looks up discrete symbols, so any phrasing
+outside a cue list hits the wall — and knowledge recall was exact-key only
+("what is addition" works, "what is the operation that combines two numbers"
+walls). The honest first step toward closing that gap is NOT another cue list: it
+is a *similarity* mechanism derived from the KB's own structure.
+
+**Changed:** `kb.c`/`kb.h` + `brain.c` -> `gen155-similarity-recall`.
+- `kb_nearest_concept` (kb.c): given a query's content words, score every
+  description-bearing concept by OVERLAP of the query against the concept's
+  key + description tokens, and return the best if it clears a threshold (>=2
+  matches) AND beats the runner-up. `word_sim` counts two words as matching if
+  equal or sharing a >=4-char prefix — morphology- and even COGNATE-tolerant.
+- `mod_knowledge` (brain.c): for a "what is .../tell me about ..." frame, an
+  exact concept key still wins; when none is named, fall back to
+  `kb_nearest_concept` and answer hedged ("You might mean X: ...").
+- `canonicalize_lang`: `qual` -> `what` so "qual è ..." reaches the same path.
+
+**Observed — a genuinely surprising result.** Recall now works by DESCRIPTION,
+not just by name: "what is the longest bone in the body" -> femur; "the operation
+that combines two numbers" -> addition; neither named the concept. And the
+striking one: the cognate-tolerant overlap crosses the language barrier with NO
+translation table — the Italian "qual è il rapporto tra circonferenza e
+diametro" resolves to **pi** because *circonferenza~circumference* and
+*diametro~diameter* share 4-char prefixes with the English description. A
+similarity space, in deterministic C, derived from real KB structure rather than
+enumeration. `tests/knowledge.sh` ratchets EN recall-by-property, EN
+recall-by-paraphrase, the IT cross-lingual cognate case, and an honest-miss
+negative (an unknown topic must NOT be force-fit).
+
+**The honest limit (this is the point of the method).** The 10x stress made the
+gap with an LLM concrete: at full agi scale discrete overlap is NOISY — ties
+between near-equal concepts make it abstain ("bone that protects the brain" is a
+2-2 tie skull/skeletal -> no guess), and loose cognates can mislead, so exact
+keys must take precedence and the answer stays hedged. An LLM's continuous space
+smooths exactly this. parrot0 now has the *first brick* of that space; the wall
+it keeps hitting is the absence of a learned metric, not the absence of cues.
+Next pulls: a discriminative (idf-like) weighting so common words ("number",
+"blood") count less; bilingual descriptions so semantic (not only cognate)
+recall crosses languages.
+
 ## 2026-06-21 - gen154: organize kb/ — no loose files, substrate vs domain
 
 **Goal (owner directive):** move every kb/ file that sits loose at the top level
