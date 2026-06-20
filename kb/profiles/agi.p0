@@ -3,7 +3,7 @@
 % Load with: PARROT0_PROFILE=kb/profiles/agi.p0 make chat
 
 profile(agi).
-profile_description(agi, "super expert — all domains, all capabilities. Programming, mathematics, medicine, physics, chemistry, biology, linguistics, business, philosophy, engineering, music, psychology, reasoning, communication.").
+profile_description(agi, "super expert across all domains: programming, mathematics, medicine, sciences, humanities, reasoning and communication.").
 
 % --- programming experts ---
 :- include(../experts/programming/c.p0).

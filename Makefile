@@ -16,6 +16,7 @@ CC      ?= cc
 CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -O2
 SRC     := $(wildcard src/*.c)
 OBJ     := $(SRC:src/%.c=obj/%.o)
+HDR     := $(wildcard src/*.h)
 BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
@@ -29,7 +30,10 @@ build: $(BIN)
 $(BIN): $(OBJ) | bin
 	$(CC) $(CFLAGS) -o $@ $(OBJ)
 
-obj/%.o: src/%.c | obj
+# Depend on ALL headers: KB_TERM_LEN etc. live in kb.h and define struct
+# layout, so a header change must rebuild every object or the binary links
+# translation units with mismatched ABIs (silent memory corruption).
+obj/%.o: src/%.c $(HDR) | obj
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 bin obj:

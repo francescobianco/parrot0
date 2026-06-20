@@ -671,7 +671,18 @@ static int parse_term(const char *s, char *pred,
     while (p < rp) {
         while (p < rp && isspace((unsigned char)*p)) p++;
         const char *start = p;
-        while (p < rp && *p != ',') p++;
+        if (p < rp && *p == '"') {
+            /* gen152: a quoted string literal is ONE argument — commas (and any
+             * other punctuation) inside the quotes are content, not separators.
+             * The stored atom keeps its quotes, so the description renderer can
+             * recognise it. Without this, prose descriptions with commas were
+             * shredded into garbage multi-arg facts. */
+            p++;                                   /* opening quote */
+            while (p < rp && *p != '"') p++;
+            if (p < rp) p++;                       /* closing quote */
+        } else {
+            while (p < rp && *p != ',') p++;
+        }
         const char *end = p;
         while (end > start && isspace((unsigned char)end[-1])) end--;
         size_t alen = (size_t)(end - start);
@@ -679,6 +690,7 @@ static int parse_term(const char *s, char *pred,
         memcpy(args[*argc], start, alen);
         args[*argc][alen] = '\0';
         (*argc)++;
+        while (p < rp && *p != ',') p++;           /* advance to the separator */
         if (p < rp && *p == ',') p++;
     }
     return *argc > 0;
@@ -897,14 +909,15 @@ static void render_fact_direct(const Fact *f, const char *entity, int neg,
         return;
     }
 
-    /* gen151: description-bearing knowledge facts pred(key, "human text") — the
-     * gen150 expert/skill convention. Speak the description instead of dumping
-     * the raw clause: math_op(addition, "combining ...") -> "addition is
-     * combining ...". General over every domain's description facts, so held-out
-     * concepts verbalize through the same path (no per-concept phrasebook). */
-    if (f->argc == 2 && f->args[1][0] == '"') {
+    /* gen151/gen152: description-bearing knowledge facts whose LAST argument is a
+     * quoted string — the gen150 expert/skill convention pred(key, "human text")
+     * and the 3-ary pred(key, category, "human text"). Speak the description
+     * instead of dumping the raw clause: math_op(addition, "combining ...") ->
+     * "addition is combining ...". General over every domain's description facts,
+     * so held-out concepts verbalize through the same path (no phrasebook). */
+    if (f->argc >= 2 && f->args[f->argc - 1][0] == '"') {
         char d[KB_TERM_LEN];
-        snprintf(d, sizeof d, "%s", f->args[1]);
+        snprintf(d, sizeof d, "%s", f->args[f->argc - 1]);
         size_t dl = strlen(d);
         if (dl > 0 && d[dl - 1] == '"') d[--dl] = '\0';
         const char *desc = (d[0] == '"') ? d + 1 : d;

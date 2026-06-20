@@ -18,7 +18,10 @@
 #include <stddef.h>
 
 #define KB_MAX_ARGS 4   /* arity ceiling for now */
-#define KB_TERM_LEN 64  /* max length of a predicate or argument atom */
+#define KB_TERM_LEN 128 /* max length of a predicate or argument atom. gen152:
+                         * raised from 64 so the gen150 expert/skill description
+                         * strings survive term_ok at load instead of being
+                         * silently dropped. */
 #define KB_MAX_BODY 8   /* goals per rule body (conjunctive rules) */
 
 /* Provenance of a clause (bit flags, so save can select layers). See DESIGN.md

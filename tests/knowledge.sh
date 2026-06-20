@@ -46,6 +46,18 @@ expect "anatomy: tell me about the brain" \
     "experts/medicine/anatomy.p0" \
     "brain is control center processing sensory information and directing r."
 
+# --- gen152: facts the old engine MANGLED (commas) or DROPPED (>63 chars) now
+#     load intact through quote-aware parse_term + the 128-char atom capacity. ---
+expect "long+comma description (was mangled): kiss" \
+    "what is kiss" \
+    "profiles/agi.p0" \
+    "kiss is keep it simple, stupid — prefer simple, obvious solutions over clever ones."
+
+expect "long description (was dropped): api" \
+    "what is api" \
+    "profiles/agi.p0" \
+    "api is Application Programming Interface — a set of functions for building software."
+
 # --- bilingual ratchet: the IT question hits the SAME render path ---
 expect "IT: cos'e addition" \
     "cos'è addition" \

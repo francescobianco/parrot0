@@ -1,5 +1,50 @@
 # parrot0 evolution journal
-## 2026-06-21 - gen151: the gen150 expert knowledge learns to SPEAK
+## 2026-06-21 - gen152: the KB engine learns to hold a string literal
+
+**Goal (owner-driven audit, PRINCIPLES.md):** the owner asked me to study all the
+synthetic knowledge in `kb/` for *cattivo uso dello strumento Prolog*. The audit
+found the gen150b knowledge was not merely dumped raw (fixed in gen151) — most of
+it was structurally UNREPRESENTABLE by the engine and silently broken at load:
+- `parse_term` split arguments on EVERY comma with no quote-awareness, so the 132
+  descriptions containing commas (`"keep it simple, stupid, ..."`) were shredded
+  into garbage multi-arg facts (and dropped when they overflowed KB_MAX_ARGS=4);
+- `term_ok` rejected any atom >= 64 chars, so the 148 descriptions longer than
+  that were dropped entirely. The agi profile was quietly missing ~280 facts.
+
+The gen150b author worked AROUND this by hand-truncating descriptions mid-word
+to fit 64 chars ("...to its di", "sorted ar") — corrupting the knowledge to fit a
+limitation instead of fixing the tool. That is the abuse to correct.
+
+**Changed:** `kb.h` + `kb.c` -> `gen152-knowledge-speaks` (brain version string
+kept; engine-level change). 
+1. `parse_term` (kb.c): a `"..."` argument is now ONE token — commas and other
+   punctuation inside the quotes are content, not separators. Real quoted string
+   literals, a genuine Prolog feature the data already assumed.
+2. `KB_TERM_LEN` 64 -> 128 (kb.h): descriptions survive intact. Stack-checked
+   (largest concurrent use ~64KB) and the one >124-char description (the agi
+   profile blurb) was shortened to fit.
+3. `render_fact_direct` (kb.c): verbalize a quoted description in the LAST arg,
+   so the 3-ary `algorithm(name, category, "desc")` speaks too, not only the
+   2-ary form.
+4. `Makefile`: objects now depend on ALL headers (`$(HDR)`). This bit me HARD —
+   the first incremental build linked a kb.o built at KB_TERM_LEN=128 against a
+   stale brain.o at 64, an ABI/struct-layout mismatch that corrupted 65 tests
+   with empty/shifted args. A header that defines struct layout MUST force a full
+   rebuild; now it does.
+5. `tests/knowledge.sh`: added proofs that a previously-mangled comma description
+   (`kiss`) and a previously-dropped long description (`api`) now load and speak.
+
+**Observed.** `make test` green. On the agi profile the recovered knowledge now
+answers: "what is kiss" -> "kiss is keep it simple, stupid — prefer simple,
+obvious solutions over clever ones.", "what is api" -> the full definition. ~280
+facts that silently failed to load now exist. REMAINING gen150b debt, the next
+pull: the hand-truncated descriptions (~100, e.g. "sorted ar", "directing r")
+are still cut mid-word in the source files — the engine can hold the full text
+now, so the data should be restored to complete sentences; and the placebo
+expert/profile/skill tests still assert `is socrates a man -> Yes` instead of the
+domain knowledge they claim to cover.
+
+
 
 **Goal (owner-driven, PRINCIPLES.md):** the owner ran `make chat` on the agi
 profile and saw the new gen150/150b domain knowledge fail the founding
