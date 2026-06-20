@@ -1,0 +1,11 @@
+% skill: planning — reasoning domain.
+
+skill(plan).
+skill_domain(plan, reasoning).
+skill_description(plan, "planning — decompose goals into ordered sequences of steps").
+
+plan_method(decompose, "break the goal into smaller, independent sub-goals").
+plan_method(order, "sequence sub-goals respecting prerequisites and dependencies").
+plan_method(resource_check, "verify all needed resources are available").
+plan_method(contingency, "prepare alternative paths if a step fails").
+plan_method(verify, "check that the completed plan achieves the original goal").

@@ -1,10 +1,9 @@
-% skill: bug fixing — diagnose and suggest fixes for code errors.
-% gen150.
+% skill: bug fixing — programming domain.
 
-skill(fix).
-skill_description(fix, "bug fixing — diagnose and suggest fixes for code errors").
+skill(fix_code).
+skill_domain(fix_code, programming).
+skill_description(fix_code, "bug fixing — diagnose and suggest fixes for code errors").
 
-% --- fix suggestions tied to error types ---
 fix_suggestion(missing_semicolon, "add a semicolon at the end of the statement").
 fix_suggestion(type_mismatch, "match the value type to the declared variable type, or change the variable type").
 fix_suggestion(unclosed_string, "add the closing double-quote to the string literal").

@@ -1,0 +1,11 @@
+% profile: doctor — science domain.
+% medicine expert.
+
+profile(doctor).
+profile_domain(doctor, science).
+profile_description(doctor, "doctor — expert in human anatomy and pharmacology").
+
+:- include(../../experts/medicine/anatomy.p0).
+:- include(../../experts/medicine/pharmacology.p0).
+:- include(../../skills/reasoning/deduce.p0).
+:- include(../../skills/communication/explain.p0).

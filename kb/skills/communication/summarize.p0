@@ -1,0 +1,11 @@
+% skill: summarization — communication domain.
+
+skill(summarize).
+skill_domain(summarize, communication).
+skill_description(summarize, "summarization — condense information into key points").
+
+summarize_method(extract_key, "identify the most important sentences or facts").
+summarize_method(eliminate_redundant, "remove repeated or overlapping information").
+summarize_method(abstract, "restate the core idea in fewer, more general words").
+summarize_method(preserve_order, "keep the original logical or narrative sequence").
+summarize_method(length_target, "adjust detail level to match the desired summary length").

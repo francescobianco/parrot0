@@ -1,0 +1,38 @@
+% expert: geometry — mathematics domain.
+% shapes, measures, theorems, spatial reasoning.
+
+expert(geometry).
+expert_domain(geometry, mathematics).
+expert_description(geometry, "geometry — shapes, measures, theorems, spatial reasoning").
+
+% --- 2D shapes ---
+shape_2d(triangle, 3, "three sides, sum of angles = 180 degrees").
+shape_2d(square, 4, "four equal sides, four right angles").
+shape_2d(rectangle, 4, "opposite sides equal, four right angles").
+shape_2d(circle, 0, "all points at equal distance from center").
+shape_2d(pentagon, 5, "five sides").
+shape_2d(hexagon, 6, "six sides").
+
+% --- 3D shapes ---
+shape_3d(cube, "six square faces, eight vertices").
+shape_3d(sphere, "all points at equal distance from center in 3D").
+shape_3d(cylinder, "two parallel circular faces connected by a curved surface").
+shape_3d(cone, "a circular base tapering to a point").
+shape_3d(pyramid, "a polygonal base with triangular faces meeting at a point").
+
+% --- area formulas ---
+area_formula(triangle, "1/2 * base * height").
+area_formula(square, "side^2").
+area_formula(rectangle, "length * width").
+area_formula(circle, "pi * radius^2").
+
+% --- volume formulas ---
+volume_formula(cube, "side^3").
+volume_formula(sphere, "4/3 * pi * radius^3").
+volume_formula(cylinder, "pi * radius^2 * height").
+volume_formula(cone, "1/3 * pi * radius^2 * height").
+
+% --- theorems ---
+theorem(pythagorean, "in a right triangle, a^2 + b^2 = c^2").
+theorem(thales, "an angle inscribed in a semicircle is a right angle").
+theorem(euclidean_sum, "the sum of angles in a triangle is 180 degrees").

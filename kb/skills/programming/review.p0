@@ -1,10 +1,9 @@
-% skill: code review — patterns for reviewing code quality.
-% gen150.
+% skill: code review — programming domain.
 
-skill(review).
-skill_description(review, "code review — patterns for reviewing code quality").
+skill(review_code).
+skill_domain(review_code, programming).
+skill_description(review_code, "code review — patterns for reviewing code quality").
 
-% --- review checks ---
 review_check(naming, "are variable and function names descriptive and consistent?").
 review_check(comments, "are there comments explaining why, not just what?").
 review_check(error_handling, "are error returns and edge cases handled?").
@@ -16,7 +15,6 @@ review_check(duplication, "is there duplicated code that could be extracted into
 review_check(complexity, "are functions small and focused on a single task?").
 review_check(formatting, "is the code consistently indented and formatted?").
 
-% --- review patterns ---
 review_pattern(magic_number, "replace magic numbers with named constants").
 review_pattern(long_function, "split long functions into smaller, focused helpers").
 review_pattern(deep_nesting, "reduce nesting depth by early returns and guard clauses").

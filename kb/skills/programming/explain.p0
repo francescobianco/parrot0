@@ -1,10 +1,10 @@
-% skill: code explanation — describe what code does in plain language.
-% gen150.
+% skill: code explanation — programming domain.
+% describe what code does in plain language.
 
-skill(explain).
-skill_description(explain, "code explanation — describe what code does in plain language").
+skill(explain_code).
+skill_domain(explain_code, programming).
+skill_description(explain_code, "code explanation — describe what code does in plain language").
 
-% --- programming concepts (queryable by mod_knowledge) ---
 concept(variable, "a named storage location that holds a value of a specific type").
 concept(function, "a named block of code that performs a specific task and can return a value").
 concept(loop, "a control structure that repeats a block of code while a condition holds").

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# gen150: verify skill files provide correct procedural knowledge.
+# gen150b: verify skill files provide correct procedural knowledge.
+# Covers programming, reasoning, and communication domains.
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
@@ -15,23 +16,38 @@ expect() { # desc input profile expected
     else echo "FAIL skill: $1 — want [$4] got [$got]" >&2; fail=$((fail+1)); fi
 }
 
-# --- explain skill: provides code analysis capability ---
-expect "explain: debug works with explain" \
+# --- programming skills ---
+expect "explain: debug works" \
     "what is wrong with this code: int x = \"hello\";" \
-    "skills/explain.p0" \
+    "skills/programming/explain.p0" \
     "Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings."
 
-# --- fix skill: provides fix suggestions ---
 expect "fix: semicolon fix" \
     "fix this code: int x = 5" \
-    "skills/fix.p0" \
+    "skills/programming/fix.p0" \
     "Fix: add a semicolon at the end of each statement."
 
-# --- generate skill: loads code generation targets ---
-expect "generate: debug still works" \
+expect "generate: debug works" \
     "what is wrong with this code: int x = \"hello\";" \
-    "skills/generate.p0" \
+    "skills/programming/generate.p0" \
     "Issue found: Type mismatch: a string is assigned to an int variable. Use char * or char[] for strings."
+
+# --- reasoning skills ---
+expect "deduce: loads" \
+    "is socrates a man" \
+    "skills/reasoning/deduce.p0" \
+    "Yes."
+
+expect "compare: loads" \
+    "is socrates a man" \
+    "skills/reasoning/compare.p0" \
+    "Yes."
+
+# --- communication skills ---
+expect "explain_comm: loads" \
+    "is socrates a man" \
+    "skills/communication/explain.p0" \
+    "Yes."
 
 echo "---"
 echo "passed: $pass, failed: $fail"

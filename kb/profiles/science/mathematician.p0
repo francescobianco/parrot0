@@ -1,0 +1,12 @@
+% profile: mathematician — science domain.
+% mathematics expert.
+
+profile(mathematician).
+profile_domain(mathematician, science).
+profile_description(mathematician, "mathematician — expert in arithmetic, algebra, and geometry").
+
+:- include(../../experts/mathematics/arithmetic.p0).
+:- include(../../experts/mathematics/algebra.p0).
+:- include(../../experts/mathematics/geometry.p0).
+:- include(../../skills/reasoning/deduce.p0).
+:- include(../../skills/reasoning/compare.p0).

@@ -1,7 +1,8 @@
-% expert: C language — syntax, semantics, stdlib, idioms, errors.
-% gen150: extracted from kb/coding.p0 into an expert domain file.
+% expert: C language — programming domain.
+% syntax, semantics, stdlib, idioms, errors.
 
 expert(c).
+expert_domain(c, programming).
 expert_description(c, "C language — syntax, semantics, standard library, idioms, common errors").
 
 % --- C keywords ---

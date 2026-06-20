@@ -1,10 +1,10 @@
-% expert: debugging — error patterns, detection rules, fix suggestions.
-% gen150.
+% expert: debugging — programming domain.
+% error patterns, detection rules, fix suggestions.
 
 expert(debug).
+expert_domain(debug, programming).
 expert_description(debug, "code debugging — error patterns, detection rules, fix suggestions").
 
-% --- error types ---
 error(missing_semicolon, "A statement is missing a semicolon at the end").
 error(type_mismatch, "A value is assigned to a variable of incompatible type").
 error(unclosed_string, "A string literal is missing its closing quote").
@@ -21,10 +21,7 @@ error(memory_leak, "Allocated memory is never freed").
 error(infinite_loop, "A loop condition never becomes false").
 error(off_by_one, "An index is one position off the correct range").
 error(uninitialized_variable, "A variable is read before being assigned a value").
-error(unreachable_code, "Code that can never be executed").
-error(dead_code, "Code that computes values that are never used").
 
-% --- fix suggestions ---
 fix(missing_semicolon, "add a semicolon at the end of the statement").
 fix(type_mismatch, "match the value type to the declared variable type, or change the variable type").
 fix(unclosed_string, "add the closing double-quote to the string literal").

@@ -1,0 +1,30 @@
+% expert: algebra — mathematics domain.
+% equations, functions, polynomials, linear systems.
+
+expert(algebra).
+expert_domain(algebra, mathematics).
+expert_description(algebra, "algebra — equations, functions, polynomials, linear systems, variables").
+
+% --- equation solving ---
+algebra_concept(variable, "a symbol representing an unknown value").
+algebra_concept(equation, "a statement that two expressions are equal").
+algebra_concept(expression, "a combination of numbers, variables, and operations").
+algebra_concept(coefficient, "a number multiplying a variable").
+algebra_concept(linear_equation, "an equation of degree 1 — graph is a straight line").
+algebra_concept(quadratic_equation, "an equation of degree 2 — graph is a parabola").
+algebra_concept(system, "a set of equations with shared variables").
+algebra_concept(solution, "a value or set of values that satisfies an equation").
+algebra_concept(inequality, "a relation comparing two expressions with <, >, <=, or >=").
+algebra_concept(function, "a relation mapping each input to exactly one output").
+
+% --- polynomial facts ---
+polynomial_form(linear, "ax + b").
+polynomial_form(quadratic, "ax^2 + bx + c").
+polynomial_form(cubic, "ax^3 + bx^2 + cx + d").
+
+% --- factoring ---
+algebra_method(factoring, "rewriting an expression as a product of simpler factors").
+algebra_method(completing_square, "rewriting a quadratic as a perfect square plus a constant").
+algebra_method(quadratic_formula, "x = (-b +- sqrt(b^2 - 4ac)) / (2a)").
+algebra_method(substitution, "replacing a variable with an equivalent expression").
+algebra_method(elimination, "canceling a variable by adding or subtracting equations").

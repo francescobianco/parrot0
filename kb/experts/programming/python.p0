@@ -1,7 +1,7 @@
-% expert: Python language — syntax, semantics, builtins, idioms, errors.
-% gen150.
+% expert: Python language — programming domain.
 
 expert(python).
+expert_domain(python, programming).
 expert_description(python, "Python language — syntax, semantics, builtins, common errors").
 
 % --- Python keywords ---

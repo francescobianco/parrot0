@@ -1,0 +1,33 @@
+% expert: anatomy — medicine domain.
+% human body systems, organs, structures.
+
+expert(anatomy).
+expert_domain(anatomy, medicine).
+expert_description(anatomy, "human anatomy — body systems, organs, structures, functions").
+
+% --- body systems ---
+body_system(circulatory, "heart and blood vessels — transports blood, oxygen, nutrients").
+body_system(respiratory, "lungs and airways — exchanges oxygen and carbon dioxide").
+body_system(nervous, "brain, spinal cord, nerves — controls and coordinates body functions").
+body_system(digestive, "stomach, intestines, liver — breaks down and absorbs food").
+body_system(skeletal, "bones and joints — provides structure, protects organs").
+body_system(muscular, "skeletal, smooth, cardiac muscles — enables movement").
+body_system(immune, "lymph nodes, spleen, white blood cells — defends against disease").
+body_system(endocrine, "glands and hormones — regulates metabolism, growth, mood").
+
+% --- major organs ---
+organ(heart, "muscular pump circulating blood through the body").
+organ(lungs, "paired organs that exchange oxygen and carbon dioxide").
+organ(brain, "control center processing sensory information and directing responses").
+organ(liver, "filters blood, produces bile, metabolizes nutrients and toxins").
+organ(kidneys, "paired organs that filter blood and produce urine").
+organ(stomach, "muscular sac that breaks down food with acid and enzymes").
+organ(intestines, "long tube where nutrient absorption and water reclamation occur").
+organ(pancreas, "produces insulin and digestive enzymes").
+organ(skin, "largest organ — protective barrier, temperature regulation, sensation").
+
+% --- bones ---
+bone(femur, "thigh bone — longest and strongest bone in the body").
+bone(skull, "protects the brain and forms the structure of the face").
+bone(spine, "vertebral column — protects the spinal cord, supports the body").
+bone(ribs, "protect the heart and lungs, assist breathing").

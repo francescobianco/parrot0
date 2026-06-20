@@ -1,0 +1,11 @@
+% skill: explain — communication domain.
+
+skill(explain_concept).
+skill_domain(explain_concept, communication).
+skill_description(explain_concept, "explanation — clarify concepts in simple, structured language").
+
+explain_method(definition, "state what the concept is in one clear sentence").
+explain_method(example, "give a concrete example the listener can relate to").
+explain_method(analogy, "compare to something familiar to bridge understanding").
+explain_method(breakdown, "divide the concept into smaller parts and explain each").
+explain_method(context, "explain why the concept matters and where it is used").

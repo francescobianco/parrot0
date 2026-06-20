@@ -1,0 +1,12 @@
+% skill: comparison — reasoning domain.
+
+skill(compare).
+skill_domain(compare, reasoning).
+skill_description(compare, "comparison — identify similarities and differences between concepts").
+
+compare_dimension(size, "physical magnitude — bigger, smaller, equal").
+compare_dimension(speed, "rate of change — faster, slower").
+compare_dimension(complexity, "number of parts or steps — simpler, more complex").
+compare_dimension(age, "time since creation — older, newer, contemporary").
+compare_dimension(importance, "relative significance — more important, less critical").
+compare_dimension(cost, "resource consumption — more expensive, cheaper").

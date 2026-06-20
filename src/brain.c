@@ -3896,14 +3896,24 @@ static int is_internal_pred(const char *pred) {
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
         "error", "concept", "algorithm", "faster_than",
-        /* gen150: expert/skill/profile domain knowledge — structural metadata,
-         * not conversational content. */
-        "expert", "expert_description", "skill", "skill_description",
-        "profile", "profile_description",
+        /* gen150: expert/skill/profile domain knowledge — structural metadata. */
+        "expert", "expert_domain", "expert_description",
+        "skill", "skill_domain", "skill_description",
+        "profile", "profile_domain", "profile_description",
         "compiled_language", "interpreted_language", "paradigm", "typed",
         "data_structure", "complexity", "fix_suggestion", "fix",
-        "review_check", "review_pattern", "code_action", "code_template",
-        "code_target",
+        "review_check", "review_pattern", "code_action", "code_template", "code_target",
+        /* gen150b: mathematics domain */
+        "math_op", "number_property", "math_constant", "divisible_by",
+        "algebra_concept", "polynomial_form", "algebra_method",
+        "shape_2d", "shape_3d", "area_formula", "volume_formula", "theorem",
+        /* gen150b: medicine domain */
+        "body_system", "organ", "bone",
+        "drug_class", "admin_route", "pharma_concept",
+        /* gen150b: reasoning skills */
+        "deduction_pattern", "compare_dimension", "plan_method",
+        /* gen150b: communication skills */
+        "explain_method", "summarize_method",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)
@@ -9980,7 +9990,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen149-coding-ground";
+    return "gen150b-granular-kb";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -1,0 +1,12 @@
+% skill: logical deduction — reasoning domain.
+
+skill(deduce).
+skill_domain(deduce, reasoning).
+skill_description(deduce, "logical deduction — apply rules and facts to derive conclusions").
+
+% deduction patterns
+deduction_pattern(modus_ponens, "if A is true and A implies B, then B is true").
+deduction_pattern(modus_tollens, "if A implies B and B is false, then A is false").
+deduction_pattern(transitivity, "if A implies B and B implies C, then A implies C").
+deduction_pattern(syllogism, "if all A are B and all B are C, then all A are C").
+deduction_pattern(contrapositive, "if A implies B, then not-B implies not-A").

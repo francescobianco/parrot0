@@ -1,0 +1,13 @@
+% profile: mentor — programming domain.
+% teaching profile focused on explanation and concepts.
+
+profile(mentor).
+profile_domain(mentor, programming).
+profile_description(mentor, "teaching mentor — focuses on explanation, concepts, and guided learning").
+
+:- include(../../experts/programming/c.p0).
+:- include(../../experts/programming/python.p0).
+:- include(../../experts/programming/algo.p0).
+:- include(../../skills/programming/explain.p0).
+:- include(../../skills/communication/explain.p0).
+:- include(../../skills/communication/summarize.p0).

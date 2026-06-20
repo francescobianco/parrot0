@@ -1,0 +1,13 @@
+% profile: reviewer — programming domain.
+% specialized in code review and quality assessment.
+
+profile(reviewer).
+profile_domain(reviewer, programming).
+profile_description(reviewer, "code reviewer — specialized in code quality assessment and review").
+
+:- include(../../experts/programming/c.p0).
+:- include(../../experts/programming/python.p0).
+:- include(../../experts/programming/algo.p0).
+:- include(../../skills/programming/review.p0).
+:- include(../../skills/programming/explain.p0).
+:- include(../../skills/reasoning/compare.p0).

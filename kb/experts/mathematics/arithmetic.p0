@@ -1,0 +1,40 @@
+% expert: arithmetic — mathematics domain.
+% number theory, operations, properties.
+
+expert(arithmetic).
+expert_domain(arithmetic, mathematics).
+expert_description(arithmetic, "arithmetic — operations, number properties, divisibility, prime numbers").
+
+% --- operations ---
+math_op(addition, "combining two numbers to get their sum").
+math_op(subtraction, "finding the difference between two numbers").
+math_op(multiplication, "repeated addition of a number").
+math_op(division, "splitting a number into equal parts").
+math_op(modulo, "the remainder after division").
+math_op(exponentiation, "repeated multiplication of a number by itself").
+
+% --- number properties ---
+number_property(prime, "a number greater than 1 divisible only by 1 and itself").
+number_property(composite, "a number greater than 1 that is not prime").
+number_property(even, "a number divisible by 2").
+number_property(odd, "a number not divisible by 2").
+number_property(integer, "a whole number, positive, negative, or zero").
+number_property(rational, "a number expressible as a fraction of two integers").
+number_property(irrational, "a number that cannot be expressed as a simple fraction").
+number_property(real, "any number on the continuous number line").
+number_property(perfect, "a number equal to the sum of its proper divisors").
+number_property(fibonacci, "a number in the sequence where each is the sum of the two preceding ones").
+
+% --- constants ---
+math_constant(pi, "3.14159... — the ratio of a circle's circumference to its diameter").
+math_constant(e, "2.71828... — the base of natural logarithms").
+math_constant(golden_ratio, "1.61803... — (1 + sqrt(5)) / 2").
+
+% --- divisibility ---
+divisible_by(2, "the last digit is even").
+divisible_by(3, "the sum of digits is divisible by 3").
+divisible_by(4, "the last two digits form a number divisible by 4").
+divisible_by(5, "the last digit is 0 or 5").
+divisible_by(6, "the number is divisible by both 2 and 3").
+divisible_by(9, "the sum of digits is divisible by 9").
+divisible_by(10, "the last digit is 0").
