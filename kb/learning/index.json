@@ -67,6 +67,23 @@
       "summary": "learned derivative: fundamental tool that quantifies the sensitivity to change of a function's output with respect...",
       "title": "Derivative",
       "url": "https://en.wikipedia.org/wiki/Derivative"
+    },
+    {
+      "concept": "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...",
+      "domain": "mathematics",
+      "event_id": "learn_2026_06_21t09_31_46z_logarithm",
+      "key": "logarithm",
+      "log_path": "kb/learning/logs/learn_2026_06_21t09_31_46z_logarithm.json",
+      "markdown_path": "kb/learning/pages/logarithm.md",
+      "processed_at": "2026-06-21T09:31:46Z",
+      "prompt": "what do you know about learn_2026_06_21t09_31_46z_logarithm",
+      "revision": 1354833929,
+      "source_index": 4,
+      "source_line": 14,
+      "source_title": "Logarithm",
+      "summary": "learned logarithm: In mathematics, the logarithm of a number is the exponent by which another fixed value, the...",
+      "title": "Logarithm",
+      "url": "https://en.wikipedia.org/wiki/Logarithm"
     }
   ],
   "pages": {
@@ -99,6 +116,21 @@
       "source_title": "Fibonacci number",
       "title": "Fibonacci sequence",
       "url": "https://en.wikipedia.org/wiki/Fibonacci_sequence"
+    },
+    "logarithm": {
+      "concept": "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...",
+      "description": "Mathematical function, inverse of an exponential function",
+      "domain": "mathematics",
+      "extract_sha256": "46cf4f51980f91e34889758715ced4d111c5fb39dd7f06fcaf073019f8a8d1c2",
+      "key": "logarithm",
+      "last_event_id": "learn_2026_06_21t09_31_46z_logarithm",
+      "markdown_path": "kb/learning/pages/logarithm.md",
+      "pageid": 17860,
+      "processed_at": "2026-06-21T09:31:46Z",
+      "revision": 1354833929,
+      "source_title": "Logarithm",
+      "title": "Logarithm",
+      "url": "https://en.wikipedia.org/wiki/Logarithm"
     },
     "prime_number": {
       "concept": "natural number greater than 1 that is not a product of two smaller natural numbers",
