@@ -1,0 +1,39 @@
+{
+  "events": [
+    {
+      "concept": "natural number greater than 1 that is not a product of two smaller natural numbers",
+      "domain": "mathematics",
+      "event_id": "learn_2026_06_21t01_32_24z_prime_number",
+      "key": "prime_number",
+      "log_path": "kb/learning/logs/learn_2026_06_21t01_32_24z_prime_number.json",
+      "markdown_path": "kb/learning/pages/prime_number.md",
+      "processed_at": "2026-06-21T01:32:24Z",
+      "prompt": "what do you know about learn_2026_06_21t01_32_24z_prime_number",
+      "revision": 1359835251,
+      "source_index": 0,
+      "source_line": 10,
+      "source_title": "Prime number",
+      "summary": "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers",
+      "title": "Prime number",
+      "url": "https://en.wikipedia.org/wiki/Prime_number"
+    }
+  ],
+  "pages": {
+    "prime_number": {
+      "concept": "natural number greater than 1 that is not a product of two smaller natural numbers",
+      "description": "Number divisible only by 1 and itself",
+      "domain": "mathematics",
+      "extract_sha256": "d3853dddb1ddfdd2c3b57be51e340bfb820f9f20713ec66aa4d106a563c8d877",
+      "key": "prime_number",
+      "last_event_id": "learn_2026_06_21t01_32_24z_prime_number",
+      "markdown_path": "kb/learning/pages/prime_number.md",
+      "pageid": 23666,
+      "processed_at": "2026-06-21T01:32:24Z",
+      "revision": 1359835251,
+      "source_title": "Prime number",
+      "title": "Prime number",
+      "url": "https://en.wikipedia.org/wiki/Prime_number"
+    }
+  },
+  "version": 1
+}

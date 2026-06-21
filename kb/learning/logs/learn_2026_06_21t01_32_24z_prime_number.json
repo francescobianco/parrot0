@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_21t01_32_24z_prime_number",
+  "extraction": {
+    "concept": "natural number greater than 1 that is not a product of two smaller natural numbers",
+    "concept_key": "prime_number",
+    "extract_sha256": "d3853dddb1ddfdd2c3b57be51e340bfb820f9f20713ec66aa4d106a563c8d877",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_21t01_32_24z_prime_number.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/prime_number.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 1,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-21T01:32:24Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_21t01_32_24z_prime_number"
+  },
+  "source": {
+    "domain": "mathematics",
+    "index": 0,
+    "line": 10,
+    "title": "Prime number"
+  },
+  "wikipedia": {
+    "canonical_title": "Prime number",
+    "lang": "en",
+    "pageid": 23666,
+    "revision": 1359835251,
+    "url": "https://en.wikipedia.org/wiki/Prime_number"
+  }
+}
