@@ -50,9 +50,41 @@
       "summary": "learned pythagorean_theorem: In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental...",
       "title": "Pythagorean theorem",
       "url": "https://en.wikipedia.org/wiki/Pythagorean_theorem"
+    },
+    {
+      "concept": "fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input",
+      "domain": "mathematics",
+      "event_id": "learn_2026_06_21t07_59_50z_derivative",
+      "key": "derivative",
+      "log_path": "kb/learning/logs/learn_2026_06_21t07_59_50z_derivative.json",
+      "markdown_path": "kb/learning/pages/derivative.md",
+      "processed_at": "2026-06-21T07:59:50Z",
+      "prompt": "what do you know about learn_2026_06_21t07_59_50z_derivative",
+      "revision": 1358599947,
+      "source_index": 3,
+      "source_line": 13,
+      "source_title": "Derivative",
+      "summary": "learned derivative: fundamental tool that quantifies the sensitivity to change of a function's output with respect...",
+      "title": "Derivative",
+      "url": "https://en.wikipedia.org/wiki/Derivative"
     }
   ],
   "pages": {
+    "derivative": {
+      "concept": "fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input",
+      "description": "Instantaneous rate of change (mathematics)",
+      "domain": "mathematics",
+      "extract_sha256": "c8e4533740dd80238c2020f661e42a891ddf7083c0c926e29800371f995d0501",
+      "key": "derivative",
+      "last_event_id": "learn_2026_06_21t07_59_50z_derivative",
+      "markdown_path": "kb/learning/pages/derivative.md",
+      "pageid": 7921,
+      "processed_at": "2026-06-21T07:59:50Z",
+      "revision": 1358599947,
+      "source_title": "Derivative",
+      "title": "Derivative",
+      "url": "https://en.wikipedia.org/wiki/Derivative"
+    },
     "fibonacci_number": {
       "concept": "sequence in which each element is the sum of the two elements that precede it",
       "description": "Numbers obtained by adding the two previous ones",

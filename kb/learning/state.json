@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "mathematics",
-    "event_id": "learn_2026_06_21t05_59_48z_pythagorean_theorem",
-    "key": "pythagorean_theorem",
-    "log_path": "kb/learning/logs/learn_2026_06_21t05_59_48z_pythagorean_theorem.json",
-    "markdown_path": "kb/learning/pages/pythagorean_theorem.md",
-    "processed_at": "2026-06-21T05:59:48Z",
-    "prompt": "what do you know about learn_2026_06_21t05_59_48z_pythagorean_theorem",
-    "revision": 1358746630,
-    "title": "Pythagorean theorem"
+    "event_id": "learn_2026_06_21t07_59_50z_derivative",
+    "key": "derivative",
+    "log_path": "kb/learning/logs/learn_2026_06_21t07_59_50z_derivative.json",
+    "markdown_path": "kb/learning/pages/derivative.md",
+    "processed_at": "2026-06-21T07:59:50Z",
+    "prompt": "what do you know about learn_2026_06_21t07_59_50z_derivative",
+    "revision": 1358599947,
+    "title": "Derivative"
   },
-  "next_index": 3
+  "next_index": 4
 }
