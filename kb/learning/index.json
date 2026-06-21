@@ -186,9 +186,41 @@
       "summary": "learned periodic_table: The periodic table, also known as the periodic table of the elements, is an ordered...",
       "title": "Periodic table",
       "url": "https://en.wikipedia.org/wiki/Periodic_table"
+    },
+    {
+      "concept": "chemical bond that involves the sharing of electrons to form electron pairs between atoms",
+      "domain": "chemistry",
+      "event_id": "learn_2026_06_21t17_52_14z_covalent_bond",
+      "key": "covalent_bond",
+      "log_path": "kb/learning/logs/learn_2026_06_21t17_52_14z_covalent_bond.json",
+      "markdown_path": "kb/learning/pages/covalent_bond.md",
+      "processed_at": "2026-06-21T17:52:14Z",
+      "prompt": "what do you know about learn_2026_06_21t17_52_14z_covalent_bond",
+      "revision": 1347405474,
+      "source_index": 11,
+      "source_line": 25,
+      "source_title": "Covalent bond",
+      "summary": "learned covalent_bond: chemical bond that involves the sharing of electrons to form electron pairs between atoms",
+      "title": "Covalent bond",
+      "url": "https://en.wikipedia.org/wiki/Covalent_bond"
     }
   ],
   "pages": {
+    "covalent_bond": {
+      "concept": "chemical bond that involves the sharing of electrons to form electron pairs between atoms",
+      "description": "Chemical bond by sharing of electron pairs",
+      "domain": "chemistry",
+      "extract_sha256": "f7802f06e8416174428740bc339749007eb37f68223ca48133ddbb75d6b5512a",
+      "key": "covalent_bond",
+      "last_event_id": "learn_2026_06_21t17_52_14z_covalent_bond",
+      "markdown_path": "kb/learning/pages/covalent_bond.md",
+      "pageid": 6246,
+      "processed_at": "2026-06-21T17:52:14Z",
+      "revision": 1347405474,
+      "source_title": "Covalent bond",
+      "title": "Covalent bond",
+      "url": "https://en.wikipedia.org/wiki/Covalent_bond"
+    },
     "derivative": {
       "concept": "fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input",
       "description": "Instantaneous rate of change (mathematics)",

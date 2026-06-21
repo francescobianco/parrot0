@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "chemistry",
-    "event_id": "learn_2026_06_21t16_53_47z_periodic_table",
-    "key": "periodic_table",
-    "log_path": "kb/learning/logs/learn_2026_06_21t16_53_47z_periodic_table.json",
-    "markdown_path": "kb/learning/pages/periodic_table.md",
-    "processed_at": "2026-06-21T16:53:47Z",
-    "prompt": "what do you know about learn_2026_06_21t16_53_47z_periodic_table",
-    "revision": 1359090233,
-    "title": "Periodic table"
+    "event_id": "learn_2026_06_21t17_52_14z_covalent_bond",
+    "key": "covalent_bond",
+    "log_path": "kb/learning/logs/learn_2026_06_21t17_52_14z_covalent_bond.json",
+    "markdown_path": "kb/learning/pages/covalent_bond.md",
+    "processed_at": "2026-06-21T17:52:14Z",
+    "prompt": "what do you know about learn_2026_06_21t17_52_14z_covalent_bond",
+    "revision": 1347405474,
+    "title": "Covalent bond"
   },
-  "next_index": 11
+  "next_index": 12
 }
