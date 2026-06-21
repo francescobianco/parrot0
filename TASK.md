@@ -2,26 +2,34 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - close the EN social composition gap (from E1)
+## Active task - reflexive composition: parrot0 reasons about composing its own parts
 
-Goal: flip the last recorded GAP dialogue `tests/compose/social_gap_en.dlg` in
-`make compose-bench` to composes-unchanged with GENERIC parser work only — no
-bespoke handler.
+Goal: the gen160 self-challenge probe walled — asked to prove its subsystems
+compose, parrot0 could not treat "test composition of my own parts" as a
+loop-shaped self-challenge. Extend `mod_loop` so an explicit challenge about its
+OWN composition proposes a comparable, honest answer (which subsystems, how they
+would be made to cooperate in one dialogue, the ratchet, the version/journal
+bookkeeping) WITHOUT self-managing (no edit/test/commit/task-choice).
 
 Acceptance:
-- Bare self-introduction "i'm <X>" / "i am <X>" feeds the SAME name memory that
-  "my name is X" / "call me X" fill, declining known non-name predicates
-  ("i'm tired", "i'm a teacher") so it generalizes to unseen names, not phrases.
-- An unbound "she/he/it" binds to a named personal entity (the cat/dog) when no
-  KB-fact antecedent exists, composing possession memory with discourse
-  reference; the existing coref antecedent still wins when present.
-- `social_gap_en.dlg` re-tagged `#expect: pass` (rename to drop "gap"), and the
-  EN `tests/cases` ratchet grows accordingly.
+- "how would you prove your subsystems compose?" and "what should change to test
+  composition over three subsystems?" get a loop-shaped proposal naming concrete
+  parts (e.g. KB facts + abduction + proof) and a held-out dialogue + ratchet,
+  not a wall and not chitchat.
+- It stays anti-self-management: it proposes, it does not act.
+- EN + IT through one path; a 10-turn held-out stress block.
 
-Anti-impostor: keep using fresh names/predicates; a fix that only matches the
-exact gap phrases (not unseen paraphrases) is a special-case and does not count.
+Anti-impostor: success must transfer to unseen phrasings of the challenge, not a
+fixed trigger list.
 
 ## Done recently
+
+- **gen163 - possession memory composes with discourse reference (E1, gap
+  closed).** `remember_possession` now sets `last_entity` to the named pet, so an
+  unbound "she/he/it" binds to it when no KB-fact antecedent exists (a real later
+  subject still overrides by recency). `make compose-bench` reaches 6/6 composing
+  unchanged, 0 gaps, 100% landing — E1 fully closed. Stress held over fresh vocab
+  and he/it/she. `compose_coref.chat`/`.it`; `social_pet_en.dlg` `#expect: pass`.
 
 - **gen162 - bare self-introduction feeds name memory.** A self-introduction
   block in `mod_memory` accepts "i'm <X>" / "i am <X>" / "im <X>" (behind an

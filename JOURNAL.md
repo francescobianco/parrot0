@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen163: possession memory composes with discourse reference (E1)
+
+**Goal (TASK.md):** the last miss in `social_pet_en` — an unbound "she/he/it"
+should bind to a named personal entity (the cat) when no KB-fact antecedent
+exists, composing possession memory with discourse reference. This closes the
+final E1 gap.
+
+**Insight:** the two systems were one assignment apart. The coref resolver already
+binds pronouns to `last_entity`; remembering a possession ("i have a cat named
+smoke") simply never set it, so the pet was invisible to discourse. Naming a pet
+makes it the salient entity — so `remember_possession` should mark it. A later
+real unary-fact subject still overrides it (recency), so the change only fills
+the previously-empty case, the safest kind of edit.
+
+**Changed:** `brain.c` -> `gen163-possession-coref`. `remember_possession` now also
+sets `last_entity` to the pet's key. No new module, no new dispatch; `mod_repair`
+steps aside (a referent now exists) and `mod_knowledge` resolves the pronoun.
+
+**Observed.** `make compose-bench`: 6/6 compose UNCHANGED, **0 gaps**, 100%
+landing (41/41) — E1 fully closed. "i have a cat named smoke" then "is she a
+pet?" -> Yes (she->smoke); "what do you know about her?" -> her->smoke. Stress
+with fresh vocab held: "is he a puppy?" (he->rex), "is it a reptile?"
+(it->shelly), honest "I don't know about wizard." on an unknown predicate, and a
+later real subject ("aldo is a chef" -> "is he a chef?" -> Yes) correctly
+overrides the remembered pet. EN ratchet `compose_coref.chat` + IT
+`compose_coref.it.chat`; `social_gap_en.dlg` renamed `social_pet_en.dlg`,
+`#expect: pass`. `make test` 22/22.
+
+**The arc gen160->163.** gen160 built the gauge and read 4/6 composing with 2
+honest gaps; gen161/162/163 closed all of them with only surface/lexicon/one-line
+state work — never a bespoke handler — lifting the benchmark to 6/6, 100%. The
+result the experiment was after: capabilities each grown in a separate generation
+now cooperate on never-seen vocabulary, in two languages, and the few seams that
+remained were thin enough to close generically. The next frontier is reflexive:
+parrot0 still cannot reason about composing its own parts.
+
 ## 2026-06-21 - gen162: bare self-introduction feeds name memory (E1)
 
 **Goal (TASK.md):** the first miss in `social_gap_en` — a bare self-introduction

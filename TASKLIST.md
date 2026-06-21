@@ -244,8 +244,16 @@ The weakest signal is still the human surface. Casual talk, unclear turns, pragm
 
 These tasks measure whether future gains are structural rather than cosmetic.
 
-### E1 - Compositional emergence benchmark — DONE, gen160
+### E1 - Compositional emergence benchmark — DONE, gen160-163 (6/6, 0 gaps)
 Goal: create held-out dialogues where success requires three or more existing subsystems in the same conversation, without adding a task-specific module.
+
+gen161-163 closed the two gaps gen160 recorded, all with generic surface/lexicon/
+one-line state work (no bespoke handler): IT affirmative why-proof + name recall
+(gen161), bare self-introduction "i'm X" via a structural non-name filter
+(gen162), and possession memory composing with discourse reference so "she"->the
+pet (gen163). `make compose-bench` now reads 6/6 composing unchanged, 0 gaps,
+100% landing (41/41). Open next (reflexive): parrot0 cannot yet reason about
+composing its OWN subsystems — the gen160 self-challenge walled.
 
 gen160: `make compose-bench` (`tests/composebench.sh`) runs fresh-vocab dialogues
 that force >=3 independently-evolved subsystems to cooperate, scoring each

@@ -1,0 +1,22 @@
+# gen163 E1: a social composition that now passes UNCHANGED — gen160 recorded it
+# as a generic-parser gap; gen162 + gen163 closed both halves with generic work,
+# no bespoke handler. Six subsystems cooperate over fresh vocab (vera/cat/smoke):
+# bare self-introduction (gen162), possession memory, KB fact intake, discourse
+# reference binding an unbound "she/her" to the named pet (gen163), deductive
+# query, and the personal summary. The pronoun resolves to the pet because the
+# possession made it the salient entity — possession memory composed with coref.
+#subsystems: self-introduction, possession-memory, fact-intake, discourse-reference, deduction, personal-summary
+#expect: pass
+#class: composes-unchanged
+> hi, i'm vera
+< nice to meet you vera
+> i have a cat named smoke
+< your cat is called smoke
+> smoke is a pet
+< learned petsmoke
+> is she a pet?
+< yes
+> what do you know about her?
+< smoke is a pet
+> what is my name?
+< your name is vera

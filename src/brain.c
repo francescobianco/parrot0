@@ -385,6 +385,15 @@ static void remember_possession(Brain *b, const char *thing, const char *name) {
     lowercase_copy(name_key, sizeof name_key, name);
     const char *args[] = {thing_key, name_key};
     kb_assert(b->kb, "called", args, 2);
+
+    /* gen163: the named pet becomes the salient discourse entity, so a later
+     * unbound "she/he/it" composes possession memory with discourse reference
+     * ("i have a cat named smoke" then "is she a robot?" resolves to smoke).
+     * A real KB-fact antecedent mentioned afterwards still overrides this. */
+    if (strlen(name_key) < KB_TERM_LEN) {
+        snprintf(b->last_entity, sizeof b->last_entity, "%s", name_key);
+        b->has_last_entity = 1;
+    }
 }
 
 static const char *find_possession_name(Brain *b, const char *thing) {
@@ -10219,7 +10228,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen162-self-introduction";
+    return "gen163-possession-coref";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -1,0 +1,11 @@
+# gen163 (E1): the possession->coref composition in Italian (mia/gatto/neve) —
+# the bilingual ratchet. The named pet becomes the salient entity through the
+# same language-agnostic path, so "è essa un animale?" binds "essa" to neve.
+> mi chiamo mia
+< Nice to meet you, mia!
+> ho un gatto chiamato neve
+< Got it: your gatto is called neve.
+> neve è un animale
+< Learned: animale(neve).
+> è essa un animale?
+< Yes.
