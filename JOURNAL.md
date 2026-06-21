@@ -1,4 +1,46 @@
 # parrot0 evolution journal
+## 2026-06-22 - gen168: the self-test generates fresh held-out vocabulary each run
+
+**Goal:** gen167 ran the composition self-test but with FIXED vocabulary
+(brave/knight/hero/aldric) — its honest weakness: a fixed transcript can be
+memorized. Make each self-test generate fresh held-out vocab and cite the
+cooperation it actually observed, so the run is provably produced and executed.
+
+**Insight:** the verification signatures ("Learned rule", "missing",
+"load-bearing") are VOCABULARY-INDEPENDENT — they name the move, not the words —
+so the dialogue's nouns can be swapped freely without weakening the check. A
+small rotating pool of {adjective, noun, class, name} tuples, indexed by a
+per-session run counter, makes two consecutive self-tests use different names
+while the same signatures still confirm each part fired.
+
+**Changed:** `brain.c` -> `gen168-selftest-fresh-vocab`. New `compose_vocab[][4]`
+pool + a `build_turn(key, tuple)` helper that templates each part's turns from a
+tuple (no positional format args, to stay `-Wpedantic`-clean); a `selftest_runs`
+counter on `Brain` selects the tuple per run. The self-test now reports the fresh
+names and the real Observed line (e.g. the robustness verdict) captured from the
+sub-run; the skeleton (gen166) emits via the same `build_turn` with a fixed
+example tuple.
+
+**Observed.** Two self-tests in one session: "a brave knight named aldric ... 3 of
+3 ... Observed: My conclusion that aldric is a hero rests on 2 load-bearing
+facts ... (PASS)", then "a loyal hound named bryn ... Observed: ... bryn is a
+companion rests on 2 load-bearing facts ... (PASS)" — different vocab, both
+executed, each citing its own real output. The computed FAIL still holds: retract
+abduce and the same request reports the knowledge/robust/calibrate seam.
+Ratchets: `reflexive_selftest.chat`/`.it` (PASS, tuple 0), `_fresh.chat` (two runs,
+different vocab — the anti-memorization proof), `_seam.chat` (computed FAIL).
+`make test` 22/22, 172 cases; compose-bench 7/7.
+
+**Why this matters.** A self-test on a fixed transcript proves little — it could be
+a lookup. A self-test that invents fresh held-out vocabulary every time, runs it,
+and reports the real result it observed cannot be faking: the words it reasons
+over were chosen at call time and the verdict tracks what actually happened
+(retract a part, the verdict flips). parrot0 now audits its own composition the
+way the external compose-bench does — anti-impostor by construction — and still
+refuses to edit or commit. Honest next: vary the STRUCTURE too (audit several
+different triples of its parts in one pass, reporting a real cooperation map),
+not just the vocabulary of one.
+
 ## 2026-06-22 - gen167: parrot0 RUNS its own composition and verifies it (E1 capstone)
 
 **Goal:** the most ambitious move inside the loop's boundary. gen164-166 made

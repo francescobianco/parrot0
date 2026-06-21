@@ -1,10 +1,10 @@
-# gen167 (E1 reflexive): proof that the self-test verdict is COMPUTED, not canned.
-# Retract module(abduce): the derived triple becomes knowledge/robust/calibrate,
-# and when parrot0 runs it on a fresh copy of itself the parts genuinely do NOT
-# all cooperate (robustness needs the conclusion the abduction step would have
-# established) — so it honestly reports a seam (FAIL). Change the self-model, the
-# real result changes; the gauge does not lie about itself.
+# gen167/168 (E1 reflexive): proof that the self-test verdict is COMPUTED, not
+# canned. Retract module(abduce): the derived triple becomes
+# knowledge/robust/calibrate, and when parrot0 runs it on a fresh copy of itself
+# the parts genuinely do NOT all cooperate (robustness needs the conclusion the
+# abduction step would have established) — so it honestly reports a seam (FAIL).
+# Change the self-model, the real result changes; the gauge does not lie.
 > forget that abduce is a module
 < Forgotten: module(abduce).
 > prove your parts compose by running it yourself
-< I ran it on a fresh copy of myself: knowledge, robust and calibrate — only 1 of 3 parts fired, so a seam appeared (FAIL). That gap is the next task for the external loop.
+< I ran it on a fresh copy of myself with held-out names (a brave knight named aldric): knowledge, robust and calibrate — only 1 of 3 parts fired, so a seam appeared (FAIL). That gap is the next task for the external loop.

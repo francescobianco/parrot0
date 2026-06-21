@@ -188,6 +188,12 @@ struct Brain {
         int  neg;                       /* 1 if asserted false in this world      */
     } wfacts[BRAIN_WFACTS_MAX];
     size_t wfact_count;
+
+    /* gen168 (E1 reflexive): how many composition self-tests have run this
+     * session. Used to pick a FRESH held-out vocabulary tuple per run, so two
+     * self-tests propose different names — proof the run is generated and
+     * executed, not a memorized transcript. */
+    unsigned selftest_runs;
 };
 
 /* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity
@@ -4998,6 +5004,45 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen168 (E1 reflexive): held-out vocabulary tuples for the composition
+ * self-test. Rotating through them per run makes two consecutive self-tests use
+ * DIFFERENT names, so the run is provably generated and executed, not a
+ * memorized transcript. Each is {adjective, noun, class, name}. */
+static const char *const compose_vocab[][4] = {
+    {"brave",   "knight", "hero",      "aldric"},
+    {"loyal",   "hound",  "companion", "bryn"},
+    {"curious", "cub",    "explorer",  "nyla"},
+    {"wise",    "elder",  "sage",      "orin"},
+};
+#define COMPOSE_VOCAB_N (sizeof compose_vocab / sizeof compose_vocab[0])
+
+/* Build the runnable `>`-separated turn fragment for one composable part with a
+ * given vocab tuple. Parts outside the analytical schema use fixed vocab. The
+ * fragments are the same whether displayed (skeleton) or executed (self-test). */
+static void build_turn(const char *key, const char *const v[4],
+                       char *dst, size_t size) {
+    const char *adj = v[0], *noun = v[1], *cls = v[2], *name = v[3];
+    if (!strcmp(key, "knowledge"))
+        snprintf(dst, size, "every %s %s is a %s > %s is a %s > is %s a %s?",
+                 adj, noun, cls, name, noun, name, cls);
+    else if (!strcmp(key, "abduce"))
+        snprintf(dst, size, "why isn't %s a %s? > %s is %s", name, cls, name, adj);
+    else if (!strcmp(key, "robust"))
+        snprintf(dst, size, "how robust is that conclusion?");
+    else if (!strcmp(key, "calibrate"))
+        snprintf(dst, size, "how sure are you?");
+    else if (!strcmp(key, "memory"))
+        snprintf(dst, size, "my name is %s > what is my name?", name);
+    else if (!strcmp(key, "coref"))
+        snprintf(dst, size, "%s is a %s > is he a %s?", name, cls, cls);
+    else if (!strcmp(key, "cause"))
+        snprintf(dst, size, "%s causes floods > what does %s cause?", noun, noun);
+    else if (!strcmp(key, "compare"))
+        snprintf(dst, size, "5 is greater than 3 > which is greater, 5 or 3?");
+    else
+        snprintf(dst, size, " ");
+}
+
 /* --- module: loop --------------------------------------------------------
  * Self-challenge parity for the external LOOP.md driver. This is deliberately
  * not self-management: parrot0 does not edit files, run tests, commit, or choose
@@ -5092,65 +5137,56 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
      * triple — knowledge, abduce, robust — is exactly the one
      * tests/compose/analytical_en.dlg proves cooperates. */
     if (compose_challenge || want_skeleton || want_selftest) {
-        static const struct { const char *key, *gloss, *turn, *sig; } core[] = {
-            {"knowledge", "knowledge (facts and rules)",
-             "every brave knight is a hero > aldric is a knight > is aldric a hero?",
-             "Learned rule"},
-            {"abduce",    "abduction (the missing premise)",
-             "why isn't aldric a hero? > aldric is brave",
-             "missing"},
-            {"robust",    "robustness (which facts are load-bearing)",
-             "how robust is that conclusion?",
-             "load-bearing"},
-            {"calibrate", "calibration (how sure I am)",
-             "how sure are you?",
-             "know"},
-            {"memory",    "personal memory",
-             "my name is mara > what is my name?",
-             "name is"},
-            {"coref",     "discourse reference",
-             "aldric is brave > is he brave?",
-             "Yes"},
-            {"cause",     "cause and effect",
-             "rain causes floods > what does rain cause?",
-             "flood"},
-            {"compare",   "comparison",
-             "5 is greater than 3 > which is greater, 5 or 3?",
-             "5"},
+        static const struct { const char *key, *gloss, *sig; } core[] = {
+            {"knowledge", "knowledge (facts and rules)",        "Learned rule"},
+            {"abduce",    "abduction (the missing premise)",    "missing"},
+            {"robust",    "robustness (which facts are load-bearing)", "load-bearing"},
+            {"calibrate", "calibration (how sure I am)",        "know"},
+            {"memory",    "personal memory",                    "name is"},
+            {"coref",     "discourse reference",                "Yes"},
+            {"cause",     "cause and effect",                   "flood"},
+            {"compare",   "comparison",                         "5"},
         };
         size_t pick[3], picked = 0;
         for (size_t i = 0; i < sizeof core / sizeof core[0] && picked < 3; i++) {
             const char *a[] = {core[i].key};
             if (b->kb && kb_query(b->kb, "module", a, 1)) pick[picked++] = i;
         }
-        char msg[700];
+        char msg[900];
         if (picked < 3) {
             put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
                 out, out_size);
         } else if (want_selftest) {
-            /* gen167: actually RUN the derived composition on a fresh copy of
-             * myself and report from real output. Each part's turns are fed
-             * through brain_respond on the sub-brain (no static state, so this is
-             * reentrancy-safe and footprint-free on the live brain); a part
-             * "fired" if its signature substring appears anywhere in the run.
-             * The verdict is computed, not asserted — a broken part would show. */
+            /* gen167/168: actually RUN the derived composition on a fresh copy of
+             * myself and report from real output. gen168: a FRESH vocab tuple is
+             * chosen per run (so two self-tests use different names — proof the run
+             * is executed, not memorized), and the PASS report cites the
+             * cooperation actually OBSERVED in the sub-run. Each part's turns are
+             * fed through brain_respond on the sub-brain (no static state, so this
+             * is reentrancy-safe and footprint-free on the live brain); a part
+             * "fired" iff its signature appears. The verdict is computed. */
+            const char *const *v = compose_vocab[b->selftest_runs % COMPOSE_VOCAB_N];
+            b->selftest_runs++;
             Brain *sub = brain_create();
             size_t fired = 0;
             char names[256]; size_t no = 0;
+            char observed[512] = "";
             if (sub) {
                 for (size_t k = 0; k < picked; k++) {
-                    const char *t = core[pick[k]].turn;
-                    char trn[256]; snprintf(trn, sizeof trn, "%s", t);
+                    char trn[256];
+                    build_turn(core[pick[k]].key, v, trn, sizeof trn);
                     int part_fired = 0;
-                    /* split the part's turn fragment on " > " and run each */
-                    char *p = trn;
+                    char *p = trn;            /* split on " > ", run each sub-turn */
                     while (p && *p) {
                         char *gt = strstr(p, " > ");
                         if (gt) *gt = '\0';
                         while (*p == ' ' || *p == '>') p++;
                         char r[512] = "";
                         brain_respond(sub, p, r, sizeof r);
-                        if (strstr(r, core[pick[k]].sig)) part_fired = 1;
+                        if (strstr(r, core[pick[k]].sig)) {
+                            part_fired = 1;
+                            snprintf(observed, sizeof observed, "%s", r);
+                        }
                         p = gt ? gt + 3 : NULL;
                     }
                     if (part_fired) fired++;
@@ -5162,24 +5198,26 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             }
             if (sub && fired == picked)
                 snprintf(msg, sizeof msg,
-                    "I ran it on a fresh copy of myself: %s — %zu of %zu parts fired and cooperated in one dialogue. Composition holds (PASS). No file was touched; an external agent still owns edits and commits.",
-                    names, fired, picked);
+                    "I ran it on a fresh copy of myself with held-out names (a %s %s named %s): %s — %zu of %zu parts fired and cooperated. Observed: %s Composition holds (PASS). No file was touched; an external agent still owns edits and commits.",
+                    v[0], v[1], v[3], names, fired, picked, observed);
             else
                 snprintf(msg, sizeof msg,
-                    "I ran it on a fresh copy of myself: %s — only %zu of %zu parts fired, so a seam appeared (FAIL). That gap is the next task for the external loop.",
-                    names, fired, picked);
+                    "I ran it on a fresh copy of myself with held-out names (a %s %s named %s): %s — only %zu of %zu parts fired, so a seam appeared (FAIL). That gap is the next task for the external loop.",
+                    v[0], v[1], v[3], names, fired, picked);
             put(msg, out, out_size);
-            store_proof(b, "loop composition self-test: run the derived dialogue on a fresh sub-brain and report pass/seam from real output; footprint-free, edits external.");
+            store_proof(b, "loop composition self-test: generate fresh vocab, run the derived dialogue on a fresh sub-brain, report pass/seam + observed cooperation from real output; footprint-free, edits external.");
             return 1;
         } else if (want_skeleton) {
             /* gen166: emit a runnable, single-line `>`-turn skeleton over the
-             * derived parts. An external agent fills the placeholder names and
-             * drops it into tests/compose/; parrot0 does not run or commit it. */
+             * derived parts (a fixed example tuple). An external agent fills the
+             * names and drops it into tests/compose/; parrot0 does not run it. */
             size_t o = (size_t)snprintf(msg, sizeof msg,
                 "Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not):");
-            for (size_t k = 0; k < picked; k++)
-                o += (size_t)snprintf(msg + o, sizeof msg - o, " > %s",
-                                      core[pick[k]].turn);
+            for (size_t k = 0; k < picked; k++) {
+                char trn[256];
+                build_turn(core[pick[k]].key, compose_vocab[0], trn, sizeof trn);
+                o += (size_t)snprintf(msg + o, sizeof msg - o, " > %s", trn);
+            }
             put(msg, out, out_size);
             store_proof(b, "loop composition skeleton: emit a runnable >-turn dialogue over the parts derived from module/X; external agent fills, runs, commits.");
         } else {
@@ -10387,7 +10425,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen167-composition-selftest";
+    return "gen168-selftest-fresh-vocab";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

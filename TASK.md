@@ -2,25 +2,32 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - vary the self-test's placeholder vocab + report which parts cooperated
+## Active task - self-audit: map which TRIPLES of its parts compose, in one pass
 
-Goal: gen167 runs the derived composition on a fresh copy of parrot0 and reports
-PASS/seam, but (a) the dialogue's placeholder names are fixed and (b) the verdict
-is a count, not a trace. Two refinements: generate fresh held-out vocab per
-self-test run (proving it is not a memorized transcript), and have the PASS report
-name HOW the parts cooperated (e.g. "the rule + the missing premise produced the
-proof robustness then inspected"), read from the real sub-run outputs.
+Goal: gen168 varies the vocabulary of ONE composition; the next rung varies the
+STRUCTURE. On "audit your composition", parrot0 should run SEVERAL different
+triples of its parts (each on a fresh sub-brain, fresh vocab) and report a real
+cooperation MAP — which combinations hold and which show a seam — i.e. perform the
+compose-bench matrix on itself, autonomously, computed live.
 
 Acceptance:
-- Two self-test runs in one session use different vocab, both genuinely executed.
-- The PASS message cites the actual cooperation observed in the sub-run, not a
-  fixed sentence; a seam still names the part that failed to fire.
-- EN + IT one path; stays anti-self-management (no file edit, no commit).
+- "audit your composition" (EN+IT) runs >=2 distinct triples and reports a
+  per-triple PASS/seam verdict, each executed on a fresh sub-brain.
+- At least one triple passes and the report distinguishes it from any seam,
+  computed from real output (retracting a module changes the map).
+- Stays anti-self-management (no file edit, no commit).
 
-Anti-impostor: vocab variation and the cooperation trace must come from the real
-sub-run, not relabelled constants.
+Anti-impostor: the map must come from really running each triple, not a table of
+constants; vocab stays held-out per run.
 
 ## Done recently
+
+- **gen168 - self-test generates fresh held-out vocabulary.** A rotating
+  `compose_vocab` pool + `build_turn` template + a per-session `selftest_runs`
+  counter make each self-test use different names; the verification signatures are
+  vocab-independent, so two runs differ yet both verify. The PASS report cites the
+  real Observed line from the sub-run. `reflexive_selftest_fresh.chat` proves two
+  runs use different vocab; `_seam.chat` keeps the computed FAIL. 172 cases.
 
 - **gen167 - parrot0 runs its own composition (E1 capstone).** A `want_selftest`
   branch in `mod_loop` spins up a fresh sub-brain (`brain_create`), runs the

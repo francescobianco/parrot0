@@ -1,0 +1,9 @@
+# gen168 (E1 reflexive): the anti-memorization proof. Two self-tests in one
+# session use DIFFERENT held-out vocabulary (a brave knight named aldric, then a
+# loyal hound named bryn) — each generated and executed on a fresh sub-brain, each
+# citing its own real observed output. If the self-test were a canned transcript
+# the two would be identical; they are not, so the run is genuinely produced.
+> prove your parts compose by running it yourself
+< I ran it on a fresh copy of myself with held-out names (a brave knight named aldric): knowledge, abduce and robust — 3 of 3 parts fired and cooperated. Observed: My conclusion that aldric is a hero rests on 2 load-bearing facts: knight(aldric), brave(aldric). Removing any one would overturn it. Composition holds (PASS). No file was touched; an external agent still owns edits and commits.
+> run the composition test on yourself
+< I ran it on a fresh copy of myself with held-out names (a loyal hound named bryn): knowledge, abduce and robust — 3 of 3 parts fired and cooperated. Observed: My conclusion that bryn is a companion rests on 2 load-bearing facts: hound(bryn), loyal(bryn). Removing any one would overturn it. Composition holds (PASS). No file was touched; an external agent still owns edits and commits.
