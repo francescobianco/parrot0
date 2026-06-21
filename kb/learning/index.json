@@ -118,6 +118,23 @@
       "summary": "learned entropy: thermodynamic state variable that quantifies the probabilistic distribution of accessible...",
       "title": "Entropy",
       "url": "https://en.wikipedia.org/wiki/Entropy"
+    },
+    {
+      "concept": "interaction that occurs between particles with electric charge via electromagnetic fields",
+      "domain": "physics",
+      "event_id": "learn_2026_06_21t14_00_19z_electromagnetism",
+      "key": "electromagnetism",
+      "log_path": "kb/learning/logs/learn_2026_06_21t14_00_19z_electromagnetism.json",
+      "markdown_path": "kb/learning/pages/electromagnetism.md",
+      "processed_at": "2026-06-21T14:00:19Z",
+      "prompt": "what do you know about learn_2026_06_21t14_00_19z_electromagnetism",
+      "revision": 1360320920,
+      "source_index": 7,
+      "source_line": 19,
+      "source_title": "Electromagnetism",
+      "summary": "learned electromagnetism: interaction that occurs between particles with electric charge via electromagnetic fields",
+      "title": "Electromagnetism",
+      "url": "https://en.wikipedia.org/wiki/Electromagnetism"
     }
   ],
   "pages": {
@@ -135,6 +152,21 @@
       "source_title": "Derivative",
       "title": "Derivative",
       "url": "https://en.wikipedia.org/wiki/Derivative"
+    },
+    "electromagnetism": {
+      "concept": "interaction that occurs between particles with electric charge via electromagnetic fields",
+      "description": "Fundamental interaction between charged particles",
+      "domain": "physics",
+      "extract_sha256": "bb769d4e955ae2bfb3592a986b7a787fabc1b91da381bcdee756a7654addd465",
+      "key": "electromagnetism",
+      "last_event_id": "learn_2026_06_21t14_00_19z_electromagnetism",
+      "markdown_path": "kb/learning/pages/electromagnetism.md",
+      "pageid": 9532,
+      "processed_at": "2026-06-21T14:00:19Z",
+      "revision": 1360320920,
+      "source_title": "Electromagnetism",
+      "title": "Electromagnetism",
+      "url": "https://en.wikipedia.org/wiki/Electromagnetism"
     },
     "entropy": {
       "concept": "thermodynamic state variable that quantifies the probabilistic distribution of accessible microstates in a system",
