@@ -1,0 +1,20 @@
+# gen161 E1: an Italian composition that now passes UNCHANGED — gen160 recorded
+# it as a generic-parser gap; gen161 closed both reads with lexicon/order work,
+# no new logic: positive why-proof "perché X è un Y?" cites the proof like the
+# English "why is X a Y?" (the IT subject-verb order branch in mod_knowledge),
+# and name recall "come mi chiamo?" hits the same store "mi chiamo X" fills.
+#subsystems: name-memory, rule-intake, fact-intake, positive-proof, name-recall
+#expect: pass
+#class: composes-unchanged
+> mi chiamo gigi
+< nice to meet you gigi
+> ogni gatto pigro è un dormiglione
+< learned rule dormiglione
+> tom è un gatto
+< learned gattotom
+> tom è pigro
+< learned pigrotom
+> perché tom è un dormiglione?
+< dormiglionetom because
+> come mi chiamo?
+< gigi

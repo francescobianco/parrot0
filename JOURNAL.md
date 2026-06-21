@@ -1,4 +1,41 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen161: close the Italian half of the composition gaps (E1)
+
+**Goal (TASK.md):** flip the recorded `it_recall_gap` dialogue from `make
+compose-bench` to composes-unchanged with GENERIC parser work only — no bespoke
+handler — and grow the bilingual ratchet accordingly.
+
+**Insight:** the two Italian reads that fell through were not missing logic, only
+missing surface coverage. (1) The affirmative why-proof: "perché X è un Y?"
+reaches `mod_knowledge` already half-canonicalized as "perché X is a Y" (è->is,
+un->a via `canonical_token`), but "perché" is deliberately NOT in that table — a
+dozen "perché ..." cue handlers depend on the literal — so the subject sits
+before the verb and the English-order branch (w[1]=="is") misses it. (2) Name
+recall: "come mi chiamo?" is the fixed Italian idiom for "what's my name?", the
+read-side mirror of the "mi chiamo X" teach that already worked.
+
+**Changed:** `brain.c` -> `gen161-italian-proof-recall`. Two additive surface
+extensions, no new module: an Italian subject-verb branch in the why-proof
+(`perché <x> is a <y>` -> same `explain_reply`), and "come mi chiamo[?]" added to
+`mod_memory`'s `ask_name` recall list. Both reuse the exact machinery the English
+forms use.
+
+**Observed.** `make compose-bench`: composing-unchanged 4 -> 5, gaps 2 -> 1, turn
+landing 87% -> 92%. "perché tom è un dormiglione?" -> "dormiglione(tom) because
+gatto(tom) and pigro(tom)." (proof through the rule); "come mi chiamo?" -> the
+stored name. Stress with fresh vocab confirmed transfer, including the feminine
+article: "perché felce è una produttrice?" -> full proof. English why-proof and
+name recall unchanged. `it_recall_gap.dlg` renamed `it_recall.dlg`, re-tagged
+`#expect: pass`; bilingual ratchets `compose.it.chat` / `compose_social.it.chat`
+grew the two new reads. Out-of-scope observation: "sei è un numero" is read as
+"you are ..." (sei = six vs 2nd-person essere) by `mod_role` — a real Italian
+homonym collision, logged for a later generation, not touched here.
+
+**Next:** the one remaining gap is `social_gap_en` — bare self-introduction
+"i'm X" feeding name memory, and an unbound "she/he" binding to a named personal
+entity (composing possession memory with discourse reference). That is the next
+generation.
+
 ## 2026-06-21 - gen160: the compositional emergence benchmark (E1)
 
 **Goal (TASK.md E1):** create held-out dialogues where success requires THREE OR

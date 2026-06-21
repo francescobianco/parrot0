@@ -412,6 +412,10 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         "what is my name",  "what is my name?",
         "what's my name",   "what's my name?",
         "whats my name",    "whats my name?",
+        /* Italian recall idiom — the read-side mirror of the "mi chiamo X"
+         * teach above; "come mi chiamo?" is the fixed Italian form of "what's
+         * my name?", so it belongs in the same lexicon, not a new handler. */
+        "come mi chiamo",   "come mi chiamo?",
         NULL,
     };
 
@@ -1473,6 +1477,24 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *args[] = {subj};
         explain_reply(b, w[4], args, 1, out, out_size);
         remember_entity(b, w[2], subj);
+        return 1;
+    }
+    /* explanation, Italian subject-verb order: "perché <x> è un <y>?" reaches
+     * here already half-canonicalized as "perché <x> is a <y>" (è->is, un->a),
+     * but "perché" stays (it is not in canonical_token, so the many "perché ..."
+     * cue handlers keep working). The subject sits before the verb, so the
+     * English-order branch above (w[1]=="is") misses it. Same proof rendering,
+     * one extra order; the contrastive "perché ... non è" path was already
+     * order-free, this gives the affirmative why-proof the same bilingual reach.
+     * Transfers to any unseen x/y. */
+    if (nw == 5 &&
+        (strcmp(w[0], "perché") == 0 || strcmp(w[0], "perche") == 0) &&
+        strcmp(w[2], "is") == 0 && is_article(w[3])) {
+        const char *subj;
+        if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        explain_reply(b, w[4], args, 1, out, out_size);
+        remember_entity(b, w[1], subj);
         return 1;
     }
     /* explanation: "why is <x> the <rel> of <y>?" -> proof of rel(x, y) */
@@ -10144,7 +10166,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen160-compositional-bench";
+    return "gen161-italian-proof-recall";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

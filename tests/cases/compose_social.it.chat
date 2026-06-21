@@ -14,3 +14,7 @@
 < Yes.
 > cos'è il mio gatto?
 < Your gatto is neve.
+# gen161: Italian name recall "come mi chiamo?" now hits the same store the
+# "mi chiamo X" teach fills — the read-side mirror of the intake.
+> come mi chiamo?
+< Your name is mia.

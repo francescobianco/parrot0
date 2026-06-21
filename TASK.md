@@ -2,27 +2,34 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - close the generic-parser composition gaps (from E1)
+## Active task - close the EN social composition gap (from E1)
 
-Goal: flip the two recorded GAP dialogues in `make compose-bench` to
-composes-unchanged with GENERIC parser work only — no bespoke handler.
+Goal: flip the last recorded GAP dialogue `tests/compose/social_gap_en.dlg` in
+`make compose-bench` to composes-unchanged with GENERIC parser work only — no
+bespoke handler.
 
 Acceptance:
-- `tests/compose/social_gap_en.dlg` passes: bare self-introduction "i'm <X>"
-  feeds the SAME name memory "my name is X" fills, and an unbound "she/he" binds
-  to a named personal entity (the cat/dog) so possession memory composes with
-  discourse reference.
-- `tests/compose/it_recall_gap.dlg` passes: Italian positive why-proof
-  "perché X è un Y?" cites the proof like the English "why is X a Y?", and name
-  recall "come mi chiamo?" hits the store "mi chiamo X" fills — both by extending
-  `canonicalize_lang`, not by duplicating logic.
-- Each flipped dialogue is re-tagged `#expect: pass` so it becomes a ratchet, and
-  the EN/IT `tests/cases` ratchet grows accordingly.
+- Bare self-introduction "i'm <X>" / "i am <X>" feeds the SAME name memory that
+  "my name is X" / "call me X" fill, declining known non-name predicates
+  ("i'm tired", "i'm a teacher") so it generalizes to unseen names, not phrases.
+- An unbound "she/he/it" binds to a named personal entity (the cat/dog) when no
+  KB-fact antecedent exists, composing possession memory with discourse
+  reference; the existing coref antecedent still wins when present.
+- `social_gap_en.dlg` re-tagged `#expect: pass` (rename to drop "gap"), and the
+  EN `tests/cases` ratchet grows accordingly.
 
 Anti-impostor: keep using fresh names/predicates; a fix that only matches the
 exact gap phrases (not unseen paraphrases) is a special-case and does not count.
 
 ## Done recently
+
+- **gen161 - close the Italian half of the E1 composition gaps.** Two additive
+  surface extensions in `brain.c`, no new module: an Italian subject-verb branch
+  in the why-proof ("perché X è un Y?" -> the same proof "why is X a Y?" renders)
+  and "come mi chiamo?" added to `mod_memory`'s name-recall list. `compose-bench`
+  composing-unchanged 4 -> 5, gaps 2 -> 1, landing 87% -> 92%. Stress confirmed
+  transfer to fresh vocab incl. feminine "una". `it_recall.dlg` (renamed) now
+  `#expect: pass`; `compose.it.chat`/`compose_social.it.chat` grew the new reads.
 
 - **gen160 - compositional emergence benchmark (E1).** New `make compose-bench`
   (`tests/composebench.sh`) runs held-out, fresh-vocab dialogues that force >=3

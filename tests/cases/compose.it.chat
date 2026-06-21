@@ -16,3 +16,7 @@
 < Yes.
 > quanto è robusta questa conclusione?
 < My conclusion that balu is a amico rests on 2 load-bearing facts: orso(balu), felice(balu). Removing any one would overturn it.
+# gen161: the affirmative why-proof now travels in Italian too (subject-verb
+# order: "perché X è un Y?"), the same proof the English "why is X a Y?" renders.
+> perché balu è un amico?
+< amico(balu) because orso(balu) and felice(balu).
