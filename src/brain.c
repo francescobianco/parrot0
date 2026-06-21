@@ -5021,8 +5021,31 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
     int self_ref = cue(buf, "yourself") || cue(buf, "about yourself") ||
                    cue(buf, "about you") || cue(buf, "your own") ||
                    cue(buf, "you fail") || cue(buf, "your implementation") ||
-                   cue(buf, "your loop") || cue(buf, "your module");
-    int trigger = cue(buf, "self-challenge") || cue(buf, "self challenge") ||
+                   cue(buf, "your loop") || cue(buf, "your module") ||
+                   cue(buf, "your subsystems") || cue(buf, "your parts") ||
+                   cue(buf, "your modules") || cue(buf, "your capabilities") ||
+                   cue(buf, "your abilities");
+
+    /* gen164: a COMPOSITION self-challenge — "prove your subsystems compose",
+     * "test composition over three subsystems", "do your parts cooperate?" —
+     * is a distinct kind of self-challenge the gap branches below do not cover.
+     * It asks parrot0 to reason about composing its OWN parts. EN+IT cues; the
+     * parts/composition words carry the meaning, so it transfers to unseen
+     * phrasings rather than a fixed trigger list. */
+    int parts_ref = self_ref || cue(buf, "subsystems") || cue(buf, "parts") ||
+                    cue(buf, "modules") || cue(buf, "capabilities") ||
+                    cue(buf, "abilities") || cue(buf, "sottosistemi") ||
+                    cue(buf, "moduli") || cue(buf, "parti") ||
+                    cue(buf, "capacita") || cue(buf, "capacità");
+    int compose_ref = cue(buf, "compose") || cue(buf, "composition") ||
+                      cue(buf, "composing") || cue(buf, "cooperate") ||
+                      cue(buf, "work together") || cue(buf, "compongono") ||
+                      cue(buf, "comporre") || cue(buf, "composizione") ||
+                      cue(buf, "cooperano") || cue(buf, "insieme");
+    int compose_challenge = compose_ref && parts_ref;
+
+    int trigger = compose_challenge ||
+                  cue(buf, "self-challenge") || cue(buf, "self challenge") ||
                   (cue(buf, "challenge") && self_ref) ||
                   (cue(buf, "solve") && cue(buf, "challenge") && self_ref) ||
                   (cue(buf, "improve") && self_ref) ||
@@ -5032,6 +5055,16 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                    (cue(buf, "solve") || cue(buf, "what should") ||
                     cue(buf, "what change")));
     if (!trigger) return 0;
+
+    /* The composition self-challenge answers with a loop-shaped METHOD over real
+     * parts — exactly the compose-bench discipline — and stays anti-self-
+     * management: it proposes, an external agent acts. */
+    if (compose_challenge) {
+        put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have — say knowledge (facts and rules), abduction (the missing premise), and proof — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
+            out, out_size);
+        store_proof(b, "loop composition self-challenge: compose >=3 existing parts in one held-out dialogue, fresh names, ratchet EN+IT, no new module, edits external.");
+        return 1;
+    }
     int fallback_gap = cue(buf, "fallback") || cue(buf, "wall") ||
                        cue(buf, "do not understand") ||
                        cue(buf, "not understand") || cue(buf, "dont understand") ||
@@ -10228,7 +10261,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen163-possession-coref";
+    return "gen164-reflexive-composition";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

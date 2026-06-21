@@ -2,27 +2,34 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - reflexive composition: parrot0 reasons about composing its own parts
+## Active task - derived reflexive composition: name parts from the live module set
 
-Goal: the gen160 self-challenge probe walled — asked to prove its subsystems
-compose, parrot0 could not treat "test composition of my own parts" as a
-loop-shaped self-challenge. Extend `mod_loop` so an explicit challenge about its
-OWN composition proposes a comparable, honest answer (which subsystems, how they
-would be made to cooperate in one dialogue, the ratchet, the version/journal
-bookkeeping) WITHOUT self-managing (no edit/test/commit/task-choice).
+Goal: gen164 lets parrot0 propose composing its own parts, but the three parts it
+names are a fixed triple. Make the proposal DERIVED — read the real `module(X)`
+self-model (as `mod_self` does) and name three actually-registered, genuinely
+composable parts — and, as the ambitious half, let it select a concrete held-out
+composition that compose-bench could actually run.
 
 Acceptance:
-- "how would you prove your subsystems compose?" and "what should change to test
-  composition over three subsystems?" get a loop-shaped proposal naming concrete
-  parts (e.g. KB facts + abduction + proof) and a held-out dialogue + ratchet,
-  not a wall and not chitchat.
-- It stays anti-self-management: it proposes, it does not act.
-- EN + IT through one path; a 10-turn held-out stress block.
+- The composition self-challenge answer names parts drawn from the live module
+  registry, not a hard-coded list; removing a module from the KB changes the
+  named parts.
+- The three named parts are genuinely composable (a real dialogue exists that
+  needs them together), proven by adding that dialogue to `tests/compose/`.
+- EN + IT through one path; held-out stress; stays anti-self-management.
 
-Anti-impostor: success must transfer to unseen phrasings of the challenge, not a
-fixed trigger list.
+Anti-impostor: the parts must come from real state; a fixed string that merely
+mentions "the module set" does not count.
 
 ## Done recently
+
+- **gen164 - reflexive composition (E1).** `mod_loop` now recognises a
+  COMPOSITION self-challenge (composition word + parts reference, EN+IT) and
+  answers with a loop-shaped method over real parts — the compose-bench
+  discipline it was grown by — staying anti-self-management. The two gen160
+  probes that walled now land; 10/10 held-out stress; gap challenges and innocent
+  "compose" unaffected. `reflexive_compose.chat`/`.it`. `make test` 22/22.
+
 
 - **gen163 - possession memory composes with discourse reference (E1, gap
   closed).** `remember_possession` now sets `last_entity` to the named pet, so an

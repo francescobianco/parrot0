@@ -1,4 +1,43 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen164: reflexive composition — reasoning about its own parts (E1)
+
+**Goal (TASK.md):** the gen160 self-challenge probe walled — asked to prove its
+subsystems compose, parrot0 could not treat "test composition of my own parts" as
+a loop-shaped self-challenge. Make `mod_loop` recognise a COMPOSITION
+self-challenge and answer with a comparable method, without self-managing.
+
+**Insight:** `mod_loop` (gen145) already classified self-challenges into gap kinds
+(fallback / implementation / module), but composition is a different kind — it is
+not about a broken part, it is about whether parts COOPERATE. The discriminator
+is structural: a composition word (compose / cooperate / work together, IT
+compongono / composizione) plus a parts reference (subsystems / modules / parts /
+capabilities, IT sottosistemi / moduli / parti). The meaning lives in those two
+word classes, so it transfers to unseen phrasings instead of a fixed trigger.
+
+**Changed:** `brain.c` -> `gen164-reflexive-composition`. Broadened `self_ref`
+(your subsystems/parts/modules/capabilities), added `compose_ref`/`parts_ref` and
+a `compose_challenge` branch first in `mod_loop`. The answer is a loop-shaped
+METHOD over REAL parts — pick three it has (knowledge, abduction, proof), write
+ONE held-out fresh-name dialogue that needs all three, pass only with no new
+special-case module, ratchet EN+IT, bump version, journal — i.e. it proposes
+exactly the compose-bench discipline gen160-163 ran on it. Anti-self-management
+intact: it proposes, an external agent edits/tests/commits.
+
+**Observed.** The two gen160 probes that walled now land; a 10-phrasing held-out
+stress (EN+IT, varied surface) is 10/10. Regression safe: gap self-challenges
+still give the parity-with-external-loop answer, and innocent "compose a poem" /
+"can you compose music?" do NOT trigger (no parts reference). `make test` 22/22,
+165 cases. EN+IT ratchets `reflexive_compose.chat`/`.it`.
+
+**The closure.** gen160 measured composition from outside and found parrot0 blind
+to its own; gen164 gives it the words to describe — correctly, in two languages —
+the very method that was used to grow it. The self-model (PRINCIPLES.md, "I know
+that I am") now reaches one rung higher: not just "what are my parts?" but "how
+would I prove my parts cooperate?". It still only PROPOSES; introspection
+proposes, the external tests dispose. The honest next pull: let the proposal name
+its parts from the live module set (derived, not a fixed triple), and actually
+RUN a proposed composition through compose-bench.
+
 ## 2026-06-21 - gen163: possession memory composes with discourse reference (E1)
 
 **Goal (TASK.md):** the last miss in `social_pet_en` — an unbound "she/he/it"
