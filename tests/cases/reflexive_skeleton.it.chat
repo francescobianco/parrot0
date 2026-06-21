@@ -1,0 +1,5 @@
+# gen166 (E1 reflexive): the runnable-skeleton request in Italian — "mostrami il
+# dialogo ... moduli" reaches the same mod_loop path and emits the same derived
+# `>`-turn skeleton, no duplicated logic.
+> mostrami il dialogo che useresti per i tuoi moduli
+< Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not): > every brave knight is a hero > aldric is a knight > is aldric a hero? > why isn't aldric a hero? > aldric is brave > how robust is that conclusion?

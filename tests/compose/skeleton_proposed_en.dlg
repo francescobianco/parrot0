@@ -1,0 +1,20 @@
+# gen166 E1: the dialogue parrot0 ITSELF proposes when asked "show me the dialogue
+# you would run to prove your parts compose" (see reflexive_skeleton.chat), here
+# run for real — proof that its introspective proposal is executable, not just
+# rhetoric. Six subsystems over fresh vocab (brave/knight/hero/aldric): the same
+# spine as analytical_en, but emitted by the brain from its own derived parts.
+#subsystems: rule-intake, fact-intake, deduction, contrastive-abduction, self-correction, robustness
+#expect: pass
+#class: composes-unchanged
+> every brave knight is a hero
+< learned rule hero
+> aldric is a knight
+< learned knightaldric
+> is aldric a hero?
+< no
+> why isn't aldric a hero?
+< missing aldric is a brave
+> aldric is brave
+< now aldric is a hero after all
+> how robust is that conclusion?
+< rests on 2 loadbearing facts

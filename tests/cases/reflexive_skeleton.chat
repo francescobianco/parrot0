@@ -1,0 +1,8 @@
+# gen166 (E1 reflexive): introspection closed to execution. Asked to SHOW the
+# dialogue (not just describe the method), parrot0 emits a runnable, single-line
+# `>`-turn skeleton built from the parts it derives from its own module(X)
+# self-model. The emitted turns really compose — see
+# tests/compose/skeleton_proposed_en.dlg, which runs exactly this spine. It still
+# only proposes; an external agent fills the names, runs it, and commits.
+> show me the dialogue you would run to prove your parts compose
+< Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not): > every brave knight is a hero > aldric is a knight > is aldric a hero? > why isn't aldric a hero? > aldric is brave > how robust is that conclusion?

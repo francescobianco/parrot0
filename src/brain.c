@@ -5044,7 +5044,17 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                       cue(buf, "cooperano") || cue(buf, "insieme");
     int compose_challenge = compose_ref && parts_ref;
 
-    int trigger = compose_challenge ||
+    /* gen166: a request to SEE the dialogue, not just the method — "show me the
+     * dialogue you would run", "write the example", "dimostralo con un dialogo".
+     * It closes proposal to a runnable skeleton over the derived parts. */
+    int want_skeleton = (cue(buf, "dialogue") || cue(buf, "dialog") ||
+                         cue(buf, "transcript") || cue(buf, "dialogo") ||
+                         cue(buf, "esempio") || cue(buf, "example")) &&
+                        (compose_ref || parts_ref || cue(buf, "you would run") ||
+                         cue(buf, "would you run") || cue(buf, "you would use") ||
+                         cue(buf, "to prove it") || cue(buf, "show me"));
+
+    int trigger = compose_challenge || want_skeleton ||
                   cue(buf, "self-challenge") || cue(buf, "self challenge") ||
                   (cue(buf, "challenge") && self_ref) ||
                   (cue(buf, "solve") && cue(buf, "challenge") && self_ref) ||
@@ -5056,45 +5066,61 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                     cue(buf, "what change")));
     if (!trigger) return 0;
 
-    /* The composition self-challenge answers with a loop-shaped METHOD over real
-     * parts — exactly the compose-bench discipline — and stays anti-self-
-     * management: it proposes, an external agent acts. gen165: the three parts
-     * are DERIVED from the live self-model. We walk a composable-core list and
-     * keep only modules that actually hold as module(X) in the KB (the same fact
-     * base "who is a module?" reads), so retracting a module shifts the named
-     * parts. The named triple — knowledge, abduce, robust — is exactly the one
+    /* The composition self-challenge answers over real parts — exactly the
+     * compose-bench discipline — and stays anti-self-management: it proposes, an
+     * external agent acts. gen165: the three parts are DERIVED from the live
+     * self-model — walk a composable-core list and keep only modules that hold as
+     * module(X) (the fact base "who is a module?" reads), so retracting a module
+     * shifts the named parts. gen166: each part also carries a TURN fragment, so
+     * the proposal can become a runnable held-out dialogue skeleton. The default
+     * triple — knowledge, abduce, robust — is exactly the one
      * tests/compose/analytical_en.dlg proves cooperates. */
-    if (compose_challenge) {
-        static const struct { const char *key; const char *gloss; } core[] = {
-            {"knowledge", "knowledge (facts and rules)"},
-            {"abduce",    "abduction (the missing premise)"},
-            {"robust",    "robustness (which facts are load-bearing)"},
-            {"calibrate", "calibration (how sure I am)"},
-            {"memory",    "personal memory"},
-            {"coref",     "discourse reference"},
-            {"cause",     "cause and effect"},
-            {"compare",   "comparison"},
+    if (compose_challenge || want_skeleton) {
+        static const struct { const char *key, *gloss, *turn; } core[] = {
+            {"knowledge", "knowledge (facts and rules)",
+             "every brave knight is a hero > aldric is a knight > is aldric a hero?"},
+            {"abduce",    "abduction (the missing premise)",
+             "why isn't aldric a hero? > aldric is brave"},
+            {"robust",    "robustness (which facts are load-bearing)",
+             "how robust is that conclusion?"},
+            {"calibrate", "calibration (how sure I am)",
+             "how sure are you?"},
+            {"memory",    "personal memory",
+             "my name is mara > what is my name?"},
+            {"coref",     "discourse reference",
+             "aldric is brave > is he brave?"},
+            {"cause",     "cause and effect",
+             "rain causes floods > what does rain cause?"},
+            {"compare",   "comparison",
+             "5 is greater than 3 > which is greater, 5 or 3?"},
         };
-        char parts[256]; size_t po = 0, picked = 0;
+        size_t pick[3], picked = 0;
         for (size_t i = 0; i < sizeof core / sizeof core[0] && picked < 3; i++) {
             const char *a[] = {core[i].key};
-            if (!b->kb || !kb_query(b->kb, "module", a, 1)) continue;
-            const char *sep = (picked == 0) ? "" : (picked == 2 ? ", and " : ", ");
-            po += (size_t)snprintf(parts + po, sizeof parts - po, "%s%s",
-                                   sep, core[i].gloss);
-            picked++;
+            if (b->kb && kb_query(b->kb, "module", a, 1)) pick[picked++] = i;
         }
-        char msg[640];
-        if (picked == 3) {
-            snprintf(msg, sizeof msg,
-                "I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — %s — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
-                parts);
-            put(msg, out, out_size);
-        } else {
+        char msg[700];
+        if (picked < 3) {
             put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
                 out, out_size);
+        } else if (want_skeleton) {
+            /* gen166: emit a runnable, single-line `>`-turn skeleton over the
+             * derived parts. An external agent fills the placeholder names and
+             * drops it into tests/compose/; parrot0 does not run or commit it. */
+            size_t o = (size_t)snprintf(msg, sizeof msg,
+                "Here is a held-out dialogue I would run (fresh names; an external agent fills and runs it, I do not):");
+            for (size_t k = 0; k < picked; k++)
+                o += (size_t)snprintf(msg + o, sizeof msg - o, " > %s",
+                                      core[pick[k]].turn);
+            put(msg, out, out_size);
+            store_proof(b, "loop composition skeleton: emit a runnable >-turn dialogue over the parts derived from module/X; external agent fills, runs, commits.");
+        } else {
+            snprintf(msg, sizeof msg,
+                "I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — %s, %s, and %s — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
+                core[pick[0]].gloss, core[pick[1]].gloss, core[pick[2]].gloss);
+            put(msg, out, out_size);
+            store_proof(b, "loop composition self-challenge: compose >=3 existing parts (derived from module/X) in one held-out dialogue, fresh names, ratchet EN+IT, no new module, edits external.");
         }
-        store_proof(b, "loop composition self-challenge: compose >=3 existing parts (derived from module/X) in one held-out dialogue, fresh names, ratchet EN+IT, no new module, edits external.");
         return 1;
     }
     int fallback_gap = cue(buf, "fallback") || cue(buf, "wall") ||
@@ -10293,7 +10319,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen165-derived-composition";
+    return "gen166-composition-skeleton";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

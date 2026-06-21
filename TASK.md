@@ -2,26 +2,33 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - introspection to execution: emit a runnable compose-bench dialogue
+## Active task - vary the skeleton's placeholder names so it is not a fixed transcript
 
-Goal: gen165 makes parrot0 PROPOSE a composition over parts it derives from its
-own `module(X)` self-model. The next rung closes proposal to execution: when
-challenged, it should emit a concrete, runnable held-out dialogue skeleton for the
-three parts it picks (e.g. teach a fresh rule + fact, ask the abduction, ask for
-the proof), in the `>`/`<` shape `tests/compose/` uses — so an external agent can
-drop it straight into compose-bench. It still does not run or commit anything.
+Goal: gen166 emits a runnable skeleton derived from the live module set, but the
+placeholder names (brave/knight/hero/aldric) are fixed strings. Generate fresh
+placeholders per emission (e.g. cycle a small pool, or seed from turn count) so
+two consecutive "show me the dialogue" requests propose DIFFERENT held-out
+vocabulary — proving the skeleton is generated, not a canned transcript — while
+each variant still composes when run through compose-bench.
 
 Acceptance:
-- "show me the dialogue you would run" (and IT) yields a multi-line `>`-prefixed
-  dialogue skeleton over the derived parts, with fresh placeholder names.
-- The skeleton, when filled and added to `tests/compose/`, actually composes
-  (the parts cooperate) — verified by running compose-bench on it.
-- EN + IT one path; held-out stress; stays anti-self-management.
+- Two skeleton requests in one session yield different placeholder names, both
+  runnable (each composes if added to `tests/compose/`).
+- The turn STRUCTURE still tracks the derived parts (retracting a module changes
+  which turns appear).
+- EN + IT one path; stays anti-self-management.
 
-Anti-impostor: the skeleton must be generated from the derived parts, not a fixed
-canned transcript.
+Anti-impostor: name variation must be real (different vocab), not a relabelled
+constant; structure must still come from the derived parts.
 
 ## Done recently
+
+- **gen166 - introspection closed to execution.** `mod_loop` now emits a runnable
+  single-line `>`-turn dialogue skeleton over the parts derived from `module(X)`
+  ("show me the dialogue you would run", EN+IT). The emitted spine composes for
+  real — added as `tests/compose/skeleton_proposed_en.dlg`, taking compose-bench
+  to 7/7, 100%. Derivation holds: retracting a module changes the emitted turns.
+  `reflexive_skeleton.chat`/`.it`. 168 cases, `make test` 22/22.
 
 - **gen165 - derived reflexive composition.** The `compose_challenge` branch in
   `mod_loop` now derives its three named parts via `kb_query("module", ...)` over

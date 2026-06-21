@@ -1,4 +1,47 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen166: introspection closed to execution — a runnable skeleton
+
+**Goal (TASK.md):** gen165 made parrot0 PROPOSE a composition over parts derived
+from its `module(X)` self-model. Close proposal to execution: when asked to SHOW
+the dialogue, emit a concrete, runnable held-out skeleton over those derived
+parts — in the `>`-turn shape `tests/compose/` uses — without running or
+committing anything.
+
+**Insight:** the derived parts already carry meaning; give each a TURN fragment
+and the proposal stops being prose and becomes a transcript. The same module-walk
+that names the parts (gen165) now also concatenates their turn fragments into one
+runnable line. A request to SEE rather than describe ("show me the dialogue you
+would run", IT "mostrami il dialogo ... moduli") routes to the skeleton; "how
+would you prove ..." still routes to the method.
+
+**Changed:** `brain.c` -> `gen166-composition-skeleton`. The composable-core entries
+gained a `turn` field; a `want_skeleton` branch emits "Here is a held-out dialogue
+I would run ... > every brave knight is a hero > aldric is a knight > ...",
+selecting turn fragments for exactly the parts that hold as `module(X)`.
+
+**Observed — the loop closes.** The emitted skeleton, RUN, composes for real:
+rule -> fact -> No -> contrastive abduction -> self-correction -> robustness. It
+is added verbatim as `tests/compose/skeleton_proposed_en.dlg`, so compose-bench
+now stands at 7/7 composing unchanged, 0 gaps, 100% (47/47) — and one of those
+seven dialogues is the one parrot0 PROPOSED. Derivation still holds for the
+skeleton: "forget that abduce is a module" drops the abduction turn and adds the
+calibration turn. EN/IT ratchets `reflexive_skeleton.chat`/`.it`. `make test`
+22/22, 168 cases.
+
+**The arc gen160->166.** Outside-in: gen160 built a gauge and measured that
+parrot0's separately-grown parts compose on fresh vocabulary in two languages.
+Inside-out: gen161-163 closed every seam the gauge found with generic work;
+gen164-166 turned the gauge on the system itself — parrot0 now recognises a
+composition self-challenge, names the parts FROM ITS OWN self-model, and emits a
+runnable dialogue that the gauge actually accepts. The reflexive claim of
+PRINCIPLES.md ("I know that I am") has a concrete, tested instance: not just
+"these are my parts" but "here are three of my parts, here is the dialogue that
+makes them cooperate, and you can run it" — and it does. Introspection proposed;
+the tests disposed; they agreed. Honest limit: the skeleton's placeholder names
+are fixed strings, and the brain still cannot itself ADD the dialogue file — the
+external agent does. Closing that last gap would be self-management, which the
+loop deliberately withholds.
+
 ## 2026-06-21 - gen165: the composition proposal is DERIVED from its own self-model
 
 **Goal (TASK.md):** gen164 let parrot0 propose composing its parts, but the three
