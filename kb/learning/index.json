@@ -288,6 +288,23 @@
       "summary": "learned evolution: change in the heritable characteristics of biological populations over successive generations",
       "title": "Evolution",
       "url": "https://en.wikipedia.org/wiki/Evolution"
+    },
+    {
+      "concept": "network of biological systems that protects an organism from diseases",
+      "domain": "medicine",
+      "event_id": "learn_2026_06_21t23_48_22z_immune_system",
+      "key": "immune_system",
+      "log_path": "kb/learning/logs/learn_2026_06_21t23_48_22z_immune_system.json",
+      "markdown_path": "kb/learning/pages/immune_system.md",
+      "processed_at": "2026-06-21T23:48:22Z",
+      "prompt": "what do you know about learn_2026_06_21t23_48_22z_immune_system",
+      "revision": 1350208094,
+      "source_index": 17,
+      "source_line": 35,
+      "source_title": "Immune system",
+      "summary": "learned immune_system: network of biological systems that protects an organism from diseases",
+      "title": "Immune system",
+      "url": "https://en.wikipedia.org/wiki/Immune_system"
     }
   ],
   "pages": {
@@ -425,6 +442,21 @@
       "source_title": "Fibonacci number",
       "title": "Fibonacci sequence",
       "url": "https://en.wikipedia.org/wiki/Fibonacci_sequence"
+    },
+    "immune_system": {
+      "concept": "network of biological systems that protects an organism from diseases",
+      "description": "Biological system protecting an organism against disease",
+      "domain": "medicine",
+      "extract_sha256": "7bfdbf6d0ad2d2fb84294195c11a8c28cfa7fa5130aca45565bdae8cb0349b6c",
+      "key": "immune_system",
+      "last_event_id": "learn_2026_06_21t23_48_22z_immune_system",
+      "markdown_path": "kb/learning/pages/immune_system.md",
+      "pageid": 14958,
+      "processed_at": "2026-06-21T23:48:22Z",
+      "revision": 1350208094,
+      "source_title": "Immune system",
+      "title": "Immune system",
+      "url": "https://en.wikipedia.org/wiki/Immune_system"
     },
     "logarithm": {
       "concept": "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...",

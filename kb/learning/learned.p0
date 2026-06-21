@@ -88,6 +88,11 @@ wiki_concept(photosynthesis, biology, "system of biological processes by which p
 % revision: 1357316203; processed: 2026-06-21T22:44:02Z
 wiki_concept(evolution, biology, "change in the heritable characteristics of biological populations over successive generations").
 
+% medicine / Immune system
+% source: https://en.wikipedia.org/wiki/Immune_system
+% revision: 1350208094; processed: 2026-06-21T23:48:22Z
+wiki_concept(immune_system, medicine, "network of biological systems that protects an organism from diseases").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -241,3 +246,12 @@ learning_event_concept(learn_2026_06_21t22_44_02z_evolution, evolution).
 learning_event_revision(learn_2026_06_21t22_44_02z_evolution, rev_1357316203).
 learning_event_markdown(learn_2026_06_21t22_44_02z_evolution, "kb/learning/pages/evolution.md").
 learning_event_log(learn_2026_06_21t22_44_02z_evolution, "kb/learning/logs/learn_2026_06_21t22_44_02z_evolution.json").
+
+% event learn_2026_06_21t23_48_22z_immune_system
+learning_event(learn_2026_06_21t23_48_22z_immune_system, "learned immune_system: network of biological systems that protects an organism from diseases").
+learning_event_time(learn_2026_06_21t23_48_22z_immune_system, "2026-06-21T23:48:22Z").
+learning_event_domain(learn_2026_06_21t23_48_22z_immune_system, medicine).
+learning_event_concept(learn_2026_06_21t23_48_22z_immune_system, immune_system).
+learning_event_revision(learn_2026_06_21t23_48_22z_immune_system, rev_1350208094).
+learning_event_markdown(learn_2026_06_21t23_48_22z_immune_system, "kb/learning/pages/immune_system.md").
+learning_event_log(learn_2026_06_21t23_48_22z_immune_system, "kb/learning/logs/learn_2026_06_21t23_48_22z_immune_system.json").
