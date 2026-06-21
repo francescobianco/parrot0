@@ -80,6 +80,7 @@ test: build
 	@./tests/howknow.sh
 	@./tests/booklearn.sh
 	@./tests/wiki_learning.sh
+	@./tests/research_learn.sh
 	@./tests/posix.sh
 	@./tests/synth.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh

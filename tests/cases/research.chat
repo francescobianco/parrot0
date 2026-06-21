@@ -1,16 +1,8 @@
-# gen170 (dynamic knowledge): the testable "need external research" signal. Asked
-# to define a topic it does not know, parrot0 does not pretend and does not just
-# wall — it HONESTLY flags the gap, says it would document itself from static
-# Wikipedia, and RECORDS the topic. The brain does no network (the "no network"
-# rule forbids outsourcing intelligence, not reading static knowledge); the actual
-# fetch is the external scripts/learn.py. "what do you need to research?" is the
-# testable readout. Fresh held-out topics, so nothing is memorized.
+# gen171 (dynamic knowledge): on a definitional gap, parrot0 reads a local
+# markdown source into RAM through the in-C learner and says honestly that it just
+# learned it. If the topic has no local markdown source, it says so without a
+# queue or external Python handoff.
+> tell me about prime number
+< I didn't know about prime number, so I just read it up: natural number greater than 1 that is not a product of two smaller natural numbers.
 > tell me about quaternions
-< I don't actually know about quaternions yet — I won't pretend. I've flagged it to document myself from Wikipedia; once my learner fetches it, I'll know it next time.
-> what is a perfect number?
-< I don't actually know about perfect number yet — I won't pretend. I've flagged it to document myself from Wikipedia; once my learner fetches it, I'll know it next time.
-# Dedup + readout: the two distinct gaps are listed once each.
-> tell me about quaternions
-< I don't actually know about quaternions yet — I won't pretend. I've flagged it to document myself from Wikipedia; once my learner fetches it, I'll know it next time.
-> what do you need to research?
-< I have 2 topics noted for research (static Wikipedia, via my external learner): quaternions, perfect number.
+< I don't actually know about quaternions yet, and I have no source to read on it.

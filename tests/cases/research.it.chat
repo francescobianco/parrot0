@@ -1,7 +1,4 @@
-# gen170 (dynamic knowledge): the research-need signal in Italian — "cos'è un
-# <X>?" flags the gap and "cosa devi cercare?" reads the pending list, through the
-# same mod_research path, no duplicated logic.
+# gen171 (dynamic knowledge): the same definitional-gap path handles Italian
+# prompts, but now learns only from local markdown and no longer keeps a queue.
 > cos'è un numero perfetto?
-< I don't actually know about numero perfetto yet — I won't pretend. I've flagged it to document myself from Wikipedia; once my learner fetches it, I'll know it next time.
-> cosa devi cercare?
-< I have 1 topic noted for research (static Wikipedia, via my external learner): numero perfetto.
+< I don't actually know about numero perfetto yet, and I have no source to read on it.

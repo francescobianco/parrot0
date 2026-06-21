@@ -17,6 +17,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include "brain.h"
 #include "kb.h"
+#include "learn.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -195,14 +196,6 @@ struct Brain {
      * executed, not a memorized transcript. */
     unsigned selftest_runs;
 
-    /* gen170 (dynamic knowledge): topics parrot0 hit a gap on and flagged for
-     * external research (static Wikipedia, via scripts/learn.py). The brain does
-     * NO network itself — the "no network" rule forbids outsourcing INTELLIGENCE,
-     * not reading static knowledge; here it only RECORDS the need so the external
-     * deterministic learner can fill it. A queryable readout makes the need
-     * testable. */
-    char research_needs[8][80];
-    size_t research_need_count;
 };
 
 /* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity
@@ -5328,51 +5321,20 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
-/* --- module: research (gen170, dynamic knowledge) ------------------------
+/* --- module: research (gen171, dynamic knowledge) ------------------------
  * The "inexhaustible interlocutor" seam. Asked to DEFINE a topic it does not
- * know, parrot0 neither silently walls nor pretends: it HONESTLY flags the gap,
- * says it would document itself from static Wikipedia, and RECORDS the topic as a
- * research need. The brain does NO network — the founding "no network" rule
- * forbids outsourcing INTELLIGENCE (LLMs/reasoning APIs), not reading static
- * knowledge — so the actual fetch is left to the external deterministic learner
- * (scripts/learn.py), which writes kb/learning and commits. A queryable readout
- * ("what do you need to research?") makes the need TESTABLE — the explicit
- * requirement. If $PARROT0_RESEARCH_QUEUE is set, the request is also appended
- * there for the learner to consume; unset in tests, so the suite stays
- * footprint-free. Registered LAST, so it only catches a definitional gap that
- * every other module already declined — never social/arith/memory turns. */
+ * know, parrot0 neither silently walls nor pretends. It reads only STATIC local
+ * markdown (no intelligence API), asserts the learned wiki_concept straight into
+ * RAM through learn_topic(), and answers honestly that it just learned the
+ * definition. If no local source exists, it says so. Registered LAST, so it only
+ * catches a definitional gap that every other module already declined — never
+ * social/arith/memory turns. */
 static int mod_research(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
     if (!b) return 0;
     char buf[256];
     canonicalize_lang(norm, buf, sizeof buf);
-
-    /* Readout: what research is pending? (the testable surface) */
-    if (cue(buf, "what do you need to research") ||
-        cue(buf, "what do you need to look up") ||
-        cue(buf, "what do you need to learn") ||
-        cue(buf, "what are you documenting") ||
-        cue(buf, "what should you research") ||
-        cue(buf, "cosa devi cercare") || cue(buf, "cosa devi studiare") ||
-        cue(buf, "cosa devi imparare") ||
-        cue(buf, "di cosa ti devi documentare")) {
-        if (b->research_need_count == 0) {
-            put("Nothing noted for research yet — ask me to define something I don't know and I'll flag it.",
-                out, out_size);
-            return 1;
-        }
-        char msg[512]; size_t o = 0;
-        o += (size_t)snprintf(msg + o, sizeof msg - o,
-            "I have %zu topic%s noted for research (static Wikipedia, via my external learner): ",
-            b->research_need_count, b->research_need_count == 1 ? "" : "s");
-        for (size_t i = 0; i < b->research_need_count; i++)
-            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
-                                  i ? ", " : "", b->research_needs[i]);
-        snprintf(msg + o, sizeof msg - o, ".");
-        put(msg, out, out_size);
-        return 1;
-    }
 
     /* Definitional gap: extract the topic X. STRONG heads (article / "about" /
      * "who" / Italian) signal definitional intent and allow a multi-word topic;
@@ -5442,27 +5404,20 @@ static int mod_research(Brain *b, const char *norm, const char *raw,
     if (ko < 3) return 0;
     if (weak && strlen(tok[start]) < 4) return 0;
 
-    /* Already learned? Then it is not a research gap — never request what we have. */
+    /* Already learned? Then it is not a research gap — let earlier/future
+     * description paths answer from KB instead of re-reading the markdown. */
     if (b->kb && kb_is_concept_key(b->kb, key)) return 0;
 
-    /* Record the need (dedup, capped); if a queue path is configured, append it
-     * for the external learner to fetch from static Wikipedia. */
-    int dup = 0;
-    for (size_t i = 0; i < b->research_need_count; i++)
-        if (strcmp(b->research_needs[i], disp) == 0) dup = 1;
-    if (!dup && b->research_need_count < 8) {
-        snprintf(b->research_needs[b->research_need_count], 80, "%s", disp);
-        b->research_need_count++;
-        const char *q = getenv("PARROT0_RESEARCH_QUEUE");
-        if (q && *q) {
-            FILE *f = fopen(q, "a");
-            if (f) { fprintf(f, "%s\t%s\n", key, disp); fclose(f); }
-        }
-    }
+    char def[KB_TERM_LEN];
     char msg[320];
-    snprintf(msg, sizeof msg,
-        "I don't actually know about %s yet — I won't pretend. I've flagged it to document myself from Wikipedia; once my learner fetches it, I'll know it next time.",
-        disp);
+    if (learn_topic(b->kb, key, disp, def, sizeof def))
+        snprintf(msg, sizeof msg,
+                 "I didn't know about %s, so I just read it up: %s.",
+                 disp, def);
+    else
+        snprintf(msg, sizeof msg,
+                 "I don't actually know about %s yet, and I have no source to read on it.",
+                 disp);
     put(msg, out, out_size);
     return 1;
 }
@@ -10640,7 +10595,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen170-research-need";
+    return "gen171-c-learner";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
