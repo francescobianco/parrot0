@@ -68,6 +68,11 @@ wiki_concept(covalent_bond, chemistry, "chemical bond that involves the sharing 
 % revision: 1358271976; processed: 2026-06-21T18:51:55Z
 wiki_concept(catalysis, chemistry, "increase in rate of a chemical reaction due to an added substance known as a catalyst").
 
+% biology / Cell (biology)
+% source: https://en.wikipedia.org/wiki/Cell_(biology)
+% revision: 1359329693; processed: 2026-06-21T19:57:02Z
+wiki_concept(cell_biology, biology, "basic structural and functional unit of all forms of life or organisms").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -185,3 +190,12 @@ learning_event_concept(learn_2026_06_21t18_51_55z_catalysis, catalysis).
 learning_event_revision(learn_2026_06_21t18_51_55z_catalysis, rev_1358271976).
 learning_event_markdown(learn_2026_06_21t18_51_55z_catalysis, "kb/learning/pages/catalysis.md").
 learning_event_log(learn_2026_06_21t18_51_55z_catalysis, "kb/learning/logs/learn_2026_06_21t18_51_55z_catalysis.json").
+
+% event learn_2026_06_21t19_57_02z_cell_biology
+learning_event(learn_2026_06_21t19_57_02z_cell_biology, "learned cell_biology: basic structural and functional unit of all forms of life or organisms").
+learning_event_time(learn_2026_06_21t19_57_02z_cell_biology, "2026-06-21T19:57:02Z").
+learning_event_domain(learn_2026_06_21t19_57_02z_cell_biology, biology).
+learning_event_concept(learn_2026_06_21t19_57_02z_cell_biology, cell_biology).
+learning_event_revision(learn_2026_06_21t19_57_02z_cell_biology, rev_1359329693).
+learning_event_markdown(learn_2026_06_21t19_57_02z_cell_biology, "kb/learning/pages/cell_biology.md").
+learning_event_log(learn_2026_06_21t19_57_02z_cell_biology, "kb/learning/logs/learn_2026_06_21t19_57_02z_cell_biology.json").

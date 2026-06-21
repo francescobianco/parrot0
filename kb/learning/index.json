@@ -220,6 +220,23 @@
       "summary": "learned catalysis: increase in rate of a chemical reaction due to an added substance known as a catalyst",
       "title": "Catalysis",
       "url": "https://en.wikipedia.org/wiki/Catalysis"
+    },
+    {
+      "concept": "basic structural and functional unit of all forms of life or organisms",
+      "domain": "biology",
+      "event_id": "learn_2026_06_21t19_57_02z_cell_biology",
+      "key": "cell_biology",
+      "log_path": "kb/learning/logs/learn_2026_06_21t19_57_02z_cell_biology.json",
+      "markdown_path": "kb/learning/pages/cell_biology.md",
+      "processed_at": "2026-06-21T19:57:02Z",
+      "prompt": "what do you know about learn_2026_06_21t19_57_02z_cell_biology",
+      "revision": 1359329693,
+      "source_index": 13,
+      "source_line": 29,
+      "source_title": "Cell (biology)",
+      "summary": "learned cell_biology: basic structural and functional unit of all forms of life or organisms",
+      "title": "Cell (biology)",
+      "url": "https://en.wikipedia.org/wiki/Cell_(biology)"
     }
   ],
   "pages": {
@@ -237,6 +254,21 @@
       "source_title": "Catalysis",
       "title": "Catalysis",
       "url": "https://en.wikipedia.org/wiki/Catalysis"
+    },
+    "cell_biology": {
+      "concept": "basic structural and functional unit of all forms of life or organisms",
+      "description": "Basic unit of life forms",
+      "domain": "biology",
+      "extract_sha256": "198bb4c460756990e95f2cfe9d9225a05ff0b2ea6658cb206c8a04464cfa7995",
+      "key": "cell_biology",
+      "last_event_id": "learn_2026_06_21t19_57_02z_cell_biology",
+      "markdown_path": "kb/learning/pages/cell_biology.md",
+      "pageid": 4230,
+      "processed_at": "2026-06-21T19:57:02Z",
+      "revision": 1359329693,
+      "source_title": "Cell (biology)",
+      "title": "Cell (biology)",
+      "url": "https://en.wikipedia.org/wiki/Cell_(biology)"
     },
     "covalent_bond": {
       "concept": "chemical bond that involves the sharing of electrons to form electron pairs between atoms",

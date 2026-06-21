@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "chemistry",
-    "event_id": "learn_2026_06_21t18_51_55z_catalysis",
-    "key": "catalysis",
-    "log_path": "kb/learning/logs/learn_2026_06_21t18_51_55z_catalysis.json",
-    "markdown_path": "kb/learning/pages/catalysis.md",
-    "processed_at": "2026-06-21T18:51:55Z",
-    "prompt": "what do you know about learn_2026_06_21t18_51_55z_catalysis",
-    "revision": 1358271976,
-    "title": "Catalysis"
+    "domain": "biology",
+    "event_id": "learn_2026_06_21t19_57_02z_cell_biology",
+    "key": "cell_biology",
+    "log_path": "kb/learning/logs/learn_2026_06_21t19_57_02z_cell_biology.json",
+    "markdown_path": "kb/learning/pages/cell_biology.md",
+    "processed_at": "2026-06-21T19:57:02Z",
+    "prompt": "what do you know about learn_2026_06_21t19_57_02z_cell_biology",
+    "revision": 1359329693,
+    "title": "Cell (biology)"
   },
-  "next_index": 13
+  "next_index": 14
 }
