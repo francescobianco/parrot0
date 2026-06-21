@@ -43,6 +43,11 @@ wiki_concept(entropy, physics, "thermodynamic state variable that quantifies the
 % revision: 1360320920; processed: 2026-06-21T14:00:19Z
 wiki_concept(electromagnetism, physics, "interaction that occurs between particles with electric charge via electromagnetic fields").
 
+% physics / Special relativity
+% source: https://en.wikipedia.org/wiki/Special_relativity
+% revision: 1359980723; processed: 2026-06-21T15:04:14Z
+wiki_concept(special_relativity, physics, "In physics, the special theory of relativity, or simply special relativity, is a scientific theory of the...").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -115,3 +120,12 @@ learning_event_concept(learn_2026_06_21t14_00_19z_electromagnetism, electromagne
 learning_event_revision(learn_2026_06_21t14_00_19z_electromagnetism, rev_1360320920).
 learning_event_markdown(learn_2026_06_21t14_00_19z_electromagnetism, "kb/learning/pages/electromagnetism.md").
 learning_event_log(learn_2026_06_21t14_00_19z_electromagnetism, "kb/learning/logs/learn_2026_06_21t14_00_19z_electromagnetism.json").
+
+% event learn_2026_06_21t15_04_14z_special_relativity
+learning_event(learn_2026_06_21t15_04_14z_special_relativity, "learned special_relativity: In physics, the special theory of relativity, or simply special relativity, is a...").
+learning_event_time(learn_2026_06_21t15_04_14z_special_relativity, "2026-06-21T15:04:14Z").
+learning_event_domain(learn_2026_06_21t15_04_14z_special_relativity, physics).
+learning_event_concept(learn_2026_06_21t15_04_14z_special_relativity, special_relativity).
+learning_event_revision(learn_2026_06_21t15_04_14z_special_relativity, rev_1359980723).
+learning_event_markdown(learn_2026_06_21t15_04_14z_special_relativity, "kb/learning/pages/special_relativity.md").
+learning_event_log(learn_2026_06_21t15_04_14z_special_relativity, "kb/learning/logs/learn_2026_06_21t15_04_14z_special_relativity.json").

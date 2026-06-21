@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "physics",
-    "event_id": "learn_2026_06_21t14_00_19z_electromagnetism",
-    "key": "electromagnetism",
-    "log_path": "kb/learning/logs/learn_2026_06_21t14_00_19z_electromagnetism.json",
-    "markdown_path": "kb/learning/pages/electromagnetism.md",
-    "processed_at": "2026-06-21T14:00:19Z",
-    "prompt": "what do you know about learn_2026_06_21t14_00_19z_electromagnetism",
-    "revision": 1360320920,
-    "title": "Electromagnetism"
+    "event_id": "learn_2026_06_21t15_04_14z_special_relativity",
+    "key": "special_relativity",
+    "log_path": "kb/learning/logs/learn_2026_06_21t15_04_14z_special_relativity.json",
+    "markdown_path": "kb/learning/pages/special_relativity.md",
+    "processed_at": "2026-06-21T15:04:14Z",
+    "prompt": "what do you know about learn_2026_06_21t15_04_14z_special_relativity",
+    "revision": 1359980723,
+    "title": "Special relativity"
   },
-  "next_index": 8
+  "next_index": 9
 }
