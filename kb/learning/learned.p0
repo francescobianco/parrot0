@@ -73,6 +73,11 @@ wiki_concept(catalysis, chemistry, "increase in rate of a chemical reaction due 
 % revision: 1359329693; processed: 2026-06-21T19:57:02Z
 wiki_concept(cell_biology, biology, "basic structural and functional unit of all forms of life or organisms").
 
+% biology / DNA
+% source: https://en.wikipedia.org/wiki/DNA
+% revision: 1359001884; processed: 2026-06-21T20:49:05Z
+wiki_concept(dna, biology, "Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other to form a...").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -199,3 +204,12 @@ learning_event_concept(learn_2026_06_21t19_57_02z_cell_biology, cell_biology).
 learning_event_revision(learn_2026_06_21t19_57_02z_cell_biology, rev_1359329693).
 learning_event_markdown(learn_2026_06_21t19_57_02z_cell_biology, "kb/learning/pages/cell_biology.md").
 learning_event_log(learn_2026_06_21t19_57_02z_cell_biology, "kb/learning/logs/learn_2026_06_21t19_57_02z_cell_biology.json").
+
+% event learn_2026_06_21t20_49_05z_dna
+learning_event(learn_2026_06_21t20_49_05z_dna, "learned dna: Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other...").
+learning_event_time(learn_2026_06_21t20_49_05z_dna, "2026-06-21T20:49:05Z").
+learning_event_domain(learn_2026_06_21t20_49_05z_dna, biology).
+learning_event_concept(learn_2026_06_21t20_49_05z_dna, dna).
+learning_event_revision(learn_2026_06_21t20_49_05z_dna, rev_1359001884).
+learning_event_markdown(learn_2026_06_21t20_49_05z_dna, "kb/learning/pages/dna.md").
+learning_event_log(learn_2026_06_21t20_49_05z_dna, "kb/learning/logs/learn_2026_06_21t20_49_05z_dna.json").

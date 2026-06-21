@@ -237,6 +237,23 @@
       "summary": "learned cell_biology: basic structural and functional unit of all forms of life or organisms",
       "title": "Cell (biology)",
       "url": "https://en.wikipedia.org/wiki/Cell_(biology)"
+    },
+    {
+      "concept": "Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other to form a...",
+      "domain": "biology",
+      "event_id": "learn_2026_06_21t20_49_05z_dna",
+      "key": "dna",
+      "log_path": "kb/learning/logs/learn_2026_06_21t20_49_05z_dna.json",
+      "markdown_path": "kb/learning/pages/dna.md",
+      "processed_at": "2026-06-21T20:49:05Z",
+      "prompt": "what do you know about learn_2026_06_21t20_49_05z_dna",
+      "revision": 1359001884,
+      "source_index": 14,
+      "source_line": 30,
+      "source_title": "DNA",
+      "summary": "learned dna: Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other...",
+      "title": "DNA",
+      "url": "https://en.wikipedia.org/wiki/DNA"
     }
   ],
   "pages": {
@@ -299,6 +316,21 @@
       "source_title": "Derivative",
       "title": "Derivative",
       "url": "https://en.wikipedia.org/wiki/Derivative"
+    },
+    "dna": {
+      "concept": "Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other to form a...",
+      "description": "Molecule that carries genetic information",
+      "domain": "biology",
+      "extract_sha256": "56b702ae992749a20419f83ff3faa80d9f108086b9a5d4d9f925de209f55cc5e",
+      "key": "dna",
+      "last_event_id": "learn_2026_06_21t20_49_05z_dna",
+      "markdown_path": "kb/learning/pages/dna.md",
+      "pageid": 7955,
+      "processed_at": "2026-06-21T20:49:05Z",
+      "revision": 1359001884,
+      "source_title": "DNA",
+      "title": "DNA",
+      "url": "https://en.wikipedia.org/wiki/DNA"
     },
     "electromagnetism": {
       "concept": "interaction that occurs between particles with electric charge via electromagnetic fields",
