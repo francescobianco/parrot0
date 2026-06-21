@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "biology",
-    "event_id": "learn_2026_06_21t20_49_05z_dna",
-    "key": "dna",
-    "log_path": "kb/learning/logs/learn_2026_06_21t20_49_05z_dna.json",
-    "markdown_path": "kb/learning/pages/dna.md",
-    "processed_at": "2026-06-21T20:49:05Z",
-    "prompt": "what do you know about learn_2026_06_21t20_49_05z_dna",
-    "revision": 1359001884,
-    "title": "DNA"
+    "event_id": "learn_2026_06_21t21_47_36z_photosynthesis",
+    "key": "photosynthesis",
+    "log_path": "kb/learning/logs/learn_2026_06_21t21_47_36z_photosynthesis.json",
+    "markdown_path": "kb/learning/pages/photosynthesis.md",
+    "processed_at": "2026-06-21T21:47:36Z",
+    "prompt": "what do you know about learn_2026_06_21t21_47_36z_photosynthesis",
+    "revision": 1358838651,
+    "title": "Photosynthesis"
   },
-  "next_index": 15
+  "next_index": 16
 }
