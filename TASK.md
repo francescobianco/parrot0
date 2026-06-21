@@ -2,26 +2,34 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - derived reflexive composition: name parts from the live module set
+## Active task - introspection to execution: emit a runnable compose-bench dialogue
 
-Goal: gen164 lets parrot0 propose composing its own parts, but the three parts it
-names are a fixed triple. Make the proposal DERIVED — read the real `module(X)`
-self-model (as `mod_self` does) and name three actually-registered, genuinely
-composable parts — and, as the ambitious half, let it select a concrete held-out
-composition that compose-bench could actually run.
+Goal: gen165 makes parrot0 PROPOSE a composition over parts it derives from its
+own `module(X)` self-model. The next rung closes proposal to execution: when
+challenged, it should emit a concrete, runnable held-out dialogue skeleton for the
+three parts it picks (e.g. teach a fresh rule + fact, ask the abduction, ask for
+the proof), in the `>`/`<` shape `tests/compose/` uses — so an external agent can
+drop it straight into compose-bench. It still does not run or commit anything.
 
 Acceptance:
-- The composition self-challenge answer names parts drawn from the live module
-  registry, not a hard-coded list; removing a module from the KB changes the
-  named parts.
-- The three named parts are genuinely composable (a real dialogue exists that
-  needs them together), proven by adding that dialogue to `tests/compose/`.
-- EN + IT through one path; held-out stress; stays anti-self-management.
+- "show me the dialogue you would run" (and IT) yields a multi-line `>`-prefixed
+  dialogue skeleton over the derived parts, with fresh placeholder names.
+- The skeleton, when filled and added to `tests/compose/`, actually composes
+  (the parts cooperate) — verified by running compose-bench on it.
+- EN + IT one path; held-out stress; stays anti-self-management.
 
-Anti-impostor: the parts must come from real state; a fixed string that merely
-mentions "the module set" does not count.
+Anti-impostor: the skeleton must be generated from the derived parts, not a fixed
+canned transcript.
 
 ## Done recently
+
+- **gen165 - derived reflexive composition.** The `compose_challenge` branch in
+  `mod_loop` now derives its three named parts via `kb_query("module", ...)` over
+  a composable-core list, so the proposal tracks the live self-model. Proven, not
+  asserted: "forget that abduce is a module" makes the next challenge name
+  "knowledge, robustness, and calibration" instead — ratcheted hermetically in
+  `reflexive_derived.chat`. Default triple (knowledge/abduce/robust) is exactly
+  what `analytical_en.dlg` proves cooperates. EN/IT ratchets updated. 166 cases.
 
 - **gen164 - reflexive composition (E1).** `mod_loop` now recognises a
   COMPOSITION self-challenge (composition word + parts reference, EN+IT) and

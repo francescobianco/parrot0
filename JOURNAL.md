@@ -1,4 +1,43 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen165: the composition proposal is DERIVED from its own self-model
+
+**Goal (TASK.md):** gen164 let parrot0 propose composing its parts, but the three
+parts were a fixed triple. Make the proposal read the REAL `module(X)` self-model
+and name actually-registered, genuinely-composable parts.
+
+**Insight:** the self-model is already a queryable fact base — "who is a module?"
+resolves over `module(X)`. The composition proposal should draw from the SAME
+facts, not a constant. So the triple is built by walking a small composable-core
+list and keeping only modules that hold as `module(X)`; the named parts then
+track the live registry.
+
+**Changed:** `brain.c` -> `gen165-derived-composition`. The `compose_challenge`
+branch in `mod_loop` now derives three parts via `kb_query(b->kb, "module", ...)`
+over a composable-core list (knowledge, abduce, robust, calibrate, memory, coref,
+cause, compare), formatting the first three present with glosses; it falls back to
+a generic sentence if fewer than three hold. The default triple — knowledge,
+abduction, robustness — is exactly the one `tests/compose/analytical_en.dlg`
+already proves cooperates, so the proposal points at a composition that really
+runs.
+
+**Observed (derivation proven, not asserted).** Retracting a module shifts the
+named parts: "forget that abduce is a module" -> "Forgotten: module(abduce)." and
+the very next composition challenge names "knowledge, robustness, and
+calibration" — abduction gone, the next composable-core module in its place. This
+is ratcheted hermetically in `reflexive_derived.chat`; the proposal reads the
+same facts "who is a module?" reads, so changing the facts changes the proposal.
+EN/IT ratchets updated to the derived wording. `make test` 22/22, 166 cases.
+
+**The rung climbed.** gen160 found parrot0 blind to its own composition; gen164
+gave it the words; gen165 grounds those words in real state — it now reads its own
+parts and proposes a composition over the ones it actually has, and the proof is
+that retracting a part changes what it proposes. The self-model is no longer a
+recital ("here are my parts") but a substrate it reasons FROM ("these three of my
+parts would I make cooperate, and here is how I would prove it"). It still only
+proposes; the external loop disposes. Honest next: have it actually emit a
+runnable compose-bench dialogue for the parts it picks, closing introspection to
+execution.
+
 ## 2026-06-21 - gen164: reflexive composition — reasoning about its own parts (E1)
 
 **Goal (TASK.md):** the gen160 self-challenge probe walled — asked to prove its

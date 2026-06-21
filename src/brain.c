@@ -5058,11 +5058,43 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
 
     /* The composition self-challenge answers with a loop-shaped METHOD over real
      * parts — exactly the compose-bench discipline — and stays anti-self-
-     * management: it proposes, an external agent acts. */
+     * management: it proposes, an external agent acts. gen165: the three parts
+     * are DERIVED from the live self-model. We walk a composable-core list and
+     * keep only modules that actually hold as module(X) in the KB (the same fact
+     * base "who is a module?" reads), so retracting a module shifts the named
+     * parts. The named triple — knowledge, abduce, robust — is exactly the one
+     * tests/compose/analytical_en.dlg proves cooperates. */
     if (compose_challenge) {
-        put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have — say knowledge (facts and rules), abduction (the missing premise), and proof — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
-            out, out_size);
-        store_proof(b, "loop composition self-challenge: compose >=3 existing parts in one held-out dialogue, fresh names, ratchet EN+IT, no new module, edits external.");
+        static const struct { const char *key; const char *gloss; } core[] = {
+            {"knowledge", "knowledge (facts and rules)"},
+            {"abduce",    "abduction (the missing premise)"},
+            {"robust",    "robustness (which facts are load-bearing)"},
+            {"calibrate", "calibration (how sure I am)"},
+            {"memory",    "personal memory"},
+            {"coref",     "discourse reference"},
+            {"cause",     "cause and effect"},
+            {"compare",   "comparison"},
+        };
+        char parts[256]; size_t po = 0, picked = 0;
+        for (size_t i = 0; i < sizeof core / sizeof core[0] && picked < 3; i++) {
+            const char *a[] = {core[i].key};
+            if (!b->kb || !kb_query(b->kb, "module", a, 1)) continue;
+            const char *sep = (picked == 0) ? "" : (picked == 2 ? ", and " : ", ");
+            po += (size_t)snprintf(parts + po, sizeof parts - po, "%s%s",
+                                   sep, core[i].gloss);
+            picked++;
+        }
+        char msg[640];
+        if (picked == 3) {
+            snprintf(msg, sizeof msg,
+                "I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — %s — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
+                parts);
+            put(msg, out, out_size);
+        } else {
+            put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
+                out, out_size);
+        }
+        store_proof(b, "loop composition self-challenge: compose >=3 existing parts (derived from module/X) in one held-out dialogue, fresh names, ratchet EN+IT, no new module, edits external.");
         return 1;
     }
     int fallback_gap = cue(buf, "fallback") || cue(buf, "wall") ||
@@ -10261,7 +10293,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen164-reflexive-composition";
+    return "gen165-derived-composition";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
