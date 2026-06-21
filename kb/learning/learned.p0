@@ -8,6 +8,11 @@
 % revision: 1359835251; processed: 2026-06-21T01:32:24Z
 wiki_concept(prime_number, mathematics, "natural number greater than 1 that is not a product of two smaller natural numbers").
 
+% mathematics / Fibonacci sequence
+% source: https://en.wikipedia.org/wiki/Fibonacci_sequence
+% revision: 1360360928; processed: 2026-06-21T03:30:39Z
+wiki_concept(fibonacci_number, mathematics, "sequence in which each element is the sum of the two elements that precede it").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -17,3 +22,12 @@ learning_event_concept(learn_2026_06_21t01_32_24z_prime_number, prime_number).
 learning_event_revision(learn_2026_06_21t01_32_24z_prime_number, rev_1359835251).
 learning_event_markdown(learn_2026_06_21t01_32_24z_prime_number, "kb/learning/pages/prime_number.md").
 learning_event_log(learn_2026_06_21t01_32_24z_prime_number, "kb/learning/logs/learn_2026_06_21t01_32_24z_prime_number.json").
+
+% event learn_2026_06_21t03_30_39z_fibonacci_number
+learning_event(learn_2026_06_21t03_30_39z_fibonacci_number, "learned fibonacci_number: sequence in which each element is the sum of the two elements that precede it").
+learning_event_time(learn_2026_06_21t03_30_39z_fibonacci_number, "2026-06-21T03:30:39Z").
+learning_event_domain(learn_2026_06_21t03_30_39z_fibonacci_number, mathematics).
+learning_event_concept(learn_2026_06_21t03_30_39z_fibonacci_number, fibonacci_number).
+learning_event_revision(learn_2026_06_21t03_30_39z_fibonacci_number, rev_1360360928).
+learning_event_markdown(learn_2026_06_21t03_30_39z_fibonacci_number, "kb/learning/pages/fibonacci_number.md").
+learning_event_log(learn_2026_06_21t03_30_39z_fibonacci_number, "kb/learning/logs/learn_2026_06_21t03_30_39z_fibonacci_number.json").
