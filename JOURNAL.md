@@ -1,4 +1,48 @@
 # parrot0 evolution journal
+## 2026-06-22 - gen170: the research-need signal — parrot0 flags what it must learn
+
+**Goal (F.'s new direction, dynamic knowledge):** make parrot0 an "inexhaustible
+interlocutor" that fills its own gaps from static Wikipedia and persists what it
+learns. F. clarified the founding "no network" rule: it forbids outsourcing
+INTELLIGENCE (LLMs / reasoning APIs — the impostor), NOT reading static knowledge
+(physical files / markdown). The explicit first deliverable: a TESTABLE mechanism
+that flags the NEED for external research, and honesty — parrot0 must not pretend
+it already knew something it just looked up.
+
+**Insight:** the brain stays pure C and does no network. It only RECORDS a gap as
+a research need; the existing deterministic learner (`scripts/learn.py` + the
+hourly Action) already fetches Wikipedia into `kb/learning` and commits. This is
+the same "propose, don't self-manage" boundary the gen160-169 reflexive arc held:
+parrot0 names what it needs, the external loop fetches.
+
+**Changed:** `brain.c` -> `gen170-research-need`. New `mod_research` (registered
+LAST, so it only catches a definitional gap every other module declined). On a
+STRONG definitional head ("tell me about X", "what is a X", IT "cos'è un X",
+"parlami di X") for a topic that is NOT already a learned concept
+(`kb_is_concept_key` guard), it answers honestly — "I don't actually know about X
+yet — I won't pretend. I've flagged it to document myself from Wikipedia ..." —
+records the topic (deduped, capped), and, if `$PARROT0_RESEARCH_QUEUE` is set,
+appends `key<TAB>display` for the learner to consume (unset in tests, so the suite
+stays footprint-free). The testable surface: "what do you need to research?" reads
+the pending list back. Arithmetic/compute questions ("what is 2 + 2", "what is
+gold plus silver") and bare known concepts are rejected, so nothing regresses.
+
+**Observed.** "tell me about quaternions" / "what is a perfect number?" ->
+honest research flag; "what do you need to research?" -> "I have 2 topics noted
+... quaternions, perfect number."; the queue file gets `perfect_number\tperfect
+number`. IT mirrors it ("cos'è un numero perfetto?", "cosa devi cercare?"). A
+learned concept ("what is a prime number?", agi profile) is NOT requested. Arith
+still walls; "what's up" still routes to social. EN+IT ratchets `research.chat`/
+`.it`; module-list ratchets (`self`, `strategy`) grew by one. `make test` 22/22,
+177 cases.
+
+**Next (the rest of F.'s vision).** gen171: `scripts/learn.py` consumes the
+research queue (fetch the requested topics from static Wikipedia first, then the
+curated list), so a flagged gap is actually filled and committed. gen172: parrot0
+answers from a freshly-learned `wiki_concept`, HONESTLY framed ("From what I
+learned on Wikipedia: ...") rather than as prior knowledge — closing the loop F.
+described: gap -> flag -> fetch -> commit -> honest answer next time.
+
 ## 2026-06-22 - gen169: the self-audit matrix — parrot0 maps its own composition
 
 **Goal:** gen168 varied the vocabulary of ONE composition; gen169 varies the

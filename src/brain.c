@@ -194,6 +194,15 @@ struct Brain {
      * self-tests propose different names — proof the run is generated and
      * executed, not a memorized transcript. */
     unsigned selftest_runs;
+
+    /* gen170 (dynamic knowledge): topics parrot0 hit a gap on and flagged for
+     * external research (static Wikipedia, via scripts/learn.py). The brain does
+     * NO network itself — the "no network" rule forbids outsourcing INTELLIGENCE,
+     * not reading static knowledge; here it only RECORDS the need so the external
+     * deterministic learner can fill it. A queryable readout makes the need
+     * testable. */
+    char research_needs[8][80];
+    size_t research_need_count;
 };
 
 /* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity
@@ -5319,6 +5328,145 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: research (gen170, dynamic knowledge) ------------------------
+ * The "inexhaustible interlocutor" seam. Asked to DEFINE a topic it does not
+ * know, parrot0 neither silently walls nor pretends: it HONESTLY flags the gap,
+ * says it would document itself from static Wikipedia, and RECORDS the topic as a
+ * research need. The brain does NO network — the founding "no network" rule
+ * forbids outsourcing INTELLIGENCE (LLMs/reasoning APIs), not reading static
+ * knowledge — so the actual fetch is left to the external deterministic learner
+ * (scripts/learn.py), which writes kb/learning and commits. A queryable readout
+ * ("what do you need to research?") makes the need TESTABLE — the explicit
+ * requirement. If $PARROT0_RESEARCH_QUEUE is set, the request is also appended
+ * there for the learner to consume; unset in tests, so the suite stays
+ * footprint-free. Registered LAST, so it only catches a definitional gap that
+ * every other module already declined — never social/arith/memory turns. */
+static int mod_research(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+    char buf[256];
+    canonicalize_lang(norm, buf, sizeof buf);
+
+    /* Readout: what research is pending? (the testable surface) */
+    if (cue(buf, "what do you need to research") ||
+        cue(buf, "what do you need to look up") ||
+        cue(buf, "what do you need to learn") ||
+        cue(buf, "what are you documenting") ||
+        cue(buf, "what should you research") ||
+        cue(buf, "cosa devi cercare") || cue(buf, "cosa devi studiare") ||
+        cue(buf, "cosa devi imparare") ||
+        cue(buf, "di cosa ti devi documentare")) {
+        if (b->research_need_count == 0) {
+            put("Nothing noted for research yet — ask me to define something I don't know and I'll flag it.",
+                out, out_size);
+            return 1;
+        }
+        char msg[512]; size_t o = 0;
+        o += (size_t)snprintf(msg + o, sizeof msg - o,
+            "I have %zu topic%s noted for research (static Wikipedia, via my external learner): ",
+            b->research_need_count, b->research_need_count == 1 ? "" : "s");
+        for (size_t i = 0; i < b->research_need_count; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+                                  i ? ", " : "", b->research_needs[i]);
+        snprintf(msg + o, sizeof msg - o, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Definitional gap: extract the topic X. STRONG heads (article / "about" /
+     * "who" / Italian) signal definitional intent and allow a multi-word topic;
+     * the WEAK bare "what is <X>" is ambiguous with arithmetic ("what is 2 + 2",
+     * "what is gold plus silver"), so it is accepted only for a single concept
+     * word. Arithmetic operators and digits are always rejected, so compute-style
+     * questions keep walling as before. */
+    char work[256]; snprintf(work, sizeof work, "%s", buf);
+    size_t wl = strlen(work);
+    while (wl > 0 && (work[wl-1] == '?' || work[wl-1] == ' ')) work[--wl] = '\0';
+    const char *x = NULL;
+    int weak = 0;
+    static const char *const strong_heads[] = {
+        "what is a ", "what is an ", "tell me about ",
+        "what do you know about ", "who is ", "who was ",
+        "cos'è un ", "cos'è una ", "cos'è uno ", "che cos'è ", "cos'è ",
+        "parlami di ", "cosa sai di ", "chi è ", NULL,
+    };
+    static const char *const weak_heads[] = {
+        "what is ", "what are ", "what was ", NULL,
+    };
+    for (const char *const *h = strong_heads; *h; h++) {
+        size_t hl = strlen(*h);
+        if (strncmp(work, *h, hl) == 0) { x = work + hl; break; }
+    }
+    if (!x) for (const char *const *h = weak_heads; *h; h++) {
+        size_t hl = strlen(*h);
+        if (strncmp(work, *h, hl) == 0) { x = work + hl; weak = 1; break; }
+    }
+    if (!x || !*x) return 0;
+
+    /* Build the concept key (drop a leading article, join words with '_') and a
+     * display form; guard pronouns and too-short topics. */
+    char xbuf[160]; snprintf(xbuf, sizeof xbuf, "%s", x);
+    char *tok[16]; size_t nt = split_words(xbuf, tok, 16);
+    size_t start = 0;
+    if (nt > 0 && (is_article(tok[0]) ||
+                   !strcmp(tok[0],"the") || !strcmp(tok[0],"il") ||
+                   !strcmp(tok[0],"la")  || !strcmp(tok[0],"lo") ||
+                   !strcmp(tok[0],"un")  || !strcmp(tok[0],"una") ||
+                   !strcmp(tok[0],"uno") || !strcmp(tok[0],"i") ||
+                   !strcmp(tok[0],"gli") || !strcmp(tok[0],"le")))
+        start = 1;
+    if (start >= nt) return 0;
+    if (is_entity_pronoun(tok[start])) return 0;
+    /* A bare "what is <X>" is only definitional for a single concept word. */
+    if (weak && nt - start != 1) return 0;
+    /* Reject arithmetic / numeric expressions in any head (they should wall). */
+    for (size_t i = start; i < nt; i++) {
+        char *t = strip_edge_punct(tok[i]);
+        for (char *c = t; *c; c++) if (isdigit((unsigned char)*c)) return 0;
+        if (!strcmp(t,"plus")||!strcmp(t,"minus")||!strcmp(t,"times")||
+            !strcmp(t,"divided")||!strcmp(t,"over")||!strcmp(t,"equals")||
+            !strcmp(t,"più")||!strcmp(t,"piu")||!strcmp(t,"meno")||
+            !strcmp(t,"per")||!strcmp(t,"diviso"))
+            return 0;
+    }
+    char key[80]; size_t ko = 0;
+    char disp[80]; size_t dpo = 0;
+    for (size_t i = start; i < nt; i++) {
+        char *t = strip_edge_punct(tok[i]);
+        if (!*t) continue;
+        ko  += (size_t)snprintf(key  + ko,  sizeof key  - ko,  "%s%s", ko ? "_" : "", t);
+        dpo += (size_t)snprintf(disp + dpo, sizeof disp - dpo, "%s%s", dpo ? " " : "", t);
+        if (ko >= sizeof key - 8) break;
+    }
+    if (ko < 3) return 0;
+    if (weak && strlen(tok[start]) < 4) return 0;
+
+    /* Already learned? Then it is not a research gap — never request what we have. */
+    if (b->kb && kb_is_concept_key(b->kb, key)) return 0;
+
+    /* Record the need (dedup, capped); if a queue path is configured, append it
+     * for the external learner to fetch from static Wikipedia. */
+    int dup = 0;
+    for (size_t i = 0; i < b->research_need_count; i++)
+        if (strcmp(b->research_needs[i], disp) == 0) dup = 1;
+    if (!dup && b->research_need_count < 8) {
+        snprintf(b->research_needs[b->research_need_count], 80, "%s", disp);
+        b->research_need_count++;
+        const char *q = getenv("PARROT0_RESEARCH_QUEUE");
+        if (q && *q) {
+            FILE *f = fopen(q, "a");
+            if (f) { fprintf(f, "%s\t%s\n", key, disp); fclose(f); }
+        }
+    }
+    char msg[320];
+    snprintf(msg, sizeof msg,
+        "I don't actually know about %s yet — I won't pretend. I've flagged it to document myself from Wikipedia; once my learner fetches it, I'll know it next time.",
+        disp);
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -10296,6 +10444,7 @@ static const Module registry[] = {
     {"pragma",    mod_pragma},
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
+    {"research",  mod_research},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
 
@@ -10491,7 +10640,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen169-composition-audit";
+    return "gen170-research-need";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

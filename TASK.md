@@ -2,23 +2,36 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - audit triples chosen from the live module set (not fixed three)
+## Active task - dynamic knowledge gen171: learn.py consumes the research queue
 
-Goal: gen169 audits three FIXED triples. Make the audit enumerate triples drawn
-from the parts parrot0 actually has (the composable-core filtered by `module(X)`),
-so the matrix grows and shrinks with the self-model — e.g. teaching/retracting a
-module changes WHICH triples are audited, not only their verdicts.
+Goal: close the next link of F.'s dynamic-knowledge loop. `mod_research` (gen170)
+records gaps and, with `$PARROT0_RESEARCH_QUEUE` set, appends `key<TAB>display`.
+Make `scripts/learn.py` read that queue: fetch the requested topics from static
+Wikipedia FIRST (then the curated `sources.tsv` round-robin), write `kb/learning`,
+clear served entries, and commit — so a flagged gap is actually filled.
 
 Acceptance:
-- The audited triples are generated from the live module set; retracting a
-  composable module removes triples that named it (fewer rows), not just flips
-  them to seam.
-- Still computes each verdict by running on a fresh sub-brain; held-out vocab.
-- EN + IT one path; stays anti-self-management.
+- A queue entry causes learn.py to fetch that topic (offline fixture test), emit
+  its `wiki_concept` + Markdown + event, and remove it from the queue.
+- The curated round-robin still runs when the queue is empty.
+- Offline regression test (extend `tests/wiki_learning.sh` or a sibling).
 
-Anti-impostor: triple selection must come from real state, not a constant table.
+Then gen172: parrot0 answers from a freshly-learned `wiki_concept`, HONESTLY framed
+("From what I learned on Wikipedia: ..."), not as prior knowledge — closing the
+loop: gap -> flag -> fetch -> commit -> honest answer next time.
+
+Anti-impostor: no API that reasons; static Wikipedia files only. Honesty: a
+just-learned answer must be marked as just-learned.
 
 ## Done recently
+
+- **gen170 - the research-need signal (dynamic knowledge).** `mod_research`
+  (registered last) honestly flags a definitional gap, records the topic, and
+  (with `$PARROT0_RESEARCH_QUEUE`) queues `key<TAB>display` for the external
+  learner; "what do you need to research?" reads the list back. Pure C, no
+  network; arith/known-concept guarded so nothing regresses. EN+IT
+  `research.chat`/`.it`. 177 cases, `make test` 22/22. Founding "no network"
+  reaffirmed as "no outsourced intelligence; static knowledge is fine".
 
 - **gen169 - the self-audit matrix.** New `run_composition` helper + a
   `want_audit` branch run three triples of parrot0's parts on fresh copies of
