@@ -1,0 +1,24 @@
+# gen160 E1: social composition over FRESH vocab (thora/parrot/kiwi).
+# One conversation forces six subsystems to cooperate: social register
+# (greeting), personal name memory, personal possession memory, KB fact intake,
+# discourse reference (pronoun "it" bound to the last subject), and the personal
+# summary. The follow-up questions read back what earlier turns stored.
+#subsystems: social-register, name-memory, possession-memory, fact-intake, discourse-reference, personal-summary
+#expect: pass
+#class: composes-unchanged
+> hey
+< hi there
+> my name is thora
+< nice to meet you thora
+> i have a parrot named kiwi
+< your parrot is called kiwi
+> kiwi is a bird
+< learned birdkiwi
+> is it a bird?
+< yes
+> what is my parrot called?
+< kiwi
+> what is my name?
+< your name is thora
+> what do you remember about me?
+< your name is thora your parrot is kiwi

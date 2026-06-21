@@ -1,0 +1,18 @@
+# gen160 E1: social composition in Italian (mia/gatto/neve). Six subsystems via
+# the same path: greeting, name memory, possession memory, KB fact intake,
+# discourse reference ("esso" bound to the last subject), possession recall.
+#subsystems: social-register, name-memory, possession-memory, fact-intake, discourse-reference, possession-recall
+#expect: pass
+#class: composes-unchanged
+> ciao
+< hi there
+> mi chiamo mia
+< nice to meet you mia
+> ho un gatto chiamato neve
+< your gatto is called neve
+> neve è un felino
+< learned felinoneve
+> è esso un felino?
+< yes
+> cos'è il mio gatto?
+< your gatto is neve

@@ -1,0 +1,24 @@
+# gen160 E1: analytical composition over FRESH vocab (bryn/hound/companion).
+# One conversation forces seven independently-evolved subsystems to cooperate:
+# rule intake, fact intake, deductive query, contrastive abduction (why-not),
+# optimal abduction (cheapest repair), self-correction (re-derive), proof, and
+# robustness (load-bearing analysis). None of these names appears in tests/cases.
+#subsystems: rule-intake, fact-intake, deduction, contrastive-abduction, optimal-abduction, self-correction, proof, robustness
+#expect: pass
+#class: composes-unchanged
+> every loyal hound is a companion
+< learned rule companion
+> bryn is a hound
+< learned houndbryn
+> is bryn a companion?
+< no
+> why isn't bryn a companion?
+< missing bryn is a loyal
+> what is the easiest way to make bryn a companion?
+< easiest way
+> bryn is loyal
+< now bryn is a companion after all
+> why is bryn a companion?
+< companionbryn because
+> how robust is that conclusion?
+< rests on 2 loadbearing facts

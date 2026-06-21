@@ -1,4 +1,51 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen160: the compositional emergence benchmark (E1)
+
+**Goal (TASK.md E1):** create held-out dialogues where success requires THREE OR
+MORE existing subsystems in the same conversation, WITHOUT adding a task-specific
+module; score each as composes-unchanged / generic-parser / special-case.
+
+**Insight:** the honest unit of progress here is not a new feature but a *measure*
+of whether the structure already grown COMPOSES on fresh vocabulary. So gen160 is
+a benchmark generation (like gen147), not a brain change: it builds the gauge and
+records what it reads, including the gaps. Anti-impostor by construction — every
+name, predicate and ordering is fresh and absent from `tests/cases`.
+
+**Changed:** no runtime behaviour (`brain.c` only bumps to
+`gen160-compositional-bench`). New `tests/composebench.sh` + `make compose-bench`:
+each `tests/compose/*.dlg` is one session declaring the >=3 subsystems it forces
+to cooperate; the harness ratchets `#expect: pass` dialogues (earned composition
+never regresses) and records `#expect: gap` dialogues as growth edges. Two
+deterministic bilingual ratchets land in `tests/cases`: `compose.chat`/`.it` (the
+analytical chain) and `compose_social.chat`/`.it` (the social chain).
+
+**Observed.** 4 of 6 dialogues compose UNCHANGED, 27 subsystem-turns, 87% landing:
+- analytical_en (fresh loyal/hound/companion/bryn) composes EIGHT subsystems in
+  one breath: rule intake -> fact intake -> deductive No -> contrastive abduction
+  (names the missing conjunct) -> optimal abduction (cheapest repair) ->
+  self-correction ("now bryn is a companion after all") -> proof -> robustness
+  (2 load-bearing facts). The same chain composes in Italian (balu/orso/amico).
+- social_en composes SIX: greeting, name memory, possession memory, KB fact,
+  discourse reference ("it" -> kiwi), personal summary; Italian mirrors it.
+- Two recorded gaps, both classed generic-parser (a lexicon/frame extension, not
+  a bespoke handler): (1) bare self-introduction "i'm vera" should feed the name
+  memory that "my name is X" already fills, and an unbound "she" should bind to a
+  named personal entity (the cat) — composing possession memory with discourse
+  reference; (2) Italian positive why-proof "perché X è un Y?" and name recall
+  "come mi chiamo?" fall through `canonicalize_lang` though their contrastive /
+  intake siblings already work.
+
+**Self-challenge parity (LOOP step 4).** Asked to prove its own subsystems
+compose, parrot0 walled then chitchatted — it cannot yet treat "test composition
+of my parts" as a loop-shaped self-challenge. External hypothesis stronger;
+recorded as the candidate next pull (extend `mod_loop` to E-series challenges).
+
+**Next:** close the two generic-parser gaps (each flips a recorded GAP to
+composes-unchanged), then teach `mod_loop` to reason about composition of its own
+subsystems. The astonishment this generation is real: seven/eight subsystems that
+were each grown in a separate generation cooperate on never-seen vocabulary, in
+two languages, with zero glue code — the gauge now proves it and guards it.
+
 ## 2026-06-21 - gen159: a type gate makes the derived graph trustworthy
 
 **Goal (owner: make the graph affidabile):** gen158 materialized part_of/2 from

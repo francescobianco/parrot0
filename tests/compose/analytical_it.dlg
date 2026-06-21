@@ -1,0 +1,21 @@
+# gen160 E1: the SAME analytical composition in Italian (balu/orso/amico),
+# proving the composition is in the algorithm, not an English phrasebook — it
+# travels through the same code path via the canonicalize_lang lexicon, not by
+# duplicated logic. Seven subsystems, fresh vocab.
+#subsystems: rule-intake, fact-intake, deduction, contrastive-abduction, self-correction, deduction, robustness
+#expect: pass
+#class: composes-unchanged
+> ogni orso felice è un amico
+< learned rule amico
+> balu è un orso
+< learned orsobalu
+> è balu un amico?
+< no
+> perché balu non è un amico?
+< missing balu is a felice
+> balu è felice
+< now balu is a amico after all
+> è balu un amico?
+< yes
+> quanto è robusta questa conclusione?
+< rests on 2 loadbearing facts

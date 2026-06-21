@@ -2,18 +2,40 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - E1: Compositional emergence benchmark
+## Active task - close the generic-parser composition gaps (from E1)
 
-Goal: create held-out dialogues where success requires three or more existing subsystems in the same conversation, without adding a task-specific module.
+Goal: flip the two recorded GAP dialogues in `make compose-bench` to
+composes-unchanged with GENERIC parser work only — no bespoke handler.
 
 Acceptance:
-- At least one dialogue composes natural input, KB facts/rules, abduction or simulation, and proof/explanation.
-- At least one dialogue composes social register, personal memory, discourse reference and a follow-up question.
-- The score records whether the case passed unchanged, required only generic parser work, or required a special-case handler.
+- `tests/compose/social_gap_en.dlg` passes: bare self-introduction "i'm <X>"
+  feeds the SAME name memory "my name is X" fills, and an unbound "she/he" binds
+  to a named personal entity (the cat/dog) so possession memory composes with
+  discourse reference.
+- `tests/compose/it_recall_gap.dlg` passes: Italian positive why-proof
+  "perché X è un Y?" cites the proof like the English "why is X a Y?", and name
+  recall "come mi chiamo?" hits the store "mi chiamo X" fills — both by extending
+  `canonicalize_lang`, not by duplicating logic.
+- Each flipped dialogue is re-tagged `#expect: pass` so it becomes a ratchet, and
+  the EN/IT `tests/cases` ratchet grows accordingly.
 
-Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set.
+Anti-impostor: keep using fresh names/predicates; a fix that only matches the
+exact gap phrases (not unseen paraphrases) is a special-case and does not count.
 
 ## Done recently
+
+- **gen160 - compositional emergence benchmark (E1).** New `make compose-bench`
+  (`tests/composebench.sh`) runs held-out, fresh-vocab dialogues that force >=3
+  independently-evolved subsystems to cooperate, scoring each as
+  composes-unchanged / generic-parser / special-case. 4 of 6 compose UNCHANGED
+  with no new module: an analytical chain of EIGHT subsystems (rule+fact intake,
+  deduction, contrastive + optimal abduction, self-correction, proof, robustness)
+  and a social chain of SIX (greeting, name + possession memory, KB fact,
+  discourse reference, summary), both EN and IT through one path. Two gaps
+  recorded as generic-parser growth edges. Bilingual ratchets `compose.chat`/`.it`
+  and `compose_social.chat`/`.it`. No runtime behaviour changed; the gauge proves
+  and guards composition. Self-challenge: parrot0 cannot yet reason about
+  composing its own parts (candidate: extend `mod_loop`).
 
 - **gen148 - user-model context for ordinary conversation (E4).** `mod_memory` now remembers a preference and a current constraint, answers specific preference/mood/topic/constraint questions, and summarizes `what do you remember about me?` with durable personal facts separated from session context. `mod_chitchat` records mood/boredom while preserving its existing replies; `mod_pragma` records the current topic when it already accepts a topic-change turn. EN/IT ratchets plus 10x stress. Long-chat moved felt landing 85% -> 87%, wall 9% -> 7%, continuity 71% -> 76%, topic changes 85% -> 100%.
 

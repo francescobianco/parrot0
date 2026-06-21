@@ -1,0 +1,20 @@
+# gen160 E1: a social composition the current brain does NOT fully pass — the
+# recorded growth edge for E1's social half. Two near-misses, both fixable with
+# GENERIC parser work (not a bespoke handler), so the class is generic-parser:
+#   1. bare self-introduction "i'm vera" should feed the SAME name memory that
+#      "my name is X" / "call me X" already fill (a one-frame intake extension).
+#   2. an unbound pronoun "she" should be allowed to bind to a named personal
+#      entity (the cat), not only to KB-fact subjects — composing possession
+#      memory with discourse reference.
+# Until then these turns wall; the bench records that honestly.
+#subsystems: self-introduction, possession-memory, discourse-reference, name-recall
+#expect: gap
+#class: generic-parser
+> hi, i'm vera
+< nice to meet you vera
+> i have a cat named smoke
+< your cat is called smoke
+> is she a robot?
+< no
+> what is my name?
+< your name is vera

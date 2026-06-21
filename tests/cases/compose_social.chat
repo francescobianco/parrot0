@@ -1,0 +1,21 @@
+# gen160 (E1): compositional emergence — the social half, ratcheted. Six
+# subsystems cooperate over fresh vocab (thora/parrot/kiwi): social register,
+# name memory, possession memory, KB fact intake, discourse reference (the
+# pronoun "it" binds to the last subject), and the personal summary that reads
+# back what earlier turns stored.
+> hey
+< Hi there!
+> my name is thora
+< Nice to meet you, thora!
+> i have a parrot named kiwi
+< Got it: your parrot is called kiwi.
+> kiwi is a bird
+< Learned: bird(kiwi).
+> is it a bird?
+< Yes.
+> what is my parrot called?
+< kiwi.
+> what is my name?
+< Your name is thora.
+> what do you remember about me?
+< I remember: your name is thora; your parrot is kiwi.

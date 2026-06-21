@@ -244,15 +244,27 @@ The weakest signal is still the human surface. Casual talk, unclear turns, pragm
 
 These tasks measure whether future gains are structural rather than cosmetic.
 
-### E1 - Compositional emergence benchmark
+### E1 - Compositional emergence benchmark — DONE, gen160
 Goal: create held-out dialogues where success requires three or more existing subsystems in the same conversation, without adding a task-specific module.
 
-Acceptance:
-- At least one dialogue composes natural input, KB facts/rules, abduction or simulation, and proof/explanation.
-- At least one dialogue composes social register, personal memory, discourse reference and a follow-up question.
-- The score records whether the case passed unchanged, required only generic parser work, or required a special-case handler.
+gen160: `make compose-bench` (`tests/composebench.sh`) runs fresh-vocab dialogues
+that force >=3 independently-evolved subsystems to cooperate, scoring each
+composes-unchanged / generic-parser / special-case. 4/6 compose UNCHANGED with no
+new module — an 8-subsystem analytical chain (rule+fact intake, deduction,
+contrastive+optimal abduction, self-correction, proof, robustness) and a
+6-subsystem social chain (greeting, name+possession memory, KB fact, discourse
+reference, summary), both EN and IT through one path. Two gaps recorded as
+generic-parser growth edges (self-intro "i'm X" + "she"->pet; IT positive
+why-proof + "come mi chiamo?"). Bilingual ratchets `compose.chat`/`.it`,
+`compose_social.chat`/`.it`. Open: close the two generic-parser gaps; teach
+`mod_loop` to reason about composing its own subsystems (self-challenge walled).
 
-Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set.
+Acceptance:
+- At least one dialogue composes natural input, KB facts/rules, abduction or simulation, and proof/explanation. ✓ analytical chain
+- At least one dialogue composes social register, personal memory, discourse reference and a follow-up question. ✓ social chain
+- The score records whether the case passed unchanged, required only generic parser work, or required a special-case handler. ✓ #class/#expect per dialogue
+
+Anti-impostor: fresh names, predicates, orderings and social wrappers must be generated for the held-out set. ✓
 
 ### E2 - Conversational repair loop — DONE (seed), gen141
 Goal: when a user says something unclear, ask a specific clarification, store the pending intent, and resume it after the user answers.

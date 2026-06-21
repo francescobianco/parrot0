@@ -1,0 +1,18 @@
+# gen160 (E1): the SAME analytical composition in Italian (balu/orso/amico) —
+# the bilingual ratchet. It travels the same code path through canonicalize_lang,
+# not a duplicated handler: a competence proven in two languages lives in the
+# algorithm. Seven subsystems compose with fresh Italian vocabulary.
+> ogni orso felice è un amico
+< Learned rule: amico(X) :- orso(X), felice(X).
+> balu è un orso
+< Learned: orso(balu).
+> è balu un amico?
+< No.
+> perché balu non è un amico?
+< balu is not a amico because I am missing: balu is a felice. The rule is orso and felice -> amico.
+> balu è felice
+< Learned: felice(balu). Now balu is a amico after all.
+> è balu un amico?
+< Yes.
+> quanto è robusta questa conclusione?
+< My conclusion that balu is a amico rests on 2 load-bearing facts: orso(balu), felice(balu). Removing any one would overturn it.

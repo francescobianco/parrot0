@@ -48,6 +48,13 @@ chat-bench: build
 long-chat-bench: build
 	@./tests/longchatbench.sh
 
+# gen160 (E1): compositional emergence benchmark — held-out dialogues where
+# success requires >=3 independently-evolved subsystems to cooperate, scored as
+# composes-unchanged / generic-parser / special-case. Ratchets the composing
+# dialogues and records the open gaps.
+compose-bench: build
+	@./tests/composebench.sh
+
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
 # proxies. Not part of `make test` (non-deterministic, external).
