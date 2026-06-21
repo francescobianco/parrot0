@@ -13,6 +13,11 @@ wiki_concept(prime_number, mathematics, "natural number greater than 1 that is n
 % revision: 1360360928; processed: 2026-06-21T03:30:39Z
 wiki_concept(fibonacci_number, mathematics, "sequence in which each element is the sum of the two elements that precede it").
 
+% mathematics / Pythagorean theorem
+% source: https://en.wikipedia.org/wiki/Pythagorean_theorem
+% revision: 1358746630; processed: 2026-06-21T05:59:48Z
+wiki_concept(pythagorean_theorem, mathematics, "In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental relation in Euclidean geometry...").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -31,3 +36,12 @@ learning_event_concept(learn_2026_06_21t03_30_39z_fibonacci_number, fibonacci_nu
 learning_event_revision(learn_2026_06_21t03_30_39z_fibonacci_number, rev_1360360928).
 learning_event_markdown(learn_2026_06_21t03_30_39z_fibonacci_number, "kb/learning/pages/fibonacci_number.md").
 learning_event_log(learn_2026_06_21t03_30_39z_fibonacci_number, "kb/learning/logs/learn_2026_06_21t03_30_39z_fibonacci_number.json").
+
+% event learn_2026_06_21t05_59_48z_pythagorean_theorem
+learning_event(learn_2026_06_21t05_59_48z_pythagorean_theorem, "learned pythagorean_theorem: In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental...").
+learning_event_time(learn_2026_06_21t05_59_48z_pythagorean_theorem, "2026-06-21T05:59:48Z").
+learning_event_domain(learn_2026_06_21t05_59_48z_pythagorean_theorem, mathematics).
+learning_event_concept(learn_2026_06_21t05_59_48z_pythagorean_theorem, pythagorean_theorem).
+learning_event_revision(learn_2026_06_21t05_59_48z_pythagorean_theorem, rev_1358746630).
+learning_event_markdown(learn_2026_06_21t05_59_48z_pythagorean_theorem, "kb/learning/pages/pythagorean_theorem.md").
+learning_event_log(learn_2026_06_21t05_59_48z_pythagorean_theorem, "kb/learning/logs/learn_2026_06_21t05_59_48z_pythagorean_theorem.json").
