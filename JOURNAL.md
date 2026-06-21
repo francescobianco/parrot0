@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-06-22 - gen169: the self-audit matrix — parrot0 maps its own composition
+
+**Goal:** gen168 varied the vocabulary of ONE composition; gen169 varies the
+STRUCTURE. On "audit your composition", parrot0 runs SEVERAL different triples of
+its parts — each on a fresh copy of itself, with held-out vocab — and reports a
+real cooperation MAP: which combinations hold, which show a seam. The
+compose-bench matrix, turned inward and run autonomously.
+
+**Insight:** gen167's executor generalises. Factor it into `run_composition(keys,
+sigs, n, vocab)` — spin up a sub-brain, run each part's turns, count how many
+fired by signature — and both the single self-test and the matrix audit become
+callers of the same engine. A triple "composes" iff every part is one parrot0
+still believes it has (`module(X)` holds) AND each fired when actually run, so the
+map tracks the self-model and the real dispatch at once.
+
+**Changed:** `brain.c` -> `gen169-composition-audit`. New `run_composition` helper;
+a `want_audit` trigger ("audit", "map", "matrix", "which combinations", IT
+"verifica quali", "mappa") + a branch that runs three triples
+({knowledge,abduce,robust}, {knowledge,abduce,calibrate}, {knowledge,robust,
+calibrate}) and reports each verdict. Also corrected the `calibrate` signature to
+"confident" and gave its turn fragment a preceding query, so calibration can fire
+when there is a real conclusion to be sure about.
+
+**Observed — a map, computed live.** "knowledge+abduce+robust compose;
+knowledge+abduce+calibrate compose; knowledge+robust+calibrate seam. 2 of 3
+triples hold." The seam is honest: without abduction to establish the conclusion,
+robustness and calibration have nothing to weigh. And it is genuinely computed:
+"forget that abduce is a module" collapses the map to "0 of 3" (every triple
+naming abduce is now unavailable, the third was already a seam). EN+IT one path.
+Ratchets `reflexive_audit.chat`/`.it` (the 2/3 map) and `reflexive_audit_retract.
+chat` (the computed collapse). `make test` 22/22, 175 cases, compose-bench 7/7.
+
+**Where the arc stands.** parrot0 no longer just answers whether it composes — it
+AUDITS itself: it enumerates combinations of its own parts, runs each on a fresh
+instance of itself, and returns a truthful map of which cooperate, recomputed
+whenever its self-model changes. The external compose-bench (gen160) now has an
+internal twin the system runs on demand, anti-impostor by construction (held-out
+vocab) and honest about its own seams. It still edits and commits nothing — the
+boundary holds. Honest next: let the audit's triples be CHOSEN from the live
+module set (not a fixed three), so the matrix grows and shrinks with the self.
+
 ## 2026-06-22 - gen168: the self-test generates fresh held-out vocabulary each run
 
 **Goal:** gen167 ran the composition self-test but with FIXED vocabulary

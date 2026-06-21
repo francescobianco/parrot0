@@ -2,25 +2,31 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - self-audit: map which TRIPLES of its parts compose, in one pass
+## Active task - audit triples chosen from the live module set (not fixed three)
 
-Goal: gen168 varies the vocabulary of ONE composition; the next rung varies the
-STRUCTURE. On "audit your composition", parrot0 should run SEVERAL different
-triples of its parts (each on a fresh sub-brain, fresh vocab) and report a real
-cooperation MAP — which combinations hold and which show a seam — i.e. perform the
-compose-bench matrix on itself, autonomously, computed live.
+Goal: gen169 audits three FIXED triples. Make the audit enumerate triples drawn
+from the parts parrot0 actually has (the composable-core filtered by `module(X)`),
+so the matrix grows and shrinks with the self-model — e.g. teaching/retracting a
+module changes WHICH triples are audited, not only their verdicts.
 
 Acceptance:
-- "audit your composition" (EN+IT) runs >=2 distinct triples and reports a
-  per-triple PASS/seam verdict, each executed on a fresh sub-brain.
-- At least one triple passes and the report distinguishes it from any seam,
-  computed from real output (retracting a module changes the map).
-- Stays anti-self-management (no file edit, no commit).
+- The audited triples are generated from the live module set; retracting a
+  composable module removes triples that named it (fewer rows), not just flips
+  them to seam.
+- Still computes each verdict by running on a fresh sub-brain; held-out vocab.
+- EN + IT one path; stays anti-self-management.
 
-Anti-impostor: the map must come from really running each triple, not a table of
-constants; vocab stays held-out per run.
+Anti-impostor: triple selection must come from real state, not a constant table.
 
 ## Done recently
+
+- **gen169 - the self-audit matrix.** New `run_composition` helper + a
+  `want_audit` branch run three triples of parrot0's parts on fresh copies of
+  itself and report a real cooperation map ("knowledge+abduce+robust compose;
+  knowledge+abduce+calibrate compose; knowledge+robust+calibrate seam. 2 of 3").
+  Computed: retracting abduce collapses it to 0 of 3. Fixed the calibrate
+  signature/turn so calibration can fire. `reflexive_audit.chat`/`.it` +
+  `_retract.chat`. 175 cases, `make test` 22/22, compose-bench 7/7.
 
 - **gen168 - self-test generates fresh held-out vocabulary.** A rotating
   `compose_vocab` pool + `build_turn` template + a per-session `selftest_runs`

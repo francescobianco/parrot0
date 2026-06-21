@@ -5030,7 +5030,7 @@ static void build_turn(const char *key, const char *const v[4],
     else if (!strcmp(key, "robust"))
         snprintf(dst, size, "how robust is that conclusion?");
     else if (!strcmp(key, "calibrate"))
-        snprintf(dst, size, "how sure are you?");
+        snprintf(dst, size, "is %s a %s? > how sure are you?", name, cls);
     else if (!strcmp(key, "memory"))
         snprintf(dst, size, "my name is %s > what is my name?", name);
     else if (!strcmp(key, "coref"))
@@ -5041,6 +5041,43 @@ static void build_turn(const char *key, const char *const v[4],
         snprintf(dst, size, "5 is greater than 3 > which is greater, 5 or 3?");
     else
         snprintf(dst, size, " ");
+}
+
+/* gen167-169: run a set of composable parts on a FRESH copy of parrot0 and return
+ * how many fired (their signature substring appeared in the real output). Each
+ * part's turns are built with vocab tuple `v` and fed through brain_respond on the
+ * sub-brain; brain_respond has no static state, so this is reentrancy-safe and
+ * leaves the live brain untouched. If `observed` is non-NULL, the last firing
+ * response is copied into it. This is the engine of every reflexive self-check:
+ * the verdict is computed by execution, not asserted. */
+static size_t run_composition(const char *const keys[], const char *const sigs[],
+                              size_t n, const char *const v[4],
+                              char *observed, size_t obs_size) {
+    Brain *sub = brain_create();
+    if (!sub) return 0;
+    size_t fired = 0;
+    if (observed && obs_size) observed[0] = '\0';
+    for (size_t k = 0; k < n; k++) {
+        char trn[256];
+        build_turn(keys[k], v, trn, sizeof trn);
+        int part_fired = 0;
+        char *p = trn;                    /* split on " > ", run each sub-turn */
+        while (p && *p) {
+            char *gt = strstr(p, " > ");
+            if (gt) *gt = '\0';
+            while (*p == ' ' || *p == '>') p++;
+            char r[512] = "";
+            brain_respond(sub, p, r, sizeof r);
+            if (strstr(r, sigs[k])) {
+                part_fired = 1;
+                if (observed && obs_size) snprintf(observed, obs_size, "%s", r);
+            }
+            p = gt ? gt + 3 : NULL;
+        }
+        if (part_fired) fired++;
+    }
+    brain_destroy(sub);
+    return fired;
 }
 
 /* --- module: loop --------------------------------------------------------
@@ -5115,7 +5152,18 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                   cue(buf, "provalo tu") || cue(buf, "run a self");
     int want_selftest = run_ref && (compose_ref || parts_ref);
 
+    /* gen169: an AUDIT — run several different triples of my parts and report a
+     * real cooperation MAP (the compose-bench matrix turned inward). "audit your
+     * composition", "map which of your parts compose", IT "verifica quali tuoi
+     * moduli si compongono". */
+    int want_audit = (cue(buf, "audit") || cue(buf, "map") || cue(buf, "mappa") ||
+                      cue(buf, "matrix") || cue(buf, "matrice") ||
+                      cue(buf, "which combinations") || cue(buf, "quali") ||
+                      cue(buf, "which of your")) &&
+                     (compose_ref || parts_ref);
+
     int trigger = compose_challenge || want_skeleton || want_selftest ||
+                  want_audit ||
                   cue(buf, "self-challenge") || cue(buf, "self challenge") ||
                   (cue(buf, "challenge") && self_ref) ||
                   (cue(buf, "solve") && cue(buf, "challenge") && self_ref) ||
@@ -5136,12 +5184,12 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
      * the proposal can become a runnable held-out dialogue skeleton. The default
      * triple — knowledge, abduce, robust — is exactly the one
      * tests/compose/analytical_en.dlg proves cooperates. */
-    if (compose_challenge || want_skeleton || want_selftest) {
+    if (compose_challenge || want_skeleton || want_selftest || want_audit) {
         static const struct { const char *key, *gloss, *sig; } core[] = {
             {"knowledge", "knowledge (facts and rules)",        "Learned rule"},
             {"abduce",    "abduction (the missing premise)",    "missing"},
             {"robust",    "robustness (which facts are load-bearing)", "load-bearing"},
-            {"calibrate", "calibration (how sure I am)",        "know"},
+            {"calibrate", "calibration (how sure I am)",        "confident"},
             {"memory",    "personal memory",                    "name is"},
             {"coref",     "discourse reference",                "Yes"},
             {"cause",     "cause and effect",                   "flood"},
@@ -5153,6 +5201,41 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
             if (b->kb && kb_query(b->kb, "module", a, 1)) pick[picked++] = i;
         }
         char msg[900];
+        if (want_audit) {
+            /* gen169: run several DIFFERENT triples of my parts, each on a fresh
+             * copy of myself with held-out vocab, and report a real cooperation
+             * MAP — the compose-bench matrix turned inward. A triple "composes"
+             * iff every part is one I still believe I have (module(X) holds) AND
+             * each fired when actually run; so retracting a module changes the
+             * map, and the verdict is computed, never tabulated. */
+            static const size_t triples[][3] = {{0,1,2},{0,1,3},{0,2,3}};
+            size_t nt = sizeof triples / sizeof triples[0];
+            char rep[700]; size_t ro = 0, pass_count = 0;
+            for (size_t t = 0; t < nt; t++) {
+                const char *keys[3], *sigs[3];
+                int available = 1;
+                for (size_t j = 0; j < 3; j++) {
+                    keys[j] = core[triples[t][j]].key;
+                    sigs[j] = core[triples[t][j]].sig;
+                    const char *a[] = {keys[j]};
+                    if (!b->kb || !kb_query(b->kb, "module", a, 1)) available = 0;
+                }
+                const char *const *v = compose_vocab[t % COMPOSE_VOCAB_N];
+                size_t fired = available
+                    ? run_composition(keys, sigs, 3, v, NULL, 0) : 0;
+                int ok = available && fired == 3;
+                if (ok) pass_count++;
+                ro += (size_t)snprintf(rep + ro, sizeof rep - ro, "%s%s+%s+%s %s",
+                                       t ? "; " : "", keys[0], keys[1], keys[2],
+                                       ok ? "compose" : "seam");
+            }
+            snprintf(msg, sizeof msg,
+                "I audited my own composition on fresh copies of myself: %s. %zu of %zu triples hold. No file was touched; an external agent owns edits and commits.",
+                rep, pass_count, nt);
+            put(msg, out, out_size);
+            store_proof(b, "loop composition audit: run several triples of my parts on fresh sub-brains and report which compose; computed from real output, edits external.");
+            return 1;
+        }
         if (picked < 3) {
             put("I would treat it as a composition self-challenge, not self-management: pick three parts I already have and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.",
                 out, out_size);
@@ -5167,36 +5250,19 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
              * "fired" iff its signature appears. The verdict is computed. */
             const char *const *v = compose_vocab[b->selftest_runs % COMPOSE_VOCAB_N];
             b->selftest_runs++;
-            Brain *sub = brain_create();
-            size_t fired = 0;
+            const char *keys[3], *sigs[3];
             char names[256]; size_t no = 0;
-            char observed[512] = "";
-            if (sub) {
-                for (size_t k = 0; k < picked; k++) {
-                    char trn[256];
-                    build_turn(core[pick[k]].key, v, trn, sizeof trn);
-                    int part_fired = 0;
-                    char *p = trn;            /* split on " > ", run each sub-turn */
-                    while (p && *p) {
-                        char *gt = strstr(p, " > ");
-                        if (gt) *gt = '\0';
-                        while (*p == ' ' || *p == '>') p++;
-                        char r[512] = "";
-                        brain_respond(sub, p, r, sizeof r);
-                        if (strstr(r, core[pick[k]].sig)) {
-                            part_fired = 1;
-                            snprintf(observed, sizeof observed, "%s", r);
-                        }
-                        p = gt ? gt + 3 : NULL;
-                    }
-                    if (part_fired) fired++;
-                    no += (size_t)snprintf(names + no, sizeof names - no, "%s%s",
-                                           k ? (k == picked - 1 ? " and " : ", ") : "",
-                                           core[pick[k]].key);
-                }
-                brain_destroy(sub);
+            for (size_t k = 0; k < picked; k++) {
+                keys[k] = core[pick[k]].key;
+                sigs[k] = core[pick[k]].sig;
+                no += (size_t)snprintf(names + no, sizeof names - no, "%s%s",
+                                       k ? (k == picked - 1 ? " and " : ", ") : "",
+                                       core[pick[k]].key);
             }
-            if (sub && fired == picked)
+            char observed[512] = "";
+            size_t fired = run_composition(keys, sigs, picked, v,
+                                           observed, sizeof observed);
+            if (fired == picked)
                 snprintf(msg, sizeof msg,
                     "I ran it on a fresh copy of myself with held-out names (a %s %s named %s): %s — %zu of %zu parts fired and cooperated. Observed: %s Composition holds (PASS). No file was touched; an external agent still owns edits and commits.",
                     v[0], v[1], v[3], names, fired, picked, observed);
@@ -10425,7 +10491,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen168-selftest-fresh-vocab";
+    return "gen169-composition-audit";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
