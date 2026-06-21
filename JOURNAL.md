@@ -1,4 +1,35 @@
 # parrot0 evolution journal
+## 2026-06-21 - gen162: bare self-introduction feeds name memory (E1)
+
+**Goal (TASK.md):** the first miss in `social_gap_en` — a bare self-introduction
+"i'm <X>" should fill the SAME name memory that "my name is X" / "call me X" do,
+with GENERIC parsing that generalizes to unseen names, not a phrase list.
+
+**Insight:** "i'm X" is genuinely ambiguous — "i'm vera" is a name but "i'm
+tired" / "i am bored" are affective turns owned by `mod_chitchat`. The
+discriminator is structural, not a name list (which would never generalize): a
+name introduction is a SINGLE trailing token that is not an article, a stopword,
+a known KB class, or a common state/feeling. That accepts any unseen name while
+declining the closed class of states. mod_memory runs before chitchat, so a
+rejected candidate falls straight through to the affective handler.
+
+**Changed:** `brain.c` -> `gen162-self-introduction`. A self-introduction block in
+`mod_memory` peels an optional leading greeting, finds the "i'm"/"im"/"i am"
+marker, and accepts the single trailing token as a name only if it clears the
+non-name filter; on success it stores the name (cased from `raw`) exactly like
+the existing teach paths and replies "Nice to meet you, X!".
+
+**Observed.** "hi, i'm vera" / "i'm marcus" / "i am elena" / "im robin" all store
+and recall the name; the affective turns are untouched — "im tired" / "i am
+bored" still get the low-energy reply, "i am happy" the upbeat one, "i am not
+convinced" the disagreement move (it has two trailing tokens, so the name filter
+never even fires). `make test` 22/22; the EN ratchet grows next when the second
+half of `social_gap_en` (she->pet) lands.
+
+**Next (gen163):** an unbound "she/he/it" should bind to a named personal entity
+(the cat) when no KB-fact antecedent exists — composing possession memory with
+discourse reference — which flips `social_gap_en` to composes-unchanged.
+
 ## 2026-06-21 - gen161: close the Italian half of the composition gaps (E1)
 
 **Goal (TASK.md):** flip the recorded `it_recall_gap` dialogue from `make

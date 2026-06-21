@@ -23,6 +23,14 @@ exact gap phrases (not unseen paraphrases) is a special-case and does not count.
 
 ## Done recently
 
+- **gen162 - bare self-introduction feeds name memory.** A self-introduction
+  block in `mod_memory` accepts "i'm <X>" / "i am <X>" / "im <X>" (behind an
+  optional greeting) as a name only when the single trailing token clears a
+  non-name filter (not an article/stopword/known KB class/common state), so it
+  generalizes to unseen names while leaving affective turns ("i'm tired",
+  "i am bored") to `mod_chitchat`. First miss of `social_gap_en` now lands;
+  remaining: the she->pet coref half. `make test` 22/22.
+
 - **gen161 - close the Italian half of the E1 composition gaps.** Two additive
   surface extensions in `brain.c`, no new module: an Italian subject-verb branch
   in the why-proof ("perché X è un Y?" -> the same proof "why is X a Y?" renders)

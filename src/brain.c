@@ -461,6 +461,59 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* Bare self-introduction: "i'm <X>" / "i am <X>" / "im <X>", optionally
+     * behind a greeting ("hi, i'm vera"), feeds the SAME name memory that
+     * "my name is X" / "call me X" fill. The hazard is stealing affective turns
+     * ("i'm tired", "i am bored") from mod_chitchat, so we accept ONLY a single
+     * trailing token that is not an article, a stopword, a known KB class, or a
+     * common state/feeling — generalizing to unseen NAMES, not phrases. */
+    {
+        char nbuf[256];
+        size_t nl = strlen(norm);
+        if (nl < sizeof nbuf) {
+            memcpy(nbuf, norm, nl + 1);
+            char *nwds[24];
+            size_t nnw = split_words(nbuf, nwds, 24);
+            size_t cand = nnw;                       /* candidate name index */
+            for (size_t i = 0; i + 1 < nnw; i++) {
+                if (strcmp(nwds[i], "i'm") == 0 || strcmp(nwds[i], "im") == 0) {
+                    cand = i + 1; break;
+                }
+                if (strcmp(nwds[i], "i") == 0 && i + 2 < nnw &&
+                    strcmp(nwds[i + 1], "am") == 0) {
+                    cand = i + 2; break;
+                }
+            }
+            if (cand < nnw && cand == nnw - 1) {     /* single-word name only */
+                char *c = strip_edge_punct(nwds[cand]);
+                static const char *const nonname[] = {
+                    "tired","bored","happy","sad","fine","good","ok","okay",
+                    "here","ready","sorry","busy","lost","sure","hungry","cold",
+                    "hot","sleepy","angry","scared","confused","done","back",
+                    "late","free","alone","well","great","bad","new","young",
+                    "old","right","wrong","not","sick","glad","nervous",
+                    "excited","curious","afraid","awake","hurt","convinced",
+                    "kidding","joking","serious","worried","calm","listening",
+                    NULL,
+                };
+                int ok = c[0] && isalpha((unsigned char)c[0]) &&
+                         strlen(c) >= 2 && !is_article(c) &&
+                         !is_stopword(b, c) && !matches_any(c, nonname) &&
+                         !(b->kb && kb_knows_pred(b->kb, c));
+                if (ok) {
+                    char nm[64];
+                    copy_last_word(nm, sizeof nm, raw);
+                    copy_trim(b->name, sizeof b->name, nm);
+                    b->has_name = 1;
+                    char msg[128];
+                    snprintf(msg, sizeof msg, "Nice to meet you, %s!", b->name);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* Personal possession frame: "I have a <thing> named <name>",
      * "my <thing> is <name>", "my <thing> is called <name>", plus their
      * Italian canonicalizations. The parser searches for the content frame
@@ -10166,7 +10219,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen161-italian-proof-recall";
+    return "gen162-self-introduction";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
