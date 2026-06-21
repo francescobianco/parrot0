@@ -28,6 +28,11 @@ wiki_concept(derivative, mathematics, "fundamental tool that quantifies the sens
 % revision: 1354833929; processed: 2026-06-21T09:31:46Z
 wiki_concept(logarithm, mathematics, "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...").
 
+% physics / Newton's laws of motion
+% source: https://en.wikipedia.org/wiki/Newton's_laws_of_motion
+% revision: 1353646690; processed: 2026-06-21T11:24:05Z
+wiki_concept(newtons_laws_of_motion, physics, "three physical laws that describe the relationship between the motion of an object and the forces acting on it").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -73,3 +78,12 @@ learning_event_concept(learn_2026_06_21t09_31_46z_logarithm, logarithm).
 learning_event_revision(learn_2026_06_21t09_31_46z_logarithm, rev_1354833929).
 learning_event_markdown(learn_2026_06_21t09_31_46z_logarithm, "kb/learning/pages/logarithm.md").
 learning_event_log(learn_2026_06_21t09_31_46z_logarithm, "kb/learning/logs/learn_2026_06_21t09_31_46z_logarithm.json").
+
+% event learn_2026_06_21t11_24_05z_newtons_laws_of_motion
+learning_event(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, "learned newtons_laws_of_motion: three physical laws that describe the relationship between the motion of an object...").
+learning_event_time(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, "2026-06-21T11:24:05Z").
+learning_event_domain(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, physics).
+learning_event_concept(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, newtons_laws_of_motion).
+learning_event_revision(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, rev_1353646690).
+learning_event_markdown(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, "kb/learning/pages/newtons_laws_of_motion.md").
+learning_event_log(learn_2026_06_21t11_24_05z_newtons_laws_of_motion, "kb/learning/logs/learn_2026_06_21t11_24_05z_newtons_laws_of_motion.json").
