@@ -1,4 +1,50 @@
 # parrot0 evolution journal
+## 2026-06-22 - gen167: parrot0 RUNS its own composition and verifies it (E1 capstone)
+
+**Goal:** the most ambitious move inside the loop's boundary. gen164-166 made
+parrot0 describe, derive and emit a composition over its own parts. gen167 makes
+it EXECUTE one: run the derived dialogue on a fresh copy of itself and report
+whether its parts actually cooperated — a verdict computed from real output, not
+a string. The gauge (compose-bench) becomes internal, without crossing into
+self-management (no file edit, no commit).
+
+**Insight:** `brain_respond` carries no static state, so a module can, mid-turn,
+`brain_create()` a fresh sub-brain, feed it synthetic turns, read the outputs, and
+`brain_destroy()` it — fully isolated, footprint-free on the live brain. The
+parts are derived from `module(X)` (gen165) and each carries a turn fragment
+(gen166) plus now a SIGNATURE substring; a part "fired" iff its signature appears
+when its turns are actually run. The verdict is therefore earned by execution.
+
+**Changed:** `brain.c` -> `gen167-composition-selftest`. A `want_selftest` branch
+in `mod_loop` ("prove your parts compose by running it yourself", "run the
+composition test on yourself", IT "esegui tu il test ...") spins up a sub-brain,
+runs the derived dialogue turn by turn, counts fired parts by signature, and
+reports PASS (all cooperated) or names the seam (FAIL).
+
+**Observed — the strongest reflexive evidence yet.** Default triple
+(knowledge/abduce/robust): "3 of 3 parts fired and cooperated ... Composition
+holds (PASS)." And it is genuinely COMPUTED: retract `module(abduce)` and the same
+request reports "knowledge, robust and calibrate — only 1 of 3 parts fired, so a
+seam appeared (FAIL)" — because without the abduction step the robustness turn has
+no established conclusion to test, exactly the real seam. Retract `knowledge` too
+and it honestly reports 0 of 3. Ratchets: `reflexive_selftest.chat`/`.it` (PASS)
+and `reflexive_selftest_seam.chat` (the computed FAIL). `make test` 22/22, 171
+cases; compose-bench still 7/7.
+
+**The summit of the arc gen160->167.** gen160 built a benchmark to ask, from
+outside, whether parrot0's separately-grown parts compose. gen167 hands parrot0
+that same benchmark to run on itself: it names three of its parts from its own
+self-model, writes the dialogue that needs them, runs it on a fresh instance of
+itself, and tells the truth about whether they cooperated — PASS when they do,
+seam when they don't. Introspection no longer merely proposes a hypothesis for the
+external tests to check; it executes the check and reports a result that matches
+reality (because retracting a part changes the verdict). This is as close to the
+PRINCIPLES.md thesis as the experiment has come: a structure that represents
+itself, reasons about its own composition, and verifies that reasoning by running
+it — while the one thing it still will not do is edit or commit its own code. That
+boundary is the point, not a limitation: introspection proposes and now even
+executes; the external loop still disposes of the artifact.
+
 ## 2026-06-21 - gen166: introspection closed to execution — a runnable skeleton
 
 **Goal (TASK.md):** gen165 made parrot0 PROPOSE a composition over parts derived

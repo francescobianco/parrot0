@@ -2,26 +2,33 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - vary the skeleton's placeholder names so it is not a fixed transcript
+## Active task - vary the self-test's placeholder vocab + report which parts cooperated
 
-Goal: gen166 emits a runnable skeleton derived from the live module set, but the
-placeholder names (brave/knight/hero/aldric) are fixed strings. Generate fresh
-placeholders per emission (e.g. cycle a small pool, or seed from turn count) so
-two consecutive "show me the dialogue" requests propose DIFFERENT held-out
-vocabulary — proving the skeleton is generated, not a canned transcript — while
-each variant still composes when run through compose-bench.
+Goal: gen167 runs the derived composition on a fresh copy of parrot0 and reports
+PASS/seam, but (a) the dialogue's placeholder names are fixed and (b) the verdict
+is a count, not a trace. Two refinements: generate fresh held-out vocab per
+self-test run (proving it is not a memorized transcript), and have the PASS report
+name HOW the parts cooperated (e.g. "the rule + the missing premise produced the
+proof robustness then inspected"), read from the real sub-run outputs.
 
 Acceptance:
-- Two skeleton requests in one session yield different placeholder names, both
-  runnable (each composes if added to `tests/compose/`).
-- The turn STRUCTURE still tracks the derived parts (retracting a module changes
-  which turns appear).
-- EN + IT one path; stays anti-self-management.
+- Two self-test runs in one session use different vocab, both genuinely executed.
+- The PASS message cites the actual cooperation observed in the sub-run, not a
+  fixed sentence; a seam still names the part that failed to fire.
+- EN + IT one path; stays anti-self-management (no file edit, no commit).
 
-Anti-impostor: name variation must be real (different vocab), not a relabelled
-constant; structure must still come from the derived parts.
+Anti-impostor: vocab variation and the cooperation trace must come from the real
+sub-run, not relabelled constants.
 
 ## Done recently
+
+- **gen167 - parrot0 runs its own composition (E1 capstone).** A `want_selftest`
+  branch in `mod_loop` spins up a fresh sub-brain (`brain_create`), runs the
+  dialogue derived from `module(X)` through `brain_respond`, and reports PASS/seam
+  computed from real output. Default triple is 3/3 PASS; retracting `abduce`
+  yields a real 1/3 FAIL (seam), proving the verdict is executed not canned.
+  Footprint-free, no file edit/commit. `reflexive_selftest.chat`/`.it` +
+  `reflexive_selftest_seam.chat`. 171 cases, `make test` 22/22, compose-bench 7/7.
 
 - **gen166 - introspection closed to execution.** `mod_loop` now emits a runnable
   single-line `>`-turn dialogue skeleton over the parts derived from `module(X)`

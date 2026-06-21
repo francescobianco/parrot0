@@ -1,0 +1,8 @@
+# gen167 (E1 reflexive, capstone): parrot0 RUNS its own composition. Asked to
+# prove its parts compose by running it itself, it spins up a fresh copy of
+# itself (brain_create), feeds the dialogue derived from its module(X) self-model
+# through brain_respond, checks each part actually fired, and reports the verdict
+# computed from real output — not a canned string. Footprint-free on the live
+# brain; it still touches no files and commits nothing (anti-self-management).
+> prove your parts compose by running it yourself
+< I ran it on a fresh copy of myself: knowledge, abduce and robust — 3 of 3 parts fired and cooperated in one dialogue. Composition holds (PASS). No file was touched; an external agent still owns edits and commits.
