@@ -48,4 +48,10 @@ int code_defines(const char *src, const char *want);
  * "find where to work" step toward repo-scale localization. */
 int code_locate(const char *dir, const char *fnname, char *out_file, size_t out_sz);
 
+/* gen185: reverse call graph across a directory (sandboxed, recursive) — the
+ * functions whose body calls `target`. Writes up to `max` deduped caller names
+ * into `out` and returns the count. The "blast radius" before an edit. */
+size_t code_find_callers(const char *dir, const char *target,
+                         char out[][KB_TERM_LEN], size_t max);
+
 #endif /* PARROT0_CODE_H */

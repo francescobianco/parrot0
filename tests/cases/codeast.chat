@@ -52,3 +52,6 @@
 # gen184 (lexer): comments and strings are skipped, so a real commented file parses.
 > what functions does the file tests/code/fixtures/withcomment.c define
 < I read it as code: it defines twice.
+# gen185 (reverse call graph): which functions call a target across a directory.
+> what calls add in tests/code/fixtures
+< add is called by main.

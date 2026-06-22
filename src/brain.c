@@ -8270,6 +8270,42 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen185: reverse call graph — "what/who calls <X> in <dir>?". Scan the
+     * directory (sandboxed, recursive) for the functions whose body calls X — the
+     * blast radius before an edit. Distinct phrasing from "what does X call". */
+    if ((cue(qpart, "what calls") || cue(qpart, "who calls") ||
+         cue(qpart, "chi chiama")) &&
+        (cue(qpart, " in ") || cue(qpart, " under ") || cue(qpart, "/"))) {
+        char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
+        char *w[48]; size_t nw = split_words(qbuf, w, 48);
+        char target[KB_TERM_LEN] = ""; char dir[256] = "";
+        for (size_t i = 0; i + 1 < nw; i++) {
+            if (!strcmp(w[i], "calls") || !strcmp(w[i], "chiama"))
+                snprintf(target, sizeof target, "%s", strip_edge_punct(w[i+1]));
+            if (!strcmp(w[i], "in") || !strcmp(w[i], "under") || !strcmp(w[i], "inside") ||
+                !strcmp(w[i], "within") || !strcmp(w[i], "nella") || !strcmp(w[i], "nel"))
+                snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i+1]));
+        }
+        if (!dir[0]) for (size_t i = 0; i < nw; i++)
+            if (strchr(w[i], '/')) { snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i])); break; }
+        if (!target[0] || !dir[0]) return 0;
+        char callers[64][KB_TERM_LEN];
+        size_t nc = code_find_callers(dir, target, callers, 64);
+        if (nc == 0) {
+            snprintf(out, out_size, "I looked through %s but nothing calls %s.", dir, target);
+            store_proof(b, out);
+            return 1;
+        }
+        size_t off = (size_t)snprintf(out, out_size, "%s is called by ", target);
+        for (size_t i = 0; i < nc && off < out_size; i++) {
+            const char *sep = (i == 0) ? "" : (i == nc - 1) ? " and " : ", ";
+            off += (size_t)snprintf(out + off, out_size - off, "%s%s", sep, callers[i]);
+        }
+        if (off < out_size) snprintf(out + off, out_size - off, ".");
+        store_proof(b, out);
+        return 1;
+    }
+
     /* Three structural questions, all EN+IT, all requiring a code section so they
      * never fire on prose:
      *   - "what does <X>(args) return?"            -> code_eval       (B5)
@@ -10835,7 +10871,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen184-lexer-comments";
+    return "gen185-reverse-callgraph";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

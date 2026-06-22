@@ -779,6 +779,85 @@ int code_locate(const char *dir, const char *fnname,
     return locate_rec(dir, "", fnname, out_file, out_sz, 0);
 }
 
+/* gen185: record (deduped) the functions in `src` whose body calls `target` —
+ * the reverse of code_calls. Same brace-tracked pass as code_ingest, KB-less. */
+static void callers_in_src(const char *src, const char *target,
+                           char out[][KB_TERM_LEN], size_t max, size_t *pn) {
+    char cur_fn[KB_TERM_LEN] = "";
+    int brace = 0, fn_brace = -1;
+    const char *p = src;
+    while (*p) {
+        if (*p == '{') { brace++; p++; continue; }
+        if (*p == '}') {
+            brace--;
+            if (fn_brace >= 0 && brace < fn_brace) { cur_fn[0] = '\0'; fn_brace = -1; }
+            p++; continue;
+        }
+        if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+        const char *id = p;
+        while (isalnum((unsigned char)*p) || *p == '_') p++;
+        size_t idlen = (size_t)(p - id);
+        const char *q = p; while (*q && isspace((unsigned char)*q)) q++;
+        if (*q != '(') continue;
+        int d = 0; const char *r = q;
+        for (; *r; r++) {
+            if (*r == '(') d++;
+            else if (*r == ')') { d--; if (d == 0) { r++; break; } }
+        }
+        if (d != 0) break;
+        const char *after = r; while (*after && isspace((unsigned char)*after)) after++;
+        char name[KB_TERM_LEN];
+        if (idlen == 0 || idlen >= sizeof name) continue;
+        memcpy(name, id, idlen); name[idlen] = '\0';
+        if (is_c_keyword(name)) continue;
+        if (*after == '{') {
+            snprintf(cur_fn, sizeof cur_fn, "%s", name);
+            fn_brace = brace + 1; p = after;
+        } else if (cur_fn[0] && strcmp(name, target) == 0) {
+            int dup = 0;
+            for (size_t i = 0; i < *pn; i++) if (strcmp(out[i], cur_fn) == 0) dup = 1;
+            if (!dup && *pn < max) { snprintf(out[*pn], KB_TERM_LEN, "%s", cur_fn); (*pn)++; }
+        }
+    }
+}
+
+static void callers_rec(const char *dir, const char *target,
+                        char out[][KB_TERM_LEN], size_t max, size_t *pn, int depth) {
+    if (depth > 32 || *pn >= max) return;
+    DIR *d = opendir(dir);
+    if (!d) return;
+    struct dirent *de;
+    while ((de = readdir(d)) != NULL) {
+        const char *nm = de->d_name;
+        if (nm[0] == '.') continue;
+        char path[1024];
+        snprintf(path, sizeof path, "%s/%s", dir, nm);
+        struct stat st;
+        int isdir = (stat(path, &st) == 0) && S_ISDIR(st.st_mode);
+        if (isdir) callers_rec(path, target, out, max, pn, depth + 1);
+        else {
+            size_t l = strlen(nm);
+            if (l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h')) {
+                static char buf[262144];
+                if (code_read_file(path, buf, sizeof buf)) {
+                    code_strip(buf);
+                    callers_in_src(buf, target, out, max, pn);
+                }
+            }
+        }
+    }
+    closedir(d);
+}
+
+size_t code_find_callers(const char *dir, const char *target,
+                         char out[][KB_TERM_LEN], size_t max) {
+    if (!dir || !*dir || !target || !*target || !out || max == 0) return 0;
+    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return 0;
+    size_t n = 0;
+    callers_rec(dir, target, out, max, &n, 0);
+    return n;
+}
+
 int code_read_file(const char *path, char *buf, size_t bufsz) {
     if (!path || !*path || !buf || bufsz == 0) return 0;
     /* gen181 sandbox: relative paths under the working directory only — no

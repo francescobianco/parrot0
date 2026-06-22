@@ -1,0 +1,10 @@
+# gen185 — recorded growth edge (the NEXT pull, F5 verification): compile-check a
+# file. parrot0 can read and reason about code structurally, but cannot yet RUN a
+# deterministic tool (the compiler) to verify it — the grounding half of the
+# edit+verify loop, and the basis of SWE-bench scoring (run the tests). A compiler
+# is a deterministic tool, not outsourced intelligence (CODE-MASTERY.md §4), so
+# this is allowed; it needs sandboxed subprocess exec. Expected to MISS.
+#expect: gap
+#faculty: verify-compile
+> does the file tests/code/fixtures/sample.c compile
+< yes, it compiles
