@@ -8292,7 +8292,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     /* The code comes either inline (after a ':') or, gen181, from a real file on
      * disk named in the question (a token with a '/' or a .c/.h suffix). The file
      * read is sandboxed to the working directory (see code_read_file). */
-    char code[8192] = {0};
+    static char code[262144];
+    code[0] = '\0';
     if (!find_code_section(s, code, sizeof code)) {
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
@@ -10829,7 +10830,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen182-localize";
+    return "gen183-locate-recursive";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

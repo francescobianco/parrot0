@@ -1,9 +1,8 @@
-# gen182 — recorded growth edge (the NEXT pull, F4: recursive localization). A
-# repo is a TREE, but code_locate scans only the top directory. Asked which file
-# UNDER tests/code defines square (it lives in the fixtures/ subdir), parrot0 does
-# not yet descend. Expected to MISS — marks recursive directory walking, needed
-# for repo-scale localization.
-#expect: gap
+# gen183 — F4 recursive localization: a repo is a TREE. code_locate now descends
+# into subdirectories (skipping hidden ones, with a depth ceiling) and names the
+# file by its path relative to the search root. "find where to work" at repo
+# scale — the step SWE-bench needs.
+#expect: pass
 #faculty: localize-recursive
 > which file under tests/code defines square
-< square is defined in sample.c
+< square is defined in fixtures/sample.c

@@ -46,3 +46,6 @@
 # gen182 (localize): scan a directory to find which file defines a function.
 > which file in tests/code/fixtures defines square
 < I looked through tests/code/fixtures: square is defined in sample.c.
+# gen183 (recursive localize): descend into subdirectories, name the relative path.
+> which file under tests/code defines square
+< I looked through tests/code: square is defined in fixtures/sample.c.

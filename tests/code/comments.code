@@ -1,0 +1,9 @@
+# gen183 — recorded growth edge (the NEXT pull: skip comments & string literals).
+# The scanner treats every '(' as code, so an unbalanced paren inside a comment or
+# a string (here: the comment mentions "if (" and "for (") derails the parse and
+# the function is missed. Expected to MISS — marks lexer robustness, a prerequisite
+# for real source files (which are full of parens in comments/strings).
+#expect: gap
+#faculty: lexer-comments
+> what functions does the file tests/code/fixtures/withcomment.c define
+< it defines twice

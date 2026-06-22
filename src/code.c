@@ -8,6 +8,7 @@
 #include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 /* A C control-flow / type keyword can sit right before '(' (e.g. "if (", "for (",
  * "sizeof (") and look like a definition head; it is not a function name, so it
@@ -701,27 +702,51 @@ int code_defines(const char *src, const char *want) {
     return 0;
 }
 
-int code_locate(const char *dir, const char *fnname,
-                char *out_file, size_t out_sz) {
-    if (!dir || !*dir || !fnname || !*fnname || !out_file || out_sz == 0) return 0;
-    /* same sandbox as code_read_file: relative paths under the working dir only */
-    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return 0;
+/* gen183: walk `dir` (and its subdirectories) for a .c/.h file defining `fnname`.
+ * `rel` is the path so far relative to the search root, so the answer names the
+ * file's location in the tree (e.g. "fixtures/sample.c"). Hidden entries (".",
+ * "..", ".git", ...) are skipped; a depth ceiling bounds the walk. */
+static int locate_rec(const char *dir, const char *rel, const char *fnname,
+                      char *out_file, size_t out_sz, int depth) {
+    if (depth > 32) return 0;
     DIR *d = opendir(dir);
     if (!d) return 0;
     int found = 0;
     struct dirent *de;
     while (!found && (de = readdir(d)) != NULL) {
         const char *nm = de->d_name;
-        size_t l = strlen(nm);
-        if (l < 3 || nm[l-2] != '.' || (nm[l-1] != 'c' && nm[l-1] != 'h')) continue;
-        char path[512];
+        if (nm[0] == '.') continue;                       /* skip . .. and hidden */
+        char path[1024];
         snprintf(path, sizeof path, "%s/%s", dir, nm);
-        static char buf[16384];
-        if (!code_read_file(path, buf, sizeof buf)) continue;
-        if (code_defines(buf, fnname)) { snprintf(out_file, out_sz, "%s", nm); found = 1; }
+        char relchild[768];
+        if (rel && *rel) snprintf(relchild, sizeof relchild, "%s/%s", rel, nm);
+        else snprintf(relchild, sizeof relchild, "%s", nm);
+
+        struct stat st;
+        int isdir = (stat(path, &st) == 0) && S_ISDIR(st.st_mode);
+        if (isdir) {
+            if (locate_rec(path, relchild, fnname, out_file, out_sz, depth + 1)) found = 1;
+        } else {
+            size_t l = strlen(nm);
+            if (l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h')) {
+                static char buf[262144];          /* fits normal source files */
+                if (code_read_file(path, buf, sizeof buf) && code_defines(buf, fnname)) {
+                    snprintf(out_file, out_sz, "%s", relchild);
+                    found = 1;
+                }
+            }
+        }
     }
     closedir(d);
     return found;
+}
+
+int code_locate(const char *dir, const char *fnname,
+                char *out_file, size_t out_sz) {
+    if (!dir || !*dir || !fnname || !*fnname || !out_file || out_sz == 0) return 0;
+    /* same sandbox as code_read_file: relative paths under the working dir only */
+    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return 0;
+    return locate_rec(dir, "", fnname, out_file, out_sz, 0);
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {
