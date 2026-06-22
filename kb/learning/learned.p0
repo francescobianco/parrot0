@@ -113,6 +113,11 @@ wiki_concept(algorithm, computer_science, "finite sequence of mathematically rig
 % revision: 1360038372; processed: 2026-06-22T08:31:31Z
 wiki_concept(binary_search_algorithm, computer_science, "In computer science, binary search, also known as half-interval search, logarithmic search, or binary chop, is a...").
 
+% computer_science / Hash table
+% source: https://en.wikipedia.org/wiki/Hash_table
+% revision: 1352708183; processed: 2026-06-22T11:14:35Z
+wiki_concept(hash_table, computer_science, "data structure that implements an associative array, also called a dictionary or simply map; an associative array...").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -311,3 +316,12 @@ learning_event_concept(learn_2026_06_22t08_31_31z_binary_search_algorithm, binar
 learning_event_revision(learn_2026_06_22t08_31_31z_binary_search_algorithm, rev_1360038372).
 learning_event_markdown(learn_2026_06_22t08_31_31z_binary_search_algorithm, "kb/learning/pages/binary_search_algorithm.md").
 learning_event_log(learn_2026_06_22t08_31_31z_binary_search_algorithm, "kb/learning/logs/learn_2026_06_22t08_31_31z_binary_search_algorithm.json").
+
+% event learn_2026_06_22t11_14_35z_hash_table
+learning_event(learn_2026_06_22t11_14_35z_hash_table, "learned hash_table: data structure that implements an associative array, also called a dictionary or simply map; an...").
+learning_event_time(learn_2026_06_22t11_14_35z_hash_table, "2026-06-22T11:14:35Z").
+learning_event_domain(learn_2026_06_22t11_14_35z_hash_table, computer_science).
+learning_event_concept(learn_2026_06_22t11_14_35z_hash_table, hash_table).
+learning_event_revision(learn_2026_06_22t11_14_35z_hash_table, rev_1352708183).
+learning_event_markdown(learn_2026_06_22t11_14_35z_hash_table, "kb/learning/pages/hash_table.md").
+learning_event_log(learn_2026_06_22t11_14_35z_hash_table, "kb/learning/logs/learn_2026_06_22t11_14_35z_hash_table.json").
