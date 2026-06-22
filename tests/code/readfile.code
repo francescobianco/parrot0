@@ -1,0 +1,9 @@
+# gen180 — recorded growth edge (the NEXT pull, turning UP toward SWE-bench): read
+# code from a real FILE, not an inline snippet. The structural questions only see
+# code given after a ':' in the prompt; they cannot yet open a path on disk. This
+# is the F-filesystem "hands" that swe-bench needs (read repo files). Expected to
+# MISS — marks the pivot from inline snippets to real files.
+#expect: gap
+#faculty: filesystem-read
+> what functions does the file tests/code/fixtures/sample.c define
+< it defines add, square and main

@@ -36,3 +36,6 @@
 # gen179 (for-loop): three-clause for with i++ in the post clause.
 > what does sum(4) return: int sum(int n) { int s = 0; for (int i = 1; i <= n; i++) { s = s + i; } return s; }
 < I read it as code and worked it out: sum(4) returns 10.
+# gen180 (recursion): evaluate a call by re-entering the evaluator on the callee.
+> what does fact(5) return: int fact(int n) { if (n <= 1) { return 1; } return n * fact(n - 1); }
+< I read it as code and worked it out: fact(5) returns 120.

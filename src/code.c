@@ -138,10 +138,19 @@ typedef struct {
     char locals[16][KB_TERM_LEN];
     long locvals[16];
     size_t nl;
+    /* gen180: the whole source + recursion depth, so a call in an expression can
+     * re-enter the evaluator on the named function. */
+    const char *src;
+    int depth;
     int err;
     int ret;
     long retval;
 } EvalCtx;
+
+/* gen180: evaluate the function `want` in `src` on `argv`; forward-declared so a
+ * call inside an expression (ev_factor) can recurse. */
+static int eval_fn(const char *src, const char *want,
+                   const long *argv, size_t argc, long *out, int depth);
 
 /* gen177: local-variable environment helpers. */
 static long *ev_local_slot(EvalCtx *e, const char *name) {
@@ -196,12 +205,33 @@ static long ev_factor(EvalCtx *e) {
         const char *s = e->c;
         while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
         size_t l = (size_t)(e->c - s);
-        ev_ws(e);
-        /* An identifier immediately followed by '(' is a call — not supported. */
-        if (e->c < e->end && *e->c == '(') { e->err = 1; return 0; }
         char w[KB_TERM_LEN];
         if (l >= sizeof w) { e->err = 1; return 0; }
         memcpy(w, s, l); w[l] = '\0';
+        ev_ws(e);
+        /* gen180: an identifier followed by '(' is a call — evaluate the argument
+         * expressions in the current environment, then re-enter the evaluator on
+         * the named function (recursion is fine, under a depth ceiling). */
+        if (e->c < e->end && *e->c == '(') {
+            e->c++;
+            long args[8]; size_t na = 0;
+            ev_ws(e);
+            if (e->c < e->end && *e->c != ')') {
+                for (;;) {
+                    long a = ev_rel(e);
+                    if (e->err) return 0;
+                    if (na < 8) args[na++] = a; else { e->err = 1; return 0; }
+                    ev_ws(e);
+                    if (e->c < e->end && *e->c == ',') { e->c++; ev_ws(e); continue; }
+                    break;
+                }
+            }
+            if (e->c < e->end && *e->c == ')') e->c++; else { e->err = 1; return 0; }
+            if (e->depth >= 1000) { e->err = 1; return 0; }   /* recursion ceiling */
+            long res;
+            if (!eval_fn(e->src, w, args, na, &res, e->depth + 1)) { e->err = 1; return 0; }
+            return res;
+        }
         long *ls = ev_local_slot(e, w);          /* locals shadow params */
         if (ls) return *ls;
         for (size_t i = 0; i < e->np; i++)
@@ -560,8 +590,8 @@ static int last_ident(const char *seg, const char *end, char *out, size_t out_sz
     return strcmp(out, "void") != 0;
 }
 
-int code_eval(const char *src, const char *want,
-              const long *argv, size_t argc, long *out) {
+static int eval_fn(const char *src, const char *want,
+                   const long *argv, size_t argc, long *out, int depth) {
     if (!src || !out) return 0;
 
     /* Locate the target function definition: its parameter list and its body. */
@@ -577,12 +607,12 @@ int code_eval(const char *src, const char *want,
         while (*q == ' ' || *q == '\t') q++;
         if (*q != '(') continue;
 
-        int depth = 0; const char *r = q;
+        int pd = 0; const char *r = q;
         for (; *r; r++) {
-            if (*r == '(') depth++;
-            else if (*r == ')') { depth--; if (depth == 0) { r++; break; } }
+            if (*r == '(') pd++;
+            else if (*r == ')') { pd--; if (pd == 0) { r++; break; } }
         }
-        if (depth != 0) return 0;
+        if (pd != 0) return 0;
         const char *after = r;
         while (*after == ' ' || *after == '\t') after++;
         if (*after != '{') continue;
@@ -624,9 +654,15 @@ int code_eval(const char *src, const char *want,
     e.end = src + strlen(src);
     e.params = params; e.vals = argv;
     e.np = np; e.nv = argc; e.nl = 0;
+    e.src = src; e.depth = depth;
     e.err = 0; e.ret = 0; e.retval = 0;
     ev_run_seq(&e);
     if (e.err || !e.ret) return 0;        /* unsupported, or no return reached */
     *out = e.retval;
     return 1;
+}
+
+int code_eval(const char *src, const char *want,
+              const long *argv, size_t argc, long *out) {
+    return eval_fn(src, want, argv, argc, out, 0);
 }
