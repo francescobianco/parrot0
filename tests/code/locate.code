@@ -1,0 +1,9 @@
+# gen181 — recorded growth edge (the NEXT pull, F4 localization toward SWE-bench):
+# given a DIRECTORY, find which file defines a function. parrot0 can read one named
+# file but cannot yet scan a directory to localize code across a repo. Expected to
+# MISS — marks the repo-scale localization a coding agent needs to find where to
+# work. (Fixture: tests/code/fixtures/ has sample.c defining square.)
+#expect: gap
+#faculty: localize
+> which file in tests/code/fixtures defines square
+< square is defined in sample.c

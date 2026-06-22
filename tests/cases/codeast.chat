@@ -39,3 +39,7 @@
 # gen180 (recursion): evaluate a call by re-entering the evaluator on the callee.
 > what does fact(5) return: int fact(int n) { if (n <= 1) { return 1; } return n * fact(n - 1); }
 < I read it as code and worked it out: fact(5) returns 120.
+# gen181 (read file): answer structural questions about a real file on disk
+# (sandboxed to the working dir).
+> what functions does the file tests/code/fixtures/sample.c define
+< I read it as code: it defines add, square and main.

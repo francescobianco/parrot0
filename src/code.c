@@ -53,7 +53,7 @@ size_t code_ingest(KB *kb, const char *src,
 
         /* An identifier followed by '(' is a definition head or a call. */
         const char *q = p;
-        while (*q == ' ' || *q == '\t') q++;
+        while (*q && isspace((unsigned char)*q)) q++;
         if (*q != '(') continue;                 /* p already advanced; no loop */
 
         /* Balance the parens (lookahead only — p does not move past them, so a
@@ -67,7 +67,7 @@ size_t code_ingest(KB *kb, const char *src,
         if (depth != 0) break;                    /* unbalanced — stop scanning */
 
         const char *after = r;
-        while (*after == ' ' || *after == '\t') after++;
+        while (*after && isspace((unsigned char)*after)) after++;
 
         char name[KB_TERM_LEN];
         if (idlen == 0 || idlen >= sizeof name) continue;
@@ -175,7 +175,9 @@ static int ev_is_type_kw(const char *w) {
 }
 
 static void ev_ws(EvalCtx *e) {
-    while (e->c < e->end && (*e->c == ' ' || *e->c == '\t')) e->c++;
+    /* gen181: skip all whitespace (incl. newlines) so the evaluator works on code
+     * read from a real multi-line file, not just one-line snippets. */
+    while (e->c < e->end && isspace((unsigned char)*e->c)) e->c++;
 }
 
 static long ev_rel(EvalCtx *e);
@@ -604,7 +606,7 @@ static int eval_fn(const char *src, const char *want,
         size_t idlen = (size_t)(p - id);
 
         const char *q = p;
-        while (*q == ' ' || *q == '\t') q++;
+        while (*q && isspace((unsigned char)*q)) q++;
         if (*q != '(') continue;
 
         int pd = 0; const char *r = q;
@@ -614,7 +616,7 @@ static int eval_fn(const char *src, const char *want,
         }
         if (pd != 0) return 0;
         const char *after = r;
-        while (*after == ' ' || *after == '\t') after++;
+        while (*after && isspace((unsigned char)*after)) after++;
         if (*after != '{') continue;
 
         char name[KB_TERM_LEN];
@@ -665,4 +667,20 @@ static int eval_fn(const char *src, const char *want,
 int code_eval(const char *src, const char *want,
               const long *argv, size_t argc, long *out) {
     return eval_fn(src, want, argv, argc, out, 0);
+}
+
+int code_read_file(const char *path, char *buf, size_t bufsz) {
+    if (!path || !*path || !buf || bufsz == 0) return 0;
+    /* gen181 sandbox: relative paths under the working directory only — no
+     * absolute paths, no parent traversal. parrot0 reads the project it lives in,
+     * nothing outside it. */
+    if (path[0] == '/' || path[0] == '~' || strstr(path, "..")) return 0;
+    FILE *f = fopen(path, "r");
+    if (!f) return 0;
+    size_t n = fread(buf, 1, bufsz - 1, f);
+    int more = (fgetc(f) != EOF);     /* did it not fit? */
+    fclose(f);
+    buf[n] = '\0';
+    if (more) return 0;               /* too big to reason about reliably */
+    return n > 0;
 }

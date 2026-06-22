@@ -8258,8 +8258,26 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
          cue(s, "chiama") || cue(s, "invoca"));
     if (!wants_eval && !wants_funcs && !wants_calls) return 0;
 
-    char code[512] = {0};
-    if (!find_code_section(s, code, sizeof code)) return 0;
+    /* The code comes either inline (after a ':') or, gen181, from a real file on
+     * disk named in the question (a token with a '/' or a .c/.h suffix). The file
+     * read is sandboxed to the working directory (see code_read_file). */
+    char code[8192] = {0};
+    if (!find_code_section(s, code, sizeof code)) {
+        char path[256] = "";
+        for (const char *p = qpart; *p; ) {
+            while (*p == ' ' || *p == '\t') p++;
+            const char *t = p;
+            while (*p && *p != ' ' && *p != '\t') p++;
+            size_t l = (size_t)(p - t);
+            if (l > 0 && l < sizeof path) {
+                int looks_path = 0;
+                for (size_t i = 0; i < l; i++) if (t[i] == '/') looks_path = 1;
+                if (l >= 2 && t[l-2] == '.' && (t[l-1] == 'c' || t[l-1] == 'h')) looks_path = 1;
+                if (looks_path) { memcpy(path, t, l); path[l] = '\0'; break; }
+            }
+        }
+        if (!path[0] || !code_read_file(path, code, sizeof code)) return 0;
+    }
 
     /* B5: symbolic execution. Parse a concrete call NAME(int, int, ...) from the
      * question and COMPUTE its result from the function body — nothing is run. */
@@ -10780,7 +10798,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen180-recursion";
+    return "gen181-read-file";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

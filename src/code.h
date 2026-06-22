@@ -29,4 +29,10 @@ size_t code_ingest(KB *kb, const char *src,
 int code_eval(const char *src, const char *want,
               const long *argv, size_t argc, long *out);
 
+/* gen181: read a source file into `buf` so parrot0 can answer structural
+ * questions about a real file, not just an inline snippet. Sandboxed to the
+ * working directory: relative paths only, no '..' traversal, no absolute/home
+ * paths. Returns 1 on success (whole file fit and was non-empty), 0 otherwise. */
+int code_read_file(const char *path, char *buf, size_t bufsz);
+
 #endif /* PARROT0_CODE_H */

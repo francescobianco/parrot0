@@ -1,9 +1,12 @@
-# gen180 — recorded growth edge (the NEXT pull, turning UP toward SWE-bench): read
-# code from a real FILE, not an inline snippet. The structural questions only see
-# code given after a ':' in the prompt; they cannot yet open a path on disk. This
-# is the F-filesystem "hands" that swe-bench needs (read repo files). Expected to
-# MISS — marks the pivot from inline snippets to real files.
-#expect: gap
+# gen181 — F-filesystem: parrot0 reads code from a real FILE on disk (sandboxed to
+# the working dir) and answers the same structural questions it answers for an
+# inline snippet — defines, call graph, and symbolic execution all work on the
+# file's contents (multi-line, with newlines). The "hands" SWE-bench needs.
+#expect: pass
 #faculty: filesystem-read
 > what functions does the file tests/code/fixtures/sample.c define
 < it defines add, square and main
+> what does main call in the file tests/code/fixtures/sample.c
+< main calls add and square
+> what does square(6) return in tests/code/fixtures/sample.c
+< square(6) returns 36
