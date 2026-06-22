@@ -21,7 +21,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test chat-bench long-chat-bench chat-sim sym-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat test chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -54,6 +54,12 @@ long-chat-bench: build
 # dialogues and records the open gaps.
 compose-bench: build
 	@./tests/composebench.sh
+
+# gen173 (CODE-MASTERY.md): code-mastery discovery harness — submit code snippets
+# and observe how far the AST-as-KB engine reaches. Ratchets the holding gates
+# and records the open gaps (the next faculty to pull). See docs/CODE-MASTERY.md.
+code-bench: build
+	@./tests/codebench.sh
 
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness

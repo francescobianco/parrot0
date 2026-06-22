@@ -1,0 +1,8 @@
+# gen173 — recorded growth edge (the NEXT pull, F3 semantics): the call graph.
+# parrot0 reads which functions are DEFINED but not yet which functions a body
+# CALLS. This stimulus is expected to MISS — it marks the next faculty to grow,
+# it does not fail the bench.
+#expect: gap
+#faculty: callgraph
+> what does main call: int main(void) { greet(); cleanup(); return 0; }
+< it calls greet and cleanup

@@ -18,6 +18,7 @@
 #include "brain.h"
 #include "kb.h"
 #include "learn.h"
+#include "code.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -8219,6 +8220,53 @@ static void lang_name(int lang, char *out, size_t out_size) {
     else snprintf(out, out_size, "unknown");
 }
 
+/* --- module: codeast (gen173, code as KB) -------------------------------
+ * The first step of docs/CODE-MASTERY.md: a code snippet is just another corpus.
+ * parrot0 parses it DETERMINISTICALLY (code_ingest, in code.c), asserts its
+ * structure into the SAME live KB (code_function/1), and answers a structural
+ * question from that — honestly, never from the surface substring matching that
+ * mod_code does. No statistics: the C grammar is formal, so primitives-first
+ * wins. Registered BEFORE mod_code so a structural question reaches the real
+ * parser, not the pattern matcher. */
+static int mod_codeast(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !b->kb || !raw) return 0;
+    char s[512]; copy_trim(s, sizeof s, raw);
+    if (!*s) return 0;
+
+    /* Structural question "what/which functions does this define?" (EN+IT).
+     * Both the function cue AND the define cue are required, so it never fires on
+     * prose or on a bare snippet. */
+    int wants_funcs =
+        (cue(s, "function") || cue(s, "funzioni") || cue(s, "funzione")) &&
+        (cue(s, "define") || cue(s, "defined") || cue(s, "definisce") ||
+         cue(s, "definite") || cue(s, "definisci"));
+    if (!wants_funcs) return 0;
+
+    char code[512] = {0};
+    if (!find_code_section(s, code, sizeof code)) return 0;
+
+    char names[32][KB_TERM_LEN];
+    size_t k = code_ingest(b->kb, code, names, 32);
+    if (k == 0) {
+        put("I read that as code, but I do not see any function definitions in it.",
+            out, out_size);
+        return 1;
+    }
+
+    size_t off = (size_t)snprintf(out, out_size,
+                                  "I read it as code: it defines ");
+    size_t shown = k < 32 ? k : 32;
+    for (size_t i = 0; i < shown && off < out_size; i++) {
+        const char *sep = (i == 0) ? "" : (i == shown - 1) ? " and " : ", ";
+        off += (size_t)snprintf(out + off, out_size - off, "%s%s", sep, names[i]);
+    }
+    if (off < out_size) snprintf(out + off, out_size - off, ".");
+    store_proof(b, out);
+    return 1;
+}
+
 static int mod_code(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     (void)norm;
@@ -10430,6 +10478,7 @@ static const Module registry[] = {
     {"reader",    mod_reader},
     {"shell",     mod_shell},
     {"knowledge", mod_knowledge},
+    {"codeast",   mod_codeast},
     {"code",      mod_code},
     {"symbolic",  mod_symbolic},
     {"summary",   mod_summary},
@@ -10633,7 +10682,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen172-learning-sticks";
+    return "gen173-code-as-kb";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

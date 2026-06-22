@@ -1,0 +1,13 @@
+# gen173 — F2 (structure): parrot0 reads a C snippet as KB and names the
+# functions it DEFINES, from the parsed AST, not surface pattern matching.
+# A call (printf) and control-flow heads (for/if) must NOT be counted.
+#expect: pass
+#faculty: structure
+> what functions does this define: int add(int a, int b) { return a + b; } int square(int x) { return x * x; }
+< it defines add and square
+> which functions are defined: int main(void) { printf("hi"); return 0; }
+< it defines main
+> what functions does this define: void f(int n) { for (int i = 0; i < n; i++) { if (i) { g(i); } } }
+< it defines f
+> what functions does this define: int x = 5;
+< i do not see any function definitions

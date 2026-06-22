@@ -1,0 +1,10 @@
+# gen173 (code as KB): parrot0 parses a C snippet deterministically, asserts its
+# structure into the same KB, and names the functions it DEFINES from the AST —
+# a call (printf) and control-flow heads (for/if) are not functions. Honest when
+# there are none.
+> what functions does this define: int add(int a, int b) { return a + b; } int square(int x) { return x * x; }
+< I read it as code: it defines add and square.
+> which functions are defined: int main(void) { printf("hi"); return 0; }
+< I read it as code: it defines main.
+> what functions does this define: int x = 5;
+< I read that as code, but I do not see any function definitions in it.
