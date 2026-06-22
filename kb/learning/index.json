@@ -424,6 +424,23 @@
       "summary": "learned black_hole: astronomical body so compact that its gravity prevents anything, including light, from escaping",
       "title": "Black hole",
       "url": "https://en.wikipedia.org/wiki/Black_hole"
+    },
+    {
+      "concept": "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity",
+      "domain": "astronomy",
+      "event_id": "learn_2026_06_22t16_59_57z_galaxy",
+      "key": "galaxy",
+      "log_path": "kb/learning/logs/learn_2026_06_22t16_59_57z_galaxy.json",
+      "markdown_path": "kb/learning/pages/galaxy.md",
+      "processed_at": "2026-06-22T16:59:57Z",
+      "prompt": "what do you know about learn_2026_06_22t16_59_57z_galaxy",
+      "revision": 1359221837,
+      "source_index": 25,
+      "source_line": 47,
+      "source_title": "Galaxy",
+      "summary": "learned galaxy: system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity",
+      "title": "Galaxy",
+      "url": "https://en.wikipedia.org/wiki/Galaxy"
     }
   ],
   "pages": {
@@ -621,6 +638,21 @@
       "source_title": "Fibonacci number",
       "title": "Fibonacci sequence",
       "url": "https://en.wikipedia.org/wiki/Fibonacci_sequence"
+    },
+    "galaxy": {
+      "concept": "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity",
+      "description": "System of stars and interstellar matter",
+      "domain": "astronomy",
+      "extract_sha256": "33e9c8b42c099e15a249d6902b333326cc8203fdd15ab6e965aae9925527f1f4",
+      "key": "galaxy",
+      "last_event_id": "learn_2026_06_22t16_59_57z_galaxy",
+      "markdown_path": "kb/learning/pages/galaxy.md",
+      "pageid": 12558,
+      "processed_at": "2026-06-22T16:59:57Z",
+      "revision": 1359221837,
+      "source_title": "Galaxy",
+      "title": "Galaxy",
+      "url": "https://en.wikipedia.org/wiki/Galaxy"
     },
     "hash_table": {
       "concept": "data structure that implements an associative array, also called a dictionary or simply map; an associative array...",

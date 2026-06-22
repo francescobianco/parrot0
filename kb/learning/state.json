@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "astronomy",
-    "event_id": "learn_2026_06_22t15_09_49z_black_hole",
-    "key": "black_hole",
-    "log_path": "kb/learning/logs/learn_2026_06_22t15_09_49z_black_hole.json",
-    "markdown_path": "kb/learning/pages/black_hole.md",
-    "processed_at": "2026-06-22T15:09:49Z",
-    "prompt": "what do you know about learn_2026_06_22t15_09_49z_black_hole",
-    "revision": 1360460563,
-    "title": "Black hole"
+    "event_id": "learn_2026_06_22t16_59_57z_galaxy",
+    "key": "galaxy",
+    "log_path": "kb/learning/logs/learn_2026_06_22t16_59_57z_galaxy.json",
+    "markdown_path": "kb/learning/pages/galaxy.md",
+    "processed_at": "2026-06-22T16:59:57Z",
+    "prompt": "what do you know about learn_2026_06_22t16_59_57z_galaxy",
+    "revision": 1359221837,
+    "title": "Galaxy"
   },
-  "next_index": 25
+  "next_index": 0
 }

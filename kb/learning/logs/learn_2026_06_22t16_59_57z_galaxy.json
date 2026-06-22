@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_22t16_59_57z_galaxy",
+  "extraction": {
+    "concept": "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity",
+    "concept_key": "galaxy",
+    "extract_sha256": "33e9c8b42c099e15a249d6902b333326cc8203fdd15ab6e965aae9925527f1f4",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_22t16_59_57z_galaxy.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/galaxy.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 0,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-22T16:59:57Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_22t16_59_57z_galaxy"
+  },
+  "source": {
+    "domain": "astronomy",
+    "index": 25,
+    "line": 47,
+    "title": "Galaxy"
+  },
+  "wikipedia": {
+    "canonical_title": "Galaxy",
+    "lang": "en",
+    "pageid": 12558,
+    "revision": 1359221837,
+    "url": "https://en.wikipedia.org/wiki/Galaxy"
+  }
+}
