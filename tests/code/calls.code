@@ -1,8 +1,11 @@
-# gen173 — recorded growth edge (the NEXT pull, F3 semantics): the call graph.
-# parrot0 reads which functions are DEFINED but not yet which functions a body
-# CALLS. This stimulus is expected to MISS — it marks the next faculty to grow,
-# it does not fail the bench.
-#expect: gap
+# gen174 — F3 (semantics, call graph): parrot0 attributes each call in a body to
+# its enclosing function (code_calls/2), derived from structure. Nested calls in
+# an argument list are caught; a function with no calls is reported honestly.
+#expect: pass
 #faculty: callgraph
 > what does main call: int main(void) { greet(); cleanup(); return 0; }
-< it calls greet and cleanup
+< main calls greet and cleanup
+> what does h call: int h(int x) { return f(g(x)); }
+< h calls f and g
+> what does add call: int add(int a, int b) { return a + b; }
+< add does not call any function

@@ -171,7 +171,37 @@ the parts.
 
 ---
 
-## 8. One-line summary
+## 8. North-star benchmark — `make swe-bench`
+
+The chapter's external measure is **SWE-bench** (https://www.swebench.com): real
+GitHub issues where an agent must produce a patch that makes the repository's own
+test suite pass. It is the honest scoreboard for "handles code like an LLM coding
+agent" — and it scores exactly the thing the impostor cannot fake (the patch
+either passes the hidden tests or it does not, §6).
+
+**It is a north star, not a near step.** A real SWE-bench run needs faculties
+parrot0 does not have yet: read arbitrary files (F-filesystem), localize across a
+repo (F4 intent↔code), produce a multi-file patch, and run the test suite in a
+sandbox (F5 grounding, real exec + Docker). Building `make swe-bench` before those
+exist would only measure zero. So it arrives **after** the F2→F5 ladder, pulled in
+when `code-bench` stimuli start requiring repo-scale localization and patching.
+
+**Two things we build into it from the start:**
+- **Prompt interception / trace.** Every instance's problem statement that we feed
+  parrot0, and its response, is captured (a `PARROT0_TRACE`-style log, cf.
+  `superglue-discovery-harness`). The harness reports *where* parrot0 behaves
+  badly — which instances, which faculty failed, the exact input — so each failing
+  cluster becomes the next `code-bench` stimulus and the next pull. The benchmark
+  is thus both a scoreboard *and* a discovery instrument.
+- **A degrade path.** Before full patch+test scoring is possible, `swe-bench` runs
+  in a *behavioural* mode (like `code-bench`): present the issue, capture the
+  response, score sub-goals we *can* check (did it name the right file/function?),
+  and record the rest as gaps. Ranking/quality numbers become meaningful only once
+  the F5 loop closes; until then the value is the intercepted-failure map.
+
+---
+
+## 9. One-line summary
 
 Recover the LLM's coherence by **unifying code into the KB substrate** (AST-as-KB),
 reason with the engine that already exists, **ground meaning in real

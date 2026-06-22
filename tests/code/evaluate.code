@@ -1,0 +1,8 @@
+# gen174 — recorded growth edge (the NEXT pull, B5 symbolic execution): evaluate
+# a pure function on literal arguments by reasoning over its body, not by running
+# it. parrot0 reads the structure but does not yet compute the return value.
+# Expected to MISS — it marks the next faculty, it does not fail the bench.
+#expect: gap
+#faculty: symeval
+> what does add(2, 3) return: int add(int a, int b) { return a + b; }
+< it returns 5

@@ -8235,32 +8235,72 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     char s[512]; copy_trim(s, sizeof s, raw);
     if (!*s) return 0;
 
-    /* Structural question "what/which functions does this define?" (EN+IT).
-     * Both the function cue AND the define cue are required, so it never fires on
-     * prose or on a bare snippet. */
+    /* Two structural questions, both EN+IT, both requiring a code section so they
+     * never fire on prose:
+     *   - "what/which functions does this define?"  -> code_function/1 (F2)
+     *   - "what does <X> call?"                     -> code_calls/2     (F3) */
     int wants_funcs =
         (cue(s, "function") || cue(s, "funzioni") || cue(s, "funzione")) &&
         (cue(s, "define") || cue(s, "defined") || cue(s, "definisce") ||
          cue(s, "definite") || cue(s, "definisci"));
-    if (!wants_funcs) return 0;
+    int wants_calls = !wants_funcs &&
+        (cue(s, "call") || cue(s, "calls") || cue(s, "invoke") ||
+         cue(s, "chiama") || cue(s, "invoca"));
+    if (!wants_funcs && !wants_calls) return 0;
 
     char code[512] = {0};
     if (!find_code_section(s, code, sizeof code)) return 0;
 
     char names[32][KB_TERM_LEN];
     size_t k = code_ingest(b->kb, code, names, 32);
-    if (k == 0) {
-        put("I read that as code, but I do not see any function definitions in it.",
+    size_t shown = k < 32 ? k : 32;
+
+    if (wants_funcs) {
+        if (k == 0) {
+            put("I read that as code, but I do not see any function definitions in it.",
+                out, out_size);
+            return 1;
+        }
+        size_t off = (size_t)snprintf(out, out_size,
+                                      "I read it as code: it defines ");
+        for (size_t i = 0; i < shown && off < out_size; i++) {
+            const char *sep = (i == 0) ? "" : (i == shown - 1) ? " and " : ", ";
+            off += (size_t)snprintf(out + off, out_size - off, "%s%s", sep, names[i]);
+        }
+        if (off < out_size) snprintf(out + off, out_size - off, ".");
+        store_proof(b, out);
+        return 1;
+    }
+
+    /* wants_calls: the question names a defined function (or there is only one).
+     * Look at the question text (before the code) to pick which one. */
+    char qpart[256]; snprintf(qpart, sizeof qpart, "%s", s);
+    char *colon = strchr(qpart, ':'); if (colon) *colon = '\0';
+    const char *xfn = NULL;
+    for (size_t i = 0; i < shown; i++)
+        if (strstr(qpart, names[i])) { xfn = names[i]; break; }
+    if (!xfn && k == 1) xfn = names[0];
+    if (!xfn) {
+        put("I read that as code, but I am not sure which function you mean.",
             out, out_size);
         return 1;
     }
 
-    size_t off = (size_t)snprintf(out, out_size,
-                                  "I read it as code: it defines ");
-    size_t shown = k < 32 ? k : 32;
-    for (size_t i = 0; i < shown && off < out_size; i++) {
-        const char *sep = (i == 0) ? "" : (i == shown - 1) ? " and " : ", ";
-        off += (size_t)snprintf(out + off, out_size - off, "%s%s", sep, names[i]);
+    /* Answer from the derived call graph (code_calls/2), not from a re-scan. */
+    char callees[32][KB_TERM_LEN];
+    const char *pat[] = { xfn, NULL };
+    size_t c = kb_match(b->kb, "code_calls", pat, 2, callees, 32);
+    if (c == 0) {
+        snprintf(out, out_size,
+                 "I read it as code: %s does not call any function.", xfn);
+        store_proof(b, out);
+        return 1;
+    }
+    size_t off = (size_t)snprintf(out, out_size, "I read it as code: %s calls ", xfn);
+    size_t cshown = c < 32 ? c : 32;
+    for (size_t i = 0; i < cshown && off < out_size; i++) {
+        const char *sep = (i == 0) ? "" : (i == cshown - 1) ? " and " : ", ";
+        off += (size_t)snprintf(out + off, out_size - off, "%s%s", sep, callees[i]);
     }
     if (off < out_size) snprintf(out + off, out_size - off, ".");
     store_proof(b, out);
@@ -10682,7 +10722,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen173-code-as-kb";
+    return "gen174-call-graph";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

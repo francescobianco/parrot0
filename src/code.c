@@ -29,20 +29,35 @@ size_t code_ingest(KB *kb, const char *src,
     if (!kb || !src) return 0;
     size_t found = 0;
 
+    /* gen174: one structural pass that tracks the enclosing function by brace
+     * depth, so an identifier-call inside a body is attributed to its caller
+     * (code_calls/2) — the F3 call-graph faculty, derived from structure. */
+    char cur_fn[KB_TERM_LEN] = "";
+    int brace = 0;
+    int fn_brace = -1;                  /* body depth of cur_fn; -1 = outside */
+
     const char *p = src;
     while (*p) {
+        if (*p == '{') { brace++; p++; continue; }
+        if (*p == '}') {
+            brace--;
+            if (fn_brace >= 0 && brace < fn_brace) { cur_fn[0] = '\0'; fn_brace = -1; }
+            p++; continue;
+        }
+
         /* Find the start of an identifier. */
         if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
         const char *id = p;
         while (isalnum((unsigned char)*p) || *p == '_') p++;
         size_t idlen = (size_t)(p - id);
 
-        /* A definition head is an identifier immediately followed by '(' ... */
+        /* An identifier followed by '(' is a definition head or a call. */
         const char *q = p;
         while (*q == ' ' || *q == '\t') q++;
         if (*q != '(') continue;                 /* p already advanced; no loop */
 
-        /* ... a balanced parameter list ... */
+        /* Balance the parens (lookahead only — p does not move past them, so a
+         * nested call in the argument list is still seen next iterations). */
         int depth = 0;
         const char *r = q;
         for (; *r; r++) {
@@ -51,31 +66,49 @@ size_t code_ingest(KB *kb, const char *src,
         }
         if (depth != 0) break;                    /* unbalanced — stop scanning */
 
-        /* ... and a '{' body right after ')'. A call is followed by ';'/operator,
-         * a prototype by ';' — only a definition opens a block here. */
-        while (*r == ' ' || *r == '\t') r++;
-        if (*r != '{') continue;
+        const char *after = r;
+        while (*after == ' ' || *after == '\t') after++;
 
-        /* It is a function definition (unless the head is a keyword like "if"). */
         char name[KB_TERM_LEN];
-        if (idlen == 0 || idlen >= sizeof name) { p = r; continue; }
+        if (idlen == 0 || idlen >= sizeof name) continue;
         memcpy(name, id, idlen);
         name[idlen] = '\0';
-        if (is_c_keyword(name)) { p = r; continue; }
+        if (is_c_keyword(name)) continue;         /* if/for/while/sizeof... */
 
-        /* Assert into RAM immediately — code joins the same KB as the world.
-         * KB_BASE provenance so the session writer does not re-save derived
-         * structure (it is re-derivable from the source). */
-        kb_set_origin(kb, KB_BASE);
-        const char *args[] = { name };
-        kb_assert(kb, "code_function", args, 1);
-        kb_set_origin(kb, KB_SESSION);
+        if (*after == '{') {
+            /* Function definition. Assert into RAM immediately — code joins the
+             * same KB as the world. KB_BASE provenance so the session writer
+             * does not re-save derived structure (re-derivable from source). */
+            kb_set_origin(kb, KB_BASE);
+            const char *args[] = { name };
+            kb_assert(kb, "code_function", args, 1);
+            kb_set_origin(kb, KB_SESSION);
 
-        if (names && found < max)
-            snprintf(names[found], KB_TERM_LEN, "%s", name);
-        found++;
-
-        p = r;                                     /* continue past '{' into body */
+            /* Redefinition replaces: clear this function's prior call edges so a
+             * re-ingest of the same name in one session does not merge stale
+             * callees from an earlier, different body. */
+            char old[32][KB_TERM_LEN];
+            const char *qp[] = { name, NULL };
+            size_t no = kb_match(kb, "code_calls", qp, 2, old, 32);
+            for (size_t i = 0; i < no; i++) {
+                const char *ra[] = { name, old[i] };
+                kb_retract(kb, "code_calls", ra, 2);
+            }
+            if (names && found < max)
+                snprintf(names[found], KB_TERM_LEN, "%s", name);
+            found++;
+            /* Enter the body: let the '{' be counted on the next iteration. */
+            snprintf(cur_fn, sizeof cur_fn, "%s", name);
+            fn_brace = brace + 1;
+            p = after;
+        } else if (cur_fn[0]) {
+            /* A call inside a function body — attribute it to the caller. */
+            kb_set_origin(kb, KB_BASE);
+            const char *args[] = { cur_fn, name };
+            kb_assert(kb, "code_calls", args, 2);
+            kb_set_origin(kb, KB_SESSION);
+            /* p stays just past the ident, so nested calls are still seen. */
+        }
     }
     return found;
 }

@@ -8,3 +8,9 @@
 < I read it as code: it defines main.
 > what functions does this define: int x = 5;
 < I read that as code, but I do not see any function definitions in it.
+# gen174 (call graph): each call attributed to its enclosing function, from the
+# derived code_calls/2 — nested calls caught, no-call functions honest.
+> what does main call: int main(void) { greet(); cleanup(); return 0; }
+< I read it as code: main calls greet and cleanup.
+> what does add call: int add(int a, int b) { return a + b; }
+< I read it as code: add does not call any function.
