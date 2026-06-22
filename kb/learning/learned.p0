@@ -123,6 +123,11 @@ wiki_concept(hash_table, computer_science, "data structure that implements an as
 % revision: 1360035381; processed: 2026-06-22T13:14:25Z
 wiki_concept(turing_machine, computer_science, "mathematical model of computation describing an abstract machine that manipulates symbols on a strip of tape...").
 
+% astronomy / Black hole
+% source: https://en.wikipedia.org/wiki/Black_hole
+% revision: 1360460563; processed: 2026-06-22T15:09:49Z
+wiki_concept(black_hole, astronomy, "astronomical body so compact that its gravity prevents anything, including light, from escaping").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -339,3 +344,12 @@ learning_event_concept(learn_2026_06_22t13_14_25z_turing_machine, turing_machine
 learning_event_revision(learn_2026_06_22t13_14_25z_turing_machine, rev_1360035381).
 learning_event_markdown(learn_2026_06_22t13_14_25z_turing_machine, "kb/learning/pages/turing_machine.md").
 learning_event_log(learn_2026_06_22t13_14_25z_turing_machine, "kb/learning/logs/learn_2026_06_22t13_14_25z_turing_machine.json").
+
+% event learn_2026_06_22t15_09_49z_black_hole
+learning_event(learn_2026_06_22t15_09_49z_black_hole, "learned black_hole: astronomical body so compact that its gravity prevents anything, including light, from escaping").
+learning_event_time(learn_2026_06_22t15_09_49z_black_hole, "2026-06-22T15:09:49Z").
+learning_event_domain(learn_2026_06_22t15_09_49z_black_hole, astronomy).
+learning_event_concept(learn_2026_06_22t15_09_49z_black_hole, black_hole).
+learning_event_revision(learn_2026_06_22t15_09_49z_black_hole, rev_1360460563).
+learning_event_markdown(learn_2026_06_22t15_09_49z_black_hole, "kb/learning/pages/black_hole.md").
+learning_event_log(learn_2026_06_22t15_09_49z_black_hole, "kb/learning/logs/learn_2026_06_22t15_09_49z_black_hole.json").
