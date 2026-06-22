@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "medicine",
-    "event_id": "learn_2026_06_21t23_48_22z_immune_system",
-    "key": "immune_system",
-    "log_path": "kb/learning/logs/learn_2026_06_21t23_48_22z_immune_system.json",
-    "markdown_path": "kb/learning/pages/immune_system.md",
-    "processed_at": "2026-06-21T23:48:22Z",
-    "prompt": "what do you know about learn_2026_06_21t23_48_22z_immune_system",
-    "revision": 1350208094,
-    "title": "Immune system"
+    "event_id": "learn_2026_06_22t01_32_03z_antibiotic",
+    "key": "antibiotic",
+    "log_path": "kb/learning/logs/learn_2026_06_22t01_32_03z_antibiotic.json",
+    "markdown_path": "kb/learning/pages/antibiotic.md",
+    "processed_at": "2026-06-22T01:32:03Z",
+    "prompt": "what do you know about learn_2026_06_22t01_32_03z_antibiotic",
+    "revision": 1356570133,
+    "title": "Antibiotic"
   },
-  "next_index": 18
+  "next_index": 19
 }
