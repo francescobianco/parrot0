@@ -8239,6 +8239,37 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     char qpart[256]; snprintf(qpart, sizeof qpart, "%s", s);
     char *colon = strchr(qpart, ':'); if (colon) *colon = '\0';
 
+    /* gen182: F4 localization — "which file in <dir> defines <X>?". Scan a
+     * directory (sandboxed) for the file that defines the named function. Handled
+     * before the snippet questions because it takes a directory, not code. */
+    if ((cue(qpart, "which file") || cue(qpart, "what file") || cue(qpart, "quale file")) &&
+        (cue(qpart, "define") || cue(qpart, "defines") || cue(qpart, "definisce") ||
+         cue(qpart, "contains") || cue(qpart, "contiene"))) {
+        char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
+        char *w[48]; size_t nw = split_words(qbuf, w, 48);
+        char fnname[KB_TERM_LEN] = ""; char dir[256] = "";
+        for (size_t i = 0; i + 1 < nw; i++) {
+            if (!strcmp(w[i], "defines") || !strcmp(w[i], "define") ||
+                !strcmp(w[i], "definisce") || !strcmp(w[i], "contains") ||
+                !strcmp(w[i], "contiene"))
+                snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
+            if (!strcmp(w[i], "in") || !strcmp(w[i], "under") || !strcmp(w[i], "inside") ||
+                !strcmp(w[i], "within") || !strcmp(w[i], "nella") || !strcmp(w[i], "nel") ||
+                !strcmp(w[i], "dentro"))
+                snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i+1]));
+        }
+        if (!dir[0]) for (size_t i = 0; i < nw; i++)   /* fallback: a path-like token */
+            if (strchr(w[i], '/')) { snprintf(dir, sizeof dir, "%s", strip_edge_punct(w[i])); break; }
+        if (!fnname[0] || !dir[0]) return 0;
+        char file[256];
+        if (code_locate(dir, fnname, file, sizeof file))
+            snprintf(out, out_size, "I looked through %s: %s is defined in %s.", dir, fnname, file);
+        else
+            snprintf(out, out_size, "I looked through %s but found no file that defines %s.", dir, fnname);
+        store_proof(b, out);
+        return 1;
+    }
+
     /* Three structural questions, all EN+IT, all requiring a code section so they
      * never fire on prose:
      *   - "what does <X>(args) return?"            -> code_eval       (B5)
@@ -10798,7 +10829,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen181-read-file";
+    return "gen182-localize";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

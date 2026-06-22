@@ -1,0 +1,9 @@
+# gen182 — recorded growth edge (the NEXT pull, F4: recursive localization). A
+# repo is a TREE, but code_locate scans only the top directory. Asked which file
+# UNDER tests/code defines square (it lives in the fixtures/ subdir), parrot0 does
+# not yet descend. Expected to MISS — marks recursive directory walking, needed
+# for repo-scale localization.
+#expect: gap
+#faculty: localize-recursive
+> which file under tests/code defines square
+< square is defined in sample.c

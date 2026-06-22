@@ -5,6 +5,7 @@
 #include "code.h"
 
 #include <ctype.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -667,6 +668,60 @@ static int eval_fn(const char *src, const char *want,
 int code_eval(const char *src, const char *want,
               const long *argv, size_t argc, long *out) {
     return eval_fn(src, want, argv, argc, out, 0);
+}
+
+/* gen182: true if `src` defines a function literally named `want`. A focused
+ * copy of code_ingest's definition-head detection, without a KB (used by
+ * code_locate to test a candidate file). */
+int code_defines(const char *src, const char *want) {
+    if (!src || !want || !*want) return 0;
+    const char *p = src;
+    while (*p) {
+        if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+        const char *id = p;
+        while (isalnum((unsigned char)*p) || *p == '_') p++;
+        size_t idlen = (size_t)(p - id);
+        const char *q = p; while (*q && isspace((unsigned char)*q)) q++;
+        if (*q != '(') continue;
+        int d = 0; const char *r = q;
+        for (; *r; r++) {
+            if (*r == '(') d++;
+            else if (*r == ')') { d--; if (d == 0) { r++; break; } }
+        }
+        if (d != 0) break;
+        const char *after = r; while (*after && isspace((unsigned char)*after)) after++;
+        if (*after != '{') continue;
+        char name[KB_TERM_LEN];
+        if (idlen == 0 || idlen >= sizeof name) { p = after; continue; }
+        memcpy(name, id, idlen); name[idlen] = '\0';
+        if (is_c_keyword(name)) { p = after; continue; }
+        if (strcmp(name, want) == 0) return 1;
+        p = after;
+    }
+    return 0;
+}
+
+int code_locate(const char *dir, const char *fnname,
+                char *out_file, size_t out_sz) {
+    if (!dir || !*dir || !fnname || !*fnname || !out_file || out_sz == 0) return 0;
+    /* same sandbox as code_read_file: relative paths under the working dir only */
+    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return 0;
+    DIR *d = opendir(dir);
+    if (!d) return 0;
+    int found = 0;
+    struct dirent *de;
+    while (!found && (de = readdir(d)) != NULL) {
+        const char *nm = de->d_name;
+        size_t l = strlen(nm);
+        if (l < 3 || nm[l-2] != '.' || (nm[l-1] != 'c' && nm[l-1] != 'h')) continue;
+        char path[512];
+        snprintf(path, sizeof path, "%s/%s", dir, nm);
+        static char buf[16384];
+        if (!code_read_file(path, buf, sizeof buf)) continue;
+        if (code_defines(buf, fnname)) { snprintf(out_file, out_sz, "%s", nm); found = 1; }
+    }
+    closedir(d);
+    return found;
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {

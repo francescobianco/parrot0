@@ -35,4 +35,13 @@ int code_eval(const char *src, const char *want,
  * paths. Returns 1 on success (whole file fit and was non-empty), 0 otherwise. */
 int code_read_file(const char *path, char *buf, size_t bufsz);
 
+/* gen182: true if `src` defines a function literally named `want`. */
+int code_defines(const char *src, const char *want);
+
+/* gen182: scan directory `dir` (sandboxed like code_read_file) for a .c/.h file
+ * that defines a function named `fnname`. On success writes the file's base name
+ * into `out_file` and returns 1; returns 0 if none (or dir unreadable). The first
+ * "find where to work" step toward repo-scale localization. */
+int code_locate(const char *dir, const char *fnname, char *out_file, size_t out_sz);
+
 #endif /* PARROT0_CODE_H */
