@@ -1,0 +1,7 @@
+# gen178 — recorded growth edge (the NEXT pull, B5 extension: the for-loop). The
+# interpreter runs `while` but not yet the three-clause `for (init; cond; post)`.
+# Expected to MISS — marks the next faculty (desugar for into init + while+post).
+#expect: gap
+#faculty: symeval-for
+> what does sum(4) return: int sum(int n) { int s = 0; for (int i = 1; i <= n; i = i + 1) { s = s + i; } return s; }
+< sum(4) returns 10

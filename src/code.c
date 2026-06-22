@@ -348,6 +348,40 @@ static void ev_run_stmt(EvalCtx *e) {
         return;
     }
 
+    /* gen178: a bounded while-loop. The condition and body text spans are
+     * captured once, then re-run until the condition is false, a return fires, or
+     * a step ceiling is hit (so a non-terminating loop is refused, never hangs). */
+    if (ev_kw(e, "while")) {
+        e->c += 5; ev_ws(e);
+        if (!(e->c < e->end && *e->c == '(')) { e->err = 1; return; }
+        const char *cond_start = e->c + 1;
+        int d = 0; const char *cp = e->c; const char *cond_end = NULL;
+        for (; cp < e->end; cp++) {
+            if (*cp == '(') d++;
+            else if (*cp == ')') { d--; if (d == 0) { cond_end = cp; break; } }
+        }
+        if (!cond_end) { e->err = 1; return; }
+        const char *body_start = cond_end + 1;
+        e->c = body_start;
+        ev_skip_stmt(e);                      /* locate the end of the body once */
+        const char *body_end = e->c;
+
+        long guard = 0;
+        for (;;) {
+            if (e->err) return;
+            if (e->ret) { e->c = body_end; return; }
+            e->c = cond_start;
+            long cond = ev_rel(e);
+            if (e->err) return;
+            if (!cond) break;
+            e->c = body_start;
+            ev_run_stmt(e);
+            if (++guard > 1000000L) { e->err = 1; return; }  /* termination ceiling */
+        }
+        e->c = body_end;
+        return;
+    }
+
     /* gen177: a local declaration or an assignment. Read the leading identifier;
      * if it is a type keyword this is a declaration, otherwise an assignment. */
     if (isalpha((unsigned char)*e->c) || *e->c == '_') {

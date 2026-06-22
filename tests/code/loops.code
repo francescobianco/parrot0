@@ -1,8 +1,11 @@
-# gen177 — recorded growth edge (the NEXT pull, B5 extension: bounded loops). The
-# interpreter runs if/return/declaration/assignment but refuses a `while`/`for`,
-# so an accumulator loop is not yet followed. Expected to MISS — marks the next
-# faculty (execute a bounded loop, with a step ceiling for honesty/termination).
-#expect: gap
+# gen178 — B5 bounded loops: parrot0 executes a `while` accumulator over the
+# local environment, with a step ceiling so a non-terminating loop is refused
+# rather than hung. Covers real iterative functions (sum, factorial).
+#expect: pass
 #faculty: symeval-loops
 > what does sum(4) return: int sum(int n) { int s = 0; int i = 1; while (i <= n) { s = s + i; i = i + 1; } return s; }
 < sum(4) returns 10
+> what does fact(5) return: int fact(int n) { int r = 1; while (n > 1) { r = r * n; n = n - 1; } return r; }
+< fact(5) returns 120
+> what does sum(0) return: int sum(int n) { int s = 0; int i = 1; while (i <= n) { s = s + i; i = i + 1; } return s; }
+< sum(0) returns 0
