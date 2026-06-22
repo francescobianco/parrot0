@@ -1,5 +1,12 @@
 # parrot0 → coding agent: piano di evoluzione
 
+> **Subordinato a `docs/CODE-MASTERY.md`** (lo strato teorico). Questo file è un
+> *inventario delle parti* (capacità → coding, schemi di fatti, metriche, rischi),
+> utile e concreto, ma **l'ordine delle fasi NON è vincolante**: la teoria dice di
+> costruire un pezzo solo quando una `code-bench` fallita lo richiede (pivot duty),
+> non seguendo il grafo di dipendenze A→E. Leggi prima CODE-MASTERY.md per la
+> direzione; usa questo per le parti.
+>
 > **Stato:** analisi completata il 2026-06-20 su parrot0 gen148.
 > **Metodo:** esperimenti reali di interazione + studio del codice + benchmark.
 > **Principio guida:** ogni fase deve produrre un comportamento testabile,
