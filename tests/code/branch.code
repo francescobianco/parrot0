@@ -1,0 +1,9 @@
+# gen175 — recorded growth edge (the NEXT pull, B5 extension: branches). The
+# evaluator computes a single arithmetic return; it does not yet follow an `if`
+# to choose between return paths, so it takes the FIRST return (a -> 3) instead of
+# the branch the condition selects (b -> 7). Expected to MISS — marks the next
+# faculty.
+#expect: gap
+#faculty: symeval-branch
+> what does max(3, 7) return: int max(int a, int b) { if (a > b) { return a; } return b; }
+< max(3, 7) returns 7

@@ -8235,21 +8235,81 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     char s[512]; copy_trim(s, sizeof s, raw);
     if (!*s) return 0;
 
-    /* Two structural questions, both EN+IT, both requiring a code section so they
+    /* The question text (before the ':' that introduces the code section). */
+    char qpart[256]; snprintf(qpart, sizeof qpart, "%s", s);
+    char *colon = strchr(qpart, ':'); if (colon) *colon = '\0';
+
+    /* Three structural questions, all EN+IT, all requiring a code section so they
      * never fire on prose:
-     *   - "what/which functions does this define?"  -> code_function/1 (F2)
-     *   - "what does <X> call?"                     -> code_calls/2     (F3) */
-    int wants_funcs =
+     *   - "what does <X>(args) return?"            -> code_eval       (B5)
+     *   - "what/which functions does this define?" -> code_function/1 (F2)
+     *   - "what does <X> call?"                    -> code_calls/2    (F3)
+     * The eval cue is checked on the QUESTION only, so a snippet's own "return"
+     * never reroutes a define/call question. */
+    int wants_eval =
+        cue(qpart, "return") || cue(qpart, "returns") || cue(qpart, "evaluate") ||
+        cue(qpart, "restituisce") || cue(qpart, "ritorna") || cue(qpart, "valuta");
+    int wants_funcs = !wants_eval &&
         (cue(s, "function") || cue(s, "funzioni") || cue(s, "funzione")) &&
         (cue(s, "define") || cue(s, "defined") || cue(s, "definisce") ||
          cue(s, "definite") || cue(s, "definisci"));
-    int wants_calls = !wants_funcs &&
+    int wants_calls = !wants_eval && !wants_funcs &&
         (cue(s, "call") || cue(s, "calls") || cue(s, "invoke") ||
          cue(s, "chiama") || cue(s, "invoca"));
-    if (!wants_funcs && !wants_calls) return 0;
+    if (!wants_eval && !wants_funcs && !wants_calls) return 0;
 
     char code[512] = {0};
     if (!find_code_section(s, code, sizeof code)) return 0;
+
+    /* B5: symbolic execution. Parse a concrete call NAME(int, int, ...) from the
+     * question and COMPUTE its result from the function body — nothing is run. */
+    if (wants_eval) {
+        char fname[KB_TERM_LEN] = ""; long argv[8]; size_t nargs = 0; int have = 0;
+        for (const char *p = qpart; *p && !have; ) {
+            if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+            const char *id = p;
+            while (isalnum((unsigned char)*p) || *p == '_') p++;
+            size_t l = (size_t)(p - id);
+            const char *q = p; while (*q == ' ') q++;
+            if (*q != '(') continue;
+            const char *a = q + 1; long tmp[8]; size_t n = 0; int ok = 1, any = 0;
+            while (*a && *a != ')') {
+                while (*a == ' ' || *a == ',') a++;
+                if (*a == ')' || !*a) break;
+                int sign = 1;
+                if (*a == '-') { sign = -1; a++; } else if (*a == '+') a++;
+                if (!isdigit((unsigned char)*a)) { ok = 0; break; }
+                long v = 0; while (isdigit((unsigned char)*a)) { v = v * 10 + (*a - '0'); a++; }
+                any = 1;
+                if (n < 8) tmp[n++] = sign * v; else { ok = 0; break; }
+                while (*a == ' ') a++;
+                if (*a != ',' && *a != ')') { ok = 0; break; }
+            }
+            if (ok && any && l < sizeof fname) {
+                memcpy(fname, id, l); fname[l] = '\0';
+                for (size_t i = 0; i < n; i++) argv[i] = tmp[i];
+                nargs = n; have = 1;
+            }
+        }
+        if (!have) return 0;   /* eval phrasing but no concrete call — not ours */
+
+        char callstr[128]; size_t co = (size_t)snprintf(callstr, sizeof callstr, "%s(", fname);
+        for (size_t i = 0; i < nargs && co < sizeof callstr; i++)
+            co += (size_t)snprintf(callstr + co, sizeof callstr - co,
+                                   "%s%ld", i ? ", " : "", argv[i]);
+        if (co < sizeof callstr) snprintf(callstr + co, sizeof callstr - co, ")");
+
+        long res;
+        if (code_eval(code, fname, argv, nargs, &res))
+            snprintf(out, out_size,
+                     "I read it as code and worked it out: %s returns %ld.", callstr, res);
+        else
+            snprintf(out, out_size,
+                     "I read it as code, but I cannot compute %s yet — its body is "
+                     "beyond my arithmetic evaluator.", callstr);
+        store_proof(b, out);
+        return 1;
+    }
 
     char names[32][KB_TERM_LEN];
     size_t k = code_ingest(b->kb, code, names, 32);
@@ -8273,9 +8333,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     }
 
     /* wants_calls: the question names a defined function (or there is only one).
-     * Look at the question text (before the code) to pick which one. */
-    char qpart[256]; snprintf(qpart, sizeof qpart, "%s", s);
-    char *colon = strchr(qpart, ':'); if (colon) *colon = '\0';
+     * Look at the question text (qpart, computed above) to pick which one. */
     const char *xfn = NULL;
     for (size_t i = 0; i < shown; i++)
         if (strstr(qpart, names[i])) { xfn = names[i]; break; }
@@ -10722,7 +10780,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen174-call-graph";
+    return "gen175-symbolic-eval";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

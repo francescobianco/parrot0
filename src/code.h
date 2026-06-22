@@ -18,4 +18,15 @@
 size_t code_ingest(KB *kb, const char *src,
                    char names[][KB_TERM_LEN], size_t max);
 
+/* gen175: symbolic execution (B5). Evaluate the function named `want` (or the
+ * FIRST definition if `want` is NULL) in `src` on the integer arguments `argv`,
+ * by reading its single `return <expr>;` and COMPUTING the expression with the
+ * parameters bound positionally. Supports integers, the parameter names, the
+ * operators + - * / % and parentheses. Nothing is executed — the value is
+ * derived from the structure. Writes the result to *out and returns 1 on
+ * success; returns 0 if it cannot (no single arithmetic return, an unknown
+ * identifier, a call/unsupported form, or division by zero). */
+int code_eval(const char *src, const char *want,
+              const long *argv, size_t argc, long *out);
+
 #endif /* PARROT0_CODE_H */

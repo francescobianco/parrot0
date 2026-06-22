@@ -112,3 +112,193 @@ size_t code_ingest(KB *kb, const char *src,
     }
     return found;
 }
+
+/* --- gen175: symbolic execution of a single arithmetic return ----------- */
+
+/* A recursive-descent evaluator over an integer expression with the function's
+ * parameters bound to argument values. Grammar:
+ *   expr   := term  (('+' | '-') term)*
+ *   term   := factor (('*' | '/' | '%') factor)*
+ *   factor := number | ident | '(' expr ')' | ('+' | '-') factor
+ * `err` latches on anything unsupported (unknown ident, call, div-by-zero), so
+ * the caller can refuse honestly rather than guess. */
+typedef struct {
+    const char *c, *end;
+    char (*params)[KB_TERM_LEN];
+    const long *vals;
+    size_t np, nv;
+    int err;
+} EvalCtx;
+
+static void ev_ws(EvalCtx *e) {
+    while (e->c < e->end && (*e->c == ' ' || *e->c == '\t')) e->c++;
+}
+
+static long ev_expr(EvalCtx *e);
+
+static long ev_factor(EvalCtx *e) {
+    ev_ws(e);
+    if (e->c >= e->end) { e->err = 1; return 0; }
+    if (*e->c == '(') {
+        e->c++;
+        long v = ev_expr(e);
+        ev_ws(e);
+        if (e->c < e->end && *e->c == ')') e->c++;
+        else e->err = 1;
+        return v;
+    }
+    if (*e->c == '-') { e->c++; return -ev_factor(e); }
+    if (*e->c == '+') { e->c++; return  ev_factor(e); }
+    if (isdigit((unsigned char)*e->c)) {
+        long v = 0;
+        while (e->c < e->end && isdigit((unsigned char)*e->c)) {
+            v = v * 10 + (*e->c - '0');
+            e->c++;
+        }
+        return v;
+    }
+    if (isalpha((unsigned char)*e->c) || *e->c == '_') {
+        const char *s = e->c;
+        while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
+        size_t l = (size_t)(e->c - s);
+        ev_ws(e);
+        /* An identifier immediately followed by '(' is a call — not supported. */
+        if (e->c < e->end && *e->c == '(') { e->err = 1; return 0; }
+        char w[KB_TERM_LEN];
+        if (l >= sizeof w) { e->err = 1; return 0; }
+        memcpy(w, s, l); w[l] = '\0';
+        for (size_t i = 0; i < e->np; i++)
+            if (strcmp(w, e->params[i]) == 0) {
+                if (i < e->nv) return e->vals[i];
+                e->err = 1; return 0;            /* parameter with no argument */
+            }
+        e->err = 1; return 0;                    /* unknown identifier */
+    }
+    e->err = 1; return 0;
+}
+
+static long ev_term(EvalCtx *e) {
+    long v = ev_factor(e);
+    for (;;) {
+        ev_ws(e);
+        if (e->c >= e->end) break;
+        char op = *e->c;
+        if (op == '*' || op == '/' || op == '%') {
+            e->c++;
+            long r = ev_factor(e);
+            if (op == '*') v *= r;
+            else { if (r == 0) { e->err = 1; return 0; } v = (op == '/') ? v / r : v % r; }
+        } else break;
+    }
+    return v;
+}
+
+static long ev_expr(EvalCtx *e) {
+    long v = ev_term(e);
+    for (;;) {
+        ev_ws(e);
+        if (e->c >= e->end) break;
+        char op = *e->c;
+        if (op == '+' || op == '-') { e->c++; long r = ev_term(e); v += (op == '+') ? r : -r; }
+        else break;
+    }
+    return v;
+}
+
+/* Extract the last identifier in [seg, end) — the parameter NAME in a declarator
+ * like "int a", "const char *s". Returns 1 + the name (without "void"), 0 if
+ * none. */
+static int last_ident(const char *seg, const char *end, char *out, size_t out_sz) {
+    const char *lastid = NULL; size_t lastlen = 0;
+    const char *t = seg;
+    while (t < end) {
+        if (isalpha((unsigned char)*t) || *t == '_') {
+            const char *s = t;
+            while (t < end && (isalnum((unsigned char)*t) || *t == '_')) t++;
+            lastid = s; lastlen = (size_t)(t - s);
+        } else t++;
+    }
+    if (!lastid || lastlen == 0 || lastlen >= out_sz) return 0;
+    memcpy(out, lastid, lastlen); out[lastlen] = '\0';
+    return strcmp(out, "void") != 0;
+}
+
+int code_eval(const char *src, const char *want,
+              const long *argv, size_t argc, long *out) {
+    if (!src || !out) return 0;
+
+    /* Locate the target function definition: its parameter list and its body. */
+    const char *params_beg = NULL, *params_end = NULL, *body = NULL;
+    const char *p = src;
+    while (*p) {
+        if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+        const char *id = p;
+        while (isalnum((unsigned char)*p) || *p == '_') p++;
+        size_t idlen = (size_t)(p - id);
+
+        const char *q = p;
+        while (*q == ' ' || *q == '\t') q++;
+        if (*q != '(') continue;
+
+        int depth = 0; const char *r = q;
+        for (; *r; r++) {
+            if (*r == '(') depth++;
+            else if (*r == ')') { depth--; if (depth == 0) { r++; break; } }
+        }
+        if (depth != 0) return 0;
+        const char *after = r;
+        while (*after == ' ' || *after == '\t') after++;
+        if (*after != '{') continue;
+
+        char name[KB_TERM_LEN];
+        if (idlen == 0 || idlen >= sizeof name) { p = after; continue; }
+        memcpy(name, id, idlen); name[idlen] = '\0';
+        if (is_c_keyword(name)) { p = after; continue; }
+
+        if (!want || strcmp(name, want) == 0) {
+            params_beg = q + 1; params_end = r - 1;   /* between '(' and ')' */
+            body = after;                             /* at '{' */
+            break;
+        }
+        p = after;
+    }
+    if (!body) return 0;
+
+    /* Parameter names, in order. */
+    char params[8][KB_TERM_LEN]; size_t np = 0;
+    {
+        const char *s = params_beg;
+        while (s < params_end && np < 8) {
+            const char *seg = s;
+            while (s < params_end && *s != ',') s++;
+            char nm[KB_TERM_LEN];
+            if (last_ident(seg, s, nm, sizeof nm)) {
+                snprintf(params[np], KB_TERM_LEN, "%s", nm); np++;
+            }
+            if (s < params_end && *s == ',') s++;
+        }
+    }
+
+    /* The single `return <expr>;` (whole-word "return"). */
+    const char *rp = body;
+    const char *ret = NULL;
+    while ((rp = strstr(rp, "return")) != NULL) {
+        char before = (rp == body) ? ' ' : rp[-1];
+        char afterc = rp[6];
+        if (!(isalnum((unsigned char)before) || before == '_') &&
+            !(isalnum((unsigned char)afterc) || afterc == '_')) { ret = rp + 6; break; }
+        rp += 6;
+    }
+    if (!ret) return 0;
+    const char *semi = strchr(ret, ';');
+    if (!semi) return 0;
+
+    EvalCtx e;
+    e.c = ret; e.end = semi; e.params = params; e.vals = argv;
+    e.np = np; e.nv = argc; e.err = 0;
+    long v = ev_expr(&e);
+    ev_ws(&e);
+    if (e.err || e.c != e.end) return 0;   /* leftover/unsupported => refuse */
+    *out = v;
+    return 1;
+}

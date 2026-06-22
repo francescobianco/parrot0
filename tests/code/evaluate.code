@@ -1,8 +1,14 @@
-# gen174 — recorded growth edge (the NEXT pull, B5 symbolic execution): evaluate
-# a pure function on literal arguments by reasoning over its body, not by running
-# it. parrot0 reads the structure but does not yet compute the return value.
-# Expected to MISS — it marks the next faculty, it does not fail the bench.
-#expect: gap
+# gen175 — B5 (symbolic execution): parrot0 COMPUTES a pure function's result on
+# literal arguments by reading its `return <expr>;` and evaluating the expression
+# with the parameters bound — operator precedence respected, nothing is run. It
+# refuses honestly when the body is beyond its arithmetic evaluator.
+#expect: pass
 #faculty: symeval
 > what does add(2, 3) return: int add(int a, int b) { return a + b; }
-< it returns 5
+< add(2, 3) returns 5
+> what does square(5) return: int square(int x) { return x * x; }
+< square(5) returns 25
+> what does f(2, 3, 4) return: int f(int a, int b, int c) { return a + b * c; }
+< f(2, 3, 4) returns 14
+> what does g(5) return: int g(int n) { return h(n); }
+< I cannot compute g(5) yet

@@ -14,3 +14,11 @@
 < I read it as code: main calls greet and cleanup.
 > what does add call: int add(int a, int b) { return a + b; }
 < I read it as code: add does not call any function.
+# gen175 (symbolic execution): compute a pure function's result on literal args
+# from its return expression (precedence respected); refuse honestly otherwise.
+> what does add(2, 3) return: int add(int a, int b) { return a + b; }
+< I read it as code and worked it out: add(2, 3) returns 5.
+> what does f(2, 3, 4) return: int f(int a, int b, int c) { return a + b * c; }
+< I read it as code and worked it out: f(2, 3, 4) returns 14.
+> what does g(5) return: int g(int n) { return h(n); }
+< I read it as code, but I cannot compute g(5) yet — its body is beyond my arithmetic evaluator.
