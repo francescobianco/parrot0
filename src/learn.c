@@ -70,9 +70,17 @@ int learn_topic(KB *kb, const char *key, const char *title,
     for (char *c = def; *c; c++) if (*c == '"') *c = '\'';
 
     /* Assert into RAM immediately — no hot reload. KB_BASE provenance so the
-     * session writer does not re-save it; persistence is handled explicitly. */
+     * session writer does not re-save it; persistence is handled explicitly.
+     * gen172: store the def QUOTED, matching the .p0 on-disk convention
+     * (parse_term keeps the surrounding quotes as part of the stored atom). This
+     * makes an in-RAM learned fact indistinguishable from a loaded one, so
+     * kb_is_concept_key recognises it and the description renderer speaks it — a
+     * second ask answers from RAM instead of re-reading the markdown. The "%.*s"
+     * cap leaves room for the two quotes + NUL within KB_TERM_LEN. */
+    char qdef[KB_TERM_LEN];
+    snprintf(qdef, sizeof qdef, "\"%.*s\"", (int)(sizeof qdef - 3), def);
     kb_set_origin(kb, KB_BASE);
-    const char *args[] = { key, domain, def };
+    const char *args[] = { key, domain, qdef };
     kb_assert(kb, "wiki_concept", args, 3);
     kb_set_origin(kb, KB_SESSION);
 

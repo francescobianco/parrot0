@@ -27,10 +27,18 @@ out="$(
     PARROT0_LEARN_KB="$TMP/learned.p0" \
     "$ROOT/bin/parrot0" 2>/dev/null <<'EOIN'
 tell me about foo
+tell me about foo
 EOIN
 )"
 
-test "$out" = "I didn't know about foo, so I just read it up: small deterministic test concept."
-grep -F 'wiki_concept(foo, testing, "small deterministic test concept").' "$TMP/learned.p0" >/dev/null
+first="$(printf '%s\n' "$out" | sed -n '1p')"
+second="$(printf '%s\n' "$out" | sed -n '2p')"
 
-echo "PASS research_learn: in-C learner reads local markdown and persists learned KB"
+# First ask: honest fresh learn. Second ask: answered from RAM as a known concept.
+test "$first" = "I didn't know about foo, so I just read it up: small deterministic test concept."
+test "$second" = "foo is small deterministic test concept."
+grep -F 'wiki_concept(foo, testing, "small deterministic test concept").' "$TMP/learned.p0" >/dev/null
+# gen172: re-ask reads from RAM, so the concept is persisted exactly once.
+test "$(grep -c 'wiki_concept(foo,' "$TMP/learned.p0")" = "1"
+
+echo "PASS research_learn: in-C learner reads markdown, persists once, re-ask hits RAM"

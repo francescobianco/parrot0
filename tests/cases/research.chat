@@ -4,5 +4,9 @@
 # queue or external Python handoff.
 > tell me about prime number
 < I didn't know about prime number, so I just read it up: natural number greater than 1 that is not a product of two smaller natural numbers.
+# gen172: learning STICKS — a second ask answers from RAM as a known concept
+# (no re-reading, no pretending fresh discovery).
+> tell me about prime number
+< prime number is natural number greater than 1 that is not a product of two smaller natural numbers.
 > tell me about quaternions
 < I don't actually know about quaternions yet, and I have no source to read on it.

@@ -142,6 +142,10 @@ int    kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
 /* gen157: true if `term` is the key of a description-bearing concept fact. */
 int    kb_is_concept_key(const KB *kb, const char *term);
 
+/* gen172: write the dequoted definition of the concept keyed by `key` into
+ * `out`; returns 1 if found, 0 otherwise. Used to answer a re-ask from RAM. */
+int    kb_concept_def(const KB *kb, const char *key, char *out, size_t out_size);
+
 /* gen157: recover an emergent containment relation — the concept whose
  * description NAMES `term` (e.g. circulatory's description names the heart, so
  * "what is the heart part of?" -> circulatory). Derived from text, never

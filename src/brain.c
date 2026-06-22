@@ -1510,6 +1510,33 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
             }
+            /* gen172: a multi-word concept is stored under an underscore-joined
+             * key (e.g. "prime number" -> prime_number) that the single-word loop
+             * above cannot match. Try that exact joined key too, so a learned or
+             * loaded multi-word concept still beats the fuzzy guess below — the
+             * "exact key always wins" rule, completed for compound names. Speak it
+             * with the spaced display form (no underscore). */
+            {
+                char jkey[128]; size_t jo = 0;
+                char jdisp[128]; size_t jd = 0;
+                for (size_t i = start; i < nw; i++) {
+                    if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                    jo += (size_t)snprintf(jkey + jo, sizeof jkey - jo,
+                                           "%s%s", jo ? "_" : "", w[i]);
+                    jd += (size_t)snprintf(jdisp + jd, sizeof jdisp - jd,
+                                           "%s%s", jd ? " " : "", w[i]);
+                }
+                char jdef[KB_TERM_LEN];
+                if (jo && strchr(jkey, '_') &&
+                    kb_concept_def(b->kb, jkey, jdef, sizeof jdef)) {
+                    char msg[1200];
+                    snprintf(msg, sizeof msg, "%s is %s.", jdisp, jdef);
+                    put(msg, out, out_size);
+                    store_proof(b, msg);
+                    remember_entity(b, jkey, jdisp);
+                    return 1;
+                }
+            }
             /* gen155: no exact key — recall the concept whose description
              * structurally OVERLAPS the query (similarity, not a cue list):
              * "what is the longest bone in the body" -> femur. Hedged ("You
@@ -5328,7 +5355,11 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
  * RAM through learn_topic(), and answers honestly that it just learned the
  * definition. If no local source exists, it says so. Registered LAST, so it only
  * catches a definitional gap that every other module already declined — never
- * social/arith/memory turns. */
+ * social/arith/memory turns.
+ * gen172: the learning STICKS. The def is asserted quoted (the .p0 atom
+ * convention), so a re-ask is no longer a gap — mod_knowledge's exact-key path
+ * (now compound-aware) speaks it as a known concept, and this module's own
+ * RAM-recall guard is the honest fallback if reached. */
 static int mod_research(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
@@ -5404,12 +5435,19 @@ static int mod_research(Brain *b, const char *norm, const char *raw,
     if (ko < 3) return 0;
     if (weak && strlen(tok[start]) < 4) return 0;
 
-    /* Already learned? Then it is not a research gap — let earlier/future
-     * description paths answer from KB instead of re-reading the markdown. */
-    if (b->kb && kb_is_concept_key(b->kb, key)) return 0;
-
     char def[KB_TERM_LEN];
     char msg[320];
+
+    /* gen172: already learned this session? Then it is no longer a gap — answer
+     * from RAM and be honest that it was read before, instead of re-reading the
+     * markdown and pretending fresh discovery. (The word-based describe path
+     * cannot match the underscore-joined key, so this module owns the recall.) */
+    if (b->kb && kb_concept_def(b->kb, key, def, sizeof def)) {
+        snprintf(msg, sizeof msg, "I already read up on %s: %s.", disp, def);
+        put(msg, out, out_size);
+        return 1;
+    }
+
     if (learn_topic(b->kb, key, disp, def, sizeof def))
         snprintf(msg, sizeof msg,
                  "I didn't know about %s, so I just read it up: %s.",
@@ -10595,7 +10633,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen171-c-learner";
+    return "gen172-learning-sticks";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

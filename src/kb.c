@@ -1143,6 +1143,25 @@ int kb_is_concept_key(const KB *kb, const char *term) {
     return 0;
 }
 
+/* gen172: fetch the (dequoted) definition of the concept whose key is `key` and
+ * whose last argument is a quoted description — learned (wiki_concept) or loaded.
+ * Mirrors kb_is_concept_key. Returns 1 + the text in `out`, 0 if none. Lets a
+ * re-ask of a just-learned topic answer from RAM. */
+int kb_concept_def(const KB *kb, const char *key, char *out, size_t out_size) {
+    if (!kb || !key || !out || out_size == 0) return 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (strcmp(f->args[0], key) != 0) continue;
+        snprintf(out, out_size, "%s", f->args[f->argc - 1] + 1); /* skip open quote */
+        size_t l = strlen(out);
+        if (l > 0 && out[l - 1] == '"') out[l - 1] = '\0';       /* drop close quote */
+        return 1;
+    }
+    return 0;
+}
+
 /* gen157: relational reasoning DERIVED from unstructured descriptions. parrot0
  * was never told "heart is part of circulatory" — but the circulatory
  * description NAMES the heart, so the containment relation can be recovered from
