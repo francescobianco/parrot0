@@ -1,7 +1,11 @@
-# gen178 — recorded growth edge (the NEXT pull, B5 extension: the for-loop). The
-# interpreter runs `while` but not yet the three-clause `for (init; cond; post)`.
-# Expected to MISS — marks the next faculty (desugar for into init + while+post).
-#expect: gap
+# gen179 — B5 for-loop: parrot0 runs the three-clause `for (init; cond; post)`,
+# desugared to init + while(cond){ body; post }, including i++/i-- in the post.
+# Same step ceiling as while.
+#expect: pass
 #faculty: symeval-for
 > what does sum(4) return: int sum(int n) { int s = 0; for (int i = 1; i <= n; i = i + 1) { s = s + i; } return s; }
 < sum(4) returns 10
+> what does fact(5) return: int fact(int n) { int r = 1; for (int i = 2; i <= n; i++) { r = r * i; } return r; }
+< fact(5) returns 120
+> what does sq(4) return: int sq(int n) { int s = 0; for (int i = 0; i < n; i++) { s = s + n; } return s; }
+< sq(4) returns 16

@@ -311,6 +311,63 @@ static void ev_skip_stmt(EvalCtx *e) {
 
 static void ev_run_seq(EvalCtx *e);
 
+/* True if the token at the cursor is a type keyword (so a statement is a local
+ * declaration), without consuming it. */
+static int ev_peek_is_type(EvalCtx *e) {
+    const char *s = e->c;
+    if (!(isalpha((unsigned char)*s) || *s == '_')) return 0;
+    const char *t = s;
+    while (t < e->end && (isalnum((unsigned char)*t) || *t == '_')) t++;
+    size_t l = (size_t)(t - s);
+    if (l >= KB_TERM_LEN) return 0;
+    char w[KB_TERM_LEN]; memcpy(w, s, l); w[l] = '\0';
+    return ev_is_type_kw(w);
+}
+
+/* gen179: execute one simple update statement (no terminating ';' consumed):
+ * an assignment `x = expr`, or prefix/postfix `++x`/`x++`/`--x`/`x--`. The name
+ * must already be a local or parameter. Used by the for-post clause and, with a
+ * trailing ';', by ordinary statements. Sets err on anything else. */
+static void ev_simple(EvalCtx *e) {
+    ev_ws(e);
+    int pre = 0;
+    if (e->c + 1 < e->end && e->c[0] == '+' && e->c[1] == '+') { pre = 1;  e->c += 2; ev_ws(e); }
+    else if (e->c + 1 < e->end && e->c[0] == '-' && e->c[1] == '-') { pre = -1; e->c += 2; ev_ws(e); }
+    if (!(isalpha((unsigned char)*e->c) || *e->c == '_')) { e->err = 1; return; }
+    const char *s = e->c;
+    while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
+    size_t l = (size_t)(e->c - s);
+    char w[KB_TERM_LEN]; if (l >= sizeof w) { e->err = 1; return; }
+    memcpy(w, s, l); w[l] = '\0';
+
+    long cur = 0; int known = 0;
+    long *ls = ev_local_slot(e, w);
+    if (ls) { known = 1; cur = *ls; }
+    else for (size_t i = 0; i < e->np; i++)
+        if (strcmp(w, e->params[i]) == 0) {
+            if (i >= e->nv) { e->err = 1; return; }
+            known = 1; cur = e->vals[i]; break;
+        }
+
+    if (pre) { if (!known) { e->err = 1; return; } ev_set_local(e, w, cur + pre); return; }
+    ev_ws(e);
+    if (e->c + 1 < e->end && e->c[0] == '+' && e->c[1] == '+') {
+        e->c += 2; if (!known) { e->err = 1; return; } ev_set_local(e, w, cur + 1); return;
+    }
+    if (e->c + 1 < e->end && e->c[0] == '-' && e->c[1] == '-') {
+        e->c += 2; if (!known) { e->err = 1; return; } ev_set_local(e, w, cur - 1); return;
+    }
+    if (e->c < e->end && *e->c == '=' && !(e->c + 1 < e->end && e->c[1] == '=')) {
+        e->c++;
+        long v = ev_rel(e);
+        if (e->err) return;
+        if (!known) { e->err = 1; return; }      /* assignment to unknown name */
+        ev_set_local(e, w, v);
+        return;
+    }
+    e->err = 1;
+}
+
 static void ev_run_stmt(EvalCtx *e) {
     ev_ws(e);
     if (e->c >= e->end || e->err || e->ret) return;
@@ -382,58 +439,94 @@ static void ev_run_stmt(EvalCtx *e) {
         return;
     }
 
-    /* gen177: a local declaration or an assignment. Read the leading identifier;
-     * if it is a type keyword this is a declaration, otherwise an assignment. */
-    if (isalpha((unsigned char)*e->c) || *e->c == '_') {
-        const char *s = e->c;
-        while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
-        size_t l = (size_t)(e->c - s);
-        char w[KB_TERM_LEN];
-        if (l >= sizeof w) { e->err = 1; return; }
-        memcpy(w, s, l); w[l] = '\0';
-
-        if (ev_is_type_kw(w)) {
-            /* declaration: consume further type keywords, then the variable name,
-             * an optional initializer, and the terminating ';'. */
-            char name[KB_TERM_LEN] = "";
-            for (;;) {
-                ev_ws(e);
-                if (!(isalpha((unsigned char)*e->c) || *e->c == '_')) { e->err = 1; return; }
-                const char *t = e->c;
-                while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
-                size_t tl = (size_t)(e->c - t);
-                if (tl >= sizeof name) { e->err = 1; return; }
-                char tw[KB_TERM_LEN]; memcpy(tw, t, tl); tw[tl] = '\0';
-                if (ev_is_type_kw(tw)) continue;          /* still part of the type */
-                snprintf(name, sizeof name, "%s", tw);    /* this is the var name */
-                break;
-            }
-            ev_ws(e);
-            long val = 0;
-            if (e->c < e->end && *e->c == '=' &&
-                !(e->c + 1 < e->end && e->c[1] == '=')) { e->c++; val = ev_rel(e); }
-            ev_ws(e);
-            if (e->c < e->end && *e->c == ',') { e->err = 1; return; }   /* multi-declarator */
-            if (e->c < e->end && *e->c == ';') e->c++; else { e->err = 1; return; }
-            if (!e->err) ev_set_local(e, name, val);
-            return;
+    /* gen179: a three-clause for-loop, desugared to init + while(cond){body;post}.
+     * Empty init/cond/post are allowed (empty cond means true). Same step ceiling
+     * as while, for honest termination. */
+    if (ev_kw(e, "for")) {
+        e->c += 3; ev_ws(e);
+        if (!(e->c < e->end && *e->c == '(')) { e->err = 1; return; }
+        int d = 0; const char *hp = e->c; const char *rparen = NULL;
+        for (; hp < e->end; hp++) {
+            if (*hp == '(') d++;
+            else if (*hp == ')') { d--; if (d == 0) { rparen = hp; break; } }
         }
+        if (!rparen) { e->err = 1; return; }
+        const char *init_start = e->c + 1;
+        const char *semic1 = NULL, *semic2 = NULL;
+        d = 0;
+        for (const char *q = e->c; q < rparen; q++) {
+            if (*q == '(') d++;
+            else if (*q == ')') d--;
+            else if (*q == ';' && d == 1) { if (!semic1) semic1 = q; else if (!semic2) semic2 = q; }
+        }
+        if (!semic1 || !semic2) { e->err = 1; return; }
+        const char *cond_start = semic1 + 1, *post_start = semic2 + 1;
+        const char *body_start = rparen + 1;
+        e->c = body_start; ev_skip_stmt(e);
+        const char *body_end = e->c;
 
-        /* assignment: <name> = <expr> ; (name must already be a local or param) */
-        ev_ws(e);
-        if (e->c < e->end && *e->c == '=' &&
-            !(e->c + 1 < e->end && e->c[1] == '=')) {
-            e->c++;
-            long val = ev_rel(e);
-            ev_ws(e);
-            if (e->c < e->end && *e->c == ';') e->c++; else { e->err = 1; return; }
+        /* init (once), if non-empty — it carries its own ';' at semic1 */
+        { const char *ii = init_start; while (ii < semic1 && (*ii == ' ' || *ii == '\t')) ii++;
+          if (ii < semic1) { e->c = init_start; ev_run_stmt(e); if (e->err) return; } }
+
+        long guard = 0;
+        for (;;) {
             if (e->err) return;
-            if (ev_local_slot(e, w)) { ev_set_local(e, w, val); return; }
-            for (size_t i = 0; i < e->np; i++)
-                if (strcmp(w, e->params[i]) == 0) { ev_set_local(e, w, val); return; }
-            e->err = 1;                            /* assignment to unknown name */
-            return;
+            if (e->ret) { e->c = body_end; return; }
+            long cond = 1;
+            { const char *cc = cond_start; while (cc < semic2 && (*cc == ' ' || *cc == '\t')) cc++;
+              if (cc < semic2) { e->c = cond_start; cond = ev_rel(e); if (e->err) return; } }
+            if (!cond) break;
+            e->c = body_start; ev_run_stmt(e);
+            if (e->err) return;
+            if (e->ret) { e->c = body_end; return; }
+            { const char *pp = post_start; while (pp < rparen && (*pp == ' ' || *pp == '\t')) pp++;
+              if (pp < rparen) {
+                  const char *saved = e->end; e->c = post_start; e->end = rparen;
+                  ev_simple(e); e->end = saved; if (e->err) return;
+              } }
+            if (++guard > 1000000L) { e->err = 1; return; }
         }
+        e->c = body_end;
+        return;
+    }
+
+    /* gen177/179: a local declaration, or a simple update statement (assignment,
+     * ++/--), both terminated by ';'. */
+    if (ev_peek_is_type(e)) {
+        /* declaration: <type...> name [= expr] ; */
+        char name[KB_TERM_LEN] = "";
+        for (;;) {
+            ev_ws(e);
+            if (!(isalpha((unsigned char)*e->c) || *e->c == '_')) { e->err = 1; return; }
+            const char *t = e->c;
+            while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
+            size_t tl = (size_t)(e->c - t);
+            if (tl >= sizeof name) { e->err = 1; return; }
+            char tw[KB_TERM_LEN]; memcpy(tw, t, tl); tw[tl] = '\0';
+            if (ev_is_type_kw(tw)) continue;              /* still part of the type */
+            snprintf(name, sizeof name, "%s", tw);        /* this is the var name */
+            break;
+        }
+        ev_ws(e);
+        long val = 0;
+        if (e->c < e->end && *e->c == '=' &&
+            !(e->c + 1 < e->end && e->c[1] == '=')) { e->c++; val = ev_rel(e); }
+        ev_ws(e);
+        if (e->c < e->end && *e->c == ',') { e->err = 1; return; }     /* multi-declarator */
+        if (e->c < e->end && *e->c == ';') e->c++; else { e->err = 1; return; }
+        if (!e->err) ev_set_local(e, name, val);
+        return;
+    }
+
+    /* assignment / ++ / -- as a full statement */
+    if (isalpha((unsigned char)*e->c) || *e->c == '_' ||
+        (e->c + 1 < e->end && (e->c[0] == '+' || e->c[0] == '-') && e->c[0] == e->c[1])) {
+        ev_simple(e);
+        if (e->err) return;
+        ev_ws(e);
+        if (e->c < e->end && *e->c == ';') e->c++; else e->err = 1;
+        return;
     }
 
     e->err = 1;                                   /* unsupported statement */

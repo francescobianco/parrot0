@@ -1,0 +1,8 @@
+# gen179 — recorded growth edge (the NEXT pull, B5 extension: recursion / calls).
+# The evaluator refuses any call inside an expression, so a recursive function
+# cannot be computed. Expected to MISS — marks the next faculty (evaluate a call
+# by re-entering code_eval on the named function, with a recursion-depth ceiling).
+#expect: gap
+#faculty: symeval-recursion
+> what does fact(5) return: int fact(int n) { if (n <= 1) { return 1; } return n * fact(n - 1); }
+< fact(5) returns 120

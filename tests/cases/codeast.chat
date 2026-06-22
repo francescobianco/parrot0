@@ -33,3 +33,6 @@
 # gen178 (bounded loops): execute a while accumulator with a termination ceiling.
 > what does fact(5) return: int fact(int n) { int r = 1; while (n > 1) { r = r * n; n = n - 1; } return r; }
 < I read it as code and worked it out: fact(5) returns 120.
+# gen179 (for-loop): three-clause for with i++ in the post clause.
+> what does sum(4) return: int sum(int n) { int s = 0; for (int i = 1; i <= n; i++) { s = s + i; } return s; }
+< I read it as code and worked it out: sum(4) returns 10.
