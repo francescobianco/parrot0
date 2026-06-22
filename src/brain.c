@@ -10780,7 +10780,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen175-symbolic-eval";
+    return "gen176-branch-eval";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

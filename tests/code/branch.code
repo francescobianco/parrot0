@@ -1,9 +1,13 @@
-# gen175 — recorded growth edge (the NEXT pull, B5 extension: branches). The
-# evaluator computes a single arithmetic return; it does not yet follow an `if`
-# to choose between return paths, so it takes the FIRST return (a -> 3) instead of
-# the branch the condition selects (b -> 7). Expected to MISS — marks the next
-# faculty.
-#expect: gap
+# gen176 — B5 branches: parrot0 follows an `if` (and `if/else`) to the return path
+# the condition selects, with relational operators. Covers the conditional-return
+# family (max/abs/sign). Refuses honestly on a non-if/return statement.
+#expect: pass
 #faculty: symeval-branch
 > what does max(3, 7) return: int max(int a, int b) { if (a > b) { return a; } return b; }
 < max(3, 7) returns 7
+> what does max(9, 2) return: int max(int a, int b) { if (a > b) { return a; } return b; }
+< max(9, 2) returns 9
+> what does sign(-3) return: int sign(int n) { if (n < 0) return -1; else return 1; }
+< sign(-3) returns -1
+> what does f(3) return: int f(int n) { int x = n * 2; return x; }
+< I cannot compute f(3) yet

@@ -22,3 +22,8 @@
 < I read it as code and worked it out: f(2, 3, 4) returns 14.
 > what does g(5) return: int g(int n) { return h(n); }
 < I read it as code, but I cannot compute g(5) yet — its body is beyond my arithmetic evaluator.
+# gen176 (branch evaluation): follow an if/else to the selected return path.
+> what does max(3, 7) return: int max(int a, int b) { if (a > b) { return a; } return b; }
+< I read it as code and worked it out: max(3, 7) returns 7.
+> what does sign(-3) return: int sign(int n) { if (n < 0) return -1; else return 1; }
+< I read it as code and worked it out: sign(-3) returns -1.

@@ -1,0 +1,8 @@
+# gen176 — recorded growth edge (the NEXT pull, B5 extension: local variables).
+# The interpreter runs if/return but refuses any other statement, so a local
+# binding `int x = n * 2;` used by the return is not yet followed. Expected to
+# MISS — marks the next faculty (track an environment of locals).
+#expect: gap
+#faculty: symeval-locals
+> what does f(3) return: int f(int n) { int x = n * 2; return x + 1; }
+< f(3) returns 7

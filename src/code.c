@@ -113,35 +113,43 @@ size_t code_ingest(KB *kb, const char *src,
     return found;
 }
 
-/* --- gen175: symbolic execution of a single arithmetic return ----------- */
+/* --- gen175/176: symbolic execution of a function body ------------------ */
 
-/* A recursive-descent evaluator over an integer expression with the function's
- * parameters bound to argument values. Grammar:
- *   expr   := term  (('+' | '-') term)*
+/* A recursive-descent evaluator over the function's parameters (bound to the
+ * argument values) plus a tiny statement interpreter (gen176) for if/else and
+ * return, so a branch is followed to the return path the condition selects.
+ * Grammar:
+ *   rel    := add  (RELOP add)*           RELOP = < > <= >= == !=  (yields 0/1)
+ *   add    := term (('+' | '-') term)*
  *   term   := factor (('*' | '/' | '%') factor)*
- *   factor := number | ident | '(' expr ')' | ('+' | '-') factor
- * `err` latches on anything unsupported (unknown ident, call, div-by-zero), so
- * the caller can refuse honestly rather than guess. */
+ *   factor := number | ident | '(' rel ')' | ('+' | '-') factor
+ *   stmt   := '{' stmt* '}' | "if" '(' rel ')' stmt ["else" stmt]
+ *           | "return" rel ';' | <unsupported>
+ * `err` latches on anything unsupported (unknown ident, call, div-by-zero, a
+ * non-if/return statement), so the caller refuses honestly rather than guess.
+ * `ret` latches when a return fires, carrying its value in `retval`. */
 typedef struct {
     const char *c, *end;
     char (*params)[KB_TERM_LEN];
     const long *vals;
     size_t np, nv;
     int err;
+    int ret;
+    long retval;
 } EvalCtx;
 
 static void ev_ws(EvalCtx *e) {
     while (e->c < e->end && (*e->c == ' ' || *e->c == '\t')) e->c++;
 }
 
-static long ev_expr(EvalCtx *e);
+static long ev_rel(EvalCtx *e);
 
 static long ev_factor(EvalCtx *e) {
     ev_ws(e);
     if (e->c >= e->end) { e->err = 1; return 0; }
     if (*e->c == '(') {
         e->c++;
-        long v = ev_expr(e);
+        long v = ev_rel(e);
         ev_ws(e);
         if (e->c < e->end && *e->c == ')') e->c++;
         else e->err = 1;
@@ -193,7 +201,7 @@ static long ev_term(EvalCtx *e) {
     return v;
 }
 
-static long ev_expr(EvalCtx *e) {
+static long ev_add(EvalCtx *e) {
     long v = ev_term(e);
     for (;;) {
         ev_ws(e);
@@ -203,6 +211,124 @@ static long ev_expr(EvalCtx *e) {
         else break;
     }
     return v;
+}
+
+/* Relational / equality layer (lower precedence than +-), yielding 0/1 — the
+ * boolean an `if` condition needs. */
+static long ev_rel(EvalCtx *e) {
+    long v = ev_add(e);
+    for (;;) {
+        ev_ws(e);
+        if (e->c >= e->end) break;
+        char a = *e->c;
+        char b = (e->c + 1 < e->end) ? e->c[1] : '\0';
+        int op;
+        if      (a == '<' && b == '=') { op = 3; e->c += 2; }
+        else if (a == '>' && b == '=') { op = 4; e->c += 2; }
+        else if (a == '=' && b == '=') { op = 5; e->c += 2; }
+        else if (a == '!' && b == '=') { op = 6; e->c += 2; }
+        else if (a == '<')             { op = 1; e->c += 1; }
+        else if (a == '>')             { op = 2; e->c += 1; }
+        else break;
+        long r = ev_add(e);
+        switch (op) {
+            case 1: v = (v <  r); break;  case 2: v = (v >  r); break;
+            case 3: v = (v <= r); break;  case 4: v = (v >= r); break;
+            case 5: v = (v == r); break;  case 6: v = (v != r); break;
+        }
+    }
+    return v;
+}
+
+/* gen176: a tiny statement interpreter for the conditional-return family
+ * (max/min/abs/sign/clamp). It runs if/else and return; any other statement
+ * (assignment, declaration, loop, bare call) is refused, since skipping it could
+ * silently change the result. */
+static int ev_kw(EvalCtx *e, const char *w) {
+    size_t l = strlen(w);
+    if (e->c + l > e->end || strncmp(e->c, w, l) != 0) return 0;
+    char after = (e->c + l < e->end) ? e->c[l] : '\0';
+    return !(isalnum((unsigned char)after) || after == '_');
+}
+
+static void ev_skip_stmt(EvalCtx *e) {
+    ev_ws(e);
+    if (e->c >= e->end) return;
+    if (*e->c == '{') {
+        int d = 0;
+        for (; e->c < e->end; e->c++) {
+            if (*e->c == '{') d++;
+            else if (*e->c == '}') { d--; if (d == 0) { e->c++; return; } }
+        }
+        return;
+    }
+    if (ev_kw(e, "if")) {
+        e->c += 2; ev_ws(e);
+        if (e->c < e->end && *e->c == '(') {
+            int d = 0;
+            for (; e->c < e->end; e->c++) {
+                if (*e->c == '(') d++;
+                else if (*e->c == ')') { d--; if (d == 0) { e->c++; break; } }
+            }
+        }
+        ev_skip_stmt(e);                  /* then */
+        ev_ws(e);
+        if (ev_kw(e, "else")) { e->c += 4; ev_skip_stmt(e); }
+        return;
+    }
+    while (e->c < e->end && *e->c != ';') e->c++;   /* simple statement */
+    if (e->c < e->end) e->c++;
+}
+
+static void ev_run_seq(EvalCtx *e);
+
+static void ev_run_stmt(EvalCtx *e) {
+    ev_ws(e);
+    if (e->c >= e->end || e->err || e->ret) return;
+    if (*e->c == '{') {
+        e->c++;
+        ev_run_seq(e);
+        if (e->c < e->end && *e->c == '}') e->c++;
+        return;
+    }
+    if (ev_kw(e, "return")) {
+        e->c += 6;
+        long v = ev_rel(e);
+        ev_ws(e);
+        if (e->c < e->end && *e->c == ';') e->c++;
+        if (!e->err) { e->ret = 1; e->retval = v; }
+        return;
+    }
+    if (ev_kw(e, "if")) {
+        e->c += 2; ev_ws(e);
+        if (!(e->c < e->end && *e->c == '(')) { e->err = 1; return; }
+        e->c++;
+        long cond = ev_rel(e);
+        ev_ws(e);
+        if (!(e->c < e->end && *e->c == ')')) { e->err = 1; return; }
+        e->c++;
+        if (cond) {
+            ev_run_stmt(e);                       /* then */
+            ev_ws(e);
+            if (ev_kw(e, "else")) { e->c += 4; ev_skip_stmt(e); }
+        } else {
+            ev_skip_stmt(e);                      /* skip then */
+            ev_ws(e);
+            if (ev_kw(e, "else")) { e->c += 4; ev_run_stmt(e); }
+        }
+        return;
+    }
+    e->err = 1;                                   /* unsupported statement */
+}
+
+static void ev_run_seq(EvalCtx *e) {
+    for (;;) {
+        ev_ws(e);
+        if (e->c >= e->end || e->err || e->ret) return;
+        if (*e->c == '}') return;
+        if (*e->c == ';') { e->c++; continue; }
+        ev_run_stmt(e);
+    }
 }
 
 /* Extract the last identifier in [seg, end) — the parameter NAME in a declarator
@@ -279,26 +405,17 @@ int code_eval(const char *src, const char *want,
         }
     }
 
-    /* The single `return <expr>;` (whole-word "return"). */
-    const char *rp = body;
-    const char *ret = NULL;
-    while ((rp = strstr(rp, "return")) != NULL) {
-        char before = (rp == body) ? ' ' : rp[-1];
-        char afterc = rp[6];
-        if (!(isalnum((unsigned char)before) || before == '_') &&
-            !(isalnum((unsigned char)afterc) || afterc == '_')) { ret = rp + 6; break; }
-        rp += 6;
-    }
-    if (!ret) return 0;
-    const char *semi = strchr(ret, ';');
-    if (!semi) return 0;
-
+    /* Run the body as statements (gen176): if/else are followed, the first
+     * return that fires on the taken path wins. `end` is the whole source — the
+     * sequence stops at the function's own closing '}'. */
     EvalCtx e;
-    e.c = ret; e.end = semi; e.params = params; e.vals = argv;
-    e.np = np; e.nv = argc; e.err = 0;
-    long v = ev_expr(&e);
-    ev_ws(&e);
-    if (e.err || e.c != e.end) return 0;   /* leftover/unsupported => refuse */
-    *out = v;
+    e.c = body + 1;                       /* past the opening '{' */
+    e.end = src + strlen(src);
+    e.params = params; e.vals = argv;
+    e.np = np; e.nv = argc;
+    e.err = 0; e.ret = 0; e.retval = 0;
+    ev_run_seq(&e);
+    if (e.err || !e.ret) return 0;        /* unsupported, or no return reached */
+    *out = e.retval;
     return 1;
 }
