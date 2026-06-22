@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
 
 /* A C control-flow / type keyword can sit right before '(' (e.g. "if (", "for (",
  * "sizeof (") and look like a definition head; it is not a function name, so it
@@ -856,6 +858,48 @@ size_t code_find_callers(const char *dir, const char *target,
     size_t n = 0;
     callers_rec(dir, target, out, max, &n, 0);
     return n;
+}
+
+/* gen186: F5 verification — syntax-check `path` by running the C compiler as a
+ * sandboxed subprocess (no shell, so no injection; a strict char whitelist on the
+ * path; -fsyntax-only so nothing is written; a child alarm() bounds the time). A
+ * compiler is a DETERMINISTIC tool, not outsourced intelligence (CODE-MASTERY.md
+ * §4), so this is allowed. Returns 1 if it compiles, 0 if not (first diagnostics
+ * in `err_out`), -1 if it could not be run (bad path / fork failure). */
+int code_compile(const char *path, char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!path || !*path) return -1;
+    if (path[0] == '/' || path[0] == '~' || strstr(path, "..")) return -1;
+    for (const char *c = path; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
+              *c == '_' || *c == '-')) return -1;
+
+    int pf[2];
+    if (pipe(pf) != 0) return -1;
+    pid_t pid = fork();
+    if (pid < 0) { close(pf[0]); close(pf[1]); return -1; }
+    if (pid == 0) {                       /* child: compiler, output -> pipe */
+        dup2(pf[1], STDOUT_FILENO);
+        dup2(pf[1], STDERR_FILENO);
+        close(pf[0]); close(pf[1]);
+        alarm(15);                        /* never hang the agent */
+        execlp("cc", "cc", "-fsyntax-only", "-w", path, (char *)NULL);
+        _exit(127);                       /* exec failed */
+    }
+    close(pf[1]);
+    if (err_out && err_sz) {
+        ssize_t n = read(pf[0], err_out, err_sz - 1);
+        if (n < 0) n = 0;
+        err_out[n] = '\0';
+    } else {
+        char sink[256];
+        while (read(pf[0], sink, sizeof sink) > 0) { }
+    }
+    close(pf[0]);
+    int status;
+    if (waitpid(pid, &status, 0) < 0) return -1;
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
+    return 0;
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {

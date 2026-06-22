@@ -8270,6 +8270,43 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen186: F5 verification — "does <file> compile?". Run the compiler (a
+     * deterministic tool) on a sandboxed path and report. Handled before the
+     * snippet questions because it takes a file path, not inline code. */
+    if (cue(qpart, "compile") || cue(qpart, "compiles") || cue(qpart, "compila")) {
+        char path[256] = "";
+        for (const char *p = qpart; *p; ) {
+            while (*p == ' ' || *p == '\t') p++;
+            const char *t = p;
+            while (*p && *p != ' ' && *p != '\t') p++;
+            size_t l = (size_t)(p - t);
+            if (l > 0 && l < sizeof path) {
+                int looks_path = 0;
+                for (size_t i = 0; i < l; i++) if (t[i] == '/') looks_path = 1;
+                if (l >= 2 && t[l-2] == '.' && (t[l-1] == 'c' || t[l-1] == 'h')) looks_path = 1;
+                if (looks_path) { memcpy(path, t, l); path[l] = '\0'; break; }
+            }
+        }
+        if (!path[0]) return 0;
+        char err[512];
+        int rc = code_compile(path, err, sizeof err);
+        if (rc < 0) return 0;                       /* unsafe/unrunnable — not ours */
+        if (rc == 1) {
+            snprintf(out, out_size, "Yes, it compiles: %s has no errors.", path);
+        } else {
+            /* quote the first diagnostic line, trimmed */
+            char first[200] = ""; size_t fo = 0;
+            for (const char *c = err; *c && *c != '\n' && fo + 1 < sizeof first; c++) first[fo++] = *c;
+            first[fo] = '\0';
+            if (first[0])
+                snprintf(out, out_size, "No, %s does not compile: %s", path, first);
+            else
+                snprintf(out, out_size, "No, %s does not compile.", path);
+        }
+        store_proof(b, out);
+        return 1;
+    }
+
     /* gen185: reverse call graph — "what/who calls <X> in <dir>?". Scan the
      * directory (sandboxed, recursive) for the functions whose body calls X — the
      * blast radius before an edit. Distinct phrasing from "what does X call". */
@@ -10871,7 +10908,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen185-reverse-callgraph";
+    return "gen186-verify-compile";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

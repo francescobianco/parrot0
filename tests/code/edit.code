@@ -1,0 +1,10 @@
+# gen186 — recorded growth edge (the NEXT pull, F5 EDIT half): apply a mechanical
+# change to code. parrot0 can locate, understand, and now VERIFY (compile) code,
+# but cannot yet CHANGE it. Renaming a function is the simplest grounded edit; with
+# the verify step already in hand, edit+compile closes the loop SWE-bench scores.
+# Must be non-destructive (write to a temp/copy, never mutate the fixture in place).
+# Expected to MISS — marks the edit primitive.
+#expect: gap
+#faculty: edit-rename
+> rename the function add to plus in tests/code/fixtures/sample.c
+< renamed add to plus

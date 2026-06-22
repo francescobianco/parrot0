@@ -48,6 +48,12 @@ int code_defines(const char *src, const char *want);
  * "find where to work" step toward repo-scale localization. */
 int code_locate(const char *dir, const char *fnname, char *out_file, size_t out_sz);
 
+/* gen186: F5 verification — syntax-check `path` by running the C compiler in a
+ * sandboxed subprocess (no shell, path whitelist, -fsyntax-only, timeout). A
+ * compiler is a deterministic tool, not outsourced intelligence. Returns 1 if it
+ * compiles, 0 if not (diagnostics in err_out), -1 if it could not be run. */
+int code_compile(const char *path, char *err_out, size_t err_sz);
+
 /* gen185: reverse call graph across a directory (sandboxed, recursive) — the
  * functions whose body calls `target`. Writes up to `max` deduped caller names
  * into `out` and returns the count. The "blast radius" before an edit. */
