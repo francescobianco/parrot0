@@ -20,7 +20,7 @@ wiki_concept(pythagorean_theorem, mathematics, "In mathematics, the Pythagorean 
 
 % mathematics / Derivative
 % source: https://en.wikipedia.org/wiki/Derivative
-% revision: 1358599947; processed: 2026-06-21T07:59:50Z
+% revision: 1358599947; processed: 2026-06-22T22:53:39Z
 wiki_concept(derivative, mathematics, "fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input").
 
 % mathematics / Logarithm
@@ -394,3 +394,12 @@ learning_event_concept(learn_2026_06_22t22_00_04z_pythagorean_theorem, pythagore
 learning_event_revision(learn_2026_06_22t22_00_04z_pythagorean_theorem, rev_1358746630).
 learning_event_markdown(learn_2026_06_22t22_00_04z_pythagorean_theorem, "kb/learning/pages/pythagorean_theorem.md").
 learning_event_log(learn_2026_06_22t22_00_04z_pythagorean_theorem, "kb/learning/logs/learn_2026_06_22t22_00_04z_pythagorean_theorem.json").
+
+% event learn_2026_06_22t22_53_39z_derivative
+learning_event(learn_2026_06_22t22_53_39z_derivative, "learned derivative: fundamental tool that quantifies the sensitivity to change of a function's output with respect...").
+learning_event_time(learn_2026_06_22t22_53_39z_derivative, "2026-06-22T22:53:39Z").
+learning_event_domain(learn_2026_06_22t22_53_39z_derivative, mathematics).
+learning_event_concept(learn_2026_06_22t22_53_39z_derivative, derivative).
+learning_event_revision(learn_2026_06_22t22_53_39z_derivative, rev_1358599947).
+learning_event_markdown(learn_2026_06_22t22_53_39z_derivative, "kb/learning/pages/derivative.md").
+learning_event_log(learn_2026_06_22t22_53_39z_derivative, "kb/learning/logs/learn_2026_06_22t22_53_39z_derivative.json").
