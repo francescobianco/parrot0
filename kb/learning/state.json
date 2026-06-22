@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "astronomy",
-    "event_id": "learn_2026_06_22t16_59_57z_galaxy",
-    "key": "galaxy",
-    "log_path": "kb/learning/logs/learn_2026_06_22t16_59_57z_galaxy.json",
-    "markdown_path": "kb/learning/pages/galaxy.md",
-    "processed_at": "2026-06-22T16:59:57Z",
-    "prompt": "what do you know about learn_2026_06_22t16_59_57z_galaxy",
-    "revision": 1359221837,
-    "title": "Galaxy"
+    "domain": "mathematics",
+    "event_id": "learn_2026_06_22t18_36_35z_prime_number",
+    "key": "prime_number",
+    "log_path": "kb/learning/logs/learn_2026_06_22t18_36_35z_prime_number.json",
+    "markdown_path": "kb/learning/pages/prime_number.md",
+    "processed_at": "2026-06-22T18:36:35Z",
+    "prompt": "what do you know about learn_2026_06_22t18_36_35z_prime_number",
+    "revision": 1360542157,
+    "title": "Prime number"
   },
-  "next_index": 0
+  "next_index": 1
 }
