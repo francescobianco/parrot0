@@ -8288,13 +8288,33 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 snprintf(path, sizeof path, "%s", strip_edge_punct(w[i]));
         }
         if (!oldn[0] || !newn[0] || !path[0]) return 0;
+
+        /* gen188: if the path is a DIRECTORY (no .c/.h suffix), first locate the
+         * file that defines the function, then edit it — chaining F4 into F5. */
+        char fullpath[512]; char where[280] = "";
+        size_t pl = strlen(path);
+        int is_file = (pl >= 2 && path[pl-2] == '.' && (path[pl-1] == 'c' || path[pl-1] == 'h'));
+        if (is_file) {
+            snprintf(fullpath, sizeof fullpath, "%s", path);
+        } else {
+            char rel[256];
+            if (!code_locate(path, oldn, rel, sizeof rel)) {
+                snprintf(out, out_size,
+                         "I looked through %s but found no file that defines %s.", path, oldn);
+                store_proof(b, out);
+                return 1;
+            }
+            snprintf(fullpath, sizeof fullpath, "%s/%s", path, rel);
+            snprintf(where, sizeof where, " in %s", rel);
+        }
+
         const char *tmp = ".p0_edit_tmp.c";
-        int n = code_rename(path, oldn, newn, tmp);
+        int n = code_rename(fullpath, oldn, newn, tmp);
         if (n < 0) return 0;                       /* bad names / unreadable — not ours */
         if (n == 0) {
             remove(tmp);
             snprintf(out, out_size, "I did not find %s in %s, so nothing was renamed.",
-                     oldn, path);
+                     oldn, fullpath);
             store_proof(b, out);
             return 1;
         }
@@ -8303,16 +8323,16 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         remove(tmp);
         if (rc == 1)
             snprintf(out, out_size,
-                     "Renamed %s to %s (%d occurrences); the result still compiles.",
-                     oldn, newn, n);
+                     "Renamed %s to %s%s (%d occurrences); the result still compiles.",
+                     oldn, newn, where, n);
         else if (rc == 0)
             snprintf(out, out_size,
-                     "Renamed %s to %s (%d occurrences), but the result no longer compiles.",
-                     oldn, newn, n);
+                     "Renamed %s to %s%s (%d occurrences), but the result no longer compiles.",
+                     oldn, newn, where, n);
         else
             snprintf(out, out_size,
-                     "Renamed %s to %s (%d occurrences) in a temp copy; %s is unchanged.",
-                     oldn, newn, n, path);
+                     "Renamed %s to %s%s (%d occurrences) in a temp copy; the original is unchanged.",
+                     oldn, newn, where, n);
         store_proof(b, out);
         return 1;
     }
@@ -10955,7 +10975,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen187-edit-rename";
+    return "gen188-edit-locate";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
