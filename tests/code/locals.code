@@ -1,8 +1,13 @@
-# gen176 — recorded growth edge (the NEXT pull, B5 extension: local variables).
-# The interpreter runs if/return but refuses any other statement, so a local
-# binding `int x = n * 2;` used by the return is not yet followed. Expected to
-# MISS — marks the next faculty (track an environment of locals).
-#expect: gap
+# gen177 — B5 locals: parrot0 tracks a writable environment of local variables —
+# declarations (int x = expr;), reassignments (x = x + 10;), assignment to a
+# parameter — and uses them in later expressions and returns, alongside branches.
+#expect: pass
 #faculty: symeval-locals
 > what does f(3) return: int f(int n) { int x = n * 2; return x + 1; }
 < f(3) returns 7
+> what does g(5) return: int g(int n) { int x = n; x = x + 10; return x; }
+< g(5) returns 15
+> what does area(3, 4) return: int area(int w, int h) { int a = w * h; int b = a + 1; return b; }
+< area(3, 4) returns 13
+> what does clamp(15) return: int clamp(int n) { int m = n; if (m > 10) { return 10; } return m; }
+< clamp(15) returns 10

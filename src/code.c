@@ -133,10 +133,37 @@ typedef struct {
     char (*params)[KB_TERM_LEN];
     const long *vals;
     size_t np, nv;
+    /* gen177: a writable environment of integer locals (declarations and
+     * assignments), looked up before the read-only parameters. */
+    char locals[16][KB_TERM_LEN];
+    long locvals[16];
+    size_t nl;
     int err;
     int ret;
     long retval;
 } EvalCtx;
+
+/* gen177: local-variable environment helpers. */
+static long *ev_local_slot(EvalCtx *e, const char *name) {
+    for (size_t i = 0; i < e->nl; i++)
+        if (strcmp(e->locals[i], name) == 0) return &e->locvals[i];
+    return NULL;
+}
+static void ev_set_local(EvalCtx *e, const char *name, long v) {
+    long *s = ev_local_slot(e, name);
+    if (s) { *s = v; return; }
+    if (e->nl < 16) {
+        snprintf(e->locals[e->nl], KB_TERM_LEN, "%s", name);
+        e->locvals[e->nl] = v; e->nl++;
+    } else e->err = 1;
+}
+static int ev_is_type_kw(const char *w) {
+    static const char *const t[] = {
+        "int", "long", "short", "char", "unsigned", "signed", "const", NULL,
+    };
+    for (const char *const *k = t; *k; k++) if (strcmp(w, *k) == 0) return 1;
+    return 0;
+}
 
 static void ev_ws(EvalCtx *e) {
     while (e->c < e->end && (*e->c == ' ' || *e->c == '\t')) e->c++;
@@ -175,6 +202,8 @@ static long ev_factor(EvalCtx *e) {
         char w[KB_TERM_LEN];
         if (l >= sizeof w) { e->err = 1; return 0; }
         memcpy(w, s, l); w[l] = '\0';
+        long *ls = ev_local_slot(e, w);          /* locals shadow params */
+        if (ls) return *ls;
         for (size_t i = 0; i < e->np; i++)
             if (strcmp(w, e->params[i]) == 0) {
                 if (i < e->nv) return e->vals[i];
@@ -318,6 +347,61 @@ static void ev_run_stmt(EvalCtx *e) {
         }
         return;
     }
+
+    /* gen177: a local declaration or an assignment. Read the leading identifier;
+     * if it is a type keyword this is a declaration, otherwise an assignment. */
+    if (isalpha((unsigned char)*e->c) || *e->c == '_') {
+        const char *s = e->c;
+        while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
+        size_t l = (size_t)(e->c - s);
+        char w[KB_TERM_LEN];
+        if (l >= sizeof w) { e->err = 1; return; }
+        memcpy(w, s, l); w[l] = '\0';
+
+        if (ev_is_type_kw(w)) {
+            /* declaration: consume further type keywords, then the variable name,
+             * an optional initializer, and the terminating ';'. */
+            char name[KB_TERM_LEN] = "";
+            for (;;) {
+                ev_ws(e);
+                if (!(isalpha((unsigned char)*e->c) || *e->c == '_')) { e->err = 1; return; }
+                const char *t = e->c;
+                while (e->c < e->end && (isalnum((unsigned char)*e->c) || *e->c == '_')) e->c++;
+                size_t tl = (size_t)(e->c - t);
+                if (tl >= sizeof name) { e->err = 1; return; }
+                char tw[KB_TERM_LEN]; memcpy(tw, t, tl); tw[tl] = '\0';
+                if (ev_is_type_kw(tw)) continue;          /* still part of the type */
+                snprintf(name, sizeof name, "%s", tw);    /* this is the var name */
+                break;
+            }
+            ev_ws(e);
+            long val = 0;
+            if (e->c < e->end && *e->c == '=' &&
+                !(e->c + 1 < e->end && e->c[1] == '=')) { e->c++; val = ev_rel(e); }
+            ev_ws(e);
+            if (e->c < e->end && *e->c == ',') { e->err = 1; return; }   /* multi-declarator */
+            if (e->c < e->end && *e->c == ';') e->c++; else { e->err = 1; return; }
+            if (!e->err) ev_set_local(e, name, val);
+            return;
+        }
+
+        /* assignment: <name> = <expr> ; (name must already be a local or param) */
+        ev_ws(e);
+        if (e->c < e->end && *e->c == '=' &&
+            !(e->c + 1 < e->end && e->c[1] == '=')) {
+            e->c++;
+            long val = ev_rel(e);
+            ev_ws(e);
+            if (e->c < e->end && *e->c == ';') e->c++; else { e->err = 1; return; }
+            if (e->err) return;
+            if (ev_local_slot(e, w)) { ev_set_local(e, w, val); return; }
+            for (size_t i = 0; i < e->np; i++)
+                if (strcmp(w, e->params[i]) == 0) { ev_set_local(e, w, val); return; }
+            e->err = 1;                            /* assignment to unknown name */
+            return;
+        }
+    }
+
     e->err = 1;                                   /* unsupported statement */
 }
 
@@ -412,7 +496,7 @@ int code_eval(const char *src, const char *want,
     e.c = body + 1;                       /* past the opening '{' */
     e.end = src + strlen(src);
     e.params = params; e.vals = argv;
-    e.np = np; e.nv = argc;
+    e.np = np; e.nv = argc; e.nl = 0;
     e.err = 0; e.ret = 0; e.retval = 0;
     ev_run_seq(&e);
     if (e.err || !e.ret) return 0;        /* unsupported, or no return reached */

@@ -27,3 +27,6 @@
 < I read it as code and worked it out: max(3, 7) returns 7.
 > what does sign(-3) return: int sign(int n) { if (n < 0) return -1; else return 1; }
 < I read it as code and worked it out: sign(-3) returns -1.
+# gen177 (local variables): track an environment of locals across statements.
+> what does f(3) return: int f(int n) { int x = n * 2; return x + 1; }
+< I read it as code and worked it out: f(3) returns 7.

@@ -9,5 +9,3 @@
 < max(9, 2) returns 9
 > what does sign(-3) return: int sign(int n) { if (n < 0) return -1; else return 1; }
 < sign(-3) returns -1
-> what does f(3) return: int f(int n) { int x = n * 2; return x; }
-< I cannot compute f(3) yet
