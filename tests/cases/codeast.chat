@@ -55,3 +55,6 @@
 # gen185 (reverse call graph): which functions call a target across a directory.
 > what calls add in tests/code/fixtures
 < add is called by main.
+# gen187 (edit: rename a missing function — honest, no exec needed for this case).
+> rename the function nope to plus in tests/code/fixtures/sample.c
+< I did not find nope in tests/code/fixtures/sample.c, so nothing was renamed.

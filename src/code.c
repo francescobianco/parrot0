@@ -860,6 +860,63 @@ size_t code_find_callers(const char *dir, const char *target,
     return n;
 }
 
+/* gen187: F5 edit — rewrite `src_path` with whole-word identifier `oldname`
+ * renamed to `newname`, writing the result to `out_path` (the original is never
+ * touched). Occurrences inside comments and string/char literals are left alone
+ * (a state machine tracks context), so only real code is renamed. Returns the
+ * number of replacements, or -1 on error (bad names, sandbox, read/write fail). */
+int code_rename(const char *src_path, const char *oldname,
+                const char *newname, const char *out_path) {
+    if (!src_path || !oldname || !*oldname || !newname || !*newname || !out_path)
+        return -1;
+    if (out_path[0] == '/' || out_path[0] == '~' || strstr(out_path, "..")) return -1;
+    for (const char *c = oldname; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) return -1;
+    for (const char *c = newname; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) return -1;
+
+    static char in[262144];
+    if (!code_read_file(src_path, in, sizeof in)) return -1;
+    static char out[393216];
+    size_t oi = 0, replaced = 0;
+    size_t oldlen = strlen(oldname), newlen = strlen(newname);
+    const char *p = in;
+#define EMIT(ch) do { if (oi + 1 >= sizeof out) return -1; out[oi++] = (ch); } while (0)
+    while (*p) {
+        if (p[0] == '/' && p[1] == '/') {                 /* line comment: verbatim */
+            EMIT(*p); p++; EMIT(*p); p++;
+            while (*p && *p != '\n') { EMIT(*p); p++; }
+        } else if (p[0] == '/' && p[1] == '*') {          /* block comment: verbatim */
+            EMIT(*p); p++; EMIT(*p); p++;
+            while (*p && !(p[0] == '*' && p[1] == '/')) { EMIT(*p); p++; }
+            if (*p) { EMIT(*p); p++; EMIT(*p); p++; }
+        } else if (*p == '"' || *p == '\'') {             /* literal: verbatim */
+            char q = *p; EMIT(*p); p++;
+            while (*p && *p != q) {
+                if (*p == '\\' && p[1]) { EMIT(*p); p++; EMIT(*p); p++; }
+                else { EMIT(*p); p++; }
+            }
+            if (*p == q) { EMIT(*p); p++; }
+        } else if (isalpha((unsigned char)*p) || *p == '_') {
+            const char *id = p;
+            while (isalnum((unsigned char)*p) || *p == '_') p++;
+            size_t l = (size_t)(p - id);
+            if (l == oldlen && strncmp(id, oldname, l) == 0) {
+                for (size_t i = 0; i < newlen; i++) EMIT(newname[i]);
+                replaced++;
+            } else {
+                for (const char *c = id; c < p; c++) EMIT(*c);
+            }
+        } else { EMIT(*p); p++; }
+    }
+#undef EMIT
+    FILE *f = fopen(out_path, "w");
+    if (!f) return -1;
+    fwrite(out, 1, oi, f);
+    fclose(f);
+    return (int)replaced;
+}
+
 /* gen186: F5 verification — syntax-check `path` by running the C compiler as a
  * sandboxed subprocess (no shell, so no injection; a strict char whitelist on the
  * path; -fsyntax-only so nothing is written; a child alarm() bounds the time). A

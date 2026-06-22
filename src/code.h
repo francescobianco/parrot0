@@ -48,6 +48,12 @@ int code_defines(const char *src, const char *want);
  * "find where to work" step toward repo-scale localization. */
 int code_locate(const char *dir, const char *fnname, char *out_file, size_t out_sz);
 
+/* gen187: F5 edit — write `src_path` to `out_path` with the whole-word identifier
+ * `oldname` renamed to `newname` (comments and string/char literals untouched).
+ * The original is never modified. Returns the replacement count, or -1 on error. */
+int code_rename(const char *src_path, const char *oldname,
+                const char *newname, const char *out_path);
+
 /* gen186: F5 verification — syntax-check `path` by running the C compiler in a
  * sandboxed subprocess (no shell, path whitelist, -fsyntax-only, timeout). A
  * compiler is a deterministic tool, not outsourced intelligence. Returns 1 if it

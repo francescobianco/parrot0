@@ -8270,6 +8270,53 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen187: F5 edit — "rename <old> to <new> in <file>". The full micro-loop:
+     * read the file, rename the identifier (non-destructively, to a temp), compile
+     * the result to VERIFY, report, and delete the temp. The original is untouched. */
+    if (cue(qpart, "rename") && cue(qpart, " to ") &&
+        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".h"))) {
+        char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
+        char *w[48]; size_t nw = split_words(qbuf, w, 48);
+        char oldn[KB_TERM_LEN] = "", newn[KB_TERM_LEN] = "", path[256] = "";
+        for (size_t i = 0; i < nw; i++) {
+            if (!strcmp(w[i], "to") && i > 0 && i + 1 < nw) {
+                snprintf(oldn, sizeof oldn, "%s", strip_edge_punct(w[i-1]));
+                snprintf(newn, sizeof newn, "%s", strip_edge_punct(w[i+1]));
+            }
+            if (strchr(w[i], '/') ||
+                (strlen(w[i]) >= 2 && (strstr(w[i], ".c") || strstr(w[i], ".h"))))
+                snprintf(path, sizeof path, "%s", strip_edge_punct(w[i]));
+        }
+        if (!oldn[0] || !newn[0] || !path[0]) return 0;
+        const char *tmp = ".p0_edit_tmp.c";
+        int n = code_rename(path, oldn, newn, tmp);
+        if (n < 0) return 0;                       /* bad names / unreadable — not ours */
+        if (n == 0) {
+            remove(tmp);
+            snprintf(out, out_size, "I did not find %s in %s, so nothing was renamed.",
+                     oldn, path);
+            store_proof(b, out);
+            return 1;
+        }
+        char err[512];
+        int rc = code_compile(tmp, err, sizeof err);
+        remove(tmp);
+        if (rc == 1)
+            snprintf(out, out_size,
+                     "Renamed %s to %s (%d occurrences); the result still compiles.",
+                     oldn, newn, n);
+        else if (rc == 0)
+            snprintf(out, out_size,
+                     "Renamed %s to %s (%d occurrences), but the result no longer compiles.",
+                     oldn, newn, n);
+        else
+            snprintf(out, out_size,
+                     "Renamed %s to %s (%d occurrences) in a temp copy; %s is unchanged.",
+                     oldn, newn, n, path);
+        store_proof(b, out);
+        return 1;
+    }
+
     /* gen186: F5 verification — "does <file> compile?". Run the compiler (a
      * deterministic tool) on a sandboxed path and report. Handled before the
      * snippet questions because it takes a file path, not inline code. */
@@ -10908,7 +10955,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen186-verify-compile";
+    return "gen187-edit-rename";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

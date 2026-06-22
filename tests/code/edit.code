@@ -1,10 +1,12 @@
-# gen186 — recorded growth edge (the NEXT pull, F5 EDIT half): apply a mechanical
-# change to code. parrot0 can locate, understand, and now VERIFY (compile) code,
-# but cannot yet CHANGE it. Renaming a function is the simplest grounded edit; with
-# the verify step already in hand, edit+compile closes the loop SWE-bench scores.
-# Must be non-destructive (write to a temp/copy, never mutate the fixture in place).
-# Expected to MISS — marks the edit primitive.
-#expect: gap
+# gen187 — F5 edit (the loop closes): parrot0 renames a function NON-destructively
+# (to a temp copy, original untouched), then COMPILES the result to verify, and
+# reports honestly — including when the edit breaks the build (rename to an
+# existing name -> redefinition -> no longer compiles). locate->edit->verify in one.
+#expect: pass
 #faculty: edit-rename
 > rename the function add to plus in tests/code/fixtures/sample.c
-< renamed add to plus
+< Renamed add to plus (2 occurrences); the result still compiles.
+> rename the function add to square in tests/code/fixtures/sample.c
+< the result no longer compiles
+> rename the function nope to plus in tests/code/fixtures/sample.c
+< I did not find nope in tests/code/fixtures/sample.c, so nothing was renamed.
