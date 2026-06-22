@@ -339,9 +339,41 @@
       "summary": "learned neuron: A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called...",
       "title": "Neuron",
       "url": "https://en.wikipedia.org/wiki/Neuron"
+    },
+    {
+      "concept": "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...",
+      "domain": "computer_science",
+      "event_id": "learn_2026_06_22t06_10_27z_algorithm",
+      "key": "algorithm",
+      "log_path": "kb/learning/logs/learn_2026_06_22t06_10_27z_algorithm.json",
+      "markdown_path": "kb/learning/pages/algorithm.md",
+      "processed_at": "2026-06-22T06:10:27Z",
+      "prompt": "what do you know about learn_2026_06_22t06_10_27z_algorithm",
+      "revision": 1359789433,
+      "source_index": 20,
+      "source_line": 40,
+      "source_title": "Algorithm",
+      "summary": "learned algorithm: finite sequence of mathematically rigorous instructions, typically used to solve a class of...",
+      "title": "Algorithm",
+      "url": "https://en.wikipedia.org/wiki/Algorithm"
     }
   ],
   "pages": {
+    "algorithm": {
+      "concept": "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...",
+      "description": "Sequence of operations for a task",
+      "domain": "computer_science",
+      "extract_sha256": "244933ad2b22814071af515bf5002870eaec93bdbe56d3d681dad384f2dbf7a8",
+      "key": "algorithm",
+      "last_event_id": "learn_2026_06_22t06_10_27z_algorithm",
+      "markdown_path": "kb/learning/pages/algorithm.md",
+      "pageid": 775,
+      "processed_at": "2026-06-22T06:10:27Z",
+      "revision": 1359789433,
+      "source_title": "Algorithm",
+      "title": "Algorithm",
+      "url": "https://en.wikipedia.org/wiki/Algorithm"
+    },
     "antibiotic": {
       "concept": "type of antimicrobial substance active against bacteria",
       "description": "Antimicrobial substance active against bacteria",

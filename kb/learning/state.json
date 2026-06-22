@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "medicine",
-    "event_id": "learn_2026_06_22t03_30_52z_neuron",
-    "key": "neuron",
-    "log_path": "kb/learning/logs/learn_2026_06_22t03_30_52z_neuron.json",
-    "markdown_path": "kb/learning/pages/neuron.md",
-    "processed_at": "2026-06-22T03:30:52Z",
-    "prompt": "what do you know about learn_2026_06_22t03_30_52z_neuron",
-    "revision": 1356756271,
-    "title": "Neuron"
+    "domain": "computer_science",
+    "event_id": "learn_2026_06_22t06_10_27z_algorithm",
+    "key": "algorithm",
+    "log_path": "kb/learning/logs/learn_2026_06_22t06_10_27z_algorithm.json",
+    "markdown_path": "kb/learning/pages/algorithm.md",
+    "processed_at": "2026-06-22T06:10:27Z",
+    "prompt": "what do you know about learn_2026_06_22t06_10_27z_algorithm",
+    "revision": 1359789433,
+    "title": "Algorithm"
   },
-  "next_index": 20
+  "next_index": 21
 }

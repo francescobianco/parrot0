@@ -103,6 +103,11 @@ wiki_concept(antibiotic, medicine, "type of antimicrobial substance active again
 % revision: 1356756271; processed: 2026-06-22T03:30:52Z
 wiki_concept(neuron, medicine, "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials...").
 
+% computer_science / Algorithm
+% source: https://en.wikipedia.org/wiki/Algorithm
+% revision: 1359789433; processed: 2026-06-22T06:10:27Z
+wiki_concept(algorithm, computer_science, "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...").
+
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number
 learning_event(learn_2026_06_21t01_32_24z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
@@ -283,3 +288,12 @@ learning_event_concept(learn_2026_06_22t03_30_52z_neuron, neuron).
 learning_event_revision(learn_2026_06_22t03_30_52z_neuron, rev_1356756271).
 learning_event_markdown(learn_2026_06_22t03_30_52z_neuron, "kb/learning/pages/neuron.md").
 learning_event_log(learn_2026_06_22t03_30_52z_neuron, "kb/learning/logs/learn_2026_06_22t03_30_52z_neuron.json").
+
+% event learn_2026_06_22t06_10_27z_algorithm
+learning_event(learn_2026_06_22t06_10_27z_algorithm, "learned algorithm: finite sequence of mathematically rigorous instructions, typically used to solve a class of...").
+learning_event_time(learn_2026_06_22t06_10_27z_algorithm, "2026-06-22T06:10:27Z").
+learning_event_domain(learn_2026_06_22t06_10_27z_algorithm, computer_science).
+learning_event_concept(learn_2026_06_22t06_10_27z_algorithm, algorithm).
+learning_event_revision(learn_2026_06_22t06_10_27z_algorithm, rev_1359789433).
+learning_event_markdown(learn_2026_06_22t06_10_27z_algorithm, "kb/learning/pages/algorithm.md").
+learning_event_log(learn_2026_06_22t06_10_27z_algorithm, "kb/learning/logs/learn_2026_06_22t06_10_27z_algorithm.json").
