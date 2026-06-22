@@ -671,6 +671,33 @@ int code_eval(const char *src, const char *want,
     return eval_fn(src, want, argv, argc, out, 0);
 }
 
+/* gen184: blank (in place, with spaces) the contents of line/block comments and
+ * string/char literals, preserving every other byte and the overall length. A
+ * single robustness pass applied at the entry points, so every downstream scanner
+ * (code_ingest, code_defines, the evaluator) sees only real code — a '(' or '{'
+ * or '}' inside a comment or a string no longer derails paren/brace tracking.
+ * Real source files are full of these; this is the prerequisite for them. */
+void code_strip(char *s) {
+    if (!s) return;
+    char *p = s;
+    while (*p) {
+        if (p[0] == '/' && p[1] == '/') {                 /* line comment */
+            while (*p && *p != '\n') { *p = ' '; p++; }
+        } else if (p[0] == '/' && p[1] == '*') {          /* block comment */
+            p[0] = p[1] = ' '; p += 2;
+            while (*p && !(p[0] == '*' && p[1] == '/')) { if (*p != '\n') *p = ' '; p++; }
+            if (p[0] == '*' && p[1] == '/') { p[0] = p[1] = ' '; p += 2; }
+        } else if (*p == '"' || *p == '\'') {             /* string / char literal */
+            char q = *p; *p = ' '; p++;
+            while (*p && *p != q) {
+                if (*p == '\\' && p[1]) { p[0] = ' '; p[1] = ' '; p += 2; }
+                else { if (*p != '\n') *p = ' '; p++; }
+            }
+            if (*p == q) { *p = ' '; p++; }
+        } else p++;
+    }
+}
+
 /* gen182: true if `src` defines a function literally named `want`. A focused
  * copy of code_ingest's definition-head detection, without a KB (used by
  * code_locate to test a candidate file). */
@@ -730,9 +757,12 @@ static int locate_rec(const char *dir, const char *rel, const char *fnname,
             size_t l = strlen(nm);
             if (l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h')) {
                 static char buf[262144];          /* fits normal source files */
-                if (code_read_file(path, buf, sizeof buf) && code_defines(buf, fnname)) {
-                    snprintf(out_file, out_sz, "%s", relchild);
-                    found = 1;
+                if (code_read_file(path, buf, sizeof buf)) {
+                    code_strip(buf);
+                    if (code_defines(buf, fnname)) {
+                        snprintf(out_file, out_sz, "%s", relchild);
+                        found = 1;
+                    }
                 }
             }
         }

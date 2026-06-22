@@ -1,0 +1,9 @@
+# gen184 — recorded growth edge (the NEXT pull: reverse call graph across a repo).
+# parrot0 can say what a function calls; it cannot yet say what calls a function
+# across a directory — the "blast radius" a coding agent checks before changing
+# code (if I change X, who is affected?). In tests/code/fixtures, main calls add.
+# Expected to MISS — marks cross-file caller search.
+#expect: gap
+#faculty: callers
+> what calls add in tests/code/fixtures
+< add is called by main

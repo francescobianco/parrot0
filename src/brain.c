@@ -8311,6 +8311,11 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         if (!path[0] || !code_read_file(path, code, sizeof code)) return 0;
     }
 
+    /* gen184: blank comments and string/char literals so the scanners see only
+     * real code (a '(' or '{' inside a comment/string no longer derails parsing).
+     * Applied once here for the snippet questions; code_locate strips per file. */
+    code_strip(code);
+
     /* B5: symbolic execution. Parse a concrete call NAME(int, int, ...) from the
      * question and COMPUTE its result from the function body — nothing is run. */
     if (wants_eval) {
@@ -10830,7 +10835,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen183-locate-recursive";
+    return "gen184-lexer-comments";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

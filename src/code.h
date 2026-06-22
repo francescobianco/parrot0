@@ -35,6 +35,10 @@ int code_eval(const char *src, const char *want,
  * paths. Returns 1 on success (whole file fit and was non-empty), 0 otherwise. */
 int code_read_file(const char *path, char *buf, size_t bufsz);
 
+/* gen184: blank (in place, with spaces) comments and string/char literals so
+ * every scanner sees only real code. Applied at the entry points. */
+void code_strip(char *s);
+
 /* gen182: true if `src` defines a function literally named `want`. */
 int code_defines(const char *src, const char *want);
 

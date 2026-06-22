@@ -49,3 +49,6 @@
 # gen183 (recursive localize): descend into subdirectories, name the relative path.
 > which file under tests/code defines square
 < I looked through tests/code: square is defined in fixtures/sample.c.
+# gen184 (lexer): comments and strings are skipped, so a real commented file parses.
+> what functions does the file tests/code/fixtures/withcomment.c define
+< I read it as code: it defines twice.
