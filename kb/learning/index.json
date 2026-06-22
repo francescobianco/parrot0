@@ -356,6 +356,23 @@
       "summary": "learned algorithm: finite sequence of mathematically rigorous instructions, typically used to solve a class of...",
       "title": "Algorithm",
       "url": "https://en.wikipedia.org/wiki/Algorithm"
+    },
+    {
+      "concept": "In computer science, binary search, also known as half-interval search, logarithmic search, or binary chop, is a...",
+      "domain": "computer_science",
+      "event_id": "learn_2026_06_22t08_31_31z_binary_search_algorithm",
+      "key": "binary_search_algorithm",
+      "log_path": "kb/learning/logs/learn_2026_06_22t08_31_31z_binary_search_algorithm.json",
+      "markdown_path": "kb/learning/pages/binary_search_algorithm.md",
+      "processed_at": "2026-06-22T08:31:31Z",
+      "prompt": "what do you know about learn_2026_06_22t08_31_31z_binary_search_algorithm",
+      "revision": 1360038372,
+      "source_index": 21,
+      "source_line": 41,
+      "source_title": "Binary search algorithm",
+      "summary": "learned binary_search_algorithm: In computer science, binary search, also known as half-interval search...",
+      "title": "Binary search",
+      "url": "https://en.wikipedia.org/wiki/Binary_search"
     }
   ],
   "pages": {
@@ -388,6 +405,21 @@
       "source_title": "Antibiotic",
       "title": "Antibiotic",
       "url": "https://en.wikipedia.org/wiki/Antibiotic"
+    },
+    "binary_search_algorithm": {
+      "concept": "In computer science, binary search, also known as half-interval search, logarithmic search, or binary chop, is a...",
+      "description": "Search algorithm finding the position of a target value within a sorted array",
+      "domain": "computer_science",
+      "extract_sha256": "944453d9723022dea2c127180c21df5ce3af10c5b66a120ac4ed798fc06c1b09",
+      "key": "binary_search_algorithm",
+      "last_event_id": "learn_2026_06_22t08_31_31z_binary_search_algorithm",
+      "markdown_path": "kb/learning/pages/binary_search_algorithm.md",
+      "pageid": 4266,
+      "processed_at": "2026-06-22T08:31:31Z",
+      "revision": 1360038372,
+      "source_title": "Binary search algorithm",
+      "title": "Binary search",
+      "url": "https://en.wikipedia.org/wiki/Binary_search"
     },
     "catalysis": {
       "concept": "increase in rate of a chemical reaction due to an added substance known as a catalyst",
