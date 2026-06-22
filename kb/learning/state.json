@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "medicine",
-    "event_id": "learn_2026_06_22t01_32_03z_antibiotic",
-    "key": "antibiotic",
-    "log_path": "kb/learning/logs/learn_2026_06_22t01_32_03z_antibiotic.json",
-    "markdown_path": "kb/learning/pages/antibiotic.md",
-    "processed_at": "2026-06-22T01:32:03Z",
-    "prompt": "what do you know about learn_2026_06_22t01_32_03z_antibiotic",
-    "revision": 1356570133,
-    "title": "Antibiotic"
+    "event_id": "learn_2026_06_22t03_30_52z_neuron",
+    "key": "neuron",
+    "log_path": "kb/learning/logs/learn_2026_06_22t03_30_52z_neuron.json",
+    "markdown_path": "kb/learning/pages/neuron.md",
+    "processed_at": "2026-06-22T03:30:52Z",
+    "prompt": "what do you know about learn_2026_06_22t03_30_52z_neuron",
+    "revision": 1356756271,
+    "title": "Neuron"
   },
-  "next_index": 19
+  "next_index": 20
 }
