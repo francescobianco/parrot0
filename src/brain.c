@@ -8767,6 +8767,67 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen200: F5 repair (X6 localization by structure + X7 patch) — "fix the
+     * symmetry bug in <path>". parrot0 reads the file, finds a structural symmetry
+     * break (a sibling branch that assigns a literal where the analogous variable
+     * belongs — code_symmetry_fix, naming nothing in advance), and writes a patched
+     * copy with the literal replaced by that variable (code_replace_expr). It does
+     * NOT decide the fix is correct — it proposes a grounded candidate; the real
+     * test suite is the oracle that confirms it (tests/swebench/oracle.sh). This is
+     * the non-deceptive repair loop CODE-MASTERY §4/§6 calls for. */
+    int sym_write = cue(qpart, "fix") || cue(qpart, "repair") ||
+                    cue(qpart, "correggi") || cue(qpart, "ripara");
+    int sym_find  = cue(qpart, "find") || cue(qpart, "locate") || cue(qpart, "where") ||
+                    cue(qpart, "trova") || cue(qpart, "dove") || cue(qpart, "identify");
+    if ((sym_write || sym_find) &&
+        (cue(qpart, "symmetry") || cue(qpart, "simmetria") || cue(qpart, "bug")) &&
+        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".py"))) {
+        char path[256] = "";
+        for (const char *p = qpart; *p; ) {
+            while (*p == ' ' || *p == '\t') p++;
+            const char *t = p; while (*p && *p != ' ' && *p != '\t') p++;
+            size_t l = (size_t)(p - t);
+            if (l > 0 && l < sizeof path) {
+                int looks_path = 0;
+                for (size_t i = 0; i < l; i++) if (t[i] == '/') looks_path = 1;
+                if (l >= 2 && t[l-2] == '.' && (t[l-1] == 'c' || t[l-1] == 'h')) looks_path = 1;
+                if (l >= 3 && t[l-3] == '.' && t[l-2] == 'p' && t[l-1] == 'y') looks_path = 1;
+                if (looks_path) { memcpy(path, t, l); path[l] = '\0'; break; }
+            }
+        }
+        if (!path[0]) return 0;
+        char olds[256], news[256];
+        int r = code_symmetry_fix(path, NULL, olds, sizeof olds, news, sizeof news);
+        if (r < 0) return 0;                       /* unreadable / unsafe — not ours */
+        if (r == 0) {
+            snprintf(out, out_size,
+                     "I read %s but found no symmetry break to fix.", path);
+            store_proof(b, out);
+            return 1;
+        }
+        if (!sym_write) {          /* report-only: localize, do not touch any file */
+            snprintf(out, out_size,
+                     "In %s, `%s` breaks the symmetry with its sibling branch; the "
+                     "fix is `%s`.", path, olds, news);
+            store_proof(b, out);
+            return 1;
+        }
+        char outpath[300]; snprintf(outpath, sizeof outpath, "%s.p0fix", path);
+        int n = code_replace_expr(path, olds, news, outpath);
+        if (n <= 0) {
+            snprintf(out, out_size,
+                     "In %s a sibling branch assigns a literal where a variable "
+                     "belongs: `%s` should mirror its sibling as `%s`.", path, olds, news);
+            store_proof(b, out);
+            return 1;
+        }
+        snprintf(out, out_size,
+                 "In %s, `%s` breaks the symmetry with its sibling branch; the fix "
+                 "is `%s`. Patched copy written to %s.", path, olds, news, outpath);
+        store_proof(b, out);
+        return 1;
+    }
+
     /* gen198: F5 verification by RUNNING — "build and run <path> ... exit code".
      * The rung past code_build: compile+link, then EXECUTE and report the real
      * exit status from the process (the grounded oracle), not a guess. Handled
@@ -11582,7 +11643,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen199-python-eval-delta";
+    return "gen200-symmetry-repair";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

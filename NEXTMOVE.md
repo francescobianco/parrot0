@@ -1,8 +1,26 @@
 # NEXTMOVE — handoff (2026-06-23)
 
-Clean tree, all pushed. Head: gen199 (`gen199-python-eval-delta`). `make test`
-188/188 + the 4 pre-existing `profiles.sh` agi failures (verified identical on
-baseline via stash — unrelated). `make code-bench` 21/21 gates, 0 gaps.
+Clean tree. Head: gen200 (`gen200-symmetry-repair`). `make test` 190/190 + the 4
+pre-existing `profiles.sh` agi failures (unrelated). `make code-bench` 21/21 gates.
+
+## Just landed — gen200: FIRST REAL SWE-bench instance RESOLVED (no deception)
+`make swe-solve` -> parrot0 derives a patch for `astropy__astropy-12907` from a
+structural SYMMETRY BREAK and the OFFICIAL SWE-bench Docker image judges it
+RESOLVED (2 FAIL_TO_PASS pass, 13 PASS_TO_PASS hold). parrot0 never sees the gold
+patch or tests. New: `code_symmetry_fix` + `code_replace_expr` (code.c), a
+`mod_codeast` "find/fix the symmetry bug in <path>" branch, `tests/swebench/
+oracle.sh` (grounded verifier on the real image) and `parrot_solve.sh`. Hermetic
+ratchet `symfix.chat`/`.it`. Honest scope: ONE general repair pattern pulled by
+this instance, NOT general APR.
+
+How to run: `make swe-solve` (needs docker + jq; pulls the ~2.7GB official image
+once — a curation step, parrot0 never touches the net). `INSTANCE=<id> make
+swe-solve` for another instance once its image + lite row exist.
+
+NEXT: widen the map (`tests/swebench/fetch_lite.sh 50`, `make swe-bench`) and add
+the next grounded localizer/transformation the next instance pulls — each judged
+by the real oracle, never hardcoded. The numpy value-domain semantics delta is the
+big one for instances needing semantic (not structural) reasoning.
 
 ## Just landed — gen199 (Python F3 semantics by delta, CODE-MASTERY §7b)
 F. steered: Python semantics is derived by DIFFERENCE from C (§7b), not built

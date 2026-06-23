@@ -1,5 +1,15 @@
 # Distance report — SWE-bench_Lite `astropy__astropy-12907`
 
+> **RESOLVED (gen200).** parrot0 now produces a patch the OFFICIAL SWE-bench image
+> accepts (2 FAIL_TO_PASS pass, 13 PASS_TO_PASS hold) — `make swe-solve` ->
+> `verdict: RESOLVED`. The fix is derived from a structural SYMMETRY BREAK in
+> `_cstack` (`cright[..] = 1` should mirror its sibling `cleft[..] = left`, i.e.
+> `= right`), not from the issue prose and not from any hardcoded answer; the real
+> test suite is the judge. The "distance" below is the historical analysis that
+> ordered the pulls (X1 run-grounding gen198, Python F3 gen199, symmetry localize +
+> patch gen200). The remaining items (numpy value-domain semantics, general
+> localization) matter for OTHER instances, not this one.
+
 The gap between **what parrot0 does today** and **what solving this real instance
 requires**, measured on the REAL file (fetched at the base commit; the gold patch
 names `astropy/modeling/separable.py::_cstack`). gen196 added Python "by delta"

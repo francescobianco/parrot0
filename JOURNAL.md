@@ -1,4 +1,51 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen200: the first REAL SWE-bench instance, RESOLVED without deception
+
+**Milestone.** parrot0 produces a patch for `astropy__astropy-12907` that the
+OFFICIAL SWE-bench evaluation image accepts: the 2 FAIL_TO_PASS tests pass and all
+13 PASS_TO_PASS stay green — `verdict: RESOLVED`. Reproduce: `make swe-solve`.
+
+**The honesty discipline (this is the whole point).** parrot0 NEVER sees the gold
+patch or the hidden tests. It reads only the committed buggy file
+(`repo_excerpt/.../separable.py`) and derives the fix from STRUCTURE. The patch is
+judged by the real test suite, not by any answer baked into parrot0 — exactly the
+non-deceptive engine CODE-MASTERY §4/§6 prescribes (a runtime is a deterministic
+tool; code is the domain where "understood" has a mechanical oracle). No phrasebook:
+the localizer names no file/function/variable in advance and does not fire on
+correct, symmetric, or constant-only code.
+
+**How the fix is derived — structural symmetry break (X6 by structure).** In
+`_cstack` two sibling `isinstance` branches should mirror each other:
+`cleft[..left..] = left` (healthy: assigns its own operand) vs
+`cright[..right..] = 1` (broken: a LITERAL where the analogous variable belongs).
+`code_symmetry_fix` (new, pure C) detects that asymmetry generally and proposes the
+mirror `= right`. This is the gold patch, recovered from structure — the bug smell,
+not the issue prose (which §4 flags as the associative frontier we refuse to fake).
+
+**Changed.** `code.c`/`code.h`: `code_replace_expr` (X7 — exact expression/statement
+replacement in code regions, comment/string/`#`/triple-quote aware) and
+`code_symmetry_fix` (the localizer). `brain.c` -> `gen200-symmetry-repair`: a
+`mod_codeast` branch — "find the symmetry bug in <path>" (report only) and "fix the
+symmetry bug in <path>" (writes a patched copy via code_replace_expr). Harness:
+`tests/swebench/oracle.sh` (the grounded verifier: official Docker image, checkout
+base + test_patch + candidate, run FAIL_TO_PASS+PASS_TO_PASS, RESOLVED/FAIL) and
+`tests/swebench/parrot_solve.sh` (parrot0 derives -> diff -> oracle); `make
+swe-solve`.
+
+**Verified.** `make swe-solve` -> RESOLVED. Ground truth checked both ways: no
+patch -> RED (2 fail); gold patch -> GREEN; parrot0's patch -> GREEN and byte-equal
+to the gold hunk. Localizer no-false-fire on symmetric/constant/arithmetic files.
+EN+IT ratchets `symfix.chat`/`.it` (hermetic, report-only, no side effects);
+`make test` 190/190 + the 4 pre-existing `profile:agi` failures (unrelated); code-
+bench 21 gates.
+
+**Honest scope.** This is ONE general structural-repair pattern (symmetry break),
+pulled by this instance — NOT general program repair. It genuinely resolves this
+instance and its bug class; other SWE-bench instances will need other grounded
+localizers/transformations, each pulled from real pressure and judged by the real
+oracle. The deliverable per PRINCIPLES is exactly this: how far structure +
+verification reaches, measured, with the impostor refused.
+
 ## 2026-06-23 - gen199: Python F3 semantics, derived by difference from C (§7b)
 
 **Goal (F.'s steer).** F. corrected my framing that "Python semantics is a separate

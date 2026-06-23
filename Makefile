@@ -74,6 +74,13 @@ code-bench: build
 swe-bench: build
 	@./tests/swebench.sh
 
+# gen200: end-to-end real solve — parrot0 derives a patch from STRUCTURE and the
+# OFFICIAL SWE-bench Docker image judges it (FAIL_TO_PASS + PASS_TO_PASS). Needs
+# docker + jq + network the first time (image pull is a curation step; parrot0
+# itself never touches the net). Not part of `make test` (heavy, external).
+swe-solve: build
+	@./tests/swebench/parrot_solve.sh $(INSTANCE)
+
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
 # proxies. Not part of `make test` (non-deterministic, external).

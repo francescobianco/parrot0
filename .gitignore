@@ -21,3 +21,6 @@ __pycache__/
 
 # env
 .env
+
+# gen200: parrot0-written candidate patch copies
+*.p0fix

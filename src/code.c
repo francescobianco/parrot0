@@ -1158,6 +1158,170 @@ int code_rename(const char *src_path, const char *oldname,
     return (int)replaced;
 }
 
+/* gen200: F5 edit (X7) — replace an exact code expression/statement with another,
+ * in CODE regions only. A generalization of code_rename from one identifier to an
+ * arbitrary token sequence — the transformation a real one-line bug fix needs. */
+int code_replace_expr(const char *src_path, const char *oldexpr,
+                      const char *newexpr, const char *out_path) {
+    if (!src_path || !oldexpr || !*oldexpr || !newexpr || !out_path) return -1;
+    if (out_path[0] == '/' || out_path[0] == '~' || strstr(out_path, "..")) return -1;
+    static char in[262144];
+    if (!code_read_file(src_path, in, sizeof in)) return -1;
+    static char out[393216];
+    size_t oi = 0, replaced = 0, oldlen = strlen(oldexpr), newlen = strlen(newexpr);
+    const char *p = in;
+#define EMIT(ch) do { if (oi + 1 >= sizeof out) return -1; out[oi++] = (ch); } while (0)
+    while (*p) {
+        if (p[0] == '/' && p[1] == '/') {                 /* C line comment */
+            EMIT(*p); p++; EMIT(*p); p++; while (*p && *p != '\n') { EMIT(*p); p++; }
+        } else if (p[0] == '/' && p[1] == '*') {          /* C block comment */
+            EMIT(*p); p++; EMIT(*p); p++;
+            while (*p && !(p[0] == '*' && p[1] == '/')) { EMIT(*p); p++; }
+            if (*p) { EMIT(*p); p++; EMIT(*p); p++; }
+        } else if (*p == '#') {                            /* Python line comment */
+            while (*p && *p != '\n') { EMIT(*p); p++; }
+        } else if ((p[0] == '"' && p[1] == '"' && p[2] == '"') ||
+                   (p[0] == '\'' && p[1] == '\'' && p[2] == '\'')) {  /* triple-quoted */
+            char q = *p; EMIT(*p); EMIT(p[1]); EMIT(p[2]); p += 3;
+            while (*p && !(p[0] == q && p[1] == q && p[2] == q)) { EMIT(*p); p++; }
+            if (*p) { EMIT(*p); EMIT(p[1]); EMIT(p[2]); p += 3; }
+        } else if (*p == '"' || *p == '\'') {             /* string / char literal */
+            char q = *p; EMIT(*p); p++;
+            while (*p && *p != q) {
+                if (*p == '\\' && p[1]) { EMIT(*p); p++; EMIT(*p); p++; }
+                else { EMIT(*p); p++; }
+            }
+            if (*p == q) { EMIT(*p); p++; }
+        } else if (strncmp(p, oldexpr, oldlen) == 0) {     /* the replacement */
+            for (size_t i = 0; i < newlen; i++) EMIT(newexpr[i]);
+            p += oldlen; replaced++;
+        } else { EMIT(*p); p++; }
+    }
+#undef EMIT
+    FILE *f = fopen(out_path, "w");
+    if (!f) return -1;
+    fwrite(out, 1, oi, f);
+    fclose(f);
+    return (int)replaced;
+}
+
+/* gen200: structural SYMMETRY-BREAK localization (see code.h). A general bug
+ * smell: two parallel branches that should mirror each other, where one assigns
+ * its own operand variable (`T[..P..] = P`, the healthy mirror) and the sibling
+ * assigns a LITERAL where the analogous variable belongs (`T2[..Q..] = <lit>`).
+ * The literal is the suspect; the fix mirrors the healthy branch (`= Q`). Names
+ * nothing in advance — it reads the structure of whatever function it is given. */
+static int sym_param_in_range(const char *a, const char *b,
+                              char params[][KB_TERM_LEN], size_t np,
+                              char *out, size_t outsz) {
+    out[0] = '\0';
+    for (const char *x = a; x < b; ) {
+        if (isalpha((unsigned char)*x) || *x == '_') {
+            const char *y = x; while (y < b && (isalnum((unsigned char)*y) || *y == '_')) y++;
+            size_t l = (size_t)(y - x); char w[KB_TERM_LEN];
+            if (l < sizeof w) { memcpy(w, x, l); w[l] = '\0';
+                for (size_t i = 0; i < np; i++)
+                    if (!strcmp(w, params[i])) { snprintf(out, outsz, "%s", w); return 1; } }
+            x = y;
+        } else x++;
+    }
+    return 0;
+}
+
+int code_symmetry_fix(const char *src_path, const char *fnname,
+                      char *old_stmt, size_t old_sz,
+                      char *new_stmt, size_t new_sz) {
+    if (!src_path || !old_stmt || !new_stmt || !old_sz || !new_sz) return -1;
+    old_stmt[0] = new_stmt[0] = '\0';
+    static char buf[262144];
+    if (!code_read_file(src_path, buf, sizeof buf)) return -1;
+
+    for (const char *p = strstr(buf, "def "); p; p = strstr(p + 1, "def ")) {
+        if (p != buf && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) continue;
+        const char *d = p + 4; while (*d == ' ' || *d == '\t') d++;
+        const char *id = d; while (isalnum((unsigned char)*d) || *d == '_') d++;
+        size_t idl = (size_t)(d - id); char fname[KB_TERM_LEN];
+        if (idl == 0 || idl >= sizeof fname) continue;
+        memcpy(fname, id, idl); fname[idl] = '\0';
+        if (fnname && strcmp(fname, fnname) != 0) continue;
+        const char *q = d; while (*q == ' ' || *q == '\t') q++;
+        if (*q != '(') continue;
+        int pd = 0; const char *r = q;
+        for (; *r; r++) { if (*r == '(') pd++; else if (*r == ')') { pd--; if (!pd) { r++; break; } } }
+        if (pd != 0) continue;
+
+        char params[8][KB_TERM_LEN]; size_t np = 0;
+        { const char *s = q + 1, *pe = r - 1;
+          while (s < pe && np < 8) { const char *seg = s; while (s < pe && *s != ',') s++;
+            const char *t = seg; while (t < s && !(isalpha((unsigned char)*t) || *t == '_')) t++;
+            const char *u = t; while (u < s && (isalnum((unsigned char)*u) || *u == '_')) u++;
+            if (u > t) { size_t l = (size_t)(u - t);
+                if (l < KB_TERM_LEN) { memcpy(params[np], t, l); params[np][l] = '\0'; np++; } }
+            if (s < pe && *s == ',') s++; } }
+
+        const char *colon = r; while (*colon && *colon != ':' && *colon != '\n') colon++;
+        if (*colon != ':') continue;
+        const char *ls = p; while (ls > buf && ls[-1] != '\n') ls--;
+        size_t def_indent = (size_t)(p - ls);
+        const char *bp = colon; while (*bp && *bp != '\n') bp++; if (*bp == '\n') bp++;
+        const char *bend = bp;
+        while (*bend) {
+            const char *lst = bend, *le = bend; while (*le && *le != '\n') le++;
+            size_t ind = 0; const char *c = lst; while (*c == ' ' || *c == '\t') { ind++; c++; }
+            int blank = (c == le || *c == '\0');
+            if (!blank && ind <= def_indent) break;       /* dedent ends the function */
+            bend = (*le == '\n') ? le + 1 : le;
+            if (!*le) break;
+        }
+
+        int have_healthy = 0; char healthy_p[KB_TERM_LEN] = "";
+        int have_broken = 0; char broken_line[256] = "", broken_q[KB_TERM_LEN] = "";
+        for (const char *lp = bp; lp < bend; ) {
+            const char *le = lp; while (le < bend && *le != '\n') le++;
+            const char *t0 = lp; while (t0 < le && (*t0 == ' ' || *t0 == '\t')) t0++;
+            const char *t1 = le; while (t1 > t0 && isspace((unsigned char)t1[-1])) t1--;
+            if (t0 < t1 && (isalpha((unsigned char)*t0) || *t0 == '_')) {
+                const char *ide = t0; while (ide < t1 && (isalnum((unsigned char)*ide) || *ide == '_')) ide++;
+                const char *br = ide; while (br < t1 && (*br == ' ' || *br == '\t')) br++;
+                if (br < t1 && *br == '[') {               /* T[ subscript ] = RHS */
+                    int bd = 0; const char *se = br;
+                    for (; se < t1; se++) { if (*se == '[') bd++; else if (*se == ']') { bd--; if (!bd) { se++; break; } } }
+                    const char *eq = se; while (eq < t1 && (*eq == ' ' || *eq == '\t')) eq++;
+                    if (eq < t1 && *eq == '=' && (eq + 1 >= t1 || eq[1] != '=')) {
+                        const char *rhs = eq + 1; while (rhs < t1 && (*rhs == ' ' || *rhs == '\t')) rhs++;
+                        char subp[KB_TERM_LEN]; sym_param_in_range(br, se, params, np, subp, sizeof subp);
+                        const char *re = rhs; while (re < t1 && (isalnum((unsigned char)*re) || *re == '_')) re++;
+                        int rhs_ident = (re > rhs && re == t1 &&
+                                         (isalpha((unsigned char)*rhs) || *rhs == '_'));
+                        int rhs_num = (rhs < t1); for (const char *x = rhs; x < t1; x++) if (!isdigit((unsigned char)*x)) { rhs_num = 0; break; }
+                        if (rhs_ident) {
+                            char rid[KB_TERM_LEN]; size_t l = (size_t)(re - rhs);
+                            if (l < sizeof rid) { memcpy(rid, rhs, l); rid[l] = '\0';
+                                if (subp[0] && !strcmp(rid, subp)) { have_healthy = 1; snprintf(healthy_p, sizeof healthy_p, "%s", rid); } }
+                        } else if (rhs_num && subp[0]) {
+                            size_t l = (size_t)(t1 - t0);
+                            if (l < sizeof broken_line) { memcpy(broken_line, t0, l); broken_line[l] = '\0';
+                                snprintf(broken_q, sizeof broken_q, "%s", subp); have_broken = 1; }
+                        }
+                    }
+                }
+            }
+            lp = (le < bend) ? le + 1 : bend;
+        }
+
+        if (have_healthy && have_broken && strcmp(healthy_p, broken_q) != 0) {
+            snprintf(old_stmt, old_sz, "%s", broken_line);
+            char *lasteq = strrchr(broken_line, '=');
+            if (!lasteq) return 0;
+            size_t pre = (size_t)(lasteq - broken_line) + 1;
+            snprintf(new_stmt, new_sz, "%.*s %s", (int)pre, broken_line, broken_q);
+            return 1;
+        }
+        if (fnname) return 0;          /* requested fn analyzed, no symmetry break */
+    }
+    return 0;
+}
+
 /* gen191: F5 edit — delete the top-level definition of `fnname`. The same engine
  * as rename (locate -> edit -> the caller compiles to verify), a SECOND
  * transformation proving the edit loop is rule-shaped, not one hardcoded op. We

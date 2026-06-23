@@ -2,7 +2,23 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - climb toward the first REAL SWE-bench_Lite instance (F., 2026-06-23)
+## SOLVED - astropy__astropy-12907, the first REAL SWE-bench_Lite instance (gen200)
+
+parrot0 produces a patch the OFFICIAL SWE-bench image accepts (2 FAIL_TO_PASS pass,
+13 PASS_TO_PASS hold) — `make swe-solve` -> RESOLVED. Non-deceptive: it never sees
+the gold patch or tests; it derives the fix from a structural SYMMETRY BREAK
+(`code_symmetry_fix`) and the real test suite judges it (`tests/swebench/oracle.sh`).
+This is ONE general repair pattern pulled by this instance, NOT general APR.
+
+Next swe-bench pulls (each: a grounded localizer/transformation pulled from real
+pressure, judged by the real oracle — never a hardcoded answer):
+- widen the map: `tests/swebench/fetch_lite.sh 50`, run `make swe-bench`, see which
+  faculty each next instance needs.
+- more structural bug-smell localizers + transformations beyond symmetry break.
+- the value-domain Python semantics delta (numpy arrays) for instances that need
+  semantic reasoning, not just a structural smell.
+
+## (history) Active task - climb toward the first REAL SWE-bench_Lite instance (F., 2026-06-23)
 
 F. directed: use the **real** SWE-bench_Lite, not a proxy. gen195 wired it
 (`tests/swebench/fetch_lite.sh` fetches real rows once, cached under the gitignored

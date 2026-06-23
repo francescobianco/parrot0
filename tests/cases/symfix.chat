@@ -1,0 +1,9 @@
+# gen200: structural symmetry-break localization (X6 by structure, not by issue
+# association). On the REAL astropy separable.py (the SWE-bench astropy-12907 file),
+# parrot0 finds — from structure alone — that a sibling branch assigns the literal
+# `1` where the analogous variable `right` belongs (its twin branch assigns `left`).
+# It names no file/function/answer in advance; this same smell would localize any
+# such break. The real test suite is the judge (tests/swebench/parrot_solve.sh);
+# this hermetic case ratchets the DERIVATION so it can never silently regress.
+> find the symmetry bug in tests/swebench/lite/astropy__astropy-12907/repo_excerpt/astropy/modeling/separable.py
+< In tests/swebench/lite/astropy__astropy-12907/repo_excerpt/astropy/modeling/separable.py, `cright[-right.shape[0]:, -right.shape[1]:] = 1` breaks the symmetry with its sibling branch; the fix is `cright[-right.shape[0]:, -right.shape[1]:] = right`.

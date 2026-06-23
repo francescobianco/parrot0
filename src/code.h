@@ -64,6 +64,32 @@ int code_locate(const char *dir, const char *fnname, char *out_file, size_t out_
 int code_rename(const char *src_path, const char *oldname,
                 const char *newname, const char *out_path);
 
+/* gen200: F5 edit (X7 patch synthesis) — write `src_path` to `out_path` with every
+ * occurrence of the exact code expression `oldexpr` replaced by `newexpr`, in CODE
+ * regions only (comments and string/char literals copied verbatim — incl. Python
+ * `#` lines). Unlike code_rename (a single identifier) this replaces an arbitrary
+ * token sequence: the expression/statement-level transformation a real bug fix
+ * needs (e.g. `= 1` -> `= right`). The caller supplies enough context for `oldexpr`
+ * to be unambiguous. The original is never modified. Returns the replacement count,
+ * or -1 on error. */
+int code_replace_expr(const char *src_path, const char *oldexpr,
+                      const char *newexpr, const char *out_path);
+
+/* gen200: structural SYMMETRY-BREAK localization (F4/X6 by structure, NOT by
+ * issue-text association — CODE-MASTERY §4 refuses the phrasebook). Two parallel
+ * branches should mirror each other; when one assigns its own operand variable but
+ * the sibling assigns a LITERAL where the analogous variable belongs, that literal
+ * is the suspect. In function `fnname` (or, if NULL, any function) of the file at
+ * `src_path`, finds a statement `T[ ...subscript using param Q... ] = <literal>`
+ * that has a healthy sibling `T2[ ...subscript using param P... ] = P` (RHS equals
+ * its own subscript param), and proposes replacing the literal with Q. Writes the
+ * exact (trimmed) old statement to `old_stmt` and the fixed statement to `new_stmt`;
+ * returns 1 if a symmetry break was found, 0 if none, -1 on error. Purely
+ * structural — it names no file, function, or variable in advance. */
+int code_symmetry_fix(const char *src_path, const char *fnname,
+                      char *old_stmt, size_t old_sz,
+                      char *new_stmt, size_t new_sz);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The
