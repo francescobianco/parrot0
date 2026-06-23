@@ -1,4 +1,55 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen191: code mastery — a SECOND F5 edit transformation (delete)
+
+**Mission.** `docs/CODE-MASTERY.md`: recover the LLM's NL↔code coherence by
+unifying code into the KB substrate and grounding meaning in real compilation.
+Method (§7): pull the next faculty from a failing `code-bench` stimulus, grow one
+faculty per generation toward the F5 read→edit→verify→iterate loop.
+
+**Pressure read.** `make code-bench` had one open gap, `edit_locate` ("rename a
+function under a DIRECTORY"). Probing showed it already HOLDS end to end: parrot0
+locates the defining file recursively, renames in a temp copy, and verifies with
+the real compiler — keyword collisions ("rename add to square") and C keywords
+("rename add to return") genuinely report "no longer compiles"; the fixture is
+never touched. The gap was stale (its expected string predated the "(N
+occurrences)" wording). So the honest move: promote it to a ratcheted gate and
+pull the NEXT faculty.
+
+**Faculty pulled — delete, a second edit transformation.** Rename alone could
+look like one hardcoded op; F5 says an edit is a *transformation rule* over the
+AST. `code_delete_function` (src/code.c) reuses the SAME locate→edit→compile-
+verify micro-loop with a different rule: scan top level (brace depth 0),
+comment/string aware, find the identifier just before a definition's parameter
+'(', and cut from the start of that declaration through the matching '}'. The
+brain branch (mod_codeast) chains F4 directory-localization into it exactly as
+rename does; temp-only, footprint-free; EN+IT cues (delete/remove/elimina/rimuovi,
+function/funzione).
+
+**Grounded-honesty frontier surfaced.** Deleting a still-called function passes
+`cc -fsyntax-only` (the dangling call is only an implicit-declaration warning,
+exit 0), so parrot0 honestly reports "still compiles" — the syntax oracle's true
+verdict. Catching that it would fail to LINK needs F5 "verify by running"
+(compile-and-link/execute), which parrot0 lacks. Recorded as the new gap
+`run_verify` — the move from syntax-check grounding to build/run grounding.
+
+**Changed.** `brain.c` -> `gen191-code-delete-function`; `code.c`/`code.h` gain
+`code_delete_function`. Ratchets: `tests/code/edit_locate.code` promoted gap→pass
+(now asserts the located rename, the compiler-caught collision, and the honest
+decline); new `tests/code/edit_delete.code` (pass) — directory-locate delete,
+explicit-path delete, comment/brace-aware delete, honest decline, IT path; new
+`tests/code/run_verify.code` (gap).
+
+**Observed.** `make code-bench`: gates 15→17 hold, 1 gap, turn landing 97%→98%.
+`make test` (run.sh) 182/182; pre-existing profiles.sh failures (4, identical on
+baseline) untouched. 10× stress: a fixture with nested if/for/while braces, a
+string literal `"literal } with { braces"`, and a doc comment carrying braces —
+deleting each of alpha/beta/gamma_helper/main still compiles (the compiler proves
+every cut was balanced; a miscount would not compile), nonexistent declined,
+fixture footprint-free.
+
+**Next.** `run_verify` is the recorded pull: real compile-and-link / execute
+(F5 grounding by running), then iterate on the observed error.
+
 ## 2026-06-23 - gen190: arithmetic in natural language (basic-chat cat.4)
 
 **Goal.** Close basic-chat cat.4 (Aritmetica base), 2/19 engaged at gen189. The

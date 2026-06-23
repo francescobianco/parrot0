@@ -917,6 +917,96 @@ int code_rename(const char *src_path, const char *oldname,
     return (int)replaced;
 }
 
+/* gen191: F5 edit — delete the top-level definition of `fnname`. The same engine
+ * as rename (locate -> edit -> the caller compiles to verify), a SECOND
+ * transformation proving the edit loop is rule-shaped, not one hardcoded op. We
+ * scan top level only (brace depth 0), comment/string aware, find the identifier
+ * that immediately precedes the parameter '(' of a definition (the next char that
+ * opens a body is '{'), and cut from the start of that declaration through the
+ * matching '}'. */
+int code_delete_function(const char *src_path, const char *fnname,
+                         const char *out_path) {
+    if (!src_path || !fnname || !*fnname || !out_path) return -1;
+    if (out_path[0] == '/' || out_path[0] == '~' || strstr(out_path, "..")) return -1;
+    for (const char *c = fnname; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) return -1;
+
+    static char in[262144];
+    if (!code_read_file(src_path, in, sizeof in)) return -1;
+
+    size_t i = 0, decl_start = 0;
+    while (in[decl_start] && isspace((unsigned char)in[decl_start])) decl_start++;
+    i = decl_start;
+    int brace = 0, name_locked = 0;
+    char cur_name[KB_TERM_LEN] = "";
+    long region_start = -1, region_end = -1;
+
+    while (in[i]) {
+        if (in[i] == '/' && in[i+1] == '/') { i += 2; while (in[i] && in[i] != '\n') i++; continue; }
+        if (in[i] == '/' && in[i+1] == '*') { i += 2; while (in[i] && !(in[i] == '*' && in[i+1] == '/')) i++; if (in[i]) i += 2; continue; }
+        if (in[i] == '"' || in[i] == '\'') {
+            char q = in[i++];
+            while (in[i] && in[i] != q) { if (in[i] == '\\' && in[i+1]) i += 2; else i++; }
+            if (in[i] == q) i++;
+            continue;
+        }
+        char c = in[i];
+        if (brace == 0) {
+            if (isalpha((unsigned char)c) || c == '_') {
+                size_t s = i;
+                while (isalnum((unsigned char)in[i]) || in[i] == '_') i++;
+                if (!name_locked) {
+                    size_t l = i - s;
+                    if (l < KB_TERM_LEN) { memcpy(cur_name, in + s, l); cur_name[l] = '\0'; }
+                }
+                continue;
+            }
+            if (c == '(') { name_locked = 1; i++; continue; }
+            if (c == '{') {
+                if (name_locked && strcmp(cur_name, fnname) == 0) {
+                    /* found the definition: cut decl_start .. matching '}'. */
+                    region_start = (long)decl_start;
+                    int d = 0; size_t j = i;
+                    while (in[j]) {
+                        if (in[j] == '/' && in[j+1] == '/') { j += 2; while (in[j] && in[j] != '\n') j++; continue; }
+                        if (in[j] == '/' && in[j+1] == '*') { j += 2; while (in[j] && !(in[j] == '*' && in[j+1] == '/')) j++; if (in[j]) j += 2; continue; }
+                        if (in[j] == '"' || in[j] == '\'') {
+                            char q = in[j++];
+                            while (in[j] && in[j] != q) { if (in[j] == '\\' && in[j+1]) j += 2; else j++; }
+                            if (in[j] == q) j++;
+                            continue;
+                        }
+                        if (in[j] == '{') d++;
+                        else if (in[j] == '}') { d--; if (d == 0) { j++; break; } }
+                        j++;
+                    }
+                    region_end = (long)j;
+                    break;
+                }
+                brace++; i++; continue;
+            }
+            if (c == ';') { i++; decl_start = i; while (in[decl_start] && isspace((unsigned char)in[decl_start])) decl_start++; i = decl_start; name_locked = 0; cur_name[0] = '\0'; continue; }
+            i++; continue;
+        } else {
+            if (c == '{') brace++;
+            else if (c == '}') { brace--; if (brace == 0) { i++; decl_start = i; while (in[decl_start] && isspace((unsigned char)in[decl_start])) decl_start++; i = decl_start; name_locked = 0; cur_name[0] = '\0'; continue; } }
+            i++; continue;
+        }
+    }
+
+    if (region_start < 0 || region_end < 0) return 0;     /* not found */
+
+    /* drop a run of blank lines left behind so the result stays tidy. */
+    while (in[region_end] == '\n' || in[region_end] == '\r') region_end++;
+
+    FILE *f = fopen(out_path, "w");
+    if (!f) return -1;
+    fwrite(in, 1, (size_t)region_start, f);
+    fwrite(in + region_end, 1, strlen(in + region_end), f);
+    fclose(f);
+    return 1;
+}
+
 /* gen186: F5 verification — syntax-check `path` by running the C compiler as a
  * sandboxed subprocess (no shell, so no injection; a strict char whitelist on the
  * path; -fsyntax-only so nothing is written; a child alarm() bounds the time). A

@@ -1,0 +1,24 @@
+# gen191 — F5 edit, a SECOND transformation. Rename (gen187) proved the
+# locate -> edit -> compile-verify micro-loop; delete reuses the SAME loop with a
+# different transformation rule (cut the top-level definition through its matching
+# brace), showing the edit loop is rule-shaped, not a single hardcoded operation.
+# The original file is never touched (temp-only); the verdict comes from the real
+# compiler, not a guess (CODE-MASTERY.md §4).
+#expect: pass
+#faculty: edit-delete
+# Under a DIRECTORY: locate the defining file first (F4 chained into F5).
+> delete the function square under tests/code
+< Deleted square in fixtures/sample.c; the result still compiles.
+# By explicit file path; the whole definition (signature + balanced body) goes.
+> remove the function add from tests/code/fixtures/sample.c
+< Deleted add; the result still compiles.
+# Comment-aware: the deletion skips a doc comment's stray "if (" / braces and
+# removes the right region, leaving a translation unit that still compiles.
+> remove the function twice from tests/code/fixtures/withcomment.c
+< Deleted twice; the result still compiles.
+# Honest decline when nothing under the directory defines the function.
+> delete the function nope under tests/code
+< I looked through tests/code but found no file that defines nope.
+# Bilingual: Italian cue words reach the SAME edit loop (elimina/funzione).
+> elimina la funzione square in tests/code/fixtures/sample.c
+< Deleted square; the result still compiles.

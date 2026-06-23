@@ -1,0 +1,11 @@
+# gen191 — recorded growth edge (the NEXT pull: link/run-stage verification).
+# Deleting a function that is still CALLED passes `cc -fsyntax-only` (the dangling
+# call is only an implicit-declaration warning, exit 0), so parrot0 honestly
+# reports "still compiles" — which is the syntax oracle's true verdict. But the
+# program would fail to LINK. Catching that needs the F5 "verify by running" step
+# (real compile-and-link / execute), which parrot0 does not have yet. Expected to
+# MISS — this marks the move from syntax-check grounding to build/run grounding.
+#expect: gap
+#faculty: run-verify
+> delete the function add under tests/code and confirm it still links
+< main still calls add, so the program no longer links.

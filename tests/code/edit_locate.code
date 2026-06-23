@@ -1,9 +1,16 @@
-# gen187 — recorded growth edge (the NEXT pull: repo-scale edit). Renaming needs
-# an explicit file path; a coding agent is told "rename X to Y" and must first FIND
-# the file in the repo (code_locate), then edit + verify. Asked to rename under a
-# DIRECTORY, parrot0 does not yet locate the file first. Expected to MISS — marks
-# chaining F4 localization into the F5 edit+verify loop.
-#expect: gap
+# gen191 — RATCHETED (was gen187's open gap). Renaming under a DIRECTORY chains F4
+# localization into the F5 edit+verify loop: parrot0 first locates the file that
+# defines the function (recursively, sandboxed), then renames the identifier in a
+# temp copy, compiles to verify, and reports the file relative to the directory —
+# the original is never touched.
+#expect: pass
 #faculty: edit-locate
 > rename the function add to plus under tests/code
-< Renamed add to plus in fixtures/sample.c; the result still compiles.
+< Renamed add to plus in fixtures/sample.c (2 occurrences); the result still compiles.
+# A rename that collides with an existing definition is caught by the real
+# compiler, not guessed — grounded verification (CODE-MASTERY.md §4).
+> rename the function add to square under tests/code/fixtures
+< Renamed add to square in sample.c (2 occurrences), but the result no longer compiles.
+# Honest decline when no file under the directory defines the function.
+> rename the function greet to hi under tests/code
+< I looked through tests/code but found no file that defines greet.

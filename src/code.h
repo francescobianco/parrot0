@@ -54,6 +54,14 @@ int code_locate(const char *dir, const char *fnname, char *out_file, size_t out_
 int code_rename(const char *src_path, const char *oldname,
                 const char *newname, const char *out_path);
 
+/* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
+ * of function `fnname` (its signature through the matching closing brace) removed.
+ * Comments/string literals are skipped so a brace inside them never miscounts. The
+ * original is never modified. Returns 1 if a definition was removed, 0 if none was
+ * found, -1 on error (bad name, sandbox, read/write fail). */
+int code_delete_function(const char *src_path, const char *fnname,
+                         const char *out_path);
+
 /* gen186: F5 verification — syntax-check `path` by running the C compiler in a
  * sandboxed subprocess (no shell, path whitelist, -fsyntax-only, timeout). A
  * compiler is a deterministic tool, not outsourced intelligence. Returns 1 if it

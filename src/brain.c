@@ -8532,6 +8532,71 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen191: F5 edit — "delete/remove the function <X> under <dir|file>". The
+     * SAME micro-loop as rename (locate -> edit -> compile-verify -> report,
+     * temp-only) with a different transformation rule, proving the edit loop is
+     * rule-shaped rather than a single hardcoded operation. Deleting a function
+     * that is still called yields an honest "no longer compiles" from the real
+     * compiler — the grounded oracle, not a guess. */
+    if ((cue(qpart, "delete") || cue(qpart, "remove") || cue(qpart, "elimina") ||
+         cue(qpart, "rimuovi")) && (cue(qpart, "function") || cue(qpart, "funzione")) &&
+        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".h"))) {
+        char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
+        char *w[48]; size_t nw = split_words(qbuf, w, 48);
+        char fnname[KB_TERM_LEN] = "", path[256] = "";
+        for (size_t i = 0; i < nw; i++) {
+            if ((!strcmp(w[i], "function") || !strcmp(w[i], "funzione")) && i + 1 < nw)
+                snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
+            if (strchr(w[i], '/') ||
+                (strlen(w[i]) >= 2 && (strstr(w[i], ".c") || strstr(w[i], ".h"))))
+                snprintf(path, sizeof path, "%s", strip_edge_punct(w[i]));
+        }
+        if (!fnname[0] || !path[0]) return 0;
+
+        char fullpath[512]; char where[280] = "";
+        size_t pl = strlen(path);
+        int is_file = (pl >= 2 && path[pl-2] == '.' && (path[pl-1] == 'c' || path[pl-1] == 'h'));
+        if (is_file) {
+            snprintf(fullpath, sizeof fullpath, "%s", path);
+        } else {
+            char rel[256];
+            if (!code_locate(path, fnname, rel, sizeof rel)) {
+                snprintf(out, out_size,
+                         "I looked through %s but found no file that defines %s.", path, fnname);
+                store_proof(b, out);
+                return 1;
+            }
+            snprintf(fullpath, sizeof fullpath, "%s/%s", path, rel);
+            snprintf(where, sizeof where, " in %s", rel);
+        }
+
+        const char *tmp = ".p0_edit_tmp.c";
+        int n = code_delete_function(fullpath, fnname, tmp);
+        if (n < 0) return 0;                       /* bad name / unreadable — not ours */
+        if (n == 0) {
+            remove(tmp);
+            snprintf(out, out_size, "I did not find a definition of %s in %s, so nothing was deleted.",
+                     fnname, fullpath);
+            store_proof(b, out);
+            return 1;
+        }
+        char err[512];
+        int rc = code_compile(tmp, err, sizeof err);
+        remove(tmp);
+        if (rc == 1)
+            snprintf(out, out_size,
+                     "Deleted %s%s; the result still compiles.", fnname, where);
+        else if (rc == 0)
+            snprintf(out, out_size,
+                     "Deleted %s%s, but the result no longer compiles (something still uses it).",
+                     fnname, where);
+        else
+            snprintf(out, out_size,
+                     "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where);
+        store_proof(b, out);
+        return 1;
+    }
+
     /* gen187: F5 edit — "rename <old> to <new> in <file>". The full micro-loop:
      * read the file, rename the identifier (non-destructively, to a temp), compile
      * the result to VERIFY, report, and delete the temp. The original is untouched. */
@@ -11357,7 +11422,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen190-nl-arithmetic";
+    return "gen191-code-delete-function";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
