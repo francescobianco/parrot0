@@ -1,11 +1,11 @@
 # Special relativity
 
-- Learning event: `learn_2026_06_21t15_04_14z_special_relativity`
-- Operational log: `kb/learning/logs/learn_2026_06_21t15_04_14z_special_relativity.json`
+- Learning event: `learn_2026_06_23t07_34_28z_special_relativity`
+- Operational log: `kb/learning/logs/learn_2026_06_23t07_34_28z_special_relativity.json`
 - Domain: `physics`
 - Source: https://en.wikipedia.org/wiki/Special_relativity
 - Wikipedia revision: `1359980723`
-- Processed: `2026-06-21T15:04:14Z`
+- Processed: `2026-06-23T07:34:28Z`
 
 ## Learned Concept
 
