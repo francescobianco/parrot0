@@ -8805,6 +8805,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             r = code_find_discarded_result(path, NULL, olds, sizeof olds, news, sizeof news);
             if (r > 0) reason = "discards the result of a value-returning call";
         }
+        if (r == 0) {
+            r = code_find_cond_asymmetry(path, NULL, olds, sizeof olds, news, sizeof news);
+            if (r > 0) reason = "is an asymmetric None-check that should test the attribute its sibling branches use";
+        }
         if (r < 0) return 0;                       /* unreadable / unsafe — not ours */
         if (r == 0 || !reason) {
             snprintf(out, out_size,
@@ -11648,7 +11652,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen201-discarded-result";
+    return "gen204-cond-asymmetry";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

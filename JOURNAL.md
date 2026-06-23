@@ -1,4 +1,42 @@
 # parrot0 evolution journal
+## 2026-06-24 - gen204: third REAL SWE-bench instance (astropy-14995) RESOLVED — condition asymmetry
+
+**Milestone.** A THIRD real SWE-bench_Lite instance resolved, by a THIRD general
+structural smell. `make swe-solve INSTANCE=astropy__astropy-14995` -> RESOLVED
+(1 FAIL_TO_PASS pass, **179 PASS_TO_PASS** hold). Same honesty: parrot0 reads only
+the committed buggy file, derives from structure, the official Docker image judges.
+
+**The bug & the smell.** `_arithmetic_mask` guards its branches on `self.mask is
+None` / `operand.mask is None`, but one branch tests the BARE name `operand is
+None`. Since `operand.mask` is used throughout the function (and the sibling tests
+`self.mask`), the bare guard is the inconsistency — the fix is `operand.mask is
+None`. `code_find_cond_asymmetry` (new, pure C) detects this: a sole `NAME is None`
+guard where `NAME.ATTR` is used elsewhere and a sibling guards on `X.ATTR is None`.
+Grounded (the `.ATTR` use must already exist), not fitted — it fires only on
+ndarithmetic.py, not on separable.py / fitsrec.py / calc.py (verified).
+
+**Oracle bug fixed (important).** Standing up 14995 exposed a flaw in
+`tests/swebench/oracle.sh`: astropy forces ANSI colour even when stdout is not a
+TTY, so the pass-detection `^[0-9]+ passed` never matched the colourised summary —
+the GOLD patch itself reported 179 false regressions. Fixed: strip ANSI and parse
+passed/failed counts robustly, and BATCH each test set into one pytest run (fast).
+Re-verified all three: 12907 (13/13), 6938 (11/11), 14995 (179/179) -> RESOLVED.
+(The earlier 12907/6938 verdicts were genuine — their astropy emitted plain output.)
+
+**Changed.** `code.c`/`code.h`: `code_find_cond_asymmetry` + `has_attr_use`.
+`brain.c` -> `gen204-cond-asymmetry`: the "find/fix the bug in <path>" branch now
+tries three smells in turn (symmetry, discarded result, condition asymmetry).
+Curation: `repo_excerpt/.../ndarithmetic.py` snapshotted at base_commit (this time
+via GitHub raw — cheaper than the Docker image). EN+IT ratchets `condasym.chat`/
+`.it`. `make test` fully green (194 unit cases); code-bench 21 gates.
+
+**Honest scope.** THREE instances, THREE general structural smells (symmetry break,
+discarded result, condition asymmetry) — a growing library of grounded localizers,
+NOT general APR. The remaining committed instances (14365 case-insensitivity,
+14182 a feature add) sit at/past the associative frontier §4 and are not pursued by
+faking. Each new instance pulls the next smell from real pressure; the real oracle
+judges every fix.
+
 ## 2026-06-23 - gen203: fix heap-use-after-free in kb_derive_part_of (make chat crash)
 
 **Bug (F. report).** `make chat` (which loads `PARROT0_PROFILE=kb/profiles/agi.p0`)

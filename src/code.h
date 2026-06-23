@@ -105,6 +105,19 @@ int code_find_discarded_result(const char *src_path, const char *fnname,
                                char *old_stmt, size_t old_sz,
                                char *new_stmt, size_t new_sz);
 
+/* gen204: structural CONDITION-ASYMMETRY localization (a third general bug smell;
+ * the symmetry idea of gen200 carried from assignments to guards). When a function
+ * guards branches on `X.ATTR is None` for several operands but one branch tests a
+ * BARE name `Y is None` — and that same Y is used as `Y.ATTR` elsewhere in the
+ * function (so `.ATTR` clearly belongs) — the bare test is the inconsistency; the
+ * fix is `Y.ATTR is None`. (E.g. siblings test `self.mask is None`/`operand.mask`,
+ * but one branch tests bare `operand is None`.) In `fnname` (or any if NULL) of
+ * `src_path`, writes the trimmed old condition line and the fixed line; 1 if found,
+ * 0 none, -1 on error. Grounded (the `.ATTR` use must already exist), not fitted. */
+int code_find_cond_asymmetry(const char *src_path, const char *fnname,
+                             char *old_stmt, size_t old_sz,
+                             char *new_stmt, size_t new_sz);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

@@ -1,23 +1,30 @@
-# NEXTMOVE — handoff (2026-06-23)
+# NEXTMOVE — handoff (2026-06-24)
 
-Clean tree. Head: gen203. `make test` FULLY GREEN (zero failures) — gen203 fixed a
-heap-use-after-free in `kb_derive_part_of` that was crashing the agi profile and was
-the real cause of the 4 long-dismissed `profiles.sh` "agi" failures (now 13/13).
-`make code-bench` 21/21 gates. gen202 fixed the stray `<` in `make chat`.
+Clean tree. Head: gen204 (`gen204-cond-asymmetry`). `make test` FULLY GREEN (194
+unit cases, zero failures; gen203 fixed the agi-profile heap-use-after-free that was
+the real cause of the old `profiles.sh` failures — now 13/13). `make code-bench`
+21/21 gates. gen202 fixed the stray `<` in `make chat`.
 
-## Just landed — TWO real SWE-bench instances RESOLVED, two general smells
+## Just landed — THREE real SWE-bench instances RESOLVED, three general smells
 parrot0 derives patches from STRUCTURE and the OFFICIAL SWE-bench Docker image
 judges them RESOLVED (it never sees gold patch / tests):
 - **astropy-12907 (gen200)** SYMMETRY BREAK — `code_symmetry_fix`. `make swe-solve`.
 - **astropy-6938 (gen201)** DISCARDED RESULT — `code_find_discarded_result`: a bare
-  pure-method call (`output_field.replace(...)`) whose value is thrown away; assign
-  it back in place (receiver is a parameter -> rebinding is a no-op). `make
+  pure-method call whose value is thrown away; assign it back in place. `make
   swe-solve INSTANCE=astropy__astropy-6938`.
+- **astropy-14995 (gen204)** CONDITION ASYMMETRY — `code_find_cond_asymmetry`: a
+  bare `NAME is None` guard where siblings test `X.ATTR is None` and `NAME.ATTR` is
+  used elsewhere -> `NAME.ATTR is None` (179 PASS_TO_PASS). `make swe-solve
+  INSTANCE=astropy__astropy-14995`.
+
+gen204 also FIXED the oracle: astropy forces ANSI colour, which broke the
+`^[0-9]+ passed` detection (gold itself looked like 179 regressions); now ANSI is
+stripped and test sets are batched into one pytest run. All three re-verified.
 
 The `mod_codeast` "find/fix the bug in <path>" branch tries each structural smell
-in turn — a growing LIBRARY of grounded localizers, not general APR. New since
-gen200: `code_find_discarded_result` + `is_pure_method` KB; EN+IT `discarded.chat`/
-`.it`. Harness `tests/swebench/{oracle,parrot_solve}.sh`.
+in turn — a growing LIBRARY of grounded localizers, not general APR. EN+IT ratchets
+`symfix`/`discarded`/`condasym` `.chat`/`.it`. Harness `tests/swebench/{oracle,
+parrot_solve}.sh`.
 
 How to run: needs docker + jq; pulls the ~2.7GB official image once per instance (a
 curation step; parrot0 never touches the net). To target a NEW instance: snapshot

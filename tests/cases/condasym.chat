@@ -1,0 +1,10 @@
+# gen204: structural CONDITION-ASYMMETRY localization — a third general bug smell
+# (the symmetry idea of gen200 carried from assignments to guards). On the REAL
+# astropy ndarithmetic.py (SWE-bench astropy-14995), parrot0 finds — from structure
+# alone — that a branch guards on the bare name `operand` while its sibling branches
+# guard on `self.mask` / `operand.mask`, and `operand.mask` is used throughout; so
+# the bare `operand is None` should be `operand.mask is None`. Names nothing in
+# advance. The real oracle (make swe-solve INSTANCE=astropy__astropy-14995) judges
+# it RESOLVED (1 FAIL_TO_PASS, 179 PASS_TO_PASS); this case ratchets the derivation.
+> find the bug in tests/swebench/lite/astropy__astropy-14995/repo_excerpt/astropy/nddata/mixins/ndarithmetic.py
+< In tests/swebench/lite/astropy__astropy-14995/repo_excerpt/astropy/nddata/mixins/ndarithmetic.py, `elif operand is None:` is an asymmetric None-check that should test the attribute its sibling branches use; the fix is `elif operand.mask is None:`.

@@ -65,20 +65,33 @@ else
     echo "no candidate (RED baseline check)."
 fi
 
+# Run a whole set of tests in ONE pytest invocation (fast, the standard way).
 run() { docker exec "$cid" bash -lc "cd /testbed && source /opt/miniconda3/bin/activate testbed && python -m pytest -q -p no:cacheprovider \"\$@\"" bash "$@" 2>&1; }
+strip_ansi() { sed -r 's/\x1b\[[0-9;]*[a-zA-Z]//g'; }
+num_before() { grep -oE "[0-9]+ $1" | grep -oE '[0-9]+' | head -1; }   # "$1" = passed|failed|error(s)
 
-fails=0
+# How many of `set` pass with no failures/errors. Echoes "<passed> <failed>".
+counts() {
+    local clean p f e
+    clean="$(printf '%s\n' "$1" | strip_ansi)"
+    p="$(printf '%s\n' "$clean" | num_before passed)";  [ -z "$p" ] && p=0
+    f="$(printf '%s\n' "$clean" | num_before failed)";  [ -z "$f" ] && f=0
+    e="$(printf '%s\n' "$clean" | grep -oE '[0-9]+ errors?' | grep -oE '[0-9]+' | head -1)"; [ -z "$e" ] && e=0
+    echo "$p $((f + e))"
+}
+
 echo "--- FAIL_TO_PASS (${#F2P[@]}) ---"
-for t in "${F2P[@]}"; do
-    if run "$t" | tail -1 | grep -qE '^[0-9]+ passed'; then echo "  PASS  $t"
-    else echo "  FAIL  $t"; fails=$((fails+1)); fi
-done
+read f2p_pass f2p_bad < <(counts "$(run "${F2P[@]}")")
+echo "  passed $f2p_pass / ${#F2P[@]}   (failed/error: $f2p_bad)"
+fails=$(( ${#F2P[@]} - f2p_pass )); [ "$f2p_bad" -gt 0 ] && fails=$(( fails > f2p_bad ? fails : f2p_bad ))
+
 echo "--- PASS_TO_PASS (${#P2P[@]}) ---"
 p2p_fail=0
-for t in "${P2P[@]}"; do
-    if run "$t" | tail -1 | grep -qE '^[0-9]+ passed'; then :; else echo "  REGRESSED  $t"; p2p_fail=$((p2p_fail+1)); fi
-done
-[ "$p2p_fail" -eq 0 ] && echo "  all ${#P2P[@]} still pass"
+if [ "${#P2P[@]}" -gt 0 ]; then
+    read p2p_pass p2p_bad < <(counts "$(run "${P2P[@]}")")
+    echo "  passed $p2p_pass / ${#P2P[@]}   (failed/error: $p2p_bad)"
+    p2p_fail=$(( ${#P2P[@]} - p2p_pass )); [ "$p2p_fail" -lt "$p2p_bad" ] && p2p_fail=$p2p_bad
+fi
 
 echo "---"
 if [ "$fails" -eq 0 ] && [ "$p2p_fail" -eq 0 ] && [ -s "$tmp/candidate.diff" ]; then

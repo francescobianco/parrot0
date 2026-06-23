@@ -2,17 +2,21 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## SOLVED - 2 REAL SWE-bench_Lite instances, by 2 general structural smells
+## SOLVED - 3 REAL SWE-bench_Lite instances, by 3 general structural smells
 
-Both resolved by the official SWE-bench Docker oracle, no deception (parrot0 reads
+All resolved by the official SWE-bench Docker oracle, no deception (parrot0 reads
 only the committed buggy file, derives from structure, the real tests judge):
 - **astropy-12907 (gen200)** — SYMMETRY BREAK (`code_symmetry_fix`): a sibling
   branch assigns a literal where the analogous variable belongs.
 - **astropy-6938 (gen201)** — DISCARDED RESULT (`code_find_discarded_result`): a
   bare pure-method call whose value is thrown away; assign it back in place.
-Run: `make swe-solve` (12907) / `make swe-solve INSTANCE=astropy__astropy-6938`.
+- **astropy-14995 (gen204)** — CONDITION ASYMMETRY (`code_find_cond_asymmetry`): a
+  bare `NAME is None` guard where siblings test `X.ATTR is None` and `NAME.ATTR` is
+  used elsewhere; the guard should test `NAME.ATTR is None`. (179 PASS_TO_PASS.)
+Run: `make swe-solve [INSTANCE=astropy__astropy-6938|astropy__astropy-14995]`.
 The brain's "find/fix the bug in <path>" tries each smell in turn — a growing
-library of grounded localizers/transformations, NOT general APR.
+library of grounded localizers/transformations, NOT general APR. (gen204 also fixed
+the oracle's ANSI-colour pass-detection + batched the test runs.)
 
 Next swe-bench pulls (each: a grounded smell pulled from real pressure, judged by
 the real oracle — never a hardcoded answer):

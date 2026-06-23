@@ -1420,6 +1420,107 @@ int code_find_discarded_result(const char *src_path, const char *fnname,
     return 0;
 }
 
+/* gen204: does the token `name.attr` occur in [a,b)? (whole-word `name`). */
+static int has_attr_use(const char *a, const char *b, const char *name, const char *attr) {
+    size_t nl = strlen(name), al = strlen(attr);
+    for (const char *p = a; p + nl + al + 1 < b; p++) {
+        if (p != a && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) continue;
+        if (strncmp(p, name, nl) != 0) continue;
+        if (p[nl] != '.') continue;
+        if (strncmp(p + nl + 1, attr, al) != 0) continue;
+        char after = p[nl + 1 + al];
+        if (isalnum((unsigned char)after) || after == '_') continue;  /* attr is whole word */
+        return 1;
+    }
+    return 0;
+}
+
+int code_find_cond_asymmetry(const char *src_path, const char *fnname,
+                             char *old_stmt, size_t old_sz,
+                             char *new_stmt, size_t new_sz) {
+    if (!src_path || !old_stmt || !new_stmt || !old_sz || !new_sz) return -1;
+    old_stmt[0] = new_stmt[0] = '\0';
+    static char buf[262144];
+    if (!code_read_file(src_path, buf, sizeof buf)) return -1;
+
+    for (const char *p = strstr(buf, "def "); p; p = strstr(p + 1, "def ")) {
+        if (p != buf && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) continue;
+        const char *d = p + 4; while (*d == ' ' || *d == '\t') d++;
+        const char *id = d; while (isalnum((unsigned char)*d) || *d == '_') d++;
+        size_t idl = (size_t)(d - id); char fname[KB_TERM_LEN];
+        if (idl == 0 || idl >= sizeof fname) continue;
+        memcpy(fname, id, idl); fname[idl] = '\0';
+        if (fnname && strcmp(fname, fnname) != 0) continue;
+        const char *q = d; while (*q == ' ' || *q == '\t') q++;
+        if (*q != '(') continue;
+        int pdp = 0; const char *r = q;
+        for (; *r; r++) { if (*r == '(') pdp++; else if (*r == ')') { pdp--; if (!pdp) { r++; break; } } }
+        if (pdp != 0) continue;
+        const char *colon = r; while (*colon && *colon != ':' && *colon != '\n') colon++;
+        if (*colon != ':') continue;
+        const char *ls = p; while (ls > buf && ls[-1] != '\n') ls--;
+        size_t def_indent = (size_t)(p - ls);
+        const char *bp = colon; while (*bp && *bp != '\n') bp++; if (*bp == '\n') bp++;
+        const char *bend = bp;
+        while (*bend) {
+            const char *lst = bend, *le = bend; while (*le && *le != '\n') le++;
+            size_t ind = 0; const char *c = lst; while (*c == ' ' || *c == '\t') { ind++; c++; }
+            int blank = (c == le || *c == '\0');
+            if (!blank && ind <= def_indent) break;
+            bend = (*le == '\n') ? le + 1 : le;
+            if (!*le) break;
+        }
+
+        /* Sibling attrs: every ATTR appearing as `<ident>.ATTR is None` in the body. */
+        char attrs[16][KB_TERM_LEN]; size_t nattr = 0;
+        for (const char *s = bp; (s = strstr(s, " is None")) != NULL && s < bend; s++) {
+            const char *e = s; const char *as = e;            /* walk back over attr */
+            while (as > bp && (isalnum((unsigned char)as[-1]) || as[-1] == '_')) as--;
+            if (as == e || as <= bp || as[-1] != '.') continue;  /* must be X.ATTR */
+            size_t al = (size_t)(e - as); if (al == 0 || al >= KB_TERM_LEN) continue;
+            char a[KB_TERM_LEN]; memcpy(a, as, al); a[al] = '\0';
+            int dup = 0; for (size_t k = 0; k < nattr; k++) if (!strcmp(attrs[k], a)) { dup = 1; break; }
+            if (!dup && nattr < 16) snprintf(attrs[nattr++], KB_TERM_LEN, "%s", a);
+        }
+
+        /* Candidate: a sole bare `if/elif NAME is None:` line. */
+        for (const char *lp = bp; lp < bend; ) {
+            const char *le = lp; while (le < bend && *le != '\n') le++;
+            const char *t0 = lp; while (t0 < le && (*t0 == ' ' || *t0 == '\t')) t0++;
+            const char *t1 = le; while (t1 > t0 && isspace((unsigned char)t1[-1])) t1--;
+            const char *kw = NULL, *cs = NULL;
+            if (t1 - t0 > 3 && strncmp(t0, "if ", 3) == 0) { kw = "if"; cs = t0 + 3; }
+            else if (t1 - t0 > 5 && strncmp(t0, "elif ", 5) == 0) { kw = "elif"; cs = t0 + 5; }
+            if (kw && t1[-1] == ':') {
+                while (cs < t1 && (*cs == ' ' || *cs == '\t')) cs++;
+                const char *ne = cs; while (ne < t1 && (isalnum((unsigned char)*ne) || *ne == '_')) ne++;
+                const char *rest = ne; while (rest < t1 && (*rest == ' ' || *rest == '\t')) rest++;
+                /* exactly `NAME is None :` — sole, bare */
+                if (ne > cs && rest + 7 <= t1 && strncmp(rest, "is None", 7) == 0) {
+                    const char *after = rest + 7; while (after < t1 && (*after == ' ' || *after == '\t')) after++;
+                    if (after == t1 - 1 && *after == ':') {
+                        char name[KB_TERM_LEN]; size_t nl = (size_t)(ne - cs);
+                        if (nl < sizeof name) {
+                            memcpy(name, cs, nl); name[nl] = '\0';
+                            for (size_t k = 0; k < nattr; k++) {
+                                if (has_attr_use(bp, bend, name, attrs[k])) {
+                                    size_t l = (size_t)(t1 - t0);
+                                    if (l < old_sz) { memcpy(old_stmt, t0, l); old_stmt[l] = '\0'; }
+                                    snprintf(new_stmt, new_sz, "%s %s.%s is None:", kw, name, attrs[k]);
+                                    return 1;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            lp = (le < bend) ? le + 1 : bend;
+        }
+        if (fnname) return 0;
+    }
+    return 0;
+}
+
 /* gen191: F5 edit — delete the top-level definition of `fnname`. The same engine
  * as rename (locate -> edit -> the caller compiles to verify), a SECOND
  * transformation proving the edit loop is rule-shaped, not one hardcoded op. We
