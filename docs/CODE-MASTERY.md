@@ -243,6 +243,17 @@ when `code-bench` stimuli start requiring repo-scale localization and patching.
   and record the rest as gaps. Ranking/quality numbers become meaningful only once
   the F5 loop closes; until then the value is the intercepted-failure map.
 
+**Status (gen195).** `make swe-bench` is wired to the REAL dataset
+([SWE-bench/SWE-bench_Lite](https://huggingface.co/datasets/SWE-bench/SWE-bench_Lite)):
+`tests/swebench/fetch_lite.sh` fetches rows once (network is a *curation* step, cached
+under `.cache/`, committed static under `tests/swebench/lite/` — like `kb/learning/`),
+and the offline harness reads only those files (parrot0 never hits the net). It runs
+the degrade/behavioural mode and, on the first 5 (all `astropy`) Python instances,
+honestly reports 0 engaged with a per-instance blocker list — the repos are Python
+(C-only engine), uncheckedout, no Python exec env. The first real problem is
+`astropy__astropy-12907`; its first ordered pull is X3 (the abstract node vocabulary
+of §7b — the real meaning of "support Python").
+
 ---
 
 ## 9. One-line summary

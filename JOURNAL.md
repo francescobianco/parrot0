@@ -1,4 +1,41 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen195 (tooling): `make swe-bench` on the REAL SWE-bench_Lite
+
+**Direction (F.).** F. asked where swe-001 came from — honest answer: I had
+hand-authored it, it was NOT real data. F. then required the **real** SWE-bench,
+the Lite split, and reminded me to use the project's `.cache/` so the dataset is
+not re-downloaded. This generation pivots the harness onto real data.
+
+**Network is fine as CURATION, not runtime.** The env has network and the HF
+datasets-server answers. So — exactly like the committed Wikipedia corpus under
+`kb/learning/` — `tests/swebench/fetch_lite.sh` fetches real
+`SWE-bench/SWE-bench_Lite` rows ONCE (the maintainer's curation step), caches the
+raw response under the gitignored `.cache/huggingface/datasets/swebench/` (re-runs
+reuse it; `--force` to refetch — this is the "don't re-download" F. pointed at),
+and writes static fixtures to `tests/swebench/lite/<id>/`. parrot0 itself still
+never touches the net (PRINCIPLES). Removed the synthetic `swe-001`.
+
+**Changed (tooling/docs only; brain.c unchanged, so no version bump).**
+`tests/swebench.sh` rewritten to read the real committed instances and run in
+honest behavioural degrade mode; `tests/swebench/README.md` rewritten to mark the
+data REAL with its provenance + the no-network-at-runtime story; `make swe-bench`
+prints a runtime banner that these are real but not a comparable leaderboard run.
+Fetched the first 5 Lite instances (all `astropy`).
+
+**Observed (the honest intercepted-failure map).** `make swe-bench` feeds each real
+issue to parrot0 -> "I don't understand that yet." for all 5, and names the blocker
+per instance: the repos are **Python**, parrot0's code engine is **C-only**, the
+repos are not checked out, and the hidden pytest needs a Python env. First real
+problem surfaced: **astropy__astropy-12907** (`separability_matrix` on nested
+CompoundModels). Score: 0 engaged — and the harness says exactly why.
+
+**Why this is the right shape.** SWE-bench is the north star, and §8 always said it
+would "measure zero until the ladder is built" — now it measures zero on REAL data
+with a precise blocker list, which is more useful than a passing proxy. The next
+task (TASK.md) is therefore not "solve astropy-12907" but its first ordered pull,
+**X3 — make the analyzers speak an abstract node vocabulary** (the real meaning of
+"support Python"), which needs no new hands and unblocks the rest.
+
 ## 2026-06-23 - gen194 (tooling): `make swe-bench` (degrade mode) + the KB-first growth law
 
 **Direction (F.).** F. reframed the recent thread: the C-types/mirror idea was not

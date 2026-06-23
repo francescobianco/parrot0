@@ -1,97 +1,85 @@
 #!/usr/bin/env bash
 #
-# gen194: make swe-bench — the NORTH-STAR harness in DEGRADE (behavioural) mode.
+# gen195: make swe-bench — the REAL SWE-bench_Lite north star (CODE-MASTERY.md §8),
+# run OFFLINE in DEGRADE / behavioural mode.
 #
-# docs/CODE-MASTERY.md §8: SWE-bench is the honest scoreboard for "handles code
-# like an LLM coding agent" — real issues where a patch must make a repo's own
-# tests pass. A full run needs faculties parrot0 lacks (arbitrary-repo read,
-# issue->code localization, multi-file patch, isolated test exec). So per §8 we
-# run a DEGRADE PATH first: static, offline instances (no network — PRINCIPLES.md),
-# scoring the sub-goals we CAN check and INTERCEPTING where parrot0 fails, so the
-# first unsolved instance becomes the next concrete task (the discovery method).
+# The instances under tests/swebench/lite/ are REAL SWE-bench_Lite rows
+# (https://huggingface.co/datasets/SWE-bench/SWE-bench_Lite), fetched once by
+# tests/swebench/fetch_lite.sh and committed as STATIC snapshots — exactly like the
+# Wikipedia corpus under kb/learning/. parrot0 itself never touches the network
+# (PRINCIPLES.md); this harness only reads the committed JSON.
 #
-# Each instance is tests/swebench/<id>/ with:
-#   instance.md   #id #title #repo #problem #gold_file #gold_function
-#   repo/*.c      a small repository; one .c with main() is the hidden test
-#
-# Sub-goal ladder (grounded where an oracle exists):
-#   S1 reproduce   — compile+run the repo; the bug is REAL iff the test FAILS.
-#   S2 localize    — can parrot0 name the file that defines the gold function?
-#   S3 fix         — produce a patch that makes the test pass (the open frontier).
-# S1/S2 use real tools; S3 is the pull. The harness never fails the build; it
-# prints the first instance whose fix is unsolved as "NEXT PROBLEM TO SOLVE".
+# HONESTY (read this): a full SWE-bench run needs faculties parrot0 does NOT have —
+# the repos are PYTHON (parrot0's code engine is C-only), they are not checked out
+# at the base commit, and the hidden pytest suite needs a Python+Docker env. So we
+# CANNOT reproduce or patch these yet. This harness therefore measures the only
+# honest thing available now: it feeds parrot0 the real issue and reports, per
+# instance, exactly which faculty blocks it — the intercepted-failure map (§8) that
+# names the next pulls. The score is NOT comparable to published SWE-bench numbers.
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
-SWE_DIR="$ROOT/tests/swebench"
-TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
-
-# Hermetic, like codebench: prove code understanding by the brain alone.
+LITE="$ROOT/tests/swebench/lite"
 export PARROT0_BASE= PARROT0_SESSION=
 
 [ -x "$BIN" ] || { echo "swebench: binary not built ($BIN)" >&2; exit 1; }
+command -v jq >/dev/null || { echo "swebench: jq required to read instance.json" >&2; exit 1; }
 
-field() { sed -n "s/^#$1:[[:space:]]*//p" "$2" | head -1; }
+echo "REAL SWE-bench_Lite, offline static snapshot, behavioural degrade mode."
+echo "parrot0 is C-only with no repo checkout / Python exec — see the blockers below."
+echo
 
 instances=0
-next_problem=""
-next_id=""
+engaged=0
+first_id=""
+first_repo=""
+first_problem=""
 
 shopt -s nullglob
-for inst in "$SWE_DIR"/*/; do
-    md="$inst/instance.md"
-    [ -f "$md" ] || continue
+for d in "$LITE"/*/; do
+    js="$d/instance.json"
+    [ -f "$js" ] || continue
     instances=$((instances + 1))
-    id="$(field id "$md")"
-    title="$(field title "$md")"
-    problem="$(field problem "$md")"
-    repo_rel="$(field repo "$md")"
-    gold_file="$(field gold_file "$md")"
-    gold_fn="$(field gold_function "$md")"
-    repo_abs="$ROOT/$repo_rel"
 
-    echo "# $id — $title"
-    echo "    problem: $problem"
+    id="$(jq -r '.instance_id' "$js")"
+    repo="$(jq -r '.repo' "$js")"
+    f2p="$(jq -r '.FAIL_TO_PASS | fromjson | .[0] // "?"' "$js" 2>/dev/null || echo "?")"
+    title="$(jq -r '.problem_statement' "$js" | sed '/^[[:space:]]*$/d' | head -1)"
 
-    # S1 reproduce: compile+link+run the repo's test; the bug is real iff it fails.
-    s1="MISS"
-    if cc -w "$repo_abs"/*.c -o "$TMP/out" 2>"$TMP/err"; then
-        if "$TMP/out" >/dev/null 2>&1; then
-            echo "    S1 reproduce : the test PASSES — no bug to fix here."
-        else
-            s1="OK"; echo "    S1 reproduce : OK   the test fails (bug reproduced, grounded)."
-        fi
+    # Language of the hidden test → which front-end parrot0 would need.
+    lang="unknown"
+    case "$f2p" in *.py::*|*.py:*) lang="Python" ;; esac
+
+    echo "# $id   ($repo)"
+    echo "    issue : $title"
+    echo "    test  : $f2p"
+
+    # Behavioural probe: feed the real issue title; capture what parrot0 does.
+    reply="$(printf '%s\n' "$title" | "$BIN" 2>/dev/null | head -1)"
+    echo "    parrot0: $reply"
+
+    # Honest blocker analysis (no fabricated success).
+    if [ "$lang" = "Python" ]; then
+        echo "    blocker: language is Python; parrot0's code engine is C-only (needs X3/X4)."
     else
-        echo "    S1 reproduce : the repo does not build (cc error)."
+        echo "    blocker: repo not checked out + no test-exec env (needs repo checkout + X1 run)."
     fi
 
-    # S2 localize: can parrot0 name the file defining the gold function?
-    reply="$(printf 'which file under %s defines %s\n' "$repo_rel" "$gold_fn" | "$BIN" 2>/dev/null | head -1)"
-    if printf '%s' "$reply" | grep -q "$gold_file"; then
-        s2="OK"; echo "    S2 localize  : OK   parrot0 -> $reply"
-    else
-        s2="MISS"; echo "    S2 localize  : MISS parrot0 -> $reply"
-    fi
-
-    # S3 fix: produce a patch that makes the test pass. Not a faculty yet.
-    s3="MISS"
-    echo "    S3 fix       : MISS no patch faculty yet (issue -> edit -> test-green)."
-
-    if [ "$s3" = "MISS" ] && [ -z "$next_id" ]; then
-        next_id="$id"; next_problem="$problem"
-    fi
+    [ -z "$first_id" ] && { first_id="$id"; first_repo="$repo"; first_problem="$title"; }
     echo
 done
 
 echo "---"
-echo "instances: $instances"
-if [ -n "$next_id" ]; then
-    echo "NEXT PROBLEM TO SOLVE: $next_id"
-    echo "  $next_problem"
-    echo "  (gold: fix so the hidden test goes green — pulls a fix-patch transformation + run_execute)"
-else
-    echo "all instances solved"
+echo "instances: $instances   engaged (real solve): $engaged"
+if [ -n "$first_id" ]; then
+    echo "FIRST REAL PROBLEM: $first_id   ($first_repo)"
+    echo "  $first_problem"
+    echo "  Ordered pulls before this is solvable (TASKLIST X-series):"
+    echo "    X3/X4  a Python front-end emitting the shared abstract node vocabulary"
+    echo "    (repo) check out the repo at base_commit as static files (curation step)"
+    echo "    X1     build+run the project's own test suite, read the real verdict"
+    echo "    X6     issue -> file/function localization across the repo"
+    echo "    X7     produce a patch that makes FAIL_TO_PASS go green"
 fi
-echo "PASS swebench: $instances instance(s) probed (degrade mode; never fails the build)"
+echo "PASS swebench: $instances real instance(s) probed (degrade mode; never fails the build)"

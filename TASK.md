@@ -2,31 +2,37 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - solve swe-bench swe-001 (F., 2026-06-23)
+## Active task - climb toward the first REAL SWE-bench_Lite instance (F., 2026-06-23)
 
-F. directed: build `make swe-bench` (north star, CODE-MASTERY.md §8) in degrade
-mode, take the FIRST problem it proposes, and make THAT the task. gen194 built the
-harness + the first static offline instance and ran it:
+F. directed: use the **real** SWE-bench_Lite, not a proxy. gen195 wired it
+(`tests/swebench/fetch_lite.sh` fetches real rows once, cached under the gitignored
+`.cache/`, committed static under `tests/swebench/lite/`; `make swe-bench` reads
+them offline, behavioural degrade mode). The synthetic `swe-001` was removed.
 
-- **swe-001 — str_reverse off-by-one corrupts the string.** `tests/swebench/swe-001/`.
-  Issue (NL): *str_reverse("abc") does not produce "cba"; the swap in the reversal
-  loop uses the wrong index.* The bug is real and grounded: `repo/strutil.c` swaps
-  `s[i]`/`s[n-i]` (should be `s[n-1-i]`), and `repo/test.c` fails.
-- Bench sub-goals now: **S1 reproduce OK** (test fails for real), **S2 localize OK**
-  (parrot0 names `strutil.c`), **S3 fix MISS** — there is no patch faculty yet.
+**First real problem (what the bench proposes):**
+- **astropy__astropy-12907** (astropy/astropy): *Modeling's `separability_matrix`
+  does not compute separability correctly for nested CompoundModels.*
+  FAIL_TO_PASS: `astropy/modeling/tests/test_separable.py::test_separable[...]`.
 
-**The task: make swe-001 go green.** Pull the next faculties this requires, smallest
-first, KB-first where possible (see CODE-MASTERY.md "Language-as-delta / KB-first"):
-1. **run_execute** (gen192's recorded gap): build AND RUN the repo's test, read the
-   real verdict — "the tests pass / fail", not just "it links".
-2. **A fix-patch transformation**: a THIRD edit rule (after rename/delete) that
-   rewrites a located function body, verified by the test going green (F5
-   read->edit->run->verify). Keep it a transformation rule over the AST, not a
-   hardcoded string. Honesty: the verdict comes from the real compiler+runtime.
-   The hard, deferred half is F4 issue->edit *synthesis* (what change?); start with
-   a checkable, narrow transformation and let a later swe-bench instance pull more.
-3. EN+IT ratchet, a new `tests/code/*.code` gate for the run+fix loop, journal,
-   commit. Watch `make swe-bench` move swe-001 from S3 MISS toward green.
+**Honest status:** parrot0 cannot solve this today and `make swe-bench` says so per
+instance. All 5 fetched instances are **Python**; parrot0's code engine is C-only,
+the repos are not checked out, and the hidden pytest suite needs a Python env. So
+the real target is many generations away; the bench is the intercepted-failure map.
+
+**Ordered pulls toward it (TASKLIST X-series) — smallest first, the next task:**
+1. **X3 — abstract node vocabulary.** Audit whether the gen173-192 analyzers speak
+   C-specific structures or an abstract `node/…` vocabulary; refactor so
+   localization / `calls`/`assigns` read abstract facts. *This is the real
+   "support Python", not a parser rewrite* (CODE-MASTERY §7b). It needs no new
+   hands and unblocks every later pull.
+2. **(curation)** check out a repo at `base_commit` as static files (network once,
+   like the wiki corpus) so a real repo can be read offline.
+3. **X1 run / X6 localization / X7 patch** — build+run the project's tests, locate
+   issue->file, produce a patch that flips FAIL_TO_PASS. The F4 issue->edit
+   *synthesis* is the measured frontier, not a promised feature.
+
+Keep every claim grounded (real compiler/runtime), KB-first where a capability is
+a lexical class or fact set, EN+IT ratchet, journal, commit.
 
 ## Parked - basic-chat driver (resume after the swe-bench thread or when F. asks)
 
