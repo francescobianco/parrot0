@@ -1,4 +1,26 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen203: fix heap-use-after-free in kb_derive_part_of (make chat crash)
+
+**Bug (F. report).** `make chat` (which loads `PARROT0_PROFILE=kb/profiles/agi.p0`)
+segfaulted on the FIRST turn for any input ("come ti chiami" -> SIGSEGV). Piped
+input without the profile did not crash, which is why it hid so long.
+
+**Root cause (found with ASan).** `kb_derive_part_of` (gen158, runs once on the
+first turn) holds `const Fact *f = &kb->facts[i]` and, inside the loop, calls
+`kb_assert(... "part_of" ...)`. kb_assert appends a fact, which `realloc`s
+`kb->facts` and MOVES it — leaving `f` dangling. The next dereference (`f->args[0]`
+at kb.c:1283) was a heap-use-after-free. It only fired once the KB was large enough
+that the array actually moved on growth — exactly what the agi profile does.
+
+**Fix.** Copy the container key and predicate into locals BEFORE the assert loop,
+and never dereference `f` after a kb_assert. One small change in kb.c.
+
+**Bonus.** This was ALSO the cause of the 4 "pre-existing, unrelated"
+`profiles.sh` agi failures every prior handoff dismissed — they produced empty
+output because the agi profile crashed. With the fix, `profiles.sh` is 13/13 and
+`make test` is **fully green for the first time (zero failures)**. ASan clean across
+varied inputs under the agi profile. (kb.c fix; brain unchanged, version stays.)
+
 ## 2026-06-23 - gen202 (I/O shell fix): stray `<` on Enter in `make chat`
 
 **Bug (F. report).** In interactive `make chat`, pressing Enter printed a stray `<`

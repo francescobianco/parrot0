@@ -1277,12 +1277,18 @@ int kb_derive_part_of(KB *kb) {
         for (size_t p = 0; p < npreds; p++)
             if (strcmp(preds[p], f->pred) == 0) { container = (pcnt[p] >= 2); break; }
         if (!container) continue;
+        /* Copy the container key and predicate BEFORE asserting: kb_assert may
+         * realloc kb->facts and leave `f` (a pointer into it) dangling, which was
+         * a heap-use-after-free once the KB was large enough to move on growth. */
+        char key[KB_TERM_LEN], pred[KB_TERM_LEN];
+        snprintf(key, sizeof key, "%s", f->args[0]);
+        snprintf(pred, sizeof pred, "%s", f->pred);
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
-            if (strcmp(ctoks[c], f->args[0]) == 0 || !str_in(keys, nkeys, ctoks[c])) continue;
-            if (!valid_member(kb, ctoks[c], f->pred)) continue; /* sibling, not a part */
-            const char *args[2] = { ctoks[c], f->args[0] };
+            if (strcmp(ctoks[c], key) == 0 || !str_in(keys, nkeys, ctoks[c])) continue;
+            if (!valid_member(kb, ctoks[c], pred)) continue; /* sibling, not a part */
+            const char *args[2] = { ctoks[c], key };
             if (kb_assert(kb, "part_of", args, 2)) added++;
         }
     }

@@ -1,7 +1,9 @@
 # NEXTMOVE — handoff (2026-06-23)
 
-Clean tree. Head: gen201 (`gen201-discarded-result`). `make test` 192/192 + the 4
-pre-existing `profiles.sh` agi failures (unrelated). `make code-bench` 21/21 gates.
+Clean tree. Head: gen203. `make test` FULLY GREEN (zero failures) — gen203 fixed a
+heap-use-after-free in `kb_derive_part_of` that was crashing the agi profile and was
+the real cause of the 4 long-dismissed `profiles.sh` "agi" failures (now 13/13).
+`make code-bench` 21/21 gates. gen202 fixed the stray `<` in `make chat`.
 
 ## Just landed — TWO real SWE-bench instances RESOLVED, two general smells
 parrot0 derives patches from STRUCTURE and the OFFICIAL SWE-bench Docker image
