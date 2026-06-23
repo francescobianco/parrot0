@@ -103,7 +103,12 @@ inside the anti-impostor discipline. Three levers, in order of leverage:
   editing code. Aimed eventually at `brain.c` itself, it makes the loop's
   *implement + test* step partly self-driving — the method becoming an engine,
   the reflexive closure PRINCIPLES puts at the centre. This is the real meaning
-  of the `swe-bench` north star.
+  of the `swe-bench` north star. Lever A applies here at the largest grain
+  (CODE-MASTERY.md §7b, "language-as-delta"): don't *learn* each language — model
+  the shared computational substrate once and declare languages/types as **mirror
+  concepts (deltas by reference)**, letting inference cover the shared part and the
+  oracle check the rest. C is a fine metalanguage; the imperative is that the
+  inference must NOT speak C.
 
 Meta-lever: let the discovery harnesses (`basic-chat-bench`, `code-bench`) not
 only **measure** gaps but **propose the next pull by leverage** — "the tests

@@ -2,30 +2,39 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - basic-chat is the driver (F., 2026-06-23)
+## Active task - solve swe-bench swe-001 (F., 2026-06-23)
 
-F. made `docs/plans/basic-chat.md` the loop driver: ~974 elementary prompts (105
-categories) where parrot0 walls, closed **one structural generation at a time**,
-strictly within PRINCIPLES.md (NO phrasebook — each category earns a real
-capability that generalizes; KB-content gaps go in `kb/*.p0`, not brain `printf`s).
+F. directed: build `make swe-bench` (north star, CODE-MASTERY.md §8) in degrade
+mode, take the FIRST problem it proposes, and make THAT the task. gen194 built the
+harness + the first static offline instance and ran it:
 
-Measure with `make basic-chat-bench` (coverage per category, never fails build).
-Baseline gen189: **24% (239/974)**. Now gen190: **26% (260/974)**.
+- **swe-001 — str_reverse off-by-one corrupts the string.** `tests/swebench/swe-001/`.
+  Issue (NL): *str_reverse("abc") does not produce "cba"; the swap in the reversal
+  loop uses the wrong index.* The bug is real and grounded: `repo/strutil.c` swaps
+  `s[i]`/`s[n-i]` (should be `s[n-1-i]`), and `repo/test.c` fails.
+- Bench sub-goals now: **S1 reproduce OK** (test fails for real), **S2 localize OK**
+  (parrot0 names `strutil.c`), **S3 fix MISS** — there is no patch faculty yet.
 
-- **gen189 (done): cat.0 non-linguistic input -> 100% (6/6).** `mod_input` classifies
-  punctuation-only / bare-number / keyboard-mash and redirects at the channel level.
-- **gen190 (done): cat.4 Aritmetica base -> 100% (19/19).** `mod_arith` now extracts
-  (operator, operands) from prose — verb frames (add/subtract/multiply/divide),
-  unary `of`-frames (half/double/square root/squared/factorial), percent, n-ary
-  sum/average, prime/even/odd predicates, and a general infix evaluator over
-  operator words (incl. `divided by`, bare `by`=times). Reads number words via
-  `parse_value`; EN+IT on one path. Ambiguous cue words (half/double/even/odd)
-  fire only on a single-number turn so `mod_agent` loops stay intact.
-- **Next gen191: pick the next category by leverage.** High-count 0% blocks:
-  cat.52 Elencazione (0/19, structural list generation — "list three animals",
-  "name the days of the week"); cat.18 Biologia animale (0/18, KB class-membership
-  via `mod_knowledge`); cat.19 Versi di animali (KB content in `kb/*.p0`). One
-  idea, EN+IT ratchet, journal, commit. Watch the bench climb.
+**The task: make swe-001 go green.** Pull the next faculties this requires, smallest
+first, KB-first where possible (see CODE-MASTERY.md "Language-as-delta / KB-first"):
+1. **run_execute** (gen192's recorded gap): build AND RUN the repo's test, read the
+   real verdict — "the tests pass / fail", not just "it links".
+2. **A fix-patch transformation**: a THIRD edit rule (after rename/delete) that
+   rewrites a located function body, verified by the test going green (F5
+   read->edit->run->verify). Keep it a transformation rule over the AST, not a
+   hardcoded string. Honesty: the verdict comes from the real compiler+runtime.
+   The hard, deferred half is F4 issue->edit *synthesis* (what change?); start with
+   a checkable, narrow transformation and let a later swe-bench instance pull more.
+3. EN+IT ratchet, a new `tests/code/*.code` gate for the run+fix loop, journal,
+   commit. Watch `make swe-bench` move swe-001 from S3 MISS toward green.
+
+## Parked - basic-chat driver (resume after the swe-bench thread or when F. asks)
+
+`docs/plans/basic-chat.md` — ~974 elementary prompts, closed one structural
+generation at a time within PRINCIPLES.md. `make basic-chat-bench`: gen189 24%,
+gen190 **26% (260/974)**. Done: cat.0 (gen189), cat.4 arithmetic (gen190). Next
+high-leverage 0% blocks when resumed: cat.52 Elencazione (structural lists),
+cat.18 Biologia animale (KB class-membership), cat.19 Versi animali (KB content).
 
 ## Parked - dynamic knowledge gen171: learn.py consumes the research queue
 

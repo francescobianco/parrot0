@@ -171,6 +171,50 @@ the parts.
 
 ---
 
+## 7b. Language-as-delta — the KB-first growth law
+
+A growth law, sharper than "add a Python parser". A programming language is itself
+a **concept**, so it obeys the KB-first principle (PRINCIPLES.md, LOOP.md
+"Acceleration" lever A): we do not *learn* each language from scratch — we model
+the **shared computational substrate once** and declare every language as a
+**delta (mirror concept) by reference**, letting inference cover the shared part.
+
+- **The shared substrate is an abstract node vocabulary.** Analysis rules (F3:
+  `calls/2`, `assigns/2`, `reads_before_write`, `type_of`) must speak `node(Id,
+  function_def, …)`, `call`, `block`, `assign`, `cond`, `loop` — **not** C. Then
+  localization, call-graph, blast-radius, dead-code transfer to ANY language for
+  free. A new language costs only a concrete-syntax **front-end** that emits the
+  same abstract facts, plus its language-specific semantic facts/rules.
+- **A language is a mirror concept.** `like(python, <abstract>)` with overrides
+  (indentation blocks vs braces, dynamic vs static typing, `def` vs type+name) and
+  genuinely-new facts (generators, decorators, comprehensions). Inference is a
+  **query-time delegation walk** (own facts shadow the reference; cycle-guarded),
+  never copied rules — so the mirror stays *bound and live*: change the reference,
+  the mirror tracks it except where overridden. The same mechanism scales down to
+  a single TYPE ("in this C variant `casualint` is `like int` but 3 bytes").
+- **The honest frontier (measure, don't promise).** "Inference does the rest" is
+  true only for the SHARED abstractions. Concrete syntax is written, not derived
+  (Python's significant-whitespace grammar is a different parser — but it only
+  needs to emit the shared node vocabulary; the analyzers stay put). And some
+  deltas are net-new semantics with no reference counterpart — additive, but their
+  own rules. *How much transfers vs. how much is language-specific is the
+  deliverable* (§6). Where the delta is uncertain, the real interpreter/compiler
+  is the **oracle**: derive aggressively, then check.
+- **Open question (do not over-commit).** We do not know whether, inside an LLM, a
+  *protolanguage* forms or the system **collapses onto a known language and
+  minimizes by differential**. Either way the engineering is the same here, and
+  **C is a fine metalanguage** for now — the abstract vocabulary need not be a new
+  notation, only a reference the deltas point at. Build the substrate + deltas; let
+  the benches reveal where the analogy stops.
+
+**Design imperative this implies:** before "add a language", factor the code engine
+into (a) per-language concrete-syntax front-ends emitting a shared abstract
+node/fact vocabulary, and (b) language-agnostic analysis rules over it. The first
+swe-bench pull is therefore not "Python" but *ensuring the inference does not speak
+C*. (Recorded as a task in TASKLIST.md.)
+
+---
+
 ## 8. North-star benchmark — `make swe-bench`
 
 The chapter's external measure is **SWE-bench** (https://www.swebench.com): real

@@ -1168,6 +1168,47 @@ The first two touch founding behaviour (parrot identity; closed-world denial).
 
 ---
 
+## X-series — Code mastery toward `make swe-bench` (added 2026-06-23)
+
+Driven by `docs/CODE-MASTERY.md` and its degrade-path harness `make swe-bench`.
+Pull each from a failing `code-bench` / `swe-bench` stimulus; KB-first where the
+capability is a lexical class or a fact set; ground every claim in the real
+compiler/runtime. The over-arching law (CODE-MASTERY §7b): model the shared
+computational substrate once, declare languages/types as **deltas (mirror
+concepts) by reference**, and *measure* how far inference carries before a
+language-specific fact is genuinely new.
+
+- **X1 — run_execute (the open `code-bench` gap).** Build AND RUN a program / its
+  test and report the real result (exit code / output / a failing assertion), not
+  just "it links". The move from build-grounding to run-grounding (F5 "verify by
+  running"). Test: `tests/code/run_execute.code` flips to pass.
+- **X2 — a fix-patch transformation (swe-001's S3).** A THIRD edit rule after
+  rename/delete: rewrite a located function body, verified by the hidden test going
+  green. Keep it a transformation over the AST, checkable by the oracle — start
+  narrow (a localized, well-described change) and let later instances pull the
+  harder F4 *synthesis* of WHICH change.
+- **X3 — abstract node vocabulary (the language-as-delta prerequisite).** Audit
+  whether the gen173–192 analyzers speak an abstract node vocabulary or are
+  C-specific; refactor so `calls/2`/`assigns/2`/localization read abstract `node/…`
+  facts. Acceptance: a non-C front-end (even a toy) emitting the same facts reuses
+  the analyzers unchanged. *This is the real "support a new language", not a parser
+  rewrite.*
+- **X4 — a language as a mirror concept.** `like(L, <abstract>)` + overrides +
+  net-new facts, with query-time delegation (cycle-guarded). First target a small,
+  real delta (e.g. a C dialect, or Python's block/`def` surface) and measure the
+  transferred-vs-specific ratio.
+- **X5 — mirror concept for a single type.** "In this C variant `casualint` is
+  `like int` but 3 bytes" → derive inherited properties, override the delta, ground
+  via the compiler where possible. The down-scaled X4; shares the delegation engine.
+- **X6 — repo-scale localization (F4 frontier).** Issue (NL) → the file/function to
+  change, beyond exact-name lookup. The part CODE-MASTERY flags as possibly needing
+  statistical association; the experiment's measurement, not a promised feature.
+- **X7 — multi-file patch / diff + controlled write-back.** Produce an applicable
+  unified diff; relax the read-only/temp-only sandbox under guard. Prereq for real
+  swe-bench scoring.
+
+---
+
 ## Suggested ordering
 
 1. Finish T1 because it is already pulled by grammar/morphology.

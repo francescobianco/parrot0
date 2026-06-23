@@ -1,4 +1,39 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen194 (tooling): `make swe-bench` (degrade mode) + the KB-first growth law
+
+**Direction (F.).** F. reframed the recent thread: the C-types/mirror idea was not
+a task but a *method* — the **KB-first growth law**: don't *learn* a new thing,
+*derive it as a delta (mirror concept) by reference* and let inference cover the
+shared part. Applied to whole languages: we don't "learn Python", we model the
+shared computational substrate once and declare Python as a delta (block/`def`
+surface, dynamic typing, net-new semantics). C is fine as the metalanguage; the
+imperative is that the inference must not *speak* C. Open question left explicitly
+open: whether an LLM forms a protolanguage or collapses onto a known language and
+minimizes by differential — the engineering is the same either way.
+
+**Recorded in multiple places (no brain change this generation).**
+- `docs/CODE-MASTERY.md` §7b "Language-as-delta — the KB-first growth law":
+  abstract node vocabulary, language/type as mirror concept with query-time
+  delegation, the honest transferred-vs-specific frontier, oracle-checked, C as
+  metalanguage, the protolanguage-vs-collapse open question.
+- `LOOP.md` "Acceleration" lever C: pointer to §7b.
+- `TASKLIST.md` new **X-series** (X1 run_execute … X7 multi-file patch), incl. X3
+  "abstract node vocabulary" as the real meaning of "support a new language".
+
+**Built — `make swe-bench` in DEGRADE mode (CODE-MASTERY §8).** Static, offline,
+no network (PRINCIPLES). `tests/swebench.sh` + first instance
+`tests/swebench/swe-001/` (a genuine off-by-one: `str_reverse` swaps `s[i]`/`s[n-i]`
+instead of `s[n-1-i]`; `repo/test.c` fails for real). Sub-goal ladder, grounded
+where an oracle exists: **S1 reproduce** (compile+run, bug real) OK; **S2 localize**
+(parrot0 names `strutil.c`) OK; **S3 fix** MISS — no patch faculty. The harness
+prints the first unsolved instance as "NEXT PROBLEM TO SOLVE" and never fails the
+build (a discovery instrument, not a gate).
+
+**Next (now the active TASK.md).** Solve **swe-001**: make the hidden test go green.
+Pulls X1 (run_execute) + X2 (a fix-patch transformation, the third edit rule),
+verified by the real runtime — F5 read→edit→run→verify closed on a real bug. The
+basic-chat driver is parked (resume later).
+
 ## 2026-06-23 - gen193: a lexical class migrated to the KB, teachable at runtime
 
 **Direction (F.'s acceleration call).** F. observed growth is additive, not

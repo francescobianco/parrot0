@@ -67,6 +67,13 @@ compose-bench: build
 code-bench: build
 	@./tests/codebench.sh
 
+# gen194: the SWE-bench north star (docs/CODE-MASTERY.md §8) in DEGRADE mode —
+# static, offline instances (no network), scoring sub-goals we can check and
+# printing the first unsolved instance as the next concrete task. Never fails the
+# build; it is a discovery instrument, not a gate.
+swe-bench: build
+	@./tests/swebench.sh
+
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
 # proxies. Not part of `make test` (non-deterministic, external).
