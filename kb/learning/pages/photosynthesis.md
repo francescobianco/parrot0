@@ -1,11 +1,11 @@
 # Photosynthesis
 
-- Learning event: `learn_2026_06_21t21_47_36z_photosynthesis`
-- Operational log: `kb/learning/logs/learn_2026_06_21t21_47_36z_photosynthesis.json`
+- Learning event: `learn_2026_06_23t19_01_33z_photosynthesis`
+- Operational log: `kb/learning/logs/learn_2026_06_23t19_01_33z_photosynthesis.json`
 - Domain: `biology`
 - Source: https://en.wikipedia.org/wiki/Photosynthesis
 - Wikipedia revision: `1358838651`
-- Processed: `2026-06-21T21:47:36Z`
+- Processed: `2026-06-23T19:01:33Z`
 
 ## Learned Concept
 

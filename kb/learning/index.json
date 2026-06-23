@@ -696,6 +696,23 @@
       "summary": "learned dna: Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other...",
       "title": "DNA",
       "url": "https://en.wikipedia.org/wiki/DNA"
+    },
+    {
+      "concept": "system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and...",
+      "domain": "biology",
+      "event_id": "learn_2026_06_23t19_01_33z_photosynthesis",
+      "key": "photosynthesis",
+      "log_path": "kb/learning/logs/learn_2026_06_23t19_01_33z_photosynthesis.json",
+      "markdown_path": "kb/learning/pages/photosynthesis.md",
+      "processed_at": "2026-06-23T19:01:33Z",
+      "prompt": "what do you know about learn_2026_06_23t19_01_33z_photosynthesis",
+      "revision": 1358838651,
+      "source_index": 15,
+      "source_line": 31,
+      "source_title": "Photosynthesis",
+      "summary": "learned photosynthesis: system of biological processes by which photopigment-bearing autotrophic organisms, such as...",
+      "title": "Photosynthesis",
+      "url": "https://en.wikipedia.org/wiki/Photosynthesis"
     }
   ],
   "pages": {
@@ -1005,10 +1022,10 @@
       "domain": "biology",
       "extract_sha256": "73f13168a5793105058633317a7ab0679a2c27213e76765ab9d10d483e8ad7cd",
       "key": "photosynthesis",
-      "last_event_id": "learn_2026_06_21t21_47_36z_photosynthesis",
+      "last_event_id": "learn_2026_06_23t19_01_33z_photosynthesis",
       "markdown_path": "kb/learning/pages/photosynthesis.md",
       "pageid": 24544,
-      "processed_at": "2026-06-21T21:47:36Z",
+      "processed_at": "2026-06-23T19:01:33Z",
       "revision": 1358838651,
       "source_title": "Photosynthesis",
       "title": "Photosynthesis",
