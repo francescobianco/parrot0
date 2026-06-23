@@ -1,11 +1,11 @@
 # Algorithm
 
-- Learning event: `learn_2026_06_22t06_10_27z_algorithm`
-- Operational log: `kb/learning/logs/learn_2026_06_22t06_10_27z_algorithm.json`
+- Learning event: `learn_2026_06_23t23_38_53z_algorithm`
+- Operational log: `kb/learning/logs/learn_2026_06_23t23_38_53z_algorithm.json`
 - Domain: `computer_science`
 - Source: https://en.wikipedia.org/wiki/Algorithm
-- Wikipedia revision: `1359789433`
-- Processed: `2026-06-22T06:10:27Z`
+- Wikipedia revision: `1360696540`
+- Processed: `2026-06-23T23:38:53Z`
 
 ## Learned Concept
 
@@ -24,7 +24,7 @@ In contrast, a heuristic is an approach to solving problems without well-defined
 As an effective method, an algorithm can be expressed within a finite amount of space and time and in a well-defined formal language for calculating a function. Starting from an initial state and input, a computation occurs at each step, eventually producing output and terminating. The transition between states can be non-deterministic; randomized algorithms incorporate random input.
 
 ### Etymology
-Around 825 AD, Persian scientist and polymath Muhammad ibn Musa al-Khwarizmi wrote kitab al-hisab al-hindi ("Book of Indian computation") and kitab al-jam' wa'l-tafriq al-hisab al-hindi ("Addition and subtraction in Indian arithmetic"). In the early 12th century, Latin translations of these texts involving the Hindu--Arabic numeral system and arithmetic appeared, for example Liber Alghoarismi de practica arismetrice, attributed to John of Seville, and Liber Algoritmi de numero Indorum, attributed to Adelard of Bath. Here, alghoarismi or algoritmi is the Latinization of Al-Khwarizmi's name; the text starts with the phrase Dixit Algoritmi, or "Thus spoke Al-Khwarizmi". According to NPR, "The modern word algorithm traces back to the Latin algorismus through French (algorisme) and English (algorism).
+Around 825 AD, Persian scientist and polymath Muhammad ibn Musa al-Khwarizmi wrote kitab al-hisab al-hindi ("Book of Indian computation") and kitab al-jam' wa'l-tafriq al-hisab al-hindi ("Addition and subtraction in Indian arithmetic"). In the early 12th century, Latin translations of these texts involving the Hindu--Arabic numeral system and arithmetic appeared, for example Liber Alghoarismi de practica arismetrice, attributed to John of Seville, and Liber Algoritmi de numero Indorum, attributed to Adelard of Bath. Here, alghoarismi or algoritmi is the Latinization of Al-Khwarizmi's name; the text starts with the phrase Dixit Algoritmi, or "Thus spoke Al-Khwarizmi".
 
 The word algorism in English came to mean the use of place-value notation in calculations; it occurs in the Ancrene Wisse from circa 1225. By the time Geoffrey Chaucer wrote The Canterbury Tales in the late 14th century, he used a variant of the same word in describing augrym stones, stones used for place-value calculation. In the 15th century, under the influence of the Greek word (arithmos, "number"; cf. "arithmetic"), the Latin word was altered to algorithmus. By 1596, this form of the word was used in English, as algorithm, by Thomas Hood.
 

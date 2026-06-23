@@ -105,7 +105,7 @@ wiki_concept(neuron, medicine, "A neuron, neurone, or nerve cell, is a cell that
 
 % computer_science / Algorithm
 % source: https://en.wikipedia.org/wiki/Algorithm
-% revision: 1359789433; processed: 2026-06-22T06:10:27Z
+% revision: 1360696540; processed: 2026-06-23T23:38:53Z
 wiki_concept(algorithm, computer_science, "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...").
 
 % computer_science / Binary search
@@ -547,3 +547,12 @@ learning_event_concept(learn_2026_06_23t22_45_15z_neuron, neuron).
 learning_event_revision(learn_2026_06_23t22_45_15z_neuron, rev_1360647446).
 learning_event_markdown(learn_2026_06_23t22_45_15z_neuron, "kb/learning/pages/neuron.md").
 learning_event_log(learn_2026_06_23t22_45_15z_neuron, "kb/learning/logs/learn_2026_06_23t22_45_15z_neuron.json").
+
+% event learn_2026_06_23t23_38_53z_algorithm
+learning_event(learn_2026_06_23t23_38_53z_algorithm, "learned algorithm: finite sequence of mathematically rigorous instructions, typically used to solve a class of...").
+learning_event_time(learn_2026_06_23t23_38_53z_algorithm, "2026-06-23T23:38:53Z").
+learning_event_domain(learn_2026_06_23t23_38_53z_algorithm, computer_science).
+learning_event_concept(learn_2026_06_23t23_38_53z_algorithm, algorithm).
+learning_event_revision(learn_2026_06_23t23_38_53z_algorithm, rev_1360696540).
+learning_event_markdown(learn_2026_06_23t23_38_53z_algorithm, "kb/learning/pages/algorithm.md").
+learning_event_log(learn_2026_06_23t23_38_53z_algorithm, "kb/learning/logs/learn_2026_06_23t23_38_53z_algorithm.json").
