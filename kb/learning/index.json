@@ -645,6 +645,23 @@
       "summary": "learned covalent_bond: chemical bond that involves the sharing of electrons to form electron pairs between atoms",
       "title": "Covalent bond",
       "url": "https://en.wikipedia.org/wiki/Covalent_bond"
+    },
+    {
+      "concept": "increase in rate of a chemical reaction due to an added substance known as a catalyst",
+      "domain": "chemistry",
+      "event_id": "learn_2026_06_23t15_23_34z_catalysis",
+      "key": "catalysis",
+      "log_path": "kb/learning/logs/learn_2026_06_23t15_23_34z_catalysis.json",
+      "markdown_path": "kb/learning/pages/catalysis.md",
+      "processed_at": "2026-06-23T15:23:34Z",
+      "prompt": "what do you know about learn_2026_06_23t15_23_34z_catalysis",
+      "revision": 1358271976,
+      "source_index": 12,
+      "source_line": 26,
+      "source_title": "Catalysis",
+      "summary": "learned catalysis: increase in rate of a chemical reaction due to an added substance known as a catalyst",
+      "title": "Catalysis",
+      "url": "https://en.wikipedia.org/wiki/Catalysis"
     }
   ],
   "pages": {
@@ -714,10 +731,10 @@
       "domain": "chemistry",
       "extract_sha256": "71435b3c489f686262186343a39fdfb9e01df9302984db085ec8cf00bd9c0a54",
       "key": "catalysis",
-      "last_event_id": "learn_2026_06_21t18_51_55z_catalysis",
+      "last_event_id": "learn_2026_06_23t15_23_34z_catalysis",
       "markdown_path": "kb/learning/pages/catalysis.md",
       "pageid": 5914,
-      "processed_at": "2026-06-21T18:51:55Z",
+      "processed_at": "2026-06-23T15:23:34Z",
       "revision": 1358271976,
       "source_title": "Catalysis",
       "title": "Catalysis",

@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "chemistry",
-    "event_id": "learn_2026_06_23t13_18_30z_covalent_bond",
-    "key": "covalent_bond",
-    "log_path": "kb/learning/logs/learn_2026_06_23t13_18_30z_covalent_bond.json",
-    "markdown_path": "kb/learning/pages/covalent_bond.md",
-    "processed_at": "2026-06-23T13:18:30Z",
-    "prompt": "what do you know about learn_2026_06_23t13_18_30z_covalent_bond",
-    "revision": 1347405474,
-    "title": "Covalent bond"
+    "event_id": "learn_2026_06_23t15_23_34z_catalysis",
+    "key": "catalysis",
+    "log_path": "kb/learning/logs/learn_2026_06_23t15_23_34z_catalysis.json",
+    "markdown_path": "kb/learning/pages/catalysis.md",
+    "processed_at": "2026-06-23T15:23:34Z",
+    "prompt": "what do you know about learn_2026_06_23t15_23_34z_catalysis",
+    "revision": 1358271976,
+    "title": "Catalysis"
   },
-  "next_index": 12
+  "next_index": 13
 }
