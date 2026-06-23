@@ -85,7 +85,7 @@ wiki_concept(photosynthesis, biology, "system of biological processes by which p
 
 % biology / Evolution
 % source: https://en.wikipedia.org/wiki/Evolution
-% revision: 1357316203; processed: 2026-06-21T22:44:02Z
+% revision: 1357316203; processed: 2026-06-23T19:59:58Z
 wiki_concept(evolution, biology, "change in the heritable characteristics of biological populations over successive generations").
 
 % medicine / Immune system
@@ -511,3 +511,12 @@ learning_event_concept(learn_2026_06_23t19_01_33z_photosynthesis, photosynthesis
 learning_event_revision(learn_2026_06_23t19_01_33z_photosynthesis, rev_1358838651).
 learning_event_markdown(learn_2026_06_23t19_01_33z_photosynthesis, "kb/learning/pages/photosynthesis.md").
 learning_event_log(learn_2026_06_23t19_01_33z_photosynthesis, "kb/learning/logs/learn_2026_06_23t19_01_33z_photosynthesis.json").
+
+% event learn_2026_06_23t19_59_58z_evolution
+learning_event(learn_2026_06_23t19_59_58z_evolution, "learned evolution: change in the heritable characteristics of biological populations over successive generations").
+learning_event_time(learn_2026_06_23t19_59_58z_evolution, "2026-06-23T19:59:58Z").
+learning_event_domain(learn_2026_06_23t19_59_58z_evolution, biology).
+learning_event_concept(learn_2026_06_23t19_59_58z_evolution, evolution).
+learning_event_revision(learn_2026_06_23t19_59_58z_evolution, rev_1357316203).
+learning_event_markdown(learn_2026_06_23t19_59_58z_evolution, "kb/learning/pages/evolution.md").
+learning_event_log(learn_2026_06_23t19_59_58z_evolution, "kb/learning/logs/learn_2026_06_23t19_59_58z_evolution.json").

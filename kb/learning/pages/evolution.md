@@ -1,11 +1,11 @@
 # Evolution
 
-- Learning event: `learn_2026_06_21t22_44_02z_evolution`
-- Operational log: `kb/learning/logs/learn_2026_06_21t22_44_02z_evolution.json`
+- Learning event: `learn_2026_06_23t19_59_58z_evolution`
+- Operational log: `kb/learning/logs/learn_2026_06_23t19_59_58z_evolution.json`
 - Domain: `biology`
 - Source: https://en.wikipedia.org/wiki/Evolution
 - Wikipedia revision: `1357316203`
-- Processed: `2026-06-21T22:44:02Z`
+- Processed: `2026-06-23T19:59:58Z`
 
 ## Learned Concept
 

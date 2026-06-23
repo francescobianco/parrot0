@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_23t19_59_58z_evolution",
+  "extraction": {
+    "concept": "change in the heritable characteristics of biological populations over successive generations",
+    "concept_key": "evolution",
+    "extract_sha256": "b3705a02acb154ef8b12487ab14f6a3066bdd25e13bfca890f35ef78156fb63f",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_23t19_59_58z_evolution.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/evolution.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 17,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-23T19:59:58Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_23t19_59_58z_evolution"
+  },
+  "source": {
+    "domain": "biology",
+    "index": 16,
+    "line": 32,
+    "title": "Evolution"
+  },
+  "wikipedia": {
+    "canonical_title": "Evolution",
+    "lang": "en",
+    "pageid": 9236,
+    "revision": 1357316203,
+    "url": "https://en.wikipedia.org/wiki/Evolution"
+  }
+}
