@@ -1,23 +1,23 @@
 # Antibiotic
 
-- Learning event: `learn_2026_06_22t01_32_03z_antibiotic`
-- Operational log: `kb/learning/logs/learn_2026_06_22t01_32_03z_antibiotic.json`
+- Learning event: `learn_2026_06_23t21_51_29z_antibiotic`
+- Operational log: `kb/learning/logs/learn_2026_06_23t21_51_29z_antibiotic.json`
 - Domain: `medicine`
 - Source: https://en.wikipedia.org/wiki/Antibiotic
-- Wikipedia revision: `1356570133`
-- Processed: `2026-06-22T01:32:03Z`
+- Wikipedia revision: `1360675320`
+- Processed: `2026-06-23T21:51:29Z`
 
 ## Learned Concept
 
-type of antimicrobial substance active against bacteria
+type of antimicrobial substance which is active against bacteria
 
 ## Extract
 
-An antibiotic is a type of antimicrobial substance active against bacteria. It is the most important type of antibacterial agent for fighting bacterial infections, and antibiotic medications are widely used in the treatment and prevention of such infections. They may either kill or inhibit the growth of bacteria. A limited number of antibiotics also possess antiprotozoal activity. Antibiotics are not effective against viruses such as the ones which cause the common cold or influenza. Drugs which inhibit growth of viruses are termed antiviral drugs or antivirals. Antibiotics are also not effective against fungi. Drugs which inhibit growth of fungi are called antifungal drugs.
+An antibiotic is a type of antimicrobial substance which is active against bacteria. It is the most important type of antibacterial agent for fighting bacterial infections, and antibiotic medications are widely used in the treatment and prevention of such infections. They may either kill or inhibit the growth of bacteria. A limited number of antibiotics also possess antiprotozoal activity. Antibiotics are not effective against viruses such as the ones which cause the common cold or influenza. Drugs which inhibit growth of viruses are termed antiviral drugs or antivirals. Antibiotics are also not effective against fungi. Drugs which inhibit growth of fungi are called antifungal drugs.
 
 ## Page Text
 
-An antibiotic is a type of antimicrobial substance active against bacteria. It is the most important type of antibacterial agent for fighting bacterial infections, and antibiotic medications are widely used in the treatment and prevention of such infections. They may either kill or inhibit the growth of bacteria. A limited number of antibiotics also possess antiprotozoal activity. Antibiotics are not effective against viruses such as the ones which cause the common cold or influenza. Drugs which inhibit growth of viruses are termed antiviral drugs or antivirals. Antibiotics are also not effective against fungi. Drugs which inhibit growth of fungi are called antifungal drugs.
+An antibiotic is a type of antimicrobial substance which is active against bacteria. It is the most important type of antibacterial agent for fighting bacterial infections, and antibiotic medications are widely used in the treatment and prevention of such infections. They may either kill or inhibit the growth of bacteria. A limited number of antibiotics also possess antiprotozoal activity. Antibiotics are not effective against viruses such as the ones which cause the common cold or influenza. Drugs which inhibit growth of viruses are termed antiviral drugs or antivirals. Antibiotics are also not effective against fungi. Drugs which inhibit growth of fungi are called antifungal drugs.
 
 Sometimes, the term antibiotic--literally "opposing life", from the Greek roots anti, "against" and bios, "life"--is broadly used to refer to any substance used against microbes, but in the usual medical usage, antibiotics (such as penicillin) are those produced naturally (by one microorganism fighting another), whereas non-antibiotic antibacterials (such as sulfonamides and antiseptics) are fully synthetic. However, both classes have the same effect of killing or preventing the growth of microorganisms, and both are included in antimicrobial chemotherapy. "Antibacterials" include bactericides, bacteriostatics, antibacterial soaps, and chemical disinfectants, whereas antibiotics are an important class of antibacterials used more specifically in medicine and sometimes in livestock feed.
 
