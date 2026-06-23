@@ -1,4 +1,55 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen189: the input classifier — "is this language at all?"
+
+**Goal (F.'s new driver).** F. asked, given the work done, why parrot0 still walls
+on *trivial* chat, and pointed at `docs/plans/basic-chat.md` — a catalogue of ~974
+elementary prompts (105 categories) where it fails. Honest diagnosis: the loop
+built **depth** (KB, rules, abduction, self-model, code AST), never **breadth** of
+chitchat, and PRINCIPLES forbids the shortcut (974 hardcoded `printf`s = the
+impostor). So basic-chat becomes the new driver, closed **one structural
+generation at a time**, with a discovery harness to make the gap measurable.
+Constraint F. reaffirmed mid-flight: implement nothing not in line with
+PRINCIPLES.md. First category (cat.0, non-linguistic input) chosen with him.
+
+**Insight.** The fix is a *structural distinction taken before the reasoning
+core*: "is this language at all?" — distinct from "do I know this topic?". That is
+not a phrasebook of the example strings; it keys purely on character structure and
+generalizes to any such input. Non-linguistic input carries no language, so the
+same path serves every language — the bilingual ratchet holds by construction.
+
+**Changed.** `brain.c` -> `gen189-input-classifier`. New `mod_input`, registered
+2nd (right after `repair`), so a noise turn is recognized before any content
+module mis-claims it (`mod_code` used to read `!@#$%^&*()` as a snippet;
+`mod_social` greeted `asdfghjkl`). Three shapes, all honest channel-level
+redirects, never a feigned answer: (1) punctuation/symbols only ("?", "!",
+"!@#$%^&*()"); (2) a bare number, >=4 digits, no operation ("1234567890" — short
+numbers left for future modules); (3) keyboard-mash letters — a single
+all-alphabetic token with the shape of noise (no vowel, one repeated char, a run
+of >=4 identical letters, or a consonant run >=6) that the KB does not recognize.
+Two principled boundaries found by the tests: dot/dash/slash sequences DEFER to
+`mod_symbolic` (Morse is a structured code, not noise); 'y' counts as a vowel so
+"rhythm"/"syzygy"/"glyphs" are not mistaken for noise.
+
+**Observed.** All 6 cat.0 prompts now engage (`?` -> "That's just punctuation,
+not words ..."; `1234567890` -> "That's just the number ... with nothing to do";
+`asdfghjkl`/`aaaaaaaaaa` -> "That doesn't look like words ... did a key get
+stuck?"). 10x stress: `???`/`@@@`/`<<<>>>`/`987654`/`00000`/`bcdfgh`/`xkcdwqjz`
+all caught; real language untouched (`rhythm`, `strengths`, `philosophy`,
+`def foo(` -> code, `h3ll0` -> leetspeak, `... --- ...` -> Morse). EN+IT ratchets
+`input.chat`/`.it`; `parrot.chat` updated (its `12345` no-content-word probe moved
+to `blah blah`, since a bare number is now classified); module-list ratchets
+(`self`, `strategy`) grew by one. `make test` all green (180 unit cases + sub-suites).
+
+**Harness.** New `tests/basicchat.sh` + `make basic-chat-bench`: coverage over the
+plan file, per category, never fails the build. Baseline at gen189: **24%
+(239/974)**, **cat.0 100% (6/6)**. This is the ratchet to watch climb.
+
+**Next.** Pick the next category by leverage, still one structural gen each: the
+KB-content gaps (geography/science/animal-sounds — ground facts in `kb/*.p0`
+queried by `mod_knowledge`, the Prolog/Wikipedia path, not brain hardcoding); or
+arithmetic question-shapes (cat.4, extend `mod_arith`). NOT a phrasebook either
+way.
+
 ## 2026-06-22 - gen170: the research-need signal — parrot0 flags what it must learn
 
 **Goal (F.'s new direction, dynamic knowledge):** make parrot0 an "inexhaustible

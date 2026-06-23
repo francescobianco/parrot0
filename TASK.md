@@ -2,12 +2,32 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active task - dynamic knowledge gen171: learn.py consumes the research queue
+## Active task - basic-chat is the driver (F., 2026-06-23)
 
-Goal: close the next link of F.'s dynamic-knowledge loop. `mod_research` (gen170)
-records gaps and, with `$PARROT0_RESEARCH_QUEUE` set, appends `key<TAB>display`.
-Make `scripts/learn.py` read that queue: fetch the requested topics from static
-Wikipedia FIRST (then the curated `sources.tsv` round-robin), write `kb/learning`,
+F. made `docs/plans/basic-chat.md` the loop driver: ~974 elementary prompts (105
+categories) where parrot0 walls, closed **one structural generation at a time**,
+strictly within PRINCIPLES.md (NO phrasebook — each category earns a real
+capability that generalizes; KB-content gaps go in `kb/*.p0`, not brain `printf`s).
+
+Measure with `make basic-chat-bench` (coverage per category, never fails build).
+Baseline gen189: **24% (239/974)**.
+
+- **gen189 (done): cat.0 non-linguistic input -> 100% (6/6).** `mod_input` classifies
+  punctuation-only / bare-number / keyboard-mash and redirects at the channel level.
+- **Next gen190: pick the next category by leverage.** Candidates: KB-content gaps
+  (geography/science/animal-sounds -> ground facts queried by `mod_knowledge`, the
+  Prolog/Wikipedia path); or arithmetic question-shapes (cat.4, extend `mod_arith`,
+  e.g. "six times seven", "what is half of 50"). One idea, EN+IT ratchet, journal,
+  commit. Watch the bench climb.
+
+## Parked - dynamic knowledge gen171: learn.py consumes the research queue
+
+(Parked when basic-chat became the driver. Resume after the chat backlog or when
+F. asks.) Goal: close the next link of F.'s dynamic-knowledge loop. `mod_research`
+(gen170) records gaps and, with `$PARROT0_RESEARCH_QUEUE` set, appends
+`key<TAB>display`. Make `scripts/learn.py` read that queue: fetch the requested
+topics from static Wikipedia FIRST (then the curated `sources.tsv` round-robin),
+write `kb/learning`,
 clear served entries, and commit — so a flagged gap is actually filled.
 
 Acceptance:

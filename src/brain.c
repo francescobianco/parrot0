@@ -10729,12 +10729,132 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen189 (basic-chat cat.0): classify NON-LINGUISTIC input and answer at the
+ * CHANNEL level instead of the topic-level "I don't understand that yet."
+ *
+ * The distinction is structural, taken before the reasoning core: "is this
+ * language at all?" — not "do I know this topic?". Three shapes of noise:
+ *   (1) punctuation/symbols only ("?", "!", "!@#$%^&*()")
+ *   (2) a bare number with no operation ("1234567890")
+ *   (3) keyboard-mash letters ("asdfghjkl", "aaaaaaaaaa")
+ * This is NOT a phrasebook of the example strings: it keys purely on character
+ * structure, so it generalizes to any such input. And because non-linguistic
+ * input carries no language, the same path serves every language — the
+ * bilingual ratchet holds by construction. It only ever REDIRECTS honestly; it
+ * never feigns understanding (PRINCIPLES.md: no impostor printf of "knowledge").
+ *
+ * Placed right after mod_repair so a noise turn is recognized before any content
+ * module can mis-claim it (mod_code used to read "!@#$%^&*()" as a code snippet;
+ * mod_social used to greet "asdfghjkl"). It declines (returns 0) for anything
+ * that looks like language, so normal turns reach the rest of the registry. */
+static int mod_input(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw;
+    size_t len = strlen(norm);
+    if (len == 0) return 0;          /* empty turns are dropped by the I/O shell */
+
+    size_t nalpha = 0, ndigit = 0, npunct = 0;
+    for (size_t i = 0; i < len; i++) {
+        unsigned char c = (unsigned char)norm[i];
+        if (isalpha(c)) nalpha++;
+        else if (isdigit(c)) ndigit++;
+        else if (!isspace(c)) npunct++;
+    }
+
+    /* (1) Punctuation/symbols only — no letters, no digits, at least one mark.
+     * Defer dot/dash/slash sequences: those are a *structured* code (Morse),
+     * owned by mod_symbolic, not formless noise. The boundary is honest — this
+     * module claims punctuation only when it is not a recognized symbolic form. */
+    if (nalpha == 0 && ndigit == 0 && npunct > 0) {
+        int morse_only = 1;
+        for (size_t i = 0; i < len; i++) {
+            char c = norm[i];
+            if (c != '.' && c != '-' && c != '/' && !isspace((unsigned char)c)) {
+                morse_only = 0; break;
+            }
+        }
+        if (morse_only) return 0;    /* let the symbolic recognizer name it */
+        put("That's just punctuation, not words — what would you like to ask?",
+            out, out_size);
+        return 1;
+    }
+
+    /* The remaining shapes are single tokens; multi-word input is linguistic. */
+    char buf[256];
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw != 1) return 0;
+    char *tok = strip_edge_punct(w[0]);
+    size_t tlen = strlen(tok);
+    if (tlen == 0) return 0;
+
+    /* (2) A bare number (>=4 digits, no operator). mod_arith owns anything with
+     * an operation; a lone long digit-run has nothing to compute. The >=4 gate
+     * leaves short numbers (a game pick, "7", "100") for future modules. */
+    int all_digit = 1;
+    for (size_t i = 0; i < tlen; i++)
+        if (!isdigit((unsigned char)tok[i])) { all_digit = 0; break; }
+    if (all_digit && tlen >= 4) {
+        char msg[160];
+        snprintf(msg, sizeof msg,
+                 "That's just the number %s with nothing to do — what would "
+                 "you like me to do with it?", tok);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* (3) Keyboard-mash letters: a single all-alphabetic token with the shape of
+     * noise — no vowel at all, one character repeated, a run of >=4 identical
+     * letters, or an implausibly long consonant run (>=6) — that the KB does not
+     * recognize. Thresholds are conservative so real words never trip it
+     * ("strengths" peaks at 5 consonants; "rhythm" is too short here). */
+    if (tlen >= 6) {
+        int all_alpha = 1;
+        for (size_t i = 0; i < tlen; i++)
+            if (!isalpha((unsigned char)tok[i])) { all_alpha = 0; break; }
+        if (all_alpha) {
+            size_t vowels = 0, distinct = 0;
+            size_t run = 1, max_run = 1, cons = 0, max_cons = 0;
+            int seen[26] = {0};
+            for (size_t i = 0; i < tlen; i++) {
+                char c = tok[i];
+                /* 'y' counts as a vowel here so consonant-only words that lean
+                 * on it ("rhythm", "syzygy") are not mistaken for noise. */
+                int v = (c=='a'||c=='e'||c=='i'||c=='o'||c=='u'||c=='y');
+                if (v) vowels++;
+                if (c >= 'a' && c <= 'z' && !seen[c-'a']) { seen[c-'a']=1; distinct++; }
+                if (i > 0 && c == tok[i-1]) { if (++run > max_run) max_run = run; }
+                else run = 1;
+                if (!v) { if (++cons > max_cons) max_cons = cons; } else cons = 0;
+            }
+            int known = 0;
+            if (b && b->kb) {
+                char desc[256];
+                known = kb_knows_pred(b->kb, tok) ||
+                        kb_describe_entity(b->kb, tok, desc, sizeof desc);
+            }
+            int noise = (vowels == 0) || (distinct == 1) ||
+                        (max_run >= 4) || (max_cons >= 6);
+            if (noise && !known && !is_stopword(b, tok)) {
+                put("That doesn't look like words to me — did a key get stuck? "
+                    "I'm here when you'd like to ask something.",
+                    out, out_size);
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 /* The registry: an ordered list of cooperating parts. To add or remove a
  * behaviour, touch only this table — not brain_respond()'s control flow.
  * (This table is also reified into the KB as module(...) facts at birth, so
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
     {"repair",    mod_repair},
+    {"input",     mod_input},
     {"world",     mod_world},
     {"translate", mod_translate},
     {"synth",     mod_synth},
@@ -10975,7 +11095,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen188-edit-locate";
+    return "gen189-input-classifier";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

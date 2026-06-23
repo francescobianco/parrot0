@@ -45,6 +45,12 @@ chat: build
 chat-bench: build
 	@./tests/chatbench.sh
 
+# gen189: basic-chat discovery harness — coverage over docs/plans/basic-chat.md,
+# the catalogue of elementary prompts parrot0 still walls on. Per-category score
+# to watch climb as categories are closed one structural generation at a time.
+basic-chat-bench: build
+	@./tests/basicchat.sh
+
 long-chat-bench: build
 	@./tests/longchatbench.sh
 

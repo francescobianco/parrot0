@@ -7,8 +7,11 @@
 # two replies in a row are identical. It still never feigns understanding.
 > tell me a story about dragons
 < I don't understand that yet.
-# would repeat -> vary (no content word in "12345" -> an honest redirect)
-> 12345
+# would repeat -> vary (no content word in "blah blah" -> an honest redirect).
+# (gen189: a bare number like "12345" is now claimed by mod_input as a
+# non-linguistic input, so this no-content-word case uses a stopword-ish phrase
+# that still falls through to the non-repeating not_understood path.)
+> blah blah
 < I didn't quite catch that. What would you like to know?
 # previous reply was not the classic wall, so the classic wall is fine again
 > the quick brown fox
