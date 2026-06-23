@@ -1,4 +1,30 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen197 (I/O shell): multi-line input (Shift+Enter / paste / `\`)
+
+**Direction (F.).** After gen196 showed parrot0 needs FILES for multi-line Python
+(the CLI was one-line-per-turn), F. asked for multi-line input: Shift+Enter should
+insert a newline without sending.
+
+**Honest constraint.** Terminals send the same byte for Enter and Shift+Enter
+unless an extended keyboard protocol is enabled, and no single protocol is
+universal. So `src/main.c` (the stable I/O shell) gains an interactive reader
+`read_turn_tty` — active ONLY when stdin is a TTY, so piped input keeps the exact
+`fgets` path (the test harness is byte-for-byte unchanged). It:
+- enables the kitty disambiguate flag (`CSI > 1 u`) + bracketed paste (`?2004h`);
+- parses **Shift+Enter** in both the CSI-u form (`ESC[13;2u`) and the
+  modifyOtherKeys form (`ESC[27;2;13~`) -> inserts a newline + `... ` continuation;
+- collects **bracketed paste** (multi-line paste, newlines kept) as one turn;
+- supports a universal **`\`-continuation** (a line ending in backslash continues),
+  so multi-line works even where Shift+Enter is not reported distinctly;
+- plain Enter submits; Ctrl-D EOF; Ctrl-C clears the line; backspace edits.
+
+**Verified in a real PTY** (no TTY in CI, so a `pty.fork` test): pasting a
+multi-line `def f(): / return g()`, the `\`-continuation, and Shift+Enter via
+`ESC[13;2u` all assemble one turn and parrot0 answers `it defines f / h / k` —
+inline multi-line Python now reaches `code_ingest_py` through the same path.
+`make test` 184/184 (piped path unchanged); brain.c untouched, so the version
+string stays `gen196-python-by-delta` (this is a shell-only generation).
+
 ## 2026-06-23 - gen196: Python "by delta" — one engine reads a real astropy file
 
 **Direction (F.).** Toward the first real SWE-bench_Lite instance

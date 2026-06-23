@@ -17,6 +17,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
+#include <unistd.h>
 
 /* Long enough to hold a whole benchmark prompt (passage+question) on one line;
  * fgets would otherwise split a long passage across reads, hiding its tail
@@ -43,6 +45,90 @@ static void trace_input(const char *line) {
     if (!f) return;
     fprintf(f, "%s\n", line);
     fclose(f);
+}
+
+/* Read one TURN interactively, with multi-line support (gen197). A turn is
+ * normally one line and Enter submits it; the user composes a multi-line turn —
+ * e.g. to paste a Python function with its indentation — in three ways:
+ *
+ *   - Shift+Enter inserts a newline without submitting. Terminals only report
+ *     Shift+Enter distinctly under an extended keyboard protocol, so we enable
+ *     the kitty disambiguate flag (CSI > 1 u) and xterm modifyOtherKeys, and
+ *     parse both the CSI-u form (ESC[13;2u) and the modifyOtherKeys form
+ *     (ESC[27;2;13~). Where the terminal supports neither, Shift+Enter degrades
+ *     to a plain Enter — so two universal fallbacks always work:
+ *   - a line ending in a backslash '\' continues onto the next line, and
+ *   - bracketed paste: pasted text (incl. its newlines) is collected as one turn.
+ *
+ * Returns 1 with a NUL-terminated turn in `buf` (newlines preserved, no trailing
+ * newline), or 0 on EOF. Only used when stdin is a TTY; piped input keeps the
+ * plain line-based path so the test harness is byte-for-byte unchanged. */
+static void tty_write(const char *s) { ssize_t n = write(STDERR_FILENO, s, strlen(s)); (void)n; }
+
+static int read_turn_tty(char *buf, size_t cap) {
+    struct termios old, raw;
+    tcgetattr(STDIN_FILENO, &old);
+    raw = old;
+    raw.c_lflag &= ~(unsigned)(ICANON | ECHO);
+    raw.c_cc[VMIN] = 1; raw.c_cc[VTIME] = 0;
+    tcsetattr(STDIN_FILENO, TCSANOW, &raw);
+    tty_write("\x1b[>1u\x1b[?2004h");        /* kitty disambiguate + bracketed paste */
+
+    size_t len = 0;
+    int paste = 0, done = 0, eof = 0;
+
+    while (!done) {
+        unsigned char c;
+        ssize_t r = read(STDIN_FILENO, &c, 1);
+        if (r < 0) continue;                 /* EINTR */
+        if (r == 0) { eof = (len == 0); done = 1; break; }
+
+        if (c == 27) {                       /* an escape sequence */
+            unsigned char b, seq[32]; size_t sl = 0, final = 0;
+            if (read(STDIN_FILENO, &b, 1) <= 0) continue;
+            if (b != '[') continue;          /* only CSI is handled */
+            while (sl < sizeof seq - 1) {
+                if (read(STDIN_FILENO, &b, 1) <= 0) break;
+                if (b >= 0x40 && b <= 0x7e) { final = b; break; }
+                seq[sl++] = b;
+            }
+            seq[sl] = 0;
+            const char *p = (const char *)seq;
+            if (final == '~' && strcmp(p, "200") == 0) { paste = 1; }
+            else if (final == '~' && strcmp(p, "201") == 0) { paste = 0; }
+            else if ((final == 'u' && strcmp(p, "13;2") == 0) ||
+                     (final == '~' && strcmp(p, "27;2;13") == 0)) {     /* Shift+Enter */
+                if (len + 1 < cap) buf[len++] = '\n';
+                tty_write("\r\n... ");
+            } else if ((final == 'u' && strcmp(p, "13") == 0) ||
+                       (final == '~' && strcmp(p, "27;1;13") == 0)) {   /* plain Enter */
+                done = 1;
+            }
+            continue;                        /* ignore arrows, etc. */
+        }
+
+        if (paste) {                         /* collect pasted bytes verbatim */
+            char ch = (c == '\r') ? '\n' : (char)c;
+            if (len + 1 < cap) buf[len++] = ch;
+            if (ch == '\n') tty_write("\r\n"); else { char e[2] = {ch, 0}; tty_write(e); }
+            continue;
+        }
+
+        if (c == '\r' || c == '\n') {        /* Enter: '\'-continuation or submit */
+            if (len > 0 && buf[len - 1] == '\\') { buf[len - 1] = '\n'; tty_write("\r\n... "); continue; }
+            done = 1; continue;
+        }
+        if (c == 4) { if (len == 0) { eof = 1; done = 1; } continue; }   /* Ctrl-D */
+        if (c == 3) { len = 0; tty_write("^C\r\nyou> "); continue; }     /* Ctrl-C: clear */
+        if (c == 127 || c == 8) { if (len > 0) { len--; tty_write("\b \b"); } continue; }
+        if (c >= 32) { if (len + 1 < cap) buf[len++] = (char)c; char e[2] = {(char)c, 0}; tty_write(e); }
+    }
+
+    buf[len < cap ? len : cap - 1] = '\0';
+    tty_write("\x1b[<u\x1b[?2004l");          /* restore terminal protocols */
+    tcsetattr(STDIN_FILENO, TCSANOW, &old);
+    tty_write("\r\n");
+    return eof ? 0 : 1;
 }
 
 int main(void) {
@@ -74,14 +160,19 @@ int main(void) {
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];
 
+    int interactive = isatty(STDIN_FILENO);
+
     for (;;) {
         fprintf(stderr, "you> ");
         fflush(stderr);
 
-        if (!fgets(line, sizeof line, stdin)) {
-            break; /* EOF / Ctrl-D */
+        if (interactive) {
+            /* gen197: multi-line capable reader (Shift+Enter / paste / '\'). */
+            if (!read_turn_tty(line, sizeof line)) break;   /* EOF */
+        } else {
+            if (!fgets(line, sizeof line, stdin)) break;    /* EOF / Ctrl-D */
+            chomp(line);
         }
-        chomp(line);
         trace_input(line);
 
         if (strcmp(line, "/quit") == 0 || strcmp(line, "/exit") == 0) {
