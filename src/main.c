@@ -160,13 +160,23 @@ int main(void) {
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];
 
+    /* gen202: the multi-line raw reader (gen197) emits kitty-keyboard + bracketed-
+     * paste escape sequences every turn; on terminals that do not implement the
+     * kitty keyboard protocol (most of them) the pop sequence `CSI < u` leaks a
+     * stray `<` and garbles the prompt. So the DEFAULT is the plain canonical
+     * reader (the terminal does the line editing — bulletproof, the pre-gen197
+     * behaviour). The multi-line reader is opt-in via PARROT0_MULTILINE=1 for the
+     * terminals that support it. Piped input always uses the plain path so the
+     * test harness is byte-for-byte unchanged. */
     int interactive = isatty(STDIN_FILENO);
+    const char *ml = getenv("PARROT0_MULTILINE");
+    int multiline = interactive && ml && ml[0] && ml[0] != '0';
 
     for (;;) {
         fprintf(stderr, "you> ");
         fflush(stderr);
 
-        if (interactive) {
+        if (multiline) {
             /* gen197: multi-line capable reader (Shift+Enter / paste / '\'). */
             if (!read_turn_tty(line, sizeof line)) break;   /* EOF */
         } else {

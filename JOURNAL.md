@@ -1,4 +1,27 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen202 (I/O shell fix): stray `<` on Enter in `make chat`
+
+**Bug (F. report).** In interactive `make chat`, pressing Enter printed a stray `<`
+and garbled the prompt. Reproduced via a PTY harness: gen197's raw multi-line
+reader emits the kitty-keyboard protocol push/pop (`CSI > 1 u` / `CSI < u`) plus
+bracketed paste on EVERY turn. On terminals that do not implement the kitty
+keyboard protocol (most of them), the pop sequence `\x1b[<u` is not consumed
+cleanly and leaks its literal `<` — breaking the line.
+
+**Fix.** `main.c` defaults back to the plain CANONICAL reader (the terminal does
+the line editing — the bulletproof pre-gen197 behaviour, zero escape sequences).
+The gen197 multi-line raw reader (Shift+Enter / paste / `\`-continuation) is now
+opt-in via `PARROT0_MULTILINE=1` for terminals that support it. Piped input always
+used the plain path, so the test harness is byte-for-byte unchanged. This honours
+main.c's charter ("intentionally boring and STABLE") — gen197 had regressed the
+common case for a niche convenience.
+
+**Verified (PTY).** Default: output contains no ESC byte and no `<`; the prompt and
+responses are clean (`hello` -> `Hi there!`). Opt-in: `PARROT0_MULTILINE=1` still
+emits the multi-line escapes (feature preserved). Piped: unchanged. `make test`
+green except the 4 pre-existing `profile:agi` failures (unrelated). Shell-only
+change, so `brain_version` stays `gen201` (same convention as gen197).
+
 ## 2026-06-23 - gen201: second REAL SWE-bench instance (astropy-6938) RESOLVED — discarded-result smell
 
 **Milestone.** A SECOND real SWE-bench_Lite instance resolved, by a DIFFERENT
