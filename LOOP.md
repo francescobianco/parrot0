@@ -70,3 +70,42 @@ from iterating this loop.
   let structure appear because the tasks demanded it.
 - **Stay pure C.** No runtime model, no network. Complexity is allowed; magic
   is not.
+
+## Acceleration — make generations compound, not just add
+
+Growth so far is **additive**: generation *n* ⇒ ~*n* capabilities, constant
+cost per brick, no interest compounding. Faithful acceleration (PRINCIPLES.md)
+comes only from **structure that compounds**, never from writing phrasebook/C
+faster (that is the impostor, and it stays linear). The convergence is meant to
+be asymptotic, so the real target is **maximize edges-closed-per-generation**
+inside the anti-impostor discipline. Three levers, in order of leverage:
+
+- **A. Migrate capability from C branches to KB facts/rules over a fixed
+  engine.** *Uniform substrate, articulated function* (PRINCIPLES corollary).
+  Every closed-class lexicon or world fact moved out of hardcoded C arrays into
+  `kb/core/*.p0` (queried at runtime) turns "write C" (human-bottlenecked,
+  linear) into "ingest knowledge" (automatable, cumulative). Precedents:
+  `stopword`/`social`/`gloss`/`roles`, gen111 `weight()`, gen133 rules, gen104
+  ICL, the dynamic-knowledge loop, and **gen193 `conjunction/1`** — a lexical
+  class read from the KB and *teachable at runtime* ("use p as a conjunction"
+  asserts `conjunction(p)`; the same parsers split on it with no code change).
+  **Default move: when a new capability is a lexical class or a fact set, add it
+  as KB and have the fixed engine query it — do not grow a new C array.**
+- **B. Prefer keystones; measure edges-closed-per-generation.** The brain must
+  articulate into cooperating parts (compose-bench). A general primitive
+  multiplies (gen133 closed three open edges with one change); a special case
+  adds one. When the generalization probe (the IT ratchet, the 10x stress)
+  fails, **fix the core, never duplicate** — that is what makes future cases
+  free. Prefer the change that unlocks combinations over the change that covers
+  one more phrasing.
+- **C. Reflexive dogfooding (the super-linear, long game).** The code-mastery
+  faculty (AST-as-KB → edit → verify-by-build, gen187–192) is an agent for
+  editing code. Aimed eventually at `brain.c` itself, it makes the loop's
+  *implement + test* step partly self-driving — the method becoming an engine,
+  the reflexive closure PRINCIPLES puts at the centre. This is the real meaning
+  of the `swe-bench` north star.
+
+Meta-lever: let the discovery harnesses (`basic-chat-bench`, `code-bench`) not
+only **measure** gaps but **propose the next pull by leverage** — "the tests
+dispose" extended to "the harness proposes the order", cutting the human
+task-selection bottleneck.

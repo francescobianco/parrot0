@@ -351,6 +351,7 @@ typedef struct {
 static size_t split_words(char *s, char **argv, size_t max);
 static int is_article(const char *w);
 static int is_stopword(Brain *b, const char *w);
+static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
 static int is_internal_pred(const char *pred);
 
@@ -436,6 +437,41 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         "come mi chiamo",   "come mi chiamo?",
         NULL,
     };
+
+    /* gen193: teach a CONJUNCTION as KB knowledge — "use X as a conjunction" /
+     * "usa X come congiunzione" asserts conjunction(X) into the same conjunction/1
+     * class the list parsers read. The behaviour then changes with NO code edit:
+     * a coordinator parrot0 was just taught splits lists like "and"/"e". This is
+     * the KB-migration direction made concrete (PRINCIPLES.md: a fixed engine,
+     * lexicon and world both growing as KB). */
+    if (b->kb && (cue(norm, "conjunction") || cue(norm, "congiunzione")) &&
+        (cue(norm, "use ") || cue(norm, "usa ") ||
+         cue(norm, "treat ") || cue(norm, "tratta "))) {
+        char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
+        char *cw[32]; size_t cnw = split_words(nb, cw, 32);
+        size_t marker = cnw;
+        for (size_t i = 0; i < cnw; i++)
+            if (!strcmp(cw[i], "as") || !strcmp(cw[i], "come")) { marker = i; break; }
+        if (marker != cnw && marker > 0) {
+            char *word = strip_edge_punct(cw[marker - 1]);
+            if (*word && !is_conjunction(b, word)) {
+                const char *ar[] = { word };
+                kb_set_origin(b->kb, KB_SESSION);
+                kb_assert(b->kb, "conjunction", ar, 1);
+                char msg[160];
+                snprintf(msg, sizeof msg,
+                         "Got it - I'll treat \"%s\" as a conjunction now, like \"and\".", word);
+                put(msg, out, out_size);
+                return 1;
+            }
+            if (*word) {     /* already known — acknowledge without re-asserting */
+                char msg[160];
+                snprintf(msg, sizeof msg, "I already treat \"%s\" as a conjunction.", word);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
 
     /* Teach: "my name is <X>" */
     static const char *const prefix = "my name is ";
@@ -2751,16 +2787,17 @@ static int plan_dfs(Brain *b, const char *node, const char *parent,
 /* gen110: learn a prerequisite LIST from one sentence — conjunction and optional
  * quantities. "cake requires eggs and flour" -> two requires() facts; "batter
  * requires 3 eggs and 2 flour" also records amount(batter, eggs, 3) etc. Each
- * item is an optional leading number then a single step token; "and"/"e"/","/"of"
- * are skipped. Returns the count learned and writes the reply. */
+ * item is an optional leading number then a single step token; a coordinating
+ * conjunction (queried from the KB conjunction/1 class, gen193) and the
+ * list-filler "of"/"di" are skipped. Returns the count learned and writes the
+ * reply. */
 static size_t plan_learn_list(Brain *b, const char *goal, char **w,
                               size_t start, size_t nw, char *out, size_t out_size) {
     long pend = -1; size_t learned = 0; char last_step[KB_TERM_LEN] = "";
     for (size_t i = start; i < nw; i++) {
         char *tk = strip_edge_punct(w[i]);
         if (!*tk) continue;
-        if (!strcmp(tk, "and") || !strcmp(tk, "e") || !strcmp(tk, "ed") ||
-            !strcmp(tk, "of") || !strcmp(tk, "di")) continue;
+        if (is_conjunction(b, tk) || !strcmp(tk, "of") || !strcmp(tk, "di")) continue;
         double v;
         if (parse_num(tk, &v)) { pend = (long)v; continue; }
         const char *ar[] = { goal, tk };
@@ -3817,6 +3854,16 @@ static int is_stopword(Brain *b, const char *w) {
     return kb_query(b->kb, "stopword", args, 1);
 }
 
+/* gen193: is `w` a coordinating conjunction? Read from the KB conjunction/1
+ * class (kb/core/lexicon.p0) rather than a hardcoded C array, so the set can be
+ * taught at runtime ("use p as a conjunction") and list parsers gain the new
+ * coordinator with no code change. The honest KB-migration of a lexical class. */
+static int is_conjunction(Brain *b, const char *w) {
+    if (!b || !b->kb || !w || !*w) return 0;
+    const char *args[] = {w};
+    return kb_query(b->kb, "conjunction", args, 1);
+}
+
 /* Percentage of a's content tokens that also occur in b (0..100), or -1 when a
  * has no content tokens. Case-insensitive, exact word match (not substring). */
 static int overlap_pct(Brain *b, const char *a, const char *text) {
@@ -4420,6 +4467,11 @@ static int is_internal_pred(const char *pred) {
         "stopword", "social_marker", "social_pattern", "question_word",
         "reaction_word", "i_am", "module", "cont", "cont2",
         "cmd", "flag",
+        /* gen193: the conjunction/1 lexical class (kb/core/lexicon.p0, plus any
+         * taught at runtime) is closed-class function-word substrate the parsers
+         * read, not facts the user taught about the world — filter it like
+         * stopword from "how many facts do you know?". */
+        "conjunction",
         /* gen101: role/character world-knowledge (kb/core/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */
@@ -11471,7 +11523,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen192-code-link-verify";
+    return "gen193-conjunction-as-kb";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

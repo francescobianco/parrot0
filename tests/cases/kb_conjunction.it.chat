@@ -1,0 +1,18 @@
+# gen193 bilingual ratchet: the SAME conjunction/1 KB class and the SAME list
+# parser, reached in Italian. "e" is a built-in conjunction; "p" is taught at
+# runtime via "usa X come congiunzione" and the parser then splits on it too —
+# proving the capability is in the engine+KB, not an English phrasebook.
+
+# Built-in Italian conjunction "e" splits the list.
+> torta richiede uova e farina
+< Learned 2 prerequisites for torta.
+# Unknown "p" is a bogus extra item until taught.
+> dolce richiede zucchero p burro
+< Learned 3 prerequisites for dolce.
+# Teach "p" through the Italian surface; same conjunction/1 class.
+> usa p come congiunzione
+< Got it - I'll treat "p" as a conjunction now, like "and".
+> crostata richiede noci p miele
+< Learned 2 prerequisites for crostata.
+> come faccio crostata
+< To make crostata: noci, miele, then crostata.

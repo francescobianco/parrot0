@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen193: a lexical class migrated to the KB, teachable at runtime
+
+**Direction (F.'s acceleration call).** F. observed growth is additive, not
+compounding, and asked what could accelerate while staying faithful to
+PRINCIPLES.md. The answer (now written into LOOP.md "Acceleration"): the biggest
+faithful lever is migrating capability from hardcoded C into KB facts/rules over
+a fixed engine — *uniform substrate, articulated function*. F. gave the exact
+demonstration: conjunctions as KB knowledge, so "use p as a conjunction" enriches
+the class and the parsers split on "p" with no code change.
+
+**Changed.** `brain.c` -> `gen193-conjunction-as-kb`. New `conjunction/1` class in
+`kb/core/lexicon.p0` (and/or/e/ed/o/oppure), loaded at birth like `stopword`. New
+`is_conjunction(b, w)` queries the KB instead of a C array; `plan_learn_list`
+(prerequisite-list parser) now skips a coordinator via that query rather than the
+old hardcoded `strcmp(tk,"and"||"e"||"ed")`. A teach branch in `mod_memory`
+recognises "use/treat X as a conjunction" / "usa/tratta X come congiunzione",
+asserts `conjunction(X)` (KB_SESSION, so it persists in session saves), and is
+idempotent. `conjunction` added to `is_internal_pred` so the closed-class words
+don't pollute "how many facts do you know?" (exactly as `stopword` is filtered).
+
+**Observed.** Untaught, "torta richiede uova p farina" learns 3 prerequisites (p
+is a bogus item); after "use p as a conjunction" the SAME parser learns 2 and the
+plan reads "uova, farina". The behaviour changed with no code edit — capability
+moved into knowledge. EN+IT ratchets `kb_conjunction.chat`/`.it.chat`; the IT
+case rides the same `conjunction/1` class and parser, proving it is engine+KB, not
+an English phrasebook. `make test` 184/184; basic-chat 26% and code-bench 18 gates
+unchanged; pre-existing profiles.sh failures untouched.
+
+**Why it matters.** This is acceleration lever **A** made concrete and a template:
+when a capability is a lexical class or a fact set, add it as KB and have the
+fixed engine query it — do not grow a new C array. The next candidates to migrate
+the same way: the scattered "then"/"and"/"poi" sequence connectors, the
+positional `and`-coordination in the conjunctive-concept learner, and (F.'s next
+idea) **C types as mirror concepts** — a taught type inheriting an existing type's
+definition/inference by reference, with only its delta asserted.
+
 ## 2026-06-23 - gen192: code mastery — F5 verification by BUILDING (link grounding)
 
 **Mission / pull.** `docs/CODE-MASTERY.md` §8 toward `make swe-bench`. The recorded

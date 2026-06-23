@@ -1,7 +1,19 @@
 % parrot0 lexical knowledge - curated closed-class/function words.
 % Loaded as base knowledge by brain_create before the optional world/session
 % layers, so filters can consult the KB without persisting these facts.
-% Predicate exported: stopword/1.
+% Predicates exported: stopword/1, conjunction/1.
+
+% gen193 (KB-migration direction, PRINCIPLES.md): coordinating conjunctions are
+% KNOWLEDGE, not a hardcoded C word array. List parsers query conjunction/1 to
+% split a coordinated phrase, so the class can GROW at runtime: teaching parrot0
+% "use p as a conjunction" asserts conjunction(p) and the very same parsers then
+% split on "p" with no code change. The engine is fixed; the lexicon learns.
+conjunction(and).
+conjunction(or).
+conjunction(e).
+conjunction(ed).
+conjunction(o).
+conjunction(oppure).
 
 % English function words and high-frequency conversational operators.
 stopword(the).
