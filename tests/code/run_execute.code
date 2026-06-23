@@ -1,11 +1,14 @@
-# gen192 — recorded growth edge (the NEXT pull: execute, not just link). Link
-# grounding (run_verify) proves a build SUCCEEDS or FAILS; the swe-bench loop needs
-# the next step — actually RUN the built program (or its test suite) and observe the
-# real result (exit code / output / a failing assertion). parrot0 can symbolically
-# evaluate a function, and can now compile+link, but does not yet EXECUTE a built
-# binary and report what it did. Expected to MISS — marks F5 "verify by running":
-# the move from "it links" to "the tests pass", the core swe-bench primitive.
-#expect: gap
+# gen198 — RATCHETED (was gen192's open gap). F5 verification by RUNNING: the rung
+# past run_verify ("it links") to "it ran and did X". A "build and run <path>" cue
+# compiles+links the file into a temp executable, EXECUTES it in a sandboxed child,
+# and reports the program's REAL exit status read from the process — the grounded
+# oracle the swe-bench loop needs ("did the test pass?"), not a guess (CODE-MASTERY
+# §4). The compiler+process is a deterministic tool, not outsourced intelligence.
+#expect: pass
 #faculty: run-execute
+# A program that exits 0.
 > build and run tests/code/buildable/prog.c and tell me its exit code
 < it ran and exited with code 0.
+# A program that exits NON-zero: the verdict is the real code (7), not a constant.
+> build and run tests/code/buildable/exit7.c and tell me its exit code
+< it ran and exited with code 7.

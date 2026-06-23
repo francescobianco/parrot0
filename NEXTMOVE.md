@@ -1,7 +1,18 @@
 # NEXTMOVE — handoff (2026-06-23)
 
-Clean tree, all pushed. Head: `fbd64df` (gen197). `make test` 184/184 (only the
-pre-existing `profiles.sh` 4 failures, identical on baseline — unrelated).
+Clean tree, all pushed. Head: gen198 (`gen198-run-grounding`). `make test` green
+except the 4 pre-existing `profiles.sh` agi failures (verified identical on
+baseline via stash — unrelated). `make code-bench` 20/20 gates, 0 gaps.
+
+## Just landed — gen198 (X1 run-grounding, was NEXTMOVE Option A)
+`code_run` in code.c/code.h: compile+link, then EXECUTE the built binary in a
+sandboxed child and report its REAL exit status (`WEXITSTATUS`). The C verify
+ladder compile->link->run is now COMPLETE — the grounded "did it pass?" oracle.
+`mod_codeast` branch: "build and run <path> ... exit code" (verb cue from the
+per-clause `norm`, path from raw). Flipped `run_execute.code` to `#expect: pass`
+(proves exit 0 AND 7); EN+IT `run_execute.chat`/`.it`. Also fixed a latent
+compound double-dispatch (codeast branches read path from the whole raw input,
+which `decompose_and_dispatch` passes to every sub-clause).
 
 ## Where we are
 Driver = the REAL SWE-bench north star (CODE-MASTERY.md). The active goal in
@@ -41,22 +52,23 @@ call list, and locates `_cstack` by name. The read/structure distance is CLOSED.
    pytest; today the only grounded oracle is the C compiler.
 
 ## Recommended NEXT MOVE
-Pick ONE, smallest-first, KB-first where possible, grounded, EN+IT ratchet:
+X1 (Option A) is DONE. The C verify ladder is complete; the binding constraint is
+now the **Python frontier**. Pick ONE, smallest-first, KB-first where possible,
+grounded, EN+IT ratchet:
 
-- **Option A (recommended): X1 run-grounding on C first** — add `code_run`
-  (compile+link+EXECUTE, capture exit code) to close the `tests/code/run_execute.code`
-  gap. It's a clean, fully-groundable C faculty (the `run_verify`→`run_execute`
-  ladder), independent of the hard Python frontier, and is the reusable "did the
-  test pass?" primitive every swe-bench solve needs. NOTE: I started this in a
-  prior turn then reverted it when we pivoted to real data — re-add `code_run` in
-  code.c/code.h and a `mod_codeast` branch ("build and run <path>"), flip
-  `run_execute.code` to `#expect: pass`.
-- **Option B: X6 toy localization** — map a few issue keywords to a function via
-  the call-graph/name overlap on the committed `repo_excerpt`. High-risk (this is
-  the F4 frontier CODE-MASTERY says may need statistical association) — keep it a
-  measured probe, not a promise.
-- **Option C: widen the map** — `tests/swebench/fetch_lite.sh 50` for a richer
-  intercepted-failure map before choosing.
+- **Option A (recommended): X3 — abstract node vocabulary.** Audit whether the
+  gen173-196 analyzers (localization, `calls`/`assigns`, find_callers) speak
+  C-specific structure or an abstract `node/…` vocabulary; refactor so they read
+  abstract facts. CODE-MASTERY §7b: *this* is "support Python", not a parser
+  rewrite. gen196 already emits the same `code_function`/`code_calls` facts from
+  Python — extend that delta to the analyzers. Unblocks every later pull.
+- **Option B: static repo checkout (curation)** — check out a repo at
+  `base_commit` as static files (network once, like the wiki corpus) so a real
+  swe-bench repo is readable offline. Prereq for X6 localization / X7 patch.
+- **Option C: extend run-grounding to a TEST oracle** — today `code_run` reports
+  one program's exit code; a swe-bench solve needs "run THIS test and see it flip
+  fail->pass". Smallest C version: run a file whose `main` asserts, report
+  pass/fail. (Stays C-grounded; bridges toward the pytest oracle conceptually.)
 
 ## Gotchas to remember
 - `split_words` null-terminates its buffer in place and `w[8]` truncates — read
@@ -69,6 +81,10 @@ Pick ONE, smallest-first, KB-first where possible, grounded, EN+IT ratchet:
 - Push may need `git pull --rebase` first (an automated "learn wikipedia page"
   cron pushes to main). Rebuild + `make test` after rebasing, then push.
 - Commit with `convcommit -t <type> -s <scope> -m "genN - ..." -a -p`.
+- `decompose_and_dispatch` passes each sub-clause as `norm` but the WHOLE raw
+  input as `raw`. A module that reads from `raw` (e.g. the codeast path-branches)
+  will re-fire on every sub-clause of "X and tell me Y" and DOUBLE its answer —
+  gate the trigger cue on `norm`, take only positional data (paths) from `raw`.
 
 ## Parked
 basic-chat driver (`docs/plans/basic-chat.md`): `make basic-chat-bench` 26%

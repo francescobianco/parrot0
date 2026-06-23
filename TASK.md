@@ -19,6 +19,12 @@ instance. All 5 fetched instances are **Python**; parrot0's code engine is C-onl
 the repos are not checked out, and the hidden pytest suite needs a Python env. So
 the real target is many generations away; the bench is the intercepted-failure map.
 
+**Done — X1 run-grounding (gen198).** `code_run` (compile+link+EXECUTE, real exit
+status read from the process) closes the C verify ladder compile->link->run — the
+grounded "did it pass?" oracle now exists for C; `run_execute.code` ratcheted to
+pass. Also fixed a latent compound double-dispatch in the codeast path-branches.
+The binding constraint for swe-bench is now squarely the Python frontier below.
+
 **Ordered pulls toward it (TASKLIST X-series) — smallest first, the next task:**
 1. **X3 — abstract node vocabulary.** Audit whether the gen173-192 analyzers speak
    C-specific structures or an abstract `node/…` vocabulary; refactor so

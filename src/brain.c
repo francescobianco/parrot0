@@ -8547,8 +8547,7 @@ static void lang_name(int lang, char *out, size_t out_size) {
  * parser, not the pattern matcher. */
 static int mod_codeast(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
-    (void)norm;
-    if (!b || !b->kb || !raw) return 0;
+    if (!b || !b->kb || !raw || !norm) return 0;
     char s[512]; copy_trim(s, sizeof s, raw);
     if (!*s) return 0;
 
@@ -8764,6 +8763,56 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             snprintf(out, out_size,
                      "Renamed %s to %s%s (%d occurrences) in a temp copy; the original is unchanged.",
                      oldn, newn, where, n);
+        store_proof(b, out);
+        return 1;
+    }
+
+    /* gen198: F5 verification by RUNNING — "build and run <path> ... exit code".
+     * The rung past code_build: compile+link, then EXECUTE and report the real
+     * exit status from the process (the grounded oracle), not a guess. Handled
+     * before "compile" so a turn that asks to RUN is not answered as a mere
+     * compile check. The "run"/"esegui" cue plus a real path-like token is the
+     * trigger; mod_tool/mod_shell run earlier and ignore a .c/.py path, so this
+     * is the part that owns "run this source file".
+     *
+     * The verb cue is read from `norm` (the per-clause canonical surface), not
+     * `raw`: when the compound splitter dispatches "run X and tell me its exit
+     * code" it hands each sub-clause but passes the WHOLE raw input, so reading
+     * the verb from raw would make the trailing "tell me ..." clause re-fire and
+     * double the answer. The path is still taken from raw to preserve case. */
+    if ((cue(norm, "run") || cue(norm, "execute") || cue(norm, "esegui") ||
+         cue(norm, "esegu")) &&
+        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".py"))) {
+        char path[256] = "";
+        for (const char *p = qpart; *p; ) {
+            while (*p == ' ' || *p == '\t') p++;
+            const char *t = p;
+            while (*p && *p != ' ' && *p != '\t') p++;
+            size_t l = (size_t)(p - t);
+            if (l > 0 && l < sizeof path) {
+                int looks_path = 0;
+                for (size_t i = 0; i < l; i++) if (t[i] == '/') looks_path = 1;
+                if (l >= 2 && t[l-2] == '.' && (t[l-1] == 'c' || t[l-1] == 'h')) looks_path = 1;
+                if (l >= 3 && t[l-3] == '.' && t[l-2] == 'p' && t[l-1] == 'y') looks_path = 1;
+                if (looks_path) { memcpy(path, t, l); path[l] = '\0'; break; }
+            }
+        }
+        if (!path[0]) return 0;
+        char err[512]; int ec = 0;
+        int rc = code_run(path, &ec, err, sizeof err);
+        if (rc < 0 && err[0]) {
+            /* a build failure: quote the first diagnostic line */
+            char first[200] = ""; size_t fo = 0;
+            for (const char *c = err; *c && *c != '\n' && fo + 1 < sizeof first; c++) first[fo++] = *c;
+            first[fo] = '\0';
+            snprintf(out, out_size, "It would not build, so it never ran: %s", first);
+        } else if (rc < 0) {
+            return 0;                          /* unsafe/unrunnable path — not ours */
+        } else if (rc == 0) {
+            snprintf(out, out_size, "It built, but the program did not exit normally (it was killed before finishing).");
+        } else {
+            snprintf(out, out_size, "it ran and exited with code %d.", ec);
+        }
         store_proof(b, out);
         return 1;
     }
@@ -11533,7 +11582,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen196-python-by-delta";
+    return "gen198-run-grounding";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

@@ -92,4 +92,16 @@ int code_build(const char *src_path, char *err_out, size_t err_sz);
 size_t code_find_callers(const char *dir, const char *target,
                          char out[][KB_TERM_LEN], size_t max);
 
+/* gen198: F5 verification by RUNNING — compile+link `src_path` into a temp
+ * executable, then EXECUTE it in a sandboxed subprocess and observe the real
+ * result. The rung past code_build ("it links") to "it ran and exited with N" —
+ * the core swe-bench primitive (did the test pass?). A compiler+process is a
+ * deterministic tool, not outsourced intelligence (CODE-MASTERY.md §4). Returns:
+ *   1  -> built and ran to completion; *exit_code holds the program's exit status
+ *   0  -> built but did NOT exit normally (killed by a signal / timed out)
+ *  -1  -> could not build or could not run (sandbox / fork / link failure);
+ *         on a build failure the first diagnostics are in `err_out`.
+ * The temp executable is removed before returning. */
+int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz);
+
 #endif /* PARROT0_CODE_H */

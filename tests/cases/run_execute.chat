@@ -1,0 +1,9 @@
+# gen198: F5 verification by RUNNING. parrot0 compiles+links a source file, then
+# EXECUTES it and reports the program's REAL exit status from the process — the
+# grounded "did it run, and what did it do?" oracle (CODE-MASTERY §4), not a
+# guess. The exit code is read from the process, so a non-zero program reports its
+# true code, not a constant.
+> build and run tests/code/buildable/prog.c and tell me its exit code
+< it ran and exited with code 0.
+> run tests/code/buildable/exit7.c and tell me its exit code
+< it ran and exited with code 7.

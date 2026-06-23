@@ -6,6 +6,7 @@
 
 #include <ctype.h>
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -1216,6 +1217,70 @@ int code_build(const char *src_path, char *err_out, size_t err_sz) {
     remove(exe);
     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
     return 0;
+}
+
+/* gen198: build then RUN. Compile+link into a private temp executable (capturing
+ * any build diagnostics), and if that succeeds, fork+exec the executable itself
+ * in a sandboxed child (output discarded, an alarm() bounds the time) and read
+ * back its exit status. Same path whitelist as the rest of the file. The two
+ * subprocesses are kept separate so a build failure is reported distinctly from
+ * a run that crashed. */
+int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (exit_code) *exit_code = 0;
+    if (!src_path || !*src_path) return -1;
+    if (src_path[0] == '/' || src_path[0] == '~' || strstr(src_path, "..")) return -1;
+    for (const char *c = src_path; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
+              *c == '_' || *c == '-')) return -1;
+
+    const char *exe = "./.p0_run_tmp.out";
+
+    /* Stage 1: compile+link, capturing diagnostics. */
+    int pf[2];
+    if (pipe(pf) != 0) return -1;
+    pid_t bpid = fork();
+    if (bpid < 0) { close(pf[0]); close(pf[1]); return -1; }
+    if (bpid == 0) {
+        dup2(pf[1], STDOUT_FILENO);
+        dup2(pf[1], STDERR_FILENO);
+        close(pf[0]); close(pf[1]);
+        alarm(20);
+        execlp("cc", "cc", "-w", src_path, "-o", exe, (char *)NULL);
+        _exit(127);
+    }
+    close(pf[1]);
+    if (err_out && err_sz) {
+        ssize_t n = read(pf[0], err_out, err_sz - 1);
+        if (n < 0) n = 0;
+        err_out[n] = '\0';
+    } else {
+        char sink[256];
+        while (read(pf[0], sink, sizeof sink) > 0) { }
+    }
+    close(pf[0]);
+    int bstatus;
+    if (waitpid(bpid, &bstatus, 0) < 0) { remove(exe); return -1; }
+    if (!(WIFEXITED(bstatus) && WEXITSTATUS(bstatus) == 0)) { remove(exe); return -1; }
+
+    /* Stage 2: execute the built program and capture its exit status. */
+    pid_t rpid = fork();
+    if (rpid < 0) { remove(exe); return -1; }
+    if (rpid == 0) {
+        int devnull = open("/dev/null", O_WRONLY);
+        if (devnull >= 0) { dup2(devnull, STDOUT_FILENO); dup2(devnull, STDERR_FILENO); }
+        alarm(15);
+        execl(exe, exe, (char *)NULL);
+        _exit(127);
+    }
+    int rstatus;
+    if (waitpid(rpid, &rstatus, 0) < 0) { remove(exe); return -1; }
+    remove(exe);
+    if (WIFEXITED(rstatus)) {
+        if (exit_code) *exit_code = WEXITSTATUS(rstatus);
+        return 1;
+    }
+    return 0;                    /* killed by a signal / timed out */
 }
 
 int code_read_file(const char *path, char *buf, size_t bufsz) {

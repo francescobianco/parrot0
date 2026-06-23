@@ -1,4 +1,49 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen198: run-grounding — from "it links" to "it ran and exited with N"
+
+**Goal (NEXTMOVE Option A, X1).** The swe-bench north star needs the core oracle
+"did the test pass?". gen186 gave compile, gen192 gave link ("it still links");
+the recorded gap `run_execute.code` asked for the next rung: actually EXECUTE a
+built program and report the real result. A clean, fully-groundable C faculty,
+independent of the hard Python frontier — the reusable verify primitive every
+solve needs.
+
+**Insight.** A compiler *and a process* are deterministic tools, not outsourced
+intelligence (CODE-MASTERY §4), so running is allowed. The verdict must come from
+the real process exit status, never a guess — that is what makes it grounded.
+
+**Changed.** `code.c`/`code.h` -> new `code_run`: same path sandbox as
+`code_build`, two staged subprocesses — (1) `cc -w src -o tmp` capturing build
+diagnostics; (2) fork+exec the built binary with output to /dev/null, `alarm(15)`
+bound, read back `WEXITSTATUS`. Returns 1 (ran; `*exit_code` set), 0 (built but
+killed by a signal / timed out), -1 (could not build/run; diagnostics in err_out).
+`brain.c` -> `gen198-run-grounding`: a `mod_codeast` branch for "build and run
+<path> ... exit code" (verb cue `run`/`execute`/`esegui` + a real `.c`/`.py`/`/`
+path), placed before the "compile" branch so a run request is not answered as a
+mere compile check.
+
+**Bug found & fixed (compound double-dispatch).** `decompose_and_dispatch` hands
+each sub-clause as `norm` but passes the WHOLE raw input as `raw`. The codeast
+path-branches read from `raw`, so "run X **and tell me** its exit code" had its
+trailing "tell me…" clause re-fire the run and double the answer ("... 0. ... 0.").
+Fixed by reading the *verb* cue from the per-clause `norm` (path still from raw to
+preserve case): the trailing clause has no run verb, so it no longer re-fires.
+
+**Observed.** `prog.c` -> "it ran and exited with code 0."; `exit7.c` -> "...code
+7." (the REAL code, not a constant). 10x stress: a syntax-broken file -> "It would
+not build, so it never ran: …"; a null-deref -> "It built, but the program did not
+exit normally (it was killed before finishing)."; `return 42` -> code 42; a `.py`
+file -> honest build failure (cc can't link it — parrot0 still can't run Python).
+Guards: bare "run", "run a marathon", "run this command" are NOT claimed (no path).
+EN+IT ratchets `run_execute.chat`/`.it` + flipped `run_execute.code` to
+`#expect: pass` (now proves 0 AND 7). `make code-bench` 20/20 gates hold, 0 gaps.
+`make test`: all green except the 4 pre-existing `profiles.sh` agi failures
+(verified identical on baseline via stash — unrelated).
+
+**Next.** The Python frontier is now the binding constraint for swe-bench (X3
+abstract node vocabulary; static repo checkout; X6 localization; X7 patch). The C
+verify ladder (compile -> link -> run) is complete and reusable.
+
 ## 2026-06-23 - gen197 (I/O shell): multi-line input (Shift+Enter / paste / `\`)
 
 **Direction (F.).** After gen196 showed parrot0 needs FILES for multi-line Python
