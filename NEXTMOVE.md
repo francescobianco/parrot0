@@ -1,10 +1,27 @@
 # NEXTMOVE — handoff (2026-06-23)
 
-Clean tree, all pushed. Head: gen198 (`gen198-run-grounding`). `make test` green
-except the 4 pre-existing `profiles.sh` agi failures (verified identical on
-baseline via stash — unrelated). `make code-bench` 20/20 gates, 0 gaps.
+Clean tree, all pushed. Head: gen199 (`gen199-python-eval-delta`). `make test`
+188/188 + the 4 pre-existing `profiles.sh` agi failures (verified identical on
+baseline via stash — unrelated). `make code-bench` 21/21 gates, 0 gaps.
 
-## Just landed — gen198 (X1 run-grounding, was NEXTMOVE Option A)
+## Just landed — gen199 (Python F3 semantics by delta, CODE-MASTERY §7b)
+F. steered: Python semantics is derived by DIFFERENCE from C (§7b), not built
+separately. `code.c`: `eval_py_fn` (Python front-end — `def name(params):`,
+identifier-first params, newline statements: locals + return) reuses the SAME
+`ev_rel` expression evaluator as C; `eval_any` dispatches C-then-Python and is used
+by `code_eval` AND the in-expression call recursion, so Python→Python recursion
+works. No brain logic changed — the eval branch already called `code_eval`
+language-agnostically, so Python lit up for free (the §7b payoff). Proven: `add`,
+precedence, annotated params, multi-line file locals (`sqpy`=36), recursion
+(`usepy(4)`=20); honest refusal on if/string/unknown-call. EN+IT `eval_py.chat`/
+`.it`, codebench gate `evaluate_py.code`. Distance report item 2 updated.
+
+NEXT for astropy-12907: the value-domain delta (numpy ARRAY assign/broadcast — an
+additive Python-specific fact set), X6 issue->`_cstack` localization (the
+associative crux §4), X7 expression-level patch synthesis (rename/delete exist; an
+expression edit `= 1`->`= right` is the missing transformation).
+
+## Earlier — gen198 (X1 run-grounding, was NEXTMOVE Option A)
 `code_run` in code.c/code.h: compile+link, then EXECUTE the built binary in a
 sandboxed child and report its REAL exit status (`WEXITSTATUS`). The C verify
 ladder compile->link->run is now COMPLETE — the grounded "did it pass?" oracle.

@@ -1,0 +1,26 @@
+# gen199 — language-as-delta (CODE-MASTERY §7b): F3 SEMANTICS for Python, derived
+# by DIFFERENCE from C. The shared expression evaluator is reused unchanged; only
+# the concrete syntax is the delta (`def name(params):`, identifier-first params,
+# newline-terminated statements). The same `code_eval` answers in both languages —
+# one engine, two surfaces — and still refuses honestly when the body is beyond the
+# arithmetic evaluator (the F3 deductive/associative boundary §3 exists to measure).
+#expect: pass
+#faculty: symeval-py
+# Single-line def, inline.
+> what does add(2, 3) return: def add(a, b): return a + b
+< add(2, 3) returns 5
+# Operator precedence, inline.
+> what does f(2, 3, 4) return: def f(a, b, c): return a + b * c
+< f(2, 3, 4) returns 14
+# Type-annotated params (a delta from C: the NAME is first, the type follows).
+> what does g(4, 5) return: def g(a: int, b: int): return a * b
+< g(4, 5) returns 20
+# Multi-line file: a local assignment then return, and Python->Python recursion
+# (usepy calls addpy and sqpy) — all through the one shared evaluator.
+> what does sqpy(6) return in tests/code/py/calc.py
+< sqpy(6) returns 36
+> what does usepy(4) return in tests/code/py/calc.py
+< usepy(4) returns 20
+# Honest refusal: a control-flow body is beyond the arithmetic evaluator (yet).
+> what does h(1) return: def h(x): return ghost(x)
+< cannot compute h(1)

@@ -50,7 +50,12 @@ read/structure layer.
    the associative step CODE-MASTERY §3/§4 flags as the hard frontier. **Largest gap.**
 2. **Python semantics (F3 deep).** parrot0 sees `_cstack` *calls* numpy ops but has
    no model of array assignment / broadcasting, so it cannot reason that `= 1` vs
-   `= right` changes the result. C symbolic-eval (`code_eval`) does not cover Python.
+   `= right` changes the result. **gen199 update:** `code_eval` now DOES cover Python
+   by delta (§7b) — it symbolically evaluates a `def`'s locals + `return` on integer
+   args through the same engine as C (`add`, `sqpy`, Python→Python recursion all
+   compute). The remaining gap is the *value domain*: this bug lives in numpy ARRAY
+   assignment/broadcasting — an additive Python-specific semantic fact set, not the
+   shared arithmetic core.
 3. **Patch synthesis (X7).** No transformation yet rewrites `= 1` → `= right`
    (rename/delete exist; an expression-level edit does not). The *what* to change is
    gated on (1)+(2); the *how* is a new AST transformation.

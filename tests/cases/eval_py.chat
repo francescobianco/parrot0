@@ -1,0 +1,11 @@
+# gen199: Python F3 semantics by delta (CODE-MASTERY §7b). The SAME symbolic
+# evaluator that computes a C function's return now computes a Python function's,
+# reached through the `def name(params): return expr` surface — one engine, the
+# language is only a concrete-syntax delta. Type-annotated params bind by the
+# leading identifier (the delta from C's `type name`).
+> what does add(2, 3) return: def add(a, b): return a + b
+< I read it as code and worked it out: add(2, 3) returns 5.
+> what does f(2, 3, 4) return: def f(a, b, c): return a + b * c
+< I read it as code and worked it out: f(2, 3, 4) returns 14.
+> what does g(4, 5) return: def g(a: int, b: int): return a * b
+< I read it as code and worked it out: g(4, 5) returns 20.

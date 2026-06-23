@@ -23,7 +23,13 @@ the real target is many generations away; the bench is the intercepted-failure m
 status read from the process) closes the C verify ladder compile->link->run — the
 grounded "did it pass?" oracle now exists for C; `run_execute.code` ratcheted to
 pass. Also fixed a latent compound double-dispatch in the codeast path-branches.
-The binding constraint for swe-bench is now squarely the Python frontier below.
+
+**Done — Python F3 semantics by delta (gen199, CODE-MASTERY §7b).** `code_eval` now
+evaluates Python `def`s (locals + return, recursion) through the SAME engine as C —
+only the concrete syntax is the delta. The inference no longer speaks C for
+semantics. Remaining for astropy-12907: numpy ARRAY value-domain semantics (an
+additive Python-specific fact set), X6 issue->`_cstack` localization (the
+associative crux), X7 patch synthesis.
 
 **Ordered pulls toward it (TASKLIST X-series) — smallest first, the next task:**
 1. **X3 — abstract node vocabulary.** Audit whether the gen173-192 analyzers speak

@@ -268,6 +268,12 @@ typedef struct {
 static int eval_fn(const char *src, const char *want,
                    const long *argv, size_t argc, long *out, int depth);
 
+/* gen199 (language-as-delta §7b): evaluate `want` in EITHER language — try the C
+ * front-end, then the Python one. Forward-declared so a call inside an expression
+ * recurses through the SAME dispatch, regardless of the source language. */
+static int eval_any(const char *src, const char *want,
+                    const long *argv, size_t argc, long *out, int depth);
+
 /* gen177: local-variable environment helpers. */
 static long *ev_local_slot(EvalCtx *e, const char *name) {
     for (size_t i = 0; i < e->nl; i++)
@@ -347,7 +353,7 @@ static long ev_factor(EvalCtx *e) {
             if (e->c < e->end && *e->c == ')') e->c++; else { e->err = 1; return 0; }
             if (e->depth >= 1000) { e->err = 1; return 0; }   /* recursion ceiling */
             long res;
-            if (!eval_fn(e->src, w, args, na, &res, e->depth + 1)) { e->err = 1; return 0; }
+            if (!eval_any(e->src, w, args, na, &res, e->depth + 1)) { e->err = 1; return 0; }
             return res;
         }
         long *ls = ev_local_slot(e, w);          /* locals shadow params */
@@ -780,9 +786,112 @@ static int eval_fn(const char *src, const char *want,
     return 1;
 }
 
+/* gen199 (language-as-delta §7b): the PYTHON front-end for F3 semantics. The
+ * shared expression evaluator (ev_rel and friends) is reused UNCHANGED — only the
+ * concrete syntax is the delta from C: a `def name(params):` head, identifier-FIRST
+ * params (`a`, `a: int`, `a=1` — no leading C type), and newline-terminated
+ * statements instead of braces and ';'. The body is a run of simple `name = expr`
+ * assignments followed by `return expr`. Anything else latches `err`, so the
+ * caller refuses honestly rather than guess (same discipline as eval_fn). This is
+ * the same semantics, reached through a mirror surface — not a second evaluator. */
+static int eval_py_fn(const char *src, const char *want,
+                      const long *argv, size_t argc, long *out, int depth) {
+    if (!src || !out) return 0;
+
+    /* Locate `def want(`: a "def" token at a word boundary, a name, then '('. */
+    const char *params_beg = NULL, *params_end = NULL, *colon = NULL;
+    for (const char *p = strstr(src, "def "); p; p = strstr(p + 1, "def ")) {
+        if (p != src && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) continue;
+        const char *d = p + 4; while (*d == ' ' || *d == '\t') d++;
+        const char *id = d; while (isalnum((unsigned char)*d) || *d == '_') d++;
+        size_t idl = (size_t)(d - id);
+        const char *q = d; while (*q == ' ' || *q == '\t') q++;
+        if (*q != '(') continue;
+        int pd = 0; const char *r = q;                  /* matching ')' */
+        for (; *r; r++) { if (*r == '(') pd++; else if (*r == ')') { pd--; if (!pd) { r++; break; } } }
+        if (pd != 0) return 0;
+        const char *after = r; while (*after == ' ' || *after == '\t') after++;
+        if (*after != ':') continue;
+        char name[KB_TERM_LEN]; if (idl == 0 || idl >= sizeof name) continue;
+        memcpy(name, id, idl); name[idl] = '\0';
+        if (!want || strcmp(name, want) == 0) {
+            params_beg = q + 1; params_end = r - 1; colon = after; break;
+        }
+    }
+    if (!colon) return 0;
+
+    /* Parameter names: the FIRST identifier of each comma segment (the delta from
+     * C's last_ident — Python writes `a` or `a: int`, not `int a`). */
+    char params[8][KB_TERM_LEN]; size_t np = 0;
+    {
+        const char *s = params_beg;
+        while (s < params_end && np < 8) {
+            const char *seg = s; while (s < params_end && *s != ',') s++;
+            const char *t = seg; while (t < s && !(isalpha((unsigned char)*t) || *t == '_')) t++;
+            const char *u = t; while (u < s && (isalnum((unsigned char)*u) || *u == '_')) u++;
+            if (u > t) { size_t l = (size_t)(u - t);
+                if (l < KB_TERM_LEN) { memcpy(params[np], t, l); params[np][l] = '\0'; np++; } }
+            if (s < params_end && *s == ',') s++;
+        }
+    }
+
+    EvalCtx e;
+    e.params = params; e.vals = argv; e.np = np; e.nv = argc; e.nl = 0;
+    e.src = src; e.depth = depth; e.err = 0; e.ret = 0; e.retval = 0;
+    e.c = NULL; e.end = NULL;
+
+    /* Walk statements line by line from just after the ':' (covers both the inline
+     * `def f(...): return x` form and an indented multi-line body). */
+    const char *p = colon + 1;
+    const char *src_end = src + strlen(src);
+    while (p < src_end && !e.ret && !e.err) {
+        while (p < src_end && (*p == ' ' || *p == '\t')) p++;   /* indentation */
+        if (p >= src_end) break;
+        if (*p == '\n') { p++; continue; }                      /* blank line */
+        const char *ls = p, *le = p; while (le < src_end && *le != '\n') le++;
+
+        if (strncmp(ls, "return", 6) == 0 && (ls + 6 == le || isspace((unsigned char)ls[6]))) {
+            const char *ex = ls + 6; while (ex < le && isspace((unsigned char)*ex)) ex++;
+            e.c = ex; e.end = le;
+            long v = ev_rel(&e);
+            if (!e.err) { e.retval = v; e.ret = 1; }
+            break;
+        }
+
+        /* `name = expr` (a single '=', not '==') — an assignment to a local. */
+        const char *t = ls; while (t < le && (isalnum((unsigned char)*t) || *t == '_')) t++;
+        if (t > ls && (isalpha((unsigned char)*ls) || *ls == '_')) {
+            const char *q = t; while (q < le && (*q == ' ' || *q == '\t')) q++;
+            if (q < le && *q == '=' && (q + 1 >= le || q[1] != '=')) {
+                char nm[KB_TERM_LEN]; size_t l = (size_t)(t - ls);
+                if (l < sizeof nm) {
+                    memcpy(nm, ls, l); nm[l] = '\0';
+                    const char *ex = q + 1; while (ex < le && isspace((unsigned char)*ex)) ex++;
+                    e.c = ex; e.end = le;
+                    long v = ev_rel(&e);
+                    if (e.err) break;
+                    ev_set_local(&e, nm, v);
+                    p = (le < src_end) ? le + 1 : le;
+                    continue;
+                }
+            }
+        }
+        e.err = 1; break;          /* anything else: refuse honestly */
+    }
+    if (e.err || !e.ret) return 0;
+    *out = e.retval;
+    return 1;
+}
+
+static int eval_any(const char *src, const char *want,
+                    const long *argv, size_t argc, long *out, int depth) {
+    if (eval_fn(src, want, argv, argc, out, depth)) return 1;
+    return eval_py_fn(src, want, argv, argc, out, depth);
+}
+
 int code_eval(const char *src, const char *want,
               const long *argv, size_t argc, long *out) {
-    return eval_fn(src, want, argv, argc, out, 0);
+    return eval_any(src, want, argv, argc, out, 0);
 }
 
 /* gen184: blank (in place, with spaces) the contents of line/block comments and

@@ -1,4 +1,46 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen199: Python F3 semantics, derived by difference from C (§7b)
+
+**Goal (F.'s steer).** F. corrected my framing that "Python semantics is a separate
+frontier" and pointed at CODE-MASTERY §7b: *Python semantics is derived by DELTA
+from C on one shared substrate*. A language is a mirror concept; we model the
+shared computation once and declare each language as overrides. gen196 already did
+this for STRUCTURE (the Python front-end emits the same `code_function`/`code_calls`
+facts). This generation does it for SEMANTICS (F3): symbolic evaluation.
+
+**Insight.** The expression evaluator (`ev_factor`/`ev_term`/`ev_add`/`ev_rel`) is
+already language-agnostic — integers, identifiers, params, calls, +-*/%, parens.
+The only C-specificity in `eval_fn` is the concrete syntax: a brace body, a
+`;`-terminated `return`, and typed params (`int a`). That *is* the delta. So Python
+needs only a new front-end that finds the function and feeds the SAME evaluator —
+not a second interpreter.
+
+**Changed.** `code.c`: new `eval_py_fn` (the Python front-end) — locates `def
+name(params):`, parses params by the FIRST identifier of each segment (the delta
+from C's last_ident: Python writes `a` / `a: int`, not `int a`), and runs the body
+as newline-terminated statements (`name = expr` locals, then `return expr`),
+reusing `ev_rel` unchanged. New `eval_any` dispatches C-then-Python; `code_eval`
+and the in-expression call recursion (`ev_factor`) both route through it, so a
+Python function that calls another Python function recurses correctly. `brain.c` ->
+`gen199-python-eval-delta` (no brain logic changed — the eval branch already calls
+`code_eval` language-agnostically, so Python lit up for free; this is the §7b
+payoff: the inference does not speak C).
+
+**Observed.** Inline `def add(a,b): return a+b` -> 5; precedence `a+b*c` -> 14;
+annotated `def g(a: int, b: int)` -> 20. Multi-line file `tests/code/py/calc.py`:
+`sqpy` (a local `t = x*x` then `return t`) -> 36; `usepy(4)` (Python->Python
+recursion `addpy(n, sqpy(n))`) -> 4+16 = 20. Honest refusals (the F3 boundary §3):
+an `if` body, a string return, an unknown call -> "cannot compute … beyond my
+arithmetic evaluator." C eval unregressed. EN+IT ratchets `eval_py.chat`/`.it`,
+codebench gate `evaluate_py.code` (21 gates, 0 gaps). `make test` 188/188 + the 4
+pre-existing `profile:agi` failures (unrelated, verified on baseline).
+
+**Toward astropy-12907.** This closes distance-report item 2 (Python F3) for
+*arithmetic* functions. The instance's bug is numpy ARRAY assignment/broadcasting
+(`= 1` vs `= right`) — the next semantic delta is value domains beyond integers
+(arrays), an additive Python-specific fact set (§7b "genuinely-new facts"). Still
+ahead: X6 issue->`_cstack` localization (the associative crux §4) and X7 patch.
+
 ## 2026-06-23 - gen198: run-grounding — from "it links" to "it ran and exited with N"
 
 **Goal (NEXTMOVE Option A, X1).** The swe-bench north star needs the core oracle
