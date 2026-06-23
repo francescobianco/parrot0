@@ -3700,9 +3700,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
  * trimming them keeps the induced continuation model keyed on words, not
  * "word," vs "word". Word-internal characters (apostrophes) are preserved. */
 static char *strip_edge_punct(char *t) {
-    while (*t && !isalnum((unsigned char)*t)) t++;
+    /* gen196: keep '_' at the edges — it is part of identifiers (Python `_cstack`,
+     * `__init__`; C `_foo`) and never the edge of a natural word, so preserving it
+     * fixes underscore-prefixed names without affecting prose tokens. */
+    while (*t && !isalnum((unsigned char)*t) && *t != '_') t++;
     size_t n = strlen(t);
-    while (n > 0 && !isalnum((unsigned char)t[n - 1])) t[--n] = '\0';
+    while (n > 0 && !isalnum((unsigned char)t[n - 1]) && t[n - 1] != '_') t[--n] = '\0';
     return t;
 }
 
@@ -8779,6 +8782,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 int looks_path = 0;
                 for (size_t i = 0; i < l; i++) if (t[i] == '/') looks_path = 1;
                 if (l >= 2 && t[l-2] == '.' && (t[l-1] == 'c' || t[l-1] == 'h')) looks_path = 1;
+                if (l >= 3 && t[l-3] == '.' && t[l-2] == 'p' && t[l-1] == 'y') looks_path = 1; /* gen196: Python */
                 if (looks_path) { memcpy(path, t, l); path[l] = '\0'; break; }
             }
         }
@@ -8873,6 +8877,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 int looks_path = 0;
                 for (size_t i = 0; i < l; i++) if (t[i] == '/') looks_path = 1;
                 if (l >= 2 && t[l-2] == '.' && (t[l-1] == 'c' || t[l-1] == 'h')) looks_path = 1;
+                if (l >= 3 && t[l-3] == '.' && t[l-2] == 'p' && t[l-1] == 'y') looks_path = 1; /* gen196: Python */
                 if (looks_path) { memcpy(path, t, l); path[l] = '\0'; break; }
             }
         }
@@ -8934,8 +8939,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen196 (language-as-delta): pick the front-end by language, but feed the
+     * SAME downstream analyzers — Python emits the same code_function/code_calls
+     * facts as C, so the answer code below is unchanged. */
     char names[32][KB_TERM_LEN];
-    size_t k = code_ingest(b->kb, code, names, 32);
+    int clang = identify_code_lang(code, b);
+    size_t k = (clang == 2) ? code_ingest_py(b->kb, code, names, 32)
+                            : code_ingest(b->kb, code, names, 32);
     size_t shown = k < 32 ? k : 32;
 
     if (wants_funcs) {
@@ -11523,7 +11533,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen193-conjunction-as-kb";
+    return "gen196-python-by-delta";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

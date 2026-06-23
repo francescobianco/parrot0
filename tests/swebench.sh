@@ -61,7 +61,9 @@ for d in "$LITE"/*/; do
 
     # Honest blocker analysis (no fabricated success).
     if [ "$lang" = "Python" ]; then
-        echo "    blocker: language is Python; parrot0's code engine is C-only (needs X3/X4)."
+        echo "    blocker: gen196 reads Python STRUCTURE (defs/calls/locate-by-name), but"
+        echo "             cannot localize from the issue (X6), reason Python semantics, patch"
+        echo "             (X7), or run pytest — see docs/swebench/<id>-distance.md."
     else
         echo "    blocker: repo not checked out + no test-exec env (needs repo checkout + X1 run)."
     fi

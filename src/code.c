@@ -117,6 +117,117 @@ size_t code_ingest(KB *kb, const char *src,
     return found;
 }
 
+/* gen196: is `w` a Python keyword (so `name(` after it is not a call)? */
+static int is_py_keyword(const char *w) {
+    static const char *const kw[] = {
+        "def","class","if","elif","else","for","while","return","import","from",
+        "with","try","except","finally","lambda","and","or","not","in","is",
+        "assert","yield","raise","global","nonlocal","pass","break","continue",
+        "del","as","async","await","print","range","len","True","False","None",
+        NULL };
+    for (size_t i = 0; kw[i]; i++) if (strcmp(w, kw[i]) == 0) return 1;
+    return 0;
+}
+
+/* gen196: scan one Python statement line for calls `name(...)` and attribute each
+ * to `caller`, mirroring code_ingest's call-edge assertion (KB_BASE provenance). */
+static void py_calls_in_line(KB *kb, const char *caller, const char *line) {
+    const char *p = line;
+    while (*p) {
+        if (*p == '#') break;                                  /* comment */
+        if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+        const char *id = p;
+        while (isalnum((unsigned char)*p) || *p == '_') p++;
+        size_t l = (size_t)(p - id);
+        const char *q = p; while (*q == ' ' || *q == '\t') q++;
+        if (*q != '(') continue;
+        char name[KB_TERM_LEN];
+        if (l == 0 || l >= sizeof name) continue;
+        memcpy(name, id, l); name[l] = '\0';
+        if (is_py_keyword(name)) continue;
+        kb_set_origin(kb, KB_BASE);
+        const char *args[] = { caller, name };
+        kb_assert(kb, "code_calls", args, 2);
+        kb_set_origin(kb, KB_SESSION);
+    }
+}
+
+size_t code_ingest_py(KB *kb, const char *src,
+                      char names[][KB_TERM_LEN], size_t max) {
+    if (!kb || !src) return 0;
+    size_t found = 0;
+
+    /* A stack of enclosing `def`s by indentation: a line at indent I closes every
+     * def whose body-indent is >= I (the Python delta to C's brace depth). */
+    struct { int indent; char name[KB_TERM_LEN]; } stack[64];
+    int sp = 0;
+
+    const char *p = src;
+    while (*p) {
+        /* one physical line: [line, eol) */
+        const char *line = p;
+        const char *eol = line;
+        while (*eol && *eol != '\n') eol++;
+
+        /* indent = leading whitespace columns; skip blank / comment-only lines. */
+        const char *c = line;
+        int indent = 0;
+        while (c < eol && (*c == ' ' || *c == '\t')) { indent++; c++; }
+        if (c == eol || *c == '#') { p = (*eol ? eol + 1 : eol); continue; }
+
+        /* close scopes this line has dedented out of. */
+        while (sp > 0 && stack[sp - 1].indent >= indent) sp--;
+
+        int is_def = 0;
+        const char *d = c;
+        if (strncmp(d, "async ", 6) == 0) d += 6;
+        if (strncmp(d, "def ", 4) == 0) { is_def = 1; d += 4; }
+
+        if (is_def) {
+            while (d < eol && (*d == ' ' || *d == '\t')) d++;
+            const char *id = d;
+            while (d < eol && (isalnum((unsigned char)*d) || *d == '_')) d++;
+            size_t l = (size_t)(d - id);
+            if (l > 0 && l < KB_TERM_LEN) {
+                char name[KB_TERM_LEN];
+                memcpy(name, id, l); name[l] = '\0';
+
+                kb_set_origin(kb, KB_BASE);
+                const char *args[] = { name };
+                kb_assert(kb, "code_function", args, 1);
+                kb_set_origin(kb, KB_SESSION);
+
+                /* redefinition replaces: clear prior call edges (as code_ingest). */
+                char old[32][KB_TERM_LEN];
+                const char *qp[] = { name, NULL };
+                size_t no = kb_match(kb, "code_calls", qp, 2, old, 32);
+                for (size_t i = 0; i < no; i++) {
+                    const char *ra[] = { name, old[i] };
+                    kb_retract(kb, "code_calls", ra, 2);
+                }
+                if (names && found < max)
+                    snprintf(names[found], KB_TERM_LEN, "%s", name);
+                found++;
+
+                if (sp < 64) { stack[sp].indent = indent;
+                               snprintf(stack[sp].name, KB_TERM_LEN, "%s", name); sp++; }
+            }
+        } else if (sp > 0) {
+            /* a statement inside the nearest enclosing def — attribute its calls.
+             * (operate on a NUL-bounded copy of the line for the scanner). */
+            char buf[1024];
+            size_t ll = (size_t)(eol - c);
+            if (ll < sizeof buf) {
+                memcpy(buf, c, ll); buf[ll] = '\0';
+                py_calls_in_line(kb, stack[sp - 1].name, buf);
+            }
+        }
+
+        p = (*eol ? eol + 1 : eol);
+    }
+    return found;
+}
+
 /* --- gen175/176: symbolic execution of a function body ------------------ */
 
 /* A recursive-descent evaluator over the function's parameters (bound to the
@@ -705,6 +816,24 @@ void code_strip(char *s) {
  * code_locate to test a candidate file). */
 int code_defines(const char *src, const char *want) {
     if (!src || !want || !*want) return 0;
+
+    /* gen196 (language-as-delta): the Python definition head `def want(` — a
+     * "def" token at a word boundary, then `want`, then `(`. Checked first so a
+     * Python file is recognized through the same code_locate path as C. */
+    size_t wl = strlen(want);
+    for (const char *p = strstr(src, "def "); p; p = strstr(p + 1, "def ")) {
+        if (p != src && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) continue; /* not a boundary */
+        const char *d = p + 4;
+        while (*d == ' ' || *d == '\t') d++;
+        if (strncmp(d, want, wl) == 0) {
+            const char *a = d + wl;
+            if (!(isalnum((unsigned char)*a) || *a == '_')) {        /* whole word */
+                while (*a == ' ' || *a == '\t') a++;
+                if (*a == '(') return 1;
+            }
+        }
+    }
+
     const char *p = src;
     while (*p) {
         if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
@@ -757,7 +886,9 @@ static int locate_rec(const char *dir, const char *rel, const char *fnname,
             if (locate_rec(path, relchild, fnname, out_file, out_sz, depth + 1)) found = 1;
         } else {
             size_t l = strlen(nm);
-            if (l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h')) {
+            int is_c  = (l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h'));
+            int is_py = (l >= 4 && nm[l-3] == '.' && nm[l-2] == 'p' && nm[l-1] == 'y'); /* gen196 */
+            if (is_c || is_py) {
                 static char buf[262144];          /* fits normal source files */
                 if (code_read_file(path, buf, sizeof buf)) {
                     code_strip(buf);

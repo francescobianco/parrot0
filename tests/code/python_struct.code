@@ -1,0 +1,22 @@
+# gen196 — Python by DELTA (CODE-MASTERY.md §7b, language-as-delta). A Python
+# front-end (code_ingest_py) emits the SAME abstract facts as C — code_function/1
+# and code_calls/2, scoped by indentation instead of braces — so EVERY downstream
+# analyzer (defines / call-graph / cross-file locate) works on Python unchanged.
+# The reasoning is shared; only the surface syntax is derived. Fixture:
+# tests/code/py/sample.py.
+#expect: pass
+#faculty: python-by-delta
+# F2 — function definitions, from `def name(...):`.
+> which functions are defined in tests/code/py/sample.py
+< it defines pyadd, pysquare and pymain
+# F3 — the call graph, attributed by indentation scope.
+> what does pymain call in tests/code/py/sample.py
+< pymain calls pyadd and pysquare
+# F4 (by-name) — cross-file localization now spans .py too (same code_locate).
+> which file under tests/code/py defines pysquare
+< pysquare is defined in sample.py
+# Bilingual: Italian cues reach the SAME path (funzioni/definite, chiama).
+> quali funzioni sono definite in tests/code/py/sample.py
+< it defines pyadd, pysquare and pymain
+> cosa chiama pymain in tests/code/py/sample.py
+< pymain calls pyadd and pysquare

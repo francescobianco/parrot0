@@ -18,6 +18,16 @@
 size_t code_ingest(KB *kb, const char *src,
                    char names[][KB_TERM_LEN], size_t max);
 
+/* gen196 (language-as-delta, CODE-MASTERY.md §7b): the PYTHON front-end. It emits
+ * the SAME abstract facts as code_ingest — `code_function(name)` per `def` and
+ * `code_calls(caller, callee)` per call inside a body — so EVERY downstream
+ * analyzer (defines/locate/call-graph) works on Python unchanged. Only the
+ * concrete syntax differs from C (the delta): `def name(...):` instead of a
+ * brace head, and body scope tracked by INDENTATION instead of braces; `#` runs
+ * to end of line. The reasoning is shared; the surface is derived. */
+size_t code_ingest_py(KB *kb, const char *src,
+                      char names[][KB_TERM_LEN], size_t max);
+
 /* gen175: symbolic execution (B5). Evaluate the function named `want` (or the
  * FIRST definition if `want` is NULL) in `src` on the integer arguments `argv`,
  * by reading its single `return <expr>;` and COMPUTING the expression with the

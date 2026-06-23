@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen196: Python "by delta" — one engine reads a real astropy file
+
+**Direction (F.).** Toward the first real SWE-bench_Lite instance
+(`astropy__astropy-12907`, Python). F. insisted on the method, not a hypothesis:
+make parrot0 work in Python *by difference* from C (CODE-MASTERY §7b,
+language-as-delta) — "fallo, non ipotizziamo" — submit the test, see the output,
+and put the distance (today vs target) in a text file.
+
+**Changed.** `brain.c` -> `gen196-python-by-delta`; `code.c`/`code.h` add the Python
+front-end `code_ingest_py`. It emits the SAME abstract facts as the C front-end —
+`code_function/1` per `def` and `code_calls/2` per call inside a body — but scopes
+bodies by **indentation** instead of braces and runs `#` to EOL (the delta). So
+EVERY downstream analyzer (defines / call-graph / cross-file `code_locate`) works on
+Python unchanged: only the surface front-end differs, the reasoning is shared.
+`code_defines` gained the `def name(` head and `code_locate` now walks `.py`; the
+structural handler picks the front-end via `identify_code_lang` and accepts `.py`
+paths. Also fixed `strip_edge_punct` to keep `_` at edges — leading-underscore
+names (`_cstack`, `__init__`) are identifiers, not punctuation.
+
+**Note on I/O.** parrot0's CLI is line-per-turn, so multi-line Python cannot be fed
+inline; the realistic (and SWE-bench) path is FILES, which the structural handler
+already reads. (F. then asked for multi-line input — next generation.)
+
+**Observed — on the REAL file** (separable.py at the base commit, fetched once as a
+committed excerpt). parrot0 reads all 10 functions, gives `_cstack`'s real call list
+(array, sum, where, ones, isinstance, zeros, append, vstack, roll, hstack, dot), and
+locates `_cstack` in `astropy/modeling/separable.py`. The issue text as a turn still
+walls — honest. Full distance written to `docs/swebench/astropy-12907-distance.md`:
+the read/structure gap is CLOSED; the remaining distance is meaning + action
+(issue->localization X6, Python semantics, patch synthesis X7, a Python run-oracle).
+
+**Ratchets.** `tests/code/python_struct.code` (defines/calls/locate + IT cues) — a
+new code-bench gate (now 19 hold). `make test` 184/184; C faculties unchanged.
+Fixture `tests/code/py/sample.py` (non-colliding names so the C locate gates stay
+unambiguous — cross-language locate is the new, desired behaviour).
+
 ## 2026-06-23 - gen195 (tooling): `make swe-bench` on the REAL SWE-bench_Lite
 
 **Direction (F.).** F. asked where swe-001 came from — honest answer: I had
