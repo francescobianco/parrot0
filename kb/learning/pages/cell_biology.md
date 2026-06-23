@@ -1,11 +1,11 @@
 # Cell (biology)
 
-- Learning event: `learn_2026_06_21t19_57_02z_cell_biology`
-- Operational log: `kb/learning/logs/learn_2026_06_21t19_57_02z_cell_biology.json`
+- Learning event: `learn_2026_06_23t17_06_30z_cell_biology`
+- Operational log: `kb/learning/logs/learn_2026_06_23t17_06_30z_cell_biology.json`
 - Domain: `biology`
 - Source: https://en.wikipedia.org/wiki/Cell_(biology)
-- Wikipedia revision: `1359329693`
-- Processed: `2026-06-21T19:57:02Z`
+- Wikipedia revision: `1360756328`
+- Processed: `2026-06-23T17:06:30Z`
 
 ## Learned Concept
 
@@ -19,7 +19,7 @@ The cell is the basic structural and functional unit of all forms of life or org
 
 The cell is the basic structural and functional unit of all forms of life or organisms. The term comes from the Latin word meaning 'small room'. A biological cell basically consists of a semipermeable cell membrane enclosing cytoplasm that contains genetic material. Most cells are only visible under a microscope. Except for highly-differentiated cell types (examples include red blood cells and gametes) most cells are capable of replication, and protein synthesis. Some types of cell are motile. Cells emerged on Earth about four billion years ago.
 
-All organisms are grouped into prokaryotes, and eukaryotes. Prokaryotes are single-celled and include archaea and bacteria. Eukaryotes can be single-celled or multicellular. Single-celled eukaryotes include most protists, some species of fungi (yeasts), and some species of algae. Multicellular eukaryotes include animals, plants, some species of fungi, and some species of algae. All multicellular organisms are made up of many different types of cell. The diploid cells that make up the body of an animal or plant are known as somatic cells, which excludes the haploid gametes.
+All organisms are grouped into prokaryotes and eukaryotes. Prokaryotes are single-celled and include archaea and bacteria. Eukaryotes can be single-celled or multicellular. Single-celled eukaryotes include most protists, some species of fungi (yeasts), and some species of algae. Multicellular eukaryotes include animals, plants, some species of fungi, and some species of algae. All multicellular organisms are made up of many different types of cell. The diploid cells that make up the body of an animal or plant are known as somatic cells, which excludes the haploid gametes.
 
 Prokaryotes lack a membrane-bound nucleus and have a nucleoid instead. In eukaryotic cells, the nucleus is enclosed in the nuclear membrane. Eukaryotic cells contain other membrane-bound organelles such as mitochondria, which provide energy for cell functions, and chloroplasts, in plants that create sugars by photosynthesis. Other membrane-less organelles may be proteinaceous, such as the ribosomes present (though different) in both groups. A unique membrane-bound prokaryotic organelle, the magnetosome has been discovered in magnetotactic bacteria.
 
@@ -53,7 +53,7 @@ The archaea are noted for their extremophile species, and many are selectively e
 
 #### Eukaryotes
 
-A eukaryotic cell can be 2 to 100 times larger in diameter than a typical prokaryotic cell. Eukaryotes can be single-celled, as in diatoms (microscopic algae), or microfungi such as yeasts, or multicellular, as in animals, plants, most fungi, and seaweed (macroalgae). Multicellular organisms are made up of many different types of cell known overall as somatic cells. Eukaryotes are distinguished by the presence of a membrane-bound nucleus. The nucleus gives the eukaryote its name, which means "true nut" or "true kernel", where "nut" means the nucleus.
+A eukaryotic cell can be 2 to 100 times larger in diameter than a typical prokaryotic cell. Eukaryotes can be single-celled, as in diatoms (microscopic algae), or microfungi such as yeasts, or multicellular, as in animals, plants, most fungi, and seaweed (macroalgae). Multicellular organisms are made up of many different types of cell known overall as somatic cells. Eukaryotes are distinguished by the presence of a membrane-bound nucleus that gives gives the eukaryote its name, which means "true nut" or "true kernel", where "nut" means the nucleus.
 
 The nucleus is the largest membrane-bound organelle in the eukaryotic cell. Other organelles present in all eukaryotic cells are the endoplasmic reticulum, ribosomes, the Golgi apparatus, mitochondria, lysosomes, peroxisomes, endosomes, and vesicles. The contents of the cell are contained within a cell membrane, and together with all the membranes of the organelles (except the mitochondria) are known as the endomembrane system. All of these membranes are involved in the secretory and endocytic pathways, modifying, packaging, and transporting proteins and lipids to and from the trans Golgi network. In mammalian cells, endocytosis includes early, late, and recycling endosomes.
 
