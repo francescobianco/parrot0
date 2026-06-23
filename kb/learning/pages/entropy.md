@@ -1,11 +1,11 @@
 # Entropy
 
-- Learning event: `learn_2026_06_21t13_01_13z_entropy`
-- Operational log: `kb/learning/logs/learn_2026_06_21t13_01_13z_entropy.json`
+- Learning event: `learn_2026_06_23t03_29_32z_entropy`
+- Operational log: `kb/learning/logs/learn_2026_06_23t03_29_32z_entropy.json`
 - Domain: `physics`
 - Source: https://en.wikipedia.org/wiki/Entropy
 - Wikipedia revision: `1356217145`
-- Processed: `2026-06-21T13:01:13Z`
+- Processed: `2026-06-23T03:29:32Z`
 
 ## Learned Concept
 
