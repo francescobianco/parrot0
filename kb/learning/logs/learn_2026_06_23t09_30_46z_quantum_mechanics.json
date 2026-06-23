@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_23t09_30_46z_quantum_mechanics",
+  "extraction": {
+    "concept": "Quantum mechanics, also known as quantum physics, is the fundamental physical theory that describes the behavior of...",
+    "concept_key": "quantum_mechanics",
+    "extract_sha256": "074e1d0e020a5575f735598f447143a055b68b81b0beae8e38177355440de106",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_23t09_30_46z_quantum_mechanics.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/quantum_mechanics.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 10,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-23T09:30:46Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_23t09_30_46z_quantum_mechanics"
+  },
+  "source": {
+    "domain": "physics",
+    "index": 9,
+    "line": 21,
+    "title": "Quantum mechanics"
+  },
+  "wikipedia": {
+    "canonical_title": "Quantum mechanics",
+    "lang": "en",
+    "pageid": 25202,
+    "revision": 1360718020,
+    "url": "https://en.wikipedia.org/wiki/Quantum_mechanics"
+  }
+}

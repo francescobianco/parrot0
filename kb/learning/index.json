@@ -594,6 +594,23 @@
       "summary": "learned special_relativity: In physics, the special theory of relativity, or simply special relativity, is a...",
       "title": "Special relativity",
       "url": "https://en.wikipedia.org/wiki/Special_relativity"
+    },
+    {
+      "concept": "Quantum mechanics, also known as quantum physics, is the fundamental physical theory that describes the behavior of...",
+      "domain": "physics",
+      "event_id": "learn_2026_06_23t09_30_46z_quantum_mechanics",
+      "key": "quantum_mechanics",
+      "log_path": "kb/learning/logs/learn_2026_06_23t09_30_46z_quantum_mechanics.json",
+      "markdown_path": "kb/learning/pages/quantum_mechanics.md",
+      "processed_at": "2026-06-23T09:30:46Z",
+      "prompt": "what do you know about learn_2026_06_23t09_30_46z_quantum_mechanics",
+      "revision": 1360718020,
+      "source_index": 9,
+      "source_line": 21,
+      "source_title": "Quantum mechanics",
+      "summary": "learned quantum_mechanics: Quantum mechanics, also known as quantum physics, is the fundamental physical theory...",
+      "title": "Quantum mechanics",
+      "url": "https://en.wikipedia.org/wiki/Quantum_mechanics"
     }
   ],
   "pages": {
@@ -948,11 +965,11 @@
       "domain": "physics",
       "extract_sha256": "074e1d0e020a5575f735598f447143a055b68b81b0beae8e38177355440de106",
       "key": "quantum_mechanics",
-      "last_event_id": "learn_2026_06_21t15_58_22z_quantum_mechanics",
+      "last_event_id": "learn_2026_06_23t09_30_46z_quantum_mechanics",
       "markdown_path": "kb/learning/pages/quantum_mechanics.md",
       "pageid": 25202,
-      "processed_at": "2026-06-21T15:58:22Z",
-      "revision": 1360328521,
+      "processed_at": "2026-06-23T09:30:46Z",
+      "revision": 1360718020,
       "source_title": "Quantum mechanics",
       "title": "Quantum mechanics",
       "url": "https://en.wikipedia.org/wiki/Quantum_mechanics"

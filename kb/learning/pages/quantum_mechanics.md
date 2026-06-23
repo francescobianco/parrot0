@@ -1,11 +1,11 @@
 # Quantum mechanics
 
-- Learning event: `learn_2026_06_21t15_58_22z_quantum_mechanics`
-- Operational log: `kb/learning/logs/learn_2026_06_21t15_58_22z_quantum_mechanics.json`
+- Learning event: `learn_2026_06_23t09_30_46z_quantum_mechanics`
+- Operational log: `kb/learning/logs/learn_2026_06_23t09_30_46z_quantum_mechanics.json`
 - Domain: `physics`
 - Source: https://en.wikipedia.org/wiki/Quantum_mechanics
-- Wikipedia revision: `1360328521`
-- Processed: `2026-06-21T15:58:22Z`
+- Wikipedia revision: `1360718020`
+- Processed: `2026-06-23T09:30:46Z`
 
 ## Learned Concept
 
