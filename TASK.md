@@ -10,15 +10,22 @@ strictly within PRINCIPLES.md (NO phrasebook — each category earns a real
 capability that generalizes; KB-content gaps go in `kb/*.p0`, not brain `printf`s).
 
 Measure with `make basic-chat-bench` (coverage per category, never fails build).
-Baseline gen189: **24% (239/974)**.
+Baseline gen189: **24% (239/974)**. Now gen190: **26% (260/974)**.
 
 - **gen189 (done): cat.0 non-linguistic input -> 100% (6/6).** `mod_input` classifies
   punctuation-only / bare-number / keyboard-mash and redirects at the channel level.
-- **Next gen190: pick the next category by leverage.** Candidates: KB-content gaps
-  (geography/science/animal-sounds -> ground facts queried by `mod_knowledge`, the
-  Prolog/Wikipedia path); or arithmetic question-shapes (cat.4, extend `mod_arith`,
-  e.g. "six times seven", "what is half of 50"). One idea, EN+IT ratchet, journal,
-  commit. Watch the bench climb.
+- **gen190 (done): cat.4 Aritmetica base -> 100% (19/19).** `mod_arith` now extracts
+  (operator, operands) from prose — verb frames (add/subtract/multiply/divide),
+  unary `of`-frames (half/double/square root/squared/factorial), percent, n-ary
+  sum/average, prime/even/odd predicates, and a general infix evaluator over
+  operator words (incl. `divided by`, bare `by`=times). Reads number words via
+  `parse_value`; EN+IT on one path. Ambiguous cue words (half/double/even/odd)
+  fire only on a single-number turn so `mod_agent` loops stay intact.
+- **Next gen191: pick the next category by leverage.** High-count 0% blocks:
+  cat.52 Elencazione (0/19, structural list generation — "list three animals",
+  "name the days of the week"); cat.18 Biologia animale (0/18, KB class-membership
+  via `mod_knowledge`); cat.19 Versi di animali (KB content in `kb/*.p0`). One
+  idea, EN+IT ratchet, journal, commit. Watch the bench climb.
 
 ## Parked - dynamic knowledge gen171: learn.py consumes the research queue
 

@@ -9,6 +9,6 @@
 < 4.
 > cos'è 3*7
 < 21.
-# Word numbers still fall through.
+# gen190: Italian word-number operands compute through the same path too.
 > cos'è due più due
-< I don't understand that yet.
+< 4.

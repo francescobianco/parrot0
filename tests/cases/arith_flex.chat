@@ -30,6 +30,6 @@
 # Successful turn resets the fallback state so the classic line can fire.
 > what is 10 + 2
 < 12.
-# Word numbers fall through (parse_num requires digits).
+# gen190: word-number operands now compute through the same path (parse_value).
 > what is two plus two
-< I don't understand that yet.
+< 4.

@@ -2099,6 +2099,97 @@ static double apply_arith_op(const char *op, double a, double c, int *ok) {
     return 0;
 }
 
+/* gen190: arithmetic in natural language. The catalogue (basic-chat cat.4) asks
+ * the SAME four operations in many surface forms — "six times seven", "add 5 and
+ * 7", "100 divided by 4", "half of 50". These are not new computations; they are
+ * new ways of NAMING operands and operators. So instead of one phrase per shape,
+ * the parser below extracts (operator, operands) structurally and folds them with
+ * the existing oracle. Operator words are recognised in EN+IT (per/più/diviso),
+ * so the bilingual probe rides the same path. */
+
+/* Canonical operator char from a single operator word or symbol (EN+IT). */
+static char arith_op_char(const char *s) {
+    if (!strcmp(s,"plus")||!strcmp(s,"+")||!strcmp(s,"più")||!strcmp(s,"piu")) return '+';
+    if (!strcmp(s,"minus")||!strcmp(s,"-")||!strcmp(s,"meno")) return '-';
+    if (!strcmp(s,"times")||!strcmp(s,"*")||!strcmp(s,"x")||!strcmp(s,"per")) return '*';
+    if (!strcmp(s,"multiplied")) return '*';
+    if (!strcmp(s,"divided")||!strcmp(s,"diviso")||!strcmp(s,"over")||!strcmp(s,"/")) return '/';
+    return 0;
+}
+
+static double apply_op_char(char op, double a, double c, int *ok) {
+    *ok = 1;
+    switch (op) {
+        case '+': return a + c;
+        case '-': return a - c;
+        case '*': return a * c;
+        case '/': if (c == 0) { *ok = 0; return 0; } return a / c;
+    }
+    *ok = 0; return 0;
+}
+
+/* Square root without <math.h> (Newton's method); for our integer operands this
+ * lands exactly on perfect squares. */
+static double arith_sqrt(double x) {
+    if (x < 0) return -1;
+    if (x == 0) return 0;
+    double g = x > 1 ? x : 1;
+    for (int i = 0; i < 80; i++) g = 0.5 * (g + x / g);
+    return g;
+}
+
+static int arith_is_prime(long long n) {
+    if (n < 2) return 0;
+    if (n % 2 == 0) return n == 2;
+    for (long long d = 3; d * d <= n; d += 2)
+        if (n % d == 0) return 0;
+    return 1;
+}
+
+/* Fold ew[..] left-to-right as an arithmetic expression in any surface form:
+ * skip leading non-numeric filler ("what is", "how much is"), then read
+ * NUM (OP NUM)+ where OP is a word/symbol, consuming a "by" after
+ * "divided"/"multiplied" and reading a bare "by" between numbers as times
+ * ("six by seven"). Returns 1 with *res iff >=1 op applied and the whole tail
+ * parsed cleanly (so prose like "5 apples ..." never matches). */
+static int arith_eval_infix(char **ew, size_t enw, double *res) {
+    size_t i = 0;
+    double cur;
+    while (i < enw && !parse_value(ew[i], &cur)) i++;
+    if (i >= enw) return 0;
+    i++;
+    int ops = 0;
+    while (i < enw) {
+        char op = arith_op_char(ew[i]);
+        if (!op) {
+            if (!strcmp(ew[i], "by")) op = '*';      /* "six by seven" */
+            else return 0;
+        }
+        if ((!strcmp(ew[i], "divided") || !strcmp(ew[i], "multiplied")) &&
+            i + 1 < enw && !strcmp(ew[i + 1], "by"))
+            i++;                                      /* consume the "by" */
+        i++;
+        if (i >= enw) return 0;
+        double nx;
+        if (!parse_value(ew[i], &nx)) return 0;
+        int ok;
+        cur = apply_op_char(op, cur, nx, &ok);
+        if (!ok) return 0;
+        i++; ops++;
+    }
+    if (ops == 0) return 0;
+    *res = cur;
+    return 1;
+}
+
+/* Emit a numeric answer as "<n>." */
+static void arith_answer(double v, char *out, size_t out_size) {
+    char num[64], msg[80];
+    format_num(v, num, sizeof num);
+    snprintf(msg, sizeof msg, "%s.", num);
+    put(msg, out, out_size);
+}
+
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)b; (void)raw;
@@ -2164,7 +2255,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
     if (enw == 5 && strcmp(ew[0], "what") == 0 && strcmp(ew[1], "is") == 0 &&
         is_arith_op(ew[3])) {
         double a, c;
-        if (parse_num(ew[2], &a) && parse_num(ew[4], &c)) {
+        if (parse_value(ew[2], &a) && parse_value(ew[4], &c)) {
             int ok;
             double r = apply_arith_op(ew[3], a, c, &ok);
             if (ok) {
@@ -2188,7 +2279,7 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
                 for (size_t i = si + 1; i + 2 < enw; i++) {
                     if (!is_arith_op(ew[i + 1])) continue;
                     double a, c;
-                    if (parse_num(ew[i], &a) && parse_num(ew[i + 2], &c)) {
+                    if (parse_value(ew[i], &a) && parse_value(ew[i + 2], &c)) {
                         int ok;
                         double r = apply_arith_op(ew[i + 1], a, c, &ok);
                         if (ok) {
@@ -2250,6 +2341,177 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         }
         put(divisible ? "Yes." : "No.", out, out_size);
         return 1;
+    }
+
+    /* gen190: natural-language arithmetic shapes (basic-chat cat.4). All of these
+     * reduce to the four ops over operands named in prose; each is a structural
+     * extractor, not a stored phrase. They share parse_value (digits + number
+     * words) and the existing oracle, so they generalize over operands.
+     *
+     * NOTE: `buf` was clobbered in place by split_words above (it null-terminates
+     * each token), and `w[8]` truncates long prompts. So these frames read cues
+     * from the intact `norm` and re-split a fresh copy into a larger token array. */
+    char cbuf[256]; char *cw[32]; size_t cnw = 0;
+    {
+        size_t cl = strlen(norm);
+        if (cl < sizeof cbuf) {
+            memcpy(cbuf, norm, cl + 1);
+            if (cl > 0 && cbuf[cl - 1] == '?') cbuf[cl - 1] = '\0';
+            cnw = split_words(cbuf, cw, 32);
+        }
+    }
+    /* How many numeric operands the turn names. Several arithmetic cue words
+     * ("half"/"halve", "double", "triple", "even", "odd") also appear as repeated
+     * ACTIONS or branch conditions in agent/process descriptions ("halve until
+     * below 5", "if it is even, ...; if it is odd, ..."). Those name >=2 numbers,
+     * so the ambiguous frames below fire only when the turn names exactly one
+     * number — keeping mod_agent's loops intact. */
+    double gnums[16]; size_t gn = collect_numbers(cw, cnw, gnums, 16);
+
+    /* "P percent of N" / "P per cento di N" -> N * P / 100. The percent marker is
+     * "percent"/"%" (EN) or the "per cento" pair (IT, marked by the "cento" token,
+     * which must NOT be read as the operand 100): P is the number just before it,
+     * N the number just after. */
+    {
+        size_t mark = cnw;
+        for (size_t i = 0; i < cnw; i++)
+            if (!strcmp(cw[i], "percent") || !strcmp(cw[i], "%") ||
+                !strcmp(cw[i], "cento")) { mark = i; break; }
+        if (mark < cnw) {
+            double pct = 0, base = 0; int havep = 0, haveb = 0;
+            for (size_t i = mark; i-- > 0; ) {
+                double v; if (parse_value(cw[i], &v)) { pct = v; havep = 1; break; }
+            }
+            for (size_t i = mark + 1; i < cnw; i++) {
+                double v; if (parse_value(cw[i], &v)) { base = v; haveb = 1; break; }
+            }
+            if (havep && haveb) { arith_answer(base * pct / 100.0, out, out_size); return 1; }
+        }
+    }
+
+    /* Unary "of"-frames and suffix frames over a single operand (EN+IT). */
+    {
+        /* square root of N / radice quadrata di N (declines a negative operand,
+         * whose real square root does not exist — that is cat.5, not cat.4). */
+        size_t ri = find_token(cw, cnw, "root");
+        if (ri == cnw) ri = find_token(cw, cnw, "radice");
+        if (ri != cnw && !cue(norm, "negative") && !cue(norm, "negativo")) {
+            for (size_t i = ri + 1; i < cnw; i++) {
+                double v; if (parse_value(cw[i], &v)) {
+                    if (v >= 0) { arith_answer(arith_sqrt(v), out, out_size); return 1; }
+                    break;
+                }
+            }
+        }
+        /* N squared / N cubed, N al quadrato / al cubo. */
+        if (gn == 1) {
+            int sq = 0, cb = 0;
+            for (size_t i = 0; i < cnw; i++) {
+                if (!strcmp(cw[i],"squared") || !strcmp(cw[i],"quadrato")) sq = 1;
+                else if (!strcmp(cw[i],"cubed") || !strcmp(cw[i],"cubo")) cb = 1;
+            }
+            if (sq) { arith_answer(gnums[0] * gnums[0], out, out_size); return 1; }
+            if (cb) { arith_answer(gnums[0] * gnums[0] * gnums[0], out, out_size); return 1; }
+        }
+        /* N factorial / fattoriale di N (single non-negative integer <= 20). */
+        if (gn == 1 && (find_token(cw,cnw,"factorial") != cnw ||
+                        find_token(cw,cnw,"fattoriale") != cnw)) {
+            double v = gnums[0];
+            if (v >= 0 && v <= 20 && (double)(long long)v == v) {
+                long long f = 1; for (long long k = 2; k <= (long long)v; k++) f *= k;
+                arith_answer((double)f, out, out_size); return 1;
+            }
+        }
+        /* half of N / metà di N */
+        if (gn == 1 && (cue(norm, "half") || cue(norm, "metà") || cue(norm, "meta"))) {
+            arith_answer(gnums[0] / 2.0, out, out_size); return 1;
+        }
+        /* double / twice / triple / thrice (optionally "of") N */
+        if (gn == 1 && (cue(norm, "double") || cue(norm, "twice") || cue(norm, "doppio") ||
+            cue(norm, "triple") || cue(norm, "thrice") || cue(norm, "triplo"))) {
+            double mul = (cue(norm, "triple") || cue(norm, "thrice") || cue(norm, "triplo")) ? 3 : 2;
+            arith_answer(gnums[0] * mul, out, out_size); return 1;
+        }
+    }
+
+    /* N-ary "sum of A and B and C..." and "average/mean of ...". */
+    if (cue(norm, "sum of") || cue(norm, "average of") || cue(norm, "mean of") ||
+        cue(norm, "somma di") || cue(norm, "media di")) {
+        double nums[16]; size_t n = collect_numbers(cw, cnw, nums, 16);
+        if (n >= 1) {
+            double s = 0; for (size_t i = 0; i < n; i++) s += nums[i];
+            int avg = cue(norm, "average") || cue(norm, "mean") || cue(norm, "media");
+            arith_answer(avg ? s / (double)n : s, out, out_size);
+            return 1;
+        }
+    }
+
+    /* Verb-led imperative frames: "add A and B", "subtract A from B",
+     * "multiply A by B", "divide A by B" (EN+IT). */
+    if (cnw >= 1) {
+        const char *v0 = cw[0];
+        double nums[16]; size_t n = collect_numbers(cw, cnw, nums, 16);
+        if (n >= 2) {
+            if (!strcmp(v0,"add") || !strcmp(v0,"sum") || !strcmp(v0,"aggiungi") ||
+                !strcmp(v0,"somma")) {
+                double s = 0; for (size_t i = 0; i < n; i++) s += nums[i];
+                arith_answer(s, out, out_size); return 1;
+            }
+            if (!strcmp(v0,"subtract") || !strcmp(v0,"sottrai") || !strcmp(v0,"togli")) {
+                /* "subtract A from B" -> B - A */
+                if (cue(norm, "from") || cue(norm, " da ")) { arith_answer(nums[1] - nums[0], out, out_size); return 1; }
+                arith_answer(nums[0] - nums[1], out, out_size); return 1;
+            }
+            if (!strcmp(v0,"multiply") || !strcmp(v0,"moltiplica")) {
+                double p = 1; for (size_t i = 0; i < n; i++) p *= nums[i];
+                arith_answer(p, out, out_size); return 1;
+            }
+            if (!strcmp(v0,"divide") || !strcmp(v0,"dividi")) {
+                if (nums[1] != 0) { arith_answer(nums[0] / nums[1], out, out_size); return 1; }
+            }
+        }
+    }
+
+    /* Number-property predicates: "is N prime / even / odd" (EN+IT property
+     * words, any word order — "5 è un numero primo"). The property word is read
+     * tokenwise (not as a substring) so "evening"/"Paris" never trigger it, and
+     * it fires only when the turn also names an integer. */
+    {
+        int wants_prime = 0, wants_even = 0, wants_odd = 0;
+        for (size_t i = 0; i < cnw; i++) {
+            if (!strcmp(cw[i],"prime") || !strcmp(cw[i],"primo") || !strcmp(cw[i],"prima"))
+                wants_prime = 1;
+            else if (!strcmp(cw[i],"even") || !strcmp(cw[i],"pari")) wants_even = 1;
+            else if (!strcmp(cw[i],"odd") || !strcmp(cw[i],"dispari")) wants_odd = 1;
+        }
+        if (gn == 1 && (wants_prime || wants_even || wants_odd)) {
+            for (size_t i = 0; i < cnw; i++) {
+                double v; if (!parse_value(cw[i], &v)) continue;
+                if ((double)(long long)v != v) break;
+                long long n = (long long)v;
+                char msg[96];
+                if (wants_prime) {
+                    snprintf(msg, sizeof msg, "%s, %lld is %sa prime number.",
+                             arith_is_prime(n) ? "Yes" : "No", n,
+                             arith_is_prime(n) ? "" : "not ");
+                } else {
+                    int even = (n % 2 == 0);
+                    int yes = wants_even ? even : !even;
+                    snprintf(msg, sizeof msg, "%s, %lld is %s%s number.",
+                             yes ? "Yes" : "No", n, yes ? "an " : "not an ",
+                             wants_even ? "even" : "odd");
+                }
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* General fallback: fold any infix expression ("six times seven",
+     * "100 divided by 4", "how much is 1+1+1+1+1"). */
+    {
+        double r;
+        if (arith_eval_infix(ew, enw, &r)) { arith_answer(r, out, out_size); return 1; }
     }
 
     return 0;
@@ -11095,7 +11357,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen189-input-classifier";
+    return "gen190-nl-arithmetic";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

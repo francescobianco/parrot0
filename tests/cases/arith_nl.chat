@@ -1,0 +1,61 @@
+# gen190 (basic-chat cat.4): arithmetic in natural language. The four operations
+# asked in many surface forms all reduce to the same oracle — these frames are
+# structural extractors of (operator, operands), not stored phrases, so they
+# generalize over operands and number words.
+
+# Operator WORDS that take two words ("divided by") and bare infix.
+> what is 100 divided by 4
+< 25.
+> six times seven
+< 42.
+> six by seven
+< 42.
+
+# Number-WORD operands compute (parse_value), no "what is" needed.
+> what is two plus two
+< 4.
+
+# Verb-led imperative frames.
+> add 5 and 7
+< 12.
+> subtract 3 from 10
+< 7.
+> multiply 4 by 9
+< 36.
+> divide 20 by 5
+< 4.
+
+# Unary "of"-frames and suffixes over a single operand.
+> what is half of 50
+< 25.
+> what is double of 8
+< 16.
+> what is the square root of 16
+< 4.
+> what is 3 squared
+< 9.
+> what is 5 factorial
+< 120.
+
+# Percent and n-ary list frames.
+> what is 20 percent of 100
+< 20.
+> what is the sum of 3 and 4 and 5
+< 12.
+> what is the average of 2 and 4 and 6
+< 4.
+
+# Number-property predicates.
+> is 15 a prime number
+< No, 15 is not a prime number.
+> is 8 an even number
+< Yes, 8 is an even number.
+
+# Chained infix folds left to right.
+> how much is 1+1+1+1+1
+< 5.
+
+# Anti-overreach: a process loop that merely MENTIONS "double"/"even" (>=2
+# numbers) is left for mod_agent, not claimed as a one-shot computation.
+> start at 3 and double until you reach 50
+< Reached 96 after 5 steps: 3 -> 6 -> 12 -> 24 -> 48 -> 96.

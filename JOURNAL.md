@@ -1,4 +1,53 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen190: arithmetic in natural language (basic-chat cat.4)
+
+**Goal.** Close basic-chat cat.4 (Aritmetica base), 2/19 engaged at gen189. The
+prompts ask the SAME four operations in many surface forms — "six times seven",
+"add 5 and 7", "100 divided by 4", "subtract 3 from 10", "what is half of 50",
+"is 15 a prime number". Per PRINCIPLES this is NOT 19 phrases to memorize: it is
+one capability — *extract (operator, operands) from prose and fold with the
+existing oracle* — so the answer generalizes over operands and number-words.
+
+**Changed.** `brain.c` -> `gen190-nl-arithmetic`. `mod_arith` switched its operand
+parsing from `parse_num` (digits only) to `parse_value` (digits + number words),
+and gained structural frames after the existing infix/divisible/explain paths:
+verb-led imperatives (`add A and B`, `subtract A from B` = B−A, `multiply A by B`,
+`divide A by B`); unary `of`-frames (`half of N`, `double/twice/triple of N`,
+`square root of N`, `N squared/cubed`, `N factorial`); `P percent of N`; n-ary
+`sum/average of A and B and C...`; number-property predicates (`is N prime/even/
+odd`); and a general left-to-right infix evaluator that reads operator words
+(incl. two-word `divided by`/`multiplied by`, bare `by`=times for "six by seven")
+and folds bare expressions with no "what is" lead. Operator words, verbs and
+property words are recognised in EN+IT (per/diviso/più, aggiungi/sottrai,
+metà/doppio/radice/quadrato/fattoriale, primo/pari) on the SAME path, so the
+bilingual ratchet rides the algorithm, not a second lexicon copy.
+
+**Two gotchas, both real.** (1) `split_words` null-terminates `buf` in place and
+`w[8]` truncates — so the new frames read cues from the intact `norm` and re-split
+a fresh copy into `cw[32]`. (2) The cue words `half`/`halve`, `double`, `triple`,
+`even`, `odd` also occur as repeated ACTIONS / branch conditions in `mod_agent`
+process descriptions ("halve until below 5", "if it is even ... if it is odd
+..."). Those name ≥2 numbers, so the ambiguous unary and predicate frames fire
+only when the turn names exactly one number (`gn == 1`) — this kept the Collatz /
+act-loop tests green. Honesty held over coverage: `square root of negative one`
+(cat.5) now walls instead of wrongly answering "1." (a "negative" guard), so total
+coverage moved 261→260 on that one prompt while cat.4 hit 100%.
+
+**Observed.** `make basic-chat-bench` cat.4 **10% (2/19) → 100% (19/19)**; total
+**24% → 26%**; cat.5 (math concepts) 38% → 46% as a free lift. `make test`
+(run.sh) 182/182 incl. new `arith_nl.chat`/`.it.chat`; pre-existing profiles.sh
+failures (4, fail identically on baseline) untouched. 10× stress over held-out
+operands: 19/20 (only the spaced word-compound operand "twenty two" walls;
+hyphenated "twenty-two" works).
+
+**Self-challenge (parity).** Asked parrot0 "you cannot parse six times seven, what
+should change?" — it walled. Recorded gap: it cannot yet reason about its own
+arithmetic surface coverage (mod_loop/mod_self do not model mod_arith's frames).
+
+**Next.** Pick the next cat by leverage: high-count 0% blocks — cat.52
+Elencazione (0/19, structural list generation), cat.18 Biologia animale (0/18,
+KB class-membership), or cat.19 Versi di animali (KB content in `kb/*.p0`).
+
 ## 2026-06-23 - gen189: the input classifier — "is this language at all?"
 
 **Goal (F.'s new driver).** F. asked, given the work done, why parrot0 still walls
