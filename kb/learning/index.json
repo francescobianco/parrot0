@@ -764,6 +764,23 @@
       "summary": "learned antibiotic: type of antimicrobial substance which is active against bacteria",
       "title": "Antibiotic",
       "url": "https://en.wikipedia.org/wiki/Antibiotic"
+    },
+    {
+      "concept": "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials...",
+      "domain": "medicine",
+      "event_id": "learn_2026_06_23t22_45_15z_neuron",
+      "key": "neuron",
+      "log_path": "kb/learning/logs/learn_2026_06_23t22_45_15z_neuron.json",
+      "markdown_path": "kb/learning/pages/neuron.md",
+      "processed_at": "2026-06-23T22:45:15Z",
+      "prompt": "what do you know about learn_2026_06_23t22_45_15z_neuron",
+      "revision": 1360647446,
+      "source_index": 19,
+      "source_line": 37,
+      "source_title": "Neuron",
+      "summary": "learned neuron: A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called...",
+      "title": "Neuron",
+      "url": "https://en.wikipedia.org/wiki/Neuron"
     }
   ],
   "pages": {
@@ -1028,11 +1045,11 @@
       "domain": "medicine",
       "extract_sha256": "c2868414267ecad5059e859dbcf997cb1bc1ac89a629c7a3712cb7226adbc77a",
       "key": "neuron",
-      "last_event_id": "learn_2026_06_22t03_30_52z_neuron",
+      "last_event_id": "learn_2026_06_23t22_45_15z_neuron",
       "markdown_path": "kb/learning/pages/neuron.md",
       "pageid": 21120,
-      "processed_at": "2026-06-22T03:30:52Z",
-      "revision": 1356756271,
+      "processed_at": "2026-06-23T22:45:15Z",
+      "revision": 1360647446,
       "source_title": "Neuron",
       "title": "Neuron",
       "url": "https://en.wikipedia.org/wiki/Neuron"
