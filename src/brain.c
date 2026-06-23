@@ -8581,6 +8581,55 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             return 1;
         }
         char err[512];
+
+        /* gen192: F5 verification by BUILDING. A "link"/"build"/"run" cue asks
+         * the stronger question — does it still LINK? Syntax-only misses a call to
+         * the now-missing function (an implicit-declaration warning); a real
+         * compile+link makes it an undefined reference. When it fails, the reverse
+         * call graph (code_find_callers) names WHO still calls it — cause derived
+         * from KB, verdict grounded in the real linker. */
+        int want_link = cue(qpart, "link") || cue(qpart, "build") ||
+                        cue(qpart, "run") || cue(qpart, "linka") ||
+                        cue(qpart, "esegui") || cue(qpart, "compila e linka");
+        if (want_link) {
+            int rc = code_build(tmp, err, sizeof err);
+            remove(tmp);
+            if (rc == 1) {
+                snprintf(out, out_size, "Deleted %s%s; the result still links.", fnname, where);
+            } else if (rc == 0) {
+                /* who still calls it? scan the directory the file lives in. */
+                char cdir[256];
+                if (is_file) {
+                    snprintf(cdir, sizeof cdir, "%s", fullpath);
+                    char *slash = strrchr(cdir, '/');
+                    if (slash) *slash = '\0'; else snprintf(cdir, sizeof cdir, ".");
+                } else {
+                    snprintf(cdir, sizeof cdir, "%s", path);
+                }
+                char callers[16][KB_TERM_LEN];
+                size_t nc = code_find_callers(cdir, fnname, callers, 16);
+                if (nc > 0) {
+                    char who_calls[256] = "";
+                    size_t off = 0;
+                    for (size_t i = 0; i < nc && off + 1 < sizeof who_calls; i++)
+                        off += (size_t)snprintf(who_calls + off, sizeof who_calls - off,
+                                                "%s%s", i ? (i + 1 == nc ? " and " : ", ") : "",
+                                                callers[i]);
+                    snprintf(out, out_size,
+                             "Deleted %s%s, but %s still %s %s, so the program no longer links.",
+                             fnname, where, who_calls, nc > 1 ? "call" : "calls", fnname);
+                } else {
+                    snprintf(out, out_size,
+                             "Deleted %s%s, but the result no longer links.", fnname, where);
+                }
+            } else {
+                snprintf(out, out_size,
+                         "Deleted %s%s in a temp copy; the original is unchanged.", fnname, where);
+            }
+            store_proof(b, out);
+            return 1;
+        }
+
         int rc = code_compile(tmp, err, sizeof err);
         remove(tmp);
         if (rc == 1)
@@ -11422,7 +11471,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen191-code-delete-function";
+    return "gen192-code-link-verify";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

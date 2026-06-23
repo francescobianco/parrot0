@@ -68,6 +68,14 @@ int code_delete_function(const char *src_path, const char *fnname,
  * compiles, 0 if not (diagnostics in err_out), -1 if it could not be run. */
 int code_compile(const char *path, char *err_out, size_t err_sz);
 
+/* gen192: F5 verification by BUILDING — compile AND link `src_path` into a temp
+ * executable (sandboxed subprocess, no shell, path whitelist, timeout; the temp
+ * executable is removed before returning). Unlike code_compile's -fsyntax-only,
+ * this reaches the LINK stage, so a call to a function that no longer exists is an
+ * undefined reference (a real error), not just a warning. Returns 1 if it links,
+ * 0 if not (first diagnostics in err_out), -1 if it could not be run. */
+int code_build(const char *src_path, char *err_out, size_t err_sz);
+
 /* gen185: reverse call graph across a directory (sandboxed, recursive) — the
  * functions whose body calls `target`. Writes up to `max` deduped caller names
  * into `out` and returns the count. The "blast radius" before an edit. */

@@ -1049,6 +1049,44 @@ int code_compile(const char *path, char *err_out, size_t err_sz) {
     return 0;
 }
 
+int code_build(const char *src_path, char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!src_path || !*src_path) return -1;
+    if (src_path[0] == '/' || src_path[0] == '~' || strstr(src_path, "..")) return -1;
+    for (const char *c = src_path; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
+              *c == '_' || *c == '-')) return -1;
+
+    const char *exe = ".p0_build_tmp.out";
+    int pf[2];
+    if (pipe(pf) != 0) return -1;
+    pid_t pid = fork();
+    if (pid < 0) { close(pf[0]); close(pf[1]); return -1; }
+    if (pid == 0) {                       /* child: compile+link, output -> pipe */
+        dup2(pf[1], STDOUT_FILENO);
+        dup2(pf[1], STDERR_FILENO);
+        close(pf[0]); close(pf[1]);
+        alarm(20);                        /* never hang the agent */
+        execlp("cc", "cc", "-w", src_path, "-o", exe, (char *)NULL);
+        _exit(127);                       /* exec failed */
+    }
+    close(pf[1]);
+    if (err_out && err_sz) {
+        ssize_t n = read(pf[0], err_out, err_sz - 1);
+        if (n < 0) n = 0;
+        err_out[n] = '\0';
+    } else {
+        char sink[256];
+        while (read(pf[0], sink, sizeof sink) > 0) { }
+    }
+    close(pf[0]);
+    int status;
+    if (waitpid(pid, &status, 0) < 0) { remove(exe); return -1; }
+    remove(exe);
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0) return 1;
+    return 0;
+}
+
 int code_read_file(const char *path, char *buf, size_t bufsz) {
     if (!path || !*path || !buf || bufsz == 0) return 0;
     /* gen181 sandbox: relative paths under the working directory only — no

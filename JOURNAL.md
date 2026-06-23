@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen192: code mastery — F5 verification by BUILDING (link grounding)
+
+**Mission / pull.** `docs/CODE-MASTERY.md` §8 toward `make swe-bench`. The recorded
+gap `run_verify`: deleting a still-called function passes `cc -fsyntax-only` (the
+dangling call is only an implicit-declaration warning, exit 0), so the syntax
+oracle honestly says "still compiles" — but the program would not LINK. This is the
+step from syntax-check grounding to build grounding (F5 "verify by running").
+
+**Changed.** `code.c`/`code.h` gain `code_build` — a sandboxed `cc -w <src> -o
+<tmp.out>` (fork/exec, no shell, path whitelist, alarm; the temp exe is removed)
+that reaches the LINK stage, so a call to a now-missing function becomes a real
+undefined-reference error, not a warning. `brain.c` -> `gen192-code-link-verify`:
+the delete branch, on a "link"/"build"/"run" cue (EN+IT: linka/esegui), verifies
+by building instead of syntax-only. On link failure it derives the CAUSE from the
+reverse call graph (`code_find_callers` over the file's directory) and names who
+still calls it ("main still calls add, so the program no longer links"; plural
+agreement for >1 caller) — cause from KB, verdict from the real linker. Without a
+link cue the weaker syntax-only verdict is unchanged, so prior gates hold.
+
+**Ratchets.** `run_verify.code` promoted gap→pass: link-failure-with-named-cause,
+the grounded positive ("Deleted helper … still links") via a new self-contained
+`tests/code/buildable/prog.c` (main + an unused helper — kept in a sibling dir so
+the `main is defined in sample.c` locate gates stay unambiguous), and the
+syntax-only path when no link cue is given. New gap `run_execute.code`: actually
+EXECUTE the built binary and report its result (exit code / output / a failing
+assertion) — the move from "it links" to "the tests pass", the core swe-bench
+primitive parrot0 still lacks.
+
+**Observed.** `make code-bench`: 18 gates hold, 1 gap, turn landing 100%→98% (the
+new gap). `make test` (run.sh) 182/182; pre-existing profiles.sh failures (4,
+identical on baseline) untouched. Stress: multi-caller deletion names "alpha and
+beta still call dep"; footprint-free throughout.
+
+**Next.** `run_execute` — real execution/test-run grounding; then multi-file
+patch/diff, then a Python parser, toward the §8 degrade-path swe-bench harness.
+
 ## 2026-06-23 - gen191: code mastery — a SECOND F5 edit transformation (delete)
 
 **Mission.** `docs/CODE-MASTERY.md`: recover the LLM's NL↔code coherence by
