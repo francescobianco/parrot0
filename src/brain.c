@@ -8796,19 +8796,25 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             }
         }
         if (!path[0]) return 0;
-        char olds[256], news[256];
+        /* Try each structural bug smell in turn; the first to fire wins. Each
+         * names nothing in advance and the real test suite is the judge. */
+        char olds[256], news[256]; const char *reason = NULL;
         int r = code_symmetry_fix(path, NULL, olds, sizeof olds, news, sizeof news);
+        if (r > 0) reason = "breaks the symmetry with its sibling branch";
+        else if (r == 0) {
+            r = code_find_discarded_result(path, NULL, olds, sizeof olds, news, sizeof news);
+            if (r > 0) reason = "discards the result of a value-returning call";
+        }
         if (r < 0) return 0;                       /* unreadable / unsafe — not ours */
-        if (r == 0) {
+        if (r == 0 || !reason) {
             snprintf(out, out_size,
-                     "I read %s but found no symmetry break to fix.", path);
+                     "I read %s but found no structural bug to fix.", path);
             store_proof(b, out);
             return 1;
         }
         if (!sym_write) {          /* report-only: localize, do not touch any file */
             snprintf(out, out_size,
-                     "In %s, `%s` breaks the symmetry with its sibling branch; the "
-                     "fix is `%s`.", path, olds, news);
+                     "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news);
             store_proof(b, out);
             return 1;
         }
@@ -8816,14 +8822,13 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         int n = code_replace_expr(path, olds, news, outpath);
         if (n <= 0) {
             snprintf(out, out_size,
-                     "In %s a sibling branch assigns a literal where a variable "
-                     "belongs: `%s` should mirror its sibling as `%s`.", path, olds, news);
+                     "In %s, `%s` %s; the fix is `%s`.", path, olds, reason, news);
             store_proof(b, out);
             return 1;
         }
         snprintf(out, out_size,
-                 "In %s, `%s` breaks the symmetry with its sibling branch; the fix "
-                 "is `%s`. Patched copy written to %s.", path, olds, news, outpath);
+                 "In %s, `%s` %s; the fix is `%s`. Patched copy written to %s.",
+                 path, olds, reason, news, outpath);
         store_proof(b, out);
         return 1;
     }
@@ -11643,7 +11648,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen200-symmetry-repair";
+    return "gen201-discarded-result";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

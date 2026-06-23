@@ -2,21 +2,26 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## SOLVED - astropy__astropy-12907, the first REAL SWE-bench_Lite instance (gen200)
+## SOLVED - 2 REAL SWE-bench_Lite instances, by 2 general structural smells
 
-parrot0 produces a patch the OFFICIAL SWE-bench image accepts (2 FAIL_TO_PASS pass,
-13 PASS_TO_PASS hold) — `make swe-solve` -> RESOLVED. Non-deceptive: it never sees
-the gold patch or tests; it derives the fix from a structural SYMMETRY BREAK
-(`code_symmetry_fix`) and the real test suite judges it (`tests/swebench/oracle.sh`).
-This is ONE general repair pattern pulled by this instance, NOT general APR.
+Both resolved by the official SWE-bench Docker oracle, no deception (parrot0 reads
+only the committed buggy file, derives from structure, the real tests judge):
+- **astropy-12907 (gen200)** — SYMMETRY BREAK (`code_symmetry_fix`): a sibling
+  branch assigns a literal where the analogous variable belongs.
+- **astropy-6938 (gen201)** — DISCARDED RESULT (`code_find_discarded_result`): a
+  bare pure-method call whose value is thrown away; assign it back in place.
+Run: `make swe-solve` (12907) / `make swe-solve INSTANCE=astropy__astropy-6938`.
+The brain's "find/fix the bug in <path>" tries each smell in turn — a growing
+library of grounded localizers/transformations, NOT general APR.
 
-Next swe-bench pulls (each: a grounded localizer/transformation pulled from real
-pressure, judged by the real oracle — never a hardcoded answer):
-- widen the map: `tests/swebench/fetch_lite.sh 50`, run `make swe-bench`, see which
-  faculty each next instance needs.
-- more structural bug-smell localizers + transformations beyond symmetry break.
-- the value-domain Python semantics delta (numpy arrays) for instances that need
-  semantic reasoning, not just a structural smell.
+Next swe-bench pulls (each: a grounded smell pulled from real pressure, judged by
+the real oracle — never a hardcoded answer):
+- remaining committed instances: astropy-14365 (case-insensitivity — likely needs
+  issue-driven/associative localization, the X6 frontier §4), astropy-14182 (a
+  FEATURE add — out of structural-repair scope), astropy-14995 (mask semantics).
+- widen the map: `tests/swebench/fetch_lite.sh 50`, `make swe-bench`.
+- the value-domain Python semantics delta (numpy arrays) for semantic, not just
+  structural, bugs.
 
 ## (history) Active task - climb toward the first REAL SWE-bench_Lite instance (F., 2026-06-23)
 

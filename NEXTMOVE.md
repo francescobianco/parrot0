@@ -1,21 +1,27 @@
 # NEXTMOVE — handoff (2026-06-23)
 
-Clean tree. Head: gen200 (`gen200-symmetry-repair`). `make test` 190/190 + the 4
+Clean tree. Head: gen201 (`gen201-discarded-result`). `make test` 192/192 + the 4
 pre-existing `profiles.sh` agi failures (unrelated). `make code-bench` 21/21 gates.
 
-## Just landed — gen200: FIRST REAL SWE-bench instance RESOLVED (no deception)
-`make swe-solve` -> parrot0 derives a patch for `astropy__astropy-12907` from a
-structural SYMMETRY BREAK and the OFFICIAL SWE-bench Docker image judges it
-RESOLVED (2 FAIL_TO_PASS pass, 13 PASS_TO_PASS hold). parrot0 never sees the gold
-patch or tests. New: `code_symmetry_fix` + `code_replace_expr` (code.c), a
-`mod_codeast` "find/fix the symmetry bug in <path>" branch, `tests/swebench/
-oracle.sh` (grounded verifier on the real image) and `parrot_solve.sh`. Hermetic
-ratchet `symfix.chat`/`.it`. Honest scope: ONE general repair pattern pulled by
-this instance, NOT general APR.
+## Just landed — TWO real SWE-bench instances RESOLVED, two general smells
+parrot0 derives patches from STRUCTURE and the OFFICIAL SWE-bench Docker image
+judges them RESOLVED (it never sees gold patch / tests):
+- **astropy-12907 (gen200)** SYMMETRY BREAK — `code_symmetry_fix`. `make swe-solve`.
+- **astropy-6938 (gen201)** DISCARDED RESULT — `code_find_discarded_result`: a bare
+  pure-method call (`output_field.replace(...)`) whose value is thrown away; assign
+  it back in place (receiver is a parameter -> rebinding is a no-op). `make
+  swe-solve INSTANCE=astropy__astropy-6938`.
 
-How to run: `make swe-solve` (needs docker + jq; pulls the ~2.7GB official image
-once — a curation step, parrot0 never touches the net). `INSTANCE=<id> make
-swe-solve` for another instance once its image + lite row exist.
+The `mod_codeast` "find/fix the bug in <path>" branch tries each structural smell
+in turn — a growing LIBRARY of grounded localizers, not general APR. New since
+gen200: `code_find_discarded_result` + `is_pure_method` KB; EN+IT `discarded.chat`/
+`.it`. Harness `tests/swebench/{oracle,parrot_solve}.sh`.
+
+How to run: needs docker + jq; pulls the ~2.7GB official image once per instance (a
+curation step; parrot0 never touches the net). To target a NEW instance: snapshot
+its base-commit source into `tests/swebench/lite/<id>/repo_excerpt/...` (copy from
+the official image at base_commit, like fitsrec.py/separable.py), then `make
+swe-solve INSTANCE=<id>`.
 
 NEXT: widen the map (`tests/swebench/fetch_lite.sh 50`, `make swe-bench`) and add
 the next grounded localizer/transformation the next instance pulls — each judged

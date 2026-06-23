@@ -28,7 +28,7 @@ RELP="$(python3 -c "import os,sys;print(os.path.relpath(sys.argv[1], sys.argv[2]
 
 echo "== parrot0 examines $REL =="
 rm -f "$SRC.p0fix"
-reply="$(printf 'fix the symmetry bug in %s\n' "$RELP" | (cd "$ROOT" && PARROT0_BASE= PARROT0_SESSION= "$BIN" 2>/dev/null))"
+reply="$(printf 'fix the bug in %s\n' "$RELP" | (cd "$ROOT" && PARROT0_BASE= PARROT0_SESSION= "$BIN" 2>/dev/null))"
 echo "parrot0: $reply"
 [ -f "$SRC.p0fix" ] || { echo "parrot0 produced no patch — STOP (honest miss)"; exit 1; }
 

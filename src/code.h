@@ -90,6 +90,21 @@ int code_symmetry_fix(const char *src_path, const char *fnname,
                       char *old_stmt, size_t old_sz,
                       char *new_stmt, size_t new_sz);
 
+/* gen201: structural DISCARDED-RESULT localization (a second general bug smell,
+ * judged by the real test like the symmetry one — CODE-MASTERY §4/§6). A bare
+ * expression statement `RECV.METHOD(args)` whose value is thrown away, where METHOD
+ * is a known PURE (value-returning, non-mutating) string/bytes transform (replace,
+ * strip, lower, upper, ...), is a no-op bug: the new value is computed and dropped.
+ * The fix assigns it back to RECV — in place (`RECV[:] = ...`) when RECV is a
+ * parameter (rebinding a parameter is provably a no-op for the caller), else by
+ * rebinding (`RECV = ...`). In function `fnname` (or any if NULL) of `src_path`,
+ * writes the trimmed old statement and the fixed statement; 1 if found, 0 none,
+ * -1 on error. Names nothing in advance — purely structural over Python value
+ * semantics (the KB of pure methods is a language fact, not a phrasebook). */
+int code_find_discarded_result(const char *src_path, const char *fnname,
+                               char *old_stmt, size_t old_sz,
+                               char *new_stmt, size_t new_sz);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

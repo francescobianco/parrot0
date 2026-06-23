@@ -1,4 +1,42 @@
 # parrot0 evolution journal
+## 2026-06-23 - gen201: second REAL SWE-bench instance (astropy-6938) RESOLVED — discarded-result smell
+
+**Milestone.** A SECOND real SWE-bench_Lite instance resolved, by a DIFFERENT
+general structural bug smell — evidence the gen200 approach is a method, not a
+one-off. `make swe-solve INSTANCE=astropy__astropy-6938` -> `verdict: RESOLVED`
+(2 FAIL_TO_PASS pass, 11 PASS_TO_PASS hold). Same honesty discipline: parrot0
+reads only the committed buggy file, derives the fix from structure, the official
+SWE-bench Docker image is the judge; it never sees the gold patch or the tests.
+
+**The bug & the smell.** `_scale_back_ascii` has a bare statement
+`output_field.replace(encode_ascii('E'), encode_ascii('D'))` whose value is thrown
+away — a no-op, since `.replace` returns a NEW value and mutates nothing. This is a
+general bug smell: **a discarded result of a known PURE (value-returning) method**.
+`code_find_discarded_result` (new, pure C) detects it and assigns the value back —
+IN PLACE (`output_field[:] = ...`) because the receiver is a PARAMETER and rebinding
+a parameter is provably a no-op for the caller (a structural reason, not a guess).
+That structurally-derived fix is exactly what the real tests need.
+
+**Changed.** `code.c`/`code.h`: `code_find_discarded_result` + a small KB of pure
+str/bytes methods (`is_pure_method` — a Python language fact, not a phrasebook).
+`brain.c` -> `gen201-discarded-result`: the `mod_codeast` "find/fix the bug in
+<path>" branch now tries each structural smell in turn (symmetry break, then
+discarded result) and reports the one that fires with its reason; the symmetry
+message is byte-identical to gen200 (no regression). `parrot_solve.sh` now asks the
+generic "fix the bug in <path>". Curation: committed `repo_excerpt/.../fitsrec.py`
+at base_commit (static snapshot from the official image, like separable.py).
+
+**Verified.** astropy-6938 -> RESOLVED; astropy-12907 still RESOLVED (symmetry path
+unchanged). No false fire: a used result (`s = s.replace(...)`) or a mutating call
+(`x.append(1)`) is not flagged. EN+IT ratchets `discarded.chat`/`.it` (report-only,
+hermetic); `make test` 192/192 + the 4 pre-existing `profile:agi` failures
+(unrelated); code-bench 21 gates.
+
+**Honest scope.** Two instances, two general structural smells (symmetry break,
+discarded result). This is a growing library of grounded localizers/transformations
+— still NOT general program repair. Each new instance pulls the next smell from
+real pressure; the real oracle judges every fix (PRINCIPLES.md: no impostor).
+
 ## 2026-06-23 - gen200: the first REAL SWE-bench instance, RESOLVED without deception
 
 **Milestone.** parrot0 produces a patch for `astropy__astropy-12907` that the
