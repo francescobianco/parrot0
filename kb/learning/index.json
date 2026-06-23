@@ -611,6 +611,23 @@
       "summary": "learned quantum_mechanics: Quantum mechanics, also known as quantum physics, is the fundamental physical theory...",
       "title": "Quantum mechanics",
       "url": "https://en.wikipedia.org/wiki/Quantum_mechanics"
+    },
+    {
+      "concept": "The periodic table, also known as the periodic table of the elements, is an ordered arrangement of the chemical...",
+      "domain": "chemistry",
+      "event_id": "learn_2026_06_23t11_26_37z_periodic_table",
+      "key": "periodic_table",
+      "log_path": "kb/learning/logs/learn_2026_06_23t11_26_37z_periodic_table.json",
+      "markdown_path": "kb/learning/pages/periodic_table.md",
+      "processed_at": "2026-06-23T11:26:37Z",
+      "prompt": "what do you know about learn_2026_06_23t11_26_37z_periodic_table",
+      "revision": 1360487132,
+      "source_index": 10,
+      "source_line": 24,
+      "source_title": "Periodic table",
+      "summary": "learned periodic_table: The periodic table, also known as the periodic table of the elements, is an ordered...",
+      "title": "Periodic table",
+      "url": "https://en.wikipedia.org/wiki/Periodic_table"
     }
   ],
   "pages": {
@@ -905,11 +922,11 @@
       "domain": "chemistry",
       "extract_sha256": "57658197bfcff2188eae229788d16a1144811d5b1ce931b86ff27a00ccbd8680",
       "key": "periodic_table",
-      "last_event_id": "learn_2026_06_21t16_53_47z_periodic_table",
+      "last_event_id": "learn_2026_06_23t11_26_37z_periodic_table",
       "markdown_path": "kb/learning/pages/periodic_table.md",
       "pageid": 23053,
-      "processed_at": "2026-06-21T16:53:47Z",
-      "revision": 1359090233,
+      "processed_at": "2026-06-23T11:26:37Z",
+      "revision": 1360487132,
       "source_title": "Periodic table",
       "title": "Periodic table",
       "url": "https://en.wikipedia.org/wiki/Periodic_table"

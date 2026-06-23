@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "physics",
-    "event_id": "learn_2026_06_23t09_30_46z_quantum_mechanics",
-    "key": "quantum_mechanics",
-    "log_path": "kb/learning/logs/learn_2026_06_23t09_30_46z_quantum_mechanics.json",
-    "markdown_path": "kb/learning/pages/quantum_mechanics.md",
-    "processed_at": "2026-06-23T09:30:46Z",
-    "prompt": "what do you know about learn_2026_06_23t09_30_46z_quantum_mechanics",
-    "revision": 1360718020,
-    "title": "Quantum mechanics"
+    "domain": "chemistry",
+    "event_id": "learn_2026_06_23t11_26_37z_periodic_table",
+    "key": "periodic_table",
+    "log_path": "kb/learning/logs/learn_2026_06_23t11_26_37z_periodic_table.json",
+    "markdown_path": "kb/learning/pages/periodic_table.md",
+    "processed_at": "2026-06-23T11:26:37Z",
+    "prompt": "what do you know about learn_2026_06_23t11_26_37z_periodic_table",
+    "revision": 1360487132,
+    "title": "Periodic table"
   },
-  "next_index": 10
+  "next_index": 11
 }

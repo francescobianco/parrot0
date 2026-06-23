@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_23t11_26_37z_periodic_table",
+  "extraction": {
+    "concept": "The periodic table, also known as the periodic table of the elements, is an ordered arrangement of the chemical...",
+    "concept_key": "periodic_table",
+    "extract_sha256": "57658197bfcff2188eae229788d16a1144811d5b1ce931b86ff27a00ccbd8680",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_23t11_26_37z_periodic_table.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/periodic_table.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 11,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-23T11:26:37Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_23t11_26_37z_periodic_table"
+  },
+  "source": {
+    "domain": "chemistry",
+    "index": 10,
+    "line": 24,
+    "title": "Periodic table"
+  },
+  "wikipedia": {
+    "canonical_title": "Periodic table",
+    "lang": "en",
+    "pageid": 23053,
+    "revision": 1360487132,
+    "url": "https://en.wikipedia.org/wiki/Periodic_table"
+  }
+}
