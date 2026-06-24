@@ -246,6 +246,11 @@ static void remember_possession(Brain *b, const char *thing, const char *name) {
     copy_trim(b->possessions[slot][1], sizeof b->possessions[slot][1], name);
     if (slot == b->possession_count) b->possession_count++;
 
+    /* gen217 (glue): mark this thing as the salient possession so a later
+     * possessive-pronoun anaphor ("what is his name") resolves to it. */
+    copy_trim(b->last_possession_thing, sizeof b->last_possession_thing, thing);
+    b->has_last_possession = 1;
+
     char thing_key[64], name_key[64];
     lowercase_copy(thing_key, sizeof thing_key, thing);
     lowercase_copy(name_key, sizeof name_key, name);

@@ -63,6 +63,11 @@ struct Brain {
      * casing is remembered here for natural replies. */
     char possessions[8][2][64];
     size_t possession_count;
+    /* gen217 (glue): the most recently mentioned possession's "thing" (e.g.
+     * "dog"), so a possessive-pronoun anaphor ("what is his name") resolves to
+     * the salient owned entity without repeating the noun. */
+    char last_possession_thing[64];
+    int  has_last_possession;
 
     /* gen148 (E4): lightweight user model for ordinary conversation. Durable
      * personal facts are separate from session-only context so "what do you

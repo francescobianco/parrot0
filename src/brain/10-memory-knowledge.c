@@ -211,6 +211,32 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 }
             }
 
+            /* gen217 (glue): possessive-pronoun anaphor — "what is his/her/its
+             * name?". The antecedent is the salient possession (last set by
+             * remember_possession), so the noun need not be repeated. Resolves
+             * deterministically over real session state, not a guessed referent;
+             * claims only when a recent possession is actually on record. */
+            {
+                size_t i = find_token(w, nw, "what");
+                if (i + 3 < nw && strcmp(w[i + 1], "is") == 0 &&
+                    (strcmp(w[i + 2], "his") == 0 || strcmp(w[i + 2], "her") == 0 ||
+                     strcmp(w[i + 2], "its") == 0)) {
+                    char tail[64];
+                    snprintf(tail, sizeof tail, "%s", w[i + 3]);
+                    if (strcmp(strip_edge_punct(tail), "name") == 0 &&
+                        b->has_last_possession) {
+                        const char *n = find_possession_name(b, b->last_possession_thing);
+                        if (n) {
+                            char msg[160];
+                            snprintf(msg, sizeof msg, "Your %s is called %s.",
+                                     b->last_possession_thing, n);
+                            put(msg, out, out_size);
+                            return 1;
+                        }
+                    }
+                }
+            }
+
             /* Queries: "what is my <thing> called?" and "what is my <thing>?" */
             {
                 size_t i = find_token(w, nw, "what");

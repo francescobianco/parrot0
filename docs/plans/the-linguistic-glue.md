@@ -171,23 +171,34 @@ funziona. Ratchet ermetico in `make test`: `tests/cases/coref_resolve.chat`.
 Effetto su `glue-bench`: `implicit-reference` da **0/3 → 1/3** (`ref-heart-en` ora HELD).
 
 **Restano GAP (prossimi pull, dalla mappa):**
-- `ref-dog-en/it` — bloccati a monte: "what is my dog called" non recupera nemmeno senza
-  pronome (asimmetria store/recall del possesso "my dog is Rex"). Pull: sistemare il
-  recall del possesso, poi la coref ci si appoggia.
-- IT *pro-drop* — l'italiano omette il soggetto ("come si chiama", "è un cane?"): non c'è
-  token "it" da risolvere. Meccanismo distinto (anafora a soggetto nullo), pull dedicato.
+- `ref-dog-it` — IT *pro-drop*: l'italiano omette il soggetto ("come si chiama", "è un
+  cane?"): non c'è token da risolvere. Meccanismo distinto (anafora a soggetto nullo).
 - `correction` 0/2 — "no, X non è Y" non viene nemmeno parsato come negazione; poi va
   ri-derivato il goal (gen103 esiste per la ri-derivazione, manca il parse della correzione).
 
 Un meccanismo per generazione; la mappa detta l'ordine, non noi.
 
+### G2 — secondo pull fatto (gen217): il pronome possessivo porta il riferimento
+
+Verità di base rivista: il recall del possesso **funziona già** ("my dog is Rex" →
+"what is my dog called" → "Rex."); il blocco residuo di `ref-dog-en` era il pronome
+possessivo. `remember_possession` (00-lex.c) ora marca la *cosa* posseduta più recente
+(`last_possession_thing`); una query "what is his/her/its name" (10-memory-knowledge.c)
+risolve l'antecedente a quella possessione e risponde col nome memorizzato — senza
+ripetere il sostantivo. Glue come **operazione deterministica su stato reale**: reclama
+solo se una possessione recente è davvero a registro (mai un referente inventato).
+Ratchet ermetico: `tests/cases/coref_possessive.chat`.
+
+Effetto su `glue-bench`: `implicit-reference` da **1/3 → 2/3** (`ref-dog-en` ora HELD).
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
 
-> **Stato a gen216.** G0 (reify), G1 (`make glue-bench`), G2 (coref EN) fatti, committati e
-> pushati su `main`. `make test` 203/0, benches verdi. Per rivedere la mappa in qualunque
-> momento: **`make glue-bench`** (degrade mode, non rompe la build).
+> **Stato a gen217.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
+> possessivo "his/her/its" EN) fatti, committati e pushati su `main`. `make test` 204/0,
+> benches verdi. `implicit-reference` 2/3. Per rivedere la mappa in qualunque momento:
+> **`make glue-bench`** (degrade mode, non rompe la build).
 >
 > Disciplina invariata: UN meccanismo per generazione, tirato dal primo caso che fallisce;
 > deterministico e ispezionabile su stato di sessione reale (mai coerenza finta); EN+IT;
@@ -197,11 +208,10 @@ Un meccanismo per generazione; la mappa detta l'ordine, non noi.
 
 Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
 
-1. **Recall del possesso (sblocca `ref-dog-en`).** Bug a monte, indipendente dalla glue:
-   `my dog is Rex` salva il possesso ma `what is my dog called` risponde "I don't know…".
-   Allineare store/recall in `mod_memory` (10-memory-knowledge.c, intorno a `call_me`/
-   `mi_chiamo`/`possessions[]` e `find_possession_name`). Poi `coref_resolve` per i
-   possessivi ("his/her") ci si appoggia. Caso bench: `ref-dog-en`.
+1. ~~**Recall del possesso + pronome possessivo (`ref-dog-en`).**~~ ✅ **fatto (gen217).**
+   Verità rivista: il recall funzionava già; mancava la coref del possessivo
+   "his/her/its name". Risolta su `last_possession_thing` (vedi sezione G2 gen217).
+   `ref-dog-en` HELD. Prossimi due restano correzione e pro-drop IT.
 
 2. **`correction` 0/2.** Due sotto-passi: (a) parsare "no, X non è Y" / "no, X non è un Y"
    come negazione → `kb_assert_neg`/override (oggi cade in not-understood); (b) ri-derivare:
