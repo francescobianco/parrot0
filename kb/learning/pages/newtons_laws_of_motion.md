@@ -1,11 +1,11 @@
 # Newton's laws of motion
 
-- Learning event: `learn_2026_06_23t01_17_20z_newtons_laws_of_motion`
-- Operational log: `kb/learning/logs/learn_2026_06_23t01_17_20z_newtons_laws_of_motion.json`
+- Learning event: `learn_2026_06_24t16_07_50z_newtons_laws_of_motion`
+- Operational log: `kb/learning/logs/learn_2026_06_24t16_07_50z_newtons_laws_of_motion.json`
 - Domain: `physics`
 - Source: https://en.wikipedia.org/wiki/Newton's_laws_of_motion
 - Wikipedia revision: `1353646690`
-- Processed: `2026-06-23T01:17:20Z`
+- Processed: `2026-06-24T16:07:50Z`
 
 ## Learned Concept
 

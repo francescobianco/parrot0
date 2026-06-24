@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_24t16_07_50z_newtons_laws_of_motion",
+  "extraction": {
+    "concept": "three physical laws that describe the relationship between the motion of an object and the forces acting on it",
+    "concept_key": "newtons_laws_of_motion",
+    "extract_sha256": "52b41e8c5105aa3d2589c4ecce8bf2afc0102d9a7caa725b25fe17765cf50c5b",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_24t16_07_50z_newtons_laws_of_motion.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/newtons_laws_of_motion.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 6,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-24T16:07:50Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_24t16_07_50z_newtons_laws_of_motion"
+  },
+  "source": {
+    "domain": "physics",
+    "index": 5,
+    "line": 17,
+    "title": "Newton's laws of motion"
+  },
+  "wikipedia": {
+    "canonical_title": "Newton's laws of motion",
+    "lang": "en",
+    "pageid": 55212,
+    "revision": 1353646690,
+    "url": "https://en.wikipedia.org/wiki/Newton's_laws_of_motion"
+  }
+}
