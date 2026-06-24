@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_24t21_49_41z_covalent_bond",
+  "extraction": {
+    "concept": "chemical bond that involves the sharing of electrons to form electron pairs between atoms",
+    "concept_key": "covalent_bond",
+    "extract_sha256": "f7802f06e8416174428740bc339749007eb37f68223ca48133ddbb75d6b5512a",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_24t21_49_41z_covalent_bond.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/covalent_bond.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 12,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-24T21:49:41Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_24t21_49_41z_covalent_bond"
+  },
+  "source": {
+    "domain": "chemistry",
+    "index": 11,
+    "line": 25,
+    "title": "Covalent bond"
+  },
+  "wikipedia": {
+    "canonical_title": "Covalent bond",
+    "lang": "en",
+    "pageid": 6246,
+    "revision": 1347405474,
+    "url": "https://en.wikipedia.org/wiki/Covalent_bond"
+  }
+}
