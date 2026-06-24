@@ -1,0 +1,27 @@
+# gen218 (docs/plans/the-linguistic-glue.md, G2 — correction pull): integrating a
+# later correction as DETERMINISTIC glue, not an emergent field. A turn opening
+# with the correction marker "no" before a negative claim ("no, socrates is not a
+# man") is the user OVERRIDING a belief stated earlier. The marker is peeled and
+# the negation re-dispatched with a correction flag set, so the standing positive
+# is retracted (across every layer — even a curated/base fact) and the conclusion
+# re-derives cleanly. Before this, the leading "no," made the whole turn fall into
+# not-understood; now the correction is parsed and integrated. EN + IT (the
+# bilingual ratchet): "no" opens a correction in both, and the negation parser
+# already serves both word orders (gen44). The override of a CURATED base fact is
+# exercised by `make glue-bench` (corr-en/it), which runs with the full KB.
+
+> socrates is a man
+< Learned: man(socrates).
+> is socrates a man
+< Yes.
+> no, socrates is not a man
+< Learned: not man(socrates).
+> is socrates a man
+< No.
+# Italian: same marker, same flip (the negation parser is order-insensitive).
+> tweety è un uccello
+< Learned: uccello(tweety).
+> no, tweety non è un uccello
+< Learned: not uccello(tweety).
+> è tweety un uccello?
+< No.

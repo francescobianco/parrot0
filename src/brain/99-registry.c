@@ -288,6 +288,60 @@ static int pragma_peel(Brain *b, const char *canon, const char *raw,
     return 0;
 }
 
+/* gen218 (docs/plans/the-linguistic-glue.md, G2 — correction pull): integrate an
+ * explicit CORRECTION. A turn opening with the marker "no" followed by a negative
+ * claim ("no, socrates is not a man") is the user overriding a belief stated
+ * earlier. Peel the marker, flag the turn as a correction, and re-dispatch the
+ * residue so the existing negation parser stores not y(x); the flag makes that
+ * store OVERRIDE any standing positive (even a curated/base fact), so a later
+ * query re-derives cleanly to "No." instead of stalling on "Conflicted." — the
+ * essay's "integrate a later correction" made into a deterministic state change.
+ * Gated on BOTH the explicit marker AND a real negation marker in the residue, so
+ * it never fires on a bare "no" answer or "no thanks". Mirror of pragma_peel. */
+static int is_negation_marker(const char *w);
+
+static int correction_peel(Brain *b, const char *canon, const char *raw,
+                           char *out, size_t out_size) {
+    char buf[256]; size_t len = strlen(canon);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, canon, len + 1);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    /* split_words keeps a trailing comma on the token ("no,"), so match on the
+     * punctuation-stripped marker. */
+    if (nw < 4 || strcmp(strip_edge_punct(w[0]), "no") != 0) return 0;
+    int has_neg = 0;
+    for (size_t i = 1; i < nw; i++)
+        if (is_negation_marker(w[i])) { has_neg = 1; break; }
+    if (!has_neg) return 0;                             /* correct a negation only */
+
+    char residue[256]; size_t off = 0; residue[0] = '\0';
+    for (size_t i = 1; i < nw && off + 1 < sizeof residue; i++)
+        off += (size_t)snprintf(residue + off, sizeof residue - off,
+                                "%s%s", i > 1 ? " " : "", w[i]);
+    if (!residue[0]) return 0;
+
+    /* matching RAW residue: drop the leading "no" (and a trailing comma it
+     * usually carries), keeping original casing for the reader. */
+    char raw_res[256]; { const char *p = raw ? raw : "";
+        while (*p && isspace((unsigned char)*p)) p++;
+        while (*p && !isspace((unsigned char)*p)) p++;  /* the "no"/"no," token */
+        while (*p && (isspace((unsigned char)*p) || *p == ',')) p++;
+        snprintf(raw_res, sizeof raw_res, "%s", p);
+    }
+
+    int saved = b->correcting; b->correcting = 1;
+    int claimed = 0;
+    for (size_t i = 0; i < registry_len; i++) {
+        if (registry[i].handle(b, residue, raw_res, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            claimed = 1; break;
+        }
+    }
+    b->correcting = saved;
+    return claimed;
+}
+
 static int replay_dispatch(Brain *b, const char *canon, const char *raw,
                            const char *suppress, char *who, size_t who_size,
                            char *out, size_t out_size) {
@@ -418,7 +472,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen216-coref-carries-reference";
+    return "gen218-correction-overrides";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -662,6 +716,12 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
     if (b && pragma_peel(b, canon, input, out, out_size))
+        return strlen(out);
+
+    /* gen218: an explicit correction ("no, X is not a Y") peels its marker and
+     * re-dispatches the negative claim with the correction flag set, so the
+     * standing belief is overridden and the conclusion re-derives. */
+    if (b && correction_peel(b, canon, input, out, out_size))
         return strlen(out);
 
     /* Walk the registry; first module to claim the turn wins. */

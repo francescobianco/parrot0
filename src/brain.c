@@ -81,6 +81,10 @@ struct Brain {
     int  has_current_topic;
     char user_constraint[96];
     int  has_user_constraint;
+    /* gen218 (glue): set while re-dispatching the residue of an explicit
+     * correction ("no, X is not a Y"), so the negation parser knows to OVERRIDE
+     * any standing positive (even curated/base) instead of leaving a conflict. */
+    int  correcting;
 
     /* gen58: rolling discourse-memory topics. Each turn contributes its content
      * words (non-stopword, alphabetic, len>=3) to a small recent buffer so the

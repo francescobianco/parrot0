@@ -1378,6 +1378,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char msg[128];
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         note_contradiction(b, cl, subj, 0); /* gen142 (E8): self-contradiction? */
+        /* gen218 (glue): an EXPLICIT correction ("no, X is not a Y") overrides
+         * the standing belief — retract any positive y(x) across every layer so
+         * the conclusion re-derives to "No." rather than stalling on a conflict
+         * between a curated/base fact and the user's correction. Plain "X is not
+         * a Y" (no marker) keeps the honest conflict. Session-only, reversible. */
+        if (b->correcting) while (kb_retract(b->kb, cl, args, 1)) {}
         if (kb_assert_neg(b->kb, cl, args, 1))
             snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
         else

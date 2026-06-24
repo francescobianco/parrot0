@@ -191,14 +191,37 @@ Ratchet ermetico: `tests/cases/coref_possessive.chat`.
 
 Effetto su `glue-bench`: `implicit-reference` da **1/3 → 2/3** (`ref-dog-en` ora HELD).
 
+### G2 — terzo pull fatto (gen218): la correzione esplicita sovrascrive e ri-deriva
+
+Verità di base rivista (misurata, non assunta): il blocco di `correction` era doppio.
+(a) Il marcatore "no," davanti alla negazione non veniva *parsato* affatto — l'intero
+turno cadeva in not-understood (`nw==6`, fuori dal parser di negazione `nw==5`).
+(b) Anche parsata, `man(socrates)` è un fatto **BASE curato** (`kb/core/base.p0`): una
+`kb_assert_neg` di sessione non tocca un positivo di un altro layer, quindi la query
+restava **`Conflicted.`** invece di `No.` (mentre `socrate` IT, solo-sessione, già
+girava). `correction_peel` (99-registry.c) sbuccia il marcatore "no" e ri-dispatcha la
+negazione con `b->correcting` settato; il parser di negazione (10-memory-knowledge.c),
+sotto quel flag, fa `kb_retract` del positivo su **ogni** layer (override) prima di
+asserire il negativo — così la conclusione ri-deriva pulita a `No.`. Glue come
+**cambiamento di stato deterministico** (PRINCIPLES anti-impostore): gated sul marcatore
+esplicito *e* su una negazione reale nel residuo (mai un bare "no" o "no thanks");
+session-only e reversibile (non riscrive i file base). Una negazione *senza* marcatore
+mantiene la `Conflicted.` onesta — nessuna regressione a `rederive`/`negation.it`/`entail`.
+Ratchet ermetico EN+IT: `tests/cases/correction.chat` (l'override del fatto base è
+esercitato da `make glue-bench`, che gira con la KB completa).
+
+Effetto su `glue-bench`: `correction` da **0/2 → 2/2** (`corr-en` e `corr-it` HELD).
+Crisp HELD complessivi **2/5 → 4/5**.
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
 
-> **Stato a gen217.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
-> possessivo "his/her/its" EN) fatti, committati e pushati su `main`. `make test` 204/0,
-> benches verdi. `implicit-reference` 2/3. Per rivedere la mappa in qualunque momento:
-> **`make glue-bench`** (degrade mode, non rompe la build).
+> **Stato a gen218.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
+> possessivo "his/her/its" EN + correzione esplicita "no, ..." EN+IT) fatti, committati e
+> pushati su `main`. `make test` 205/0, benches verdi. Crisp HELD **4/5**
+> (`implicit-reference` 2/3, `correction` 2/2). Per rivedere la mappa in qualunque
+> momento: **`make glue-bench`** (degrade mode, non rompe la build).
 >
 > Disciplina invariata: UN meccanismo per generazione, tirato dal primo caso che fallisce;
 > deterministico e ispezionabile su stato di sessione reale (mai coerenza finta); EN+IT;
@@ -213,10 +236,10 @@ Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
    "his/her/its name". Risolta su `last_possession_thing` (vedi sezione G2 gen217).
    `ref-dog-en` HELD. Prossimi due restano correzione e pro-drop IT.
 
-2. **`correction` 0/2.** Due sotto-passi: (a) parsare "no, X non è Y" / "no, X non è un Y"
-   come negazione → `kb_assert_neg`/override (oggi cade in not-understood); (b) ri-derivare:
-   gen103 (`last_goal`) già annuncia il cambio quando la KB cambia — verificare che scatti
-   dopo la correzione. Casi bench: `corr-en`, `corr-it`.
+2. ~~**`correction` 0/2.**~~ ✅ **fatto (gen218).** `correction_peel` sbuccia il marcatore
+   "no" e ri-dispatcha la negazione con `b->correcting`; il parser di negazione fa override
+   (`kb_retract` su ogni layer) prima di asserire il negativo → ri-deriva a `No.` (EN+IT).
+   `corr-en`/`corr-it` HELD (vedi sezione G2 gen218). Restano #3 (pro-drop IT) e #4 (crisp).
 
 3. **IT pro-drop (sblocca `ref-dog-it`, completa la coref bilingue).** L'italiano omette il
    soggetto ("come si chiama", "è un cane?"): nessun token "it". Serve un meccanismo di
