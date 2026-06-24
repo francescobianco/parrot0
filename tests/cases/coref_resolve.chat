@@ -1,0 +1,12 @@
+# gen216 (docs/plans/the-linguistic-glue.md, G2 — first pull from glue-bench's gap map):
+# linguistic glue as a DETERMINISTIC operation, not an emergent field. A reference carries
+# across turns: "rex is a dog" sets the recent entity, then the pronoun "it" in the next
+# turn resolves to it and the resolved query is re-dispatched ("is rex a dog" -> Yes).
+# Conservative: coref_resolve runs only as a FALLBACK (when the turn as-is wasn't
+# understood) and claims only if a module answers the resolved turn, so it never hijacks a
+# turn that already works. (The Italian counterpart is pro-drop — no "it" token to resolve
+# — a distinct, harder pull recorded as a gap in glue-bench, not faked here.)
+> rex is a dog
+< Learned: dog(rex).
+> is it a dog
+< Yes.

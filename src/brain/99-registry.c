@@ -418,7 +418,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen215-linguistic-glue-bench";
+    return "gen216-coref-carries-reference";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -589,6 +589,45 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
     return 1;
 }
 
+/* gen216 (docs/plans/the-linguistic-glue.md, G2 — first pull from glue-bench's gap map):
+ * resolve a standalone entity pronoun to the most recent entity and RE-DISPATCH the
+ * rewritten turn, so a reference carries across turns ("tell me about the heart" then
+ * "what is it part of" -> "what is heart part of" -> circulatory). This is linguistic
+ * glue as a DETERMINISTIC operation over real session state (b->last_entity), not an
+ * emergent coherence field (PRINCIPLES anti-impostor). Conservative: runs only as a
+ * FALLBACK when the turn as-is was not understood, and claims only if a real module
+ * answers the resolved turn — so it never hijacks a turn that already works. Skips coref
+ * itself to avoid re-entry. Mirror of pragma_peel. */
+static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size) {
+    if (!b || !b->has_last_entity) return 0;
+    char buf[256]; size_t len = strlen(canon);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, canon, len + 1);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    if (nw < 2) return 0;                       /* a bare pronoun is not a query */
+    size_t pidx = nw;
+    for (size_t i = 0; i < nw; i++)
+        if (!strcmp(w[i], "it") || !strcmp(w[i], "its")) { pidx = i; break; }
+    if (pidx == nw) return 0;
+
+    char rw[256]; size_t off = 0; rw[0] = '\0';
+    for (size_t i = 0; i < nw && off + 1 < sizeof rw; i++) {
+        const char *tok = (i == pidx) ? b->last_entity : w[i];
+        off += (size_t)snprintf(rw + off, sizeof rw - off, "%s%s", i ? " " : "", tok);
+    }
+    if (!rw[0] || strcmp(rw, canon) == 0) return 0;
+
+    for (size_t i = 0; i < registry_len; i++) {
+        if (strcmp(registry[i].name, "coref") == 0) continue;     /* no re-entry */
+        if (registry[i].handle(b, rw, rw, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) b->turns++;
@@ -692,10 +731,17 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * (gen15 retired the gen0 parrot-echo; gen55 made it non-repeating).
      * Honest admission, never a mirror or a wrong "No.". */
     if (!handled) {
-        not_understood(b, canon, out, out_size);
-        if (b) {
-            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
-            snprintf(b->last_module, sizeof b->last_module, "%s", "fallback");
+        /* gen216 (glue G2): before giving up, try resolving an entity pronoun to the
+         * recent entity and re-dispatching — carries a reference across turns. */
+        if (coref_resolve(b, canon, out, out_size)) {
+            handled = 1;
+            if (!handled_by_discourse) update_topics(b, canon);
+        } else {
+            not_understood(b, canon, out, out_size);
+            if (b) {
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                snprintf(b->last_module, sizeof b->last_module, "%s", "fallback");
+            }
         }
     }
     return strlen(out);

@@ -159,12 +159,24 @@ un meccanismo reale colma un sintomo reale: guadagnato, non simulato. Il numero 
   **0/5 crisp carried.** Esattamente la tesi dell'essay resa visibile: la colla manca, e
   ora sappiamo *dove*, con un caso ripetibile per ognuno.
 
-### Prossima azione consigliata — G2, primo pull
+### G2 — primo pull fatto (gen216): la coreferenza porta il riferimento
 
-Il primo caso che fallisce è `ref-dog-en` (implicit-reference). Pull consigliato:
-**estendere `mod_coref`** perché un riferimento implicito ("what is it part of",
-"what is his name") risolva all'entità recente (`last_entity`/`entities`/possessivi) e
-inoltri la query risolta al modulo che la possiede — deterministico, su stato reale,
-EN+IT, verificato, con il caso `glue-bench` corrispondente che passa da GAP a HELD (e un
-ratchet `.chat` in `make test`). Un meccanismo per generazione; la mappa qui sopra detta
-l'ordine, non noi.
+`coref_resolve` (99-registry.c): se la query non viene capita così com'è, un pronome
+entità ("it"/"its") viene risolto all'entità recente (`last_entity`) e il turno riscritto
+viene ri-dispatchato. Glue come **operazione deterministica su stato reale**, non un campo
+emergente (PRINCIPLES anti-impostore). Conservativo: gira solo come *fallback* e reclama
+solo se un modulo risponde davvero al turno risolto — non dirotta mai un turno che già
+funziona. Ratchet ermetico in `make test`: `tests/cases/coref_resolve.chat`.
+
+Effetto su `glue-bench`: `implicit-reference` da **0/3 → 1/3** (`ref-heart-en` ora HELD).
+
+**Restano GAP (prossimi pull, dalla mappa):**
+- `ref-dog-en/it` — bloccati a monte: "what is my dog called" non recupera nemmeno senza
+  pronome (asimmetria store/recall del possesso "my dog is Rex"). Pull: sistemare il
+  recall del possesso, poi la coref ci si appoggia.
+- IT *pro-drop* — l'italiano omette il soggetto ("come si chiama", "è un cane?"): non c'è
+  token "it" da risolvere. Meccanismo distinto (anafora a soggetto nullo), pull dedicato.
+- `correction` 0/2 — "no, X non è Y" non viene nemmeno parsato come negazione; poi va
+  ri-derivato il goal (gen103 esiste per la ri-derivazione, manca il parse della correzione).
+
+Un meccanismo per generazione; la mappa detta l'ordine, non noi.
