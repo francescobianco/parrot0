@@ -68,6 +68,44 @@ Design consequences for parrot0:
   the code ready to articulate. Structure is the condition of emergence, not
   its enemy.
 
+## Cardinal corollary: knowledge lives in the KB, not in C
+
+A hardcoded list of surface forms in `brain.c` is a **phrasebook** — fixed at compile
+time, blind to anything not foreseen, unable to learn. That is exactly the impostor
+shape this experiment refuses. So a **cardinal rule**:
+
+> Any class of recognized forms — closed-class words *and* multi-word idioms — is
+> **knowledge in the KB**, queried by a fixed engine. The **engine is fixed; the
+> lexicon learns.**
+
+- **Words** (gen193): `conjunction/1`, `stopword/1`, `social_marker/2` live in
+  `kb/core/*.p0`; the parsers query them, so the class grows at runtime with no code
+  edit ("use X as a conjunction" → `assert conjunction(X)`).
+- **Intent phrases** (gen211): the multi-word forms that mean an intent —
+  "what is my name?", "come mi chiamo?" — live as `intent_phrase(Intent, "form")` in
+  `kb/core/intents.p0`, matched by `kb_intent_match()`. Teaching a new form at runtime
+  ("learn \"how do you call me\" as asking my name") asserts another fact into the
+  **session** layer; the same matcher fires next turn, and `/save` persists it. No new
+  handler, no rebuild.
+- **Substring cues** (gen213): a `cue(norm,"…")||cue(norm,"…")` chain (a fragment that
+  may appear anywhere in the turn — "keep it short", "sii breve") is the same phrasebook.
+  These live as `intent_cue(Intent, "fragment")` in `kb/core/intents.p0`, matched by
+  `kb_cue_match()` (substring, vs `kb_intent_match`'s whole-turn equality), and are
+  taught at runtime the same way.
+- **Response phrasings** (gen212): the rule binds the OUTPUT side too. What parrot0
+  *says* — "Nice to meet you, {name}!" — lives as `response_template(Intent, "…{name}…")`
+  in `kb/core/responses.p0`, filled by `kb_response()` (which rotates over the
+  registered phrasings, the gen55 anti-repeat instinct). Teaching a new wording ("greet
+  new names with \"Welcome, {name}!\"") asserts another fact; it joins the rotation
+  immediately and persists on `/save`. A reply hardcoded as a C `snprintf` literal is
+  the same phrasebook smell as a recognized-form array.
+
+The test of compliance: *could the user teach a new form by talking, and would it work
+without recompiling?* If a behaviour depends on a `static const char *[]` of phrases in
+C, it is a phrasebook to be migrated into the KB. Pull each migration when a form is
+needed that the array did not foresee — the same discovery-harness discipline as the
+rest of the project.
+
 ## Identity & self-reflection — "I know that I am"
 
 The architecture must include **structures for representing and reasoning about

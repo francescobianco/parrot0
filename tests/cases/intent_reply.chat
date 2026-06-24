@@ -1,0 +1,12 @@
+# gen212 (cardinal KB-first principle, OUTPUT side): the agent's reply phrasings are KB
+# knowledge (response_template/2 in kb/core/responses.p0), filled by kb_response, and the
+# class of phrasings GROWS at runtime. Here parrot0 is taught a new greeting wording and
+# the next name it learns is welcomed with it — kb_response rotates over the registered
+# phrasings, so the base form and the taught form alternate (the gen55 anti-repeat
+# instinct). The OUTPUT mirror of intent_learn.chat's input side; no code edit either.
+> my name is Ada
+< Nice to meet you, Ada!
+> greet new names with "Welcome, {name}!"
+< Got it - I'll greet new names with "Welcome, {name}!" too now.
+> my name is Bob
+< Welcome, Bob!

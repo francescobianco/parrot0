@@ -1,0 +1,18 @@
+% parrot0 RESPONSE TEMPLATES — the agent's own phrasings as KNOWLEDGE, not C literals.
+%
+% Cardinal principle (PRINCIPLES.md), the OUTPUT side of gen211's intent_phrase: just as
+% the surface forms parrot0 RECOGNIZES live in the KB, the surface forms it PRODUCES do
+% too. A reply hardcoded as snprintf(..., "Nice to meet you, %s!", name) is a phrasebook
+% fixed at compile time; here it is a fact, filled by kb_response() and EXTENSIBLE at
+% runtime — teach a new phrasing ("greet new names with \"Welcome, {name}!\"") and it
+% joins the rotation with no code edit.
+%
+% Representation: response_template(Intent, "text with {slot} placeholders"). {name} is
+% substituted with the relevant value at fill time. The text keeps its original casing
+% (unlike a recognized intent_phrase, which is normalized), so it reads naturally.
+%
+% Loaded KB_BASE at brain_create, so these curated phrasings never land in a session
+% save; a runtime-taught phrasing (KB_SESSION) does persist on /save.
+
+% --- greet_name: the reply when the user has just told parrot0 their name ---
+response_template(greet_name, "Nice to meet you, {name}!").

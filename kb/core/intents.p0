@@ -1,0 +1,40 @@
+% parrot0 INTENT PHRASES — multi-word recall/command idioms as KNOWLEDGE, not C arrays.
+%
+% Cardinal principle (PRINCIPLES.md, the KB-migration direction made general):
+%   a FIXED engine matches; the KB learns. gen193 put closed-class WORDS in the KB
+%   (conjunction/1, stopword/1, social_marker/2) so the class grows at runtime with no
+%   code edit. gen211 extends the SAME law to multi-word INTENT phrases: the exact
+%   surface forms that mean "ask my name", "ask the time", etc. are facts here, queried
+%   by kb_intent_match() in the C kernel. Teaching parrot0 a new form at runtime
+%   ("learn \"how do you call me\" as asking my name") asserts another intent_phrase/2
+%   into the SESSION layer and the very same matcher fires — no new handler, no rebuild.
+%
+% Representation: intent_phrase(IntentName, "surface form"). The surface form is a
+% quoted, already-normalized (lowercase) atom so spaces and a trailing '?' are content,
+% not separators (kb.c parse_term keeps the quotes; the matcher strips them).
+%
+% Loaded as KB_BASE at brain_create, so these curated forms never land in a session
+% save, while a runtime-taught form (KB_SESSION) does persist on /save.
+
+% --- ask_name: "what is my name?" and its fixed variants (EN + IT) ---
+intent_phrase(ask_name, "what is my name").
+intent_phrase(ask_name, "what is my name?").
+intent_phrase(ask_name, "what's my name").
+intent_phrase(ask_name, "what's my name?").
+intent_phrase(ask_name, "whats my name").
+intent_phrase(ask_name, "whats my name?").
+% Italian recall idiom — the read-side mirror of "mi chiamo X"; the fixed form of
+% "what's my name?", so it belongs in the same lexicon, not a new handler.
+intent_phrase(ask_name, "come mi chiamo").
+intent_phrase(ask_name, "come mi chiamo?").
+
+% intent_cue(Intent, "fragment") — SUBSTRING cues (matched by kb_cue_match, i.e. the
+% fragment may appear anywhere in the turn), as opposed to intent_phrase/2 which is the
+% WHOLE normalized turn (exact). Same KB-first law: the cue set grows at runtime.
+
+% --- brevity: the user asking for short / non-verbose answers (EN + IT) ---
+intent_cue(brevity, "keep it short").
+intent_cue(brevity, "be brief").
+intent_cue(brevity, "short answers").
+intent_cue(brevity, "risposte brevi").
+intent_cue(brevity, "sii breve").

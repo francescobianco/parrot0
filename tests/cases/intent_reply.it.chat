@@ -1,0 +1,10 @@
+# gen212, Italian probe: teach a new greeting phrasing through the Italian trigger
+# ("saluta i nuovi nomi con \"…\""). Same KB-first output mechanism, two languages, one
+# code path — the bilingual ratchet. The phrasing keeps its original casing (taken from
+# the raw input, not the normalized surface), so "Benvenuto, {name}!" reads naturally.
+> mi chiamo Bob
+< Nice to meet you, Bob!
+> saluta i nuovi nomi con "Benvenuto, {name}!"
+< Got it - I'll greet new names with "Benvenuto, {name}!" too now.
+> mi chiamo Cleo
+< Benvenuto, Cleo!

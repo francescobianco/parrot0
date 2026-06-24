@@ -356,6 +356,20 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/gloss.p0");
 
+    /* gen211 (cardinal KB-first principle): multi-word INTENT phrases — the exact
+     * surface forms that mean "ask my name" etc. — live in kb/core/intents.p0, not in
+     * C arrays. kb_intent_match() queries intent_phrase/2; a form taught at runtime
+     * grows the class with no code edit (see kb/core/intents.p0, PRINCIPLES.md). */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/intents.p0");
+
+    /* gen212 (cardinal KB-first principle, OUTPUT side): the agent's own reply
+     * phrasings — "Nice to meet you, {name}!" etc. — live in kb/core/responses.p0, not
+     * as C literals. kb_response() fills response_template/2; a phrasing taught at
+     * runtime grows the class with no code edit (see PRINCIPLES.md). */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/responses.p0");
+
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
      * regenerated every boot and NEVER persisted (DESIGN.md D3). */
@@ -390,7 +404,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen210-case-folding-smell";
+    return "gen213-kb-substring-cues";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

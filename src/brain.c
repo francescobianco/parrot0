@@ -217,6 +217,11 @@ struct Brain {
      * touches ordinary conversation or the boot KB. This guards the one-time load. */
     int  compose_kb_loaded;
 
+    /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
+     * so when more than one form is registered for an intent they alternate (the gen55
+     * anti-repeat instinct) and a runtime-taught phrasing actually gets used. */
+    unsigned response_pick;
+
 };
 
 /* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity

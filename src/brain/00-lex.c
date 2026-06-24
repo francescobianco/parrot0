@@ -23,6 +23,81 @@ static int matches_any(const char *s, const char *const *words) {
     return 0;
 }
 
+/* gen211 (cardinal KB-first principle): true if the normalized input `norm` exactly
+ * matches any surface form registered for `intent` as intent_phrase(intent, "form")
+ * in the KB. The phrase forms are KNOWLEDGE, not a C array — so the class grows at
+ * runtime: teach a new form, assert another intent_phrase/2, and this same matcher
+ * fires with no code change (the KB-migration law of gen193, lifted from closed-class
+ * words to multi-word idioms). The stored atom keeps its surrounding quotes (kb.c
+ * parse_term), so we strip them before comparing. */
+static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
+    if (!b || !b->kb || !intent || !norm) return 0;
+    char forms[64][KB_TERM_LEN];
+    const char *q[2] = { intent, NULL };
+    size_t n = kb_match(b->kb, "intent_phrase", q, 2, forms, 64);
+    for (size_t i = 0; i < n; i++) {
+        char *p = forms[i];
+        size_t l = strlen(p);
+        if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+        if (strcmp(p, norm) == 0) return 1;
+    }
+    return 0;
+}
+
+/* gen213 (same cardinal principle, SUBSTRING flavour): true if any cue registered for
+ * `intent` as intent_cue(intent, "fragment") in the KB OCCURS ANYWHERE in `norm` — the
+ * KB-backed form of a `cue(norm, "…") || cue(norm, "…")` chain. Like kb_intent_match but
+ * with substring containment instead of whole-turn equality, so the cue set grows at
+ * runtime with no code edit. */
+static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
+    if (!b || !b->kb || !intent || !norm) return 0;
+    char cues[64][KB_TERM_LEN];
+    const char *q[2] = { intent, NULL };
+    size_t n = kb_match(b->kb, "intent_cue", q, 2, cues, 64);
+    for (size_t i = 0; i < n; i++) {
+        char *p = cues[i];
+        size_t l = strlen(p);
+        if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+        if (*p && strstr(norm, p)) return 1;
+    }
+    return 0;
+}
+
+/* gen212 (cardinal KB-first principle, OUTPUT side): build a reply for `intent` from a
+ * response_template(intent, "…{name}…") fact, substituting "{name}" with `slot`. The
+ * phrasings are KNOWLEDGE, not C literals: the class grows at runtime (teach a phrasing,
+ * assert another fact, it joins the rotation, no code edit). Rotates across the
+ * registered templates by b->response_pick so taught forms are actually used and
+ * repetition is avoided (the gen55 anti-repeat instinct). Writes the filled reply into
+ * `out` and returns 1, or 0 if `intent` has no template (caller keeps a literal
+ * fallback so the agent is never mute even if the KB file is absent). */
+static int kb_response(Brain *b, const char *intent, const char *slot,
+                       char *out, size_t outsz) {
+    if (!b || !b->kb || !intent || !out || outsz == 0) return 0;
+    char tpl[16][KB_TERM_LEN];
+    const char *q[2] = { intent, NULL };
+    size_t n = kb_match(b->kb, "response_template", q, 2, tpl, 16);
+    if (n == 0) return 0;
+    char *p = tpl[b->response_pick % n];      /* rotate over the registered phrasings */
+    b->response_pick++;
+    size_t l = strlen(p);
+    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }  /* strip quotes */
+
+    /* substitute every "{name}" with `slot` (or "" if no slot was given) */
+    const char *s = slot ? slot : "";
+    size_t o = 0;
+    for (const char *c = p; *c && o + 1 < outsz; ) {
+        if (strncmp(c, "{name}", 6) == 0) {
+            o += (size_t)snprintf(out + o, outsz - o, "%s", s);
+            c += 6;
+        } else {
+            out[o++] = *c++;
+        }
+    }
+    out[o < outsz ? o : outsz - 1] = '\0';
+    return 1;
+}
+
 /* Return the index of token `t` in `w[0..nw)`, or `nw` if absent. */
 static size_t find_token(char **w, size_t nw, const char *t) {
     for (size_t i = 0; i < nw; i++)

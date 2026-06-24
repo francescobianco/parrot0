@@ -297,6 +297,18 @@ static int is_internal_pred(const char *pred) {
          * read, not facts the user taught about the world — filter it like
          * stopword from "how many facts do you know?". */
         "conjunction",
+        /* gen211: intent_phrase/2 (kb/core/intents.p0, plus forms taught at runtime)
+         * is multi-word idiom substrate the kernel matches on — surface forms that
+         * mean "ask my name" etc., not facts the user taught about the world. Filter
+         * it like conjunction/stopword from "how many facts do you know?". */
+        "intent_phrase",
+        /* gen213: intent_cue/2 (substring cues, kb/core/intents.p0 + taught at runtime)
+         * is recognition substrate like intent_phrase — filter it from fact counts. */
+        "intent_cue",
+        /* gen212: response_template/2 (kb/core/responses.p0, plus phrasings taught at
+         * runtime) is the agent's own reply wording, not facts the user taught about
+         * the world — filter it like intent_phrase from the fact counts. */
+        "response_template",
         /* gen101: role/character world-knowledge (kb/core/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */

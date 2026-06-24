@@ -1,0 +1,13 @@
+# gen211 (cardinal KB-first principle): the surface forms that mean "ask my name" are
+# KB knowledge (intent_phrase/2 in kb/core/intents.p0), matched by kb_intent_match, and
+# the class GROWS at runtime. Here parrot0 is taught a brand-new form interactively and
+# the very next turn it recalls the name through it — no code edit, no new handler. This
+# is gen193's "the engine is fixed; the lexicon learns" lifted from words to multi-word
+# idioms. (Persistence across sessions via /save is covered by the C path; this case
+# ratchets the in-session dynamism hermetically.)
+> my name is Ada
+< Nice to meet you, Ada!
+> learn "how do you call me" as asking my name
+< Got it - I'll take "how do you call me" as a way to ask your name now.
+> how do you call me
+< Your name is Ada.
