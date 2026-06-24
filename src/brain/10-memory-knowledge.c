@@ -237,6 +237,32 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 }
             }
 
+            /* gen219 (glue): Italian PRO-DROP name question. Italian drops the
+             * subject — "come si chiama" (reflexive "si chiama" -> canon "is
+             * called") carries no pronoun for coref to resolve, so the EN
+             * possessive-pronoun path cannot fire. Structurally it is a bare name
+             * question with a NULL subject; the antecedent is the salient
+             * possession (gen217's last_possession_thing). Detected by shape, not
+             * a stored phrase: a "called"/"named" predicate with no nominal
+             * subject (only the opaque opener "come" before "is called"). Claims
+             * only when a recent possession is on record — never a guess. This is
+             * the IT counterpart of "what is his name", completing the bilingual
+             * coref ratchet. */
+            if (nw == 3 && strcmp(w[1], "is") == 0 &&
+                (strcmp(strip_edge_punct(w[2]), "called") == 0 ||
+                 strcmp(strip_edge_punct(w[2]), "named") == 0) &&
+                strcmp(w[0], "what") != 0 && strcmp(w[0], "who") != 0 &&
+                b->has_last_possession) {
+                const char *n = find_possession_name(b, b->last_possession_thing);
+                if (n) {
+                    char msg[160];
+                    snprintf(msg, sizeof msg, "Your %s is called %s.",
+                             b->last_possession_thing, n);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+
             /* Queries: "what is my <thing> called?" and "what is my <thing>?" */
             {
                 size_t i = find_token(w, nw, "what");

@@ -213,15 +213,29 @@ esercitato da `make glue-bench`, che gira con la KB completa).
 Effetto su `glue-bench`: `correction` da **0/2 → 2/2** (`corr-en` e `corr-it` HELD).
 Crisp HELD complessivi **2/5 → 4/5**.
 
+### G2 — quarto pull fatto (gen219): l'anafora a soggetto nullo (pro-drop IT)
+
+L'italiano omette il soggetto: "come si chiama" (riflessivo "si chiama" → canon "is
+called") non porta alcun pronome da risolvere, quindi il path possessivo EN ("what is his
+name") non può scattare. Strutturalmente è una domanda-nome con **soggetto nullo**;
+l'antecedente è la possessione saliente (`last_possession_thing` di gen217). Rilevata per
+*forma*, non per frase memorizzata: un predicato "called"/"named" senza soggetto nominale
+(solo l'apertura opaca "come" prima di "is called"), gated su `has_last_possession` (mai
+un indovinello). È la controparte IT di "what is his name" e completa la coref bilingue.
+Ratchet ermetico: `tests/cases/coref_prodrop.it.chat`.
+
+Effetto su `glue-bench`: `implicit-reference` da **2/3 → 3/3** (`ref-dog-it` HELD).
+**Tutti e 5 i casi crisp ora HELD (5/5, gap: 0).**
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
 
-> **Stato a gen218.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
-> possessivo "his/her/its" EN + correzione esplicita "no, ..." EN+IT) fatti, committati e
-> pushati su `main`. `make test` 205/0, benches verdi. Crisp HELD **4/5**
-> (`implicit-reference` 2/3, `correction` 2/2). Per rivedere la mappa in qualunque
-> momento: **`make glue-bench`** (degrade mode, non rompe la build).
+> **Stato a gen219.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
+> possessivo "his/her/its" EN + correzione esplicita "no, ..." EN+IT + pro-drop IT "come si
+> chiama") fatti, committati e pushati su `main`. `make test` 206/0, benches verdi.
+> **Crisp HELD 5/5, gap: 0** (`implicit-reference` 3/3, `correction` 2/2). Restano solo i
+> sintomi *qualitativi* (#4). Per rivedere la mappa: **`make glue-bench`** (degrade mode).
 >
 > Disciplina invariata: UN meccanismo per generazione, tirato dal primo caso che fallisce;
 > deterministico e ispezionabile su stato di sessione reale (mai coerenza finta); EN+IT;
@@ -241,12 +255,11 @@ Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
    (`kb_retract` su ogni layer) prima di asserire il negativo → ri-deriva a `No.` (EN+IT).
    `corr-en`/`corr-it` HELD (vedi sezione G2 gen218). Restano #3 (pro-drop IT) e #4 (crisp).
 
-3. **IT pro-drop (sblocca `ref-dog-it`, completa la coref bilingue).** L'italiano omette il
-   soggetto ("come si chiama", "è un cane?"): nessun token "it". Serve un meccanismo di
-   anafora a soggetto nullo (se il turno è una domanda senza soggetto esplicito e c'è
-   `last_entity`, provare a iniettare l'entità e ri-dispatchare). Estende `coref_resolve`.
+3. ~~**IT pro-drop (sblocca `ref-dog-it`).**~~ ✅ **fatto (gen219).** "come si chiama"
+   (soggetto nullo) risolto per forma sulla possessione saliente, controparte IT di "what
+   is his name" (vedi sezione G2 gen219). `ref-dog-it` HELD → **tutti i crisp HELD (5/5)**.
 
-4. **Sintomi qualitativi → metriche crisp.** Rendere verificabili `out-of-context`
+4. **Sintomi qualitativi → metriche crisp** (il prossimo pull). Rendere verificabili `out-of-context`
    (applicare davvero `user_constraint` "keep it short" alla risposta dopo),
    `over-literal` (una precisazione "and times 3" continua l'operazione precedente),
    `one-interlocutor` (catena memoria→aritmetica). Per ognuno: prima un predicato crisp in
