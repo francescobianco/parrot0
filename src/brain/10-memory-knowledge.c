@@ -56,82 +56,11 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen211: teach a new INTENT PHRASE at runtime — "learn \"how do you call me\" as
-     * asking my name" / IT "impara \"...\" come chiedere il mio nome" asserts another
-     * intent_phrase(ask_name, "…") into the SAME class kb_intent_match reads. The very
-     * next turn, that form recalls the name with NO code edit — the KB-first cardinal
-     * principle (PRINCIPLES.md) lifted from words (gen193) to multi-word idioms. The
-     * phrase is the quoted span of the utterance; stored normalized (lowercase) so it
-     * matches the normalized input. KB_SESSION, so it persists on /save. */
-    /* `norm` is the CANONICALIZED surface (canonical_token maps mio->my, but the noun
-     * "nome" has no gloss and survives), so the Italian "il mio nome" arrives as
-     * "...my nome" — match that form too, not a second handler. */
-    if (b->kb &&
-        (cue(norm, "my name") || cue(norm, "my nome") || cue(norm, "mio nome")) &&
-        (cue(norm, "learn ") || cue(norm, "teach ") || cue(norm, "treat ") ||
-         cue(norm, "impara ") || cue(norm, "insegna ") || cue(norm, "tratta ")) &&
-        strchr(norm, '"')) {
-        const char *q1 = strchr(norm, '"');
-        const char *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
-        if (q2 && q2 > q1 + 1) {
-            char phrase[KB_TERM_LEN];
-            size_t pl = (size_t)(q2 - (q1 + 1));
-            if (pl < sizeof phrase) {
-                memcpy(phrase, q1 + 1, pl); phrase[pl] = '\0';
-                if (kb_intent_match(b, "ask_name", phrase)) {
-                    char msg[200];
-                    snprintf(msg, sizeof msg,
-                             "I already understand \"%s\" as asking your name.", phrase);
-                    put(msg, out, out_size);
-                    return 1;
-                }
-                char quoted[KB_TERM_LEN];
-                snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
-                const char *ar[] = { "ask_name", quoted };
-                kb_set_origin(b->kb, KB_SESSION);
-                kb_assert(b->kb, "intent_phrase", ar, 2);
-                char msg[200];
-                snprintf(msg, sizeof msg,
-                         "Got it - I'll take \"%s\" as a way to ask your name now.", phrase);
-                put(msg, out, out_size);
-                return 1;
-            }
-        }
-    }
-
-    /* gen212: teach a new GREETING phrasing at runtime — "greet new names with
-     * \"Welcome, {name}!\"" / IT "saluta con \"...\"" asserts another
-     * response_template(greet_name, "…") into the same class kb_response rotates over,
-     * so the next time a name is learned the new wording can be used, NO code edit. The
-     * phrasing is the quoted span of the RAW input (original casing preserved, unlike a
-     * recognized intent_phrase which is normalized). KB_SESSION, persists on /save. */
-    if (b->kb &&
-        (cue(norm, "greet") || cue(norm, "greeting") ||
-         cue(norm, "saluto") || cue(norm, "saluta")) &&
-        (cue(norm, "learn ") || cue(norm, "teach ") || cue(norm, "use ") ||
-         cue(norm, "with ") || cue(norm, "impara ") || cue(norm, "insegna ") ||
-         cue(norm, "usa ") || cue(norm, "con ")) &&
-        strchr(raw, '"')) {
-        const char *q1 = strchr(raw, '"');
-        const char *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
-        if (q2 && q2 > q1 + 1) {
-            size_t pl = (size_t)(q2 - (q1 + 1));
-            if (pl < KB_TERM_LEN - 2) {
-                char phrase[KB_TERM_LEN];
-                memcpy(phrase, q1 + 1, pl); phrase[pl] = '\0';
-                char quoted[KB_TERM_LEN];
-                snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
-                const char *ar[] = { "greet_name", quoted };
-                kb_set_origin(b->kb, KB_SESSION);
-                kb_assert(b->kb, "response_template", ar, 2);
-                char msg[200];
-                snprintf(msg, sizeof msg,
-                         "Got it - I'll greet new names with \"%s\" too now.", phrase);
-                put(msg, out, out_size);
-                return 1;
-            }
-        }
-    }
+    /* gen214: ONE generic, KB-driven teach path (learnable/3 → intent_phrase / intent_cue
+     * / response_template). Replaces the per-intent teach blocks: a new learnable intent
+     * is now DATA, not C. Runs before the recognizers below so a teach utterance is not
+     * consumed as the intent it is teaching. */
+    if (try_teach_form(b, norm, raw, out, out_size)) return 1;
 
     /* Teach: "my name is <X>" */
     static const char *const prefix = "my name is ";
@@ -356,46 +285,9 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen213: teach a new BREVITY cue at runtime — "learn \"be concise\" as asking for
-     * short answers" asserts another intent_cue(brevity, "…") the matcher below reads.
-     * Runs BEFORE the match so the teach utterance itself (which may contain "short")
-     * is not consumed as a brevity request. The cue is the quoted span in its normalized
-     * form, since cues are matched against `norm`. KB_SESSION, persists on /save. */
-    if (b->kb && strchr(norm, '"') &&
-        (cue(norm, "learn ") || cue(norm, "teach ") || cue(norm, "treat ") ||
-         cue(norm, "impara ") || cue(norm, "insegna ") || cue(norm, "tratta ")) &&
-        (cue(norm, "short") || cue(norm, "brief") || cue(norm, "concise") ||
-         cue(norm, "breve") || cue(norm, "brevi"))) {
-        const char *q1 = strchr(norm, '"');
-        const char *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
-        if (q2 && q2 > q1 + 1) {
-            size_t pl = (size_t)(q2 - (q1 + 1));
-            if (pl < KB_TERM_LEN - 2) {
-                char phrase[KB_TERM_LEN];
-                memcpy(phrase, q1 + 1, pl); phrase[pl] = '\0';
-                char msg[200];
-                if (kb_cue_match(b, "brevity", phrase)) {
-                    snprintf(msg, sizeof msg,
-                             "I already take \"%s\" as asking for short answers.", phrase);
-                    put(msg, out, out_size);
-                    return 1;
-                }
-                char quoted[KB_TERM_LEN];
-                snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
-                const char *ar[] = { "brevity", quoted };
-                kb_set_origin(b->kb, KB_SESSION);
-                kb_assert(b->kb, "intent_cue", ar, 2);
-                snprintf(msg, sizeof msg,
-                         "Got it - I'll take \"%s\" as asking for short answers now.", phrase);
-                put(msg, out, out_size);
-                return 1;
-            }
-        }
-    }
-
     /* The brevity cues are KB knowledge (intent_cue(brevity, …) in kb/core/intents.p0),
-     * matched as substrings by kb_cue_match and extensible at runtime via the teach
-     * handler above (gen213) — the KB-first migration of a hardcoded cue chain. */
+     * matched as substrings by kb_cue_match; new cues are taught via the generic
+     * learnable/3 path (try_teach_form) at the top of this module — no bespoke handler. */
     if (kb_cue_match(b, "brevity", norm)) {
         snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "keep it short");
         b->has_user_constraint = 1;

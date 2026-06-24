@@ -1,8 +1,8 @@
-# gen213, Italian probe: teach a new brevity cue through the Italian trigger
-# ("impara \"…\" come richiesta di brevità"). Same KB-first substring mechanism, two
-# languages, one code path — the bilingual ratchet. The cue is stored in its normalized
-# form and matched against the canonicalized turn.
-> impara "in due parole" come richiesta di brevità
-< Got it - I'll take "in due parole" as asking for short answers now.
+# gen214, Italian probe: teach a new brevity cue through the Italian label "risposte
+# brevi" ("impara \"…\" per risposte brevi"), mode=substring. Same generic teach path,
+# two languages. The cue is stored in its normalized form and matched against the
+# canonicalized turn.
+> impara "in due parole" per risposte brevi
+< Got it - I'll take "in due parole" as a way to risposte brevi now.
 > rispondi in due parole
 < Got it: I will keep it short.

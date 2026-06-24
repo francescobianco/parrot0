@@ -305,6 +305,9 @@ static int is_internal_pred(const char *pred) {
         /* gen213: intent_cue/2 (substring cues, kb/core/intents.p0 + taught at runtime)
          * is recognition substrate like intent_phrase — filter it from fact counts. */
         "intent_cue",
+        /* gen214: learnable/3 is the teach-routing registry (which forms can be taught),
+         * pure machinery — filter it from the user-facing fact counts. */
+        "learnable",
         /* gen212: response_template/2 (kb/core/responses.p0, plus phrasings taught at
          * runtime) is the agent's own reply wording, not facts the user taught about
          * the world — filter it like intent_phrase from the fact counts. */

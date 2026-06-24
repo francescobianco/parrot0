@@ -269,3 +269,71 @@ static const char *find_possession_name(Brain *b, const char *thing) {
     return NULL;
 }
 
+/* gen214: ONE generic teach handler, driven by the learnable/3 KB registry, replacing
+ * the per-intent teach blocks (the duplication that didn't scale). On a turn carrying a
+ * teach verb and a quoted span, find the learnable Label that occurs in the (raw,
+ * non-canonical) turn and assert the right fact for its Intent, by Mode:
+ *   exact     -> intent_phrase(Intent, "<normalized span>")    (whole-turn match)
+ *   substring -> intent_cue(Intent, "<normalized span>")       (substring match)
+ *   fill      -> response_template(Intent, "<raw span>")       (output; keeps casing)
+ * So a new learnable intent is DATA (a learnable/3 row), never new C. KB_SESSION, so it
+ * persists on /save. Returns 1 if it claimed the turn. Defined here, after cue()/put(),
+ * since it uses them. */
+static int try_teach_form(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t outsz) {
+    if (!b || !b->kb || !raw) return 0;
+    char low[512];                                  /* raw, lowercased, NOT canonicalized */
+    size_t ln = 0;
+    for (const char *c = raw; *c && ln + 1 < sizeof low; c++)
+        low[ln++] = (char)tolower((unsigned char)*c);
+    low[ln] = '\0';
+    if (!(cue(low,"learn ")||cue(low,"teach ")||cue(low,"treat ")||cue(low,"use ")||
+          cue(low,"impara ")||cue(low,"insegna ")||cue(low,"tratta ")||cue(low,"usa ")))
+        return 0;
+    const char *rq1 = strchr(raw, '"'), *rq2 = rq1 ? strchr(rq1 + 1, '"') : NULL;
+    if (!rq2 || rq2 <= rq1 + 1) return 0;
+
+    char labels[32][KB_TERM_LEN];
+    const char *qa[3] = { NULL, NULL, NULL };
+    size_t nl = kb_match(b->kb, "learnable", qa, 3, labels, 32);
+    for (size_t i = 0; i < nl; i++) {
+        char lab[KB_TERM_LEN]; snprintf(lab, sizeof lab, "%s", labels[i]);  /* quoted */
+        char *ls = lab; size_t ll = strlen(ls);
+        if (ll >= 2 && ls[0] == '"' && ls[ll - 1] == '"') { ls[ll - 1] = '\0'; ls++; }
+        if (!*ls || !strstr(low, ls)) continue;     /* this intent's label not named here */
+
+        char intent[1][KB_TERM_LEN], mode[1][KB_TERM_LEN];
+        const char *qi[3] = { labels[i], NULL, NULL };
+        if (kb_match(b->kb, "learnable", qi, 3, intent, 1) != 1) continue;
+        const char *qm[3] = { labels[i], intent[0], NULL };
+        if (kb_match(b->kb, "learnable", qm, 3, mode, 1) != 1) continue;
+
+        const char *pred; int from_raw;
+        if      (!strcmp(mode[0], "exact"))     { pred = "intent_phrase";     from_raw = 0; }
+        else if (!strcmp(mode[0], "substring")) { pred = "intent_cue";        from_raw = 0; }
+        else if (!strcmp(mode[0], "fill"))      { pred = "response_template"; from_raw = 1; }
+        else continue;
+
+        /* span: raw (keep casing) for fill; the canonicalized `norm` for exact/substring
+         * so the stored form matches what the recognizer sees on a later turn. */
+        const char *s1 = rq1, *s2 = rq2;
+        if (!from_raw) {
+            const char *n1 = strchr(norm, '"'), *n2 = n1 ? strchr(n1 + 1, '"') : NULL;
+            if (n2 && n2 > n1 + 1) { s1 = n1; s2 = n2; }
+        }
+        size_t pl = (size_t)(s2 - (s1 + 1));
+        if (pl >= KB_TERM_LEN - 2) return 0;
+        char phrase[KB_TERM_LEN]; memcpy(phrase, s1 + 1, pl); phrase[pl] = '\0';
+
+        char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
+        const char *ar[2] = { intent[0], quoted };
+        kb_set_origin(b->kb, KB_SESSION);
+        kb_assert(b->kb, pred, ar, 2);
+        char msg[256];
+        snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as a way to %s now.", phrase, ls);
+        put(msg, out, outsz);
+        return 1;
+    }
+    return 0;
+}
+

@@ -404,7 +404,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen213-kb-substring-cues";
+    return "gen214-generic-teach-layer";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

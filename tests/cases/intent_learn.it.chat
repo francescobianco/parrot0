@@ -1,11 +1,11 @@
-# gen211, Italian probe: teach a new ask_name surface form through the Italian trigger
-# ("impara \"…\" come chiedere il mio nome"). The same KB-first mechanism, two languages,
-# one code path — the bilingual ratchet. `norm` is the canonicalized surface (mio->my),
-# so the handler matches the canonical form; teach-time and match-time share the same
-# transform, so a taught Italian form recalls the name like any other.
+# gen214, Italian probe: teach a new ask_name form through the Italian label "il mio
+# nome" ("impara \"…\" per il mio nome"). The generic teach path matches the label
+# against the RAW (non-canonical) turn, so EN and IT labels both route through one
+# handler — the bilingual ratchet. The stored form is the canonicalized span, so a later
+# turn recalls the name through it.
 > mi chiamo Bob
 < Nice to meet you, Bob!
-> impara "come mi chiami" come chiedere il mio nome
-< Got it - I'll take "come mi chiami" as a way to ask your name now.
+> impara "come mi chiami" per il mio nome
+< Got it - I'll take "come mi chiami" as a way to il mio nome now.
 > come mi chiami
 < Your name is Bob.

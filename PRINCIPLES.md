@@ -100,6 +100,12 @@ shape this experiment refuses. So a **cardinal rule**:
   immediately and persists on `/save`. A reply hardcoded as a C `snprintf` literal is
   the same phrasebook smell as a recognized-form array.
 
+**Teaching is itself data** (gen214): there is ONE generic teach handler
+(`try_teach_form`) driven by a `learnable(Label, Intent, Mode)` registry in the KB
+(`Mode` ∈ exact | substring | fill). Declaring a new *learnable* intent is adding a
+`learnable/3` row plus its base forms — no per-intent C handler. The duplication of
+hand-written teach parsers was the part that didn't scale; this removes it.
+
 The test of compliance: *could the user teach a new form by talking, and would it work
 without recompiling?* If a behaviour depends on a `static const char *[]` of phrases in
 C, it is a phrasebook to be migrated into the KB. Pull each migration when a form is

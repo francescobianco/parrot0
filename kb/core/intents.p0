@@ -38,3 +38,23 @@ intent_cue(brevity, "be brief").
 intent_cue(brevity, "short answers").
 intent_cue(brevity, "risposte brevi").
 intent_cue(brevity, "sii breve").
+
+% =========================================================================
+% gen214: the LEARNABLE registry — what can be taught at runtime, as DATA.
+%
+% learnable(Label, Intent, Mode). ONE generic handler (try_teach_form) reads this: on a
+% turn that carries a teach verb ("learn/teach/use/impara/…") and a quoted span, it finds
+% the Label that occurs in the turn and asserts the right fact for that Intent:
+%   exact     -> intent_phrase(Intent, "form")      (whole-turn recognition)
+%   substring -> intent_cue(Intent, "fragment")     (substring recognition)
+%   fill      -> response_template(Intent, "text")  (an OUTPUT phrasing; {name} slot)
+% So adding a learnable intent is now DATA (a learnable/3 row + its base forms), not C —
+% the per-intent teach handlers are gone. Label is matched against the raw (non-canonical)
+% turn, so natural EN+IT labels both route. Mode picks the predicate AND the span source
+% (exact/substring store the normalized span; fill keeps the raw casing for {name}).
+learnable("ask my name",          ask_name,   exact).
+learnable("il mio nome",          ask_name,   exact).
+learnable("ask for short answers", brevity,   substring).
+learnable("risposte brevi",       brevity,    substring).
+learnable("greet a new name",     greet_name, fill).
+learnable("salutare",             greet_name, fill).
