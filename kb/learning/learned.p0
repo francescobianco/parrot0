@@ -25,7 +25,7 @@ wiki_concept(derivative, mathematics, "fundamental tool that quantifies the sens
 
 % mathematics / Logarithm
 % source: https://en.wikipedia.org/wiki/Logarithm
-% revision: 1354833929; processed: 2026-06-22T23:47:06Z
+% revision: 1354833929; processed: 2026-06-24T15:16:18Z
 wiki_concept(logarithm, mathematics, "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...").
 
 % physics / Newton's laws of motion
@@ -637,3 +637,12 @@ learning_event_concept(learn_2026_06_24t14_01_56z_derivative, derivative).
 learning_event_revision(learn_2026_06_24t14_01_56z_derivative, rev_1358599947).
 learning_event_markdown(learn_2026_06_24t14_01_56z_derivative, "kb/learning/pages/derivative.md").
 learning_event_log(learn_2026_06_24t14_01_56z_derivative, "kb/learning/logs/learn_2026_06_24t14_01_56z_derivative.json").
+
+% event learn_2026_06_24t15_16_18z_logarithm
+learning_event(learn_2026_06_24t15_16_18z_logarithm, "learned logarithm: In mathematics, the logarithm of a number is the exponent by which another fixed value, the...").
+learning_event_time(learn_2026_06_24t15_16_18z_logarithm, "2026-06-24T15:16:18Z").
+learning_event_domain(learn_2026_06_24t15_16_18z_logarithm, mathematics).
+learning_event_concept(learn_2026_06_24t15_16_18z_logarithm, logarithm).
+learning_event_revision(learn_2026_06_24t15_16_18z_logarithm, rev_1354833929).
+learning_event_markdown(learn_2026_06_24t15_16_18z_logarithm, "kb/learning/pages/logarithm.md").
+learning_event_log(learn_2026_06_24t15_16_18z_logarithm, "kb/learning/logs/learn_2026_06_24t15_16_18z_logarithm.json").

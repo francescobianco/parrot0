@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "mathematics",
-    "event_id": "learn_2026_06_24t14_01_56z_derivative",
-    "key": "derivative",
-    "log_path": "kb/learning/logs/learn_2026_06_24t14_01_56z_derivative.json",
-    "markdown_path": "kb/learning/pages/derivative.md",
-    "processed_at": "2026-06-24T14:01:56Z",
-    "prompt": "what do you know about learn_2026_06_24t14_01_56z_derivative",
-    "revision": 1358599947,
-    "title": "Derivative"
+    "event_id": "learn_2026_06_24t15_16_18z_logarithm",
+    "key": "logarithm",
+    "log_path": "kb/learning/logs/learn_2026_06_24t15_16_18z_logarithm.json",
+    "markdown_path": "kb/learning/pages/logarithm.md",
+    "processed_at": "2026-06-24T15:16:18Z",
+    "prompt": "what do you know about learn_2026_06_24t15_16_18z_logarithm",
+    "revision": 1354833929,
+    "title": "Logarithm"
   },
-  "next_index": 4
+  "next_index": 5
 }
