@@ -47,3 +47,102 @@ In questa visione, il ragionamento non è ciò che tiene insieme la conversazion
 Il ragionamento è uno degli oggetti che la colla linguistica tiene insieme.
 
 La colla linguistica è quindi una metastruttura: non produce necessariamente nuove conclusioni, ma permette alle conclusioni, alle memorie e alle intenzioni di appartenere alla stessa storia.
+
+---
+
+## Critica e piano d'azione (Claude, 2026-06-24)
+
+> Letto accanto a [PRINCIPLES.md](../../PRINCIPLES.md) (emergenza-su-design, struttura
+> funzionale all'emergenza, anti-impostore, KB-first) e al metodo discovery-harness di
+> [CODE-MASTERY.md](../CODE-MASTERY.md) §7-8 (non si hardcoda la roadmap: ogni faculty si
+> *tira* da un fallimento osservato).
+
+### È un passo avanti? Sì — come LENTE e come MISURA, non come nuovo primitivo.
+
+Il documento è una **fenomenologia**, non un meccanismo: dice *cosa* fa la colla, non
+*come* costruirla in modo deterministico. Il suo valore per parrot0 è duplice e reale:
+
+1. **Diagnosi centrata.** I cinque sintomi dell'assenza di colla — risposta corretta ma
+   fuori contesto, riferimenti impliciti persi, letteralità eccessiva, correzioni non
+   integrate, "più sistemi indipendenti invece di un interlocutore" — sono *esattamente*
+   il modo di fallire di un registry first-match-wins di ~50 moduli. parrot0 è per
+   costruzione a rischio di essere "una successione di blocchi isolati"; l'incubo
+   dell'essay è il suo default.
+2. **Riconcettualizzazione utile.** "Il ragionamento è uno degli oggetti che la colla
+   tiene insieme" e "la colla è visibile soprattutto quando manca" sono affermazioni
+   *operative*: si trovano i buchi dai sintomi. Questo è già il metodo del progetto.
+
+### Il rischio da non ignorare (anti-impostore)
+
+"Campo di coerenza che **emerge** dall'uso del linguaggio" è vicino alla *zuppa
+metabolica* che PRINCIPLES rifiuta. Preso alla lettera autorizzerebbe una coerenza
+finta-fluente: il "perfetto impostore". Quindi il vincolo non negoziabile:
+
+> La colla NON è un modulo magico. È un insieme di **operazioni deterministiche e
+> ispezionabili su stato di sessione reale** — risolvere *questo* pronome a
+> *quell'*antecedente, integrare *questa* correzione ri-derivando *quel* goal — non un
+> generatore di continuità plausibile. La struttura è la *condizione* della coerenza, non
+> il suo sostituto (PRINCIPLES §"struttura funzionale all'emergenza").
+
+### Verità di base: la colla esiste già, sparsa e senza nome
+
+Non è capacità nuova; è un **nome + criterio** per faculty che parrot0 ha già costruito a
+pezzi (da verificare nel codice prima di toccarle — vedi nota gotcha):
+
+- `mod_coref` — coreferenza (pronomi → entità recenti); stato: `entities`, `last_entity`.
+- `mod_discourse` — memoria di discorso e topic (`topics`, `current_topic`).
+- `mod_pragma` + `pragma_peel` (gen142) — peeling di aperture/marker e ri-dispatch del residuo.
+- repair-loop (gen141) — `pending_repair`/`pending_slot`: chiarisce e RIPRENDE l'intento.
+- auto-correzione (gen103) — ri-deriva `last_goal` quando la KB cambia ("allora X non è più…").
+- counterfactual/trace (gen105/128) — `last_input`, `trace_*`: "perché hai risposto così".
+
+La colla, per parrot0, **è già questa famiglia**. Manca: un nome di prima classe, una
+misura, e il colmare i buchi in modo tirato-dai-fallimenti.
+
+### Piano d'azione (piccolo, reversibile, oracle-gated)
+
+**G0 — Reificare la colla nell'automodello.** Aggiungere un fatto KB
+`glue_faculty(coref|discourse|pragma|repair|correction, "ruolo")` derivato dal registry
+reale (come già si fa con `module/1`), così "quali parti ti tengono coerente?" risponde
+dalla struttura, non da una storia. Zero rischio, alto valore di chiarezza. *Pull:* nessuno
+ancora — è il preludio che rende misurabile il resto.
+
+**G1 — `make glue-bench`: i 5 sintomi diventano metriche.** Uno strumento di *scoperta*
+(modellato su swe-bench/superglue: non bara mai) con dialoghi multi-turno held-out, una
+categoria per sintomo:
+   1. *fuori-contesto* — una risposta corretta che ignora il vincolo posto 3 turni prima;
+   2. *riferimento implicito* — "e il suo colore?" senza ripetere il soggetto;
+   3. *letteralità* — una precisazione che modifica una richiesta precedente;
+   4. *correzione* — "no, intendevo Y" che deve ri-derivare la conclusione;
+   5. *un solo interlocutore* — catena che attraversa coref+memoria+aritmetica.
+   Ogni caso è EN+IT (ratchet bilingue). Il bench *riporta dove la colla manca* — la
+   mappa-dei-fallimenti che tira G2. Non fallisce la build (degrade mode), come swe-bench.
+
+**G2 — tirare UN meccanismo connettivo per generazione, dal primo fallimento di G1.**
+Esempi plausibili (ma li sceglie il bench, non noi a priori): estendere `mod_coref` a un
+antecedente a due turni; far sopravvivere `user_constraint` al di là del turno in cui è
+posto e *applicarlo* alla risposta; integrare una correzione "no, intendevo Y" come
+ri-asserzione + ri-derivazione del `last_goal`. Ognuno: minimo, deterministico, EN+IT,
+verificato, con `make test` verde e gated da stato reale ispezionabile.
+
+**G3 — chiudere il cerchio con la misura.** Il punteggio di `glue-bench` sale solo quando
+un meccanismo reale colma un sintomo reale: guadagnato, non simulato. Il numero non è
+"naturalezza" a sensazione ma "quanti casi-sintomo held-out ora reggono".
+
+### Disciplina (vale per ogni passo)
+
+- Niente "modulo colla". La coerenza è operazioni su stato di sessione reale, queryable.
+- Ogni faculty si tira da un caso `glue-bench` che fallisce (non si pre-progetta).
+- KB-first: vincoli/correzioni/riferimenti vivono come stato ispezionabile (entità,
+  topic, goal, world), non in una scatola nera.
+- Bilingue EN+IT su ogni caso; `make test` resta ermetico.
+- Gotcha: prima di estendere `mod_coref`/`mod_discourse`/`mod_pragma`, **verificare nel
+  codice** cosa fanno davvero oggi (i moduli vedono la superficie canonicalizzata; vedi
+  le note in PRINCIPLES e nei gotcha di brain.c) — non fidarsi di questa lista a memoria.
+
+### Prossima azione consigliata
+
+**G0 + G1** insieme: reificare le glue_faculty e creare `glue-bench` con 2-3 casi per
+sintomo (EN+IT) che *oggi falliscono*. Quella mappa-dei-fallimenti è il vero deliverable:
+trasforma una bella intuizione ("colla linguistica") in un motore di scoperta ripetibile,
+senza scrivere una riga di coerenza finta.
