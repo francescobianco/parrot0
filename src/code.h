@@ -118,6 +118,21 @@ int code_find_cond_asymmetry(const char *src_path, const char *fnname,
                              char *old_stmt, size_t old_sz,
                              char *new_stmt, size_t new_sz);
 
+/* gen210: structural CASE-FOLDING localization (a fourth general bug smell). A parser
+ * that classifies input by matching ALL-CAPS keyword literals should handle case
+ * CONSISTENTLY; doing it case-SENSITIVELY in two different mechanisms at once is the
+ * smell. Fires only on that coupling, in `src_path`:
+ *   (A) a `re.compile(<single arg>)` with no flags argument, AND
+ *   (B) an `IDENT == "<ALLCAPS>"` equality (file-derived value vs an all-caps literal).
+ * The coupled fix makes both case-insensitive: (A) add `, re.IGNORECASE`; (B) wrap the
+ * identifier with `.upper()`. Writes up to `max` (old, new) edit pairs sliced from the
+ * REAL source text (so spacing is exact), and returns the count (>=1 only when BOTH
+ * shapes are present — conservative, to avoid firing on enums/sentinels), 0 if the
+ * coupling is absent, -1 on error. Grounded (both mechanisms must already exist), not
+ * fitted to one instance; the real test suite is the judge. */
+int code_find_case_folding(const char *src_path,
+                           char olds[][256], char news[][256], size_t max);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

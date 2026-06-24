@@ -1521,6 +1521,102 @@ int code_find_cond_asymmetry(const char *src_path, const char *fnname,
     return 0;
 }
 
+/* gen210: structural CASE-FOLDING localization (see code.h). The smell is a parser
+ * that matches ALL-CAPS keyword literals case-SENSITIVELY in two mechanisms at once —
+ * a flagless `re.compile(...)` AND an `IDENT == "ALLCAPS"` equality on input-derived
+ * data. Firing only on that coupling keeps it a real, general inconsistency signal
+ * (not an enum/sentinel false positive, not a fit to one instance). Edits are sliced
+ * from the real source so spacing is exact; the real test suite disposes. */
+int code_find_case_folding(const char *src_path,
+                           char olds[][256], char news[][256], size_t max) {
+    if (!src_path || !olds || !news || max == 0) return -1;
+    static char buf[262144];
+    if (!code_read_file(src_path, buf, sizeof buf)) return -1;
+
+    char a_old[256] = "", a_new[256] = "";   /* Shape A: re.compile(...) + IGNORECASE */
+    char b_old[256] = "", b_new[256] = "";   /* Shape B: IDENT == "UPPER" -> .upper() */
+    int have_a = 0, have_b = 0;
+
+    /* ---- Shape A: re.compile( <single top-level arg, no flags> ) ---- */
+    for (const char *p = strstr(buf, "re.compile("); p && !have_a;
+         p = strstr(p + 1, "re.compile(")) {
+        if (p != buf && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) continue;
+        const char *open = p + 10;            /* the '(' of re.compile( */
+        const char *q = open, *close = NULL; int depth = 0, top_comma = 0;
+        for (; *q; q++) {
+            char c = *q;
+            if (c == '"' || c == '\'') {      /* skip a string literal (incl triple) */
+                char qq = c;
+                if (q[1] == qq && q[2] == qq) {
+                    q += 3; while (*q && !(q[0]==qq && q[1]==qq && q[2]==qq)) q++;
+                    if (*q) q += 2;
+                } else {
+                    q++; while (*q && *q != qq) { if (*q=='\\' && q[1]) q++; q++; }
+                }
+                continue;
+            }
+            if (c == '(') depth++;
+            else if (c == ')') { depth--; if (depth == 0) { close = q; break; } }
+            else if (c == ',' && depth == 1) top_comma++;
+        }
+        if (!close || top_comma != 0) continue;          /* must be a SINGLE-arg call */
+        const char *arg0 = open + 1; while (arg0 < close && (*arg0==' '||*arg0=='\t')) arg0++;
+        if (arg0 >= close) continue;                     /* empty () */
+        size_t calllen = (size_t)(close - p + 1);
+        if (calllen + 20 >= sizeof a_old) continue;
+        memcpy(a_old, p, calllen); a_old[calllen] = '\0';
+        size_t pre = (size_t)(close - p);                /* up to, not incl, ')' */
+        memcpy(a_new, p, pre);
+        int wn = snprintf(a_new + pre, sizeof a_new - pre, ", re.IGNORECASE)");
+        if (wn > 0 && pre + (size_t)wn < sizeof a_new) have_a = 1;
+    }
+
+    /* ---- Shape B: IDENT == "ALLCAPS"  (>=2 uppercase letters) ---- */
+    for (const char *p = buf; *p && !have_b; p++) {
+        if (*p == '#') { while (*p && *p != '\n') p++; if (!*p) break; continue; }
+        if (*p != '"' && *p != '\'') continue;
+        char qq = *p;
+        if (p[1] == qq && p[2] == qq) {                  /* skip triple-quoted block */
+            p += 3; while (*p && !(p[0]==qq && p[1]==qq && p[2]==qq)) p++;
+            if (*p) p += 2; continue;
+        }
+        const char *s = p + 1, *e = s;
+        while (*e && *e != qq) { if (*e=='\\' && e[1]) e++; e++; }
+        if (*e != qq) break;                             /* unterminated literal */
+        size_t ll = (size_t)(e - s); int allup = ll >= 2;
+        for (const char *c = s; c < e && allup; c++) if (!(*c >= 'A' && *c <= 'Z')) allup = 0;
+        if (allup) {
+            const char *bk = p; while (bk > buf && (bk[-1]==' '||bk[-1]=='\t')) bk--;
+            if (bk - 2 >= buf && bk[-1] == '=' && bk[-2] == '=') {
+                const char *id_e = bk - 2; while (id_e > buf && (id_e[-1]==' '||id_e[-1]=='\t')) id_e--;
+                const char *id_s = id_e; while (id_s > buf && (isalnum((unsigned char)id_s[-1])||id_s[-1]=='_')) id_s--;
+                /* a plain identifier (not an attribute access a.b == ...) */
+                if (id_e > id_s && (id_s == buf ||
+                    !(isalnum((unsigned char)id_s[-1]) || id_s[-1]=='_' || id_s[-1]=='.'))) {
+                    size_t oldlen = (size_t)(e - id_s + 1);
+                    size_t idlen  = (size_t)(id_e - id_s);
+                    if (oldlen + 8 < sizeof b_old && idlen < 200) {
+                        memcpy(b_old, id_s, oldlen); b_old[oldlen] = '\0';
+                        char id[200]; memcpy(id, id_s, idlen); id[idlen] = '\0';
+                        size_t restlen = (size_t)(e - id_e + 1);   /* spaces..== .."UPPER" */
+                        int wn = snprintf(b_new, sizeof b_new, "%s.upper()%.*s",
+                                          id, (int)restlen, id_e);
+                        if (wn > 0 && (size_t)wn < sizeof b_new) have_b = 1;
+                    }
+                }
+            }
+        }
+        p = e;                                            /* resume after the literal */
+    }
+
+    if (!(have_a && have_b)) return 0;                    /* coupling absent -> not ours */
+
+    size_t n = 0;
+    if (n < max) { snprintf(olds[n], 256, "%s", a_old); snprintf(news[n], 256, "%s", a_new); n++; }
+    if (n < max) { snprintf(olds[n], 256, "%s", b_old); snprintf(news[n], 256, "%s", b_new); n++; }
+    return (int)n;
+}
+
 /* gen191: F5 edit — delete the top-level definition of `fnname`. The same engine
  * as rename (locate -> edit -> the caller compiles to verify), a SECOND
  * transformation proving the edit loop is rule-shaped, not one hardcoded op. We

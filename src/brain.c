@@ -9589,6 +9589,51 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             r = code_find_cond_asymmetry(path, NULL, olds, sizeof olds, news, sizeof news);
             if (r > 0) reason = "is an asymmetric None-check that should test the attribute its sibling branches use";
         }
+        if (r == 0) {
+            /* gen210: the case-folding smell yields MULTIPLE coupled edits, so it is
+             * applied as a small batch rather than one expr swap. It fires only when a
+             * file matches all-caps keywords case-sensitively in TWO mechanisms at
+             * once (flagless re.compile + an uppercase-literal ==). The real test suite
+             * is still the judge; parrot0 only proposes the coupled fix. */
+            char colds[4][256], cnews[4][256];
+            int ne = code_find_case_folding(path, colds, cnews, 4);
+            if (ne < 0) return 0;
+            if (ne > 0) {
+                const char *creason = "matches all-caps keywords case-sensitively "
+                    "(a flagless re.compile and an uppercase-literal ==) where case should not matter";
+                if (!sym_write) {                  /* report-only: localize, touch nothing */
+                    size_t o = (size_t)snprintf(out, out_size,
+                                 "In %s, the code %s; the coupled fix is:", path, creason);
+                    for (int i = 0; i < ne && o < out_size; i++)
+                        o += (size_t)snprintf(out + o, out_size - o,
+                                              " [%d] `%s` -> `%s`", i + 1, colds[i], cnews[i]);
+                    store_proof(b, out);
+                    return 1;
+                }
+                char outpath[300]; snprintf(outpath, sizeof outpath, "%s.p0fix", path);
+                int all = 1;
+                for (int i = 0; i < ne; i++) {     /* edit 0 from original, rest in place */
+                    const char *srcp = (i == 0) ? path : outpath;
+                    if (code_replace_expr(srcp, colds[i], cnews[i], outpath) <= 0) { all = 0; break; }
+                }
+                if (!all) {                        /* don't emit a half-applied patch */
+                    remove(outpath);
+                    snprintf(out, out_size,
+                             "In %s, the code %s, but I could not apply the coupled fix cleanly.",
+                             path, creason);
+                    store_proof(b, out);
+                    return 1;
+                }
+                size_t o = (size_t)snprintf(out, out_size,
+                             "In %s, the code %s. Patched copy written to %s; %d edits:",
+                             path, creason, outpath, ne);
+                for (int i = 0; i < ne && o < out_size; i++)
+                    o += (size_t)snprintf(out + o, out_size - o,
+                                          " [%d] `%s` -> `%s`", i + 1, colds[i], cnews[i]);
+                store_proof(b, out);
+                return 1;
+            }
+        }
         if (r < 0) return 0;                       /* unreadable / unsafe — not ours */
         if (r == 0 || !reason) {
             snprintf(out, out_size,
@@ -12458,7 +12503,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen209-verified-synthesis";
+    return "gen210-case-folding-smell";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

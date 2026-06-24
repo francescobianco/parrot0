@@ -1,0 +1,10 @@
+# gen210: structural CASE-FOLDING localization — a fourth general bug smell. On the
+# REAL astropy qdp.py (SWE-bench astropy-14365), parrot0 finds — from structure alone —
+# that the parser matches all-caps keyword literals case-SENSITIVELY in two mechanisms
+# at once: a flagless `re.compile(_type_re)` and an uppercase-literal `v == "NO"`. That
+# coupling is the smell; the coupled fix makes both case-insensitive (add re.IGNORECASE;
+# wrap the value with .upper()). Names nothing in advance. The real oracle (make
+# swe-solve INSTANCE=astropy__astropy-14365) judges it RESOLVED (1 FAIL_TO_PASS, 8
+# PASS_TO_PASS); this case ratchets the derivation hermetically (no Docker).
+> find the bug in tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py
+< In tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py, the code matches all-caps keywords case-sensitively (a flagless re.compile and an uppercase-literal ==) where case should not matter; the coupled fix is: [1] `re.compile(_type_re)` -> `re.compile(_type_re, re.IGNORECASE)` [2] `v == "NO"` -> `v.upper() == "NO"`
