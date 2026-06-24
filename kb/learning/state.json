@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "computer_science",
-    "event_id": "learn_2026_06_24t02_06_55z_hash_table",
-    "key": "hash_table",
-    "log_path": "kb/learning/logs/learn_2026_06_24t02_06_55z_hash_table.json",
-    "markdown_path": "kb/learning/pages/hash_table.md",
-    "processed_at": "2026-06-24T02:06:55Z",
-    "prompt": "what do you know about learn_2026_06_24t02_06_55z_hash_table",
-    "revision": 1352708183,
-    "title": "Hash table"
+    "event_id": "learn_2026_06_24t03_29_37z_turing_machine",
+    "key": "turing_machine",
+    "log_path": "kb/learning/logs/learn_2026_06_24t03_29_37z_turing_machine.json",
+    "markdown_path": "kb/learning/pages/turing_machine.md",
+    "processed_at": "2026-06-24T03:29:37Z",
+    "prompt": "what do you know about learn_2026_06_24t03_29_37z_turing_machine",
+    "revision": 1360035381,
+    "title": "Turing machine"
   },
-  "next_index": 23
+  "next_index": 24
 }
