@@ -204,6 +204,33 @@ learn→build→test chain — earned, not faked.
 - Track B is a real, multi-step pull; B0 (the run-grounded judge) is the smallest
   safe first move and is independently useful.
 
+### Track A — progress (in flight)
+
+- [x] **Probed the forget boundary.** With the agi profile (which `:- include`s
+  `algo.p0`) "tell me about bubble sort" is answered from `algorithm(bubblesort,…)`;
+  with **no profile** it is a genuine miss: *"I don't actually know about bubble sort
+  yet, and I have no source to read on it."* → the harness must boot **without** the
+  agi profile so the forget is real.
+- [x] **pi_server.py made config-overridable** (`scripts/pi_server.py`):
+  `PARROT0_BASE` / `PARROT0_SESSION` / `PARROT0_PROFILE` now honour env (defaults
+  unchanged), so the bench can launch with `PARROT0_PROFILE=""` to drop `algo.p0`.
+  `PARROT0_WIKI_DIR` / `PARROT0_LEARN_KB` already propagate through `**os.environ`.
+- [ ] **compose_plan recall fallback** — a clause that is neither compose nor eval
+  (e.g. "tell me about bubble sort") must be dispatched through the registry so
+  `mod_research` answers it. Plan: add a file-scope `dispatch_one(b, clause, out, sz)`
+  that walks `registry[]` skipping `compose` (no re-entry), forward-declared near the
+  other prototypes and defined after the registry table; `compose_plan`'s else-branch
+  calls it before falling back to "(not yet: …)".
+- [ ] **`tests/piagent/sortlearn_bench.py` + `make sortlearn-bench`** — fixture
+  `tests/piagent/wiki/bubble_sort.md`; steps: forget (miss) → relearn (persist +
+  recall) → multi-step prompt *"tell me about bubble sort, then write a function add
+  …, then compute add(2,3), and finally implement a function bubblesort that sorts an
+  array"* → assert recall + add verified + add(2,3)=5 + **sort refused honestly**;
+  print the gap ledger. Launch the server with `PARROT0_PROFILE=""`,
+  `PARROT0_WIKI_DIR`/`PARROT0_LEARN_KB` set, `PARROT0_TOOLS=1`.
+
+Resume point: implement the two unchecked items above; everything else is verified.
+
 ## Pointers
 
 - Learner: `tests/research_learn.sh`, `kb/learning/`, `PARROT0_WIKI_DIR` /

@@ -41,9 +41,13 @@ class Parrot0:
     def __init__(self) -> None:
         env = {
             **os.environ,
-            "PARROT0_BASE": str(ROOT / "kb" / "core" / "base.p0"),
-            "PARROT0_SESSION": "",
-            "PARROT0_PROFILE": str(PARROT0_PROFILE),
+            # BASE/PROFILE are env-overridable so a harness can boot a DIFFERENT
+            # knowledge configuration (e.g. the sortlearn bench drops the agi profile
+            # so algo.p0 is absent and "tell me about bubble sort" is a genuine miss
+            # until it is re-learned via research). Default to the normal agent boot.
+            "PARROT0_BASE": os.environ.get("PARROT0_BASE", str(ROOT / "kb" / "core" / "base.p0")),
+            "PARROT0_SESSION": os.environ.get("PARROT0_SESSION", ""),
+            "PARROT0_PROFILE": os.environ.get("PARROT0_PROFILE", str(PARROT0_PROFILE)),
             # gen205: run parrot0 as a LOCAL coding agent. Because parrot0 lives on
             # this machine it executes read-only filesystem tools (list/read/grep/
             # find) itself and answers in one turn — no OpenAI tool_call round-trip.
