@@ -137,6 +137,32 @@ def main() -> int:
          "write a function that reverses a linked list",
          lambda r: "only" in r.lower() and ("verify" in r.lower() or "arithmetic" in r.lower())
                    and "int " not in r),
+
+        # --- ARTICULATED multi-step tasks (gen207) ---------------------------
+        # A long prompt chains sub-goals ("...and then use it to..., and after that
+        # also write the variant..."). parrot0 splits it into ORDERED steps and
+        # THREADS the artifacts: step 2 evaluates the function step 1 composed. Each
+        # step is oracle-checked; the assertion verifies the whole transcript.
+        ("articulated-write-use-variant",
+         "write a C function add that returns the sum of a and b, and then use it to "
+         "compute add(3,4), and after that also write the variant mul that returns "
+         "the product of a and b",
+         lambda r: "1)" in r and "2)" in r and "3)" in r
+                   and "int add(int a, int b)" in r and "add(3,4) = 7" in r
+                   and "a * b" in r),
+        ("articulated-four-steps",
+         "first write a function add that returns the sum of a and b, then use it to "
+         "compute add(10,5), and also write the variant sub that returns the "
+         "difference of a and b, and finally compute sub(10,5)",
+         lambda r: "add(10,5) = 15" in r and "sub(10,5) = 5" in r
+                   and "a - b" in r and "4)" in r),
+        # An unsupported middle step must be refused honestly while the supported
+        # steps still complete — no fabricated body for the array sort.
+        ("articulated-partial-honest",
+         "write a function add that returns the sum of a and b, then also write a "
+         "function that sorts an array, and also write the variant mul for the product",
+         lambda r: "int add(int a, int b)" in r and "a * b" in r
+                   and "only" in r.lower()),
     ]
 
     passed = failed = 0

@@ -440,6 +440,24 @@ istanza *verificata* di tutto questo:
 Coperto da `make piagent-bench`: `gen-sum`, `gen-product`, `gen-difference` (PASS) e
 `gen-gap-honest` (il rifiuto onesto è esso stesso un gate).
 
+## Compiti articolati (gen207) — il planner sequenziale
+
+La generazione reale non è mai un singolo atto: un prompt vero è **articolato e
+lungo** — *"scrivi `add`, **e poi** usala per calcolare `add(3,4)`, **e poi** scrivi
+anche la **variante** `mul`"*. Qui la formula `Plan → Synthesis → Oracle` diventa un
+**piano sequenziale**: parrot0 spezza il prompt in sotto-obiettivi **ordinati** (sui
+connettori forti `and then` / `after that` / `also` / `then` / `e poi` / `dopo` /
+`infine` — **mai** sul debole ` and ` che vive dentro `a and b`), esegue ogni passo
+con le stesse facoltà compose/verify/eval, e **infila gli artefatti** tra i passi: il
+passo che dice "usala per calcolare `add(3,4)`" valuta (`code_eval`) **la funzione che
+il passo precedente ha davvero composto**. Ogni passo è controllato dall'oracolo; la
+risposta è una trascrizione numerata e fondata. Un passo non ancora supportato (es.
+"ordina un array") viene **rifiutato onestamente** mentre gli altri proseguono — niente
+corpo allucinato. Coperto da `articulated-write-use-variant`, `articulated-four-steps`,
+`articulated-partial-honest` in `make piagent-bench`. È il primo gradino verso il
+Repair Layer: un piano che esegue passo-passo è anche il punto dove, in futuro, un
+passo fallito può innescare una nuova ipotesi invece di fermarsi.
+
 ## La scala dei prossimi pull (ognuno oracle-gated)
 
 1. funzione con control-flow da spec, verificata da `code_run` su esempi I/O;

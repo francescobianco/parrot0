@@ -289,19 +289,32 @@ struttura sotto verifica, la spina di `swe-solve` generalizzata) sono in
 
 ```
 > write a C function add that returns the sum of a and b
-int add(int a, int b) { return a + b; }  /* verified by symbolic execution: add(6,4)=10 and add(9,2)=11 */
+int add(int a, int b) { return a + b; }  /* verified by symbolic execution: add(6,4)=10, add(9,2)=11 */
 > write a function that reverses a linked list
-I can only synthesize and VERIFY simple arithmetic functions so far ... I will not emit code I cannot check.
+I can only synthesize and VERIFY ... I will not emit code I cannot check.
+```
+
+**Compiti articolati (gen207).** Un prompt lungo e multi-step viene spezzato in
+sotto-obiettivi ordinati e **infila gli artefatti** tra i passi (il passo che usa una
+funzione valuta quella appena composta), ognuno verificato dall'oracolo:
+
+```
+> write a C function add that returns the sum of a and b, and then use it to compute
+  add(3,4), and after that also write the variant mul that returns the product of a and b
+1) int add(int a, int b) { return a + b; }  /* verified ... */  2) add(3,4) = 7
+3) int mul(int a, int b) { return a * b; }  /* verified ... */
 ```
 
 Verifica deterministica (no `pi`, no rete):
 
 ```bash
 make piagent-bench
-# read-only:  protocol-models / text-arith / coding-list / coding-read /
-#             coding-grep / coding-find / safety-run-refused
-# generative: gen-sum / gen-product / gen-difference / gen-gap-honest
-# → passed: 11, failed: 0
+# read-only:   protocol-models / text-arith / coding-list / coding-read /
+#              coding-grep / coding-find / safety-run-refused
+# generative:  gen-sum / gen-product / gen-difference / gen-gap-honest
+# articulated: articulated-write-use-variant / articulated-four-steps /
+#              articulated-partial-honest
+# → passed: 14, failed: 0
 ```
 
 Il battery (`tests/piagent/piagent_bench.py`) avvia `scripts/pi_server.py` su una

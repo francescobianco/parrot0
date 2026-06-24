@@ -16,3 +16,10 @@ code_operator(multiplication, "*").
 code_operator(difference, "-").
 code_operator(minus, "-").
 code_operator(subtraction, "-").
+% Italian cues (the brain matches the request surface, which may be Italian).
+code_operator(somma, "+").
+code_operator(addizione, "+").
+code_operator(prodotto, "*").
+code_operator(moltiplicazione, "*").
+code_operator(differenza, "-").
+code_operator(sottrazione, "-").

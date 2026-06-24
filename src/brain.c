@@ -6765,19 +6765,237 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
-/* gen206 (composer, docs/plans/generative.md): the FIRST verified code GENERATION —
- * the smallest honest instance of "generate from the KNOWN, not from the probable".
- * A remote LLM writes code by sampling tokens from a distribution and hoping; the
- * artifact is plausible, not proven. parrot0 inverts it: it does NOT emit tokens,
- * it COMPOSES a structure (a function whose body is a binary arithmetic relation)
- * from knowledge of the operator, then SUBMITS that structure to the deterministic
- * oracle (code_eval, symbolic execution) on sample inputs. The artifact is reported
- * as correct ONLY because it actually computes the intended relation — generator
- * proposes, oracle disposes (PRINCIPLES.md, one rung down). This is deliberately a
- * tiny grammar (sum / product / difference of two ints): generation here is search
- * over structure under verification, never free-form synthesis, and it refuses —
- * honestly — anything it cannot yet build-and-check, marking the next faculty to
- * pull instead of faking one. Gated by PARROT0_TOOLS=1, like the rest of agent mode. */
+/* gen206 (composer, docs/plans/generative.md): verified code GENERATION — the honest
+ * instance of "generate from the KNOWN, not from the probable". A remote LLM writes
+ * code by sampling tokens and hoping; the artifact is plausible, not proven. parrot0
+ * inverts it: it COMPOSES a structure (a function whose body is a binary arithmetic
+ * relation) from knowledge of the operator, then SUBMITS that structure to the
+ * deterministic oracle (code_eval) on sample inputs. The artifact is reported as
+ * correct ONLY because it actually computes the intended relation — generator
+ * proposes, oracle disposes. gen207 lifts this to ARTICULATED tasks: a long,
+ * multi-step prompt ("write add, then use it to compute add(3,4), and also write the
+ * variant mul") is split into ORDERED sub-goals, each run through the same compose/
+ * verify/eval faculties, THREADING the artifacts (step 2 uses the function step 1
+ * built) — a real plan executed and checked step by step, never a single guess. */
+
+/* Query the KB (code_operator/2 in compose.p0) for the C operator the text cues.
+ * Returns the operator char (+,-,*) and the matched cue word, or 0 if none. */
+static char compose_op_from_kb(Brain *b, const char *low, char *opword, size_t opsz) {
+    if (opword && opsz) opword[0] = '\0';
+    if (!b || !b->kb) return 0;
+    char cues[24][KB_TERM_LEN];
+    const char *qall[2] = {NULL, NULL};
+    size_t ncue = kb_match(b->kb, "code_operator", qall, 2, cues, 24);
+    for (size_t i = 0; i < ncue; i++) {
+        if (!strstr(low, cues[i])) continue;
+        char sym[1][KB_TERM_LEN];
+        const char *qsym[2] = {cues[i], NULL};
+        if (kb_match(b->kb, "code_operator", qsym, 2, sym, 1) == 1)
+            for (const char *p = sym[0]; *p; p++)
+                if (*p=='+' || *p=='-' || *p=='*') {
+                    if (opword) snprintf(opword, opsz, "%s", cues[i]);
+                    return *p;
+                }
+    }
+    return 0;
+}
+
+/* The function name: the identifier after function/called/named/variant, else "f". */
+static void compose_name(const char *raw, char *name, size_t nsz) {
+    snprintf(name, nsz, "f");
+    char rc[512]; snprintf(rc, sizeof rc, "%s", raw);
+    char *w[96]; size_t nw = split_words(rc, w, 96);
+    for (size_t i = 0; i + 1 < nw; i++)
+        if (ci_eq(w[i],"function") || ci_eq(w[i],"funzione") || ci_eq(w[i],"called") ||
+            ci_eq(w[i],"named") || ci_eq(w[i],"variant") || ci_eq(w[i],"variante")) {
+            rstrip_punct(w[i+1]);
+            const char *t = w[i+1];
+            int ok = (isalpha((unsigned char)t[0]) || t[0]=='_');
+            for (const char *p = t; *p && ok; p++)
+                if (!(isalnum((unsigned char)*p) || *p=='_')) ok = 0;
+            if (ok && !ci_eq(t,"that") && !ci_eq(t,"named") && !ci_eq(t,"called") &&
+                !ci_eq(t,"which") && !ci_eq(t,"to") && !ci_eq(t,"for"))
+                { snprintf(name, nsz, "%s", t); return; }
+        }
+}
+
+/* Compose+verify ONE binary-arith function from a clause. Returns 1 (verified, src
+ * and name written), 0 (no operator cued — note holds the honest refusal), or -1
+ * (composed but the oracle rejected it). The note is a human-facing fragment. */
+static int compose_one(Brain *b, const char *raw, const char *low,
+                       char *nameo, size_t nsz, char *src, size_t srcsz,
+                       char *note, size_t notesz) {
+    char opword[KB_TERM_LEN];
+    char op = compose_op_from_kb(b, low, opword, sizeof opword);
+    if (!op) {
+        snprintf(note, notesz,
+                 "I can only synthesize and VERIFY the sum, product, or difference of "
+                 "two integers so far — I will not emit code I cannot check.");
+        return 0;
+    }
+    compose_name(raw, nameo, nsz);
+    snprintf(src, srcsz, "int %s(int a, int b) { return a %c b; }", nameo, op);
+    long a1=6,b1=4,a2=9,b2=2;
+    long e1 = (op=='+')?a1+b1:(op=='*')?a1*b1:a1-b1;
+    long e2 = (op=='+')?a2+b2:(op=='*')?a2*b2:a2-b2;
+    long g1=0,g2=0, A1[2]={a1,b1}, A2[2]={a2,b2};
+    int ok = code_eval(src,nameo,A1,2,&g1) && g1==e1 &&
+             code_eval(src,nameo,A2,2,&g2) && g2==e2;
+    if (ok) {
+        snprintf(note, notesz,
+                 "verified by symbolic execution: %s(%ld,%ld)=%ld, %s(%ld,%ld)=%ld",
+                 nameo,a1,b1,g1, nameo,a2,b2,g2);
+        return 1;
+    }
+    snprintf(note, notesz, "the oracle did not confirm it");
+    return -1;
+}
+
+/* Parse a concrete call NAME(int, int, ...) anywhere in `s`. Writes name + args. */
+static int parse_int_call(const char *s, char *name, size_t nsz,
+                          long *argv, size_t *argc, size_t maxa) {
+    for (const char *p = s; *p; ) {
+        if (!(isalpha((unsigned char)*p) || *p=='_')) { p++; continue; }
+        const char *id = p;
+        while (isalnum((unsigned char)*p) || *p=='_') p++;
+        size_t l = (size_t)(p - id);
+        const char *q = p; while (*q==' ') q++;
+        if (*q != '(') continue;
+        const char *a = q + 1; long tmp[8]; size_t n=0; int ok=1, any=0;
+        while (*a && *a != ')') {
+            while (*a==' ' || *a==',') a++;
+            if (*a==')' || !*a) break;
+            int sign=1; if (*a=='-'){sign=-1;a++;} else if (*a=='+') a++;
+            if (!isdigit((unsigned char)*a)) { ok=0; break; }
+            long v=0; while (isdigit((unsigned char)*a)) { v=v*10+(*a-'0'); a++; }
+            any=1; if (n<8) tmp[n++]=sign*v; else { ok=0; break; }
+            while (*a==' ') a++;
+            if (*a!=',' && *a!=')') { ok=0; break; }
+        }
+        if (ok && any && l < nsz) {
+            memcpy(name, id, l); name[l]='\0';
+            size_t k = n<maxa ? n : maxa;
+            for (size_t i=0;i<k;i++) argv[i]=tmp[i];
+            *argc = k;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* gen207: execute an ARTICULATED, multi-step coding request. Splits `raw` into
+ * ordered clauses on STRONG sequencers (",and then", "after that", "also", "then",
+ * "e poi", ...) — never the weak " and " that lives inside "a and b" — then runs each
+ * clause through compose/verify or eval, THREADING the functions composed earlier so
+ * a later "use it to compute NAME(x,y)" evaluates the real artifact. Every step is
+ * oracle-checked; the reply is a numbered, grounded transcript. */
+static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
+    static const char *const seq[] = {
+        " and then ", " and also ", " after that ", " afterwards ",
+        " e poi ", " e infine ", " e inoltre ",
+        " then ", " also ", " next ", " finally ", " plus ",
+        " poi ", " dopo ", " infine ", " inoltre ", "; ", NULL };
+    size_t n = strlen(raw);
+    static char lowall[2048];
+    size_t lim = n < sizeof lowall - 1 ? n : sizeof lowall - 1;
+    for (size_t i = 0; i < lim; i++) lowall[i] = (char)tolower((unsigned char)raw[i]);
+    lowall[lim] = '\0';
+
+    struct { size_t a, b; } cr[10]; size_t ncl = 0, from = 0;
+    for (size_t i = 0; i < lim && ncl < 9; ) {
+        size_t mlen = 0;
+        for (int s = 0; seq[s]; s++) {
+            size_t sl = strlen(seq[s]);
+            if (i + sl <= lim && strncmp(lowall + i, seq[s], sl) == 0) { mlen = sl; break; }
+        }
+        if (mlen) { cr[ncl].a = from; cr[ncl].b = i; ncl++; i += mlen; from = i; }
+        else i++;
+    }
+    cr[ncl].a = from; cr[ncl].b = n; ncl++;
+
+    struct { char name[64]; char src[256]; } fns[10]; size_t nf = 0;
+    char acc[4096]; size_t off = 0, step = 0;
+
+    for (size_t c = 0; c < ncl; c++) {
+        char cl[512];
+        size_t l = cr[c].b - cr[c].a; if (l >= sizeof cl) l = sizeof cl - 1;
+        memcpy(cl, raw + cr[c].a, l); cl[l] = '\0';
+
+        /* drop leading filler ("and", "also", "use", "it", "to", "please", ...). */
+        char *clause = cl;
+        for (;;) {
+            while (*clause==' ' || *clause==',' || *clause=='.') clause++;
+            static const char *const fill[] = {"and","also","then","next","finally",
+                "first","please","use","it","to","poi","dopo","e","inoltre","infine",
+                "la","lo","then,", NULL};
+            int cut = 0;
+            for (int f = 0; fill[f]; f++) {
+                size_t fl = strlen(fill[f]);
+                if (ci_prefix(clause, fill[f]) && (clause[fl]==' ' || clause[fl]=='\0'))
+                    { clause += fl; cut = 1; break; }
+            }
+            if (!cut) break;
+        }
+        if (!*clause) continue;
+
+        char cllow[512];
+        size_t cl2 = strlen(clause); if (cl2 >= sizeof cllow) cl2 = sizeof cllow - 1;
+        for (size_t i = 0; i < cl2; i++) cllow[i] = (char)tolower((unsigned char)clause[i]);
+        cllow[cl2] = '\0';
+
+        step++;
+        char piece[760] = {0};
+        int is_compose = (cue(cllow,"write")||cue(cllow,"generate")||cue(cllow,"create")||
+                          cue(cllow,"implement")||cue(cllow,"scrivi")) &&
+                         (cue(cllow,"function")||cue(cllow,"funzione")||
+                          cue(cllow,"variant")||cue(cllow,"variante"));
+        int is_eval = cue(cllow,"compute")||cue(cllow,"evaluate")||cue(cllow,"calcola")||
+                      cue(cllow,"valuta")||cue(cllow,"call ");
+
+        if (is_compose) {
+            char nm[64], src[256], note[200];
+            int r = compose_one(b, clause, cllow, nm, sizeof nm, src, sizeof src, note, sizeof note);
+            if (r == 1) {
+                if (nf < 10) { snprintf(fns[nf].name,64,"%s",nm); snprintf(fns[nf].src,256,"%s",src); nf++; }
+                snprintf(piece, sizeof piece, "%zu) %s  /* %s */", step, src, note);
+            } else if (r == -1) {
+                snprintf(piece, sizeof piece, "%zu) %s  /* %s */", step, src, note);
+            } else {
+                snprintf(piece, sizeof piece, "%zu) %s", step, note);
+            }
+        } else if (is_eval) {
+            char nm[64] = ""; long av[8]; size_t ac = 0;
+            if (parse_int_call(clause, nm, sizeof nm, av, &ac, 8)) {
+                const char *src = NULL;
+                for (size_t i = 0; i < nf; i++) if (strcmp(fns[i].name, nm)==0) { src = fns[i].src; break; }
+                if (!src && nf > 0) src = fns[nf-1].src;   /* "use it" -> last artifact */
+                long val;
+                if (src && code_eval(src, nm, av, ac, &val)) {
+                    size_t o = (size_t)snprintf(piece, sizeof piece, "%zu) %s(", step, nm);
+                    for (size_t i = 0; i < ac && o < sizeof piece; i++)
+                        o += (size_t)snprintf(piece+o, sizeof piece-o, "%s%ld", i?",":"", av[i]);
+                    if (o < sizeof piece) snprintf(piece+o, sizeof piece-o, ") = %ld", val);
+                } else {
+                    snprintf(piece, sizeof piece, "%zu) (can't evaluate %s — compose it first)", step, nm);
+                }
+            } else {
+                snprintf(piece, sizeof piece, "%zu) (no concrete call to evaluate here)", step);
+            }
+        } else {
+            snprintf(piece, sizeof piece, "%zu) (not yet: %.50s)", step, clause);
+        }
+
+        int wrote = snprintf(acc+off, off < sizeof acc ? sizeof acc - off : 0,
+                             "%s%s", off ? "  " : "", piece);
+        if (wrote < 0 || (size_t)wrote >= sizeof acc - off) break;
+        off += (size_t)wrote;
+    }
+
+    put(acc, out, out_size);
+    store_proof(b, "articulated code plan: split into ordered sub-goals, each composed/evaluated and oracle-checked");
+    return 1;
+}
+
 static int mod_compose(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     (void)norm;
@@ -6785,16 +7003,18 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
     const char *en = getenv("PARROT0_TOOLS");
     if (!en || strcmp(en, "1") != 0) return 0;
     size_t rl = strlen(raw);
-    if (rl == 0 || rl >= 480) return 0;
+    if (rl == 0 || rl >= 2000) return 0;
+    if (!b->kb) return 0;
 
-    char low[512];
-    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+    char low[2048];
+    size_t lim = rl < sizeof low - 1 ? rl : sizeof low - 1;
+    for (size_t i = 0; i < lim; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+    low[lim] = '\0';
 
     int want = (cue(low,"write") || cue(low,"generate") || cue(low,"create") ||
                 cue(low,"scrivi") || cue(low,"implement")) &&
                (cue(low,"function") || cue(low,"funzione"));
     if (!want) return 0;
-    if (!b->kb) return 0;
 
     /* Lazily load the generative substrate into the REFLECTIVE layer (never
      * persisted, filtered from introspection) the first time the composer runs, so
@@ -6807,79 +7027,25 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
         b->compose_kb_loaded = 1;
     }
 
-    /* Knowledge layer (KB-FIRST): the relation -> C operator mapping is KNOWLEDGE,
-     * so it is QUERIED from the KB (code_operator/2 in compose.p0), never hardcoded
-     * here. Enumerate the known cue words, and use the operator of the first cue
-     * that the request actually names. */
-    char op = 0; char opword[KB_TERM_LEN] = "";
-    char cues[24][KB_TERM_LEN];
-    const char *qall[2] = {NULL, NULL};
-    size_t ncue = kb_match(b->kb, "code_operator", qall, 2, cues, 24);
-    for (size_t i = 0; i < ncue && !op; i++) {
-        if (!strstr(low, cues[i])) continue;
-        char sym[1][KB_TERM_LEN];
-        const char *qsym[2] = {cues[i], NULL};
-        if (kb_match(b->kb, "code_operator", qsym, 2, sym, 1) == 1) {
-            /* the stored operator is a single C symbol (+,-,*). */
-            for (const char *p = sym[0]; *p; p++)
-                if (*p=='+' || *p=='-' || *p=='*') { op = *p; break; }
-            if (op) snprintf(opword, sizeof opword, "%s", cues[i]);
-        }
-    }
+    /* gen207: if the request is ARTICULATED (a strong sequencer chains several
+     * sub-goals), run the multi-step planner; otherwise compose the single function. */
+    static const char *const seq[] = {
+        " and then ", " and also ", " after that ", " afterwards ", " then ",
+        " also ", " next ", " finally ", " e poi ", " poi ", " dopo ",
+        " infine ", " inoltre ", "; ", NULL };
+    for (int s = 0; seq[s]; s++)
+        if (strstr(low, seq[s])) return compose_plan(b, raw, out, out_size);
 
-    if (!op) {
-        /* engaged but honest: name the gap rather than hallucinate a body. */
-        put("I can only synthesize and VERIFY simple arithmetic functions so far "
-            "(the sum, product, or difference of two integers). Anything beyond that "
-            "is the next generative faculty to pull — I will not emit code I cannot check.",
-            out, out_size);
-        return 1;
-    }
-
-    /* Planning layer: the function name (a real identifier from the request, else f). */
-    char name[64] = "f";
-    { char rc[512]; snprintf(rc, sizeof rc, "%s", raw);
-      char *w[96]; size_t nw = split_words(rc, w, 96);
-      for (size_t i = 0; i + 1 < nw; i++) {
-          if (ci_eq(w[i],"function") || ci_eq(w[i],"funzione") ||
-              ci_eq(w[i],"called") || ci_eq(w[i],"named")) {
-              rstrip_punct(w[i+1]);
-              const char *t = w[i+1];
-              int ok = (isalpha((unsigned char)t[0]) || t[0]=='_');
-              for (const char *p = t; *p && ok; p++)
-                  if (!(isalnum((unsigned char)*p) || *p=='_')) ok = 0;
-              if (ok && !ci_eq(t,"that") && !ci_eq(t,"named") && !ci_eq(t,"called") &&
-                  !ci_eq(t,"which") && !ci_eq(t,"to")) { snprintf(name, sizeof name, "%s", t); break; }
-          }
-      }
-    }
-
-    /* Expression layer: COMPOSE the artifact from structure (signature + relation). */
-    char code[256];
-    snprintf(code, sizeof code, "int %s(int a, int b) { return a %c b; }", name, op);
-
-    /* Verification layer: the oracle disposes. Evaluate the COMPOSED function on
-     * sample inputs and require it to equal the relation it was built to express. */
-    long a1 = 6, b1 = 4, a2 = 9, b2 = 2;
-    long exp1 = (op=='+') ? a1+b1 : (op=='*') ? a1*b1 : a1-b1;
-    long exp2 = (op=='+') ? a2+b2 : (op=='*') ? a2*b2 : a2-b2;
-    long got1 = 0, got2 = 0;
-    long arg1[2] = {a1,b1}, arg2[2] = {a2,b2};
-    int v1 = code_eval(code, name, arg1, 2, &got1) && got1 == exp1;
-    int v2 = code_eval(code, name, arg2, 2, &got2) && got2 == exp2;
-
+    /* single compose: Knowledge (KB) -> Synthesis (structure) -> Oracle (code_eval). */
+    char name[64], src[256], note[200];
+    int r = compose_one(b, raw, low, name, sizeof name, src, sizeof src, note, sizeof note);
     char msg[700];
-    if (v1 && v2)
-        snprintf(msg, sizeof msg,
-                 "%s  /* verified by symbolic execution: %s(%ld,%ld)=%ld and "
-                 "%s(%ld,%ld)=%ld */", code, name, a1, b1, got1, name, a2, b2, got2);
-    else
-        snprintf(msg, sizeof msg,
-                 "I composed `%s` but the oracle did not confirm it, so I will not "
-                 "report it as correct.", code);
+    if (r == 1)        snprintf(msg, sizeof msg, "%s  /* %s */", src, note);
+    else if (r == -1)  snprintf(msg, sizeof msg, "I composed `%s` but %s.", src, note);
+    else               snprintf(msg, sizeof msg, "%s", note);
     put(msg, out, out_size);
     char proof[320];
-    snprintf(proof, sizeof proof, "composed+verified %s (%s) via code_eval oracle", name, opword);
+    snprintf(proof, sizeof proof, "composed %s via code_eval oracle (%s)", name, r==1?"verified":"unverified/refused");
     store_proof(b, proof);
     return 1;
 }
@@ -12192,7 +12358,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen206-verified-compose";
+    return "gen207-articulated-plan";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
