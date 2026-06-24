@@ -98,9 +98,10 @@ swe-solve: build
 	@./tests/swebench/parrot_solve.sh $(INSTANCE)
 
 # gen205: pi-agent battery — parrot0 mounted as pi's model, driven over real HTTP
-# through scripts/pi_server.py (no pi install, no network). Proves the read-only
-# coding tools (list/read/grep/find) run LOCALLY in one turn and that answers are
-# grounded in real fixture content. See docs/use-on-pi-agent.md.
+# through parrot0's built-in `--daemon` server (gen221; no Python bridge, no pi
+# install, no network). Proves the read-only coding tools (list/read/grep/find)
+# run LOCALLY in one turn and that answers are grounded in real fixture content.
+# See docs/use-on-pi-agent.md.
 piagent-bench: build
 	@$(BENCH_PY) ./tests/piagent/piagent_bench.py
 

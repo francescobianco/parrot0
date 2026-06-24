@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """End-to-end battery for parrot0 mounted as the `pi` coding-agent model.
 
-Drives scripts/pi_server.py over real HTTP (the same surface `pi` speaks) on an
+Drives `parrot0 --daemon` over real HTTP (the same surface `pi` speaks) on an
 ephemeral port, so no `pi` install and no network are needed. It proves the thing
 docs/use-on-pi-agent.md set as the goal: parrot0 doing RELEVANT read-only coding
 tasks. Because parrot0 is LOCAL it runs the tool itself and answers in one turn —
@@ -68,9 +68,9 @@ def main() -> int:
         return 2
 
     env = {**os.environ, "PARROT0_TOOLS": "1", "PARROT0_PI_LOG": "/tmp/parrot0-piagent-bench.log"}
+    # gen221: parrot0 serves the OpenAI API itself (no Python bridge).
     srv = subprocess.Popen(
-        [sys.executable, str(ROOT / "scripts" / "pi_server.py"),
-         "--port", str(PORT), "--host", "127.0.0.1"],
+        [str(binp), "--daemon", "--port", str(PORT), "--host", "127.0.0.1"],
         cwd=str(ROOT), env=env,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )

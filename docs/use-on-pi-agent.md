@@ -1,9 +1,17 @@
 # Usare parrot0 come modello nel pi agent
 
-parrot0 non è un LLM: è un coding agent conversazionale in puro C con un
-protocollo stdin/stdout line-based. Questo documento descrive il **wrapper
-Python** che lo espone come endpoint OpenAI-compatible, in modo che il
-comando `pi` (`@earendil-works/pi-coding-agent`) possa montarlo come provider.
+parrot0 non è un LLM: è un coding agent conversazionale in puro C. Da **gen221**
+espone **direttamente** un endpoint OpenAI-compatible — `parrot0 --daemon` — in
+modo che il comando `pi` (`@earendil-works/pi-coding-agent`), o qualunque client
+OpenAI, possa montarlo come provider. Non serve più alcun wrapper Python: il
+server HTTP è implementato in C (`src/serve.c`).
+
+> **Nota storica.** Fino a gen220 il ponte era `scripts/pi_server.py` (un wrapper
+> `http.server` che lanciava parrot0 come sottoprocesso e ne pilotava stdin/stdout).
+> È stato **ritirato**: parrot0 serve l'API da sé. Le sezioni datate
+> ("Debug 2026-06-24", "Verifica 2026-06-24" e parte di "Piano di modifiche")
+> sono **registri storici** che si riferiscono al vecchio wrapper; i comandi
+> operativi correnti sono quelli qui sotto.
 
 ## Table of Contents
 
@@ -12,7 +20,7 @@ comando `pi` (`@earendil-works/pi-coding-agent`) possa montarlo come provider.
 - [Configurazione](#configurazione)
 - [Avvio](#avvio)
 - [Uso con pi](#uso-con-pi)
-- [Come funziona il wrapper](#come-funziona-il-wrapper)
+- [Come funziona il server](#come-funziona-il-server)
 - [Risoluzione problemi porte occupate](#risoluzione-problemi-porte-occupate)
 - [Stato dei test](#stato-dei-test)
 - [Debug 2026-06-24: cosa abbiamo scoperto](#debug-2026-06-24-cosa-abbiamo-scoperto)
@@ -27,25 +35,26 @@ comando `pi` (`@earendil-works/pi-coding-agent`) possa montarlo come provider.
 ## Architettura
 
 ```
-+--------+   HTTP /v1/chat/completions   +-------------+   stdin/stdout  +----------+
-|   pi   |  ---------------------------> | pi_server.py |  ------------> | parrot0  |
-| (agent)|  <--------------------------- |(http.server)|  <------------ |   (C)    |
-+--------+   risposta OpenAI JSON        +-------------+   una riga+nl   +----------+
++--------+   HTTP /v1/chat/completions   +-----------------------------+
+|   pi   |  ---------------------------> |        parrot0 (C)          |
+| (agent)|  <--------------------------- | --daemon: server HTTP +     |
++--------+   risposta OpenAI JSON        | brain nello stesso processo |
+                                         +-----------------------------+
 ```
 
-pi parla l'API OpenAI Chat Completions; parrot0 parla un protocollo
-line-based (una riga di prompt in stdin, una riga di risposta in stdout, i
-prompt `you>` e saluti vanno su stderr e vengono scartati). `pi_server.py`
-fa da ponte: registra un provider `parrot0` con API `openai-completions`
-e traduce ogni richiesta in una singola riga mandata a parrot0.
+pi parla l'API OpenAI Chat Completions; il daemon parrot0 la serve nativamente.
+Ogni richiesta viene convertita in una singola riga di prompt, passata al brain
+in-process e la risposta è restituita in formato OpenAI JSON (streaming SSE o
+non). Nessun sottoprocesso, nessun ponte Python.
 
 ## File coinvolti
 
 | File | Ruolo |
 |------|-------|
-| `scripts/pi_server.py` | Wrapper HTTP/JSON in Python (nessuna dipendenza esterna: solo stdlib) |
+| `src/serve.c` | Server HTTP OpenAI-compatible in C (parser JSON minimale + socket POSIX) |
+| `bin/parrot0 --daemon` | Avvia il server (`--port`, `--host`) |
 | `~/.pi/agent/models.json` | Registra il provider `parrot0` presso pi (baseUrl, apiKey, models) |
-| `/tmp/parrot0-pi-traffic.log` | Log del traffico (prompt inviati a parrot0, risposte, corpo richieste) — percorso sovrascrivibile con env `PARROT0_PI_LOG` |
+| `/tmp/parrot0-pi-traffic.log` | Log opzionale del traffico (prompt e risposte) — abilitato con env `PARROT0_PI_LOG` |
 
 ## Configurazione
 
@@ -63,7 +72,7 @@ Crea il file (la directory `~/.pi/agent/` di solito esiste già):
 {
   "providers": {
     "parrot0": {
-      "baseUrl": "http://127.0.0.1:9899/v1",
+      "baseUrl": "http://127.0.0.1:9902/v1",
       "api": "openai-completions",
       "apiKey": "parrot0",
       "compat": {
@@ -94,12 +103,12 @@ Note sui flag `compat`:
 - `supportsUsageInStreaming: false` → non invia `stream_options.include_usage`.
 
 Il file viene ricaricato ogni volta che apri `/model` in pi: **non serve
-restart** per modificarlo. La porta `9899` è il default attuale di
-`pi_server.py` (parametro `--port`).
+restart** per modificarlo. La porta `9902` è il default del daemon
+(`parrot0 --daemon`, parametro `--port`).
 
 ### 3. Endpoint
 
-`pi_server.py` espone:
+Il daemon espone:
 - `POST /v1/chat/completions` — principale (streaming e non)
 - `GET  /v1/models` — lista il modello `parrot0`
 - `GET  /health` — healthcheck
@@ -110,22 +119,27 @@ In un terminale a parte (il server resta in foreground, o in background
 con `nohup`):
 
 ```bash
-python3 scripts/pi_server.py
+./bin/parrot0 --daemon
 # oppure con porta/host custom:
-python3 scripts/pi_server.py --port 9899 --host 127.0.0.1
+./bin/parrot0 --daemon --port 9902 --host 127.0.0.1
 ```
 
 Output atteso su stderr:
 ```
-pi_server: starting parrot0 ...
-pi_server: pid=<pid> listening on http://127.0.0.1:9899/v1/chat/completions
+parrot0 [genNNN] daemon: listening on http://127.0.0.1:9902/v1/chat/completions
 ```
 
 Per mantenerlo in background:
 
 ```bash
-nohup python3 scripts/pi_server.py > /tmp/pi_server.stderr 2>&1 &
+nohup ./bin/parrot0 --daemon > /tmp/parrot0-daemon.stderr 2>&1 &
 ```
+
+In daemon mode parrot0 imposta dei default comodi per l'uso come modello pi
+(senza sovrascrivere variabili già presenti): `PARROT0_TOOLS=1` (tool di coding
+read-only attivi), `PARROT0_PROFILE=kb/profiles/agi.p0`, `PARROT0_SESSION=`
+(nessuna persistenza di sessione). Un harness può sempre forzare l'opposto
+(es. `PARROT0_PROFILE=` per togliere il profilo).
 
 ## Uso con pi
 
@@ -159,68 +173,49 @@ pi --provider parrot0 --model parrot0 --api-key parrot0
 > (la nostra API ignora la chiave), ma pi esige che ci siano credenziali
 > prima di rendere il modello disponibile in `/model` e `--list-models`.
 
-## Come funziona il wrapper
+## Come funziona il server
 
-### Protocollo parrot0
+### In-process, niente sottoprocesso
 
-parrot0 legge una riga da stdin, scrive una riga su stdout, i prompt e i
-saluti vanno su stderr (scartati). Il codice si basa su `tests/chatsim.py`:
-
-```python
-proc = subprocess.Popen(["./bin/parrot0"], stdin=PIPE, stdout=PIPE, stderr=DEVNULL,
-                         text=True, bufsize=1,
-                         env={**os.environ,
-                              "PARROT0_BASE": ".../kb/core/base.p0",
-                              "PARROT0_SESSION": "",
-                              "PARROT0_PROFILE": ".../kb/profiles/agi.p0"})
-proc.stdin.write(prompt + "\n"); proc.stdin.flush()
-response = proc.stdout.readline().rstrip("\n")
-```
-
-Comandi speciali: `/quit` esce, `/save` persiste la sessione.
+Il daemon (`src/serve.c`) crea il brain una volta sola e lo serve in-process:
+un loop `accept()` iterativo legge la richiesta HTTP, la instrada e chiama
+`brain_respond()` direttamente. Essendo il brain stateful, le richieste sono
+servite **una alla volta** (la stessa serializzazione che il vecchio wrapper
+otteneva con un `threading.Lock`), così lo stato resta deterministico tra i turni.
 
 ### Conversione messaggi OpenAI → prompt parrot0
 
-`_build_prompt()` scorre i `messages` OpenAI in ordine; per ogni ruolo:
-- `system` → `[System]: <content>`
-- `user`   → `<content>` (testo puro)
-- `assistant` → `[Assistant]: <content>`
-- `tool`   → `[Tool result]: <content>`
-
-poi prende l'ultimo messaggio `user`, normalizzando sia content stringa sia content array OpenAI (`[{"type":"text","text":"..."}]`). Di default invia a parrot0 solo il testo utente, perché il system prompt di `pi` è troppo rumoroso per il protocollo line-based di parrot0. Per debug comparativo si può riabilitare il prefisso `[Instructions: <system>] <user>` con `PARROT0_PI_INCLUDE_SYSTEM=1`. Il prompt viene collassato su una sola riga e troncato a 2000 caratteri.
-
-### Concorrenza
-
-Un singolo processo parrot0 esiste per tutta la vita del server. I turni
-sono protetti da un `threading.Lock` (parrot0 è single-threaded sul suo
-stdin/stdout). Lo stderr viene drenato in background per non bloccare la pipe.
+Un parser JSON minimale (incluso in `serve.c`) estrae l'array `messages`. Per
+ogni messaggio si legge `role` e `content`, dove `content` può essere una stringa
+o un array OpenAI (`[{"type":"text","text":"..."}]`). Di default si invia a
+parrot0 **solo l'ultimo messaggio `user`**, perché il system prompt di `pi` è
+troppo rumoroso per il protocollo line-based di parrot0. Per debug comparativo si
+può riabilitare il prefisso `[Instructions: <system>] <user>` con
+`PARROT0_PI_INCLUDE_SYSTEM=1`. Il prompt viene collassato su una sola riga e
+troncato a 2000 caratteri.
 
 ### Log del traffico
 
-Ogni richiesta viene loggata su `/tmp/parrot0-pi-traffic.log` (o
-`$PARROT0_PI_LOG`). Per ogni POST si registrano:
-- numero di messaggi, lunghezza prompt, modello, flag `stream`
-- ogni messaggio con ruolo e anteprima del content (160 char)
-- prompt effettivo inviato a parrot0 (200 char)
-- risposta di parrot0 (200 char)
+Se `PARROT0_PI_LOG` è impostato, ogni richiesta viene loggata su quel file:
+prompt inviato al brain e risposta (primi 200 char). Senza la variabile, nessun
+log (zero overhead).
 
 ## Risoluzione problemi porte occupate
 
-Se all'avvio ottieni `OSError: [Errno 98] Address already in use`:
+Se all'avvio ottieni `bind: Address already in use`:
 
 ```bash
 ss -ltnp | grep <porta>     # trova il PID
 # oppure
-ps aux | grep pi_server.py
+ps aux | grep 'parrot0 --daemon'
 ```
 
-Per cambiare porta, basta allineare `--port` di `pi_server.py` e il
-`baseUrl` in `~/.pi/agent/models.json` (nessun rebuild, si ricarica da solo).
-
-In alternativa passa una porta al volo:
+Il socket usa `SO_REUSEADDR`, quindi un riavvio subito dopo la chiusura non
+dovrebbe collidere. Per cambiare porta, basta allineare `--port` del daemon e il
+`baseUrl` in `~/.pi/agent/models.json` (nessun rebuild, si ricarica da solo):
 
 ```bash
-python3 scripts/pi_server.py --port 9899
+./bin/parrot0 --daemon --port 9902
 # e aggiorna models.json di conseguenza
 ```
 
@@ -317,13 +312,13 @@ make piagent-bench
 # → passed: 14, failed: 0
 ```
 
-Il battery (`tests/piagent/piagent_bench.py`) avvia `scripts/pi_server.py` su una
+Il battery (`tests/piagent/piagent_bench.py`) avvia `parrot0 --daemon` su una
 porta effimera e parla **HTTP vero** (la stessa superficie di `pi`), asserendo che
 ogni risposta contenga il contenuto REALE della fixture in
 `tests/piagent/workspace/`. Probe diretto equivalente:
 
 ```bash
-PARROT0_TOOLS=1 python3 scripts/pi_server.py --port 9914 &
+PARROT0_TOOLS=1 ./bin/parrot0 --daemon --port 9914 &
 curl -s http://127.0.0.1:9914/v1/chat/completions -H 'Content-Type: application/json' \
   -d '{"model":"parrot0","messages":[{"role":"user","content":"list the .c files in tests/piagent/workspace"}]}'
 # -> "The `*.c` files in tests/piagent/workspace: .../calc.c .../mathx.c (ran `find ...`)"

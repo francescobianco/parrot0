@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Track A of docs/plans/learn-and-build.md: the honest, repeatable learn→build harness.
 
-Drives scripts/pi_server.py over real HTTP — the same surface `pi` speaks — and proves,
+Drives `parrot0 --daemon` over real HTTP — the same surface `pi` speaks — and proves,
 with assertions, the part of the challenge that is genuine TODAY:
 
   1. forget   — boot with NO sorting knowledge (no agi profile, empty learned KB, no
@@ -63,9 +63,9 @@ def _health_ok() -> bool:
 
 
 def _start_server(learn_kb: Path, with_wiki: bool):
-    """Boot pi_server with the agi profile DROPPED (so algo.p0 is absent and the
-    forget is genuine), an empty session, and a fresh learned KB. PARROT0_WIKI_DIR is
-    set only when a source page should be readable."""
+    """Boot the parrot0 daemon with the agi profile DROPPED (so algo.p0 is absent
+    and the forget is genuine), an empty session, and a fresh learned KB.
+    PARROT0_WIKI_DIR is set only when a source page should be readable."""
     env = {
         **os.environ,
         "PARROT0_BASE": str(ROOT / "kb" / "core" / "base.p0"),
@@ -79,9 +79,9 @@ def _start_server(learn_kb: Path, with_wiki: bool):
         env["PARROT0_WIKI_DIR"] = str(WIKI_DIR)
     else:
         env.pop("PARROT0_WIKI_DIR", None)
+    # gen221: parrot0 serves the OpenAI API itself (no Python bridge).
     proc = subprocess.Popen(
-        [sys.executable, str(ROOT / "scripts" / "pi_server.py"),
-         "--port", str(PORT), "--host", "127.0.0.1"],
+        [str(ROOT / "bin" / "parrot0"), "--daemon", "--port", str(PORT), "--host", "127.0.0.1"],
         cwd=str(ROOT), env=env,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
     )

@@ -12,7 +12,10 @@
  *     for the test harness.
  *   - Input "/quit", "/exit" or EOF (Ctrl-D) ends the session.
  */
+#define _POSIX_C_SOURCE 200809L
+
 #include "brain.h"
+#include "serve.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -131,18 +134,15 @@ static int read_turn_tty(char *buf, size_t cap) {
     return eof ? 0 : 1;
 }
 
-int main(void) {
+/* Create the brain and load its knowledge layers. `*out_sess` receives the
+ * session file path (for /save). Paths come from the environment (empty disables
+ * loading — used by the hermetic test harness and the daemon). gen150:
+ * PARROT0_PROFILE loads a knowledge profile (e.g. profiles/agi.p0) that chains
+ * experts and skills via :- include directives. Returns NULL on OOM. */
+static Brain *setup_brain(const char **out_sess) {
     Brain *brain = brain_create();
-    if (!brain) {
-        fprintf(stderr, "parrot0: out of memory\n");
-        return 1;
-    }
+    if (!brain) return NULL;
 
-    /* Knowledge layers: a curated base file + a session file of discovered
-     * facts, joined into RAM at startup. Paths come from the environment
-     * (empty disables loading — used by the hermetic test harness).
-     * gen150: PARROT0_PROFILE loads a knowledge profile (e.g. profiles/agi.p0)
-     * that chains experts and skills via :- include directives. */
     const char *base = getenv("PARROT0_BASE");
     const char *sess = getenv("PARROT0_SESSION");
     const char *profile = getenv("PARROT0_PROFILE");
@@ -153,6 +153,50 @@ int main(void) {
     brain_load(brain, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain knowledge */
     if (profile && *profile)
         brain_load(brain, profile, 1);    /* gen150: expert/skill profile */
+
+    if (out_sess) *out_sess = sess;
+    return brain;
+}
+
+int main(int argc, char **argv) {
+    /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
+     * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
+    int daemon_mode = 0, port = 9902;
+    const char *host = "127.0.0.1";
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
+        else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc) port = atoi(argv[++i]);
+        else if (strncmp(argv[i], "--port=", 7) == 0) port = atoi(argv[i] + 7);
+        else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
+        else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
+        else {
+            fprintf(stderr, "parrot0: unknown argument '%s'\n"
+                            "usage: parrot0 [--daemon [--port N] [--host H]]\n", argv[i]);
+            return 2;
+        }
+    }
+
+    if (daemon_mode) {
+        /* Match the pi-agent defaults the Python wrapper used to inject: tools on,
+         * the agi profile by default, no session persistence. setenv(...,0) never
+         * overwrites an explicit value, so a harness can still drop the profile
+         * (PARROT0_PROFILE="") or turn tools off (PARROT0_TOOLS=0). */
+        setenv("PARROT0_TOOLS", "1", 0);
+        setenv("PARROT0_PROFILE", "kb/profiles/agi.p0", 0);
+        setenv("PARROT0_SESSION", "", 0);
+        Brain *brain = setup_brain(NULL);
+        if (!brain) { fprintf(stderr, "parrot0: out of memory\n"); return 1; }
+        int rc = serve_http(brain, host, port);
+        brain_destroy(brain);
+        return rc;
+    }
+
+    const char *sess = NULL;
+    Brain *brain = setup_brain(&sess);
+    if (!brain) {
+        fprintf(stderr, "parrot0: out of memory\n");
+        return 1;
+    }
 
     fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit, "
                     "'/save' to persist)\n", brain_version());
