@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_24t18_56_38z_special_relativity",
+  "extraction": {
+    "concept": "In physics, the special theory of relativity, or simply special relativity, is a scientific theory of the...",
+    "concept_key": "special_relativity",
+    "extract_sha256": "2b4f00c2915c9dbd25901076a32df7972d8996730ac5d9781c3bb4eaef2af1cc",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_24t18_56_38z_special_relativity.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/special_relativity.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 9,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-24T18:56:38Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_24t18_56_38z_special_relativity"
+  },
+  "source": {
+    "domain": "physics",
+    "index": 8,
+    "line": 20,
+    "title": "Special relativity"
+  },
+  "wikipedia": {
+    "canonical_title": "Special relativity",
+    "lang": "en",
+    "pageid": 26962,
+    "revision": 1360902546,
+    "url": "https://en.wikipedia.org/wiki/Special_relativity"
+  }
+}
