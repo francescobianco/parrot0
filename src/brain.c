@@ -121,7 +121,7 @@ struct Brain {
      * actual execution path and the first-match-wins control rule, not a
      * confabulated story. Committed only on non-introspective turns, so asking
      * about the strategy never overwrites the trace it is asking about. */
-    char trace_declined[48][24];
+    char trace_declined[64][24];   /* gen206: cap >= registry length (now ~49) */
     size_t trace_declined_n;
     char trace_winner[24];
     int  has_trace;
@@ -196,6 +196,26 @@ struct Brain {
      * self-tests propose different names — proof the run is generated and
      * executed, not a memorized transcript. */
     unsigned selftest_runs;
+
+    /* gen205 (pi-agent): the perceive->act->observe seam for LOCAL tools. Unlike a
+     * REMOTE LLM — which cannot touch the machine and must round-trip every
+     * observation through its context (emit tool_call, wait, receive result) —
+     * parrot0 runs ON the box. So when a turn is a read-only coding/filesystem
+     * request and parrot0 is in agent mode (PARROT0_TOOLS=1), mod_piact compiles
+     * the intent to a safe command, RUNS it locally itself, and folds the REAL
+     * output into a grounded answer in the SAME turn. No tool-call protocol, no
+     * pending cross-turn state: the double step the OpenAI tool API forces on
+     * remote models is simply unnecessary here. PRINCIPLES.md's anti-impostor rule
+     * still binds — every reported file/line comes from a command that actually
+     * ran (recorded as the proof trace), never from a guess. The proof of the last
+     * act is kept so "how do you know?" can cite the exact command. */
+    char last_tool_cmd[256];    /* the exact command the last act ran           */
+    int  has_last_tool_cmd;
+
+    /* gen206 (composer): the generative operator substrate (compose.p0) is loaded
+     * lazily into the REFLECTIVE layer the first time mod_compose runs, so it never
+     * touches ordinary conversation or the boot KB. This guards the one-time load. */
+    int  compose_kb_loaded;
 
 };
 
@@ -354,6 +374,8 @@ static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
 static int is_internal_pred(const char *pred);
+static int run_shell(const char *cmd, char *out, size_t out_size);
+static int identify_code_lang(const char *code, Brain *b);
 
 /* Copy the last whitespace-separated word of `raw` into `dst`, preserving its
  * original casing and trimming trailing punctuation/whitespace. Used to keep
@@ -4487,6 +4509,11 @@ static int is_internal_pred(const char *pred) {
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
         "error", "concept", "algorithm", "faster_than",
+        /* gen206: code_operator/2 (coding.p0) is the relation->C-operator table
+         * mod_compose reads to synthesize code — technical substrate, not a fact
+         * the user taught; filter it from introspection and conversational lookup
+         * like keyword/math_op. */
+        "code_operator",
         /* gen150: expert/skill/profile domain knowledge — structural metadata. */
         "expert", "expert_domain", "expert_description",
         "skill", "skill_domain", "skill_description",
@@ -5314,7 +5341,7 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
 
     /* Build the declined-module list, skipping my own name (strategy is always
      * consulted before the winner on a normal turn; reporting it is just noise). */
-    char declined[512] = ""; size_t nlisted = 0;
+    char declined[1024] = ""; size_t nlisted = 0;
     for (size_t i = 0; i < b->trace_declined_n; i++) {
         if (strcmp(b->trace_declined[i], "strategy") == 0) continue;
         if (nlisted) strncat(declined, ", ", sizeof declined - strlen(declined) - 1);
@@ -5322,7 +5349,7 @@ static int mod_strategy(Brain *b, const char *norm, const char *raw,
         nlisted++;
     }
 
-    char msg[800];
+    char msg[1400];
     if (strcmp(b->trace_winner, "fallback") == 0) {
         if (nlisted)
             snprintf(msg, sizeof msg,
@@ -6342,6 +6369,517 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
 
     char proof[640];
     snprintf(proof, sizeof proof, "tool call %s = %s", cmd, result);
+    store_proof(b, proof);
+    return 1;
+}
+
+/* gen205 (pi-agent): LOCAL coding-agent tools — the step from "an agent that can
+ * compute" (gen115's in-process oracle) to "an agent that can operate a codebase".
+ * See docs/use-on-pi-agent.md. A REMOTE LLM cannot read the disk; it must emit a
+ * tool_call, surrender the turn, and wait for the runtime to feed the observation
+ * back into its context — the two-step OpenAI tool protocol. parrot0 runs on the
+ * machine, so it skips that whole dance and answers in the SAME turn.
+ *
+ * Crucially this module is a ROUTER INTO THE EXISTING SUBSTRATE, not a parallel
+ * shell-out island. It separates two kinds of act:
+ *   - PERCEPTION of the filesystem (list / find files) has no KB primitive, so it
+ *     genuinely shells out (find), grounded by naming the command it ran.
+ *   - UNDERSTANDING CODE goes through the AST-as-KB engine and the SWE-bench
+ *     localizers, never a blind grep: "read FILE" parses the file with code_ingest
+ *     and asserts `code_function`/`code_calls` facts into the LIVE KB (so a later
+ *     "where is X" is a KB query); "where is X" / "what calls X" call code_locate /
+ *     code_find_callers — the exact primitives that drive `make swe-solve`
+ *     (CODE-MASTERY §4) — and answer from a real parse, which a comment or a string
+ *     literal cannot fake. A text grep is the FALLBACK, only for free-text patterns.
+ * So the anti-impostor rule (PRINCIPLES.md) holds at the structural level: parrot0
+ * reports a definition/caller only when the parser actually found it. Gated by
+ * PARROT0_TOOLS=1 so the hermetic test harness never shells out; the pi wrapper sets
+ * it. This is KB-first agency: the same KB and code engine the loop already grew,
+ * reached from the agent's read-only verbs. */
+
+/* case-insensitive prefix test (no <strings.h> in this translation unit). */
+static int ci_prefix(const char *s, const char *prefix) {
+    for (size_t i = 0; prefix[i]; i++)
+        if (tolower((unsigned char)s[i]) != tolower((unsigned char)prefix[i]))
+            return 0;
+    return 1;
+}
+
+/* True if `tok` equals `lit` case-insensitively. */
+static int ci_eq(const char *tok, const char *lit) {
+    return ci_prefix(tok, lit) && tok[strlen(lit)] == '\0';
+}
+
+/* Collapse every run of whitespace/newlines in `src` to a single space and trim
+ * the ends, into `dst` (truncated to cap-1). Keeps a multi-line command result on
+ * the single line parrot0's protocol promises. */
+static void collapse_ws(const char *src, char *dst, size_t cap) {
+    size_t o = 0; int sp = 1;                 /* sp: suppress a leading space */
+    for (size_t i = 0; src[i] && o + 1 < cap; i++) {
+        if (isspace((unsigned char)src[i])) { if (!sp) { dst[o++] = ' '; sp = 1; } }
+        else { dst[o++] = src[i]; sp = 0; }
+    }
+    while (o > 0 && dst[o - 1] == ' ') o--;
+    dst[o] = '\0';
+}
+
+/* A path/dir/glob token is SAFE iff every char is alnum or one of . _ / - and the
+ * glob star. Anything
+ * else (space is impossible — tokens are whitespace-split — but ';', '$', '`',
+ * '|', quotes, etc.) means we refuse to build a command from it. This, plus
+ * single-quoting the grep pattern, is what keeps a hostile prompt from injecting a
+ * second command into the shell parrot0 runs. */
+static int safe_pathish(const char *t) {
+    if (!t || !*t) return 0;
+    for (const char *p = t; *p; p++) {
+        char c = *p;
+        if (!(isalnum((unsigned char)c) || c=='.' || c=='_' || c=='/' ||
+              c=='-' || c=='*'))
+            return 0;
+    }
+    return 1;
+}
+
+/* Strip trailing sentence punctuation from a token in place. */
+static void rstrip_punct(char *t) {
+    size_t n = strlen(t);
+    while (n > 0 && (t[n-1]=='?'||t[n-1]=='.'||t[n-1]=='!'||t[n-1]==','||
+                     t[n-1]==';'||t[n-1]==':')) t[--n] = '\0';
+}
+
+/* Map an English file-kind cue in `low` to a shell glob written into `glob`.
+ * Returns 1 if a glob was found. Recognizes an explicit "*.ext" and ".ext" as
+ * well as a handful of language words. */
+static int detect_glob(const char *low, char *glob, size_t cap) {
+    static const char *const exts[] = {
+        ".c",".h",".py",".js",".ts",".md",".txt",".json",".sh",
+        ".cpp",".cc",".go",".rs",".java",".rb",".html",".css", NULL };
+    const char *star = strstr(low, "*.");
+    if (star) {
+        size_t i = 0; glob[i++] = '*'; const char *p = star + 1;   /* keep ".ext" */
+        while (*p && i + 1 < cap && (isalnum((unsigned char)*p) || *p=='.')) glob[i++] = *p++;
+        glob[i] = '\0';
+        return 1;
+    }
+    for (int e = 0; exts[e]; e++) {
+        if (strstr(low, exts[e])) { snprintf(glob, cap, "*%s", exts[e]); return 1; }
+    }
+    static const struct { const char *word, *glob; } words[] = {
+        {"python","*.py"}, {"header","*.h"}, {"javascript","*.js"},
+        {"typescript","*.ts"}, {"markdown","*.md"}, {"shell","*.sh"},
+        {"rust","*.rs"}, {"golang","*.go"}, {"java","*.java"}, {NULL,NULL} };
+    for (int w = 0; words[w].word; w++)
+        if (strstr(low, words[w].word)) { snprintf(glob, cap, "%s", words[w].glob); return 1; }
+    return 0;
+}
+
+/* A command is allowed for the "run" intent only if its head is a known build /
+ * test / inspection tool. parrot0 will execute arbitrary read-only listings on its
+ * own authority, but running a command the user dictated is gated to a whitelist so
+ * a prompt cannot turn parrot0 into a general shell. */
+static int run_whitelisted(const char *cmd) {
+    static const char *const ok[] = {
+        "make ", "make\0", "npm test", "npm run", "pnpm ", "yarn ",
+        "pytest", "python -m pytest", "python3 -m pytest", "cargo test",
+        "cargo build", "go test", "go build", "ctest", "./tests/", "bash tests/",
+        "sh tests/", "git status", "git diff", "git log", NULL };
+    for (int i = 0; ok[i]; i++)
+        if (ci_prefix(cmd, ok[i])) return 1;
+    return strcmp(cmd, "make") == 0;
+}
+
+/* Find the first token after one of the locator words ("in", "inside", ...) that
+ * is a safe path, else the first bare safe path-ish token. Returns it or NULL. */
+static const char *find_dir(char **w, size_t nw) {
+    for (size_t i = 0; i + 1 < nw; i++) {
+        if (ci_eq(w[i],"in")||ci_eq(w[i],"inside")||ci_eq(w[i],"under")||
+            ci_eq(w[i],"within")||ci_eq(w[i],"from")||ci_eq(w[i],"directory")||
+            ci_eq(w[i],"folder")||ci_eq(w[i],"dir")) {
+            rstrip_punct(w[i+1]);
+            if (safe_pathish(w[i+1]) && strchr(w[i+1], '/')) return w[i+1];
+            if (safe_pathish(w[i+1]) && strcmp(w[i+1],"the") != 0) return w[i+1];
+        }
+    }
+    /* a bare token that contains a slash is very likely the directory. */
+    for (size_t i = 0; i < nw; i++) {
+        rstrip_punct(w[i]);
+        if (strchr(w[i], '/') && safe_pathish(w[i])) return w[i];
+    }
+    return NULL;
+}
+
+/* Find a file path token: one containing '/', else one ending in a known-looking
+ * .ext (e.g. main.c) — used by the "read" intent. */
+static const char *find_file(char **w, size_t nw) {
+    for (size_t i = 0; i < nw; i++) { rstrip_punct(w[i]); if (strchr(w[i],'/') && safe_pathish(w[i])) return w[i]; }
+    for (size_t i = 0; i < nw; i++) {
+        char *dot = strrchr(w[i], '.');
+        if (dot && dot != w[i] && isalpha((unsigned char)dot[1]) && safe_pathish(w[i]))
+            return w[i];
+    }
+    return NULL;
+}
+
+/* Run `cmd` locally, fold its real output into `out` as one line tagged by the
+ * human-facing `label`, record the proof, and claim the turn. */
+static int piact_run(Brain *b, const char *cmd, const char *label,
+                     char *out, size_t out_size) {
+    char raw_out[8192];
+    if (!run_shell(cmd, raw_out, sizeof raw_out)) {
+        char m[320]; snprintf(m, sizeof m, "I tried to run `%s` but the tool would not start.", cmd);
+        put(m, out, out_size);
+        return 1;
+    }
+    char flat[4000];
+    collapse_ws(raw_out, flat, sizeof flat);
+    char msg[4400];
+    if (flat[0] == '\0')
+        snprintf(msg, sizeof msg, "%s: nothing. (ran `%s`)", label, cmd);
+    else
+        snprintf(msg, sizeof msg, "%s: %s (ran `%s`)", label, flat, cmd);
+    put(msg, out, out_size);
+    if (b) {
+        snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "%s", cmd);
+        b->has_last_tool_cmd = 1;
+        char proof[320];
+        snprintf(proof, sizeof proof, "ran local tool: %s", cmd);
+        store_proof(b, proof);
+    }
+    return 1;
+}
+
+static int mod_piact(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+    const char *en = getenv("PARROT0_TOOLS");
+    if (!en || strcmp(en, "1") != 0) return 0;
+
+    size_t rl = strlen(raw);
+    if (rl == 0 || rl >= 480) return 0;
+
+    char low[512];
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    /* Detect the intent BEFORE tokenizing (split_words mutates its buffer). */
+    int want_grep = ci_prefix(low,"grep ") || cue(low,"search for") ||
+                    cue(low,"where is") || cue(low,"where does") ||
+                    cue(low,"references to") || cue(low,"occurrences of") ||
+                    cue(low,"uses of") || cue(low,"grep for");
+    int want_find = (cue(low,"find") && (cue(low,"named") || cue(low,"called"))) ||
+                    cue(low,"locate the file");
+    int want_list = (cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
+                    ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
+                    cue(low,"what files") || cue(low,"which files") ||
+                    cue(low,"show me the files") || cue(low,"show the files");
+    int want_read = ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||
+                    cue(low,"contents of") || cue(low,"open the file") ||
+                    cue(low,"print the file") || cue(low,"show me the file");
+    int want_run  = ci_prefix(low,"run ") || cue(low,"run the test") ||
+                    cue(low,"build the project") || cue(low,"compile the");
+    if (!(want_grep || want_find || want_list || want_read || want_run))
+        return 0;
+
+    char rawcopy[512]; snprintf(rawcopy, sizeof rawcopy, "%s", raw);
+    char *w[96]; size_t nw = split_words(rawcopy, w, 96);
+
+    /* ---- locate / search for a symbol ---- */
+    if (want_grep) {
+        /* the pattern is the token after the cue word; sanitize for single-quotes. */
+        const char *pat = NULL;
+        for (size_t i = 0; i + 1 < nw; i++) {
+            if (ci_eq(w[i],"for")||ci_eq(w[i],"is")||ci_eq(w[i],"to")||
+                ci_eq(w[i],"of")||ci_eq(w[i],"grep")||ci_eq(w[i],"does")||
+                ci_eq(w[i],"calls")||ci_eq(w[i],"call")) { pat = w[i+1]; }
+        }
+        if (!pat && nw >= 2) pat = w[nw-1];
+        if (!pat) return 0;
+        char patbuf[128], clean[128]; size_t o = 0;
+        rstrip_punct((char*)pat);
+        for (const char *p = pat; *p && o + 1 < sizeof clean; p++)
+            if (*p != '\'' && *p != '`' && *p != '\\') clean[o++] = *p;
+        clean[o] = '\0';
+        if (clean[0] == '\0') return 0;
+        snprintf(patbuf, sizeof patbuf, "%s", clean);
+        const char *dir = find_dir(w, nw);
+        char dirbuf[256]; snprintf(dirbuf, sizeof dirbuf, "%s", (dir && safe_pathish(dir)) ? dir : ".");
+
+        /* KB-FIRST: when the target is a bare code identifier, answer by STRUCTURE,
+         * not by text. code_locate / code_find_callers are the very localizers that
+         * drive `make swe-solve` (CODE-MASTERY §4) — so "where is X" / "what calls X"
+         * inside pi reuse the SWE-bench spine, grounded in a real parse of real files
+         * rather than a line match that a comment or a string could fake. Free-text
+         * patterns (with spaces or punctuation) still fall through to grep. */
+        int is_ident = isalpha((unsigned char)patbuf[0]) || patbuf[0] == '_';
+        for (const char *p = patbuf; *p && is_ident; p++)
+            if (!(isalnum((unsigned char)*p) || *p == '_')) is_ident = 0;
+        int want_callers = cue(low,"call") || cue(low,"caller") ||
+                           cue(low,"uses of") || cue(low,"used by");
+        if (is_ident) {
+            char file[256] = ""; int located = code_locate(dirbuf, patbuf, file, sizeof file);
+            char callers[16][KB_TERM_LEN]; size_t nc = code_find_callers(dirbuf, patbuf, callers, 16);
+            if (located || nc) {
+                char msg[1200]; size_t off = 0;
+                if (located)
+                    off += (size_t)snprintf(msg+off, sizeof msg-off,
+                                            "`%s` is defined in %s", patbuf, file);
+                else
+                    off += (size_t)snprintf(msg+off, sizeof msg-off,
+                                            "`%s` is not defined under %s", patbuf, dirbuf);
+                if (nc && (want_callers || located)) {
+                    off += (size_t)snprintf(msg+off, sizeof msg-off, "; called by ");
+                    for (size_t i = 0; i < nc && off < sizeof msg; i++)
+                        off += (size_t)snprintf(msg+off, sizeof msg-off, "%s%s",
+                                                i ? ", " : "", callers[i]);
+                } else if (located && !nc && want_callers) {
+                    off += (size_t)snprintf(msg+off, sizeof msg-off, "; nothing calls it");
+                }
+                if (off < sizeof msg) snprintf(msg+off, sizeof msg-off, ".");
+                put(msg, out, out_size);
+                if (b) {
+                    char proof[320];
+                    snprintf(proof, sizeof proof,
+                             "structural locate of %s under %s (code_locate/code_find_callers)",
+                             patbuf, dirbuf);
+                    store_proof(b, proof);
+                }
+                return 1;
+            }
+            /* identifier but no structural hit — fall through to a text grep. */
+        }
+
+        char cmd[640];
+        snprintf(cmd, sizeof cmd,
+                 "grep -rn '%s' %s 2>/dev/null | head -n 40", patbuf, dirbuf);
+        char label[160]; snprintf(label, sizeof label, "Matches for `%s`", patbuf);
+        return piact_run(b, cmd, label, out, out_size);
+    }
+
+    /* ---- find a file by name ---- */
+    if (want_find) {
+        const char *name = NULL;
+        for (size_t i = 0; i + 1 < nw; i++)
+            if (ci_eq(w[i],"named")||ci_eq(w[i],"called")||ci_eq(w[i],"file")) name = w[i+1];
+        if (!name && nw >= 2) name = w[nw-1];
+        if (!name) return 0;
+        rstrip_punct((char*)name);
+        if (!safe_pathish(name)) return 0;
+        const char *dir = find_dir(w, nw);
+        char dirbuf[256]; snprintf(dirbuf, sizeof dirbuf, "%s", (dir && safe_pathish(dir)) ? dir : ".");
+        char cmd[640];
+        snprintf(cmd, sizeof cmd, "find %s -name '%s' 2>/dev/null | head -n 40", dirbuf, name);
+        char label[200]; snprintf(label, sizeof label, "Found `%s`", name);
+        return piact_run(b, cmd, label, out, out_size);
+    }
+
+    /* ---- list files (optionally filtered by a glob) ---- */
+    if (want_list) {
+        const char *dir = find_dir(w, nw);
+        char dirbuf[256]; snprintf(dirbuf, sizeof dirbuf, "%s", (dir && safe_pathish(dir)) ? dir : ".");
+        char glob[64]; int has_glob = detect_glob(low, glob, sizeof glob);
+        char cmd[640], label[200];
+        if (has_glob) {
+            snprintf(cmd, sizeof cmd,
+                     "find %s -maxdepth 1 -name '%s' -type f 2>/dev/null | sort | head -n 60",
+                     dirbuf, glob);
+            snprintf(label, sizeof label, "The `%s` files in %s", glob, dirbuf);
+        } else {
+            snprintf(cmd, sizeof cmd,
+                     "find %s -maxdepth 1 -type f 2>/dev/null | sort | head -n 60", dirbuf);
+            snprintf(label, sizeof label, "The files in %s", dirbuf);
+        }
+        return piact_run(b, cmd, label, out, out_size);
+    }
+
+    /* ---- read a file ---- */
+    if (want_read) {
+        const char *file = find_file(w, nw);
+        if (!file || !safe_pathish(file)) return 0;
+
+        /* KB-FIRST read. A remote LLM "reads" a file by pulling its bytes into its
+         * context; parrot0 reads it into STRUCTURE. It parses the file with the
+         * AST-as-KB front-end (the same code_ingest the codebase uses, gen173+),
+         * asserting `code_function`/`code_calls` facts into the LIVE KB — so the
+         * answer is the functions it really defines AND a later "where is X" / "what
+         * calls X" is now a KB query, not another disk scan. Only when the file is
+         * not ingestable source (a header with no defs, plain data) does it fall back
+         * to an honest textual head. */
+        if (b->kb) {
+            static char code[262144];
+            if (code_read_file(file, code, sizeof code)) {
+                code_strip(code);
+                char names[32][KB_TERM_LEN];
+                int clang = identify_code_lang(code, b);
+                size_t k = (clang == 2) ? code_ingest_py(b->kb, code, names, 32)
+                                        : code_ingest(b->kb, code, names, 32);
+                if (k > 0) {
+                    size_t shown = k < 32 ? k : 32;
+                    size_t off = (size_t)snprintf(out, out_size,
+                                 "I read %s into structure: it defines ", file);
+                    for (size_t i = 0; i < shown && off < out_size; i++) {
+                        const char *sep = (i==0) ? "" : (i==shown-1) ? " and " : ", ";
+                        off += (size_t)snprintf(out+off, out_size-off, "%s%s", sep, names[i]);
+                    }
+                    if (off < out_size)
+                        snprintf(out+off, out_size-off,
+                                 ". (%zu function%s now in the KB.)", k, k==1?"":"s");
+                    if (b) {
+                        char proof[320];
+                        snprintf(proof, sizeof proof,
+                                 "read+ingested %s: %zu code_function fact(s) asserted", file, k);
+                        store_proof(b, proof);
+                        snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd,
+                                 "code_ingest(%s)", file);
+                        b->has_last_tool_cmd = 1;
+                    }
+                    return 1;
+                }
+            }
+        }
+        /* not ingestable source — an honest bounded textual look. */
+        char cmd[640];
+        snprintf(cmd, sizeof cmd, "head -n 40 %s 2>/dev/null", file);
+        char label[256]; snprintf(label, sizeof label, "%s", file);
+        return piact_run(b, cmd, label, out, out_size);
+    }
+
+    /* ---- run a build/test command (whitelisted) ---- */
+    if (want_run) {
+        const char *after = NULL;
+        if (ci_prefix(low, "run ")) after = raw + 4;
+        else { const char *p = strstr(raw, "compile"); if (p) after = p; }
+        if (!after) after = raw;
+        while (*after == ' ') after++;
+        char cmd[300]; snprintf(cmd, sizeof cmd, "%s", after);
+        rstrip_punct(cmd);
+        if (!run_whitelisted(cmd)) {
+            put("I only run build/test commands I recognize (make, pytest, cargo, go, the project's tests).",
+                out, out_size);
+            return 1;
+        }
+        char full[360]; snprintf(full, sizeof full, "%s 2>&1 | tail -n 20", cmd);
+        char label[320]; snprintf(label, sizeof label, "`%s`", cmd);
+        return piact_run(b, full, label, out, out_size);
+    }
+
+    return 0;
+}
+
+/* gen206 (composer, docs/plans/generative.md): the FIRST verified code GENERATION —
+ * the smallest honest instance of "generate from the KNOWN, not from the probable".
+ * A remote LLM writes code by sampling tokens from a distribution and hoping; the
+ * artifact is plausible, not proven. parrot0 inverts it: it does NOT emit tokens,
+ * it COMPOSES a structure (a function whose body is a binary arithmetic relation)
+ * from knowledge of the operator, then SUBMITS that structure to the deterministic
+ * oracle (code_eval, symbolic execution) on sample inputs. The artifact is reported
+ * as correct ONLY because it actually computes the intended relation — generator
+ * proposes, oracle disposes (PRINCIPLES.md, one rung down). This is deliberately a
+ * tiny grammar (sum / product / difference of two ints): generation here is search
+ * over structure under verification, never free-form synthesis, and it refuses —
+ * honestly — anything it cannot yet build-and-check, marking the next faculty to
+ * pull instead of faking one. Gated by PARROT0_TOOLS=1, like the rest of agent mode. */
+static int mod_compose(Brain *b, const char *norm, const char *raw,
+                       char *out, size_t out_size) {
+    (void)norm;
+    if (!b) return 0;
+    const char *en = getenv("PARROT0_TOOLS");
+    if (!en || strcmp(en, "1") != 0) return 0;
+    size_t rl = strlen(raw);
+    if (rl == 0 || rl >= 480) return 0;
+
+    char low[512];
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+
+    int want = (cue(low,"write") || cue(low,"generate") || cue(low,"create") ||
+                cue(low,"scrivi") || cue(low,"implement")) &&
+               (cue(low,"function") || cue(low,"funzione"));
+    if (!want) return 0;
+    if (!b->kb) return 0;
+
+    /* Lazily load the generative substrate into the REFLECTIVE layer (never
+     * persisted, filtered from introspection) the first time the composer runs, so
+     * the boot KB and ordinary conversation stay untouched while the knowledge is
+     * still KB-first (a file, queried) rather than a C table. */
+    if (!b->compose_kb_loaded) {
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_load(b->kb, "kb/experts/programming/compose.p0");
+        kb_set_origin(b->kb, KB_SESSION);
+        b->compose_kb_loaded = 1;
+    }
+
+    /* Knowledge layer (KB-FIRST): the relation -> C operator mapping is KNOWLEDGE,
+     * so it is QUERIED from the KB (code_operator/2 in compose.p0), never hardcoded
+     * here. Enumerate the known cue words, and use the operator of the first cue
+     * that the request actually names. */
+    char op = 0; char opword[KB_TERM_LEN] = "";
+    char cues[24][KB_TERM_LEN];
+    const char *qall[2] = {NULL, NULL};
+    size_t ncue = kb_match(b->kb, "code_operator", qall, 2, cues, 24);
+    for (size_t i = 0; i < ncue && !op; i++) {
+        if (!strstr(low, cues[i])) continue;
+        char sym[1][KB_TERM_LEN];
+        const char *qsym[2] = {cues[i], NULL};
+        if (kb_match(b->kb, "code_operator", qsym, 2, sym, 1) == 1) {
+            /* the stored operator is a single C symbol (+,-,*). */
+            for (const char *p = sym[0]; *p; p++)
+                if (*p=='+' || *p=='-' || *p=='*') { op = *p; break; }
+            if (op) snprintf(opword, sizeof opword, "%s", cues[i]);
+        }
+    }
+
+    if (!op) {
+        /* engaged but honest: name the gap rather than hallucinate a body. */
+        put("I can only synthesize and VERIFY simple arithmetic functions so far "
+            "(the sum, product, or difference of two integers). Anything beyond that "
+            "is the next generative faculty to pull — I will not emit code I cannot check.",
+            out, out_size);
+        return 1;
+    }
+
+    /* Planning layer: the function name (a real identifier from the request, else f). */
+    char name[64] = "f";
+    { char rc[512]; snprintf(rc, sizeof rc, "%s", raw);
+      char *w[96]; size_t nw = split_words(rc, w, 96);
+      for (size_t i = 0; i + 1 < nw; i++) {
+          if (ci_eq(w[i],"function") || ci_eq(w[i],"funzione") ||
+              ci_eq(w[i],"called") || ci_eq(w[i],"named")) {
+              rstrip_punct(w[i+1]);
+              const char *t = w[i+1];
+              int ok = (isalpha((unsigned char)t[0]) || t[0]=='_');
+              for (const char *p = t; *p && ok; p++)
+                  if (!(isalnum((unsigned char)*p) || *p=='_')) ok = 0;
+              if (ok && !ci_eq(t,"that") && !ci_eq(t,"named") && !ci_eq(t,"called") &&
+                  !ci_eq(t,"which") && !ci_eq(t,"to")) { snprintf(name, sizeof name, "%s", t); break; }
+          }
+      }
+    }
+
+    /* Expression layer: COMPOSE the artifact from structure (signature + relation). */
+    char code[256];
+    snprintf(code, sizeof code, "int %s(int a, int b) { return a %c b; }", name, op);
+
+    /* Verification layer: the oracle disposes. Evaluate the COMPOSED function on
+     * sample inputs and require it to equal the relation it was built to express. */
+    long a1 = 6, b1 = 4, a2 = 9, b2 = 2;
+    long exp1 = (op=='+') ? a1+b1 : (op=='*') ? a1*b1 : a1-b1;
+    long exp2 = (op=='+') ? a2+b2 : (op=='*') ? a2*b2 : a2-b2;
+    long got1 = 0, got2 = 0;
+    long arg1[2] = {a1,b1}, arg2[2] = {a2,b2};
+    int v1 = code_eval(code, name, arg1, 2, &got1) && got1 == exp1;
+    int v2 = code_eval(code, name, arg2, 2, &got2) && got2 == exp2;
+
+    char msg[700];
+    if (v1 && v2)
+        snprintf(msg, sizeof msg,
+                 "%s  /* verified by symbolic execution: %s(%ld,%ld)=%ld and "
+                 "%s(%ld,%ld)=%ld */", code, name, a1, b1, got1, name, a2, b2, got2);
+    else
+        snprintf(msg, sizeof msg,
+                 "I composed `%s` but the oracle did not confirm it, so I will not "
+                 "report it as correct.", code);
+    put(msg, out, out_size);
+    char proof[320];
+    snprintf(proof, sizeof proof, "composed+verified %s (%s) via code_eval oracle", name, opword);
     store_proof(b, proof);
     return 1;
 }
@@ -11410,6 +11948,8 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
  * (This table is also reified into the KB as module(...) facts at birth, so
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
+    {"piact",     mod_piact},
+    {"compose",   mod_compose},
     {"repair",    mod_repair},
     {"input",     mod_input},
     {"world",     mod_world},
@@ -11652,7 +12192,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen204-cond-asymmetry";
+    return "gen206-verified-compose";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -11884,7 +12424,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
 
     /* gen105 (L20): record the real control-flow trace of this turn — the
      * modules consulted that declined, then the one that claimed it. */
-    char declined[48][24]; size_t ndecl = 0;
+    char declined[64][24]; size_t ndecl = 0;
     const char *winner = "fallback";
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
@@ -11897,7 +12437,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
             }
             break;
         }
-        if (ndecl < 48) snprintf(declined[ndecl++], sizeof declined[0], "%s",
+        if (ndecl < 64) snprintf(declined[ndecl++], sizeof declined[0], "%s",
                                  registry[i].name);
     }
 

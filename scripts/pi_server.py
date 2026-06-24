@@ -44,6 +44,11 @@ class Parrot0:
             "PARROT0_BASE": str(ROOT / "kb" / "core" / "base.p0"),
             "PARROT0_SESSION": "",
             "PARROT0_PROFILE": str(PARROT0_PROFILE),
+            # gen205: run parrot0 as a LOCAL coding agent. Because parrot0 lives on
+            # this machine it executes read-only filesystem tools (list/read/grep/
+            # find) itself and answers in one turn — no OpenAI tool_call round-trip.
+            # Opt-out by setting PARROT0_TOOLS=0 in the environment before launch.
+            "PARROT0_TOOLS": os.environ.get("PARROT0_TOOLS", "1"),
         }
         self._proc = subprocess.Popen(
             [str(PARROT0_BIN)],

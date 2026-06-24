@@ -21,7 +21,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat test piagent-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -80,6 +80,13 @@ swe-bench: build
 # itself never touches the net). Not part of `make test` (heavy, external).
 swe-solve: build
 	@./tests/swebench/parrot_solve.sh $(INSTANCE)
+
+# gen205: pi-agent battery — parrot0 mounted as pi's model, driven over real HTTP
+# through scripts/pi_server.py (no pi install, no network). Proves the read-only
+# coding tools (list/read/grep/find) run LOCALLY in one turn and that answers are
+# grounded in real fixture content. See docs/use-on-pi-agent.md.
+piagent-bench: build
+	@$(BENCH_PY) ./tests/piagent/piagent_bench.py
 
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness

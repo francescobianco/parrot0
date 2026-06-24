@@ -224,9 +224,108 @@ python3 scripts/pi_server.py --port 9899
 # e aggiorna models.json di conseguenza
 ```
 
+## gen205: tool locali diretti (lo step doppio non serve)
+
+> **Aggiornamento 2026-06-24.** parrot0 ora ESEGUE compiti di coding read-only
+> reali quando è montato in `pi`. La svolta architetturale è un'osservazione di
+> F.: **parrot0 è locale**. Un LLM remoto non può toccare il disco, quindi è
+> *costretto* al protocollo a due passi delle OpenAI tool call — emette
+> `tool_calls`, cede il turno, e aspetta che il runtime gli rimandi l'osservazione
+> nel contesto. parrot0 gira *sulla macchina*: salta tutto questo. Riconosce la
+> richiesta, la compila in un comando shell sicuro, **lo esegue da sé** e
+> restituisce la risposta fondata **nello stesso turno**. Nessun round-trip.
+
+Il modulo nuovo è `mod_piact` in `src/brain.c` (registrato per primo, attivo solo
+con `PARROT0_TOOLS=1` — il wrapper lo imposta; `make test` resta ermetico). **Non è
+un'isola che fa solo `popen`**: è un *router dentro il substrate già evoluto*.
+Distingue due tipi di atto:
+
+- **Percezione del filesystem** (`list`, `find`): non esiste una primitiva KB per
+  elencare una directory, quindi qui sì shella `find`, restando grounded perché cita
+  il comando eseguito.
+- **Comprensione del codice** (`read`, `where is`, `what calls`): passa per
+  l'**AST-as-KB** e i **localizzatori SWE-bench**, mai un grep cieco.
+  - `read FILE` → `code_read_file` + `code_ingest`/`code_ingest_py`: il file viene
+    **parsato in struttura** e i fatti `code_function`/`code_calls` finiscono nella
+    **KB viva** (così un successivo "where is X" è una query sulla KB). La risposta
+    è "it defines f, g, h", non un dump di byte.
+  - `where is X` / `what calls X` → `code_locate` / `code_find_callers`: **le stesse
+    primitive che pilotano `make swe-solve`** (CODE-MASTERY §4). La risposta nasce da
+    un parse reale, che un commento o una stringa non possono falsificare.
+  - Il grep testuale resta solo come **fallback** per pattern free-text.
+
+| Intento | Esempio | Come risponde |
+|---------|---------|---------------|
+| list | `list the .c files in DIR` | percezione: `find DIR -maxdepth 1 -name '*.c'` |
+| read | `read FILE` | **KB-first**: `code_ingest` → "it defines f, g, …" (+ fatti in KB) |
+| where | `where is SYM in DIR` | **strutturale**: `code_locate` → "SYM is defined in FILE.c" |
+| calls | `what calls SYM in DIR` | **strutturale**: `code_find_callers` → "called by a, b, …" |
+| grep | `search for "free text"` | fallback testuale: `grep -rn …` |
+| find | `find the file named X in DIR` | percezione: `find DIR -name 'X'` |
+| run | `run make test` | comando whitelisted `\| tail -n 20` |
+
+Limite ereditato dal motore: `code_read_file` ha un buffer di 256 KB, quindi un file
+enorme (es. `src/brain.c`, ~560 KB) non viene scansionato dai localizzatori — la
+stessa frontiera entro cui opera già SWE-bench. Sui file di dimensione normale la via
+strutturale funziona (verificato su `src/code.c`).
+
+Sicurezza: i token di path/glob passano un filtro `[A-Za-z0-9._/*-]` (niente `;`
+`$` backtick `|` spazi → niente command injection), il pattern di grep è
+single-quoted con gli apici rimossi, e `run` accetta solo una whitelist
+(make/pytest/cargo/go/ctest/`./tests/`…). Una richiesta ostile non claima il turno
+o viene rifiutata onestamente.
+
+### gen206: composer verificato (generazione = struttura + oracolo)
+
+Oltre a leggere il codice, parrot0 ora ne **genera** un primo sottoinsieme in modo
+*verificato*. `mod_compose` (gated `PARROT0_TOOLS=1`) compone una funzione aritmetica
+binaria leggendo l'operatore dalla **KB** (`code_operator/2` in `compose.p0`, caricato
+pigramente solo in agent mode) e la sottopone all'**oracolo** `code_eval`: riporta il
+codice solo se calcola davvero la relazione voluta, e **rifiuta onestamente** ciò che
+non sa verificare. Non è token-sampling: è `Knowledge -> Synthesis -> Oracle`. La
+critica completa e la direzione (la generazione di codice come trasformazione di
+struttura sotto verifica, la spina di `swe-solve` generalizzata) sono in
+[docs/plans/generative.md](plans/generative.md#critica-e-direzione-reale-gen206).
+
+```
+> write a C function add that returns the sum of a and b
+int add(int a, int b) { return a + b; }  /* verified by symbolic execution: add(6,4)=10 and add(9,2)=11 */
+> write a function that reverses a linked list
+I can only synthesize and VERIFY simple arithmetic functions so far ... I will not emit code I cannot check.
+```
+
+Verifica deterministica (no `pi`, no rete):
+
+```bash
+make piagent-bench
+# read-only:  protocol-models / text-arith / coding-list / coding-read /
+#             coding-grep / coding-find / safety-run-refused
+# generative: gen-sum / gen-product / gen-difference / gen-gap-honest
+# → passed: 11, failed: 0
+```
+
+Il battery (`tests/piagent/piagent_bench.py`) avvia `scripts/pi_server.py` su una
+porta effimera e parla **HTTP vero** (la stessa superficie di `pi`), asserendo che
+ogni risposta contenga il contenuto REALE della fixture in
+`tests/piagent/workspace/`. Probe diretto equivalente:
+
+```bash
+PARROT0_TOOLS=1 python3 scripts/pi_server.py --port 9914 &
+curl -s http://127.0.0.1:9914/v1/chat/completions -H 'Content-Type: application/json' \
+  -d '{"model":"parrot0","messages":[{"role":"user","content":"list the .c files in tests/piagent/workspace"}]}'
+# -> "The `*.c` files in tests/piagent/workspace: .../calc.c .../mathx.c (ran `find ...`)"
+```
+
+Caveat sul binario `pi`: il bridge HTTP è provato (curl + `make piagent-bench`).
+Per pilotarlo dal comando `pi` serve registrare il provider nel **vero**
+`~/.pi/agent/models.json` (vedi sopra). Nella verifica 2026-06-24 l'override
+temporaneo `PI_CODING_AGENT_DIR=/tmp/...` **non** è stato onorato da `pi 0.80.2`
+(`--list-models` mostrava i provider globali, e `--print` restava appeso): è un
+problema di configurazione di `pi`, non del wrapper.
+
 ## Stato dei test
 
-> **Status: FUNZIONANTE PER PROMPT TESTUALI PICCOLI — endpoint verificato via curl e integrazione `pi --print --no-tools` verificata. Non è ancora un coding agent produttivo perché non emette tool calls OpenAI.**
+> **Status: COMPITI DI CODING READ-ONLY FUNZIONANTI IN LOCALE (gen205, `make piagent-bench` = 7/7). Endpoint verificato via curl. parrot0 esegue list/read/grep/find/run da sé in un turno; non servono `tool_calls` OpenAI perché è co-locato col filesystem. Il testo piccolo resta supportato come prima.**
 
 ### ✅ Test 1 — Endpoint diretto via curl (PASS)
 

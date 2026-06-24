@@ -1,0 +1,18 @@
+% gen206 (composer, docs/plans/generative.md): generative substrate for mod_compose.
+%
+% This file is NOT loaded at boot. It is loaded LAZILY, into the REFLECTIVE layer,
+% the first time the composer actually runs (agent mode, PARROT0_TOOLS=1) — so this
+% knowledge never pollutes ordinary conversation or the introspection counts, yet
+% the relation->C-operator mapping stays KB-FIRST: queryable knowledge in a file,
+% read by kb_match, not a table hardcoded in the brain. The composer reads an
+% operator from here, synthesizes a function body, and the code_eval oracle disposes.
+code_operator(sum, "+").
+code_operator(add, "+").
+code_operator(plus, "+").
+code_operator(addition, "+").
+code_operator(product, "*").
+code_operator(times, "*").
+code_operator(multiplication, "*").
+code_operator(difference, "-").
+code_operator(minus, "-").
+code_operator(subtraction, "-").
