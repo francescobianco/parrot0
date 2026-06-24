@@ -472,7 +472,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen219-it-prodrop-coref";
+    return "gen220-it-di-nome-idiom";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

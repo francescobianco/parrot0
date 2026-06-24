@@ -602,6 +602,18 @@ static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
         size_t tl = strlen(tok);
         const char *tail = "";
         if (tl > 0 && tok[tl - 1] == '?') { tok[tl - 1] = '\0'; tail = "?"; }
+        /* gen220: Italian naming idiom "di nome" — a two-word naming marker
+         * ("ho un cane di nome rex") equivalent to "named"/"chiamato". Mapped at
+         * the language layer (not in a single module) so EVERY parser that
+         * already handles "named" gets the variant for free — same no-duplication
+         * rule as the per-token map. Only the exact bigram "di nome" collapses;
+         * a bare "di" stays "di" (it serves as "of" in relations elsewhere). */
+        if (strcmp(tok, "di") == 0 && i + 1 < nw && strcmp(w[i + 1], "nome") == 0) {
+            off += (size_t)snprintf(out + off, out_size - off, "%snamed",
+                                    i ? " " : "");
+            i++;            /* consume "nome" */
+            continue;
+        }
         const char *canon = canonical_token(tok);
         off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                 i ? " " : "", canon ? canon : tok, tail);

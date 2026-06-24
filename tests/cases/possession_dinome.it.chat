@@ -1,0 +1,12 @@
+# gen220: Italian naming idiom "di nome". "ho un cane di nome rex" is the natural
+# Italian for "I have a dog named rex" — but the naming marker is the BIGRAM "di
+# nome", not the single word "chiamato" (which already canonicalizes to "named").
+# The two-word idiom is collapsed to "named" at the language layer, so the
+# existing possession-frame parser ("I have a <thing> named <name>") handles the
+# variant with no per-module change — the same no-duplication rule as the
+# function-word map. A bare "di" still means "of" in relation queries.
+> ho un cane di nome rex
+< Got it: your cane is called rex.
+# The recalled name then flows through the IT pro-drop path (gen219).
+> come si chiama
+< Your cane is called rex.
