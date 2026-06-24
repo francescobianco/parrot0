@@ -180,3 +180,44 @@ Effetto su `glue-bench`: `implicit-reference` da **0/3 → 1/3** (`ref-heart-en`
   ri-derivato il goal (gen103 esiste per la ri-derivazione, manca il parse della correzione).
 
 Un meccanismo per generazione; la mappa detta l'ordine, non noi.
+
+---
+
+## Punto di ripresa (resume) — prossimi passi ordinati
+
+> **Stato a gen216.** G0 (reify), G1 (`make glue-bench`), G2 (coref EN) fatti, committati e
+> pushati su `main`. `make test` 203/0, benches verdi. Per rivedere la mappa in qualunque
+> momento: **`make glue-bench`** (degrade mode, non rompe la build).
+>
+> Disciplina invariata: UN meccanismo per generazione, tirato dal primo caso che fallisce;
+> deterministico e ispezionabile su stato di sessione reale (mai coerenza finta); EN+IT;
+> ogni gap chiuso passa da GAP→HELD in `glue-bench` E guadagna un ratchet `.chat` in
+> `make test`. **Prima di toccare un modulo, leggerlo nel codice** (i moduli vedono la
+> superficie canonicalizzata — vedi gotcha in PRINCIPLES e in brain.c).
+
+Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
+
+1. **Recall del possesso (sblocca `ref-dog-en`).** Bug a monte, indipendente dalla glue:
+   `my dog is Rex` salva il possesso ma `what is my dog called` risponde "I don't know…".
+   Allineare store/recall in `mod_memory` (10-memory-knowledge.c, intorno a `call_me`/
+   `mi_chiamo`/`possessions[]` e `find_possession_name`). Poi `coref_resolve` per i
+   possessivi ("his/her") ci si appoggia. Caso bench: `ref-dog-en`.
+
+2. **`correction` 0/2.** Due sotto-passi: (a) parsare "no, X non è Y" / "no, X non è un Y"
+   come negazione → `kb_assert_neg`/override (oggi cade in not-understood); (b) ri-derivare:
+   gen103 (`last_goal`) già annuncia il cambio quando la KB cambia — verificare che scatti
+   dopo la correzione. Casi bench: `corr-en`, `corr-it`.
+
+3. **IT pro-drop (sblocca `ref-dog-it`, completa la coref bilingue).** L'italiano omette il
+   soggetto ("come si chiama", "è un cane?"): nessun token "it". Serve un meccanismo di
+   anafora a soggetto nullo (se il turno è una domanda senza soggetto esplicito e c'è
+   `last_entity`, provare a iniettare l'entità e ri-dispatchare). Estende `coref_resolve`.
+
+4. **Sintomi qualitativi → metriche crisp.** Rendere verificabili `out-of-context`
+   (applicare davvero `user_constraint` "keep it short" alla risposta dopo),
+   `over-literal` (una precisazione "and times 3" continua l'operazione precedente),
+   `one-interlocutor` (catena memoria→aritmetica). Per ognuno: prima un predicato crisp in
+   `gluebench.sh`, poi il meccanismo.
+
+Quando un pull chiude un gap: aggiornare qui lo stato e la riga corrispondente della
+mappa, bump versione, commit+push.
