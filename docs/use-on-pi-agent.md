@@ -17,6 +17,8 @@ comando `pi` (`@earendil-works/pi-coding-agent`) possa montarlo come provider.
 - [Stato dei test](#stato-dei-test)
 - [Debug 2026-06-24: cosa abbiamo scoperto](#debug-2026-06-24-cosa-abbiamo-scoperto)
 - [Batteria pi-agent](#batteria-pi-agent)
+- [Verifica 2026-06-24: esperimenti locali](#verifica-2026-06-24-esperimenti-locali)
+- [Piano di modifiche per coding agent evoluto](#piano-di-modifiche-per-coding-agent-evoluto)
 - [Cosa serve per renderlo produttivo](#cosa-serve-per-renderlo-produttivo)
 - [Esempi di comandi eseguiti](#esempi-di-comandi-eseguiti)
 - [Limiti note](#limiti-note)
@@ -511,6 +513,232 @@ Il motivo non è che `pi` non sappia usare i tool: il modello/wrapper non genera
 `tool_calls` OpenAI. Quindi `pi` non invoca `ls`, `find`, `grep`, `read`, `bash`,
 `edit` o `write`. Per ora questa integrazione è un modello testuale dentro `pi`,
 non un coding agent operativo.
+
+## Verifica 2026-06-24: esperimenti locali
+
+Questa verifica è stata fatta dopo aver letto `PRINCIPLES.md`, `JOURNAL.md` e questo documento. Non sono state fatte modifiche al codice: il cambiamento voluto è solo documentale.
+
+### Contesto ricavato dai documenti
+
+- `PRINCIPLES.md` impone il vincolo centrale: niente impostore, niente stringhe finte di intelligenza; le ipotesi devono diventare codice e poi essere giudicate da test reali.
+- `JOURNAL.md` mostra che parrot0 ha già una base da coding agent: lettura di file C/Python, call graph, valutazione simbolica, rename/delete verificati, build/run grounding, e tre risoluzioni reali SWE-bench tramite `make swe-solve`.
+- Questo file aveva già la configurazione `models.json` corretta per `pi`. La configurazione temporanea usata nella verifica non era una nuova scoperta: serviva solo a non toccare `~/.pi/agent/models.json` e a evitare il server già aperto su `9899`.
+
+### Stato repository e test locali
+
+`tests/piagent/` esiste ma al momento è vuota. Questo è utile: può diventare il posto giusto per una batteria dedicata a parrot0 montato dentro `pi`, senza mescolarla con `tests/code/` o con SWE-bench.
+
+Comandi eseguiti:
+
+```bash
+rap --help
+make test
+make code-bench
+make basic-chat-bench
+make swe-bench
+```
+
+Risultati osservati:
+
+- `make test` PASS: 194 casi conversazionali, più suite persistence, multi-goal, grammar, posix, experts, profiles, skills e knowledge tutte verdi.
+- `make code-bench` PASS: 21 gate su 21, 0 gap, 69/69 turni landed.
+- `make basic-chat-bench`: 26% di copertura, 260/974 prompt engaged.
+- `make swe-bench` PASS in degrade mode: 5 istanze reali SWE-bench_Lite analizzate come discovery harness, 0 engaged in quella modalità testuale. Questo non contraddice il journal: i solve reali recenti passano da `make swe-solve`, che usa localizzatore/patcher strutturale e oracle Docker.
+
+### Probe wrapper HTTP
+
+Era già presente un listener su `127.0.0.1:9899`, PID `799091`, figlio `bin/parrot0` PID `799092`. Non è stato terminato perché non era stato avviato da questa verifica. Però:
+
+```bash
+curl --max-time 3 -sS http://127.0.0.1:9899/v1/models
+```
+
+ha dato timeout dopo 3 secondi senza bytes ricevuti. Quindi porta occupata e wrapper sano non sono equivalenti: serve una diagnostica con timeout, stato lock/processo e possibilmente restart del child parrot0.
+
+Nel sandbox Codex, avviare il server fallisce con:
+
+```text
+bwrap: loopback: Failed RTM_NEWADDR: Operation not permitted
+```
+
+Per verificare davvero il bridge è stato avviato temporaneamente fuori sandbox un server isolato su `127.0.0.1:9901`, poi chiuso:
+
+```bash
+python3 scripts/pi_server.py --port 9901 --host 127.0.0.1
+```
+
+Probe diretti PASS:
+
+```bash
+curl --max-time 5 -sS http://127.0.0.1:9901/health
+# {"status": "ok"}
+
+curl --max-time 5 -sS http://127.0.0.1:9901/v1/models
+# {"object": "list", "data": [{"id": "parrot0", ...}]}
+```
+
+Probe chat PASS:
+
+```text
+what is 2+2?  ->  4.
+content array [{"type":"text","text":"say hello"}]  ->  hello
+```
+
+Probe coding FAIL atteso:
+
+```text
+list the .c files in tests/piagent  ->  I don't understand that yet.
+```
+
+Questo conferma che il wrapper HTTP funziona, inclusa la normalizzazione dei content array OpenAI, ma parrot0 non è ancora in grado di chiedere strumenti.
+
+### Probe con `pi`
+
+La configurazione `models.json` era già documentata sopra. Per non modificare la configurazione reale e per puntare al server temporaneo `9901`, è stato usato solo un config dir temporaneo in `/tmp`:
+
+```bash
+PI_CODING_AGENT_DIR=/tmp/parrot0-pi-agent-test
+```
+
+Quel file temporaneo registrava un provider `parrot0tmp` equivalente a quello documentato, ma con:
+
+```json
+"baseUrl": "http://127.0.0.1:9901/v1",
+"contextWindow": 32000
+```
+
+Non è una configurazione nuova da adottare: è solo il modo pulito per testare senza toccare `~/.pi/agent/models.json`. Alla fine della verifica il server temporaneo e la directory `/tmp/parrot0-pi-agent-test` sono stati rimossi.
+
+Probe `pi` PASS:
+
+```bash
+env PI_CODING_AGENT_DIR=/tmp/parrot0-pi-agent-test \
+  pi --offline --list-models parrot0tmp
+# provider    model    context  max-out  thinking  images
+# parrot0tmp  parrot0  32K      4.1K     no        no
+
+env PI_CODING_AGENT_DIR=/tmp/parrot0-pi-agent-test \
+  pi --offline --provider parrot0tmp --model parrot0 --api-key parrot0 \
+  --print --no-tools --no-session --no-context-files --no-extensions \
+  --no-skills --no-prompt-templates --no-themes "what is 7 times 6?"
+# 42.
+```
+
+Probe `pi` con tools abilitati FAIL atteso:
+
+```bash
+env PI_CODING_AGENT_DIR=/tmp/parrot0-pi-agent-test \
+  pi --offline --provider parrot0tmp --model parrot0 --api-key parrot0 \
+  --print --no-session --no-context-files --no-extensions --no-skills \
+  --no-prompt-templates --no-themes "list the .c files in tests/piagent"
+# I don't understand that yet.
+```
+
+Conclusione: `pi` vede e usa il provider; il limite non è più la configurazione, ma il contratto agentico. Il modello deve produrre `tool_calls` OpenAI, oppure il wrapper deve tradurre una forma strutturata di parrot0 in `tool_calls`.
+
+## Piano di modifiche per coding agent evoluto
+
+Queste sono modifiche proposte, non implementate in questa verifica.
+
+### 1. Batteria reale in `tests/piagent/`
+
+Creare una batteria separata per integrazione `pi`, con fixture piccole e compiti reali da coding agent. Obiettivo: misurare il comportamento end-to-end, non solo la risposta testuale di parrot0.
+
+Primi casi:
+
+- `protocol`: `/health`, `/v1/models`, chat completion non-streaming e streaming simulato, content stringa e content array.
+- `pi-text`: prompt piccoli via `pi --print --no-tools` (`say hello`, aritmetica, identità, memoria semplice).
+- `pi-tools-negative`: con tools abilitati, il prompt di listing deve oggi fallire in modo noto finché non esiste tool calling.
+- `coding-ls`: dentro una fixture `tests/piagent/workspace/`, chiedere di listare i file `.c`; successo futuro = una `tool_call` `ls`/`find` prodotta dal modello e consumata da `pi`.
+- `coding-read`: chiedere di leggere un file e riassumere le funzioni definite.
+- `coding-grep`: chiedere dove appare un simbolo.
+- `coding-run`: chiedere di eseguire un test locale piccolo e riportare exit code/output.
+- `coding-fix-small`: fixture con bug minimo, richiesta di modifica, verifica con test reale.
+
+Il harness deve salvare request/response, tool calls, tool results e output finale, con timeout espliciti. Se un server è in ascolto ma non risponde come il caso `9899`, il test deve diagnosticarlo invece di restare appeso.
+
+### 2. Wrapper pi robusto
+
+`scripts/pi_server.py` dovrebbe diventare un endpoint agentico osservabile:
+
+- request id per ogni POST;
+- log JSONL raw: body, prompt costruito, risposta parrot0, tool calls, timing, errori;
+- timeout sulla lettura da `parrot0.stdout.readline()`;
+- lock timeout, così una richiesta bloccata non congela tutte le successive;
+- restart controllato del child parrot0 quando il processo è vivo ma non risponde;
+- endpoint diagnostico tipo `/debug/state` con PID child, turni processati, richiesta corrente, età del lock e ultimo errore.
+
+Questa parte serve prima dei tool: il caso del listener `9899` bloccato mostra che senza diagnostica il provider può sembrare vivo ma non essere utilizzabile.
+
+### 3. Sessioni isolate
+
+Oggi un solo processo parrot0 conserva memoria globale. Per un coding agent serve isolamento:
+
+- mappare `pi` session id a processo/sessione parrot0;
+- oppure aggiungere un comando/reset endpoint che ricrea il child prima di una sessione;
+- decidere cosa persiste davvero e cosa è solo memoria del task.
+
+Senza isolamento, un test in `tests/piagent` può passare o fallire per memoria lasciata da un test precedente.
+
+### 4. Contratto tool-call minimo
+
+Serve un formato strutturato prodotto da parrot0 e tradotto dal wrapper in OpenAI `tool_calls`. Due opzioni:
+
+- parrot0 emette una riga JSON stretta, per esempio `{"tool":"read","args":{"path":"..."}}`;
+- parrot0 emette un fatto KB/renderizzato, per esempio `tool_call(read,path).`, e il wrapper lo converte.
+
+La prima tranche deve coprire solo strumenti read-only:
+
+- `ls` / `find` per enumerare;
+- `read` per leggere file;
+- `grep` per cercare simboli.
+
+Poi:
+
+- `bash` ristretto a comandi di verifica (`make test`, script fixture, `cc`);
+- `edit`/`write` solo dopo che il loop read -> propose -> verify è stabile.
+
+La disciplina anti-impostor resta: parrot0 non deve dire di aver letto il file se non esiste un tool result reale.
+
+### 5. Loop agentico dentro parrot0
+
+parrot0 deve imparare una piccola macchina a stati:
+
+1. capire il goal;
+2. decidere quale osservazione serve;
+3. chiedere un tool;
+4. leggere il tool result come nuovo fatto;
+5. decidere se basta rispondere, chiedere un altro tool o proporre una modifica;
+6. verificare con un comando reale quando esiste una modifica.
+
+Questo non va implementato come phrasebook di prompt `pi`, ma come estensione del substrate già esistente: goal, prerequisiti, self-model, code AST, run grounding e KB facts.
+
+### 6. Facoltà parrot0 da tirare dai test
+
+Ogni nuova capacità deve nascere da un caso fallito in `tests/piagent/`, come già avviene con `code-bench` e SWE-bench.
+
+Ordine consigliato:
+
+1. riconoscere richieste filesystem read-only: lista, trova, leggi, cerca;
+2. rappresentare il risultato tool come fatti interrogabili;
+3. comporre due tool: lista -> leggi file scelto;
+4. eseguire test/command e riportare exit code reale;
+5. proporre patch piccole usando le facoltà già presenti (`code_replace_expr`, rename/delete, localizzatori strutturali);
+6. verificare dopo patch;
+7. solo dopo, generalizzare a repository più grandi.
+
+### 7. Criterio di successo
+
+Il primo obiettivo non è "parrot0 fa tutto". È:
+
+- `pi` riceve una tool call valida;
+- esegue il tool;
+- il wrapper rimanda il tool result a parrot0;
+- parrot0 usa quel dato reale nella risposta;
+- il transcript è riproducibile in `tests/piagent`.
+
+Quando questo tiene, `tests/piagent` può iniziare a contenere piccoli task reali da coding agent dentro una workspace fixture, e ogni nuova generazione può alzare il livello senza fingere competenze non ancora costruite.
+
 
 ## Cosa serve per renderlo produttivo
 
