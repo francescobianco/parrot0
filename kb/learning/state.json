@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "mathematics",
-    "event_id": "learn_2026_06_24t09_29_38z_prime_number",
-    "key": "prime_number",
-    "log_path": "kb/learning/logs/learn_2026_06_24t09_29_38z_prime_number.json",
-    "markdown_path": "kb/learning/pages/prime_number.md",
-    "processed_at": "2026-06-24T09:29:38Z",
-    "prompt": "what do you know about learn_2026_06_24t09_29_38z_prime_number",
-    "revision": 1360542157,
-    "title": "Prime number"
+    "event_id": "learn_2026_06_24t11_19_22z_fibonacci_number",
+    "key": "fibonacci_number",
+    "log_path": "kb/learning/logs/learn_2026_06_24t11_19_22z_fibonacci_number.json",
+    "markdown_path": "kb/learning/pages/fibonacci_number.md",
+    "processed_at": "2026-06-24T11:19:22Z",
+    "prompt": "what do you know about learn_2026_06_24t11_19_22z_fibonacci_number",
+    "revision": 1360660513,
+    "title": "Fibonacci sequence"
   },
-  "next_index": 1
+  "next_index": 2
 }
