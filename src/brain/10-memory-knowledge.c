@@ -1,0 +1,1664 @@
+/* --- module: memory ------------------------------------------------------
+ * The first *stateful* part: it learns the user's name and recalls it. This
+ * is where the brain stops being purely reactive and starts carrying context
+ * across turns.
+ *
+ * gen57 (C3): it also learns small personal-fact frames: "I have a <thing>
+ * named <name>" and "my <thing> is <name>", stored as `called(thing, name)`
+ * and queried by "what is my <thing> called?". "call me <X>" / Italian
+ * "chiamami <X>" / "mi chiamo <X>" extend the name-teaching path.
+ */
+static int mod_memory(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    if (!b) return 0;
+
+    static const char *const ask_name[] = {
+        "what is my name",  "what is my name?",
+        "what's my name",   "what's my name?",
+        "whats my name",    "whats my name?",
+        /* Italian recall idiom — the read-side mirror of the "mi chiamo X"
+         * teach above; "come mi chiamo?" is the fixed Italian form of "what's
+         * my name?", so it belongs in the same lexicon, not a new handler. */
+        "come mi chiamo",   "come mi chiamo?",
+        NULL,
+    };
+
+    /* gen193: teach a CONJUNCTION as KB knowledge — "use X as a conjunction" /
+     * "usa X come congiunzione" asserts conjunction(X) into the same conjunction/1
+     * class the list parsers read. The behaviour then changes with NO code edit:
+     * a coordinator parrot0 was just taught splits lists like "and"/"e". This is
+     * the KB-migration direction made concrete (PRINCIPLES.md: a fixed engine,
+     * lexicon and world both growing as KB). */
+    if (b->kb && (cue(norm, "conjunction") || cue(norm, "congiunzione")) &&
+        (cue(norm, "use ") || cue(norm, "usa ") ||
+         cue(norm, "treat ") || cue(norm, "tratta "))) {
+        char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
+        char *cw[32]; size_t cnw = split_words(nb, cw, 32);
+        size_t marker = cnw;
+        for (size_t i = 0; i < cnw; i++)
+            if (!strcmp(cw[i], "as") || !strcmp(cw[i], "come")) { marker = i; break; }
+        if (marker != cnw && marker > 0) {
+            char *word = strip_edge_punct(cw[marker - 1]);
+            if (*word && !is_conjunction(b, word)) {
+                const char *ar[] = { word };
+                kb_set_origin(b->kb, KB_SESSION);
+                kb_assert(b->kb, "conjunction", ar, 1);
+                char msg[160];
+                snprintf(msg, sizeof msg,
+                         "Got it - I'll treat \"%s\" as a conjunction now, like \"and\".", word);
+                put(msg, out, out_size);
+                return 1;
+            }
+            if (*word) {     /* already known — acknowledge without re-asserting */
+                char msg[160];
+                snprintf(msg, sizeof msg, "I already treat \"%s\" as a conjunction.", word);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* Teach: "my name is <X>" */
+    static const char *const prefix = "my name is ";
+    size_t plen = strlen(prefix);
+    if (strncmp(norm, prefix, plen) == 0) {
+        const char *name = skip_ws(skip_ws(raw) + plen);
+        if (*name == '\0') {
+            put("I didn't catch your name.", out, out_size);
+            return 1;
+        }
+        copy_trim(b->name, sizeof b->name, name);
+        b->has_name = 1;
+        char msg[128];
+        snprintf(msg, sizeof msg, "Nice to meet you, %s!", b->name);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Teach: "call me <X>" and Italian equivalents (chiamami / mi chiamo). */
+    static const char *const call_me = "call me ";
+    static const char *const chiamami = "chiamami ";
+    static const char *const mi_chiamo = "mi chiamo ";
+    const char *name_from = NULL;
+    if (strncmp(norm, call_me, strlen(call_me)) == 0)
+        name_from = raw + strlen(call_me);
+    else if (strncmp(norm, chiamami, strlen(chiamami)) == 0)
+        name_from = raw + strlen(chiamami);
+    else if (strncmp(norm, mi_chiamo, strlen(mi_chiamo)) == 0)
+        name_from = raw + strlen(mi_chiamo);
+    if (name_from) {
+        const char *name = skip_ws(name_from);
+        if (*name == '\0') {
+            put("I didn't catch your name.", out, out_size);
+            return 1;
+        }
+        copy_trim(b->name, sizeof b->name, name);
+        b->has_name = 1;
+        char msg[128];
+        snprintf(msg, sizeof msg, "Nice to meet you, %s!", b->name);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Bare self-introduction: "i'm <X>" / "i am <X>" / "im <X>", optionally
+     * behind a greeting ("hi, i'm vera"), feeds the SAME name memory that
+     * "my name is X" / "call me X" fill. The hazard is stealing affective turns
+     * ("i'm tired", "i am bored") from mod_chitchat, so we accept ONLY a single
+     * trailing token that is not an article, a stopword, a known KB class, or a
+     * common state/feeling — generalizing to unseen NAMES, not phrases. */
+    {
+        char nbuf[256];
+        size_t nl = strlen(norm);
+        if (nl < sizeof nbuf) {
+            memcpy(nbuf, norm, nl + 1);
+            char *nwds[24];
+            size_t nnw = split_words(nbuf, nwds, 24);
+            size_t cand = nnw;                       /* candidate name index */
+            for (size_t i = 0; i + 1 < nnw; i++) {
+                if (strcmp(nwds[i], "i'm") == 0 || strcmp(nwds[i], "im") == 0) {
+                    cand = i + 1; break;
+                }
+                if (strcmp(nwds[i], "i") == 0 && i + 2 < nnw &&
+                    strcmp(nwds[i + 1], "am") == 0) {
+                    cand = i + 2; break;
+                }
+            }
+            if (cand < nnw && cand == nnw - 1) {     /* single-word name only */
+                char *c = strip_edge_punct(nwds[cand]);
+                static const char *const nonname[] = {
+                    "tired","bored","happy","sad","fine","good","ok","okay",
+                    "here","ready","sorry","busy","lost","sure","hungry","cold",
+                    "hot","sleepy","angry","scared","confused","done","back",
+                    "late","free","alone","well","great","bad","new","young",
+                    "old","right","wrong","not","sick","glad","nervous",
+                    "excited","curious","afraid","awake","hurt","convinced",
+                    "kidding","joking","serious","worried","calm","listening",
+                    NULL,
+                };
+                int ok = c[0] && isalpha((unsigned char)c[0]) &&
+                         strlen(c) >= 2 && !is_article(c) &&
+                         !is_stopword(b, c) && !matches_any(c, nonname) &&
+                         !(b->kb && kb_knows_pred(b->kb, c));
+                if (ok) {
+                    char nm[64];
+                    copy_last_word(nm, sizeof nm, raw);
+                    copy_trim(b->name, sizeof b->name, nm);
+                    b->has_name = 1;
+                    char msg[128];
+                    snprintf(msg, sizeof msg, "Nice to meet you, %s!", b->name);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* Personal possession frame: "I have a <thing> named <name>",
+     * "my <thing> is <name>", "my <thing> is called <name>", plus their
+     * Italian canonicalizations. The parser searches for the content frame
+     * inside the token stream so a leading social marker ("hi, my dog...")
+     * does not derail the content module. */
+    {
+        char buf[256];
+        size_t len = strlen(norm);
+        if (len < sizeof buf) {
+            memcpy(buf, norm, len + 1);
+            if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+            char *w[12];
+            size_t nw = split_words(buf, w, 12);
+
+            /* "I have a <thing> named <name>" */
+            {
+                size_t i = find_token(w, nw, "i");
+                if (i + 4 < nw && strcmp(w[i + 1], "have") == 0 &&
+                    is_article(w[i + 2]) && strcmp(w[i + 4], "named") == 0) {
+                    const char *thing = w[i + 3];
+                    char n[64];
+                    copy_last_word(n, sizeof n, raw);
+                    remember_possession(b, thing, n);
+                    char msg[160];
+                    snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+
+            /* "my <thing> is <name>" and "my <thing> is called <name>" */
+            {
+                size_t i = find_token(w, nw, "my");
+                if (i + 3 < nw && strcmp(w[i + 2], "is") == 0) {
+                    const char *thing = w[i + 1];
+                    char n[64];
+                    copy_last_word(n, sizeof n, raw);
+                    int has_called = (i + 4 < nw && strcmp(w[i + 3], "called") == 0);
+                    if (has_called) {
+                        remember_possession(b, thing, n);
+                        char msg[160];
+                        snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
+                        put(msg, out, out_size);
+                        return 1;
+                    } else {
+                        remember_possession(b, thing, n);
+                        char msg[160];
+                        snprintf(msg, sizeof msg, "Got it: your %s is %s.", thing, n);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
+            }
+
+            /* Queries: "what is my <thing> called?" and "what is my <thing>?" */
+            {
+                size_t i = find_token(w, nw, "what");
+                if (i + 2 < nw && strcmp(w[i + 1], "is") == 0) {
+                    size_t m = find_token(w + i, nw - i, "my");
+                    if (m < nw - i) m += i;
+                    if (m + 1 < nw) {
+                        const char *thing = w[m + 1];
+                        int has_called = (m + 2 < nw);
+                        if (has_called) {
+                            char tmp[64];
+                            snprintf(tmp, sizeof tmp, "%s", w[m + 2]);
+                            has_called = (strcmp(strip_edge_punct(tmp), "called") == 0);
+                        }
+                        if (strcmp(thing, "name") == 0) {
+                            if (b->has_name) {
+                                char msg[128];
+                                snprintf(msg, sizeof msg, "Your name is %s.", b->name);
+                                put(msg, out, out_size);
+                            } else {
+                                put("I don't know your name yet.", out, out_size);
+                            }
+                            return 1;
+                        }
+                        const char *n = find_possession_name(b, thing);
+                        char msg[160];
+                        if (!n) {
+                            snprintf(msg, sizeof msg,
+                                     "I don't know what your %s is called.", thing);
+                            put(msg, out, out_size);
+                            return 1;
+                        }
+                        if (has_called)
+                            snprintf(msg, sizeof msg, "%s.", n);
+                        else
+                            snprintf(msg, sizeof msg, "Your %s is %s.", thing, n);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
+    /* gen148 (E4): ordinary user-model facts beyond name/possessions. */
+    {
+        const char *val_from = NULL;
+        const char *verb = NULL;
+        if (strncmp(norm, "i like ", 7) == 0) {
+            val_from = raw + 7; verb = "like";
+        } else if (strncmp(norm, "i prefer ", 9) == 0) {
+            val_from = raw + 9; verb = "prefer";
+        } else if (strncmp(norm, "mi piace ", 9) == 0) {
+            val_from = raw + 9; verb = "like";
+        } else if (strncmp(norm, "preferisco ", 11) == 0) {
+            val_from = raw + 11; verb = "prefer";
+        }
+        if (val_from) {
+            char val[64];
+            copy_trim(val, sizeof val, skip_ws(val_from));
+            if (val[0] == 0) {
+                put("I did not catch the preference.", out, out_size);
+                return 1;
+            }
+            snprintf(b->user_preference_verb, sizeof b->user_preference_verb, "%s", verb);
+            snprintf(b->user_preference_value, sizeof b->user_preference_value, "%s", val);
+            b->has_user_preference = 1;
+            char msg[160];
+            snprintf(msg, sizeof msg, "Got it: you %s %s.", verb, val);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    if (cue(norm, "keep it short") || cue(norm, "be brief") ||
+        cue(norm, "short answers") || cue(norm, "risposte brevi") ||
+        cue(norm, "sii breve")) {
+        snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "keep it short");
+        b->has_user_constraint = 1;
+        put("Got it: I will keep it short.", out, out_size);
+        return 1;
+    }
+    if (cue(norm, "not too technical") || cue(norm, "avoid technical") ||
+        cue(norm, "non essere tecnico") || cue(norm, "non troppo tecnico")) {
+        snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "avoid technical detail");
+        b->has_user_constraint = 1;
+        put("Got it: I will avoid technical detail.", out, out_size);
+        return 1;
+    }
+
+    if (cue(norm, "what do i like") || cue(norm, "what do i prefer") ||
+        cue(norm, "cosa mi piace") || cue(norm, "cosa preferisco")) {
+        if (b->has_user_preference) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "You %s %s.",
+                     b->user_preference_verb, b->user_preference_value);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know your preference yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what mood") || cue(norm, "how do i feel") ||
+        cue(norm, "come mi sento") || cue(norm, "che umore")) {
+        if (b->has_user_mood) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "You told me you feel %s.", b->user_mood);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know your current mood yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what topic") || cue(norm, "which topic") ||
+        cue(norm, "what are we talking about") || cue(norm, "di cosa parliamo") ||
+        cue(norm, "di cosa stiamo parlando")) {
+        if (b->has_current_topic) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "The current topic is %s.", b->current_topic);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know the current topic yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what constraint") || cue(norm, "what did i ask you to keep in mind") ||
+        cue(norm, "what should you remember for this chat") || cue(norm, "che vincolo")) {
+        if (b->has_user_constraint) {
+            char msg[192];
+            snprintf(msg, sizeof msg, "Your current constraint is: %s.", b->user_constraint);
+            put(msg, out, out_size);
+        } else {
+            put("I do not know any current constraint yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    if (cue(norm, "what do you remember about me") ||
+        cue(norm, "what do you know about me") || cue(norm, "cosa ricordi di me") ||
+        cue(norm, "cosa sai di me")) {
+        char msg[640];
+        size_t off = 0;
+        int any = 0;
+        off = (size_t)snprintf(msg, sizeof msg, "I remember:");
+        if (b->has_name && off < sizeof msg) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s your name is %s", any ? ";" : "", b->name);
+            any = 1;
+        }
+        for (size_t i = 0; i < b->possession_count && off < sizeof msg; i++) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s your %s is %s", any ? ";" : "",
+                                    b->possessions[i][0], b->possessions[i][1]);
+            any = 1;
+        }
+        if (b->has_user_preference && off < sizeof msg) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s you %s %s", any ? ";" : "",
+                                    b->user_preference_verb, b->user_preference_value);
+            any = 1;
+        }
+        if (!any) {
+            off = (size_t)snprintf(msg, sizeof msg,
+                                   "I remember no durable personal facts yet.");
+        } else if (off < sizeof msg) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off, ".");
+        }
+
+        int session = b->has_user_mood || b->has_current_topic || b->has_user_constraint;
+        if (session && off < sizeof msg) {
+            int s = 0;
+            off += (size_t)snprintf(msg + off, sizeof msg - off, " Session context:");
+            if (b->has_user_mood && off < sizeof msg) {
+                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                        "%s you feel %s", s ? ";" : "", b->user_mood);
+                s = 1;
+            }
+            if (b->has_current_topic && off < sizeof msg) {
+                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                        "%s current topic is %s", s ? ";" : "", b->current_topic);
+                s = 1;
+            }
+            if (b->has_user_constraint && off < sizeof msg) {
+                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                        "%s constraint: %s", s ? ";" : "", b->user_constraint);
+            }
+            if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
+        }
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* Recall: "what is my name?" */
+    if (matches_any(norm, ask_name)) {
+        if (b->has_name) {
+            char msg[128];
+            snprintf(msg, sizeof msg, "Your name is %s.", b->name);
+            put(msg, out, out_size);
+        } else {
+            put("I don't know your name yet.", out, out_size);
+        }
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --- module: knowledge ---------------------------------------------------
+ * The first step of the Prolog-like spine (see PRINCIPLES.md). It translates
+ * a sliver of natural language into ground facts and ground queries over the
+ * knowledge base:
+ *
+ *   "<x> is a <y>"   /  "<x> is an <y>"   ->  assert y(x)
+ *   "is <x> a <y>?"  /  "is <x> an <y>?"  ->  query  y(x)   (closed-world)
+ *
+ * Only single-word x and y for now; richer terms emerge in later generations.
+ */
+
+/* Split `s` (modified in place) into up to `max` whitespace-separated words,
+ * storing pointers in `argv`. Returns the word count. */
+static size_t split_words(char *s, char **argv, size_t max) {
+    size_t n = 0;
+    char *p = s;
+    while (*p && n < max) {
+        while (*p && isspace((unsigned char)*p)) *p++ = '\0';
+        if (!*p) break;
+        argv[n++] = p;
+        while (*p && !isspace((unsigned char)*p)) p++;
+    }
+    return n;
+}
+
+/* "a" or "an" — the article that separates subject from class. */
+static int is_article(const char *w) {
+    return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
+}
+
+/* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
+ * Map one FUNCTION word of any supported language onto the canonical (English)
+ * token the reasoning modules already parse, or NULL to leave it untouched.
+ * Content words are opaque symbols and are never listed, so the same reasoning
+ * core answers in any language whose function words are mapped — *no module is
+ * duplicated*. Only tokens that cannot occur in English are listed, so English
+ * input is provably unaffected. The competence is thus shown to live in the
+ * algorithm, not in English surface strings; where a language needs more than a
+ * lexical swap (e.g. Italian negation "x non è un y" reorders to "x not is a y",
+ * not the English "x is not a y"), that is the probe correctly exposing a
+ * word-order assumption the core still bakes in — a future iteration, not a
+ * second phrasebook. */
+static const char *canonical_token(const char *w) {
+    static const struct { const char *src, *dst; } lex[] = {
+        /* Italian */
+        {"è",   "is"},
+        {"un",  "a"}, {"uno", "a"}, {"una", "a"},
+        {"mio", "my"}, {"mia", "my"},
+        {"ho",  "i have"},
+        {"chiamato", "named"},
+        {"si",  "is"}, {"chiama", "called"},
+        {"ogni","every"},
+        {"chi", "who"},
+
+        {"non", "not"},
+        {"anche","also"},
+        {"causa","causes"},
+        /* gen142 (E3): Italian modals so the pragmatic topic-intro / disagreement
+         * shapes fire through the SAME mod_pragma path (no phrase duplication). */
+        {"possiamo","can"}, {"potremmo","could"},
+        {"sfida", "challenge"}, {"risolvere", "solve"}, {"risolveresti", "solve"},
+        {"migliorare", "improve"}, {"miglioreresti", "improve"},
+        {"implementazione", "implementation"}, {"modifica", "change"},
+        {"codice", "code"}, {"capitale", "capital"},
+
+        {"stesso", "yourself"}, {"stessa", "yourself"}, {"te", "you"},
+        {"tuo", "your"}, {"tua", "your"}, {"riguarda", "about"},
+        {"fallisci", "fail"}, {"fallisce", "fail"},
+
+        {"cos'è", "what is"},
+        {"qual", "what"},  /* gen155: "qual è ..." -> "what is ..." reaches the
+                            * same concept-recall path as English. */
+        {"sono", "am"},
+        /* gen141: subject pronouns, so the repair loop's referential-gap probe
+         * (a pronoun with no antecedent) reaches the SAME code path in Italian.
+         * These are unambiguous subject forms; "lo"/"la"/"li" (clitics/articles)
+         * are deliberately left out to avoid colliding with article parsing. */
+        {"esso", "it"}, {"essa", "it"}, {"essi", "they"}, {"esse", "they"},
+        {"lui", "he"}, {"lei", "she"},
+        /* gen142 (E7): local-world vocabulary so the scoped-world module reaches
+         * the SAME path in Italian. "mondo"/"storia" name a scope; "assunto"/
+         * "assume" are the inspect cue ("cosa è assunto?" -> "what is assumed").
+         * These cannot occur as English words, so English input is unaffected. */
+        {"mondo", "world"}, {"storia", "story"},
+        {"nel", "in the"}, {"nella", "in the"},
+        {"questo", "this"}, {"questa", "this"},
+        {"assunto", "assumed"}, {"dimentica", "forget"},
+        /* Chat-register shorthand (gen64), not a second language. "u"/"r" are
+         * English letters, but never stand-alone English *words*; in a chat
+         * agent a lone "u"/"r" overwhelmingly means you/are ("what can u do?",
+         * "who r u?"). Folding them here routes every intent through the same
+         * canonical path instead of accreting shorthand cues per module. */
+        {"u",   "you"}, {"r",  "are"},
+        /* gen74: chat-register contractions — common abbreviated forms that
+         * real users type. Expanding them into their canonical spaced forms
+         * lets the existing parsers (arith, knowledge, identity) work on
+         * contracted input without duplicating logic. */
+        {"whats", "what is"}, {"whos", "who is"}, {"wheres", "where is"},
+        {"dont",  "do not"},  {"cant", "can not"}, {"isnt", "is not"},
+        {"isn't", "is not"}, {"pls", "please"},
+    };
+    for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
+        if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
+    return NULL;
+}
+
+/* Rewrite a normalized line, canonicalizing each word's function-word form.
+ * A trailing '?' is kept on its token so question parsers still see it. For
+ * all-English input every token maps to NULL, so the output equals the input
+ * (modulo whitespace already collapsed by the parsers' tokenizer). */
+static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
+    if (out_size == 0) return;
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) { snprintf(out, out_size, "%s", norm); return; }
+    memcpy(buf, norm, len + 1);
+
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    size_t off = 0;
+    out[0] = '\0';
+    for (size_t i = 0; i < nw && off + 1 < out_size; i++) {
+        char *tok = w[i];
+        size_t tl = strlen(tok);
+        const char *tail = "";
+        if (tl > 0 && tok[tl - 1] == '?') { tok[tl - 1] = '\0'; tail = "?"; }
+        const char *canon = canonical_token(tok);
+        off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                i ? " " : "", canon ? canon : tok, tail);
+    }
+}
+
+/* Minimal discourse coreference (gen22): pronouns resolve to the most recent
+ * concrete entity mentioned in the knowledge surface. */
+static int is_entity_pronoun(const char *w) {
+    return strcmp(w, "he") == 0 || strcmp(w, "she") == 0 ||
+           strcmp(w, "it") == 0 || strcmp(w, "they") == 0 ||
+           strcmp(w, "him") == 0 || strcmp(w, "her") == 0 ||
+           strcmp(w, "them") == 0;
+}
+
+static int resolve_entity(Brain *b, const char *word, const char **entity,
+                          char *out, size_t out_size) {
+    if (!is_entity_pronoun(word)) { *entity = word; return 1; }
+    if (b->has_last_entity) { *entity = b->last_entity; return 1; }
+
+    char msg[160];
+    snprintf(msg, sizeof msg, "I don't know who %s refers to.", word);
+    put(msg, out, out_size);
+    return 0;
+}
+
+static void remember_entity(Brain *b, const char *word, const char *entity) {
+    if (is_entity_pronoun(word) || !entity || strlen(entity) >= KB_TERM_LEN)
+        return;
+    snprintf(b->last_entity, sizeof b->last_entity, "%s", entity);
+    b->has_last_entity = 1;
+}
+
+/* gen79: run rule induction over the current KB and, if any new rules are
+ * found, append them to `out`. Returns number of rules induced. */
+static size_t auto_induce(Brain *b, char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
+    size_t k = kb_induce(b->kb, 2, heads, bodies, 16);
+    if (k == 0) return 0;
+    /* Filter out emergent rules whose head or body is an internal predicate
+     * (coding knowledge, social markers, etc.) — those are infrastructure,
+     * not domain reasoning. */
+    size_t kept = 0;
+    size_t out_len = strlen(out);
+    for (size_t i = 0; i < k; i++) {
+        if (is_internal_pred(heads[i]) || is_internal_pred(bodies[i])) continue;
+        if (out_len + 2 < out_size) {
+            if (kept == 0) {
+                if (out_len > 0) { out[out_len] = ' '; out[out_len + 1] = '\0'; out_len++; }
+            }
+            out_len += (size_t)snprintf(out + out_len, out_size - out_len,
+                                         "%s%s(X) :- %s(X).",
+                                         kept ? " " : "Induced: ", heads[i], bodies[i]);
+            kept++;
+        }
+    }
+    return kept;
+}
+
+/* Admit ignorance about a predicate we've never heard of (gen16 scaffold;
+ * see DESIGN.md D6 — to become emergent meta-knowledge). */
+static void idk(const char *pred, char *out, size_t out_size) {
+    char msg[160];
+    snprintf(msg, sizeof msg, "I don't know about %s.", pred);
+    put(msg, out, out_size);
+}
+
+/* Answer a "why ...?" by rendering the proof, or admit there is none. */
+static void explain_reply(Brain *b, const char *pred, const char *const *args,
+                          size_t argc, char *out, size_t out_size) {
+    if (kb_is_conflicted(b->kb, pred, args, argc)) {
+        put("I have conflicting evidence for that.", out, out_size);
+        return;
+    }
+
+    char ex[512];
+    if (kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
+        char msg[600];
+        if (strstr(ex, " because ")) snprintf(msg, sizeof msg, "%s.", ex);
+        else snprintf(msg, sizeof msg, "%s is a known fact.", ex);
+        put(msg, out, out_size);
+        store_proof(b, ex);
+    } else {
+        put("I can't show that.", out, out_size);
+    }
+}
+
+/* Answer "how do you know <goal>?" by reading the proof trace and reporting
+ * its *depth* — the number of inference steps. A goal proved straight from a
+ * stored fact is DIRECT (zero rule applications); a goal proved through rules
+ * is MULTI-STEP, and we report how many steps. The step count is the number of
+ * " because " links the proof renderer emits, i.e. one per rule application
+ * along the chain — so this is a property of the actual proof structure, not a
+ * canned label. A goal with no proof is refused, never invented (gen26). */
+static void howknow_reply(Brain *b, const char *pred, const char *const *args,
+                          size_t argc, char *out, size_t out_size) {
+    if (kb_is_conflicted(b->kb, pred, args, argc)) {
+        put("I have conflicting evidence for that.", out, out_size);
+        return;
+    }
+
+    char ex[512];
+    if (!kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
+        put("I can't show that.", out, out_size);
+        return;
+    }
+
+    size_t steps = 0;
+    for (const char *p = ex; (p = strstr(p, " because ")) != NULL; p += 9)
+        steps++;
+
+    char msg[640];
+    if (steps == 0)
+        snprintf(msg, sizeof msg, "Directly: %s is a known fact.", ex);
+    else
+        snprintf(msg, sizeof msg, "By %zu step%s of reasoning: %s.",
+                 steps, steps == 1 ? "" : "s", ex);
+    put(msg, out, out_size);
+    store_proof(b, ex);
+}
+
+static int mod_knowledge(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size);
+
+static char *trim_mut(char *s) {
+    while (*s && isspace((unsigned char)*s)) s++;
+    size_t n = strlen(s);
+    while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
+    return s;
+}
+
+static int apply_premise_clause(Brain *tmp, char *clause) {
+    clause = trim_mut(clause);
+    if (*clause == '\0') return 1;
+
+    int origin = KB_SESSION;
+    if (strncmp(clause, "base says ", 10) == 0) {
+        origin = KB_BASE;
+        clause = trim_mut(clause + 10);
+    } else if (strncmp(clause, "session says ", 13) == 0) {
+        origin = KB_SESSION;
+        clause = trim_mut(clause + 13);
+    }
+
+    kb_set_origin(tmp->kb, origin);
+    char discard[256];
+    int claimed = mod_knowledge(tmp, clause, clause, discard, sizeof discard);
+    kb_set_origin(tmp->kb, KB_SESSION);
+    return claimed && strncmp(discard, "I couldn't", 10) != 0 &&
+           strncmp(discard, "I don't understand", 18) != 0;
+}
+
+static int apply_premises(Brain *tmp, char *premises) {
+    char *p = premises;
+    while (p && *p) {
+        char *next = strstr(p, " and ");
+        if (next) {
+            *next = '\0';
+            next += 5;
+        }
+        if (!apply_premise_clause(tmp, p)) return 0;
+        p = next;
+    }
+    return 1;
+}
+
+/* Entailment surface modes. PLAIN/EXPLAIN speak parrot0's own 4-valued
+ * epistemic vocabulary; LABEL collapses it into SuperGLUE CB's 3-way label
+ * space (entailment / contradiction / neutral), discovered from the CB probe.
+ * The collapse is a real decision: both "unknown" (predicate never seen) and
+ * "conflicted" (contradictory evidence) become neutral — see Decision
+ * D-2026-06-15b. */
+enum { ENT_PLAIN = 0, ENT_EXPLAIN = 1, ENT_LABEL = 2 };
+
+static void entailment_status(Brain *tmp, const char *hyp, int mode,
+                              char *out, size_t out_size) {
+    char hbuf[256];
+    size_t len = strlen(hyp);
+    if (len >= sizeof hbuf) { put("I don't understand that entailment yet.", out, out_size); return; }
+    memcpy(hbuf, hyp, len + 1);
+    if (len > 0 && hbuf[len - 1] == '?') hbuf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(hbuf, w, 8);
+    const char *pred = NULL;
+    const char *args[2];
+    size_t argc = 0;
+
+    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(w[2])) {
+        pred = w[3];
+        args[0] = w[1];
+        argc = 1;
+    } else if (nw == 6 && strcmp(w[0], "is") == 0 &&
+               strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
+        pred = w[3];
+        args[0] = w[1];
+        args[1] = w[5];
+        argc = 2;
+    } else {
+        put("I don't understand that entailment yet.", out, out_size);
+        return;
+    }
+
+    if (!kb_knows_pred(tmp->kb, pred))
+        put(mode == ENT_LABEL ? "Neutral." : "Unknown.", out, out_size);
+    else if (kb_is_conflicted(tmp->kb, pred, args, argc))
+        put(mode == ENT_LABEL ? "Neutral." : "Conflicted.", out, out_size);
+    else if (kb_query(tmp->kb, pred, args, argc)) {
+        if (mode == ENT_LABEL) {
+            put("Entailment.", out, out_size);
+        } else if (mode == ENT_PLAIN) {
+            put("Entailed.", out, out_size);
+        } else {
+            char ex[512];
+            if (kb_explain(tmp->kb, pred, args, argc, ex, sizeof ex)) {
+                char msg[640];
+                if (strstr(ex, " because "))
+                    snprintf(msg, sizeof msg, "Entailed: %s.", ex);
+                else
+                    snprintf(msg, sizeof msg, "Entailed: %s is a known fact.", ex);
+                put(msg, out, out_size);
+            } else {
+                put("Entailed.", out, out_size);
+            }
+        }
+    }
+    else if (kb_is_negated(tmp->kb, pred, args, argc))
+        put(mode == ENT_LABEL ? "Contradiction." : "Contradicted.", out, out_size);
+    else
+        put(mode == ENT_LABEL ? "Neutral." : "Not entailed.", out, out_size);
+}
+
+static int entailment_reply(const char *premises, const char *hypothesis,
+                            int mode, char *out, size_t out_size) {
+    Brain tmp;
+    memset(&tmp, 0, sizeof tmp);
+    tmp.kb = kb_create();
+    if (!tmp.kb) { put("I couldn't evaluate that entailment.", out, out_size); return 1; }
+
+    char pbuf[512];
+    size_t plen = strlen(premises);
+    if (plen >= sizeof pbuf) {
+        kb_destroy(tmp.kb);
+        put("I don't understand that entailment yet.", out, out_size);
+        return 1;
+    }
+    memcpy(pbuf, premises, plen + 1);
+
+    if (!apply_premises(&tmp, pbuf)) {
+        kb_destroy(tmp.kb);
+        put("I don't understand that entailment yet.", out, out_size);
+        return 1;
+    }
+
+    entailment_status(&tmp, trim_mut((char *)hypothesis), mode, out, out_size);
+    kb_destroy(tmp.kb);
+    return 1;
+}
+
+static int mod_knowledge(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    /* gen84: hypothesis mode — "suppose <fact>, then <query>" */
+    if (strncmp(norm, "suppose ", 8) == 0) {
+        const char *rest = norm + 8;
+        const char *then_pos = strstr(rest, " then ");
+        const char *allora_pos = strstr(rest, " allora ");
+        const char *sep = then_pos ? then_pos : allora_pos;
+        size_t sep_len = then_pos ? 6 : (allora_pos ? 8 : 0);
+        if (sep && sep_len) {
+            char supp[256], query_text[256];
+            size_t slen = (size_t)(sep - rest);
+            if (slen >= sizeof supp) slen = sizeof supp - 1;
+            memcpy(supp, rest, slen); supp[slen] = '\0';
+            /* Strip trailing punctuation from the supposition. */
+            while (slen > 0 && (supp[slen-1] == ',' || supp[slen-1] == '.' ||
+                   supp[slen-1] == ';' || supp[slen-1] == ' '))
+                supp[--slen] = '\0';
+            snprintf(query_text, sizeof query_text, "%s", sep + sep_len);
+            char sn[256], sc[256];
+            normalize(supp, sn, sizeof sn);
+            canonicalize_lang(sn, sc, sizeof sc);
+            /* Assert supposition, then query. */
+            Brain hypo = {0};
+            hypo.kb = kb_create();
+            if (!hypo.kb) return 0;
+            kb_set_origin(hypo.kb, KB_SESSION);
+            char discard[256];
+            mod_knowledge(&hypo, sc, sc, discard, sizeof discard);
+            char qn[256], qc[256];
+            normalize(query_text, qn, sizeof qn);
+            canonicalize_lang(qn, qc, sizeof qc);
+            char qbuf[256];
+            size_t ql = strlen(qc);
+            if (ql >= sizeof qbuf) ql = sizeof qbuf - 1;
+            memcpy(qbuf, qc, ql + 1);
+            if (ql > 0 && qbuf[ql - 1] == '?') qbuf[ql - 1] = '\0';
+            char *qw[8];
+            size_t qnw = split_words(qbuf, qw, 8);
+            if (qnw == 4 && strcmp(qw[0], "is") == 0 && is_article(qw[2])) {
+                const char *args[] = {qw[1]};
+                int yes = kb_query(hypo.kb, qw[3], args, 1);
+                put(yes ? "Yes, under that supposition." : "No, even with that supposition.",
+                    out, out_size);
+            } else {
+                put("I supposed that. What should I check?", out, out_size);
+            }
+            kb_destroy(hypo.kb);
+            return 1;
+        }
+    }
+
+    /* Work on a mutable copy with any trailing '?' stripped. Remember whether the
+     * turn was a question: a trailing '?' marks interrogation independently of
+     * word order, so the subject-first interrogative "socrates is a man?" (the
+     * Italian shape "socrates è un uomo?") is a QUERY, not an assertion — one
+     * core rule serving both languages (gen103, the bilingual ratchet). */
+    char buf[512];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    int interrogative = (len > 0 && buf[len - 1] == '?');
+    if (interrogative) buf[len - 1] = '\0';
+
+    int entail_mode = ENT_PLAIN;
+    char *premise_start = NULL;
+    if (strncmp(buf, "explain premise:", 16) == 0) {
+        entail_mode = ENT_EXPLAIN;
+        premise_start = buf + 16;
+    } else if (strncmp(buf, "label premise:", 14) == 0) {
+        entail_mode = ENT_LABEL;
+        premise_start = buf + 14;
+    } else if (strncmp(buf, "premise:", 8) == 0) {
+        premise_start = buf + 8;
+    }
+    if (premise_start) {
+        char *hyp = strstr(buf, "; hypothesis:");
+        if (!hyp) {
+            put("I don't understand that entailment yet.", out, out_size);
+            return 1;
+        }
+        *hyp = '\0';
+        hyp += strlen("; hypothesis:");
+        return entailment_reply(trim_mut(premise_start), trim_mut(hyp),
+                                entail_mode, out, out_size);
+    }
+
+    char *choice_start = NULL;
+    if (strncmp(buf, "which is a ", 11) == 0) choice_start = buf + 11;
+    else if (strncmp(buf, "which is an ", 12) == 0) choice_start = buf + 12;
+    if (choice_start) {
+        char *colon = strchr(choice_start, ':');
+        if (!colon) {
+            put("I don't understand that question yet.", out, out_size);
+            return 1;
+        }
+        *colon = '\0';
+        const char *cls = trim_mut(choice_start);
+        if (!kb_knows_pred(b->kb, cls)) { idk(cls, out, out_size); return 1; }
+
+        char *choices = colon + 1;
+        char list[512];
+        size_t off = 0, hits = 0;
+        while (choices && *choices) {
+            char *next = strchr(choices, ',');
+            if (next) *next++ = '\0';
+            char *choice = trim_mut(choices);
+            if (*choice && strlen(choice) < KB_TERM_LEN) {
+                const char *args[] = {choice};
+                if (!kb_is_conflicted(b->kb, cls, args, 1) &&
+                    kb_query(b->kb, cls, args, 1)) {
+                    off += (size_t)snprintf(list + off, sizeof list - off,
+                                            "%s%s", hits ? ", " : "", choice);
+                    hits++;
+                }
+            }
+            choices = next;
+        }
+        if (hits == 0) put("None of them.", out, out_size);
+        else {
+            char msg[600];
+            snprintf(msg, sizeof msg, "%s.", list);
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* gen146 (E5): open-domain humility for questions that look like world
+     * facts but fall outside the current KB/tool model. This does not answer
+     * from general knowledge; it names the missing predicate/relation/tool and
+     * gives the user a useful next action. */
+    if (nw == 4 && strcmp(w[0], "what") == 0 && strcmp(w[2], "is") == 0 &&
+        strcmp(w[3], "it") == 0 &&
+        (strcmp(w[1], "year") == 0 || strcmp(w[1], "date") == 0 ||
+         strcmp(w[1], "day") == 0 || strcmp(w[1], "time") == 0)) {
+        char pred[64];
+        snprintf(pred, sizeof pred, "current_%s", w[1]);
+        char msg[256];
+        snprintf(msg, sizeof msg,
+                 "I do not know the current %s: I have no %s fact or clock/calendar tool. Tell me the %s, or give facts I can reason from.",
+                 w[1], pred, w[1]);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    if ((nw == 6 && (strcmp(w[0], "what") == 0 || strcmp(w[0], "who") == 0) &&
+         strcmp(w[1], "is") == 0 && strcmp(w[2], "the") == 0 &&
+         (strcmp(w[4], "of") == 0 || strcmp(w[4], "di") == 0)) ||
+        (nw == 5 && (strcmp(w[0], "what") == 0 || strcmp(w[0], "who") == 0) &&
+         strcmp(w[1], "is") == 0 &&
+         (strcmp(w[3], "of") == 0 || strcmp(w[3], "di") == 0))) {
+        const char *rel = (nw == 6) ? w[3] : w[2];
+        const char *obj = (nw == 6) ? w[5] : w[4];
+        if (!kb_knows_pred(b->kb, rel)) {
+            char msg[320];
+            snprintf(msg, sizeof msg,
+                     "I do not know the relation %s yet, so I cannot answer the %s of %s. You can teach me with thing is the %s of %s, or give facts/rules to reason from.",
+                     rel, rel, obj, rel, obj);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    if ((nw == 4 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0) ||
+        (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
+         strcmp(w[2], "the") == 0)) {
+        const char *subj = (nw == 4) ? w[2] : w[3];
+        const char *pred = (nw == 4) ? w[3] : w[4];
+        const char *args[] = {subj};
+        char ex[512];
+        if (!kb_knows_pred(b->kb, pred) ||
+            !kb_explain(b->kb, pred, args, 1, ex, sizeof ex)) {
+            char msg[320];
+            snprintf(msg, sizeof msg,
+                     "I do not know why %s is %s: I have no %s(%s) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.",
+                     subj, pred, pred, subj);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen59 (C5): "what is <x>?" is a natural way to ask for a description of
+     * an entity. Reuse the existing belief-report path; decline if x is an
+     * article or common function word so "what is a ...?" still falls through. */
+    if (nw == 3 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
+        !is_article(w[2]) && !is_stopword(b, w[2])) {
+        const char *entity;
+        if (!resolve_entity(b, w[2], &entity, out, out_size)) return 1;
+        char desc[1024];
+        if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
+            put(desc, out, out_size);
+            store_proof(b, desc);
+        } else {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know anything about %s.", entity);
+            put(msg, out, out_size);
+        }
+        remember_entity(b, w[2], entity);
+        return 1;
+    }
+
+    /* gen157: emergent relational reasoning over descriptions. parrot0 was never
+     * told "heart is part of circulatory" — but the circulatory DESCRIPTION names
+     * the heart, so "what is the heart part of?" / "what contains the lungs?" /
+     * "di cosa fa parte heart" recovers the container from the text. The relation
+     * is DERIVED, never asserted: a taxonomy emerging from the glossary. Runs
+     * before the describe block so "what is X part of" is not answered with X's
+     * own definition. Fires only with a containment cue AND a known concept. */
+    {
+        char low[256]; lowercase_copy(low, sizeof low, raw);
+        int want_container =
+            cue(norm, "part of") || cue(norm, "belong") ||
+            cue(norm, "contains") || cue(norm, "contain ") ||
+            cue(norm, "includes") || cue(norm, "include ") ||
+            cue(low, "fa parte") || cue(low, "contiene") || cue(low, "contengono");
+        if (want_container) {
+            /* concept keys in the turn, and the index of the containment cue.
+             * A trailing category noun ("the nervous SYSTEM") is the frame, not
+             * the target — skip it even though "system" is a concept elsewhere. */
+            const char *keys[8]; size_t keypos[8], nk = 0;
+            for (size_t i = 0; i < nw && nk < 8; i++) {
+                if (!strcmp(w[i], "system") || !strcmp(w[i], "group") ||
+                    !strcmp(w[i], "class") || !strcmp(w[i], "family") ||
+                    !strcmp(w[i], "category") || !strcmp(w[i], "type") ||
+                    !strcmp(w[i], "kind") || !strcmp(w[i], "set")) continue;
+                if (kb_is_concept_key(b->kb, w[i])) { keys[nk] = w[i]; keypos[nk] = i; nk++; }
+            }
+            size_t cuei = nw;
+            for (size_t i = 0; i < nw; i++)
+                if (!strcmp(w[i], "part") || !strcmp(w[i], "contains") ||
+                    !strcmp(w[i], "contain") || !strcmp(w[i], "includes") ||
+                    !strcmp(w[i], "include") || !strcmp(w[i], "contiene") ||
+                    !strcmp(w[i], "contengono")) { cuei = i; break; }
+
+            /* gen158 (proof): "is X part of Y?" — PROVE it against the
+             * materialized part_of/2 fact derived from the descriptions. */
+            if (nk >= 2 && strcmp(w[0], "is") == 0) {
+                const char *xx = keys[0], *yy = keys[nk - 1];
+                const char *args[2] = { xx, yy };
+                char msg[200];
+                if (kb_query(b->kb, "part_of", args, 2))
+                    snprintf(msg, sizeof msg, "Yes, %s is part of %s.", xx, yy);
+                else
+                    snprintf(msg, sizeof msg,
+                             "No, I have no evidence that %s is part of %s.", xx, yy);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                return 1;
+            }
+
+            /* gen158 (members): "what is part of Y?" / "what is in Y?" — the
+             * inverse query over part_of, listing what Y contains. */
+            int key_before_cue = 0;
+            for (size_t i = 0; i < nk; i++) if (keypos[i] < cuei) key_before_cue = 1;
+            if (nk >= 1 && cuei < nw && !key_before_cue && keypos[nk - 1] > cuei) {
+                const char *yy = keys[nk - 1];
+                char members[16][KB_TERM_LEN];
+                const char *args[2] = { NULL, yy };
+                size_t m = kb_match(b->kb, "part_of", args, 2, members, 16);
+                if (m > 0) {
+                    char msg[512];
+                    int off = snprintf(msg, sizeof msg, "%s contains: ", yy);
+                    for (size_t i = 0; i < m && off > 0 && (size_t)off < sizeof msg; i++)
+                        off += snprintf(msg + off, sizeof msg - (size_t)off, "%s%s",
+                                        i ? ", " : "", members[i]);
+                    if (off > 0 && (size_t)off < sizeof msg)
+                        snprintf(msg + off, sizeof msg - (size_t)off, ".");
+                    put(msg, out, out_size);
+                    store_proof(b, msg);
+                    return 1;
+                }
+            }
+
+            /* gen157 (container): "what is X part of?" — the concept whose text
+             * names X, recovered on demand. */
+            const char *x = (nk >= 1) ? keys[0] : NULL;
+            char ckey[128], cdesc[1024];
+            if (x && kb_concept_mentioning(b->kb, x, ckey, sizeof ckey,
+                                           cdesc, sizeof cdesc)) {
+                char msg[1200];
+                snprintf(msg, sizeof msg, "%s is part of %s: %s.", x, ckey, cdesc);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                remember_entity(b, x, x);
+                return 1;
+            }
+        }
+    }
+
+    /* gen151: natural access to gen150 domain knowledge (experts/skills). Beyond
+     * the bare "what is X?" above, accept an article, a multiword topic, or a
+     * "tell me about X" framing: "what is the heart", "what is a prime",
+     * "what is the circulatory system", "tell me about pi". Each content word is
+     * tried as the concept key; the first that has a KB description is spoken.
+     * Claims ONLY on a hit, so unknown topics still fall through to the humility
+     * blocks above and the fallback below — this never widens the wall. */
+    {
+        size_t start = 0;
+        if (nw >= 3 && strcmp(w[0], "what") == 0 &&
+            (strcmp(w[1], "is") == 0 || strcmp(w[1], "are") == 0)) start = 2;
+        else if (nw >= 4 && strcmp(w[0], "tell") == 0 &&
+                 strcmp(w[1], "me") == 0 && strcmp(w[2], "about") == 0) start = 3;
+        /* "what is a/an X?" is the membership query (list the X's), handled
+         * downstream — not a description request. Leave it alone. */
+        if (start == 2 && (strcmp(w[2], "a") == 0 || strcmp(w[2], "an") == 0))
+            start = 0;
+        /* "what is the <rel> of <obj>?" is a relational query, handled elsewhere;
+         * an "of"/"di" marker means this is not a plain description request. */
+        for (size_t i = start; start && i < nw; i++)
+            if (strcmp(w[i], "of") == 0 || strcmp(w[i], "di") == 0) start = 0;
+        if (start) {
+            /* An exact concept key named directly ("what is the heart") always
+             * wins — a precise match must beat a fuzzy guess. */
+            for (size_t i = start; i < nw; i++) {
+                if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                char desc[1024];
+                if (kb_describe_entity(b->kb, w[i], desc, sizeof desc)) {
+                    put(desc, out, out_size);
+                    store_proof(b, desc);
+                    remember_entity(b, w[i], w[i]);
+                    return 1;
+                }
+            }
+            /* gen172: a multi-word concept is stored under an underscore-joined
+             * key (e.g. "prime number" -> prime_number) that the single-word loop
+             * above cannot match. Try that exact joined key too, so a learned or
+             * loaded multi-word concept still beats the fuzzy guess below — the
+             * "exact key always wins" rule, completed for compound names. Speak it
+             * with the spaced display form (no underscore). */
+            {
+                char jkey[128]; size_t jo = 0;
+                char jdisp[128]; size_t jd = 0;
+                for (size_t i = start; i < nw; i++) {
+                    if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                    jo += (size_t)snprintf(jkey + jo, sizeof jkey - jo,
+                                           "%s%s", jo ? "_" : "", w[i]);
+                    jd += (size_t)snprintf(jdisp + jd, sizeof jdisp - jd,
+                                           "%s%s", jd ? " " : "", w[i]);
+                }
+                char jdef[KB_TERM_LEN];
+                if (jo && strchr(jkey, '_') &&
+                    kb_concept_def(b->kb, jkey, jdef, sizeof jdef)) {
+                    char msg[1200];
+                    snprintf(msg, sizeof msg, "%s is %s.", jdisp, jdef);
+                    put(msg, out, out_size);
+                    store_proof(b, msg);
+                    remember_entity(b, jkey, jdisp);
+                    return 1;
+                }
+            }
+            /* gen155: no exact key — recall the concept whose description
+             * structurally OVERLAPS the query (similarity, not a cue list):
+             * "what is the longest bone in the body" -> femur. Hedged ("You
+             * might mean ...") because it is a best guess from overlap, and
+             * fires only with >=2 matching words and a clear winner, so a bare
+             * concept name (one content word) and genuinely unknown topics fall
+             * through unharmed. Discrete overlap is noisier than an LLM's
+             * continuous space; precision is bought with the margin + hedge. */
+            const char *qw[24]; size_t nq = 0;
+            for (size_t i = start; i < nw && nq < 24; i++) {
+                if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                if (!strcmp(w[i], "mean") || !strcmp(w[i], "means") ||
+                    !strcmp(w[i], "thing") || !strcmp(w[i], "called") ||
+                    !strcmp(w[i], "definition")) continue;
+                qw[nq++] = w[i];
+            }
+            char ckey[128], cdesc[1024];
+            if (nq >= 2 &&
+                kb_nearest_concept(b->kb, qw, nq, ckey, sizeof ckey, cdesc, sizeof cdesc)) {
+                char msg[1200];
+                snprintf(msg, sizeof msg, "You might mean %s: %s.", ckey, cdesc);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                remember_entity(b, ckey, ckey);
+                return 1;
+            }
+        }
+    }
+
+    /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
+    if (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
+        is_article(w[3])) {
+        const char *subj;
+        if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        explain_reply(b, w[4], args, 1, out, out_size);
+        remember_entity(b, w[2], subj);
+        return 1;
+    }
+    /* explanation, Italian subject-verb order: "perché <x> è un <y>?" reaches
+     * here already half-canonicalized as "perché <x> is a <y>" (è->is, un->a),
+     * but "perché" stays (it is not in canonical_token, so the many "perché ..."
+     * cue handlers keep working). The subject sits before the verb, so the
+     * English-order branch above (w[1]=="is") misses it. Same proof rendering,
+     * one extra order; the contrastive "perché ... non è" path was already
+     * order-free, this gives the affirmative why-proof the same bilingual reach.
+     * Transfers to any unseen x/y. */
+    if (nw == 5 &&
+        (strcmp(w[0], "perché") == 0 || strcmp(w[0], "perche") == 0) &&
+        strcmp(w[2], "is") == 0 && is_article(w[3])) {
+        const char *subj;
+        if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        explain_reply(b, w[4], args, 1, out, out_size);
+        remember_entity(b, w[1], subj);
+        return 1;
+    }
+    /* explanation: "why is <x> the <rel> of <y>?" -> proof of rel(x, y) */
+    if (nw == 7 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
+        strcmp(w[3], "the") == 0 && strcmp(w[5], "of") == 0) {
+        const char *args[] = {w[2], w[6]};
+        explain_reply(b, w[4], args, 2, out, out_size);
+        return 1;
+    }
+
+    /* proof depth (gen26): "how do you know <x> is a/an <y>?" -> classify the
+     * proof of y(x) as direct (fact) vs multi-step (rule chain) reasoning. */
+    if (nw == 8 && strcmp(w[0], "how") == 0 && strcmp(w[1], "do") == 0 &&
+        strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
+        strcmp(w[5], "is") == 0 && is_article(w[6])) {
+        const char *subj;
+        if (!resolve_entity(b, w[4], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        howknow_reply(b, w[7], args, 1, out, out_size);
+        remember_entity(b, w[4], subj);
+        return 1;
+    }
+
+    /* direct belief report: "what do you know about <x>?" */
+    if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "do") == 0 &&
+        strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
+        strcmp(w[4], "about") == 0) {
+        const char *entity;
+        if (!resolve_entity(b, w[5], &entity, out, out_size)) return 1;
+        char desc[1024];
+        if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
+            put(desc, out, out_size);
+        } else {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know anything about %s.", entity);
+            put(msg, out, out_size);
+        }
+        remember_entity(b, w[5], entity);
+        return 1;
+    }
+
+    /* induction ("training"): "generalize" / "learn" -> induce rules from
+     * the facts and report what was learned. */
+    if (nw == 1 && (strcmp(w[0], "generalize") == 0 ||
+                    strcmp(w[0], "learn") == 0)) {
+        char heads[16][KB_TERM_LEN], bodies[16][KB_TERM_LEN];
+        size_t k = kb_induce(b->kb, 2, heads, bodies, 16);
+        /* Filter internal predicates (gen150) */
+        size_t kept = 0;
+        char fheads[16][KB_TERM_LEN], fbodies[16][KB_TERM_LEN];
+        for (size_t i = 0; i < k; i++) {
+            if (is_internal_pred(heads[i]) || is_internal_pred(bodies[i])) continue;
+            snprintf(fheads[kept], KB_TERM_LEN, "%s", heads[i]);
+            snprintf(fbodies[kept], KB_TERM_LEN, "%s", bodies[i]);
+            kept++;
+        }
+        if (kept == 0) { put("Nothing new to generalize.", out, out_size); return 1; }
+        char msg[600];
+        size_t off = (size_t)snprintf(msg, sizeof msg, "Induced: ");
+        for (size_t i = 0; i < kept && off < sizeof msg; i++) {
+            off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                    "%s%s(X) :- %s(X)", i ? "; " : "",
+                                    fheads[i], fbodies[i]);
+        }
+        if (off < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* rule: "every <body...> is a/an <head>" -> head(X) :- body0(X), …
+     * gen133 generalizes the single-body form to a CONJUNCTION: the modifiers
+     * before the head noun become conjoined premises, e.g. "every friendly dog
+     * is a goodboy" -> goodboy(X) :- friendly(X), dog(X). nw==5 (one body word)
+     * stays exactly the old single-body rule, so prior behaviour is preserved. */
+    if (nw >= 5 && nw <= 4 + KB_MAX_BODY && strcmp(w[0], "every") == 0 &&
+        strcmp(w[nw - 3], "is") == 0 && is_article(w[nw - 2])) {
+        const char *head = w[nw - 1];
+        const char *bodies[KB_MAX_BODY];
+        size_t nbody = nw - 4; /* body words are w[1 .. nw-4] */
+        for (size_t i = 0; i < nbody; i++) bodies[i] = w[1 + i];
+        if (kb_assert_rule_n(b->kb, head, bodies, nbody)) {
+            char msg[256];
+            size_t o = (size_t)snprintf(msg, sizeof msg, "Learned rule: %s(X) :- ",
+                                        head);
+            for (size_t i = 0; i < nbody && o < sizeof msg; i++)
+                o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s(X)",
+                                      i ? ", " : "", bodies[i]);
+            if (o < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+            put(msg, out, out_size);
+            auto_induce(b, out, out_size);
+        } else {
+            put("I couldn't store that rule.", out, out_size);
+        }
+        return 1;
+    }
+
+    /* gen96: bulk forget — "forget everything about <x>" */
+    /* retract: "forget that <x> is a/an <y>" -> remove y(x) */
+    if (nw == 6 && strcmp(w[0], "forget") == 0 && strcmp(w[1], "that") == 0 &&
+        strcmp(w[3], "is") == 0 && is_article(w[4])) {
+        const char *subj, *cl = w[5];
+        if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        char msg[128];
+        if (kb_retract(b->kb, cl, args, 1))
+            snprintf(msg, sizeof msg, "Forgotten: %s(%s).", cl, subj);
+        else
+            snprintf(msg, sizeof msg, "I didn't know that anyway.");
+        put(msg, out, out_size);
+        remember_entity(b, w[2], subj);
+        return 1;
+    }
+
+    /* explicit negative correction, order-insensitive (gen44): both English
+     * "<x> is not a <y>" and the Italian-canonicalized "<x> not is a <y>" mean
+     * not y(x). Detected by ROLE not position: subject first, article at nw-2,
+     * class last, and the two middle tokens are exactly {is, not} in any order.
+     * Word order is surface, not meaning, so one parser serves both languages
+     * (the multilingual probe's gen43 finding). Question words are excluded so a
+     * negated query is not mistaken for an assertion. */
+    if (nw == 5 && is_article(w[3]) &&
+        strcmp(w[0], "who") != 0 && strcmp(w[0], "what") != 0 &&
+        strcmp(w[0], "is") != 0 &&
+        ((strcmp(w[1], "is") == 0) || (strcmp(w[2], "is") == 0)) &&
+        ((strcmp(w[1], "not") == 0) || (strcmp(w[2], "not") == 0))) {
+        const char *subj, *cl = w[4];
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        char msg[128];
+        int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
+        note_contradiction(b, cl, subj, 0); /* gen142 (E8): self-contradiction? */
+        if (kb_assert_neg(b->kb, cl, args, 1))
+            snprintf(msg, sizeof msg, "Learned: not %s(%s).", cl, subj);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        note_consequence(b, cl, before, out, out_size); /* gen103 (L16) */
+        remember_entity(b, w[0], subj);
+        return 1;
+    }
+
+    /* additional class (gen46): "<x> is also a/an <y>" -> y(x). Explanatory
+     * prose adds classes incrementally ("a dolphin is also a mammal"); it is the
+     * same assertion as "x is a y", one more membership. */
+    if (nw == 5 && strcmp(w[1], "is") == 0 && strcmp(w[2], "also") == 0 &&
+        is_article(w[3])) {
+        const char *subj, *cl = w[4];
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        char msg[128];
+        if (kb_assert(b->kb, cl, args, 1))
+            snprintf(msg, sizeof msg, "Learned: %s(%s).", cl, subj);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        remember_entity(b, w[0], subj);
+        return 1;
+    }
+
+    /* --- binary relations: "<x> is the <rel> of <y>" (gen11) --- */
+    if (nw == 6 && strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
+        const char *rel = w[3], *obj = w[5];
+
+        /* variable query, subject unknown: "who is the <rel> of <y>?" ->
+         * rel(X, y); object unknown: "what is the <rel> of <y>?" -> rel(y, X) */
+        if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
+            strcmp(w[1], "is") == 0) {
+            if (!kb_knows_pred(b->kb, rel)) { idk(rel, out, out_size); return 1; }
+            const char *who_pat[]  = {NULL, obj};   /* rel(X, y) */
+            const char *what_pat[] = {obj, NULL};   /* rel(y, X) */
+            const char *const *pat =
+                (strcmp(w[0], "what") == 0) ? what_pat : who_pat;
+            char hits[64][KB_TERM_LEN];
+            size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
+            if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
+            char list[512];
+            size_t off = 0;
+            for (size_t i = 0; i < k && off < sizeof list; i++)
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s", i ? ", " : "", hits[i]);
+            char msg[600];
+            snprintf(msg, sizeof msg, "%s.", list);
+            put(msg, out, out_size);
+            return 1;
+        }
+
+        /* ground query: "is <x> the <rel> of <y>?" -> rel(x, y)? */
+        if (strcmp(w[0], "is") == 0) {
+            const char *subj = w[1];
+            const char *args[] = {subj, obj};
+            if (!kb_knows_pred(b->kb, rel)) idk(rel, out, out_size);
+            else if (kb_is_conflicted(b->kb, rel, args, 2))
+                put("Conflicted.", out, out_size);
+            else put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.",
+                     out, out_size);
+            return 1;
+        }
+
+        /* assert: "<x> is the <rel> of <y>" -> rel(x, y) */
+        if (strcmp(w[1], "is") == 0) {
+            const char *subj = w[0];
+            const char *args[] = {subj, obj};
+            char msg[160];
+            if (kb_assert(b->kb, rel, args, 2))
+                snprintf(msg, sizeof msg, "Learned: %s(%s, %s).", rel, subj, obj);
+            else
+                snprintf(msg, sizeof msg, "I couldn't store that.");
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen133: article-free class assertion "<x> is <adj>" -> adj(x), but ONLY
+     * when adj is a predicate some rule body already depends on. This makes the
+     * conjuncts of a learned conjunctive concept ("every friendly dog is a
+     * goodboy") assertable in natural English ("rex is friendly"), without the
+     * frame ever firing on arbitrary "X is Y" prose. */
+    if (nw == 3 && strcmp(w[1], "is") == 0 &&
+        !is_stopword(b, w[0]) && isalpha((unsigned char)w[0][0])) {
+        char clsbuf[KB_TERM_LEN];
+        snprintf(clsbuf, sizeof clsbuf, "%s", w[2]);
+        char *cl2 = strip_edge_punct(clsbuf);
+        if (kb_rule_body_mentions(b->kb, cl2)) {
+            const char *subj;
+            if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+            const char *args[] = {subj};
+            char msg[128];
+            int before = b->has_last_goal ? goal_truth(b) : -1;
+            if (kb_assert(b->kb, cl2, args, 1))
+                snprintf(msg, sizeof msg, "Learned: %s(%s).", cl2, subj);
+            else
+                snprintf(msg, sizeof msg, "I couldn't store that.");
+            put(msg, out, out_size);
+            remember_entity(b, w[0], subj);
+            note_consequence(b, cl2, before, out, out_size);
+            return 1;
+        }
+    }
+
+    if (nw != 4 || !is_article(w[2])) return 0;
+    const char *cls = w[3];
+
+    /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
+    if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
+        strcmp(w[1], "is") == 0) {
+        if (!kb_knows_pred(b->kb, cls)) { idk(cls, out, out_size); return 1; }
+        const char *pat[] = {NULL}; /* one variable in arg 0 */
+        char hits[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, cls, pat, 1, hits, 64);
+        if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
+        char list[512];
+        size_t off = 0;
+        for (size_t i = 0; i < k && off < sizeof list; i++) {
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                    "%s%s", i ? ", " : "", hits[i]);
+        }
+        char msg[600];
+        snprintf(msg, sizeof msg, "%s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* ground query: "is <x> a <y>?" -> y(x)? */
+    if (strcmp(w[0], "is") == 0) {
+        const char *subj;
+        if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        else if (kb_is_conflicted(b->kb, cls, args, 1)) {
+            put("Conflicted.", out, out_size);
+            char ex[512];
+            if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
+                store_proof(b, ex);
+        }
+        else {
+            int yes = kb_query(b->kb, cls, args, 1);
+            put(yes ? "Yes." : "No.", out, out_size);
+            if (yes) {
+                char ex[512];
+                if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
+                    store_proof(b, ex);
+            }
+            /* gen103 (L16): remember this conclusion so a later correction can
+             * re-derive it and flag the consequence. */
+            snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
+            snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
+            b->last_goal_yes = yes;
+            b->has_last_goal = 1;
+        }
+        remember_entity(b, w[1], subj);
+        return 1;
+    }
+
+    /* subject-first interrogative: "<x> is a <y>?" -> y(x)? (the Italian shape
+     * "<x> è un <y>?"). A trailing '?' makes this a QUERY, not an assertion, so
+     * the same conclusion-memory + consequence machinery (gen103/L16) fires in
+     * both languages through one path. */
+    if (interrogative && strcmp(w[1], "is") == 0) {
+        const char *subj;
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
+        else if (kb_is_conflicted(b->kb, cls, args, 1)) put("Conflicted.", out, out_size);
+        else {
+            int yes = kb_query(b->kb, cls, args, 1);
+            put(yes ? "Yes." : "No.", out, out_size);
+            if (yes) {
+                char ex[512];
+                if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex)) store_proof(b, ex);
+            }
+            snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
+            snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
+            b->last_goal_yes = yes;
+            b->has_last_goal = 1;
+        }
+        remember_entity(b, w[0], subj);
+        return 1;
+    }
+
+    /* assert: "<x> is a <y>" -> y(x) */
+    if (strcmp(w[1], "is") == 0) {
+        const char *subj;
+        if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
+        const char *args[] = {subj};
+        int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
+        note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
+        if (kb_assert(b->kb, cls, args, 1)) {
+            char msg[128];
+            snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
+            put(msg, out, out_size);
+            note_consequence(b, cls, before, out, out_size); /* gen103 (L16) */
+        } else {
+            put("I couldn't store that.", out, out_size);
+        }
+        remember_entity(b, w[0], subj);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --- module: compare -----------------------------------------------------
+ * Ordinal reasoning over quantities (gen27). Discovered by domain-pull: the
+ * first official SuperGLUE/BoolQ question parrot0 was shown asks whether
+ * ethanol "take[s] more energy ... than [it] produces" — a *comparison of two
+ * magnitudes*, a kind of reasoning the KB (symbolic atoms only) could not do.
+ * This part answers the comparison itself: "is <a> more/less than <b>?" over
+ * numbers, returning a closed yes/no. It is the reasoning primitive on the
+ * path to such questions; turning a passage into the two numbers is a separate,
+ * larger feature (NL extraction) we deliberately do NOT fake here. */
+static int parse_num(const char *s, double *out) {
+    if (!*s) return 0;
+    char *end;
+    double v = strtod(s, &end);
+    if (end == s) return 0;
+    while (*end && isspace((unsigned char)*end)) end++;
+    if (*end != '\0') return 0;
+    *out = v;
+    return 1;
+}
+
+/* gen112: value of a SINGLE number word (English or Italian), 0–90 plus the
+ * multipliers hundred/thousand. Returns 1 on a hit. Content words only — no
+ * function-word collision, so it is language-neutral by construction. */
+static int single_word_number(const char *s, double *out) {
+    static const struct { const char *w; double v; } t[] = {
+        {"zero",0},{"one",1},{"two",2},{"three",3},{"four",4},{"five",5},
+        {"six",6},{"seven",7},{"eight",8},{"nine",9},{"ten",10},{"eleven",11},
+        {"twelve",12},{"thirteen",13},{"fourteen",14},{"fifteen",15},
+        {"sixteen",16},{"seventeen",17},{"eighteen",18},{"nineteen",19},
+        {"twenty",20},{"thirty",30},{"forty",40},{"fifty",50},{"sixty",60},
+        {"seventy",70},{"eighty",80},{"ninety",90},{"hundred",100},
+        {"thousand",1000},
+        /* Italian */
+        {"uno",1},{"due",2},{"tre",3},{"quattro",4},{"cinque",5},{"sei",6},
+        {"sette",7},{"otto",8},{"nove",9},{"dieci",10},{"undici",11},
+        {"dodici",12},{"tredici",13},{"quattordici",14},{"quindici",15},
+        {"sedici",16},{"diciassette",17},{"diciotto",18},{"diciannove",19},
+        {"venti",20},{"trenta",30},{"quaranta",40},{"cinquanta",50},
+        {"sessanta",60},{"settanta",70},{"ottanta",80},{"novanta",90},
+        {"cento",100},{"mille",1000},
+    };
+    for (size_t i = 0; i < sizeof t / sizeof t[0]; i++)
+        if (strcmp(s, t[i].w) == 0) { *out = t[i].v; return 1; }
+    return 0;
+}
+
+/* A number WORD, including a hyphenated tens-unit compound ("twenty-one"). */
+static int word_number(const char *s, double *out) {
+    const char *hy = strchr(s, '-');
+    if (hy) {
+        char head[KB_TERM_LEN];
+        size_t hn = (size_t)(hy - s);
+        if (hn < sizeof head) {
+            memcpy(head, s, hn); head[hn] = '\0';
+            double tens, unit;
+            if (single_word_number(head, &tens) && tens >= 20 &&
+                (long)tens % 10 == 0 &&
+                single_word_number(hy + 1, &unit) && unit >= 1 && unit <= 9) {
+                *out = tens + unit; return 1;
+            }
+        }
+    }
+    return single_word_number(s, out);
+}
+
+/* Parse a value that may be a digit literal OR a number word. */
+static int parse_value(const char *s, double *out) {
+    return parse_num(s, out) || word_number(s, out);
+}
+
+/* gen112: collect the numbers in a token stream, reading digits AND number
+ * words, merging spaced word compounds ("twenty five" -> 25) and multipliers
+ * ("two hundred" -> 200). Merges apply only to WORD numbers, so two adjacent
+ * digit quantities stay distinct. Returns how many were written (capped). */
+static size_t collect_numbers(char **w, size_t nw, double *nums, size_t max) {
+    size_t nn = 0; int prev_word = 0;
+    for (size_t i = 0; i < nw && nn < max; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t) { prev_word = 0; continue; }
+        double v; int isword = 0;
+        if (!parse_num(t, &v)) { isword = word_number(t, &v); if (!isword) { prev_word = 0; continue; } }
+        if (isword && (v == 100 || v == 1000) && nn > 0 && nums[nn - 1] < v) {
+            nums[nn - 1] *= v; prev_word = 1; continue;          /* "two hundred" */
+        }
+        if (isword && prev_word && nn > 0 && nums[nn - 1] >= 20 &&
+            (long)nums[nn - 1] % 10 == 0 && v >= 1 && v <= 9) {
+            nums[nn - 1] += v; prev_word = 1; continue;          /* "twenty five" */
+        }
+        nums[nn++] = v; prev_word = isword;
+    }
+    return nn;
+}
+
+/* The shared magnitude test: is `a` more (greater=1) / less (greater=0) than
+ * `c`? Both mod_compare (literal numbers) and mod_quantity (numbers looked up
+ * from the KB) route their decision through this one comparator. */
+static int magnitude_more(double a, double c, int greater) {
+    return greater ? (a > c) : (a < c);
+}
+
+/* Map "more"/"greater" -> 1, "less"/"fewer" -> 0, anything else -> -1. */
+static int compare_word(const char *w) {
+    if (strcmp(w, "more") == 0 || strcmp(w, "greater") == 0) return 1;
+    if (strcmp(w, "less") == 0 || strcmp(w, "fewer") == 0) return 0;
+    return -1;
+}
+

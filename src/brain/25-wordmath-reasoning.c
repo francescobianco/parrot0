@@ -1,0 +1,770 @@
+static int mod_plan(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
+
+    char *w[32];
+    size_t nw = split_words(buf, w, 32);
+
+    /* intake: "X requires/needs <list>" — conjunction + optional quantities. */
+    if (nw >= 3 && (strcmp(w[1], "requires") == 0 || strcmp(w[1], "needs") == 0 ||
+                    strcmp(w[1], "richiede") == 0)) {
+        if (plan_learn_list(b, w[0], w, 2, nw, out, out_size)) return 1;
+    }
+    /* Italian intake: "per X serve/servono <list>" (to X you need ...). */
+    if (nw >= 4 && strcmp(w[0], "per") == 0 &&
+        (strcmp(w[2], "serve") == 0 || strcmp(w[2], "servono") == 0)) {
+        if (plan_learn_list(b, w[1], w, 3, nw, out, out_size)) return 1;
+    }
+
+    /* query: "how do I make X" / "how to make X" / "steps to/for X" /
+     * "come faccio/si fa ... X". The goal is the last content word. */
+    /* Detect the how-to phrasing on the ORIGINAL input (normalized for case),
+     * not the canonicalized `norm`: canonicalize_lang rewrites Italian function
+     * words (e.g. "si" -> "is"), which would hide "come si fa". And we read this
+     * intact copy, never `buf`, which split_words just null-terminated in place. */
+    char q[256]; normalize(raw, q, sizeof q);
+    int howto = (cue(q, "how") && cue(q, "make")) || cue(q, "how to") ||
+                strncmp(q, "steps", 5) == 0 || cue(q, "steps to") ||
+                cue(q, "steps for") ||
+                (cue(q, "come") && (cue(q, "faccio") || cue(q, "fare") ||
+                                    cue(q, "si fa")));
+    if (!howto || nw < 2) return 0;
+
+    char goal[KB_TERM_LEN];
+    snprintf(goal, sizeof goal, "%s", w[nw - 1]);
+    strip_edge_punct(goal);
+
+    /* a goal we have no prerequisites for is honestly unknown. */
+    const char *pat[] = { goal, NULL };
+    char pre0[4][KB_TERM_LEN];
+    if (kb_match(b->kb, "requires", pat, 2, pre0, 4) == 0) {
+        char msg[128];
+        snprintf(msg, sizeof msg, "I don't know the steps to make %s yet.", goal);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    char done[32][KB_TERM_LEN], stack[32][KB_TERM_LEN];
+    char order[32][KB_TERM_LEN], par[32][KB_TERM_LEN];
+    size_t ndone = 0, norder = 0;
+    if (!plan_dfs(b, goal, "", done, &ndone, stack, 0, order, par, &norder, 32)) {
+        char msg[128];
+        snprintf(msg, sizeof msg,
+                 "The steps for %s have a circular prerequisite — I can't order them.",
+                 goal);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* render the topological order as the procedure (prerequisites first),
+     * annotating a step with the quantity its requirer asked for, if known. */
+    char line[1024]; size_t off = 0;
+    for (size_t i = 0; i < norder; i++) {
+        const char *sep = i ? (i + 1 == norder ? ", then " : ", ") : "";
+        char amt[4][KB_TERM_LEN];
+        const char *apat[] = { par[i], order[i], NULL };
+        size_t na = par[i][0] ? kb_match(b->kb, "amount", apat, 3, amt, 4) : 0;
+        if (na > 0)
+            off += (size_t)snprintf(line + off, off < sizeof line ? sizeof line - off : 0,
+                                    "%s%s %s", sep, amt[0], order[i]);
+        else
+            off += (size_t)snprintf(line + off, off < sizeof line ? sizeof line - off : 0,
+                                    "%s%s", sep, order[i]);
+    }
+    char msg[1100];
+    snprintf(msg, sizeof msg, "To make %s: %s.", goal, line);
+    put(msg, out, out_size);
+
+    char proof[256];
+    snprintf(proof, sizeof proof,
+             "ordered by prerequisites: each step follows everything it requires.");
+    store_proof(b, proof);
+    return 1;
+}
+
+/* --- module: wordproblem (L17 prose) --------------------------------------
+ * One-sentence word problems: prose -> arithmetic relation -> solve. gen107
+ * solved a symbolic equation; this maps a natural-language problem onto an
+ * operation and computes it. The operation is chosen from SEMANTIC cues (verbs
+ * of gaining/losing/grouping/sharing, and comparison phrasings), not exact
+ * sentence templates — so held-out numbers AND held-out verbs transfer. It is
+ * deliberately conservative: it fires only on a "how many/much" question with at
+ * least two numbers and a recognized cue, and DECLINES otherwise (anti-impostor:
+ * never guess an operation). Natural language is all exceptions (DESIGN.md D5),
+ * so this targets the canonical school phrasings and reads the first two numbers
+ * in order (total/dividend first, as those phrasings put it). Bilingual cues.
+ *
+ * gen114: with three or more numbers it folds a multi-STEP additive/subtractive
+ * chain ("has 3, buys 5 more, then eats 2" -> 3 + 5 - 2 = 6): each clause's sign
+ * is + unless the clause carries a removal verb, and clauses split on
+ * then/and/poi/e and commas. */
+static int wp_removal_word(const char *t) {
+    static const char *const ex[] = {
+        "ate","eats","lost","loses","gave","gives","spent","spends","sold",
+        "sells","broke","removed","removes","dropped","drops","used", NULL };
+    for (size_t i = 0; ex[i]; i++) if (strcmp(t, ex[i]) == 0) return 1;
+    return strstr(t, "mangi") || strstr(t, "perso") || strstr(t, "perde") ||
+           strstr(t, "regal") || strstr(t, "vend")  || strstr(t, "spes");
+}
+
+static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
+                           char *out, size_t out_size) {
+    (void)norm;
+    char q[256]; normalize(raw, q, sizeof q);          /* intact, un-canonicalized */
+
+    /* question guard: only attempt on an explicit "how many / how much / quanti…" */
+    if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant")))
+        return 0;
+
+    /* collect the numbers in reading order (digits and number words). */
+    char buf[256]; snprintf(buf, sizeof buf, "%s", q);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    double nums[16];
+    size_t nn = collect_numbers(w, nw, nums, 16);
+    if (nn < 2) return 0;
+
+    /* gen114: 3+ numbers -> multi-step additive/subtractive fold, clause by
+     * clause. The first number is the base; each later number is added, or
+     * subtracted if its clause carries a removal verb. Clauses split on
+     * then/and/poi/e and on a trailing comma. */
+    if (nn >= 3) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", q);
+        char *tw[64]; size_t tnw = split_words(sb, tw, 64);
+        double result = 0; int have = 0, sign = 1;
+        for (size_t i = 0; i < tnw; i++) {
+            size_t L = strlen(tw[i]);
+            int trailing = L > 0 && (tw[i][L - 1] == ',' || tw[i][L - 1] == ';');
+            char *t = strip_edge_punct(tw[i]);
+            if (!*t) { if (trailing) sign = 1; continue; }
+            if (!strcmp(t, "then") || !strcmp(t, "and") || !strcmp(t, "poi") ||
+                !strcmp(t, "e") || !strcmp(t, "ed")) { sign = 1; continue; }
+            if (wp_removal_word(t)) sign = -1;
+            double v;
+            if (parse_value(t, &v)) {
+                if (!have) { result = v; have = 1; }
+                else result += sign * v;
+            }
+            if (trailing) sign = 1;
+        }
+        char num[64]; format_num(result, num, sizeof num);
+        char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+        put(msg, out, out_size);
+        char proof[160];
+        snprintf(proof, sizeof proof,
+                 "I folded the steps left to right to %s.", num);
+        store_proof(b, proof);
+        return 1;
+    }
+
+    double a = nums[0], c = nums[1];
+
+    /* choose the operation by cue, in a priority that resolves overlaps:
+     * division, then comparison-difference / removal (both '-'), then
+     * multiplication, then addition. */
+    char op = 0;
+    if (cue(q, "shared") || cue(q, "share") || cue(q, "divided") ||
+        cue(q, "divide") || cue(q, "split") || cue(q, "among") ||
+        cue(q, "equally") || cue(q, "divis") || cue(q, "condivi") ||
+        cue(q, "ripartit"))
+        op = '/';
+    else if (cue(q, "how many more") || cue(q, "how much more") ||
+             cue(q, "how many fewer") || cue(q, "how many less") ||
+             cue(q, "more than") || cue(q, "fewer than") ||
+             cue(q, "difference") || cue(q, "quanti in più") ||
+             cue(q, "differenza") ||
+             cue(q, "ate") || cue(q, "eats") || cue(q, "lost") ||
+             cue(q, "loses") || cue(q, "gave") || cue(q, "gives away") ||
+             cue(q, "left") || cue(q, "remain") || cue(q, "fewer") ||
+             cue(q, "spent") || cue(q, "spends") || cue(q, "sold") ||
+             cue(q, "sells") || cue(q, "broke") || cue(q, "removed") ||
+             cue(q, "drops") || cue(q, " away") || cue(q, "mangi") ||
+             cue(q, "pers") || cue(q, "perde") || cue(q, "regal") ||
+             cue(q, "vend") || cue(q, "riman") || cue(q, "spend"))
+        op = '-';
+    else if (cue(q, "each") || cue(q, "times") || cue(q, "groups of") ||
+             cue(q, "rows of") || cue(q, "boxes of") || cue(q, "ciascun") ||
+             cue(q, "ognuno") || cue(q, "ogni"))
+        op = '*';
+    else if (cue(q, "more") || cue(q, "gets") || cue(q, "got") ||
+             cue(q, "gains") || cue(q, "buys") || cue(q, "buy") ||
+             cue(q, "found") || cue(q, "finds") || cue(q, "altogether") ||
+             cue(q, "total") || cue(q, "in all") || cue(q, "combined") ||
+             cue(q, "receive") || cue(q, "plus") || cue(q, "adds") ||
+             cue(q, "compr") || cue(q, "trov") || cue(q, "totale") ||
+             cue(q, "insieme") || cue(q, "ancora") || cue(q, "aggiun"))
+        op = '+';
+    if (!op) return 0;
+
+    double r;
+    switch (op) {
+        case '+': r = a + c; break;
+        case '-': r = a - c; break;
+        case '*': r = a * c; break;
+        case '/': if (c == 0) { put("I can't divide by zero.", out, out_size); return 1; }
+                  r = a / c; break;
+        default: return 0;
+    }
+
+    char num[64]; format_num(r, num, sizeof num);
+    char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+    put(msg, out, out_size);
+
+    char proof[128];
+    snprintf(proof, sizeof proof, "I read it as %g %c %g = %s.", a, op, c, num);
+    store_proof(b, proof);
+    return 1;
+}
+
+/* --- module: quantity ----------------------------------------------------
+ * Quantities as knowledge (gen28). gen27 could compare two literal numbers;
+ * this part lets a magnitude be *stated, recalled, and compared as a fact*, so
+ * the comparison primitive can be driven from language rather than from
+ * pre-extracted numbers — the next step the BoolQ probe pulled. A quantity is
+ * a 3-ary fact `quantity(entity, unit, value)`; the value rides in the KB as a
+ * string atom and is parsed back with parse_num when compared. Turning prose
+ * into these facts (open-domain extraction) is deliberately still out of scope:
+ * we build the reasoning, not a passage parser. */
+static int mod_quantity(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<x> has <n> <unit>" -> quantity(x, unit, n) */
+    if (nw == 4 && strcmp(w[1], "has") == 0) {
+        double v;
+        if (!parse_num(w[2], &v)) return 0; /* not a quantity; let others try */
+        const char *args[] = {w[0], w[3], w[2]};
+        char msg[160];
+        if (kb_assert(b->kb, "quantity", args, 3))
+            snprintf(msg, sizeof msg, "Learned: %s has %s %s.", w[0], w[2], w[3]);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* recall: "how many <unit> does <x> have" -> quantity(x, unit, ?) */
+    if (nw == 6 && strcmp(w[0], "how") == 0 && strcmp(w[1], "many") == 0 &&
+        strcmp(w[3], "does") == 0 && strcmp(w[5], "have") == 0) {
+        const char *unit = w[2], *x = w[4];
+        const char *pat[] = {x, unit, NULL};
+        char hits[4][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "quantity", pat, 3, hits, 4);
+        char msg[160];
+        if (k == 0)
+            snprintf(msg, sizeof msg, "I don't know how many %s %s has.", unit, x);
+        else
+            snprintf(msg, sizeof msg, "%s has %s %s.", x, hits[0], unit);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* compare: "does <x> have more/less <unit> than <y>" */
+    if (nw == 7 && strcmp(w[0], "does") == 0 && strcmp(w[2], "have") == 0 &&
+        strcmp(w[5], "than") == 0) {
+        int greater = compare_word(w[3]);
+        if (greater < 0) return 0;
+        const char *unit = w[4], *x = w[1], *y = w[6];
+        const char *px[] = {x, unit, NULL}, *py[] = {y, unit, NULL};
+        char hx[4][KB_TERM_LEN], hy[4][KB_TERM_LEN];
+        size_t kx = kb_match(b->kb, "quantity", px, 3, hx, 4);
+        size_t ky = kb_match(b->kb, "quantity", py, 3, hy, 4);
+        if (kx == 0 || ky == 0) {
+            char msg[200];
+            snprintf(msg, sizeof msg, "I don't know how many %s %s has.",
+                     unit, kx == 0 ? x : y);
+            put(msg, out, out_size);
+            return 1;
+        }
+        double a, c;
+        if (!parse_num(hx[0], &a) || !parse_num(hy[0], &c)) return 0;
+        put(magnitude_more(a, c, greater) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --- module: cause -------------------------------------------------------
+ * Causal reasoning (gen30). Pulled by the first SuperGLUE COPA question ("The
+ * man turned on the faucet. effect: toilet filled / water flowed") — picking a
+ * plausible cause or effect, a directed relation parrot0 never had. A causal
+ * link is the binary fact `causes(a, b)` (a causes b). This part asserts and
+ * queries it in both directions and runs the COPA-shaped two-way chooser over
+ * *stated* causal facts. Commonsense causality (COPA's real difficulty —
+ * knowing faucets fill spouts) is deliberately out of scope; we build the
+ * relation and the chooser, not a world model. */
+static int mod_cause(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    /* chooser: "effect of <a>: <c1> or <c2>" / "cause of <a>: <c1> or <c2>" */
+    int eff = -1;
+    char *rest = NULL;
+    if (strncmp(buf, "effect of ", 10) == 0) { eff = 1; rest = buf + 10; }
+    else if (strncmp(buf, "cause of ", 9) == 0) { eff = 0; rest = buf + 9; }
+    if (rest) {
+        char *colon = strchr(rest, ':');
+        char *orp = colon ? strstr(colon, " or ") : NULL;
+        if (colon && orp) {
+            *colon = '\0';
+            *orp = '\0';
+            const char *a = trim_mut(rest);
+            const char *c1 = trim_mut(colon + 1);
+            const char *c2 = trim_mut(orp + 4);
+            const char *p1[2], *p2[2];
+            if (eff) { p1[0]=a; p1[1]=c1; p2[0]=a; p2[1]=c2; }
+            else     { p1[0]=c1; p1[1]=a; p2[0]=c2; p2[1]=a; }
+            int ok1 = kb_query(b->kb, "causes", p1, 2);
+            int ok2 = kb_query(b->kb, "causes", p2, 2);
+            char msg[160];
+            if (ok1 && !ok2)      snprintf(msg, sizeof msg, "%s.", c1);
+            else if (ok2 && !ok1) snprintf(msg, sizeof msg, "%s.", c2);
+            else if (ok1 && ok2)  snprintf(msg, sizeof msg, "Both.");
+            else                  snprintf(msg, sizeof msg, "Neither.");
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<a> causes <b>" -> causes(a, b) */
+    if (nw == 3 && strcmp(w[1], "causes") == 0) {
+        const char *args[] = {w[0], w[2]};
+        char msg[160];
+        if (kb_assert(b->kb, "causes", args, 2))
+            snprintf(msg, sizeof msg, "Learned: causes(%s, %s).", w[0], w[2]);
+        else
+            snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* query: "what is the effect/cause of <x>?" -> causes(x, ?) / causes(?, x) */
+    if (nw == 6 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
+        strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0 &&
+        (strcmp(w[3], "effect") == 0 || strcmp(w[3], "cause") == 0)) {
+        int want_eff = strcmp(w[3], "effect") == 0;
+        const char *x = w[5];
+        const char *pat_eff[] = {x, NULL};   /* causes(x, ?) -> effects */
+        const char *pat_cause[] = {NULL, x}; /* causes(?, x) -> causes  */
+        char hits[64][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, "causes", want_eff ? pat_eff : pat_cause,
+                             2, hits, 64);
+        /* gen90: also find indirect/transitive causes. */
+        {
+            char mid[64][KB_TERM_LEN];
+            size_t kmid = kb_match(b->kb, "causes",
+                                    want_eff ? pat_eff : pat_cause, 2, mid, 64);
+            for (size_t m = 0; m < kmid && k < 64; m++) {
+                const char *indirect[] = {mid[m], NULL};
+                const char *indirect_rev[] = {NULL, mid[m]};
+                char chain[64][KB_TERM_LEN];
+                size_t kc = kb_match(b->kb, "causes",
+                                      want_eff ? indirect : indirect_rev, 2, chain, 64);
+                for (size_t c = 0; c < kc && k < 64; c++) {
+                    int dup = 0;
+                    for (size_t d = 0; d < k; d++)
+                        if (strcmp(hits[d], chain[c]) == 0) { dup = 1; break; }
+                    if (!dup) snprintf(hits[k++], KB_TERM_LEN, "%s (via %s)", chain[c], mid[m]);
+                }
+            }
+        }
+        if (k == 0) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "I don't know the %s of %s.", w[3], x);
+            put(msg, out, out_size);
+            return 1;
+        }
+        char list[512];
+        size_t off = 0;
+        for (size_t i = 0; i < k && off < sizeof list; i++)
+            off += (size_t)snprintf(list + off, sizeof list - off,
+                                    "%s%s", i ? ", " : "", hits[i]);
+        char msg[600];
+        snprintf(msg, sizeof msg, "%s.", list);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --- module: same --------------------------------------------------------
+ * Equivalence between entities (gen33). Pulled by BoolQ #1 ("is house tax and
+ * property tax are same"): a question about *sameness*, which parrot0 had no
+ * way to represent or answer without conflating it with class membership. A
+ * `same(a, b)` fact is stored in both directions so the relation is symmetric;
+ * `are <x> and <y> the same?` answers from it (identical names are trivially
+ * the same). It is NOT transitively closed — see Decision D-2026-06-15f. */
+static int mod_same(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[8];
+    size_t nw = split_words(buf, w, 8);
+
+    /* assert: "<x> is the same as <y>" -> same(x, y) (stored both ways) */
+    if (nw == 6 && strcmp(w[1], "is") == 0 && strcmp(w[2], "the") == 0 &&
+        strcmp(w[3], "same") == 0 && strcmp(w[4], "as") == 0) {
+        const char *fwd[] = {w[0], w[5]}, *bwd[] = {w[5], w[0]};
+        int ok = kb_assert(b->kb, "same", fwd, 2) &&
+                 kb_assert(b->kb, "same", bwd, 2);
+        char msg[160];
+        if (ok) snprintf(msg, sizeof msg, "Learned: same(%s, %s).", w[0], w[5]);
+        else    snprintf(msg, sizeof msg, "I couldn't store that.");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* query: "are <x> and <y> the same?" -> same(x, y)? */
+    if (nw == 6 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
+        strcmp(w[4], "the") == 0 && strcmp(w[5], "same") == 0) {
+        const char *x = w[1], *y = w[3];
+        if (strcmp(x, y) == 0) { put("Yes.", out, out_size); return 1; }
+        const char *args[] = {x, y};
+        put(kb_query(b->kb, "same", args, 2) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --- module: conj --------------------------------------------------------
+ * Conjunctive membership (gen34). Multi-fact reasoning (the MultiRC family)
+ * needs combining several facts in one judgement; every prior query asked about
+ * a single goal. This part answers two AND-shaped questions — `are <x> and <y>
+ * both a <z>?` (z(x) AND z(y)) and `is <x> both a <y> and a <z>?` (y(x) AND
+ * z(x)) — by routing EACH conjunct through `kb_query`, so rule-derived
+ * membership counts exactly as it does for a single query. No new solver:
+ * AND-composition is just two resolver calls. An unknown class is admitted. */
+static int mod_conj(Brain *b, const char *norm, const char *raw,
+                    char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[10];
+    size_t nw = split_words(buf, w, 10);
+
+    /* "are <x> and <y> both a/an <z>?" -> z(x) AND z(y) */
+    if (nw == 7 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
+        strcmp(w[4], "both") == 0 && is_article(w[5])) {
+        const char *z = w[6], *x = w[1], *y = w[3];
+        if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
+        const char *ax[] = {x}, *ay[] = {y};
+        int yes = kb_query(b->kb, z, ax, 1) && kb_query(b->kb, z, ay, 1);
+        put(yes ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    /* "is <x> both a/an <y> and a/an <z>?" -> y(x) AND z(x) */
+    if (nw == 8 && strcmp(w[0], "is") == 0 && strcmp(w[2], "both") == 0 &&
+        is_article(w[3]) && strcmp(w[5], "and") == 0 && is_article(w[6])) {
+        const char *x = w[1], *y = w[4], *z = w[7];
+        if (!kb_knows_pred(b->kb, y)) { idk(y, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
+        const char *a[] = {x};
+        int yes = kb_query(b->kb, y, a, 1) && kb_query(b->kb, z, a, 1);
+        put(yes ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+
+    return 0;
+}
+
+/* --- module: gen ---------------------------------------------------------
+ * Generative inference loop (gen36 — DESIGN D-prop1). The brain's other modules
+ * infer ONCE and emit a whole reply. This part generates *autoregressively*,
+ * the shape an LLM decodes in, but driven by repeated deterministic inference
+ * instead of a neural forward pass: emit a word, append it to the working
+ * context, re-infer the next word conditioned on what was just produced, and
+ * repeat until no continuation is provable (or a step bound).
+ *
+ * The continuation knowledge is NOT hand-authored (that would be the phrasebook
+ * impostor PRINCIPLES.md rejects): it is *induced from examples* as facts
+ * `cont(prev, word, count)`. `learn sequence: a b c` asserts the adjacent
+ * transitions; `say <w>` runs the loop from a seed. gen36 chooses the first
+ * provable continuation (insertion order); frequency-weighted choice and longer
+ * context arrive in later generations. */
+
+/* gen106 (L1): the explicit end-of-sequence token. D-prop1 calls for "an
+ * explicit stop token / end relation" so decoding halts because the model
+ * LEARNED where utterances end — not merely because a step bound cut it off.
+ * It is a sentinel atom that begins with a lowercase letter (so the KB reads it
+ * as a constant, not a variable — leading uppercase OR '_' means variable,
+ * kb.c) and embeds underscores so the whitespace/prose tokenizer can never
+ * produce it as a real word. It is learned, never hand-authored, from sentence
+ * boundaries in the very text taught (a terminal '.'/'!'/'?' or end-of-stream),
+ * so STOP is induced exactly like every other transition. */
+#define GEN_STOP "end_of_seq"
+
+/* Learn one transition prev->word, keeping a frequency count. The KB has no
+ * in-place update, so we read the current count, retract the old fact, and
+ * assert the incremented one (gen37). */
+static void learn_transition(Brain *b, const char *prev, const char *word) {
+    const char *pat[] = {prev, word, NULL};
+    char cnt[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont", pat, 3, cnt, 4);
+    long n = 1;
+    if (k > 0) {
+        n = strtol(cnt[0], NULL, 10) + 1;
+        const char *old[] = {prev, word, cnt[0]};
+        kb_retract(b->kb, "cont", old, 3);
+    }
+    char ns[32];
+    snprintf(ns, sizeof ns, "%ld", n);
+    const char *args[] = {prev, word, ns};
+    kb_assert(b->kb, "cont", args, 3);
+}
+
+/* Learn one trigram transition (p1 p2)->word with a count (gen38). */
+static void learn_transition2(Brain *b, const char *p1, const char *p2,
+                              const char *word) {
+    const char *pat[] = {p1, p2, word, NULL};
+    char cnt[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont2", pat, 4, cnt, 4);
+    long n = 1;
+    if (k > 0) {
+        n = strtol(cnt[0], NULL, 10) + 1;
+        const char *old[] = {p1, p2, word, cnt[0]};
+        kb_retract(b->kb, "cont2", old, 4);
+    }
+    char ns[32];
+    snprintf(ns, sizeof ns, "%ld", n);
+    const char *args[] = {p1, p2, word, ns};
+    kb_assert(b->kb, "cont2", args, 4);
+}
+
+/* Learn the bigram (cont) and trigram (cont2) transitions across a word stream,
+ * returning the number of bigram pairs learned. Shared by `learn sequence:` and
+ * the reader (gen41) so the generative model can grow from the same prose the
+ * fact extractor reads, not only from explicit teaching. */
+/* gen106 (L1): true if `tok` ends a sentence, stripping the trailing terminal
+ * punctuation in place so the cleaned word is still learned. A lone "." returns
+ * a boundary with an emptied token. */
+static int is_sentence_boundary(char *tok) {
+    size_t n = strlen(tok);
+    if (n == 0) return 0;
+    char c = tok[n - 1];
+    if (c != '.' && c != '!' && c != '?') return 0;
+    while (n > 0 && (tok[n - 1] == '.' || tok[n - 1] == '!' || tok[n - 1] == '?'))
+        tok[--n] = '\0';
+    return 1;
+}
+
+/* gen106 (L1): learn the bigram (cont) and trigram (cont2) transitions across a
+ * word stream, INCLUDING a learned end-of-sequence: at every sentence boundary
+ * (terminal punctuation or end-of-stream) the last real word gets a transition
+ * to GEN_STOP, and the rolling context resets so no transition bridges the
+ * boundary. Returns the number of (non-STOP) bigram pairs learned — the count
+ * the "learn sequence:" reply reports, unchanged from gen41. Shared by
+ * `learn sequence:` and the reader, so the generative model grows from the same
+ * prose the fact extractor reads. */
+static size_t learn_word_stream(Brain *b, char **w, size_t nw) {
+    size_t pairs = 0;
+    const char *p1 = NULL, *p2 = NULL; /* rolling context, reset at boundaries */
+    for (size_t i = 0; i < nw; i++) {
+        if (strlen(w[i]) >= KB_TERM_LEN) { p2 = NULL; p1 = NULL; continue; }
+        int boundary = is_sentence_boundary(w[i]); /* may empty the token */
+        const char *cur = w[i];
+        if (*cur) {
+            if (p1) { learn_transition(b, p1, cur); pairs++; }
+            if (p2 && p1) learn_transition2(b, p2, p1, cur);
+            p2 = p1; p1 = cur;
+        }
+        if (boundary && p1) {                       /* learned end-of-sequence */
+            learn_transition(b, p1, GEN_STOP);
+            if (p2) learn_transition2(b, p2, p1, GEN_STOP);
+            p2 = NULL; p1 = NULL;                    /* do not bridge sentences */
+        }
+    }
+    if (p1) learn_transition(b, p1, GEN_STOP);       /* end-of-stream is a stop */
+    return pairs;
+}
+
+/* Start each `read:` passage as a fresh corpus for generation. The reader still
+ * accumulates extracted facts in the KB, but the continuation model represents
+ * the most recently read passage, so a held-out second passage can measurably
+ * shift `say <seed>` instead of tying the first passage by insertion order. */
+static void clear_generation_model(Brain *b) {
+    if (!b || !b->kb) return;
+
+    char prevs[128][KB_TERM_LEN];
+    const char *any3[] = {NULL, NULL, NULL};
+    size_t np = kb_match(b->kb, "cont", any3, 3, prevs, 128);
+    for (size_t i = 0; i < np; i++) {
+        const char *word_pat[] = {prevs[i], NULL, NULL};
+        char words[128][KB_TERM_LEN];
+        size_t nw = kb_match(b->kb, "cont", word_pat, 3, words, 128);
+        for (size_t j = 0; j < nw; j++) {
+            const char *cnt_pat[] = {prevs[i], words[j], NULL};
+            char counts[16][KB_TERM_LEN];
+            size_t nc = kb_match(b->kb, "cont", cnt_pat, 3, counts, 16);
+            for (size_t k = 0; k < nc; k++) {
+                const char *old[] = {prevs[i], words[j], counts[k]};
+                kb_retract(b->kb, "cont", old, 3);
+            }
+        }
+    }
+
+    char p1s[128][KB_TERM_LEN];
+    const char *any4[] = {NULL, NULL, NULL, NULL};
+    size_t n1 = kb_match(b->kb, "cont2", any4, 4, p1s, 128);
+    for (size_t i = 0; i < n1; i++) {
+        const char *p2_pat[] = {p1s[i], NULL, NULL, NULL};
+        char p2s[128][KB_TERM_LEN];
+        size_t n2 = kb_match(b->kb, "cont2", p2_pat, 4, p2s, 128);
+        for (size_t j = 0; j < n2; j++) {
+            const char *word_pat[] = {p1s[i], p2s[j], NULL, NULL};
+            char words[128][KB_TERM_LEN];
+            size_t nw = kb_match(b->kb, "cont2", word_pat, 4, words, 128);
+            for (size_t k = 0; k < nw; k++) {
+                const char *cnt_pat[] = {p1s[i], p2s[j], words[k], NULL};
+                char counts[16][KB_TERM_LEN];
+                size_t nc = kb_match(b->kb, "cont2", cnt_pat, 4, counts, 16);
+                for (size_t m = 0; m < nc; m++) {
+                    const char *old[] = {p1s[i], p2s[j], words[k], counts[m]};
+                    kb_retract(b->kb, "cont2", old, 4);
+                }
+            }
+        }
+    }
+}
+
+/* Look up the stored count for a transition, or 0 if absent. `argc` counts the
+ * context+word slots (2 for cont, 3 for cont2); the trailing count slot is the
+ * variable kb_match binds. */
+static long transition_count(Brain *b, const char *rel,
+                             const char *const *key, size_t keyn) {
+    const char *pat[KB_MAX_ARGS];
+    for (size_t i = 0; i < keyn; i++) pat[i] = key[i];
+    pat[keyn] = NULL; /* count */
+    char cnt[4][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, rel, pat, keyn + 1, cnt, 4);
+    return (k > 0) ? strtol(cnt[0], NULL, 10) : 0;
+}
+
+/* Choose the next word by INTERPOLATING the bigram and trigram evidence
+ * (gen42), replacing gen38's hard backoff. Each bigram candidate `w` of `p1`
+ * scores W2*cont2(p2,p1,w) + W1*cont(p1,w): the longer context informs the
+ * choice without dictating it, so a single count-1 trigram no longer overrides
+ * a strong bigram (Decision D-2026-06-15k). Every trigram continuation has a
+ * matching bigram (the learner emits both), so the bigram set is the complete
+ * candidate set. The gen40 CRITICAL FILTER still applies: when `subj` is set
+ * the running output is a claim "<subj> is a ___", and any `w` the KB knows
+ * `w(subj)` false/conflicted is skipped. Tie -> insertion order. Returns 1 if a
+ * word was chosen, 0 if there are no candidates or every one was blocked (the
+ * caller then stops rather than utter a falsehood). */
+/* gen111 (D-prop1 step 2): the decoder's choice ranking is itself KB knowledge.
+ * The interpolation coefficients live as `weight(trigram, N)` / `weight(bigram,
+ * N)` facts, read here with a fallback default — so the generation POLICY is
+ * inspectable and editable knowledge, not hardcoded C (DESIGN.md D6). Editing the
+ * fact (e.g. "set trigram weight to 0") changes which continuation wins. */
+static long gen_weight(Brain *b, const char *kind, long dflt) {
+    if (!b || !b->kb) return dflt;
+    const char *pat[] = { kind, NULL };
+    char v[2][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "weight", pat, 2, v, 2);
+    return k ? strtol(v[0], NULL, 10) : dflt;
+}
+
+static int next_word_ctx(Brain *b, const char *p2, const char *p1,
+                         const char *subj, char *word, size_t wsize) {
+    /* trigram weight dominates but does not dictate — now read from the KB. */
+    const long W2 = gen_weight(b, "trigram", 3), W1 = gen_weight(b, "bigram", 1);
+    const char *pat[] = {p1, NULL, NULL};
+    char words[64][KB_TERM_LEN];
+    size_t k = kb_match(b->kb, "cont", pat, 3, words, 64);
+    if (k == 0) return 0;
+
+    long best = -1;
+    size_t bi = 0;
+    int found = 0;
+    for (size_t i = 0; i < k; i++) {
+        if (subj) {
+            const char *a[] = {subj};
+            if (kb_is_negated(b->kb, words[i], a, 1) ||
+                kb_is_conflicted(b->kb, words[i], a, 1))
+                continue; /* would assert a known-false claim: refuse to say it */
+        }
+        const char *bkey[] = {p1, words[i]};
+        long c1 = transition_count(b, "cont", bkey, 2);
+        long c2 = 0;
+        if (p2) {
+            const char *tkey[] = {p2, p1, words[i]};
+            c2 = transition_count(b, "cont2", tkey, 3);
+        }
+        long score = W2 * c2 + W1 * c1;
+        if (score > best) { best = score; bi = i; found = 1; } /* > -> first tie */
+    }
+    if (!found) return 0; /* candidates existed, all blocked -> stop */
+    snprintf(word, wsize, "%s", words[bi]);
+    return 1;
+}
+
+static void generate_from(Brain *b, const char *seed, char *out, size_t out_size) {
+    char toks[64][KB_TERM_LEN];
+    size_t nt = 0;
+    snprintf(toks[nt++], KB_TERM_LEN, "%s", seed);
+
+    char line[1024];
+    size_t off = (size_t)snprintf(line, sizeof line, "%s", toks[0]);
+
+    for (int step = 0; step < 24 && nt < 64; step++) { /* bound guards cycles */
+        const char *p1 = toks[nt - 1];
+        const char *p2 = (nt >= 2) ? toks[nt - 2] : NULL;
+
+        /* gen40: if the tail reads "<x> is a/an", the next word is a claim
+         * about x — pass x as the subject so the filter can veto false ones. */
+        const char *subj = NULL;
+        if (nt >= 3 && strcmp(toks[nt - 2], "is") == 0 &&
+            (strcmp(toks[nt - 1], "a") == 0 || strcmp(toks[nt - 1], "an") == 0))
+            subj = toks[nt - 3];
+
+        char nxt[KB_TERM_LEN];
+        if (!next_word_ctx(b, p2, p1, subj, nxt, sizeof nxt)) break;
+        if (strcmp(nxt, GEN_STOP) == 0) break; /* gen106: learned end-of-sequence */
+        if (off < sizeof line)
+            off += (size_t)snprintf(line + off, sizeof line - off, " %s", nxt);
+        snprintf(toks[nt++], KB_TERM_LEN, "%s", nxt);
+    }
+    put(line, out, out_size);
+}
+

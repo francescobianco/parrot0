@@ -17,6 +17,11 @@ CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -O2
 SRC     := $(wildcard src/*.c)
 OBJ     := $(SRC:src/%.c=obj/%.o)
 HDR     := $(wildcard src/*.h)
+# brain.c is split into #include'd fragments (one translation unit, not separate
+# objects — see src/brain.c). They are NOT in SRC (the wildcard is non-recursive),
+# so they are never compiled standalone; but obj/brain.o must rebuild when one
+# changes, so they are an explicit prerequisite below.
+BRAIN_PARTS := $(wildcard src/brain/*.c)
 BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
@@ -35,6 +40,9 @@ $(BIN): $(OBJ) | bin
 # translation units with mismatched ABIs (silent memory corruption).
 obj/%.o: src/%.c $(HDR) | obj
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+# brain.o additionally depends on its #include'd fragments.
+obj/brain.o: $(BRAIN_PARTS)
 
 bin obj:
 	@mkdir -p $@
