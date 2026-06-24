@@ -985,6 +985,23 @@
       "summary": "learned newtons_laws_of_motion: three physical laws that describe the relationship between the motion of an object...",
       "title": "Newton's laws of motion",
       "url": "https://en.wikipedia.org/wiki/Newton's_laws_of_motion"
+    },
+    {
+      "concept": "thermodynamic state variable that quantifies the probabilistic distribution of accessible microstates in a system",
+      "domain": "physics",
+      "event_id": "learn_2026_06_24t17_01_16z_entropy",
+      "key": "entropy",
+      "log_path": "kb/learning/logs/learn_2026_06_24t17_01_16z_entropy.json",
+      "markdown_path": "kb/learning/pages/entropy.md",
+      "processed_at": "2026-06-24T17:01:16Z",
+      "prompt": "what do you know about learn_2026_06_24t17_01_16z_entropy",
+      "revision": 1356217145,
+      "source_index": 6,
+      "source_line": 18,
+      "source_title": "Entropy",
+      "summary": "learned entropy: thermodynamic state variable that quantifies the probabilistic distribution of accessible...",
+      "title": "Entropy",
+      "url": "https://en.wikipedia.org/wiki/Entropy"
     }
   ],
   "pages": {
@@ -1144,10 +1161,10 @@
       "domain": "physics",
       "extract_sha256": "fd213ea86c929d6d10e985d6e7ff10a822c9baecdd8dee4cbae21884a85ecaac",
       "key": "entropy",
-      "last_event_id": "learn_2026_06_23t03_29_32z_entropy",
+      "last_event_id": "learn_2026_06_24t17_01_16z_entropy",
       "markdown_path": "kb/learning/pages/entropy.md",
       "pageid": 9891,
-      "processed_at": "2026-06-23T03:29:32Z",
+      "processed_at": "2026-06-24T17:01:16Z",
       "revision": 1356217145,
       "source_title": "Entropy",
       "title": "Entropy",
