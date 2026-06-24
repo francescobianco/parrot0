@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_24t01_15_46z_binary_search_algorithm",
+  "extraction": {
+    "concept": "In computer science, binary search, also known as half-interval search, logarithmic search, or binary chop, is a...",
+    "concept_key": "binary_search_algorithm",
+    "extract_sha256": "944453d9723022dea2c127180c21df5ce3af10c5b66a120ac4ed798fc06c1b09",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_24t01_15_46z_binary_search_algorithm.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/binary_search_algorithm.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 22,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-24T01:15:46Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_24t01_15_46z_binary_search_algorithm"
+  },
+  "source": {
+    "domain": "computer_science",
+    "index": 21,
+    "line": 41,
+    "title": "Binary search algorithm"
+  },
+  "wikipedia": {
+    "canonical_title": "Binary search",
+    "lang": "en",
+    "pageid": 4266,
+    "revision": 1360038372,
+    "url": "https://en.wikipedia.org/wiki/Binary_search"
+  }
+}

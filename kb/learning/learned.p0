@@ -110,7 +110,7 @@ wiki_concept(algorithm, computer_science, "finite sequence of mathematically rig
 
 % computer_science / Binary search
 % source: https://en.wikipedia.org/wiki/Binary_search
-% revision: 1360038372; processed: 2026-06-22T08:31:31Z
+% revision: 1360038372; processed: 2026-06-24T01:15:46Z
 wiki_concept(binary_search_algorithm, computer_science, "In computer science, binary search, also known as half-interval search, logarithmic search, or binary chop, is a...").
 
 % computer_science / Hash table
@@ -556,3 +556,12 @@ learning_event_concept(learn_2026_06_23t23_38_53z_algorithm, algorithm).
 learning_event_revision(learn_2026_06_23t23_38_53z_algorithm, rev_1360696540).
 learning_event_markdown(learn_2026_06_23t23_38_53z_algorithm, "kb/learning/pages/algorithm.md").
 learning_event_log(learn_2026_06_23t23_38_53z_algorithm, "kb/learning/logs/learn_2026_06_23t23_38_53z_algorithm.json").
+
+% event learn_2026_06_24t01_15_46z_binary_search_algorithm
+learning_event(learn_2026_06_24t01_15_46z_binary_search_algorithm, "learned binary_search_algorithm: In computer science, binary search, also known as half-interval search...").
+learning_event_time(learn_2026_06_24t01_15_46z_binary_search_algorithm, "2026-06-24T01:15:46Z").
+learning_event_domain(learn_2026_06_24t01_15_46z_binary_search_algorithm, computer_science).
+learning_event_concept(learn_2026_06_24t01_15_46z_binary_search_algorithm, binary_search_algorithm).
+learning_event_revision(learn_2026_06_24t01_15_46z_binary_search_algorithm, rev_1360038372).
+learning_event_markdown(learn_2026_06_24t01_15_46z_binary_search_algorithm, "kb/learning/pages/binary_search_algorithm.md").
+learning_event_log(learn_2026_06_24t01_15_46z_binary_search_algorithm, "kb/learning/logs/learn_2026_06_24t01_15_46z_binary_search_algorithm.json").

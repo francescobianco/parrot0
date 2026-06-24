@@ -1,11 +1,11 @@
 # Binary search
 
-- Learning event: `learn_2026_06_22t08_31_31z_binary_search_algorithm`
-- Operational log: `kb/learning/logs/learn_2026_06_22t08_31_31z_binary_search_algorithm.json`
+- Learning event: `learn_2026_06_24t01_15_46z_binary_search_algorithm`
+- Operational log: `kb/learning/logs/learn_2026_06_24t01_15_46z_binary_search_algorithm.json`
 - Domain: `computer_science`
 - Source: https://en.wikipedia.org/wiki/Binary_search
 - Wikipedia revision: `1360038372`
-- Processed: `2026-06-22T08:31:31Z`
+- Processed: `2026-06-24T01:15:46Z`
 
 ## Learned Concept
 
