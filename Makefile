@@ -21,7 +21,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test piagent-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat test piagent-bench sortlearn-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -88,6 +88,13 @@ swe-solve: build
 piagent-bench: build
 	@$(BENCH_PY) ./tests/piagent/piagent_bench.py
 
+# Track A of docs/plans/learn-and-build.md: the honest, repeatable learn->build harness.
+# Drives parrot0 (mounted as `pi`) through forget -> relearn-via-research -> articulated
+# multi-step, asserting the synthesis gap is DECLARED (sort refused honestly), not faked.
+# Prints a gap ledger like swe-bench; the sort assertion is the ratchet Track B flips.
+sortlearn-bench: build
+	@$(BENCH_PY) ./tests/piagent/sortlearn_bench.py
+
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
 # proxies. Not part of `make test` (non-deterministic, external).
@@ -116,6 +123,7 @@ test: build
 	@./tests/research_learn.sh
 	@./tests/posix.sh
 	@./tests/synth.sh
+	@./tests/check_sort.sh
 	@PARROT0_ORACLE=1 ./tests/posix_oracle.sh
 	@./tests/experts.sh
 	@./tests/profiles.sh

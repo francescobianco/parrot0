@@ -1,0 +1,20 @@
+% gen209 (docs/plans/learn-and-build.md Track B/B1): STRUCTURED algorithm knowledge —
+% the synthesizer's input, expressed as queryable structure rather than the prose a
+% wiki_concept/3 holds. Like compose.p0 this is NOT loaded at boot: mod_compose loads
+% it LAZILY into the REFLECTIVE layer the first time it runs (agent mode), so it never
+% pollutes ordinary conversation or the introspection counts.
+%
+% algo_shape/2 names a GENERAL schema, not a verbatim C body. The schema is the unit of
+% reuse: many algorithms share `nested_loop_compare_swap`, and code_synth_from_shape
+% instantiates it (parameterised by the comparator) into ascending or descending
+% variants. The body lives nowhere as a C literal in the brain — it is composed from
+% this schema and then DISPOSED by the run-grounded judge (code_check_sort).
+%
+% algo_io/3 records the contract: input shape -> output shape. It is what tells the
+% verifier "this is a sort over int arrays, ascending", which selects the oracle.
+%
+% Bridge from learning (later): a structured-steps page could INDUCE algo_shape the way
+% the learner induces wiki_concept today; until then these are curated, like algo.p0.
+
+algo_shape(bubblesort, nested_loop_compare_swap).
+algo_io(bubblesort, array_int, array_int_sorted_ascending).

@@ -54,6 +54,13 @@ What follows was checked against the running binary and the source, not guessed.
 
 ### What does NOT exist — the BUILD half is missing
 
+> **Superseded (gen209, Track B shipped).** The three points below described the
+> starting state. The BUILD half now exists for a named, schema-backed sort:
+> `code_synth_from_shape` composes the body from a KB schema and `code_check_sort` runs
+> it on real vectors. The refusal probe below still holds **only for the honest gap** —
+> a request whose algorithm is *not* in the KB (e.g. an unnamed "sort an array", or a
+> linked-list reverse). Kept verbatim as the record of where we started; see Track B.
+
 - **No code synthesis beyond a one-line arithmetic body.** `mod_compose` composes
   `int f(int a,int b){return a OP b;}` from a KB operator and verifies with
   `code_eval`. There is **no synthesis of loops, arrays, indices, or swaps.**
@@ -75,6 +82,13 @@ description is real program synthesis parrot0 cannot do, and faking it violates 
 founding rule. So the full challenge is **not honestly demonstrable today** — and we
 will not cheat it. The plan below makes the honest part repeatable now and lays the
 reversible road to the real BUILD faculty.
+
+> **Update (gen209):** that road has been walked. The BUILD faculty exists for a named,
+> KB-schema-backed algorithm: the full LEARN→BUILD→TEST chain runs end to end in
+> `make sortlearn-bench` (9/9), with the sort **synthesized from a schema and verified
+> by execution**, never hardcoded. The boundary now sits exactly at the edge of curated
+> schema knowledge: what has an `algo_shape` is built and checked; what does not is still
+> refused honestly. See Track B below.
 
 ## The two-track plan
 
@@ -132,7 +146,7 @@ without ever hardcoding the algorithm. Generation = bounded search over structur
 **disposed by `code_run`** on real test inputs. Each step is independently shippable,
 keeps `make test` green, and is gated by `PARROT0_TOOLS`.
 
-### B0 — run-grounded verification harness for whole programs
+### B0 — run-grounded verification harness for whole programs ✅ SHIPPED
 
 Before synthesizing anything new, make the oracle usable for array code. Add a helper
 that wraps a candidate function with a generated `main` that runs it on fixed test
@@ -141,7 +155,17 @@ code. This is the "the test passed" oracle; it reuses `code_run` (real cc + exec
 sandboxed). Test: feed it a known-good and a known-bad function, assert pass/fail.
 *No synthesis yet — just the judge.*
 
-### B1 — structured algorithm knowledge (KB-first input)
+> **Done (gen209).** `code_check_sort(func_src, fnname, …)` in `src/code.c` (proto in
+> `src/code.h`): wraps a candidate `void fn(int a[], int n)` in a generated `main` that
+> runs it on 8 fixed vectors (sorted, reverse, dups, negatives, single, empty) and, for
+> each, recomputes **sortedness AND permutation** itself before `code_run`. Returns
+> 1=all pass / 0=a case failed or crashed / −1=build/run error. The harness owns the
+> vectors and the oracle, so a candidate cannot "pass" by printing. Test:
+> `tests/check_sort.sh` (a C driver linked against the real `code.c`) feeds it a real
+> sort + noop + zero-everything + descending + a build error and asserts every verdict.
+> Wired into `make test`.
+
+### B1 — structured algorithm knowledge (KB-first input) ✅ SHIPPED
 
 The synthesizer's input must be **structure, not prose**. Represent an algorithm as
 ordered KB steps, e.g. in a new `kb/experts/programming/algo_steps.p0`:
@@ -158,7 +182,11 @@ is *knowledge*, queried by the synthesizer, never a C string in the brain.
 Bridge from learning: a later step can *induce* `algo_shape` from a learned page that
 lists structured steps; until then it is curated, like `algo.p0`.
 
-### B2 — schema → C instantiation (the synthesizer)
+> **Done (gen209).** `kb/experts/programming/algo_steps.p0` holds exactly the two facts
+> above. Loaded LAZILY into `KB_REFLECTIVE` by `mod_compose` (alongside `compose.p0`),
+> so it never pollutes ordinary conversation or the introspection counts.
+
+### B2 — schema → C instantiation (the synthesizer) ✅ SHIPPED
 
 A `code_synth_from_shape(shape, name, …)` in `src/code.c` that emits C for a *general*
 schema by composition, parameterised by the comparator/operation — so
@@ -166,25 +194,54 @@ schema by composition, parameterised by the comparator/operation — so
 the SAME schema instantiates selection-sort-like variants. It must be general enough
 that it is plainly not "the bubble sort printed back".
 
-### B3 — synthesize + verify end to end
+> **Done (gen209).** `code_synth_from_shape(shape, name, comparator, out, sz)` emits
+> `void name(int a[], int n)` for `nested_loop_compare_swap`, with `comparator` ('>' /
+> '<') the single parameter separating ascending from descending — the body is composed
+> here, never a C literal in `brain.c`. Validates `name` as a C identifier; rejects an
+> unknown schema with 0.
+
+### B3 — synthesize + verify end to end ✅ SHIPPED
 
 Wire B1+B2+B0: from `algo_shape(bubblesort, …)` emit a `sort(int a[], int n)`, then
 **B0 runs it** on several unsorted arrays and checks the output is sorted (and a
 permutation of the input). Report the code **only if `code_run` passes**. This is the
 first honestly-synthesized, executed-and-checked algorithm.
 
-### B4 — repair loop
+> **Done (gen209).** `compose_one` (`src/brain.c`) now opens with a sort branch:
+> `sort_shape_from_kb` queries `algo_shape(Name, Shape)` and matches the request's named
+> algorithm space/underscore-insensitively (so the learned "bubble sort" and
+> "bubble_sort" both hit `bubblesort`); on a hit it calls `code_synth_from_shape` then
+> `code_check_sort`, and reports the code **only when the judge returns 1**. An UNNAMED
+> "sort an array" finds no schema and still refuses honestly (so the gap stays honest
+> exactly where no knowledge exists). Verified live and through both benches.
+
+### B4 — repair loop (NEXT PULL — not yet, by discipline)
 
 When B0 fails, read the failing case, form one new hypothesis (e.g. flip a loop bound
 or comparator), retry; bounded step cap. This is generative.md's Repair Layer, and the
 articulated planner (gen207) is exactly where it hangs: a failed step proposes a fix
 instead of stopping.
 
-### B5 — close Track A's gap
+> **Deliberately deferred.** The curated `nested_loop_compare_swap` schema is correct, so
+> `code_check_sort` passes first try — there is **no failing trace to repair**. Per the
+> project discipline ("every faculty is pulled from a failing test"), B4 should be pulled
+> by a real failure: add a *deliberately wrong* schema variant (or a second algorithm
+> whose first emission is buggy) so the judge fails, THEN build the repair step against
+> that red. Implementing repair now would be speculative code with no oracle to gate it.
+
+### B5 — close Track A's gap ✅ SHIPPED
 
 Re-point `sortlearn-bench`'s step 3 to now **expect a verified sort**. The ratchet
 fires: the same repeatable test that recorded the gap now proves the full
 learn→build→test chain — earned, not faked.
+
+> **Done (gen209).** `sortlearn_bench.py` step 4 flipped from
+> `multistep-step4-sort-refused-honestly` to
+> `multistep-step4-sort-synthesized-and-verified` (asserts the emitted
+> `void bubblesort(int a[], int n)` body + "verified by execution" + "permutation"). The
+> ledger now reports the closed chain instead of a gap. **9/9 PASS**; `piagent-bench`
+> still 14/14 (its unnamed "sorts an array" step stays a correct refusal); `make test`
+> green.
 
 ## Verification discipline (applies to every step above)
 
@@ -198,11 +255,20 @@ learn→build→test chain — earned, not faked.
 
 ## Status / next action
 
-- Ground truth: **confirmed** (learn works; build is the gap; refusal is honest).
-- Recommended next action: **Track A first** (`make sortlearn-bench`) — it makes the
-  honest demonstration repeatable now and produces the gap ledger that drives Track B.
-- Track B is a real, multi-step pull; B0 (the run-grounded judge) is the smallest
-  safe first move and is independently useful.
+- **The full challenge is now honestly demonstrable.** `make sortlearn-bench` (9/9)
+  drives the whole chain through the pi wrapper: forget → re-learn via research →
+  recall → compose+verify `add` → **synthesize a bubble sort from a KB schema and
+  dispose it with the run-grounded judge**. Nothing hardcoded, nothing faked.
+- Track A (gen208): shipped — planner recall fallback + `sortlearn-bench` harness.
+- Track B (gen209): B0 (judge) · B1 (schema KB) · B2 (synthesizer) · B3 (synth+verify
+  end to end) · B5 (ratchet flipped) — all shipped and green.
+- **Recommended next action:** B4, the repair loop — but pull it from a *real* failing
+  trace (a deliberately-wrong schema or a second algorithm whose first emission is
+  buggy), not speculatively. Other natural pulls: a second schema (selection/insertion
+  sort) to prove `algo_shape` reuse, and the learning→`algo_shape` induction bridge
+  (induce structure from a learned page, not just prose).
+- Regression status: `piagent-bench` 14/14, `make test` green, `tests/check_sort.sh`
+  green. No straggler `pi_server` processes (benches clean up in try/finally).
 
 ### Track A — progress (in flight)
 
@@ -215,21 +281,24 @@ learn→build→test chain — earned, not faked.
   `PARROT0_BASE` / `PARROT0_SESSION` / `PARROT0_PROFILE` now honour env (defaults
   unchanged), so the bench can launch with `PARROT0_PROFILE=""` to drop `algo.p0`.
   `PARROT0_WIKI_DIR` / `PARROT0_LEARN_KB` already propagate through `**os.environ`.
-- [ ] **compose_plan recall fallback** — a clause that is neither compose nor eval
-  (e.g. "tell me about bubble sort") must be dispatched through the registry so
-  `mod_research` answers it. Plan: add a file-scope `dispatch_one(b, clause, out, sz)`
-  that walks `registry[]` skipping `compose` (no re-entry), forward-declared near the
-  other prototypes and defined after the registry table; `compose_plan`'s else-branch
-  calls it before falling back to "(not yet: …)".
-- [ ] **`tests/piagent/sortlearn_bench.py` + `make sortlearn-bench`** — fixture
-  `tests/piagent/wiki/bubble_sort.md`; steps: forget (miss) → relearn (persist +
-  recall) → multi-step prompt *"tell me about bubble sort, then write a function add
-  …, then compute add(2,3), and finally implement a function bubblesort that sorts an
-  array"* → assert recall + add verified + add(2,3)=5 + **sort refused honestly**;
-  print the gap ledger. Launch the server with `PARROT0_PROFILE=""`,
-  `PARROT0_WIKI_DIR`/`PARROT0_LEARN_KB` set, `PARROT0_TOOLS=1`.
+- [x] **compose_plan recall fallback (gen208).** A clause that is neither compose nor
+  eval (e.g. "tell me about bubble sort") is now dispatched through the registry so
+  `mod_research` answers it. `dispatch_one(b, clause, out, sz)` (`src/brain.c`) walks
+  `registry[]` skipping `compose` (no re-entry) and `repair` (no clarification),
+  forward-declared above `compose_plan` and defined after the registry table;
+  `compose_plan`'s else-branch calls it before falling back to "(not yet: …)".
+- [x] **`tests/piagent/sortlearn_bench.py` + `make sortlearn-bench`** — fixture
+  `tests/piagent/wiki/bubble_sort.md` (shortened Learned Concept so it fits
+  `KB_TERM_LEN` whole). Steps: forget (miss, server booted WITHOUT `PARROT0_WIKI_DIR`)
+  → relearn (persist + recall, server WITH wiki dir) → multi-step prompt → assert
+  recall + add verified + add(2,3)=5 + **sort refused honestly**; prints the gap
+  ledger. Two server boots, each in try/finally with `terminate→wait→kill` cleanup
+  (verified: no straggler `pi_server` processes, port freed). **9/9 PASS.**
+  Regression check: `make piagent-bench` still 14/14, `make test` green.
 
-Resume point: implement the two unchecked items above; everything else is verified.
+Resume point: Track A is shipped and green. Next is **Track B / B0** — the run-grounded
+verification harness for whole programs (the array-aware oracle a sort needs), the
+smallest safe move toward closing the gap this bench records.
 
 ## Pointers
 

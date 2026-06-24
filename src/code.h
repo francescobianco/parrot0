@@ -158,4 +158,33 @@ size_t code_find_callers(const char *dir, const char *target,
  * The temp executable is removed before returning. */
 int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz);
 
+/* gen209 (docs/plans/learn-and-build.md Track B/B0): the run-grounded JUDGE a sort
+ * needs. Wraps a candidate function `func_src` — a self-contained C definition named
+ * `fnname` with signature `void fnname(int a[], int n)` — in a generated main() that
+ * runs it on several fixed vectors (sorted, reverse, duplicates, negatives, single,
+ * empty) and, for each, asserts the result is non-decreasing AND a permutation of the
+ * input, then compiles+executes via code_run and reads the exit status. The judge owns
+ * the vectors and the oracle, so a candidate cannot "pass" by printing — it must really
+ * sort every case. This is the "did the test pass?" rung for ARRAY code; it only
+ * DISPOSES (no synthesis). Returns:
+ *   1  -> built, ran, and every case passed (sorted + permutation)
+ *   0  -> built and ran but at least one case failed (or it crashed / timed out)
+ *  -1  -> could not build or run; on a build failure the diagnostics are in `err_out`.
+ * `func_src` is rejected (-1) if it is empty/oversized or `fnname` is not a plain C
+ * identifier. No temp artifact survives the call. */
+int code_check_sort(const char *func_src, const char *fnname,
+                    char *err_out, size_t err_sz);
+
+/* gen209 (Track B/B2): the SYNTHESIZER. Instantiate a GENERAL algorithm schema named
+ * `shape` into a concrete C function `void name(int a[], int n)`, parameterised by the
+ * `comparator` ('>' yields ascending order, '<' descending), and write the source into
+ * `out`. The schema is the unit of reuse — it is NOT the algorithm printed back: the
+ * same `nested_loop_compare_swap` shape produces ascending and descending variants from
+ * the SAME emitter, and the body is composed here from the schema, never stored as a C
+ * literal in the brain. Returns 1 on success, 0 if the shape is unknown, `name` is not
+ * a plain C identifier, the comparator is not one of '<'/'>', or it would not fit. The
+ * artifact is a PROPOSAL — it must still be disposed by code_check_sort. */
+int code_synth_from_shape(const char *shape, const char *name, char comparator,
+                          char *out, size_t out_sz);
+
 #endif /* PARROT0_CODE_H */

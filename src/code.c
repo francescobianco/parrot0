@@ -1755,6 +1755,98 @@ int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz)
     return 0;                    /* killed by a signal / timed out */
 }
 
+/* gen209 (Track B/B0): see code.h. Build a complete program = the candidate function
+ * + a generated main that exercises it on fixed vectors and self-checks each result,
+ * write it to a sandboxed temp .c, and run it through code_run. The exit status is the
+ * verdict: 0 = all cases sorted+permuted, non-zero = the index (1-based) of the first
+ * failing case. We never trust the candidate's output channel — the harness recomputes
+ * sortedness and the permutation relation itself. */
+int code_check_sort(const char *func_src, const char *fnname,
+                    char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!func_src || !*func_src || !fnname || !*fnname) return -1;
+    if (strlen(func_src) > 4096) return -1;
+    /* fnname must be a plain C identifier (so it can't smuggle code into the call). */
+    if (!(isalpha((unsigned char)fnname[0]) || fnname[0] == '_')) return -1;
+    for (const char *c = fnname; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) return -1;
+
+    /* Fixed test vectors: edge cases a real sort must all satisfy. The harness keeps
+     * the ORIGINAL of each, calls the candidate on a working copy, then verifies the
+     * working copy is non-decreasing AND a multiset-permutation of the original. */
+    static const char *const harness =
+        "%s\n"  /* the candidate function, passed as an ARG (never a format string) */
+        "static int __p0_sorted(const int*a,int n){\n"
+        "  for(int i=1;i<n;i++) if(a[i-1]>a[i]) return 0;\n"
+        "  return 1;\n}\n"
+        "static int __p0_perm(const int*o,const int*b,int n){\n"
+        "  int used[64]; for(int i=0;i<n;i++) used[i]=0;\n"
+        "  for(int i=0;i<n;i++){int f=0; for(int j=0;j<n;j++){\n"
+        "    if(!used[j]&&o[j]==b[i]){used[j]=1;f=1;break;}} if(!f) return 0;}\n"
+        "  return 1;\n}\n"
+        "int main(void){\n"
+        "  int cases[][16]={\n"
+        "    {5,4,3,2,1}, {1,2,3,4,5}, {3,1,2}, {42}, {0},\n"
+        "    {2,2,1,3,1}, {-3,7,-1,0,-3,4}, {9,8,7,6,5,4,3,2,1,0}};\n"
+        "  int lens[]={5,5,3,1,0,5,6,10};\n"
+        "  int nc=8;\n"
+        "  for(int c=0;c<nc;c++){\n"
+        "    int n=lens[c]; int orig[16], work[16];\n"
+        "    for(int i=0;i<n;i++){orig[i]=cases[c][i]; work[i]=cases[c][i];}\n"
+        "    %s(work,n);\n"
+        "    if(!__p0_sorted(work,n)||!__p0_perm(orig,work,n)) return c+1;\n"
+        "  }\n"
+        "  return 0;\n}\n";
+
+    /* The harness format has exactly two %s: the candidate function body and the
+     * call site. Both are arguments, so candidate code is never interpreted. */
+    char full[8192];
+    int m = snprintf(full, sizeof full, harness, func_src, fnname);
+    if (m < 0 || (size_t)m >= sizeof full) return -1;
+
+    const char *path = ".p0_sortcheck.c";
+    FILE *f = fopen(path, "w");
+    if (!f) return -1;
+    if (fwrite(full, 1, (size_t)m, f) != (size_t)m) { fclose(f); remove(path); return -1; }
+    fclose(f);
+
+    int exit_code = 0;
+    int r = code_run(path, &exit_code, err_out, err_sz);
+    remove(path);
+    if (r < 0) return -1;          /* build/run failure (diagnostics in err_out) */
+    if (r == 0) return 0;          /* crashed / timed out -> failed the judge */
+    return exit_code == 0 ? 1 : 0; /* 0 = every case passed; else a case failed */
+}
+
+/* gen209 (Track B/B2): see code.h. Emit a concrete C function from a GENERAL schema.
+ * Today one schema is known — nested_loop_compare_swap — which compares each adjacent
+ * pair and swaps when the comparator holds, repeated over shrinking passes. With '>'
+ * the larger element bubbles up (ascending); with '<' it descends. The comparator is
+ * the SINGLE parameter that distinguishes the variants, so the schema is plainly not
+ * "the bubble sort printed back". */
+int code_synth_from_shape(const char *shape, const char *name, char comparator,
+                          char *out, size_t out_sz) {
+    if (out && out_sz) out[0] = '\0';
+    if (!shape || !*shape || !name || !*name || !out || out_sz == 0) return 0;
+    if (comparator != '>' && comparator != '<') return 0;
+    if (!(isalpha((unsigned char)name[0]) || name[0] == '_')) return 0;
+    for (const char *c = name; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) return 0;
+
+    if (strcmp(shape, "nested_loop_compare_swap") == 0) {
+        int n = snprintf(out, out_sz,
+            "void %s(int a[], int n) {"
+            " for (int i = 0; i < n; i++)"
+            " for (int j = 0; j + 1 < n - i; j++)"
+            " if (a[j] %c a[j + 1]) {"
+            " int t = a[j]; a[j] = a[j + 1]; a[j + 1] = t; } }",
+            name, comparator);
+        if (n < 0 || (size_t)n >= out_sz) { out[0] = '\0'; return 0; }
+        return 1;
+    }
+    return 0;                                  /* unknown schema */
+}
+
 int code_read_file(const char *path, char *buf, size_t bufsz) {
     if (!path || !*path || !buf || bufsz == 0) return 0;
     /* gen181 sandbox: relative paths under the working directory only — no

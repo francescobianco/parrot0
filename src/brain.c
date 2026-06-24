@@ -6822,9 +6822,70 @@ static void compose_name(const char *raw, char *name, size_t nsz) {
 /* Compose+verify ONE binary-arith function from a clause. Returns 1 (verified, src
  * and name written), 0 (no operator cued — note holds the honest refusal), or -1
  * (composed but the oracle rejected it). The note is a human-facing fragment. */
+/* gen209 (Track B/B3): query algo_shape(Name, Shape) from the KB and, if the request
+ * `low` NAMES one of the known algorithms, return its name and schema. Matched
+ * space/underscore-insensitively so the learned "bubble sort" and "bubble_sort" both
+ * hit algo_shape(bubblesort, …). Returns 1 with name+shape filled, else 0. */
+static int sort_shape_from_kb(Brain *b, const char *low,
+                              char *name, size_t nsz, char *shape, size_t shsz) {
+    if (!b || !b->kb) return 0;
+    char names[16][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t nn = kb_match(b->kb, "algo_shape", q, 2, names, 16);
+    if (nn == 0) return 0;
+
+    char dl[2048]; size_t k = 0;             /* `low` with spaces/underscores removed */
+    for (const char *p = low; *p && k < sizeof dl - 1; p++)
+        if (*p != ' ' && *p != '_') dl[k++] = *p;
+    dl[k] = '\0';
+
+    for (size_t i = 0; i < nn; i++) {
+        char dn[KB_TERM_LEN]; size_t m = 0;  /* the algo name, same despacing */
+        for (const char *p = names[i]; *p && m < sizeof dn - 1; p++)
+            if (*p != ' ' && *p != '_') dn[m++] = *p;
+        dn[m] = '\0';
+        if (m == 0 || !strstr(dl, dn)) continue;
+        const char *q2[2] = { names[i], NULL };
+        char sh[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "algo_shape", q2, 2, sh, 1) == 1) {
+            snprintf(name, nsz, "%s", names[i]);
+            snprintf(shape, shsz, "%s", sh[0]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int compose_one(Brain *b, const char *raw, const char *low,
                        char *nameo, size_t nsz, char *src, size_t srcsz,
                        char *note, size_t notesz) {
+    /* gen209 (Track B/B3): a SORT request whose algorithm is named in the KB is
+     * SYNTHESIZED from its schema and DISPOSED by the run-grounded judge — knowledge
+     * (algo_shape) -> synthesis (code_synth_from_shape) -> oracle (code_check_sort on
+     * real unsorted vectors). Reported only if every vector comes back sorted AND a
+     * permutation of the input. This is the honest BUILD half: no hardcoded body. */
+    {
+        char aname[64], shape[64];
+        if (sort_shape_from_kb(b, low, aname, sizeof aname, shape, sizeof shape)) {
+            compose_name(raw, nameo, nsz);
+            if (strcmp(nameo, "f") == 0) snprintf(nameo, nsz, "%s", aname);
+            char comparator = '>';           /* algo_io says ascending */
+            if (code_synth_from_shape(shape, nameo, comparator, src, srcsz)) {
+                char err[256];
+                int v = code_check_sort(src, nameo, err, sizeof err);
+                if (v == 1) {
+                    snprintf(note, notesz,
+                             "verified by execution: sorted ascending AND a permutation "
+                             "of the input on 8 vectors (run via the code_check_sort oracle)");
+                    return 1;
+                }
+                if (v == 0) { snprintf(note, notesz, "the judge ran it but it did not sort every vector"); return -1; }
+                snprintf(note, notesz, "the synthesized sort would not build/run, so I will not report it");
+                return -1;
+            }
+        }
+    }
+
     char opword[KB_TERM_LEN];
     char op = compose_op_from_kb(b, low, opword, sizeof opword);
     if (!op) {
@@ -6882,6 +6943,13 @@ static int parse_int_call(const char *s, char *name, size_t nsz,
     }
     return 0;
 }
+
+/* gen208: dispatch ONE planner clause that is neither compose nor eval (e.g. "tell
+ * me about bubble sort") through the normal registry, skipping `compose` itself so the
+ * planner never re-enters. First-match-wins, like brain_respond's main loop, but
+ * bounded: it returns the claiming module's reply in `out` and 1, or 0 if nothing
+ * claimed. Forward-declared here, defined after the registry table (which is below). */
+static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size);
 
 /* gen207: execute an ARTICULATED, multi-step coding request. Splits `raw` into
  * ordered clauses on STRONG sequencers (",and then", "after that", "also", "then",
@@ -6982,7 +7050,14 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
                 snprintf(piece, sizeof piece, "%zu) (no concrete call to evaluate here)", step);
             }
         } else {
-            snprintf(piece, sizeof piece, "%zu) (not yet: %.50s)", step, clause);
+            /* gen208: not a compose/eval clause — dispatch it through the registry
+             * (skipping compose, no re-entry) so e.g. a "tell me about X" recall is
+             * answered for real by mod_research, rather than stubbed as "(not yet)". */
+            char rep[640] = {0};
+            if (dispatch_one(b, clause, rep, sizeof rep) && rep[0])
+                snprintf(piece, sizeof piece, "%zu) %s", step, rep);
+            else
+                snprintf(piece, sizeof piece, "%zu) (not yet: %.50s)", step, clause);
         }
 
         int wrote = snprintf(acc+off, off < sizeof acc ? sizeof acc - off : 0,
@@ -7023,6 +7098,7 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
     if (!b->compose_kb_loaded) {
         kb_set_origin(b->kb, KB_REFLECTIVE);
         kb_load(b->kb, "kb/experts/programming/compose.p0");
+        kb_load(b->kb, "kb/experts/programming/algo_steps.p0"); /* gen209 (B1) */
         kb_set_origin(b->kb, KB_SESSION);
         b->compose_kb_loaded = 1;
     }
@@ -12173,6 +12249,30 @@ static int is_registry_module(const char *name) {
     return 0;
 }
 
+/* gen208: dispatch one planner clause through the registry (defn for the prototype
+ * above compose_plan). Canonicalizes the clause exactly like brain_respond, then walks
+ * the registry first-match-wins, SKIPPING compose so the planner cannot re-enter
+ * itself, and also skipping repair (a sub-goal must not open a clarification). Returns
+ * 1 with the claiming module's reply in `out`, else 0. Bounded: one pass, no recursion
+ * into compose_plan. */
+static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size) {
+    if (!b || !clause || !*clause || out_size == 0) return 0;
+    char norm[256];
+    normalize(clause, norm, sizeof norm);
+    char canon[256];
+    canonicalize_lang(norm, canon, sizeof canon);
+    for (size_t i = 0; i < registry_len; i++) {
+        if (strcmp(registry[i].name, "compose") == 0) continue; /* no re-entry */
+        if (strcmp(registry[i].name, "repair") == 0) continue;  /* no clarification */
+        if (registry[i].handle(b, canon, clause, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /* gen128: re-run the first-match-wins dispatch over a stored turn with module
  * `suppress` skipped. Writes the claiming module's name into `who` and its reply
  * into `out`; returns 1 if some module claimed it, 0 if it fell through to the
@@ -12358,7 +12458,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen207-articulated-plan";
+    return "gen209-verified-synthesis";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
