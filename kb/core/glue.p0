@@ -1,0 +1,18 @@
+% parrot0 LINGUISTIC GLUE — the connective faculties named as knowledge (gen215).
+%
+% docs/plans/the-linguistic-glue.md: the "colla linguistica" is what makes a registry of
+% ~50 first-match-wins modules read as ONE interlocutor instead of isolated blocks. It is
+% NOT a module — it is the family of deterministic, inspectable operations over real
+% session state that carry continuity across turns (coreference, discourse memory,
+% pragmatic peeling, repair/resume, correction re-derivation).
+%
+% glue_role(Module, "what it contributes to cross-turn coherence"). This is curated
+% knowledge; at boot brain_create asserts glue_faculty(Module, Role) ONLY for a Module
+% that actually exists in the registry, so the self-model cannot drift from real
+% structure (same discipline as module/1). Answering "which parts keep you coherent?"
+% then reads real state, not a story.
+glue_role(coref,          "resolves pronouns and bare references to recent entities").
+glue_role(discourse,      "tracks the running topics so a turn belongs to the conversation").
+glue_role(pragma,         "peels discourse-marker openers and re-dispatches the real content").
+glue_role(repair,         "asks one clarification and RESUMES the original intent next turn").
+glue_role(counterfactual, "recalls the previous turn to say what it would have answered without a part").

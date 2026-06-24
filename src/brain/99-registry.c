@@ -370,6 +370,12 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/responses.p0");
 
+    /* gen215 (docs/plans/the-linguistic-glue.md, G0): curated glue_role/2 — which
+     * faculties carry cross-turn coherence and what each contributes. Reified below into
+     * glue_faculty/2 only for modules that really exist, so the self-model can't drift. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/glue.p0");
+
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
      * regenerated every boot and NEVER persisted (DESIGN.md D3). */
@@ -379,6 +385,14 @@ Brain *brain_create(void) {
     for (size_t i = 0; i < registry_len; i++) {
         const char *m[] = {registry[i].name};
         kb_assert(b->kb, "module", m, 1);
+        /* gen215 (G0): if this real module has a curated glue_role, reify it as a
+         * glue_faculty fact — the linguistic-glue family, derived from real structure. */
+        char role[1][KB_TERM_LEN];
+        const char *gq[2] = { registry[i].name, NULL };
+        if (kb_match(b->kb, "glue_role", gq, 2, role, 1) == 1) {
+            const char *gf[] = { registry[i].name, role[0] };
+            kb_assert(b->kb, "glue_faculty", gf, 2);
+        }
     }
     kb_set_origin(b->kb, KB_SESSION); /* conversation default */
     return b;
@@ -404,7 +418,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen214-generic-teach-layer";
+    return "gen215-linguistic-glue-bench";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

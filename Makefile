@@ -26,7 +26,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test piagent-bench sortlearn-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat test piagent-bench sortlearn-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -81,6 +81,14 @@ code-bench: build
 # build; it is a discovery instrument, not a gate.
 swe-bench: build
 	@./tests/swebench.sh
+
+# gen215: the LINGUISTIC-GLUE discovery harness (docs/plans/the-linguistic-glue.md, G1).
+# Multi-turn held-out dialogues where the essay's five absence-symptoms become metrics:
+# it reports, per symptom, whether cross-turn continuity carried — the gap map that pulls
+# the next connective mechanism (G2). Degrade mode: never fails the build, not in `make
+# test`. EN+IT.
+glue-bench: build
+	@./tests/gluebench.sh
 
 # gen200: end-to-end real solve — parrot0 derives a patch from STRUCTURE and the
 # OFFICIAL SWE-bench Docker image judges it (FAIL_TO_PASS + PASS_TO_PASS). Needs

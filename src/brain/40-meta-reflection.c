@@ -291,6 +291,8 @@ static int is_internal_pred(const char *pred) {
     static const char *internal[] = {
         "stopword", "social_marker", "social_pattern", "question_word",
         "reaction_word", "i_am", "module", "cont", "cont2",
+        /* gen215: linguistic-glue self-model (kb/core/glue.p0, reified) — machinery. */
+        "glue_role", "glue_faculty",
         "cmd", "flag",
         /* gen193: the conjunction/1 lexical class (kb/core/lexicon.p0, plus any
          * taught at runtime) is closed-class function-word substrate the parsers

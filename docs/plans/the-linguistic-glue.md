@@ -140,9 +140,31 @@ un meccanismo reale colma un sintomo reale: guadagnato, non simulato. Il numero 
   codice** cosa fanno davvero oggi (i moduli vedono la superficie canonicalizzata; vedi
   le note in PRINCIPLES e nei gotcha di brain.c) — non fidarsi di questa lista a memoria.
 
-### Prossima azione consigliata
+### Stato — G0 + G1 fatti (gen215)
 
-**G0 + G1** insieme: reificare le glue_faculty e creare `glue-bench` con 2-3 casi per
-sintomo (EN+IT) che *oggi falliscono*. Quella mappa-dei-fallimenti è il vero deliverable:
-trasforma una bella intuizione ("colla linguistica") in un motore di scoperta ripetibile,
-senza scrivere una riga di coerenza finta.
+- **G0 ✅** `kb/core/glue.p0` porta `glue_role/2` (coref, discourse, pragma, repair,
+  counterfactual); `brain_create` reifica `glue_faculty(Module, Role)` SOLO per i moduli
+  che esistono davvero nel registry (drift-safe, come `module/1`). Escluso dai conteggi
+  fatti. La famiglia-colla è ora ispezionabile nella KB, derivata dalla struttura reale.
+- **G1 ✅** `make glue-bench` (`tests/gluebench.sh`): dialoghi multi-turno held-out EN+IT,
+  i 5 sintomi come metriche, degrade mode (non fa fallire la build, non è in `make test`).
+- **Mappa-dei-fallimenti (verità di base, misurata — non assunta):**
+  ```
+  implicit-reference   0/3 carried   ("what is it part of" / "his name" / IT non risolvono)
+  correction           0/2 carried   (dopo "no, X non è Y" la conclusione resta "Yes")
+  out-of-context       qualitativo   ("keep it short" non accorcia la risposta dopo)
+  over-literal         qualitativo   (una precisazione "and times 3" non continua l'op.)
+  one-interlocutor     qualitativo   (catena memoria→aritmetica non regge)
+  ```
+  **0/5 crisp carried.** Esattamente la tesi dell'essay resa visibile: la colla manca, e
+  ora sappiamo *dove*, con un caso ripetibile per ognuno.
+
+### Prossima azione consigliata — G2, primo pull
+
+Il primo caso che fallisce è `ref-dog-en` (implicit-reference). Pull consigliato:
+**estendere `mod_coref`** perché un riferimento implicito ("what is it part of",
+"what is his name") risolva all'entità recente (`last_entity`/`entities`/possessivi) e
+inoltri la query risolta al modulo che la possiede — deterministico, su stato reale,
+EN+IT, verificato, con il caso `glue-bench` corrispondente che passa da GAP a HELD (e un
+ratchet `.chat` in `make test`). Un meccanismo per generazione; la mappa qui sopra detta
+l'ordine, non noi.
