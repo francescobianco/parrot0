@@ -1,11 +1,11 @@
 # Cell (biology)
 
-- Learning event: `learn_2026_06_23t17_06_30z_cell_biology`
-- Operational log: `kb/learning/logs/learn_2026_06_23t17_06_30z_cell_biology.json`
+- Learning event: `learn_2026_06_24t23_43_58z_cell_biology`
+- Operational log: `kb/learning/logs/learn_2026_06_24t23_43_58z_cell_biology.json`
 - Domain: `biology`
 - Source: https://en.wikipedia.org/wiki/Cell_(biology)
 - Wikipedia revision: `1360756328`
-- Processed: `2026-06-23T17:06:30Z`
+- Processed: `2026-06-24T23:43:58Z`
 
 ## Learned Concept
 

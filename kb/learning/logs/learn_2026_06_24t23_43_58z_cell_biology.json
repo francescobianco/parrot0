@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_24t23_43_58z_cell_biology",
+  "extraction": {
+    "concept": "basic structural and functional unit of all forms of life or organisms",
+    "concept_key": "cell_biology",
+    "extract_sha256": "198bb4c460756990e95f2cfe9d9225a05ff0b2ea6658cb206c8a04464cfa7995",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_24t23_43_58z_cell_biology.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/cell_biology.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 14,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-24T23:43:58Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_24t23_43_58z_cell_biology"
+  },
+  "source": {
+    "domain": "biology",
+    "index": 13,
+    "line": 29,
+    "title": "Cell (biology)"
+  },
+  "wikipedia": {
+    "canonical_title": "Cell (biology)",
+    "lang": "en",
+    "pageid": 4230,
+    "revision": 1360756328,
+    "url": "https://en.wikipedia.org/wiki/Cell_(biology)"
+  }
+}
