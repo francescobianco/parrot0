@@ -1,11 +1,11 @@
 # Galaxy
 
-- Learning event: `learn_2026_06_22t16_59_57z_galaxy`
-- Operational log: `kb/learning/logs/learn_2026_06_22t16_59_57z_galaxy.json`
+- Learning event: `learn_2026_06_24t07_31_24z_galaxy`
+- Operational log: `kb/learning/logs/learn_2026_06_24t07_31_24z_galaxy.json`
 - Domain: `astronomy`
 - Source: https://en.wikipedia.org/wiki/Galaxy
-- Wikipedia revision: `1359221837`
-- Processed: `2026-06-22T16:59:57Z`
+- Wikipedia revision: `1360786961`
+- Processed: `2026-06-24T07:31:24Z`
 
 ## Learned Concept
 
@@ -272,11 +272,6 @@ Such large-scale interactions are rare. As time passes, mergers of two systems o
 Spiral galaxies, like the Milky Way, produce new generations of stars as long as they have dense molecular clouds of interstellar hydrogen in their spiral arms. Elliptical galaxies are largely devoid of this gas, and so form few new stars. The supply of star-forming material is finite; once stars have converted the available supply of hydrogen into heavier elements, new star formation will come to an end.
 
 The current era of star formation is expected to continue for up to one hundred billion years, and then the "stellar age" will wind down after about ten trillion to one hundred trillion years (1013--1014 years), as the smallest, longest-lived stars in the visible universe, tiny red dwarfs, begin to fade. At the end of the stellar age, galaxies will be composed of compact objects: brown dwarfs, white dwarfs that are cooling or cold ("black dwarfs"), neutron stars, and black holes. Eventually, as a result of gravitational relaxation, all stars will either fall into central supermassive black holes or be flung into intergalactic space as a result of collisions.
-
-### Gallery
-File:Hubble-Space-Telescope-Galaxy-Collection.jpg|Galaxies (left/top, right/bottom):
-File:PHANGS image mosaic.jpg|19 face-on spiral galaxies from the James Webb Space Telescope in near- and mid-infrared light. Older stars appear blue here, and are clustered at the galaxies' cores. Glowing dust, showing where it exists around and between stars--appearing in shades of red and orange. Stars that have not yet fully formed and are encased in gas and dust appear bright red.
-File:Andromeda Galaxy M31 - Heic1502a Full resolution.jpg|Zooming In on the Andromeda GalaxyA mosaic of the Andromeda Galaxy and the largest image ever released by the Hubble Space Telescope
 
 ### See also
 
