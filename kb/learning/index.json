@@ -1155,6 +1155,23 @@
       "summary": "learned photosynthesis: system of biological processes by which photopigment-bearing autotrophic organisms, such as...",
       "title": "Photosynthesis",
       "url": "https://en.wikipedia.org/wiki/Photosynthesis"
+    },
+    {
+      "concept": "change in the heritable characteristics of biological populations over successive generations",
+      "domain": "biology",
+      "event_id": "learn_2026_06_25t05_43_43z_evolution",
+      "key": "evolution",
+      "log_path": "kb/learning/logs/learn_2026_06_25t05_43_43z_evolution.json",
+      "markdown_path": "kb/learning/pages/evolution.md",
+      "processed_at": "2026-06-25T05:43:43Z",
+      "prompt": "what do you know about learn_2026_06_25t05_43_43z_evolution",
+      "revision": 1357316203,
+      "source_index": 16,
+      "source_line": 32,
+      "source_title": "Evolution",
+      "summary": "learned evolution: change in the heritable characteristics of biological populations over successive generations",
+      "title": "Evolution",
+      "url": "https://en.wikipedia.org/wiki/Evolution"
     }
   ],
   "pages": {
@@ -1329,10 +1346,10 @@
       "domain": "biology",
       "extract_sha256": "b3705a02acb154ef8b12487ab14f6a3066bdd25e13bfca890f35ef78156fb63f",
       "key": "evolution",
-      "last_event_id": "learn_2026_06_23t19_59_58z_evolution",
+      "last_event_id": "learn_2026_06_25t05_43_43z_evolution",
       "markdown_path": "kb/learning/pages/evolution.md",
       "pageid": 9236,
-      "processed_at": "2026-06-23T19:59:58Z",
+      "processed_at": "2026-06-25T05:43:43Z",
       "revision": 1357316203,
       "source_title": "Evolution",
       "title": "Evolution",
