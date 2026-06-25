@@ -41,8 +41,11 @@ CASES=(
   # --- S3: a precisation that continues a prior request (qualitative) ---
   "precise-en|over-literal|show|what is 2 plus 2|and times 3"
 
-  # --- S5: one interlocutor across faculties (memory -> arithmetic) (qualitative) ---
-  "chain-en|one-interlocutor|show|remember my favorite number is 7|what is my favorite number plus 3"
+  # --- S5: one interlocutor across faculties (memory -> arithmetic) ---
+  # gen221: a numeric personal fact remembered earlier must feed a later computation.
+  # KB-first (user_value/2) and bilingual: 7 + 3 = 10 in EN and IT.
+  "chain-en|one-interlocutor|has:10|remember my favorite number is 7|what is my favorite number plus 3"
+  "chain-it|one-interlocutor|has:10|il mio numero preferito è 7|quanto fa il mio numero preferito più 3"
 )
 
 last_reply() {                      # dialogue with '|' separators -> last non-empty line

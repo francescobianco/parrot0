@@ -472,7 +472,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen220-it-di-nome-idiom";
+    return "gen221-memory-feeds-arithmetic";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -682,6 +682,81 @@ static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size
     return 0;
 }
 
+/* gen221 (the-linguistic-glue.md, G2 — symptom #5, "one interlocutor across
+ * faculties"): bridge MEMORY into ARITHMETIC, the essay's deepest absence-symptom
+ * (the sense of talking to several independent systems rather than one). When the
+ * user has told us a numeric personal value ("remember my favorite number is 7",
+ * stored KB-first as user_value/2) and a later turn computes with it ("what is my
+ * favorite number plus 3"), resolve the "my <key>" reference to the value INFERRED
+ * from KB memory, rewrite the turn, and re-dispatch so mod_arith computes it
+ * ("what is 7 plus 3" -> "10."). The continuity is a DETERMINISTIC substitution
+ * over real KB state, not an emergent coherence field (PRINCIPLES anti-impostor).
+ * Conservative, mirroring correction_peel/coref_resolve: it fires only when (a) a
+ * "my <key>" matches a remembered NUMERIC user_value, (b) an arithmetic operator
+ * follows the key in the same turn (so a pure recall is left for mod_memory), and
+ * (c) some module actually claims the rewritten turn. Runs as a PRE-dispatch
+ * normalization so a content module cannot mis-claim the unresolved turn first. */
+static int memref_resolve(Brain *b, const char *canon, char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char buf[256]; size_t len = strlen(canon);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, canon, len + 1);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    size_t mi = nw;
+    for (size_t i = 0; i < nw; i++) if (!strcmp(w[i], "my")) { mi = i; break; }
+    if (mi == nw || mi + 1 >= nw) return 0;
+
+    /* the key is the run of words after "my", stopping at the first operator or
+     * number — a key names a thing, it is not part of the computation. */
+    size_t run = 0;
+    while (mi + 1 + run < nw) {
+        const char *t = w[mi + 1 + run];
+        double dv;
+        if (arith_op_char(t) || parse_value(t, &dv)) break;
+        run++;
+    }
+    if (run == 0) return 0;
+    /* an operator must follow the key (else it is a recall, not a computation). */
+    if (mi + 1 + run >= nw || !arith_op_char(w[mi + 1 + run])) return 0;
+
+    /* longest-first: the longest key prefix that names a stored value wins. */
+    char value[KB_TERM_LEN]; int found = 0; size_t span = 0;
+    for (size_t s = run; s >= 1 && !found; s--) {
+        char key[128]; size_t off = 0; key[0] = '\0';
+        for (size_t k = 0; k < s && off + 1 < sizeof key; k++)
+            off += (size_t)snprintf(key + off, sizeof key - off,
+                                    "%s%s", k ? "_" : "", w[mi + 1 + k]);
+        const char *q[2] = { key, NULL };
+        char res[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "user_value", q, 2, res, 1) == 1) {
+            snprintf(value, sizeof value, "%s", res[0]);
+            span = s; found = 1;
+        }
+    }
+    if (!found) return 0;
+
+    /* rewrite "... my <key> <rest>" as "... <value> <rest>" and re-dispatch. */
+    char rw[256]; size_t off = 0; rw[0] = '\0';
+    for (size_t i = 0; i < nw && off + 1 < sizeof rw; i++) {
+        if (i == mi) {
+            off += (size_t)snprintf(rw + off, sizeof rw - off, "%s%s", i ? " " : "", value);
+            i += span;                          /* skip the "my <key>" span */
+            continue;
+        }
+        off += (size_t)snprintf(rw + off, sizeof rw - off, "%s%s", i ? " " : "", w[i]);
+    }
+    if (!rw[0] || !strcmp(rw, canon)) return 0;
+
+    for (size_t i = 0; i < registry_len; i++) {
+        if (registry[i].handle(b, rw, rw, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[i].name);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) b->turns++;
@@ -722,6 +797,13 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * re-dispatches the negative claim with the correction flag set, so the
      * standing belief is overridden and the conclusion re-derives. */
     if (b && correction_peel(b, canon, input, out, out_size))
+        return strlen(out);
+
+    /* gen221 (glue, symptom #5): a numeric personal fact remembered earlier feeds a
+     * later computation — resolve "my <key>" to its KB value and re-dispatch so the
+     * arithmetic core computes it ("what is my favorite number plus 3" -> "10.").
+     * Pre-dispatch so mod_memory cannot mis-claim the unresolved reference first. */
+    if (b && memref_resolve(b, canon, out, out_size))
         return strlen(out);
 
     /* Walk the registry; first module to claim the turn wins. */

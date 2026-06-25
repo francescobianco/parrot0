@@ -136,6 +136,12 @@ un meccanismo reale colma un sintomo reale: guadagnato, non simulato. Il numero 
 - KB-first: vincoli/correzioni/riferimenti vivono come stato ispezionabile (entità,
   topic, goal, world), non in una scatola nera.
 - Bilingue EN+IT su ogni caso; `make test` resta ermetico.
+- **KB-first (steer di F., gen221):** le cose che parrot0 sa — sull'utente *e* in
+  generale — devono essere **inferite dalla memoria KB**, non lette da campi C. Un
+  nuovo fatto personale si asserisce nella KB (`user_value/2` ecc.) e si ri-deriva di
+  lì; il motore è fisso, il lessico/mondo imparano (PRINCIPLES, regola cardinale). I
+  campi C esistenti (`name`, `possessions`, `user_*`) sono debito da migrare alla KB
+  quando un caso lo tira — non se ne aggiungono di nuovi per la conoscenza.
 - Gotcha: prima di estendere `mod_coref`/`mod_discourse`/`mod_pragma`, **verificare nel
   codice** cosa fanno davvero oggi (i moduli vedono la superficie canonicalizzata; vedi
   le note in PRINCIPLES e nei gotcha di brain.c) — non fidarsi di questa lista a memoria.
@@ -154,10 +160,13 @@ un meccanismo reale colma un sintomo reale: guadagnato, non simulato. Il numero 
   correction           0/2 carried   (dopo "no, X non è Y" la conclusione resta "Yes")
   out-of-context       qualitativo   ("keep it short" non accorcia la risposta dopo)
   over-literal         qualitativo   (una precisazione "and times 3" non continua l'op.)
-  one-interlocutor     qualitativo   (catena memoria→aritmetica non regge)
+  one-interlocutor     0/1 carried   (catena memoria→aritmetica non regge)
   ```
-  **0/5 crisp carried.** Esattamente la tesi dell'essay resa visibile: la colla manca, e
-  ora sappiamo *dove*, con un caso ripetibile per ognuno.
+  **0/5 crisp carried** *(misura iniziale, gen215).* Esattamente la tesi dell'essay resa
+  visibile: la colla manca, e ora sappiamo *dove*, con un caso ripetibile per ognuno.
+  *Aggiornamento gen221:* questa mappa è poi salita a **7/7 crisp carried** su 3 dei 5
+  sintomi (implicit-reference 3/3, correction 2/2, one-interlocutor 2/2); vedi i pull G2
+  qui sotto. Restano qualitativi solo brevità (#1) e precisazione (#3).
 
 ### G2 — primo pull fatto (gen216): la coreferenza porta il riferimento
 
@@ -227,18 +236,57 @@ Ratchet ermetico: `tests/cases/coref_prodrop.it.chat`.
 Effetto su `glue-bench`: `implicit-reference` da **2/3 → 3/3** (`ref-dog-it` HELD).
 **Tutti e 5 i casi crisp ora HELD (5/5, gap: 0).**
 
+### G2 — quinto pull fatto (gen221): la memoria alimenta l'aritmetica — *il climax dell'essay*, KB-first
+
+Questo è il sintomo che l'essay mette per ultimo e descrive come il più grave:
+*«sensazione di dialogare con più sistemi indipendenti anziché con un unico
+interlocutore»*. Finché la memoria e l'aritmetica restavano due isole — parrot0
+sapeva ricordare un fatto **e** sapeva calcolare, ma non sapeva calcolare *con ciò
+che ricorda* — l'interlocutore era plurale. `memref_resolve` (99-registry.c) chiude
+proprio questa frattura: detto «remember my favorite number is 7», la domanda «what
+is my favorite number plus 3» risolve `my <chiave>` al valore ricordato, riscrive il
+turno («what is 7 plus 3») e lo ri-dispatcha → `mod_arith` risponde **`10.`**. EN+IT
+(`quanto fa il mio numero preferito più 3` → `10.`). La colla qui è esattamente ciò
+che PRINCIPLES esige: una **sostituzione deterministica su stato reale**, non un campo
+emergente di plausibilità. Conservativo come `correction_peel`: scatta solo se (a)
+`my <chiave>` nomina un valore numerico ricordato, (b) un operatore aritmetico segue
+la chiave nello stesso turno (un recall puro resta a `mod_memory`), (c) un modulo
+reclama davvero il turno riscritto. Pre-dispatch, così nessun modulo di contenuto
+mis-reclama il riferimento non risolto prima.
+
+**Svolta KB-first (steer di F., gen221).** Il fatto personale numerico **non vive in
+un campo C**: è asserito come `user_value(Key, N)` nella KB (`KB_SESSION`,
+persistente su `/save`, reversibile) e **inferito** di lì sia per il recall («what is
+my favorite number» → `7`) sia per il calcolo. La chiave multi-parola è lo span tra
+`my` e `is` unito con `_` («favorite number» → `favorite_number`; «numero preferito»
+→ `numero_preferito`). Questo applica alla lettera la regola cardinale di
+PRINCIPLES — *«la conoscenza vive nella KB, non in C; il motore è fisso, il lessico
+impara»* — alle cose che parrot0 sa **sull'utente**. Il vecchio array C
+`possessions` resta come debito (vedi Disciplina, nuovo punto KB-first): la direzione
+è migrarvi quando un caso lo tira.
+
+Ratchet ermetico EN+IT: `tests/cases/memref_arith.chat` (recall puro + calcolo, due
+lingue). Effetto su `glue-bench`: `one-interlocutor` da qualitativo (`show`) a **crisp
+2/2 HELD** (`chain-en`, `chain-it`). Dei 5 sintomi dell'essay, **3 su 5 sono ora
+metriche crisp HELD** (implicit-reference 3/3, correction 2/2, one-interlocutor 2/2);
+restano qualitativi solo #1 (out-of-context/brevità) e #3 (over-literal/precisazione).
+Il sintomo *più profondo* — l'unico interlocutore — è chiuso.
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
 
-> **Stato a gen219.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
+> **Stato a gen221.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
 > possessivo "his/her/its" EN + correzione esplicita "no, ..." EN+IT + pro-drop IT "come si
-> chiama") fatti, committati e pushati su `main`. `make test` 206/0, benches verdi.
-> **Crisp HELD 5/5, gap: 0** (`implicit-reference` 3/3, `correction` 2/2). Restano solo i
-> sintomi *qualitativi* (#4). Per rivedere la mappa: **`make glue-bench`** (degrade mode).
+> chiama" + **memoria→aritmetica KB-first EN+IT**) fatti, committati e pushati su `main`.
+> `make test` 208/0, benches verdi. **Crisp HELD 7/7, gap: 0** su 3 dei 5 sintomi
+> (`implicit-reference` 3/3, `correction` 2/2, `one-interlocutor` 2/2). Il sintomo più
+> profondo — l'unico interlocutore — è chiuso. Restano qualitativi solo #1 (brevità) e
+> #3 (precisazione). Per rivedere la mappa: **`make glue-bench`** (degrade mode).
 >
 > Disciplina invariata: UN meccanismo per generazione, tirato dal primo caso che fallisce;
 > deterministico e ispezionabile su stato di sessione reale (mai coerenza finta); EN+IT;
+> **KB-first** — la conoscenza si infersce dalla KB, non da campi C (vedi Disciplina);
 > ogni gap chiuso passa da GAP→HELD in `glue-bench` E guadagna un ratchet `.chat` in
 > `make test`. **Prima di toccare un modulo, leggerlo nel codice** (i moduli vedono la
 > superficie canonicalizzata — vedi gotcha in PRINCIPLES e in brain.c).
@@ -259,11 +307,18 @@ Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
    (soggetto nullo) risolto per forma sulla possessione saliente, controparte IT di "what
    is his name" (vedi sezione G2 gen219). `ref-dog-it` HELD → **tutti i crisp HELD (5/5)**.
 
-4. **Sintomi qualitativi → metriche crisp** (il prossimo pull). Rendere verificabili `out-of-context`
-   (applicare davvero `user_constraint` "keep it short" alla risposta dopo),
-   `over-literal` (una precisazione "and times 3" continua l'operazione precedente),
-   `one-interlocutor` (catena memoria→aritmetica). Per ognuno: prima un predicato crisp in
-   `gluebench.sh`, poi il meccanismo.
+4. ~~**`one-interlocutor` (catena memoria→aritmetica).**~~ ✅ **fatto (gen221).** Il climax
+   dell'essay. `memref_resolve` risolve "my <chiave>" al valore numerico ricordato (KB-first,
+   `user_value/2`) e ri-dispatcha → l'aritmetica calcola ("what is my favorite number plus
+   3" → `10.`, EN+IT). `chain-en`/`chain-it` da `show` a **crisp HELD** (vedi sezione G2
+   gen221). **Crisp HELD 7/7 su 3 dei 5 sintomi.**
+
+5. **Sintomi qualitativi rimasti → metriche crisp** (i prossimi pull). Restano due:
+   `out-of-context` (applicare davvero un `user_constraint` "keep it short" alla risposta
+   dopo — e farlo **KB-first**, il vincolo come fatto inferibile, non un campo C) e
+   `over-literal` (una precisazione "and times 3" continua l'operazione precedente, p.es.
+   portando l'ultimo risultato come operando). Per ognuno: prima un predicato crisp in
+   `gluebench.sh`, poi il meccanismo, deterministico e ispezionabile.
 
 Quando un pull chiude un gap: aggiornare qui lo stato e la riga corrispondente della
 mappa, bump versione, commit+push.

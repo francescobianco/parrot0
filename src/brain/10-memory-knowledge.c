@@ -17,6 +17,11 @@ static void greet_name_reply(Brain *b, char *out, size_t outsz) {
         snprintf(out, outsz, "Nice to meet you, %s!", b->name);
 }
 
+/* gen221 (the-linguistic-glue.md, KB-first memory): parse_value/word_number live at
+ * the end of this file (with the arithmetic helpers); forward-declare so the memory
+ * frames above can gate a "my <thing> is <N>" fact on the value being numeric. */
+static int parse_value(const char *s, double *out);
+
 static int mod_memory(Brain *b, const char *norm, const char *raw,
                       char *out, size_t out_size) {
     if (!b) return 0;
@@ -211,6 +216,43 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 }
             }
 
+            /* gen221 (the-linguistic-glue.md, G2 — symptom #5 setup, KB-first per
+             * F.'s steer): a NUMERIC personal fact whose name spans more than one
+             * word ("(remember) my favorite number is 7", "il mio numero preferito
+             * è 7"). The single-word frame above stores "my age is 30"; this one
+             * captures the multi-word key so a LATER turn can COMPUTE with it
+             * (memref_resolve). The fact lives ONLY in the KB — user_value(Key, N),
+             * Key the '_'-joined span between "my" and "is" — and is INFERRED back
+             * from there, never held in a C field (PRINCIPLES.md: knowledge in the
+             * KB). Gated on a numeric value, so it never steals an affective/identity
+             * "my X is Y"; KB_SESSION, so it persists on /save and stays reversible. */
+            if (find_token(w, nw, "my") < nw) {
+                size_t mi = find_token(w, nw, "my");
+                size_t isx = nw;
+                for (size_t k = mi + 2; k < nw; k++)
+                    if (strcmp(w[k], "is") == 0) { isx = k; break; }
+                if (isx < nw && isx > mi + 2 && isx + 1 < nw) {
+                    char val[64];
+                    copy_last_word(val, sizeof val, raw);
+                    strip_edge_punct(val);
+                    double dv;
+                    if (parse_value(val, &dv)) {
+                        char key[128]; size_t off = 0; key[0] = '\0';
+                        for (size_t k = mi + 1; k < isx && off + 1 < sizeof key; k++)
+                            off += (size_t)snprintf(key + off, sizeof key - off,
+                                                    "%s%s", k > mi + 1 ? "_" : "", w[k]);
+                        const char *uv[] = { key, val };
+                        kb_assert(b->kb, "user_value", uv, 2);
+                        char disp[128]; snprintf(disp, sizeof disp, "%s", key);
+                        for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+                        char msg[200];
+                        snprintf(msg, sizeof msg, "Got it: your %s is %s.", disp, val);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
+            }
+
             /* gen217 (glue): possessive-pronoun anaphor — "what is his/her/its
              * name?". The antecedent is the salient possession (last set by
              * remember_possession), so the noun need not be repeated. Resolves
@@ -260,6 +302,43 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                              b->last_possession_thing, n);
                     put(msg, out, out_size);
                     return 1;
+                }
+            }
+
+            /* gen221 (glue, KB-first per F.'s steer): recall a NUMERIC personal fact
+             * INFERRED from KB memory (user_value/2), not a C field. "what is my
+             * favorite number" -> query user_value(favorite_number) -> 7. The key is
+             * the run of words after "my", '_'-joined; the longest run that names a
+             * stored value wins. Falls through if no such fact, so the single-word
+             * possession recall below still runs. (The arithmetic case "... plus 3"
+             * is intercepted earlier by memref_resolve, so it never reaches here.) */
+            {
+                size_t i = find_token(w, nw, "what");
+                if (i + 2 < nw && strcmp(w[i + 1], "is") == 0) {
+                    size_t m = find_token(w + i, nw - i, "my");
+                    if (m < nw - i) {
+                        m += i;
+                        for (size_t span = nw - (m + 1); span >= 1; span--) {
+                            char key[128]; size_t off = 0; key[0] = '\0'; int okrun = 1;
+                            for (size_t k = 0; k < span && off + 1 < sizeof key; k++) {
+                                char *t = strip_edge_punct(w[m + 1 + k]);
+                                if (!*t) { okrun = 0; break; }
+                                off += (size_t)snprintf(key + off, sizeof key - off,
+                                                        "%s%s", k ? "_" : "", t);
+                            }
+                            if (!okrun) continue;
+                            const char *q[2] = { key, NULL };
+                            char res[1][KB_TERM_LEN];
+                            if (kb_match(b->kb, "user_value", q, 2, res, 1) == 1) {
+                                char disp[128]; snprintf(disp, sizeof disp, "%s", key);
+                                for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+                                char msg[200];
+                                snprintf(msg, sizeof msg, "Your %s is %s.", disp, res[0]);
+                                put(msg, out, out_size);
+                                return 1;
+                            }
+                        }
+                    }
                 }
             }
 
