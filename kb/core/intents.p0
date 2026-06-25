@@ -39,6 +39,39 @@ intent_cue(brevity, "short answers").
 intent_cue(brevity, "risposte brevi").
 intent_cue(brevity, "sii breve").
 
+% --- gen223: pi-agent read-only verbs (mod_piact, docs/use-on-pi-agent.md). The phrasings
+% an OpenAI-style client uses to name each tool live HERE, not as chained cue("…") in C
+% (that was a phrasebook — PRINCIPLES.md's impostor shape). kb_cue_match queries these; a
+% new phrasing is DATA, teachable at runtime, no recompile. Structural anchors (leading
+% "read "/"grep "/"ls" prefix, "find"+"named" AND-logic) stay in C as shape, not vocabulary.
+intent_cue(piact_grep, "search for").
+intent_cue(piact_grep, "where is").
+intent_cue(piact_grep, "where does").
+intent_cue(piact_grep, "references to").
+intent_cue(piact_grep, "occurrences of").
+intent_cue(piact_grep, "uses of").
+intent_cue(piact_grep, "grep for").
+intent_cue(piact_find, "locate the file").
+intent_cue(piact_list, "what files").
+intent_cue(piact_list, "which files").
+intent_cue(piact_list, "show me the files").
+intent_cue(piact_list, "show the files").
+intent_cue(piact_read, "contents of").
+intent_cue(piact_read, "open the file").
+intent_cue(piact_read, "print the file").
+intent_cue(piact_read, "show me the file").
+intent_cue(piact_read, "define").
+intent_cue(piact_read, "defines").
+intent_cue(piact_read, "what functions").
+intent_cue(piact_read, "which functions").
+intent_cue(piact_read, "functions does").
+intent_cue(piact_read, "functions in").
+intent_cue(piact_read, "summarize").
+intent_cue(piact_read, "summarise").
+intent_cue(piact_run, "run the test").
+intent_cue(piact_run, "build the project").
+intent_cue(piact_run, "compile the").
+
 % =========================================================================
 % gen214: the LEARNABLE registry — what can be taught at runtime, as DATA.
 %

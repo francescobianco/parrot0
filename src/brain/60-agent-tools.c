@@ -251,22 +251,24 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     char low[512];
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
 
-    /* Detect the intent BEFORE tokenizing (split_words mutates its buffer). */
-    int want_grep = ci_prefix(low,"grep ") || cue(low,"search for") ||
-                    cue(low,"where is") || cue(low,"where does") ||
-                    cue(low,"references to") || cue(low,"occurrences of") ||
-                    cue(low,"uses of") || cue(low,"grep for");
+    /* Detect the intent BEFORE tokenizing (split_words mutates its buffer).
+     * gen223 (docs/use-on-pi-agent.md experiment + F.'s KB-first steer): the natural
+     * phrasings that name each read-only verb are NOT C string literals — that chained
+     * `cue("...")` was a phrasebook, exactly the impostor shape PRINCIPLES.md rejects.
+     * The fragments now live as intent_cue(piact_*, "…") in kb/core/intents.p0 and are
+     * matched by kb_cue_match (the same substring engine as the brevity cues), so a new
+     * phrasing is DATA — teachable at runtime ("learn … as a cue for …"), no recompile.
+     * Only the *structural* anchors (a leading "read "/"grep "/"ls" prefix) and the AND
+     * logic ("find" + "named") stay in C, since those are shape, not vocabulary. */
+    int want_grep = ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low);
     int want_find = (cue(low,"find") && (cue(low,"named") || cue(low,"called"))) ||
-                    cue(low,"locate the file");
+                    kb_cue_match(b, "piact_find", low);
     int want_list = (cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
                     ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
-                    cue(low,"what files") || cue(low,"which files") ||
-                    cue(low,"show me the files") || cue(low,"show the files");
+                    kb_cue_match(b, "piact_list", low);
     int want_read = ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||
-                    cue(low,"contents of") || cue(low,"open the file") ||
-                    cue(low,"print the file") || cue(low,"show me the file");
-    int want_run  = ci_prefix(low,"run ") || cue(low,"run the test") ||
-                    cue(low,"build the project") || cue(low,"compile the");
+                    kb_cue_match(b, "piact_read", low);
+    int want_run  = ci_prefix(low,"run ") || kb_cue_match(b, "piact_run", low);
     if (!(want_grep || want_find || want_list || want_read || want_run))
         return 0;
 

@@ -331,6 +331,87 @@ temporaneo `PI_CODING_AGENT_DIR=/tmp/...` **non** è stato onorato da `pi 0.80.2
 (`--list-models` mostrava i provider globali, e `--print` restava appeso): è un
 problema di configurazione di `pi`, non del wrapper.
 
+## Esperimento 2026-06-26: task di coding reali + cue KB-first (gen223)
+
+Sessione di sperimentazione guidata da F.: *«fai task di coding rilevanti, non cose
+minimali — task che possano eguagliare le qualità di un LLM».* Daemon avviato su porta
+effimera, pilotato via HTTP vero (`urllib`, la stessa superficie di `pi`), sul **sorgente
+reale di parrot0** (una codebase C non banale), non su fixture giocattolo.
+
+### Dove parrot0 EGUAGLIA (o batte) un LLM — perché è *grounded*
+
+Le risposte qui sotto sono verbatim dal daemon, su `src/` reale:
+
+| Task | Risposta parrot0 | Note |
+|------|------------------|------|
+| `read src/code.c` | «it defines is_c_keyword, code_ingest, … code_rename. (47 functions now in the KB.)» | parse AST reale → 47 funzioni nella KB viva |
+| `what does src/serve.c define` | «it defines serve_log, jfree, …, serve_http. (21 functions…)» | **fraseggio nuovo gen223**, stessa via strutturale |
+| `where is code_locate in src` | «defined in code.c; called by mod_piact, mod_codeast» | localizzatore SWE-bench, non grep |
+| `what calls code_eval in src` | «called by compose_one, compose_plan and mod_codeast» | call-graph dal parse, non indovinato |
+| `write a C function add …` | `int add(int a,int b){return a+b;}  /* verified by symbolic execution: add(6,4)=10 … */` | codegen **verificato** dall'oracolo |
+| `write add, then add(8,5), then mul` | `1) int add… 2) add(8,5)=13 3) int mul…` | multi-step, artefatti infilati |
+
+Il punto forte è **strutturale e anti-impostore**: un LLM elenca i *callers* di una
+funzione a memoria e a volte allucina; parrot0 li legge dall'AST-as-KB, quindi o è
+corretto o **rifiuta**. Sui due assi «navigazione di codice grounded» e «codegen
+verificato» parrot0 **regge il confronto con un LLM, ed è più affidabile** (zero
+allucinazioni per costruzione).
+
+### Il rifiuto onesto come *feature* (non come limite)
+
+```
+> write a C function that reverses a linked list
+I can only synthesize and VERIFY the sum, product, or difference of two integers
+so far — I will not emit code I cannot check.
+> write a C function max that returns the larger of a and b
+(stessa risposta onesta)
+```
+
+Un LLM emetterebbe volentieri una `reverse`/`max` *plausibile*; parrot0 **non finge** una
+competenza che non può verificare (PRINCIPLES.md: niente impostore). Questo è il
+trade-off cosciente del progetto: **ampiezza in cambio di fondatezza**.
+
+### Dove parrot0 NON eguaglia un LLM (frontiera onesta)
+
+- **Codegen ristretto:** sa comporre+verificare solo sum/product/difference di due
+  interi. `max`, `reverse`, ricorsione → rifiuto onesto. La via per allargare è
+  `mod_compose` + nuovi `code_operator/2` + oracolo, un operatore per generazione.
+- **Fraseggio del ragionamento:** "is every prime number odd?" → non sa "number" senza
+  profilo adatto; alcune parafrasi cadono in not-understood. Il core entailment funziona
+  (vedi `make test`), ma la copertura lessicale è quella di un agente simbolico, non di
+  un LLM.
+- **`run make test` via daemon:** la suite reale gira ma supera il timeout HTTP di 8s del
+  client di prova (non un bug: il comando è whitelisted e parte davvero).
+
+### Il pull di questa sessione: cue KB-first (gen223)
+
+Due osservazioni di F. durante l'esperimento, entrambe accolte:
+
+1. **Fraseggi naturali mancanti.** `read FILE` funzionava ma `what does FILE define` /
+   `summarize FILE` no, pur esistendo la capacità (`code_ingest`/`code_defines`).
+   Aggiunti i fraseggi → ora rispondono dalla stessa via strutturale.
+2. **KB-first sui cue (steer di F.).** I `cue("…")` in catena dentro `mod_piact` erano un
+   **phrasebook in C** — la forma-impostore che PRINCIPLES rifiuta. Migrati: i frammenti
+   ora vivono come `intent_cue(piact_read|grep|list|find|run, "…")` in
+   `kb/core/intents.p0` e sono matchati da **`kb_cue_match`** (lo stesso motore substring
+   dei cue di brevità). Restano in C solo gli **ancoraggi strutturali** (prefisso
+   `read `/`grep `/`ls`, e la AND-logic `find`+`named`), che sono *forma*, non vocabolario.
+   Conseguenza: un nuovo fraseggio è **DATO** — si aggiunge in `intents.p0` senza
+   ricompilare; il motore è fisso, il lessico cresce.
+
+Verifica: `make test` 209/0, `make piagent-bench` 14/14, e i nuovi fraseggi confermati
+sul sorgente reale (`what does src/serve.c define` → 21 funzioni; `which functions are in
+src/brain/20-math.c` → 17; `what does recursion mean` → declina onestamente, nessun path).
+
+### Prossimi pull tirati da questo esperimento (dalla frontiera, non a priori)
+
+1. **Cue piact teachable a runtime** — una riga `learnable(Label, piact_read, substring)`
+   per insegnare un fraseggio parlando (oggi i cue sono KB ma editabili solo a file).
+2. **Allargare `mod_compose`** di un operatore verificabile per generazione (es. `max`
+   via confronto, con oracolo) — codegen che cresce restando provato.
+3. **Adapter di parafrasi** già previsto sotto (`remember that …` → `…`), ma **KB-first**:
+   le riscritture come fatti, non come `if` in C.
+
 ## Stato dei test
 
 > **Status: COMPITI DI CODING READ-ONLY FUNZIONANTI IN LOCALE (gen205, `make piagent-bench` = 7/7). Endpoint verificato via curl. parrot0 esegue list/read/grep/find/run da sé in un turno; non servono `tool_calls` OpenAI perché è co-locato col filesystem. Il testo piccolo resta supportato come prima.**
