@@ -1,11 +1,11 @@
 # Galaxy
 
-- Learning event: `learn_2026_06_24t07_31_24z_galaxy`
-- Operational log: `kb/learning/logs/learn_2026_06_24t07_31_24z_galaxy.json`
+- Learning event: `learn_2026_06_25t18_01_40z_galaxy`
+- Operational log: `kb/learning/logs/learn_2026_06_25t18_01_40z_galaxy.json`
 - Domain: `astronomy`
 - Source: https://en.wikipedia.org/wiki/Galaxy
 - Wikipedia revision: `1360786961`
-- Processed: `2026-06-24T07:31:24Z`
+- Processed: `2026-06-25T18:01:40Z`
 
 ## Learned Concept
 

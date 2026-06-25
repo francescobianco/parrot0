@@ -130,7 +130,7 @@ wiki_concept(black_hole, astronomy, "astronomical body so compact that its gravi
 
 % astronomy / Galaxy
 % source: https://en.wikipedia.org/wiki/Galaxy
-% revision: 1360786961; processed: 2026-06-24T07:31:24Z
+% revision: 1360786961; processed: 2026-06-25T18:01:40Z
 wiki_concept(galaxy, astronomy, "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity").
 
 % --- learning event audit trail ---
@@ -826,3 +826,12 @@ learning_event_concept(learn_2026_06_25t17_01_58z_black_hole, black_hole).
 learning_event_revision(learn_2026_06_25t17_01_58z_black_hole, rev_1360460563).
 learning_event_markdown(learn_2026_06_25t17_01_58z_black_hole, "kb/learning/pages/black_hole.md").
 learning_event_log(learn_2026_06_25t17_01_58z_black_hole, "kb/learning/logs/learn_2026_06_25t17_01_58z_black_hole.json").
+
+% event learn_2026_06_25t18_01_40z_galaxy
+learning_event(learn_2026_06_25t18_01_40z_galaxy, "learned galaxy: system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity").
+learning_event_time(learn_2026_06_25t18_01_40z_galaxy, "2026-06-25T18:01:40Z").
+learning_event_domain(learn_2026_06_25t18_01_40z_galaxy, astronomy).
+learning_event_concept(learn_2026_06_25t18_01_40z_galaxy, galaxy).
+learning_event_revision(learn_2026_06_25t18_01_40z_galaxy, rev_1360786961).
+learning_event_markdown(learn_2026_06_25t18_01_40z_galaxy, "kb/learning/pages/galaxy.md").
+learning_event_log(learn_2026_06_25t18_01_40z_galaxy, "kb/learning/logs/learn_2026_06_25t18_01_40z_galaxy.json").
