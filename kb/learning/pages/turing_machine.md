@@ -1,11 +1,11 @@
 # Turing machine
 
-- Learning event: `learn_2026_06_24t03_29_37z_turing_machine`
-- Operational log: `kb/learning/logs/learn_2026_06_24t03_29_37z_turing_machine.json`
+- Learning event: `learn_2026_06_25t15_19_27z_turing_machine`
+- Operational log: `kb/learning/logs/learn_2026_06_25t15_19_27z_turing_machine.json`
 - Domain: `computer_science`
 - Source: https://en.wikipedia.org/wiki/Turing_machine
 - Wikipedia revision: `1360035381`
-- Processed: `2026-06-24T03:29:37Z`
+- Processed: `2026-06-25T15:19:27Z`
 
 ## Learned Concept
 
