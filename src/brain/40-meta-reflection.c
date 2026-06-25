@@ -166,8 +166,12 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen93: goal tracking */
     {
-        int g = strncmp(buf,"remember to ",12)==0 || strncmp(buf,"ricordati di ",13)==0;
-        if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+12+(buf[2]=="c"?13:12)); put("Ok, noted.",out,out_size); return 1; }
+        int it_goal = strncmp(buf,"ricordati di ",13)==0;   /* gen223: was buf[2]=="c"
+            * (string-address compare, -Waddress) and buf+12+(...) double-counted the
+            * prefix, so the goal text was read from the wrong offset. Now skip exactly
+            * the matched IT/EN prefix. */
+        int g = strncmp(buf,"remember to ",12)==0 || it_goal;
+        if(g && b->goal_count<8){ snprintf(b->goals[b->goal_count++],128,"%s",buf+(it_goal?13:12)); put("Ok, noted.",out,out_size); return 1; }
         if(cue(buf,"my goals")||cue(buf,"miei obiettivi")){
             if(!b->goal_count) put("No goals set.",out,out_size);
             else { char l[1024]=""; for(size_t i=0;i<b->goal_count;i++){char t[200];snprintf(t,200,"%zu) %s. ",i+1,b->goals[i]);strcat(l,t);} put(l,out,out_size); }

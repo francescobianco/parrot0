@@ -810,8 +810,10 @@ static int check_missing_semicolons(const char *code, char *findings,
         /* Extract first word */
         char fw[64] = {0};
         { const char *p = l; while (*p && isspace((unsigned char)*p)) p++;
-          size_t fwl = 0; while (*p && !isspace((unsigned char)*p) && *p != '(' && fwl < 63)
-              fw[fwl++] = (char)tolower((unsigned char)*p++); fw[fwl] = '\0'; }
+          size_t fwl = 0;
+          while (*p && !isspace((unsigned char)*p) && *p != '(' && fwl < 63)
+              fw[fwl++] = (char)tolower((unsigned char)*p++);
+          fw[fwl] = '\0'; }
         int is_kw = 0;
         for (const char *const *k = kw; *k; k++)
             if (strcmp(fw, *k) == 0) { is_kw = 1; break; }

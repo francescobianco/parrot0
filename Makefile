@@ -14,7 +14,12 @@
 #   make clean      remove build artifacts
 
 CC      ?= cc
-CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -O2
+# -Wno-format-truncation: parrot0 uses snprintf throughout as a SAFE, deliberately
+# bounded writer — truncating into a fixed reply/term buffer is the intended behavior,
+# not a bug. At -O2 gcc emits ~50 range-based "output may be truncated" notes it cannot
+# rule out (it has no value ranges), drowning the real warnings. We keep every other
+# warning strict (-Wall -Wextra -Wpedantic) and silence only this high-noise category.
+CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -Wno-format-truncation -O2
 SRC     := $(wildcard src/*.c)
 OBJ     := $(SRC:src/%.c=obj/%.o)
 HDR     := $(wildcard src/*.h)

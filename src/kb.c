@@ -1257,7 +1257,8 @@ int kb_derive_part_of(KB *kb) {
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         int names_other = 0;
         for (size_t c = 0; c < nc; c++)
-            if (strcmp(ctoks[c], f->args[0]) != 0 && str_in(keys, nkeys, ctoks[c]) &&
+            if (strcmp(ctoks[c], f->args[0]) != 0 &&
+                str_in((const char (*)[KB_TERM_LEN])keys, nkeys, ctoks[c]) &&
                 valid_member(kb, ctoks[c], f->pred)) { names_other = 1; break; }
         if (!names_other) continue;
         size_t p = 0; for (; p < npreds; p++) if (strcmp(preds[p], f->pred) == 0) break;
@@ -1286,7 +1287,8 @@ int kb_derive_part_of(KB *kb) {
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
-            if (strcmp(ctoks[c], key) == 0 || !str_in(keys, nkeys, ctoks[c])) continue;
+            if (strcmp(ctoks[c], key) == 0 ||
+                !str_in((const char (*)[KB_TERM_LEN])keys, nkeys, ctoks[c])) continue;
             if (!valid_member(kb, ctoks[c], pred)) continue; /* sibling, not a part */
             const char *args[2] = { ctoks[c], key };
             if (kb_assert(kb, "part_of", args, 2)) added++;

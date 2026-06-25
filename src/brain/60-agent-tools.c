@@ -180,15 +180,39 @@ static int run_whitelisted(const char *cmd) {
 
 /* Find the first token after one of the locator words ("in", "inside", ...) that
  * is a safe path, else the first bare safe path-ish token. Returns it or NULL. */
+/* An article to skip after a preposition ("in THE current dir", "in QUESTA cartella"). */
+static int dir_article(const char *s) {
+    return ci_eq(s,"the")||ci_eq(s,"a")||ci_eq(s,"an")||ci_eq(s,"il")||ci_eq(s,"lo")||
+           ci_eq(s,"la")||ci_eq(s,"l")||ci_eq(s,"i")||ci_eq(s,"gli")||ci_eq(s,"le");
+}
+/* gen223: words that DEICTICALLY mean "the current directory" (EN+IT) — "this/current
+ * folder", "questa cartella", "here"/"qui". The bug they fix: "lista i file in questa
+ * cartella" used to run `find questa` because "questa" looked path-ish. Now it -> ".". */
+static int dir_here_word(const char *s) {
+    return ci_eq(s,"here")||ci_eq(s,"qui")||ci_eq(s,"cwd")||ci_eq(s,".");
+}
+static int dir_deictic_det(const char *s) {
+    return ci_eq(s,"this")||ci_eq(s,"that")||ci_eq(s,"current")||ci_eq(s,"present")||
+           ci_eq(s,"questa")||ci_eq(s,"questo")||ci_eq(s,"quella")||ci_eq(s,"quello")||
+           ci_eq(s,"corrente")||ci_eq(s,"attuale");
+}
+static int dir_noun(const char *s) {
+    return ci_eq(s,"folder")||ci_eq(s,"directory")||ci_eq(s,"dir")||ci_eq(s,"cartella");
+}
+
 static const char *find_dir(char **w, size_t nw) {
     for (size_t i = 0; i + 1 < nw; i++) {
-        if (ci_eq(w[i],"in")||ci_eq(w[i],"inside")||ci_eq(w[i],"under")||
-            ci_eq(w[i],"within")||ci_eq(w[i],"from")||ci_eq(w[i],"directory")||
-            ci_eq(w[i],"folder")||ci_eq(w[i],"dir")) {
-            rstrip_punct(w[i+1]);
-            if (safe_pathish(w[i+1]) && strchr(w[i+1], '/')) return w[i+1];
-            if (safe_pathish(w[i+1]) && strcmp(w[i+1],"the") != 0) return w[i+1];
-        }
+        if (!(ci_eq(w[i],"in")||ci_eq(w[i],"inside")||ci_eq(w[i],"under")||
+              ci_eq(w[i],"within")||ci_eq(w[i],"from")||ci_eq(w[i],"directory")||
+              ci_eq(w[i],"folder")||ci_eq(w[i],"dir"))) continue;
+        size_t j = i + 1;
+        while (j < nw && dir_article(w[j])) j++;       /* skip "the"/"il"/… */
+        if (j >= nw) continue;
+        rstrip_punct(w[j]);
+        /* "in this folder" / "in questa cartella" / "here"/"qui" -> current directory. */
+        if (dir_here_word(w[j]) || dir_deictic_det(w[j])) return ".";
+        if (safe_pathish(w[j]) && strchr(w[j], '/')) return w[j];
+        if (safe_pathish(w[j]) && !dir_noun(w[j])) return w[j];
     }
     /* a bare token that contains a slash is very likely the directory. */
     for (size_t i = 0; i < nw; i++) {

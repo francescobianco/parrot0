@@ -721,25 +721,6 @@ static int has_any_question(Brain *b, const char *buf, char **w, size_t nw) {
     return 0;
 }
 
-/* Keep tok_in for social[] check in is_substantive (the list of words that
- * should not count as content); gen73: also backed by social_marker KB facts. */
-static int tok_in(Brain *b, char **w, size_t nw, const char *const *set) {
-    for (size_t i = 0; i < nw; i++) {
-        char tmp[64];
-        snprintf(tmp, sizeof tmp, "%s", w[i]);
-        const char *t = strip_edge_punct(tmp);
-        for (const char *const *s = set; *s; s++)
-            if (strcmp(t, *s) == 0) return 1;
-        /* also check KB social_marker facts for all types */
-        if (is_social_marker(b, "opening", t) ||
-            is_social_marker(b, "closing", t) ||
-            is_social_marker(b, "thanks", t) ||
-            is_social_marker(b, "apology", t) ||
-            is_social_marker(b, "ambiguous", t)) return 1;
-    }
-    return 0;
-}
-
 /* True for a token that contributes real lexical content: long enough, not a
  * stopword, and not itself a social marker. Used to separate phatic-only turns
  * from mixed turns that carry substance beyond the marker. */

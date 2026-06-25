@@ -1578,7 +1578,8 @@ int code_find_case_folding(const char *src_path,
         char qq = *p;
         if (p[1] == qq && p[2] == qq) {                  /* skip triple-quoted block */
             p += 3; while (*p && !(p[0]==qq && p[1]==qq && p[2]==qq)) p++;
-            if (*p) p += 2; continue;
+            if (*p) p += 2;          /* land on the last quote; the for-loop's p++ steps off */
+            continue;
         }
         const char *s = p + 1, *e = s;
         while (*e && *e != qq) { if (*e=='\\' && e[1]) e++; e++; }
