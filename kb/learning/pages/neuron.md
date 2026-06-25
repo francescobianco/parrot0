@@ -1,11 +1,11 @@
 # Neuron
 
-- Learning event: `learn_2026_06_23t22_45_15z_neuron`
-- Operational log: `kb/learning/logs/learn_2026_06_23t22_45_15z_neuron.json`
+- Learning event: `learn_2026_06_25t11_14_31z_neuron`
+- Operational log: `kb/learning/logs/learn_2026_06_25t11_14_31z_neuron.json`
 - Domain: `medicine`
 - Source: https://en.wikipedia.org/wiki/Neuron
 - Wikipedia revision: `1360647446`
-- Processed: `2026-06-23T22:45:15Z`
+- Processed: `2026-06-25T11:14:31Z`
 
 ## Learned Concept
 
