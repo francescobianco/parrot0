@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_25t22_49_46z_logarithm",
+  "extraction": {
+    "concept": "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...",
+    "concept_key": "logarithm",
+    "extract_sha256": "46cf4f51980f91e34889758715ced4d111c5fb39dd7f06fcaf073019f8a8d1c2",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_25t22_49_46z_logarithm.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/logarithm.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 5,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-25T22:49:46Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_25t22_49_46z_logarithm"
+  },
+  "source": {
+    "domain": "mathematics",
+    "index": 4,
+    "line": 14,
+    "title": "Logarithm"
+  },
+  "wikipedia": {
+    "canonical_title": "Logarithm",
+    "lang": "en",
+    "pageid": 17860,
+    "revision": 1354833929,
+    "url": "https://en.wikipedia.org/wiki/Logarithm"
+  }
+}
