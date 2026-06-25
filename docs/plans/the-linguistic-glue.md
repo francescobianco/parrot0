@@ -272,17 +272,46 @@ metriche crisp HELD** (implicit-reference 3/3, correction 2/2, one-interlocutor 
 restano qualitativi solo #1 (out-of-context/brevità) e #3 (over-literal/precisazione).
 Il sintomo *più profondo* — l'unico interlocutore — è chiuso.
 
+### G2 — sesto pull fatto (gen222): la precisazione continua il calcolo (over-literal)
+
+Sintomo #3 dell'essay, *over-literal*: «what is 2 plus 2» poi «and times 3». Un
+sistema letterale legge il frammento «and times 3» come rumore e cade in
+not-understood — è *esattamente* la «letteralità eccessiva» che l'essay elenca tra i
+segni di colla assente. La colla qui è far sì che la **precisazione continui la
+richiesta**: l'operando sinistro implicito è il risultato precedente, quindi «and
+times 3» significa «(2 plus 2) times 3» = **`12`**. `continue_resolve`
+(99-registry.c) sbuccia un connettore iniziale opzionale («and»/«e»/«then»/«poi»…),
+verifica che il resto sia una **coda puramente aritmetica** (operatore, poi
+numeri/operatori/«by» — così «and tell me about X» non viene mai dirottato),
+riscrive «what is <ultimo risultato> <coda>» e ri-dispatcha al core aritmetico.
+EN+IT («e per 3» → `12`). Le precisazioni **si concatenano**: 4 → ×3=12 → +1=13.
+
+**KB-first anche qui (steer di F.).** Il risultato precedente è portato come fatto KB
+`last_result/1` — **inferito** dalla KB, mai un campo C — nel layer **REFLECTIVE**, così
+è memoria di lavoro transitoria: si sovrascrive a ogni calcolo (retract+assert del fatto
+singolo) e **non viene mai persistito** su `/save` (a differenza di `user_value`, che è
+conoscenza durevole). Glue come **sostituzione deterministica su stato KB reale**, non
+un campo emergente (PRINCIPLES anti-impostore). `note_arith_result` registra solo una
+risposta numerica nuda («12.»), mai una frase («Yes.», «5. (...)»).
+
+Ratchet ermetico EN+IT: `tests/cases/continuation.chat` (catena di precisazioni, due
+lingue). Effetto su `glue-bench`: `over-literal` da qualitativo (`show`) a **crisp 2/2
+HELD** (`precise-en`, `precise-it`). **Crisp HELD complessivi 9/9 su 4 dei 5 sintomi**
+(implicit-reference 3/3, correction 2/2, one-interlocutor 2/2, over-literal 2/2).
+Resta qualitativo **solo** #1 (out-of-context/brevità).
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
 
-> **Stato a gen221.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
+> **Stato a gen222.** G0 (reify), G1 (`make glue-bench`), G2 (coref "it" EN + pronome
 > possessivo "his/her/its" EN + correzione esplicita "no, ..." EN+IT + pro-drop IT "come si
-> chiama" + **memoria→aritmetica KB-first EN+IT**) fatti, committati e pushati su `main`.
-> `make test` 208/0, benches verdi. **Crisp HELD 7/7, gap: 0** su 3 dei 5 sintomi
-> (`implicit-reference` 3/3, `correction` 2/2, `one-interlocutor` 2/2). Il sintomo più
-> profondo — l'unico interlocutore — è chiuso. Restano qualitativi solo #1 (brevità) e
-> #3 (precisazione). Per rivedere la mappa: **`make glue-bench`** (degrade mode).
+> chiama" + **memoria→aritmetica KB-first EN+IT** + **precisazione che continua il calcolo
+> KB-first EN+IT**) fatti, committati e pushati su `main`.
+> `make test` 209/0, benches verdi. **Crisp HELD 9/9, gap: 0** su 4 dei 5 sintomi
+> (`implicit-reference` 3/3, `correction` 2/2, `one-interlocutor` 2/2, `over-literal` 2/2).
+> Restano qualitativi **solo** #1 (out-of-context/brevità) — l'ultimo gap dell'essay. Per
+> rivedere la mappa: **`make glue-bench`** (degrade mode).
 >
 > Disciplina invariata: UN meccanismo per generazione, tirato dal primo caso che fallisce;
 > deterministico e ispezionabile su stato di sessione reale (mai coerenza finta); EN+IT;
@@ -313,12 +342,21 @@ Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
    3" → `10.`, EN+IT). `chain-en`/`chain-it` da `show` a **crisp HELD** (vedi sezione G2
    gen221). **Crisp HELD 7/7 su 3 dei 5 sintomi.**
 
-5. **Sintomi qualitativi rimasti → metriche crisp** (i prossimi pull). Restano due:
-   `out-of-context` (applicare davvero un `user_constraint` "keep it short" alla risposta
-   dopo — e farlo **KB-first**, il vincolo come fatto inferibile, non un campo C) e
-   `over-literal` (una precisazione "and times 3" continua l'operazione precedente, p.es.
-   portando l'ultimo risultato come operando). Per ognuno: prima un predicato crisp in
-   `gluebench.sh`, poi il meccanismo, deterministico e ispezionabile.
+5. ~~**`over-literal` (precisazione che continua il calcolo).**~~ ✅ **fatto (gen222).**
+   `continue_resolve` porta l'ultimo risultato (KB-first, `last_result/1`, layer
+   reflective) come operando implicito: "and times 3" → "(2 plus 2) times 3" = `12.`,
+   EN+IT, concatenabile (vedi sezione G2 gen222). `precise-en`/`precise-it` HELD.
+   **Crisp HELD 9/9 su 4 dei 5 sintomi.**
+
+6. **Ultimo gap: `out-of-context` (brevità).** L'unico sintomo ancora qualitativo. Un
+   vincolo di stile posto prima ("keep it short" / "sii breve") deve **plasmare davvero**
+   la risposta successiva (accorciarla). Farlo **KB-first**: il vincolo come fatto
+   inferibile dalla KB (non un campo C `user_constraint`), e un post-processing
+   deterministico e ispezionabile della risposta sotto quel vincolo. Prima il predicato
+   crisp in `gluebench.sh` (es. la risposta dopo "keep it short" deve stare sotto N
+   parole/caratteri), poi il meccanismo. Nota IT: oggi `brevity-it` cade già in
+   not-understood ("sii breve"/"parlami del cuore") — c'è anche un gap di copertura IT
+   da tirare insieme.
 
 Quando un pull chiude un gap: aggiornare qui lo stato e la riga corrispondente della
 mappa, bump versione, commit+push.

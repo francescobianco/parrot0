@@ -38,8 +38,11 @@ CASES=(
   "brevity-en|out-of-context|show|keep it short|tell me about the heart"
   "brevity-it|out-of-context|show|sii breve|parlami del cuore"
 
-  # --- S3: a precisation that continues a prior request (qualitative) ---
-  "precise-en|over-literal|show|what is 2 plus 2|and times 3"
+  # --- S3: a precisation that continues a prior request ---
+  # gen222: "(2 plus 2) times 3" = 12, the last result carried (KB-first) as the
+  # implicit left operand of the continuation. Bilingual EN+IT.
+  "precise-en|over-literal|has:12|what is 2 plus 2|and times 3"
+  "precise-it|over-literal|has:12|quanto fa 2 più 2|e per 3"
 
   # --- S5: one interlocutor across faculties (memory -> arithmetic) ---
   # gen221: a numeric personal fact remembered earlier must feed a later computation.

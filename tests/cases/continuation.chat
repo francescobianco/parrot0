@@ -1,0 +1,17 @@
+# gen222 (docs/plans/the-linguistic-glue.md, G2 — symptom #3, "over-literal"): a
+# precisation that CONTINUES the previous computation. "and times 3" after "what is 2
+# plus 2" means "(2 plus 2) times 3" = 12, not a literal fragment. The implicit left
+# operand is the last result, carried KB-first (last_result/1, reflective layer) and
+# INFERRED back — never a C field (PRINCIPLES.md). continue_resolve rewrites the turn
+# "what is <last_result> <tail>" and re-dispatches to the arithmetic core. Precisations
+# chain (12 -> 13). Bilingual EN+IT. A non-arithmetic "and ..." is never hijacked.
+> what is 2 plus 2
+< 4.
+> and times 3
+< 12.
+> and plus 1
+< 13.
+> quanto fa 10 meno 4
+< 6.
+> e per 5
+< 30.
