@@ -115,6 +115,25 @@ Il daemon espone:
 
 ## Avvio
 
+### Scorciatoia: `make pi` (gen223)
+
+Un solo comando fa tutto: builda, **libera la porta** (killa un eventuale daemon
+precedente), **prepara `~/.pi/agent/models.json`** (merge in-place — non distrugge gli
+altri provider), avvia il daemon parrot0 in background e lancia `pi` con il provider/
+modello `parrot0` **già selezionati**. Quando esci da `pi`, il daemon viene fermato (porta
+pulita per la volta dopo).
+
+```bash
+make pi
+# porta/host custom:           make pi PI_PORT=9914
+# flag extra inoltrati a pi:    make pi ARGS="--print 'what does src/serve.c define'"
+```
+
+Implementato in `scripts/pi.sh` (+ `scripts/pi_setup.py` per il merge della conf). Env:
+`PI_PORT` (9902), `PI_HOST` (127.0.0.1), `PI_MODELS_JSON` (override del file conf).
+
+### Avvio manuale
+
 In un terminale a parte (il server resta in foreground, o in background
 con `nohup`):
 

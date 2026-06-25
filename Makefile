@@ -3,6 +3,7 @@
 # Common targets:
 #   make            build bin/parrot0
 #   make chat       build, then talk to it interactively
+#   make pi         build, start the parrot0 daemon, launch `pi` with parrot0 selected
 #   make test       build, then run the conversation test suite
 #   make long-chat-bench  build, then run the 50-turn long-chat metrics
 #   make bench      build, then run all local benchmark-driver suites
@@ -26,7 +27,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat test piagent-bench sortlearn-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test piagent-bench sortlearn-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -49,6 +50,13 @@ bin obj:
 
 chat: build
 	@PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
+
+# gen223: build parrot0, free the port (kill any old daemon), prepare ~/.pi/agent/
+# models.json (merged, never clobbering other providers), start the parrot0 daemon,
+# and launch `pi` with parrot0 already selected. The daemon is stopped when pi exits.
+# Override PI_PORT / PI_HOST; forward extra pi flags via ARGS="…". See docs/use-on-pi-agent.md.
+pi: build
+	@./scripts/pi.sh $(ARGS)
 
 chat-bench: build
 	@./tests/chatbench.sh
