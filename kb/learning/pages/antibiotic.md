@@ -1,11 +1,11 @@
 # Antibiotic
 
-- Learning event: `learn_2026_06_23t21_51_29z_antibiotic`
-- Operational log: `kb/learning/logs/learn_2026_06_23t21_51_29z_antibiotic.json`
+- Learning event: `learn_2026_06_25t09_28_49z_antibiotic`
+- Operational log: `kb/learning/logs/learn_2026_06_25t09_28_49z_antibiotic.json`
 - Domain: `medicine`
 - Source: https://en.wikipedia.org/wiki/Antibiotic
 - Wikipedia revision: `1360675320`
-- Processed: `2026-06-23T21:51:29Z`
+- Processed: `2026-06-25T09:28:49Z`
 
 ## Learned Concept
 
