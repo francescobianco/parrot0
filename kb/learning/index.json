@@ -1121,6 +1121,23 @@
       "summary": "learned cell_biology: basic structural and functional unit of all forms of life or organisms",
       "title": "Cell (biology)",
       "url": "https://en.wikipedia.org/wiki/Cell_(biology)"
+    },
+    {
+      "concept": "Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other to form a...",
+      "domain": "biology",
+      "event_id": "learn_2026_06_25t01_20_11z_dna",
+      "key": "dna",
+      "log_path": "kb/learning/logs/learn_2026_06_25t01_20_11z_dna.json",
+      "markdown_path": "kb/learning/pages/dna.md",
+      "processed_at": "2026-06-25T01:20:11Z",
+      "prompt": "what do you know about learn_2026_06_25t01_20_11z_dna",
+      "revision": 1360900543,
+      "source_index": 14,
+      "source_line": 30,
+      "source_title": "DNA",
+      "summary": "learned dna: Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other...",
+      "title": "DNA",
+      "url": "https://en.wikipedia.org/wiki/DNA"
     }
   ],
   "pages": {
@@ -1250,11 +1267,11 @@
       "domain": "biology",
       "extract_sha256": "56b702ae992749a20419f83ff3faa80d9f108086b9a5d4d9f925de209f55cc5e",
       "key": "dna",
-      "last_event_id": "learn_2026_06_23t17_59_04z_dna",
+      "last_event_id": "learn_2026_06_25t01_20_11z_dna",
       "markdown_path": "kb/learning/pages/dna.md",
       "pageid": 7955,
-      "processed_at": "2026-06-23T17:59:04Z",
-      "revision": 1359001884,
+      "processed_at": "2026-06-25T01:20:11Z",
+      "revision": 1360900543,
       "source_title": "DNA",
       "title": "DNA",
       "url": "https://en.wikipedia.org/wiki/DNA"

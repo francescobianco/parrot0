@@ -1,11 +1,11 @@
 # DNA
 
-- Learning event: `learn_2026_06_23t17_59_04z_dna`
-- Operational log: `kb/learning/logs/learn_2026_06_23t17_59_04z_dna.json`
+- Learning event: `learn_2026_06_25t01_20_11z_dna`
+- Operational log: `kb/learning/logs/learn_2026_06_25t01_20_11z_dna.json`
 - Domain: `biology`
 - Source: https://en.wikipedia.org/wiki/DNA
-- Wikipedia revision: `1359001884`
-- Processed: `2026-06-23T17:59:04Z`
+- Wikipedia revision: `1360900543`
+- Processed: `2026-06-25T01:20:11Z`
 
 ## Learned Concept
 
@@ -27,9 +27,10 @@ Within eukaryotic cells, DNA is organized into long structures called chromosome
 
 ### Properties
 
-DNA is a long polymer made from repeating units called nucleotides. The structure of DNA is dynamic along its length, being capable of coiling into tight loops and other shapes. In all species it is composed of two helical chains, bound to each other by hydrogen bonds. Both chains are coiled around the same axis, and have the same pitch of . The pair of chains have a radius of . According to another study, when measured in a different solution, the DNA chain measured wide, and one nucleotide unit measured long. The buoyant density of most DNA is 1.7g/cm3.
-
+DNA is a long polymer made from repeating units called nucleotides.
 DNA does not usually exist as a single strand, but instead as a pair of strands that are held tightly together. These two long strands coil around each other, in the shape of a double helix. The nucleotide contains both a segment of the backbone of the molecule (which holds the chain together) and a nucleobase (which interacts with the other DNA strand in the helix). A nucleobase linked to a sugar is called a nucleoside, and a base linked to a sugar and to one or more phosphate groups is called a nucleotide. A biopolymer comprising multiple linked nucleotides (as in DNA) is called a polynucleotide.
+
+The structure of DNA is dynamic along its length, being capable of coiling into tight loops and other shapes. In all species it is composed of two helical chains, bound to each other by hydrogen bonds. The two chains are coiled around the same axis (but not directly opposite one to the other), and have the same pitch of . Ignoring the identities of the bases, the line group is D(q), where q stands for the turn per base pair, which is around a tenth of a full turn. In the usual form (B-DNA), the twist is right-handed, like a normal screw that advances when turned clockwise. The pair of chains have a radius of . According to another study, when measured in a different solution, the DNA chain measured wide, and one nucleotide unit measured long. The buoyant density of most DNA is 1.7g/cm3.
 
 The backbone of the DNA strand is made from alternating phosphate and sugar groups. The sugar in DNA is 2-deoxyribose, which is a pentose (five-carbon) sugar. The sugars are joined by phosphate groups that form phosphodiester bonds between the third and fifth carbon atoms of adjacent sugar rings. These are known as the 3-end (three prime end), and 5-end (five prime end) carbons, the prime symbol being used to distinguish these carbon atoms from those of the base to which the deoxyribose forms a glycosidic bond.
 

@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_25t01_20_11z_dna",
+  "extraction": {
+    "concept": "Deoxyribonucleic acid is a polymer composed of two polynucleotide chains that coil around each other to form a...",
+    "concept_key": "dna",
+    "extract_sha256": "56b702ae992749a20419f83ff3faa80d9f108086b9a5d4d9f925de209f55cc5e",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_25t01_20_11z_dna.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/dna.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 15,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-25T01:20:11Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_25t01_20_11z_dna"
+  },
+  "source": {
+    "domain": "biology",
+    "index": 14,
+    "line": 30,
+    "title": "DNA"
+  },
+  "wikipedia": {
+    "canonical_title": "DNA",
+    "lang": "en",
+    "pageid": 7955,
+    "revision": 1360900543,
+    "url": "https://en.wikipedia.org/wiki/DNA"
+  }
+}
