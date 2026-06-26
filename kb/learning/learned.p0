@@ -95,7 +95,7 @@ wiki_concept(immune_system, medicine, "network of biological systems that protec
 
 % medicine / Antibiotic
 % source: https://en.wikipedia.org/wiki/Antibiotic
-% revision: 1360675320; processed: 2026-06-25T09:28:49Z
+% revision: 1360675320; processed: 2026-06-26T18:57:27Z
 wiki_concept(antibiotic, medicine, "type of antimicrobial substance which is active against bacteria").
 
 % medicine / Neuron
@@ -997,3 +997,12 @@ learning_event_concept(learn_2026_06_26t17_57_48z_immune_system, immune_system).
 learning_event_revision(learn_2026_06_26t17_57_48z_immune_system, rev_1350208094).
 learning_event_markdown(learn_2026_06_26t17_57_48z_immune_system, "kb/learning/pages/immune_system.md").
 learning_event_log(learn_2026_06_26t17_57_48z_immune_system, "kb/learning/logs/learn_2026_06_26t17_57_48z_immune_system.json").
+
+% event learn_2026_06_26t18_57_27z_antibiotic
+learning_event(learn_2026_06_26t18_57_27z_antibiotic, "learned antibiotic: type of antimicrobial substance which is active against bacteria").
+learning_event_time(learn_2026_06_26t18_57_27z_antibiotic, "2026-06-26T18:57:27Z").
+learning_event_domain(learn_2026_06_26t18_57_27z_antibiotic, medicine).
+learning_event_concept(learn_2026_06_26t18_57_27z_antibiotic, antibiotic).
+learning_event_revision(learn_2026_06_26t18_57_27z_antibiotic, rev_1360675320).
+learning_event_markdown(learn_2026_06_26t18_57_27z_antibiotic, "kb/learning/pages/antibiotic.md").
+learning_event_log(learn_2026_06_26t18_57_27z_antibiotic, "kb/learning/logs/learn_2026_06_26t18_57_27z_antibiotic.json").
