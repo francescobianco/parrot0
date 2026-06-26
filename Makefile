@@ -72,6 +72,13 @@ chat-bench: build
 basic-chat-bench: build
 	@./tests/basicchat.sh
 
+# gen226 (docs/plans/mimic-llm.md, primo giro): mimic-llm style harness — PURE
+# behavioral styling, offline. Catalogs parrot0's reaction to minimal/cryptic
+# probes (sym-bench style) and shows a style profile's temperature biasing the
+# FORM of a reply (argmax vs gen55 rotation). Never gates the build.
+mimic-bench: build
+	@chmod +x ./tests/mimic.sh; ./tests/mimic.sh
+
 long-chat-bench: build
 	@./tests/longchatbench.sh
 

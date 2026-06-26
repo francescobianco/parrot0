@@ -78,7 +78,21 @@ static int kb_response(Brain *b, const char *intent, const char *slot,
     const char *q[2] = { intent, NULL };
     size_t n = kb_match(b->kb, "response_template", q, 2, tpl, 16);
     if (n == 0) return 0;
-    char *p = tpl[b->response_pick % n];      /* rotate over the registered phrasings */
+    /* gen226 (mimic-llm, primo giro): a loaded STYLE profile may set the selection
+     * temperature — the nitidezza of choosing among interchangeable FORMS. t==0 is
+     * argmax (always the canonical first phrasing: a decided, terse persona); when
+     * no profile is loaded (no fact) or t!=0, the gen55 anti-repeat rotation holds.
+     * This biases only HOW a reply is phrased, never WHAT is said (see
+     * docs/plans/mimic-llm.md). */
+    size_t idx = b->response_pick % n;
+    {
+        char tv[1][KB_TERM_LEN];
+        const char *tq[1] = { NULL };
+        if (kb_match(b->kb, "style_temperature", tq, 1, tv, 1) == 1 &&
+            atoi(tv[0]) == 0)
+            idx = 0;
+    }
+    char *p = tpl[idx];                        /* selected phrasing */
     b->response_pick++;
     size_t l = strlen(p);
     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }  /* strip quotes */

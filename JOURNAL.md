@@ -1,4 +1,35 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen226: mimic-llm primo giro — style layer (temperatura sulla FORMA)
+
+**Changed.** First round of `docs/plans/mimic-llm.md` (whose disàmina concluded:
+PURE behavioral styling, not knowledge nor reasoning — see the doc). Shipped the
+parrot0-side mechanism, fully offline (no network/opencode):
+- `kb_response` (`src/brain/00-lex.c`) now honors a `style_temperature(N)` fact
+  carried by a loaded profile: `0` -> argmax (always the canonical first phrasing,
+  a decided/terse persona); absent (no profile) or `!=0` -> the gen55 anti-repeat
+  rotation. It biases only HOW a reply is phrased, never WHAT is said.
+- New style profile `kb/profiles/llm/deepseek-v4-flash.p0`: `style_temperature(0)`
+  + `style_trait/2` surface traits, declared style (not knowledge). Loaded via
+  `PARROT0_PROFILE=…`.
+- New discovery harness `make mimic-bench` (`tests/mimic.sh`): (A) catalogs the
+  reaction to minimal/cryptic probes (a letter, a number, a strange word,
+  punctuation) sym-bench style; (B) shows the temperature making form-selection
+  deterministic vs rotating. Never gates the build.
+
+**Why.** The disàmina's recommendation: keep the reusable, principled core (a
+weighted/temperature selection over FORMS; profiles as style parameters; minimal
+probes to catalog behaviour) and hold the only hard line — the style/content
+boundary. This is the seed; no teacher distillation yet.
+
+**Observed.** `make test` green (all unit suites unchanged — mod_input redirect
+goldens untouched). mimic-bench: without profile two `congratulations` rotate
+(two phrasings); with the deepseek profile (`style_temperature(0)`) both give the
+canonical form. Same content, different voice.
+
+**Next.** Within the boundary: a parameter styler (verbosity/register/hedging);
+a simchat suite that WRITES profile weights by probing a subject (static capture,
+provenance disclosure); persona profiles (Carlsen, Garibaldi).
+
 ## 2026-06-26 - gen225: basic-chat cat.1 — phatic speech acts (KB-first, EN+IT)
 
 **Changed.** Closed basic-chat category 1 (Saluti e convenevoli) to 100% (15/15)

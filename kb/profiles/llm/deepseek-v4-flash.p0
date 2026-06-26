@@ -1,0 +1,24 @@
+% parrot0 STYLE profile — deepseek-v4-flash   (mimic-llm, primo giro / gen226)
+%
+% See docs/plans/mimic-llm.md. This is PURE BEHAVIORAL STYLING: the facts here
+% tune only HOW parrot0 selects the FORM of a reply, never WHAT is true. No
+% knowledge and no reasoning procedure is imported — only surface behaviour.
+% A future simchat-style suite (sym-bench minimal probes) will WRITE these facts
+% by cataloguing how the modelled subject reacts; this first round ships the
+% parrot0-side mechanism with hand-set values and no network.
+%
+% Load with:  PARROT0_PROFILE=kb/profiles/llm/deepseek-v4-flash.p0
+%
+% style_temperature(N) — nitidezza della selezione fra forme alternative (0..100):
+%   0   -> argmax: sempre la forma canonica (deciso, conciso, prevedibile)
+%   100 -> rotazione piena (varieta massima: l'anti-ripetizione gen55)
+% Operativo da gen226 in kb_response (selezione della FORMA della risposta).
+style_temperature(0).
+
+% style_trait(Dimension, Value) — tratti di superficie catalogati da sonde minime
+% (lettera singola, numero, parola strana). Descrittivi per ora; generazioni
+% successive li rendono operativi sullo styler. NON sono conoscenza ne ragionamento.
+style_trait(verbosity, low).
+style_trait(register, neutral).
+style_trait(hedging, low).
+style_trait(persona, deepseek-v4-flash).
