@@ -122,6 +122,28 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen227 (basic-chat cat.104): AI/ML identity — "are you chatgpt/an llm",
+     * "how many parameters", "what model are you", "where is your code". Answered
+     * HONESTLY from real state: parrot0 is a from-scratch C program with no LLM at
+     * runtime (PRINCIPLES.md — the self-model is derived from real structure, not a
+     * recited string). Cues are intent_cue/2 and replies response_template/2
+     * (KB-first, EN+IT); {name} is filled from i_am. */
+    {
+        static const char *const ai[] = {
+            "ai_not_llm", "ai_no_params", "ai_what_model", "ai_opensource", NULL };
+        for (size_t i = 0; ai[i]; i++) {
+            if (kb_cue_match(b, ai[i], buf)) {
+                const char *var[] = {NULL};
+                char id[1][KB_TERM_LEN];
+                size_t k = b->kb ? kb_match(b->kb, "i_am", var, 1, id, 1) : 0;
+                if (!kb_response(b, ai[i], k ? id[0] : "parrot0", out, out_size))
+                    put("I'm parrot0, a small program written in C, not an LLM.",
+                        out, out_size);
+                return 1;
+            }
+        }
+    }
+
     int repeat = cue(buf, "why do you keep saying") ||
                  cue(buf, "why keep saying") ||
                  cue(buf, "keep repeating") ||

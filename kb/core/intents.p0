@@ -72,6 +72,45 @@ intent_cue(piact_run, "run the test").
 intent_cue(piact_run, "build the project").
 intent_cue(piact_run, "compile the").
 
+% --- gen227 (basic-chat cat.104): AI/ML identity probes (EN + IT). Answered
+% HONESTLY from the self-model by mod_self: parrot0 is a from-scratch C program
+% with no LLM at runtime. Cues are anchored on "are you …"/"your …" so a generic
+% knowledge question ("what is a neural network") is NOT hijacked. ---
+intent_cue(ai_not_llm, "are you chatgpt").
+intent_cue(ai_not_llm, "are you gpt").
+intent_cue(ai_not_llm, "are you alexa").
+intent_cue(ai_not_llm, "are you siri").
+intent_cue(ai_not_llm, "are you an llm").
+intent_cue(ai_not_llm, "are you a llm").
+intent_cue(ai_not_llm, "are you a language model").
+intent_cue(ai_not_llm, "are you a neural network").
+intent_cue(ai_not_llm, "sei chatgpt").
+intent_cue(ai_not_llm, "sei alexa").
+intent_cue(ai_not_llm, "sei siri").
+intent_cue(ai_not_llm, "sei un llm").
+intent_cue(ai_not_llm, "sei una rete neurale").
+
+intent_cue(ai_no_params, "how many parameters").
+intent_cue(ai_no_params, "parameters do you have").
+intent_cue(ai_no_params, "your training data").
+intent_cue(ai_no_params, "were you trained").
+intent_cue(ai_no_params, "context window").
+intent_cue(ai_no_params, "quanti parametri").
+intent_cue(ai_no_params, "dati di addestramento").
+intent_cue(ai_no_params, "finestra di contesto").
+
+intent_cue(ai_what_model, "what model are you").
+intent_cue(ai_what_model, "which model are you").
+intent_cue(ai_what_model, "what bot are you").
+intent_cue(ai_what_model, "che modello sei").
+intent_cue(ai_what_model, "che bot sei").
+
+intent_cue(ai_opensource, "are you open source").
+intent_cue(ai_opensource, "where is your code").
+intent_cue(ai_opensource, "sei open source").
+intent_cue(ai_opensource, "dove e il tuo codice").
+intent_cue(ai_opensource, "dov'e il tuo codice").
+
 % =========================================================================
 % gen214: the LEARNABLE registry — what can be taught at runtime, as DATA.
 %

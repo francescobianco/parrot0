@@ -472,7 +472,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen226-mimic-style";
+    return "gen227-ai-identity";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

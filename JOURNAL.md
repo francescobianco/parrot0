@@ -1,4 +1,28 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen227: basic-chat cat.104 — AI/ML identity (KB-first, EN+IT)
+
+**Changed.** Closed basic-chat category 104 (AI e ML identità) to 100% (14/14)
+KB-first. The probes ("are you chatgpt / an llm / a neural network", "how many
+parameters", "what model are you", "where is your code") are `intent_cue/2` in
+`kb/core/intents.p0` and the replies `response_template/2` in
+`kb/core/responses.p0` — EN+IT, classes grow at runtime. `mod_self` gains one
+generic loop over four sub-intents (ai_not_llm / ai_no_params / ai_what_model /
+ai_opensource), answering HONESTLY from real state: parrot0 is a from-scratch C
+program with no LLM at runtime, no parameters/training/context-window; `{name}`
+filled from `i_am`. Cues anchored on "are you …"/"your …" so a generic knowledge
+question ("what is a neural network") is not hijacked (verified).
+
+**Why.** PRINCIPLES.md self-model discipline: self-description derived from real
+structure, not a recited string — and the cardinal KB-first rule for the cues and
+phrasings. One structural generation that generalizes.
+
+**Observed.** `make test` green. basic-chat coverage 28% -> 29% (275 -> 290/974);
+cat.104 0 -> 14/14. IT engaged (sei chatgpt, che modello sei); knowledge path for
+"what is a neural network" intact.
+
+**Next.** basic-chat backlog continues: physical-property yes/no (cat.75), binary
+choices (cat.86), obvious-fact acknowledgement (cat.87).
+
 ## 2026-06-27 - gen226: mimic-llm primo giro — style layer (temperatura sulla FORMA)
 
 **Changed.** First round of `docs/plans/mimic-llm.md` (whose disàmina concluded:
