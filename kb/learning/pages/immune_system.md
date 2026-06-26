@@ -1,11 +1,11 @@
 # Immune system
 
-- Learning event: `learn_2026_06_25t07_31_45z_immune_system`
-- Operational log: `kb/learning/logs/learn_2026_06_25t07_31_45z_immune_system.json`
+- Learning event: `learn_2026_06_26t17_57_48z_immune_system`
+- Operational log: `kb/learning/logs/learn_2026_06_26t17_57_48z_immune_system.json`
 - Domain: `medicine`
 - Source: https://en.wikipedia.org/wiki/Immune_system
 - Wikipedia revision: `1350208094`
-- Processed: `2026-06-25T07:31:45Z`
+- Processed: `2026-06-26T17:57:48Z`
 
 ## Learned Concept
 

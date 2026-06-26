@@ -90,7 +90,7 @@ wiki_concept(evolution, biology, "change in the heritable characteristics of bio
 
 % medicine / Immune system
 % source: https://en.wikipedia.org/wiki/Immune_system
-% revision: 1350208094; processed: 2026-06-25T07:31:45Z
+% revision: 1350208094; processed: 2026-06-26T17:57:48Z
 wiki_concept(immune_system, medicine, "network of biological systems that protects an organism from diseases").
 
 % medicine / Antibiotic
@@ -988,3 +988,12 @@ learning_event_concept(learn_2026_06_26t16_59_38z_evolution, evolution).
 learning_event_revision(learn_2026_06_26t16_59_38z_evolution, rev_1357316203).
 learning_event_markdown(learn_2026_06_26t16_59_38z_evolution, "kb/learning/pages/evolution.md").
 learning_event_log(learn_2026_06_26t16_59_38z_evolution, "kb/learning/logs/learn_2026_06_26t16_59_38z_evolution.json").
+
+% event learn_2026_06_26t17_57_48z_immune_system
+learning_event(learn_2026_06_26t17_57_48z_immune_system, "learned immune_system: network of biological systems that protects an organism from diseases").
+learning_event_time(learn_2026_06_26t17_57_48z_immune_system, "2026-06-26T17:57:48Z").
+learning_event_domain(learn_2026_06_26t17_57_48z_immune_system, medicine).
+learning_event_concept(learn_2026_06_26t17_57_48z_immune_system, immune_system).
+learning_event_revision(learn_2026_06_26t17_57_48z_immune_system, rev_1350208094).
+learning_event_markdown(learn_2026_06_26t17_57_48z_immune_system, "kb/learning/pages/immune_system.md").
+learning_event_log(learn_2026_06_26t17_57_48z_immune_system, "kb/learning/logs/learn_2026_06_26t17_57_48z_immune_system.json").

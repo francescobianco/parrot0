@@ -1614,6 +1614,23 @@
       "summary": "learned evolution: change in the heritable characteristics of biological populations over successive generations",
       "title": "Evolution",
       "url": "https://en.wikipedia.org/wiki/Evolution"
+    },
+    {
+      "concept": "network of biological systems that protects an organism from diseases",
+      "domain": "medicine",
+      "event_id": "learn_2026_06_26t17_57_48z_immune_system",
+      "key": "immune_system",
+      "log_path": "kb/learning/logs/learn_2026_06_26t17_57_48z_immune_system.json",
+      "markdown_path": "kb/learning/pages/immune_system.md",
+      "processed_at": "2026-06-26T17:57:48Z",
+      "prompt": "what do you know about learn_2026_06_26t17_57_48z_immune_system",
+      "revision": 1350208094,
+      "source_index": 17,
+      "source_line": 35,
+      "source_title": "Immune system",
+      "summary": "learned immune_system: network of biological systems that protects an organism from diseases",
+      "title": "Immune system",
+      "url": "https://en.wikipedia.org/wiki/Immune_system"
     }
   ],
   "pages": {
@@ -1848,10 +1865,10 @@
       "domain": "medicine",
       "extract_sha256": "7bfdbf6d0ad2d2fb84294195c11a8c28cfa7fa5130aca45565bdae8cb0349b6c",
       "key": "immune_system",
-      "last_event_id": "learn_2026_06_25t07_31_45z_immune_system",
+      "last_event_id": "learn_2026_06_26t17_57_48z_immune_system",
       "markdown_path": "kb/learning/pages/immune_system.md",
       "pageid": 14958,
-      "processed_at": "2026-06-25T07:31:45Z",
+      "processed_at": "2026-06-26T17:57:48Z",
       "revision": 1350208094,
       "source_title": "Immune system",
       "title": "Immune system",
