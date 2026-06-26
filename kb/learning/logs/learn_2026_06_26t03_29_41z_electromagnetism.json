@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_26t03_29_41z_electromagnetism",
+  "extraction": {
+    "concept": "interaction that occurs between particles with electric charge via electromagnetic fields",
+    "concept_key": "electromagnetism",
+    "extract_sha256": "bb769d4e955ae2bfb3592a986b7a787fabc1b91da381bcdee756a7654addd465",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_26t03_29_41z_electromagnetism.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/electromagnetism.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 8,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-26T03:29:41Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_26t03_29_41z_electromagnetism"
+  },
+  "source": {
+    "domain": "physics",
+    "index": 7,
+    "line": 19,
+    "title": "Electromagnetism"
+  },
+  "wikipedia": {
+    "canonical_title": "Electromagnetism",
+    "lang": "en",
+    "pageid": 9532,
+    "revision": 1360320920,
+    "url": "https://en.wikipedia.org/wiki/Electromagnetism"
+  }
+}
