@@ -1461,6 +1461,23 @@
       "summary": "learned electromagnetism: interaction that occurs between particles with electric charge via electromagnetic fields",
       "title": "Electromagnetism",
       "url": "https://en.wikipedia.org/wiki/Electromagnetism"
+    },
+    {
+      "concept": "In physics, the special theory of relativity, or simply special relativity, is a scientific theory of the...",
+      "domain": "physics",
+      "event_id": "learn_2026_06_26t05_45_01z_special_relativity",
+      "key": "special_relativity",
+      "log_path": "kb/learning/logs/learn_2026_06_26t05_45_01z_special_relativity.json",
+      "markdown_path": "kb/learning/pages/special_relativity.md",
+      "processed_at": "2026-06-26T05:45:01Z",
+      "prompt": "what do you know about learn_2026_06_26t05_45_01z_special_relativity",
+      "revision": 1360902546,
+      "source_index": 8,
+      "source_line": 20,
+      "source_title": "Special relativity",
+      "summary": "learned special_relativity: In physics, the special theory of relativity, or simply special relativity, is a...",
+      "title": "Special relativity",
+      "url": "https://en.wikipedia.org/wiki/Special_relativity"
     }
   ],
   "pages": {
@@ -1830,10 +1847,10 @@
       "domain": "physics",
       "extract_sha256": "2b4f00c2915c9dbd25901076a32df7972d8996730ac5d9781c3bb4eaef2af1cc",
       "key": "special_relativity",
-      "last_event_id": "learn_2026_06_24t18_56_38z_special_relativity",
+      "last_event_id": "learn_2026_06_26t05_45_01z_special_relativity",
       "markdown_path": "kb/learning/pages/special_relativity.md",
       "pageid": 26962,
-      "processed_at": "2026-06-24T18:56:38Z",
+      "processed_at": "2026-06-26T05:45:01Z",
       "revision": 1360902546,
       "source_title": "Special relativity",
       "title": "Special relativity",
