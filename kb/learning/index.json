@@ -1546,6 +1546,23 @@
       "summary": "learned catalysis: increase in rate of a chemical reaction due to an added substance known as a catalyst",
       "title": "Catalysis",
       "url": "https://en.wikipedia.org/wiki/Catalysis"
+    },
+    {
+      "concept": "basic structural and functional unit of all forms of life or organisms",
+      "domain": "biology",
+      "event_id": "learn_2026_06_26t14_01_30z_cell_biology",
+      "key": "cell_biology",
+      "log_path": "kb/learning/logs/learn_2026_06_26t14_01_30z_cell_biology.json",
+      "markdown_path": "kb/learning/pages/cell_biology.md",
+      "processed_at": "2026-06-26T14:01:30Z",
+      "prompt": "what do you know about learn_2026_06_26t14_01_30z_cell_biology",
+      "revision": 1360756328,
+      "source_index": 13,
+      "source_line": 29,
+      "source_title": "Cell (biology)",
+      "summary": "learned cell_biology: basic structural and functional unit of all forms of life or organisms",
+      "title": "Cell (biology)",
+      "url": "https://en.wikipedia.org/wiki/Cell_(biology)"
     }
   ],
   "pages": {
@@ -1630,10 +1647,10 @@
       "domain": "biology",
       "extract_sha256": "198bb4c460756990e95f2cfe9d9225a05ff0b2ea6658cb206c8a04464cfa7995",
       "key": "cell_biology",
-      "last_event_id": "learn_2026_06_24t23_43_58z_cell_biology",
+      "last_event_id": "learn_2026_06_26t14_01_30z_cell_biology",
       "markdown_path": "kb/learning/pages/cell_biology.md",
       "pageid": 4230,
-      "processed_at": "2026-06-24T23:43:58Z",
+      "processed_at": "2026-06-26T14:01:30Z",
       "revision": 1360756328,
       "source_title": "Cell (biology)",
       "title": "Cell (biology)",
