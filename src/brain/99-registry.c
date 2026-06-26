@@ -472,7 +472,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen224-clean-build-deictic-dir";
+    return "gen225-phatic-acts";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

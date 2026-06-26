@@ -43,6 +43,26 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
     if (has_social_pattern(b, "wellbeing", buf))
         { put("I'm well, thanks. How can I help?", out, out_size); return 1; }
 
+    /* gen225 (basic-chat cat.1): phatic speech acts beyond hello/bye/thanks —
+     * valediction, felicitation, well-wishing, condolence, blessing, politeness.
+     * Recognized phrases are social_pattern(type, …) and replies are
+     * response_template(type, …), both KB knowledge (EN+IT). The C knows only
+     * the structural list of act TYPES, not the vocabulary; kb_response falls
+     * back to a literal only if the KB file is absent, so the agent is engaged
+     * but never mute. */
+    {
+        static const char *const phatic[] = {
+            "goodnight", "felicitation", "wellwish",
+            "condolence", "blessing", "politeness", NULL };
+        for (size_t i = 0; phatic[i]; i++) {
+            if (has_social_pattern(b, phatic[i], buf)) {
+                if (!kb_response(b, phatic[i], NULL, out, out_size))
+                    put("That's kind of you — thank you!", out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* position-disambiguated ambiguous marker: "ciao" opens early, closes late */
     if (has_ambiguous) {
         put(b->turns <= 2 ? "Hi there!" : "Goodbye!", out, out_size);

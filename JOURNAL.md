@@ -1,4 +1,31 @@
 # parrot0 evolution journal
+## 2026-06-26 - gen225: basic-chat cat.1 — phatic speech acts (KB-first, EN+IT)
+
+**Changed.** Closed basic-chat category 1 (Saluti e convenevoli) to 100% (15/15)
+the KB-first way: the recognized PHRASES are `social_pattern(type, …)` in
+`kb/core/social.p0` and the REPLIES are `response_template(type, …)` in
+`kb/core/responses.p0` — both KB knowledge, EN+IT, so the classes grow at runtime
+with no code edit. New phatic act types: `goodnight`, `felicitation`, `wellwish`,
+`condolence`, `blessing`, `politeness`. `mod_social` gains one generic loop over a
+structural list of act TYPE names (machinery, not vocabulary), replying via
+`kb_response`. Bug fixed in the same arc: multi-word openers/valedictions ("good
+morning", "good night", "see you") were defeated by `is_mixed_turn`, which counted
+their component words as substantive content and declined; new
+`is_exact_social_pattern` guard keeps a turn that is exactly a phatic phrase as
+pure social.
+
+**Why.** PRINCIPLES.md cardinal rule: surface forms recognized AND produced are
+knowledge in the KB, not C phrasebooks. This is one structural generation that
+generalizes (any new phrasing is a fact, no recompile), per the basic-chat loop.
+
+**Observed.** `make test` green (all unit suites). basic-chat coverage 26% -> 28%
+(260 -> 275/974); cat.1 0/low -> 15/15. EN + IT both engaged (buon compleanno, in
+bocca al lupo, buonanotte, condoglianze).
+
+**Next.** Continue the basic-chat backlog one category per generation; next clean
+KB-first targets: physical-property yes/no (cat.75), binary choices (cat.86),
+obvious-fact acknowledgement (cat.87).
+
 ## 2026-06-24 - gen204: third REAL SWE-bench instance (astropy-14995) RESOLVED — condition asymmetry
 
 **Milestone.** A THIRD real SWE-bench_Lite instance resolved, by a THIRD general

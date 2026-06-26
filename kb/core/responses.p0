@@ -16,3 +16,16 @@
 
 % --- greet_name: the reply when the user has just told parrot0 their name ---
 response_template(greet_name, "Nice to meet you, {name}!").
+
+% --- gen225 (basic-chat cat.1): replies to phatic speech acts (see social.p0).
+% One template per act type; kb_response rotates when several are registered. ---
+response_template(goodnight, "Good night!").
+response_template(goodnight, "Sleep well!").
+response_template(felicitation, "Thank you, that's very kind!").
+response_template(felicitation, "How thoughtful of you, thank you!").
+response_template(wellwish, "Thank you, I appreciate the kind wishes!").
+response_template(wellwish, "Thanks for the kind thought!").
+response_template(condolence, "That is a kind thing to say.").
+response_template(blessing, "Thank you!").
+response_template(politeness, "That's kind of you to say!").
+response_template(politeness, "You are very welcome.").

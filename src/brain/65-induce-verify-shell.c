@@ -692,6 +692,26 @@ static int has_social_pattern(Brain *b, const char *type, const char *text) {
     return 0;
 }
 
+/* gen225: true when the WHOLE turn is exactly one registered social_pattern
+ * phrase (any act type). Lets is_mixed_turn keep a multi-word phatic opener or
+ * valediction ("good morning", "good night", "see you") instead of mistaking
+ * its component words for substantive content and declining. The act TYPES are
+ * structural machinery; the phrases themselves stay KB knowledge. */
+static int is_exact_social_pattern(Brain *b, const char *buf) {
+    if (!b || !b->kb) return 0;
+    static const char *const types[] = {
+        "opening", "closing", "wellbeing", "goodnight", "felicitation",
+        "wellwish", "condolence", "blessing", "politeness", NULL };
+    for (size_t t = 0; types[t]; t++) {
+        const char *pat[] = {types[t], NULL};
+        char pp[64][KB_TERM_LEN];
+        size_t n = kb_match(b->kb, "social_pattern", pat, 2, pp, 64);
+        for (size_t i = 0; i < n; i++)
+            if (strcmp(buf, pp[i]) == 0) return 1;
+    }
+    return 0;
+}
+
 static int tok_is_marker(Brain *b, const char *type, char **w, size_t nw) {
     if (!b) return 0;
     for (size_t i = 0; i < nw; i++) {
@@ -759,6 +779,10 @@ static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
                          int has_apology, int has_ambiguous) {
     int has_marker = has_opening || has_closing || has_thanks || has_apology || has_ambiguous;
     if (!has_marker) return 0;
+
+    /* gen225: a turn that is EXACTLY a phatic phrase ("good morning", "good
+     * night") is pure social, never mixed — its words only look substantive. */
+    if (is_exact_social_pattern(b, buf)) return 0;
 
     /* question word + marker -> substance wins ("hey, who are you?"),
      * unless the substance is a wellbeing check the social module handles. */

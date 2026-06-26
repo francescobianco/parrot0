@@ -100,3 +100,68 @@ reaction_word(lmao).
 reaction_word(lolol).
 reaction_word(hehehe).
 reaction_word(hahaha).
+
+% --- gen225 (basic-chat cat.1): phatic speech acts (EN + IT) ---
+% Recognized PHRASES live here; the REPLIES live as response_template(type, …)
+% in kb/core/responses.p0. Both are KB knowledge so the classes grow at runtime
+% with no code edit; the C only knows the structural list of act TYPES.
+
+% valediction for the night (kept distinct from a plain goodbye)
+social_pattern(goodnight, good night).
+social_pattern(goodnight, goodnight).
+social_pattern(goodnight, nighty night).
+social_pattern(goodnight, buonanotte).
+social_pattern(goodnight, buona notte).
+
+% felicitation / congratulation / festive greeting
+social_pattern(felicitation, congratulations).
+social_pattern(felicitation, congrats).
+social_pattern(felicitation, well done).
+social_pattern(felicitation, happy birthday).
+social_pattern(felicitation, merry christmas).
+social_pattern(felicitation, happy new year).
+social_pattern(felicitation, happy holidays).
+social_pattern(felicitation, happy easter).
+social_pattern(felicitation, congratulazioni).
+social_pattern(felicitation, complimenti).
+social_pattern(felicitation, buon compleanno).
+social_pattern(felicitation, buon natale).
+social_pattern(felicitation, buon anno).
+social_pattern(felicitation, auguri).
+social_pattern(felicitation, tanti auguri).
+
+% well-wishing (luck, recovery, parting care)
+social_pattern(wellwish, good luck).
+social_pattern(wellwish, best of luck).
+social_pattern(wellwish, get well soon).
+social_pattern(wellwish, take care).
+social_pattern(wellwish, all the best).
+social_pattern(wellwish, in bocca al lupo).
+social_pattern(wellwish, buona fortuna).
+social_pattern(wellwish, guarisci presto).
+social_pattern(wellwish, rimettiti presto).
+social_pattern(wellwish, stammi bene).
+
+% condolence
+social_pattern(condolence, rest in peace).
+social_pattern(condolence, my condolences).
+social_pattern(condolence, riposa in pace).
+social_pattern(condolence, condoglianze).
+
+% blessing (e.g. after a sneeze)
+social_pattern(blessing, bless you).
+social_pattern(blessing, god bless).
+social_pattern(blessing, gesundheit).
+
+% politeness / appreciation (you-are-welcome family + "that's kind of you")
+social_pattern(politeness, my pleasure).
+social_pattern(politeness, dont mention it).
+social_pattern(politeness, do not mention it).
+social_pattern(politeness, don't mention it).
+social_pattern(politeness, much obliged).
+social_pattern(politeness, very kind of you).
+social_pattern(politeness, that's very kind).
+social_pattern(politeness, thats very kind).
+social_pattern(politeness, too kind).
+social_pattern(politeness, troppo gentile).
+social_pattern(politeness, molto gentile).
