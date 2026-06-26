@@ -1,11 +1,11 @@
 # Periodic table
 
-- Learning event: `learn_2026_06_24t20_54_04z_periodic_table`
-- Operational log: `kb/learning/logs/learn_2026_06_24t20_54_04z_periodic_table.json`
+- Learning event: `learn_2026_06_26t09_29_13z_periodic_table`
+- Operational log: `kb/learning/logs/learn_2026_06_26t09_29_13z_periodic_table.json`
 - Domain: `chemistry`
 - Source: https://en.wikipedia.org/wiki/Periodic_table
 - Wikipedia revision: `1360487132`
-- Processed: `2026-06-24T20:54:04Z`
+- Processed: `2026-06-26T09:29:13Z`
 
 ## Learned Concept
 
