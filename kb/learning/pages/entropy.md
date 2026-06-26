@@ -1,11 +1,11 @@
 # Entropy
 
-- Learning event: `learn_2026_06_24t17_01_16z_entropy`
-- Operational log: `kb/learning/logs/learn_2026_06_24t17_01_16z_entropy.json`
+- Learning event: `learn_2026_06_26t01_23_06z_entropy`
+- Operational log: `kb/learning/logs/learn_2026_06_26t01_23_06z_entropy.json`
 - Domain: `physics`
 - Source: https://en.wikipedia.org/wiki/Entropy
-- Wikipedia revision: `1356217145`
-- Processed: `2026-06-24T17:01:16Z`
+- Wikipedia revision: `1361126134`
+- Processed: `2026-06-26T01:23:06Z`
 
 ## Learned Concept
 
@@ -263,9 +263,7 @@ Current theories suggest the entropy gap to have been originally opened up by th
 
 #### Economics
 
-Romanian American economist Nicholas Georgescu-Roegen, a progenitor in economics and a paradigm founder of ecological economics, made extensive use of the entropy concept in his magnum opus on The Entropy Law and the Economic Process. Due to Georgescu-Roegen's work, the laws of thermodynamics form an integral part of the ecological economics school. Although his work was blemished somewhat by mistakes, a full chapter on the economics of Georgescu-Roegen has approvingly been included in one elementary physics textbook on the historical development of thermodynamics.
-
-In economics, Georgescu-Roegen's work has generated the term 'entropy pessimism'. Since the 1990s, leading ecological economist and steady-state theorist Herman Daly -- a student of Georgescu-Roegen -- has been the economics profession's most influential proponent of the entropy pessimism position.
+The concept of entropy has been used by Nicholas Georgescu-Roegen in ecological economics, where he coined the term 'entropy pessimism'. This position has continued to be promoted by Herman Daly
 
 ### See also
 
