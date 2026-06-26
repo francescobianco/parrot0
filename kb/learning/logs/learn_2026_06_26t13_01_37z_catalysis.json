@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_26t13_01_37z_catalysis",
+  "extraction": {
+    "concept": "increase in rate of a chemical reaction due to an added substance known as a catalyst",
+    "concept_key": "catalysis",
+    "extract_sha256": "71435b3c489f686262186343a39fdfb9e01df9302984db085ec8cf00bd9c0a54",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_26t13_01_37z_catalysis.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/catalysis.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 13,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-26T13:01:37Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_26t13_01_37z_catalysis"
+  },
+  "source": {
+    "domain": "chemistry",
+    "index": 12,
+    "line": 26,
+    "title": "Catalysis"
+  },
+  "wikipedia": {
+    "canonical_title": "Catalysis",
+    "lang": "en",
+    "pageid": 5914,
+    "revision": 1358271976,
+    "url": "https://en.wikipedia.org/wiki/Catalysis"
+  }
+}
