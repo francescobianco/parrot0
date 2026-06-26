@@ -118,9 +118,50 @@ static int has_emoji(const char *s) {
     return 0;
 }
 
+/* gen228 (basic-chat cat.86): true when the WHOLE turn is a bare two-option
+ * choice "A or B" — a single 'or' splitting two short (1-2 word) sides, with no
+ * leading question word or verb that would make it a real question another module
+ * owns ("is it morning or evening"). Recognized by SHAPE, not by a phrase list,
+ * so it generalizes to any pair. */
+static int is_binary_choice(const char *norm) {
+    char buf[128];
+    if (strlen(norm) >= sizeof buf) return 0;
+    strcpy(buf, norm);
+    char *w[16];
+    size_t nw = split_words(buf, w, 16);
+    if (nw < 3 || nw > 5) return 0;
+    size_t orpos = nw, orcount = 0;
+    for (size_t i = 0; i < nw; i++)
+        if (strcmp(w[i], "or") == 0) { orpos = i; orcount++; }
+    if (orcount != 1 || orpos == 0 || orpos == nw - 1) return 0;
+    size_t left = orpos, right = nw - orpos - 1;
+    if (left < 1 || left > 2 || right < 1 || right > 2) return 0;
+    static const char *const bad[] = {
+        "what","which","who","how","when","where","why","is","are","am","do",
+        "does","did","can","could","will","would","should","cosa","che","qual",
+        "quale","dove","quando","perche", NULL };
+    for (size_t i = 0; bad[i]; i++)
+        if (strcmp(w[0], bad[i]) == 0) return 0;
+    return 1;
+}
+
 static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (!b) return 0;
+
+    /* gen228 (basic-chat cat.86): a bare binary choice answered honestly —
+     * parrot0 has no genuine preference. "would you rather" is its own honest
+     * opener. Cues/replies are KB-first (intent_cue/response_template, EN+IT). */
+    if (kb_cue_match(b, "would_rather", norm)) {
+        if (!kb_response(b, "would_rather", NULL, out, out_size))
+            put("I'll play along — what are my two options?", out, out_size);
+        return 1;
+    }
+    if (is_binary_choice(norm)) {
+        if (!kb_response(b, "binary_choice", NULL, out, out_size))
+            put("Between the two? I don't have a real preference.", out, out_size);
+        return 1;
+    }
 
     /* register signals: emoji, ASCII emoticons, laughter, stage-direction emotes */
     int emoji = has_emoji(raw);

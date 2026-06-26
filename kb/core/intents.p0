@@ -111,6 +111,11 @@ intent_cue(ai_opensource, "sei open source").
 intent_cue(ai_opensource, "dove e il tuo codice").
 intent_cue(ai_opensource, "dov'e il tuo codice").
 
+% --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"
+% choice itself is recognized structurally in mod_chitchat, not listed here). ---
+intent_cue(would_rather, "would you rather").
+intent_cue(would_rather, "preferiresti").
+
 % =========================================================================
 % gen214: the LEARNABLE registry — what can be taught at runtime, as DATA.
 %

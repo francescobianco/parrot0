@@ -36,3 +36,8 @@ response_template(ai_not_llm, "No, I'm {name}: a small program written in C, not
 response_template(ai_no_params, "I'm not a neural network, so I have no parameters, training data, or context window. My knowledge is an editable KB.").
 response_template(ai_what_model, "I'm {name}, not a branded model: a from-scratch C experiment that grows generation by generation.").
 response_template(ai_opensource, "I'm {name}, an open experiment: my code is plain C in this repo and my knowledge is human-readable files.").
+
+% --- gen228 (basic-chat cat.86): honest replies to a binary choice (no real preference). ---
+response_template(binary_choice, "Between the two? I don't have a genuine preference - what's drawing you to each?").
+response_template(binary_choice, "I don't really have a preference there. What makes you lean one way?").
+response_template(would_rather, "I'll play along, though I don't have real preferences - what are my two options?").

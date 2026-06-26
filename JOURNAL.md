@@ -1,4 +1,26 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen228: basic-chat cat.86 — binary choice (structural, KB-first)
+
+**Changed.** Closed basic-chat category 86 (Scelte binarie) to 100% (16/16). A
+bare two-option choice ("yes or no", "heads or tails", "beach or mountains") is
+recognized by SHAPE in `mod_chitchat` — `is_binary_choice` accepts a single 'or'
+splitting two short (1-2 word) sides with no leading question word/verb — not a
+phrase list, so it generalizes to any pair. "would you rather" is its own honest
+opener (`intent_cue(would_rather, …)`, EN+IT). Replies are `response_template/2`
+(KB-first): parrot0 answers honestly that it has no genuine preference. Verified
+no-hijack: "is it morning or evening now" / "orange is a fruit or a color" /
+"what is bigger the sun or the moon" are untouched.
+
+**Why.** Recognize the pragmatic act from turn SHAPE, not a vocabulary list
+(PRINCIPLES.md anti-phrasebook); answer-less prompts get an honest self-model
+reply, not a faked pick.
+
+**Observed.** `make test` green. basic-chat coverage 29% -> 31% (290 -> 308/974);
+cat.86 0 -> 16/16, and cat.85 rose 55% -> 66% ("higher or lower" now claimed).
+
+**Next.** basic-chat backlog: obvious-fact acknowledgement (cat.87), physical
+properties (cat.75), differences (cat.90).
+
 ## 2026-06-27 - gen227: basic-chat cat.104 — AI/ML identity (KB-first, EN+IT)
 
 **Changed.** Closed basic-chat category 104 (AI e ML identità) to 100% (14/14)
