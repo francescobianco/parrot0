@@ -120,7 +120,7 @@ wiki_concept(hash_table, computer_science, "data structure that implements an as
 
 % computer_science / Turing machine
 % source: https://en.wikipedia.org/wiki/Turing_machine
-% revision: 1360035381; processed: 2026-06-25T15:19:27Z
+% revision: 1361274431; processed: 2026-06-26T23:43:45Z
 wiki_concept(turing_machine, computer_science, "mathematical model of computation describing an abstract machine that manipulates symbols on a strip of tape...").
 
 % astronomy / Black hole
@@ -1042,3 +1042,12 @@ learning_event_concept(learn_2026_06_26t22_44_29z_hash_table, hash_table).
 learning_event_revision(learn_2026_06_26t22_44_29z_hash_table, rev_1352708183).
 learning_event_markdown(learn_2026_06_26t22_44_29z_hash_table, "kb/learning/pages/hash_table.md").
 learning_event_log(learn_2026_06_26t22_44_29z_hash_table, "kb/learning/logs/learn_2026_06_26t22_44_29z_hash_table.json").
+
+% event learn_2026_06_26t23_43_45z_turing_machine
+learning_event(learn_2026_06_26t23_43_45z_turing_machine, "learned turing_machine: mathematical model of computation describing an abstract machine that manipulates symbols...").
+learning_event_time(learn_2026_06_26t23_43_45z_turing_machine, "2026-06-26T23:43:45Z").
+learning_event_domain(learn_2026_06_26t23_43_45z_turing_machine, computer_science).
+learning_event_concept(learn_2026_06_26t23_43_45z_turing_machine, turing_machine).
+learning_event_revision(learn_2026_06_26t23_43_45z_turing_machine, rev_1361274431).
+learning_event_markdown(learn_2026_06_26t23_43_45z_turing_machine, "kb/learning/pages/turing_machine.md").
+learning_event_log(learn_2026_06_26t23_43_45z_turing_machine, "kb/learning/logs/learn_2026_06_26t23_43_45z_turing_machine.json").

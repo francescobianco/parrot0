@@ -1,11 +1,11 @@
 # Turing machine
 
-- Learning event: `learn_2026_06_25t15_19_27z_turing_machine`
-- Operational log: `kb/learning/logs/learn_2026_06_25t15_19_27z_turing_machine.json`
+- Learning event: `learn_2026_06_26t23_43_45z_turing_machine`
+- Operational log: `kb/learning/logs/learn_2026_06_26t23_43_45z_turing_machine.json`
 - Domain: `computer_science`
 - Source: https://en.wikipedia.org/wiki/Turing_machine
-- Wikipedia revision: `1360035381`
-- Processed: `2026-06-25T15:19:27Z`
+- Wikipedia revision: `1361274431`
+- Processed: `2026-06-26T23:43:45Z`
 
 ## Learned Concept
 
@@ -76,13 +76,14 @@ Following Hopcroft & Ullman (1979), a (one-tape) Turing machine can be formally 
 A variant allows "no shift", say N, as a third element of the set of directions \{L,R\}.
 
 The 7-tuple for the 3-state busy beaver looks like this (see more about this busy beaver at Turing machine examples):
-- Q = \{ \mbox{A}, \mbox{B}, \mbox{C}, \mbox{HALT} \} (states);
-- \Gamma = \{ 0, 1 \} (tape alphabet symbols);
-- b = 0 (blank symbol);
-- \Sigma = \{ 1 \} (input symbols);
-- \delta = see state-table below (transition function).
-- q_0 = \mbox{A} (initial state);
-- F = \{ \mbox{HALT} \} (final states);
+
+- } (states);
+- } (tape alphabet symbols);
+- (blank symbol);
+- } (input symbols);
+- see state-table below (transition function);
+- (initial state);
+- } (final states);
 
 Initially all tape cells are marked with 0.
 
