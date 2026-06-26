@@ -50,7 +50,7 @@ wiki_concept(special_relativity, physics, "In physics, the special theory of rel
 
 % physics / Quantum mechanics
 % source: https://en.wikipedia.org/wiki/Quantum_mechanics
-% revision: 1360718020; processed: 2026-06-24T19:58:02Z
+% revision: 1360718020; processed: 2026-06-26T07:37:43Z
 wiki_concept(quantum_mechanics, physics, "Quantum mechanics, also known as quantum physics, is the fundamental physical theory that describes the behavior of...").
 
 % chemistry / Periodic table
@@ -916,3 +916,12 @@ learning_event_concept(learn_2026_06_26t05_45_01z_special_relativity, special_re
 learning_event_revision(learn_2026_06_26t05_45_01z_special_relativity, rev_1360902546).
 learning_event_markdown(learn_2026_06_26t05_45_01z_special_relativity, "kb/learning/pages/special_relativity.md").
 learning_event_log(learn_2026_06_26t05_45_01z_special_relativity, "kb/learning/logs/learn_2026_06_26t05_45_01z_special_relativity.json").
+
+% event learn_2026_06_26t07_37_43z_quantum_mechanics
+learning_event(learn_2026_06_26t07_37_43z_quantum_mechanics, "learned quantum_mechanics: Quantum mechanics, also known as quantum physics, is the fundamental physical theory...").
+learning_event_time(learn_2026_06_26t07_37_43z_quantum_mechanics, "2026-06-26T07:37:43Z").
+learning_event_domain(learn_2026_06_26t07_37_43z_quantum_mechanics, physics).
+learning_event_concept(learn_2026_06_26t07_37_43z_quantum_mechanics, quantum_mechanics).
+learning_event_revision(learn_2026_06_26t07_37_43z_quantum_mechanics, rev_1360718020).
+learning_event_markdown(learn_2026_06_26t07_37_43z_quantum_mechanics, "kb/learning/pages/quantum_mechanics.md").
+learning_event_log(learn_2026_06_26t07_37_43z_quantum_mechanics, "kb/learning/logs/learn_2026_06_26t07_37_43z_quantum_mechanics.json").

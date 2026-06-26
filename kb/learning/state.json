@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "physics",
-    "event_id": "learn_2026_06_26t05_45_01z_special_relativity",
-    "key": "special_relativity",
-    "log_path": "kb/learning/logs/learn_2026_06_26t05_45_01z_special_relativity.json",
-    "markdown_path": "kb/learning/pages/special_relativity.md",
-    "processed_at": "2026-06-26T05:45:01Z",
-    "prompt": "what do you know about learn_2026_06_26t05_45_01z_special_relativity",
-    "revision": 1360902546,
-    "title": "Special relativity"
+    "event_id": "learn_2026_06_26t07_37_43z_quantum_mechanics",
+    "key": "quantum_mechanics",
+    "log_path": "kb/learning/logs/learn_2026_06_26t07_37_43z_quantum_mechanics.json",
+    "markdown_path": "kb/learning/pages/quantum_mechanics.md",
+    "processed_at": "2026-06-26T07:37:43Z",
+    "prompt": "what do you know about learn_2026_06_26t07_37_43z_quantum_mechanics",
+    "revision": 1360718020,
+    "title": "Quantum mechanics"
   },
-  "next_index": 9
+  "next_index": 10
 }
