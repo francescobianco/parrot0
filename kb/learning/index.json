@@ -1699,6 +1699,23 @@
       "summary": "learned binary_search_algorithm: In computer science, binary search, also known as half-interval search...",
       "title": "Binary search",
       "url": "https://en.wikipedia.org/wiki/Binary_search"
+    },
+    {
+      "concept": "data structure that implements an associative array, also called a dictionary or simply map; an associative array...",
+      "domain": "computer_science",
+      "event_id": "learn_2026_06_26t22_44_29z_hash_table",
+      "key": "hash_table",
+      "log_path": "kb/learning/logs/learn_2026_06_26t22_44_29z_hash_table.json",
+      "markdown_path": "kb/learning/pages/hash_table.md",
+      "processed_at": "2026-06-26T22:44:29Z",
+      "prompt": "what do you know about learn_2026_06_26t22_44_29z_hash_table",
+      "revision": 1352708183,
+      "source_index": 22,
+      "source_line": 42,
+      "source_title": "Hash table",
+      "summary": "learned hash_table: data structure that implements an associative array, also called a dictionary or simply map; an...",
+      "title": "Hash table",
+      "url": "https://en.wikipedia.org/wiki/Hash_table"
     }
   ],
   "pages": {
@@ -1918,10 +1935,10 @@
       "domain": "computer_science",
       "extract_sha256": "457d65c024513c753688529f4fd9665730ee78a5289d853d6c738c2cb3dc5965",
       "key": "hash_table",
-      "last_event_id": "learn_2026_06_25t14_01_28z_hash_table",
+      "last_event_id": "learn_2026_06_26t22_44_29z_hash_table",
       "markdown_path": "kb/learning/pages/hash_table.md",
       "pageid": 13833,
-      "processed_at": "2026-06-25T14:01:28Z",
+      "processed_at": "2026-06-26T22:44:29Z",
       "revision": 1352708183,
       "source_title": "Hash table",
       "title": "Hash table",
