@@ -1,11 +1,11 @@
 # Algorithm
 
-- Learning event: `learn_2026_06_25t12_08_07z_algorithm`
-- Operational log: `kb/learning/logs/learn_2026_06_25t12_08_07z_algorithm.json`
+- Learning event: `learn_2026_06_26t20_53_24z_algorithm`
+- Operational log: `kb/learning/logs/learn_2026_06_26t20_53_24z_algorithm.json`
 - Domain: `computer_science`
 - Source: https://en.wikipedia.org/wiki/Algorithm
 - Wikipedia revision: `1360948503`
-- Processed: `2026-06-25T12:08:07Z`
+- Processed: `2026-06-26T20:53:24Z`
 
 ## Learned Concept
 
