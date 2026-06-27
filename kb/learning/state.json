@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "mathematics",
-    "event_id": "learn_2026_06_27t10_58_45z_logarithm",
-    "key": "logarithm",
-    "log_path": "kb/learning/logs/learn_2026_06_27t10_58_45z_logarithm.json",
-    "markdown_path": "kb/learning/pages/logarithm.md",
-    "processed_at": "2026-06-27T10:58:45Z",
-    "prompt": "what do you know about learn_2026_06_27t10_58_45z_logarithm",
-    "revision": 1354833929,
-    "title": "Logarithm"
+    "domain": "physics",
+    "event_id": "learn_2026_06_27t11_48_29z_newtons_laws_of_motion",
+    "key": "newtons_laws_of_motion",
+    "log_path": "kb/learning/logs/learn_2026_06_27t11_48_29z_newtons_laws_of_motion.json",
+    "markdown_path": "kb/learning/pages/newtons_laws_of_motion.md",
+    "processed_at": "2026-06-27T11:48:29Z",
+    "prompt": "what do you know about learn_2026_06_27t11_48_29z_newtons_laws_of_motion",
+    "revision": 1353646690,
+    "title": "Newton's laws of motion"
   },
-  "next_index": 5
+  "next_index": 6
 }
