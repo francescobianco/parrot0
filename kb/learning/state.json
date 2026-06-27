@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "physics",
-    "event_id": "learn_2026_06_27t11_48_29z_newtons_laws_of_motion",
-    "key": "newtons_laws_of_motion",
-    "log_path": "kb/learning/logs/learn_2026_06_27t11_48_29z_newtons_laws_of_motion.json",
-    "markdown_path": "kb/learning/pages/newtons_laws_of_motion.md",
-    "processed_at": "2026-06-27T11:48:29Z",
-    "prompt": "what do you know about learn_2026_06_27t11_48_29z_newtons_laws_of_motion",
-    "revision": 1353646690,
-    "title": "Newton's laws of motion"
+    "event_id": "learn_2026_06_27t12_47_43z_entropy",
+    "key": "entropy",
+    "log_path": "kb/learning/logs/learn_2026_06_27t12_47_43z_entropy.json",
+    "markdown_path": "kb/learning/pages/entropy.md",
+    "processed_at": "2026-06-27T12:47:43Z",
+    "prompt": "what do you know about learn_2026_06_27t12_47_43z_entropy",
+    "revision": 1361126134,
+    "title": "Entropy"
   },
-  "next_index": 6
+  "next_index": 7
 }
