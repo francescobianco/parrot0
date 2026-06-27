@@ -510,6 +510,15 @@ appearance(rainbow, "a wide arc of colour -- red, orange, yellow, green, blue, a
 appearance(ocean, "a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves").
 appearance(snow, "soft white flakes that settle into a smooth, bright blanket covering everything in quiet").
 appearance(forest, "tall trees crowded together, green light filtering through the leaves onto a floor of moss and fallen branches").
+% gen240: colours, so "describe blue to someone who has never seen it" works.
+appearance(blue, "a cool, calm colour -- the shade of a clear daytime sky and of deep, still water").
+appearance(red, "a warm, intense colour -- the shade of fire, of ripe strawberries, and of blood").
+appearance(green, "a fresh, restful colour -- the shade of grass and of new spring leaves").
+appearance(yellow, "a bright, cheerful colour -- the shade of the midday sun and of ripe lemons").
+appearance(orange, "a warm, glowing colour between red and yellow -- the shade of a sunset and of its namesake fruit").
+appearance(purple, "a deep, rich colour between blue and red -- the shade of plums and of twilight").
+appearance(black, "the absence of light -- the darkness of a moonless night").
+appearance(white, "the presence of all colours of light together -- the brightness of fresh snow").
 
 response_template(joke_chicken, "To get to the other side.").
 
@@ -595,6 +604,24 @@ haiku_close(spring, "everything begins").
 haiku_open(winter, "The world holds its breath").
 haiku_mid(winter, "bare trees against a grey sky").
 haiku_close(winter, "waiting for the thaw").
+haiku_open(silence, "After the last word").
+haiku_mid(silence, "the room settles into hush").
+haiku_close(silence, "even time slows down").
+haiku_open(love, "Two hands find each other").
+haiku_mid(love, "the whole noisy world goes quiet").
+haiku_close(love, "no need left to speak").
+haiku_open(time, "The river of hours").
+haiku_mid(time, "carries each moment downstream").
+haiku_close(time, "none of them return").
+haiku_open(home, "A light in the window").
+haiku_mid(home, "the long road finally ends").
+haiku_close(home, "the door knows your name").
+haiku_open(dream, "Sleep opens a door").
+haiku_mid(dream, "strange rivers run through the dark").
+haiku_close(dream, "dawn erases them").
+haiku_open(hope, "A small green shoot waits").
+haiku_mid(hope, "under the last of the snow").
+haiku_close(hope, "sure of the warm sun").
 
 gender_es(gato, m).
 gender_es(perro, m).

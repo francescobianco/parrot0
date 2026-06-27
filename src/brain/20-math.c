@@ -955,7 +955,17 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
         }
         if (geo) { nextv = seq[ns - 1] * r; ok = 1; }
     }
-    if (!ok) return 0;   /* no simple arithmetic/geometric rule: decline honestly */
+    /* gen240: second-order arithmetic (constant SECOND difference), e.g.
+     * 2,6,12,20,30 (diffs 4,6,8,10) -> next diff 12 -> 42. Needs >=4 terms. */
+    if (!ok && ns >= 4) {
+        double dd = (seq[2] - seq[1]) - (seq[1] - seq[0]); int quad = 1;
+        for (size_t i = 3; i < ns; i++) {
+            double e = ((seq[i] - seq[i - 1]) - (seq[i - 1] - seq[i - 2])) - dd;
+            if (e > EPS || e < -EPS) { quad = 0; break; }
+        }
+        if (quad) { nextv = seq[ns - 1] + (seq[ns - 1] - seq[ns - 2]) + dd; ok = 1; }
+    }
+    if (!ok) return 0;   /* no simple rule: decline honestly */
 
     if (letters) {
         long pos = (long)(nextv + 0.5);

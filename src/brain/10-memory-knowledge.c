@@ -1072,6 +1072,38 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen240 (LLMSCORE): the race-overtaking trick. If you pass the runner in Nth
+     * place you TAKE their position — you are now Nth (not (N-1)th). A general rule
+     * over the ordinal, not a memorized answer. */
+    if ((cue(norm, "pass") || cue(norm, "overtake") || cue(norm, "overtook") ||
+         cue(norm, "passed")) &&
+        (cue(norm, "place") || cue(norm, "position")) &&
+        (cue(norm, "what position") || cue(norm, "which position") ||
+         cue(norm, "what place") || cue(norm, "which place") || cue(norm, "now in"))) {
+        static const char *ord[] = { "first","second","third","fourth","fifth",
+            "sixth","seventh","eighth","ninth","tenth","last", NULL };
+        char rb[256]; snprintf(rb, sizeof rb, "%s", norm);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        const char *got = NULL;
+        for (size_t i = 0; i < rn; i++) {
+            char *t = strip_edge_punct(rw[i]);
+            /* the ordinal that sits just before "place"/"position" is the one passed */
+            if ((!strcmp(t, "place") || !strcmp(t, "position")) && i > 0) {
+                char *p = strip_edge_punct(rw[i - 1]);
+                for (size_t k = 0; ord[k]; k++) if (!strcmp(p, ord[k])) { got = ord[k]; break; }
+            }
+        }
+        if (got && strcmp(got, "first") != 0 && strcmp(got, "last") != 0) {
+            char msg[160];
+            snprintf(msg, sizeof msg,
+                     "You're now in %s place -- you take the spot of the runner you "
+                     "passed, not the one ahead of them.", got);
+            put(msg, out, out_size);
+            store_proof(b, "Overtaking the Nth runner puts you in Nth place.");
+            return 1;
+        }
+    }
+
     /* gen240 (LLMSCORE): the existential syllogism (Darii). From "some A are B"
      * and "every/all B <pred>" conclude "Some A <pred>." — a real deduction over
      * the parsed premises (docs/plans/kb-first.md: a sentence with a logical soul
@@ -1151,8 +1183,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (rl >= 2 && r[0] == '"' && r[rl - 1] == '"') { r[rl - 1] = '\0'; r++; }
                     char msg[400];
                     snprintf(msg, sizeof msg,
-                             "I don't actually see or experience things, but here is "
-                             "what a %s is like: %s.", cand[c], r);
+                             "I don't actually see or experience things, but I can "
+                             "describe it: %s.", r);
                     put(msg, out, out_size);
                     return 1;
                 }

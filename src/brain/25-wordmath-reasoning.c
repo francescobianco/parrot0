@@ -219,6 +219,44 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
           cue(q, "number of") || cue(q, "arrangement")))
         return 0;
 
+    /* gen240 (LLMSCORE): the bat-and-ball trap. "A and B cost T total; A costs D
+     * more than B; how much is B?" The intuitive T-D is WRONG; the algebra is
+     * B = (T - D)/2 (since A = B + D and A + B = T). Guarded on "more than" + a
+     * total, so it only fires on this shape. */
+    if (cue(q, "more than") && (cue(q, "total") || cue(q, "cost") || cue(q, "altogether"))) {
+        char bb[256]; snprintf(bb, sizeof bb, "%s", q);
+        char *bw[64]; size_t bn = split_words(bb, bw, 64);
+        double total = -1, diff = -1;
+        for (size_t i = 0; i < bn; i++) {
+            double v;
+            if (!parse_value(strip_edge_punct(bw[i]), &v)) continue;
+            for (size_t j = i + 1; j <= i + 2 && j < bn; j++) {
+                char *nx = strip_edge_punct(bw[j]);
+                if (!strcmp(nx, "total") || !strcmp(nx, "altogether")) total = v;
+                if (!strcmp(nx, "more")) diff = v;
+            }
+        }
+        /* fallbacks: the largest number is the total; the diff sits before "more" */
+        if (total < 0 || diff < 0) {
+            double nums2[16]; size_t k = collect_numbers(bw, bn, nums2, 16);
+            if (k >= 2) {
+                if (total < 0) { total = nums2[0]; for (size_t i=1;i<k;i++) if (nums2[i]>total) total=nums2[i]; }
+                if (diff < 0) for (size_t i=0;i<k;i++) if (nums2[i] != total) { diff = nums2[i]; break; }
+            }
+        }
+        if (total > 0 && diff >= 0 && diff < total) {
+            double ball = (total - diff) / 2.0;
+            char num[64]; format_num(ball, num, sizeof num);
+            char msg[160];
+            snprintf(msg, sizeof msg,
+                     "$%s. (Not $%g: if one costs $%g more, the cheaper is (%g-%g)/2.)",
+                     num, total - diff, diff, total, diff);
+            put(msg, out, out_size);
+            store_proof(b, "Bat-and-ball: cheaper = (total - difference)/2, not total - difference.");
+            return 1;
+        }
+    }
+
     /* gen240 (LLMSCORE): rate-with-remainder buy problem. "N for $M ... have $K"
      * -> floor(K/M) packs = floor(K/M)*N items, with (K mod M) money left over.
      * General over the three numbers; reports both the count and the change. */
