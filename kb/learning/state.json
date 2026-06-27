@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "biology",
-    "event_id": "learn_2026_06_27t19_48_35z_cell_biology",
-    "key": "cell_biology",
-    "log_path": "kb/learning/logs/learn_2026_06_27t19_48_35z_cell_biology.json",
-    "markdown_path": "kb/learning/pages/cell_biology.md",
-    "processed_at": "2026-06-27T19:48:35Z",
-    "prompt": "what do you know about learn_2026_06_27t19_48_35z_cell_biology",
-    "revision": 1360756328,
-    "title": "Cell (biology)"
+    "event_id": "learn_2026_06_27t20_40_37z_dna",
+    "key": "dna",
+    "log_path": "kb/learning/logs/learn_2026_06_27t20_40_37z_dna.json",
+    "markdown_path": "kb/learning/pages/dna.md",
+    "processed_at": "2026-06-27T20:40:37Z",
+    "prompt": "what do you know about learn_2026_06_27t20_40_37z_dna",
+    "revision": 1360900543,
+    "title": "DNA"
   },
-  "next_index": 14
+  "next_index": 15
 }

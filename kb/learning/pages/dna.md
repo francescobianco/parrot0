@@ -1,11 +1,11 @@
 # DNA
 
-- Learning event: `learn_2026_06_26t15_13_15z_dna`
-- Operational log: `kb/learning/logs/learn_2026_06_26t15_13_15z_dna.json`
+- Learning event: `learn_2026_06_27t20_40_37z_dna`
+- Operational log: `kb/learning/logs/learn_2026_06_27t20_40_37z_dna.json`
 - Domain: `biology`
 - Source: https://en.wikipedia.org/wiki/DNA
 - Wikipedia revision: `1360900543`
-- Processed: `2026-06-26T15:13:15Z`
+- Processed: `2026-06-27T20:40:37Z`
 
 ## Learned Concept
 
