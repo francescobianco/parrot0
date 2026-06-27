@@ -15,15 +15,15 @@
 # Now the meta-question. The trace is REAL: memory/meta/role/self genuinely ran
 # and declined this turn before fewshot claimed it; the rest were never consulted.
 > why did you answer that way?
-< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.
+< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, count, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.
 
 # Asking again does NOT change the answer: the introspective turn does not
 # overwrite the trace it reports (it reasons about the decision, not its own lookup).
 > why did you answer that way?
-< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.
+< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, count, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.
 
 # The fallback case is explained just as honestly: every module looked and declined.
 > xyzzy plugh
 < I don't understand that yet.
 > why did you answer that way?
-< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, codeast, code, symbolic, summary, discourse, pragma, social, chitchat, research each looked and declined, and nothing else claimed it, so I fell back to an honest "I don't understand."
+< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, count, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, fewshot, compare, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, knowledge, codeast, code, symbolic, summary, discourse, pragma, social, chitchat, research each looked and declined, and nothing else claimed it, so I fell back to an honest "I don't understand."

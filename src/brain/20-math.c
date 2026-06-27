@@ -741,3 +741,77 @@ static size_t plan_learn_list(Brain *b, const char *goal, char **w,
     return learned;
 }
 
+/* gen229 (LLMSCORE behavioural resemblance): counting as a genuine CAPABILITY,
+ * never a stored phrasebook. An LLM trivially "counts to five"; parrot0 should
+ * too, structurally — read a target (and optional start) as a digit or a small
+ * number-word and GENERATE the sequence "1, 2, 3, 4, 5.". Honest and bounded
+ * (the engine computes it; nothing is recited). EN+IT cues. This is the same
+ * kind of honest competence as mod_arith's "2 plus 2", not an identity claim. */
+static int word_to_int(const char *s, long *out) {
+    if (*s && (isdigit((unsigned char)*s) ||
+               ((*s == '-' || *s == '+') && isdigit((unsigned char)s[1])))) {
+        char *end; long v = strtol(s, &end, 10);
+        if (*end == '\0') { *out = v; return 1; }
+        return 0;
+    }
+    static const struct { const char *w; long n; } NW[] = {
+        {"zero",0},{"one",1},{"two",2},{"three",3},{"four",4},{"five",5},
+        {"six",6},{"seven",7},{"eight",8},{"nine",9},{"ten",10},{"eleven",11},
+        {"twelve",12},{"thirteen",13},{"fourteen",14},{"fifteen",15},
+        {"sixteen",16},{"seventeen",17},{"eighteen",18},{"nineteen",19},
+        {"twenty",20},{"thirty",30},{"forty",40},{"fifty",50},{"sixty",60},
+        {"seventy",70},{"eighty",80},{"ninety",90},{"hundred",100},
+        {"uno",1},{"due",2},{"tre",3},{"quattro",4},{"cinque",5},{"sei",6},
+        {"sette",7},{"otto",8},{"nove",9},{"dieci",10},{"venti",20},{"cento",100},
+        {NULL,0}
+    };
+    for (size_t i = 0; NW[i].w; i++)
+        if (!strcmp(s, NW[i].w)) { *out = NW[i].n; return 1; }
+    return 0;
+}
+
+static int mod_count(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)raw; (void)b;
+    const char *buf = norm;
+    int has_cue = cue(buf, "count to") || cue(buf, "count up to") ||
+                  cue(buf, "count from") || cue(buf, "count down") ||
+                  cue(buf, "counting to") || cue(buf, "conta fino") ||
+                  cue(buf, "conta da") || cue(buf, "conta fino a");
+    if (!has_cue) return 0;
+    int descending = cue(buf, "count down") || cue(buf, "backwards") ||
+                     cue(buf, "backward") || cue(buf, "all'indietro") ||
+                     cue(buf, "all indietro");
+
+    char tmp[512]; snprintf(tmp, sizeof tmp, "%s", buf);
+    long nums[8]; size_t nn = 0; char *save = NULL;
+    for (char *t = strtok_r(tmp, " \t,.;:!?", &save);
+         t && nn < 8; t = strtok_r(NULL, " \t,.;:!?", &save)) {
+        long v; if (word_to_int(t, &v)) nums[nn++] = v;
+    }
+    if (nn == 0) return 0;  /* a count cue with no number is not ours */
+
+    long start, end;
+    if (nn >= 2)        { start = nums[0]; end = nums[1]; }
+    else if (descending){ start = nums[0]; end = 1; }   /* "count down from 5" */
+    else                { start = 1;       end = nums[0]; }
+
+    long span = start <= end ? end - start : start - end;
+    if (span > 99) {
+        put("That's a long way to count. Give me a smaller range and I'll list it.",
+            out, out_size);
+        return 1;
+    }
+    char line[1024]; size_t pos = 0; line[0] = '\0';
+    long step = (start <= end) ? 1 : -1;
+    for (long v = start; ; v += step) {
+        int w = snprintf(line + pos, sizeof line - pos, "%ld%s",
+                         v, (v == end) ? "." : ", ");
+        if (w < 0 || (size_t)w >= sizeof line - pos) break;
+        pos += (size_t)w;
+        if (v == end) break;
+    }
+    put(line, out, out_size);
+    return 1;
+}
+

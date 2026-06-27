@@ -147,6 +147,16 @@ chat-sim: build
 sym-bench: build
 	@$(BENCH_PY) ./tests/symbench.py
 
+# An LLM interviews parrot0 to decide whether parrot0 is itself an LLM. The judge
+# (default minimax-m2.5 on opencode-GO — a small model) asks 10 probing questions, scores
+# each answer 1 (consistent with being an LLM) or 0 (evidently NOT an LLM). Writes
+# LLMSCORE.md (question/answer/reason/vote grid + total /10) at the repo root. An
+# HONEST mirror, not a target to game (no-deception): a low score is expected, since
+# parrot0 has no LLM at runtime. Same provider/auth as chat-sim ($OPENCODE_API_KEY);
+# external + non-deterministic, NOT part of `make test`.
+llmscore: build
+	@$(BENCH_PY) ./tests/llmscore.py
+
 test: build
 	@./tests/run.sh
 	@./tests/persist.sh

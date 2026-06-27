@@ -1,4 +1,31 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen229: LLMSCORE harness + behavioural-resemblance capability
+
+**Changed.** New `make llmscore` (`tests/llmscore.py`): a small opencode-GO model
+(default `minimax-m2.5`) interviews parrot0 with 10 questions and scores each answer
+1/0 by whether it BEHAVES like an LLM, writing `LLMSCORE.md` (question / answer /
+reason / vote + total). Two evolutions toward the 0s, both honest and KB-first:
+(1) **counting** as a genuine capability — `mod_count` (registered after `mod_input`)
+reads a target (and optional start) as a digit or small number-word (EN+IT) and
+GENERATES the sequence "1, 2, 3, 4, 5."; bounded to 100; ascending/descending/ranges.
+(2) **behavioural self-model** — `self_embodiment` family (`intent_cue`+`response_template`,
+EN+IT) answers "what did you have for breakfast / do you sleep" the same honest way an
+LLM does ("I don't eat or sleep — I have no body"), engaging instead of walling.
+
+**Crucial design steer (F.).** Self-identity questions are FORBIDDEN in LLMSCORE:
+asking "are you an LLM/AI/bot/computer" forces either a lie or a disqualifying self-
+reveal and measures nothing about resemblance. The interviewer prompt now bans them
+and probes only ABILITY; the judge scores behaviour, not identity. So every point must
+be won by real competence, never by hiding that parrot0 is a C program (no-deception).
+
+**Measured (honest).** First clean run after the fix: **1/10** — non-deterministic, and
+this run never probed counting/embodiment; it instead surfaced real gaps: a word problem
+"3 apples +2 -1" returned 6 (added instead of subtracted), and "what is 7 plus 5"
+misrouted to a knowledge template ("I don't know what your what is called") though
+"What is 2 plus 2?" answered "4." last run. These are genuine next edges, not regressions
+— the harness doing its job. `make test` stays green (209+ goldens; the introspection
+goldens were updated to include `count` in the pinned module list).
+
 ## 2026-06-27 - gen228: basic-chat cat.86 — binary choice (structural, KB-first)
 
 **Changed.** Closed basic-chat category 86 (Scelte binarie) to 100% (16/16). A

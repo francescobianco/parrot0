@@ -130,7 +130,12 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
      * (KB-first, EN+IT); {name} is filled from i_am. */
     {
         static const char *const ai[] = {
-            "ai_not_llm", "ai_no_params", "ai_what_model", "ai_opensource", NULL };
+            "ai_not_llm", "ai_no_params", "ai_what_model", "ai_opensource",
+            /* gen229: behavioural self-model — embodiment/daily-life probes
+             * ("what did you have for breakfast", "do you sleep"). Answered the
+             * same honest way an LLM does ("I don't eat or sleep"); it states a
+             * truth, makes no identity claim, and engages instead of walling. */
+            "self_embodiment", NULL };
         for (size_t i = 0; ai[i]; i++) {
             if (kb_cue_match(b, ai[i], buf)) {
                 const char *var[] = {NULL};

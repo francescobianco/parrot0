@@ -111,6 +111,28 @@ intent_cue(ai_opensource, "sei open source").
 intent_cue(ai_opensource, "dove e il tuo codice").
 intent_cue(ai_opensource, "dov'e il tuo codice").
 
+% --- gen229 (LLMSCORE behavioural resemblance): embodiment / daily-life probes.
+% NOT identity questions (those are off-limits in LLMSCORE); these ask about a
+% BODY parrot0 doesn't have, and the honest reply ("I don't eat or sleep") is the
+% same one an LLM gives. Engages instead of walling; states a truth, claims no
+% identity. Cues anchored on eating/sleeping/tiredness so they don't over-fire. ---
+intent_cue(self_embodiment, "for breakfast").
+intent_cue(self_embodiment, "for lunch").
+intent_cue(self_embodiment, "for dinner").
+intent_cue(self_embodiment, "did you eat").
+intent_cue(self_embodiment, "do you eat").
+intent_cue(self_embodiment, "what do you eat").
+intent_cue(self_embodiment, "are you hungry").
+intent_cue(self_embodiment, "did you sleep").
+intent_cue(self_embodiment, "do you sleep").
+intent_cue(self_embodiment, "are you tired").
+intent_cue(self_embodiment, "do you dream").
+intent_cue(self_embodiment, "per colazione").
+intent_cue(self_embodiment, "cosa hai mangiato").
+intent_cue(self_embodiment, "cosa mangi").
+intent_cue(self_embodiment, "hai dormito").
+intent_cue(self_embodiment, "sei stanco").
+
 % --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"
 % choice itself is recognized structurally in mod_chitchat, not listed here). ---
 intent_cue(would_rather, "would you rather").

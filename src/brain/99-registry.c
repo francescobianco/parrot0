@@ -126,6 +126,7 @@ static const Module registry[] = {
     {"compose",   mod_compose},
     {"repair",    mod_repair},
     {"input",     mod_input},
+    {"count",     mod_count},
     {"world",     mod_world},
     {"translate", mod_translate},
     {"synth",     mod_synth},
@@ -472,7 +473,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen228-binary-choice";
+    return "gen229-llmscore-behaviour";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
