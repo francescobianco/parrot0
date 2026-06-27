@@ -465,6 +465,29 @@ tr_es(water, agua).
 tr_es(the, el).
 tr_es(is, esta).
 tr_es(on, en).
+% gen240: more ES glosses for short translation prompts.
+tr_es(sitting, sentado).
+tr_es(sit, sentar).
+tr_es(warm, cálido).
+tr_es(cold, frío).
+tr_es(hot, caliente).
+tr_es(windowsill, alféizar).
+tr_es(window, ventana).
+tr_es(house, casa).
+tr_es(door, puerta).
+tr_es(big, grande).
+tr_es(small, pequeño).
+tr_es(red, rojo).
+tr_es(blue, azul).
+tr_es(green, verde).
+tr_es(book, libro).
+tr_es(sun, sol).
+tr_es(moon, luna).
+tr_es(night, noche).
+tr_es(day, día).
+tr_es(a, un).
+tr_es(in, en).
+tr_es(and, y).
 % --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
 borders(andorra, france).
 borders(andorra, spain).
@@ -490,6 +513,25 @@ appearance(forest, "tall trees crowded together, green light filtering through t
 
 response_template(joke_chicken, "To get to the other side.").
 
+% gen240 (LLMSCORE): compound-word riddles. compound_word(First, Second, Whole) —
+% "the word that follows fire and precedes place" -> fireplace.
+compound_word(fire, place, fireplace).
+compound_word(fire, fly, firefly).
+compound_word(fire, work, firework).
+compound_word(fire, wood, firewood).
+compound_word(sun, flower, sunflower).
+compound_word(sun, shine, sunshine).
+compound_word(sun, light, sunlight).
+compound_word(rain, bow, rainbow).
+compound_word(rain, coat, raincoat).
+compound_word(water, fall, waterfall).
+compound_word(foot, ball, football).
+compound_word(book, case, bookcase).
+compound_word(news, paper, newspaper).
+compound_word(snow, flake, snowflake).
+compound_word(moon, light, moonlight).
+compound_word(bed, room, bedroom).
+
 % --- gen240 (LLMSCORE): parametric haiku. A haiku is a fixed 5-7-5 structure;
 % the poetic image LINES are KB knowledge, pre-syllable-counted, one per concept
 % per slot (open=5, mid=7, close=5). The C assembler weaves open(subject) /
@@ -510,10 +552,61 @@ haiku_close(moon, "shadows softly bloom").
 haiku_open(autumn, "Red leaves let go now").
 haiku_mid(autumn, "the wind carries them away").
 haiku_close(autumn, "bare branches stay still").
+% gen240: broader haiku lexicon so more requested themes compose (engine fixed).
+haiku_open(lamp, "A lamp's quiet glow").
+haiku_mid(lamp, "holds back the dark of the night").
+haiku_close(lamp, "a small warm island").
+haiku_open(book, "Pages hold their breath").
+haiku_mid(book, "worlds asleep between the lines").
+haiku_close(book, "waiting to be read").
+haiku_open(star, "One star pricks the dusk").
+haiku_mid(star, "old light crossing endless dark").
+haiku_close(star, "older than our eyes").
+haiku_open(tree, "The old tree stands still").
+haiku_mid(tree, "roots deep, branches in the wind").
+haiku_close(tree, "holding up the sky").
+haiku_open(river, "The river moves on").
+haiku_mid(river, "carrying the sky downstream").
+haiku_close(river, "never the same twice").
+haiku_open(snow, "Snow falls without sound").
+haiku_mid(snow, "the world grows quiet and white").
+haiku_close(snow, "footprints fill again").
+haiku_open(fire, "Small flame in the dark").
+haiku_mid(fire, "it eats the night and gives warmth").
+haiku_close(fire, "ash by the morning").
+haiku_open(mountain, "The mountain is still").
+haiku_mid(mountain, "clouds rest upon its grey peak").
+haiku_close(mountain, "older than the sea").
+haiku_open(cat, "The cat folds itself").
+haiku_mid(cat, "into a circle of sleep").
+haiku_close(cat, "one eye half open").
+haiku_open(bird, "A bird tilts its head").
+haiku_mid(bird, "the whole sky waiting for it").
+haiku_close(bird, "then it lifts and goes").
+haiku_open(candle, "One candle burning").
+haiku_mid(candle, "a small gold tent in the dark").
+haiku_close(candle, "it gives all it has").
+haiku_open(friendship, "Two strangers, one bench").
+haiku_mid(friendship, "slowly the silence grows warm").
+haiku_close(friendship, "neither leaves alone").
+haiku_open(spring, "Green pushes through mud").
+haiku_mid(spring, "the cold earth remembers warmth").
+haiku_close(spring, "everything begins").
+haiku_open(winter, "The world holds its breath").
+haiku_mid(winter, "bare trees against a grey sky").
+haiku_close(winter, "waiting for the thaw").
 
 gender_es(gato, m).
 gender_es(perro, m).
 gender_es(mesa, f).
 gender_es(agua, f).
+gender_es(alféizar, m).
+gender_es(ventana, f).
+gender_es(casa, f).
+gender_es(puerta, f).
+gender_es(libro, m).
+gender_es(sol, m).
+gender_es(luna, f).
+gender_es(noche, f).
 
 

@@ -57,7 +57,17 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                 if (!piece[0]) {
                     char es[1][KB_TERM_LEN];
                     const char *q[] = { tok, NULL };
-                    if (kb_match(b->kb, "tr_es", q, 2, es, 1) != 1) return 0;
+                    if (kb_match(b->kb, "tr_es", q, 2, es, 1) != 1) {
+                        /* gen240: honest decline that NAMES the gap (like the IT path)
+                         * and claims the turn, so the request isn't met with a worse
+                         * generic deflection downstream. */
+                        char msg[160];
+                        snprintf(msg, sizeof msg,
+                                 "I can translate most of it, but I don't know the "
+                                 "Spanish for \"%s\".", tok);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
                     snprintf(piece, sizeof piece, "%s", es[0]);
                 }
                 size_t pl = strlen(piece);

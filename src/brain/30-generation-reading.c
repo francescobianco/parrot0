@@ -80,6 +80,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
+        /* gen240: a haiku was asked but no theme has images — CLAIM the turn with an
+         * honest decline (the "Genera" ceiling) so a downstream module can't answer
+         * a creative request with a dismissive deflection. */
+        put("I can only write a haiku on a theme I have images for — like the ocean, "
+            "rain, the moon, snow, a tree, a candle, or a robot. Pick one of those?",
+            out, out_size);
+        return 1;
     }
     if (cue(norm, "chicken cross the road")) {
         if (kb_response(b, "joke_chicken", NULL, out, out_size)) return 1;

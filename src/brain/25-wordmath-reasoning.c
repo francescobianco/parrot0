@@ -157,6 +157,62 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen240 (LLMSCORE): "which train reaches the MIDPOINT first?" Each train must
+     * cover half the total distance from its own end. Arrival = departure_time +
+     * (distance/2)/speed; the smaller arrival wins. Tightly guarded: needs the
+     * "midpoint" cue plus two speeds (mph) and two clock times (am/pm) and a
+     * distance, so it never guesses an operation. */
+    if (cue(q, "midpoint") && (cue(q, "mph") || cue(q, "km/h"))) {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", q);
+        char *mw[64]; size_t mnw = split_words(mb, mw, 64);
+        double speed[2], tstart[2], dist = -1; int ns = 0, nt = 0;
+        char city[2][KB_TERM_LEN] = {{0},{0}}; int ncity = 0;
+        for (size_t i = 0; i < mnw; i++) {
+            char *t = strip_edge_punct(mw[i]); double v;
+            if (parse_value(t, &v)) {
+                char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
+                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
+                    if (!strcmp(nx, "pm") && v < 12) v += 12;
+                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                    tstart[nt++] = v;
+                } else if (!strcmp(nx, "miles") || !strcmp(nx, "km")) dist = v;
+            }
+            /* capture the two departure cities (word after "leaves"/"from"), with a
+             * one-word lookahead for "New York"/"Los Angeles"-style names. */
+            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < mnw && ncity < 2) {
+                char *c1 = strip_edge_punct(mw[i + 1]);
+                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
+                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                    char *c2 = (i + 2 < mnw) ? strip_edge_punct(mw[i + 2]) : (char *)"";
+                    snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
+                } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
+                ncity++;
+            }
+        }
+        if (ns == 2 && nt == 2 && dist > 0) {
+            double mid = dist / 2.0;
+            double arr0 = tstart[0] + mid / speed[0];
+            double arr1 = tstart[1] + mid / speed[1];
+            int first = (arr0 <= arr1) ? 0 : 1;
+            char who[80];
+            if (ncity == 2 && city[first][0]) {
+                char cn[KB_TERM_LEN]; snprintf(cn, sizeof cn, "%s", city[first]);
+                if (cn[0]) cn[0] = (char)toupper((unsigned char)cn[0]);
+                for (char *p = cn; *p; p++)        /* capitalize each word ("New York") */
+                    if (p > cn && p[-1] == ' ') *p = (char)toupper((unsigned char)*p);
+                snprintf(who, sizeof who, "The train from %s", cn);
+            } else snprintf(who, sizeof who, "%s train", first == 0 ? "The first" : "The second");
+            char msg[200];
+            snprintf(msg, sizeof msg,
+                     "%s reaches the midpoint first (each must cover %g miles; "
+                     "it gets there sooner).", who, mid);
+            put(msg, out, out_size);
+            store_proof(b, "Midpoint arrival = departure + (distance/2)/speed; smaller wins.");
+            return 1;
+        }
+    }
+
     /* question guard: only attempt on an explicit "how many / how much / quanti…"
      * or a count phrasing ("maximum number of", "number of", "arrangements"). */
     if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant") ||

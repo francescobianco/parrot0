@@ -416,7 +416,7 @@ static int is_internal_pred(const char *pred) {
         "paint_mix",
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
         "quantity", "landmark_of", "planet_superlative", /* gen240 */
-        "synonym", "default_color", "appearance",
+        "synonym", "default_color", "appearance", "compound_word",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

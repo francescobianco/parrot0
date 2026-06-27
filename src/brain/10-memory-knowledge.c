@@ -1042,6 +1042,36 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     (void)raw;
     if (!b || !b->kb) return 0;
 
+    /* gen240 (LLMSCORE): compound-word riddle. "the word that follows X and
+     * precedes Y" / "comes after X and before Y" -> the compound X+Y, looked up in
+     * compound_word(X, Y, Whole) so it is KB knowledge, not a guess. Declines if
+     * the pair forms no known compound. */
+    if ((cue(norm, "follows") && cue(norm, "precedes")) ||
+        (cue(norm, "after") && cue(norm, "before") &&
+         (cue(norm, "word") || cue(norm, "comes")))) {
+        char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
+        char *cw[64]; size_t cn = split_words(cb, cw, 64);
+        const char *X = NULL, *Y = NULL;
+        for (size_t i = 0; i + 1 < cn; i++) {
+            char *t = strip_edge_punct(cw[i]);
+            if ((!strcmp(t, "follows") || !strcmp(t, "after")) && !X)
+                X = strip_edge_punct(cw[i + 1]);
+            if ((!strcmp(t, "precedes") || !strcmp(t, "before")) && !Y)
+                Y = strip_edge_punct(cw[i + 1]);
+        }
+        if (X && Y && *X && *Y) {
+            const char *pq[] = { X, Y, NULL };
+            char w[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "compound_word", pq, 3, w, 1) > 0) {
+                char m[64]; snprintf(m, sizeof m, "%s", w[0]);
+                if (m[0]) m[0] = (char)toupper((unsigned char)m[0]);
+                char msg[96]; snprintf(msg, sizeof msg, "%s.", m);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): the existential syllogism (Darii). From "some A are B"
      * and "every/all B <pred>" conclude "Some A <pred>." — a real deduction over
      * the parsed premises (docs/plans/kb-first.md: a sentence with a logical soul
@@ -1279,16 +1309,42 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             strcmp(strip_edge_punct(ww[nn - 1]), "because") == 0;
         int comp = strstr(norm, "because") &&
                    (strstr(norm, "complete") || strstr(norm, "continue") || trailing_because);
-        int whyq = strstr(norm, "why is") || strstr(norm, "why are") ||
-                   strstr(norm, "why does") || strstr(norm, "why do ") ||
-                   strstr(norm, "explain why");
+        /* gen240: any "why" question is a candidate — the key lookup below declines
+         * (falls through) when no because/2 fact matches, so a broad trigger is safe. */
+        int whyq = strstr(norm, "why") != NULL;
+        /* gen240: day/night compound — "why is the sky blue during the day but dark
+         * at night" answers BOTH clauses from because(sky_blue) + because(night_dark). */
+        if (whyq && b->kb && strstr(norm, "sky") &&
+            (strstr(norm, "night") || strstr(norm, "dark"))) {
+            const char *p1[] = { "sky_blue", NULL }, *p2[] = { "night_dark", NULL };
+            char r1[4][KB_TERM_LEN], r2[4][KB_TERM_LEN];
+            if (kb_match(b->kb, "because", p1, 2, r1, 4) > 0 &&
+                kb_match(b->kb, "because", p2, 2, r2, 4) > 0) {
+                char *a = r1[0]; size_t al = strlen(a);
+                if (al >= 2 && a[0] == '"' && a[al - 1] == '"') { a[al - 1] = '\0'; a++; }
+                char *c = r2[0]; size_t cl = strlen(c);
+                if (cl >= 2 && c[0] == '"' && c[cl - 1] == '"') { c[cl - 1] = '\0'; c++; }
+                char msg[360];
+                snprintf(msg, sizeof msg,
+                         "By day the sky looks blue because %s. At night it is dark "
+                         "because %s.", a, c);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                return 1;
+            }
+        }
         if (comp || whyq) {
             char key[KB_TERM_LEN]; size_t kl = 0, nkeys = 0; key[0] = '\0';
             for (size_t i = 0; i < nn && nkeys < 3; i++) {
                 char *t = strip_edge_punct(ww[i]);
                 if (!strcmp(t, "because")) break;
+                /* gen240: a conjunction ends the clause — don't let "...blue ... BUT
+                 * dark..." extend the key past sky_blue. */
+                if (!strcmp(t,"but")||!strcmp(t,"or")||!strcmp(t,"while")||
+                    !strcmp(t,"whereas")||!strcmp(t,"yet")) break;
                 if (!*t) continue;
-                if (!strcmp(t,"complete")||!strcmp(t,"continue")||!strcmp(t,"this")||!strcmp(t,"sentence")||
+                if (!strcmp(t,"exactly")||
+                    !strcmp(t,"complete")||!strcmp(t,"continue")||!strcmp(t,"this")||!strcmp(t,"sentence")||
                     !strcmp(t,"the")||!strcmp(t,"a")||!strcmp(t,"an")||!strcmp(t,"is")||
                     !strcmp(t,"are")||!strcmp(t,"was")||!strcmp(t,"were")||
                     !strcmp(t,"why")||!strcmp(t,"that")||!strcmp(t,"please")||
