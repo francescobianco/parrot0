@@ -1,11 +1,11 @@
 # Catalysis
 
-- Learning event: `learn_2026_06_26t13_01_37z_catalysis`
-- Operational log: `kb/learning/logs/learn_2026_06_26t13_01_37z_catalysis.json`
+- Learning event: `learn_2026_06_27t18_44_15z_catalysis`
+- Operational log: `kb/learning/logs/learn_2026_06_27t18_44_15z_catalysis.json`
 - Domain: `chemistry`
 - Source: https://en.wikipedia.org/wiki/Catalysis
 - Wikipedia revision: `1358271976`
-- Processed: `2026-06-26T13:01:37Z`
+- Processed: `2026-06-27T18:44:15Z`
 
 ## Learned Concept
 
