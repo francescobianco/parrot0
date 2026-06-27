@@ -571,6 +571,12 @@ default_pick(place, "a quiet library").
 default_pick(fruit, "a ripe peach").
 default_pick(flower, "the sunflower").
 default_pick(day, "a rainy Sunday").
+default_pick(country, "Japan, for its mix of old temples and modern cities").
+default_pick(city, "Kyoto, for its quiet old streets").
+default_pick(language, "Latin, for how much of other languages it explains").
+default_pick(instrument, "the piano").
+default_pick(subject, "astronomy").
+default_pick(superpower, "the ability to read any language").
 
 % gen240 (LLMSCORE): appearance/2 lets parrot0 DESCRIBE something it cannot see.
 % Asked "describe what a sunset looks like", it admits it has no senses but gives

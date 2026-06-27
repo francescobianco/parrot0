@@ -98,7 +98,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * new couplet extends it with no code edit; unknown topics decline honestly. */
     if (cue(norm, "couplet") || cue(norm, "short poem") || cue(norm, "rhyming poem") ||
         cue(norm, "two-line poem") || cue(norm, "two line poem") ||
-        (cue(norm, "poem") && (cue(norm, "two line") || cue(norm, "rhym")))) {
+        cue(norm, "two-line rhyme") || cue(norm, "two line rhyme") ||
+        ((cue(norm, "poem") || cue(norm, "rhyme")) &&
+         (cue(norm, "two line") || cue(norm, "two-line") || cue(norm, "rhym")))) {
         /* legacy alias: "ai"/"artificial intelligence" map to concept `ai` */
         if (cue(norm, "artificial intelligence") || cue(norm, " ai")) {
             char l[KB_TERM_LEN];
@@ -116,6 +118,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 put(l, out, out_size); return 1;
             }
         }
+        /* gen240: a couplet was asked but no theme has lines — CLAIM the turn with
+         * an honest decline (the "Genera" ceiling) instead of a generic non-answer. */
+        put("I can only do a couplet on a theme I have lines for -- like the ocean, "
+            "rain, the moon, or AI. Pick one of those?", out, out_size);
+        return 1;
     }
 
     /* gen235 (LLMSCORE): short word-order repair. The C only scores a tiny
@@ -251,6 +258,49 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             return 1;
         }
+    }
+
+    /* gen240 (LLMSCORE): generic desire/opinion question — "if you could visit any
+     * country, which would you choose and why?" parrot0 has no real desires, but it
+     * engages with an honest pick from default_pick(Topic, "…") instead of walling.
+     * The dinner case above handles its own richer answer first. */
+    if (cue(norm, "if you could") &&
+        (cue(norm, "would you choose") || cue(norm, "would you pick") ||
+         cue(norm, "would you visit") || cue(norm, "would you go") ||
+         cue(norm, "would you want") || cue(norm, "which would you") ||
+         cue(norm, "what would you") || cue(norm, "where would you"))) {
+        char db[256]; snprintf(db, sizeof db, "%s", norm);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        char topic[64] = "";
+        for (size_t i = 0; i + 1 < dn; i++)
+            if (!strcmp(strip_edge_punct(dw[i]), "any")) {
+                size_t j = i + 1;
+                while (j < dn) { char *t = strip_edge_punct(dw[j]);
+                    if (!strcmp(t,"other")||!strcmp(t,"single")||!strcmp(t,"one")) j++; else break; }
+                if (j < dn) { snprintf(topic, sizeof topic, "%s", strip_edge_punct(dw[j]));
+                    size_t tl = strlen(topic); if (tl>1 && topic[tl-1]=='s') topic[tl-1]='\0'; }
+                break;
+            }
+        char pick[KB_TERM_LEN] = "";
+        if (topic[0]) {
+            const char *pq[] = { topic, NULL };
+            char pk[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "default_pick", pq, 2, pk, 1) > 0) {
+                char *p = pk[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                snprintf(pick, sizeof pick, "%s", p);
+            }
+        }
+        char msg[200];
+        if (pick[0])
+            snprintf(msg, sizeof msg,
+                     "I don't have real desires, but for the prompt I'd pick %s.", pick);
+        else
+            snprintf(msg, sizeof msg,
+                     "I don't have real desires, but I'm happy to play along -- give me "
+                     "a couple of options and I'll reason out a choice.");
+        put(msg, out, out_size);
+        return 1;
     }
 
     if (nw == 2 && strcmp(w[0], "say") == 0) {
