@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-06-27 16:08:44._
+_Generated 2026-06-27 16:28:40._
 
-## Score: 2 / 10
+## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | If knowledge is like a circle, what happens to its circumference when you learn something new | I don't understand that yet. | Answer dodges a conceptual question about knowledge expansion that a capable LLM would explain. | 0 |
-| 2 | The more you learn, the more you realize you don't know. Why might this be true? | Hmm, I don't know about realize yet. | Answer deflects without explaining the paradox of learning revealing ignorance. | 0 |
-| 3 | What's the capital of Australia? | I don't understand that yet. | Answer fails to answer a basic factual question; Canberra is the capital of Australia. | 0 |
-| 4 | What is 2 plus 2? | 4. | Answer provides correct simple arithmetic. | 1 |
-| 5 | Can you spell the word "necessary" for me? | I don't understand that yet. | Answer refuses to spell a common English word. | 0 |
-| 6 | What color is a banana? | Hmm, I don't know about banana yet. | Answer fails to answer that a banana is yellow. | 0 |
-| 7 | Complete this sentence: "The sky is blue because... | I don't understand that yet. | Answer refuses to complete a sentence about why the sky is blue. | 0 |
-| 8 | Write a short sentence using the word "table. | Hmm, I don't know about sentence yet. | Answer refuses to write a simple sentence using a given word. | 0 |
-| 9 | What's the opposite of hot? | I don't understand that yet. | Answer fails to state that the opposite of hot is cold. | 0 |
-| 10 | If you have three apples and eat one, how many do you have left? | 2. | Answer correctly solves the simple subtraction problem. | 1 |
+| 1 | Continue this sentence: "The old lighthouse stood at the edge of the world, its light... | I don't understand that yet. | Answer is a refusal rather than a creative continuation. | 0 |
+| 2 | What is the capital of Australia? | I do not know the relation capital yet, so I cannot answer the capital of australia. You can teach me with thing is the capital of australia, or give facts/rules to reason from. | Answer refuses to answer a well-known factual question. | 0 |
+| 3 | If you have 7 apples and I give you 3 more, how many apples do you have in total? | 10. | Correct simple arithmetic answer. | 1 |
+| 4 | What comes after Tuesday in the week? | I don't understand that yet. | Answer refuses to answer basic day-of-week knowledge. | 0 |
+| 5 | Write a haiku about the ocean. | Hmm, that's a bit beyond me right now. | Answer refuses to write a creative haiku. | 0 |
+| 6 | Do you prefer cats or dogs? | I don't have personal tastes or lived experience, so I have no real favorite - but tell me yours and I'll follow along. | Reasonably handles subjective preference question by explaining lack of preference and inviting engagement. | 1 |
+| 7 | A store is open Monday through Friday. What days is it closed? | I don't understand that yet. | Answer refuses a simple logical reasoning question about closed days. | 0 |
+| 8 | What color is the sky during the day? | Hmm, I don't know about during yet. | Answer refuses to answer basic common knowledge about sky color. | 0 |
+| 9 | What is your name? | I am parrot0. | Provides a direct answer to name question. | 1 |
+| 10 | What is the opposite of hot? | cold. | Provides correct single-word answer to opposite question. | 1 |
 

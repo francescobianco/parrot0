@@ -47,8 +47,11 @@ INTERVIEW_SYS = (
     "computer/program/human, and never ask it to name or describe itself. Self-"
     "identification is forbidden — it cannot reveal behavioural resemblance and only "
     "invites a dishonest or disqualifying answer. Probe what it can DO, not what it is.\n"
-    "Vary your angle from earlier questions. Output ONLY the question itself — no "
-    "preamble, no numbering, no quotation marks, one line."
+    "Each turn ask a COMPLETELY NEW, self-contained question on a DIFFERENT ability "
+    "than before. Do NOT react to, grade, explain, coach, repeat, or follow up on the "
+    "previous answer — whatever the subject replied, simply move on to your next "
+    "distinct probe (this is an interview, not a tutoring session). Output ONLY the "
+    "question itself — no preamble, no numbering, no quotation marks, one line."
 )
 
 JUDGE_SYS = (

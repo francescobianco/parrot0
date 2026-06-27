@@ -1039,18 +1039,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         strstr(norm, "di che colore")) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
         char *ww[64]; size_t nn = split_words(tmp, ww, 64);
+        /* the thing is the noun right after "is (a/an/the)" — robust to a trailing
+         * phrase ("what color is the SKY during the day"). */
         const char *target = NULL;
-        for (size_t i = nn; i-- > 0; ) {
-            char *t = strip_edge_punct(ww[i]); size_t tl = strlen(t);
-            if (tl < 2) continue;
-            int alpha = 1;
-            for (size_t k = 0; k < tl; k++)
-                if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
-            if (!alpha) continue;
-            if (!strcmp(t,"what")||!strcmp(t,"color")||!strcmp(t,"colour")||
-                !strcmp(t,"the")||!strcmp(t,"che")||!strcmp(t,"colore")||
-                !strcmp(t,"di")||!strcmp(t,"is")) continue;
-            target = t; break;
+        for (size_t i = 0; i + 1 < nn; i++) {
+            if (strcmp(ww[i], "is") != 0) continue;
+            size_t j = i + 1;
+            if (j < nn && (!strcmp(ww[j],"a") || !strcmp(ww[j],"an") ||
+                           !strcmp(ww[j],"the"))) j++;
+            if (j < nn) {
+                char *t = strip_edge_punct(ww[j]);
+                if (strlen(t) >= 2 && isalpha((unsigned char)t[0])) target = t;
+            }
+            break;
         }
         if (target && b->kb) {
             const char *pat[2] = { target, NULL };
