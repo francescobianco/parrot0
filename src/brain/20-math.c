@@ -330,13 +330,22 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
      * which must NOT be read as the operand 100): P is the number just before it,
      * N the number just after. */
     {
-        size_t mark = cnw;
-        for (size_t i = 0; i < cnw; i++)
+        size_t mark = cnw; int attached = 0;
+        for (size_t i = 0; i < cnw; i++) {
             if (!strcmp(cw[i], "percent") || !strcmp(cw[i], "%") ||
                 !strcmp(cw[i], "cento")) { mark = i; break; }
+            /* gen240: "15%" is one token — a number with a trailing '%'. */
+            size_t li = strlen(cw[i]);
+            if (li > 1 && cw[i][li - 1] == '%') { mark = i; attached = 1; break; }
+        }
         if (mark < cnw) {
             double pct = 0, base = 0; int havep = 0, haveb = 0;
-            for (size_t i = mark; i-- > 0; ) {
+            if (attached) {
+                char tmp[32]; snprintf(tmp, sizeof tmp, "%.*s",
+                                       (int)(strlen(cw[mark]) - 1), cw[mark]);
+                if (parse_value(tmp, &pct)) havep = 1;
+            }
+            for (size_t i = mark; !havep && i-- > 0; ) {
                 double v; if (parse_value(cw[i], &v)) { pct = v; havep = 1; break; }
             }
             for (size_t i = mark + 1; i < cnw; i++) {

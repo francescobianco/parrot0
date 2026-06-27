@@ -8,8 +8,17 @@ static void normalize(const char *in, char *out, size_t out_size) {
     if (out_size == 0) return;
     while (*in && isspace((unsigned char)*in)) in++;       /* skip leading */
     size_t n = 0;
-    for (; in[n] && n + 1 < out_size; n++) {
-        out[n] = (char)tolower((unsigned char)in[n]);
+    for (size_t i = 0; in[i] && n + 1 < out_size; i++) {
+        /* gen240: spell out a PERCENTAGE '%' as the word "percent" so a later
+         * punctuation-stripping canon pass doesn't drop the signal ("15%" -> "15
+         * percent"). Only when it follows a digit — a lone '%' stays punctuation so
+         * the "that's just punctuation" detector still fires. */
+        if (in[i] == '%' && n > 0 && isdigit((unsigned char)out[n - 1])) {
+            const char *p = " percent ";
+            for (size_t k = 0; p[k] && n + 1 < out_size; k++) out[n++] = p[k];
+            continue;
+        }
+        out[n++] = (char)tolower((unsigned char)in[i]);
     }
     while (n > 0 && isspace((unsigned char)out[n - 1])) n--; /* trim trailing */
     out[n] = '\0';

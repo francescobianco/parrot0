@@ -182,11 +182,17 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 char cont[4][KB_TERM_LEN];
                 size_t tn = kb_match(b->kb, "continuation_template", tq, 2, cont, 4);
                 if (tn > 0) {
+                    /* gen240: N alternative continuations — three or two. */
+                    size_t wantn = 0;
                     if (cue(norm, "three") || cue(norm, "3 different") ||
-                        cue(norm, "3 more") || cue(norm, "three more")) {
+                        cue(norm, "3 more") || cue(norm, "three more")) wantn = 3;
+                    else if (cue(norm, "two") || cue(norm, "2 different") ||
+                             cue(norm, "two different") || cue(norm, "two ways") ||
+                             cue(norm, "two options") || cue(norm, "couple of")) wantn = 2;
+                    if (wantn >= 2) {
                         static const char *lead[] = { "Then", "Soon", "At last," };
                         char msg[520]; size_t off = 0;
-                        size_t lim = tn < 3 ? tn : 3;
+                        size_t lim = tn < wantn ? tn : wantn;
                         for (size_t k = 0; k < lim; k++) {
                             char *p = cont[k];
                             size_t l = strlen(p);

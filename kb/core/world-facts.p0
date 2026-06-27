@@ -571,6 +571,13 @@ scene_cue(library, enchanted).
 continuation_template(enchanted, "its pages began to glow with a soft golden light").
 continuation_template(enchanted, "a low hum filled the room as the dust lifted into the air").
 continuation_template(enchanted, "words rose off the page and hung shimmering in the dark").
+% gen240: a moonlit-garden magical scene.
+scene_cue(garden, magical).
+scene_cue(moon, magical).
+scene_cue(moonlight, magical).
+continuation_template(magical, "shimmer with a soft silver light").
+continuation_template(magical, "fill with flowers that had never bloomed before").
+continuation_template(magical, "hum with a quiet music no one could place").
 
 % --- gen235 (LLMSCORE): historically grounded guest-list substrate.
 historical_figure(einstein).

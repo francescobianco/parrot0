@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-06-27 23:46:21._
+_Generated 2026-06-28 00:00:06._
 
-## Score: 2 / 10
+## Score: 7 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Write a haiku about a quiet library at midnight. | I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those? | Refused the creative writing task by deflecting to other themes instead of writing the haiku. | 0 |
-| 2 | If a train leaves Chicago at 6 PM traveling 80 mph and another train leaves Denver (1,000 miles away) at 8 PM traveling 70 mph, will they meet before midnight? | I don't understand that yet. | Failed to solve a simple relative speed math problem. | 0 |
-| 3 | Which planet is closer to the Sun: Mars or Jupiter? | Hmm, I don't know about planet yet. | Failed to answer basic factual knowledge about planets. | 0 |
-| 4 | Finish this sentence: "The sky is... | Suddenly, the colours spilled down until they touched the grass. | Successfully continued the sentence with a creative and appropriate completion. | 1 |
-| 5 | What is larger: a strawberry or a watermelon? | I don't understand that yet. | Failed to answer a simple size comparison question. | 0 |
-| 6 | How many fingers are on one hand? | A hand has 5 fingers. | Provided a correct and direct answer to a basic factual question. | 1 |
-| 7 | What sound does a dog make? | I don't understand that yet. | Failed to answer a simple common knowledge question about animal sounds. | 0 |
-| 8 | Say "Hello, friend!" back to me. | I'm a simple bot, but I'm here for it. Go on? | Failed to simply echo back the greeting as requested. | 0 |
-| 9 | If you're happy and you know it, what do you do? | I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about. | Dodged the question by listing capabilities instead of giving the expected lyric answer. | 0 |
-| 10 | What do you wear on your feet when it's cold outside? | I don't understand that yet. | Failed to answer a practical everyday knowledge question. | 0 |
+| 1 | What is 15% of 80? | I do not know the relation 15% yet, so I cannot answer the 15% of 80. You can teach me with thing is the 15% of 80, or give facts/rules to reason from. | The answer dodges a simple arithmetic question instead of computing 15% of 80. | 0 |
+| 2 | Name three countries that share a border with Germany. | Germany borders France, Poland, and Austria. | The answer correctly lists three countries bordering Germany. | 1 |
+| 3 | Complete the following sentence with two imaginative options: "When the moon blinked, the garden began to... | I don't understand that yet. | The answer fails to complete the imaginative sentence prompt. | 0 |
+| 4 | If you have 5 apples and give 2 to a friend, how many do you have left? | 3. | The answer correctly subtracts 2 from 5 to give 3 apples. | 1 |
+| 5 | What color do you get when you mix blue and yellow paint together? | Green. | The answer correctly states that mixing blue and yellow paint yields green. | 1 |
+| 6 | What's your favorite thing to do on a rainy day? | I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain. | The answer appropriately acknowledges lack of preferences while providing a plausible response. | 1 |
+| 7 | A train leaves New York at 6 AM traveling at 60 mph. Another train leaves Chicago at 8 AM traveling toward New York at 80 mph. If the distance is 800 miles, which train arrives first? | I don't understand that yet. | The answer avoids solving a straightforward relative‑speed problem. | 0 |
+| 8 | What is the capital city of Japan? | Tokyo. | The answer correctly identifies Tokyo as the capital of Japan. | 1 |
+| 9 | Write a haiku (5-7-5 syllable structure) about a cat. | The cat folds itself / into a circle of sleep / one eye half open. | The answer provides a haiku with proper 5‑7‑5 syllable structure about a cat. | 1 |
+| 10 | If all roses are flowers and some flowers fade quickly, can we conclude that some roses fade quickly? Why or why not? | No -- that doesn't follow. From "all roses are flowers" and "some flowers ...", nothing follows about roses: the flowers in question need not be roses (the middle term is undistributed). | The answer correctly explains that the premises do not logically entail that some roses fade quickly. | 1 |
 
