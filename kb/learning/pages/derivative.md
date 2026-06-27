@@ -1,11 +1,11 @@
 # Derivative
 
-- Learning event: `learn_2026_06_25t21_52_36z_derivative`
-- Operational log: `kb/learning/logs/learn_2026_06_25t21_52_36z_derivative.json`
+- Learning event: `learn_2026_06_27t10_01_34z_derivative`
+- Operational log: `kb/learning/logs/learn_2026_06_27t10_01_34z_derivative.json`
 - Domain: `mathematics`
 - Source: https://en.wikipedia.org/wiki/Derivative
 - Wikipedia revision: `1358599947`
-- Processed: `2026-06-25T21:52:36Z`
+- Processed: `2026-06-27T10:01:34Z`
 
 ## Learned Concept
 

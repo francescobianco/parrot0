@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_27t10_01_34z_derivative",
+  "extraction": {
+    "concept": "fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input",
+    "concept_key": "derivative",
+    "extract_sha256": "c8e4533740dd80238c2020f661e42a891ddf7083c0c926e29800371f995d0501",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_27t10_01_34z_derivative.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/derivative.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 4,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-27T10:01:34Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_27t10_01_34z_derivative"
+  },
+  "source": {
+    "domain": "mathematics",
+    "index": 3,
+    "line": 13,
+    "title": "Derivative"
+  },
+  "wikipedia": {
+    "canonical_title": "Derivative",
+    "lang": "en",
+    "pageid": 7921,
+    "revision": 1358599947,
+    "url": "https://en.wikipedia.org/wiki/Derivative"
+  }
+}
