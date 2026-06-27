@@ -1,11 +1,11 @@
 # Electromagnetism
 
-- Learning event: `learn_2026_06_26t03_29_41z_electromagnetism`
-- Operational log: `kb/learning/logs/learn_2026_06_26t03_29_41z_electromagnetism.json`
+- Learning event: `learn_2026_06_27t13_57_48z_electromagnetism`
+- Operational log: `kb/learning/logs/learn_2026_06_27t13_57_48z_electromagnetism.json`
 - Domain: `physics`
 - Source: https://en.wikipedia.org/wiki/Electromagnetism
 - Wikipedia revision: `1360320920`
-- Processed: `2026-06-26T03:29:41Z`
+- Processed: `2026-06-27T13:57:48Z`
 
 ## Learned Concept
 
