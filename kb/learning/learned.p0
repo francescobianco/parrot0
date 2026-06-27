@@ -45,7 +45,7 @@ wiki_concept(electromagnetism, physics, "interaction that occurs between particl
 
 % physics / Special relativity
 % source: https://en.wikipedia.org/wiki/Special_relativity
-% revision: 1360902546; processed: 2026-06-26T05:45:01Z
+% revision: 1360902546; processed: 2026-06-27T14:53:46Z
 wiki_concept(special_relativity, physics, "In physics, the special theory of relativity, or simply special relativity, is a scientific theory of the...").
 
 % physics / Quantum mechanics
@@ -1141,3 +1141,12 @@ learning_event_concept(learn_2026_06_27t13_57_48z_electromagnetism, electromagne
 learning_event_revision(learn_2026_06_27t13_57_48z_electromagnetism, rev_1360320920).
 learning_event_markdown(learn_2026_06_27t13_57_48z_electromagnetism, "kb/learning/pages/electromagnetism.md").
 learning_event_log(learn_2026_06_27t13_57_48z_electromagnetism, "kb/learning/logs/learn_2026_06_27t13_57_48z_electromagnetism.json").
+
+% event learn_2026_06_27t14_53_46z_special_relativity
+learning_event(learn_2026_06_27t14_53_46z_special_relativity, "learned special_relativity: In physics, the special theory of relativity, or simply special relativity, is a...").
+learning_event_time(learn_2026_06_27t14_53_46z_special_relativity, "2026-06-27T14:53:46Z").
+learning_event_domain(learn_2026_06_27t14_53_46z_special_relativity, physics).
+learning_event_concept(learn_2026_06_27t14_53_46z_special_relativity, special_relativity).
+learning_event_revision(learn_2026_06_27t14_53_46z_special_relativity, rev_1360902546).
+learning_event_markdown(learn_2026_06_27t14_53_46z_special_relativity, "kb/learning/pages/special_relativity.md").
+learning_event_log(learn_2026_06_27t14_53_46z_special_relativity, "kb/learning/logs/learn_2026_06_27t14_53_46z_special_relativity.json").
