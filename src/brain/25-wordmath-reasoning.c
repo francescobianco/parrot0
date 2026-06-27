@@ -146,9 +146,141 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* question guard: only attempt on an explicit "how many / how much / quanti…" */
-    if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant")))
+    /* gen240 (LLMSCORE): the "when they meet" trick. Two things moving toward
+     * each other are at the SAME point when they meet, so neither is closer —
+     * the speeds/distances are a distraction. A structural insight, not a sum. */
+    if (cue(q, "closer") && (cue(q, "when they meet") || cue(q, "meet")) &&
+        (cue(q, "train") || cue(q, "car") || cue(q, "they"))) {
+        put("Neither — when they meet they are at the same place, so both are "
+            "exactly the same distance from the destination.", out, out_size);
+        store_proof(b, "Two bodies that meet are co-located, hence equidistant from any point.");
+        return 1;
+    }
+
+    /* question guard: only attempt on an explicit "how many / how much / quanti…"
+     * or a count phrasing ("maximum number of", "number of", "arrangements"). */
+    if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant") ||
+          cue(q, "number of") || cue(q, "arrangement")))
         return 0;
+
+    /* gen240 (LLMSCORE): rate-with-remainder buy problem. "N for $M ... have $K"
+     * -> floor(K/M) packs = floor(K/M)*N items, with (K mod M) money left over.
+     * General over the three numbers; reports both the count and the change. */
+    if (cue(q, "for") && cue(q, "have") &&
+        (cue(q, "$") || cue(q, "dollar") || cue(q, "cent"))) {
+        char pb[256]; snprintf(pb, sizeof pb, "%s", q);
+        char *pw[64]; size_t pnw = split_words(pb, pw, 64);
+        double packCount = -1, packPrice = -1, money = -1;
+        const char *item = NULL;
+        for (size_t i = 0; i < pnw; i++) {
+            char *t = strip_edge_punct(pw[i]);
+            if (!strcmp(t, "for") && i > 0 && i + 1 < pnw) {
+                double a, c;
+                if (parse_value(strip_edge_punct(pw[i - 1]), &a) &&
+                    parse_value(strip_edge_punct(pw[i + 1]), &c)) {
+                    packCount = a; packPrice = c;
+                }
+            }
+            if (!strcmp(t, "have") && i + 1 < pnw) {
+                double k;
+                if (parse_value(strip_edge_punct(pw[i + 1]), &k)) money = k;
+            }
+            if (!strcmp(t, "sells") && i + 1 < pnw) item = strip_edge_punct(pw[i + 1]);
+        }
+        if (packCount > 0 && packPrice > 0 && money >= 0) {
+            long packs = (long)(money / packPrice);
+            long items = packs * (long)packCount;
+            double change = money - packs * packPrice;
+            char msg[220];
+            if (change > 0)
+                snprintf(msg, sizeof msg,
+                         "%ld %s%s, with $%g left over.", items,
+                         item ? item : "items", item ? "" : "", change);
+            else
+                snprintf(msg, sizeof msg,
+                         "%ld %s%s, with no change left over.", items,
+                         item ? item : "items", item ? "" : "");
+            put(msg, out, out_size);
+            store_proof(b, "Bought as many fixed-price packs as the money allows; remainder is the change.");
+            return 1;
+        }
+    }
+
+    /* gen240 (LLMSCORE): two-animal head/leg system. Heads H and legs L with two
+     * animals whose per-animal legs are KB facts (quantity(animal, legs, n)):
+     *   b = (L - legs_a*H)/(legs_b - legs_a);  a = H - b. KB-first — any two
+     * animals with known legs transfer; the C only solves the linear system. */
+    if (cue(q, "legs")) {
+        char fb[256]; snprintf(fb, sizeof fb, "%s", q);
+        char *fw[64]; size_t fnw = split_words(fb, fw, 64);
+        char aname[2][KB_TERM_LEN]; double alegs[2]; int na = 0;
+        double Ltot = -1, Htot = -1;
+        for (size_t i = 0; i < fnw && na < 2; i++) {
+            char sgl[64]; snprintf(sgl, sizeof sgl, "%s", strip_edge_punct(fw[i]));
+            size_t sl = strlen(sgl);
+            if (sl > 1 && sgl[sl - 1] == 's') sgl[sl - 1] = '\0';
+            const char *pat[] = { sgl, "legs", NULL };
+            char hh[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "quantity", pat, 3, hh, 1) > 0) {
+                int dup = 0;
+                for (int k = 0; k < na; k++) if (!strcmp(aname[k], sgl)) dup = 1;
+                if (!dup) { snprintf(aname[na], KB_TERM_LEN, "%s", sgl);
+                            parse_num(hh[0], &alegs[na]); na++; }
+            }
+        }
+        /* leg total = number token followed (within 2) by "legs" */
+        for (size_t i = 0; i + 1 < fnw; i++) {
+            double v;
+            if (!parse_value(strip_edge_punct(fw[i]), &v)) continue;
+            for (size_t j = i + 1; j <= i + 2 && j < fnw; j++)
+                if (!strcmp(strip_edge_punct(fw[j]), "legs")) Ltot = v;
+        }
+        /* head total = the other number */
+        double tmpn[16]; size_t tnn = collect_numbers(fw, fnw, tmpn, 16);
+        for (size_t i = 0; i < tnn; i++) if (tmpn[i] != Ltot) { Htot = tmpn[i]; break; }
+        if (na == 2 && Ltot > 0 && Htot > 0 && alegs[0] != alegs[1]) {
+            double bc = (Ltot - alegs[0] * Htot) / (alegs[1] - alegs[0]);
+            double ac = Htot - bc;
+            if (ac >= 0 && bc >= 0 && ac == (long)ac && bc == (long)bc) {
+                char msg[220];
+                snprintf(msg, sizeof msg, "%ld %ss and %ld %ss.",
+                         (long)ac, aname[0], (long)bc, aname[1]);
+                put(msg, out, out_size);
+                store_proof(b, "Solved the heads/legs linear system from the two animals' known legs.");
+                return 1;
+            }
+        }
+    }
+
+    /* gen240 (LLMSCORE): circular seating. n people around a round table, with
+     * rotations counted as the same, give (n-1)! arrangements. "including
+     * yourself" adds one to the named guest count. */
+    if ((cue(q, "round table") || cue(q, "circular") || cue(q, "around a table")) &&
+        cue(q, "arrangement")) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rnw = split_words(rb, rw, 64);
+        double gn[8]; size_t gc = collect_numbers(rw, rnw, gn, 8);
+        if (gc >= 1) {
+            long n = (long)gn[0];
+            if (cue(q, "including yourself") || cue(q, "including myself") ||
+                cue(q, "and yourself") || cue(q, "plus yourself")) n += 1;
+            if (n >= 1 && n <= 12) {
+                long f = 1;
+                for (long k = 2; k <= n - 1; k++) f *= k;
+                char msg[200];
+                if (cue(q, "rotation"))
+                    snprintf(msg, sizeof msg,
+                             "%ld. With %ld people and rotations counted as the "
+                             "same, there are (%ld-1)! = %ld arrangements.",
+                             f, n, n, f);
+                else
+                    snprintf(msg, sizeof msg, "%ld arrangements.", f);
+                put(msg, out, out_size);
+                store_proof(b, "Circular permutations of n with rotation equivalence: (n-1)!.");
+                return 1;
+            }
+        }
+    }
 
     /* collect the numbers in reading order (digits and number words). */
     char buf[256]; snprintf(buf, sizeof buf, "%s", q);
@@ -179,6 +311,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             if (!*t) { if (trailing) sign = 1; continue; }
             if (!strcmp(t, "then") || !strcmp(t, "and") || !strcmp(t, "poi") ||
                 !strcmp(t, "e") || !strcmp(t, "ed")) { sign = 1; continue; }
+            /* "give/gave away N" is a removal: "give" alone is ambiguous, but
+             * the "away" particle disambiguates it (gen240). */
+            if (!strcmp(t, "away")) { sign = -1; continue; }
             if (wp_removal_word(t)) sign = -1;
             double v;
             if (parse_value(t, &v)) {
@@ -309,6 +444,56 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "%s has %s %s.", x, hits[0], unit);
         put(msg, out, out_size);
         return 1;
+    }
+
+    /* gen240 (LLMSCORE): general known-fact count recall, robust to articles and
+     * trailing verbs — "how many <unit> does a <entity> have", "how many <unit>
+     * are in a <entity>", "how many <unit> in a <entity>". unit = first content
+     * token after "many"; entity = last content token. quantity(Entity, Unit, N)
+     * is the KB knowledge (engine fixed, lexicon grows). Word problems that start
+     * "how many do you have" bind no known entity and fall through untouched. */
+    if (nw >= 4 && strcmp(w[0], "how") == 0 && strcmp(w[1], "many") == 0) {
+        static const char *skip[] = {"does","do","did","are","is","was","were",
+            "in","a","an","the","have","has","had","got","of","on","per","there",
+            "will","would","can","inside","within",NULL};
+        const char *unit = NULL; const char *ct[8]; size_t nct = 0;
+        for (size_t i = 2; i < nw; i++) {
+            char *t = strip_edge_punct(w[i]);
+            int sk = 0;
+            for (size_t s = 0; skip[s]; s++) if (!strcmp(t, skip[s])) { sk = 1; break; }
+            if (sk || !*t) continue;
+            if (!unit) unit = t; else if (nct < 8) ct[nct++] = t;
+        }
+        if (unit && nct >= 1) {
+            /* candidate entities, most specific first: compound of last two
+             * content tokens ("soccer_team"), last token, its naive singular. */
+            char cand[3][64]; size_t ncand = 0;
+            if (nct >= 2)
+                snprintf(cand[ncand++], 64, "%s_%s", ct[nct - 2], ct[nct - 1]);
+            snprintf(cand[ncand++], 64, "%s", ct[nct - 1]);
+            size_t el = strlen(ct[nct - 1]);
+            if (el > 1 && ct[nct - 1][el - 1] == 's')
+                snprintf(cand[ncand++], 64, "%.*s", (int)(el - 1), ct[nct - 1]);
+            char hits[4][KB_TERM_LEN]; size_t k = 0; const char *entity = NULL;
+            for (size_t c = 0; c < ncand && k == 0; c++) {
+                const char *pat[] = {cand[c], unit, NULL};
+                k = kb_match(b->kb, "quantity", pat, 3, hits, 4);
+                if (k) entity = cand[c];
+            }
+            if (k > 0) {
+                char ename[64]; snprintf(ename, sizeof ename, "%s", entity);
+                for (char *p = ename; *p; p++) if (*p == '_') *p = ' ';
+                char msg[160];
+                if (cue(buf, " in "))
+                    snprintf(msg, sizeof msg, "There are %s %s in a %s.",
+                             hits[0], unit, ename);
+                else
+                    snprintf(msg, sizeof msg, "A %s has %s %s.",
+                             ename, hits[0], unit);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
     }
 
     /* compare: "does <x> have more/less <unit> than <y>" */

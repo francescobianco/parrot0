@@ -134,6 +134,106 @@ opposite(near, far).
 opposite(far, near).
 opposite(clean, dirty).
 opposite(dirty, clean).
+% --- gen240 (LLMSCORE): more common antonyms (both directions).
+opposite(ancient, modern).
+opposite(modern, ancient).
+opposite(new, old).
+opposite(begin, end).
+opposite(end, begin).
+opposite(start, finish).
+opposite(finish, start).
+opposite(buy, sell).
+opposite(sell, buy).
+opposite(question, answer).
+opposite(answer, question).
+opposite(easy, difficult).
+opposite(difficult, easy).
+opposite(give, take).
+opposite(take, give).
+opposite(push, pull).
+opposite(pull, push).
+opposite(increase, decrease).
+opposite(decrease, increase).
+opposite(north, south).
+opposite(south, north).
+opposite(east, west).
+opposite(west, east).
+opposite(arrive, leave).
+opposite(leave, arrive).
+opposite(remember, forget).
+opposite(forget, remember).
+opposite(accept, reject).
+opposite(reject, accept).
+opposite(expand, contract).
+opposite(contract, expand).
+opposite(noisy, quiet).
+opposite(quiet, noisy).
+opposite(brave, cowardly).
+opposite(cowardly, brave).
+opposite(wide, narrow).
+opposite(narrow, wide).
+opposite(deep, shallow).
+opposite(shallow, deep).
+opposite(thick, thin).
+opposite(thin, thick).
+opposite(heavy, light).
+opposite(smooth, rough).
+opposite(rough, smooth).
+opposite(sharp, dull).
+opposite(dull, sharp).
+opposite(sweet, sour).
+opposite(sour, sweet).
+opposite(future, past).
+opposite(past, future).
+
+% --- gen240 (LLMSCORE): known-fact counting. quantity(Entity, Unit, N) reifies
+% "an Entity has N Unit" — answered by the recall parser in 25-wordmath-reasoning.c
+% for "how many <unit> does a <entity> have" and "how many <unit> are in a <entity>".
+% The lexicon grows with facts; the engine is fixed.
+quantity(week, days, 7).
+quantity(year, months, 12).
+quantity(year, days, 365).
+quantity(year, seasons, 4).
+quantity(day, hours, 24).
+quantity(hour, minutes, 60).
+quantity(minute, seconds, 60).
+quantity(week, weekdays, 5).
+quantity(spider, legs, 8).
+quantity(insect, legs, 6).
+quantity(ant, legs, 6).
+quantity(dog, legs, 4).
+quantity(cat, legs, 4).
+quantity(horse, legs, 4).
+quantity(cow, legs, 4).
+quantity(chicken, legs, 2).
+quantity(hen, legs, 2).
+quantity(duck, legs, 2).
+quantity(bird, legs, 2).
+quantity(sheep, legs, 4).
+quantity(pig, legs, 4).
+quantity(goat, legs, 4).
+quantity(human, legs, 2).
+quantity(human, arms, 2).
+quantity(human, fingers, 10).
+quantity(hand, fingers, 5).
+quantity(octopus, arms, 8).
+quantity(triangle, sides, 3).
+quantity(square, sides, 4).
+quantity(rectangle, sides, 4).
+quantity(pentagon, sides, 5).
+quantity(hexagon, sides, 6).
+quantity(octagon, sides, 8).
+quantity(cube, faces, 6).
+quantity(rainbow, colors, 7).
+quantity(rainbow, colours, 7).
+quantity(alphabet, letters, 26).
+quantity(soccer_team, players, 11).
+quantity(football_team, players, 11).
+quantity(basketball_team, players, 5).
+quantity(piano, keys, 88).
+quantity(chessboard, squares, 64).
+quantity(deck, cards, 52).
+quantity(clock, hours, 12).
 
 % --- gen231: canonical colours of familiar things for "what color is a banana?"
 % (mod_knowledge recognizer queries color_of/2). One ground colour each; a thing
@@ -225,6 +325,32 @@ capital_of_country(tokyo, japan).
 capital_of_country(ottawa, canada).
 capital_of_country(canberra, australia).
 
+% --- gen240 (LLMSCORE): one famous landmark per country, for compound
+% "capital of X and a famous landmark there" questions. The phrase is KB
+% knowledge; the C only selects by country.
+landmark_of(australia, "the Sydney Opera House").
+landmark_of(france, "the Eiffel Tower").
+landmark_of(italy, "the Colosseum").
+landmark_of(united_kingdom, "Big Ben").
+landmark_of(united_states, "the Statue of Liberty").
+landmark_of(japan, "Mount Fuji").
+landmark_of(germany, "the Brandenburg Gate").
+landmark_of(spain, "the Sagrada Familia").
+landmark_of(canada, "the CN Tower").
+landmark_of(egypt, "the Great Pyramids of Giza").
+landmark_of(india, "the Taj Mahal").
+landmark_of(china, "the Great Wall").
+
+% --- gen240 (LLMSCORE): solar-system superlatives. planet_superlative(Property,
+% Planet, "descriptive phrase") is the knowledge; the C maps a cue word in the
+% question to the Property and reads the phrase (engine fixed, lexicon grows).
+planet_superlative(closest_to_sun, mercury, "closest to the Sun").
+planet_superlative(largest, jupiter, "the largest planet in our solar system").
+planet_superlative(smallest, mercury, "the smallest planet in our solar system").
+planet_superlative(hottest, venus, "the hottest planet").
+planet_superlative(farthest_from_sun, neptune, "the farthest planet from the Sun").
+planet_superlative(red_planet, mars, "the Red Planet").
+
 % --- gen239 (kb-first manifesto): island nations have no land-bordering
 % countries. Explicit negative fact — closed-world absence would have implied
 % "I don't know" rather than "zero"; we want the certitude behind a real
@@ -287,6 +413,21 @@ continuation_template(silence, "every small sound in the house became enormous")
 continuation_template(silence, "the stopped clock seemed to be waiting for an answer").
 continuation_template(darkness, "the shadows seemed to lean closer").
 continuation_template(suspense, "someone knocked once from the other side").
+% --- gen240 (LLMSCORE): more scene cues so common story openings continue.
+scene_cue(house, mystery).
+scene_cue(street, mystery).
+scene_cue(hallway, mystery).
+scene_cue(earthquake, suspense).
+scene_cue(night, suspense).
+scene_cue(rainbow, wonder).
+scene_cue(valley, wonder).
+scene_cue(sky, wonder).
+continuation_template(mystery, "no one had set foot inside for as long as anyone could remember").
+continuation_template(mystery, "a single light flickered in an upstairs window").
+continuation_template(mystery, "the neighbours always crossed to the other side before passing it").
+continuation_template(wonder, "the colours spilled down until they touched the grass").
+continuation_template(wonder, "every face turned upward, caught in the same quiet awe").
+continuation_template(wonder, "for a moment the whole valley seemed to hold its breath").
 
 % --- gen235 (LLMSCORE): historically grounded guest-list substrate.
 historical_figure(einstein).
@@ -305,8 +446,14 @@ synonym(big, large).
 synonym(small, little).
 very_cold_result(water, "it freezes into ice").
 
-% One-line couplet surfaces as KB output; C only selects by topic.
-response_template(couplet_ai, "Silicon minds trace patterns in the night; human questions teach their borrowed light.").
+% gen240 (LLMSCORE): two-line rhyming poems as KB knowledge, one per concept.
+% The C assembler only selects by topic word; teaching a new couplet extends it.
+couplet(ai, "Silicon minds trace patterns in the night; human questions teach their borrowed light.").
+couplet(rain, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
+couplet(rainy, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
+couplet(afternoon, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
+couplet(ocean, "The ocean rolls in silver and in foam; it sings the oldest song of going home.").
+couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver road across the night.").
 
 % Minimal ES lexicon for short translation prompts.
 tr_es(cat, gato).
@@ -327,8 +474,42 @@ borders_both(andorra, spain, france).
 color_of(school_bus, yellow).
 color_of(bus, yellow).
 
-response_template(haiku_ocean, "Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind.").
+% gen240 (LLMSCORE): parrot0 has no real preferences, but when asked to pick a
+% favourite it offers one honestly rather than dodging. The pick is KB data.
+default_color(blue).
+
+% gen240 (LLMSCORE): appearance/2 lets parrot0 DESCRIBE something it cannot see.
+% Asked "describe what a sunset looks like", it admits it has no senses but gives
+% the description from KB knowledge (engine fixed, lexicon grows).
+appearance(sunset, "the sky glows in bands of orange, pink, and deep red as the sun sinks below the horizon and the light slowly fades into dusk").
+appearance(sunrise, "the dark sky brightens with soft gold and rose as the sun edges over the horizon and daylight returns").
+appearance(rainbow, "a wide arc of colour -- red, orange, yellow, green, blue, and violet -- that appears when sunlight shines through rain").
+appearance(ocean, "a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves").
+appearance(snow, "soft white flakes that settle into a smooth, bright blanket covering everything in quiet").
+appearance(forest, "tall trees crowded together, green light filtering through the leaves onto a floor of moss and fallen branches").
+
 response_template(joke_chicken, "To get to the other side.").
+
+% --- gen240 (LLMSCORE): parametric haiku. A haiku is a fixed 5-7-5 structure;
+% the poetic image LINES are KB knowledge, pre-syllable-counted, one per concept
+% per slot (open=5, mid=7, close=5). The C assembler weaves open(subject) /
+% mid(object) / close(subject), so teaching a new concept's three lines extends
+% the generator with no code edit (PRINCIPLES.md: engine fixed, lexicon learns).
+haiku_open(ocean, "Ocean breathes at dawn").
+haiku_mid(ocean, "silver waves carry the sun").
+haiku_close(ocean, "gulls write on the wind").
+haiku_open(robot, "A small metal hand").
+haiku_mid(robot, "circuits hum with new questions").
+haiku_close(robot, "steel learns how to feel").
+haiku_open(rain, "First drops on the roof").
+haiku_mid(rain, "cold silver falling from grey").
+haiku_close(rain, "the dry world drinks deep").
+haiku_open(moon, "Pale lantern of night").
+haiku_mid(moon, "drifting over silent fields").
+haiku_close(moon, "shadows softly bloom").
+haiku_open(autumn, "Red leaves let go now").
+haiku_mid(autumn, "the wind carries them away").
+haiku_close(autumn, "bare branches stay still").
 
 gender_es(gato, m).
 gender_es(perro, m).

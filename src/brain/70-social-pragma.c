@@ -760,9 +760,20 @@ static int looks_leet(const char *s) {
 /* Code fragment iff it carries a structural code signal: a bracket/operator
  * rare in chat prose, or a code keyword opening a block ("while True:"). */
 static int looks_code(const char *s, char **w, size_t nw) {
-    if (cue(s, "(") || cue(s, "{") || cue(s, "}") || cue(s, ";") ||
+    /* Strong, unambiguous code markers. NOTE: a bare '(' is NOT one of these —
+     * a natural-language sentence with a parenthetical aside ("Chicago (800
+     * miles away)", "scatters (spreads out)") is prose, not code (gen240). */
+    if (cue(s, "{") || cue(s, "}") || cue(s, ";") ||
         cue(s, "==") || cue(s, "<html") || cue(s, "select * from"))
         return 1;
+    /* A '(' counts only as a function-call: an identifier char immediately
+     * before it ("printf(", "foo(x)"). A space before '(' is a prose aside. */
+    for (const char *p = s; (p = strchr(p, '(')) != NULL; p++) {
+        if (p != s) {
+            char c = p[-1];
+            if (isalnum((unsigned char)c) || c == '_') return 1;
+        }
+    }
     /* keyword + trailing ':' (e.g. "while true:", "for x in y:") */
     size_t len = strlen(s);
     if (nw >= 1 && len > 0 && s[len - 1] == ':') {

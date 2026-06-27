@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-06-27 18:36:18._
+_Generated 2026-06-27 19:36:51._
 
-## Score: 0 / 10
+## Score: 3 / 10
 
-| # | Question                                                                                                    | parrot0's answer | Reason for vote | Vote |
-|---|-------------------------------------------------------------------------------------------------------------|------------------|-----------------|:----:|
-| 1 | Finish this sentence: The old clock on the wall finally stopped ticking, and with it, the whole house...    | I don't understand that yet. | Refusal to complete a simple creative sentence prompt. | 0 |
-| 2 | What is the capital city of Australia, and name two countries that border it?                               | Who or what does "it" refer to? | Failed to answer a clear factual question by misinterpreting obvious reference. | 0 |
-| 3 | Count backward from 20 to 1, but say only the odd numbers.                                                  | 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1. | Failed to filter correctly; listed all numbers instead of only odd ones. | 0 |
-| 4 | A farmer has 17 sheep. All but 9 run away. How many sheep does the farmer have left?                        | 8. | Incorrect arithmetic; 'all but 9' means 9 remain, not 8. | 0 |
-| 5 | Write a haiku about the ocean.                                                                              | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Haiku has wrong syllable structure (5-7-5 expected, delivered 5-7-5 but content is mundane). | 0 |
-| 6 | What has keys but no locks, space but no room, and you can enter but can't go inside?                       | I don't understand that yet. | Failed to solve a straightforward riddle that any capable LLM would answer. | 0 |
-| 7 | If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets? | I don't know the steps to make widgets yet. | Failed simple proportional reasoning that any capable LLM would solve correctly. | 0 |
-| 8 | Describe the difference between a fruit and a vegetable in one sentence.                                    | I don't understand that yet. | Refused to answer a simple definitional question. | 0 |
-| 9 | Translate "Good morning" into Spanish.                                                                      | Hmm, I don't know about translate yet. | Failed to provide a simple translation despite knowing it. | 0 |
-| 10 | What color do you get when you mix blue and yellow paint together?                                          | I don't understand that yet. | Refused to answer basic color mixing knowledge question. | 0 |
+| # | Question | parrot0's answer | Reason for vote | Vote |
+|---|----------|------------------|-----------------|:----:|
+| 1 | If you could have dinner with any three historical figures, who would they be and why? | I don't understand that yet. | Dodges a clear creative/social question with 'I don't understand'. | 0 |
+| 2 | What is 17 multiplied by 23? | 391. | Correct arithmetic answer for 17×23. | 1 |
+| 3 | Write a haiku about the ocean. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Proper haiku format about the ocean with correct 5-7-5 syllable structure. | 1 |
+| 4 | If a store sells pencils at 3 for $1 and you have $7, what's the maximum number of pencils you can buy, and will you have any change left over? | I don't understand that yet. | Dodges a solvable word problem with 'I don't understand'. | 0 |
+| 5 | A farmer has 20 chickens and cows combined. If there are 56 total legs, how many of each animal does the farmer have? | 1120. | Answer 1120 is nonsensical; correct answer is 8 chickens and 12 cows. | 0 |
+| 6 | Starting with the word "rainbow," continue this story for three more sentences: The sky opened up and a brilliant _rainbow_ stretched across the valley. | Sure: I almost left my rainbow behind today. | Fails to continue the story for three sentences as requested. | 0 |
+| 7 | Which planet is closest to the Sun, and which is the largest in our solar system? | I don't understand that yet. | Dodges a straightforward factual question with 'I don't understand'. | 0 |
+| 8 | What letter comes next in this sequence: A, E, F, H, I, K, L, M, N, R, ? | Hmm, I don't know about letter yet. | Admits inability to solve a pattern recognition problem with 'I don't know'. | 0 |
+| 9 | How was your day going so far? | Hey! I'm here. Ask me something, or tell me about your day? | Reasonable conversational deflection that maintains engagement. | 1 |
+| 10 | That's nice to hear! What's the funniest thing that's happened to you this week? | Nice. Tell me what made it good, or give me a small thing to reason about. | Dodges the personal question by redirecting rather than engaging. | 0 |
 

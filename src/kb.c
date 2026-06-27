@@ -998,10 +998,17 @@ static int is_struct_pred(const char *pred) {
         "because", /* gen232: causal-completion reasons, queried not described */
         "grows_with", "increases", /* gen233: qualitative-change substrate */
         "capital_of_country", "kind_is", "borders", "no_land_border",
+        "landmark_of", "planet_superlative", /* gen240: queried world commons */
         "scene_cue", "continuation_template",
         "tr_es", "gender_es", "very_cold_result",
         "historical_figure", "figure_domain", "figure_reason",
         "paint_mix", /* gen239: curated world commons, not describable */
+        "haiku_open", "haiku_mid", "haiku_close", /* gen240: poetic image lines */
+        "couplet", /* gen240: two-line poems, queried not described */
+        "quantity", /* gen240: known-fact counts, queried not described */
+        "default_color", /* gen240: parrot0's offered pick, not a world fact */
+        "appearance", /* gen240: sensory descriptions, queried not described */
+        "synonym", /* gen231/236: synonym relation, queried not described */
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;

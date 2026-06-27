@@ -914,6 +914,27 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
         double v;
         if (parse_num(strip_edge_punct(w[i]), &v)) seq[ns++] = v;
     }
+
+    /* gen240 (LLMSCORE): LETTER sequences. With no numbers, convert single-letter
+     * terms to alphabet positions (A=1..Z=26) and run the SAME arithmetic/geometric
+     * engine, emitting the next letter. Terms taken after the ':' if present, so
+     * frame words ("a"/"i") don't pollute. Honest: a non-constant pattern (e.g. the
+     * "straight-line letters" puzzle) fits no simple rule and declines, per the
+     * manifesto — we never invent a continuation. */
+    int letters = 0;
+    if (ns < 3) {
+        const char *colon = strchr(buf, ':');
+        const char *scan = colon ? colon + 1 : buf;
+        ns = 0;
+        for (const char *p = scan; *p; p++) {
+            if (isalpha((unsigned char)p[0]) &&
+                !isalpha((unsigned char)(p == scan ? ' ' : p[-1])) &&
+                !isalpha((unsigned char)p[1])) {
+                if (ns < 32) seq[ns++] = (double)(tolower((unsigned char)p[0]) - 'a' + 1);
+            }
+        }
+        if (ns >= 3) letters = 1; else return 0;
+    }
     if (ns < 3) return 0;   /* too few terms to infer a rule honestly */
 
     const double EPS = 1e-9;
@@ -935,6 +956,14 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
         if (geo) { nextv = seq[ns - 1] * r; ok = 1; }
     }
     if (!ok) return 0;   /* no simple arithmetic/geometric rule: decline honestly */
+
+    if (letters) {
+        long pos = (long)(nextv + 0.5);
+        if (pos < 1 || pos > 26) return 0;   /* runs off the alphabet: decline */
+        char msg[16]; snprintf(msg, sizeof msg, "%c.", (char)('A' + pos - 1));
+        put(msg, out, out_size);
+        return 1;
+    }
 
     char num[64]; format_num(nextv, num, sizeof num);
     char msg[80]; snprintf(msg, sizeof msg, "%s.", num);

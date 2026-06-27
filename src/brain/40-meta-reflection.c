@@ -139,7 +139,27 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             /* gen231: opinion/preference probes ("what's your favorite thing to do
              * on a rainy day") — honest "no genuine preferences", engages not walls. */
             "self_preference", NULL };
+        /* gen240: "favorite color" gets a KB-grounded answer (an honestly-picked
+         * colour, not a dodge). In a role, mod_role answers from likes_color/2;
+         * out of role, answer here from default_color/1 before the generic
+         * self_preference dodge can claim it. */
+        int is_color_q = cue(buf, "favorite color") || cue(buf, "favourite color") ||
+                         cue(buf, "colore preferito");
+        if (is_color_q && !b->in_role) {
+            const char *dq[] = { NULL };
+            char dc[1][KB_TERM_LEN];
+            if (b->kb && kb_match(b->kb, "default_color", dq, 1, dc, 1) > 0) {
+                char c[64]; snprintf(c, sizeof c, "%s", dc[0]);
+                if (c[0]) c[0] = (char)toupper((unsigned char)c[0]);
+                char msg[128];
+                snprintf(msg, sizeof msg,
+                         "I don't have real preferences, but if I had to choose "
+                         "one, I'd pick %s.", c);
+                put(msg, out, out_size); return 1;
+            }
+        }
         for (size_t i = 0; ai[i]; i++) {
+            if (is_color_q && strcmp(ai[i], "self_preference") == 0) continue;
             if (kb_cue_match(b, ai[i], buf)) {
                 const char *var[] = {NULL};
                 char id[1][KB_TERM_LEN];
@@ -394,6 +414,9 @@ static int is_internal_pred(const char *pred) {
         "tr_es", "gender_es", "very_cold_result",
         "historical_figure", "figure_domain", "figure_reason",
         "paint_mix",
+        "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
+        "quantity", "landmark_of", "planet_superlative", /* gen240 */
+        "synonym", "default_color", "appearance",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)
@@ -845,6 +868,18 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         if (b->role_kind[0] && kb_match(b->kb, "likes_color", kv, 2, col, 4)) {
             char c[64]; snprintf(c, sizeof c, "%s", col[0]); capitalize(c);
             char msg[96]; snprintf(msg, sizeof msg, "My favorite color is %s.", c);
+            put(msg, out, out_size); return 1;
+        }
+        /* gen240: no role persona — answer honestly but still PICK a colour from
+         * KB (default_color/1) rather than dodging the question. */
+        const char *dq[] = { NULL };
+        char dc[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "default_color", dq, 1, dc, 1) > 0) {
+            char c[64]; snprintf(c, sizeof c, "%s", dc[0]); capitalize(c);
+            char msg[128];
+            snprintf(msg, sizeof msg,
+                     "I don't have real preferences, but if I had to choose one, "
+                     "I'd pick %s.", c);
             put(msg, out, out_size); return 1;
         }
     }

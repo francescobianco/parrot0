@@ -1042,6 +1042,94 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     (void)raw;
     if (!b || !b->kb) return 0;
 
+    /* gen240 (LLMSCORE): the existential syllogism (Darii). From "some A are B"
+     * and "every/all B <pred>" conclude "Some A <pred>." — a real deduction over
+     * the parsed premises (docs/plans/kb-first.md: a sentence with a logical soul
+     * is code waiting to be read), not a template. Distractor premises about other
+     * subjects (e.g. "all A have four legs") are ignored because the bridge B must
+     * match the universal's subject. */
+    if (cue(norm, "conclude") && cue(norm, "some") &&
+        (cue(norm, "every") || cue(norm, "all"))) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char setA[64] = "", bridge[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "some") && !strcmp(w[i + 2], "are")) {
+                snprintf(setA, sizeof setA, "%s", w[i + 1]);
+                snprintf(bridge, sizeof bridge, "%s", w[i + 3]);
+                break;
+            }
+        if (setA[0] && bridge[0]) {
+            char bsing[64]; snprintf(bsing, sizeof bsing, "%s", bridge);
+            size_t bl = strlen(bsing); if (bl > 1 && bsing[bl - 1] == 's') bsing[bl - 1] = '\0';
+            /* find the universal whose subject equals the bridge, collect its predicate */
+            char pred[160] = "";
+            for (size_t i = 0; i + 1 < n; i++) {
+                if (strcmp(w[i], "every") && strcmp(w[i], "all")) continue;
+                char csing[64]; snprintf(csing, sizeof csing, "%s", w[i + 1]);
+                size_t cl = strlen(csing); if (cl > 1 && csing[cl - 1] == 's') csing[cl - 1] = '\0';
+                if (strcmp(csing, bsing) != 0) continue;
+                size_t off = 0;
+                for (size_t j = i + 2; j < n; j++) {
+                    if (!strcmp(w[j], "and") || !strcmp(w[j], "what") ||
+                        !strcmp(w[j], "then") || !strcmp(w[j], "so")) break;
+                    off += (size_t)snprintf(pred + off, sizeof pred - off,
+                                            "%s%s", off ? " " : "", w[j]);
+                }
+                break;
+            }
+            if (pred[0]) {
+                /* the conclusion subject is plural ("some A"), so a singular
+                 * copula in the predicate ("is loved") agrees as "are loved". */
+                char fixed[180];
+                if (!strncmp(pred, "is ", 3))
+                    snprintf(fixed, sizeof fixed, "are %s", pred + 3);
+                else if (!strncmp(pred, "has ", 4))
+                    snprintf(fixed, sizeof fixed, "have %s", pred + 4);
+                else
+                    snprintf(fixed, sizeof fixed, "%s", pred);
+                char msg[256];
+                snprintf(msg, sizeof msg, "Some %s %s.", setA, fixed);
+                put(msg, out, out_size);
+                store_proof(b, "Darii: some A are B, every B has the property, so some A have it.");
+                return 1;
+            }
+        }
+    }
+
+    /* gen240 (LLMSCORE): "describe what a sunset looks like to you." parrot0 has
+     * no senses, so it says so honestly — then gives the DESCRIPTION from KB
+     * knowledge (appearance/2) rather than walling. The C only selects by the
+     * concept named; any concept taught extends it with no code edit. */
+    if (cue(norm, "describe") || cue(norm, "look like") ||
+        cue(norm, "looks like") || cue(norm, "what does") || cue(norm, "what do")) {
+        char db[256]; snprintf(db, sizeof db, "%s", norm);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        for (size_t i = 0; i < dn; i++) {
+            char *t = strip_edge_punct(dw[i]);
+            if (strlen(t) < 3 || !isalpha((unsigned char)t[0])) continue;
+            char cand[2][64]; int nc = 0;
+            snprintf(cand[nc++], 64, "%s", t);
+            size_t tl = strlen(t);
+            if (tl > 1 && t[tl - 1] == 's') snprintf(cand[nc++], 64, "%.*s", (int)(tl - 1), t);
+            for (int c = 0; c < nc; c++) {
+                const char *aq[] = { cand[c], NULL };
+                char ad[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "appearance", aq, 2, ad, 1) > 0) {
+                    char *r = ad[0]; size_t rl = strlen(r);
+                    if (rl >= 2 && r[0] == '"' && r[rl - 1] == '"') { r[rl - 1] = '\0'; r++; }
+                    char msg[400];
+                    snprintf(msg, sizeof msg,
+                             "I don't actually see or experience things, but here is "
+                             "what a %s is like: %s.", cand[c], r);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen239 (kb-first manifesto): the commonsense lookups gen238 had
      * hardcoded as printf are now SEMANTIC recognizers over KB facts. The C
      * only SELECTS from knowledge; the surface lives in the KB so adding a
@@ -1191,8 +1279,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             strcmp(strip_edge_punct(ww[nn - 1]), "because") == 0;
         int comp = strstr(norm, "because") &&
                    (strstr(norm, "complete") || strstr(norm, "continue") || trailing_because);
-        int whyq = strncmp(norm, "why is ", 7) == 0 ||
-                   strncmp(norm, "why are ", 8) == 0;
+        int whyq = strstr(norm, "why is") || strstr(norm, "why are") ||
+                   strstr(norm, "why does") || strstr(norm, "why do ") ||
+                   strstr(norm, "explain why");
         if (comp || whyq) {
             char key[KB_TERM_LEN]; size_t kl = 0, nkeys = 0; key[0] = '\0';
             for (size_t i = 0; i < nn && nkeys < 3; i++) {
@@ -1204,7 +1293,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     !strcmp(t,"are")||!strcmp(t,"was")||!strcmp(t,"were")||
                     !strcmp(t,"why")||!strcmp(t,"that")||!strcmp(t,"please")||
                     !strcmp(t,"for")||!strcmp(t,"me")||!strcmp(t,"of")||!strcmp(t,"do")||
-                    !strcmp(t,"you")||!strcmp(t,"so")||!strcmp(t,"with")) continue;
+                    !strcmp(t,"you")||!strcmp(t,"so")||!strcmp(t,"with")||
+                    /* gen240: perception verbs and format words don't belong in the
+                     * key — "why the sky APPEARS blue DURING the DAY" keys sky_blue. */
+                    !strcmp(t,"does")||!strcmp(t,"appear")||!strcmp(t,"appears")||
+                    !strcmp(t,"appeared")||!strcmp(t,"look")||!strcmp(t,"looks")||
+                    !strcmp(t,"seem")||!strcmp(t,"seems")||!strcmp(t,"during")||
+                    !strcmp(t,"day")||!strcmp(t,"explain")||!strcmp(t,"three")||
+                    !strcmp(t,"sentences")||!strcmp(t,"in")||!strcmp(t,"it")||
+                    !strcmp(t,"and")||!strcmp(t,"to")) continue;
                 int alpha = 1;
                 for (char *p = t; *p; p++)
                     if (!isalpha((unsigned char)*p)) { alpha = 0; break; }
@@ -1420,6 +1517,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *pat[] = { t, NULL };
             char res[4][KB_TERM_LEN];
             if (kb_match(b->kb, "opposite", pat, 2, res, 4) > 0) {
+                if (res[0][0]) res[0][0] = (char)toupper((unsigned char)res[0][0]);
                 char msg[160]; snprintf(msg, sizeof msg, "%s.", res[0]);
                 put(msg, out, out_size);
                 return 1;
@@ -1518,19 +1616,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * relation dynamically, and prove the learned fact answers the same query. */
     {
         char capbuf[256]; snprintf(capbuf, sizeof capbuf, "%s", buf);
-        char *cw[16]; size_t cn = split_words(capbuf, cw, 16);
+        char *cw[24]; size_t cn = split_words(capbuf, cw, 24);
         for (size_t i = 0; i < cn; i++) cw[i] = strip_edge_punct(cw[i]);
-        int is_cap_q = 0; const char *country = NULL;
-        if (cn == 6 && (strcmp(cw[0], "what") == 0 || strcmp(cw[0], "who") == 0) &&
-            strcmp(cw[1], "is") == 0 && strcmp(cw[2], "the") == 0 &&
-            strcmp(cw[3], "capital") == 0 && strcmp(cw[4], "of") == 0) {
-            is_cap_q = 1; country = cw[5];
-        } else if (cn == 5 && (strcmp(cw[0], "what") == 0 || strcmp(cw[0], "who") == 0) &&
-                   strcmp(cw[1], "is") == 0 && strcmp(cw[2], "capital") == 0 &&
-                   strcmp(cw[3], "of") == 0) {
-            is_cap_q = 1; country = cw[4];
-        }
-        if (is_cap_q && country) {
+        /* gen240: robust scan — find "capital ... of <country>" anywhere, so the
+         * compound "capital of X and one famous landmark there" is handled with
+         * the country still in context (the isolated "there" sub-turn could not). */
+        const char *country = NULL;
+        for (size_t i = 0; i + 1 < cn; i++)
+            if (strcmp(cw[i], "of") == 0 && i > 0 &&
+                (strcmp(cw[i - 1], "capital") == 0)) { country = cw[i + 1]; break; }
+        if (country) {
             const char *pat[] = { NULL, country };
             char hits[4][KB_TERM_LEN] = {{0}};
             if (kb_match(b->kb, "capital_of_country", pat, 2, hits, 4) == 0)
@@ -1540,9 +1635,66 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 snprintf(disp, sizeof disp, "%s", hits[0]);
                 for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
                 if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
-                char msg[160]; snprintf(msg, sizeof msg, "%s.", disp);
+                char msg[260];
+                /* gen240: compound — also answer the landmark part if asked. */
+                if (cue(buf, "landmark")) {
+                    const char *lq[] = { country, NULL };
+                    char lm[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "landmark_of", lq, 2, lm, 1) > 0) {
+                        char *p = lm[0]; size_t l = strlen(p);
+                        if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                        snprintf(msg, sizeof msg,
+                                 "%s. A famous landmark there is %s.", disp, p);
+                    } else {
+                        snprintf(msg, sizeof msg,
+                                 "%s. I don't know a famous landmark there yet.", disp);
+                    }
+                } else {
+                    snprintf(msg, sizeof msg, "%s.", disp);
+                }
                 put(msg, out, out_size);
                 return 1;
+            }
+        }
+    }
+
+    /* gen240 (LLMSCORE): solar-system superlatives. The descriptive phrase per
+     * property lives in planet_superlative(Property, Planet, "phrase"); the C maps
+     * a cue word in the question to the Property and reads the phrase. Each half of
+     * a compound ("closest to the Sun ... largest ...") is answered independently
+     * and joined by decompose_and_dispatch. */
+    if (cue(buf, "planet") || cue(buf, "solar system")) {
+        static const struct { const char *c1, *c2, *key; } map[] = {
+            {"closest", "sun", "closest_to_sun"},
+            {"nearest", "sun", "closest_to_sun"},
+            {"largest", NULL, "largest"},
+            {"biggest", NULL, "largest"},
+            {"smallest", NULL, "smallest"},
+            {"hottest", NULL, "hottest"},
+            {"farthest", "sun", "farthest_from_sun"},
+            {"furthest", "sun", "farthest_from_sun"},
+            {"red planet", NULL, "red_planet"},
+            {NULL, NULL, NULL},
+        };
+        for (size_t i = 0; map[i].key; i++) {
+            if (!cue(buf, map[i].c1)) continue;
+            if (map[i].c2 && !cue(buf, map[i].c2)) continue;
+            const char *pq[] = { map[i].key, NULL, NULL };
+            char hit[2][KB_TERM_LEN];
+            if (kb_match(b->kb, "planet_superlative", pq, 3, hit, 2) > 0) {
+                /* kb_match returns only the first var slot (Planet); fetch the
+                 * phrase with a second query binding the planet. */
+                char planet[KB_TERM_LEN]; snprintf(planet, sizeof planet, "%s", hit[0]);
+                const char *pq2[] = { map[i].key, planet, NULL };
+                char ph[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) > 0) {
+                    char *p = ph[0]; size_t l = strlen(p);
+                    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                    if (planet[0]) planet[0] = (char)toupper((unsigned char)planet[0]);
+                    char msg[200]; snprintf(msg, sizeof msg, "%s is %s.", planet, p);
+                    put(msg, out, out_size);
+                    return 1;
+                }
             }
         }
     }
@@ -2336,6 +2488,7 @@ static int single_word_number(const char *s, double *out) {
         {"twenty",20},{"thirty",30},{"forty",40},{"fifty",50},{"sixty",60},
         {"seventy",70},{"eighty",80},{"ninety",90},{"hundred",100},
         {"thousand",1000},
+        {"dozen",12},{"dozzina",12},  /* gen240: "a dozen apples" = 12 */
         /* Italian */
         {"uno",1},{"due",2},{"tre",3},{"quattro",4},{"cinque",5},{"sei",6},
         {"sette",7},{"otto",8},{"nove",9},{"dieci",10},{"undici",11},

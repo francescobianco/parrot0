@@ -544,7 +544,8 @@ static int is_intent_starter(const char *w) {
         "chi", "che", "cosa", "come", "dove", "quando", "perche", "perché",
         "ricordati", "dimmi", "spiegami", "chiamami", "insegnami", "parlami",
         "prima", "poi", "non",
-        "what", "who", "where", "when", "why", "how",
+        "what", "who", "where", "when", "why", "how", "which",
+        "quale", "quali", /* gen240 */
         "remember", "tell", "explain", "call", "teach", "say",
         "is", "are", "does", "do", "can", "every", "forget",
         "learn", "describe", "read", "show", "first", "then", "dont",

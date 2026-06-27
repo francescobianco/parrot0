@@ -1,3 +1,16 @@
+/* gen240: fetch one haiku line `pred(concept, "text")` from the KB, stripping the
+ * surrounding quotes. Returns 1 if found. */
+static int haiku_line(Brain *b, const char *pred, const char *concept,
+                      char *out, size_t out_size) {
+    const char *q[] = { concept, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, pred, q, 2, hit, 1) == 0) return 0;
+    char *p = hit[0]; size_t l = strlen(p);
+    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+    snprintf(out, out_size, "%s", p);
+    return 1;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     (void)raw;
@@ -32,19 +45,70 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         if (kb_response(b, "greeting_reply", "", out, out_size)) return 1;
     }
 
-    /* gen237 (LLMSCORE): bounded haiku/joke forms from KB templates. */
-    if (cue(norm, "haiku") && cue(norm, "ocean")) {
-        if (kb_response(b, "haiku_ocean", NULL, out, out_size)) return 1;
+    /* gen240 (LLMSCORE): parametric haiku composer. A haiku is a fixed 5-7-5
+     * structure; the poetic image lines live in the KB as haiku_open/mid/close
+     * (Concept, "…"), so any concept taught extends the generator with no code
+     * edit (PRINCIPLES.md: engine fixed, lexicon learns). The C is the fixed
+     * assembler: of the concepts mentioned that HAVE lines, it weaves
+     * open(first) / mid(last) / close(first) — subject opens and closes, the
+     * object/phenomenon carries the middle. Honest ceiling: if no mentioned
+     * concept has lines, fall through and decline (the "Genera" limit). */
+    if (cue(norm, "haiku")) {
+        char ht[256]; snprintf(ht, sizeof ht, "%s", norm);
+        char *hw[64]; size_t hn = split_words(ht, hw, 64);
+        char concept[2][KB_TERM_LEN]; int nc = 0;
+        for (size_t i = 0; i < hn && nc < 2; i++) {
+            char *t = strip_edge_punct(hw[i]);
+            if (strlen(t) < 3) continue;
+            const char *q[] = { t, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "haiku_open", q, 2, hit, 1) == 0) continue;
+            int dup = 0;
+            for (int k = 0; k < nc; k++) if (!strcmp(concept[k], t)) dup = 1;
+            if (!dup) snprintf(concept[nc++], KB_TERM_LEN, "%s", t);
+        }
+        if (nc >= 1) {
+            const char *subj = concept[0];
+            const char *obj  = concept[nc - 1];
+            char l1[KB_TERM_LEN], l2[KB_TERM_LEN], l3[KB_TERM_LEN];
+            if (haiku_line(b, "haiku_open",  subj, l1, sizeof l1) &&
+                haiku_line(b, "haiku_mid",   obj,  l2, sizeof l2) &&
+                haiku_line(b, "haiku_close", subj, l3, sizeof l3)) {
+                char msg[400];
+                snprintf(msg, sizeof msg, "%s / %s / %s.", l1, l2, l3);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
     }
     if (cue(norm, "chicken cross the road")) {
         if (kb_response(b, "joke_chicken", NULL, out, out_size)) return 1;
     }
 
-    /* gen236 (LLMSCORE): bounded couplet request. The line lives in KB as a
-     * response template; this parser only recognizes the task/topic. */
-    if ((cue(norm, "couplet") || cue(norm, "short poem")) &&
-        (cue(norm, "artificial intelligence") || cue(norm, " ai"))) {
-        if (kb_response(b, "couplet_ai", NULL, out, out_size)) return 1;
+    /* gen236/240 (LLMSCORE): parametric couplet/two-line rhyming poem. The two
+     * rhyming lines per concept live in KB as couplet(Concept, "…"); this parser
+     * recognizes the task and the topic word, then emits the KB line. Teaching a
+     * new couplet extends it with no code edit; unknown topics decline honestly. */
+    if (cue(norm, "couplet") || cue(norm, "short poem") || cue(norm, "rhyming poem") ||
+        cue(norm, "two-line poem") || cue(norm, "two line poem") ||
+        (cue(norm, "poem") && (cue(norm, "two line") || cue(norm, "rhym")))) {
+        /* legacy alias: "ai"/"artificial intelligence" map to concept `ai` */
+        if (cue(norm, "artificial intelligence") || cue(norm, " ai")) {
+            char l[KB_TERM_LEN];
+            if (haiku_line(b, "couplet", "ai", l, sizeof l)) {
+                put(l, out, out_size); return 1;
+            }
+        }
+        char pt[256]; snprintf(pt, sizeof pt, "%s", norm);
+        char *pw[64]; size_t pn = split_words(pt, pw, 64);
+        for (size_t i = 0; i < pn; i++) {
+            char *t = strip_edge_punct(pw[i]);
+            if (strlen(t) < 3) continue;
+            char l[KB_TERM_LEN];
+            if (haiku_line(b, "couplet", t, l, sizeof l)) {
+                put(l, out, out_size); return 1;
+            }
+        }
     }
 
     /* gen235 (LLMSCORE): short word-order repair. The C only scores a tiny
@@ -90,7 +154,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     /* gen235 (LLMSCORE): bounded creative continuation. Scene cues and the
      * continuation surface live in KB; unknown scenes still decline honestly. */
     if (cue(norm, "complete this sentence") || cue(norm, "continue this sentence") ||
-        cue(norm, "finish this sentence")) {
+        cue(norm, "finish this sentence") || cue(norm, "continue this story") ||
+        cue(norm, "continue the story") || cue(norm, "finish this story") ||
+        cue(norm, "finish the story") || cue(norm, "continue the sentence")) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[48]; size_t cn = split_words(cb, cw, 48);
         for (size_t i = 0; i < cn; i++) {
@@ -102,7 +168,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 char cont[4][KB_TERM_LEN];
                 size_t tn = kb_match(b->kb, "continuation_template", tq, 2, cont, 4);
                 if (tn > 0) {
-                    if (cue(norm, "three") || cue(norm, "3 different")) {
+                    if (cue(norm, "three") || cue(norm, "3 different") ||
+                        cue(norm, "3 more") || cue(norm, "three more")) {
+                        static const char *lead[] = { "Then", "Soon", "At last," };
                         char msg[520]; size_t off = 0;
                         size_t lim = tn < 3 ? tn : 3;
                         for (size_t k = 0; k < lim; k++) {
@@ -110,7 +178,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                             size_t l = strlen(p);
                             if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
                             off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                                     "%sSuddenly, %s.", k ? " " : "", p);
+                                                     "%s%s %s.", k ? " " : "",
+                                                     lead[k], p);
                         }
                         put(msg, out, out_size);
                         return 1;
@@ -127,14 +196,25 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen235 (LLMSCORE): hypothetical historical dinner list. The choices and
-     * reasons are KB facts; this only composes one answer from distinct domains. */
-    if (cue(norm, "invite") && cue(norm, "historical") && cue(norm, "dinner")) {
+    /* gen235/240 (LLMSCORE): hypothetical historical-dinner question. The choices
+     * and reasons are KB facts (figure_domain/2, figure_reason/2); this composes
+     * one answer from distinct domains. gen240 broadens the trigger ("dinner with
+     * any historical figures", "any person from history") and supports a count of
+     * 1–3 ("any three" -> 3; "any person/someone" -> 1; default 3). */
+    if (cue(norm, "dinner") &&
+        (cue(norm, "historical") || cue(norm, "from history") ||
+         cue(norm, "in history") || cue(norm, "historic"))) {
+        int want = 3;
+        if (cue(norm, "three") || cue(norm, " 3 ")) want = 3;
+        else if (cue(norm, "two") || cue(norm, " 2 ")) want = 2;
+        else if (cue(norm, "one ") || cue(norm, "any person") ||
+                 cue(norm, "any one") || cue(norm, "someone") ||
+                 cue(norm, "a person") || cue(norm, "single")) want = 1;
         const char *domains[] = { "science", "philosophy", "leadership" };
         char names[3][KB_TERM_LEN];
         char reasons[3][KB_TERM_LEN];
         int ok = 1;
-        for (size_t i = 0; i < 3; i++) {
+        for (int i = 0; i < want; i++) {
             const char *fq[] = { NULL, domains[i] };
             char hit[2][KB_TERM_LEN];
             if (kb_match(b->kb, "figure_domain", fq, 2, hit, 2) == 0) { ok = 0; break; }
@@ -149,9 +229,18 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
         if (ok) {
             char msg[700];
-            snprintf(msg, sizeof msg,
-                     "I'd invite %s, %s, and %s: %s; %s; and %s.",
-                     names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]);
+            if (want == 1)
+                snprintf(msg, sizeof msg,
+                         "I don't have real desires, but for the prompt I'd choose %s: %s.",
+                         names[0], reasons[0]);
+            else if (want == 2)
+                snprintf(msg, sizeof msg,
+                         "I don't have real desires, but for the prompt I'd invite %s and %s: %s; and %s.",
+                         names[0], names[1], reasons[0], reasons[1]);
+            else
+                snprintf(msg, sizeof msg,
+                         "I don't have real desires, but for the prompt I'd invite %s, %s, and %s: %s; %s; and %s.",
+                         names[0], names[1], names[2], reasons[0], reasons[1], reasons[2]);
             put(msg, out, out_size);
             return 1;
         }
