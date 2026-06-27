@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_27t21_40_48z_photosynthesis",
+  "extraction": {
+    "concept": "system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and...",
+    "concept_key": "photosynthesis",
+    "extract_sha256": "73f13168a5793105058633317a7ab0679a2c27213e76765ab9d10d483e8ad7cd",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_27t21_40_48z_photosynthesis.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/photosynthesis.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 16,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-27T21:40:48Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_27t21_40_48z_photosynthesis"
+  },
+  "source": {
+    "domain": "biology",
+    "index": 15,
+    "line": 31,
+    "title": "Photosynthesis"
+  },
+  "wikipedia": {
+    "canonical_title": "Photosynthesis",
+    "lang": "en",
+    "pageid": 24544,
+    "revision": 1358838651,
+    "url": "https://en.wikipedia.org/wiki/Photosynthesis"
+  }
+}

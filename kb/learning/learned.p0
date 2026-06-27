@@ -80,7 +80,7 @@ wiki_concept(dna, biology, "Deoxyribonucleic acid is a polymer composed of two p
 
 % biology / Photosynthesis
 % source: https://en.wikipedia.org/wiki/Photosynthesis
-% revision: 1358838651; processed: 2026-06-26T16:03:39Z
+% revision: 1358838651; processed: 2026-06-27T21:40:48Z
 wiki_concept(photosynthesis, biology, "system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and...").
 
 % biology / Evolution
@@ -1204,3 +1204,12 @@ learning_event_concept(learn_2026_06_27t20_40_37z_dna, dna).
 learning_event_revision(learn_2026_06_27t20_40_37z_dna, rev_1360900543).
 learning_event_markdown(learn_2026_06_27t20_40_37z_dna, "kb/learning/pages/dna.md").
 learning_event_log(learn_2026_06_27t20_40_37z_dna, "kb/learning/logs/learn_2026_06_27t20_40_37z_dna.json").
+
+% event learn_2026_06_27t21_40_48z_photosynthesis
+learning_event(learn_2026_06_27t21_40_48z_photosynthesis, "learned photosynthesis: system of biological processes by which photopigment-bearing autotrophic organisms, such as...").
+learning_event_time(learn_2026_06_27t21_40_48z_photosynthesis, "2026-06-27T21:40:48Z").
+learning_event_domain(learn_2026_06_27t21_40_48z_photosynthesis, biology).
+learning_event_concept(learn_2026_06_27t21_40_48z_photosynthesis, photosynthesis).
+learning_event_revision(learn_2026_06_27t21_40_48z_photosynthesis, rev_1358838651).
+learning_event_markdown(learn_2026_06_27t21_40_48z_photosynthesis, "kb/learning/pages/photosynthesis.md").
+learning_event_log(learn_2026_06_27t21_40_48z_photosynthesis, "kb/learning/logs/learn_2026_06_27t21_40_48z_photosynthesis.json").
