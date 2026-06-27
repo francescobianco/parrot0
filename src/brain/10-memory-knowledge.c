@@ -1065,6 +1065,60 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen232 (LLMSCORE #5): causal sentence-COMPLETION as grounded knowledge.
+     * "complete this sentence: the sky is blue because..." and "why is the sky
+     * blue?" both reduce to a reason lookup in because/2 (world-facts.p0). The key
+     * is the clause's content words joined subject_adjective (sky_blue). This is a
+     * completion driven by KNOWLEDGE, not free generation: an unknown clause is
+     * admitted by falling through, never filled with invented prose. */
+    {
+        char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+        char *ww[64]; size_t nn = split_words(tmp, ww, 64);
+        int trailing_because = nn > 0 &&
+            strcmp(strip_edge_punct(ww[nn - 1]), "because") == 0;
+        int comp = strstr(norm, "because") &&
+                   (strstr(norm, "complete") || trailing_because);
+        int whyq = strncmp(norm, "why is ", 7) == 0 ||
+                   strncmp(norm, "why are ", 8) == 0;
+        if (comp || whyq) {
+            char key[KB_TERM_LEN]; size_t kl = 0, nkeys = 0; key[0] = '\0';
+            for (size_t i = 0; i < nn && nkeys < 3; i++) {
+                char *t = strip_edge_punct(ww[i]);
+                if (!strcmp(t, "because")) break;
+                if (!*t) continue;
+                if (!strcmp(t,"complete")||!strcmp(t,"this")||!strcmp(t,"sentence")||
+                    !strcmp(t,"the")||!strcmp(t,"a")||!strcmp(t,"an")||!strcmp(t,"is")||
+                    !strcmp(t,"are")||!strcmp(t,"was")||!strcmp(t,"were")||
+                    !strcmp(t,"why")||!strcmp(t,"that")||!strcmp(t,"please")||
+                    !strcmp(t,"for")||!strcmp(t,"me")||!strcmp(t,"of")||!strcmp(t,"do")||
+                    !strcmp(t,"you")||!strcmp(t,"so")||!strcmp(t,"with")) continue;
+                int alpha = 1;
+                for (char *p = t; *p; p++)
+                    if (!isalpha((unsigned char)*p)) { alpha = 0; break; }
+                if (!alpha) continue;
+                kl += (size_t)snprintf(key + kl, sizeof key - kl,
+                                       "%s%s", nkeys ? "_" : "", t);
+                nkeys++;
+            }
+            if (nkeys >= 2 && b->kb) {
+                const char *pat[2] = { key, NULL };
+                char res[4][KB_TERM_LEN];
+                if (kb_match(b->kb, "because", pat, 2, res, 4) > 0) {
+                    char *r = res[0];
+                    size_t rlen = strlen(r);
+                    if (rlen >= 2 && r[0] == '"' && r[rlen - 1] == '"') {
+                        r[rlen - 1] = '\0'; r++;
+                    }
+                    char msg[300];
+                    snprintf(msg, sizeof msg, "Because %s.", r);
+                    put(msg, out, out_size);
+                    store_proof(b, msg);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen84: hypothesis mode — "suppose <fact>, then <query>" */
     if (strncmp(norm, "suppose ", 8) == 0) {
         const char *rest = norm + 8;

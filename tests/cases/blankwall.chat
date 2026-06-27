@@ -14,8 +14,8 @@
 # a useful next action.
 > what is the capital of france?
 < I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from.
-> why is the sky blue?
-< I do not know why sky is blue: I have no blue(sky) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
+> why is the sky green?
+< I do not know why sky is green: I have no green(sky) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
 > what year is it?
 < I do not know the current year: I have no current_year fact or clock/calendar tool. Tell me the year, or give facts I can reason from.
 

@@ -1,4 +1,20 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen232: LLMSCORE #5 — causal sentence-completion as knowledge
+
+**Changed.** "Complete this sentence: the sky is blue because..." and "why is the
+sky blue?" both reduce to a reason lookup in because/2 (world-facts.p0). A recognizer
+in mod_knowledge builds a key from the clause content words (subject_adjective ->
+sky_blue) and answers "Because <reason>." when the fact exists; an unknown clause
+falls through to the honest humility handler, never filled with invented prose. This
+is the principled reading of #5: a COMPLETION grounded in KNOWLEDGE (causal facts),
+not free generation. `because` marked substrate (is_internal_pred + kb.c
+is_struct_pred). 13 seed reasons (sky/grass/fire/ice/snow/night/...).
+
+**Test note.** blankwall.chat probed "why is the sky blue?" expecting honest
+humility; parrot0 now genuinely knows it, so the humility probe was repointed to
+"why is the sky green?" (still unknown) to preserve the tests intent — the same
+move as the capitals collision: when new knowledge makes an honesty test answerable,
+move the test to a still-unknown case, dont fake the wall. make test green (209+).
 ## 2026-06-27 - gen231: LLMSCORE round 3 — ambitious reasoning (syllogisms)
 
 **Changed.** Targeted the LLMSCOREs most AMBITIOUS-yet-honest gaps: genuine

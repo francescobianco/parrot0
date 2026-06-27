@@ -154,3 +154,22 @@ color_of(night, black).
 color_of(chocolate, brown).
 color_of(wood, brown).
 color_of(soil, brown).
+
+% --- gen232 (LLMSCORE #5): causal sentence-completion knowledge. "complete this
+% sentence: the sky is blue because..." / "why is the sky blue?" -> the reason from
+% because/2. The key is the content words of the clause joined subject_adjective
+% (sky_blue); the value is the reason clause (quoted, may contain commas). This is
+% a completion grounded in KNOWLEDGE; an unknown clause is admitted, not invented. ---
+because(sky_blue, "sunlight scatters off the air, and blue light scatters the most").
+because(sea_blue, "water absorbs red light and reflects blue back").
+because(ocean_blue, "water absorbs red light and reflects blue back").
+because(grass_green, "it contains chlorophyll, which reflects green light").
+because(leaves_green, "they contain chlorophyll, which reflects green light").
+because(plants_green, "they contain chlorophyll, which reflects green light").
+because(fire_hot, "burning releases stored chemical energy as heat").
+because(sun_hot, "nuclear fusion in its core releases enormous energy").
+because(ice_cold, "its molecules have given up most of their heat energy").
+because(snow_white, "it reflects all colours of light about equally").
+because(night_dark, "the sun is below the horizon, so its light cannot reach us").
+because(sun_bright, "it releases vast energy as light from nuclear fusion").
+because(birds_fly, "their wings and light bodies let them push against the air").
