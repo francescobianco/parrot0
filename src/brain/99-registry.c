@@ -483,7 +483,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen231-llmscore-reasoning";
+    return "gen233-qualitative-metaphor";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

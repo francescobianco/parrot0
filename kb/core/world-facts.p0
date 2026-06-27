@@ -173,3 +173,31 @@ because(snow_white, "it reflects all colours of light about equally").
 because(night_dark, "the sun is below the horizon, so its light cannot reach us").
 because(sun_bright, "it releases vast energy as light from nuclear fusion").
 because(birds_fly, "their wings and light bodies let them push against the air").
+
+% --- gen233 (kb-first manifesto, worked example #4): QUALITATIVE-CHANGE reasoning.
+% grows_with(Feature, Base): Feature increases when Base's size increases (co-monotone;
+% chained transitively in C). increases(Action, Source): the action makes more Source.
+% Together they let "if knowledge is like a circle, what happens to its circumference
+% when you learn?" be DEDUCED (more knowledge -> bigger circle -> bigger circumference),
+% not generated. See docs/plans/kb-first.md. ---
+grows_with(circumference, circle).
+grows_with(area, circle).
+grows_with(radius, circle).
+grows_with(diameter, circle).
+grows_with(perimeter, circle).
+grows_with(surface, sphere).
+grows_with(volume, sphere).
+grows_with(branches, tree).
+grows_with(leaves, tree).
+grows_with(height, tree).
+grows_with(flame, fire).
+grows_with(heat, fire).
+
+increases(learn, knowledge).
+increases(study, knowledge).
+increases(read, knowledge).
+increases(practice, skill).
+increases(train, skill).
+increases(exercise, strength).
+increases(grow, tree).
+increases(age, tree).

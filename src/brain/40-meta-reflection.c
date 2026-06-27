@@ -388,6 +388,7 @@ static int is_internal_pred(const char *pred) {
          * taught it; filter it from "how many facts do you know?" and the
          * knowledge dump exactly like roles.p0's wrote/title/profession. */
         "category_member", "opposite", "color_of", "because",
+        "grows_with", "increases",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

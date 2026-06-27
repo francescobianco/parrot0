@@ -996,6 +996,7 @@ static int is_struct_pred(const char *pred) {
         "opposite", /* gen231: antonym relation, queried not described */
         "color_of", /* gen231: colour facts, queried not described */
         "because", /* gen232: causal-completion reasons, queried not described */
+        "grows_with", "increases", /* gen233: qualitative-change substrate */
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;

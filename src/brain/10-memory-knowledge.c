@@ -1021,6 +1021,22 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     return 1;
 }
 
+/* gen233 (kb-first manifesto): shallow transitive closure over grows_with/2 — true
+ * if FEATURE is co-monotone with BASE (FEATURE grows when BASE grows), directly or
+ * through a chain (circumference -> circle). The qualitative analogue of SLD: the
+ * unary rule engine can't carry a binary transitive relation, so the chain is walked
+ * here in C, over KB facts (not hardcoded edges). */
+static int qchain_reaches(KB *kb, const char *feature, const char *base, int depth) {
+    if (!kb || depth > 5) return 0;
+    if (strcmp(feature, base) == 0) return 1;
+    const char *pat[2] = { feature, NULL };
+    char nexts[16][KB_TERM_LEN];
+    size_t n = kb_match(kb, "grows_with", pat, 2, nexts, 16);
+    for (size_t i = 0; i < n; i++)
+        if (qchain_reaches(kb, nexts[i], base, depth + 1)) return 1;
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -1115,6 +1131,58 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     store_proof(b, msg);
                     return 1;
                 }
+            }
+        }
+    }
+
+    /* gen233 (kb-first manifesto, worked example #4): QUALITATIVE-CHANGE reasoning
+     * over a metaphor. "if knowledge is like a circle, what happens to its
+     * circumference when you learn something new?" is a rule chain, not generation:
+     * the analogy maps more-source -> bigger-target; if the queried FEATURE is
+     * co-monotone with the TARGET (grows_with*) and the ACTION increases the SOURCE,
+     * the feature GROWS. A decision over {grows, …}. See docs/plans/kb-first.md. */
+    if ((strstr(norm, " is like ") || strstr(norm, " are like ")) &&
+        strstr(norm, "happens to") && strstr(norm, "when ")) {
+        char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+        char *ww[64]; size_t nn = split_words(tmp, ww, 64);
+        const char *source = NULL, *target = NULL, *feature = NULL, *action = NULL;
+        for (size_t i = 0; i < nn; i++) {
+            if (!strcmp(ww[i], "like") && i >= 2) {
+                size_t v = i - 1;
+                if (!strcmp(ww[v], "is") || !strcmp(ww[v], "are"))
+                    source = strip_edge_punct(ww[v - 1]);
+                size_t t = i + 1;
+                if (t < nn && (!strcmp(ww[t],"a")||!strcmp(ww[t],"an")||
+                               !strcmp(ww[t],"the"))) t++;
+                if (t < nn) target = strip_edge_punct(ww[t]);
+            }
+            if (!strcmp(ww[i], "to") && i >= 1 && !strcmp(ww[i - 1], "happens")) {
+                size_t f = i + 1;
+                while (f < nn && (!strcmp(ww[f],"its")||!strcmp(ww[f],"the")||
+                       !strcmp(ww[f],"a")||!strcmp(ww[f],"his")||!strcmp(ww[f],"her")))
+                    f++;
+                if (f < nn) feature = strip_edge_punct(ww[f]);
+            }
+            if (!strcmp(ww[i], "when")) {
+                size_t a = i + 1;
+                while (a < nn && (!strcmp(ww[a],"you")||!strcmp(ww[a],"i")||
+                       !strcmp(ww[a],"we")||!strcmp(ww[a],"one")||!strcmp(ww[a],"they")||
+                       !strcmp(ww[a],"it")||!strcmp(ww[a],"he")||!strcmp(ww[a],"she")))
+                    a++;
+                if (a < nn) action = strip_edge_punct(ww[a]);
+            }
+        }
+        if (source && target && feature && action && b->kb) {
+            const char *ip[2] = { action, source };
+            if (qchain_reaches(b->kb, feature, target, 0) &&
+                kb_query(b->kb, "increases", ip, 2)) {
+                char msg[300];
+                snprintf(msg, sizeof msg,
+                    "It grows: more %s makes a bigger %s, so its %s grows with it.",
+                    source, target, feature);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                return 1;
             }
         }
     }

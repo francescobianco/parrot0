@@ -1,4 +1,30 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen233: qualitative-change reasoning + the KB-first manifesto
+
+**Changed.** Implemented the capability derived in docs/plans/kb-first.md from F.'s
+push-back on the circle metaphor: "if knowledge is like a circle, what happens to its
+circumference when you learn something new?" is now DEDUCED, not walled.
+- KB (world-facts.p0): grows_with(Feature, Base) co-monotonicity facts + increases(
+  Action, Source). 
+- mod_knowledge: a recognizer parses source/target/feature/action from "X is like Y …
+  happens to … when …"; qchain_reaches() is a C-side transitive closure over
+  grows_with/2 (the binary relation the unary rule engine can't carry). If the feature
+  is co-monotone with the target AND the action increases the source -> "It grows: more
+  knowledge makes a bigger circle, so its circumference grows with it." Declines
+  honestly otherwise ("…when you sleep" -> wall: no increases(sleep, knowledge)).
+- grows_with/increases marked substrate (is_internal_pred + kb.c is_struct_pred).
+
+**The bigger artifact.** docs/plans/kb-first.md is now a reusable MANIFESTO, not a
+one-off: the founding thesis (language = code, one structure), the deduce/abduce/
+generate test for "is this capability in honest reach?", the build pattern
+(parse->facts->resolver->decision->verbalize->bench), the honesty rules, and the
+circle metaphor as the canonical worked example (with the dialogue that birthed the
+method in an appendix). It is the compass for future evolutions.
+
+**Why it matters.** F. was right and I was wrong: dismissing the metaphor as
+"generative, out of reach" contradicted the founding wager. The lesson, now written
+down: before saying "needs an LLM", decompose and try to derive — usually the
+metaphor is code waiting to be read. make test green (209+).
 ## 2026-06-27 - gen232: LLMSCORE #5 — causal sentence-completion as knowledge
 
 **Changed.** "Complete this sentence: the sky is blue because..." and "why is the
