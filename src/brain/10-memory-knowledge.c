@@ -1160,6 +1160,50 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen240 (LLMSCORE): the INVALID syllogism (undistributed middle). "All A are
+     * B, some B are/​do C, can we conclude some A are C?" does NOT follow — the B
+     * that are C needn't be the A ones. Honest reasoning means saying No, not
+     * pattern-matching a yes. Detected when the some-clause is about the universal's
+     * predicate B and the conclusion is about A. */
+    if (cue(norm, "conclude") && cue(norm, "all") && cue(norm, "some")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char A[64] = "", B[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "all") && !strcmp(w[i + 2], "are")) {
+                snprintf(A, sizeof A, "%s", w[i + 1]);
+                snprintf(B, sizeof B, "%s", w[i + 3]);
+                break;
+            }
+        char someFirst[64] = "", someLast[64] = "";
+        for (size_t i = 0; i + 1 < n; i++)
+            if (!strcmp(w[i], "some")) {
+                if (!someFirst[0]) snprintf(someFirst, sizeof someFirst, "%s", w[i + 1]);
+                snprintf(someLast, sizeof someLast, "%s", w[i + 1]);
+            }
+        #define SING(s) do{ size_t _l=strlen(s); if(_l>1&&(s)[_l-1]=='s')(s)[_l-1]='\0'; }while(0)
+        if (A[0] && B[0] && someFirst[0] && someLast[0]) {
+            char a2[64],b2[64],sf[64],sl[64];
+            snprintf(a2,sizeof a2,"%s",A); snprintf(b2,sizeof b2,"%s",B);
+            snprintf(sf,sizeof sf,"%s",someFirst); snprintf(sl,sizeof sl,"%s",someLast);
+            SING(a2);SING(b2);SING(sf);SING(sl);
+            /* some-clause about B, conclusion about A -> undistributed middle */
+            if (!strcmp(sf, b2) && !strcmp(sl, a2) && strcmp(a2, b2) != 0) {
+                char msg[300];
+                snprintf(msg, sizeof msg,
+                         "No -- that doesn't follow. From \"all %s are %s\" and "
+                         "\"some %s ...\", nothing follows about %s: the %s in question "
+                         "need not be %s (the middle term is undistributed).",
+                         A, B, B, A, B, A);
+                put(msg, out, out_size);
+                store_proof(b, "Undistributed middle: all A are B + some B are C does not give some A are C.");
+                return 1;
+            }
+        }
+        #undef SING
+    }
+
     /* gen240 (LLMSCORE): "describe what a sunset looks like to you." parrot0 has
      * no senses, so it says so honestly — then gives the DESCRIPTION from KB
      * knowledge (appearance/2) rather than walling. The C only selects by the
@@ -1712,7 +1756,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *country = NULL;
         for (size_t i = 0; i + 1 < cn; i++)
             if (strcmp(cw[i], "of") == 0 && i > 0 &&
-                (strcmp(cw[i - 1], "capital") == 0)) { country = cw[i + 1]; break; }
+                /* "capital of X" and "capital city of X" both bind X (gen240). */
+                (strcmp(cw[i - 1], "capital") == 0 ||
+                 (strcmp(cw[i - 1], "city") == 0 && i > 1 &&
+                  strcmp(cw[i - 2], "capital") == 0))) { country = cw[i + 1]; break; }
         if (country) {
             const char *pat[] = { NULL, country };
             char hits[4][KB_TERM_LEN] = {{0}};
