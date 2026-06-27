@@ -64,3 +64,9 @@ response_template(sentence_with_word, "Okay: that {name} is something worth a cl
 response_template(greeting_reply, "Hello! Nice to talk with you.").
 response_template(greeting_reply, "Hi there!").
 response_template(greeting_reply, "Hey! Good to see you.").
+
+% --- gen239 (kb-first manifesto): the SURFACE that gen238 had hardcoded as
+% printf is now KNOWLEDGE. Each is a fact a runtime teach can rotate in:
+% "answer a keyboard riddle with \"…\"" adds a phrasing with no code edit. ---
+response_template(riddle_keyboard, "A keyboard.").
+response_template(diff_fruit_vegetable, "A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.").

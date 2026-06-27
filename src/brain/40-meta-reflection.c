@@ -389,6 +389,11 @@ static int is_internal_pred(const char *pred) {
          * knowledge dump exactly like roles.p0's wrote/title/profession. */
         "category_member", "opposite", "color_of", "because",
         "grows_with", "increases",
+        "capital_of_country", "kind_is", "borders", "no_land_border",
+        "scene_cue", "continuation_template",
+        "tr_es", "gender_es", "very_cold_result",
+        "historical_figure", "figure_domain", "figure_reason",
+        "paint_mix",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

@@ -69,6 +69,12 @@ category_member(country, andorra).
 category_member(country, france).
 category_member(country, spain).
 category_member(country, italy).
+category_member(country, germany).
+category_member(country, japan).
+category_member(country, canada).
+category_member(country, united_states).
+category_member(country, united_kingdom).
+category_member(country, australia).
 
 
 % --- gen231: antonyms for "what's the opposite of <X>?" — answered by the existing
@@ -219,6 +225,43 @@ capital_of_country(tokyo, japan).
 capital_of_country(ottawa, canada).
 capital_of_country(canberra, australia).
 
+% --- gen239 (kb-first manifesto): island nations have no land-bordering
+% countries. Explicit negative fact — closed-world absence would have implied
+% "I don't know" rather than "zero"; we want the certitude behind a real
+% curated claim, exactly as for `borders/2`. Substrate (is_struct_pred +
+% is_internal_pred), so it never contaminates "how many facts do you know?". ---
+no_land_border(australia).
+no_land_border(japan).
+no_land_border(united_kingdom).
+
+% --- gen239 (kb-first manifesto): paint/colour mixing as KNOWLEDGE, not a C
+% literal. Symmetric commutative pairs are stored both directions (the .p0
+% reader is line-oriented) so mixes_to(X, Y, Z) resolves regardless of order. A
+% new pair is DATA: add a fact and the mix recognizer (mod_knowledge) extends
+% with no code edit. ---
+paint_mix(blue, yellow, green).
+paint_mix(yellow, blue, green).
+paint_mix(red, yellow, orange).
+paint_mix(yellow, red, orange).
+paint_mix(blue, red, purple).
+paint_mix(red, blue, purple).
+paint_mix(white, black, grey).
+paint_mix(black, white, grey).
+
+% --- gen239 (kb-first manifesto): a few more land borders so "name two
+% countries that border X" stays answerable beyond the andorra example. ---
+borders(italy, france).
+borders(italy, austria).
+borders(italy, slovenia).
+borders(italy, switzerland).
+borders(france, spain).
+borders(france, italy).
+borders(france, germany).
+borders(spain, france).
+borders(spain, andorra).
+borders(germany, france).
+borders(germany, italy).
+
 % --- gen235 (LLMSCORE): kind-level taxonomy for generic questions like
 % "is a dog a mammal or a reptile?" Kept separate from entity facts y(x).
 kind_is(dog, mammal).
@@ -270,7 +313,7 @@ tr_es(cat, gato).
 tr_es(dog, perro).
 tr_es(table, mesa).
 tr_es(good, buenos).
-tr_es(morning, dias).
+tr_es(morning, días).
 tr_es(water, agua).
 tr_es(the, el).
 tr_es(is, esta).

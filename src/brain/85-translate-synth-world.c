@@ -67,7 +67,22 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     ro += pl;
                 }
             }
-            if (ro) { put(result, out, out_size); return 1; }
+            if (ro) {
+                /* gen239 (kb-first): cosmetic sentence glue. The lexicon is
+                 * KB knowledge (tr_es/2); only the SENTENCE formatting
+                 * (initial capital + terminating period) is added here, the
+                 * same way mod_gen caps "Suddenly, ….". Pure surface glue,
+                 * never knowledge. */
+                char sent[512];
+                snprintf(sent, sizeof sent, "%s", result);
+                size_t sl = strlen(sent);
+                if (sl > 0) {
+                    if (sl + 1 < sizeof sent) { sent[sl] = '.'; sent[sl + 1] = '\0'; }
+                    if (sent[0]) sent[0] = (char)toupper((unsigned char)sent[0]);
+                }
+                put(sent, out, out_size);
+                return 1;
+            }
         }
     }
 

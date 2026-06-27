@@ -1042,25 +1042,108 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     (void)raw;
     if (!b || !b->kb) return 0;
 
-    /* gen238 (LLMSCORE): compact commonsense lookups that still stay bounded and
-     * factual. These fire before generic relation/coreference handlers. */
+    /* gen239 (kb-first manifesto): the commonsense lookups gen238 had
+     * hardcoded as printf are now SEMANTIC recognizers over KB facts. The C
+     * only SELECTS from knowledge; the surface lives in the KB so adding a
+     * mix pair, a riddle, a country border, etc. is DATA, never code. */
+    if ((cue(norm, "mix") || cue(norm, "what color") || cue(norm, "what colour") || cue(norm, "get")) &&
+        (cue(norm, "paint") || cue(norm, "mix"))) {
+        /* pick the two named colours mentioned; resolve symmetrically against
+         * paint_mix/3. Honest if no such pair is recorded. */
+        char mb[256]; snprintf(mb, sizeof mb, "%s", norm);
+        char *mw[64]; size_t mn = split_words(mb, mw, 64);
+        const char *col[2] = { NULL, NULL };
+        for (size_t i = 0; i < mn && (!col[0] || !col[1]); i++) {
+            char *t = strip_edge_punct(mw[i]);
+            if (!*t || !isalpha((unsigned char)t[0])) continue;
+            const char *cq[] = { "color", t };
+            if (!kb_query(b->kb, "category_member", cq, 2)) continue;
+            if (!col[0]) col[0] = t;
+            else if (!col[1] && strcmp(t, col[0]) != 0) col[1] = t;
+        }
+        if (col[0] && col[1]) {
+            char res[2][KB_TERM_LEN];
+            const char *pq[3] = { col[0], col[1], NULL };
+            if (kb_match(b->kb, "paint_mix", pq, 3, res, 2) > 0) {
+                char msg[64];
+                snprintf(msg, sizeof msg, "%s.", res[0]);
+                if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+        /* fall through honestly if no mixing fact is known */
+    }
+
     if (cue(norm, "keys") && cue(norm, "locks") && cue(norm, "space") &&
         cue(norm, "room") && cue(norm, "enter")) {
-        put("A keyboard.", out, out_size);
-        return 1;
+        if (kb_response(b, "riddle_keyboard", NULL, out, out_size)) return 1;
     }
-    if ((cue(norm, "mix blue and yellow") || (cue(norm, "blue") && cue(norm, "yellow") && cue(norm, "paint"))) &&
-        (cue(norm, "what color") || cue(norm, "what colour") || cue(norm, "get"))) {
-        put("Green.", out, out_size);
-        return 1;
-    }
+
     if (cue(norm, "difference") && cue(norm, "fruit") && cue(norm, "vegetable")) {
-        put("A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.", out, out_size);
-        return 1;
+        if (kb_response(b, "diff_fruit_vegetable", NULL, out, out_size)) return 1;
     }
-    if (cue(norm, "capital") && cue(norm, "australia") && cue(norm, "border")) {
-        put("Canberra; Australia has no land-bordering countries.", out, out_size);
-        return 1;
+
+    /* gen239 (kb-first manifesto): "what is the capital of X, and (name two)
+     * countries that border it?" answered by DERIVING each half from facts:
+     * capital_of_country(_, X) -> capital; borders(X, _) -> list, or
+     * no_land_border(X) -> honest "no land-bordering countries." The TOKEN
+     * called X is whatever category_member(country, _) appears in the turn
+     * — already coref-resolved to itself by gen239's same-sentence step in
+     * mod_repair, so "it" is no longer the slot but the resolved country. */
+    if (cue(norm, "capital") && cue(norm, "border")) {
+        char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
+        char *cw[64]; size_t cnw = split_words(cb, cw, 64);
+        const char *country = NULL;
+        for (size_t i = 0; i < cnw && !country; i++) {
+            char *t = strip_edge_punct(cw[i]);
+            if (!*t || !isalpha((unsigned char)t[0])) continue;
+            const char *cq[] = { "country", t };
+            if (kb_query(b->kb, "category_member", cq, 2)) country = t;
+            else fprintf(stderr, "[kb-first dbg] not country: %s\n", t);
+        }
+        fprintf(stderr, "[kb-first dbg] country=%s\n", country ? country : "(null)");
+        if (country) {
+            char cap[2][KB_TERM_LEN];
+            const char *capq[2] = { NULL, country };
+            size_t nc = kb_match(b->kb, "capital_of_country", capq, 2, cap, 2);
+            if (nc > 0) {
+                char brd[8][KB_TERM_LEN];
+                const char *bq[2] = { country, NULL };
+                size_t nb = kb_match(b->kb, "borders", bq, 2, brd, 8);
+                const char *nlb[2] = { country };
+                int has_none = kb_query(b->kb, "no_land_border", nlb, 1);
+                /* pretty-print capital + country with initial caps */
+                char cap_disp[64], ctry_disp[64];
+                snprintf(cap_disp, sizeof cap_disp, "%s", cap[0]);
+                if (cap_disp[0]) cap_disp[0] = (char)toupper((unsigned char)cap_disp[0]);
+                snprintf(ctry_disp, sizeof ctry_disp, "%s", country);
+                if (ctry_disp[0]) ctry_disp[0] = (char)toupper((unsigned char)ctry_disp[0]);
+                char msg[256];
+                if (nb >= 2) {
+                    char b1[64], b2[64];
+                    snprintf(b1, sizeof b1, "%s", brd[0]); b1[0] = (char)toupper((unsigned char)b1[0]);
+                    snprintf(b2, sizeof b2, "%s", brd[1]); b2[0] = (char)toupper((unsigned char)b2[0]);
+                    snprintf(msg, sizeof msg, "%s; %s borders %s and %s.",
+                             cap_disp, ctry_disp, b1, b2);
+                } else if (has_none) {
+                    snprintf(msg, sizeof msg, "%s; %s has no land-bordering countries.",
+                             cap_disp, ctry_disp);
+                } else if (nb == 1) {
+                    char b1[64];
+                    snprintf(b1, sizeof b1, "%s", brd[0]); b1[0] = (char)toupper((unsigned char)b1[0]);
+                    snprintf(msg, sizeof msg, "%s; %s borders %s.",
+                             cap_disp, ctry_disp, b1);
+                } else {
+                    /* honest gap: capital known but bordering countries aren't */
+                    snprintf(msg, sizeof msg,
+                             "%s; I don't know which countries border %s yet.",
+                             cap_disp, ctry_disp);
+                }
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
     }
 
     /* gen231: one-turn syllogism — "if <premises>, is <x> <y>?" resolved by real

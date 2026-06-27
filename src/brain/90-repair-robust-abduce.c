@@ -90,6 +90,42 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     }
     if (!pron) return 0;
 
+    /* gen239 (kb-first manifesto, same-sentence coref): if the pronoun is
+     * "it" and a token EARLIER in the same turn is a known substrate entity
+     * (e.g. category_member(country, _)), DERIVE the antecedent from KB facts
+     * instead of opening a clarification window. This is the deduci move for
+     * same-clause anaphora: the referent is structurally recoverable, so
+     * asking the user to repeat it is the wrong move. We substitute the slot
+     * and re-dispatch the rest of the registry (skipping repair itself). The
+     * window is NOT opened — repair stays out of the exchange. */
+    if (b->kb && strcmp(pron, "it") == 0) {
+        const char *resolved = NULL;
+        for (size_t i = 0; i + 1 < nw && !resolved; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (!*t || !isalpha((unsigned char)t[0])) continue;
+            const char *cq[] = { "country", t };
+            if (kb_query(b->kb, "category_member", cq, 2)) resolved = t;
+        }
+        if (resolved) {
+            char rebuilt[256]; size_t o = 0; int rep = 0;
+            for (size_t i = 0; i < nw; i++) {
+                char bare[64]; snprintf(bare, sizeof bare, "%s", w[i]);
+                char *t = strip_edge_punct(bare);
+                const char *piece = w[i];
+                if (!rep && strcmp(t, pron) == 0) { piece = resolved; rep = 1; }
+                o += (size_t)snprintf(rebuilt + o, sizeof rebuilt - o,
+                                      "%s%s", i ? " " : "", piece);
+                if (o + 1 >= sizeof rebuilt) break;
+            }
+            if (rep) {
+                repair_dispatch(b, rebuilt, raw, out, out_size);
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                snprintf(b->last_module, sizeof b->last_module, "repair");
+                return 1;
+            }
+        }
+    }
+
     snprintf(b->pending_canon, sizeof b->pending_canon, "%s", norm);
     snprintf(b->pending_slot, sizeof b->pending_slot, "%s", pron);
     b->pending_repair = 1;

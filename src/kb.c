@@ -997,6 +997,11 @@ static int is_struct_pred(const char *pred) {
         "color_of", /* gen231: colour facts, queried not described */
         "because", /* gen232: causal-completion reasons, queried not described */
         "grows_with", "increases", /* gen233: qualitative-change substrate */
+        "capital_of_country", "kind_is", "borders", "no_land_border",
+        "scene_cue", "continuation_template",
+        "tr_es", "gender_es", "very_cold_result",
+        "historical_figure", "figure_domain", "figure_reason",
+        "paint_mix", /* gen239: curated world commons, not describable */
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;
