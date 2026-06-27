@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_27t01_18_15z_black_hole",
+  "extraction": {
+    "concept": "astronomical body so compact that its gravity prevents anything, including light, from escaping",
+    "concept_key": "black_hole",
+    "extract_sha256": "25f33be0b7d527b603520aca3e4690bf3fd09c7dfee633c3ecb0137948e6f661",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_27t01_18_15z_black_hole.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/black_hole.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 25,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-27T01:18:15Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_27t01_18_15z_black_hole"
+  },
+  "source": {
+    "domain": "astronomy",
+    "index": 24,
+    "line": 46,
+    "title": "Black hole"
+  },
+  "wikipedia": {
+    "canonical_title": "Black hole",
+    "lang": "en",
+    "pageid": 4650,
+    "revision": 1360460563,
+    "url": "https://en.wikipedia.org/wiki/Black_hole"
+  }
+}

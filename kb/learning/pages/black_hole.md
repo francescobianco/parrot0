@@ -1,11 +1,11 @@
 # Black hole
 
-- Learning event: `learn_2026_06_25t17_01_58z_black_hole`
-- Operational log: `kb/learning/logs/learn_2026_06_25t17_01_58z_black_hole.json`
+- Learning event: `learn_2026_06_27t01_18_15z_black_hole`
+- Operational log: `kb/learning/logs/learn_2026_06_27t01_18_15z_black_hole.json`
 - Domain: `astronomy`
 - Source: https://en.wikipedia.org/wiki/Black_hole
 - Wikipedia revision: `1360460563`
-- Processed: `2026-06-25T17:01:58Z`
+- Processed: `2026-06-27T01:18:15Z`
 
 ## Learned Concept
 
