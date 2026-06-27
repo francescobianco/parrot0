@@ -1,0 +1,67 @@
+% parrot0 WORLD FACTS — curated category membership as KNOWLEDGE, not C literals.
+%
+% gen230 (LLMSCORE behavioural resemblance). An LLM trivially "names a color that
+% starts with B"; parrot0 can too, the honest KB-first way — the members live here
+% as facts, and mod_namestart (20-math.c) reads the category + the target initial
+% and returns the first known member. Add a category_member fact and the capability
+% extends for free; nothing is hardcoded in C.
+%
+% NB: geography (capitals) was intentionally NOT added here — the `capital`
+% predicate is owned by the curated analogy/fewshot/blankwall reasoning tests, which
+% TEACH it at runtime; preloading base capital facts pollutes that machinery. So
+% "capital of <country>" remains an honest, teachable gap for now.
+%
+% Members are single lowercase tokens (matching the canonicalized turn). Loaded
+% KB_BASE and filtered from the user-fact count (is_internal_pred), so they are
+% base substrate, never counted as facts the user taught.
+
+category_member(color, blue).
+category_member(color, black).
+category_member(color, brown).
+category_member(color, red).
+category_member(color, orange).
+category_member(color, yellow).
+category_member(color, green).
+category_member(color, purple).
+category_member(color, pink).
+category_member(color, white).
+category_member(color, grey).
+category_member(color, gold).
+category_member(color, silver).
+category_member(color, violet).
+category_member(color, indigo).
+
+category_member(animal, ant).
+category_member(animal, bear).
+category_member(animal, cat).
+category_member(animal, dog).
+category_member(animal, elephant).
+category_member(animal, fox).
+category_member(animal, goat).
+category_member(animal, horse).
+category_member(animal, iguana).
+category_member(animal, jaguar).
+category_member(animal, koala).
+category_member(animal, lion).
+category_member(animal, monkey).
+category_member(animal, newt).
+category_member(animal, owl).
+category_member(animal, pig).
+category_member(animal, rabbit).
+category_member(animal, snake).
+category_member(animal, tiger).
+category_member(animal, wolf).
+category_member(animal, zebra).
+
+category_member(fruit, apple).
+category_member(fruit, banana).
+category_member(fruit, cherry).
+category_member(fruit, date).
+category_member(fruit, fig).
+category_member(fruit, grape).
+category_member(fruit, lemon).
+category_member(fruit, mango).
+category_member(fruit, orange).
+category_member(fruit, peach).
+category_member(fruit, pear).
+category_member(fruit, plum).

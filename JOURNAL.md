@@ -1,4 +1,35 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen230: LLMSCORE round 2 — honest capability for the failed Qs
+
+**Changed.** Three KB-first capabilities targeting the gen229 LLMSCORE 0s:
+- **Word problem subtraction** (`wp_removal_word`, 25-wordmath): the removal-verb
+  set lacked base/imperative forms, so "...then EAT 1" was added not subtracted
+  (3+2-1 returned 6). Added eat/lose/spend/sell/remove/drop/throw; "give" stays
+  out on purpose ("I give YOU 2 more" is a GAIN). "3 apples, give 2 more, eat 1"
+  -> 4.
+- **"name a <category> that starts with <letter>"** (`mod_namestart` + KB
+  `category_member/2` in kb/core/world-facts.p0, colors/animals/fruit). Reads the
+  category and target initial, returns the first known member; honest "I cant
+  think of one" when it knows none, declines unknown categories. Not a phrasebook:
+  add a fact, the capability grows.
+- The `self_embodiment` family (gen229) landed in this runs score: "what did you
+  have for breakfast" -> "I dont eat or sleep, I have no body" (the same honest
+  reply an LLM gives).
+
+**Deferred honestly: capitals.** Adding `capital/2` base facts collided with the
+curated analogy/fewshot/blankwall reasoning tests, which TEACH `capital` at runtime
+and reason over it (the directions even conflict). Preloading base capital facts
+polluted that machinery, so "capital of <country>" stays a teachable gap rather than
+break emergence for one quiz question.
+
+**Plumbing.** `category_member` filtered as base substrate in three places so it
+behaves like roles.p0 knowledge: brain `is_internal_pred` (fact count + dump) and
+kb.c `is_struct_pred` (so "what is gold plus silver" is not "described" from the
+color facts). Introspection goldens updated to include count/namestart in the
+pinned module list.
+
+**Measured.** Score 1/10 -> **3/10** (arithmetic correctness, embodiment), won by
+honest capability, never by hiding what parrot0 is. `make test` green (209+).
 ## 2026-06-27 - gen229: LLMSCORE harness + behavioural-resemblance capability
 
 **Changed.** New `make llmscore` (`tests/llmscore.py`): a small opencode-GO model

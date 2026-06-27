@@ -380,6 +380,11 @@ static int is_internal_pred(const char *pred) {
         "deduction_pattern", "compare_dimension", "plan_method",
         /* gen150b: communication skills */
         "explain_method", "summarize_method",
+        /* gen230: curated category membership (kb/core/world-facts.p0) is base
+         * substrate parrot0 ships with for mod_namestart, not facts the USER
+         * taught it; filter it from "how many facts do you know?" and the
+         * knowledge dump exactly like roles.p0's wrote/title/profession. */
+        "category_member",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

@@ -992,6 +992,7 @@ static int is_struct_pred(const char *pred) {
         "fix", "fix_suggestion", "review_check", "review_pattern",
         "tr", "gender", "trait",
         "part_of", /* gen158: a derived relation, not a describable concept */
+        "category_member", /* gen230: mod_namestart substrate, not describable */
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;

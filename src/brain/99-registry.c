@@ -127,6 +127,7 @@ static const Module registry[] = {
     {"repair",    mod_repair},
     {"input",     mod_input},
     {"count",     mod_count},
+    {"namestart", mod_namestart},
     {"world",     mod_world},
     {"translate", mod_translate},
     {"synth",     mod_synth},
@@ -431,6 +432,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/glue.p0");
 
+    /* gen230 (LLMSCORE): curated category membership (colors/animals/fruit) read
+     * by mod_namestart for "name a <category> starting with <letter>" — honest
+     * knowledge that grows by adding a fact, never a hardcoded string. Filtered
+     * from the user-fact count via is_internal_pred (base substrate). */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/world-facts.p0");
+
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
      * regenerated every boot and NEVER persisted (DESIGN.md D3). */
@@ -473,7 +481,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen229-llmscore-behaviour";
+    return "gen230-llmscore-capability";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

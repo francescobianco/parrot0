@@ -106,8 +106,11 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
  * then/and/poi/e and commas. */
 static int wp_removal_word(const char *t) {
     static const char *const ex[] = {
-        "ate","eats","lost","loses","gave","gives","spent","spends","sold",
-        "sells","broke","removed","removes","dropped","drops","used", NULL };
+        "ate","eats","eat","lost","loses","lose","gave","gives","spent",
+        "spends","spend","sold","sells","sell","broke","removed","removes",
+        "remove","dropped","drops","drop","used","use","threw","throws",
+        "throw", NULL };  /* base/imperative forms too: "then eat 1" must subtract.
+        NB: "give" is deliberately absent — "I give YOU 2 more" means a GAIN. */
     for (size_t i = 0; ex[i]; i++) if (strcmp(t, ex[i]) == 0) return 1;
     return strstr(t, "mangi") || strstr(t, "perso") || strstr(t, "perde") ||
            strstr(t, "regal") || strstr(t, "vend")  || strstr(t, "spes");
