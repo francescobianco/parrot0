@@ -75,6 +75,16 @@ category_member(country, canada).
 category_member(country, united_states).
 category_member(country, united_kingdom).
 category_member(country, australia).
+category_member(country, switzerland).
+category_member(country, austria).
+category_member(country, poland).
+category_member(country, czechia).
+category_member(country, denmark).
+category_member(country, netherlands).
+category_member(country, belgium).
+category_member(country, luxembourg).
+category_member(country, slovenia).
+category_member(country, portugal).
 
 
 % --- gen231: antonyms for "what's the opposite of <X>?" — answered by the existing
@@ -411,19 +421,56 @@ paint_mix(red, blue, purple).
 paint_mix(white, black, grey).
 paint_mix(black, white, grey).
 
-% --- gen239 (kb-first manifesto): a few more land borders so "name two
-% countries that border X" stays answerable beyond the andorra example. ---
+% --- gen239/240 (kb-first manifesto): land borders as a RELATION. The list
+% handlers ("name three countries that border X", "neighbours of X") and the
+% "which country borders both X and Y" query both INFER from borders/2 — no
+% pre-cooked list facts. Stored both directions (the .p0 reader is line-oriented),
+% so the relation resolves regardless of argument order. NB: Germany does NOT
+% border Italy (a prior fact was wrong and is removed). ---
 borders(italy, france).
-borders(italy, austria).
-borders(italy, slovenia).
-borders(italy, switzerland).
-borders(france, spain).
 borders(france, italy).
-borders(france, germany).
+borders(italy, austria).
+borders(austria, italy).
+borders(italy, slovenia).
+borders(slovenia, italy).
+borders(italy, switzerland).
+borders(switzerland, italy).
+borders(france, spain).
 borders(spain, france).
-borders(spain, andorra).
+borders(france, germany).
 borders(germany, france).
-borders(germany, italy).
+borders(france, belgium).
+borders(belgium, france).
+borders(france, switzerland).
+borders(switzerland, france).
+borders(france, luxembourg).
+borders(luxembourg, france).
+borders(spain, andorra).
+borders(andorra, spain).
+borders(spain, portugal).
+borders(portugal, spain).
+borders(germany, poland).
+borders(poland, germany).
+borders(germany, austria).
+borders(austria, germany).
+borders(germany, switzerland).
+borders(switzerland, germany).
+borders(germany, czechia).
+borders(czechia, germany).
+borders(germany, denmark).
+borders(denmark, germany).
+borders(germany, netherlands).
+borders(netherlands, germany).
+borders(germany, belgium).
+borders(belgium, germany).
+borders(germany, luxembourg).
+borders(luxembourg, germany).
+borders(austria, switzerland).
+borders(switzerland, austria).
+borders(austria, czechia).
+borders(czechia, austria).
+borders(austria, slovenia).
+borders(slovenia, austria).
 
 % --- gen235 (LLMSCORE): kind-level taxonomy for generic questions like
 % "is a dog a mammal or a reptile?" Kept separate from entity facts y(x).
@@ -545,9 +592,7 @@ tr_es(in, en).
 tr_es(and, y).
 % --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
 borders(andorra, france).
-borders(andorra, spain).
-borders_both(andorra, france, spain).
-borders_both(andorra, spain, france).
+borders(france, andorra).
 
 color_of(school_bus, yellow).
 color_of(bus, yellow).

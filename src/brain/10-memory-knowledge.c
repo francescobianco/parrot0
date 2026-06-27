@@ -1285,6 +1285,74 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * called X is whatever category_member(country, _) appears in the turn
      * — already coref-resolved to itself by gen239's same-sentence step in
      * mod_repair, so "it" is no longer the slot but the resolved country. */
+    /* gen240 (LLMSCORE): list a country's neighbours, INFERRED from borders/2 (no
+     * pre-cooked list facts). "name three countries that border Germany", "which
+     * countries border X", "who are X's neighbours" -> collect borders(X,_) and
+     * borders(_,X), dedupe, and answer N of them (three/two/one/a) or all. The same
+     * relation answers "which country borders both X and Y" elsewhere. KB-first:
+     * add a borders/2 fact and every such question extends with no code edit. */
+    if ((cue(norm, "border") || cue(norm, "bordering") || cue(norm, "borders") ||
+         cue(norm, "neighbor") || cue(norm, "neighbour")) &&
+        !cue(norm, "both") && !cue(norm, "capital")) {
+        char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
+        char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
+        const char *country = NULL;
+        for (size_t i = 0; i < nn2 && !country; i++) {
+            char *t = strip_edge_punct(nw2[i]);
+            if (!*t || !isalpha((unsigned char)t[0])) continue;
+            const char *cq[] = { "country", t };
+            if (kb_query(b->kb, "category_member", cq, 2)) country = t;
+        }
+        if (country) {
+            char list[16][KB_TERM_LEN]; size_t nl = 0;
+            char r[32][KB_TERM_LEN];
+            const char *q1[] = { country, NULL };
+            size_t k1 = kb_match(b->kb, "borders", q1, 2, r, 32);
+            for (size_t i = 0; i < k1 && nl < 16; i++) {
+                int dup = 0; for (size_t j = 0; j < nl; j++) if (!strcmp(list[j], r[i])) dup = 1;
+                if (!dup) snprintf(list[nl++], KB_TERM_LEN, "%s", r[i]);
+            }
+            const char *q2[] = { NULL, country };
+            size_t k2 = kb_match(b->kb, "borders", q2, 2, r, 32);
+            for (size_t i = 0; i < k2 && nl < 16; i++) {
+                int dup = 0; for (size_t j = 0; j < nl; j++) if (!strcmp(list[j], r[i])) dup = 1;
+                if (!dup) snprintf(list[nl++], KB_TERM_LEN, "%s", r[i]);
+            }
+            char ctry[64]; snprintf(ctry, sizeof ctry, "%s", country);
+            if (ctry[0]) ctry[0] = (char)toupper((unsigned char)ctry[0]);
+            const char *nlb[] = { country };
+            if (nl == 0 && kb_query(b->kb, "no_land_border", nlb, 1)) {
+                char msg[128];
+                snprintf(msg, sizeof msg, "%s has no land-bordering countries.", ctry);
+                put(msg, out, out_size); return 1;
+            }
+            if (nl > 0) {
+                size_t want = nl;
+                if (cue(norm, "three")) want = 3;
+                else if (cue(norm, "two")) want = 2;
+                else if (cue(norm, "four")) want = 4;
+                else if (cue(norm, "five")) want = 5;
+                else if (cue(norm, "name a ") || cue(norm, "one country") ||
+                         cue(norm, "a country")) want = 1;
+                if (want > nl) want = nl;
+                char body[400]; size_t off = 0;
+                for (size_t i = 0; i < want; i++) {
+                    char nm[64]; snprintf(nm, sizeof nm, "%s", list[i]);
+                    for (char *p = nm; *p; p++) if (*p == '_') *p = ' ';
+                    if (nm[0]) nm[0] = (char)toupper((unsigned char)nm[0]);
+                    const char *sep = (i == 0) ? "" :
+                                      (i == want - 1) ? (want > 2 ? ", and " : " and ") : ", ";
+                    off += (size_t)snprintf(body + off, sizeof body - off, "%s%s", sep, nm);
+                }
+                char msg[480];
+                snprintf(msg, sizeof msg, "%s borders %s.", ctry, body);
+                put(msg, out, out_size);
+                store_proof(b, "Listed neighbours inferred from the borders relation.");
+                return 1;
+            }
+        }
+    }
+
     if (cue(norm, "capital") && cue(norm, "border")) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[64]; size_t cnw = split_words(cb, cw, 64);
@@ -1294,9 +1362,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (!*t || !isalpha((unsigned char)t[0])) continue;
             const char *cq[] = { "country", t };
             if (kb_query(b->kb, "category_member", cq, 2)) country = t;
-            else fprintf(stderr, "[kb-first dbg] not country: %s\n", t);
         }
-        fprintf(stderr, "[kb-first dbg] country=%s\n", country ? country : "(null)");
         if (country) {
             char cap[2][KB_TERM_LEN];
             const char *capq[2] = { NULL, country };

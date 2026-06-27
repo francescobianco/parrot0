@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-06-27 23:23:31._
+_Generated 2026-06-27 23:30:05._
 
-## Score: 5 / 10
+## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Compose a short, whimsical two-line rhyme about a coffee mug that believes it's a spaceship. | I don't understand that yet. | Answer is a refusal/dodge instead of composing the requested whimsical rhyme. | 0 |
-| 2 | What is the capital city of Australia? | Canberra. | Simple correct factual answer to a straightforward geography question. | 1 |
-| 3 | If you have 3 apples, eat 1, then buy 4 more, and give 2 to a friend, how many apples do you have left? | 4. | Arithmetic is correct: 3-1+4-2=4 apples remaining. | 1 |
-| 4 | Finish this sentence in three different ways: "Whenever the lights went out, the old house would... | Then no one had set foot inside for as long as anyone could remember. Soon a single light flickered in an upstairs window. At last, the neighbours always crossed to the other side before passing it. | Provides three distinct sentence completions as requested. | 1 |
-| 5 | A farmer needs to cross a river with a wolf, a goat, and a cabbage. The boat can only carry the farmer plus one item. If left alone together, the wolf eats the goat, and the goat eats the cabbage. What order should the farmer use to safely get everything across? | I don't understand that yet. | Answer is a refusal instead of solving the classic river crossing puzzle. | 0 |
-| 6 | I'm thinking of a fruit that is orange, grows on trees, and juice from it is popular at breakfast. What am I? | Hmm, I don't know about thinking yet. | Answer is a dodge instead of solving the simple fruit riddle (orange). | 0 |
-| 7 | What's 15 plus 27? | 42. | Simple arithmetic answer is correct: 15+27=42. | 1 |
-| 8 | Write a sentence where every word starts with the letter S. | I don't understand that yet. | Answer is a refusal instead of writing a sentence with all words starting with S. | 0 |
-| 9 | Describe what a sunrise looks like without using the words "sun," "morning," or "day. | I don't actually see or experience things, but I can describe it: the dark sky brightens with soft gold and rose as the sun edges over the horizon and daylight returns. | Description is on-topic and avoids forbidden words while describing a sunrise. | 1 |
-| 10 | If you could visit any country in the world right now, which would you choose and why? | I don't understand that yet. | Answer is a refusal/dodge instead of engaging with the hypothetical travel question. | 0 |
+| 1 | If a chef and a chemist collaborated on a new dessert, what might they create? | I don't understand that yet. | The answer is a generic refusal instead of a creative response. | 0 |
+| 2 | If you have 3 apples and I give you 5 more, how many apples do you have? | 8. | The answer correctly solves the simple addition problem. | 1 |
+| 3 | Name three countries that share a border with Germany. | I don't understand that yet. | The answer again refuses to name countries. | 0 |
+| 4 | Write a sentence using all three words: moon, cheese, happy. | Hmm, I don't know about sentence yet. | The answer fails to provide the requested sentence. | 0 |
+| 5 | What's your favorite thing to do on a rainy day? | I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain. | The answer gives a plausible activity without claiming personal preference. | 1 |
+| 6 | Write a short poem with exactly four lines about a sunrise. | I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those? | The answer deflects instead of writing the poem. | 0 |
+| 7 | If a train travels 60 miles per hour for 2 hours, and then stops for 30 minutes, how many total hours has the journey taken so far? | 92. 92. | The answer provides an incorrect total. | 0 |
+| 8 | A bat and a ball cost $1.10 total. The bat costs $1.00 more than the ball. How much does the ball cost? | $0.05. (Not $0.1: if one costs $1 more, the cheaper is (1.1-1)/2.) | The answer correctly solves the bat‑and‑ball problem. | 1 |
+| 9 | What comes next in this sequence: 2, 6, 12, 20, 30, ? | 42. | The answer correctly identifies the next number in the sequence. | 1 |
+| 10 | You're locked in a room with only a refrigerator, a lamp, and a fireplace. It's freezing. What do you light first? | I don't understand that yet. | The answer again refuses to answer the riddle. | 0 |
 

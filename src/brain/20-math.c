@@ -839,6 +839,10 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
                    cue(buf, "give me a") || cue(buf, "tell me a") ||
                    cue(buf, "can you name");
     if (!has_name) return 0;
+    /* gen240: a relational constraint ("name a country that BORDERS X") is beyond
+     * a plain category pick — defer to the borders handler downstream rather than
+     * returning an arbitrary member that ignores the constraint. */
+    if (cue(buf, "border") || cue(buf, "neighbour") || cue(buf, "neighbor")) return 0;
 
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
