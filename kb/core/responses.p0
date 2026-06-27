@@ -59,3 +59,8 @@ response_template(self_preference, "No genuine preferences here: I don't experie
 response_template(sentence_with_word, "Here's a short one: the {name} is right over there.").
 response_template(sentence_with_word, "Sure: I almost left my {name} behind today.").
 response_template(sentence_with_word, "Okay: that {name} is something worth a closer look.").
+
+% --- gen234 (LLMSCORE): reply to a greeting imperative ("say hello to me"). ---
+response_template(greeting_reply, "Hello! Nice to talk with you.").
+response_template(greeting_reply, "Hi there!").
+response_template(greeting_reply, "Hey! Good to see you.").

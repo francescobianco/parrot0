@@ -24,6 +24,14 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
     char *w[8];
     size_t nw = split_words(buf, w, 8);
+    /* gen234 (LLMSCORE): greeting imperative — "say hello (to me)", "say hi",
+     * "greet me" -> reply with a greeting from response_template(greeting_reply).
+     * Checked before the generic "say <word>" so it isn't decoded as a seed. */
+    if (cue(norm, "say hello") || cue(norm, "say hi") || cue(norm, "say hey") ||
+        cue(norm, "greet me")) {
+        if (kb_response(b, "greeting_reply", "", out, out_size)) return 1;
+    }
+
     if (nw == 2 && strcmp(w[0], "say") == 0) {
         if (strcmp(w[1], "something") == 0) return 0; /* companion cue */
         generate_from(b, w[1], out, out_size);

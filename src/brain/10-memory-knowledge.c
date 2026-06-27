@@ -1047,30 +1047,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * recognized before the single-clause handlers below see only fragments. */
     if (one_turn_syllogism(b, norm, out, out_size)) return 1;
 
-    /* gen231 (LLMSCORE): "what color is (a/the) <X>?" -> color_of(X, C). The colour
-     * facts are KB ground knowledge (world-facts.p0); the queried thing is the last
-     * real noun in the turn. Honest: falls through (no claim) when the thing is
-     * unknown, so it never invents a colour. */
+    /* gen234 (LLMSCORE): "what color is (a/the) <X>?" -> color_of(X, C). The colour
+     * facts are KB ground knowledge (world-facts.p0). Rather than guess which token
+     * is the noun, try EVERY content token against color_of and answer on the first
+     * that has a colour — robust to adjectives ("a RIPE banana"), articles, and
+     * trailing phrases ("the SKY during the day"). Honest: declines when none has a
+     * colour fact, so it never invents one. */
     if (strstr(norm, "what color is") || strstr(norm, "what colour is") ||
         strstr(norm, "di che colore")) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
         char *ww[64]; size_t nn = split_words(tmp, ww, 64);
-        /* the thing is the noun right after "is (a/an/the)" — robust to a trailing
-         * phrase ("what color is the SKY during the day"). */
-        const char *target = NULL;
-        for (size_t i = 0; i + 1 < nn; i++) {
-            if (strcmp(ww[i], "is") != 0) continue;
-            size_t j = i + 1;
-            if (j < nn && (!strcmp(ww[j],"a") || !strcmp(ww[j],"an") ||
-                           !strcmp(ww[j],"the"))) j++;
-            if (j < nn) {
-                char *t = strip_edge_punct(ww[j]);
-                if (strlen(t) >= 2 && isalpha((unsigned char)t[0])) target = t;
-            }
-            break;
-        }
-        if (target && b->kb) {
-            const char *pat[2] = { target, NULL };
+        for (size_t i = 0; i < nn && b->kb; i++) {
+            char *t = strip_edge_punct(ww[i]);
+            if (strlen(t) < 2 || !isalpha((unsigned char)t[0])) continue;
+            if (!strcmp(t,"what")||!strcmp(t,"color")||!strcmp(t,"colour")||
+                !strcmp(t,"is")||!strcmp(t,"the")||!strcmp(t,"che")||
+                !strcmp(t,"colore")) continue;
+            const char *pat[2] = { t, NULL };
             char res[8][KB_TERM_LEN];
             if (kb_match(b->kb, "color_of", pat, 2, res, 8) > 0) {
                 char msg[160];

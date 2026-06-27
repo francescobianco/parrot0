@@ -827,31 +827,31 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     if (!b || !b->kb) return 0;
     const char *buf = norm;
     int has_name = cue(buf, "name a") || cue(buf, "name an") ||
+                   cue(buf, "name any") || cue(buf, "name me a") ||
                    cue(buf, "give me a") || cue(buf, "tell me a") ||
                    cue(buf, "can you name");
-    int has_start = cue(buf, "start with") || cue(buf, "starts with") ||
-                    cue(buf, "starting with") || cue(buf, "begin with") ||
-                    cue(buf, "begins with") || cue(buf, "beginning with");
-    if (!has_name || !has_start) return 0;
+    if (!has_name) return 0;
 
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
 
-    /* target initial: token after "letter", else the token after "with". */
+    /* OPTIONAL initial-letter constraint: token after "letter", else after "with". */
     char init = 0;
-    size_t li = find_token(w, nw, "letter");
-    if (li != nw && li + 1 < nw) init = w[li + 1][0];
-    if (!init) {
-        size_t wi = find_token(w, nw, "with");
-        if (wi != nw && wi + 1 < nw) init = strip_edge_punct(w[wi + 1])[0];
+    if (cue(buf,"start with")||cue(buf,"starts with")||cue(buf,"starting with")||
+        cue(buf,"begin with")||cue(buf,"begins with")||cue(buf,"beginning with")) {
+        size_t li = find_token(w, nw, "letter");
+        if (li != nw && li + 1 < nw) init = w[li + 1][0];
+        if (!init) {
+            size_t wi = find_token(w, nw, "with");
+            if (wi != nw && wi + 1 < nw) init = strip_edge_punct(w[wi + 1])[0];
+        }
     }
-    if (!init) return 0;
 
-    /* category: the noun right after the article following "name". */
+    /* category: the noun right after the article (a/an/any) following "name". */
     const char *category = NULL;
     size_t ni = find_token(w, nw, "name");
     for (size_t i = (ni == nw ? 0 : ni); i + 1 < nw; i++)
-        if (!strcmp(w[i], "a") || !strcmp(w[i], "an")) {
+        if (!strcmp(w[i], "a") || !strcmp(w[i], "an") || !strcmp(w[i], "any")) {
             category = strip_edge_punct(w[i + 1]); break;
         }
     if (!category || !*category) return 0;
@@ -860,15 +860,25 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     char members[64][KB_TERM_LEN];
     size_t k = kb_match(b->kb, "category_member", pat, 2, members, 64);
     if (k == 0) return 0;   /* unknown category: let an honest wall handle it */
-    for (size_t i = 0; i < k; i++)
-        if (members[i][0] == init) {
-            char msg[160]; snprintf(msg, sizeof msg, "%s.", members[i]);
-            put(msg, out, out_size); return 1;
-        }
-    char msg[200];
-    snprintf(msg, sizeof msg,
-             "I can't think of a %s starting with '%c' from what I know.",
-             category, init);
+
+    if (init) {             /* constrained: first member with that initial */
+        for (size_t i = 0; i < k; i++)
+            if (members[i][0] == init) {
+                char msg[160]; snprintf(msg, sizeof msg, "%s.", members[i]);
+                put(msg, out, out_size); return 1;
+            }
+        char msg[200];
+        snprintf(msg, sizeof msg,
+                 "I can't think of a %s starting with '%c' from what I know.",
+                 category, init);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* unconstrained ("name any animal"): return a member, rotating for variety. */
+    size_t idx = b->response_pick % k;
+    b->response_pick++;
+    char msg[160]; snprintf(msg, sizeof msg, "%s.", members[idx]);
     put(msg, out, out_size);
     return 1;
 }

@@ -1,4 +1,18 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen234: fix the LLMSCORE near-miss cluster
+
+**Changed.** Three capabilities that existed but misfired on a parse edge-case:
+- Colour ("what color is a RIPE banana?") -> the recognizer now tries EVERY content
+  token against color_of and answers on the first with a colour, robust to
+  adjectives/articles/trailing phrases ("the sky during the day"). -> It's yellow.
+- mod_namestart now also handles the UNCONSTRAINED "name any/an animal" (no "starts
+  with") -> returns a member, rotating for variety; the letter-constrained path is
+  unchanged. "name a fruit" -> apple.
+- Greeting imperative "say hello (to me)" / "greet me" -> a greeting from
+  response_template(greeting_reply) (KB-first), checked before the generic
+  "say <word>" decoder.
+
+make test green (209+).
 ## 2026-06-27 - gen233: qualitative-change reasoning + the KB-first manifesto
 
 **Changed.** Implemented the capability derived in docs/plans/kb-first.md from F.'s
