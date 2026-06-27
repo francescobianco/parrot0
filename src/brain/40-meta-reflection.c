@@ -135,7 +135,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
              * ("what did you have for breakfast", "do you sleep"). Answered the
              * same honest way an LLM does ("I don't eat or sleep"); it states a
              * truth, makes no identity claim, and engages instead of walling. */
-            "self_embodiment", NULL };
+            "self_embodiment",
+            /* gen231: opinion/preference probes ("what's your favorite thing to do
+             * on a rainy day") — honest "no genuine preferences", engages not walls. */
+            "self_preference", NULL };
         for (size_t i = 0; ai[i]; i++) {
             if (kb_cue_match(b, ai[i], buf)) {
                 const char *var[] = {NULL};
@@ -384,7 +387,7 @@ static int is_internal_pred(const char *pred) {
          * substrate parrot0 ships with for mod_namestart, not facts the USER
          * taught it; filter it from "how many facts do you know?" and the
          * knowledge dump exactly like roles.p0's wrote/title/profession. */
-        "category_member",
+        "category_member", "opposite", "color_of",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

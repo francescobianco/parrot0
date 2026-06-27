@@ -993,6 +993,8 @@ static int is_struct_pred(const char *pred) {
         "tr", "gender", "trait",
         "part_of", /* gen158: a derived relation, not a describable concept */
         "category_member", /* gen230: mod_namestart substrate, not describable */
+        "opposite", /* gen231: antonym relation, queried not described */
+        "color_of", /* gen231: colour facts, queried not described */
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;

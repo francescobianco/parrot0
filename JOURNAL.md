@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-06-27 - gen231: LLMSCORE round 3 — ambitious reasoning (syllogisms)
+
+**Changed.** Targeted the LLMSCOREs most AMBITIOUS-yet-honest gaps: genuine
+reasoning on parrot0s own inference engine, never faked generation.
+- **Universal quantification** (mod_knowledge): "all men are mortal" / "every rose
+  is a flower" now parse to a definite rule mortal(X):-man(X) via kb_assert_rule
+  (plural->singular: men->man, roses->rose). The SLD resolver already chains it,
+  so "socrates is a man" + "is socrates mortal?" -> Yes by real deduction. Added an
+  adjective-form query "is <x> <y>?" (no article) for the classic conclusion.
+- **One-turn syllogism** (one_turn_syllogism): "if all men are mortal and socrates
+  is a man, is socrates mortal?" applies the premises (split on " and ") to a
+  scratch KB and resolves the closing question — multi-premise inference in one
+  turn, the shape an LLM is probed with. Declines unless it reaches a real Yes/No.
+- **Number-sequence continuation** (mod_sequence): "what comes next 2 4 6 8" -> 10;
+  detects arithmetic/geometric progression from >=3 terms, declines on no simple
+  rule (Fibonacci honestly walls, not guessed).
+- **Spelling** (mod_spell): "spell necessary" -> n-e-c-e-s-s-a-r-y (the word is the
+  data).
+- **Opinion/preference** self-model (self_preference, KB-first EN+IT): "what is your
+  favorite thing to do on a rainy day" -> honest "no genuine preferences", engages.
+
+**More relational knowledge (same gen).** Antonyms ("what's the opposite of hot?" ->
+cold) via opposite/2 facts answered by the existing gen11 relational path; colours
+("what color is a banana?" -> "It's yellow.") via color_of/2 + a recognizer; and a
+GENERATIVE intent for "write a short sentence using the word X" -> a KB
+response_template(sentence_with_word, …) frame with the word slotted via kb_response
+(surface forms in the KB, not C). opposite/color_of marked substrate in is_internal_pred
++ kb.c is_struct_pred like category_member. No new modules (folded into mod_knowledge /
+mod_gen), so the registry and its goldens are untouched.
+
+**Out of reach, honestly:** transitivity**Out of reach, honestly:** transitivity ("a>b and b>c, is a>c?") needs n-ary/binary
+recursive rules; the engine is unary single-var (see unification-assessment). Left as
+an honest wall, not faked. Pure generation (haiku, "describe a color") stays the
+no-deception ceiling.
+
+**Measured (honest).** This runs score was 2/10 — but the non-deterministic
+interviewer probed NONE of the new capabilities (it asked spelling, opposite-of,
+color-of, generation), so the number reflects harness variance, not the features,
+which are all verified working. Like sym-bench, LLMSCORE surfaces a different gap
+each run; treat it as a pressure source, not a number to maximize. make test green
+(209+; introspection goldens updated for count/namestart/sequence/spell).
 ## 2026-06-27 - gen230: LLMSCORE round 2 — honest capability for the failed Qs
 
 **Changed.** Three KB-first capabilities targeting the gen229 LLMSCORE 0s:

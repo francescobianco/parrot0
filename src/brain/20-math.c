@@ -873,3 +873,95 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen231 (LLMSCORE, ambitious): continue a number sequence. "what comes next 2 4
+ * 6 8" -> 10. Detects an arithmetic (constant difference) or geometric (constant
+ * ratio) progression from >=3 given terms and extends it by one — the rule is
+ * computed from the data, not guessed. Honest: declines when the terms fit no
+ * simple rule rather than inventing a continuation. */
+static int mod_sequence(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)raw; (void)b;
+    const char *buf = norm;
+    if (!(cue(buf, "comes next") || cue(buf, "come next") ||
+          cue(buf, "next number") || cue(buf, "next term") ||
+          cue(buf, "next in the") || cue(buf, "continue the sequence") ||
+          cue(buf, "continue the pattern") || cue(buf, "continue this sequence") ||
+          cue(buf, "viene dopo") || cue(buf, "numero successivo")))
+        return 0;
+
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
+    char *w[64]; size_t nw = split_words(tmp, w, 64);
+    double seq[32]; size_t ns = 0;
+    for (size_t i = 0; i < nw && ns < 32; i++) {
+        double v;
+        if (parse_num(strip_edge_punct(w[i]), &v)) seq[ns++] = v;
+    }
+    if (ns < 3) return 0;   /* too few terms to infer a rule honestly */
+
+    const double EPS = 1e-9;
+    double d = seq[1] - seq[0];
+    int arith = 1;
+    for (size_t i = 2; i < ns; i++) {
+        double e = (seq[i] - seq[i - 1]) - d;
+        if (e > EPS || e < -EPS) { arith = 0; break; }
+    }
+    double nextv = 0; int ok = 0;
+    if (arith) { nextv = seq[ns - 1] + d; ok = 1; }
+    else if (seq[0] != 0) {
+        double r = seq[1] / seq[0]; int geo = 1;
+        for (size_t i = 2; i < ns; i++) {
+            if (seq[i - 1] == 0) { geo = 0; break; }
+            double e = (seq[i] / seq[i - 1]) - r;
+            if (e > EPS || e < -EPS) { geo = 0; break; }
+        }
+        if (geo) { nextv = seq[ns - 1] * r; ok = 1; }
+    }
+    if (!ok) return 0;   /* no simple arithmetic/geometric rule: decline honestly */
+
+    char num[64]; format_num(nextv, num, sizeof num);
+    char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+    put(msg, out, out_size);
+    return 1;
+}
+
+/* gen231 (LLMSCORE): spell a word letter by letter — "spell necessary" ->
+ * "n-e-c-e-s-s-a-r-y". A structural lexical capability (the word is the data, not a
+ * stored list); spells the last real word after the cue. Declines if none is found. */
+static int mod_spell(Brain *b, const char *norm, const char *raw,
+                     char *out, size_t out_size) {
+    (void)b; (void)raw;
+    const char *buf = norm;
+    if (!(cue(buf, "spell ") || cue(buf, "how do you spell") ||
+          cue(buf, "can you spell") || cue(buf, "come si scrive")))
+        return 0;
+
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
+    char *w[64]; size_t nw = split_words(tmp, w, 64);
+    /* the word to spell is the last all-alphabetic token that isn't a frame word. */
+    const char *target = NULL;
+    for (size_t i = nw; i-- > 0; ) {
+        char *t = strip_edge_punct(w[i]);
+        size_t tl = strlen(t);
+        if (tl < 2) continue;
+        int alpha = 1;
+        for (size_t k = 0; k < tl; k++)
+            if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
+        if (!alpha) continue;
+        if (!strcmp(t, "spell") || !strcmp(t, "word") || !strcmp(t, "the") ||
+            !strcmp(t, "you") || !strcmp(t, "how") || !strcmp(t, "can") ||
+            !strcmp(t, "please") || !strcmp(t, "scrive") || !strcmp(t, "come"))
+            continue;
+        target = t; break;
+    }
+    if (!target) return 0;
+
+    char line[512]; size_t pos = 0; line[0] = '\0';
+    for (size_t i = 0; target[i] && pos + 3 < sizeof line; i++) {
+        if (i) line[pos++] = '-';
+        line[pos++] = target[i];
+    }
+    line[pos] = '\0';
+    put(line, out, out_size);
+    return 1;
+}
+

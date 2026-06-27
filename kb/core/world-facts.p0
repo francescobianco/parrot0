@@ -65,3 +65,92 @@ category_member(fruit, orange).
 category_member(fruit, peach).
 category_member(fruit, pear).
 category_member(fruit, plum).
+
+% --- gen231: antonyms for "what's the opposite of <X>?" — answered by the existing
+% gen11 relational query path (opposite(X, Y)). Stored BOTH directions (one clause
+% per line: the .p0 reader is line-oriented) so the query always resolves. ---
+opposite(hot, cold).
+opposite(cold, hot).
+opposite(big, small).
+opposite(small, big).
+opposite(tall, short).
+opposite(short, tall).
+opposite(fast, slow).
+opposite(slow, fast).
+opposite(high, low).
+opposite(low, high).
+opposite(up, down).
+opposite(down, up).
+opposite(left, right).
+opposite(right, left).
+opposite(open, closed).
+opposite(closed, open).
+opposite(light, dark).
+opposite(dark, light).
+opposite(day, night).
+opposite(night, day).
+opposite(happy, sad).
+opposite(sad, happy).
+opposite(good, bad).
+opposite(bad, good).
+opposite(true, false).
+opposite(false, true).
+opposite(yes, no).
+opposite(no, yes).
+opposite(young, old).
+opposite(old, young).
+opposite(full, empty).
+opposite(empty, full).
+opposite(wet, dry).
+opposite(dry, wet).
+opposite(hard, soft).
+opposite(soft, hard).
+opposite(strong, weak).
+opposite(weak, strong).
+opposite(rich, poor).
+opposite(poor, rich).
+opposite(early, late).
+opposite(late, early).
+opposite(win, lose).
+opposite(lose, win).
+opposite(love, hate).
+opposite(hate, love).
+opposite(more, less).
+opposite(less, more).
+opposite(first, last).
+opposite(last, first).
+opposite(near, far).
+opposite(far, near).
+opposite(clean, dirty).
+opposite(dirty, clean).
+
+% --- gen231: canonical colours of familiar things for "what color is a banana?"
+% (mod_knowledge recognizer queries color_of/2). One ground colour each; a thing
+% with several real colours just records its prototypical one, honestly partial. ---
+color_of(banana, yellow).
+color_of(lemon, yellow).
+color_of(sun, yellow).
+color_of(apple, red).
+color_of(cherry, red).
+color_of(strawberry, red).
+color_of(tomato, red).
+color_of(blood, red).
+color_of(grass, green).
+color_of(lime, green).
+color_of(leaf, green).
+color_of(emerald, green).
+color_of(sky, blue).
+color_of(sea, blue).
+color_of(ocean, blue).
+color_of(orange, orange).
+color_of(carrot, orange).
+color_of(grape, purple).
+color_of(eggplant, purple).
+color_of(snow, white).
+color_of(milk, white).
+color_of(cloud, white).
+color_of(coal, black).
+color_of(night, black).
+color_of(chocolate, brown).
+color_of(wood, brown).
+color_of(soil, brown).

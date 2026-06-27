@@ -133,6 +133,23 @@ intent_cue(self_embodiment, "cosa mangi").
 intent_cue(self_embodiment, "hai dormito").
 intent_cue(self_embodiment, "sei stanco").
 
+% --- gen231 (LLMSCORE): opinion / preference probes ("what's your favorite thing
+% to do on a rainy day", "do you enjoy music"). parrot0 has no personal tastes or
+% lived experience; the honest answer engages instead of walling and is the same an
+% LLM gives. Anchored on "your favorite/favourite" and "do you like/enjoy/prefer". ---
+intent_cue(self_preference, "your favorite").
+intent_cue(self_preference, "your favourite").
+intent_cue(self_preference, "favorite thing").
+intent_cue(self_preference, "favourite thing").
+intent_cue(self_preference, "do you like").
+intent_cue(self_preference, "do you enjoy").
+intent_cue(self_preference, "do you prefer").
+intent_cue(self_preference, "what do you enjoy").
+intent_cue(self_preference, "il tuo preferito").
+intent_cue(self_preference, "la tua preferita").
+intent_cue(self_preference, "cosa ti piace").
+intent_cue(self_preference, "ti piace").
+
 % --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"
 % choice itself is recognized structurally in mod_chitchat, not listed here). ---
 intent_cue(would_rather, "would you rather").

@@ -47,3 +47,15 @@ response_template(would_rather, "I'll play along, though I don't have real prefe
 % same probe, and it is true for parrot0. No identity claim, just engagement. ---
 response_template(self_embodiment, "I don't eat or sleep - I have no body, so there's no breakfast or rest for me.").
 response_template(self_embodiment, "No meals or sleep here: I don't have a body. I just process the text you send me.").
+
+% --- gen231 (LLMSCORE): honest reply to opinion/preference probes. No lived
+% experience, so no genuine favorites - engages rather than walling. ---
+response_template(self_preference, "I don't have personal tastes or lived experience, so I have no real favorite - but tell me yours and I'll follow along.").
+response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?").
+
+% --- gen231 (LLMSCORE): generative intent - "write a sentence using the word X".
+% {name} is filled with the target word; kb_response rotates the frame. Simple by
+% design (parrot0 composes from a template, it does not author prose). ---
+response_template(sentence_with_word, "Here's a short one: the {name} is right over there.").
+response_template(sentence_with_word, "Sure: I almost left my {name} behind today.").
+response_template(sentence_with_word, "Okay: that {name} is something worth a closer look.").

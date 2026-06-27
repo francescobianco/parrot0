@@ -953,10 +953,116 @@ static int entailment_reply(const char *premises, const char *hypothesis,
     return 1;
 }
 
+/* gen231 (LLMSCORE, ambitious): crude English singularizer so a plural subject in
+ * a universal ("all MEN are mortal", "all ROSES are flowers") maps to the singular
+ * predicate the fact path uses (man/1, rose/1). A few irregulars, then regular
+ * -ies/-es/-s; adjectives and already-singular words pass through unchanged. */
+static void singularize(const char *in, char *out, size_t sz) {
+    static const struct { const char *pl, *sg; } irr[] = {
+        {"men","man"},{"women","woman"},{"people","person"},{"children","child"},
+        {"feet","foot"},{"teeth","tooth"},{"mice","mouse"},{"geese","goose"},{NULL,NULL} };
+    for (size_t i = 0; irr[i].pl; i++)
+        if (strcmp(in, irr[i].pl) == 0) { snprintf(out, sz, "%s", irr[i].sg); return; }
+    size_t n = strlen(in);
+    if (n > 3 && strcmp(in + n - 3, "ies") == 0) {            /* puppies -> puppy */
+        snprintf(out, sz, "%.*sy", (int)(n - 3), in); return;
+    }
+    if (n > 4 && (strcmp(in + n - 4, "ches") == 0 ||
+                  strcmp(in + n - 4, "shes") == 0)) {          /* beaches -> beach */
+        snprintf(out, sz, "%.*s", (int)(n - 2), in); return;
+    }
+    if (n > 3 && (strcmp(in + n - 3, "ses") == 0 ||
+                  strcmp(in + n - 3, "xes") == 0 ||
+                  strcmp(in + n - 3, "zes") == 0)) {           /* boxes -> box */
+        snprintf(out, sz, "%.*s", (int)(n - 2), in); return;
+    }
+    if (n > 2 && in[n - 1] == 's' && in[n - 2] != 's') {      /* roses -> rose */
+        snprintf(out, sz, "%.*s", (int)(n - 1), in); return;
+    }
+    snprintf(out, sz, "%s", in);
+}
+
+/* gen231 (LLMSCORE, ambitious): a ONE-TURN syllogism. "if all men are mortal and
+ * socrates is a man, is socrates mortal?" — apply the premises to a scratch KB
+ * (universals become rules via the parser inside mod_knowledge) and resolve the
+ * closing yes/no question against it. Genuine multi-premise inference in a single
+ * turn, the shape an LLM is probed with — not a recited answer. Declines unless it
+ * actually reaches a Yes/No, so an unparseable "if …" still falls through honestly. */
+static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_size) {
+    (void)b;
+    size_t L = strlen(norm);
+    if (L < 10 || L >= 480 || norm[L - 1] != '?') return 0;
+    if (strncmp(norm, "if ", 3) != 0) return 0;
+    const char *comma = strrchr(norm, ',');
+    if (!comma) return 0;
+    const char *q = comma + 1;
+    while (*q == ' ') q++;
+    if (strncmp(q, "is ", 3) != 0 && strncmp(q, "are ", 4) != 0) return 0;
+
+    char prem[512];
+    size_t plen = (size_t)(comma - (norm + 3));
+    if (plen == 0 || plen >= sizeof prem) return 0;
+    memcpy(prem, norm + 3, plen); prem[plen] = '\0';
+
+    Brain tmp; memset(&tmp, 0, sizeof tmp);
+    tmp.kb = kb_create();
+    if (!tmp.kb) return 0;
+    kb_set_origin(tmp.kb, KB_SESSION);
+    if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
+
+    char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", q);
+    char ans[256];
+    int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
+    kb_destroy(tmp.kb);
+    if (!claimed) return 0;
+    if (strncmp(ans, "Yes", 3) != 0 && strncmp(ans, "No", 2) != 0 &&
+        strncmp(ans, "Conflicted", 10) != 0) return 0;
+    put(ans, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
+
+    /* gen231: one-turn syllogism — "if <premises>, is <x> <y>?" resolved by real
+     * inference on a scratch KB. Placed first so a self-contained deduction is
+     * recognized before the single-clause handlers below see only fragments. */
+    if (one_turn_syllogism(b, norm, out, out_size)) return 1;
+
+    /* gen231 (LLMSCORE): "what color is (a/the) <X>?" -> color_of(X, C). The colour
+     * facts are KB ground knowledge (world-facts.p0); the queried thing is the last
+     * real noun in the turn. Honest: falls through (no claim) when the thing is
+     * unknown, so it never invents a colour. */
+    if (strstr(norm, "what color is") || strstr(norm, "what colour is") ||
+        strstr(norm, "di che colore")) {
+        char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+        char *ww[64]; size_t nn = split_words(tmp, ww, 64);
+        const char *target = NULL;
+        for (size_t i = nn; i-- > 0; ) {
+            char *t = strip_edge_punct(ww[i]); size_t tl = strlen(t);
+            if (tl < 2) continue;
+            int alpha = 1;
+            for (size_t k = 0; k < tl; k++)
+                if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
+            if (!alpha) continue;
+            if (!strcmp(t,"what")||!strcmp(t,"color")||!strcmp(t,"colour")||
+                !strcmp(t,"the")||!strcmp(t,"che")||!strcmp(t,"colore")||
+                !strcmp(t,"di")||!strcmp(t,"is")) continue;
+            target = t; break;
+        }
+        if (target && b->kb) {
+            const char *pat[2] = { target, NULL };
+            char res[8][KB_TERM_LEN];
+            if (kb_match(b->kb, "color_of", pat, 2, res, 8) > 0) {
+                char msg[160];
+                snprintf(msg, sizeof msg, "It's %s.", res[0]);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
 
     /* gen84: hypothesis mode — "suppose <fact>, then <query>" */
     if (strncmp(norm, "suppose ", 8) == 0) {
@@ -1605,6 +1711,64 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             remember_entity(b, w[0], subj);
             note_consequence(b, cl2, before, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen231 (LLMSCORE, ambitious): UNIVERSAL QUANTIFICATION -> a definite rule the
+     * SLD resolver already chains. "all men are mortal" / "every rose is a flower"
+     * become mortal(X):-man(X) / flower(X):-rose(X); afterwards "is socrates mortal?"
+     * and "is <r> a flower?" deduce over the rule plus the ground fact. This is real
+     * syllogistic reasoning on parrot0's own engine, not a recited string. */
+    if ((nw == 4 || nw == 5) &&
+        (strcmp(w[0], "all") == 0 || strcmp(w[0], "every") == 0 ||
+         strcmp(w[0], "any") == 0) &&
+        (strcmp(w[2], "are") == 0 || strcmp(w[2], "is") == 0)) {
+        const char *clsw = (nw == 5 && is_article(w[3])) ? w[4] : w[3];
+        char subjb[KB_TERM_LEN], clsb[KB_TERM_LEN];
+        char sj[KB_TERM_LEN], cl[KB_TERM_LEN];
+        snprintf(subjb, sizeof subjb, "%s", w[1]);
+        snprintf(clsb, sizeof clsb, "%s", clsw);
+        singularize(strip_edge_punct(subjb), sj, sizeof sj);
+        singularize(strip_edge_punct(clsb), cl, sizeof cl);
+        if (*sj && *cl && strcmp(sj, cl) != 0) {
+            char msg[160];
+            if (kb_assert_rule(b->kb, cl, sj))
+                snprintf(msg, sizeof msg,
+                         "Got it: if something is a %s, then it is %s.", sj, cl);
+            else
+                snprintf(msg, sizeof msg, "I couldn't store that rule.");
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen231: adjective-form deduction query "is <x> <y>?" (no article, e.g.
+     * "is socrates mortal?") -> resolve y(x) over rules+facts. Guarded on a known
+     * predicate so it never feigns a yes/no for an unknown property. */
+    if (nw == 3 && strcmp(w[0], "is") == 0 &&
+        !is_article(w[1]) && isalpha((unsigned char)w[1][0])) {
+        char clsb[KB_TERM_LEN];
+        snprintf(clsb, sizeof clsb, "%s", w[2]);
+        char *cl = strip_edge_punct(clsb);
+        if (*cl && kb_knows_pred(b->kb, cl)) {
+            const char *subj;
+            if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
+            const char *args[] = {subj};
+            if (kb_is_conflicted(b->kb, cl, args, 1)) put("Conflicted.", out, out_size);
+            else {
+                int yes = kb_query(b->kb, cl, args, 1);
+                put(yes ? "Yes." : "No.", out, out_size);
+                if (yes) {
+                    char ex[512];
+                    if (kb_explain(b->kb, cl, args, 1, ex, sizeof ex)) store_proof(b, ex);
+                }
+                snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cl);
+                snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
+                b->last_goal_yes = yes;
+                b->has_last_goal = 1;
+            }
+            remember_entity(b, w[1], subj);
             return 1;
         }
     }

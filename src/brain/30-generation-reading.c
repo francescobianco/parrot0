@@ -30,6 +30,37 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen231 (LLMSCORE): a GENERATIVE INTENT — "write a short sentence using the
+     * word <X>". The frames live in response_template(sentence_with_word, …) with a
+     * {name} slot the target word fills, rotating like any KB reply; the engine
+     * composes a real (if simple) sentence, never a fixed C string (PRINCIPLES.md:
+     * the surface forms it PRODUCES live in the KB). */
+    if (cue(norm, "sentence") &&
+        (cue(norm, "using the word") || cue(norm, "with the word") ||
+         cue(norm, "that uses") || cue(norm, "contains the word") ||
+         cue(norm, "use the word") || cue(norm, "con la parola") ||
+         cue(norm, "usando la parola"))) {
+        char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+        char *ww[64]; size_t nn = split_words(tmp, ww, 64);
+        /* the target word follows the marker "word"/"parola", else "with"/"uses"/
+         * "using"/"contains"; the word can sit mid-sentence ("use the word OCEAN in
+         * a sentence"), so take the token AFTER the marker, not the last token. */
+        const char *target = NULL;
+        for (size_t i = 0; i + 1 < nn; i++) {
+            if (!strcmp(ww[i],"word")  || !strcmp(ww[i],"parola") ||
+                !strcmp(ww[i],"with")  || !strcmp(ww[i],"uses")   ||
+                !strcmp(ww[i],"using") || !strcmp(ww[i],"contains")) {
+                char *t = strip_edge_punct(ww[i + 1]);
+                if (strlen(t) >= 2 && isalpha((unsigned char)t[0]) &&
+                    strcmp(t,"the") && strcmp(t,"word") && strcmp(t,"la")) {
+                    target = t; break;
+                }
+            }
+        }
+        if (target && kb_response(b, "sentence_with_word", target, out, out_size))
+            return 1;
+    }
+
     /* gen111: edit the decoder's choice policy as knowledge —
      * "set trigram weight to N" / "set bigram weight to N" updates the
      * weight(kind, N) fact next_word_ctx reads, so generation behaviour is
