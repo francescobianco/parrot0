@@ -1954,6 +1954,23 @@
       "summary": "learned periodic_table: The periodic table, also known as the periodic table of the elements, is an ordered...",
       "title": "Periodic table",
       "url": "https://en.wikipedia.org/wiki/Periodic_table"
+    },
+    {
+      "concept": "chemical bond that involves the sharing of electrons to form electron pairs between atoms",
+      "domain": "chemistry",
+      "event_id": "learn_2026_06_27t17_41_19z_covalent_bond",
+      "key": "covalent_bond",
+      "log_path": "kb/learning/logs/learn_2026_06_27t17_41_19z_covalent_bond.json",
+      "markdown_path": "kb/learning/pages/covalent_bond.md",
+      "processed_at": "2026-06-27T17:41:19Z",
+      "prompt": "what do you know about learn_2026_06_27t17_41_19z_covalent_bond",
+      "revision": 1347405474,
+      "source_index": 11,
+      "source_line": 25,
+      "source_title": "Covalent bond",
+      "summary": "learned covalent_bond: chemical bond that involves the sharing of electrons to form electron pairs between atoms",
+      "title": "Covalent bond",
+      "url": "https://en.wikipedia.org/wiki/Covalent_bond"
     }
   ],
   "pages": {
@@ -2053,10 +2070,10 @@
       "domain": "chemistry",
       "extract_sha256": "f7802f06e8416174428740bc339749007eb37f68223ca48133ddbb75d6b5512a",
       "key": "covalent_bond",
-      "last_event_id": "learn_2026_06_26t11_18_15z_covalent_bond",
+      "last_event_id": "learn_2026_06_27t17_41_19z_covalent_bond",
       "markdown_path": "kb/learning/pages/covalent_bond.md",
       "pageid": 6246,
-      "processed_at": "2026-06-26T11:18:15Z",
+      "processed_at": "2026-06-27T17:41:19Z",
       "revision": 1347405474,
       "source_title": "Covalent bond",
       "title": "Covalent bond",

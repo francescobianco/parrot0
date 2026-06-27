@@ -60,7 +60,7 @@ wiki_concept(periodic_table, chemistry, "The periodic table, also known as the p
 
 % chemistry / Covalent bond
 % source: https://en.wikipedia.org/wiki/Covalent_bond
-% revision: 1347405474; processed: 2026-06-26T11:18:15Z
+% revision: 1347405474; processed: 2026-06-27T17:41:19Z
 wiki_concept(covalent_bond, chemistry, "chemical bond that involves the sharing of electrons to form electron pairs between atoms").
 
 % chemistry / Catalysis
@@ -1168,3 +1168,12 @@ learning_event_concept(learn_2026_06_27t16_41_36z_periodic_table, periodic_table
 learning_event_revision(learn_2026_06_27t16_41_36z_periodic_table, rev_1360487132).
 learning_event_markdown(learn_2026_06_27t16_41_36z_periodic_table, "kb/learning/pages/periodic_table.md").
 learning_event_log(learn_2026_06_27t16_41_36z_periodic_table, "kb/learning/logs/learn_2026_06_27t16_41_36z_periodic_table.json").
+
+% event learn_2026_06_27t17_41_19z_covalent_bond
+learning_event(learn_2026_06_27t17_41_19z_covalent_bond, "learned covalent_bond: chemical bond that involves the sharing of electrons to form electron pairs between atoms").
+learning_event_time(learn_2026_06_27t17_41_19z_covalent_bond, "2026-06-27T17:41:19Z").
+learning_event_domain(learn_2026_06_27t17_41_19z_covalent_bond, chemistry).
+learning_event_concept(learn_2026_06_27t17_41_19z_covalent_bond, covalent_bond).
+learning_event_revision(learn_2026_06_27t17_41_19z_covalent_bond, rev_1347405474).
+learning_event_markdown(learn_2026_06_27t17_41_19z_covalent_bond, "kb/learning/pages/covalent_bond.md").
+learning_event_log(learn_2026_06_27t17_41_19z_covalent_bond, "kb/learning/logs/learn_2026_06_27t17_41_19z_covalent_bond.json").

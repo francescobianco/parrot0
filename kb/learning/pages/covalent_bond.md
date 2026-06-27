@@ -1,11 +1,11 @@
 # Covalent bond
 
-- Learning event: `learn_2026_06_26t11_18_15z_covalent_bond`
-- Operational log: `kb/learning/logs/learn_2026_06_26t11_18_15z_covalent_bond.json`
+- Learning event: `learn_2026_06_27t17_41_19z_covalent_bond`
+- Operational log: `kb/learning/logs/learn_2026_06_27t17_41_19z_covalent_bond.json`
 - Domain: `chemistry`
 - Source: https://en.wikipedia.org/wiki/Covalent_bond
 - Wikipedia revision: `1347405474`
-- Processed: `2026-06-26T11:18:15Z`
+- Processed: `2026-06-27T17:41:19Z`
 
 ## Learned Concept
 
