@@ -341,6 +341,21 @@ landmark_of(egypt, "the Great Pyramids of Giza").
 landmark_of(india, "the Taj Mahal").
 landmark_of(china, "the Great Wall").
 
+% gen240 (LLMSCORE): reverse lookup — a landmark's city, keyed by a distinctive
+% word in its name. "What city is the Eiffel Tower in?" -> Paris.
+landmark_city(eiffel, "Paris").
+landmark_city(colosseum, "Rome").
+landmark_city(liberty, "New York City").
+landmark_city("big ben", "London").
+landmark_city(pyramids, "Giza").
+landmark_city(taj, "Agra").
+landmark_city(sagrada, "Barcelona").
+landmark_city(opera, "Sydney").
+landmark_city(brandenburg, "Berlin").
+landmark_city(acropolis, "Athens").
+landmark_city(kremlin, "Moscow").
+landmark_city(coliseum, "Rome").
+
 % --- gen240 (LLMSCORE): solar-system superlatives. planet_superlative(Property,
 % Planet, "descriptive phrase") is the knowledge; the C maps a cue word in the
 % question to the Property and reads the phrase (engine fixed, lexicon grows).
@@ -459,6 +474,15 @@ scene_cue(watching, vigil).
 continuation_template(vigil, "a faint light blinked far out on the dark water").
 continuation_template(vigil, "the beam swept once more across the empty, churning sea").
 continuation_template(vigil, "a wave struck the rocks below with a sound like thunder").
+% gen240: an enchanted-object scene (book, shelf, mirror, attic, library).
+scene_cue(book, enchanted).
+scene_cue(shelf, enchanted).
+scene_cue(mirror, enchanted).
+scene_cue(attic, enchanted).
+scene_cue(library, enchanted).
+continuation_template(enchanted, "its pages began to glow with a soft golden light").
+continuation_template(enchanted, "a low hum filled the room as the dust lifted into the air").
+continuation_template(enchanted, "words rose off the page and hung shimmering in the dark").
 
 % --- gen235 (LLMSCORE): historically grounded guest-list substrate.
 historical_figure(einstein).
@@ -531,6 +555,22 @@ color_of(bus, yellow).
 % gen240 (LLMSCORE): parrot0 has no real preferences, but when asked to pick a
 % favourite it offers one honestly rather than dodging. The pick is KB data.
 default_color(blue).
+% gen240: honest picks for "what's your favorite <X>" (weather, season, ...).
+default_pick(weather, "a light, steady rain").
+default_pick(season, "autumn").
+default_pick(food, "fresh warm bread").
+default_pick(animal, "the octopus").
+default_pick(number, "seven").
+default_pick(book, "a good mystery").
+default_pick(music, "quiet piano").
+default_pick(movie, "an old black-and-white film").
+default_pick(drink, "a cup of tea").
+default_pick(sport, "long-distance running").
+default_pick(hobby, "reading quietly").
+default_pick(place, "a quiet library").
+default_pick(fruit, "a ripe peach").
+default_pick(flower, "the sunflower").
+default_pick(day, "a rainy Sunday").
 
 % gen240 (LLMSCORE): appearance/2 lets parrot0 DESCRIBE something it cannot see.
 % Asked "describe what a sunset looks like", it admits it has no senses but gives

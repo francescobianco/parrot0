@@ -158,6 +158,40 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 put(msg, out, out_size); return 1;
             }
         }
+        /* gen240: generic "what's your favorite <X>" — engage with an honest pick
+         * from default_pick(X, "…") (weather, season, food, …), the same spirit as
+         * the colour answer, instead of the generic no-preference dodge. */
+        int answered_fav = 0;
+        if (!b->in_role && !is_color_q && (cue(buf, "favorite") || cue(buf, "favourite"))) {
+            char fbb[256]; snprintf(fbb, sizeof fbb, "%s", buf);
+            char *fw[32]; size_t fn = split_words(fbb, fw, 32);
+            for (size_t i = 0; i + 1 < fn && !answered_fav; i++) {
+                char *fv = strip_edge_punct(fw[i]);
+                if (strcmp(fv, "favorite") && strcmp(fv, "favourite")) continue;
+                size_t j = i + 1;
+                while (j < fn) {                       /* skip "kind of"/"type of"/articles */
+                    char *t = strip_edge_punct(fw[j]);
+                    if (!strcmp(t,"kind")||!strcmp(t,"type")||!strcmp(t,"sort")||
+                        !strcmp(t,"of")||!strcmp(t,"a")||!strcmp(t,"the")) j++;
+                    else break;
+                }
+                if (j >= fn) break;
+                char topic[64]; snprintf(topic, sizeof topic, "%s", strip_edge_punct(fw[j]));
+                size_t tl = strlen(topic);
+                if (tl > 1 && topic[tl-1] == 's') topic[tl-1] = '\0';   /* naive singular */
+                const char *pq[] = { topic, NULL };
+                char pk[1][KB_TERM_LEN];
+                if (b->kb && kb_match(b->kb, "default_pick", pq, 2, pk, 1) > 0) {
+                    char *p = pk[0]; size_t l = strlen(p);
+                    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                    char msg[160];
+                    snprintf(msg, sizeof msg,
+                             "I don't have real preferences, but if I had to choose, "
+                             "I'd pick %s.", p);
+                    put(msg, out, out_size); return 1;
+                }
+            }
+        }
         for (size_t i = 0; ai[i]; i++) {
             if (is_color_q && strcmp(ai[i], "self_preference") == 0) continue;
             if (kb_cue_match(b, ai[i], buf)) {
@@ -416,7 +450,7 @@ static int is_internal_pred(const char *pred) {
         "paint_mix",
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
         "quantity", "landmark_of", "planet_superlative", /* gen240 */
-        "synonym", "default_color", "appearance", "compound_word",
+        "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

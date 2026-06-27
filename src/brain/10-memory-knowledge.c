@@ -1746,6 +1746,30 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen240 (LLMSCORE): reverse landmark lookup — "what city is the Eiffel Tower
+     * in?" / "where is the Colosseum?" -> the city, matched by a distinctive word
+     * of the landmark name (landmark_city/2). */
+    if ((cue(norm, "what city") || cue(norm, "which city") || cue(norm, "where is") ||
+         cue(norm, "what country")) &&
+        (cue(norm, "located") || cue(norm, "city") || cue(norm, "where") ||
+         cue(norm, "found"))) {
+        char lb[256]; snprintf(lb, sizeof lb, "%s", norm);
+        char *lw[64]; size_t ln = split_words(lb, lw, 64);
+        for (size_t i = 0; i < ln; i++) {
+            char *t = strip_edge_punct(lw[i]);
+            if (strlen(t) < 3) continue;
+            const char *q[] = { t, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "landmark_city", q, 2, hit, 1) > 0) {
+                char *p = hit[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                char msg[96]; snprintf(msg, sizeof msg, "%s.", p);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): solar-system superlatives. The descriptive phrase per
      * property lives in planet_superlative(Property, Planet, "phrase"); the C maps
      * a cue word in the question to the Property and reads the phrase. Each half of
