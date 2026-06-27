@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "biology",
-    "event_id": "learn_2026_06_27t22_40_37z_evolution",
-    "key": "evolution",
-    "log_path": "kb/learning/logs/learn_2026_06_27t22_40_37z_evolution.json",
-    "markdown_path": "kb/learning/pages/evolution.md",
-    "processed_at": "2026-06-27T22:40:37Z",
-    "prompt": "what do you know about learn_2026_06_27t22_40_37z_evolution",
-    "revision": 1357316203,
-    "title": "Evolution"
+    "domain": "medicine",
+    "event_id": "learn_2026_06_27t23_38_57z_immune_system",
+    "key": "immune_system",
+    "log_path": "kb/learning/logs/learn_2026_06_27t23_38_57z_immune_system.json",
+    "markdown_path": "kb/learning/pages/immune_system.md",
+    "processed_at": "2026-06-27T23:38:57Z",
+    "prompt": "what do you know about learn_2026_06_27t23_38_57z_immune_system",
+    "revision": 1350208094,
+    "title": "Immune system"
   },
-  "next_index": 17
+  "next_index": 18
 }
