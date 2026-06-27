@@ -428,6 +428,15 @@ continuation_template(mystery, "the neighbours always crossed to the other side 
 continuation_template(wonder, "the colours spilled down until they touched the grass").
 continuation_template(wonder, "every face turned upward, caught in the same quiet awe").
 continuation_template(wonder, "for a moment the whole valley seemed to hold its breath").
+% gen240: a lone watcher / lookout scene (lighthouse, cliff, shore, tower).
+scene_cue(lighthouse, vigil).
+scene_cue(cliff, vigil).
+scene_cue(shore, vigil).
+scene_cue(tower, vigil).
+scene_cue(watching, vigil).
+continuation_template(vigil, "a faint light blinked far out on the dark water").
+continuation_template(vigil, "the beam swept once more across the empty, churning sea").
+continuation_template(vigil, "a wave struck the rocks below with a sound like thunder").
 
 % --- gen235 (LLMSCORE): historically grounded guest-list substrate.
 historical_figure(einstein).

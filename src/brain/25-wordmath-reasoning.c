@@ -408,6 +408,14 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             /* "give/gave away N" is a removal: "give" alone is ambiguous, but
              * the "away" particle disambiguates it (gen240). */
             if (!strcmp(t, "away")) { sign = -1; continue; }
+            /* gen240: base "give"/"giving N to <someone>" is a removal for the
+             * subject. Ambiguous only when the recipient is me/us, so guard on the
+             * NEXT token — "give 1 to a friend" subtracts; "give me 2 more" doesn't. */
+            if (!strcmp(t, "give") || !strcmp(t, "giving")) {
+                char *nx = (i + 1 < tnw) ? strip_edge_punct(tw[i + 1]) : (char *)"";
+                if (strcmp(nx, "me") && strcmp(nx, "us") && strcmp(nx, "myself"))
+                    sign = -1;
+            }
             if (wp_removal_word(t)) sign = -1;
             double v;
             if (parse_value(t, &v)) {
