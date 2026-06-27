@@ -1008,6 +1008,7 @@ static int is_struct_pred(const char *pred) {
         "quantity", /* gen240: known-fact counts, queried not described */
         "default_color", /* gen240: parrot0's offered pick, not a world fact */
         "default_pick", "landmark_city", /* gen240 */
+        "magnitude", "sound_of", /* gen240 */
         "compound_word", /* gen240: compound-word riddle facts */
         "appearance", /* gen240: sensory descriptions, queried not described */
         "synonym", /* gen231/236: synonym relation, queried not described */

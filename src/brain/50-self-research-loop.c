@@ -391,6 +391,10 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                      /* Italian cues */
                      cue(buf, "cosa sai fare") || cue(buf, "puoi fare") ||
                      cue(buf, "sai fare") || cue(buf, "che cosa sai fare");
+    /* gen240: "if you're happy and you know it, what do you do?" is a song, not a
+     * capability query — a leading conditional means it isn't asking about me. */
+    if (capability && (cue(buf, "if you") || cue(buf, "when you")))
+        capability = 0;
 
     /* capability is the more specific intent ("what are you ABLE TO DO" also
      * contains the identity cue "what are you"), so test it first. Describe what

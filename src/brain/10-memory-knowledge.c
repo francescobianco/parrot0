@@ -1037,6 +1037,21 @@ static int qchain_reaches(KB *kb, const char *feature, const char *base, int dep
     return 0;
 }
 
+/* gen240: fetch magnitude(Dim, Item, Rank) into `rank`, trying the item as written
+ * and then a naive singular. Returns 1 if found. */
+static int magnitude_lookup(Brain *b, const char *dim, const char *item, char *rank) {
+    const char *q[] = { dim, item, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "magnitude", q, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+    size_t l = strlen(item);
+    if (l > 1 && item[l - 1] == 's') {
+        char sg[64]; snprintf(sg, sizeof sg, "%.*s", (int)(l - 1), item);
+        const char *q2[] = { dim, sg, NULL };
+        if (kb_match(b->kb, "magnitude", q2, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+    }
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -1068,6 +1083,77 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char msg[96]; snprintf(msg, sizeof msg, "%s.", m);
                 put(msg, out, out_size);
                 return 1;
+            }
+        }
+    }
+
+    /* gen240 (LLMSCORE): animal sound — "what sound/noise does a dog make?" /
+     * "what does a cow say?" -> sound_of(animal, "…"). */
+    if ((cue(norm, "sound") || cue(norm, "noise") || cue(norm, "say") || cue(norm, "says")) &&
+        (cue(norm, "make") || cue(norm, "makes") || cue(norm, "does") || cue(norm, "do"))) {
+        char ab[256]; snprintf(ab, sizeof ab, "%s", norm);
+        char *aw[64]; size_t an = split_words(ab, aw, 64);
+        for (size_t i = 0; i < an; i++) {
+            char *t = strip_edge_punct(aw[i]); size_t tl = strlen(t);
+            if (tl < 2) continue;
+            char sg[64]; snprintf(sg, sizeof sg, "%s", t);
+            if (tl > 1 && sg[tl-1]=='s') sg[tl-1]='\0';
+            const char *q[] = { sg, NULL }; char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "sound_of", q, 2, hit, 1) > 0) {
+                char *p = hit[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                char msg[96]; snprintf(msg, sizeof msg, "A %s goes \"%s\".", sg, p);
+                put(msg, out, out_size); return 1;
+            }
+        }
+    }
+
+    /* gen240 (LLMSCORE): pairwise comparison — "which is larger: a strawberry or a
+     * watermelon?", "which planet is closer to the Sun: Mars or Jupiter?" Compares
+     * magnitude(Dim, Item, Rank); the cue word picks the Dim and direction. KB-first:
+     * add a magnitude fact and the comparison extends with no code edit. */
+    if (cue(norm, " or ") &&
+        (cue(norm, "larger") || cue(norm, "bigger") || cue(norm, "smaller") ||
+         cue(norm, "biggest") || cue(norm, "largest") || cue(norm, "smallest") ||
+         cue(norm, "closer") || cue(norm, "nearer") || cue(norm, "closest") ||
+         cue(norm, "farther") || cue(norm, "further") || cue(norm, "farthest") ||
+         cue(norm, "heavier") || cue(norm, "tinier"))) {
+        const char *dim = NULL; int want_max = 1;
+        if (cue(norm, "larger")||cue(norm, "bigger")||cue(norm, "largest")||
+            cue(norm, "biggest")||cue(norm, "heavier")) { dim = "size"; want_max = 1; }
+        else if (cue(norm, "smaller")||cue(norm, "smallest")||cue(norm, "tinier")) { dim = "size"; want_max = 0; }
+        else if (cue(norm, "closer")||cue(norm, "nearer")||cue(norm, "closest")) { dim = "distance_from_sun"; want_max = 0; }
+        else if (cue(norm, "farther")||cue(norm, "further")||cue(norm, "farthest")) { dim = "distance_from_sun"; want_max = 1; }
+        if (dim) {
+            char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
+            char *cw[64]; size_t cn = split_words(cb, cw, 64);
+            size_t orp = cn;
+            for (size_t i = 0; i < cn; i++) if (!strcmp(strip_edge_punct(cw[i]), "or")) { orp = i; break; }
+            const char *A = NULL, *B = NULL;
+            static const char *skip[] = {"a","an","the","is","are","which","what",
+                "planet","bigger","larger","smaller","closer","nearer","farther",
+                "further","to","sun","or","does","do",NULL};
+            for (size_t i = 0; i < orp; i++) { char *t = strip_edge_punct(cw[i]);
+                int sk=0; for (size_t s=0;skip[s];s++) if(!strcmp(t,skip[s])) sk=1;
+                if (!sk && isalpha((unsigned char)t[0]) && strlen(t)>1) A = t; }
+            for (size_t i = orp+1; i < cn; i++) { char *t = strip_edge_punct(cw[i]);
+                int sk=0; for (size_t s=0;skip[s];s++) if(!strcmp(t,skip[s])) sk=1;
+                if (!sk && isalpha((unsigned char)t[0]) && strlen(t)>1) { B = t; break; } }
+            if (A && B) {
+                /* look up the item as written, then a naive singular as fallback —
+                 * never blindly strip a trailing 's' ("mars"/"venus" are not plurals). */
+                char ra[1][KB_TERM_LEN], rb[1][KB_TERM_LEN];
+                char a2[64], b2[64]; snprintf(a2,sizeof a2,"%s",A); snprintf(b2,sizeof b2,"%s",B);
+                int fa = magnitude_lookup(b, dim, a2, ra[0]);
+                int fb = magnitude_lookup(b, dim, b2, rb[0]);
+                if (fa && fb) {
+                    double na=0,nb=0; parse_value(ra[0],&na); parse_value(rb[0],&nb);
+                    const char *win = want_max ? (na>=nb?a2:b2) : (na<=nb?a2:b2);
+                    char w[64]; snprintf(w,sizeof w,"%s",win);
+                    if (w[0]) w[0]=(char)toupper((unsigned char)w[0]);
+                    char msg[96]; snprintf(msg,sizeof msg,"%s.",w);
+                    put(msg,out,out_size); return 1;
+                }
             }
         }
     }

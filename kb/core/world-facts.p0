@@ -412,6 +412,47 @@ used_for(oven, cooking).
 used_for(camera, photography).
 used_for(clock, timekeeping).
 
+% gen240 (LLMSCORE): a comparable MAGNITUDE relation, so "which is larger/closer:
+% A or B?" is answered by comparing ranks (not pre-cooked answers). magnitude(Dim,
+% Item, Rank) — only the order within a Dim matters.
+magnitude(size, ant, 1).
+magnitude(size, strawberry, 2).
+magnitude(size, mouse, 2).
+magnitude(size, apple, 3).
+magnitude(size, watermelon, 4).
+magnitude(size, cat, 5).
+magnitude(size, dog, 6).
+magnitude(size, human, 7).
+magnitude(size, car, 8).
+magnitude(size, elephant, 9).
+magnitude(size, house, 10).
+magnitude(size, whale, 11).
+magnitude(size, mountain, 12).
+magnitude(distance_from_sun, mercury, 1).
+magnitude(distance_from_sun, venus, 2).
+magnitude(distance_from_sun, earth, 3).
+magnitude(distance_from_sun, mars, 4).
+magnitude(distance_from_sun, jupiter, 5).
+magnitude(distance_from_sun, saturn, 6).
+magnitude(distance_from_sun, uranus, 7).
+magnitude(distance_from_sun, neptune, 8).
+
+% gen240 (LLMSCORE): animal sounds. "what sound does a dog make?" -> woof.
+sound_of(dog, "woof").
+sound_of(cat, "meow").
+sound_of(cow, "moo").
+sound_of(duck, "quack").
+sound_of(sheep, "baa").
+sound_of(horse, "neigh").
+sound_of(pig, "oink").
+sound_of(lion, "roar").
+sound_of(bird, "tweet").
+sound_of(frog, "ribbit").
+sound_of(bee, "buzz").
+sound_of(owl, "hoot").
+sound_of(rooster, "cock-a-doodle-doo").
+sound_of(snake, "hiss").
+
 paint_mix(blue, yellow, green).
 paint_mix(yellow, blue, green).
 paint_mix(red, yellow, orange).
