@@ -365,6 +365,28 @@ no_land_border(united_kingdom).
 % reader is line-oriented) so mixes_to(X, Y, Z) resolves regardless of order. A
 % new pair is DATA: add a fact and the mix recognizer (mod_knowledge) extends
 % with no code edit. ---
+% gen240 (LLMSCORE): purpose relation for analogies ("book is to reading as fork
+% is to ___" -> eating). Left non-substrate so mod_analogy (which skips internal
+% predicates) can use it as the linking relation.
+used_for(book, reading).
+used_for(fork, eating).
+used_for(spoon, eating).
+used_for(knife, cutting).
+used_for(pen, writing).
+used_for(pencil, writing).
+used_for(key, opening).
+used_for(phone, calling).
+used_for(car, driving).
+used_for(bed, sleeping).
+used_for(brush, painting).
+used_for(broom, sweeping).
+used_for(scissors, cutting).
+used_for(needle, sewing).
+used_for(hammer, hitting).
+used_for(oven, cooking).
+used_for(camera, photography).
+used_for(clock, timekeeping).
+
 paint_mix(blue, yellow, green).
 paint_mix(yellow, blue, green).
 paint_mix(red, yellow, orange).

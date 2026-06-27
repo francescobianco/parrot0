@@ -213,6 +213,34 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen240 (LLMSCORE): reverse a linear operation. "I'm thinking of a number;
+     * double it and add 5, I get 21" -> (21 - 5)/2 = 8. Inverts double/triple/half
+     * plus an optional add/subtract. The result is the last number; the addend the
+     * other. Guarded on a think-of-a-number framing, so it doesn't grab plain sums. */
+    if ((cue(q, "double") || cue(q, "triple") || cue(q, "halve") || cue(q, "half")) &&
+        (cue(q, "get") || cue(q, "gives") || cue(q, "equals") || cue(q, "result") ||
+         cue(q, "you get") || cue(q, "i get")) &&
+        (cue(q, "number") || cue(q, "thinking of"))) {
+        double mult = cue(q, "double") ? 2.0 : cue(q, "triple") ? 3.0 : 0.5;
+        int sub = cue(q, "subtract") || cue(q, "minus") || cue(q, "take away") || cue(q, "less");
+        int add = cue(q, "add") || cue(q, "plus") || cue(q, "increase");
+        char ab[256]; snprintf(ab, sizeof ab, "%s", q);
+        char *aw[64]; size_t anw = split_words(ab, aw, 64);
+        double nums[16]; size_t k = collect_numbers(aw, anw, nums, 16);
+        if (k >= 1) {
+            double C = nums[k - 1];            /* the result is stated last */
+            double B = (k >= 2) ? nums[0] : 0; /* the addend/subtrahend first */
+            if (!add && !sub) B = 0;
+            double pre = sub ? (C + B) : (C - B);  /* undo the +/- */
+            double ans = pre / mult;               /* undo the ×/÷ */
+            char num[64]; format_num(ans, num, sizeof num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s.", num);
+            put(msg, out, out_size);
+            store_proof(b, "Inverted the stated operation to recover the number.");
+            return 1;
+        }
+    }
+
     /* question guard: only attempt on an explicit "how many / how much / quanti…"
      * or a count phrasing ("maximum number of", "number of", "arrangements"). */
     if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant") ||
@@ -254,6 +282,42 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             store_proof(b, "Bat-and-ball: cheaper = (total - difference)/2, not total - difference.");
             return 1;
+        }
+    }
+
+    /* gen240 (LLMSCORE): rate proportion. "N items for $M ... how much do K items
+     * cost?" -> K * M / N. Distinct from the buy-with-remainder case (no money you
+     * HAVE); needs three numbers and a price cue. */
+    if (cue(q, "for") && !cue(q, "have") &&
+        (cue(q, "$") || cue(q, "dollar") || cue(q, "cost") || cue(q, "cent") ||
+         cue(q, "price"))) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rnw = split_words(rb, rw, 64);
+        double N = -1, M = -1, K = -1; size_t forpos = rnw;
+        for (size_t i = 0; i < rnw; i++)
+            if (!strcmp(strip_edge_punct(rw[i]), "for")) { forpos = i; break; }
+        if (forpos < rnw) {
+            double nums[16]; size_t nn = collect_numbers(rw, rnw, nums, 16);
+            /* M = first number AFTER "for" (the price); N = last number BEFORE "for"
+             * (the count); K = the next number after M (the asked quantity). */
+            for (size_t i = 0; i < forpos; i++) { double v;
+                if (parse_value(strip_edge_punct(rw[i]), &v)) N = v; }
+            int seenM = 0;
+            for (size_t i = forpos + 1; i < rnw; i++) { double v;
+                if (parse_value(strip_edge_punct(rw[i]), &v)) {
+                    if (!seenM) { M = v; seenM = 1; } else { K = v; break; }
+                }
+            }
+            (void)nn;
+            if (N > 0 && M > 0 && K > 0) {
+                double cost = K * M / N;
+                char num[64]; format_num(cost, num, sizeof num);
+                char msg[160];
+                snprintf(msg, sizeof msg, "$%s.", num);
+                put(msg, out, out_size);
+                store_proof(b, "Rate proportion: cost = quantity * price / batch.");
+                return 1;
+            }
         }
     }
 

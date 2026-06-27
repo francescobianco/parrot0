@@ -991,6 +991,12 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     if (!(cue(buf, "spell ") || cue(buf, "how do you spell") ||
           cue(buf, "can you spell") || cue(buf, "come si scrive")))
         return 0;
+    /* gen240: don't misfire on an anagram/rearrange task that merely mentions
+     * "spell" in an example ("rearrange Listen to spell Silent — now do X"). That
+     * is not a spelling request; spelling a stray word there is nonsense. */
+    if (cue(buf, "rearrange") || cue(buf, "anagram") || cue(buf, "unscramble") ||
+        cue(buf, "scrambled") || cue(buf, "form a word") || cue(buf, "real word"))
+        return 0;
 
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
     char *w[64]; size_t nw = split_words(tmp, w, 64);

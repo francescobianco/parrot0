@@ -910,6 +910,13 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     memcpy(buf, norm, len + 1);
     if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
 
+    /* gen240: strip a leading "complete this analogy:" / "analogy:" framing so the
+     * ratio itself ("book is to reading as ...") starts at w[0]. */
+    {
+        char *colon = strstr(buf, "analogy");
+        if (colon) { colon = strchr(colon, ':'); if (colon) memmove(buf, colon + 1, strlen(colon)); }
+    }
+
     char *w[24];
     size_t nw = split_words(buf, w, 24);
     if (nw < 6) return 0;
@@ -935,11 +942,14 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     snprintf(C, sizeof C, "%s", w[sep + 1]);    strip_edge_punct(C);
     snprintf(target, sizeof target, "%s", w[rm + 1]); strip_edge_punct(target);
 
-    /* the fourth slot must be the unknown being asked for. */
+    /* the fourth slot must be the unknown being asked for: a wh-word, empty, or a
+     * blank placeholder ("____", "___", "blank"). gen240 adds the blank forms. */
+    int blank = 1;
+    for (const char *p = target; *p; p++) if (*p != '_') { blank = 0; break; }
     if (!(strcmp(target, "what") == 0 || strcmp(target, "who") == 0 ||
           strcmp(target, "which") == 0 || strcmp(target, "cosa") == 0 ||
           strcmp(target, "chi") == 0 || strcmp(target, "quale") == 0 ||
-          target[0] == '\0'))
+          strcmp(target, "blank") == 0 || blank || target[0] == '\0'))
         return 0;
 
     /* search the relations the KB actually holds for one linking A and B. */
