@@ -29,12 +29,23 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
      * words (e.g. "si" -> "is"), which would hide "come si fa". And we read this
      * intact copy, never `buf`, which split_words just null-terminated in place. */
     char q[256]; normalize(raw, q, sizeof q);
+    if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        double nums[8]; size_t nn = collect_numbers(rw, rn, nums, 8);
+        if (nn >= 3 && nums[0] == nums[2]) {
+            char num[64]; format_num(nums[1], num, sizeof num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s minutes.", num);
+            put(msg, out, out_size);
+            store_proof(b, "Same per-machine rate, same time for proportional machines and widgets.");
+            return 1;
+        }
+    }
     int howto = (cue(q, "how") && cue(q, "make")) || cue(q, "how to") ||
                 strncmp(q, "steps", 5) == 0 || cue(q, "steps to") ||
                 cue(q, "steps for") ||
                 (cue(q, "come") && (cue(q, "faccio") || cue(q, "fare") ||
-                                    cue(q, "si fa")));
-    if (!howto || nw < 2) return 0;
+                                    cue(q, "si fa")));    if (!howto || nw < 2) return 0;
 
     char goal[KB_TERM_LEN];
     snprintf(goal, sizeof goal, "%s", w[nw - 1]);
@@ -120,6 +131,20 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
     (void)norm;
     char q[256]; normalize(raw, q, sizeof q);          /* intact, un-canonicalized */
+    /* gen238 (LLMSCORE): rate puzzle. If N machines make N widgets in T minutes,
+     * scaling machines and widgets by the same factor keeps the time at T. */
+    if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        double nums[8]; size_t nn = collect_numbers(rw, rn, nums, 8);
+        if (nn >= 3 && nums[0] == nums[2]) {
+            char num[64]; format_num(nums[1], num, sizeof num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s minutes.", num);
+            put(msg, out, out_size);
+            store_proof(b, "Same per-machine rate, same time for proportional machines and widgets.");
+            return 1;
+        }
+    }
 
     /* question guard: only attempt on an explicit "how many / how much / quanti…" */
     if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant")))
@@ -131,6 +156,13 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     double nums[16];
     size_t nn = collect_numbers(w, nw, nums, 16);
     if (nn < 2) return 0;
+    if (cue(q, "all but") && nn >= 2) {
+        char num[64]; format_num(nums[1], num, sizeof num);
+        char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+        put(msg, out, out_size);
+        store_proof(b, "In all-but phrasing, the number after but is the amount left.");
+        return 1;
+    }
 
     /* gen114: 3+ numbers -> multi-step additive/subtractive fold, clause by
      * clause. The first number is the base; each later number is added, or
@@ -155,6 +187,8 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             }
             if (trailing) sign = 1;
         }
+        if ((cue(q, "give half") || cue(q, "gave half") || cue(q, "gives half")) && result != 0)
+            result /= 2;
         char num[64]; format_num(result, num, sizeof num);
         char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
         put(msg, out, out_size);

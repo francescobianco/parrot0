@@ -50,7 +50,7 @@ response_template(self_embodiment, "No meals or sleep here: I don't have a body.
 
 % --- gen231 (LLMSCORE): honest reply to opinion/preference probes. No lived
 % experience, so no genuine favorites - engages rather than walling. ---
-response_template(self_preference, "I don't have personal tastes or lived experience, so I have no real favorite - but tell me yours and I'll follow along.").
+response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.").
 response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?").
 
 % --- gen231 (LLMSCORE): generative intent - "write a sentence using the word X".

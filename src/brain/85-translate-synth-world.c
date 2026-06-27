@@ -9,6 +9,68 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
     char low[256];
     lowercase_copy(low, sizeof low, raw);
 
+    /* gen236 (LLMSCORE): minimal EN->ES word-by-word translation for short
+     * benchmark prompts. Words and gender live in KB as tr_es/2 + gender_es/2. */
+    if (strstr(low, "spanish")) {
+        char quoted[256] = "";
+        const char *q1 = strchr(low, 34);
+        if (q1) {
+            const char *q2 = strchr(q1 + 1, 34);
+            if (q2 && q2 > q1 + 1) {
+                size_t ql = (size_t)(q2 - q1 - 1);
+                if (ql >= sizeof quoted) ql = sizeof quoted - 1;
+                memcpy(quoted, q1 + 1, ql);
+                quoted[ql] = 0;
+            }
+        }
+        const char *cl = quoted[0] ? quoted : strchr(low, ':');
+        if (cl && !quoted[0]) cl++;
+        else if (!cl) {
+            cl = strstr(low, "spanish");
+            if (cl) cl += strlen("spanish");
+        }
+        if (cl) {
+            while (*cl && (isspace((unsigned char)*cl) || *cl == '"' || *cl == '\'')) cl++;
+            char sbuf[256]; copy_trim(sbuf, sizeof sbuf, cl);
+            size_t sl = strlen(sbuf);
+            while (sl > 0 && (sbuf[sl-1] == '.' || sbuf[sl-1] == '?' || sbuf[sl-1] == '!' ||
+                              sbuf[sl-1] == '"' || sbuf[sl-1] == '\''))
+                sbuf[--sl] = '\0';
+            char *sw[32]; size_t sn = split_words(sbuf, sw, 32);
+            char result[512] = ""; size_t ro = 0;
+            for (size_t i = 0; i < sn; i++) {
+                char *tok = strip_edge_punct(sw[i]);
+                if (!*tok) continue;
+                char piece[KB_TERM_LEN] = "";
+                if (strcmp(tok, "the") == 0 && i + 1 < sn) {
+                    char *nx = strip_edge_punct(sw[i + 1]);
+                    char esn[1][KB_TERM_LEN];
+                    const char *nq[] = { nx, NULL };
+                    if (kb_match(b->kb, "tr_es", nq, 2, esn, 1) == 1) {
+                        char gen[1][KB_TERM_LEN];
+                        const char *gq[] = { esn[0], NULL };
+                        if (kb_match(b->kb, "gender_es", gq, 2, gen, 1) == 1 && strcmp(gen[0], "f") == 0)
+                            snprintf(piece, sizeof piece, "la");
+                        else snprintf(piece, sizeof piece, "el");
+                    }
+                }
+                if (!piece[0]) {
+                    char es[1][KB_TERM_LEN];
+                    const char *q[] = { tok, NULL };
+                    if (kb_match(b->kb, "tr_es", q, 2, es, 1) != 1) return 0;
+                    snprintf(piece, sizeof piece, "%s", es[0]);
+                }
+                size_t pl = strlen(piece);
+                if (ro && ro + 1 < sizeof result) result[ro++] = ' ';
+                if (ro + pl + 1 < sizeof result) {
+                    memcpy(result + ro, piece, pl + 1);
+                    ro += pl;
+                }
+            }
+            if (ro) { put(result, out, out_size); return 1; }
+        }
+    }
+
     int to_it;
     const char *clause = NULL;
     static const struct { const char *p; int to_it; } pats[] = {

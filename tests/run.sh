@@ -16,7 +16,7 @@ BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 
 # Hermetic: disable knowledge-file loading so cases don't depend on kb/.
-export PARROT0_BASE= PARROT0_SESSION=
+export PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0
 
 if [ ! -x "$BIN" ]; then
     echo "test: binary not built ($BIN)" >&2

@@ -14,6 +14,12 @@
 trait(dog, bark).
 trait(dog, woof).
 trait(cat, meow).
+trait(pig, oink).
+trait(cow, moo).
+trait(duck, quack).
+trait(sheep, baa).
+trait(horse, neigh).
+
 trait(robot, compute).
 trait(robot, process).
 trait(spy, observe).

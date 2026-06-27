@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-06-27 17:06:46._
+_Generated 2026-06-27 18:36:18._
 
-## Score: 4 / 10
+## Score: 0 / 10
 
-| # | Question | parrot0's answer | Reason for vote | Vote |
-|---|----------|------------------|-----------------|:----:|
-| 1 | If you could invite any three historical figures to dinner, who would they be and why? | I don't understand that yet. | Refusal to answer a common creative question with 'I don't understand' response. | 0 |
-| 2 | If you have 3 apples and I give you 2 more, then you eat one, how many apples do you have left? | 4. | Correct simple arithmetic answer: 3+2-1=4. | 1 |
-| 3 | Complete this sentence in a creative way: "The old clock on the wall finally stopped ticking, and suddenly... | I don't understand that yet. | Failed to provide creative sentence completion with 'I don't understand' response. | 0 |
-| 4 | What is the capital of France? | I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from. | Dodged a factual question about Paris being France's capital with an inappropriate refusal. | 0 |
-| 5 | Rearrange these words into a correct sentence: "the sky blue is | I don't understand that yet. | Failed to rearrange a simple sentence with 'I don't understand' response. | 0 |
-| 6 | What color is a banana? | It's yellow. | Correct factual answer about banana color. | 1 |
-| 7 | How is your day going so far? | I'm well, thanks. How can I help? | Appropriate conversational response typical of an LLM. | 1 |
-| 8 | Is a dog a mammal or a reptile? | I don't understand that yet. | Failed to correctly identify a dog as a mammal with 'I don't understand' response. | 0 |
-| 9 | What do dogs typically say: woof, meow, or oink? | I read that as code, but I am not sure which function you mean. | Confused response about animal sounds, failing to answer the obvious factual question. | 0 |
-| 10 | What number comes next: 2, 4, 6, 8, ___? | 10. | Correct answer identifying 10 as the next number in the sequence. | 1 |
+| # | Question                                                                                                    | parrot0's answer | Reason for vote | Vote |
+|---|-------------------------------------------------------------------------------------------------------------|------------------|-----------------|:----:|
+| 1 | Finish this sentence: The old clock on the wall finally stopped ticking, and with it, the whole house...    | I don't understand that yet. | Refusal to complete a simple creative sentence prompt. | 0 |
+| 2 | What is the capital city of Australia, and name two countries that border it?                               | Who or what does "it" refer to? | Failed to answer a clear factual question by misinterpreting obvious reference. | 0 |
+| 3 | Count backward from 20 to 1, but say only the odd numbers.                                                  | 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1. | Failed to filter correctly; listed all numbers instead of only odd ones. | 0 |
+| 4 | A farmer has 17 sheep. All but 9 run away. How many sheep does the farmer have left?                        | 8. | Incorrect arithmetic; 'all but 9' means 9 remain, not 8. | 0 |
+| 5 | Write a haiku about the ocean.                                                                              | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Haiku has wrong syllable structure (5-7-5 expected, delivered 5-7-5 but content is mundane). | 0 |
+| 6 | What has keys but no locks, space but no room, and you can enter but can't go inside?                       | I don't understand that yet. | Failed to solve a straightforward riddle that any capable LLM would answer. | 0 |
+| 7 | If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets? | I don't know the steps to make widgets yet. | Failed simple proportional reasoning that any capable LLM would solve correctly. | 0 |
+| 8 | Describe the difference between a fruit and a vegetable in one sentence.                                    | I don't understand that yet. | Refused to answer a simple definitional question. | 0 |
+| 9 | Translate "Good morning" into Spanish.                                                                      | Hmm, I don't know about translate yet. | Failed to provide a simple translation despite knowing it. | 0 |
+| 10 | What color do you get when you mix blue and yellow paint together?                                          | I don't understand that yet. | Refused to answer basic color mixing knowledge question. | 0 |
 

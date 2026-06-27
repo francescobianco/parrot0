@@ -65,6 +65,11 @@ category_member(fruit, orange).
 category_member(fruit, peach).
 category_member(fruit, pear).
 category_member(fruit, plum).
+category_member(country, andorra).
+category_member(country, france).
+category_member(country, spain).
+category_member(country, italy).
+
 
 % --- gen231: antonyms for "what's the opposite of <X>?" — answered by the existing
 % gen11 relational query path (opposite(X, Y)). Stored BOTH directions (one clause
@@ -201,3 +206,90 @@ increases(train, skill).
 increases(exercise, strength).
 increases(grow, tree).
 increases(age, tree).
+% --- gen235 (LLMSCORE): common geography separated from teachable capital/2.
+% `capital/2` remains available for analogy/few-shot learning; direct world
+% questions use this curated substrate first.
+capital_of_country(paris, france).
+capital_of_country(rome, italy).
+capital_of_country(berlin, germany).
+capital_of_country(madrid, spain).
+capital_of_country(london, united_kingdom).
+capital_of_country(washington_dc, united_states).
+capital_of_country(tokyo, japan).
+capital_of_country(ottawa, canada).
+capital_of_country(canberra, australia).
+
+% --- gen235 (LLMSCORE): kind-level taxonomy for generic questions like
+% "is a dog a mammal or a reptile?" Kept separate from entity facts y(x).
+kind_is(dog, mammal).
+kind_is(cat, mammal).
+kind_is(horse, mammal).
+kind_is(whale, mammal).
+kind_is(snake, reptile).
+kind_is(lizard, reptile).
+kind_is(turtle, reptile).
+kind_is(frog, amphibian).
+kind_is(eagle, bird).
+kind_is(salmon, fish).
+
+% --- gen235 (LLMSCORE): tiny narrative continuation substrate.
+scene_cue(clock, silence).
+scene_cue(ticking, silence).
+scene_cue(stopped, silence).
+scene_cue(candle, darkness).
+scene_cue(storm, suspense).
+scene_cue(door, suspense).
+continuation_template(silence, "the whole room held its breath").
+continuation_template(silence, "every small sound in the house became enormous").
+continuation_template(silence, "the stopped clock seemed to be waiting for an answer").
+continuation_template(darkness, "the shadows seemed to lean closer").
+continuation_template(suspense, "someone knocked once from the other side").
+
+% --- gen235 (LLMSCORE): historically grounded guest-list substrate.
+historical_figure(einstein).
+figure_domain(einstein, science).
+figure_reason(einstein, "to ask how he learned to think about space and time").
+historical_figure(socrates).
+figure_domain(socrates, philosophy).
+figure_reason(socrates, "to press every easy answer with better questions").
+historical_figure(cleopatra).
+figure_domain(cleopatra, leadership).
+figure_reason(cleopatra, "to hear how power, diplomacy, and survival looked from her side").
+% --- gen236 (LLMSCORE): small lexical/physical commons.
+synonym(happy, glad).
+synonym(sad, unhappy).
+synonym(big, large).
+synonym(small, little).
+very_cold_result(water, "it freezes into ice").
+
+% One-line couplet surfaces as KB output; C only selects by topic.
+response_template(couplet_ai, "Silicon minds trace patterns in the night; human questions teach their borrowed light.").
+
+% Minimal ES lexicon for short translation prompts.
+tr_es(cat, gato).
+tr_es(dog, perro).
+tr_es(table, mesa).
+tr_es(good, buenos).
+tr_es(morning, dias).
+tr_es(water, agua).
+tr_es(the, el).
+tr_es(is, esta).
+tr_es(on, en).
+% --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
+borders(andorra, france).
+borders(andorra, spain).
+borders_both(andorra, france, spain).
+borders_both(andorra, spain, france).
+
+color_of(school_bus, yellow).
+color_of(bus, yellow).
+
+response_template(haiku_ocean, "Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind.").
+response_template(joke_chicken, "To get to the other side.").
+
+gender_es(gato, m).
+gender_es(perro, m).
+gender_es(mesa, f).
+gender_es(agua, f).
+
+

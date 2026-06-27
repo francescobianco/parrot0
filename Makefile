@@ -176,6 +176,7 @@ test: build
 	@./tests/profiles.sh
 	@./tests/skills.sh
 	@./tests/knowledge.sh
+	@./tests/llmscore_world.sh
 
 bench: build
 	@./tests/bench.sh all

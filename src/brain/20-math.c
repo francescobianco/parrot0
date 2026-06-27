@@ -775,7 +775,8 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
     (void)raw; (void)b;
     const char *buf = norm;
     int has_cue = cue(buf, "count to") || cue(buf, "count up to") ||
-                  cue(buf, "count from") || cue(buf, "count down") ||
+                  cue(buf, "count from") || cue(buf, "count backwards") ||
+                  cue(buf, "count backward") || cue(buf, "count down") ||
                   cue(buf, "counting to") || cue(buf, "conta fino") ||
                   cue(buf, "conta da") || cue(buf, "conta fino a");
     if (!has_cue) return 0;
@@ -802,18 +803,25 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             out, out_size);
         return 1;
     }
+    int only_odd = cue(buf, "only the odd") || cue(buf, "only odd") || cue(buf, "odd numbers");
+    int only_even = cue(buf, "only the even") || cue(buf, "only even") || cue(buf, "even numbers");
+
     char line[1024]; size_t pos = 0; line[0] = '\0';
     long step = (start <= end) ? 1 : -1;
+    size_t emitted = 0;
     for (long v = start; ; v += step) {
-        int w = snprintf(line + pos, sizeof line - pos, "%ld%s",
-                         v, (v == end) ? "." : ", ");
-        if (w < 0 || (size_t)w >= sizeof line - pos) break;
-        pos += (size_t)w;
+        if ((!only_odd || (v % 2 != 0)) && (!only_even || (v % 2 == 0))) {
+            int w = snprintf(line + pos, sizeof line - pos, "%s%ld",
+                             emitted ? ", " : "", v);
+            if (w < 0 || (size_t)w >= sizeof line - pos) break;
+            pos += (size_t)w;
+            emitted++;
+        }
         if (v == end) break;
     }
+    if (pos + 2 <= sizeof line) { line[pos++] = '.'; line[pos] = '\0'; }
     put(line, out, out_size);
-    return 1;
-}
+    return 1;}
 
 /* gen230 (LLMSCORE): "name a <category> that starts with <letter>" — a grounded
  * generative capability. The members live in the KB (category_member/2,

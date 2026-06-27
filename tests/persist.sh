@@ -21,6 +21,7 @@ corrbase="$tmp/correction-base.p0"
 corrsess="$tmp/correction-session.p0"
 binbase="$tmp/binary-conflict-base.p0"
 binsess="$tmp/binary-conflict-session.p0"
+export PARROT0_WORLD_FACTS=0
 
 pass=0
 fail=0

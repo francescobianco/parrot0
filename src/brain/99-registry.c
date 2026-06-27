@@ -434,12 +434,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/glue.p0");
 
-    /* gen230 (LLMSCORE): curated category membership (colors/animals/fruit) read
-     * by mod_namestart for "name a <category> starting with <letter>" — honest
-     * knowledge that grows by adding a fact, never a hardcoded string. Filtered
-     * from the user-fact count via is_internal_pred (base substrate). */
-    kb_set_origin(b->kb, KB_BASE);
-    kb_load(b->kb, "kb/core/world-facts.p0");
+    /* gen230/gen235: curated world commons. Tests that must prove dynamic
+     * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
+     * ordinary chat keep the layer loaded. */
+    if (!getenv("PARROT0_WORLD_FACTS") || strcmp(getenv("PARROT0_WORLD_FACTS"), "0") != 0) {
+        kb_set_origin(b->kb, KB_BASE);
+        kb_load(b->kb, "kb/core/world-facts.p0");
+    }
 
     /* Reflective self-model: the agent writes itself into its own KB, derived
      * from real structure (PRINCIPLES.md). Tagged KB_REFLECTIVE so it is
@@ -483,7 +484,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen234-llmscore-nearmiss";
+    return "gen238-llmscore-commonsense-rate";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
