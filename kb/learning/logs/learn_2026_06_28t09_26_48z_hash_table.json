@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_28t09_26_48z_hash_table",
+  "extraction": {
+    "concept": "data structure that implements an associative array, also called a dictionary or simply map; an associative array...",
+    "concept_key": "hash_table",
+    "extract_sha256": "457d65c024513c753688529f4fd9665730ee78a5289d853d6c738c2cb3dc5965",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_28t09_26_48z_hash_table.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/hash_table.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 23,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-28T09:26:48Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_28t09_26_48z_hash_table"
+  },
+  "source": {
+    "domain": "computer_science",
+    "index": 22,
+    "line": 42,
+    "title": "Hash table"
+  },
+  "wikipedia": {
+    "canonical_title": "Hash table",
+    "lang": "en",
+    "pageid": 13833,
+    "revision": 1352708183,
+    "url": "https://en.wikipedia.org/wiki/Hash_table"
+  }
+}
