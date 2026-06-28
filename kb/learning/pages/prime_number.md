@@ -1,11 +1,11 @@
 # Prime number
 
-- Learning event: `learn_2026_06_27t05_37_55z_prime_number`
-- Operational log: `kb/learning/logs/learn_2026_06_27t05_37_55z_prime_number.json`
+- Learning event: `learn_2026_06_28t13_58_17z_prime_number`
+- Operational log: `kb/learning/logs/learn_2026_06_28t13_58_17z_prime_number.json`
 - Domain: `mathematics`
 - Source: https://en.wikipedia.org/wiki/Prime_number
 - Wikipedia revision: `1360542157`
-- Processed: `2026-06-27T05:37:55Z`
+- Processed: `2026-06-28T13:58:17Z`
 
 ## Learned Concept
 

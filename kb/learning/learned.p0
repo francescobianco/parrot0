@@ -5,7 +5,7 @@
 
 % mathematics / Prime number
 % source: https://en.wikipedia.org/wiki/Prime_number
-% revision: 1360542157; processed: 2026-06-27T05:37:55Z
+% revision: 1360542157; processed: 2026-06-28T13:58:17Z
 wiki_concept(prime_number, mathematics, "natural number greater than 1 that is not a product of two smaller natural numbers").
 
 % mathematics / Fibonacci sequence
@@ -1303,3 +1303,12 @@ learning_event_concept(learn_2026_06_28t12_48_10z_galaxy, galaxy).
 learning_event_revision(learn_2026_06_28t12_48_10z_galaxy, rev_1360786961).
 learning_event_markdown(learn_2026_06_28t12_48_10z_galaxy, "kb/learning/pages/galaxy.md").
 learning_event_log(learn_2026_06_28t12_48_10z_galaxy, "kb/learning/logs/learn_2026_06_28t12_48_10z_galaxy.json").
+
+% event learn_2026_06_28t13_58_17z_prime_number
+learning_event(learn_2026_06_28t13_58_17z_prime_number, "learned prime_number: natural number greater than 1 that is not a product of two smaller natural numbers").
+learning_event_time(learn_2026_06_28t13_58_17z_prime_number, "2026-06-28T13:58:17Z").
+learning_event_domain(learn_2026_06_28t13_58_17z_prime_number, mathematics).
+learning_event_concept(learn_2026_06_28t13_58_17z_prime_number, prime_number).
+learning_event_revision(learn_2026_06_28t13_58_17z_prime_number, rev_1360542157).
+learning_event_markdown(learn_2026_06_28t13_58_17z_prime_number, "kb/learning/pages/prime_number.md").
+learning_event_log(learn_2026_06_28t13_58_17z_prime_number, "kb/learning/logs/learn_2026_06_28t13_58_17z_prime_number.json").
