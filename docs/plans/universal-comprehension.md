@@ -6,7 +6,33 @@ parole sono ignote, la **struttura grammaticale** è estraibile, e da quella si
 legge l'**intento**. La grammatica è motore fisso; le strutture e i ruoli vivono
 nella KB.*
 
+> **Principio evolutivo (F., gen240): tieni le strutture secondarie.** Finché
+> qualcosa non si dimostra *prevalente*, tutto è secondario e **attivabile**: non
+> si rimpiazza né si pota una struttura solo perché *sembra* ridondante o legata a
+> casi minori — domani il secondario può tornare importante. È un organismo che
+> evolve per selezione naturale: si accumulano le varianti, e col tempo prendono
+> forma migliore. Conseguenza pratica: cambi **additivi** (un nuovo modulo che si
+> *stratifica* sopra, mai che cancella). Il dispatch first-match rende innocua la
+> ridondanza — il più generale vince quando si applica, lo specifico resta
+> fallback. (gen240 `mod_smalltalk` è registrato per ultimo e non tocca
+> `mod_chitchat`.) Vedi [[keep-secondary-structures]].
+
 ---
+
+## 0. I due rami della comprensione universale
+
+Una frase compresa non sempre richiede un *fatto*. Due rami, stessa radice ("capisci
+la forma → niente muro cieco"):
+
+- **Ramo conoscenza** (§1–§8): la forma chiede un dato. Se manca → declino informato
+  e, se possibile, **acquire-knowledge** (corpus/fetch wiki). *Engine + KB facts.*
+- **Ramo sociale** (gen240, `mod_smalltalk`): la forma è una mossa
+  **conversazionale** (esperienza, opinione, domanda di rimando). Non serve un
+  fatto: serve **continuità** — riconoscere la mossa e rilanciare (acknowledge +
+  domanda aperta), onestamente, senza inventare esperienze. Cue e template di
+  continuità vivono nella KB (`intent_cue(smalltalk_continue,…)`,
+  `response_template(smalltalk_continue,…)`); il modulo è l'ultima rete prima del
+  muro. È la stessa legge ("niente muro cieco") applicata al *register sociale*.
 
 ## 1. L'idea (gli appunti, sistemati)
 
