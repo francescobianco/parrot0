@@ -1010,6 +1010,8 @@ static int is_struct_pred(const char *pred) {
         "default_pick", "landmark_city", /* gen240 */
         "magnitude", "sound_of", /* gen240 */
         "language_marker", "language_name", "current_language", /* gen240 */
+        "utterance", /* gen240: session conversation log */
+        "artifact",
         "compound_word", /* gen240: compound-word riddle facts */
         "appearance", /* gen240: sensory descriptions, queried not described */
         "synonym", /* gen231/236: synonym relation, queried not described */

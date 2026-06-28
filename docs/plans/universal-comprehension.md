@@ -338,3 +338,23 @@ creare, scrittura **sandboxata**, e test offline.
 > siano dentro la KB. in questo modo frasi ben formate ma con parole che non
 > conosce possono essere interpretate nell'intento — quel meccanismo analitico, la
 > lettura del significato appoggiata alla KB.
+## 9. La sessione stessa è conoscenza (log conversazionale + artefatti)
+
+Estensione (F., gen240): **tutto ciò che ci diciamo, e tutto ciò che parrot0 crea,
+diventa conoscenza di sessione interrogabile** — non in variabili C, ma come fatti
+nella KB temporanea di sessione.
+
+- **Log conversazionale.** Ogni turno è registrato come `utterance(Seq, Speaker,
+  "testo")` (Seq monotòno; Speaker `user`|`self`), a fine-turno (così una domanda di
+  recall vede fino al turno PRECEDENTE). Diventano inferibili: "qual è l'ultima cosa
+  che ho/hai detto", "la prima frase che ho detto", "l'ultima parola che hai detto".
+  Finestra limitata (`CONV_LOG_WINDOW`): i più vecchi vengono ritratti.
+- **Artefatti.** Quando parrot0 crea un file (oggi: la pagina wiki scaricata dal
+  piano di scoperta), lo registra come `artifact(file, "path")` → "cosa hai creato
+  in questa sessione?". Cresce man mano che arriveranno la creazione-file della
+  codegen (§8) e altri artefatti (dir, ecc.).
+
+Tutto KB-first e **substrato** (`utterance`, `artifact` marcati): è stato di
+sessione, non "cose che sai" del mondo, e non inquina "quante cose sai?". Persiste
+con `/save` come il resto della sessione. La lingua corrente (§0, `current_language/1`)
+è lo stesso principio applicato a un'altra proprietà della sessione.

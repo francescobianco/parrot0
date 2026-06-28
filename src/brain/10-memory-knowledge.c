@@ -762,6 +762,52 @@ static int lang_template(Brain *b, const char *intent, char *out, size_t sz) {
     return 0;
 }
 
+/* gen240 (universal-comprehension): an ARTIFACT parrot0 creates (a file, a dir, …)
+ * becomes session knowledge too — artifact(Kind, "path") — so "what have you
+ * created?" is inferable from the KB, not a C log. */
+static void note_artifact(Brain *b, const char *kind, const char *path) {
+    if (!b || !b->kb || !path || !*path) return;
+    char q[KB_TERM_LEN];
+    snprintf(q, sizeof q, "\"%.*s\"", (int)(KB_TERM_LEN - 4), path);
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *a[] = { kind, q };
+    kb_assert(b->kb, "artifact", a, 2);
+}
+
+/* gen240 (universal-comprehension): recall from the session conversation log
+ * (utterance(Seq, Speaker, "text")). speaker is "self" (parrot0) or "user". `first`
+ * picks the earliest vs latest; `word` returns just the first/last word of it.
+ * Composes the answer; 0 if the log has nothing for that speaker yet. */
+static int recall_utterance(Brain *b, const char *speaker, int first, int word,
+                            char *out, size_t sz) {
+    if (!b || !b->kb) return 0;
+    char seqs[128][KB_TERM_LEN];
+    const char *q[] = { NULL, speaker, NULL };
+    size_t n = kb_match(b->kb, "utterance", q, 3, seqs, 128);
+    if (n == 0) return 0;
+    long best = -1; char bestseq[24] = "";
+    for (size_t i = 0; i < n; i++) {
+        long v = atol(seqs[i]);
+        if (best < 0 || (first ? v < best : v > best)) { best = v; snprintf(bestseq, sizeof bestseq, "%s", seqs[i]); }
+    }
+    const char *qt[] = { bestseq, speaker, NULL };
+    char tx[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "utterance", qt, 3, tx, 1) == 0) return 0;
+    char *p = tx[0]; size_t l = strlen(p);
+    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+    const char *who = strcmp(speaker, "self") == 0 ? "I" : "you";
+    if (word) {
+        char wb[KB_TERM_LEN]; snprintf(wb, sizeof wb, "%s", p);
+        char *w[64]; size_t nw = split_words(wb, w, 64);
+        if (nw == 0) return 0;
+        char *wd = strip_edge_punct(first ? w[0] : w[nw - 1]);
+        snprintf(out, sz, "The %s word %s said was \"%s\".", first ? "first" : "last", who, wd);
+    } else {
+        snprintf(out, sz, "The %s thing %s said was: \"%s\"", first ? "first" : "last", who, p);
+    }
+    return 1;
+}
+
 /* Minimal discourse coreference (gen22): pronouns resolve to the most recent
  * concrete entity mentioned in the knowledge surface. */
 static int is_entity_pronoun(const char *w) {

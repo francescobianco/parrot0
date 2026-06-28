@@ -875,6 +875,47 @@ static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_s
     return 0;
 }
 
+/* gen240 (universal-comprehension): the session CONVERSATION LOG. Every turn — what
+ * the user said and what parrot0 replied — becomes session KB knowledge as
+ * utterance(Seq, Speaker, "text") (Seq monotonic; Speaker user|self), so the
+ * dialogue itself is queryable/inferable ("what was the last thing you said?",
+ * "the first sentence I said"). Bounded: the oldest beyond a window is retracted.
+ * Logged at end-of-turn, so a recall query sees up to the PREVIOUS turn (the
+ * current question is not yet logged when it is being answered). */
+#define CONV_LOG_WINDOW 80
+static void conv_log_one(Brain *b, const char *speaker, const char *text) {
+    if (!b || !b->kb || !text || !*text) return;
+    char t[KB_TERM_LEN]; size_t o = 0;
+    for (const char *c = text; *c && o + 4 < sizeof t; c++) {  /* leave room for quotes */
+        char ch = *c;
+        if (ch == '"') ch = '\'';
+        if (ch == '\n' || ch == '\r' || ch == '\t') ch = ' ';
+        t[o++] = ch;
+    }
+    t[o] = '\0';
+    if (o == 0) return;
+    char seq[24]; snprintf(seq, sizeof seq, "%ld", ++b->utter_seq);
+    char quoted[KB_TERM_LEN + 4]; snprintf(quoted, sizeof quoted, "\"%s\"", t);
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *a[] = { seq, speaker, quoted };
+    kb_assert(b->kb, "utterance", a, 3);
+    if (b->utter_seq > CONV_LOG_WINDOW) {                 /* drop the one out of window */
+        char old[24]; snprintf(old, sizeof old, "%ld", b->utter_seq - CONV_LOG_WINDOW);
+        char sp[1][KB_TERM_LEN]; const char *qs[] = { old, NULL, NULL };
+        if (kb_match(b->kb, "utterance", qs, 3, sp, 1) > 0) {
+            char tx[1][KB_TERM_LEN]; const char *qt[] = { old, sp[0], NULL };
+            if (kb_match(b->kb, "utterance", qt, 3, tx, 1) > 0) {
+                const char *r[] = { old, sp[0], tx[0] };
+                kb_retract(b->kb, "utterance", r, 3);
+            }
+        }
+    }
+}
+static void conv_log(Brain *b, const char *input, const char *reply) {
+    conv_log_one(b, "user", input);
+    conv_log_one(b, "self", reply);
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) b->turns++;
@@ -907,7 +948,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))
-        { note_arith_result(b, out); return strlen(out); }
+        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
 
     /* gen142 (E3): peel a leading discourse-marker opener and re-dispatch the
      * residue, so a content task wrapped in a channel-management opener survives
@@ -915,27 +956,27 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * actually owned by a module; otherwise the original turn dispatches normally
      * and its pragmatic shape is read by mod_pragma. */
     if (b && pragma_peel(b, canon, input, out, out_size))
-        { note_arith_result(b, out); return strlen(out); }
+        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
 
     /* gen218: an explicit correction ("no, X is not a Y") peels its marker and
      * re-dispatches the negative claim with the correction flag set, so the
      * standing belief is overridden and the conclusion re-derives. */
     if (b && correction_peel(b, canon, input, out, out_size))
-        { note_arith_result(b, out); return strlen(out); }
+        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
 
     /* gen221 (glue, symptom #5): a numeric personal fact remembered earlier feeds a
      * later computation — resolve "my <key>" to its KB value and re-dispatch so the
      * arithmetic core computes it ("what is my favorite number plus 3" -> "10.").
      * Pre-dispatch so mod_memory cannot mis-claim the unresolved reference first. */
     if (b && memref_resolve(b, canon, out, out_size))
-        { note_arith_result(b, out); return strlen(out); }
+        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
 
     /* gen222 (glue, symptom #3): a precisation that continues the previous computation
      * ("and times 3" after "what is 2 plus 2") — prepend the last result, inferred from
      * the KB, and re-dispatch so the arithmetic core finishes it ("what is 4 times 3"
      * -> "12."). Pre-dispatch so the bare fragment cannot fall to not-understood. */
     if (b && continue_resolve(b, canon, out, out_size))
-        { note_arith_result(b, out); return strlen(out); }
+        { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
 
     /* Walk the registry; first module to claim the turn wins. */
     int handled = 0, handled_by_discourse = 0;
@@ -1021,6 +1062,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * later precisation ("and times 3") can continue the computation. No-op for any
      * non-numeric reply. */
     note_arith_result(b, out);
+    conv_log(b, input, out);
     return strlen(out);
 }
 

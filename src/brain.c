@@ -36,6 +36,7 @@ struct Brain {
     int  relations_derived; /* gen158: part_of/2 materialized from descriptions once */
     char last_reply[256];  /* our previous response — so we don't repeat it (gen55) */
     unsigned long fallbacks; /* how many not-understood turns — rotates variants */
+    long utter_seq;        /* gen240: monotonic index for the session conversation log */
     KB  *kb;               /* the knowledge base (gen4+) */
 
     /* gen76: proof trace. When a module answers a KB-backed query, it stores the

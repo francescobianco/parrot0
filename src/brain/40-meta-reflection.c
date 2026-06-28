@@ -33,6 +33,52 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen240 (universal-comprehension): "what have you created?" — list session
+     * artifacts (files/dirs parrot0 made) from artifact/2 facts. */
+    if ((cue(buf, "what") || cue(buf, "which") || cue(buf, "list")) &&
+        (cue(buf, "you created") || cue(buf, "you made") || cue(buf, "have you created") ||
+         cue(buf, "did you create") || cue(buf, "files you") || cue(buf, "artifacts"))) {
+        char paths[16][KB_TERM_LEN];
+        const char *q[] = { "file", NULL };
+        size_t n = b->kb ? kb_match(b->kb, "artifact", q, 2, paths, 16) : 0;
+        if (n == 0) {
+            put("I haven't created any files this session.", out, out_size);
+            return 1;
+        }
+        char msg[480]; size_t o = 0;
+        o += (size_t)snprintf(msg + o, sizeof msg - o, "This session I created: ");
+        for (size_t i = 0; i < n && o + 2 < sizeof msg; i++) {
+            char *p = paths[i]; size_t l = strlen(p);
+            if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s", i ? ", " : "", p);
+        }
+        if (o + 1 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* gen240 (universal-comprehension): recall from the session conversation log —
+     * "what was the last thing you said?", "the first sentence I said", "the last
+     * word you said". Inferred from utterance/3 session facts, not stored prose. */
+    {
+        int you = cue(buf, "you said") || cue(buf, "you told") ||
+                  cue(buf, "did you say") || cue(buf, "you say");
+        int me  = cue(buf, "i said") || cue(buf, "i told you") ||
+                  cue(buf, "did i say") || cue(buf, "i say");
+        if ((you || me) &&
+            (cue(buf, "last") || cue(buf, "first")) &&
+            (cue(buf, "said") || cue(buf, "told") || cue(buf, "say") ||
+             cue(buf, "thing") || cue(buf, "word") || cue(buf, "sentence"))) {
+            int first = cue(buf, "first");
+            int word  = cue(buf, "word");
+            char ans[300];
+            if (recall_utterance(b, you ? "self" : "user", first, word, ans, sizeof ans)) {
+                put(ans, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     int attention = cue(buf, "paying attention") ||
                     cue(buf, "reading my messages") ||
                     cue(buf, "read my messages") ||
@@ -421,7 +467,7 @@ static int is_internal_pred(const char *pred) {
         "response_template",
         /* gen240: language detection substrate + the session's current-language
          * fact (state, not world knowledge the user taught). */
-        "language_marker", "language_name", "current_language",
+        "language_marker", "language_name", "current_language", "utterance", "artifact",
         /* gen101: role/character world-knowledge (kb/core/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */

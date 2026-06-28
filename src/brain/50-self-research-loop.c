@@ -276,8 +276,14 @@ static int acquire_knowledge(Brain *b, const char *key, char *def, size_t def_sz
     if (!b || !b->kb || !key || !*key) return 0;
     if (kb_concept_def(b->kb, key, def, def_sz)) return 2;        /* already known */
     if (learn_topic(b->kb, key, key, def, def_sz)) return 1;      /* local corpus */
-    if (wiki_fetch_topic(key) && learn_topic(b->kb, key, key, def, def_sz))
+    if (wiki_fetch_topic(key) && learn_topic(b->kb, key, key, def, def_sz)) {
+        /* the fetch wrote a page file — record it as a session artifact */
+        const char *dir = getenv("PARROT0_WIKI_DIR");
+        if (!dir || !*dir) dir = "kb/learning/pages";
+        char path[256]; snprintf(path, sizeof path, "%s/%s.md", dir, key);
+        note_artifact(b, "file", path);
         return 1;                                                 /* on-demand fetch */
+    }
     return 0;
 }
 
