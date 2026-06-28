@@ -804,7 +804,12 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         char *sw[64]; size_t snw = split_words(sb, sw, 64);
         for (size_t i = 0; i + 1 < snw; i++) {
             char *t = strip_edge_punct(sw[i]);
-            if (!strcmp(t, "by") || !strcmp(t, "every") || !strcmp(t, "of")) {
+            /* "of" is a step only in "steps of N" -- NOT in "multiples of N" (a skip
+             * filter). Guard on the previous token (gen241). */
+            int of_step = !strcmp(t, "of") && i > 0 &&
+                          (!strcmp(strip_edge_punct(sw[i - 1]), "steps") ||
+                           !strcmp(strip_edge_punct(sw[i - 1]), "step"));
+            if (!strcmp(t, "by") || !strcmp(t, "every") || of_step) {
                 char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
                 size_t nl = strlen(nx);            /* "3s" -> "3" */
                 if (nl > 1 && nx[nl - 1] == 's') nx[nl - 1] = '\0';
@@ -837,6 +842,30 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
     int only_odd = cue(buf, "only the odd") || cue(buf, "only odd") || cue(buf, "odd numbers");
     int only_even = cue(buf, "only the even") || cue(buf, "only even") || cue(buf, "even numbers");
 
+    /* gen241 (LLMSCORE-check): a SKIP filter. "skip any number that ends in 5" /
+     * "skip multiples of 3" -> drop matching terms while counting. The digit/divisor
+     * is read from after the relevant phrase; honest deductive filtering, not a memo. */
+    int skip_ends = -1, skip_mult = 0;
+    if (cue(buf, "skip") || cue(buf, "except") || cue(buf, "but not") ||
+        cue(buf, "leave out") || cue(buf, "omit")) {
+        char fb[512]; snprintf(fb, sizeof fb, "%s", buf);
+        char *fw[64]; size_t fnw = split_words(fb, fw, 64);
+        for (size_t i = 0; i + 1 < fnw; i++) {
+            char *t = strip_edge_punct(fw[i]);
+            if ((!strcmp(t, "in") || !strcmp(t, "with") || !strcmp(t, "ends")) &&
+                (cue(buf, "ends in") || cue(buf, "ending in") || cue(buf, "end in") ||
+                 cue(buf, "ends with") || cue(buf, "ending with"))) {
+                long d; if (word_to_int(strip_edge_punct(fw[i + 1]), &d) && d >= 0 && d <= 9)
+                    skip_ends = (int)d;
+            }
+            if ((!strcmp(t, "of") || !strcmp(t, "multiple") || !strcmp(t, "multiples")) &&
+                (cue(buf, "multiple of") || cue(buf, "multiples of"))) {
+                long m; if (word_to_int(strip_edge_punct(fw[i + 1]), &m) && m > 0)
+                    skip_mult = (int)m;
+            }
+        }
+    }
+
     char line[1024]; size_t pos = 0; line[0] = '\0';
     long mag = stepmag > 0 ? stepmag : 1;
     long step = (start <= end) ? mag : -mag;
@@ -844,7 +873,10 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
     for (long v = start; ; v += step) {
         /* stop once we'd pass the end bound (step may overshoot it exactly). */
         if ((step > 0 && v > end) || (step < 0 && v < end)) break;
-        if ((!only_odd || (v % 2 != 0)) && (!only_even || (v % 2 == 0))) {
+        long av = v < 0 ? -v : v;
+        int skip = (skip_ends >= 0 && (av % 10) == skip_ends) ||
+                   (skip_mult > 0 && (av % skip_mult) == 0);
+        if (!skip && (!only_odd || (v % 2 != 0)) && (!only_even || (v % 2 == 0))) {
             int w = snprintf(line + pos, sizeof line - pos, "%s%ld",
                              emitted ? ", " : "", v);
             if (w < 0 || (size_t)w >= sizeof line - pos) break;

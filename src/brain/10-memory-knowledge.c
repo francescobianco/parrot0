@@ -1613,6 +1613,78 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen241 (universal-comprehension.md): structural MEMBERSHIP, read from the FORM
+     * even when the words are unknown. "...Blib is a blue Zor with three legs, is Blib
+     * a Zor?" -> Yes: the sentence DEFINES Blib as a Zor (membership is asserted, not
+     * derived from the rule). If a universal premise ("all Zors have four legs") names
+     * an attribute the entity contradicts ("three legs"), the premises are inconsistent
+     * -- we say so honestly while still answering the membership question as stated. The
+     * grammar is the fixed engine; the nouns (Zor/Blib) need not be in any lexicon.
+     * Skip the entailment/hypothesis framings ("premise:/hypothesis:/suppose/entail"):
+     * those have dedicated solvers below that compute a verdict rather than restate the
+     * asserted membership. */
+    if (!strstr(norm, "premise") && !strstr(norm, "hypothesis") &&
+        !strstr(norm, "suppose") && !strstr(norm, "entail")) {
+        char mbuf[512]; snprintf(mbuf, sizeof mbuf, "%s", norm);
+        char *w[96]; size_t n = split_words(mbuf, w, 96);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        /* locate the QUESTION "is <X> a/an <Y>" (the last such occurrence). */
+        const char *qx = NULL, *qy = NULL;
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "is") && (!strcmp(w[i + 2], "a") || !strcmp(w[i + 2], "an")) &&
+                strlen(w[i + 1]) > 1 && strlen(w[i + 3]) > 1) { qx = w[i + 1]; qy = w[i + 3]; }
+        if (qx && qy) {
+            /* find an ASSERTION "<X> is a/an ... <Y>" earlier: same subject, and Y
+             * occurring as a later token of that copular clause (adjectives between). */
+            int declared = 0;
+            for (size_t i = 0; i + 2 < n; i++) {
+                if (strcmp(w[i], qx) || strcmp(w[i + 1], "is")) continue;
+                if (strcmp(w[i + 2], "a") && strcmp(w[i + 2], "an")) continue;
+                for (size_t j = i + 3; j < n && j < i + 9; j++) {
+                    if (!strcmp(w[j], qy)) { declared = 1; break; }
+                    if (!strcmp(w[j], "and") || !strcmp(w[j], "is") || !strcmp(w[j], "?")) break;
+                }
+                if (declared) break;
+            }
+            if (declared) {
+                /* contradiction check: "all <Y>s ... <num1> <noun>" vs the entity
+                 * "with <num2> <noun>" (same noun, num1 != num2). */
+                char inc[200] = "";
+                for (size_t i = 0; i + 1 < n; i++) {
+                    if (strcmp(w[i], "all")) continue;
+                    long num1 = -1; const char *noun1 = NULL;
+                    for (size_t j = i + 1; j < n && j < i + 8; j++) {
+                        double v; if (parse_value(w[j], &v) && j + 1 < n) { num1 = (long)v; noun1 = w[j + 1]; break; }
+                    }
+                    if (num1 < 0 || !noun1) continue;
+                    for (size_t k = 0; k + 1 < n; k++) {
+                        if (strcmp(w[k], "with") && strcmp(w[k], "has") && strcmp(w[k], "have")) continue;
+                        double v2d; const char *noun2 = NULL;
+                        if (k + 2 < n && parse_value(w[k + 1], &v2d)) { long v2 = (long)v2d; noun2 = w[k + 2];
+                            if (noun2 && !strcmp(noun2, noun1) && v2 != num1) {
+                                char Yc[KB_TERM_LEN]; snprintf(Yc, sizeof Yc, "%s", qy);
+                                if (Yc[0]) Yc[0] = (char)toupper((unsigned char)Yc[0]);
+                                snprintf(inc, sizeof inc,
+                                    " (Though that contradicts \"all %ss have %ld %s,\" so the premises are inconsistent.)",
+                                    Yc, num1, noun1);
+                            }
+                        }
+                    }
+                    if (inc[0]) break;
+                }
+                char X[KB_TERM_LEN]; snprintf(X, sizeof X, "%s", qx);
+                if (X[0]) X[0] = (char)toupper((unsigned char)X[0]);
+                char Y[KB_TERM_LEN]; snprintf(Y, sizeof Y, "%s", qy);
+                if (Y[0]) Y[0] = (char)toupper((unsigned char)Y[0]);
+                char msg[400];
+                snprintf(msg, sizeof msg,
+                         "Yes -- %s is a %s: the statement defines it as one.%s", X, Y, inc);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* gen231: one-turn syllogism — "if <premises>, is <x> <y>?" resolved by real
      * inference on a scratch KB. Placed first so a self-contained deduction is
      * recognized before the single-clause handlers below see only fragments. */

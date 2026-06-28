@@ -157,6 +157,69 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen241 (LLMSCORE-check, universal-comprehension.md): two trains approaching
+     * head-on -> WHEN / WHAT TIME do they meet, by deduction. The earlier train gets a
+     * head start; the remaining gap closes at the combined speed. Needs two speeds,
+     * two clock times, and a separation distance, so it never guesses. */
+    if ((cue(q, "meet") || cue(q, "what time") || cue(q, "when will") ||
+         cue(q, "when do") || cue(q, "pass each other")) &&
+        (cue(q, "mph") || cue(q, "km/h")) &&
+        (cue(q, "toward") || cue(q, "towards") || cue(q, "each other") ||
+         cue(q, "apart") || cue(q, "away") || cue(q, "between"))) {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", q);
+        char *mw[64]; size_t mnw = split_words(mb, mw, 64);
+        double speed[2], tstart[2], dist = -1; int ns = 0, nt = 0; int unit_km = 0;
+        for (size_t i = 0; i < mnw; i++) {
+            char *t = strip_edge_punct(mw[i]); double v;
+            if (parse_value(t, &v)) {
+                char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) {
+                    speed[ns++] = v; if (!strcmp(nx, "km/h")) unit_km = 1;
+                } else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
+                    if (!strcmp(nx, "pm") && v < 12) v += 12;
+                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                    tstart[nt++] = v;
+                } else if (!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
+                           !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
+                           !strcmp(nx, "kilometres")) dist = v;
+            }
+        }
+        if (ns == 2 && nt == 2 && dist > 0 && speed[0] > 0 && speed[1] > 0) {
+            int early = tstart[0] <= tstart[1] ? 0 : 1, late = 1 - early;
+            double headstart = speed[early] * (tstart[late] - tstart[early]);
+            double meet;                       /* meeting time, 24h decimal */
+            if (headstart >= dist)             /* early train arrives before the other departs */
+                meet = tstart[early] + dist / speed[early];
+            else
+                meet = tstart[late] + (dist - headstart) / (speed[0] + speed[1]);
+            /* format the 24h decimal as H:MM AM/PM, rounding to the nearest minute. */
+            long total_min = (long)(meet * 60.0 + 0.5);
+            long hh = (total_min / 60) % 24, mm = total_min % 60;
+            const char *ap = hh < 12 ? "AM" : "PM";
+            long h12 = hh % 12; if (h12 == 0) h12 = 12;
+            /* gen241: if asked "will they meet BEFORE <time>?", answer yes/no too. */
+            char lead[24] = "";
+            if (cue(q, "before")) {
+                for (size_t i = 0; i + 1 < mnw; i++) {
+                    if (strcmp(strip_edge_punct(mw[i]), "before")) continue;
+                    double thr; if (!parse_value(strip_edge_punct(mw[i + 1]), &thr)) continue;
+                    char *u = (i + 2 < mnw) ? strip_edge_punct(mw[i + 2]) : (char *)"";
+                    if (!strcmp(u, "pm") && thr < 12) thr += 12;
+                    if (!strcmp(u, "am") && thr == 12) thr = 0;
+                    snprintf(lead, sizeof lead, "%s -- ", meet < thr ? "Yes" : "No");
+                    break;
+                }
+            }
+            char msg[180];
+            snprintf(msg, sizeof msg, "%sthey meet at about %ld:%02ld %s.", lead, h12, mm, ap);
+            if (!lead[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+            put(msg, out, out_size);
+            store_proof(b, "Head start of the earlier train, then the gap closes at the combined speed.");
+            (void)unit_km;
+            return 1;
+        }
+    }
+
     /* gen240 (LLMSCORE): "which train reaches the MIDPOINT first?" Each train must
      * cover half the total distance from its own end. Arrival = departure_time +
      * (distance/2)/speed; the smaller arrival wins. Tightly guarded: needs the
@@ -588,9 +651,12 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             /* gen240: base "give"/"giving N to <someone>" is a removal for the
              * subject. Ambiguous only when the recipient is me/us, so guard on the
              * NEXT token — "give 1 to a friend" subtracts; "give me 2 more" doesn't. */
-            if (!strcmp(t, "give") || !strcmp(t, "giving")) {
+            if (!strcmp(t, "give") || !strcmp(t, "giving") || !strcmp(t, "gives")) {
                 char *nx = (i + 1 < tnw) ? strip_edge_punct(tw[i + 1]) : (char *)"";
-                if (strcmp(nx, "me") && strcmp(nx, "us") && strcmp(nx, "myself"))
+                /* "give ME/US/YOU(rself) N" -> the answerer RECEIVES, so it's a gain;
+                 * only "give <other> N" / "give away N" is a removal (gen241). */
+                if (strcmp(nx, "me") && strcmp(nx, "us") && strcmp(nx, "myself") &&
+                    strcmp(nx, "you") && strcmp(nx, "yourself"))
                     sign = -1;
             }
             if (wp_removal_word(t)) sign = -1;
