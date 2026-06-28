@@ -1016,6 +1016,11 @@ static int is_struct_pred(const char *pred) {
         "compound_word", /* gen240: compound-word riddle facts */
         "appearance", /* gen240: sensory descriptions, queried not described */
         "synonym", /* gen231/236: synonym relation, queried not described */
+        "idiom_meaning", "boils_at", "freezes_at", "historical_fact", /* gen241 */
+        "river_of", "ocean_west_of", "moon_of", "anagram_of", /* gen241 */
+        "process_step", "limerick_l1", "limerick_l2", "limerick_l3", /* gen241 */
+        "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
+        "scenario_step", "place_for",
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;

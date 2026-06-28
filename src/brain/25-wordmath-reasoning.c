@@ -247,6 +247,119 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
           cue(q, "number of") || cue(q, "arrangement")))
         return 0;
 
+    /* gen241 (LLMSCORE-check): containers x per-container, then add/remove deltas.
+     * "A bookshelf has 5 shelves. Each shelf holds 12 books. If you remove 20 and add
+     * 8, how many?" -> 5*12 - 20 + 8 = 48. The C reads the multiply (count x each-holds)
+     * then walks add/remove verbs as signed deltas. A genuine multi-step computation. */
+    if ((cue(q, "each") || cue(q, "every")) &&
+        (cue(q, "holds") || cue(q, "hold") || cue(q, "has") || cue(q, "have") ||
+         cue(q, "contains") || cue(q, "contain") || cue(q, "with"))) {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", q);
+        char *mw[64]; size_t mn = split_words(mb, mw, 64);
+        double per = -1, containers = -1;
+        /* per = the number right after each/every <noun> holds/has/contains */
+        for (size_t i = 0; i + 1 < mn; i++) {
+            char *t = strip_edge_punct(mw[i]);
+            if (!strcmp(t,"holds")||!strcmp(t,"hold")||!strcmp(t,"contains")||
+                !strcmp(t,"contain")||!strcmp(t,"holding")) {
+                for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
+                    double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
+                }
+            }
+        }
+        /* containers = the first number in the turn distinct from per */
+        for (size_t i = 0; i < mn; i++) {
+            double v; if (parse_value(strip_edge_punct(mw[i]), &v)) {
+                if (per < 0 || v != per) { containers = v; break; }
+            }
+        }
+        if (per > 0 && containers > 0) {
+            double total = containers * per;
+            /* walk signed deltas: add/added/put -> +, remove/take/subtract -> - */
+            for (size_t i = 0; i + 1 < mn; i++) {
+                char *t = strip_edge_punct(mw[i]);
+                int plus = !strcmp(t,"add")||!strcmp(t,"added")||!strcmp(t,"adds")||
+                           !strcmp(t,"put")||!strcmp(t,"gain")||!strcmp(t,"buy")||
+                           !strcmp(t,"bought")||!strcmp(t,"insert");
+                int minus = !strcmp(t,"remove")||!strcmp(t,"removed")||!strcmp(t,"removes")||
+                            !strcmp(t,"take")||!strcmp(t,"took")||!strcmp(t,"takes")||
+                            !strcmp(t,"subtract")||!strcmp(t,"lose")||!strcmp(t,"lost")||
+                            !strcmp(t,"sell")||!strcmp(t,"sold")||!strcmp(t,"give")||!strcmp(t,"gave");
+                if (!plus && !minus) continue;
+                for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
+                    double v; if (parse_value(strip_edge_punct(mw[j]), &v)) {
+                        total += plus ? v : -v; break;
+                    }
+                }
+            }
+            char num[64]; format_num(total, num, sizeof num);
+            char msg[120]; snprintf(msg, sizeof msg, "%s.", num);
+            put(msg, out, out_size);
+            store_proof(b, "Multiplied containers by per-container, then applied the add/remove deltas.");
+            return 1;
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): "an item costs $C and you have $M" buying/change.
+     *   "how many can you buy and how much remains?" -> floor(M/C) bought, M mod C left.
+     *   "how much change do you get?" (buying one) -> M - C.
+     * Distinct from the "N for $M" pack handler: here the price is a per-item COST and
+     * the money is what you HAVE, signalled by "cost(s)" + "have"/"bill". */
+    if ((cue(q, "cost") || cue(q, "costs") || cue(q, "price")) &&
+        (cue(q, "have") || cue(q, "bill")) &&
+        (cue(q, "$") || cue(q, "dollar") || cue(q, "cent") || cue(q, "euro"))) {
+        char cbuf[256]; snprintf(cbuf, sizeof cbuf, "%s", q);
+        char *cw[64]; size_t cn = split_words(cbuf, cw, 64);
+        double price = -1, money = -1;
+        for (size_t i = 0; i < cn; i++) {
+            char *t = strip_edge_punct(cw[i]);
+            double v;
+            if (!parse_value(t, &v)) continue;
+            /* classify by the nearest keyword in a small window before/after */
+            int is_price = 0, is_money = 0;
+            for (size_t j = (i >= 2 ? i - 2 : 0); j <= i + 2 && j < cn; j++) {
+                char *k = strip_edge_punct(cw[j]);
+                if (!strcmp(k,"cost")||!strcmp(k,"costs")||!strcmp(k,"price")||!strcmp(k,"costing")) is_price = 1;
+                if (!strcmp(k,"have")||!strcmp(k,"bill")||!strcmp(k,"got")||!strcmp(k,"wallet")) is_money = 1;
+            }
+            if (is_price && price < 0) price = v;
+            else if (is_money && money < 0) money = v;
+        }
+        /* fallback: the smaller number is the price, the larger is the money. */
+        if ((price < 0 || money < 0)) {
+            double nums2[16]; size_t kk = collect_numbers(cw, cn, nums2, 16);
+            if (kk >= 2) {
+                double lo = nums2[0], hi = nums2[0];
+                for (size_t i = 1; i < kk; i++) { if (nums2[i] < lo) lo = nums2[i]; if (nums2[i] > hi) hi = nums2[i]; }
+                if (price < 0) price = lo;
+                if (money < 0) money = hi;
+            }
+        }
+        if (price > 0 && money >= 0) {
+            int wants_count = cue(q, "how many") || cue(q, "can you buy") ||
+                              cue(q, "can i buy") || cue(q, "can be bought");
+            if (wants_count) {
+                long n = (long)(money / price);
+                double left = money - n * price;
+                char msg[200];
+                snprintf(msg, sizeof msg,
+                         "You can buy %ld, with $%g left over.", n, left);
+                put(msg, out, out_size);
+                store_proof(b, "Bought as many as the money allows; remainder is the change.");
+                return 1;
+            }
+            if (cue(q, "change") || cue(q, "left") || cue(q, "remain") ||
+                cue(q, "back")) {
+                double change = money - price;
+                char msg[120];
+                snprintf(msg, sizeof msg, "$%g.", change);
+                put(msg, out, out_size);
+                store_proof(b, "Change = money given minus price.");
+                return 1;
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): the bat-and-ball trap. "A and B cost T total; A costs D
      * more than B; how much is B?" The intuitive T-D is WRONG; the algebra is
      * B = (T - D)/2 (since A = B + D and A + B = T). Guarded on "more than" + a

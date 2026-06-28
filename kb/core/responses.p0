@@ -48,6 +48,11 @@ response_template(would_rather, "I'll play along, though I don't have real prefe
 response_template(self_embodiment, "I don't eat or sleep - I have no body, so there's no breakfast or rest for me.").
 response_template(self_embodiment, "No meals or sleep here: I don't have a body. I just process the text you send me.").
 
+% --- gen241 (LLMSCORE-check): honest reply to location/weather-of-self probes. No
+% body and no place, so no weather to report - engages rather than walling. ---
+response_template(self_location, "I don't have a body or a place to be, so I can't feel the weather -- but I'm here and ready whenever you are.").
+response_template(self_location, "There's no weather where I am: I'm a program with no location. How's it where you are?").
+
 % --- gen231 (LLMSCORE): honest reply to opinion/preference probes. No lived
 % experience, so no genuine favorites - engages rather than walling. ---
 response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.").

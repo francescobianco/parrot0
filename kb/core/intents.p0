@@ -133,6 +133,21 @@ intent_cue(self_embodiment, "cosa mangi").
 intent_cue(self_embodiment, "hai dormito").
 intent_cue(self_embodiment, "sei stanco").
 
+% --- gen241 (LLMSCORE-check): location/weather-of-self probes. parrot0 has no body
+% or place, so it can't feel weather; the honest answer engages, it doesn't wall.
+intent_cue(self_location, "weather like where you").
+intent_cue(self_location, "weather where you are").
+intent_cue(self_location, "weather like right now").
+intent_cue(self_location, "weather where you're").
+intent_cue(self_location, "weather over there").
+intent_cue(self_location, "where are you right now").
+intent_cue(self_location, "where do you live").
+intent_cue(self_location, "where are you located").
+intent_cue(self_location, "che tempo fa dove sei").
+intent_cue(self_location, "che tempo fa lì").
+intent_cue(self_location, "dove ti trovi").
+intent_cue(self_location, "dove vivi").
+
 % --- gen231 (LLMSCORE): opinion / preference probes ("what's your favorite thing
 % to do on a rainy day", "do you enjoy music"). parrot0 has no personal tastes or
 % lived experience; the honest answer engages instead of walling and is the same an

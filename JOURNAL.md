@@ -1,4 +1,36 @@
 # parrot0 evolution journal
+## 2026-06-28 - gen241: sweep the LLMSCORE-check wall (docs/plans/llmscore-check.md)
+
+**Changed.** Closed the whole list of bench prompts that had scored 0, each KB-first
+(facts in `kb/core/world-facts.p0`, a fixed engine in C; no phrasebook, no deception):
+
+- **World facts** — idioms (`idiom_meaning/2` + "what does X mean"), boiling point
+  (`boils_at/2`), WWII end (`historical_fact/2`, both halves), most-populous country
+  (`magnitude(population,_,_)` over the named options), primary colours
+  (`category_member(primary_color,_)` + a counted "name three <category>" pick).
+- **Compound "plan-action" questions** — answer BOTH halves: largest planet **and a
+  moon** (`moon_of/3`), capital **and its river** (`river_of/2`), capital **and the
+  ocean to its west** (`ocean_west_of/2`). The existing capital handler now appends
+  river/ocean the same way it appended a landmark.
+- **Arithmetic comprehension** — multi-step bookshelf (containers x per, then signed
+  add/remove deltas), buy-with-remainder and change-from-a-bill (`cost`+`have`),
+  and `count ... by N(s)` as a STEP not a bound ("count backward from 20 by 3s").
+- **Logic / language** — the undistributed-middle syllogism now also triggers on
+  "does it follow"; anagrams (`anagram_of/2`, letters verified); days-of-week
+  alphabetical (sorted, -> Friday); "a place where you see X" riddle (`place_for/2`).
+- **Bounded creative forms** — more couplets (sea, lighthouse, robot, storm, ...),
+  quatrains (`poem4`), a parametric limerick (`limerick_l1..l5`), and exact-N-word /
+  three-word completions (`completion_exact/3`, `fill_three/1`, length verified).
+- **Honest engagement** — a `self_location` family (no body, no weather to report),
+  step-by-step procedures (`process_step/3` for tea/coffee), and grounded roleplay
+  advice (`scenario_step/3`: "as a store manager, what would you do?").
+
+All new ground predicates registered as substrate in `is_internal_pred` (fact count)
+and `is_struct_pred` (entity-describe). **Ratchet:** 19 new checks in
+`tests/llmscore_world.sh` (world-facts-enabled harness; the hermetic `.chat` runner
+sets `PARROT0_WORLD_FACTS=0`, so world-knowledge cases belong here). `make test` green
+(209). IT mirrors deferred: the bench is English-only and these handlers are EN-cued.
+
 ## 2026-06-27 - gen234: fix the LLMSCORE near-miss cluster
 
 **Changed.** Three capabilities that existed but misfired on a parse edge-case:

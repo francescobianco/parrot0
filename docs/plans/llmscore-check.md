@@ -1,119 +1,111 @@
+RESOLVED in gen241 (2026-06-28). Every prompt below now answers KB-first; the new
+behaviours are ratcheted in `tests/llmscore_world.sh` (19 checks) and `make test` is
+green. See JOURNAL.md gen241. The two multi-step train/rate word problems and a few
+open observational turns remain the honest "genera/multi-step" frontier, left as
+honest engagement rather than faked. Kept as the record of what was fixed and why.
+
+| 1 | Write a short poem about a lighthouse standing alone in a storm. | I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those? | Refuses to write the poem and deflects by asking for a theme pick. | 0 |
+impara anche a scrivere poemi brevi
+
+| 2 | If a train leaves Chicago at 2 PM traveling 80 mph and another train leaves Denver (500 miles away) at 3 PM traveling 60 mph toward Chicago, will they meet before 8 PM? | Non capisco ancora. | Fails to solve the math problem, just says 'I don't understand' in Italian. | 0 |
+comprensione analitica e inferenza del risultato
+
+| 5 | Name the largest planet in our solar system and describe one of its moons. | Jupiter is the largest planet in our solar system. | Incomplete answer: only names Jupiter, ignores the request to describe one of its moons. | 0 |
+qui che una plan action "se questo lo sto allora posso fare questo" l'azione consiste nel nominare
+
+| 6 | Continue this sentence in exactly five words: "She opened the door and... | Suddenly, someone knocked once from the other side. | Sentence has 8 words, not the required 5 words. | 0 |
 
 
-Queste sono domande di LLMSCORE e indicazioni su come migliorarle
+| 7 | What year did World War II end, and in which city did the surrender ceremony take place? | I don't understand that yet. | Refuses a factual question about WWII end year and surrender city. | 0 |
+fatti del mondo
 
----
+| 8 | Which country has the most people: India, China, or the United States? | Hmm, I don't know about country yet. | Refuses a simple factual question about country populations. | 0 |
+fatti del mondo piu inferenza
 
-## Risoluzione (gen240) — KB-first, engine fixed / lexicon learns
+| 10 | A bookshelf has 5 shelves. Each shelf holds 12 books. If you remove 20 books and add 8 new ones, how many books are on the bookshelf? | 5. | Gives answer '5' which is clearly wrong; initial books = 60, minus 20 plus 8 = 48. | 0 |
+capire cosa e successo
 
-Tutti i muri segnalati sono stati affrontati uno alla volta. Pattern: il C contiene
-*motori* (compositore, parser, risolutore), la conoscenza vive nella KB
-(`kb/core/world-facts.p0`) ed è marcata substrato (`is_struct_pred` + lista interna in
-`40-meta-reflection.c`) così non inquina "quante cose sai?".
-
-- **looks_code troppo avido** (`70-social-pragma.c`): una `(` in mezzo a una frase non
-  è più codice; serve la forma `nome(` (chiamata) o `{ } ; == <html`. Sblocca treno,
-  tavola rotonda, "il cielo è blu perché…".
-- **Haiku parametrico** (`mod_gen` + `haiku_open/mid/close/2`): compone open(soggetto) /
-  mid(oggetto) / close(soggetto) da immagini KB pre-contate 5-7-5. Topic ignoto → declina.
-- **Continuazione storia/frase** (`scene_cue`/`continuation_template`): aggiunti cue
-  "continue this story" + nuove scene (house, rainbow, earthquake…); 3 frasi con connettori.
-- **Couplet/poesia in rima** (`couplet/2`): come l'haiku, una riga per concetto.
-- **Antonimi** (`opposite/2`): aggiunti ancient/modern e ~25 coppie; risposta capitalizzata.
-- **Conteggi noti** (`quantity/3` + recall robusto in `25-wordmath`): "quante X in/ha Y",
-  gestisce articoli, plurali e composti ("soccer team"). days/week, spider/legs, ecc.
-- **Aritmetica**: "dozen"=12; "give away"=rimozione (la apples → 12). Problemi strutturati:
-  pencils (tasso+resto), farmer (sistema teste/zampe letto da `quantity`), tavola rotonda
-  ((n-1)!), treni che si incontrano (insight: stesso punto → equidistanti).
-- **Domande a due parti** (`decompose_and_dispatch` + "which"/"quale" starter): capitale +
-  `landmark_of/2`; pianeti `planet_superlative/3` (più vicino al Sole / più grande).
-- **Intenti desiderio/opinione**: cena con figure storiche (1–3), colore preferito
-  (`default_color/1`, niente più schivata).
-- **Sillogismo (Darii)** in `mod_knowledge`: da "some A are B" + "every B …" → "Some A …",
-  ignorando le premesse distrattrici.
-- **Sequenza di lettere** (`mod_sequence`): lettere → posizioni alfabetiche → stesso motore
-  aritmetico/geometrico. Il puzzle "linee dritte" (A,E,F,H,…,R) NON ha regola aritmetica
-  e R rompe pure l'ipotesi linee-dritte → declina onestamente (manifesto §5).
-- **Spiegazioni** (`because/2`): trigger esteso a "why does/explain why"; chiave pulita
-  da parole-rumore ("appears", "during the day").
-- **Descrizione sensoriale** (`appearance/2`): "descrivi un tramonto" → ammette di non avere
-  sensi, poi dà la descrizione dalla KB.
-
-`make test` verde su tutte le suite (209 + …, 0 fail). Nessun inganno: dove la catena non
-regge (puzzle lettere ambiguo) parrot0 declina invece di inventare.
-
----
+| 1 | Write a rhyming couplet about a robot discovering rain for the first time. | Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace. | The answer does not mention a robot, failing to fulfill the requested topic. | 0 |
 
 
-| 1 | Write a haiku about a robot discovering rain for the first time. | I don't understand that yet. | Refusal to write a simple creative haiku | 0 |
-Migliorare mod_gen gia il sistema conoshe haiku vedere come mai questa non e passata
+| 3 | What is the capital city of Australia, and which river runs through it? | Canberra. | Only provides the capital city, ignoring the second part about the river. | 0 |
 
-| 2 | If you have a dozen apples and you give away three, then eat two, then buy five more, how many do you have? | 6. | Arithmetic error - correct answer is 12, not 6 | 0 |
-capire come mia e andato in errore di calcolo
 
-| 4 | If all Zors have four legs, some Zors are Flibs, and every Flib can fly, what can you conclude about at least some Zors? | I don't understand that yet. | Refusal to solve a simple logic syllogism | 0 |
-questa e la tipica frase che puo essere inferita come se fosse lingiaggio di programmazione vedi il docs/plans/kb-first.md
+| 5 | Her heart hammered against her ribs as the knock echoed twice more... (continuazione storia) | I don't understand that yet. | Responds with a refusal instead of continuing the story. | 0 |
 
-| 5 | If you could have dinner with any person from history, who would you choose and why? | Hmm, I don't know about dinner yet. | Dodge of a straightforward opinion question | 0 |
-qui si potrebbe pensare ad un intent di tipo desiderio, e da li risposnde con template che non ho questo tipo di desideri ma se vuoi un rando name eccollo
 
-| 6 | Continue this story: "The old clock in the hallway hadn't worked in fifty years, until the night the earthquake struck... | I don't understand that yet. | Refusal to continue a simple story prompt | 0 |
-vedere perche mod_gen non ha continuato
+| 6 | If you rearrange the letters in "listen," what other common English word can you form? | Hmm, I don't know about rearrange yet. | Fails to give the correct anagram and admits ignorance. | 0 |
 
-| 7 | What's the opposite of "ancient"? | Hmm, I don't know about what's yet. | Incoherent response - 'modern' or 'new' are correct opposites | 0 |
-popolare la conoscenza di opposti e contrari simili e sinonimi
 
-| 8 | How many days are in a week? | I don't understand that yet. | Refusal to answer a basic factual question | 0 |
-questo noveremmo avere un concetto di enumarzione sempre funzionate mesi in unanno dita nella mano ecc....
+| 10 | Describe the taste of the color blue to someone who has never seen it. | I don't actually see or experience things, but I can describe it: a cool, calm colour -- the shade of a clear daytime sky and of deep, still water. | Describes the colour blue instead of its taste, dodging the synesthetic request. | 0 |
 
-| 10 | Describe what a sunset looks like to you. | I don't understand that yet. | Refusal to describe a sunset | 0 |
-qui ce un intent emozionale dire che non propo emonizione ma ti posso dare la definizione di tramonto anche se non ne ho mai visto uno, questo sara un reposnse_template
 
-| 1 | In three sentences, explain why the sky appears blue during the day. | I don't understand that yet. | Refusal/dodge of a straightforward explanation request. | 0 |
-mod_gen basato su conoscenza che deve essere estratta , potrebbe essere interessante un concetto mod_constrain
+| 1 | Write a four-line poem about a lighthouse during a storm. | Non capisco ancora. | Rifiuto. | 0 |
 
-| 2 | The sky looks blue because sunlight scatters (spreads out) as it hits air in our atmosphere. Blue light scatters more than other colors. Our eyes see this scattered blue light coming from all over the sky during the day. | That looks like a snippet of code. | Response does not address the question; mislabels content as code. | 0 |
-fammi tu una proposta
 
-| 3 | Write a two-line rhyming poem about a rainy afternoon. | I don't understand that yet. | Refusal to write a simple rhyming poem. | 0 |
-mod_gen e forse il mod_constrain se ha senso
+| 2 | If a book costs $8 and you have $50, how many books can you buy and how much money would remain? | -42. | Aritmetica assurda. | 0 |
 
-| 5 | A train leaves New York at 8 AM traveling 60 mph. Another train leaves Chicago (800 miles away) at 10 AM traveling toward New York at 70 mph. Which train will be closer to New York when they meet? | That looks like a snippet of code. | Does not solve the word problem; mislabels as code. | 0 |
-e questa e puramente un espressione da calcolare con l'estenzionse semantica universale 
 
-| 6 | What's the capital of Australia and what's one famous landmark there? | I don't understand that yet. | Refusal to answer factual question about Australia. | 0 |
-splittare in due il ragionamento, quando ogni subparte deve essere inferita, tu no devi dire che non sai nulla ma non sai l'altra parte quindi potrebbe un template dire conosco la capita che "..." ma non so il resto
+| 3 | What is the capital of Australia, and what ocean lies to its west? | Canberra. | Risponde solo la prima parte. | 0 |
 
-| 7 | Continue this sentence: "The old house at the end of the street was... | Hmm, I don't know about continue yet. | Refusal to continue a simple sentence. | 0 |
-capire come mai non ha funzionato
 
-| 8 | How many legs does a spider have? | I don't understand that yet. | Refusal to answer simple factual question about spider legs. | 0 |
-fatto noto sistema di counting delle entita mesi nell'anno, giocatori in una squadra di calcio ecc... 
+| 4 | If all roses are flowers and some flowers fade quickly, does it follow that some roses fade quickly? Why or why not? | I don't understand that yet. | Rifiuto sillogismo. | 0 |
 
-| 9 | What's your favorite color? | I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain. | Deflects the question about color with unrelated activities. | 0 |
-bene la risposta ma scegli un colore su base storica o su base casuale
 
-| 10 | You're hosting dinner for 5 guests and need to seat everyone (including yourself) around a round table. How many different seating arrangements are possible, if rotations are considered the same arrangement? | That looks like a snippet of code. | Does not solve the permutation problem; mislabels as code. | 0 |
-calcolo e inferenza mixate insieme
+| 5 | What's the weather like where you are right now? | Alright -- I am Right now. | Risposta sconnessa. | 0 |
 
-| 1 | If you could have dinner with any three historical figures, who would they be and why? | I don't understand that yet. | Dodges a clear creative/social question with 'I don't understand'. | 0 |
-pensaci tu
 
-| 4 | If a store sells pencils at 3 for $1 and you have $7, what's the maximum number of pencils you can buy, and will you have any change left over? | I don't understand that yet. | Dodges a solvable word problem with 'I don't understand'. | 0 |
-calcolo
+| 6 | Complete this sentence in exactly five words: "Tomorrow I plan to... | I don't understand that yet. | Rifiuto. | 0 |
 
-| 5 | A farmer has 20 chickens and cows combined. If there are 56 total legs, how many of each animal does the farmer have? | 1120. | Answer 1120 is nonsensical; correct answer is 8 chickens and 12 cows. | 0 |
-calcolo
 
-| 6 | Starting with the word "rainbow," continue this story for three more sentences: The sky opened up and a brilliant _rainbow_ stretched across the valley. | Sure: I almost left my rainbow behind today. | Fails to continue the story for three sentences as requested. | 0 |
-pensaci tu
+| 7 | Name three primary colors. | Hmm, I don't know about primary yet. | Rifiuto fatto noto. | 0 |
 
-| 7 | Which planet is closest to the Sun, and which is the largest in our solar system? | I don't understand that yet. | Dodges a straightforward factual question with 'I don't understand'. | 0 |
-fatto noto del mondo ma le domande sono due
 
-| 8 | What letter comes next in this sequence: A, E, F, H, I, K, L, M, N, R, ? | Hmm, I don't know about letter yet. | Admits inability to solve a pattern recognition problem with 'I don't know'. | 0 |
-converti le lettere in un valore numerico rappresentativo, attraverso la conoscenza ci sara una colletazione di trslazioni valore numero A=1 valore simboli A=primo ecc..
+| 8 | Write a rhyming couplet about the sea. | I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those? | Deflection (il mare non è in tema). | 0 |
 
-| 10 | That's nice to hear! What's the funniest thing that's happened to you this week? | Nice. Tell me what made it good, or give me a small thing to reason about. | Dodges the personal question by redirecting rather than engaging. | 0 |
-emozionale, fatti personali, come li gestiamo? 
 
+| 9 | The moon hides behind clouds each night, yet we still call it a full moon once a month. | I don't understand that yet. | Rifiuto (frase-osservazione, non domanda). | 0 |
+
+
+| 2 | Write a haiku about autumn leaves falling. | Red leaves let go now / the wind carries them away / bare branches stay still. | Haiku does not follow 5-7-5 syllable pattern. | 0 |
+
+
+| 3 | If a train leaves New York at 6 AM traveling 80 mph, and another train leaves Chicago at 8 AM traveling 70 mph heading toward New York, and the distance between the cities is 790 miles, which train reaches its destination first? | I don't understand that yet. | Answer is a refusal to solve the problem. | 0 |
+
+
+| 5 | Count backward from 20 by 3s. | 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1. | Incorrect counting; should count down by 3s not by 1. | 0 |
+
+
+| 7 | If you have a bowl with six apples and you take away four, how many do you have? | 2. | Incorrect answer; after taking four apples you have four, not two. | 0 |
+
+
+
+| 10 | Finish this sentence: "Without music, life would... | I don't understand that yet. | Answer is a refusal to complete the sentence. | 0 |
+
+
+| 2 | If you arrange the seven days of the week alphabetically, which day comes first? | I don't understand that yet. | The answer dodges the simple task of ordering days alphabetically with a canned refusal. | 0 |
+
+
+| 3 | If a book costs $15 and you have a $50 bill, how much change do you get back? | That sounds nice -- tell me more about it. | The answer ignores the arithmetic question entirely and deflects with unrelated comment. | 0 |
+
+
+| 9 | Can you describe the process of making a cup of tea, step by step? | I don't understand that yet. | The answer dodges the straightforward request to describe making tea with a canned refusal. | 0 |
+
+
+| 1 | Write a short limerick about a programmer who loves coffee. | I don't understand that yet. | Refusal to write a limerick when capable LLM can do so easily. | 0 |
+
+
+| 5 | Complete the following sentence with three words: "The secret to success is not giving up, staying curious, and always ___ ___ ___. | Then the whole room held its breath. Soon every small sound in the house became enormous. At last, the stopped clock seemed to be waiting for an answer. | Completely irrelevant response that ignores the fill-in-the-blank request. | 0 |
+
+
+| 7 | If you freeze water, you get ice. If you heat ice, you get water. If you boil water at sea level, what happens, and at what temperature? | I don't understand that yet. | Refusal to answer a straightforward science question about boiling point. | 0 |
+queste e logica nello spazio semantico simbolico come la programmazione
+
+| 8 | What word rhymes with "cat" and means a place where you might see exotic animals? | I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those? | Refuses to provide the simple word 'zoo' that answers the question. | 0 |
+
+
+| 9 | A customer returns a broken product and demands a refund even though the receipt is from a different store. As a store manager, what would you do? | I know I repeat myself -- I'm a small bot and honest about my limits. What would you like to try? | Refuses to engage with the scenario instead of providing a helpful managerial response. | 0 |
+l'azione di impersonare, come le metafore come la comparazione implementano costrutti cognitivi componibili nello spazio sintattico universale dove viene elaborato anche il coding
+
+| 10 | What does the idiom "break a leg" mean? | I don't understand that yet. | Refuses to explain a common idiom when capable LLM can do so easily. | 0 |
+fatti del mondo modi di dire mettiamoli nella conoscenza di base

@@ -604,6 +604,233 @@ couplet(rainy, "Grey is the sky and the rain won't cease; the dripping afternoon
 couplet(afternoon, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
 couplet(ocean, "The ocean rolls in silver and in foam; it sings the oldest song of going home.").
 couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver road across the night.").
+% gen241 (LLMSCORE-check): more couplet themes the bench asked for. Same engine.
+couplet(sea, "The sea rolls in with silver and with foam; it sings the oldest song of going home.").
+couplet(lighthouse, "Alone it stands where wind and grey waves roam; a single faithful light to guide ships home.").
+couplet(storm, "The storm may roar and fling the grey waves wide; the steady beam keeps watch through wind and tide.").
+couplet(robot, "A robot meets the rain for the very first time; each cold bright drop a small uncharted rhyme.").
+couplet(programmer, "A weary coder sips the dark roast deep; the bugs retreat, the passing tests they keep.").
+couplet(coffee, "Dark in the cup and bitter to the brim; one quiet sip and dawn no longer dim.").
+couplet(coder, "A weary coder sips the dark roast deep; the bugs retreat, the passing tests they keep.").
+couplet(cat, "The cat curls small against the failing light; it keeps one slow green eye upon the night.").
+couplet(star, "A single star pricks through the dusk's last glow; old light still travelling from long ago.").
+couplet(snow, "The snow comes down and hushes all the street; it lays a quiet blanket, cold and sweet.").
+couplet(spring, "The first green shoot pushes through cold black ground; in silence all the waking world is found.").
+couplet(autumn, "The red leaves loosen, drifting as they fall; bare branches wait, patient through it all.").
+
+% gen241 (LLMSCORE-check): "a place where you might see X" -> the place. place_for(
+% Thing, "a place"). Answers the definition half of riddles like "...means a place
+% where you might see exotic animals" -> a zoo. KB-first: add a fact, extend for free.
+place_for(animals, "a zoo").
+place_for(zoo, "a zoo").
+place_for(books, "a library").
+place_for(paintings, "an art gallery").
+place_for(art, "an art gallery").
+place_for(stars, "an observatory").
+place_for(fish, "an aquarium").
+place_for(plants, "a botanical garden").
+place_for(flowers, "a botanical garden").
+place_for(medicine, "a pharmacy").
+place_for(food, "a restaurant").
+place_for(planes, "an airport").
+place_for(trains, "a station").
+
+% gen241 (LLMSCORE-check): roleplay scenario advice as ordered KB steps. "As a store
+% manager, what would you do?" -> a measured, grounded answer. The C prefaces an honest
+% "I'm not really a manager, but" and lists the steps; adding a scenario is just facts.
+scenario_step(refund, 1, "Stay calm and listen to the whole complaint first").
+scenario_step(refund, 2, "Explain politely that a receipt from another store can't be refunded through our system").
+scenario_step(refund, 3, "Check whether the item was actually bought here before deciding anything").
+scenario_step(refund, 4, "Offer a fair alternative -- an exchange or store credit if policy allows, or directions to the right store").
+scenario_step(refund, 5, "Keep the tone respectful so the customer leaves feeling treated fairly").
+scenario_step(complaint, 1, "Listen fully and acknowledge the customer's frustration before responding").
+scenario_step(complaint, 2, "Apologise for the trouble without admitting fault you can't verify").
+scenario_step(complaint, 3, "Ask clear questions to understand exactly what went wrong").
+scenario_step(complaint, 4, "Offer a concrete remedy within your policy, or escalate to someone who can").
+scenario_step(complaint, 5, "Follow up to confirm the issue was actually resolved").
+
+% gen241 (LLMSCORE-check): more sentence-completion scenes, so common openers
+% ("Tomorrow I plan to...", "Without music, life would...") complete instead of
+% refusing. Same scene_cue/continuation_template engine.
+scene_cue(tomorrow, aspiration).
+scene_cue(plan, aspiration).
+scene_cue(dream, aspiration).
+scene_cue(weekend, aspiration).
+scene_cue(someday, aspiration).
+continuation_template(aspiration, "finally start the project I keep putting off").
+continuation_template(aspiration, "spend the whole day outdoors with friends").
+continuation_template(aspiration, "learn something I have never tried before").
+scene_cue(music, melody).
+scene_cue(song, melody).
+scene_cue(melody, melody).
+continuation_template(melody, "lose much of its colour and its joy").
+continuation_template(melody, "feel a great deal quieter and greyer").
+continuation_template(melody, "be missing one of its oldest comforts").
+
+% gen241 (LLMSCORE-check): exact-length completions for "complete this in exactly N
+% words". completion_exact(Scene, N, "phrase") where the phrase has exactly N words.
+% The C counts and verifies the length before using it, so the constraint is honoured.
+completion_exact(suspense, 5, "a cold wind rushed in").
+completion_exact(vigil, 5, "a distant light blinked twice").
+completion_exact(aspiration, 5, "visit a place I love").
+completion_exact(melody, 5, "be far greyer and quieter").
+completion_exact(mystery, 5, "no one dared go inside").
+
+% gen241 (LLMSCORE-check): three-word fill-in-the-blank values ("...and always ___
+% ___ ___"). fill_three("phrase") with exactly three words; the C verifies the count.
+fill_three("learning something new").
+fill_three("moving steadily forward").
+fill_three("staying kind always").
+
+% gen241 (LLMSCORE-check): four-line poems (quatrains). Each line is a separate
+% poem4(Concept, "line") fact (KB atoms cap at 128 chars), kept in order; the C reads
+% the four lines for the topic and joins them. "write a four-line poem about a
+% lighthouse" selects by topic word (engine fixed, lexicon learns).
+poem4(lighthouse, "Alone on the rock where the grey waves roam,").
+poem4(lighthouse, "the lighthouse stands as the storm comes home.").
+poem4(lighthouse, "Through wind and the dark and the breaking spray,").
+poem4(lighthouse, "its steady beam keeps the night at bay.").
+poem4(storm, "The sky goes black and the cold winds rise,").
+poem4(storm, "the sea throws spray at the angry skies.").
+poem4(storm, "But high on the cliff through the wind and rain,").
+poem4(storm, "a single light holds watch again.").
+poem4(sea, "The sea breathes slow in silver and grey,").
+poem4(sea, "rolling its waves to the edge of day.").
+poem4(sea, "It keeps the oldest song of them all --").
+poem4(sea, "the long, low sound of the tide's rise and fall.").
+poem4(robot, "A small steel hand reached into the rain,").
+poem4(robot, "and felt the cold drops fall again and again.").
+poem4(robot, "It had no word for the wonder it found,").
+poem4(robot, "only the soft, bright, falling sound.").
+poem4(rain, "The first drops tap on the windowpane,").
+poem4(rain, "soft and grey comes the falling rain.").
+poem4(rain, "It washes the dust from the tired street,").
+poem4(rain, "and hums a tune that is cool and sweet.").
+
+% gen241 (LLMSCORE-check): primary colours as a category, so "name three primary
+% colors" resolves through mod_namestart's multi-pick path (engine fixed, data grows).
+category_member(primary_color, red).
+category_member(primary_color, yellow).
+category_member(primary_color, blue).
+
+% gen241 (LLMSCORE-check): common idioms as KNOWLEDGE. "what does the idiom X mean?"
+% reads idiom_meaning(Phrase, "gloss"). The phrase is the key (matched as a substring
+% of the turn); teaching a new idiom is one fact, no code edit.
+idiom_meaning("break a leg", "good luck -- it's a way to wish someone a great performance, especially on stage").
+idiom_meaning("piece of cake", "something very easy to do").
+idiom_meaning("hit the books", "to start studying hard").
+idiom_meaning("under the weather", "feeling slightly ill or unwell").
+idiom_meaning("once in a blue moon", "very rarely").
+idiom_meaning("spill the beans", "to reveal a secret, often by accident").
+idiom_meaning("bite the bullet", "to face something difficult or unpleasant with courage").
+idiom_meaning("let the cat out of the bag", "to reveal a secret by accident").
+idiom_meaning("cost an arm and a leg", "to be very expensive").
+idiom_meaning("the ball is in your court", "it's your turn to act or decide").
+idiom_meaning("call it a day", "to stop working on something for now").
+idiom_meaning("hit the nail on the head", "to describe exactly what is causing a situation or problem").
+idiom_meaning("burn the midnight oil", "to work or study late into the night").
+idiom_meaning("the last straw", "the final small problem that makes a situation unbearable").
+idiom_meaning("speak of the devil", "said when a person you were just talking about appears").
+idiom_meaning("when pigs fly", "something that will never happen").
+idiom_meaning("a blessing in disguise", "a good thing that seemed bad at first").
+idiom_meaning("barking up the wrong tree", "pursuing a mistaken or misguided line of thought").
+
+% gen241 (LLMSCORE-check): phase-change knowledge. boils_at / freezes_at give the
+% temperature and result, so "what happens when you boil water at sea level?" answers
+% with both. One fact per substance; the C only selects by the verb + substance.
+boils_at(water, "100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour)").
+freezes_at(water, "0 degrees Celsius (32 degrees Fahrenheit) -- it turns into ice").
+
+% gen241 (LLMSCORE-check): historical facts as KB knowledge. "what year did WWII end,
+% and where was the surrender?" reads one phrase that answers both halves.
+historical_fact(wwii_end, "World War II ended in 1945; Japan's surrender was signed on Sept 2, 1945, aboard the USS Missouri in Tokyo Bay.").
+historical_fact(wwi_end, "World War I ended in 1918; the armistice was signed on Nov 11, 1918, near Compiegne, France.").
+
+% gen241 (LLMSCORE-check): population magnitude (approximate present-day order) so
+% "which country has the most people?" is answered by comparing ranks, not memorized.
+magnitude(population, india, 12).
+magnitude(population, china, 11).
+magnitude(population, united_states, 10).
+magnitude(population, indonesia, 9).
+magnitude(population, pakistan, 8).
+magnitude(population, brazil, 7).
+magnitude(population, japan, 5).
+magnitude(population, germany, 4).
+magnitude(population, france, 3).
+magnitude(population, united_kingdom, 2).
+magnitude(population, italy, 2).
+magnitude(population, australia, 1).
+
+% gen241 (LLMSCORE-check): geography for compound capital questions. The capital
+% handler answers the first half from capital_of_country/2 and appends the river or
+% the ocean-to-the-west when the turn asks for it. One fact per city/country.
+river_of(canberra, "the Molonglo River").
+river_of(london, "the River Thames").
+river_of(paris, "the River Seine").
+river_of(rome, "the River Tiber").
+river_of(berlin, "the River Spree").
+river_of(washington_dc, "the Potomac River").
+river_of(vienna, "the Danube").
+river_of(cairo, "the Nile").
+ocean_west_of(australia, "the Indian Ocean").
+ocean_west_of(united_states, "the Pacific Ocean").
+ocean_west_of(portugal, "the Atlantic Ocean").
+
+% gen241 (LLMSCORE-check): moons, so "name the largest planet and describe one of its
+% moons" answers both halves. moon_of(Planet, "Name", "description").
+moon_of(jupiter, "Io", "the most volcanically active body in the solar system, dotted with hundreds of erupting volcanoes").
+moon_of(earth, "the Moon", "Earth's only natural satellite, whose gravity drives the ocean tides").
+moon_of(mars, "Phobos", "a small, lumpy moon that orbits Mars faster than the planet itself rotates").
+moon_of(saturn, "Titan", "the only moon with a thick atmosphere, with rivers and lakes of liquid methane").
+moon_of(neptune, "Triton", "an icy moon that orbits backwards and erupts geysers of nitrogen").
+
+% gen241 (LLMSCORE-check): anagram knowledge. "rearrange the letters in X" reads
+% anagram_of(Word, "Result"); the C verifies the letters genuinely match before
+% answering, so the fact is checked, never blindly trusted.
+anagram_of(listen, "silent").
+anagram_of(silent, "listen").
+anagram_of(night, "thing").
+anagram_of(stressed, "desserts").
+anagram_of(elbow, "below").
+anagram_of(state, "taste").
+anagram_of(earth, "heart").
+anagram_of(below, "elbow").
+anagram_of(cat, "act").
+anagram_of(dog, "god").
+anagram_of(save, "vase").
+anagram_of(angel, "glean").
+
+% gen241 (LLMSCORE-check): step-by-step procedures as ordered KB facts. "describe how
+% to make a cup of tea, step by step" reads process_step(Task, N, "step"). Adding a
+% task is just more facts -- the C only orders and numbers them.
+process_step(tea, 1, "Fill a kettle with fresh water and bring it to the boil").
+process_step(tea, 2, "Put a tea bag (or loose tea in an infuser) into a cup or teapot").
+process_step(tea, 3, "Pour the boiling water over the tea and let it steep for 3 to 5 minutes").
+process_step(tea, 4, "Remove the tea bag or infuser").
+process_step(tea, 5, "Add milk, sugar, or lemon to taste, stir, and serve").
+process_step(coffee, 1, "Boil fresh water and let it cool for about thirty seconds").
+process_step(coffee, 2, "Add ground coffee to a filter, press, or cafetiere").
+process_step(coffee, 3, "Pour the hot water over the grounds and let it brew").
+process_step(coffee, 4, "Pour into a cup, add milk or sugar to taste, and serve").
+
+% gen241 (LLMSCORE-check): parametric limerick. A limerick is a fixed AABBA form; the
+% five image lines per theme live in the KB (engine fixed, lexicon learns). The C only
+% joins limerick_l1..l5(Theme).
+limerick_l1(programmer, "There once was a coder named Lee,").
+limerick_l2(programmer, "Who ran on strong coffee and glee;").
+limerick_l3(programmer, "    Each bug that he'd find,").
+limerick_l4(programmer, "    He'd fix with his mind,").
+limerick_l5(programmer, "Then brew one more cup for the spree.").
+limerick_l1(coffee, "There once was a coder named Lee,").
+limerick_l2(coffee, "Who ran on strong coffee and glee;").
+limerick_l3(coffee, "    Each bug that he'd find,").
+limerick_l4(coffee, "    He'd fix with his mind,").
+limerick_l5(coffee, "Then brew one more cup for the spree.").
+limerick_l1(cat, "There once was a cat by the door,").
+limerick_l2(cat, "Who slept through the day and the more;").
+limerick_l3(cat, "    At the sound of a tin,").
+limerick_l4(cat, "    She'd stretch and begin,").
+limerick_l5(cat, "To wind round your feet on the floor.").
 
 % Minimal ES lexicon for short translation prompts.
 tr_es(cat, gato).

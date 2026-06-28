@@ -230,7 +230,10 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
             "self_embodiment",
             /* gen231: opinion/preference probes ("what's your favorite thing to do
              * on a rainy day") — honest "no genuine preferences", engages not walls. */
-            "self_preference", NULL };
+            "self_preference",
+            /* gen241: location/weather-of-self probes ("what's the weather like where
+             * you are") — honest "I have no body or place", engages not walls. */
+            "self_location", NULL };
         /* gen240: "favorite color" gets a KB-grounded answer (an honestly-picked
          * colour, not a dodge). In a role, mod_role answers from likes_color/2;
          * out of role, answer here from default_color/1 before the generic
@@ -546,6 +549,11 @@ static int is_internal_pred(const char *pred) {
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
         "quantity", "landmark_of", "planet_superlative", /* gen240 */
         "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city", "magnitude", "sound_of",
+        "idiom_meaning", "boils_at", "freezes_at", "historical_fact", /* gen241 */
+        "river_of", "ocean_west_of", "moon_of", "anagram_of", /* gen241 */
+        "process_step", "limerick_l1", "limerick_l2", "limerick_l3", /* gen241 */
+        "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
+        "scenario_step", "place_for",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

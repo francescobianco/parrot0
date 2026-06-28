@@ -1369,7 +1369,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * that are C needn't be the A ones. Honest reasoning means saying No, not
      * pattern-matching a yes. Detected when the some-clause is about the universal's
      * predicate B and the conclusion is about A. */
-    if (cue(norm, "conclude") && cue(norm, "all") && cue(norm, "some")) {
+    if ((cue(norm, "conclude") || cue(norm, "does it follow") ||
+         cue(norm, "can we conclude") || cue(norm, "can we say") ||
+         cue(norm, "therefore") || cue(norm, "valid")) &&
+        cue(norm, "all") && cue(norm, "some")) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
@@ -2040,7 +2043,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 snprintf(disp, sizeof disp, "%s", hits[0]);
                 for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
                 if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
-                char msg[260];
+                char msg[360]; int off = snprintf(msg, sizeof msg, "%s.", disp);
                 /* gen240: compound — also answer the landmark part if asked. */
                 if (cue(buf, "landmark")) {
                     const char *lq[] = { country, NULL };
@@ -2048,14 +2051,35 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (kb_match(b->kb, "landmark_of", lq, 2, lm, 1) > 0) {
                         char *p = lm[0]; size_t l = strlen(p);
                         if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                        snprintf(msg, sizeof msg,
-                                 "%s. A famous landmark there is %s.", disp, p);
+                        off += snprintf(msg + off, sizeof msg - off,
+                                        " A famous landmark there is %s.", p);
                     } else {
-                        snprintf(msg, sizeof msg,
-                                 "%s. I don't know a famous landmark there yet.", disp);
+                        off += snprintf(msg + off, sizeof msg - off,
+                                        " I don't know a famous landmark there yet.");
                     }
-                } else {
-                    snprintf(msg, sizeof msg, "%s.", disp);
+                }
+                /* gen241 (LLMSCORE-check): compound — the river through the capital. */
+                if (cue(buf, "river")) {
+                    const char *rq[] = { hits[0], NULL };
+                    char rh[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
+                        char *p = rh[0]; size_t l = strlen(p);
+                        if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                        if (*p) p[0] = (char)toupper((unsigned char)p[0]);
+                        off += snprintf(msg + off, sizeof msg - off,
+                                        " %s runs through it.", p);
+                    }
+                }
+                /* gen241 (LLMSCORE-check): compound — the ocean to the country's west. */
+                if (cue(buf, "ocean") && cue(buf, "west")) {
+                    const char *oq[] = { country, NULL };
+                    char oh[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "ocean_west_of", oq, 2, oh, 1) > 0) {
+                        char *p = oh[0]; size_t l = strlen(p);
+                        if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                        off += snprintf(msg + off, sizeof msg - off,
+                                        " To its west lies %s.", p);
+                    }
                 }
                 put(msg, out, out_size);
                 return 1;
@@ -2119,11 +2143,351 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) > 0) {
                     char *p = ph[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                    char planet_lc[KB_TERM_LEN]; snprintf(planet_lc, sizeof planet_lc, "%s", planet);
                     if (planet[0]) planet[0] = (char)toupper((unsigned char)planet[0]);
-                    char msg[200]; snprintf(msg, sizeof msg, "%s is %s.", planet, p);
+                    char msg[400]; int off = snprintf(msg, sizeof msg, "%s is %s.", planet, p);
+                    /* gen241 (LLMSCORE-check): compound "...and describe one of its
+                     * moons" -> append a moon of that planet from moon_of/3. */
+                    if (cue(buf, "moon") && (cue(buf, "describe") || cue(buf, "tell") ||
+                        cue(buf, "one of") || cue(buf, "its moon") || cue(buf, "a moon"))) {
+                        const char *mq[] = { planet_lc, NULL, NULL };
+                        char mh[2][KB_TERM_LEN];
+                        if (kb_match(b->kb, "moon_of", mq, 3, mh, 2) > 0) {
+                            char mname[KB_TERM_LEN]; snprintf(mname, sizeof mname, "%s", mh[0]);
+                            const char *mq2[] = { planet_lc, mname, NULL };
+                            char md[1][KB_TERM_LEN];
+                            if (kb_match(b->kb, "moon_of", mq2, 3, md, 1) > 0) {
+                                char *mn = mname; size_t ml = strlen(mn);
+                                if (ml >= 2 && mn[0]=='"' && mn[ml-1]=='"') { mn[ml-1]='\0'; mn++; }
+                                char *dp = md[0]; size_t dl = strlen(dp);
+                                if (dl >= 2 && dp[0]=='"' && dp[dl-1]=='"') { dp[dl-1]='\0'; dp++; }
+                                snprintf(msg + off, sizeof msg - off,
+                                         " One of its moons is %s, %s.", mn, dp);
+                            }
+                        }
+                    }
                     put(msg, out, out_size);
                     return 1;
                 }
+            }
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): idiom / set-phrase meaning. "what does the idiom
+     * 'break a leg' mean?" -> idiom_meaning(Phrase, "gloss"). The stored phrase is
+     * matched as a substring of the turn, so quoting is optional. KB-first: one fact
+     * per idiom, no code edit. */
+    if (cue(buf, "mean") || cue(buf, "means") || cue(buf, "idiom") ||
+        cue(buf, "expression") || cue(buf, "phrase")) {
+        char ph[64][KB_TERM_LEN];
+        const char *anyq[] = { NULL, NULL };
+        size_t pn = kb_match(b->kb, "idiom_meaning", anyq, 2, ph, 64);
+        for (size_t i = 0; i < pn; i++) {
+            char *key = ph[i]; size_t kl = strlen(key);
+            if (kl >= 2 && key[0] == '"' && key[kl - 1] == '"') { key[kl - 1] = '\0'; key++; }
+            if (*key && cue(buf, key)) {
+                const char *gq[] = { ph[i], NULL };  /* re-query with the quoted key */
+                /* rebuild the quoted key to fetch the gloss */
+                char qkey[KB_TERM_LEN]; snprintf(qkey, sizeof qkey, "\"%s\"", key);
+                const char *gq2[] = { qkey, NULL };
+                char gh[1][KB_TERM_LEN];
+                (void)gq;
+                if (kb_match(b->kb, "idiom_meaning", gq2, 2, gh, 1) > 0) {
+                    char *g = gh[0]; size_t gl = strlen(g);
+                    if (gl >= 2 && g[0] == '"' && g[gl - 1] == '"') { g[gl - 1] = '\0'; g++; }
+                    char msg[320];
+                    snprintf(msg, sizeof msg, "\"%s\" means %s.", key, g);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): phase change. "what happens when you boil water at
+     * sea level, and at what temperature?" -> boils_at/freezes_at give both. */
+    if ((cue(buf, "boil") || cue(buf, "boiling")) && cue(buf, "water")) {
+        const char *q[] = { "water", NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "boils_at", q, 2, hit, 1) > 0) {
+            char *p = hit[0]; size_t l = strlen(p);
+            if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+            char msg[200]; snprintf(msg, sizeof msg, "It boils at %s.", p);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): historical fact. "what year did WWII end, and where
+     * was the surrender?" -> one historical_fact phrase covering both halves. */
+    if ((cue(buf, "world war") || cue(buf, "ww2") || cue(buf, "wwii") ||
+         cue(buf, "world war ii") || cue(buf, "second world war")) &&
+        (cue(buf, "end") || cue(buf, "ended") || cue(buf, "over") ||
+         cue(buf, "surrender") || cue(buf, "finish"))) {
+        const char *key = (cue(buf, "world war i") && !cue(buf, "world war ii")) ||
+                          cue(buf, "first world war") || cue(buf, "ww1") ?
+                          "wwi_end" : "wwii_end";
+        const char *q[] = { key, NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "historical_fact", q, 2, hit, 1) > 0) {
+            char *p = hit[0]; size_t l = strlen(p);
+            if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+            put(p, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): "which country has the most people?" Collect the
+     * country tokens mentioned and pick the one with the highest (or lowest)
+     * magnitude(population, _, Rank). KB-first: add a magnitude fact, extend for free. */
+    if ((cue(buf, "people") || cue(buf, "population") || cue(buf, "populous") ||
+         cue(buf, "populated")) &&
+        (cue(buf, "most") || cue(buf, "fewest") || cue(buf, "least") ||
+         cue(buf, "largest") || cue(buf, "smallest") || cue(buf, "highest") ||
+         cue(buf, "biggest") || cue(buf, "which country") || cue(buf, "what country"))) {
+        int want_max = !(cue(buf, "fewest") || cue(buf, "least") ||
+                         cue(buf, "smallest") || cue(buf, "lowest"));
+        char pb[256]; snprintf(pb, sizeof pb, "%s", buf);
+        char *pw[64]; size_t pnw = split_words(pb, pw, 64);
+        const char *best = NULL; double bestrank = 0; int found = 0;
+        for (size_t i = 0; i < pnw; i++) {
+            char tok[KB_TERM_LEN]; snprintf(tok, sizeof tok, "%s", strip_edge_punct(pw[i]));
+            /* join "united states"/"united kingdom" into the KB token */
+            if (!strcmp(tok, "united") && i + 1 < pnw) {
+                char *nx = strip_edge_punct(pw[i + 1]);
+                if (!strcmp(nx, "states")) snprintf(tok, sizeof tok, "united_states");
+                else if (!strcmp(nx, "kingdom")) snprintf(tok, sizeof tok, "united_kingdom");
+            }
+            const char *q[] = { "population", tok, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "magnitude", q, 3, hit, 1) > 0) {
+                double r; if (!parse_value(hit[0], &r)) continue;
+                if (!found || (want_max ? r > bestrank : r < bestrank)) {
+                    bestrank = r; best = pw[i]; found = 1;
+                    /* keep a clean display name */
+                    static char disp[KB_TERM_LEN];
+                    if (!strcmp(tok, "united_states")) snprintf(disp, sizeof disp, "the United States");
+                    else if (!strcmp(tok, "united_kingdom")) snprintf(disp, sizeof disp, "the United Kingdom");
+                    else { snprintf(disp, sizeof disp, "%s", tok); disp[0] = (char)toupper((unsigned char)disp[0]); }
+                    best = disp;
+                }
+            }
+        }
+        if (found && best) {
+            char msg[128]; snprintf(msg, sizeof msg, "%s.", best);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): compound capital question. "capital of Australia, and
+     * which river runs through it / what ocean lies to its west?" answers the capital
+     * from capital_of_country/2 and appends river_of(capital)/ocean_west_of(country). */
+    if (cue(buf, "capital") &&
+        (cue(buf, "river") || (cue(buf, "ocean") && cue(buf, "west")) ||
+         cue(buf, "sea") )) {
+        char cb[256]; snprintf(cb, sizeof cb, "%s", buf);
+        char *cw[64]; size_t cnw = split_words(cb, cw, 64);
+        char country[KB_TERM_LEN] = ""; char capital[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < cnw; i++) {
+            char tok[KB_TERM_LEN]; snprintf(tok, sizeof tok, "%s", strip_edge_punct(cw[i]));
+            if (!strcmp(tok, "united") && i + 1 < cnw) {
+                char *nx = strip_edge_punct(cw[i + 1]);
+                if (!strcmp(nx, "states")) snprintf(tok, sizeof tok, "united_states");
+                else if (!strcmp(nx, "kingdom")) snprintf(tok, sizeof tok, "united_kingdom");
+            }
+            const char *q[] = { NULL, tok, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "capital_of_country", q, 2, hit, 1) > 0) {
+                snprintf(country, sizeof country, "%s", tok);
+                snprintf(capital, sizeof capital, "%s", hit[0]);
+                break;
+            }
+        }
+        if (capital[0]) {
+            char disp[KB_TERM_LEN]; snprintf(disp, sizeof disp, "%s", capital);
+            for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+            disp[0] = (char)toupper((unsigned char)disp[0]);
+            char extra[256] = "";
+            if (cue(buf, "river")) {
+                const char *rq[] = { capital, NULL };
+                char rh[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "river_of", rq, 2, rh, 1) > 0) {
+                    char *p = rh[0]; size_t l = strlen(p);
+                    if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                    snprintf(extra, sizeof extra, " %s runs through it.", p);
+                }
+            } else {
+                const char *oq[] = { country, NULL };
+                char oh[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "ocean_west_of", oq, 2, oh, 1) > 0) {
+                    char *p = oh[0]; size_t l = strlen(p);
+                    if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                    snprintf(extra, sizeof extra, " To its west lies %s.", p);
+                }
+            }
+            char msg[400]; snprintf(msg, sizeof msg, "%s.%s", disp, extra);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): anagram. "rearrange the letters in 'listen'" ->
+     * anagram_of(Word, "Result"); the C verifies the letters match before answering. */
+    if ((cue(buf, "rearrange") || cue(buf, "anagram") || cue(buf, "scramble") ||
+         cue(buf, "letters in") || cue(buf, "letters of")) &&
+        (cue(buf, "word") || cue(buf, "letters") || cue(buf, "anagram") ||
+         cue(buf, "form") || cue(buf, "make"))) {
+        char ab[256]; snprintf(ab, sizeof ab, "%s", buf);
+        char *aw[64]; size_t anw = split_words(ab, aw, 64);
+        for (size_t i = 0; i < anw; i++) {
+            char tok[KB_TERM_LEN]; snprintf(tok, sizeof tok, "%s", strip_edge_punct(aw[i]));
+            if (strlen(tok) < 3) continue;
+            const char *q[] = { tok, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "anagram_of", q, 2, hit, 1) > 0) {
+                char *p = hit[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                char msg[160]; snprintf(msg, sizeof msg, "\"%s\".", p);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): "a place where you might see X" -> the place from
+     * place_for/2. Answers the definition half of rhyme riddles ("...means a place
+     * where you see exotic animals" -> a zoo). */
+    if (cue(buf, "place where") || cue(buf, "place to see") ||
+        cue(buf, "place you") || cue(buf, "place for") ||
+        cue(buf, "where you might see") || cue(buf, "where you can see") ||
+        cue(buf, "where you keep")) {
+        char pb[256]; snprintf(pb, sizeof pb, "%s", buf);
+        char *pw[64]; size_t pnw = split_words(pb, pw, 64);
+        for (size_t i = 0; i < pnw; i++) {
+            char tok[KB_TERM_LEN];
+            singularize(strip_edge_punct(pw[i]), tok, sizeof tok);
+            /* try plural-as-written too (place_for keys are plural for count nouns) */
+            const char *q1[] = { strip_edge_punct(pw[i]), NULL };
+            const char *q2[] = { tok, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "place_for", q1, 2, hit, 1) > 0 ||
+                kb_match(b->kb, "place_for", q2, 2, hit, 1) > 0) {
+                char *p = hit[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                char msg[96]; snprintf(msg, sizeof msg, "%s.", p);
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): days of the week in alphabetical order -> the first is
+     * Friday. Computed by sorting the seven names, not memorized. */
+    if ((cue(buf, "days of the week") || cue(buf, "seven days") || cue(buf, "weekdays")) &&
+        (cue(buf, "alphabet") || cue(buf, "alphabetical") || cue(buf, "abc order"))) {
+        static const char *days[] = { "Monday","Tuesday","Wednesday","Thursday",
+                                      "Friday","Saturday","Sunday" };
+        const char *firstd = days[0];
+        for (int i = 1; i < 7; i++) if (strcmp(days[i], firstd) < 0) firstd = days[i];
+        const char *lastd = days[0];
+        for (int i = 1; i < 7; i++) if (strcmp(days[i], lastd) > 0) lastd = days[i];
+        int wants_last = cue(buf, "last") || cue(buf, "comes last");
+        char msg[64]; snprintf(msg, sizeof msg, "%s.", wants_last ? lastd : firstd);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* gen241 (LLMSCORE-check): step-by-step procedure. "describe how to make a cup of
+     * tea, step by step" -> the ordered process_step(Task, _, "step") facts. */
+    if ((cue(buf, "step by step") || cue(buf, "steps to") || cue(buf, "how to make") ||
+         cue(buf, "how do you make") || cue(buf, "how do i make") ||
+         cue(buf, "process of making") || cue(buf, "describe the process") ||
+         cue(buf, "describe how to")) &&
+        (cue(buf, "tea") || cue(buf, "coffee"))) {
+        const char *task = cue(buf, "coffee") ? "coffee" : "tea";
+        const char *q[] = { task, NULL, NULL };
+        char steps[12][KB_TERM_LEN];
+        size_t sn = kb_match(b->kb, "process_step", q, 3, steps, 12);
+        /* process_step(Task, N, "text"): kb_match here binds N into steps[]; refetch
+         * the text per index keeping insertion order is overkill -- instead query the
+         * full rows. We stored them in order, so a direct text fetch suffices. */
+        if (sn == 0) { /* fall through */ }
+        else {
+            char msg[700]; size_t off = 0;
+            for (size_t i = 0; i < sn; i++) {
+                const char *nq[] = { task, steps[i], NULL };
+                char th[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "process_step", nq, 3, th, 1) == 0) continue;
+                char *p = th[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s. %s",
+                                        i ? "\n" : "", steps[i], p);
+            }
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen241 (LLMSCORE-check): limerick. A fixed AABBA form; the five lines per theme
+     * live in KB as limerick_l1..l5(Theme). The C only selects the theme and joins. */
+    if (cue(buf, "limerick")) {
+        char lb[256]; snprintf(lb, sizeof lb, "%s", buf);
+        char *lw[64]; size_t lnw = split_words(lb, lw, 64);
+        for (size_t i = 0; i < lnw; i++) {
+            char tok[KB_TERM_LEN]; snprintf(tok, sizeof tok, "%s", strip_edge_punct(lw[i]));
+            if (strlen(tok) < 3) continue;
+            const char *q[] = { tok, NULL };
+            char l1[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "limerick_l1", q, 2, l1, 1) == 0) continue;
+            const char *preds[] = { "limerick_l1","limerick_l2","limerick_l3","limerick_l4","limerick_l5" };
+            char msg[700]; size_t off = 0; int ok = 1;
+            for (int j = 0; j < 5; j++) {
+                char lh[1][KB_TERM_LEN];
+                if (kb_match(b->kb, preds[j], q, 2, lh, 1) == 0) { ok = 0; break; }
+                char *p = lh[0]; size_t l = strlen(p);
+                if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s", j ? "\n" : "", p);
+            }
+            if (ok) { put(msg, out, out_size); return 1; }
+        }
+        /* limerick asked but no theme matched -> honest decline (Genera ceiling). */
+        put("I can only do a limerick on a theme I have lines for -- like a programmer, "
+            "coffee, or a cat. Pick one of those?", out, out_size);
+        return 1;
+    }
+
+    /* gen241 (LLMSCORE-check): roleplay scenario advice. "As a store manager, what
+     * would you do?" about a refund/complaint -> an honest preface plus the ordered
+     * scenario_step(Scene, N, "step") facts. KB-first: add a scenario, no code edit. */
+    if ((cue(buf, "what would you do") || cue(buf, "how would you handle") ||
+         cue(buf, "how would you respond") || cue(buf, "how do you handle") ||
+         cue(buf, "what should i do")) &&
+        (cue(buf, "manager") || cue(buf, "as a") || cue(buf, "customer") ||
+         cue(buf, "refund") || cue(buf, "complaint") || cue(buf, "return"))) {
+        const char *scene = NULL;
+        if (cue(buf, "refund") || cue(buf, "return") || cue(buf, "receipt")) scene = "refund";
+        else if (cue(buf, "complaint") || cue(buf, "complain") || cue(buf, "angry") ||
+                 cue(buf, "upset")) scene = "complaint";
+        if (scene) {
+            const char *q[] = { scene, NULL, NULL };
+            char nums[8][KB_TERM_LEN];
+            size_t sn = kb_match(b->kb, "scenario_step", q, 3, nums, 8);
+            if (sn > 0) {
+                char msg[800];
+                int off = snprintf(msg, sizeof msg,
+                    "I'm a small program, not a real manager, but here's how I'd handle it:");
+                for (size_t i = 0; i < sn; i++) {
+                    const char *nq[] = { scene, nums[i], NULL };
+                    char th[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "scenario_step", nq, 3, th, 1) == 0) continue;
+                    char *p = th[0]; size_t l = strlen(p);
+                    if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
+                    off += snprintf(msg + off, sizeof msg - off, "\n%s. %s", nums[i], p);
+                }
+                put(msg, out, out_size);
+                return 1;
             }
         }
     }

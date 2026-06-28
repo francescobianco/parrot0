@@ -795,16 +795,38 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
 
     char tmp[512]; snprintf(tmp, sizeof tmp, "%s", buf);
     long nums[8]; size_t nn = 0; char *save = NULL;
+    /* gen241 (LLMSCORE-check): a "by N(s)" / "in steps of N" / "every N" group is the
+     * STEP, not a bound. Capture it and drop that number from the start/end list, so
+     * "count backward from 20 by 3s" -> 20, 17, 14, ... not a unit countdown. */
+    long stepmag = 0;
+    {
+        char sb[512]; snprintf(sb, sizeof sb, "%s", buf);
+        char *sw[64]; size_t snw = split_words(sb, sw, 64);
+        for (size_t i = 0; i + 1 < snw; i++) {
+            char *t = strip_edge_punct(sw[i]);
+            if (!strcmp(t, "by") || !strcmp(t, "every") || !strcmp(t, "of")) {
+                char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
+                size_t nl = strlen(nx);            /* "3s" -> "3" */
+                if (nl > 1 && nx[nl - 1] == 's') nx[nl - 1] = '\0';
+                long v; if (word_to_int(nx, &v) && v > 0) { stepmag = v; break; }
+            }
+        }
+    }
     for (char *t = strtok_r(tmp, " \t,.;:!?", &save);
          t && nn < 8; t = strtok_r(NULL, " \t,.;:!?", &save)) {
-        long v; if (word_to_int(t, &v)) nums[nn++] = v;
+        long v; if (word_to_int(t, &v)) {
+            /* drop the step value itself when it appears as a standalone number */
+            if (stepmag && v == stepmag && nn >= 1) continue;
+            nums[nn++] = v;
+        }
     }
     if (nn == 0) return 0;  /* a count cue with no number is not ours */
 
     long start, end;
     if (nn >= 2)        { start = nums[0]; end = nums[1]; }
-    else if (descending){ start = nums[0]; end = 1; }   /* "count down from 5" */
+    else if (descending){ start = nums[0]; end = stepmag ? 0 : 1; } /* by-step -> toward 0 */
     else                { start = 1;       end = nums[0]; }
+    if (stepmag && nn < 2 && !descending) end = start + stepmag * 9; /* ~10 terms */
 
     long span = start <= end ? end - start : start - end;
     if (span > 99) {
@@ -816,9 +838,12 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
     int only_even = cue(buf, "only the even") || cue(buf, "only even") || cue(buf, "even numbers");
 
     char line[1024]; size_t pos = 0; line[0] = '\0';
-    long step = (start <= end) ? 1 : -1;
+    long mag = stepmag > 0 ? stepmag : 1;
+    long step = (start <= end) ? mag : -mag;
     size_t emitted = 0;
     for (long v = start; ; v += step) {
+        /* stop once we'd pass the end bound (step may overshoot it exactly). */
+        if ((step > 0 && v > end) || (step < 0 && v < end)) break;
         if ((!only_odd || (v % 2 != 0)) && (!only_even || (v % 2 == 0))) {
             int w = snprintf(line + pos, sizeof line - pos, "%s%ld",
                              emitted ? ", " : "", v);
@@ -826,7 +851,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             pos += (size_t)w;
             emitted++;
         }
-        if (v == end) break;
+        if (emitted > 200) break;
     }
     if (pos + 2 <= sizeof line) { line[pos++] = '.'; line[pos] = '\0'; }
     put(line, out, out_size);
@@ -843,6 +868,60 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     (void)raw;
     if (!b || !b->kb) return 0;
     const char *buf = norm;
+
+    /* gen241 (LLMSCORE-check): "name three primary colors" / "list two animals" — a
+     * COUNTED pick. The members live in the KB (category_member/2); the C reads the
+     * count word and the category noun and returns that many distinct members. KB-first:
+     * add a category_member fact and the capability extends for free. */
+    if (cue(buf, "name ") || cue(buf, "list ") || cue(buf, "give me ") ||
+        cue(buf, "tell me ")) {
+        static const struct { const char *w; int n; } nums[] = {
+            {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6},
+            {"2", 2}, {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6}, {NULL, 0} };
+        int want = 0;
+        char nb[256]; snprintf(nb, sizeof nb, "%s", buf);
+        char *nw0[64]; size_t nn0 = split_words(nb, nw0, 64);
+        size_t numpos = nn0;
+        for (size_t i = 0; i < nn0 && !want; i++) {
+            char *t = strip_edge_punct(nw0[i]);
+            for (size_t k = 0; nums[k].w; k++)
+                if (!strcmp(t, nums[k].w)) { want = nums[k].n; numpos = i; break; }
+        }
+        if (want >= 2 && numpos + 1 < nn0) {
+            /* category: the (possibly multi-word) noun right after the count; try the
+             * last token first (the head noun), singularized — "primary colors"->color. */
+            for (size_t i = nn0; i-- > numpos + 1;) {
+                char head[KB_TERM_LEN];
+                singularize(strip_edge_punct(nw0[i]), head, sizeof head);
+                char members[64][KB_TERM_LEN];
+                size_t k = 0;
+                /* try a two-word compound category first ("primary colors" ->
+                 * primary_color), so a qualified category beats the bare noun. */
+                if (i > numpos + 1) {
+                    char comp[KB_TERM_LEN];
+                    snprintf(comp, sizeof comp, "%s_%s",
+                             strip_edge_punct(nw0[i - 1]), head);
+                    const char *cpat[2] = { comp, NULL };
+                    k = kb_match(b->kb, "category_member", cpat, 2, members, 64);
+                }
+                if (k == 0) {
+                    const char *pat[2] = { head, NULL };
+                    k = kb_match(b->kb, "category_member", pat, 2, members, 64);
+                }
+                if (k == 0) continue;
+                size_t lim = (size_t)want < k ? (size_t)want : k;
+                char msg[320]; size_t off = 0;
+                for (size_t j = 0; j < lim; j++)
+                    off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s",
+                        j ? (j + 1 == lim ? ", and " : ", ") : "", members[j]);
+                snprintf(msg + off, sizeof msg - off, ".");
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     int has_name = cue(buf, "name a") || cue(buf, "name an") ||
                    cue(buf, "name any") || cue(buf, "name me a") ||
                    cue(buf, "give me a") || cue(buf, "tell me a") ||
