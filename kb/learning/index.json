@@ -2073,6 +2073,23 @@
       "summary": "learned immune_system: network of biological systems that protects an organism from diseases",
       "title": "Immune system",
       "url": "https://en.wikipedia.org/wiki/Immune_system"
+    },
+    {
+      "concept": "type of antimicrobial substance which is active against bacteria",
+      "domain": "medicine",
+      "event_id": "learn_2026_06_28t01_24_50z_antibiotic",
+      "key": "antibiotic",
+      "log_path": "kb/learning/logs/learn_2026_06_28t01_24_50z_antibiotic.json",
+      "markdown_path": "kb/learning/pages/antibiotic.md",
+      "processed_at": "2026-06-28T01:24:50Z",
+      "prompt": "what do you know about learn_2026_06_28t01_24_50z_antibiotic",
+      "revision": 1360675320,
+      "source_index": 18,
+      "source_line": 36,
+      "source_title": "Antibiotic",
+      "summary": "learned antibiotic: type of antimicrobial substance which is active against bacteria",
+      "title": "Antibiotic",
+      "url": "https://en.wikipedia.org/wiki/Antibiotic"
     }
   ],
   "pages": {
@@ -2097,10 +2114,10 @@
       "domain": "medicine",
       "extract_sha256": "86899a77e045658fc51fab64bc8f1d0df035ad7ecd950957092c696ca36f8ce9",
       "key": "antibiotic",
-      "last_event_id": "learn_2026_06_26t18_57_27z_antibiotic",
+      "last_event_id": "learn_2026_06_28t01_24_50z_antibiotic",
       "markdown_path": "kb/learning/pages/antibiotic.md",
       "pageid": 1805,
-      "processed_at": "2026-06-26T18:57:27Z",
+      "processed_at": "2026-06-28T01:24:50Z",
       "revision": 1360675320,
       "source_title": "Antibiotic",
       "title": "Antibiotic",
