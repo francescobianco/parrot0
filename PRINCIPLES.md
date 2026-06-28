@@ -68,6 +68,35 @@ Design consequences for parrot0:
   the code ready to articulate. Structure is the condition of emergence, not
   its enemy.
 
+## Corollary: keep the secondary structures (evolution by selection)
+
+If the previous corollary says *don't fight differentiation*, its dual says
+**don't fight redundancy**. Until a structure is *demonstrably* prevalent,
+**everything is secondary and activatable** — and that is the point, not a defect.
+A part that looks redundant today, or bound to a minor/edge case, is raw material:
+tomorrow the "secondary" may turn out to matter. parrot0 evolves like an organism
+under natural selection — we **accumulate the variants and let selection give them
+better form over time**, rather than pruning on a hunch that something *seems*
+superfluous.
+
+Design consequences:
+
+- **Prefer ADDITIVE change.** Add a new module / cue / `response_template` that
+  **layers over** the existing ones; do not delete a working handler just because a
+  more general path seems to subsume it. Leave it as a lower-priority, still-live
+  structure (e.g. `mod_smalltalk` is registered last and never touches
+  `mod_chitchat`).
+- **First-match dispatch makes redundancy harmless.** A more general module placed
+  ahead simply wins when it applies; the specific one remains a fallback that can
+  re-activate. Overlap costs almost nothing and preserves optionality.
+- **Consolidate only on evidence.** Merge or remove a structure only once something
+  has *proven* prevalent (measured, not assumed). Fixing a bug or a wrong answer in
+  place is always fair; this corollary is about not pruning *working secondary
+  capability*.
+
+The honest line: pruning is irreversible information loss, and we are early. We do
+not yet know which parts the critical mass will recruit — so we keep them.
+
 ## Cardinal corollary: knowledge lives in the KB, not in C
 
 A hardcoded list of surface forms in `brain.c` is a **phrasebook** — fixed at compile
