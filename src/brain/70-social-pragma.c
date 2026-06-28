@@ -314,6 +314,27 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* --- module: smalltalk (gen240, universal-comprehension social branch) ----
+ * A conversational/experiential turn ("I just tried the oat-milk latte… have you
+ * been there?") is COMPREHENSIBLE even with no fact to fetch and no specific cue
+ * mod_chitchat already owns. The honest move is to keep the thread alive — a
+ * continuity reply (acknowledge + ask back) from KB templates — instead of the
+ * blind "I don't understand that yet." wall. It is ADDITIVE and LAST-RESORT
+ * (registered after every content module, including mod_learn), so it never
+ * pre-empts a real answer; it only catches turns that carry a social marker
+ * (intent_cue(smalltalk_continue, …)) and that nothing else claimed. It fabricates
+ * no experience or opinion — the templates are content-neutral continuity moves. */
+static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)raw;
+    if (!b) return 0;
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+    char *w[64]; size_t nw = split_words(tmp, w, 64);
+    if (nw < 3) return 0;                       /* a fragment is not a conversation */
+    if (!kb_cue_match(b, "smalltalk_continue", norm)) return 0;
+    return kb_response(b, "smalltalk_continue", NULL, out, out_size);
+}
+
 /* --- module: pragma (gen142, E3) -----------------------------------------
  * Pragmatic intent from turn SHAPE, not from a phrase list. mod_chitchat /
  * mod_social already cover the AFFECTIVE register, but they do it with growing

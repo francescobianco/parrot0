@@ -175,6 +175,7 @@ static const Module registry[] = {
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
     {"learn",     mod_learn},
+    {"smalltalk", mod_smalltalk},   /* gen240: last-resort conversational continuity */
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
 

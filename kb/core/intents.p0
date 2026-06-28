@@ -174,3 +174,36 @@ learnable("ask for short answers", brevity,   substring).
 learnable("risposte brevi",       brevity,    substring).
 learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
+
+% --- gen240 (universal-comprehension, social branch): smalltalk CONTINUITY. A
+% conversational/experiential turn (first-person experience or opinion, or a
+% question turned back to parrot0) is COMPREHENSIBLE even with no fact to fetch:
+% the honest move is to keep the thread alive (acknowledge + ask back), never a
+% blind wall. These social markers are the cue; mod_smalltalk is the last-resort
+% continuity catch (registered after learn). EN + IT, the lexicon grows here. ---
+intent_cue(smalltalk_continue, "i just").
+intent_cue(smalltalk_continue, "i tried").
+intent_cue(smalltalk_continue, "i love").
+intent_cue(smalltalk_continue, "i like").
+intent_cue(smalltalk_continue, "i think").
+intent_cue(smalltalk_continue, "i feel").
+intent_cue(smalltalk_continue, "i went").
+intent_cue(smalltalk_continue, "i had").
+intent_cue(smalltalk_continue, "i've been").
+intent_cue(smalltalk_continue, "i have been").
+intent_cue(smalltalk_continue, "i am really").
+intent_cue(smalltalk_continue, "have you been").
+intent_cue(smalltalk_continue, "have you ever").
+intent_cue(smalltalk_continue, "do you ever").
+intent_cue(smalltalk_continue, "what about you").
+intent_cue(smalltalk_continue, "you ever").
+intent_cue(smalltalk_continue, "today i").
+intent_cue(smalltalk_continue, "this morning").
+intent_cue(smalltalk_continue, "this weekend").
+intent_cue(smalltalk_continue, "lately").
+intent_cue(smalltalk_continue, "recently").
+intent_cue(smalltalk_continue, "ho provato").
+intent_cue(smalltalk_continue, "mi piace").
+intent_cue(smalltalk_continue, "secondo me").
+intent_cue(smalltalk_continue, "oggi ho").
+intent_cue(smalltalk_continue, "hai mai").

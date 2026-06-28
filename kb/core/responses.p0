@@ -70,3 +70,14 @@ response_template(greeting_reply, "Hey! Good to see you.").
 % "answer a keyboard riddle with \"…\"" adds a phrasing with no code edit. ---
 response_template(riddle_keyboard, "A keyboard.").
 response_template(diff_fruit_vegetable, "A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.").
+
+% gen240 (universal-comprehension, social branch): smalltalk continuity moves.
+% Honest: they keep the conversation going (acknowledge + open question) and never
+% fabricate an experience or opinion. Rotated by kb_response (anti-repeat).
+response_template(smalltalk_continue, "That sounds nice -- tell me more about it.").
+response_template(smalltalk_continue, "Oh? What's it like?").
+response_template(smalltalk_continue, "Interesting -- what got you into it?").
+response_template(smalltalk_continue, "I don't have experiences of my own, but I'd like to hear more -- what stood out?").
+response_template(smalltalk_continue, "Nice -- how did that go?").
+response_template(smalltalk_continue, "Sounds good. What else has been on your mind?").
+response_template(smalltalk_continue, "I can't say I've tried it myself, but I'm curious -- what do you like about it?").
