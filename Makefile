@@ -20,6 +20,21 @@ CC      ?= cc
 # rule out (it has no value ranges), drowning the real warnings. We keep every other
 # warning strict (-Wall -Wextra -Wpedantic) and silence only this high-noise category.
 CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -Wno-format-truncation -O2
+
+# gen240 (universal-comprehension §7): OPTIONAL on-demand wiki learning. parrot0
+# can fetch a certified static Wikipedia page over HTTPS to learn a topic it lacks
+# — the SAME declarative knowledge we could have shipped a-priori, never an
+# external intelligence/search API. It needs only a TLS transport: link libcurl by
+# its SONAME (dev headers are not required — the brain declares the tiny ABI it
+# uses). If libcurl is absent the feature compiles out and parrot0 falls back to
+# the local corpus + informed decline. The fetch itself is also gated at runtime by
+# PARROT0_WIKI_FETCH, so the default and all tests stay offline.
+CURL_LIB := $(firstword $(wildcard /lib/*/libcurl.so.4 /usr/lib/*/libcurl.so.4 /usr/lib/libcurl.so.4))
+ifneq ($(CURL_LIB),)
+CFLAGS  += -DPARROT0_HAVE_CURL
+CURL_LDLIBS := -l:libcurl.so.4
+endif
+
 SRC     := $(wildcard src/*.c)
 OBJ     := $(SRC:src/%.c=obj/%.o)
 HDR     := $(wildcard src/*.h)
@@ -39,7 +54,7 @@ all: build
 build: $(BIN)
 
 $(BIN): $(OBJ) | bin
-	$(CC) $(CFLAGS) -o $@ $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $(OBJ) $(CURL_LDLIBS)
 
 # Depend on ALL headers: KB_TERM_LEN etc. live in kb.h and define struct
 # layout, so a header change must rebuild every object or the binary links

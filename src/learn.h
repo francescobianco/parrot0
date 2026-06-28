@@ -19,4 +19,13 @@
 int learn_topic(KB *kb, const char *key, const char *title,
                 char *def_out, size_t def_sz);
 
+/* gen240 (universal-comprehension §7): the discovery plan's fetch step. When the
+ * local corpus has no page for `key`, fetch the CERTIFIED static Wikipedia page
+ * over HTTPS (libcurl) and write the SAME pages/<key>.md the shipped corpus would
+ * contain — so on-demand learning is provably identical to a-priori knowledge,
+ * never an external intelligence/search API. Gated at runtime by PARROT0_WIKI_FETCH
+ * and at build time by PARROT0_HAVE_CURL (libcurl present). Returns 1 if it wrote a
+ * usable page (caller then calls learn_topic), 0 otherwise. */
+int wiki_fetch_topic(const char *key);
+
 #endif /* PARROT0_LEARN_H */

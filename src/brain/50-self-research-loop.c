@@ -344,7 +344,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
      * blind "I don't understand". (Remote fetch is deliberately NOT done from the
      * brain: see docs/plans/universal-comprehension.md — the corpus is populated
      * out-of-process; the brain stays file-only at runtime.) */
-    if (learn_topic(b->kb, key, disp, def, sizeof def))
+    int got = learn_topic(b->kb, key, disp, def, sizeof def);
+    if (!got && wiki_fetch_topic(key))          /* discovery plan: fetch then learn */
+        got = learn_topic(b->kb, key, disp, def, sizeof def);
+    if (got)
         snprintf(msg, sizeof msg,
                  "I didn't know about %s, so I just read it up: %s.",
                  disp, def);

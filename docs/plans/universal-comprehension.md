@@ -177,14 +177,22 @@ conoscenza dichiarativa, non una mente in prestito.
 
 ### Cosa esiste già e cosa aggiungere
 
-- **Esiste:** `mod_research` (gen171) legge markdown **locale** (`PARROT0_WIKI_DIR`),
-  impara `wiki_concept/2` in RAM, e l'apprendimento **persiste** (re-ask risponde
-  dal dato). È registrato per ultimo: cattura solo il gap definitorio.
-- **Aggiungere:** (a) l'azione `acquire-knowledge` come **passo del planner**, non
-  solo modulo terminale, così altri goal possono dipenderne; (b) il **fetch
-  remoto certificato** (solo wiki) come sorgente opzionale dietro env, con la
-  risposta di turno 1 ("mi sto documentando") **veritiera solo se il processo è
-  davvero partito**; (c) il declino informato (§2) come testo del turno 1.
+- **Esiste (gen171):** `mod_learn` (ex `mod_research`) legge markdown **locale**
+  (`PARROT0_WIKI_DIR`), impara `wiki_concept/2` in RAM, e l'apprendimento
+  **persiste** (re-ask risponde dal dato). Registrato per ultimo: solo il gap def.
+- **Esiste (gen240): fetch remoto certificato, tutto in C.** Su un gap senza pagina
+  locale, `mod_learn` chiama `wiki_fetch_topic` (`src/learn.c`): scarica la summary
+  di **Wikipedia** via HTTPS (libcurl, ABI dichiarata a mano e linkata per SONAME —
+  niente header dev, niente dipendenza dura) e **scrive la stessa `pages/<key>.md`**
+  che spediremmo a-priori, poi `learn_topic` la impara. Doppio gate: build
+  (`PARROT0_HAVE_CURL`) + runtime (`PARROT0_WIKI_FETCH`), così default e test restano
+  **offline**. Solo Wikipedia: niente motori di ricerca, niente API d'intelligenza.
+  **Invariante dimostrabile**: ciò che scarica è identico a ciò che avremmo
+  distribuito a priori (stesso formato, stesso `wiki_concept`) — nessun imbroglio,
+  solo la scelta di non spedire una KB enorme dal giorno zero.
+- **Esiste (gen240):** il **declino informato** (§2) come testo del turno di gap.
+- **Aggiungere:** l'azione `acquire-knowledge` come **passo del planner** di prima
+  classe (oggi vive dentro `mod_learn`, non è ancora un goal componibile con altri).
 
 ### Caveat onesti (non negoziabili)
 
