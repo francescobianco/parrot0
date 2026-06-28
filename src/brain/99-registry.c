@@ -611,6 +611,25 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
     if (s2len >= sizeof sub2) s2len = sizeof sub2 - 1;
     memcpy(sub2, conn + conn_len, s2len); sub2[s2len] = '\0';
 
+    /* gen240: peel a leading sequencer ("then", "also", "poi", …) off the second
+     * sub-turn so "<acquire X> and THEN <use X>" dispatches the clean clause to its
+     * module (e.g. "look up X and then tell me about X" -> acquire, then recall). */
+    {
+        static const char *const seqw[] = {"then", "also", "next", "finally",
+            "afterwards", "poi", "dopo", "infine", "inoltre", NULL};
+        for (;;) {
+            char *s = sub2; while (*s == ' ' || *s == ',' || *s == '.') s++;
+            size_t adv = 0;
+            for (int k = 0; seqw[k]; k++) {
+                size_t wl = strlen(seqw[k]);
+                if (strncmp(s, seqw[k], wl) == 0 && (s[wl] == ' ' || s[wl] == '\0'))
+                    { adv = (size_t)(s - sub2) + wl; break; }
+            }
+            if (!adv) break;
+            memmove(sub2, sub2 + adv, strlen(sub2 + adv) + 1);
+        }
+    }
+
     char r1[1024] = "", r2[1024] = "";
     int h1 = 0, h1_disc = 0, h2 = 0;
     int negate1 = 0, negate2 = 0;

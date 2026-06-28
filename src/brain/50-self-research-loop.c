@@ -249,6 +249,21 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
  * convention), so a re-ask is no longer a gap — mod_knowledge's exact-key path
  * (now compound-aware) speaks it as a known concept, and this module's own
  * RAM-recall guard is the honest fallback if reached. */
+/* gen240 (universal-comprehension §7): the ACQUIRE-KNOWLEDGE action, factored out
+ * so it is a reusable planner step, not just mod_learn's tail. Pursues the missing
+ * precondition know(key): already in RAM -> 2 (def from memory); learned now from
+ * the local certified corpus or an on-demand Wikipedia fetch -> 1; no source -> 0.
+ * The discovery plan (local corpus, then HTTPS fetch via wiki_fetch_topic) lives
+ * entirely here, so any goal that needs a concept can call it as its precondition. */
+static int acquire_knowledge(Brain *b, const char *key, char *def, size_t def_sz) {
+    if (!b || !b->kb || !key || !*key) return 0;
+    if (kb_concept_def(b->kb, key, def, def_sz)) return 2;        /* already known */
+    if (learn_topic(b->kb, key, key, def, def_sz)) return 1;      /* local corpus */
+    if (wiki_fetch_topic(key) && learn_topic(b->kb, key, key, def, def_sz))
+        return 1;                                                 /* on-demand fetch */
+    return 0;
+}
+
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
@@ -270,8 +285,13 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     static const char *const strong_heads[] = {
         "what is a ", "what is an ", "tell me about ",
         "what do you know about ", "who is ", "who was ",
+        /* gen240: explicit IMPERATIVE to acquire — a first-class command (or
+         * planner step) to run the discovery plan, not just a question. */
+        "learn about ", "research ", "look up ", "study ", "read up on ",
+        "find out about ", "go learn about ",
         "cos'è un ", "cos'è una ", "cos'è uno ", "che cos'è ", "cos'è ",
-        "parlami di ", "cosa sai di ", "chi è ", NULL,
+        "parlami di ", "cosa sai di ", "chi è ", "impara ", "studia ",
+        "informati su ", "documentati su ", NULL,
     };
     static const char *const weak_heads[] = {
         "what is ", "what are ", "what was ", NULL,
@@ -327,30 +347,17 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     char def[KB_TERM_LEN];
     char msg[320];
 
-    /* gen172: already learned this session? Then it is no longer a gap — answer
-     * from RAM and be honest that it was read before, instead of re-reading the
-     * markdown and pretending fresh discovery. (The word-based describe path
-     * cannot match the underscore-joined key, so this module owns the recall.) */
-    if (b->kb && kb_concept_def(b->kb, key, def, sizeof def)) {
+    /* gen240 (universal-comprehension §7): pursue the precondition know(X) via the
+     * acquire-knowledge action — already in RAM, learned from the local certified
+     * corpus, or fetched on demand from Wikipedia (all in C). On a miss, give the
+     * INFORMED decline (§2): name what was understood and be honest it can learn —
+     * never a blind "I don't understand". */
+    int st = acquire_knowledge(b, key, def, sizeof def);
+    if (st == 2)
         snprintf(msg, sizeof msg, "I already read up on %s: %s.", disp, def);
-        put(msg, out, out_size);
-        return 1;
-    }
-
-    /* gen240 (universal-comprehension §7): the discovery plan. Learn the topic
-     * from the local certified corpus (all in C — learn_topic reads the static
-     * Wikipedia markdown and asserts wiki_concept). On a miss, give the INFORMED
-     * decline (§2): name what was understood and be honest it can learn — never a
-     * blind "I don't understand". (Remote fetch is deliberately NOT done from the
-     * brain: see docs/plans/universal-comprehension.md — the corpus is populated
-     * out-of-process; the brain stays file-only at runtime.) */
-    int got = learn_topic(b->kb, key, disp, def, sizeof def);
-    if (!got && wiki_fetch_topic(key))          /* discovery plan: fetch then learn */
-        got = learn_topic(b->kb, key, disp, def, sizeof def);
-    if (got)
+    else if (st == 1)
         snprintf(msg, sizeof msg,
-                 "I didn't know about %s, so I just read it up: %s.",
-                 disp, def);
+                 "I didn't know about %s, so I just read it up: %s.", disp, def);
     else
         snprintf(msg, sizeof msg,
                  "I understood you're asking about %s, but I don't know it yet and "

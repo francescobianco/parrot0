@@ -191,8 +191,16 @@ conoscenza dichiarativa, non una mente in prestito.
   distribuito a priori (stesso formato, stesso `wiki_concept`) — nessun imbroglio,
   solo la scelta di non spedire una KB enorme dal giorno zero.
 - **Esiste (gen240):** il **declino informato** (§2) come testo del turno di gap.
-- **Aggiungere:** l'azione `acquire-knowledge` come **passo del planner** di prima
-  classe (oggi vive dentro `mod_learn`, non è ancora un goal componibile con altri).
+- **Esiste (gen240): `acquire_knowledge` come azione di prima classe.** Estratta in
+  una funzione C riusabile (`50-self-research-loop.c`): RAM → corpus locale → fetch
+  on-demand. È invocabile (a) come **comando esplicito** — "learn about X",
+  "research X", "look up X", "study X", IT "impara/studia/informati su X" — e (b)
+  come **passo composto del planner**: "look up X **and then** tell me about X"
+  esegue acquire(X) e poi il recall nello **stesso turno** (decompose peela il
+  sequencer "then" e dispaccia le due sotto-frasi sullo stesso brain).
+- **Aggiungere:** la precondizione **automatica** — un goal qualsiasi che *nomina*
+  un concetto ignoto dovrebbe innescare acquire(X) da solo (oggi serve il comando
+  esplicito o la composizione "…and then…"); e l'azione `produce-artifact` (§8).
 
 ### Caveat onesti (non negoziabili)
 
