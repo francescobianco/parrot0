@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "physics",
-    "event_id": "learn_2026_06_28t19_49_05z_entropy",
-    "key": "entropy",
-    "log_path": "kb/learning/logs/learn_2026_06_28t19_49_05z_entropy.json",
-    "markdown_path": "kb/learning/pages/entropy.md",
-    "processed_at": "2026-06-28T19:49:05Z",
-    "prompt": "what do you know about learn_2026_06_28t19_49_05z_entropy",
-    "revision": 1361126134,
-    "title": "Entropy"
+    "event_id": "learn_2026_06_28t20_42_45z_electromagnetism",
+    "key": "electromagnetism",
+    "log_path": "kb/learning/logs/learn_2026_06_28t20_42_45z_electromagnetism.json",
+    "markdown_path": "kb/learning/pages/electromagnetism.md",
+    "processed_at": "2026-06-28T20:42:45Z",
+    "prompt": "what do you know about learn_2026_06_28t20_42_45z_electromagnetism",
+    "revision": 1360320920,
+    "title": "Electromagnetism"
   },
-  "next_index": 7
+  "next_index": 8
 }
