@@ -32,7 +32,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test piagent-bench sortlearn-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test piagent-bench sortlearn-bench game-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -131,6 +131,14 @@ piagent-bench: build
 # Prints a gap ledger like swe-bench; the sort assertion is the ratchet Track B flips.
 sortlearn-bench: build
 	@$(BENCH_PY) ./tests/piagent/sortlearn_bench.py
+
+# e2e ratchet: drive parrot0 (mounted as `pi`) to BUILD a terminal tic-tac-toe a
+# human plays against the computer, over THREE consecutive prompts (plan ->
+# build+verify winner() -> assemble+build). Records a gap ledger like swe-bench;
+# passes on honest behaviour, fails only on fabrication or a broken harness. The
+# decline->built ratchet flips as codegen grows, with no change to the test.
+game-bench: build
+	@$(BENCH_PY) ./tests/piagent/game_bench.py
 
 # LLM-simulated-user conversation benchmark (needs $OPENCODE_API_KEY + network;
 # costs a little). Logs transcripts to tests/chat/sim/ and prints naturalness
