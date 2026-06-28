@@ -2107,6 +2107,23 @@
       "summary": "learned neuron: A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called...",
       "title": "Neuron",
       "url": "https://en.wikipedia.org/wiki/Neuron"
+    },
+    {
+      "concept": "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...",
+      "domain": "computer_science",
+      "event_id": "learn_2026_06_28t05_46_52z_algorithm",
+      "key": "algorithm",
+      "log_path": "kb/learning/logs/learn_2026_06_28t05_46_52z_algorithm.json",
+      "markdown_path": "kb/learning/pages/algorithm.md",
+      "processed_at": "2026-06-28T05:46:52Z",
+      "prompt": "what do you know about learn_2026_06_28t05_46_52z_algorithm",
+      "revision": 1360948503,
+      "source_index": 20,
+      "source_line": 40,
+      "source_title": "Algorithm",
+      "summary": "learned algorithm: finite sequence of mathematically rigorous instructions, typically used to solve a class of...",
+      "title": "Algorithm",
+      "url": "https://en.wikipedia.org/wiki/Algorithm"
     }
   ],
   "pages": {
@@ -2116,10 +2133,10 @@
       "domain": "computer_science",
       "extract_sha256": "244933ad2b22814071af515bf5002870eaec93bdbe56d3d681dad384f2dbf7a8",
       "key": "algorithm",
-      "last_event_id": "learn_2026_06_26t20_53_24z_algorithm",
+      "last_event_id": "learn_2026_06_28t05_46_52z_algorithm",
       "markdown_path": "kb/learning/pages/algorithm.md",
       "pageid": 775,
-      "processed_at": "2026-06-26T20:53:24Z",
+      "processed_at": "2026-06-28T05:46:52Z",
       "revision": 1360948503,
       "source_title": "Algorithm",
       "title": "Algorithm",

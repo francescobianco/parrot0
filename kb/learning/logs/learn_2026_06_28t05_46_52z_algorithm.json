@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_28t05_46_52z_algorithm",
+  "extraction": {
+    "concept": "finite sequence of mathematically rigorous instructions, typically used to solve a class of specific problems or to...",
+    "concept_key": "algorithm",
+    "extract_sha256": "244933ad2b22814071af515bf5002870eaec93bdbe56d3d681dad384f2dbf7a8",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_28t05_46_52z_algorithm.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/algorithm.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 21,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-28T05:46:52Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_28t05_46_52z_algorithm"
+  },
+  "source": {
+    "domain": "computer_science",
+    "index": 20,
+    "line": 40,
+    "title": "Algorithm"
+  },
+  "wikipedia": {
+    "canonical_title": "Algorithm",
+    "lang": "en",
+    "pageid": 775,
+    "revision": 1360948503,
+    "url": "https://en.wikipedia.org/wiki/Algorithm"
+  }
+}
