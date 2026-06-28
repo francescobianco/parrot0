@@ -147,9 +147,26 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
                                        t ? "; " : "", keys[0], keys[1], keys[2],
                                        ok ? "compose" : "seam");
             }
-            snprintf(msg, sizeof msg,
-                "I audited my own composition on fresh copies of myself: %s. %zu of %zu triples hold. No file was touched; an external agent owns edits and commits.",
-                rep, pass_count, nt);
+            /* gen240 (KB-first): the report text is KB knowledge, localized to the
+             * current language (response_template(audit_report, Lang, …)), with
+             * {map}/{n}/{total} filled here — not a hardcoded C phrasebook string. */
+            char tpl[400];
+            if (!lang_template(b, "audit_report", tpl, sizeof tpl))
+                snprintf(tpl, sizeof tpl,
+                    "I audited my own composition on fresh copies of myself: {map}. "
+                    "{n} of {total} triples hold. No file was touched; an external "
+                    "agent owns edits and commits.");
+            char ns[16], ts[16];
+            snprintf(ns, sizeof ns, "%zu", pass_count);
+            snprintf(ts, sizeof ts, "%zu", nt);
+            size_t mo = 0;
+            for (const char *c = tpl; *c && mo + 1 < sizeof msg; ) {
+                if (!strncmp(c, "{map}", 5))   { mo += (size_t)snprintf(msg+mo, sizeof msg-mo, "%s", rep); c += 5; }
+                else if (!strncmp(c, "{n}", 3)) { mo += (size_t)snprintf(msg+mo, sizeof msg-mo, "%s", ns);  c += 3; }
+                else if (!strncmp(c, "{total}", 7)) { mo += (size_t)snprintf(msg+mo, sizeof msg-mo, "%s", ts); c += 7; }
+                else msg[mo++] = *c++;
+            }
+            msg[mo < sizeof msg ? mo : sizeof msg - 1] = '\0';
             put(msg, out, out_size);
             store_proof(b, "loop composition audit: run several triples of my parts on fresh sub-brains and report which compose; computed from real output, edits external.");
             return 1;

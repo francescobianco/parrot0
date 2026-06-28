@@ -891,6 +891,12 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char norm[256];
     normalize(input, norm, sizeof norm);
 
+    /* gen240 (universal-comprehension): record the CURRENT conversation language as
+     * a session KB fact (current_language/1), so replies can be localized and the
+     * language is itself queryable — never a C variable. Detected from the raw
+     * normalized turn (before canonicalization folds Italian into English). */
+    detect_set_language(b, norm);
+
     /* gen43: canonicalize the parsing surface (function words -> English tokens)
      * before dispatch, so the reasoning core answers in any mapped language
      * without duplicating a module. `raw` (input) is left untouched, so the

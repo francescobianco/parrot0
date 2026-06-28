@@ -16,6 +16,23 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                        buf[len - 1] == '.' || buf[len - 1] == ' '))
         buf[--len] = '\0';
 
+    /* gen240 (universal-comprehension): "what language are we speaking?" — answered
+     * from the session fact current_language/1 (inferred, not a C variable), and
+     * phrased IN that language via the localized template. */
+    if ((cue(buf, "what language") || cue(buf, "which language") ||
+         cue(buf, "che lingua") || cue(buf, "quale lingua")) &&
+        /* about THIS conversation, not "what language is this code" */
+        (cue(buf, "we ") || cue(buf, "speaking") || cue(buf, "talking") ||
+         cue(buf, "using") || cue(buf, "stiamo") || cue(buf, "parlando") ||
+         cue(buf, "parliamo") || cue(buf, "conversation") || cue(buf, "right now")) &&
+        !cue(buf, "code") && !cue(buf, "snippet")) {
+        char msg[160];
+        if (lang_template(b, "language_reply", msg, sizeof msg)) {
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
     int attention = cue(buf, "paying attention") ||
                     cue(buf, "reading my messages") ||
                     cue(buf, "read my messages") ||
@@ -402,6 +419,9 @@ static int is_internal_pred(const char *pred) {
          * runtime) is the agent's own reply wording, not facts the user taught about
          * the world — filter it like intent_phrase from the fact counts. */
         "response_template",
+        /* gen240: language detection substrate + the session's current-language
+         * fact (state, not world knowledge the user taught). */
+        "language_marker", "language_name", "current_language",
         /* gen101: role/character world-knowledge (kb/core/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */

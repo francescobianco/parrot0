@@ -327,3 +327,69 @@ stopword(sometimes).
 stopword(usually).
 stopword(often).
 stopword(again).
+
+% --- gen240 (universal-comprehension): the CURRENT conversation language is KB
+% knowledge, not a C variable. Detected from these strong, language-exclusive
+% markers (BARE atoms so they match bare turn tokens), asserted as the session
+% fact current_language/1, and queryable ("what language are we speaking?"). ---
+language_name(en, "English").
+language_name(it, "Italian").
+% Italian-only markers (ASCII; do not occur as English words).
+language_marker(it, ciao).
+language_marker(it, grazie).
+language_marker(it, prego).
+language_marker(it, perche).
+language_marker(it, cosa).
+language_marker(it, che).
+language_marker(it, chi).
+language_marker(it, dove).
+language_marker(it, quando).
+language_marker(it, quale).
+language_marker(it, quali).
+language_marker(it, qual).
+language_marker(it, sono).
+language_marker(it, sei).
+language_marker(it, sai).
+language_marker(it, stai).
+language_marker(it, dimmi).
+language_marker(it, parlami).
+language_marker(it, stiamo).
+language_marker(it, parlando).
+language_marker(it, parliamo).
+language_marker(it, lingua).
+language_marker(it, italiano).
+language_marker(it, mio).
+language_marker(it, mia).
+language_marker(it, tuo).
+language_marker(it, tua).
+language_marker(it, della).
+language_marker(it, nella).
+language_marker(it, gli).
+language_marker(it, anche).
+% English-only markers (do not occur as Italian words).
+language_marker(en, the).
+language_marker(en, is).
+language_marker(en, are).
+language_marker(en, what).
+language_marker(en, you).
+language_marker(en, your).
+language_marker(en, how).
+language_marker(en, does).
+language_marker(en, with).
+language_marker(en, this).
+language_marker(en, that).
+language_marker(en, who).
+language_marker(en, where).
+language_marker(en, why).
+language_marker(en, language).
+language_marker(en, speaking).
+language_marker(en, we).
+language_marker(en, hello).
+language_marker(en, thanks).
+
+% gen240: localized replies (response_template/3 — additive next to the /2 forms,
+% selected by current_language via lang_template()). Slots: {map} {n} {total}.
+response_template(language_reply, en, "We're speaking English.").
+response_template(language_reply, it, "Stiamo parlando in italiano.").
+response_template(audit_report, en, "I audited my own composition on fresh copies of myself: {map}. {n} of {total} triples hold. No file was touched; an external agent owns edits and commits.").
+response_template(audit_report, it, "Ho verificato la mia stessa composizione su copie fresche di me: {map}. {n} di {total} triple reggono. Nessun file è stato toccato; le modifiche e i commit spettano a un agente esterno.").

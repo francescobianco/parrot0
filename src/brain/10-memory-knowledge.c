@@ -699,6 +699,69 @@ static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
     }
 }
 
+/* gen240 (universal-comprehension): the CURRENT conversation language lives as the
+ * session fact current_language/1 — NOT a C variable — so it persists, /save's, and
+ * is queryable ("what language are we speaking?"). Default "en" when no fact yet. */
+static void current_lang(Brain *b, char *out, size_t sz) {
+    snprintf(out, sz, "en");
+    if (!b || !b->kb) return;
+    const char *q[] = { NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "current_language", q, 1, hit, 1) > 0)
+        snprintf(out, sz, "%s", hit[0]);
+}
+
+/* Detect the turn's language from KB-first markers (language_marker/2) and, if it
+ * differs from the recorded one, REPLACE the session fact. Sticky: a turn with no
+ * exclusive marker keeps the prior language (so neutral turns don't flap). */
+static void detect_set_language(Brain *b, const char *norm) {
+    if (!b || !b->kb) return;
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
+    char *w[64]; size_t nw = split_words(tmp, w, 64);
+    int it = 0, en = 0;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t) continue;
+        const char *qi[] = { "it", t }; if (kb_query(b->kb, "language_marker", qi, 2)) it++;
+        const char *qe[] = { "en", t }; if (kb_query(b->kb, "language_marker", qe, 2)) en++;
+    }
+    const char *lang = NULL;
+    if (it > en) lang = "it";
+    else if (en > it) lang = "en";
+    if (!lang) return;                          /* no clear signal -> keep sticky */
+    char cur[8]; current_lang(b, cur, sizeof cur);
+    if (strcmp(cur, lang) == 0) return;
+    char old[4][KB_TERM_LEN];
+    const char *qa[] = { NULL };
+    size_t k = kb_match(b->kb, "current_language", qa, 1, old, 4);
+    for (size_t i = 0; i < k; i++) { const char *o[] = { old[i] }; kb_retract(b->kb, "current_language", o, 1); }
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *a[] = { lang };
+    kb_assert(b->kb, "current_language", a, 1);
+}
+
+/* Fetch a localized response_template(Intent, Lang, "…") for the CURRENT language,
+ * falling back to English, into `out` (quotes stripped). Returns 1 if found. This
+ * is the /3 (localized) selector — additive beside the language-agnostic /2
+ * kb_response, never replacing it. */
+static int lang_template(Brain *b, const char *intent, char *out, size_t sz) {
+    if (!b || !b->kb) return 0;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    for (int pass = 0; pass < 2; pass++) {
+        const char *L = pass == 0 ? lang : "en";
+        const char *q[] = { intent, L, NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "response_template", q, 3, hit, 1) > 0) {
+            char *p = hit[0]; size_t l = strlen(p);
+            if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+            snprintf(out, sz, "%s", p);
+            return 1;
+        }
+        if (pass == 0 && strcmp(lang, "en") == 0) break;   /* no second try needed */
+    }
+    return 0;
+}
+
 /* Minimal discourse coreference (gen22): pronouns resolve to the most recent
  * concrete entity mentioned in the knowledge surface. */
 static int is_entity_pronoun(const char *w) {
