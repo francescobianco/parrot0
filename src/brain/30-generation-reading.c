@@ -170,7 +170,10 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     if (cue(norm, "complete this sentence") || cue(norm, "continue this sentence") ||
         cue(norm, "finish this sentence") || cue(norm, "continue this story") ||
         cue(norm, "continue the story") || cue(norm, "finish this story") ||
-        cue(norm, "finish the story") || cue(norm, "continue the sentence")) {
+        cue(norm, "finish the story") || cue(norm, "continue the sentence") ||
+        cue(norm, "complete the following sentence") || cue(norm, "complete the sentence") ||
+        cue(norm, "complete the following") || cue(norm, "finish the following") ||
+        cue(norm, "continue the following")) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
         char *cw[48]; size_t cn = split_words(cb, cw, 48);
         for (size_t i = 0; i < cn; i++) {
