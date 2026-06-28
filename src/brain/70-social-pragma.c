@@ -333,6 +333,10 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
     char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
     if (nw < 3) return 0;                       /* a fragment is not a conversation */
+    /* Conversational register, recognized by KB smalltalk cues (multi-word social
+     * phrases, EN+IT). Last-resort: only turns nothing else claimed reach here, and
+     * an impersonal factual question carries no such cue, so it falls through to the
+     * honest informed decline rather than getting a "tell me more". */
     if (!kb_cue_match(b, "smalltalk_continue", norm)) return 0;
     return kb_response(b, "smalltalk_continue", NULL, out, out_size);
 }

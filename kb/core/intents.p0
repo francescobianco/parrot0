@@ -199,7 +199,6 @@ intent_cue(smalltalk_continue, "what about you").
 intent_cue(smalltalk_continue, "you ever").
 intent_cue(smalltalk_continue, "today i").
 intent_cue(smalltalk_continue, "this morning").
-intent_cue(smalltalk_continue, "this weekend").
 intent_cue(smalltalk_continue, "lately").
 intent_cue(smalltalk_continue, "recently").
 intent_cue(smalltalk_continue, "ho provato").
@@ -207,3 +206,35 @@ intent_cue(smalltalk_continue, "mi piace").
 intent_cue(smalltalk_continue, "secondo me").
 intent_cue(smalltalk_continue, "oggi ho").
 intent_cue(smalltalk_continue, "hai mai").
+
+% gen240: broader smalltalk cues (multi-word social phrases, safe as substrings).
+intent_cue(smalltalk_continue, "do you").
+intent_cue(smalltalk_continue, "how about you").
+intent_cue(smalltalk_continue, "what's your").
+intent_cue(smalltalk_continue, "whats your").
+intent_cue(smalltalk_continue, "i'm ").
+intent_cue(smalltalk_continue, "i am ").
+% Italian conversational phrases
+intent_cue(smalltalk_continue, "io sono").
+intent_cue(smalltalk_continue, "io ho").
+intent_cue(smalltalk_continue, "sono appena").
+intent_cue(smalltalk_continue, "ho appena").
+intent_cue(smalltalk_continue, "mi piace").
+intent_cue(smalltalk_continue, "ti piace").
+intent_cue(smalltalk_continue, "ti va").
+intent_cue(smalltalk_continue, "ti mette").
+intent_cue(smalltalk_continue, "tu come").
+intent_cue(smalltalk_continue, "tu sei").
+intent_cue(smalltalk_continue, "tu hai").
+intent_cue(smalltalk_continue, "tu cosa").
+intent_cue(smalltalk_continue, "e tu").
+intent_cue(smalltalk_continue, "anche tu").
+intent_cue(smalltalk_continue, "preferisci").
+intent_cue(smalltalk_continue, "secondo te").
+intent_cue(smalltalk_continue, "che ne pensi").
+intent_cue(smalltalk_continue, "c'è un").
+intent_cue(smalltalk_continue, "c e un").
+intent_cue(smalltalk_continue, "hai un").
+intent_cue(smalltalk_continue, "come stai").
+intent_cue(smalltalk_continue, "come va").
+intent_cue(smalltalk_continue, "cosa fai").
