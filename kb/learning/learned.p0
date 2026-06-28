@@ -100,7 +100,7 @@ wiki_concept(antibiotic, medicine, "type of antimicrobial substance which is act
 
 % medicine / Neuron
 % source: https://en.wikipedia.org/wiki/Neuron
-% revision: 1360647446; processed: 2026-06-26T19:58:21Z
+% revision: 1360647446; processed: 2026-06-28T03:29:59Z
 wiki_concept(neuron, medicine, "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials...").
 
 % computer_science / Algorithm
@@ -1240,3 +1240,12 @@ learning_event_concept(learn_2026_06_28t01_24_50z_antibiotic, antibiotic).
 learning_event_revision(learn_2026_06_28t01_24_50z_antibiotic, rev_1360675320).
 learning_event_markdown(learn_2026_06_28t01_24_50z_antibiotic, "kb/learning/pages/antibiotic.md").
 learning_event_log(learn_2026_06_28t01_24_50z_antibiotic, "kb/learning/logs/learn_2026_06_28t01_24_50z_antibiotic.json").
+
+% event learn_2026_06_28t03_29_59z_neuron
+learning_event(learn_2026_06_28t03_29_59z_neuron, "learned neuron: A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called...").
+learning_event_time(learn_2026_06_28t03_29_59z_neuron, "2026-06-28T03:29:59Z").
+learning_event_domain(learn_2026_06_28t03_29_59z_neuron, medicine).
+learning_event_concept(learn_2026_06_28t03_29_59z_neuron, neuron).
+learning_event_revision(learn_2026_06_28t03_29_59z_neuron, rev_1360647446).
+learning_event_markdown(learn_2026_06_28t03_29_59z_neuron, "kb/learning/pages/neuron.md").
+learning_event_log(learn_2026_06_28t03_29_59z_neuron, "kb/learning/logs/learn_2026_06_28t03_29_59z_neuron.json").

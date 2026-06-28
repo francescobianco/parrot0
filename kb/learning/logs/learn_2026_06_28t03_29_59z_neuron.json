@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_28t03_29_59z_neuron",
+  "extraction": {
+    "concept": "A neuron, neurone, or nerve cell, is a cell that is excitable, firing electric signals called action potentials...",
+    "concept_key": "neuron",
+    "extract_sha256": "c2868414267ecad5059e859dbcf997cb1bc1ac89a629c7a3712cb7226adbc77a",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_28t03_29_59z_neuron.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/neuron.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 20,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-28T03:29:59Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_28t03_29_59z_neuron"
+  },
+  "source": {
+    "domain": "medicine",
+    "index": 19,
+    "line": 37,
+    "title": "Neuron"
+  },
+  "wikipedia": {
+    "canonical_title": "Neuron",
+    "lang": "en",
+    "pageid": 21120,
+    "revision": 1360647446,
+    "url": "https://en.wikipedia.org/wiki/Neuron"
+  }
+}
