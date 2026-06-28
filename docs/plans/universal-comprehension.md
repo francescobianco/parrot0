@@ -210,6 +210,82 @@ agente. La cornice giusta è quella dell'utente: *non* un fetch isolato ma un
 principiato finché ciò che si scarica è **dato certificato** e il ragionamento
 resta in casa, e finché i test non dipendono dalla rete.
 
+## 8. Lo stesso loop per il CODICE: scoperta → creazione
+
+La stessa agency vale per una richiesta di **produrre**, non solo di sapere.
+
+```
+Q: scrivi un algoritmo di bubblesort
+turno 1:  Ho capito la richiesta (scrivere bubblesort), ma non so cos'è
+          bubblesort — mi documento.        (lancia il PLAN di scoperta wiki)
+turno 2 (stessa richiesta):
+          Ora so cos'è. Ecco l'implementazione, verificata, scritta nei file.
+                                             (lancia il PLAN di creazione)
+```
+
+Lo stesso prompt ripetuto **avanza il piano di uno stadio**, perché tra un turno e
+l'altro è cambiato lo **stato** (prima `know(bubblesort)`, poi l'artefatto). Non è
+una risposta diversa per capriccio: è il planner che sale la sua **scala di
+precondizioni**.
+
+### La scala di precondizioni (è una sola, generale)
+
+```
+goal: produce(code(bubblesort))
+  ├─ precond: know(bubblesort)
+  │     └─ se manca → PLAN scoperta:  fetch+learn wiki(bubblesort)   [§7]
+  └─ precond: verified_impl(bubblesort)
+        └─ se manca → PLAN creazione: synth → oracle(code_eval) → write file(s)
+```
+
+È **lo stesso meccanismo** di §7, con un anello in più. "Capire l'intento" resta
+sempre possibile; ciò che il planner insegue sono le **precondizioni mancanti**,
+una per turno, nominandole onestamente. Knowledge-gap → piano di scoperta;
+artifact-gap → piano di creazione. La medesima agency, due azioni diverse
+(`acquire-knowledge`, `produce-artifact`).
+
+### Quanto è già reale
+
+- **Scoperta:** reale. `mod_research` impara da wiki; `sortlearn-bench` mostra già
+  *forget → relearn-from-wiki(bubble_sort) → sintesi di un sort verificato*
+  ([learn-and-build](learn-and-build.md)). Lo stadio 1 esiste.
+- **Sintesi + verifica:** parziale. `mod_compose`/`code_synth` compongono e
+  **verificano con oracolo** (`code_eval`) piccole funzioni (add, e il sort da
+  schema). Il *no-fabrication* è già la regola (vedi `game-bench`).
+- **Creazione dei file:** è **il gap**. I tool `piact` sono **read-only**;
+  scrivere `.c` su disco e *buildare un programma* non esiste ancora. È esattamente
+  ciò che `make game-bench` registra come gradino aperto (P3: assemble+build).
+
+### Cosa aggiungere
+
+1. **Stato del piano** come precondizioni interrogabili: `know(X)?`,
+   `verified_impl(X)?` — così lo *stesso* prompt sa a che stadio si trova.
+2. **Azione `produce-artifact`**: synth → oracolo → **scrittura file** in una
+   **workspace sandboxata** (mai sull'albero del repo), bounded, e **solo se
+   l'oracolo verifica** (altrimenti declino, mai codice non verificato spacciato
+   per fatto — la regola di `game-bench`).
+3. **Risposte veritiere di stadio**: turno 1 "mi documento" *solo* se la scoperta
+   parte davvero; turno 2 "ecco, verificato e scritto in `…`" *solo* se l'oracolo
+   è passato e il file esiste.
+
+### Caveat onesti
+
+- **Scrivere file è un'azione esterna/side-effecting**: va sandboxata (workspace),
+  limitata, e i test restano ermetici (nessuna scrittura fuori da tmp/fixtures).
+- **L'oracolo è il guardiano**: la creazione è lecita solo su artefatti
+  *verificabili*. Un programma intero (es. il tris di `game-bench`) ha un oracolo
+  debole/assente → resta soffitto finché non sappiamo verificarlo; lì il declino
+  informato è ancora la risposta giusta.
+
+### Verdetto (estensione §6–§7)
+
+**Ha senso ed è la stessa idea, completa.** Una sola agency — *capisci l'intento,
+insegui le precondizioni mancanti una alla volta* — copre sia il sapere (pizza
+margherita) sia il fare (bubblesort: prima impara, poi crea). Lo stadio *scoperta*
+è già reale; lo stadio *creazione-file* è il prossimo grande gap, già misurato da
+`game-bench`. Principiato finché: dati certificati per imparare, **oracolo** per
+creare, scrittura **sandboxata**, e test offline.
+
 ---
 
 ## Appendice — appunti originali
