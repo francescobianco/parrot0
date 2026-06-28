@@ -1,8 +1,9 @@
 name: Wikipedia learner
 
 on:
-  schedule:
-    - cron: "17 * * * *"
+  # Scheduled run disabled on request (kept for later re-enable).
+  # schedule:
+  #   - cron: "17 * * * *"
   workflow_dispatch:
 
 permissions:
