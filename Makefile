@@ -68,8 +68,12 @@ obj/brain.o: $(BRAIN_PARTS)
 bin obj:
 	@mkdir -p $@
 
+# gen243: the interactive chat is AUTONOMOUS — PARROT0_WIKI_FETCH=1 so a knowledge
+# gap triggers the self-documentation plan (mod_learn -> acquire_knowledge ->
+# certified Wikipedia fetch), per universal-comprehension §7. Only `make chat` opts
+# in; `make test` and the benches never set it, so they stay offline/deterministic.
 chat: build
-	@PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
+	@PARROT0_WIKI_FETCH=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 
 # gen223: build parrot0, free the port (kill any old daemon), prepare ~/.pi/agent/
 # models.json (merged, never clobbering other providers), start the parrot0 daemon,

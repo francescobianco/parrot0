@@ -323,15 +323,24 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     static const char *const weak_heads[] = {
         "what is ", "what are ", "what was ", NULL,
     };
+    /* gen243: answer in the language of the QUESTION (which head matched), not the
+     * flaky session-language detector — an English "tell me about foo" must reply in
+     * English even if marker counting guessed Italian. The Italian heads are the
+     * ones carrying an Italian-only token; flag the match. */
+    const char *matched = NULL;
     for (const char *const *h = strong_heads; *h; h++) {
         size_t hl = strlen(*h);
-        if (strncmp(work, *h, hl) == 0) { x = work + hl; break; }
+        if (strncmp(work, *h, hl) == 0) { x = work + hl; matched = *h; break; }
     }
     if (!x) for (const char *const *h = weak_heads; *h; h++) {
         size_t hl = strlen(*h);
-        if (strncmp(work, *h, hl) == 0) { x = work + hl; weak = 1; break; }
+        if (strncmp(work, *h, hl) == 0) { x = work + hl; weak = 1; matched = *h; break; }
     }
     if (!x || !*x) return 0;
+    int it = matched && (strstr(matched, "cos") || strstr(matched, "cosa") ||
+                         strstr(matched, "parlami") || strstr(matched, "chi ") ||
+                         strstr(matched, "impara") || strstr(matched, "studia") ||
+                         strstr(matched, "informati") || strstr(matched, "documentati"));
 
     /* Build the concept key (drop a leading article, join words with '_') and a
      * display form; guard pronouns and too-short topics. */
@@ -380,8 +389,6 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
      * INFORMED decline (§2): name what was understood and be honest it can learn —
      * never a blind "I don't understand". */
     int st = acquire_knowledge(b, key, def, sizeof def);
-    char lang[8]; current_lang(b, lang, sizeof lang);
-    int it = (strcmp(lang, "it") == 0);
     if (st == 2)
         snprintf(msg, sizeof msg,
                  it ? "Mi ero già documentato su %s: %s."
@@ -391,13 +398,15 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
                  it ? "Non conoscevo %s, così mi sono documentato: %s."
                     : "I didn't know about %s, so I just read it up: %s.", disp, def);
     else
-        /* gen242: the INFORMED decline must announce, in the conversation's
-         * language, that parrot0 CAN document itself — never a blind wall. */
+        /* gen243: reaching here means acquire_knowledge already tried RAM, the
+         * local corpus, and (when PARROT0_WIKI_FETCH is on) a certified Wikipedia
+         * fetch — and found nothing. The INFORMED decline says so honestly: it
+         * looked but has no source yet, never a blind wall. */
         snprintf(msg, sizeof msg,
-                 it ? "Ho capito che mi chiedi di %s, ma non lo conosco ancora: mi "
-                      "documento da fonti statiche, indicamene una e lo imparo."
-                    : "I understood you're asking about %s, but I don't know it yet and "
-                      "have no source on it -- point me at one and I'll learn it.", disp);
+                 it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, ma "
+                      "non ho ancora trovato una fonte su cui impararlo."
+                    : "I understood you're asking about %s: I tried to look it up, "
+                      "but I don't have a source to learn it from yet.", disp);
     put(msg, out, out_size);
     return 1;
 }
