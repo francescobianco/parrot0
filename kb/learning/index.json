@@ -2294,6 +2294,23 @@
       "summary": "learned logarithm: In mathematics, the logarithm of a number is the exponent by which another fixed value, the...",
       "title": "Logarithm",
       "url": "https://en.wikipedia.org/wiki/Logarithm"
+    },
+    {
+      "concept": "three physical laws that describe the relationship between the motion of an object and the forces acting on it",
+      "domain": "physics",
+      "event_id": "learn_2026_06_28t18_44_17z_newtons_laws_of_motion",
+      "key": "newtons_laws_of_motion",
+      "log_path": "kb/learning/logs/learn_2026_06_28t18_44_17z_newtons_laws_of_motion.json",
+      "markdown_path": "kb/learning/pages/newtons_laws_of_motion.md",
+      "processed_at": "2026-06-28T18:44:17Z",
+      "prompt": "what do you know about learn_2026_06_28t18_44_17z_newtons_laws_of_motion",
+      "revision": 1353646690,
+      "source_index": 5,
+      "source_line": 17,
+      "source_title": "Newton's laws of motion",
+      "summary": "learned newtons_laws_of_motion: three physical laws that describe the relationship between the motion of an object...",
+      "title": "Newton's laws of motion",
+      "url": "https://en.wikipedia.org/wiki/Newton's_laws_of_motion"
     }
   ],
   "pages": {
@@ -2573,10 +2590,10 @@
       "domain": "physics",
       "extract_sha256": "52b41e8c5105aa3d2589c4ecce8bf2afc0102d9a7caa725b25fe17765cf50c5b",
       "key": "newtons_laws_of_motion",
-      "last_event_id": "learn_2026_06_27t11_48_29z_newtons_laws_of_motion",
+      "last_event_id": "learn_2026_06_28t18_44_17z_newtons_laws_of_motion",
       "markdown_path": "kb/learning/pages/newtons_laws_of_motion.md",
       "pageid": 55212,
-      "processed_at": "2026-06-27T11:48:29Z",
+      "processed_at": "2026-06-28T18:44:17Z",
       "revision": 1353646690,
       "source_title": "Newton's laws of motion",
       "title": "Newton's laws of motion",
