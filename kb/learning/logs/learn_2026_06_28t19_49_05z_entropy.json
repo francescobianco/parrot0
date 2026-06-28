@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_28t19_49_05z_entropy",
+  "extraction": {
+    "concept": "thermodynamic state variable that quantifies the probabilistic distribution of accessible microstates in a system",
+    "concept_key": "entropy",
+    "extract_sha256": "fd213ea86c929d6d10e985d6e7ff10a822c9baecdd8dee4cbae21884a85ecaac",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_28t19_49_05z_entropy.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/entropy.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 7,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-28T19:49:05Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_28t19_49_05z_entropy"
+  },
+  "source": {
+    "domain": "physics",
+    "index": 6,
+    "line": 18,
+    "title": "Entropy"
+  },
+  "wikipedia": {
+    "canonical_title": "Entropy",
+    "lang": "en",
+    "pageid": 9891,
+    "revision": 1361126134,
+    "url": "https://en.wikipedia.org/wiki/Entropy"
+  }
+}

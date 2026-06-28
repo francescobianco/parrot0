@@ -35,7 +35,7 @@ wiki_concept(newtons_laws_of_motion, physics, "three physical laws that describe
 
 % physics / Entropy
 % source: https://en.wikipedia.org/wiki/Entropy
-% revision: 1361126134; processed: 2026-06-27T12:47:43Z
+% revision: 1361126134; processed: 2026-06-28T19:49:05Z
 wiki_concept(entropy, physics, "thermodynamic state variable that quantifies the probabilistic distribution of accessible microstates in a system").
 
 % physics / Electromagnetism
@@ -1357,3 +1357,12 @@ learning_event_concept(learn_2026_06_28t18_44_17z_newtons_laws_of_motion, newton
 learning_event_revision(learn_2026_06_28t18_44_17z_newtons_laws_of_motion, rev_1353646690).
 learning_event_markdown(learn_2026_06_28t18_44_17z_newtons_laws_of_motion, "kb/learning/pages/newtons_laws_of_motion.md").
 learning_event_log(learn_2026_06_28t18_44_17z_newtons_laws_of_motion, "kb/learning/logs/learn_2026_06_28t18_44_17z_newtons_laws_of_motion.json").
+
+% event learn_2026_06_28t19_49_05z_entropy
+learning_event(learn_2026_06_28t19_49_05z_entropy, "learned entropy: thermodynamic state variable that quantifies the probabilistic distribution of accessible...").
+learning_event_time(learn_2026_06_28t19_49_05z_entropy, "2026-06-28T19:49:05Z").
+learning_event_domain(learn_2026_06_28t19_49_05z_entropy, physics).
+learning_event_concept(learn_2026_06_28t19_49_05z_entropy, entropy).
+learning_event_revision(learn_2026_06_28t19_49_05z_entropy, rev_1361126134).
+learning_event_markdown(learn_2026_06_28t19_49_05z_entropy, "kb/learning/pages/entropy.md").
+learning_event_log(learn_2026_06_28t19_49_05z_entropy, "kb/learning/logs/learn_2026_06_28t19_49_05z_entropy.json").
