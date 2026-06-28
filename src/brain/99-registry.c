@@ -174,7 +174,7 @@ static const Module registry[] = {
     {"pragma",    mod_pragma},
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
-    {"research",  mod_research},
+    {"learn",     mod_learn},
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
 

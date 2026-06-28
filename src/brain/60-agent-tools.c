@@ -768,7 +768,7 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
         } else {
             /* gen208: not a compose/eval clause — dispatch it through the registry
              * (skipping compose, no re-entry) so e.g. a "tell me about X" recall is
-             * answered for real by mod_research, rather than stubbed as "(not yet)". */
+             * answered for real by mod_learn, rather than stubbed as "(not yet)". */
             char rep[640] = {0};
             if (dispatch_one(b, clause, rep, sizeof rep) && rep[0])
                 snprintf(piece, sizeof piece, "%zu) %s", step, rep);

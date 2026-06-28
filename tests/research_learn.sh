@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Offline regression for the in-C dynamic learner used by mod_research.
+# Offline regression for the in-C dynamic learner used by mod_learn.
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

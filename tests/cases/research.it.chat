@@ -1,4 +1,4 @@
 # gen171 (dynamic knowledge): the same definitional-gap path handles Italian
 # prompts, but now learns only from local markdown and no longer keeps a queue.
 > cos'è un numero perfetto?
-< I don't actually know about numero perfetto yet, and I have no source to read on it.
+< I understood you're asking about numero perfetto, but I don't know it yet and have no source on it -- point me at one and I'll learn it.

@@ -237,7 +237,7 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
-/* --- module: research (gen171, dynamic knowledge) ------------------------
+/* --- module: learn (gen171, dynamic knowledge; renamed from research gen240) --
  * The "inexhaustible interlocutor" seam. Asked to DEFINE a topic it does not
  * know, parrot0 neither silently walls nor pretends. It reads only STATIC local
  * markdown (no intelligence API), asserts the learned wiki_concept straight into
@@ -249,7 +249,7 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
  * convention), so a re-ask is no longer a gap — mod_knowledge's exact-key path
  * (now compound-aware) speaks it as a known concept, and this module's own
  * RAM-recall guard is the honest fallback if reached. */
-static int mod_research(Brain *b, const char *norm, const char *raw,
+static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
     if (!b) return 0;
@@ -337,14 +337,21 @@ static int mod_research(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen240 (universal-comprehension §7): the discovery plan. Learn the topic
+     * from the local certified corpus (all in C — learn_topic reads the static
+     * Wikipedia markdown and asserts wiki_concept). On a miss, give the INFORMED
+     * decline (§2): name what was understood and be honest it can learn — never a
+     * blind "I don't understand". (Remote fetch is deliberately NOT done from the
+     * brain: see docs/plans/universal-comprehension.md — the corpus is populated
+     * out-of-process; the brain stays file-only at runtime.) */
     if (learn_topic(b->kb, key, disp, def, sizeof def))
         snprintf(msg, sizeof msg,
                  "I didn't know about %s, so I just read it up: %s.",
                  disp, def);
     else
         snprintf(msg, sizeof msg,
-                 "I don't actually know about %s yet, and I have no source to read on it.",
-                 disp);
+                 "I understood you're asking about %s, but I don't know it yet and "
+                 "have no source on it -- point me at one and I'll learn it.", disp);
     put(msg, out, out_size);
     return 1;
 }
