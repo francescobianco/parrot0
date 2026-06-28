@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "computer_science",
-    "event_id": "learn_2026_06_28t05_46_52z_algorithm",
-    "key": "algorithm",
-    "log_path": "kb/learning/logs/learn_2026_06_28t05_46_52z_algorithm.json",
-    "markdown_path": "kb/learning/pages/algorithm.md",
-    "processed_at": "2026-06-28T05:46:52Z",
-    "prompt": "what do you know about learn_2026_06_28t05_46_52z_algorithm",
-    "revision": 1360948503,
-    "title": "Algorithm"
+    "event_id": "learn_2026_06_28t07_39_40z_binary_search_algorithm",
+    "key": "binary_search_algorithm",
+    "log_path": "kb/learning/logs/learn_2026_06_28t07_39_40z_binary_search_algorithm.json",
+    "markdown_path": "kb/learning/pages/binary_search_algorithm.md",
+    "processed_at": "2026-06-28T07:39:40Z",
+    "prompt": "what do you know about learn_2026_06_28t07_39_40z_binary_search_algorithm",
+    "revision": 1360038372,
+    "title": "Binary search"
   },
-  "next_index": 21
+  "next_index": 22
 }
