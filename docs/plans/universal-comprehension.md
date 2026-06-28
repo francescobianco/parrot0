@@ -126,6 +126,90 @@ quando un riconoscitore d'intento identifica lo schema ma la KB non ha il dato,
 si emetta "ho capito che chiedi X su Y, ma non conosco Y" invece di
 `"I don't understand that yet."`. Da lì si sale verso schemi e ruoli generici.
 
+## 7. Dall'incomprensione all'agency: il piano di auto-documentazione
+
+Il declino informato (§2) è il **primo gradino**. Il secondo, e qui sta la forza:
+quando parrot0 capisce l'intento ma **non ha il dato**, non si limita a dichiararlo
+— **innesca un'azione per procurarselo**. Si *documenta*.
+
+```
+Q: conosci la pizza margherita?
+turno 1:  No, non ancora — ma mi sto documentando.   (e AVVIA il processo)
+turno 2 (stesso "conosci la pizza margherita?"):
+          Sì: la pizza margherita è …                (ora il dato c'è)
+```
+
+Nessun impostore: è **trasparente e sincero** — *"non conosco, ma posso
+apprendere"*. La risposta **cambia nel tempo** perché lo **stato** è cambiato, non
+perché ha finto.
+
+### Il punto cruciale: non è un fetch solitario, è un PIANO
+
+Il processo di auto-documentazione **non** è un hack una-tantum incollato al
+modulo di ricerca. È un **passo del planner** attivato dall'**intento di
+informarsi**. Realizzare "non so" **genera un goal**, e il planner lo persegue:
+
+```
+goal:   answer(about(pizza_margherita))
+  └─ precond mancante: know(pizza_margherita)
+       └─ sub-goal: acquire(know(pizza_margherita))
+            └─ azione: fetch+learn wiki(pizza_margherita)  → asserisce wiki_concept/2
+  └─ poi: resolve answer dai fatti ora presenti
+```
+
+Questa è esattamente la **forza dell'agency** ([the-agency](the-agency.md)): i
+piani che *si attivano per fare cose*. "Capire di non sapere" diventa un
+**innesco di pianificazione**, componibile con gli altri goal (non un ramo
+isolato). È lo stesso planner di `compose_plan`/`mod_plan`, esteso con
+l'azione `acquire-knowledge`.
+
+### Rispetta i principi? Sì — è DATO, non intelligenza esternalizzata
+
+Il vincolo dei PRINCIPLES è **"niente intelligenza esternalizzata"**: nessun LLM,
+nessuna API che *ragiona* al posto suo. Scaricare **markdown fattuale da una fonte
+certificata** (solo Wikipedia) è **acquisizione di DATI**, non di ragionamento: il
+passaggio da markdown → `wiki_concept/2` → risposta resta **interamente di
+parrot0**. È la stessa distinzione di [dynamic-knowledge](kb-first.md): parrot0 si
+documenta da una fonte statica/certificata; il motore inferenziale non è
+outsourced. Questo **raffina** la direzione "solo file statici": la fonte può
+essere **remota** purché *certificata e ristretta a wiki*, perché ciò che entra è
+conoscenza dichiarativa, non una mente in prestito.
+
+### Cosa esiste già e cosa aggiungere
+
+- **Esiste:** `mod_research` (gen171) legge markdown **locale** (`PARROT0_WIKI_DIR`),
+  impara `wiki_concept/2` in RAM, e l'apprendimento **persiste** (re-ask risponde
+  dal dato). È registrato per ultimo: cattura solo il gap definitorio.
+- **Aggiungere:** (a) l'azione `acquire-knowledge` come **passo del planner**, non
+  solo modulo terminale, così altri goal possono dipenderne; (b) il **fetch
+  remoto certificato** (solo wiki) come sorgente opzionale dietro env, con la
+  risposta di turno 1 ("mi sto documentando") **veritiera solo se il processo è
+  davvero partito**; (c) il declino informato (§2) come testo del turno 1.
+
+### Caveat onesti (non negoziabili)
+
+- **Determinismo dei test.** La rete è non-deterministica e introduce un confine
+  di fiducia. `make test` e i bench restano **offline su fixture**
+  (`PARROT0_WIKI_DIR`); il fetch remoto è una **feature runtime** dietro env, mai
+  nel percorso dei test. (Stessa disciplina di `chat-sim`/`llmscore`, esterni.)
+- **Una sola fonte, certificata.** Solo Wikipedia, solo markdown fattuale,
+  parsing nostro. Allargare le fonti è un'altra decisione, da prendere qui.
+- **Verità di stato.** "Mi sto documentando" si può dire **solo** se il piano è
+  stato realmente avviato; altrimenti è il declino informato secco. Mai promettere
+  un apprendimento che non avviene.
+- **UX a due turni.** Turno 1 dichiara+avvia, turno 2 conosce. Onesto e
+  sufficiente; un fetch sincrono in-turno è un'ottimizzazione successiva, non un
+  requisito.
+
+### Verdetto (estensione §6)
+
+**Ha senso, ed è il completamento naturale.** Informed decline + `mod_research`
+esistente + planner = un **declino che si auto-ripara**: transitorio, onesto,
+agente. La cornice giusta è quella dell'utente: *non* un fetch isolato ma un
+**piano** innescato dall'intento di sapere — è lì che vive l'agency. Resta
+principiato finché ciò che si scarica è **dato certificato** e il ragionamento
+resta in casa, e finché i test non dipendono dalla rete.
+
 ---
 
 ## Appendice — appunti originali
