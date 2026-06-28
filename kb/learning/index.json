@@ -2277,6 +2277,23 @@
       "summary": "learned derivative: fundamental tool that quantifies the sensitivity to change of a function's output with respect...",
       "title": "Derivative",
       "url": "https://en.wikipedia.org/wiki/Derivative"
+    },
+    {
+      "concept": "In mathematics, the logarithm of a number is the exponent by which another fixed value, the base, must be raised to...",
+      "domain": "mathematics",
+      "event_id": "learn_2026_06_28t17_44_09z_logarithm",
+      "key": "logarithm",
+      "log_path": "kb/learning/logs/learn_2026_06_28t17_44_09z_logarithm.json",
+      "markdown_path": "kb/learning/pages/logarithm.md",
+      "processed_at": "2026-06-28T17:44:09Z",
+      "prompt": "what do you know about learn_2026_06_28t17_44_09z_logarithm",
+      "revision": 1354833929,
+      "source_index": 4,
+      "source_line": 14,
+      "source_title": "Logarithm",
+      "summary": "learned logarithm: In mathematics, the logarithm of a number is the exponent by which another fixed value, the...",
+      "title": "Logarithm",
+      "url": "https://en.wikipedia.org/wiki/Logarithm"
     }
   ],
   "pages": {
@@ -2526,10 +2543,10 @@
       "domain": "mathematics",
       "extract_sha256": "46cf4f51980f91e34889758715ced4d111c5fb39dd7f06fcaf073019f8a8d1c2",
       "key": "logarithm",
-      "last_event_id": "learn_2026_06_27t10_58_45z_logarithm",
+      "last_event_id": "learn_2026_06_28t17_44_09z_logarithm",
       "markdown_path": "kb/learning/pages/logarithm.md",
       "pageid": 17860,
-      "processed_at": "2026-06-27T10:58:45Z",
+      "processed_at": "2026-06-28T17:44:09Z",
       "revision": 1354833929,
       "source_title": "Logarithm",
       "title": "Logarithm",

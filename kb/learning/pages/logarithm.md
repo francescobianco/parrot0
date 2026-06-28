@@ -1,11 +1,11 @@
 # Logarithm
 
-- Learning event: `learn_2026_06_27t10_58_45z_logarithm`
-- Operational log: `kb/learning/logs/learn_2026_06_27t10_58_45z_logarithm.json`
+- Learning event: `learn_2026_06_28t17_44_09z_logarithm`
+- Operational log: `kb/learning/logs/learn_2026_06_28t17_44_09z_logarithm.json`
 - Domain: `mathematics`
 - Source: https://en.wikipedia.org/wiki/Logarithm
 - Wikipedia revision: `1354833929`
-- Processed: `2026-06-27T10:58:45Z`
+- Processed: `2026-06-28T17:44:09Z`
 
 ## Learned Concept
 
