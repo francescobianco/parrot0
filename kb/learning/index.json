@@ -2158,6 +2158,23 @@
       "summary": "learned hash_table: data structure that implements an associative array, also called a dictionary or simply map; an...",
       "title": "Hash table",
       "url": "https://en.wikipedia.org/wiki/Hash_table"
+    },
+    {
+      "concept": "mathematical model of computation describing an abstract machine that manipulates symbols on a strip of tape...",
+      "domain": "computer_science",
+      "event_id": "learn_2026_06_28t11_01_30z_turing_machine",
+      "key": "turing_machine",
+      "log_path": "kb/learning/logs/learn_2026_06_28t11_01_30z_turing_machine.json",
+      "markdown_path": "kb/learning/pages/turing_machine.md",
+      "processed_at": "2026-06-28T11:01:30Z",
+      "prompt": "what do you know about learn_2026_06_28t11_01_30z_turing_machine",
+      "revision": 1361332484,
+      "source_index": 23,
+      "source_line": 43,
+      "source_title": "Turing machine",
+      "summary": "learned turing_machine: mathematical model of computation describing an abstract machine that manipulates symbols...",
+      "title": "Turing machine",
+      "url": "https://en.wikipedia.org/wiki/Turing_machine"
     }
   ],
   "pages": {
@@ -2542,11 +2559,11 @@
       "domain": "computer_science",
       "extract_sha256": "2d8d16e79ea5ae8c6f76c806c356c3e9db04e5ece0e1af1c523531a6461a99d2",
       "key": "turing_machine",
-      "last_event_id": "learn_2026_06_26t23_43_45z_turing_machine",
+      "last_event_id": "learn_2026_06_28t11_01_30z_turing_machine",
       "markdown_path": "kb/learning/pages/turing_machine.md",
       "pageid": 30403,
-      "processed_at": "2026-06-26T23:43:45Z",
-      "revision": 1361274431,
+      "processed_at": "2026-06-28T11:01:30Z",
+      "revision": 1361332484,
       "source_title": "Turing machine",
       "title": "Turing machine",
       "url": "https://en.wikipedia.org/wiki/Turing_machine"

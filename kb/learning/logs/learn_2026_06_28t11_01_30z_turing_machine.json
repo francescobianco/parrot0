@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_28t11_01_30z_turing_machine",
+  "extraction": {
+    "concept": "mathematical model of computation describing an abstract machine that manipulates symbols on a strip of tape...",
+    "concept_key": "turing_machine",
+    "extract_sha256": "2d8d16e79ea5ae8c6f76c806c356c3e9db04e5ece0e1af1c523531a6461a99d2",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_28t11_01_30z_turing_machine.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/turing_machine.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 24,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-28T11:01:30Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_28t11_01_30z_turing_machine"
+  },
+  "source": {
+    "domain": "computer_science",
+    "index": 23,
+    "line": 43,
+    "title": "Turing machine"
+  },
+  "wikipedia": {
+    "canonical_title": "Turing machine",
+    "lang": "en",
+    "pageid": 30403,
+    "revision": 1361332484,
+    "url": "https://en.wikipedia.org/wiki/Turing_machine"
+  }
+}
