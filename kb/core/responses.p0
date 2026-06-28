@@ -81,3 +81,19 @@ response_template(smalltalk_continue, "I don't have experiences of my own, but I
 response_template(smalltalk_continue, "Nice -- how did that go?").
 response_template(smalltalk_continue, "Sounds good. What else has been on your mind?").
 response_template(smalltalk_continue, "I can't say I've tried it myself, but I'm curious -- what do you like about it?").
+
+% gen240 (universal-comprehension): Italian localized variants (response_template/3,
+% selected by current_language; the /2 forms remain the English default). KB-first:
+% localize a reply by adding its /3 fact — no code edit.
+response_template(smalltalk_continue, it, "Bello -- raccontami di più.").
+response_template(smalltalk_continue, it, "Ah sì? Com'è?").
+response_template(smalltalk_continue, it, "Interessante -- come ci sei arrivato?").
+response_template(smalltalk_continue, it, "Non ho esperienze mie, ma mi piacerebbe saperne di più -- cosa ti ha colpito?").
+response_template(smalltalk_continue, it, "Bello -- com'è andata?").
+response_template(smalltalk_continue, it, "Bene. Cos'altro ti gira per la testa?").
+response_template(smalltalk_continue, it, "Non l'ho provato di persona, ma sono curioso -- cosa ti piace di questa cosa?").
+response_template(greeting_reply, it, "Ciao!").
+response_template(greeting_reply, it, "Ehilà!").
+response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere -- quali sono le due opzioni?").
+response_template(binary_choice, it, "Tra le due? Non ho una vera preferenza.").
+response_template(self_preference, it, "Non ho preferenze vere, ma per stare al gioco sceglierei leggere in tranquillità ascoltando la pioggia.").

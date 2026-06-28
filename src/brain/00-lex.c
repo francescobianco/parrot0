@@ -80,12 +80,26 @@ static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
  * repetition is avoided (the gen55 anti-repeat instinct). Writes the filled reply into
  * `out` and returns 1, or 0 if `intent` has no template (caller keeps a literal
  * fallback so the agent is never mute even if the KB file is absent). */
+static void current_lang(Brain *b, char *out, size_t sz);   /* gen240, defined in 10 */
+
 static int kb_response(Brain *b, const char *intent, const char *slot,
                        char *out, size_t outsz) {
     if (!b || !b->kb || !intent || !out || outsz == 0) return 0;
     char tpl[16][KB_TERM_LEN];
-    const char *q[2] = { intent, NULL };
-    size_t n = kb_match(b->kb, "response_template", q, 2, tpl, 16);
+    /* gen240 (universal-comprehension): prefer a LOCALIZED template for the current
+     * conversation language — response_template(intent, Lang, "…") — falling back to
+     * the language-agnostic /2 form. So any reply is localized just by adding a /3
+     * fact (KB-first, additive); English stays the /2 default. */
+    size_t n = 0;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    if (strcmp(lang, "en") != 0) {
+        const char *q3[3] = { intent, lang, NULL };
+        n = kb_match(b->kb, "response_template", q3, 3, tpl, 16);
+    }
+    if (n == 0) {
+        const char *q[2] = { intent, NULL };
+        n = kb_match(b->kb, "response_template", q, 2, tpl, 16);
+    }
     if (n == 0) return 0;
     /* gen226 (mimic-llm, primo giro): a loaded STYLE profile may set the selection
      * temperature — the nitidezza of choosing among interchangeable FORMS. t==0 is

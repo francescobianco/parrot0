@@ -1012,6 +1012,7 @@ static int is_struct_pred(const char *pred) {
         "language_marker", "language_name", "current_language", /* gen240 */
         "utterance", /* gen240: session conversation log */
         "artifact",
+        "process_pid", "os_language", /* gen240: process/locale session context */
         "compound_word", /* gen240: compound-word riddle facts */
         "appearance", /* gen240: sensory descriptions, queried not described */
         "synonym", /* gen231/236: synonym relation, queried not described */

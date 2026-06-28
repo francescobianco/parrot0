@@ -461,6 +461,25 @@ Brain *brain_create(void) {
             kb_assert(b->kb, "glue_faculty", gf, 2);
         }
     }
+    /* gen240 (universal-comprehension): the running process itself is session
+     * context. The PID and the OS user's language (from the launching ENV locale)
+     * become session facts — so they are queryable, and the OS locale SEEDS the
+     * default reply language: a lone ambiguous "ciao" greets in Italian on an
+     * Italian machine, English elsewhere. Per-turn detection still overrides. */
+    {
+        kb_set_origin(b->kb, KB_SESSION);
+        char pid[24]; snprintf(pid, sizeof pid, "%ld", (long)getpid());
+        const char *pa[] = { pid }; kb_assert(b->kb, "process_pid", pa, 1);
+        const char *loc = getenv("PARROT0_LANG");
+        if (!loc || !*loc) loc = getenv("LANG");
+        if (!loc || !*loc) loc = getenv("LC_ALL");
+        if (!loc || !*loc) loc = getenv("LC_MESSAGES");
+        char osl[8] = "en";
+        if (loc && (loc[0] == 'i' && loc[1] == 't')) snprintf(osl, sizeof osl, "it");
+        const char *oa[] = { osl }; kb_assert(b->kb, "os_language", oa, 1);
+        const char *ca[] = { osl }; kb_assert(b->kb, "current_language", ca, 1);
+    }
+
     kb_set_origin(b->kb, KB_SESSION); /* conversation default */
     return b;
 }
@@ -496,14 +515,24 @@ const char *brain_version(void) {
  * rotating honest redirects. It never feigns understanding. */
 static void not_understood(Brain *b, const char *canon,
                            char *out, size_t out_size) {
-    static const char *const v[] = {
+    /* gen240 (universal-comprehension): the honest fallback in the CURRENT language. */
+    static const char *const v_en[] = {
         "I'm not sure I followed. Can you say it another way?",
         "I didn't quite catch that. What would you like to know?",
         "Hmm, that's a bit beyond me right now.",
         "I don't understand that yet.",
     };
-    const size_t NV = sizeof v / sizeof v[0];
-    const char *classic = "I don't understand that yet.";
+    static const char *const v_it[] = {
+        "Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?",
+        "Non ho afferrato bene. Cosa vorresti sapere?",
+        "Mmh, questo per ora va un po' oltre le mie capacità.",
+        "Non capisco ancora.",
+    };
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    int it = strcmp(lang, "it") == 0;
+    const char *const *v = it ? v_it : v_en;
+    const size_t NV = it ? sizeof v_it / sizeof v_it[0] : sizeof v_en / sizeof v_en[0];
+    const char *classic = it ? "Non capisco ancora." : "I don't understand that yet.";
 
     if (!b || strcmp(classic, b->last_reply) != 0) { /* fine to say it once */
         put(classic, out, out_size);
@@ -530,7 +559,8 @@ static void not_understood(Brain *b, const char *canon,
     }
     char cand[256];
     unsigned long k = b->fallbacks;
-    if (sw) snprintf(cand, sizeof cand, "Hmm, I don't know about %s yet.", sw);
+    if (sw) snprintf(cand, sizeof cand, it ? "Mmh, non conosco ancora %s."
+                                           : "Hmm, I don't know about %s yet.", sw);
     else    snprintf(cand, sizeof cand, "%s", v[k % NV]);
     for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
         snprintf(cand, sizeof cand, "%s", v[(k + t) % NV]);

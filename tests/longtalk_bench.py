@@ -40,6 +40,17 @@ PARTNER_SYS = (
     "that this is a test."
 )
 
+PARTNER_SYS_IT = (
+    "Stai chiacchierando in modo rilassato e naturale con qualcuno che hai appena "
+    "conosciuto. Mantieni viva la conversazione: reagisci a ciò che dice davvero, "
+    "fai una domanda amichevole, condividi un piccolo pensiero, e spazia con "
+    "naturalezza tra argomenti di tutti i giorni (hobby, cibo, viaggi, scienza, "
+    "libri, il tempo, piccole opinioni). Cambia argomento se un filo si arena. "
+    "Scrivi UN solo messaggio breve e naturale per turno — una o due frasi, niente "
+    "elenchi, niente preamboli, solo chiacchiere. Parla SEMPRE in ITALIANO. Non "
+    "uscire mai dal personaggio e non dire che è un test."
+)
+
 # Blind 'wall' replies that DROP the conversation (what universal-comprehension
 # aims to eliminate). An honest decline that still engages ("I can only do a haiku
 # on themes I know — pick one?") is NOT a wall: it keeps the thread alive.
@@ -54,7 +65,18 @@ WALLS = (
     "i don't understand that entailment",
     "that looks like a snippet of code",
     "i have nothing to say",
+    # Italian walls (once parrot0 localizes its fallback)
+    "non capisco",
+    "non lo so ancora",
+    "non so niente",
+    "sembra un frammento di codice",
 )
+
+# When the conversation is in language L, a reply in the WRONG language is itself a
+# kind of failure (parrot0 understood but answered in English). Tracked separately
+# from a wall, and reported, so the localization gap is visible.
+EN_HINTS = (" the ", " you ", " i don't", " i can", " what ", " here ", "i'd ",
+           " is ", " are ", " your ", " sounds ", " tell me", " how ")
 
 
 def is_wall(reply: str) -> bool:
@@ -62,6 +84,13 @@ def is_wall(reply: str) -> bool:
     if not low:
         return True
     return any(w in low for w in WALLS)
+
+
+def looks_english(reply: str) -> bool:
+    """Rough flag: does this reply look like English? Used (only in an Italian
+    session) to surface the localization gap — parrot0 answering in English."""
+    low = " " + reply.strip().lower() + " "
+    return any(h in low for h in EN_HINTS)
 
 
 def call_model(key, model, messages, temperature=0.9, max_tokens=1500):
@@ -99,9 +128,11 @@ def ask_parrot0(proc, message):
     return (proc.stdout.readline() or "").rstrip("\n")
 
 
-def converse(key, model, max_exchanges, log):
+def converse(key, model, max_exchanges, lang, log):
     # Full KB loaded (no PARROT0_BASE override) so parrot0 brings all it knows;
     # no session persistence.
+    sys_prompt = PARTNER_SYS_IT if lang == "it" else PARTNER_SYS
+    opener = "Inizia la conversazione." if lang == "it" else "Start the conversation."
     proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
         env={**os.environ, "PARROT0_SESSION": ""})
@@ -110,12 +141,12 @@ def converse(key, model, max_exchanges, log):
     walled_at = None
     try:
         for i in range(1, max_exchanges + 1):
-            msgs = [{"role": "system", "content": PARTNER_SYS}]
+            msgs = [{"role": "system", "content": sys_prompt}]
             for pm, pa in history:
                 msgs.append({"role": "assistant", "content": pm})
                 msgs.append({"role": "user", "content": pa})
             if not history:
-                msgs.append({"role": "user", "content": "Start the conversation."})
+                msgs.append({"role": "user", "content": opener})
             partner = one_line(call_model(key, model, msgs))
             if partner.startswith("[model error") or partner == "[empty]":
                 time.sleep(1.5)
@@ -151,7 +182,15 @@ def main() -> int:
                     help="opencode-GO partner model slug (default: kimi-k2.6)")
     ap.add_argument("--max", type=int, default=int(os.environ.get("LONGTALK_MAX", "10")),
                     help="maximum exchanges to attempt (default: 10)")
+    ap.add_argument("--lang", default=os.environ.get("LONGTALK_LANG", "en"),
+                    choices=["en", "it"],
+                    help="conversation language (default: en; 'it' = Italian partner)")
+    ap.add_argument("--runs", type=int, default=int(os.environ.get("LONGTALK_RUNS", "1")),
+                    help="how many independent sessions to run (default: 1)")
     ap.add_argument("--out", default="LONGTALK.md")
+    ap.add_argument("--logdir", default=os.environ.get("LONGTALK_LOGDIR",
+                    "tests/longtalk-sessions"),
+                    help="directory for full per-session transcript logs")
     args = ap.parse_args()
 
     if not os.access("./bin/parrot0", os.X_OK):
@@ -162,34 +201,71 @@ def main() -> int:
         print("longtalk: OPENCODE_API_KEY not set", file=sys.stderr)
         return 2
 
+    os.makedirs(args.logdir, exist_ok=True)
     lines = []
     def log(s=""):
         print(s)
         lines.append(s)
 
-    log(f"# longtalk — partner={args.model} max={args.max} exchanges")
-    reached, walled_at, history = converse(key, args.model, args.max, log)
+    scores = []
+    sessions = []   # (run_idx, reached, walled_at, history)
+    for run in range(1, args.runs + 1):
+        log(f"# longtalk — partner={args.model} lang={args.lang} max={args.max} "
+            f"(session {run}/{args.runs})")
+        reached, walled_at, history = converse(key, args.model, args.max, args.lang, log)
+        log("")
+        milestones = " ".join(f"{n}✓" for n in range(2, reached + 1)) or "(none)"
+        log(f"reached without a wall: {milestones}")
+        if walled_at:
+            log(f"walled at exchange {walled_at}")
+        log(f"SESSION {run} SCORE: {reached} / {args.max}")
+        log("-" * 60)
+        scores.append(reached)
+        sessions.append((run, reached, walled_at, history))
 
-    log("")
-    log("-" * 60)
-    milestones = " ".join(f"{n}✓" for n in range(2, reached + 1)) or "(none)"
-    log(f"reached without a wall: {milestones}")
-    if walled_at:
-        log(f"walled at exchange {walled_at}")
-    log(f"SCORE: {reached} / {args.max}")
+    best = max(scores) if scores else 0
+    avg = (sum(scores) / len(scores)) if scores else 0
+    log(f"OVERALL [{args.lang}]: best {best}/{args.max}, avg {avg:.1f} over "
+        f"{len(scores)} session(s); scores={scores}")
 
-    # artifact, mirroring LLMSCORE.md
+    # full per-session transcript logs (test artifacts), with language tagging so
+    # the localization gap (English replies in an Italian session) is auditable.
+    ts = time.strftime("%Y%m%d-%H%M%S")
+    for (run, reached, walled_at, history) in sessions:
+        path = os.path.join(args.logdir,
+                            f"session-{args.lang}-{ts}-r{run}.md")
+        try:
+            with open(path, "w") as f:
+                f.write(f"# longtalk session — lang={args.lang} model={args.model} "
+                        f"score={reached}/{args.max}\n\n")
+                for i, (pm, pa) in enumerate(history, start=1):
+                    wall = is_wall(pa)
+                    eng = args.lang == "it" and looks_english(pa)
+                    flag = "WALL" if wall else ("EN?" if eng else "ok")
+                    f.write(f"### exchange {i}  [{flag}]\n")
+                    f.write(f"- partner: {pm}\n")
+                    f.write(f"- parrot0: {pa}\n\n")
+            log(f"transcript: {path}")
+        except Exception as e:
+            log(f"(could not write {path}: {e})")
+
+    # summary artifact, mirroring LLMSCORE.md (best session)
     try:
+        br = max(sessions, key=lambda s: s[1]) if sessions else (0, 0, None, [])
         with open(args.out, "w") as f:
-            f.write(f"# LONGTALK — conversational endurance with {args.model}\n\n")
-            f.write(f"_How many consecutive exchanges parrot0 held without dropping "
-                    f"the conversation on a blind wall._\n\n")
-            f.write(f"## Score: {reached} / {args.max}\n\n")
-            f.write("| # | partner | parrot0 | held? |\n|---|---------|---------|:----:|\n")
-            for i, (pm, pa) in enumerate(history, start=1):
+            f.write(f"# LONGTALK — conversational endurance ({args.lang}) with "
+                    f"{args.model}\n\n")
+            f.write(f"_Longest run of exchanges parrot0 held without dropping the "
+                    f"conversation on a blind wall._\n\n")
+            f.write(f"## Best score: {best} / {args.max}  (avg {avg:.1f}, "
+                    f"{len(scores)} session(s))\n\n")
+            f.write("| # | partner | parrot0 | flag |\n|---|---------|---------|:----:|\n")
+            for i, (pm, pa) in enumerate(br[3], start=1):
                 wall = is_wall(pa)
+                eng = args.lang == "it" and looks_english(pa)
+                flag = "WALL" if wall else ("EN?" if eng else "ok")
                 f.write(f"| {i} | {pm.replace('|','/')} | {pa.replace('|','/')} | "
-                        f"{'WALL' if wall else 'ok'} |\n")
+                        f"{flag} |\n")
         log(f"report saved: {args.out}")
     except Exception as e:
         log(f"(could not write {args.out}: {e})")

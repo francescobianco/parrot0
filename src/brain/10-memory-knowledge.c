@@ -711,6 +711,15 @@ static void current_lang(Brain *b, char *out, size_t sz) {
         snprintf(out, sz, "%s", hit[0]);
 }
 
+/* gen240 (universal-comprehension): emit a hardcoded reply in the CURRENT language.
+ * For the many C-literal replies not (yet) migrated to response_template/3, this
+ * picks the Italian wording when the session language is Italian, else English.
+ * Additive: a literal becomes localized just by giving it an `it` here. */
+static void tput(Brain *b, const char *en, const char *it, char *out, size_t sz) {
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    put((strcmp(lang, "it") == 0 && it && *it) ? it : en, out, sz);
+}
+
 /* Detect the turn's language from KB-first markers (language_marker/2) and, if it
  * differs from the recorded one, REPLACE the session fact. Sticky: a turn with no
  * exclusive marker keeps the prior language (so neutral turns don't flap). */

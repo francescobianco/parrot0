@@ -33,6 +33,35 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen240 (universal-comprehension): the process is session context — PID and
+     * the OS locale language are queryable session facts. */
+    if (cue(buf, "your pid") || cue(buf, "process id") || cue(buf, "process pid") ||
+        cue(buf, "il tuo pid") || (cue(buf, "pid") && cue(buf, "what"))) {
+        char v[1][KB_TERM_LEN];
+        const char *q[] = { NULL };
+        if (b->kb && kb_match(b->kb, "process_pid", q, 1, v, 1) > 0) {
+            char msg[64];
+            tput(b, "My process id is ", "Il mio PID è ", msg, sizeof msg);
+            size_t l = strlen(msg);
+            snprintf(msg + l, sizeof msg - l, "%s.", v[0]);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+    if ((cue(buf, "system language") || cue(buf, "os language") ||
+         cue(buf, "system locale") || cue(buf, "lingua del sistema") ||
+         cue(buf, "locale")) ) {
+        char v[1][KB_TERM_LEN];
+        const char *q[] = { NULL };
+        if (b->kb && kb_match(b->kb, "os_language", q, 1, v, 1) > 0) {
+            int it = strcmp(v[0], "it") == 0;
+            tput(b, it ? "The system locale is Italian." : "The system locale is English.",
+                 it ? "La lingua di sistema è l'italiano." : "La lingua di sistema è l'inglese.",
+                 out, out_size);
+            return 1;
+        }
+    }
+
     /* gen240 (universal-comprehension): "what have you created?" — list session
      * artifacts (files/dirs parrot0 made) from artifact/2 facts. */
     if ((cue(buf, "what") || cue(buf, "which") || cue(buf, "list")) &&
@@ -467,7 +496,7 @@ static int is_internal_pred(const char *pred) {
         "response_template",
         /* gen240: language detection substrate + the session's current-language
          * fact (state, not world knowledge the user taught). */
-        "language_marker", "language_name", "current_language", "utterance", "artifact",
+        "language_marker", "language_name", "current_language", "utterance", "artifact", "process_pid", "os_language",
         /* gen101: role/character world-knowledge (kb/core/roles.p0) is curated
          * base substrate for impersonation, not facts the user taught — filter it
          * from "how many facts do you know?" like the lexicon/social predicates. */
@@ -791,12 +820,16 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
               cue(buf, "tu sei") || cue(buf, "fai finta") || cue(buf, "comportati come");
 
     if (set && role_uptake(b, raw)) {
+        char lang[8]; current_lang(b, lang, sizeof lang);
+        int it = strcmp(lang, "it") == 0;
         char msg[160];
         if (b->role_name[0])
-            snprintf(msg, sizeof msg, "Alright — I am %s now.", b->role_name);
+            snprintf(msg, sizeof msg, it ? "Va bene — ora sono %s." :
+                     "Alright — I am %s now.", b->role_name);
         else if (b->role_kind[0])
-            snprintf(msg, sizeof msg, "Alright — I am a %s now.", b->role_kind);
-        else snprintf(msg, sizeof msg, "Alright.");
+            snprintf(msg, sizeof msg, it ? "Va bene — ora sono un %s." :
+                     "Alright — I am a %s now.", b->role_kind);
+        else snprintf(msg, sizeof msg, it ? "Va bene." : "Alright.");
         put(msg, out, out_size);
         return 1;
     }

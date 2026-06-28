@@ -16,7 +16,10 @@ BIN="$ROOT/bin/parrot0"
 CASES_DIR="$ROOT/tests/cases"
 
 # Hermetic: disable knowledge-file loading so cases don't depend on kb/.
-export PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0
+# gen240: pin the language to English so cases are deterministic regardless of the
+# developer's OS locale (current_language is seeded from the launching ENV). Cases
+# that exercise Italian replies switch via clear in-turn Italian markers.
+export PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_LANG=en
 
 if [ ! -x "$BIN" ]; then
     echo "test: binary not built ($BIN)" >&2

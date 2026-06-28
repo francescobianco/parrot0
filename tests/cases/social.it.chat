@@ -1,10 +1,12 @@
 # gen52 bilingual ratchet: the phatic register in Italian, same dialogue-act
 # layer. Markers are closed-class conversational "function words" (not content).
+# gen240: a lone "ciao" is a loanword (used in English too), so with a default
+# (en) locale it greets in English; the clear Italian markers below switch to IT.
 > ciao
 < Hi there!
 > grazie
-< You're welcome!
+< Prego!
 > come stai?
-< I'm well, thanks. How can I help?
+< Sto bene, grazie. Come posso aiutarti?
 > buongiorno
-< Hi there!
+< Ciao!

@@ -34,14 +34,14 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
         return 0;
 
     /* gratitude */
-    if (has_thanks) { put("You're welcome!", out, out_size); return 1; }
+    if (has_thanks) { tput(b, "You're welcome!", "Prego!", out, out_size); return 1; }
 
     /* apology — "scusa", "sorry", "mi dispiace" etc. */
-    if (has_apology) { put("No problem.", out, out_size); return 1; }
+    if (has_apology) { tput(b, "No problem.", "Nessun problema.", out, out_size); return 1; }
 
     /* wellbeing check-in — gen73: patterns from kb/core/social.p0 */
     if (has_social_pattern(b, "wellbeing", buf))
-        { put("I'm well, thanks. How can I help?", out, out_size); return 1; }
+        { tput(b, "I'm well, thanks. How can I help?", "Sto bene, grazie. Come posso aiutarti?", out, out_size); return 1; }
 
     /* gen225 (basic-chat cat.1): phatic speech acts beyond hello/bye/thanks —
      * valediction, felicitation, well-wishing, condolence, blessing, politeness.
@@ -65,13 +65,13 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
 
     /* position-disambiguated ambiguous marker: "ciao" opens early, closes late */
     if (has_ambiguous) {
-        put(b->turns <= 2 ? "Hi there!" : "Goodbye!", out, out_size);
+        tput(b, b->turns <= 2 ? "Hi there!" : "Goodbye!", b->turns <= 2 ? "Ciao!" : "Arrivederci!", out, out_size);
         return 1;
     }
 
     /* explicit opening / closing markers */
-    if (has_opening) { put("Hi there!", out, out_size); return 1; }
-    if (has_closing) { put("Goodbye!", out, out_size); return 1; }
+    if (has_opening) { tput(b, "Hi there!", "Ciao!", out, out_size); return 1; }
+    if (has_closing) { tput(b, "Goodbye!", "Arrivederci!", out, out_size); return 1; }
 
     /* gen72/gen73: laughter and conversational reactions — from kb/core/social.p0 */
     int has_reaction = 0;
@@ -93,7 +93,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
      * exclusion, phatic contact — greet and invite content, without listing it.
      * Pure numbers are not contact, so require an alphabetic token. */
     if (nw == 1 && b->turns <= 1 && isalpha((unsigned char)w[0][0])) {
-        put("Hi there! What would you like to talk about?", out, out_size);
+        tput(b, "Hi there! What would you like to talk about?", "Ciao! Di cosa ti va di parlare?", out, out_size);
         return 1;
     }
 
@@ -283,20 +283,22 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
     if (mood_down) {
         snprintf(b->user_mood, sizeof b->user_mood, "%s", mood_bored ? "bored" : "tired");
         b->has_user_mood = 1;
-        put("Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.",
-            out, out_size);
+        tput(b, "Sounds like a low-energy moment. We can keep it light — tell me one thing that happened, or ask me something small.",
+             "Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.", out, out_size);
         return 1;
     }
     if (mood_up) {
         snprintf(b->user_mood, sizeof b->user_mood, "%s", "happy");
         b->has_user_mood = 1;
-        put("Nice. Tell me what made it good, or give me a small thing to reason about.",
-            out, out_size);
+        tput(b, "Nice. Tell me what made it good, or give me a small thing to reason about.",
+             "Bene. Dimmi cosa l'ha resa bella, oppure dammi una cosetta su cui ragionare.", out, out_size);
         return 1;
     }
-    if (filler)    { put("Happy to just chat. Tell me a little, and I'll follow the thread as best I can.",
+    if (filler)    { tput(b, "Happy to just chat. Tell me a little, and I'll follow the thread as best I can.",
+                         "Volentieri, chiacchieriamo. Raccontami un po' e seguo il filo come meglio posso.",
                          out, out_size); return 1; }
-    if (casual)    { put("Hey! I'm here. Ask me something, or tell me about your day?",
+    if (casual)    { tput(b, "Hey! I'm here. Ask me something, or tell me about your day?",
+                         "Ehilà! Sono qui. Chiedimi qualcosa, o raccontami della tua giornata.",
                          out, out_size); return 1; }
 
     /* Generic affective contact (emoji/emoticon/laughter/emote/endearment and

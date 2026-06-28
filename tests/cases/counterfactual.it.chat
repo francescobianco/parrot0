@@ -11,7 +11,7 @@
 # "cosa avresti detto senza arith?" — suppress arith, re-dispatch: nothing else
 # does arithmetic for this turn, so it falls back. Computed by re-simulation.
 > cosa avresti detto senza arith?
-< Without 'arith', nothing else matches — I'd fall back to "I don't understand that yet."
+< Without 'arith', nothing else matches — I'd fall back to "Non capisco ancora."
 
 # Suppress a non-winner ("senza il modulo symbolic"): no change, arith ran first.
 > cosa avresti detto senza il modulo symbolic?
@@ -19,4 +19,4 @@
 
 # "cos'altro poteva rispondere?" — the else-form: suppress the winner and report.
 > cos'altro poteva rispondere?
-< Without 'arith', nothing else matches — I'd fall back to "I don't understand that yet."
+< Without 'arith', nothing else matches — I'd fall back to "Non capisco ancora."

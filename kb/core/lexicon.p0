@@ -335,7 +335,6 @@ stopword(again).
 language_name(en, "English").
 language_name(it, "Italian").
 % Italian-only markers (ASCII; do not occur as English words).
-language_marker(it, ciao).
 language_marker(it, grazie).
 language_marker(it, prego).
 language_marker(it, perche).
