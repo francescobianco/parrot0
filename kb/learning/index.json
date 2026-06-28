@@ -2260,6 +2260,23 @@
       "summary": "learned pythagorean_theorem: In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental...",
       "title": "Pythagorean theorem",
       "url": "https://en.wikipedia.org/wiki/Pythagorean_theorem"
+    },
+    {
+      "concept": "fundamental tool that quantifies the sensitivity to change of a function's output with respect to its input",
+      "domain": "mathematics",
+      "event_id": "learn_2026_06_28t16_43_22z_derivative",
+      "key": "derivative",
+      "log_path": "kb/learning/logs/learn_2026_06_28t16_43_22z_derivative.json",
+      "markdown_path": "kb/learning/pages/derivative.md",
+      "processed_at": "2026-06-28T16:43:22Z",
+      "prompt": "what do you know about learn_2026_06_28t16_43_22z_derivative",
+      "revision": 1358599947,
+      "source_index": 3,
+      "source_line": 13,
+      "source_title": "Derivative",
+      "summary": "learned derivative: fundamental tool that quantifies the sensitivity to change of a function's output with respect...",
+      "title": "Derivative",
+      "url": "https://en.wikipedia.org/wiki/Derivative"
     }
   ],
   "pages": {
@@ -2374,10 +2391,10 @@
       "domain": "mathematics",
       "extract_sha256": "c8e4533740dd80238c2020f661e42a891ddf7083c0c926e29800371f995d0501",
       "key": "derivative",
-      "last_event_id": "learn_2026_06_27t10_01_34z_derivative",
+      "last_event_id": "learn_2026_06_28t16_43_22z_derivative",
       "markdown_path": "kb/learning/pages/derivative.md",
       "pageid": 7921,
-      "processed_at": "2026-06-27T10:01:34Z",
+      "processed_at": "2026-06-28T16:43:22Z",
       "revision": 1358599947,
       "source_title": "Derivative",
       "title": "Derivative",
