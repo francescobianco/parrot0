@@ -1,14 +1,14 @@
 {
   "last_processed": {
-    "domain": "computer_science",
-    "event_id": "learn_2026_06_28t11_01_30z_turing_machine",
-    "key": "turing_machine",
-    "log_path": "kb/learning/logs/learn_2026_06_28t11_01_30z_turing_machine.json",
-    "markdown_path": "kb/learning/pages/turing_machine.md",
-    "processed_at": "2026-06-28T11:01:30Z",
-    "prompt": "what do you know about learn_2026_06_28t11_01_30z_turing_machine",
-    "revision": 1361332484,
-    "title": "Turing machine"
+    "domain": "astronomy",
+    "event_id": "learn_2026_06_28t11_55_55z_black_hole",
+    "key": "black_hole",
+    "log_path": "kb/learning/logs/learn_2026_06_28t11_55_55z_black_hole.json",
+    "markdown_path": "kb/learning/pages/black_hole.md",
+    "processed_at": "2026-06-28T11:55:55Z",
+    "prompt": "what do you know about learn_2026_06_28t11_55_55z_black_hole",
+    "revision": 1360460563,
+    "title": "Black hole"
   },
-  "next_index": 24
+  "next_index": 25
 }

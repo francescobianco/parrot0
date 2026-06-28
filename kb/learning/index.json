@@ -2175,6 +2175,23 @@
       "summary": "learned turing_machine: mathematical model of computation describing an abstract machine that manipulates symbols...",
       "title": "Turing machine",
       "url": "https://en.wikipedia.org/wiki/Turing_machine"
+    },
+    {
+      "concept": "astronomical body so compact that its gravity prevents anything, including light, from escaping",
+      "domain": "astronomy",
+      "event_id": "learn_2026_06_28t11_55_55z_black_hole",
+      "key": "black_hole",
+      "log_path": "kb/learning/logs/learn_2026_06_28t11_55_55z_black_hole.json",
+      "markdown_path": "kb/learning/pages/black_hole.md",
+      "processed_at": "2026-06-28T11:55:55Z",
+      "prompt": "what do you know about learn_2026_06_28t11_55_55z_black_hole",
+      "revision": 1360460563,
+      "source_index": 24,
+      "source_line": 46,
+      "source_title": "Black hole",
+      "summary": "learned black_hole: astronomical body so compact that its gravity prevents anything, including light, from escaping",
+      "title": "Black hole",
+      "url": "https://en.wikipedia.org/wiki/Black_hole"
     }
   ],
   "pages": {
@@ -2229,10 +2246,10 @@
       "domain": "astronomy",
       "extract_sha256": "25f33be0b7d527b603520aca3e4690bf3fd09c7dfee633c3ecb0137948e6f661",
       "key": "black_hole",
-      "last_event_id": "learn_2026_06_27t01_18_15z_black_hole",
+      "last_event_id": "learn_2026_06_28t11_55_55z_black_hole",
       "markdown_path": "kb/learning/pages/black_hole.md",
       "pageid": 4650,
-      "processed_at": "2026-06-27T01:18:15Z",
+      "processed_at": "2026-06-28T11:55:55Z",
       "revision": 1360460563,
       "source_title": "Black hole",
       "title": "Black hole",
