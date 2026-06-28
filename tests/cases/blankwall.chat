@@ -6,8 +6,11 @@
 < Learned: mortal(socrates).
 > what is Socrates?
 < socrates is a man; socrates is a mortal.
+# gen242: a "what is <X>?" gap is no longer a blank wall — it falls through to
+# mod_learn's INFORMED, self-documenting reply (read it up from the static
+# corpus, or honestly offer to) instead of "I don't know anything about X".
 > what is a_flamingo?
-< I don't know anything about a_flamingo.
+< I understood you're asking about a_flamingo, but I don't know it yet and have no source on it -- point me at one and I'll learn it.
 
 # gen146 (E5): open-domain humility. These are not answered from general
 # knowledge; parrot0 names the exact missing relation/predicate/tool and offers

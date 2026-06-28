@@ -313,6 +313,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         "learn about ", "research ", "look up ", "study ", "read up on ",
         "find out about ", "go learn about ",
         "cos'è un ", "cos'è una ", "cos'è uno ", "che cos'è ", "cos'è ",
+        /* gen242: "cosa è X" / "che cosa è X" — the spelled-out variant of cos'è.
+         * canonicalize_lang maps "è" -> "is" (but leaves "cosa"), so the head we
+         * must match is the post-canonical "cosa is " / "che cosa is ". */
+        "che cosa is ", "cosa is ",
         "parlami di ", "cosa sai di ", "chi è ", "impara ", "studia ",
         "informati su ", "documentati su ", NULL,
     };
@@ -376,15 +380,24 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
      * INFORMED decline (§2): name what was understood and be honest it can learn —
      * never a blind "I don't understand". */
     int st = acquire_knowledge(b, key, def, sizeof def);
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    int it = (strcmp(lang, "it") == 0);
     if (st == 2)
-        snprintf(msg, sizeof msg, "I already read up on %s: %s.", disp, def);
+        snprintf(msg, sizeof msg,
+                 it ? "Mi ero già documentato su %s: %s."
+                    : "I already read up on %s: %s.", disp, def);
     else if (st == 1)
         snprintf(msg, sizeof msg,
-                 "I didn't know about %s, so I just read it up: %s.", disp, def);
+                 it ? "Non conoscevo %s, così mi sono documentato: %s."
+                    : "I didn't know about %s, so I just read it up: %s.", disp, def);
     else
+        /* gen242: the INFORMED decline must announce, in the conversation's
+         * language, that parrot0 CAN document itself — never a blind wall. */
         snprintf(msg, sizeof msg,
-                 "I understood you're asking about %s, but I don't know it yet and "
-                 "have no source on it -- point me at one and I'll learn it.", disp);
+                 it ? "Ho capito che mi chiedi di %s, ma non lo conosco ancora: mi "
+                      "documento da fonti statiche, indicamene una e lo imparo."
+                    : "I understood you're asking about %s, but I don't know it yet and "
+                      "have no source on it -- point me at one and I'll learn it.", disp);
     put(msg, out, out_size);
     return 1;
 }

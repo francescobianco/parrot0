@@ -2703,13 +2703,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (kb_describe_entity(b->kb, entity, desc, sizeof desc)) {
             put(desc, out, out_size);
             store_proof(b, desc);
-        } else {
-            char msg[160];
-            snprintf(msg, sizeof msg, "I don't know anything about %s.", entity);
-            put(msg, out, out_size);
+            remember_entity(b, w[2], entity);
+            return 1;
         }
-        remember_entity(b, w[2], entity);
-        return 1;
+        /* gen242: unknown entity -> don't wall here. Fall through so mod_learn
+         * (registered last) gives the INFORMED, self-documenting reply: it can
+         * read the topic up from its static corpus, or honestly say it has no
+         * source yet -- never a blank "I don't know anything about X". */
     }
 
     /* gen157: emergent relational reasoning over descriptions. parrot0 was never
@@ -3225,7 +3225,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
     if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
         strcmp(w[1], "is") == 0) {
-        if (!kb_knows_pred(b->kb, cls)) { idk(cls, out, out_size); return 1; }
+        if (!kb_knows_pred(b->kb, cls)) {
+            /* gen242: "what is a <X>?" for an unknown class is a DEFINITION
+             * request -- fall through so mod_learn documents it (or honestly
+             * offers to). "who is a <X>?" stays a member query, so it keeps the
+             * gen16 idk wall ("Nobody that I know of." is the known-but-empty case). */
+            if (strcmp(w[0], "what") == 0) return 0;
+            idk(cls, out, out_size); return 1;
+        }
         const char *pat[] = {NULL}; /* one variable in arg 0 */
         char hits[64][KB_TERM_LEN];
         size_t k = kb_match(b->kb, cls, pat, 1, hits, 64);
