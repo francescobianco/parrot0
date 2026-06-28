@@ -32,7 +32,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test piagent-bench sortlearn-bench game-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -164,6 +164,14 @@ sym-bench: build
 # external + non-deterministic, NOT part of `make test`.
 llmscore: build
 	@$(BENCH_PY) ./tests/llmscore.py
+
+# longtalk-bench: how long can parrot0 hold a conversation with an LLM (default a
+# kimi slug on opencode-GO) before it DROPS the thread on a blind wall? Progressive
+# endurance score = longest run of exchanges held without "I don't understand".
+# The north-star metric for docs/plans/universal-comprehension.md. Needs
+# $OPENCODE_API_KEY + network; NOT part of `make test`.
+longtalk-bench: build
+	@$(BENCH_PY) ./tests/longtalk_bench.py $(LONGTALK_ARGS)
 
 test: build
 	@./tests/run.sh
