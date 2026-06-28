@@ -1,14 +1,14 @@
 {
   "last_processed": {
     "domain": "mathematics",
-    "event_id": "learn_2026_06_28t14_54_55z_fibonacci_number",
-    "key": "fibonacci_number",
-    "log_path": "kb/learning/logs/learn_2026_06_28t14_54_55z_fibonacci_number.json",
-    "markdown_path": "kb/learning/pages/fibonacci_number.md",
-    "processed_at": "2026-06-28T14:54:55Z",
-    "prompt": "what do you know about learn_2026_06_28t14_54_55z_fibonacci_number",
-    "revision": 1360660513,
-    "title": "Fibonacci sequence"
+    "event_id": "learn_2026_06_28t15_45_58z_pythagorean_theorem",
+    "key": "pythagorean_theorem",
+    "log_path": "kb/learning/logs/learn_2026_06_28t15_45_58z_pythagorean_theorem.json",
+    "markdown_path": "kb/learning/pages/pythagorean_theorem.md",
+    "processed_at": "2026-06-28T15:45:58Z",
+    "prompt": "what do you know about learn_2026_06_28t15_45_58z_pythagorean_theorem",
+    "revision": 1358746630,
+    "title": "Pythagorean theorem"
   },
-  "next_index": 2
+  "next_index": 3
 }

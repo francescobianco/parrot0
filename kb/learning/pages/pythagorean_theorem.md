@@ -1,11 +1,11 @@
 # Pythagorean theorem
 
-- Learning event: `learn_2026_06_27t09_13_07z_pythagorean_theorem`
-- Operational log: `kb/learning/logs/learn_2026_06_27t09_13_07z_pythagorean_theorem.json`
+- Learning event: `learn_2026_06_28t15_45_58z_pythagorean_theorem`
+- Operational log: `kb/learning/logs/learn_2026_06_28t15_45_58z_pythagorean_theorem.json`
 - Domain: `mathematics`
 - Source: https://en.wikipedia.org/wiki/Pythagorean_theorem
 - Wikipedia revision: `1358746630`
-- Processed: `2026-06-27T09:13:07Z`
+- Processed: `2026-06-28T15:45:58Z`
 
 ## Learned Concept
 

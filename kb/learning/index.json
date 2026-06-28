@@ -2243,6 +2243,23 @@
       "summary": "learned fibonacci_number: sequence in which each element is the sum of the two elements that precede it",
       "title": "Fibonacci sequence",
       "url": "https://en.wikipedia.org/wiki/Fibonacci_sequence"
+    },
+    {
+      "concept": "In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental relation in Euclidean geometry...",
+      "domain": "mathematics",
+      "event_id": "learn_2026_06_28t15_45_58z_pythagorean_theorem",
+      "key": "pythagorean_theorem",
+      "log_path": "kb/learning/logs/learn_2026_06_28t15_45_58z_pythagorean_theorem.json",
+      "markdown_path": "kb/learning/pages/pythagorean_theorem.md",
+      "processed_at": "2026-06-28T15:45:58Z",
+      "prompt": "what do you know about learn_2026_06_28t15_45_58z_pythagorean_theorem",
+      "revision": 1358746630,
+      "source_index": 2,
+      "source_line": 12,
+      "source_title": "Pythagorean theorem",
+      "summary": "learned pythagorean_theorem: In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental...",
+      "title": "Pythagorean theorem",
+      "url": "https://en.wikipedia.org/wiki/Pythagorean_theorem"
     }
   ],
   "pages": {
@@ -2582,10 +2599,10 @@
       "domain": "mathematics",
       "extract_sha256": "44096433f1f42fd44379423d2bb9849870332123a7f888c8c12d860dc1fa435f",
       "key": "pythagorean_theorem",
-      "last_event_id": "learn_2026_06_27t09_13_07z_pythagorean_theorem",
+      "last_event_id": "learn_2026_06_28t15_45_58z_pythagorean_theorem",
       "markdown_path": "kb/learning/pages/pythagorean_theorem.md",
       "pageid": 26513034,
-      "processed_at": "2026-06-27T09:13:07Z",
+      "processed_at": "2026-06-28T15:45:58Z",
       "revision": 1358746630,
       "source_title": "Pythagorean theorem",
       "title": "Pythagorean theorem",

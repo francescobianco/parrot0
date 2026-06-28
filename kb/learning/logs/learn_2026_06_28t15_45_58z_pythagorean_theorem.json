@@ -1,0 +1,40 @@
+{
+  "event_id": "learn_2026_06_28t15_45_58z_pythagorean_theorem",
+  "extraction": {
+    "concept": "In mathematics, the Pythagorean theorem or Pythagoras's theorem is a fundamental relation in Euclidean geometry...",
+    "concept_key": "pythagorean_theorem",
+    "extract_sha256": "44096433f1f42fd44379423d2bb9849870332123a7f888c8c12d860dc1fa435f",
+    "method": "deterministic_first_sentence_v1",
+    "no_ai": true
+  },
+  "files": {
+    "kb": "kb/learning/learned.p0",
+    "log": "kb/learning/logs/learn_2026_06_28t15_45_58z_pythagorean_theorem.json",
+    "manifest": "kb/learning/index.json",
+    "markdown": "kb/learning/pages/pythagorean_theorem.md",
+    "sources": "kb/learning/sources.tsv",
+    "state": "kb/learning/state.json"
+  },
+  "operational": {
+    "next_index": 3,
+    "status": "ok",
+    "user_agent": "parrot0-wikipedia-learner/1.0"
+  },
+  "processed_at": "2026-06-28T15:45:58Z",
+  "prompt": {
+    "extract_session": "what do you know about learn_2026_06_28t15_45_58z_pythagorean_theorem"
+  },
+  "source": {
+    "domain": "mathematics",
+    "index": 2,
+    "line": 12,
+    "title": "Pythagorean theorem"
+  },
+  "wikipedia": {
+    "canonical_title": "Pythagorean theorem",
+    "lang": "en",
+    "pageid": 26513034,
+    "revision": 1358746630,
+    "url": "https://en.wikipedia.org/wiki/Pythagorean_theorem"
+  }
+}
