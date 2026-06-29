@@ -1145,6 +1145,254 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* --- module: archetype (L10) ----------------------------------------------
+ * Symbol-agnostic relational inference, in ONE turn (docs/plans/generative-prolog.md).
+ *
+ * BEFORE knowledge there is the capacity to build the abstraction. A human shown
+ *
+ *     a>b   x:a   ⇒   x:b
+ *
+ * then asked   g>f   n:g   ⇒   ?   answers `n:f` WITHOUT knowing what a,b,x,>,:
+ * mean. The inference is purely STRUCTURAL: the symbols are arbitrary, already
+ * forgotten; what carries over is the relational skeleton (the archetype). This
+ * module recovers that capacity deterministically, the level below mod_fewshot:
+ * fewshot induces a transform over VALUES, this one abstracts the relational
+ * STRUCTURE itself and re-instantiates it on a held-out probe.
+ *
+ * Shape (flattened to one line; segments separated by ' / ' or ';'):
+ *     <demoP1> / <demoP2> / ... / <demoConcl> / <qP1> / <qP2> / ... / ?
+ * The demonstration is a fully worked example (premises + its conclusion); the
+ * query repeats the SAME number of premises and ends in '?'. So with K premises
+ * the turn has 2K+2 segments (even, last == '?').
+ *
+ * How it abstracts — alignment, not parsing of operators. Demo and query share
+ * the skeleton, so aligning them position by position tells constants from
+ * variables for free: a token IDENTICAL in demo and query is a relation symbol
+ * (constant); a token that DIFFERS is an atom (variable) whose demo value binds
+ * to the aligned query value. The bindings must be consistent — the SAME demo
+ * atom must always map to the SAME query atom — and that single rule is what
+ * enforces the archetype's shared structure (the "middle term" a in a>b, x:a is
+ * the same a, so the query's g>f, n:g must share g the same way, or we decline).
+ * The conclusion is then instantiated under those bindings.
+ *
+ * This needs NO table of operators: '>', ':', '~', or an invented glyph like '◇'
+ * are constants purely because they recur unchanged across demo and query. Two
+ * tokenizers are tried — word-runs first (multi-char ASCII atoms: cat>dog) and,
+ * failing that, single codepoints (so a MULTIBYTE operator like ◇ or ¤ is still
+ * seen as one constant). Novel symbols each turn ⇒ no phrasebook can fake it
+ * (PRINCIPLES.md). Recognized-but-uninstantiable ⇒ name the gap, never guess. */
+#define ARCH_MAXSEG  20
+#define ARCH_MAXPREM  8
+#define ARCH_MAXTOK  32
+#define ARCH_TOKLEN  24
+
+typedef struct { char t[ARCH_MAXTOK][ARCH_TOKLEN]; size_t n; } ArchSeq;
+typedef size_t (*ArchTok)(const char *seg, ArchSeq *out);
+
+/* tokenizer A: maximal runs of "atom" chars (ASCII alnum or any byte >= 0x80,
+ * i.e. UTF-8 letters) are one token; every other non-space byte (an ASCII
+ * operator) is its own single-char token. Handles multi-char ASCII atoms. */
+static int arch_is_atomchar(unsigned char c) { return c >= 0x80 || isalnum(c); }
+static size_t arch_tok_word(const char *s, ArchSeq *o) {
+    o->n = 0;
+    while (*s) {
+        unsigned char c = (unsigned char)*s;
+        if (c == ' ') { s++; continue; }
+        if (o->n >= ARCH_MAXTOK) return 0;
+        if (arch_is_atomchar(c)) {
+            size_t k = 0;
+            while (*s && arch_is_atomchar((unsigned char)*s)) {
+                if (k + 1 < ARCH_TOKLEN) o->t[o->n][k++] = *s;
+                s++;
+            }
+            o->t[o->n][k] = '\0';
+        } else {
+            o->t[o->n][0] = *s++; o->t[o->n][1] = '\0';
+        }
+        o->n++;
+    }
+    return o->n;
+}
+
+/* tokenizer B: one UTF-8 codepoint per token, so a multibyte operator (◇, ¤) is
+ * a single constant token. Atoms must then be single glyphs (the plan's case). */
+static size_t arch_tok_cp(const char *s, ArchSeq *o) {
+    o->n = 0;
+    while (*s) {
+        if (*s == ' ') { s++; continue; }
+        if (o->n >= ARCH_MAXTOK) return 0;
+        unsigned char c = (unsigned char)*s;
+        int len = 1;
+        if ((c & 0x80) == 0) len = 1;
+        else if ((c & 0xE0) == 0xC0) len = 2;
+        else if ((c & 0xF0) == 0xE0) len = 3;
+        else if ((c & 0xF8) == 0xF0) len = 4;
+        int k = 0;
+        for (; k < len && s[k]; k++) if ((size_t)k + 1 < ARCH_TOKLEN) o->t[o->n][k] = s[k];
+        o->t[o->n][k] = '\0';
+        o->n++; s += len;
+    }
+    return o->n;
+}
+
+/* Abstract the archetype from the worked demo and re-instantiate it on the query.
+ * Returns 1 with the conclusion written into `answer`, else 0 (no consistent
+ * archetype under this tokenizer). */
+static int arch_solve(const char **dprem, const char **qprem, size_t np,
+                      const char *dconcl, ArchTok tok,
+                      char *answer, size_t asz) {
+    ArchSeq d[ARCH_MAXPREM], q[ARCH_MAXPREM], c;
+    for (size_t i = 0; i < np; i++) {
+        if (!tok(dprem[i], &d[i]) || !tok(qprem[i], &q[i])) return 0;
+        if (d[i].n != q[i].n) return 0;          /* skeletons must align 1:1 */
+    }
+    if (!tok(dconcl, &c)) return 0;
+
+    char keys[64][ARCH_TOKLEN], vals[64][ARCH_TOKLEN]; int nb = 0;
+    char consts[128][ARCH_TOKLEN]; int nc = 0;
+
+    for (size_t i = 0; i < np; i++) {
+        for (size_t j = 0; j < d[i].n; j++) {
+            const char *dk = d[i].t[j], *qv = q[i].t[j];
+            if (strcmp(dk, qv) == 0) {                       /* constant (relation symbol) */
+                int seen = 0;
+                for (int k = 0; k < nc; k++) if (!strcmp(consts[k], dk)) { seen = 1; break; }
+                if (!seen && nc < 128) snprintf(consts[nc++], ARCH_TOKLEN, "%s", dk);
+            } else {                                         /* variable (atom) binding */
+                int found = 0;
+                for (int k = 0; k < nb; k++) if (!strcmp(keys[k], dk)) {
+                    if (strcmp(vals[k], qv) != 0) return 0;  /* inconsistent binding */
+                    found = 1; break;
+                }
+                if (!found) {
+                    if (nb >= 64) return 0;
+                    snprintf(keys[nb], ARCH_TOKLEN, "%s", dk);
+                    snprintf(vals[nb], ARCH_TOKLEN, "%s", qv);
+                    nb++;
+                }
+            }
+        }
+    }
+    /* a token that is both a constant somewhere and a variable elsewhere has an
+     * ambiguous role — reject (the archetype isn't clean). */
+    for (int a = 0; a < nb; a++)
+        for (int k = 0; k < nc; k++)
+            if (!strcmp(keys[a], consts[k])) return 0;
+    /* the map must be injective: distinct demo atoms -> distinct query atoms, or
+     * the query collapses the structure instead of instantiating it. */
+    for (int a = 0; a < nb; a++)
+        for (int z = a + 1; z < nb; z++)
+            if (!strcmp(vals[a], vals[z])) return 0;
+
+    size_t off = 0; answer[0] = '\0';
+    for (size_t j = 0; j < c.n; j++) {
+        const char *ct = c.t[j], *rep = NULL;
+        for (int k = 0; k < nb; k++) if (!strcmp(keys[k], ct)) { rep = vals[k]; break; }
+        if (!rep) {
+            int isc = 0;
+            for (int k = 0; k < nc; k++) if (!strcmp(consts[k], ct)) { isc = 1; break; }
+            if (!isc) return 0;                  /* conclusion token never grounded */
+            rep = ct;
+        }
+        off += (size_t)snprintf(answer + off, off < asz ? asz - off : 0, "%s", rep);
+    }
+    return off > 0;
+}
+
+/* True if `seg` looks like a relational term: no space, sane length, and carries
+ * at least one operator (an ASCII punctuation char or a non-ASCII glyph) — so
+ * plain prose words can never be mistaken for the archetype shape. */
+static int arch_seg_symbolic(const char *seg) {
+    size_t len = strlen(seg);
+    if (len < 2 || len >= 48) return 0;
+    int has_op = 0;
+    for (const char *p = seg; *p; p++) {
+        if (*p == ' ') return 0;
+        unsigned char c = (unsigned char)*p;
+        if (c >= 0x80 || (!isalnum(c))) has_op = 1;
+    }
+    return has_op;
+}
+
+static int mod_archetype(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)raw;
+
+    /* Split the turn into segments on ' / ' or ';' (the flattening separators a
+     * multi-line stimulus collapses to). Atoms/operators never contain these. */
+    char segbuf[ARCH_MAXSEG][64];
+    size_t nseg = 0, k = 0;
+    for (const char *p = norm; ; p++) {
+        if (*p == '/' || *p == ';' || *p == '\0') {
+            segbuf[nseg][k] = '\0';
+            /* trim */
+            char *s = segbuf[nseg];
+            while (*s == ' ') s++;
+            size_t e = strlen(s);
+            while (e && s[e - 1] == ' ') s[--e] = '\0';
+            if (*s) {
+                if (s != segbuf[nseg]) memmove(segbuf[nseg], s, strlen(s) + 1);
+                if (++nseg >= ARCH_MAXSEG) return 0;
+            }
+            k = 0;
+            if (*p == '\0') break;
+        } else if (k + 1 < 64) {
+            segbuf[nseg][k++] = *p;
+        } else return 0;
+    }
+
+    /* Shape gate: even count >= 4, last segment is the bare probe '?', every
+     * other segment is a relational term. */
+    if (nseg < 4 || nseg % 2 != 0) return 0;
+    if (strcmp(segbuf[nseg - 1], "?") != 0) return 0;
+    for (size_t i = 0; i < nseg - 1; i++)
+        if (!arch_seg_symbolic(segbuf[i])) return 0;
+
+    size_t half = nseg / 2, np = half - 1;       /* premises per block */
+    if (np < 1 || np > ARCH_MAXPREM) return 0;
+    if (!strcmp(segbuf[half - 1], "?")) return 0; /* demo must be worked */
+
+    const char *dprem[ARCH_MAXPREM], *qprem[ARCH_MAXPREM];
+    for (size_t i = 0; i < np; i++) { dprem[i] = segbuf[i]; qprem[i] = segbuf[half + i]; }
+    const char *dconcl = segbuf[half - 1];
+
+    char answer[ARCH_TOKLEN * ARCH_MAXTOK] = "";
+    int ok = arch_solve(dprem, qprem, np, dconcl, arch_tok_word, answer, sizeof answer);
+    if (!ok) ok = arch_solve(dprem, qprem, np, dconcl, arch_tok_cp, answer, sizeof answer);
+
+    /* Render the demo and query premise lists for the proof/reply. */
+    char demo[200] = "", qj[200] = "";
+    for (size_t i = 0; i < np; i++) {
+        strncat(demo, dprem[i], sizeof demo - strlen(demo) - 1);
+        if (i + 1 < np) strncat(demo, ", ", sizeof demo - strlen(demo) - 1);
+        strncat(qj, qprem[i], sizeof qj - strlen(qj) - 1);
+        if (i + 1 < np) strncat(qj, ", ", sizeof qj - strlen(qj) - 1);
+    }
+
+    if (!ok || !*answer) {
+        char msg[400];
+        snprintf(msg, sizeof msg,
+                 "I can see the shape (%s ⇒ %s as the worked example, then %s ⇒ ?), "
+                 "but %s doesn't instantiate that same relational structure, so I "
+                 "won't guess.", demo, dconcl, qj, qj);
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    char msg[420];
+    snprintf(msg, sizeof msg, "%s — same relational pattern as %s ⇒ %s, so %s ⇒ %s.",
+             answer, demo, dconcl, qj, answer);
+    put(msg, out, out_size);
+
+    char proof[420];
+    snprintf(proof, sizeof proof,
+             "the symbols are arbitrary; the worked example %s ⇒ %s fixes a "
+             "relational archetype, and applying it to %s yields %s.",
+             demo, dconcl, qj, answer);
+    store_proof(b, proof);
+    return 1;
+}
+
 /* --- module: fewshot (L10) ------------------------------------------------
  * In-context (few-shot) learning, in ONE turn. Given 2+ labelled examples and a
  * probe on a single line — "cat -> cats, dog -> dogs, bird -> ?" — induce the

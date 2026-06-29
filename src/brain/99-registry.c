@@ -146,6 +146,7 @@ static const Module registry[] = {
     {"abduce",    mod_abduce},
     {"role",      mod_role},
     {"self",      mod_self},
+    {"archetype", mod_archetype},
     {"fewshot",   mod_fewshot},
     {"compare",   mod_compare},
     {"algebra",   mod_algebra},

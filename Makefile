@@ -194,6 +194,7 @@ longtalk-bench: build
 
 test: build
 	@./tests/run.sh
+	@./tests/archetype.sh
 	@./tests/persist.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
