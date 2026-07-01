@@ -74,6 +74,19 @@ response_template(greeting_reply, "Hey! Good to see you.").
 % printf is now KNOWLEDGE. Each is a fact a runtime teach can rotate in:
 % "answer a keyboard riddle with \"…\"" adds a phrasing with no code edit. ---
 response_template(riddle_keyboard, "A keyboard.").
+% --- gen254: riddles as PURE KB — riddle_sig(Id, "cue") lists the required
+% substrings; when all of an Id's cues occur in the turn, its template answers.
+% Teaching a riddle = adding facts here, no C branch. ---
+response_template(riddle_polar_bear, "White -- if all four walls face south, the house stands at the North Pole, so the bear is a polar bear.").
+response_template(riddle_word_lengths, "It's a statement: 'what' has four letters, 'sometimes' has nine, 'never' has five.").
+response_template(riddle_river_crossing, "Take the goose first; bring the fox but carry the goose back; take the corn over; return for the goose.").
+response_template(riddle_echo, "An echo.").
+response_template(riddle_footsteps, "Footsteps.").
+response_template(riddle_candle, "A candle.").
+response_template(riddle_towel, "A towel.").
+response_template(riddle_needle, "A needle.").
+response_template(riddle_breath, "Your breath.").
+response_template(riddle_silence, "Silence.").
 response_template(riddle_map, "A map.").
 response_template(riddle_letter_m, "The letter M.").
 response_template(diff_fruit_vegetable, "A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.").

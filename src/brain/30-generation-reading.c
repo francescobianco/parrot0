@@ -631,7 +631,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         (cue(norm, "would you choose") || cue(norm, "would you pick") ||
          cue(norm, "would you visit") || cue(norm, "would you go") ||
          cue(norm, "would you want") || cue(norm, "which would you") ||
-         cue(norm, "what would you") || cue(norm, "where would you"))) {
+         cue(norm, "what would you") || cue(norm, "where would you") ||
+         /* gen254: "...what would it be?" is the same desire frame */
+         cue(norm, "what would it be") || cue(norm, "which would it be"))) {
         char db[256]; snprintf(db, sizeof db, "%s", norm);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         char topic[64] = "";

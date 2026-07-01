@@ -1951,6 +1951,32 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* fall through honestly if no mixing fact is known */
     }
 
+    /* gen254: classic riddles as PURE KB. riddle_sig(Id, "cue") lists each
+     * riddle's required substrings; when every cue of an Id occurs in the turn,
+     * response_template(Id, ...) answers. Teaching a new riddle is facts only —
+     * no C branch per riddle (the older per-riddle branches below stay as
+     * secondary structures per F.'s keep-and-select steer). */
+    {
+        char ids[64][KB_TERM_LEN];
+        const char *anyq3[] = { NULL, NULL };
+        size_t nid = kb_match(b->kb, "riddle_sig", anyq3, 2, ids, 64);
+        char done[16][KB_TERM_LEN]; size_t nd = 0;
+        for (size_t i = 0; i < nid; i++) {
+            int seen2 = 0;
+            for (size_t j = 0; j < nd; j++) if (!strcmp(done[j], ids[i])) seen2 = 1;
+            if (seen2 || nd >= 16) continue;
+            snprintf(done[nd++], KB_TERM_LEN, "%s", ids[i]);
+            const char *sq2[] = { ids[i], NULL };
+            char cues[8][KB_TERM_LEN];
+            size_t ncue = kb_match(b->kb, "riddle_sig", sq2, 2, cues, 8);
+            if (ncue < 2) continue;                /* one cue is too weak */
+            int all = 1;
+            for (size_t c = 0; c < ncue && all; c++)
+                if (!cue(norm, kb_dequote(cues[c]))) all = 0;
+            if (all && kb_response(b, ids[i], NULL, out, out_size)) return 1;
+        }
+    }
+
     if (cue(norm, "keys") && cue(norm, "locks") && cue(norm, "space") &&
         cue(norm, "room") && cue(norm, "enter")) {
         if (kb_response(b, "riddle_keyboard", NULL, out, out_size)) return 1;

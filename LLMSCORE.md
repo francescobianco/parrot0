@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-02 00:49:57._
+_Generated 2026-07-02 01:02:51._
 
-## Score: 6 / 10
+## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | If a rectangle has a perimeter of 24 cm and one side is 5 cm, what is the area? | I don't understand that yet. | The answer fails to solve a straightforward perimeter/area problem. | 0 |
-| 2 | What is the capital city of Australia? | Canberra. | Correct and direct answer to a simple factual question. | 1 |
-| 3 | Continue this sentence: "The old lighthouse stood on the cliff, its weathered stones whispering... | a faint light blinked far out on the dark water. | Successfully continues the creative writing prompt with relevant imagery. | 1 |
-| 4 | A farmer has 20 animals—chickens and rabbits. Together they have 56 legs. How many chickens does the farmer have? | I don't understand that yet. | Fails to solve a basic algebra word problem that any LLM can handle. | 0 |
-| 5 | What are the three primary colors in traditional painting? | Hmm, I don't know about primary yet. | Refuses to answer a basic knowledge question about primary colors. | 0 |
-| 6 | Write a short two-line poem about the ocean. | The ocean rolls in silver and in foam; it sings the oldest song of going home. | Successfully provides a two-line poem about the ocean as requested. | 1 |
-| 7 | Which planet is known as the Red Planet? | Mars is the Red Planet. | Correctly identifies Mars as the Red Planet. | 1 |
-| 8 | If you rearrange the letters in "listen," you can also form another common English word. What is it? | "silent". | Correctly identifies 'silent' as the anagram of 'listen'. | 1 |
-| 9 | What's your favorite type of weather and why do you enjoy it? | I don't have real preferences, but if I had to choose, I'd pick a light, steady rain. Who or what does "it" refer to? | Provides an answer to the preference question despite an odd follow-up question. | 1 |
-| 10 | Who was the first President of the United States? | I understood you're asking about first president of the united states: I tried to look it up, but I don't have a source to learn it from yet. | Dodges answering the well-known fact about the first US President. | 0 |
+| 1 | Write a haiku about autumn leaves. | Red leaves let go now / the wind carries them away / bare branches stay still. | The answer provides a correct haiku about autumn leaves with appropriate structure. | 1 |
+| 2 | If a bat and a ball cost $1.10 total, and the bat costs $1.00 more than the ball, how much does the ball cost? | $0.05. (Not $0.1: if one costs $1 more, the cheaper is (1.1-1)/2.) | The answer correctly solves the bat and ball math problem with clear reasoning. | 1 |
+| 3 | A man builds a house with all four walls facing south. A bear walks past the house. What color is the bear? | I don't understand that yet. | The answer fails to solve a straightforward riddle about the North Pole and bear color. | 0 |
+| 4 | Explain why the sky appears blue during the day. | Because sunlight scatters off the air, and blue light scatters the most. | The answer correctly explains Rayleigh scattering and why the sky is blue. | 1 |
+| 5 | Continue this sentence: "The old clock on the wall suddenly began to chime, even though no one had touched it... | No, 1 is not an even number. | The answer ignores the creative writing request and provides unrelated content. | 0 |
+| 6 | What has four letters, sometimes nine letters, but never five letters? | I don't understand that yet. | The answer fails to recognize or solve the classic 'four letters' riddle. | 0 |
+| 7 | If you could have dinner with any historical figure, who would you choose and why? | I don't have real desires, but for the prompt I'd invite Einstein, Socrates, and Cleopatra: to ask how he learned to think about space and time; to press every easy answer with better questions; and to hear how power, diplomacy, and survival looked from her side. | The answer engages thoughtfully with the hypothetical by naming three figures with specific reasons. | 1 |
+| 8 | A farmer needs to cross a river with a fox, a goose, and a sack of corn. The boat can only carry the farmer plus one item. If left alone together, the fox will eat the goose, and the goose will eat the corn. How does the farmer get everything across safely? | I don't understand that yet. | The answer fails to solve the classic fox-goose-corn river crossing puzzle. | 0 |
+| 9 | How many letters are in the word "strawberry"? | Hmm, I don't know about letters yet. | The answer cannot count letters in a word, a basic task for an LLM. | 0 |
+| 10 | If you could instantly master any skill, what would it be? | I don't understand that yet. | The answer refuses to engage with a simple hypothetical question about skills. | 0 |
 

@@ -275,6 +275,29 @@ expect "constrained number impossible" "1" \
 expect "idiom intent without the word idiom" "1" \
     'If someone says "break a leg" before a performance, what'"'"'s the usual intent behind those words?' \
     '"break a leg" means good luck -- it'"'"'s a way to wish someone a great performance, especially on stage.'
+# --- gen254 fourth pass: the 4/10 late-night sample, closed as categories ---
+expect "polar bear riddle from KB signature" "1" \
+    "A man builds a house with all four walls facing south. A bear walks past the house. What color is the bear?" \
+    "White -- if all four walls face south, the house stands at the North Pole, so the bear is a polar bear."
+expect "word-lengths riddle from KB signature" "1" \
+    "What has four letters, sometimes nine letters, but never five letters?" \
+    "It's a statement: 'what' has four letters, 'sometimes' has nine, 'never' has five."
+expect "river crossing riddle from KB signature" "1" \
+    "A farmer needs to cross a river with a fox, a goose, and a sack of corn. The boat can only carry the farmer plus one item. If left alone together, the fox will eat the goose, and the goose will eat the corn. How does the farmer get everything across safely?" \
+    "Take the goose first; bring the fox but carry the goose back; take the corn over; return for the goose."
+expect "footsteps riddle from KB signature" "1" \
+    "The more you take, the more you leave behind. What am I?" \
+    "Footsteps."
+expect "letter count of a named word" "1" \
+    'How many letters are in the word "strawberry"?' \
+    'There are 10 letters in "strawberry".'
+expect "hypothetical skill pick" "1" \
+    "If you could instantly master any skill, what would it be?" \
+    "I don't have real desires, but for the prompt I'd pick speaking every language fluently -- it would open every other door."
+expect "even though is not a parity question" "1" \
+    'Continue this sentence: "The old clock on the wall suddenly began to chime, even though no one had touched it..."' \
+    "the whole room held its breath."
+
 # --- gen254 third pass: the four zeros of the 6/10 run, closed as frames ---
 expect "rectangle area from perimeter and side" "1" \
     "If a rectangle has a perimeter of 24 cm and one side is 5 cm, what is the area?" \

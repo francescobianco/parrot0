@@ -1002,6 +1002,34 @@ river_of(washington_dc, "the Potomac River").
 river_of(vienna, "the Danube").
 river_of(cairo, "the Nile").
 ocean_west_of(australia, "the Indian Ocean").
+% gen254: riddle SIGNATURES — riddle_sig(Id, "cue") lists the substrings that
+% must all occur for response_template(Id, ...) in responses.p0 to answer.
+% World knowledge (which riddles exist), so it lives here; teaching a riddle
+% is facts only, no C branch.
+riddle_sig(riddle_polar_bear, "walls facing south").
+riddle_sig(riddle_polar_bear, "bear").
+riddle_sig(riddle_word_lengths, "four letters").
+riddle_sig(riddle_word_lengths, "nine letters").
+riddle_sig(riddle_word_lengths, "never").
+riddle_sig(riddle_river_crossing, "fox").
+riddle_sig(riddle_river_crossing, "goose").
+riddle_sig(riddle_river_crossing, "corn").
+riddle_sig(riddle_river_crossing, "boat").
+riddle_sig(riddle_echo, "speak without a mouth").
+riddle_sig(riddle_echo, "hear without ears").
+riddle_sig(riddle_footsteps, "the more you take").
+riddle_sig(riddle_footsteps, "the more you leave behind").
+riddle_sig(riddle_candle, "tall when").
+riddle_sig(riddle_candle, "young").
+riddle_sig(riddle_candle, "short when").
+riddle_sig(riddle_towel, "gets wetter").
+riddle_sig(riddle_towel, "dries").
+riddle_sig(riddle_needle, "one eye").
+riddle_sig(riddle_needle, "cannot see").
+riddle_sig(riddle_breath, "light as a feather").
+riddle_sig(riddle_breath, "hold it").
+riddle_sig(riddle_silence, "break it").
+riddle_sig(riddle_silence, "say its name").
 % gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
 % substring of the turn ("who was the first president of the united states?").
 % Teaching a new role is one fact.
@@ -1173,6 +1201,13 @@ default_pick(language, "Latin, for how much of other languages it explains").
 default_pick(instrument, "the piano").
 default_pick(subject, "astronomy").
 default_pick(superpower, "the ability to read any language").
+% gen254: more hypothetical-desire topics from live LLMSCORE probes.
+default_pick(skill, "speaking every language fluently -- it would open every other door").
+default_pick(talent, "perfect memory for everything I read").
+default_pick(job, "lighthouse keeper -- quiet, useful, and a good view").
+default_pick(color, "deep blue").
+default_pick(era, "the Renaissance, to watch art and science wake up together").
+default_pick(invention, "the printing press -- it multiplied every other idea").
 
 % gen240 (LLMSCORE): appearance/2 lets parrot0 DESCRIBE something it cannot see.
 % Asked "describe what a sunset looks like", it admits it has no senses but gives

@@ -454,11 +454,28 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < cnw; i++) {
             if (!strcmp(cw[i],"prime") || !strcmp(cw[i],"primo") || !strcmp(cw[i],"prima"))
                 wants_prime = 1;
-            else if (!strcmp(cw[i],"even") || !strcmp(cw[i],"pari")) wants_even = 1;
+            else if (!strcmp(cw[i],"even") || !strcmp(cw[i],"pari")) {
+                /* gen254 (repair): concessive "even though/if/so" is not the
+                 * number property; and a creative-continuation request must
+                 * never be read as a parity question ("...began to chime, even
+                 * though no one had touched it" answered "No, 1 is not even"). */
+                if (i + 1 < cnw && (!strcmp(cw[i+1],"though") ||
+                    !strcmp(cw[i+1],"if") || !strcmp(cw[i+1],"so") ||
+                    !strcmp(cw[i+1],"when"))) continue;
+                wants_even = 1;
+            }
             else if (!strcmp(cw[i],"odd") || !strcmp(cw[i],"dispari")) wants_odd = 1;
         }
+        if (cue(buf, "continue") || cue(buf, "complete this") ||
+            cue(buf, "finish this"))
+            wants_prime = wants_even = wants_odd = 0;
         if (gn == 1 && (wants_prime || wants_even || wants_odd)) {
             for (size_t i = 0; i < cnw; i++) {
+                /* "no one"/"someone" is a pronoun, not the number 1 */
+                if (i > 0 && !strcmp(cw[i], "one") &&
+                    (!strcmp(cw[i-1],"no") || !strcmp(cw[i-1],"some") ||
+                     !strcmp(cw[i-1],"any") || !strcmp(cw[i-1],"every")))
+                    continue;
                 double v; if (!parse_value(cw[i], &v)) continue;
                 if ((double)(long long)v != v) break;
                 long long n = (long long)v;

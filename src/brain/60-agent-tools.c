@@ -19,10 +19,40 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
     if (rl >= sizeof low) return 0;
     for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
 
-    /* Fire only on an explicit word-count request (EN + IT). */
-    int want_words = cue(low, "how many words") || cue(low, "count the words") ||
-                     cue(low, "quante parole")  || cue(low, "conta le parole");
-    if (!want_words) return 0;
+    /* Fire only on an explicit word-count request (EN + IT).
+     * gen254: letter counts ride the same seam — "how many letters are in the
+     * word strawberry?" is a deterministic count over the named token, not
+     * knowledge; the count is computed, never stored. */
+    int want_letters = cue(low, "how many letters") ||
+                       cue(low, "count the letters") ||
+                       cue(low, "quante lettere");
+    int want_words = !want_letters &&
+                     (cue(low, "how many words") || cue(low, "count the words") ||
+                      cue(low, "quante parole")  || cue(low, "conta le parole"));
+    if (!want_words && !want_letters) return 0;
+    if (want_letters) {
+        const char *p = strchr(low, ':');
+        if (p) p++;
+        else { p = strstr(low, " in "); if (p) p += 4; }
+        if (!p) return 0;
+        while (*p && isspace((unsigned char)*p)) p++;
+        if (!strncmp(p, "the word ", 9)) p += 9;
+        else if (!strncmp(p, "the name ", 9)) p += 9;
+        char word[128]; snprintf(word, sizeof word, "%s", p);
+        size_t wl = strlen(word);
+        while (wl > 0 && !isalpha((unsigned char)word[wl - 1])) word[--wl] = '\0';
+        char *ws = word;
+        while (*ws && !isalpha((unsigned char)*ws)) ws++;
+        size_t nl = 0;
+        for (const char *c = ws; *c; c++)
+            if (isalpha((unsigned char)*c)) nl++;
+        if (nl == 0) return 0;
+        char msg[220];
+        snprintf(msg, sizeof msg, "There are %zu letters in \"%s\".", nl, ws);
+        put(msg, out, out_size);
+        store_proof(b, "Counted the alphabetic characters of the named word.");
+        return 1;
+    }
 
     /* The text to count: prefer everything after a ':'; else after " in ". */
     const char *p = strchr(low, ':');
