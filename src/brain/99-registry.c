@@ -505,7 +505,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen253-llmscore-sample-broadening";
+    return "gen254-categories-not-prompts";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

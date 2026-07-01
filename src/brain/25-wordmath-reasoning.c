@@ -25,6 +25,31 @@ static int wp_recipe_unit(const char *s) {
            !strcmp(s, "pound") || !strcmp(s, "pounds");
 }
 
+/* gen254: length units for the circle-geometry frame (same closed-class scheme
+ * as wp_recipe_unit above). */
+static int wp_length_unit(const char *s) {
+    return !strcmp(s, "centimeter") || !strcmp(s, "centimeters") ||
+           !strcmp(s, "centimetre") || !strcmp(s, "centimetres") ||
+           !strcmp(s, "cm") || !strcmp(s, "mm") || !strcmp(s, "km") ||
+           !strcmp(s, "millimeter") || !strcmp(s, "millimeters") ||
+           !strcmp(s, "meter") || !strcmp(s, "meters") ||
+           !strcmp(s, "metre") || !strcmp(s, "metres") ||
+           !strcmp(s, "kilometer") || !strcmp(s, "kilometers") ||
+           !strcmp(s, "inch") || !strcmp(s, "inches") ||
+           !strcmp(s, "foot") || !strcmp(s, "feet") ||
+           !strcmp(s, "yard") || !strcmp(s, "yards") ||
+           !strcmp(s, "mile") || !strcmp(s, "miles") ||
+           !strcmp(s, "unit") || !strcmp(s, "units");
+}
+
+/* gen254: trial-division primality for the constrained-number solver. */
+static int wp_is_prime(long n) {
+    if (n < 2) return 0;
+    for (long d = 2; d * d <= n; d++)
+        if (n % d == 0) return 0;
+    return 1;
+}
+
 static void wp_pluralize(char *s, size_t sz, double qty) {
     size_t l = strlen(s);
     if (qty == 1.0 || l == 0 || l + 1 >= sz || s[l - 1] == 's') return;
@@ -746,11 +771,409 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen254 (LLMSCORE): elementary circle geometry. "a ripple has a radius of
+     * 12 centimeters, what is the approximate circumference?" -> 2*pi*r. The
+     * frame is measure(circumference|area) + given(radius|diameter, value
+     * [, unit]); the formula is fixed mathematics (like the arithmetic oracle),
+     * the numbers come from the turn, and the reply shows the computation as
+     * its own proof. */
+    if ((cue(q, "circumference") ||
+         (cue(q, "area") && (cue(q, "circle") || cue(q, "circular")))) &&
+        (cue(q, "radius") || cue(q, "diameter"))) {
+        char gb[256]; snprintf(gb, sizeof gb, "%s", q);
+        char *gw[64]; size_t gn = split_words(gb, gw, 64);
+        int have_r = cue(q, "radius") != 0;
+        double val = -1.0; char unit[32] = "";
+        for (size_t i = 0; i < gn && val < 0; i++) {
+            char *t = strip_edge_punct(gw[i]);
+            if (strcmp(t, have_r ? "radius" : "diameter")) continue;
+            for (size_t j = i + 1; j <= i + 3 && j < gn; j++) {
+                double v;
+                if (!parse_value(strip_edge_punct(gw[j]), &v)) continue;
+                val = v;
+                if (j + 1 < gn) {
+                    char *u = strip_edge_punct(gw[j + 1]);
+                    if (wp_length_unit(u)) snprintf(unit, sizeof unit, "%s", u);
+                }
+                break;
+            }
+        }
+        if (val > 0) {
+            const double PI = 3.14159265358979;
+            double r = have_r ? val : val / 2.0;
+            char msg[240];
+            if (cue(q, "circumference")) {
+                double c = 2.0 * PI * r;
+                snprintf(msg, sizeof msg,
+                         "About %.1f%s%s -- circumference = 2 x pi x radius = "
+                         "2 x 3.14159 x %g.",
+                         c, unit[0] ? " " : "", unit, r);
+                store_proof(b, "circumference = 2 * pi * radius");
+            } else {
+                double a = PI * r * r;
+                snprintf(msg, sizeof msg,
+                         "About %.1f%s%s%s -- area = pi x radius^2 = "
+                         "3.14159 x %g x %g.",
+                         a, unit[0] ? " square " : "", unit,
+                         unit[0] ? "" : " square units", r, r);
+                store_proof(b, "area = pi * radius^2");
+            }
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen254 (LLMSCORE): constrained-number riddle. "I'm thinking of a number.
+     * It is greater than 10, less than 20, and not prime. What could my number
+     * be?" The frame parses interval bounds plus number-theoretic predicates,
+     * ENUMERATES the candidates, and answers with the survivors — or proves the
+     * constraint set empty instead of inventing a number (NEXTMOVE gen253:
+     * inconsistent puzzles must fail honestly, with the impossible constraint
+     * named). */
+    if ((cue(q, "thinking of a number") || cue(q, "my number") ||
+         cue(q, "a number that") || cue(q, "the number is") ||
+         (cue(q, "number") && (cue(q, "could") || cue(q, "what is it")))) &&
+        (cue(q, "than") || cue(q, "between") || cue(q, "at least") ||
+         cue(q, "at most"))) {
+        char nb[256]; snprintf(nb, sizeof nb, "%s", q);
+        char *nw2[64]; size_t nn = split_words(nb, nw2, 64);
+        long lo = -1000000, hi = 1000000;
+        int got_bound = 0;
+        for (size_t i = 0; i < nn; i++) {
+            char *t = strip_edge_punct(nw2[i]);
+            double v;
+            if (!strcmp(t, "than") && i >= 1 && i + 1 < nn) {
+                char *prev = strip_edge_punct(nw2[i - 1]);
+                for (size_t j = i + 1; j <= i + 2 && j < nn; j++) {
+                    if (!parse_value(strip_edge_punct(nw2[j]), &v)) continue;
+                    if (!strcmp(prev, "greater") || !strcmp(prev, "more") ||
+                        !strcmp(prev, "bigger") || !strcmp(prev, "larger") ||
+                        !strcmp(prev, "higher")) {
+                        if ((long)v + 1 > lo) lo = (long)v + 1;
+                        got_bound = 1;
+                    } else if (!strcmp(prev, "less") || !strcmp(prev, "smaller") ||
+                               !strcmp(prev, "lower") || !strcmp(prev, "fewer")) {
+                        if ((long)v - 1 < hi) hi = (long)v - 1;
+                        got_bound = 1;
+                    }
+                    break;
+                }
+            } else if ((!strcmp(t, "least") || !strcmp(t, "most")) && i >= 1 &&
+                       i + 1 < nn &&
+                       !strcmp(strip_edge_punct(nw2[i - 1]), "at") &&
+                       parse_value(strip_edge_punct(nw2[i + 1]), &v)) {
+                if (!strcmp(t, "least")) { if ((long)v > lo) lo = (long)v; }
+                else { if ((long)v < hi) hi = (long)v; }
+                got_bound = 1;
+            } else if (!strcmp(t, "between") && i + 3 < nn &&
+                       parse_value(strip_edge_punct(nw2[i + 1]), &v) &&
+                       !strcmp(strip_edge_punct(nw2[i + 2]), "and")) {
+                double v2;
+                if (parse_value(strip_edge_punct(nw2[i + 3]), &v2)) {
+                    /* strict reading: any listed answer is valid under either */
+                    if ((long)v + 1 > lo) lo = (long)v + 1;
+                    if ((long)v2 - 1 < hi) hi = (long)v2 - 1;
+                    got_bound = 1;
+                }
+            } else if ((!strcmp(t, "above") || !strcmp(t, "over")) && i + 1 < nn &&
+                       parse_value(strip_edge_punct(nw2[i + 1]), &v)) {
+                if ((long)v + 1 > lo) lo = (long)v + 1;
+                got_bound = 1;
+            } else if ((!strcmp(t, "below") || !strcmp(t, "under")) && i + 1 < nn &&
+                       parse_value(strip_edge_punct(nw2[i + 1]), &v)) {
+                if ((long)v - 1 < hi) hi = (long)v - 1;
+                got_bound = 1;
+            }
+        }
+        /* number-theoretic predicates, with negation read first */
+        int want_notprime = cue(q, "not prime") || cue(q, "not a prime") ||
+                            cue(q, "isn't prime") || cue(q, "is not prime") ||
+                            cue(q, "composite");
+        int want_prime = !want_notprime && cue(q, "prime");
+        int want_odd  = (cue(q, "odd") && !cue(q, "not odd")) || cue(q, "not even");
+        int want_even = (cue(q, "even") && !cue(q, "not even")) || cue(q, "not odd");
+        long divby = 0; int notdiv = 0;
+        for (size_t i = 0; i + 1 < nn; i++) {
+            char *t = strip_edge_punct(nw2[i]);
+            double v;
+            if ((!strcmp(t, "divisible") || !strcmp(t, "multiple")) && i + 2 < nn &&
+                parse_value(strip_edge_punct(nw2[i + 2]), &v) && (long)v != 0) {
+                divby = (long)v;
+                notdiv = i >= 1 && !strcmp(strip_edge_punct(nw2[i - 1]), "not");
+            }
+        }
+        int have_pred = want_prime || want_notprime || want_odd || want_even ||
+                        divby != 0;
+        if (got_bound && lo >= -100000 && hi <= 100000 && hi >= lo &&
+            hi - lo <= 10000 && (have_pred || hi - lo <= 100)) {
+            long picks[9]; size_t np = 0; long total = 0;
+            for (long n = lo; n <= hi; n++) {
+                if (want_even && (n % 2 != 0)) continue;
+                if (want_odd && (n % 2 == 0)) continue;
+                if (divby && !notdiv && (n % divby != 0)) continue;
+                if (divby && notdiv && (n % divby == 0)) continue;
+                if (want_prime && !wp_is_prime(n)) continue;
+                if (want_notprime && wp_is_prime(n)) continue;
+                if (np < 9) picks[np++] = n;
+                total++;
+            }
+            char msg[300];
+            if (total == 0) {
+                snprintf(msg, sizeof msg,
+                         "No number fits: nothing from %ld to %ld satisfies all "
+                         "those constraints together.", lo, hi);
+            } else if (total == 1) {
+                snprintf(msg, sizeof msg, "It must be %ld -- the only number "
+                         "from %ld to %ld that fits.", picks[0], lo, hi);
+            } else {
+                size_t off = (size_t)snprintf(msg, sizeof msg, "It could be ");
+                size_t shown = np < 8 ? np : 8;
+                for (size_t k = 0; k < shown; k++)
+                    off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%ld",
+                                            k == 0 ? "" :
+                                            (k + 1 == shown && total <= 8
+                                                 ? (shown == 2 ? " or " : ", or ")
+                                                 : ", "),
+                                            picks[k]);
+                snprintf(msg + off, sizeof msg - off, "%s.",
+                         total > 8 ? ", among others" : "");
+            }
+            put(msg, out, out_size);
+            store_proof(b, "Enumerated the bounded range and kept the numbers "
+                           "satisfying every stated constraint.");
+            return 1;
+        }
+    }
+
+    /* gen254 (LLMSCORE): rectangle geometry. "perimeter of 24 cm and one side
+     * is 5 cm, what is the area?" -> other side = P/2 - s, area = s * other.
+     * Same fixed-mathematics family as the circle frame; the numbers bind to
+     * the named measures, and the reply carries its own derivation. */
+    if (cue(q, "rectangle") && cue(q, "perimeter") &&
+        (cue(q, "area") || cue(q, "side"))) {
+        char rb2[256]; snprintf(rb2, sizeof rb2, "%s", q);
+        char *rw2[64]; size_t rn2 = split_words(rb2, rw2, 64);
+        double per = -1, side = -1; char unit[32] = "";
+        for (size_t i = 0; i < rn2; i++) {
+            char *t = strip_edge_punct(rw2[i]);
+            int is_per = !strcmp(t, "perimeter");
+            int is_side = !strcmp(t, "side") || !strcmp(t, "width") ||
+                          !strcmp(t, "length");
+            if (!is_per && !is_side) continue;
+            for (size_t j = i + 1; j <= i + 3 && j < rn2; j++) {
+                double v;
+                if (!parse_value(strip_edge_punct(rw2[j]), &v)) continue;
+                if (is_per && per < 0) per = v;
+                if (is_side && side < 0) side = v;
+                if (j + 1 < rn2) {
+                    char *u = strip_edge_punct(rw2[j + 1]);
+                    if (!unit[0] && wp_length_unit(u))
+                        snprintf(unit, sizeof unit, "%s", u);
+                }
+                break;
+            }
+        }
+        /* "one side is 5" can also precede the word ("5 cm side") — fall back
+         * to the other number in the turn when the side slot stayed empty. */
+        if (per > 0 && side < 0) {
+            for (size_t i = 0; i < rn2 && side < 0; i++) {
+                double v;
+                if (parse_value(strip_edge_punct(rw2[i]), &v) && v != per)
+                    side = v;
+            }
+        }
+        if (per > 0 && side > 0 && cue(q, "area")) {
+            double other = per / 2.0 - side;
+            if (other > 0) {
+                char n1[32], n2[32], n3[32];
+                format_num(side, n1, sizeof n1);
+                format_num(other, n2, sizeof n2);
+                format_num(side * other, n3, sizeof n3);
+                char msg[240];
+                snprintf(msg, sizeof msg,
+                         "%s square %s -- the other side is %g/2 - %s = %s, "
+                         "and %s x %s = %s.",
+                         n3, unit[0] ? unit : "units", per, n1, n2, n1, n2, n3);
+                put(msg, out, out_size);
+                store_proof(b, "other = perimeter/2 - side; area = side * other");
+                return 1;
+            }
+            put("Those measures are inconsistent: half the perimeter is not "
+                "longer than the given side, so no rectangle fits.",
+                out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen254 (LLMSCORE): heads-and-legs puzzle — the SECOND two-unknown linear
+     * frame. "20 animals, chickens and rabbits, 56 legs: how many chickens?"
+     * The legs-per-species are KB facts (quantity(Species, legs, L)), so any
+     * species pair the KB knows solves with the same algebra:
+     * x + y = N, a*x + b*y = L  ->  x = (b*N - L) / (b - a). */
+    if (cue(q, "legs") && (cue(q, "how many") || cue(q, "quant"))) {
+        char hb[256]; snprintf(hb, sizeof hb, "%s", q);
+        char *hw2[64]; size_t hn2 = split_words(hb, hw2, 64);
+        char sp[2][KB_TERM_LEN]; double legs[2]; int nsp = 0;
+        for (size_t i = 0; i < hn2 && nsp < 2; i++) {
+            char sg[KB_TERM_LEN];
+            singularize(strip_edge_punct(hw2[i]), sg, sizeof sg);
+            if (!*sg) continue;
+            const char *lq[] = { sg, "legs", NULL };
+            char lh[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "quantity", lq, 3, lh, 1) == 0) continue;
+            int dup = nsp == 1 && !strcmp(sp[0], sg);
+            if (dup) continue;
+            snprintf(sp[nsp], KB_TERM_LEN, "%s", sg);
+            legs[nsp] = atof(lh[0]);
+            nsp++;
+        }
+        double total_n = -1, total_legs = -1;
+        for (size_t i = 1; i < hn2; i++) {
+            char *t = strip_edge_punct(hw2[i]);
+            double v;
+            if ((!strcmp(t, "legs") || !strcmp(t, "leg")) &&
+                parse_value(strip_edge_punct(hw2[i - 1]), &v)) total_legs = v;
+            if ((!strcmp(t, "animals") || !strcmp(t, "heads") ||
+                 !strcmp(t, "animali")) &&
+                parse_value(strip_edge_punct(hw2[i - 1]), &v)) total_n = v;
+        }
+        if (nsp == 2 && total_n > 0 && total_legs > 0 &&
+            legs[0] != legs[1]) {
+            /* which species is asked for? the one named after "how many". */
+            int asked = 0;
+            for (size_t i = 0; i + 1 < hn2; i++) {
+                if (strcmp(strip_edge_punct(hw2[i]), "many")) continue;
+                char sg[KB_TERM_LEN];
+                singularize(strip_edge_punct(hw2[i + 1]), sg, sizeof sg);
+                if (!strcmp(sg, sp[1])) asked = 1;
+                break;
+            }
+            double a = legs[asked], bl = legs[1 - asked];
+            double x = (bl * total_n - total_legs) / (bl - a);
+            double y = total_n - x;
+            if (x >= 0 && y >= 0 && x == (double)(long)x) {
+                char n1[32], n2[32];
+                format_num(x, n1, sizeof n1);
+                format_num(y, n2, sizeof n2);
+                char msg[240];
+                snprintf(msg, sizeof msg,
+                         "%s %ss (and %s %ss): %s x %g + %s x %g = %g legs.",
+                         n1, sp[asked], n2, sp[1 - asked],
+                         n1, a, n2, bl, total_legs);
+                put(msg, out, out_size);
+                store_proof(b, "x + y = heads and a*x + b*y = legs give "
+                               "x = (b*heads - legs)/(b - a).");
+                return 1;
+            }
+            put("Those counts don't work out to whole animals, so the puzzle "
+                "as stated has no consistent answer.", out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen254 (LLMSCORE): ratio age puzzle — a GENERAL two-unknown linear solve.
+     * "A father is four times as old as his son. In 20 years he will be twice
+     * as old. How old are they now?" reduces to a = K*b and a +/- N = M*(b +/- N),
+     * so b = N*(M-1)/(K-M) (future) or b = N*(1-M)/(K-M) (ago). The C parses the
+     * two ratio phrases and the year shift; the algebra is fixed mathematics.
+     * Equal ratios are named as inconsistent instead of dividing by zero. */
+    if (cue(q, "as old as") && (cue(q, "years") || cue(q, "year")) &&
+        (cue(q, "old are") || cue(q, "old is") || cue(q, "their ages") ||
+         cue(q, "how old"))) {
+        char ab[256]; snprintf(ab, sizeof ab, "%s", q);
+        char *aw[64]; size_t an = split_words(ab, aw, 64);
+        double K = 0, M = 0, N = 0;
+        char who_a[32] = "", who_b[32] = "";
+        int ago = cue(q, "ago") != 0;
+        for (size_t i = 2; i < an; i++) {
+            char *t = strip_edge_punct(aw[i]);
+            if (strcmp(t, "old")) continue;
+            if (strcmp(strip_edge_punct(aw[i - 1]), "as")) continue;
+            char *m2 = strip_edge_punct(aw[i - 2]);      /* "<mult> as old" */
+            double m = 0, v;
+            if (!strcmp(m2, "twice")) m = 2;
+            else if (!strcmp(m2, "thrice")) m = 3;
+            else if (!strcmp(m2, "times") && i >= 3 &&
+                     parse_value(strip_edge_punct(aw[i - 3]), &v)) m = v;
+            if (m <= 0) continue;
+            if (K <= 0) {
+                K = m;
+                /* entities: A before the copula, B after "as old as" */
+                for (size_t j = i - 2; j-- > 0;) {
+                    char *tj = strip_edge_punct(aw[j]);
+                    if (!strcmp(tj, "is") || !strcmp(tj, "was")) {
+                        if (j > 0) snprintf(who_a, sizeof who_a, "%s",
+                                            strip_edge_punct(aw[j - 1]));
+                        break;
+                    }
+                }
+                for (size_t j = i + 1; j + 1 < an; j++) {
+                    if (strcmp(strip_edge_punct(aw[j]), "as")) continue;
+                    char *tb = strip_edge_punct(aw[j + 1]);
+                    if (!strcmp(tb, "his") || !strcmp(tb, "her") ||
+                        !strcmp(tb, "the") || !strcmp(tb, "a") ||
+                        !strcmp(tb, "their")) {
+                        if (j + 2 < an) tb = strip_edge_punct(aw[j + 2]);
+                    }
+                    snprintf(who_b, sizeof who_b, "%s", tb);
+                    break;
+                }
+            } else if (M <= 0) M = m;
+        }
+        for (size_t i = 1; i < an && N == 0; i++) {
+            char *t = strip_edge_punct(aw[i]);
+            double v;
+            if ((!strcmp(t, "years") || !strcmp(t, "year")) &&
+                parse_value(strip_edge_punct(aw[i - 1]), &v)) N = v;
+        }
+        if (K > 0 && M > 0 && N > 0) {
+            if (K == M) {
+                put("Those two ratios can't both hold: if the ratio never "
+                    "changes, no ages fit. One of the constraints must be "
+                    "different.", out, out_size);
+                return 1;
+            }
+            double bage = ago ? N * (1 - M) / (K - M) : N * (M - 1) / (K - M);
+            double aage = K * bage;
+            if (bage > 0 && aage > 0) {
+                char nb2[64], na2[64];
+                format_num(bage, nb2, sizeof nb2);
+                format_num(aage, na2, sizeof na2);
+                char msg[220];
+                snprintf(msg, sizeof msg, "The %s is %s and the %s is %s.",
+                         who_b[0] ? who_b : "younger one", nb2,
+                         who_a[0] ? who_a : "older one", na2);
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                store_proof(b, "a = K*b and a + N = M*(b + N) give "
+                               "b = N*(M-1)/(K-M); then a = K*b.");
+                return 1;
+            }
+        }
+    }
+
     /* question guard: only attempt on an explicit "how many / how much / quanti…"
      * or a count phrasing ("maximum number of", "number of", "arrangements"). */
     if (!(cue(q, "how many") || cue(q, "how much") || cue(q, "quant") ||
           cue(q, "number of") || cue(q, "arrangement")))
         return 0;
+
+    /* gen254: an arrangement-OPTIMIZATION puzzle ("the maximum number of sheep
+     * that can be kept separate ... so that each area shares a fence with at
+     * least one other") is NOT a containers-times-per-container count; the
+     * multiply below would fabricate a number from incidental quantities. Name
+     * the missing solver instead of guessing (calibrated decline, NEXTMOVE
+     * gen253). */
+    if ((cue(q, "maximum") || cue(q, "minimum") || cue(q, "at most") ||
+         cue(q, "arrange") || cue(q, "arranged")) &&
+        (cue(q, "so that") || cue(q, "such that") || cue(q, "assuming") ||
+         cue(q, "shares") || cue(q, "share "))) {
+        put("That's a constrained-arrangement puzzle: I can read the quantities, "
+            "but I don't have a solver that can verify an optimal arrangement "
+            "under those sharing constraints, so I won't guess a number.",
+            out, out_size);
+        return 1;
+    }
 
     /* gen241 (LLMSCORE-check): containers x per-container, then add/remove deltas.
      * "A bookshelf has 5 shelves. Each shelf holds 12 books. If you remove 20 and add
@@ -1091,7 +1514,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     if (nn >= 3) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", q);
         char *tw[64]; size_t tnw = split_words(sb, tw, 64);
-        double result = 0; int have = 0, sign = 1;
+        double result = 0; int have = 0, sign = 1, ratio_applied = 0;
         int halve_to_pieces =
             (cue(q, "cut") || cue(q, "cuts") || cue(q, "slice") || cue(q, "sliced")) &&
             cue(q, "half") && (cue(q, "piece") || cue(q, "pieces"));
@@ -1117,6 +1540,30 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                     sign = -1;
             }
             if (wp_removal_word(t)) sign = -1;
+            /* gen254: RELATIVE quantity step — "twice/half of what I currently
+             * have/left" refers to the running total, not a literal number. A
+             * gain adds mult*total ("you give me twice what I have": 4 -> 12);
+             * a removal subtracts it ("I eat half of what I have": 4 -> 2). */
+            double mult = 0.0;
+            if (!strcmp(t, "twice") || !strcmp(t, "double")) mult = 2.0;
+            else if (!strcmp(t, "triple") || !strcmp(t, "thrice")) mult = 3.0;
+            else if (!strcmp(t, "half")) mult = 0.5;
+            if (mult > 0.0 && have) {
+                int rel = 0; size_t skip = i;
+                for (size_t j = i + 1; j <= i + 5 && j < tnw; j++) {
+                    char *lj = strip_edge_punct(tw[j]);
+                    if (!strcmp(lj, "have") || !strcmp(lj, "has") ||
+                        !strcmp(lj, "left") || !strcmp(lj, "hold") ||
+                        !strcmp(lj, "holds")) { rel = 1; skip = j; break; }
+                }
+                if (rel) {
+                    result += (double)sign * mult * result;
+                    ratio_applied = 1;
+                    i = skip;                     /* consume the whole phrase */
+                    if (trailing) sign = 1;
+                    continue;
+                }
+            }
             double v;
             if (parse_value(t, &v)) {
                 if (!have) { result = v; have = 1; }
@@ -1124,7 +1571,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             }
             if (trailing) sign = 1;
         }
-        if ((cue(q, "give half") || cue(q, "gave half") || cue(q, "gives half")) && result != 0)
+        if (!ratio_applied &&
+            (cue(q, "give half") || cue(q, "gave half") || cue(q, "gives half")) &&
+            result != 0)
             result /= 2;
         if (halve_to_pieces && result != 0)
             result *= 2;

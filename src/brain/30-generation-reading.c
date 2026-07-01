@@ -11,6 +11,63 @@ static int haiku_line(Brain *b, const char *pred, const char *concept,
     return 1;
 }
 
+/* gen254: morphological concept binding. An English compound keeps its modifier
+ * first (moonlight = moon+light, raindrops = rain+drops), so a turn word also
+ * binds a KB concept when the concept is a prefix of it. Guards: the concept
+ * must be >=4 chars and the remainder >=3 (so "car" never claims "cargo").
+ * Exact matches are always tried first by the callers; this is the fallback
+ * ENGINE rule that generalizes — no per-word alias facts needed. */
+static int stem_binds(const char *word, const char *concept) {
+    size_t cl = strlen(concept), wl = strlen(word);
+    if (cl == wl) return strcmp(word, concept) == 0;
+    return cl >= 4 && wl >= cl + 3 && strncmp(word, concept, cl) == 0;
+}
+
+/* Bind `word` to a concept that has `pred` facts: exact first, then the
+ * morphological prefix rule over every key of `pred`. */
+static int concept_bind(Brain *b, const char *pred, const char *word,
+                        char *concept, size_t concept_size) {
+    const char *eq[] = { word, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, pred, eq, 2, hit, 1) > 0) {
+        snprintf(concept, concept_size, "%s", word);
+        return 1;
+    }
+    char keys[96][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };
+    size_t kn = kb_match(b->kb, pred, anyq, 2, keys, 96);
+    for (size_t i = 0; i < kn; i++) {
+        if (stem_binds(word, keys[i])) {
+            snprintf(concept, concept_size, "%s", keys[i]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* gen254: a BARE POETIC FRAGMENT ("Raindrops tap the pond") — a short line with
+ * no question mark, no question word, no copula/auxiliary, and no imperative
+ * request verb. An interviewer offering a verse expects it continued, not
+ * walled. Shape-detected, not phrase-stored; ordinary statements and questions
+ * carry function words that fail the gate. */
+static int gen_poetic_fragment(const char *norm) {
+    if (cue(norm, "?")) return 0;
+    char pb[256]; snprintf(pb, sizeof pb, "%s", norm);
+    char *pw[16]; size_t pn = split_words(pb, pw, 16);
+    if (pn < 3 || pn > 8) return 0;
+    static const char *fnwords[] = {
+        "what","how","why","when","where","who","which","is","are","was",
+        "were","am","be","do","does","did","can","could","will","would",
+        "should","tell","write","name","list","give","make","explain",
+        "describe","say","show","let","please","i","you","my","your", NULL };
+    for (size_t i = 0; i < pn; i++) {
+        char *t = strip_edge_punct(pw[i]);
+        for (size_t k = 0; fnwords[k]; k++)
+            if (!strcmp(t, fnwords[k])) return 0;
+    }
+    return 1;
+}
+
 static int scene_from_cues(Brain *b, char **w, size_t nw,
                            char *scene, size_t scene_size) {
     if (!b || !b->kb || !scene || scene_size == 0) return 0;
@@ -19,7 +76,11 @@ static int scene_from_cues(Brain *b, char **w, size_t nw,
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         if (strlen(t) < 3) continue;
-        const char *sq[] = { t, NULL };
+        /* exact cue, else the morphological binding (raindrops -> rain) */
+        char cw2[KB_TERM_LEN];
+        const char *key = t;
+        if (concept_bind(b, "scene_cue", t, cw2, sizeof cw2)) key = cw2;
+        const char *sq[] = { key, NULL };
         char hits[8][KB_TERM_LEN];
         size_t hn = kb_match(b->kb, "scene_cue", sq, 2, hits, 8);
         for (size_t h = 0; h < hn; h++) {
@@ -178,12 +239,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < hn && nc < 2; i++) {
             char *t = strip_edge_punct(hw[i]);
             if (strlen(t) < 3) continue;
-            const char *q[] = { t, NULL };
-            char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "haiku_open", q, 2, hit, 1) == 0) continue;
+            /* gen254: bind by morphology too — "moonlight on water" reaches the
+             * moon lines through the same engine rule as raindrops -> rain. */
+            char cb2[KB_TERM_LEN];
+            if (!concept_bind(b, "haiku_open", t, cb2, sizeof cb2)) continue;
             int dup = 0;
-            for (int k = 0; k < nc; k++) if (!strcmp(concept[k], t)) dup = 1;
-            if (!dup) snprintf(concept[nc++], KB_TERM_LEN, "%s", t);
+            for (int k = 0; k < nc; k++) if (!strcmp(concept[k], cb2)) dup = 1;
+            if (!dup) snprintf(concept[nc++], KB_TERM_LEN, "%s", cb2);
         }
         if (nc >= 1) {
             const char *subj = concept[0];
@@ -399,6 +461,12 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                              cue(norm, "two different") || cue(norm, "two ways") ||
                              cue(norm, "two options") || cue(norm, "couple of")) wantn = 2;
                     if (wantn >= 2) {
+                        /* gen254: "in three different WAYS" asks for N alternative
+                         * completions of the SAME stem, not a story that moves on
+                         * — number them; keep the narrative leads for "three more
+                         * sentences" style requests. Single line either way (the
+                         * interviewer channel is line-based, gen252). */
+                        int ways = cue(norm, "ways") || cue(norm, "different");
                         static const char *lead[] = { "Then", "Soon", "At last," };
                         char msg[520]; size_t off = 0;
                         size_t lim = tn < wantn ? tn : wantn;
@@ -406,9 +474,14 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                             char *p = cont[k];
                             size_t l = strlen(p);
                             if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-                            off += (size_t)snprintf(msg + off, sizeof msg - off,
-                                                     "%s%s %s.", k ? " " : "",
-                                                     lead[k], p);
+                            if (ways)
+                                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                                        "%s%zu) ...%s.", k ? " " : "",
+                                                        k + 1, p);
+                            else
+                                off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                                        "%s%s %s.", k ? " " : "",
+                                                        lead[k], p);
                         }
                         put(msg, out, out_size);
                         return 1;
@@ -430,10 +503,59 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen254: a fresh short story on a named topic ("tell me a story about a
+     * lighthouse"). Reuses the SAME scene substrate as continuations: the topic
+     * binds through scene_cue/2 and the sentences are that scene's
+     * continuation_template/2 facts, chained with narrative leads. One line
+     * (the interviewer channel is line-based, gen252). Unknown topics get an
+     * informed decline that names real alternatives from the KB. */
+    if (cue(norm, "story about") || cue(norm, "tell me a story") ||
+        cue(norm, "tell a story") || cue(norm, "write a story") ||
+        cue(norm, "write me a story") || cue(norm, "make up a story")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *sw[48]; size_t sn = split_words(sb, sw, 48);
+        char picked_scene[KB_TERM_LEN];
+        /* story_scene/1 marks the scenes whose templates are standalone
+         * clauses; verb-phrase scenes (built to follow "the garden began
+         * to...") cannot open a story, so they fall to the honest decline. */
+        const char *ssq[2];
+        if (scene_from_cues(b, sw, sn, picked_scene, sizeof picked_scene) &&
+            (ssq[0] = picked_scene, ssq[1] = NULL,
+             kb_query(b->kb, "story_scene", ssq, 1))) {
+            const char *tq[] = { picked_scene, NULL };
+            char cont[4][KB_TERM_LEN];
+            size_t tn = kb_match(b->kb, "continuation_template", tq, 2, cont, 4);
+            if (tn >= 2) {
+                static const char *lead[] = { "", " Then", " At last," };
+                char msg[560]; size_t off = 0;
+                size_t lim = tn < 3 ? tn : 3;
+                for (size_t k = 0; k < lim; k++) {
+                    char *p = kb_dequote(cont[k]);
+                    if (k == 0 && *p)
+                        p[0] = (char)toupper((unsigned char)p[0]);
+                    off += (size_t)snprintf(msg + off, sizeof msg - off,
+                                            "%s %s.", lead[k], p);
+                }
+                put(msg + 1, out, out_size);   /* skip the leading space */
+                return 1;
+            }
+        }
+        put("I don't have story material for that topic yet -- I can tell one "
+            "about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk.",
+            out, out_size);
+        return 1;
+    }
     /* gen246: bare narrative continuation. If the previous turn was generated or
      * the user supplies an ellipsis-led story fragment, keep extending the scene
-     * from KB cues instead of treating the fragment as an unknown question. */
-    if ((cue(norm, "...") || strcmp(b->last_module, "gen") == 0) && !cue(norm, "?")) {
+     * from KB cues instead of treating the fragment as an unknown question.
+     * gen254: also claim a BARE POETIC FRAGMENT ("Raindrops tap the pond") — a
+     * short line with no question word, no copula/auxiliary, and no imperative
+     * request verb, whose content binds a KB scene. An interviewer offering a
+     * verse expects it continued, not walled. Detected by shape, not by any
+     * stored phrase; ordinary statements and questions carry function words
+     * that fail the gate, so this stays a last-resort poetic reading. */
+    if ((cue(norm, "...") || strcmp(b->last_module, "gen") == 0 ||
+         gen_poetic_fragment(norm)) && !cue(norm, "?")) {
         char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
         char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
         char picked_scene[KB_TERM_LEN];
@@ -449,6 +571,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             }
         }
     }
+
 
     /* gen235/240 (LLMSCORE): hypothetical historical-dinner question. The choices
      * and reasons are KB facts (figure_domain/2, figure_reason/2); this composes

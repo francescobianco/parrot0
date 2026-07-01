@@ -1,4 +1,48 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen254: from prompts to categories
+
+**Changed.** Two llmscore rounds in one turn, with F.'s mid-turn steer applied:
+the interview rotates every run, so items must close as CATEGORIES with engine
+rules, not per-prompt answers.
+
+Round one closed the gen253 sample (4/10): circle geometry (2*pi*r, pi*r^2)
+with the derivation in the reply; a constrained-number enumerator (bounds +
+prime/even/divisible predicates, proving "no solution" on empty sets); numbered
+multi-way sentence completions; `word_for/2` defining-phrase vocabulary
+(substring-matched like `idiom_meaning`); idiom INTENT without the word
+"idiom"; a calibrated decline for arrangement-optimization puzzles the solvers
+don't model; a story-on-request frame reusing the scene/continuation substrate
+(`story_scene/1` marks scenes with standalone clauses; unknown topics decline
+naming real alternatives).
+
+Round two (new sample, 6/10) generalized further: a RELATIVE step in the
+sequential-quantity walker ("give me twice what I currently have"); a general
+two-unknown linear family (ratio ages; heads+legs with per-species legs from
+KB `quantity/3` — the existing solver only lacked `quantity(rabbit, legs, 4)`,
+one fact); morphological concept binding in the engine (moonlight->moon,
+raindrops->rain: compound modifier-first rule, no alias facts); bare poetic
+fragments recognized by SHAPE and continued from scene KB; rectangle
+perimeter/side->area; "what are the three X" routed into the counted pick;
+`role_holder/2` for "who was the first X"; `capital_predecessor/2` composing
+into the compound-capital frame.
+
+Two precision bugs found by the harness: the possessive query read a spurious
+token when "my" was absent ("what's the usual intent behind those words?" ->
+"I don't know what your a is called."), and a compound category key built from
+an empty token became `_what` — a PROLOG VARIABLE — matching every category
+("give me 2 - what" listed colors). Audit rule: never build KB keys from
+unchecked user tokens; empty qualifiers must bail.
+
+Ratchets: +26 cases in `llmscore_world.sh` (95 total), both `.chat` fixtures
+moved off the blind wall for story requests (informed decline is Fase A
+behaviour), `make test` green at 423 PASS.
+
+**Observed.** Live `make llmscore`: 4/10 -> 3/10 (new sample, new categories)
+-> 6/10 after the generalization round; the four zeros of the 6/10 sample were
+closed the same day as frames. Recurring open categories: homophone phonology,
+compose leaking repair's clarification on an already-answered turn,
+percentages/fractions, calendar day arithmetic.
+
 ## 2026-07-01 - gen253: LLMSCORE sample broadening
 
 **Changed.** The next live `make llmscore` sample scored 4/10 and exposed

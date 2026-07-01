@@ -39,10 +39,10 @@
 # --- anti-impostor: a real (unfulfillable) request names a CONCRETE object, so it
 #     is NOT a fill-the-silence soft request — it gets the honest wall, not a move.
 > tell me a story about dragons
-< I don't understand that yet.
+< I don't have story material for that topic yet -- I can tell one about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk.
 
 # --- anti-impostor: a genuine knowledge question carries no pragmatic shape and
 #     no content the KB knows, so pragma declines and the honest wall stands (the
-#     prior turn was already the classic wall, so the non-repeating fallback varies).
+#     prior turn was an informed decline, not the classic wall, so the wall is fresh).
 > is the sky blue?
-< I didn't quite catch that. What would you like to know?
+< I don't understand that yet.

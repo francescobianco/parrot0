@@ -953,7 +953,10 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
      * count word and the category noun and returns that many distinct members. KB-first:
      * add a category_member fact and the capability extends for free. */
     if (cue(buf, "name ") || cue(buf, "list ") || cue(buf, "give me ") ||
-        cue(buf, "tell me ")) {
+        cue(buf, "tell me ") ||
+        /* gen254: the interrogative form of the same intent — "WHAT ARE the
+         * three primary colors?" is the counted pick phrased as a question. */
+        cue(buf, "what are") || cue(buf, "which are")) {
         if (cue(buf, "border") || cue(buf, "neighbour") || cue(buf, "neighbor"))
             return 0;
         static const struct { const char *w; int n; } nums[] = {
@@ -974,16 +977,23 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
             for (size_t i = nn0; i-- > numpos + 1;) {
                 char head[KB_TERM_LEN];
                 singularize(strip_edge_punct(nw0[i]), head, sizeof head);
+                /* gen254 (repair): an empty head, or a compound whose qualifier
+                 * strips to nothing ("- what" -> "_what"), must never reach the
+                 * KB: a leading '_' reads as a PROLOG VARIABLE and would match
+                 * every category ("give me 2 - what" listed colors). */
+                if (!head[0]) continue;
                 char members[64][KB_TERM_LEN];
                 size_t k = 0;
                 /* try a two-word compound category first ("primary colors" ->
                  * primary_color), so a qualified category beats the bare noun. */
                 if (i > numpos + 1) {
-                    char comp[KB_TERM_LEN];
-                    snprintf(comp, sizeof comp, "%s_%s",
-                             strip_edge_punct(nw0[i - 1]), head);
-                    const char *cpat[2] = { comp, NULL };
-                    k = kb_match(b->kb, "category_member", cpat, 2, members, 64);
+                    char *prevtok = strip_edge_punct(nw0[i - 1]);
+                    if (*prevtok) {
+                        char comp[KB_TERM_LEN];
+                        snprintf(comp, sizeof comp, "%s_%s", prevtok, head);
+                        const char *cpat[2] = { comp, NULL };
+                        k = kb_match(b->kb, "category_member", cpat, 2, members, 64);
+                    }
                 }
                 if (k == 0) {
                     const char *pat[2] = { head, NULL };

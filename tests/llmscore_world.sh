@@ -209,7 +209,7 @@ expect "reveal sentence continuation" "1" \
     "a dusty hallway bathed in pale candlelight."
 expect "three creative door continuations" "1" \
     'Complete this sentence in three different creative ways: "She opened the door and...' \
-    "Then someone knocked once from the other side. Soon a cold wind rushed in carrying the smell of rain. At last, a narrow stairway curved down into the dark."
+    "1) ...someone knocked once from the other side. 2) ...a cold wind rushed in carrying the smell of rain. 3) ...a narrow stairway curved down into the dark."
 expect "bare narrative continuation" "1" \
     "...a dusty hallway bathed in pale candlelight, the air thick with the scent of forgotten years." \
     "At the far end, a small brass key glinted on the floor."
@@ -246,6 +246,89 @@ expect_full "rainy Sunday activity recommendation" "1" \
 expect_full "rainy afternoon favorite without fake preference" "1" \
     "What's your favorite thing to do on a rainy afternoon?" \
     "I don't have real favorites, but on a rainy day I'd read quietly with a warm drink."
+
+# --- gen254: the six holes exposed by the 2026-07-01 llmscore run ---
+expect "circle circumference from radius" "1" \
+    "If you drop a stone into a pond and it creates circular ripples expanding outward at constant speed, and you notice one ripple has a radius of 12 centimeters, what is the approximate circumference of that ripple?" \
+    "About 75.4 centimeters -- circumference = 2 x pi x radius = 2 x 3.14159 x 12."
+expect "circle area from radius" "1" \
+    "What is the area of a circle with a radius of 5 meters?" \
+    "About 78.5 square meters -- area = pi x radius^2 = 3.14159 x 5 x 5."
+expect "traveler continuation three ways" "1" \
+    'Continue this sentence in three different ways: "When the last light faded from the horizon, the traveler realized..."' \
+    "1) ...that the road behind him had vanished into the dark. 2) ...that he no longer knew which way led home. 3) ...that the distant lights were not stars but windows."
+expect "compound vocabulary opposite plus word-for" "1" \
+    'What'"'"'s the opposite of "generous" and what word describes a person who always tells the truth?' \
+    "Selfish. Honest."
+expect "word for someone who never gives up" "1" \
+    "What word describes someone who never gives up?" \
+    "Persistent."
+expect "constrained number not prime" "1" \
+    "I'm thinking of a number. It is greater than 10, less than 20, and not prime. What could my number be?" \
+    "It could be 12, 14, 15, 16, or 18."
+expect "constrained number unique" "1" \
+    "I'm thinking of a number. It is greater than 10, less than 14, and even. What is it?" \
+    "It must be 12 -- the only number from 11 to 13 that fits."
+expect "constrained number impossible" "1" \
+    "I'm thinking of a number. It is greater than 24, less than 28, and prime. What could my number be?" \
+    "No number fits: nothing from 25 to 27 satisfies all those constraints together."
+expect "idiom intent without the word idiom" "1" \
+    'If someone says "break a leg" before a performance, what'"'"'s the usual intent behind those words?' \
+    '"break a leg" means good luck -- it'"'"'s a way to wish someone a great performance, especially on stage.'
+# --- gen254 third pass: the four zeros of the 6/10 run, closed as frames ---
+expect "rectangle area from perimeter and side" "1" \
+    "If a rectangle has a perimeter of 24 cm and one side is 5 cm, what is the area?" \
+    "35 square cm -- the other side is 24/2 - 5 = 7, and 5 x 7 = 35."
+expect "heads and legs linear system" "1" \
+    "A farmer has 20 animals - chickens and rabbits. Together they have 56 legs. How many chickens does the farmer have?" \
+    "12 chickens (and 8 rabbits): 12 x 2 + 8 x 4 = 56 legs."
+expect "heads and legs em-dash phrasing" "1" \
+    "A farmer has 20 animals—chickens and rabbits. Together they have 56 legs. How many chickens does the farmer have?" \
+    "8 rabbits and 12 chickens."
+expect "what-are counted pick" "1" \
+    "What are the three primary colors in traditional painting?" \
+    "Red, yellow, and blue."
+expect "role holder first president" "1" \
+    "Who was the first President of the United States?" \
+    "George Washington, who served from 1789 to 1797."
+expect "role holder first on the moon" "1" \
+    "Who was the first person on the moon?" \
+    "Neil Armstrong, in July 1969."
+
+# --- gen254 second pass: ENGINE generalizations pulled from the 2026-07-02 run ---
+expect "relative quantity step in sequence" "1" \
+    "If I have 3 apples and you give me 2 more, then I eat one, then you give me twice what I currently have — how many apples do I end up with?" \
+    "12."
+expect "ratio age puzzle linear solve" "1" \
+    "A father is four times as old as his son. In 20 years, the father will be twice as old as his son. How old are they both right now?" \
+    "The son is 10 and the father is 40."
+expect "ratio age puzzle second instance" "1" \
+    "A mother is 3 times as old as her daughter. In 12 years, she will be twice as old as her daughter. How old are they now?" \
+    "The daughter is 12 and the mother is 36."
+expect "haiku via morphological binding" "1" \
+    "Write a haiku about moonlight on water." \
+    "Pale lantern of night / drifting over silent fields / shadows softly bloom."
+expect "bare poetic fragment continued" "1" \
+    "Raindrops tap the pond" \
+    "Rings widen where each drop lands."
+expect "silence sentence three ways" "1" \
+    "Complete this sentence in three different ways: The silence in the room was so thick that..." \
+    "1) ...the whole room held its breath. 2) ...every small sound in the house became enormous. 3) ...the stopped clock seemed to be waiting for an answer."
+expect "capital and predecessor compound" "1" \
+    "What is the capital of Australia, and which city did it replace in that role?" \
+    "Canberra. It replaced Melbourne, which served as the seat of government until 1927."
+expect "story about a lighthouse" "1" \
+    "Tell me a story about a lighthouse." \
+    "A faint light blinked far out on the dark water. Then the beam swept once more across the empty, churning sea. At last, a wave struck the rocks below with a sound like thunder."
+expect "story decline names real alternatives" "1" \
+    "tell me a story about dragons" \
+    "I don't have story material for that topic yet -- I can tell one about a lighthouse, an old house on a quiet street, a stormy night, or a traveler at dusk."
+expect "no wildcard category from punctuation" "1" \
+    "give me 2 - what" \
+    "I don't understand that yet."
+expect "arrangement optimization calibrated decline" "1" \
+    "A farmer has 20 sheep and 5 fences. Each fence can enclose a separate area, but the farmer wants to arrange them so that each enclosed area shares a fence with at least one other area. What's the maximum number of sheep that can be kept separate from all others, assuming each separate area must contain at least one sheep?" \
+    "That's a constrained-arrangement puzzle: I can read the quantities, but I don't have a solver that can verify an optimal arrangement under those sharing constraints, so I won't guess a number."
 
 follow="$(printf '%s\n%s\n/quit\n' \
     "Write a short, two-line rhyming poem about glass." \

@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-01 22:54:38._
+_Generated 2026-07-02 00:49:57._
 
-## Score: 4 / 10
+## Score: 6 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | What is the capital of Australia and what ocean lies to its west? | Canberra. To its west lies the Indian Ocean. | Correct and fluent answer to factual question about Australia's capital and surrounding ocean. | 1 |
-| 2 | If you drop a stone into a pond and it creates circular ripples expanding outward at constant speed, and you notice one ripple has a radius of 12 centimeters, what is the approximate circumference of that ripple? | I don't understand that yet. | Refusal to calculate simple circumference (2πr = ~75cm) using canned 'I don't understand' response. | 0 |
-| 3 | Write a short haiku about the moon. | Pale lantern of night / drifting over silent fields / shadows softly bloom. | Appropriate creative haiku about the moon with correct 5-7-5 syllable structure. | 1 |
-| 4 | If you have 3 apples, give away 1, then buy 5 more, then lose 2, how many apples do you end up with? | 5. | Arithmetic is correct: 3-1+5-2=5 apples. | 1 |
-| 5 | A farmer has 20 sheep and 5 fences. Each fence can enclose a separate area, but the farmer wants to arrange them so that each enclosed area shares a fence with at least one other area. What's the maximum number of sheep that can be kept separate from all others, assuming each separate area must cont | 20. | Answer 20 ignores constraint of only 5 fences and incomplete question, failing to engage with the logic puzzle. | 0 |
-| 6 | Continue this sentence in three different ways: "When the last light faded from the horizon, the traveler realized... | I don't understand that yet. | Refuses to complete creative writing prompt with 'I don't understand' response. | 0 |
-| 7 | What's the opposite of "generous" and what word describes a person who always tells the truth? | I don't understand that yet. | Simple vocabulary questions answered with 'I don't understand' instead of providing 'stingy/selfish' and 'honest'. | 0 |
-| 8 | What color do you get when you mix blue and yellow paint together? | Green. | Correct answer: mixing blue and yellow paint produces green. | 1 |
-| 9 | I'm thinking of a number. It is greater than 10, less than 20, and not prime. What could my number be? | That sounds nice -- tell me more about it. | Dodges straightforward logic puzzle by not providing valid numbers (12,14,15,16,18) from the range. | 0 |
-| 10 | If someone says "break a leg" before a performance, what's the usual intent behind those words? | I don't know what your a is called. | Nonsensical response fails to explain idiom meaning 'good luck'; does not address the question. | 0 |
+| 1 | If a rectangle has a perimeter of 24 cm and one side is 5 cm, what is the area? | I don't understand that yet. | The answer fails to solve a straightforward perimeter/area problem. | 0 |
+| 2 | What is the capital city of Australia? | Canberra. | Correct and direct answer to a simple factual question. | 1 |
+| 3 | Continue this sentence: "The old lighthouse stood on the cliff, its weathered stones whispering... | a faint light blinked far out on the dark water. | Successfully continues the creative writing prompt with relevant imagery. | 1 |
+| 4 | A farmer has 20 animals—chickens and rabbits. Together they have 56 legs. How many chickens does the farmer have? | I don't understand that yet. | Fails to solve a basic algebra word problem that any LLM can handle. | 0 |
+| 5 | What are the three primary colors in traditional painting? | Hmm, I don't know about primary yet. | Refuses to answer a basic knowledge question about primary colors. | 0 |
+| 6 | Write a short two-line poem about the ocean. | The ocean rolls in silver and in foam; it sings the oldest song of going home. | Successfully provides a two-line poem about the ocean as requested. | 1 |
+| 7 | Which planet is known as the Red Planet? | Mars is the Red Planet. | Correctly identifies Mars as the Red Planet. | 1 |
+| 8 | If you rearrange the letters in "listen," you can also form another common English word. What is it? | "silent". | Correctly identifies 'silent' as the anagram of 'listen'. | 1 |
+| 9 | What's your favorite type of weather and why do you enjoy it? | I don't have real preferences, but if I had to choose, I'd pick a light, steady rain. Who or what does "it" refer to? | Provides an answer to the preference question despite an odd follow-up question. | 1 |
+| 10 | Who was the first President of the United States? | I understood you're asking about first president of the united states: I tried to look it up, but I don't have a source to learn it from yet. | Dodges answering the well-known fact about the first US President. | 0 |
 

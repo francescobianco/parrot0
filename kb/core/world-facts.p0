@@ -197,6 +197,76 @@ opposite(future, past).
 opposite(past, future).
 opposite(ephemeral, permanent).
 opposite(permanent, ephemeral).
+% --- gen254: character/abstract antonyms (LLMSCORE probes vocabulary breadth) ---
+opposite(generous, selfish).
+opposite(selfish, generous).
+opposite(honest, dishonest).
+opposite(dishonest, honest).
+opposite(optimistic, pessimistic).
+opposite(pessimistic, optimistic).
+opposite(humble, arrogant).
+opposite(arrogant, humble).
+opposite(scarce, abundant).
+opposite(abundant, scarce).
+opposite(victory, defeat).
+opposite(defeat, victory).
+opposite(transparent, opaque).
+opposite(opaque, transparent).
+opposite(polite, rude).
+opposite(rude, polite).
+opposite(patient, impatient).
+opposite(impatient, patient).
+opposite(innocent, guilty).
+opposite(guilty, innocent).
+opposite(courage, cowardice).
+opposite(cowardice, courage).
+opposite(success, failure).
+opposite(failure, success).
+opposite(simple, complex).
+opposite(complex, simple).
+opposite(visible, invisible).
+opposite(invisible, visible).
+opposite(flexible, rigid).
+opposite(rigid, flexible).
+opposite(temporary, permanent).
+opposite(cautious, reckless).
+opposite(reckless, cautious).
+opposite(lazy, diligent).
+opposite(diligent, lazy).
+
+% --- gen254: defining-phrase vocabulary — word_for(KeyPhrase, Word). The phrase
+% is matched as a substring of the turn (like idiom_meaning), so "what word
+% describes a person who always tells the truth?" resolves without quoting.
+% Teaching a new entry is one fact, no code edit. ---
+word_for("always tells the truth", honest).
+word_for("never tells the truth", dishonest).
+word_for("never gives up", persistent).
+word_for("always arrives on time", punctual).
+word_for("always on time", punctual).
+word_for("talks a lot", talkative).
+word_for("is afraid of nothing", fearless).
+word_for("fears nothing", fearless).
+word_for("cannot read or write", illiterate).
+word_for("can read and write", literate).
+word_for("eats no meat", vegetarian).
+word_for("eats only plants", herbivore).
+word_for("eats both plants and meat", omnivore).
+word_for("eats only meat", carnivore).
+word_for("studies the stars", astronomer).
+word_for("studies living things", biologist).
+word_for("writes books", author).
+word_for("collects stamps", philatelist).
+word_for("loves books", "an avid reader").
+word_for("speaks two languages", bilingual).
+word_for("speaks many languages", polyglot).
+word_for("works without pay", volunteer).
+word_for("fear of heights", acrophobia).
+word_for("fear of enclosed spaces", claustrophobia).
+word_for("fear of spiders", arachnophobia).
+word_for("thinks only of themselves", selfish).
+word_for("gives freely to others", generous).
+word_for("keeps a secret", discreet).
+word_for("uses the left hand", "left-handed").
 
 % --- gen240 (LLMSCORE): known-fact counting. quantity(Entity, Unit, N) reifies
 % "an Entity has N Unit" — answered by the recall parser in 25-wordmath-reasoning.c
@@ -218,6 +288,7 @@ quantity(cat, legs, 4).
 quantity(horse, legs, 4).
 quantity(cow, legs, 4).
 quantity(chicken, legs, 2).
+quantity(rabbit, legs, 4).
 quantity(hen, legs, 2).
 quantity(duck, legs, 2).
 quantity(bird, legs, 2).
@@ -597,6 +668,11 @@ kind_is(eagle, bird).
 kind_is(salmon, fish).
 
 % --- gen235 (LLMSCORE): tiny narrative continuation substrate.
+% gen254: the scene word itself and near-synonyms must also bind the scene.
+scene_cue(silence, silence).
+scene_cue(silent, silence).
+scene_cue(quiet, silence).
+scene_cue(hush, silence).
 scene_cue(clock, silence).
 scene_cue(ticking, silence).
 scene_cue(stopped, silence).
@@ -660,6 +736,40 @@ scene_cue(voyage, voyage).
 continuation_template(voyage, "felt the first pale light touch the rail").
 continuation_template(voyage, "listened for the tide beneath the boards").
 continuation_template(voyage, "watched the harbour lights fade behind him").
+% gen254: a rainfall scene ("Raindrops tap the pond" and kin). The cue words are
+% base forms; compounds (raindrops, rainfall) bind through the morphological
+% prefix rule in the engine, so no alias facts are needed.
+scene_cue(rain, rainfall).
+scene_cue(pond, rainfall).
+scene_cue(puddle, rainfall).
+scene_cue(drizzle, rainfall).
+scene_cue(umbrella, rainfall).
+continuation_template(rainfall, "rings widen where each drop lands").
+continuation_template(rainfall, "the water wears a coat of silver circles").
+continuation_template(rainfall, "somewhere under the reeds a frog answers").
+story_scene(rainfall).
+% gen254: story-capable scenes — their continuation_template clauses stand alone,
+% so "tell me a story about X" can chain them. Verb-phrase scenes (magical,
+% voyage) are deliberately absent: their templates need a subject stem.
+story_scene(silence).
+story_scene(darkness).
+story_scene(suspense).
+story_scene(mystery).
+story_scene(wonder).
+story_scene(vigil).
+story_scene(enchanted).
+story_scene(horizon).
+% gen254: a traveler-at-dusk scene ("when the last light faded from the horizon,
+% the traveler realized..."). Three templates so "in three different ways"
+% requests have full cardinality; each reads as a clause after "realized".
+scene_cue(horizon, horizon).
+scene_cue(traveler, horizon).
+scene_cue(traveller, horizon).
+scene_cue(faded, horizon).
+scene_cue(dusk, horizon).
+continuation_template(horizon, "that the road behind him had vanished into the dark").
+continuation_template(horizon, "that he no longer knew which way led home").
+continuation_template(horizon, "that the distant lights were not stars but windows").
 % gen246: reveal scene for "the old door creaked open to reveal...".
 scene_cue(creaked, reveal).
 scene_cue(reveal, reveal).
@@ -892,6 +1002,25 @@ river_of(washington_dc, "the Potomac River").
 river_of(vienna, "the Danube").
 river_of(cairo, "the Nile").
 ocean_west_of(australia, "the Indian Ocean").
+% gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
+% substring of the turn ("who was the first president of the united states?").
+% Teaching a new role is one fact.
+role_holder("first president of the united states", "George Washington, who served from 1789 to 1797").
+role_holder("first person on the moon", "Neil Armstrong, in July 1969").
+role_holder("first man on the moon", "Neil Armstrong, in July 1969").
+role_holder("first person in space", "Yuri Gagarin, in April 1961").
+role_holder("first man in space", "Yuri Gagarin, in April 1961").
+role_holder("first woman in space", "Valentina Tereshkova, in June 1963").
+role_holder("first emperor of rome", "Augustus, from 27 BC").
+role_holder("first woman to win a nobel prize", "Marie Curie, in 1903").
+role_holder("first prime minister of the united kingdom", "Robert Walpole, from 1721").
+% gen254: which city a capital replaced in that role (one fact per country).
+capital_predecessor(australia, "Melbourne, which served as the seat of government until 1927").
+capital_predecessor(brazil, "Rio de Janeiro, which was the capital until 1960").
+capital_predecessor(nigeria, "Lagos, which was the capital until 1991").
+capital_predecessor(kazakhstan, "Almaty, which was the capital until 1997").
+capital_predecessor(myanmar, "Yangon, replaced by Naypyidaw in 2006").
+capital_predecessor(pakistan, "Karachi, which was the capital until the 1960s").
 ocean_west_of(united_states, "the Pacific Ocean").
 ocean_west_of(portugal, "the Atlantic Ocean").
 ocean_borders(australia, "Indian Ocean").

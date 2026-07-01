@@ -179,6 +179,49 @@ Prossimi frame ad alto rendimento:
 - idiom intent senza richiedere la parola "idiom";
 - puzzle troncati/incompleti: declino calibrato invece di un numero casuale.
 
+## Salto gen254 - dai prompt alle categorie (steer di F.)
+
+F. ha corretto la rotta a meta giro: l'intervista di LLMSCORE cambia ogni run,
+quindi inseguire i sei prompt dell'ultimo campione non basta. Il giro gen254 ha
+chiuso i buchi come CATEGORIE, con regole di motore che generalizzano:
+
+- geometria elementare come famiglia (cerchio: 2*pi*r e pi*r^2; rettangolo:
+  lato mancante da perimetro e area), con derivazione nel testo di risposta;
+- sistemi lineari a due incognite come famiglia (eta con doppio rapporto;
+  teste+zampe con zampe per specie da KB `quantity/3` - un fatto mancante,
+  `quantity(rabbit, legs, 4)`, teneva spento un solver gia esistente);
+- passo RELATIVO nel walker sequenziale ("twice what I currently have" applica
+  il moltiplicatore al totale corrente, in guadagno o rimozione);
+- vincoli numerici enumerati (bound + predicati primo/pari/divisibile) con
+  "nessuna soluzione" provata quando il set e vuoto;
+- binding morfologico dei concetti (moonlight->moon, raindrops->rain): regola
+  del composto inglese nel motore, niente alias per parola;
+- word_for/2 e role_holder/2 come relazioni substring-matched (stesso schema di
+  idiom_meaning): vocabolario per definizione e "who was the first X";
+- frammento poetico nudo riconosciuto per FORMA (corto, senza function words,
+  senza "?") e continuato dalla scena KB;
+- storia su richiesta dal medesimo substrato scene/continuation, con
+  story_scene/1 a marcare le scene con clausole autonome e declino informato
+  che nomina alternative reali;
+- "what are the three X" instradato nel counted-pick esistente;
+- interviste line-based: risposte monoriga anche per le liste numerate.
+
+Due bug di precisione trovati dal giro: il possessivo che leggeva un token
+spurio quando "my" mancava, e il composto "-_what" che diventava VARIABILE
+Prolog e matchava ogni categoria ("give me 2 - what" elencava colori). Il
+secondo e un pattern da audit: ogni query costruita da testo utente deve
+scartare token vuoti prima di comporre chiavi.
+
+Il rerun dopo il giro: 4/10 -> 6/10 (campione nuovo), con i quattro zeri del
+6/10 chiusi in giornata come frame. Prossime categorie ricorrenti osservate:
+
+- fonologia/omofoni ("desert/dessert" letti ad alta voce): serve una relazione
+  pronuncia in KB;
+- il residuo di compose che lascia trapelare la clarification di repair su
+  "why do you enjoy it" dopo una prima clausola gia risposta;
+- percentuali e frazioni nei word problems;
+- date e calendario ("what day comes three days after Saturday?").
+
 ## Roadmap
 
 ### Fase A - Eliminare il muro cieco

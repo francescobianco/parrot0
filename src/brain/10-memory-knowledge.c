@@ -347,8 +347,12 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                 size_t i = find_token(w, nw, "what");
                 if (i + 2 < nw && strcmp(w[i + 1], "is") == 0) {
                     size_t m = find_token(w + i, nw - i, "my");
-                    if (m < nw - i) m += i;
-                    if (m + 1 < nw) {
+                    /* gen254 (repair): claim ONLY when "my" is actually present.
+                     * find_token returns nw-i when absent; the old code fell
+                     * through with that sentinel and read a spurious token as the
+                     * possession ("what's the usual intent behind those words?"
+                     * -> "I don't know what your a is called."). */
+                    if (m < nw - i && (m += i) + 1 < nw) {
                         const char *thing = w[m + 1];
                         int has_called = (m + 2 < nw);
                         if (has_called) {
@@ -1415,6 +1419,33 @@ static int kb_render_steps(Brain *b, const char *step_pred, const char *task,
     }
     put(msg, out, out_size);
     return 1;
+}
+
+/* gen254: defining-phrase vocabulary lookup. word_for(KeyPhrase, Word) facts map
+ * a defining phrase ("always tells the truth") to the word that names it
+ * ("honest"). The stored phrase is matched as a substring of the turn — same
+ * scheme as idiom_meaning — so quoting and framing are free; teaching a new
+ * entry is one KB fact. Returns the matched (dequoted) key and word. */
+static int word_for_lookup(Brain *b, const char *buf,
+                           char *key_out, size_t key_sz,
+                           char *word_out, size_t word_sz) {
+    char ph[64][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };
+    size_t pn = kb_match(b->kb, "word_for", anyq, 2, ph, 64);
+    for (size_t i = 0; i < pn; i++) {
+        char *key = ph[i]; size_t kl = strlen(key);
+        if (kl >= 2 && key[0] == '"' && key[kl - 1] == '"') { key[kl - 1] = '\0'; key++; }
+        if (!*key || !cue(buf, key)) continue;
+        char qkey[KB_TERM_LEN]; snprintf(qkey, sizeof qkey, "\"%s\"", key);
+        const char *gq[] = { qkey, NULL };
+        char gh[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "word_for", gq, 2, gh, 1) > 0) {
+            snprintf(key_out, key_sz, "%s", key);
+            snprintf(word_out, word_sz, "%s", kb_dequote(gh[0]));
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
@@ -2519,7 +2550,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen237 (LLMSCORE): direct opposite lookup before the generic binary
-     * relation path can read "what" as the subject. */
+     * relation path can read "what" as the subject.
+     * gen254: compound vocabulary. A turn may pair the antonym request with a
+     * defining-phrase request ("...and what word describes a person who always
+     * tells the truth?"). The defining phrases live in word_for(KeyPhrase, Word)
+     * — matched as a substring of the turn like idiom_meaning — so both halves
+     * are KB facts and the C only composes them into one line. */
     if (cue(buf, "opposite of")) {
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
@@ -2529,11 +2565,35 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *pat[] = { t, NULL };
             char res[4][KB_TERM_LEN];
             if (kb_match(b->kb, "opposite", pat, 2, res, 4) > 0) {
+                char key[KB_TERM_LEN], wrd[KB_TERM_LEN];
+                if (word_for_lookup(b, buf, key, sizeof key, wrd, sizeof wrd)) {
+                    char msg[320];
+                    snprintf(msg, sizeof msg,
+                             "The opposite of %s is %s, and someone who %s is %s.",
+                             t, res[0], key, wrd);
+                    put(msg, out, out_size);
+                    return 1;
+                }
                 if (res[0][0]) res[0][0] = (char)toupper((unsigned char)res[0][0]);
                 char msg[160]; snprintf(msg, sizeof msg, "%s.", res[0]);
                 put(msg, out, out_size);
                 return 1;
             }
+        }
+    }
+
+    /* gen254: standalone defining-phrase vocabulary. "what word describes a
+     * person who never gives up?" / "what do you call someone who ...?" ->
+     * word_for(KeyPhrase, Word). One fact per entry, no code edit to extend. */
+    if (cue(buf, "what word") || cue(buf, "which word") || cue(buf, "word for") ||
+        cue(buf, "what do you call") || cue(buf, "one word for") ||
+        cue(buf, "a word that")) {
+        char key[KB_TERM_LEN], wrd[KB_TERM_LEN];
+        if (word_for_lookup(b, buf, key, sizeof key, wrd, sizeof wrd)) {
+            if (wrd[0]) wrd[0] = (char)toupper((unsigned char)wrd[0]);
+            char msg[160]; snprintf(msg, sizeof msg, "%s.", wrd);
+            put(msg, out, out_size);
+            return 1;
         }
     }
 
@@ -2677,6 +2737,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                         " %s runs through it.", p);
                     }
                 }
+                /* gen254: compound — which city the capital replaced in that role. */
+                if (cue(buf, "replace")) {
+                    const char *pq2[] = { country, NULL };
+                    char ph3[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "capital_predecessor", pq2, 2, ph3, 1) > 0) {
+                        char *p = kb_dequote(ph3[0]);
+                        off += snprintf(msg + off, sizeof msg - off,
+                                        " It replaced %s.", p);
+                    }
+                }
                 /* gen241 (LLMSCORE-check): compound — the ocean to the country's west. */
                 if (cue(buf, "ocean") && cue(buf, "west")) {
                     const char *oq[] = { country, NULL };
@@ -2786,8 +2856,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * 'break a leg' mean?" -> idiom_meaning(Phrase, "gloss"). The stored phrase is
      * matched as a substring of the turn, so quoting is optional. KB-first: one fact
      * per idiom, no code edit. */
+    /* gen254: the intent can be probed without naming the category ("if someone
+     * says 'break a leg', what's the usual intent behind those words?"). The
+     * broader cues stay safe because the branch still requires a stored
+     * idiom_meaning phrase to occur verbatim in the turn. */
     if (cue(buf, "mean") || cue(buf, "means") || cue(buf, "idiom") ||
-        cue(buf, "expression") || cue(buf, "phrase")) {
+        cue(buf, "expression") || cue(buf, "phrase") || cue(buf, "intent") ||
+        cue(buf, "say") || cue(buf, "saying") || cue(buf, "those words") ||
+        cue(buf, "the words") || cue(buf, "tell") || cue(buf, "want") ||
+        cue(buf, "imply") || cue(buf, "implies")) {
         char ph[64][KB_TERM_LEN];
         const char *anyq[] = { NULL, NULL };
         size_t pn = kb_match(b->kb, "idiom_meaning", anyq, 2, ph, 64);
@@ -2809,6 +2886,30 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     put(msg, out, out_size);
                     return 1;
                 }
+            }
+        }
+    }
+
+    /* gen254 (LLMSCORE): named role holders. "who was the first president of
+     * the united states?" -> role_holder(KeyPhrase, "answer"), matched as a
+     * substring of the turn like idiom_meaning. One fact per role; any "who
+     * was/is the <role>" phrasing that contains the key resolves. */
+    if (cue(buf, "who was") || cue(buf, "who is") || cue(buf, "who were")) {
+        char ph[64][KB_TERM_LEN];
+        const char *anyq2[] = { NULL, NULL };
+        size_t pn2 = kb_match(b->kb, "role_holder", anyq2, 2, ph, 64);
+        for (size_t i = 0; i < pn2; i++) {
+            char *key = ph[i]; size_t kl = strlen(key);
+            if (kl >= 2 && key[0] == '"' && key[kl - 1] == '"') { key[kl - 1] = '\0'; key++; }
+            if (!*key || !cue(buf, key)) continue;
+            char qkey[KB_TERM_LEN]; snprintf(qkey, sizeof qkey, "\"%s\"", key);
+            const char *gq3[] = { qkey, NULL };
+            char gh3[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "role_holder", gq3, 2, gh3, 1) > 0) {
+                char *g = kb_dequote(gh3[0]);
+                char msg[240]; snprintf(msg, sizeof msg, "%s.", g);
+                put(msg, out, out_size);
+                return 1;
             }
         }
     }
@@ -2894,7 +2995,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * from capital_of_country/2 and appends river_of(capital)/ocean_west_of(country). */
     if (cue(buf, "capital") &&
         (cue(buf, "river") || (cue(buf, "ocean") && cue(buf, "west")) ||
-         cue(buf, "sea") )) {
+         cue(buf, "sea") || cue(buf, "replace"))) {
         char cb[256]; snprintf(cb, sizeof cb, "%s", buf);
         char *cw[64]; size_t cnw = split_words(cb, cw, 64);
         char country[KB_TERM_LEN] = ""; char capital[KB_TERM_LEN] = "";
@@ -2925,6 +3026,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     char *p = rh[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
                     snprintf(extra, sizeof extra, " %s runs through it.", p);
+                }
+            } else if (cue(buf, "replace")) {
+                /* gen254: "...and which city did it replace in that role?" —
+                 * capital_predecessor(Country, "gloss") is one KB fact per
+                 * country; teaching another country is no code edit. */
+                const char *pq[] = { country, NULL };
+                char ph2[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "capital_predecessor", pq, 2, ph2, 1) > 0) {
+                    char *p = kb_dequote(ph2[0]);
+                    snprintf(extra, sizeof extra, " It replaced %s.", p);
                 }
             } else {
                 const char *oq[] = { country, NULL };
