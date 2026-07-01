@@ -275,6 +275,12 @@ expect "constrained number impossible" "1" \
 expect "idiom intent without the word idiom" "1" \
     'If someone says "break a leg" before a performance, what'"'"'s the usual intent behind those words?' \
     '"break a leg" means good luck -- it'"'"'s a way to wish someone a great performance, especially on stage.'
+expect "all-but keeps folding later deltas" "1" \
+    "A farmer has 17 sheep, sells all but 9, then buys 12 more. How many sheep does he have now?" \
+    "21."
+expect "all-but alone still leaves the remainder" "1" \
+    "A farmer has 17 sheep. All but 9 die. How many sheep does the farmer have left?" \
+    "9."
 # --- gen254 fifth pass: compound leak, analogy medium, computed pangram ---
 expect "capital and year compound without leak" "1" \
     "What is the capital of Australia, and what year did it become the capital?" \

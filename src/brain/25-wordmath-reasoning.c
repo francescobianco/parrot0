@@ -1500,10 +1500,35 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     size_t nn = collect_numbers(w, nw, nums, 16);
     if (nn < 2) return 0;
     if (cue(q, "all but") && nn >= 2) {
-        char num[64]; format_num(nums[1], num, sizeof num);
+        /* gen254: "all but N" is a STEP, not always the final answer — "sells
+         * all but 9, then buys 12 more" must keep folding the later deltas
+         * ("17 sheep, all but 9 die" still ends at 9). Resume the walk right
+         * after the all-but number with the running total set to N. */
+        double total = nums[1];
+        const char *ab = strstr(q, "all but");
+        char tb2[256]; snprintf(tb2, sizeof tb2, "%s", ab + 7);
+        char *tw2[64]; size_t tn2 = split_words(tb2, tw2, 64);
+        int sign2 = 0, seen_first = 0;   /* sign 0 until a verb sets it */
+        for (size_t i = 0; i < tn2; i++) {
+            char *t = strip_edge_punct(tw2[i]);
+            if (!*t) continue;
+            double v;
+            if (parse_value(t, &v)) {
+                if (!seen_first) { seen_first = 1; continue; }  /* the N itself */
+                if (sign2) { total += sign2 * v; sign2 = 0; }
+                continue;
+            }
+            if (!strcmp(t, "buys") || !strcmp(t, "buy") || !strcmp(t, "bought") ||
+                !strcmp(t, "gains") || !strcmp(t, "gain") || !strcmp(t, "gets") ||
+                !strcmp(t, "get") || !strcmp(t, "adds") || !strcmp(t, "add") ||
+                !strcmp(t, "receives") || !strcmp(t, "finds")) sign2 = 1;
+            else if (wp_removal_word(t)) sign2 = -1;
+        }
+        char num[64]; format_num(total, num, sizeof num);
         char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
         put(msg, out, out_size);
-        store_proof(b, "In all-but phrasing, the number after but is the amount left.");
+        store_proof(b, "All-but leaves the number after 'but'; later gains and "
+                       "losses still apply.");
         return 1;
     }
 
