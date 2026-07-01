@@ -602,6 +602,22 @@ paint_mix(blue, red, purple).
 paint_mix(red, blue, purple).
 paint_mix(white, black, grey).
 paint_mix(black, white, grey).
+% gen254: ADDITIVE light mixing (RGB), distinct from pigment.
+light_mix(red, blue, magenta).
+light_mix(blue, red, magenta).
+light_mix(red, green, yellow).
+light_mix(green, red, yellow).
+light_mix(blue, green, cyan).
+light_mix(green, blue, cyan).
+% gen254: the medium an artist works on — completes "painter is to canvas as
+% sculptor is to ..." through the generic analogy engine (any R(A,B) works).
+medium_of(painter, canvas).
+medium_of(sculptor, marble).
+medium_of(writer, page).
+medium_of(photographer, film).
+medium_of(composer, score).
+medium_of(potter, clay).
+medium_of(carpenter, wood).
 
 % --- gen239/240 (kb-first manifesto): land borders as a RELATION. The list
 % handlers ("name three countries that border X", "neighbours of X") and the
@@ -1042,6 +1058,11 @@ role_holder("first woman in space", "Valentina Tereshkova, in June 1963").
 role_holder("first emperor of rome", "Augustus, from 27 BC").
 role_holder("first woman to win a nobel prize", "Marie Curie, in 1903").
 role_holder("first prime minister of the united kingdom", "Robert Walpole, from 1721").
+% gen254: the year a capital took the role (one fact per country).
+capital_since(australia, "1927, when parliament moved from Melbourne to Canberra").
+capital_since(brazil, "1960, when Brasília was inaugurated").
+capital_since(nigeria, "1991, when the government moved to Abuja").
+capital_since(kazakhstan, "1997, when the capital moved from Almaty").
 % gen254: which city a capital replaced in that role (one fact per country).
 capital_predecessor(australia, "Melbourne, which served as the seat of government until 1927").
 capital_predecessor(brazil, "Rio de Janeiro, which was the capital until 1960").
@@ -1262,6 +1283,11 @@ compound_word(bed, room, bedroom).
 % per slot (open=5, mid=7, close=5). The C assembler weaves open(subject) /
 % mid(object) / close(subject), so teaching a new concept's three lines extends
 % the generator with no code edit (PRINCIPLES.md: engine fixed, lexicon learns).
+% gen254: technology and autumn, so paired-theme prompts ("autumn and
+% technology") can weave open(subj)/mid(obj)/close(subj) across both.
+haiku_open(technology, "A screen glows at dusk").
+haiku_mid(technology, "small lights think in the still house").
+haiku_close(technology, "the machine dreams on").
 haiku_open(ocean, "Ocean breathes at dawn").
 haiku_mid(ocean, "silver waves carry the sun").
 haiku_close(ocean, "gulls write on the wind").

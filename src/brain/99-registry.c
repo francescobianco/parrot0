@@ -701,6 +701,31 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
     }
     if (!h2 && !negate2) return 0;
 
+    /* gen254: if the second half only earned repair's clarification ("who or
+     * what does 'it' refer to?"), the WHOLE turn may still be answerable by a
+     * downstream compound frame (mod_knowledge reads "capital of X, and what
+     * year did it ..." in one piece). Prefer that full answer; keep the
+     * half+clarification only when nothing downstream claims. */
+    if (h1 && h2 && strstr(r2, "refer to?")) {
+        char full[1024] = "";
+        for (size_t i = 0; i < registry_len; i++) {
+            if (strcmp(registry[i].name, "compose") == 0) continue;
+            if (strcmp(registry[i].name, "repair") == 0) continue;
+            if (registry[i].handle(b, canon, input, full, sizeof full)) {
+                if (!strstr(full, "refer to?")) {
+                    snprintf(out, out_size, "%s", full);
+                    if (b) {
+                        snprintf(b->last_reply, sizeof b->last_reply, "%s", full);
+                        snprintf(b->last_module, sizeof b->last_module, "%s",
+                                 registry[i].name);
+                    }
+                    return 1;
+                }
+                break;
+            }
+        }
+    }
+
     snprintf(out, out_size, "%s%s%s", r1,
              (r2[0] && r1[0]) ? " " : "", r2);
     if (!is_but && h1 && !h1_disc) update_topics(b, sub1);

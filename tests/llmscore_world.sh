@@ -236,7 +236,7 @@ expect "map riddle" "1" \
     "A map."
 expect "recent movie without fake viewing" "1" \
     "What's the best movie you've watched recently, and what did you like most about it?" \
-    "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues. Who or what does \"it\" refer to?"
+    "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues."
 expect_full "bread rises process from KB topic schema" "1" \
     "Describe the process of how bread rises when yeast is added to dough." \
     $'1. Yeast consumes sugars in the dough and releases carbon dioxide gas\n2. Gluten strands trap that gas in small bubbles, stretching the dough\n3. Warmth and time let fermentation continue, so the bubbles expand\n4. During baking, the gas expands further and the crumb sets into a risen loaf'
@@ -275,6 +275,26 @@ expect "constrained number impossible" "1" \
 expect "idiom intent without the word idiom" "1" \
     'If someone says "break a leg" before a performance, what'"'"'s the usual intent behind those words?' \
     '"break a leg" means good luck -- it'"'"'s a way to wish someone a great performance, especially on stage.'
+# --- gen254 fifth pass: compound leak, analogy medium, computed pangram ---
+expect "capital and year compound without leak" "1" \
+    "What is the capital of Australia, and what year did it become the capital?" \
+    "Canberra. It became the capital in 1927, when parliament moved from Melbourne to Canberra."
+expect "analogy medium sculptor" "1" \
+    "Complete this analogy: Painter is to canvas as sculptor is to _____." \
+    "marble."
+expect "light mixes additively" "1" \
+    "What do you get when you mix red and blue light?" \
+    "Magenta."
+expect "paint still mixes subtractively" "1" \
+    "What color do you get when you mix blue and yellow paint together?" \
+    "Green."
+expect "pangram computed not stored" "1" \
+    'What does "The quick brown fox jumps over the lazy dog" contain that most other sentences do not?' \
+    "It contains every letter of the alphabet -- it's a pangram."
+expect "haiku weaves two themes" "1" \
+    "Write a haiku about autumn and technology." \
+    "Red leaves let go now / small lights think in the still house / bare branches stay still."
+
 # --- gen254 fourth pass: the 4/10 late-night sample, closed as categories ---
 expect "polar bear riddle from KB signature" "1" \
     "A man builds a house with all four walls facing south. A bear walks past the house. What color is the bear?" \

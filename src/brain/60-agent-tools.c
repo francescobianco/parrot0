@@ -23,6 +23,28 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
      * gen254: letter counts ride the same seam — "how many letters are in the
      * word strawberry?" is a deterministic count over the named token, not
      * knowledge; the count is computed, never stored. */
+    /* gen254: alphabet-coverage check — "what does 'The quick brown fox...'
+     * contain that most sentences do not?" is COMPUTED over the quoted text
+     * (26 distinct letters -> pangram), never a stored trivia answer. */
+    if ((cue(low, "contain") || cue(low, "special") || cue(low, "unusual") ||
+         cue(low, "unique")) && strchr(low, '"')) {
+        const char *q1 = strchr(low, '"');
+        const char *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
+        if (q1 && q2 && q2 - q1 > 15) {
+            int seen[26] = {0}; int distinct = 0;
+            for (const char *c = q1 + 1; c < q2; c++)
+                if (isalpha((unsigned char)*c) && !seen[*c - 'a']) {
+                    seen[*c - 'a'] = 1; distinct++;
+                }
+            if (distinct == 26) {
+                put("It contains every letter of the alphabet -- it's a pangram.",
+                    out, out_size);
+                store_proof(b, "Counted 26 distinct letters in the quoted text.");
+                return 1;
+            }
+        }
+    }
+
     int want_letters = cue(low, "how many letters") ||
                        cue(low, "count the letters") ||
                        cue(low, "quante lettere");

@@ -1890,8 +1890,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if (cue(norm, "describe") || cue(norm, "look like") ||
-        cue(norm, "looks like") || cue(norm, "what does") || cue(norm, "what do")) {
+    /* gen254: a MIX question asks for the RESULT of combining, not a
+     * description of one ingredient — leave it to the mix reader below. */
+    if ((cue(norm, "describe") || cue(norm, "look like") ||
+         cue(norm, "looks like") || cue(norm, "what does") || cue(norm, "what do")) &&
+        !cue(norm, "mix")) {
         char db[256]; snprintf(db, sizeof db, "%s", norm);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         for (size_t i = 0; i < dn; i++) {
@@ -1940,7 +1943,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (col[0] && col[1]) {
             char res[2][KB_TERM_LEN];
             const char *pq[3] = { col[0], col[1], NULL };
-            if (kb_match(b->kb, "paint_mix", pq, 3, res, 2) > 0) {
+            /* gen254: LIGHT mixes additively, not like pigment — "red and blue
+             * light" reads light_mix/3 (magenta), never paint_mix (purple). */
+            const char *mixpred = cue(norm, "light") ? "light_mix" : "paint_mix";
+            if (kb_match(b->kb, mixpred, pq, 3, res, 2) > 0) {
                 char msg[64];
                 snprintf(msg, sizeof msg, "%s.", res[0]);
                 if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
@@ -2761,6 +2767,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         if (*p) p[0] = (char)toupper((unsigned char)p[0]);
                         off += snprintf(msg + off, sizeof msg - off,
                                         " %s runs through it.", p);
+                    }
+                }
+                /* gen254: compound — since when it has been the capital. */
+                if (cue(buf, "year") || cue(buf, "when")) {
+                    const char *yq[] = { country, NULL };
+                    char yh[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "capital_since", yq, 2, yh, 1) > 0) {
+                        char *p = kb_dequote(yh[0]);
+                        off += snprintf(msg + off, sizeof msg - off,
+                                        " It became the capital in %s.", p);
                     }
                 }
                 /* gen254: compound — which city the capital replaced in that role. */
