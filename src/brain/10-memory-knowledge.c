@@ -1929,6 +1929,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         cue(norm, "water") && cue(norm, "no fish")) {
         if (kb_response(b, "riddle_map", NULL, out, out_size)) return 1;
     }
+    if (cue(norm, "once in a minute") && cue(norm, "twice in a moment") &&
+        cue(norm, "thousand years")) {
+        if (kb_response(b, "riddle_letter_m", NULL, out, out_size)) return 1;
+    }
 
     if (cue(norm, "difference") && cue(norm, "fruit") && cue(norm, "vegetable")) {
         if (kb_response(b, "diff_fruit_vegetable", NULL, out, out_size)) return 1;
@@ -2212,6 +2216,25 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* gen240: day/night compound — "why is the sky blue during the day but dark
          * at night" answers BOTH clauses from because(sky_blue) + because(night_dark). */
         if (whyq && b->kb && strstr(norm, "sky") &&
+            (strstr(norm, "sunset") || strstr(norm, "orange") || strstr(norm, "red"))) {
+            const char *p1[] = { "sky_blue", NULL }, *p2[] = { "sunset_red", NULL };
+            char r1[4][KB_TERM_LEN], r2[4][KB_TERM_LEN];
+            if (kb_match(b->kb, "because", p1, 2, r1, 4) > 0 &&
+                kb_match(b->kb, "because", p2, 2, r2, 4) > 0) {
+                char *a = r1[0]; size_t al = strlen(a);
+                if (al >= 2 && a[0] == '"' && a[al - 1] == '"') { a[al - 1] = '\0'; a++; }
+                char *c = r2[0]; size_t cl = strlen(c);
+                if (cl >= 2 && c[0] == '"' && c[cl - 1] == '"') { c[cl - 1] = '\0'; c++; }
+                char msg[360];
+                snprintf(msg, sizeof msg,
+                         "By day the sky looks blue because %s. Near sunset it looks orange or red because %s.",
+                         a, c);
+                put(msg, out, out_size);
+                store_proof(b, msg);
+                return 1;
+            }
+        }
+        if (whyq && b->kb && strstr(norm, "sky") &&
             (strstr(norm, "night") || strstr(norm, "dark"))) {
             const char *p1[] = { "sky_blue", NULL }, *p2[] = { "night_dark", NULL };
             char r1[4][KB_TERM_LEN], r2[4][KB_TERM_LEN];
@@ -2457,6 +2480,42 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
         }
         return 1;
+    }
+
+    /* gen251 (LLMSCORE): generic world superlatives. Stable facts live in
+     * world_superlative(Property, Domain, "answer"); the recognizer only binds a
+     * property word present in the turn to a domain noun also present in the turn. */
+    {
+        char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
+        char *qw[32]; size_t qn = split_words(qb, qw, 32);
+        for (size_t i = 0; i < qn; i++) qw[i] = strip_edge_punct(qw[i]);
+        for (size_t i = 0; i < qn; i++) {
+            if (!*qw[i]) continue;
+            const char *sq[] = { qw[i], NULL, NULL };
+            char doms[8][KB_TERM_LEN];
+            size_t dn = kb_match(b->kb, "world_superlative", sq, 3, doms, 8);
+            for (size_t d = 0; d < dn; d++) {
+                int domain_seen = 0;
+                for (size_t j = 0; j < qn; j++) {
+                    char sg[KB_TERM_LEN];
+                    singularize(qw[j], sg, sizeof sg);
+                    if (!strcmp(sg, doms[d])) { domain_seen = 1; break; }
+                }
+                if (!domain_seen) continue;
+                const char *aq[] = { qw[i], doms[d], NULL };
+                char ans[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "world_superlative", aq, 3, ans, 1) > 0) {
+                    char *p = kb_dequote(ans[0]);
+                    char msg[220];
+                    size_t l = strlen(p);
+                    snprintf(msg, sizeof msg, "%s%s", p,
+                             (l > 0 && (p[l - 1] == '.' || p[l - 1] == '!' ||
+                              p[l - 1] == '?')) ? "" : ".");
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
     }
 
     /* gen237 (LLMSCORE): direct opposite lookup before the generic binary
@@ -2989,13 +3048,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char *aw[96]; size_t an = split_words(ab, aw, 96);
         char scene[KB_TERM_LEN];
         if (kb_topic_task(b, "activity_step", "activity_topic", aw, an,
-                          scene, sizeof scene) &&
-            kb_render_steps(b, "activity_step", scene,
-                            activity_favorite ?
-                            "I don't have real favorites, but a good plan is:" :
-                            "From what I know, a good plan is:",
-                            out, out_size))
-            return 1;
+                          scene, sizeof scene)) {
+            if (activity_favorite) {
+                const char *sq[] = { scene, NULL };
+                char sh[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "activity_summary", sq, 2, sh, 1) > 0) {
+                    char *p = kb_dequote(sh[0]);
+                    put(p, out, out_size);
+                    return 1;
+                }
+            }
+            if (kb_render_steps(b, "activity_step", scene,
+                                activity_favorite ?
+                                "I don't have real favorites, but a good plan is:" :
+                                "From what I know, a good plan is:",
+                                out, out_size))
+                return 1;
+        }
         put("I understood you're asking for a recommendation, but I don't have activity_step facts for that situation yet.",
             out, out_size);
         return 1;

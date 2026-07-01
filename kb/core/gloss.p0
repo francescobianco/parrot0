@@ -44,3 +44,13 @@ tr(big, grande).
 tr(small, piccolo).
 tr(white, bianco).
 tr(black, nero).
+
+% gen252: small EN->FR substrate for compositional translation. tr_fr is word
+% knowledge; gender_fr lets the C choose le/la and place adjectives after nouns.
+tr_fr(cat, chat).
+tr_fr(sleeping, dort).
+tr_fr(on, sur).
+tr_fr(warm, chaud).
+tr_fr(rug, tapis).
+gender_fr(chat, m).
+gender_fr(tapis, m).

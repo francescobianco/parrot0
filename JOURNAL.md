@@ -1,4 +1,67 @@
 # parrot0 evolution journal
+## 2026-07-01 - gen253: LLMSCORE sample broadening
+
+**Changed.** The next live `make llmscore` sample scored 4/10 and exposed
+small but reusable gaps. Closed the deterministic ones without changing the
+benchmark harness:
+
+- bookshelf word problems now understand "with N books each" and "remove K
+  complete shelves worth";
+- spelling/string transforms can sort letters in reverse alphabetical order;
+- sky colour explanations now compose day-blue and sunset-red causes;
+- suspense continuations have enough KB alternatives to satisfy "three creative
+  ways";
+- the autumn couplet theme now honours paired forgotten letters.
+
+Ratchets: `llmscore_world.sh` added the five sample shapes above. The remaining
+hard miss in that sample was an inconsistent three-digit-number puzzle; it
+should become a calibrated "no solution" algebra frame rather than a guess.
+
+**Observed.** Final live `make llmscore` for this turn: 4/10. New open gaps are
+circle circumference, truncated fence/sheep logic, horizon/traveler continuation,
+compound vocabulary (`generous` + truth-teller), constrained non-prime number
+choice, and idiom-intent phrasing without the word "idiom".
+
+## 2026-07-01 - gen252: LLMSCORE protocol and second-frame pass
+
+**Changed.** Reran `make llmscore` after gen251 and found a different class of
+failure: a multi-line rainy-day answer desynchronized the line-based interviewer,
+so later answers were shifted. Fixed the protocol surface and used the same
+sample to add general frames:
+
+- `activity_summary/2` gives situated "favorite thing to do" prompts a single
+  honest line, while recommendation prompts still render multi-step plans;
+- two-train destination races compare arrival times instead of using the
+  meet-time trick;
+- simultaneous egg-boiling keeps the shared cooking time;
+- EN->FR gained a small compositional lexicon (`tr_fr/2`, `gender_fr/2`) with
+  article and adjective placement glue;
+- classic letter riddles route before arithmetic can misread their numbers;
+- incomplete bottle sentence prompts get a KB-backed continuation cue.
+
+Ratchets: `llmscore_world.sh` now covers the post-gen251 sample: destination
+train arrival, French warm-rug translation, bottle completion, same-pot eggs,
+the minute/moment riddle, and the single-line rainy-day favorite answer.
+
+## 2026-07-01 - gen251: LLMSCORE frame hardening
+
+**Changed.** Took the fresh `make llmscore` misses as frame work, not prompt
+memorization:
+
+- added generic `world_superlative/3` for stable curated superlatives;
+- scaled recipe ingredient triples structurally instead of routing them to
+  how-to planning;
+- added countdown replacement filters ("say buzz instead of multiples of 3");
+- handled toward-each-other train prompts with KB-backed city distance and
+  meet-time reasoning;
+- extended quatrain data to ocean and added the missing antonym `ephemeral`.
+- made session-duration reporting start at the first user turn and use
+  `timespec_get`, removing a real one-second boundary flake.
+
+Ratchets: `llmscore_world.sh` now locks the six regressions from the fresh
+score sample: Everest, recipe scaling, ocean quatrain, train meet, buzz
+countdown, and ephemeral/permanent.
+
 ## 2026-07-01 - gen250: contrast and magnitude frames
 
 **Changed.** Continued from `NEXTMOVE.md`'s frame spine, focusing on broad

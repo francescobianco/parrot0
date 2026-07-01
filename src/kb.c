@@ -998,9 +998,10 @@ static int is_struct_pred(const char *pred) {
         "because", /* gen232: causal-completion reasons, queried not described */
         "grows_with", "increases", /* gen233: qualitative-change substrate */
         "capital_of_country", "kind_is", "borders", "no_land_border",
-        "landmark_of", "planet_superlative", /* gen240: queried world commons */
+        "landmark_of", "planet_superlative", "world_superlative",
+        "distance_between", /* gen240/gen251: queried world commons */
         "scene_cue", "continuation_template",
-        "tr_es", "gender_es", "very_cold_result",
+        "tr_es", "gender_es", "tr_fr", "gender_fr", "very_cold_result",
         "historical_figure", "figure_domain", "figure_reason",
         "paint_mix", /* gen239: curated world commons, not describable */
         "haiku_open", "haiku_mid", "haiku_close", /* gen240: poetic image lines */
@@ -1021,7 +1022,7 @@ static int is_struct_pred(const char *pred) {
         "river_of", "ocean_west_of", "ocean_borders", "moon_of", "anagram_of", /* gen241 */
         "process_step", "process_topic", "limerick_l1", "limerick_l2", "limerick_l3", /* gen241 */
         "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
-        "scenario_step", "activity_topic", "activity_step", "place_for",
+        "scenario_step", "activity_topic", "activity_step", "activity_summary", "place_for",
         "sensory_topic", "sensory_phrase", "concise_topic", "concise_explain",
         NULL,
     };

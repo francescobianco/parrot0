@@ -387,7 +387,7 @@ Brain *brain_create(void) {
     if (!b) return NULL;
     b->kb = kb_create();
     if (!b->kb) { free(b); return NULL; }
-    b->start_time = time(NULL);
+    b->start_time = 0; /* gen251: conversation time starts on first user turn. */
     b->active_world = -1; /* gen142 (E7): no local world is open at birth */
 
     /* Curated lexical knowledge used by the kernel itself. It lives in the
@@ -505,7 +505,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen250-contrast-magnitude-frames";
+    return "gen253-llmscore-sample-broadening";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -949,7 +949,14 @@ static void conv_log(Brain *b, const char *input, const char *reply) {
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
-    if (b) b->turns++;
+    if (b) {
+        if (b->turns == 0) {
+            b->start_time = time(NULL);
+            if (timespec_get(&b->start_ts, TIME_UTC) == TIME_UTC)
+                b->has_start_ts = 1;
+        }
+        b->turns++;
+    }
 
     /* gen158: once the whole KB (base + profile) is loaded, materialize the
      * part_of/2 relation latent in the concept descriptions, so the resolution

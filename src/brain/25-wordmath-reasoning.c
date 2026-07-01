@@ -1,3 +1,100 @@
+static int wp_recipe_multiplier(const char *q, double *mult) {
+    if (cue(q, "triple") || cue(q, "three times")) { *mult = 3.0; return 1; }
+    if (cue(q, "double") || cue(q, "twice")) { *mult = 2.0; return 1; }
+    if (cue(q, "quadruple") || cue(q, "four times")) { *mult = 4.0; return 1; }
+
+    char mb[256]; snprintf(mb, sizeof mb, "%s", q);
+    char *mw[64]; size_t mn = split_words(mb, mw, 64);
+    for (size_t i = 0; i + 1 < mn; i++) {
+        if (strcmp(strip_edge_punct(mw[i + 1]), "times")) continue;
+        double v;
+        if (parse_value(strip_edge_punct(mw[i]), &v) && v > 0) {
+            *mult = v;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int wp_recipe_unit(const char *s) {
+    return !strcmp(s, "cup") || !strcmp(s, "cups") ||
+           !strcmp(s, "tablespoon") || !strcmp(s, "tablespoons") ||
+           !strcmp(s, "teaspoon") || !strcmp(s, "teaspoons") ||
+           !strcmp(s, "gram") || !strcmp(s, "grams") ||
+           !strcmp(s, "ounce") || !strcmp(s, "ounces") ||
+           !strcmp(s, "pound") || !strcmp(s, "pounds");
+}
+
+static void wp_pluralize(char *s, size_t sz, double qty) {
+    size_t l = strlen(s);
+    if (qty == 1.0 || l == 0 || l + 1 >= sz || s[l - 1] == 's') return;
+    s[l] = 's';
+    s[l + 1] = '\0';
+}
+
+static int wp_number_suffix(const char *tok, const char *suffix, double *out) {
+    size_t tl = strlen(tok), sl = strlen(suffix);
+    if (tl <= sl || strcmp(tok + tl - sl, suffix) != 0) return 0;
+    char num[64];
+    snprintf(num, sizeof num, "%.*s", (int)(tl - sl), tok);
+    return parse_value(num, out);
+}
+
+static int wp_parse_value_clean(const char *tok, double *out) {
+    char clean[64]; size_t o = 0;
+    for (const char *p = tok; *p && o + 1 < sizeof clean; p++)
+        if (*p != ',') clean[o++] = *p;
+    clean[o] = '\0';
+    return parse_value(clean, out);
+}
+
+static int wp_clock_token(const char *tok, double *hour) {
+    double v;
+    if (wp_number_suffix(tok, "am", &v)) {
+        if (v == 12) v = 0;
+        *hour = v;
+        return 1;
+    }
+    if (wp_number_suffix(tok, "pm", &v)) {
+        if (v < 12) v += 12;
+        *hour = v;
+        return 1;
+    }
+    return 0;
+}
+
+static int wp_clock_colon(const char *tok, double *hour) {
+    const char *c = strchr(tok, ':');
+    if (!c || c == tok || !c[1]) return 0;
+    char hb[16], mb[16];
+    size_t hl = (size_t)(c - tok);
+    if (hl >= sizeof hb) return 0;
+    snprintf(hb, sizeof hb, "%.*s", (int)hl, tok);
+    snprintf(mb, sizeof mb, "%s", c + 1);
+    double h, m;
+    if (!parse_value(hb, &h) || !parse_value(mb, &m)) return 0;
+    *hour = h + m / 60.0;
+    return 1;
+}
+
+static void wp_city_key(const char *city, char *out, size_t out_sz) {
+    size_t o = 0;
+    for (const char *p = city; *p && o + 1 < out_sz; p++)
+        out[o++] = (*p == ' ') ? '_' : *p;
+    out[o] = '\0';
+}
+
+static int wp_distance_between(Brain *b, const char *a, const char *c, double *dist) {
+    if (!b || !b->kb || !a || !c) return 0;
+    char ak[KB_TERM_LEN], ck[KB_TERM_LEN];
+    wp_city_key(a, ak, sizeof ak);
+    wp_city_key(c, ck, sizeof ck);
+    const char *q[] = { ak, ck, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "distance_between", q, 3, hit, 1) == 0) return 0;
+    return parse_value(hit[0], dist);
+}
+
 static int mod_plan(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -32,6 +129,9 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
     if (cue(q, "step by step") || cue(q, "describe how to") ||
         cue(q, "describe the process") || cue(q, "process of making"))
         return 0; /* owned by the KB-backed process_step handler in mod_knowledge */
+    double scale;
+    if ((cue(q, "recipe") || cue(q, "calls for")) && wp_recipe_multiplier(q, &scale))
+        return 0; /* owned by the recipe-scaling wordproblem frame */
     if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
@@ -134,6 +234,80 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
     (void)norm;
     char q[256]; normalize(raw, q, sizeof q);          /* intact, un-canonicalized */
+
+    /* gen251: recipe scaling. The recipe facts are read from the turn as
+     * quantity/unit/ingredient triples, then multiplied by the requested scale. */
+    double recipe_mult = 0.0;
+    if ((cue(q, "recipe") || cue(q, "calls for") || cue(q, "ingredients")) &&
+        wp_recipe_multiplier(q, &recipe_mult)) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        char part[8][120]; size_t np = 0;
+        for (size_t i = 0; i + 1 < rn && np < 8; i++) {
+            double qty;
+            if (!parse_value(strip_edge_punct(rw[i]), &qty)) continue;
+            char *nx = strip_edge_punct(rw[i + 1]);
+            char unit[32] = "", item[KB_TERM_LEN] = "";
+            if (wp_recipe_unit(nx)) {
+                snprintf(unit, sizeof unit, "%s", nx);
+                size_t j = i + 2;
+                if (j < rn && !strcmp(strip_edge_punct(rw[j]), "of")) j++;
+                if (j < rn) snprintf(item, sizeof item, "%s", strip_edge_punct(rw[j]));
+            } else if (*nx && strcmp(nx, "and") && strcmp(nx, "then") &&
+                       strcmp(nx, "recipe") && strcmp(nx, "amount")) {
+                snprintf(item, sizeof item, "%s", nx);
+            }
+            if (!item[0]) continue;
+            double scaled = qty * recipe_mult;
+            char num[32]; format_num(scaled, num, sizeof num);
+            if (unit[0]) {
+                wp_pluralize(unit, sizeof unit, scaled);
+                snprintf(part[np++], sizeof part[0], "%s %s of %s", num, unit, item);
+            } else {
+                wp_pluralize(item, sizeof item, scaled);
+                snprintf(part[np++], sizeof part[0], "%s %s", num, item);
+            }
+        }
+        if (np > 0) {
+            char msg[640]; size_t off = 0;
+            for (size_t i = 0; i < np; i++) {
+                const char *sep = "";
+                if (i > 0) sep = (i + 1 == np) ? (np == 2 ? " and " : ", and ") : ", ";
+                off += (size_t)snprintf(msg + off, off < sizeof msg ? sizeof msg - off : 0,
+                                        "%s%s", sep, part[i]);
+            }
+            if (off + 2 <= sizeof msg) { msg[off++] = '.'; msg[off] = '\0'; }
+            put(msg, out, out_size);
+            store_proof(b, "Scaled each recipe quantity by the requested multiplier.");
+            return 1;
+        }
+    }
+
+    /* gen252: simultaneous egg boiling. More eggs in the same pot do not multiply
+     * the cooking time when the prompt explicitly says they cook at the same time. */
+    if ((cue(q, "boil") || cue(q, "boiling")) && cue(q, "egg") &&
+        (cue(q, "same time") || cue(q, "same pot") || cue(q, "at once"))) {
+        char eb[256]; snprintf(eb, sizeof eb, "%s", q);
+        char *ew[64]; size_t en = split_words(eb, ew, 64);
+        double minutes = -1.0;
+        for (size_t i = 0; i + 1 < en; i++) {
+            double v;
+            if (!parse_value(strip_edge_punct(ew[i]), &v)) continue;
+            char *nx = strip_edge_punct(ew[i + 1]);
+            if (!strcmp(nx, "minute") || !strcmp(nx, "minutes")) {
+                minutes = v;
+                break;
+            }
+        }
+        if (minutes > 0) {
+            char num[64]; format_num(minutes, num, sizeof num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s minutes.", num);
+            put(msg, out, out_size);
+            store_proof(b, "Items boiled at the same time share the cooking duration.");
+            return 1;
+        }
+    }
+
     /* gen238 (LLMSCORE): rate puzzle. If N machines make N widgets in T minutes,
      * scaling machines and widgets by the same factor keeps the time at T. */
     if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
@@ -258,6 +432,150 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             "exactly the same distance from the destination.", out, out_size);
         store_proof(b, "Two bodies that meet are co-located, hence equidistant from any point.");
         return 1;
+    }
+
+    /* gen252: destination-arrival race for two trains from opposite cities. This
+     * is not the meet-at-one-point trick: each train covers the full separation
+     * to the other city, so compare departure_time + distance/speed. */
+    if (cue(q, "train") && cue(q, "arrives") && cue(q, "destination") &&
+        (cue(q, "first") || cue(q, "by how much"))) {
+        char db[256]; snprintf(db, sizeof db, "%s", q);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        double speed[2], tstart[2], dist = -1.0; int ns = 0, nt = 0;
+        char city[2][KB_TERM_LEN] = {{0},{0}}; int ncity = 0;
+        for (size_t i = 0; i < dn; i++) {
+            char *t = strip_edge_punct(dw[i]);
+            double v;
+            if (wp_number_suffix(t, "mph", &v) && ns < 2) speed[ns++] = v;
+            else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
+            else if (wp_parse_value_clean(t, &v)) {
+                char *nx = (i + 1 < dn) ? strip_edge_punct(dw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
+                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
+                    if (!strcmp(nx, "pm") && v < 12) v += 12;
+                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                    tstart[nt++] = v;
+                } else if ((!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
+                            !strcmp(nx, "km")) && dist < 0) {
+                    dist = v;
+                }
+            } else if (wp_clock_colon(t, &v) && i + 1 < dn && nt < 2) {
+                char *ap = strip_edge_punct(dw[i + 1]);
+                if (!strcmp(ap, "pm") && v < 12) v += 12;
+                if (!strcmp(ap, "am") && v == 12) v = 0;
+                if (!strcmp(ap, "am") || !strcmp(ap, "pm")) tstart[nt++] = v;
+            }
+            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < dn && ncity < 2) {
+                char *c1 = strip_edge_punct(dw[i + 1]);
+                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
+                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                    char *c2 = (i + 2 < dn) ? strip_edge_punct(dw[i + 2]) : (char *)"";
+                    snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
+                } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
+                ncity++;
+            }
+        }
+        if (dist <= 0.0 && ncity == 2)
+            (void)wp_distance_between(b, city[0], city[1], &dist);
+        if (ns == 2 && nt == 2 && dist > 0.0 && speed[0] > 0 && speed[1] > 0) {
+            double arr0 = tstart[0] + dist / speed[0];
+            double arr1 = tstart[1] + dist / speed[1];
+            int first = arr0 <= arr1 ? 0 : 1;
+            double diffh = first == 0 ? arr1 - arr0 : arr0 - arr1;
+            long mins = (long)(diffh * 60.0 + 0.5);
+            char who[80];
+            if (ncity > first && city[first][0]) {
+                char cn[KB_TERM_LEN]; snprintf(cn, sizeof cn, "%s", city[first]);
+                if (cn[0]) cn[0] = (char)toupper((unsigned char)cn[0]);
+                for (char *p = cn; *p; p++) if (p > cn && p[-1] == ' ')
+                    *p = (char)toupper((unsigned char)*p);
+                snprintf(who, sizeof who, "The train from %s", cn);
+            } else snprintf(who, sizeof who, "%s train", first == 0 ? "The first" : "The second");
+            char dur[80];
+            if (mins >= 60) {
+                long h = mins / 60, m = mins % 60;
+                if (m)
+                    snprintf(dur, sizeof dur, "%ld hour%s %ld minutes",
+                             h, h == 1 ? "" : "s", m);
+                else
+                    snprintf(dur, sizeof dur, "%ld hour%s", h, h == 1 ? "" : "s");
+            } else
+                snprintf(dur, sizeof dur, "%ld minutes", mins);
+            char msg[200];
+            snprintf(msg, sizeof msg, "%s arrives first, by about %s.", who, dur);
+            put(msg, out, out_size);
+            store_proof(b, "Compared destination arrival times: departure plus distance divided by speed.");
+            return 1;
+        }
+    }
+
+    /* gen251: "which train arrives first" under toward-each-other motion is a
+     * meet-time frame. If both are still between the cities, neither arrives
+     * first: they meet at the same instant. City distances are KB data. */
+    if (cue(q, "train") && cue(q, "arrives first") &&
+        (cue(q, "toward") || cue(q, "towards") || cue(q, "each other") ||
+         cue(q, "between"))) {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", q);
+        char *mw[64]; size_t mnw = split_words(mb, mw, 64);
+        double speed[2], tstart[2], dist = -1.0; int ns = 0, nt = 0;
+        char city[2][KB_TERM_LEN] = {{0},{0}}; int ncity = 0;
+        for (size_t i = 0; i < mnw; i++) {
+            char *t = strip_edge_punct(mw[i]);
+            double v;
+            if (wp_number_suffix(t, "mph", &v) && ns < 2) speed[ns++] = v;
+            else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
+            else if (wp_parse_value_clean(t, &v)) {
+                char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) speed[ns++] = v;
+                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
+                    if (!strcmp(nx, "pm") && v < 12) v += 12;
+                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                    tstart[nt++] = v;
+                } else if (!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
+                           !strcmp(nx, "km")) dist = v;
+            }
+            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < mnw && ncity < 2) {
+                char *c1 = strip_edge_punct(mw[i + 1]);
+                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
+                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                    char *c2 = (i + 2 < mnw) ? strip_edge_punct(mw[i + 2]) : (char *)"";
+                    snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
+                } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
+                ncity++;
+            }
+        }
+        if (dist <= 0.0 && ncity == 2)
+            (void)wp_distance_between(b, city[0], city[1], &dist);
+        if (ns == 2 && nt == 2 && speed[0] > 0 && speed[1] > 0) {
+            if (dist <= 0.0) {
+                put("Neither train arrives first; moving toward each other means they meet at the same time, but I need the distance to say when.",
+                    out, out_size);
+                store_proof(b, "Toward-each-other motion meets at one shared event; distance is needed only for the time.");
+                return 1;
+            }
+            int early = tstart[0] <= tstart[1] ? 0 : 1, late = 1 - early;
+            double headstart = speed[early] * (tstart[late] - tstart[early]);
+            if (headstart >= dist) {
+                char msg[180];
+                snprintf(msg, sizeof msg,
+                         "The earlier train arrives first, before the other departs.");
+                put(msg, out, out_size);
+                store_proof(b, "The earlier train's head start covers the full separation.");
+                return 1;
+            }
+            double meet = tstart[late] + (dist - headstart) / (speed[0] + speed[1]);
+            long total_min = (long)(meet * 60.0 + 0.5);
+            long hh = (total_min / 60) % 24, mm = total_min % 60;
+            const char *ap = hh < 12 ? "AM" : "PM";
+            long h12 = hh % 12; if (h12 == 0) h12 = 12;
+            char msg[200];
+            snprintf(msg, sizeof msg,
+                     "Neither train arrives first; they meet each other at about %ld:%02ld %s.",
+                     h12, mm, ap);
+            put(msg, out, out_size);
+            store_proof(b, "Head start of the earlier train, then the remaining gap closes at the combined speed.");
+            return 1;
+        }
     }
 
     /* gen241 (LLMSCORE-check, universal-comprehension.md): two trains approaching
@@ -452,6 +770,10 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
                 }
+            } else if (!strcmp(t, "with") && cue(q, "each")) {
+                for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
+                    double v; if (parse_value(strip_edge_punct(mw[j]), &v)) { per = v; break; }
+                }
             }
         }
         /* containers = the first number in the turn distinct from per */
@@ -475,7 +797,15 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                 if (!plus && !minus) continue;
                 for (size_t j = i + 1; j <= i + 3 && j < mn; j++) {
                     double v; if (parse_value(strip_edge_punct(mw[j]), &v)) {
-                        total += plus ? v : -v; break;
+                        int worth = 0;
+                        for (size_t k = j + 1; k <= j + 4 && k < mn; k++) {
+                            char *wk = strip_edge_punct(mw[k]);
+                            if (!strcmp(wk, "shelf") || !strcmp(wk, "shelves") ||
+                                !strcmp(wk, "worth") || !strcmp(wk, "complete"))
+                                worth = 1;
+                        }
+                        double delta = worth ? v * per : v;
+                        total += plus ? delta : -delta; break;
                     }
                 }
             }

@@ -105,6 +105,80 @@ Questo resta fedele al piano perche il C riconosce il frame e le slot, mentre
 lessico, dominio e valori vivono in KB. Quando il contrasto manca, la risposta
 nomina il gap invece di fingere o cadere nel muro cieco.
 
+## Salto gen251 - hardening da LLMSCORE live
+
+Il nuovo `make llmscore` del 2026-07-01 ha spostato il campione su sei buchi
+concreti: Everest, recipe scaling, poesia a quattro versi, treni verso
+l'incontro, countdown con sostituzione, antonimo di `ephemeral`.
+
+Il giro corretto non e stato aggiungere sei frasi. Le correzioni sono frame o
+facts riusabili:
+
+- `world_superlative(Property, Domain, Answer)` per primati stabili;
+- scaling di ricette come triple `quantita/unita/ingrediente`;
+- filtri di conteggio che sostituiscono invece di saltare;
+- distanza tra citta come KB e moto relativo come solver;
+- quatrain topic in KB;
+- antonimi come relazione `opposite/2`.
+
+Il run ha anche esposto un flake reale: la durata conversazionale partiva da
+`brain_create` e usava secondi interi. Ora parte dal primo turno e usa
+`timespec_get`, perche "da quanto parliamo" deve misurare la conversazione, non
+il tempo di startup.
+
+## Salto gen252 - protocollo line-based e second-frame pass
+
+Il rerun post-fix di `make llmscore` ha mostrato un fallimento diverso: una
+risposta multi-linea veniva letta dall'interviewer come piu risposte separate.
+Questo non era un problema di conoscenza ma di protocollo conversazionale:
+quando il canale e line-based, alcuni prompt devono produrre una risposta
+monoriga.
+
+Il secondo pass ha quindi aggiunto:
+
+- `activity_summary/2` per preferenze situate monoriga, lasciando i piani
+  multi-step ai prompt che chiedono davvero un piano;
+- un frame di arrivo a destinazione per due treni, separato dal frame
+  "si incontrano";
+- simultaneita in cucina (`same time/same pot`) come vincolo sul tempo;
+- EN->FR minimo come lessico KB + grammatica in C;
+- routing delle riddles con numeri prima dell'aritmetica;
+- cue di completamento per frasi tronche su `bottle/bottl`.
+
+La lezione operativa: migliorare LLMSCORE non significa solo sapere piu cose.
+Significa anche rispettare il contratto I/O dell'intervistatore senza perdere
+onesta o struttura.
+
+## Salto gen253 - allargamento sul campione successivo
+
+Il successivo `make llmscore` e tornato a 4/10 ma ha mostrato gap piu locali:
+problemi di scaffali, ordinamento di lettere, spiegazioni cielo/tramonto,
+richieste di tre continuazioni, couplet con due temi.
+
+Le correzioni restano strutturali:
+
+- `with N each` e `complete shelves worth` sono slot del solver contenitore;
+- reverse alphabetical order e una trasformazione di stringa;
+- cielo blu + tramonto rosso compone due cause KB;
+- `continuation_template/2` deve avere cardinalita sufficiente quando il prompt
+  chiede piu alternative;
+- i temi poetici composti vanno risolti scegliendo una surface che copra i
+  vincoli salienti, non il primo token comodo.
+
+Resta aperto un frame utile: puzzle algebrici vincolati che possono essere
+inconsistenti. La risposta corretta non deve essere un numero inventato, ma
+"nessuna soluzione" con prova del vincolo impossibile.
+
+Snapshot finale del turno: `make llmscore` resta 4/10 su un nuovo campione.
+Prossimi frame ad alto rendimento:
+
+- geometria elementare (`circumference = 2*pi*r`) con un valore approssimato;
+- continuation topic `horizon/traveler/light` con cardinalita multipla;
+- vocabolario composto (`opposite(generous, selfish)`, truth-teller -> honest);
+- vincoli numerici a scelta (`10 < n < 20`, `not prime`);
+- idiom intent senza richiedere la parola "idiom";
+- puzzle troncati/incompleti: declino calibrato invece di un numero casuale.
+
 ## Roadmap
 
 ### Fase A - Eliminare il muro cieco

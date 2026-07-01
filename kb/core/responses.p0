@@ -75,6 +75,7 @@ response_template(greeting_reply, "Hey! Good to see you.").
 % "answer a keyboard riddle with \"…\"" adds a phrasing with no code edit. ---
 response_template(riddle_keyboard, "A keyboard.").
 response_template(riddle_map, "A map.").
+response_template(riddle_letter_m, "The letter M.").
 response_template(diff_fruit_vegetable, "A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.

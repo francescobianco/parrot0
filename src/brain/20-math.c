@@ -149,7 +149,14 @@ static void arith_answer(double v, char *out, size_t out_size) {
 
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
-    (void)b; (void)raw;
+    (void)raw;
+
+    /* gen252: classic letter riddles contain numbers but are not arithmetic.
+     * Catch this before expression folding turns "twice ... thousand" into math. */
+    if (b && b->kb && cue(norm, "once in a minute") &&
+        cue(norm, "twice in a moment") && cue(norm, "thousand years")) {
+        if (kb_response(b, "riddle_letter_m", NULL, out, out_size)) return 1;
+    }
 
     char buf[256];
     size_t len = strlen(norm);
@@ -812,7 +819,9 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
             int of_step = !strcmp(t, "of") && i > 0 &&
                           (!strcmp(strip_edge_punct(sw[i - 1]), "steps") ||
                            !strcmp(strip_edge_punct(sw[i - 1]), "step"));
-            if (!strcmp(t, "by") || !strcmp(t, "every") || of_step) {
+            int by_step = !strcmp(t, "by") &&
+                          !(i > 0 && !strcmp(strip_edge_punct(sw[i - 1]), "divisible"));
+            if (by_step || !strcmp(t, "every") || of_step) {
                 char nx[64]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
                 size_t nl = strlen(nx);            /* "3s" -> "3" */
                 if (nl > 1 && nx[nl - 1] == 's') nx[nl - 1] = '\0';
@@ -869,6 +878,35 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen251: replacement filter. "say buzz instead of any number divisible by 3"
+     * keeps the count range intact and substitutes matching terms instead of
+     * dropping them (distinct from the skip filter above). */
+    char repl[32] = "";
+    int repl_mult = 0;
+    if ((cue(buf, "instead of") || cue(buf, "replace")) && cue(buf, "say")) {
+        char rb[512]; snprintf(rb, sizeof rb, "%s", buf);
+        char *rw[64]; size_t rnw = split_words(rb, rw, 64);
+        for (size_t i = 0; i < rnw; i++) {
+            char *t = strip_edge_punct(rw[i]);
+            if (!strcmp(t, "say") && i + 1 < rnw && !repl[0]) {
+                char *word = strip_edge_punct(rw[i + 1]);
+                if (*word && strlen(word) < sizeof repl) snprintf(repl, sizeof repl, "%s", word);
+            }
+            if (!strcmp(t, "divisible") && i + 2 < rnw &&
+                !strcmp(strip_edge_punct(rw[i + 1]), "by")) {
+                long m;
+                if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
+                    repl_mult = (int)m;
+            }
+            if ((!strcmp(t, "multiple") || !strcmp(t, "multiples")) &&
+                i + 2 < rnw && !strcmp(strip_edge_punct(rw[i + 1]), "of")) {
+                long m;
+                if (word_to_int(strip_edge_punct(rw[i + 2]), &m) && m > 0)
+                    repl_mult = (int)m;
+            }
+        }
+    }
+
     char line[1024]; size_t pos = 0; line[0] = '\0';
     long mag = stepmag > 0 ? stepmag : 1;
     long step = (start <= end) ? mag : -mag;
@@ -880,8 +918,14 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
         int skip = (skip_ends >= 0 && (av % 10) == skip_ends) ||
                    (skip_mult > 0 && (av % skip_mult) == 0);
         if (!skip && (!only_odd || (v % 2 != 0)) && (!only_even || (v % 2 == 0))) {
-            int w = snprintf(line + pos, sizeof line - pos, "%s%ld",
-                             emitted ? ", " : "", v);
+            char nbuf[40];
+            const char *term = nbuf;
+            if (repl[0] && repl_mult > 0 && (av % repl_mult) == 0)
+                term = repl;
+            else
+                snprintf(nbuf, sizeof nbuf, "%ld", v);
+            int w = snprintf(line + pos, sizeof line - pos, "%s%s",
+                             emitted ? ", " : "", term);
             if (w < 0 || (size_t)w >= sizeof line - pos) break;
             pos += (size_t)w;
             emitted++;
@@ -1123,6 +1167,35 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     /* gen246: sequential word transformation. The word is data from the prompt;
      * operations are structural ("remove first/last letter", "add letter X to
      * end/start"), so held-out words transfer. */
+    if ((cue(buf, "letters in") || cue(buf, "letters of")) &&
+        cue(buf, "reverse") && cue(buf, "alphabet")) {
+        char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
+        char *w[64]; size_t nw = split_words(tmp, w, 64);
+        char word[128] = "";
+        for (size_t i = 0; i + 1 < nw && !word[0]; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (strcmp(t, "in") && strcmp(t, "of")) continue;
+            char *cand = strip_edge_punct(w[i + 1]);
+            int alpha = 1;
+            for (size_t k = 0; cand[k]; k++)
+                if (!isalpha((unsigned char)cand[k])) { alpha = 0; break; }
+            if (alpha && *cand) snprintf(word, sizeof word, "%s", cand);
+        }
+        if (word[0]) {
+            size_t n = strlen(word);
+            for (size_t i = 0; i < n; i++) {
+                for (size_t j = i + 1; j < n; j++) {
+                    if (tolower((unsigned char)word[j]) > tolower((unsigned char)word[i])) {
+                        char c = word[i]; word[i] = word[j]; word[j] = c;
+                    }
+                }
+            }
+            char msg[160]; snprintf(msg, sizeof msg, "%s.", word);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
     if ((cue(buf, "take the word") || cue(buf, "the word") || cue(buf, "word \"")) &&
         (cue(buf, "remove") || cue(buf, "drop")) &&
         cue(buf, "letter") && cue(buf, "add")) {

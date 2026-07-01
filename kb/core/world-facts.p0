@@ -195,6 +195,8 @@ opposite(sweet, sour).
 opposite(sour, sweet).
 opposite(future, past).
 opposite(past, future).
+opposite(ephemeral, permanent).
+opposite(permanent, ephemeral).
 
 % --- gen240 (LLMSCORE): known-fact counting. quantity(Entity, Unit, N) reifies
 % "an Entity has N Unit" — answered by the recall parser in 25-wordmath-reasoning.c
@@ -282,6 +284,7 @@ color_of(soil, brown).
 % (sky_blue); the value is the reason clause (quoted, may contain commas). This is
 % a completion grounded in KNOWLEDGE; an unknown clause is admitted, not invented. ---
 because(sky_blue, "sunlight scatters off the air, and blue light scatters the most").
+because(sunset_red, "sunlight travels through more air, so blue scatters away and red or orange light remains").
 because(sea_blue, "water absorbs red light and reflects blue back").
 because(ocean_blue, "water absorbs red light and reflects blue back").
 because(grass_green, "it contains chlorophyll, which reflects green light").
@@ -377,6 +380,12 @@ planet_superlative(farthest_from_sun, neptune, "the farthest planet from the Sun
 planet_superlative(red_planet, mars, "the Red Planet").
 planet_superlative(most_moons, saturn, "the planet with the most known moons").
 
+% gen251: broader world superlatives. world_superlative(Property, Domain,
+% "answer") keeps stable open-world facts as data while the C only maps query
+% tokens onto property/domain slots.
+world_superlative(tallest, mountain, "Mount Everest is the tallest mountain in the world").
+world_superlative(highest, mountain, "Mount Everest is the highest mountain in the world").
+
 % --- gen239 (kb-first manifesto): island nations have no land-bordering
 % countries. Explicit negative fact — closed-world absence would have implied
 % "I don't know" rather than "zero"; we want the certitude behind a real
@@ -446,6 +455,11 @@ magnitude(size, elephant, 9).
 magnitude(size, house, 10).
 magnitude(size, whale, 11).
 magnitude(size, mountain, 12).
+
+% gen251: city-to-city separation used by relative-motion frames. Values are
+% ordinary road/rail-scale miles, rounded because the prompt itself is rounded.
+distance_between(chicago, new_york, 790).
+distance_between(new_york, chicago, 790).
 magnitude(size, moon, 13).
 magnitude(size, sun, 14).
 magnitude(size, usa, 20).
@@ -594,6 +608,8 @@ continuation_template(silence, "every small sound in the house became enormous")
 continuation_template(silence, "the stopped clock seemed to be waiting for an answer").
 continuation_template(darkness, "the shadows seemed to lean closer").
 continuation_template(suspense, "someone knocked once from the other side").
+continuation_template(suspense, "a cold wind rushed in carrying the smell of rain").
+continuation_template(suspense, "a narrow stairway curved down into the dark").
 % --- gen240 (LLMSCORE): more scene cues so common story openings continue.
 scene_cue(house, mystery).
 scene_cue(street, mystery).
@@ -603,12 +619,15 @@ scene_cue(night, suspense).
 scene_cue(rainbow, wonder).
 scene_cue(valley, wonder).
 scene_cue(sky, wonder).
+scene_cue(bottle, bottle).
+scene_cue(bottl, bottle).
 continuation_template(mystery, "no one had set foot inside for as long as anyone could remember").
 continuation_template(mystery, "a single light flickered in an upstairs window").
 continuation_template(mystery, "the neighbours always crossed to the other side before passing it").
 continuation_template(wonder, "the colours spilled down until they touched the grass").
 continuation_template(wonder, "every face turned upward, caught in the same quiet awe").
 continuation_template(wonder, "for a moment the whole valley seemed to hold its breath").
+continuation_template(bottle, "e one golden afternoon, I would keep it for a grey day").
 % gen240: a lone watcher / lookout scene (lighthouse, cliff, shore, tower).
 scene_cue(lighthouse, vigil).
 scene_cue(cliff, vigil).
@@ -697,7 +716,7 @@ couplet(cat, "The cat curls small against the failing light; it keeps one slow g
 couplet(star, "A single star pricks through the dusk's last glow; old light still travelling from long ago.").
 couplet(snow, "The snow comes down and hushes all the street; it lays a quiet blanket, cold and sweet.").
 couplet(spring, "The first green shoot pushes through cold black ground; in silence all the waking world is found.").
-couplet(autumn, "The red leaves loosen, drifting as they fall; bare branches wait, patient through it all.").
+couplet(autumn, "Autumn leaves fall over letters left unread; forgotten words sleep softly in their bed.").
 
 % gen241 (LLMSCORE-check): "a place where you might see X" -> the place. place_for(
 % Thing, "a place"). Answers the definition half of riddles like "...means a place
@@ -794,6 +813,10 @@ poem4(sea, "The sea breathes slow in silver and grey,").
 poem4(sea, "rolling its waves to the edge of day.").
 poem4(sea, "It keeps the oldest song of them all --").
 poem4(sea, "the long, low sound of the tide's rise and fall.").
+poem4(ocean, "The ocean breathes in blue and grey,").
+poem4(ocean, "and carries the moon on a silver way.").
+poem4(ocean, "Its deep tides murmur, vast and wide,").
+poem4(ocean, "with secret songs beneath the tide.").
 poem4(robot, "A small steel hand reached into the rain,").
 poem4(robot, "and felt the cold drops fall again and again.").
 poem4(robot, "It had no word for the wonder it found,").
@@ -935,6 +958,7 @@ activity_step(rainy_sunday, 1, "Choose one indoor activity that fits the weather
 activity_step(rainy_sunday, 2, "Make the room comfortable with warm light, a drink, and a clear place to sit").
 activity_step(rainy_sunday, 3, "Do one small useful task first so the rest of the afternoon feels unhurried").
 activity_step(rainy_sunday, 4, "Leave time for rest rather than packing the day with errands").
+activity_summary(rainy_sunday, "I don't have real favorites, but on a rainy day I'd read quietly with a warm drink.").
 
 % gen241 (LLMSCORE-check): parametric limerick. A limerick is a fixed AABBA form; the
 % five image lines per theme live in the KB (engine fixed, lexicon learns). The C only

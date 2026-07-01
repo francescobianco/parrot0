@@ -50,6 +50,8 @@ struct Brain {
 
     /* gen82: session start time for "how long have we been talking?" */
     time_t start_time;
+    struct timespec start_ts;
+    int has_start_ts;
 
     /* gen83: named-entity candidates extracted from user turns. */
     char entities[8][64];
@@ -276,4 +278,3 @@ static void note_contradiction(Brain *b, const char *pred, const char *arg,
 #include "brain/85-translate-synth-world.c"
 #include "brain/90-repair-robust-abduce.c"
 #include "brain/99-registry.c"
-

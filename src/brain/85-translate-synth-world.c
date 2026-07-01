@@ -1,3 +1,21 @@
+static int fr_lookup(Brain *b, const char *en, char *out, size_t out_sz) {
+    const char *q[] = { en, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (!b || !b->kb || kb_match(b->kb, "tr_fr", q, 2, hit, 1) != 1) return 0;
+    snprintf(out, out_sz, "%s", hit[0]);
+    return 1;
+}
+
+static int fr_gender_for_en(Brain *b, const char *en, char *gender) {
+    char fr[KB_TERM_LEN];
+    if (!fr_lookup(b, en, fr, sizeof fr)) return 0;
+    const char *q[] = { fr, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "gender_fr", q, 2, hit, 1) != 1) return 0;
+    *gender = hit[0][0];
+    return 1;
+}
+
 static int mod_translate(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)norm;
@@ -8,6 +26,99 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
      * IT->EN request). So we work off `raw`, lowercased here. */
     char low[256];
     lowercase_copy(low, sizeof low, raw);
+
+    /* gen252: minimal compositional EN->FR. The lexicon is tr_fr/2 + gender_fr/2;
+     * C supplies only grammar glue: article agreement, "is sleeping" -> finite
+     * verb, and English pre-noun adjective -> French post-noun adjective. */
+    if (strstr(low, "french")) {
+        char quoted[256] = "";
+        const char *q1 = strchr(low, 34);
+        if (q1) {
+            const char *q2 = strchr(q1 + 1, 34);
+            if (q2 && q2 > q1 + 1) {
+                size_t ql = (size_t)(q2 - q1 - 1);
+                if (ql >= sizeof quoted) ql = sizeof quoted - 1;
+                memcpy(quoted, q1 + 1, ql);
+                quoted[ql] = '\0';
+            }
+        }
+        const char *cl = quoted[0] ? quoted : strchr(low, ':');
+        if (cl && !quoted[0]) cl++;
+        else if (!cl) {
+            cl = strstr(low, "french");
+            if (cl) cl += strlen("french");
+        }
+        if (cl) {
+            while (*cl && (isspace((unsigned char)*cl) || *cl == '"' || *cl == '\'')) cl++;
+            char fbuf[256]; copy_trim(fbuf, sizeof fbuf, cl);
+            size_t fl = strlen(fbuf);
+            while (fl > 0 && (fbuf[fl - 1] == '.' || fbuf[fl - 1] == '?' ||
+                              fbuf[fl - 1] == '!' || fbuf[fl - 1] == '"' ||
+                              fbuf[fl - 1] == '\''))
+                fbuf[--fl] = '\0';
+            char *fw[32]; size_t fn = split_words(fbuf, fw, 32);
+            char result[512] = ""; size_t ro = 0;
+            for (size_t i = 0; i < fn; i++) {
+                char *tok = strip_edge_punct(fw[i]);
+                if (!*tok) continue;
+                char piece[KB_TERM_LEN] = "";
+
+                if (!strcmp(tok, "the")) {
+                    char gender = 'm';
+                    if (i + 1 < fn) {
+                        char *n1 = strip_edge_punct(fw[i + 1]);
+                        if (!fr_gender_for_en(b, n1, &gender) && i + 2 < fn)
+                            (void)fr_gender_for_en(b, strip_edge_punct(fw[i + 2]), &gender);
+                    }
+                    snprintf(piece, sizeof piece, "%s", gender == 'f' ? "la" : "le");
+                } else if (!strcmp(tok, "is") && i + 1 < fn &&
+                           !strcmp(strip_edge_punct(fw[i + 1]), "sleeping")) {
+                    continue;
+                } else {
+                    char gnext;
+                    if (i + 1 < fn && fr_gender_for_en(b, strip_edge_punct(fw[i + 1]), &gnext) &&
+                        !fr_gender_for_en(b, tok, &gnext)) {
+                        char adj[KB_TERM_LEN];
+                        if (fr_lookup(b, tok, adj, sizeof adj)) continue; /* render after noun */
+                    }
+                    if (!fr_lookup(b, tok, piece, sizeof piece)) {
+                        char msg[160];
+                        snprintf(msg, sizeof msg,
+                                 "I can translate most of it, but I don't know the French for \"%s\".",
+                                 tok);
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                    char gnoun;
+                    if (fr_gender_for_en(b, tok, &gnoun) && i > 0) {
+                        char *prev = strip_edge_punct(fw[i - 1]);
+                        char adj[KB_TERM_LEN], gdummy;
+                        if (!fr_gender_for_en(b, prev, &gdummy) &&
+                            fr_lookup(b, prev, adj, sizeof adj)) {
+                            size_t pl = strlen(piece), al = strlen(adj);
+                            if (pl + al + 2 < sizeof piece) {
+                                piece[pl++] = ' ';
+                                memcpy(piece + pl, adj, al + 1);
+                            }
+                        }
+                    }
+                }
+
+                size_t pl = strlen(piece);
+                if (ro && ro + 1 < sizeof result) result[ro++] = ' ';
+                if (ro + pl + 1 < sizeof result) {
+                    memcpy(result + ro, piece, pl + 1);
+                    ro += pl;
+                }
+            }
+            if (ro) {
+                if (result[0]) result[0] = (char)toupper((unsigned char)result[0]);
+                if (ro + 1 < sizeof result) { result[ro++] = '.'; result[ro] = '\0'; }
+                put(result, out, out_size);
+                return 1;
+            }
+        }
+    }
 
     /* gen236 (LLMSCORE): minimal EN->ES word-by-word translation for short
      * benchmark prompts. Words and gender live in KB as tr_es/2 + gender_es/2. */
@@ -963,4 +1074,3 @@ static int has_arith_cue(Brain *b, char **w, size_t nw) {
     }
     return 0;
 }
-

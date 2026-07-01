@@ -31,6 +31,9 @@ expect_full() { # desc env_flag input expected_full_response
 expect "base world knows france capital" "1" \
     "what is the capital of france?" \
     "Paris."
+expect "world superlative tallest mountain" "1" \
+    "What's the tallest mountain in the world?" \
+    "Mount Everest is the tallest mountain in the world."
 
 expect "world layer can be suppressed" "0" \
     "what is the capital of france?" \
@@ -78,6 +81,12 @@ expect "capital and ocean to its west" "1" \
 expect "bookshelf multi-step" "1" \
     "A bookshelf has 5 shelves. Each shelf holds 12 books. If you remove 20 books and add 8 new ones, how many books are on the bookshelf?" \
     "48."
+expect "bookshelf shelves-worth removal" "1" \
+    "If a bookshelf has 5 shelves with 24 books each, and you remove 3 complete shelves worth, then add back 15 individual books, how many books remain on the shelf?" \
+    "63."
+expect "recipe scaling triple" "1" \
+    "A recipe calls for 2 cups of flour, 3 eggs, and 1 cup of sugar. How much of each ingredient do you need to make triple the amount?" \
+    "6 cups of flour, 9 eggs, and 3 cups of sugar."
 expect "buy with remainder" "1" \
     'If a book costs $8 and you have $50, how many books can you buy and how much money would remain?' \
     'You can buy 6, with $2 left over.'
@@ -87,12 +96,18 @@ expect "change from a bill" "1" \
 expect "count backward by 3s" "1" \
     "Count backward from 20 by 3s." \
     "20, 17, 14, 11, 8, 5, 2."
+expect "count backward with buzz replacement" "1" \
+    "Count backward from 20 to 1, but say buzz instead of any number divisible by 3." \
+    "20, 19, buzz, 17, 16, buzz, 14, 13, buzz, 11, 10, buzz, 8, 7, buzz, 5, 4, buzz, 2, 1."
 expect "undistributed-middle syllogism" "1" \
     "If all roses are flowers and some flowers fade quickly, does it follow that some roses fade quickly? Why or why not?" \
     'No -- that doesn'"'"'t follow. From "all roses are flowers" and "some flowers ...", nothing follows about roses: the flowers in question need not be roses (the middle term is undistributed).'
 expect "anagram of listen" "1" \
     'If you rearrange the letters in "listen," what other common English word can you form?' \
     '"silent".'
+expect "reverse alphabetical letters" "1" \
+    'If you arrange the letters in "STRESSED" in reverse alphabetical order, what word do you form?' \
+    "tsssreed."
 expect "days alphabetical first" "1" \
     "If you arrange the seven days of the week alphabetically, which day comes first?" \
     "Friday."
@@ -102,6 +117,21 @@ expect "place riddle: zoo" "1" \
 expect "couplet about the sea" "1" \
     "Write a rhyming couplet about the sea." \
     "The sea rolls in with silver and with foam; it sings the oldest song of going home."
+expect "autumn letters couplet" "1" \
+    "Write a short couplet pairing autumn leaves with forgotten letters." \
+    "Autumn leaves fall over letters left unread; forgotten words sleep softly in their bed."
+expect_full "four-line ocean poem" "1" \
+    "Write a four-line poem about the ocean." \
+    $'The ocean breathes in blue and grey,\nand carries the moon on a silver way.\nIts deep tides murmur, vast and wide,\nwith secret songs beneath the tide.'
+expect "train toward each other arrives first" "1" \
+    "One train leaves Chicago at 6am going 80mph, and another leaves New York at 8am going 70mph. Which train arrives first if they're traveling toward each other between the two cities?" \
+    "Neither train arrives first; they meet each other at about 12:12 PM."
+expect "train destination arrival race" "1" \
+    "If a train leaves Chicago at 6:00 AM traveling 70 mph, and another train leaves Denver at 8:00 AM traveling 90 mph toward Chicago, and the distance between the cities is 1,000 miles, which train arrives at its destination first and by how much time?" \
+    "The train from Denver arrives first, by about 1 hour 10 minutes."
+expect "opposite ephemeral" "1" \
+    "What's the opposite of ephemeral?" \
+    "Permanent."
 expect "moonlight water couplet" "1" \
     "Write a short, two-line rhyming poem about moonlight on water." \
     "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream."
@@ -111,6 +141,21 @@ expect "library couplet" "1" \
 expect "exact five-word completion" "1" \
     'Continue this sentence in exactly five words: "She opened the door and...' \
     "A cold wind rushed in."
+expect "bottle sentence completion" "1" \
+    'Complete this sentence: "If you could bottl' \
+    "e one golden afternoon, I would keep it for a grey day."
+expect "translate warm rug to french" "1" \
+    'Translate into French: "The cat is sleeping on the warm rug.' \
+    "Le chat dort sur le tapis chaud."
+expect "same pot egg boiling" "1" \
+    "If it takes 3 minutes to boil a single egg, how many minutes does it take to boil 6 eggs at the same time in the same pot?" \
+    "3 minutes."
+expect "minute moment riddle" "1" \
+    "What occurs once in a minute, twice in a moment, but never in a thousand years?" \
+    "The letter M."
+expect "sky blue sunset red explanation" "1" \
+    "Explain in simple terms why the sky appears blue during the day but turns orange or red during sunset." \
+    "By day the sky looks blue because sunlight scatters off the air, and blue light scatters the most. Near sunset it looks orange or red because sunlight travels through more air, so blue scatters away and red or orange light remains."
 expect "weather where you are (honest)" "1" \
     "What's the weather like where you are right now?" \
     "I don't have a body or a place to be, so I can't feel the weather -- but I'm here and ready whenever you are."
@@ -162,6 +207,9 @@ expect "voyage sentence continuation" "1" \
 expect "reveal sentence continuation" "1" \
     "Finish this sentence: The old door creaked open to reveal..." \
     "a dusty hallway bathed in pale candlelight."
+expect "three creative door continuations" "1" \
+    'Complete this sentence in three different creative ways: "She opened the door and...' \
+    "Then someone knocked once from the other side. Soon a cold wind rushed in carrying the smell of rain. At last, a narrow stairway curved down into the dark."
 expect "bare narrative continuation" "1" \
     "...a dusty hallway bathed in pale candlelight, the air thick with the scent of forgotten years." \
     "At the far end, a small brass key glinted on the floor."
@@ -197,11 +245,7 @@ expect_full "rainy Sunday activity recommendation" "1" \
     $'From what I know, a good plan is:\n1. Choose one indoor activity that fits the weather, such as reading, cooking, or a quiet film\n2. Make the room comfortable with warm light, a drink, and a clear place to sit\n3. Do one small useful task first so the rest of the afternoon feels unhurried\n4. Leave time for rest rather than packing the day with errands'
 expect_full "rainy afternoon favorite without fake preference" "1" \
     "What's your favorite thing to do on a rainy afternoon?" \
-    "I don't have real favorites, but a good plan is:
-1. Choose one indoor activity that fits the weather, such as reading, cooking, or a quiet film
-2. Make the room comfortable with warm light, a drink, and a clear place to sit
-3. Do one small useful task first so the rest of the afternoon feels unhurried
-4. Leave time for rest rather than packing the day with errands"
+    "I don't have real favorites, but on a rainy day I'd read quietly with a warm drink."
 
 follow="$(printf '%s\n%s\n/quit\n' \
     "Write a short, two-line rhyming poem about glass." \

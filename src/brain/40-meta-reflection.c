@@ -150,8 +150,16 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                        cue(buf, "da quanto tempo parliamo") ||
                        cue(buf, "da quanto parliamo");
     if (session_time) {
-        time_t now = time(NULL);
-        long elapsed = (long)(now - b->start_time);
+        long elapsed;
+        struct timespec now_ts;
+        if (b->has_start_ts && timespec_get(&now_ts, TIME_UTC) == TIME_UTC) {
+            elapsed = (long)(now_ts.tv_sec - b->start_ts.tv_sec);
+            if (now_ts.tv_nsec < b->start_ts.tv_nsec) elapsed--;
+            if (elapsed < 0) elapsed = 0;
+        } else {
+            time_t now = time(NULL);
+            elapsed = (long)(now - b->start_time);
+        }
         char msg[128];
         if (elapsed < 60)
             snprintf(msg, sizeof msg, "We've been talking for %ld second(s).", elapsed);
@@ -555,11 +563,12 @@ static int is_internal_pred(const char *pred) {
         "grows_with", "increases",
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "scene_cue", "continuation_template",
-        "tr_es", "gender_es", "very_cold_result",
+        "tr_es", "gender_es", "tr_fr", "gender_fr", "very_cold_result",
         "historical_figure", "figure_domain", "figure_reason",
         "paint_mix",
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
-        "quantity", "landmark_of", "planet_superlative", /* gen240 */
+        "quantity", "landmark_of", "planet_superlative", "world_superlative",
+        "distance_between", /* gen240/gen251 */
         "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city",
         "magnitude", "magnitude_cue", "difference_between", "sound_of",
         "taste_of",
@@ -567,7 +576,7 @@ static int is_internal_pred(const char *pred) {
         "river_of", "ocean_west_of", "ocean_borders", "moon_of", "anagram_of", /* gen241 */
         "process_step", "process_topic", "limerick_l1", "limerick_l2", "limerick_l3", /* gen241 */
         "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
-        "scenario_step", "activity_topic", "activity_step", "place_for",
+        "scenario_step", "activity_topic", "activity_step", "activity_summary", "place_for",
         "sensory_topic", "sensory_phrase", "concise_topic", "concise_explain",
         NULL
     };
