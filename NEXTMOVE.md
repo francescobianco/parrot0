@@ -1,142 +1,235 @@
-# NEXTMOVE — handoff (2026-06-24)
+# NEXTMOVE - piano per un parrot0 sostanzialmente comparabile a un LLM
 
-Clean tree. Head: gen204 (`gen204-cond-asymmetry`). `make test` FULLY GREEN (194
-unit cases, zero failures; gen203 fixed the agi-profile heap-use-after-free that was
-the real cause of the old `profiles.sh` failures — now 13/13). `make code-bench`
-21/21 gates. gen202 fixed the stray `<` in `make chat`.
+## Tesi operativa
 
-## Just landed — THREE real SWE-bench instances RESOLVED, three general smells
-parrot0 derives patches from STRUCTURE and the OFFICIAL SWE-bench Docker image
-judges them RESOLVED (it never sees gold patch / tests):
-- **astropy-12907 (gen200)** SYMMETRY BREAK — `code_symmetry_fix`. `make swe-solve`.
-- **astropy-6938 (gen201)** DISCARDED RESULT — `code_find_discarded_result`: a bare
-  pure-method call whose value is thrown away; assign it back in place. `make
-  swe-solve INSTANCE=astropy__astropy-6938`.
-- **astropy-14995 (gen204)** CONDITION ASYMMETRY — `code_find_cond_asymmetry`: a
-  bare `NAME is None` guard where siblings test `X.ATTR is None` and `NAME.ATTR` is
-  used elsewhere -> `NAME.ATTR is None` (179 PASS_TO_PASS). `make swe-solve
-  INSTANCE=astropy__astropy-14995`.
+L'obiettivo non e imitare la superficie di un LLM. L'obiettivo e costruire un
+sistema che, su una quota sostanziale di compiti comuni da LLM, produca risposte
+competenti usando solo C, KB, strumenti deterministici e test.
 
-gen204 also FIXED the oracle: astropy forces ANSI colour, which broke the
-`^[0-9]+ passed` detection (gold itself looked like 179 regressions); now ANSI is
-stripped and test sets are batched into one pytest run. All three re-verified.
+La misura non deve essere "sembra fluido", ma:
 
-The `mod_codeast` "find/fix the bug in <path>" branch tries each structural smell
-in turn — a growing LIBRARY of grounded localizers, not general APR. EN+IT ratchets
-`symfix`/`discarded`/`condasym` `.chat`/`.it`. Harness `tests/swebench/{oracle,
-parrot_solve}.sh`.
+- capisce la forma della richiesta;
+- sa dire cosa sa, cosa non sa e perche;
+- usa memoria e contesto;
+- risolve problemi piccoli con proof trace;
+- acquisisce dati senza outsourcing cognitivo;
+- usa strumenti locali quando servono;
+- non finge capacita non supportate.
 
-How to run: needs docker + jq; pulls the ~2.7GB official image once per instance (a
-curation step; parrot0 never touches the net). To target a NEW instance: snapshot
-its base-commit source into `tests/swebench/lite/<id>/repo_excerpt/...` (copy from
-the official image at base_commit, like fitsrec.py/separable.py), then `make
-swe-solve INSTANCE=<id>`.
+Il collo di bottiglia attuale non e aggiungere conoscenza o stile. E trasformare
+il linguaggio naturale in strutture interrogabili abbastanza generiche da
+alimentare KB, memoria, ragionamento e strumenti.
 
-NEXT: widen the map (`tests/swebench/fetch_lite.sh 50`, `make swe-bench`) and add
-the next grounded localizer/transformation the next instance pulls — each judged
-by the real oracle, never hardcoded. The numpy value-domain semantics delta is the
-big one for instances needing semantic (not structural) reasoning.
+## Audit di realismo
 
-## Just landed — gen199 (Python F3 semantics by delta, CODE-MASTERY §7b)
-F. steered: Python semantics is derived by DIFFERENCE from C (§7b), not built
-separately. `code.c`: `eval_py_fn` (Python front-end — `def name(params):`,
-identifier-first params, newline statements: locals + return) reuses the SAME
-`ev_rel` expression evaluator as C; `eval_any` dispatches C-then-Python and is used
-by `code_eval` AND the in-expression call recursion, so Python→Python recursion
-works. No brain logic changed — the eval branch already called `code_eval`
-language-agnostically, so Python lit up for free (the §7b payoff). Proven: `add`,
-precedence, annotated params, multi-line file locals (`sqpy`=36), recursion
-(`usepy(4)`=20); honest refusal on if/string/unknown-call. EN+IT `eval_py.chat`/
-`.it`, codebench gate `evaluate_py.code`. Distance report item 2 updated.
+Il piano e realistico se viene letto come convergenza funzionale su classi di
+task misurabili, non come promessa di parita open-domain in poche iterazioni.
+parrot0 puo diventare concretamente paragonabile a un LLM su segmenti dove:
 
-NEXT for astropy-12907: the value-domain delta (numpy ARRAY assign/broadcast — an
-additive Python-specific fact set), X6 issue->`_cstack` localization (the
-associative crux §4), X7 expression-level patch synthesis (rename/delete exist; an
-expression edit `= 1`->`= right` is the missing transformation).
+- la richiesta viene trasformata in una struttura interrogabile;
+- la conoscenza necessaria e in KB o acquisibile come dato dichiarativo;
+- il risultato puo essere verificato da test, proof trace, shell, compilatore o
+  oracle locale;
+- il sistema ammette il gap quando manca un fatto, una regola o uno strumento.
 
-## Earlier — gen198 (X1 run-grounding, was NEXTMOVE Option A)
-`code_run` in code.c/code.h: compile+link, then EXECUTE the built binary in a
-sandboxed child and report its REAL exit status (`WEXITSTATUS`). The C verify
-ladder compile->link->run is now COMPLETE — the grounded "did it pass?" oracle.
-`mod_codeast` branch: "build and run <path> ... exit code" (verb cue from the
-per-clause `norm`, path from raw). Flipped `run_execute.code` to `#expect: pass`
-(proves exit 0 AND 7); EN+IT `run_execute.chat`/`.it`. Also fixed a latent
-compound double-dispatch (codeast branches read path from the whole raw input,
-which `decompose_and_dispatch` passes to every sub-clause).
+Non e realistico aspettarsi equivalenza generale con LLM moderni senza un
+substrato di parsing, retrieval, memoria e composizione molto piu ampio. La
+metrica corretta quindi non e "parrot0 batte un LLM", ma "parrot0 copre in modo
+onesto e verificabile una quota crescente di compiti da LLM".
 
-## Where we are
-Driver = the REAL SWE-bench north star (CODE-MASTERY.md). The active goal in
-`TASK.md` is climbing toward the first real Lite instance **`astropy__astropy-12907`**.
+Nota operativa: `LLMSCORE.md` e uno snapshot del 2026-06-28, non lo stato live.
+Le generazioni successive hanno gia chiuso vari item di quel 4/10; va usato come
+traccia dei fallimenti, non come score corrente senza rerun.
 
-Recent generations:
-- **gen193** — `conjunction/1` is KB knowledge, teachable at runtime ("use p as a
-  conjunction"). The template for acceleration lever A (LOOP.md "Acceleration").
-- **gen194** — `make swe-bench` (degrade harness) + the language-as-delta growth
-  law written into CODE-MASTERY §7b, LOOP.md, TASKLIST X-series.
-- **gen195** — `make swe-bench` wired to the REAL `SWE-bench/SWE-bench_Lite`:
-  `tests/swebench/fetch_lite.sh` fetches rows ONCE (network=curation), caches under
-  the gitignored `.cache/huggingface/datasets/swebench/` (re-runs reuse it,
-  `--force` to refetch), commits static fixtures to `tests/swebench/lite/`. parrot0
-  never touches the net. 5 real instances committed (all astropy).
-- **gen196** — Python "by delta": `code_ingest_py` (src/code.c) emits the SAME
-  abstract facts as the C front-end (`code_function/1`, `code_calls/2`), scoped by
-  indentation. `code_defines`/`code_locate` learned the `def` head + `.py`; the
-  structural handler dispatches by `identify_code_lang` and accepts `.py` paths;
-  `strip_edge_punct` keeps `_`. Verified on the real 317-line `separable.py`.
-  Distance report: `docs/swebench/astropy-12907-distance.md`.
-- **gen197** — multi-line interactive input in `src/main.c` (TTY only; piped path
-  unchanged): Shift+Enter (CSI-u + modifyOtherKeys), bracketed paste, `\`-continuation.
+## Audit dei principi
 
-## What works toward astropy-12907 (run `make swe-bench`)
-On the REAL `separable.py`, parrot0 already: lists all functions, gives `_cstack`'s
-call list, and locates `_cstack` by name. The read/structure distance is CLOSED.
+Il piano non rompe i principi se Fase A resta declino informato e non diventa un
+fallback che simula comprensione. I rischi sono tre:
 
-## The remaining distance (see docs/swebench/astropy-12907-distance.md)
-1. **X6 — issue → code localization** (the issue says "nested CompoundModels", not
-   "_cstack"). The associative frontier; biggest gap.
-2. **Python semantics** — parrot0 sees calls but cannot reason that `= 1` vs
-   `= right` changes the result (C `code_eval` doesn't cover Python).
-3. **X7 — patch synthesis** — no expression-level edit transformation yet
-   (rename/delete exist; this needs a new AST transformation).
-4. **Run-oracle** — verifying needs the repo at base_commit + a Python env to run
-   pytest; today the only grounded oracle is the C compiler.
+- phrasebook: aggiungere frasi in C invece di schemi e lessico in KB;
+- overclaim: rispondere con tono fluente quando manca supporto;
+- bench gaming: inseguire prompt singoli invece di categorie held-out.
 
-## Recommended NEXT MOVE
-X1 (Option A) is DONE. The C verify ladder is complete; the binding constraint is
-now the **Python frontier**. Pick ONE, smallest-first, KB-first where possible,
-grounded, EN+IT ratchet:
+La disciplina pratica e: forme linguistiche e dominio come KB quando possibile,
+C come motore fisso, test held-out, e risposte calibrate. Un `intent_schema`
+serve solo se alimenta parser, memoria, KB e strumenti; se resta documentazione
+inerte non cambia la capacita.
 
-- **Option A (recommended): X3 — abstract node vocabulary.** Audit whether the
-  gen173-196 analyzers (localization, `calls`/`assigns`, find_callers) speak
-  C-specific structure or an abstract `node/…` vocabulary; refactor so they read
-  abstract facts. CODE-MASTERY §7b: *this* is "support Python", not a parser
-  rewrite. gen196 already emits the same `code_function`/`code_calls` facts from
-  Python — extend that delta to the analyzers. Unblocks every later pull.
-- **Option B: static repo checkout (curation)** — check out a repo at
-  `base_commit` as static files (network once, like the wiki corpus) so a real
-  swe-bench repo is readable offline. Prereq for X6 localization / X7 patch.
-- **Option C: extend run-grounding to a TEST oracle** — today `code_run` reports
-  one program's exit code; a swe-bench solve needs "run THIS test and see it flip
-  fail->pass". Smallest C version: run a file whose `main` asserts, report
-  pass/fail. (Stays C-grounded; bridges toward the pytest oracle conceptually.)
+## Decisione implementativa immediata
 
-## Gotchas to remember
-- `split_words` null-terminates its buffer in place and `w[8]` truncates — read
-  cues from the intact `norm`, re-split into a larger array (see gen190 mod_arith).
-- KB leading `_`/uppercase = a Prolog variable; modules see the canonicalized
-  surface (`canonicalize_lang`), but arithmetic operator words (per/più/diviso)
-  are NOT canonicalized — match them directly.
-- New fixtures under `tests/code/` are walked by the recursive locate gates —
-  keep function names non-colliding (gen196 used `pyadd/pysquare/pymain`).
-- Push may need `git pull --rebase` first (an automated "learn wikipedia page"
-  cron pushes to main). Rebuild + `make test` after rebasing, then push.
-- Commit with `convcommit -t <type> -s <scope> -m "genN - ..." -a -p`.
-- `decompose_and_dispatch` passes each sub-clause as `norm` but the WHOLE raw
-  input as `raw`. A module that reads from `raw` (e.g. the codeast path-branches)
-  will re-fire on every sub-clause of "X and tell me Y" and DOUBLE its answer —
-  gate the trigger cue on `norm`, take only positional data (paths) from `raw`.
+Il prossimo taglio utile e piccolo e coerente con Fase A+B:
 
-## Parked
-basic-chat driver (`docs/plans/basic-chat.md`): `make basic-chat-bench` 26%
-(260/974). Next 0% blocks when resumed: cat.52 lists, cat.18 animal biology,
-cat.19 animal sounds (KB content).
+- correggere le contrazioni apostrofate comuni (`what's`) nella canonicalization;
+- generalizzare `process_step/3` con topic KB (`process_topic/2`) invece di
+  branch C su singoli task;
+- aggiungere raccomandazioni pratiche come `activity_topic/2` +
+  `activity_step/3`, con declino informato quando manca la situazione;
+- ratchettare i casi in `llmscore_world` perche dipendono dal mondo curato.
+
+## Salto gen245 - frame semantici condivisi
+
+Per essere piu ambiziosi senza rompere i principi, il taglio successivo non deve
+essere "aggiungere piu prompt". Deve introdurre una spina comune:
+
+> richiesta -> frame -> slot -> solver/render -> proof o gap
+
+Il primo passo implementato e deliberatamente compatibile con il registry
+attuale: i frame entrano nei moduli esistenti invece di aggiungere un orchestrator
+centrale ancora prematuro. I casi coperti sono scelti per diversita:
+
+- aritmetica con trasformazione di unita;
+- moto relativo;
+- lookup inverso di una relazione KB;
+- generazione vincolata da conteggio parole;
+- continuazione narrativa per scena;
+- superlativo di mondo curato.
+
+Il criterio per i prossimi passi: ogni item nuovo deve aggiungere un frame, una
+relazione KB o un solver riusabile. Se aggiunge solo una risposta, non e un
+salto.
+
+## Salto gen250 - contrasto e magnitudini KB-backed
+
+Il passo successivo ha chiuso una categoria ampia invece di un prompt: confronti
+e distinzioni. La forma e:
+
+> richiesta comparativa -> cue/due slot -> relazione KB -> risposta o gap
+
+Due relazioni sono ora il nucleo:
+
+- `difference_between(X, Y, Gloss)` per "what is the difference between X and Y";
+- `magnitude_cue(Cue, Dim, Direction)` + `magnitude(Dim, Item, Rank)` per
+  "which is faster A or B" e "is A bigger than B".
+
+Questo resta fedele al piano perche il C riconosce il frame e le slot, mentre
+lessico, dominio e valori vivono in KB. Quando il contrasto manca, la risposta
+nomina il gap invece di fingere o cadere nel muro cieco.
+
+## Roadmap
+
+### Fase A - Eliminare il muro cieco
+
+Priorita assoluta: nessuna frase ben formata deve cadere in `I don't understand
+that yet.` senza analisi. Anche quando manca il dato, parrot0 deve rispondere
+con un declino informato:
+
+> stai chiedendo X su Y, ma non ho il fatto/regola Z.
+
+Questa fase alza subito `LLMSCORE`, `chat-bench` e qualita percepita senza
+tradire i principi. Il target e riconoscere la forma della richiesta e nominare
+il gap, non fingere di sapere.
+
+### Fase B - Costruire grammatica come KB
+
+Introdurre progressivamente:
+
+- `pos/2`;
+- `intent_schema/2`;
+- ruoli sintattici;
+- schemi interrogativi, dichiarativi e imperativi come dati KB.
+
+Il C resta motore fisso; il sapere linguistico cresce come conoscenza. Questo e
+il passaggio piu importante: finche il parser resta fatto di branch
+specializzati, la crescita resta lineare.
+
+### Fase C - Composizione conversazionale
+
+Chiudere multi-intento, coordinazione, negazione, possessivi, coreference,
+memoria personale e memoria discorsiva.
+
+Il target non e aggiungere template, ma far cooperare moduli diversi nello
+stesso turno. Esempio:
+
+> ciao, ricordati che mi chiamo F e poi dimmi cosa sai fare
+
+La risposta corretta richiede saluto, memoria e self-model nello stesso giro,
+senza perdere sub-intenti e senza rispondere alla prima cue riconosciuta come se
+fosse tutto il turno.
+
+### Fase D - Ragionamento locale verificabile
+
+Spingere su:
+
+- aritmetica e word problems;
+- regole temporanee;
+- sillogismi con nonce words;
+- eccezioni;
+- contraddizioni;
+- proof trace;
+- calibrazione.
+
+Un LLM sostanziale non e solo fluente: mantiene uno stato di credenza. parrot0
+deve distinguere `true`, `false`, `unknown`, `conflict`, `hypothetical` e
+`inferred`, e deve poter spiegare quale fatto o regola sostiene la risposta.
+
+### Fase E - Knowledge acquisition come piano
+
+Quando manca un dato, il sistema deve generare un goal:
+
+```text
+need(know(topic)) -> acquire_knowledge(topic) -> assert wiki_concept -> answer
+```
+
+Questo va tenuto rigidamente come acquisizione di dati, non intelligenza
+esternalizzata. Wikipedia o corpus statici sono ammessi come fonte dichiarativa;
+un LLM a runtime no.
+
+### Fase F - Agency locale
+
+Consolidare il ciclo:
+
+```text
+perceive -> plan -> act -> observe -> revise
+```
+
+Prima su compiti piccoli: shell, file locali, mini verifiche, parsing codice.
+Poi su coding task reali. L'agency deve essere grounded: ogni affermazione su
+file, test o output deve derivare da un comando eseguito o da un fatto KB.
+
+### Fase G - Code mastery come prova dura
+
+Il codice e il benchmark piu onesto perche compila o non compila. Il percorso
+corretto resta AST-as-KB:
+
+```text
+sorgente -> fatti strutturali -> regole di analisi -> patch -> test
+```
+
+Non template di codice, ma trasformazioni verificabili. SWE-bench resta un
+north star, da usare come mappa dei fallimenti e poi come oracle quando il ciclo
+patch/test sara sufficientemente grounded.
+
+## Metriche di uscita
+
+- `LLMSCORE`: da 4/10 a 7/10 senza fingere identita LLM.
+- `chat-bench`: wall rate sotto il 5%.
+- `long-chat-bench`: continuita sopra 85%.
+- `compose-bench`: casi nuovi con almeno 3 moduli cooperanti.
+- `basic-chat-bench`: crescita per categorie, non per prompt singoli.
+- `swe-bench`: prima localizzazione corretta, poi patch verificate.
+
+## Ordine dei prossimi lavori
+
+1. Promuovere come task corrente il declino informato generalizzato.
+2. Aggiungere un mini `intent_schema` KB-backed per domande attributive:
+   capitale di X, definizione di X, processo di X, migliore modo per X.
+3. Correggere arithmetic/wordproblem: `LLMSCORE` mostra errori banali e costosi.
+4. Aggiungere parsing locale per regole del tipo:
+   `all X are Y; A is X; is A Y?`.
+5. Solo dopo riaprire con decisione il fronte coding/SWE-bench.
+
+## Criterio di fedelta alla missione
+
+Ogni avanzamento deve rispettare questi vincoli:
+
+- niente LLM a runtime;
+- niente phrasebook dove serve struttura;
+- conoscenza e forme linguistiche come KB quando possibile;
+- test held-out e, dove utile, ratchet EN/IT;
+- proof o trace quando la risposta e inferenziale;
+- declino informato quando manca un anello;
+- stile subordinato a verita e calibrazione.
+
+La strada concreta verso un parrot0 sostanzialmente comparabile a un LLM e
+questa: trasformare linguaggio naturale, memoria, conoscenza e strumenti in un
+unico substrato interrogabile e verificabile.

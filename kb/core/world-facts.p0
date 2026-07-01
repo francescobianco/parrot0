@@ -375,6 +375,7 @@ planet_superlative(smallest, mercury, "the smallest planet in our solar system")
 planet_superlative(hottest, venus, "the hottest planet").
 planet_superlative(farthest_from_sun, neptune, "the farthest planet from the Sun").
 planet_superlative(red_planet, mars, "the Red Planet").
+planet_superlative(most_moons, saturn, "the planet with the most known moons").
 
 % --- gen239 (kb-first manifesto): island nations have no land-bordering
 % countries. Explicit negative fact — closed-world absence would have implied
@@ -415,6 +416,23 @@ used_for(clock, timekeeping).
 % gen240 (LLMSCORE): a comparable MAGNITUDE relation, so "which is larger/closer:
 % A or B?" is answered by comparing ranks (not pre-cooked answers). magnitude(Dim,
 % Item, Rank) — only the order within a Dim matters.
+magnitude_cue(bigger, size, max).
+magnitude_cue(larger, size, max).
+magnitude_cue(biggest, size, max).
+magnitude_cue(largest, size, max).
+magnitude_cue(smaller, size, min).
+magnitude_cue(smallest, size, min).
+magnitude_cue(tinier, size, min).
+magnitude_cue(heavier, weight, max).
+magnitude_cue(lighter, weight, min).
+magnitude_cue(faster, speed, max).
+magnitude_cue(slower, speed, min).
+magnitude_cue(closer, distance_from_sun, min).
+magnitude_cue(nearer, distance_from_sun, min).
+magnitude_cue(closest, distance_from_sun, min).
+magnitude_cue(farther, distance_from_sun, max).
+magnitude_cue(further, distance_from_sun, max).
+magnitude_cue(farthest, distance_from_sun, max).
 magnitude(size, ant, 1).
 magnitude(size, strawberry, 2).
 magnitude(size, mouse, 2).
@@ -428,6 +446,21 @@ magnitude(size, elephant, 9).
 magnitude(size, house, 10).
 magnitude(size, whale, 11).
 magnitude(size, mountain, 12).
+magnitude(size, moon, 13).
+magnitude(size, sun, 14).
+magnitude(size, usa, 20).
+magnitude(size, united_states, 20).
+magnitude(size, canada, 21).
+magnitude(weight, feather, 1).
+magnitude(weight, ice, 2).
+magnitude(weight, butter, 3).
+magnitude(weight, stone, 4).
+magnitude(weight, silver, 5).
+magnitude(weight, gold, 6).
+magnitude(speed, tortoise, 1).
+magnitude(speed, bicycle, 2).
+magnitude(speed, car, 3).
+magnitude(speed, cheetah, 4).
 magnitude(distance_from_sun, mercury, 1).
 magnitude(distance_from_sun, venus, 2).
 magnitude(distance_from_sun, earth, 3).
@@ -436,6 +469,29 @@ magnitude(distance_from_sun, jupiter, 5).
 magnitude(distance_from_sun, saturn, 6).
 magnitude(distance_from_sun, uranus, 7).
 magnitude(distance_from_sun, neptune, 8).
+
+% gen250: contrast facts for the generic "difference between X and Y" frame.
+difference_between(ram, rom, "RAM is fast volatile working memory; ROM is non-volatile memory for firmware or fixed data").
+difference_between(climate, weather, "Climate is the long-term pattern; weather is short-term local conditions").
+difference_between(cement, concrete, "Cement is a binder; concrete is cement mixed with sand, gravel, and water").
+difference_between(jam, marmalade, "Jam is a fruit preserve; marmalade is usually a citrus preserve with peel").
+difference_between(sea, ocean, "An ocean is a vast named body of salt water; a sea is smaller or partly enclosed").
+difference_between(crocodile, alligator, "Crocodiles usually have V-shaped snouts; alligators have broader U-shaped snouts").
+difference_between(rabbit, hare, "Hares are generally larger, faster, and born furred; rabbits are smaller and burrow").
+difference_between(frog, toad, "Frogs usually have smooth moist skin and jump; toads have drier bumpy skin and crawl more").
+difference_between(turtle, tortoise, "Tortoises are land turtles; many turtles live in or near water").
+difference_between(leopard, cheetah, "Cheetahs are built for speed with tear marks; leopards are stronger climbers with rosettes").
+difference_between(monkey, ape, "Apes generally lack tails and have larger brains; most monkeys have tails").
+difference_between(bee, wasp, "Bees are usually fuzzier pollen collectors; wasps are smoother and often predatory").
+difference_between(butterfly, moth, "Butterflies usually fly by day with clubbed antennae; moths often fly at night").
+difference_between(crow, raven, "Ravens are larger with wedge-shaped tails and deeper calls; crows are smaller").
+difference_between(affect, effect, "Affect is usually a verb meaning influence; effect is usually a noun meaning result").
+difference_between(its, it_is, "Its means belonging to it; it's is a contraction of it is or it has").
+difference_between(there, their, "There points to a place or existence; their means belonging to them").
+difference_between(england, uk, "England is one country; the UK also includes Scotland, Wales, and Northern Ireland").
+difference_between(england, united_kingdom, "England is one country; the UK also includes Scotland, Wales, and Northern Ireland").
+difference_between(holland, netherlands, "The Netherlands is the country; Holland is a region often used informally for it").
+difference_between(left, right_politics, "Left politics stresses equality and public provision; right politics stresses tradition or markets").
 
 % gen240 (LLMSCORE): animal sounds. "what sound does a dog make?" -> woof.
 sound_of(dog, "woof").
@@ -578,6 +634,28 @@ scene_cue(moonlight, magical).
 continuation_template(magical, "shimmer with a soft silver light").
 continuation_template(magical, "fill with flowers that had never bloomed before").
 continuation_template(magical, "hum with a quiet music no one could place").
+% gen245: voyage scene for sailor/deck continuations; same scene engine.
+scene_cue(sailor, voyage).
+scene_cue(deck, voyage).
+scene_cue(voyage, voyage).
+continuation_template(voyage, "felt the first pale light touch the rail").
+continuation_template(voyage, "listened for the tide beneath the boards").
+continuation_template(voyage, "watched the harbour lights fade behind him").
+% gen246: reveal scene for "the old door creaked open to reveal...".
+scene_cue(creaked, reveal).
+scene_cue(reveal, reveal).
+scene_cue(revealed, reveal).
+scene_cue(candlelight, reveal_next).
+scene_cue(forgotten, reveal_next).
+scene_cue(dusty, reveal_next).
+continuation_template(reveal, "a dusty hallway bathed in pale candlelight").
+continuation_template(reveal_next, "At the far end, a small brass key glinted on the floor").
+% gen247: mysterious-box scene for clockmaker-style story continuations.
+scene_cue(clockmaker, mystery_box).
+scene_cue(mysterious, mystery_box).
+scene_cue(box, mystery_box).
+scene_cue(found, mystery_box).
+continuation_template(mystery_box, "a tiny clockwork bird with emerald eyes").
 
 % --- gen235 (LLMSCORE): historically grounded guest-list substrate.
 historical_figure(einstein).
@@ -604,6 +682,9 @@ couplet(rainy, "Grey is the sky and the rain won't cease; the dripping afternoon
 couplet(afternoon, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
 couplet(ocean, "The ocean rolls in silver and in foam; it sings the oldest song of going home.").
 couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver road across the night.").
+couplet(moonlight, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
+couplet(water, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
+couplet(library, "The quiet library keeps the dust of light; its pages bloom like lanterns in the night.").
 % gen241 (LLMSCORE-check): more couplet themes the bench asked for. Same engine.
 couplet(sea, "The sea rolls in with silver and with foam; it sings the oldest song of going home.").
 couplet(lighthouse, "Alone it stands where wind and grey waves roam; a single faithful light to guide ships home.").
@@ -681,6 +762,21 @@ completion_exact(mystery, 5, "no one dared go inside").
 fill_three("learning something new").
 fill_three("moving steadily forward").
 fill_three("staying kind always").
+
+% gen245: constrained sensory descriptions. sensory_phrase(Topic, N, "phrase")
+% stores exact word-count phrases; sensory_topic maps prompts to the topic.
+sensory_topic(cold_winter_morning, cold).
+sensory_topic(cold_winter_morning, winter).
+sensory_topic(cold_winter_morning, morning).
+sensory_phrase(cold_winter_morning, 3, "crisp cold air").
+
+% gen247: exact-word explanations. concise_explain(Topic, N, "phrase") stores
+% phrases whose word count is part of the fact.
+concise_topic(sky_blue, sky).
+concise_topic(sky_blue, blue).
+concise_topic(sky_blue, daytime).
+concise_topic(sky_blue, day).
+concise_explain(sky_blue, 3, "air scatters blue").
 
 % gen241 (LLMSCORE-check): four-line poems (quatrains). Each line is a separate
 % poem4(Concept, "line") fact (KB atoms cap at 128 chars), kept in order; the C reads
@@ -775,6 +871,8 @@ river_of(cairo, "the Nile").
 ocean_west_of(australia, "the Indian Ocean").
 ocean_west_of(united_states, "the Pacific Ocean").
 ocean_west_of(portugal, "the Atlantic Ocean").
+ocean_borders(australia, "Indian Ocean").
+ocean_borders(australia, "Pacific Ocean").
 
 % gen241 (LLMSCORE-check): moons, so "name the largest planet and describe one of its
 % moons" answers both halves. moon_of(Planet, "Name", "description").
@@ -800,18 +898,43 @@ anagram_of(dog, "god").
 anagram_of(save, "vase").
 anagram_of(angel, "glean").
 
-% gen241 (LLMSCORE-check): step-by-step procedures as ordered KB facts. "describe how
-% to make a cup of tea, step by step" reads process_step(Task, N, "step"). Adding a
-% task is just more facts -- the C only orders and numbers them.
+% gen241/gen244 (LLMSCORE-check + NEXTMOVE): step-by-step procedures as ordered KB
+% facts. process_topic/2 is the KB-side bridge from request words to a Task;
+% process_step(Task, N, "step") is the content. Adding a task is just more facts --
+% the C only selects by topic overlap, orders, and numbers the steps.
+process_topic(tea, tea).
 process_step(tea, 1, "Fill a kettle with fresh water and bring it to the boil").
 process_step(tea, 2, "Put a tea bag (or loose tea in an infuser) into a cup or teapot").
 process_step(tea, 3, "Pour the boiling water over the tea and let it steep for 3 to 5 minutes").
 process_step(tea, 4, "Remove the tea bag or infuser").
 process_step(tea, 5, "Add milk, sugar, or lemon to taste, stir, and serve").
+process_topic(coffee, coffee).
 process_step(coffee, 1, "Boil fresh water and let it cool for about thirty seconds").
 process_step(coffee, 2, "Add ground coffee to a filter, press, or cafetiere").
 process_step(coffee, 3, "Pour the hot water over the grounds and let it brew").
 process_step(coffee, 4, "Pour into a cup, add milk or sugar to taste, and serve").
+process_topic(bread_rise, bread).
+process_topic(bread_rise, yeast).
+process_topic(bread_rise, dough).
+process_topic(bread_rise, rise).
+process_topic(bread_rise, rises).
+process_topic(bread_rise, rising).
+process_step(bread_rise, 1, "Yeast consumes sugars in the dough and releases carbon dioxide gas").
+process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stretching the dough").
+process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
+process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
+
+% gen244 (NEXTMOVE): everyday recommendations as KB-backed activity steps. The
+% advice engine selects a situation by activity_topic/2 and renders activity_step/3;
+% unknown situations get a scoped gap instead of a blind wall.
+activity_topic(rainy_sunday, rainy).
+activity_topic(rainy_sunday, rain).
+activity_topic(rainy_sunday, sunday).
+activity_topic(rainy_sunday, afternoon).
+activity_step(rainy_sunday, 1, "Choose one indoor activity that fits the weather, such as reading, cooking, or a quiet film").
+activity_step(rainy_sunday, 2, "Make the room comfortable with warm light, a drink, and a clear place to sit").
+activity_step(rainy_sunday, 3, "Do one small useful task first so the rest of the afternoon feels unhurried").
+activity_step(rainy_sunday, 4, "Leave time for rest rather than packing the day with errands").
 
 % gen241 (LLMSCORE-check): parametric limerick. A limerick is a fixed AABBA form; the
 % five image lines per theme live in the KB (engine fixed, lexicon learns). The C only
@@ -916,8 +1039,16 @@ appearance(orange, "a warm, glowing colour between red and yellow -- the shade o
 appearance(purple, "a deep, rich colour between blue and red -- the shade of plums and of twilight").
 appearance(black, "the absence of light -- the darkness of a moonless night").
 appearance(white, "the presence of all colours of light together -- the brightness of fresh snow").
+taste_of(banana, "sweet, soft, and creamy, with a mellow fruit flavour").
 
 response_template(joke_chicken, "To get to the other side.").
+response_template(joke_short, "Why did the function return early? It had a break.").
+response_template(joke_bear_teeth, "A gummy bear.").
+
+% gen245: library haiku images extend the same KB-only haiku assembler.
+haiku_open(library, "Pages breathe softly").
+haiku_mid(library, "Quiet shelves hold hidden worlds").
+haiku_close(library, "Dust glows in moonlight").
 
 % gen240 (LLMSCORE): compound-word riddles. compound_word(First, Second, Whole) —
 % "the word that follows fire and precedes place" -> fireplace.
@@ -1032,5 +1163,3 @@ gender_es(libro, m).
 gender_es(sol, m).
 gender_es(luna, f).
 gender_es(noche, f).
-
-

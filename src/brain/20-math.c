@@ -789,6 +789,9 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
                   cue(buf, "counting to") || cue(buf, "conta fino") ||
                   cue(buf, "conta da") || cue(buf, "conta fino a");
     if (!has_cue) return 0;
+    if (cue(buf, "what comes next") || cue(buf, "comes next") ||
+        cue(buf, "next number") || cue(buf, "next term"))
+        return 0; /* let mod_sequence infer from the provided terms */
     int descending = cue(buf, "count down") || cue(buf, "backwards") ||
                      cue(buf, "backward") || cue(buf, "all'indietro") ||
                      cue(buf, "all indietro");
@@ -907,6 +910,8 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
      * add a category_member fact and the capability extends for free. */
     if (cue(buf, "name ") || cue(buf, "list ") || cue(buf, "give me ") ||
         cue(buf, "tell me ")) {
+        if (cue(buf, "border") || cue(buf, "neighbour") || cue(buf, "neighbor"))
+            return 0;
         static const struct { const char *w; int n; } nums[] = {
             {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6},
             {"2", 2}, {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6}, {NULL, 0} };
@@ -1031,7 +1036,9 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
           cue(buf, "viene dopo") || cue(buf, "numero successivo")))
         return 0;
 
-    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
+    const char *seq_src = strchr(buf, ':');
+    seq_src = seq_src ? seq_src + 1 : buf;
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", seq_src);
     char *w[64]; size_t nw = split_words(tmp, w, 64);
     double seq[32]; size_t ns = 0;
     for (size_t i = 0; i < nw && ns < 32; i++) {
@@ -1112,6 +1119,64 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)b; (void)raw;
     const char *buf = norm;
+
+    /* gen246: sequential word transformation. The word is data from the prompt;
+     * operations are structural ("remove first/last letter", "add letter X to
+     * end/start"), so held-out words transfer. */
+    if ((cue(buf, "take the word") || cue(buf, "the word") || cue(buf, "word \"")) &&
+        (cue(buf, "remove") || cue(buf, "drop")) &&
+        cue(buf, "letter") && cue(buf, "add")) {
+        char tmp[256]; snprintf(tmp, sizeof tmp, "%s", buf);
+        char *w[64]; size_t nw = split_words(tmp, w, 64);
+        char word[128] = "", add[8] = "";
+        for (size_t i = 0; i + 1 < nw && !word[0]; i++) {
+            if (strcmp(strip_edge_punct(w[i]), "word") != 0) continue;
+            char *t = strip_edge_punct(w[i + 1]);
+            int alpha = 1;
+            for (size_t k = 0; t[k]; k++)
+                if (!isalpha((unsigned char)t[k])) { alpha = 0; break; }
+            if (alpha && strlen(t) > 1) snprintf(word, sizeof word, "%s", t);
+        }
+        for (size_t i = 0; i < nw && !add[0]; i++) {
+            if (strcmp(strip_edge_punct(w[i]), "add") != 0) continue;
+            for (size_t j = i + 1; j < nw; j++) {
+                char *t = strip_edge_punct(w[j]);
+                if (!strcmp(t, "the") || !strcmp(t, "letter") || !strcmp(t, "to") ||
+                    !strcmp(t, "end") || !strcmp(t, "beginning") || !strcmp(t, "start") ||
+                    !strcmp(t, "of")) continue;
+                if (strlen(t) == 1 && isalpha((unsigned char)t[0])) {
+                    snprintf(add, sizeof add, "%s", t);
+                    break;
+                }
+            }
+        }
+        if (word[0]) {
+            char res[160]; snprintf(res, sizeof res, "%s", word);
+            size_t rl = strlen(res);
+            if ((cue(buf, "remove the first") || cue(buf, "drop the first") ||
+                 cue(buf, "remove first") || cue(buf, "drop first")) && rl > 0) {
+                memmove(res, res + 1, rl);
+                rl--;
+            }
+            if ((cue(buf, "remove the last") || cue(buf, "drop the last") ||
+                 cue(buf, "remove last") || cue(buf, "drop last")) && rl > 0) {
+                res[--rl] = '\0';
+            }
+            if (add[0] && (cue(buf, "to the end") || cue(buf, "at the end") ||
+                           cue(buf, "end"))) {
+                snprintf(res + strlen(res), sizeof res - strlen(res), "%s", add);
+            } else if (add[0] && (cue(buf, "to the start") ||
+                                  cue(buf, "to the beginning") ||
+                                  cue(buf, "beginning") || cue(buf, "start"))) {
+                char tmp2[160]; snprintf(tmp2, sizeof tmp2, "%s%s", add, res);
+                snprintf(res, sizeof res, "%s", tmp2);
+            }
+            char msg[180]; snprintf(msg, sizeof msg, "%s.", res);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
     if (!(cue(buf, "spell ") || cue(buf, "how do you spell") ||
           cue(buf, "can you spell") || cue(buf, "come si scrive")))
         return 0;
@@ -1151,4 +1216,3 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     put(line, out, out_size);
     return 1;
 }
-

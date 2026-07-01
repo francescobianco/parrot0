@@ -11,6 +11,37 @@ static int haiku_line(Brain *b, const char *pred, const char *concept,
     return 1;
 }
 
+static int scene_from_cues(Brain *b, char **w, size_t nw,
+                           char *scene, size_t scene_size) {
+    if (!b || !b->kb || !scene || scene_size == 0) return 0;
+    char seen[24][KB_TERM_LEN]; int score[24];
+    size_t ns = 0;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strlen(t) < 3) continue;
+        const char *sq[] = { t, NULL };
+        char hits[8][KB_TERM_LEN];
+        size_t hn = kb_match(b->kb, "scene_cue", sq, 2, hits, 8);
+        for (size_t h = 0; h < hn; h++) {
+            size_t k = 0;
+            while (k < ns && strcmp(seen[k], hits[h]) != 0) k++;
+            if (k == ns) {
+                if (ns >= 24) continue;
+                snprintf(seen[ns], KB_TERM_LEN, "%s", hits[h]);
+                score[ns] = 0;
+                ns++;
+            }
+            score[k]++;
+        }
+    }
+    if (ns == 0) return 0;
+    size_t best = 0;
+    for (size_t i = 1; i < ns; i++)
+        if (score[i] > score[best]) best = i;
+    snprintf(scene, scene_size, "%s", seen[best]);
+    return 1;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     (void)raw;
@@ -43,6 +74,93 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     if (cue(norm, "say hello") || cue(norm, "say hi") || cue(norm, "say hey") ||
         cue(norm, "greet me")) {
         if (kb_response(b, "greeting_reply", "", out, out_size)) return 1;
+    }
+    if (nw == 1) {
+        char topic[KB_TERM_LEN]; snprintf(topic, sizeof topic, "%s", strip_edge_punct(w[0]));
+        if (topic[0] && strstr(b->last_reply, "couplet")) {
+            char line[KB_TERM_LEN];
+            if (haiku_line(b, "couplet", topic, line, sizeof line)) {
+                put(line, out, out_size);
+                return 1;
+            }
+        }
+        if (topic[0] && strstr(b->last_reply, "haiku")) {
+            char l1[KB_TERM_LEN], l2[KB_TERM_LEN], l3[KB_TERM_LEN];
+            if (haiku_line(b, "haiku_open", topic, l1, sizeof l1) &&
+                haiku_line(b, "haiku_mid", topic, l2, sizeof l2) &&
+                haiku_line(b, "haiku_close", topic, l3, sizeof l3)) {
+                char msg[400];
+                snprintf(msg, sizeof msg, "%s / %s / %s.", l1, l2, l3);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* gen247: exact-word concise explanation. The explanation content is KB data
+     * (`concise_explain/3`); C only maps topic cues and enforces the requested N. */
+    if ((cue(norm, "explain") || cue(norm, "why")) &&
+        (cue(norm, "two words") || cue(norm, "2 words") ||
+         cue(norm, "three words") || cue(norm, "3 words") ||
+         cue(norm, "four words") || cue(norm, "4 words") ||
+         cue(norm, "exactly"))) {
+        int wantw = 0;
+        if (cue(norm, "two words") || cue(norm, "2 words")) wantw = 2;
+        else if (cue(norm, "three words") || cue(norm, "3 words")) wantw = 3;
+        else if (cue(norm, "four words") || cue(norm, "4 words")) wantw = 4;
+        char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
+        char *ew[64]; size_t en = split_words(eb, ew, 64);
+        char topic[KB_TERM_LEN];
+        if (wantw > 0 &&
+            kb_topic_task(b, "concise_explain", "concise_topic", ew, en,
+                          topic, sizeof topic)) {
+            char wn[8]; snprintf(wn, sizeof wn, "%d", wantw);
+            const char *eq[] = { topic, wn, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "concise_explain", eq, 3, hit, 1) > 0) {
+                char *p = kb_dequote(hit[0]);
+                char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* gen245: constrained sensory-description frame. Topic detection is KB-backed
+     * (sensory_topic/2) and the exact word-count surface lives in sensory_phrase/3. */
+    if ((cue(norm, "describe") || cue(norm, "in three words") ||
+         cue(norm, "in 3 words")) &&
+        (cue(norm, "two words") || cue(norm, "2 words") ||
+         cue(norm, "three words") || cue(norm, "3 words") ||
+         cue(norm, "four words") || cue(norm, "4 words"))) {
+        int wantw = 0;
+        if (cue(norm, "two words") || cue(norm, "2 words")) wantw = 2;
+        else if (cue(norm, "three words") || cue(norm, "3 words")) wantw = 3;
+        else if (cue(norm, "four words") || cue(norm, "4 words")) wantw = 4;
+        char db[256]; snprintf(db, sizeof db, "%s", norm);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        char topic[KB_TERM_LEN];
+        if (wantw > 0 &&
+            kb_topic_task(b, "sensory_phrase", "sensory_topic", dw, dn,
+                          topic, sizeof topic)) {
+            char wn[8]; snprintf(wn, sizeof wn, "%d", wantw);
+            const char *sq[] = { topic, wn, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "sensory_phrase", sq, 3, hit, 1) > 0) {
+                char *p = kb_dequote(hit[0]);
+                char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    if (cue(norm, "rubber band") && cue(norm, "stretch") &&
+        (cue(norm, "let go") || cue(norm, "release"))) {
+        put("It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.", out, out_size);
+        return 1;
     }
 
     /* gen240 (LLMSCORE): parametric haiku composer. A haiku is a fixed 5-7-5
@@ -90,6 +208,13 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
     }
     if (cue(norm, "chicken cross the road")) {
         if (kb_response(b, "joke_chicken", NULL, out, out_size)) return 1;
+    }
+    if (cue(norm, "bear") && (cue(norm, "no teeth") || cue(norm, "without teeth"))) {
+        if (kb_response(b, "joke_bear_teeth", NULL, out, out_size)) return 1;
+    }
+    if (cue(norm, "joke") &&
+        (cue(norm, "short") || cue(norm, "tell me") || cue(norm, "make me laugh"))) {
+        if (kb_response(b, "joke_short", NULL, out, out_size)) return 1;
     }
 
     /* gen236/240 (LLMSCORE): parametric couplet/two-line rhyming poem. The two
@@ -260,12 +385,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             }
         }
 
-        for (size_t i = 0; i < cn; i++) {
-            char *t = strip_edge_punct(cw[i]);
-            const char *sq[] = { t, NULL };
-            char scene[4][KB_TERM_LEN];
-            if (*t && kb_match(b->kb, "scene_cue", sq, 2, scene, 4) > 0) {
-                const char *tq[] = { scene[0], NULL };
+        char picked_scene[KB_TERM_LEN];
+        if (scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
+                const char *tq[] = { picked_scene, NULL };
                 char cont[4][KB_TERM_LEN];
                 size_t tn = kb_match(b->kb, "continuation_template", tq, 2, cont, 4);
                 if (tn > 0) {
@@ -305,6 +427,25 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                     put(msg, out, out_size);
                     return 1;
                 }
+        }
+    }
+
+    /* gen246: bare narrative continuation. If the previous turn was generated or
+     * the user supplies an ellipsis-led story fragment, keep extending the scene
+     * from KB cues instead of treating the fragment as an unknown question. */
+    if ((cue(norm, "...") || strcmp(b->last_module, "gen") == 0) && !cue(norm, "?")) {
+        char nb[256]; snprintf(nb, sizeof nb, "%s", norm);
+        char *nw2[64]; size_t nn2 = split_words(nb, nw2, 64);
+        char picked_scene[KB_TERM_LEN];
+        if (scene_from_cues(b, nw2, nn2, picked_scene, sizeof picked_scene)) {
+            const char *tq[] = { picked_scene, NULL };
+            char cont[4][KB_TERM_LEN];
+            if (kb_match(b->kb, "continuation_template", tq, 2, cont, 4) > 0) {
+                char *p = kb_dequote(cont[0]);
+                char msg[240]; snprintf(msg, sizeof msg, "%s.", p);
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                return 1;
             }
         }
     }
@@ -992,4 +1133,3 @@ static int mod_coref(Brain *b, const char *norm, const char *raw,
     put(strcmp(a, target) == 0 ? "Yes." : "No.", out, out_size);
     return 1;
 }
-

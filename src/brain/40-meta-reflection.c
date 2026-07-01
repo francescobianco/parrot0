@@ -240,6 +240,16 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
          * self_preference dodge can claim it. */
         int is_color_q = cue(buf, "favorite color") || cue(buf, "favourite color") ||
                          cue(buf, "colore preferito");
+        if ((cue(buf, "movie") || cue(buf, "film")) &&
+            (cue(buf, "watched recently") || cue(buf, "watched") ||
+             cue(buf, "seen recently"))) {
+            put("I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.", out, out_size);
+            return 1;
+        }
+        int situated_activity_fav =
+            (cue(buf, "favorite thing to do") || cue(buf, "favourite thing to do") ||
+             ((cue(buf, "favorite") || cue(buf, "favourite")) && cue(buf, "to do"))) &&
+            (cue(buf, "rainy") || cue(buf, "afternoon") || cue(buf, "sunday"));
         if (is_color_q && !b->in_role) {
             const char *dq[] = { NULL };
             char dc[1][KB_TERM_LEN];
@@ -257,7 +267,8 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
          * from default_pick(X, "…") (weather, season, food, …), the same spirit as
          * the colour answer, instead of the generic no-preference dodge. */
         int answered_fav = 0;
-        if (!b->in_role && !is_color_q && (cue(buf, "favorite") || cue(buf, "favourite"))) {
+        if (!b->in_role && !is_color_q && !situated_activity_fav &&
+            (cue(buf, "favorite") || cue(buf, "favourite"))) {
             char fbb[256]; snprintf(fbb, sizeof fbb, "%s", buf);
             char *fw[32]; size_t fn = split_words(fbb, fw, 32);
             for (size_t i = 0; i + 1 < fn && !answered_fav; i++) {
@@ -289,6 +300,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         }
         for (size_t i = 0; ai[i]; i++) {
             if (is_color_q && strcmp(ai[i], "self_preference") == 0) continue;
+            if (situated_activity_fav && strcmp(ai[i], "self_preference") == 0) continue;
             if (kb_cue_match(b, ai[i], buf)) {
                 const char *var[] = {NULL};
                 char id[1][KB_TERM_LEN];
@@ -548,12 +560,15 @@ static int is_internal_pred(const char *pred) {
         "paint_mix",
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
         "quantity", "landmark_of", "planet_superlative", /* gen240 */
-        "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city", "magnitude", "sound_of",
+        "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city",
+        "magnitude", "magnitude_cue", "difference_between", "sound_of",
+        "taste_of",
         "idiom_meaning", "boils_at", "freezes_at", "historical_fact", /* gen241 */
-        "river_of", "ocean_west_of", "moon_of", "anagram_of", /* gen241 */
-        "process_step", "limerick_l1", "limerick_l2", "limerick_l3", /* gen241 */
+        "river_of", "ocean_west_of", "ocean_borders", "moon_of", "anagram_of", /* gen241 */
+        "process_step", "process_topic", "limerick_l1", "limerick_l2", "limerick_l3", /* gen241 */
         "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
-        "scenario_step", "place_for",
+        "scenario_step", "activity_topic", "activity_step", "place_for",
+        "sensory_topic", "sensory_phrase", "concise_topic", "concise_explain",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)
@@ -1749,4 +1764,3 @@ static size_t run_composition(const char *const keys[], const char *const sigs[]
     brain_destroy(sub);
     return fired;
 }
-

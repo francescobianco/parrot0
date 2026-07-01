@@ -1,4 +1,128 @@
 # parrot0 evolution journal
+## 2026-07-01 - gen250: contrast and magnitude frames
+
+**Changed.** Continued from `NEXTMOVE.md`'s frame spine, focusing on broad
+basic-chat categories instead of one-off prompts:
+
+- added a KB-backed contrast frame:
+  `difference between X and Y -> difference_between(X, Y, Gloss)`;
+- missing contrast facts now produce an informed gap naming both slots;
+- promoted pairwise magnitudes to a KB-backed cue map:
+  `magnitude_cue(Cue, Dim, Direction)` + `magnitude(Dim, Item, Rank)`;
+- generalized comparisons across "which is faster A or B" and
+  "is A bigger than B?" while preserving proof trace state;
+- fixed `compose-bench` hermetic language seeding so ratcheted English
+  composition dialogues do not depend on the developer's OS locale.
+
+Ratchets: `llmscore_world.sh` now covers RAM/ROM, animal contrasts, an informed
+contrast gap, country size, material weight, speed, and sun/moon size.
+`compose-bench` is back to 7/7, 100% landing.
+
+## 2026-06-30 - gen249: speed comparison, riddles, and media honesty
+
+**Changed.** Final compact pass from the latest LLMSCORE sample:
+
+- word problems compare two average speeds from distance/time pairs;
+- logic handles explicit no-overlap questions ("no Borks are Zorks; can a Bork
+  be a Zork?");
+- generation handles rubber-band stretch/release descriptions;
+- map riddle is KB-backed via `response_template(riddle_map, ...)`;
+- recent-movie prompts now answer honestly without claiming viewing history.
+
+Ratchets: `logic_no_overlap.chat`, more `wordproblem_multi.chat`, and
+`llmscore_world.sh` checks for rubber band, map riddle, and recent movie.
+
+## 2026-06-30 - gen248: relational constraints, taste, and leftovers
+
+**Changed.** Follow-up hardening from another LLMSCORE sample:
+
+- counted category naming now declines when a relational constraint like
+  `border` is present, so the `borders/2` handler owns "name three countries
+  that border France";
+- added `taste_of/2` as a sensory relation parallel to `appearance/2`;
+- added bag-removal reasoning for two named objects;
+- added a universal syllogism chain parser ("all dogs are mammals; all mammals
+  breathe" -> "Dogs breathe");
+- added a library couplet as KB data.
+
+Ratchets: `syllogism_universal.chat`, more `wordproblem_multi.chat`, and
+`llmscore_world.sh` checks for library couplet, France borders, and banana taste.
+
+## 2026-06-30 - gen247: exact explanations, sequence routing, and deixis
+
+**Changed.** Third "carta bianca" pass from the next external score sample:
+
+- `mod_count` now declines "what comes next" prompts so the sequence solver can
+  infer the next term from the explicit series;
+- `mod_wordproblem` handles the second-person possession trick ("you take two;
+  how many do you have?" -> 2);
+- generation gained `concise_topic/2` + `concise_explain/3` for exact-N-word
+  explanations, plus a KB-backed bear/no-teeth joke riddle;
+- story continuation gained a `mystery_box` scene for clockmaker/box prompts.
+
+Ratchets: new `sequence_next.chat`, more `wordproblem_multi.chat`, and
+`llmscore_world.sh` checks for exact three-word sky explanation, clockmaker
+continuation, and the bear riddle.
+
+## 2026-06-30 - gen246: frame continuity, rates, and strings
+
+**Changed.** Second "carta bianca" pass after the external interviewer shifted
+the target distribution:
+
+- word problems now treat `take/took/takes ... away` as removal and solve
+  weighted average speed as total distance over total time;
+- `mod_spell` gained sequential word-edit frames: remove first/last letter, then
+  add a named letter to the start/end;
+- creative generation now supports follow-up after a declined couplet/haiku
+  theme and selects story scenes by cue overlap instead of first cue;
+- geography separates land borders from ocean borders with `ocean_borders/2`;
+- rainy-afternoon "favorite" prompts route to activity advice with an explicit
+  no-real-favorites preface.
+
+Ratchets: `wordproblem_multi.chat`, new `string_transform.chat`, and expanded
+`llmscore_world.sh` for moonlight couplets, Australia ocean borders, reveal/bare
+narrative continuation, rainy favorite, and creative follow-up.
+
+## 2026-06-30 - gen245: semantic frame spine
+
+**Changed.** Started the "carta bianca" jump by turning the current LLMSCORE
+wall into reusable frames instead of per-prompt answers:
+
+- word problems now handle a post-count unit transform ("cut the remaining ones
+  in half" -> two pieces per remaining item) and relative-motion duration
+  without clock times (`distance / (speed1 + speed2)`), both with proof traces;
+- generation got a constrained sensory-description frame:
+  `sensory_topic/2` selects the topic and `sensory_phrase/3` supplies an exact
+  word-count phrase;
+- the existing KB generators were extended as data: library haiku images,
+  voyage scene continuations, a short-joke response template, and the
+  `most_moons` solar-system superlative;
+- animal sounds now invert `sound_of/2`, so the same relation answers both
+  "what does a cat say?" and "what animal says meow?".
+
+Ratchets: `tests/cases/wordproblem_multi.chat` for pieces + relative motion, and
+`tests/llmscore_world.sh` for haiku, joke, most moons, reverse sound, voyage
+completion, and three-word sensory description.
+
+## 2026-06-30 - gen244: NEXTMOVE grounded schemas
+
+**Changed.** Audited `NEXTMOVE.md`: the plan is realistic as functional,
+measured convergence on LLM-like task classes, not as a short-term promise of
+open-domain parity. Added the principle checks that keep Fase A from becoming a
+fake-understanding fallback: schemas/lexicon in KB, proof or test pressure, and
+informed gaps when support is missing.
+
+Implementation started on that line. `what's`/`who's`/`where's` now canonicalize
+to the same forms as the old apostrophe-less chat contractions. The step-by-step
+procedure handler no longer names tea/coffee in C: `process_topic(Task, Token)`
+selects a task by KB topic overlap, then `process_step(Task, N, Text)` renders
+the ordered process. Added bread/yeast rising as data. Added the same pattern for
+practical recommendations: `activity_topic/2` + `activity_step/3`, with rainy
+Sunday advice as data and a scoped gap for unknown situations.
+
+Ratchets: `tests/cases/contractions.chat` for apostrophe contraction, and
+`tests/llmscore_world.sh` for bread process + rainy Sunday recommendation.
+
 ## 2026-06-28 - gen241: sweep the LLMSCORE-check wall (docs/plans/llmscore-check.md)
 
 **Changed.** Closed the whole list of bench prompts that had scored 0, each KB-first

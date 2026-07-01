@@ -505,7 +505,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen241-llmscore-check-sweep";
+    return "gen250-contrast-magnitude-frames";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
@@ -1096,4 +1096,3 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     conv_log(b, input, out);
     return strlen(out);
 }
-

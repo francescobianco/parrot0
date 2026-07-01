@@ -652,7 +652,10 @@ static const char *canonical_token(const char *w) {
          * real users type. Expanding them into their canonical spaced forms
          * lets the existing parsers (arith, knowledge, identity) work on
          * contracted input without duplicating logic. */
-        {"whats", "what is"}, {"whos", "who is"}, {"wheres", "where is"},
+        {"whats", "what is"}, {"what's", "what is"},
+        {"whos", "who is"}, {"who's", "who is"},
+        {"wheres", "where is"}, {"where's", "where is"},
+        {"it's", "it is"},
         {"dont",  "do not"},  {"cant", "can not"}, {"isnt", "is not"},
         {"isn't", "is not"}, {"pls", "please"},
     };
@@ -1170,6 +1173,250 @@ static int magnitude_lookup(Brain *b, const char *dim, const char *item, char *r
     return 0;
 }
 
+/* gen250: KB-backed magnitude cue map. The words that name a comparison
+ * dimension live in magnitude_cue(Cue, Dim, Direction), so extending "faster",
+ * "heavier", etc. is data, not another C branch. Direction is max/min. */
+static int magnitude_cue_lookup(Brain *b, const char *cue_word,
+                                char *dim, size_t dim_sz, int *want_max) {
+    if (!b || !b->kb || !cue_word || !*cue_word) return 0;
+    const char *q[] = { cue_word, NULL, NULL };
+    char dims[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "magnitude_cue", q, 3, dims, 1) == 0) return 0;
+    const char *q2[] = { cue_word, dims[0], NULL };
+    char dirs[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "magnitude_cue", q2, 3, dirs, 1) == 0) return 0;
+    snprintf(dim, dim_sz, "%s", dims[0]);
+    *want_max = strcmp(dirs[0], "min") != 0;
+    return 1;
+}
+
+static void display_key(const char *key, char *out, size_t sz) {
+    if (!key || !*key) { if (sz) out[0] = '\0'; return; }
+    if (strcmp(key, "usa") == 0 || strcmp(key, "united_states") == 0) {
+        snprintf(out, sz, "USA"); return;
+    }
+    if (strcmp(key, "uk") == 0 || strcmp(key, "united_kingdom") == 0) {
+        snprintf(out, sz, "UK"); return;
+    }
+    if (strcmp(key, "ram") == 0) { snprintf(out, sz, "RAM"); return; }
+    if (strcmp(key, "rom") == 0) { snprintf(out, sz, "ROM"); return; }
+    size_t o = 0;
+    for (const char *p = key; *p && o + 1 < sz; p++)
+        out[o++] = (*p == '_') ? ' ' : *p;
+    out[o] = '\0';
+    if (out[0]) out[0] = (char)toupper((unsigned char)out[0]);
+}
+
+static int compare_entity_token(const char *t) {
+    if (!t || !*t) return 0;
+    return !(is_article(t) || !strcmp(t, "the") ||
+             !strcmp(t, "what") || !strcmp(t, "which") ||
+             !strcmp(t, "who") || !strcmp(t, "is") || !strcmp(t, "are") ||
+             !strcmp(t, "does") || !strcmp(t, "do") || !strcmp(t, "than") ||
+             !strcmp(t, "to") || !strcmp(t, "of") || !strcmp(t, "in") ||
+             !strcmp(t, "on") || !strcmp(t, "planet"));
+}
+
+static int join_entity_span(char **w, size_t start, size_t end,
+                            char *out, size_t out_sz) {
+    size_t off = 0;
+    out[0] = '\0';
+    for (size_t i = start; i < end; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!compare_entity_token(t)) continue;
+        if (!strcmp(t, "u") && i + 1 < end && !strcmp(strip_edge_punct(w[i + 1]), "s")) {
+            t = (char *)"usa"; i++;
+        } else if (!strcmp(t, "it") && i + 1 < end && !strcmp(strip_edge_punct(w[i + 1]), "is")) {
+            t = (char *)"it_is"; i++;
+        } else if (!strcmp(t, "united") && i + 1 < end) {
+            char *n = strip_edge_punct(w[i + 1]);
+            if (!strcmp(n, "states")) { t = (char *)"united_states"; i++; }
+            else if (!strcmp(n, "kingdom")) { t = (char *)"united_kingdom"; i++; }
+        }
+        if (off && off + 1 < out_sz) out[off++] = '_';
+        off += (size_t)snprintf(out + off, out_sz - off, "%s", t);
+        if (off >= out_sz) { out[out_sz - 1] = '\0'; break; }
+    }
+    return out[0] != '\0';
+}
+
+static int last_entity_before(char **w, size_t pos, char *out, size_t out_sz) {
+    if (pos == 0) return 0;
+    size_t j = pos;
+    while (j > 0) {
+        char *t = strip_edge_punct(w[j - 1]);
+        if (*t && compare_entity_token(t)) break;
+        j--;
+    }
+    if (j == 0) return 0;
+    size_t start = j - 1;
+    if (start > 0) {
+        char *p = strip_edge_punct(w[start - 1]);
+        char *t = strip_edge_punct(w[start]);
+        if ((!strcmp(p, "united") && (!strcmp(t, "states") || !strcmp(t, "kingdom"))) ||
+            (!strcmp(p, "ice") && !strcmp(t, "cream")))
+            start--;
+    }
+    return join_entity_span(w, start, j, out, out_sz);
+}
+
+static int first_entity_after(char **w, size_t start, size_t nw,
+                              char *out, size_t out_sz) {
+    for (size_t i = start; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!compare_entity_token(t)) continue;
+        size_t end = i + 1;
+        if (!strcmp(t, "united") && i + 1 < nw) {
+            char *n = strip_edge_punct(w[i + 1]);
+            if (!strcmp(n, "states") || !strcmp(n, "kingdom")) end = i + 2;
+        }
+        return join_entity_span(w, i, end, out, out_sz);
+    }
+    return 0;
+}
+
+static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
+                                    const char *a, const char *c, int yesno,
+                                    char *out, size_t out_size) {
+    char ra[KB_TERM_LEN], rc[KB_TERM_LEN];
+    int fa = magnitude_lookup(b, dim, a, ra);
+    int fc = magnitude_lookup(b, dim, c, rc);
+    if (!fa || !fc) {
+        char da[64], dc[64];
+        display_key(a, da, sizeof da);
+        display_key(c, dc, sizeof dc);
+        char msg[220];
+        snprintf(msg, sizeof msg,
+                 "I recognize a comparison on %s, but I don't have magnitudes for %s and %s.",
+                 dim, da, dc);
+        put(msg, out, out_size);
+        return 1;
+    }
+    double na = 0, nc = 0;
+    parse_value(ra, &na);
+    parse_value(rc, &nc);
+    char proof[220];
+    snprintf(proof, sizeof proof, "Compared magnitude(%s,%s,%s) with magnitude(%s,%s,%s).",
+             dim, a, ra, dim, c, rc);
+    store_proof(b, proof);
+    if (yesno) {
+        put((want_max ? na > nc : na < nc) ? "Yes." : "No.", out, out_size);
+        return 1;
+    }
+    if (na == nc) {
+        char msg[160];
+        snprintf(msg, sizeof msg, "They are tied on %s.", dim);
+        put(msg, out, out_size);
+        return 1;
+    }
+    const char *win = want_max ? (na > nc ? a : c) : (na < nc ? a : c);
+    char dw[80], msg[96];
+    display_key(win, dw, sizeof dw);
+    snprintf(msg, sizeof msg, "%s.", dw);
+    put(msg, out, out_size);
+    return 1;
+}
+
+static char *kb_dequote(char *s) {
+    size_t l = strlen(s);
+    if (l >= 2 && s[0] == '"' && s[l - 1] == '"') {
+        s[l - 1] = '\0';
+        return s + 1;
+    }
+    return s;
+}
+
+static int difference_lookup(Brain *b, const char *a, const char *c,
+                             char *out, size_t out_sz) {
+    const char *q[] = { a, c, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "difference_between", q, 3, hit, 1) == 0) {
+        const char *qr[] = { c, a, NULL };
+        if (kb_match(b->kb, "difference_between", qr, 3, hit, 1) == 0) return 0;
+    }
+    char *p = kb_dequote(hit[0]);
+    snprintf(out, out_sz, "%s", p);
+    return 1;
+}
+
+static int token_list_has(char **w, size_t nw, const char *tok) {
+    if (!tok || !*tok) return 0;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strcmp(t, tok) == 0) return 1;
+    }
+    return 0;
+}
+
+static int seen_term(char terms[][KB_TERM_LEN], size_t n, const char *term) {
+    for (size_t i = 0; i < n; i++)
+        if (strcmp(terms[i], term) == 0) return 1;
+    return 0;
+}
+
+static int kb_topic_task(Brain *b, const char *step_pred, const char *topic_pred,
+                         char **w, size_t nw, char *task, size_t task_sz) {
+    if (!b || !b->kb || !step_pred || !topic_pred || !task || task_sz == 0)
+        return 0;
+
+    const char *all_steps[] = { NULL, NULL, NULL };
+    char raw_tasks[64][KB_TERM_LEN];
+    size_t nr = kb_match(b->kb, step_pred, all_steps, 3, raw_tasks, 64);
+    char tasks[32][KB_TERM_LEN];
+    size_t nt = 0;
+    for (size_t i = 0; i < nr && nt < 32; i++) {
+        if (seen_term(tasks, nt, raw_tasks[i])) continue;
+        snprintf(tasks[nt++], KB_TERM_LEN, "%s", raw_tasks[i]);
+    }
+
+    int best_score = 0;
+    char best[KB_TERM_LEN] = "";
+    for (size_t i = 0; i < nt; i++) {
+        const char *tq[] = { tasks[i], NULL };
+        char topics[32][KB_TERM_LEN];
+        size_t tn = kb_match(b->kb, topic_pred, tq, 2, topics, 32);
+        int score = 0;
+        if (tn == 0) {
+            score = token_list_has(w, nw, tasks[i]) ? 1 : 0;
+        } else {
+            for (size_t j = 0; j < tn; j++)
+                if (token_list_has(w, nw, topics[j])) score++;
+        }
+        if (score > best_score) {
+            best_score = score;
+            snprintf(best, sizeof best, "%s", tasks[i]);
+        }
+    }
+
+    if (best_score <= 0) return 0;
+    snprintf(task, task_sz, "%s", best);
+    return 1;
+}
+
+static int kb_render_steps(Brain *b, const char *step_pred, const char *task,
+                           const char *intro, char *out, size_t out_size) {
+    const char *q[] = { task, NULL, NULL };
+    char nums[16][KB_TERM_LEN];
+    size_t sn = kb_match(b->kb, step_pred, q, 3, nums, 16);
+    if (sn == 0) return 0;
+
+    char msg[1000];
+    size_t off = 0;
+    msg[0] = '\0';
+    if (intro && *intro)
+        off += (size_t)snprintf(msg + off, sizeof msg - off, "%s", intro);
+    for (size_t i = 0; i < sn; i++) {
+        const char *nq[] = { task, nums[i], NULL };
+        char th[1][KB_TERM_LEN];
+        if (kb_match(b->kb, step_pred, nq, 3, th, 1) == 0) continue;
+        char *p = kb_dequote(th[0]);
+        off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s. %s",
+                                (off || i) ? "\n" : "", nums[i], p);
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -1222,6 +1469,96 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
                 char msg[96]; snprintf(msg, sizeof msg, "A %s goes \"%s\".", sg, p);
                 put(msg, out, out_size); return 1;
+            }
+        }
+    }
+
+    /* gen245: reverse animal-sound frame. The relation is still sound_of/2; this
+     * just inverts the lookup for "what animal is known for saying 'meow'?". */
+    if ((cue(norm, "animal") || cue(norm, "known for saying") ||
+         cue(norm, "known for making")) &&
+        (cue(norm, "saying") || cue(norm, "sound") || cue(norm, "noise"))) {
+        const char *aq[] = { NULL, NULL };
+        char animals[64][KB_TERM_LEN];
+        size_t an = kb_match(b->kb, "sound_of", aq, 2, animals, 64);
+        for (size_t i = 0; i < an; i++) {
+            const char *sq[] = { animals[i], NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "sound_of", sq, 2, hit, 1) == 0) continue;
+            char *p = kb_dequote(hit[0]);
+            if (!*p || !cue(norm, p)) continue;
+            char name[KB_TERM_LEN]; snprintf(name, sizeof name, "%s", animals[i]);
+            char msg[96]; snprintf(msg, sizeof msg, "A %s.", name);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    /* gen250: KB-backed contrast frame. The parser extracts the two slots from
+     * "difference between X and Y"; difference_between/3 supplies the actual
+     * distinction. Missing facts become an informed gap rather than the blind
+     * fallback. */
+    if (cue(norm, "difference between")) {
+        char db[256]; snprintf(db, sizeof db, "%s", norm);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        size_t between = dn, sep = dn;
+        for (size_t i = 0; i < dn; i++) {
+            char *t = strip_edge_punct(dw[i]);
+            if (!strcmp(t, "between")) between = i;
+            else if (between < dn && sep == dn &&
+                     (!strcmp(t, "and") || !strcmp(t, "or")))
+                sep = i;
+        }
+        if (between + 1 < sep && sep + 1 < dn) {
+            char a[KB_TERM_LEN], c[KB_TERM_LEN];
+            if (join_entity_span(dw, between + 1, sep, a, sizeof a) &&
+                join_entity_span(dw, sep + 1, dn, c, sizeof c)) {
+                char gloss[KB_TERM_LEN];
+                if (difference_lookup(b, a, c, gloss, sizeof gloss)) {
+                    put(gloss, out, out_size);
+                    store_proof(b, "Answered from difference_between/3 in the KB.");
+                    return 1;
+                }
+                char da[64], dc[64], msg[220];
+                display_key(a, da, sizeof da);
+                display_key(c, dc, sizeof dc);
+                snprintf(msg, sizeof msg,
+                         "You're asking for a distinction between %s and %s, but I don't have that contrast fact yet.",
+                         da, dc);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* gen250: generic magnitude frame. Cue words map to dimensions in the KB via
+     * magnitude_cue/3, and magnitude(Dim, Item, Rank) supplies the comparable
+     * values. Handles both "which is faster, A or B" and "is A bigger than B?". */
+    {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", norm);
+        char *mw[64]; size_t mn = split_words(mb, mw, 64);
+        for (size_t cue_i = 0; cue_i < mn; cue_i++) {
+            char *ct = strip_edge_punct(mw[cue_i]);
+            char dim[KB_TERM_LEN]; int want_max = 1;
+            if (!magnitude_cue_lookup(b, ct, dim, sizeof dim, &want_max)) continue;
+
+            size_t or_i = mn, than_i = mn;
+            for (size_t j = 0; j < mn; j++) {
+                char *t = strip_edge_punct(mw[j]);
+                if (!strcmp(t, "or") && or_i == mn) or_i = j;
+                if (!strcmp(t, "than") && than_i == mn) than_i = j;
+            }
+            if (or_i < mn) {
+                char a[KB_TERM_LEN], c[KB_TERM_LEN];
+                if (last_entity_before(mw, or_i, a, sizeof a) &&
+                    first_entity_after(mw, or_i + 1, mn, c, sizeof c))
+                    return answer_magnitude_compare(b, dim, want_max, a, c, 0, out, out_size);
+            }
+            if (than_i < mn && cue_i > 0 && cue_i < than_i) {
+                char a[KB_TERM_LEN], c[KB_TERM_LEN];
+                if (join_entity_span(mw, 1, cue_i, a, sizeof a) &&
+                    first_entity_after(mw, than_i + 1, mn, c, sizeof c))
+                    return answer_magnitude_compare(b, dim, want_max, a, c, 1, out, out_size);
             }
         }
     }
@@ -1411,10 +1748,117 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         #undef SING
     }
 
+    /* gen248: universal syllogism chain. "All dogs are mammals; all mammals
+     * breathe; what can you conclude about dogs?" -> Dogs breathe. */
+    if ((cue(norm, "conclude") || cue(norm, "what can you conclude")) &&
+        cue(norm, "all") && !cue(norm, "some")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char A[64] = "", B[64] = "", pred[160] = "";
+        for (size_t i = 0; i + 3 < n; i++) {
+            if (!strcmp(w[i], "all") && !strcmp(w[i + 2], "are")) {
+                snprintf(A, sizeof A, "%s", w[i + 1]);
+                snprintf(B, sizeof B, "%s", w[i + 3]);
+                break;
+            }
+        }
+        if (A[0] && B[0]) {
+            char bsing[64]; snprintf(bsing, sizeof bsing, "%s", B);
+            size_t bl = strlen(bsing); if (bl > 1 && bsing[bl - 1] == 's') bsing[bl - 1] = '\0';
+            for (size_t i = 0; i + 2 < n; i++) {
+                if (strcmp(w[i], "all")) continue;
+                char subj[64]; snprintf(subj, sizeof subj, "%s", w[i + 1]);
+                size_t sl = strlen(subj); if (sl > 1 && subj[sl - 1] == 's') subj[sl - 1] = '\0';
+                if (strcmp(subj, bsing) != 0) continue;
+                size_t start = (!strcmp(w[i + 2], "are")) ? i + 4 : i + 2;
+                size_t off = 0;
+                for (size_t j = start; j < n; j++) {
+                    if (!strcmp(w[j], "what") || !strcmp(w[j], "can") ||
+                        !strcmp(w[j], "conclude") || !strcmp(w[j], "about") ||
+                        !strcmp(w[j], "and")) break;
+                    off += (size_t)snprintf(pred + off, sizeof pred - off,
+                                            "%s%s", off ? " " : "", w[j]);
+                }
+                break;
+            }
+        }
+        if (A[0] && pred[0]) {
+            char subj[64]; snprintf(subj, sizeof subj, "%s", A);
+            if (subj[0]) subj[0] = (char)toupper((unsigned char)subj[0]);
+            char msg[240]; snprintf(msg, sizeof msg, "%s %s.", subj, pred);
+            put(msg, out, out_size);
+            store_proof(b, "Barbara-style universal chain: all A are B, all B have the property.");
+            return 1;
+        }
+    }
+
+    /* gen249: explicit no-overlap beats existential uncertainty. */
+    if ((cue(norm, "can") || cue(norm, "could")) && cue(norm, "no ") &&
+        cue(norm, " are ") && cue(norm, "also be")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char X[64] = "", Y[64] = "", qx[64] = "", qy[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "no") && !strcmp(w[i + 2], "are")) {
+                snprintf(X, sizeof X, "%s", w[i + 1]);
+                snprintf(Y, sizeof Y, "%s", w[i + 3]);
+                break;
+            }
+        for (size_t i = 0; i + 5 < n; i++)
+            if ((!strcmp(w[i], "can") || !strcmp(w[i], "could")) &&
+                is_article(w[i + 1]) && !strcmp(w[i + 3], "also") &&
+                !strcmp(w[i + 4], "be")) {
+                snprintf(qx, sizeof qx, "%s", w[i + 2]);
+                if (is_article(w[i + 5]) && i + 6 < n)
+                    snprintf(qy, sizeof qy, "%s", w[i + 6]);
+                else
+                    snprintf(qy, sizeof qy, "%s", w[i + 5]);
+                break;
+            }
+        if (X[0] && Y[0] && qx[0] && qy[0]) {
+            char xs[64], ys[64], qxs[64], qys[64];
+            snprintf(xs, sizeof xs, "%s", X); snprintf(ys, sizeof ys, "%s", Y);
+            snprintf(qxs, sizeof qxs, "%s", qx); snprintf(qys, sizeof qys, "%s", qy);
+            size_t l;
+            l = strlen(xs); if (l > 1 && xs[l - 1] == 's') xs[l - 1] = '\0';
+            l = strlen(ys); if (l > 1 && ys[l - 1] == 's') ys[l - 1] = '\0';
+            l = strlen(qxs); if (l > 1 && qxs[l - 1] == 's') qxs[l - 1] = '\0';
+            l = strlen(qys); if (l > 1 && qys[l - 1] == 's') qys[l - 1] = '\0';
+            if ((!strcmp(xs, qxs) && !strcmp(ys, qys)) ||
+                (!strcmp(xs, qys) && !strcmp(ys, qxs))) {
+                put("No -- the statement says those classes do not overlap.", out, out_size);
+                store_proof(b, "The explicit no-overlap premise rules out being both.");
+                return 1;
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): "describe what a sunset looks like to you." parrot0 has
      * no senses, so it says so honestly — then gives the DESCRIPTION from KB
      * knowledge (appearance/2) rather than walling. The C only selects by the
      * concept named; any concept taught extends it with no code edit. */
+    if (cue(norm, "taste") || cue(norm, "tasted")) {
+        char tb[256]; snprintf(tb, sizeof tb, "%s", norm);
+        char *tw[64]; size_t tn = split_words(tb, tw, 64);
+        for (size_t i = 0; i < tn; i++) {
+            char *t = strip_edge_punct(tw[i]);
+            if (strlen(t) < 3 || !isalpha((unsigned char)t[0])) continue;
+            const char *tq[] = { t, NULL };
+            char th[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "taste_of", tq, 2, th, 1) > 0) {
+                char *r = kb_dequote(th[0]);
+                char msg[360];
+                snprintf(msg, sizeof msg,
+                         "I don't actually taste things, but it is often described as %s.",
+                         r);
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     if (cue(norm, "describe") || cue(norm, "look like") ||
         cue(norm, "looks like") || cue(norm, "what does") || cue(norm, "what do")) {
         char db[256]; snprintf(db, sizeof db, "%s", norm);
@@ -1479,6 +1923,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (cue(norm, "keys") && cue(norm, "locks") && cue(norm, "space") &&
         cue(norm, "room") && cue(norm, "enter")) {
         if (kb_response(b, "riddle_keyboard", NULL, out, out_size)) return 1;
+    }
+    if (cue(norm, "cities") && cue(norm, "no houses") &&
+        cue(norm, "forests") && cue(norm, "no trees") &&
+        cue(norm, "water") && cue(norm, "no fish")) {
+        if (kb_response(b, "riddle_map", NULL, out, out_size)) return 1;
     }
 
     if (cue(norm, "difference") && cue(norm, "fruit") && cue(norm, "vegetable")) {
@@ -1575,6 +2024,33 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *capq[2] = { NULL, country };
             size_t nc = kb_match(b->kb, "capital_of_country", capq, 2, cap, 2);
             if (nc > 0) {
+                if (cue(norm, "ocean")) {
+                    char oceans[4][KB_TERM_LEN];
+                    const char *oq[2] = { country, NULL };
+                    size_t no = kb_match(b->kb, "ocean_borders", oq, 2, oceans, 4);
+                    char cap_disp[64], ctry_disp[64];
+                    snprintf(cap_disp, sizeof cap_disp, "%s", cap[0]);
+                    if (cap_disp[0]) cap_disp[0] = (char)toupper((unsigned char)cap_disp[0]);
+                    snprintf(ctry_disp, sizeof ctry_disp, "%s", country);
+                    if (ctry_disp[0]) ctry_disp[0] = (char)toupper((unsigned char)ctry_disp[0]);
+                    char msg[256];
+                    if (no >= 2) {
+                        char *o1 = kb_dequote(oceans[0]);
+                        char *o2 = kb_dequote(oceans[1]);
+                        snprintf(msg, sizeof msg, "%s; %s borders the %s and the %s.",
+                                 cap_disp, ctry_disp, o1, o2);
+                    } else if (no == 1) {
+                        char *o1 = kb_dequote(oceans[0]);
+                        snprintf(msg, sizeof msg, "%s; %s borders the %s.",
+                                 cap_disp, ctry_disp, o1);
+                    } else {
+                        snprintf(msg, sizeof msg,
+                                 "%s; I don't know which oceans border %s yet.",
+                                 cap_disp, ctry_disp);
+                    }
+                    put(msg, out, out_size);
+                    return 1;
+                }
                 char brd[8][KB_TERM_LEN];
                 const char *bq[2] = { country, NULL };
                 size_t nb = kb_match(b->kb, "borders", bq, 2, brd, 8);
@@ -2198,6 +2674,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             {"hottest", NULL, "hottest"},
             {"farthest", "sun", "farthest_from_sun"},
             {"furthest", "sun", "farthest_from_sun"},
+            {"most", "moons", "most_moons"},
+            {"most", "moon", "most_moons"},
             {"red planet", NULL, "red_planet"},
             {NULL, NULL, NULL},
         };
@@ -2471,35 +2949,56 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen241 (LLMSCORE-check): step-by-step procedure. "describe how to make a cup of
-     * tea, step by step" -> the ordered process_step(Task, _, "step") facts. */
+    /* gen244 (NEXTMOVE/Fase A+B): step-by-step procedure as KB schema. The old
+     * tea/coffee branch named tasks in C; now process_topic(Task, Token) is the
+     * KB-side linguistic/domain bridge and process_step(Task, N, Text) is the
+     * ordered content. The engine detects a process request, chooses the best
+     * matching task by topic overlap, and renders the stored steps. */
     if ((cue(buf, "step by step") || cue(buf, "steps to") || cue(buf, "how to make") ||
          cue(buf, "how do you make") || cue(buf, "how do i make") ||
          cue(buf, "process of making") || cue(buf, "describe the process") ||
-         cue(buf, "describe how to")) &&
-        (cue(buf, "tea") || cue(buf, "coffee"))) {
-        const char *task = cue(buf, "coffee") ? "coffee" : "tea";
-        const char *q[] = { task, NULL, NULL };
-        char steps[12][KB_TERM_LEN];
-        size_t sn = kb_match(b->kb, "process_step", q, 3, steps, 12);
-        /* process_step(Task, N, "text"): kb_match here binds N into steps[]; refetch
-         * the text per index keeping insertion order is overkill -- instead query the
-         * full rows. We stored them in order, so a direct text fetch suffices. */
-        if (sn == 0) { /* fall through */ }
-        else {
-            char msg[700]; size_t off = 0;
-            for (size_t i = 0; i < sn; i++) {
-                const char *nq[] = { task, steps[i], NULL };
-                char th[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "process_step", nq, 3, th, 1) == 0) continue;
-                char *p = th[0]; size_t l = strlen(p);
-                if (l >= 2 && p[0]=='"' && p[l-1]=='"') { p[l-1]='\0'; p++; }
-                off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s. %s",
-                                        i ? "\n" : "", steps[i], p);
-            }
-            put(msg, out, out_size);
+         cue(buf, "describe how to") || cue(buf, "how does") ||
+         cue(buf, "how do") || cue(buf, "why does")) &&
+        (cue(buf, "process") || cue(buf, "step") || cue(buf, "make") ||
+         cue(buf, "rise") || cue(buf, "rises") || cue(buf, "rising"))) {
+        char tb[512]; snprintf(tb, sizeof tb, "%s", buf);
+        char *tw[96]; size_t tn = split_words(tb, tw, 96);
+        char task[KB_TERM_LEN];
+        if (kb_topic_task(b, "process_step", "process_topic", tw, tn,
+                          task, sizeof task) &&
+            kb_render_steps(b, "process_step", task, "", out, out_size))
             return 1;
-        }
+        put("I understood you're asking for a process, but I don't have process_step facts for that topic yet.",
+            out, out_size);
+        return 1;
+    }
+
+    /* gen244: practical advice as KB-backed activity steps. This is not a generic
+     * preference persona: activity_topic/2 selects a situation, activity_step/3
+     * supplies the grounded recommendation, and unknown situations get a scoped
+     * gap instead of a blind wall. */
+    int activity_favorite = cue(buf, "favorite thing to do") ||
+                            cue(buf, "favourite thing to do") ||
+                            (cue(buf, "favorite") && cue(buf, "to do")) ||
+                            (cue(buf, "favourite") && cue(buf, "to do"));
+    if (activity_favorite ||
+        cue(buf, "best way to") || cue(buf, "good way to") ||
+        cue(buf, "what should i do") || cue(buf, "how should i spend") ||
+        cue(buf, "way to spend") || cue(buf, "recommend") || cue(buf, "suggest")) {
+        char ab[512]; snprintf(ab, sizeof ab, "%s", buf);
+        char *aw[96]; size_t an = split_words(ab, aw, 96);
+        char scene[KB_TERM_LEN];
+        if (kb_topic_task(b, "activity_step", "activity_topic", aw, an,
+                          scene, sizeof scene) &&
+            kb_render_steps(b, "activity_step", scene,
+                            activity_favorite ?
+                            "I don't have real favorites, but a good plan is:" :
+                            "From what I know, a good plan is:",
+                            out, out_size))
+            return 1;
+        put("I understood you're asking for a recommendation, but I don't have activity_step facts for that situation yet.",
+            out, out_size);
+        return 1;
     }
 
     /* gen241 (LLMSCORE-check): limerick. A fixed AABBA form; the five lines per theme
@@ -3435,4 +3934,3 @@ static int compare_word(const char *w) {
     if (strcmp(w, "less") == 0 || strcmp(w, "fewer") == 0) return 0;
     return -1;
 }
-

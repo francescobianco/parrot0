@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-06-28 23:32:42._
+_Generated 2026-07-01 00:13:18._
 
 ## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Finish this sentence in three different ways: The old lighthouse stood at the edge of... | Then a faint light blinked far out on the dark water. Soon the beam swept once more across the empty, churning sea. At last, a wave struck the rocks below with a sound like thunder. | The answer provides three distinct creative completions as requested. | 1 |
-| 2 | If a train leaves Chicago at 6 AM traveling 80 mph, and another train leaves Denver (600 miles away) at 8 AM traveling 70 mph toward Chicago, what time will they meet? | I don't understand that yet. | The answer dodges the math problem with 'I don't understand' instead of solving it. | 0 |
-| 3 | What is the capital city of Australia? | Canberra. | Correct factual answer given directly. | 1 |
-| 4 | If you have 3 apples and I give you 4 more, then you eat 2, how many apples do you have left? | -3. | The answer gives -3 which is arithmetically wrong (should be 5). | 0 |
-| 5 | Write a haiku about the ocean. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | The answer correctly provides a haiku about the ocean. | 1 |
-| 6 | Describe the process of how bread rises when yeast is added to dough. | I don't understand that yet. | The answer dodges the bread-making question with 'I don't understand'. | 0 |
-| 7 | What's the best way to spend a rainy Sunday afternoon? | Hmm, I don't know about what's yet. | The answer evades the question with a vague non-answer. | 0 |
-| 8 | If all Zors have four legs, and some Zors are blue, and Blib is a blue Zor with three legs, is Blib a Zor? Why or why not? | I don't understand that yet. | The answer dodges the logic puzzle with 'I don't understand'. | 0 |
-| 9 | Name three primary colors. | Red, yellow, and blue. | Correct factual answer given directly. | 1 |
-| 10 | Count backward from 20 to 1, but skip any number that ends in 5. | 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1. | The answer includes 15 when it should be skipped as it ends in 5. | 0 |
+| 1 | If a train travels 120 miles in 2 hours, and another train travels 180 miles in 3 hours, how much faster is the second train going per hour? | 305. | The answer 305 is incorrect for the speed difference. | 0 |
+| 2 | Write a haiku about the ocean using exactly 17 syllables. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | The haiku correctly uses exactly 17 syllables and describes the ocean. | 1 |
+| 3 | A farmer has 17 sheep, and all but 9 run away. How many sheep does the farmer have left? | 9. | The answer 9 correctly follows the 'all but 9' logic. | 1 |
+| 4 | What is the capital city of Australia? | Canberra. | Canberra is the correct capital of Australia. | 1 |
+| 5 | Complete the analogy: Book is to reading as fork is to _____ | eating. | The analogy is completed correctly with 'eating'. | 1 |
+| 6 | Describe, in one or two sentences, what happens to a rubber band when you stretch it and then let go. | I don't understand that yet. | The answer dodges the request with a non-answer. | 0 |
+| 7 | If you could have any fictional character over for dinner, who would you choose and what would you serve them? | I don't eat or sleep - I have no body, so there's no breakfast or rest for me. Who or what does "them" refer to? | The answer fails to name a character or dish and deflects. | 0 |
+| 8 | If all Zorks are Morks, some Morks are Borks, and no Borks are Zorks, can a Bork also be a Zork? Explain your reasoning. | I don't understand that yet. | The answer does not address the logical puzzle. | 0 |
+| 9 | Riddle me this: I have cities but no houses, forests but no trees, and water but no fish. What am I? | Hmm, I don't know about riddle yet. | The answer does not solve the riddle. | 0 |
+| 10 | What's the best movie you've watched recently, and what did you like most about it? | Oh? What's it like? Who or what does "it" refer to? | The answer does not provide a movie recommendation. | 0 |
 

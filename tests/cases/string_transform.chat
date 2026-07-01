@@ -1,0 +1,4 @@
+# gen246: sequential word edits. The target word and added letter come from the
+# prompt; the operation frame applies the edits in order.
+> Take the word "reasoning," remove the first letter, then add the letter "g" to the end. What word do you get?
+< easoningg.

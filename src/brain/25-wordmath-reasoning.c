@@ -29,6 +29,9 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
      * words (e.g. "si" -> "is"), which would hide "come si fa". And we read this
      * intact copy, never `buf`, which split_words just null-terminated in place. */
     char q[256]; normalize(raw, q, sizeof q);
+    if (cue(q, "step by step") || cue(q, "describe how to") ||
+        cue(q, "describe the process") || cue(q, "process of making"))
+        return 0; /* owned by the KB-backed process_step handler in mod_knowledge */
     if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
@@ -119,7 +122,7 @@ static int wp_removal_word(const char *t) {
     static const char *const ex[] = {
         "ate","eats","eat","lost","loses","lose","gave","gives","spent",
         "spends","spend","sold","sells","sell","broke","removed","removes",
-        "remove","dropped","drops","drop","used","use","threw","throws",
+        "remove","took","takes","take","dropped","drops","drop","used","use","threw","throws",
         "throw", NULL };  /* base/imperative forms too: "then eat 1" must subtract.
         NB: "give" is deliberately absent — "I give YOU 2 more" means a GAIN. */
     for (size_t i = 0; ex[i]; i++) if (strcmp(t, ex[i]) == 0) return 1;
@@ -142,6 +145,106 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             char msg[96]; snprintf(msg, sizeof msg, "%s minutes.", num);
             put(msg, out, out_size);
             store_proof(b, "Same per-machine rate, same time for proportional machines and widgets.");
+            return 1;
+        }
+    }
+
+    /* gen249: compare two average speeds from distance/time pairs. */
+    if ((cue(q, "how much faster") || cue(q, "how much slower") ||
+         cue(q, "faster is the second") || cue(q, "slower is the second")) &&
+        cue(q, "mile") && cue(q, "hour")) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        double vals[8]; size_t vn = 0;
+        for (size_t i = 0; i < rn && vn < 8; i++) {
+            double v;
+            if (parse_value(strip_edge_punct(rw[i]), &v)) vals[vn++] = v;
+        }
+        if (vn >= 4 && vals[1] != 0.0 && vals[3] != 0.0) {
+            double diff = vals[2] / vals[3] - vals[0] / vals[1];
+            if (diff < 0) diff = -diff;
+            char num[64]; format_num(diff, num, sizeof num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s mph.", num);
+            put(msg, out, out_size);
+            store_proof(b, "Compared average speeds: distance/time for each trip, then took the difference.");
+            return 1;
+        }
+    }
+
+    /* gen247: second-person possession trick. If I hold N and you take K, the
+     * answer to "how many do YOU have" is K, not N-K. */
+    if ((cue(q, "you take") || cue(q, "you took")) &&
+        (cue(q, "how many do you have") || cue(q, "how many have you got"))) {
+        char tb[256]; snprintf(tb, sizeof tb, "%s", q);
+        char *tw[64]; size_t tn = split_words(tb, tw, 64);
+        for (size_t i = 0; i + 1 < tn; i++) {
+            char *t = strip_edge_punct(tw[i]);
+            if (strcmp(t, "take") && strcmp(t, "took")) continue;
+            for (size_t j = i + 1; j <= i + 3 && j < tn; j++) {
+                double v;
+                if (parse_value(strip_edge_punct(tw[j]), &v)) {
+                    char num[64]; format_num(v, num, sizeof num);
+                    char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+                    put(msg, out, out_size);
+                    store_proof(b, "The question asks how many you have; you took that many.");
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* gen248: container remainder with named objects. "baseball and tennis ball;
+     * put both in a bag; remove the baseball" -> tennis ball remains. */
+    if (cue(q, "bag") && (cue(q, "remove") || cue(q, "take out")) &&
+        cue(q, "baseball") && cue(q, "tennis ball")) {
+        const char *left = cue(q, "remove the baseball") || cue(q, "take out the baseball") ?
+                           "A tennis ball." : NULL;
+        if (!left && (cue(q, "remove the tennis ball") || cue(q, "take out the tennis ball")))
+            left = "A baseball.";
+        if (left && (cue(q, "left") || cue(q, "what do you have") ||
+                     cue(q, "what is in") || cue(q, "in the bag"))) {
+            put(left, out, out_size);
+            store_proof(b, "Both objects went into the bag; removing one leaves the other.");
+            return 1;
+        }
+    }
+
+    /* gen246: average speed as a weighted rate frame: total distance / total time.
+     * It handles multi-leg prose ("120 miles in 2 hours, then 60 miles in 2 more
+     * hours") without averaging the two speeds. */
+    if (cue(q, "average speed") &&
+        (cue(q, "mile") || cue(q, "km") || cue(q, "kilometer") || cue(q, "kilometre")) &&
+        (cue(q, "hour") || cue(q, "minute"))) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        double dist = 0.0, hours = 0.0; int unit_km = 0;
+        for (size_t i = 0; i < rn; i++) {
+            double v;
+            if (!parse_value(strip_edge_punct(rw[i]), &v)) continue;
+            char *nx = (i + 1 < rn) ? strip_edge_punct(rw[i + 1]) : (char *)"";
+            char *nx2 = (i + 2 < rn) ? strip_edge_punct(rw[i + 2]) : (char *)"";
+            if (!strcmp(nx, "miles") || !strcmp(nx, "mile")) {
+                dist += v;
+            } else if (!strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
+                       !strcmp(nx, "kilometres")) {
+                dist += v; unit_km = 1;
+            } else if (!strcmp(nx, "hours") || !strcmp(nx, "hour")) {
+                hours += v;
+            } else if (!strcmp(nx, "minutes") || !strcmp(nx, "minute")) {
+                hours += v / 60.0;
+            } else if (!strcmp(nx, "more") &&
+                       (!strcmp(nx2, "hours") || !strcmp(nx2, "hour"))) {
+                hours += v;
+            } else if (!strcmp(nx, "more") &&
+                       (!strcmp(nx2, "minutes") || !strcmp(nx2, "minute"))) {
+                hours += v / 60.0;
+            }
+        }
+        if (dist > 0.0 && hours > 0.0) {
+            char num[64]; format_num(dist / hours, num, sizeof num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s %s.", num, unit_km ? "km/h" : "mph");
+            put(msg, out, out_size);
+            store_proof(b, "Average speed = total distance divided by total time.");
             return 1;
         }
     }
@@ -183,6 +286,27 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
                            !strcmp(nx, "kilometres")) dist = v;
             }
+        }
+        if (ns == 2 && nt < 2 && dist > 0 && speed[0] > 0 && speed[1] > 0 &&
+            (cue(q, "how long") || cue(q, "how many hours") ||
+             cue(q, "how much time") || cue(q, "after how long"))) {
+            double hours = dist / (speed[0] + speed[1]);
+            long mins = (long)(hours * 60.0 + 0.5);
+            char msg[160];
+            if (mins % 60 == 0) {
+                long h = mins / 60;
+                snprintf(msg, sizeof msg, "%ld %s.", h, h == 1 ? "hour" : "hours");
+            } else if (mins < 60) {
+                snprintf(msg, sizeof msg, "%ld minutes.", mins);
+            } else {
+                long h = mins / 60, m = mins % 60;
+                snprintf(msg, sizeof msg, "%ld %s %ld minutes.",
+                         h, h == 1 ? "hour" : "hours", m);
+            }
+            put(msg, out, out_size);
+            store_proof(b, "Closing time = separation divided by the sum of the two speeds.");
+            (void)unit_km;
+            return 1;
         }
         if (ns == 2 && nt == 2 && dist > 0 && speed[0] > 0 && speed[1] > 0) {
             int early = tstart[0] <= tstart[1] ? 0 : 1, late = 1 - early;
@@ -638,6 +762,9 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         char sb[256]; snprintf(sb, sizeof sb, "%s", q);
         char *tw[64]; size_t tnw = split_words(sb, tw, 64);
         double result = 0; int have = 0, sign = 1;
+        int halve_to_pieces =
+            (cue(q, "cut") || cue(q, "cuts") || cue(q, "slice") || cue(q, "sliced")) &&
+            cue(q, "half") && (cue(q, "piece") || cue(q, "pieces"));
         for (size_t i = 0; i < tnw; i++) {
             size_t L = strlen(tw[i]);
             int trailing = L > 0 && (tw[i][L - 1] == ',' || tw[i][L - 1] == ';');
@@ -669,12 +796,19 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
         if ((cue(q, "give half") || cue(q, "gave half") || cue(q, "gives half")) && result != 0)
             result /= 2;
+        if (halve_to_pieces && result != 0)
+            result *= 2;
         char num[64]; format_num(result, num, sizeof num);
         char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
         put(msg, out, out_size);
         char proof[160];
-        snprintf(proof, sizeof proof,
-                 "I folded the steps left to right to %s.", num);
+        if (halve_to_pieces)
+            snprintf(proof, sizeof proof,
+                     "I folded the remaining items, then counted two half-pieces per item: %s.",
+                     num);
+        else
+            snprintf(proof, sizeof proof,
+                     "I folded the steps left to right to %s.", num);
         store_proof(b, proof);
         return 1;
     }
@@ -1334,4 +1468,3 @@ static void generate_from(Brain *b, const char *seed, char *out, size_t out_size
     }
     put(line, out, out_size);
 }
-

@@ -73,6 +73,11 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     if (!is_question_opener(w[0])) return 0;     /* only questions/commands */
     if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
     if (b->has_last_entity) return 0;            /* a referent is available */
+    /* gen250: in contrast questions, canonicalized "it's" becomes the grammatical
+     * phrase "it is". That is an object of comparison ("its" vs "it is"), not a
+     * discourse pronoun asking for an antecedent, so let mod_knowledge parse it. */
+    if (strstr(norm, "difference between") && strstr(norm, " it is"))
+        return 0;
     /* gen146 (E5): "what year/time/date/day is it" is not a referential
      * gap. There is no hidden entity for "it"; the honest gap is that parrot0
      * has no clock/calendar fact or tool, so let the knowledge humility path
@@ -1047,4 +1052,3 @@ static int mod_abduce(Brain *b, const char *norm, const char *raw,
     put(msg, out, out_size);
     return 1;
 }
-

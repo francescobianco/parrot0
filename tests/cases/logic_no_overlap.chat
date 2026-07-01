@@ -1,0 +1,4 @@
+# gen249: an explicit "no X are Y" premise rules out being both, even when a
+# "some" premise appears elsewhere.
+> If all Zorks are Morks, some Morks are Borks, and no Borks are Zorks, can a Bork also be a Zork? Explain your reasoning.
+< No -- the statement says those classes do not overlap.

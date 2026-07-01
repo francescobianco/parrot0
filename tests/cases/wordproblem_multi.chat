@@ -13,3 +13,24 @@
 # Three additions: 2 + 3 + 4 = 9.
 > A box has 2 red, 3 blue and 4 green pens. How many pens in all?
 < 9.
+# Transform remaining whole items into half-pieces: (3 + 4 - 2) * 2 = 10.
+> I have 3 apples, you give me 4 more, I give away 2, then cut the remaining ones in half. How many apple pieces do I end up with?
+< 10.
+# "take ... away" is removal, while "give you ... more" is a gain: 7 - 3 + 5 = 9.
+> If you have 7 apples and I take 3 away, then give you 5 more, how many do you have?
+< 9.
+# Relative motion without clock times: 420 / (60 + 80) = 3 hours.
+> Two trains are 420 miles apart and travel toward each other at 60 mph and 80 mph. How long until they meet?
+< 3 hours.
+# Weighted average speed over two legs: (120 + 60) / (2 + 2) = 45 mph.
+> If a train travels 120 miles in 2 hours, then slows down and travels the next 60 miles in 2 more hours, what is its average speed for the entire trip?
+< 45 mph.
+# Second-person trick: the question asks how many YOU have after taking two.
+> I'm holding three apples. You take two. How many do you have?
+< 2.
+# Bag remainder: put both objects in, remove one, the other remains.
+> You're holding a baseball and a tennis ball. If you put both in a bag and then remove the baseball, what do you have left in the bag?
+< A tennis ball.
+# Compare two average speeds: both are 60 mph, so the difference is 0.
+> If a train travels 120 miles in 2 hours, and another train travels 180 miles in 3 hours, how much faster is the second train going per hour?
+< 0 mph.
