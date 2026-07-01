@@ -213,12 +213,28 @@ secondo e un pattern da audit: ogni query costruita da testo utente deve
 scartare token vuoti prima di comporre chiavi.
 
 Il rerun dopo il giro: 4/10 -> 6/10 (campione nuovo), con i quattro zeri del
-6/10 chiusi in giornata come frame. Prossime categorie ricorrenti osservate:
+6/10 chiusi in giornata come frame. I pass successivi (gen254b-d) hanno chiuso
+altre categorie dai run live: riddle classici come `riddle_sig/2` (solo fatti,
+zero branch C), conteggio lettere e pangram CALCOLATI, mescola additiva della
+luce (`light_mix/3`), analogia painter:canvas::sculptor:marble via il motore
+generico (solo `medium_of/2`), il leak di compose (la clarification di repair
+non trapela piu: il turno intero passa ai frame composti a valle), capitale +
+anno (`capital_since/2`), "all but N" come PASSO del fold e non risposta
+finale, e le guardie di precisione su "even though" / "no one" / mix-vs-
+describe. Quattro run live nel giro: 4, 3->6, 4, 6 su dieci.
 
+Prossime categorie ricorrenti osservate (ordinate per resa attesa):
+
+- pigeonhole/estrazione garantita ("12 socks, 6 black 6 white, lights off:
+  smallest number to guarantee a pair") - frame combinatorio piccolo;
+- filtro direzionale sulle relazioni ("the four countries that border Germany
+  TO THE SOUTH"): `borders/2` non ha direzione, serve `border_dir/3` o simile;
+- sillogismi nonce con negazione (all X are Y, some Y are Z, no Z are X) -
+  Fase D, il motore Prolog puo gia derivarli se il parsing li reifica;
+- catene di parentela (grandmother = mother of mother) come REGOLE KB sopra
+  possessivi parsati ("Anna is Maria's grandmother");
 - fonologia/omofoni ("desert/dessert" letti ad alta voce): serve una relazione
   pronuncia in KB;
-- il residuo di compose che lascia trapelare la clarification di repair su
-  "why do you enjoy it" dopo una prima clausola gia risposta;
 - percentuali e frazioni nei word problems;
 - date e calendario ("what day comes three days after Saturday?").
 
