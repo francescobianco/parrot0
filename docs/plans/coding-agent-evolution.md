@@ -320,12 +320,17 @@ ESTRANEA con catene analoghe (fixture), deve produrre lo stesso lavoro. Se
 funziona solo su src/brain, abbiamo barato.
 
 **Scala dei pull:**
-1. Percezione: detector generico di catene OR di chiamate (report-only, F
-   parametrica, qualsiasi file/albero).
-2. Dominio di planning in KB: azioni + pre/postcondizioni come fatti; un goal
-   semplice concatenato per inferenza (il salto vero: gen207 ordina passi
-   scritti nel prompt, qui li DERIVA).
-3. Primo sito rifattorizzato da conoscenza detta, giudicato dai test.
+1. ✅ gen257 — Percezione: detector generico di catene OR di chiamate
+   (report-only, F parametrica, file/albero; contatore vivo: 341 catene di
+   `cue` in src/brain, fixture estraneo come anti-impostor).
+2. ✅ gen258 — Dominio di planning in KB (`kb/experts/codebase/actions.p0`):
+   azioni + pre/postcondizioni come fatti, chainer generico all'indietro,
+   piano DERIVATO dal goal; il needhelp è il secondo dominio (conoscenza, non
+   fallback); goal ignoto → fall-through, buco nella catena → declino che
+   nomina l'artefatto orfano.
+3. Esecuzione del piano derivato: bind dei passi alle primitive esistenti
+   (scan_chains = detector gen257; run_test_suite = make test), poi il primo
+   sito rifattorizzato da conoscenza detta, giudicato dai test byte-identici.
 4. Migrazione per categorie (il contatore scende, una gen alla volta).
 5. Demo di crescita a runtime: parola nuova insegnata → un ramo prima sordo
    aggancia, senza rebuild (il "gioco dinamico con la conoscenza").
