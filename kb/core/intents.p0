@@ -338,3 +338,21 @@ intent_cue(rule_end, "termina").
 intent_cue(rule_end, "vince").
 intent_cue(rule_end, "perde").
 intent_cue(rule_end, "arriva a").
+
+% gen266: rule sub-classes used to EXTRACT count_to_threshold parameters from a
+% recognized spec (all vocabulary, teachable at runtime): the rule that GAINS
+% names the scoring token (the word after an input verb), the rule that REACHES
+% names the threshold, the print cue names the final word.
+intent_cue(rule_gain, "increases").
+intent_cue(rule_gain, "increase").
+intent_cue(rule_gain, "goes up").
+intent_cue(rule_gain, "gains").
+intent_cue(rule_gain, "sale").
+intent_cue(rule_gain, "aumenta").
+intent_cue(rule_gain, "guadagna").
+intent_cue(rule_reach, "reaches").
+intent_cue(rule_reach, "raggiunge").
+intent_cue(rule_reach, "arriva a").
+intent_cue(rule_print, "prints").
+intent_cue(rule_print, "print").
+intent_cue(rule_print, "stampa").

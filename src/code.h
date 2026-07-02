@@ -253,9 +253,30 @@ int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz)
 
 /* gen263: code_run with the program's stdout captured into `out` (stderr
  * discarded). A sibling, not a replacement: check_sort's exit-code-only contract
- * stays untouched; the differential judge needs the output bytes. */
-int code_run_capture(const char *src_path, char *out, size_t out_sz,
+ * stays untouched; the differential judge needs the output bytes. gen266 adds
+ * optional `stdin_data` (NULL = inherit): scripted input for judging programs
+ * that READ, like a terminal game. */
+int code_run_capture(const char *src_path, const char *stdin_data,
+                     char *out, size_t out_sz,
                      int *exit_code, char *err_out, size_t err_sz);
+
+/* gen266 (the first RULESCORE synthesis): instantiate the count_to_threshold
+ * GAME schema — read whitespace tokens from stdin; each time the designated
+ * `token` is typed a counter increments; when it reaches `threshold` print
+ * `winword` and stop. The three parameters come from the RULES TEXT; the body
+ * lives nowhere as a finished game (one schema, open parameter space). Emitted
+ * on a single line (declarations, no #include) so it travels inside a chat
+ * reply. Returns 1, or 0 on invalid parameters. */
+int code_synth_game_counter(const char *token, int threshold, const char *winword,
+                            char *out, size_t out_sz);
+
+/* gen266: the run-grounded judge for count_to_threshold candidates. Compiles
+ * `src` and plays it TWICE with scripted stdin built independently from the
+ * parameters: threshold hits (mixed with noise tokens) must print `winword`;
+ * threshold-1 hits must not (so unconditional printing cannot pass). Returns
+ * 1 pass, 0 fail, -1 if it could not be built/run (diagnostics in err_out). */
+int code_check_counter_game(const char *src, const char *token, int threshold,
+                            const char *winword, char *err_out, size_t err_sz);
 
 /* gen209 (docs/plans/learn-and-build.md Track B/B0): the run-grounded JUDGE a sort
  * needs. Wraps a candidate function `func_src` — a self-contained C definition named

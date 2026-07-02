@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen266: count_to_threshold — the first game category synthesized under oracle
+
+**Goal (the first real point on RULESCORE's scale).** One game CATEGORY must go
+from honest decline to verified code: rules that say (a) the player types
+tokens, (b) a designated token increments a score, (c) at a threshold a word is
+printed and the game ends.
+
+**Changed.** Three pieces, one per layer. KB: `game_shape(count_to_threshold,
+token_counter_threshold)` in algo_steps.p0 (without the fact nothing is tried —
+the KB is the behavior switch) + three extraction cue classes in intents.p0
+(`rule_gain`, `rule_reach`, `rule_print`; `rule_input` reused). Engine:
+`code_synth_game_counter` (one-line C program, no #include, parameters = token/
+threshold/win word — a schema instantiation, no finished game anywhere) and
+`code_check_counter_game`, the run-grounded judge: `code_run_capture` gained
+optional scripted STDIN, and the oracle plays the candidate TWICE — threshold
+hits (mixed with noise built as token+suffix) must print the word, one hit
+short must not, so unconditional printing cannot pass. Brain: mod_rulespec now
+extracts the parameters from the RULE SEGMENTS via cue classes (the C knows
+only "find the cue, take the word after"; the words are KB) and presents the
+program ONLY when the oracle passes; otherwise the gen265 decline stands.
+
+**The fabrication the ratchet caught.** First wiring, the Italian Duello
+Monete spec ("Se indovina il punteggio sale…") mis-extracted token=punteggio —
+the STATE noun — and synthesized a wrong game the oracle happily verified (the
+oracle checks the schema, not the reading). Fixed with a word-class guard: the
+scoring token must not itself belong to the state/gain/end vocabulary.
+Mis-extraction is fabrication, and the bilingual ratchet caught it before the
+bench did.
+
+**Verified.** Key Tally (EN) and Conto Chiave (IT: digita/sale/arriva a/
+stampa, "tre" through the same number-word reader) both synthesize and verify;
+held-out Echo Gate (open/five/UNLOCKED) transfers; Coin Duel still declines
+(its "match" semantics are outside the category — the border is honest).
+`tests/run.sh` 221/221, `make test` fully green, `make code-bench` 25/25.
+Version `gen266-counter-game-synthesis`.
+
 ## 2026-07-02 - gen265: rules-spec recognition — the first category RULESCORE named
 
 **Goal (the pull from gen264's baseline).** RULESCORE's sharpest signal was not

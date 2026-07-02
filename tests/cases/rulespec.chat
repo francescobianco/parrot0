@@ -13,6 +13,16 @@
 > You start with 10 tokens. 1) each turn you enter a number from 1 to 3 and lose that many tokens. 2) if your total reaches exactly zero you win. 3) when tokens go below zero the game ends and you lose. Write this game in C.
 < That is a rules spec — "You start with 10 tokens", 3 numbered rules; I can recognize the input, state and end rules, but I cannot yet translate free-text rules into a program. My code synthesis covers verified schemas (a sort from a learned shape, arithmetic composition), not open rule specs — the text-to-code bridge is the gap.
 
+# gen266: the FIRST synthesized category — count_to_threshold. The rules name
+# the scoring token (rule_gain + rule_input cues), the threshold (rule_reach +
+# a number word) and the final word (rule_print, case kept from the raw); the
+# schema is a game_shape KB fact; the emitted program is DISPOSED by the
+# run-grounded oracle (3 hits must print VICTORY, 2 must not) before parrot0
+# presents it. Coin Duel above still declines: its "match" semantics are not
+# expressible — the category is honest about its border.
+> Key Tally. Rules: 1. Each round the player types a single word. 2. When the player types win the score increases by one point. 3. The game ends when the score reaches three and prints VICTORY. Implement this game as one complete C program for the terminal.
+< int printf(const char*,...); int scanf(const char*,...); int main(void){char t[64];const char*w="win";int s=0;while(s<3&&scanf("%63s",t)==1){int i=0;while(t[i]&&t[i]==w[i]){i++;}if(!t[i]&&!w[i])s++;}if(s>=3)printf("VICTORY\n");return 0;}  /* count_to_threshold schema; verified by execution: 3 "win" inputs print VICTORY and 2 do not (two scripted plays via the counter-game oracle) */
+
 # negative control: numbered arithmetic is NOT a spec (no request cue)
 > what is 1. plus 2.
 < 3.

@@ -18,3 +18,13 @@
 
 algo_shape(bubblesort, nested_loop_compare_swap).
 algo_io(bubblesort, array_int, array_int_sorted_ascending).
+
+% gen266 (the first RULESCORE synthesis): a GAME schema — a category of terminal
+% games, not an algorithm. count_to_threshold: read whitespace tokens from stdin;
+% a designated token increments a counter; at a threshold print a word and stop.
+% code_synth_game_counter instantiates it (the token, the threshold and the final
+% word are parameters extracted from the RULES TEXT of the request) and
+% code_check_counter_game disposes: threshold hits must print the word, one hit
+% short must not. Without this fact mod_rulespec only recognizes and declines —
+% the KB is the behavior switch.
+game_shape(count_to_threshold, token_counter_threshold).

@@ -2152,7 +2152,7 @@ int code_orchain_verify(const char *orig_path, const char *patched_path,
                    "    return 0;\n}\n",
                 text, probes, probe_fn);
         fclose(f);
-        int r = code_run_capture(tmps[v], outs[v], sizeof outa, exs[v],
+        int r = code_run_capture(tmps[v], NULL, outs[v], sizeof outa, exs[v],
                                  err_out, err_sz);
         remove(tmps[v]);
         if (r != 1) return -1;   /* build failure or crash/timeout: not a verdict */
@@ -2446,8 +2446,11 @@ int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz)
  * as a sibling of code_run, not a change to it: the exit-code-only contract of
  * code_run is load-bearing for the check_sort judge (which deliberately never
  * trusts the output channel), while the differential behavior judge needs the
- * output BYTES to compare two versions. Same sandbox, timeouts and cleanup. */
-int code_run_capture(const char *src_path, char *out, size_t out_sz,
+ * output BYTES to compare two versions. Same sandbox, timeouts and cleanup.
+ * gen266: optional `stdin_data` — when non-NULL it is piped to the program's
+ * stdin (an interactive game is judged by feeding it scripted input). */
+int code_run_capture(const char *src_path, const char *stdin_data,
+                     char *out, size_t out_sz,
                      int *exit_code, char *err_out, size_t err_sz) {
     if (out && out_sz) out[0] = '\0';
     if (err_out && err_sz) err_out[0] = '\0';
@@ -2486,13 +2489,19 @@ int code_run_capture(const char *src_path, char *out, size_t out_sz,
     if (waitpid(bpid, &bstatus, 0) < 0) { remove(exe); return -1; }
     if (!(WIFEXITED(bstatus) && WEXITSTATUS(bstatus) == 0)) { remove(exe); return -1; }
 
-    int rf[2];
+    int rf[2], inf[2] = { -1, -1 };
     if (pipe(rf) != 0) { remove(exe); return -1; }
+    if (stdin_data && pipe(inf) != 0) { close(rf[0]); close(rf[1]); remove(exe); return -1; }
     pid_t rpid = fork();
-    if (rpid < 0) { close(rf[0]); close(rf[1]); remove(exe); return -1; }
+    if (rpid < 0) {
+        close(rf[0]); close(rf[1]);
+        if (stdin_data) { close(inf[0]); close(inf[1]); }
+        remove(exe); return -1;
+    }
     if (rpid == 0) {
         dup2(rf[1], STDOUT_FILENO);
         close(rf[0]); close(rf[1]);
+        if (stdin_data) { dup2(inf[0], STDIN_FILENO); close(inf[0]); close(inf[1]); }
         int devnull = open("/dev/null", O_WRONLY);
         if (devnull >= 0) dup2(devnull, STDERR_FILENO);
         alarm(15);
@@ -2500,6 +2509,16 @@ int code_run_capture(const char *src_path, char *out, size_t out_sz,
         _exit(127);
     }
     close(rf[1]);
+    if (stdin_data) {                /* feed the script, then signal EOF */
+        close(inf[0]);
+        size_t sl = strlen(stdin_data), wi = 0;
+        while (wi < sl) {
+            ssize_t w = write(inf[1], stdin_data + wi, sl - wi);
+            if (w <= 0) break;
+            wi += (size_t)w;
+        }
+        close(inf[1]);
+    }
     size_t oi = 0;
     ssize_t n;
     while (oi + 1 < out_sz && (n = read(rf[0], out + oi, out_sz - 1 - oi)) > 0)
@@ -2517,6 +2536,63 @@ int code_run_capture(const char *src_path, char *out, size_t out_sz,
         return 1;
     }
     return 0;                    /* killed by a signal / timed out */
+}
+
+int code_synth_game_counter(const char *token, int threshold, const char *winword,
+                            char *out, size_t out_sz) {
+    if (out && out_sz) out[0] = '\0';
+    if (!out || out_sz == 0) return 0;
+    if (threshold < 1 || threshold > 99) return 0;
+    if (!orchain_ident_ok(token) || !orchain_ident_ok(winword)) return 0;
+    if (strlen(token) > 32 || strlen(winword) > 32) return 0;
+    /* One line, no #include (printf/scanf declared) so the program travels
+     * inside a single-line chat reply; the extractors that look for `int main`
+     * still get a compilable body. */
+    int n = snprintf(out, out_sz,
+        "int printf(const char*,...); int scanf(const char*,...); "
+        "int main(void){char t[64];const char*w=\"%s\";int s=0;"
+        "while(s<%d&&scanf(\"%%63s\",t)==1){int i=0;"
+        "while(t[i]&&t[i]==w[i]){i++;}if(!t[i]&&!w[i])s++;}"
+        "if(s>=%d)printf(\"%s\\n\");return 0;}",
+        token, threshold, threshold, winword);
+    return (n > 0 && (size_t)n < out_sz) ? 1 : 0;
+}
+
+int code_check_counter_game(const char *src, const char *token, int threshold,
+                            const char *winword, char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!src || !*src || threshold < 1 || threshold > 99) return -1;
+    if (!orchain_ident_ok(token) || !orchain_ident_ok(winword)) return -1;
+
+    const char *path = ".p0_gamecheck.c";
+    FILE *f = fopen(path, "w");
+    if (!f) return -1;
+    fprintf(f, "%s\n", src);
+    fclose(f);
+
+    /* Scripted plays built INDEPENDENTLY from the parameters: the noise token
+     * is the real token plus a suffix, so it can never count. */
+    char hit[512] = "", miss[512] = "";
+    size_t ho = 0, mo = 0;
+    for (int i = 0; i < threshold; i++) {
+        ho += (size_t)snprintf(hit + ho, sizeof hit - ho, "%sx %s ", token, token);
+        if (i < threshold - 1)
+            mo += (size_t)snprintf(miss + mo, sizeof miss - mo, "%sx %s ", token, token);
+        if (ho >= sizeof hit - 40 || mo >= sizeof miss - 40) { remove(path); return -1; }
+    }
+    snprintf(hit + ho, sizeof hit - ho, "\n");
+    snprintf(miss + mo, sizeof miss - mo, "\n");
+
+    char outa[2048], outb[2048];
+    int exa = 0, exb = 0;
+    int ra = code_run_capture(path, hit, outa, sizeof outa, &exa, err_out, err_sz);
+    int rb = code_run_capture(path, miss, outb, sizeof outb, &exb, err_out, err_sz);
+    remove(path);
+    if (ra != 1 || rb != 1) return -1;      /* build failure / crash / timeout */
+    if (exa != 0) return 0;                  /* the winning play must end cleanly */
+    if (!strstr(outa, winword)) return 0;    /* threshold hits must print the word */
+    if (strstr(outb, winword)) return 0;     /* one hit short must NOT */
+    return 1;
 }
 
 /* gen209 (Track B/B0): see code.h. Build a complete program = the candidate function

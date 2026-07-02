@@ -10,6 +10,51 @@
  * widens with no rebuild. Scans RAW (a spec is longer than the 256-char norm
  * window). Registered before codeast/code so the pattern matchers never steal
  * the turn. */
+/* gen266 helpers: vocabulary-driven parameter extraction from a rule segment.
+ * The words that mark a gain / an input verb / a reach / a print are all
+ * intent_cue facts — the C below only knows "find the cue, take the word
+ * after it", never the words themselves. */
+static long rulespec_cue_at(Brain *b, const char *intent, const char *seg) {
+    if (!b || !b->kb) return -1;
+    char cues[64][KB_TERM_LEN];
+    const char *q[2] = { intent, NULL };
+    size_t n = kb_match(b->kb, "intent_cue", q, 2, cues, 64);
+    long best = -1;
+    for (size_t i = 0; i < n; i++) {
+        char *p = cues[i];
+        size_t l = strlen(p);
+        if (l >= 2 && p[0] == '"' && p[l-1] == '"') { p[l-1] = '\0'; p++; }
+        if (!*p) continue;
+        const char *hit = strstr(seg, p);
+        if (hit) {
+            long end = (long)(hit - seg) + (long)strlen(p);
+            if (best < 0 || end < best) best = end;
+        }
+    }
+    return best;
+}
+
+static int rulespec_word_after(Brain *b, const char *seg, long from, int skip_stop,
+                               char *w, size_t wsz, long *wstart) {
+    const char *p = seg + from;
+    while (*p && isalnum((unsigned char)*p)) p++;     /* finish the cue's word */
+    for (;;) {
+        while (*p && !isalnum((unsigned char)*p)) p++;
+        if (!*p) return 0;
+        const char *st = p;
+        size_t o = 0;
+        while (*p && isalnum((unsigned char)*p)) {
+            if (o + 1 < wsz) w[o++] = *p;
+            p++;
+        }
+        w[o] = '\0';
+        if (!skip_stop || !is_stopword(b, w)) {
+            if (wstart) *wstart = (long)(st - seg);
+            return 1;
+        }
+    }
+}
+
 static int mod_rulespec(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)norm;
@@ -70,6 +115,114 @@ static int mod_rulespec(Brain *b, const char *norm, const char *raw,
         strcat(catlist, cats[i]);
         if (i + 2 < nc) strcat(catlist, ", ");
         else if (i + 1 < nc) strcat(catlist, " and ");
+    }
+
+    /* gen266: before declining, attempt the ONE schema the KB declares
+     * (game_shape count_to_threshold). Parameters come from the RULES
+     * THEMSELVES via cue classes (rule_gain+rule_input name the scoring
+     * token, rule_reach the threshold, rule_print the final word); the
+     * synthesized candidate is DISPOSED by the run-grounded oracle (two
+     * scripted plays). Any missing piece falls through to the honest
+     * decline below — and without the game_shape fact nothing is tried:
+     * the KB is the behavior switch. */
+    if (!b->compose_kb_loaded) {          /* same lazy substrate as mod_compose */
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        kb_load(b->kb, "kb/experts/programming/compose.p0");
+        kb_load(b->kb, "kb/experts/programming/algo_steps.p0");
+        kb_set_origin(b->kb, KB_SESSION);
+        b->compose_kb_loaded = 1;
+    }
+    {
+        const char *qs[2] = { "count_to_threshold", NULL };
+        char shp[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "game_shape", qs, 2, shp, 1) == 1) {
+            size_t rpos[10];
+            int nr2 = 0;
+            for (int d = 1; d <= nrules && d < 10; d++) {
+                char m1[4] = { (char)('0' + d), '.', ' ', '\0' };
+                char m2[4] = { (char)('0' + d), ')', ' ', '\0' };
+                const char *p = strstr(low, m1);
+                if (!p) p = strstr(low, m2);
+                if (!p) break;
+                rpos[nr2++] = (size_t)(p - low);
+            }
+            char token[40] = "", winword[40] = "";
+            long thr = -1;
+            for (int r = 0; r < nr2; r++) {
+                char seg[1024];
+                size_t a = rpos[r];
+                size_t z = (r + 1 < nr2) ? rpos[r + 1] : strlen(low);
+                size_t sl = z - a;
+                if (sl >= sizeof seg) sl = sizeof seg - 1;
+                memcpy(seg, low + a, sl);
+                seg[sl] = '\0';
+                if (!token[0]) {
+                    long g  = rulespec_cue_at(b, "rule_gain", seg);
+                    long iv = rulespec_cue_at(b, "rule_input", seg);
+                    if (g >= 0 && iv >= 0 &&
+                        rulespec_word_after(b, seg, iv, 1,
+                                            token, sizeof token, NULL)) {
+                        /* Guard against MIS-extraction (fabrication is worse
+                         * than declining): the scoring token must be a literal
+                         * the player types, never a word from the state/gain/
+                         * end vocabulary itself ("Se indovina il punteggio
+                         * sale…" must NOT yield token=punteggio). */
+                        if (kb_cue_match(b, "rule_state", token) ||
+                            kb_cue_match(b, "rule_gain", token) ||
+                            kb_cue_match(b, "rule_end", token))
+                            token[0] = '\0';
+                    }
+                }
+                if (thr < 0) {
+                    long rc = rulespec_cue_at(b, "rule_reach", seg);
+                    if (rc >= 0) {
+                        long from = rc;
+                        for (int k = 0; k < 4 && thr < 0; k++) {
+                            char nw[32];
+                            long ws = -1;
+                            if (!rulespec_word_after(b, seg, from, 0,
+                                                     nw, sizeof nw, &ws)) break;
+                            double v;
+                            if (parse_value(nw, &v) && v >= 1 && v <= 99 &&
+                                v == (double)(long)v)
+                                thr = (long)v;
+                            from = ws + (long)strlen(nw);
+                        }
+                    }
+                }
+                if (!winword[0]) {
+                    long pc = rulespec_cue_at(b, "rule_print", seg);
+                    if (pc >= 0) {
+                        char pw[40];
+                        long ws = -1;
+                        if (rulespec_word_after(b, seg, pc, 1,
+                                                pw, sizeof pw, &ws) && ws >= 0) {
+                            size_t wl = strlen(pw);
+                            if (wl < sizeof winword) {   /* keep the RAW case */
+                                memcpy(winword, raw + a + (size_t)ws, wl);
+                                winword[wl] = '\0';
+                            }
+                        }
+                    }
+                }
+            }
+            if (token[0] && winword[0] && thr > 0) {
+                char src[512], err[256];
+                if (code_synth_game_counter(token, (int)thr, winword,
+                                            src, sizeof src) &&
+                    code_check_counter_game(src, token, (int)thr, winword,
+                                            err, sizeof err) == 1) {
+                    snprintf(out, out_size,
+                             "%s  /* count_to_threshold schema; verified by "
+                             "execution: %ld \"%s\" inputs print %s and %ld do "
+                             "not (two scripted plays via the counter-game "
+                             "oracle) */",
+                             src, thr, token, winword, thr - 1);
+                    store_proof(b, out);
+                    return 1;
+                }
+            }
+        }
     }
 
     size_t o = (size_t)snprintf(out, out_size, "That is a rules spec — ");
