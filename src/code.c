@@ -1727,6 +1727,147 @@ int code_find_or_chains(const char *src_path, const char *fnname,
     return nchains;
 }
 
+static int orchain_word_seen(char words[][KB_TERM_LEN], size_t n, const char *w) {
+    for (size_t i = 0; i < n; i++)
+        if (strcmp(words[i], w) == 0) return 1;
+    return 0;
+}
+
+static void orchain_add_word(char words[][KB_TERM_LEN], size_t max,
+                             size_t *nwords, const char *w) {
+    if (!words || !nwords || !w || !*w || *nwords >= max) return;
+    if (orchain_word_seen(words, *nwords, w)) return;
+    snprintf(words[(*nwords)++], KB_TERM_LEN, "%s", w);
+}
+
+static void orchain_literals_between(const char *start, const char *end,
+                                     char words[][KB_TERM_LEN], size_t max,
+                                     size_t *nwords) {
+    for (const char *p = start; p && p < end && *p; p++) {
+        if (*p != '"') continue;
+        p++;
+        char lit[KB_TERM_LEN];
+        size_t o = 0;
+        while (p < end && *p && *p != '"') {
+            char c = *p;
+            if (c == '\\' && p + 1 < end && p[1]) {
+                p++;
+                c = *p;                 /* keep escaped char as its surface char */
+            }
+            if (o + 1 < sizeof lit && c != '\n' && c != '\r')
+                lit[o++] = c;
+            p++;
+        }
+        lit[o] = '\0';
+        orchain_add_word(words, max, nwords, lit);
+    }
+}
+
+int code_orchain_vocabulary(const char *src_path, const char *fnname,
+                            char words[][KB_TERM_LEN], size_t max,
+                            int *total_chains, int *total_calls) {
+    if (!src_path || !fnname || !*fnname || !words) return -1;
+    static char orig[262144];
+    static char buf[262144];
+    if (!code_read_file(src_path, orig, sizeof orig)) return -1;
+    snprintf(buf, sizeof buf, "%s", orig);
+    code_strip(buf);                         /* same structure view as gen257 */
+    size_t fl = strlen(fnname), nwords = 0;
+    int line = 1, nchains = 0, ncalls = 0;
+    const char *p = buf;
+    while (*p) {
+        if (*p == '\n') { line++; p++; continue; }
+        if (!((isalpha((unsigned char)*p) || *p == '_') && at_fn_call(buf, p, fnname, fl))) {
+            p++; continue;
+        }
+        size_t starts[64], ends[64];
+        int run = 0;
+        for (;;) {
+            const char *call_start = p;
+            p += fl;
+            while (*p == ' ' || *p == '\t') p++;
+            int depth = 0;
+            for (; *p; p++) {
+                if (*p == '\n') line++;
+                else if (*p == '(') depth++;
+                else if (*p == ')') { depth--; if (depth == 0) { p++; break; } }
+            }
+            if (run < (int)(sizeof starts / sizeof starts[0])) {
+                starts[run] = (size_t)(call_start - buf);
+                ends[run] = (size_t)(p - buf);
+            }
+            run++;
+            const char *q = p; int ln = line;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!(q[0] == '|' && q[1] == '|')) break;
+            q += 2;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!at_fn_call(buf, q, fnname, fl)) break;
+            p = q; line = ln;
+        }
+        if (run >= 2) {
+            int kept = run < (int)(sizeof starts / sizeof starts[0]) ?
+                       run : (int)(sizeof starts / sizeof starts[0]);
+            for (int i = 0; i < kept; i++)
+                orchain_literals_between(orig + starts[i], orig + ends[i],
+                                         words, max, &nwords);
+            nchains++; ncalls += run;
+        }
+    }
+    if (total_chains) *total_chains = nchains;
+    if (total_calls) *total_calls = ncalls;
+    return (int)nwords;
+}
+
+static void orchain_vocab_tree_rec(const char *dir, const char *fnname, int depth,
+                                   char words[][KB_TERM_LEN], size_t max,
+                                   size_t *nwords, int *files_hit,
+                                   int *chains, int *calls) {
+    if (depth > 32) return;
+    DIR *d = opendir(dir);
+    if (!d) return;
+    struct dirent *de;
+    while ((de = readdir(d)) != NULL) {
+        const char *nm = de->d_name;
+        if (nm[0] == '.') continue;
+        char path[1024];
+        snprintf(path, sizeof path, "%s/%s", dir, nm);
+        struct stat st;
+        if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            orchain_vocab_tree_rec(path, fnname, depth + 1,
+                                   words, max, nwords, files_hit, chains, calls);
+        } else {
+            size_t l = strlen(nm);
+            if (!(l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h'))) continue;
+            char local[64][KB_TERM_LEN];
+            int ch = 0, ca = 0;
+            int nw = code_orchain_vocabulary(path, fnname, local, 64, &ch, &ca);
+            if (nw < 0) continue;
+            if (ch > 0) {
+                (*files_hit)++; *chains += ch; *calls += ca;
+                for (int i = 0; i < nw; i++)
+                    orchain_add_word(words, max, nwords, local[i]);
+            }
+        }
+    }
+    closedir(d);
+}
+
+int code_orchain_vocabulary_tree(const char *dir, const char *fnname,
+                                 char words[][KB_TERM_LEN], size_t max,
+                                 int *files_hit, int *total_chains,
+                                 int *total_calls) {
+    if (!dir || !*dir || !fnname || !*fnname || !words) return -1;
+    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return -1;
+    size_t nw = 0;
+    int fh = 0, ch = 0, ca = 0;
+    orchain_vocab_tree_rec(dir, fnname, 0, words, max, &nw, &fh, &ch, &ca);
+    if (files_hit) *files_hit = fh;
+    if (total_chains) *total_chains = ch;
+    if (total_calls) *total_calls = ca;
+    return (int)nw;
+}
+
 static void orchain_tree_rec(const char *dir, const char *fnname, int depth,
                              int *files_hit, int *chains, int *calls,
                              char *top_file, size_t top_sz, int *top_chains) {

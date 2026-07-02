@@ -1,4 +1,29 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen260: OR-chain vocabulary extraction, second plan primitive
+
+**Goal (Track 5.3, next missing binding).** gen259 could walk the derived
+kbfirst_migration plan only through `scan_chains`, then stopped at
+`extract_vocabulary`. The next smallest honest step is to bind that action to a
+mute primitive that extracts the vocabulary already perceived in OR-chains,
+without writing facts or patching code.
+
+**Changed.** Added `code_orchain_vocabulary()` and
+`code_orchain_vocabulary_tree()` in the code engine. They reuse the gen257
+OR-chain structure detector on a stripped copy of the source, then copy
+double-quoted string literals from the original call spans in source order,
+deduped. Added `action_impl(extract_vocabulary, orchain_vocab)` to the KB action
+domain. `mod_plan` now dispatches the second primitive, rendering the extracted
+cues as an observation. No facts are emitted yet and no source file is changed.
+
+**Ratchet.** The same foreign fixture now walks two real steps:
+`orchain_scan` finds 2 OR-chains / 5 calls, `orchain_vocab` extracts
+`alpha, beta, gamma, epsilon, zeta`, and the plan stops at
+`emit_intent_facts` because that action still has no `action_impl/2`.
+
+**Verified.** `tests/run.sh` 219/219, `make test` fully green.
+`make code-bench` now has 22/22 gates, 0 gaps, 70/70 turns, including the new
+`orchain_vocab` stimulus. Version `gen260-orchain-vocabulary`.
+
 ## 2026-07-02 - gen259: derived plan execution walks the first primitive
 
 **Goal (Track 5.3, smallest executable slice).** Continue the codebase-work

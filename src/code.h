@@ -162,6 +162,21 @@ int code_orchain_tree(const char *dir, const char *fnname,
                       int *files_hit, int *calls,
                       char *top_file, size_t top_sz, int *top_chains);
 
+/* gen260 (Track 5.3): vocabulary extraction for an OR-chain. Uses the same
+ * structural detector as code_find_or_chains, but reads the original source spans
+ * of the calls in each chain and collects double-quoted string arguments (deduped,
+ * in source order). This is still PERCEPTION: no patch is written and no KB facts
+ * are emitted. Returns the number of words written, or -1 on error. */
+int code_orchain_vocabulary(const char *src_path, const char *fnname,
+                            char words[][KB_TERM_LEN], size_t max,
+                            int *total_chains, int *total_calls);
+
+/* gen260: the same vocabulary extraction over a tree of .c/.h files. */
+int code_orchain_vocabulary_tree(const char *dir, const char *fnname,
+                                 char words[][KB_TERM_LEN], size_t max,
+                                 int *files_hit, int *total_chains,
+                                 int *total_calls);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

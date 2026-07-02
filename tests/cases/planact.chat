@@ -15,8 +15,9 @@
 < I don't understand that yet.
 
 # gen259: execute the derived plan through KB action_impl bindings. Only the
-# first action is bound today (scan_chains -> orchain_scan), so the walk
-# performs the real OR-chain perception on the FOREIGN fixture and then stops
-# honestly at the first unbound action, naming it as the next pull.
+# first two actions are bound today (scan_chains -> orchain_scan,
+# extract_vocabulary -> orchain_vocab), so the walk performs real OR-chain
+# perception on the FOREIGN fixture, extracts its string cues, and then stops
+# honestly before writing facts or patching code.
 > execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
-< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); stopped at step 2 extract vocabulary because no action_impl fact names its primitive.
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; stopped at step 3 emit intent facts because no action_impl fact names its primitive.

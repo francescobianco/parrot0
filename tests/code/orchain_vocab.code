@@ -1,0 +1,7 @@
+#expect: pass
+#faculty: orchain-vocabulary
+# gen260: execute the KB-derived codebase plan far enough to extract the string
+# vocabulary encoded in OR-chains. This rides the same foreign fixture as gen257,
+# so the capability is not fitted to parrot0's own source tree.
+> execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
+< orchainvocab extracted 5 cues alpha beta gamma epsilon zeta

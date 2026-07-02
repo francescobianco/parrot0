@@ -505,7 +505,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen259-plan-primitive-walk";
+    return "gen260-orchain-vocabulary";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

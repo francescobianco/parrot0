@@ -54,9 +54,11 @@ plan_given(target_source).
 %   action_impl(Action, Primitive) — the primitive that executes the action
 %   plan_param(Goal, Name, Value)  — domain defaults (the request overrides)
 % A step with no action_impl fact stops the walk honestly and names itself as
-% the next pull. Today only scan_chains is bound (gen257's detector); the other
-% actions wait for their primitives.
+% the next pull. scan_chains is gen257's detector; extract_vocabulary (gen260)
+% reads the string cues inside those chains. Patching and run_test_suite wait
+% for their guarded primitives.
 action_impl(scan_chains, orchain_scan).
+action_impl(extract_vocabulary, orchain_vocab).
 plan_param(kbfirst_migration, vocab_fn, cue).
 
 % --- Domain 2: the needhelp protocol (external help as plan knowledge) --------

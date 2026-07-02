@@ -297,11 +297,21 @@ static int plan_request_fn(const char *praw, char *fn, size_t fn_sz) {
     return 0;
 }
 
+static void plan_join_words(char words[][KB_TERM_LEN], int n, char *out, size_t out_sz) {
+    if (!out || out_sz == 0) return;
+    size_t o = 0;
+    out[0] = '\0';
+    for (int i = 0; i < n && o + 1 < out_sz; i++) {
+        o += (size_t)snprintf(out + o, out_sz - o, "%s%s",
+                              i ? ", " : "", words[i]);
+    }
+}
+
 /* gen259 (Track 5.3, first executable walk): realize a derived plan through
  * primitive bindings declared in KB as action_impl(Action, Primitive). This C
  * dispatches on the PRIMITIVE name, not on the domain action name; the domain
- * still lives in facts, and the walk intentionally stops at the first action
- * with no binding, naming it as the next pull. */
+ * still lives in facts. gen260 adds orchain_vocab as the second primitive; the
+ * walk still intentionally stops at the next unbound action and names it. */
 static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                                   const char *target, const char *fn_from_req,
                                   char *obs, size_t obs_sz) {
@@ -317,6 +327,38 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
     if (!fn[0]) {
         snprintf(obs, obs_sz, "%s needs a function name", impl);
         return 0;
+    }
+
+    if (strcmp(impl, "orchain_vocab") == 0) {
+        char words[32][KB_TERM_LEN];
+        int files = 0, chains = 0, calls = 0;
+        int nwords;
+        struct stat vst;
+        if (stat(target, &vst) == 0 && S_ISDIR(vst.st_mode))
+            nwords = code_orchain_vocabulary_tree(target, fn, words, 32,
+                                                  &files, &chains, &calls);
+        else
+            nwords = code_orchain_vocabulary(target, fn, words, 32,
+                                             &chains, &calls);
+        if (nwords < 0) {
+            snprintf(obs, obs_sz, "orchain_vocab could not read %s", target);
+            return 0;
+        }
+        if (chains == 0) {
+            snprintf(obs, obs_sz, "orchain_vocab found no OR-chains of calls to `%s` in %s",
+                     fn, target);
+            return 0;
+        }
+        if (nwords == 0) {
+            snprintf(obs, obs_sz,
+                     "orchain_vocab found %d OR-chains of calls to `%s` but no string cues",
+                     chains, fn);
+            return 0;
+        }
+        char list[384];
+        plan_join_words(words, nwords, list, sizeof list);
+        snprintf(obs, obs_sz, "orchain_vocab extracted %d cues: %s", nwords, list);
+        return 1;
     }
 
     if (strcmp(impl, "orchain_scan") != 0) {
