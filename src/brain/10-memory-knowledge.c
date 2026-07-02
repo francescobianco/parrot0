@@ -1676,6 +1676,83 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen255 (Fase D, generative-prolog spirit): kinship chain composition.
+     * "Anna is Maria's grandmother and Maria is Elena's mother. What relation
+     * is Anna to Elena?" — each "X is Y's R" clause is a LINK whose generation
+     * height and gender live in KB (kinship_level/2, kinship_gender/2); the
+     * solver walks the chain from the asked ancestor to the asked descendant,
+     * SUMS the levels, and maps the total back through kinship_name/3. The
+     * lexicon (new relation words, deeper names) extends in KB only. */
+    if (cue(norm, "relation") && strstr(norm, "'s ")) {
+        char kb2[256]; snprintf(kb2, sizeof kb2, "%s", norm);
+        char *w[64]; size_t n = split_words(kb2, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        struct { char from[48], to[48]; long lvl; char g; } link[6];
+        size_t nl = 0;
+        for (size_t i = 0; i + 3 < n && nl < 6; i++) {
+            if (strcmp(w[i + 1], "is")) continue;
+            char *poss = w[i + 2]; size_t pl = strlen(poss);
+            if (pl < 3 || poss[pl - 2] != '\'' || poss[pl - 1] != 's') continue;
+            char owner[48]; snprintf(owner, sizeof owner, "%.*s", (int)(pl - 2), poss);
+            const char *rel = w[i + 3];
+            char lvl[1][KB_TERM_LEN], gen[1][KB_TERM_LEN];
+            char qrel[KB_TERM_LEN]; snprintf(qrel, sizeof qrel, "\"%s\"", rel);
+            const char *q1[] = { rel, NULL }, *q2[] = { qrel, NULL };
+            if (kb_match(b->kb, "kinship_level", q1, 2, lvl, 1) == 0 &&
+                kb_match(b->kb, "kinship_level", q2, 2, lvl, 1) == 0) continue;
+            if (kb_match(b->kb, "kinship_gender", q1, 2, gen, 1) == 0 &&
+                kb_match(b->kb, "kinship_gender", q2, 2, gen, 1) == 0) continue;
+            snprintf(link[nl].from, sizeof link[nl].from, "%s", w[i]);
+            snprintf(link[nl].to, sizeof link[nl].to, "%s", owner);
+            link[nl].lvl = atol(lvl[0]);
+            link[nl].g = gen[0][0];
+            nl++;
+        }
+        /* the question: "what relation is X to Z" */
+        char qx[48] = "", qz[48] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "relation") && !strcmp(w[i + 1], "is") &&
+                !strcmp(w[i + 3], "to") && i + 4 < n) {
+                snprintf(qx, sizeof qx, "%s", w[i + 2]);
+                snprintf(qz, sizeof qz, "%s", w[i + 4]);
+                break;
+            }
+        if (nl >= 1 && qx[0] && qz[0]) {
+            long total = 0; char gender = 0; int steps = 0;
+            char cur[48]; snprintf(cur, sizeof cur, "%s", qx);
+            while (strcmp(cur, qz) != 0 && steps <= (int)nl) {
+                int found = 0;
+                for (size_t k = 0; k < nl; k++)
+                    if (!strcmp(link[k].from, cur)) {
+                        total += link[k].lvl;
+                        if (!gender) gender = link[k].g;
+                        snprintf(cur, sizeof cur, "%s", link[k].to);
+                        found = 1; steps++; break;
+                    }
+                if (!found) break;
+            }
+            if (!strcmp(cur, qz) && total > 0 && gender) {
+                char tn[16]; snprintf(tn, sizeof tn, "%ld", total);
+                char gs[2] = { gender, '\0' };
+                const char *nq[] = { tn, gs, NULL };
+                char nm[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "kinship_name", nq, 3, nm, 1) > 0) {
+                    char *p = kb_dequote(nm[0]);
+                    char xd[48]; snprintf(xd, sizeof xd, "%s", qx);
+                    char zd[48]; snprintf(zd, sizeof zd, "%s", qz);
+                    xd[0] = (char)toupper((unsigned char)xd[0]);
+                    zd[0] = (char)toupper((unsigned char)zd[0]);
+                    char msg[200];
+                    snprintf(msg, sizeof msg, "%s is %s's %s.", xd, zd, p);
+                    put(msg, out, out_size);
+                    store_proof(b, "Summed the generation levels along the "
+                                   "stated kinship chain.");
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): the existential syllogism (Darii). From "some A are B"
      * and "every/all B <pred>" conclude "Some A <pred>." — a real deduction over
      * the parsed premises (docs/plans/kb-first.md: a sentence with a logical soul
@@ -1730,6 +1807,67 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
+    }
+
+    /* gen255 (Fase D): the NEGATIVE existential syllogism (Ferio family), over
+     * nonce words. "Some Mips are Glorps, and no Glorps are Zorks — can we
+     * conclude that some Mips are not Zorks?" -> YES: the Mips that are Glorps
+     * cannot be Zorks. Parsed as set relations: conclusion "some B are not A"
+     * follows iff a premise gives some B are C (or some C are B) and another
+     * gives no C are A (or no A are C — E-propositions convert). Real deduction
+     * with the witness named; anything outside the schema falls through to the
+     * honest paths below. */
+    if ((cue(norm, "conclude") || cue(norm, "does it follow") ||
+         cue(norm, "can we say")) &&
+        cue(norm, "some") && cue(norm, "no ") && cue(norm, "not ")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        #define KSING(dst, src) do { snprintf(dst, sizeof dst, "%s", src); \
+            size_t _l = strlen(dst); if (_l > 1 && dst[_l-1] == 's') dst[_l-1] = '\0'; } while (0)
+        /* conclusion: the "some P are (definitely) not Q" clause */
+        char P[64] = "", Q[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "some") && !strcmp(w[i + 2], "are")) {
+                size_t j = i + 3;
+                if (j < n && !strcmp(w[j], "definitely")) j++;
+                if (j + 1 < n && !strcmp(w[j], "not")) {
+                    KSING(P, w[i + 1]); KSING(Q, w[j + 1]);
+                }
+            }
+        /* premises: some X are Y (affirmative) and no X are Y */
+        char sA[64] = "", sB[64] = "", nA[64] = "", nB[64] = "";
+        for (size_t i = 0; i + 3 < n; i++) {
+            if (!strcmp(w[i], "some") && !strcmp(w[i + 2], "are") &&
+                strcmp(w[i + 3], "not") && strcmp(w[i + 3], "definitely")) {
+                if (!sA[0]) { KSING(sA, w[i + 1]); KSING(sB, w[i + 3]); }
+            }
+            if (!strcmp(w[i], "no") && !strcmp(w[i + 2], "are")) {
+                KSING(nA, w[i + 1]); KSING(nB, w[i + 3]);
+            }
+        }
+        if (P[0] && Q[0] && sA[0] && nA[0]) {
+            /* bridge C: the some-premise links P to C; the no-premise separates
+             * C from Q in either direction. */
+            const char *C = NULL;
+            if (!strcmp(sA, P)) C = sB;           /* some P are C */
+            else if (!strcmp(sB, P)) C = sA;      /* some C are P */
+            int separated = C &&
+                ((!strcmp(nA, C) && !strcmp(nB, Q)) ||   /* no C are Q */
+                 (!strcmp(nA, Q) && !strcmp(nB, C)));    /* no Q are C */
+            if (separated) {
+                char msg[300];
+                snprintf(msg, sizeof msg,
+                         "Yes -- some %ss are %ss, and no %ss are %ss, so those "
+                         "%ss cannot be %ss: some %ss are definitely not %ss.",
+                         P, C, C, Q, P, Q, P, Q);
+                put(msg, out, out_size);
+                store_proof(b, "Ferio: some P are C and no C are Q entail "
+                               "some P are not Q (witness: the P that are C).");
+                return 1;
+            }
+        }
+        #undef KSING
     }
 
     /* gen240 (LLMSCORE): the INVALID syllogism (undistributed middle). "All A are

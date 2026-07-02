@@ -945,6 +945,77 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen255 (LLMSCORE): weekday arithmetic. "What day comes three days after
+     * Saturday?" -> the day names and their cyclic order are KB (day_order/2);
+     * the C parses the named day, the offset (default 1 for a bare "the day
+     * after"), and the direction, then walks the 7-cycle. */
+    if ((cue(q, "day") || cue(q, "giorno")) &&
+        (cue(q, "after") || cue(q, "before") || cue(q, "from"))) {
+        char db2[256]; snprintf(db2, sizeof db2, "%s", q);
+        char *dw2[64]; size_t dn2 = split_words(db2, dw2, 64);
+        long base = 0; double off = -1; int dir = 0;
+        for (size_t i = 0; i < dn2; i++) {
+            char *t = strip_edge_punct(dw2[i]);
+            const char *dq[] = { t, NULL };
+            char oh[1][KB_TERM_LEN];
+            if (!base && kb_match(b->kb, "day_order", dq, 2, oh, 1) > 0)
+                base = atol(oh[0]);
+            double v;
+            if (off < 0 && parse_value(t, &v) && v >= 1 && v <= 60 &&
+                i + 1 < dn2) {
+                char *nx = strip_edge_punct(dw2[i + 1]);
+                if (!strcmp(nx, "days") || !strcmp(nx, "day")) off = v;
+            }
+            if (!strcmp(t, "after") || !strcmp(t, "from")) dir = 1;
+            else if (!strcmp(t, "before")) dir = -1;
+        }
+        if (base && dir) {
+            if (off < 0) off = 1;                /* "the day after Saturday" */
+            long idx = ((base - 1 + dir * (long)off) % 7 + 7) % 7 + 1;
+            char in2[16]; snprintf(in2, sizeof in2, "%ld", idx);
+            const char *rq2[] = { NULL, in2 };
+            char dh[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "day_order", rq2, 2, dh, 1) > 0) {
+                char msg[64]; snprintf(msg, sizeof msg, "%s.", dh[0]);
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+                put(msg, out, out_size);
+                store_proof(b, "Walked the 7-day cycle from the named day by "
+                               "the stated offset.");
+                return 1;
+            }
+        }
+    }
+
+    /* gen255 (LLMSCORE): pigeonhole draw — "6 black and 6 white socks, lights
+     * off: smallest number to GUARANTEE a matching pair?" With k kinds, k+1
+     * draws force a repeat. The kinds are counted from the turn (any word the
+     * KB knows as a color, plus generic kind nouns), never assumed. */
+    if (cue(q, "guarantee") &&
+        (cue(q, "pair") || cue(q, "matching") || cue(q, "same color") ||
+         cue(q, "same colour"))) {
+        char pb2[256]; snprintf(pb2, sizeof pb2, "%s", q);
+        char *pw2[64]; size_t pn2 = split_words(pb2, pw2, 64);
+        char kinds[8][KB_TERM_LEN]; size_t nk = 0;
+        for (size_t i = 0; i < pn2 && nk < 8; i++) {
+            char *t = strip_edge_punct(pw2[i]);
+            if (!*t || !isalpha((unsigned char)t[0])) continue;
+            const char *cq2[] = { "color", t };
+            if (!kb_query(b->kb, "category_member", cq2, 2)) continue;
+            int dup = 0;
+            for (size_t k = 0; k < nk; k++) if (!strcmp(kinds[k], t)) dup = 1;
+            if (!dup) snprintf(kinds[nk++], KB_TERM_LEN, "%s", t);
+        }
+        if (nk >= 2) {
+            char msg[240];
+            snprintf(msg, sizeof msg,
+                     "%zu -- with %zu colors, any %zu pulls must include two of "
+                     "the same color (pigeonhole).", nk + 1, nk, nk + 1);
+            put(msg, out, out_size);
+            store_proof(b, "Pigeonhole: k kinds need k+1 draws to force a repeat.");
+            return 1;
+        }
+    }
+
     /* gen254 (LLMSCORE): rectangle geometry. "perimeter of 24 cm and one side
      * is 5 cm, what is the area?" -> other side = P/2 - s, area = s * other.
      * Same fixed-mathematics family as the circle frame; the numbers bind to

@@ -1018,6 +1018,62 @@ river_of(washington_dc, "the Potomac River").
 river_of(vienna, "the Danube").
 river_of(cairo, "the Nile").
 ocean_west_of(australia, "the Indian Ocean").
+% gen255: kinship as COMPOSABLE knowledge. kinship_level(Rel, N) is how many
+% generations Rel stands ABOVE the possessor ("Anna is Maria's grandmother" ->
+% 2); kinship_gender(Rel, G) types the ancestor; kinship_name(N, G, Surface)
+% maps a summed chain back to language. The C solver only parses "X is Y's R"
+% links and adds levels — the lexicon extends here, no code edit.
+kinship_level(mother, 1).
+kinship_level(father, 1).
+kinship_level(grandmother, 2).
+kinship_level(grandfather, 2).
+kinship_level("great-grandmother", 3).
+kinship_level("great-grandfather", 3).
+kinship_gender(mother, f).
+kinship_gender(grandmother, f).
+kinship_gender("great-grandmother", f).
+kinship_gender(father, m).
+kinship_gender(grandfather, m).
+kinship_gender("great-grandfather", m).
+kinship_name(1, f, mother).
+kinship_name(2, f, grandmother).
+kinship_name(3, f, "great-grandmother").
+kinship_name(4, f, "great-great-grandmother").
+kinship_name(1, m, father).
+kinship_name(2, m, grandfather).
+kinship_name(3, m, "great-grandfather").
+kinship_name(4, m, "great-great-grandfather").
+
+% gen255: weekday arithmetic substrate — day_order(Day, Index 1..7).
+day_order(monday, 1).
+day_order(tuesday, 2).
+day_order(wednesday, 3).
+day_order(thursday, 4).
+day_order(friday, 5).
+day_order(saturday, 6).
+day_order(sunday, 7).
+
+% gen255: DIRECTIONAL borders — border_dir(Country, Direction, Neighbour).
+% The generic borders/2 list stays; a direction word in the turn filters here.
+border_dir(germany, south, austria).
+border_dir(germany, south, switzerland).
+border_dir(germany, north, denmark).
+border_dir(germany, east, poland).
+border_dir(germany, east, czechia).
+border_dir(germany, west, france).
+border_dir(germany, west, netherlands).
+border_dir(germany, west, belgium).
+border_dir(germany, west, luxembourg).
+border_dir(france, south, spain).
+border_dir(france, east, germany).
+border_dir(france, east, switzerland).
+border_dir(france, east, italy).
+border_dir(france, north, belgium).
+border_dir(italy, north, switzerland).
+border_dir(italy, north, austria).
+border_dir(italy, west, france).
+border_dir(italy, east, slovenia).
+
 % gen254: riddle SIGNATURES — riddle_sig(Id, "cue") lists the substrings that
 % must all occur for response_template(Id, ...) in responses.p0 to answer.
 % World knowledge (which riddles exist), so it lives here; teaching a riddle
