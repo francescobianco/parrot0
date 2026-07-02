@@ -1,4 +1,39 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen259: derived plan execution walks the first primitive
+
+**Goal (Track 5.3, smallest executable slice).** Continue the codebase-work
+plan without jumping to a fake refactor: once the planner has DERIVED the
+kbfirst_migration steps from KB facts, it should walk those steps through
+KB-declared primitive bindings. The only bound step today is
+`action_impl(scan_chains, orchain_scan)`, so the honest target is: perform that
+real perception step, then stop at the next missing binding and name it.
+
+**Changed.** `mod_plan` now has a second KB-triggered mode,
+`intent_cue(plan_execute, ...)`, separate from `plan_request`. Both modes load
+the same `kb/experts/codebase/actions.p0`, find the goal through `goal_cue/2`,
+and derive steps with the same backward chainer. Render mode prints the plan as
+before; execute mode reads `action_impl(Action, Primitive)` facts and dispatches
+on the primitive name. The first primitive registry entry is `orchain_scan`,
+which calls the gen257 OR-chain detector (`code_find_or_chains` /
+`code_orchain_tree`) with the target path and function name from the request,
+falling back to `plan_param(kbfirst_migration, vocab_fn, cue)`.
+
+**Honesty boundary.** There is deliberately no C branch for "extract vocabulary"
+or later domain actions. After the real scan, the walk stops at step 2 and says
+that no `action_impl` fact names the primitive. This makes the next pull exact:
+bind/implement `extract_vocabulary` as knowledge + primitive, then continue to
+facts emission, patching, and test execution.
+
+**Ratchet.** `tests/cases/planact.chat` and `.it` now ask parrot0 to execute
+the kb-first plan on the FOREIGN `tests/fixtures/orchain/foreign.c` fixture,
+with function `flag`. It reports the real 2 OR-chains / 5 chained calls, then
+stops on missing `action_impl(extract_vocabulary, ...)`. That proves the walk is
+not fitted to `src/brain` and not English-only.
+
+**Verified.** `tests/run.sh` 219/219, `make test` fully green, and
+`make code-bench` holds 21/21 gates with 0 gaps (69/69 turns). Version
+`gen259-plan-primitive-walk`.
+
 ## 2026-07-02 - gen258: the KB plan domain — plans are DERIVED, and needhelp is knowledge
 
 **Goal (Track 5.2; F.'s two constraints).** A multi-step plan must be INFERRED

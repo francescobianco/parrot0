@@ -279,3 +279,17 @@ intent_cue(plan_request, "plan for getting").
 intent_cue(plan_request, "fai un piano").
 intent_cue(plan_request, "deriva un piano").
 intent_cue(plan_request, "pianifica").
+
+% --- gen259: execute a derived plan through KB action_impl/2 bindings. These
+% cues only ask parrot0 to WALK the plan it can already derive; the domain stays
+% in kb/experts/codebase/actions.p0 and missing implementations are named as the
+% next pull instead of fabricated.
+intent_cue(plan_execute, "execute the plan").
+intent_cue(plan_execute, "execute the kb-first plan").
+intent_cue(plan_execute, "run the plan").
+intent_cue(plan_execute, "run the kb-first plan").
+intent_cue(plan_execute, "walk the plan").
+intent_cue(plan_execute, "realize the plan").
+intent_cue(plan_execute, "esegui il piano").
+intent_cue(plan_execute, "esegui il piano kb-first").
+intent_cue(plan_execute, "applica il piano").

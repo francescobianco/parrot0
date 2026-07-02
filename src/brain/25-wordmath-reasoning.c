@@ -164,75 +164,313 @@ static void plan_unquote(char *s) {
     if (l >= 2 && s[0] == '"' && s[l-1] == '"') { memmove(s, s + 1, l - 2); s[l-2] = '\0'; }
 }
 
+static void plan_humanize(const char *id, char *out, size_t sz) {
+    if (!out || sz == 0) return;
+    snprintf(out, sz, "%s", id ? id : "");
+    for (char *c = out; *c; c++) if (*c == '_') *c = ' ';
+}
+
+static void plan_load_actions(Brain *b) {
+    if (!b || !b->kb || b->actions_kb_loaded) return;
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_load(b->kb, "kb/experts/codebase/actions.p0");
+    kb_set_origin(b->kb, KB_SESSION);
+    b->actions_kb_loaded = 1;
+}
+
+static int plan_find_goal(Brain *b, const char *norm, const char *praw,
+                          char *goal, size_t goal_sz) {
+    if (!b || !b->kb || !goal || goal_sz == 0) return 0;
+    goal[0] = '\0';
+    char goals[16][KB_TERM_LEN];
+    const char *qall[2] = { NULL, NULL };
+    size_t ng = kb_match(b->kb, "plan_goal", qall, 2, goals, 16);
+    for (size_t i = 0; i < ng && !goal[0]; i++) {
+        const char *qc[2] = { goals[i], NULL };
+        char frs[16][KB_TERM_LEN];
+        size_t nf = kb_match(b->kb, "goal_cue", qc, 2, frs, 16);
+        for (size_t j = 0; j < nf; j++) {
+            plan_unquote(frs[j]);
+            if (frs[j][0] && ((norm && strstr(norm, frs[j])) ||
+                              (praw && strstr(praw, frs[j])))) {
+                snprintf(goal, goal_sz, "%s", goals[i]);
+                break;
+            }
+        }
+    }
+    return goal[0] != '\0';
+}
+
+static int plan_goal_steps(Brain *b, const char *goal,
+                           char steps[][KB_TERM_LEN], size_t *nsteps,
+                           size_t max_steps, char *missing, size_t missing_sz) {
+    if (!b || !b->kb || !goal || !steps || !nsteps) return 0;
+    const char *qa[2] = { goal, NULL };
+    char arts[2][KB_TERM_LEN];
+    if (kb_match(b->kb, "plan_goal", qa, 2, arts, 2) == 0) return 0;
+    char visited[16][KB_TERM_LEN];
+    size_t nvis = 0;
+    *nsteps = 0;
+    if (missing && missing_sz) missing[0] = '\0';
+    if (!plan_chain(b, arts[0], steps, nsteps, max_steps,
+                    missing, missing_sz, visited, &nvis, 0))
+        return -1;
+    return 1;
+}
+
+static void plan_step_desc(Brain *b, const char *step, char *line, size_t line_sz) {
+    if (!line || line_sz == 0) return;
+    const char *qd[2] = { step, NULL };
+    char desc[2][KB_TERM_LEN];
+    if (b && b->kb && kb_match(b->kb, "action_desc", qd, 2, desc, 2) > 0) {
+        plan_unquote(desc[0]);
+        snprintf(line, line_sz, "%s", desc[0]);
+    } else {
+        plan_humanize(step, line, line_sz);
+    }
+}
+
+static int plan_param_value(Brain *b, const char *goal, const char *name,
+                            char *out, size_t out_sz) {
+    if (!b || !b->kb || !goal || !name || !out || out_sz == 0) return 0;
+    const char *q[3] = { goal, name, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "plan_param", q, 3, hit, 1) == 0) return 0;
+    plan_unquote(hit[0]);
+    snprintf(out, out_sz, "%s", hit[0]);
+    return 1;
+}
+
+static int plan_request_path(const char *praw, char *path, size_t path_sz) {
+    if (!praw || !path || path_sz == 0) return 0;
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", praw);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        size_t l = strlen(t);
+        if (strchr(t, '/') ||
+            (l >= 2 && t[l - 2] == '.' && (t[l - 1] == 'c' || t[l - 1] == 'h'))) {
+            snprintf(path, path_sz, "%s", t);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static int plan_fn_candidate(const char *t) {
+    if (!t || !*t) return 0;
+    if (!strcmp(t, "in") || !strcmp(t, "under") || !strcmp(t, "inside") ||
+        !strcmp(t, "a") || !strcmp(t, "di"))
+        return 0;
+    for (const char *p = t; *p; p++)
+        if (!(isalnum((unsigned char)*p) || *p == '_')) return 0;
+    return 1;
+}
+
+static int plan_request_fn(const char *praw, char *fn, size_t fn_sz) {
+    if (!praw || !fn || fn_sz == 0) return 0;
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", praw);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
+    for (size_t i = 0; i + 2 < nw; i++) {
+        int call_word = !strcmp(w[i], "call") || !strcmp(w[i], "calls") ||
+                        !strcmp(w[i], "chiamata") || !strcmp(w[i], "chiamate");
+        int link_word = !strcmp(w[i + 1], "to") || !strcmp(w[i + 1], "a") ||
+                        !strcmp(w[i + 1], "di");
+        if (call_word && link_word && plan_fn_candidate(w[i + 2])) {
+            snprintf(fn, fn_sz, "%s", w[i + 2]);
+            return 1;
+        }
+    }
+    for (size_t i = 0; i + 1 < nw; i++) {
+        if ((!strcmp(w[i], "function") || !strcmp(w[i], "funzione") ||
+             !strcmp(w[i], "fn") || !strcmp(w[i], "vocab_fn")) &&
+            plan_fn_candidate(w[i + 1])) {
+            snprintf(fn, fn_sz, "%s", w[i + 1]);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* gen259 (Track 5.3, first executable walk): realize a derived plan through
+ * primitive bindings declared in KB as action_impl(Action, Primitive). This C
+ * dispatches on the PRIMITIVE name, not on the domain action name; the domain
+ * still lives in facts, and the walk intentionally stops at the first action
+ * with no binding, naming it as the next pull. */
+static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
+                                  const char *target, const char *fn_from_req,
+                                  char *obs, size_t obs_sz) {
+    if (!impl || !obs || obs_sz == 0) return 0;
+
+    char fn[64] = "";
+    if (fn_from_req && *fn_from_req) snprintf(fn, sizeof fn, "%s", fn_from_req);
+    else (void)plan_param_value(b, goal, "vocab_fn", fn, sizeof fn);
+    if (!target || !*target) {
+        snprintf(obs, obs_sz, "%s needs a target source path from the request", impl);
+        return 0;
+    }
+    if (!fn[0]) {
+        snprintf(obs, obs_sz, "%s needs a function name", impl);
+        return 0;
+    }
+
+    if (strcmp(impl, "orchain_scan") != 0) {
+        snprintf(obs, obs_sz, "primitive %s is not implemented by this binary", impl);
+        return 0;
+    }
+
+    struct stat st;
+    if (stat(target, &st) == 0 && S_ISDIR(st.st_mode)) {
+        int files = 0, calls = 0, topn = 0;
+        char top[256] = "";
+        int n = code_orchain_tree(target, fn, &files, &calls, top, sizeof top, &topn);
+        if (n < 0) {
+            snprintf(obs, obs_sz, "orchain_scan could not read %s", target);
+            return 0;
+        }
+        if (n == 0)
+            snprintf(obs, obs_sz, "orchain_scan found no OR-chains of calls to `%s` under %s",
+                     fn, target);
+        else
+            snprintf(obs, obs_sz,
+                     "orchain_scan found %d OR-chains of calls to `%s` under %s "
+                     "in %d files (%d calls in chains); densest is %s (%d chains)",
+                     n, fn, target, files, calls, top, topn);
+        return 1;
+    }
+
+    int lines[1] = {0}, calls = 0;
+    int n = code_find_or_chains(target, fn, lines, 1, &calls);
+    if (n < 0) {
+        snprintf(obs, obs_sz, "orchain_scan could not read %s", target);
+        return 0;
+    }
+    if (n == 0)
+        snprintf(obs, obs_sz, "orchain_scan found no OR-chains of calls to `%s` in %s",
+                 fn, target);
+    else
+        snprintf(obs, obs_sz,
+                 "orchain_scan found %d OR-chains of calls to `%s` in %s "
+                 "(%d calls in chains)",
+                 n, fn, target, calls);
+    return 1;
+}
+
+static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
+                             char *out, size_t out_size) {
+    char steps[16][KB_TERM_LEN];
+    char missing[KB_TERM_LEN] = "";
+    size_t nsteps = 0;
+    char goal_h[KB_TERM_LEN];
+    plan_humanize(goal, goal_h, sizeof goal_h);
+    int gr = plan_goal_steps(b, goal, steps, &nsteps, 16, missing, sizeof missing);
+    if (gr == 0) return 0;
+    if (gr < 0) {
+        char miss_h[KB_TERM_LEN];
+        plan_humanize(missing, miss_h, sizeof miss_h);
+        snprintf(out, out_size,
+                 "My action knowledge for %s is incomplete: nothing yields %s "
+                 "and it is not given — teach me the missing action facts.",
+                 goal_h, miss_h);
+        return 1;
+    }
+
+    char target[256] = "";
+    char fn[64] = "";
+    (void)plan_request_path(praw, target, sizeof target);
+    (void)plan_request_fn(praw, fn, sizeof fn);
+
+    size_t o = (size_t)snprintf(out, out_size, "Executed derived plan for %s:",
+                                goal_h);
+    size_t ran = 0;
+    for (size_t i = 0; i < nsteps && o < out_size; i++) {
+        const char *qi[2] = { steps[i], NULL };
+        char impls[2][KB_TERM_LEN];
+        if (kb_match(b->kb, "action_impl", qi, 2, impls, 2) == 0) {
+            char step_h[KB_TERM_LEN];
+            plan_humanize(steps[i], step_h, sizeof step_h);
+            o += (size_t)snprintf(out + o, out_size - o,
+                                  "%s stopped at step %zu %s because no "
+                                  "action_impl fact names its primitive.",
+                                  ran ? ";" : " ", i + 1, step_h);
+            store_proof(b, out);
+            return 1;
+        }
+        plan_unquote(impls[0]);
+        char obs[512];
+        int ok = plan_execute_primitive(b, goal, impls[0], target, fn,
+                                        obs, sizeof obs);
+        if (!ok) {
+            char step_h[KB_TERM_LEN];
+            plan_humanize(steps[i], step_h, sizeof step_h);
+            o += (size_t)snprintf(out + o, out_size - o,
+                                  "%s stopped at step %zu %s via %s: %s.",
+                                  ran ? ";" : " ", i + 1, step_h, impls[0], obs);
+            store_proof(b, out);
+            return 1;
+        }
+        o += (size_t)snprintf(out + o, out_size - o, "%s%zu) %s",
+                              ran ? "; " : " ", i + 1, obs);
+        ran++;
+    }
+    if (o < out_size)
+        snprintf(out + o, out_size - o, "%s", ran ? "." : " no executable steps.");
+    store_proof(b, out);
+    return 1;
+}
+
 static int mod_plan(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
 
-    /* gen258 (Track 5.2, F.'s steer: the plan is INFERRED, never a hardcoded
-     * pipeline). "make a plan to <goal>" — the trigger words are KB knowledge
-     * (intent_cue(plan_request,…)), the goal is recognized from goal_cue facts,
-     * and the steps are DERIVED by the generic backward chainer from
-     * action_yields/action_needs. No matching goal knowledge -> fall through
-     * (the requires/2 planner below may still own the turn); a hole in the
-     * chain -> an honest report naming the artifact nothing yields. */
-    /* Match the trigger and the goal on the plainly-normalized RAW as well as
+    /* gen258/gen259 (Track 5.2/5.3, F.'s steer: the plan is INFERRED, never a
+     * hardcoded pipeline). "make a plan to <goal>" renders the derived steps;
+     * "execute/run the plan for <goal>" walks the SAME steps through KB-declared
+     * action_impl bindings and stops honestly on the first missing primitive.
+     *
+     * Match the trigger and the goal on the plainly-normalized RAW as well as
      * `norm`: canonicalize_lang rewrites Italian function words (e.g. "un"),
      * which would hide "fai un piano" from the KB cues. */
     char praw[512]; normalize(raw, praw, sizeof praw);
-    if (kb_cue_match(b, "plan_request", norm) || kb_cue_match(b, "plan_request", praw)) {
-        if (!b->actions_kb_loaded) {
-            kb_set_origin(b->kb, KB_REFLECTIVE);
-            kb_load(b->kb, "kb/experts/codebase/actions.p0");
-            kb_set_origin(b->kb, KB_SESSION);
-            b->actions_kb_loaded = 1;
-        }
-        char goals[16][KB_TERM_LEN];
-        const char *qall[2] = { NULL, NULL };
-        size_t ng = kb_match(b->kb, "plan_goal", qall, 2, goals, 16);
+    int want_exec = kb_cue_match(b, "plan_execute", norm) ||
+                    kb_cue_match(b, "plan_execute", praw);
+    int want_plan = kb_cue_match(b, "plan_request", norm) ||
+                    kb_cue_match(b, "plan_request", praw);
+    if (want_exec || want_plan) {
+        plan_load_actions(b);
         char goal[KB_TERM_LEN] = "";
-        for (size_t i = 0; i < ng && !goal[0]; i++) {
-            const char *qc[2] = { goals[i], NULL };
-            char frs[16][KB_TERM_LEN];
-            size_t nf = kb_match(b->kb, "goal_cue", qc, 2, frs, 16);
-            for (size_t j = 0; j < nf; j++) {
-                plan_unquote(frs[j]);
-                if (frs[j][0] && (strstr(norm, frs[j]) || strstr(praw, frs[j]))) {
-                    snprintf(goal, sizeof goal, "%s", goals[i]);
-                    break;
-                }
-            }
-        }
+        plan_find_goal(b, norm, praw, goal, sizeof goal);
         if (goal[0]) {
-            const char *qa[2] = { goal, NULL };
-            char arts[2][KB_TERM_LEN];
-            if (kb_match(b->kb, "plan_goal", qa, 2, arts, 2) > 0) {
-                char steps[16][KB_TERM_LEN], visited[16][KB_TERM_LEN];
+            if (want_exec)
+                return plan_execute_goal(b, goal, praw, out, out_size);
+            {
+                char steps[16][KB_TERM_LEN];
                 char missing[KB_TERM_LEN] = "";
-                size_t nsteps = 0, nvis = 0;
-                char goal_h[KB_TERM_LEN]; snprintf(goal_h, sizeof goal_h, "%s", goal);
-                for (char *c = goal_h; *c; c++) if (*c == '_') *c = ' ';
-                if (!plan_chain(b, arts[0], steps, &nsteps, 16,
-                                missing, sizeof missing, visited, &nvis, 0)) {
-                    for (char *c = missing; *c; c++) if (*c == '_') *c = ' ';
+                size_t nsteps = 0;
+                char goal_h[KB_TERM_LEN];
+                plan_humanize(goal, goal_h, sizeof goal_h);
+                int gr = plan_goal_steps(b, goal, steps, &nsteps, 16,
+                                         missing, sizeof missing);
+                if (gr < 0) {
+                    char miss_h[KB_TERM_LEN];
+                    plan_humanize(missing, miss_h, sizeof miss_h);
                     snprintf(out, out_size,
                              "My action knowledge for %s is incomplete: nothing yields %s "
                              "and it is not given — teach me the missing action facts.",
-                             goal_h, missing);
+                             goal_h, miss_h);
                     return 1;
                 }
+                if (gr == 0) return 0;
                 size_t o = (size_t)snprintf(out, out_size,
                                             "My derived plan for %s:", goal_h);
                 for (size_t i = 0; i < nsteps && o < out_size; i++) {
-                    const char *qd[2] = { steps[i], NULL };
-                    char desc[2][KB_TERM_LEN];
                     char line[KB_TERM_LEN];
-                    if (kb_match(b->kb, "action_desc", qd, 2, desc, 2) > 0) {
-                        plan_unquote(desc[0]);
-                        snprintf(line, sizeof line, "%s", desc[0]);
-                    } else {
-                        snprintf(line, sizeof line, "%s", steps[i]);
-                        for (char *c = line; *c; c++) if (*c == '_') *c = ' ';
-                    }
+                    plan_step_desc(b, steps[i], line, sizeof line);
                     o += (size_t)snprintf(out + o, out_size - o, " %zu) %s%s",
                                           i + 1, line,
                                           (i + 1 < nsteps) ? ";" : ".");

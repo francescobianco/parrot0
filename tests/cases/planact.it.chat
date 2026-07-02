@@ -6,3 +6,5 @@
 < My derived plan for kbfirst migration: 1) locate the OR-chains of calls in the target source (the vocabulary sites); 2) extract the word list each chain encodes; 3) write the words as intent_cue facts in a .p0 file; 4) replace each chain with a kb_cue_match lookup in a patched copy; 5) run the full test suite; the refactor must be behavior-preserving.
 > fai un piano per ottenere aiuto esterno
 < My derived plan for external help: 1) write what I lack as facts in a needhelp.p0 at the project root; 2) periodically re-read needhelp.p0 to see if someone answered; 3) load the answers as native knowledge and resume the blocked plan.
+> esegui il piano kb-first per catene di chiamate a flag in tests/fixtures/orchain/foreign.c
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); stopped at step 2 extract vocabulary because no action_impl fact names its primitive.

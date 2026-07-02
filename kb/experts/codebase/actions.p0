@@ -48,6 +48,17 @@ action_desc(run_test_suite, "run the full test suite; the refactor must be behav
 
 plan_given(target_source).
 
+% gen259 (Track 5.3): step -> primitive BINDINGS, as knowledge. Walking a derived
+% plan means realizing each step through a mute C capability; WHICH capability
+% realizes WHICH step is a fact, never a C switch on step names:
+%   action_impl(Action, Primitive) — the primitive that executes the action
+%   plan_param(Goal, Name, Value)  — domain defaults (the request overrides)
+% A step with no action_impl fact stops the walk honestly and names itself as
+% the next pull. Today only scan_chains is bound (gen257's detector); the other
+% actions wait for their primitives.
+action_impl(scan_chains, orchain_scan).
+plan_param(kbfirst_migration, vocab_fn, cue).
+
 % --- Domain 2: the needhelp protocol (external help as plan knowledge) --------
 % F.'s public pattern: when blocked on missing knowledge, do not stop — ask the
 % world through a needhelp.p0 file and keep the plan alive. It is knowledge here
