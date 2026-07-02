@@ -267,3 +267,15 @@ intent_cue(orchain_query, "or-chain count").
 intent_cue(orchain_query, "catene or di").
 intent_cue(orchain_query, "catene di or").
 intent_cue(orchain_query, "catene di chiamate a").
+
+% --- gen258: plan requests (Track 5.2). "make a plan to <goal>" — the trigger
+% surface is knowledge; the goal itself is recognized from goal_cue/2 facts in
+% the plan-action domain (kb/experts/codebase/actions.p0) and the steps are
+% DERIVED by the generic backward chainer, never a hardcoded pipeline.
+intent_cue(plan_request, "make a plan").
+intent_cue(plan_request, "derive a plan").
+intent_cue(plan_request, "your plan for").
+intent_cue(plan_request, "plan for getting").
+intent_cue(plan_request, "fai un piano").
+intent_cue(plan_request, "deriva un piano").
+intent_cue(plan_request, "pianifica").

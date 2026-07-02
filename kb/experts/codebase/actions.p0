@@ -1,0 +1,73 @@
+% parrot0 PLAN-ACTION KNOWLEDGE — a planning domain as facts, not a C pipeline.
+%
+% gen258 (Track 5.2 of docs/plans/coding-agent-evolution.md, F.'s steer): a plan
+% must be INFERRED from knowledge + the expressed goal, never hardcoded. The C
+% machinery (mod_plan's backward chainer) is generic and mute; everything it
+% knows about WHAT to do lives here:
+%
+%   plan_goal(GoalId, TerminalArtifact)  — a nameable goal and what proves it done
+%   goal_cue(GoalId, "fragment")          — surface forms that name the goal (EN+IT)
+%   action_yields(Action, Artifact)       — what an action produces
+%   action_needs(Action, Artifact)        — an action's preconditions (AND)
+%   action_desc(Action, "one line")       — how the step is verbalized
+%   plan_given(Artifact)                  — roots available from the request/world
+%
+% The chainer walks backward from the goal's artifact through needs/yields and
+% emits the postorder — the plan. A goal named here but with a hole in the chain
+% is reported honestly ("nothing yields X"). Without these facts there is no
+% plan: the KB is the behavior switch. Loaded lazily as KB_REFLECTIVE (never
+% persisted, filtered from introspection), like compose.p0/algo_steps.p0.
+
+% --- Domain 1: cue-chain migration to KB-first (Track 5, outer-circle) --------
+plan_goal(kbfirst_migration, verified_patch).
+goal_cue(kbfirst_migration, "kb-first").
+goal_cue(kbfirst_migration, "cue chains").
+goal_cue(kbfirst_migration, "catene cue").
+goal_cue(kbfirst_migration, "regime kb-first").
+
+action_yields(scan_chains, chain_sites).
+action_needs(scan_chains, target_source).
+action_desc(scan_chains, "locate the OR-chains of calls in the target source (the vocabulary sites)").
+
+action_yields(extract_vocabulary, vocabulary).
+action_needs(extract_vocabulary, chain_sites).
+action_desc(extract_vocabulary, "extract the word list each chain encodes").
+
+action_yields(emit_intent_facts, intent_facts).
+action_needs(emit_intent_facts, vocabulary).
+action_desc(emit_intent_facts, "write the words as intent_cue facts in a .p0 file").
+
+action_yields(patch_sites, patched_copy).
+action_needs(patch_sites, chain_sites).
+action_needs(patch_sites, intent_facts).
+action_desc(patch_sites, "replace each chain with a kb_cue_match lookup in a patched copy").
+
+action_yields(run_test_suite, verified_patch).
+action_needs(run_test_suite, patched_copy).
+action_desc(run_test_suite, "run the full test suite; the refactor must be behavior-preserving").
+
+plan_given(target_source).
+
+% --- Domain 2: the needhelp protocol (external help as plan knowledge) --------
+% F.'s public pattern: when blocked on missing knowledge, do not stop — ask the
+% world through a needhelp.p0 file and keep the plan alive. It is knowledge here
+% (an action like any other), NOT a wired on-failure fallback in C.
+plan_goal(external_help, unblocked_goal).
+goal_cue(external_help, "external help").
+goal_cue(external_help, "when you are blocked").
+goal_cue(external_help, "aiuto esterno").
+goal_cue(external_help, "quando sei bloccato").
+
+action_yields(write_needhelp, help_request).
+action_needs(write_needhelp, missing_knowledge).
+action_desc(write_needhelp, "write what I lack as facts in a needhelp.p0 at the project root").
+
+action_yields(check_needhelp, answer_facts).
+action_needs(check_needhelp, help_request).
+action_desc(check_needhelp, "periodically re-read needhelp.p0 to see if someone answered").
+
+action_yields(load_answer, unblocked_goal).
+action_needs(load_answer, answer_facts).
+action_desc(load_answer, "load the answers as native knowledge and resume the blocked plan").
+
+plan_given(missing_knowledge).

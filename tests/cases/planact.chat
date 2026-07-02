@@ -1,0 +1,15 @@
+# gen258 (Track 5.2): plans INFERRED from KB action knowledge, never a hardcoded
+# pipeline (F.'s steer). The trigger words are intent_cue(plan_request,…) facts;
+# the goal is recognized from goal_cue/2; the steps are DERIVED by a generic
+# backward chainer over action_yields/action_needs in
+# kb/experts/codebase/actions.p0 (postorder honors AND-preconditions: the
+# intent_cue facts are written BEFORE the sites are patched). The chainer knows
+# nothing of codebases or needhelp — two structurally different domains run
+# through the same C. An unknown goal falls through honestly. The needhelp
+# protocol (F.'s public pattern) is here as KNOWLEDGE, not a wired fallback.
+> make a plan to bring the cue chains of a module into kb-first regime
+< My derived plan for kbfirst migration: 1) locate the OR-chains of calls in the target source (the vocabulary sites); 2) extract the word list each chain encodes; 3) write the words as intent_cue facts in a .p0 file; 4) replace each chain with a kb_cue_match lookup in a patched copy; 5) run the full test suite; the refactor must be behavior-preserving.
+> make a plan for getting external help
+< My derived plan for external help: 1) write what I lack as facts in a needhelp.p0 at the project root; 2) periodically re-read needhelp.p0 to see if someone answered; 3) load the answers as native knowledge and resume the blocked plan.
+> make a plan to conquer the moon
+< I don't understand that yet.

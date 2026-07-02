@@ -120,9 +120,127 @@ static int wp_distance_between(Brain *b, const char *a, const char *c, double *d
     return parse_value(hit[0], dist);
 }
 
+/* gen258 (Track 5.2): the GENERIC backward chainer over plan-action knowledge.
+ * Everything domain-shaped lives in the KB (kb/experts/codebase/actions.p0:
+ * plan_goal/goal_cue/action_yields/action_needs/action_desc/plan_given); this C
+ * only walks needs->yields backward from an artifact and emits the postorder.
+ * It knows nothing of codebases or needhelp — swap the facts, it plans another
+ * world (that is the anti-impostor property). On a hole in the knowledge it
+ * reports the missing artifact instead of inventing a step. */
+static int plan_chain(Brain *b, const char *artifact,
+                      char steps[][KB_TERM_LEN], size_t *nsteps, size_t max,
+                      char *missing, size_t missing_sz,
+                      char visited[][KB_TERM_LEN], size_t *nvis, int depth) {
+    if (depth > 16) return 0;
+    /* Root artifact? Enumerate plan_given/1 and compare: kb_match collects the
+     * FIRST unbound slot, so a fully-ground query has nothing to collect. */
+    char given[16][KB_TERM_LEN];
+    const char *qg[1] = { NULL };
+    size_t ngv = kb_match(b->kb, "plan_given", qg, 1, given, 16);
+    for (size_t i = 0; i < ngv; i++)
+        if (strcmp(given[i], artifact) == 0) return 1;
+    for (size_t i = 0; i < *nvis; i++)
+        if (strcmp(visited[i], artifact) == 0) return 1;   /* cycle guard */
+    if (*nvis < 16) snprintf(visited[(*nvis)++], KB_TERM_LEN, "%s", artifact);
+    const char *qy[2] = { NULL, artifact };
+    char acts[4][KB_TERM_LEN];
+    size_t na = kb_match(b->kb, "action_yields", qy, 2, acts, 4);
+    if (na == 0) { snprintf(missing, missing_sz, "%s", artifact); return 0; }
+    const char *qn[2] = { acts[0], NULL };
+    char needs[8][KB_TERM_LEN];
+    size_t nn = kb_match(b->kb, "action_needs", qn, 2, needs, 8);
+    for (size_t i = 0; i < nn; i++)
+        if (!plan_chain(b, needs[i], steps, nsteps, max,
+                        missing, missing_sz, visited, nvis, depth + 1))
+            return 0;
+    for (size_t i = 0; i < *nsteps; i++)
+        if (strcmp(steps[i], acts[0]) == 0) return 1;      /* already planned */
+    if (*nsteps < max) snprintf(steps[(*nsteps)++], KB_TERM_LEN, "%s", acts[0]);
+    return 1;
+}
+
+static void plan_unquote(char *s) {
+    size_t l = strlen(s);
+    if (l >= 2 && s[0] == '"' && s[l-1] == '"') { memmove(s, s + 1, l - 2); s[l-2] = '\0'; }
+}
+
 static int mod_plan(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+
+    /* gen258 (Track 5.2, F.'s steer: the plan is INFERRED, never a hardcoded
+     * pipeline). "make a plan to <goal>" — the trigger words are KB knowledge
+     * (intent_cue(plan_request,…)), the goal is recognized from goal_cue facts,
+     * and the steps are DERIVED by the generic backward chainer from
+     * action_yields/action_needs. No matching goal knowledge -> fall through
+     * (the requires/2 planner below may still own the turn); a hole in the
+     * chain -> an honest report naming the artifact nothing yields. */
+    /* Match the trigger and the goal on the plainly-normalized RAW as well as
+     * `norm`: canonicalize_lang rewrites Italian function words (e.g. "un"),
+     * which would hide "fai un piano" from the KB cues. */
+    char praw[512]; normalize(raw, praw, sizeof praw);
+    if (kb_cue_match(b, "plan_request", norm) || kb_cue_match(b, "plan_request", praw)) {
+        if (!b->actions_kb_loaded) {
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_load(b->kb, "kb/experts/codebase/actions.p0");
+            kb_set_origin(b->kb, KB_SESSION);
+            b->actions_kb_loaded = 1;
+        }
+        char goals[16][KB_TERM_LEN];
+        const char *qall[2] = { NULL, NULL };
+        size_t ng = kb_match(b->kb, "plan_goal", qall, 2, goals, 16);
+        char goal[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < ng && !goal[0]; i++) {
+            const char *qc[2] = { goals[i], NULL };
+            char frs[16][KB_TERM_LEN];
+            size_t nf = kb_match(b->kb, "goal_cue", qc, 2, frs, 16);
+            for (size_t j = 0; j < nf; j++) {
+                plan_unquote(frs[j]);
+                if (frs[j][0] && (strstr(norm, frs[j]) || strstr(praw, frs[j]))) {
+                    snprintf(goal, sizeof goal, "%s", goals[i]);
+                    break;
+                }
+            }
+        }
+        if (goal[0]) {
+            const char *qa[2] = { goal, NULL };
+            char arts[2][KB_TERM_LEN];
+            if (kb_match(b->kb, "plan_goal", qa, 2, arts, 2) > 0) {
+                char steps[16][KB_TERM_LEN], visited[16][KB_TERM_LEN];
+                char missing[KB_TERM_LEN] = "";
+                size_t nsteps = 0, nvis = 0;
+                char goal_h[KB_TERM_LEN]; snprintf(goal_h, sizeof goal_h, "%s", goal);
+                for (char *c = goal_h; *c; c++) if (*c == '_') *c = ' ';
+                if (!plan_chain(b, arts[0], steps, &nsteps, 16,
+                                missing, sizeof missing, visited, &nvis, 0)) {
+                    for (char *c = missing; *c; c++) if (*c == '_') *c = ' ';
+                    snprintf(out, out_size,
+                             "My action knowledge for %s is incomplete: nothing yields %s "
+                             "and it is not given — teach me the missing action facts.",
+                             goal_h, missing);
+                    return 1;
+                }
+                size_t o = (size_t)snprintf(out, out_size,
+                                            "My derived plan for %s:", goal_h);
+                for (size_t i = 0; i < nsteps && o < out_size; i++) {
+                    const char *qd[2] = { steps[i], NULL };
+                    char desc[2][KB_TERM_LEN];
+                    char line[KB_TERM_LEN];
+                    if (kb_match(b->kb, "action_desc", qd, 2, desc, 2) > 0) {
+                        plan_unquote(desc[0]);
+                        snprintf(line, sizeof line, "%s", desc[0]);
+                    } else {
+                        snprintf(line, sizeof line, "%s", steps[i]);
+                        for (char *c = line; *c; c++) if (*c == '_') *c = ' ';
+                    }
+                    o += (size_t)snprintf(out + o, out_size - o, " %zu) %s%s",
+                                          i + 1, line,
+                                          (i + 1 < nsteps) ? ";" : ".");
+                }
+                return 1;
+            }
+        }
+    }
 
     char buf[256];
     size_t len = strlen(norm);

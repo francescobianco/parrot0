@@ -1,4 +1,50 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen258: the KB plan domain — plans are DERIVED, and needhelp is knowledge
+
+**Goal (Track 5.2; F.'s two constraints).** A multi-step plan must be INFERRED
+from knowledge + the expressed goal, never a hardcoded pipeline; and the
+needhelp protocol (when blocked on missing knowledge, write `needhelp.p0` in
+the target project's root, let anyone answer inside, periodically re-check)
+must be an intelligent ability — plan knowledge — not a wired on-failure
+fallback.
+
+**Changed.** New planning substrate, all knowledge in
+`kb/experts/codebase/actions.p0` (lazy KB_REFLECTIVE, like algo_steps.p0):
+`plan_goal/2` (goal -> terminal artifact), `goal_cue/2` (surface forms naming
+the goal, EN+IT), `action_yields/2`, `action_needs/2` (AND-preconditions),
+`action_desc/2`, `plan_given/1` (roots). In C only the generic machinery
+(`mod_plan`, 25-wordmath-reasoning.c): `plan_chain` walks backward from the
+goal's artifact through needs->yields (cycle-guarded, depth-capped) and emits
+the postorder — the plan. It knows nothing of codebases or needhelp; swap the
+facts and it plans another world. Trigger vocabulary is KB too
+(`intent_cue(plan_request, …)`). Two honest declines: an unrecognized goal
+falls through (the requires/2 planner may still own the turn); a hole in the
+chain reports the orphan artifact ("nothing yields X … teach me the missing
+action facts") — the KB is the behavior switch.
+
+**Two domains prove the chainer general.** (1) kbfirst_migration -> 5 steps
+(scan chains, extract vocabulary, emit intent_cue facts, patch sites, run the
+suite), with the AND-join honored: the facts are written BEFORE the sites are
+patched. (2) external_help -> the needhelp protocol derived as 3 steps (write
+needhelp.p0, periodically re-read it, load the answers as native knowledge and
+resume). EN+IT (matched on plainly-normalized raw as well as norm, since
+canonicalize_lang rewrites Italian function words).
+
+**Fixed en route.** Ground kb_match queries collect nothing (kb_match fills
+the FIRST unbound slot), so `plan_given(x)` is checked by enumerating
+`plan_given/1` and comparing — the earlier form silently failed and produced
+the (correctly honest) incomplete-knowledge message, which also exercised that
+path for real.
+
+**Verified.** `tests/cases/planact{,.it}.chat` (derived plans EN+IT +
+unknown-goal fallthrough); `make test` fully green (219 unit + suites).
+Version `gen258-kb-plan-domain`.
+
+**Next (Track 5.3).** Execution: bind plan steps to the existing primitives
+(scan_chains is gen257's detector; run_test_suite is code_run/make test) so a
+derived plan can be WALKED, then the first cue-chain site refactored from told
+knowledge, judged by byte-identical `make test`.
+
 ## 2026-07-02 - gen257: OR-chain perception — outer-circle work on a codebase begins
 
 **Goal (F.'s steer, twice corrected and confirmed).** parrot0 must work on its

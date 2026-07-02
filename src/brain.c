@@ -229,6 +229,7 @@ struct Brain {
      * lazily into the REFLECTIVE layer the first time mod_compose runs, so it never
      * touches ordinary conversation or the boot KB. This guards the one-time load. */
     int  compose_kb_loaded;
+    int  actions_kb_loaded;   /* gen258: lazy plan-action domain (KB_REFLECTIVE) */
 
     /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
      * so when more than one form is registered for an intent they alternate (the gen55

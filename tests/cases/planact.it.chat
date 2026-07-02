@@ -1,0 +1,8 @@
+# gen258, Italian probe: the SAME derived plan through the Italian trigger
+# ("fai un piano per …"). The Italian cues are intent_cue/goal_cue facts; one
+# chainer, two languages. Matched on the plainly-normalized raw as well as norm
+# because canonicalize_lang rewrites Italian function words.
+> fai un piano per portare le catene cue in regime kb-first
+< My derived plan for kbfirst migration: 1) locate the OR-chains of calls in the target source (the vocabulary sites); 2) extract the word list each chain encodes; 3) write the words as intent_cue facts in a .p0 file; 4) replace each chain with a kb_cue_match lookup in a patched copy; 5) run the full test suite; the refactor must be behavior-preserving.
+> fai un piano per ottenere aiuto esterno
+< My derived plan for external help: 1) write what I lack as facts in a needhelp.p0 at the project root; 2) periodically re-read needhelp.p0 to see if someone answered; 3) load the answers as native knowledge and resume the blocked plan.
