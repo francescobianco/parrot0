@@ -1618,6 +1618,57 @@ int code_find_case_folding(const char *src_path,
     return (int)n;
 }
 
+/* gen256: does ANY structural bug smell fire on this one file? The chain is the
+ * same one the brain's "fix the bug in <path>" branch walks (symmetry break,
+ * discarded result, condition asymmetry, case folding); here it is only a yes/no
+ * probe, so a firing file can be REPORTED and then re-analyzed by the detailed
+ * per-file path. Unreadable/non-source files simply decline. */
+static int smell_fires(const char *path) {
+    char o[256], n[256];
+    if (code_symmetry_fix(path, NULL, o, sizeof o, n, sizeof n) > 0) return 1;
+    if (code_find_discarded_result(path, NULL, o, sizeof o, n, sizeof n) > 0) return 1;
+    if (code_find_cond_asymmetry(path, NULL, o, sizeof o, n, sizeof n) > 0) return 1;
+    char co[2][256], cn[2][256];
+    if (code_find_case_folding(path, co, cn, 2) > 0) return 1;
+    return 0;
+}
+
+static int smell_tree_rec(const char *dir, char *out_file, size_t out_sz, int depth) {
+    if (depth > 32) return 0;
+    DIR *d = opendir(dir);
+    if (!d) return 0;
+    int found = 0;
+    struct dirent *de;
+    while (!found && (de = readdir(d)) != NULL) {
+        const char *nm = de->d_name;
+        if (nm[0] == '.') continue;                       /* skip . .. and hidden */
+        char path[1024];
+        snprintf(path, sizeof path, "%s/%s", dir, nm);
+        struct stat st;
+        int isdir = (stat(path, &st) == 0) && S_ISDIR(st.st_mode);
+        if (isdir) {
+            if (smell_tree_rec(path, out_file, out_sz, depth + 1)) found = 1;
+        } else {
+            size_t l = strlen(nm);
+            int is_c  = (l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h'));
+            int is_py = (l >= 4 && nm[l-3] == '.' && nm[l-2] == 'p' && nm[l-1] == 'y');
+            if ((is_c || is_py) && smell_fires(path)) {
+                snprintf(out_file, out_sz, "%s", path);
+                found = 1;
+            }
+        }
+    }
+    closedir(d);
+    return found;
+}
+
+int code_smell_tree(const char *dir, char *out_file, size_t out_sz) {
+    if (!dir || !*dir || !out_file || out_sz == 0) return -1;
+    /* same sandbox as code_locate: relative paths under the working dir only */
+    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return -1;
+    return smell_tree_rec(dir, out_file, out_sz, 0);
+}
+
 /* gen191: F5 edit — delete the top-level definition of `fnname`. The same engine
  * as rename (locate -> edit -> the caller compiles to verify), a SECOND
  * transformation proving the edit loop is rule-shaped, not one hardcoded op. We

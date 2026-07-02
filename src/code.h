@@ -133,6 +133,16 @@ int code_find_cond_asymmetry(const char *src_path, const char *fnname,
 int code_find_case_folding(const char *src_path,
                            char olds[][256], char news[][256], size_t max);
 
+/* gen256: X6 SELF-localization across a TREE. Until now the harness handed parrot0
+ * the buggy FILE (find | head -1 in parrot_solve.sh) — localization was the
+ * harness's intelligence, not parrot0's. This walks `dir` (and subdirectories,
+ * hidden entries skipped, depth-bounded, same sandbox as code_locate) and runs the
+ * WHOLE structural-smell chain (symmetry break, discarded result, condition
+ * asymmetry, case folding) on every .c/.h/.py source; the first file where any
+ * smell fires is written to `out_file`. It names no file in advance — the smells
+ * are the localizer. Returns 1 if a file fired, 0 if none, -1 on error/sandbox. */
+int code_smell_tree(const char *dir, char *out_file, size_t out_sz);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

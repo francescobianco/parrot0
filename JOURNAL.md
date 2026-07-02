@@ -1,4 +1,41 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen256: SWE-bench self-localization — the smell chain sweeps the TREE
+
+**Goal (F.'s steer).** Maximize the coding-agent value of the four RESOLVED
+SWE-bench instances by GENERALIZING what they proved. Study result: the four
+smells (symmetry break gen200, discarded result gen201, condition asymmetry
+gen204, case folding gen210) were general, but the harness still did the
+localization — `parrot_solve.sh` picked the buggy file with `find | head -1`
+and handed parrot0 a pre-localized path. The X6 step lived in bash, not in
+parrot0.
+
+**Changed.** `code.c`/`code.h`: `code_smell_tree` — walk a directory
+(sandboxed, depth-bounded, hidden entries skipped) and run the WHOLE smell
+chain on every `.c/.h/.py` source; the first file where any smell fires is the
+localization, named by structure alone. `brain.c` (`mod_codeast` fix/find-bug
+branch): when the extracted path is a DIRECTORY, sweep it, honestly report a
+clean tree ("I swept the sources under <dir> but found no structural bug to
+fix."), else flow the located file through the unchanged per-file analysis —
+the reply names file, statement, fix, all derived. `parrot_solve.sh` now hands
+parrot0 only the `repo_excerpt` DIRECTORY and discovers which file parrot0
+patched from the `.p0fix` it wrote — the harness's localization intelligence
+is deleted. Version `gen256-smell-tree-localization`.
+
+**Verified.** All four instances self-localize from the directory alone and
+derive byte-identical patches (12907 separable.py, 6938 fitsrec.py, 14995
+ndarithmetic.py, 14365 qdp.py). Real oracle re-run end-to-end on the new
+pipeline: 12907 -> RESOLVED (2/2 FAIL_TO_PASS, 13/13 PASS_TO_PASS); 6938 and
+14995 re-verified the same way. No false fire sweeping clean trees (`kb/core`,
+`tests/fixtures`, `src/brain` — parrot0's own C source). New hermetic ratchets
+`smelltree.chat`/`.it` (report-only, EN+IT, incl. the clean-tree decline);
+`make test` fully green (215 + suites, 0 failed).
+
+**Honest scope.** Localization is now parrot0's across a TREE, but the smell
+library is still four patterns; instances whose bug matches no smell decline
+honestly. The next pulls remain: more instances (curation via fetch_lite),
+each pulling its next general smell, and issue-text -> region narrowing (the
+associative frontier §4, refused as phrasebook).
+
 ## 2026-07-02 - gen254: from prompts to categories
 
 **Changed.** Two llmscore rounds in one turn, with F.'s mid-turn steer applied:

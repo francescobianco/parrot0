@@ -257,6 +257,27 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             }
         }
         if (!path[0]) return 0;
+        /* gen256: X6 SELF-localization. When the path is a DIRECTORY (a repo
+         * tree, not a pre-localized file), parrot0 walks it and lets the smell
+         * chain itself pick the buggy file — the harness no longer names the
+         * file (parrot_solve.sh used to `find | head -1`; that was the
+         * harness's intelligence). The located file then flows through the
+         * SAME per-file analysis below, so the answer names file, statement
+         * and fix, all derived, nothing given in advance. */
+        struct stat pst;
+        if (stat(path, &pst) == 0 && S_ISDIR(pst.st_mode)) {
+            char hit[256];
+            int tr = code_smell_tree(path, hit, sizeof hit);
+            if (tr < 0) return 0;              /* sandbox/unreadable — not ours */
+            if (tr == 0) {
+                snprintf(out, out_size,
+                         "I swept the sources under %s but found no structural bug to fix.",
+                         path);
+                store_proof(b, out);
+                return 1;
+            }
+            snprintf(path, sizeof path, "%s", hit);
+        }
         /* Try each structural bug smell in turn; the first to fire wins. Each
          * names nothing in advance and the real test suite is the judge. */
         char olds[256], news[256]; const char *reason = NULL;

@@ -1,0 +1,18 @@
+# gen256: X6 SELF-localization across a TREE. Until now the swe-solve harness
+# pre-localized the buggy file (`find | head -1`); that was the harness's
+# intelligence, not parrot0's. Now parrot0 is handed only the repo excerpt
+# DIRECTORY, walks it (code_smell_tree), and the structural-smell chain itself
+# picks the buggy file — then the per-file analysis names statement and fix.
+# All four REAL resolved SWE-bench instances (12907 symmetry, 6938 discarded
+# result, 14995 condition asymmetry, 14365 case folding) localize from the
+# directory alone; a clean tree is reported honestly. Report-only: no writes.
+> find the bug in tests/swebench/lite/astropy__astropy-12907/repo_excerpt
+< In tests/swebench/lite/astropy__astropy-12907/repo_excerpt/astropy/modeling/separable.py, `cright[-right.shape[0]:, -right.shape[1]:] = 1` breaks the symmetry with its sibling branch; the fix is `cright[-right.shape[0]:, -right.shape[1]:] = right`.
+> find the bug in tests/swebench/lite/astropy__astropy-6938/repo_excerpt
+< In tests/swebench/lite/astropy__astropy-6938/repo_excerpt/astropy/io/fits/fitsrec.py, `output_field.replace(encode_ascii('E'), encode_ascii('D'))` discards the result of a value-returning call; the fix is `output_field[:] = output_field.replace(encode_ascii('E'), encode_ascii('D'))`.
+> find the bug in tests/swebench/lite/astropy__astropy-14995/repo_excerpt
+< In tests/swebench/lite/astropy__astropy-14995/repo_excerpt/astropy/nddata/mixins/ndarithmetic.py, `elif operand is None:` is an asymmetric None-check that should test the attribute its sibling branches use; the fix is `elif operand.mask is None:`.
+> find the bug in tests/swebench/lite/astropy__astropy-14365/repo_excerpt
+< In tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py, the code matches all-caps keywords case-sensitively (a flagless re.compile and an uppercase-literal ==) where case should not matter; the coupled fix is: [1] `re.compile(_type_re)` -> `re.compile(_type_re, re.IGNORECASE)` [2] `v == "NO"` -> `v.upper() == "NO"`
+> find the bug in kb/core
+< I swept the sources under kb/core but found no structural bug to fix.
