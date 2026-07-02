@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-02 01:45:07._
+_Generated 2026-07-02 21:41:48._
 
-## Score: 6 / 10
+## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Write a two-line poem about a ship lost at sea. | The sea rolls in with silver and with foam; it sings the oldest song of going home. | The answer is a valid two-line poem about a ship lost at sea. | 1 |
-| 2 | If you have 12 socks in a drawer—6 black and 6 white—and the lights are off, what's the smallest number you must pull out to guarantee you have a matching pair? | I don't understand that yet. | The answer refuses to solve a simple logic puzzle; any capable LLM would answer '3' correctly. | 0 |
-| 3 | Continue this sentence in three different ways: "When the clock strikes midnight... | 1) ...the whole room held its breath. 2) ...every small sound in the house became enormous. 3) ...the stopped clock seemed to be waiting for an answer. | The answer provides three creative and distinct continuations as requested. | 1 |
-| 4 | Name the four countries that border Germany to the south. | Germany borders France, Poland, Austria, and Switzerland. | The answer incorrectly lists France and Poland as bordering Germany to the south; they are to the west and east respectively. | 0 |
-| 5 | What is the capital city of Australia? | Canberra. | The answer correctly identifies Canberra as the capital of Australia. | 1 |
-| 6 | If all Zorks are Mips, and some Mips are Glorps, but no Glorps are Zorks, can we conclude that some Mips are definitely not Zorks? | I don't understand that yet. | The answer refuses to solve a straightforward logic syllogism; the correct answer is yes, some Mips are definitely not Zorks. | 0 |
-| 7 | What's your favorite thing to do on a rainy afternoon? | I don't have real favorites, but on a rainy day I'd read quietly with a warm drink. | The answer gives a reasonable and imaginative response despite disclaiming personal preferences. | 1 |
-| 8 | A farmer has 17 sheep, sells all but 9, then buys 12 more. How many sheep does he have now? | 9. | The answer is incorrect; the farmer has 21 sheep (9 remaining plus 12 bought), not 9. | 0 |
-| 9 | Describe in one sentence what a sunset looks like from a mountaintop. | I don't actually see or experience things, but I can describe it: the sky glows in bands of orange, pink, and deep red as the sun sinks below the horizon and the light slowly fades into dusk. | The answer provides a vivid one-sentence description of a mountaintop sunset despite the disclaimer. | 1 |
-| 10 | Riddle me this: I have cities, but no houses; forests, but no trees; and water, but no fish. What am I? | A map. | The answer correctly identifies the riddle's solution as a map. | 1 |
+| 1 | Write a short haiku about autumn leaves. | Red leaves let go now / the wind carries them away / bare branches stay still. | The answer does not follow the haiku 5‑7‑5 syllable structure. | 0 |
+| 2 | If a store sells 47 oranges in the morning and 3 times as many in the afternoon, how many oranges did it sell in total that day? | 44. | The arithmetic is wrong; the correct total is 188, not 44. | 0 |
+| 3 | What is the capital city of Australia, and which river runs through it? | Canberra. The Molonglo River runs through it. | The answer correctly names Canberra and the Molonglo River. | 1 |
+| 4 | If all roses are flowers and some flowers fade quickly, does it follow that some roses fade quickly? Explain your reasoning. | No -- that doesn't follow. From "all roses are flowers" and "some flowers ...", nothing follows about roses: the flowers in question need not be roses (the middle term is undistributed). | The answer correctly explains that the premises do not logically force the conclusion. | 1 |
+| 5 | Continue this story: "The old key had never fit any lock she remembered, but when she placed it in her palm, she felt... | Who or what does "she" refer to? | The answer asks for clarification instead of continuing the story. | 0 |
+| 6 | What's your favorite season and why? | I don't have real preferences, but if I had to choose, I'd pick autumn. | The answer provides a reasonable personal preference with explanation. | 1 |
+| 7 | A farmer has 20 sheep. All but 15 run away. How many sheep does the farmer have left? | 15. | The answer correctly solves the 'all but 15' problem. | 1 |
+| 8 | Tell a one-line joke that makes someone laugh. | I don't understand that yet. | The answer fails to provide a joke and instead states inability. | 0 |
+| 9 | What's the opposite of "serendipity"? | Nobody that I know of. | The answer does not give the opposite of serendipity. | 0 |
+| 10 | Take the word " ELEPHANT ". Remove the first letter, remove the last letter, replace all E's with A's, then spell it backwards. What word do you get? | g-e-t | The answer yields an incorrect result for the word transformation. | 0 |
 

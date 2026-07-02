@@ -6,6 +6,18 @@ parole sono ignote, la **struttura grammaticale** è estraibile, e da quella si
 legge l'**intento**. La grammatica è motore fisso; le strutture e i ruoli vivono
 nella KB.*
 
+> **Stato (2026-07-02, gen267–268):** il primo incremento (§2, declino informato)
+> è VIVO per la forma request/generate — `mod_reqgen` legge "[V-imp] [NP]
+> (in <lang>)" con verbo e lingue come classi `intent_cue`, registrato in coda
+> (non ruba mai a un modulo competente, cattura solo gli ex-muri). E il primo
+> gradino di §8 è VIVO: `program_shape(print_message)` + `program_output/2`
+> (hello_world come conoscenza del mondo) → "crea un semplice hello world in c"
+> produce codice VERIFICATO dall'esecuzione (stdout esatto, exit 0). La scala
+> completa è dimostrata su un prompt: muro cieco → declino informato → artefatto
+> verificato. Prossimi gradini: `intent_schema/2` oltre la forma imperativa
+> (§4.2), più program_shape tirati da RULESCORE/game-bench, il declino informato
+> come default per le ALTRE forme (§5c).
+
 > **Principio evolutivo (F., gen240): tieni le strutture secondarie.** Finché
 > qualcosa non si dimostra *prevalente*, tutto è secondario e **attivabile**: non
 > si rimpiazza né si pota una struttura solo perché *sembra* ridondante o legata a
