@@ -200,6 +200,17 @@ int code_orchain_patch(const char *src_path, const char *fnname,
                        const char *lookup_fn, const char *out_path,
                        int *compiles, char *err_out, size_t err_sz);
 
+/* gen263 (Track 5.3): the behavior-preserving judge of the derived plan. Runs
+ * the ORIGINAL and the PATCHED version of a file through the same generated
+ * probe harness — one probe per vocabulary word the chains encode (derived from
+ * the original) plus a guaranteed miss — and compares stdout BYTES and exit
+ * codes. The original is the oracle: identical output = the refactor preserved
+ * behavior on every word that used to be code. Returns 1 identical, 0 divergent,
+ * -1 if either version could not be built/run (diagnostics in err_out). */
+int code_orchain_verify(const char *orig_path, const char *patched_path,
+                        const char *chain_fn, const char *probe_fn,
+                        int *nprobes, char *err_out, size_t err_sz);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The
@@ -239,6 +250,12 @@ size_t code_find_callers(const char *dir, const char *target,
  *         on a build failure the first diagnostics are in `err_out`.
  * The temp executable is removed before returning. */
 int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz);
+
+/* gen263: code_run with the program's stdout captured into `out` (stderr
+ * discarded). A sibling, not a replacement: check_sort's exit-code-only contract
+ * stays untouched; the differential judge needs the output bytes. */
+int code_run_capture(const char *src_path, char *out, size_t out_sz,
+                     int *exit_code, char *err_out, size_t err_sz);
 
 /* gen209 (docs/plans/learn-and-build.md Track B/B0): the run-grounded JUDGE a sort
  * needs. Wraps a candidate function `func_src` — a self-contained C definition named

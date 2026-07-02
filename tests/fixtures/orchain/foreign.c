@@ -26,10 +26,29 @@ int classify(const char *s) {
     return 0;
 }
 
-/* gen262: the codebase's own vocabulary-lookup primitive (what kb_cue_match is
- * inside parrot0). A migrated chain becomes ONE call to it, keyed by chain site;
- * the key's words live in the emitted <file>.cues.p0, not in code. Kept at the
- * END of the file so the chain line numbers above stay stable for the ratchets.
- * The stub body is enough for the compile judge; wiring it to actually read the
- * emitted cues is the run_test_suite pull. */
-static int lookup(const char *s, const char *key) { (void)s; (void)key; return 0; }
+/* gen262/gen263: the codebase's own vocabulary-lookup primitive (what
+ * kb_cue_match is inside parrot0). A migrated chain becomes ONE call to it,
+ * keyed by chain site; the words live in the emitted <file>.cues.p0 — DATA,
+ * not code. gen263 made it real: it scans the emitted facts file for lines
+ * `intent_cue(<key>, "word").` and reports whether any word occurs in `s`,
+ * which is exactly what the original chain of flag() calls computed. Kept at
+ * the END of the file so the chain line numbers above stay stable. */
+static int lookup(const char *s, const char *key) {
+    FILE *f = fopen("tests/fixtures/orchain/foreign.c.cues.p0", "r");
+    if (!f) return 0;
+    char ln[256];
+    size_t kl = strlen(key);
+    int hit = 0;
+    while (!hit && fgets(ln, sizeof ln, f)) {
+        char *p = strchr(ln, '(');
+        if (!p || strncmp(p + 1, key, kl) != 0 || p[1 + kl] != ',') continue;
+        char *q = strchr(p, '"');
+        if (!q) continue;
+        char *e = strchr(q + 1, '"');
+        if (!e) continue;
+        *e = '\0';
+        if (strstr(s, q + 1)) hit = 1;
+    }
+    fclose(f);
+    return hit;
+}

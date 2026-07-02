@@ -14,15 +14,16 @@
 > make a plan to conquer the moon
 < I don't understand that yet.
 
-# gen259–262: execute the derived plan through KB action_impl bindings. Four
-# actions are bound today (scan_chains -> orchain_scan, extract_vocabulary ->
-# orchain_vocab, emit_intent_facts -> emit_facts, patch_sites -> patch_chains),
-# so the walk performs real OR-chain perception on the FOREIGN fixture, extracts
-# its string cues, WRITES them as loadable intent_cue facts (one key per chain
-# site), REPLACES each chain with one call to the target's own lookup primitive
-# (plan_param lookup_fn — knowledge, not a C constant) in a .p0fix copy that is
-# judged by the real compiler, and then stops honestly at the first unbound
-# action, naming it as the next pull. Originals are never touched; artifacts are
-# gitignored (*.p0fix, *.cues.p0).
+# gen259–263: execute the derived plan through KB action_impl bindings — ALL
+# FIVE actions are bound, so the whole kbfirst_migration plan runs end-to-end on
+# the FOREIGN fixture: real OR-chain perception, vocabulary extraction, loadable
+# intent_cue facts (one key per chain site), each chain replaced by one call to
+# the target's own lookup primitive (plan_param lookup_fn — knowledge, not a C
+# constant) in a .p0fix copy the real compiler accepts, and finally the
+# DIFFERENTIAL judge: original and patched run the same probe harness (one probe
+# per vocabulary word + a miss; plan_param probe_fn) and stdout must be
+# byte-identical. Originals never touched; artifacts gitignored (*.p0fix,
+# *.cues.p0). A broken lookup makes step 5 answer DIVERGES — the verdict is
+# computed, not asserted.
 > execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
-< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/foreign.c.cues.p0; 4) patch_chains replaced 2 chains with calls to `lookup` in tests/fixtures/orchain/foreign.c.p0fix and the result still compiles; stopped at step 5 run test suite because no action_impl fact names its primitive.
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/foreign.c.cues.p0; 4) patch_chains replaced 2 chains with calls to `lookup` in tests/fixtures/orchain/foreign.c.p0fix and the result still compiles; 5) verify_behavior ran `classify` on 6 probes in both versions; outputs are byte-identical — the patch preserves behavior.

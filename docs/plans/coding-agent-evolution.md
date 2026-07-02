@@ -328,18 +328,18 @@ funziona solo su src/brain, abbiamo barato.
    piano DERIVATO dal goal; il needhelp è il secondo dominio (conoscenza, non
    fallback); goal ignoto → fall-through, buco nella catena → declino che
    nomina l'artefatto orfano.
-3. gen259–262 (in corso) — Esecuzione del piano derivato: il planner cammina i
-   passi derivati e ne realizza QUATTRO — `scan_chains` via `orchain_scan`
-   (detector gen257), `extract_vocabulary` via `orchain_vocab`,
-   `emit_intent_facts` via `emit_facts` (gen261: fatti `intent_cue` per SITO in
-   un `<target>.cues.p0` caricabile come KB nativa; il predicato emesso è
-   conoscenza, `plan_param fact_pred`), e `patch_sites` via `patch_chains`
-   (gen262: ogni catena → UNA chiamata alla lookup del target, chiave = quella
-   dei fatti emessi; la funzione è conoscenza, `plan_param lookup_fn`; copia
-   `.p0fix` giudicata dal compilatore reale). Si ferma onestamente su
-   `run_test_suite`. Resta quel bind (build+test come giudice
-   behavior-preserving) e poi il primo sito reale di src/brain migrato da
-   conoscenza detta, giudicato dai test byte-identici.
+3. ✅ gen259–263 — Esecuzione COMPLETA del piano derivato: tutti e cinque i
+   passi realizzati da bind KB (`action_impl/2`) su primitive mute —
+   `orchain_scan` (percezione, gen257), `orchain_vocab` (vocabolario),
+   `emit_facts` (gen261: fatti `intent_cue` per SITO in un `<target>.cues.p0`
+   caricabile come KB nativa; predicato = conoscenza, `plan_param fact_pred`),
+   `patch_chains` (gen262: ogni catena → UNA chiamata alla lookup del target;
+   funzione = conoscenza, `plan_param lookup_fn`; copia `.p0fix` accettata dal
+   compilatore reale), `verify_behavior` (gen263: giudice differenziale —
+   originale e patchato eseguono lo stesso harness di probe, una per parola di
+   vocabolario + un miss, stdout byte-identico; una lookup rotta produce
+   DIVERGES). Il fixture estraneo attraversa l'intero arco: il codice
+   rifattorizzato calcola da DATI ciò che prima codificava come codice.
 4. Migrazione per categorie (il contatore scende, una gen alla volta).
 5. Demo di crescita a runtime: parola nuova insegnata → un ramo prima sordo
    aggancia, senza rebuild (il "gioco dinamico con la conoscenza").

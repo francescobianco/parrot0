@@ -441,6 +441,45 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         return 1;
     }
 
+    if (strcmp(impl, "verify_behavior") == 0) {
+        char pfn[64] = "";
+        if (!plan_param_value(b, goal, "probe_fn", pfn, sizeof pfn)) {
+            snprintf(obs, obs_sz,
+                     "verify_behavior has no probe_fn knowledge for this goal — teach "
+                     "me a plan_param fact naming the function to probe");
+            return 0;
+        }
+        struct stat vst2;
+        if (stat(target, &vst2) == 0 && S_ISDIR(vst2.st_mode)) {
+            snprintf(obs, obs_sz,
+                     "verify_behavior needs a single source file target, not a directory");
+            return 0;
+        }
+        char patched[320];
+        snprintf(patched, sizeof patched, "%s.p0fix", target);
+        int nprobes = 0;
+        char verr[256];
+        int r = code_orchain_verify(target, patched, fn, pfn, &nprobes,
+                                    verr, sizeof verr);
+        if (r < 0) {
+            snprintf(obs, obs_sz,
+                     "verify_behavior could not build and run both versions of %s",
+                     target);
+            return 0;
+        }
+        if (r == 0) {
+            snprintf(obs, obs_sz,
+                     "verify_behavior ran `%s` on %d probes and the patched copy "
+                     "DIVERGES from the original — the refactor is not behavior-"
+                     "preserving", pfn, nprobes);
+            return 0;
+        }
+        snprintf(obs, obs_sz,
+                 "verify_behavior ran `%s` on %d probes in both versions; outputs "
+                 "are byte-identical — the patch preserves behavior", pfn, nprobes);
+        return 1;
+    }
+
     if (strcmp(impl, "orchain_scan") != 0) {
         snprintf(obs, obs_sz, "primitive %s is not implemented by this binary", impl);
         return 0;

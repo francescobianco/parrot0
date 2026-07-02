@@ -1,0 +1,12 @@
+#expect: pass
+#faculty: orchain-behavior-judge
+# gen263: the derived plan COMPLETES — its last step is a differential judge.
+# Original and patched versions run the same generated probe harness (one probe
+# per vocabulary word the chains encoded, plus a guaranteed miss) and their
+# stdout must be byte-identical; the original is the oracle. The fixture's
+# lookup primitive really reads the emitted .cues.p0, so the refactored code
+# computes from DATA what it used to encode as code — and provably behaves the
+# same. A broken lookup flips this verdict to DIVERGES (verified out-of-band);
+# the verdict is computed by running real programs, never asserted.
+> execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
+< 5 verifybehavior ran classify on 6 probes in both versions outputs are byteidentical

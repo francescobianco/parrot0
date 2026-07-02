@@ -60,15 +60,19 @@ plan_given(target_source).
 % knowledge (plan_param fact_pred), never a C constant; patch_sites (gen262)
 % replaces each chain with ONE call to the target's own lookup primitive — WHICH
 % function that is, is knowledge too (plan_param lookup_fn; the fixture's is
-% `lookup`, src/brain's will be kb_cue_match when the real migration is taught).
-% run_test_suite waits for its guarded primitive.
+% `lookup`, src/brain's will be kb_cue_match when the real migration is taught);
+% run_test_suite (gen263) is the differential judge: both versions run the same
+% probe harness (one probe per vocabulary word, plus a miss) and stdout must be
+% byte-identical — WHICH function to probe is knowledge (plan_param probe_fn).
 action_impl(scan_chains, orchain_scan).
 action_impl(extract_vocabulary, orchain_vocab).
 action_impl(emit_intent_facts, emit_facts).
 action_impl(patch_sites, patch_chains).
+action_impl(run_test_suite, verify_behavior).
 plan_param(kbfirst_migration, vocab_fn, cue).
 plan_param(kbfirst_migration, fact_pred, intent_cue).
 plan_param(kbfirst_migration, lookup_fn, lookup).
+plan_param(kbfirst_migration, probe_fn, classify).
 
 % --- Domain 2: the needhelp protocol (external help as plan knowledge) --------
 % F.'s public pattern: when blocked on missing knowledge, do not stop — ask the

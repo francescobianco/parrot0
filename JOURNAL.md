@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen263: verify_behavior — the derived plan completes under a differential judge
+
+**Goal (Track 5.3, the last missing binding).** Bind `run_test_suite` so the
+whole derived kbfirst_migration plan runs end-to-end: the refactor must be
+PROVEN behavior-preserving, not asserted.
+
+**Changed.** Two engine additions. `code_run_capture()`: code_run with stdout
+captured — a sibling, not a change (check_sort's exit-code-only contract is
+load-bearing and stays). `code_orchain_verify()`: the differential judge —
+builds ONE program per version (full file text + a generated probe main),
+probes = every vocabulary word the chains encoded (derived from the ORIGINAL)
+plus a guaranteed miss, and compares stdout bytes and exit codes. The original
+is the oracle; printf side effects count. WHICH function to probe is knowledge
+(`plan_param(kbfirst_migration, probe_fn, classify)`). The fixture's `lookup`
+became REAL: it reads the emitted `<file>.cues.p0` at runtime, so the
+refactored code computes from DATA what it used to encode as code — the full
+arc of the migration, demonstrated on the foreign fixture.
+
+**The result.** One prompt — "execute the kb-first plan for chains of calls to
+flag in tests/fixtures/orchain/foreign.c" — now walks all FIVE derived steps:
+scan (2 chains), vocabulary (5 cues), facts (5 intent_cue, per-site keys),
+patch (2 chains → keyed lookup calls, compiles), verify (6 probes, both
+versions byte-identical). Every step is a KB-declared binding over a mute
+primitive; the plan itself is still inferred by the generic chainer from
+action_yields/action_needs.
+
+**Anti-impostor.** A copy of the fixture with a broken lookup (reads a
+nonexistent file) walks to step 5 and gets "the patched copy DIVERGES from the
+original — the refactor is not behavior-preserving": the verdict is computed by
+running real programs. 10x stress: a generated 30-chain/120-call file walks all
+five steps, 33 probes, byte-identical. Probe coverage caps at the vocabulary
+buffer (32 words) — an honest limit, named here.
+
+**Ratchet.** planact.chat/.it now pin the COMPLETE five-step walk; new
+`orchain_verify.code` gate. Next pull (Track 5.4): the first REAL src/brain
+site migrated by taught knowledge — lookup_fn = kb_cue_match, judged by
+`make test` byte-identical — and the cue-chain counter starts descending.
+
+**Verified.** `tests/run.sh` 219/219, `make test` fully green, `make code-bench`
+25/25 gates, 0 gaps, 73/73 turns. Version `gen263-behavior-judge`.
+
 ## 2026-07-02 - gen262: patch_chains — the derived plan transforms code
 
 **Goal (Track 5.3, next missing binding).** gen261's walk stopped at

@@ -2093,6 +2093,73 @@ int code_orchain_patch(const char *src_path, const char *fnname,
     return nchains;
 }
 
+int code_orchain_verify(const char *orig_path, const char *patched_path,
+                        const char *chain_fn, const char *probe_fn,
+                        int *nprobes, char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (nprobes) *nprobes = 0;
+    if (!orig_path || !patched_path || !chain_fn || !*chain_fn) return -1;
+    if (!orchain_ident_ok(probe_fn)) return -1;   /* lands verbatim in the harness */
+    if (patched_path[0] == '/' || patched_path[0] == '~' ||
+        strstr(patched_path, "..")) return -1;
+
+    /* Probes: the vocabulary the chains encode — each word exercises the branch
+     * that used to test it — plus one guaranteed miss. Derived from the ORIGINAL,
+     * so the patched version is judged against what the code really said. */
+    char words[32][KB_TERM_LEN];
+    int ch = 0, ca = 0;
+    int nw = code_orchain_vocabulary(orig_path, chain_fn, words, 32, &ch, &ca);
+    if (nw < 0) return -1;
+    if (ch == 0 || nw == 0) return -1;
+
+    static char probes[8192];
+    size_t pi = 0;
+    for (int i = 0; i <= nw; i++) {
+        const char *w = (i < nw) ? words[i] : "p0nomatch";
+        if (pi + 4 >= sizeof probes) return -1;
+        if (i) probes[pi++] = ',';
+        probes[pi++] = '"';
+        for (const char *c = w; *c; c++) {
+            if (pi + 4 >= sizeof probes) return -1;
+            if (*c == '"' || *c == '\\') probes[pi++] = '\\';
+            probes[pi++] = *c;
+        }
+        probes[pi++] = '"';
+    }
+    probes[pi] = '\0';
+    if (nprobes) *nprobes = nw + 1;
+
+    /* Build ONE program per version: the version's full text + a generated main
+     * that prints probe_fn's result for every probe. Both outputs must be
+     * byte-identical (the original is the oracle; printf side effects count). */
+    static char outa[8192], outb[8192];
+    int exa = 0, exb = 0;
+    const char *paths[2] = { orig_path, patched_path };
+    const char *tmps[2]  = { ".p0_verify_a.c", ".p0_verify_b.c" };
+    char *outs[2] = { outa, outb };
+    int  *exs[2]  = { &exa, &exb };
+    for (int v = 0; v < 2; v++) {
+        static char text[262144];
+        if (!code_read_file(paths[v], text, sizeof text)) return -1;
+        FILE *f = fopen(tmps[v], "w");
+        if (!f) return -1;
+        fprintf(f, "%s\n#include <stdio.h>\n"
+                   "int main(void){\n"
+                   "    static const char *p0probes[] = {%s};\n"
+                   "    unsigned i;\n"
+                   "    for (i = 0; i < sizeof p0probes / sizeof p0probes[0]; i++)\n"
+                   "        printf(\"%%u:%%d\\n\", i, %s(p0probes[i]));\n"
+                   "    return 0;\n}\n",
+                text, probes, probe_fn);
+        fclose(f);
+        int r = code_run_capture(tmps[v], outs[v], sizeof outa, exs[v],
+                                 err_out, err_sz);
+        remove(tmps[v]);
+        if (r != 1) return -1;   /* build failure or crash/timeout: not a verdict */
+    }
+    return (exa == exb && strcmp(outa, outb) == 0) ? 1 : 0;
+}
+
 static void orchain_tree_rec(const char *dir, const char *fnname, int depth,
                              int *files_hit, int *chains, int *calls,
                              char *top_file, size_t top_sz, int *top_chains) {
@@ -2365,6 +2432,83 @@ int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz)
         execl(exe, exe, (char *)NULL);
         _exit(127);
     }
+    int rstatus;
+    if (waitpid(rpid, &rstatus, 0) < 0) { remove(exe); return -1; }
+    remove(exe);
+    if (WIFEXITED(rstatus)) {
+        if (exit_code) *exit_code = WEXITSTATUS(rstatus);
+        return 1;
+    }
+    return 0;                    /* killed by a signal / timed out */
+}
+
+/* gen263: code_run with the program's STDOUT captured (stderr discarded). Kept
+ * as a sibling of code_run, not a change to it: the exit-code-only contract of
+ * code_run is load-bearing for the check_sort judge (which deliberately never
+ * trusts the output channel), while the differential behavior judge needs the
+ * output BYTES to compare two versions. Same sandbox, timeouts and cleanup. */
+int code_run_capture(const char *src_path, char *out, size_t out_sz,
+                     int *exit_code, char *err_out, size_t err_sz) {
+    if (out && out_sz) out[0] = '\0';
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (exit_code) *exit_code = 0;
+    if (!src_path || !*src_path || !out || out_sz == 0) return -1;
+    if (src_path[0] == '/' || src_path[0] == '~' || strstr(src_path, "..")) return -1;
+    for (const char *c = src_path; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
+              *c == '_' || *c == '-')) return -1;
+
+    const char *exe = "./.p0_runcap_tmp.out";
+
+    int pf[2];
+    if (pipe(pf) != 0) return -1;
+    pid_t bpid = fork();
+    if (bpid < 0) { close(pf[0]); close(pf[1]); return -1; }
+    if (bpid == 0) {
+        dup2(pf[1], STDOUT_FILENO);
+        dup2(pf[1], STDERR_FILENO);
+        close(pf[0]); close(pf[1]);
+        alarm(20);
+        execlp("cc", "cc", "-w", src_path, "-o", exe, (char *)NULL);
+        _exit(127);
+    }
+    close(pf[1]);
+    if (err_out && err_sz) {
+        ssize_t n = read(pf[0], err_out, err_sz - 1);
+        if (n < 0) n = 0;
+        err_out[n] = '\0';
+    } else {
+        char sink[256];
+        while (read(pf[0], sink, sizeof sink) > 0) { }
+    }
+    close(pf[0]);
+    int bstatus;
+    if (waitpid(bpid, &bstatus, 0) < 0) { remove(exe); return -1; }
+    if (!(WIFEXITED(bstatus) && WEXITSTATUS(bstatus) == 0)) { remove(exe); return -1; }
+
+    int rf[2];
+    if (pipe(rf) != 0) { remove(exe); return -1; }
+    pid_t rpid = fork();
+    if (rpid < 0) { close(rf[0]); close(rf[1]); remove(exe); return -1; }
+    if (rpid == 0) {
+        dup2(rf[1], STDOUT_FILENO);
+        close(rf[0]); close(rf[1]);
+        int devnull = open("/dev/null", O_WRONLY);
+        if (devnull >= 0) dup2(devnull, STDERR_FILENO);
+        alarm(15);
+        execl(exe, exe, (char *)NULL);
+        _exit(127);
+    }
+    close(rf[1]);
+    size_t oi = 0;
+    ssize_t n;
+    while (oi + 1 < out_sz && (n = read(rf[0], out + oi, out_sz - 1 - oi)) > 0)
+        oi += (size_t)n;
+    out[oi] = '\0';
+    {   char sink[256];              /* drain so the child never blocks on write */
+        while (read(rf[0], sink, sizeof sink) > 0) { }
+    }
+    close(rf[0]);
     int rstatus;
     if (waitpid(rpid, &rstatus, 0) < 0) { remove(exe); return -1; }
     remove(exe);
