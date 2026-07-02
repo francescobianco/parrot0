@@ -278,6 +278,17 @@ int code_synth_game_counter(const char *token, int threshold, const char *winwor
 int code_check_counter_game(const char *src, const char *token, int threshold,
                             const char *winword, char *err_out, size_t err_sz);
 
+/* gen268 (universal-comprehension §8): the print_message PROGRAM schema — a
+ * whole terminal program that prints `message` and exits 0. Single line, no
+ * #include (printf declared), message restricted to a safe literal alphabet
+ * (no quote/backslash escaping games). Returns 1, 0 on invalid message. */
+int code_synth_print_program(const char *message, char *out, size_t out_sz);
+
+/* gen268: the judge — compile and RUN the candidate; stdout must be exactly
+ * `message` + newline and the exit status 0. 1 pass, 0 fail, -1 build/run. */
+int code_check_print_program(const char *src, const char *message,
+                             char *err_out, size_t err_sz);
+
 /* gen209 (docs/plans/learn-and-build.md Track B/B0): the run-grounded JUDGE a sort
  * needs. Wraps a candidate function `func_src` — a self-contained C definition named
  * `fnname` with signature `void fnname(int a[], int n)` — in a generated main() that

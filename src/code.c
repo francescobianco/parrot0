@@ -2595,6 +2595,43 @@ int code_check_counter_game(const char *src, const char *token, int threshold,
     return 1;
 }
 
+static int print_msg_ok(const char *m) {
+    if (!m || !*m || strlen(m) > 120) return 0;
+    for (const char *c = m; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == ' ' || *c == ',' ||
+              *c == '.' || *c == '!' || *c == '?' || *c == '\'' || *c == '-'))
+            return 0;
+    return 1;
+}
+
+int code_synth_print_program(const char *message, char *out, size_t out_sz) {
+    if (out && out_sz) out[0] = '\0';
+    if (!out || out_sz == 0 || !print_msg_ok(message)) return 0;
+    int n = snprintf(out, out_sz,
+        "int printf(const char*,...); "
+        "int main(void){printf(\"%s\\n\");return 0;}", message);
+    return (n > 0 && (size_t)n < out_sz) ? 1 : 0;
+}
+
+int code_check_print_program(const char *src, const char *message,
+                             char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!src || !*src || !print_msg_ok(message)) return -1;
+    const char *path = ".p0_printcheck.c";
+    FILE *f = fopen(path, "w");
+    if (!f) return -1;
+    fprintf(f, "%s\n", src);
+    fclose(f);
+    char got[512];
+    int ex = 0;
+    int r = code_run_capture(path, NULL, got, sizeof got, &ex, err_out, err_sz);
+    remove(path);
+    if (r != 1) return -1;
+    char want[160];
+    snprintf(want, sizeof want, "%s\n", message);
+    return (ex == 0 && strcmp(got, want) == 0) ? 1 : 0;
+}
+
 /* gen209 (Track B/B0): see code.h. Build a complete program = the candidate function
  * + a generated main that exercises it on fixed vectors and self-checks each result,
  * write it to a sandboxed temp .c, and run it through code_run. The exit status is the

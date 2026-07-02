@@ -28,3 +28,13 @@ algo_io(bubblesort, array_int, array_int_sorted_ascending).
 % short must not. Without this fact mod_rulespec only recognizes and declines —
 % the KB is the behavior switch.
 game_shape(count_to_threshold, token_counter_threshold).
+
+% gen268 (universal-comprehension §8, the creation rung): the first PROGRAM
+% schema — print_message: a whole terminal program whose observable behavior is
+% printing one message and exiting 0. code_synth_print_program instantiates it
+% (the message is the parameter) and code_check_print_program disposes by
+% really running it: stdout must be exactly the message. program_output/2 is
+% world knowledge: an artifact NAME whose conventional output is known, so
+% "hello world" carries its message without the user spelling it.
+program_shape(print_message, single_print).
+program_output(hello_world, "Hello, World!").

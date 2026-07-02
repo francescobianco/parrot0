@@ -4,8 +4,18 @@
 # it catches exactly the turns that used to hit the blind wall and turns them
 # into the INFORMED decline: the parsed object quoted back (proof of
 # understanding) plus the named gap — never a fabricated attempt.
+# gen268: the flagship flip — "hello world" is WORLD KNOWLEDGE
+# (program_output/2: the artifact name carries its canonical text), the
+# print_message program schema is a KB fact, and the emitted program is
+# DISPOSED by really running it (stdout must be exactly the message, exit 0).
 > create a simple hello world in c
-< I understood the request — produce "simple hello world" in c — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+< int printf(const char*,...); int main(void){printf("Hello, World!\n");return 0;}  /* print_message schema; verified by execution: it prints "Hello, World!" and exits 0 (run via the code_run oracle) */
+
+# the general form of the same category: the request spells the message
+> write a program that prints good morning
+< int printf(const char*,...); int main(void){printf("good morning\n");return 0;}  /* print_message schema; verified by execution: it prints "good morning" and exits 0 (run via the code_run oracle) */
+
+# the category border stays honest: no schema for this, informed decline
 > build a web scraper in python
 < I understood the request — produce "web scraper" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
 > generate a birthday poem

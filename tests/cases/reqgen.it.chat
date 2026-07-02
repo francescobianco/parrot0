@@ -2,7 +2,11 @@
 # make-verbs (crea/scrivi/costruisci — intent_cue facts, same C path). The
 # quoted object is read from the plainly-normalized raw so Italian words
 # survive canonicalization.
+# gen268: F.'s exact prompt flips from informed decline to VERIFIED code —
+# same schema, same oracle, Italian surface.
 > crea un semplice hello world in c
-< I understood the request — produce "hello world" in c — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+< int printf(const char*,...); int main(void){printf("Hello, World!\n");return 0;}  /* print_message schema; verified by execution: it prints "Hello, World!" and exits 0 (run via the code_run oracle) */
+> scrivi un programma che stampa ciao mondo
+< int printf(const char*,...); int main(void){printf("ciao mondo\n");return 0;}  /* print_message schema; verified by execution: it prints "ciao mondo" and exits 0 (run via the code_run oracle) */
 > costruisci una calcolatrice in python
 < I understood the request — produce "calcolatrice" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).

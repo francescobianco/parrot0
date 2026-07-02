@@ -1,4 +1,36 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen268: print_message — the flagship prompt flips to verified code
+
+**Goal (universal-comprehension §8, the creation rung).** gen267 made "crea un
+semplice hello world in c" an informed decline. The doc's ladder says the next
+precondition is `verified_impl`: give the request/generate reader its first
+PROGRAM schema, so the same prompt produces code that is PROVEN to behave.
+
+**Changed.** KB: `program_shape(print_message, single_print)` — the schema
+switch — and `program_output(hello_world, "Hello, World!")` — world knowledge:
+an artifact NAME that carries its own canonical text (the quoted-comma parse is
+gen152's). Engine: `code_synth_print_program` (one-line C, message restricted
+to a safe literal alphabet) and `code_check_print_program` — the judge runs the
+candidate and stdout must be EXACTLY the message, exit 0. Brain: mod_reqgen,
+before declining, resolves the message two ways — (a) the parsed object names a
+program_output artifact ("hello world"), or (b) the request spells it ("… that
+prints <text>", the gen266 rule_print cue class) — synthesizes, and presents
+ONLY what the oracle passed. Language constraint honored: only C is emittable;
+"in python" still gets the informed decline (honest border, like the web
+scraper).
+
+**Ratchet.** reqgen.chat/.it: F.'s exact prompt (EN+IT) now pins the verified
+program; "write a program that prints good morning" / "scrivi un programma che
+stampa ciao mondo" pin the general form; web scraper / calcolatrice pin the
+informed-decline border.
+
+**Verified.** `tests/run.sh` 223/223, `make test` fully green, `make code-bench`
+25/25. Version `gen268-print-message-schema`. The universal-comprehension arc
+now demonstrates the full ladder on one prompt: blind wall (gen266-) → informed
+decline (gen267) → verified artifact (gen268); next rungs: more program shapes
+pulled by RULESCORE/game-bench, and `intent_schema/2` generalized beyond the
+request/generate form.
+
 ## 2026-07-02 - gen267: the informed decline — universal-comprehension lands its first slice
 
 **Goal (F.'s steer: implement docs/plans/universal-comprehension.md).** F. asked

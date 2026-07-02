@@ -1326,6 +1326,12 @@ static int induce_rule(const long *in, const long *out, size_t npair,
  * the doc's INFORMED decline: proof the request was understood (the parsed
  * object quoted back, the language named) plus the honest gap ("no verified
  * schema"), never a fabricated attempt. */
+
+/* defined later in the translation unit (80-code.c) — one TU, forward decls */
+static long rulespec_cue_at(Brain *b, const char *intent, const char *seg);
+static int rulespec_word_after(Brain *b, const char *seg, long from, int skip_stop,
+                               char *w, size_t wsz, long *wstart);
+
 static int reqgen_in_class(Brain *b, const char *intent, const char *w) {
     if (!b || !b->kb || !w || !*w) return 0;
     char cues[64][KB_TERM_LEN];
@@ -1377,6 +1383,69 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
         o += (size_t)snprintf(obj + o, sizeof obj - o, "%s%s",
                               i > oi ? " " : "", strip_edge_punct(w[i]));
     if (!obj[0]) return 0;
+
+    /* gen268 (universal-comprehension §8): before declining, try the ONE
+     * program schema the KB declares (program_shape print_message). The
+     * message parameter comes either from WORLD KNOWLEDGE — a program_output/2
+     * fact naming a conventional artifact ("hello world" carries its own
+     * canonical text) — or from the request itself ("… that prints <text>",
+     * the rule_print cue class). Only C is emittable; the candidate is
+     * DISPOSED by really running it (stdout must be exactly the message).
+     * Any missing piece falls through to the informed decline below. */
+    if (!lang[0] || strcmp(lang, "c") == 0) {
+        if (!b->compose_kb_loaded) {
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_load(b->kb, "kb/experts/programming/compose.p0");
+            kb_load(b->kb, "kb/experts/programming/algo_steps.p0");
+            kb_set_origin(b->kb, KB_SESSION);
+            b->compose_kb_loaded = 1;
+        }
+        const char *qs[2] = { "print_message", NULL };
+        char shp[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "program_shape", qs, 2, shp, 1) == 1) {
+            char msg[128] = "";
+            char keys[8][KB_TERM_LEN];
+            const char *qk[2] = { NULL, NULL };
+            size_t nk = kb_match(b->kb, "program_output", qk, 2, keys, 8);
+            for (size_t i = 0; i < nk && !msg[0]; i++) {
+                char spaced[KB_TERM_LEN];
+                size_t m = 0;
+                for (const char *c = keys[i]; *c && m + 1 < sizeof spaced; c++)
+                    spaced[m++] = (*c == '_') ? ' ' : *c;
+                spaced[m] = '\0';
+                if (m && strstr(obj, spaced)) {
+                    const char *qv[2] = { keys[i], NULL };
+                    char val[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "program_output", qv, 2, val, 1) == 1) {
+                        plan_unquote(val[0]);
+                        snprintf(msg, sizeof msg, "%s", val[0]);
+                    }
+                }
+            }
+            if (!msg[0]) {
+                long pc = rulespec_cue_at(b, "rule_print", obj);
+                if (pc >= 0) {
+                    char fw[64];
+                    long ws = -1;
+                    if (rulespec_word_after(b, obj, pc, 1, fw, sizeof fw, &ws) &&
+                        ws >= 0)
+                        snprintf(msg, sizeof msg, "%s", obj + ws);
+                }
+            }
+            if (msg[0]) {
+                char src[512], err[256];
+                if (code_synth_print_program(msg, src, sizeof src) &&
+                    code_check_print_program(src, msg, err, sizeof err) == 1) {
+                    snprintf(out, out_size,
+                             "%s  /* print_message schema; verified by "
+                             "execution: it prints \"%s\" and exits 0 (run via "
+                             "the code_run oracle) */", src, msg);
+                    store_proof(b, out);
+                    return 1;
+                }
+            }
+        }
+    }
 
     size_t oo = (size_t)snprintf(out, out_size,
                                  "I understood the request — produce \"%s\"", obj);
