@@ -6,6 +6,7 @@
 
 #include <ctype.h>
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <string.h>
@@ -2600,6 +2601,21 @@ int code_check_counter_game(const char *src, const char *token, int threshold,
     if (exa != 0) return 0;                  /* the winning play must end cleanly */
     if (!strstr(outa, winword)) return 0;    /* threshold hits must print the word */
     if (strstr(outb, winword)) return 0;     /* one hit short must NOT */
+    return 1;
+}
+
+int code_create_empty_file(const char *name) {
+    if (!name || !*name) return -1;
+    size_t l = strlen(name);
+    if (l > 64) return -1;
+    if (name[0] == '.' || name[0] == '-') return -1;   /* no dotfiles, no flags */
+    for (const char *c = name; *c; c++)                /* plain basename only */
+        if (!(isalnum((unsigned char)*c) || *c == '.' || *c == '_' || *c == '-'))
+            return -1;
+    if (strstr(name, "..")) return -1;
+    int fd = open(name, O_WRONLY | O_CREAT | O_EXCL, 0644);
+    if (fd < 0) return (errno == EEXIST) ? 0 : -1;
+    close(fd);
     return 1;
 }
 

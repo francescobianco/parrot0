@@ -29,6 +29,10 @@ if [ ! -x "$BIN" ]; then
     exit 1
 fi
 
+# gen270: cases that exercise real file CREATION use p0tmp_* names; remove
+# leftovers so the create/refuse pair stays deterministic across runs.
+rm -f "$ROOT"/p0tmp_* 2>/dev/null
+
 pass=0
 fail=0
 

@@ -1,4 +1,36 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen270: create-file — the simplest produce-artifact really happens (F.'s pupo.txt)
+
+**Goal (F.'s push-back, verbatim case).** "crea un file chiamata pupo.txt" got
+an informed decline; F.: *un semplice file vuoto con quel nome poteva essere
+creato*. Right — universal-comprehension §8 names `produce-artifact` as the
+action rung, and an empty file is its smallest honest instance.
+
+**Changed.** Engine: `code_create_empty_file` — plain basename only (no paths,
+no dotfiles, safe charset), O_CREAT|O_EXCL so an existing file is NEVER
+clobbered. Brain: mod_reqgen recognizes the FILE-artifact object ("file" +
+name-marker tokens named/called/chiamato/chiamata/nome — KB word classes; the
+name's case comes from the RAW turn), gated by
+`artifact_shape(empty_file, touch)` in the programming KB (no fact → decline:
+KB is the switch). Success is grounded twice: re-verified by stat AND recorded
+as session knowledge via note_artifact — "what have you created in this
+session?" answers from the KB. A second identical request refuses honestly.
+
+**The guard the probe caught.** "create a file named ../evil.txt" initially
+LEAKED: strip_edge_punct flattened the token to evil.txt and created it in cwd
+— obedient-looking, but not what was asked. Fixed: the guard now sees the
+ORIGINAL raw token; anything path-like ('/' or leading '.') falls through to
+the informed decline with zero side effects (verified: ../evil.txt and
+/etc/pwned.txt create nothing).
+
+**Ratchet.** reqgen.chat: create → refuse-on-exists → session recall, with
+p0tmp_* names pre-cleaned by tests/run.sh (idempotent reruns, gitignored);
+reqgen.it.chat pins F.'s exact phrasing, typo included. Negative controls
+unchanged.
+
+**Verified.** `tests/run.sh` 223/223, `make test` 110/110, `make code-bench`
+25/25. Version `gen270-create-file-artifact`.
+
 ## 2026-07-02 - gen269: multi-line replies with markdown-fenced, indented code (F.'s steer)
 
 **Goal.** F.: replies must support multiple lines, properly indented code, and

@@ -41,6 +41,17 @@
 > generate a birthday poem
 < I understood the request — produce "birthday poem" — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
 
+# gen270: the simplest produce-artifact REALLY happens — an empty file, plain
+# basename in the working directory, verified by stat, recorded as session
+# knowledge; asking again refuses honestly (O_EXCL, never overwrite). Path
+# requests (../x, /etc/x) fall to the informed decline, no side effect.
+> create a file named p0tmp_pupo.txt
+< Created the empty file p0tmp_pupo.txt in the working directory — verified: it exists and is empty.
+> create a file named p0tmp_pupo.txt
+< I understood — create the file p0tmp_pupo.txt — but a file with that name already exists here, and I won't overwrite it.
+> what have you created in this session?
+< This session I created: p0tmp_pupo.txt.
+
 # negative controls: content questions and arithmetic are untouched (the module
 # is last-but-two in the registry, and the form needs verb + object)
 > what is 2 plus 2

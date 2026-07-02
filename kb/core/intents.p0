@@ -385,3 +385,15 @@ intent_cue(lang_name, "bash").
 intent_cue(lang_name, "java").
 intent_cue(lang_name, "rust").
 intent_cue(lang_name, "go").
+
+% gen270 (universal-comprehension §8, produce-artifact): the FILE-artifact
+% request. "file" is the artifact word (same token EN/IT); the name markers
+% introduce the filename ("a file NAMED pupo.txt" / "un file CHIAMATO
+% pupo.txt"). Whole-token matched in mod_reqgen; the action itself is gated by
+% artifact_shape(empty_file, …) in the programming KB.
+intent_cue(file_word, "file").
+intent_cue(name_marker, "named").
+intent_cue(name_marker, "called").
+intent_cue(name_marker, "chiamato").
+intent_cue(name_marker, "chiamata").
+intent_cue(name_marker, "nome").

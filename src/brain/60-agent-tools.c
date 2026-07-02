@@ -1384,6 +1384,101 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                               i > oi ? " " : "", strip_edge_punct(w[i]));
     if (!obj[0]) return 0;
 
+    /* gen270 (universal-comprehension §8, F.'s pupo.txt): the simplest
+     * produce-artifact — "create a file named X" / "crea un file chiamato X"
+     * really CREATES the (empty) file, under hard guards: plain basename in
+     * the working directory, never overwrite (O_EXCL), and only while the KB
+     * declares artifact_shape(empty_file, …). The name is taken after a KB
+     * name-marker token, or as the object's only dotted token; its case comes
+     * from the RAW turn. Grounded: success is re-verified by stat, recorded
+     * as session knowledge (artifact/2), and an existing file is an honest
+     * refusal, never a silent clobber. */
+    {
+        int has_file = 0;
+        char nlow[80] = "";
+        {
+            char obuf[256];
+            snprintf(obuf, sizeof obuf, "%s", obj);
+            char *ow[48];
+            size_t on = split_words(obuf, ow, 48);
+            size_t mark = (size_t)-1;
+            for (size_t i = 0; i < on; i++) {
+                if (reqgen_in_class(b, "file_word", ow[i])) has_file = 1;
+                if (mark == (size_t)-1 &&
+                    reqgen_in_class(b, "name_marker", ow[i])) mark = i;
+            }
+            if (has_file) {
+                if (mark != (size_t)-1 && mark + 1 < on)
+                    snprintf(nlow, sizeof nlow, "%s", ow[mark + 1]);
+                else
+                    for (size_t i = 0; i < on && !nlow[0]; i++)
+                        if (strchr(ow[i], '.')) snprintf(nlow, sizeof nlow, "%s", ow[i]);
+            }
+        }
+        if (has_file && nlow[0]) {
+            if (!b->compose_kb_loaded) {
+                kb_set_origin(b->kb, KB_REFLECTIVE);
+                kb_load(b->kb, "kb/experts/programming/compose.p0");
+                kb_load(b->kb, "kb/experts/programming/algo_steps.p0");
+                kb_set_origin(b->kb, KB_SESSION);
+                b->compose_kb_loaded = 1;
+            }
+            const char *qa[2] = { "empty_file", NULL };
+            char ash[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "artifact_shape", qa, 2, ash, 1) == 1) {
+                char name[80];                    /* original case, from RAW */
+                snprintf(name, sizeof name, "%s", nlow);
+                int pathy = 0;   /* the user really asked for a PATH, not a name */
+                {
+                    char rbuf[512];
+                    snprintf(rbuf, sizeof rbuf, "%s", raw);
+                    char *rw[64];
+                    size_t rn = split_words(rbuf, rw, 64);
+                    for (size_t i = 0; i < rn; i++) {
+                        const char *orig = rw[i];
+                        char *t = strip_edge_punct(rw[i]);
+                        char tl[80];
+                        size_t k = 0;
+                        for (const char *c = t; *c && k + 1 < sizeof tl; c++)
+                            tl[k++] = (char)tolower((unsigned char)*c);
+                        tl[k] = '\0';
+                        if (!strcmp(tl, nlow)) {
+                            /* the guard must see what was ASKED: a token that
+                             * was a path before edge-stripping is refused, not
+                             * silently flattened into the working directory */
+                            if (strchr(orig, '/') || orig[0] == '.') pathy = 1;
+                            snprintf(name, sizeof name, "%s", t);
+                            break;
+                        }
+                    }
+                }
+                int cr = pathy ? -1 : code_create_empty_file(name);
+                if (cr == 1) {
+                    struct stat fst;
+                    if (stat(name, &fst) == 0 && fst.st_size == 0) {
+                        snprintf(out, out_size,
+                                 "Created the empty file %s in the working "
+                                 "directory — verified: it exists and is empty.",
+                                 name);
+                        note_artifact(b, "file", name);
+                        store_proof(b, out);
+                        return 1;
+                    }
+                }
+                if (cr == 0) {
+                    snprintf(out, out_size,
+                             "I understood — create the file %s — but a file "
+                             "with that name already exists here, and I won't "
+                             "overwrite it.", name);
+                    store_proof(b, out);
+                    return 1;
+                }
+                /* invalid name (paths, dotfiles, odd characters): fall through
+                 * to the informed decline below — honest, no side effect. */
+            }
+        }
+    }
+
     /* gen268 (universal-comprehension §8): before declining, try the ONE
      * program schema the KB declares (program_shape print_message). The
      * message parameter comes either from WORLD KNOWLEDGE — a program_output/2

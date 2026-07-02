@@ -290,6 +290,13 @@ int code_synth_print_program(const char *message, char *out, size_t out_sz);
 int code_check_print_program(const char *src, const char *message,
                              char *err_out, size_t err_sz);
 
+/* gen270 (universal-comprehension §8, the simplest produce-artifact): create
+ * an EMPTY file in the working directory. Guarded: plain basename only (no
+ * paths, no dotfiles, safe charset, <=64 chars) and NEVER overwrites —
+ * O_EXCL. Returns 1 created, 0 a file with that name already exists, -1
+ * invalid name or OS error. */
+int code_create_empty_file(const char *name);
+
 /* gen209 (docs/plans/learn-and-build.md Track B/B0): the run-grounded JUDGE a sort
  * needs. Wraps a candidate function `func_src` — a self-contained C definition named
  * `fnname` with signature `void fnname(int a[], int n)` — in a generated main() that

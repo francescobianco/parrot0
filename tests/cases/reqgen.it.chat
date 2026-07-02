@@ -28,3 +28,7 @@
 < ```
 > costruisci una calcolatrice in python
 < I understood the request — produce "calcolatrice" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+
+# gen270, F.'s exact phrasing (typo included): the file is REALLY created.
+> crea un file chiamata p0tmp_pupo2.txt
+< Created the empty file p0tmp_pupo2.txt in the working directory — verified: it exists and is empty.

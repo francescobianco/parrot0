@@ -38,3 +38,8 @@ game_shape(count_to_threshold, token_counter_threshold).
 % "hello world" carries its message without the user spelling it.
 program_shape(print_message, single_print).
 program_output(hello_world, "Hello, World!").
+
+% gen270: the simplest produce-artifact — an empty file with a given name,
+% created in the working directory under hard guards (plain basename, never
+% overwrite). Without this fact mod_reqgen only declines: KB is the switch.
+artifact_shape(empty_file, touch).
