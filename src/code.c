@@ -1868,6 +1868,99 @@ int code_orchain_vocabulary_tree(const char *dir, const char *fnname,
     return (int)nw;
 }
 
+static int orchain_ident_ok(const char *s) {
+    if (!s || !*s) return 0;
+    if (!(isalpha((unsigned char)*s) || *s == '_')) return 0;
+    for (const char *c = s; *c; c++)
+        if (!(isalnum((unsigned char)*c) || *c == '_')) return 0;
+    return 1;
+}
+
+int code_orchain_emit_facts(const char *src_path, const char *fnname,
+                            const char *pred, const char *out_path,
+                            int *total_chains) {
+    if (!src_path || !fnname || !*fnname || !out_path || !*out_path) return -1;
+    if (!orchain_ident_ok(pred)) return -1;    /* the predicate lands in a .p0 file */
+    if (out_path[0] == '/' || out_path[0] == '~' || strstr(out_path, "..")) return -1;
+    static char orig[262144];
+    static char buf[262144];
+    if (!code_read_file(src_path, orig, sizeof orig)) return -1;
+    snprintf(buf, sizeof buf, "%s", orig);
+    code_strip(buf);                         /* same structure view as gen257 */
+
+    /* key stem: the file's basename as an identifier (foreign.c -> foreign) */
+    const char *base = strrchr(src_path, '/');
+    base = base ? base + 1 : src_path;
+    char stem[64];
+    size_t si = 0;
+    for (const char *c = base; *c && *c != '.' && si + 1 < sizeof stem; c++)
+        stem[si++] = (char)(isalnum((unsigned char)*c) ? tolower((unsigned char)*c) : '_');
+    stem[si] = '\0';
+    if (!si) return -1;
+
+    FILE *f = NULL;
+    size_t fl = strlen(fnname);
+    int line = 1, nchains = 0, nfacts = 0;
+    const char *p = buf;
+    while (*p) {
+        if (*p == '\n') { line++; p++; continue; }
+        if (!((isalpha((unsigned char)*p) || *p == '_') && at_fn_call(buf, p, fnname, fl))) {
+            p++; continue;
+        }
+        int chain_line = line;
+        size_t starts[64], ends[64];
+        int run = 0;
+        for (;;) {
+            const char *call_start = p;
+            p += fl;
+            while (*p == ' ' || *p == '\t') p++;
+            int depth = 0;
+            for (; *p; p++) {
+                if (*p == '\n') line++;
+                else if (*p == '(') depth++;
+                else if (*p == ')') { depth--; if (depth == 0) { p++; break; } }
+            }
+            if (run < (int)(sizeof starts / sizeof starts[0])) {
+                starts[run] = (size_t)(call_start - buf);
+                ends[run] = (size_t)(p - buf);
+            }
+            run++;
+            const char *q = p; int ln = line;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!(q[0] == '|' && q[1] == '|')) break;
+            q += 2;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!at_fn_call(buf, q, fnname, fl)) break;
+            p = q; line = ln;
+        }
+        if (run >= 2) {
+            char cw[64][KB_TERM_LEN];        /* per-chain: one key per chain site */
+            size_t ncw = 0;
+            int kept = run < (int)(sizeof starts / sizeof starts[0]) ?
+                       run : (int)(sizeof starts / sizeof starts[0]);
+            for (int i = 0; i < kept; i++)
+                orchain_literals_between(orig + starts[i], orig + ends[i],
+                                         cw, 64, &ncw);
+            if (ncw > 0) {
+                if (!f) {
+                    f = fopen(out_path, "w");
+                    if (!f) return -1;
+                    fprintf(f, "%% %s facts derived by parrot0 from OR-chains of "
+                               "calls to %s in %s (one key per chain site)\n",
+                            pred, fnname, src_path);
+                }
+                for (size_t i = 0; i < ncw; i++, nfacts++)
+                    fprintf(f, "%s(%s_chain%d, \"%s\").\n",
+                            pred, stem, chain_line, cw[i]);
+            }
+            nchains++;
+        }
+    }
+    if (f) fclose(f);
+    if (total_chains) *total_chains = nchains;
+    return nfacts;
+}
+
 static void orchain_tree_rec(const char *dir, const char *fnname, int depth,
                              int *files_hit, int *chains, int *calls,
                              char *top_file, size_t top_sz, int *top_chains) {

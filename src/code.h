@@ -177,6 +177,17 @@ int code_orchain_vocabulary_tree(const char *dir, const char *fnname,
                                  int *files_hit, int *total_chains,
                                  int *total_calls);
 
+/* gen261 (Track 5.3): the first WRITING primitive of the derived plan — turn the
+ * vocabulary an OR-chain encodes into loadable facts. For each chain of calls to
+ * `fnname`, writes `pred(<stem>_chain<LINE>, "word").` lines to `out_path` (a new
+ * .p0 file; the source is never touched; sandbox rules as code_replace_expr). One
+ * key per chain SITE, so a later patch step can point each site at its own
+ * vocabulary. Returns the number of facts written, 0 if there was nothing to
+ * write (no file is created), -1 on error. */
+int code_orchain_emit_facts(const char *src_path, const char *fnname,
+                            const char *pred, const char *out_path,
+                            int *total_chains);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

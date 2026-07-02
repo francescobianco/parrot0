@@ -55,11 +55,15 @@ plan_given(target_source).
 %   plan_param(Goal, Name, Value)  — domain defaults (the request overrides)
 % A step with no action_impl fact stops the walk honestly and names itself as
 % the next pull. scan_chains is gen257's detector; extract_vocabulary (gen260)
-% reads the string cues inside those chains. Patching and run_test_suite wait
-% for their guarded primitives.
+% reads the string cues inside those chains; emit_intent_facts (gen261) writes
+% them as facts in a <target>.cues.p0 — WHICH predicate they become is itself
+% knowledge (plan_param fact_pred), never a C constant. Patching and
+% run_test_suite wait for their guarded primitives.
 action_impl(scan_chains, orchain_scan).
 action_impl(extract_vocabulary, orchain_vocab).
+action_impl(emit_intent_facts, emit_facts).
 plan_param(kbfirst_migration, vocab_fn, cue).
+plan_param(kbfirst_migration, fact_pred, intent_cue).
 
 % --- Domain 2: the needhelp protocol (external help as plan knowledge) --------
 % F.'s public pattern: when blocked on missing knowledge, do not stop — ask the

@@ -310,8 +310,10 @@ static void plan_join_words(char words[][KB_TERM_LEN], int n, char *out, size_t 
 /* gen259 (Track 5.3, first executable walk): realize a derived plan through
  * primitive bindings declared in KB as action_impl(Action, Primitive). This C
  * dispatches on the PRIMITIVE name, not on the domain action name; the domain
- * still lives in facts. gen260 adds orchain_vocab as the second primitive; the
- * walk still intentionally stops at the next unbound action and names it. */
+ * still lives in facts. gen260 adds orchain_vocab (perception); gen261 adds
+ * emit_facts, the first WRITING primitive — the perceived vocabulary becomes a
+ * loadable .p0 next to the target (original untouched, like .p0fix). The walk
+ * still intentionally stops at the next unbound action and names it. */
 static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                                   const char *target, const char *fn_from_req,
                                   char *obs, size_t obs_sz) {
@@ -358,6 +360,44 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         char list[384];
         plan_join_words(words, nwords, list, sizeof list);
         snprintf(obs, obs_sz, "orchain_vocab extracted %d cues: %s", nwords, list);
+        return 1;
+    }
+
+    if (strcmp(impl, "emit_facts") == 0) {
+        char pred[64] = "";
+        if (!plan_param_value(b, goal, "fact_pred", pred, sizeof pred)) {
+            snprintf(obs, obs_sz,
+                     "emit_facts has no fact_pred knowledge for this goal — teach me "
+                     "a plan_param fact naming the predicate to write");
+            return 0;
+        }
+        struct stat est;
+        if (stat(target, &est) == 0 && S_ISDIR(est.st_mode)) {
+            snprintf(obs, obs_sz,
+                     "emit_facts needs a single source file target, not a directory");
+            return 0;
+        }
+        char outp[320];
+        snprintf(outp, sizeof outp, "%s.cues.p0", target);
+        int chains = 0;
+        int nfacts = code_orchain_emit_facts(target, fn, pred, outp, &chains);
+        if (nfacts < 0) {
+            snprintf(obs, obs_sz, "emit_facts could not write %s", outp);
+            return 0;
+        }
+        if (chains == 0) {
+            snprintf(obs, obs_sz,
+                     "emit_facts found no OR-chains of calls to `%s` in %s", fn, target);
+            return 0;
+        }
+        if (nfacts == 0) {
+            snprintf(obs, obs_sz,
+                     "emit_facts found %d OR-chains of calls to `%s` but no string "
+                     "cues to write", chains, fn);
+            return 0;
+        }
+        snprintf(obs, obs_sz, "emit_facts wrote %d %s facts for %d chains to %s",
+                 nfacts, pred, chains, outp);
         return 1;
     }
 

@@ -328,12 +328,14 @@ funziona solo su src/brain, abbiamo barato.
    piano DERIVATO dal goal; il needhelp è il secondo dominio (conoscenza, non
    fallback); goal ignoto → fall-through, buco nella catena → declino che
    nomina l'artefatto orfano.
-3. gen259–260 (in corso) — Esecuzione del piano derivato, primi bind: il planner
-   cammina i passi derivati, realizza `scan_chains` tramite `orchain_scan`
-   (detector gen257) e `extract_vocabulary` tramite `orchain_vocab` (estrae i
-   literal delle catene), poi si ferma onestamente su `emit_intent_facts` perché
-   manca `action_impl/2`. Restano i bind per emissione fatti/patch/test e poi il
-   primo sito rifattorizzato da conoscenza detta, giudicato dai test byte-identici.
+3. gen259–261 (in corso) — Esecuzione del piano derivato: il planner cammina i
+   passi derivati e ne realizza TRE — `scan_chains` via `orchain_scan` (detector
+   gen257), `extract_vocabulary` via `orchain_vocab` (literal delle catene), e
+   `emit_intent_facts` via `emit_facts` (gen261: fatti `intent_cue` per SITO in
+   un `<target>.cues.p0` caricabile come KB nativa; il predicato emesso è
+   conoscenza, `plan_param fact_pred`). Si ferma onestamente su `patch_sites`.
+   Restano i bind patch/test e poi il primo sito rifattorizzato da conoscenza
+   detta, giudicato dai test byte-identici.
 4. Migrazione per categorie (il contatore scende, una gen alla volta).
 5. Demo di crescita a runtime: parola nuova insegnata → un ramo prima sordo
    aggancia, senza rebuild (il "gioco dinamico con la conoscenza").

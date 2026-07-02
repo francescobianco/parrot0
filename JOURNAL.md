@@ -1,4 +1,41 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen261: emit_facts — the derived plan writes loadable knowledge
+
+**Goal (Track 5.3, next missing binding).** gen260's walk stopped at
+`emit_intent_facts`. Bind it: the vocabulary perceived in OR-chains must become
+FACTS in a `.p0` file — the first WRITING step of the derived plan, still short
+of touching any source.
+
+**Changed.** `code_orchain_emit_facts()` in the code engine: same chain walk as
+gen260, but per-chain — each chain site gets its own key (`<stem>_chainLINE`)
+so a later patch step can point each site at its own vocabulary. Writes
+`pred(key, "word").` lines to `<target>.cues.p0` (original untouched, sandbox
+rules as code_replace_expr, artifact gitignored like `*.p0fix`). WHICH predicate
+is written is knowledge, not a C constant: `plan_param(kbfirst_migration,
+fact_pred, intent_cue)`; without that fact the step declines and asks to be
+taught. `action_impl(emit_intent_facts, emit_facts)` added to the KB domain.
+
+**Assimilation proof.** The emitted file is native KB: loading
+`foreign.c.cues.p0` as PARROT0_BASE and asking "what do you know about
+foreign_chain13" answers "foreign_chain13 is alpha; … beta; … gamma" — no new
+parser, receiving the plan's own output is just loading facts (the same
+mechanism the needhelp protocol needs for load_answer).
+
+**Stress (10x).** On the real `src/brain/70-social-pragma.c` (17 chains, 210
+chained calls) the walk emits 210 per-site facts, keys like
+`70_social_pragma_chain168` — the outer-circle target works, not just the toy
+fixture. Self-challenge parity: parrot0 could not name the fix ("I don't
+understand that yet") — the external hypothesis won; the gap is that its
+self-knowledge does not cover the plan domain's own bindings.
+
+**Ratchet.** planact.chat/.it now walk THREE real steps on the foreign fixture
+and stop at `patch_sites`; new `orchain_emit.code` gate. The next pull is exact:
+bind `patch_sites` (replace each chain with a `kb_cue_match`-style lookup in a
+patched copy), then `run_test_suite`.
+
+**Verified.** `tests/run.sh` 219/219, `make test` fully green, `make code-bench`
+23/23 gates, 0 gaps, 71/71 turns. Version `gen261-emit-intent-facts`.
+
 ## 2026-07-02 - gen260: OR-chain vocabulary extraction, second plan primitive
 
 **Goal (Track 5.3, next missing binding).** gen259 could walk the derived

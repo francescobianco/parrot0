@@ -2,7 +2,26 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## SOLVED - 3 REAL SWE-bench_Lite instances, by 3 general structural smells
+## Active — Track 5.3 (docs/plans/coding-agent-evolution.md): walk the derived plan to a verified patch
+
+The KB plan domain (gen258) derives the kbfirst_migration steps; the walk
+(gen259–261) realizes three of them through KB `action_impl/2` bindings —
+`orchain_scan` (perception), `orchain_vocab` (vocabulary), `emit_facts`
+(loadable `<target>.cues.p0`, one key per chain site) — and stops honestly at
+`patch_sites`. Next pulls, one generation each:
+1. **Bind `patch_sites`**: replace each OR-chain with a KB-lookup call in a
+   patched copy (`.p0fix` convention; guarded, original untouched). The foreign
+   fixture must compile after the patch.
+2. **Bind `run_test_suite`**: the behavior-preserving judge (build + tests) as a
+   plan step; byte-identical output is the oracle.
+3. First REAL site in src/brain migrated by the derived plan (outer circle: no
+   privileged access, the same knowledge must work on the foreign fixture).
+
+Discipline: the plan stays INFERRED from kb/experts/codebase/actions.p0 (never a
+C pipeline); missing knowledge → honest decline naming the gap; EN+IT ratchet;
+`make test` green always.
+
+## (history) SOLVED - 3 REAL SWE-bench_Lite instances, by 3 general structural smells
 
 All resolved by the official SWE-bench Docker oracle, no deception (parrot0 reads
 only the committed buggy file, derives from structure, the real tests judge):

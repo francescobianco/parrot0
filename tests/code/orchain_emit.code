@@ -1,0 +1,10 @@
+#expect: pass
+#faculty: orchain-emit-facts
+# gen261: the derived plan now WRITES knowledge. The vocabulary perceived in
+# OR-chains becomes intent_cue facts in a .p0 file next to the target (one key
+# per chain SITE, original source untouched, artifact gitignored like *.p0fix).
+# The predicate name comes from plan_param knowledge, not a C constant. The
+# emitted file is loadable native KB — assimilation, not a new format. The walk
+# still stops honestly at patch_sites, the next unbound action.
+> execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
+< emitfacts wrote 5 intentcue facts for 2 chains

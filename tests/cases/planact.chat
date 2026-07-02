@@ -14,10 +14,12 @@
 > make a plan to conquer the moon
 < I don't understand that yet.
 
-# gen259: execute the derived plan through KB action_impl bindings. Only the
-# first two actions are bound today (scan_chains -> orchain_scan,
-# extract_vocabulary -> orchain_vocab), so the walk performs real OR-chain
-# perception on the FOREIGN fixture, extracts its string cues, and then stops
-# honestly before writing facts or patching code.
+# gen259–261: execute the derived plan through KB action_impl bindings. Three
+# actions are bound today (scan_chains -> orchain_scan, extract_vocabulary ->
+# orchain_vocab, emit_intent_facts -> emit_facts), so the walk performs real
+# OR-chain perception on the FOREIGN fixture, extracts its string cues, WRITES
+# them as loadable intent_cue facts (one key per chain site, original source
+# untouched, artifact gitignored like *.p0fix), and then stops honestly at the
+# first unbound action, naming it as the next pull.
 > execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
-< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; stopped at step 3 emit intent facts because no action_impl fact names its primitive.
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/foreign.c.cues.p0; stopped at step 4 patch sites because no action_impl fact names its primitive.
