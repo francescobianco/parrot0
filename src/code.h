@@ -143,6 +143,25 @@ int code_find_case_folding(const char *src_path,
  * are the localizer. Returns 1 if a file fired, 0 if none, -1 on error/sandbox. */
 int code_smell_tree(const char *dir, char *out_file, size_t out_sz);
 
+/* gen257 (Track 5.1, outer-circle codebase work): OR-chain perception. Counts the
+ * runs of >=2 calls to `fnname` joined only by `||` in the file at `src_path` —
+ * the structural signature of a word list encoded as code (a C phrasebook).
+ * GENERIC: `fnname` is a parameter, nothing about this codebase is baked in; it
+ * works on any C-family source (Python's `or` chains are a later pull). Writes up
+ * to `max` chain start lines into `lines` and the number of chained calls into
+ * `total_calls` (both optional). Returns the chain count, or -1 on error.
+ * Perception only: nothing is modified. */
+int code_find_or_chains(const char *src_path, const char *fnname,
+                        int *lines, size_t max, int *total_calls);
+
+/* gen257: the same perception over a TREE (sandboxed like code_locate). Sums the
+ * chains across every .c/.h under `dir`, reports how many files contain at least
+ * one chain (`files_hit`), the total chained calls (`calls`), and the densest
+ * file (`top_file`, `top_chains`). Returns the total chain count, -1 on error. */
+int code_orchain_tree(const char *dir, const char *fnname,
+                      int *files_hit, int *calls,
+                      char *top_file, size_t top_sz, int *top_chains);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

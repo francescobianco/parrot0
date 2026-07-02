@@ -228,6 +228,66 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+     /* gen257 (Track 5.1, outer-circle codebase work): OR-chain perception —
+     * "how many or-chains of calls to <fn> in <path>?". A run of calls to the
+     * same function joined by `||` is the structural signature of a word list
+     * encoded as code (a C phrasebook) — the thing the KB-first law says should
+     * be knowledge. This branch only PERCEIVES (counts and locates; changes
+     * nothing); the knowledge-directed refactor is a later pull (Track 5.2+).
+     * Coherence from day one: the trigger vocabulary is KB knowledge
+     * (intent_cue(orchain_query, …) in kb/core/intents.p0, matched by
+     * kb_cue_match), and the function name is a PARAMETER from the question —
+     * the detector knows nothing of "cue" or of this codebase (it must work on
+     * a foreign one; that is the anti-impostor ratchet). */
+    if (kb_cue_match(b, "orchain_query", norm)) {
+        char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
+        char *w[48]; size_t nw = split_words(qbuf, w, 48);
+        char fn[64] = "", path[256] = "";
+        for (size_t i = 0; i < nw; i++)
+            if (strchr(w[i], '/')) {
+                snprintf(path, sizeof path, "%s", strip_edge_punct(w[i]));
+                break;
+            }
+        for (size_t i = 0; i + 1 < nw && !fn[0]; i++) {
+            if (strcmp(w[i], "to") && strcmp(w[i], "a") && strcmp(w[i], "su")) continue;
+            char *c = strip_edge_punct(w[i + 1]);
+            int ok = (*c != '\0');
+            for (const char *t = c; *t; t++)
+                if (!(isalnum((unsigned char)*t) || *t == '_')) { ok = 0; break; }
+            if (ok && strcmp(c, "in") != 0) snprintf(fn, sizeof fn, "%s", c);
+        }
+        if (!fn[0] || !path[0]) return 0;
+        struct stat ost;
+        if (stat(path, &ost) == 0 && S_ISDIR(ost.st_mode)) {
+            int files = 0, calls = 0, topn = 0; char top[256] = "";
+            int n = code_orchain_tree(path, fn, &files, &calls, top, sizeof top, &topn);
+            if (n < 0) return 0;
+            if (n == 0)
+                snprintf(out, out_size,
+                         "Under %s, I found no OR-chains of calls to `%s`.", path, fn);
+            else
+                snprintf(out, out_size,
+                         "Under %s, I found %d OR-chains of calls to `%s` in %d files "
+                         "(%d calls in chains); the densest is %s (%d chains).",
+                         path, n, fn, files, calls, top, topn);
+            store_proof(b, out);
+            return 1;
+        }
+        int lines[1] = {0}, calls = 0;
+        int n = code_find_or_chains(path, fn, lines, 1, &calls);
+        if (n < 0) return 0;
+        if (n == 0)
+            snprintf(out, out_size,
+                     "In %s, I found no OR-chains of calls to `%s`.", path, fn);
+        else
+            snprintf(out, out_size,
+                     "In %s, I found %d OR-chains of calls to `%s` (%d calls in chains); "
+                     "the first starts at line %d.",
+                     path, n, fn, calls, lines[0]);
+        store_proof(b, out);
+        return 1;
+    }
+
     /* gen200: F5 repair (X6 localization by structure + X7 patch) — "fix the
      * symmetry bug in <path>". parrot0 reads the file, finds a structural symmetry
      * break (a sibling branch that assigns a literal where the analogous variable

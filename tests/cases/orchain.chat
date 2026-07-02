@@ -1,0 +1,12 @@
+# gen257 (Track 5.1, outer-circle codebase work): OR-chain perception. A run of
+# >=2 calls to the same function joined by || is the structural signature of a
+# word list encoded as code (a C phrasebook) — what the KB-first law says should
+# be knowledge. parrot0 counts and locates such chains in ANY codebase; the
+# function name is a parameter from the question, the trigger vocabulary is KB
+# knowledge (intent_cue(orchain_query, …)), and the fixture is a FOREIGN codebase
+# so the faculty is provably not fitted to src/brain (anti-impostor). Perception
+# only: nothing is modified. The knowledge-directed refactor is Track 5.2+.
+> how many or-chains of calls to flag in tests/fixtures/orchain/foreign.c?
+< In tests/fixtures/orchain/foreign.c, I found 2 OR-chains of calls to `flag` (5 calls in chains); the first starts at line 13.
+> how many or-chains of calls to printf in tests/fixtures/orchain/foreign.c?
+< In tests/fixtures/orchain/foreign.c, I found no OR-chains of calls to `printf`.

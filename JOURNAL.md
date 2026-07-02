@@ -1,4 +1,48 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen257: OR-chain perception — outer-circle work on a codebase begins
+
+**Goal (F.'s steer, twice corrected and confirmed).** parrot0 must work on its
+OWN codebase the way it worked on astropy — **outer circle**: it studies a
+codebase and forms an idea of it from the files; that one of those codebases is
+src/brain is incidental. NOT reflexivity, NOT self-repair by design. And the
+eventual refactor plan must be INFERRED from told knowledge + the expressed
+goal, never a hardcoded pipeline. This generation ships step 1 of that arc
+(Track 5.1 of docs/plans/coding-agent-evolution.md): PERCEPTION.
+
+**The faculty.** A run of >=2 calls to the same function joined only by `||`
+is the structural signature of a word list encoded as code — a C phrasebook,
+exactly what the KB-first law says should be knowledge. New generic detector:
+`code_find_or_chains(path, fnname, …)` (file) and `code_orchain_tree(dir, …)`
+(tree, sandboxed) — `fnname` is a PARAMETER; nothing about "cue" or parrot0 is
+baked in. Comments/strings blanked first (code_strip) so a `||` in a comment
+never miscounts. Brain branch: "how many or-chains of calls to <fn> in
+<path>?" — and, coherence from day one, its OWN trigger vocabulary is KB
+knowledge (`intent_cue(orchain_query, …)` in kb/core/intents.p0, matched by
+kb_cue_match, teachable at runtime) — this feature about phrasebooks is not
+one.
+
+**The live ratchet (measured by asking parrot0 itself).** "how many or-chains
+of calls to cue in src/brain?" -> **341 chains in 13 files, 1609 chained
+calls**, densest 25-wordmath-reasoning.c (68). That number is the Track-5
+counter that must only go down as vocabulary migrates to intent_cue/2.
+
+**Anti-impostor.** The hermetic ratchets run on a FOREIGN fixture codebase
+(tests/fixtures/orchain/foreign.c, `flag()` chains, mixed-condition and
+comment-|| decoys): 2 chains / 5 calls / line 13, EN+IT byte-exact; zero-case
+(`printf`) declines cleanly. If it only worked on src/brain it would be fitted.
+
+**Changed.** src/code.{h,c}: at_fn_call, code_find_or_chains,
+code_orchain_tree. src/brain/80-code.c: orchain_query branch (perception only).
+kb/core/intents.p0: orchain_query cues EN+IT. tests/cases/orchain{,.it}.chat.
+docs/plans/coding-agent-evolution.md: Track 5 rewritten outer-circle +
+plan-inferred-not-hardcoded (F.'s steer verbatim), §7 reordered. Version
+gen257-orchain-perception. `make test` fully green (458 PASS).
+
+**Next (Track 5.2+).** The KB planning domain (actions with pre/postconditions
+as facts, plans DERIVED from a goal), then the first cue-chain site refactored
+from told knowledge, judged by byte-identical `make test`; the foreign fixture
+must be refactorable by the same knowledge.
+
 ## 2026-07-02 - gen256: SWE-bench self-localization — the smell chain sweeps the TREE
 
 **Goal (F.'s steer).** Maximize the coding-agent value of the four RESOLVED

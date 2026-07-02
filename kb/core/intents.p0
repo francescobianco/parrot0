@@ -253,3 +253,17 @@ intent_cue(smalltalk_continue, "hai un").
 intent_cue(smalltalk_continue, "come stai").
 intent_cue(smalltalk_continue, "come va").
 intent_cue(smalltalk_continue, "cosa fai").
+
+% --- gen257: OR-chain perception (Track 5.1, outer-circle codebase work). The
+% trigger vocabulary for "how many or-chains of calls to <fn> in <path>?" lives
+% HERE from day one — this very feature about C phrasebooks must not be one. A
+% new phrasing is DATA, teachable at runtime via the generic learnable/3 path,
+% no recompile. The function name and path are structural anchors parsed in C
+% (shape, not vocabulary).
+intent_cue(orchain_query, "or-chains of").
+intent_cue(orchain_query, "or chains of").
+intent_cue(orchain_query, "chains of calls to").
+intent_cue(orchain_query, "or-chain count").
+intent_cue(orchain_query, "catene or di").
+intent_cue(orchain_query, "catene di or").
+intent_cue(orchain_query, "catene di chiamate a").

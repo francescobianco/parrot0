@@ -1669,6 +1669,112 @@ int code_smell_tree(const char *dir, char *out_file, size_t out_sz) {
     return smell_tree_rec(dir, out_file, out_sz, 0);
 }
 
+/* gen257 (Track 5.1, outer-circle codebase work): OR-chain perception. A run of
+ * >=2 calls to the SAME function joined only by `||` is a vocabulary-shaped
+ * condition — the structural signature of a C phrasebook (a word list encoded as
+ * code). The detector is GENERIC: `fnname` is a parameter; it knows nothing of
+ * "cue" or of this codebase. Perception only — it reads, counts and locates,
+ * it changes nothing. Comments and string literals are blanked first
+ * (code_strip), so a `||` in a comment never miscounts. */
+static int at_fn_call(const char *buf, const char *p, const char *fnname, size_t fl) {
+    if (strncmp(p, fnname, fl) != 0) return 0;
+    if (p != buf && (isalnum((unsigned char)p[-1]) || p[-1] == '_')) return 0;
+    if (isalnum((unsigned char)p[fl]) || p[fl] == '_') return 0;
+    const char *q = p + fl;
+    while (*q == ' ' || *q == '\t') q++;
+    return *q == '(';
+}
+
+int code_find_or_chains(const char *src_path, const char *fnname,
+                        int *lines, size_t max, int *total_calls) {
+    if (!src_path || !fnname || !*fnname) return -1;
+    static char buf[262144];
+    if (!code_read_file(src_path, buf, sizeof buf)) return -1;
+    code_strip(buf);
+    size_t fl = strlen(fnname);
+    int line = 1, nchains = 0, ncalls = 0;
+    const char *p = buf;
+    while (*p) {
+        if (*p == '\n') { line++; p++; continue; }
+        if (!((isalpha((unsigned char)*p) || *p == '_') && at_fn_call(buf, p, fnname, fl))) {
+            p++; continue;
+        }
+        int startline = line, run = 0;
+        for (;;) {                                   /* consume one call of the run */
+            p += fl;
+            while (*p == ' ' || *p == '\t') p++;     /* to the '(' */
+            int depth = 0;
+            for (; *p; p++) {
+                if (*p == '\n') line++;
+                else if (*p == '(') depth++;
+                else if (*p == ')') { depth--; if (depth == 0) { p++; break; } }
+            }
+            run++;
+            const char *q = p; int ln = line;        /* peek past ws for `|| fnname(` */
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!(q[0] == '|' && q[1] == '|')) break;
+            q += 2;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!at_fn_call(buf, q, fnname, fl)) break;
+            p = q; line = ln;                        /* the run continues */
+        }
+        if (run >= 2) {
+            if (lines && (size_t)nchains < max) lines[nchains] = startline;
+            nchains++; ncalls += run;
+        }
+    }
+    if (total_calls) *total_calls = ncalls;
+    return nchains;
+}
+
+static void orchain_tree_rec(const char *dir, const char *fnname, int depth,
+                             int *files_hit, int *chains, int *calls,
+                             char *top_file, size_t top_sz, int *top_chains) {
+    if (depth > 32) return;
+    DIR *d = opendir(dir);
+    if (!d) return;
+    struct dirent *de;
+    while ((de = readdir(d)) != NULL) {
+        const char *nm = de->d_name;
+        if (nm[0] == '.') continue;
+        char path[1024];
+        snprintf(path, sizeof path, "%s/%s", dir, nm);
+        struct stat st;
+        if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            orchain_tree_rec(path, fnname, depth + 1,
+                             files_hit, chains, calls, top_file, top_sz, top_chains);
+        } else {
+            size_t l = strlen(nm);
+            /* `||` is C-family syntax; Python's `or` chains are a later pull. */
+            if (!(l >= 3 && nm[l-2] == '.' && (nm[l-1] == 'c' || nm[l-1] == 'h'))) continue;
+            int tc = 0;
+            int n = code_find_or_chains(path, fnname, NULL, 0, &tc);
+            if (n > 0) {
+                (*files_hit)++; *chains += n; *calls += tc;
+                if (n > *top_chains) {
+                    *top_chains = n;
+                    snprintf(top_file, top_sz, "%s", path);
+                }
+            }
+        }
+    }
+    closedir(d);
+}
+
+int code_orchain_tree(const char *dir, const char *fnname,
+                      int *files_hit, int *calls,
+                      char *top_file, size_t top_sz, int *top_chains) {
+    if (!dir || !*dir || !fnname || !*fnname) return -1;
+    if (dir[0] == '/' || dir[0] == '~' || strstr(dir, "..")) return -1;
+    int fh = 0, ch = 0, ca = 0, tc = 0;
+    if (top_file && top_sz) top_file[0] = '\0';
+    orchain_tree_rec(dir, fnname, 0, &fh, &ch, &ca, top_file, top_sz, &tc);
+    if (files_hit) *files_hit = fh;
+    if (calls) *calls = ca;
+    if (top_chains) *top_chains = tc;
+    return ch;
+}
+
 /* gen191: F5 edit — delete the top-level definition of `fnname`. The same engine
  * as rename (locate -> edit -> the caller compiles to verify), a SECOND
  * transformation proving the edit loop is rule-shaped, not one hardcoded op. We

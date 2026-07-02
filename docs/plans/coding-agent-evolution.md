@@ -116,7 +116,10 @@ Ogni facoltà qui sotto ha: cosa esiste, il gap, e da quale benchmark viene tira
 - **Gap:** il planning domain `code_task` (leggi issue → localizza → patch →
   compila → testa → itera); oggi il ciclo edit→verify→retry non ITERA sul
   fallimento (il repair loop B4 è deliberatamente rinviato finché un rosso reale
-  non lo tira).
+  non lo tira). Inoltre (steer F. 2026-07-02) i piani devono essere INFERITI da
+  un dominio di azioni dichiarato in KB (pre/postcondizioni come fatti), mai
+  cablati come pipeline in C: gen207 ordina passi scritti nel prompt, il salto
+  è DERIVARLI dal goal + conoscenza detta (Track 5).
 - **Pull:** game-bench (multi-prompt e2e) e il primo schema `algo_shape` errato.
 
 ### T — Tool control (controllo degli strumenti)
@@ -259,11 +262,52 @@ Il binario dei 4 RESOLVED. Prossimi pull, in ordine di pressione:
 3. **KB SWE di processo** (A5/A6 dell'inventario, KB-first): tool, testing,
    versioning come fatti — utile anche a llmscore e alle domande di sviluppo.
 
-### Track 5 — Chiusura riflessiva
-1. parrot0 già legge il proprio sorgente e lo sweep-a pulito (gen256). Prossimo:
-   domande strutturali su di sé dal proprio AST ("quanti moduli ho?", E1).
-2. **Proposta di auto-modifica** grounded nel proprio AST, gated da `make test`
-   (E2/E3) — il loop di LOOP.md parzialmente interno; il loop esterno decide.
+### Track 5 — Lavorare su una codebase (outer circle) — la conoscenza dirige il comportamento
+
+> **Steer F. (2026-07-02):** questa NON è riflessività. La facoltà è generale:
+> parrot0 studia una codebase e se ne fa un'idea, poi interviene — e una di
+> quelle codebase *guarda caso* è la sua. Nessun accesso privilegiato, nessun
+> self-model, nessuna auto-riparazione per natura e per design: è dogfood
+> **outer circle**. Tutto ciò che sa di src/brain deve derivarlo dai file che
+> legge, come fece con astropy.
+
+**L'arco guida: cue-chains → KB.** I moduli brain contengono ~268 catene
+`if (cue(..) || cue(..) …)` (misura gen256): vocabolario C che per il principio
+cardinale va portato in regime KB-first — `intent_cue/2` + `kb_cue_match`, il
+precedente è gen223 (verbi pi-act migrati). Il contatore delle catene residue è
+il ratchet: deve solo scendere. Le CLASSI di parole vanno in KB; la forma
+booleana, l'ordine dei moduli e gli ancoraggi strutturali restano C (forma, non
+vocabolario) — una migrazione cieca regredirebbe la precisione.
+
+**Il metodo (vincolo di F.): il piano è INFERITO, mai cablato.**
+- In C solo primitive generiche e mute: scandire un albero, trovare catene OR di
+  chiamate a una funzione *F* (F è un parametro, mai "cue" cablato), estrarre
+  stringhe, emettere fatti, sostituire espressioni, compilare, eseguire test.
+- La conoscenza DETTA a runtime ("le catene di cue sono vocabolario", "il
+  vocabolario vive come intent_cue/2", "la forma C diventa kb_cue_match") viene
+  sintetizzata in fatti/regole Prolog.
+- Il planner INFERISCE la sequenza da azioni con pre/postcondizioni dichiarate
+  in KB, verso il goal espresso ("porta il modulo X in regime kb-first").
+- **Senza quella conoscenza: declino onesto.** La KB è l'interruttore del
+  comportamento (kb-first.md; comportamento diretto dalla conoscenza).
+
+**Oracolo.** Il refactor è behavior-preserving: `make build` + `make test`
+byte-identico è un giudice meccanico più severo di SWE-bench.
+
+**Anti-impostor.** La stessa conoscenza insegnata, applicata a una codebase
+ESTRANEA con catene analoghe (fixture), deve produrre lo stesso lavoro. Se
+funziona solo su src/brain, abbiamo barato.
+
+**Scala dei pull:**
+1. Percezione: detector generico di catene OR di chiamate (report-only, F
+   parametrica, qualsiasi file/albero).
+2. Dominio di planning in KB: azioni + pre/postcondizioni come fatti; un goal
+   semplice concatenato per inferenza (il salto vero: gen207 ordina passi
+   scritti nel prompt, qui li DERIVA).
+3. Primo sito rifattorizzato da conoscenza detta, giudicato dai test.
+4. Migrazione per categorie (il contatore scende, una gen alla volta).
+5. Demo di crescita a runtime: parola nuova insegnata → un ramo prima sordo
+   aggancia, senza rebuild (il "gioco dinamico con la conoscenza").
 
 ---
 
@@ -304,16 +348,20 @@ Il binario dei 4 RESOLVED. Prossimi pull, in ordine di pressione:
 
 ## 7. Le prossime ~10 generazioni (proposta concreta, rivedibile a ogni pull)
 
-1. **fetch_lite espanso** (curation): +10–20 istanze reali committate con
+1. **Track 5.1 — detector generico di catene OR** (gen257): percezione
+   outer-circle su qualsiasi codebase, F parametrica, fixture estraneo.
+2. **fetch_lite espanso** (curation): +10–20 istanze reali committate con
    `repo_excerpt` auto-snapshot dei file toccati dal gold patch (+decoy).
-2. Prima istanza nuova coperta dagli smell esistenti → RESOLVED n.5 (ratchet).
-3. Prima istanza NON coperta → smell generale n.5 (il pull dice quale).
-4. **B4 repair loop** da un rosso reale (schema errato deliberato).
-5. **Induzione markdown→algo_shape** su una pagina fresca (facoltà L completa).
-6. **X3 audit**: vocabolario di nodi astratto; un front-end toy riusa le analisi.
-7. **X7**: diff multi-file + write-back guardato.
-8. **git-as-tool**: `git log/diff` → fatti KB, domande sul repo reale.
-9. **game-bench**: chiudere la prima voce del ledger col repair loop del planner.
-10. **E1**: domande strutturali su se stesso dal proprio AST (chiusura riflessiva).
+3. Prima istanza nuova coperta dagli smell esistenti → RESOLVED n.5 (ratchet).
+4. Prima istanza NON coperta → smell generale n.5 (il pull dice quale).
+5. **B4 repair loop** da un rosso reale (schema errato deliberato).
+6. **Induzione markdown→algo_shape** su una pagina fresca (facoltà L completa).
+7. **X3 audit**: vocabolario di nodi astratto; un front-end toy riusa le analisi.
+8. **X7**: diff multi-file + write-back guardato.
+9. **git-as-tool**: `git log/diff` → fatti KB, domande sul repo reale.
+10. **game-bench**: chiudere la prima voce del ledger col repair loop del planner.
+11. **Track 5.2–5.3**: dominio di planning in KB (azioni+pre/postcondizioni) e
+    primo sito cue-chain rifattorizzato da conoscenza detta, `make test`
+    byte-identico come giudice, fixture estraneo come anti-impostor.
 
 Ogni voce resta subordinata al pull: se un bench rosso indica altro, quello vince.
