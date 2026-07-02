@@ -1,4 +1,40 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen264: RULESCORE — the text→rules→code pressure gauge (F.'s design)
+
+**Goal (steer F., 2026-07-02).** On the LLMSCORE model and the same opencode
+framework: an LLM INVENTOR makes up 5 simple terminal mini-games described ONLY
+as text — and each description must be RULES (numbered: valid input, state
+evolution, exact termination/win condition). parrot0 implements them; a judge
+writes a LONG report, `RULESCORE.md`, with per-game failure analysis and a
+JUSTIFIED score 0 (nothing implemented) to 5 (every rule encoded and running).
+Purpose: training pressure for the F4 frontier — understanding text and
+translating it into code.
+
+**Built.** `tests/rulescore.py` + `make rulescore`. Inventor and judge on
+opencode-GO (llmscore idiom: $OPENCODE_API_KEY, retries; a reasoning model can
+return empty content — caught and retried, that bug ate 4/5 specs on the first
+run). parrot0 answers over its real daemon surface (piagent idiom, fresh
+conversation per game, PARROT0_TOOLS=1). The harness grounds every attempt
+mechanically before judging: extract C, compile with cc, sample-run on canned
+input with timeout — the judge sees evidence, not claims. Honesty contract in
+both prompts and report: honest declines score 0 and are NAMED honest;
+FABRICATION is flagged as worse than a wall; scores may only climb by closed
+CATEGORIES (input loop, state, termination, win conditions), never by chasing
+the rotating games (gen254).
+
+**Baseline (the honest map).** First full run: **0/25** — expected, parrot0 has
+no prose→program bridge yet. The report's sharpest signal is not the zeros but
+HOW it declines: only 1/5 answers was a clean honest wall; 4/5 were MISCLAIMS
+by social/pragma modules ("Ha, you're playful! Ask me something?", "That looks
+like a snippet of code.") — by the gen254 rule (a misclaim is worse than a
+wall) the first pull RULESCORE names is *recognizing a rules-spec as an
+implementation request* and declining honestly with the gap named, before any
+codegen exists.
+
+**Recorded.** The design and discipline are §4 Track 2.5 + §5 of
+docs/plans/coding-agent-evolution.md. External + non-deterministic, NOT part of
+`make test`. Version `gen264-rulescore-gauge` (no brain behavior changed).
+
 ## 2026-07-02 - gen263: verify_behavior — the derived plan completes under a differential judge
 
 **Goal (Track 5.3, the last missing binding).** Bind `run_test_suite` so the

@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -183,6 +183,17 @@ sym-bench: build
 # external + non-deterministic, NOT part of `make test`.
 llmscore: build
 	@$(BENCH_PY) ./tests/llmscore.py
+
+# RULESCORE (F., 2026-07-02) — on the LLMSCORE model: an LLM INVENTS 5 terminal
+# mini-games described ONLY as numbered RULES; parrot0 must translate the text
+# into a C implementation; the harness compiles + sample-runs whatever comes
+# back, and a judge writes RULESCORE.md — a LONG report with a justified 0-5
+# score per game (0 = nothing implemented, 5 = every rule encoded and running).
+# Training pressure for the F4 text->code frontier; honest declines score 0 and
+# are named as honest, fabrication is flagged as worse. Same provider/auth as
+# llmscore ($OPENCODE_API_KEY); external + non-deterministic, NOT in `make test`.
+rulescore: build
+	@$(BENCH_PY) ./tests/rulescore.py
 
 # longtalk-bench: how long can parrot0 hold a conversation with an LLM (default a
 # kimi slug on opencode-GO) before it DROPS the thread on a blind wall? Progressive

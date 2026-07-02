@@ -243,6 +243,23 @@ Il binario dei 4 RESOLVED. Prossimi pull, in ordine di pressione:
    il sortlearn-bench con una pagina FRESCA e nessuno schema curato.
 4. **Composizione**: due funzioni sintetizzate indipendenti devono comporre
    (anti-phrasebook del piano gen148, ancora valido).
+5. **RULESCORE** (steer F., 2026-07-02) — il banco di prova della frontiera F4
+   (testo→regole→codice), sul modello di LLMSCORE e con lo stesso framework
+   opencode. Il flusso: un LLM *inventore* propone 5 mini-giochi da terminale
+   descritti SOLO come testo, e la descrizione DEVE essere regole (input
+   valido, evoluzione dello stato, condizione esatta di fine/vittoria — 3–6
+   regole numerate, né banali né grossi); parrot0 li implementa in C; l'harness
+   raccoglie evidenza meccanica (estrae il codice, compila, esegue su input
+   scriptato); un LLM *giudice* scrive un report LUNGO, `RULESCORE.md`, con per
+   ogni gioco la descrizione di DOVE ha fallito e un punteggio giustificato:
+   0 = niente implementato, 5 = ogni regola codificata e funzionante, in mezzo
+   decide e motiva il giudice. Scopo: pressione di allenamento per capire testo
+   e tradurlo in codice. Vincoli d'onestà: il declino onesto vale 0 ma è
+   nominato come onesto; la FABBRICAZIONE (codice presentato come funzionante
+   che non lo è) è flaggata dal giudice ed è peggio di un muro; i punti salgono
+   solo per CATEGORIE chiuse nel motore (loop di input, stato, terminazione,
+   condizioni di vittoria — categories-not-prompts, gen254), mai inseguendo il
+   singolo gioco che ruota. `make rulescore` (tests/rulescore.py).
 
 ### Track 3 — Agente: planning + tool + macchina
 
@@ -357,6 +374,7 @@ funziona solo su src/brain, abbiamo barato.
 | `make piagent-bench` | tool locali + multi-step | 14/14 | nuovi tool sotto gate |
 | `make game-bench` | progetto e2e in 3 prompt | ledger onesto | ogni voce del ledger chiusa |
 | `make llmscore` | comportamento da LLM (giudice esterno) | rotante | item di coding chiusi per categoria |
+| `make rulescore` | testo→regole→codice: 5 giochi inventati, giudice 0–5 giustificato (`RULESCORE.md`) | nuovo (gen264) | ogni categoria di regola che passa da 0 a codificata |
 | `make test` | l'intero ratchet ermetico | verde (215+) | resta verde SEMPRE |
 
 ---
