@@ -1,0 +1,11 @@
+#expect: pass
+#faculty: orchain-patch-sites
+# gen262: the derived plan now TRANSFORMS code. Each OR-chain becomes ONE call
+# to the target's own lookup primitive, keyed per chain site so the patched code
+# points at the vocabulary emitted in <target>.cues.p0. WHICH function to patch
+# in is knowledge (plan_param lookup_fn), never a C constant. Non-destructive:
+# the result is a .p0fix copy judged by the real compiler (cc -fsyntax-only via
+# a .c temp; symbol resolution is the run_test_suite pull). The walk still stops
+# honestly at run_test_suite, the next unbound action.
+> execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
+< patchchains replaced 2 chains with calls to lookup in testsfixturesorchainforeigncp0fix and the result still compiles

@@ -57,13 +57,18 @@ plan_given(target_source).
 % the next pull. scan_chains is gen257's detector; extract_vocabulary (gen260)
 % reads the string cues inside those chains; emit_intent_facts (gen261) writes
 % them as facts in a <target>.cues.p0 — WHICH predicate they become is itself
-% knowledge (plan_param fact_pred), never a C constant. Patching and
-% run_test_suite wait for their guarded primitives.
+% knowledge (plan_param fact_pred), never a C constant; patch_sites (gen262)
+% replaces each chain with ONE call to the target's own lookup primitive — WHICH
+% function that is, is knowledge too (plan_param lookup_fn; the fixture's is
+% `lookup`, src/brain's will be kb_cue_match when the real migration is taught).
+% run_test_suite waits for its guarded primitive.
 action_impl(scan_chains, orchain_scan).
 action_impl(extract_vocabulary, orchain_vocab).
 action_impl(emit_intent_facts, emit_facts).
+action_impl(patch_sites, patch_chains).
 plan_param(kbfirst_migration, vocab_fn, cue).
 plan_param(kbfirst_migration, fact_pred, intent_cue).
+plan_param(kbfirst_migration, lookup_fn, lookup).
 
 % --- Domain 2: the needhelp protocol (external help as plan knowledge) --------
 % F.'s public pattern: when blocked on missing knowledge, do not stop — ask the

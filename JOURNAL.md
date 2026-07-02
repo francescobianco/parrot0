@@ -1,4 +1,43 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen262: patch_chains — the derived plan transforms code
+
+**Goal (Track 5.3, next missing binding).** gen261's walk stopped at
+`patch_sites`. Bind it: each OR-chain becomes ONE call to the target's own
+vocabulary-lookup primitive, keyed per chain site, in a non-destructive copy
+judged by the real compiler.
+
+**Changed.** `code_orchain_patch()` in the code engine: same chain walk, but it
+rebuilds the source with each chain span replaced by
+`<lookup_fn>(<arg1>, "<stem>_chainLINE")` — `<arg1>` is the first argument of
+the chain's first call (the scrutinee, read from the site itself), and the key
+is EXACTLY what `code_orchain_emit_facts` wrote, so patched sites point at their
+own emitted vocabulary. Output goes to `<target>.p0fix` (gen200 convention,
+original untouched); the patched text is then syntax-checked through a `.c`
+temp, because cc silently ignores foreign suffixes (exit 0 without compiling —
+a false pass we caught while building this). WHICH function gets patched in is
+knowledge: `plan_param(kbfirst_migration, lookup_fn, lookup)`; the fixture
+gained its own `lookup` primitive (declared early, defined at end so chain line
+numbers stay stable); src/brain's will be `kb_cue_match` when the real
+migration is taught. Without the param fact the step declines and asks.
+
+**Honest verdict layering.** "still compiles" is the object-level truth
+(gcc -w accepts an implicit declaration and produces an object; the LINK would
+fail on a missing lookup — verified by hand). Symbol resolution and behavior
+preservation belong to `run_test_suite`, the next unbound action, and the walk
+says so.
+
+**Stress (10x).** A generated 30-chain / 120-call file: all 30 chains replaced,
+120 facts emitted, the `.p0fix` compiles standalone. Negative case (target
+without a lookup primitive) walks all four steps and reports honestly.
+
+**Ratchet.** planact.chat/.it walk FOUR real steps on the foreign fixture and
+stop at `run_test_suite`; new `orchain_patch.code` gate. Next pull: bind
+`run_test_suite` (build+tests as the behavior-preserving judge), then the first
+real src/brain site migrated by taught knowledge.
+
+**Verified.** `tests/run.sh` 219/219, `make test` fully green, `make code-bench`
+24/24 gates, 0 gaps, 72/72 turns. Version `gen262-patch-chain-sites`.
+
 ## 2026-07-02 - gen261: emit_facts — the derived plan writes loadable knowledge
 
 **Goal (Track 5.3, next missing binding).** gen260's walk stopped at

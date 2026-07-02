@@ -188,6 +188,18 @@ int code_orchain_emit_facts(const char *src_path, const char *fnname,
                             const char *pred, const char *out_path,
                             int *total_chains);
 
+/* gen262 (Track 5.3): the patch step of the derived plan — replace each OR-chain
+ * of calls to `fnname` with ONE call `lookup_fn(<arg1>, "<stem>_chain<LINE>")`,
+ * where <arg1> is the first argument of the chain's first call (the scrutinee)
+ * and the key matches what code_orchain_emit_facts wrote, so patched sites point
+ * at their own emitted vocabulary. Non-destructive: the result goes to `out_path`
+ * (sandbox rules as code_replace_expr, original untouched). The patched text is
+ * then syntax-checked through a .c temp (cc ignores foreign suffixes), verdict in
+ * `*compiles`. Returns chains replaced, 0 if none (no file written), -1 on error. */
+int code_orchain_patch(const char *src_path, const char *fnname,
+                       const char *lookup_fn, const char *out_path,
+                       int *compiles, char *err_out, size_t err_sz);
+
 /* gen191: F5 edit — write `src_path` to `out_path` with the top-level definition
  * of function `fnname` (its signature through the matching closing brace) removed.
  * Comments/string literals are skipped so a brace inside them never miscounts. The

@@ -5,17 +5,19 @@
 ## Active — Track 5.3 (docs/plans/coding-agent-evolution.md): walk the derived plan to a verified patch
 
 The KB plan domain (gen258) derives the kbfirst_migration steps; the walk
-(gen259–261) realizes three of them through KB `action_impl/2` bindings —
+(gen259–262) realizes four of them through KB `action_impl/2` bindings —
 `orchain_scan` (perception), `orchain_vocab` (vocabulary), `emit_facts`
-(loadable `<target>.cues.p0`, one key per chain site) — and stops honestly at
-`patch_sites`. Next pulls, one generation each:
-1. **Bind `patch_sites`**: replace each OR-chain with a KB-lookup call in a
-   patched copy (`.p0fix` convention; guarded, original untouched). The foreign
-   fixture must compile after the patch.
-2. **Bind `run_test_suite`**: the behavior-preserving judge (build + tests) as a
-   plan step; byte-identical output is the oracle.
-3. First REAL site in src/brain migrated by the derived plan (outer circle: no
-   privileged access, the same knowledge must work on the foreign fixture).
+(loadable `<target>.cues.p0`, one key per chain site), `patch_chains` (each
+chain → one keyed call to the target's lookup primitive, `.p0fix` copy judged
+by the real compiler) — and stops honestly at `run_test_suite`. Next pulls,
+one generation each:
+1. **Bind `run_test_suite`**: the behavior-preserving judge (build + tests /
+   link + run) as a plan step; for the foreign fixture this is where the
+   patched copy must LINK and behave like the original (the fixture's `lookup`
+   must actually read the emitted cues).
+2. First REAL site in src/brain migrated by the derived plan (outer circle: no
+   privileged access, the same knowledge must work on the foreign fixture;
+   `lookup_fn` taught as `kb_cue_match`, `make test` byte-identical).
 
 Discipline: the plan stays INFERRED from kb/experts/codebase/actions.p0 (never a
 C pipeline); missing knowledge → honest decline naming the gap; EN+IT ratchet;

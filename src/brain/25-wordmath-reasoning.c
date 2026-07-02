@@ -401,6 +401,46 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         return 1;
     }
 
+    if (strcmp(impl, "patch_chains") == 0) {
+        char lfn[64] = "";
+        if (!plan_param_value(b, goal, "lookup_fn", lfn, sizeof lfn)) {
+            snprintf(obs, obs_sz,
+                     "patch_chains has no lookup_fn knowledge for this goal — teach "
+                     "me a plan_param fact naming the lookup call to patch in");
+            return 0;
+        }
+        struct stat pst;
+        if (stat(target, &pst) == 0 && S_ISDIR(pst.st_mode)) {
+            snprintf(obs, obs_sz,
+                     "patch_chains needs a single source file target, not a directory");
+            return 0;
+        }
+        char outp[320];
+        snprintf(outp, sizeof outp, "%s.p0fix", target);
+        int comp = 0;
+        char cerr[256];
+        int n = code_orchain_patch(target, fn, lfn, outp, &comp, cerr, sizeof cerr);
+        if (n < 0) {
+            snprintf(obs, obs_sz, "patch_chains could not write %s", outp);
+            return 0;
+        }
+        if (n == 0) {
+            snprintf(obs, obs_sz,
+                     "patch_chains found no OR-chains of calls to `%s` in %s", fn, target);
+            return 0;
+        }
+        if (!comp) {
+            snprintf(obs, obs_sz,
+                     "patch_chains replaced %d chains with calls to `%s` in %s but "
+                     "the result no longer compiles", n, lfn, outp);
+            return 0;
+        }
+        snprintf(obs, obs_sz,
+                 "patch_chains replaced %d chains with calls to `%s` in %s and the "
+                 "result still compiles", n, lfn, outp);
+        return 1;
+    }
+
     if (strcmp(impl, "orchain_scan") != 0) {
         snprintf(obs, obs_sz, "primitive %s is not implemented by this binary", impl);
         return 0;

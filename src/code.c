@@ -1961,6 +1961,138 @@ int code_orchain_emit_facts(const char *src_path, const char *fnname,
     return nfacts;
 }
 
+int code_orchain_patch(const char *src_path, const char *fnname,
+                       const char *lookup_fn, const char *out_path,
+                       int *compiles, char *err_out, size_t err_sz) {
+    if (compiles) *compiles = 0;
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!src_path || !fnname || !*fnname || !out_path || !*out_path) return -1;
+    if (!orchain_ident_ok(lookup_fn)) return -1;  /* lands verbatim in C source */
+    if (out_path[0] == '/' || out_path[0] == '~' || strstr(out_path, "..")) return -1;
+    static char orig[262144];
+    static char buf[262144];
+    static char out[393216];
+    if (!code_read_file(src_path, orig, sizeof orig)) return -1;
+    snprintf(buf, sizeof buf, "%s", orig);
+    code_strip(buf);                         /* same structure view as gen257 */
+
+    /* key stem: MUST match code_orchain_emit_facts so the patched sites point at
+     * the keys the emitted facts actually use */
+    const char *base = strrchr(src_path, '/');
+    base = base ? base + 1 : src_path;
+    char stem[64];
+    size_t si = 0;
+    for (const char *c = base; *c && *c != '.' && si + 1 < sizeof stem; c++)
+        stem[si++] = (char)(isalnum((unsigned char)*c) ? tolower((unsigned char)*c) : '_');
+    stem[si] = '\0';
+    if (!si) return -1;
+
+    size_t cs[64], ce[64];
+    int cline[64];
+    char carg[64][128];
+    int nchains = 0;
+
+    size_t fl = strlen(fnname);
+    int line = 1;
+    const char *p = buf;
+    while (*p) {
+        if (*p == '\n') { line++; p++; continue; }
+        if (!((isalpha((unsigned char)*p) || *p == '_') && at_fn_call(buf, p, fnname, fl))) {
+            p++; continue;
+        }
+        int chain_line = line;
+        size_t chain_start = (size_t)(p - buf), chain_end = chain_start;
+        int run = 0;
+        for (;;) {
+            p += fl;
+            while (*p == ' ' || *p == '\t') p++;
+            int depth = 0;
+            for (; *p; p++) {
+                if (*p == '\n') line++;
+                else if (*p == '(') depth++;
+                else if (*p == ')') { depth--; if (depth == 0) { p++; break; } }
+            }
+            chain_end = (size_t)(p - buf);
+            run++;
+            const char *q = p; int ln = line;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!(q[0] == '|' && q[1] == '|')) break;
+            q += 2;
+            while (*q == ' ' || *q == '\t' || *q == '\n') { if (*q == '\n') ln++; q++; }
+            if (!at_fn_call(buf, q, fnname, fl)) break;
+            p = q; line = ln;
+        }
+        if (run >= 2 && nchains < (int)(sizeof cs / sizeof cs[0])) {
+            /* first argument of the FIRST call, read from the original text: the
+             * scrutinee every call in the chain tests (e.g. `s`, `norm`) */
+            char arg[128] = "";
+            const char *a = orig + chain_start + fl;
+            while (*a == ' ' || *a == '\t') a++;
+            if (*a == '(') {
+                a++;
+                while (*a && isspace((unsigned char)*a)) a++;
+                int d = 1;
+                size_t o = 0;
+                while (*a && !(d == 1 && (*a == ',' || *a == ')'))) {
+                    if (*a == '(') d++;
+                    else if (*a == ')') d--;
+                    if (o + 1 < sizeof arg) arg[o++] = *a;
+                    a++;
+                }
+                while (o > 0 && isspace((unsigned char)arg[o - 1])) o--;
+                arg[o] = '\0';
+            }
+            cs[nchains] = chain_start;
+            ce[nchains] = chain_end;
+            cline[nchains] = chain_line;
+            snprintf(carg[nchains], sizeof carg[nchains], "%s", arg);
+            nchains++;
+        }
+    }
+    if (nchains == 0) return 0;
+
+    size_t oi = 0, prev = 0;
+    for (int i = 0; i < nchains; i++) {
+        size_t seg = cs[i] - prev;
+        if (oi + seg >= sizeof out) return -1;
+        memcpy(out + oi, orig + prev, seg);
+        oi += seg;
+        int m;
+        if (carg[i][0])
+            m = snprintf(out + oi, sizeof out - oi, "%s(%s, \"%s_chain%d\")",
+                         lookup_fn, carg[i], stem, cline[i]);
+        else
+            m = snprintf(out + oi, sizeof out - oi, "%s(\"%s_chain%d\")",
+                         lookup_fn, stem, cline[i]);
+        if (m < 0 || (size_t)m >= sizeof out - oi) return -1;
+        oi += (size_t)m;
+        prev = ce[i];
+    }
+    size_t tail = strlen(orig + prev);
+    if (oi + tail >= sizeof out) return -1;
+    memcpy(out + oi, orig + prev, tail);
+    oi += tail;
+
+    FILE *f = fopen(out_path, "w");
+    if (!f) return -1;
+    if (fwrite(out, 1, oi, f) != oi) { fclose(f); remove(out_path); return -1; }
+    fclose(f);
+
+    /* mechanical verdict: the patched copy must still be valid C. cc silently
+     * ignores unknown suffixes like .p0fix (exit 0 without compiling — a false
+     * pass), so the check runs on a .c-suffixed temp copy, removed after. */
+    const char *tmp = ".p0_patch_tmp.c";
+    FILE *t = fopen(tmp, "w");
+    if (t) {
+        size_t w = fwrite(out, 1, oi, t);
+        fclose(t);
+        if (w == oi && compiles)
+            *compiles = code_compile(tmp, err_out, err_sz) == 1;
+        remove(tmp);
+    }
+    return nchains;
+}
+
 static void orchain_tree_rec(const char *dir, const char *fnname, int depth,
                              int *files_hit, int *chains, int *calls,
                              char *top_file, size_t top_sz, int *top_chains) {
