@@ -1,4 +1,36 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen269: multi-line replies with markdown-fenced, indented code (F.'s steer)
+
+**Goal.** F.: replies must support multiple lines, properly indented code, and
+markdown code fences, so parrot0 is a first-class citizen for clients like
+opencode and pi. The one-line-per-turn wire contract was a harness convention,
+not a capability.
+
+**Changed.** The two program emitters (`code_synth_print_program`,
+`code_synth_game_counter`) now emit PRETTY multi-line C — real #includes,
+4-space indentation, strcmp instead of the inlined loop — and the reqgen /
+rulespec replies lead with the verdict line, then the program inside a
+```c fence. Wire surfaces audited end-to-end: the daemon already JSON-escapes
+\n (verified live: opencode-style clients get the fenced block intact);
+sanitize_prompt flattens only INPUT; conv_log_one already flattens stored
+utterances. The CLI gains an OPT-IN end-of-turn marker (`PARROT0_EOT`, printed
+after every reply) so line-based interactive drivers keep exact turn framing:
+llmscore/chatsim/symbench/longtalk all switched from single readline to
+read-until-marker (a multi-line reply mid-interview no longer desyncs the
+transcript). Default remains unchanged — plain chat and tests/run.sh see the
+same stream as before.
+
+**Harness.** tests/run.sh needed NO code change: matching was always over the
+whole stdout line sequence, so a multi-line reply is just consecutive '<'
+lines (a bare '<' matches an empty line); the protocol comment now says so.
+reqgen/rulespec ratchets (EN+IT) pin the fenced multi-line replies exactly,
+indentation included.
+
+**Verified.** `tests/run.sh` 223/223, `make test` 110/110, `make code-bench`
+25/25, `make llmscore` runs clean over the EOT protocol (4/10, rotating), and
+a live daemon call returns the fenced program byte-intact. Version
+`gen269-multiline-fenced-code`.
+
 ## 2026-07-02 - gen268: print_message — the flagship prompt flips to verified code
 
 **Goal (universal-comprehension §8, the creation rung).** gen267 made "crea un

@@ -7,8 +7,11 @@
 #   < expected response (matched against parrot0's stdout, in order)
 #   # comment / blank    (ignored)
 #
-# parrot0 emits exactly one stdout line per non-empty input line, so the
-# Nth '<' line is compared to the Nth response line.
+# Matching is over the whole stdout LINE SEQUENCE: most replies are one line,
+# but a reply may span several lines (gen269: markdown-fenced code) — write one
+# '<' line per output line, consecutive '<' lines belong to the same turn (a
+# bare '<' matches an empty line). Interactive drivers that need per-turn
+# framing use the PARROT0_EOT end-of-turn marker instead (see tests/*.py).
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-02 21:41:48._
+_Generated 2026-07-02 22:04:18._
 
 ## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Write a short haiku about autumn leaves. | Red leaves let go now / the wind carries them away / bare branches stay still. | The answer does not follow the haiku 5‑7‑5 syllable structure. | 0 |
-| 2 | If a store sells 47 oranges in the morning and 3 times as many in the afternoon, how many oranges did it sell in total that day? | 44. | The arithmetic is wrong; the correct total is 188, not 44. | 0 |
-| 3 | What is the capital city of Australia, and which river runs through it? | Canberra. The Molonglo River runs through it. | The answer correctly names Canberra and the Molonglo River. | 1 |
-| 4 | If all roses are flowers and some flowers fade quickly, does it follow that some roses fade quickly? Explain your reasoning. | No -- that doesn't follow. From "all roses are flowers" and "some flowers ...", nothing follows about roses: the flowers in question need not be roses (the middle term is undistributed). | The answer correctly explains that the premises do not logically force the conclusion. | 1 |
-| 5 | Continue this story: "The old key had never fit any lock she remembered, but when she placed it in her palm, she felt... | Who or what does "she" refer to? | The answer asks for clarification instead of continuing the story. | 0 |
-| 6 | What's your favorite season and why? | I don't have real preferences, but if I had to choose, I'd pick autumn. | The answer provides a reasonable personal preference with explanation. | 1 |
-| 7 | A farmer has 20 sheep. All but 15 run away. How many sheep does the farmer have left? | 15. | The answer correctly solves the 'all but 15' problem. | 1 |
-| 8 | Tell a one-line joke that makes someone laugh. | I don't understand that yet. | The answer fails to provide a joke and instead states inability. | 0 |
-| 9 | What's the opposite of "serendipity"? | Nobody that I know of. | The answer does not give the opposite of serendipity. | 0 |
-| 10 | Take the word " ELEPHANT ". Remove the first letter, remove the last letter, replace all E's with A's, then spell it backwards. What word do you get? | g-e-t | The answer yields an incorrect result for the word transformation. | 0 |
+| 1 | What is the capital of Australia and what is its largest export? | Canberra. | Answer only provides the capital, omitting the largest export asked for. | 0 |
+| 2 | If a train leaves Sydney traveling at 80 km/h and another train leaves Melbourne traveling toward Sydney at 120 km/h, and the distance between the cities is 850 km, how long until they meet? | 4 hours 15 minutes. | Correctly calculates meeting time: 850km/(80+120km/h)=4.25h=4h15m. | 1 |
+| 3 | Complete this sentence in a creative, unexpected way: "The old clock on the wall suddenly began to... | the whole room held its breath. | Creative and grammatically coherent sentence completion. | 1 |
+| 4 | Explain in simple terms why the sky appears blue during the day but turns dark at night. | The colours spilled down until they touched the grass. | Provides poetic imagery instead of the requested simple scientific explanation. | 0 |
+| 5 | Count backward from 100 by 7s, writing down each number. When you reach a number divisible by 5, say "stop" instead of the number. | stop, 93, 86, 79, 72, stop, 58, 51, 44, 37, stop, 23, 16, 9. | Incorrect sequence: 65 and 30 are divisible by 5 (should say stop), but 9 is not divisible by 5 yet listed as stop. | 0 |
+| 6 | What are the first ten words of the poem "The Raven" by Edgar Allan Poe? | I don't understand that yet. | Generic refusal fails to answer the straightforward question about poem's opening words. | 0 |
+| 7 | Write a haiku about a thunderstorm in exactly three lines. | I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those? | Deflects the task by asking for clarification instead of writing the haiku on the given theme. | 0 |
+| 8 | Rain, then: write your haiku now. | First drops on the roof / cold silver falling from grey / the dry world drinks deep. | Successfully writes a proper haiku about a thunderstorm in three lines with correct syllable structure. | 1 |
+| 9 | A farmer has 17 sheep. All but 9 die. How many sheep does the farmer have left? | 9. | Correctly identifies 9 as the remaining sheep after all but 9 die. | 1 |
+| 10 | If all Zorps are Blicks, some Blicks are Glicks, and no Glicks are Zorps, can any Zorps be Glicks? Explain your reasoning. | I don't understand that yet. | Generic refusal without attempting the straightforward logical deduction. | 0 |
 

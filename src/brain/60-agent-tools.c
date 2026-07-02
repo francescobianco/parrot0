@@ -1436,10 +1436,12 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
                 char src[512], err[256];
                 if (code_synth_print_program(msg, src, sizeof src) &&
                     code_check_print_program(src, msg, err, sizeof err) == 1) {
+                    /* gen269: multi-line reply, code in a markdown fence, so
+                     * clients (opencode, pi) render it as real code. */
                     snprintf(out, out_size,
-                             "%s  /* print_message schema; verified by "
-                             "execution: it prints \"%s\" and exits 0 (run via "
-                             "the code_run oracle) */", src, msg);
+                             "Verified by execution: it prints \"%s\" and "
+                             "exits 0 (print_message schema, run via the "
+                             "code_run oracle).\n\n```c\n%s\n```", msg, src);
                     store_proof(b, out);
                     return 1;
                 }

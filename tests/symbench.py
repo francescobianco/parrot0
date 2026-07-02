@@ -180,15 +180,35 @@ def feed_parrot0(text: str) -> str:
     return text.replace("\n", " / ")
 
 
+P0_EOT = "\x1e"
+
+
+def read_reply(proc):
+    """gen269: replies may span several lines (markdown-fenced code). The CLI
+    prints an explicit end-of-turn marker line when PARROT0_EOT is set; read
+    until it so a multi-line reply stays one turn."""
+    lines = []
+    while True:
+        ln = proc.stdout.readline()
+        if not ln:
+            break
+        ln = ln.rstrip("\n")
+        if ln == P0_EOT:
+            break
+        lines.append(ln)
+    return "\n".join(lines)
+
+
 def ask_parrot0(cases: list) -> list:
     proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
-        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": ""})
+        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": "",
+             "PARROT0_EOT": P0_EOT})
     out = []
     try:
         for c in cases:
             proc.stdin.write(feed_parrot0(c["input"]) + "\n"); proc.stdin.flush()
-            out.append((proc.stdout.readline() or "").rstrip("\n"))
+            out.append(read_reply(proc))
     finally:
         try: proc.stdin.write("/quit\n"); proc.stdin.flush()
         except Exception: pass

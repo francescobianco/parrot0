@@ -511,7 +511,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen268-print-message-schema";
+    return "gen269-multiline-fenced-code";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

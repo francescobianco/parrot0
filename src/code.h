@@ -264,9 +264,9 @@ int code_run_capture(const char *src_path, const char *stdin_data,
  * GAME schema — read whitespace tokens from stdin; each time the designated
  * `token` is typed a counter increments; when it reaches `threshold` print
  * `winword` and stop. The three parameters come from the RULES TEXT; the body
- * lives nowhere as a finished game (one schema, open parameter space). Emitted
- * on a single line (declarations, no #include) so it travels inside a chat
- * reply. Returns 1, or 0 on invalid parameters. */
+ * lives nowhere as a finished game (one schema, open parameter space). gen269:
+ * emitted as pretty multi-line C (markdown-fenced in replies). Returns 1, or 0
+ * on invalid parameters. */
 int code_synth_game_counter(const char *token, int threshold, const char *winword,
                             char *out, size_t out_sz);
 
@@ -279,9 +279,10 @@ int code_check_counter_game(const char *src, const char *token, int threshold,
                             const char *winword, char *err_out, size_t err_sz);
 
 /* gen268 (universal-comprehension §8): the print_message PROGRAM schema — a
- * whole terminal program that prints `message` and exits 0. Single line, no
- * #include (printf declared), message restricted to a safe literal alphabet
- * (no quote/backslash escaping games). Returns 1, 0 on invalid message. */
+ * whole terminal program that prints `message` and exits 0. gen269: emitted as
+ * pretty multi-line C (replies carry it inside a markdown fence). Message
+ * restricted to a safe literal alphabet (no quote/backslash escaping games).
+ * Returns 1, 0 on invalid message. */
 int code_synth_print_program(const char *message, char *out, size_t out_sz);
 
 /* gen268: the judge — compile and RUN the candidate; stdout must be exactly

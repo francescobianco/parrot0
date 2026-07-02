@@ -207,17 +207,18 @@ static int mod_rulespec(Brain *b, const char *norm, const char *raw,
                 }
             }
             if (token[0] && winword[0] && thr > 0) {
-                char src[512], err[256];
+                char src[768], err[256];
                 if (code_synth_game_counter(token, (int)thr, winword,
                                             src, sizeof src) &&
                     code_check_counter_game(src, token, (int)thr, winword,
                                             err, sizeof err) == 1) {
+                    /* gen269: multi-line reply, code in a markdown fence. */
                     snprintf(out, out_size,
-                             "%s  /* count_to_threshold schema; verified by "
-                             "execution: %ld \"%s\" inputs print %s and %ld do "
-                             "not (two scripted plays via the counter-game "
-                             "oracle) */",
-                             src, thr, token, winword, thr - 1);
+                             "Verified by execution: %ld \"%s\" inputs print "
+                             "%s and %ld do not (count_to_threshold schema, "
+                             "two scripted plays via the counter-game "
+                             "oracle).\n\n```c\n%s\n```",
+                             thr, token, winword, thr - 1, src);
                     store_proof(b, out);
                     return 1;
                 }

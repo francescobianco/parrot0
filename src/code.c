@@ -2545,15 +2545,23 @@ int code_synth_game_counter(const char *token, int threshold, const char *winwor
     if (threshold < 1 || threshold > 99) return 0;
     if (!orchain_ident_ok(token) || !orchain_ident_ok(winword)) return 0;
     if (strlen(token) > 32 || strlen(winword) > 32) return 0;
-    /* One line, no #include (printf/scanf declared) so the program travels
-     * inside a single-line chat reply; the extractors that look for `int main`
-     * still get a compilable body. */
+    /* gen269: emitted as PRETTY multi-line C (markdown-fenced in replies). */
     int n = snprintf(out, out_sz,
-        "int printf(const char*,...); int scanf(const char*,...); "
-        "int main(void){char t[64];const char*w=\"%s\";int s=0;"
-        "while(s<%d&&scanf(\"%%63s\",t)==1){int i=0;"
-        "while(t[i]&&t[i]==w[i]){i++;}if(!t[i]&&!w[i])s++;}"
-        "if(s>=%d)printf(\"%s\\n\");return 0;}",
+        "#include <stdio.h>\n"
+        "#include <string.h>\n"
+        "\n"
+        "int main(void) {\n"
+        "    char t[64];\n"
+        "    const char *w = \"%s\";\n"
+        "    int s = 0;\n"
+        "    while (s < %d && scanf(\"%%63s\", t) == 1) {\n"
+        "        if (strcmp(t, w) == 0)\n"
+        "            s++;\n"
+        "    }\n"
+        "    if (s >= %d)\n"
+        "        printf(\"%s\\n\");\n"
+        "    return 0;\n"
+        "}",
         token, threshold, threshold, winword);
     return (n > 0 && (size_t)n < out_sz) ? 1 : 0;
 }
@@ -2607,9 +2615,15 @@ static int print_msg_ok(const char *m) {
 int code_synth_print_program(const char *message, char *out, size_t out_sz) {
     if (out && out_sz) out[0] = '\0';
     if (!out || out_sz == 0 || !print_msg_ok(message)) return 0;
+    /* gen269: emitted as PRETTY multi-line C — replies carry it in a markdown
+     * fence, so clients (opencode, pi) render real indented code. */
     int n = snprintf(out, out_sz,
-        "int printf(const char*,...); "
-        "int main(void){printf(\"%s\\n\");return 0;}", message);
+        "#include <stdio.h>\n"
+        "\n"
+        "int main(void) {\n"
+        "    printf(\"%s\\n\");\n"
+        "    return 0;\n"
+        "}", message);
     return (n > 0 && (size_t)n < out_sz) ? 1 : 0;
 }
 

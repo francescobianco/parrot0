@@ -35,6 +35,25 @@ import argparse, json, os, re, subprocess, sys, time, urllib.request, urllib.err
 
 BASE = "https://opencode.ai/zen/go/v1/chat/completions"
 N_QUESTIONS = 10
+P0_EOT = "\x1e"
+
+
+def read_reply(proc):
+    """gen269: replies may span several lines (markdown-fenced code). The CLI
+    prints an explicit end-of-turn marker line when PARROT0_EOT is set; read
+    until it so multi-line replies stay one turn."""
+    lines = []
+    while True:
+        ln = proc.stdout.readline()
+        if not ln:
+            break
+        ln = ln.rstrip("\n")
+        if ln == P0_EOT:
+            break
+        lines.append(ln)
+    return "\n".join(lines)
+
+
 
 INTERVIEW_SYS = (
     "You are testing whether an unknown chat subject BEHAVES like a large language "
@@ -103,13 +122,14 @@ def one_line(s):
 def ask_parrot0(proc, question):
     proc.stdin.write(question + "\n")
     proc.stdin.flush()
-    return (proc.stdout.readline() or "").rstrip("\n")
+    return read_reply(proc)
 
 
 def interview(key, model, log):
     proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
-        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": ""})
+        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": "",
+             "PARROT0_EOT": P0_EOT})
     pairs, history = [], []
     try:
         for i in range(N_QUESTIONS):

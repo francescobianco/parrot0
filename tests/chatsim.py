@@ -79,13 +79,33 @@ def call_model(key: str, model: str, messages: list, temperature: float) -> str:
             return ln[:200]
     return "[empty]"
 
+P0_EOT = "\x1e"
+
+
+def read_reply(proc):
+    """gen269: replies may span several lines (markdown-fenced code). The CLI
+    prints an explicit end-of-turn marker line when PARROT0_EOT is set; read
+    until it so a multi-line reply stays one turn."""
+    lines = []
+    while True:
+        ln = proc.stdout.readline()
+        if not ln:
+            break
+        ln = ln.rstrip("\n")
+        if ln == P0_EOT:
+            break
+        lines.append(ln)
+    return "\n".join(lines)
+
+
 def run_conversation(key, model, turns, log) -> list:
     sysmsg = persona()
     temp = round(random.uniform(0.9, 1.3), 2)
     log(f"# persona (temp={temp}): {sysmsg}")
     proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
-        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": ""})
+        env={**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": "",
+             "PARROT0_EOT": P0_EOT})
     history, rows = [], []
     try:
         for t in range(turns):
@@ -102,7 +122,7 @@ def run_conversation(key, model, turns, log) -> list:
             if human.startswith("[model error") or human == "[empty]":
                 log(f"  (stopping: {human})"); break
             proc.stdin.write(human + "\n"); proc.stdin.flush()
-            bot = (proc.stdout.readline() or "").rstrip("\n")
+            bot = read_reply(proc)
             log(f"  human> {human}")
             log(f"  parrot0> {bot}")
             history.append((human, bot)); rows.append(bot)

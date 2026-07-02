@@ -245,6 +245,14 @@ int main(int argc, char **argv) {
 
         brain_respond(brain, line, resp, sizeof resp);
         printf("%s\n", resp);
+        /* gen269: replies may span several lines (markdown-fenced code). Line-
+         * based drivers that pair one stdout line per turn can opt into an
+         * explicit end-of-turn marker line via PARROT0_EOT and read until it.
+         * Default off: the plain chat surface and tests/run.sh stay unchanged. */
+        {
+            const char *eot = getenv("PARROT0_EOT");
+            if (eot && *eot) printf("%s\n", eot);
+        }
         fflush(stdout);
     }
 
