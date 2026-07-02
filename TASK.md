@@ -2,22 +2,40 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active — Track 5.3 (docs/plans/coding-agent-evolution.md): walk the derived plan to a verified patch
+## Active — two live threads (docs/plans/coding-agent-evolution.md); pick ONE per generation
 
-The KB plan domain (gen258) derives the kbfirst_migration steps; the walk
-(gen259–263) realizes ALL FIVE through KB `action_impl/2` bindings —
-`orchain_scan` (perception), `orchain_vocab` (vocabulary), `emit_facts`
-(loadable `<target>.cues.p0`, one key per chain site), `patch_chains` (each
-chain → one keyed call to the target's lookup primitive, `.p0fix` copy the
-real compiler accepts), `verify_behavior` (differential judge: original vs
-patched on a per-vocabulary-word probe harness, stdout byte-identical; a broken
-lookup yields DIVERGES). The foreign fixture crosses the whole arc. Next pulls,
-one generation each:
-1. First REAL site in src/brain migrated by the derived plan (outer circle: no
-   privileged access; `lookup_fn` taught as `kb_cue_match`, judged by
-   `make test` byte-identical — the cue-chain counter starts descending).
-2. Runtime-growth demo: teach a new word as an intent_cue fact and a previously
-   deaf branch hooks, with no rebuild (Track 5.5).
+**Thread A — Track 5.4: the derived plan meets the REAL codebase.**
+Done through gen263: the KB plan domain (gen258) derives the kbfirst_migration
+steps and the walk realizes ALL FIVE via `action_impl/2` bindings —
+`orchain_scan`, `orchain_vocab`, `emit_facts` (`<target>.cues.p0`, one key per
+chain site), `patch_chains` (chain → keyed lookup call, `.p0fix`, compiler
+judge), `verify_behavior` (differential probe harness, byte-identical stdout;
+broken lookup ⇒ DIVERGES). The foreign fixture crosses the whole arc. Next:
+1. First REAL site in src/brain migrated by the derived plan (outer circle, no
+   privileged access; `lookup_fn` taught as `kb_cue_match`; judge = `make test`
+   byte-identical — the ~341 cue-chain counter starts descending).
+2. Runtime-growth demo: teach a new intent_cue word, a previously deaf branch
+   hooks with no rebuild (Track 5.5).
+
+**Thread B — RULESCORE (`make rulescore`, F.'s gauge): text→rules→code.**
+Done: gen264 harness + honest 0/25 baseline; gen265 category recognition (5/5
+honest derived declines, 0 misclaims; `mod_rulespec`, cue classes in
+kb/core/intents.p0); gen266 FIRST synthesized category `count_to_threshold`
+(game_shape KB fact → parameter extraction from the rule segments →
+`code_synth_game_counter` → `code_check_counter_game` two-scripted-plays
+oracle; EN+IT; mis-extraction guard because fabrication is worse than decline).
+Next pulls, in leverage order:
+1. Widen count_to_threshold's expressible border (e.g. "guesses the word X",
+   quoted tokens, "score of N" phrasings) — same schema, richer extraction.
+2. Second game schema pulled from a real invented game that ALMOST fits
+   (candidates from past runs: countdown resource — "start with N, each turn
+   subtract input, lose below zero").
+3. Multi-rule composition: input alphabet validation + threshold in one program
+   (two schema fragments composing — the anti-phrasebook test).
+
+Discipline unchanged: one goal per generation, pull from a red gauge, KB-first
+(schemas and vocabulary are facts), honest decline where the category ends,
+`make test` green always.
 
 Discipline: the plan stays INFERRED from kb/experts/codebase/actions.p0 (never a
 C pipeline); missing knowledge → honest decline naming the gap; EN+IT ratchet;

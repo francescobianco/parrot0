@@ -374,7 +374,7 @@ funziona solo su src/brain, abbiamo barato.
 | `make piagent-bench` | tool locali + multi-step | 14/14 | nuovi tool sotto gate |
 | `make game-bench` | progetto e2e in 3 prompt | ledger onesto | ogni voce del ledger chiusa |
 | `make llmscore` | comportamento da LLM (giudice esterno) | rotante | item di coding chiusi per categoria |
-| `make rulescore` | testo→regole→codice: 5 giochi inventati, giudice 0–5 giustificato (`RULESCORE.md`) | nuovo (gen264) | ogni categoria di regola che passa da 0 a codificata |
+| `make rulescore` | testo→regole→codice: 5 giochi inventati, giudice 0–5 giustificato (`RULESCORE.md`) | gen264 0/25 con misclaim → gen265 5/5 declini onesti → gen266 prima categoria sintetizzata (count_to_threshold) | ogni categoria di regola che passa da 0 a codificata |
 | `make test` | l'intero ratchet ermetico | verde (215+) | resta verde SEMPRE |
 
 ---
