@@ -1,5 +1,11 @@
 # parrot0 → coding agent: piano di evoluzione
 
+> **NOTA (gen256):** questo documento resta l'inventario delle parti (gap G1–G13,
+> fasi A–E, metriche), fotografato a gen148. Il **piano operativo vivo** — che
+> ordina i binari, fotografa le capacità misurate (4 istanze SWE-bench REALI
+> risolte, learn→build, tool locali) e i vantaggi sui coding agent LLM — è
+> `docs/plans/coding-agent-evolution.md`.
+>
 > **Subordinato a `docs/CODE-MASTERY.md`** (lo strato teorico). Questo file è un
 > *inventario delle parti* (capacità → coding, schemi di fatti, metriche, rischi),
 > utile e concreto, ma **l'ordine delle fasi NON è vincolante**: la teoria dice di

@@ -6,7 +6,9 @@
 > answers *why* it can cohere with parrot0's existing language power, *which hidden
 > process* we are actually chasing, and *how* to re-express it in C.
 >
-> This is the **why**. The phased *what to build* lives in
+> This is the **why**. The living operational plan (tracks, measured abilities,
+> next pulls) is `docs/plans/coding-agent-evolution.md` (gen256). The phased
+> *what to build* lives in
 > `docs/plans/coding-agent.md` (infrastructure: filesystem, exec, parser, codegen,
 > phases A–E) — a useful *part inventory* that is **subordinate to this theory**:
 > read it as the parts, read this first for the direction that should *order*
