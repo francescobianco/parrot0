@@ -356,3 +356,32 @@ intent_cue(rule_reach, "arriva a").
 intent_cue(rule_print, "prints").
 intent_cue(rule_print, "print").
 intent_cue(rule_print, "stampa").
+
+% --- gen267 (universal-comprehension §2/§4.2, first slice): the request/
+% generate FORM. The schema "[V-imp] [NP] (in <lang>)" is structural C in
+% mod_reqgen (a LATE module: it only catches turns every other module already
+% declined); the imperative-verb class and the language names live here. The
+% payoff is the doc's informed decline: the blind wall becomes "I understood
+% the request — produce X — but ..." with the gap named. Matched as WHOLE
+% tokens, not substrings.
+intent_cue(make_verb, "create").
+intent_cue(make_verb, "crea").
+intent_cue(make_verb, "make").
+intent_cue(make_verb, "fai").
+intent_cue(make_verb, "write").
+intent_cue(make_verb, "scrivi").
+intent_cue(make_verb, "build").
+intent_cue(make_verb, "costruisci").
+intent_cue(make_verb, "generate").
+intent_cue(make_verb, "genera").
+intent_cue(make_verb, "implement").
+intent_cue(make_verb, "implementa").
+intent_cue(make_verb, "produce").
+intent_cue(make_verb, "produci").
+intent_cue(lang_name, "c").
+intent_cue(lang_name, "python").
+intent_cue(lang_name, "javascript").
+intent_cue(lang_name, "bash").
+intent_cue(lang_name, "java").
+intent_cue(lang_name, "rust").
+intent_cue(lang_name, "go").

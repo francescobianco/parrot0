@@ -1314,3 +1314,78 @@ static int induce_rule(const long *in, const long *out, size_t npair,
     return 1;
 }
 
+
+/* --- module: reqgen (gen267, universal-comprehension §2/§4.2 first slice) ---
+ * The request/generate FORM read structurally: an imperative make-verb in one
+ * of the first positions plus a non-empty object noun-phrase, optionally
+ * closed by a language constraint "in <lang>". The verb class and the
+ * language names are intent_cue KB facts (whole-token match, teachable at
+ * runtime); only the FORM is C. Registered LATE — right before mod_learn —
+ * so it can never steal a turn from a competent module: it catches exactly
+ * the turns that used to fall through to the blind wall, and turns them into
+ * the doc's INFORMED decline: proof the request was understood (the parsed
+ * object quoted back, the language named) plus the honest gap ("no verified
+ * schema"), never a fabricated attempt. */
+static int reqgen_in_class(Brain *b, const char *intent, const char *w) {
+    if (!b || !b->kb || !w || !*w) return 0;
+    char cues[64][KB_TERM_LEN];
+    const char *q[2] = { intent, NULL };
+    size_t n = kb_match(b->kb, "intent_cue", q, 2, cues, 64);
+    for (size_t i = 0; i < n; i++) {
+        char *p = cues[i];
+        size_t l = strlen(p);
+        if (l >= 2 && p[0] == '"' && p[l-1] == '"') { p[l-1] = '\0'; p++; }
+        if (*p && strcmp(p, w) == 0) return 1;
+    }
+    return 0;
+}
+
+static int mod_reqgen(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !b->kb || !raw) return 0;
+    /* Read the plainly-normalized RAW (like mod_plan): canonicalize_lang
+     * rewrites Italian function words, which would garble the quoted object. */
+    char praw[512];
+    normalize(raw, praw, sizeof praw);
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", praw);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw < 2) return 0;
+
+    size_t vi = (size_t)-1;                 /* the make-verb, imperative slot */
+    for (size_t i = 0; i < nw && i < 3; i++)
+        if (reqgen_in_class(b, "make_verb", strip_edge_punct(w[i]))) { vi = i; break; }
+    if (vi == (size_t)-1 || vi + 1 >= nw) return 0;
+
+    char lang[16] = "";                     /* trailing "in <lang_name>" */
+    size_t end = nw;
+    char *lastw = strip_edge_punct(w[nw-1]);
+    if (nw >= vi + 3 && !strcmp(strip_edge_punct(w[nw-2]), "in") &&
+        reqgen_in_class(b, "lang_name", lastw)) {
+        snprintf(lang, sizeof lang, "%s", lastw);
+        end = nw - 2;
+    }
+
+    size_t oi = vi + 1;                     /* the object NP, articles skipped */
+    while (oi < end && is_stopword(b, strip_edge_punct(w[oi]))) oi++;
+    if (oi >= end) return 0;
+    char obj[256] = "";
+    size_t o = 0;
+    for (size_t i = oi; i < end && o + 1 < sizeof obj; i++)
+        o += (size_t)snprintf(obj + o, sizeof obj - o, "%s%s",
+                              i > oi ? " " : "", strip_edge_punct(w[i]));
+    if (!obj[0]) return 0;
+
+    size_t oo = (size_t)snprintf(out, out_size,
+                                 "I understood the request — produce \"%s\"", obj);
+    if (lang[0])
+        oo += (size_t)snprintf(out + oo, out_size - oo, " in %s", lang);
+    snprintf(out + oo, out_size - oo,
+             " — but I don't have a verified schema for that artifact yet; I "
+             "only synthesize what an oracle can check (a sort from a learned "
+             "shape, arithmetic composition, a count-to-threshold game).");
+    store_proof(b, out);
+    return 1;
+}

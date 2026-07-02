@@ -180,6 +180,7 @@ static const Module registry[] = {
     {"pragma",    mod_pragma},
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
+    {"reqgen",    mod_reqgen},
     {"learn",     mod_learn},
     {"smalltalk", mod_smalltalk},   /* gen240: last-resort conversational continuity */
 };
@@ -510,7 +511,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen266-counter-game-synthesis";
+    return "gen267-informed-decline";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

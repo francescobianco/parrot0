@@ -1,0 +1,8 @@
+# gen267, Italian probe: the SAME request/generate form through Italian
+# make-verbs (crea/scrivi/costruisci — intent_cue facts, same C path). The
+# quoted object is read from the plainly-normalized raw so Italian words
+# survive canonicalization.
+> crea un semplice hello world in c
+< I understood the request — produce "hello world" in c — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+> costruisci una calcolatrice in python
+< I understood the request — produce "calcolatrice" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).

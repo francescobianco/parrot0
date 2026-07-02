@@ -1,0 +1,17 @@
+# gen267 (universal-comprehension §2/§4.2, first slice): the request/generate
+# FORM read structurally — an imperative make-verb (KB word class) + an object
+# noun-phrase, optionally closed by "in <lang>" (KB class). Registered late, so
+# it catches exactly the turns that used to hit the blind wall and turns them
+# into the INFORMED decline: the parsed object quoted back (proof of
+# understanding) plus the named gap — never a fabricated attempt.
+> create a simple hello world in c
+< I understood the request — produce "simple hello world" in c — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+> build a web scraper in python
+< I understood the request — produce "web scraper" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+> generate a birthday poem
+< I understood the request — produce "birthday poem" — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+
+# negative controls: content questions and arithmetic are untouched (the module
+# is last-but-two in the registry, and the form needs verb + object)
+> what is 2 plus 2
+< 4.

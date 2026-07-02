@@ -1,4 +1,35 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen267: the informed decline — universal-comprehension lands its first slice
+
+**Goal (F.'s steer: implement docs/plans/universal-comprehension.md).** F. asked
+why "crea un semplice hello world in c" hit the blind wall despite all the
+machinery. Diagnosis: codegen was gated behind PARROT0_TOOLS, its trigger was a
+hardcoded C cue chain missing "crea", and — the deep cause — intent is
+recognized per-module by substrings, never by FORM. The doc's own "primo
+incremento consigliato" (§2/§4.2): read the request/generate SCHEMA structurally
+and replace the blind wall with an INFORMED decline.
+
+**Changed.** New `mod_reqgen` (60-agent-tools.c): the form
+"[make-verb] [object NP] (in <lang>)" — verb in one of the first three slots,
+object required, optional trailing language constraint. Only the FORM is C; the
+imperative-verb class (create/crea/scrivi/costruisci/fai/…) and the language
+names are `intent_cue` KB facts, whole-token matched, teachable at runtime.
+Registered LATE (between chitchat and learn), so it cannot steal from any
+competent module: it catches exactly the turns that fell through to the wall.
+The reply quotes the parsed object back — proof the request was READ — and
+names the gap honestly, listing what synthesis actually covers. No env gate:
+understanding is conversation, not tool use.
+
+**Ratchet.** reqgen.chat/.it (hello world EN+IT, web scraper, poem, calcolatrice;
+arithmetic control untouched). planact.chat's "conquer the moon" fall-through
+UPGRADED from blind wall to informed decline — §2 landing on an existing
+ratchet. Roster tests updated for the new module.
+
+**Verified.** `tests/run.sh` 223/223, `make test` fully green, `make code-bench`
+25/25. Version `gen267-informed-decline`. Next (§8): `program_shape`
+print_message under the code_run oracle, so the flagship prompt flips from
+informed decline to VERIFIED code.
+
 ## 2026-07-02 - gen266: count_to_threshold — the first game category synthesized under oracle
 
 **Goal (the first real point on RULESCORE's scale).** One game CATEGORY must go
