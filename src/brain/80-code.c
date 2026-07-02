@@ -1,3 +1,93 @@
+/* --- module: rulespec (gen265, the first RULESCORE pull) -----------------
+ * Recognize a RULES-SPEC implementation request as a CATEGORY and answer it
+ * honestly: say what WAS understood (title, how many numbered rules, which
+ * rule classes appear) and decline the translation, naming the F4 text->code
+ * gap. Before this module the rulescore specs were MISCLAIMED by chitchat /
+ * pragma ("Ha, you're playful!") — and a misclaim is worse than a wall
+ * (gen254). The FORM is structural C (ordered numbered rule markers, length);
+ * every word class is KB knowledge: intent_cue(rules_spec_request|rule_input|
+ * rule_state|rule_end, ...) in kb/core/intents.p0 — teach a cue, the category
+ * widens with no rebuild. Scans RAW (a spec is longer than the 256-char norm
+ * window). Registered before codeast/code so the pattern matchers never steal
+ * the turn. */
+static int mod_rulespec(Brain *b, const char *norm, const char *raw,
+                        char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !raw) return 0;
+    static char low[4096];
+    size_t rl = strlen(raw);
+    if (rl < 80) return 0;                 /* a rules spec is a paragraph */
+    if (rl >= sizeof low) rl = sizeof low - 1;
+    for (size_t i = 0; i < rl; i++) low[i] = (char)tolower((unsigned char)raw[i]);
+    low[rl] = '\0';
+
+    /* FORM: ordered numbered rule markers "1." "2." ... (start-of-line in a
+     * multi-line spec from the daemon, inline in a one-line CLI turn). */
+    int nrules = 0;
+    for (int d = 1; d <= 9; d++) {
+        char m1[4] = { (char)('0' + d), '.', ' ', '\0' };
+        char m2[4] = { (char)('0' + d), ')', ' ', '\0' };
+        if (!strstr(low, m1) && !strstr(low, m2)) break;
+        nrules = d;
+    }
+    if (nrules < 2) return 0;
+
+    /* VOCABULARY: the implementation-request cues are KB facts. */
+    if (!kb_cue_match(b, "rules_spec_request", low)) return 0;
+
+    /* Title: the first line if it is short; else the text before the first
+     * period when that prefix looks like a name. */
+    char title[64] = "";
+    {
+        const char *s = raw;
+        while (*s == ' ' || *s == '\n' || *s == '#' || *s == '*') s++;
+        const char *e = s;
+        while (*e && *e != '\n') e++;
+        size_t tl = (size_t)(e - s);
+        if (tl > 60) {
+            const char *dot = memchr(s, '.', tl);
+            const char *mk  = strstr(s, "1.");     /* the first rule marker */
+            const char *cut = (mk && (!dot || mk < dot)) ? mk : dot;
+            if (cut && (size_t)(cut - s) <= 40) tl = (size_t)(cut - s);
+            else tl = 0;
+        }
+        while (tl > 0 && (s[tl-1] == '*' || s[tl-1] == ':' || s[tl-1] == ' ' ||
+                          s[tl-1] == '-' || s[tl-1] == '.')) tl--;
+        if (tl >= 3 && tl < sizeof title && !isdigit((unsigned char)s[0])) {
+            memcpy(title, s, tl);
+            title[tl] = '\0';
+        }
+    }
+
+    /* Which rule CLASSES the spec states — word classes from the KB. */
+    const char *cats[3];
+    int nc = 0;
+    if (kb_cue_match(b, "rule_input", low)) cats[nc++] = "input";
+    if (kb_cue_match(b, "rule_state", low)) cats[nc++] = "state";
+    if (kb_cue_match(b, "rule_end", low))   cats[nc++] = "end";
+    char catlist[64] = "";
+    for (int i = 0; i < nc; i++) {
+        strcat(catlist, cats[i]);
+        if (i + 2 < nc) strcat(catlist, ", ");
+        else if (i + 1 < nc) strcat(catlist, " and ");
+    }
+
+    size_t o = (size_t)snprintf(out, out_size, "That is a rules spec — ");
+    if (title[0])
+        o += (size_t)snprintf(out + o, out_size - o, "\"%s\", ", title);
+    o += (size_t)snprintf(out + o, out_size - o, "%d numbered rules", nrules);
+    if (nc > 0)
+        o += (size_t)snprintf(out + o, out_size - o,
+                              "; I can recognize the %s rules", catlist);
+    snprintf(out + o, out_size - o,
+             ", but I cannot yet translate free-text rules into a program. My "
+             "code synthesis covers verified schemas (a sort from a learned "
+             "shape, arithmetic composition), not open rule specs — the "
+             "text-to-code bridge is the gap.");
+    store_proof(b, out);
+    return 1;
+}
+
 /* --- module: codeast (gen173, code as KB) -------------------------------
  * The first step of docs/CODE-MASTERY.md: a code snippet is just another corpus.
  * parrot0 parses it DETERMINISTICALLY (code_ingest, in code.c), asserts its

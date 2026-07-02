@@ -1,0 +1,18 @@
+# gen265 (the first RULESCORE pull): a rules-spec implementation request is
+# recognized as a CATEGORY and answered honestly — parrot0 reports what it DID
+# understand (title, numbered-rule count, which rule classes appear: input /
+# state / end) and declines the translation naming the F4 text->code gap.
+# Before this, chitchat/pragma MISCLAIMED these specs ("Ha, you're playful!"),
+# and a misclaim is worse than a wall (gen254). The form (ordered numbered
+# markers, paragraph length) is structural; every word class is an
+# intent_cue(...) fact in kb/core/intents.p0 — teachable at runtime.
+> Coin Duel. Rules: 1. Each round the player types h or t. 2. On a match the score increases by one point. 3. The game ends when the score reaches three and prints WIN. Implement this game as one complete C program for the terminal.
+< That is a rules spec — "Coin Duel", 3 numbered rules; I can recognize the input, state and end rules, but I cannot yet translate free-text rules into a program. My code synthesis covers verified schemas (a sort from a learned shape, arithmetic composition), not open rule specs — the text-to-code bridge is the gap.
+
+# a different surface: parenthesis markers, no title line, "write this game"
+> You start with 10 tokens. 1) each turn you enter a number from 1 to 3 and lose that many tokens. 2) if your total reaches exactly zero you win. 3) when tokens go below zero the game ends and you lose. Write this game in C.
+< That is a rules spec — "You start with 10 tokens", 3 numbered rules; I can recognize the input, state and end rules, but I cannot yet translate free-text rules into a program. My code synthesis covers verified schemas (a sort from a learned shape, arithmetic composition), not open rule specs — the text-to-code bridge is the gap.
+
+# negative control: numbered arithmetic is NOT a spec (no request cue)
+> what is 1. plus 2.
+< 3.

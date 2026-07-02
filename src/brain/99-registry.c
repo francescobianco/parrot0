@@ -149,6 +149,11 @@ static const Module registry[] = {
     {"archetype", mod_archetype},
     {"fewshot",   mod_fewshot},
     {"compare",   mod_compare},
+    /* gen265: BEFORE the numeric modules — a rules spec is full of numbers and
+     * sums, and arith/wordproblem would claim it ("6.") ahead of recognition.
+     * The gate is strict (>=2 ordered rule markers + a KB request cue + length),
+     * so genuine arithmetic never reaches it. */
+    {"rulespec",  mod_rulespec},
     {"algebra",   mod_algebra},
     {"arith",     mod_arith},
     {"plan",      mod_plan},
@@ -505,7 +510,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen264-rulescore-gauge";
+    return "gen265-rulespec-category";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

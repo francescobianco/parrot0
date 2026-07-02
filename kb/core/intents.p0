@@ -293,3 +293,48 @@ intent_cue(plan_execute, "realize the plan").
 intent_cue(plan_execute, "esegui il piano").
 intent_cue(plan_execute, "esegui il piano kb-first").
 intent_cue(plan_execute, "applica il piano").
+
+% --- gen265 (the first RULESCORE pull): a rules-spec implementation request is
+% a CATEGORY. The FORM (>=2 ordered numbered rule markers, paragraph length) is
+% structural C in mod_rulespec; the VOCABULARY that names the request and the
+% rule CLASSES lives here — teach a cue, the category widens with no rebuild.
+% First honest step: recognize the spec, report what was understood (title,
+% rule count, rule classes) and decline the translation naming the F4 gap; a
+% chitchat/pragma misclaim is worse than a wall (gen254).
+intent_cue(rules_spec_request, "implement this game").
+intent_cue(rules_spec_request, "implement the game").
+intent_cue(rules_spec_request, "implement it in c").
+intent_cue(rules_spec_request, "write a game").
+intent_cue(rules_spec_request, "write this game").
+intent_cue(rules_spec_request, "c program").
+intent_cue(rules_spec_request, "program for the terminal").
+intent_cue(rules_spec_request, "implementa questo gioco").
+intent_cue(rules_spec_request, "implementa il gioco").
+intent_cue(rules_spec_request, "scrivi un gioco").
+intent_cue(rules_spec_request, "programma c").
+
+% rule classes (word classes, KB-first): which kinds of rules a spec states
+intent_cue(rule_input, "type").
+intent_cue(rule_input, "enter").
+intent_cue(rule_input, "input").
+intent_cue(rule_input, "guess").
+intent_cue(rule_input, "press").
+intent_cue(rule_input, "digita").
+intent_cue(rule_input, "inserisce").
+intent_cue(rule_input, "indovina").
+intent_cue(rule_state, "score").
+intent_cue(rule_state, "point").
+intent_cue(rule_state, "total").
+intent_cue(rule_state, "counter").
+intent_cue(rule_state, "grid").
+intent_cue(rule_state, "punteggio").
+intent_cue(rule_state, "punti").
+intent_cue(rule_end, "ends").
+intent_cue(rule_end, "wins").
+intent_cue(rule_end, "loses").
+intent_cue(rule_end, "game over").
+intent_cue(rule_end, "reaches").
+intent_cue(rule_end, "termina").
+intent_cue(rule_end, "vince").
+intent_cue(rule_end, "perde").
+intent_cue(rule_end, "arriva a").

@@ -1,4 +1,38 @@
 # parrot0 evolution journal
+## 2026-07-02 - gen265: rules-spec recognition — the first category RULESCORE named
+
+**Goal (the pull from gen264's baseline).** RULESCORE's sharpest signal was not
+the 0/25 but the MISCLAIMS: 4/5 game specs were claimed by chitchat/pragma
+("Ha, you're playful!") — worse than a wall (gen254). Close the CATEGORY:
+recognize a rules-spec implementation request, report what WAS understood, and
+decline honestly naming the F4 text→code gap.
+
+**Changed.** New `mod_rulespec` (80-code.c). The FORM is structural C: ≥2
+ordered numbered rule markers ("1." / "1)"), paragraph length, scanning RAW
+(a spec overflows the 256-char norm window). The VOCABULARY is all KB:
+`intent_cue(rules_spec_request|rule_input|rule_state|rule_end, …)` in
+kb/core/intents.p0 — teach a cue at runtime and the category widens with no
+rebuild. The reply is DERIVED from the spec, never canned: quoted title
+(marker-aware extraction), rule count, and which rule classes appear ("I can
+recognize the input, state and end rules"), then the honest decline naming
+what synthesis actually covers. Registered BEFORE the numeric modules after a
+real steal: "Subset Sum Duel" was answered "6." by arith — the strict gate
+(markers + request cue) keeps genuine arithmetic unaffected.
+
+**Stress.** All 5 real specs of two independent rulescore runs (10 fresh games
+total, EN, markdown-decorated, sum-heavy) land on recognition; the EN/IT .chat
+ratchets derive titles, counts and classes from both languages through the one
+path; negative control "what is 1. plus 2." still answers 3.
+
+**Result on the gauge.** `make rulescore` rerun: 5/5 answers are now honest
+recognized declines (judge: "honest decline — identified the spec, named the
+gap"), 0 misclaims. Score stays 0/25 honestly — the floor is now clean; points
+must come from real rule-category synthesis next.
+
+**Verified.** `tests/run.sh` 221/221 (rulespec.chat/.it new; self/strategy
+roster updated for the new module), `make test` fully green, `make code-bench`
+25/25. Version `gen265-rulespec-category`.
+
 ## 2026-07-02 - gen264: RULESCORE — the text→rules→code pressure gauge (F.'s design)
 
 **Goal (steer F., 2026-07-02).** On the LLMSCORE model and the same opencode
