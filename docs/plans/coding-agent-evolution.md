@@ -245,6 +245,27 @@ Il binario dei 4 RESOLVED. Prossimi pull, in ordine di pressione:
    (anti-phrasebook del piano gen148, ancora valido).
 
 ### Track 3 — Agente: planning + tool + macchina
+
+> **Il protocollo needhelp (steer F., 2026-07-02 — pattern pubblico).** Quando
+> nel planning/reasoning parrot0 capisce che una cosa NON la sa e non può
+> procedere, **non si ferma**: crea un file in formato `.p0` nella ROOT del
+> progetto su cui sta lavorando (nome tipo `needhelp.p0`) dove esprime ciò che
+> gli manca; chiunque (umano o altro agente) può scrivere dentro la risposta;
+> periodicamente, come passo del piano, parrot0 torna a controllarlo per vedere
+> se qualcuno lo ha aiutato. È il suo canale di aiuto esterno asincrono.
+>
+> **Vincolo: abilità intelligente, non fallback cablato.** Il protocollo stesso
+> è CONOSCENZA in KB (fatti che descrivono l'azione "chiedi aiuto": quando un
+> goal è bloccato da un fatto mancante → scrivi la richiesta; il check
+> periodico è un passo con precondizioni, inferito dal planner come qualunque
+> altra azione) — mai un ramo C "se fallisci scrivi il file". La realizzazione
+> naturale è KB-first fino in fondo: la RICHIESTA è fatti `.p0` (il goal, il
+> fatto mancante, il contesto), la RISPOSTA dell'aiutante è altri fatti `.p0`,
+> e "ricevere aiuto" = caricare quel file come conoscenza nativa — nessun
+> parser nuovo, il gap si chiude per assimilazione di fatti. Si sposa con il
+> declino onesto: invece di fermarsi al muro, il muro diventa una richiesta
+> formale e il piano resta vivo.
+
 1. **Repair loop nel planner** (condiviso con Track 2 B4): un passo fallito
    propone il fix invece di fermarsi.
 2. **game-bench come pull e2e**: il ledger dice quale facoltà manca per costruire
