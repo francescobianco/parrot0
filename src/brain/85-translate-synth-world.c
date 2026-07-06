@@ -490,11 +490,11 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
 
     /* "what else matched / could have answered / would have answered" — suppress
      * the actual winner and report the runner-up. */
+    /* gen273: both counterfactual cue chains migrated to KB by the derived
+     * kbfirst_migration plan (Track 5.4) — the phrasings are intent_cue facts
+     * in kb/core/intents.p0, teachable at runtime like any vocabulary. */
     int else_form =
-        cue(low, "what else matched") || cue(low, "what else could have") ||
-        cue(low, "what else would have") || cue(low, "anything else match") ||
-        cue(low, "cos'altro") || cue(low, "cosa altro") ||
-        cue(low, "che altro");
+        kb_cue_match(b, "85_translate_synth_world_chain494", low);
 
     /* "without <X>" / "senza <X>" — suppress a named module. */
     const char *wp = strstr(low, "without ");
@@ -503,8 +503,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
 
     /* Only engage on a genuine counterfactual question shape. */
     int question_shape =
-        cue(low, "would you have") || cue(low, "would you say") ||
-        cue(low, "avresti") || else_form;
+        kb_cue_match(b, "85_translate_synth_world_chain506", low) || else_form;
     if (!without_form && !else_form) return 0;
     if (without_form && !question_shape) return 0;
 

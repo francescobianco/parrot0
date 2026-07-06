@@ -17,10 +17,14 @@ Track 5.5 as PURE DATA (two learnable/3 rows): "learn \"memorizza \" as a
 teaching verb" asserts into the gate's own vocabulary and the deaf branch hooks
 with no rebuild — recursion proven (taught verb teaches the next verb);
 teachverb.chat/.it pin the arc. Next:
-1. Next site(s): migrate by CATEGORY (e.g. all single-scrutinee chains of a
-   module), lower the cuechains MAX each time.
-2. Sites whose intent key deserves a SEMANTIC name + learnable row (each
-   migrated site can become runtime-growable like the teach gate).
+gen273 migrated a whole module (85-translate-synth-world.c, 2 counterfactual
+chains, zero engine changes; MAX 340 → 338). Next:
+1. The `b`-out-of-scope frontier (found in 65-induce-verify-shell.c,
+   is_wellbeing_content(const char *buf)): per-chain applicability in
+   patch_chains, or a context-aware call template — the pull the counter hits.
+2. Keep migrating clean modules; lower MAX each time. Sites whose intent key
+   deserves a SEMANTIC name get a learnable row (runtime-growable like the
+   teach gate, gen272).
 
 **Thread B — RULESCORE (`make rulescore`, F.'s gauge): text→rules→code.**
 Done: gen264 harness + honest 0/25 baseline; gen265 category recognition (5/5

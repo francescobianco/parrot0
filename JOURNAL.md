@@ -1,4 +1,31 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen273: second real migration, by whole module — the counter descends again (340 -> 338)
+
+**Goal (Track 5.4, migration by category).** After the single-site first
+descent (gen271), migrate a WHOLE module's cue chains at once via the derived
+plan. Candidate chosen by scanning: src/brain/85-translate-synth-world.c — its
+2 chains (10 calls, mod_counterfactual's else_form + question_shape) are clean:
+one scrutinee, all-literal cues, `b` in scope at both sites.
+
+**Done.** parrot0 executed the kbfirst plan on the file; the external hand
+applied the .p0fix verbatim (including the preserved `|| else_form` tail after
+the replaced run — the patcher replaces only the call run, never the mixed
+condition around it) and moved the 10 emitted facts into kb/core/intents.p0.
+Zero engine changes: gen271's knowledge (`codebase_lookup`/`lookup_call`)
+covered the whole generation. cuechains MAX lowered 340 -> 338.
+
+**The honest frontier found while choosing.** 65-induce-verify-shell.c has a
+chain inside `is_wellbeing_content(const char *buf)` — a helper with NO
+`Brain *b` in scope, where the patched `kb_cue_match(b, …)` call cannot
+compile. The whole-file patch is blocked by ONE site: the next pull is either
+per-chain applicability in patch_chains or a context-aware call template.
+Recorded here as the gap the counter will hit.
+
+**Verified.** tests/run.sh 225/225, `make test` 110/110 suites,
+`PASS cuechains: 338`. Live probes: "what else could have answered?" /
+"che altro poteva rispondere?" both fire through the KB path. Version
+`gen273-counterfactual-chains-migrated`.
+
 ## 2026-07-06 - gen272: teachable teach-verbs — the runtime-growth demo, as pure data (Track 5.5)
 
 **Goal.** The plan's "gioco dinamico con la conoscenza": teach a new word and a

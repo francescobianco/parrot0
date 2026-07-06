@@ -11,7 +11,7 @@
 # gen271 baseline: 341 chains at gen256 -> 340 after the first real migration
 # (src/brain/00-lex.c teach-verb guard -> kb_cue_match + kb/core/intents.p0).
 set -u
-MAX=340
+MAX=338
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "cuechains: binary not built" >&2; exit 1; }

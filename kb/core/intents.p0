@@ -422,3 +422,18 @@ intent_cue(00_lex_chain332, "impara ").
 intent_cue(00_lex_chain332, "insegna ").
 intent_cue(00_lex_chain332, "tratta ").
 intent_cue(00_lex_chain332, "usa ").
+
+% gen273 (Track 5.4, second real migration — by whole module): the two
+% counterfactual chains of src/brain/85-translate-synth-world.c
+% (mod_counterfactual's else_form and question_shape), emitted by the derived
+% plan and applied by the external loop. Counter: 340 -> 338.
+intent_cue(85_translate_synth_world_chain494, "what else matched").
+intent_cue(85_translate_synth_world_chain494, "what else could have").
+intent_cue(85_translate_synth_world_chain494, "what else would have").
+intent_cue(85_translate_synth_world_chain494, "anything else match").
+intent_cue(85_translate_synth_world_chain494, "cos'altro").
+intent_cue(85_translate_synth_world_chain494, "cosa altro").
+intent_cue(85_translate_synth_world_chain494, "che altro").
+intent_cue(85_translate_synth_world_chain506, "would you have").
+intent_cue(85_translate_synth_world_chain506, "would you say").
+intent_cue(85_translate_synth_world_chain506, "avresti").
