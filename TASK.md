@@ -19,12 +19,35 @@ with no rebuild — recursion proven (taught verb teaches the next verb);
 teachverb.chat/.it pin the arc. Next:
 gen273 migrated a whole module (85-translate-synth-world.c, 2 counterfactual
 chains, zero engine changes; MAX 340 → 338). Next:
-1. The `b`-out-of-scope frontier (found in 65-induce-verify-shell.c,
-   is_wellbeing_content(const char *buf)): per-chain applicability in
-   patch_chains, or a context-aware call template — the pull the counter hits.
-2. Keep migrating clean modules; lower MAX each time. Sites whose intent key
-   deserves a SEMANTIC name get a learnable row (runtime-growable like the
-   teach gate, gen272).
+
+**gen274 (designed, ready to implement) — per-chain applicability.** The
+frontier gen273 named: 65-induce-verify-shell.c has 6 chains but one lives in
+`is_wellbeing_content(const char *buf)` where the template's context variable
+`b` is NOT in scope — today the whole-file patch would not compile. Design:
+- In `code_orchain_patch` (src/code.c, chain-scan loop ~line 2040): track brace
+  `depth` and `top_start` (position after the last top-level `}`) during the
+  linear walk; a chain's enclosing-function region = buf[top_start..chain_start).
+- The identifiers to scope-check come from the TEMPLATE: every C identifier in
+  call_tpl that is not a placeholder (FN/ARG/KEY) and not the leading function
+  name (e.g. `b` in "kb_cue_match(b, KEY, ARG)", `ctx` in the fragment's
+  "vocab_hit(ctx, KEY, ARG)"). Whole-word search in the region; missing ⇒ SKIP
+  that chain honestly (new out-param `int *skipped`), patch the rest. Heuristic
+  is fine: the final judge stays the codebase's build/test suite.
+- Brain message (patch_chains branch, 25-wordmath-reasoning.c): "... replaced N
+  chains ... and skipped M sites where `b` is not in scope".
+- Ratchet: EXTEND tests/fixtures/orchain/fragment.c with a second chain inside
+  a helper lacking `ctx` → the planact.chat/.it fragment pins get the skip
+  message (update the pinned counts: scan finds 2 chains, more cues). Stable
+  forever, anti-impostor.
+- Then apply to 65-induce: expect 5/6 chains migrated (keys chain500, chain505,
+  chain514 — tail `(want_sum && cue(norm, "about"))` preserved —, chain628,
+  chain802), the wellbeing one skipped. Commit ONLY the 5 used keys' facts into
+  kb/core/intents.p0 (emit writes all 6 — don't commit unused facts). Lower
+  cuechains MAX 338 → 333. Judges: summary/gist/discourse/social .chat cases.
+
+Then: keep migrating clean modules; lower MAX each time. Sites whose intent key
+deserves a SEMANTIC name get a learnable row (runtime-growable like the teach
+gate, gen272).
 
 **Thread B — RULESCORE (`make rulescore`, F.'s gauge): text→rules→code.**
 Done: gen264 harness + honest 0/25 baseline; gen265 category recognition (5/5
