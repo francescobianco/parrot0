@@ -481,3 +481,124 @@ intent_cue(65_induce_verify_shell_chain802, "no").
 intent_cue(65_induce_verify_shell_chain802, "sbagliato").
 intent_cue(65_induce_verify_shell_chain802, "errore").
 intent_cue(65_induce_verify_shell_chain802, "male").
+
+% gen275 (Track 5.4, fourth real migration — by whole module): all 16 cue
+% chains of src/brain/50-self-research-loop.c (mod_loop's self-challenge
+% triggers and the identity/existence/capability gates), emitted by the
+% derived plan and applied by the external loop; every chain had `b` in
+% scope, zero skips. NB on chain439: input is canonicalized before matching,
+% so Italian "chi sei" arrives as "who sei" — that cue is correct, not a
+% typo (it was a code comment at the old site). Counter: 333 -> 317.
+intent_cue(50_self_research_loop_chain21, "yourself").
+intent_cue(50_self_research_loop_chain21, "about yourself").
+intent_cue(50_self_research_loop_chain21, "about you").
+intent_cue(50_self_research_loop_chain21, "your own").
+intent_cue(50_self_research_loop_chain21, "you fail").
+intent_cue(50_self_research_loop_chain21, "your implementation").
+intent_cue(50_self_research_loop_chain21, "your loop").
+intent_cue(50_self_research_loop_chain21, "your module").
+intent_cue(50_self_research_loop_chain21, "your subsystems").
+intent_cue(50_self_research_loop_chain21, "your parts").
+intent_cue(50_self_research_loop_chain21, "your modules").
+intent_cue(50_self_research_loop_chain21, "your capabilities").
+intent_cue(50_self_research_loop_chain21, "your abilities").
+intent_cue(50_self_research_loop_chain35, "subsystems").
+intent_cue(50_self_research_loop_chain35, "parts").
+intent_cue(50_self_research_loop_chain35, "modules").
+intent_cue(50_self_research_loop_chain35, "capabilities").
+intent_cue(50_self_research_loop_chain35, "abilities").
+intent_cue(50_self_research_loop_chain35, "sottosistemi").
+intent_cue(50_self_research_loop_chain35, "moduli").
+intent_cue(50_self_research_loop_chain35, "parti").
+intent_cue(50_self_research_loop_chain35, "capacita").
+intent_cue(50_self_research_loop_chain35, "capacità").
+intent_cue(50_self_research_loop_chain40, "compose").
+intent_cue(50_self_research_loop_chain40, "composition").
+intent_cue(50_self_research_loop_chain40, "composing").
+intent_cue(50_self_research_loop_chain40, "cooperate").
+intent_cue(50_self_research_loop_chain40, "work together").
+intent_cue(50_self_research_loop_chain40, "compongono").
+intent_cue(50_self_research_loop_chain40, "comporre").
+intent_cue(50_self_research_loop_chain40, "composizione").
+intent_cue(50_self_research_loop_chain40, "cooperano").
+intent_cue(50_self_research_loop_chain40, "insieme").
+intent_cue(50_self_research_loop_chain50, "dialogue").
+intent_cue(50_self_research_loop_chain50, "dialog").
+intent_cue(50_self_research_loop_chain50, "transcript").
+intent_cue(50_self_research_loop_chain50, "dialogo").
+intent_cue(50_self_research_loop_chain50, "esempio").
+intent_cue(50_self_research_loop_chain50, "example").
+intent_cue(50_self_research_loop_chain53, "you would run").
+intent_cue(50_self_research_loop_chain53, "would you run").
+intent_cue(50_self_research_loop_chain53, "you would use").
+intent_cue(50_self_research_loop_chain53, "to prove it").
+intent_cue(50_self_research_loop_chain53, "show me").
+intent_cue(50_self_research_loop_chain63, "run it yourself").
+intent_cue(50_self_research_loop_chain63, "run them yourself").
+intent_cue(50_self_research_loop_chain63, "running it yourself").
+intent_cue(50_self_research_loop_chain63, "by running").
+intent_cue(50_self_research_loop_chain63, "run the composition").
+intent_cue(50_self_research_loop_chain63, "run your").
+intent_cue(50_self_research_loop_chain63, "test yourself").
+intent_cue(50_self_research_loop_chain63, "self-test").
+intent_cue(50_self_research_loop_chain63, "selftest").
+intent_cue(50_self_research_loop_chain63, "execute").
+intent_cue(50_self_research_loop_chain63, "esegui").
+intent_cue(50_self_research_loop_chain63, "eseguilo").
+intent_cue(50_self_research_loop_chain63, "mettiti alla prova").
+intent_cue(50_self_research_loop_chain63, "verificati").
+intent_cue(50_self_research_loop_chain63, "provalo tu").
+intent_cue(50_self_research_loop_chain63, "run a self").
+intent_cue(50_self_research_loop_chain77, "audit").
+intent_cue(50_self_research_loop_chain77, "map").
+intent_cue(50_self_research_loop_chain77, "mappa").
+intent_cue(50_self_research_loop_chain77, "matrix").
+intent_cue(50_self_research_loop_chain77, "matrice").
+intent_cue(50_self_research_loop_chain77, "which combinations").
+intent_cue(50_self_research_loop_chain77, "quali").
+intent_cue(50_self_research_loop_chain77, "which of your").
+intent_cue(50_self_research_loop_chain85, "self-challenge").
+intent_cue(50_self_research_loop_chain85, "self challenge").
+intent_cue(50_self_research_loop_chain92, "solve").
+intent_cue(50_self_research_loop_chain92, "what should").
+intent_cue(50_self_research_loop_chain92, "what change").
+intent_cue(50_self_research_loop_chain233, "fallback").
+intent_cue(50_self_research_loop_chain233, "wall").
+intent_cue(50_self_research_loop_chain233, "do not understand").
+intent_cue(50_self_research_loop_chain233, "not understand").
+intent_cue(50_self_research_loop_chain233, "dont understand").
+intent_cue(50_self_research_loop_chain233, "repeat").
+intent_cue(50_self_research_loop_chain237, "implementation").
+intent_cue(50_self_research_loop_chain237, "code").
+intent_cue(50_self_research_loop_chain237, "patch").
+intent_cue(50_self_research_loop_chain237, "dispatch").
+intent_cue(50_self_research_loop_chain237, "loop").
+intent_cue(50_self_research_loop_chain241, "module").
+intent_cue(50_self_research_loop_chain241, "modulo").
+intent_cue(50_self_research_loop_chain439, "your name").
+intent_cue(50_self_research_loop_chain439, "who are you").
+intent_cue(50_self_research_loop_chain439, "who re you").
+intent_cue(50_self_research_loop_chain439, "what are you").
+intent_cue(50_self_research_loop_chain439, "what exactly are you").
+intent_cue(50_self_research_loop_chain439, "call you").
+intent_cue(50_self_research_loop_chain439, "about yourself").
+intent_cue(50_self_research_loop_chain439, "who r u").
+intent_cue(50_self_research_loop_chain439, "your identity").
+intent_cue(50_self_research_loop_chain439, "who sei").
+intent_cue(50_self_research_loop_chain439, "come ti chiami").
+intent_cue(50_self_research_loop_chain439, "il tuo nome").
+intent_cue(50_self_research_loop_chain448, "you exist").
+intent_cue(50_self_research_loop_chain448, "are you real").
+intent_cue(50_self_research_loop_chain448, "esisti").
+intent_cue(50_self_research_loop_chain450, "can you do").
+intent_cue(50_self_research_loop_chain450, "what do you do").
+intent_cue(50_self_research_loop_chain450, "capabilit").
+intent_cue(50_self_research_loop_chain450, "you able to").
+intent_cue(50_self_research_loop_chain450, "you help with").
+intent_cue(50_self_research_loop_chain450, "can you help").
+intent_cue(50_self_research_loop_chain450, "cosa sai fare").
+intent_cue(50_self_research_loop_chain450, "puoi fare").
+intent_cue(50_self_research_loop_chain450, "sai fare").
+intent_cue(50_self_research_loop_chain450, "che cosa sai fare").
+intent_cue(50_self_research_loop_chain458, "if you").
+intent_cue(50_self_research_loop_chain458, "when you").

@@ -972,7 +972,16 @@ static int is_model_pred(const char *pred) {
            strcmp(pred, "stopword") == 0 || strcmp(pred, "question_word") == 0 ||
            strcmp(pred, "reaction_word") == 0 || strcmp(pred, "social_marker") == 0 ||
            strcmp(pred, "social_pattern") == 0 ||
-           strcmp(pred, "cmd") == 0 || strcmp(pred, "flag") == 0;
+           strcmp(pred, "cmd") == 0 || strcmp(pred, "flag") == 0 ||
+           /* gen275: dispatch vocabulary and reply phrasings are the language
+            * model's internals too — as the cue-chain migrations move trigger
+            * words from C into intent_cue facts, they must not masquerade as
+            * concept descriptions in kb_nearest_concept (their cue strings
+            * inflated the idf pass until a real recall-by-paraphrase abstained). */
+           strcmp(pred, "intent_cue") == 0 || strcmp(pred, "goal_cue") == 0 ||
+           strcmp(pred, "response_template") == 0 ||
+           strcmp(pred, "plan_param") == 0 || strcmp(pred, "lookup_call") == 0 ||
+           strcmp(pred, "codebase_lookup") == 0 || strcmp(pred, "learnable") == 0;
 }
 
 /* gen151: structural metadata predicates — registry/relation plumbing from the

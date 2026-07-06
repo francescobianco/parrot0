@@ -1,4 +1,39 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen275: fourth real migration, whole module again — and the pollution the counter flushed out (333 -> 317)
+
+**Goal (Track 5.4, keep descending).** Next module by size and cleanliness:
+src/brain/50-self-research-loop.c — 16 chains, 113 calls, ALL on the one
+scrutinee `buf` with `b` in scope everywhere (the gen274 skip machinery
+reported zero skips). mod_loop's self-challenge triggers and the
+identity/existence/capability gates.
+
+**Done.** parrot0 executed the kbfirst plan on the file; the external hand
+applied the .p0fix verbatim and moved all 113 emitted facts to
+kb/core/intents.p0 (all 16 keys used — nothing withheld this time). The
+patcher's run-only discipline held everywhere it matters: single cue calls
+inside `&&` groups (`(cue(buf, "challenge") && self_ref)`) are not chains and
+stayed C; the `self_ref ||` head of chain35 and the two-group structure of
+want_skeleton survived intact. cuechains MAX 333 -> 317.
+
+**The real find — dispatch vocabulary was masquerading as knowledge.** The
+suite caught a regression: "what is the operation that combines two numbers"
+(knowledge.sh, recall-by-paraphrase) walled. Cause: `kb_nearest_concept`
+treats EVERY fact with a quoted last argument as a candidate concept
+description, and the growing intent_cue population (113 new cue strings)
+inflated the idf pass until the margin rule abstained. The honest fix is
+classification, not tuning: intent_cue, goal_cue, response_template,
+plan_param, lookup_call, codebase_lookup and learnable are the language
+model's INTERNALS — the same class as stopword/question_word/social_pattern
+already filtered by `is_model_pred` — so they now join that filter and can
+never masquerade as concept descriptions. (Verified against a gen274 worktree
+that the full-KB abstention on that phrasing predates this gen — the
+regression was specifically the test harness's core+arithmetic KB.)
+
+**Verified.** `make test` all suites green, `PASS cuechains: 317`. Live:
+"who are you?" / "chi sei?" (the canonicalized "who sei" cue), "can you help
+me?", "prove that your subsystems compose" all fire through the KB path.
+Version `gen275-selfloop-chains-migrated`.
+
 ## 2026-07-06 - gen274: per-chain applicability — the patcher skips what cannot compile, honestly (338 -> 333)
 
 **Goal (Track 5.4, the frontier gen273 named).** 65-induce-verify-shell.c has 6

@@ -511,7 +511,7 @@ void brain_destroy(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen274-per-chain-applicability";
+    return "gen275-selfloop-chains-migrated";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

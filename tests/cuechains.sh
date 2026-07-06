@@ -12,9 +12,10 @@
 # (src/brain/00-lex.c teach-verb guard -> kb_cue_match + kb/core/intents.p0).
 # gen273: 85-translate-synth-world migrated whole -> 338. gen274: five of the
 # six chains of 65-induce-verify-shell migrated (the wellbeing one skipped by
-# per-chain applicability: `b` is not in scope there) -> 333.
+# per-chain applicability: `b` is not in scope there) -> 333. gen275: all 16
+# chains of 50-self-research-loop migrated (zero skips) -> 317.
 set -u
-MAX=333
+MAX=317
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "cuechains: binary not built" >&2; exit 1; }

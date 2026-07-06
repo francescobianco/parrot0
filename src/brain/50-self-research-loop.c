@@ -18,13 +18,10 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
     if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
     while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
 
-    int self_ref = cue(buf, "yourself") || cue(buf, "about yourself") ||
-                   cue(buf, "about you") || cue(buf, "your own") ||
-                   cue(buf, "you fail") || cue(buf, "your implementation") ||
-                   cue(buf, "your loop") || cue(buf, "your module") ||
-                   cue(buf, "your subsystems") || cue(buf, "your parts") ||
-                   cue(buf, "your modules") || cue(buf, "your capabilities") ||
-                   cue(buf, "your abilities");
+    /* gen275: this module's cue chains were migrated to the KB by parrot0's
+     * own kbfirst_migration plan (Track 5.4) — the phrasings are intent_cue
+     * facts in kb/core/intents.p0, teachable at runtime like any vocabulary. */
+    int self_ref = kb_cue_match(b, "50_self_research_loop_chain21", buf);
 
     /* gen164: a COMPOSITION self-challenge — "prove your subsystems compose",
      * "test composition over three subsystems", "do your parts cooperate?" —
@@ -32,27 +29,15 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
      * It asks parrot0 to reason about composing its OWN parts. EN+IT cues; the
      * parts/composition words carry the meaning, so it transfers to unseen
      * phrasings rather than a fixed trigger list. */
-    int parts_ref = self_ref || cue(buf, "subsystems") || cue(buf, "parts") ||
-                    cue(buf, "modules") || cue(buf, "capabilities") ||
-                    cue(buf, "abilities") || cue(buf, "sottosistemi") ||
-                    cue(buf, "moduli") || cue(buf, "parti") ||
-                    cue(buf, "capacita") || cue(buf, "capacità");
-    int compose_ref = cue(buf, "compose") || cue(buf, "composition") ||
-                      cue(buf, "composing") || cue(buf, "cooperate") ||
-                      cue(buf, "work together") || cue(buf, "compongono") ||
-                      cue(buf, "comporre") || cue(buf, "composizione") ||
-                      cue(buf, "cooperano") || cue(buf, "insieme");
+    int parts_ref = self_ref || kb_cue_match(b, "50_self_research_loop_chain35", buf);
+    int compose_ref = kb_cue_match(b, "50_self_research_loop_chain40", buf);
     int compose_challenge = compose_ref && parts_ref;
 
     /* gen166: a request to SEE the dialogue, not just the method — "show me the
      * dialogue you would run", "write the example", "dimostralo con un dialogo".
      * It closes proposal to a runnable skeleton over the derived parts. */
-    int want_skeleton = (cue(buf, "dialogue") || cue(buf, "dialog") ||
-                         cue(buf, "transcript") || cue(buf, "dialogo") ||
-                         cue(buf, "esempio") || cue(buf, "example")) &&
-                        (compose_ref || parts_ref || cue(buf, "you would run") ||
-                         cue(buf, "would you run") || cue(buf, "you would use") ||
-                         cue(buf, "to prove it") || cue(buf, "show me"));
+    int want_skeleton = (kb_cue_match(b, "50_self_research_loop_chain50", buf)) &&
+                        (compose_ref || parts_ref || kb_cue_match(b, "50_self_research_loop_chain53", buf));
 
     /* gen167: a request to actually RUN the composition and report — "prove your
      * parts compose by running it yourself", "run the composition test on
@@ -60,37 +45,26 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
      * or display; it EXECUTES the derived dialogue on a fresh copy of parrot0 and
      * reports, computed from real output, not a canned string. Still no file
      * edit, no commit — the strongest reflexive claim inside the loop's boundary. */
-    int run_ref = cue(buf, "run it yourself") || cue(buf, "run them yourself") ||
-                  cue(buf, "running it yourself") || cue(buf, "by running") ||
-                  cue(buf, "run the composition") || cue(buf, "run your") ||
-                  cue(buf, "test yourself") || cue(buf, "self-test") ||
-                  cue(buf, "selftest") || cue(buf, "execute") ||
-                  cue(buf, "esegui") || cue(buf, "eseguilo") ||
-                  cue(buf, "mettiti alla prova") || cue(buf, "verificati") ||
-                  cue(buf, "provalo tu") || cue(buf, "run a self");
+    int run_ref = kb_cue_match(b, "50_self_research_loop_chain63", buf);
     int want_selftest = run_ref && (compose_ref || parts_ref);
 
     /* gen169: an AUDIT — run several different triples of my parts and report a
      * real cooperation MAP (the compose-bench matrix turned inward). "audit your
      * composition", "map which of your parts compose", IT "verifica quali tuoi
      * moduli si compongono". */
-    int want_audit = (cue(buf, "audit") || cue(buf, "map") || cue(buf, "mappa") ||
-                      cue(buf, "matrix") || cue(buf, "matrice") ||
-                      cue(buf, "which combinations") || cue(buf, "quali") ||
-                      cue(buf, "which of your")) &&
+    int want_audit = (kb_cue_match(b, "50_self_research_loop_chain77", buf)) &&
                      (compose_ref || parts_ref);
 
     int trigger = compose_challenge || want_skeleton || want_selftest ||
                   want_audit ||
-                  cue(buf, "self-challenge") || cue(buf, "self challenge") ||
+                  kb_cue_match(b, "50_self_research_loop_chain85", buf) ||
                   (cue(buf, "challenge") && self_ref) ||
                   (cue(buf, "solve") && cue(buf, "challenge") && self_ref) ||
                   (cue(buf, "improve") && self_ref) ||
                   (cue(buf, "review this implementation") &&
                    (self_ref || cue(buf, "loop"))) ||
                   (cue(buf, "problem") && self_ref &&
-                   (cue(buf, "solve") || cue(buf, "what should") ||
-                    cue(buf, "what change")));
+                   (kb_cue_match(b, "50_self_research_loop_chain92", buf)));
     if (!trigger) return 0;
 
     /* The composition self-challenge answers over real parts — exactly the
@@ -230,15 +204,10 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
         }
         return 1;
     }
-    int fallback_gap = cue(buf, "fallback") || cue(buf, "wall") ||
-                       cue(buf, "do not understand") ||
-                       cue(buf, "not understand") || cue(buf, "dont understand") ||
-                       cue(buf, "repeat");
-    int strong_implementation_gap = cue(buf, "implementation") || cue(buf, "code") ||
-                                    cue(buf, "patch") || cue(buf, "dispatch") ||
-                                    cue(buf, "loop");
+    int fallback_gap = kb_cue_match(b, "50_self_research_loop_chain233", buf);
+    int strong_implementation_gap = kb_cue_match(b, "50_self_research_loop_chain237", buf);
     int implementation_gap = strong_implementation_gap ||
-                             cue(buf, "module") || cue(buf, "modulo");
+                             kb_cue_match(b, "50_self_research_loop_chain241", buf);
 
     if (implementation_gap && (!fallback_gap || strong_implementation_gap)) {
         put("I would solve it by parity with the external loop: name the missing behavior, locate the owning module or registry point, add the smallest deterministic change, add English and Italian regression tests, bump my version, and journal the observed support quality. I can propose the change; an external agent still edits and verifies the files.",
@@ -436,26 +405,12 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
      * many phrasings of the same question land. The answer is still derived from
      * the real self-model (i_am / module facts), never canned — robustness comes
      * from cue matching + the KB, not from a list of accepted sentences. */
-    int identity = cue(buf, "your name") || cue(buf, "who are you") ||
-                   cue(buf, "who re you") || cue(buf, "what are you") ||
-                   cue(buf, "what exactly are you") ||
-                   cue(buf, "call you") || cue(buf, "about yourself") ||
-                   cue(buf, "who r u") || cue(buf, "your identity") ||
-                   /* Italian cues (the bilingual ratchet). NB: input is already
-                    * canonicalized, so "chi" has become "who" -> "who sei". */
-                   cue(buf, "who sei") || cue(buf, "come ti chiami") ||
-                   cue(buf, "il tuo nome");
-    int exists = cue(buf, "you exist") || cue(buf, "are you real") ||
-                 cue(buf, "esisti");
-    int capability = cue(buf, "can you do") || cue(buf, "what do you do") ||
-                     cue(buf, "capabilit") || cue(buf, "you able to") ||
-                     cue(buf, "you help with") || cue(buf, "can you help") ||
-                     /* Italian cues */
-                     cue(buf, "cosa sai fare") || cue(buf, "puoi fare") ||
-                     cue(buf, "sai fare") || cue(buf, "che cosa sai fare");
+    int identity = kb_cue_match(b, "50_self_research_loop_chain439", buf);
+    int exists = kb_cue_match(b, "50_self_research_loop_chain448", buf);
+    int capability = kb_cue_match(b, "50_self_research_loop_chain450", buf);
     /* gen240: "if you're happy and you know it, what do you do?" is a song, not a
      * capability query — a leading conditional means it isn't asking about me. */
-    if (capability && (cue(buf, "if you") || cue(buf, "when you")))
+    if (capability && (kb_cue_match(b, "50_self_research_loop_chain458", buf)))
         capability = 0;
 
     /* capability is the more specific intent ("what are you ABLE TO DO" also

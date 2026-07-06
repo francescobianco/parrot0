@@ -5,27 +5,32 @@
 ## Active — two live threads (docs/plans/coding-agent-evolution.md); pick ONE per generation
 
 **Thread A — Track 5.4/5.5: the derived plan on the REAL codebase.**
-Done through gen274: the whole arc runs on the foreign fixture (gen257–263) AND
+Done through gen275: the whole arc runs on the foreign fixture (gen257–263) AND
 on src/brain. gen271 migrated the FIRST real site (00-lex.c teach-verb guard →
 kb_cue_match, facts in kb/core/intents.p0) via knowledge (`codebase_lookup/2` +
 `lookup_call/2` FN/ARG/KEY template), fragment-honest compile judges. Ratchet:
 tests/cuechains.sh in `make test` — the chain counter MUST ONLY DESCEND
-(341 → 340 → 338 → 333). gen272 closed Track 5.5 as PURE DATA (learnable/3
-rows; taught verb teaches the next verb). gen273 migrated a whole module
-(85-translate-synth-world.c). gen274 shipped PER-CHAIN APPLICABILITY:
-`code_orchain_patch` scope-checks each chain's enclosing-function region for
-the identifiers the call template imports (`b`, the fixture's `ctx`) and SKIPS
-out-of-scope sites honestly (new `*skipped` out-param, named in the brain's
-report); with it the plan migrated 5/6 chains of 65-induce-verify-shell.c
-(chain500/505/514 summary-gist-focus — mixed tail preserved —, chain628
-discourse, chain802 thanks-corrective), the wellbeing helper's chain skipped
-(`b` not in scope; its facts NOT committed). Fixture fragment.c pins the skip
-in planact.chat/.it. Next:
+(341 → 340 → 338 → 333 → 317). gen272 closed Track 5.5 as PURE DATA
+(learnable/3 rows; taught verb teaches the next verb). gen273 migrated a whole
+module (85-translate-synth-world.c). gen274 shipped PER-CHAIN APPLICABILITY
+(`code_orchain_patch` scope-checks each chain's enclosing-function region for
+the identifiers the template imports and skips out-of-scope sites honestly;
+5/6 chains of 65-induce migrated, the wellbeing one skipped; fragment.c pins
+the skip in planact.chat/.it). gen275 migrated 50-self-research-loop.c whole
+(16 chains, zero skips — mod_loop self-challenge + identity/existence/
+capability gates) AND fixed the pollution the migration exposed: dispatch
+vocabulary (intent_cue, goal_cue, response_template, plan_param, lookup_call,
+codebase_lookup, learnable) is now filtered by `is_model_pred`, so cue facts
+can never masquerade as concept descriptions in kb_nearest_concept. Next:
 
-**gen275 (next) — keep the counter descending.** Pick the next module by
-scanning (`execute the kb-first plan for chains of calls to cue in src/brain`
-names the densest); migrate its clean chains via the plan, skip-report the
-rest, lower MAX < 333. Watch for the two frontiers already known:
+**gen276 (next) — keep the counter descending.** Remaining per module (gen275
+scan): 25-wordmath 68, 10-memory-knowledge 65, 40-meta 44, 30-generation 39,
+20-math 32, 80-code 25, 60-agent-tools 22, 70-social-pragma 17 (210 calls!),
+65-induce 1 (the skipped wellbeing site). Pick ONE module, migrate via the
+plan, review the .p0fix for mixed-scrutinee chains before applying (the
+patcher templates ARG from the FIRST call — a chain mixing `norm`/`praw`
+would silently change behavior; none seen yet, but 25-wordmath is where they
+live), lower MAX. The two known frontiers stand:
 - sites whose intent key deserves a SEMANTIC name (not `<stem>_chainNNN`) —
   give them a learnable/3 row so the vocabulary grows at runtime (gen272);
 - skipped sites (like is_wellbeing_content) need a context-aware template or a
