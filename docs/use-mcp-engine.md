@@ -1,0 +1,97 @@
+# Guidare parrot0 come motore di inferenza MCP (dal vivo)
+
+`parrot0 --mcp-engine` (gen277) avvia un server **MCP** (Model Context Protocol)
+JSON-RPC 2.0 su **stdio**: espone il motore Prolog-like e le primitive di
+generazione come *tool* chiamabili. Un agente ci scrive conoscenza, la interroga,
+ci fa inferenza, genera, e — il punto della missione — **addestra parrot0 dal
+vivo** senza riavviare il processo. Piano completo in
+[docs/plans/mcp-engine.md](plans/mcp-engine.md).
+
+> Non è un LLM e non è il daemon OpenAI (`--daemon`, `docs/use-on-pi-agent.md`):
+> è un ponte a grana fine sul motore. Stesso `Brain`/`KB`, file separato
+> (`src/mcp.c`).
+
+## Avvio grezzo (un colpo solo)
+
+Il server legge un messaggio JSON-RPC per riga da stdin e scrive una riga di
+risposta su stdout. Una sessione one-shot (lo stato vive finché il processo vive):
+
+```bash
+printf '%s\n' \
+  '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' \
+  '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"man","args":["diogenes"]}}}' \
+  '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.assert_rule","arguments":{"head":"philosopher","body":["man"]}}}' \
+  '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"kb.query","arguments":{"pred":"philosopher","args":["diogenes"]}}}' \
+  | bin/parrot0 --mcp-engine 2>/dev/null
+```
+
+L'ultima query risponde `{"provable":true}`: parrot0 ha **derivato** la
+conclusione dalla regola appena insegnata, non l'ha memorizzata.
+
+## Sessione PERSISTENTE per esperimenti dal vivo (`scripts/mcp-live.sh`)
+
+Per addestrare a più comandi separati serve che il motore resti **acceso** tra
+una chiamata e l'altra. Il driver tiene vivo il server (richieste su una FIFO
+tenuta aperta, risposte su un file che il server appende) e permette chiamate
+singole:
+
+```bash
+scripts/mcp-live.sh start PARROT0_WORLD_FACTS=0     # accende il motore
+scripts/mcp-live.sh call kb.query   '{"pred":"philosopher","args":["diogenes"]}'   # {"provable":false}
+scripts/mcp-live.sh call kb.assert  '{"pred":"man","args":["diogenes"]}'           # {"ok":true,"stored":true}
+scripts/mcp-live.sh call kb.assert_rule '{"head":"philosopher","body":["man"]}'    # {"ok":true}
+scripts/mcp-live.sh call kb.query   '{"pred":"philosopher","args":["diogenes"]}'   # {"provable":true}  ← imparato
+scripts/mcp-live.sh call gen.respond '{"input":"is diogenes a philosopher?"}'      # {"output":"Yes."}
+scripts/mcp-live.sh stop                            # spegne il motore
+```
+
+Ogni `call` è un'invocazione separata dello script, ma lo stato del motore
+persiste: la conoscenza scritta da un comando è viva per il successivo. Comandi
+utili: `scripts/mcp-live.sh tools` (elenca i tool), `... raw '<json>'` (richiesta
+JSON-RPC arbitraria). La cartella di stato è `$PARROT0_MCP_DIR`
+(default `/tmp/parrot0-mcp`).
+
+## I tool (16)
+
+| Tool | Cosa fa | Primitiva |
+|---|---|---|
+| `kb.assert` `{pred,args}` | asserisce un fatto (layer sessione) | `kb_assert` |
+| `kb.assert_rule` `{head,body[]}` | asserisce `head(X) :- b0(X),…` | `kb_assert_rule_n` |
+| `kb.retract` `{pred,args}` | ritratta un fatto | `kb_retract` |
+| `kb.query` `{pred,args}` | prova per risoluzione SLD | `kb_query` |
+| `kb.match` `{pred,args}` | pattern con `null`=variabile → binding | `kb_match` |
+| `kb.explain` `{pred,args}` | prova + spiegazione di una riga | `kb_explain` |
+| `kb.describe` `{entity}` | fatti diretti su un'entità | `kb_describe_entity` |
+| `kb.dump` `{}` | tutti i fatti, leggibili | `kb_dump_all` |
+| `kb.induce` `{min_support}` | induce regole dai fatti | `kb_induce` |
+| `kb.stats` `{}` | quanti fatti | `kb_size` |
+| `kb.save` `{path}` | persiste il delta di sessione su file | `brain_save_session` |
+| `kb.restore` `{}` | dimentica il non salvato, ricarica i file da disco | `brain_reload` (gen276) |
+| `gen.respond` `{input}` | turno completo attraverso il brain | `brain_respond` |
+| `text.extract` `{passage}` | legge un passaggio ed estrae fatti nella KB | `mod_reader` |
+| `style.set_temperature` `{value}` | temperatura di scelta della forma | fatto `style_temperature` |
+| `style.get_temperature` `{}` | legge la temperatura corrente | — |
+
+Il risultato di ogni tool arriva come blocco `content` di testo il cui testo è un
+piccolo oggetto JSON (es. `{"provable":true}`).
+
+## Il loop "scrivi su file → /restore → interroga"
+
+`kb.assert`/`kb.assert_rule` scrivono nella KB **in RAM** — già interrogabili
+subito. Per farlo diventare persistente (e per raccogliere modifiche fatte al
+file da fuori), c'è il loop che la missione descrive:
+
+1. aggiungi conoscenza (`kb.assert`, `text.extract`, o edita un `.p0` a mano);
+2. `kb.save {path}` la scrive su un file `.p0`;
+3. `kb.restore` ricarica **tutti** i file da disco, in place, senza riavviare;
+4. interroghi la conoscenza nuova.
+
+Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
+file che `kb.save` scrive (così `brain_reload` lo ricarica).
+
+## Sicurezza
+
+I fatti scritti via MCP sono marcati `KB_SESSION` (mai `KB_BASE`): un agente
+costruisce conoscenza in un layer separato, non riscrive il substrato curato.
+`kb.save` rifiuta path assoluti, `~` e `..`. `gen.respond` non scavalca
+l'onestà del motore: se parrot0 murerebbe con un utente, mura anche via MCP.

@@ -16,6 +16,7 @@
 
 #include "brain.h"
 #include "serve.h"
+#include "mcp.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -159,19 +160,32 @@ static Brain *setup_brain(const char **out_sess) {
 int main(int argc, char **argv) {
     /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
-    int daemon_mode = 0, port = 9902;
+    int daemon_mode = 0, mcp_mode = 0, port = 9902;
     const char *host = "127.0.0.1";
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
+        else if (strcmp(argv[i], "--mcp-engine") == 0) mcp_mode = 1;
         else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc) port = atoi(argv[++i]);
         else if (strncmp(argv[i], "--port=", 7) == 0) port = atoi(argv[i] + 7);
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
         else {
             fprintf(stderr, "parrot0: unknown argument '%s'\n"
-                            "usage: parrot0 [--daemon [--port N] [--host H]]\n", argv[i]);
+                    "usage: parrot0 [--daemon [--port N] [--host H]] [--mcp-engine]\n",
+                    argv[i]);
             return 2;
         }
+    }
+
+    /* gen277: --mcp-engine serves the Prolog engine + generation primitives as
+     * MCP tools over stdio (docs/plans/mcp-engine.md). Same setup_brain as chat,
+     * so the agent gets the full KB unless overridden by the environment. */
+    if (mcp_mode) {
+        Brain *brain = setup_brain(NULL);
+        if (!brain) { fprintf(stderr, "parrot0: out of memory\n"); return 1; }
+        int rc = mcp_serve_stdio(brain);
+        brain_destroy(brain);
+        return rc;
     }
 
     if (daemon_mode) {

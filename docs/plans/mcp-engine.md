@@ -1,6 +1,13 @@
 # parrot0 come motore di inferenza MCP — piano operativo
 
-> **Stato:** scritto a gen275 (2026-07-06), proposta di F., non ancora implementata.
+> **Stato:** scritto a gen275; **gen277 (2026-07-06) ha spedito il motore
+> funzionante** — trasporto JSON-RPC-su-stdio + 16 tool (§5) + il driver live
+> `scripts/mcp-live.sh`. Gli esperimenti di addestramento dal vivo sono provati
+> a mano (assert fatto+regola → parrot0 deriva e verbalizza una conclusione
+> nuova; text.extract→kb.save→kb.restore→query). Vedi `docs/use-mcp-engine.md`
+> per come guidarlo. Restano da §8: `PARROT0_BARE` (gen F) e l'eventuale
+> trasporto HTTP. Il ratchet `tests/mcp.sh` copre solo il TRASPORTO (handshake +
+> tools/list), NON l'addestramento — quello si fa dal vivo, non come test.
 > **Ruolo:** disegno completo di una NUOVA modalità (`parrot0 --mcp-engine`) che
 > espone il motore Prolog-like e le primitive di generazione di parrot0 come
 > server MCP (Model Context Protocol) — così un agente esterno (Claude Code, pi,

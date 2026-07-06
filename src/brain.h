@@ -20,6 +20,14 @@
  * v0 keeps almost nothing here, but evolution will grow it. */
 typedef struct Brain Brain;
 
+/* Forward-declared so a host can reach the brain's KB (brain_kb) without
+ * pulling in kb.h; identical to kb.h's own typedef (C11 allows the repeat). */
+typedef struct KB KB;
+
+/* gen277: the brain's knowledge base, so a host (the MCP engine) can call the
+ * kb.h primitives directly on it — expose the engine, don't wrap every call. */
+KB *brain_kb(Brain *b);
+
 /* Create / destroy brain state. Returns NULL on allocation failure. */
 Brain *brain_create(void);
 void   brain_destroy(Brain *b);

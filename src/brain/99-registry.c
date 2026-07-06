@@ -510,6 +510,9 @@ void brain_destroy(Brain *b) {
     free(b);
 }
 
+/* gen277: the brain's KB, for a host that drives the engine directly (MCP). */
+KB *brain_kb(Brain *b) { return b ? b->kb : NULL; }
+
 /* gen276: the outer KB layers, factored out of main.c's setup_brain so the same
  * boot is reachable from every host (chat REPL, --daemon, --mcp-engine) and from
  * brain_reload. brain_create already loaded the kernel lexicon + reflective
@@ -548,7 +551,7 @@ int brain_reload(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen276-restore-reload-from-disk";
+    return "gen277-mcp-engine";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

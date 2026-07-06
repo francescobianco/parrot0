@@ -1,4 +1,47 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen277: the MCP engine — parrot0 as a live inference DB an agent trains via MCP
+
+**Goal (F., 2026-07-06).** F. did not want a TEST proving you can train parrot0
+over MCP — he wants to DO it live, at his command. So this generation ships a
+working `parrot0 --mcp-engine`: a JSON-RPC-2.0 MCP server over stdio exposing the
+Prolog engine + generation primitives as tools, plus a driver to drive it live.
+
+**Changed.**
+- `src/json.c/.h`: the tree JSON parser + escaper PROMOTED verbatim out of
+  serve.c so both hosts link one copy (serve.c now includes json.h; the daemon
+  chat path verified unchanged — /health and a 2+2 completion still answer).
+- `src/mcp.c/.h`: the engine. Newline-delimited JSON-RPC on stdin/stdout;
+  `initialize` / `tools/list` / `tools/call` / `ping` / `notifications/*`. 16
+  tools, each a THIN adapter over an existing kb.h/brain.h primitive (no new
+  inference): kb.assert / assert_rule / retract / query / match / explain /
+  describe / dump / induce / stats / save / restore, gen.respond, text.extract,
+  style.set_temperature / get_temperature. Tool results come back as one MCP
+  text content block whose text is a compact JSON payload.
+- `brain_kb(Brain*)` (brain.h + registry): exposes the brain's KB so the engine
+  calls the kb.h API directly — expose the engine, don't re-wrap it.
+- `--mcp-engine` flag in main.c (parallel to --daemon), same setup_brain.
+- `scripts/mcp-live.sh`: a PERSISTENT live driver — requests on a held-open FIFO,
+  responses on an appended regular file (a regular file never blocks the writer,
+  the trap a response-FIFO falls into). start/call/raw/tools/stop; the engine
+  stays up across separate invocations so knowledge from one call is live for the
+  next. `docs/use-mcp-engine.md` documents it.
+
+**Proven live (not as a test — by hand, the way F. asked).** Across SEPARATE
+`mcp-live.sh call` invocations against one running engine: kb.query
+philosopher(diogenes) -> false; kb.assert man(diogenes); kb.assert_rule
+philosopher(X):-man(X); kb.query -> **true** (derived by resolution, state
+persisted across calls); kb.explain -> "philosopher(diogenes) because
+man(diogenes)"; gen.respond "is diogenes a philosopher?" -> "Yes." Also the
+file loop: text.extract a passage -> kb.save (15 clauses to a session file) ->
+kb.restore (reloads 1295 from disk) -> kb.query still true (survived because
+saved). parrot0 is trainable live over MCP.
+
+**Ratchet (transport only, on purpose).** `tests/mcp.sh` (in make test) checks
+the handshake: initialize returns serverInfo + protocolVersion, tools/list
+advertises the toolbox, ping answers, an unknown method returns -32601. It does
+NOT script a train-via-MCP scenario — per F., those are live experiments, not a
+canned test. Full suite green. Version `gen277-mcp-engine`.
+
 ## 2026-07-06 - gen276: /restore — reload the KB from disk in place, the keystone of the MCP-engine mission
 
 **Goal (F., 2026-07-06).** A chat command `/restore` that forgets the UNSAVED

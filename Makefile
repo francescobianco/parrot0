@@ -209,6 +209,7 @@ test: build
 	@./tests/archetype.sh
 	@./tests/persist.sh
 	@./tests/restore.sh
+	@./tests/mcp.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

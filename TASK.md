@@ -19,13 +19,27 @@ shares one boot). Reloads all KB files from disk in place, drops the unsaved
 session. `tests/restore.sh` (in `make test`) proves fact-goes-live and
 RULE-makes-new-conclusion after a mid-session file write (coprocess harness).
 
-**Next — gen A (mcp-engine.md §8):** the transport skeleton. Promote the JSON
-parser/escaper from src/serve.c to a shared src/json.c/.h; add `src/mcp.c/.h`
-and the `--mcp-engine` flag in main.c (parallel to `--daemon`); answer
-`initialize` + `tools/list` (empty) + `notifications/initialized` over
-newline-delimited JSON-RPC on stdio. Ratchet: `tests/mcp.sh` scripts a handshake
-and checks the response fields. Then gens B–G add the tools (kb.* read/write/
-infer, gen.*, style.*, text.*, session.*) and the `PARROT0_BARE` gate (§3).
+**Done — gen277: the working MCP engine (§4–§5 in one gen, F. wanted it live).**
+`parrot0 --mcp-engine`: JSON-RPC-2.0 over stdio, 16 tools (kb.assert/assert_rule/
+retract/query/match/explain/describe/dump/induce/stats/save/restore, gen.respond,
+text.extract, style.set/get_temperature), each a thin adapter over a kb.h/brain.h
+primitive. JSON parser promoted to src/json.c/.h (shared with serve.c).
+`scripts/mcp-live.sh` drives a PERSISTENT engine across separate calls;
+`docs/use-mcp-engine.md` documents it. Proven live by hand: assert fact+rule →
+parrot0 derives+verbalizes a new conclusion; text.extract→save→restore→query.
+`tests/mcp.sh` ratchets the TRANSPORT only (handshake), not training.
+
+**Live-experiment mode is READY.** On F.'s command: `scripts/mcp-live.sh start`,
+then `call <tool> <json>` to train/query, `stop` when done. That is the standing
+capability — the next moves are F.'s live experiments, not a queued gen.
+
+**Remaining plan work (mcp-engine.md §8, when a real pull asks):**
+- gen F: the `PARROT0_BARE=1` gate — social/roles/gloss/intents/responses/glue
+  loads in brain_create are still unconditional (§3); a stripped inference engine
+  needs them gate-able. Do it when an experiment actually wants the bare engine.
+- a dedicated `brain_extract()` factored from mod_reader (today text.extract
+  routes through `brain_respond("read: …")` — works, but the plan §5.7 wants the
+  clean function returning the fact list); the HTTP transport (§4.2) if ever needed.
 Discipline unchanged: one gen per step, `make test` green, KB-first, honest.
 
 ## Parked — two threads (docs/plans/coding-agent-evolution.md); resume when F. asks
