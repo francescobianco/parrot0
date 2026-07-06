@@ -447,10 +447,11 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         }
         char outp[320];
         snprintf(outp, sizeof outp, "%s.p0fix", target);
-        int comp = 0;
-        char cerr[256];
+        int comp = 0, skipped = 0;
+        char cerr[256], sid[64] = "";
         int n = code_orchain_patch(target, fn, lfn, tpl[0] ? tpl : NULL, outp,
-                                   &comp, cerr, sizeof cerr);
+                                   &comp, cerr, sizeof cerr,
+                                   &skipped, sid, sizeof sid);
         if (n < 0) {
             snprintf(obs, obs_sz, "patch_chains could not write %s", outp);
             return 0;
@@ -460,24 +461,32 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                      "patch_chains found no OR-chains of calls to `%s` in %s", fn, target);
             return 0;
         }
+        /* gen274: name the sites the call shape cannot reach — a chain in a
+         * function that never sees the template's context identifier is kept
+         * verbatim, honestly, instead of patched into code that cannot compile */
+        char skipmsg[112] = "";
+        if (skipped > 0)
+            snprintf(skipmsg, sizeof skipmsg,
+                     " and skipped %d sites where `%s` is not in scope",
+                     skipped, sid);
         if (comp == 0) {
             snprintf(obs, obs_sz,
-                     "patch_chains replaced %d chains with calls to `%s` in %s but "
-                     "the result no longer compiles", n, lfn, outp);
+                     "patch_chains replaced %d chains with calls to `%s` in %s%s but "
+                     "the result no longer compiles", n - skipped, lfn, outp, skipmsg);
             return 0;
         }
         if (comp < 0) {
             /* honest deferral, not a false FAIL: the target never compiled
              * standalone, so only its own build can judge the patched copy */
             snprintf(obs, obs_sz,
-                     "patch_chains replaced %d chains with calls to `%s` in %s; "
+                     "patch_chains replaced %d chains with calls to `%s` in %s%s; "
                      "the target is a fragment of a larger unit, so its own "
-                     "build must judge the copy", n, lfn, outp);
+                     "build must judge the copy", n - skipped, lfn, outp, skipmsg);
             return 1;
         }
         snprintf(obs, obs_sz,
-                 "patch_chains replaced %d chains with calls to `%s` in %s and the "
-                 "result still compiles", n, lfn, outp);
+                 "patch_chains replaced %d chains with calls to `%s` in %s%s and the "
+                 "result still compiles", n - skipped, lfn, outp, skipmsg);
         return 1;
     }
 

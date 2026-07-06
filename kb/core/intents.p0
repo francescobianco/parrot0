@@ -437,3 +437,47 @@ intent_cue(85_translate_synth_world_chain494, "che altro").
 intent_cue(85_translate_synth_world_chain506, "would you have").
 intent_cue(85_translate_synth_world_chain506, "would you say").
 intent_cue(85_translate_synth_world_chain506, "avresti").
+
+% gen274 (Track 5.4, third real migration — with per-chain applicability): five
+% of the six cue chains of src/brain/65-induce-verify-shell.c (mod_summary's
+% want_sum/want_gist/focus_intent, mod_discourse's summary trigger,
+% is_mixed_turn's thanks-corrective cues), emitted by the derived plan and
+% applied by the external loop. The sixth chain (is_wellbeing_content, line 770
+% at emit time) was SKIPPED honestly by the plan itself: the kb_cue_match call
+% shape imports `b`, which that helper never sees — its facts are therefore NOT
+% committed (unused knowledge would be a lie about what the code reads).
+% Counter: 338 -> 333.
+intent_cue(65_induce_verify_shell_chain500, "summarize").
+intent_cue(65_induce_verify_shell_chain500, "summary").
+intent_cue(65_induce_verify_shell_chain500, "riassumi").
+intent_cue(65_induce_verify_shell_chain500, "riassunto").
+intent_cue(65_induce_verify_shell_chain500, "in short").
+intent_cue(65_induce_verify_shell_chain500, "in breve").
+intent_cue(65_induce_verify_shell_chain505, "what is this about").
+intent_cue(65_induce_verify_shell_chain505, "what's this about").
+intent_cue(65_induce_verify_shell_chain505, "what is it about").
+intent_cue(65_induce_verify_shell_chain505, "what's it about").
+intent_cue(65_induce_verify_shell_chain505, "main point").
+intent_cue(65_induce_verify_shell_chain505, "the gist").
+intent_cue(65_induce_verify_shell_chain505, "di cosa parla").
+intent_cue(65_induce_verify_shell_chain505, "punto principale").
+intent_cue(65_induce_verify_shell_chain514, "learn about").
+intent_cue(65_induce_verify_shell_chain514, "learned about").
+intent_cue(65_induce_verify_shell_chain514, "read about").
+intent_cue(65_induce_verify_shell_chain514, "imparato").
+intent_cue(65_induce_verify_shell_chain514, "letto").
+intent_cue(65_induce_verify_shell_chain628, "what did we talk about").
+intent_cue(65_induce_verify_shell_chain628, "what were we talking about").
+intent_cue(65_induce_verify_shell_chain628, "what have we talked about").
+intent_cue(65_induce_verify_shell_chain628, "cosa abbiamo detto").
+intent_cue(65_induce_verify_shell_chain628, "di cosa abbiamo parlato").
+intent_cue(65_induce_verify_shell_chain628, "summarize").
+intent_cue(65_induce_verify_shell_chain628, "riassumi").
+intent_cue(65_induce_verify_shell_chain628, "riassunto").
+intent_cue(65_induce_verify_shell_chain802, "wrong").
+intent_cue(65_induce_verify_shell_chain802, "bad").
+intent_cue(65_induce_verify_shell_chain802, "not").
+intent_cue(65_induce_verify_shell_chain802, "no").
+intent_cue(65_induce_verify_shell_chain802, "sbagliato").
+intent_cue(65_induce_verify_shell_chain802, "errore").
+intent_cue(65_induce_verify_shell_chain802, "male").

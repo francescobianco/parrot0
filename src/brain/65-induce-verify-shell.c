@@ -497,23 +497,21 @@ static int mod_summary(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     (void)raw;
     if (!b) return 0;
-    int want_sum = cue(norm, "summarize") || cue(norm, "summary") ||
-                   cue(norm, "riassumi") || cue(norm, "riassunto") ||
-                   cue(norm, "in short") || cue(norm, "in breve");
+    /* gen274: these cue chains were migrated to the KB by parrot0's own
+     * kbfirst_migration plan (Track 5.4) — the phrasings are intent_cue facts
+     * in kb/core/intents.p0, teachable at runtime like any vocabulary. */
+    int want_sum = kb_cue_match(b, "65_induce_verify_shell_chain500", norm);
     /* gen122: the GIST — the single central concept and the most salient
      * sentence, for "what is this about?" rather than a multi-sentence digest. */
-    int want_gist = cue(norm, "what is this about") || cue(norm, "what's this about") ||
-                    cue(norm, "what is it about") || cue(norm, "what's it about") ||
-                    cue(norm, "main point") || cue(norm, "the gist") ||
-                    cue(norm, "di cosa parla") || cue(norm, "punto principale");
+    int want_gist = kb_cue_match(b, "65_induce_verify_shell_chain505", norm);
 
     /* gen123: query-FOCUSED comprehension — "what did you learn/read about X?"
      * pulls the sentences about X. Gated to learn/read phrasing so a bare "what
      * do you know about X" stays with mod_knowledge's entity description; this is
      * the PASSAGE digest. The focus word follows "about"/"di"/"su". */
-    int focus_intent = cue(norm, "learn about") || cue(norm, "learned about") ||
-                       cue(norm, "read about") || cue(norm, "imparato") ||
-                       cue(norm, "letto") || (want_sum && cue(norm, "about"));
+    int focus_intent =
+        kb_cue_match(b, "65_induce_verify_shell_chain514", norm) ||
+        (want_sum && cue(norm, "about"));
     char focus[KB_TERM_LEN] = "";
     if (focus_intent) {
         const char *mk = strstr(norm, "about ");
@@ -625,14 +623,7 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
     if (!b) return 0;
-    int summary = cue(norm, "what did we talk about") ||
-                  cue(norm, "what were we talking about") ||
-                  cue(norm, "what have we talked about") ||
-                  cue(norm, "cosa abbiamo detto") ||
-                  cue(norm, "di cosa abbiamo parlato") ||
-                  cue(norm, "summarize") ||
-                  cue(norm, "riassumi") ||
-                  cue(norm, "riassunto");
+    int summary = kb_cue_match(b, "65_induce_verify_shell_chain628", norm);
     if (!summary) return 0;
     if (b->topic_count == 0) {
         put("We haven't talked about much yet.", out, out_size);
@@ -766,7 +757,9 @@ static int is_substantive(Brain *b, const char *t) {
 static int is_wellbeing_content(const char *buf) {
     /* gen73: patterns from social_pattern(wellbeing, ...) are matched by
      * has_social_pattern in mod_social; this fast substring check stays
-     * as a guard in is_mixed_turn. */
+     * as a guard in is_mixed_turn.
+     * gen274: the kbfirst_migration plan SKIPPED this chain honestly — the
+     * KB lookup's call shape imports `b`, which this helper never sees. */
     return cue(buf, "how are you") || cue(buf, "how r u") ||
            cue(buf, "how do you do") || cue(buf, "how is it going") ||
            cue(buf, "come stai") || cue(buf, "come va");
@@ -799,9 +792,7 @@ static int is_mixed_turn(Brain *b, const char *buf, char **w, size_t nw,
 
     /* thanks + explicit negative/corrective content is not a plain thank-you */
     if (has_thanks) {
-        if (cue(buf, "wrong") || cue(buf, "bad") || cue(buf, "not") ||
-            cue(buf, "no") || cue(buf, "sbagliato") || cue(buf, "errore") ||
-            cue(buf, "male"))
+        if (kb_cue_match(b, "65_induce_verify_shell_chain802", buf))
             return 1;
     }
 

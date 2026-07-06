@@ -39,8 +39,12 @@
 # Both compile judges answer honestly here: the standalone check does not apply
 # to a fragment (saying "broke the build" would be a false verdict), and step 5
 # names the codebase's own test suite as the real judge instead of failing.
+# gen274 (per-chain applicability): the fixture's second chain lives in a helper
+# whose scope never sees `ctx` — the identifier the call shape imports — so
+# patching it could not compile. The patcher SKIPS that site honestly (chain
+# kept verbatim, named in the report) and still migrates the reachable one.
 > execute the kb-first plan for chains of calls to cue in tests/fixtures/orchain/fragment.c
-< Executed derived plan for kbfirst migration: 1) orchain_scan found 1 OR-chains of calls to `cue` in tests/fixtures/orchain/fragment.c (3 calls in chains); 2) orchain_vocab extracted 3 cues: start, begin, avvia; 3) emit_facts wrote 3 intent_cue facts for 1 chains to tests/fixtures/orchain/fragment.c.cues.p0; 4) patch_chains replaced 1 chains with calls to `vocab_hit` in tests/fixtures/orchain/fragment.c.p0fix; the target is a fragment of a larger unit, so its own build must judge the copy; stopped at step 5 run test suite via verify_behavior: verify_behavior cannot run tests/fixtures/orchain/fragment.c standalone — it is a fragment of a larger unit; the codebase's own test suite must judge the patch.
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `cue` in tests/fixtures/orchain/fragment.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: start, begin, avvia, quit, exit; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/fragment.c.cues.p0; 4) patch_chains replaced 1 chains with calls to `vocab_hit` in tests/fixtures/orchain/fragment.c.p0fix and skipped 1 sites where `ctx` is not in scope; the target is a fragment of a larger unit, so its own build must judge the copy; stopped at step 5 run test suite via verify_behavior: verify_behavior cannot run tests/fixtures/orchain/fragment.c standalone — it is a fragment of a larger unit; the codebase's own test suite must judge the patch.
 
 # gen271, the real thing: src/brain/00-lex.c's teach-verb guard was the FIRST
 # real cue chain migrated by this very plan (kb_cue_match(b, "00_lex_chain332",

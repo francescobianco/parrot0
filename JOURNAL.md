@@ -1,4 +1,46 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen274: per-chain applicability — the patcher skips what cannot compile, honestly (338 -> 333)
+
+**Goal (Track 5.4, the frontier gen273 named).** 65-induce-verify-shell.c has 6
+cue chains but one lives in `is_wellbeing_content(const char *buf)`, where the
+call template's imported context variable `b` is NOT in scope — the whole-file
+patch could not compile. Make applicability a PER-CHAIN judgment.
+
+**Changed.** `code_orchain_patch` (src/code.c) now tracks brace depth and the
+position after the last top-level `}` during its existing linear walk, so each
+chain knows its enclosing-function region buf[top_start..chain_start). The
+identifiers to scope-check come from the TEMPLATE, not from C constants:
+`orchain_tpl_scope_idents` extracts every identifier in the lookup_call shape
+that is not a placeholder (FN/ARG/KEY) and not the leading function name (`b`
+in "kb_cue_match(b, KEY, ARG)", `ctx` in the fixture's "vocab_hit(ctx, KEY,
+ARG)"); a whole-word search in the stripped region (comments/strings blanked,
+so `b` never matches inside `buf` or prose) decides. A missing identifier ⇒
+that chain is kept VERBATIM and counted in the new `*skipped` out-param with
+the identifier's name; the rest are patched. Heuristic scope check by design —
+the codebase's own build/test suite stays the final judge. The brain's
+patch_chains observation now reads "replaced N chains … and skipped M sites
+where `b` is not in scope".
+
+**Third real migration, by the plan itself.** parrot0 executed the kbfirst
+plan on 65-induce-verify-shell.c: 6 chains found, 5 replaced (chain500
+want_sum, chain505 want_gist, chain514 focus_intent — its mixed tail
+`(want_sum && cue(norm, "about"))` preserved by the run-only patcher —
+chain628 mod_discourse summary, chain802 thanks-corrective), the wellbeing one
+skipped. The external hand applied the .p0fix and committed ONLY the 5 used
+keys' facts to kb/core/intents.p0 (emit writes all 6; committing the skipped
+key's facts would lie about what the code reads). cuechains MAX 338 -> 333.
+
+**Ratchet.** tests/fixtures/orchain/fragment.c grew a second chain inside a
+helper lacking `ctx` — the planact.chat/.it pins now include the skip message
+(scan finds 2 chains, 5 cues; IT gained the fragment probe). Stable forever,
+anti-impostor: the pin proves the skip is computed, not asserted.
+
+**Verified.** `make test` all suites green (110/110 chat, PASS cuechains: 333).
+Live probes: gist/summary answer through the KB path on a parsed passage;
+"riassumi" fires mod_discourse via chain628; a thanks+wrong turn is still
+mixed via chain802; "come stai" (the unmigrated C chain) intact. Version
+`gen274-per-chain-applicability`.
+
 ## 2026-07-06 - gen273: second real migration, by whole module — the counter descends again (340 -> 338)
 
 **Goal (Track 5.4, migration by category).** After the single-site first

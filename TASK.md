@@ -5,49 +5,32 @@
 ## Active — two live threads (docs/plans/coding-agent-evolution.md); pick ONE per generation
 
 **Thread A — Track 5.4/5.5: the derived plan on the REAL codebase.**
-Done through gen271: the whole arc runs on the foreign fixture (gen257–263) AND
-on src/brain — gen271 migrated the FIRST real site (00-lex.c's teach-verb
-guard → `kb_cue_match(b, "00_lex_chain332", low)`, facts in kb/core/intents.p0)
-via knowledge, not C branches: `codebase_lookup/2` (which lookup a codebase
-owns) + `lookup_call/2` (the call SHAPE, FN/ARG/KEY template), with both
-compile judges fragment-honest (a file that never compiled standalone defers
-to "its own build/test suite must judge"). Ratchet: tests/cuechains.sh in
-`make test` — the chain counter (341 → 340) MUST ONLY DESCEND. gen272 closed
-Track 5.5 as PURE DATA (two learnable/3 rows): "learn \"memorizza \" as a
-teaching verb" asserts into the gate's own vocabulary and the deaf branch hooks
-with no rebuild — recursion proven (taught verb teaches the next verb);
-teachverb.chat/.it pin the arc. Next:
-gen273 migrated a whole module (85-translate-synth-world.c, 2 counterfactual
-chains, zero engine changes; MAX 340 → 338). Next:
+Done through gen274: the whole arc runs on the foreign fixture (gen257–263) AND
+on src/brain. gen271 migrated the FIRST real site (00-lex.c teach-verb guard →
+kb_cue_match, facts in kb/core/intents.p0) via knowledge (`codebase_lookup/2` +
+`lookup_call/2` FN/ARG/KEY template), fragment-honest compile judges. Ratchet:
+tests/cuechains.sh in `make test` — the chain counter MUST ONLY DESCEND
+(341 → 340 → 338 → 333). gen272 closed Track 5.5 as PURE DATA (learnable/3
+rows; taught verb teaches the next verb). gen273 migrated a whole module
+(85-translate-synth-world.c). gen274 shipped PER-CHAIN APPLICABILITY:
+`code_orchain_patch` scope-checks each chain's enclosing-function region for
+the identifiers the call template imports (`b`, the fixture's `ctx`) and SKIPS
+out-of-scope sites honestly (new `*skipped` out-param, named in the brain's
+report); with it the plan migrated 5/6 chains of 65-induce-verify-shell.c
+(chain500/505/514 summary-gist-focus — mixed tail preserved —, chain628
+discourse, chain802 thanks-corrective), the wellbeing helper's chain skipped
+(`b` not in scope; its facts NOT committed). Fixture fragment.c pins the skip
+in planact.chat/.it. Next:
 
-**gen274 (designed, ready to implement) — per-chain applicability.** The
-frontier gen273 named: 65-induce-verify-shell.c has 6 chains but one lives in
-`is_wellbeing_content(const char *buf)` where the template's context variable
-`b` is NOT in scope — today the whole-file patch would not compile. Design:
-- In `code_orchain_patch` (src/code.c, chain-scan loop ~line 2040): track brace
-  `depth` and `top_start` (position after the last top-level `}`) during the
-  linear walk; a chain's enclosing-function region = buf[top_start..chain_start).
-- The identifiers to scope-check come from the TEMPLATE: every C identifier in
-  call_tpl that is not a placeholder (FN/ARG/KEY) and not the leading function
-  name (e.g. `b` in "kb_cue_match(b, KEY, ARG)", `ctx` in the fragment's
-  "vocab_hit(ctx, KEY, ARG)"). Whole-word search in the region; missing ⇒ SKIP
-  that chain honestly (new out-param `int *skipped`), patch the rest. Heuristic
-  is fine: the final judge stays the codebase's build/test suite.
-- Brain message (patch_chains branch, 25-wordmath-reasoning.c): "... replaced N
-  chains ... and skipped M sites where `b` is not in scope".
-- Ratchet: EXTEND tests/fixtures/orchain/fragment.c with a second chain inside
-  a helper lacking `ctx` → the planact.chat/.it fragment pins get the skip
-  message (update the pinned counts: scan finds 2 chains, more cues). Stable
-  forever, anti-impostor.
-- Then apply to 65-induce: expect 5/6 chains migrated (keys chain500, chain505,
-  chain514 — tail `(want_sum && cue(norm, "about"))` preserved —, chain628,
-  chain802), the wellbeing one skipped. Commit ONLY the 5 used keys' facts into
-  kb/core/intents.p0 (emit writes all 6 — don't commit unused facts). Lower
-  cuechains MAX 338 → 333. Judges: summary/gist/discourse/social .chat cases.
-
-Then: keep migrating clean modules; lower MAX each time. Sites whose intent key
-deserves a SEMANTIC name get a learnable row (runtime-growable like the teach
-gate, gen272).
+**gen275 (next) — keep the counter descending.** Pick the next module by
+scanning (`execute the kb-first plan for chains of calls to cue in src/brain`
+names the densest); migrate its clean chains via the plan, skip-report the
+rest, lower MAX < 333. Watch for the two frontiers already known:
+- sites whose intent key deserves a SEMANTIC name (not `<stem>_chainNNN`) —
+  give them a learnable/3 row so the vocabulary grows at runtime (gen272);
+- skipped sites (like is_wellbeing_content) need a context-aware template or a
+  helper-signature change — only take that on when a generation's pull demands
+  it, never as speculative engine work.
 
 **Thread B — RULESCORE (`make rulescore`, F.'s gauge): text→rules→code.**
 Done: gen264 harness + honest 0/25 baseline; gen265 category recognition (5/5

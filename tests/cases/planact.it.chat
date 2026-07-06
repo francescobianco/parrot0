@@ -12,3 +12,8 @@
 # "nothing left to migrate" as the English probe, one code path.
 > esegui il piano kb-first per catene di chiamate a cue in src/brain/00-lex.c
 < Executed derived plan for kbfirst migration: 1) orchain_scan found no OR-chains of calls to `cue` in src/brain/00-lex.c; stopped at step 2 extract vocabulary via orchain_vocab: orchain_vocab found no OR-chains of calls to `cue` in src/brain/00-lex.c.
+# gen274, Italian probe of per-chain applicability: the fragment fixture's
+# helper chain (no `ctx` in scope) is skipped honestly, the reachable chain is
+# migrated — same code path as the English pin.
+> esegui il piano kb-first per catene di chiamate a cue in tests/fixtures/orchain/fragment.c
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `cue` in tests/fixtures/orchain/fragment.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: start, begin, avvia, quit, exit; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/fragment.c.cues.p0; 4) patch_chains replaced 1 chains with calls to `vocab_hit` in tests/fixtures/orchain/fragment.c.p0fix and skipped 1 sites where `ctx` is not in scope; the target is a fragment of a larger unit, so its own build must judge the copy; stopped at step 5 run test suite via verify_behavior: verify_behavior cannot run tests/fixtures/orchain/fragment.c standalone — it is a fragment of a larger unit; the codebase's own test suite must judge the patch.

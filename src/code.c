@@ -2002,12 +2002,60 @@ static int orchain_render_call(const char *tpl, const char *fn,
     return 1;
 }
 
+/* gen274: the identifiers a call template IMPORTS from the surrounding scope —
+ * every C identifier in the template that is not a placeholder (FN/ARG/KEY) and
+ * not the leading function name itself (e.g. `b` in "kb_cue_match(b, KEY, ARG)",
+ * `ctx` in "vocab_hit(ctx, KEY, ARG)"). If one of these is not visible where a
+ * chain lives, the rendered call cannot compile there. */
+static int orchain_tpl_scope_idents(const char *tpl, char idents[][64], int max) {
+    int n = 0, first = 1;
+    const char *p = tpl ? tpl : "";
+    while (*p) {
+        if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+        const char *s = p;
+        while (isalnum((unsigned char)*p) || *p == '_') p++;
+        size_t l = (size_t)(p - s);
+        if (first) { first = 0; continue; }      /* the lookup call's own name */
+        if ((l == 2 && strncmp(s, "FN", 2) == 0) ||
+            (l == 3 && (strncmp(s, "ARG", 3) == 0 ||
+                        strncmp(s, "KEY", 3) == 0)))
+            continue;
+        if (l >= 64 || n >= max) continue;
+        char w[64];
+        memcpy(w, s, l);
+        w[l] = '\0';
+        int dup = 0;
+        for (int i = 0; i < n; i++) if (strcmp(idents[i], w) == 0) { dup = 1; break; }
+        if (!dup) { strcpy(idents[n], w); n++; }
+    }
+    return n;
+}
+
+/* gen274: whole-word occurrence of `word` inside hay[0..len) — identifier
+ * boundaries on both sides, so `b` never matches inside `buf`. */
+static int orchain_word_in(const char *hay, size_t len, const char *word) {
+    size_t wl = strlen(word);
+    if (!wl || wl > len) return 0;
+    for (size_t i = 0; i + wl <= len; i++) {
+        if (strncmp(hay + i, word, wl) != 0) continue;
+        if (i > 0 && (isalnum((unsigned char)hay[i - 1]) || hay[i - 1] == '_'))
+            continue;
+        char after = (i + wl < len) ? hay[i + wl] : '\0';
+        if (isalnum((unsigned char)after) || after == '_') continue;
+        return 1;
+    }
+    return 0;
+}
+
 int code_orchain_patch(const char *src_path, const char *fnname,
                        const char *lookup_fn, const char *call_tpl,
                        const char *out_path,
-                       int *compiles, char *err_out, size_t err_sz) {
+                       int *compiles, char *err_out, size_t err_sz,
+                       int *skipped, char *skip_ident, size_t skip_sz) {
     if (compiles) *compiles = 0;
     if (err_out && err_sz) err_out[0] = '\0';
+    if (skipped) *skipped = 0;
+    if (skip_ident && skip_sz) skip_ident[0] = '\0';
     if (!src_path || !fnname || !*fnname || !out_path || !*out_path) return -1;
     if (!orchain_ident_ok(lookup_fn)) return -1;  /* lands verbatim in C source */
     if (out_path[0] == '/' || out_path[0] == '~' || strstr(out_path, "..")) return -1;
@@ -2029,16 +2077,28 @@ int code_orchain_patch(const char *src_path, const char *fnname,
     stem[si] = '\0';
     if (!si) return -1;
 
-    size_t cs[64], ce[64];
+    size_t cs[64], ce[64], ctop[64];
     int cline[64];
     char carg[64][128];
     int nchains = 0;
 
     size_t fl = strlen(fnname);
     int line = 1;
+    /* gen274: per-chain applicability needs the chain's ENCLOSING-FUNCTION
+     * region — buf[top_start..chain_start). top_start moves past every
+     * top-level `}` during the same linear walk (code_strip already blanked
+     * braces in comments/strings), so the region starts at the current
+     * function's signature and covers everything above the chain. */
+    int bdepth = 0;
+    size_t top_start = 0;
     const char *p = buf;
     while (*p) {
         if (*p == '\n') { line++; p++; continue; }
+        if (*p == '{') { bdepth++; p++; continue; }
+        if (*p == '}') {
+            if (bdepth > 0 && --bdepth == 0) top_start = (size_t)(p - buf) + 1;
+            p++; continue;
+        }
         if (!((isalpha((unsigned char)*p) || *p == '_') && at_fn_call(buf, p, fnname, fl))) {
             p++; continue;
         }
@@ -2086,6 +2146,7 @@ int code_orchain_patch(const char *src_path, const char *fnname,
             }
             cs[nchains] = chain_start;
             ce[nchains] = chain_end;
+            ctop[nchains] = top_start;
             cline[nchains] = chain_line;
             snprintf(carg[nchains], sizeof carg[nchains], "%s", arg);
             nchains++;
@@ -2093,12 +2154,36 @@ int code_orchain_patch(const char *src_path, const char *fnname,
     }
     if (nchains == 0) return 0;
 
+    /* gen274: which context identifiers the call shape imports (none for the
+     * default placeholder-only templates, so gen262 targets are untouched) */
+    char idents[4][64];
+    int nid = orchain_tpl_scope_idents(call_tpl, idents, 4);
+
     size_t oi = 0, prev = 0;
     for (int i = 0; i < nchains; i++) {
         size_t seg = cs[i] - prev;
         if (oi + seg >= sizeof out) return -1;
         memcpy(out + oi, orig + prev, seg);
         oi += seg;
+        /* gen274: a chain whose enclosing function does not see every imported
+         * identifier is SKIPPED honestly (kept verbatim), not patched into code
+         * that cannot compile. Heuristic scope check; the codebase's own
+         * build/test suite stays the final judge. */
+        int miss = -1;
+        for (int k = 0; k < nid && miss < 0; k++)
+            if (!orchain_word_in(buf + ctop[i], cs[i] - ctop[i], idents[k]))
+                miss = k;
+        if (miss >= 0) {
+            size_t clen = ce[i] - cs[i];
+            if (oi + clen >= sizeof out) return -1;
+            memcpy(out + oi, orig + cs[i], clen);
+            oi += clen;
+            prev = ce[i];
+            if (skipped) (*skipped)++;
+            if (skip_ident && skip_sz)
+                snprintf(skip_ident, skip_sz, "%s", idents[miss]);
+            continue;
+        }
         char key[128];
         snprintf(key, sizeof key, "%s_chain%d", stem, cline[i]);
         const char *tpl = (call_tpl && *call_tpl) ? call_tpl

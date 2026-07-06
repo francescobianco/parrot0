@@ -200,12 +200,20 @@ int code_orchain_emit_facts(const char *src_path, const char *fnname,
  * through a .c temp (cc ignores foreign suffixes); verdict in `*compiles`:
  * 1 = compiles, 0 = the patch broke it, -1 = the standalone judge does not
  * apply because the ORIGINAL does not compile alone either (the file is a
- * fragment of a larger translation unit — its own build must judge). Returns
- * chains replaced, 0 if none (no file written), -1 on error. */
+ * fragment of a larger translation unit — its own build must judge).
+ * gen274 (per-chain applicability): a template can IMPORT context identifiers
+ * beyond its placeholders (the `b` of "kb_cue_match(b, KEY, ARG)"); a chain
+ * whose enclosing function does not mention every imported identifier is kept
+ * verbatim instead of patched into code that cannot compile — `*skipped`
+ * counts those sites and `skip_ident` names the missing identifier. Heuristic
+ * scope check; the codebase's own build/test suite stays the final judge.
+ * Returns chains FOUND (patched = found - skipped), 0 if none (no file
+ * written), -1 on error. */
 int code_orchain_patch(const char *src_path, const char *fnname,
                        const char *lookup_fn, const char *call_tpl,
                        const char *out_path,
-                       int *compiles, char *err_out, size_t err_sz);
+                       int *compiles, char *err_out, size_t err_sz,
+                       int *skipped, char *skip_ident, size_t skip_sz);
 
 /* gen263 (Track 5.3): the behavior-preserving judge of the derived plan. Runs
  * the ORIGINAL and the PATCHED version of a file through the same generated
