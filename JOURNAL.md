@@ -1,4 +1,36 @@
 # parrot0 evolution journal
+## 2026-07-07 - gen278: parallel test harness + a concurrency-safe code oracle
+
+**Goal (F.).** Do the recommended test-speed optimization "for now" — i.e.
+recommendation #1 from docs/plans/optimize-the-tests.md: parallelize run.sh (the
+free, zero-new-protocol win), not yet the `--test-engine` endgame.
+
+**Changed.**
+- `tests/run.sh`: cases now run in PARALLEL via `xargs -P` (degree
+  `$PARROT0_TEST_JOBS`, default `nproc`), each still in its own hermetic parrot0
+  process. Per-case output goes to a temp dir and is aggregated in SORTED case
+  order, so PASS/FAIL lines + the summary are byte-identical to the serial
+  harness; `PARROT0_TEST_JOBS=1` restores serial. Measured: run.sh 102 s → ~14 s
+  (≈7.3× on 22 cores), stable and green across repeated runs.
+- `src/code.c` + `src/brain/80-code.c`: the code oracle's temp files were FIXED
+  names in the CWD (`.p0_run_tmp.out`, `.p0_gamecheck.c`, `.p0_edit_tmp.c`, …).
+  Parallelism immediately exposed the latent race — two processes synthesizing
+  code at once clobbered each other's temp and the reqgen/rulespec cases flapped.
+  Every oracle temp is now PER-PROCESS unique (`.p0_<stem>_<pid>.<ext>`), the
+  right fix regardless of tests: the compile/run oracle is now concurrency-safe,
+  which the MCP engine (an agent could trigger concurrent synthesis) also wanted.
+  `.gitignore` gained `.p0_*`.
+
+**The finding validates the plan's own warning.** optimize-the-tests.md argued
+"isolation is a feature, parallelism is not entirely free — shared mutable state
+hides somewhere". It did: not in brain state (the .chat cases are hermetic) but
+in the C oracle's temp files. Closed now.
+
+**Verified.** `make test` ALL GREEN (run.sh 225/225); run.sh parallel run three
+times back-to-back, deterministic, zero flakiness. Version
+`gen278-parallel-tests`. Recommendation #2 (the `test.run` MCP tool /
+`--test-engine`, reset via brain_reload) remains the documented endgame.
+
 ## 2026-07-06 - gen277: the MCP engine — parrot0 as a live inference DB an agent trains via MCP
 
 **Goal (F., 2026-07-06).** F. did not want a TEST proving you can train parrot0

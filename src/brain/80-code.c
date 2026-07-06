@@ -329,7 +329,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             snprintf(where, sizeof where, " in %s", rel);
         }
 
-        const char *tmp = ".p0_edit_tmp.c";
+        char tmp[64];   /* gen278: per-process temp (parallel-safe) */
+        snprintf(tmp, sizeof tmp, ".p0_edit_tmp_%ld.c", (long)getpid());
         int n = code_delete_function(fullpath, fnname, tmp);
         if (n < 0) return 0;                       /* bad name / unreadable — not ours */
         if (n == 0) {
@@ -443,7 +444,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
             snprintf(where, sizeof where, " in %s", rel);
         }
 
-        const char *tmp = ".p0_edit_tmp.c";
+        char tmp[64];   /* gen278: per-process temp (parallel-safe) */
+        snprintf(tmp, sizeof tmp, ".p0_edit_tmp_%ld.c", (long)getpid());
         int n = code_rename(fullpath, oldn, newn, tmp);
         if (n < 0) return 0;                       /* bad names / unreadable — not ours */
         if (n == 0) {

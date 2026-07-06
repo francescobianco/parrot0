@@ -2214,7 +2214,8 @@ int code_orchain_patch(const char *src_path, const char *fnname,
      * unit and the standalone judge does not apply (*compiles = -1) — reporting
      * "broke the build" would be a false verdict; the codebase's own build is
      * the judge. */
-    const char *tmp = ".p0_patch_tmp.c";
+    char tmp[64];   /* gen278: per-process temp so parallel instances don't race */
+    snprintf(tmp, sizeof tmp, ".p0_patch_tmp_%ld.c", (long)getpid());
     FILE *t = fopen(tmp, "w");
     if (t) {
         size_t w = fwrite(out, 1, oi, t);
@@ -2272,7 +2273,10 @@ int code_orchain_verify(const char *orig_path, const char *patched_path,
     static char outa[8192], outb[8192];
     int exa = 0, exb = 0;
     const char *paths[2] = { orig_path, patched_path };
-    const char *tmps[2]  = { ".p0_verify_a.c", ".p0_verify_b.c" };
+    char va[64], vb[64];   /* gen278: per-process temps (parallel-safe) */
+    snprintf(va, sizeof va, ".p0_verify_a_%ld.c", (long)getpid());
+    snprintf(vb, sizeof vb, ".p0_verify_b_%ld.c", (long)getpid());
+    const char *tmps[2]  = { va, vb };
     char *outs[2] = { outa, outb };
     int  *exs[2]  = { &exa, &exb };
     for (int v = 0; v < 2; v++) {
@@ -2485,7 +2489,8 @@ int code_build(const char *src_path, char *err_out, size_t err_sz) {
         if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
               *c == '_' || *c == '-')) return -1;
 
-    const char *exe = ".p0_build_tmp.out";
+    char exe[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(exe, sizeof exe, ".p0_build_tmp_%ld.out", (long)getpid());
     int pf[2];
     if (pipe(pf) != 0) return -1;
     pid_t pid = fork();
@@ -2530,7 +2535,8 @@ int code_run(const char *src_path, int *exit_code, char *err_out, size_t err_sz)
         if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
               *c == '_' || *c == '-')) return -1;
 
-    const char *exe = "./.p0_run_tmp.out";
+    char exe[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(exe, sizeof exe, "./.p0_run_tmp_%ld.out", (long)getpid());
 
     /* Stage 1: compile+link, capturing diagnostics. */
     int pf[2];
@@ -2598,7 +2604,8 @@ int code_run_capture(const char *src_path, const char *stdin_data,
         if (!(isalnum((unsigned char)*c) || *c == '/' || *c == '.' ||
               *c == '_' || *c == '-')) return -1;
 
-    const char *exe = "./.p0_runcap_tmp.out";
+    char exe[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(exe, sizeof exe, "./.p0_runcap_tmp_%ld.out", (long)getpid());
 
     int pf[2];
     if (pipe(pf) != 0) return -1;
@@ -2709,7 +2716,8 @@ int code_check_counter_game(const char *src, const char *token, int threshold,
     if (!src || !*src || threshold < 1 || threshold > 99) return -1;
     if (!orchain_ident_ok(token) || !orchain_ident_ok(winword)) return -1;
 
-    const char *path = ".p0_gamecheck.c";
+    char path[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(path, sizeof path, ".p0_gamecheck_%ld.c", (long)getpid());
     FILE *f = fopen(path, "w");
     if (!f) return -1;
     fprintf(f, "%s\n", src);
@@ -2783,7 +2791,8 @@ int code_check_print_program(const char *src, const char *message,
                              char *err_out, size_t err_sz) {
     if (err_out && err_sz) err_out[0] = '\0';
     if (!src || !*src || !print_msg_ok(message)) return -1;
-    const char *path = ".p0_printcheck.c";
+    char path[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(path, sizeof path, ".p0_printcheck_%ld.c", (long)getpid());
     FILE *f = fopen(path, "w");
     if (!f) return -1;
     fprintf(f, "%s\n", src);
@@ -2847,7 +2856,8 @@ int code_check_sort(const char *func_src, const char *fnname,
     int m = snprintf(full, sizeof full, harness, func_src, fnname);
     if (m < 0 || (size_t)m >= sizeof full) return -1;
 
-    const char *path = ".p0_sortcheck.c";
+    char path[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(path, sizeof path, ".p0_sortcheck_%ld.c", (long)getpid());
     FILE *f = fopen(path, "w");
     if (!f) return -1;
     if (fwrite(full, 1, (size_t)m, f) != (size_t)m) { fclose(f); remove(path); return -1; }
