@@ -1,4 +1,30 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen272: teachable teach-verbs — the runtime-growth demo, as pure data (Track 5.5)
+
+**Goal.** The plan's "gioco dinamico con la conoscenza": teach a new word and a
+previously deaf branch hooks WITH NO REBUILD. gen271 made it nearly free — the
+teach-verb vocabulary that gates try_teach_form now lives in the KB
+(intent_cue(00_lex_chain332, …)), so the only missing piece was a learnable/3
+row declaring that class itself teachable.
+
+**Changed.** DATA ONLY — two learnable rows in kb/core/intents.p0
+("a teaching verb" / "verbo di insegnamento" -> 00_lex_chain332, substring).
+Zero C for the behavior; the version bump is the whole code diff.
+
+**Observed (the compounding).** "memorizza …" is deaf; ONE turn
+(`learn "memorizza " as a teaching verb`) asserts the verb into the gate's own
+vocabulary; the same branch then hooks and the new verb teaches anything the
+registry knows. Stress: RECURSION — memorizza teaches "annota", annota teaches
+"segna", segna teaches a greeting, the greeting fires; three generations of
+taught vocabulary in one session. gen271's trailing-space semantics survive the
+full round-trip ("memorizzare" stays deaf); empty span declined.
+
+**Ratchet.** teachverb.chat / teachverb.it.chat pin the deaf->taught->hooks->
+composes arc EN+IT (different verbs, same code path). tests/run.sh 225/225,
+`make test` 110/110 suites. Version `gen272-teachable-teach-verbs`. Next: the
+next real site by category (the cuechains counter keeps descending) or
+RULESCORE Thread B.
+
 ## 2026-07-06 - gen271: the derived plan migrates its FIRST real site — the counter descends (341 -> 340)
 
 **Goal (Track 5.4 of docs/plans/coding-agent-evolution.md, Thread A of TASK.md).**

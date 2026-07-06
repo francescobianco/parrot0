@@ -1,0 +1,22 @@
+# gen272 (Track 5.5, the runtime-growth demo — "il gioco dinamico con la
+# conoscenza"): gen271 moved the teach-verb vocabulary that GATES try_teach_form
+# into the KB (intent_cue(00_lex_chain332, …)), and a learnable/3 row makes that
+# class itself teachable. So: a verb parrot0 never heard is deaf; ONE teaching
+# turn asserts it into the gate's own vocabulary; the same branch then hooks
+# WITH NO REBUILD, and the new verb can teach anything else the registry knows.
+# Three layers of runtime knowledge composing: taught verb -> taught greeting ->
+# greeting fires. All data; zero C changed for this generation's behavior.
+> memorizza "buondi a tutti" per salutare
+< I don't understand that yet.
+> learn "memorizza " as a teaching verb
+< Got it - I'll take "memorizza " as a way to a teaching verb now.
+> memorizza "ehila {name}" per salutare
+< Got it - I'll take "ehila {name}" as a way to salutare now.
+> im marco
+< Nice to meet you, marco!
+> im luca
+< ehila luca
+# the trailing space is CONTENT (the gen271 semantics, preserved through the
+# whole teach round-trip): "memorizzare" must stay deaf.
+> memorizzare "x" per salutare
+< I don't understand that yet.

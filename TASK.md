@@ -12,11 +12,15 @@ via knowledge, not C branches: `codebase_lookup/2` (which lookup a codebase
 owns) + `lookup_call/2` (the call SHAPE, FN/ARG/KEY template), with both
 compile judges fragment-honest (a file that never compiled standalone defers
 to "its own build/test suite must judge"). Ratchet: tests/cuechains.sh in
-`make test` — the chain counter (341 → 340) MUST ONLY DESCEND. Next:
-1. Runtime-growth demo (Track 5.5): teach a new intent_cue word, a previously
-   deaf branch hooks with no rebuild (the "gioco dinamico con la conoscenza").
-2. Next site(s): migrate by CATEGORY (e.g. all single-scrutinee chains of a
+`make test` — the chain counter (341 → 340) MUST ONLY DESCEND. gen272 closed
+Track 5.5 as PURE DATA (two learnable/3 rows): "learn \"memorizza \" as a
+teaching verb" asserts into the gate's own vocabulary and the deaf branch hooks
+with no rebuild — recursion proven (taught verb teaches the next verb);
+teachverb.chat/.it pin the arc. Next:
+1. Next site(s): migrate by CATEGORY (e.g. all single-scrutinee chains of a
    module), lower the cuechains MAX each time.
+2. Sites whose intent key deserves a SEMANTIC name + learnable row (each
+   migrated site can become runtime-growable like the teach gate).
 
 **Thread B — RULESCORE (`make rulescore`, F.'s gauge): text→rules→code.**
 Done: gen264 harness + honest 0/25 baseline; gen265 category recognition (5/5

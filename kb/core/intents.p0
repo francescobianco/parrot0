@@ -189,6 +189,14 @@ learnable("ask for short answers", brevity,   substring).
 learnable("risposte brevi",       brevity,    substring).
 learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
+% gen272 (Track 5.5, the runtime-growth demo): the teach-verb class ITSELF is
+% learnable. gen271 migrated the guard of try_teach_form to KB
+% (intent_cue(00_lex_chain332, …)), so "learn \"memorizza \" as a teaching
+% verb" asserts a new verb into the very vocabulary that gates teaching — a
+% previously deaf branch hooks with no rebuild, and the new verb can then
+% teach anything else the registry knows. Reflexive growth as pure DATA.
+learnable("a teaching verb",      00_lex_chain332, substring).
+learnable("verbo di insegnamento", 00_lex_chain332, substring).
 
 % --- gen240 (universal-comprehension, social branch): smalltalk CONTINUITY. A
 % conversational/experiential turn (first-person experience or opinion, or a

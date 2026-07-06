@@ -364,8 +364,12 @@ funziona solo su src/brain, abbiamo barato.
    sono onesti sui frammenti (un file mai compilabile standalone rimanda al
    build/suite del suo codebase). Ratchet: `tests/cuechains.sh` in `make test`
    — il contatore (341 → 340) può solo scendere. Prossimi siti per categorie.
-5. Demo di crescita a runtime: parola nuova insegnata → un ramo prima sordo
-   aggancia, senza rebuild (il "gioco dinamico con la conoscenza").
+5. ✅ gen272 — Demo di crescita a runtime, come PURI DATI (due righe
+   learnable/3): `learn "memorizza " as a teaching verb` inserisce il verbo
+   nel vocabolario che GOVERNA l'insegnamento stesso; il ramo prima sordo
+   aggancia senza rebuild, e la ricorsione regge (il verbo insegnato insegna
+   il verbo successivo, che insegna un saluto, che spara). Ratchet:
+   teachverb.chat/.it. Il "gioco dinamico con la conoscenza" è vivo.
 
 ---
 
