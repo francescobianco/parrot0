@@ -1962,8 +1962,49 @@ int code_orchain_emit_facts(const char *src_path, const char *fnname,
     return nfacts;
 }
 
+/* gen271: render one patched call from the codebase's call-shape template.
+ * Whole-word tokens FN, ARG, KEY become the lookup function, the chain's
+ * scrutinee and the QUOTED key; everything else is copied verbatim. The shape
+ * is knowledge (a lookup_call/2 fact) because each codebase's lookup primitive
+ * has its own signature — parrot0's kb_cue_match(b, "key", s) is not the
+ * fixture's lookup(s, "key"). */
+static int orchain_render_call(const char *tpl, const char *fn,
+                               const char *arg, const char *key,
+                               char *out, size_t out_sz) {
+    size_t o = 0;
+    const char *p = tpl;
+    while (*p) {
+        const char *sub = NULL;
+        size_t tok = 0;
+        int word_start = (p == tpl) ||
+                         !(isalnum((unsigned char)p[-1]) || p[-1] == '_');
+        if (word_start) {
+            if (strncmp(p, "ARG", 3) == 0 &&
+                !(isalnum((unsigned char)p[3]) || p[3] == '_')) { sub = arg; tok = 3; }
+            else if (strncmp(p, "KEY", 3) == 0 &&
+                     !(isalnum((unsigned char)p[3]) || p[3] == '_')) { sub = key; tok = 3; }
+            else if (strncmp(p, "FN", 2) == 0 &&
+                     !(isalnum((unsigned char)p[2]) || p[2] == '_')) { sub = fn; tok = 2; }
+        }
+        if (sub) {
+            int m = (sub == key)   /* only the key renders quoted */
+                    ? snprintf(out + o, out_sz - o, "\"%s\"", sub)
+                    : snprintf(out + o, out_sz - o, "%s", sub);
+            if (m < 0 || (size_t)m >= out_sz - o) return 0;
+            o += (size_t)m;
+            p += tok;
+        } else {
+            if (o + 1 >= out_sz) return 0;
+            out[o++] = *p++;
+        }
+    }
+    out[o] = '\0';
+    return 1;
+}
+
 int code_orchain_patch(const char *src_path, const char *fnname,
-                       const char *lookup_fn, const char *out_path,
+                       const char *lookup_fn, const char *call_tpl,
+                       const char *out_path,
                        int *compiles, char *err_out, size_t err_sz) {
     if (compiles) *compiles = 0;
     if (err_out && err_sz) err_out[0] = '\0';
@@ -2058,13 +2099,14 @@ int code_orchain_patch(const char *src_path, const char *fnname,
         if (oi + seg >= sizeof out) return -1;
         memcpy(out + oi, orig + prev, seg);
         oi += seg;
-        int m;
-        if (carg[i][0])
-            m = snprintf(out + oi, sizeof out - oi, "%s(%s, \"%s_chain%d\")",
-                         lookup_fn, carg[i], stem, cline[i]);
-        else
-            m = snprintf(out + oi, sizeof out - oi, "%s(\"%s_chain%d\")",
-                         lookup_fn, stem, cline[i]);
+        char key[128];
+        snprintf(key, sizeof key, "%s_chain%d", stem, cline[i]);
+        const char *tpl = (call_tpl && *call_tpl) ? call_tpl
+                        : (carg[i][0] ? "FN(ARG, KEY)" : "FN(KEY)");
+        char call[512];
+        if (!orchain_render_call(tpl, lookup_fn, carg[i], key,
+                                 call, sizeof call)) return -1;
+        int m = snprintf(out + oi, sizeof out - oi, "%s", call);
         if (m < 0 || (size_t)m >= sizeof out - oi) return -1;
         oi += (size_t)m;
         prev = ce[i];
@@ -2081,14 +2123,23 @@ int code_orchain_patch(const char *src_path, const char *fnname,
 
     /* mechanical verdict: the patched copy must still be valid C. cc silently
      * ignores unknown suffixes like .p0fix (exit 0 without compiling — a false
-     * pass), so the check runs on a .c-suffixed temp copy, removed after. */
+     * pass), so the check runs on a .c-suffixed temp copy, removed after.
+     * gen271 honesty: if the patched copy fails, compile the ORIGINAL the same
+     * way; when that fails too, the file is a FRAGMENT of a larger translation
+     * unit and the standalone judge does not apply (*compiles = -1) — reporting
+     * "broke the build" would be a false verdict; the codebase's own build is
+     * the judge. */
     const char *tmp = ".p0_patch_tmp.c";
     FILE *t = fopen(tmp, "w");
     if (t) {
         size_t w = fwrite(out, 1, oi, t);
         fclose(t);
-        if (w == oi && compiles)
+        if (w == oi && compiles) {
             *compiles = code_compile(tmp, err_out, err_sz) == 1;
+            if (!*compiles &&
+                code_compile(src_path, NULL, 0) != 1)
+                *compiles = -1;
+        }
         remove(tmp);
     }
     return nchains;

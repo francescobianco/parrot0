@@ -402,12 +402,42 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
     }
 
     if (strcmp(impl, "patch_chains") == 0) {
+        /* gen271 (Track 5.4): WHICH lookup primitive a codebase uses is
+         * knowledge about THAT codebase — codebase_lookup(PathPrefix, Fn) —
+         * consulted before the goal's plan_param default. The SHAPE of a call
+         * to it (each primitive has its own signature) is knowledge too:
+         * lookup_call(Fn, Template) with FN/ARG/KEY slots. Without either
+         * fact the gen262 defaults hold, so the foreign fixture is untouched. */
         char lfn[64] = "";
-        if (!plan_param_value(b, goal, "lookup_fn", lfn, sizeof lfn)) {
+        char prefixes[8][KB_TERM_LEN];
+        const char *qcb[2] = { NULL, NULL };
+        size_t np = kb_match(b->kb, "codebase_lookup", qcb, 2, prefixes, 8);
+        for (size_t ci = 0; ci < np && !lfn[0]; ci++) {
+            char pfx[KB_TERM_LEN];
+            snprintf(pfx, sizeof pfx, "%s", prefixes[ci]);
+            plan_unquote(pfx);
+            if (!*pfx || strncmp(target, pfx, strlen(pfx)) != 0) continue;
+            const char *qf[2] = { prefixes[ci], NULL };
+            char fns[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "codebase_lookup", qf, 2, fns, 1) == 1) {
+                plan_unquote(fns[0]);
+                snprintf(lfn, sizeof lfn, "%s", fns[0]);
+            }
+        }
+        if (!lfn[0] && !plan_param_value(b, goal, "lookup_fn", lfn, sizeof lfn)) {
             snprintf(obs, obs_sz,
                      "patch_chains has no lookup_fn knowledge for this goal — teach "
                      "me a plan_param fact naming the lookup call to patch in");
             return 0;
+        }
+        char tpl[KB_TERM_LEN] = "";
+        {
+            const char *qt[2] = { lfn, NULL };
+            char tpls[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "lookup_call", qt, 2, tpls, 1) == 1) {
+                plan_unquote(tpls[0]);
+                snprintf(tpl, sizeof tpl, "%s", tpls[0]);
+            }
         }
         struct stat pst;
         if (stat(target, &pst) == 0 && S_ISDIR(pst.st_mode)) {
@@ -419,7 +449,8 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         snprintf(outp, sizeof outp, "%s.p0fix", target);
         int comp = 0;
         char cerr[256];
-        int n = code_orchain_patch(target, fn, lfn, outp, &comp, cerr, sizeof cerr);
+        int n = code_orchain_patch(target, fn, lfn, tpl[0] ? tpl : NULL, outp,
+                                   &comp, cerr, sizeof cerr);
         if (n < 0) {
             snprintf(obs, obs_sz, "patch_chains could not write %s", outp);
             return 0;
@@ -429,11 +460,20 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
                      "patch_chains found no OR-chains of calls to `%s` in %s", fn, target);
             return 0;
         }
-        if (!comp) {
+        if (comp == 0) {
             snprintf(obs, obs_sz,
                      "patch_chains replaced %d chains with calls to `%s` in %s but "
                      "the result no longer compiles", n, lfn, outp);
             return 0;
+        }
+        if (comp < 0) {
+            /* honest deferral, not a false FAIL: the target never compiled
+             * standalone, so only its own build can judge the patched copy */
+            snprintf(obs, obs_sz,
+                     "patch_chains replaced %d chains with calls to `%s` in %s; "
+                     "the target is a fragment of a larger unit, so its own "
+                     "build must judge the copy", n, lfn, outp);
+            return 1;
         }
         snprintf(obs, obs_sz,
                  "patch_chains replaced %d chains with calls to `%s` in %s and the "
@@ -462,9 +502,19 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         int r = code_orchain_verify(target, patched, fn, pfn, &nprobes,
                                     verr, sizeof verr);
         if (r < 0) {
-            snprintf(obs, obs_sz,
-                     "verify_behavior could not build and run both versions of %s",
-                     target);
+            /* gen271: computed honesty — when the ORIGINAL does not compile
+             * standalone the differential probe harness cannot exist; the real
+             * judge is the codebase's own test suite, and saying so names the
+             * frontier instead of reporting a false failure. */
+            if (code_compile(target, NULL, 0) != 1)
+                snprintf(obs, obs_sz,
+                         "verify_behavior cannot run %s standalone — it is a "
+                         "fragment of a larger unit; the codebase's own test "
+                         "suite must judge the patch", target);
+            else
+                snprintf(obs, obs_sz,
+                         "verify_behavior could not build and run both versions of %s",
+                         target);
             return 0;
         }
         if (r == 0) {

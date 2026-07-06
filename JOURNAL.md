@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen271: the derived plan migrates its FIRST real site — the counter descends (341 -> 340)
+
+**Goal (Track 5.4 of docs/plans/coding-agent-evolution.md, Thread A of TASK.md).**
+The kbfirst_migration plan had crossed the whole arc on the foreign fixture
+(gen257–263); the missing piece was the REAL codebase: a cue chain in src/brain
+migrated by the plan itself, outer circle, `make test` byte-identical as judge.
+
+**The missing knowledge, told as facts.** Real module files broke two hidden C
+constants: (a) the patched call's SHAPE — parrot0's own lookup is
+`kb_cue_match(b, "key", s)`, not the fixture's `lookup(s, "key")` — and (b) the
+standalone compile judge, which would call every fragment "broken". Both became
+knowledge/honesty, never branches on "src/brain": `codebase_lookup(PathPrefix,
+Fn)` says which lookup primitive a codebase owns; `lookup_call(Fn, Template)`
+gives the call shape (whole-word FN/ARG/KEY slots, rendered by the generic
+`orchain_render_call`); and both judges now DETECT the fragment case
+mechanically (the ORIGINAL doesn't compile standalone either) and answer
+honestly — patch_chains defers to "its own build must judge the copy",
+verify_behavior names "the codebase's own test suite" instead of a false FAIL.
+
+**The migration (external hand, per LOOP.md).** parrot0 executed the derived
+plan on src/brain/00-lex.c and produced the two artifacts; the loop agent
+applied them: the 8-verb OR-chain guarding try_teach_form (learn/teach/treat/
+use + IT) is now ONE `kb_cue_match(b, "00_lex_chain332", low)` call, and the
+emitted facts live in kb/core/intents.p0 — the teach-verb vocabulary itself
+became taught knowledge. Poetic and load-bearing: the guard of the TEACHING
+mechanism is the first vocabulary parrot0 carried from code to data.
+
+**Ratchets.** New tests/cuechains.sh in `make test`: the chain count under
+src/brain is measured by parrot0's own scanner and MUST ONLY DESCEND (max 340).
+New fragment fixture (tests/fixtures/orchain/fragment.c, foreign helper
+`vocab_hit(ctx, KEY, ARG)` — the shape mechanism is generic, anti-impostor)
+pinned end-to-end in planact.chat; the migrated real file pins "no OR-chains
+left" EN+IT. Trailing-space cue semantics verified live ("user"/"usare" don't
+fire; learn/impara/use/treat do, incl. gen193 conjunction teach).
+
+**Verified.** `tests/run.sh` 223/223, `make test` 110/110 suites green,
+`make code-bench` 25/25. Version `gen271-first-real-site-migrated`. Next
+(Track 5.5): the runtime-growth demo — teach a new intent_cue word and a
+previously deaf branch hooks with no rebuild; then the next site (the counter
+keeps descending).
+
 ## 2026-07-02 - gen270: create-file — the simplest produce-artifact really happens (F.'s pupo.txt)
 
 **Goal (F.'s push-back, verbatim case).** "crea un file chiamata pupo.txt" got

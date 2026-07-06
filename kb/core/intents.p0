@@ -397,3 +397,20 @@ intent_cue(name_marker, "called").
 intent_cue(name_marker, "chiamato").
 intent_cue(name_marker, "chiamata").
 intent_cue(name_marker, "nome").
+
+% gen271 (Track 5.4, coding-agent-evolution): the FIRST real cue-chain site
+% migrated out of C by parrot0's own derived kbfirst_migration plan — these
+% eight facts were EMITTED by emit_facts from the OR-chain that guarded
+% try_teach_form (src/brain/00-lex.c, chain at the then-line 332), and the
+% chain is now ONE kb_cue_match(b, "00_lex_chain332", low) call. The teach-verb
+% vocabulary itself became taught knowledge: a new verb is a fact here (or a
+% runtime assert), never a recompile. Trailing spaces are content (the verbs
+% must end the word: "use " must not fire on "user").
+intent_cue(00_lex_chain332, "learn ").
+intent_cue(00_lex_chain332, "teach ").
+intent_cue(00_lex_chain332, "treat ").
+intent_cue(00_lex_chain332, "use ").
+intent_cue(00_lex_chain332, "impara ").
+intent_cue(00_lex_chain332, "insegna ").
+intent_cue(00_lex_chain332, "tratta ").
+intent_cue(00_lex_chain332, "usa ").

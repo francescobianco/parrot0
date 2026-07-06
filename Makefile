@@ -205,6 +205,7 @@ longtalk-bench: build
 
 test: build
 	@./tests/run.sh
+	@./tests/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh
 	@./tests/multigoal.sh

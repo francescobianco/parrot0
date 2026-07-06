@@ -329,8 +329,10 @@ static int try_teach_form(Brain *b, const char *norm, const char *raw,
     for (const char *c = raw; *c && ln + 1 < sizeof low; c++)
         low[ln++] = (char)tolower((unsigned char)*c);
     low[ln] = '\0';
-    if (!(cue(low,"learn ")||cue(low,"teach ")||cue(low,"treat ")||cue(low,"use ")||
-          cue(low,"impara ")||cue(low,"insegna ")||cue(low,"tratta ")||cue(low,"usa ")))
+    /* gen271: this guard's verb list was the first REAL cue chain migrated to
+     * KB by parrot0's own derived plan (Track 5.4) — the vocabulary lives as
+     * intent_cue(00_lex_chain332, …) facts in kb/core/intents.p0, data not code. */
+    if (!(kb_cue_match(b, "00_lex_chain332", low)))
         return 0;
     const char *rq1 = strchr(raw, '"'), *rq2 = rq1 ? strchr(rq1 + 1, '"') : NULL;
     if (!rq2 || rq2 <= rq1 + 1) return 0;

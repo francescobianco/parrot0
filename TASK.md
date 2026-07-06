@@ -4,18 +4,19 @@
 
 ## Active — two live threads (docs/plans/coding-agent-evolution.md); pick ONE per generation
 
-**Thread A — Track 5.4: the derived plan meets the REAL codebase.**
-Done through gen263: the KB plan domain (gen258) derives the kbfirst_migration
-steps and the walk realizes ALL FIVE via `action_impl/2` bindings —
-`orchain_scan`, `orchain_vocab`, `emit_facts` (`<target>.cues.p0`, one key per
-chain site), `patch_chains` (chain → keyed lookup call, `.p0fix`, compiler
-judge), `verify_behavior` (differential probe harness, byte-identical stdout;
-broken lookup ⇒ DIVERGES). The foreign fixture crosses the whole arc. Next:
-1. First REAL site in src/brain migrated by the derived plan (outer circle, no
-   privileged access; `lookup_fn` taught as `kb_cue_match`; judge = `make test`
-   byte-identical — the ~341 cue-chain counter starts descending).
-2. Runtime-growth demo: teach a new intent_cue word, a previously deaf branch
-   hooks with no rebuild (Track 5.5).
+**Thread A — Track 5.4/5.5: the derived plan on the REAL codebase.**
+Done through gen271: the whole arc runs on the foreign fixture (gen257–263) AND
+on src/brain — gen271 migrated the FIRST real site (00-lex.c's teach-verb
+guard → `kb_cue_match(b, "00_lex_chain332", low)`, facts in kb/core/intents.p0)
+via knowledge, not C branches: `codebase_lookup/2` (which lookup a codebase
+owns) + `lookup_call/2` (the call SHAPE, FN/ARG/KEY template), with both
+compile judges fragment-honest (a file that never compiled standalone defers
+to "its own build/test suite must judge"). Ratchet: tests/cuechains.sh in
+`make test` — the chain counter (341 → 340) MUST ONLY DESCEND. Next:
+1. Runtime-growth demo (Track 5.5): teach a new intent_cue word, a previously
+   deaf branch hooks with no rebuild (the "gioco dinamico con la conoscenza").
+2. Next site(s): migrate by CATEGORY (e.g. all single-scrutinee chains of a
+   module), lower the cuechains MAX each time.
 
 **Thread B — RULESCORE (`make rulescore`, F.'s gauge): text→rules→code.**
 Done: gen264 harness + honest 0/25 baseline; gen265 category recognition (5/5

@@ -74,6 +74,24 @@ plan_param(kbfirst_migration, fact_pred, intent_cue).
 plan_param(kbfirst_migration, lookup_fn, lookup).
 plan_param(kbfirst_migration, probe_fn, classify).
 
+% gen271 (Track 5.4, the derived plan meets the REAL codebase): knowledge ABOUT
+% a codebase, told as facts — exactly the "la forma C diventa kb_cue_match"
+% sentence of the plan, synthesized into Prolog instead of wired into C.
+%   codebase_lookup(PathPrefix, Fn) — the vocabulary-lookup primitive a codebase
+%     under PathPrefix already owns (overrides the goal's lookup_fn default).
+%   lookup_call(Fn, Template)       — the SHAPE of a call to Fn: whole-word
+%     tokens FN, ARG, KEY become the function, the chain's scrutinee and the
+%     quoted per-site key. Each primitive has its own signature; the shape is
+%     data, never a C constant. No fact -> the gen262 default FN(ARG, KEY).
+% src/brain's own lookup is kb_cue_match(Brain*, intent, haystack) — read from
+% src/brain/00-lex.c the outer-circle way, like any foreign codebase's helper.
+codebase_lookup("src/brain", kb_cue_match).
+lookup_call(kb_cue_match, "kb_cue_match(b, KEY, ARG)").
+% the fragment fixture's codebase names its helper differently (anti-impostor:
+% the shape mechanism must be generic, not fitted to kb_cue_match)
+codebase_lookup("tests/fixtures/orchain/fragment", vocab_hit).
+lookup_call(vocab_hit, "vocab_hit(ctx, KEY, ARG)").
+
 % --- Domain 2: the needhelp protocol (external help as plan knowledge) --------
 % F.'s public pattern: when blocked on missing knowledge, do not stop — ask the
 % world through a needhelp.p0 file and keep the plan alive. It is knowledge here

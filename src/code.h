@@ -189,15 +189,22 @@ int code_orchain_emit_facts(const char *src_path, const char *fnname,
                             int *total_chains);
 
 /* gen262 (Track 5.3): the patch step of the derived plan — replace each OR-chain
- * of calls to `fnname` with ONE call `lookup_fn(<arg1>, "<stem>_chain<LINE>")`,
- * where <arg1> is the first argument of the chain's first call (the scrutinee)
- * and the key matches what code_orchain_emit_facts wrote, so patched sites point
- * at their own emitted vocabulary. Non-destructive: the result goes to `out_path`
- * (sandbox rules as code_replace_expr, original untouched). The patched text is
- * then syntax-checked through a .c temp (cc ignores foreign suffixes), verdict in
- * `*compiles`. Returns chains replaced, 0 if none (no file written), -1 on error. */
+ * of calls to `fnname` with ONE call to the target codebase's lookup primitive.
+ * gen271 (Track 5.4): the SHAPE of that call is knowledge, not a C constant —
+ * `call_tpl` is a template whose whole-word tokens FN, ARG and KEY are replaced
+ * by `lookup_fn`, the chain's scrutinee (first argument of the chain's first
+ * call) and the QUOTED "<stem>_chain<LINE>" key (matching what
+ * code_orchain_emit_facts wrote). NULL/empty keeps the gen262 default
+ * `FN(ARG, KEY)`. Non-destructive: the result goes to `out_path` (sandbox rules
+ * as code_replace_expr, original untouched). The patched text is syntax-checked
+ * through a .c temp (cc ignores foreign suffixes); verdict in `*compiles`:
+ * 1 = compiles, 0 = the patch broke it, -1 = the standalone judge does not
+ * apply because the ORIGINAL does not compile alone either (the file is a
+ * fragment of a larger translation unit — its own build must judge). Returns
+ * chains replaced, 0 if none (no file written), -1 on error. */
 int code_orchain_patch(const char *src_path, const char *fnname,
-                       const char *lookup_fn, const char *out_path,
+                       const char *lookup_fn, const char *call_tpl,
+                       const char *out_path,
                        int *compiles, char *err_out, size_t err_sz);
 
 /* gen263 (Track 5.3): the behavior-preserving judge of the derived plan. Runs

@@ -357,7 +357,13 @@ funziona solo su src/brain, abbiamo barato.
    vocabolario + un miss, stdout byte-identico; una lookup rotta produce
    DIVERGES). Il fixture estraneo attraversa l'intero arco: il codice
    rifattorizzato calcola da DATI ciò che prima codificava come codice.
-4. Migrazione per categorie (il contatore scende, una gen alla volta).
+4. ▶ gen271 — PRIMO sito reale migrato dal piano derivato: la guardia dei
+   verbi di insegnamento di 00-lex.c → `kb_cue_match(b, "00_lex_chain332",
+   low)`, fatti in kb/core/intents.p0. La forma della chiamata è CONOSCENZA
+   (`codebase_lookup/2` + `lookup_call/2`, template FN/ARG/KEY) e i giudici
+   sono onesti sui frammenti (un file mai compilabile standalone rimanda al
+   build/suite del suo codebase). Ratchet: `tests/cuechains.sh` in `make test`
+   — il contatore (341 → 340) può solo scendere. Prossimi siti per categorie.
 5. Demo di crescita a runtime: parola nuova insegnata → un ramo prima sordo
    aggancia, senza rebuild (il "gioco dinamico con la conoscenza").
 

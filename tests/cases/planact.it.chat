@@ -8,3 +8,7 @@
 < My derived plan for external help: 1) write what I lack as facts in a needhelp.p0 at the project root; 2) periodically re-read needhelp.p0 to see if someone answered; 3) load the answers as native knowledge and resume the blocked plan.
 > esegui il piano kb-first per catene di chiamate a flag in tests/fixtures/orchain/foreign.c
 < Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/foreign.c.cues.p0; 4) patch_chains replaced 2 chains with calls to `lookup` in tests/fixtures/orchain/foreign.c.p0fix and the result still compiles; 5) verify_behavior ran `classify` on 6 probes in both versions; outputs are byte-identical — the patch preserves behavior.
+# gen271: the migrated real site, through the Italian trigger — same honest
+# "nothing left to migrate" as the English probe, one code path.
+> esegui il piano kb-first per catene di chiamate a cue in src/brain/00-lex.c
+< Executed derived plan for kbfirst migration: 1) orchain_scan found no OR-chains of calls to `cue` in src/brain/00-lex.c; stopped at step 2 extract vocabulary via orchain_vocab: orchain_vocab found no OR-chains of calls to `cue` in src/brain/00-lex.c.
