@@ -41,4 +41,26 @@ int brain_load(Brain *b, const char *path, int as_base);
  * self-model) to `path`. Returns clauses written, or -1 on error. */
 int brain_save_session(Brain *b, const char *path);
 
+/* gen276: load the outer KB layers on top of a freshly-created brain — the
+ * curated base, the session delta, the coding expert, and (if named by
+ * PARROT0_PROFILE) an expert/skill profile. brain_create() already loads the
+ * kernel lexicon and the reflective self-model; brain_boot() adds what the CLI
+ * shell used to load inline, so the same full boot is reachable from any host
+ * (the chat REPL, the daemon, the MCP engine). The file paths come from the
+ * environment (PARROT0_BASE / PARROT0_SESSION / PARROT0_PROFILE), each with the
+ * historical default, an empty value disabling that layer. */
+void brain_boot(Brain *b);
+
+/* gen276: forget the UNSAVED current session and reload every knowledge file
+ * from disk into a fresh KB, in place — so an agent that has written new
+ * knowledge to a `.p0` file (e.g. via the MCP engine) makes parrot0 pick it up
+ * WITHOUT restarting the process: just `/restore`. Anything asserted this
+ * session but never persisted (via /save or session.save) is dropped; anything
+ * on disk — including files changed since boot — is re-read. All conversational
+ * state (name, topics, proof trace, open worlds, …) resets to a clean session.
+ * The caller's `Brain *` stays valid (rebuilt in place). Returns the number of
+ * clauses now loaded, or -1 on allocation failure (in which case `b` is
+ * unchanged). */
+int brain_reload(Brain *b);
+
 #endif /* PARROT0_BRAIN_H */

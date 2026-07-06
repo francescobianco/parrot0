@@ -2,7 +2,33 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active — two live threads (docs/plans/coding-agent-evolution.md); pick ONE per generation
+## Active — MCP engine mission (docs/plans/mcp-engine.md), F. 2026-07-06
+
+**The mission.** `parrot0 --mcp-engine` = a JSON-RPC-over-stdio MCP server that
+exposes the Prolog engine + generation primitives as tools, so an external agent
+can drive the inference engine like a DB: write knowledge, read, infer, generate,
+set temperature, parse/extract from text. The live loop F. wants: MCP up → agent
+writes new knowledge to a `.p0` file via a write tool → `/restore` (or the
+`session.restore` tool) → query the new knowledge in the SAME process, no
+restart. kb-first means added DATA evolves behaviour (a written rule becomes a
+new derivable conclusion). Full design + gen ladder A–G in docs/plans/mcp-engine.md.
+
+**Done — gen276: the keystone `/restore`.** Chat command + `brain_reload()` +
+`brain_boot()` (the outer KB layers factored out of setup_brain so every host
+shares one boot). Reloads all KB files from disk in place, drops the unsaved
+session. `tests/restore.sh` (in `make test`) proves fact-goes-live and
+RULE-makes-new-conclusion after a mid-session file write (coprocess harness).
+
+**Next — gen A (mcp-engine.md §8):** the transport skeleton. Promote the JSON
+parser/escaper from src/serve.c to a shared src/json.c/.h; add `src/mcp.c/.h`
+and the `--mcp-engine` flag in main.c (parallel to `--daemon`); answer
+`initialize` + `tools/list` (empty) + `notifications/initialized` over
+newline-delimited JSON-RPC on stdio. Ratchet: `tests/mcp.sh` scripts a handshake
+and checks the response fields. Then gens B–G add the tools (kb.* read/write/
+infer, gen.*, style.*, text.*, session.*) and the `PARROT0_BARE` gate (§3).
+Discipline unchanged: one gen per step, `make test` green, KB-first, honest.
+
+## Parked — two threads (docs/plans/coding-agent-evolution.md); resume when F. asks
 
 **Thread A — Track 5.4/5.5: the derived plan on the REAL codebase.**
 Done through gen275: the whole arc runs on the foreign fixture (gen257–263) AND

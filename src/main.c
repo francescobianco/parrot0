@@ -143,18 +143,16 @@ static Brain *setup_brain(const char **out_sess) {
     Brain *brain = brain_create();
     if (!brain) return NULL;
 
-    const char *base = getenv("PARROT0_BASE");
-    const char *sess = getenv("PARROT0_SESSION");
-    const char *profile = getenv("PARROT0_PROFILE");
-    if (!base) base = "kb/core/base.p0";
-    if (!sess) sess = "kb/core/session.p0";
-    brain_load(brain, base, 1);
-    brain_load(brain, sess, 0);
-    brain_load(brain, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain knowledge */
-    if (profile && *profile)
-        brain_load(brain, profile, 1);    /* gen150: expert/skill profile */
+    /* gen276: the outer KB layers (base/session/coding/profile) now live in
+     * brain_boot, so the same full boot is reachable from every host and from
+     * brain_reload (the engine behind /restore). */
+    brain_boot(brain);
 
-    if (out_sess) *out_sess = sess;
+    if (out_sess) {
+        const char *sess = getenv("PARROT0_SESSION");
+        if (!sess) sess = "kb/core/session.p0";
+        *out_sess = sess;
+    }
     return brain;
 }
 
@@ -199,7 +197,8 @@ int main(int argc, char **argv) {
     }
 
     fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit, "
-                    "'/save' to persist)\n", brain_version());
+                    "'/save' to persist, '/restore' to reload the KB from disk)\n",
+            brain_version());
 
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];
@@ -237,6 +236,20 @@ int main(int argc, char **argv) {
             if (n >= 0) fprintf(stderr, "parrot0: saved %d clause(s) to %s\n",
                                 n, sess);
             else        fprintf(stderr, "parrot0: could not save to %s\n", sess);
+            continue;
+        }
+        /* gen276: /restore — forget the unsaved session and reload every KB file
+         * from disk in place, so knowledge written to a .p0 file (by hand or by
+         * an MCP-engine agent) goes live WITHOUT restarting parrot0. Anything
+         * asserted this session but not /save'd is dropped. */
+        if (strcmp(line, "/restore") == 0) {
+            int n = brain_reload(brain);
+            if (n >= 0)
+                fprintf(stderr, "parrot0: restored — dropped the unsaved session, "
+                                "reloaded %d clause(s) from disk\n", n);
+            else
+                fprintf(stderr, "parrot0: restore failed (out of memory); "
+                                "the session is unchanged\n");
             continue;
         }
         if (line[0] == '\0') {

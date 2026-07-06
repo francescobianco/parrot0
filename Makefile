@@ -208,6 +208,7 @@ test: build
 	@./tests/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh
+	@./tests/restore.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

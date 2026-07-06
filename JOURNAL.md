@@ -1,4 +1,47 @@
 # parrot0 evolution journal
+## 2026-07-06 - gen276: /restore — reload the KB from disk in place, the keystone of the MCP-engine mission
+
+**Goal (F., 2026-07-06).** A chat command `/restore` that forgets the UNSAVED
+current session and reloads every KB file from disk, so knowledge written to a
+`.p0` file — by hand or, the real target, by a future MCP-engine agent's write
+primitive — goes live WITHOUT restarting parrot0. Mission: an MCP server up,
+an agent adds knowledge and saves it, sends `/restore`, then queries the new
+knowledge in the SAME process. With kb-first, new data evolves behaviour.
+
+**Also written.** docs/plans/mcp-engine.md — the full multi-generation plan for
+`parrot0 --mcp-engine` (a JSON-RPC-over-stdio MCP server exposing the Prolog
+engine + generation primitives as tools: kb.assert/query/match/explain/induce/
+abduce, gen.respond/continue, style.set_temperature, text.parse/extract,
+session.save/restore). This generation ships the keystone `/restore` those
+tools will all rely on; the transport/tools are gens A–G there.
+
+**Changed (three small, additive pieces).**
+- `brain_boot(Brain*)` (src/brain/99-registry.c): the outer KB layers
+  (base/session/coding/profile) factored out of main.c's `setup_brain`, so the
+  same full boot is reachable from every host — chat, `--daemon`, and the coming
+  `--mcp-engine`. `setup_brain` now just calls it; the daemon path is unchanged
+  (verified: `/health` still answers).
+- `brain_reload(Brain*)` (same file): rebuilds the brain in place — a fresh
+  `brain_create()` + `brain_boot()`, then `*b = *fresh; free(fresh)`. A
+  whole-struct MOVE, chosen deliberately over a field-by-field reset because the
+  Brain has 30+ session fields and the ONLY owned pointer is `KB *kb` (verified
+  by scanning the struct): the copy cannot miss a field, and the old (possibly
+  unsaved) KB is `kb_destroy`'d first. The unsaved session dies with it; the
+  fresh KB reflects the current file contents.
+- `/restore` in main.c's REPL (beside `/save`), the startup banner mentions it,
+  and `brain.h` documents both new functions.
+
+**Verified.** `tests/restore.sh` (wired into `make test`) proves all three
+semantics, the third being the point: (A) an unsaved fact is dropped by
+/restore; (B) a fact written to the base file mid-session is picked up after
+/restore — a bash coprocess edits the file BETWEEN turns of one running
+process, the honest simulation of the MCP write-then-restore loop; (C) a RULE
+written mid-session makes parrot0 DERIVE a new conclusion after /restore
+("is diogenes a philosopher?" -> Yes, from `philosopher(X) :- man(X)` +
+`man(diogenes)`, by resolution — not a stored fact). Behaviour evolves by
+inference from added data, the kb-first promise. Full suite green. Version
+`gen276-restore-reload-from-disk`.
+
 ## 2026-07-06 - gen275: fourth real migration, whole module again — and the pollution the counter flushed out (333 -> 317)
 
 **Goal (Track 5.4, keep descending).** Next module by size and cleanliness:

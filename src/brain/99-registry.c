@@ -510,8 +510,45 @@ void brain_destroy(Brain *b) {
     free(b);
 }
 
+/* gen276: the outer KB layers, factored out of main.c's setup_brain so the same
+ * boot is reachable from every host (chat REPL, --daemon, --mcp-engine) and from
+ * brain_reload. brain_create already loaded the kernel lexicon + reflective
+ * self-model; this adds base/session/coding/profile. Paths come from the
+ * environment with the historical defaults; an empty value skips that layer
+ * (brain_load/kb_load treat "" as a no-op). */
+void brain_boot(Brain *b) {
+    if (!b) return;
+    const char *base = getenv("PARROT0_BASE");
+    const char *sess = getenv("PARROT0_SESSION");
+    const char *profile = getenv("PARROT0_PROFILE");
+    if (!base) base = "kb/core/base.p0";
+    if (!sess) sess = "kb/core/session.p0";
+    brain_load(b, base, 1);
+    brain_load(b, sess, 0);
+    brain_load(b, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain */
+    if (profile && *profile)
+        brain_load(b, profile, 1);                        /* gen150: expert/skill profile */
+}
+
+/* gen276: rebuild the brain's knowledge and session state in place from the
+ * files on disk. Builds a fresh brain the SAME way boot did (brain_create +
+ * brain_boot), then MOVES its guts into *b — a whole-struct copy so no session
+ * field can be missed (the only owned pointer is the KB, handled explicitly).
+ * The unsaved session dies with the old KB; the fresh KB reflects the current
+ * file contents, so newly-written knowledge goes live without a restart. */
+int brain_reload(Brain *b) {
+    if (!b) return -1;
+    Brain *fresh = brain_create();
+    if (!fresh) return -1;              /* *b left untouched on failure */
+    brain_boot(fresh);
+    kb_destroy(b->kb);                  /* drop the old (possibly unsaved) KB */
+    *b = *fresh;                        /* move every field, incl. the fresh KB ptr */
+    free(fresh);                        /* free only the shell; fresh->kb now owned by b */
+    return (int)kb_size(b->kb);
+}
+
 const char *brain_version(void) {
-    return "gen275-selfloop-chains-migrated";
+    return "gen276-restore-reload-from-disk";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
