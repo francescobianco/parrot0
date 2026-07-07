@@ -51,12 +51,13 @@ utili: `scripts/mcp-live.sh tools` (elenca i tool), `... raw '<json>'` (richiest
 JSON-RPC arbitraria). La cartella di stato è `$PARROT0_MCP_DIR`
 (default `/tmp/parrot0-mcp`).
 
-## I tool (16)
+## I tool (17)
 
 | Tool | Cosa fa | Primitiva |
 |---|---|---|
 | `kb.assert` `{pred,args}` | asserisce un fatto (layer sessione) | `kb_assert` |
 | `kb.assert_rule` `{head,body[]}` | asserisce `head(X) :- b0(X),…` (**solo unario**, vedi limiti) | `kb_assert_rule_n` |
+| `kb.assert_clause` `{head,body[]}` | asserisce clausola n-aria piena `head:-body0,…,bodyN` con variabili `$` distinte/condivise (U2 gen281) | `kb_assert_clause` |
 | `kb.retract` `{pred,args}` | ritratta un fatto | `kb_retract` |
 | `kb.query` `{pred,args}` | prova per risoluzione SLD (n-aria, ricorsiva) | `kb_query` |
 | `kb.match` `{pred,args}` | pattern con `null`=variabile → binding (**prima var / lista piatta**) | `kb_match` |
@@ -89,28 +90,24 @@ file da fuori), c'è il loop che la missione descrive:
 Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
 file che `kb.save` scrive (così `brain_reload` lo ricarica).
 
-## Limiti noti dei tool (gen278, aggiornato gen280, misurati dal vivo)
+## Limiti noti dei tool (gen281, misurati dal vivo)
 
-> **Risolto dopo gen278:** i letterali insegnati via MCP ora round-trippano
+> **Risolto dopo gen280:** i letterali insegnati via MCP ora round-trippano
 > fedelmente — un nome proprio (`Madrid`), un template sentence-case, un valore
 > `$HOME` non vengono più scambiati per variabili (U1 gen279 quota i letterali al
 > bordo; U1b gen280 introduce `$` come marcatore di variabile esplicito). Vedi
-> `tests/mcp-teach.sh`. Restano i due limiti STRUTTURALI qui sotto.
+> `tests/mcp-teach.sh`.
+>
+> **Risolto in gen281:** `kb.assert_clause` (U2) colma il buco n-ario — regole
+> con join a più variabili (`grandparent(X,Z) :- parent(X,Y), parent(Y,Z)`) ora
+> si insegnano via MCP senza file `.p0`. Vedi `tests/assertclause.sh`. Resta il
+> limite strutturale sotto.
 
 Il **motore** dietro MCP è un Prolog n-ario completo (join a più variabili,
 ricorsione, backtracking, cycle-guard — vedi
-[il protocollo prolog-like](prolog-like-engine.md)). Due **tool** però ne
-espongono solo un sottoinsieme; la differenza è nell'adattatore, non nel motore:
+[il protocollo prolog-like](prolog-like-engine.md)). Un **tool** però ne
+espone solo un sottoinsieme; la differenza è nell'adattatore, non nel motore:
 
-- **`kb.assert_rule` è unario.** Il body è una lista di predicati applicati allo
-  **stesso** soggetto `X` (`head(X) :- b0(X), b1(X)`). Una regola con **join a
-  due variabili** — es. `grandparent(X,Z) :- parent(X,Y), parent(Y,Z)` — **non è
-  esprimibile** via questo tool: `kb.assert_rule {"head":"grandparent","body":["parent","parent"]}`
-  ritorna `{"ok":true}` ma la query resta `false`. **Workaround oggi:** metti la
-  clausola in un file `.p0` (il parser costruisce termini n-ari pieni) e caricala
-  con `PARROT0_BASE=/path.p0` o via `kb.restore` — così il motore la risolve e
-  `kb.explain` la spiega. Il tool programmatico `kb.assert_clause` che colma il
-  buco è il passo **P1** di [docs/plans/generative-prolog.md](plans/generative-prolog.md).
 - **`kb.match` torna la prima variabile, appiattita.** Con più `null`,
   `kb.match parent(?,?)` dà `["tom","bob","ann"]` (lista de-duplicata), non le
   **tuple** `[["tom","bob"],["bob","ann"]]`. Il join fra i due slot va perso. Le

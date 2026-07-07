@@ -76,6 +76,18 @@ int    kb_assert_rule(KB *kb, const char *head, const char *body);
 int    kb_assert_rule_n(KB *kb, const char *head,
                         const char *const *bodies, size_t nbody);
 
+/* A goal/term: predicate + args. An arg is a constant atom or a variable
+ * ($-prefixed, or legacy uppercase/'_'). Used to assert a full clause. */
+typedef struct { const char *pred; const char *const *args; size_t argc; } KbGoal;
+
+/* Assert a definite clause  head :- body[0], …, body[nbody-1]  with FULL n-ary
+ * head and goals carrying distinct/shared variables — the general shape a .p0
+ * rule can express, unlike kb_assert_rule_n (unary). Idempotent (an identical
+ * clause is not duplicated). nbody must be 1..KB_MAX_BODY, each argc ≤
+ * KB_MAX_ARGS. Returns 1 on success (or if already present), 0 on error. */
+int    kb_assert_clause(KB *kb, const KbGoal *head,
+                        const KbGoal *body, size_t nbody);
+
 /* Query a fact. For unary queries this performs backward-chaining resolution
  * over facts AND rules (with a depth limit); for other arities it is a direct
  * ground lookup. Returns 1 if provable (closed-world), else 0. */

@@ -444,6 +444,50 @@ static int term_make(Term *t, const char *pred, const char *const *args,
     return 1;
 }
 
+int kb_assert_clause(KB *kb, const KbGoal *head,
+                     const KbGoal *body, size_t nbody) {
+    if (!kb || !head || (nbody > 0 && !body)) return 0;
+    if (nbody == 0 || nbody > KB_MAX_BODY) return 0;
+    if (head->argc > KB_MAX_ARGS) return 0;
+    if (!term_ok(head->pred)) return 0;
+    for (size_t i = 0; i < head->argc; i++)
+        if (!term_ok(head->args[i])) return 0;
+    for (size_t gi = 0; gi < nbody; gi++) {
+        if (!term_ok(body[gi].pred)) return 0;
+        if (body[gi].argc > KB_MAX_ARGS) return 0;
+        for (size_t j = 0; j < body[gi].argc; j++)
+            if (!term_ok(body[gi].args[j])) return 0;
+    }
+
+    Rule r;
+    memset(&r, 0, sizeof r);
+    if (!term_make(&r.head, head->pred, head->args, head->argc)) return 0;
+    for (size_t gi = 0; gi < nbody; gi++) {
+        if (!term_make(&r.body[gi], body[gi].pred,
+                       body[gi].args, body[gi].argc)) return 0;
+    }
+    r.nbody = nbody;
+    r.origin = kb->origin;
+
+    for (size_t ri = 0; ri < kb->nr; ri++) {
+        const Rule *R = &kb->rules[ri];
+        if (R->nbody != r.nbody || R->head.argc != r.head.argc) continue;
+        if (strcmp(R->head.pred, r.head.pred) != 0) continue;
+        int same = 1;
+        for (size_t a = 0; a < r.head.argc && same; a++)
+            if (strcmp(R->head.args[a], r.head.args[a]) != 0) same = 0;
+        for (size_t b = 0; b < r.nbody && same; b++) {
+            if (R->body[b].argc != r.body[b].argc ||
+                strcmp(R->body[b].pred, r.body[b].pred) != 0) { same = 0; break; }
+            for (size_t a = 0; a < r.body[b].argc && same; a++)
+                if (strcmp(R->body[b].args[a], r.body[b].args[a]) != 0) same = 0;
+        }
+        if (same) return 1;
+    }
+
+    return kb_add_rule(kb, &r);
+}
+
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
     if (kb_is_negated(kb, pred, args, argc)) return 0;

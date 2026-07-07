@@ -180,6 +180,41 @@ static size_t build_args(const JVal *arr, const char *slots[], size_t max,
     return n;
 }
 
+/* Build clause argument slots. Like build_args but $-prefixed strings
+ * are VARIABLES (passed as-is), not encoded as quoted constants.
+ * Stores encoded values in `scratch` to avoid dangling pointers. */
+static size_t build_clause_args(const JVal *arr, const char *slots[], size_t max,
+                                 char scratch[][KB_TERM_LEN]) {
+    size_t n = 0;
+    if (!arr || arr->type != J_ARR) return 0;
+    for (size_t i = 0; i < arr->n && n < max; i++) {
+        const JVal *e = arr->items[i];
+        if (!e || e->type == J_NULL) {
+            slots[n] = NULL;
+        } else if (e->type == J_STR) {
+            if (e->str && e->str[0] == '$') {
+                slots[n] = e->str;                     /* variable: as-is */
+            } else {
+                lit_encode(e->str, scratch[n], KB_TERM_LEN);
+                slots[n] = scratch[n];
+            }
+        } else if (e->type == J_NUM) {
+            double d = e->num;
+            if (d == (double)(long long)d)
+                snprintf(scratch[n], KB_TERM_LEN, "%lld", (long long)d);
+            else
+                snprintf(scratch[n], KB_TERM_LEN, "%g", d);
+            slots[n] = scratch[n];
+        } else if (e->type == J_BOOL) {
+            slots[n] = e->b ? "true" : "false";
+        } else {
+            slots[n] = "";
+        }
+        n++;
+    }
+    return n;
+}
+
 static int path_ok(const char *p) {
     return p && *p && p[0] != '/' && p[0] != '~' && !strstr(p, "..");
 }
@@ -197,6 +232,15 @@ static const McpTool TOOLS[] = {
 {"kb.assert_rule", "Assert a definite rule head(X) :- b0(X),...,bn(X).",
  "{\"type\":\"object\",\"properties\":{\"head\":{\"type\":\"string\"},"
  "\"body\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},"
+ "\"required\":[\"head\",\"body\"]}"},
+{"kb.assert_clause", "Assert a full definite clause head:-body0,…,bodyN with "
+ "n-ary head and body goals carrying distinct/shared $-variables.",
+ "{\"type\":\"object\",\"properties\":{"
+ "\"head\":{\"type\":\"object\",\"properties\":{\"pred\":{\"type\":\"string\"},"
+ "\"args\":{\"type\":\"array\"}},\"required\":[\"pred\",\"args\"]},"
+ "\"body\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{"
+ "\"pred\":{\"type\":\"string\"},\"args\":{\"type\":\"array\"}},"
+ "\"required\":[\"pred\",\"args\"]}}},"
  "\"required\":[\"head\",\"body\"]}"},
 {"kb.retract", "Retract a ground fact pred(args...) if present.",
  "{\"type\":\"object\",\"properties\":{\"pred\":{\"type\":\"string\"},"
@@ -280,6 +324,47 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
         if (nb == 0) { snprintf(out, outsz, "{\"error\":\"empty 'body'\"}"); return 0; }
         kb_set_origin(kb, KB_SESSION);
         int r = kb_assert_rule_n(kb, head, bodies, nb);
+        snprintf(out, outsz, "{\"ok\":%s}", r ? "true" : "false");
+        return 1;
+    }
+    if (strcmp(name, "kb.assert_clause") == 0) {
+        const JVal *jhead = jobj_get(a, "head");
+        const JVal *jbody = jobj_get(a, "body");
+        if (!jhead || jhead->type != J_OBJ) { snprintf(out, outsz, "{\"error\":\"missing 'head'\"}"); return 0; }
+        const char *hpred = jstr(jhead, "pred");
+        if (!hpred) { snprintf(out, outsz, "{\"error\":\"head missing 'pred'\"}"); return 0; }
+        const JVal *hargs = jobj_get(jhead, "args");
+
+        /* persistent scratch for up to 1 head + KB_MAX_BODY goals */
+        static char gscratch[KB_MAX_BODY + 1][KB_MAX_ARGS][KB_TERM_LEN];
+        static const char *gslots[KB_MAX_BODY + 1][KB_MAX_ARGS];
+
+        const char *hslots[KB_MAX_ARGS];
+        size_t hargc = build_clause_args(hargs, hslots, KB_MAX_ARGS, gscratch[0]);
+        KbGoal head = { hpred, hslots, hargc };
+        if (hargc == 0 && hargs) { snprintf(out, outsz, "{\"error\":\"empty head args\"}"); return 0; }
+
+        KbGoal body_goals[KB_MAX_BODY];
+        size_t nb = 0;
+        if (jbody && jbody->type == J_ARR) {
+            for (size_t i = 0; i < jbody->n && nb < KB_MAX_BODY; i++) {
+                const JVal *g = jbody->items[i];
+                if (!g || g->type != J_OBJ) continue;
+                const char *gp = jstr(g, "pred");
+                if (!gp) continue;
+                const JVal *ga = jobj_get(g, "args");
+                size_t gargc = build_clause_args(ga, gslots[nb + 1], KB_MAX_ARGS,
+                                                  gscratch[nb + 1]);
+                body_goals[nb].pred = gp;
+                body_goals[nb].args = gslots[nb + 1];
+                body_goals[nb].argc = gargc;
+                nb++;
+            }
+        }
+        if (nb == 0) { snprintf(out, outsz, "{\"error\":\"empty 'body'\"}"); return 0; }
+
+        kb_set_origin(kb, KB_SESSION);
+        int r = kb_assert_clause(kb, &head, body_goals, nb);
         snprintf(out, outsz, "{\"ok\":%s}", r ? "true" : "false");
         return 1;
     }
