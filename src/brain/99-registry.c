@@ -422,6 +422,13 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/gloss.p0");
 
+    /* gen286 (U5, teach-comprehension §5.5): the grammatical glue (Secchio B)
+     * starts migrating from C to declarative facts. First rule: the Italian
+     * article form is an article/4 fact table mod_translate now queries, so the
+     * grammar is inspectable/teachable knowledge instead of a C ternary. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/grammar.p0");
+
     /* gen211 (cardinal KB-first principle): multi-word INTENT phrases — the exact
      * surface forms that mean "ask my name" etc. — live in kb/core/intents.p0, not in
      * C arrays. kb_intent_match() queries intent_phrase/2; a form taught at runtime

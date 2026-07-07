@@ -1,0 +1,20 @@
+% grammar.p0 — the declarative home of the "grammatical glue" (Secchio B),
+% migrated one rule at a time from C (docs/plans/teach-comprehension-via-mcp.md
+% §5.5 U5). The fixed engine still tokenizes, recognizes the determiner, looks up
+% the noun's gender, and detects a vowel-initial noun; what it SELECTS is now
+% knowledge, so a grammar form can be inspected (kb.match) and corrected/extended
+% via MCP without touching C.
+%
+% U5, first glue rule (gen286): the Italian article form.
+%   article(Definiteness, Gender, VowelInitial, Form)
+% Definiteness ∈ {def, indef}; Gender ∈ {m, f}; VowelInitial ∈ {no, yes}.
+% The elided forms l' / un' are bare atoms (the .p0 parser keeps the apostrophe;
+% the realizer omits the space after a trailing "'", giving l'uomo / un'amica).
+article(def,   m, no,  il).
+article(def,   f, no,  la).
+article(def,   m, yes, l').
+article(def,   f, yes, l').
+article(indef, m, no,  un).
+article(indef, f, no,  una).
+article(indef, m, yes, un).
+article(indef, f, yes, un').

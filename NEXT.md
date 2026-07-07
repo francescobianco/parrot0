@@ -30,6 +30,14 @@
   di-char, l'unico pezzo fisso cieco all'operazione); `capitalize_first` è una REGOLA
   + tabella `upper/2`. `cap_first(madrid,$R)`→`$R=Madrid`. Gate `tests/strknow.sh`
   (`.p0` + MCP). Suite completa verde.
+- **gen286 — U5 (prima regola-colla)** l'accordo dell'articolo IT come CONOSCENZA.
+  Tabella `article(Def, Gender, Vowel, Form)` in `kb/core/grammar.p0` (nuova casa
+  del Secchio B); `mod_translate` la interroga invece del cascade di ternari C.
+  Substrato fisso invariato (determinante/genere/vocale); migrata solo la SELEZIONE
+  della forma (incl. elisione `l'`/`un'`, che vive SOLO nella tabella). `article`
+  filtrato come substrato in `is_internal_pred`/`is_struct_pred`. Gate
+  `tests/article.sh` (regressione traduzione + `kb.match article` via MCP: grammatica
+  ispezionabile). Suite completa verde.
 
 ---
 
@@ -262,7 +270,30 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## IN CORSO: U5 — migrare il Secchio B, prima regola-colla: l'accordo dell'articolo IT
+## PROSSIMO (da fare): U5 continua — la prossima regola-colla del Secchio B
+
+**Stato:** la PRIMA regola-colla è spedita (gen286: l'articolo IT come `article/4`).
+U5 è una SEQUENZA — si migra una regola-colla per volta, gate-first, con dovere di
+pivot. La casa dichiarativa esiste (`kb/core/grammar.p0`); le prossime candidate,
+tutte in `src/brain/85-translate-synth-world.c`, in ordine di isolamento:
+
+1. **Accordo dell'aggettivo** (`agree_adj`, riga ~1215 in `80-code.c`): oggi C
+   (`-o`→`-a` per il femminile). Migra a una tabella/regola (es.
+   `adj_agree(Gender, EndingIn, EndingOut)` o morfologia via `chars/2`+tabella).
+   Gate: `the small house`→`la piccola casa` passa per la regola KB. Candidata più
+   isolata dopo l'articolo.
+2. **Articolo/genere FR ed ES** (`le/la`, `un/une`; `el/la`): stessa forma
+   `article/4` per lingua (`article_fr`/`article_es` o una chiave lingua),
+   estende la tabella senza nuovo C.
+3. **Morfologia verbale** ("is sleeping"→verbo finito): più complessa, richiede
+   `chars/2`+tabelle; ultima.
+
+**Disciplina (invariata):** ogni regola col suo gate rosso→verde (un caso di
+`mod_translate` che oggi passa per C dà lo stesso output via KB), regressione
+multilingue (`translate.chat`/`.it`), pivot se tradisce l'emergenza senza
+beneficio. **Design:** `teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
+
+<details><summary>Piano U5 — prima regola (articolo IT), storico, gen286</summary>
 
 **Piano upfront (gen286).** U5 è una MIGRAZIONE del Secchio B (grammatica-colla),
 non un upgrade di motore, UNA regola per volta, gate-first, con dovere di pivot
@@ -314,6 +345,8 @@ verbale, FR/ES) sono i pull successivi, una per generazione, ognuna col suo gate
 **Design di riferimento:** `teach-comprehension-via-mcp.md` §5.5 (U5), §6, §5.2-5.3.
 `generative-prolog.md`. Fuori scommessa (NON senza pull reale): defeasibilità con
 priorità/probabilità.
+
+</details>
 
 ## Memorie rilevanti (in `~/.claude/.../memory/`)
 

@@ -263,11 +263,13 @@ found:
         char piece[KB_TERM_LEN] = "";
 
         if (to_it && is_en_det(tok)) {
-            /* the Italian article agrees with the clause's head-noun gender,
-             * and elides before a vowel-initial noun (il/la -> l', una -> un'). */
+            /* U5 (gen286, teach-comprehension §5.5): the Italian article FORM is a
+             * KB fact table, article(Def, Gender, VowelInitial, Form) in
+             * grammar.p0 — not a C ternary. The engine still classifies
+             * definiteness, gender and vowel-initial noun (the fixed substrate);
+             * it now SELECTS the form from knowledge, so the grammar (including the
+             * elided l'/un') is inspectable via kb.match and teachable via MCP. */
             int indef = (strcmp(tok, "a") == 0 || strcmp(tok, "an") == 0);
-            const char *art = indef ? (clause_gender == 'f' ? "una" : "un")
-                                    : (clause_gender == 'f' ? "la" : "il");
             int vowel_next = 0;
             if (i + 1 < nw) {
                 char *nx = strip_edge_punct(w[i + 1]);
@@ -275,9 +277,18 @@ found:
                 if (gloss_lookup(b, nx, 1, nt, sizeof nt))
                     vowel_next = strchr("aeiou", nt[0]) != NULL;
             }
-            if (vowel_next && !indef)            art = "l'";
-            else if (vowel_next && indef && clause_gender == 'f') art = "un'";
-            snprintf(piece, sizeof piece, "%s", art);
+            const char *aq[] = { indef ? "indef" : "def",
+                                 clause_gender == 'f' ? "f" : "m",
+                                 vowel_next ? "yes" : "no", NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "article", aq, 4, hit, 1) == 1)
+                snprintf(piece, sizeof piece, "%s", hit[0]);
+            else
+                /* backstop if grammar.p0 is absent (never mute); the table is the
+                 * source of truth, so the elided forms live only there. */
+                snprintf(piece, sizeof piece, "%s",
+                         indef ? (clause_gender == 'f' ? "una" : "un")
+                               : (clause_gender == 'f' ? "la" : "il"));
         } else if (!to_it && is_it_det(tok)) {
             int indef = (strcmp(tok, "un") == 0 || strcmp(tok, "una") == 0 ||
                          strcmp(tok, "uno") == 0);

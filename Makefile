@@ -216,6 +216,7 @@ test: build
 	@./tests/naf.sh
 	@./tests/compound.sh
 	@./tests/strknow.sh
+	@./tests/article.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

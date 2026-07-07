@@ -348,12 +348,14 @@ però disciplinati: **gate-first, uno per generazione**, ordinati per dipendenza
 per costo crescente. Ogni upgrade è al MOTORE (fisso, generale), mai
 un'operazione specifica.
 
-Stato (gen281): **U1 ✅ spedito** in due passi — gen279 quota i letterali al bordo
-MCP (fedeltà: `Madrid`/`$HOME`/template round-trippano) e gen280 introduce `$`
-come marcatore di variabile esplicito (dual-accept; il flip a `$`-only è gen B,
-vedi `NEXT.md`). **U2 ✅ spedito** in gen281 — `kb.assert_clause` (src/kb.h,
-src/kb.c, src/mcp.c) permette di insegnare regole n-arie con join a più variabili
-via MCP (`tests/assertclause.sh`). **U3 è il prossimo.**
+Stato (gen286): **U1 ✅** (gen279 quota i letterali al bordo MCP; gen280 `$` come
+marcatore di variabile, poi gen284 flip a `$`-only), **U2 ✅** (gen281
+`kb.assert_clause`, regole n-arie via MCP), **U3 ✅** (gen283 unificazione
+STRUTTURALE su termini composti → D.1 superato), **U6 ✅** (gen282 `naf` →
+D.2 superato), **U4 ✅** (gen285 builtin `chars/2`, azioni-su-stringa come regole),
+**U5 in corso** — la PRIMA regola-colla del Secchio B è spedita (gen286: l'articolo
+IT come tabella `article/4` in `kb/core/grammar.p0`, interrogata da `mod_translate`;
+`tests/article.sh`). U5 continua una regola-colla per volta (vedi `NEXT.md`).
 
 | Ord | Upgrade al motore | Sblocca | Costo | Gate d'ingresso |
 |---|---|---|---|---|
@@ -361,7 +363,7 @@ via MCP (`tests/assertclause.sh`). **U3 è il prossimo.**
 | **U2** ✅ | **Costruzione clausole n-arie via MCP** (`kb.assert_clause`; gen281) | relazioni/join come conoscenza insegnabile | basso | nonno via MCP → `grandparent(tom,ann)` true senza `.p0` (`tests/assertclause.sh`) |
 | **U3** | **Termini composti / liste con unificazione testa-coda** (`[H|T]`) — *l'upgrade grosso, "arricchimento molto elevato"* | strings-as-knowledge, ragionamento strutturale, il Prolog generativo | alto | una regola `capitalize_first([H|T],[U|T]):-upper(H,U).` risolve su `[m,a,d,r,i,d]` |
 | **U4** | **(de)serializzazione stringa⟷struttura** — UNA primitiva generale, cieca all'operazione | l'azione su stringa diventa interamente regole+fatti KB | medio | `present(proper_noun,capitalize_first)` insegnato via MCP rende `madrid`→`Madrid` in `gen.respond`, sostanza resta `madrid` |
-| **U5** | **Migrazione del Secchio B**, una regola-colla per volta (accordo, elisione, morfologia) da C a `present/2` | `85-translate-synth-world.c` si assottiglia; grammatica allenabile | per-item | un caso di `mod_translate` passa per regole KB, stesso output |
+| **U5** 🔄 | **Migrazione del Secchio B**, una regola-colla per volta (accordo, elisione, morfologia) da C a fatti+regole. **Prima regola ✅ gen286**: articolo IT come `article/4` (`grammar.p0`), il resto in coda (`NEXT.md`) | `85-translate-synth-world.c` si assottiglia; grammatica ispezionabile/allenabile | per-item | un caso di `mod_translate` passa per regole KB, stesso output (`tests/article.sh`) |
 
 U1/U2 sono piccoli e sbloccano subito; U3 è il cuore (e va speso una sola volta,
 serve anche a [[generative-prolog.md]]); U4/U5 vivono sopra U3. Ordine per
