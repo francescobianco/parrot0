@@ -262,37 +262,58 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## PROSSIMO (da fare): U5 — migrare la colla grammaticale a `present/2`
+## IN CORSO: U5 — migrare il Secchio B, prima regola-colla: l'accordo dell'articolo IT
 
-**Stato:** l'infrastruttura è pronta (U3 termini composti, U4 `chars/2` +
-azioni-come-regole, flip $-only). U5 è l'ULTIMO della sequenza e il più delicato:
-**non** è un upgrade di motore ma una MIGRAZIONE del Secchio B — accordo articolo/
-genere, casing, elisione, morfologia — da C (`src/brain/85-translate-synth-world.c`)
-a regole `present/2` dichiarative + tabelle di fatti, sfruttando `chars/2`.
+**Piano upfront (gen286).** U5 è una MIGRAZIONE del Secchio B (grammatica-colla),
+non un upgrade di motore, UNA regola per volta, gate-first, con dovere di pivot
+(`primitives-first-pivot-duty`). La regola PIÙ ISOLATA è la selezione dell'articolo
+italiano — `il/la/un/una/l'/un'` — oggi un cascade di ternari C in
+`src/brain/85-translate-synth-world.c` (righe 268-280). Migra a una TABELLA di
+fatti `article(Def, Gender, Vowel, Form)` interrogata dal motore. Il substrato
+FISSO resta per design (§5.2, confine irriducibile): tokenizzazione, riconoscimento
+del determinante (`is_en_det`), lookup del genere (`gender/2`), rilevazione della
+vocale iniziale. Migra SOLO la SELEZIONE della forma → la grammatica diventa dato
+ispezionabile e correggibile via MCP.
 
-**Perché serve cautela (leggere prima di iniziare):**
-- Tocca `mod_translate`/`85-translate` (traduzione EN↔IT, gen126+), coperto da
-  test multilingui (`run.sh` casi `.chat` IT, `parrot0-multilingual-probe`). Un
-  refactor sbagliato rompe la traduzione → **serve un benchmark/pull di traduzione
-  che TIRI la migrazione**, non un refactor speculativo (disciplina PRINCIPLES.md).
-- Va fatto UNA regola-colla per volta, gate-first, con dovere di pivot se tradisce
-  l'emergenza senza beneficio misurabile (§6/§5.4, `primitives-first-pivot-duty`).
+**Il pull (non è refactor speculativo).** F. ha COMMITTATO U5 in §5.5. Il beneficio
+misurabile: la forma dell'articolo, oggi invisibile (sepolta in C), diventa
+CONOSCENZA interrogabile (`kb.match article(...)`) — è la realizzazione dichiarativa
+di [[generative-prolog.md]] ("lingua = ultimo passaggio"). Gate B è genuinamente
+rosso oggi.
 
-**Primo passo consigliato quando si riparte:**
-1. Scrivere un piano upfront dedicato (come per U2..U4): scegliere la regola-colla
-   PIÙ ISOLATA (candidata: l'accordo articolo→genere `il/la`, `un/una`, elisione
-   `l'`) e definirne il gate — un caso di `mod_translate` che oggi passa per la
-   colla C deve dare lo stesso output passando per una regola `present/2` + tabella.
-2. Rappresentare l'accordo come fatti (`article(Genere, VocaleIniziale, Forma)`) +
-   una regola che li compone, interrogata da un kernel generico di realizzazione.
-3. Se il gate è verde e non peggiora i test multilingui → tirare la prossima
-   regola-colla; altrimenti pivot.
+**Gate (`tests/article.sh`, rosso→verde):**
+- **A (regressione, via chat):** `the dog runs`→`il cane corre`, `the small house`→
+  `la piccola casa`, `a white door`→`una bianca porta`, `the man reads a book`→
+  `l'uomo legge un libro` (elisione). Stesso output, ora dalla tabella KB.
+- **B (grammatica come DATO, via MCP):** `kb.match article(def,m,no,?)`→`il`;
+  `kb.match article(def,f,yes,?)`→`l'`. Oggi vuoto → ROSSO (verificato gen286).
 
-**Design di riferimento:** `teach-comprehension-via-mcp.md` §5.5 (U5), §6, §5.2-5.3
-(sostanza⟂presentazione, manipolatori addestrabili). `generative-prolog.md`
-("lingua = ultimo passaggio" reso dichiarativo).
+**Passi (atomici):**
+1. `kb/core/grammar.p0` (NUOVO — la casa dichiarativa del Secchio B che si popolerà
+   una regola per volta): 8 fatti `article/4` (def/indef × m/f × vowel no/yes),
+   `l'`/`un'` come atomi bare (il parser `.p0` li accetta; il join C riga 306 già
+   omette lo spazio dopo un `'`).
+2. `src/brain/99-registry.c` (`brain_create`, dopo `gloss.p0`): `kb_load(…grammar.p0)`.
+3. `src/brain/85-translate-synth-world.c` (268-280): rimpiazzare il cascade con
+   `kb_match(b->kb,"article",{def,gen,vow},4,…)`. Backstop minimo (il/la/un/una,
+   niente elisione) se la tabella manca, commentato come rete di sicurezza (pattern
+   `kb_response`): la tabella è la FONTE DI VERITÀ.
+4. `tests/article.sh` + `Makefile` (dopo `strknow.sh`).
+5. Verifica: gate verde + REGRESSIONE (`translate.chat`/`translate.it.chat` in
+   `run.sh`, `make test` completo).
+6. Doc: `teach-comprehension-via-mcp.md` §5.5 (U5 prima regola ✅),
+   `prolog-like-engine.md`, `use-mcp-engine.md`. Commit
+   `feat(engine): gen286 - U5 article agreement as knowledge`.
 
-Fuori scommessa (NON fare senza pull reale): defeasibilità con priorità/probabilità.
+**Onestà/limiti:** migrata SOLO la selezione dell'articolo IT; genere/vocale/
+determinante restano substrato C (irriducibile, §5.2). Il backstop C duplica le 4
+forme base per robustezza — l'elisione (`l'`/`un'`) vive SOLO nella tabella (davvero
+migrata). Le prossime regole-colla (accordo aggettivo `agree_adj`, morfologia
+verbale, FR/ES) sono i pull successivi, una per generazione, ognuna col suo gate.
+
+**Design di riferimento:** `teach-comprehension-via-mcp.md` §5.5 (U5), §6, §5.2-5.3.
+`generative-prolog.md`. Fuori scommessa (NON senza pull reale): defeasibilità con
+priorità/probabilità.
 
 ## Memorie rilevanti (in `~/.claude/.../memory/`)
 
