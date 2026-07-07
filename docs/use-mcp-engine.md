@@ -56,10 +56,10 @@ JSON-RPC arbitraria). La cartella di stato è `$PARROT0_MCP_DIR`
 | Tool | Cosa fa | Primitiva |
 |---|---|---|
 | `kb.assert` `{pred,args}` | asserisce un fatto (layer sessione) | `kb_assert` |
-| `kb.assert_rule` `{head,body[]}` | asserisce `head(X) :- b0(X),…` | `kb_assert_rule_n` |
+| `kb.assert_rule` `{head,body[]}` | asserisce `head(X) :- b0(X),…` (**solo unario**, vedi limiti) | `kb_assert_rule_n` |
 | `kb.retract` `{pred,args}` | ritratta un fatto | `kb_retract` |
-| `kb.query` `{pred,args}` | prova per risoluzione SLD | `kb_query` |
-| `kb.match` `{pred,args}` | pattern con `null`=variabile → binding | `kb_match` |
+| `kb.query` `{pred,args}` | prova per risoluzione SLD (n-aria, ricorsiva) | `kb_query` |
+| `kb.match` `{pred,args}` | pattern con `null`=variabile → binding (**prima var / lista piatta**) | `kb_match` |
 | `kb.explain` `{pred,args}` | prova + spiegazione di una riga | `kb_explain` |
 | `kb.describe` `{entity}` | fatti diretti su un'entità | `kb_describe_entity` |
 | `kb.dump` `{}` | tutti i fatti, leggibili | `kb_dump_all` |
@@ -88,6 +88,31 @@ file da fuori), c'è il loop che la missione descrive:
 
 Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
 file che `kb.save` scrive (così `brain_reload` lo ricarica).
+
+## Limiti noti dei tool (gen278, misurati dal vivo)
+
+Il **motore** dietro MCP è un Prolog n-ario completo (join a più variabili,
+ricorsione, backtracking, cycle-guard — vedi
+[il protocollo prolog-like](prolog-like-engine.md)). Due **tool** però ne
+espongono solo un sottoinsieme; la differenza è nell'adattatore, non nel motore:
+
+- **`kb.assert_rule` è unario.** Il body è una lista di predicati applicati allo
+  **stesso** soggetto `X` (`head(X) :- b0(X), b1(X)`). Una regola con **join a
+  due variabili** — es. `grandparent(X,Z) :- parent(X,Y), parent(Y,Z)` — **non è
+  esprimibile** via questo tool: `kb.assert_rule {"head":"grandparent","body":["parent","parent"]}`
+  ritorna `{"ok":true}` ma la query resta `false`. **Workaround oggi:** metti la
+  clausola in un file `.p0` (il parser costruisce termini n-ari pieni) e caricala
+  con `PARROT0_BASE=/path.p0` o via `kb.restore` — così il motore la risolve e
+  `kb.explain` la spiega. Il tool programmatico `kb.assert_clause` che colma il
+  buco è il passo **P1** di [docs/plans/generative-prolog.md](plans/generative-prolog.md).
+- **`kb.match` torna la prima variabile, appiattita.** Con più `null`,
+  `kb.match parent(?,?)` dà `["tom","bob","ann"]` (lista de-duplicata), non le
+  **tuple** `[["tom","bob"],["bob","ann"]]`. Il join fra i due slot va perso. Le
+  tuple sono il passo **P2** dello stesso piano.
+
+Nessuno dei due è un bug del motore: `kb.query`/`kb.explain` risolvono già join e
+ricorsione se la clausola arriva da un `.p0`. Sono i due adattatori di scrittura/
+lettura da estendere.
 
 ## Sicurezza
 

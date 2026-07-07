@@ -873,3 +873,141 @@ Nasce dalla costruzione progressiva di archetipi sempre più ricchi.
 Il linguaggio naturale diventa semplicemente la rappresentazione finale di un pensiero già costruito.
 
 Secondo me questo aggiunge un tassello fondamentale: **Parrot0 non dovrebbe essere valutato inizialmente sulla capacità di rispondere a domande complesse, ma sulla capacità di risolvere micro-esempi agnostici**, privi di semantica. Se riesce a trasformare `g>f` e `n:g` nella struttura astratta "relazione + istanza" e da lì inferire `n:f`, allora hai dimostrato che possiede un livello di astrazione simbolica indipendente dalla conoscenza del dominio. Da quel punto in poi puoi innestare la base di conoscenza Prolog, la generazione dei percorsi logici e, solo come ultimo passo, la realizzazione linguistica. Questa mi sembra una roadmap di ricerca molto più solida rispetto a partire direttamente dalla generazione del testo.
+
+---
+---
+
+# Piano operativo: massimizzare il motore Prolog-like
+
+> **Stato:** scritto a gen278 (2026-07-07), dopo un giro di prova reale del
+> motore MCP (`scripts/mcp-live.sh`). Tutto ciò che segue è **misurato**, non
+> ipotizzato — ogni claim ha un output live allegato. Questo è il *companion
+> operativo* alle due visioni sopra (Prolog generativo 1.0/2.0) e a
+> [[unification-assessment.md]]: dove quelle disegnano l'orizzonte, questo
+> estrae il sottoinsieme già-quasi-vero e lo tira a colpi di gate falliti, una
+> generazione per volta (disciplina di `LOOP.md`/`TASK.md`).
+> **Ruolo:** il motore Prolog-like è la *feature potente sotto il cofano*. Non
+> va riscritto — va **sbloccato ai bordi**. Il nucleo di ragionamento è già più
+> forte di quanto ogni entry-point (MCP, teach-form NL, induzione) sappia
+> raggiungere.
+
+## 0. La scoperta (il motore è già più potente delle sue API)
+
+Guidando `parrot0 --mcp-engine` dal vivo (gen277) ho cercato la conoscenza che
+*non* si può trasferire e ho trovato il caso canonico del **join a due
+variabili** — il nonno:
+
+```jsonc
+// via MCP kb.assert_rule (body come lista di predicati unari sullo stesso X):
+kb.assert_rule {"head":"grandparent","body":["parent","parent"]}  → {"ok":true}
+kb.query       {"pred":"grandparent","args":["tom","ann"]}         → {"provable":false}   // FALLISCE
+```
+
+Sembrava un limite del motore. **Non lo è.** Caricando la STESSA regola da un
+file `.p0` — dove il parser costruisce termini n-ari pieni — il motore la
+risolve senza fatica:
+
+```prolog
+% /tmp/gp.p0
+parent(tom, bob).
+parent(bob, ann).
+grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+```
+```jsonc
+kb.query   {"pred":"grandparent","args":["tom","ann"]}
+  → {"provable":true}
+kb.explain {"pred":"grandparent","args":["tom","ann"]}
+  → {"explanation":"grandparent(tom, ann) because parent(tom, bob) and parent(bob, ann)"}
+```
+
+E la ricorsione transitiva funziona identica (con `KB_MAX_DEPTH=64` a guardia
+dei cicli, `src/kb.c:26,388`):
+
+```prolog
+ancestor(X, Y) :- parent(X, Y).
+ancestor(X, Y) :- parent(X, Z), ancestor(Z, Y).
+```
+```jsonc
+kb.query {"pred":"ancestor","args":["tom","zoe"]}  → {"provable":true}   // tom→bob→ann→zoe
+kb.query {"pred":"ancestor","args":["ann","tom"]}  → {"provable":false}  // niente falsi positivi
+```
+
+**Conclusione:** il `solve()` di `src/kb.c` (righe 380-425) è già un risolutore
+**SLD n-ario completo** — variabili multiple distinte, variabili condivise fra
+goal (il join), ricorsione, backtracking, standardize-apart per-clausola
+(`rename_term`, kb.c:346), cycle-guard, e proof-trace (`kb_explain`). Robinson
+(`unify`/`unify_term_term`, kb.c:317-341) è la spina dorsale da gen5/gen11
+(vedi [[unification-assessment.md]]). **Il motore non è il collo di bottiglia.
+Lo sono le API che gli danno da mangiare.**
+
+## 1. I tre bordi mutilati (dove il potere non arriva)
+
+Il magazzino (`Rule.body[]` è un array di `Term` n-ari, kb.c:47-51) e il solver
+reggono tutto. A strozzare sono tre punti periferici, tutti piccoli:
+
+| # | Bordo | Sintomo misurato | Causa esatta |
+|---|---|---|---|
+| **G1** | **Scrittura di regole n-arie** | `kb.assert_rule` non sa esprimere `grandparent(X,Z):-parent(X,Y),parent(Y,Z)` | `kb_assert_rule_n` appiattisce ogni goal a `argc=1, args[0]="X"` (`src/kb.c:280-283`). Solo il path `.p0` (`parse_to_term`, kb.c:826) costruisce termini n-ari con variabili distinte. |
+| **G2** | **Lettura multi-variabile** | `kb.match parent(?,?)` → `["tom","bob","ann"]` (lista piatta de-dup), non `[["tom","bob"],["bob","ann"]]` | `kb_match` colleziona **il binding della sola prima** variabile (`qvar` singolo nel `Solver`, kb.c:369-385). Gap A dell'assessment, ancora aperto. |
+| **G3** | **Raggiungibilità dai canali vivi** | La potenza è accessibile solo scrivendo un file `.p0` a mano; teach-form NL e MCP non la toccano | Nessun ponte fra input dinamico (una frase, una tupla JSON) e la costruzione di clausole n-arie. L'induzione (`kb_induce`) genera solo regole unarie. |
+
+La disciplina resta [[kb-first-manifesto]]: **il motore è fisso, la conoscenza
+impara**. Qui non si aggiunge logica di risoluzione (esiste), si aprono i
+condotti perché la logica che c'è diventi raggiungibile da ogni porta.
+
+## 2. Perché questo È il Prolog generativo (non una deviazione)
+
+Le visioni 1.0/2.0 sopra chiedono che il motore *costruisca percorsi* e *saldi
+frammenti da domini diversi* via unificazione (righe 507-545). Quel salto è
+letteralmente il join multi-variabile di G1: senza `parent(X,Y),parent(Y,Z)`
+non esiste "percorso" `compra→denaro→mutuo→banca`, non esiste
+`REST→routing→OpenAPI→Fastify` che emerge "senza una regola specifica per quella
+domanda". **Sbloccare G1/G2/G3 è il prerequisito meccanico del Prolog
+generativo**: prima la macchina deve saper *tenere* una relazione a due posti e
+*camminarci sopra*, poi la temperatura (§"La temperatura cambia significato")
+diventa la profondità/ampiezza dell'esplorazione di quei percorsi, e la
+realizzazione linguistica verbalizza il proof-trace che `kb_explain` già
+produce.
+
+## 3. Il piano a generazioni (un gate fallito per volta)
+
+Metodo invariato: ogni passo nasce da un **gate rosso** in un ratchet, non da
+codice speculativo; refusal onesto al bordo; nessuna stringa cablata; ordine per
+DIPENDENZA, non priorità (si riordina se un pull reale lo chiede).
+
+| Gen | Obiettivo | Ratchet / gate |
+|---|---|---|
+| **P0** | **Harness `tests/prolog.sh`** (o `make prolog-bench` su `tests/prolog/*.pl`, schema di `code-bench`): clausole n-arie in ingresso → query → proof attesa. Primo gate ROSSO che fotografa lo stato: il nonno via `.p0` passa (verde), il nonno via `kb.assert_rule` fallisce (rosso → registra G1). | Il ratchet parte con un rosso onesto, come da `oracle-is-behavioural-signal`. |
+| **P1** | **G1 — regole n-arie programmatiche.** Estendere `kb_assert_rule_n` (o affiancare `kb_assert_clause` per non rompere i call-site unari) perché accetti body-term con arità >1 e variabili distinte, riusando `parse_to_term`. Poi esporre in MCP un `kb.assert_clause {"head":{"pred":..,"args":[..]}, "body":[{"pred":..,"args":[..]}, ...]}`. | `kb.assert_clause` del nonno + `kb.query grandparent(tom,ann)` → `true`, **senza** file `.p0`. Stessa proof di §0. |
+| **P2** | **G2 — tuple di binding.** `kb_match_tuples` accanto a `kb_match`: colleziona il binding di **ogni** slot-variabile per ciascuna soluzione, in ordine. MCP `kb.match` con >1 `null` torna `{"tuples":[["tom","bob"],["bob","ann"]]}`. | `kb.match parent(?,?)` → coppie corrette (oggi lista piatta). Retrocompat: 1 variabile resta lista. |
+| **P3** | **G1-rec — ricorsione/reachability generale.** Verificare (il solver la fa già) che clausole n-arie ricorsive costruite via P1 diano catene transitive; esporre la spiegazione della catena via `kb.explain` n-ario. | `ancestor` costruito via `kb.assert_clause` risolve `ancestor(tom,zoe)`; explain elenca la catena. Refusal pulito oltre `KB_MAX_DEPTH`. |
+| **P4** | **G3 — ponte dai canali vivi.** Teach-form NL che introduce una relazione a due posti ("un nonno è il genitore di un genitore") → clausola n-aria in KB, senza passare da `.p0`. `text.extract` che riconosce pattern relazionali binari, non solo `pred(entità)` unari. | Frase relazionale insegnata via `gen.respond`/`text.extract` → `kb.query` sul join → `true`. Chiude la catena insegna→inferisci come già fa la lettura unaria. |
+| **P5** *(solo se la pressione lo chiede)* | **Induzione n-aria.** `kb_induce` oggi genera solo regole unarie: estenderla a indurre clausole con variabili condivise da esempi di tuple — l'analogo deterministico del "training" su relazioni, non su proprietà. | Da un KB di `parent/2` con `grandparent/2` ground, indurre la regola del join. **Non prima** di avere un pull reale: è il passo più ambizioso, resta ultimo. |
+
+## 4. Cosa NON fare (perimetro esplicito)
+
+- **Non riscrivere `solve()`/`unify()`.** Sono già n-ari, ricorsivi,
+  backtracking, cycle-guarded. Zero nuova logica di risoluzione: il lavoro è
+  tutto ai *bordi* (costruzione, serializzazione, ponti d'ingresso).
+- **Non appiattire mai più a `X`.** Il fix di G1 non deve introdurre un secondo
+  path che perde arità; se un call-site vuole ancora unario, è un caso
+  particolare del nuovo, non un ramo separato che diverge.
+- **Non trasformare l'"unificazione estesa" in liste di sinonimi** — vietato dal
+  cardinal corollary ([[kb-first-phrases]]). La versione principled esiste già
+  (`kb_nearest_concept`, gen155) e si tira dalla pressione, non si ridisegna.
+- **Non anticipare P5.** L'induzione n-aria è potente e rischiosa (spazio di
+  ipotesi esplosivo); entra solo se un benchmark la reclama, con support-floor e
+  refusal, come `kb_induce` unario già fa.
+- **Non confondere il piano con la visione.** Le sezioni 1.0/2.0 sopra restano
+  orizzonte narrativo; questo piano ne consegna il *primo anello meccanico*
+  (join + tuple + reachability), non l'intera pipeline a 8 stadi (che
+  [[unification-assessment.md]] scarta come architettura top-down).
+
+## 5. Collegamenti
+
+[[unification-assessment.md]] (Gap A/B già diagnosticati — questo piano li
+misura live e ne fa un ratchet), [[unification.md]] (la visione dell'unificazione
+come collante), [[mcp-engine.md]] (il canale che ha reso la scoperta possibile —
+`kb.assert_clause` di P1 vive lì), [[kb-first-manifesto]] (motore fisso,
+conoscenza impara), `src/kb.c` (il motore reale: `solve` 380-425, `unify`
+317-341, `kb_assert_rule_n` 259-289, `kb_match` 456-503).

@@ -210,6 +210,7 @@ test: build
 	@./tests/persist.sh
 	@./tests/restore.sh
 	@./tests/mcp.sh
+	@./tests/mcp-teach.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define MCP_PROTO   "2024-11-05"
 #define MCP_LINECAP (1024 * 1024)   /* one JSON-RPC message per line */
@@ -107,10 +108,46 @@ static const char *jstr(const JVal *o, const char *key) {
     return (v && v->type == J_STR) ? v->str : NULL;
 }
 
-/* Build a parrot0 argument vector from a JSON array. Strings pass through,
- * numbers/booleans stringify (into a per-call scratch), and JSON null becomes a
- * VARIABLE slot (NULL, for kb_match). Returns argc; sets *has_var if any slot is
- * a variable. */
+/* U1 (gen279, teach-comprehension-via-mcp.md §5.5): a literal taught through MCP
+ * must round-trip as a CONSTANT, not be mistaken for a variable. The engine's
+ * convention (kb.c is_var) reads a leading uppercase/'_' as a variable, and the
+ * .p0 loader protects such content by quoting it. MCP had no such step, so
+ * "Madrid" was stored as a free variable. lit_encode applies the SAME discipline
+ * at the boundary: a literal that would be misread — leading uppercase/'_', or
+ * containing whitespace/comma — is wrapped in quotes (which is_var never treats
+ * as a variable). lit_decode strips one surrounding pair on the way out, so the
+ * agent sees exactly what it taught. A plain lowercase atom (and existing base
+ * facts) are left untouched, so matching curated knowledge is unaffected. */
+static int lit_needs_quote(const char *s) {
+    if (!s || !*s) return 0;
+    if (s[0] == '"') return 0;                       /* already quoted */
+    if (isupper((unsigned char)s[0]) || s[0] == '_') return 1;
+    return strpbrk(s, " \t\n,") != NULL;             /* spaces / comma */
+}
+static void lit_encode(const char *s, char *buf, size_t bufsz) {
+    if (lit_needs_quote(s))
+        snprintf(buf, bufsz, "\"%s\"", s);
+    else
+        snprintf(buf, bufsz, "%s", s ? s : "");
+}
+/* Strip ONE surrounding pair of quotes, if present, into buf. */
+static const char *lit_decode(const char *s, char *buf, size_t bufsz) {
+    size_t len = s ? strlen(s) : 0;
+    if (len >= 2 && s[0] == '"' && s[len - 1] == '"') {
+        size_t inner = len - 2;
+        if (inner >= bufsz) inner = bufsz - 1;
+        memcpy(buf, s + 1, inner);
+        buf[inner] = '\0';
+        return buf;
+    }
+    return s;
+}
+
+/* Build a parrot0 argument vector from a JSON array. String literals are
+ * quote-encoded (lit_encode) so uppercase/spaced values store as constants;
+ * numbers/booleans stringify; JSON null becomes a VARIABLE slot (NULL, for
+ * kb_match). Everything lands in a per-call scratch. Returns argc; sets
+ * *has_var if any slot is a variable. */
 static char argscratch[KB_MAX_ARGS][KB_TERM_LEN];
 static size_t build_args(const JVal *arr, const char *slots[], size_t max,
                          int *has_var) {
@@ -123,7 +160,8 @@ static size_t build_args(const JVal *arr, const char *slots[], size_t max,
             slots[n] = NULL;
             if (has_var) *has_var = 1;
         } else if (e->type == J_STR) {
-            slots[n] = e->str;
+            lit_encode(e->str, argscratch[n], KB_TERM_LEN);
+            slots[n] = argscratch[n];
         } else if (e->type == J_NUM) {
             double d = e->num;
             if (d == (double)(long long)d)
@@ -269,7 +307,11 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
         size_t nb = kb_match(kb, pred, slots, argc, binds, 64);
         SB s; sb_init(&s);
         sb_puts(&s, "{\"bindings\":[");
-        for (size_t i = 0; i < nb; i++) { if (i) sb_putc(&s, ','); sb_jstr(&s, binds[i]); }
+        for (size_t i = 0; i < nb; i++) {
+            if (i) sb_putc(&s, ',');
+            char dbuf[KB_TERM_LEN];
+            sb_jstr(&s, lit_decode(binds[i], dbuf, sizeof dbuf));   /* U1: strip .p0 quotes on the way out */
+        }
         sb_puts(&s, "]}");
         snprintf(out, outsz, "%s", s.oom ? "{\"error\":\"oom\"}" : s.buf);
         sb_free(&s);
