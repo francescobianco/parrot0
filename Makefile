@@ -217,6 +217,7 @@ test: build
 	@./tests/compound.sh
 	@./tests/strknow.sh
 	@./tests/article.sh
+	@./tests/adjagree.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

@@ -353,9 +353,11 @@ marcatore di variabile, poi gen284 flip a `$`-only), **U2 ✅** (gen281
 `kb.assert_clause`, regole n-arie via MCP), **U3 ✅** (gen283 unificazione
 STRUTTURALE su termini composti → D.1 superato), **U6 ✅** (gen282 `naf` →
 D.2 superato), **U4 ✅** (gen285 builtin `chars/2`, azioni-su-stringa come regole),
-**U5 in corso** — la PRIMA regola-colla del Secchio B è spedita (gen286: l'articolo
-IT come tabella `article/4` in `kb/core/grammar.p0`, interrogata da `mod_translate`;
-`tests/article.sh`). U5 continua una regola-colla per volta (vedi `NEXT.md`).
+**U5 in corso** — due regole-colla del Secchio B spedite: articolo IT (gen286,
+`article/4`) e accordo dell'aggettivo femminile (gen287, morfologia-regola
+`agree_f`/`fem`/`swap_last` su `chars/2`+U3), entrambe in `kb/core/grammar.p0`,
+interrogate da `mod_translate` (`tests/article.sh`, `tests/adjagree.sh`). U5
+continua una regola-colla per volta (FR/ES, morfologia verbale — vedi `NEXT.md`).
 
 | Ord | Upgrade al motore | Sblocca | Costo | Gate d'ingresso |
 |---|---|---|---|---|

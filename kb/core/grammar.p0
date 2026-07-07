@@ -18,3 +18,16 @@ article(indef, m, no,  un).
 article(indef, f, no,  una).
 article(indef, m, yes, un).
 article(indef, f, yes, un').
+
+% U5, second glue rule (gen287): feminine adjective agreement as a COMPOSITIONAL
+% morphology RULE, not a per-adjective phrasebook. It reuses U3 (structural
+% unification on cons-lists) and U4 (chars/2): swap the LAST character of the
+% adjective via the ending map fem/2. Masculine "-o" -> feminine "-a" for any
+% adjective (piccolo->piccola, bianco->bianca); an invariant adjective ("grande",
+% ending in -e) has no fem(e,_) row, so the rule fails and mod_translate leaves it
+% unchanged. This is the symmetric twin of U4's capitalize_first (which swaps the
+% FIRST char); here we swap the LAST. The ending map is knowledge (extensible).
+fem(o, a).
+agree_f($Adj, $Res) :- chars($Adj, $L), swap_last($L, $L2), chars($Res, $L2).
+swap_last(cons($H, nil), cons($H2, nil)) :- fem($H, $H2).
+swap_last(cons($H, $T), cons($H, $T2)) :- swap_last($T, $T2).

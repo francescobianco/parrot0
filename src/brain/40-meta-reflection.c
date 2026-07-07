@@ -528,9 +528,11 @@ static int is_internal_pred(const char *pred) {
         /* gen126: the bilingual content lexicon (kb/core/gloss.p0) is base
          * substrate for mod_translate, not facts the user taught — filter it. */
         "tr", "gender",
-        /* gen286 (U5): the IT article-form table (kb/core/grammar.p0) is grammar
-         * glue mod_translate queries, not facts the user taught — filter it. */
-        "article",
+        /* gen286/gen287 (U5): the grammar glue in kb/core/grammar.p0 —
+         * article/4 (IT article form) + the adjective-agreement morphology rule
+         * (fem/2 ending map, agree_f/2, swap_last/2) — is substrate mod_translate
+         * queries, not facts the user taught. Filter it from "how many facts?". */
+        "article", "fem", "agree_f", "swap_last",
         /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",

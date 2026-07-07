@@ -303,11 +303,24 @@ found:
             }
             if (to_it) {
                 /* a noun carries a gender fact; anything else translatable in a
-                 * noun phrase is an adjective and agrees with the head noun. */
+                 * noun phrase is an adjective and agrees with the head noun.
+                 * U5 (gen287): the feminine agreement is a KB morphology RULE now
+                 * — agree_f/2 in grammar.p0 (swap the last char via the fem/2
+                 * ending map, over chars/2). An invariant adjective yields no
+                 * match, so it is left unchanged; masculine never changes. The C
+                 * agree_adj is the backstop if grammar.p0 is absent. */
                 char hits[1][KB_TERM_LEN];
                 const char *ga[] = {piece, NULL};
-                if (kb_match(b->kb, "gender", ga, 2, hits, 1) == 0)
-                    agree_adj(piece, clause_gender);
+                if (kb_match(b->kb, "gender", ga, 2, hits, 1) == 0) {
+                    if (clause_gender == 'f') {
+                        char af[1][KB_TERM_LEN];
+                        const char *aq[] = {piece, NULL};
+                        if (kb_match(b->kb, "agree_f", aq, 2, af, 1) == 1)
+                            snprintf(piece, sizeof piece, "%s", af[0]);
+                        else if (!kb_knows_pred(b->kb, "agree_f"))
+                            agree_adj(piece, clause_gender);  /* backstop */
+                    }
+                }
             }
         }
 
