@@ -86,17 +86,72 @@ ground-guard + depth-guard.
 
 ---
 
-## CODA (dopo U6) — il prossimo è U3
+## LAVORO IN CORSO: U3 — unificazione STRUTTURALE (termini composti) → supera D.1
 
-Design completo in `teach-comprehension-via-mcp.md` §6.
+**Perché.** Insegnare una COMPUTAZIONE ricorsiva come conoscenza (Peano, liste,
+`length`/`reverse`), oggi impossibile perché `s(z)` è un atomo piatto. Design in
+`teach-comprehension-via-mcp.md` §6.1.
 
-- **U3** — unificazione STRUTTURALE su termini composti → **D.1** (computazione:
-  Peano, liste, stringhe). Il grande: `term_split` + `unify` ricorsivo +
-  `rename_term` su var annidate. Design §6.1.
-- **U1b gen B** — flip `is_var` a solo-`$` (libera le maiuscole). Indipendente;
-  quando si vuole. Migrare prima i fixture di test legacy a `$`.
-- **U4** (de)serializzazione stringa⟷struttura; **U5** migrazione Secchio B a
-  `present/2`. Sopra U3.
+**Idea intelligente (minima).** NON un nuovo datatype: lo storage a stringa già
+contiene `s(z)`; si insegna a `unify` a **vederci la struttura**. Un arg di forma
+`f(a…)` è composto; `unify` ci ricorre; una variabile si lega a una sotto-struttura
+intera (stringa). Riusa `parse_term` come splitter.
+
+**Gate (rosso→verde).** `tests/compound.sh`: via `.p0` E via MCP `kb.assert_clause`
+- Peano: `add(z,$Y,$Y). add(s($X),$Y,s($Z)):-add($X,$Y,$Z).` →
+  `kb.match add(s(z),s(z),?)` → `["s(s(z))"]`; `nat(s($N)):-nat($N)` →
+  `nat(s(s(z)))` true.
+- Liste: `len(nil,z). len(cons($H,$T),s($N)):-len($T,$N).` →
+  `len(cons(a,cons(b,nil)),?)` → `["s(s(z))"]`.
+Oggi tutto falso → rosso.
+
+**Passi (atomici, in `src/kb.c` salvo dove indicato):**
+
+1. **`parse_term` comma-split depth-aware** (~riga 721): splittare gli argomenti
+   sulle virgole SOLO a profondità-parentesi 0, così `cons(a, b)` è UN argomento,
+   non due. (Oggi splitta su ogni virgola → rompe i composti n-ari.) Le virgolette
+   sono già gestite. Serve anche il forward-decl di `parse_term` prima di `unify`.
+2. **`unify` strutturale** (~riga 325): dopo i casi var, se entrambi non-var,
+   splittare con `parse_term`; se ENTRAMBI composti con stesso funtore/arità →
+   `unify` ricorsivo sugli argomenti; se uno solo composto → fail; se entrambi
+   atomi → `strcmp`. Nessun occurs-check (come Prolog standard); la ricorsione è
+   limitata dalla dimensione del termine.
+3. **`rename_arg` ricorsivo** (dentro/accanto a `rename_term`, ~riga 352):
+   rinominare le variabili ANNIDATE (`s($N)`→`s($N_frame)`), non solo l'arg-se-var
+   top-level. Ricorsione via `parse_term`. Senza, lo standardize-apart si rompe.
+4. **`deep_resolve`** (nuovo, accanto a `resolve`): sostituzione RICORSIVA delle
+   variabili dentro i composti, per rendere il binding di output (`$R`→`s(s(z))`).
+   Cap di profondità (`KB_MAX_DEPTH`) contro cicli (X↦s(X)).
+   - usarlo in `solve()` alla raccolta soluzione (~riga 389-392) al posto di
+     `resolve` per `kb_match`;
+   - usarlo in `render_goal` (~riga 543) per una spiegazione onesta.
+5. **`src/mcp.c` — `build_clause_args`**: un arg che "sembra composto"
+   (`funtore(...)`, helper `looks_compound`) va passato as-is, NON `lit_encode`
+   (altrimenti una lista `cons(a,b)` con virgola verrebbe quotata → atomo).
+   Ordine: `$`-var → as-is; composto → as-is; altrimenti `lit_encode`.
+6. **`tests/compound.sh`** — il gate; aggiungere al `Makefile` dopo `naf.sh`.
+7. **Verifica**: gate verde + regressione COMPLETA (`make test`). Rischi maggiori:
+   `parse_term` depth-aware potrebbe cambiare il parsing di fatti esistenti con
+   parentesi negli argomenti (raro; controllare `run.sh`, `knowledge.sh`,
+   `world-facts`). `rename_arg`/`deep_resolve` con buffer `KB_TERM_LEN`: termini
+   profondi possono troncare → cap onesto, non corruzione.
+8. **Doc**: `prolog-like-engine.md` §2 (composti ✅, aritmetica-via-Peano),
+   `teach-comprehension` §6.1 (U3 ✅) + sintesi D.1, `use-mcp-engine.md`. Commit
+   `feat(engine): gen283 - U3 structural unification`.
+
+**Onestà/limiti:** niente occurs-check; termini oltre `KB_TERM_LEN` troncano
+(cap, non crash); `naf` su goal con argomenti composti non-ground resta un bordo
+(gen A: caso raro, si dichiara). Se il passo 1/2 destabilizza il parsing esistente
+senza beneficio, si spezza U3 (prima solo `.p0`, poi MCP) o si valuta un `Term`
+ricorsivo vero.
+
+---
+
+## CODA (dopo U3)
+
+- **U1b gen B** — flip `is_var` a solo-`$` (libera le maiuscole). Indipendente.
+- **U4** (de)serializzazione stringa⟷struttura → azioni-su-stringa come conoscenza;
+  **U5** migrazione Secchio B (accordo/casing/morfologia) a `present/2`. Sopra U3.
 
 Fuori scommessa (NON fare senza pull reale): defeasibilità con priorità/probabilità.
 
