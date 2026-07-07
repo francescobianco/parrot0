@@ -270,28 +270,63 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## PROSSIMO (da fare): U5 continua — la prossima regola-colla del Secchio B
+## IN CORSO: U5 seconda regola-colla — l'accordo dell'aggettivo come MORFOLOGIA-regola
 
-**Stato:** la PRIMA regola-colla è spedita (gen286: l'articolo IT come `article/4`).
-U5 è una SEQUENZA — si migra una regola-colla per volta, gate-first, con dovere di
-pivot. La casa dichiarativa esiste (`kb/core/grammar.p0`); le prossime candidate,
-tutte in `src/brain/85-translate-synth-world.c`, in ordine di isolamento:
+**Piano upfront (gen287).** Migrare `agree_adj` (C in `80-code.c` ~riga 1215:
+femminile `-o`→`-a`, aggettivi invarianti intatti) a una REGOLA morfologica
+COMPOSITIVA — non un phrasebook per-aggettivo, ma la trasformazione stessa come
+conoscenza, riusando U3 (unificazione strutturale) + U4 (`chars/2`):
 
-1. **Accordo dell'aggettivo** (`agree_adj`, riga ~1215 in `80-code.c`): oggi C
-   (`-o`→`-a` per il femminile). Migra a una tabella/regola (es.
-   `adj_agree(Gender, EndingIn, EndingOut)` o morfologia via `chars/2`+tabella).
-   Gate: `the small house`→`la piccola casa` passa per la regola KB. Candidata più
-   isolata dopo l'articolo.
-2. **Articolo/genere FR ed ES** (`le/la`, `un/une`; `el/la`): stessa forma
-   `article/4` per lingua (`article_fr`/`article_es` o una chiave lingua),
-   estende la tabella senza nuovo C.
-3. **Morfologia verbale** ("is sleeping"→verbo finito): più complessa, richiede
-   `chars/2`+tabelle; ultima.
+```prolog
+fem(o, a).                                             % la mappa desinenza (dato)
+agree_f($Adj,$Res) :- chars($Adj,$L), swap_last($L,$L2), chars($Res,$L2).
+swap_last(cons($H, nil), cons($H2, nil)) :- fem($H, $H2).   % base: ultimo char
+swap_last(cons($H, $T),  cons($H,  $T2)) :- swap_last($T, $T2).  % ricorsione
+```
 
-**Disciplina (invariata):** ogni regola col suo gate rosso→verde (un caso di
-`mod_translate` che oggi passa per C dà lo stesso output via KB), regressione
-multilingue (`translate.chat`/`.it`), pivot se tradisce l'emergenza senza
-beneficio. **Design:** `teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
+`agree_f(piccolo,$R)`→`piccola`; `bianco`→`bianca`; `grande`→∅ (nessun `fem(e,_)`,
+la regola fallisce → l'aggettivo invariante resta intatto). **Provato dal vivo via
+MCP (gate-first, gen287): funziona sul motore attuale**, nessun upgrade necessario.
+
+**Il pull:** la morfologia d'accordo, oggi 2 righe di C cieche, diventa una regola
+compositiva ISPEZIONABILE e insegnabile (`kb.match agree_f(piccolo,?)`), e la mappa
+desinenza (`fem/2`) è una tabella estensibile — la realizzazione dichiarativa di
+[[generative-prolog.md]]. È l'accordo-aggettivo simmetrico al `capitalize_first` di
+U4 (swap del PRIMO char): qui lo swap dell'ULTIMO.
+
+**Gate (`tests/adjagree.sh`, rosso→verde):**
+- **A (regressione, via chat):** `the small house`→`la piccola casa`,
+  `a white door`→`una bianca porta`. Stesso output, ora via la regola KB.
+- **B (morfologia come DATO+REGOLA, via MCP):** `kb.match agree_f(piccolo,?)`→
+  `piccola`; `agree_f(grande,?)`→∅ (invariante). Rosso oggi (predicato inesistente).
+
+**Passi (atomici):**
+1. `kb/core/grammar.p0`: aggiungere `fem/2` + `agree_f/2` + `swap_last/2`.
+2. `src/brain/85-translate-synth-world.c` (~riga 299): sostituire
+   `agree_adj(piece, clause_gender)` con: se `clause_gender=='f'`, `kb_match
+   agree_f(piece,?)`; se c'è un match usa la forma, altrimenti lascia invariato
+   (l'invariante). Il maschile non tocca nulla (come oggi).
+3. `is_internal_pred`/`is_struct_pred`: filtrare `fem`/`agree_f`/`swap_last` come
+   substrato-grammatica (come `article`), così non inquinano l'introspezione.
+4. `tests/adjagree.sh` + `Makefile` (dopo `article.sh`).
+5. Verifica: gate verde + REGRESSIONE (`translate.chat`/`.it`, `make test`).
+6. Doc: `teach-comprehension-via-mcp.md` §5.5, `NEXT.md` Spedito. Commit
+   `feat(engine): gen287 - U5 adjective agreement as morphology rule`.
+
+**Onestà/limiti:** copre `-o`→`-a` (la regola C esistente, femm. sing.); plurali e
+altre morfologie sono pull successivi. `agree_adj` C può restare come backstop o
+essere rimosso dal sito translate (una sola call). Ricorsione `swap_last` limitata
+da `KB_MAX_DEPTH` (parole finite).
+
+**Poi (coda U5, una per generazione col suo gate):**
+- **Articolo/genere FR ed ES** (`le/la`, `un/une`; `el/la`): stessa forma
+  `article/4` per-lingua, estende la tabella senza nuovo C.
+- **Morfologia verbale** ("is sleeping"→verbo finito): più complessa, `chars/2`
+  +tabelle; ultima.
+
+**Disciplina (invariata):** ogni regola col suo gate rosso→verde, regressione
+multilingue, pivot se tradisce l'emergenza senza beneficio. **Design:**
+`teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
 
 <details><summary>Piano U5 — prima regola (articolo IT), storico, gen286</summary>
 
