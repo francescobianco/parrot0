@@ -58,12 +58,22 @@ termini).
 
 ## Dopo gen B (orizzonte, non ora)
 
-Sequenza U2..U5 in `docs/plans/teach-comprehension-via-mcp.md` §5.5:
-- **U2** `kb.assert_clause` n-ario via MCP (P1 di `generative-prolog.md`).
-- **U3** termini-lista con unificazione testa-coda `[H|T]` (l'upgrade grosso:
-  strings-as-knowledge + ragionamento strutturale).
-- **U4** (de)serializzazione stringa⟷struttura.
+Sequenza in `docs/plans/teach-comprehension-via-mcp.md` §5.5 + §6 (design per
+superare i limiti D.1/D.2):
+- **U2** `kb.assert_clause` n-ario via MCP (P1 di `generative-prolog.md`) —
+  **prerequisito** di U3 e U6 (serve per mandare regole ricche dal vivo).
+- **U6** negazione-per-fallimento (`naf(G)` nel corpo) → **D.2**: default con
+  eccezioni come conoscenza (`flies($X):-bird($X),naf(abnormal($X))`). Piccolo,
+  alto valore, indipendente da U3. Attenzione: floundering (solo goal ground) +
+  stratificazione. Design in §6.2.
+- **U3** unificazione STRUTTURALE su termini composti → **D.1**: computazione
+  ricorsiva come conoscenza (Peano, `length`/`reverse`) + strings-as-knowledge.
+  L'upgrade grosso; `unify` ricorsivo + `rename_term` su var annidate. Design §6.1.
+- **U4** (de)serializzazione stringa⟷struttura (sopra U3).
 - **U5** migrazione del Secchio B (accordo/casing/morfologia) a `present/2`.
+
+Ordine consigliato per superare D: **U2 → U6 → U3**. La defeasibilità con
+priorità/probabilità resta deliberatamente FUORI (altro motore).
 
 ## Memorie rilevanti (in `~/.claude/.../memory/`)
 

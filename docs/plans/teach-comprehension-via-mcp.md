@@ -152,8 +152,9 @@ kb.match add(s(z),s(z),?) → {"bindings":[]}
 distinzione memorizzazione⁄computazione. Lo sblocca **U3** (termini-lista/composti,
 §5.5): U3 non serve solo alle stringhe — è la porta per insegnare *computazione*.
 
-**D.2 — Non puoi insegnare una GENERALIZZAZIONE DEFEASIBLE** *(muro vero, FUORI
-roadmap)*. "Gli uccelli volano, tranne i pinguini" come regola generale non è
+**D.2 — Non puoi insegnare una GENERALIZZAZIONE DEFEASIBLE** *(il caso comune è
+superabile con NAF, vedi §6.2/U6; la defeasibilità con priorità resta fuori)*.
+"Gli uccelli volano, tranne i pinguini" come regola generale oggi non è
 esprimibile: le clausole di Horn **definite** hanno solo teste positive. Misurato
 (`flies($X):-bird($X). not(flies($X)):-flightless($X).` + `flightless(penguin)`):
 ```jsonc
@@ -179,14 +180,18 @@ di slancio. È il bordo onesto: MCP+Horn insegna *ciò che è*, non *ciò che di
 | Relazioni a più posti / regole di join | ❌ non asseribili via MCP | **A** (→ U2) |
 | Accordo, morfologia, articoli | ⚠️ C by design | **B** |
 | Nuovi processi di interpretazione | ⛔ = nuovo C | **C** |
-| Computazione ricorsiva (addizione, liste) | ❌ niente termini composti | **D.1** (→ U3) |
-| Generalizzazioni defeasible (`usually`, `unless`) | ⛔ muro logico, fuori roadmap | **D.2** |
+| Computazione ricorsiva (addizione, liste) | ❌ niente termini composti | **D.1** (→ U3, §6.1) |
+| Default con eccezioni (`unless`) | ❌ oggi; superabile con NAF | **D.2** (→ U6, §6.2) |
+| Defeasibilità con priorità / probabilità | ⛔ muro logico, fuori roadmap | **D.2** (resta fuori) |
 
 **Dopo U1/U1b il Secchio A.1 è chiuso.** La distanza residua è: A.2 (regole n-arie
-via MCP → U2), B/C (colla e facoltà in C), e i nuovi **D.1** (computazione → U3) e
-**D.2** (defeasible, muro logico fuori roadmap). La visione di F. resta corretta:
-ciò che è *conoscenza* si insegna; ciò che è *computazione* aspetta U3; ciò che è
-*logica non-monotona* è un altro motore.
+via MCP → U2), B/C (colla e facoltà in C), e i nuovi **D.1** (computazione → U3,
+§6.1) e **D.2** (default con eccezioni → NAF/U6, §6.2; la defeasibilità con priorità
+resta fuori). La visione di F. resta corretta e i due limiti D sono **superabili in
+modo intelligente** (§6) senza cambiare motore: ciò che è *conoscenza* si insegna;
+la *computazione* si insegna con l'unificazione strutturale; i *default con
+eccezioni* con la negazione-per-fallimento; solo la non-monotonìa con priorità
+resta un altro motore.
 
 ## 3. Il piano operativo (una generazione per gate)
 
@@ -355,7 +360,87 @@ dipendenza: U4 richiede U3; U5 richiede U3+U4. Nessun codice prima del gate ross
 corrispondente; se U3 minaccia terminazione/emergenza senza beneficio misurabile,
 si chiama il pivot (dovere di `primitives-first-pivot-duty`).
 
-## 6. Collegamenti
+## 6. Superare D.1 e D.2 in modo intelligente (design, gen280)
+
+I due limiti del Secchio D non richiedono un motore diverso: richiedono di rendere
+il **solver** un po' più intelligente, restando dentro "engine fisso e generale,
+la conoscenza impara". Ancoraggio al codice (letto a gen280): `Term.args` è piatto
+(`char args[][KB_TERM_LEN]`, `src/kb.c:34`) → nessuna struttura; la negazione sono
+solo fatti ground nella lista `neg` (`kb_is_negated`, `src/kb.c:209`), controllata
+in cima a `kb_query` (`:449`) → nessuna negazione nel corpo delle regole.
+
+### 6.1 D.1 → unificazione STRUTTURALE su termini composti (il "vedere struttura")
+
+**Idea intelligente (minima, generale):** non serve un nuovo tipo di dato. Lo
+storage a stringa già CONTIENE `s(z)`; si insegna all'UNIFICATORE a *vederci
+dentro* una struttura. Un argomento che ha forma `f(a1,…,an)` è un termine
+composto; `unify` ci ricorre; una variabile (`$X`) si lega a una sotto-struttura
+intera (una stringa). Riusa la `Subst` string-based già esistente — il motore
+guadagna una **lente**, non un datatype.
+
+Modifiche (limitate, tutte in `src/kb.c`):
+1. `term_split(str, &functor, args, &argc)` — spacchetta `f(…)` rispettando
+   parentesi annidate e virgolette (generalizza `parse_term`, `:656`).
+2. `unify` diventa **ricorsivo**: risolvi a,b; se uno è var → lega (a una
+   sotto-struttura intera); se entrambi composti con stesso funtore/arità →
+   unifica gli argomenti a coppie; se entrambi atomi → `strcmp`.
+3. `rename_term` (`:346`) rinomina le variabili **annidate** dentro le stringhe
+   composte (`s($N)`→`s($N_7)`), non solo l'arg-se-variabile top-level.
+4. Terminazione: la guardia `KB_MAX_DEPTH` (`:26`) già copre la ricorsione.
+
+**Payoff:** Peano (`add(z,$Y,$Y). add(s($X),$Y,s($Z)):-add($X,$Y,$Z).`), liste come
+`cons(H,T)`/`nil` (sugar `[H|T]`), quindi `length`/`reverse`/`append` E le
+stringhe-come-conoscenza (U3/U4). La **computazione diventa conoscenza
+insegnabile**, non C. È **U3** di §5.5, ora con spec affilata.
+*Gate:* `add(s(z),s(z),$R)` → `$R=s(s(z))`; `length(cons(a,cons(b,nil)),$N)` → `$N=s(s(z))`.
+*Alternativa onesta:* se il parse-on-unify diventa troppo, si passa a un `Term`
+ricorsivo vero (Opzione A) — più costo, stessa semantica.
+
+### 6.2 D.2 → negazione-per-fallimento (NAF) nel corpo: i default come conoscenza
+
+**Il "muro" è in realtà una porta ben precisa.** Non serve ASP/defeasible completo
+per il caso reale ("gli uccelli volano *salvo eccezioni*"): basta la
+**negation-as-failure stratificata**, l'estensione standard e modesta con cui il
+Prolog vero fa i default. Un goal di corpo `naf(G)` riesce se `G` NON è derivabile:
+
+```prolog
+flies($X)    :- bird($X), naf(abnormal($X)).
+abnormal($X) :- flightless($X).
+bird(eagle).  bird(penguin).  flightless(penguin).
+```
+→ `flies(eagle)` true, `flies(penguin)` false. **Generalizzazione defeasible come
+conoscenza insegnabile**, senza enumerare le eccezioni.
+
+Modifiche (limitate):
+1. In `solve()` (`:380`), un goal di corpo `naf(G)` (funtore riservato,
+   auto-documentante; distinto dal fatto negativo `not/1` top-level) si prova con
+   un `solve` annidato: se FALLISCE, `naf` riesce (senza nuovi binding); se
+   riesce, `naf` fallisce.
+2. **Stratificazione + guardia floundering:** applica `naf` solo a goal **ground**
+   (dopo che le var sono legate); se `G` non è ground, **declina onestamente**
+   (niente NAF su variabili libere — è il bordo corretto, non un bug). Depth-guard
+   già presente.
+
+**Onestà su cosa NON copre** (e resta fuori, deliberatamente): priorità fra
+default in conflitto ("il più specifico vince"), credenza graduata/probabilistica,
+non-monotonìa piena. `naf` copre il caso dimostrato (P salvo eccezione) con una
+tecnica nota e limitata — non è un motore ASP. È un nuovo upgrade piccolo,
+chiamiamolo **U6**.
+
+### 6.3 Catena di dipendenze verso MCP (perché entrambi passino DAL VIVO)
+
+Per insegnarli via MCP (non solo `.p0`) serve prima poter mandare regole ricche:
+**U2** (`kb.assert_clause`, corpi n-ari via MCP) è **prerequisito** sia di U3 (le
+clausole Peano/lista) sia di U6 (il goal `naf` nel corpo). Ordine consigliato:
+
+1. **U2** — `kb.assert_clause` (già in roadmap; sblocca qualunque regola via MCP).
+2. **U6** — NAF nel corpo → D.2 (piccolo, alto valore, indipendente da U3).
+3. **U3** — unificazione strutturale → D.1 (il grande, spinge anche stringhe/liste).
+
+Ogni passo gate-first; U6 e U3 sono estensioni non-monotone/strutturali reali →
+attenzione a terminazione, floundering, stratificazione, con dovere di pivot.
+
+## 7. Collegamenti
 
 [[mcp-engine.md]] (il canale e i suoi limiti), [[generative-prolog.md]] (il motore
 n-ario e il suo sblocco — C2 vive lì), [[prolog-like-engine.md]] (il contratto del
