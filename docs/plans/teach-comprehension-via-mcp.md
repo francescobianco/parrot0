@@ -180,18 +180,18 @@ di slancio. È il bordo onesto: MCP+Horn insegna *ciò che è*, non *ciò che di
 | Relazioni a più posti / regole di join | ❌ non asseribili via MCP | **A** (→ U2) |
 | Accordo, morfologia, articoli | ⚠️ C by design | **B** |
 | Nuovi processi di interpretazione | ⛔ = nuovo C | **C** |
-| Computazione ricorsiva (addizione, liste) | ❌ niente termini composti | **D.1** (→ U3, §6.1) |
+| Computazione ricorsiva (addizione, liste) | ✅ risolto (U3, gen283) | ~~D.1~~ (§6.1) |
 | Default con eccezioni (`unless`) | ✅ risolto (U6/`naf`, gen282) | ~~D.2~~ (§6.2) |
 | Defeasibilità con priorità / probabilità | ⛔ muro logico, fuori roadmap | **D.2** (resta fuori) |
 
-**Dopo U1/U1b il Secchio A.1 è chiuso.** La distanza residua è: A.2 (regole n-arie
-via MCP → U2), B/C (colla e facoltà in C), e i nuovi **D.1** (computazione → U3,
-§6.1) e **D.2** (default con eccezioni → NAF/U6, §6.2; la defeasibilità con priorità
-resta fuori). La visione di F. resta corretta e i due limiti D sono **superabili in
-modo intelligente** (§6) senza cambiare motore: ciò che è *conoscenza* si insegna;
-la *computazione* si insegna con l'unificazione strutturale; i *default con
-eccezioni* con la negazione-per-fallimento; solo la non-monotonìa con priorità
-resta un altro motore.
+**Stato gen283 — A.1, A.2, D.1, D.2 tutti chiusi.** Spedito: A.1 (U1/U1b), A.2
+(U2 `kb.assert_clause`), **D.1 (U3 unificazione strutturale)**, D.2 (U6 `naf`).
+Resta: B/C (colla e facoltà in C, per disegno) e la sola defeasibilità con
+priorità/probabilità (fuori scommessa, altro motore). La visione di F. è
+realizzata per la parte insegnabile-come-conoscenza: forme, significati,
+relazioni, **computazione ricorsiva** (unificazione strutturale) e **default con
+eccezioni** (negazione-per-fallimento) si insegnano tutti via MCP, senza cambiare
+motore — solo rendendo il solver più intelligente ai bordi.
 
 ## 3. Il piano operativo (una generazione per gate)
 
@@ -371,7 +371,15 @@ la conoscenza impara". Ancoraggio al codice (letto a gen280): `Term.args` è pia
 solo fatti ground nella lista `neg` (`kb_is_negated`, `src/kb.c:209`), controllata
 in cima a `kb_query` (`:449`) → nessuna negazione nel corpo delle regole.
 
-### 6.1 D.1 → unificazione STRUTTURALE su termini composti (il "vedere struttura")
+### 6.1 D.1 → unificazione STRUTTURALE su termini composti (il "vedere struttura")  ✅ SPEDITO (U3, gen283)
+
+> **Fatto (gen283).** `unify` è ora strutturale: un arg `f(a…)` è un composto e
+> l'unificazione ci ricorre (`split_compound` + `unify` ricorsivo), con
+> `rename_arg` sulle variabili annidate e `deep_resolve` per il binding di output.
+> `split_compound` richiede un funtore-identificatore valido, così la prosa con
+> parentesi resta atomo. MCP: `looks_compound` in `build_clause_args`/`lit_encode`
+> non quota i composti. Gate `tests/compound.sh` (Peano + liste, via `.p0` E via
+> MCP). Limiti onesti: niente occurs-check; termini oltre `KB_TERM_LEN` troncano.
 
 **Idea intelligente (minima, generale):** non serve un nuovo tipo di dato. Lo
 storage a stringa già CONTIENE `s(z)`; si insegna all'UNIFICATORE a *vederci

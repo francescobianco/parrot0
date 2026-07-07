@@ -119,9 +119,28 @@ static const char *jstr(const JVal *o, const char *key) {
  * variable). lit_decode strips one surrounding pair on the way out, so the agent
  * sees exactly what it taught. A plain lowercase atom (and existing base facts)
  * are left untouched, so matching curated knowledge is unaffected. */
+/* U3: does the string have the shape of a compound term  functor(args…)  with
+ * balanced parens (functor of ident/$ chars, closing ')' only at the end)? Such
+ * a term must NOT be quoted — its commas are structure, and the engine unifies
+ * it structurally. */
+static int looks_compound(const char *s) {
+    if (!s || !*s) return 0;
+    const char *lp = strchr(s, '(');
+    size_t n = strlen(s);
+    if (!lp || lp == s || s[n - 1] != ')') return 0;
+    for (const char *p = s; p < lp; p++)
+        if (!(isalnum((unsigned char)*p) || *p == '_' || *p == '$')) return 0;
+    int d = 0;
+    for (const char *p = lp; *p; p++) {
+        if (*p == '(') d++;
+        else if (*p == ')') { d--; if (d == 0 && p[1] != '\0') return 0; }
+    }
+    return d == 0;
+}
 static int lit_needs_quote(const char *s) {
     if (!s || !*s) return 0;
     if (s[0] == '"') return 0;                       /* already quoted */
+    if (looks_compound(s)) return 0;                 /* U3: a compound term */
     if (s[0] == '$' || isupper((unsigned char)s[0]) || s[0] == '_') return 1;
     return strpbrk(s, " \t\n,") != NULL;             /* spaces / comma */
 }

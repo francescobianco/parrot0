@@ -69,9 +69,10 @@ misurato:
 | Proof-trace | ✅ | `kb_explain` → `"grandparent(tom,ann) because parent(tom,bob) and parent(bob,ann)"` |
 | Negazione esplicita (fatti) | ✅ | `not(P)` fatto negativo ground blocca `P` (`kb_is_negated`) |
 | **Negazione-per-fallimento nel corpo** | ✅ (gen282, U6) | `head :- …, naf(G)` — `naf(G)` riesce se `G` non è derivabile. Solo goal **ground** (floundering: declina); default con eccezioni (`flies($X):-bird($X),naf(abnormal($X))`). NON copre priorità fra default/probabilità |
+| **Termini composti / unificazione strutturale** | ✅ (gen283, U3) | `f(a…)` è una struttura; `unify` ci ricorre; una variabile lega una sotto-struttura. `nat(s(s(z)))`, liste `cons(H,T)`/`nil`. Niente occurs-check; termini oltre `KB_TERM_LEN` troncano (cap) |
+| **Computazione ricorsiva come conoscenza** | ✅ (gen283, U3) | Peano `add(s($X),$Y,s($Z)):-add($X,$Y,$Z)` → `add(s(z),s(z),$R)` dà `$R=s(s(z))`; `length`/`reverse` su liste. Insegnabile via `.p0` E via `kb.assert_clause` |
 | Cut / control | ❌ | nessun `!` |
-| Aritmetica nelle clausole | ❌ | i numeri sono atomi; il calcolo vive nei moduli `brain/*` (wordmath) |
-| Liste/strutture come termini | ❌ | gli argomenti sono atomi/variabili piatti |
+| Aritmetica *nativa* (`is/2`) nelle clausole | ❌ | i numeri restano atomi; per calcolare si usa Peano/strutture (U3) o i moduli `brain/*` (wordmath) |
 
 **Prova viva** (via `--mcp-engine`, con le clausole del §1 in un `.p0`):
 

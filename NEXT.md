@@ -17,7 +17,12 @@
 - **gen282 — U6** negazione-per-fallimento `naf(G)` → **D.2 superato** (default con
   eccezioni). `Term.neg`, NAF in `solve()`/`prove_seq_ex()` con floundering-guard,
   `"neg":true` via `kb.assert_clause`, `kb_save` round-trippa `naf`. Gate
-  `tests/naf.sh` (via `.p0` e via MCP). Suite verde.
+  `tests/naf.sh` (via `.p0` e via MCP). Suite verde. `e7e64b3`.
+- **gen283 — U3** unificazione STRUTTURALE su termini composti → **D.1 superato**
+  (computazione ricorsiva: Peano, liste). `split_compound`+`unify` ricorsivo,
+  `rename_arg` su var annidate, `deep_resolve` per l'output, `parse_term` depth-aware,
+  `looks_compound` al bordo MCP. Gate `tests/compound.sh` (via `.p0` e via MCP).
+  Suite verde.
 
 ---
 
@@ -86,7 +91,14 @@ ground-guard + depth-guard.
 
 ---
 
-## LAVORO IN CORSO: U3 — unificazione STRUTTURALE (termini composti) → supera D.1
+## (chiuso) U3 — unificazione STRUTTURALE → D.1 superato, gen283
+
+Spedito. Sezione tenuta come record del design; il prossimo lavoro è la CODA
+(U1b gen B, oppure U4/U5 sopra U3).
+
+<details><summary>Piano U3 (storico)</summary>
+
+## (storico) U3 — unificazione STRUTTURALE (termini composti) → supera D.1
 
 **Perché.** Insegnare una COMPUTAZIONE ricorsiva come conoscenza (Peano, liste,
 `length`/`reverse`), oggi impossibile perché `s(z)` è un atomo piatto. Design in
@@ -145,9 +157,11 @@ Oggi tutto falso → rosso.
 senza beneficio, si spezza U3 (prima solo `.p0`, poi MCP) o si valuta un `Term`
 ricorsivo vero.
 
+</details>
+
 ---
 
-## CODA (dopo U3)
+## CODA (dopo U3) — il prossimo
 
 - **U1b gen B** — flip `is_var` a solo-`$` (libera le maiuscole). Indipendente.
 - **U4** (de)serializzazione stringa⟷struttura → azioni-su-stringa come conoscenza;

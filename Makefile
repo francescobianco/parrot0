@@ -214,6 +214,7 @@ test: build
 	@./tests/dollarvar.sh
 	@./tests/assertclause.sh
 	@./tests/naf.sh
+	@./tests/compound.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

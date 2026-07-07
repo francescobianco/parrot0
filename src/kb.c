@@ -301,6 +301,35 @@ int kb_assert_rule_n(KB *kb, const char *head,
 typedef struct { char var[KB_TERM_LEN]; char val[KB_TERM_LEN]; } Bind;
 typedef struct { Bind b[KB_MAX_BIND]; size_t n; } Subst;
 
+/* fwd: structural unification (U3) splits compound-term strings with parse_term,
+ * defined further down with the .p0 loader. */
+static int parse_term(const char *s, char *pred,
+                      char args[][KB_TERM_LEN], size_t *argc);
+
+/* U3: split s into functor+args IFF it is a WELL-FORMED compound term — a bare
+ * atom functor (ident/$ chars, no spaces) immediately followed by balanced
+ * parens ending the string. This is the guard that keeps natural-language values
+ * that merely contain "(…)" — e.g. "the source (see note)" — as opaque atoms,
+ * not accidental compounds. Used by every structural operation (unify, rename,
+ * deep_resolve) so prose never gets re-parsed. */
+static int split_compound(const char *s, char *functor,
+                          char args[][KB_TERM_LEN], size_t *argc) {
+    if (!s || !*s) return 0;
+    const char *lp = strchr(s, '(');
+    if (!lp || lp == s) return 0;
+    for (const char *p = s; p < lp; p++)
+        if (!(isalnum((unsigned char)*p) || *p == '_' || *p == '$')) return 0;
+    size_t n = strlen(s);
+    if (s[n - 1] != ')') return 0;
+    int d = 0;                          /* only the FINAL ')' closes depth 0 */
+    for (const char *p = lp; *p; p++) {
+        if (*p == '(') d++;
+        else if (*p == ')') { d--; if (d == 0 && p[1] != '\0') return 0; }
+    }
+    if (d != 0) return 0;
+    return parse_term(s, functor, args, argc);
+}
+
 /* Follow the binding chain to a constant or an unbound variable. */
 static const char *resolve(const Subst *s, const char *name) {
     while (is_var(name)) {
@@ -312,6 +341,31 @@ static const char *resolve(const Subst *s, const char *name) {
         name = next;
     }
     return name;
+}
+
+/* U3: resolve a term to its ground form, substituting variables RECURSIVELY
+ * inside compound structure — so $R bound to s($Z), $Z to z, renders "s(z)".
+ * Depth-capped against cyclic bindings (X↦s(X)); on overflow it stops expanding
+ * (honest truncation, never a loop). */
+static void deep_resolve(const Subst *s, const char *t,
+                         char *dst, size_t dstsz, int depth) {
+    const char *r = resolve(s, t);
+    if (depth > KB_MAX_DEPTH) { snprintf(dst, dstsz, "%s", r); return; }
+    char f[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t n = 0;
+    if (split_compound(r, f, args, &n)) {
+        int off = snprintf(dst, dstsz, "%s(", f);
+        for (size_t i = 0; i < n && off > 0 && (size_t)off < dstsz; i++) {
+            char sub[KB_TERM_LEN];
+            deep_resolve(s, args[i], sub, sizeof sub, depth + 1);
+            off += snprintf(dst + off, dstsz - (size_t)off,
+                            "%s%s", i ? ", " : "", sub);
+        }
+        if (off > 0 && (size_t)off < dstsz)
+            snprintf(dst + off, dstsz - (size_t)off, ")");
+    } else {
+        snprintf(dst, dstsz, "%s", r);
+    }
 }
 
 static int bind_add(Subst *s, const char *var, const char *val) {
@@ -329,7 +383,24 @@ static int unify(Subst *s, const char *a, const char *b) {
     if (va && vb) return strcmp(ra, rb) == 0 ? 1 : bind_add(s, ra, rb);
     if (va) return bind_add(s, ra, rb);
     if (vb) return bind_add(s, rb, ra);
-    return strcmp(ra, rb) == 0;
+
+    /* U3: both non-variable — unify STRUCTURALLY. A term of the form f(a…) is a
+     * compound; unify recurses into it (a variable can already have bound to a
+     * whole sub-structure above). No occurs-check (as standard Prolog); term
+     * size bounds the recursion. */
+    char fa[KB_TERM_LEN], fb[KB_TERM_LEN];
+    char aa[KB_MAX_ARGS][KB_TERM_LEN], bb[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t na = 0, nb = 0;
+    int ca = split_compound(ra, fa, aa, &na);
+    int cb = split_compound(rb, fb, bb, &nb);
+    if (ca && cb) {
+        if (na != nb || strcmp(fa, fb) != 0) return 0;
+        for (size_t i = 0; i < na; i++)
+            if (!unify(s, aa[i], bb[i])) return 0;
+        return 1;
+    }
+    if (ca || cb) return 0;                 /* one compound, one atom */
+    return strcmp(ra, rb) == 0;             /* both atoms */
 }
 
 static int unify_term_fact(Subst *s, const Term *g, const Fact *f) {
@@ -348,21 +419,42 @@ static int unify_term_term(Subst *s, const Term *g, const Term *h) {
     return 1;
 }
 
-/* Rename a rule's variables to a unique frame (standardize-apart). Each named
- * variable becomes "name_<frame>" (shared across the clause); each anonymous
- * "_" becomes a FRESH variable (via *anon), so distinct "_" never alias. */
+/* Rename ONE argument to a unique frame, recursing into compound terms (U3) so
+ * a NESTED variable — the $N in s($N) — is standardized-apart too. Each named
+ * variable becomes "name_<frame>"; each anonymous "_" a FRESH variable. */
+static void rename_arg(const char *a, int frame, int *anon,
+                       char *dst, size_t dstsz) {
+    if (strcmp(a, "_") == 0) {
+        snprintf(dst, dstsz, "_A%d_%d", frame, (*anon)++);
+        return;
+    }
+    if (is_var(a)) {
+        snprintf(dst, dstsz, "%s_%d", a, frame);
+        return;
+    }
+    char f[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t n = 0;
+    if (split_compound(a, f, args, &n)) {        /* compound: recurse */
+        int off = snprintf(dst, dstsz, "%s(", f);
+        for (size_t i = 0; i < n && off > 0 && (size_t)off < dstsz; i++) {
+            char sub[KB_TERM_LEN];
+            rename_arg(args[i], frame, anon, sub, sizeof sub);
+            off += snprintf(dst + off, dstsz - (size_t)off,
+                            "%s%s", i ? ", " : "", sub);
+        }
+        if (off > 0 && (size_t)off < dstsz)
+            snprintf(dst + off, dstsz - (size_t)off, ")");
+        return;
+    }
+    snprintf(dst, dstsz, "%s", a);              /* atom */
+}
+
+/* Rename a rule's variables to a unique frame (standardize-apart). */
 static void rename_term(const Term *src, int frame, int *anon, Term *dst) {
     strcpy(dst->pred, src->pred);
     dst->argc = src->argc;
-    for (size_t i = 0; i < src->argc; i++) {
-        const char *a = src->args[i];
-        if (strcmp(a, "_") == 0)
-            snprintf(dst->args[i], KB_TERM_LEN, "_A%d_%d", frame, (*anon)++);
-        else if (is_var(a))
-            snprintf(dst->args[i], KB_TERM_LEN, "%s_%d", a, frame);
-        else
-            strcpy(dst->args[i], a);
-    }
+    for (size_t i = 0; i < src->argc; i++)
+        rename_arg(src->args[i], frame, anon, dst->args[i], KB_TERM_LEN);
     dst->neg = src->neg;   /* U6: the naf flag travels with the renamed goal */
 }
 
@@ -419,7 +511,8 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
     if (idx == ngoals) {                       /* a complete solution */
         if (S->qvar == NULL) { S->found = 1; return 1; }
-        const char *v = resolve(s, S->qvar);
+        char v[KB_TERM_LEN];
+        deep_resolve(s, S->qvar, v, sizeof v, 0);   /* U3: render nested structure */
         if (!is_var(v)) push_unique(S->out, &S->count, S->max, v);
         return S->count >= S->max;
     }
@@ -585,7 +678,8 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
 static void render_goal(const Subst *s, const Term *g, char *buf, size_t sz) {
     int off = snprintf(buf, sz, "%s(", g->pred);
     for (size_t i = 0; i < g->argc && off > 0 && (size_t)off < sz; i++) {
-        const char *v = resolve(s, g->args[i]);
+        char v[KB_TERM_LEN];
+        deep_resolve(s, g->args[i], v, sizeof v, 0);   /* U3: nested structure */
         off += snprintf(buf + off, sz - (size_t)off, "%s%s", i ? ", " : "", v);
     }
     if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
@@ -787,7 +881,15 @@ static int parse_term(const char *s, char *pred,
             while (p < rp && *p != '"') p++;
             if (p < rp) p++;                       /* closing quote */
         } else {
-            while (p < rp && *p != ',') p++;
+            /* U3: split on TOP-LEVEL commas only, so a compound-term argument
+             * f(a, b) stays one arg (nested commas are structure, not
+             * separators). */
+            int d = 0;
+            while (p < rp && !(*p == ',' && d == 0)) {
+                if (*p == '(') d++;
+                else if (*p == ')' && d > 0) d--;
+                p++;
+            }
         }
         const char *end = p;
         while (end > start && isspace((unsigned char)end[-1])) end--;
@@ -796,7 +898,12 @@ static int parse_term(const char *s, char *pred,
         memcpy(args[*argc], start, alen);
         args[*argc][alen] = '\0';
         (*argc)++;
-        while (p < rp && *p != ',') p++;           /* advance to the separator */
+        { int d = 0;                               /* advance to top-level ',' */
+          while (p < rp && !(*p == ',' && d == 0)) {
+              if (*p == '(') d++;
+              else if (*p == ')' && d > 0) d--;
+              p++;
+          } }
         if (p < rp && *p == ',') p++;
     }
     return *argc > 0;
