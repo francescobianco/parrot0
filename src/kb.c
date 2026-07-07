@@ -94,14 +94,13 @@ static int term_ok(const char *s) {
     return strlen(s) < KB_TERM_LEN;
 }
 
-/* A variable is marked by a leading '$' (gen280, U1b: an EXPLICIT, case-blind
- * sigil that real data never uses — see NEXT.md / teach-comprehension-via-mcp.md
- * §5.5), OR by the legacy convention (leading uppercase / '_'). Dual-accept:
- * both work, so no fixture needs migrating yet; the flip to '$'-only (which frees
- * capitalized constants like "Madrid") is a later generation. '_' stays as the
- * anonymous-variable marker. */
+/* A variable is marked EXPLICITLY: a leading '$' (named, gen280/U1b) or a leading
+ * '_' (anonymous). These are dedicated sigils that real data never uses, so an
+ * uppercase-initial token — "Madrid", the char "M" — is an ordinary CONSTANT.
+ * gen284 removed the legacy "uppercase = variable" rule (end of dual-accept, F.'s
+ * request): case is now pure content, never a variable signal. */
 static int is_var(const char *s) {
-    return s && (s[0] == '$' || isupper((unsigned char)s[0]) || s[0] == '_');
+    return s && (s[0] == '$' || s[0] == '_');
 }
 
 static int fact_make(Fact *f, const char *pred, const char *const *args,
@@ -653,8 +652,9 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     int hasvar = 0;
     for (size_t i = 0; i < argc; i++) {
         if (args[i] == NULL) {
-            if (!hasvar) { strcpy(g.args[i], "Q"); hasvar = 1; }
-            else snprintf(g.args[i], KB_TERM_LEN, "Q%zu", i);
+            /* $-prefixed since gen284 ($-only variables): "Q" is now a constant. */
+            if (!hasvar) { strcpy(g.args[i], "$Q"); hasvar = 1; }
+            else snprintf(g.args[i], KB_TERM_LEN, "$Q%zu", i);
         }
         else { if (!term_ok(args[i])) return 0; strcpy(g.args[i], args[i]); }
     }
@@ -662,7 +662,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     Solver S;
     memset(&S, 0, sizeof S);
     S.kb = kb;
-    S.qvar = hasvar ? "Q" : NULL;
+    S.qvar = hasvar ? "$Q" : NULL;
     S.out = out;
     S.max = max;
     Subst s = { .n = 0 };

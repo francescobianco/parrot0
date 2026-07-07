@@ -2,7 +2,7 @@
 #
 # gen11 multi-goal resolution: a rule whose body is a conjunction of goals
 # with a shared intermediate variable, resolved by backward chaining.
-#   grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+#   grandparent($X, $Z) :- parent($X, $Y), parent($Y, $Z).
 set -u
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -18,10 +18,10 @@ trap 'rm -rf "$tmp"' EXIT
 base="$tmp/family.p0"
 
 cat > "$base" <<'EOF'
-% a two-goal rule with a shared intermediate variable Y
+% a two-goal rule with a shared intermediate variable $Y
 parent(tom, bob).
 parent(bob, ann).
-grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+grandparent($X, $Z) :- parent($X, $Y), parent($Y, $Z).
 EOF
 
 pass=0

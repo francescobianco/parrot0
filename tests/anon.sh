@@ -5,7 +5,7 @@
 # (edge/related, unrelated to morphology) so success proves the feature is
 # relational, not hard-coded.
 #
-#   related(X) :- edge(X, _), edge(_, X).   % X has SOME out-edge and SOME in-edge
+#   related($X) :- edge($X, _), edge(_, $X).   % X has SOME out-edge and SOME in-edge
 #
 # If the two "_" aliased, related(a) below would be false (no node V with both
 # edge(a,V) and edge(V,a)). With independent anonymous vars it is true.
@@ -27,7 +27,7 @@ cat > "$base" <<'EOF'
 edge(a, b).
 edge(c, a).
 edge(d, e).
-related(X) :- edge(X, _), edge(_, X).
+related($X) :- edge($X, _), edge(_, $X).
 EOF
 
 pass=0

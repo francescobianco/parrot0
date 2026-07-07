@@ -22,7 +22,10 @@
   (computazione ricorsiva: Peano, liste). `split_compound`+`unify` ricorsivo,
   `rename_arg` su var annidate, `deep_resolve` per l'output, `parse_term` depth-aware,
   `looks_compound` al bordo MCP. Gate `tests/compound.sh` (via `.p0` e via MCP).
-  Suite verde.
+  Suite verde. `e8cb976`.
+- **gen284 — U1b gen B** flip `is_var` a **solo-`$`** (fine dual-accept, richiesta F.).
+  Maiuscola = costante; `kb_match` "Q"→"$Q"; 5 fixture migrati. Gate `dollarvar.sh`.
+  Suite completa verde.
 
 ---
 
@@ -161,7 +164,15 @@ ricorsivo vero.
 
 ---
 
-## LAVORO IN CORSO: U1b gen B — flip `is_var` a solo-`$` (fine del dual-accept)
+## (chiuso) U1b gen B — flip `is_var` a solo-`$`, gen284
+
+Spedito: `is_var` = `$`/`_` soltanto; `kb_match` "Q"→"$Q"; `lit_needs_quote` senza
+`isupper`; 5 fixture migrati a `$`. Gate `dollarvar.sh` GATE E (maiuscola =
+costante). Suite completa verde. Il prossimo è **U4** (CODA).
+
+<details><summary>Piano flip (storico)</summary>
+
+## (storico) U1b gen B — flip `is_var` a solo-`$` (fine del dual-accept)
 
 **Perché.** F. (2026-07-07): "non teniamo il dual concept, migriamo tutto a `$`".
 La variabile è marcata SOLO da `$` (named) o `_` (anonima); la MAIUSCOLA torna un
@@ -192,9 +203,11 @@ atomo costante. Libera nomi propri e — cruciale per U4 — i caratteri singoli
 (non crash). La rete lo becca. Audit fatto: nessuna regola `.p0` shippata usa
 maiuscole nude; unico sito interno = `kb_match` "Q".
 
+</details>
+
 ---
 
-## CODA (dopo il flip)
+## CODA (dopo il flip) — il prossimo è U4
 
 - **U4** (de)serializzazione stringa⟷struttura → azioni-su-stringa come conoscenza
   (`capitalize_first` come REGOLA + tabella `upper/2` + builtin `chars/2`; i

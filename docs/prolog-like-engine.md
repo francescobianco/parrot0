@@ -35,20 +35,20 @@ not(likes(alice, snakes)).
 ```
 
 **Variabile vs atomo** (`is_var`, `src/kb.c:101`): un argomento è una **variabile**
-se inizia con **`$`** (`$X`, `$nome` — marcatore esplicito, gen280/U1b), oppure —
-convenzione legacy — con **maiuscola** o **`_`** (`X`, `Y`, `_`, `_tmp`). Tutto il
-resto è un **atomo** costante (`socrates`, `tom`, `addition`). Un `_` singolo è una
-variabile **anonima fresca** ogni volta (due `_` nella stessa clausola non si
-alias). Le stringhe fra `"..."` sono un solo argomento: le virgole interne sono
-contenuto, non separatori (`src/kb.c:673`).
+SOLO se inizia con **`$`** (`$X`, `$nome` — named) o con **`_`** (anonima). Tutto
+il resto è un **atomo costante**, MAIUSCOLE INCLUSE: `Madrid`, `socrates`, il
+carattere `M` sono costanti. Un `_` singolo è una variabile **anonima fresca**
+ogni volta (due `_` nella stessa clausola non si alias). Le stringhe fra `"..."`
+sono un solo argomento: le virgole interne sono contenuto, non separatori
+(`src/kb.c`).
 
-> **In corso (U1b, NEXT.md):** `$` è un sigillo dedicato che i dati non usano mai;
-> è la forma canonica raccomandata. Oggi vale il **dual-accept** (`$` *e*
-> maiuscola/`_` sono variabili). Un flip futuro a **solo-`$`** libererà le
-> costanti maiuscole (`Madrid` = costante, la maiuscola torna pura presentazione)
-> e renderà ridondante l'hack di quotatura di U1 al bordo MCP. Le regole shippate
-> in `kb/` usano già `$`; i fixture di test legacy restano maiuscoli e passano
-> grazie al dual-accept.
+> **gen284 — solo-`$` (fine del dual-accept).** La vecchia regola "maiuscola =
+> variabile" (eredità del Prolog storico) è stata rimossa: `$` è un sigillo
+> dedicato che i dati non usano mai, quindi il case è **pura presentazione**, mai
+> un segnale di variabilità. Questo dissolve alla radice l'ambiguità `Madrid` e
+> rende i caratteri singoli (`M`, `A`) costanti — prerequisito per le azioni-su-
+> stringa come conoscenza (U4). Tutte le regole in `kb/` e i fixture di test usano
+> `$`; l'hack di quotatura di U1 al bordo MCP ora quota solo `$`/`_`/spazi.
 
 Direttiva di inclusione: `:- include(relative/path.p0).` carica un altro file
 (`src/kb.c:767`).

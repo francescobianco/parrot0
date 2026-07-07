@@ -80,7 +80,7 @@ run_reload_case "fact written to disk goes live after /restore" \
 #    behaviour evolves by resolution, the kb-first promise.
 run_reload_case "rule written to disk makes a new conclusion derivable" \
     'man(diogenes).
-philosopher(X) :- man(X).' 'is diogenes a philosopher?' 'Yes.'
+philosopher($X) :- man($X).' 'is diogenes a philosopher?' 'Yes.'
 
 echo "---"
 echo "passed: $pass, failed: $fail"

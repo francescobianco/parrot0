@@ -110,15 +110,15 @@ static const char *jstr(const JVal *o, const char *key) {
 
 /* U1 (gen279, teach-comprehension-via-mcp.md §5.5): a literal taught through MCP
  * must round-trip as a CONSTANT, not be mistaken for a variable. The engine's
- * convention (kb.c is_var) reads a leading '$' (gen280) or uppercase/'_' as a
- * variable, and the .p0 loader protects such content by quoting it. MCP had no
- * such step, so "Madrid" (and, since gen280, "$HOME") was stored as a free
- * variable. lit_encode applies the SAME discipline at the boundary: a literal
- * that would be misread — leading '$'/uppercase/'_', or containing
+ * convention (kb.c is_var) reads a leading '$' or '_' as a variable (gen284:
+ * '$'-only, uppercase is now an ordinary constant), and the .p0 loader protects
+ * such content by quoting it. MCP had no such step, so a value like "$HOME" would
+ * be stored as a free variable. lit_encode applies the SAME discipline at the
+ * boundary: a literal that would be misread — leading '$'/'_', or containing
  * whitespace/comma — is wrapped in quotes (which is_var never treats as a
  * variable). lit_decode strips one surrounding pair on the way out, so the agent
- * sees exactly what it taught. A plain lowercase atom (and existing base facts)
- * are left untouched, so matching curated knowledge is unaffected. */
+ * sees exactly what it taught. A plain atom (and existing base facts, incl.
+ * capitalised ones like proper nouns) are left untouched. */
 /* U3: does the string have the shape of a compound term  functor(args…)  with
  * balanced parens (functor of ident/$ chars, closing ')' only at the end)? Such
  * a term must NOT be quoted — its commas are structure, and the engine unifies
@@ -141,7 +141,7 @@ static int lit_needs_quote(const char *s) {
     if (!s || !*s) return 0;
     if (s[0] == '"') return 0;                       /* already quoted */
     if (looks_compound(s)) return 0;                 /* U3: a compound term */
-    if (s[0] == '$' || isupper((unsigned char)s[0]) || s[0] == '_') return 1;
+    if (s[0] == '$' || s[0] == '_') return 1;        /* $-only vars (gen284) */
     return strpbrk(s, " \t\n,") != NULL;             /* spaces / comma */
 }
 static void lit_encode(const char *s, char *buf, size_t bufsz) {

@@ -22,8 +22,8 @@ base="$tmp/world.p0"
 
 cat > "$base" <<'EOF'
 quux(zibo).
-flob(X) :- quux(X).
-warg(X) :- flob(X).
+flob($X) :- quux($X).
+warg($X) :- flob($X).
 EOF
 
 pass=0

@@ -20,11 +20,11 @@ base="$tmp/world.p0"
 
 cat > "$base" <<'EOF'
 man(socrates).
-mortal(X) :- man(X).
-being(X) :- mortal(X).
+mortal($X) :- man($X).
+being($X) :- mortal($X).
 parent(tom, bob).
 parent(bob, ann).
-grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+grandparent($X, $Z) :- parent($X, $Y), parent($Y, $Z).
 EOF
 
 pass=0

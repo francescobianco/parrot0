@@ -32,6 +32,9 @@ mortal($X) :- man($X).
 parent(tom, bob).
 parent(bob, ann).
 grandparent($X, $Z) :- parent($X, $Y), parent($Y, $Z).
+q(a).
+uses_dollar($X) :- q($X).
+uses_upper(X) :- q(X).
 P0
 
 out="$( {
@@ -40,6 +43,8 @@ out="$( {
   printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"kb.query","arguments":{"pred":"mortal","args":["socrates"]}}}'
   printf '%s\n' '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.query","arguments":{"pred":"grandparent","args":["tom","ann"]}}}'
   printf '%s\n' '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"kb.query","arguments":{"pred":"grandparent","args":["tom","bob"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"kb.query","arguments":{"pred":"uses_dollar","args":["a"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"kb.query","arguments":{"pred":"uses_upper","args":["a"]}}}'
 } | PARROT0_BASE="$base" PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_PROFILE= "$BIN" --mcp-engine 2>/dev/null)"
 
 line() { printf '%s\n' "$out" | grep -F "\"id\":$1"; }
@@ -63,6 +68,22 @@ if line 4 | grep -q 'provable\\":false'; then
     ok "join is discriminating (grandparent(tom,bob) is false)"
 else
     no "join gave a false positive: $(line 4)"
+fi
+
+# GATE D: a $-variable rule still resolves (uses_dollar($X) :- q($X))
+if line 5 | grep -q 'provable\\":true'; then
+    ok "\$-variable rule resolves (uses_dollar)"
+else
+    no "\$-rule did not resolve: $(line 5)"
+fi
+
+# GATE E ($-only): a BARE UPPERCASE 'variable' is now a CONSTANT, so a rule
+# written with it does NOT generalize — uses_upper(X):-q(X) cannot prove
+# uses_upper(a). This is the end of dual-accept.
+if line 6 | grep -q 'provable\\":false'; then
+    ok "bare uppercase is a constant, not a variable (uses_upper(a) false)"
+else
+    no "uppercase still behaves as a variable (dual-accept not removed): $(line 6)"
 fi
 
 echo "---"
