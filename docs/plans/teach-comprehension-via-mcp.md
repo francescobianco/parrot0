@@ -127,6 +127,46 @@ la via per potenziare le *capacità* resta il loop di auto-evoluzione (`LOOP.md`
 non un tool MCP. MCP insegna **conoscenza** (forme, significati, relazioni), non
 **facoltà**.
 
+### Secchio D — ciò che il LINGUAGGIO KB non può ESPRIMERE (misurato gen280)
+*(caccia esplicita a "qualcosa che via MCP non si può insegnare", dopo che U1/U1b
+hanno chiuso A.1)*
+
+Con i letterali e le variabili a posto, il limite si è spostato dai *bordi* al
+**potere espressivo del linguaggio delle clausole** stesso. Due reperti, provati
+dal vivo:
+
+**D.1 — Non puoi insegnare a CALCOLARE, solo a RICORDARE** *(profondo ma sulla
+roadmap: lo sblocca U3)*. MCP insegna fatti e regole di Horn su atomi, ma **non
+una funzione ricorsiva su dati strutturati**, perché il motore non ha **termini
+composti** (`prolog-like-engine.md` §2: "Liste/strutture ❌"). Misurato:
+```jsonc
+// una TABELLA di fatti funziona ma non generalizza:
+kb.assert sum(2,1,3);  kb.match sum(2,1,?) → {"bindings":["3"]}
+                       kb.match sum(2,2,?) → {"bindings":[]}         // mai insegnata → niente
+// PEANO via .p0 (nat(z). nat(s($N)):-nat($N).) NON scatta:
+kb.query nat(z)     → {"provable":true}
+kb.query nat(s(z))  → {"provable":false}   // "s(z)" è un ATOMO PIATTO, non s(_) che unifica con s($N)
+kb.match add(s(z),s(z),?) → {"bindings":[]}
+```
+`sum(2,1,3)` è memorizzabile; l'addizione (o `length`, `reverse`) **no**. È la
+distinzione memorizzazione⁄computazione. Lo sblocca **U3** (termini-lista/composti,
+§5.5): U3 non serve solo alle stringhe — è la porta per insegnare *computazione*.
+
+**D.2 — Non puoi insegnare una GENERALIZZAZIONE DEFEASIBLE** *(muro vero, FUORI
+roadmap)*. "Gli uccelli volano, tranne i pinguini" come regola generale non è
+esprimibile: le clausole di Horn **definite** hanno solo teste positive. Misurato
+(`flies($X):-bird($X). not(flies($X)):-flightless($X).` + `flightless(penguin)`):
+```jsonc
+kb.query flies(eagle)   → {"provable":true}
+kb.query flies(penguin) → {"provable":true}   // la regola a testa negata NON prevale
+```
+L'eccezione andrebbe **enumerata** caso per caso (e nemmeno quello passa da MCP:
+non c'è un tool di negazione, solo `kb.assert` positivo). Default, priorità,
+non-monotonìa (`most`, `usually`, `unless`) sono un **altro tipo di logica**
+(defeasible/ASP), non un upgrade di plumbing: NON è in U1..U5 e non va aggiunto
+di slancio. È il bordo onesto: MCP+Horn insegna *ciò che è*, non *ciò che di norma
+è salvo eccezioni*.
+
 ### Sintesi della distanza
 
 | Ciò che F. vuole insegnare | Stato | Secchio |
@@ -135,15 +175,18 @@ non un tool MCP. MCP insegna **conoscenza** (forme, significati, relazioni), non
 | Idiomi/espressioni multi-parola (minuscoli) | ✅ già oggi | — |
 | Forme di classe chiusa (stopword/conjunction) | ✅ già oggi | — |
 | Fatti generali di dominio | ✅ già oggi | — |
-| Nomi propri, template, acronimi (maiuscoli) | ❌ corrotti in scrittura | **A** |
-| Relazioni a più posti / regole di join | ❌ non asseribili | **A** |
+| Nomi propri, template, acronimi (maiuscoli) | ✅ risolto (U1/U1b, gen279/280) | ~~A~~ |
+| Relazioni a più posti / regole di join | ❌ non asseribili via MCP | **A** (→ U2) |
 | Accordo, morfologia, articoli | ⚠️ C by design | **B** |
 | Nuovi processi di interpretazione | ⛔ = nuovo C | **C** |
+| Computazione ricorsiva (addizione, liste) | ❌ niente termini composti | **D.1** (→ U3) |
+| Generalizzazioni defeasible (`usually`, `unless`) | ⛔ muro logico, fuori roadmap | **D.2** |
 
-**La distanza reale è quasi tutta il Secchio A** — un adattatore, non un motore.
-La visione di F. è corretta e in larga parte già realizzata; ciò che manca per
-renderla *piena* è rendere il canale di scrittura MCP fedele quanto il caricatore
-`.p0`.
+**Dopo U1/U1b il Secchio A.1 è chiuso.** La distanza residua è: A.2 (regole n-arie
+via MCP → U2), B/C (colla e facoltà in C), e i nuovi **D.1** (computazione → U3) e
+**D.2** (defeasible, muro logico fuori roadmap). La visione di F. resta corretta:
+ciò che è *conoscenza* si insegna; ciò che è *computazione* aspetta U3; ciò che è
+*logica non-monotona* è un altro motore.
 
 ## 3. Il piano operativo (una generazione per gate)
 
