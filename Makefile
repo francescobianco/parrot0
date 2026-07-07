@@ -211,6 +211,7 @@ test: build
 	@./tests/restore.sh
 	@./tests/mcp.sh
 	@./tests/mcp-teach.sh
+	@./tests/dollarvar.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

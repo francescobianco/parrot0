@@ -14,9 +14,9 @@ adjective(quick).
 
 % --- category rules: every part of speech is a word (disjunction: many
 %     clauses for one head) ---
-word(X) :- noun(X).
-word(X) :- verb(X).
-word(X) :- adjective(X).
+word($X) :- noun($X).
+word($X) :- verb($X).
+word($X) :- adjective($X).
 
 % --- morphology: plural forms, and the derived "countable" category ---
 plural(dog, dogs).
@@ -25,5 +25,5 @@ plural(child, children).
 singular(dogs, dog).
 singular(cats, cat).
 singular(children, child).
-countable(X) :- plural(X, _).      % X has some plural form
-has_plural(Y) :- plural(_, Y).     % Y is some word's plural form
+countable($X) :- plural($X, _).      % $X has some plural form
+has_plural($Y) :- plural(_, $Y).     % $Y is some word's plural form

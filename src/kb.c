@@ -92,8 +92,14 @@ static int term_ok(const char *s) {
     return strlen(s) < KB_TERM_LEN;
 }
 
+/* A variable is marked by a leading '$' (gen280, U1b: an EXPLICIT, case-blind
+ * sigil that real data never uses — see NEXT.md / teach-comprehension-via-mcp.md
+ * §5.5), OR by the legacy convention (leading uppercase / '_'). Dual-accept:
+ * both work, so no fixture needs migrating yet; the flip to '$'-only (which frees
+ * capitalized constants like "Madrid") is a later generation. '_' stays as the
+ * anonymous-variable marker. */
 static int is_var(const char *s) {
-    return s && (isupper((unsigned char)s[0]) || s[0] == '_');
+    return s && (s[0] == '$' || isupper((unsigned char)s[0]) || s[0] == '_');
 }
 
 static int fact_make(Fact *f, const char *pred, const char *const *args,
@@ -249,9 +255,9 @@ int kb_assert_rule(KB *kb, const char *head, const char *body) {
 
     Rule r;
     memset(&r, 0, sizeof r);
-    strcpy(r.head.pred, head);  r.head.argc = 1;     strcpy(r.head.args[0], "X");
+    strcpy(r.head.pred, head);  r.head.argc = 1;     strcpy(r.head.args[0], "$X");
     r.nbody = 1;
-    strcpy(r.body[0].pred, body); r.body[0].argc = 1; strcpy(r.body[0].args[0], "X");
+    strcpy(r.body[0].pred, body); r.body[0].argc = 1; strcpy(r.body[0].args[0], "$X");
     r.origin = kb->origin;
     return kb_add_rule(kb, &r);
 }
@@ -275,12 +281,12 @@ int kb_assert_rule_n(KB *kb, const char *head,
 
     Rule r;
     memset(&r, 0, sizeof r);
-    strcpy(r.head.pred, head); r.head.argc = 1; strcpy(r.head.args[0], "X");
+    strcpy(r.head.pred, head); r.head.argc = 1; strcpy(r.head.args[0], "$X");
     r.nbody = nbody;
     for (size_t b = 0; b < nbody; b++) {
         strcpy(r.body[b].pred, bodies[b]);
         r.body[b].argc = 1;
-        strcpy(r.body[b].args[0], "X");
+        strcpy(r.body[b].args[0], "$X");
     }
     r.origin = kb->origin;
     return kb_add_rule(kb, &r);

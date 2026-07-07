@@ -1,5 +1,5 @@
 % parrot0 base knowledge — curated, human-readable, hand-editable.
-% Format: one clause per line. Facts: pred(arg, ...).  Rules: head(X) :- body(X).
+% Format: one clause per line. Facts: pred(arg, ...).  Rules: head($X) :- body($X).
 % Loaded fully into RAM at startup and JOINed with kb/core/session.p0.
 % See DESIGN.md (D1-D3) and PRINCIPLES.md.
 
@@ -8,4 +8,4 @@ man(socrates).
 man(plato).
 
 % every man is mortal (a rule, derived on demand by resolution)
-mortal(X) :- man(X).
+mortal($X) :- man($X).
