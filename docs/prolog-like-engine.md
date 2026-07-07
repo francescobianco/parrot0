@@ -67,7 +67,8 @@ misurato:
 | **Ricorsione** | ✅ | `ancestor` transitivo; guardia `KB_MAX_DEPTH=64` (`src/kb.c:26,388`) sui cicli |
 | Backtracking + standardize-apart | ✅ | `rename_term` per-clausola (`src/kb.c:346`); frame unico per invocazione |
 | Proof-trace | ✅ | `kb_explain` → `"grandparent(tom,ann) because parent(tom,bob) and parent(bob,ann)"` |
-| Negazione esplicita | ✅ (parziale) | `not(P)` blocca `P`; closed-world locale, non NAF completa |
+| Negazione esplicita (fatti) | ✅ | `not(P)` fatto negativo ground blocca `P` (`kb_is_negated`) |
+| **Negazione-per-fallimento nel corpo** | ✅ (gen282, U6) | `head :- …, naf(G)` — `naf(G)` riesce se `G` non è derivabile. Solo goal **ground** (floundering: declina); default con eccezioni (`flies($X):-bird($X),naf(abnormal($X))`). NON copre priorità fra default/probabilità |
 | Cut / control | ❌ | nessun `!` |
 | Aritmetica nelle clausole | ❌ | i numeri sono atomi; il calcolo vive nei moduli `brain/*` (wordmath) |
 | Liste/strutture come termini | ❌ | gli argomenti sono atomi/variabili piatti |

@@ -181,7 +181,7 @@ di slancio. È il bordo onesto: MCP+Horn insegna *ciò che è*, non *ciò che di
 | Accordo, morfologia, articoli | ⚠️ C by design | **B** |
 | Nuovi processi di interpretazione | ⛔ = nuovo C | **C** |
 | Computazione ricorsiva (addizione, liste) | ❌ niente termini composti | **D.1** (→ U3, §6.1) |
-| Default con eccezioni (`unless`) | ❌ oggi; superabile con NAF | **D.2** (→ U6, §6.2) |
+| Default con eccezioni (`unless`) | ✅ risolto (U6/`naf`, gen282) | ~~D.2~~ (§6.2) |
 | Defeasibilità con priorità / probabilità | ⛔ muro logico, fuori roadmap | **D.2** (resta fuori) |
 
 **Dopo U1/U1b il Secchio A.1 è chiuso.** La distanza residua è: A.2 (regole n-arie
@@ -398,7 +398,13 @@ insegnabile**, non C. È **U3** di §5.5, ora con spec affilata.
 *Alternativa onesta:* se il parse-on-unify diventa troppo, si passa a un `Term`
 ricorsivo vero (Opzione A) — più costo, stessa semantica.
 
-### 6.2 D.2 → negazione-per-fallimento (NAF) nel corpo: i default come conoscenza
+### 6.2 D.2 → negazione-per-fallimento (NAF) nel corpo: i default come conoscenza  ✅ SPEDITO (U6, gen282)
+
+> **Fatto (gen282).** `naf(G)` nel corpo (o `"neg":true` su un goal di
+> `kb.assert_clause`) è implementato: `Term.neg`, strisciamento del wrapper al
+> parse/assert, NAF in `solve()` e `prove_seq_ex()` con floundering-guard
+> (solo goal ground). Gate `tests/naf.sh` (via `.p0` e via MCP). `kb_save`
+> round-trippa il wrapper. La defeasibilità con priorità/probabilità resta fuori.
 
 **Il "muro" è in realtà una porta ben precisa.** Non serve ASP/defeasible completo
 per il caso reale ("gli uccelli volano *salvo eccezioni*"): basta la

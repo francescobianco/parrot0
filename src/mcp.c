@@ -234,12 +234,15 @@ static const McpTool TOOLS[] = {
  "\"body\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},"
  "\"required\":[\"head\",\"body\"]}"},
 {"kb.assert_clause", "Assert a full definite clause head:-body0,…,bodyN with "
- "n-ary head and body goals carrying distinct/shared $-variables.",
+ "n-ary head and body goals carrying distinct/shared $-variables. A body goal "
+ "with \"neg\":true is negation-as-failure (succeeds iff not derivable), for "
+ "defaults with exceptions.",
  "{\"type\":\"object\",\"properties\":{"
  "\"head\":{\"type\":\"object\",\"properties\":{\"pred\":{\"type\":\"string\"},"
  "\"args\":{\"type\":\"array\"}},\"required\":[\"pred\",\"args\"]},"
  "\"body\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{"
- "\"pred\":{\"type\":\"string\"},\"args\":{\"type\":\"array\"}},"
+ "\"pred\":{\"type\":\"string\"},\"args\":{\"type\":\"array\"},"
+ "\"neg\":{\"type\":\"boolean\"}},"
  "\"required\":[\"pred\",\"args\"]}}},"
  "\"required\":[\"head\",\"body\"]}"},
 {"kb.retract", "Retract a ground fact pred(args...) if present.",
@@ -341,7 +344,7 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
 
         const char *hslots[KB_MAX_ARGS];
         size_t hargc = build_clause_args(hargs, hslots, KB_MAX_ARGS, gscratch[0]);
-        KbGoal head = { hpred, hslots, hargc };
+        KbGoal head = { hpred, hslots, hargc, 0 };   /* heads are never negated */
         if (hargc == 0 && hargs) { snprintf(out, outsz, "{\"error\":\"empty head args\"}"); return 0; }
 
         KbGoal body_goals[KB_MAX_BODY];
@@ -355,9 +358,11 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
                 const JVal *ga = jobj_get(g, "args");
                 size_t gargc = build_clause_args(ga, gslots[nb + 1], KB_MAX_ARGS,
                                                   gscratch[nb + 1]);
+                const JVal *gneg = jobj_get(g, "neg");   /* U6: naf body goal */
                 body_goals[nb].pred = gp;
                 body_goals[nb].args = gslots[nb + 1];
                 body_goals[nb].argc = gargc;
+                body_goals[nb].neg = (gneg && gneg->type == J_BOOL && gneg->b) ? 1 : 0;
                 nb++;
             }
         }

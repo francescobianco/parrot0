@@ -14,10 +14,18 @@
   `f779d6c`, `087c637`.
 - **gen281 — U2** `kb.assert_clause` (regole n-arie via MCP). `0bfebf8`.
   `tests/assertclause.sh` verde; doc allineate.
+- **gen282 — U6** negazione-per-fallimento `naf(G)` → **D.2 superato** (default con
+  eccezioni). `Term.neg`, NAF in `solve()`/`prove_seq_ex()` con floundering-guard,
+  `"neg":true` via `kb.assert_clause`, `kb_save` round-trippa `naf`. Gate
+  `tests/naf.sh` (via `.p0` e via MCP). Suite verde.
 
 ---
 
-## LAVORO IN CORSO: U6 — negazione-per-fallimento (`naf`) → supera D.2
+## (chiuso) U6 — negazione-per-fallimento (`naf`) → D.2 superato, gen282
+
+Spedito. Sezione tenuta come record del design; il prossimo lavoro è U3 (CODA).
+
+<details><summary>Piano U6 (storico)</summary>
 
 **Perché.** Insegnare un DEFAULT con eccezioni come conoscenza: "gli uccelli
 volano, tranne i non-volatori". Oggi non è esprimibile (clausole di Horn definite,
@@ -74,9 +82,11 @@ stratificata a goal ground; NON copre priorità fra default né probabilità (re
 fuori, altro motore). Stratificazione non verificata staticamente: ci si affida a
 ground-guard + depth-guard.
 
+</details>
+
 ---
 
-## CODA (dopo U6)
+## CODA (dopo U6) — il prossimo è U3
 
 Design completo in `teach-comprehension-via-mcp.md` §6.
 

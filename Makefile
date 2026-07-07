@@ -213,6 +213,7 @@ test: build
 	@./tests/mcp-teach.sh
 	@./tests/dollarvar.sh
 	@./tests/assertclause.sh
+	@./tests/naf.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

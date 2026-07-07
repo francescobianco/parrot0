@@ -77,8 +77,11 @@ int    kb_assert_rule_n(KB *kb, const char *head,
                         const char *const *bodies, size_t nbody);
 
 /* A goal/term: predicate + args. An arg is a constant atom or a variable
- * ($-prefixed, or legacy uppercase/'_'). Used to assert a full clause. */
-typedef struct { const char *pred; const char *const *args; size_t argc; } KbGoal;
+ * ($-prefixed, or legacy uppercase/'_'). `neg` marks a BODY goal as
+ * negation-as-failure (naf(G)); 0 for the head and ordinary goals (U6). */
+typedef struct {
+    const char *pred; const char *const *args; size_t argc; int neg;
+} KbGoal;
 
 /* Assert a definite clause  head :- body[0], …, body[nbody-1]  with FULL n-ary
  * head and goals carrying distinct/shared variables — the general shape a .p0

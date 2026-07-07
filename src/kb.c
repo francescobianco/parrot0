@@ -35,6 +35,8 @@ typedef struct {
     char   pred[KB_TERM_LEN];
     size_t argc;
     char   args[KB_MAX_ARGS][KB_TERM_LEN];
+    int    neg; /* U6: a BODY goal marked negation-as-failure (naf(G)). 0 for
+                 * facts, heads, and ordinary positive goals. */
 } Term;
 
 typedef struct {
@@ -361,6 +363,7 @@ static void rename_term(const Term *src, int frame, int *anon, Term *dst) {
         else
             strcpy(dst->args[i], a);
     }
+    dst->neg = src->neg;   /* U6: the naf flag travels with the renamed goal */
 }
 
 static void push_unique(char out[][KB_TERM_LEN], size_t *count, size_t max,
@@ -381,6 +384,35 @@ typedef struct {
     int    frame;
 } Solver;
 
+static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                 const Subst *s, int depth);   /* fwd: naf helpers call solve */
+
+/* U6 (teach-comprehension-via-mcp.md §6.2) negation-as-failure helpers. A body
+ * goal marked `neg` (from naf(G)) succeeds iff G is NOT derivable. */
+
+/* Ground a goal by resolving each arg through the current substitution. */
+static void resolve_goal(const Term *g, const Subst *s, Term *out) {
+    memset(out, 0, sizeof *out);
+    strcpy(out->pred, g->pred);
+    out->argc = g->argc;
+    for (size_t i = 0; i < g->argc; i++)
+        snprintf(out->args[i], KB_TERM_LEN, "%s", resolve(s, g->args[i]));
+}
+static int goal_ground(const Term *g) {
+    for (size_t i = 0; i < g->argc; i++)
+        if (is_var(g->args[i])) return 0;
+    return 1;
+}
+/* Is the (ground) goal provable now? A fresh boolean solve, depth-guarded. */
+static int goal_provable(const KB *kb, const Term *g, int depth) {
+    Solver S;
+    memset(&S, 0, sizeof S);
+    S.kb = kb; S.qvar = NULL;
+    Subst s = { .n = 0 };
+    solve(&S, g, 1, 0, &s, depth);
+    return S.found;
+}
+
 /* Prove the goal list under substitution `s`. Returns 1 to stop all search
  * (boolean solution found, or the collector is full). */
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
@@ -394,6 +426,14 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     if (depth > KB_MAX_DEPTH) return 0;
 
     const Term *g = &goals[idx];
+
+    if (g->neg) {                              /* U6: negation-as-failure */
+        Term gg;
+        resolve_goal(g, s, &gg);
+        if (!goal_ground(&gg)) return 0;       /* floundering: decline honestly */
+        if (goal_provable(S->kb, &gg, depth + 1)) return 0;  /* provable -> naf fails */
+        return solve(S, goals, ngoals, idx + 1, s, depth);   /* not provable -> naf ok */
+    }
 
     for (size_t i = 0; i < S->kb->n; i++) {    /* match facts */
         Subst s2 = *s;
@@ -465,6 +505,7 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
     for (size_t gi = 0; gi < nbody; gi++) {
         if (!term_make(&r.body[gi], body[gi].pred,
                        body[gi].args, body[gi].argc)) return 0;
+        r.body[gi].neg = body[gi].neg;   /* U6: carry naf onto the stored goal */
     }
     r.nbody = nbody;
     r.origin = kb->origin;
@@ -478,6 +519,7 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
             if (strcmp(R->head.args[a], r.head.args[a]) != 0) same = 0;
         for (size_t b = 0; b < r.nbody && same; b++) {
             if (R->body[b].argc != r.body[b].argc ||
+                R->body[b].neg != r.body[b].neg ||
                 strcmp(R->body[b].pred, r.body[b].pred) != 0) { same = 0; break; }
             for (size_t a = 0; a < r.body[b].argc && same; a++)
                 if (strcmp(R->body[b].args[a], r.body[b].args[a]) != 0) same = 0;
@@ -561,6 +603,20 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
     if (idx == n) return 1;
     if (idx >= KB_PROOF_PG) return 0;
     const Term *g = &goals[idx];
+
+    if (g->neg) {                                   /* U6: NAF in the proof */
+        Term gg;
+        resolve_goal(g, s, &gg);
+        if (!goal_ground(&gg)) return 0;
+        if (goal_provable(kb, &gg, depth + 1)) return 0;
+        if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
+            char inner[KB_PROOF_LEN];
+            render_goal(s, g, inner, sizeof inner);
+            snprintf(out[idx], KB_PROOF_LEN, "not %s", inner);
+            return 1;
+        }
+        return 0;
+    }
 
     for (size_t i = 0; i < kb->n; i++) {            /* close by a fact */
         Subst s2 = *s;
@@ -750,6 +806,25 @@ static int parse_to_term(const char *s, Term *t) {
     return parse_term(s, t->pred, t->args, &t->argc);
 }
 
+/* Parse a rule BODY goal, honoring a naf(…) wrapper (U6). naf(G) parses G and
+ * marks the goal negation-as-failure; anything else is an ordinary goal. */
+static int parse_goal(const char *s, Term *t) {
+    while (*s && isspace((unsigned char)*s)) s++;
+    size_t n = strlen(s);
+    while (n > 0 && isspace((unsigned char)s[n - 1])) n--;
+    if (n >= 6 && strncmp(s, "naf(", 4) == 0 && s[n - 1] == ')') {
+        char inner[KB_TERM_LEN * KB_MAX_ARGS];
+        size_t len = n - 5;                 /* strip "naf(" (4) and ")" (1) */
+        if (len == 0 || len >= sizeof inner) return 0;
+        memcpy(inner, s + 4, len);
+        inner[len] = '\0';
+        if (!parse_to_term(inner, t)) return 0;
+        t->neg = 1;
+        return 1;
+    }
+    return parse_to_term(s, t);
+}
+
 static int parse_neg_term(const char *s, char *pred,
                           char args[][KB_TERM_LEN], size_t *argc) {
     size_t n = strlen(s);
@@ -866,7 +941,7 @@ int kb_load(KB *kb, const char *path) {
             size_t ng = split_goals(arrow + 2, goals, KB_MAX_BODY);
             int ok = ng > 0;
             for (size_t i = 0; i < ng && ok; i++) {
-                if (!parse_to_term(goals[i], &r.body[i])) ok = 0;
+                if (!parse_goal(goals[i], &r.body[i])) ok = 0;
             }
             if (ok) { r.nbody = ng; kb_add_rule(kb, &r); count++; }
         } else {                                    /* fact */
@@ -925,7 +1000,13 @@ int kb_save(const KB *kb, const char *path, int origin_mask) {
         fprintf(f, " :- ");
         for (size_t j = 0; j < r->nbody; j++) {
             if (j) fprintf(f, ", ");
-            write_term(f, &r->body[j]);
+            if (r->body[j].neg) {           /* U6: round-trip the naf wrapper */
+                fprintf(f, "naf(");
+                write_term(f, &r->body[j]);
+                fputc(')', f);
+            } else {
+                write_term(f, &r->body[j]);
+            }
         }
         fprintf(f, ".\n");
         count++;
