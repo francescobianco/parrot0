@@ -207,12 +207,52 @@ maiuscole nude; unico sito interno = `kb_match` "Q".
 
 ---
 
-## CODA (dopo il flip) — il prossimo è U4
+## LAVORO IN CORSO: U4 — azioni-su-stringa COME CONOSCENZA (builtin `chars/2`)
 
-- **U4** (de)serializzazione stringa⟷struttura → azioni-su-stringa come conoscenza
-  (`capitalize_first` come REGOLA + tabella `upper/2` + builtin `chars/2`; i
-  caratteri come costanti grazie al flip). Sopra U3.
-- **U5** migrazione Secchio B (accordo/casing/morfologia) a `present/2`. Sopra U4.
+**Perché.** F.: "anche l'eseguire capitalize_first deve essere conoscenza". La
+`capitalize_first` diventa una REGOLA su una lista di caratteri; la mappa
+maiuscole una TABELLA di fatti; l'unico pezzo fisso è la (de)serializzazione
+stringa⟷lista-di-char, cieca all'operazione (§5.3/§6.1). Post-flip i char singoli
+(`m`, `M`) sono costanti → rappresentazione pulita.
+
+```prolog
+upper(m, M).  upper(a, A).  ...                     % mappa = conoscenza (tabella)
+cap_first($S, $R) :- chars($S, cons($H, $T)), upper($H, $U), chars($R, cons($U, $T)).
+```
+`chars/2` è il builtin bidirezionale: atomo↔lista-di-char (`chars(madrid, $L)` →
+`$L=cons(m,cons(a,…,nil))`; e viceversa compone). `cap_first(madrid,$R)` → `$R=Madrid`.
+
+**Gate.** `tests/strknow.sh`: via `.p0` E via MCP — insegna `upper/2` + `cap_first`,
+query `cap_first(madrid, ?)` → `["Madrid"]`. Oggi `chars` non esiste → rosso.
+
+**Passi (`src/kb.c` salvo dove indicato):**
+1. Helper `atom_to_charlist(atom→"cons(m, …, nil)")` e `charlist_to_atom` (inverso),
+   riusano `split_compound`. Char alfanumerici nudi; speciali quotati (limite:
+   niente `"` interno). Buffer generoso + cap sulla lunghezza.
+2. Builtin `chars/2` in `solve()` (dopo il caso `naf`, come goal speciale
+   `pred=="chars", argc==2`): se arg0 bound → decomponi e `unify` con arg1; elif
+   arg1 bound (cons-list) → componi e `unify` con arg0; else flounder→fail.
+3. (opz.) rispecchiare in `prove_seq_ex` per l'explain; altrimenti dichiarare il
+   limite (explain di regole con `chars` incompleto).
+4. `tests/strknow.sh` + `Makefile` dopo `compound.sh`.
+5. Verifica: gate + `make test`. Rischio: `chars` builtin intercetta un predicato
+   utente chiamato `chars/2`? Improbabile; è un nome riservato del motore (come
+   `naf`). Documentarlo.
+6. Doc: `prolog-like-engine.md` (builtin `chars/2` + naf nel contratto),
+   `teach-comprehension` §6.1/§5.3 (U4 ✅). Commit `feat(engine): gen285 - U4 chars`.
+
+**Onestà/limiti:** `chars` gestisce stringhe word-like (alfanumeriche) pulite;
+caratteri speciali/lunghezze estreme sono un bordo. È il primo BUILTIN (predicato
+valutabile) del motore — giustificato da §5.3 come la (de)serializzazione
+irriducibile e cieca-all'operazione, NON una primitiva d'azione.
+
+---
+
+## CODA (dopo U4)
+
+- **U5** migrazione Secchio B (accordo/casing/morfologia) da C (`85-translate`) a
+  `present/2` dichiarativo. Sopra U4. Serve un pull/benchmark di traduzione per
+  tirarlo; grande e delicato → scrivere un piano upfront dedicato prima.
 
 Fuori scommessa (NON fare senza pull reale): defeasibilità con priorità/probabilità.
 
