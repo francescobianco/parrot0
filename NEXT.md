@@ -161,11 +161,45 @@ ricorsivo vero.
 
 ---
 
-## CODA (dopo U3) — il prossimo
+## LAVORO IN CORSO: U1b gen B — flip `is_var` a solo-`$` (fine del dual-accept)
 
-- **U1b gen B** — flip `is_var` a solo-`$` (libera le maiuscole). Indipendente.
-- **U4** (de)serializzazione stringa⟷struttura → azioni-su-stringa come conoscenza;
-  **U5** migrazione Secchio B (accordo/casing/morfologia) a `present/2`. Sopra U3.
+**Perché.** F. (2026-07-07): "non teniamo il dual concept, migriamo tutto a `$`".
+La variabile è marcata SOLO da `$` (named) o `_` (anonima); la MAIUSCOLA torna un
+atomo costante. Libera nomi propri e — cruciale per U4 — i caratteri singoli
+(`M`, `A`) come costanti. Fine dell'ambiguità `Madrid`.
+
+**Gate.** `tests/dollarvar.sh` esteso: `p($X):-q($X)` + `q(a)` → `p(a)` true; MA
+`r(X):-q(X)` (maiuscola nuda) → `r(a)` **false** (X ora è costante). E
+`capital(spain, Madrid)` via MCP → `kb.match` torna `Madrid` come costante.
+
+**Passi (atomici, tutto insieme — un KB mezzo-migrato si rompe in silenzio):**
+1. `src/kb.c` `is_var` (riga 104): togliere `isupper` → `s[0]=='$' || s[0]=='_'`.
+2. `src/kb.c` `kb_match` (righe ~656-665): var interne `"Q"`→`"$Q"`, `"Q%zu"`→
+   `"$Q%zu"`, `qvar "Q"`→`"$Q"` (altrimenti kb_match si rompe).
+3. `src/mcp.c` `lit_needs_quote`: togliere il ramo `isupper` (le maiuscole ora
+   sono costanti sicure; restano `$`/`_`/`looks_compound`/spazi-virgola).
+4. Migrare i FIXTURE di test che insegnano regole con var maiuscole → `$`:
+   `tests/restore.sh`, `tests/anon.sh`, `tests/multigoal.sh`, `tests/howknow.sh`,
+   `tests/explain.sh` (X→$X, Y→$Y, Z→$Z nelle regole; `_` resta anonima).
+   NB: i messaggi di display "Learned rule: %s(X)" nei moduli brain restano "X"
+   (testo umano, non parsato) → i `.chat` non cambiano.
+5. Verifica: gate + REGRESSIONE COMPLETA (`make test`). Le reti (multigoal/grammar/
+   knowledge/explain/anon/persist/restore/howknow) sono la garanzia.
+6. Doc: `prolog-like-engine.md` §1 (`is_var` solo-`$`), `teach-comprehension`,
+   `use-mcp-engine`. Commit `refactor(engine): gen284 - $-only variables`.
+
+**Rischio:** un fixture o un sito interno dimenticato → test rosso su una regola
+(non crash). La rete lo becca. Audit fatto: nessuna regola `.p0` shippata usa
+maiuscole nude; unico sito interno = `kb_match` "Q".
+
+---
+
+## CODA (dopo il flip)
+
+- **U4** (de)serializzazione stringa⟷struttura → azioni-su-stringa come conoscenza
+  (`capitalize_first` come REGOLA + tabella `upper/2` + builtin `chars/2`; i
+  caratteri come costanti grazie al flip). Sopra U3.
+- **U5** migrazione Secchio B (accordo/casing/morfologia) a `present/2`. Sopra U4.
 
 Fuori scommessa (NON fare senza pull reale): defeasibilità con priorità/probabilità.
 
