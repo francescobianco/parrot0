@@ -71,6 +71,7 @@ misurato:
 | **Negazione-per-fallimento nel corpo** | ✅ (gen282, U6) | `head :- …, naf(G)` — `naf(G)` riesce se `G` non è derivabile. Solo goal **ground** (floundering: declina); default con eccezioni (`flies($X):-bird($X),naf(abnormal($X))`). NON copre priorità fra default/probabilità |
 | **Termini composti / unificazione strutturale** | ✅ (gen283, U3) | `f(a…)` è una struttura; `unify` ci ricorre; una variabile lega una sotto-struttura. `nat(s(s(z)))`, liste `cons(H,T)`/`nil`. Niente occurs-check; termini oltre `KB_TERM_LEN` troncano (cap) |
 | **Computazione ricorsiva come conoscenza** | ✅ (gen283, U3) | Peano `add(s($X),$Y,s($Z)):-add($X,$Y,$Z)` → `add(s(z),s(z),$R)` dà `$R=s(s(z))`; `length`/`reverse` su liste. Insegnabile via `.p0` E via `kb.assert_clause` |
+| **Azioni-su-stringa come conoscenza** (builtin `chars/2`) | ✅ (gen285, U4) | `chars/2` è l'UNICO builtin: atomo↔lista-di-char bidirezionale (`chars(madrid,$L)`→`$L=cons(m,…,nil)` e viceversa). Così `capitalize_first($S,$R):-chars($S,cons($H,$T)),upper($H,$U),chars($R,cons($U,$T))` è una REGOLA (la mappa `upper/2` è una tabella di fatti), non C. Stringhe word-like; caratteri speciali un bordo |
 | Cut / control | ❌ | nessun `!` |
 | Aritmetica *nativa* (`is/2`) nelle clausole | ❌ | i numeri restano atomi; per calcolare si usa Peano/strutture (U3) o i moduli `brain/*` (wordmath) |
 

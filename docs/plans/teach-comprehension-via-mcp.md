@@ -270,7 +270,14 @@ prima versione di questa sezione lasciava le primitive (`capitalize_first`,
 `article_it`…) come libreria C fissa. F. la rifiuta, giustamente: quella sarebbe
 ancora colla cablata, solo spostata. La posizione corretta è §5.3.
 
-### 5.3 L'azione su stringa COME conoscenza (regole + tabelle, non primitive C)
+### 5.3 L'azione su stringa COME conoscenza (regole + tabelle, non primitive C)  ✅ SPEDITO (U4, gen285)
+
+> **Fatto (gen285).** `chars/2` è il builtin bidirezionale atomo↔lista-di-char —
+> l'unico pezzo fisso, cieco all'operazione. `capitalize_first` è una REGOLA
+> (`cap_first($S,$R):-chars($S,cons($H,$T)),upper($H,$U),chars($R,cons($U,$T))`),
+> la mappa `upper/2` una tabella di fatti. Post-flip (gen284) i char singoli sono
+> costanti. `cap_first(madrid,$R)`→`$R=Madrid`. Gate `tests/strknow.sh` (`.p0` +
+> MCP). Limite: stringhe word-like; caratteri speciali un bordo.
 
 Il modo per rendere conoscenza *anche l'esecuzione*: smettere di trattare la
 stringa come blob opaco e trattarla come **struttura su cui il motore unifica**.

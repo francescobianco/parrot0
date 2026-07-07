@@ -504,6 +504,59 @@ static int goal_provable(const KB *kb, const Term *g, int depth) {
     return S.found;
 }
 
+/* U4 (teach-comprehension-via-mcp.md §5.3): string ⟷ char-list (de)serialization
+ * — the fixed, operation-BLIND substrate under "string actions as knowledge". A
+ * word becomes cons(c1, …, nil) of single-char atoms; alnum/'_' chars are bare,
+ * others quoted. This is the ONLY string primitive: capitalize_first, pluralize,
+ * etc. are Horn rules over the list, not C. */
+#define KB_CHARLIST_MAX 4096
+static void char_atom(char c, char *buf) {
+    if (isalnum((unsigned char)c) || c == '_') { buf[0] = c; buf[1] = '\0'; }
+    else { buf[0] = '"'; buf[1] = c; buf[2] = '"'; buf[3] = '\0'; }
+}
+static int atom_to_charlist(const char *a, char *out, size_t outsz) {
+    char tmp[KB_TERM_LEN];
+    size_t n = a ? strlen(a) : 0;
+    if (n >= 2 && a[0] == '"' && a[n - 1] == '"') {   /* strip a quoted literal */
+        if (n - 2 >= sizeof tmp) return 0;
+        memcpy(tmp, a + 1, n - 2); tmp[n - 2] = '\0'; a = tmp; n -= 2;
+    }
+    char acc[KB_CHARLIST_MAX];
+    snprintf(acc, sizeof acc, "nil");
+    for (size_t i = n; i > 0; i--) {
+        char cb[8]; char_atom(a[i - 1], cb);
+        char nxt[KB_CHARLIST_MAX];
+        int w = snprintf(nxt, sizeof nxt, "cons(%s, %s)", cb, acc);
+        if (w < 0 || (size_t)w >= sizeof nxt) return 0;   /* too long */
+        memcpy(acc, nxt, (size_t)w + 1);
+    }
+    return snprintf(out, outsz, "%s", acc) >= 0 && strlen(acc) < outsz;
+}
+static int charlist_to_atom(const char *list, char *out, size_t outsz) {
+    char cur[KB_CHARLIST_MAX];
+    snprintf(cur, sizeof cur, "%s", list ? list : "");
+    size_t pos = 0;
+    for (int guard = 0; guard < KB_CHARLIST_MAX; guard++) {
+        char *p = cur; while (*p == ' ') p++;
+        if (strcmp(p, "nil") == 0) {
+            if (pos >= outsz) return 0;
+            out[pos] = '\0'; return 1;
+        }
+        char f[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN]; size_t na = 0;
+        if (!split_compound(p, f, args, &na) || na != 2 || strcmp(f, "cons") != 0)
+            return 0;
+        const char *h = args[0]; size_t hn = strlen(h);
+        char ch;
+        if (hn >= 3 && h[0] == '"' && h[hn - 1] == '"') ch = h[1];   /* quoted */
+        else if (hn == 1) ch = h[0];
+        else return 0;                                  /* not a single char */
+        if (pos + 1 >= outsz) return 0;
+        out[pos++] = ch;
+        snprintf(cur, sizeof cur, "%s", args[1]);       /* recurse on the tail */
+    }
+    return 0;
+}
+
 /* Prove the goal list under substitution `s`. Returns 1 to stop all search
  * (boolean solution found, or the collector is full). */
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
@@ -525,6 +578,30 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (!goal_ground(&gg)) return 0;       /* floundering: decline honestly */
         if (goal_provable(S->kb, &gg, depth + 1)) return 0;  /* provable -> naf fails */
         return solve(S, goals, ngoals, idx + 1, s, depth);   /* not provable -> naf ok */
+    }
+
+    if (strcmp(g->pred, "chars") == 0 && g->argc == 2) {   /* U4: chars/2 builtin */
+        char a0[KB_CHARLIST_MAX], a1[KB_CHARLIST_MAX];
+        deep_resolve(s, g->args[0], a0, sizeof a0, 0);
+        deep_resolve(s, g->args[1], a1, sizeof a1, 0);
+        int g0 = !is_var(a0) && strchr(a0, '$') == NULL;   /* arg0 fully ground */
+        int g1 = !is_var(a1) && strchr(a1, '$') == NULL;   /* arg1 fully ground */
+        Subst s2 = *s;
+        if (g0) {                              /* atom -> char-list */
+            char list[KB_CHARLIST_MAX];
+            if (atom_to_charlist(a0, list, sizeof list) &&
+                unify(&s2, g->args[1], list))
+                return solve(S, goals, ngoals, idx + 1, &s2, depth);
+            return 0;
+        }
+        if (g1) {                              /* char-list -> atom */
+            char atom[KB_TERM_LEN];
+            if (charlist_to_atom(a1, atom, sizeof atom) &&
+                unify(&s2, g->args[0], atom))
+                return solve(S, goals, ngoals, idx + 1, &s2, depth);
+            return 0;
+        }
+        return 0;                              /* both unbound: flounder */
     }
 
     for (size_t i = 0; i < S->kb->n; i++) {    /* match facts */

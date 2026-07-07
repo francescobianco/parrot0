@@ -215,6 +215,7 @@ test: build
 	@./tests/assertclause.sh
 	@./tests/naf.sh
 	@./tests/compound.sh
+	@./tests/strknow.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

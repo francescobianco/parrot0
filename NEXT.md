@@ -25,7 +25,11 @@
   Suite verde. `e8cb976`.
 - **gen284 — U1b gen B** flip `is_var` a **solo-`$`** (fine dual-accept, richiesta F.).
   Maiuscola = costante; `kb_match` "Q"→"$Q"; 5 fixture migrati. Gate `dollarvar.sh`.
-  Suite completa verde.
+  Suite completa verde. `dd427e5`.
+- **gen285 — U4** azioni-su-stringa COME CONOSCENZA. Builtin `chars/2` (atomo↔lista-
+  di-char, l'unico pezzo fisso cieco all'operazione); `capitalize_first` è una REGOLA
+  + tabella `upper/2`. `cap_first(madrid,$R)`→`$R=Madrid`. Gate `tests/strknow.sh`
+  (`.p0` + MCP). Suite completa verde.
 
 ---
 
@@ -207,7 +211,15 @@ maiuscole nude; unico sito interno = `kb_match` "Q".
 
 ---
 
-## LAVORO IN CORSO: U4 — azioni-su-stringa COME CONOSCENZA (builtin `chars/2`)
+## (chiuso) U4 — azioni-su-stringa come conoscenza, gen285
+
+Spedito: builtin `chars/2` (`atom_to_charlist`/`charlist_to_atom` + dispatch in
+`solve()`), `capitalize_first` come regola. Gate `tests/strknow.sh`. Suite verde.
+Il prossimo è **U5** (CODA) — l'ultimo della sequenza.
+
+<details><summary>Piano U4 (storico)</summary>
+
+## (storico) U4 — azioni-su-stringa COME CONOSCENZA (builtin `chars/2`)
 
 **Perché.** F.: "anche l'eseguire capitalize_first deve essere conoscenza". La
 `capitalize_first` diventa una REGOLA su una lista di caratteri; la mappa
@@ -246,13 +258,39 @@ caratteri speciali/lunghezze estreme sono un bordo. È il primo BUILTIN (predica
 valutabile) del motore — giustificato da §5.3 come la (de)serializzazione
 irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
+</details>
+
 ---
 
-## CODA (dopo U4)
+## PROSSIMO (da fare): U5 — migrare la colla grammaticale a `present/2`
 
-- **U5** migrazione Secchio B (accordo/casing/morfologia) da C (`85-translate`) a
-  `present/2` dichiarativo. Sopra U4. Serve un pull/benchmark di traduzione per
-  tirarlo; grande e delicato → scrivere un piano upfront dedicato prima.
+**Stato:** l'infrastruttura è pronta (U3 termini composti, U4 `chars/2` +
+azioni-come-regole, flip $-only). U5 è l'ULTIMO della sequenza e il più delicato:
+**non** è un upgrade di motore ma una MIGRAZIONE del Secchio B — accordo articolo/
+genere, casing, elisione, morfologia — da C (`src/brain/85-translate-synth-world.c`)
+a regole `present/2` dichiarative + tabelle di fatti, sfruttando `chars/2`.
+
+**Perché serve cautela (leggere prima di iniziare):**
+- Tocca `mod_translate`/`85-translate` (traduzione EN↔IT, gen126+), coperto da
+  test multilingui (`run.sh` casi `.chat` IT, `parrot0-multilingual-probe`). Un
+  refactor sbagliato rompe la traduzione → **serve un benchmark/pull di traduzione
+  che TIRI la migrazione**, non un refactor speculativo (disciplina PRINCIPLES.md).
+- Va fatto UNA regola-colla per volta, gate-first, con dovere di pivot se tradisce
+  l'emergenza senza beneficio misurabile (§6/§5.4, `primitives-first-pivot-duty`).
+
+**Primo passo consigliato quando si riparte:**
+1. Scrivere un piano upfront dedicato (come per U2..U4): scegliere la regola-colla
+   PIÙ ISOLATA (candidata: l'accordo articolo→genere `il/la`, `un/una`, elisione
+   `l'`) e definirne il gate — un caso di `mod_translate` che oggi passa per la
+   colla C deve dare lo stesso output passando per una regola `present/2` + tabella.
+2. Rappresentare l'accordo come fatti (`article(Genere, VocaleIniziale, Forma)`) +
+   una regola che li compone, interrogata da un kernel generico di realizzazione.
+3. Se il gate è verde e non peggiora i test multilingui → tirare la prossima
+   regola-colla; altrimenti pivot.
+
+**Design di riferimento:** `teach-comprehension-via-mcp.md` §5.5 (U5), §6, §5.2-5.3
+(sostanza⟂presentazione, manipolatori addestrabili). `generative-prolog.md`
+("lingua = ultimo passaggio" reso dichiarativo).
 
 Fuori scommessa (NON fare senza pull reale): defeasibilità con priorità/probabilità.
 
