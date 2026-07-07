@@ -44,6 +44,10 @@ out="$( {
   # response template — uppercase + spaces + comma + {slot}
   call '{"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"response_template","args":["greet","Welcome, {name}!"]}}}'
   call '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"response_template","args":["greet",null]}}}'
+  # '$'-leading literal — since gen280 '$' marks a variable, so a shell-var value
+  # must still round-trip as a constant (env(home, "$HOME")).
+  call '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"env","args":["home","$HOME"]}}}'
+  call '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"env","args":["home",null]}}}'
 } | PARROT0_SESSION= PARROT0_WORLD_FACTS=0 PARROT0_PROFILE= "$BIN" --mcp-engine 2>/dev/null)"
 
 line() { printf '%s\n' "$out" | grep -F "\"id\":$1"; }
@@ -81,6 +85,13 @@ if line 9 | grep -q 'Welcome, {name}!'; then
     ok "response template round-trips verbatim"
 else
     no "template lost/garbled: $(line 9)"
+fi
+
+# GATE E: a '$'-leading literal round-trips (not mistaken for a variable post-gen280)
+if line 11 | grep -qF '$HOME'; then
+    ok "\$-leading literal round-trips (\$HOME)"
+else
+    no "\$-leading literal lost (treated as variable): $(line 11)"
 fi
 
 echo "---"

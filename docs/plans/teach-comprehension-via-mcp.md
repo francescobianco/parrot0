@@ -57,6 +57,12 @@ lookup). L'intuizione di F. **è la spina dorsale del progetto**, non una deviaz
 
 Dove la tesi NON è ancora vera. Onestamente separati per *natura* del gap.
 
+> **Stato gen280:** il **Secchio A.1** (letterali corrotti in variabili) è
+> **RISOLTO** — U1 (gen279, quotatura al bordo) + U1b (gen280, `$` esplicito):
+> nomi propri, `$`-valori e template ora round-trippano (`tests/mcp-teach.sh`).
+> Resta **A.2** (regole n-arie via MCP → U2, prossimo) e i Secchi **B**/**C**. La
+> dimostrazione originale di A.1 qui sotto è tenuta come record del *perché*.
+
 ### Secchio A — l'API di scrittura MCP è troppo sottile per le forme strutturate
 *(gap tecnico, piccolo, chiudibile — è dove sta la maggior parte della "distanza")*
 
@@ -287,10 +293,15 @@ però disciplinati: **gate-first, uno per generazione**, ordinati per dipendenza
 per costo crescente. Ogni upgrade è al MOTORE (fisso, generale), mai
 un'operazione specifica.
 
+Stato (gen280): **U1 ✅ spedito** in due passi — gen279 quota i letterali al bordo
+MCP (fedeltà: `Madrid`/`$HOME`/template round-trippano) e gen280 introduce `$`
+come marcatore di variabile esplicito (dual-accept; il flip a `$`-only è gen B,
+vedi `NEXT.md`). **U2 è il prossimo.**
+
 | Ord | Upgrade al motore | Sblocca | Costo | Gate d'ingresso |
 |---|---|---|---|---|
-| **U1** | **Variabili esplicite** (sigillo `?X` o marcatura MCP `{"var":...}`; additivo a `is_var`, `parse_term`) | A.1: letterali sicuri; nomi propri insegnabili | basso | `capital(spain, Madrid)` via MCP → `kb.match` torna `Madrid` (oggi `[]`) |
-| **U2** | **Costruzione clausole n-arie via MCP** (`kb.assert_clause`; = P1 di [[generative-prolog.md]]) | relazioni/join come conoscenza insegnabile | basso | nonno via MCP → `grandparent(tom,ann)` true senza `.p0` |
+| **U1** ✅ | **Variabili esplicite** (`$` come sigillo, gen280) + **fedeltà dei letterali** (quotatura al bordo, gen279); additivo a `is_var`/`parse_term`/`mcp.c` | A.1: letterali sicuri; nomi propri/`$`-valori/template insegnabili | basso | `capital(spain, Madrid)` via MCP → `kb.match` torna `Madrid` (`tests/mcp-teach.sh`, `tests/dollarvar.sh`) |
+| **U2** ⏭ | **Costruzione clausole n-arie via MCP** (`kb.assert_clause`; = P1 di [[generative-prolog.md]]) | relazioni/join come conoscenza insegnabile | basso | nonno via MCP → `grandparent(tom,ann)` true senza `.p0` |
 | **U3** | **Termini composti / liste con unificazione testa-coda** (`[H|T]`) — *l'upgrade grosso, "arricchimento molto elevato"* | strings-as-knowledge, ragionamento strutturale, il Prolog generativo | alto | una regola `capitalize_first([H|T],[U|T]):-upper(H,U).` risolve su `[m,a,d,r,i,d]` |
 | **U4** | **(de)serializzazione stringa⟷struttura** — UNA primitiva generale, cieca all'operazione | l'azione su stringa diventa interamente regole+fatti KB | medio | `present(proper_noun,capitalize_first)` insegnato via MCP rende `madrid`→`Madrid` in `gen.respond`, sostanza resta `madrid` |
 | **U5** | **Migrazione del Secchio B**, una regola-colla per volta (accordo, elisione, morfologia) da C a `present/2` | `85-translate-synth-world.c` si assottiglia; grammatica allenabile | per-item | un caso di `mod_translate` passa per regole KB, stesso output |

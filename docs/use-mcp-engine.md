@@ -89,7 +89,13 @@ file da fuori), c'è il loop che la missione descrive:
 Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
 file che `kb.save` scrive (così `brain_reload` lo ricarica).
 
-## Limiti noti dei tool (gen278, misurati dal vivo)
+## Limiti noti dei tool (gen278, aggiornato gen280, misurati dal vivo)
+
+> **Risolto dopo gen278:** i letterali insegnati via MCP ora round-trippano
+> fedelmente — un nome proprio (`Madrid`), un template sentence-case, un valore
+> `$HOME` non vengono più scambiati per variabili (U1 gen279 quota i letterali al
+> bordo; U1b gen280 introduce `$` come marcatore di variabile esplicito). Vedi
+> `tests/mcp-teach.sh`. Restano i due limiti STRUTTURALI qui sotto.
 
 Il **motore** dietro MCP è un Prolog n-ario completo (join a più variabili,
 ricorsione, backtracking, cycle-guard — vedi

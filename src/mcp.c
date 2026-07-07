@@ -110,18 +110,19 @@ static const char *jstr(const JVal *o, const char *key) {
 
 /* U1 (gen279, teach-comprehension-via-mcp.md §5.5): a literal taught through MCP
  * must round-trip as a CONSTANT, not be mistaken for a variable. The engine's
- * convention (kb.c is_var) reads a leading uppercase/'_' as a variable, and the
- * .p0 loader protects such content by quoting it. MCP had no such step, so
- * "Madrid" was stored as a free variable. lit_encode applies the SAME discipline
- * at the boundary: a literal that would be misread — leading uppercase/'_', or
- * containing whitespace/comma — is wrapped in quotes (which is_var never treats
- * as a variable). lit_decode strips one surrounding pair on the way out, so the
- * agent sees exactly what it taught. A plain lowercase atom (and existing base
- * facts) are left untouched, so matching curated knowledge is unaffected. */
+ * convention (kb.c is_var) reads a leading '$' (gen280) or uppercase/'_' as a
+ * variable, and the .p0 loader protects such content by quoting it. MCP had no
+ * such step, so "Madrid" (and, since gen280, "$HOME") was stored as a free
+ * variable. lit_encode applies the SAME discipline at the boundary: a literal
+ * that would be misread — leading '$'/uppercase/'_', or containing
+ * whitespace/comma — is wrapped in quotes (which is_var never treats as a
+ * variable). lit_decode strips one surrounding pair on the way out, so the agent
+ * sees exactly what it taught. A plain lowercase atom (and existing base facts)
+ * are left untouched, so matching curated knowledge is unaffected. */
 static int lit_needs_quote(const char *s) {
     if (!s || !*s) return 0;
     if (s[0] == '"') return 0;                       /* already quoted */
-    if (isupper((unsigned char)s[0]) || s[0] == '_') return 1;
+    if (s[0] == '$' || isupper((unsigned char)s[0]) || s[0] == '_') return 1;
     return strpbrk(s, " \t\n,") != NULL;             /* spaces / comma */
 }
 static void lit_encode(const char *s, char *buf, size_t bufsz) {
