@@ -558,7 +558,7 @@ int brain_reload(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen291-relational-transitivity";
+    return "gen292-equality-chain";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

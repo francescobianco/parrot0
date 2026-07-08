@@ -1,4 +1,51 @@
 # parrot0 evolution journal
+## 2026-07-08 - gen292: equality chain -> cat.7 "Logica deduttiva" CLOSED (4/4)
+
+**Pull.** The last red of basic-chat cat.7: prompt 124 `a=b, b=c, what is a`.
+Equality is an EQUIVALENCE relation (reflexive, symmetric, transitive), the `=`
+surface is symbolic (not "than"), and the query is a WH ("what is a"), not yes/no —
+a distinct mechanism from gen291's strict order.
+
+**Design choice: walk it in C, not as a solver rule.** A live MCP probe showed the
+engine CAN prove `eq(a,c)` with symmetry+transitivity clauses (`provable:true`), but
+`kb_match eq(a,?)` — the ENUMERATION the wh-query needs — returned nothing: the
+symmetry rule `eq($X,$Y):-eq($Y,$X)` makes match chase cycles. So the equivalence
+CLASS is computed by a bounded connected-components walk over the stated equalities
+— the same "walk a binary relation in C" judgement as gen233 `qchain_reaches`. (The
+strict order of gen291 has no symmetry, so THAT one stays a real solver clause; the
+choice is per-relation-algebra, not a retreat from the engine.)
+
+**Changed (`src/brain/10-memory-knowledge.c`).**
+- `equality_chain`: find "what is <X>"; parse the comma-separated `L=R` edges before
+  it; BFS X's connected component over the UNDIRECTED edges; answer the other
+  members in walk order. Guarded on both a `=` edge and "what is", so ordinary
+  "what is X" recall is untouched. Handles glued (`a=b`) and spaced (`a = b`)
+  tokenizations, reversed edges, cycles (no loop), and separate components (a's
+  class only). Declines when X is equated to nothing.
+- `canonicalize_lang`: Italian `quanto vale <X>` -> `what is <X>` (bigram, like the
+  existing `di nome` -> named); `cos'è` already mapped, so both Italian forms reach
+  the same handler.
+
+**Bilingual ratchet.** `a=b, b=c, quanto vale a?` / `cos'è a?` -> `b and c.` through
+the identical walk.
+
+**Stress (10x).** Symmetric query (`what is b` -> `a and c`); 5-chains; disjoint
+components isolated; reversed/cyclic edges; self `a=a` and bare `what is a?`
+declined honestly.
+
+**Verified.** Gates `tests/cases/equality.chat` + `.it.chat` (hermetic). `make test`
+clean run ALL GREEN (run.sh 231/231, exit 0). **basic-chat cat.7 3/4 -> 4/4 — the
+category is closed.** (One flaky `artfres` FAIL appeared in a single parallel run
+and did not reproduce standalone or on a clean full run — a pre-existing gen278
+parallel-harness race in the MCP-spawning `.sh` suites, unrelated to this change;
+worth watching.)
+
+**Next.** cat.7 done end to end (categorical syllogism, transitivity, equality),
+EN+IT, all on the enriched engine. Pull the next category from `basic-chat-bench` by
+leverage — the relational keystones point at **cat.43 Famiglia 0/4** (kinship: binary
+relations + the transitivity/symmetry machinery just built — parent/child/sibling,
+"is X the grandparent of Y?"), reusing gen291's binary-rule-on-the-solver result.
+
 ## 2026-07-08 - gen291: relational transitivity, resolved by the engine (cat.7)
 
 **Pull.** Continuing cat.7 "Logica deduttiva" from `make basic-chat-bench`. gen290

@@ -89,6 +89,18 @@
   l'ambiguità). Onestà: asimmetria (`c>a?`→No), irriflessività (`a>a?`→No),
   relazioni miste declinate. Gate `transitivity.chat`+`.it.chat`. Suite verde
   (run.sh 229/229).
+- **gen292 — cat.7 uguaglianza (3/4 → 4/4, CATEGORIA CHIUSA)** prompt 124 `a=b,
+  b=c, what is a` → `b and c.`. L'uguaglianza è una relazione di EQUIVALENZA
+  (riflessiva, simmetrica, transitiva); la simmetria-come-regola-solver fa inseguire
+  cicli a `kb_match` (provato dal vivo), quindi la classe di equivalenza è calcolata
+  con un walk di componenti connesse in C sulle uguaglianze dichiarate (stesso
+  giudizio di `qchain_reaches` gen233 — l'ordine stretto di gen291, senza simmetria,
+  resta invece una vera clausola del solver: la scelta è per-algebra-di-relazione).
+  `equality_chain` legge `what is <X>`, parsa gli archi `L=R`, fa BFS della classe,
+  risponde con gli altri membri. Ratchet bilingue: `canonicalize_lang` `quanto vale
+  <X>`→`what is <X>` (bigramma, come `di nome`); `cos'è` già mappato. Onestà:
+  componenti disgiunti isolati, cicli senza loop, self/nudo declinati. Gate
+  `equality.chat`+`.it.chat`. Suite verde (run.sh 231/231).
 
 ---
 
@@ -346,21 +358,20 @@ una pressione reale**, non inventato (disciplina PRINCIPLES.md / LOOP.md).
 lasciare che sia esso a nominare la prossima feature, sfruttando il motore
 arricchito. Niente refactor speculativo del Secchio B/C senza un caso che lo tiri.
 
-**In corso (gen290+):** il gauge deterministico `make basic-chat-bench` ha nominato
-**cat.7 "Logica deduttiva"**. gen290 ha chiuso 2/4 (sillogismo categorico), gen291
-3/4 (transitività relazionale 123 — il motore n-ario porta già la regola binaria,
-[[parrot0-prolog-engine-nary]] confermato dal vivo). **Prossimo pull naturale
-(ultimo rosso di cat.7):** prompt 124 `a=b, b=c, what is a` — l'uguaglianza è
-transitiva E simmetrica, con superficie a `=` (simboli, non "than") e una WH-query
-("what is a", non sì/no). Meccanismo distinto: (1) parser dei segmenti `x=y`
-separati da virgola; (2) chiusura di uguaglianza (transitiva+simmetrica) — o come
-regola binaria `eq($X,$Z):-eq($X,$Y),eq($Y,$Z)` + `eq($X,$Y):-eq($Y,$X)` sul solver
-(attenzione ai cicli con la simmetria: serve depth-guard, già presente), o come
-union-find in C; (3) risposta wh: `what is a` → il rappresentante/i membri della
-classe di equivalenza (`kb_match eq(a,?)` → `[b,c]` o "c"). Gate-first, ratchet
-bilingue (`a=b, b=c, quanto vale a?`), dovere di pivot. Altri rossi ad alta leva
-dal bench dopo cat.7: cat.43 Famiglia 0/4 (relazionale, kinship — riusa il motore
-binario), cat.54 how-to 0/20 (grande, knowledge-heavy).
+**cat.7 "Logica deduttiva" CHIUSA (4/4), gen290-292** — sillogismo categorico
+(122/125), transitività relazionale (123, regola binaria sul solver), uguaglianza
+(124, walk di componenti in C), EN+IT, tutto sul motore arricchito.
+
+**Prossimo pull (da `make basic-chat-bench`, per leva):** i keystone relazionali
+appena costruiti puntano a **cat.43 "Famiglia" 0/4** — kinship: relazioni BINARIE
+(`parent/child/sibling/grandparent`) con transitività/simmetria, riuso diretto del
+risultato gen291 (regola binaria sul solver: `grandparent($X,$Z):-parent($X,$Y),
+parent($Y,$Z)`) e del walk gen292. Da confermare gate-first coi 4 prompt reali di
+cat.43 PRIMA di scrivere C, con ratchet bilingue e dovere di pivot. In alternativa,
+rivalutare l'intera mappa `basic-chat-bench` (molte categorie 0-30%: cat.54 how-to
+0/20 grande ma knowledge-heavy; cat.11/24/32/34/35 phrasebook a bassa leva) e
+lasciare che il gauge nomini la leva più alta. NB: rieseguire `make basic-chat-bench`
+per la mappa aggiornata post-cat.7.
 
 <details><summary>Piano U5 — quarta regola (progressivo), storico, gen289</summary>
 

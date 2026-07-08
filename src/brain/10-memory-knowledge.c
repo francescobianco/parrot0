@@ -700,6 +700,15 @@ static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
             i++;            /* consume "nome" */
             continue;
         }
+        /* gen292: Italian "quanto vale <X>" ("what is the value of X") -> "what is
+         * <X>", so the equality-chain wh-query reaches the SAME handler in Italian. */
+        if (strcmp(tok, "quanto") == 0 && i + 1 < nw &&
+            strcmp(w[i + 1], "vale") == 0) {
+            off += (size_t)snprintf(out + off, out_size - off, "%swhat is",
+                                    i ? " " : "");
+            i++;            /* consume "vale" */
+            continue;
+        }
         /* gen291: Italian analytic comparative "più <adj> di <Y>" -> "more <adj>
          * than <Y>", as ONE unit, so the transitivity handler's "<cmp> than" frame
          * fires in Italian through the SAME path. Only the full trigram is
@@ -1325,6 +1334,93 @@ static int transitive_comparison(Brain *b, const char *norm,
     return 1;
 }
 
+/* gen292 (basic-chat cat.7 prompt 124): EQUALITY CHAIN. "a=b, b=c, what is a" -> a
+ * equals b and c. Equality is an EQUIVALENCE relation (reflexive, symmetric,
+ * transitive), so a's value is its whole equivalence class. Unlike the strict
+ * order of gen291, symmetry makes the relation cyclic; expressing it as a solver
+ * rule (eq($X,$Y):-eq($Y,$X)) makes ENUMERATION (kb_match) chase cycles, so here
+ * the class is computed by a bounded connected-components walk over the stated
+ * equalities — the same "walk a binary relation in C" judgement as qchain_reaches
+ * below. The wh-query "what is <X>" is answered with the OTHER members of X's
+ * class, in the order they are reached. Structurally language-neutral: the '='
+ * surface is shared, and the Italian "quanto vale a?" canonicalizes to "what is a". */
+static int equality_chain(Brain *b, const char *norm, char *out, size_t out_size) {
+    (void)b;
+    const char *q = strstr(norm, "what is ");
+    if (!q) return 0;
+    const char *vp = q + 8;
+    while (*vp == ' ') vp++;
+    char qvar[KB_TERM_LEN];
+    size_t k = 0;
+    while (*vp && *vp != ' ' && *vp != '?' && *vp != ',' && k + 1 < sizeof qvar)
+        qvar[k++] = *vp++;
+    qvar[k] = '\0';
+    if (!*qvar || !isalpha((unsigned char)qvar[0])) return 0;
+
+    size_t elen = (size_t)(q - norm);
+    if (elen == 0 || elen >= 480) return 0;
+    char ebuf[480];
+    memcpy(ebuf, norm, elen);
+    ebuf[elen] = '\0';
+
+    /* parse comma-separated "L = R" equality edges */
+    char lefts[16][KB_TERM_LEN], rights[16][KB_TERM_LEN];
+    size_t ne = 0;
+    char *piece = ebuf;
+    for (char *p = ebuf; ; p++) {
+        if (*p == ',' || *p == '\0') {
+            char c = *p;
+            *p = '\0';
+            char *eq = strchr(piece, '=');
+            if (eq) {
+                *eq = '\0';
+                char *l = trim_mut(piece);
+                char *r = trim_mut(eq + 1);
+                if (*l && *r && isalpha((unsigned char)l[0]) &&
+                    isalpha((unsigned char)r[0]) &&
+                    !strchr(l, ' ') && !strchr(r, ' ') && ne < 16) {
+                    snprintf(lefts[ne], KB_TERM_LEN, "%s", l);
+                    snprintf(rights[ne], KB_TERM_LEN, "%s", r);
+                    ne++;
+                }
+            }
+            piece = p + 1;
+            if (c == '\0') break;
+        }
+    }
+    if (ne == 0) return 0;
+
+    /* connected component of qvar over the UNDIRECTED equality edges */
+    char cls[32][KB_TERM_LEN];
+    size_t nc = 0;
+    snprintf(cls[nc++], KB_TERM_LEN, "%s", qvar);
+    for (size_t qi = 0; qi < nc; qi++) {
+        for (size_t e = 0; e < ne; e++) {
+            const char *nbr = NULL;
+            if (strcmp(cls[qi], lefts[e]) == 0) nbr = rights[e];
+            else if (strcmp(cls[qi], rights[e]) == 0) nbr = lefts[e];
+            if (!nbr) continue;
+            int seen = 0;
+            for (size_t j = 0; j < nc; j++)
+                if (strcmp(cls[j], nbr) == 0) { seen = 1; break; }
+            if (!seen && nc < 32) snprintf(cls[nc++], KB_TERM_LEN, "%s", nbr);
+        }
+    }
+    if (nc <= 1) return 0;               /* qvar not equated to anything -> decline */
+
+    char ans[256];
+    size_t off = 0;
+    ans[0] = '\0';
+    for (size_t i = 1; i < nc; i++) {
+        const char *sep = (i == 1) ? "" : (i + 1 == nc ? " and " : ", ");
+        off += (size_t)snprintf(ans + off, sizeof ans - off, "%s%s", sep, cls[i]);
+    }
+    char msg[300];
+    snprintf(msg, sizeof msg, "%s.", ans);
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* gen233 (kb-first manifesto): shallow transitive closure over grows_with/2 — true
  * if FEATURE is co-monotone with BASE (FEATURE grows when BASE grows), directly or
  * through a chain (circumference -> circle). The qualitative analogue of SLD: the
@@ -1740,6 +1836,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
         }
     }
+
+    /* gen292: an equality chain with a wh-query ("a=b, b=c, what is a") resolves to
+     * a's equivalence class. Guarded on both a '=' edge and "what is", so ordinary
+     * "what is X" recall is untouched. */
+    if (equality_chain(b, norm, out, out_size)) return 1;
 
     /* gen291: a MULTI-clause transitivity question ("if a is bigger than b and b
      * is bigger than c, is a bigger than c?") is resolved by the engine before the

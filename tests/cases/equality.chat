@@ -1,0 +1,23 @@
+# Generation 292: EQUALITY CHAIN (basic-chat cat.7 prompt 124), the last cat.7 red.
+# "a=b, b=c, what is a" -> a equals b and c. Equality is an EQUIVALENCE relation
+# (reflexive, symmetric, transitive), so the value of a is its whole equivalence
+# class. Unlike gen291's strict order, symmetry makes the relation cyclic — as a
+# solver rule eq($X,$Y):-eq($Y,$X) it makes enumeration chase cycles — so the class
+# is computed by a bounded connected-components walk over the stated equalities.
+# The wh-query "what is <X>" is answered with the OTHER members of X's class.
+
+# Prompt 124, verbatim.
+> a=b, b=c, what is a
+< b and c.
+# Symmetric: querying the middle term returns the ends.
+> a=b, b=c, what is b
+< a and c.
+# Separate components: a's class is {a,b}; c=d is a DIFFERENT class, so not listed.
+> a=b, c=d, what is a
+< b.
+# A longer chain: querying the far end reaches the whole class (in walk order).
+> a=b, b=c, c=d, what is d
+< c, b and a.
+# Not hijacked: a bare "what is X" with no equality is left to normal handling.
+> what is a?
+< I don't understand that yet.
