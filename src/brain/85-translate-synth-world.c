@@ -70,7 +70,14 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                         if (!fr_gender_for_en(b, n1, &gender) && i + 2 < fn)
                             (void)fr_gender_for_en(b, strip_edge_punct(fw[i + 2]), &gender);
                     }
-                    snprintf(piece, sizeof piece, "%s", gender == 'f' ? "la" : "le");
+                    /* U5 (gen288): the French definite article is a KB fact,
+                     * article_fr(Gender, Form) in grammar.p0, not a C ternary. */
+                    const char *aq[] = { gender == 'f' ? "f" : "m", NULL };
+                    char af[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "article_fr", aq, 2, af, 1) == 1)
+                        snprintf(piece, sizeof piece, "%s", af[0]);
+                    else
+                        snprintf(piece, sizeof piece, "%s", gender == 'f' ? "la" : "le");
                 } else if (!strcmp(tok, "is") && i + 1 < fn &&
                            !strcmp(strip_edge_punct(fw[i + 1]), "sleeping")) {
                     continue;
@@ -160,9 +167,16 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (kb_match(b->kb, "tr_es", nq, 2, esn, 1) == 1) {
                         char gen[1][KB_TERM_LEN];
                         const char *gq[] = { esn[0], NULL };
-                        if (kb_match(b->kb, "gender_es", gq, 2, gen, 1) == 1 && strcmp(gen[0], "f") == 0)
-                            snprintf(piece, sizeof piece, "la");
-                        else snprintf(piece, sizeof piece, "el");
+                        int fem_es = (kb_match(b->kb, "gender_es", gq, 2, gen, 1) == 1 &&
+                                      strcmp(gen[0], "f") == 0);
+                        /* U5 (gen288): the Spanish definite article is a KB fact,
+                         * article_es(Gender, Form) in grammar.p0, not a C ternary. */
+                        const char *aq[] = { fem_es ? "f" : "m", NULL };
+                        char aes[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "article_es", aq, 2, aes, 1) == 1)
+                            snprintf(piece, sizeof piece, "%s", aes[0]);
+                        else
+                            snprintf(piece, sizeof piece, "%s", fem_es ? "la" : "el");
                     }
                 }
                 if (!piece[0]) {

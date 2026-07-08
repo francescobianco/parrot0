@@ -31,3 +31,13 @@ fem(o, a).
 agree_f($Adj, $Res) :- chars($Adj, $L), swap_last($L, $L2), chars($Res, $L2).
 swap_last(cons($H, nil), cons($H2, nil)) :- fem($H, $H2).
 swap_last(cons($H, $T), cons($H, $T2)) :- swap_last($T, $T2).
+
+% U5, third glue rule (gen288): the definite article of French and Spanish. In
+% the current translator FR/ES depend ONLY on gender (no elision or indefinite,
+% unlike Italian), so the table is article_<lang>(Gender, Form) — matching the
+% per-language lexicon naming already in use (tr_fr/gender_fr, tr_es/gender_es).
+% Separate tables because the forms genuinely differ per language (le vs el).
+article_fr(m, le).
+article_fr(f, la).
+article_es(m, el).
+article_es(f, la).

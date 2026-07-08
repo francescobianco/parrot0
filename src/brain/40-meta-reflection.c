@@ -533,6 +533,7 @@ static int is_internal_pred(const char *pred) {
          * (fem/2 ending map, agree_f/2, swap_last/2) — is substrate mod_translate
          * queries, not facts the user taught. Filter it from "how many facts?". */
         "article", "fem", "agree_f", "swap_last",
+        "article_fr", "article_es", /* gen288 (U5): FR/ES article-form tables */
         /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",

@@ -218,6 +218,7 @@ test: build
 	@./tests/strknow.sh
 	@./tests/article.sh
 	@./tests/adjagree.sh
+	@./tests/artfres.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

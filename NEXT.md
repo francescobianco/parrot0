@@ -45,6 +45,12 @@
   `grande` (nessun `fem(e,_)`) resta invariante. `mod_translate` interroga `agree_f`
   invece di `agree_adj` (C, ora backstop). Filtrati come substrato. Gate
   `tests/adjagree.sh` (regressione + `kb.match agree_f` via MCP). Suite completa verde.
+- **gen288 — U5 (terza regola-colla)** l'articolo definito FR ed ES come CONOSCENZA.
+  `article_fr(m,le)/(f,la)` + `article_es(m,el)/(f,la)` in `grammar.p0` (forma
+  per-lingua, come `tr_fr`/`gender_fr` — FR/ES dipendono solo dal genere). I path
+  FR/ES di `mod_translate` interrogano le tabelle invece dei ternari C. `Le chat…`,
+  `El gato.`, `La casa.` invariati; forme ispezionabili via MCP. Filtrati come
+  substrato. Gate `tests/artfres.sh`. Suite completa verde.
 
 ---
 
@@ -277,7 +283,25 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## IN CORSO: U5 terza regola-colla — l'articolo FR ed ES come conoscenza
+## PROSSIMO (da fare): U5 ultima regola-colla — la morfologia verbale
+
+**Stato:** tre regole-colla spedite — articolo IT (gen286), accordo aggettivo
+(gen287), articolo FR/ES (gen288). Resta l'ULTIMA, la più complessa:
+
+**Morfologia verbale** ("is sleeping"→verbo finito). Oggi il C dei path FR/IT
+salta o riscrive perifrasi verbali in modo ad-hoc (vedi il ramo `is`+`sleeping`→
+`continue` nel path FR, riga ~74). Migrare a `chars/2`+tabelle di coniugazione è
+il pull più costoso e va valutato con cura: **serve un caso di traduzione reale
+che lo TIRI** (una perifrasi che oggi il C non gestisce bene), non un refactor
+speculativo. Candidata di gate: una coniugazione regolare come DATO (`conj/…`) +
+una regola che compone la forma finita, con un caso `mod_translate` che dà lo
+stesso output via KB. Se il beneficio non è misurabile o minaccia l'emergenza →
+pivot / si dichiara U5 concluso alle tre regole isolate già fatte.
+
+**Disciplina (invariata):** gate rosso→verde, regressione multilingue, dovere di
+pivot. **Design:** `teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
+
+<details><summary>Piano U5 — terza regola (articolo FR/ES), storico, gen288</summary>
 
 **Piano upfront (gen288).** Migrare la selezione dell'articolo definito FR
 (`le`/`la`) ed ES (`el`/`la`), oggi ternari C nei path FR/ES di `mod_translate`
@@ -321,12 +345,7 @@ che il C fa oggi); niente elisione/indefinito FR/ES (non implementati nel C, non
 questa la migrazione). `el`/`le`/`la` sono forme diverse per lingua → tabelle
 separate, non un'unica `article/N` (onesto: la grammatica differisce davvero).
 
-**Poi (coda U5, ultima regola):** morfologia verbale ("is sleeping"→verbo finito),
-più complessa (`chars/2`+tabelle di coniugazione), col suo gate.
-
-**Disciplina (invariata):** ogni regola col suo gate rosso→verde, regressione
-multilingue, pivot se tradisce l'emergenza senza beneficio. **Design:**
-`teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
+</details>
 
 <details><summary>Piano U5 — seconda regola (accordo aggettivo), storico, gen287</summary>
 
