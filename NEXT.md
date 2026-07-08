@@ -283,20 +283,57 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## PROSSIMO (da fare): U5 ultima regola-colla — la morfologia verbale
+## IN CORSO: U5 ultima regola-colla — la morfologia del progressivo inglese
 
-**Stato:** tre regole-colla spedite — articolo IT (gen286), accordo aggettivo
-(gen287), articolo FR/ES (gen288). Resta l'ULTIMA, la più complessa:
+**Piano upfront (gen289).** L'UNICA "morfologia verbale" nel C è un caso HARDCODED
+nel path FR di `mod_translate` (`85-translate-synth-world.c` ~riga 81):
+`strcmp(tok,"is") && strcmp(next,"sleeping")` → droppa l'ausiliare del present
+progressive. È fragile: funziona SOLO per il verbo "sleeping". Migrare a
+conoscenza+regola:
 
-**Morfologia verbale** ("is sleeping"→verbo finito). Oggi il C dei path FR/IT
-salta o riscrive perifrasi verbali in modo ad-hoc (vedi il ramo `is`+`sleeping`→
-`continue` nel path FR, riga ~74). Migrare a `chars/2`+tabelle di coniugazione è
-il pull più costoso e va valutato con cura: **serve un caso di traduzione reale
-che lo TIRI** (una perifrasi che oggi il C non gestisce bene), non un refactor
-speculativo. Candidata di gate: una coniugazione regolare come DATO (`conj/…`) +
-una regola che compone la forma finita, con un caso `mod_translate` che dà lo
-stesso output via KB. Se il beneficio non è misurabile o minaccia l'emergenza →
-pivot / si dichiara U5 concluso alle tre regole isolate già fatte.
+```prolog
+aux_progressive(is).                                   % l'ausiliare = fatto
+progressive($W) :- chars($W, $L), ends_ing($L).        % -ing = morfologia (regola)
+ends_ing(cons(i, cons(n, cons(g, nil)))).
+ends_ing(cons($H, $T)) :- ends_ing($T).
+```
+
+`progressive(sleeping)`→true, `progressive(running)`→**true** (generalizza!),
+`progressive(cat)`→false. **Provato dal vivo via MCP (gate-first, gen289): il
+motore attuale lo regge** (U3+U4, come `agree_f`). È il riconoscimento del suffisso
+`-ing` come regola ricorsiva su `chars/2` — vera morfologia, non un `strcmp`.
+
+**Il pull (misurabile, NON speculativo):** oggi "is V-ing"→verbo finito funziona
+solo per `sleeping`; dopo la migrazione per QUALUNQUE perifrasi progressiva con un
+gloss (`is running`, `is reading`…). Rimuove un hardcode verb-specifico e rende
+l'ausiliare + il suffisso conoscenza ispezionabile.
+
+**Gate (`tests/vmorph.sh`, rosso→verde):**
+- **A (regressione, via chat):** `The cat is sleeping on the warm rug.`→
+  `Le chat dort sur le tapis chaud.` (l'ausiliare droppato via regola).
+- **B (morfologia come REGOLA, via MCP):** `kb.query progressive(sleeping)`→true,
+  `progressive(running)`→true, `progressive(cat)`→false; `aux_progressive(is)`→true.
+  Rosso oggi (predicati inesistenti).
+
+**Passi (atomici):**
+1. `kb/core/grammar.p0`: `aux_progressive/1` + `progressive/1` + `ends_ing/1`.
+2. `85-translate-synth-world.c` (path FR ~riga 81): helper
+   `translate_is_progressive_aux(b, aux, verb)` = `kb_query aux_progressive(aux)
+   && kb_query progressive(verb)`; backstop hardcoded "is"+"sleeping" se
+   `grammar.p0` assente. Il ramo dropa l'ausiliare come oggi.
+3. `is_internal_pred`/`is_struct_pred`: filtrare `aux_progressive`/`progressive`/
+   `ends_ing` come substrato.
+4. `tests/vmorph.sh` + `Makefile` (dopo `artfres.sh`).
+5. Verifica: gate verde + REGRESSIONE (`translate.chat` FR, `make test`).
+6. Doc: `teach-comprehension-via-mcp.md` §5.5 (U5 completo), `NEXT.md` Spedito.
+   Commit `feat(engine): gen289 - U5 progressive morphology as a rule`.
+
+**Onestà/limiti:** copre il present progressive inglese "is V-ing" (l'unico caso
+di morfologia verbale nel C); NON è coniugazione completa (i gloss restano forme
+finite, es. `tr_fr(sleeping,dort)`). Con questo **U5 è completo**: le quattro
+regole-colla isolate del Secchio B (articolo IT, accordo aggettivo, articolo
+FR/ES, progressivo) sono migrate da C a conoscenza. Coniugazione generativa vera
+resta fuori scommessa finché un benchmark non la tira.
 
 **Disciplina (invariata):** gate rosso→verde, regressione multilingue, dovere di
 pivot. **Design:** `teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
