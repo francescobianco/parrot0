@@ -1,0 +1,27 @@
+# Generation 291: relational TRANSITIVITY (basic-chat cat.7 prompt 123).
+# "if A is bigger than B and B is bigger than C, is A bigger than C?" -> Yes.
+#
+# The transitivity is licensed by GRAMMAR: the comparative frame ("-er than", or
+# analytic "more <adj> than") denotes a strict order, which is transitive — so it
+# holds on the hermetic base with no per-relation fact. The reasoning is done by
+# the ENGINE: the premise edges rel(x,y) plus the clause rel($A,$C):-rel($A,$B),
+# rel($B,$C) are asserted to a scratch KB and the query is resolved by the same
+# recursive binary join U3 (gen283) gave the solver — the binary transitive rule
+# gen233 said the engine "can't carry" now runs as a real clause.
+
+# Prompt 123, verbatim (uppercase variables lowercase-normalize to a/b/c).
+> if A is bigger than B and B is bigger than C, is A bigger than C?
+< Yes.
+# The multi-sentence surface form, and a DIFFERENT comparative ("taller").
+> a is taller than b. b is taller than c. is a taller than c?
+< Yes.
+# The ANALYTIC comparative "more <adj> than" (not just synthetic -er).
+> if a is more beautiful than b and b is more beautiful than c, is a more beautiful than c?
+< Yes.
+# Honesty: a strict order is ASYMMETRIC — the reverse does not follow.
+> if a is bigger than b and b is bigger than c, is c bigger than a?
+< No.
+# Honesty: two comparatives with no shared middle term do not chain; and mixing
+# relations (bigger vs taller) is declined rather than silently coerced.
+> if a is bigger than b and b is taller than c, is a bigger than c?
+< I don't understand that yet.

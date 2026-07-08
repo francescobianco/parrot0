@@ -1,4 +1,52 @@
 # parrot0 evolution journal
+## 2026-07-08 - gen291: relational transitivity, resolved by the engine (cat.7)
+
+**Pull.** Continuing cat.7 "Logica deduttiva" from `make basic-chat-bench`. gen290
+closed the categorical syllogism (122, 125); the remaining reds are 123 (relational
+transitivity) and 124 (equality chain). This iteration takes **123**: `if A is
+bigger than B and B is bigger than C, is A bigger than C?` -> `Yes.`
+
+**The keystone finding: the engine already carries binary transitivity.** A live
+MCP probe of a scratch `.p0` with `bigger($X,$Z):-bigger($X,$Y),bigger($Y,$Z)`
+returned `bigger(a,c)=provable:true`, `bigger(a,z)=false`, `bigger(a,?)=[b,c]`.
+So U3 (gen283, structural unification) silently RETIRED gen233's note that "the
+unary rule engine can't carry a binary transitive relation" — it can now, as a
+real clause. No C transitive-closure walk needed: the reasoning is the solver's.
+
+**Changed (`src/brain/10-memory-knowledge.c`), one idea = read the comparison
+schema, let the engine reason.**
+- `transitive_comparison`: scans the turn for `<L> is <CMP> than <R>` frames (last
+  = query, rest = premises), asserts the edges + the transitivity clause into a
+  scratch KB, and resolves the query with `kb_query` (SLD over facts+rules). The
+  transitivity is licensed by GRAMMAR — the comparative frame denotes a strict
+  order — so it needs no `transitive(bigger)` fact and holds on the hermetic base.
+  Handles BOTH the synthetic `-er than` (bigger, taller, older…) and the analytic
+  `more <adj> than` (more beautiful than) comparative. Guarded on >=2 frames + a
+  trailing `?`, so a lone `is Rome bigger than Paris?` still goes to the magnitude
+  handler and a two-clause statement is not hijacked.
+- `canonicalize_lang`: the Italian analytic comparative `più <adj> di <Y>` is
+  rewritten to `more <adj> than <Y>` as ONE trigram — so the SAME frame/handler
+  fires in Italian. Deliberately NOT a global `più`->`more` map: `più` is also
+  arithmetic "plus" (`2 più 2`), and a bare `di` stays "of". (The first attempt
+  DID map it globally and broke 4 Italian-arithmetic cases — the ambiguity is the
+  lesson; the trigram is the fix.)
+
+**Bilingual ratchet.** `se a è più grande di b e b è più grande di c, a è più
+grande di c?` -> `Yes.` through the identical engine path.
+
+**Stress (10x).** 4-hop chains both languages; `older`/`faster`/`taller`; the
+strict order's ASYMMETRY respected (`is c bigger than a?` -> `No`), irreflexivity
+too (`is a bigger than a?` -> `No`); mixed relations (bigger+taller) declined;
+disconnected premises -> `No`. `2 più 2` still `4.` (arithmetic intact).
+
+**Verified.** Gates `tests/cases/transitivity.chat` + `.it.chat` (hermetic).
+`make test` ALL GREEN (run.sh 229/229). basic-chat cat.7 **2/4 -> 3/4**.
+
+**Limits / next.** 124 (`a=b, b=c, what is a`) is the last cat.7 red: equality
+(transitive AND symmetric) with a `=`-symbol surface and a wh-query ("what is a")
+rather than yes/no — a distinct parser + a symmetric-closure step. That is the
+natural next pull.
+
 ## 2026-07-08 - gen290: deductive syllogism from natural surface forms (cat.7)
 
 **Pull (from a red gauge, not invented).** The U1..U6 engine sequence is closed

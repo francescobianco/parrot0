@@ -700,6 +700,19 @@ static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
             i++;            /* consume "nome" */
             continue;
         }
+        /* gen291: Italian analytic comparative "più <adj> di <Y>" -> "more <adj>
+         * than <Y>", as ONE unit, so the transitivity handler's "<cmp> than" frame
+         * fires in Italian through the SAME path. Only the full trigram is
+         * rewritten: a standalone "più" (arithmetic "plus", "2 più 2") and a bare
+         * "di" ("of") are left untouched — "più" is NOT globally mapped. */
+        if ((strcmp(tok, "più") == 0 || strcmp(tok, "piu") == 0) &&
+            i + 2 < nw && strcmp(w[i + 1], "di") != 0 &&
+            strcmp(w[i + 2], "di") == 0) {
+            off += (size_t)snprintf(out + off, out_size - off, "%smore %s than",
+                                    i ? " " : "", w[i + 1]);
+            i += 2;         /* consume <adj> and "di" */
+            continue;
+        }
         const char *canon = canonical_token(tok);
         off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                 i ? " " : "", canon ? canon : tok, tail);
@@ -1220,6 +1233,98 @@ static int multi_sentence_syllogism(Brain *b, const char *norm,
     return 1;
 }
 
+/* gen291 (basic-chat cat.7 prompt 123): RELATIONAL TRANSITIVITY.
+ * "if a is bigger than b and b is bigger than c, is a bigger than c?" -> Yes.
+ *
+ * Two ideas meet here. (1) The transitivity is licensed by GRAMMAR, not by a
+ * per-relation fact: the English comparative morpheme "-er than" (bigger, taller,
+ * greater…) denotes a strict order, which is transitive — so it holds even on the
+ * hermetic base, with no `transitive(bigger)` lookup. (2) The reasoning is done by
+ * the ENGINE, not a C walk: the premise edges rel(x,y) plus the transitivity
+ * clause  rel($A,$C) :- rel($A,$B), rel($B,$C)  are asserted into a scratch KB and
+ * the query rel(x,z) is resolved by the SAME recursive binary join U3 (gen283)
+ * gave the solver. This RETIRES gen233's note below that "the unary rule engine
+ * can't carry a binary transitive relation" — since U3 it can, over real clauses.
+ *
+ * Scans the turn for "<L> is <CMP> than <R>" / "is <L> <CMP> than <R>" frames; the
+ * LAST is the query, the rest are premises. Requires >=2 frames sharing one
+ * comparative, so a single concrete comparison ("is Rome bigger than Paris?") is
+ * left to the magnitude handler below. Structurally language-neutral: the Italian
+ * "a è più grande di b" canonicalizes to the same "<cmp> than" frame. */
+static int transitive_comparison(Brain *b, const char *norm,
+                                 char *out, size_t out_size) {
+    (void)b;
+    size_t L = strlen(norm);
+    if (L < 10 || L >= 480) return 0;
+    if (norm[L - 1] != '?') return 0;    /* a transitivity QUESTION ends with '?' */
+
+    char buf[512];
+    memcpy(buf, norm, L + 1);
+    char *w[96];
+    size_t nw = split_words(buf, w, 96);
+
+    char lefts[8][KB_TERM_LEN], rels[8][KB_TERM_LEN], rights[8][KB_TERM_LEN];
+    size_t nt = 0;
+    for (size_t i = 2; i + 1 < nw; i++) {
+        if (strcmp(strip_edge_punct(w[i]), "than") != 0) continue;
+        char *rel = strip_edge_punct(w[i - 1]);
+        char *right = strip_edge_punct(w[i + 1]);
+        /* The relation must be a comparative. Two shapes are transitive orders:
+         * the SYNTHETIC "-er than" (bigger, taller…) and the ANALYTIC "more <adj>
+         * than" (more beautiful than) — the latter is also what the Italian
+         * "più <adj> di" canonicalizes to, so one handler covers both languages. */
+        size_t rl = strlen(rel);
+        int synthetic = (rl >= 4 && rel[rl - 1] == 'r' && rel[rl - 2] == 'e');
+        int analytic = (i >= 2 && strcmp(strip_edge_punct(w[i - 2]), "more") == 0);
+        if (!synthetic && !analytic) continue;
+        /* left = token before the comparative PHRASE, skipping a copula. The
+         * analytic phrase is two tokens ("more <adj>"), the synthetic one. */
+        long li = (long)i - (analytic ? 3 : 2);
+        if (li < 0) continue;
+        char *lt = strip_edge_punct(w[li]);
+        if ((strcmp(lt, "is") == 0 || strcmp(lt, "are") == 0)) {
+            if (li == 0) continue;
+            lt = strip_edge_punct(w[--li]);
+        }
+        if (!*lt || !*right ||
+            !isalpha((unsigned char)lt[0]) || !isalpha((unsigned char)right[0]))
+            continue;
+        if (nt >= 8) return 0;
+        snprintf(lefts[nt], KB_TERM_LEN, "%s", lt);
+        snprintf(rels[nt], KB_TERM_LEN, "%s", rel);
+        snprintf(rights[nt], KB_TERM_LEN, "%s", right);
+        nt++;
+    }
+    if (nt < 2) return 0;                        /* need >=1 premise + a query */
+    for (size_t i = 1; i < nt; i++)
+        if (strcmp(rels[i], rels[0]) != 0) return 0;   /* one relation throughout */
+
+    const char *rel = rels[0];
+    Brain tmp;
+    memset(&tmp, 0, sizeof tmp);
+    tmp.kb = kb_create();
+    if (!tmp.kb) return 0;
+    kb_set_origin(tmp.kb, KB_SESSION);
+
+    for (size_t i = 0; i + 1 < nt; i++) {        /* premises = all but the last */
+        const char *args[] = { lefts[i], rights[i] };
+        kb_assert(tmp.kb, rel, args, 2);
+    }
+    /* transitivity clause: rel($A,$C) :- rel($A,$B), rel($B,$C) */
+    const char *ha[] = { "$A", "$C" };
+    const char *ba[] = { "$A", "$B" };
+    const char *bc[] = { "$B", "$C" };
+    KbGoal head = { rel, ha, 2, 0 };
+    KbGoal body[2] = { { rel, ba, 2, 0 }, { rel, bc, 2, 0 } };
+    kb_assert_clause(tmp.kb, &head, body, 2);
+
+    const char *qa[] = { lefts[nt - 1], rights[nt - 1] };   /* query = last frame */
+    int yes = kb_query(tmp.kb, rel, qa, 2);
+    kb_destroy(tmp.kb);
+    put(yes ? "Yes." : "No.", out, out_size);
+    return 1;
+}
+
 /* gen233 (kb-first manifesto): shallow transitive closure over grows_with/2 — true
  * if FEATURE is co-monotone with BASE (FEATURE grows when BASE grows), directly or
  * through a chain (circumference -> circle). The qualitative analogue of SLD: the
@@ -1635,6 +1740,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
         }
     }
+
+    /* gen291: a MULTI-clause transitivity question ("if a is bigger than b and b
+     * is bigger than c, is a bigger than c?") is resolved by the engine before the
+     * single-comparison magnitude frame below sees it. Guarded on >=2 "<cmp> than"
+     * frames, so a lone "is Rome bigger than Paris?" still falls through to it. */
+    if (transitive_comparison(b, norm, out, out_size)) return 1;
 
     /* gen250: generic magnitude frame. Cue words map to dimensions in the KB via
      * magnitude_cue/3, and magnitude(Dim, Item, Rank) supplies the comparable

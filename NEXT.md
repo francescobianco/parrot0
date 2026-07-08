@@ -74,6 +74,21 @@
   Gate `tests/cases/syllogism.chat` + `.it.chat` (base ermetica = inferenza vera).
   Suite verde (run.sh 227/227). Prompt 123 (transitività) e 124 (uguaglianza) sono
   un meccanismo separato → prossimo pull di cat.7.
+- **gen291 — cat.7 transitività (2/4 → 3/4)** prompt 123 `if A is bigger than B and
+  B is bigger than C, is A bigger than C?` → `Yes.`. **Keystone:** il motore GIÀ
+  porta la transitività binaria (U3/gen283 ha reso stale il commento gen233 "il
+  motore a regole unarie non può portare una relazione binaria"): provato dal vivo
+  via MCP. `transitive_comparison` legge lo schema `<L> is <CMP> than <R>` (ultimo
+  = query), asserisce gli archi + la clausola `rel($A,$C):-rel($A,$B),rel($B,$C)`
+  in KB scratch e risolve con `kb_query` (SLD). Transitività licenziata dalla
+  GRAMMATICA (il frame comparativo = ordine stretto) → nessun fatto `transitive/1`,
+  regge in ermetico. Copre comparativo sintetico `-er than` E analitico `more <adj>
+  than`. Ratchet bilingue: `canonicalize_lang` riscrive il trigramma IT `più <adj>
+  di` → `more <adj> than` (NON una mappa globale `più`→`more`: `più` è anche il
+  "plus" aritmetico — la prima versione globale ruppe 4 casi, la lezione è
+  l'ambiguità). Onestà: asimmetria (`c>a?`→No), irriflessività (`a>a?`→No),
+  relazioni miste declinate. Gate `transitivity.chat`+`.it.chat`. Suite verde
+  (run.sh 229/229).
 
 ---
 
@@ -332,18 +347,20 @@ lasciare che sia esso a nominare la prossima feature, sfruttando il motore
 arricchito. Niente refactor speculativo del Secchio B/C senza un caso che lo tiri.
 
 **In corso (gen290+):** il gauge deterministico `make basic-chat-bench` ha nominato
-**cat.7 "Logica deduttiva"**. gen290 ha chiuso 2/4 (sillogismo categorico multi-
-frase / senza `?`, EN+IT). **Prossimo pull naturale di cat.7:** i restanti 2/4 —
-prompt 123 `if A is bigger than B and B is bigger than C, is A bigger than C?`
-(transitività di una relazione binaria, variabili astratte) e 124 `a=b, b=c, what
-is a` (catena di uguaglianza, wh-query). Sono un MECCANISMO DIVERSO dal sillogismo
-categorico (relazione binaria transitiva, non regola unaria testa/corpo): valutare
-se il motore n-ario (join binari già nel solver, cfr. [[parrot0-prolog-engine-nary]])
-lo regge via una regola `bigger($X,$Z):-bigger($X,$Y),bigger($Y,$Z)` insegnata al
-volo, oppure una chiusura transitiva in C sui fatti (come `qchain_reaches` gen233).
-Gate-first, con ratchet bilingue e dovere di pivot. Altri rossi ad alta leva dal
-bench: cat.43 Famiglia 0/4 (relazionale, kinship), cat.54 how-to 0/20 (grande, ma
-knowledge-heavy).
+**cat.7 "Logica deduttiva"**. gen290 ha chiuso 2/4 (sillogismo categorico), gen291
+3/4 (transitività relazionale 123 — il motore n-ario porta già la regola binaria,
+[[parrot0-prolog-engine-nary]] confermato dal vivo). **Prossimo pull naturale
+(ultimo rosso di cat.7):** prompt 124 `a=b, b=c, what is a` — l'uguaglianza è
+transitiva E simmetrica, con superficie a `=` (simboli, non "than") e una WH-query
+("what is a", non sì/no). Meccanismo distinto: (1) parser dei segmenti `x=y`
+separati da virgola; (2) chiusura di uguaglianza (transitiva+simmetrica) — o come
+regola binaria `eq($X,$Z):-eq($X,$Y),eq($Y,$Z)` + `eq($X,$Y):-eq($Y,$X)` sul solver
+(attenzione ai cicli con la simmetria: serve depth-guard, già presente), o come
+union-find in C; (3) risposta wh: `what is a` → il rappresentante/i membri della
+classe di equivalenza (`kb_match eq(a,?)` → `[b,c]` o "c"). Gate-first, ratchet
+bilingue (`a=b, b=c, quanto vale a?`), dovere di pivot. Altri rossi ad alta leva
+dal bench dopo cat.7: cat.43 Famiglia 0/4 (relazionale, kinship — riusa il motore
+binario), cat.54 how-to 0/20 (grande, knowledge-heavy).
 
 <details><summary>Piano U5 — quarta regola (progressivo), storico, gen289</summary>
 
