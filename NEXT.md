@@ -277,23 +277,56 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## PROSSIMO (da fare): U5 continua — terza regola-colla del Secchio B
+## IN CORSO: U5 terza regola-colla — l'articolo FR ed ES come conoscenza
 
-**Stato:** due regole-colla spedite — articolo IT (`article/4`, gen286) e accordo
-dell'aggettivo femminile (`agree_f`/`fem`/`swap_last`, morfologia-regola, gen287).
-La casa `kb/core/grammar.p0` cresce. Prossime candidate, in ordine di isolamento:
+**Piano upfront (gen288).** Migrare la selezione dell'articolo definito FR
+(`le`/`la`) ed ES (`el`/`la`), oggi ternari C nei path FR/ES di `mod_translate`
+(righe ~73 e ~163-165 di `85-translate-synth-world.c`), a tabelle di fatti in
+`grammar.p0`. Nel codice attuale FR ed ES dipendono SOLO dal genere (niente
+elisione né indefinito, a differenza dell'IT), quindi la forma naturale è
+`article_fr(Gender, Form)` / `article_es(Gender, Form)` — coerente col naming
+per-lingua già in casa (`tr_fr`/`gender_fr`/`tr_es`/`gender_es`), non l'`article/4`
+dell'IT (che ha def+vocale). Riusa il meccanismo di gen286 (kb_match + substrato).
 
-1. **Articolo/genere FR ed ES** (`le/la`, `un/une`; `el/la`): stessa forma
-   `article/4` per-lingua (chiave lingua, es. `article(fr, def, m, no, le)`, oppure
-   `article_fr/4`), estende la tabella riusando il meccanismo di gen286. Basso
-   rischio, alto valore (una lingua in più diventa dato). Candidata migliore.
-2. **Morfologia verbale** ("is sleeping"→verbo finito): più complessa, richiede
-   `chars/2`+tabelle di coniugazione; ultima della sequenza.
+```prolog
+article_fr(m, le).  article_fr(f, la).
+article_es(m, el).  article_es(f, la).
+```
 
-**Disciplina (invariata):** ogni regola col suo gate rosso→verde (un caso di
-`mod_translate` che oggi passa per C dà lo stesso output via KB), regressione
-multilingue (`translate.chat`/`.it`), pivot se tradisce l'emergenza senza
-beneficio. **Design:** `teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
+**Il pull:** due lingue in più con l'articolo come DATO ispezionabile/insegnabile,
+a costo bassissimo (4 fatti, due kb_match), riusando l'infrastruttura gen286.
+
+**Gate (`tests/artfres.sh`, rosso→verde):**
+- **A (regressione, via chat, env default con world-facts):** FR
+  `The cat is sleeping on the warm rug.`→`Le chat dort sur le tapis chaud.` (le);
+  ES `the cat`→`El gato.` (el) e `the house`→`La casa.` (la) — ES copre già
+  entrambi i generi. Stesso output, ora via le tabelle KB.
+- **B (grammatica come DATO, via MCP):** `kb.match article_fr(m,?)`→`le`,
+  `(f,?)`→`la`; `article_es(m,?)`→`el`, `(f,?)`→`la`. Rosso oggi (predicati inesistenti).
+
+**Passi (atomici):**
+1. `kb/core/grammar.p0`: 4 fatti `article_fr/2` + `article_es/2`.
+2. `85-translate-synth-world.c` FR (~riga 73): `snprintf(piece, gender=='f'?"la":"le")`
+   → `kb_match article_fr({gender},?)`; backstop C se assente. ES (~163-165): idem
+   con `article_es`.
+3. `is_internal_pred`/`is_struct_pred`: filtrare `article_fr`/`article_es` come
+   substrato (come `article`).
+4. `tests/artfres.sh` + `Makefile` (dopo `adjagree.sh`).
+5. Verifica: gate verde + REGRESSIONE (`translate.chat` FR, `make test`).
+6. Doc: `teach-comprehension-via-mcp.md` §5.5, `NEXT.md` Spedito. Commit
+   `feat(engine): gen288 - U5 FR/ES article as knowledge`.
+
+**Onestà/limiti:** FR/ES coprono solo articolo DEFINITO + genere (esattamente ciò
+che il C fa oggi); niente elisione/indefinito FR/ES (non implementati nel C, non è
+questa la migrazione). `el`/`le`/`la` sono forme diverse per lingua → tabelle
+separate, non un'unica `article/N` (onesto: la grammatica differisce davvero).
+
+**Poi (coda U5, ultima regola):** morfologia verbale ("is sleeping"→verbo finito),
+più complessa (`chars/2`+tabelle di coniugazione), col suo gate.
+
+**Disciplina (invariata):** ogni regola col suo gate rosso→verde, regressione
+multilingue, pivot se tradisce l'emergenza senza beneficio. **Design:**
+`teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
 
 <details><summary>Piano U5 — seconda regola (accordo aggettivo), storico, gen287</summary>
 
