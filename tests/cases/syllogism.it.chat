@@ -1,0 +1,18 @@
+# Generation 290: the SAME deduction as syllogism.chat, in Italian, through the
+# SAME code path (the bilingual ratchet, LOOP.md). Nothing here duplicates the
+# English logic: the router splits on '.' and marks the query by its trailing '?'
+# (language-neutral, not an English "is/are" prefix); the universal parser finds
+# the copula structurally (subject = the token before it), so "ogni uomo è
+# mortale" -> "every uomo is mortale" parses as mortale(X) :- uomo(X); and the
+# adjective query accepts the subject-first order "socrate è mortale?". "ogni"
+# takes a SINGULAR noun, so no Italian pluralization is needed for this to hold.
+
+# Multi-sentence Italian syllogism (mirror of prompt 122).
+> socrate è un uomo. ogni uomo è mortale. socrate è mortale?
+< Yes.
+# A NEW subject through the same rule — generalization, not a stored pair.
+> platone è un uomo. ogni uomo è mortale. platone è mortale?
+< Yes.
+# Membership + universal to a class, then a class-membership query.
+> fido è un cane. ogni cane è un animale. fido è un animale?
+< Yes.

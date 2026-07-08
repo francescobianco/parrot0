@@ -558,7 +558,7 @@ int brain_reload(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen278-parallel-tests";
+    return "gen290-deductive-syllogism";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

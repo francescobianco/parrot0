@@ -1,4 +1,58 @@
 # parrot0 evolution journal
+## 2026-07-08 - gen290: deductive syllogism from natural surface forms (cat.7)
+
+**Pull (from a red gauge, not invented).** The U1..U6 engine sequence is closed
+(NEXT.md), so the next move was tirare from a real gauge. `make basic-chat-bench`
+(deterministic, local) maps category **7 "Logica deduttiva" at 0% (0/4)** — and it
+overlaps LLMSCORE Q10 (the Zorp/Blick syllogism, refused). Category 7 is the
+cleanest KEYSTONE: it leverages exactly the engine we just enriched, and it is
+relational, not a phrasebook.
+
+**The finding: it was a SURFACE-FORM gap, not a reasoning gap.** The engine already
+does the syllogism — `if all men are mortal and socrates is a man, is socrates
+mortal?` -> `Yes.` (gen231, `one_turn_syllogism`: apply premises to a scratch KB,
+resolve the closing question). The two failing prompts differed only in surface:
+- **122** `Socrates is a man. All men are mortal. Is Socrates mortal?` — sentences
+  separated by `.`, not the packed `if … and …, …?`.
+- **125** `if all cats are mammals and Tom is a cat, is Tom a mammal` — no `?`.
+
+**Changed (`src/brain/10-memory-knowledge.c`), one idea = route natural surface
+forms to the existing core.**
+- `multi_sentence_syllogism`: split the turn on `.`, treat the last sentence as the
+  yes/no query and the rest as premises, run the SAME `apply_premises` + query on a
+  scratch KB. Deliberately language-NEUTRAL: the query is marked by the trailing
+  `?`, not an English `is/are` prefix.
+- `one_turn_syllogism`: dropped the hard `?` requirement (fixes 125; the `if …, is
+  …` shape is interrogative by structure).
+- Universal parser (`all/every/any … are …`): find the copula STRUCTURALLY
+  (subject = token before it; copula ∈ are/is/am) instead of by fixed position, so
+  Italian `tutti gli uomini sono mortali` -> `all gli uomini am mortali` parses via
+  the SAME rule with no hardcoded article list.
+- Adjective-form query accepts the SUBJECT-FIRST order `<x> is <y>?` (gated on `?`),
+  the shape Italian `socrate è mortale?` canonicalizes to.
+- `canonicalize_lang`: `tutti`/`tutte` -> `all`.
+
+**Bilingual ratchet (LOOP.md).** The IT case runs through the identical path.
+`ogni` takes a SINGULAR noun (`ogni uomo è mortale`), so the deduction holds with
+no Italian pluralization — the honest boundary that keeps this from becoming an
+English phrasebook. `socrate è un uomo. ogni uomo è mortale. socrate è mortale?`
+-> `Yes.`
+
+**Stress (10x).** 3-step chains (man->human->mortal) both languages; distractor
+premises ignored; NON-sequitur refused with `No.` (`rex is a dog. all cats are
+animals. is rex an animal?` -> `No.`); ordinary multi-sentence prose declines
+honestly (an unparseable premise blocks the whole deduction — no guessing).
+
+**Verified.** New gates `tests/cases/syllogism.chat` + `syllogism.it.chat` (hermetic
+base, so every Yes is genuine inference, not recall). `make test` ALL GREEN
+(run.sh 227/227). basic-chat cat.7 **0/4 -> 2/4**.
+
+**Limits / next.** 123 (transitivity `A>B, B>C => A>C`) and 124 (equality chain
+`a=b, b=c`) are a SEPARATE mechanism (binary transitive relation, abstract vars) —
+the natural next pull for cat.7. Italian PLURAL universals (`tutti gli uomini`)
+parse but don't singularize (`uomini`≠`uomo`); IT pluralization is its own
+capability, out of scope until a case tires it.
+
 ## 2026-07-07 - gen278: parallel test harness + a concurrency-safe code oracle
 
 **Goal (F.).** Do the recommended test-speed optimization "for now" — i.e.

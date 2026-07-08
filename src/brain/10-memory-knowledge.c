@@ -610,7 +610,7 @@ static const char *canonical_token(const char *w) {
         {"ho",  "i have"},
         {"chiamato", "named"},
         {"si",  "is"}, {"chiama", "called"},
-        {"ogni","every"},
+        {"ogni","every"}, {"tutti","all"}, {"tutte","all"},
         {"chi", "who"},
 
         {"non", "not"},
@@ -1116,7 +1116,12 @@ static void singularize(const char *in, char *out, size_t sz) {
 static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_size) {
     (void)b;
     size_t L = strlen(norm);
-    if (L < 10 || L >= 480 || norm[L - 1] != '?') return 0;
+    /* gen290: a trailing '?' is no longer required — the "if <premises>, is <x>
+     * <y>" shape is interrogative by structure, so prompt 125 ("if all cats are
+     * mammals and Tom is a cat, is Tom a mammal", no '?') routes here too. The
+     * "if " prefix + comma + "is/are" tail keep this from hijacking prose, and a
+     * non-deductive turn still declines when apply_premises or the query fail. */
+    if (L < 10 || L >= 480) return 0;
     if (strncmp(norm, "if ", 3) != 0) return 0;
     const char *comma = strrchr(norm, ',');
     if (!comma) return 0;
@@ -1136,6 +1141,75 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
 
     char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", q);
+    char ans[256];
+    int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
+    kb_destroy(tmp.kb);
+    if (!claimed) return 0;
+    if (strncmp(ans, "Yes", 3) != 0 && strncmp(ans, "No", 2) != 0 &&
+        strncmp(ans, "Conflicted", 10) != 0) return 0;
+    put(ans, out, out_size);
+    return 1;
+}
+
+/* gen290 (basic-chat cat.7 "Logica deduttiva"): the SAME multi-premise inference
+ * as one_turn_syllogism, but for the natural MULTI-SENTENCE surface form
+ * "Socrates is a man. All men are mortal. Is Socrates mortal?" (prompt 122) — the
+ * period-separated shape an LLM is actually probed with, rather than the packed
+ * "if <p1> and <p2>, <q>?" conjunction. The reasoning core is untouched: split
+ * the turn into sentences on '.', treat the last as the yes/no query and the rest
+ * as premises, apply them to a scratch KB, and resolve the query. Deliberately
+ * language-NEUTRAL: the interrogative is marked by the trailing '?' (not an
+ * English "is/are" prefix), so the same code path serves the Italian
+ * "socrate è un uomo. tutti gli uomini sono mortali. socrate è mortale?" once the
+ * universal parser is article-tolerant (below). Declines unless the premises
+ * genuinely assert and the query reaches a Yes/No, so ordinary multi-sentence
+ * prose is never hijacked. */
+static int multi_sentence_syllogism(Brain *b, const char *norm,
+                                    char *out, size_t out_size) {
+    (void)b;
+    size_t L = strlen(norm);
+    if (L < 10 || L >= 480) return 0;
+    if (norm[L - 1] != '?') return 0;          /* must close with a question */
+
+    char buf[512];
+    memcpy(buf, norm, L + 1);
+
+    /* Split into sentence segments on '.' (the '?' stays on the final segment). */
+    char *segs[16];
+    size_t nseg = 0;
+    char *start = buf;
+    for (char *p = buf; ; p++) {
+        if (*p == '.' || *p == '\0') {
+            char c = *p;
+            *p = '\0';
+            char *s = trim_mut(start);
+            if (*s) { if (nseg >= 16) return 0; segs[nseg++] = s; }
+            start = p + 1;
+            if (c == '\0') break;
+        }
+    }
+    if (nseg < 2) return 0;                     /* need premises + a query */
+
+    char *query = segs[nseg - 1];
+    char prem[512];
+    size_t off = 0;
+    prem[0] = '\0';
+    for (size_t i = 0; i + 1 < nseg; i++) {
+        int n = snprintf(prem + off, sizeof prem - off, "%s%s",
+                         i ? " and " : "", segs[i]);
+        if (n < 0 || (size_t)n >= sizeof prem - off) return 0;
+        off += (size_t)n;
+    }
+
+    Brain tmp;
+    memset(&tmp, 0, sizeof tmp);
+    tmp.kb = kb_create();
+    if (!tmp.kb) return 0;
+    kb_set_origin(tmp.kb, KB_SESSION);
+    if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
+
+    char qbuf[256];
+    snprintf(qbuf, sizeof qbuf, "%s", query);
     char ans[256];
     int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
     kb_destroy(tmp.kb);
@@ -2370,6 +2444,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * inference on a scratch KB. Placed first so a self-contained deduction is
      * recognized before the single-clause handlers below see only fragments. */
     if (one_turn_syllogism(b, norm, out, out_size)) return 1;
+
+    /* gen290: the same deduction for the natural multi-sentence surface form
+     * "P1. P2. Q?" (basic-chat cat.7). Placed beside one_turn_syllogism so a
+     * self-contained deduction is recognized before the single-clause handlers
+     * below see only fragments. */
+    if (multi_sentence_syllogism(b, norm, out, out_size)) return 1;
 
     /* gen234 (LLMSCORE): "what color is (a/the) <X>?" -> color_of(X, C). The colour
      * facts are KB ground knowledge (world-facts.p0). Rather than guess which token
@@ -4025,40 +4105,65 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * become mortal(X):-man(X) / flower(X):-rose(X); afterwards "is socrates mortal?"
      * and "is <r> a flower?" deduce over the rule plus the ground fact. This is real
      * syllogistic reasoning on parrot0's own engine, not a recited string. */
-    if ((nw == 4 || nw == 5) &&
+    if (nw >= 4 && nw <= 6 &&
         (strcmp(w[0], "all") == 0 || strcmp(w[0], "every") == 0 ||
-         strcmp(w[0], "any") == 0) &&
-        (strcmp(w[2], "are") == 0 || strcmp(w[2], "is") == 0)) {
-        const char *clsw = (nw == 5 && is_article(w[3])) ? w[4] : w[3];
-        char subjb[KB_TERM_LEN], clsb[KB_TERM_LEN];
-        char sj[KB_TERM_LEN], cl[KB_TERM_LEN];
-        snprintf(subjb, sizeof subjb, "%s", w[1]);
-        snprintf(clsb, sizeof clsb, "%s", clsw);
-        singularize(strip_edge_punct(subjb), sj, sizeof sj);
-        singularize(strip_edge_punct(clsb), cl, sizeof cl);
-        if (*sj && *cl && strcmp(sj, cl) != 0) {
-            char msg[160];
-            if (kb_assert_rule(b->kb, cl, sj))
-                snprintf(msg, sizeof msg,
-                         "Got it: if something is a %s, then it is %s.", sj, cl);
-            else
-                snprintf(msg, sizeof msg, "I couldn't store that rule.");
-            put(msg, out, out_size);
-            return 1;
+         strcmp(w[0], "any") == 0)) {
+        /* gen290: locate the copula STRUCTURALLY rather than by fixed position, so
+         * the Italian universal "tutti gli uomini sono mortali" (canonicalized to
+         * "all gli uomini am mortali") parses through the SAME rule as "all men are
+         * mortal". The subject is the token just BEFORE the copula, which naturally
+         * skips any determiner between the quantifier and the noun ("all THE men…",
+         * "tutti GLI uomini…") with no hardcoded article list; the copula is any of
+         * are/is/am ("am" is what the canonicalizer emits for Italian "sono"). */
+        size_t cop = 0;
+        for (size_t i = 2; i < nw && i <= 3; i++)
+            if (strcmp(w[i], "are") == 0 || strcmp(w[i], "is") == 0 ||
+                strcmp(w[i], "am") == 0) { cop = i; break; }
+        if (cop >= 2 && cop + 1 < nw) {
+            size_t si = cop - 1;                 /* subject: token before copula */
+            size_t ci = cop + 1;                 /* class:   token after copula  */
+            if (is_article(w[ci]) && ci + 1 < nw) ci++;   /* skip "a"/"an" */
+            char subjb[KB_TERM_LEN], clsb[KB_TERM_LEN];
+            char sj[KB_TERM_LEN], cl[KB_TERM_LEN];
+            snprintf(subjb, sizeof subjb, "%s", w[si]);
+            snprintf(clsb, sizeof clsb, "%s", w[ci]);
+            singularize(strip_edge_punct(subjb), sj, sizeof sj);
+            singularize(strip_edge_punct(clsb), cl, sizeof cl);
+            if (*sj && *cl && strcmp(sj, cl) != 0) {
+                char msg[160];
+                if (kb_assert_rule(b->kb, cl, sj))
+                    snprintf(msg, sizeof msg,
+                             "Got it: if something is a %s, then it is %s.", sj, cl);
+                else
+                    snprintf(msg, sizeof msg, "I couldn't store that rule.");
+                put(msg, out, out_size);
+                return 1;
+            }
         }
     }
 
-    /* gen231: adjective-form deduction query "is <x> <y>?" (no article, e.g.
-     * "is socrates mortal?") -> resolve y(x) over rules+facts. Guarded on a known
-     * predicate so it never feigns a yes/no for an unknown property. */
-    if (nw == 3 && strcmp(w[0], "is") == 0 &&
-        !is_article(w[1]) && isalpha((unsigned char)w[1][0])) {
+    /* gen231/gen290: adjective-form deduction query "is <x> <y>?" (no article,
+     * e.g. "is socrates mortal?") -> resolve y(x) over rules+facts. gen290 also
+     * accepts the SUBJECT-FIRST interrogative "<x> is <y>?" — the shape Italian
+     * "socrate è mortale?" canonicalizes to ("socrate is mortale?") — so the same
+     * deduction serves both word orders through one path (the bilingual ratchet,
+     * mirroring gen103's subject-first membership query). Subject-first is gated on
+     * a trailing '?' so a plain "<x> is <y>" assertion is never mistaken for a
+     * query. Guarded on a known predicate so it never feigns a yes/no for an
+     * unknown property. */
+    if (nw == 3 &&
+        ((strcmp(w[0], "is") == 0 && !is_article(w[1]) &&
+          isalpha((unsigned char)w[1][0])) ||
+         (interrogative && strcmp(w[1], "is") == 0 &&
+          isalpha((unsigned char)w[0][0])))) {
+        int subj_first = (strcmp(w[1], "is") == 0);
+        const char *subjw = subj_first ? w[0] : w[1];
         char clsb[KB_TERM_LEN];
         snprintf(clsb, sizeof clsb, "%s", w[2]);
         char *cl = strip_edge_punct(clsb);
         if (*cl && kb_knows_pred(b->kb, cl)) {
             const char *subj;
-            if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
+            if (!resolve_entity(b, subjw, &subj, out, out_size)) return 1;
             const char *args[] = {subj};
             if (kb_is_conflicted(b->kb, cl, args, 1)) put("Conflicted.", out, out_size);
             else {
@@ -4073,7 +4178,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 b->last_goal_yes = yes;
                 b->has_last_goal = 1;
             }
-            remember_entity(b, w[1], subj);
+            remember_entity(b, subjw, subj);
             return 1;
         }
     }

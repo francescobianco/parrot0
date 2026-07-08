@@ -1,0 +1,34 @@
+# Generation 290: deductive syllogism from NATURAL surface forms (basic-chat
+# cat.7 "Logica deduttiva", prompts 122 & 125). The reasoning core — apply the
+# premises to a scratch KB and resolve the closing yes/no question — already
+# existed (gen231) for the packed "if <p1> and <p2>, <q>?" shape. gen290 routes
+# two more surface forms to that SAME core: the multi-sentence "P1. P2. Q?" form
+# and the conjunction form WITHOUT a trailing '?'. Base is hermetic here (no world
+# facts), so every Yes below is genuine inference on parrot0's own engine, not a
+# recalled answer.
+
+# Multi-sentence, period-separated (basic-chat prompt 122).
+> Socrates is a man. All men are mortal. Is Socrates mortal?
+< Yes.
+# Novel symbols: proves the deduction is real, not a memorized fact.
+> zorb is a blit. all blits are fumps. is zorb a fump?
+< Yes.
+# The "if <premises>, is <q>" conjunction WITHOUT a trailing '?' (prompt 125).
+> if all cats are mammals and Tom is a cat, is Tom a mammal
+< Yes.
+# A three-step rule chain (man -> human -> mortal) still resolves.
+> plato is a man. all men are humans. all humans are mortal. is plato mortal?
+< Yes.
+# A distractor premise about another class is simply ignored (it asserts fine but
+# does not bear on the query). Every premise must parse as knowledge, though: an
+# unparseable one makes the whole deduction decline rather than guess.
+> aristotle is a man. all dogs are loyal. all men are mortal. is aristotle mortal?
+< Yes.
+# Honesty: an invalid inference is refused, not rubber-stamped. "animal" is a
+# known predicate (from the cats rule) but rex is a dog, so the answer is No.
+> rex is a dog. all cats are animals. is rex an animal?
+< No.
+# Ordinary multi-sentence prose is NOT hijacked into a false deduction: the
+# premises do not assert as knowledge, so the router declines honestly.
+> the sky is blue. grass is green. is water wet?
+< I don't understand that yet.

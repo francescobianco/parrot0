@@ -60,6 +60,20 @@
   substrato. Gate `tests/vmorph.sh`. Suite completa verde. **Le quattro regole-colla
   isolate del Secchio B (articolo IT, accordo aggettivo, articolo FR/ES,
   progressivo) sono migrate da C a conoscenza — l'intera sequenza U1..U6 è chiusa.**
+- **gen290 — cat.7 "Logica deduttiva" (0/4 → 2/4)** primo pull post-serie-U tirato
+  da un gauge rosso reale (`make basic-chat-bench`, deterministico). Il sillogismo
+  categorico era già risolto dal motore (gen231) nella forma packed `if … and …,
+  …?`; il gap era di SUPERFICIE. `multi_sentence_syllogism` instrada la forma
+  multi-frase `P1. P2. Q?` (prompt 122) allo STESSO core (`apply_premises` + query
+  su KB scratch); `one_turn_syllogism` non richiede più il `?` finale (prompt 125).
+  Parser universale ora trova la copula STRUTTURALMENTE (soggetto = token prima;
+  copula ∈ are/is/am) → l'IT `ogni uomo è mortale` parsa via la stessa regola;
+  query adjective-form accetta l'ordine SUBJECT-FIRST `<x> is <y>?` (l'IT `socrate
+  è mortale?`); `canonicalize_lang` `tutti`/`tutte`→`all`. Ratchet bilingue: `ogni`
+  regge il singolare → nessuna pluralizzazione IT necessaria (confine onesto).
+  Gate `tests/cases/syllogism.chat` + `.it.chat` (base ermetica = inferenza vera).
+  Suite verde (run.sh 227/227). Prompt 123 (transitività) e 124 (uguaglianza) sono
+  un meccanismo separato → prossimo pull di cat.7.
 
 ---
 
@@ -316,6 +330,20 @@ una pressione reale**, non inventato (disciplina PRINCIPLES.md / LOOP.md).
 **Raccomandazione:** ripartire da un gauge rosso reale (llmscore/rulescore) e
 lasciare che sia esso a nominare la prossima feature, sfruttando il motore
 arricchito. Niente refactor speculativo del Secchio B/C senza un caso che lo tiri.
+
+**In corso (gen290+):** il gauge deterministico `make basic-chat-bench` ha nominato
+**cat.7 "Logica deduttiva"**. gen290 ha chiuso 2/4 (sillogismo categorico multi-
+frase / senza `?`, EN+IT). **Prossimo pull naturale di cat.7:** i restanti 2/4 —
+prompt 123 `if A is bigger than B and B is bigger than C, is A bigger than C?`
+(transitività di una relazione binaria, variabili astratte) e 124 `a=b, b=c, what
+is a` (catena di uguaglianza, wh-query). Sono un MECCANISMO DIVERSO dal sillogismo
+categorico (relazione binaria transitiva, non regola unaria testa/corpo): valutare
+se il motore n-ario (join binari già nel solver, cfr. [[parrot0-prolog-engine-nary]])
+lo regge via una regola `bigger($X,$Z):-bigger($X,$Y),bigger($Y,$Z)` insegnata al
+volo, oppure una chiusura transitiva in C sui fatti (come `qchain_reaches` gen233).
+Gate-first, con ratchet bilingue e dovere di pivot. Altri rossi ad alta leva dal
+bench: cat.43 Famiglia 0/4 (relazionale, kinship), cat.54 how-to 0/20 (grande, ma
+knowledge-heavy).
 
 <details><summary>Piano U5 — quarta regola (progressivo), storico, gen289</summary>
 
