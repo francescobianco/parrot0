@@ -353,12 +353,15 @@ marcatore di variabile, poi gen284 flip a `$`-only), **U2 ✅** (gen281
 `kb.assert_clause`, regole n-arie via MCP), **U3 ✅** (gen283 unificazione
 STRUTTURALE su termini composti → D.1 superato), **U6 ✅** (gen282 `naf` →
 D.2 superato), **U4 ✅** (gen285 builtin `chars/2`, azioni-su-stringa come regole),
-**U5 in corso** — tre regole-colla del Secchio B spedite: articolo IT (gen286,
-`article/4`), accordo dell'aggettivo femminile (gen287, morfologia-regola
-`agree_f`/`fem`/`swap_last` su `chars/2`+U3), e articolo definito FR/ES (gen288,
-`article_fr`/`article_es` per-lingua), tutte in `kb/core/grammar.p0`, interrogate
-da `mod_translate` (`tests/article.sh`, `adjagree.sh`, `artfres.sh`). Resta
-l'ultima: morfologia verbale (vedi `NEXT.md`).
+**U5 ✅ COMPLETO** (gen286-289) — quattro regole-colla del Secchio B migrate da C a
+conoscenza in `kb/core/grammar.p0`, interrogate da `mod_translate`: articolo IT
+(`article/4`), accordo dell'aggettivo femminile (morfologia-regola
+`agree_f`/`fem`/`swap_last` su `chars/2`+U3), articolo definito FR/ES
+(`article_fr`/`article_es` per-lingua), e il present progressive inglese
+(`aux_progressive` fatto + `progressive`/`ends_ing` regola morfologica del suffisso
+`-ing`, che generalizza oltre l'unico verbo prima hardcoded). Gate `tests/`:
+`article.sh`, `adjagree.sh`, `artfres.sh`, `vmorph.sh`. **Con U5 l'intera sequenza
+U1..U6 di §5.5 è chiusa.**
 
 | Ord | Upgrade al motore | Sblocca | Costo | Gate d'ingresso |
 |---|---|---|---|---|
@@ -366,7 +369,7 @@ l'ultima: morfologia verbale (vedi `NEXT.md`).
 | **U2** ✅ | **Costruzione clausole n-arie via MCP** (`kb.assert_clause`; gen281) | relazioni/join come conoscenza insegnabile | basso | nonno via MCP → `grandparent(tom,ann)` true senza `.p0` (`tests/assertclause.sh`) |
 | **U3** | **Termini composti / liste con unificazione testa-coda** (`[H|T]`) — *l'upgrade grosso, "arricchimento molto elevato"* | strings-as-knowledge, ragionamento strutturale, il Prolog generativo | alto | una regola `capitalize_first([H|T],[U|T]):-upper(H,U).` risolve su `[m,a,d,r,i,d]` |
 | **U4** | **(de)serializzazione stringa⟷struttura** — UNA primitiva generale, cieca all'operazione | l'azione su stringa diventa interamente regole+fatti KB | medio | `present(proper_noun,capitalize_first)` insegnato via MCP rende `madrid`→`Madrid` in `gen.respond`, sostanza resta `madrid` |
-| **U5** 🔄 | **Migrazione del Secchio B**, una regola-colla per volta (accordo, elisione, morfologia) da C a fatti+regole. **Prima regola ✅ gen286**: articolo IT come `article/4` (`grammar.p0`), il resto in coda (`NEXT.md`) | `85-translate-synth-world.c` si assottiglia; grammatica ispezionabile/allenabile | per-item | un caso di `mod_translate` passa per regole KB, stesso output (`tests/article.sh`) |
+| **U5** ✅ | **Migrazione del Secchio B**, una regola-colla per volta, da C a fatti+regole. **Completo gen286-289**: articolo IT (`article/4`), accordo aggettivo (`agree_f`), articolo FR/ES (`article_fr`/`_es`), present progressive (`aux_progressive`+`progressive`) — tutto in `grammar.p0` | `85-translate-synth-world.c` si assottiglia; grammatica ispezionabile/allenabile | per-item | un caso di `mod_translate` passa per regole KB, stesso output (`article.sh`/`adjagree.sh`/`artfres.sh`/`vmorph.sh`) |
 
 U1/U2 sono piccoli e sbloccano subito; U3 è il cuore (e va speso una sola volta,
 serve anche a [[generative-prolog.md]]); U4/U5 vivono sopra U3. Ordine per

@@ -51,6 +51,15 @@
   FR/ES di `mod_translate` interrogano le tabelle invece dei ternari C. `Le chat…`,
   `El gato.`, `La casa.` invariati; forme ispezionabili via MCP. Filtrati come
   substrato. Gate `tests/artfres.sh`. Suite completa verde.
+- **gen289 — U5 (quarta regola-colla) → U5 COMPLETO** la morfologia del present
+  progressive inglese. L'unico caso hardcoded (`strcmp(next,"sleeping")` nel path
+  FR) diventa conoscenza+regola: `aux_progressive(is)` (fatto) + `progressive/1`
+  (regola morfologica: suffisso `-ing` ricorsivo su `chars/2`) + `ends_ing/1`.
+  Generalizza a QUALUNQUE verbo `-ing` (running, reading…), non solo "sleeping".
+  `Le chat dort…` invariato; morfologia interrogabile via MCP. Filtrati come
+  substrato. Gate `tests/vmorph.sh`. Suite completa verde. **Le quattro regole-colla
+  isolate del Secchio B (articolo IT, accordo aggettivo, articolo FR/ES,
+  progressivo) sono migrate da C a conoscenza — l'intera sequenza U1..U6 è chiusa.**
 
 ---
 
@@ -283,7 +292,32 @@ irriducibile e cieca-all'operazione, NON una primitiva d'azione.
 
 ---
 
-## IN CORSO: U5 ultima regola-colla — la morfologia del progressivo inglese
+## PROSSIMO (da fare): la sequenza U1..U6 è CHIUSA — tirare il prossimo da un benchmark
+
+**Stato (gen289):** l'intera sequenza di upgrade al motore committata in §5.5
+(`teach-comprehension-via-mcp.md`) è spedita — U1 letterali+`$`-var, U2
+`kb.assert_clause`, U3 unificazione strutturale (D.1), U4 `chars/2`, U6 `naf`
+(D.2), U5 le quattro regole-colla del Secchio B migrate da C a conoscenza. Non
+c'è più un "prossimo passo" pre-committato: da qui in poi il lavoro va **tirato da
+una pressione reale**, non inventato (disciplina PRINCIPLES.md / LOOP.md).
+
+**Candidati onesti (ognuno da confermare con un gate/benchmark PRIMA di scrivere C):**
+- **Coniugazione generativa vera** (stem+desinenza → forma finita, come `agree_f`
+  ma per i verbi): l'evoluzione naturale della morfologia gen289, MA fuori
+  scommessa finché un caso di traduzione reale non la reclama (oggi i gloss sono
+  già forme finite: nessun pull). Serve un benchmark di traduzione che fallisca.
+- **Estendere il Secchio B** con altre regole-colla se un caso multilingue le tira
+  (plurali, altri articoli/elisioni FR/ES, accordo participio).
+- **Tornare ai gauge rossi esistenti** (`make llmscore`, `make rulescore`,
+  `make basic-chat-bench`, swe-bench) e tirare la prossima capacità da lì — la via
+  storica pre-serie-U, ora che il motore è più ricco (termini composti, `chars/2`,
+  `naf`, clausole n-arie via MCP abilitano cose prima impossibili).
+
+**Raccomandazione:** ripartire da un gauge rosso reale (llmscore/rulescore) e
+lasciare che sia esso a nominare la prossima feature, sfruttando il motore
+arricchito. Niente refactor speculativo del Secchio B/C senza un caso che lo tiri.
+
+<details><summary>Piano U5 — quarta regola (progressivo), storico, gen289</summary>
 
 **Piano upfront (gen289).** L'UNICA "morfologia verbale" nel C è un caso HARDCODED
 nel path FR di `mod_translate` (`85-translate-synth-world.c` ~riga 81):
@@ -337,6 +371,8 @@ resta fuori scommessa finché un benchmark non la tira.
 
 **Disciplina (invariata):** gate rosso→verde, regressione multilingue, dovere di
 pivot. **Design:** `teach-comprehension-via-mcp.md` §5.5/§6, `generative-prolog.md`.
+
+</details>
 
 <details><summary>Piano U5 — terza regola (articolo FR/ES), storico, gen288</summary>
 

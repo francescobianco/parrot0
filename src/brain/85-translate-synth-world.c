@@ -16,6 +16,21 @@ static int fr_gender_for_en(Brain *b, const char *en, char *gender) {
     return 1;
 }
 
+/* U5 (gen289): the English present progressive "is V-ing" -> drop the auxiliary.
+ * Migrated from a hardcoded strcmp(next,"sleeping") to knowledge: the auxiliary
+ * is a fact (aux_progressive/1) and the progressive is a morphology RULE (the
+ * "-ing" suffix over chars/2) in grammar.p0 — so it generalizes to any -ing verb.
+ * Backstop to the historical hardcoded case if grammar.p0 is absent. */
+static int is_progressive_aux(Brain *b, const char *aux, const char *verb) {
+    if (b && b->kb && kb_knows_pred(b->kb, "aux_progressive")) {
+        const char *aq[] = { aux };
+        const char *pq[] = { verb };
+        return kb_query(b->kb, "aux_progressive", aq, 1) &&
+               kb_query(b->kb, "progressive", pq, 1);
+    }
+    return strcmp(aux, "is") == 0 && strcmp(verb, "sleeping") == 0;   /* backstop */
+}
+
 static int mod_translate(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)norm;
@@ -78,9 +93,9 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                         snprintf(piece, sizeof piece, "%s", af[0]);
                     else
                         snprintf(piece, sizeof piece, "%s", gender == 'f' ? "la" : "le");
-                } else if (!strcmp(tok, "is") && i + 1 < fn &&
-                           !strcmp(strip_edge_punct(fw[i + 1]), "sleeping")) {
-                    continue;
+                } else if (i + 1 < fn &&
+                           is_progressive_aux(b, tok, strip_edge_punct(fw[i + 1]))) {
+                    continue;   /* drop the progressive auxiliary; the -ing verb glosses finite */
                 } else {
                     char gnext;
                     if (i + 1 < fn && fr_gender_for_en(b, strip_edge_punct(fw[i + 1]), &gnext) &&

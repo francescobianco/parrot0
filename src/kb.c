@@ -1315,8 +1315,9 @@ static int is_struct_pred(const char *pred) {
         "data_structure", "complexity", "faster_than",
         "fix", "fix_suggestion", "review_check", "review_pattern",
         "tr", "gender", "trait",
-        /* gen286/gen287/gen288 (U5): grammar glue (grammar.p0), not concepts */
+        /* gen286/gen287/gen288/gen289 (U5): grammar glue (grammar.p0), not concepts */
         "article", "fem", "agree_f", "swap_last", "article_fr", "article_es",
+        "aux_progressive", "progressive", "ends_ing",
         "part_of", /* gen158: a derived relation, not a describable concept */
         "category_member", /* gen230: mod_namestart substrate, not describable */
         "opposite", /* gen231: antonym relation, queried not described */

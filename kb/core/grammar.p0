@@ -41,3 +41,14 @@ article_fr(m, le).
 article_fr(f, la).
 article_es(m, el).
 article_es(f, la).
+
+% U5, fourth glue rule (gen289): the English present progressive "is V-ing" ->
+% finite verb. The only verb morphology in the C translator was a hardcoded
+% strcmp(next, "sleeping"); it becomes knowledge: the auxiliary is a fact, and
+% the "-ing" ending is a real morphology RULE (a recursive suffix check over the
+% char list, via chars/2). This generalizes the drop to ANY progressive verb
+% with a gloss (running, reading, ...), not just the one hardcoded word.
+aux_progressive(is).
+progressive($W) :- chars($W, $L), ends_ing($L).
+ends_ing(cons(i, cons(n, cons(g, nil)))).
+ends_ing(cons($H, $T)) :- ends_ing($T).

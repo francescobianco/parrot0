@@ -534,6 +534,7 @@ static int is_internal_pred(const char *pred) {
          * queries, not facts the user taught. Filter it from "how many facts?". */
         "article", "fem", "agree_f", "swap_last",
         "article_fr", "article_es", /* gen288 (U5): FR/ES article-form tables */
+        "aux_progressive", "progressive", "ends_ing", /* gen289 (U5): verb morphology */
         /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",
