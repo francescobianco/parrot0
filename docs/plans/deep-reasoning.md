@@ -1,5 +1,44 @@
 # Deep reasoning — un piano parallelo (upfront design)
 
+## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen300)
+
+**Dove siamo.** Piano concordato con F. (§4-§4bis: estrazione ampia, fatti
+difettibili auto-correttivi, comprensione KB-first). **M0 (estendere la comprensione
+per l'estrazione fatti-da-prosa) è DI FATTO COMPLETO** — l'estrazione riusa il parser
+di comprensione (`extract_class_statement` in `src/brain/10-memory-knowledge.c`),
+EN+IT, gate `tests/cases/prosefact.chat`/`.it.chat`. Frame chiusi:
+- gen296 frame 1 — articolo di testa (`A whale is a mammal`→`mammal(whale)`)
+- gen298 frame 2 — copula `was/were` / IT `era` (guardata dal noun)
+- gen299 frames 3/4/6 — multi-parola, **PP in coda→2 fatti** (`country`+`located_in`),
+  locativi (`located_in`/`part_of`)
+- gen300 frame 5 — congiunzione di classi (`a Y and a Z` / IT `e`)
+- (side) gen297 — fix rosso pre-esistente `family.chat` t5 (seconda persona `you have`)
+
+Tutto verde: `make test` 0 FAIL su run pulito, run.sh 235/235. **Tutto committato e
+pushato** (HEAD `5420927`).
+
+**Residui minori M0 (non bloccanti):** apposizione ("the blue whale, a marine mammal,
+…") e conjunction relazionale; IT locativo "si trova in"; migrare i frame in una
+tabella KB-first `extract_frame(...)` (lever A).
+
+**PROSSIMO (verso il loop — qui riparti):**
+1. **M1 — provenienza `fact_source/3`**: ogni fatto estratto conserva il frammento-
+   fonte grezzo. È il prerequisito dell'auto-correzione (§4bis). Gate: estrai un
+   fatto e interroga la sua fonte. *(il passo giusto da cui ripartire)*
+2. **M3 — il loop `deep_reason` + budget + traccia** (`mod_deep_reason`, trigger
+   `deep_reason_fresh` "pensaci a fondo"): frontiera, acquire→infer→espandi, cap
+   wall-clock (`time(NULL)`), output conclusione+traccia. Studi 1/2 red→green.
+3. **M4 — auto-correzione** (contraddizione→ritorno alla fonte). Poi M5/M6.
+
+**Nota infra (non deep-reasoning):** flake intermittente `artfres` nel harness
+parallelo (gen278) — passa standalone 7/0, riappare a volte nel run pieno. Pre-
+esistente, da guardare separatamente.
+
+Memoria: `~/.claude/.../memory/parrot0-deep-reasoning.md`. Milestone dettagliate §8.
+
+---
+
+
 > Iniziato 2026-07-09 (dopo gen292). Decisioni di design con F. registrate in §4-§4bis
 > (estrazione ampia + fatti difettibili auto-correttivi + comprensione KB-first).
 > Piano PARALLELO alla linea principale
