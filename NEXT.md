@@ -89,6 +89,15 @@
   l'ambiguità). Onestà: asimmetria (`c>a?`→No), irriflessività (`a>a?`→No),
   relazioni miste declinate. Gate `transitivity.chat`+`.it.chat`. Suite verde
   (run.sh 229/229).
+- **gen295 — cat.43 "Famiglia" (0/4 → chiusa)** due mosse strutturali su una
+  classe kinship (`family_relation/1` in social.p0, EN+IT), non un phrasebook:
+  (A) affermazione familiare dell'utente (`my father …`, `I have two brothers`,
+  `mio padre …`) → acknowledgment onesto; (B) domanda sulla famiglia di parrot0
+  (`what is your sister's name`) → declino onesto ("sono un'AI, non ho famiglia" —
+  inventare un nome sarebbe un misclaim). Nuovo `mod_family` (prima di `social`),
+  chiave su classe + `my`/`i have` (A) vs `your` (B); risposta bilingue via
+  `current_lang`. `family_relation` filtrato come substrato. Gate
+  `tests/cases/family.chat`+`.it.chat`; self/strategy.chat aggiornati (lista moduli).
 - **gen294 — cat.52 "Elencazione" (36% → ~100%, categoria di fatto chiusa)** un
   MECCANISMO di enumerazione generico, non un phrasebook. `mod_namestart` già
   faceva il pick contato ("name three animals"); aggiunto il percorso WHOLE-SET

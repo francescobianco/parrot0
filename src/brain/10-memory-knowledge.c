@@ -1723,6 +1723,93 @@ static int word_for_lookup(Brain *b, const char *buf,
     return 0;
 }
 
+/* gen295 (basic-chat cat.43 "Famiglia"): two structural moves on a KINSHIP class
+ * (family_relation/1 in kb/core/social.p0), not a phrasebook of families:
+ *   (A) a first-person family STATEMENT ("my father works in a bank", "I have two
+ *       brothers and one sister") -> a warm acknowledgment. Engaged, honest, no
+ *       faked understanding of the content.
+ *   (B) a question about PARROT0's family ("what is your sister's name") -> an
+ *       honest decline: parrot0 is an AI, it has no family. A misclaim (inventing
+ *       a sister's name) would be worse than a wall (PRINCIPLES.md).
+ * Keys purely on the kinship class + "my"/"i have" (A) vs "your" (B), so it
+ * generalizes to any relation and any predicate; a non-family turn returns 0. */
+/* canonical kinship form: strip a possessive "'s" (sister's -> sister), then keep
+ * the token if it is already a family_relation, else its singular (brothers ->
+ * brother). Writes the canonical form and returns 1 if `tok` names a relation. */
+static int kin_canon(Brain *b, const char *tok, char *out, size_t sz) {
+    char t[KB_TERM_LEN];
+    snprintf(t, sizeof t, "%s", tok);
+    size_t l = strlen(t);
+    if (l >= 2 && t[l - 1] == 's' && t[l - 2] == '\'') t[l - 2] = '\0';
+    const char *a2[] = { t };
+    if (kb_query(b->kb, "family_relation", a2, 1)) { snprintf(out, sz, "%s", t); return 1; }
+    char sg[KB_TERM_LEN];
+    singularize(t, sg, sizeof sg);
+    const char *a[] = { sg };
+    if (kb_query(b->kb, "family_relation", a, 1)) { snprintf(out, sz, "%s", sg); return 1; }
+    return 0;
+}
+
+static int mod_family(Brain *b, const char *norm, const char *raw,
+                      char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+    char tmp[256];
+    if (strlen(norm) >= sizeof tmp) return 0;
+    snprintf(tmp, sizeof tmp, "%s", norm);
+    char *w[64];
+    size_t nw = split_words(tmp, w, 64);
+    if (nw == 0) return 0;
+
+    int has_your = 0, has_my = 0, has_ihave = 0, nkin = 0;
+    char first_kin[KB_TERM_LEN] = "";
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!strcmp(t, "your") || !strcmp(t, "tuo") || !strcmp(t, "tua")) has_your = 1;
+        else if (!strcmp(t, "my") || !strcmp(t, "mio") || !strcmp(t, "mia")) has_my = 1;
+        if ((!strcmp(t, "i") && i + 1 < nw &&
+             !strcmp(strip_edge_punct(w[i + 1]), "have")) ||
+            !strcmp(t, "ho"))
+            has_ihave = 1;
+        char canon[KB_TERM_LEN];
+        if (kin_canon(b, t, canon, sizeof canon)) {
+            if (!first_kin[0]) snprintf(first_kin, sizeof first_kin, "%s", canon);
+            nkin++;
+        }
+    }
+    if (nkin == 0) return 0;
+
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    int it = strcmp(lang, "it") == 0;
+
+    /* (B) about parrot0's own family -> honest decline (any "your <kin>"). */
+    if (has_your && !has_my && !has_ihave) {
+        char msg[200];
+        if (it)
+            /* Italian avoids a gendered article (un/una) on the relation. */
+            snprintf(msg, sizeof msg,
+                     "Sono parrot0, un'IA: non ho una famiglia, quindi niente %s da nominare.",
+                     first_kin);
+        else {
+            const char *art = strchr("aeiou", first_kin[0]) ? "an" : "a";
+            snprintf(msg, sizeof msg,
+                     "I'm parrot0, an AI, so I don't have %s %s -- no family to name.",
+                     art, first_kin);
+        }
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* (A) a first-person family statement -> warm, honest acknowledgment. */
+    if ((has_my || has_ihave) && !has_your) {
+        put(it ? "Grazie per avermi parlato della tua famiglia -- lo terrò a mente."
+               : "Thanks for telling me about your family -- I'll keep that in mind.",
+            out, out_size);
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;

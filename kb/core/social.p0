@@ -165,3 +165,52 @@ social_pattern(politeness, thats very kind).
 social_pattern(politeness, too kind).
 social_pattern(politeness, troppo gentile).
 social_pattern(politeness, molto gentile).
+
+% gen295 (basic-chat cat.43 "Famiglia"): kinship terms as a lexical class, so
+% mod_family recognizes a family statement ("my father …", "I have two brothers")
+% and an honest self-decline ("what is your sister's name" — parrot0 is an AI, it
+% has no family). Singular forms; the module singularizes plurals before the
+% check. EN + IT so an Italian family statement engages through the same path.
+family_relation(brother).
+family_relation(sister).
+family_relation(father).
+family_relation(mother).
+family_relation(son).
+family_relation(daughter).
+family_relation(aunt).
+family_relation(uncle).
+family_relation(cousin).
+family_relation(grandmother).
+family_relation(grandfather).
+family_relation(grandma).
+family_relation(grandpa).
+family_relation(granddad).
+family_relation(parent).
+family_relation(sibling).
+family_relation(wife).
+family_relation(husband).
+family_relation(niece).
+family_relation(nephew).
+family_relation(mom).
+family_relation(mum).
+family_relation(dad).
+family_relation(child).
+family_relation(fratello).
+family_relation(sorella).
+family_relation(padre).
+family_relation(madre).
+family_relation(figlio).
+family_relation(figlia).
+family_relation(zia).
+family_relation(zio).
+family_relation(cugino).
+family_relation(cugina).
+family_relation(nonna).
+family_relation(nonno).
+family_relation(genitore).
+family_relation(moglie).
+family_relation(marito).
+family_relation(nipote).
+family_relation(mamma).
+family_relation(papa).
+family_relation(babbo).

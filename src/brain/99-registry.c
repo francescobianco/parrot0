@@ -178,6 +178,7 @@ static const Module registry[] = {
     {"summary",   mod_summary},
     {"discourse", mod_discourse},
     {"pragma",    mod_pragma},
+    {"family",    mod_family},
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
     {"reqgen",    mod_reqgen},

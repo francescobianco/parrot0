@@ -1,0 +1,31 @@
+# gen295 (basic-chat cat.43 "Famiglia"): two structural moves on the kinship
+# class family_relation/1 (kb/core/social.p0, loaded in the hermetic base too),
+# not a phrasebook of families:
+#   (A) a first-person family STATEMENT -> a warm, honest acknowledgment;
+#   (B) a question about PARROT0's family -> an honest decline (it is an AI, it has
+#       no family) — inventing a sister's name would be a misclaim, worse than a wall.
+# Keys on the class + "my"/"i have" (A) vs "your" (B), so it generalizes to any
+# relation and predicate; a non-family turn (name/identity) is left untouched.
+
+# (A) the user's own family — acknowledged, never faked-understood.
+> I have two brothers and one sister
+< Thanks for telling me about your family -- I'll keep that in mind.
+> my father works in a bank
+< Thanks for telling me about your family -- I'll keep that in mind.
+> my aunt lives in Paris
+< Thanks for telling me about your family -- I'll keep that in mind.
+
+# (B) parrot0's own "family" — honest decline, names the relation asked about.
+> what is your sister's name
+< I'm parrot0, an AI, so I don't have a sister -- no family to name.
+> do you have any brothers
+< I'm parrot0, an AI, so I don't have a brother -- no family to name.
+
+# a possessive with a vowel-initial relation picks the right article ("an uncle").
+> what does your uncle do
+< I'm parrot0, an AI, so I don't have an uncle -- no family to name.
+
+# NOT stolen: identity / name turns have no kinship term, so mod_family declines
+# and the real handlers answer.
+> what is your name
+< I am parrot0.

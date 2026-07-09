@@ -528,6 +528,9 @@ static int is_internal_pred(const char *pred) {
         /* gen126: the bilingual content lexicon (kb/core/gloss.p0) is base
          * substrate for mod_translate, not facts the user taught — filter it. */
         "tr", "gender",
+        /* gen295 (cat.43): the kinship lexical class (kb/core/social.p0) is
+         * recognition substrate for mod_family, not facts the user taught. */
+        "family_relation",
         /* gen286/gen287 (U5): the grammar glue in kb/core/grammar.p0 —
          * article/4 (IT article form) + the adjective-agreement morphology rule
          * (fem/2 ending map, agree_f/2, swap_last/2) — is substrate mod_translate
