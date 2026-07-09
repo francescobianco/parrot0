@@ -1,6 +1,33 @@
 # Deep reasoning — un piano parallelo (upfront design)
 
-## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen301 — M1 fatto)
+## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen302 — M2 fatto)
+
+**M2 — ESTRATTORE SU PROSA FATTO (gen302).** `extract_page_facts`
+(`src/brain/50-self-research-loop.c`) legge il paragrafo `## Extract` di una pagina
+del corpus, lo spezza in frasi, normalizza+canonicalizza ciascuna, e la passa a
+`extract_class_statement` in **modalità extract-only** (nuovo parametro: il caso
+semplice "X is a Y", prima rimandato all'intake interattivo, è ora asserito anche
+qui) — così ogni fatto che il parser CAPISCE lo ESTRAE, con la sua fonte (M1).
+Trigger deep-read in `mod_learn` (heads "read the page on/about X", "extract facts
+from X", IT "leggi la pagina su / estrai i fatti da X"), riusa la costruzione della
+chiave; risposta bilingue. AMPIO per design (§4.4): sovra-estrae (`capital(paris)`
+unario da "the capital of france" è un partitivo mal letto) e va bene — M1+M4 lo
+recuperano. Pagine curate statiche nuove: `kb/learning/pages/{paris,france,whale,
+mammal}.md`. Gate `tests/cases/prosepage.chat`+`.it.chat`. Suite verde.
+
+**PROSSIMO (da qui riparti): M3 — il loop `deep_reason` + budget + traccia.** Ora
+c'è tutto per gli Studi 1/2: leggendo le pagine separate si ottengono
+`located_in(paris,france)` (da paris) + `located_in(france,europe)` (da france), e
+`mammal(whale)` (da whale) + `vertebrate(mammal)`?… (mammal.md dà `vertebrate`+
+`animal`; per la catena whale→mammal→vertebrate serve `vertebrate(mammal)` — c'è).
+Il loop: frontiera, acquire=`extract_page_facts`→infer (SLD + transitività gen291
+su `located_in`/`is_a`)→espandi, cap wall-clock (`time(NULL)`), output
+conclusione+traccia; `mod_deep_reason` + trigger `deep_reason_fresh` "pensaci a
+fondo". Poi M4 (auto-correzione, usa `fact_source`).
+
+---
+
+## ⇢ HANDOFF (2026-07-09, gen301 — M1 fatto)
 
 **M1 — PROVENIENZA `fact_source/3` FATTA (gen301).** Ogni fatto estratto dal parser
 di comprensione conserva il frammento-fonte grezzo:

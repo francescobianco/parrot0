@@ -256,6 +256,66 @@ static int acquire_knowledge(Brain *b, const char *key, char *def, size_t def_sz
     return 0;
 }
 
+/* deep-reasoning M2 (docs/plans/deep-reasoning.md §8): the PROSE extractor. Read a
+ * corpus page's `## Extract` lead paragraph, split it into sentences, and run each
+ * through the SAME comprehension parser M0 extended (extract_class_statement) — so
+ * what parrot0 can UNDERSTAND, it EXTRACTS, each fact carrying its source fragment
+ * (M1). Broad by design (§4.4): over-extraction is tolerated; the deep-reasoning
+ * loop re-checks facts against their source (M4). Returns the number of facts
+ * asserted and appends a readable list to `out`. */
+static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_sz) {
+    if (!b || !b->kb || !key || !*key) return 0;
+    const char *dir = getenv("PARROT0_WIKI_DIR");
+    if (!dir || !*dir) dir = "kb/learning/pages";
+    char path[512];
+    snprintf(path, sizeof path, "%s/%s.md", dir, key);
+    FILE *f = fopen(path, "r");
+    if (!f) return 0;
+
+    char extract[4096]; size_t eo = 0; extract[0] = '\0';
+    char line[1024]; int in_ex = 0;
+    while (fgets(line, sizeof line, f)) {
+        if (strncmp(line, "## Extract", 10) == 0) { in_ex = 1; continue; }
+        if (in_ex) {
+            if (strncmp(line, "##", 2) == 0) break;
+            for (char *c = line; *c && eo + 1 < sizeof extract; c++)
+                extract[eo++] = (*c == '\n') ? ' ' : *c;
+        }
+    }
+    fclose(f);
+    extract[eo] = '\0';
+    if (eo == 0) return 0;
+
+    int nfacts = 0; size_t mo = 0;
+    if (out_sz) out[0] = '\0';
+    char *p = extract;
+    while (*p) {
+        char *q = p;
+        while (*q && *q != '.' && *q != '!' && *q != '?') q++;
+        size_t slen = (size_t)(q - p);
+        if (slen > 4 && slen < 380) {
+            char sent[400], nrm[400], canon[400], msg[256];
+            memcpy(sent, p, slen); sent[slen] = '\0';
+            normalize(sent, nrm, sizeof nrm);
+            canonicalize_lang(nrm, canon, sizeof canon);
+            msg[0] = '\0';
+            if (extract_class_statement(b, canon, msg, sizeof msg, 1)) {
+                const char *fact = msg;
+                if (!strncmp(fact, "Learned: ", 9)) fact += 9;
+                int flen = (int)strcspn(fact, ".");   /* drop the trailing period */
+                if (mo + (size_t)flen + 4 < out_sz) {
+                    mo += (size_t)snprintf(out + mo, out_sz - mo, "%s%.*s",
+                                           nfacts ? ", " : "", flen, fact);
+                    nfacts++;
+                }
+            }
+        }
+        if (!*q) break;
+        p = q + 1;
+    }
+    return nfacts;
+}
+
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
@@ -281,6 +341,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
          * planner step) to run the discovery plan, not just a question. */
         "learn about ", "research ", "look up ", "study ", "read up on ",
         "find out about ", "go learn about ",
+        /* deep-reasoning M2: the DEEP read — extract every fact from the page's
+         * prose, not just the lead concept. Anchored heads so it is unambiguous. */
+        "read the page on ", "read the page about ", "extract facts from ",
+        "read everything about ", "leggi la pagina su ", "estrai i fatti da ",
         "cos'è un ", "cos'è una ", "cos'è uno ", "che cos'è ", "cos'è ",
         /* gen242: "cosa è X" / "che cosa è X" — the spelled-out variant of cos'è.
          * canonicalize_lang maps "è" -> "is" (but leaves "cosa"), so the head we
@@ -309,7 +373,8 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     int it = matched && (strstr(matched, "cos") || strstr(matched, "cosa") ||
                          strstr(matched, "parlami") || strstr(matched, "chi ") ||
                          strstr(matched, "impara") || strstr(matched, "studia") ||
-                         strstr(matched, "informati") || strstr(matched, "documentati"));
+                         strstr(matched, "informati") || strstr(matched, "documentati") ||
+                         strstr(matched, "leggi") || strstr(matched, "estrai"));
 
     /* Build the concept key (drop a leading article, join words with '_') and a
      * display form; guard pronouns and too-short topics. */
@@ -348,6 +413,32 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     }
     if (ko < 3) return 0;
     if (weak && strlen(tok[start]) < 4) return 0;
+
+    /* deep-reasoning M2: a DEEP read extracts every fact from the page's prose
+     * (extract_page_facts), each with its source (M1) — distinct from the shallow
+     * concept-learn below. Honest miss if the page has no page or no facts. */
+    int deep = matched && (strstr(matched, "read the page") ||
+                           strstr(matched, "extract facts") ||
+                           strstr(matched, "read everything") ||
+                           strstr(matched, "leggi la pagina") ||
+                           strstr(matched, "estrai i fatti"));
+    if (deep) {
+        char facts[512];
+        int nf = extract_page_facts(b, key, facts, sizeof facts);
+        char dmsg[700];
+        if (nf > 0)
+            snprintf(dmsg, sizeof dmsg,
+                     it ? "Dalla pagina su %s ho estratto %d fatti: %s."
+                        : "From the %s page I extracted %d facts: %s.",
+                     disp, nf, facts);
+        else
+            snprintf(dmsg, sizeof dmsg,
+                     it ? "Non ho una pagina con fatti estraibili su %s."
+                        : "I don't have a page with extractable facts on %s.",
+                     disp);
+        put(dmsg, out, out_size);
+        return 1;
+    }
 
     char def[KB_TERM_LEN];
     char msg[320];

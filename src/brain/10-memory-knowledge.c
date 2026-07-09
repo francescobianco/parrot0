@@ -1902,7 +1902,7 @@ static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
 }
 
 static int extract_class_statement(Brain *b, const char *norm,
-                                   char *out, size_t out_size) {
+                                   char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
     size_t L = strlen(norm);
     if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
@@ -2003,8 +2003,11 @@ static int extract_class_statement(Brain *b, const char *norm,
         if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
     }
     int cls_multi = (ncls > 1) || strchr(classes[0], '_') != NULL;
-    /* the simple single-word "<x> is a <y>" belongs to the proven path above */
-    if (!subj_multi && !cls_multi && !loc) return 0;
+    /* the simple single-word "<x> is a <y>" belongs to the proven interactive path
+     * (mod_knowledge's class intake, with coreference + contradiction handling) —
+     * defer it there. But in EXTRACT-ONLY mode (M2, prose->fact from a page) there
+     * is no interactive follow-up, so assert it here too, with provenance. */
+    if (!subj_multi && !cls_multi && !loc && !extract_only) return 0;
 
     kb_set_origin(b->kb, KB_SESSION);
     const char *ca[] = { subj };
@@ -4801,7 +4804,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * (multi-word phrase, trailing PP, or locative) that the rigid 4-word path below
      * cannot express. Runs only on assertions; the simple single-word case is
      * deferred back to the proven path. */
-    if (!interrogative && extract_class_statement(b, norm, out, out_size)) return 1;
+    if (!interrogative && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
     if (nw != 4 || !is_article(w[2])) return 0;
     const char *cls = w[3];
