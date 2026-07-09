@@ -370,16 +370,37 @@ arricchito. Niente refactor speculativo del Secchio B/C senza un caso che lo tir
 (122/125), transitività relazionale (123, regola binaria sul solver), uguaglianza
 (124, walk di componenti in C), EN+IT, tutto sul motore arricchito.
 
-**Prossimo pull (da `make basic-chat-bench`, per leva):** i keystone relazionali
-appena costruiti puntano a **cat.43 "Famiglia" 0/4** — kinship: relazioni BINARIE
-(`parent/child/sibling/grandparent`) con transitività/simmetria, riuso diretto del
-risultato gen291 (regola binaria sul solver: `grandparent($X,$Z):-parent($X,$Y),
-parent($Y,$Z)`) e del walk gen292. Da confermare gate-first coi 4 prompt reali di
-cat.43 PRIMA di scrivere C, con ratchet bilingue e dovere di pivot. In alternativa,
-rivalutare l'intera mappa `basic-chat-bench` (molte categorie 0-30%: cat.54 how-to
-0/20 grande ma knowledge-heavy; cat.11/24/32/34/35 phrasebook a bassa leva) e
-lasciare che il gauge nomini la leva più alta. NB: rieseguire `make basic-chat-bench`
-per la mappa aggiornata post-cat.7.
+**Prossimo pull — mappa ONESTA (post-gen293, copertura reale 46%, 453/974):**
+
+**ATTENZIONE — l'assunzione su cat.43 era SBAGLIATA (confermato gate-first, gen293).**
+I 4 prompt reali di cat.43 "Famiglia" NON sono inferenza kinship (niente
+transitività/simmetria da riusare da gen291/292):
+- 483 `I have two brothers and one sister` — affermazione dell'utente sulla propria famiglia
+- 484 `my father works in a bank` — idem (occupazione di un familiare)
+- 485 `my aunt lives in Paris` — idem (luogo)
+- 486 `what is your sister's name` — chiede la famiglia di PARROT0
+Sono DUE meccanismi strutturali (non un phrasebook): (A) affermazione personale
+`I have <kin…>` / `my <kin> <predicato>` → **acknowledgment + user-model** (estende
+mod_memory gen148; classe lessicale `family_relation/1` come substrato, EN+IT); (B)
+`your <kin>['s]…` sulla famiglia di parrot0 → **declino onesto** ("sono un'AI, non
+ho un/una <kin>", estende mod_self). Tutti murano oggi (0/4). Design pronto, gate
+`syllogism`-style (base ermetica), da fare gate-first coi 4 prompt + ratchet IT.
+
+**Leve più alte per numero di prompt che murano (mappa onesta):**
+- cat.54 how-to (0/20) — GRANDE ma knowledge-heavy ("how does X work"): bassa leva strutturale.
+- cat.55 programming (8/20, gap 12) — mista; parrot0 ha faculty di codice, da triare.
+- cat.52 Elencazione (7/19, gap 12) — enumerazione: STRUTTURALE per i SET CHIUSI
+  (giorni/mesi/stagioni/sensi/colori-primari/direzioni/continenti via
+  `category_member/2` + un modulo generico "list/name the X"), knowledge-heavy per
+  i set aperti (paesi, gas nobili, meraviglie) → declino onesto. Buona leva mista.
+- cat.103 "Debolezze e limiti" (6/14, gap 8) — META su parrot0 stesso: strutturale
+  (mod_self/strategy/calibrate).
+- cat.43 Famiglia (0/4) — piccola ma CHIUSA pulita (vedi sopra), riusa mod_memory/mod_self.
+
+**Raccomandazione:** cat.43 (chiusura pulita 0→4/4, strutturale, EN+IT) OPPURE
+cat.52 set-chiusi (leva più alta, modulo di enumerazione generico + declino onesto
+sui set aperti). Entrambi gate-first coi prompt reali, KB-first (membri = fatti),
+dovere di pivot. Evitare cat.54 (knowledge-heavy, bassa leva).
 
 <details><summary>Piano U5 — quarta regola (progressivo), storico, gen289</summary>
 
