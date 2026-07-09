@@ -1761,16 +1761,26 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(tmp, w, 64);
     if (nw == 0) return 0;
 
-    int has_your = 0, has_my = 0, has_ihave = 0, nkin = 0;
+    int has_your = 0, has_my = 0, has_ihave = 0, has_youhave = 0, nkin = 0;
     char first_kin[KB_TERM_LEN] = "";
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (!strcmp(t, "your") || !strcmp(t, "tuo") || !strcmp(t, "tua")) has_your = 1;
+        if (!strcmp(t, "your") || !strcmp(t, "tuo") || !strcmp(t, "tua") ||
+            !strcmp(t, "tuoi") || !strcmp(t, "tue")) has_your = 1;
         else if (!strcmp(t, "my") || !strcmp(t, "mio") || !strcmp(t, "mia")) has_my = 1;
         if ((!strcmp(t, "i") && i + 1 < nw &&
              !strcmp(strip_edge_punct(w[i + 1]), "have")) ||
             !strcmp(t, "ho"))
             has_ihave = 1;
+        /* gen297: SECOND-PERSON possession — "do you have <kin>", "you have <kin>",
+         * IT "hai/avete" — is a question about PARROT0's family (branch B), the way
+         * "your <kin>" is. Keyed on "you"+"have" (mirror of has_ihave) so a bare
+         * "you" elsewhere ("my brother knows you") does NOT flip a first-person
+         * statement into a decline. */
+        if ((!strcmp(t, "you") && i + 1 < nw &&
+             !strcmp(strip_edge_punct(w[i + 1]), "have")) ||
+            !strcmp(t, "hai") || !strcmp(t, "avete"))
+            has_youhave = 1;
         char canon[KB_TERM_LEN];
         if (kin_canon(b, t, canon, sizeof canon)) {
             if (!first_kin[0]) snprintf(first_kin, sizeof first_kin, "%s", canon);
@@ -1782,8 +1792,9 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
     char lang[8]; current_lang(b, lang, sizeof lang);
     int it = strcmp(lang, "it") == 0;
 
-    /* (B) about parrot0's own family -> honest decline (any "your <kin>"). */
-    if (has_your && !has_my && !has_ihave) {
+    /* (B) about parrot0's own family -> honest decline ("your <kin>" or the
+     * second-person "do you have <kin>"). */
+    if ((has_your || has_youhave) && !has_my && !has_ihave) {
         char msg[200];
         if (it)
             /* Italian avoids a gendered article (un/una) on the relation. */
@@ -1801,7 +1812,7 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
     }
 
     /* (A) a first-person family statement -> warm, honest acknowledgment. */
-    if ((has_my || has_ihave) && !has_your) {
+    if ((has_my || has_ihave) && !has_your && !has_youhave) {
         put(it ? "Grazie per avermi parlato della tua famiglia -- lo terrò a mente."
                : "Thanks for telling me about your family -- I'll keep that in mind.",
             out, out_size);

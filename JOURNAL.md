@@ -1,4 +1,22 @@
 # parrot0 evolution journal
+## 2026-07-09 - gen297: family — second-person possession is a branch-B question
+
+**Fix of a pre-existing red** (`family.chat` turn 5, from gen295 cat.43). `mod_family`
+branch B (a question about parrot0's own family → honest AI-no-family decline) keyed
+only on the possessive "your <kin>", so `do you have any brothers` — which refers to
+parrot0 with "you", not "your" — matched neither branch and fell through to chitchat.
+
+`src/brain/10-memory-knowledge.c`: add `has_youhave` — second-person POSSESSION
+"you have <kin>" / "do you have <kin>" / IT "hai"/"avete" (mirror of the existing
+`has_ihave`). Branch B fires on `(has_your || has_youhave)`; branch A now also
+excludes `has_youhave`. Keyed on "you"+"have", NOT a bare "you", so a first-person
+statement that merely addresses parrot0 (`my brother knows you`) stays branch A — the
+regression the first (bare-"you") attempt introduced, caught before commit.
+
+`do you have any brothers` → `I'm parrot0, an AI, so I don't have a brother -- no
+family to name.` Ratchet: `family.chat` gains the "you have <kin>" (B) and "my <kin>
+… you" (A) cases. `make test` ALL GREEN (run.sh 235/235, exit 0).
+
 ## 2026-07-09 - gen296: deep-reasoning M0 — prose->fact comprehension, frame 1
 
 **New parallel plan.** `docs/plans/deep-reasoning.md` (discussed with F.): give

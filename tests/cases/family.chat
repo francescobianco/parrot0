@@ -25,6 +25,13 @@
 > what does your uncle do
 < I'm parrot0, an AI, so I don't have an uncle -- no family to name.
 
+# gen297: second-person POSSESSION ("do/you have <kin>") is branch B too, not just
+# "your" — but a first-person statement that merely mentions "you" stays branch A.
+> you have a brother
+< I'm parrot0, an AI, so I don't have a brother -- no family to name.
+> my brother knows you
+< Thanks for telling me about your family -- I'll keep that in mind.
+
 # NOT stolen: identity / name turns have no kinship term, so mod_family declines
 # and the real handlers answer.
 > what is your name
