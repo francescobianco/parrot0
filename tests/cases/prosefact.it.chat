@@ -28,3 +28,7 @@
 < Learned: paese(francia), located_in(francia, europa).
 > Parigi è in Francia
 < Learned: located_in(parigi, francia).
+
+# gen300 (frame 5): Italian conjunction uses "e" for "and" — same extractor.
+> un delfino è un mammifero e un nuotatore
+< Learned: mammifero(delfino), nuotatore(delfino).

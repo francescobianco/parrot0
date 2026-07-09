@@ -1832,6 +1832,9 @@ static int p0_is_prep(const char *t) {
     return p0_is_loc_prep(t) || !strcmp(t, "of") || !strcmp(t, "to") ||
            !strcmp(t, "with") || !strcmp(t, "by");
 }
+static int p0_is_conj(const char *t) {   /* "and" / Italian "e" */
+    return !strcmp(t, "and") || !strcmp(t, "e");
+}
 static int p0_lead_det(const char *t) {
     return is_article(t) || !strcmp(t, "the") || !strcmp(t, "il") ||
            !strcmp(t, "lo") || !strcmp(t, "la") || !strcmp(t, "i") ||
@@ -1946,34 +1949,57 @@ static int extract_class_statement(Brain *b, const char *norm,
         return 0;
     }
 
-    /* --- class frame (3/4): REQUIRE an article ("is a/an <cls>"), then class tokens
-     * up to a preposition. The article is what separates a membership ("is a
-     * country") from a predicate adjective ("is long") or arbitrary prose. --- */
+    /* --- class frame (3/4/5): REQUIRE an article ("is a/an <cls>"), then one or more
+     * classes joined by "and" ("a mammal and a swimmer" -> two facts, frame 5). The
+     * article separates a membership ("is a country") from a predicate adjective
+     * ("is long"); a conjunct without its own article ("and most populous city …")
+     * stops the scan, leaving the relational/apposition case for later. --- */
+    (void)cls;
     if (!p0_lead_det(w[p])) return 0;
     p++;
-    if (p >= n) return 0;
-    size_t cstart = p;
-    while (p < n && !p0_is_prep(w[p])) p++;
-    if (p == cstart || !p0_join(w, cstart, p, cls, sizeof cls)) return 0;
-    int cls_multi = strchr(cls, '_') != NULL;
+    char classes[4][KB_TERM_LEN]; size_t ncls = 0;
+    for (;;) {
+        size_t cstart = p;
+        while (p < n && !p0_is_prep(w[p]) && !p0_is_conj(w[p])) p++;
+        if (p > cstart && ncls < 4 &&
+            p0_join(w, cstart, p, classes[ncls], sizeof classes[ncls])) ncls++;
+        if (p < n && p0_is_conj(w[p])) {
+            p++;
+            if (p < n && p0_lead_det(w[p])) { p++; continue; }  /* "and/e a <Z>" */
+        }
+        break;                                   /* prep, bare "and", or end */
+    }
+    if (ncls == 0) return 0;
 
     int loc = 0;
-    if (p < n && p0_is_loc_prep(w[p])) {        /* trailing PP -> located_in (4) */
+    if (p < n && p0_is_loc_prep(w[p])) {         /* trailing PP -> located_in (4) */
         size_t os = p + 1; if (os < n && p0_lead_det(w[os])) os++;
         if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
     }
+    int cls_multi = (ncls > 1) || strchr(classes[0], '_') != NULL;
     /* the simple single-word "<x> is a <y>" belongs to the proven path above */
     if (!subj_multi && !cls_multi && !loc) return 0;
 
     kb_set_origin(b->kb, KB_SESSION);
     const char *ca[] = { subj };
-    int ok1 = kb_assert(b->kb, cls, ca, 1);
-    int ok2 = 0;
-    if (loc) { const char *la[] = { subj, obj }; ok2 = kb_assert(b->kb, "located_in", la, 2); }
-    if (!ok1 && !ok2) return 0;
-    char msg[256];
-    if (loc) snprintf(msg, sizeof msg, "Learned: %s(%s), located_in(%s, %s).", cls, subj, subj, obj);
-    else     snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
+    char msg[256]; size_t mo = 0;
+    mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned: ");
+    int any = 0;
+    for (size_t i = 0; i < ncls; i++) {
+        if (kb_assert(b->kb, classes[i], ca, 1)) {
+            mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(%s)",
+                                   any ? ", " : "", classes[i], subj);
+            any = 1;
+        }
+    }
+    if (loc) {
+        const char *la[] = { subj, obj };
+        if (kb_assert(b->kb, "located_in", la, 2))
+            mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%slocated_in(%s, %s)",
+                                   any ? ", " : "", subj, obj), any = 1;
+    }
+    if (!any) return 0;
+    snprintf(msg + mo, sizeof msg - mo, ".");
     put(msg, out, out_size);
     return 1;
 }

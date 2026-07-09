@@ -56,3 +56,14 @@
 # A predicate adjective (no article) is NOT a membership: honest wall, not long(x).
 > the sky is blue
 < I don't understand that yet.
+
+# gen300 (frame 5): a CONJUNCTION of article-bearing classes -> one fact each; with
+# a trailing PP, all in one sentence.
+> A dolphin is a mammal and a swimmer
+< Learned: mammal(dolphin), swimmer(dolphin).
+> France is a country and a republic in Europe
+< Learned: country(france), republic(france), located_in(france, europe).
+# The relational conjunction ("the capital and largest city of France") has no
+# article on the second conjunct, so it is left alone rather than mis-extracted.
+> Paris is the capital and largest city of France
+< I don't understand that yet.

@@ -223,8 +223,9 @@ declino onesto) e il suo gemello IT (ratchet bilingue).
   `era/erano` guardato dal noun-omonimo); **(c) soggetto/classe multi-parola —
   FATTO gen299**; **(d) PP in coda `is_a` + `located_in` — FATTO gen299** (due fatti
   da una frase); **(f) frame locativi — FATTO gen299** (`located_in`/`part_of`);
-  (e) congiunzioni/apposizioni — DA FARE (il più insidioso). Metrica: quante delle
-  frasi-guida di §4.2 diventano fatti queryabili (ora 6/7). **Annotazione KB-first:**
+  **(e) congiunzione di classi — FATTO gen300** ("a Y and a Z" / IT "e"; la parte
+  RELAZIONALE e l'apposizione restano il residuo). Metrica: 6/7 frasi-guida di §4.2
+  ora estratte; **M0 comprensione di fatto completo.** **Annotazione KB-first:**
   man mano, migrare i frame in una tabella `extract_frame(...)` insegnabile, non solo
   rami C. NB: l'estrattore gen299 è volutamente AMPIO (§4.4) — sovra-estrae, e va
   bene: serve M1 (`fact_source`) + M4 (auto-correzione) per la resilienza.

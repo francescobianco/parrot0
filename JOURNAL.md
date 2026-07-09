@@ -1,4 +1,26 @@
 # parrot0 evolution journal
+## 2026-07-09 - gen300: deep-reasoning M0 — class conjunction (frame 5) -> M0 done
+
+Frame 5 (the last M0 lead-sentence frame): a CONJUNCTION of article-bearing classes
+in `extract_class_statement`. "A dolphin is a mammal and a swimmer" -> `mammal(dolphin)`
++ `swimmer(dolphin)`; combines with a trailing PP for up to three facts from one
+sentence ("France is a country and a republic in Europe"). Italian "e" is handled
+alongside "and" (`p0_is_conj`). The RELATIONAL conjunction ("Paris is the capital and
+largest city of France" — second conjunct without its own article) is deliberately
+left alone (walls, not mis-extracted), the honest boundary; apposition ("the blue
+whale, a marine mammal, …") is the remaining tail, deferred.
+
+Gates `prosefact.chat`/`.it.chat` extended (EN "mammal and a swimmer", IT "mammifero
+e un nuotatore"). `make test` GREEN (0 real FAIL on a clean run; the gen278 `artfres`
+parallel-harness flake reappears intermittently — passes standalone 7/0, unrelated).
+
+**M0 comprehension is done** (6 of 7 §4.2 frames + conjunction): article, past copula,
+multi-word, trailing-PP, locative, conjunction — EN+IT, all reusing the comprehension
+parser. Extraction is broad by design (§4.4). Next toward the loop: **M1 fact_source
+provenance** (store each fact's raw sentence) — the prerequisite for M4 self-correction
+— then **M3** the deep_reason loop+budget+trace. (Frame 5 apposition + IT "si trova
+in" are minor tails, not blocking.)
+
 ## 2026-07-09 - gen299: deep-reasoning M0 — extended class extraction (frames 3/4/6)
 
 Three lead-sentence frames at once (docs/plans/deep-reasoning.md §4.2), a single new
