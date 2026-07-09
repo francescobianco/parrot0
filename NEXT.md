@@ -89,6 +89,14 @@
   l'ambiguità). Onestà: asimmetria (`c>a?`→No), irriflessività (`a>a?`→No),
   relazioni miste declinate. Gate `transitivity.chat`+`.it.chat`. Suite verde
   (run.sh 229/229).
+- **gen293 — basic-chat-bench: misura ONESTA (locale-independent)** il gauge
+  contava come "engaged" i muri in ITALIANO ("Non capisco ancora." ecc.) perché
+  `is_wall` conosceva solo le forme inglesi e il bench non fissava la lingua: su
+  macchina a locale IT ogni categoria era GONFIATA. Fix: `tests/basicchat.sh`
+  fissa `PARROT0_LANG=en` (come `run.sh`, i prompt IT restano IT per rilevamento
+  per-turno) e `is_wall` riconosce le 4 varianti del muro italiano. Copertura
+  reale **56% → 46% (453/974)**; cat.43 corretta da falso 75% a vero 0/4. Nessun
+  codice del motore toccato — solo il gauge. La mappa è ora affidabile per i pull.
 - **gen292 — cat.7 uguaglianza (3/4 → 4/4, CATEGORIA CHIUSA)** prompt 124 `a=b,
   b=c, what is a` → `b and c.`. L'uguaglianza è una relazione di EQUIVALENZA
   (riflessiva, simmetrica, transitiva); la simmetria-come-regola-solver fa inseguire
