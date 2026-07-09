@@ -1,0 +1,10 @@
+# deep-reasoning M3, Italian half: the SAME loop through the Italian trigger
+# ("pensaci a fondo"), report localized by the deep_reason_it cue. The corpus is
+# English-keyed, so the place/class names stay English inside the Italian frame
+# (an honest limitation: Italian-keyed pages are a follow-up).
+
+> pensaci a fondo: is a whale a vertebrate?
+< Sì -- whale è un vertebrate. L'ho derivato in 2 passi: learned mammal(whale), aquatic_animal(whale) (source: whale); learned vertebrate(mammal), animal(mammal) (source: mammal); poi per transitività di "è un" ne segue che whale è un vertebrate.
+
+> pensaci a fondo
+< Dammi una domanda sì/no su cui ragionare -- es. "pensaci a fondo: parigi è in europa?".

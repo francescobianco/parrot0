@@ -610,3 +610,18 @@ intent_cue(50_self_research_loop_chain458, "when you").
 intent_cue(fact_source_query, "where did you learn").
 intent_cue(fact_source_query, "your source").
 intent_cue(fact_source_query, "dove hai imparato").
+
+% deep-reasoning M3 (docs/plans/deep-reasoning.md §5): the trigger that starts the
+% budgeted multi-hop inference loop on a yes/no question. KB-first, teachable.
+intent_cue(deep_reason_fresh, "think deeply").
+intent_cue(deep_reason_fresh, "reason it through").
+intent_cue(deep_reason_fresh, "reason through").
+intent_cue(deep_reason_fresh, "think it through").
+intent_cue(deep_reason_fresh, "pensaci a fondo").
+intent_cue(deep_reason_fresh, "ragionaci su").
+intent_cue(deep_reason_fresh, "ragiona a fondo").
+% deep-reasoning M3: the Italian deep-trigger cues, so the report is localized
+% (kb_cue_match, not a C cue chain — keeps the cuechains ratchet at 317).
+intent_cue(deep_reason_it, "pensaci").
+intent_cue(deep_reason_it, "ragiona").
+intent_cue(deep_reason_it, "ragionaci").

@@ -1,6 +1,37 @@
 # Deep reasoning — un piano parallelo (upfront design)
 
-## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen302 — M2 fatto)
+## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen303 — M3 fatto, il LOOP gira)
+
+**M3 — IL LOOP `deep_reason` FATTO (gen303). Studi 1 e 2 red→green.**
+`mod_deep_reason` (`src/brain/50-self-research-loop.c`, registrato dopo `input`,
+fire solo sul trigger `deep_reason_fresh`): "think deeply: is Paris in Europe?" →
+parsa il target (`is X in Y`→located_in / `is (a) X a Y`→is_a con materializzazione
+`is_a(x,classe)` dai fatti unari), semina la frontiera {subj,obj}, e itera:
+`extract_page_facts` (M2, fatti+fonte M1) → espande la frontiera coi nuovi concetti
+→ controlla la raggiungibilità. **La transitività è una BFS in C** (`deep_reachable`),
+NON una clausola ricorsiva sul solver: quella ESPLODE esponenzialmente su una query
+che fallisce (il negativo) fino a KB_MAX_DEPTH — stessa scelta di gen292/gen233.
+Stop: target raggiunto | frontiera vuota (convergenza) | 40 iter | budget wall-clock
+(`PARROT0_DEEP_BUDGET`, default 60s). Output: conclusione + TRACCIA leggibile con le
+fonti; declino onesto se non deriva. Bilingue (report IT sul cue `deep_reason_it`).
+Gate `tests/cases/deepreason.chat`+`.it.chat` (2 studi + negativo + no-question).
+Tutto verde, cuechains 317. Onestà: sovra-estrazione tollerata (§4.4), corpus a
+chiavi EN (IT sui nomi propri = follow-up).
+
+**PROSSIMO (da qui riparti): M4 — auto-correzione (§4bis), il pilastro di
+resilienza.** Ora il loop deriva; M4 chiude l'anello qualità: rileva una
+contraddizione (`kb_is_conflicted` / una regola di incompatibilità, es. `capital`
+funzionale a valore unico, `located_in` aciclico), **torna al frammento-fonte** via
+`fact_source` (M1), lo ri-parsa/ritira il fatto grezzo sbagliato, e ri-deriva —
+Studio 4 red→green (l'estrazione ampia impara un fatto SBAGLIATO, il loop lo corregge
+alla fonte e arriva comunque alla conclusione giusta, con traccia della correzione).
+Poi M5 (continuazione "pensa ancora" + sintassi budget) e M6 (introspezione:
+`deep_reason` come piano ispezionabile). Nota: `capital(paris)` unario è la
+sovra-estrazione tipica su cui M4 può esercitarsi.
+
+---
+
+## ⇢ HANDOFF (2026-07-09, gen302 — M2 fatto)
 
 **M2 — ESTRATTORE SU PROSA FATTO (gen302).** `extract_page_facts`
 (`src/brain/50-self-research-loop.c`) legge il paragrafo `## Extract` di una pagina

@@ -126,6 +126,10 @@ static const Module registry[] = {
     {"compose",   mod_compose},
     {"repair",    mod_repair},
     {"input",     mod_input},
+    /* deep-reasoning M3: the budgeted multi-hop inference loop. Fires only on the
+     * "think deeply" trigger (deep_reason_fresh), so it claims a deep-reason turn
+     * before mod_knowledge sees the embedded question, and passes everything else. */
+    {"deepreason", mod_deep_reason},
     {"count",     mod_count},
     {"namestart", mod_namestart},
     {"sequence",  mod_sequence},

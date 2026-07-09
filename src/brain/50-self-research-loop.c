@@ -316,6 +316,183 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
     return nfacts;
 }
 
+/* deep-reasoning M3: is `to` reachable from `from` over the binary relation `rel`?
+ * A breadth-first walk of the rel edges — O(V+E), no explosion. A recursive
+ * transitivity CLAUSE on the solver blows up exponentially on a query that FAILS
+ * (the negative control) as SLD explores every path to KB_MAX_DEPTH; the C closure
+ * is the same choice gen292 (equality) and gen233 (qchain) made for transitivity. */
+static int deep_reachable(Brain *b, const char *rel, const char *from, const char *to) {
+    char queue[64][64]; size_t qh = 0, qt = 0;
+    char seen[64][64]; size_t ns = 0;
+    snprintf(queue[qt++], 64, "%s", from);
+    while (qh < qt) {
+        char cur[64]; snprintf(cur, sizeof cur, "%s", queue[qh++]);
+        if (!strcmp(cur, to)) return 1;
+        int dup = 0;
+        for (size_t i = 0; i < ns; i++) if (!strcmp(seen[i], cur)) { dup = 1; break; }
+        if (dup) continue;
+        if (ns < 64) snprintf(seen[ns++], 64, "%s", cur);
+        char succ[32][KB_TERM_LEN];
+        const char *qy[] = { cur, NULL };
+        size_t k = kb_match(b->kb, rel, qy, 2, succ, 32);
+        for (size_t i = 0; i < k && qt < 64; i++)
+            snprintf(queue[qt++], 64, "%s", kb_dequote(succ[i]));
+    }
+    return 0;
+}
+
+/* deep-reasoning M3: from the facts extract_page_facts just learned about `concept`
+ * (a "pred(a), pred(a, b), …" string), grow the frontier and, in class mode,
+ * materialize is_a. located_in mode: the OBJECT of each located_in edge is a new
+ * concept to explore. class mode: each unary class P(concept) becomes is_a(concept,
+ * P) and P joins the frontier (to find P's own superclasses). */
+static void deep_expand(Brain *b, const char *facts, int class_mode,
+                        char frontier[][64], size_t *ftail, size_t fmax) {
+    const char *p = facts;
+    while (*p) {
+        while (*p == ' ' || *p == ',') p++;
+        const char *lp = p; while (*lp && *lp != '(') lp++;
+        if (*lp != '(') break;
+        char pred[KB_TERM_LEN]; size_t pl = (size_t)(lp - p);
+        if (pl == 0 || pl >= sizeof pred) break;
+        memcpy(pred, p, pl); pred[pl] = '\0';
+        const char *ap = lp + 1; const char *rp = ap; int d = 1;
+        while (*rp && d) { if (*rp == '(') d++; else if (*rp == ')') d--; if (d) rp++; }
+        char inner[KB_TERM_LEN]; size_t il = (size_t)(rp - ap);
+        if (il >= sizeof inner) il = sizeof inner - 1;
+        memcpy(inner, ap, il); inner[il] = '\0';
+        /* split inner on the top-level comma */
+        char a0[KB_TERM_LEN] = "", a1[KB_TERM_LEN] = "";
+        char *comma = strchr(inner, ',');
+        if (comma) {
+            *comma = '\0';
+            snprintf(a0, sizeof a0, "%s", inner);
+            const char *s = comma + 1; while (*s == ' ') s++;
+            snprintf(a1, sizeof a1, "%s", s);
+        } else {
+            snprintf(a0, sizeof a0, "%s", inner);
+        }
+        if (!class_mode && a1[0] && !strcmp(pred, "located_in")) {
+            if (*ftail < fmax) snprintf(frontier[(*ftail)++], 64, "%s", a1);
+        } else if (class_mode && !a1[0] && a0[0]) {
+            const char *ia[] = { a0, pred };            /* is_a(concept, class) */
+            kb_set_origin(b->kb, KB_SESSION);
+            kb_assert(b->kb, "is_a", ia, 2);
+            if (*ftail < fmax) snprintf(frontier[(*ftail)++], 64, "%s", pred);
+        }
+        p = (*rp == ')') ? rp + 1 : rp;
+    }
+}
+
+/* deep-reasoning M3 (docs/plans/deep-reasoning.md §3): the budgeted inference LOOP.
+ * "think deeply: is Paris in Europe?" -> parse the target, seed a frontier, then
+ * repeatedly ACQUIRE facts from a concept's page (extract_page_facts, M2 — each with
+ * its source, M1), apply the relation's transitivity (gen291), and expand the
+ * frontier — until the target is provable (the conclusion EMERGED, multi-hop from
+ * separate sources), the frontier empties (convergence), or the wall-clock budget
+ * expires. Reports the conclusion PLUS the readable derivation trace; declines
+ * honestly if it cannot derive it. Deterministic multi-hop, not generative CoT. */
+static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
+                           char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+    if (!kb_cue_match(b, "deep_reason_fresh", norm)) return 0;
+    int it = kb_cue_match(b, "deep_reason_it", norm);
+
+    char q[256]; snprintf(q, sizeof q, "%s", norm);
+    char *w[40]; size_t n = split_words(q, w, 40);
+    size_t ip = n;
+    for (size_t i = 0; i < n; i++)
+        if (!strcmp(strip_edge_punct(w[i]), "is")) { ip = i; break; }
+
+    char subj[KB_TERM_LEN] = "", obj[KB_TERM_LEN] = "";
+    const char *rel = NULL; int class_mode = 0;
+    if (ip < n && ip + 2 < n) {
+        size_t inp = n;
+        for (size_t i = ip + 1; i < n; i++)
+            if (!strcmp(strip_edge_punct(w[i]), "in")) { inp = i; break; }
+        if (inp != n && inp > ip + 1 && inp + 1 < n &&
+            p0_join(w, ip + 1, inp, subj, sizeof subj) &&
+            p0_join(w, inp + 1, n, obj, sizeof obj)) {
+            rel = "located_in"; class_mode = 0;
+        } else {
+            size_t s = ip + 1; if (s < n && is_article(w[s])) s++;
+            size_t ap = n;
+            for (size_t i = s + 1; i < n; i++)
+                if (is_article(strip_edge_punct(w[i]))) { ap = i; break; }
+            if (ap != n && ap > s && ap + 1 < n &&
+                p0_join(w, s, ap, subj, sizeof subj) &&
+                p0_join(w, ap + 1, n, obj, sizeof obj)) {
+                rel = "is_a"; class_mode = 1;
+            }
+        }
+    }
+    if (!rel) {
+        put(it ? "Dammi una domanda sì/no su cui ragionare -- es. \"pensaci a fondo: "
+                 "parigi è in europa?\"."
+               : "Give me a yes/no question to reason about -- e.g. \"think deeply: "
+                 "is Paris in Europe?\".", out, out_size);
+        return 1;
+    }
+
+    char frontier[24][64]; size_t fhead = 0, ftail = 0;
+    char seen[24][64]; size_t nseen = 0;
+    snprintf(frontier[ftail++], 64, "%s", subj);
+    snprintf(frontier[ftail++], 64, "%s", obj);
+
+    char trace[900]; size_t to = 0; trace[0] = '\0';
+    int hops = 0, found = 0;
+    time_t start = time(NULL);
+    const char *bud = getenv("PARROT0_DEEP_BUDGET");
+    long budget = bud && *bud ? atol(bud) : 60;      /* seconds; §3 default 60 */
+    for (int iter = 0; iter < 40; iter++) {
+        if (deep_reachable(b, rel, subj, obj)) { found = 1; break; }
+        if (time(NULL) - start >= budget) break;
+        if (fhead >= ftail) break;                   /* frontier empty: convergence */
+        char c[64]; snprintf(c, sizeof c, "%s", frontier[fhead++]);
+        int dup = 0;
+        for (size_t i = 0; i < nseen; i++) if (!strcmp(seen[i], c)) { dup = 1; break; }
+        if (dup) continue;
+        if (nseen < 24) snprintf(seen[nseen++], 64, "%s", c);
+        char facts[512];
+        int nf = extract_page_facts(b, c, facts, sizeof facts);
+        if (nf == 0) continue;
+        if (to + strlen(facts) + 32 < sizeof trace)
+            to += (size_t)snprintf(trace + to, sizeof trace - to,
+                                   "%slearned %s (source: %s)", hops ? "; " : "",
+                                   facts, c);
+        hops++;
+        deep_expand(b, facts, class_mode, frontier, &ftail, 24);
+    }
+    if (!found) found = deep_reachable(b, rel, subj, obj);
+
+    char tgt[200];
+    if (class_mode) snprintf(tgt, sizeof tgt, it ? "%s è un %s" : "a %s is a %s", subj, obj);
+    else            snprintf(tgt, sizeof tgt, it ? "%s è in %s" : "%s is in %s", subj, obj);
+
+    char msg[1200];
+    if (found)
+        snprintf(msg, sizeof msg, it
+                 ? "Sì -- %s. L'ho derivato in %d pass%s: %s; poi per transitività "
+                   "di \"%s\" ne segue che %s."
+                 : "Yes -- %s. I derived it across %d hop%s: %s; then by transitivity "
+                   "of \"%s\" it follows that %s.",
+                 tgt, hops, it ? (hops == 1 ? "o" : "i") : (hops == 1 ? "" : "s"),
+                 trace, class_mode ? (it ? "è un" : "is a") : (it ? "si trova in" : "located in"),
+                 tgt);
+    else if (hops > 0)
+        snprintf(msg, sizeof msg, it
+                 ? "Ho letto %d font%s ma non ho potuto derivare se %s. Ho imparato: %s."
+                 : "I read %d source%s but couldn't derive whether %s. I learned: %s.",
+                 hops, it ? (hops == 1 ? "e" : "i") : (hops == 1 ? "" : "s"), tgt, trace);
+    else
+        snprintf(msg, sizeof msg, it
+                 ? "Non ho trovato una fonte da cui ragionare su %s."
+                 : "I couldn't find a source to reason about %s from.", tgt);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     (void)raw;
