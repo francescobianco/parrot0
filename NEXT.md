@@ -402,18 +402,20 @@ ho un/una <kin>", estende mod_self). Tutti murano oggi (0/4). Design pronto, gat
 **Leve più alte per numero di prompt che murano (mappa onesta):**
 - cat.54 how-to (0/20) — GRANDE ma knowledge-heavy ("how does X work"): bassa leva strutturale.
 - cat.55 programming (8/20, gap 12) — mista; parrot0 ha faculty di codice, da triare.
-- cat.52 Elencazione (7/19, gap 12) — enumerazione: STRUTTURALE per i SET CHIUSI
-  (giorni/mesi/stagioni/sensi/colori-primari/direzioni/continenti via
-  `category_member/2` + un modulo generico "list/name the X"), knowledge-heavy per
-  i set aperti (paesi, gas nobili, meraviglie) → declino onesto. Buona leva mista.
+- ~~cat.52 Elencazione~~ ✅ CHIUSA (gen294): meccanismo di enumerazione generico +
+  set curati. Vedi Spedito. (Follow-up opzionale a bassa priorità: layer IT via
+  `canonicalize_lang` — "elenca i / quali sono i" → "list the / what are the" — i
+  prompt del bench sono EN, quindi non è un gauge rosso.)
 - cat.103 "Debolezze e limiti" (6/14, gap 8) — META su parrot0 stesso: strutturale
-  (mod_self/strategy/calibrate).
-- cat.43 Famiglia (0/4) — piccola ma CHIUSA pulita (vedi sopra), riusa mod_memory/mod_self.
+  (mod_self/strategy/calibrate). Buona leva strutturale.
+- cat.43 Famiglia (0/4) — piccola ma CHIUSA pulita, riusa mod_memory/mod_self.
+  Design già analizzato gate-first sopra (user-model + declino onesto, NON kinship).
 
-**Raccomandazione:** cat.43 (chiusura pulita 0→4/4, strutturale, EN+IT) OPPURE
-cat.52 set-chiusi (leva più alta, modulo di enumerazione generico + declino onesto
-sui set aperti). Entrambi gate-first coi prompt reali, KB-first (membri = fatti),
-dovere di pivot. Evitare cat.54 (knowledge-heavy, bassa leva).
+**Raccomandazione (prossimo pull):** cat.43 (chiusura pulita 0→4/4, strutturale,
+EN+IT — design pronto sopra) OPPURE cat.103 limiti-di-sistema (meta strutturale,
+leva più alta). Entrambi gate-first coi prompt reali, KB-first, dovere di pivot.
+Evitare cat.54 (knowledge-heavy). NB: rieseguire `make basic-chat-bench` per la
+mappa aggiornata post-gen294 prima di scegliere.
 
 <details><summary>Piano U5 — quarta regola (progressivo), storico, gen289</summary>
 
