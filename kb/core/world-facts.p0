@@ -958,6 +958,106 @@ category_member(primary_color, red).
 category_member(primary_color, yellow).
 category_member(primary_color, blue).
 
+% gen294 (basic-chat cat.52 "Elencazione"): closed sets enumerated by
+% mod_namestart. Keyed by the singular head noun the enumerator derives; the
+% engine reads category_member/2, so adding a set here extends "list/name the X"
+% for free (KB-first). Ordered as they are conventionally recited.
+category_member(day, monday).
+category_member(day, tuesday).
+category_member(day, wednesday).
+category_member(day, thursday).
+category_member(day, friday).
+category_member(day, saturday).
+category_member(day, sunday).
+category_member(month, january).
+category_member(month, february).
+category_member(month, march).
+category_member(month, april).
+category_member(month, may).
+category_member(month, june).
+category_member(month, july).
+category_member(month, august).
+category_member(month, september).
+category_member(month, october).
+category_member(month, november).
+category_member(month, december).
+category_member(season, spring).
+category_member(season, summer).
+category_member(season, autumn).
+category_member(season, winter).
+category_member(sense, sight).
+category_member(sense, hearing).
+category_member(sense, smell).
+category_member(sense, taste).
+category_member(sense, touch).
+category_member(continent, africa).
+category_member(continent, antarctica).
+category_member(continent, asia).
+category_member(continent, europe).
+category_member(continent, "north america").
+category_member(continent, "south america").
+category_member(continent, oceania).
+category_member(direction, north).
+category_member(direction, east).
+category_member(direction, south).
+category_member(direction, west).
+category_member(planet, mercury).
+category_member(planet, venus).
+category_member(planet, earth).
+category_member(planet, mars).
+category_member(planet, jupiter).
+category_member(planet, saturn).
+category_member(planet, uranus).
+category_member(planet, neptune).
+category_member(vegetable, carrot).
+category_member(vegetable, potato).
+category_member(vegetable, onion).
+category_member(vegetable, spinach).
+category_member(vegetable, broccoli).
+category_member(vegetable, tomato).
+category_member(rainbow, red).
+category_member(rainbow, orange).
+category_member(rainbow, yellow).
+category_member(rainbow, green).
+category_member(rainbow, blue).
+category_member(rainbow, indigo).
+category_member(rainbow, violet).
+category_member(note, do).
+category_member(note, re).
+category_member(note, mi).
+category_member(note, fa).
+category_member(note, sol).
+category_member(note, la).
+category_member(note, ti).
+category_member(noble_gas, helium).
+category_member(noble_gas, neon).
+category_member(noble_gas, argon).
+category_member(noble_gas, krypton).
+category_member(noble_gas, xenon).
+category_member(noble_gas, radon).
+% keyed zodiac_animal so "Chinese zodiac animals" resolves via the compound
+% (qualifier+head) lookup — without it the enumerator matched the generic
+% category_member(animal, …) and gave a WRONG list (a misclaim, worse than a wall).
+category_member(zodiac_animal, rat).
+category_member(zodiac_animal, ox).
+category_member(zodiac_animal, tiger).
+category_member(zodiac_animal, rabbit).
+category_member(zodiac_animal, dragon).
+category_member(zodiac_animal, snake).
+category_member(zodiac_animal, horse).
+category_member(zodiac_animal, goat).
+category_member(zodiac_animal, monkey).
+category_member(zodiac_animal, rooster).
+category_member(zodiac_animal, dog).
+category_member(zodiac_animal, pig).
+category_member(wonder, "the great pyramid of giza").
+category_member(wonder, "the hanging gardens of babylon").
+category_member(wonder, "the statue of zeus at olympia").
+category_member(wonder, "the temple of artemis").
+category_member(wonder, "the mausoleum at halicarnassus").
+category_member(wonder, "the colossus of rhodes").
+category_member(wonder, "the lighthouse of alexandria").
+
 % gen241 (LLMSCORE-check): common idioms as KNOWLEDGE. "what does the idiom X mean?"
 % reads idiom_meaning(Phrase, "gloss"). The phrase is the key (matched as a substring
 % of the turn); teaching a new idiom is one fact, no code edit.

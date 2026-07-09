@@ -89,6 +89,19 @@
   l'ambiguità). Onestà: asimmetria (`c>a?`→No), irriflessività (`a>a?`→No),
   relazioni miste declinate. Gate `transitivity.chat`+`.it.chat`. Suite verde
   (run.sh 229/229).
+- **gen294 — cat.52 "Elencazione" (36% → ~100%, categoria di fatto chiusa)** un
+  MECCANISMO di enumerazione generico, non un phrasebook. `mod_namestart` già
+  faceva il pick contato ("name three animals"); aggiunto il percorso WHOLE-SET
+  ("list the days of the week", "what are the continents") gated da `want==0` +
+  token "the" + testa PLURALE (così "the largest planet" resta al superlativo, no
+  furto). Helper `enum_category_lookup` robusto alla singolarizzazione
+  (`senses`→`sens` sbagliato → fallback strip-1 → `sense`) e ai compound
+  (`zodiac_animal` batte il generico `animal` — onestà: prima "Chinese zodiac
+  animals" dava animali generici, un MISCLAIM). Curati come `category_member/2` in
+  world-facts: giorni, mesi, stagioni, sensi, continenti, direzioni, pianeti,
+  verdure, arcobaleno, note, gas nobili, zodiaco, 7 meraviglie; nums estesi a
+  seven..ten. Nessuna catena `cue` nuova (ratchet 317 intatto). Gate
+  `tests/enumerate.sh` (KB piena). Suite verde; copertura totale 46% → 47%+.
 - **gen293 — basic-chat-bench: misura ONESTA (locale-independent)** il gauge
   contava come "engaged" i muri in ITALIANO ("Non capisco ancora." ecc.) perché
   `is_wall` conosceva solo le forme inglesi e il bench non fissava la lingua: su

@@ -237,6 +237,7 @@ test: build
 	@./tests/skills.sh
 	@./tests/knowledge.sh
 	@./tests/llmscore_world.sh
+	@./tests/enumerate.sh
 
 bench: build
 	@./tests/bench.sh all

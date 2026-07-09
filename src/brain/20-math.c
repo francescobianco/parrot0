@@ -959,6 +959,62 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
  * initial and returns the first known member with that initial. Honest: it can
  * only name what it actually knows, and says so when it knows none. Not a
  * phrasebook — add a category_member fact and the capability extends for free. */
+/* gen294 (cat.52): read a category's members for a (plural) head noun, robust to
+ * English singularization edge cases — singularize("senses") wrongly gives "sens"
+ * (the boxes->box rule), so a strip-one-'s' fallback recovers "sense". Tries a
+ * compound qualifier first ("primary colors" -> primary_color), then the
+ * singularized head, then the head minus a trailing 's', then the raw token.
+ * Returns the member count (0 if the noun names no category). KB-first: the
+ * members live in category_member/2, so a new set extends "list the X" for free. */
+static size_t enum_category_lookup(Brain *b, const char *prevtok,
+                                   const char *rawhead,
+                                   char members[][KB_TERM_LEN], size_t max) {
+    if (!b || !b->kb || !rawhead || !*rawhead) return 0;
+    char head[KB_TERM_LEN];
+    singularize(rawhead, head, sizeof head);
+    if (prevtok && *prevtok) {
+        char comp[KB_TERM_LEN];
+        snprintf(comp, sizeof comp, "%s_%s", prevtok, head);
+        const char *cp[2] = { comp, NULL };
+        size_t k = kb_match(b->kb, "category_member", cp, 2, members, max);
+        if (k) return k;
+    }
+    char s1[KB_TERM_LEN];
+    snprintf(s1, sizeof s1, "%s", rawhead);
+    size_t sl = strlen(s1);
+    if (sl > 1 && s1[sl - 1] == 's') s1[sl - 1] = '\0'; else s1[0] = '\0';
+    const char *cands[3] = { head, s1, rawhead };
+    for (size_t c = 0; c < 3; c++) {
+        if (!cands[c] || !cands[c][0]) continue;
+        const char *pat[2] = { cands[c], NULL };
+        size_t k = kb_match(b->kb, "category_member", pat, 2, members, max);
+        if (k) return k;
+    }
+    return 0;
+}
+
+/* gen294: format up to `lim` members into "A, B, and C." with an initial cap.
+ * A member stored quoted (a multi-word atom like "north america") is dequoted
+ * for display. */
+static void enum_format(char members[][KB_TERM_LEN], size_t lim,
+                        char *out, size_t out_size) {
+    char msg[512]; size_t off = 0;
+    for (size_t j = 0; j < lim && off + 2 < sizeof msg; j++) {
+        const char *m = members[j];
+        char dq[KB_TERM_LEN];
+        size_t ml = strlen(m);
+        if (ml >= 2 && m[0] == '"' && m[ml - 1] == '"') {
+            snprintf(dq, sizeof dq, "%.*s", (int)(ml - 2), m + 1);
+            m = dq;
+        }
+        off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s",
+            j ? (j + 1 == lim ? ", and " : ", ") : "", m);
+    }
+    if (off + 2 < sizeof msg) snprintf(msg + off, sizeof msg - off, ".");
+    if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+    put(msg, out, out_size);
+}
+
 static int mod_namestart(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -978,7 +1034,9 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
             return 0;
         static const struct { const char *w; int n; } nums[] = {
             {"two", 2}, {"three", 3}, {"four", 4}, {"five", 5}, {"six", 6},
-            {"2", 2}, {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6}, {NULL, 0} };
+            {"seven", 7}, {"eight", 8}, {"nine", 9}, {"ten", 10},
+            {"2", 2}, {"3", 3}, {"4", 4}, {"5", 5}, {"6", 6},
+            {"7", 7}, {"8", 8}, {"9", 9}, {"10", 10}, {NULL, 0} };
         int want = 0;
         char nb[256]; snprintf(nb, sizeof nb, "%s", buf);
         char *nw0[64]; size_t nn0 = split_words(nb, nw0, 64);
@@ -992,39 +1050,43 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
             /* category: the (possibly multi-word) noun right after the count; try the
              * last token first (the head noun), singularized — "primary colors"->color. */
             for (size_t i = nn0; i-- > numpos + 1;) {
-                char head[KB_TERM_LEN];
-                singularize(strip_edge_punct(nw0[i]), head, sizeof head);
-                /* gen254 (repair): an empty head, or a compound whose qualifier
-                 * strips to nothing ("- what" -> "_what"), must never reach the
-                 * KB: a leading '_' reads as a PROLOG VARIABLE and would match
-                 * every category ("give me 2 - what" listed colors). */
-                if (!head[0]) continue;
+                char *prevtok = (i > numpos + 1) ? strip_edge_punct(nw0[i - 1]) : NULL;
                 char members[64][KB_TERM_LEN];
-                size_t k = 0;
-                /* try a two-word compound category first ("primary colors" ->
-                 * primary_color), so a qualified category beats the bare noun. */
-                if (i > numpos + 1) {
-                    char *prevtok = strip_edge_punct(nw0[i - 1]);
-                    if (*prevtok) {
-                        char comp[KB_TERM_LEN];
-                        snprintf(comp, sizeof comp, "%s_%s", prevtok, head);
-                        const char *cpat[2] = { comp, NULL };
-                        k = kb_match(b->kb, "category_member", cpat, 2, members, 64);
-                    }
-                }
-                if (k == 0) {
-                    const char *pat[2] = { head, NULL };
-                    k = kb_match(b->kb, "category_member", pat, 2, members, 64);
-                }
+                size_t k = enum_category_lookup(b, prevtok,
+                                                strip_edge_punct(nw0[i]), members, 64);
                 if (k == 0) continue;
                 size_t lim = (size_t)want < k ? (size_t)want : k;
-                char msg[320]; size_t off = 0;
-                for (size_t j = 0; j < lim; j++)
-                    off += (size_t)snprintf(msg + off, sizeof msg - off, "%s%s",
-                        j ? (j + 1 == lim ? ", and " : ", ") : "", members[j]);
-                snprintf(msg + off, sizeof msg - off, ".");
-                msg[0] = (char)toupper((unsigned char)msg[0]);
-                put(msg, out, out_size);
+                enum_format(members, lim, out, out_size);
+                return 1;
+            }
+        }
+
+        /* gen294 (cat.52): the WHOLE-SET form — "list the days of the week",
+         * "what are the continents", "name the primary colors": the SAME outer
+         * trigger (name/list/what are/…) but NO count and a definite "the"
+         * (the whole-set signal). Enumerate ALL members. The head noun is found by
+         * scanning backward (so "colors of the rainbow" finds rainbow before
+         * color), and only a genuine category_member set is claimed — any
+         * non-category turn ("what are you") matches nothing and falls through.
+         * A single "the" token gates it (not a cue OR-chain), so recognized
+         * vocabulary stays out of C per the cuechains ratchet. */
+        int has_the = 0;
+        for (size_t i = 0; i < nn0 && !has_the; i++)
+            if (!strcmp(strip_edge_punct(nw0[i]), "the")) has_the = 1;
+        if (want == 0 && has_the) {
+            for (size_t i = nn0; i-- > 0;) {
+                char *tok = strip_edge_punct(nw0[i]);
+                /* the head must be PLURAL (a set request lists many): require a
+                 * trailing 's', so "the largest PLANET and a moon" (singular
+                 * superlative) is left to the superlative handler, while "the
+                 * PLANETS" enumerates. */
+                size_t tl = strlen(tok);
+                if (tl < 2 || tok[tl - 1] != 's') continue;
+                char *prevtok = (i > 0) ? strip_edge_punct(nw0[i - 1]) : NULL;
+                char members[64][KB_TERM_LEN];
+                size_t k = enum_category_lookup(b, prevtok, tok, members, 64);
+                if (k == 0) continue;
+                enum_format(members, k < 32 ? k : 32, out, out_size);
                 return 1;
             }
         }
