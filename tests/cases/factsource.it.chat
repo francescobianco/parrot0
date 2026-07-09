@@ -1,0 +1,12 @@
+# deep-reasoning M1, Italian half: the SAME provenance path through Italian input.
+# The extraction canonicalizes the sentence, so the stored source is the fragment
+# the parser consumed (which is exactly what the self-correction loop will re-parse);
+# the provenance ANSWER is localized by current_lang.
+
+> una balena è un mammifero
+< Learned: mammifero(balena).
+> dove hai imparato su balena?
+< Ho imparato mammifero(balena) da: "a balena is a mammifero".
+
+> qual è la tua fonte per marte?
+< Non ho una fonte registrata per marte.

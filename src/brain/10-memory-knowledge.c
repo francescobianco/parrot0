@@ -626,6 +626,7 @@ static const char *canonical_token(const char *w) {
 
         {"stesso", "yourself"}, {"stessa", "yourself"}, {"te", "you"},
         {"tuo", "your"}, {"tua", "your"}, {"riguarda", "about"},
+        {"fonte", "source"},  /* M1: "la tua fonte" -> "your source" (provenance query) */
         {"fallisci", "fail"}, {"fallisce", "fail"},
 
         {"cos'è", "what is"},
@@ -1878,6 +1879,28 @@ static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
  * to it. Assertions only (extraction; the caller gates on !interrogative). Broad by
  * design (docs/plans/deep-reasoning.md §4.4): it may over-extract, and that is
  * tolerated — the deep-reasoning loop re-checks facts against their source. */
+/* M1 (deep-reasoning §4bis): PROVENANCE. Every extracted fact keeps the raw
+ * source fragment it came from, so the deep-reasoning loop can go back to the
+ * source and re-check a suspect fact (self-correction, M4). Stored as
+ * fact_source(FactRepr, Concept, "raw sentence") — FactRepr is the fact as a
+ * compound-term string ("located_in(france, europe)"), Concept is its subject
+ * (the queryable handle), and the raw fragment is quoted (capped to KB_TERM_LEN).
+ * Reflective/substrate: filtered from "how many facts do you know?". */
+static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
+                            size_t argc, const char *raw) {
+    if (!b || !b->kb || !raw || !*raw || argc == 0) return;
+    char fr[KB_TERM_LEN]; size_t o = 0;
+    o += (size_t)snprintf(fr + o, sizeof fr - o, "%s(", pred);
+    for (size_t i = 0; i < argc && o + 2 < sizeof fr; i++)
+        o += (size_t)snprintf(fr + o, sizeof fr - o, "%s%s", i ? ", " : "", args[i]);
+    if (o + 2 < sizeof fr) snprintf(fr + o, sizeof fr - o, ")");
+    char rq[KB_TERM_LEN];
+    snprintf(rq, sizeof rq, "\"%.*s\"", (int)(KB_TERM_LEN - 4), raw);
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *fa[] = { fr, args[0], rq };
+    kb_assert(b->kb, "fact_source", fa, 3);
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -1918,6 +1941,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
             if (kb_assert(b->kb, "located_in", la, 2)) {
+                p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
                 put(msg, out, out_size); return 1;
             }
@@ -1930,6 +1954,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
             if (kb_assert(b->kb, "part_of", la, 2)) {
+                p0_learn_source(b, "part_of", la, 2, norm);
                 char msg[256]; snprintf(msg, sizeof msg, "Learned: part_of(%s, %s).", subj, obj);
                 put(msg, out, out_size); return 1;
             }
@@ -1942,6 +1967,7 @@ static int extract_class_statement(Brain *b, const char *norm,
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
             if (kb_assert(b->kb, "located_in", la, 2)) {
+                p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
                 put(msg, out, out_size); return 1;
             }
@@ -1987,6 +2013,7 @@ static int extract_class_statement(Brain *b, const char *norm,
     int any = 0;
     for (size_t i = 0; i < ncls; i++) {
         if (kb_assert(b->kb, classes[i], ca, 1)) {
+            p0_learn_source(b, classes[i], ca, 1, norm);
             mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(%s)",
                                    any ? ", " : "", classes[i], subj);
             any = 1;
@@ -1994,9 +2021,11 @@ static int extract_class_statement(Brain *b, const char *norm,
     }
     if (loc) {
         const char *la[] = { subj, obj };
-        if (kb_assert(b->kb, "located_in", la, 2))
+        if (kb_assert(b->kb, "located_in", la, 2)) {
+            p0_learn_source(b, "located_in", la, 2, norm);
             mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%slocated_in(%s, %s)",
                                    any ? ", " : "", subj, obj), any = 1;
+        }
     }
     if (!any) return 0;
     snprintf(msg + mo, sizeof msg - mo, ".");
@@ -2008,6 +2037,56 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
+
+    /* M1 (deep-reasoning §4bis): a fact's PROVENANCE. "where did you learn about
+     * X?" / "what is your source for X?" -> the raw fragment each extracted fact
+     * about X came from (fact_source/3). This is the queryable hook the
+     * self-correction loop (M4) will use to return to a suspect fact's source. */
+    if (kb_cue_match(b, "fact_source_query", norm)) {
+        char concept[KB_TERM_LEN] = "";
+        const char *mk = strstr(norm, "about ");
+        if (mk) mk += 6;
+        else if ((mk = strstr(norm, " su "))) mk += 4;
+        else if ((mk = strstr(norm, " per "))) mk += 5;
+        else if ((mk = strstr(norm, " for "))) mk += 5;
+        if (mk) {
+            while (*mk && !isalnum((unsigned char)*mk)) mk++;
+            size_t k = 0;
+            while (*mk && (isalnum((unsigned char)*mk) || *mk == '_') &&
+                   k + 1 < sizeof concept)
+                concept[k++] = *mk++;
+            concept[k] = '\0';
+        }
+        if (concept[0]) {
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            int it = strcmp(lang, "it") == 0;
+            char facts[16][KB_TERM_LEN];
+            const char *q[] = { NULL, concept, NULL };
+            size_t nf = kb_match(b->kb, "fact_source", q, 3, facts, 16);
+            if (nf > 0) {
+                char msg[600]; size_t mo = 0;
+                for (size_t i = 0; i < nf && mo + 8 < sizeof msg; i++) {
+                    char src[1][KB_TERM_LEN];
+                    const char *sq[] = { facts[i], concept, NULL };
+                    if (kb_match(b->kb, "fact_source", sq, 3, src, 1) != 1) continue;
+                    mo += (size_t)snprintf(msg + mo, sizeof msg - mo,
+                                           "%s%s %s: \"%s\"",
+                                           i ? "; " : (it ? "Ho imparato " : "I learned "),
+                                           facts[i], it ? "da" : "from",
+                                           kb_dequote(src[0]));
+                }
+                if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
+                put(msg, out, out_size);
+                return 1;
+            }
+            char msg[200];
+            snprintf(msg, sizeof msg, it
+                     ? "Non ho una fonte registrata per %s."
+                     : "I don't have a recorded source for %s.", concept);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
 
     /* gen240 (LLMSCORE): compound-word riddle. "the word that follows X and
      * precedes Y" / "comes after X and before Y" -> the compound X+Y, looked up in
@@ -4819,6 +4898,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         int before = goal_truth(b); /* gen103 (L16): snapshot before mutation */
         note_contradiction(b, cls, subj, 1); /* gen142 (E8): self-contradiction? */
         if (kb_assert(b->kb, cls, args, 1)) {
+            p0_learn_source(b, cls, args, 1, norm);   /* M1: provenance */
             char msg[128];
             snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
             put(msg, out, out_size);

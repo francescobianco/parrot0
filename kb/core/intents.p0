@@ -602,3 +602,11 @@ intent_cue(50_self_research_loop_chain450, "sai fare").
 intent_cue(50_self_research_loop_chain450, "che cosa sai fare").
 intent_cue(50_self_research_loop_chain458, "if you").
 intent_cue(50_self_research_loop_chain458, "when you").
+
+% M1 (deep-reasoning §4bis): the provenance query — "where did you learn about X?"
+% / "what is your source for X?" (IT "dove hai imparato" / "qual è la tua fonte"
+% -> canonicalized "your source"). KB-first cue set, teachable like the migrated
+% chains; keeps the cuechains ratchet from rising.
+intent_cue(fact_source_query, "where did you learn").
+intent_cue(fact_source_query, "your source").
+intent_cue(fact_source_query, "dove hai imparato").

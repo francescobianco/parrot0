@@ -1,6 +1,36 @@
 # Deep reasoning — un piano parallelo (upfront design)
 
-## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen300)
+## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen301 — M1 fatto)
+
+**M1 — PROVENIENZA `fact_source/3` FATTA (gen301).** Ogni fatto estratto dal parser
+di comprensione conserva il frammento-fonte grezzo:
+`fact_source(FactRepr, Concept, "raw")` — FactRepr è il fatto come termine composto
+("located_in(france, europe)"), Concept è il soggetto (la maniglia interrogabile),
+raw è la frase quotata (cap KB_TERM_LEN). Helper `p0_learn_source` chiamato dopo
+ogni `kb_assert` in `extract_class_statement` (located_in/part_of/classi) e
+nell'intake di classe generale. Query: `kb_cue_match(fact_source_query, …)` →
+"where did you learn about X?" / "what is your source for X?" (IT "dove hai
+imparato" / "qual è la tua fonte" via canonicalize `fonte`→`source`, `tua`→`your`)
+→ riporta ogni fatto + la sua fonte, o declino onesto se nessuna. `fact_source`
+filtrato come substrato; trigger in KB (intent_cue, ratchet 317 intatto). Gate
+`tests/cases/factsource.chat`+`.it.chat`. Suite verde.
+- **Residuo M1:** la fonte memorizzata è il `norm` CANONICALIZZATO (ciò che il
+  parser ha consumato — corretto per il re-parse di M4), non l'originale grezzo; il
+  raw originale sarebbe più fedele per il display ma richiederebbe di filare `raw`
+  fino a `extract_class_statement`. Accettato per ora (§9: M2 su prosa reale userà
+  la frase Wikipedia come fonte).
+
+**PROSSIMO (da qui riparti): M3 — il loop `deep_reason` + budget + traccia.** È il
+cuore che chiude l'anello: frontiera, acquire→infer→espandi, cap wall-clock
+(`time(NULL)`), output conclusione+traccia; `mod_deep_reason` + trigger
+`deep_reason_fresh` "pensaci a fondo"; Studi 1/2 red→green (§7). In alternativa M2
+(estrattore su prosa del corpus, gate su `paris.md`/`whale.md`) se si preferisce
+riempire prima il KB di fatti reali. Poi M4 (auto-correzione, il pilastro §4bis,
+che USA `fact_source` di M1).
+
+---
+
+## ⇢ HANDOFF precedente (2026-07-09, gen300)
 
 **Dove siamo.** Piano concordato con F. (§4-§4bis: estrazione ampia, fatti
 difettibili auto-correttivi, comprensione KB-first). **M0 (estendere la comprensione

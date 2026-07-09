@@ -531,6 +531,9 @@ static int is_internal_pred(const char *pred) {
         /* gen295 (cat.43): the kinship lexical class (kb/core/social.p0) is
          * recognition substrate for mod_family, not facts the user taught. */
         "family_relation",
+        /* M1 (deep-reasoning): fact_source/3 is provenance machinery (each fact's
+         * raw source fragment), not a fact the user taught — filter it. */
+        "fact_source",
         /* gen286/gen287 (U5): the grammar glue in kb/core/grammar.p0 —
          * article/4 (IT article form) + the adjective-agreement morphology rule
          * (fem/2 ending map, agree_f/2, swap_last/2) — is substrate mod_translate

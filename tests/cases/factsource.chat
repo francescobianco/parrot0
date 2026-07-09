@@ -1,0 +1,22 @@
+# deep-reasoning M1 (docs/plans/deep-reasoning.md §4bis): PROVENANCE. Every fact the
+# comprehension parser EXTRACTS keeps the raw source fragment it came from, as
+# fact_source(FactRepr, Concept, "raw"). This is the prerequisite for self-correction
+# (M4): the deep-reasoning loop can return to a suspect fact's source and re-check it.
+# Hermetic base -> every fact is genuinely learned, and its source genuinely recorded.
+
+# Extract a locative fact -> it is stored WITH its source fragment.
+> France is located in Western Europe
+< Learned: located_in(france, western_europe).
+# ...and the source is queryable by concept.
+> where did you learn about France?
+< I learned located_in(france, western_europe) from: "france is located in western europe".
+
+# A membership fact carries provenance too.
+> A whale is a mammal
+< Learned: mammal(whale).
+> what is your source for whale?
+< I learned mammal(whale) from: "a whale is a mammal".
+
+# Honest: a concept with no recorded extraction has no source (never invented).
+> where did you learn about Mars?
+< I don't have a recorded source for mars.
