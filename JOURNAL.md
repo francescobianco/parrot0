@@ -1,4 +1,31 @@
 # parrot0 evolution journal
+## 2026-07-09 - gen299: deep-reasoning M0 — extended class extraction (frames 3/4/6)
+
+Three lead-sentence frames at once (docs/plans/deep-reasoning.md §4.2), a single new
+broad extractor `extract_class_statement` in `src/brain/10-memory-knowledge.c`, run as
+a FALLBACK in the class section (assertions only; the simple single-word "X is a Y"
+is deferred to the proven path, and "X is the R of Y" to the binary handler):
+
+- **frame 3 — multi-word subject/class:** `The blue whale is a marine mammal` ->
+  `marine_mammal(blue_whale)` (tokens joined with '_').
+- **frame 4 — trailing PP -> TWO facts:** `France is a country in Europe` ->
+  `country(france)` + `located_in(france, europe)` — the seed of geographic multi-hop.
+- **frame 6 — locatives:** `is located in` / bare `is in` / `is part of` ->
+  `located_in` / `part_of`.
+
+Broad by design (§4.4: over-extraction tolerated, the loop re-checks facts vs source),
+but guarded so it does not hijack ordinary turns: the class frame REQUIRES an article
+("is a country" is a membership, "is long" is not), and the subject head is rejected
+if it is a question word / pronoun / opener (`p0_bad_subject`) — the fix for a first
+draft that mis-claimed `what is your sister's name`, greetings, and predicate
+adjectives (10 red -> 0). EN+IT (`la Francia è un paese in Europa` -> two facts).
+Gates `prosefact.chat`/`.it.chat` extended. `make test` GREEN (the only intermittent
+red is the known gen278 `artfres` parallel-harness flake — passes standalone 7/0).
+
+M0 frames done: 1 (article), 2 (copula), 3/4/6 (extended). Remaining: frame 5
+(conjunction/apposition, the hardest) and IT `si trova in`; then migrate frames to a
+KB-first `extract_frame` table, and M1 (`fact_source` provenance) toward the loop.
+
 ## 2026-07-09 - gen298: deep-reasoning M0 — prose comprehension, frame 2 (past copula)
 
 Second lead-sentence frame for prose->fact extraction (docs/plans/deep-reasoning.md

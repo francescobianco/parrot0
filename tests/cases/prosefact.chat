@@ -40,3 +40,19 @@
 # an honest wall rather than a misparse.
 > the victorian era was long
 < I don't understand that yet.
+
+# gen299 (frame 3): MULTI-WORD subject and class join into one atom.
+> The blue whale is a marine mammal
+< Learned: marine_mammal(blue_whale).
+# gen299 (frame 4): a trailing PREPOSITIONAL PHRASE yields TWO facts from one
+# sentence — the class AND a located_in edge (the seed of geographic multi-hop).
+> France is a country in Europe
+< Learned: country(france), located_in(france, europe).
+# gen299 (frame 6): locative frames — "is located in", bare "is in", "is part of".
+> France is located in Europe
+< Learned: located_in(france, europe).
+> Sicily is part of Italy
+< Learned: part_of(sicily, italy).
+# A predicate adjective (no article) is NOT a membership: honest wall, not long(x).
+> the sky is blue
+< I don't understand that yet.

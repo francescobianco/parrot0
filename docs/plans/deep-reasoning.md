@@ -220,11 +220,14 @@ declino onesto) e il suo gemello IT (ratchet bilingue).
   riusando `mod_knowledge`: **(a) articolo di testa — FATTO gen296** (`A whale is a
   mammal`→`mammal(whale)`; gate `tests/cases/prosefact.chat`+`.it.chat`; sblocca la
   catena whale→mammal→vertebrate); **(b) copula `was/were` — FATTO gen298** (IT
-  `era/erano` guardato dal noun-omonimo); (c) soggetto/classe
-  multi-parola; (d) PP in coda `is_a` + `located_in`; (e) congiunzioni/apposizioni;
-  (f) frame locativi. Metrica: quante delle frasi-guida di §4.2 diventano fatti
-  queryabili. **Annotazione KB-first:** man mano, migrare i frame in una tabella
-  `extract_frame(...)` insegnabile, non solo rami C.
+  `era/erano` guardato dal noun-omonimo); **(c) soggetto/classe multi-parola —
+  FATTO gen299**; **(d) PP in coda `is_a` + `located_in` — FATTO gen299** (due fatti
+  da una frase); **(f) frame locativi — FATTO gen299** (`located_in`/`part_of`);
+  (e) congiunzioni/apposizioni — DA FARE (il più insidioso). Metrica: quante delle
+  frasi-guida di §4.2 diventano fatti queryabili (ora 6/7). **Annotazione KB-first:**
+  man mano, migrare i frame in una tabella `extract_frame(...)` insegnabile, non solo
+  rami C. NB: l'estrattore gen299 è volutamente AMPIO (§4.4) — sovra-estrae, e va
+  bene: serve M1 (`fact_source`) + M4 (auto-correzione) per la resilienza.
 - **M1 — provenienza dei fatti** (`fact_source/3`): ogni estrazione conserva il
   frammento grezzo. Prerequisito dell'auto-correzione. Gate: estrai un fatto e
   interroga la sua fonte.

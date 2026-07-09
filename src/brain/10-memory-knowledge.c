@@ -1821,6 +1821,163 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* gen299 (deep-reasoning M0, comprehension frames 3/4/6): join a token span into a
+ * single '_'-connected atom, rejecting anything with non-alphabetic edges so only
+ * clean word phrases become entities/classes ("blue whale" -> blue_whale). */
+static int p0_is_loc_prep(const char *t) {
+    return !strcmp(t, "in") || !strcmp(t, "from") || !strcmp(t, "near") ||
+           !strcmp(t, "on") || !strcmp(t, "at");
+}
+static int p0_is_prep(const char *t) {
+    return p0_is_loc_prep(t) || !strcmp(t, "of") || !strcmp(t, "to") ||
+           !strcmp(t, "with") || !strcmp(t, "by");
+}
+static int p0_lead_det(const char *t) {
+    return is_article(t) || !strcmp(t, "the") || !strcmp(t, "il") ||
+           !strcmp(t, "lo") || !strcmp(t, "la") || !strcmp(t, "i") ||
+           !strcmp(t, "gli") || !strcmp(t, "le");
+}
+/* A subject head that must NOT start a class fact: question words, pronouns,
+ * copulas/determiners, and common conversational openers. Keeps the broad extractor
+ * from mistaking a question ("what is your sister's name") or a greeting ("how is
+ * your day going") or a predicate-adjective clause for a membership statement. */
+static int p0_bad_subject(const char *t) {
+    static const char *const bad[] = {
+        "what","who","how","where","when","why","which","whose","whom",
+        "it","this","that","these","those","there","here","one",
+        "i","you","we","they","he","she","me","us","them","him","her",
+        "do","does","did","is","are","was","were","be","been","being",
+        "the","a","an","not","and","or","but","if","so","then",
+        "thanks","thank","please","yes","no","ok","okay","hi","hello","hey",
+        "your","my","his","its","our","their", NULL };
+    for (size_t i = 0; bad[i]; i++) if (!strcmp(t, bad[i])) return 1;
+    return 0;
+}
+static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
+    size_t o = 0; out[0] = '\0';
+    for (size_t i = a; i < b; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!*t || !isalpha((unsigned char)t[0])) return 0;
+        int n = snprintf(out + o, sz - o, "%s%s", o ? "_" : "", t);
+        if (n < 0 || (size_t)n >= sz - o) return 0;
+        o += (size_t)n;
+    }
+    return out[0] != '\0';
+}
+
+/* gen299 (deep-reasoning M0, frames 3/4/6): the EXTENDED class statement, the way
+ * Wikipedia lead sentences phrase facts — MULTI-WORD subject/class ("the blue whale
+ * is a marine mammal" -> marine_mammal(blue_whale)), a trailing PREPOSITIONAL PHRASE
+ * ("France is a country in Europe" -> country(france) + located_in(france, europe)),
+ * or a LOCATIVE ("France is located in Europe" / "Paris is in France" -> located_in).
+ * A fallback used only when the proven single-word "<x> is a <y>" path does not
+ * apply: the simple single-word case (no multi-word phrase, no PP) is DEFERRED back
+ * to it. Assertions only (extraction; the caller gates on !interrogative). Broad by
+ * design (docs/plans/deep-reasoning.md §4.4): it may over-extract, and that is
+ * tolerated — the deep-reasoning loop re-checks facts against their source. */
+static int extract_class_statement(Brain *b, const char *norm,
+                                   char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    size_t L = strlen(norm);
+    if (L < 5 || L >= 400 || norm[L - 1] == '?') return 0;
+
+    char s[400]; memcpy(s, norm, L + 1);
+    char *w[32]; size_t n = split_words(s, w, 32);
+    if (n < 3) return 0;
+
+    /* past copula -> present (tenseless fact), same rule as the class section */
+    for (size_t i = 0; i < n; i++) {
+        if (!strcmp(w[i], "was")) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
+        else if (!strcmp(w[i], "were")) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
+        else if (!strcmp(w[i], "era") && i+1 < n && is_article(w[i+1])) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
+        else if (!strcmp(w[i], "erano") && i+1 < n && is_article(w[i+1])) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
+    }
+
+    size_t cop = n;
+    for (size_t i = 1; i < n; i++)
+        if (!strcmp(w[i], "is") || !strcmp(w[i], "are")) { cop = i; break; }
+    if (cop >= n || cop < 1 || cop + 1 >= n) return 0;
+
+    size_t sstart = p0_lead_det(w[0]) ? 1 : 0;
+    if (sstart >= cop) return 0;
+    if (p0_bad_subject(strip_edge_punct(w[sstart]))) return 0;   /* not a real subject */
+    char subj[KB_TERM_LEN];
+    if (!p0_join(w, sstart, cop, subj, sizeof subj)) return 0;
+    int subj_multi = strchr(subj, '_') != NULL;
+
+    size_t p = cop + 1;
+    char obj[KB_TERM_LEN], cls[KB_TERM_LEN];
+
+    /* --- locative frames (6): store located_in/part_of and return --- */
+    if (!strcmp(w[p], "located") && p + 1 < n && p0_is_loc_prep(w[p + 1])) {
+        size_t os = p + 2; if (os < n && p0_lead_det(w[os])) os++;
+        if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
+            kb_set_origin(b->kb, KB_SESSION);
+            const char *la[] = { subj, obj };
+            if (kb_assert(b->kb, "located_in", la, 2)) {
+                char msg[256]; snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
+                put(msg, out, out_size); return 1;
+            }
+        }
+        return 0;
+    }
+    if (!strcmp(w[p], "part") && p + 1 < n && !strcmp(w[p + 1], "of")) {
+        size_t os = p + 2; if (os < n && p0_lead_det(w[os])) os++;
+        if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
+            kb_set_origin(b->kb, KB_SESSION);
+            const char *la[] = { subj, obj };
+            if (kb_assert(b->kb, "part_of", la, 2)) {
+                char msg[256]; snprintf(msg, sizeof msg, "Learned: part_of(%s, %s).", subj, obj);
+                put(msg, out, out_size); return 1;
+            }
+        }
+        return 0;
+    }
+    if (p0_is_loc_prep(w[p])) {                 /* "X is in Y" */
+        size_t os = p + 1; if (os < n && p0_lead_det(w[os])) os++;
+        if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
+            kb_set_origin(b->kb, KB_SESSION);
+            const char *la[] = { subj, obj };
+            if (kb_assert(b->kb, "located_in", la, 2)) {
+                char msg[256]; snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
+                put(msg, out, out_size); return 1;
+            }
+        }
+        return 0;
+    }
+
+    /* --- class frame (3/4): REQUIRE an article ("is a/an <cls>"), then class tokens
+     * up to a preposition. The article is what separates a membership ("is a
+     * country") from a predicate adjective ("is long") or arbitrary prose. --- */
+    if (!p0_lead_det(w[p])) return 0;
+    p++;
+    if (p >= n) return 0;
+    size_t cstart = p;
+    while (p < n && !p0_is_prep(w[p])) p++;
+    if (p == cstart || !p0_join(w, cstart, p, cls, sizeof cls)) return 0;
+    int cls_multi = strchr(cls, '_') != NULL;
+
+    int loc = 0;
+    if (p < n && p0_is_loc_prep(w[p])) {        /* trailing PP -> located_in (4) */
+        size_t os = p + 1; if (os < n && p0_lead_det(w[os])) os++;
+        if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
+    }
+    /* the simple single-word "<x> is a <y>" belongs to the proven path above */
+    if (!subj_multi && !cls_multi && !loc) return 0;
+
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *ca[] = { subj };
+    int ok1 = kb_assert(b->kb, cls, ca, 1);
+    int ok2 = 0;
+    if (loc) { const char *la[] = { subj, obj }; ok2 = kb_assert(b->kb, "located_in", la, 2); }
+    if (!ok1 && !ok2) return 0;
+    char msg[256];
+    if (loc) snprintf(msg, sizeof msg, "Learned: %s(%s), located_in(%s, %s).", cls, subj, subj, obj);
+    else     snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -4534,6 +4691,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
     #undef P0_LEAD_DET
+
+    /* gen299 (deep-reasoning M0, frames 3/4/6): the EXTENDED class statement
+     * (multi-word phrase, trailing PP, or locative) that the rigid 4-word path below
+     * cannot express. Runs only on assertions; the simple single-word case is
+     * deferred back to the proven path. */
+    if (!interrogative && extract_class_statement(b, norm, out, out_size)) return 1;
 
     if (nw != 4 || !is_article(w[2])) return 0;
     const char *cls = w[3];
