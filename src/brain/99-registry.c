@@ -559,7 +559,7 @@ int brain_reload(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen292-equality-chain";
+    return "gen296-prose-comprehension";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

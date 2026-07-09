@@ -1,4 +1,43 @@
 # parrot0 evolution journal
+## 2026-07-09 - gen296: deep-reasoning M0 — prose->fact comprehension, frame 1
+
+**New parallel plan.** `docs/plans/deep-reasoning.md` (discussed with F.): give
+parrot0 a **deep-reasoning** loop — a *special plan* that iterates [acquire → infer
+→ expand] under a wall-clock budget, extracting facts from Wikipedia, self-correcting
+via source-fragment provenance. F.'s steer: **prose->fact extraction is the core**,
+done by REUSING parrot0's own comprehension parser (not a new NLP engine), with BROAD
+extraction + defeasible facts (resilience, not precision-first), and comprehension
+itself must be **trainable/KB-first**.
+
+**M0 (this gen): extend comprehension on lead-sentence frames.** A measured baseline
+showed the parser only digests the cleanest `X is the N of Y` frame; a Wikipedia
+lead like `A whale is a mammal` walled on the leading article. Frame 1 closes that:
+
+- `src/brain/10-memory-knowledge.c` (membership section, before the `nw==4` gate):
+  strip a leading DETERMINER on the subject. `DET <subj> is a/an <cls>` (assertion)
+  drops w[0]; `is DET <subj> a/an <cls>` (verb-first query) drops w[1]; both collapse
+  to the 4-word canonical form the section already handles. Determiners: a/an/the +
+  Italian il/lo/la/i/gli/le (un/uno/una already canonicalize to "a").
+
+`A whale is a mammal` -> `mammal(whale)`; `is a whale a mammal?` -> `Yes`. Payoff:
+the extracted membership feeds a MULTI-HOP category chain — `every mammal is a
+vertebrate` + `is a whale a vertebrate?` -> `Yes` (whale->mammal->vertebrate), the
+deep-reasoning Study-2 shape now enabled end to end.
+
+**Bilingual.** `un cane è un animale` -> `animale(cane)`; `il cane è un essere?` over
+`ogni animale è un essere` -> `Yes`. Same path.
+
+**Verified.** Gates `tests/cases/prosefact.chat` + `.it.chat` PASS. `make test`
+run.sh 234 pass / 1 fail — the ONE failure is **pre-existing** (`family.chat` turn 5,
+from gen295 cat.43, "do you have any brothers" falls through to chitchat); confirmed
+identical with and without this change (git-stash A/B), so M0 adds zero regressions.
+Flagged for a separate fix.
+
+**Next (M0 continues).** Frames 2-6 from the baseline table (docs §4.2): copula
+`was/were`; multi-word subject/class (`the blue whale is a marine mammal`); trailing
+PP (`France is a country in Europe` -> is_a + located_in); conjunction/apposition;
+locative `is located in`. Then migrate frames to a KB-first `extract_frame` table.
+
 ## 2026-07-08 - gen292: equality chain -> cat.7 "Logica deduttiva" CLOSED (4/4)
 
 **Pull.** The last red of basic-chat cat.7: prompt 124 `a=b, b=c, what is a`.

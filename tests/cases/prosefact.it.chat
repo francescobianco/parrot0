@@ -1,0 +1,15 @@
+# Generation 296 (deep-reasoning M0): the SAME leading-determiner frame in Italian,
+# through the SAME code path (bilingual ratchet). "un/uno/una" canonicalize to "a";
+# the definite "il/lo/la" are stripped by the same shift. Nothing duplicated.
+
+# Indefinite article on the subject (canonicalizes "un" -> "a").
+> un cane è un animale
+< Learned: animale(cane).
+# Definite article + subject-first query.
+> il cane è un animale?
+< Yes.
+# Multi-hop category chain in Italian, over the extracted membership.
+> ogni animale è un essere
+< Learned rule: essere(X) :- animale(X).
+> il cane è un essere?
+< Yes.

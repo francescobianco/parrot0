@@ -217,11 +217,13 @@ declino onesto) e il suo gemello IT (ratchet bilingue).
 
 - **M0 — estendere la COMPRENSIONE sulle frasi-guida (il primo lavoro reale).**
   Chiudere il gap misurato in §4.2, un frame per generazione, EN+IT, gate-first,
-  riusando `mod_knowledge`: (a) articolo di testa; (b) copula `was/were`; (c)
-  soggetto/classe multi-parola; (d) PP in coda `is_a` + `located_in`; (e)
-  congiunzioni/apposizioni; (f) frame locativi. Metrica: quante delle frasi-guida
-  di §4.2 diventano fatti queryabili. **Annotazione KB-first:** man mano, migrare i
-  frame in una tabella `extract_frame(...)` insegnabile, non solo rami C.
+  riusando `mod_knowledge`: **(a) articolo di testa — FATTO gen296** (`A whale is a
+  mammal`→`mammal(whale)`; gate `tests/cases/prosefact.chat`+`.it.chat`; sblocca la
+  catena whale→mammal→vertebrate); (b) copula `was/were`; (c) soggetto/classe
+  multi-parola; (d) PP in coda `is_a` + `located_in`; (e) congiunzioni/apposizioni;
+  (f) frame locativi. Metrica: quante delle frasi-guida di §4.2 diventano fatti
+  queryabili. **Annotazione KB-first:** man mano, migrare i frame in una tabella
+  `extract_frame(...)` insegnabile, non solo rami C.
 - **M1 — provenienza dei fatti** (`fact_source/3`): ogni estrazione conserva il
   frammento grezzo. Prerequisito dell'auto-correzione. Gate: estrai un fatto e
   interroga la sua fonte.

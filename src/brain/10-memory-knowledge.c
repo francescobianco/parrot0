@@ -4482,6 +4482,31 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen296 (deep-reasoning M0, comprehension frame 1): a leading determiner on
+     * the SUBJECT — "A whale is a mammal" / "is a whale a mammal?" — is how
+     * Wikipedia lead sentences and ordinary prose (and questions) phrase a class
+     * fact. Strip it so the same "<x> is a <y>" path stores/queries mammal(whale):
+     * for the ASSERTION shape DET <subj> is a/an <cls> drop w[0]; for the VERB-FIRST
+     * QUERY is DET <subj> a/an <cls> drop w[1]. Both collapse to the 4-word canonical
+     * form the section below already handles. This feeds prose→fact extraction
+     * (docs/plans/deep-reasoning.md §4.2); multi-word subjects/classes are a later
+     * frame. Bilingual: Italian "un/uno/una" canonicalize to "a"; "il/lo/la/i/gli/le"
+     * are added here so the same shift fires. */
+    #define P0_LEAD_DET(t) (is_article(t) || strcmp((t),"the")==0 || \
+        strcmp((t),"il")==0 || strcmp((t),"lo")==0 || strcmp((t),"la")==0 || \
+        strcmp((t),"i")==0 || strcmp((t),"gli")==0 || strcmp((t),"le")==0)
+    if (nw == 5 && is_article(w[3])) {
+        if (strcmp(w[2], "is") == 0 && P0_LEAD_DET(w[0])) {       /* assertion */
+            w[0] = w[1]; w[1] = w[2]; w[2] = w[3]; w[3] = w[4];
+            nw = 4;
+        } else if ((strcmp(w[0], "is") == 0 || strcmp(w[0], "are") == 0) &&
+                   P0_LEAD_DET(w[1])) {                            /* verb-first query */
+            w[1] = w[2]; w[2] = w[3]; w[3] = w[4];
+            nw = 4;
+        }
+    }
+    #undef P0_LEAD_DET
+
     if (nw != 4 || !is_article(w[2])) return 0;
     const char *cls = w[3];
 

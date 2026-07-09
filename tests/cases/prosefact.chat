@@ -1,0 +1,27 @@
+# Generation 296 (deep-reasoning M0, comprehension frame 1): a leading DETERMINER on
+# the subject of a class statement — the way Wikipedia lead sentences and ordinary
+# prose phrase a membership fact. First step of prose->fact extraction
+# (docs/plans/deep-reasoning.md §4): the SAME comprehension parser that stores a
+# user's "X is a Y" now also digests "A whale is a mammal". Hermetic base, so every
+# fact here is genuinely learned, not recalled.
+
+# Leading article on the subject, as an assertion.
+> A whale is a mammal
+< Learned: mammal(whale).
+# ...and queried back with the article too (verb-first).
+> is a whale a mammal?
+< Yes.
+# "The" + "an" variants.
+> The dog is an animal
+< Learned: animal(dog).
+> is the dog an animal?
+< Yes.
+# The payoff for deep reasoning: an extracted membership feeds a MULTI-HOP category
+# chain (whale -> mammal -> vertebrate) over a universal rule.
+> every mammal is a vertebrate
+< Learned rule: vertebrate(X) :- mammal(X).
+> is a whale a vertebrate?
+< Yes.
+# Regression: a bare subject (no article) still stores the membership as before.
+> zorb is a blit
+< Learned: blit(zorb).
