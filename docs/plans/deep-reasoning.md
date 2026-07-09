@@ -219,7 +219,8 @@ declino onesto) e il suo gemello IT (ratchet bilingue).
   Chiudere il gap misurato in §4.2, un frame per generazione, EN+IT, gate-first,
   riusando `mod_knowledge`: **(a) articolo di testa — FATTO gen296** (`A whale is a
   mammal`→`mammal(whale)`; gate `tests/cases/prosefact.chat`+`.it.chat`; sblocca la
-  catena whale→mammal→vertebrate); (b) copula `was/were`; (c) soggetto/classe
+  catena whale→mammal→vertebrate); **(b) copula `was/were` — FATTO gen298** (IT
+  `era/erano` guardato dal noun-omonimo); (c) soggetto/classe
   multi-parola; (d) PP in coda `is_a` + `located_in`; (e) congiunzioni/apposizioni;
   (f) frame locativi. Metrica: quante delle frasi-guida di §4.2 diventano fatti
   queryabili. **Annotazione KB-first:** man mano, migrare i frame in una tabella

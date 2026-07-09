@@ -13,3 +13,10 @@
 < Learned rule: essere(X) :- animale(X).
 > il cane è un essere?
 < Yes.
+
+# gen298 (frame 2): Italian past copula "era"/"erano", rewritten to "is"/"are" only
+# in copula position (an article follows), so the noun "era" is safe.
+> socrate era un filosofo
+< Learned: filosofo(socrate).
+> socrate è un filosofo?
+< Yes.

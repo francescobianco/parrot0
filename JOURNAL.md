@@ -1,4 +1,26 @@
 # parrot0 evolution journal
+## 2026-07-09 - gen298: deep-reasoning M0 — prose comprehension, frame 2 (past copula)
+
+Second lead-sentence frame for prose->fact extraction (docs/plans/deep-reasoning.md
+§4.2). Wikipedia states historical subjects with a PAST copula ("Socrates was a
+philosopher", "the Beatles were a band"); a KB membership fact is tenseless.
+
+`src/brain/10-memory-knowledge.c` (top of the class/relation section): normalize the
+copula in place — `was`->`is`, `were`->`are` (unconditional; unambiguously verbs) and
+Italian `era`->`is`, `erano`->`are` **guarded to copula position** (an article
+follows) so the NOUN "era" ("the Victorian era") is never mangled. Rewritten in the
+token's own buffer (shorter form), no read-only aliasing.
+
+`Socrates was a philosopher` -> `philosopher(socrates)`; combines with frame 1's
+leading article (`A dinosaur was an animal` -> `animal(dinosaur)`). IT: `socrate era
+un filosofo` -> `filosofo(socrate)`. `the victorian era was long` stays an honest
+wall (no misparse). Gates `prosefact.chat`/`.it.chat` extended. `make test` GREEN
+(run.sh 235/235, exit 0).
+
+Next M0 frames: multi-word subject/class (`the blue whale is a marine mammal`);
+trailing PP (`France is a country in Europe` -> is_a + located_in); conjunction/
+apposition; locative `is located in`.
+
 ## 2026-07-09 - gen297: family — second-person possession is a branch-B question
 
 **Fix of a pre-existing red** (`family.chat` turn 5, from gen295 cat.43). `mod_family`

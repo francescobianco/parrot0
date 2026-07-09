@@ -3887,6 +3887,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     char *w[8];
     size_t nw = split_words(buf, w, 8);
 
+    /* gen298 (deep-reasoning M0, comprehension frame 2): PAST-TENSE copula. Wikipedia
+     * lead sentences for historical subjects say "was"/"were" ("Socrates was a
+     * philosopher", "the Beatles were a band"); a KB membership fact is tenseless, so
+     * normalize the copula to "is"/"are" for this class/relation section. Rewritten in
+     * the token's own buffer (shorter form), so no read-only-literal aliasing. */
+    for (size_t i = 0; i < nw; i++) {
+        if (strcmp(w[i], "was") == 0) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
+        else if (strcmp(w[i], "were") == 0) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
+        /* Italian past copula "era"/"erano" — but "era" is also the NOUN "era", so
+         * rewrite only in copula position (followed by an article), never "the
+         * Victorian era". (The English "was"/"were" are unambiguously verbs.) */
+        else if (strcmp(w[i], "era") == 0 && i + 1 < nw && is_article(w[i + 1]))
+            { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
+        else if (strcmp(w[i], "erano") == 0 && i + 1 < nw && is_article(w[i + 1]))
+            { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
+    }
+
     /* gen146 (E5): open-domain humility for questions that look like world
      * facts but fall outside the current KB/tool model. This does not answer
      * from general knowledge; it names the missing predicate/relation/tool and

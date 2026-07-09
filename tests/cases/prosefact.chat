@@ -25,3 +25,18 @@
 # Regression: a bare subject (no article) still stores the membership as before.
 > zorb is a blit
 < Learned: blit(zorb).
+
+# gen298 (frame 2): PAST-TENSE copula "was/were", as Wikipedia phrases historical
+# subjects. Tenseless membership fact; combines with the leading article of frame 1.
+> Socrates was a philosopher
+< Learned: philosopher(socrates).
+> is socrates a philosopher?
+< Yes.
+> A dinosaur was an animal
+< Learned: animal(dinosaur).
+> is a dinosaur an animal?
+< Yes.
+# The NOUN "era" is not mistaken for a copula (no article follows), so this stays
+# an honest wall rather than a misparse.
+> the victorian era was long
+< I don't understand that yet.

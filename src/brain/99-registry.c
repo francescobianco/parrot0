@@ -559,7 +559,7 @@ int brain_reload(Brain *b) {
 }
 
 const char *brain_version(void) {
-    return "gen297-family-second-person";
+    return "gen298-past-copula";
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users
