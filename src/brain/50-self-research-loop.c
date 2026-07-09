@@ -464,6 +464,57 @@ static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
         hops++;
         deep_expand(b, facts, class_mode, frontier, &ftail, 24);
     }
+
+    /* M4 (§4bis): self-correction. "located in" is a strict containment order, so a
+     * CYCLE is impossible — a sign the broad extraction (§4.4) learned a wrong edge
+     * from an ambiguous fragment. On a 2-cycle A<->B the loop RETURNS TO THE SOURCE
+     * (fact_source, M1): it keeps the edge that serves the target derivation and
+     * retracts the other (the reversed/back edge), then re-derives. Resilience, not
+     * failure — the contradiction is the SIGNAL. (Located-in only for now.) */
+    char correction[420]; correction[0] = '\0';
+    if (!class_mode) {
+        for (size_t i = 0; i < nseen && !correction[0]; i++) {
+            char succ[32][KB_TERM_LEN];
+            const char *sq0[] = { seen[i], NULL };
+            size_t k = kb_match(b->kb, rel, sq0, 2, succ, 32);
+            for (size_t j = 0; j < k && !correction[0]; j++) {
+                char Y[64]; snprintf(Y, sizeof Y, "%s", kb_dequote(succ[j]));
+                if (!strcmp(Y, seen[i])) continue;
+                const char *back[] = { Y, seen[i] };
+                if (!kb_query(b->kb, rel, back, 2)) continue;   /* no back edge */
+                /* 2-cycle seen[i] <-> Y. Adjudicate: retract the edge whose removal
+                 * keeps the target reachable; that is the wrong (back) edge. */
+                const char *e1[] = { Y, seen[i] };              /* Y -> seen[i] */
+                kb_retract(b->kb, rel, e1, 2);
+                int t1 = deep_reachable(b, rel, subj, obj);
+                kb_assert(b->kb, rel, e1, 2);                   /* restore to decide */
+                const char *sa = t1 ? Y : seen[i];
+                const char *sb = t1 ? seen[i] : Y;
+                char fr[KB_TERM_LEN];
+                snprintf(fr, sizeof fr, "%s(%s, %s)", rel, sa, sb);
+                char src[1][KB_TERM_LEN], srctxt[220] = "the source";
+                const char *fq[] = { fr, sa, NULL };
+                if (kb_match(b->kb, "fact_source", fq, 3, src, 1) == 1) {
+                    char raw[KB_TERM_LEN]; snprintf(raw, sizeof raw, "%s", src[0]);
+                    snprintf(srctxt, sizeof srctxt, "%s", kb_dequote(raw));
+                    const char *fsr[] = { fr, sa, src[0] };     /* drop its provenance too */
+                    kb_retract(b->kb, "fact_source", fsr, 3);
+                }
+                const char *susp[] = { sa, sb };
+                kb_retract(b->kb, rel, susp, 2);                /* drop the wrong edge */
+                snprintf(correction, sizeof correction, it
+                    ? " Strada facendo ho trovato una contraddizione: \"si trova in\" "
+                      "non può fare cicli (%s non può stare dentro %s ed insieme "
+                      "contenerlo), quindi sono tornato alla fonte \"%s\" e ho "
+                      "ritirato l'arco sbagliato %s."
+                    : " Along the way I hit a contradiction: \"located in\" can't "
+                      "cycle (%s can't both be inside and contain %s), so I went back "
+                      "to the source \"%s\" and retracted the wrong edge %s.",
+                    sa, sb, srctxt, fr);
+            }
+        }
+    }
+
     if (!found) found = deep_reachable(b, rel, subj, obj);
 
     char tgt[200];
@@ -489,6 +540,7 @@ static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
         snprintf(msg, sizeof msg, it
                  ? "Non ho trovato una fonte da cui ragionare su %s."
                  : "I couldn't find a source to reason about %s from.", tgt);
+    if (correction[0]) strncat(msg, correction, sizeof msg - strlen(msg) - 1);
     put(msg, out, out_size);
     return 1;
 }

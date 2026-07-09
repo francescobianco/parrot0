@@ -1,6 +1,36 @@
 # Deep reasoning — un piano parallelo (upfront design)
 
-## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen303 — M3 fatto, il LOOP gira)
+## ⇢ HANDOFF / ripartenza (aggiornato 2026-07-09, gen304 — M4 fatto, il loop si AUTO-CORREGGE)
+
+**M4 — AUTO-CORREZIONE FATTA (gen304). Studio 4 red→green.** Il pilastro di
+resilienza (§4bis): l'estrazione ampia può imparare fatti SBAGLIATI, e il loop li
+RECUPERA invece di prevenirli. Invariante: `located_in` è un ordine di contenimento
+STRETTO → un ciclo è impossibile. In `mod_deep_reason`, dopo il loop, si cerca un
+2-ciclo `located_in(A,B) ∧ located_in(B,A)` tra i concetti visti; su contraddizione
+il loop **torna alla fonte** (via `fact_source`, M1): ritira l'arco la cui rimozione
+PRESERVA la raggiungibilità del target (= l'arco invertito sbagliato) E il suo
+`fact_source`, poi ri-deriva. Riporta conclusione + la CORREZIONE nella traccia,
+bilingue. Studio 4: pagina `germany.md` con un frammento deliberatamente fuorviante
+("Europe is located in Germany") → broad-extract `located_in(europe, germany)` →
+"is berlin in europe?" trova il ciclo germany↔europe, ritira l'arco alla fonte, e
+conclude comunque Yes con la traccia della correzione. Studi 1/2 non toccati (nessun
+ciclo). Gate `tests/cases/deepreason-correct.chat`+`.it.chat`. Suite verde, cuechains 317.
+Onestà/limiti: solo `located_in`, solo 2-cicli; l'adjudication è "tieni l'arco che
+serve il target" (euristica onesta, non un oracolo di verità); class-mode (is_a) non
+ha ancora la check di disgiunzione.
+
+**PROSSIMO (da qui riparti): M5 — continuazione + sintassi budget.** "pensa ancora"
+/ "think more" (`deep_reason_more`): continua il loop dal turno precedente riusando
+la frontiera salvata in sessione (inferenza *continuata*); e "for N minutes" / "per
+N minuti" → budget = N·60s (bigramma). Poi M6 — introspezione: reificare
+`deep_reason` come piano ispezionabile (`plan_goal`/`action_impl`), "come pensi a
+fondo?" → gli step reali (come `mod_strategy`/`mod_self`). Estensioni M4 opzionali:
+`is_a` disgiunzione (mammal ⟂ fish), `capital` funzionale a valore unico, rinforzo
+multi-fonte.
+
+---
+
+## ⇢ HANDOFF (2026-07-09, gen303 — M3 fatto, il LOOP gira)
 
 **M3 — IL LOOP `deep_reason` FATTO (gen303). Studi 1 e 2 red→green.**
 `mod_deep_reason` (`src/brain/50-self-research-loop.c`, registrato dopo `input`,

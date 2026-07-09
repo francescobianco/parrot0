@@ -1,0 +1,17 @@
+# deep-reasoning M4 (docs/plans/deep-reasoning.md §4bis, Study 4): SELF-CORRECTION,
+# the resilience pillar. Broad extraction (§4.4) is allowed to learn WRONG facts;
+# the loop RECOVERS from them instead of preventing them. Here the germany page has
+# a deliberately misleading fragment ("Europe is located in Germany") that broad
+# extraction reads as a reversed located_in edge. Reasoning about "is Berlin in
+# Europe?" finds the cycle it creates (containment can't be cyclic), RETURNS TO THE
+# SOURCE via fact_source (M1), retracts the wrong edge, and STILL derives the right
+# conclusion -- with a trace that shows the correction. The contradiction is the
+# signal, not a failure.
+
+> think deeply: is berlin in europe?
+< Yes -- berlin is in europe. I derived it across 2 hops: learned located_in(berlin, germany) (source: berlin); learned country(germany), located_in(germany, western_europe), located_in(germany, europe), located_in(europe, germany) (source: germany); then by transitivity of "located in" it follows that berlin is in europe. Along the way I hit a contradiction: "located in" can't cycle (europe can't both be inside and contain germany), so I went back to the source "europe is located in germany" and retracted the wrong edge located_in(europe, germany).
+
+# the retracted fact's provenance is gone too, so its source is honestly no longer
+# on record (the correction was real, not cosmetic).
+> where did you learn about europe?
+< I don't have a recorded source for europe.

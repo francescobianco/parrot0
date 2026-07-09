@@ -1,0 +1,5 @@
+# deep-reasoning M4, Italian half: the SAME self-correction through the Italian
+# trigger, correction localized by current_lang / deep_reason_it.
+
+> pensaci a fondo: is berlin in europe?
+< Sì -- berlin è in europe. L'ho derivato in 2 passi: learned located_in(berlin, germany) (source: berlin); learned country(germany), located_in(germany, western_europe), located_in(germany, europe), located_in(europe, germany) (source: germany); poi per transitività di "si trova in" ne segue che berlin è in europe. Strada facendo ho trovato una contraddizione: "si trova in" non può fare cicli (europe non può stare dentro germany ed insieme contenerlo), quindi sono tornato alla fonte "europe is located in germany" e ho ritirato l'arco sbagliato located_in(europe, germany).
