@@ -2379,6 +2379,33 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     first_entity_after(mw, than_i + 1, mn, c, sizeof c))
                     return answer_magnitude_compare(b, dim, want_max, a, c, 1, out, out_size);
             }
+            /* gen310a: superlative question — "what is the longest river?".
+             * No "or" or "than" pattern → enumerate ALL magnitude(dim, *, *)
+             * facts and return the item with the extremum rank. Category filtering
+             * is implicit: only items stored under this dimension are considered. */
+            {
+                char items[128][KB_TERM_LEN];
+                const char *iq[3] = { dim, NULL, NULL };
+                size_t ni = kb_match(b->kb, "magnitude", iq, 3, items, 128);
+                if (ni > 0) {
+                    size_t best = 0; double best_val = 0; int first = 1;
+                    for (size_t k = 0; k < ni; k++) {
+                        char rank[1][KB_TERM_LEN];
+                        const char *rq[3] = { dim, items[k], NULL };
+                        if (kb_match(b->kb, "magnitude", rq, 3, rank, 1) == 1) {
+                            double val = 0; parse_value(rank[0], &val);
+                            if (first || (want_max ? val > best_val : val < best_val)) {
+                                best = k; best_val = val; first = 0;
+                            }
+                        }
+                    }
+                    char *p = kb_dequote(items[best]);
+                    if (p[0]) p[0] = (char)toupper((unsigned char)p[0]);
+                    char msg[256]; snprintf(msg, sizeof msg, "%s.", p);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
         }
     }
 

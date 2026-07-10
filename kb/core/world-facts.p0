@@ -414,6 +414,19 @@ capital_of_country(washington_dc, united_states).
 capital_of_country(tokyo, japan).
 capital_of_country(ottawa, canada).
 capital_of_country(canberra, australia).
+% gen310: autolearn spill absorbed into world facts
+capital_of_country(brasilia, brazil).
+capital_of_country(beijing, china).
+capital_of_country(moscow, russia).
+capital_of_country(new_delhi, india).
+capital_of_country(wellington, new_zealand).
+capital_of_country(cairo, egypt).
+capital_of_country(nairobi, kenya).
+capital_of_country(pretoria, south_africa).
+capital_of_country(buenos_aires, argentina).
+capital_of_country(mexico_city, mexico).
+capital_of_country(lima, peru).
+capital_of_country(santiago, chile).
 
 % --- gen240 (LLMSCORE): one famous landmark per country, for compound
 % "capital of X and a famous landmark there" questions. The phrase is KB
@@ -519,6 +532,10 @@ magnitude_cue(closest, distance_from_sun, min).
 magnitude_cue(farther, distance_from_sun, max).
 magnitude_cue(further, distance_from_sun, max).
 magnitude_cue(farthest, distance_from_sun, max).
+% gen310a: length/river superlatives
+magnitude_cue(longest, length, max).
+magnitude_cue(shortest, length, min).
+magnitude(length, the_nile, 1).
 magnitude(size, ant, 1).
 magnitude(size, strawberry, 2).
 magnitude(size, mouse, 2).
@@ -1275,6 +1292,30 @@ riddle_sig(riddle_breath, "light as a feather").
 riddle_sig(riddle_breath, "hold it").
 riddle_sig(riddle_silence, "break it").
 riddle_sig(riddle_silence, "say its name").
+riddle_sig(riddle_head_tail, "has a head").
+riddle_sig(riddle_head_tail, "and a tail").
+riddle_sig(riddle_head_tail, "but no body").
+riddle_sig(sphinx_riddle, "four legs").
+riddle_sig(sphinx_riddle, "two legs").
+riddle_sig(sphinx_riddle, "three legs").
+riddle_sig(riddle_map, "have cities").
+riddle_sig(riddle_map, "have mountains").
+riddle_sig(riddle_map, "have water").
+riddle_sig(riddle_map, "have rivers").
+riddle_sig(riddle_map, "have deserts").
+riddle_sig(riddle_map, "have forests").
+riddle_sig(riddle_map, "have islands").
+riddle_sig(riddle_map, "have oceans").
+riddle_sig(riddle_map, "have highways").
+riddle_sig(riddle_map, "have borders").
+riddle_sig(riddle_map, "have capitals").
+riddle_sig(riddle_map, "have continents").
+riddle_sig(riddle_map, "have time zones").
+riddle_sig(riddle_map, "have lakes").
+riddle_sig(riddle_map, "have parks").
+riddle_sig(riddle_map, "have volcanoes").
+riddle_sig(riddle_map, "have valleys").
+riddle_sig(riddle_map, "have plateaus").
 % gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
 % substring of the turn ("who was the first president of the united states?").
 % Teaching a new role is one fact.
@@ -1495,6 +1536,8 @@ appearance(black, "the absence of light -- the darkness of a moonless night").
 appearance(white, "the presence of all colours of light together -- the brightness of fresh snow").
 taste_of(banana, "sweet, soft, and creamy, with a mellow fruit flavour").
 
+response_template(riddle_head_tail, "A coin has a head and a tail but no body.").
+response_template(sphinx_riddle, "A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age").
 response_template(joke_chicken, "To get to the other side.").
 response_template(joke_short, "Why did the function return early? It had a break.").
 response_template(joke_bear_teeth, "A gummy bear.").
