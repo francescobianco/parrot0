@@ -52,5 +52,10 @@ tr_fr(sleeping, dort).
 tr_fr(on, sur).
 tr_fr(warm, chaud).
 tr_fr(rug, tapis).
+% gen307: pronouns + a verb for the object-clitic case (je t'aime). "you" glosses
+% to the object clitic te (default); the clitic placement + elision is grammar.p0.
+tr_fr(i, je).
+tr_fr(love, aime).
+tr_fr(you, te).
 gender_fr(chat, m).
 gender_fr(tapis, m).

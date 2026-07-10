@@ -52,3 +52,44 @@ aux_progressive(is).
 progressive($W) :- chars($W, $L), ends_ing($L).
 ends_ing(cons(i, cons(n, cons(g, nil)))).
 ends_ing(cons($H, $T)) :- ends_ing($T).
+
+% U5, fifth glue rule (gen307, docs/plans/teach-comprehension-via-mcp.md) —
+% FRENCH OBJECT-CLITIC placement + elision, the case autolearn flagged
+% "morphology_gap": word-by-word glosses "I love you" as "je aime te", but a
+% French object pronoun goes BEFORE its verb and ELIDES before a vowel: je t'aime.
+% The GRAMMAR is knowledge here (which words are clitics, which forms elide, and
+% the elision rule itself as a clause); C only detects a sentence-final clitic and
+% swaps it in front of the verb, then asks clitic_join/3 for the joined surface.
+%
+% app/3 + glue/3 give solver-level string concatenation over chars/2 char-lists
+% (the U4 serializer): glue(a, b, ab). Deterministic — always called on ground
+% atoms, so the recursion is finite.
+app(nil, $L, $L).
+app(cons($H, $T), $L, cons($H, $R)) :- app($T, $L, $R).
+glue($A, $B, $R) :- chars($A, $CA), chars($B, $CB), app($CA, $CB, $C), chars($R, $C).
+
+% which French words are object clitics, and their elided (pre-vowel) form.
+clitic_obj_fr(me).
+clitic_obj_fr(te).
+clitic_obj_fr(le).
+clitic_obj_fr(la).
+clitic_obj_fr(se).
+elide_fr(me, m').
+elide_fr(te, t').
+elide_fr(le, l').
+elide_fr(la, l').
+elide_fr(se, s').
+
+% a verb is vowel-initial when its first char is a vowel (chars/2 destructure).
+vowel_fr(a).
+vowel_fr(e).
+vowel_fr(i).
+vowel_fr(o).
+vowel_fr(u).
+vowel_fr(y).
+vowel_initial_fr($W) :- chars($W, cons($H, $T)), vowel_fr($H).
+
+% clitic_join(Object, Verb, Surface): before a vowel the clitic elides and glues
+% (te+aime -> t'aime); before a consonant it FAILS here and C space-joins (te
+% parle). Keeping only the elision case as a clause isolates the interesting rule.
+clitic_join($O, $V, $R) :- vowel_initial_fr($V), elide_fr($O, $E), glue($E, $V, $R).

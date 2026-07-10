@@ -65,6 +65,7 @@ WHITELIST = {
     "wiki_concept": 3, "color_of": 2, "sound_of": 2,
     "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
     "answer_frame": 2,
+    "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -121,6 +122,12 @@ TEACHER_SYS = (
     "multi-word cues never match.\n"
     "- any simple binary relation rel(x, y) answering 'what/who is the <rel> of "
     "<y>' — e.g. capital(canberra, australia), opposite(permanent, ephemeral).\n"
+    "- FRENCH object clitics (je t'aime): teach the lexicon tr_fr(word, gloss) "
+    "with the object pronoun's clitic form (tr_fr(you, te)); the engine places a "
+    "sentence-final clitic before its verb and elides before a vowel. To add a NEW "
+    "clitic pronoun teach clitic_obj_fr(form) and its pre-vowel elided form "
+    "elide_fr(form, elided) (e.g. clitic_obj_fr(la), elide_fr(la, l')). Do NOT try "
+    "to teach the whole 'je t'aime' string as one fact — teach the pieces.\n"
     "- answer_frame(cue_phrase, pred): TEACH COMPREHENSION for a question whose "
     "wording is NOT the plain 'what is the <rel> of <y>' frame. When you teach a "
     "new relation rel(x, y) but the question asks it in another shape (e.g. 'what "

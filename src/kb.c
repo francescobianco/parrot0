@@ -1566,6 +1566,9 @@ static int is_struct_pred(const char *pred) {
         /* gen286/gen287/gen288/gen289 (U5): grammar glue (grammar.p0), not concepts */
         "article", "fem", "agree_f", "swap_last", "article_fr", "article_es",
         "aux_progressive", "progressive", "ends_ing",
+        /* gen307 (U5): FR object-clitic placement + string-concat machinery */
+        "app", "glue", "clitic_obj_fr", "elide_fr", "vowel_fr",
+        "vowel_initial_fr", "clitic_join",
         "part_of", /* gen158: a derived relation, not a describable concept */
         "category_member", /* gen230: mod_namestart substrate, not describable */
         "opposite", /* gen231: antonym relation, queried not described */

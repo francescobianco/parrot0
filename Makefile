@@ -239,6 +239,7 @@ test: build
 	@./tests/article.sh
 	@./tests/adjagree.sh
 	@./tests/artfres.sh
+	@./tests/cliticfr.sh
 	@./tests/vmorph.sh
 	@./tests/savemap.sh
 	@./tests/multigoal.sh

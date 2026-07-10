@@ -72,7 +72,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                               fbuf[fl - 1] == '\''))
                 fbuf[--fl] = '\0';
             char *fw[32]; size_t fn = split_words(fbuf, fw, 32);
-            char result[512] = ""; size_t ro = 0;
+            char pieces[32][KB_TERM_LEN]; size_t np = 0;  /* gen307: collect, then reorder clitics */
             for (size_t i = 0; i < fn; i++) {
                 char *tok = strip_edge_punct(fw[i]);
                 if (!*tok) continue;
@@ -126,12 +126,42 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     }
                 }
 
-                size_t pl = strlen(piece);
-                if (ro && ro + 1 < sizeof result) result[ro++] = ' ';
-                if (ro + pl + 1 < sizeof result) {
-                    memcpy(result + ro, piece, pl + 1);
-                    ro += pl;
+                if (piece[0] && np < 32)
+                    snprintf(pieces[np++], KB_TERM_LEN, "%s", piece);
+            }
+            /* gen307: French object-clitic placement. A clitic pronoun the
+             * word-by-word gloss left at the END of the clause moves before its
+             * verb, eliding pre-vowel (te+aime -> t'aime). Which words are
+             * clitics and how they elide is grammar.p0 (clitic_obj_fr, elide_fr,
+             * clitic_join); C only detects the sentence-final clitic and swaps.
+             * Scoped to a TRAILING clitic so the article le/la (same surface) in
+             * mid-sentence is never disturbed. clitic_join answers the elision
+             * case; the non-eliding case falls back to a plain space join. */
+            if (np >= 2) {
+                char cl[16][KB_TERM_LEN];
+                const char *cq[] = { NULL };   /* enumerate: a boolean query returns no count */
+                size_t ncl = kb_match(b->kb, "clitic_obj_fr", cq, 1, cl, 16);
+                int is_clitic = 0;
+                for (size_t c = 0; c < ncl; c++)
+                    if (!strcmp(cl[c], pieces[np - 1])) { is_clitic = 1; break; }
+                if (is_clitic) {
+                    const char *jq[] = { pieces[np - 1], pieces[np - 2], NULL };
+                    char jr[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "clitic_join", jq, 3, jr, 1) == 1)
+                        snprintf(pieces[np - 2], KB_TERM_LEN, "%s", jr[0]);       /* t'aime */
+                    else {
+                        char sp[KB_TERM_LEN];
+                        snprintf(sp, sizeof sp, "%s %s", pieces[np - 1], pieces[np - 2]);
+                        snprintf(pieces[np - 2], KB_TERM_LEN, "%s", sp);          /* te parle */
+                    }
+                    np--;
                 }
+            }
+            char result[512] = ""; size_t ro = 0;
+            for (size_t i = 0; i < np; i++) {
+                size_t pl = strlen(pieces[i]);
+                if (ro && ro + 1 < sizeof result) result[ro++] = ' ';
+                if (ro + pl + 1 < sizeof result) { memcpy(result + ro, pieces[i], pl + 1); ro += pl; }
             }
             if (ro) {
                 if (result[0]) result[0] = (char)toupper((unsigned char)result[0]);
