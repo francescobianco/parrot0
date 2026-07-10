@@ -28,7 +28,7 @@ AUTOLEARN.md at the repo root.
 
 Usage: .venv/bin/python tests/autolearn.py [--rounds 5] [--probes FILE]
          [--model minimax-m2.5] [--kb kb/learning/autolearn-unrouted.p0]
-         [--retries 2]
+         [--retries 2] [--skip-list kb/learning/autolearn-skip.txt]
 """
 from __future__ import annotations
 import argparse, concurrent.futures, json, os, re, subprocess, sys, threading, \
@@ -505,6 +505,26 @@ def reflect_attempt(key, model, question, before, lesson, after, judge_reason):
 
 
 _PRINT_LOCK = threading.Lock()
+_MAX_RETRIES_SKIP = 5
+
+
+def load_skip_list(path):
+    """Read the exact-question skip list (one question per line, strip whitespace)."""
+    try:
+        with open(path) as fh:
+            return {ln.strip() for ln in fh if ln.strip() and not ln.startswith("#")}
+    except FileNotFoundError:
+        return set()
+
+
+def append_skip_list(path, questions):
+    """Append new already-capable questions to the skip list, deduplicated."""
+    existing = load_skip_list(path)
+    new = sorted(q for q in questions if q.strip() and q.strip() not in existing)
+    if new:
+        with open(path, "a") as fh:
+            for q in new:
+                fh.write(q.strip() + "\n")
 
 
 def log(msg):
@@ -563,19 +583,28 @@ def multiply_lesson(key, model, seed_facts, n_max):
     return sibs if int(j.get("vote", 0)) == 1 else []
 
 
-def do_round(idx, given_q, args, key):
+def do_round(idx, given_q, args, key, skip_set=None):
     """One fully independent round on its OWN in-memory MCP brain session.
     Lessons are verified in RAM only; persistence happens later in phase two."""
+    if skip_set is None:
+        skip_set = set()
     sess = McpSession(p0_env(os.path.join(ROOT, "kb", "core", "base.p0"), "",
                              os.path.join(ROOT, "kb")), ROOT)
     try:
         if given_q is not None:
             q = given_q
         else:
-            ability = ABILITIES[idx % len(ABILITIES)]
-            q = one_line(call_model(key, args.model, [
-                {"role": "system", "content": INTERVIEW_SYS},
-                {"role": "user", "content": f"Ask one question probing: {ability}."}], 0.9))
+            for _ in range(_MAX_RETRIES_SKIP):
+                ability = ABILITIES[idx % len(ABILITIES)]
+                q = one_line(call_model(key, args.model, [
+                    {"role": "system", "content": INTERVIEW_SYS},
+                    {"role": "user", "content": f"Ask one question probing: {ability}."}], 0.9))
+                if q.strip() not in skip_set:
+                    break
+            else:
+                q = one_line(call_model(key, args.model, [
+                    {"role": "system", "content": INTERVIEW_SYS},
+                    {"role": "user", "content": f"Ask one question probing: {ability}."}], 0.9))
         if q.startswith("[model error") or q == "[empty]":
             return {"verdict": "interviewer-error", "q": q, "kept": []}
 
@@ -666,6 +695,8 @@ def run(args, key):
         if ldir:
             os.makedirs(ldir, exist_ok=True)
 
+    skip_set = load_skip_list(args.skip_list)
+
     probes = []
     if args.probes:
         with open(args.probes) as fh:
@@ -677,7 +708,7 @@ def run(args, key):
     # separate second phase after the oracle accepts the round.
     results = [None] * n
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as ex:
-        fut = {ex.submit(do_round, i, (probes[i] if probes else None), args, key): i
+        fut = {ex.submit(do_round, i, (probes[i] if probes else None), args, key, skip_set): i
                for i in range(n)}
         for f in concurrent.futures.as_completed(fut):
             results[fut[f]] = f.result()
@@ -745,6 +776,11 @@ def run(args, key):
         for r in results:
             append_ledger(args.ledger, stamp, args.model, r)
 
+    new_skips = [r["q"] for r in results
+                 if r.get("verdict") == "already-capable" and r.get("q", "").strip()]
+    if new_skips:
+        append_skip_list(args.skip_list, new_skips)
+
     log(f"\nautolearn: already {counts.get('already-capable',0)}, "
         f"taught {counts.get('taught',0)}, failed {counts.get('failed-lesson',0)}, "
         f"engine-gap {counts.get('engine-gap',0)}, skipped {counts.get('skipped',0)} | "
@@ -775,6 +811,9 @@ def main():
     ap.add_argument("--out", default="AUTOLEARN.md")
     ap.add_argument("--ledger", default="kb/learning/autolearn-ledger.jsonl",
                     help="JSONL ledger of per-round outcomes and diagnoses")
+    ap.add_argument("--skip-list", default="kb/learning/autolearn-skip.txt",
+                    help="Exact-question skip list; already-capable questions appended here "
+                         "so the interviewer does not ask them again")
     args = ap.parse_args()
 
     key = os.environ.get("OPENCODE_API_KEY")

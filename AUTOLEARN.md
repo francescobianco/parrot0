@@ -654,3 +654,47 @@ Le tre decisioni che ora spettano a te
 - after: Hmm, I don't know about mammal yet.
 - judge: The response deflects with uncertainty instead of providing the correct answer (bats).
 
+
+## Run 2026-07-10 19:12:51 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 0 · engine-gap 1 · skipped 2 · kept 1 facts (1 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2 · missing_fact 1 · unknown 1**
+
+### Round 1 — taught
+- Q: What is the longest river in the world?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact that the Nile is the longest river in the world to the knowledge base.
+- lesson: longest_river(nile, world)
+- after: longest_river(nile, world).
+- judge: The answer correctly identifies the Nile as the longest river in the world, using a valid logical representation.
+
+### Round 2 — already-capable
+- Q: What planet is known as the "Red Planet"?
+- before: Mars is the Red Planet.
+- judge: The answer correctly identifies Mars as the Red Planet, directly answering the question with accurate information.
+
+### Round 3 — engine-gap
+- Q: How do you say "Thank you very much" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "thank".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(thanks, gracias); tr_es(thank_you, gracias); tr_es(very, muy); tr_es(much, mucho); tr_es(many, muchas)
+- after: I can translate most of it, but I don't know the Spanish for "thank".
+- judge: The answer fails to provide the correct translation; 'Muchas gracias' is the standard phrase, and 'gracias' is the basic Spanish word for 'thank' that the response incorrectly claims not to know.
+
+### Round 4 — skipped
+- Q: How do you say "I am learning French" in French?
+- before: I can translate most of it, but I don't know the French for "i".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Fix the answer path to properly consume basic vocabulary facts instead of deflecting on common knowledge.
+- judge: no lesson JSON
+
+### Round 5 — skipped
+- Q: What has four legs in the morning, two legs in the afternoon, and three legs in the evening?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no whitelisted facts (2 dropped)
+

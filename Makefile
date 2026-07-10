@@ -200,6 +200,7 @@ autolearn: build
 		--retries $(or $(RETRIES),2) --model $(or $(MODEL),minimax-m2.5) \
 		--kb $(or $(KB),kb/learning/autolearn-unrouted.p0) \
 		--ledger $(or $(LEDGER),kb/learning/autolearn-ledger.jsonl) \
+		--skip-list $(or $(SKIP_LIST),kb/learning/autolearn-skip.txt) \
 		$(if $(PROBES),--probes $(PROBES),)
 
 # RULESCORE (F., 2026-07-02) — on the LLMSCORE model: an LLM INVENTS 5 terminal
