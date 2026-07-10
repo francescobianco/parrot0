@@ -1378,6 +1378,7 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
 
     int count = 0;
     char *routed = calloc(kb->n ? kb->n : 1, 1);
+    int default_targeted = 0;   /* set when a fact was sm_inser'd INTO default_path */
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *fa = &kb->facts[i];
         if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || fa->argc == 0) continue;
@@ -1386,8 +1387,9 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
         char file[SM_PATH]; int line;
         if (sm_route(rows, nrows, fa->pred, fa->args[0], file, &line) &&
             sm_insert(file, line, text)) {
+            if (!strcmp(file, default_path)) default_targeted = 1;
             routed[i] = 1; count++;
-            if (nrows < SM_MAX_ROWS) {          /* siblings this batch land after it */
+            if (nrows < SM_MAX_ROWS) {
                 SmRow *r = &rows[nrows++];
                 snprintf(r->pred, SM_PRED, "%s", fa->pred);
                 snprintf(r->arg1, SM_ARG, "%s", fa->args[0]);
@@ -1397,8 +1399,10 @@ int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
         }
     }
 
-    /* default file: unrouted facts + all negatives + all rules (rewritten). */
-    FILE *df = fopen(default_path, "w");
+    /* default file: unrouted facts + all negatives + all rules.
+     * When sm_insert has already routed facts INTO default_path, we APPEND instead
+     * of truncating — otherwise the freshly-routed facts are lost. */
+    FILE *df = fopen(default_path, default_targeted ? "a" : "w");
     if (df) {
         for (size_t i = 0; i < kb->n; i++) {
             const Fact *fa = &kb->facts[i];

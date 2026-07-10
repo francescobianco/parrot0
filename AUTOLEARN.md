@@ -698,3 +698,101 @@ Le tre decisioni che ora spettano a te
 - next: Try one small whitelisted lesson, then classify from the post-teach response.
 - judge: no whitelisted facts (2 dropped)
 
+
+## Run 2026-07-10 19:19:59 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 1 · engine-gap 2 · skipped 0 · kept 7 facts (6 seed + 1 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 2 · unknown 1**
+
+### Round 1 — taught
+- Q: What is the longest river in Africa?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- lesson: longest_river(nile, africa); longest_river(amazon, south_america); longest_river(volga, europe); longest_river(yangtze, asia); longest_river(mississippi, north_america); longest_river(murray, australia)
+- multiplied (+1): longest_river(onyx, antarctica)
+- after: longest_river(nile, africa).
+- judge: The answer correctly identifies the Nile as Africa's longest river, even though it uses a formal logic format rather than natural language.
+
+### Round 2 — engine-gap
+- Q: What is the chemical element represented by the symbol "Au"?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test fact retrieval by asking the same question after storing a single simple fact to verify the engine can access and use stored knowledge.
+- lesson: chemical_symbol(au, gold)
+- after: Hmm, I don't know about chemical yet.
+- judge: The answer incorrectly claims ignorance about gold's symbol (Au), which is a basic chemistry fact.
+
+### Round 3 — already-capable
+- Q: Translate this common English phrase into Spanish: "How are you?
+- before: Cómo estás tú.
+- judge: The translation 'Cómo estás tú' is a correct and natural Spanish equivalent of 'How are you?'
+
+### Round 4 — engine-gap
+- Q: How do you say "Good morning" in French?
+- before: I can translate most of it, but I don't know the French for "good".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: idiom_meaning(good morning, bonjour)
+- after: I can translate most of it, but I don't know the French for "good".
+- judge: The assistant deflects instead of providing the straightforward answer: 'Bonjour' in French.
+
+### Round 5 — failed-lesson
+- Q: What has four legs in the morning, two legs at noon, and three legs in the evening?
+- before: I don't understand that yet.
+- diagnosis: composition_gap · teachable=true · mode=skip
+- next: Test with a lesson that explicitly stores the answer 'human' as the subject of the riddle_legs_stages predicate.
+- lesson: riddle_sig(riddle_legs_stages, four legs in the morning); riddle_sig(riddle_legs_stages, two legs at noon); riddle_sig(riddle_legs_stages, three legs in the evening)
+- after: Hmm, I don't know about morning yet.
+- judge: The answer fails to solve the riddle and merely deflects without providing the correct answer (a human).
+
+
+## Run 2026-07-10 19:30:36 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 1 · engine-gap 2 · skipped 0 · kept 21 facts (1 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 2 · missing_fact 1 · morphology_gap 1**
+
+### Round 1 — taught
+- Q: What is the capital of Brazil?
+- before: I do not know the relation capital yet, so I cannot answer the capital of brazil. You can teach me with thing is the capital of brazil, or give facts/rules to reason from.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach the smallest grounded lesson and re-probe.
+- lesson: capital(brasilia, brazil)
+- multiplied (+20): capital(berlin, germany); capital(paris, france); capital(tokyo, japan); capital(london, united_kingdom); capital(rome, italy); capital(moscow, russia); capital(cairo, egypt); capital(new_delhi, india); capital(beijing, china); capital(ottawa, canada); capital(washington_dc, usa); capital(canberra, australia); capital(buenos_aires, argentina); capital(singapore, singapore); capital(wellington, new_zealand); capital(lima, peru); capital(madrid, spain); capital(lisbon, portugal); capital(athens, greece); capital(vienna, austria)
+- after: Brasilia.
+- judge: Brasilia is the correct capital of Brazil.
+
+### Round 2 — engine-gap
+- Q: What is the chemical element symbol "Au" short for?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test retrieval of the same fact in a different question phrasing to confirm if this is a storage/retrieval bug.
+- lesson: chemical_symbol(gold, au)
+- after: Hmm, I don't know about chemical yet.
+- judge: The assistant claimed not to know, but Au is the well-known symbol for gold (from Latin aurum), a basic chemistry fact.
+
+### Round 3 — already-capable
+- Q: How do you say "How are you?" in Spanish?
+- before: Cómo estás tú.
+- judge: The answer is correct and directly provides the Spanish translation for 'How are you?'
+
+### Round 4 — failed-lesson
+- Q: Translate "I love you" into French.
+- before: I can translate most of it, but I don't know the French for "i".
+- diagnosis: morphology_gap · teachable=true · mode=template
+- next: Test with phrase 'She loves him' to verify clitic pronoun contraction across verbs.
+- lesson: tr_fr(i, je); tr_fr(love, aime); tr_fr(you, te); tr_fr(you, t'aime); tr_fr(myself, m'appelle); idiom_meaning(je t'aime, i love you)
+- after: Je aime te.
+- judge: The correct French translation is 'Je t'aime', not 'Je aime te', which has incorrect word order and pronoun usage.
+
+### Round 5 — engine-gap
+- Q: I have cities, but no houses live there. I have mountains, but no trees grow there. I have water, but no fish swim there. I have roads, but no cars drive there. What am I?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test if the system can directly answer the same riddle immediately after receiving an explicit answer-only lesson (no clues, just 'You are a map.').
+- lesson: riddle_sig(riddle_map_globe, cities but no houses); riddle_sig(riddle_map_globe, mountains but no trees); riddle_sig(riddle_map_globe, water but no fish); riddle_sig(riddle_map_globe, roads but no cars); response_template(riddle_map_globe, You are a map or a globe.)
+- after: Hmm, I don't know about cities yet.
+- judge: The response fails to answer the riddle, giving a nonsensical deflection instead of identifying the object (a map or globe).
+
