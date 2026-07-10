@@ -233,6 +233,7 @@ test: build
 	@./tests/adjagree.sh
 	@./tests/artfres.sh
 	@./tests/vmorph.sh
+	@./tests/savemap.sh
 	@./tests/multigoal.sh
 	@./tests/grammar.sh
 	@./tests/anon.sh

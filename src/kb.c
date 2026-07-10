@@ -17,9 +17,11 @@
 #include "kb.h"
 
 #include <ctype.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 /* KB_MAX_BODY is declared in kb.h (part of kb_assert_rule_n's contract). */
 #define KB_MAX_GOALS 64 /* resolvent size ceiling                      */
@@ -1196,6 +1198,247 @@ int kb_save(const KB *kb, const char *path, int origin_mask) {
         count++;
     }
     fclose(f);
+    return count;
+}
+
+/* ----------------------------------------------------------------------------
+ * soft save-map: place a newly learned fact next to visually-similar ones
+ * ----------------------------------------------------------------------------
+ * A best-effort mechanism (NOT exact provenance tracking, by design). When new
+ * knowledge is persisted (MCP kb.save, /save, or any future path), instead of
+ * dumping it all into one session blob we slot each ground fact into the curated
+ * topic file that already holds its nearest kin — so the good upstream
+ * organisation is dirtied as little as possible. The "coordinate" of a fact is
+ * (predicate, first-arg); routing tiers: exact pair -> same predicate -> a default
+ * fallback file. The index of positions is rebuilt by scanning the KB tree at save
+ * time (transient, so it is never stale) and also written to disk for inspection.
+ * Enabled only when PARROT0_KB_ROOT is set, so hermetic unit tests keep the legacy
+ * single-file behaviour. */
+
+#define SM_MAX_ROWS 40000
+#define SM_PRED 64
+#define SM_ARG  192
+#define SM_PATH 512
+typedef struct { char pred[SM_PRED]; char arg1[SM_ARG]; char file[SM_PATH]; int line; } SmRow;
+
+/* Parse a ground-fact line "pred(arg1, ...)." -> pred + arg1 (surrounding quotes
+ * stripped from arg1). Returns 1 for a plain ground fact; 0 for comments, rules,
+ * directives, negatives — those are left to the default file. */
+static int sm_parse(const char *line, char *pred, char *arg1) {
+    const char *s = line;
+    while (*s && isspace((unsigned char)*s)) s++;
+    if (*s == '\0' || *s == '%' || *s == ':') return 0;
+    if (strstr(s, ":-")) return 0;              /* a rule */
+    if (!strncmp(s, "not(", 4)) return 0;       /* explicit negative */
+    const char *lp = strchr(s, '(');
+    if (!lp || lp == s) return 0;
+    size_t pl = (size_t)(lp - s);
+    if (pl >= SM_PRED) return 0;
+    for (size_t i = 0; i < pl; i++)
+        if (!isalnum((unsigned char)s[i]) && s[i] != '_') return 0;
+    memcpy(pred, s, pl); pred[pl] = '\0';
+    const char *a = lp + 1;
+    while (*a && isspace((unsigned char)*a)) a++;
+    int depth = 0, q = 0;
+    const char *start = a, *end = NULL;
+    for (const char *p = a; *p; p++) {
+        char c = *p;
+        if (c == '"') q = !q;
+        else if (q) continue;
+        else if (c == '(') depth++;
+        else if (c == ')') { if (depth == 0) { end = p; break; } depth--; }
+        else if (c == ',' && depth == 0) { end = p; break; }
+    }
+    if (!end) return 0;
+    size_t al = (size_t)(end - start);
+    while (al > 0 && isspace((unsigned char)start[al - 1])) al--;
+    if (al >= 2 && start[0] == '"' && start[al - 1] == '"') { start++; al -= 2; }
+    if (al == 0 || al >= SM_ARG) return 0;
+    memcpy(arg1, start, al); arg1[al] = '\0';
+    return 1;
+}
+
+static void sm_scan_file(const char *path, SmRow *rows, size_t *nrows) {
+    FILE *f = fopen(path, "r");
+    if (!f) return;
+    char line[1024];
+    int ln = 0;
+    while (fgets(line, sizeof line, f)) {
+        ln++;
+        if (*nrows >= SM_MAX_ROWS) break;
+        char pred[SM_PRED], arg1[SM_ARG];
+        if (sm_parse(line, pred, arg1)) {
+            SmRow *r = &rows[(*nrows)++];
+            snprintf(r->pred, SM_PRED, "%s", pred);
+            snprintf(r->arg1, SM_ARG, "%s", arg1);
+            snprintf(r->file, SM_PATH, "%s", path);
+            r->line = ln;
+        }
+    }
+    fclose(f);
+}
+
+static void sm_scan_dir(const char *dir, SmRow *rows, size_t *nrows) {
+    DIR *d = opendir(dir);
+    if (!d) return;
+    struct dirent *e;
+    while ((e = readdir(d)) && *nrows < SM_MAX_ROWS) {
+        if (e->d_name[0] == '.') continue;
+        char path[SM_PATH];
+        if ((size_t)snprintf(path, sizeof path, "%s/%s", dir, e->d_name) >= sizeof path)
+            continue;
+        struct stat st;
+        if (stat(path, &st) != 0) continue;
+        if (S_ISDIR(st.st_mode)) sm_scan_dir(path, rows, nrows);
+        else {
+            size_t l = strlen(e->d_name);
+            if (l > 3 && !strcmp(e->d_name + l - 3, ".p0"))
+                sm_scan_file(path, rows, nrows);
+        }
+    }
+    closedir(d);
+}
+
+/* Route (pred,arg1) to a home: exact pair (last) -> same predicate (last) -> none.
+ * Returns 1 and fills out_file/out_line on a hit; 0 for the default fallback. */
+static int sm_route(const SmRow *rows, size_t nrows, const char *pred,
+                    const char *arg1, char *out_file, int *out_line) {
+    for (size_t i = nrows; i-- > 0; )
+        if (!strcmp(rows[i].pred, pred) && !strcmp(rows[i].arg1, arg1)) {
+            snprintf(out_file, SM_PATH, "%s", rows[i].file); *out_line = rows[i].line; return 1;
+        }
+    for (size_t i = nrows; i-- > 0; )
+        if (!strcmp(rows[i].pred, pred)) {
+            snprintf(out_file, SM_PATH, "%s", rows[i].file); *out_line = rows[i].line; return 1;
+        }
+    return 0;
+}
+
+/* Insert `text` (a full "fact." line, no newline) into `file` right after 1-based
+ * line `after`. If the exact line already exists anywhere in the file, do nothing
+ * (dedup) and report success. Returns 1 on success. */
+static int sm_insert(const char *file, int after, const char *text) {
+    FILE *f = fopen(file, "r");
+    if (!f) return 0;
+    char **lines = NULL; size_t n = 0, cap = 0; char buf[2048];
+    while (fgets(buf, sizeof buf, f)) {
+        char t[2048]; snprintf(t, sizeof t, "%s", buf);
+        size_t tl = strlen(t);
+        while (tl && (t[tl - 1] == '\n' || t[tl - 1] == '\r' || t[tl - 1] == ' ')) t[--tl] = '\0';
+        if (!strcmp(t, text)) {
+            for (size_t i = 0; i < n; i++) free(lines[i]);
+            free(lines); fclose(f); return 1;                 /* already home */
+        }
+        if (n >= cap) { cap = cap ? cap * 2 : 128;
+            char **nl = realloc(lines, cap * sizeof *lines);
+            if (!nl) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); fclose(f); return 0; }
+            lines = nl;
+        }
+        size_t bl = strlen(buf);
+        lines[n] = malloc(bl + 1);
+        if (!lines[n]) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); fclose(f); return 0; }
+        memcpy(lines[n], buf, bl + 1); n++;
+    }
+    fclose(f);
+    if (after < 0 || (size_t)after > n) after = (int)n;
+    FILE *o = fopen(file, "w");
+    if (!o) { for (size_t i = 0; i < n; i++) free(lines[i]); free(lines); return 0; }
+    int inserted = 0;
+    for (size_t i = 0; i < n; i++) {
+        size_t bl = strlen(lines[i]);
+        if (bl && lines[i][bl - 1] != '\n') { fputs(lines[i], o); fputc('\n', o); }
+        else fputs(lines[i], o);
+        if ((int)(i + 1) == after) { fprintf(o, "%s\n", text); inserted = 1; }
+        free(lines[i]);
+    }
+    if (!inserted) fprintf(o, "%s\n", text);   /* empty file / insert-at-top */
+    free(lines);
+    fclose(o);
+    return 1;
+}
+
+static void sm_fact_text(const Fact *fa, char *out, size_t sz) {
+    size_t o = (size_t)snprintf(out, sz, "%s(", fa->pred);
+    for (size_t j = 0; j < fa->argc && o < sz; j++)
+        o += (size_t)snprintf(out + o, sz - o, "%s%s", j ? ", " : "", fa->args[j]);
+    if (o < sz) snprintf(out + o, sz - o, ").");
+}
+
+/* Persist SESSION|INDUCED knowledge, ROUTING each ground fact to its kin file.
+ * Positive facts with a home are inserted in place; everything else (unrouted
+ * facts, negatives, rules) is written to `default_path` (rewritten). Returns the
+ * clause count. The on-disk index at `<root>/savemap.tsv` is refreshed for
+ * inspection. */
+int kb_save_routed(const KB *kb, const char *default_path, const char *root) {
+    if (!kb || !default_path || !root || !*root) return -1;
+    SmRow *rows = malloc(SM_MAX_ROWS * sizeof *rows);
+    if (!rows) return kb_save(kb, default_path, KB_SESSION | KB_INDUCED);
+    size_t nrows = 0;
+    sm_scan_dir(root, rows, &nrows);
+
+    int count = 0;
+    char *routed = calloc(kb->n ? kb->n : 1, 1);
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *fa = &kb->facts[i];
+        if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || fa->argc == 0) continue;
+        char text[2048];
+        sm_fact_text(fa, text, sizeof text);
+        char file[SM_PATH]; int line;
+        if (sm_route(rows, nrows, fa->pred, fa->args[0], file, &line) &&
+            sm_insert(file, line, text)) {
+            routed[i] = 1; count++;
+            if (nrows < SM_MAX_ROWS) {          /* siblings this batch land after it */
+                SmRow *r = &rows[nrows++];
+                snprintf(r->pred, SM_PRED, "%s", fa->pred);
+                snprintf(r->arg1, SM_ARG, "%s", fa->args[0]);
+                snprintf(r->file, SM_PATH, "%s", file);
+                r->line = line + 1;
+            }
+        }
+    }
+
+    /* default file: unrouted facts + all negatives + all rules (rewritten). */
+    FILE *df = fopen(default_path, "w");
+    if (df) {
+        for (size_t i = 0; i < kb->n; i++) {
+            const Fact *fa = &kb->facts[i];
+            if (!(fa->origin & (KB_SESSION | KB_INDUCED)) || routed[i]) continue;
+            char text[2048]; sm_fact_text(fa, text, sizeof text);
+            fprintf(df, "%s\n", text); count++;
+        }
+        for (size_t i = 0; i < kb->nn; i++) {
+            const Fact *fa = &kb->neg[i];
+            if (!(fa->origin & (KB_SESSION | KB_INDUCED))) continue;
+            fprintf(df, "not(%s(", fa->pred);
+            for (size_t j = 0; j < fa->argc; j++) fprintf(df, "%s%s", j ? ", " : "", fa->args[j]);
+            fprintf(df, ")).\n"); count++;
+        }
+        for (size_t i = 0; i < kb->nr; i++) {
+            const Rule *r = &kb->rules[i];
+            if (!(r->origin & (KB_SESSION | KB_INDUCED))) continue;
+            write_term(df, &r->head); fprintf(df, " :- ");
+            for (size_t j = 0; j < r->nbody; j++) {
+                if (j) fprintf(df, ", ");
+                if (r->body[j].neg) { fprintf(df, "naf("); write_term(df, &r->body[j]); fputc(')', df); }
+                else write_term(df, &r->body[j]);
+            }
+            fprintf(df, ".\n"); count++;
+        }
+        fclose(df);
+    }
+
+    /* refresh the inspectable on-disk index (soft; failure is harmless). */
+    char idx[SM_PATH];
+    if ((size_t)snprintf(idx, sizeof idx, "%s/savemap.tsv", root) < sizeof idx) {
+        FILE *ix = fopen(idx, "w");
+        if (ix) {
+            for (size_t i = 0; i < nrows; i++)
+                fprintf(ix, "%s\t%s\t%s\t%d\n", rows[i].pred, rows[i].arg1,
+                        rows[i].file, rows[i].line);
+            fclose(ix);
+        }
+    }
+    free(routed); free(rows);
     return count;
 }
 

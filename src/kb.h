@@ -131,6 +131,15 @@ int    kb_load(KB *kb, const char *path);
  * written, or -1 on error. */
 int    kb_save(const KB *kb, const char *path, int origin_mask);
 
+/* Persist SESSION|INDUCED knowledge, ROUTING each ground fact into the curated KB
+ * file that already holds its nearest kin (a soft "save-map": coordinate =
+ * (predicate, first-arg); tiers exact-pair -> same-predicate -> default). Positive
+ * facts with a home are inserted in place under `root`'s tree; everything else
+ * (unrouted facts, negatives, rules) goes to `default_path`. Rebuilds the on-disk
+ * index `<root>/savemap.tsv`. Returns the clause count. Used by brain_save_session
+ * when PARROT0_KB_ROOT is set. */
+int    kb_save_routed(const KB *kb, const char *default_path, const char *root);
+
 /* Prove a goal AND, if provable, write a one-line explanation of the proof into
  * `out` — e.g. "mortal(socrates) because man(socrates)" — derived from the
  * actual proof tree (facts, rule chains, multi-goal bodies with their

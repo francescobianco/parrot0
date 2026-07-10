@@ -513,6 +513,12 @@ int brain_load(Brain *b, const char *path, int as_base) {
 
 int brain_save_session(Brain *b, const char *path) {
     if (!b || !b->kb) return -1;
+    /* When a KB root is configured, route each new fact next to its kin in the
+     * curated tree (the soft save-map). Opt-in via PARROT0_KB_ROOT so hermetic
+     * tests keep the legacy single-file save. */
+    const char *root = getenv("PARROT0_KB_ROOT");
+    if (root && *root)
+        return kb_save_routed(b->kb, path, root);
     return kb_save(b->kb, path, KB_SESSION | KB_INDUCED);
 }
 
