@@ -31,6 +31,68 @@ static int is_progressive_aux(Brain *b, const char *aux, const char *verb) {
     return strcmp(aux, "is") == 0 && strcmp(verb, "sleeping") == 0;   /* backstop */
 }
 
+/* gen310: extract the phrase to translate from any of the request forms —
+ * "translate ... : X", 'translate ... "X"', or "how do you say X in <lang>" —
+ * so a fixed multi-word phrase can be a translation UNIT. Priority: a quoted span
+ * (double or single) -> the span between "say " and " in " -> after a colon ->
+ * after the language word. Fills buf (trimmed of edge quotes/space/punct). */
+static int tr_payload(const char *low, const char *langword,
+                      char *buf, size_t bufsz) {
+    const char *start = NULL, *end = NULL;
+    for (int qc = 0; qc < 2 && !start; qc++) {
+        char qch = qc ? '\'' : '"';
+        const char *q1 = strchr(low, qch);
+        if (q1) { const char *q2 = strchr(q1 + 1, qch);
+                  if (q2 && q2 > q1 + 1) { start = q1 + 1; end = q2; } }
+    }
+    if (!start) {
+        const char *say = strstr(low, "say ");
+        if (say) { const char *in = strstr(say + 4, " in ");
+                   if (in && in > say + 4) { start = say + 4; end = in; } }
+    }
+    if (!start) { const char *c = strchr(low, ':'); if (c) start = c + 1; }
+    if (!start) { const char *lw = strstr(low, langword); if (lw) start = lw + strlen(langword); }
+    if (!start) return 0;
+    while (*start && (isspace((unsigned char)*start) || *start == '"' || *start == '\'')) start++;
+    if (!end || end < start) end = start + strlen(start);
+    size_t n = (size_t)(end - start);
+    if (n >= bufsz) n = bufsz - 1;
+    memcpy(buf, start, n); buf[n] = '\0';
+    size_t l = strlen(buf);
+    while (l > 0 && (buf[l-1] == '.' || buf[l-1] == '?' || buf[l-1] == '!' ||
+                     buf[l-1] == '"' || buf[l-1] == '\'' || isspace((unsigned char)buf[l-1])))
+        buf[--l] = '\0';
+    return l > 0;
+}
+
+/* gen310: longest-match a fixed phrase starting at token `start`. Tries spans from
+ * the longest down to 2 words against `phrase_pred`(key, gloss); on a hit fills
+ * gloss and returns the token count consumed, else 0. This is the multi-word UNIT
+ * of the translation plan: "thank you"/"nice to meet you" translate as one chunk
+ * (idiomatic, non-compositional) before the word-by-word + grammar fallback. */
+static size_t tr_phrase_chunk(Brain *b, const char *phrase_pred, char **tok,
+                              size_t ntok, size_t start, char *gloss, size_t gsz) {
+    if (!b || !b->kb || start >= ntok) return 0;
+    for (size_t len = ntok - start; len >= 2; len--) {
+        char key[256]; size_t ko = 0; int overflow = 0;
+        for (size_t j = 0; j < len; j++) {
+            char *t = strip_edge_punct(tok[start + j]);
+            int w = snprintf(key + ko, sizeof key - ko, "%s%s", j ? " " : "", t);
+            if (w < 0 || (size_t)w >= sizeof key - ko) { overflow = 1; break; }
+            ko += (size_t)w;
+        }
+        if (overflow || ko == 0) continue;
+        char g[1][KB_TERM_LEN];
+        const char *q[] = { key, NULL };
+        fprintf(stderr, "[chunk] pred=%s key=[%s]\n", phrase_pred, key);
+        if (kb_match(b->kb, phrase_pred, q, 2, g, 1) == 1) {
+            snprintf(gloss, gsz, "%s", kb_dequote(g[0]));
+            return len;
+        }
+    }
+    return 0;
+}
+
 static int mod_translate(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)norm;
@@ -46,31 +108,20 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
      * C supplies only grammar glue: article agreement, "is sleeping" -> finite
      * verb, and English pre-noun adjective -> French post-noun adjective. */
     if (strstr(low, "french")) {
-        char quoted[256] = "";
-        const char *q1 = strchr(low, 34);
-        if (q1) {
-            const char *q2 = strchr(q1 + 1, 34);
-            if (q2 && q2 > q1 + 1) {
-                size_t ql = (size_t)(q2 - q1 - 1);
-                if (ql >= sizeof quoted) ql = sizeof quoted - 1;
-                memcpy(quoted, q1 + 1, ql);
-                quoted[ql] = '\0';
+        char fbuf[256];
+        if (tr_payload(low, "french", fbuf, sizeof fbuf)) {
+            /* gen310: a fixed multi-word phrase translates as ONE idiomatic unit
+             * (non-compositional): try the whole payload as a phrase first. */
+            char pg[1][KB_TERM_LEN];
+            const char *pq[] = { fbuf, NULL };
+            if (kb_match(b->kb, "tr_fr_phrase", pq, 2, pg, 1) == 1) {
+                char sent[256]; snprintf(sent, sizeof sent, "%s", kb_dequote(pg[0]));
+                if (sent[0]) sent[0] = (char)toupper((unsigned char)sent[0]);
+                size_t sl = strlen(sent);
+                if (sl + 1 < sizeof sent) { sent[sl] = '.'; sent[sl + 1] = '\0'; }
+                put(sent, out, out_size);
+                return 1;
             }
-        }
-        const char *cl = quoted[0] ? quoted : strchr(low, ':');
-        if (cl && !quoted[0]) cl++;
-        else if (!cl) {
-            cl = strstr(low, "french");
-            if (cl) cl += strlen("french");
-        }
-        if (cl) {
-            while (*cl && (isspace((unsigned char)*cl) || *cl == '"' || *cl == '\'')) cl++;
-            char fbuf[256]; copy_trim(fbuf, sizeof fbuf, cl);
-            size_t fl = strlen(fbuf);
-            while (fl > 0 && (fbuf[fl - 1] == '.' || fbuf[fl - 1] == '?' ||
-                              fbuf[fl - 1] == '!' || fbuf[fl - 1] == '"' ||
-                              fbuf[fl - 1] == '\''))
-                fbuf[--fl] = '\0';
             char *fw[32]; size_t fn = split_words(fbuf, fw, 32);
             char pieces[32][KB_TERM_LEN]; size_t np = 0;  /* gen307: collect, then reorder clitics */
             for (size_t i = 0; i < fn; i++) {
@@ -175,71 +226,59 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
     /* gen236 (LLMSCORE): minimal EN->ES word-by-word translation for short
      * benchmark prompts. Words and gender live in KB as tr_es/2 + gender_es/2. */
     if (strstr(low, "spanish")) {
-        char quoted[256] = "";
-        const char *q1 = strchr(low, 34);
-        if (q1) {
-            const char *q2 = strchr(q1 + 1, 34);
-            if (q2 && q2 > q1 + 1) {
-                size_t ql = (size_t)(q2 - q1 - 1);
-                if (ql >= sizeof quoted) ql = sizeof quoted - 1;
-                memcpy(quoted, q1 + 1, ql);
-                quoted[ql] = 0;
-            }
-        }
-        const char *cl = quoted[0] ? quoted : strchr(low, ':');
-        if (cl && !quoted[0]) cl++;
-        else if (!cl) {
-            cl = strstr(low, "spanish");
-            if (cl) cl += strlen("spanish");
-        }
-        if (cl) {
-            while (*cl && (isspace((unsigned char)*cl) || *cl == '"' || *cl == '\'')) cl++;
-            char sbuf[256]; copy_trim(sbuf, sizeof sbuf, cl);
-            size_t sl = strlen(sbuf);
-            while (sl > 0 && (sbuf[sl-1] == '.' || sbuf[sl-1] == '?' || sbuf[sl-1] == '!' ||
-                              sbuf[sl-1] == '"' || sbuf[sl-1] == '\''))
-                sbuf[--sl] = '\0';
+        char sbuf[256];
+        if (tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
             char *sw[32]; size_t sn = split_words(sbuf, sw, 32);
             char result[512] = ""; size_t ro = 0;
-            for (size_t i = 0; i < sn; i++) {
-                char *tok = strip_edge_punct(sw[i]);
-                if (!*tok) continue;
+            for (size_t i = 0; i < sn; ) {
                 char piece[KB_TERM_LEN] = "";
-                if (strcmp(tok, "the") == 0 && i + 1 < sn) {
-                    char *nx = strip_edge_punct(sw[i + 1]);
-                    char esn[1][KB_TERM_LEN];
-                    const char *nq[] = { nx, NULL };
-                    if (kb_match(b->kb, "tr_es", nq, 2, esn, 1) == 1) {
-                        char gen[1][KB_TERM_LEN];
-                        const char *gq[] = { esn[0], NULL };
-                        int fem_es = (kb_match(b->kb, "gender_es", gq, 2, gen, 1) == 1 &&
-                                      strcmp(gen[0], "f") == 0);
-                        /* U5 (gen288): the Spanish definite article is a KB fact,
-                         * article_es(Gender, Form) in grammar.p0, not a C ternary. */
-                        const char *aq[] = { fem_es ? "f" : "m", NULL };
-                        char aes[1][KB_TERM_LEN];
-                        if (kb_match(b->kb, "article_es", aq, 2, aes, 1) == 1)
-                            snprintf(piece, sizeof piece, "%s", aes[0]);
-                        else
-                            snprintf(piece, sizeof piece, "%s", fem_es ? "la" : "el");
+                /* gen310: longest-match a fixed multi-word phrase FIRST (the
+                 * idiomatic unit: "nice to meet you" -> "mucho gusto"); fall back
+                 * to word-by-word + article grammar for the rest. */
+                char gloss[KB_TERM_LEN];
+                size_t used = tr_phrase_chunk(b, "tr_es_phrase", sw, sn, i, gloss, sizeof gloss);
+                if (used) { snprintf(piece, sizeof piece, "%s", gloss); i += used; }
+                else {
+                    char *tok = strip_edge_punct(sw[i]);
+                    if (!*tok) { i++; continue; }
+                    if (strcmp(tok, "the") == 0 && i + 1 < sn) {
+                        char *nx = strip_edge_punct(sw[i + 1]);
+                        char esn[1][KB_TERM_LEN];
+                        const char *nq[] = { nx, NULL };
+                        if (kb_match(b->kb, "tr_es", nq, 2, esn, 1) == 1) {
+                            char gen[1][KB_TERM_LEN];
+                            const char *gq[] = { esn[0], NULL };
+                            int fem_es = (kb_match(b->kb, "gender_es", gq, 2, gen, 1) == 1 &&
+                                          strcmp(gen[0], "f") == 0);
+                            /* U5 (gen288): the Spanish definite article is a KB fact,
+                             * article_es(Gender, Form) in grammar.p0, not a C ternary. */
+                            const char *aq[] = { fem_es ? "f" : "m", NULL };
+                            char aes[1][KB_TERM_LEN];
+                            if (kb_match(b->kb, "article_es", aq, 2, aes, 1) == 1)
+                                snprintf(piece, sizeof piece, "%s", aes[0]);
+                            else
+                                snprintf(piece, sizeof piece, "%s", fem_es ? "la" : "el");
+                        }
                     }
-                }
-                if (!piece[0]) {
-                    char es[1][KB_TERM_LEN];
-                    const char *q[] = { tok, NULL };
-                    if (kb_match(b->kb, "tr_es", q, 2, es, 1) != 1) {
-                        /* gen240: honest decline that NAMES the gap (like the IT path)
-                         * and claims the turn, so the request isn't met with a worse
-                         * generic deflection downstream. */
-                        char msg[160];
-                        snprintf(msg, sizeof msg,
-                                 "I can translate most of it, but I don't know the "
-                                 "Spanish for \"%s\".", tok);
-                        put(msg, out, out_size);
-                        return 1;
+                    if (!piece[0]) {
+                        char es[1][KB_TERM_LEN];
+                        const char *q[] = { tok, NULL };
+                        if (kb_match(b->kb, "tr_es", q, 2, es, 1) != 1) {
+                            /* gen240: honest decline that NAMES the gap (like the IT path)
+                             * and claims the turn, so the request isn't met with a worse
+                             * generic deflection downstream. */
+                            char msg[160];
+                            snprintf(msg, sizeof msg,
+                                     "I can translate most of it, but I don't know the "
+                                     "Spanish for \"%s\".", tok);
+                            put(msg, out, out_size);
+                            return 1;
+                        }
+                        snprintf(piece, sizeof piece, "%s", es[0]);
                     }
-                    snprintf(piece, sizeof piece, "%s", es[0]);
+                    i++;
                 }
+                if (!piece[0]) continue;
                 size_t pl = strlen(piece);
                 if (ro && ro + 1 < sizeof result) result[ro++] = ' ';
                 if (ro + pl + 1 < sizeof result) {

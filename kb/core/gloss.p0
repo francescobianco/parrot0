@@ -63,5 +63,16 @@ tr_fr(sun, soleil).
 tr_fr(shining, brille).
 tr_fr(good, bon).
 tr_fr(morning, matin).
+% gen310: fixed multi-word phrases as TRANSLATION UNITS — the idiomatic (non-
+% compositional) leaf of the translation plan. mod_translate longest-matches these
+% before word-by-word, so "how do you say X in <lang>?" works for whole phrases.
+tr_fr_phrase("good morning", bonjour).
+tr_fr_phrase("thank you", merci).
+tr_fr_phrase("thank you very much", "merci beaucoup").
+tr_fr_phrase("nice to meet you", "enchanté").
+tr_es_phrase("good morning", "buenos días").
+tr_es_phrase("thank you", gracias).
+tr_es_phrase("thank you very much", "muchas gracias").
+tr_es_phrase("nice to meet you", "mucho gusto").
 gender_fr(chat, m).
 gender_fr(tapis, m).

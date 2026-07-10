@@ -578,7 +578,9 @@ static int is_internal_pred(const char *pred) {
         "grows_with", "increases",
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "scene_cue", "continuation_template",
-        "tr_es", "gender_es", "tr_fr", "gender_fr", "very_cold_result",
+        "tr_es", "gender_es", "tr_fr", "gender_fr",
+        "tr_es_phrase", "tr_fr_phrase", /* gen310: phrase translation units */
+        "very_cold_result",
         "historical_figure", "figure_domain", "figure_reason",
         "paint_mix",
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
