@@ -194,6 +194,7 @@ llmscore: build
 # Vars: ROUNDS=n PROBES=file (controlled mode).
 autolearn: build
 	@$(BENCH_PY) ./tests/autolearn.py --rounds $(or $(ROUNDS),5) \
+		--workers $(or $(WORKERS),5) --multiply $(or $(MULTIPLY),20) \
 		$(if $(PROBES),--probes $(PROBES),)
 
 # RULESCORE (F., 2026-07-02) — on the LLMSCORE model: an LLM INVENTS 5 terminal

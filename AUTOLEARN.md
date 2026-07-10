@@ -320,3 +320,87 @@
 - before: Shimmer with a soft silver light.
 - judge: The answer is a fluent poetic continuation that matches the moonlit imagery and maintains the poetic register of the question.
 
+
+
+
+
+
+I numeri
+
+┌────────────────────────────────┬─────────┬────────┬──────────────┬────────┬─────────┐
+│                                │ already │ closed │ fatti tenuti │ failed │ skipped │                                                                                                                          
+├────────────────────────────────┼─────────┼────────┼──────────────┼────────┼─────────┤
+│ Run 1                          │ 9       │ 2      │ +3           │ 7      │ 2       │
+├────────────────────────────────┼─────────┼────────┼──────────────┼────────┼─────────┤
+│ Run 2 (dopo tuning dal ledger) │ 8       │ 5      │ +10          │ 3      │ 3       │
+└────────────────────────────────┴─────────┴────────┴──────────────┴────────┴─────────┘
+
+KB appreso: 21 fatti, tutti veri, zero spazzatura (l'oracolo ha respinto ~10 lezioni fallite senza sporcare nulla).
+
+Ragionamento 1 — Il trainer è esso stesso addestrabile (il risultato più importante)
+
+Tra run 1 e run 2 non ho toccato architettura: ho letto il ledger, aggiunto idiom_meaning alla whitelist e due righe di guida al teacher → la resa è 2.5×. Il loop esterno (analizza ledger → aggiusta whitelist/prompt → run) è
+LOOP.md applicato al training invece che al C. E la conferma immediata: "break the ice", fallita al run 1, chiusa al run 2 con la lezione giusta.
+
+Ragionamento 2 — Il ledger classifica il mondo da solo, in 4 code distinte
+
+I fallimenti non sono rumore: si separano da soli in categorie con rimedi diversi:
+
+1. Gap di dati → si chiudono da soli (riddle, suoni, idiomi, simboli chimici, gloss FR). Costo ~zero, scala col provider.
+2. Gap di consumer (2 casi netti, ripetuti in entrambi i run): "what is the definition of the word X" non raggiunge wiki_concept; il superlativo aperto ("largest mammal") non enumera magnitude. Ogni consumer generico = una gen C
+   che sblocca un'intera classe insegnabile per sempre. Questa è la coda che merita C.
+3. Gap di computazione (skipped onesti: treno 60mph, sequenza 2-4-8-16): il teacher riconosce che non sono fatti — è territorio S3 (istruzioni-come-programmi), non lezioni. Il confine lezione/computazione emerge da solo.
+4. Igiene di motore: l'ombra di routing (magnitude rivendica pound of feathers prima del riddle KB) e il rendering crudo (chemical_symbol(gold, au). come risposta). Piccoli, precisi, con caso minimo allegato.
+
+Ragionamento 3 — Due astuzie del teacher da giudicare (onestà)
+
+- idiom_meaning(good morning, bonjour) per "How do you say Good morning in French": ha usato il canale idiom come canale di traduzione di frase. Funziona ed è conoscenza vera, ma è un frame improprio — se uno chiede "what does
+  good morning mean" risponderebbe "bonjour". Borderline: da tenere d'occhio.
+- hardest_natural_substance(diamond, earth): il frame binario generico gen11 è più flessibile del previsto — ha risposto a una domanda superlativa che il canale magnitude non copre. Vinto legittimamente, ma mostra che due canali
+  si sovrappongono.
+
+Ragionamento 4 — Il quadro economico
+
+Un run da 20 = ~10 minuti e centesimi. Il tasso attuale: ~1 fatto/minuto con oracle a zero inquinamento, più il ledger che si auto-compila. È sostenibile come processo notturno (cron), e la curva migliorerà ancora perché ogni
+consumer-gap chiuso in C converte una categoria intera di failed→taught.
+
+Le tre decisioni che ora spettano a te
+
+1. I 2 consumer-gap ricorrenti (definition-phrasing, superlativo aperto): li chiudo come gen C classiche? Sono le uniche C giustificate dal ledger, ciascuna sblocca una classe.
+2. L'ombra di routing (magnitude vs riddle): il declino informato di un modulo blocca la conoscenza insegnabile a valle — questione di principio sul first-match: il declino informato dovrebbe cedere il turno se un KB a valle sa
+   rispondere?
+3. Il canale-improprio (idiom-come-traduzione): lo accettiamo (è conoscenza che funziona) o stringiamo la guida del teacher (purezza dei frame)?
+
+## Run 2026-07-10 18:02:21 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 0 · failed 2 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — already-capable
+- Q: What is the capital of Australia?
+- before: Canberra.
+- judge: The answer correctly identifies Canberra as the capital of Australia.
+
+### Round 2 — already-capable
+- Q: What is the chemical symbol for gold?
+- before: chemical_symbol(gold, au).
+- judge: The answer correctly identifies the chemical symbol for gold as Au, albeit in a Prolog-style format.
+
+### Round 3 — failed-lesson
+- Q: How do you say "Thank you very much" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "thank".
+- lesson: tr_es(thanks, gracias); tr_es(very, muy); tr_es(much, mucho); tr_es(thank, gracias)
+- after: I can translate most of it, but I don't know the Spanish for "you".
+- judge: The answer is incorrect and unhelpful; it claims ignorance about a word ('you') that isn't even in the phrase, and fails to provide the actual translation 'Muchas gracias'.
+
+### Round 4 — failed-lesson
+- Q: How do you say "I am hungry" in French?
+- before: I can translate most of it, but I don't know the French for "i".
+- lesson: tr_fr(i, je); tr_fr(hungry, faim); tr_fr(am, suis); idiom_meaning(i am hungry, in french jai faim uses avoir not etre literally i have hunger but means i am hungry); tr_fr(i am hungry, jai faim)
+- after: Je suis faim.
+- judge: The answer is incorrect; the correct French expression is 'J'ai faim' (I have hunger), not 'Je suis faim'.
+
+### Round 5 — already-capable
+- Q: I have cities but no houses, forests but no trees, and water but no fish. What am I?
+- before: A map.
+- judge: The answer is correct as a map accurately depicts cities, forests, and water without the actual physical entities.
+
