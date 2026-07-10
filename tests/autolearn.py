@@ -12,8 +12,10 @@ around parrot0's own MCP training interface (the U-series, gen279-289):
                  --mcp-engine (kb.assert -> kb.save). Re-probe; retry while the
                  decline keeps naming new gaps (the gradient loop).
 
-HONESTY ORACLE: a lesson persists into kb/learning/autolearn.p0 ONLY if the
-re-probe flips the judge's vote to 1. A lesson that does not take is rolled back
+HONESTY ORACLE: a lesson persists into the curated kb/ tree ONLY if the re-probe
+flips the judge's vote to 1. Persistence goes through parrot0's routed save-map
+(PARROT0_KB_ROOT): each new fact lands next to its kin; only unrouted leftovers
+fall back to a dedicated spill file. A lesson that does not take is rolled back
 and recorded in the FAILED-LESSON LEDGER — the queue that names engine/consumer
 gaps (the D.1->U3 pattern: C work is pulled by a documented failed lesson, never
 speculative). The KB is the weights; the lesson is the gradient step; the honest
@@ -25,14 +27,17 @@ external, costs a little — NOT part of `make test`. Report appended to
 AUTOLEARN.md at the repo root.
 
 Usage: .venv/bin/python tests/autolearn.py [--rounds 5] [--probes FILE]
-         [--model minimax-m2.5] [--kb kb/learning/autolearn.p0] [--retries 2]
+         [--model minimax-m2.5] [--kb kb/learning/autolearn-unrouted.p0]
+         [--retries 2]
 """
 from __future__ import annotations
-import argparse, concurrent.futures, json, os, random, re, shutil, subprocess, sys, \
-       threading, time, urllib.request, urllib.error
+import argparse, concurrent.futures, json, os, re, subprocess, sys, threading, \
+       time, urllib.request, urllib.error
 
 BASE = "https://opencode.ai/zen/go/v1/chat/completions"
 P0_EOT = "\x1e"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BIN = os.path.join(ROOT, "bin", "parrot0")
 
 # Rotating ability hints so parallel workers (no shared interviewer history) still
 # ask DIVERSE questions across the axes the judge scores.
@@ -143,6 +148,33 @@ BATCH_JUDGE_SYS = (
     '{"vote":0 or 1,"reason":"one short sentence"}'
 )
 
+DIAG_SYS = (
+    "You are diagnosing WHY parrot0 failed a question and WHETHER the current KB-first "
+    "engine could plausibly be improved by teaching whitelisted facts. Reply STRICT JSON only:\n"
+    '{"failure_class":"missing_fact|composition_gap|morphology_gap|idiom_gap|engine_gap|unknown",'
+    '"teachable":true|false,'
+    '"lesson_mode":"fact|template|skip",'
+    '"reason":"one short sentence",'
+    '"next_action":"one short sentence"}\n'
+    "Use missing_fact when parrot0 names missing knowledge or a small set of facts may "
+    "close the gap. Use composition_gap/morphology_gap/idiom_gap when facts may be true "
+    "but the observed answer form is wrong. Use engine_gap only after evidence that facts "
+    "were tried but the answer path still cannot consume them."
+)
+
+REFLECT_SYS = (
+    "You are reviewing one failed autolearn attempt. Classify the failure from evidence, "
+    "not from the topic. Reply STRICT JSON only:\n"
+    '{"failure_class":"missing_fact|composition_gap|morphology_gap|idiom_gap|engine_gap|unknown",'
+    '"teachable":true|false,'
+    '"lesson_mode":"fact|template|skip",'
+    '"reason":"one short sentence",'
+    '"next_action":"one short sentence"}\n'
+    "If the post-teach answer improved but remained wrong, prefer composition_gap, "
+    "morphology_gap, or missing_fact. If it did not materially change after stored facts, "
+    "prefer engine_gap. Name what the next training step should test."
+)
+
 
 def call_model(key, model, messages, temperature, max_tokens=900):
     body = json.dumps({"model": model, "messages": messages,
@@ -194,39 +226,80 @@ def first_json(s):
 
 
 # ---------------------------------------------------------------- parrot0 I/O
-def p0_env(kb_path):
-    return {**os.environ, "PARROT0_BASE": "", "PARROT0_SESSION": kb_path,
-            "PARROT0_EOT": P0_EOT}
+def p0_env(base_path, session_path, kb_root):
+    return {**os.environ, "PARROT0_BASE": base_path, "PARROT0_SESSION": session_path,
+            "PARROT0_KB_ROOT": kb_root, "PARROT0_EOT": P0_EOT}
 
 
-def probe(question, kb_path):
-    """One question to a fresh parrot0 with the learned session loaded."""
-    proc = subprocess.Popen(["./bin/parrot0"], stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
-        env=p0_env(kb_path))
-    try:
-        proc.stdin.write(question + "\n")
-        proc.stdin.flush()
-        lines = []
-        while True:
-            ln = proc.stdout.readline()
-            if not ln:
-                break
-            ln = ln.rstrip("\n")
-            if ln == P0_EOT:
-                break
-            lines.append(ln)
-        return "\n".join(lines).strip()
-    finally:
+class McpSession:
+    """One long-lived MCP engine process holding an in-memory training round."""
+
+    def __init__(self, env, cwd):
+        self._id = 1
+        self.proc = subprocess.Popen([BIN, "--mcp-engine"], stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, bufsize=1,
+            env=env, cwd=cwd)
+        self._rpc("initialize", {"protocolVersion": "2024-11-05"})
+        self._notify("notifications/initialized")
+
+    def _send(self, payload):
+        self.proc.stdin.write(json.dumps(payload) + "\n")
+        self.proc.stdin.flush()
+
+    def _read(self):
+        ln = self.proc.stdout.readline()
+        if not ln:
+            raise RuntimeError("mcp engine closed stdout")
         try:
-            proc.stdin.close()
+            return json.loads(ln)
+        except Exception as e:
+            raise RuntimeError(f"bad mcp json: {ln.strip()}") from e
+
+    def _rpc(self, method, params=None):
+        rid = self._id
+        self._id += 1
+        self._send({"jsonrpc": "2.0", "id": rid, "method": method,
+                    "params": params or {}})
+        while True:
+            msg = self._read()
+            if msg.get("id") != rid:
+                continue
+            if "error" in msg:
+                raise RuntimeError(msg["error"])
+            return msg.get("result", {})
+
+    def _notify(self, method, params=None):
+        self._send({"jsonrpc": "2.0", "method": method, "params": params or {}})
+
+    def call(self, name, arguments=None):
+        res = self._rpc("tools/call", {"name": name, "arguments": arguments or {}})
+        if isinstance(res, dict) and res.get("isError"):
+            raise RuntimeError(res.get("content", res))
+        raw = (res.get("content") or [{}])[0].get("text", "{}")
+        try:
+            return json.loads(raw)
+        except Exception as e:
+            raise RuntimeError(f"bad tool payload: {raw}") from e
+
+    def close(self):
+        try:
+            if self.proc.stdin:
+                self.proc.stdin.close()
         except Exception:
             pass
-        proc.wait(timeout=10)
+        try:
+            self.proc.wait(timeout=5)
+        except Exception:
+            self.proc.kill()
 
 
-def mcp_teach(facts, kb_path):
-    """Assert facts over --mcp-engine and persist the session to kb_path.
+def probe(question, sess):
+    """One question against the current in-memory MCP brain state."""
+    return (sess.call("gen.respond", {"input": question}).get("output") or "").strip()
+
+
+def persist_facts(facts, save_path, env, cwd):
+    """Assert facts over --mcp-engine and persist the session to save_path.
     Returns (n_stored, errors)."""
     reqs = ['{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}',
             '{"jsonrpc":"2.0","method":"notifications/initialized"}']
@@ -238,21 +311,35 @@ def mcp_teach(facts, kb_path):
                                                          "args": f["args"]}}}))
     reqs.append(json.dumps({"jsonrpc": "2.0", "id": 999, "method": "tools/call",
                             "params": {"name": "kb.save",
-                                       "arguments": {"path": kb_path}}}))
-    proc = subprocess.run(["./bin/parrot0", "--mcp-engine"],
+                                       "arguments": {"path": save_path}}}))
+    proc = subprocess.run([BIN, "--mcp-engine"],
                           input="\n".join(reqs) + "\n", text=True,
-                          capture_output=True, timeout=30, env=p0_env(kb_path))
+                          capture_output=True, timeout=30, env=env, cwd=cwd)
     stored = proc.stdout.count('stored\\":true')
     errors = [ln for ln in proc.stdout.splitlines() if '"isError":true' in ln]
-    # kb.save re-dumps runtime state facts; strip them so the file stays pure lesson.
+    # The fallback spill file may pick up runtime state facts; strip them so it stays
+    # a pure unrouted spill instead of a mixed session dump.
     try:
-        with open(kb_path) as fh:
+        with open(save_path) as fh:
             keep = [ln for ln in fh
                     if not re.match(r"(process_pid|os_language|current_language)\(", ln)]
-        with open(kb_path, "w") as fh:
+        with open(save_path, "w") as fh:
             fh.writelines(keep)
     except FileNotFoundError:
         pass
+    return stored, errors
+
+
+def session_teach(sess, facts):
+    stored, errors = 0, []
+    for f in facts:
+        try:
+            res = sess.call("kb.assert", {"pred": f["pred"], "args": f["args"]})
+        except Exception as e:
+            errors.append(str(e))
+            continue
+        if res.get("stored"):
+            stored += 1
     return stored, errors
 
 
@@ -283,12 +370,163 @@ def fact_str(f):
     return f'{f["pred"]}({", ".join(f["args"])})'
 
 
+def local_diagnose(question, answer):
+    _ = question
+    al = answer.lower()
+    if "i do not know the relation" in al or "i don't know the relation" in al:
+        return {
+            "failure_class": "missing_fact",
+            "teachable": True,
+            "lesson_mode": "fact",
+            "reason": "The answer named a missing relation that can be tested with facts.",
+            "next_action": "Teach the smallest grounded lesson and re-probe."
+        }
+    if "i can translate most of it" in al or "i can't translate" in al:
+        return {
+            "failure_class": "missing_fact",
+            "teachable": True,
+            "lesson_mode": "fact",
+            "reason": "The answer named missing lexical knowledge.",
+            "next_action": "Teach only the missing lexical facts and re-probe."
+        }
+    if "i don't understand" in al or "not sure i followed" in al or "beyond me" in al:
+        return {
+            "failure_class": "unknown",
+            "teachable": True,
+            "lesson_mode": "fact",
+            "reason": "The failure did not name a specific gap, but a constrained lesson may still reveal one.",
+            "next_action": "Try one small whitelisted lesson, then classify from the post-teach response."
+        }
+    return {
+        "failure_class": "missing_fact",
+        "teachable": True,
+        "lesson_mode": "fact",
+        "reason": "This looks like a direct knowledge gap that may be fixed by grounded facts.",
+        "next_action": "Teach a small operational lesson and re-probe."
+    }
+
+
+def diagnose_failure(key, model, question, answer, judge_reason):
+    raw = first_json(call_model(key, model, [
+        {"role": "system", "content": DIAG_SYS},
+        {"role": "user", "content":
+            f"QUESTION: {question}\nANSWER: {answer}\nJUDGE: {judge_reason}\n"
+            "Diagnose the failure for the current KB-first engine."}], 0.0, 600))
+    loc = local_diagnose(question, answer)
+    if not raw:
+        return loc
+    out = {
+        "failure_class": str(raw.get("failure_class", loc["failure_class"])).strip(),
+        "teachable": bool(raw.get("teachable", loc["teachable"])),
+        "lesson_mode": str(raw.get("lesson_mode", loc["lesson_mode"])).strip(),
+        "reason": one_line(str(raw.get("reason", loc["reason"]))),
+        "next_action": one_line(str(raw.get("next_action", loc["next_action"]))),
+    }
+    if out["failure_class"] not in {"missing_fact", "composition_gap", "morphology_gap",
+                                    "idiom_gap", "engine_gap", "unknown"}:
+        out["failure_class"] = loc["failure_class"]
+    if out["lesson_mode"] not in {"fact", "template", "skip"}:
+        out["lesson_mode"] = loc["lesson_mode"]
+    return out
+
+
+def audit_lesson(question, diag, facts):
+    _ = question
+    _ = diag
+    if not facts:
+        return {"ok": False, "kind": "empty", "reason": "no facts survived sanitization"}
+    for f in facts:
+        if f["pred"] == "magnitude_cue" and " " in f["args"][0]:
+            return {"ok": False, "kind": "engine_gap",
+                    "reason": "magnitude_cue needs a single cue word; multi-word cues never match."}
+    return {"ok": True, "kind": "ok", "reason": "lesson is operational enough to try"}
+
+
+def norm_reply(s):
+    return re.sub(r"\s+", " ", (s or "").strip().lower())
+
+
+def local_reflect(question, before, lesson, after, judge_reason):
+    _ = question
+    _ = lesson
+    moved = norm_reply(before) != norm_reply(after)
+    jr = (judge_reason or "").lower()
+    if not moved:
+        return {
+            "failure_class": "engine_gap",
+            "teachable": False,
+            "lesson_mode": "skip",
+            "reason": "Stored facts did not materially change the answer path.",
+            "next_action": "Record the failed lesson as a consumer gap before adding more facts."
+        }
+    if "incorrect" in jr or "wrong" in jr or "not correct" in jr:
+        return {
+            "failure_class": "composition_gap",
+            "teachable": True,
+            "lesson_mode": "fact",
+            "reason": "The answer changed but remained wrong, so the lesson was partly consumed.",
+            "next_action": "Retry with a smaller or differently shaped lesson and compare the response delta."
+        }
+    return {
+        "failure_class": "missing_fact",
+        "teachable": True,
+        "lesson_mode": "fact",
+        "reason": "The lesson changed behavior but did not satisfy the judge.",
+        "next_action": "Use the changed answer as feedback for the next lesson."
+    }
+
+
+def reflect_attempt(key, model, question, before, lesson, after, judge_reason):
+    raw = first_json(call_model(key, model, [
+        {"role": "system", "content": REFLECT_SYS},
+        {"role": "user", "content":
+            f"QUESTION: {question}\nBEFORE: {before}\n"
+            f"LESSON: {'; '.join(fact_str(f) for f in lesson)}\n"
+            f"AFTER: {after}\nJUDGE: {judge_reason}\n"
+            "Classify what the failed attempt proves."}], 0.0, 800))
+    loc = local_reflect(question, before, lesson, after, judge_reason)
+    if not raw:
+        return loc
+    out = {
+        "failure_class": str(raw.get("failure_class", loc["failure_class"])).strip(),
+        "teachable": bool(raw.get("teachable", loc["teachable"])),
+        "lesson_mode": str(raw.get("lesson_mode", loc["lesson_mode"])).strip(),
+        "reason": one_line(str(raw.get("reason", loc["reason"]))),
+        "next_action": one_line(str(raw.get("next_action", loc["next_action"]))),
+    }
+    if out["failure_class"] not in {"missing_fact", "composition_gap", "morphology_gap",
+                                    "idiom_gap", "engine_gap", "unknown"}:
+        out["failure_class"] = loc["failure_class"]
+    if out["lesson_mode"] not in {"fact", "template", "skip"}:
+        out["lesson_mode"] = loc["lesson_mode"]
+    if norm_reply(before) == norm_reply(after):
+        out = loc
+    return out
+
+
 _PRINT_LOCK = threading.Lock()
 
 
 def log(msg):
     with _PRINT_LOCK:
         print(msg, flush=True)
+
+
+def append_ledger(path, stamp, model, result):
+    row = {
+        "ts": stamp,
+        "model": model,
+        "verdict": result.get("verdict"),
+        "question": result.get("q"),
+        "before": result.get("a0"),
+        "after": result.get("a1"),
+        "judge": result.get("reason"),
+        "diagnosis": result.get("diag"),
+        "lesson": result.get("lesson", []),
+        "multiplied": result.get("multiplied", []),
+    }
+    with open(path, "a") as fh:
+        fh.write(json.dumps(row, ensure_ascii=True) + "\n")
 
 
 def multiply_lesson(key, model, seed_facts, n_max):
@@ -325,13 +563,11 @@ def multiply_lesson(key, model, seed_facts, n_max):
     return sibs if int(j.get("vote", 0)) == 1 else []
 
 
-def do_round(idx, given_q, args, key, base_bytes):
-    """One fully independent round on its OWN scratch KB (base + this round's
-    lessons). Returns a result dict incl. the facts to keep (verified seed +
-    audited siblings). Safe to run in a thread: no shared mutable engine state."""
-    scratch = f"{args.kb}.w{idx}"
-    with open(scratch, "wb") as fh:
-        fh.write(base_bytes)
+def do_round(idx, given_q, args, key):
+    """One fully independent round on its OWN in-memory MCP brain session.
+    Lessons are verified in RAM only; persistence happens later in phase two."""
+    sess = McpSession(p0_env(os.path.join(ROOT, "kb", "core", "base.p0"), "",
+                             os.path.join(ROOT, "kb")), ROOT)
     try:
         if given_q is not None:
             q = given_q
@@ -343,14 +579,17 @@ def do_round(idx, given_q, args, key, base_bytes):
         if q.startswith("[model error") or q == "[empty]":
             return {"verdict": "interviewer-error", "q": q, "kept": []}
 
-        a0 = probe(q, scratch) or "(empty)"
+        a0 = probe(q, sess) or "(empty)"
         j0 = first_json(call_model(key, args.model, [
             {"role": "system", "content": JUDGE_SYS},
             {"role": "user", "content": f"Q: {q}\nA: {a0}"}], 0.0)) or {}
+        j0_reason = j0.get("reason", "")
         if int(j0.get("vote", 0)) == 1:
             log(f"[{idx+1}] already   {q[:70]}")
             return {"verdict": "already-capable", "q": q, "a0": a0,
-                    "reason": j0.get("reason", ""), "kept": []}
+                    "reason": j0_reason, "kept": []}
+
+        diag = diagnose_failure(key, args.model, q, a0, j0_reason)
 
         lessons, a1, v1, jr = [], a0, 0, ""
         for _ in range(args.retries + 1):
@@ -358,46 +597,63 @@ def do_round(idx, given_q, args, key, base_bytes):
                 {"role": "system", "content": TEACHER_SYS},
                 {"role": "user", "content":
                     f"QUESTION: {q}\nPARROT0'S FAILING REPLY: {a1}\n"
+                    f"DIAGNOSIS: class={diag['failure_class']}; mode={diag['lesson_mode']}; "
+                    f"reason={diag['reason']}; next={diag['next_action']}\n"
                     + (f"FACTS ALREADY TAUGHT THIS ROUND: "
                        f"{'; '.join(fact_str(f) for f in lessons)}\n" if lessons else "")
                     + "Formulate the lesson."}], 0.2, max_tokens=3000))
             if not t or "skip" in (t or {}):
                 if not lessons:
                     return {"verdict": "skipped", "q": q, "a0": a0,
-                            "reason": (t or {}).get("skip", "no lesson JSON"), "kept": []}
+                            "reason": (t or {}).get("skip", "no lesson JSON"),
+                            "diag": diag, "kept": []}
                 break
             facts, dropped = sanitize_lesson(t)
             if not facts:
                 if not lessons:
                     return {"verdict": "skipped", "q": q, "a0": a0,
                             "reason": f"no whitelisted facts ({len(dropped)} dropped)",
-                            "kept": []}
+                            "diag": diag, "kept": []}
                 break
-            mcp_teach(facts, scratch)
+            audit = audit_lesson(q, diag, facts)
+            if not audit["ok"]:
+                if not lessons:
+                    log(f"[{idx+1}] gap      {q[:70]}")
+                    return {"verdict": "engine-gap", "q": q, "a0": a0, "reason": audit["reason"],
+                            "diag": {**diag, "next_action": audit["reason"]},
+                            "lesson": [fact_str(f) for f in facts], "kept": []}
+                break
+            stored, errors = session_teach(sess, facts)
+            if stored == 0 and errors:
+                return {"verdict": "skipped", "q": q, "a0": a0,
+                        "reason": "; ".join(errors[:3]), "diag": diag, "kept": []}
             lessons += facts
-            a1 = probe(q, scratch) or "(empty)"
+            a1 = probe(q, sess) or "(empty)"
             j1 = first_json(call_model(key, args.model, [
                 {"role": "system", "content": JUDGE_SYS},
                 {"role": "user", "content": f"Q: {q}\nA: {a1}"}], 0.0)) or {}
             v1, jr = int(j1.get("vote", 0)), j1.get("reason", "")
             if v1 == 1:
                 break
+            diag = reflect_attempt(key, args.model, q, a0, facts, a1, jr)
+            if not diag.get("teachable", True) or diag.get("lesson_mode") == "skip":
+                break
 
         if lessons and v1 == 1:
             sibs = multiply_lesson(key, args.model, lessons, args.multiply)
             log(f"[{idx+1}] TAUGHT   {q[:56]}  (+{len(lessons)} seed +{len(sibs)} x)")
             return {"verdict": "taught", "q": q, "a0": a0, "a1": a1, "reason": jr,
+                    "diag": diag,
                     "lesson": [fact_str(f) for f in lessons],
                     "multiplied": [fact_str(f) for f in sibs],
                     "kept": lessons + sibs}
-        log(f"[{idx+1}] failed   {q[:70]}")
-        return {"verdict": "failed-lesson", "q": q, "a0": a0, "a1": a1, "reason": jr,
-                "lesson": [fact_str(f) for f in lessons], "kept": []}
+        fail_diag = diag if lessons else diagnose_failure(key, args.model, q, a1, jr or j0_reason)
+        verdict = "engine-gap" if fail_diag.get("failure_class") == "engine_gap" else "failed-lesson"
+        log(f"[{idx+1}] {'gap' if verdict == 'engine-gap' else 'failed':<8} {q[:70]}")
+        return {"verdict": verdict, "q": q, "a0": a0, "a1": a1, "reason": jr,
+                "diag": fail_diag, "lesson": [fact_str(f) for f in lessons], "kept": []}
     finally:
-        try:
-            os.remove(scratch)
-        except OSError:
-            pass
+        sess.close()
 
 
 # ------------------------------------------------------------------ the loop
@@ -405,25 +661,28 @@ def run(args, key):
     os.makedirs(os.path.dirname(args.kb), exist_ok=True)
     if not os.path.exists(args.kb):
         open(args.kb, "w").close()
+    if args.ledger:
+        ldir = os.path.dirname(args.ledger)
+        if ldir:
+            os.makedirs(ldir, exist_ok=True)
 
     probes = []
     if args.probes:
         with open(args.probes) as fh:
             probes = [ln.strip() for ln in fh if ln.strip() and not ln.startswith("#")]
     n = min(args.rounds, len(probes)) if probes else args.rounds
-    with open(args.kb, "rb") as fh:          # frozen base every worker starts from
-        base_bytes = fh.read()
 
-    # Parallel: rounds are independent (own scratch KB); the calls are I/O-bound on
-    # the provider, so a thread pool cuts wall-clock ~Wx. Merge is single-threaded.
+    # Parallel: rounds are independent (own in-memory MCP session); the provider
+    # calls are I/O-bound, so a thread pool cuts wall-clock ~Wx. Persist is a
+    # separate second phase after the oracle accepts the round.
     results = [None] * n
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as ex:
-        fut = {ex.submit(do_round, i, (probes[i] if probes else None), args, key,
-                         base_bytes): i for i in range(n)}
+        fut = {ex.submit(do_round, i, (probes[i] if probes else None), args, key): i
+               for i in range(n)}
         for f in concurrent.futures.as_completed(fut):
             results[fut[f]] = f.result()
 
-    # Merge every worker's kept facts into the canonical KB, deduped, in one teach.
+    # Merge every worker's kept facts into the canonical KB, deduped, in one routed save.
     seen, kept_facts = set(), []
     for r in results:
         for f in r.get("kept", []):
@@ -432,12 +691,19 @@ def run(args, key):
                 seen.add(k)
                 kept_facts.append(f)
     if kept_facts:
-        mcp_teach(kept_facts, args.kb)
+        persist_facts(kept_facts, args.kb,
+                      p0_env(os.path.join(ROOT, "kb", "core", "base.p0"), "",
+                             os.path.join(ROOT, "kb")),
+                      ROOT)
 
     counts = {}
+    diag_counts = {}
     seed_total = mult_total = 0
     for r in results:
         counts[r["verdict"]] = counts.get(r["verdict"], 0) + 1
+        d = r.get("diag") or {}
+        if d.get("failure_class"):
+            diag_counts[d["failure_class"]] = diag_counts.get(d["failure_class"], 0) + 1
         if r["verdict"] == "taught":
             seed_total += len(r.get("lesson", []))
             mult_total += len(r.get("multiplied", []))
@@ -449,13 +715,22 @@ def run(args, key):
                  f"{' (probes)' if probes else ' (autonomous)'}\n\n")
         fh.write(f"**already {counts.get('already-capable',0)} · "
                  f"taught {counts.get('taught',0)} · failed {counts.get('failed-lesson',0)} "
-                 f"· skipped {counts.get('skipped',0)} · "
+                 f"· engine-gap {counts.get('engine-gap',0)} · skipped {counts.get('skipped',0)} · "
                  f"kept {len(kept_facts)} facts ({seed_total} seed + {mult_total} "
                  f"multiplied, deduped)**\n\n")
+        if diag_counts:
+            bits = [f"{k} {diag_counts[k]}" for k in sorted(diag_counts)]
+            fh.write(f"**diagnoses: {' · '.join(bits)}**\n\n")
         for i, r in enumerate(results, 1):
             fh.write(f"### Round {i} — {r.get('verdict','?')}\n- Q: {r.get('q','')}\n")
             if "a0" in r:
                 fh.write(f"- before: {r['a0']}\n")
+            if r.get("diag"):
+                d = r["diag"]
+                fh.write(f"- diagnosis: {d.get('failure_class','?')} · "
+                         f"teachable={str(bool(d.get('teachable', False))).lower()} · "
+                         f"mode={d.get('lesson_mode','?')}\n")
+                fh.write(f"- next: {d.get('next_action','')}\n")
             if r.get("lesson"):
                 fh.write(f"- lesson: {'; '.join(r['lesson'])}\n")
             if r.get("multiplied"):
@@ -466,12 +741,18 @@ def run(args, key):
             if r.get("reason"):
                 fh.write(f"- judge: {r['reason']}\n")
             fh.write("\n")
+    if args.ledger:
+        for r in results:
+            append_ledger(args.ledger, stamp, args.model, r)
 
     log(f"\nautolearn: already {counts.get('already-capable',0)}, "
         f"taught {counts.get('taught',0)}, failed {counts.get('failed-lesson',0)}, "
-        f"skipped {counts.get('skipped',0)} | KEPT {len(kept_facts)} facts "
+        f"engine-gap {counts.get('engine-gap',0)}, skipped {counts.get('skipped',0)} | "
+        f"KEPT {len(kept_facts)} facts "
         f"({seed_total} seed + {mult_total} multiplied)")
-    log(f"report appended: {args.out}\nknowledge: {args.kb}")
+    if diag_counts:
+        log("diagnoses: " + ", ".join(f"{k}={diag_counts[k]}" for k in sorted(diag_counts)))
+    log(f"report appended: {args.out}\nknowledge root: kb/\nfallback spill: {args.kb}")
     return 0
 
 
@@ -482,8 +763,8 @@ def main():
                                      "(controlled mode; default: autonomous interviewer)")
     ap.add_argument("--model", default="minimax-m2.5",
                     help="opencode-GO slug for interviewer/judge/teacher")
-    ap.add_argument("--kb", default="kb/learning/autolearn.p0",
-                    help="persistent learned-knowledge file (repo-relative)")
+    ap.add_argument("--kb", default="kb/learning/autolearn-unrouted.p0",
+                    help="repo-relative fallback spill for unrouted facts")
     ap.add_argument("--retries", type=int, default=2,
                     help="extra teach attempts while the decline names new gaps")
     ap.add_argument("--workers", type=int, default=5,
@@ -492,13 +773,15 @@ def main():
                     help="on a verified lesson, add up to N batch-audited same-schema "
                          "siblings (0 disables)")
     ap.add_argument("--out", default="AUTOLEARN.md")
+    ap.add_argument("--ledger", default="kb/learning/autolearn-ledger.jsonl",
+                    help="JSONL ledger of per-round outcomes and diagnoses")
     args = ap.parse_args()
 
     key = os.environ.get("OPENCODE_API_KEY")
     if not key:
         print("autolearn: OPENCODE_API_KEY not set", file=sys.stderr)
         return 1
-    if not os.path.exists("./bin/parrot0"):
+    if not os.path.exists(BIN):
         print("autolearn: build first (make build)", file=sys.stderr)
         return 1
     return run(args, key)

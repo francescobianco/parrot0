@@ -108,6 +108,7 @@ opposite(open, closed).
 opposite(closed, open).
 opposite(light, dark).
 opposite(dark, light).
+opposite(dark, bright).
 opposite(day, night).
 opposite(night, day).
 opposite(happy, sad).
@@ -157,6 +158,8 @@ opposite(sell, buy).
 opposite(question, answer).
 opposite(answer, question).
 opposite(easy, difficult).
+opposite(easy, hard).
+opposite(loud, quiet).
 opposite(difficult, easy).
 opposite(give, take).
 opposite(take, give).
@@ -233,6 +236,9 @@ opposite(cautious, reckless).
 opposite(reckless, cautious).
 opposite(lazy, diligent).
 opposite(diligent, lazy).
+opposite(verbose, concise).
+opposite(verbose, succinct).
+opposite(verbose, brief).
 
 % --- gen254: defining-phrase vocabulary — word_for(KeyPhrase, Word). The phrase
 % is matched as a substring of the turn (like idiom_meaning), so "what word
@@ -580,9 +586,29 @@ difference_between(left, right_politics, "Left politics stresses equality and pu
 
 % gen240 (LLMSCORE): animal sounds. "what sound does a dog make?" -> woof.
 sound_of(dog, "woof").
+sound_of(dog, bark).
+sound_of(cat, meow).
+sound_of(cow, moo).
+sound_of(duck, quack).
+sound_of(chicken, cluck).
 sound_of(cat, "meow").
+sound_of(sheep, baa).
+sound_of(lion, roar).
+sound_of(elephant, trumpet).
+sound_of(wolf, howl).
+sound_of(bee, buzz).
+sound_of(mouse, squeak).
+sound_of(donkey, bray).
+sound_of(bear, growl).
+sound_of(goat, bleat).
 sound_of(cow, "moo").
+sound_of(snake, hiss).
+sound_of(frog, croak).
+sound_of(horse, neigh).
+sound_of(pig, oink).
+sound_of(owl, hoot).
 sound_of(duck, "quack").
+sound_of(rooster, crow).
 sound_of(sheep, "baa").
 sound_of(horse, "neigh").
 sound_of(pig, "oink").
@@ -593,6 +619,7 @@ sound_of(bee, "buzz").
 sound_of(owl, "hoot").
 sound_of(rooster, "cock-a-doodle-doo").
 sound_of(snake, "hiss").
+sound_of(koala, bellow).
 
 paint_mix(blue, yellow, green).
 paint_mix(yellow, blue, green).
@@ -1054,9 +1081,27 @@ category_member(wonder, "the great pyramid of giza").
 category_member(wonder, "the hanging gardens of babylon").
 category_member(wonder, "the statue of zeus at olympia").
 category_member(wonder, "the temple of artemis").
+idiom_meaning("break a leg", "a way to wish someone good luck, especially in performances").
+idiom_meaning("bend over backwards", "to make a great effort or go out of one's way").
 category_member(wonder, "the mausoleum at halicarnassus").
+idiom_meaning("break the ice", "to initiate social interaction or conversation especially in a situation that feels awkward or tense").
+idiom_meaning("piece of cake", "something that is very easy to do").
+idiom_meaning("spill the beans", "to reveal a secret").
+idiom_meaning("kill two birds with one stone", "to achieve two things with a single action").
+idiom_meaning("the ball is in your court", "it is up to you to make the next decision or take action").
+idiom_meaning("beat around the bush", "to avoid talking about what is important; to delay discussing something").
+idiom_meaning("hit the sack", "to go to bed or go to sleep").
 category_member(wonder, "the colossus of rhodes").
 category_member(wonder, "the lighthouse of alexandria").
+idiom_meaning("call it a day", "to stop working on something for the day; to finish").
+idiom_meaning("cut to the chase", "to get to the point quickly, skipping unnecessary details").
+idiom_meaning("easier said than done", "something that is harder to do than to talk about").
+idiom_meaning("fall on deaf ears", "when advice, request, or complaint is ignored").
+idiom_meaning("go the extra mile", "to make more effort than is expected").
+idiom_meaning("hang in there", "to stay patient and determined in a difficult situation").
+idiom_meaning("jump on the bandwagon", "to join a popular activity or trend").
+idiom_meaning("keep an eye on", "to watch someone or something carefully").
+idiom_meaning("give a hand", "to applaud; to help someone").
 
 % gen241 (LLMSCORE-check): common idioms as KNOWLEDGE. "what does the idiom X mean?"
 % reads idiom_meaning(Phrase, "gloss"). The phrase is the key (matched as a substring
@@ -1079,6 +1124,25 @@ idiom_meaning("speak of the devil", "said when a person you were just talking ab
 idiom_meaning("when pigs fly", "something that will never happen").
 idiom_meaning("a blessing in disguise", "a good thing that seemed bad at first").
 idiom_meaning("barking up the wrong tree", "pursuing a mistaken or misguided line of thought").
+idiom_meaning("cómo estás", "how are you?").
+idiom_meaning("break a leg", "good luck especially to performers").
+idiom_meaning("break the ice", "to initiate conversation or relieve tension in a social setting").
+idiom_meaning("under the weather", "feeling ill or sick").
+idiom_meaning("spill the beans", "to reveal secret information").
+idiom_meaning("hit the nail on the head", "to describe exactly the cause of a situation").
+idiom_meaning("let the cat out of the bag", "to reveal a secret").
+idiom_meaning("kill two birds with one stone", "to achieve two aims with a single action").
+idiom_meaning("barking up the wrong tree", "to pursue a mistaken or misguided course of action").
+idiom_meaning("beat around the bush", "to avoid talking about what is important").
+idiom_meaning("break the bank", "to exceed one's budget, to be too expensive").
+idiom_meaning("bite the bullet", "to endure a painful or difficult situation with courage").
+idiom_meaning("burn the midnight oil", "to work late into the night").
+idiom_meaning("call it a day", "to stop working on something").
+idiom_meaning("cut to the chase", "to get to the point quickly").
+idiom_meaning("do the math", "to calculate or consider the facts").
+idiom_meaning("fingers crossed", "hoping for good luck").
+idiom_meaning("go the extra mile", "to make more effort than expected").
+idiom_meaning("hit the books", "to study").
 
 % gen241 (LLMSCORE-check): phase-change knowledge. boils_at / freezes_at give the
 % temperature and result, so "what happens when you boil water at sea level?" answers
@@ -1278,6 +1342,13 @@ process_topic(bread_rise, rises).
 process_topic(bread_rise, rising).
 process_step(bread_rise, 1, "Yeast consumes sugars in the dough and releases carbon dioxide gas").
 process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stretching the dough").
+tr_es(good, bueno).
+tr_es(bad, malo).
+tr_es(food, comida).
+tr_es(love, amor).
+tr_es(where, dónde).
+tr_es(what, qué).
+tr_es(i, yo).
 process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
 process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
 
@@ -1310,6 +1381,11 @@ limerick_l5(coffee, "Then brew one more cup for the spree.").
 limerick_l1(cat, "There once was a cat by the door,").
 limerick_l2(cat, "Who slept through the day and the more;").
 limerick_l3(cat, "    At the sound of a tin,").
+tr_es(hello, hola).
+tr_es(goodbye, adiós).
+tr_es(yes, sí).
+tr_es(no, no).
+tr_es(thanks, gracias).
 limerick_l4(cat, "    She'd stretch and begin,").
 limerick_l5(cat, "To wind round your feet on the floor.").
 
@@ -1346,6 +1422,10 @@ tr_es(day, día).
 tr_es(a, un).
 tr_es(in, en).
 tr_es(and, y).
+tr_es(how, cómo).
+tr_es(are, estás).
+tr_es(you, tú).
+tr_es(you, te).
 % --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
 borders(andorra, france).
 borders(france, andorra).

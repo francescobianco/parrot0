@@ -404,3 +404,253 @@ Le tre decisioni che ora spettano a te
 - before: A map.
 - judge: The answer is correct as a map accurately depicts cities, forests, and water without the actual physical entities.
 
+
+## Run 2026-07-10 18:42:58 — model minimax-m2.5, 1 round(s), 1 workers, multiply x0 (autonomous)
+
+**already 0 · taught 0 · failed 1 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — failed-lesson
+- Q: How many capitals does South Africa have?
+- before: I don't understand that yet.
+- lesson: capital(pretoria, south_africa); capital(capetown, south_africa); capital(bloemfontein, south_africa); capital_count(south_africa, three); magnitude_cue(how many, capitals, max); magnitude(capitals, south_africa, 3); magnitude_cue(many, capitals, count); capital_count(south_africa, three); magnitude(capitals, south_africa, 3)
+- after: I don't understand that yet.
+- judge: The answer deflects the question instead of providing the factual information that South Africa has three capitals (Pretoria, Cape Town, and Bloemfontein).
+
+
+## Run 2026-07-10 18:48:13 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 3 · skipped 0 · kept 1 facts (1 seed + 0 multiplied, deduped)**
+
+### Round 1 — taught
+- Q: What is the capital of Brazil?
+- before: I do not know the relation capital yet, so I cannot answer the capital of brazil. You can teach me with thing is the capital of brazil, or give facts/rules to reason from.
+- lesson: capital(brasilia, brazil)
+- after: Brasilia.
+- judge: The answer correctly identifies Brasília as the capital of Brazil.
+
+### Round 2 — failed-lesson
+- Q: What element does the chemical symbol "Fe" represent?
+- before: I don't understand that yet.
+- lesson: chemical_symbol(fe, iron); wiki_concept(fe, chemical_symbol, Fe is the chemical symbol for iron, a metallic element with atomic number 26 and symbol Fe); wiki_concept(iron, chemical_element, Iron is a metallic element with symbol Fe and atomic number 26, atomic mass 55.845); chemical_symbol(fe, iron); element_of(fe, iron); wiki_concept(fe, chemical_symbol, Fe is the chemical symbol for iron, a metallic element with atomic number 26); represents(fe, iron)
+- after: Hmm, I don't know about element yet.
+- judge: The answer incorrectly deflects; 'Fe' is the chemical symbol for iron, which is basic chemistry knowledge.
+
+### Round 3 — failed-lesson
+- Q: How do you say "How are you?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "how".
+- lesson: tr_es(how, cómo); tr_es(are, estar); tr_es(you, tú); idiom_meaning(how are you, a common greeting asking about someone's wellbeing); tr_es(how are you, cómo estás); tr_es(how are you, cómo está)
+- after: Cómo estar tú.
+- judge: The answer is incorrect; the proper Spanish phrase is '¿Cómo estás?' (with proper conjugation 'estás' for informal tú, and with opening question mark).
+
+### Round 4 — failed-lesson
+- Q: How do you say "Good night" in French?
+- before: I can translate most of it, but I don't know the French for "good".
+- lesson: tr_fr(good, bon); tr_fr(night, nuit); tr_fr(good, bonne); gender_fr(nuit, f)
+- after: Nuit bon.
+- judge: The correct French translation is 'Bonne nuit' not 'Nuit bon'; the adjective must precede the noun in French.
+
+### Round 5 — already-capable
+- Q: I have cities but no houses, forests but no trees, and water but no fish. What am I?
+- before: A map.
+- judge: The answer 'A map' is correct as maps depict cities, forests, and water without containing the actual houses, trees, or fish.
+
+
+## Run 2026-07-10 18:53:12 — model minimax-m2.5, 1 round(s), 1 workers, multiply x0 (autonomous)
+
+**already 1 · taught 0 · failed 0 · engine-gap 0 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Australia?
+- before: Canberra.
+- judge: The answer correctly identifies Canberra as the capital city of Australia.
+
+
+## Run 2026-07-10 19:00:39 — model minimax-m2.5, 1 round(s), 1 workers, multiply x0 (autonomous)
+
+**already 1 · taught 0 · failed 0 · engine-gap 0 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Australia?
+- before: Canberra.
+- judge: The answer correctly identifies Canberra as Australia's capital city.
+
+
+## Run 2026-07-10 19:01:33 — model minimax-m2.5, 1 round(s), 1 workers, multiply x0 (autonomous)
+
+**already 1 · taught 0 · failed 0 · engine-gap 0 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Australia?
+- before: Canberra.
+- judge: Canberra is the correct capital city of Australia.
+
+
+## Run 2026-07-10 19:08:28 — model minimax-m2.5, 20 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 4 · taught 9 · failed 1 · engine-gap 4 · skipped 1 · kept 152 facts (17 seed + 140 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 6 · idiom_gap 1 · missing_fact 6 · unknown 1**
+
+### Round 1 — already-capable
+- Q: What is the capital of Australia?
+- before: Canberra.
+- judge: Correct and direct answer to the factual question.
+
+### Round 2 — taught
+- Q: What is the chemical symbol for sodium?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact mapping sodium → Na to the knowledge base.
+- lesson: chemical_symbol(na, sodium)
+- multiplied (+20): chemical_symbol(h, hydrogen); chemical_symbol(he, helium); chemical_symbol(li, lithium); chemical_symbol(c, carbon); chemical_symbol(n, nitrogen); chemical_symbol(o, oxygen); chemical_symbol(f, fluorine); chemical_symbol(ne, neon); chemical_symbol(cl, chlorine); chemical_symbol(k, potassium); chemical_symbol(ca, calcium); chemical_symbol(mg, magnesium); chemical_symbol(fe, iron); chemical_symbol(cu, copper); chemical_symbol(zn, zinc); chemical_symbol(ag, silver); chemical_symbol(au, gold); chemical_symbol(hg, mercury); chemical_symbol(pb, lead); chemical_symbol(s, sulfur)
+- after: chemical_symbol(na, sodium).
+- judge: The answer correctly identifies Na as the chemical symbol for sodium, responding accurately to the question.
+
+### Round 3 — taught
+- Q: How do you say "How are you?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "how".
+- diagnosis: composition_gap · teachable=true · mode=template
+- next: Teach 'Cómo estás' as a single phrase template rather than individual word translations.
+- lesson: tr_es(how, cómo); tr_es(are, estás); tr_es(you, tú); tr_es(you, te); idiom_meaning(cómo estás, how are you?)
+- after: Cómo estás tú.
+- judge: The answer correctly provides the Spanish translation 'Cómo estás tú' for 'How are you?', which is grammatically correct though the more common form omits 'tú'.
+
+### Round 4 — failed-lesson
+- Q: Translate "Thank you very much" into French.
+- before: I can translate most of it, but I don't know the French for "thank".
+- diagnosis: idiom_gap · teachable=true · mode=skip
+- next: Test whether the user can recognize that 'merci beaucoup' is a single idiomatic chunk, not a composable word-for-word translation.
+- lesson: tr_fr(thank, merci); tr_fr(very, très); tr_fr(much, beaucoup); idiom_meaning(merci beaucoup, thank you very much); idiom_meaning(merci, thank you)
+- after: I can translate most of it, but I don't know the French for "you".
+- judge: The answer is factually wrong; 'you' is not a separate word to translate in 'Thank you very much'—the French phrase is simply 'Merci beaucoup.'
+
+### Round 5 — already-capable
+- Q: I speak without a mouth and hear without ears. I have no body, but I come alive with wind. What am I?
+- before: An echo.
+- judge: The answer 'An echo' correctly solves the riddle by matching all the clues: it repeats sounds without a mouth, responds to sounds without ears, has no physical body, and is produced by sound waves.
+
+### Round 6 — interviewer-error
+- Q: [empty]
+
+### Round 7 — taught
+- Q: What does it mean when someone says "break a leg" to a performer before they go on stage?
+- before: Who or what does "it" refer to?
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the answer path to ensure questions about idiom meanings trigger the idiom handler rather than grammatical parsing.
+- lesson: idiom_meaning(break a leg, good luck especially to performers)
+- multiplied (+20): idiom_meaning(break the ice, to initiate conversation or relieve tension in a social setting); idiom_meaning(piece of cake, something very easy to do); idiom_meaning(under the weather, feeling ill or sick); idiom_meaning(spill the beans, to reveal secret information); idiom_meaning(hit the nail on the head, to describe exactly the cause of a situation); idiom_meaning(cost an arm and a leg, to be very expensive); idiom_meaning(once in a blue moon, very rarely); idiom_meaning(let the cat out of the bag, to reveal a secret); idiom_meaning(kill two birds with one stone, to achieve two aims with a single action); idiom_meaning(barking up the wrong tree, to pursue a mistaken or misguided course of action); idiom_meaning(beat around the bush, to avoid talking about what is important); idiom_meaning(break the bank, to exceed one's budget, to be too expensive); idiom_meaning(bite the bullet, to endure a painful or difficult situation with courage); idiom_meaning(burn the midnight oil, to work late into the night); idiom_meaning(call it a day, to stop working on something); idiom_meaning(cut to the chase, to get to the point quickly); idiom_meaning(do the math, to calculate or consider the facts); idiom_meaning(fingers crossed, hoping for good luck); idiom_meaning(go the extra mile, to make more effort than expected); idiom_meaning(hit the books, to study)
+- after: "break a leg" means good luck -- it's a way to wish someone a great performance, especially on stage.
+- judge: The answer accurately explains that 'break a leg' is a theatrical idiom used to wish performers good luck.
+
+### Round 8 — taught
+- Q: What sound does a koala bear make?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add factual knowledge entry for koala bear sounds (bellow/grunt) to the knowledge base and verify the answer path can consume it.
+- lesson: sound_of(koala, bellow)
+- multiplied (+20): sound_of(dog, bark); sound_of(cat, meow); sound_of(cow, moo); sound_of(horse, neigh); sound_of(pig, oink); sound_of(sheep, baa); sound_of(goat, bleat); sound_of(duck, quack); sound_of(chicken, cluck); sound_of(rooster, crow); sound_of(owl, hoot); sound_of(frog, croak); sound_of(lion, roar); sound_of(elephant, trumpet); sound_of(wolf, howl); sound_of(bear, growl); sound_of(snake, hiss); sound_of(bee, buzz); sound_of(mouse, squeak); sound_of(donkey, bray)
+- after: A koala goes "bellow".
+- judge: The answer correctly identifies that koalas make a bellowing sound, which is accurate.
+
+### Round 9 — engine-gap
+- Q: Which is bigger, a great white shark or a blue whale?
+- before: I recognize a comparison on size, but I don't have magnitudes for Shark and Blue.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: magnitude(size, blue_whale, 100); magnitude(size, great_white_shark, 20); magnitude_cue(bigger, size, max); magnitude_cue(biggest, size, max); magnitude_cue(larger, size, max); magnitude_cue(largest, size, max)
+- after: I recognize a comparison on size, but I don't have magnitudes for Shark and Blue.
+- judge: The answer fails to provide the correct comparison and instead declines to answer.
+
+### Round 10 — engine-gap
+- Q: What does "ephemeral" mean?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test if the model can retrieve and generate from a single wiki_concept fact when explicitly prompted with the term.
+- lesson: wiki_concept(ephemeral, vocabulary, lasting for a very short time)
+- after: I didn't quite catch that. What would you like to know?
+- judge: The answer deflects instead of providing the definition of 'ephemeral,' which means lasting for a very short time.
+
+### Round 11 — already-capable
+- Q: What color do you get when you mix blue and yellow paint together?
+- before: Green.
+- judge: The answer correctly identifies that mixing blue and yellow paint produces green.
+
+### Round 12 — skipped
+- Q: Who was the first person to receive a United States patent?
+- before: I understood you're asking about first person to receive a united states patent: I tried to look it up, but I don't have a source to learn it from yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the factual entry that Joseph Harris received United States Patent No. 1 as the first patent holder.
+- judge: no whitelisted facts (1 dropped)
+
+### Round 13 — taught
+- Q: What is the capital of Egypt?
+- before: I do not know the relation capital yet, so I cannot answer the capital of egypt. You can teach me with thing is the capital of egypt, or give facts/rules to reason from.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the factual triple that Cairo is the capital of Egypt to the knowledge base.
+- lesson: capital(cairo, egypt)
+- after: Cairo.
+- judge: The answer is correct and directly responds to the question.
+
+### Round 14 — taught
+- Q: What is the chemical symbol for iron?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- lesson: chemical_symbol(iron, fe)
+- multiplied (+20): chemical_symbol(hydrogen, h); chemical_symbol(helium, he); chemical_symbol(lithium, li); chemical_symbol(beryllium, be); chemical_symbol(boron, b); chemical_symbol(carbon, c); chemical_symbol(nitrogen, n); chemical_symbol(oxygen, o); chemical_symbol(fluorine, f); chemical_symbol(neon, ne); chemical_symbol(sodium, na); chemical_symbol(magnesium, mg); chemical_symbol(aluminium, al); chemical_symbol(silicon, si); chemical_symbol(phosphorus, p); chemical_symbol(sulfur, s); chemical_symbol(chlorine, cl); chemical_symbol(argon, ar); chemical_symbol(potassium, k); chemical_symbol(calcium, ca)
+- after: chemical_symbol(iron, fe).
+- judge: The answer correctly identifies Fe as the chemical symbol for iron, using a formal Prolog-style notation.
+
+### Round 15 — taught
+- Q: Translate "How are you?" into Spanish.
+- before: I can translate most of it, but I don't know the Spanish for "how".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Test whether the engine knows Spanish vocabulary facts tr_es(how, cómo) and tr_es(you, tú) independently.
+- lesson: tr_es(how, cómo); tr_es(are, estás); tr_es(you, tú)
+- multiplied (+20): tr_es(hello, hola); tr_es(goodbye, adiós); tr_es(yes, sí); tr_es(no, no); tr_es(thanks, gracias); tr_es(good, bueno); tr_es(bad, malo); tr_es(water, agua); tr_es(food, comida); tr_es(house, casa); tr_es(dog, perro); tr_es(cat, gato); tr_es(sun, sol); tr_es(moon, luna); tr_es(love, amor); tr_es(day, día); tr_es(night, noche); tr_es(where, dónde); tr_es(what, qué); tr_es(i, yo)
+- after: Cómo estás tú.
+- judge: The translation 'Cómo estás tú' is a correct and fluent Spanish equivalent of 'How are you?'
+
+### Round 16 — engine-gap
+- Q: How do you say "Thank you" in French?
+- before: I can translate most of it, but I don't know the French for "thank".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_fr(thank you, merci)
+- after: I can translate most of it, but I don't know the French for "thank".
+- judge: The answer deflects rather than providing the correct French translation, which is simply 'Merci' for 'Thank you'.
+
+### Round 17 — already-capable
+- Q: I have cities but no houses, forests but no trees, and water but no fish. What am I?
+- before: A map.
+- judge: The answer 'A map' is correct and perfectly fits the classic riddle's description of representations without actual physical entities.
+
+### Round 18 — taught
+- Q: What is the opposite of "verbose"?
+- before: Nobody that I know of.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add verbose ↔ concise/brief/succinct as a whitelisted antonym fact pair to the knowledge base.
+- lesson: opposite(verbose, concise); opposite(verbose, succinct); opposite(verbose, brief)
+- multiplied (+20): opposite(big, small); opposite(happy, sad); opposite(hot, cold); opposite(light, dark); opposite(tall, short); opposite(fast, slow); opposite(easy, hard); opposite(full, empty); opposite(loud, quiet); opposite(old, young); opposite(rich, poor); opposite(dry, wet); opposite(strong, weak); opposite(thick, thin); opposite(wide, narrow); opposite(open, closed); opposite(rough, smooth); opposite(dark, bright); opposite(heavy, light); opposite(quiet, noisy)
+- after: Concise.
+- judge: The answer 'Concise' is correct and directly answers the antonym question.
+
+### Round 19 — taught
+- Q: What does the idiom "break the ice" mean?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=fact
+- next: Fix the retrieval and answer-construction pipeline so that known idioms receive direct definitions rather than deflection responses.
+- lesson: idiom_meaning(break the ice, to initiate social interaction or conversation especially in a situation that feels awkward or tense)
+- multiplied (+20): idiom_meaning(piece of cake, something that is very easy to do); idiom_meaning(under the weather, feeling ill or sick); idiom_meaning(spill the beans, to reveal a secret); idiom_meaning(hit the sack, to go to bed or go to sleep); idiom_meaning(break a leg, a way to wish someone good luck, especially in performances); idiom_meaning(bend over backwards, to make a great effort or go out of one's way); idiom_meaning(kill two birds with one stone, to achieve two things with a single action); idiom_meaning(the ball is in your court, it is up to you to make the next decision or take action); idiom_meaning(beat around the bush, to avoid talking about what is important; to delay discussing something); idiom_meaning(bite the bullet, to endure a painful or difficult situation with courage); idiom_meaning(call it a day, to stop working on something for the day; to finish); idiom_meaning(cut to the chase, to get to the point quickly, skipping unnecessary details); idiom_meaning(easier said than done, something that is harder to do than to talk about); idiom_meaning(fall on deaf ears, when advice, request, or complaint is ignored); idiom_meaning(give a hand, to applaud; to help someone); idiom_meaning(go the extra mile, to make more effort than is expected); idiom_meaning(hang in there, to stay patient and determined in a difficult situation); idiom_meaning(hit the nail on the head, to describe exactly what is causing a situation or problem); idiom_meaning(jump on the bandwagon, to join a popular activity or trend); idiom_meaning(keep an eye on, to watch someone or something carefully)
+- after: "break the ice" means to initiate social interaction or conversation especially in a situation that feels awkward or tense.
+- judge: The answer accurately defines the idiom 'break the ice' as initiating social interaction in awkward or tense situations, which is correct.
+
+### Round 20 — engine-gap
+- Q: What is the only mammal capable of true flight?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Test whether the engine can retrieve a simple stored fact when directly asked a factual question.
+- lesson: wiki_concept(bat, zoology, Bats are the only mammals capable of true flight)
+- after: Hmm, I don't know about mammal yet.
+- judge: The response deflects with uncertainty instead of providing the correct answer (bats).
+

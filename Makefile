@@ -187,14 +187,19 @@ llmscore: build
 # AUTOLEARN (F., 2026-07-10) — the autonomous MCP trainer (T0.e, docs/plans/
 # llmscore-strategies.md). An opencode-GO model interviews parrot0, judges each
 # exchange, and on a failure formulates a LESSON (whitelisted KB facts) taught
-# live over --mcp-engine; knowledge persists into kb/learning/autolearn.p0 ONLY
-# if the re-probe flips the judge's vote (the honesty oracle) — otherwise the
-# lesson is rolled back and recorded in AUTOLEARN.md's failed-lesson ledger (the
-# queue that names engine gaps). External + paid, NOT part of `make test`.
-# Vars: ROUNDS=n PROBES=file (controlled mode).
+# live over --mcp-engine; verified knowledge persists through the routed save-map
+# into the curated kb/ tree (with only unrouted leftovers spilling to a fallback
+# file) if the re-probe flips the judge's vote (the honesty oracle) — otherwise
+# the lesson is rolled back and recorded in AUTOLEARN.md's failed-lesson ledger
+# (the queue that names engine gaps). External + paid, NOT part of `make test`.
+# Vars: ROUNDS=n WORKERS=n MULTIPLY=n RETRIES=n MODEL=slug KB=file LEDGER=file
+#       PROBES=file (controlled mode).
 autolearn: build
 	@$(BENCH_PY) ./tests/autolearn.py --rounds $(or $(ROUNDS),5) \
 		--workers $(or $(WORKERS),5) --multiply $(or $(MULTIPLY),20) \
+		--retries $(or $(RETRIES),2) --model $(or $(MODEL),minimax-m2.5) \
+		--kb $(or $(KB),kb/learning/autolearn-unrouted.p0) \
+		--ledger $(or $(LEDGER),kb/learning/autolearn-ledger.jsonl) \
 		$(if $(PROBES),--probes $(PROBES),)
 
 # RULESCORE (F., 2026-07-02) — on the LLMSCORE model: an LLM INVENTS 5 terminal
