@@ -6,3 +6,16 @@ riddle_sig(riddle_vine, "no hands").
 riddle_sig(riddle_vine, "i climb").
 riddle_sig(riddle_vine, "i cling").
 response_template(riddle_vine, "You are a vine.").
+tr_fr(sun, soleil).
+tr_fr(shining, brille).
+chemical_symbol(gold, au).
+riddle_sig(map_riddle, "no houses live").
+riddle_sig(map_riddle, "no trees grow").
+riddle_sig(map_riddle, "what am i").
+response_template(map_riddle, "You are a map.").
+sound_of(seal, bark).
+tr_fr(good, bon).
+tr_fr(morning, matin).
+idiom_meaning("good morning", bonjour).
+hardest_natural_substance(diamond, earth).
+idiom_meaning("break the ice", "to initiate conversation or ease tension in a social setting by making people feel more comfortable").

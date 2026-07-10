@@ -40,7 +40,7 @@ WHITELIST = {
     "tr_es": 2, "tr_fr": 2, "gender_es": 2, "gender_fr": 2,
     "riddle_sig": 2, "response_template": 2,
     "wiki_concept": 3, "color_of": 2, "sound_of": 2,
-    "magnitude": 3, "magnitude_cue": 3,
+    "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -89,14 +89,18 @@ TEACHER_SYS = (
     "you are confident about.\n"
     "- wiki_concept(concept_key, domain, definition): a one-line definition for "
     "'what is X' gaps; concept_key lowercase_with_underscores.\n"
+    "- idiom_meaning(idiom_phrase, gloss): the meaning of an idiom/saying; the "
+    "phrase is matched as a substring of the question, lowercase.\n"
     "- color_of(thing, color); sound_of(animal, sound); "
     "magnitude(dimension, item, rank_number) with magnitude_cue(cueword, dimension, "
-    "max|min) for comparisons.\n"
+    "max|min) for comparisons — cueword MUST be a single word (e.g. fastest), "
+    "multi-word cues never match.\n"
     "- any simple binary relation rel(x, y) answering 'what/who is the <rel> of "
     "<y>' — e.g. capital(canberra, australia), opposite(permanent, ephemeral).\n"
     "RULES: atoms lowercase; multi-word strings allowed as plain text; NO double "
-    "quotes inside values; teach the general class, not a memorized reply to this "
-    "exact phrasing; never invent facts you are not confident are true."
+    "quotes inside values; translation keys are ONE word each (skip function words "
+    "like to/the); no duplicate facts; teach the general class, not a memorized "
+    "reply to this exact phrasing; never invent facts you are not confident are true."
 )
 
 
