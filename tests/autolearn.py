@@ -61,6 +61,7 @@ ABILITIES = [
 # can never pollute the KB. Routing/self predicates are blacklisted outright.
 WHITELIST = {
     "tr_es": 2, "tr_fr": 2, "gender_es": 2, "gender_fr": 2,
+    "tr_es_phrase": 2, "tr_fr_phrase": 2,  # gen310: multi-word translation units
     "riddle_sig": 2, "response_template": 2,
     "wiki_concept": 3, "color_of": 2, "sound_of": 2,
     "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
@@ -101,9 +102,16 @@ TEACHER_SYS = (
     'or {"skip": "one-line reason"} when no teachable lesson applies.\n'
     "PREDICATE SCHEMAS THE ENGINE CONSUMES (use ONLY these shapes):\n"
     "- tr_es(english_word, spanish_word) / tr_fr(english_word, french_word): "
-    "translation lexicon, one word per fact, lowercase. For a sentence translation "
+    "translation lexicon, one WORD per fact, lowercase. For a sentence translation "
     "teach EVERY plausibly-missing content word, plus gender_es(spanish_noun, m|f) "
     "/ gender_fr(french_noun, m|f) for nouns.\n"
+    "- tr_es_phrase(english_phrase, spanish_phrase) / tr_fr_phrase(english_phrase, "
+    "french_phrase): MULTI-WORD fixed phrase translation UNIT. Use ONLY when the "
+    "question asks to translate a common idiomatic/greeting phrase that CROSSES "
+    "multiple words (e.g. 'thank you', 'good morning', 'nice to meet you'). The "
+    "engine longest-matches the phrase BEFORE word-by-word decomposition. Do NOT "
+    "use tr_fr_phrase for a single word — use tr_fr. Do NOT use tr_es_phrase for "
+    "phrases that decompose trivially word-by-word. Lowercase the English key.\n"
     "- riddle_sig(riddle_id, cue) + response_template(riddle_id, answer_sentence): "
     "classic riddles. riddle_id like riddle_match; give 2-3 cue substrings, then ONE "
     "response_template with the full answer sentence. A riddle fires only when ALL "
@@ -138,8 +146,10 @@ TEACHER_SYS = (
     "rel(w, ?) or rel(?, w). Pair every answer_frame with the relation facts it "
     "consumes, and pick a cue specific enough not to fire on unrelated turns.\n"
     "RULES: atoms lowercase; multi-word strings allowed as plain text; NO double "
-    "quotes inside values; translation keys are ONE word each (skip function words "
-    "like to/the); no duplicate facts; teach the general class, not a memorized "
+    "quotes inside values; translation keys for tr_es/tr_fr are ONE word each "
+    "(skip function words like to/the); translation keys for tr_es_phrase/"
+    "tr_fr_phrase are short multi-word phrases (2-5 words). no duplicate facts; "
+    "teach the general class, not a memorized "
     "reply to this exact phrasing; never invent facts you are not confident are true."
 )
 

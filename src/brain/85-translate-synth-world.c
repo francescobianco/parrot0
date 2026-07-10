@@ -83,13 +83,23 @@ static size_t tr_phrase_chunk(Brain *b, const char *phrase_pred, char **tok,
         }
         if (overflow || ko == 0) continue;
         char g[1][KB_TERM_LEN];
-        char qkey[260]; snprintf(qkey, sizeof qkey, "\"%s\"", key);
-        const char *q[] = { qkey, NULL };
-        fprintf(stderr, "[chunk] pred=%s key=[%s]\n", phrase_pred, qkey);
-        if (kb_match(b->kb, phrase_pred, q, 2, g, 1) == 1) {
-            snprintf(gloss, gsz, "%s", kb_dequote(g[0]));
-            return len;
+        /* gen310: try unquoted key first (matches autolearn-taught facts stored
+         * via kb.assert), then quoted (matches .p0-loaded facts which keep quotes
+         * from parse_term). */
+        static const char *tq[2][2] = {{NULL, NULL}, {NULL, NULL}};
+        char qraw[256];
+        char qquoted[260];
+        snprintf(qraw, sizeof qraw, "%s", key);
+        snprintf(qquoted, sizeof qquoted, "\"%s\"", key);
+        tq[0][0] = qraw; tq[1][0] = qquoted;
+        int found = 0;
+        for (int qi = 0; qi < 2 && !found; qi++) {
+            if (kb_match(b->kb, phrase_pred, tq[qi], 2, g, 1) == 1) {
+                snprintf(gloss, gsz, "%s", kb_dequote(g[0]));
+                found = 1;
+            }
         }
+        if (found) return len;
     }
     return 0;
 }
@@ -114,15 +124,18 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
             /* gen310: a fixed multi-word phrase translates as ONE idiomatic unit
              * (non-compositional): try the whole payload as a phrase first. */
             char pg[1][KB_TERM_LEN];
-            char qfbuf[260]; snprintf(qfbuf, sizeof qfbuf, "\"%s\"", fbuf);
-            const char *pq[] = { qfbuf, NULL };
-            if (kb_match(b->kb, "tr_fr_phrase", pq, 2, pg, 1) == 1) {
-                char sent[256]; snprintf(sent, sizeof sent, "%s", kb_dequote(pg[0]));
-                if (sent[0]) sent[0] = (char)toupper((unsigned char)sent[0]);
-                size_t sl = strlen(sent);
-                if (sl + 1 < sizeof sent) { sent[sl] = '.'; sent[sl + 1] = '\0'; }
-                put(sent, out, out_size);
-                return 1;
+            char qraw_fr[256]; snprintf(qraw_fr, sizeof qraw_fr, "%s", fbuf);
+            char qquoted_fr[260]; snprintf(qquoted_fr, sizeof qquoted_fr, "\"%s\"", fbuf);
+            const char *pqb[2][2] = {{qraw_fr, NULL}, {qquoted_fr, NULL}};
+            for (int qit = 0; qit < 2; qit++) {
+                if (kb_match(b->kb, "tr_fr_phrase", pqb[qit], 2, pg, 1) == 1) {
+                    char sent[256]; snprintf(sent, sizeof sent, "%s", kb_dequote(pg[0]));
+                    if (sent[0]) sent[0] = (char)toupper((unsigned char)sent[0]);
+                    size_t sl = strlen(sent);
+                    if (sl + 1 < sizeof sent) { sent[sl] = '.'; sent[sl + 1] = '\0'; }
+                    put(sent, out, out_size);
+                    return 1;
+                }
             }
             char *fw[32]; size_t fn = split_words(fbuf, fw, 32);
             char pieces[32][KB_TERM_LEN]; size_t np = 0;  /* gen307: collect, then reorder clitics */
