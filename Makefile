@@ -236,6 +236,7 @@ test: build
 	@./tests/compound.sh
 	@./tests/strknow.sh
 	@./tests/answerframe.sh
+	@./tests/aggregate.sh
 	@./tests/article.sh
 	@./tests/adjagree.sh
 	@./tests/artfres.sh

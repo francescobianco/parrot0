@@ -2047,6 +2047,83 @@ static int extract_class_statement(Brain *b, const char *norm,
  * fixed and generic; the frames AND the relations are data — teach both via MCP
  * and the previously-unlearnable becomes learnable. Fires only on a cue match with
  * a real value in scope, so ordinary turns pass through untouched. */
+/* gen309 (teach-comprehension-via-mcp.md): SUPERLATIVE AGGREGATION as teachable
+ * knowledge — the class autolearn flagged with "Stored facts did not materially
+ * change the answer path" (e.g. "which river runs through the MOST capital
+ * cities?"). The relation capital_on_river/2 alone is inert for this form: the
+ * answer is not a stored value but a FOLD over the facts (group by one arg, count
+ * the other, take the extremum). The knowledge is one datum:
+ *   aggregate_frame(Cue, Pred, ReturnArg, Mode)   ReturnArg in {first,second}; Mode in {max,min}
+ * C supplies only the bounded fold (a count map over kb_match), the same split as
+ * mod_answer_frame: grammar/relation is knowledge, the counting driver is C. */
+static int mod_aggregate(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+    char cues[16][KB_TERM_LEN];
+    const char *fq[4] = { NULL, NULL, NULL, NULL };
+    size_t nf = kb_match(b->kb, "aggregate_frame", fq, 4, cues, 16);   /* the Cue list */
+    if (nf == 0) return 0;
+
+    for (size_t i = 0; i < nf; i++) {
+        char cue_s[KB_TERM_LEN]; snprintf(cue_s, sizeof cue_s, "%s", cues[i]);
+        const char *cd = kb_dequote(cue_s);
+        if (!*cd || !cue(norm, cd)) continue;
+
+        /* pull the rest of the row (Pred, ReturnArg, Mode) by narrowing the query. */
+        char prow[1][KB_TERM_LEN]; const char *q2[4] = { cues[i], NULL, NULL, NULL };
+        if (kb_match(b->kb, "aggregate_frame", q2, 4, prow, 1) != 1) continue;
+        char rrow[1][KB_TERM_LEN]; const char *q3[4] = { cues[i], prow[0], NULL, NULL };
+        if (kb_match(b->kb, "aggregate_frame", q3, 4, rrow, 1) != 1) continue;
+        char mrow[1][KB_TERM_LEN]; const char *q4[4] = { cues[i], prow[0], rrow[0], NULL };
+        if (kb_match(b->kb, "aggregate_frame", q4, 4, mrow, 1) != 1) continue;
+
+        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(prow[0]));
+        if (!*pred) continue;
+        const char *rd = kb_dequote(rrow[0]);
+        int ret_second = (strcmp(rd, "second") == 0 || strcmp(rd, "2") == 0);
+        int want_max = (strcmp(kb_dequote(mrow[0]), "min") != 0);   /* default max */
+
+        /* build a count map keyed by the RETURN arg. */
+        char keys[128][KB_TERM_LEN]; int cnt[128]; size_t nk = 0;
+        char base[128][KB_TERM_LEN];
+        const char *eq[2] = { NULL, NULL };
+        size_t nb = kb_match(b->kb, pred, eq, 2, base, 128);   /* distinct arg1 values */
+        for (size_t k = 0; k < nb; k++) {
+            /* the counted arg is arg1; the group/return key is arg2 (ret_second)
+             * or arg1 itself (ret_first, counting its arg2 partners). */
+            if (ret_second) {
+                char grp[16][KB_TERM_LEN];
+                const char *rq[2] = { base[k], NULL };
+                size_t ng = kb_match(b->kb, pred, rq, 2, grp, 16);   /* arg2 for this arg1 */
+                for (size_t g = 0; g < ng; g++) {
+                    size_t j = 0; for (; j < nk; j++) if (!strcmp(keys[j], grp[g])) break;
+                    if (j == nk && nk < 128) { snprintf(keys[nk], KB_TERM_LEN, "%s", grp[g]); cnt[nk] = 0; nk++; }
+                    if (j < 128) cnt[j < nk ? j : nk - 1]++;
+                }
+            } else {
+                const char *rq[2] = { base[k], NULL };
+                char parts[64][KB_TERM_LEN];
+                size_t np = kb_match(b->kb, pred, rq, 2, parts, 64);   /* count arg2 partners */
+                if (nk < 128) { snprintf(keys[nk], KB_TERM_LEN, "%s", base[k]); cnt[nk] = (int)np; nk++; }
+            }
+        }
+        if (nk == 0) continue;
+        size_t best = 0;
+        for (size_t j = 1; j < nk; j++)
+            if (want_max ? (cnt[j] > cnt[best]) : (cnt[j] < cnt[best])) best = j;
+
+        char msg[256];
+        char keyd[KB_TERM_LEN]; snprintf(keyd, sizeof keyd, "%s", kb_dequote(keys[best]));
+        if (keyd[0]) keyd[0] = (char)toupper((unsigned char)keyd[0]);
+        snprintf(msg, sizeof msg, "%s.", keyd);
+        put(msg, out, out_size);
+        store_proof(b, msg);
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
@@ -4883,16 +4960,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             idk(cls, out, out_size); return 1;
         }
         const char *pat[] = {NULL}; /* one variable in arg 0 */
-        char hits[64][KB_TERM_LEN];
-        size_t k = kb_match(b->kb, cls, pat, 1, hits, 64);
+        char hits[96][KB_TERM_LEN];
+        size_t k = kb_match(b->kb, cls, pat, 1, hits, 96);
         if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }
-        char list[512];
+        /* buffers sized for the longest such list — the module roster ("who is a
+         * module?"), ~61 names and growing; keep comfortable headroom. */
+        char list[1536];
         size_t off = 0;
         for (size_t i = 0; i < k && off < sizeof list; i++) {
             off += (size_t)snprintf(list + off, sizeof list - off,
                                     "%s%s", i ? ", " : "", hits[i]);
         }
-        char msg[600];
+        char msg[1600];
         snprintf(msg, sizeof msg, "%s.", list);
         put(msg, out, out_size);
         return 1;

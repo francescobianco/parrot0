@@ -179,6 +179,10 @@ static const Module registry[] = {
      * teachable answer_frame(Cue, Pred) — before mod_knowledge, which would else
      * mis-claim the turn ("Hmm, I don't know about <first word>"). */
     {"answerframe", mod_answer_frame},
+    /* gen309: superlative aggregation over a relation via a teachable
+     * aggregate_frame(Cue, Pred, ReturnArg, Mode) — a fold (group+count+extremum),
+     * before mod_knowledge which would else mis-claim "which river ...?". */
+    {"aggregate", mod_aggregate},
     {"knowledge", mod_knowledge},
     {"codeast",   mod_codeast},
     {"code",      mod_code},

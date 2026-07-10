@@ -1663,7 +1663,21 @@ answer_frame("short for", chemical_symbol).
 % capital_on_river(Capital, River): which capital a river runs through.
 capital_on_river(cairo, nile).
 capital_on_river(khartoum, nile).
+% gen309: more rivers so the SUPERLATIVE aggregation is meaningful (the Danube
+% flows through 4 national capitals, the most of any river in the world).
+capital_on_river(vienna, danube).
+capital_on_river(bratislava, danube).
+capital_on_river(budapest, danube).
+capital_on_river(belgrade, danube).
+capital_on_river(london, thames).
+capital_on_river(paris, seine).
+capital_on_river(rome, tiber).
+capital_on_river(berlin, spree).
 answer_frame("river", capital_on_river).
+% "which river runs through the most capital cities?" — a fold over the relation:
+% group by River (second arg), count capitals, take the max. aggregate_frame is
+% the teachable datum; mod_aggregate supplies only the bounded counting.
+aggregate_frame("most capital", capital_on_river, second, max).
 % hardest_natural_substance(Substance, Where); the frame answers "what is the
 % hardest natural substance on earth?" via the word "earth" -> diamond.
 hardest_natural_substance(diamond, earth).
