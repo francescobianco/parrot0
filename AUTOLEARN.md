@@ -837,3 +837,41 @@ Le tre decisioni che ora spettano a te
 - after: I don't understand that yet.
 - judge: The answer deflects instead of providing the correct response; Au is the symbol for Gold.
 
+
+## Run 2026-07-10 23:03:11 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 0 · failed 0 · engine-gap 1 · skipped 1 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · missing_fact 1**
+
+### Round 1 — engine-gap
+- Q: Which river runs through the most capital cities in the world?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: wiki_concept(danube, river, The Danube flows through more capital cities than any other river in the world); answer_frame(runs through the most capital cities, most_capitals_river); answer_frame(runs through the most capital cities, most_capitals_river); magnitude(capital_cities, danube, 1); magnitude_cue(most, capital_cities, max)
+- after: I don't understand that yet.
+- judge: The answer fails to respond to the question and does not provide the factual answer (the Danube River).
+
+### Round 2 — already-capable
+- Q: What element does the symbol "Au" represent on the periodic table?
+- before: Gold.
+- judge: Correct answerAu is the chemical symbol for Gold.
+
+### Round 3 — skipped
+- Q: How do you say "Nice to meet you" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "nice".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach only the missing lexical facts and re-probe.
+- judge: no whitelisted facts (0 dropped)
+
+### Round 4 — already-capable
+- Q: How do you say "I love you" in French?
+- before: Je t'aime.
+- judge: The answer correctly provides the standard French translation of 'I love you'.
+
+### Round 5 — already-capable
+- Q: I have cities, but no houses live there. I have mountains, but no trees grow there. I have water, but no fish swim there. I have roads, but no cars drive there. What am I?
+- before: You are a map.
+- judge: The answer correctly identifies the riddle's solution as a map, which accurately depicts geographic features without their real-world inhabitants.
+
