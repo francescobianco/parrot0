@@ -83,8 +83,9 @@ static size_t tr_phrase_chunk(Brain *b, const char *phrase_pred, char **tok,
         }
         if (overflow || ko == 0) continue;
         char g[1][KB_TERM_LEN];
-        const char *q[] = { key, NULL };
-        fprintf(stderr, "[chunk] pred=%s key=[%s]\n", phrase_pred, key);
+        char qkey[260]; snprintf(qkey, sizeof qkey, "\"%s\"", key);
+        const char *q[] = { qkey, NULL };
+        fprintf(stderr, "[chunk] pred=%s key=[%s]\n", phrase_pred, qkey);
         if (kb_match(b->kb, phrase_pred, q, 2, g, 1) == 1) {
             snprintf(gloss, gsz, "%s", kb_dequote(g[0]));
             return len;
@@ -113,7 +114,8 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
             /* gen310: a fixed multi-word phrase translates as ONE idiomatic unit
              * (non-compositional): try the whole payload as a phrase first. */
             char pg[1][KB_TERM_LEN];
-            const char *pq[] = { fbuf, NULL };
+            char qfbuf[260]; snprintf(qfbuf, sizeof qfbuf, "\"%s\"", fbuf);
+            const char *pq[] = { qfbuf, NULL };
             if (kb_match(b->kb, "tr_fr_phrase", pq, 2, pg, 1) == 1) {
                 char sent[256]; snprintf(sent, sizeof sent, "%s", kb_dequote(pg[0]));
                 if (sent[0]) sent[0] = (char)toupper((unsigned char)sent[0]);
