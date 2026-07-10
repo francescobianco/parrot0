@@ -81,7 +81,8 @@ INTERVIEW_SYS = (
     "animal sound, a color fact, a simple comparison, or a short creative request.\n"
     "HARD RULE: never ask what the subject is (no AI/model/human questions).\n"
     "Each turn ask a COMPLETELY NEW question on a DIFFERENT ability than before; do "
-    "not react to previous answers. Output ONLY the question, one line."
+    "not react to previous answers. Output ONLY the question, one line.\n"
+    "DO NOT ASK any of these already-handled questions:\n{skip_block}"
 )
 
 JUDGE_SYS = (
@@ -615,23 +616,29 @@ def do_round(idx, given_q, args, key, skip_set=None):
     Lessons are verified in RAM only; persistence happens later in phase two."""
     if skip_set is None:
         skip_set = set()
+    t_start = time.time()
     sess = McpSession(p0_env(os.path.join(ROOT, "kb", "core", "base.p0"), "",
                              os.path.join(ROOT, "kb")), ROOT)
     try:
         if given_q is not None:
             q = given_q
         else:
+            skip_list = sorted({s for s in skip_set if len(s) < 200})
+            skip_block = ("\n".join(f"  - {s}" for s in skip_list[:60])
+                          if skip_list else "  (none yet)")
+            intv_sys = INTERVIEW_SYS.format(skip_block=skip_block)
             for _ in range(_MAX_RETRIES_SKIP):
                 ability = ABILITIES[idx % len(ABILITIES)]
                 q = one_line(call_model(key, args.model, [
-                    {"role": "system", "content": INTERVIEW_SYS},
+                    {"role": "system", "content": intv_sys},
                     {"role": "user", "content": f"Ask one question probing: {ability}."}], 0.9))
                 if q.strip() not in skip_set:
                     break
             else:
                 q = one_line(call_model(key, args.model, [
-                    {"role": "system", "content": INTERVIEW_SYS},
+                    {"role": "system", "content": intv_sys},
                     {"role": "user", "content": f"Ask one question probing: {ability}."}], 0.9))
+        t_gen = time.time()
         if q.startswith("[model error") or q == "[empty]":
             return {"verdict": "interviewer-error", "q": q, "kept": []}
 
@@ -640,8 +647,10 @@ def do_round(idx, given_q, args, key, skip_set=None):
             {"role": "system", "content": JUDGE_SYS},
             {"role": "user", "content": f"Q: {q}\nA: {a0}"}], 0.0)) or {}
         j0_reason = j0.get("reason", "")
+        t_probe = time.time()
         if int(j0.get("vote", 0)) == 1:
-            log(f"[{idx+1}] already   {q[:70]}")
+            elapsed = t_probe - t_start
+            log(f"[{idx+1}] already   {q[:70]}  ({elapsed:.1f}s)")
             return {"verdict": "already-capable", "q": q, "a0": a0,
                     "reason": j0_reason, "kept": []}
 
@@ -660,6 +669,9 @@ def do_round(idx, given_q, args, key, skip_set=None):
                     + "Formulate the lesson."}], 0.2, max_tokens=3000))
             if not t or "skip" in (t or {}):
                 if not lessons:
+                    t_skip = time.time()
+                    log(f"[{idx+1}] skip (gen={t_gen-t_start:.1f}s probe={t_probe-t_gen:.1f}s "
+                        f"total={t_skip-t_start:.1f}s)")
                     return {"verdict": "skipped", "q": q, "a0": a0,
                             "reason": (t or {}).get("skip", "no lesson JSON"),
                             "diag": diag, "kept": []}
@@ -667,6 +679,8 @@ def do_round(idx, given_q, args, key, skip_set=None):
             facts, dropped = sanitize_lesson(t)
             if not facts:
                 if not lessons:
+                    t_skip = time.time()
+                    log(f"[{idx+1}] skip nofacts (total={t_skip-t_start:.1f}s)")
                     return {"verdict": "skipped", "q": q, "a0": a0,
                             "reason": f"no whitelisted facts ({len(dropped)} dropped)",
                             "diag": diag, "kept": []}
@@ -674,7 +688,9 @@ def do_round(idx, given_q, args, key, skip_set=None):
             audit = audit_lesson(q, diag, facts)
             if not audit["ok"]:
                 if not lessons:
-                    log(f"[{idx+1}] gap      {q[:70]}")
+                    t_gap = time.time()
+                    log(f"[{idx+1}] gap      {q[:70]}  (gen={t_gen-t_start:.1f}s "
+                        f"probe={t_probe-t_gen:.1f}s teach={t_gap-t_probe:.1f}s)")
                     return {"verdict": "engine-gap", "q": q, "a0": a0, "reason": audit["reason"],
                             "diag": {**diag, "next_action": audit["reason"]},
                             "lesson": [fact_str(f) for f in facts], "kept": []}
@@ -697,7 +713,9 @@ def do_round(idx, given_q, args, key, skip_set=None):
 
         if lessons and v1 == 1:
             sibs = multiply_lesson(key, args.model, lessons, args.multiply)
-            log(f"[{idx+1}] TAUGHT   {q[:56]}  (+{len(lessons)} seed +{len(sibs)} x)")
+            t_mult = time.time()
+            log(f"[{idx+1}] TAUGHT   {q[:56]}  (+{len(lessons)} seed +{len(sibs)} x)"
+                f"  gen={t_gen-t_start:.1f}s teach={t_mult-t_probe:.1f}s")
             return {"verdict": "taught", "q": q, "a0": a0, "a1": a1, "reason": jr,
                     "diag": diag,
                     "lesson": [fact_str(f) for f in lessons],
@@ -705,7 +723,9 @@ def do_round(idx, given_q, args, key, skip_set=None):
                     "kept": lessons + sibs}
         fail_diag = diag if lessons else diagnose_failure(key, args.model, q, a1, jr or j0_reason)
         verdict = "engine-gap" if fail_diag.get("failure_class") == "engine_gap" else "failed-lesson"
-        log(f"[{idx+1}] {'gap' if verdict == 'engine-gap' else 'failed':<8} {q[:70]}")
+        t_end = time.time()
+        log(f"[{idx+1}] {'gap' if verdict == 'engine-gap' else 'failed':<8} {q[:70]}"
+            f"  gen={t_gen-t_start:.1f}s probe={t_probe-t_gen:.1f}s total={t_end-t_start:.1f}s")
         return {"verdict": verdict, "q": q, "a0": a0, "a1": a1, "reason": jr,
                 "diag": fail_diag, "lesson": [fact_str(f) for f in lessons], "kept": []}
     finally:
@@ -714,6 +734,7 @@ def do_round(idx, given_q, args, key, skip_set=None):
 
 # ------------------------------------------------------------------ the loop
 def run(args, key):
+    t0 = time.time()
     os.makedirs(os.path.dirname(args.kb), exist_ok=True)
     if not os.path.exists(args.kb):
         open(args.kb, "w").close()
@@ -812,7 +833,8 @@ def run(args, key):
         f"taught {counts.get('taught',0)}, failed {counts.get('failed-lesson',0)}, "
         f"engine-gap {counts.get('engine-gap',0)}, skipped {counts.get('skipped',0)} | "
         f"KEPT {len(kept_facts)} facts "
-        f"({seed_total} seed + {mult_total} multiplied)")
+        f"({seed_total} seed + {mult_total} multiplied)"
+        f"  [{time.time() - t0:.1f}s total]")
     if diag_counts:
         log("diagnoses: " + ", ".join(f"{k}={diag_counts[k]}" for k in sorted(diag_counts)))
     log(f"report appended: {args.out}\nknowledge root: kb/\nfallback spill: {args.kb}")
