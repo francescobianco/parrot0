@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-10 16:25:00._
+_Generated 2026-07-10 19:36:41._
 
 ## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Write a haiku about the ocean. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Haiku follows 5-7-5 syllable structure and is thematically about the ocean. | 1 |
-| 2 | If a rectangle has a length of 8 units and a width of 5 units, what is its area and perimeter? | I don't understand that yet. | Simple math question answered with a refusal/dodge instead of calculating area and perimeter. | 0 |
-| 3 | What is the capital of Australia, and name one famous landmark there. | Canberra. A famous landmark there is the Sydney Opera House. | Canberra is correctly identified as the capital and a famous landmark is named. | 1 |
-| 4 | Complete this sentence: "The more you know, the more you realize you ___. | the whole room held its breath. | The completion 'the whole room held its breath' is unrelated to the famous saying being requested. | 0 |
-| 5 | If you have three apples and you give two to a friend, then buy five more at the store, how many apples do you have now? | 6. | Correct arithmetic: 3-2+5=6 apples, answer is accurate. | 1 |
-| 6 | A baker puts 3 cookies on each plate. If she has 7 plates and fills them all, then puts the remaining cookies in a jar, how many cookies were in the jar if she started with 30 cookies? | 90. | Calculation is wrong: 30-(7×3)=9, not 90. | 0 |
-| 7 | You're in a race and you pass the person in second place. What place are you now in? | You're now in second place -- you take the spot of the runner you passed, not the one ahead of them. | Correct riddle answer with proper explanation. | 1 |
-| 8 | You're in a dark room with a match, a candle, and a fireplace. What do you light first? | That sounds nice -- tell me more about it. | Deflects instead of answering the classic riddle (light the match first). | 0 |
-| 9 | What do you think makes a good friend? | I'm enjoying this — what's on your mind? | Deflects the question instead of providing qualities of a good friend. | 0 |
-| 10 | Translate this sentence into Spanish: "The cat is sleeping on the warm rug. | I can translate most of it, but I don't know the Spanish for "sleeping". | Knows the Spanish word for sleeping (durmiendo), so the refusal is unjustified. | 0 |
+| 1 | What is the capital of Australia and which ocean lies to its east? | Canberra. | Answer only provides the capital but omits the ocean information requested. | 0 |
+| 2 | If a train leaves Sydney at 9:00 AM traveling at 80 km/h and another leaves Melbourne at 11:00 AM traveling toward Sydney at 100 km/h, and the distance between the cities is 850 km, which train is closer to Canberra when they meet? | Neither — when they meet they are at the same place, so both are exactly the same distance from the destination. | Correctly identifies the trick that both trains are equidistant when they meet. | 1 |
+| 3 | Continue this sentence in an unexpected way: "The old lighthouse had not shone its light in fifty years, but every night, the keeper still... | Someone knocked once from the other side. | Provides a creative and unexpected continuation fitting the eerie tone. | 1 |
+| 4 | What is 15% of 200? | 30. | Correct arithmetic answer for 15% of 200. | 1 |
+| 5 | Name three countries that border both France and Italy. | I don't understand that yet. | Canned deflection; the answer Monaco and Switzerland is standard knowledge. | 0 |
+| 6 | Solve this riddle: I have cities, but no houses live there. I have mountains, but no trees grow. I have water, but no fish swim. What am I? | Hmm, I don't know about riddle yet. | Canned deflection; the riddle answer is a map, a common LLM capability. | 0 |
+| 7 | Write a short, original haiku about the sea. | I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those? | Illogical deflection since 'the sea' is explicitly listed as an acceptable theme. | 0 |
+| 8 | The ocean, please. | I don't understand that yet. | Contradicts pair 7 by refusing 'the ocean' which was listed as an allowed theme. | 0 |
+| 9 | What color do you get when you mix blue and yellow paint together? | Green. | Correct answer for mixing blue and yellow paint. | 1 |
+| 10 | Write a rhyming couplet about a candle. | I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those? | Contradicts pair 7 by refusing 'candle' which was not listed but the pattern is evasive. | 0 |
 
