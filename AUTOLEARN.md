@@ -796,3 +796,44 @@ Le tre decisioni che ora spettano a te
 - after: Hmm, I don't know about cities yet.
 - judge: The response fails to answer the riddle, giving a nonsensical deflection instead of identifying the object (a map or globe).
 
+
+## Run 2026-07-10 21:47:13 — model minimax-m2.5, 1 round(s), 4 workers, multiply x8 (autonomous)
+
+**already 0 · taught 0 · failed 0 · engine-gap 1 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 1**
+
+### Round 1 — engine-gap
+- Q: Through which capital city does the Nile River flow?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test if the model can answer with the specific stored facts immediately after learning them.
+- lesson: capital_on_river(cairo, nile); capital_on_river(khartoum, nile)
+- after: Hmm, I don't know about through yet.
+- judge: The answer deflects with uncertainty rather than providing the correct capital city (Khartoum) that the Nile flows through.
+
+
+## Run 2026-07-10 21:53:04 — model minimax-m2.5, 2 round(s), 5 workers, multiply x10 (autonomous)
+
+**already 0 · taught 0 · failed 0 · engine-gap 2 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2**
+
+### Round 1 — engine-gap
+- Q: What two countries share the longest international border in the world?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test whether the engine can recall and compose this fact when explicitly prompted with a direct border question.
+- lesson: longest_border(russia, canada)
+- after: Hmm, I don't know about countries yet.
+- judge: The answer deflects and fails to provide the correct response about Russia and Canada sharing the longest border.
+
+### Round 2 — engine-gap
+- Q: What chemical element does the symbol "Au" represent on the periodic table?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: element_name(au, gold); wiki_concept(au, chemistry, Au is the chemical symbol for gold on the periodic table); wiki_concept(ag, chemistry, Ag is the chemical symbol for silver on the periodic table)
+- after: I don't understand that yet.
+- judge: The answer deflects instead of providing the correct response; Au is the symbol for Gold.
+

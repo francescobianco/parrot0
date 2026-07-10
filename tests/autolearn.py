@@ -64,6 +64,7 @@ WHITELIST = {
     "riddle_sig": 2, "response_template": 2,
     "wiki_concept": 3, "color_of": 2, "sound_of": 2,
     "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
+    "answer_frame": 2,
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -120,6 +121,15 @@ TEACHER_SYS = (
     "multi-word cues never match.\n"
     "- any simple binary relation rel(x, y) answering 'what/who is the <rel> of "
     "<y>' — e.g. capital(canberra, australia), opposite(permanent, ephemeral).\n"
+    "- answer_frame(cue_phrase, pred): TEACH COMPREHENSION for a question whose "
+    "wording is NOT the plain 'what is the <rel> of <y>' frame. When you teach a "
+    "new relation rel(x, y) but the question asks it in another shape (e.g. 'what "
+    "is au short for?', 'through which capital does the Nile flow?'), ALSO add one "
+    "answer_frame whose cue_phrase is a SHORT substring that LITERALLY appears in "
+    "the question (lowercase, no commas: 'short for', 'capital') and whose pred is "
+    "that relation's name. The engine then scans the question's words w and answers "
+    "rel(w, ?) or rel(?, w). Pair every answer_frame with the relation facts it "
+    "consumes, and pick a cue specific enough not to fire on unrelated turns.\n"
     "RULES: atoms lowercase; multi-word strings allowed as plain text; NO double "
     "quotes inside values; translation keys are ONE word each (skip function words "
     "like to/the); no duplicate facts; teach the general class, not a memorized "

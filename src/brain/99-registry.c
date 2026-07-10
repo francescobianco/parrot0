@@ -175,6 +175,10 @@ static const Module registry[] = {
     {"bench",     mod_bench},
     {"reader",    mod_reader},
     {"shell",     mod_shell},
+    /* teach-comprehension: answer a question about a TAUGHT binary relation via a
+     * teachable answer_frame(Cue, Pred) — before mod_knowledge, which would else
+     * mis-claim the turn ("Hmm, I don't know about <first word>"). */
+    {"answerframe", mod_answer_frame},
     {"knowledge", mod_knowledge},
     {"codeast",   mod_codeast},
     {"code",      mod_code},

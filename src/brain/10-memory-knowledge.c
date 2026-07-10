@@ -2036,6 +2036,68 @@ static int extract_class_statement(Brain *b, const char *norm,
     return 1;
 }
 
+/* teach-comprehension (docs/plans/teach-comprehension-via-mcp.md §1/§4.3): make
+ * ANSWERING a question about a binary relation a TEACHABLE comprehension form, so
+ * a relation invented and taught via MCP becomes answerable WITHOUT new C. The
+ * autolearn engine-gaps ("what is Au short for?" with chemical_symbol(gold, au);
+ * "through which capital does the Nile flow?" with capital_on_river(_, nile)) were
+ * exactly facts stored with NO CONSUMER. answer_frame(Cue, Pred) is the knowledge:
+ * "a question containing the substring Cue, about a value V that is an argument of
+ * the binary relation Pred, is answered by the OTHER argument". The kernel here is
+ * fixed and generic; the frames AND the relations are data — teach both via MCP
+ * and the previously-unlearnable becomes learnable. Fires only on a cue match with
+ * a real value in scope, so ordinary turns pass through untouched. */
+static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
+                            char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb) return 0;
+    char cues[32][KB_TERM_LEN];
+    const char *fq[2] = { NULL, NULL };
+    size_t nf = kb_match(b->kb, "answer_frame", fq, 2, cues, 32);   /* the Cue list */
+    if (nf == 0) return 0;
+
+    char tmp[256];
+    if (strlen(norm) >= sizeof tmp) return 0;
+    snprintf(tmp, sizeof tmp, "%s", norm);
+    char *w[40]; size_t nw = split_words(tmp, w, 40);
+
+    for (size_t i = 0; i < nf; i++) {
+        char cue_s[KB_TERM_LEN]; snprintf(cue_s, sizeof cue_s, "%s", cues[i]);
+        const char *cd = kb_dequote(cue_s);
+        if (!*cd || !cue(norm, cd)) continue;
+        char preds[1][KB_TERM_LEN];
+        const char *pq[2] = { cues[i], NULL };
+        if (kb_match(b->kb, "answer_frame", pq, 2, preds, 1) != 1) continue;
+        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[0]));
+        if (!*pred) continue;
+
+        for (size_t t = 0; t < nw; t++) {
+            char *v = strip_edge_punct(w[t]);
+            if (strlen(v) < 2 || is_stopword(b, v)) continue;
+            char ans[16][KB_TERM_LEN]; size_t na;
+            const char *ffw[2] = { v, NULL };
+            na = kb_match(b->kb, pred, ffw, 2, ans, 16);        /* pred(v, ?) -> arg2 */
+            if (na == 0) {
+                const char *fbw[2] = { NULL, v };
+                na = kb_match(b->kb, pred, fbw, 2, ans, 16);    /* pred(?, v) -> arg1 */
+            }
+            if (na == 0) continue;
+            char msg[400]; size_t mo = 0;
+            for (size_t a = 0; a < na && mo + 4 < sizeof msg; a++) {
+                char one[KB_TERM_LEN]; snprintf(one, sizeof one, "%s", ans[a]);
+                mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s",
+                    a ? (a + 1 == na ? " and " : ", ") : "", kb_dequote(one));
+            }
+            if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
+            if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+            put(msg, out, out_size);
+            store_proof(b, msg);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
