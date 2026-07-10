@@ -70,9 +70,28 @@ tr_fr_phrase("good morning", bonjour).
 tr_fr_phrase("thank you", merci).
 tr_fr_phrase("thank you very much", "merci beaucoup").
 tr_fr_phrase("nice to meet you", "enchanté").
+tr_fr_phrase("have a nice day", "bonne journée").
+tr_fr_phrase("good evening", bonsoir).
+tr_fr_phrase("good night", "bonne nuit").
+tr_fr_phrase("see you later", "à plus tard").
+tr_fr_phrase("see you soon", "à bientôt").
+tr_fr_phrase("see you tomorrow", "à demain").
+tr_fr_phrase("you're welcome", "de rien").
+tr_fr_phrase(please, "s'il vous plaît").
+tr_fr_phrase(congratulations, félicitations).
+tr_fr_phrase("happy birthday", "bon anniversaire").
+tr_fr_phrase("happy holidays", "bonnes fêtes").
+tr_fr_phrase("merry christmas", "joyeux noël").
+tr_fr_phrase("happy new year", "bonne année").
+tr_fr_phrase("best wishes", "meilleurs vœux").
+tr_fr_phrase("enjoy your meal", "bon appétit").
+tr_fr_phrase(cheers, santé).
+tr_fr_phrase(goodbye, "au revoir").
+tr_fr_phrase("take care", "prends soin de toi").
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).
 tr_es_phrase("thank you very much", "muchas gracias").
 tr_es_phrase("nice to meet you", "mucho gusto").
+tr_es_phrase("i love you", "te amo").
 gender_fr(chat, m).
 gender_fr(tapis, m).

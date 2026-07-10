@@ -875,3 +875,347 @@ Le tre decisioni che ora spettano a te
 - before: You are a map.
 - judge: The answer correctly identifies the riddle's solution as a map, which accurately depicts geographic features without their real-world inhabitants.
 
+
+## Run 2026-07-10 23:38:04 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 0 · engine-gap 0 · skipped 3 · kept 21 facts (1 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 3 · missing_fact 1**
+
+### Round 1 — taught
+- Q: What is the capital of Brazil?
+- before: I do not know the relation capital yet, so I cannot answer the capital of brazil. You can teach me with thing is the capital of brazil, or give facts/rules to reason from.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach the fact that the capital of Brazil is Brasília using the system's teaching interface.
+- lesson: capital(brasilia, brazil)
+- multiplied (+20): capital(rome, italy); capital(madrid, spain); capital(berlin, germany); capital(paris, france); capital(london, uk); capital(athens, greece); capital(vienna, austria); capital(budapest, hungary); capital(prague, czechia); capital(warsaw, poland); capital(tokyo, japan); capital(beijing, china); capital(seoul, southkorea); capital(delhi, india); capital(bangkok, thailand); capital(jakarta, indonesia); capital(cairo, egypt); capital(riyadh, saudiarabia); capital(ankara, turkey); capital(abuja, nigeria)
+- after: Brasilia.
+- judge: The answer is correct and directly answers the question about Brazil's capital.
+
+### Round 2 — already-capable
+- Q: Which planet in our solar system is known as the "Red Planet"?
+- before: Mars is the Red Planet.
+- judge: The answer correctly identifies Mars as the Red Planet, which is accurate scientific knowledge.
+
+### Round 3 — skipped
+- Q: How do you say "Where is the bathroom?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "bathroom".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: This requires engine-level fixes to reasoning rather than fact additions.
+- judge: This is a reasoning error, not missing knowledge - the engine already knows 'baño' but fails to retrieve it. Engine-level fixes to reasoning required, not fact additions.
+
+### Round 4 — skipped
+- Q: How do you say "Thank you" in French?
+- before: I can translate most of it, but I don't know the French for "thank".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Investigate the answer selection logic to ensure known simple answers are returned instead of deflected.
+- judge: The failure is answer selection, not missing facts. The assistant knew 'Merci' but deflected—a behavioral/systemic issue not fixable by teaching KB facts.
+
+### Round 5 — skipped
+- Q: I have no voice, yet I cry without sound. I have no eyes, yet I flash in the dark. What am I?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the riddle-specific matching path to see why obvious feature matches to lightning were rejected or not considered.
+- judge: no lesson JSON
+
+
+## Run 2026-07-10 23:41:47 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 2 · failed 1 · engine-gap 1 · skipped 0 · kept 25 facts (5 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · idiom_gap 1 · missing_fact 2**
+
+### Round 1 — taught
+- Q: What is the capital of Brazil?
+- before: I do not know the relation capital yet, so I cannot answer the capital of brazil. You can teach me with thing is the capital of brazil, or give facts/rules to reason from.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact: 'The capital of Brazil is Brasília' to the knowledge base.
+- lesson: capital(brasilia, brazil)
+- multiplied (+20): capital(paris, france); capital(london, united_kingdom); capital(berlin, germany); capital(madrid, spain); capital(rome, italy); capital(ottawa, canada); capital(washington, united_states); capital(tokyo, japan); capital(beijing, china); capital(moscow, russia); capital(new_delhi, india); capital(canberra, australia); capital(wellington, new_zealand); capital(cairo, egypt); capital(nairobi, kenya); capital(pretoria, south_africa); capital(buenos_aires, argentina); capital(mexico_city, mexico); capital(lima, peru); capital(santiago, chile)
+- after: Brasilia.
+- judge: Correct and direct answer to the factual question.
+
+### Round 2 — already-capable
+- Q: What is the chemical symbol for the element gold?
+- before: Au.
+- judge: The answer Au is the correct chemical symbol for gold.
+
+### Round 3 — failed-lesson
+- Q: Translate "See you later" into Spanish.
+- before: I can translate most of it, but I don't know the Spanish for "see".
+- diagnosis: idiom_gap · teachable=true · mode=skip
+- next: Test whether user can match 3 idioms (see you later, how are you, once in a while) to their Spanish equivalents without decomposing them.
+- lesson: tr_es(see_you_later, hasta_luego); tr_es(see, hasta); tr_es(later, luego); idiom_meaning(hasta luego, see you later); idiom_meaning(see you later, hasta luego); idiom_meaning(see you later, hasta luego used as a single fixed goodbye phrase, not decomposed); answer_frame(see you later, tr_es)
+- after: Hasta tú luego.
+- judge: Incorrect - 'Hasta tú luego' is grammatically wrong; the correct translation is 'Hasta luego' without the 'tú'.
+
+### Round 4 — engine-gap
+- Q: Translate "Good morning" into French.
+- before: Bon matin.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: idiom_meaning(good morning, bonjour)
+- after: Bon matin.
+- judge: Bon matin is not standard French; the correct translation is Bonjour.
+
+### Round 5 — taught
+- Q: What has a head and a tail but no body?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the riddle head-tail-body/coin mapping to the KB.
+- lesson: riddle_sig(riddle_head_tail, has a head); riddle_sig(riddle_head_tail, and a tail); riddle_sig(riddle_head_tail, but no body); response_template(riddle_head_tail, A coin has a head and a tail but no body.)
+- after: A coin has a head and a tail but no body.
+- judge: The answer correctly identifies a coin as having heads and tails but no body, which is the classic solution to this riddle.
+
+
+## Run 2026-07-10 23:47:54 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 1 · engine-gap 2 · skipped 0 · kept 4 facts (4 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2 · missing_fact 2**
+
+### Round 1 — engine-gap
+- Q: Which two countries share the shortest international border in the world?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test whether the assistant can retrieve and state a single stored border_length fact immediately after it is taught.
+- lesson: magnitude(border_length, vatican_city_italy, 1); magnitude_cue(shortest, border_length, min); shares_border(vatican_city, italy)
+- after: Hmm, I don't know about countries yet.
+- judge: The assistant deflects instead of providing the correct answer (Botswana and Zambia share the world's shortest international border).
+
+### Round 2 — already-capable
+- Q: Which planet in our solar system has the most moons?
+- before: Saturn is the planet with the most known moons.
+- judge: The answer correctly identifies Saturn as the planet with the most known moons.
+
+### Round 3 — engine-gap
+- Q: How do you say "Nice to meet you" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "nice".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(mucho, mucho); tr_es(gusto, gusto)
+- after: I can translate most of it, but I don't know the Spanish for "nice".
+- judge: The assistant deflects instead of providing the well-known Spanish translation 'Mucho gusto' or 'Encantado/a de conocerte.'
+
+### Round 4 — failed-lesson
+- Q: Translate "Thank you very much" into French.
+- before: I can translate most of it, but I don't know the French for "thank".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach the fact tr_fr(thank you, merci) before attempting full sentence construction.
+- lesson: tr_fr(thank, merci); tr_fr(much, beaucoup); tr_fr(very, très)
+- after: Merci te très beaucoup.
+- judge: The translation is incorrect French with erroneous words ('te') and awkward word order; the standard French is 'Merci beaucoup' or 'Merci beaucoup.'
+
+### Round 5 — taught
+- Q: What has four legs in the morning, two legs in the afternoon, and three legs in the evening?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add fact: riddle_ans(sphinx_riddle, human) then retrain to verify it synthesizes the leg-count facts with the answer into a single correct response.
+- lesson: riddle_sig(sphinx_riddle, four legs); riddle_sig(sphinx_riddle, two legs); riddle_sig(sphinx_riddle, three legs); response_template(sphinx_riddle, A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age)
+- after: A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age
+- judge: Correct answer with accurate explanation matching the classic Sphinx riddle.
+
+
+## Run 2026-07-10 23:54:23 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 0 · failed 0 · engine-gap 2 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2**
+
+### Round 1 — already-capable
+- Q: What is the capital of Canada?
+- before: Ottawa.
+- judge: The answer is correct: Ottawa is the capital of Canada.
+
+### Round 2 — already-capable
+- Q: What element has the chemical symbol "Au"?
+- before: Gold.
+- judge: The answer correctly identifies Au as the chemical symbol for Gold.
+
+### Round 3 — engine-gap
+- Q: How do you say "I don't understand" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "don't".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(no, no)
+- after: I can translate most of it, but I don't know the Spanish for "don't".
+- judge: The answer is incorrect and deflects - 'No entiendo' is the correct Spanish translation, and 'don't' translates to 'no' which is universally known.
+
+### Round 4 — engine-gap
+- Q: How do you say "once in a blue moon" in French?
+- before: I can translate most of it, but I don't know the French for "once".
+- diagnosis: engine_gap · teachable=true · mode=template
+- next: Test whether the stored idiom translation is retrieved when a direct how-do-you-say question is asked, not word-level parsing.
+- lesson: tr_fr(once, une fois); idiom_meaning(once in a blue moon, very rarely); idiom_meaning(une fois tous les trente-six du mois, very rarely); idiom_meaning(once in a blue moon, une fois tous les trente-six du mois); answer_frame(say in french, idiom_meaning); answer_frame(french for, idiom_meaning); tr_fr(once in a blue moon, une fois tous les trente-six du mois); answer_frame(how do you say, idiom_meaning); answer_frame(blue moon, idiom_meaning)
+- after: I can translate most of it, but I don't know the French for "in".
+- judge: The answer deflects instead of providing the correct French idiom 'une fois tous les trente-six du mois' or 'rarement'.
+
+### Round 5 — already-capable
+- Q: What has to be broken before you can use it?
+- before: Who or what does "it" refer to?
+- judge: The riddle's 'it' refers to an egg, which must be cracked before use.
+
+
+## Run 2026-07-11 00:02:02 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 1 · failed 0 · engine-gap 2 · skipped 0 · kept 23 facts (4 seed + 19 multiplied, deduped)**
+
+**diagnoses: engine_gap 2 · missing_fact 1**
+
+### Round 1 — engine-gap
+- Q: Which two countries share the longest international border in the world?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: magnitude(border_length, canada_usa, 1); magnitude_cue(longest, border_length, max); border_share(canada, usa); border_share(canada, usa); longest_border(canada, usa); magnitude(border_length, canada_usa, 1); answer_frame(which two countries share, longest_border); answer_frame(longest international border, longest_border)
+- after: I don't understand that yet.
+- judge: The question is clear and factual, but the answer fails to provide the correct information about Canada and the USA sharing the longest border.
+
+### Round 2 — already-capable
+- Q: What is the chemical symbol for gold on the periodic table?
+- before: Au.
+- judge: Correct one-letter symbol for gold provided.
+
+### Round 3 — engine-gap
+- Q: How do you say "I don't understand" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "don't".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(no, no)
+- after: I can translate most of it, but I don't know the Spanish for "don't".
+- judge: The assistant incorrectly claims not to know 'don't' in Spanish, which is simply 'no' before the verb; 'I don't understand' is a basic phrase 'No entiendo' that any capable LLM should know.
+
+### Round 4 — already-capable
+- Q: How do you say "Nice to meet you" in French?
+- before: Enchanté.
+- judge: Enchanté is a correct and commonly used French phrase for 'Nice to meet you'.
+
+### Round 5 — taught
+- Q: I have cities, but no houses. I have mountains, but no trees. I have water, but no fish. What am I?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add knowledge: 'Maps depict cities, mountains, and water but contain no real houses, trees, or fish.
+- lesson: riddle_sig(riddle_map, have cities); riddle_sig(riddle_map, have mountains); riddle_sig(riddle_map, have water); response_template(riddle_map, You are a map.)
+- multiplied (+19): riddle_sig(riddle_map, have rivers); riddle_sig(riddle_map, have deserts); riddle_sig(riddle_map, have forests); riddle_sig(riddle_map, have islands); riddle_sig(riddle_map, have oceans); riddle_sig(riddle_map, have highways); riddle_sig(riddle_map, have borders); riddle_sig(riddle_map, have capitals); riddle_sig(riddle_map, have continents); riddle_sig(riddle_map, have time zones); riddle_sig(riddle_map, have lakes); riddle_sig(riddle_map, have parks); riddle_sig(riddle_map, have volcanoes); riddle_sig(riddle_map, have valleys); riddle_sig(riddle_map, have plateaus); response_template(riddle_map, This is a map.); response_template(riddle_map, You see a map.); response_template(riddle_map, A map appears.); response_template(riddle_map, Map detected.)
+- after: A map.
+- judge: The answer 'A map' is correct and fits the classic riddle perfectly.
+
+
+## Run 2026-07-11 00:06:48 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 2 · failed 0 · engine-gap 0 · skipped 0 · kept 22 facts (2 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · missing_fact 1**
+
+### Round 1 — already-capable
+- Q: What is the capital of Brazil?
+- before: Brasilia.
+- judge: The answer is correct, concise, and directly answers the question about Brazil's capital.
+
+### Round 2 — already-capable
+- Q: What planet in our solar system has the most known moons?
+- before: Saturn is the planet with the most known moons.
+- judge: The answer correctly identifies Saturn as the planet with the most known moons, which is accurate.
+
+### Round 3 — taught
+- Q: How do you say "I love you" in Spanish?
+- before: Yo amor tú.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Fix the engine's phrase selection logic to prefer stored idiomatic translations over literal constructions
+- lesson: tr_es_phrase(i love you, te amo)
+- after: Te amo.
+- judge: Correct and direct translation of 'I love you' in Spanish.
+
+### Round 4 — taught
+- Q: How do you say "Have a nice day" in French?
+- before: I can translate most of it, but I don't know the French for "have".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the translation pair 'Have a nice day' → 'Bonne journée' / 'Passe une bonne journée' to the whitelisted facts.
+- lesson: tr_fr_phrase(have a nice day, bonne journée)
+- multiplied (+20): tr_fr_phrase(good morning, bonjour); tr_fr_phrase(good evening, bonsoir); tr_fr_phrase(good night, bonne nuit); tr_fr_phrase(see you later, à plus tard); tr_fr_phrase(see you soon, à bientôt); tr_fr_phrase(see you tomorrow, à demain); tr_fr_phrase(thank you, merci); tr_fr_phrase(thank you very much, merci beaucoup); tr_fr_phrase(you're welcome, de rien); tr_fr_phrase(please, s'il vous plaît); tr_fr_phrase(congratulations, félicitations); tr_fr_phrase(happy birthday, bon anniversaire); tr_fr_phrase(happy holidays, bonnes fêtes); tr_fr_phrase(merry christmas, joyeux noël); tr_fr_phrase(happy new year, bonne année); tr_fr_phrase(best wishes, meilleurs vœux); tr_fr_phrase(enjoy your meal, bon appétit); tr_fr_phrase(cheers, santé); tr_fr_phrase(goodbye, au revoir); tr_fr_phrase(take care, prends soin de toi)
+- after: Bonne journée.
+- judge: The answer provides the correct French translation 'Bonne journée' for 'Have a nice day'.
+
+### Round 5 — already-capable
+- Q: What gets wetter the more it dries?
+- before: Who or what does "it" refer to?
+- judge: The pronoun 'it' refers to a towel, which gets wetter the more it is used to dry things.
+
+
+## Run 2026-07-11 00:12:03 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 0 · failed 0 · engine-gap 2 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2**
+
+### Round 1 — engine-gap
+- Q: What is the longest river in the world?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test whether the engine can directly retrieve and use stored facts without requiring a re-teach cycle.
+- lesson: magnitude(length, the_nile, 1); magnitude_cue(longest, length, max); answer_frame(longest river, magnitude)
+- after: Hmm, I don't know about longest yet.
+- judge: The assistant deflects instead of answering the factual question about the longest river.
+
+### Round 2 — engine-gap
+- Q: What planet in our solar system is known as the "Ringed Planet"?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: nickname(saturn, ringed_planet); nickname(saturn, ringed_planet); answer_frame(known as, nickname)
+- after: I don't understand that yet.
+- judge: The answer refuses to provide the correct answer (Saturn) and deflects with 'I don't understand that yet.'
+
+### Round 3 — already-capable
+- Q: How do you say "Thank you" in Spanish?
+- before: Gracias.
+- judge: Correct and direct translation of 'Thank you' in Spanish.
+
+### Round 4 — already-capable
+- Q: Translate the common English phrase "Thank you" into French.
+- before: Merci.
+- judge: The translation is correct and complete.
+
+### Round 5 — already-capable
+- Q: I have keys but no locks. I have space but no room. You can enter but can't go inside. What am I?
+- before: A keyboard.
+- judge: The answer keyboard correctly matches all riddle clues: keys, spacebar, and enter key.
+
+
+## Run 2026-07-11 00:19:52 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 0 · failed 0 · engine-gap 1 · skipped 1 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2**
+
+### Round 1 — already-capable
+- Q: What is the longest river in the world?
+- before: The_nile.
+- judge: The answer correctly identifies the Nile as the longest river, despite minor formatting.
+
+### Round 2 — skipped
+- Q: What is the largest organ in the human body?
+- before: Canada.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the answer retrieval and ranking logic to understand why unrelated entities are being selected over correct facts.
+- judge: Diagnosis indicates correct fact exists in KB but retrieval pipeline selected wrong entity - this is a query processing bug, not a missing knowledge gap, so no teachable fact lesson applies.
+
+### Round 3 — already-capable
+- Q: How do you say "Goodbye" in Spanish?
+- before: Adiós.
+- judge: Correct and direct answer to the translation question.
+
+### Round 4 — already-capable
+- Q: How do you say "Please" in French?
+- before: S'il vous plaît.
+- judge: The answer correctly provides the standard French translation for 'Please', which is 'S'il vous plaît'.
+
+### Round 5 — engine-gap
+- Q: What can travel around the world while staying in a corner?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: response_template(riddle_travel_corner, A stamp can travel around the world while staying in a corner of an envelope.); riddle_sig(riddle_travel_corner, around the world); riddle_sig(riddle_travel_corner, corner); response_template(riddle_travel_corner, A stamp can travel around the world while staying in a corner of an envelope.)
+- after: I don't understand that yet.
+- judge: The answer fails to solve the riddle; it should be 'a stamp' (staying in the corner of an envelope while traveling the world).
+

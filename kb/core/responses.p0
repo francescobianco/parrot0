@@ -92,6 +92,11 @@ response_template(riddle_needle, "A needle.").
 response_template(riddle_breath, "Your breath.").
 response_template(riddle_silence, "Silence.").
 response_template(riddle_map, "A map.").
+response_template(riddle_map, "You are a map.").
+response_template(riddle_map, "This is a map.").
+response_template(riddle_map, "You see a map.").
+response_template(riddle_map, "A map appears.").
+response_template(riddle_map, "Map detected.").
 response_template(riddle_letter_m, "The letter M.").
 response_template(diff_fruit_vegetable, "A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.").
 
