@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-02 22:04:18._
+_Generated 2026-07-10 16:25:00._
 
 ## Score: 4 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | What is the capital of Australia and what is its largest export? | Canberra. | Answer only provides the capital, omitting the largest export asked for. | 0 |
-| 2 | If a train leaves Sydney traveling at 80 km/h and another train leaves Melbourne traveling toward Sydney at 120 km/h, and the distance between the cities is 850 km, how long until they meet? | 4 hours 15 minutes. | Correctly calculates meeting time: 850km/(80+120km/h)=4.25h=4h15m. | 1 |
-| 3 | Complete this sentence in a creative, unexpected way: "The old clock on the wall suddenly began to... | the whole room held its breath. | Creative and grammatically coherent sentence completion. | 1 |
-| 4 | Explain in simple terms why the sky appears blue during the day but turns dark at night. | The colours spilled down until they touched the grass. | Provides poetic imagery instead of the requested simple scientific explanation. | 0 |
-| 5 | Count backward from 100 by 7s, writing down each number. When you reach a number divisible by 5, say "stop" instead of the number. | stop, 93, 86, 79, 72, stop, 58, 51, 44, 37, stop, 23, 16, 9. | Incorrect sequence: 65 and 30 are divisible by 5 (should say stop), but 9 is not divisible by 5 yet listed as stop. | 0 |
-| 6 | What are the first ten words of the poem "The Raven" by Edgar Allan Poe? | I don't understand that yet. | Generic refusal fails to answer the straightforward question about poem's opening words. | 0 |
-| 7 | Write a haiku about a thunderstorm in exactly three lines. | I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those? | Deflects the task by asking for clarification instead of writing the haiku on the given theme. | 0 |
-| 8 | Rain, then: write your haiku now. | First drops on the roof / cold silver falling from grey / the dry world drinks deep. | Successfully writes a proper haiku about a thunderstorm in three lines with correct syllable structure. | 1 |
-| 9 | A farmer has 17 sheep. All but 9 die. How many sheep does the farmer have left? | 9. | Correctly identifies 9 as the remaining sheep after all but 9 die. | 1 |
-| 10 | If all Zorps are Blicks, some Blicks are Glicks, and no Glicks are Zorps, can any Zorps be Glicks? Explain your reasoning. | I don't understand that yet. | Generic refusal without attempting the straightforward logical deduction. | 0 |
+| 1 | Write a haiku about the ocean. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Haiku follows 5-7-5 syllable structure and is thematically about the ocean. | 1 |
+| 2 | If a rectangle has a length of 8 units and a width of 5 units, what is its area and perimeter? | I don't understand that yet. | Simple math question answered with a refusal/dodge instead of calculating area and perimeter. | 0 |
+| 3 | What is the capital of Australia, and name one famous landmark there. | Canberra. A famous landmark there is the Sydney Opera House. | Canberra is correctly identified as the capital and a famous landmark is named. | 1 |
+| 4 | Complete this sentence: "The more you know, the more you realize you ___. | the whole room held its breath. | The completion 'the whole room held its breath' is unrelated to the famous saying being requested. | 0 |
+| 5 | If you have three apples and you give two to a friend, then buy five more at the store, how many apples do you have now? | 6. | Correct arithmetic: 3-2+5=6 apples, answer is accurate. | 1 |
+| 6 | A baker puts 3 cookies on each plate. If she has 7 plates and fills them all, then puts the remaining cookies in a jar, how many cookies were in the jar if she started with 30 cookies? | 90. | Calculation is wrong: 30-(7×3)=9, not 90. | 0 |
+| 7 | You're in a race and you pass the person in second place. What place are you now in? | You're now in second place -- you take the spot of the runner you passed, not the one ahead of them. | Correct riddle answer with proper explanation. | 1 |
+| 8 | You're in a dark room with a match, a candle, and a fireplace. What do you light first? | That sounds nice -- tell me more about it. | Deflects instead of answering the classic riddle (light the match first). | 0 |
+| 9 | What do you think makes a good friend? | I'm enjoying this — what's on your mind? | Deflects the question instead of providing qualities of a good friend. | 0 |
+| 10 | Translate this sentence into Spanish: "The cat is sleeping on the warm rug. | I can translate most of it, but I don't know the Spanish for "sleeping". | Knows the Spanish word for sleeping (durmiendo), so the refusal is unjustified. | 0 |
 
