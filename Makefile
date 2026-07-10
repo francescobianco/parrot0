@@ -184,6 +184,18 @@ sym-bench: build
 llmscore: build
 	@$(BENCH_PY) ./tests/llmscore.py
 
+# AUTOLEARN (F., 2026-07-10) — the autonomous MCP trainer (T0.e, docs/plans/
+# llmscore-strategies.md). An opencode-GO model interviews parrot0, judges each
+# exchange, and on a failure formulates a LESSON (whitelisted KB facts) taught
+# live over --mcp-engine; knowledge persists into kb/learning/autolearn.p0 ONLY
+# if the re-probe flips the judge's vote (the honesty oracle) — otherwise the
+# lesson is rolled back and recorded in AUTOLEARN.md's failed-lesson ledger (the
+# queue that names engine gaps). External + paid, NOT part of `make test`.
+# Vars: ROUNDS=n PROBES=file (controlled mode).
+autolearn: build
+	@$(BENCH_PY) ./tests/autolearn.py --rounds $(or $(ROUNDS),5) \
+		$(if $(PROBES),--probes $(PROBES),)
+
 # RULESCORE (F., 2026-07-02) — on the LLMSCORE model: an LLM INVENTS 5 terminal
 # mini-games described ONLY as numbered RULES; parrot0 must translate the text
 # into a C implementation; the harness compiles + sample-runs whatever comes

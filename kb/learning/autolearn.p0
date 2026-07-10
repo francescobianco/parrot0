@@ -1,0 +1,8 @@
+riddle_sig(riddle_match, "dark room").
+riddle_sig(riddle_match, match).
+riddle_sig(riddle_match, fireplace).
+response_template(riddle_match, "You light the match first.").
+riddle_sig(riddle_vine, "no hands").
+riddle_sig(riddle_vine, "i climb").
+riddle_sig(riddle_vine, "i cling").
+response_template(riddle_vine, "You are a vine.").

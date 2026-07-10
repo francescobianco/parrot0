@@ -124,9 +124,23 @@ non "quale handler scrivo?".
 4. **T0.d — i gap di motore nominati dal training** (accordo ES, valutatore
    aritmetico per formule, walker di stato): generazioni C classiche, gate-first,
    ognuna tirata da una lezione fallita documentata — mai speculativa.
-5. **T0.e — il trainer automatizzato**: script/agente che percorre la mappa rossa,
-   formula lezioni, insegna via MCP, verifica, committa. Qui la curva cambia
-   pendenza: punti-per-generazione → punti-per-sessione-di-training.
+5. **T0.e — il trainer automatizzato — FATTO (gen305, `make autolearn`).**
+   `tests/autolearn.py`: un modello opencode-GO (`$OPENCODE_API_KEY`, default
+   minimax-m2.5) gioca interviewer/judge/teacher attorno a `--mcp-engine`.
+   Probe → giudizio → su 0 il teacher legge il declino che nomina il gap e
+   formula la LEZIONE (soli predicati whitelisted con consumer verificato) →
+   `kb.assert`+`kb.save` → re-probe, con retry finché il declino nomina gap nuovi
+   (il gradient loop). **Oracolo di onestà**: la conoscenza persiste in
+   `kb/learning/autolearn.p0` SOLO se il giudizio flippa 0→1; altrimenti rollback
+   + voce nel FAILED-LESSON LEDGER (`AUTOLEARN.md`) — la coda che nomina i gap di
+   motore. Provato dal vivo: riddle nuovo inventato dall'interviewer → muro →
+   lezione → chiuso e persistito, zero C; la traduzione ES è finita onestamente
+   nel ledger (accordo di genere = gap di motore, confermato in autonomia).
+   Modalità controllata: `make autolearn ROUNDS=n PROBES=file`. Lezioni imparate
+   sul trainer stesso: cue dei riddle in minuscolo (il match è sul norm), id
+   freschi nei retry (i cue si accumulano per id), token generosi al teacher
+   (reasoning server-side). Qui la curva cambia pendenza:
+   punti-per-generazione → punti-per-sessione-di-training.
 6. **Convergenza col deep-reasoning**: S1 ("mai il muro") resta il raccolto del
    piano parallelo — al fallback, parrot0 *si addestra da solo* in-turn
    (acquisizione+estrazione = auto-lezione). Stessa forma di lezione, insegnante

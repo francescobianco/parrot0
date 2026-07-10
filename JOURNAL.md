@@ -1,4 +1,48 @@
 # parrot0 evolution journal
+## 2026-07-10 - gen305: `make autolearn` — the autonomous MCP trainer (T0.e)
+
+**F.'s design**: "una target make autolearn che si mette lì ad automigliorarsi con
+MCP e loop di reasoning, alimentata dal provider opencode (OPENCODE_API_KEY)".
+Built as `tests/autolearn.py` (same provider idiom as llmscore.py) — no C change:
+the training interface is the U-series MCP engine, used as intended.
+
+**The loop.** One opencode-GO model (default minimax-m2.5) plays three roles around
+parrot0: INTERVIEWER (generates one ability probe — or takes it from `PROBES=file`
+for controlled runs), JUDGE (votes 0/1, llmscore criteria), TEACHER (on a 0, reads
+parrot0's honest gap-naming decline and formulates a LESSON as whitelisted KB facts).
+The lesson is taught live over `--mcp-engine` (`kb.assert` → `kb.save`), re-probed,
+and retried while the decline names new gaps — the gradient loop: the KB is the
+weights, the lesson is the step, the decline is the loss, MCP is the interface.
+
+**The honesty oracle.** Knowledge persists into `kb/learning/autolearn.p0` ONLY if
+the re-probe flips the judge to 1. Otherwise the lesson is ROLLED BACK and recorded
+in AUTOLEARN.md's failed-lesson ledger — the queue that names engine/consumer gaps
+(C work is pulled by a documented failed lesson, the D.1→U3 law; never speculative).
+Sanitizer enforces the whitelist (only predicates with a verified consumer;
+routing/self predicates blacklisted), so a hallucinated schema can never pollute
+the KB even before the oracle.
+
+**Proved live, both modes.** Controlled (`ROUNDS=2 PROBES=…` on yesterday's two
+zeros): the match riddle CLOSED (4 facts kept, zero C); the ES translation honestly
+FAILED-LESSON — the teacher taught all glosses, the sentence appeared, but the
+judge demands `está`/`la cálida alfombra` → the ES gender-agreement ENGINE gap was
+discovered autonomously and the KB stayed clean. Autonomous (`ROUNDS=4`, no probes):
+interviewer invented 4 fresh questions — 3 already-capable, and a NOVEL riddle
+("no hands… I climb and I cling") that walled → after two trainer fixes it CLOSED
+(`riddle_vine`, 4 facts): the full self-improvement loop end to end.
+
+**Trainer lessons learned (in TEACHER_SYS / sanitizer, not architecture):** riddle
+cues must be lowercase (matching runs on the normalized turn) — pred-aware
+lowercasing in the sanitizer; retries must use a FRESH riddle_id (cues accumulate
+per id and wrong ones poison it); the teacher needs a generous token budget
+(opencode models reason server-side). Suite untouched: `make test` green (the
+learned file loads only when passed as PARROT0_SESSION).
+
+**Next.** Longer autonomous runs (ROUNDS=20+) to grow kb/learning/autolearn.p0 and
+the ledger; wire the ledger into the red map (T0.b); teach-then-measure against
+`make llmscore`. The deep-reasoning loop remains the in-turn twin (self-teaching
+from pages); the trainer is the external twin (taught by the provider).
+
 ## 2026-07-09 - gen300: deep-reasoning M0 — class conjunction (frame 5) -> M0 done
 
 Frame 5 (the last M0 lead-sentence frame): a CONJUNCTION of article-bearing classes
