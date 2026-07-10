@@ -559,6 +559,10 @@ magnitude(size, sun, 14).
 magnitude(size, usa, 20).
 magnitude(size, united_states, 20).
 magnitude(size, canada, 21).
+% gen310a: organ size for superlative filtering
+magnitude(size, skin, 30).
+is_a(skin, organ).
+category_member(organ, skin).
 magnitude(weight, feather, 1).
 magnitude(weight, ice, 2).
 magnitude(weight, butter, 3).

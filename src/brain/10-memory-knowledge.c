@@ -2381,15 +2381,45 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             /* gen310a: superlative question — "what is the longest river?".
              * No "or" or "than" pattern → enumerate ALL magnitude(dim, *, *)
-             * facts and return the item with the extremum rank. Category filtering
-             * is implicit: only items stored under this dimension are considered. */
+             * facts and return the item with the extremum rank. Filter by a
+             * category word (the first non-stopword content word after the
+             * cue) when present, checking category_member, part_of,
+             * or substring match. Refuses to answer if category is given but
+             * nothing matches (avoid returning e.g. "Canada" for "largest organ"). */
             {
+                /* extract category word: first non-stopword after cue_i */
+                char cat[KB_TERM_LEN] = "";
+                for (size_t j = cue_i + 1; j < mn && !cat[0]; j++) {
+                    char *t = strip_edge_punct(mw[j]);
+                    if (*t && strlen(t) >= 2 && !is_stopword(b, t) &&
+                        isalpha((unsigned char)t[0]))
+                        snprintf(cat, sizeof cat, "%s", t);
+                }
                 char items[128][KB_TERM_LEN];
                 const char *iq[3] = { dim, NULL, NULL };
                 size_t ni = kb_match(b->kb, "magnitude", iq, 3, items, 128);
-                if (ni > 0) {
+                /* category filter: keep only items matching cat (category_member,
+                 * part_of, or substring). If a category is given but nothing
+                 * matches, refuse to answer (don't return a wrong item). */
+                int keep[128]; size_t nf = 0;
+                for (size_t k = 0; k < ni; k++) {
+                    keep[k] = 0;
+                    if (!cat[0]) { keep[k] = 1; nf++; continue; }
+                    char *it = kb_dequote(items[k]);
+                    if (strstr(it, cat)) { keep[k] = 1; nf++; continue; }
+                    const char *cq[2] = { cat, items[k] };
+                    char cm[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "category_member", cq, 2, cm, 1) == 1)
+                        { keep[k] = 1; nf++; continue; }
+                    const char *pq[2] = { items[k], cat };
+                    char po[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "part_of", pq, 2, po, 1) == 1)
+                        { keep[k] = 1; nf++; continue; }
+                }
+                if (ni > 0 && (nf > 0 || !cat[0])) {
                     size_t best = 0; double best_val = 0; int first = 1;
                     for (size_t k = 0; k < ni; k++) {
+                        if (cat[0] && !keep[k]) continue;
                         char rank[1][KB_TERM_LEN];
                         const char *rq[3] = { dim, items[k], NULL };
                         if (kb_match(b->kb, "magnitude", rq, 3, rank, 1) == 1) {
