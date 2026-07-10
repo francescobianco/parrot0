@@ -620,6 +620,7 @@ sound_of(owl, "hoot").
 sound_of(rooster, "cock-a-doodle-doo").
 sound_of(snake, "hiss").
 sound_of(koala, bellow).
+sound_of(seal, bark).   /* gen308: from autolearn.p0 */
 
 paint_mix(blue, yellow, green).
 paint_mix(yellow, blue, green).
@@ -1242,6 +1243,16 @@ border_dir(italy, east, slovenia).
 % is facts only, no C branch.
 riddle_sig(riddle_polar_bear, "walls facing south").
 riddle_sig(riddle_polar_bear, "bear").
+% gen308: riddles distributed from kb/learning/autolearn.p0 (answers in responses.p0).
+riddle_sig(riddle_match, "dark room").
+riddle_sig(riddle_match, match).
+riddle_sig(riddle_match, fireplace).
+riddle_sig(riddle_vine, "no hands").
+riddle_sig(riddle_vine, "i climb").
+riddle_sig(riddle_vine, "i cling").
+riddle_sig(map_riddle, "no houses live").
+riddle_sig(map_riddle, "no trees grow").
+riddle_sig(map_riddle, "what am i").
 riddle_sig(riddle_word_lengths, "four letters").
 riddle_sig(riddle_word_lengths, "nine letters").
 riddle_sig(riddle_word_lengths, "never").
@@ -1611,3 +1622,49 @@ gender_es(libro, m).
 gender_es(sol, m).
 gender_es(luna, f).
 gender_es(noche, f).
+
+% gen308: autolearn's verified knowledge, made OFFICIAL (F.'s directive: what
+% autolearn learns must be committed as project knowledge). These closed
+% "engine_gap" entries in kb/learning/autolearn-ledger.jsonl by pairing a taught
+% relation with an answer_frame/2 (gen306) — the CONSUMER-gap reduction: the fact
+% alone was inert; the frame makes the question form answerable, no C module.
+% Distributed here from the scratch file kb/learning/autolearn.p0 (now deleted);
+% chemical_symbol was normalized to one canonical order (Symbol, Element) — the
+% scratch file had both directions — and deduplicated.
+chemical_symbol(h, hydrogen).
+chemical_symbol(he, helium).
+chemical_symbol(li, lithium).
+chemical_symbol(be, beryllium).
+chemical_symbol(b, boron).
+chemical_symbol(c, carbon).
+chemical_symbol(n, nitrogen).
+chemical_symbol(o, oxygen).
+chemical_symbol(f, fluorine).
+chemical_symbol(ne, neon).
+chemical_symbol(na, sodium).
+chemical_symbol(mg, magnesium).
+chemical_symbol(al, aluminium).
+chemical_symbol(si, silicon).
+chemical_symbol(p, phosphorus).
+chemical_symbol(s, sulfur).
+chemical_symbol(cl, chlorine).
+chemical_symbol(ar, argon).
+chemical_symbol(k, potassium).
+chemical_symbol(ca, calcium).
+chemical_symbol(fe, iron).
+chemical_symbol(cu, copper).
+chemical_symbol(zn, zinc).
+chemical_symbol(ag, silver).
+chemical_symbol(au, gold).
+chemical_symbol(hg, mercury).
+chemical_symbol(pb, lead).
+answer_frame("symbol", chemical_symbol).
+answer_frame("short for", chemical_symbol).
+% capital_on_river(Capital, River): which capital a river runs through.
+capital_on_river(cairo, nile).
+capital_on_river(khartoum, nile).
+answer_frame("river", capital_on_river).
+% hardest_natural_substance(Substance, Where); the frame answers "what is the
+% hardest natural substance on earth?" via the word "earth" -> diamond.
+hardest_natural_substance(diamond, earth).
+answer_frame("hardest", hardest_natural_substance).

@@ -57,5 +57,11 @@ tr_fr(rug, tapis).
 tr_fr(i, je).
 tr_fr(love, aime).
 tr_fr(you, te).
+% gen308: distributed from kb/learning/autolearn.p0 (autolearn's verified lexicon
+% becomes official knowledge; the scratch file is deleted).
+tr_fr(sun, soleil).
+tr_fr(shining, brille).
+tr_fr(good, bon).
+tr_fr(morning, matin).
 gender_fr(chat, m).
 gender_fr(tapis, m).
