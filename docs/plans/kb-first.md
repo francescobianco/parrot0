@@ -8,6 +8,12 @@ disaccordo concreto (la metafora del cerchio, §6) e ne ha estratto una procedur
 applichiamo a ogni nuova domanda che parrot0 oggi mura. Quando in futuro chiediamo
 "questa capacità è dentro o fuori la portata onesta di parrot0?", si torna qui.
 
+> **Esempio vivo del metodo (gen311):** [[teachable-procedures]] §6 racconta un caso
+> completo — scoperta di conoscenza estesa CABLATA nel C (i costrutti grammaticali),
+> astrazione prima delle FORME (tabelle→fatti), poi delle PROCEDURE (regole+interprete
+> di riscrittura). È il modello di ragionamento KB-first applicato fino alle procedure:
+> *la conoscenza non è solo fatti, ma anche procedure per trasformare i fatti.*
+
 ---
 
 ## 1. La tesi fondante

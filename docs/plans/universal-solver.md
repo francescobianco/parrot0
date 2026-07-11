@@ -45,6 +45,11 @@ L'indovinello è il caso in cui Γ = due clue e X = un'entità. Ma:
 **Un solo motore. Domini diversi = KB diverse di fatti e regole.** È l'esatto opposto
 di N moduli cablati: il motore è fisso e piccolo, la conoscenza cresce (kb-first §1).
 
+> **Nota (gen311):** il "motore" di questo solver è l'**interprete di riscrittura
+> generico** deciso in [[teachable-procedures]] (marcia dritta verso la KB che ospita
+> anche le PROCEDURE, non solo i fatti). Inferenza e riscrittura su strutture sono lo
+> stesso kernel: il super-solver è la sua applicazione ai domini.
+
 ---
 
 ## 1. Cos'è già vivo (la cellula)

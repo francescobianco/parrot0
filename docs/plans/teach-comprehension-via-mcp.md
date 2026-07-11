@@ -8,6 +8,14 @@
 > **macchina di comprensione**.
 > **Ruolo:** dare una collocazione onesta a un'intuizione di F. e misurare quanto
 > è già vera, quanto è a un adattatore di distanza, e quanto è muro di principio.
+>
+> **DECISIONE gen311 (F.):** il Secchio B ("la colla grammaticale è C per disegno")
+> e D.1 ("non puoi insegnare a calcolare, solo a ricordare") NON restano muri
+> caso-per-caso: diventano la rotta principale. Si costruisce l'**interprete di
+> riscrittura generico + termini composti (U3)** così che anche le PROCEDURE
+> (grammatica, calcolo) siano dato insegnabile, non C. Vedi **[[teachable-procedures]]**
+> (la decisione e i milestone). "La conoscenza non è solo fatti, ma anche procedure
+> per la trasformazione dei fatti — KB-first nella sua essenza massima."
 
 ## 0. Il concetto (F., 2026-07-07)
 
