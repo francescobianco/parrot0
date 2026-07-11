@@ -118,6 +118,16 @@ static size_t tr_phrase_chunk(Brain *b, const char *phrase_pred, char **tok,
  * literals ("what's $x" -> "what is $x", $x = the rest), so lengths may differ.
  * (Real computation is P2.) `scratch` owns the rewritten tokens. Returns 1 if a rule
  * fired. Kept alongside the older C pre-passes (keep-and-select). */
+/* strip surrounding double-quotes and edge punctuation from a pattern token, but
+ * KEEP a leading '$' (the variable marker — strip_edge_punct would eat it). */
+static char *rw_tok(char *t) {
+    while (*t == '"') t++;
+    if (*t != '$')
+        while (*t && !isalnum((unsigned char)*t) && *t != '_') t++;
+    size_t n = strlen(t);
+    while (n > 0 && !isalnum((unsigned char)t[n - 1]) && t[n - 1] != '_') t[--n] = '\0';
+    return t;
+}
 static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *snp,
                                char scratch[][KB_TERM_LEN], size_t scap) {
     if (!b || !b->kb) return 0;
@@ -132,7 +142,7 @@ static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *sn
         struct { char name[KB_TERM_LEN]; size_t start, count; } bind[16]; size_t nb = 0;
         size_t si = 0, li = 0; int ok = 1;
         while (li < ln && ok) {
-            char *pt = strip_edge_punct(lp[li]);
+            char *pt = rw_tok(lp[li]);
             if (pt[0] == '$') {
                 if (li + 1 == ln) {                        /* trailing var: binds the rest */
                     if (si >= *snp || nb >= 16) { ok = 0; break; }
@@ -140,7 +150,7 @@ static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *sn
                     bind[nb].start = si; bind[nb].count = *snp - si; nb++;
                     si = *snp; li++;
                 } else {
-                    char *nextlit = strip_edge_punct(lp[li + 1]);
+                    char *nextlit = rw_tok(lp[li + 1]);
                     size_t start = si;
                     while (si < *snp && strcmp(strip_edge_punct(sw[si]), nextlit) != 0) si++;
                     if (si >= *snp || si == start || nb >= 16) { ok = 0; break; } /* >=1 token */
@@ -154,9 +164,21 @@ static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *sn
             }
         }
         if (!ok || si != *snp) continue;                   /* must consume all input */
-        const char *rq[] = { lhss[r], NULL };
+        /* fetch RHS. The enumerated LHS key can carry asymmetric quoting, so build a
+         * fully-unquoted `clean` and try {raw, clean, "clean"} — covering .p0-quoted
+         * and kb.assert-unquoted stores, so a rule taught live via MCP fires too. */
+        char clean[256]; const char *cs = lhss[r]; while (*cs == '"') cs++;
+        snprintf(clean, sizeof clean, "%s", cs);
+        size_t cn = strlen(clean); while (cn > 0 && clean[cn - 1] == '"') clean[--cn] = '\0';
+        char cqk[260]; snprintf(cqk, sizeof cqk, "\"%s\"", clean);
         char rhss[1][KB_TERM_LEN];
-        if (kb_match(b->kb, pred, rq, 2, rhss, 1) != 1) continue;
+        const char *keys[3] = { lhss[r], clean, cqk };
+        int gotrhs = 0;
+        for (int kk = 0; kk < 3 && !gotrhs; kk++) {
+            const char *rq[] = { keys[kk], NULL };
+            if (kb_match(b->kb, pred, rq, 2, rhss, 1) == 1) gotrhs = 1;
+        }
+        if (!gotrhs) continue;
         char rbuf[256]; snprintf(rbuf, sizeof rbuf, "%s", kb_dequote(rhss[0]));
         char *rp[32]; size_t rn = split_words(rbuf, rp, 32);
         if (rn == 0) continue;
@@ -164,7 +186,7 @@ static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *sn
          * we repoint it. */
         size_t no = 0;
         for (size_t i = 0; i < rn && no < scap; i++) {
-            char *ot = strip_edge_punct(rp[i]);
+            char *ot = rw_tok(rp[i]);
             if (ot[0] == '$') {
                 int found = 0;
                 for (size_t v = 0; v < nb && no < scap; v++)
