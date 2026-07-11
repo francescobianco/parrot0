@@ -52,6 +52,10 @@ aux_progressive(is).
 % gen311: the other progressive auxiliaries ("I am learning", "you are learning").
 aux_progressive(am).
 aux_progressive(are).
+% gen311: question auxiliaries dropped in translation ("do you speak X" -> the verb
+% conjugates, the aux vanishes: "¿hablas X?"). A fact, grown by autolearn.
+aux_question(do).
+aux_question(does).
 progressive($W) :- chars($W, $L), ends_ing($L).
 ends_ing(cons(i, cons(n, cons(g, nil)))).
 ends_ing(cons($H, $T)) :- ends_ing($T).

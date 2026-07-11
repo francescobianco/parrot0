@@ -1469,6 +1469,9 @@ riddle_sig(riddle_onion, "you might").
 riddle_sig(riddle_map, "have plateaus").
 riddle_sig(shadow_day_sleep, "follow you all day").
 riddle_sig(shadow_day_sleep, "when you sleep").
+riddle_sig(riddle_legs, "4 legs").
+riddle_sig(riddle_legs, "2 legs").
+riddle_sig(riddle_legs, "3 legs").
 unique_trait(hummingbird, "fly backwards").
 unique_trait(hummingbird, "flies backwards").
 % gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
@@ -1569,6 +1572,12 @@ conj_es(understand, i, entiendo).
 conj_es("are from (permanent)", you, eres).
 conj_es("are from (temporary)", you, estás).
 conj_es(speak, i, hablo).
+conj_es(speak, you, hablas).
+tr_es(english, inglés).
+conj_fr(speak, you, parlez).
+tr_fr(english, anglais).
+% French subject "you" is "vous" (tr_fr(you, te) is the OBJECT clitic form).
+subject_pron_fr(you, vous).
 % French keeps the subject but elides it before a vowel (elide_fr(je, j') in
 % grammar.p0); the progressive aux is dropped (aux_progressive/1). "I am learning
 % French" -> "j'apprends français" from conj_fr + tr_fr(french) + those rules.
@@ -1728,6 +1737,7 @@ response_template(riddle_fire, "Fire.").
 response_template(riddle_newspaper, "A newspaper.").
 response_template(riddle_onion, "An onion.").
 response_template(joke_chicken, "To get to the other side.").
+response_template(riddle_legs, "A human.").
 response_template(shadow_day_sleep, "You are a shadow.").
 response_template(joke_short, "Why did the function return early? It had a break.").
 response_template(joke_bear_teeth, "A gummy bear.").

@@ -156,8 +156,29 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                 {
                     const char *subq[] = { NULL, tok, NULL };
                     char st[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "conj_fr", subq, 3, st, 1) >= 1)
+                    /* Only the FIRST subject-capable pronoun is the sentence subject;
+                     * a later "you" ("I love you") is an object, left to the clitic
+                     * path — so guard on cur_subj still being empty. */
+                    if (cur_subj[0] == '\0' &&
+                        kb_match(b->kb, "conj_fr", subq, 3, st, 1) >= 1) {
                         snprintf(cur_subj, sizeof cur_subj, "%s", tok);
+                        /* gen311: French keeps the subject, but "you" as a SUBJECT is
+                         * "vous", not the object clitic "te" (tr_fr(you, te)). Emit the
+                         * taught subject form so it isn't mangled by the clitic path. */
+                        const char *spq[] = { tok, NULL };
+                        char sf[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "subject_pron_fr", spq, 2, sf, 1) == 1 && np < 32) {
+                            snprintf(pieces[np++], KB_TERM_LEN, "%s", sf[0]);
+                            continue;
+                        }
+                    }
+                }
+
+                /* gen311: drop a QUESTION auxiliary ("do you speak" -> "parlez-vous",
+                 * here the verb conjugates and the aux is dropped). aux_question/1 fact. */
+                {
+                    const char *qaq[] = { tok };
+                    if (kb_query(b->kb, "aux_question", qaq, 1)) continue;
                 }
 
                 if (!strcmp(tok, "the")) {
@@ -296,6 +317,14 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                 else {
                     char *tok = strip_edge_punct(sw[i]);
                     if (!*tok) { i++; continue; }
+                    /* gen311 (F., KB-first): drop a QUESTION auxiliary. "do you
+                     * speak English?" -> the "do" is dropped and the verb conjugates
+                     * for the subject: "¿hablas inglés?". aux_question(word) is a
+                     * fact — the same shape as the progressive-aux drop. */
+                    {
+                        const char *qaq[] = { tok };
+                        if (kb_query(b->kb, "aux_question", qaq, 1)) { i++; continue; }
+                    }
                     /* gen311 (F., KB-first morphology): subject-tracking conjugation.
                      * A word used as the SUBJECT arg of some conj_es is a subject
                      * pronoun (no pronoun list hardcoded); Spanish drops it when
@@ -307,7 +336,9 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     {
                         const char *subq[] = { NULL, tok, NULL };
                         char st[1][KB_TERM_LEN];
-                        if (kb_match(b->kb, "conj_es", subq, 3, st, 1) >= 1) {
+                        /* first subject-capable pronoun only (a later "you" is an object). */
+                        if (cur_subj_es[0] == '\0' &&
+                            kb_match(b->kb, "conj_es", subq, 3, st, 1) >= 1) {
                             snprintf(cur_subj_es, sizeof cur_subj_es, "%s", tok);
                             const char *dq[] = { "es", NULL };
                             if (kb_query(b->kb, "pro_drop", dq, 1)) { i++; continue; } /* drop subject */
