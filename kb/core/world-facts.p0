@@ -1390,6 +1390,8 @@ riddle_sig(riddle_egg, "broken before").
 riddle_sig(riddle_egg, "use it").
 riddle_sig(riddle_stamp, "around the world").
 riddle_sig(riddle_stamp, "in a corner").
+riddle_sig(name_riddle, "belongs to you").
+riddle_sig(name_riddle, "use it more").
 
 % gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
 % not a memorized cue->answer. The clue verbs map to constraint predicates that are

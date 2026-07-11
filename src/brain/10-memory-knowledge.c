@@ -1681,6 +1681,11 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
     char ra[KB_TERM_LEN], rc[KB_TERM_LEN];
     int fa = magnitude_lookup(b, dim, a, ra);
     int fc = magnitude_lookup(b, dim, c, rc);
+    /* gen311: if NEITHER side is a known magnitude entity, this is not really a
+     * comparison (e.g. a riddle: "...use it more than you do") — do NOT claim the
+     * turn, so the riddle/other consumers get their chance. Keep the honest
+     * decline only when at least one side IS a known magnitude entity. */
+    if (!fa && !fc) return 0;
     if (!fa || !fc) {
         char da[64], dc[64];
         display_key(a, da, sizeof da);
@@ -2494,15 +2499,20 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             if (or_i < mn) {
                 char a[KB_TERM_LEN], c[KB_TERM_LEN];
+                /* gen311: only RETURN on a successful comparison — a 0 (neither
+                 * side a magnitude entity) must fall through to other consumers
+                 * (e.g. a riddle with "more than"), not exit mod_knowledge. */
                 if (last_entity_before(mw, or_i, cue_i + 1, a, sizeof a) &&
-                    first_entity_after(mw, or_i + 1, mn, c, sizeof c))
-                    return answer_magnitude_compare(b, dim, want_max, a, c, 0, out, out_size);
+                    first_entity_after(mw, or_i + 1, mn, c, sizeof c) &&
+                    answer_magnitude_compare(b, dim, want_max, a, c, 0, out, out_size))
+                    return 1;
             }
             if (than_i < mn && cue_i > 0 && cue_i < than_i) {
                 char a[KB_TERM_LEN], c[KB_TERM_LEN];
                 if (join_entity_span(mw, 1, cue_i, a, sizeof a) &&
-                    first_entity_after(mw, than_i + 1, mn, c, sizeof c))
-                    return answer_magnitude_compare(b, dim, want_max, a, c, 1, out, out_size);
+                    first_entity_after(mw, than_i + 1, mn, c, sizeof c) &&
+                    answer_magnitude_compare(b, dim, want_max, a, c, 1, out, out_size))
+                    return 1;
             }
             /* gen310a: superlative question — "what is the longest river?".
              * No "or" or "than" pattern → enumerate ALL magnitude(dim, *, *)
