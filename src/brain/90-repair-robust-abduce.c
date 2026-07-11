@@ -104,6 +104,34 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen311 (F.): a RIDDLE turn is not a coref gap — "what has to be broken before
+     * you can use IT" binds "it" to the riddle's own answer, not a discourse entity.
+     * If every cue of some riddle_sig id occurs in the turn, pass so the riddle
+     * consumer (mod_knowledge) can answer instead of opening a clarification. */
+    if (b->kb) {
+        char rids[64][KB_TERM_LEN];
+        const char *rq[] = { NULL, NULL };
+        size_t nr = kb_match(b->kb, "riddle_sig", rq, 2, rids, 64);
+        char seen[64][KB_TERM_LEN]; size_t nseen = 0;
+        for (size_t i = 0; i < nr; i++) {
+            int dup = 0;
+            for (size_t j = 0; j < nseen; j++) if (!strcmp(seen[j], rids[i])) dup = 1;
+            if (dup || nseen >= 64) continue;
+            snprintf(seen[nseen++], KB_TERM_LEN, "%s", rids[i]);
+            const char *cq[] = { rids[i], NULL };
+            char cues[8][KB_TERM_LEN];
+            size_t nc = kb_match(b->kb, "riddle_sig", cq, 2, cues, 8);
+            if (nc < 2) continue;
+            int all = 1;
+            for (size_t c = 0; c < nc && all; c++) {
+                char *cu = cues[c]; size_t cl = strlen(cu);
+                if (cl >= 2 && cu[0] == '"' && cu[cl - 1] == '"') { cu[cl - 1] = '\0'; cu++; }
+                if (!*cu || !strstr(norm, cu)) all = 0;
+            }
+            if (all) return 0;   /* the riddle consumer will answer */
+        }
+    }
+
     const char *pron = NULL;
     for (size_t i = 1; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);

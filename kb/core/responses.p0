@@ -81,6 +81,7 @@ response_template(riddle_polar_bear, "White -- if all four walls face south, the
 response_template(riddle_word_lengths, "It's a statement: 'what' has four letters, 'sometimes' has nine, 'never' has five.").
 response_template(riddle_river_crossing, "Take the goose first; bring the fox but carry the goose back; take the corn over; return for the goose.").
 response_template(riddle_echo, "An echo.").
+response_template(riddle_egg, "An egg.").
 % gen308: riddle answers distributed from kb/learning/autolearn.p0 (cues in world-facts.p0).
 response_template(riddle_match, "You light the match first.").
 response_template(riddle_vine, "You are a vine.").

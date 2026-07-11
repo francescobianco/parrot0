@@ -1309,6 +1309,8 @@ riddle_sig(riddle_river_crossing, "corn").
 riddle_sig(riddle_river_crossing, "boat").
 riddle_sig(riddle_echo, "speak without a mouth").
 riddle_sig(riddle_echo, "hear without ears").
+riddle_sig(riddle_egg, "broken before").
+riddle_sig(riddle_egg, "use it").
 
 % gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
 % not a memorized cue->answer. The clue verbs map to constraint predicates that are
