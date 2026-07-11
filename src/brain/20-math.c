@@ -226,6 +226,7 @@ static int arith_compound(const char *norm, char *out, size_t out_size) {
 
     char *w[40];
     size_t nw = split_words(buf, w, 40);
+    for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
 
     size_t opos[16]; char ochar[16]; size_t nop = 0;
     for (size_t i = 0; i < nw && nop < 16; i++) {
