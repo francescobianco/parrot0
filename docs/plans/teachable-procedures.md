@@ -182,3 +182,45 @@ CLASSE, lasciando in C solo un interprete generico?"*. Se la classe è di FORME 
 tabella di fatti. Se è di PROCEDURE → regole di trasformazione + interprete. Il C
 fisso si restringe, la conoscenza (fatti **e** procedure) cresce. Questo è il cuore
 di "engine fixed, knowledge learns", portato fino alle procedure.
+
+---
+
+## 7. Gap ledger — cosa manca (aggiornato gen311)
+
+Registro onesto dei buchi, per non perderli. Due famiglie.
+
+### 7a. Costrutti grammaticali ancora FUORI dal toolkit (frontiera del ledger autolearn)
+Ognuno oggi murerebbe o servirebbe un consumer C; il pivot (regole `rewrite_*` +
+P2) è la via per renderli dato insegnabile.
+
+- **Fronting + INVERSIONE francese** — "Where are you from?" FR → "d'où venez-vous?".
+  Il francese non ha pro-drop: serve l'inversione soggetto-verbo, non solo il
+  riordino. `rewrite_fr` + una regola d'inversione.
+- **ser/estar (ES)** — "My name is X" → "mi nombre es X" (ser, identità) vs "está"
+  (estar, luogo/stato). Selezione del copula per contesto: oggi solo `tr_es(is, esta)`.
+  Candidato a regola `copula_es($N, is, es) :- ser_noun($N).`
+- **Clitico oggetto in DOMANDA (FR)** — "Can you help me?" → "pouvez-vous m'aider"
+  (aux + infinito + clitico `m'`). La macchina clitica FR esiste per un'altra posizione.
+- **Contrazione wh (ES)** — "What's your email?" → "cuál es tu correo". P1 espande
+  "what's"→"what is"; manca il mapping "what is"→"cuál es" + lessico email.
+- **Pass-through dei nomi propri** — il compositore declina su una parola ignota (un
+  nome proprio "John") invece di lasciarla passare. Serve una regola di default.
+
+### 7b. Categorie deboli di LLMSCORE (misurato: 5/10, gen311) — l'obiettivo ≥8/10
+Le domande RUOTANO: si chiudono CATEGORIE, non prompt ([[categories-not-prompts]]).
+
+- **Word-problem matematici** (Q2 "22" invece di 24; Q4 treni, declinato) — richiede
+  CALCOLO, non ricordo: è **P2** (termini composti + ricorsione, D.1 di
+  teach-comprehension). La leva più grande e più lontana.
+- **Completamento di frase** ("...she reached for her ___" → umbrella) — buon senso
+  generativo; candidato a template di completamento + collocazioni insegnabili.
+- **Puzzle laterali** ("il bicchiere trabocca ma nulla è stato aggiunto") — abduzione
+  su modello fisico; è il [[universal-solver]] (inferenza), gemello del rewrite.
+- **Aperte / etiche** ("cosa fai se trovi un portafoglio?") — risposta sensata
+  soggettiva; la più lontana dalla portata KB-first onesta, forse un template di
+  ragionamento pratico.
+
+**Priorità verso 8/10:** (1) misurare il baseline ORA (post-miglioramenti); (2)
+chiudere le categorie più economiche che il draw pesca spesso (traduzione, riddle,
+superlativi, definizioni — già irrobustite; completamento-frase è il prossimo
+economico); (3) P2 per i word-problem, la leva strutturale.
