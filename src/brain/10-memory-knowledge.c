@@ -3317,17 +3317,17 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * no C branch per riddle (the older per-riddle branches below stay as
      * secondary structures per F.'s keep-and-select steer). */
     {
-        char ids[64][KB_TERM_LEN];
+        char ids[256][KB_TERM_LEN];
         const char *anyq3[] = { NULL, NULL };
-        size_t nid = kb_match(b->kb, "riddle_sig", anyq3, 2, ids, 64);
-        /* gen311 fix: dedup buffer must hold as many distinct riddle ids as the
-         * enumeration (ids[64]) — a 16 cap silently dropped every riddle past the
-         * 16th, so a 17th (runtime-TAUGHT via autolearn) riddle never fired. */
-        char done[64][KB_TERM_LEN]; size_t nd = 0;
+        size_t nid = kb_match(b->kb, "riddle_sig", anyq3, 2, ids, 256);
+        /* gen311 fix: the enumeration (ids) and dedup buffer (done) must both hold
+         * as many riddle_sig facts/ids as exist — a small cap silently dropped every
+         * riddle past it (incl. runtime-TAUGHT ones and the proverb batch). */
+        char done[128][KB_TERM_LEN]; size_t nd = 0;
         for (size_t i = 0; i < nid; i++) {
             int seen2 = 0;
             for (size_t j = 0; j < nd; j++) if (!strcmp(done[j], ids[i])) seen2 = 1;
-            if (seen2 || nd >= 64) continue;
+            if (seen2 || nd >= 128) continue;
             snprintf(done[nd++], KB_TERM_LEN, "%s", ids[i]);
             const char *sq2[] = { ids[i], NULL };
             char cues[8][KB_TERM_LEN];

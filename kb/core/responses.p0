@@ -85,6 +85,22 @@ response_template(riddle_egg, "An egg.").
 response_template(riddle_stamp, "A stamp.").
 response_template(name_riddle, "Your name.").
 response_template(left_hand_riddle, "Your left hand.").
+% gen311 (LLMSCORE): common proverb completions.
+response_template(say_stitch, "A stitch in time saves nine.").
+response_template(say_earlybird, "The early bird catches the worm.").
+response_template(say_apple, "An apple a day keeps the doctor away.").
+response_template(say_actions, "Actions speak louder than words.").
+response_template(say_pen, "The pen is mightier than the sword.").
+response_template(say_rome, "When in Rome, do as the Romans do.").
+response_template(say_practice, "Practice makes perfect.").
+response_template(say_late, "Better late than never.").
+response_template(say_birds, "Birds of a feather flock together.").
+response_template(say_cloud, "Every cloud has a silver lining.").
+response_template(say_curiosity, "Curiosity killed the cat.").
+response_template(say_honesty, "Honesty is the best policy.").
+response_template(say_leap, "Look before you leap.").
+response_template(say_picture, "A picture is worth a thousand words.").
+response_template(say_chickens, "Don't count your chickens before they hatch.").
 % gen308: riddle answers distributed from kb/learning/autolearn.p0 (cues in world-facts.p0).
 response_template(riddle_match, "You light the match first.").
 response_template(riddle_vine, "You are a vine.").

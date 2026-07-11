@@ -56,6 +56,10 @@ ABILITIES = [
     "the definition of a moderately advanced English word",
     "a color fact (mixing, or the color of a thing)",
     "a famous first/inventor/author fact",
+    "a common proverb or saying to COMPLETE (give the beginning)",
+    "an anagram of a common word",
+    "a single word for a definition (a person who studies/does X)",
+    "complete a common English sentence sensibly",
 ]
 
 # Facts the teacher may assert: predicates with a VERIFIED consumer in the engine.

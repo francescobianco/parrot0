@@ -279,6 +279,33 @@ word_for("thinks only of themselves", selfish).
 word_for("gives freely to others", generous).
 word_for("keeps a secret", discreet).
 word_for("uses the left hand", "left-handed").
+% gen311 (LLMSCORE): broaden the definition->word vocabulary (a common draw).
+word_for("studies rocks", geologist).
+word_for("studies the stars", astronomer).
+word_for("studies stars", astronomer).
+word_for("studies animals", zoologist).
+word_for("studies plants", botanist).
+word_for("studies the weather", meteorologist).
+word_for("studies weather", meteorologist).
+word_for("studies living things", biologist).
+word_for("studies the past", historian).
+word_for("studies history", historian).
+word_for("studies insects", entomologist).
+word_for("cannot sleep", insomniac).
+word_for("eats only plants", herbivore).
+word_for("eats only meat", carnivore).
+word_for("eats both plants and meat", omnivore).
+word_for("flies planes", pilot).
+word_for("fixes teeth", dentist).
+word_for("treats animals", veterinarian).
+word_for("cuts hair", barber).
+word_for("delivers mail", "mail carrier").
+word_for("fights fires", firefighter).
+word_for("cannot read or write", illiterate).
+word_for("speaks many languages", multilingual).
+word_for("fear of heights", acrophobia).
+word_for("fear of spiders", arachnophobia).
+word_for("fear of enclosed spaces", claustrophobia).
 
 % --- gen240 (LLMSCORE): known-fact counting. quantity(Entity, Unit, N) reifies
 % "an Entity has N Unit" — answered by the recall parser in 25-wordmath-reasoning.c
@@ -1395,6 +1422,38 @@ riddle_sig(name_riddle, "belongs to you").
 riddle_sig(name_riddle, "use it more").
 riddle_sig(left_hand_riddle, "right hand").
 riddle_sig(left_hand_riddle, "your left").
+% gen311 (LLMSCORE): common PROVERB completion reuses the riddle mechanism (cue
+% substrings of the beginning -> the full saying). Two cues per proverb, one per line.
+riddle_sig(say_stitch, "stitch in time").
+riddle_sig(say_stitch, "saves").
+riddle_sig(say_earlybird, "early bird").
+riddle_sig(say_earlybird, "catches").
+riddle_sig(say_apple, "apple a day").
+riddle_sig(say_apple, "keeps").
+riddle_sig(say_actions, "actions speak").
+riddle_sig(say_actions, "louder").
+riddle_sig(say_pen, "pen is").
+riddle_sig(say_pen, "mightier").
+riddle_sig(say_rome, "when in").
+riddle_sig(say_rome, "rome").
+riddle_sig(say_practice, "practice").
+riddle_sig(say_practice, "makes").
+riddle_sig(say_late, "better").
+riddle_sig(say_late, "late").
+riddle_sig(say_birds, "birds of a").
+riddle_sig(say_birds, "feather").
+riddle_sig(say_cloud, "every cloud").
+riddle_sig(say_cloud, "cloud").
+riddle_sig(say_curiosity, "curiosity").
+riddle_sig(say_curiosity, "killed").
+riddle_sig(say_honesty, "honesty").
+riddle_sig(say_honesty, "is the").
+riddle_sig(say_leap, "look").
+riddle_sig(say_leap, "before").
+riddle_sig(say_picture, "picture is").
+riddle_sig(say_picture, "worth").
+riddle_sig(say_chickens, "count your").
+riddle_sig(say_chickens, "chickens").
 
 % gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
 % not a memorized cue->answer. The clue verbs map to constraint predicates that are
@@ -1541,6 +1600,24 @@ anagram_of(cat, "act").
 anagram_of(dog, "god").
 anagram_of(save, "vase").
 anagram_of(angel, "glean").
+% gen311 (LLMSCORE): common anagrams (the C verifies the letters genuinely match).
+anagram_of(master, "stream").
+anagram_of(stream, "master").
+anagram_of(earth, "heart").
+anagram_of(heart, "earth").
+anagram_of(state, "taste").
+anagram_of(taste, "state").
+anagram_of(cat, "act").
+anagram_of(act, "cat").
+anagram_of(read, "dear").
+anagram_of(dear, "read").
+anagram_of(save, "vase").
+anagram_of(vase, "save").
+anagram_of(brag, "grab").
+anagram_of(grab, "brag").
+anagram_of(care, "race").
+anagram_of(race, "care").
+anagram_of(below, "elbow").
 
 % gen241/gen244 (LLMSCORE-check + NEXTMOVE): step-by-step procedures as ordered KB
 % facts. process_topic/2 is the KB-side bridge from request words to a Task;
