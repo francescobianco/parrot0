@@ -118,6 +118,7 @@ tr_fr_phrase("how much does it cost", "combien ça coûte").
 tr_fr_phrase("what's your name", "comment vous appelez-vous").
 tr_fr_phrase("what is your name", "comment vous appelez-vous").
 tr_fr_phrase("what time is it", "quelle heure est-il").
+tr_fr_phrase("good luck", "bonne chance").
 tr_fr(where, où).
 tr_fr(is, est).
 tr_fr(bathroom, "salle de bains").
@@ -136,6 +137,7 @@ tr_fr(friend, ami).
 tr_fr(city, ville).
 tr_fr(country, pays).
 tr_fr(time, heure).
+tr_fr(luck, chance).
 gender_fr("salle de bains", f).
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).
@@ -165,5 +167,9 @@ tr_es_phrase(sorry, "lo siento").
 tr_es_phrase("i love you", "te quiero").
 tr_es_phrase("i don't understand", "no entiendo").
 tr_es_phrase("can you help me", "puedes ayudarme").
+tr_es_phrase("de donde", "de dónde").
+tr_es_phrase("where are you from", "de dónde eres").
+tr_es_phrase("where are you from (temp)", "de dónde estás").
 gender_fr(chat, m).
+gender_fr(chance, f).
 gender_fr(tapis, m).

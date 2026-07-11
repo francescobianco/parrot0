@@ -2055,3 +2055,175 @@ Le tre decisioni che ora spettano a te
 - after: serendipity is the occurrence and development of events by chance in a happy or beneficial way.
 - judge: The answer provides an accurate and concise definition of serendipity as the occurrence of events by chance in a happy or beneficial way.
 
+
+## Run 2026-07-11 12:36:55 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 1 · failed 0 · engine-gap 1 · skipped 1 · kept 7 facts (7 seed + 0 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 1 · idiom_gap 1**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Canada?
+- before: Ottawa.
+- judge: The answer correctly identifies Ottawa as the capital city of Canada.
+
+### Round 2 — already-capable
+- Q: Which planet in our solar system is known as the "Ringed Planet"?
+- before: Saturn is the Ringed Planet.
+- judge: The answer correctly identifies Saturn as the Ringed Planet with a clear, accurate response.
+
+### Round 3 — taught
+- Q: How do you say "Where are you from?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "from".
+- diagnosis: idiom_gap · teachable=true · mode=template
+- next: Teach the complete template pattern 'De dónde [verb] [subject]?' with multiple example sentences using different subjects and verbs.
+- lesson: tr_es(from, de); tr_es_phrase(de donde, de dónde); conj_es(are from (permanent), you, eres); conj_es(are from (temporary), you, estás); pro_drop(es); tr_es_phrase(where are you from, de dónde eres); tr_es_phrase(where are you from (temp), de dónde estás)
+- after: De dónde eres.
+- judge: The answer correctly provides the Spanish phrase 'De dónde eres' for 'Where are you from?'
+
+### Round 4 — skipped
+- Q: How do you say "Where are you from?" in French?
+- before: I can translate most of it, but I don't know the French for "are".
+- diagnosis: composition_gap · teachable=true · mode=fact
+- next: Teach the French conjugation of être and its role in constructing origin questions.
+- judge: no lesson JSON
+
+### Round 5 — engine-gap
+- Q: What belongs to you but other people use it more than you do?
+- before: Who or what does "it" refer to?
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the generation engine to ensure it uses taught response templates before adding new riddle training.
+- lesson: riddle_sig(name_riddle, belongs to you); riddle_sig(name_riddle, other people use); riddle_sig(name_riddle, use it more); response_template(name_riddle, Your name belongs to you but other people use it more than you do.)
+- after: I recognize a comparison on games_won, but I don't have magnitudes for Belongs you but other people use it and You.
+- judge: The answer is completely off-topic and fails to address the riddle, which should be answered with 'your name'.
+
+
+## Run 2026-07-11 12:39:12 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 1 · failed 0 · engine-gap 1 · skipped 1 · kept 3 facts (3 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2 · missing_fact 1**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Brazil?
+- before: Brasilia.
+- judge: The answer correctly identifies Brasilia as the capital city of Brazil.
+
+### Round 2 — engine-gap
+- Q: What element does the chemical symbol 'K' represent on the periodic table?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test if the model can correctly answer without any lesson, then verify basic periodic table knowledge is accessible.
+- lesson: chemical_symbol(k, potassium)
+- after: Hmm, I don't know about element yet.
+- judge: The answer incorrectly claims ignorance about 'K' representing Potassium, which is basic chemical knowledge that should be correctly answered.
+
+### Round 3 — skipped
+- Q: How do you say "My name is [your name]" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "my".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the answer retrieval and composition pipeline, as the engine invented a false knowledge claim rather than accessing its own known facts.
+- judge: Engine bug: it claims ignorance of 'mi' for 'my' despite having the fact in KB; debug the retrieval pipeline, not the knowledge base.
+
+### Round 4 — already-capable
+- Q: How do you say "Happy birthday" in French?
+- before: Bon anniversaire.
+- judge: The answer correctly translates 'Happy birthday' to French as 'Bon anniversaire'.
+
+### Round 5 — taught
+- Q: I follow you all day, but when you sleep, I vanish. I have no body but I reflect light. What am I?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add shadow facts linking entity attributes to riddle clue patterns so the engine can match 'vanish when sleeping' and 'reflect light without body' to the answer.
+- lesson: riddle_sig(shadow_day_sleep, follow you all day); riddle_sig(shadow_day_sleep, when you sleep); response_template(shadow_day_sleep, You are a shadow.)
+- after: You are a shadow.
+- judge: The answer correctly identifies the shadow as the solution to this classic riddle, matching the key clues about following during the day and vanishing in darkness.
+
+
+## Run 2026-07-11 12:42:36 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 1 · engine-gap 1 · skipped 1 · kept 5 facts (5 seed + 0 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 3**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Canada?
+- before: Ottawa.
+- judge: The answer is correct, concise, and directly addresses the question.
+
+### Round 2 — skipped
+- Q: How many chambers does the human heart have?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the query parsing and answer generation pipeline to ensure factual knowledge can be consumed by the response path.
+- judge: The diagnosis indicates a pipeline/routing engine gap, not a missing KB fact. The answer generation path failed to consume available knowledge about human heart chambers — this is not addressable by teaching additional facts.
+
+### Round 3 — taught
+- Q: How do you say "I don't speak Spanish" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "speak".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Fix the answer generation component to produce translations from stored facts rather than deflecting with capability disclaimers.
+- lesson: tr_es(speak, hablar); tr_es(spanish, español); conj_es(speak, i, hablo); negation_es(don't, no); pro_drop(es)
+- after: No hablo español.
+- judge: The answer correctly translates 'I don't speak Spanish' to 'No hablo español,' which is accurate and on-topic.
+
+### Round 4 — failed-lesson
+- Q: Translate this common English phrase into French: "Can you help me?
+- before: I can translate most of it, but I don't know the French for "can".
+- diagnosis: composition_gap · teachable=false · mode=skip
+- next: Test user with simpler multi-word phrases to verify if deflection is a pattern rather than a real knowledge gap.
+- lesson: tr_fr(can, pouvez)
+- after: I can translate most of it, but I don't know the French for "help".
+- judge: The answer deflects by claiming ignorance of 'help' when the French 'aider' is common knowledge, failing to provide the translation.
+
+### Round 5 — engine-gap
+- Q: What can you hold in your right hand but never in your left?
+- before: Fair enough — tell me where I went wrong, and we can take it from there.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: response_template(hold_in_hands, Your right hand. You can hold your right hand in your right hand, but you cannot hold your right hand in your left hand.)
+- after: Fair enough — tell me where I went wrong, and we can take it from there.
+- judge: The answer deflects and doesn't solve the riddle, instead asking where they went wrong when no attempt was made.
+
+
+## Run 2026-07-11 12:45:43 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 1 · failed 0 · engine-gap 1 · skipped 1 · kept 3 facts (3 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · morphology_gap 1 · unknown 1**
+
+### Round 1 — already-capable
+- Q: What is the capital of Australia?
+- before: Canberra.
+- judge: The answer is correct: Canberra is the capital of Australia.
+
+### Round 2 — already-capable
+- Q: Which planet in our solar system is known as the Red Planet?
+- before: Mars is the Red Planet.
+- judge: Correct factual answer identifying Mars as the Red Planet.
+
+### Round 3 — engine-gap
+- Q: How do you say "What's your email address?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "what's".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(your, tu); tr_es(email, correo); tr_es(address, dirección); gender_es(dirección, f); interrogative_pattern_es(what is your, cuál es tu)
+- after: I can translate most of it, but I don't know the Spanish for "what's".
+- judge: The answer fails to provide the translation; 'what's' is simply 'what is' (cuál es) and the full phrase '¿Cuál es tu correo electrónico?' is straightforward.
+
+### Round 4 — taught
+- Q: How do you say "Good luck" in French?
+- before: I can translate most of it, but I don't know the French for "luck".
+- diagnosis: morphology_gap · teachable=true · mode=template
+- next: Test adjective-noun gender agreement with a feminine noun exercise before teaching idioms.
+- lesson: tr_fr(luck, chance); gender_fr(chance, f); tr_fr_phrase(good luck, bonne chance)
+- after: Bonne chance.
+- judge: The answer correctly provides 'Bonne chance' as the French translation for 'Good luck'.
+
+### Round 5 — skipped
+- Q: What has hands but can't clap?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no whitelisted facts (3 dropped)
+
