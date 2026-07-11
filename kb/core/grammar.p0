@@ -62,6 +62,10 @@ aux_question(does).
 % from" -> "from where you are" -> composed to "de dónde eres". A new construct is a
 % new rewrite_es fact, no recompile. Grow via autolearn.
 rewrite_es("where are $s from", "from where $s are").
+% P1 (span vars): a var binds MANY tokens. Expand the contraction so the rest ($x)
+% flows to the existing lexicon/phrases: "what's your name" -> "what is your name"
+% -> tr_es_phrase -> "cómo te llamas".
+rewrite_es("what's $x", "what is $x").
 progressive($W) :- chars($W, $L), ends_ing($L).
 ends_ing(cons(i, cons(n, cons(g, nil)))).
 ends_ing(cons($H, $T)) :- ends_ing($T).

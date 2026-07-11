@@ -99,12 +99,15 @@ regola equivalente non è insegnata e verificata.
 
 ## 3. La rotta (milestone, uno per generazione, tirato da un fallimento reale)
 
-- **P0 — dimostratore di riscrittura su liste (SEME).** Regole `rewrite(LHS, RHS)`
-  con variabili su token; l'interprete trasforma una lista d'input. Caso reale: un
-  costrutto grammaticale del ledger (es. fronting) espresso come REGOLA insegnata,
-  non come consumer C — e lo si vede scattare. Prova che "costrutto nuovo = regola".
-- **P1 — variabili su SPAN** (un `$X` lega più token) — serve al riordino reale
-  ("sposta la preposizione in testa").
+- **P0 — dimostratore di riscrittura su liste (FATTO, gen311).** `apply_token_rewrite`
+  in `85-translate-synth-world.c` interpreta `rewrite_es(LHS, RHS)` (fatti insegnati,
+  pattern di token con var). Il fronting `rewrite_es("where are $s from", "from where
+  $s are")` -> "de dónde eres" gira ORA via la regola, non il C (che resta fallback
+  keep-and-select). Whitelisted per autolearn.
+- **P1 — variabili su SPAN (FATTO, gen311).** Un `$x` lega ≥1 token, ancorato dai
+  letterali vicini. `rewrite_es("what's $x", "what is $x")` espande la contrazione e il
+  resto ($x="your name") aggancia la frase esistente -> "Cómo te llamas". Lunghezze
+  diverse permesse.
 - **P2 — funtori + ricorsione (Peano):** `add/3`, `length/3` insegnati come regole e
   calcolati dall'interprete. Chiude D.1: si insegna a CALCOLARE, non solo a ricordare.
 - **P3 — proof e provenienza:** ogni trasformazione porta la sua derivazione

@@ -109,14 +109,15 @@ static size_t tr_phrase_chunk(Brain *b, const char *phrase_pred, char **tok,
     return 0;
 }
 
-/* gen311 (teachable-procedures.md P0): a generic token-REWRITE interpreter. A
+/* gen311 (teachable-procedures.md P0/P1): a generic token-REWRITE interpreter. A
  * grammatical PROCEDURE is a TAUGHT fact rewrite_<lang>(LHS, RHS) whose two args are
- * space-joined token patterns with single-token variables ("$s"). If LHS unifies
- * with the current token list (literals equal, $vars bind), the list is replaced by
- * RHS with the vars substituted. So interrogative fronting/de-inversion is a taught
- * RULE, not C — a new construct is a new rule, no recompile. (Single-token vars for
- * P0; span vars are P1, real computation P2.) `scratch` owns the rewritten tokens.
- * Returns 1 if a rule fired. Kept alongside the older C pre-passes (keep-and-select). */
+ * space-joined token patterns with variables ("$s"). If LHS unifies with the current
+ * token list, the list is replaced by RHS with the vars substituted. So interrogative
+ * fronting/de-inversion is a taught RULE, not C — a new construct is a new rule, no
+ * recompile. P1: a var binds a SPAN (>=1 tokens), anchored by the surrounding
+ * literals ("what's $x" -> "what is $x", $x = the rest), so lengths may differ.
+ * (Real computation is P2.) `scratch` owns the rewritten tokens. Returns 1 if a rule
+ * fired. Kept alongside the older C pre-passes (keep-and-select). */
 static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *snp,
                                char scratch[][KB_TERM_LEN], size_t scap) {
     if (!b || !b->kb) return 0;
@@ -126,33 +127,60 @@ static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *sn
     for (size_t r = 0; r < nl; r++) {
         char lbuf[256]; snprintf(lbuf, sizeof lbuf, "%s", kb_dequote(lhss[r]));
         char *lp[32]; size_t ln = split_words(lbuf, lp, 32);
-        if (ln == 0 || ln != *snp) continue;                 /* P0: equal length */
-        char vn[16][KB_TERM_LEN], vv[16][KB_TERM_LEN]; size_t nv = 0; int ok = 1;
-        for (size_t i = 0; i < ln && ok; i++) {
-            char *pt = strip_edge_punct(lp[i]);
-            char *st = strip_edge_punct(sw[i]);
+        if (ln == 0) continue;
+        /* match LHS against sw with SPAN vars, anchored by the next literal. */
+        struct { char name[KB_TERM_LEN]; size_t start, count; } bind[16]; size_t nb = 0;
+        size_t si = 0, li = 0; int ok = 1;
+        while (li < ln && ok) {
+            char *pt = strip_edge_punct(lp[li]);
             if (pt[0] == '$') {
-                if (nv < 16) { snprintf(vn[nv], KB_TERM_LEN, "%s", pt);
-                               snprintf(vv[nv], KB_TERM_LEN, "%s", st); nv++; }
-            } else if (strcmp(pt, st) != 0) ok = 0;
+                if (li + 1 == ln) {                        /* trailing var: binds the rest */
+                    if (si >= *snp || nb >= 16) { ok = 0; break; }
+                    snprintf(bind[nb].name, KB_TERM_LEN, "%s", pt);
+                    bind[nb].start = si; bind[nb].count = *snp - si; nb++;
+                    si = *snp; li++;
+                } else {
+                    char *nextlit = strip_edge_punct(lp[li + 1]);
+                    size_t start = si;
+                    while (si < *snp && strcmp(strip_edge_punct(sw[si]), nextlit) != 0) si++;
+                    if (si >= *snp || si == start || nb >= 16) { ok = 0; break; } /* >=1 token */
+                    snprintf(bind[nb].name, KB_TERM_LEN, "%s", pt);
+                    bind[nb].start = start; bind[nb].count = si - start; nb++;
+                    li++;                                   /* literal matched next iteration */
+                }
+            } else {
+                if (si >= *snp || strcmp(strip_edge_punct(sw[si]), pt) != 0) { ok = 0; break; }
+                si++; li++;
+            }
         }
-        if (!ok) continue;
+        if (!ok || si != *snp) continue;                   /* must consume all input */
         const char *rq[] = { lhss[r], NULL };
         char rhss[1][KB_TERM_LEN];
         if (kb_match(b->kb, pred, rq, 2, rhss, 1) != 1) continue;
         char rbuf[256]; snprintf(rbuf, sizeof rbuf, "%s", kb_dequote(rhss[0]));
         char *rp[32]; size_t rn = split_words(rbuf, rp, 32);
-        if (rn == 0 || rn > scap) continue;
-        for (size_t i = 0; i < rn; i++) {
+        if (rn == 0) continue;
+        /* expand RHS into scratch (a var expands to its bound span). Read sw BEFORE
+         * we repoint it. */
+        size_t no = 0;
+        for (size_t i = 0; i < rn && no < scap; i++) {
             char *ot = strip_edge_punct(rp[i]);
-            const char *val = ot;
-            if (ot[0] == '$')
-                for (size_t v = 0; v < nv; v++)
-                    if (!strcmp(vn[v], ot)) { val = vv[v]; break; }
-            snprintf(scratch[i], KB_TERM_LEN, "%s", val);
-            sw[i] = scratch[i];
+            if (ot[0] == '$') {
+                int found = 0;
+                for (size_t v = 0; v < nb && no < scap; v++)
+                    if (!strcmp(bind[v].name, ot)) {
+                        for (size_t k = 0; k < bind[v].count && no < scap; k++)
+                            snprintf(scratch[no++], KB_TERM_LEN, "%s",
+                                     strip_edge_punct(sw[bind[v].start + k]));
+                        found = 1; break;
+                    }
+                if (!found) snprintf(scratch[no++], KB_TERM_LEN, "%s", ot);
+            } else {
+                snprintf(scratch[no++], KB_TERM_LEN, "%s", ot);
+            }
         }
-        *snp = rn;
+        for (size_t i = 0; i < no; i++) sw[i] = scratch[i];
+        *snp = no;
         return 1;
     }
     return 0;
