@@ -132,6 +132,8 @@ wiki_concept(black_hole, astronomy, "astronomical body so compact that its gravi
 % source: https://en.wikipedia.org/wiki/Galaxy
 % revision: 1360786961; processed: 2026-06-28T12:48:10Z
 wiki_concept(galaxy, astronomy, "system of stars, stellar remnants, interstellar gas, dust, and dark matter bound together by gravity").
+wiki_concept(ubiquitous, adjective, "present, appearing, or found everywhere").
+wiki_concept(serendipity, vocabulary, "the occurrence and development of events by chance in a happy or beneficial way").
 
 % --- learning event audit trail ---
 % event learn_2026_06_21t01_32_24z_prime_number

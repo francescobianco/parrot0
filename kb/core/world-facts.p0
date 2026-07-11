@@ -607,6 +607,10 @@ magnitude(size, united_states, 20).
 magnitude(size, canada, 21).
 % gen310a: organ size for superlative filtering
 magnitude(size, skin, 30).
+magnitude(size, hippopotamus, 8).
+magnitude(size, rhinoceros, 7).
+magnitude(size, giraffe, 6).
+magnitude(size, blue_whale, 10).
 is_a(skin, organ).
 category_member(organ, skin).
 magnitude(weight, feather, 1).
@@ -1211,6 +1215,22 @@ idiom_meaning("do the math", "to calculate or consider the facts").
 idiom_meaning("fingers crossed", "hoping for good luck").
 idiom_meaning("go the extra mile", "to make more effort than expected").
 idiom_meaning("hit the books", "to study").
+idiom_meaning("kick the bucket", "to die").
+idiom_meaning("break a leg", "good luck").
+describe_cue(mean).
+idiom_meaning("bite the bullet", "to endure a painful situation").
+idiom_meaning("hit the nail on the head", "to be exactly right").
+idiom_meaning("costs an arm and a leg", "very expensive").
+idiom_meaning("kill two birds with one stone", "to achieve two things with one action").
+idiom_meaning("cut to the chase", "to get to the point").
+idiom_meaning("piece of cake", "something very easy").
+idiom_meaning("under the weather", "feeling ill").
+idiom_meaning("beat around the bush", "to avoid getting to the point").
+idiom_meaning("the ball is in your court", "it is your decision now").
+idiom_meaning("on thin ice", "in a risky situation").
+idiom_meaning("hit the sack", "to go to sleep").
+idiom_meaning("miss the boat", "to miss an opportunity").
+idiom_meaning("add insult to injury", "to make a bad situation worse").
 
 % gen311 (KB-first definitions): the "what does X mean / define X" FRAME is taught
 % data, not a C pattern. describe_cue(Cue) lists substrings that mark a description

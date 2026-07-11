@@ -1914,3 +1914,144 @@ Le tre decisioni che ora spettano a te
 - after: I don't have a module by that name. Ask 'what can you do?' for a list.
 - judge: The answer deflects with an irrelevant response about modules instead of providing the definition of 'pragmatic.'
 
+
+## Run 2026-07-11 12:19:51 — model minimax-m2.5, 10 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 7 · taught 1 · failed 1 · engine-gap 1 · skipped 0 · kept 1 facts (1 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · idiom_gap 1 · missing_fact 1**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Italy?
+- before: Rome.
+- judge: Rome is correctly identified as the capital city of Italy.
+
+### Round 2 — already-capable
+- Q: What planet is known as the Red Planet?
+- before: Mars is the Red Planet.
+- judge: Correct and concise answer identifying Mars as the Red Planet.
+
+### Round 3 — failed-lesson
+- Q: How do you say "Where are you from?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "from".
+- diagnosis: idiom_gap · teachable=true · mode=template
+- next: Teach complete interrogative template 'De dónde eres [tú]' as an idiomatic phrase pattern
+- lesson: tr_es(from, de)
+- after: Dónde estás tú de.
+- judge: The answer has incorrect word order; it should be 'De dónde eres' or 'De dónde estás' instead of 'Dónde estás tú de'.
+
+### Round 4 — already-capable
+- Q: How do you say "Good evening" in French?
+- before: Bonsoir.
+- judge: The answer is correct and provides the accurate French translation for 'Good evening'.
+
+### Round 5 — already-capable
+- Q: What walks on four legs in the morning, two legs in the afternoon, and three legs in the evening?
+- before: A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age
+- judge: The answer correctly identifies the riddle's solution as a human across life stages: crawling as a baby, walking on two legs as an adult, and using a cane in old age.
+
+### Round 6 — already-capable
+- Q: What is the opposite of the word "transparent"?
+- before: Opaque.
+- judge: The answer is correct and directly addresses the question.
+
+### Round 7 — already-capable
+- Q: What does the idiom "break the ice" mean?
+- before: "break the ice" means to initiate social interaction or conversation especially in a situation that feels awkward or tense.
+- judge: The answer accurately explains that 'break the ice' means to initiate social interaction in awkward or tense situations.
+
+### Round 8 — already-capable
+- Q: What sound does a cow make?
+- before: A cow goes "moo".
+- judge: The answer correctly identifies the sound a cow makes as 'moo'.
+
+### Round 9 — engine-gap
+- Q: Which travels faster, a cheetah or a lion?
+- before: I recognize a comparison on speed, but I don't have magnitudes for Cheetah and Lion.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the magnitude_cue comparison logic; verify the engine correctly identifies max magnitude rather than min, or test with simpler fact-comparison tasks.
+- lesson: magnitude(speed, cheetah, 80); magnitude(speed, lion, 50); magnitude_cue(faster, speed, max)
+- after: Lion.
+- judge: The answer is incorrect; cheetahs are faster than lions, reaching speeds up to 70 mph versus a lion's top speed of about 50 mph.
+
+### Round 10 — taught
+- Q: What does the word "ubiquitous" mean?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact: ubiquitous = present, appearing, or found everywhere
+- lesson: wiki_concept(ubiquitous, adjective, present, appearing, or found everywhere)
+- after: ubiquitous is present, appearing, or found everywhere.
+- judge: The answer correctly defines 'ubiquitous' as present, appearing, or found everywhere, which is accurate and on-topic.
+
+
+## Run 2026-07-11 12:22:31 — model minimax-m2.5, 10 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 5 · taught 3 · failed 1 · engine-gap 0 · skipped 0 · kept 30 facts (10 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · missing_fact 2 · morphology_gap 1**
+
+### Round 1 — already-capable
+- Q: Which two countries share the longest international border in the world?
+- before: Canada and USA.
+- judge: The Canada-USA border at approximately 8,891 km is correctly identified as the world's longest international border.
+
+### Round 2 — already-capable
+- Q: What element does the chemical symbol "Fe" represent on the periodic table?
+- before: Iron.
+- judge: The answer is correct and directly addresses the question.
+
+### Round 3 — failed-lesson
+- Q: How do you say "Where are you from?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "from".
+- diagnosis: morphology_gap · teachable=true · mode=fact
+- next: Test whether the student can select between ser and estar for location/origin contexts before teaching question word order.
+- lesson: tr_es(from, de); conj_es(be, you, eres)
+- after: Dónde estás de.
+- judge: The answer 'Dónde estás de' is grammatically incorrect and not the proper way to ask 'Where are you from?' in Spanish.
+
+### Round 4 — already-capable
+- Q: How do you say "Goodbye" in French?
+- before: Au revoir.
+- judge: The answer correctly provides the French translation for 'Goodbye' as 'Au revoir.'
+
+### Round 5 — already-capable
+- Q: The more you take, the more you leave behind. What am I?
+- before: Footsteps.
+- judge: The answer 'Footsteps' correctly solves the riddle - the more steps you take, the more footprints you leave behind.
+
+### Round 6 — already-capable
+- Q: What is the opposite of the word "generous"?
+- before: Selfish.
+- judge: The answer 'Selfish' is a correct and appropriate antonym for 'generous' as it conveys the opposite quality of being self-focused rather than giving.
+
+### Round 7 — taught
+- Q: What does the idiom "kick the bucket" mean?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Fix the idiom query handler to recognize and resolve well-known idioms before reporting failure.
+- lesson: idiom_meaning(kick the bucket, to die)
+- multiplied (+20): idiom_meaning(break a leg, good luck); idiom_meaning(bite the bullet, to endure a painful situation); idiom_meaning(hit the nail on the head, to be exactly right); idiom_meaning(when pigs fly, something that will never happen); idiom_meaning(spill the beans, to reveal a secret); idiom_meaning(costs an arm and a leg, very expensive); idiom_meaning(once in a blue moon, very rarely); idiom_meaning(kill two birds with one stone, to achieve two things with one action); idiom_meaning(let the cat out of the bag, to reveal a secret); idiom_meaning(cut to the chase, to get to the point); idiom_meaning(piece of cake, something very easy); idiom_meaning(under the weather, feeling ill); idiom_meaning(beat around the bush, to avoid getting to the point); idiom_meaning(the ball is in your court, it is your decision now); idiom_meaning(on thin ice, in a risky situation); idiom_meaning(burn the midnight oil, to work late into the night); idiom_meaning(hit the books, to study); idiom_meaning(hit the sack, to go to sleep); idiom_meaning(miss the boat, to miss an opportunity); idiom_meaning(add insult to injury, to make a bad situation worse)
+- after: "kick the bucket" means to die.
+- judge: The answer correctly identifies that 'kick the bucket' means to die, which is the standard meaning of this idiom.
+
+### Round 8 — interviewer-error
+- Q: [empty]
+
+### Round 9 — taught
+- Q: Which is larger, an elephant or a hippopotamus?
+- before: I recognize a comparison on size, but I don't have magnitudes for Elephant and Hippopotamus.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add size/magnitude facts for common megafauna (elephant, hippopotamus, rhinoceros) to the knowledge base so the comparison engine can derive relative size relationships.
+- lesson: magnitude_cue(larger, size, max); magnitude_cue(biggest, size, max); magnitude(size, elephant, 9); magnitude(size, hippopotamus, 8); magnitude(size, rhinoceros, 7); magnitude(size, giraffe, 6); magnitude(size, blue_whale, 10)
+- after: Elephant.
+- judge: Correct answer - elephants are indeed larger than hippopotamuses, being the largest land animals.
+
+### Round 10 — taught
+- Q: What does the word "serendipity" mean?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the definition of 'serendipity' to the knowledge base so the engine can provide it when asked.
+- lesson: wiki_concept(serendipity, vocabulary, the occurrence and development of events by chance in a happy or beneficial way); describe_cue(mean)
+- after: serendipity is the occurrence and development of events by chance in a happy or beneficial way.
+- judge: The answer provides an accurate and concise definition of serendipity as the occurrence of events by chance in a happy or beneficial way.
+
