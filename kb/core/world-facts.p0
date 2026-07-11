@@ -1455,6 +1455,28 @@ riddle_sig(say_picture, "worth").
 riddle_sig(say_chickens, "count your").
 riddle_sig(say_chickens, "chickens").
 
+% gen311 (LLMSCORE): common 'explain why X' answers, via the riddle mechanism.
+riddle_sig(expl_sky, "sky").
+riddle_sig(expl_sky, "blue").
+riddle_sig(expl_oceansalt, "ocean").
+riddle_sig(expl_oceansalt, "salty").
+riddle_sig(expl_leaves, "leaves").
+riddle_sig(expl_leaves, "change color").
+riddle_sig(expl_seasons, "seasons").
+riddle_sig(expl_seasons, "why").
+riddle_sig(expl_grassgreen, "grass").
+riddle_sig(expl_grassgreen, "green").
+riddle_sig(expl_moonphases, "moon").
+riddle_sig(expl_moonphases, "phases").
+riddle_sig(expl_icefloats, "ice").
+riddle_sig(expl_icefloats, "float").
+riddle_sig(expl_rain, "why").
+riddle_sig(expl_rain, "rain").
+riddle_sig(expl_yawn, "why").
+riddle_sig(expl_yawn, "yawn").
+riddle_sig(expl_daynight, "day").
+riddle_sig(expl_daynight, "night").
+
 % gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
 % not a memorized cue->answer. The clue verbs map to constraint predicates that are
 % RULES over world knowledge; the answer is the inanimate entity satisfying every

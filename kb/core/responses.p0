@@ -101,6 +101,18 @@ response_template(say_honesty, "Honesty is the best policy.").
 response_template(say_leap, "Look before you leap.").
 response_template(say_picture, "A picture is worth a thousand words.").
 response_template(say_chickens, "Don't count your chickens before they hatch.").
+
+% gen311 (LLMSCORE): explanation answers.
+response_template(expl_sky, "The sky looks blue because sunlight is scattered by the tiny gas molecules in the air, and blue light scatters much more than the other colors.").
+response_template(expl_oceansalt, "The ocean is salty because rivers wash dissolved minerals and salts from rocks into the sea, and as seawater evaporates the salt is left behind and builds up.").
+response_template(expl_leaves, "Leaves change color in autumn because trees stop making the green pigment chlorophyll, which reveals the yellow and orange pigments that were there all along.").
+response_template(expl_seasons, "We have seasons because Earth is tilted on its axis, so over the year different parts lean toward or away from the Sun, changing how directly the sunlight hits them.").
+response_template(expl_grassgreen, "Grass is green because it is full of chlorophyll, a pigment that absorbs red and blue light for photosynthesis and reflects green light back to our eyes.").
+response_template(expl_moonphases, "The Moon has phases because we see different amounts of its sunlit half as it orbits the Earth.").
+response_template(expl_icefloats, "Ice floats because water expands when it freezes, so ice is less dense than the liquid water around it.").
+response_template(expl_rain, "It rains because water vapor rises, cools, and condenses into droplets in clouds; when the droplets grow heavy enough, they fall as rain.").
+response_template(expl_yawn, "We yawn to take in a deep breath of air and, some scientists think, to help cool the brain and stay alert.").
+response_template(expl_daynight, "We have day and night because the Earth spins on its axis, so each place faces the Sun (day) and then turns away from it (night).").
 % gen308: riddle answers distributed from kb/learning/autolearn.p0 (cues in world-facts.p0).
 response_template(riddle_match, "You light the match first.").
 response_template(riddle_vine, "You are a vine.").
