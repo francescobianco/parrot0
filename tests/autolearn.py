@@ -69,6 +69,7 @@ WHITELIST = {
     "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
     "conj_es": 3, "pro_drop": 1,         # gen311: KB-first verb conjugation + pro-drop
     "conj_fr": 3,                        # gen311: KB-first FR verb conjugation
+    "negation_es": 2,                    # gen311: ES negation marker (don't -> no)
     "aux_progressive": 1,                # gen311: EN progressive auxiliary (am/is/are) to drop
     "elide_fr": 2,                       # gen311: FR elision form (je -> j') before a vowel
     "describe_cue": 1,                   # gen311: KB-first definition/meaning frame cues
@@ -135,7 +136,9 @@ TEACHER_SYS = (
     "engine then composes 'I need help' -> 'necesito ayuda' (subject dropped, verb "
     "conjugated) from the plain lexicon (tr_es(help, ayuda)) plus these facts. So a "
     "conjugation/pro-drop error is a TEACHABLE morphology gap (teach conj_es/pro_drop), "
-    "never a reason to memorize the whole sentence as a phrase or to decline.\n"
+    "never a reason to memorize the whole sentence as a phrase or to decline. For a "
+    "NEGATED verb teach negation_es(\"don't\", no) + the conjugated verb: 'I don't "
+    "understand' -> (drop I) + no + entiendo = 'no entiendo'.\n"
     "- conj_fr(english_verb, subject, french_form) + aux_progressive(aux) + "
     "elide_fr(word, elided): the SAME KB-first morphology for FRENCH. Teach the "
     "person-indexed verb conj_fr(learn, i, apprends). English progressive 'am/is/are "

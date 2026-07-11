@@ -278,6 +278,7 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
         if (tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
             char *sw[32]; size_t sn = split_words(sbuf, sw, 32);
             char result[512] = ""; size_t ro = 0;
+            char cur_subj_es[KB_TERM_LEN] = "";  /* gen311: tracked subject, for conj_es */
             for (size_t i = 0; i < sn; ) {
                 char piece[KB_TERM_LEN] = "";
                 /* gen310: longest-match a fixed multi-word phrase FIRST (the
@@ -289,32 +290,38 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                 else {
                     char *tok = strip_edge_punct(sw[i]);
                     if (!*tok) { i++; continue; }
-                    /* gen311 (F., KB-first morphology): a subject pronoun followed
-                     * by a verb is realized as the CONJUGATED verb form, with the
-                     * subject dropped where the language is pro-drop. Both are taught
-                     * facts, never C rules: conj_es(EnglishVerb, Subject, SpanishForm)
-                     * is the person-indexed verb lexicon; pro_drop(es) declares that
-                     * Spanish omits the subject pronoun. The mere existence of a
-                     * conj_es keyed by (nextword, thisword) is the signal that thisword
-                     * is a subject, so no pronoun list is hardcoded. */
-                    if (i + 1 < sn) {
-                        char *nxt = strip_edge_punct(sw[i + 1]);
-                        const char *cq[] = { nxt, tok, NULL };
-                        char cf[1][KB_TERM_LEN];
-                        if (*nxt && kb_match(b->kb, "conj_es", cq, 3, cf, 1) == 1) {
+                    /* gen311 (F., KB-first morphology): subject-tracking conjugation.
+                     * A word used as the SUBJECT arg of some conj_es is a subject
+                     * pronoun (no pronoun list hardcoded); Spanish drops it when
+                     * pro_drop(es) holds. A negation marker negation_es(word, form)
+                     * glosses to "no". A later verb conjugates for the tracked subject
+                     * via conj_es(Verb, Subject, Form). So "I don't understand" ->
+                     * (drop I) + no + entiendo = "No entiendo", and "I need help" ->
+                     * "necesito ayuda", all from taught facts, no C conjugator. */
+                    {
+                        const char *subq[] = { NULL, tok, NULL };
+                        char st[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "conj_es", subq, 3, st, 1) >= 1) {
+                            snprintf(cur_subj_es, sizeof cur_subj_es, "%s", tok);
                             const char *dq[] = { "es", NULL };
-                            if (kb_query(b->kb, "pro_drop", dq, 1)) {
-                                snprintf(piece, sizeof piece, "%s", cf[0]);
-                            } else {
-                                char es[1][KB_TERM_LEN];
-                                const char *sq[] = { tok, NULL };
-                                if (kb_match(b->kb, "tr_es", sq, 2, es, 1) == 1)
-                                    snprintf(piece, sizeof piece, "%s %s", es[0], cf[0]);
-                                else
-                                    snprintf(piece, sizeof piece, "%s", cf[0]);
-                            }
-                            i++;  /* consume the verb; the trailing i++ consumes the subject */
+                            if (kb_query(b->kb, "pro_drop", dq, 1)) { i++; continue; } /* drop subject */
+                            char es[1][KB_TERM_LEN];
+                            const char *sq[] = { tok, NULL };
+                            if (kb_match(b->kb, "tr_es", sq, 2, es, 1) == 1)
+                                snprintf(piece, sizeof piece, "%s", es[0]);
                         }
+                    }
+                    if (!piece[0]) {
+                        const char *ngq[] = { tok, NULL };
+                        char nf[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "negation_es", ngq, 2, nf, 1) == 1)
+                            snprintf(piece, sizeof piece, "%s", nf[0]);
+                    }
+                    if (!piece[0] && *cur_subj_es && strcmp(tok, cur_subj_es) != 0) {
+                        const char *cvq[] = { tok, cur_subj_es, NULL };
+                        char cf[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "conj_es", cvq, 3, cf, 1) == 1)
+                            snprintf(piece, sizeof piece, "%s", cf[0]);
                     }
                     if (!piece[0] && strcmp(tok, "the") == 0 && i + 1 < sn) {
                         char *nx = strip_edge_punct(sw[i + 1]);

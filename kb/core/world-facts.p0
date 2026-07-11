@@ -1456,6 +1456,9 @@ tr_es(help, ayuda).
 % table via autolearn (conj_es/pro_drop are whitelisted), never a C conjugator.
 pro_drop(es).
 conj_es(need, i, necesito).
+% negation marker: "I don't understand" -> (drop I) + no + entiendo = "No entiendo".
+negation_es(don't, no).
+conj_es(understand, i, entiendo).
 % French keeps the subject but elides it before a vowel (elide_fr(je, j') in
 % grammar.p0); the progressive aux is dropped (aux_progressive/1). "I am learning
 % French" -> "j'apprends français" from conj_fr + tr_fr(french) + those rules.
