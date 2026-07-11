@@ -84,6 +84,7 @@ response_template(riddle_echo, "An echo.").
 response_template(riddle_egg, "An egg.").
 response_template(riddle_stamp, "A stamp.").
 response_template(name_riddle, "Your name.").
+response_template(left_hand_riddle, "Your left hand.").
 % gen308: riddle answers distributed from kb/learning/autolearn.p0 (cues in world-facts.p0).
 response_template(riddle_match, "You light the match first.").
 response_template(riddle_vine, "You are a vine.").
