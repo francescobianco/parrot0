@@ -310,6 +310,7 @@ quantity(goat, legs, 4).
 quantity(human, legs, 2).
 quantity(human, arms, 2).
 quantity(human, fingers, 10).
+quantity(heart, chambers, 4).
 quantity(hand, fingers, 5).
 quantity(octopus, arms, 8).
 quantity(triangle, sides, 3).
