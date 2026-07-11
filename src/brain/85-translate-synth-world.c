@@ -109,6 +109,55 @@ static size_t tr_phrase_chunk(Brain *b, const char *phrase_pred, char **tok,
     return 0;
 }
 
+/* gen311 (teachable-procedures.md P0): a generic token-REWRITE interpreter. A
+ * grammatical PROCEDURE is a TAUGHT fact rewrite_<lang>(LHS, RHS) whose two args are
+ * space-joined token patterns with single-token variables ("$s"). If LHS unifies
+ * with the current token list (literals equal, $vars bind), the list is replaced by
+ * RHS with the vars substituted. So interrogative fronting/de-inversion is a taught
+ * RULE, not C — a new construct is a new rule, no recompile. (Single-token vars for
+ * P0; span vars are P1, real computation P2.) `scratch` owns the rewritten tokens.
+ * Returns 1 if a rule fired. Kept alongside the older C pre-passes (keep-and-select). */
+static int apply_token_rewrite(Brain *b, const char *pred, char **sw, size_t *snp,
+                               char scratch[][KB_TERM_LEN], size_t scap) {
+    if (!b || !b->kb) return 0;
+    char lhss[64][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };
+    size_t nl = kb_match(b->kb, pred, anyq, 2, lhss, 64);
+    for (size_t r = 0; r < nl; r++) {
+        char lbuf[256]; snprintf(lbuf, sizeof lbuf, "%s", kb_dequote(lhss[r]));
+        char *lp[32]; size_t ln = split_words(lbuf, lp, 32);
+        if (ln == 0 || ln != *snp) continue;                 /* P0: equal length */
+        char vn[16][KB_TERM_LEN], vv[16][KB_TERM_LEN]; size_t nv = 0; int ok = 1;
+        for (size_t i = 0; i < ln && ok; i++) {
+            char *pt = strip_edge_punct(lp[i]);
+            char *st = strip_edge_punct(sw[i]);
+            if (pt[0] == '$') {
+                if (nv < 16) { snprintf(vn[nv], KB_TERM_LEN, "%s", pt);
+                               snprintf(vv[nv], KB_TERM_LEN, "%s", st); nv++; }
+            } else if (strcmp(pt, st) != 0) ok = 0;
+        }
+        if (!ok) continue;
+        const char *rq[] = { lhss[r], NULL };
+        char rhss[1][KB_TERM_LEN];
+        if (kb_match(b->kb, pred, rq, 2, rhss, 1) != 1) continue;
+        char rbuf[256]; snprintf(rbuf, sizeof rbuf, "%s", kb_dequote(rhss[0]));
+        char *rp[32]; size_t rn = split_words(rbuf, rp, 32);
+        if (rn == 0 || rn > scap) continue;
+        for (size_t i = 0; i < rn; i++) {
+            char *ot = strip_edge_punct(rp[i]);
+            const char *val = ot;
+            if (ot[0] == '$')
+                for (size_t v = 0; v < nv; v++)
+                    if (!strcmp(vn[v], ot)) { val = vv[v]; break; }
+            snprintf(scratch[i], KB_TERM_LEN, "%s", val);
+            sw[i] = scratch[i];
+        }
+        *snp = rn;
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_translate(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)norm;
@@ -304,32 +353,35 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
         char sbuf[256];
         if (tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
             char *sw[32]; size_t sn = split_words(sbuf, sw, 32);
-            /* gen311 (F., KB-first interrogative restructuring). Two token rewrites
-             * so the existing word-by-word + conjugation machinery composes a
-             * question: (a) FRONT a stranded preposition — wh_front_es(prep, _) —
-             * to the head ("where are you from" -> "from where are you"); (b)
-             * DE-INVERT an inverted verb+subject (conj_es(Verb, Subj, _) with Verb
-             * immediately before Subj) so the subject precedes its verb, which the
-             * conj tracker needs ("are you" -> "you are"). Net: "de dónde eres". */
-            for (size_t j = 0; j < sn; j++) {
-                char *t = strip_edge_punct(sw[j]);
-                const char *wq[] = { t, NULL };
-                char wf[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "wh_front_es", wq, 2, wf, 1) == 1) {
-                    char *moved = sw[j];
-                    for (size_t k = j; k > 0; k--) sw[k] = sw[k - 1];
-                    sw[0] = moved;
-                    break;
+            /* gen311 (teachable-procedures P0): FIRST try a TAUGHT rewrite rule
+             * rewrite_es(LHS, RHS) — the interrogative restructuring as DATA, not C
+             * ("where are $s from" -> "from where $s are" -> de dónde eres). If no
+             * rule matches, fall back to the older hardcoded pre-passes below
+             * (keep-and-select), which do the same two moves in C. */
+            char rw_scratch[32][KB_TERM_LEN];
+            if (!apply_token_rewrite(b, "rewrite_es", sw, &sn, rw_scratch, 32)) {
+                /* (a) FRONT a stranded preposition wh_front_es(prep, _); (b) DE-INVERT
+                 * an inverted verb+subject conj_es(Verb, Subj, _). Net: "de dónde eres". */
+                for (size_t j = 0; j < sn; j++) {
+                    char *t = strip_edge_punct(sw[j]);
+                    const char *wq[] = { t, NULL };
+                    char wf[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "wh_front_es", wq, 2, wf, 1) == 1) {
+                        char *moved = sw[j];
+                        for (size_t k = j; k > 0; k--) sw[k] = sw[k - 1];
+                        sw[0] = moved;
+                        break;
+                    }
                 }
-            }
-            for (size_t j = 0; j + 1 < sn; j++) {
-                char *vb = strip_edge_punct(sw[j]);
-                char *sj = strip_edge_punct(sw[j + 1]);
-                const char *cq[] = { vb, sj, NULL };
-                char cf[1][KB_TERM_LEN];
-                if (kb_match(b->kb, "conj_es", cq, 3, cf, 1) == 1) {   /* verb before its subject */
-                    char *tmp = sw[j]; sw[j] = sw[j + 1]; sw[j + 1] = tmp;
-                    j++;
+                for (size_t j = 0; j + 1 < sn; j++) {
+                    char *vb = strip_edge_punct(sw[j]);
+                    char *sj = strip_edge_punct(sw[j + 1]);
+                    const char *cq[] = { vb, sj, NULL };
+                    char cf[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "conj_es", cq, 3, cf, 1) == 1) {  /* verb before its subject */
+                        char *tmp = sw[j]; sw[j] = sw[j + 1]; sw[j + 1] = tmp;
+                        j++;
+                    }
                 }
             }
             char result[512] = ""; size_t ro = 0;

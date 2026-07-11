@@ -78,6 +78,7 @@ WHITELIST = {
     "negation_es": 2,                    # gen311: ES negation marker (don't -> no)
     "aux_question": 1,                    # gen311: dropped question auxiliary (do/does)
     "wh_front_es": 2,                    # gen311: ES interrogative preposition fronting
+    "rewrite_es": 2,                     # gen311 (teachable-procedures P0): taught grammar rewrite rule
     "subject_pron_fr": 2,                # gen311: FR subject pronoun form (you -> vous)
     "aux_progressive": 1,                # gen311: EN progressive auxiliary (am/is/are) to drop
     "elide_fr": 2,                       # gen311: FR elision form (je -> j') before a vowel
@@ -171,10 +172,17 @@ TEACHER_SYS = (
     "tr_es(help,ayuda). 'Do you speak English?' -> aux_question(do)+conj_es(speak,you,"
     "hablas)+tr_es(english,inglés). 'I am learning French' -> aux_progressive(am)+"
     "conj_fr(learning,i,apprends)+tr_fr(french,français)+elide_fr(je,j'). 'Where are "
-    "you from?' -> wh_front_es(from,de)+conj_es(are,you,eres). If a NEW construct "
-    "appears that none of these facts cover, diagnose engine_gap and NAME the missing "
-    "construct in next_action — do NOT paper over it with a memorized phrase or an "
-    "unlisted pred.\n"
+    "you from?' -> wh_front_es(from,de)+conj_es(are,you,eres).\n"
+    "  * rewrite_es(\"lhs pattern\", \"rhs pattern\"): a TAUGHT word-ORDER rewrite rule "
+    "(teachable-procedures P0). LHS/RHS are space-joined token patterns with "
+    "single-token vars ($s); the engine rewrites the sentence before composing, so a "
+    "RESTRUCTURING is data, not code. e.g. rewrite_es(\"where are $s from\", \"from "
+    "where $s are\") re-orders 'where are you from' -> 'from where you are', which then "
+    "composes 'de dónde eres'. Use this for a new WORD-ORDER construct (fronting, "
+    "inversion) instead of naming an engine gap. Keep the pattern length equal (P0).\n"
+    "  If a construct needs something none of these cover (a value must be COMPUTED, or "
+    "a rewrite whose output length differs), diagnose engine_gap and NAME it in "
+    "next_action — never memorize a phrase or invent an unlisted pred.\n"
     "- riddle-by-INFERENCE (preferred over a memorized riddle_sig): model a 'what "
     "am I' riddle as CONSTRAINTS solved over world knowledge. Teach the property/"
     "metaphor FACTS the answer needs: emits(entity, thing), is_like(thing, action), "

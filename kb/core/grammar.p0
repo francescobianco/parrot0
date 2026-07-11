@@ -56,6 +56,12 @@ aux_progressive(are).
 % conjugates, the aux vanishes: "¿hablas X?"). A fact, grown by autolearn.
 aux_question(do).
 aux_question(does).
+% gen311 (teachable-procedures P0): a grammatical PROCEDURE as a TAUGHT rewrite rule,
+% interpreted by apply_token_rewrite (not a C consumer). LHS/RHS are token patterns
+% with single-token vars ($s). Interrogative fronting + de-inversion: "where are you
+% from" -> "from where you are" -> composed to "de dónde eres". A new construct is a
+% new rewrite_es fact, no recompile. Grow via autolearn.
+rewrite_es("where are $s from", "from where $s are").
 progressive($W) :- chars($W, $L), ends_ing($L).
 ends_ing(cons(i, cons(n, cons(g, nil)))).
 ends_ing(cons($H, $T)) :- ends_ing($T).
