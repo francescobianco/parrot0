@@ -211,8 +211,11 @@ static size_t build_clause_args(const JVal *arr, const char *slots[], size_t max
         if (!e || e->type == J_NULL) {
             slots[n] = NULL;
         } else if (e->type == J_STR) {
-            if (e->str && e->str[0] == '$') {
-                slots[n] = e->str;                     /* variable: as-is */
+            /* gen311 (P2/Bucket A): pass any '$'-bearing arg AS-IS — a variable,
+             * top-level ("$M") or inside a compound term ("s($M)") — so recursive
+             * rules over structures are assertable via MCP; else encode a literal. */
+            if (e->str && strchr(e->str, '$')) {
+                slots[n] = e->str;
             } else {
                 lit_encode(e->str, scratch[n], KB_TERM_LEN);
                 slots[n] = scratch[n];
@@ -385,10 +388,13 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
                 nb++;
             }
         }
-        if (nb == 0) { snprintf(out, outsz, "{\"error\":\"empty 'body'\"}"); return 0; }
-
         kb_set_origin(kb, KB_SESSION);
-        int r = kb_assert_clause(kb, &head, body_goals, nb);
+        /* gen311 (P2/Bucket A): an empty body is a UNIT CLAUSE (a fact) that may carry
+         * VARIABLES — the Peano/list base cases like add(z, $N, $N). kb.assert is for
+         * GROUND facts ($-values are literals there); assert_clause is where variables
+         * live, so a body-less clause is asserted as a var-bearing fact. */
+        int r = (nb == 0) ? kb_assert(kb, head.pred, head.args, head.argc)
+                          : kb_assert_clause(kb, &head, body_goals, nb);
         snprintf(out, outsz, "{\"ok\":%s}", r ? "true" : "false");
         return 1;
     }

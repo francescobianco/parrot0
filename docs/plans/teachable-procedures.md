@@ -112,10 +112,14 @@ regola equivalente non è insegnata e verificata.
   termini composti (U3 landato dopo gen280). Misurato dal vivo: `add/3` di Peano e
   `len/3` (curate in grammar.p0) **COMPUTANO** — `add(s(z),s(z),?) -> s(s(z))` (1+1=2),
   `len(cons(a,cons(b,cons(c,nil))),?) -> s(s(s(z)))` (conta 3), `app/3` concatena. Si
-  insegna a CALCOLARE, non solo a ricordare. Var-sigil: `$`/`_` (kb.c:95). RESTA:
-  (a) `kb.assert_clause` via MCP non parsa i termini composti negli args (Bucket A) →
-  autolearn non può ancora insegnare regole ricorsive a runtime (solo curate da file);
-  (b) collegare le domande NL (word-problem) al motore di calcolo (routing/parsing).
+  insegna a CALCOLARE, non solo a ricordare. Var-sigil: `$`/`_` (kb.c:95). **Bucket A
+  CHIUSO (gen311):** `kb.assert_clause` ora parsa i termini composti negli args
+  (`build_clause_args` passa as-is ogni stringa con `$`) e accetta un body vuoto
+  (fatto-con-variabili, il caso base `add(z,$N,$N)`); `kb.assert` resta per i fatti
+  ground ($-literal preservati). Dimostrato: `add/3` INSEGNATO via MCP calcola
+  `add(s(s(s(z))),s(s(z)),?) -> s(s(s(s(s(z)))))` (3+2=5). Quindi **autolearn può
+  insegnare CALCOLO a runtime.** RESTA solo (b): collegare le domande NL (word-problem)
+  al motore di calcolo (routing/parsing NL->termini).
 - **P3 — proof e provenienza:** ogni trasformazione porta la sua derivazione
   (`fact_source`), ritrattabile (auto-correzione, deep-reasoning M4).
 - **P4 — migrazione:** i costrutti C di questa sessione (conj/fronting/ser-estar)
