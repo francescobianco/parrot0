@@ -344,6 +344,45 @@ quantity(triangle, sides, 3).
 quantity(square, sides, 4).
 quantity(rectangle, sides, 4).
 quantity(pentagon, sides, 5).
+% gen311 (LLMSCORE): more polygon sides, 3D-solid edges/faces/vertices, common counts.
+quantity(hexagon, sides, 6).
+quantity(heptagon, sides, 7).
+quantity(octagon, sides, 8).
+quantity(nonagon, sides, 9).
+quantity(decagon, sides, 10).
+quantity(tetrahedron, edges, 6).
+quantity(tetrahedron, faces, 4).
+quantity(tetrahedron, vertices, 4).
+quantity(cube, edges, 12).
+quantity(cube, faces, 6).
+quantity(cube, vertices, 8).
+quantity(cuboid, edges, 12).
+quantity(cuboid, faces, 6).
+quantity(cuboid, vertices, 8).
+quantity("triangular prism", edges, 9).
+quantity("triangular prism", faces, 5).
+quantity("triangular prism", vertices, 6).
+quantity("square pyramid", edges, 8).
+quantity("square pyramid", faces, 5).
+quantity("square pyramid", vertices, 5).
+quantity(octahedron, edges, 12).
+quantity(octahedron, faces, 8).
+quantity(octahedron, vertices, 6).
+quantity(dodecahedron, faces, 12).
+quantity(icosahedron, faces, 20).
+quantity(cylinder, faces, 3).
+quantity(human, bones, 206).
+quantity("human body", bones, 206).
+quantity("human body", teeth, 32).
+quantity(human, teeth, 32).
+quantity(rainbow, colors, 7).
+quantity(world, continents, 7).
+quantity(earth, continents, 7).
+quantity(week, days, 7).
+quantity(piano, keys, 88).
+quantity("chess board", squares, 64).
+quantity(deck, cards, 52).
+quantity(clock, hours, 12).
 quantity(hexagon, sides, 6).
 quantity(octagon, sides, 8).
 quantity(cube, faces, 6).
