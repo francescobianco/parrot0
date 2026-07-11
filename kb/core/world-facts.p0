@@ -552,6 +552,8 @@ magnitude(size, car, 8).
 magnitude(size, elephant, 9).
 magnitude(size, house, 10).
 magnitude(size, whale, 11).
+magnitude(size, great_white_shark, 8).
+magnitude(size, blue_whale, 11).
 magnitude(size, mountain, 12).
 
 % gen251: city-to-city separation used by relative-motion frames. Values are

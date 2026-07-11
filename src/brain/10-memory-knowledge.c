@@ -1520,7 +1520,8 @@ static int join_entity_span(char **w, size_t start, size_t end,
     return out[0] != '\0';
 }
 
-static int last_entity_before(char **w, size_t pos, char *out, size_t out_sz) {
+static int last_entity_before(char **w, size_t pos, size_t lo,
+                              char *out, size_t out_sz) {
     if (pos == 0) return 0;
     size_t j = pos;
     while (j > 0) {
@@ -1530,13 +1531,12 @@ static int last_entity_before(char **w, size_t pos, char *out, size_t out_sz) {
     }
     if (j == 0) return 0;
     size_t start = j - 1;
-    if (start > 0) {
-        char *p = strip_edge_punct(w[start - 1]);
-        char *t = strip_edge_punct(w[start]);
-        if ((!strcmp(p, "united") && (!strcmp(t, "states") || !strcmp(t, "kingdom"))) ||
-            (!strcmp(p, "ice") && !strcmp(t, "cream")))
-            start--;
-    }
+    /* gen311: extend backward over a CONTIGUOUS multi-word entity span so the
+     * whole noun phrase is grabbed ("great white shark", not just "shark").
+     * Bounded by `lo` (the cue index + 1) so the comparison cue word ("bigger")
+     * is never absorbed when no article separates it from the phrase. */
+    while (start > lo && compare_entity_token(strip_edge_punct(w[start - 1])))
+        start--;
     return join_entity_span(w, start, j, out, out_sz);
 }
 
@@ -1545,11 +1545,11 @@ static int first_entity_after(char **w, size_t start, size_t nw,
     for (size_t i = start; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         if (!compare_entity_token(t)) continue;
+        /* gen311: extend forward over the contiguous entity span (noun phrase)
+         * so "blue whale" is grabbed whole, not just "blue". */
         size_t end = i + 1;
-        if (!strcmp(t, "united") && i + 1 < nw) {
-            char *n = strip_edge_punct(w[i + 1]);
-            if (!strcmp(n, "states") || !strcmp(n, "kingdom")) end = i + 2;
-        }
+        while (end < nw && compare_entity_token(strip_edge_punct(w[end])))
+            end++;
         return join_entity_span(w, i, end, out, out_sz);
     }
     return 0;
@@ -2369,7 +2369,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             }
             if (or_i < mn) {
                 char a[KB_TERM_LEN], c[KB_TERM_LEN];
-                if (last_entity_before(mw, or_i, a, sizeof a) &&
+                if (last_entity_before(mw, or_i, cue_i + 1, a, sizeof a) &&
                     first_entity_after(mw, or_i + 1, mn, c, sizeof c))
                     return answer_magnitude_compare(b, dim, want_max, a, c, 0, out, out_size);
             }
