@@ -1329,6 +1329,19 @@ emits(storm, lightning).
 is_like(rain, crying).
 is_like(lightning, flash).
 inanimate(storm).
+% gen311 (U1, riddles-as-inference): "I have A but no B" = depicts(X,A) ∧ ¬contains(X,B).
+% The negation is load-bearing: a map DEPICTS cities/mountains/water but does not
+% CONTAIN houses/trees/fish, while a real country depicts AND contains them — so the
+% ¬contains constraint is what picks the map. Grow depicts/contains via autolearn.
+depicts(map, cities).
+depicts(map, mountains).
+depicts(map, water).
+depicts(country, cities).
+depicts(country, mountains).
+depicts(country, water).
+contains(country, houses).
+contains(country, trees).
+contains(country, fish).
 riddle_sig(riddle_footsteps, "the more you take").
 riddle_sig(riddle_footsteps, "the more you leave behind").
 riddle_sig(riddle_candle, "tall when").

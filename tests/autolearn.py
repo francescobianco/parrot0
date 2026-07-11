@@ -75,6 +75,7 @@ WHITELIST = {
     "describe_cue": 1,                   # gen311: KB-first definition/meaning frame cues
     "pair_magnitude": 4,                 # gen311: symmetric pair superlative (longest border)
     "clue_verb": 2, "emits": 2, "is_like": 2, "inanimate": 1,  # gen311: riddle-by-inference facts
+    "depicts": 2, "contains": 2,         # gen311 (U1): "have A but no B" = depicts ∧ ¬contains
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.

@@ -3044,6 +3044,58 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen311 (F., U1 — first-class negation): the "I have A but no B" riddle is a
+     * REPRESENTATION constraint. Each clause -> depicts(X, A) AND ¬contains(X, B);
+     * the answer is the entity that depicts every "have" noun and contains none of
+     * the "no" nouns. The negation is LOAD-BEARING: a map depicts cities but
+     * ¬contains houses, whereas a country depicts AND contains them, so ¬contains
+     * discriminates. ¬ is negation-as-failure done as a C guard (!kb_query), the
+     * same semantics the engine's naf/1 provides. Solved by inference, not a
+     * memorized template; riddle_sig stays as the secondary fallback below. */
+    if (cue(norm, "what am i") && cue(norm, "have")) {
+        char hb[256]; snprintf(hb, sizeof hb, "%s", norm);
+        char *hw[64]; size_t hn = split_words(hb, hw, 64);
+        char haves[16][KB_TERM_LEN]; size_t nh = 0;
+        char nos[16][KB_TERM_LEN]; size_t nn = 0;
+        for (size_t i = 0; i + 1 < hn; i++) {
+            char *t = strip_edge_punct(hw[i]);
+            char *nx = strip_edge_punct(hw[i + 1]);
+            if (!*nx) continue;
+            if (!strcmp(t, "have") && nh < 16) snprintf(haves[nh++], KB_TERM_LEN, "%s", nx);
+            else if (!strcmp(t, "no") && nn < 16) snprintf(nos[nn++], KB_TERM_LEN, "%s", nx);
+        }
+        if (nh >= 2) {
+            char cands[64][KB_TERM_LEN];
+            const char *dq[] = { NULL, NULL };
+            size_t ncand = kb_match(b->kb, "depicts", dq, 2, cands, 64);
+            char seen[64][KB_TERM_LEN]; size_t nsd = 0;
+            for (size_t c = 0; c < ncand; c++) {
+                int dup = 0;
+                for (size_t j = 0; j < nsd; j++) if (!strcmp(seen[j], cands[c])) dup = 1;
+                if (dup || nsd >= 64) continue;
+                snprintf(seen[nsd++], KB_TERM_LEN, "%s", cands[c]);
+                int ok = 1;
+                for (size_t a = 0; a < nh && ok; a++) {
+                    const char *pq[] = { cands[c], haves[a] };
+                    if (!kb_query(b->kb, "depicts", pq, 2)) ok = 0;       /* depicts every 'have' */
+                }
+                for (size_t bn = 0; bn < nn && ok; bn++) {
+                    const char *pq[] = { cands[c], nos[bn] };
+                    if (kb_query(b->kb, "contains", pq, 2)) ok = 0;       /* ¬contains every 'no' */
+                }
+                if (ok) {
+                    char proof[256];
+                    snprintf(proof, sizeof proof, "Riddle solved by inference: %s depicts all "
+                             "%zu haves and contains none of the %zu negatives.", cands[c], nh, nn);
+                    store_proof(b, proof);
+                    char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen254: classic riddles as PURE KB. riddle_sig(Id, "cue") lists each
      * riddle's required substrings; when every cue of an Id occurs in the turn,
      * response_template(Id, ...) answers. Teaching a new riddle is facts only —

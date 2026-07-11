@@ -168,9 +168,12 @@ Un binario per generazione, ciascuno con un caso reale che lo tira (no hardcodin
 
 - **U0 — la cellula (FATTA, gen311).** Indovinello risolto per inferenza + proof; fatti
   in whitelist; fallback keep-and-select.
-- **U1 — negazione di prima classe.** `¬has(X, P)` come vincolo estratto e risolto (NAF),
-  al posto del ripiego `inanimate`. Caso: un secondo indovinello che discrimina per
-  *assenza* ("non ha radici, eppure cresce" → il monte? il capello?).
+- **U1 — negazione di prima classe.** *(SEME FATTO, gen311.)* Il frame *"I have A but
+  no B"* → `depicts(X,A) ∧ ¬contains(X,B)`; il map riddle *"cities but no houses…"* si
+  risolve in *"a map"* con la **negazione load-bearing** (una mappa raffigura le città
+  ma non contiene case; un paese le contiene → `¬contains` sceglie la mappa). NAF già
+  nel motore (`naf/1`), qui applicata come guardia `!kb_query`. Da estendere: `¬has(X,P)`
+  generale al posto del ripiego `inanimate`, e altri frame negativi.
 - **U2 — grandezze e unità.** `quantity/4` + analisi dimensionale; un mini-problema di
   fisica risolto derivando l'incognita da leggi in KB. Oracolo: consistenza dimensionale.
 - **U3 — abduzione con verifica.** Dato O + regole, abduci H minimale, verifica contro
