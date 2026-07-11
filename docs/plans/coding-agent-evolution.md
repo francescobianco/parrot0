@@ -1,5 +1,11 @@
 # parrot0 coding agent — il piano organico di evoluzione
 
+> **HANDOFF (2026-07-11, gen312):** il piano operativo canonico aggiornato e ora
+> [`parrot0-forge-master-plan.md`](parrot0-forge-master-plan.md). Questo documento
+> resta l'inventario storico dei track e della baseline gen256; il master plan ne
+> conserva le facolta R/P/T/M/K/L, ma ribasa lo stato misurato e introduce la
+> fucina candidate -> holdout -> oracle -> promotion per ordinare la crescita.
+>
 > **Stato:** scritto a gen256 (2026-07-02), subito dopo la quarta istanza REALE di
 > SWE-bench risolta e l'auto-localizzazione nell'albero (`code_smell_tree`).
 > **Ruolo:** questo è il piano OPERATIVO unificato. Mette ordine tra i documenti
