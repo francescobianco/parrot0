@@ -556,6 +556,30 @@ magnitude_cue(closest, distance_from_sun, min).
 magnitude_cue(farther, distance_from_sun, max).
 magnitude_cue(further, distance_from_sun, max).
 magnitude_cue(farthest, distance_from_sun, max).
+
+% gen314: first-class measurements. measure(Dim, Entity, Value, Unit) is for
+% physical/statistical quantities; compare_cue maps a question word to the
+% dimension and direction. This stays separate from legacy magnitude/3 rankings.
+compare_cue(faster, speed, max).
+compare_cue(slower, speed, min).
+compare_cue(heavier, weight, max).
+compare_cue(lighter, weight, min).
+compare_cue(larger, size, max).
+compare_cue(bigger, size, max).
+compare_cue(smaller, size, min).
+compare_cue(won, games_won, max).
+compare_cue(wins, games_won, max).
+compare_cue(more, games_won, max).
+measure(speed, cheetah, 80, mph).
+measure(speed, lion, 50, mph).
+measure(weight, boeing_747, 183500, kg).
+measure(weight, airbus_a320, 42600, kg).
+measure(games_won, magnus_carlsen, 120, games).
+measure(games_won, garry_kasparov, 100, games).
+entity_alias("boeing 747", boeing_747).
+entity_alias("airbus a320", airbus_a320).
+entity_alias("magnus carlsen", magnus_carlsen).
+entity_alias("garry kasparov", garry_kasparov).
 % gen310a: length/river superlatives
 magnitude_cue(longest, length, max).
 magnitude_cue(shortest, length, min).

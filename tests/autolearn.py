@@ -66,7 +66,8 @@ WHITELIST = {
     "tr_es_phrase": 2, "tr_fr_phrase": 2,  # gen310: multi-word translation units
     "riddle_sig": 2, "response_template": 2,
     "wiki_concept": 3, "color_of": 2, "sound_of": 2,
-    "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
+    "magnitude": 3, "magnitude_cue": 3, "measure": 4, "compare_cue": 3,
+    "entity_alias": 2, "idiom_meaning": 2,
     "category_member": 2, "world_superlative": 3, "world_superlative_cue": 3,
     "planet_superlative": 3, "planet_superlative_cue": 2,
     "unique_trait": 2,
@@ -186,6 +187,15 @@ TEACHER_SYS = (
     "- idiom_meaning(idiom_phrase, gloss): the meaning of an idiom/saying; the "
     "phrase is matched as a substring of the question, lowercase.\n"
     "- color_of(thing, color); sound_of(animal, sound); "
+    "measure(dimension, entity, value, unit) with compare_cue(cueword, dimension, "
+    "max|min) for general comparisons. Use this for real quantities or statistics "
+    "such as weight/speed/games_won. Add entity_alias(surface_phrase, entity) when "
+    "the question names a multi-word surface differently from the canonical atom. "
+    "Examples: measure(speed, cheetah, 80, mph), measure(speed, lion, 50, mph), "
+    "compare_cue(faster, speed, max); measure(games_won, player_a, 12, games), "
+    "compare_cue(won, games_won, max). Prefer measure/4 over magnitude/3 for new "
+    "comparisons because it carries units and does not conflict with rank facts.\n"
+    "LEGACY only: "
     "magnitude(dimension, item, rank_number) with magnitude_cue(cueword, dimension, "
     "max|min) for comparisons — cueword MUST be a single word (e.g. fastest), "
     "multi-word cues never match.\n"

@@ -70,6 +70,15 @@ expect "planet size comparison from magnitude" "1" \
 expect "weight comparison with descriptive entity spans" "1" \
     "Which is heavier: a grown African elephant or a fully grown hippopotamus?" \
     "African elephant."
+expect "measure comparison speed beats legacy rank" "1" \
+    "Which travels faster, a cheetah or a lion?" \
+    "Cheetah."
+expect "measure comparison airplane weight" "1" \
+    "Which airplane is heavier, Boeing 747 or Airbus A320?" \
+    "Boeing 747."
+expect "measure comparison chess wins" "1" \
+    "Has Magnus Carlsen won more games than Garry Kasparov?" \
+    "Yes."
 expect "pun riddle does not fall into color mixing" "1" \
     "What is black and white and red all over?" \
     "A newspaper."

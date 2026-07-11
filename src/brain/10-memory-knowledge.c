@@ -1438,6 +1438,8 @@ static int qchain_reaches(KB *kb, const char *feature, const char *base, int dep
     return 0;
 }
 
+static char *kb_dequote(char *s);
+
 /* gen240: fetch magnitude(Dim, Item, Rank) into `rank`, trying the item as written
  * and then a naive singular. Returns 1 if found. */
 static int magnitude_lookup(Brain *b, const char *dim, const char *item, char *rank) {
@@ -1476,6 +1478,77 @@ static int magnitude_cue_lookup(Brain *b, const char *cue_word,
     snprintf(dim, dim_sz, "%s", dims[0]);
     *want_max = strcmp(dirs[0], "min") != 0;
     return 1;
+}
+
+static int compare_cue_lookup(Brain *b, const char *cue_word,
+                              char *dim, size_t dim_sz, int *want_max) {
+    if (!b || !b->kb || !cue_word || !*cue_word) return 0;
+    const char *q[] = { cue_word, NULL, NULL };
+    char dims[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "compare_cue", q, 3, dims, 1) == 0)
+        return magnitude_cue_lookup(b, cue_word, dim, dim_sz, want_max);
+    const char *q2[] = { cue_word, dims[0], NULL };
+    char dirs[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "compare_cue", q2, 3, dirs, 1) == 0) return 0;
+    snprintf(dim, dim_sz, "%s", dims[0]);
+    *want_max = strcmp(dirs[0], "min") != 0;
+    return 1;
+}
+
+static int entity_alias_lookup(Brain *b, const char *surface,
+                               char *canon, size_t canon_sz) {
+    if (!b || !b->kb || !surface || !*surface) return 0;
+    char surf[KB_TERM_LEN];
+    snprintf(surf, sizeof surf, "%s", surface);
+    for (char *p = surf; *p; p++) if (*p == '_') *p = ' ';
+    const char *q[] = { surf, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "entity_alias", q, 2, hit, 1) > 0) {
+        snprintf(canon, canon_sz, "%s", kb_dequote(hit[0]));
+        return 1;
+    }
+    char qsurf[KB_TERM_LEN + 2];
+    snprintf(qsurf, sizeof qsurf, "\"%s\"", surf);
+    const char *qq[] = { qsurf, NULL };
+    if (kb_match(b->kb, "entity_alias", qq, 2, hit, 1) > 0) {
+        snprintf(canon, canon_sz, "%s", kb_dequote(hit[0]));
+        return 1;
+    }
+    return 0;
+}
+
+static void normalize_compare_entity(Brain *b, const char *item,
+                                     char *out, size_t out_sz) {
+    if (!item || !*item) { if (out_sz) out[0] = '\0'; return; }
+    if (entity_alias_lookup(b, item, out, out_sz)) return;
+    const char *p = item;
+    if (strncmp(p, "fully_grown_", 12) == 0) p += 12;
+    else if (strncmp(p, "grown_", 6) == 0) p += 6;
+    snprintf(out, out_sz, "%s", p);
+}
+
+static int measure_lookup(Brain *b, const char *dim, const char *item,
+                          char *value, size_t value_sz, char *unit, size_t unit_sz,
+                          char *canon, size_t canon_sz) {
+    if (!b || !b->kb || !dim || !item) return 0;
+    char norm_item[KB_TERM_LEN];
+    normalize_compare_entity(b, item, norm_item, sizeof norm_item);
+    const char *items[3] = { item, norm_item, NULL };
+    char alias[KB_TERM_LEN];
+    if (entity_alias_lookup(b, item, alias, sizeof alias)) items[1] = alias;
+    for (size_t i = 0; i < 2 && items[i] && *items[i]; i++) {
+        const char *q[] = { dim, items[i], NULL, NULL };
+        char vals[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "measure", q, 4, vals, 1) == 0) continue;
+        const char *uq[] = { dim, items[i], vals[0], NULL };
+        char units[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "measure", uq, 4, units, 1) == 0) continue;
+        snprintf(value, value_sz, "%s", vals[0]);
+        snprintf(unit, unit_sz, "%s", kb_dequote(units[0]));
+        snprintf(canon, canon_sz, "%s", items[i]);
+        return 1;
+    }
+    return 0;
 }
 
 static void display_key(const char *key, char *out, size_t sz) {
@@ -1566,6 +1639,45 @@ static int first_entity_after(char **w, size_t start, size_t nw,
 static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
                                     const char *a, const char *c, int yesno,
                                     char *out, size_t out_size) {
+    char mva[KB_TERM_LEN], mvc[KB_TERM_LEN], mua[KB_TERM_LEN], muc[KB_TERM_LEN];
+    char ca[KB_TERM_LEN], cc[KB_TERM_LEN];
+    int ma = measure_lookup(b, dim, a, mva, sizeof mva, mua, sizeof mua, ca, sizeof ca);
+    int mc = measure_lookup(b, dim, c, mvc, sizeof mvc, muc, sizeof muc, cc, sizeof cc);
+    if (ma && mc) {
+        if (strcmp(mua, muc) != 0) {
+            char msg[220];
+            snprintf(msg, sizeof msg,
+                     "I have %s measurements for both, but the units differ (%s vs %s).",
+                     dim, mua, muc);
+            put(msg, out, out_size);
+            return 1;
+        }
+        double na = 0, nc = 0;
+        parse_value(mva, &na);
+        parse_value(mvc, &nc);
+        char proof[260];
+        snprintf(proof, sizeof proof,
+                 "Compared measure(%s,%s,%s,%s) with measure(%s,%s,%s,%s).",
+                 dim, ca, mva, mua, dim, cc, mvc, muc);
+        store_proof(b, proof);
+        if (yesno) {
+            put((want_max ? na > nc : na < nc) ? "Yes." : "No.", out, out_size);
+            return 1;
+        }
+        if (na == nc) {
+            char msg[160];
+            snprintf(msg, sizeof msg, "They are tied on %s.", dim);
+            put(msg, out, out_size);
+            return 1;
+        }
+        const char *win = want_max ? (na > nc ? ca : cc) : (na < nc ? ca : cc);
+        char dw[80], msg[96];
+        display_key(win, dw, sizeof dw);
+        snprintf(msg, sizeof msg, "%s.", dw);
+        put(msg, out, out_size);
+        return 1;
+    }
+
     char ra[KB_TERM_LEN], rc[KB_TERM_LEN];
     int fa = magnitude_lookup(b, dim, a, ra);
     int fc = magnitude_lookup(b, dim, c, rc);
@@ -2369,7 +2481,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t cue_i = 0; cue_i < mn; cue_i++) {
             char *ct = strip_edge_punct(mw[cue_i]);
             char dim[KB_TERM_LEN]; int want_max = 1;
-            if (!magnitude_cue_lookup(b, ct, dim, sizeof dim, &want_max)) continue;
+            if (!compare_cue_lookup(b, ct, dim, sizeof dim, &want_max)) continue;
 
             size_t or_i = mn, than_i = mn;
             for (size_t j = 0; j < mn; j++) {
@@ -2483,7 +2595,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t ci = 0; ci < n2 && !answered; ci++) {
             char *cw = strip_edge_punct(w2[ci]);
             char cdim[KB_TERM_LEN]; int cmax = 1;
-            if (!magnitude_cue_lookup(b, cw, cdim, sizeof cdim, &cmax)) continue;
+            if (!compare_cue_lookup(b, cw, cdim, sizeof cdim, &cmax)) continue;
             for (size_t di = 0; di < n2 && !answered; di++) {
                 char *dw = strip_edge_punct(w2[di]);
                 if (strlen(dw) < 3) continue;

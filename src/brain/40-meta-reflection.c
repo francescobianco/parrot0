@@ -586,7 +586,7 @@ static int is_internal_pred(const char *pred) {
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
         "quantity", "landmark_of", "planet_superlative", "planet_superlative_cue",
         "world_superlative", "world_superlative_cue",
-        "unique_trait",
+        "unique_trait", "measure", "compare_cue", "entity_alias",
         "distance_between", /* gen240/gen251 */
         "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city",
         "magnitude", "magnitude_cue", "difference_between", "sound_of",
