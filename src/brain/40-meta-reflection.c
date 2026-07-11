@@ -549,6 +549,7 @@ static int is_internal_pred(const char *pred) {
         "subject_pron_fr", "wh_front_es", "rewrite_es", "elide_join", "describe_cue", "pair_magnitude",
         "clue_verb", "emits", "is_like", "inanimate", "depicts", "contains", "cries", "flashes",
         "has_part", "has_property", "can_do",
+        "add", "len", "nat",   /* gen311 (P2): teachable-computation demonstrators */
         /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",

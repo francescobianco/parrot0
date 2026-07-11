@@ -108,8 +108,14 @@ regola equivalente non è insegnata e verificata.
   letterali vicini. `rewrite_es("what's $x", "what is $x")` espande la contrazione e il
   resto ($x="your name") aggancia la frase esistente -> "Cómo te llamas". Lunghezze
   diverse permesse.
-- **P2 — funtori + ricorsione (Peano):** `add/3`, `length/3` insegnati come regole e
-  calcolati dall'interprete. Chiude D.1: si insegna a CALCOLARE, non solo a ricordare.
+- **P2 — funtori + ricorsione (DIMOSTRATO, gen311).** SCOPERTA: il motore ha GIÀ i
+  termini composti (U3 landato dopo gen280). Misurato dal vivo: `add/3` di Peano e
+  `len/3` (curate in grammar.p0) **COMPUTANO** — `add(s(z),s(z),?) -> s(s(z))` (1+1=2),
+  `len(cons(a,cons(b,cons(c,nil))),?) -> s(s(s(z)))` (conta 3), `app/3` concatena. Si
+  insegna a CALCOLARE, non solo a ricordare. Var-sigil: `$`/`_` (kb.c:95). RESTA:
+  (a) `kb.assert_clause` via MCP non parsa i termini composti negli args (Bucket A) →
+  autolearn non può ancora insegnare regole ricorsive a runtime (solo curate da file);
+  (b) collegare le domande NL (word-problem) al motore di calcolo (routing/parsing).
 - **P3 — proof e provenienza:** ogni trasformazione porta la sua derivazione
   (`fact_source`), ritrattabile (auto-correzione, deep-reasoning M4).
 - **P4 — migrazione:** i costrutti C di questa sessione (conj/fronting/ser-estar)

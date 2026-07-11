@@ -143,6 +143,16 @@ Con i letterali e le variabili a posto, il limite si è spostato dai *bordi* al
 **potere espressivo del linguaggio delle clausole** stesso. Due reperti, provati
 dal vivo:
 
+> **AGGIORNAMENTO gen311 — D.1 in gran parte SUPERATO.** Il motore ha ORA i termini
+> composti e la ricorsione su strutture: misurato dal vivo,
+> `add(s(z), s(z), ?) -> s(s(z))` (1+1=2), `add(s(s(z)), s(s(z)), ?) -> s(s(s(s(z))))`,
+> `len(cons(a,cons(b,cons(c,nil))), ?) -> s(s(s(z)))` (conta 3), e `app/3` concatena
+> liste. Le regole `add/3`/`len/3` (curate in grammar.p0) **COMPUTANO**, non
+> ricordano — U3 è in campo. Resta **UN** buco (Bucket A): `kb.assert_clause` via MCP
+> non parsa i termini composti negli args, quindi autolearn non può ancora INSEGNARE
+> una regola ricorsiva a runtime (le regole curate da file sì). Vedi
+> [[teachable-procedures]] P2. La dimostrazione originale qui sotto resta come record.
+
 **D.1 — Non puoi insegnare a CALCOLARE, solo a RICORDARE** *(profondo ma sulla
 roadmap: lo sblocca U3)*. MCP insegna fatti e regole di Horn su atomi, ma **non
 una funzione ricorsiva su dati strutturati**, perché il motore non ha **termini
