@@ -139,10 +139,21 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
             }
             char *fw[32]; size_t fn = split_words(fbuf, fw, 32);
             char pieces[32][KB_TERM_LEN]; size_t np = 0;  /* gen307: collect, then reorder clitics */
+            char cur_subj[KB_TERM_LEN] = "";  /* gen311: last subject pronoun, for conj_fr */
             for (size_t i = 0; i < fn; i++) {
                 char *tok = strip_edge_punct(fw[i]);
                 if (!*tok) continue;
                 char piece[KB_TERM_LEN] = "";
+
+                /* gen311 (KB-first morphology): a word used as the SUBJECT arg of
+                 * some conj_fr fact is a subject pronoun — remember it so a later
+                 * verb conjugates for it. Fully data-driven: no pronoun list. */
+                {
+                    const char *subq[] = { NULL, tok, NULL };
+                    char st[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "conj_fr", subq, 3, st, 1) >= 1)
+                        snprintf(cur_subj, sizeof cur_subj, "%s", tok);
+                }
 
                 if (!strcmp(tok, "the")) {
                     char gender = 'm';
@@ -163,13 +174,22 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                            is_progressive_aux(b, tok, strip_edge_punct(fw[i + 1]))) {
                     continue;   /* drop the progressive auxiliary; the -ing verb glosses finite */
                 } else {
+                    /* gen311: conjugate a verb for the tracked subject via
+                     * conj_fr(Verb, Subject, Form); fall back to the plain gloss. */
+                    if (*cur_subj && strcmp(tok, cur_subj) != 0) {
+                        const char *cvq[] = { tok, cur_subj, NULL };
+                        char cf[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "conj_fr", cvq, 3, cf, 1) == 1)
+                            snprintf(piece, sizeof piece, "%s", cf[0]);
+                    }
                     char gnext;
-                    if (i + 1 < fn && fr_gender_for_en(b, strip_edge_punct(fw[i + 1]), &gnext) &&
+                    if (!piece[0] && i + 1 < fn &&
+                        fr_gender_for_en(b, strip_edge_punct(fw[i + 1]), &gnext) &&
                         !fr_gender_for_en(b, tok, &gnext)) {
                         char adj[KB_TERM_LEN];
                         if (fr_lookup(b, tok, adj, sizeof adj)) continue; /* render after noun */
                     }
-                    if (!fr_lookup(b, tok, piece, sizeof piece)) {
+                    if (!piece[0] && !fr_lookup(b, tok, piece, sizeof piece)) {
                         char msg[160];
                         snprintf(msg, sizeof msg,
                                  "I can translate most of it, but I don't know the French for \"%s\".",
@@ -222,6 +242,19 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     }
                     np--;
                 }
+            }
+            /* gen311: French subject/determiner elision at each junction
+             * ("je" + "apprends" -> "j'apprends"). elide_join glues the pair with
+             * no space; chained by staying at i. KB-driven (elide_fr + vowel rule). */
+            for (size_t i = 0; i + 1 < np; ) {
+                const char *ejq[] = { pieces[i], pieces[i + 1], NULL };
+                char ejr[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "elide_join", ejq, 3, ejr, 1) == 1) {
+                    snprintf(pieces[i], KB_TERM_LEN, "%s", ejr[0]);
+                    for (size_t k = i + 1; k + 1 < np; k++)
+                        snprintf(pieces[k], KB_TERM_LEN, "%s", pieces[k + 1]);
+                    np--;
+                } else i++;
             }
             char result[512] = ""; size_t ro = 0;
             for (size_t i = 0; i < np; i++) {

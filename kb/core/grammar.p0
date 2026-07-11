@@ -49,6 +49,9 @@ article_es(f, la).
 % char list, via chars/2). This generalizes the drop to ANY progressive verb
 % with a gloss (running, reading, ...), not just the one hardcoded word.
 aux_progressive(is).
+% gen311: the other progressive auxiliaries ("I am learning", "you are learning").
+aux_progressive(am).
+aux_progressive(are).
 progressive($W) :- chars($W, $L), ends_ing($L).
 ends_ing(cons(i, cons(n, cons(g, nil)))).
 ends_ing(cons($H, $T)) :- ends_ing($T).
@@ -93,3 +96,11 @@ vowel_initial_fr($W) :- chars($W, cons($H, $T)), vowel_fr($H).
 % (te+aime -> t'aime); before a consonant it FAILS here and C space-joins (te
 % parle). Keeping only the elision case as a clause isolates the interesting rule.
 clitic_join($O, $V, $R) :- vowel_initial_fr($V), elide_fr($O, $E), glue($E, $V, $R).
+
+% gen311: SUBJECT/determiner elision before a vowel-initial word ("je" + "apprends"
+% -> "j'apprends"). The clitic elision above only fired for a TRAILING object
+% clitic; this applies the SAME elide_fr + vowel rule at any word junction, so the
+% subject je/ce/de/le/la elide too. elide_join(Word, Next, Surface) is queried by
+% the FR composer for each adjacent pair. KB-first: add elide_fr(je, j') as a fact.
+elide_fr(je, j').
+elide_join($W, $V, $R) :- vowel_initial_fr($V), elide_fr($W, $E), glue($E, $V, $R).

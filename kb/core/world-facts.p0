@@ -1428,6 +1428,10 @@ tr_es(help, ayuda).
 % table via autolearn (conj_es/pro_drop are whitelisted), never a C conjugator.
 pro_drop(es).
 conj_es(need, i, necesito).
+% French keeps the subject but elides it before a vowel (elide_fr(je, j') in
+% grammar.p0); the progressive aux is dropped (aux_progressive/1). "I am learning
+% French" -> "j'apprends français" from conj_fr + tr_fr(french) + those rules.
+conj_fr(learning, i, apprends).
 process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
 process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
 

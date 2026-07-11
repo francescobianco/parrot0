@@ -55,6 +55,7 @@ tr_fr(rug, tapis).
 % gen307: pronouns + a verb for the object-clitic case (je t'aime). "you" glosses
 % to the object clitic te (default); the clitic placement + elision is grammar.p0.
 tr_fr(i, je).
+tr_fr(french, français).
 tr_fr(love, aime).
 tr_fr(you, te).
 % gen308: distributed from kb/learning/autolearn.p0 (autolearn's verified lexicon

@@ -68,6 +68,9 @@ WHITELIST = {
     "answer_frame": 2,
     "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
     "conj_es": 3, "pro_drop": 1,         # gen311: KB-first verb conjugation + pro-drop
+    "conj_fr": 3,                        # gen311: KB-first FR verb conjugation
+    "aux_progressive": 1,                # gen311: EN progressive auxiliary (am/is/are) to drop
+    "elide_fr": 2,                       # gen311: FR elision form (je -> j') before a vowel
     "describe_cue": 1,                   # gen311: KB-first definition/meaning frame cues
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
@@ -131,6 +134,16 @@ TEACHER_SYS = (
     "conjugated) from the plain lexicon (tr_es(help, ayuda)) plus these facts. So a "
     "conjugation/pro-drop error is a TEACHABLE morphology gap (teach conj_es/pro_drop), "
     "never a reason to memorize the whole sentence as a phrase or to decline.\n"
+    "- conj_fr(english_verb, subject, french_form) + aux_progressive(aux) + "
+    "elide_fr(word, elided): the SAME KB-first morphology for FRENCH. Teach the "
+    "person-indexed verb conj_fr(learn, i, apprends). English progressive 'am/is/are "
+    "+ V-ing' drops the auxiliary — if the engine declines on 'am'/'are', teach "
+    "aux_progressive(am) (a fact, matches the surface verb as the -ing form, e.g. "
+    "conj_fr(learning, i, apprends)). French does NOT drop the subject, but the "
+    "subject elides before a vowel: teach elide_fr(je, j') so 'je apprends' composes "
+    "'j'apprends'. Example: 'I am learning French' -> 'j'apprends français' from "
+    "conj_fr(learning, i, apprends) + tr_fr(french, français) + aux_progressive(am) + "
+    "elide_fr(je, j'). Do NOT memorize the sentence as a phrase.\n"
     "- riddle_sig(riddle_id, cue) + response_template(riddle_id, answer_sentence): "
     "classic riddles. riddle_id like riddle_match; give 2-3 cue substrings, then ONE "
     "response_template with the full answer sentence. A riddle fires only when ALL "
