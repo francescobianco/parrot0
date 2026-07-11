@@ -1219,3 +1219,39 @@ Le tre decisioni che ora spettano a te
 - after: I don't understand that yet.
 - judge: The answer fails to solve the riddle; it should be 'a stamp' (staying in the corner of an envelope while traveling the world).
 
+
+## Run 2026-07-11 02:46:53 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 4 · taught 0 · failed 1 · engine-gap 0 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: morphology_gap 1**
+
+### Round 1 — already-capable
+- Q: What is the capital city of France?
+- before: Paris.
+- judge: Paris is the correct capital city of France.
+
+### Round 2 — already-capable
+- Q: What is the chemical symbol for iron on the periodic table?
+- before: Fe.
+- judge: The answer is correct and directly provides the chemical symbol Fe for iron.
+
+### Round 3 — failed-lesson
+- Q: How do you say "I need help" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "need".
+- diagnosis: morphology_gap · teachable=true · mode=template
+- next: Test whether user can conjugate -ar verbs in present tense by giving a template pattern and asking them to fill in blanks with correct verb forms.
+- lesson: tr_es(need, necesitar); tr_es(help, ayuda); tr_es(need, necesitar); tr_es(need, necesito)
+- after: Yo necesitar ayuda.
+- judge: Incorrect verb conjugation; it should be 'yo necesito ayuda' not 'yo necesitar ayuda'.
+
+### Round 4 — already-capable
+- Q: How do you say "Good night" in French?
+- before: Bonne nuit.
+- judge: The answer provides the correct French translation 'Bonne nuit' for 'Good night'.
+
+### Round 5 — already-capable
+- Q: What has a head and a tail but no body?
+- before: A coin has a head and a tail but no body.
+- judge: The answer correctly identifies a coin as the classic riddle solution.
+
