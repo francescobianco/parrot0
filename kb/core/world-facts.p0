@@ -468,6 +468,7 @@ planet_superlative(smallest, mercury, "the smallest planet in our solar system")
 planet_superlative(hottest, venus, "the hottest planet").
 planet_superlative(farthest_from_sun, neptune, "the farthest planet from the Sun").
 planet_superlative(red_planet, mars, "the Red Planet").
+planet_superlative(ringed_planet, saturn, "the Ringed Planet").
 planet_superlative(most_moons, saturn, "the planet with the most known moons").
 
 % gen251: broader world superlatives. world_superlative(Property, Domain,

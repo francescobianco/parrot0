@@ -4040,6 +4040,47 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
             }
         }
+        /* gen311 (KB-first): planet NICKNAME match driven by the FACT'S phrase, not
+         * a hardcoded cue per nickname. "known as the Ringed Planet" -> match the
+         * quoted phrase of planet_superlative(Key, Planet, "the Ringed Planet")
+         * against the turn. Adding a nickname is one fact, no C entry. Runs after
+         * the superlative map above (keep-and-select), and only fires on a nickname
+         * phrase (one that contains "planet" and occurs verbatim in the question). */
+        {
+            char keys[32][KB_TERM_LEN];
+            const char *aq[] = { NULL, NULL, NULL };
+            size_t nk = kb_match(b->kb, "planet_superlative", aq, 3, keys, 32);
+            char donek[32][KB_TERM_LEN]; size_t ndk = 0;
+            for (size_t i = 0; i < nk; i++) {
+                int dup = 0;
+                for (size_t j = 0; j < ndk; j++) if (!strcmp(donek[j], keys[i])) dup = 1;
+                if (dup || ndk >= 32) continue;
+                snprintf(donek[ndk++], KB_TERM_LEN, "%s", keys[i]);
+                const char *pq[] = { keys[i], NULL, NULL };
+                char hit[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "planet_superlative", pq, 3, hit, 1) <= 0) continue;
+                char planet[KB_TERM_LEN]; snprintf(planet, sizeof planet, "%s", hit[0]);
+                const char *pq2[] = { keys[i], planet, NULL };
+                char ph[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) <= 0) continue;
+                char *phr = ph[0]; size_t l = strlen(phr);
+                if (l >= 2 && phr[0] == '"' && phr[l - 1] == '"') { phr[l - 1] = '\0'; phr++; }
+                char *core = phr;
+                if (strncmp(core, "the ", 4) == 0) core += 4;
+                /* match on a lowercased copy (the stored phrase keeps its case,
+                 * e.g. "the Ringed Planet", while buf is normalized lowercase). */
+                char corelc[KB_TERM_LEN];
+                snprintf(corelc, sizeof corelc, "%s", core);
+                for (char *cp = corelc; *cp; cp++) *cp = (char)tolower((unsigned char)*cp);
+                if (corelc[0] && strstr(corelc, "planet") && cue(buf, corelc)) {
+                    char pcap[KB_TERM_LEN]; snprintf(pcap, sizeof pcap, "%s", planet);
+                    if (pcap[0]) pcap[0] = (char)toupper((unsigned char)pcap[0]);
+                    char msg[200]; snprintf(msg, sizeof msg, "%s is %s.", pcap, phr);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
     }
 
     /* gen241 (LLMSCORE-check): idiom / set-phrase meaning. "what does the idiom
