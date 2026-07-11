@@ -138,6 +138,8 @@ tr_fr(city, ville).
 tr_fr(country, pays).
 tr_fr(time, heure).
 tr_fr(luck, chance).
+tr_fr(my, mon).
+tr_fr(name, nom).
 gender_fr("salle de bains", f).
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).

@@ -2227,3 +2227,154 @@ Le tre decisioni che ora spettano a te
 - next: Try one small whitelisted lesson, then classify from the post-teach response.
 - judge: no whitelisted facts (3 dropped)
 
+
+## Run 2026-07-11 13:17:01 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 4 · taught 1 · failed 0 · engine-gap 0 · skipped 0 · kept 3 facts (3 seed + 0 multiplied, deduped)**
+
+**diagnoses: missing_fact 1**
+
+### Round 1 — already-capable
+- Q: What is the capital of Canada?
+- before: Ottawa.
+- judge: Correct, concise answer to a factual question.
+
+### Round 2 — already-capable
+- Q: What planet in our solar system is known as the "Red Planet"?
+- before: Mars is the Red Planet.
+- judge: The answer correctly identifies Mars as the Red Planet.
+
+### Round 3 — already-capable
+- Q: How do you say "Nice to meet you" in Spanish?
+- before: Mucho gusto.
+- judge: The answer correctly translates 'Nice to meet you' as 'Mucho gusto,' which is a standard Spanish phrase.
+
+### Round 4 — taught
+- Q: Translate the common English phrase "My name is..." into French.
+- before: I can translate most of it, but I don't know the French for "my".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add French possessive 'mon/ma' to KB as a core vocabulary entry.
+- lesson: tr_fr(my, mon); tr_fr(name, nom); tr_fr(is, est)
+- after: Mon nom est.
+- judge: The answer provides a correct literal French translation of 'My name is...' as 'Mon nom est,' though more commonly expressed as 'Je m'appelle' in everyday French.
+
+### Round 5 — already-capable
+- Q: What walks on four legs in the morning, two legs at noon, and three legs in the evening?
+- before: A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age
+- judge: The answer correctly identifies the subject as a human and explains all three stages: crawling as a baby, walking on two legs as an adult, and using a cane in old age.
+
+
+## Run 2026-07-11 13:21:26 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 0 · failed 0 · engine-gap 1 · skipped 1 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2**
+
+### Round 1 — already-capable
+- Q: What two countries share the longest international border in the world?
+- before: Canada and USA.
+- judge: The answer is correct and directly addresses the question.
+
+### Round 2 — already-capable
+- Q: What planet in our solar system is nicknamed "the Red Planet"?
+- before: Mars is the Red Planet.
+- judge: The answer correctly identifies Mars as the Red Planet and directly answers the question.
+
+### Round 3 — engine-gap
+- Q: How do you say "Do you speak English?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "do".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(speak, hablar); tr_es(english, inglés); conj_es(speak, you, hablas); conj_es(speak, you_formal, habla); aux_question_es(do, none)
+- after: I can translate most of it, but I don't know the Spanish for "do".
+- judge: The answer deflects from providing the actual translation, which is ¿Hablas inglés? or ¿Habla inglés? (Spanish uses different grammatical structure, not a separate word for 'do').
+
+### Round 4 — already-capable
+- Q: How do you say "What is your name?" in French?
+- before: Comment vous appelez-vous.
+- judge: The answer correctly provides the formal French translation for 'What is your name?' which is accurate and on-topic.
+
+### Round 5 — skipped
+- Q: I have an eye but cannot see. I am sharp but not alive. What am I?
+- before: That sounds nice -- tell me more about it.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Implement a riddle-solving answer path that attempts metaphorical matching before deflection.
+- judge: The engine lacks riddle-solving predicates (has_eye/is_sharp/inanimate) to compose a needle answer; this is an infrastructure gap beyond KB fact teaching. A riddle-by-INFERENCE solution requires new engine rules to accept those constraint predicates, not just additional facts.
+
+
+## Run 2026-07-11 13:23:52 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 0 · failed 0 · engine-gap 3 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 2 · idiom_gap 1**
+
+### Round 1 — interviewer-error
+- Q: [empty]
+
+### Round 2 — already-capable
+- Q: Which planet in our solar system has the most prominent ring system?
+- before: Saturn is the Ringed Planet.
+- judge: The answer correctly identifies Saturn as having the most prominent ring system in our solar system.
+
+### Round 3 — engine-gap
+- Q: How do you say "Do you speak English?" in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "do".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(speak, hablar); tr_es(english, inglés); conj_es(speak, you, hablas)
+- after: I can translate most of it, but I don't know the Spanish for "do".
+- judge: The answer deflects and fails to provide the actual Spanish translation requested.
+
+### Round 4 — engine-gap
+- Q: Translate this common English phrase into French: "Do you speak English?
+- before: I can translate most of it, but I don't know the French for "do".
+- diagnosis: idiom_gap · teachable=true · mode=fact
+- next: answer_frame must be taught with at least one relation fact it can consume.
+- lesson: conj_fr(speak, you, parlez); answer_frame(parlez, french_question)
+- judge: answer_frame must be taught with at least one relation fact it can consume.
+
+### Round 5 — engine-gap
+- Q: What has an eye but cannot see?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: response_template(riddle_needle, A needle has an eye but cannot see); riddle_sig(riddle_needle, has an eye); riddle_sig(riddle_needle, cannot see)
+- after: I don't understand that yet.
+- judge: The answer deflects instead of providing the riddle's solution (a needle).
+
+
+## Run 2026-07-11 13:27:08 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 4 · taught 1 · failed 0 · engine-gap 0 · skipped 0 · kept 4 facts (4 seed + 0 multiplied, deduped)**
+
+**diagnoses: missing_fact 1**
+
+### Round 1 — already-capable
+- Q: Which river flows through the most capital cities in Europe?
+- before: Danube.
+- judge: The Danube correctly flows through Vienna, Bratislava, Budapest, and Belgrade—more capital cities than any other European river.
+
+### Round 2 — already-capable
+- Q: What planet in our solar system has the most moons?
+- before: Saturn is the planet with the most known moons.
+- judge: The answer correctly identifies Saturn as having the most known moons in our solar system.
+
+### Round 3 — already-capable
+- Q: How do you say "I love you" in Spanish?
+- before: Te amo.
+- judge: The answer provides the correct Spanish translation 'Te amo' for 'I love you' in a direct and accurate manner.
+
+### Round 4 — already-capable
+- Q: How do you say "Good morning" in French?
+- before: Bonjour.
+- judge: The answer correctly states that 'Bonjour' is the French equivalent of 'Good morning'.
+
+### Round 5 — taught
+- Q: What has 4 legs in the morning, 2 legs at noon, and 3 legs in the evening?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the riddle-answer pair: '4 legs morning/2 legs noon/3 legs evening' → human to the knowledge base.
+- lesson: riddle_sig(riddle_legs, 4 legs); riddle_sig(riddle_legs, 2 legs); riddle_sig(riddle_legs, 3 legs); response_template(riddle_legs, A human.)
+- after: A human.
+- judge: The answer is correct; a human crawls on all fours as an infant, walks on two legs in adulthood, and uses a cane in old age.
+
