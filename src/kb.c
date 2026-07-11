@@ -1605,6 +1605,14 @@ static int is_struct_pred(const char *pred) {
         "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
         "scenario_step", "activity_topic", "activity_step", "activity_summary", "place_for",
         "sensory_topic", "sensory_phrase", "concise_topic", "concise_explain",
+        /* gen311: morphology + rewrite + inference + compute substrate — these carry
+         * common English words as subjects (conj_es(need,...), clue_verb(cry,...)),
+         * so they must NEVER be dumped as an entity "description". */
+        "conj_es", "conj_fr", "pro_drop", "negation_es", "aux_question",
+        "wh_front_es", "subject_pron_fr", "rewrite_es", "elide_join", "describe_cue",
+        "pair_magnitude", "clue_verb", "emits", "is_like", "inanimate", "cries",
+        "flashes", "depicts", "contains", "has_part", "has_property", "can_do",
+        "add", "len", "nat", "riddle_sig", "response_template",
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;
