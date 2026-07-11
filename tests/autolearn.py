@@ -67,6 +67,7 @@ WHITELIST = {
     "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
     "answer_frame": 2,
     "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
+    "conj_es": 3, "pro_drop": 1,         # gen311: KB-first verb conjugation + pro-drop
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -119,12 +120,16 @@ TEACHER_SYS = (
     "'gracias'. The engine longest-matches the phrase before word-by-word. STRICT "
     "TEST before using a phrase: could this be produced by translating each word and "
     "keeping order? If YES (e.g. 'where is the bathroom', 'I am learning French', 'the "
-    "red car'), it is FORBIDDEN as a phrase — teach the words instead. A verb needing "
-    "CONJUGATION or a dropped subject pronoun is STILL word-by-word in structure: do "
-    "NOT hide it in a phrase. Teach the words; if the engine's only error is "
-    "conjugation/pro-drop/agreement, that is an ENGINE morphology gap — record it "
-    "(lesson_mode skip, failure_class morphology_gap) instead of memorizing the "
-    "sentence. Never use a phrase for a single word.\n"
+    "red car'), it is FORBIDDEN as a phrase — teach the words instead. Never use a "
+    "phrase for a single word.\n"
+    "- conj_es(english_verb, subject, spanish_form) + pro_drop(es): KB-FIRST "
+    "morphology for a CONJUGATED verb. A subject pronoun + verb ('I need') is still "
+    "word-by-word, NOT a phrase: teach the person-indexed verb form conj_es(need, i, "
+    "necesito) and (once) pro_drop(es) to declare Spanish drops the subject; the "
+    "engine then composes 'I need help' -> 'necesito ayuda' (subject dropped, verb "
+    "conjugated) from the plain lexicon (tr_es(help, ayuda)) plus these facts. So a "
+    "conjugation/pro-drop error is a TEACHABLE morphology gap (teach conj_es/pro_drop), "
+    "never a reason to memorize the whole sentence as a phrase or to decline.\n"
     "- riddle_sig(riddle_id, cue) + response_template(riddle_id, answer_sentence): "
     "classic riddles. riddle_id like riddle_match; give 2-3 cue substrings, then ONE "
     "response_template with the full answer sentence. A riddle fires only when ALL "

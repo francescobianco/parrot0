@@ -1410,6 +1410,14 @@ tr_es(love, amor).
 tr_es(where, dónde).
 tr_es(what, qué).
 tr_es(i, yo).
+tr_es(need, necesitar).
+tr_es(help, ayuda).
+% gen311 (KB-first morphology): person-indexed verb forms + pro-drop declaration.
+% The translate composer emits the conjugated form for a subject+verb and, where
+% pro_drop holds, drops the subject: "I need help" -> "Necesito ayuda". Grow this
+% table via autolearn (conj_es/pro_drop are whitelisted), never a C conjugator.
+pro_drop(es).
+conj_es(need, i, necesito).
 process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
 process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
 

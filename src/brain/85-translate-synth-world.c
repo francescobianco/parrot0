@@ -256,7 +256,34 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                 else {
                     char *tok = strip_edge_punct(sw[i]);
                     if (!*tok) { i++; continue; }
-                    if (strcmp(tok, "the") == 0 && i + 1 < sn) {
+                    /* gen311 (F., KB-first morphology): a subject pronoun followed
+                     * by a verb is realized as the CONJUGATED verb form, with the
+                     * subject dropped where the language is pro-drop. Both are taught
+                     * facts, never C rules: conj_es(EnglishVerb, Subject, SpanishForm)
+                     * is the person-indexed verb lexicon; pro_drop(es) declares that
+                     * Spanish omits the subject pronoun. The mere existence of a
+                     * conj_es keyed by (nextword, thisword) is the signal that thisword
+                     * is a subject, so no pronoun list is hardcoded. */
+                    if (i + 1 < sn) {
+                        char *nxt = strip_edge_punct(sw[i + 1]);
+                        const char *cq[] = { nxt, tok, NULL };
+                        char cf[1][KB_TERM_LEN];
+                        if (*nxt && kb_match(b->kb, "conj_es", cq, 3, cf, 1) == 1) {
+                            const char *dq[] = { "es", NULL };
+                            if (kb_query(b->kb, "pro_drop", dq, 1)) {
+                                snprintf(piece, sizeof piece, "%s", cf[0]);
+                            } else {
+                                char es[1][KB_TERM_LEN];
+                                const char *sq[] = { tok, NULL };
+                                if (kb_match(b->kb, "tr_es", sq, 2, es, 1) == 1)
+                                    snprintf(piece, sizeof piece, "%s %s", es[0], cf[0]);
+                                else
+                                    snprintf(piece, sizeof piece, "%s", cf[0]);
+                            }
+                            i++;  /* consume the verb; the trailing i++ consumes the subject */
+                        }
+                    }
+                    if (!piece[0] && strcmp(tok, "the") == 0 && i + 1 < sn) {
                         char *nx = strip_edge_punct(sw[i + 1]);
                         char esn[1][KB_TERM_LEN];
                         const char *nq[] = { nx, NULL };
