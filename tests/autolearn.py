@@ -77,6 +77,7 @@ WHITELIST = {
     "conj_fr": 3,                        # gen311: KB-first FR verb conjugation
     "negation_es": 2,                    # gen311: ES negation marker (don't -> no)
     "aux_question": 1,                    # gen311: dropped question auxiliary (do/does)
+    "wh_front_es": 2,                    # gen311: ES interrogative preposition fronting
     "subject_pron_fr": 2,                # gen311: FR subject pronoun form (you -> vous)
     "aux_progressive": 1,                # gen311: EN progressive auxiliary (am/is/are) to drop
     "elide_fr": 2,                       # gen311: FR elision form (je -> j') before a vowel
@@ -161,13 +162,18 @@ TEACHER_SYS = (
     "  * elide_fr(word, elided): French subject/determiner elision before a vowel, e.g. "
     "elide_fr(je, j') so 'je apprends' -> 'j'apprends'.\n"
     "  * gender_es/gender_fr(noun, m|f) for article agreement.\n"
+    "  * wh_front_es(english_prep, spanish_prep): a stranded question preposition "
+    "that FRONTS in Spanish. 'Where are you from?' -> wh_front_es(from, de) + "
+    "conj_es(are, you, eres) composes 'de dónde eres' (the engine fronts 'de' and "
+    "conjugates the copula). subject_pron_fr(you, vous) is the FR subject form.\n"
     "  Worked examples: 'I need help' -> conj_es(need,i,necesito)+pro_drop(es)+"
     "tr_es(help,ayuda). 'Do you speak English?' -> aux_question(do)+conj_es(speak,you,"
     "hablas)+tr_es(english,inglés). 'I am learning French' -> aux_progressive(am)+"
-    "conj_fr(learning,i,apprends)+tr_fr(french,français)+elide_fr(je,j'). If a NEW "
-    "construct appears that none of these facts cover (e.g. interrogative word-order "
-    "fronting like 'de dónde'), diagnose engine_gap and NAME the missing construct in "
-    "next_action — do NOT paper over it with a memorized phrase or an unlisted pred.\n"
+    "conj_fr(learning,i,apprends)+tr_fr(french,français)+elide_fr(je,j'). 'Where are "
+    "you from?' -> wh_front_es(from,de)+conj_es(are,you,eres). If a NEW construct "
+    "appears that none of these facts cover, diagnose engine_gap and NAME the missing "
+    "construct in next_action — do NOT paper over it with a memorized phrase or an "
+    "unlisted pred.\n"
     "- riddle-by-INFERENCE (preferred over a memorized riddle_sig): model a 'what "
     "am I' riddle as CONSTRAINTS solved over world knowledge. Teach the property/"
     "metaphor FACTS the answer needs: emits(entity, thing), is_like(thing, action), "

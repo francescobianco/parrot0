@@ -304,6 +304,34 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
         char sbuf[256];
         if (tr_payload(low, "spanish", sbuf, sizeof sbuf)) {
             char *sw[32]; size_t sn = split_words(sbuf, sw, 32);
+            /* gen311 (F., KB-first interrogative restructuring). Two token rewrites
+             * so the existing word-by-word + conjugation machinery composes a
+             * question: (a) FRONT a stranded preposition — wh_front_es(prep, _) —
+             * to the head ("where are you from" -> "from where are you"); (b)
+             * DE-INVERT an inverted verb+subject (conj_es(Verb, Subj, _) with Verb
+             * immediately before Subj) so the subject precedes its verb, which the
+             * conj tracker needs ("are you" -> "you are"). Net: "de dónde eres". */
+            for (size_t j = 0; j < sn; j++) {
+                char *t = strip_edge_punct(sw[j]);
+                const char *wq[] = { t, NULL };
+                char wf[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "wh_front_es", wq, 2, wf, 1) == 1) {
+                    char *moved = sw[j];
+                    for (size_t k = j; k > 0; k--) sw[k] = sw[k - 1];
+                    sw[0] = moved;
+                    break;
+                }
+            }
+            for (size_t j = 0; j + 1 < sn; j++) {
+                char *vb = strip_edge_punct(sw[j]);
+                char *sj = strip_edge_punct(sw[j + 1]);
+                const char *cq[] = { vb, sj, NULL };
+                char cf[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "conj_es", cq, 3, cf, 1) == 1) {   /* verb before its subject */
+                    char *tmp = sw[j]; sw[j] = sw[j + 1]; sw[j + 1] = tmp;
+                    j++;
+                }
+            }
             char result[512] = ""; size_t ro = 0;
             char cur_subj_es[KB_TERM_LEN] = "";  /* gen311: tracked subject, for conj_es */
             for (size_t i = 0; i < sn; ) {

@@ -546,7 +546,7 @@ static int is_internal_pred(const char *pred) {
         /* gen311 (U5): KB-first morphology + inference substrate — engine machinery
          * grown by autolearn, not facts the user taught. Filter from introspection. */
         "conj_es", "conj_fr", "pro_drop", "negation_es", "aux_question",
-        "subject_pron_fr", "elide_join", "describe_cue", "pair_magnitude",
+        "subject_pron_fr", "wh_front_es", "elide_join", "describe_cue", "pair_magnitude",
         "clue_verb", "emits", "is_like", "inanimate", "depicts", "contains", "cries", "flashes",
         /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */

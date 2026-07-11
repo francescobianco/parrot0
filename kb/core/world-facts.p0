@@ -1578,6 +1578,11 @@ conj_fr(speak, you, parlez).
 tr_fr(english, anglais).
 % French subject "you" is "vous" (tr_fr(you, te) is the OBJECT clitic form).
 subject_pron_fr(you, vous).
+% gen311: interrogative preposition-fronting + copula conjugation. "Where are you
+% from?" -> front "from"->"de", de-invert "are you"->"you are", conj_es(are,you,eres)
+% + pro-drop -> "de dónde eres". wh_front_es(prep, spanish_prep) is teachable.
+wh_front_es(from, de).
+conj_es(are, you, eres).
 % French keeps the subject but elides it before a vowel (elide_fr(je, j') in
 % grammar.p0); the progressive aux is dropped (aux_progressive/1). "I am learning
 % French" -> "j'apprends français" from conj_fr + tr_fr(french) + those rules.
