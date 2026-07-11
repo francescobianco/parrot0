@@ -85,6 +85,7 @@ WHITELIST = {
     "pair_magnitude": 4,                 # gen311: symmetric pair superlative (longest border)
     "clue_verb": 2, "emits": 2, "is_like": 2, "inanimate": 1,  # gen311: riddle-by-inference facts
     "depicts": 2, "contains": 2,         # gen311 (U1): "have A but no B" = depicts ∧ ¬contains
+    "has_part": 2, "has_property": 2, "can_do": 2,  # gen311 (U1): "has X but cannot Y" riddles
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -185,6 +186,15 @@ TEACHER_SYS = (
     "only teach the facts. Use this ONLY for constraint predicates whose unary rule "
     "already exists in the engine (currently cries/flashes). If a clue would require "
     "a NEW rule such as grows/needs/kills, use riddle_sig + response_template instead.\n"
+    "- 'HAS X but no/cannot Y' riddles are ALSO inference (no template): teach "
+    "has_part(entity, part), has_property(entity, prop), can_do(entity, action) and "
+    "the engine finds the entity with every positive and NONE of the negated clue "
+    "(NAF). Make the negation LOAD-BEARING with a distractor: 'has hands but can't "
+    "clap' -> has_part(clock,hands), has_part(person,hands), can_do(person,clap) -> "
+    "clock (only it can't clap). 'has an eye but cannot see, is sharp but not alive' "
+    "-> has_part(needle,eye), has_property(needle,sharp), has_part(potato,eye) -> "
+    "needle. Similarly 'I have A but no B' -> depicts(map,cities)+contains(country,"
+    "houses) picks the map.\n"
     "- riddle_sig(riddle_id, cue) + response_template(riddle_id, answer_sentence): "
     "classic riddles. riddle_id like riddle_match; give 2-3 cue substrings, then ONE "
     "response_template with the full answer sentence. A riddle fires only when ALL "

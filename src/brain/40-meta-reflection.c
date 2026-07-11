@@ -548,6 +548,7 @@ static int is_internal_pred(const char *pred) {
         "conj_es", "conj_fr", "pro_drop", "negation_es", "aux_question",
         "subject_pron_fr", "wh_front_es", "elide_join", "describe_cue", "pair_magnitude",
         "clue_verb", "emits", "is_like", "inanimate", "depicts", "contains", "cries", "flashes",
+        "has_part", "has_property", "can_do",
         /* gen149: coding-domain knowledge (kb/experts/programming/coding.p0) is technical
          * substrate for mod_code, not conversational content — filter it. */
         "language", "keyword", "ctype", "py_builtin", "c_stdlib", "c_header",

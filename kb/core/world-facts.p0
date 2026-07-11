@@ -1421,6 +1421,16 @@ depicts(country, water).
 contains(country, houses).
 contains(country, trees).
 contains(country, fish).
+% gen311 (U1 extension): "has X but cannot Y / is X but not Y" = has_part(X,·) ∧
+% has_property(X,·) ∧ ¬can_do(X,·). "has an eye but cannot see, is sharp but not
+% alive" -> a needle; "has hands but can't clap" -> a clock. Load-bearing negation:
+% a clock has hands but ¬can_do clap, a person has hands AND can_do clap.
+has_part(needle, eye).
+has_property(needle, sharp).
+has_part(potato, eye).
+has_part(clock, hands).
+has_part(person, hands).
+can_do(person, clap).
 riddle_sig(riddle_footsteps, "the more you take").
 riddle_sig(riddle_footsteps, "the more you leave behind").
 riddle_sig(riddle_candle, "tall when").

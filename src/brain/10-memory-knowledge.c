@@ -3240,6 +3240,67 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen311 (F., U1 extension): "has X but cannot Y / is X but not Y" riddle — a
+     * PROPERTY constraint system. Positive clues (has/is) and negated clues
+     * (no/not/cannot/can't) become has_part(X,·)/has_property(X,·)/can_do(X,·)
+     * constraints; the answer is the entity satisfying every positive and NONE of
+     * the negated (NAF as a !kb_query guard). Load-bearing negation: a clock has
+     * hands but ¬can_do clap; a person has hands AND can_do clap. Inference, not a
+     * template. */
+    if (cue(norm, "what am i") || cue(norm, "what has")) {
+        char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
+        char *cw[64]; size_t cn = split_words(cb, cw, 64);
+        struct { const char *pred; char val[KB_TERM_LEN]; int pos; } con[16]; size_t ncon = 0;
+        const char *pend = NULL; int pend_pos = 1; int npos = 0;
+        for (size_t i = 0; i < cn && ncon < 16; i++) {
+            char *t = strip_edge_punct(cw[i]);
+            if (!*t) continue;
+            if (!strcmp(t, "has") || !strcmp(t, "have")) { pend = "has_part"; pend_pos = 1; }
+            else if (!strcmp(t, "is") || !strcmp(t, "am") || !strcmp(t, "are")) { pend = "has_property"; pend_pos = 1; }
+            else if (!strcmp(t, "can")) { pend = "can_do"; pend_pos = 1; }
+            else if (!strcmp(t, "cannot") || !strcmp(t, "can't") || !strcmp(t, "cant")) { pend = "can_do"; pend_pos = 0; }
+            else if (!strcmp(t, "no")) { pend = "has_part"; pend_pos = 0; }
+            else if (!strcmp(t, "not")) { pend = "has_property"; pend_pos = 0; }
+            else if (pend && strlen(t) >= 2 && !is_stopword(b, t)) {
+                con[ncon].pred = pend;
+                snprintf(con[ncon].val, sizeof con[ncon].val, "%s", t);
+                con[ncon].pos = pend_pos; if (pend_pos) npos++;
+                ncon++; pend = NULL;
+            }
+        }
+        if (ncon >= 2 && npos >= 1) {
+            char cands[64][KB_TERM_LEN]; size_t ncand = 0;
+            for (int pass = 0; pass < 2; pass++) {
+                const char *pr = pass ? "has_property" : "has_part";
+                char subs[64][KB_TERM_LEN];
+                const char *sq[] = { NULL, NULL };
+                size_t ns = kb_match(b->kb, pr, sq, 2, subs, 64);
+                for (size_t s = 0; s < ns && ncand < 64; s++) {
+                    int dup = 0;
+                    for (size_t j = 0; j < ncand; j++) if (!strcmp(cands[j], subs[s])) dup = 1;
+                    if (!dup) snprintf(cands[ncand++], KB_TERM_LEN, "%s", subs[s]);
+                }
+            }
+            for (size_t c = 0; c < ncand; c++) {
+                int ok = 1;
+                for (size_t k = 0; k < ncon && ok; k++) {
+                    const char *q[] = { cands[c], con[k].val };
+                    int holds = kb_query(b->kb, con[k].pred, q, 2);
+                    if (con[k].pos ? !holds : holds) ok = 0;
+                }
+                if (ok) {
+                    char proof[256];
+                    snprintf(proof, sizeof proof, "Riddle solved by inference: %s satisfies "
+                             "all %zu property constraints.", cands[c], ncon);
+                    store_proof(b, proof);
+                    char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen254: classic riddles as PURE KB. riddle_sig(Id, "cue") lists each
      * riddle's required substrings; when every cue of an Id occurs in the turn,
      * response_template(Id, ...) answers. Teaching a new riddle is facts only —
