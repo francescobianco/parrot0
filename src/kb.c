@@ -1579,6 +1579,7 @@ static int is_struct_pred(const char *pred) {
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "landmark_of", "planet_superlative", "planet_superlative_cue",
         "world_superlative", "world_superlative_cue",
+        "unique_trait",
         "distance_between", /* gen240/gen251: queried world commons */
         "scene_cue", "continuation_template",
         "tr_es", "gender_es", "tr_fr", "gender_fr", "very_cold_result",

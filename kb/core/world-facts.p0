@@ -480,6 +480,7 @@ planet_superlative(most_moons, saturn, "the planet with the most known moons").
 planet_superlative_cue("ring system", ringed_planet).
 planet_superlative_cue("prominent ring", ringed_planet).
 planet_superlative_cue(rings, ringed_planet).
+planet_superlative_cue(larger, largest).
 
 % gen251: broader world superlatives. world_superlative(Property, Domain,
 % "answer") keeps stable open-world facts as data while the C only maps query
@@ -492,8 +493,10 @@ world_superlative(most_neighboring_countries, country, "China and Russia each bo
 world_superlative(longest_coastline, country, canada).
 world_superlative(coastline, country, "canada has the longest coastline in the world").
 world_superlative(fastest, land_animal, "the cheetah").
+world_superlative(longest_river, south_america, "The Amazon River is the longest river in South America").
 world_superlative_cue("shares a border with the most", most_neighboring_countries, country).
 world_superlative_cue("longest coastline", coastline, country).
+world_superlative_cue("longest river in south america", longest_river, south_america).
 world_superlative_cue("border with the most", most_neighboring_countries, country).
 world_superlative_cue("most other countries", most_neighboring_countries, country).
 
@@ -556,11 +559,15 @@ magnitude_cue(farthest, distance_from_sun, max).
 % gen310a: length/river superlatives
 magnitude_cue(longest, length, max).
 magnitude_cue(shortest, length, min).
-magnitude(length, the_nile, 1).
+magnitude(length, amazon, 6400).
+magnitude(length, the_nile, 6650).
 % category link so the superlative consumer's "river" filter matches the_nile
 % ("which river is the longest?" -> The_nile). NB: the "what is the longest
 % river?" phrasing is still intercepted upstream (engine ordering gap).
+category_member(river, amazon).
 category_member(river, the_nile).
+category_member(south_america, amazon).
+category_member(africa, the_nile).
 magnitude(size, ant, 1).
 magnitude(size, strawberry, 2).
 magnitude(size, mouse, 2).
@@ -576,6 +583,8 @@ magnitude(size, whale, 11).
 magnitude(size, great_white_shark, 8).
 magnitude(size, blue_whale, 11).
 magnitude(size, mountain, 12).
+magnitude(size, saturn, 22).
+magnitude(size, jupiter, 23).
 
 % gen311: PAIR superlatives. pair_magnitude(Dim, A, B, Value) is a symmetric
 % relation between two entities with a comparable value; the superlative consumer
@@ -606,6 +615,8 @@ magnitude(weight, butter, 3).
 magnitude(weight, stone, 4).
 magnitude(weight, silver, 5).
 magnitude(weight, gold, 6).
+magnitude(weight, hippopotamus, 1500).
+magnitude(weight, african_elephant, 6000).
 magnitude(speed, tortoise, 1).
 magnitude(speed, bicycle, 2).
 magnitude(speed, car, 3).
@@ -1210,6 +1221,7 @@ describe_cue("means").
 describe_cue("define").
 describe_cue("definition").
 wiki_concept(ephemeral, language, "lasting for a very short time").
+wiki_concept(pragmatic, language, "dealing with things sensibly and realistically; practical rather than theoretical").
 
 % gen241 (LLMSCORE-check): phase-change knowledge. boils_at / freezes_at give the
 % temperature and result, so "what happens when you boil water at sea level?" answers
@@ -1406,7 +1418,13 @@ riddle_sig(riddle_chimney, "go down a chimney").
 riddle_sig(riddle_fire, "not alive").
 riddle_sig(riddle_fire, "need air").
 riddle_sig(riddle_fire, "water kills me").
+riddle_sig(riddle_newspaper, "black and white").
+riddle_sig(riddle_newspaper, "red all over").
+riddle_sig(riddle_onion, "take off my skin").
+riddle_sig(riddle_onion, "you might").
 riddle_sig(riddle_map, "have plateaus").
+unique_trait(hummingbird, "fly backwards").
+unique_trait(hummingbird, "flies backwards").
 % gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
 % substring of the turn ("who was the first president of the united states?").
 % Teaching a new role is one fact.
@@ -1655,6 +1673,8 @@ response_template(riddle_head_tail, "A coin has a head and a tail but no body.")
 response_template(sphinx_riddle, "A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age").
 response_template(riddle_chimney, "Rain can go up a chimney down but cannot go down a chimney up.").
 response_template(riddle_fire, "Fire.").
+response_template(riddle_newspaper, "A newspaper.").
+response_template(riddle_onion, "An onion.").
 response_template(joke_chicken, "To get to the other side.").
 response_template(joke_short, "Why did the function return early? It had a break.").
 response_template(joke_bear_teeth, "A gummy bear.").

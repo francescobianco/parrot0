@@ -1444,6 +1444,14 @@ static int magnitude_lookup(Brain *b, const char *dim, const char *item, char *r
     const char *q[] = { dim, item, NULL };
     char hit[1][KB_TERM_LEN];
     if (kb_match(b->kb, "magnitude", q, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+    if (strncmp(item, "fully_grown_", 12) == 0) {
+        const char *qg[] = { dim, item + 12, NULL };
+        if (kb_match(b->kb, "magnitude", qg, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+    }
+    if (strncmp(item, "grown_", 6) == 0) {
+        const char *qg[] = { dim, item + 6, NULL };
+        if (kb_match(b->kb, "magnitude", qg, 3, hit, 1) > 0) { snprintf(rank, KB_TERM_LEN, "%s", hit[0]); return 1; }
+    }
     size_t l = strlen(item);
     if (l > 1 && item[l - 1] == 's') {
         char sg[64]; snprintf(sg, sizeof sg, "%.*s", (int)(l - 1), item);
@@ -1590,6 +1598,8 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
         return 1;
     }
     const char *win = want_max ? (na > nc ? a : c) : (na < nc ? a : c);
+    if (strncmp(win, "fully_grown_", 12) == 0) win += 12;
+    else if (strncmp(win, "grown_", 6) == 0) win += 6;
     char dw[80], msg[96];
     display_key(win, dw, sizeof dw);
     snprintf(msg, sizeof msg, "%s.", dw);
@@ -2395,6 +2405,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                         isalpha((unsigned char)t[0]))
                         snprintf(cat, sizeof cat, "%s", t);
                 }
+                char region[KB_TERM_LEN] = "";
+                for (size_t j = cue_i + 1; j + 1 < mn && !region[0]; j++) {
+                    if (strcmp(strip_edge_punct(mw[j]), "in") != 0) continue;
+                    size_t end = j + 1;
+                    while (end < mn && strcmp(strip_edge_punct(mw[end]), "and") != 0)
+                        end++;
+                    (void)join_entity_span(mw, j + 1, end, region, sizeof region);
+                }
                 char items[128][KB_TERM_LEN];
                 const char *iq[3] = { dim, NULL, NULL };
                 size_t ni = kb_match(b->kb, "magnitude", iq, 3, items, 128);
@@ -2417,6 +2435,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     const char *pq[2] = { items[k], cat };
                     if (kb_query(b->kb, "part_of", pq, 2))
                         { keep[k] = 1; nf++; continue; }
+                }
+                if (region[0] && nf > 0) {
+                    size_t nr = 0;
+                    for (size_t k = 0; k < ni; k++) {
+                        if (!keep[k]) continue;
+                        const char *rqreg[2] = { region, items[k] };
+                        if (kb_query(b->kb, "category_member", rqreg, 2)) nr++;
+                        else keep[k] = 0;
+                    }
+                    nf = nr;
                 }
                 if (ni > 0 && (nf > 0 || !cat[0])) {
                     size_t best = 0; double best_val = 0; int first = 1;
@@ -2966,6 +2994,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * only SELECTS from knowledge; the surface lives in the KB so adding a
      * mix pair, a riddle, a country border, etc. is DATA, never code. */
     if ((cue(norm, "mix") || cue(norm, "what color") || cue(norm, "what colour") || cue(norm, "get")) &&
+        !cue(norm, "all over") &&
         (cue(norm, "paint") || cue(norm, "mix"))) {
         /* pick the two named colours mentioned; resolve symmetrically against
          * paint_mix/3. Honest if no such pair is recorded. */
@@ -3122,6 +3151,35 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (size_t c = 0; c < ncue && all; c++)
                 if (!cue(norm, kb_dequote(cues[c]))) all = 0;
             if (all && kb_response(b, ids[i], NULL, out, out_size)) return 1;
+        }
+    }
+
+    /* gen313: unique-trait questions. The trait phrase is KB data
+     * unique_trait(Entity, "phrase"); if the phrase occurs in the turn, answer
+     * the unique entity. */
+    {
+        char ents[64][KB_TERM_LEN];
+        const char *uq[] = { NULL, NULL };
+        size_t ne = kb_match(b->kb, "unique_trait", uq, 2, ents, 64);
+        char doneu[64][KB_TERM_LEN]; size_t ndu = 0;
+        for (size_t i = 0; i < ne; i++) {
+            if (seen_term(doneu, ndu, ents[i]) || ndu >= 64) continue;
+            snprintf(doneu[ndu++], KB_TERM_LEN, "%s", ents[i]);
+            const char *tq[] = { ents[i], NULL };
+            char traits[16][KB_TERM_LEN];
+            size_t nt = kb_match(b->kb, "unique_trait", tq, 2, traits, 16);
+            for (size_t ti = 0; ti < nt; ti++) {
+                char tr[KB_TERM_LEN]; snprintf(tr, sizeof tr, "%s", kb_dequote(traits[ti]));
+                for (char *p = tr; *p; p++) if (*p == '_') *p = ' ';
+                if (*tr && cue(norm, tr)) {
+                    char disp[KB_TERM_LEN]; snprintf(disp, sizeof disp, "%s", ents[i]);
+                    for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+                    if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
+                    char msg[160]; snprintf(msg, sizeof msg, "%s.", disp);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
         }
     }
 

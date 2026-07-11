@@ -69,6 +69,7 @@ WHITELIST = {
     "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
     "category_member": 2, "world_superlative": 3, "world_superlative_cue": 3,
     "planet_superlative": 3, "planet_superlative_cue": 2,
+    "unique_trait": 2,
     "answer_frame": 2,
     "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
     "conj_es": 3, "pro_drop": 1,         # gen311: KB-first verb conjugation + pro-drop
@@ -195,7 +196,9 @@ TEACHER_SYS = (
     "unary predicate such as largest_internal_organ/1, which the engine cannot consume.\n"
     "- world_superlative_cue(cue_phrase, property, domain): add this when the question "
     "uses a multi-word cue that does not literally contain the property atom, e.g. "
-    "shares a border with the most -> most_neighboring_countries/country.\n"
+    "shares a border with the most -> most_neighboring_countries/country. For regional "
+    "geography superlatives (e.g. longest river in South America), use a region-specific "
+    "property/domain pair plus this cue; do not invent longest_river/2.\n"
     "- planet_superlative(property, planet, answer_phrase): solar-system planet facts "
     "such as ringed_planet/saturn/the Ringed Planet. Prefer this over famous_for/2 "
     "for planet nicknames or prominent planet features.\n"
@@ -211,6 +214,9 @@ TEACHER_SYS = (
     "<y>' — use the repo's canonical argument order. Examples: capital(city, country), "
     "chemical_symbol(symbol, element), opposite(word, opposite_word). If the question "
     "wording is not the plain relation frame, pair it with answer_frame.\n"
+    "- unique_trait(entity, trait_phrase): use for 'the only X that can Y' questions "
+    "where one entity uniquely has a surface trait. The second arg should be a short "
+    "phrase that appears in the question, e.g. unique_trait(hummingbird, fly backwards).\n"
     "- FRENCH object clitics (je t'aime): teach the lexicon tr_fr(word, gloss) "
     "with the object pronoun's clitic form (tr_fr(you, te)); the engine places a "
     "sentence-final clitic before its verb and elides before a vowel. To add a NEW "

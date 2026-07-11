@@ -917,6 +917,8 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                   (cue(buf, "what does the") && wn <= 7) ||
                   (cue(buf, "cosa può fare il modulo") && wn <= 7);
     if (mod_cap) {
+        if (cue(buf, "what does the word") || cue(buf, "what does word"))
+            return 0;
         static const struct { const char *mod, *say; } cmap[] = {
             {"knowledge", "answer questions about facts and logical rules"},
             {"arith",     "compute arithmetic (plus, minus, times, divisible by)"},
@@ -1192,4 +1194,3 @@ static int simulate_pipeline(const char *pipeline,
     snprintf(out, out_size, "%s", buf);
     return 1;
 }
-

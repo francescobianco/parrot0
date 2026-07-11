@@ -55,6 +55,27 @@ expect "french multi-word noun composition" "1" \
 expect "riddle not misclassified as code" "1" \
     "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?" \
     "Fire."
+expect "definition word frame bypasses module self-query" "1" \
+    'What does the word "pragmatic" mean?' \
+    "pragmatic is dealing with things sensibly and realistically; practical rather than theoretical."
+expect "regional longest river superlative" "1" \
+    "What is the longest river in South America?" \
+    "Amazon."
+expect "unique trait consumer" "1" \
+    "What is the only bird that can fly backwards?" \
+    "Hummingbird."
+expect "planet size comparison from magnitude" "1" \
+    "Which is larger, Saturn or Jupiter?" \
+    "Jupiter."
+expect "weight comparison with descriptive entity spans" "1" \
+    "Which is heavier: a grown African elephant or a fully grown hippopotamus?" \
+    "African elephant."
+expect "pun riddle does not fall into color mixing" "1" \
+    "What is black and white and red all over?" \
+    "A newspaper."
+expect "skin onion riddle from signatures" "1" \
+    "Take off my skin and I won't cry, but you might. What am I?" \
+    "An onion."
 
 expect "world layer can be suppressed" "0" \
     "what is the capital of france?" \
