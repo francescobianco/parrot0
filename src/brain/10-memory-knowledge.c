@@ -2441,6 +2441,61 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen311 (F., KB-first): PAIR superlative — "which two countries share the
+     * longest border?". pair_magnitude(Dim, A, B, Value) is a symmetric-relation
+     * magnitude; the answer is the PAIR with the extremum value. Direction (max/min)
+     * is read from the existing magnitude_cue for the cue word; the Dim word (e.g.
+     * "border") must appear in the turn. Each pair is stored ONCE — the answer order
+     * is immaterial, so no reciprocal fact is needed. Enumerated iteratively (kb_match
+     * yields one free var per row): A's, then each A's B, then that pair's Value. */
+    {
+        char mb2[256]; snprintf(mb2, sizeof mb2, "%s", norm);
+        char *w2[64]; size_t n2 = split_words(mb2, w2, 64);
+        int answered = 0;
+        for (size_t ci = 0; ci < n2 && !answered; ci++) {
+            char *cw = strip_edge_punct(w2[ci]);
+            char cdim[KB_TERM_LEN]; int cmax = 1;
+            if (!magnitude_cue_lookup(b, cw, cdim, sizeof cdim, &cmax)) continue;
+            for (size_t di = 0; di < n2 && !answered; di++) {
+                char *dw = strip_edge_punct(w2[di]);
+                if (strlen(dw) < 3) continue;
+                const char *aq[] = { dw, NULL, NULL, NULL };
+                char as[64][KB_TERM_LEN];
+                size_t na = kb_match(b->kb, "pair_magnitude", aq, 4, as, 64);
+                if (na == 0) continue;
+                char bestA[KB_TERM_LEN] = "", bestB[KB_TERM_LEN] = "";
+                double bestV = 0; int first = 1;
+                for (size_t a = 0; a < na; a++) {
+                    const char *bq[] = { dw, as[a], NULL, NULL };
+                    char bs[16][KB_TERM_LEN];
+                    size_t nb = kb_match(b->kb, "pair_magnitude", bq, 4, bs, 16);
+                    for (size_t bi = 0; bi < nb; bi++) {
+                        const char *vq[] = { dw, as[a], bs[bi], NULL };
+                        char vs[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "pair_magnitude", vq, 4, vs, 1) == 1) {
+                            double v = 0; parse_value(vs[0], &v);
+                            if (first || (cmax ? v > bestV : v < bestV)) {
+                                first = 0; bestV = v;
+                                snprintf(bestA, sizeof bestA, "%s", as[a]);
+                                snprintf(bestB, sizeof bestB, "%s", bs[bi]);
+                            }
+                        }
+                    }
+                }
+                if (!first) {
+                    char da[64], db[64];
+                    display_key(bestA, da, sizeof da);
+                    display_key(bestB, db, sizeof db);
+                    char msg[200];
+                    snprintf(msg, sizeof msg, "%s and %s.", da, db);
+                    put(msg, out, out_size);
+                    store_proof(b, msg);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): pairwise comparison — "which is larger: a strawberry or a
      * watermelon?", "which planet is closer to the Sun: Mars or Jupiter?" Compares
      * magnitude(Dim, Item, Rank); the cue word picks the Dim and direction. KB-first:

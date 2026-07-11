@@ -72,6 +72,7 @@ WHITELIST = {
     "aux_progressive": 1,                # gen311: EN progressive auxiliary (am/is/are) to drop
     "elide_fr": 2,                       # gen311: FR elision form (je -> j') before a vowel
     "describe_cue": 1,                   # gen311: KB-first definition/meaning frame cues
+    "pair_magnitude": 4,                 # gen311: symmetric pair superlative (longest border)
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -166,6 +167,12 @@ TEACHER_SYS = (
     "magnitude(dimension, item, rank_number) with magnitude_cue(cueword, dimension, "
     "max|min) for comparisons — cueword MUST be a single word (e.g. fastest), "
     "multi-word cues never match.\n"
+    "- pair_magnitude(dim, a, b, value): a SUPERLATIVE over a PAIR — 'which two X "
+    "share the longest/shortest <dim>?'. dim is a single lowercase word that appears "
+    "in the question (e.g. border); the engine finds the pair with the max/min value "
+    "(direction from magnitude_cue for longest/shortest). Store each pair ONCE (order "
+    "is immaterial). E.g. pair_magnitude(border, canada, united_states, 8891) answers "
+    "'which two countries share the longest border' with 'Canada and USA'.\n"
     "- any simple binary relation rel(x, y) answering 'what/who is the <rel> of "
     "<y>' — e.g. capital(canberra, australia), opposite(permanent, ephemeral).\n"
     "- FRENCH object clitics (je t'aime): teach the lexicon tr_fr(word, gloss) "

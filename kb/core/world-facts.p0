@@ -556,6 +556,16 @@ magnitude(size, great_white_shark, 8).
 magnitude(size, blue_whale, 11).
 magnitude(size, mountain, 12).
 
+% gen311: PAIR superlatives. pair_magnitude(Dim, A, B, Value) is a symmetric
+% relation between two entities with a comparable value; the superlative consumer
+% answers "which two X share the longest/shortest <Dim>?" with the extremum pair.
+% Stored ONCE per pair (answer order is immaterial). Grow via autolearn
+% (pair_magnitude is whitelisted). International land borders, length in km.
+pair_magnitude(border, canada, united_states, 8891).
+pair_magnitude(border, kazakhstan, russia, 7644).
+pair_magnitude(border, argentina, chile, 5308).
+pair_magnitude(border, botswana, zambia, 0.15).
+
 % gen251: city-to-city separation used by relative-motion frames. Values are
 % ordinary road/rail-scale miles, rounded because the prompt itself is rounded.
 distance_between(chicago, new_york, 790).
