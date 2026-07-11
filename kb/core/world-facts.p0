@@ -1170,6 +1170,16 @@ idiom_meaning("fingers crossed", "hoping for good luck").
 idiom_meaning("go the extra mile", "to make more effort than expected").
 idiom_meaning("hit the books", "to study").
 
+% gen311 (KB-first definitions): the "what does X mean / define X" FRAME is taught
+% data, not a C pattern. describe_cue(Cue) lists substrings that mark a description
+% request; the concept consumer then reads a wiki_concept(X, domain, "gloss").
+% Grow both via autolearn (describe_cue + wiki_concept are whitelisted), no C edit.
+describe_cue("mean").
+describe_cue("means").
+describe_cue("define").
+describe_cue("definition").
+wiki_concept(ephemeral, language, "lasting for a very short time").
+
 % gen241 (LLMSCORE-check): phase-change knowledge. boils_at / freezes_at give the
 % temperature and result, so "what happens when you boil water at sea level?" answers
 % with both. One fact per substance; the C only selects by the verb + substance.

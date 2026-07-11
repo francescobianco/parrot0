@@ -68,6 +68,7 @@ WHITELIST = {
     "answer_frame": 2,
     "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
     "conj_es": 3, "pro_drop": 1,         # gen311: KB-first verb conjugation + pro-drop
+    "describe_cue": 1,                   # gen311: KB-first definition/meaning frame cues
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -139,7 +140,13 @@ TEACHER_SYS = (
     "per id and wrong ones poison it. Only teach a riddle whose canonical answer "
     "you are confident about.\n"
     "- wiki_concept(concept_key, domain, definition): a one-line definition for "
-    "'what is X' gaps; concept_key lowercase_with_underscores.\n"
+    "'what is X' / 'what does X mean' / 'define X' gaps; concept_key "
+    "lowercase_with_underscores. If the question uses a definition phrasing the "
+    "engine does not yet recognize (it answered 'what is X' but not 'what does X "
+    "mean'), ALSO teach describe_cue(cue) — a single lowercase cue WORD that marks "
+    "the request (e.g. describe_cue(mean), describe_cue(define)); the concept "
+    "consumer then reads your wiki_concept. The cue word must NOT be the concept "
+    "itself. This makes new definition FRAMES learnable KB-first, no engine change.\n"
     "- idiom_meaning(idiom_phrase, gloss): the meaning of an idiom/saying; the "
     "phrase is matched as a substring of the question, lowercase.\n"
     "- color_of(thing, color); sound_of(animal, sound); "

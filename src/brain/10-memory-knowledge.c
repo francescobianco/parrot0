@@ -4439,6 +4439,43 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * source yet -- never a blank "I don't know anything about X". */
     }
 
+    /* gen311 (F., KB-first definitions): the definition/meaning FRAME is taught,
+     * not hardcoded. describe_cue(Cue) lists substrings that mark a description
+     * request ("mean", "define", ...); when one occurs, try each content word as
+     * a concept via the SAME resolve+describe path as "what is X". Claims only on
+     * a real description hit, so unknowns fall through unharmed. Teaching a new
+     * phrasing ("what does X mean", "define X") is one describe_cue fact — no C
+     * edit — so make autolearn can train new definition frames KB-first. */
+    {
+        char dcues[64][KB_TERM_LEN];
+        const char *dq[] = { NULL };
+        size_t ndc = kb_match(b->kb, "describe_cue", dq, 1, dcues, 64);
+        int is_describe = 0;
+        for (size_t i = 0; i < ndc && !is_describe; i++) {
+            char *cs = kb_dequote(dcues[i]);
+            if (*cs && cue(norm, cs)) is_describe = 1;
+        }
+        if (is_describe) {
+            for (size_t i = 0; i < nw; i++) {
+                char *cand = strip_edge_punct(w[i]);
+                if (!*cand || is_article(cand) || is_stopword(b, cand)) continue;
+                /* the cue word itself ("mean"/"define") is the frame, not the
+                 * concept — skip any word that is a describe_cue. */
+                int is_cue = 0;
+                for (size_t k = 0; k < ndc && !is_cue; k++)
+                    if (!strcmp(kb_dequote(dcues[k]), cand)) is_cue = 1;
+                if (is_cue) continue;
+                char desc[1024];
+                if (kb_describe_entity(b->kb, cand, desc, sizeof desc)) {
+                    put(desc, out, out_size);
+                    store_proof(b, desc);
+                    remember_entity(b, cand, cand);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen157: emergent relational reasoning over descriptions. parrot0 was never
      * told "heart is part of circulatory" — but the circulatory DESCRIPTION names
      * the heart, so "what is the heart part of?" / "what contains the lungs?" /
