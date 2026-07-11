@@ -42,6 +42,16 @@ static int concept_bind(Brain *b, const char *pred, const char *word,
             return 1;
         }
     }
+    /* gen311: a theme CONTAINED in the word — an adjective/derivative reaches its
+     * theme ("rainy" -> rain, "snowy" -> snow, "starry" -> star, "moonlit" -> moon).
+     * Keys are >=4 chars and domain-specific, so a spurious substring is unlikely. */
+    for (size_t i = 0; i < kn; i++) {
+        size_t kl = strlen(keys[i]);
+        if (kl >= 4 && strstr(word, keys[i])) {
+            snprintf(concept, concept_size, "%s", keys[i]);
+            return 1;
+        }
+    }
     return 0;
 }
 
