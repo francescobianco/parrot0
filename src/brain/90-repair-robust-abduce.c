@@ -88,6 +88,22 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
          strcmp(w[1], "day") == 0 || strcmp(w[1], "time") == 0))
         return 0;
 
+    /* gen311 (F., 2026-07-11): "what does it mean when someone says 'X'?" is an
+     * idiom-MEANING query, not a referential gap — that "it" is an anticipatory
+     * dummy, not an anaphor. Route it to mod_knowledge's idiom_meaning consumer:
+     * if a stored idiom_meaning phrase occurs verbatim in a "mean" turn, pass so
+     * first-match-wins reaches the consumer that answers it. */
+    if (b->kb && strstr(norm, "mean")) {
+        char ph[64][KB_TERM_LEN];
+        const char *anyq[] = { NULL, NULL };
+        size_t pn = kb_match(b->kb, "idiom_meaning", anyq, 2, ph, 64);
+        for (size_t i = 0; i < pn; i++) {
+            char *key = ph[i]; size_t kl = strlen(key);
+            if (kl >= 2 && key[0] == '"' && key[kl - 1] == '"') { key[kl - 1] = '\0'; key++; }
+            if (*key && strstr(norm, key)) return 0;   /* idiom_meaning will answer */
+        }
+    }
+
     const char *pron = NULL;
     for (size_t i = 1; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
