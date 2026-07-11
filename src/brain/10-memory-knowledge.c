@@ -2272,7 +2272,10 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
 
         for (size_t t = 0; t < nw; t++) {
             char *v = strip_edge_punct(w[t]);
-            if (strlen(v) < 2 || is_stopword(b, v)) continue;
+            /* gen311: allow SINGLE-letter tokens — chemical symbols are 1 char
+             * (K, O, H, N). Safe because the frame claims only on a real pred
+             * match, and is_stopword already drops articles/function words. */
+            if (strlen(v) < 1 || is_stopword(b, v)) continue;
             char ans[16][KB_TERM_LEN]; size_t na;
             const char *ffw[2] = { v, NULL };
             na = kb_match(b->kb, pred, ffw, 2, ans, 16);        /* pred(v, ?) -> arg2 */
