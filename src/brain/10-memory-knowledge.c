@@ -2407,13 +2407,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (!cat[0]) { keep[k] = 1; nf++; continue; }
                     char *it = kb_dequote(items[k]);
                     if (strstr(it, cat)) { keep[k] = 1; nf++; continue; }
+                    /* gen311 fix: these are GROUND checks (both args bound), so
+                     * use kb_query — kb_match reports free-variable bindings and
+                     * returns 0 when there is no variable, silently failing the
+                     * category filter even for a provable category_member fact. */
                     const char *cq[2] = { cat, items[k] };
-                    char cm[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "category_member", cq, 2, cm, 1) == 1)
+                    if (kb_query(b->kb, "category_member", cq, 2))
                         { keep[k] = 1; nf++; continue; }
                     const char *pq[2] = { items[k], cat };
-                    char po[1][KB_TERM_LEN];
-                    if (kb_match(b->kb, "part_of", pq, 2, po, 1) == 1)
+                    if (kb_query(b->kb, "part_of", pq, 2))
                         { keep[k] = 1; nf++; continue; }
                 }
                 if (ni > 0 && (nf > 0 || !cat[0])) {
