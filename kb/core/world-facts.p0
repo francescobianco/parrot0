@@ -1309,6 +1309,24 @@ riddle_sig(riddle_river_crossing, "corn").
 riddle_sig(riddle_river_crossing, "boat").
 riddle_sig(riddle_echo, "speak without a mouth").
 riddle_sig(riddle_echo, "hear without ears").
+
+% gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
+% not a memorized cue->answer. The clue verbs map to constraint predicates that are
+% RULES over world knowledge; the answer is the inanimate entity satisfying every
+% clue. "no voice, yet I cry ... no eyes, yet I flash in the dark" -> a storm.
+% Curated here are the bridging rules + seed property/metaphor facts; autolearn grows
+% the FACTS (clue_verb/emits/is_like/inanimate are the teachable layer, not the rules).
+clue_verb(cry, cries).
+clue_verb(cries, cries).
+clue_verb(flash, flashes).
+clue_verb(flashes, flashes).
+cries($X) :- emits($X, $W), is_like($W, crying).
+flashes($X) :- emits($X, $L), is_like($L, flash).
+emits(storm, rain).
+emits(storm, lightning).
+is_like(rain, crying).
+is_like(lightning, flash).
+inanimate(storm).
 riddle_sig(riddle_footsteps, "the more you take").
 riddle_sig(riddle_footsteps, "the more you leave behind").
 riddle_sig(riddle_candle, "tall when").

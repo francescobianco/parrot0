@@ -2997,6 +2997,53 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* fall through honestly if no mixing fact is known */
     }
 
+    /* gen311 (F., riddles-as-inference): a "what am I" riddle is a CONSTRAINT
+     * SYSTEM, not a memorized answer. Each clue verb maps via clue_verb(Surface,
+     * Pred) to a constraint predicate that is a RULE over world knowledge
+     * (cries(X) :- emits(X,W), is_like(W,crying)); the answer is the inanimate
+     * entity satisfying EVERY clue's predicate — found by KB inference (kb_query
+     * evaluates the rules), so an unseen riddle over the same property/metaphor
+     * facts solves with no new template. The riddle_sig block below stays as a
+     * secondary fallback (keep-and-select). Claims only on a full solve. */
+    if (cue(norm, "what am i")) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", norm);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        char preds[8][KB_TERM_LEN]; size_t npr = 0;
+        for (size_t i = 0; i < rn && npr < 8; i++) {
+            char *rwtok = strip_edge_punct(rw[i]);
+            if (strlen(rwtok) < 3) continue;
+            const char *cvq[] = { rwtok, NULL };
+            char pr[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "clue_verb", cvq, 2, pr, 1) == 1) {
+                int dup = 0;
+                for (size_t k = 0; k < npr; k++) if (!strcmp(preds[k], pr[0])) dup = 1;
+                if (!dup) snprintf(preds[npr++], KB_TERM_LEN, "%s", pr[0]);
+            }
+        }
+        if (npr >= 2) {
+            char cands[64][KB_TERM_LEN];
+            const char *iq[] = { NULL };
+            size_t ncand = kb_match(b->kb, "inanimate", iq, 1, cands, 64);
+            for (size_t c = 0; c < ncand; c++) {
+                int ok = 1;
+                for (size_t k = 0; k < npr && ok; k++) {
+                    const char *pq[] = { cands[c] };
+                    if (!kb_query(b->kb, preds[k], pq, 1)) ok = 0;
+                }
+                if (ok) {
+                    char proof[256];
+                    snprintf(proof, sizeof proof,
+                             "Riddle solved by inference: %s satisfies all %zu clue "
+                             "constraints (not a stored answer).", cands[c], npr);
+                    store_proof(b, proof);
+                    char msg[128]; snprintf(msg, sizeof msg, "A %s.", cands[c]);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen254: classic riddles as PURE KB. riddle_sig(Id, "cue") lists each
      * riddle's required substrings; when every cue of an Id occurs in the turn,
      * response_template(Id, ...) answers. Teaching a new riddle is facts only —

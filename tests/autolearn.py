@@ -73,6 +73,7 @@ WHITELIST = {
     "elide_fr": 2,                       # gen311: FR elision form (je -> j') before a vowel
     "describe_cue": 1,                   # gen311: KB-first definition/meaning frame cues
     "pair_magnitude": 4,                 # gen311: symmetric pair superlative (longest border)
+    "clue_verb": 2, "emits": 2, "is_like": 2, "inanimate": 1,  # gen311: riddle-by-inference facts
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
@@ -145,6 +146,15 @@ TEACHER_SYS = (
     "'j'apprends'. Example: 'I am learning French' -> 'j'apprends français' from "
     "conj_fr(learning, i, apprends) + tr_fr(french, français) + aux_progressive(am) + "
     "elide_fr(je, j'). Do NOT memorize the sentence as a phrase.\n"
+    "- riddle-by-INFERENCE (preferred over a memorized riddle_sig): model a 'what "
+    "am I' riddle as CONSTRAINTS solved over world knowledge. Teach the property/"
+    "metaphor FACTS the answer needs: emits(entity, thing), is_like(thing, action), "
+    "inanimate(entity), and clue_verb(surface_word, constraint_pred) mapping a clue "
+    "verb in the riddle to the constraint it implies (e.g. clue_verb(cry, cries), "
+    "emits(storm, rain), is_like(rain, crying), inanimate(storm) let the engine solve "
+    "'no voice yet I cry ... I flash in the dark' -> a storm). The bridging rules "
+    "(cries(X):-emits(X,W),is_like(W,crying)) are curated engine infrastructure; you "
+    "only teach the facts. Prefer this to riddle_sig when the clues describe behavior.\n"
     "- riddle_sig(riddle_id, cue) + response_template(riddle_id, answer_sentence): "
     "classic riddles. riddle_id like riddle_match; give 2-3 cue substrings, then ONE "
     "response_template with the full answer sentence. A riddle fires only when ALL "
