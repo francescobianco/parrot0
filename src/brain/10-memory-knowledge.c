@@ -3693,10 +3693,42 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* gen251 (LLMSCORE): generic world superlatives. Stable facts live in
-     * world_superlative(Property, Domain, "answer"); the recognizer only binds a
-     * property word present in the turn to a domain noun also present in the turn. */
+    /* gen251/gen312: generic world superlatives. Stable facts live in
+     * world_superlative(Property, Domain, "answer"). Optional
+     * world_superlative_cue(Cue, Property, Domain) facts teach multi-word request
+     * forms ("shares a border with the most") without adding a C synonym. */
     {
+        char cues[32][KB_TERM_LEN];
+        const char *cq[] = { NULL, NULL, NULL };
+        size_t ncue = kb_match(b->kb, "world_superlative_cue", cq, 3, cues, 32);
+        for (size_t ci = 0; ci < ncue; ci++) {
+            char rawcue[KB_TERM_LEN]; snprintf(rawcue, sizeof rawcue, "%s", cues[ci]);
+            char *cu = kb_dequote(rawcue);
+            if (!*cu || !cue(buf, cu)) continue;
+            const char *pq0[] = { cues[ci], NULL, NULL };
+            char props[8][KB_TERM_LEN];
+            size_t np = kb_match(b->kb, "world_superlative_cue", pq0, 3, props, 8);
+            for (size_t pi = 0; pi < np; pi++) {
+                const char *dq0[] = { cues[ci], props[pi], NULL };
+                char doms0[8][KB_TERM_LEN];
+                size_t nd0 = kb_match(b->kb, "world_superlative_cue", dq0, 3, doms0, 8);
+                for (size_t di = 0; di < nd0; di++) {
+                    const char *aq0[] = { props[pi], doms0[di], NULL };
+                    char ans0[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "world_superlative", aq0, 3, ans0, 1) > 0) {
+                        char *p = kb_dequote(ans0[0]);
+                        char msg[220];
+                        size_t l = strlen(p);
+                        snprintf(msg, sizeof msg, "%s%s", p,
+                                 (l > 0 && (p[l - 1] == '.' || p[l - 1] == '!' ||
+                                  p[l - 1] == '?')) ? "" : ".");
+                        put(msg, out, out_size);
+                        return 1;
+                    }
+                }
+            }
+        }
+
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
         for (size_t i = 0; i < qn; i++) qw[i] = strip_edge_punct(qw[i]);
@@ -3707,6 +3739,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             size_t dn = kb_match(b->kb, "world_superlative", sq, 3, doms, 8);
             for (size_t d = 0; d < dn; d++) {
                 int domain_seen = 0;
+                char dom_phrase[KB_TERM_LEN];
+                snprintf(dom_phrase, sizeof dom_phrase, "%s", doms[d]);
+                for (char *dp = dom_phrase; *dp; dp++) if (*dp == '_') *dp = ' ';
+                if (cue(buf, dom_phrase)) domain_seen = 1;
                 for (size_t j = 0; j < qn; j++) {
                     char sg[KB_TERM_LEN];
                     singularize(qw[j], sg, sizeof sg);
@@ -3874,12 +3910,26 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * compound "capital of X and one famous landmark there" is handled with
          * the country still in context (the isolated "there" sub-turn could not). */
         const char *country = NULL;
+        char country_buf[KB_TERM_LEN] = "";
         for (size_t i = 0; i + 1 < cn; i++)
             if (strcmp(cw[i], "of") == 0 && i > 0 &&
                 /* "capital of X" and "capital city of X" both bind X (gen240). */
                 (strcmp(cw[i - 1], "capital") == 0 ||
                  (strcmp(cw[i - 1], "city") == 0 && i > 1 &&
-                  strcmp(cw[i - 2], "capital") == 0))) { country = cw[i + 1]; break; }
+                  strcmp(cw[i - 2], "capital") == 0))) {
+                size_t end = i + 1;
+                while (end < cn && strcmp(cw[end], "and") != 0 &&
+                       strcmp(cw[end], "landmark") != 0 &&
+                       strcmp(cw[end], "river") != 0 &&
+                       strcmp(cw[end], "ocean") != 0 &&
+                       strcmp(cw[end], "year") != 0 &&
+                       strcmp(cw[end], "when") != 0 &&
+                       strcmp(cw[end], "replace") != 0)
+                    end++;
+                if (join_entity_span(cw, i + 1, end, country_buf, sizeof country_buf))
+                    country = country_buf;
+                break;
+            }
         if (country) {
             const char *pat[] = { NULL, country };
             char hits[4][KB_TERM_LEN] = {{0}};
@@ -3984,6 +4034,33 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * a compound ("closest to the Sun ... largest ...") is answered independently
      * and joined by decompose_and_dispatch. */
     if (cue(buf, "planet") || cue(buf, "solar system")) {
+        {
+            char pcues[32][KB_TERM_LEN];
+            const char *acq[] = { NULL, NULL };
+            size_t npc = kb_match(b->kb, "planet_superlative_cue", acq, 2, pcues, 32);
+            for (size_t ci = 0; ci < npc; ci++) {
+                char rawcue[KB_TERM_LEN]; snprintf(rawcue, sizeof rawcue, "%s", pcues[ci]);
+                char *cu = kb_dequote(rawcue);
+                if (!*cu || !cue(buf, cu)) continue;
+                const char *pkq[] = { pcues[ci], NULL };
+                char keys0[8][KB_TERM_LEN];
+                size_t nk0 = kb_match(b->kb, "planet_superlative_cue", pkq, 2, keys0, 8);
+                for (size_t ki = 0; ki < nk0; ki++) {
+                    const char *pq[] = { keys0[ki], NULL, NULL };
+                    char hit[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "planet_superlative", pq, 3, hit, 1) <= 0) continue;
+                    char planet[KB_TERM_LEN]; snprintf(planet, sizeof planet, "%s", hit[0]);
+                    const char *pq2[] = { keys0[ki], planet, NULL };
+                    char ph[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "planet_superlative", pq2, 3, ph, 1) <= 0) continue;
+                    char *p = kb_dequote(ph[0]);
+                    if (planet[0]) planet[0] = (char)toupper((unsigned char)planet[0]);
+                    char msg[220]; snprintf(msg, sizeof msg, "%s is %s.", planet, p);
+                    put(msg, out, out_size);
+                    return 1;
+                }
+            }
+        }
         static const struct { const char *c1, *c2, *key; } map[] = {
             {"closest", "sun", "closest_to_sun"},
             {"nearest", "sun", "closest_to_sun"},

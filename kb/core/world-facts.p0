@@ -419,6 +419,7 @@ capital_of_country(brasilia, brazil).
 capital_of_country(beijing, china).
 capital_of_country(moscow, russia).
 capital_of_country(new_delhi, india).
+capital_of_country(seoul, south_korea).
 capital_of_country(wellington, new_zealand).
 capital_of_country(cairo, egypt).
 capital_of_country(nairobi, kenya).
@@ -470,12 +471,21 @@ planet_superlative(farthest_from_sun, neptune, "the farthest planet from the Sun
 planet_superlative(red_planet, mars, "the Red Planet").
 planet_superlative(ringed_planet, saturn, "the Ringed Planet").
 planet_superlative(most_moons, saturn, "the planet with the most known moons").
+planet_superlative_cue("ring system", ringed_planet).
+planet_superlative_cue("prominent ring", ringed_planet).
+planet_superlative_cue(rings, ringed_planet).
 
 % gen251: broader world superlatives. world_superlative(Property, Domain,
 % "answer") keeps stable open-world facts as data while the C only maps query
 % tokens onto property/domain slots.
 world_superlative(tallest, mountain, "Mount Everest is the tallest mountain in the world").
 world_superlative(highest, mountain, "Mount Everest is the highest mountain in the world").
+world_superlative(smallest, bone, "the stapes").
+world_superlative(largest, internal_organ, "The liver is the largest internal organ in the human body").
+world_superlative(most_neighboring_countries, country, "China and Russia each border 14 countries, the most in the world").
+world_superlative_cue("shares a border with the most", most_neighboring_countries, country).
+world_superlative_cue("border with the most", most_neighboring_countries, country).
+world_superlative_cue("most other countries", most_neighboring_countries, country).
 
 % --- gen239 (kb-first manifesto): island nations have no land-bordering
 % countries. Explicit negative fact — closed-world absence would have implied
@@ -1381,6 +1391,11 @@ riddle_sig(riddle_map, "have lakes").
 riddle_sig(riddle_map, "have parks").
 riddle_sig(riddle_map, "have volcanoes").
 riddle_sig(riddle_map, "have valleys").
+riddle_sig(riddle_chimney, "go up a chimney").
+riddle_sig(riddle_chimney, "go down a chimney").
+riddle_sig(riddle_fire, "not alive").
+riddle_sig(riddle_fire, "need air").
+riddle_sig(riddle_fire, "water kills me").
 riddle_sig(riddle_map, "have plateaus").
 % gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
 % substring of the turn ("who was the first president of the united states?").
@@ -1559,6 +1574,7 @@ tr_es(are, estás).
 tr_es(you, tú).
 tr_es(you, te).
 tr_es(much, cuánto).
+tr_es(much, mucho).
 tr_es(this, esto).
 tr_es(cost, cuesta).
 tr_es(how_much, cuánto).
@@ -1627,6 +1643,8 @@ taste_of(banana, "sweet, soft, and creamy, with a mellow fruit flavour").
 
 response_template(riddle_head_tail, "A coin has a head and a tail but no body.").
 response_template(sphinx_riddle, "A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age").
+response_template(riddle_chimney, "Rain can go up a chimney down but cannot go down a chimney up.").
+response_template(riddle_fire, "Fire.").
 response_template(joke_chicken, "To get to the other side.").
 response_template(joke_short, "Why did the function return early? It had a break.").
 response_template(joke_bear_teeth, "A gummy bear.").

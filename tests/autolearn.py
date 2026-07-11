@@ -16,10 +16,12 @@ HONESTY ORACLE: a lesson persists into the curated kb/ tree ONLY if the re-probe
 flips the judge's vote to 1. Persistence goes through parrot0's routed save-map
 (PARROT0_KB_ROOT): each new fact lands next to its kin; only unrouted leftovers
 fall back to a dedicated spill file. A lesson that does not take is rolled back
-and recorded in the FAILED-LESSON LEDGER — the queue that names engine/consumer
-gaps (the D.1->U3 pattern: C work is pulled by a documented failed lesson, never
-speculative). The KB is the weights; the lesson is the gradient step; the honest
-gap-naming decline is the loss; MCP is the training interface.
+and recorded in the PROBLEM LEDGER — the queue that names engine/consumer gaps
+and malformed lessons (the D.1->U3 pattern: C work is pulled by a documented
+failed lesson, never speculative). Closed rounds (`already-capable` and `taught`)
+are kept out of the ledger and only added to the skip list. The KB is the weights;
+the lesson is the gradient step; the honest gap-naming decline is the loss; MCP is
+the training interface.
 
 Framework: same provider/auth/idiom as tests/llmscore.py (opencode-GO,
 $OPENCODE_API_KEY, base https://opencode.ai/zen/go/v1). Non-deterministic,
@@ -65,6 +67,8 @@ WHITELIST = {
     "riddle_sig": 2, "response_template": 2,
     "wiki_concept": 3, "color_of": 2, "sound_of": 2,
     "magnitude": 3, "magnitude_cue": 3, "idiom_meaning": 2,
+    "category_member": 2, "world_superlative": 3, "world_superlative_cue": 3,
+    "planet_superlative": 3, "planet_superlative_cue": 2,
     "answer_frame": 2,
     "clitic_obj_fr": 1, "elide_fr": 2,   # gen307: FR object-clitic morphology
     "conj_es": 3, "pro_drop": 1,         # gen311: KB-first verb conjugation + pro-drop
@@ -81,6 +85,7 @@ WHITELIST = {
 # consumable: allow any simple lowercase pred/2 not blacklisted.
 BLACKLIST = {"module", "learnable", "intent_cue", "intent_phrase", "cont", "cont2",
              "i_am", "fact_source", "weight"}
+KNOWN_RIDDLE_CONSTRAINTS = {"cries", "flashes"}
 
 INTERVIEW_SYS = (
     "You are probing the abilities of an unknown chat subject, one short question "
@@ -158,7 +163,9 @@ TEACHER_SYS = (
     "emits(storm, rain), is_like(rain, crying), inanimate(storm) let the engine solve "
     "'no voice yet I cry ... I flash in the dark' -> a storm). The bridging rules "
     "(cries(X):-emits(X,W),is_like(W,crying)) are curated engine infrastructure; you "
-    "only teach the facts. Prefer this to riddle_sig when the clues describe behavior.\n"
+    "only teach the facts. Use this ONLY for constraint predicates whose unary rule "
+    "already exists in the engine (currently cries/flashes). If a clue would require "
+    "a NEW rule such as grows/needs/kills, use riddle_sig + response_template instead.\n"
     "- riddle_sig(riddle_id, cue) + response_template(riddle_id, answer_sentence): "
     "classic riddles. riddle_id like riddle_match; give 2-3 cue substrings, then ONE "
     "response_template with the full answer sentence. A riddle fires only when ALL "
@@ -181,6 +188,19 @@ TEACHER_SYS = (
     "magnitude(dimension, item, rank_number) with magnitude_cue(cueword, dimension, "
     "max|min) for comparisons — cueword MUST be a single word (e.g. fastest), "
     "multi-word cues never match.\n"
+    "- world_superlative(property, domain, answer_sentence): stable open-world "
+    "superlatives such as largest internal organ or smallest bone. Use property and "
+    "domain atoms from the question (largest/internal_organ, smallest/bone) and put "
+    "the human-readable answer in the third arg. This is better than inventing a new "
+    "unary predicate such as largest_internal_organ/1, which the engine cannot consume.\n"
+    "- world_superlative_cue(cue_phrase, property, domain): add this when the question "
+    "uses a multi-word cue that does not literally contain the property atom, e.g. "
+    "shares a border with the most -> most_neighboring_countries/country.\n"
+    "- planet_superlative(property, planet, answer_phrase): solar-system planet facts "
+    "such as ringed_planet/saturn/the Ringed Planet. Prefer this over famous_for/2 "
+    "for planet nicknames or prominent planet features.\n"
+    "- planet_superlative_cue(cue_phrase, property): add this for reusable planet "
+    "feature wording such as ring system -> ringed_planet.\n"
     "- pair_magnitude(dim, a, b, value): a SUPERLATIVE over a PAIR — 'which two X "
     "share the longest/shortest <dim>?'. dim is a single lowercase word that appears "
     "in the question (e.g. border); the engine finds the pair with the max/min value "
@@ -188,7 +208,9 @@ TEACHER_SYS = (
     "is immaterial). E.g. pair_magnitude(border, canada, united_states, 8891) answers "
     "'which two countries share the longest border' with 'Canada and USA'.\n"
     "- any simple binary relation rel(x, y) answering 'what/who is the <rel> of "
-    "<y>' — e.g. capital(canberra, australia), opposite(permanent, ephemeral).\n"
+    "<y>' — use the repo's canonical argument order. Examples: capital(city, country), "
+    "chemical_symbol(symbol, element), opposite(word, opposite_word). If the question "
+    "wording is not the plain relation frame, pair it with answer_frame.\n"
     "- FRENCH object clitics (je t'aime): teach the lexicon tr_fr(word, gloss) "
     "with the object pronoun's clitic form (tr_fr(you, te)); the engine places a "
     "sentence-final clitic before its verb and elides before a vowel. To add a NEW "
@@ -207,8 +229,9 @@ TEACHER_SYS = (
     "RULES: atoms lowercase; multi-word strings allowed as plain text; NO double "
     "quotes inside values; translation keys for tr_es/tr_fr are ONE word each "
     "(skip function words like to/the); tr_es_phrase/tr_fr_phrase are ONLY for "
-    "non-compositional idioms (see the strict word-by-word test above) — a phrase "
-    "that translates word-by-word is a bug, teach its words; no duplicate facts; "
+    "non-compositional idioms (see the strict word-by-word test above) and the source "
+    "phrase MUST contain at least two words — never use a phrase predicate for one "
+    "source word such as bathroom; no duplicate facts; "
     "teach the general class, not a memorized "
     "reply to this exact phrasing; never invent facts you are not confident are true."
 )
@@ -518,14 +541,27 @@ def diagnose_failure(key, model, question, answer, judge_reason):
 
 
 def audit_lesson(question, diag, facts):
-    _ = question
     _ = diag
     if not facts:
         return {"ok": False, "kind": "empty", "reason": "no facts survived sanitization"}
+    ql = question.lower()
+    preds = {f["pred"] for f in facts}
     for f in facts:
         if f["pred"] == "magnitude_cue" and " " in f["args"][0]:
             return {"ok": False, "kind": "engine_gap",
                     "reason": "magnitude_cue needs a single cue word; multi-word cues never match."}
+        if f["pred"] in {"tr_es_phrase", "tr_fr_phrase"} and " " not in f["args"][0].strip():
+            return {"ok": False, "kind": "bad_lesson",
+                    "reason": "phrase translation facts need a multi-word source phrase; use word lexicon for single words."}
+        if f["pred"] == "answer_frame" and f["args"][1] not in preds:
+            return {"ok": False, "kind": "bad_lesson",
+                    "reason": "answer_frame must be taught with at least one relation fact it can consume."}
+        if f["pred"] == "clue_verb" and f["args"][1] not in KNOWN_RIDDLE_CONSTRAINTS:
+            return {"ok": False, "kind": "bad_lesson",
+                    "reason": "riddle inference can only use existing unary constraint rules; teach riddle_sig instead."}
+        if f["pred"] == "idiom_meaning" and "idiom" not in ql and "mean" not in ql:
+            return {"ok": False, "kind": "bad_lesson",
+                    "reason": "idiom_meaning answers meaning questions, not riddles; teach riddle_sig/response_template."}
     return {"ok": True, "kind": "ok", "reason": "lesson is operational enough to try"}
 
 
@@ -605,7 +641,7 @@ def load_skip_list(path):
 
 
 def append_skip_list(path, questions):
-    """Append new already-capable questions to the skip list, deduplicated."""
+    """Append newly closed questions to the skip list, deduplicated."""
     existing = load_skip_list(path)
     new = sorted(q for q in questions if q.strip() and q.strip() not in existing)
     if new:
@@ -634,6 +670,15 @@ def append_ledger(path, stamp, model, result):
     }
     with open(path, "a") as fh:
         fh.write(json.dumps(row, ensure_ascii=True) + "\n")
+
+
+def is_problem_round(result):
+    """True when a round belongs in the recovery ledger.
+
+    The ledger is intentionally not a full audit log: it is the work queue for
+    gaps that still need diagnosis or a stronger teaching path.
+    """
+    return result.get("verdict") not in {"already-capable", "taught"}
 
 
 def multiply_lesson(key, model, seed_facts, n_max):
@@ -881,10 +926,12 @@ def run(args, key):
             fh.write("\n")
     if args.ledger:
         for r in results:
-            append_ledger(args.ledger, stamp, args.model, r)
+            if is_problem_round(r):
+                append_ledger(args.ledger, stamp, args.model, r)
 
     new_skips = [r["q"] for r in results
-                 if r.get("verdict") == "already-capable" and r.get("q", "").strip()]
+                 if r.get("verdict") in {"already-capable", "taught"} and
+                 r.get("q", "").strip()]
     if new_skips:
         append_skip_list(args.skip_list, new_skips)
 

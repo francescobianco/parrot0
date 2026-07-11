@@ -1577,7 +1577,8 @@ static int is_struct_pred(const char *pred) {
         "because", /* gen232: causal-completion reasons, queried not described */
         "grows_with", "increases", /* gen233: qualitative-change substrate */
         "capital_of_country", "kind_is", "borders", "no_land_border",
-        "landmark_of", "planet_superlative", "world_superlative",
+        "landmark_of", "planet_superlative", "planet_superlative_cue",
+        "world_superlative", "world_superlative_cue",
         "distance_between", /* gen240/gen251: queried world commons */
         "scene_cue", "continuation_template",
         "tr_es", "gender_es", "tr_fr", "gender_fr", "very_cold_result",

@@ -1343,3 +1343,409 @@ Le tre decisioni che ora spettano a te
 - before: A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age
 - judge: The answer correctly identifies the riddle's solution as representing the stages of human life: crawling as a baby, walking upright as an adult, and using a cane in old age.
 
+
+## Run 2026-07-11 11:00:19 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 1 · failed 0 · engine-gap 1 · skipped 0 · kept 2 facts (2 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · idiom_gap 1**
+
+### Round 1 — engine-gap
+- Q: What is the capital city of South Korea?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=fact
+- next: Verify that stored facts can be retrieved and output when their corresponding question is asked.
+- lesson: capital(south_korea, seoul)
+- after: I didn't quite catch that. What would you like to know?
+- judge: The answer deflects the question instead of providing the capital city, which is Seoul.
+
+### Round 2 — already-capable
+- Q: What is the largest organ in the human body?
+- before: Skin.
+- judge: The answer is correct and direct—skin is the largest organ in the human body.
+
+### Round 3 — already-capable
+- Q: Translate the common English phrase "How much is this?" into Spanish.
+- before: Cuánto cuesta esto.
+- judge: The translation 'Cuánto cuesta esto' is a correct and natural Spanish equivalent of 'How much is this?' for asking about price.
+
+### Round 4 — taught
+- Q: Translate the common English phrase "What's your name?" into French.
+- before: I can translate most of it, but I don't know the French for "what's".
+- diagnosis: idiom_gap · teachable=true · mode=template
+- next: Add 'Comment vous appelez-vous?' as a whitelisted template with the English trigger pattern 'what is your name'.
+- lesson: tr_fr_phrase(what's your name, comment vous appelez-vous); tr_fr_phrase(what is your name, comment vous appelez-vous)
+- after: Comment vous appelez-vous.
+- judge: The translation is correct - 'Comment vous appelez-vous' is the proper French equivalent of 'What's your name?'.
+
+### Round 5 — already-capable
+- Q: What can travel around the world while staying in a corner?
+- before: A stamp.
+- judge: The answer is correct—a stamp stays in the corner of an envelope while traveling around the world with it.
+
+
+## Run 2026-07-11 11:02:58 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 1 · failed 1 · engine-gap 2 · skipped 0 · kept 3 facts (3 seed + 0 multiplied, deduped)**
+
+**diagnoses: composition_gap 2 · engine_gap 2**
+
+### Round 1 — engine-gap
+- Q: What is the capital city of South Korea?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Test whether the engine can retrieve and answer a fact immediately after storing it.
+- lesson: capital(seoul, south_korea)
+- after: I didn't quite catch that. What would you like to know?
+- judge: The answer deflects instead of providing the correct answer (Seoul) to the straightforward factual question.
+
+### Round 2 — already-capable
+- Q: What does the chemical symbol "Na" represent on the periodic table?
+- before: Sodium.
+- judge: The answer correctly identifies Na as the chemical symbol for Sodium, providing a direct and accurate response.
+
+### Round 3 — taught
+- Q: Translate the common English phrase "How much does this cost?" into Spanish.
+- before: I can translate most of it, but I don't know the Spanish for "does".
+- diagnosis: composition_gap · teachable=true · mode=template
+- next: Teach Spanish pricing question template 'Cuánto cuesta esto?' as the standard pattern.
+- lesson: tr_es_phrase(how much does this cost, cuánto cuesta esto); tr_es(cost, cuesta); tr_es(much, mucho)
+- after: Cuánto cuesta esto.
+- judge: The translation 'Cuánto cuesta esto' accurately and naturally conveys the English phrase in Spanish.
+
+### Round 4 — failed-lesson
+- Q: How do you say "Where is the bathroom?" in French?
+- before: I can translate most of it, but I don't know the French for "where".
+- diagnosis: composition_gap · teachable=true · mode=template
+- next: Teach full phrase template 'Où est la salle de bain?' as a unit, not as separate word translations.
+- lesson: tr_fr(where, où); tr_fr(is, est); tr_fr(bathroom, salle_de_bain); gender_fr(salle_de_bain, f); tr_fr(the, la); tr_fr(salle, salle); tr_fr(de, de); tr_fr(bain, bain)
+- after: Où est la salle_de_bain la.
+- judge: Incorrect French - 'salle_de_bain' should be 'salle de bain' (with spaces), and the extra 'la' at the end is grammatically wrong; correct phrase is 'Où est la salle de bain?'
+
+### Round 5 — engine-gap
+- Q: I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?
+- before: That looks like a snippet of code.
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test if the model can answer the same riddle after explicitly prompting it to use stored facts about fire.
+- lesson: clue_verb(grow, grows); clue_verb(need, needs); clue_verb(kills, kills); needs(fire, air); extinguished_by(fire, water); inanimate(fire); emit_fact(fire, heat); emit_fact(fire, light)
+- after: Looks like a fragment of code.
+- judge: The answer is incorrect; the classic answer to this riddle is 'fire,' not code.
+
+
+## Run 2026-07-11 11:14:46 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 0 · failed 2 · engine-gap 1 · skipped 1 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · missing_fact 2 · morphology_gap 1**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Germany?
+- before: Berlin.
+- judge: The answer correctly identifies Berlin as the capital city of Germany.
+
+### Round 2 — skipped
+- Q: What is the smallest bone in the human body?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact that the stapes is the smallest bone in the human body to the knowledge base.
+- judge: no whitelisted facts (1 dropped)
+
+### Round 3 — engine-gap
+- Q: Translate this common English phrase into Spanish: "What's your name?
+- before: I can translate most of it, but I don't know the Spanish for "what's".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: tr_es(what, qué); tr_es(is, es); tr_es(your, tu); tr_es(name, nombre)
+- after: I can translate most of it, but I don't know the Spanish for "what's".
+- judge: The assistant deflects instead of providing the simple translation '¿Cómo te llamas?'
+
+### Round 4 — failed-lesson
+- Q: How do you say "Where is the bathroom?" in French?
+- before: I can translate most of it, but I don't know the French for "where".
+- diagnosis: morphology_gap · teachable=true · mode=template
+- next: Test gender rules with articles: store feminine noun lesson with 'la' and masculine with 'le', then quiz article-noun matching.
+- lesson: tr_fr(where, où); tr_fr(is, est); tr_fr(bathroom, salle); tr_fr(bathroom, baignoire); tr_fr_phrase(bathroom, salle de bain)
+- after: Où est le salle.
+- judge: The answer has grammatical errors: 'salle' is feminine so it should be 'la' not 'le', and 'salle de bain' is missing 'de bain' to mean bathroom specifically.
+
+### Round 5 — failed-lesson
+- Q: What can go up a chimney down but cannot go down a chimney up?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Test with the correct fact that smoke can go down a chimney but not up, and verify the system can apply it
+- lesson: idiom_meaning(go up a chimney down cannot go down a chimney up, a riddle: the answer is santa claus, who comes down the chimney but cannot go back up it)
+- after: Hmm, I don't know about chimney yet.
+- judge: The answer completely fails to solve the riddle, expressing only that it doesn't know, rather than attempting the correct answer (smoke).
+
+
+## Run 2026-07-11 11:27:19 — model minimax-m2.5, 10 round(s), 2 workers, multiply x0 (probes)
+
+**already 0 · taught 0 · failed 0 · engine-gap 0 · skipped 10 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: missing_fact 5 · unknown 5**
+
+### Round 1 — skipped
+- Q: Which planet in our solar system is famous for its prominent ring system?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no lesson JSON
+
+### Round 2 — skipped
+- Q: Which country in the world shares a border with the most other countries?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no lesson JSON
+
+### Round 3 — skipped
+- Q: What is the largest internal organ in the human body?
+- before: is_a(skin, organ).
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach a small operational lesson and re-probe.
+- judge: no lesson JSON
+
+### Round 4 — skipped
+- Q: How do you say "How much does it cost?" in French?
+- before: Who or what does "it" refer to?
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach a small operational lesson and re-probe.
+- judge: no lesson JSON
+
+### Round 5 — skipped
+- Q: What is the capital city of South Korea?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no lesson JSON
+
+### Round 6 — skipped
+- Q: How do you say "Where is the bathroom?" in French?
+- before: I can translate most of it, but I don't know the French for "where".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach only the missing lexical facts and re-probe.
+- judge: no lesson JSON
+
+### Round 7 — skipped
+- Q: I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?
+- before: That looks like a snippet of code.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach a small operational lesson and re-probe.
+- judge: no lesson JSON
+
+### Round 8 — skipped
+- Q: What is the smallest bone in the human body?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no lesson JSON
+
+### Round 9 — skipped
+- Q: Translate this common English phrase into Spanish: "What's your name?
+- before: I can translate most of it, but I don't know the Spanish for "what's".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach only the missing lexical facts and re-probe.
+- judge: no lesson JSON
+
+### Round 10 — skipped
+- Q: What can go up a chimney down but cannot go down a chimney up?
+- before: I don't understand that yet.
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: no lesson JSON
+
+
+## Run 2026-07-11 11:33:09 — model minimax-m2.5, 10 round(s), 2 workers, multiply x0 (probes)
+
+**already 0 · taught 4 · failed 0 · engine-gap 6 · skipped 0 · kept 6 facts (6 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 7 · idiom_gap 1 · missing_fact 2**
+
+### Round 1 — engine-gap
+- Q: Which planet in our solar system is famous for its prominent ring system?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=fact
+- next: Test whether the model can recall simple factual lessons immediately after storage.
+- lesson: planet_superlative(ringed_planet, saturn, saturn is the ringed planet)
+- after: Hmm, I don't know about planet yet.
+- judge: The answer fails to identify Saturn, which is the planet famous for its prominent ring system.
+
+### Round 2 — engine-gap
+- Q: Which country in the world shares a border with the most other countries?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: world_superlative(most_neighboring_countries, country, china and russia, each bordering 14 countries, the maximum of any country); world_superlative(most_neighboring_countries, country, china and russia each bordering 14 countries the maximum of any country)
+- after: I don't understand that yet.
+- judge: The question is clear and answerable; the response deflects rather than providing the correct answer (China or Russia share borders with the most countries).
+
+### Round 3 — engine-gap
+- Q: What is the largest internal organ in the human body?
+- before: is_a(skin, organ).
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: world_superlative(largest, internal_organ, the liver.)
+- after: is_a(skin, organ).
+- judge: The assistant's response is a logical predicate and does not answer the question about the largest internal organ.
+
+### Round 4 — taught
+- Q: How do you say "How much does it cost?" in French?
+- before: Who or what does "it" refer to?
+- diagnosis: idiom_gap · teachable=true · mode=template
+- next: Add a template recognizing 'How much does it cost?' as a standard idiom with dummy 'it' that translates directly to 'Combien ça coûte?' without requiring referent clarification.
+- lesson: tr_fr_phrase(how much does it cost, combien ça coûte)
+- after: Combien ça coûte.
+- judge: The answer 'Combien ça coûte' is the correct and natural French translation for 'How much does it cost?'
+
+### Round 5 — engine-gap
+- Q: What is the capital city of South Korea?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Test with the same fact lesson followed by a direct retrieval question to confirm storage and output capability.
+- lesson: capital(seoul, south_korea)
+- after: I didn't quite catch that. What would you like to know?
+- judge: The answer deflects instead of providing the correct answer (Seoul).
+
+### Round 6 — engine-gap
+- Q: How do you say "Where is the bathroom?" in French?
+- before: I can translate most of it, but I don't know the French for "where".
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test whether the system can guide user to attempt a translation using a single known word, rather than expecting complete fluency.
+- lesson: tr_fr(where, où)
+- after: I can translate most of it, but I don't know the French for "is".
+- judge: The assistant deflects by claiming ignorance of 'is' when the answer 'Où est la salle de bains?' is straightforward.
+
+### Round 7 — engine-gap
+- Q: I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?
+- before: That looks like a snippet of code.
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test whether the system can apply a riddle response_template when given riddle_sig markers for the same riddle.
+- lesson: riddle_sig(fire_riddle_v2, not alive but i grow); riddle_sig(fire_riddle_v2, don't have lungs but i need air); riddle_sig(fire_riddle_v2, don't have a mouth but water kills me); response_template(fire_riddle_v2, You are fire.)
+- after: Looks like a fragment of code.
+- judge: The answer given is incorrect; the riddle's solution is fire, not a fragment of code.
+
+### Round 8 — taught
+- Q: What is the smallest bone in the human body?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the query parsing and routing logic to ensure factual 'what is' questions reach the KB and produce answers.
+- lesson: world_superlative(smallest, bone, the stapes)
+- after: the stapes.
+- judge: The answer correctly identifies the stapes as the smallest bone in the human body.
+
+### Round 9 — taught
+- Q: Translate this common English phrase into Spanish: "What's your name?
+- before: I can translate most of it, but I don't know the Spanish for "what's".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the standard phrase '¿Cómo te llamas?' as a whitelisted fact for the 'asking for name' intent.
+- lesson: tr_es_phrase(what's your name, cómo te llamas)
+- after: Cómo te llamas.
+- judge: Accurate and natural Spanish translation of the English phrase.
+
+### Round 10 — taught
+- Q: What can go up a chimney down but cannot go down a chimney up?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add whitelisted fact: chimney riddle answer is rain.
+- lesson: riddle_sig(riddle_chimney, go up a chimney); riddle_sig(riddle_chimney, go down a chimney); response_template(riddle_chimney, Rain can go up a chimney down but cannot go down a chimney up.)
+- after: Rain can go up a chimney down but cannot go down a chimney up.
+- judge: Rain is the correct traditional answer - it can descend down a chimney but cannot ascend up through one.
+
+
+## Run 2026-07-11 11:39:02 — model minimax-m2.5, 7 round(s), 2 workers, multiply x0 (probes)
+
+**already 0 · taught 1 · failed 1 · engine-gap 4 · skipped 1 · kept 1 facts (1 seed + 0 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 6**
+
+### Round 1 — engine-gap
+- Q: Which planet in our solar system is famous for its prominent ring system?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: planet_superlative(ringed, saturn, saturn); famous_for(saturn, rings); answer_frame(famous for, famous_for)
+- after: I don't understand that yet.
+- judge: The answer deflects rather than providing the correct response (Saturn) to the straightforward factual question.
+
+### Round 2 — engine-gap
+- Q: Which country in the world shares a border with the most other countries?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test basic fact retrieval with a simple factual question to verify the engine can access and output stored facts.
+- lesson: world_superlative(most_neighboring_countries, country, china and russia, each bordering 14 countries)
+- after: Hmm, I don't know about shares yet.
+- judge: The answer deflects instead of providing the correct answer (China and Russia both share borders with 14 countries, the most in the world).
+
+### Round 3 — engine-gap
+- Q: What is the largest internal organ in the human body?
+- before: is_a(skin, organ).
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: world_superlative(largest, internal_organ, the liver is the largest internal organ in the human body.)
+- after: is_a(skin, organ).
+- judge: Answer is incorrect and does not address the question about the largest internal organ.
+
+### Round 4 — taught
+- Q: How do you say "How much does it cost?" in French?
+- before: Who or what does "it" refer to?
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Teach that 'it' in 'How much does it cost?' is a fixed reference (the item's price) and not genuinely ambiguous, so the standard translation 'Combien ça coûte?' should be given directly.
+- lesson: tr_fr_phrase(how much does it cost, combien ça coûte)
+- after: Combien ça coûte.
+- judge: The answer provides the correct French phrase 'Combien ça coûte?' which directly translates to 'How much does it cost?'
+
+### Round 5 — engine-gap
+- Q: What is the capital city of South Korea?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: capital(seoul, south_korea); capital(seoul, south_korea); answer_frame(capital city of, capital)
+- after: I don't understand that yet.
+- judge: The answer is a deflection and fails to provide the correct answer (Seoul) to the straightforward question.
+
+### Round 6 — failed-lesson
+- Q: How do you say "Where is the bathroom?" in French?
+- before: I can translate most of it, but I don't know the French for "where".
+- diagnosis: composition_gap · teachable=true · mode=fact
+- next: Retry with a smaller or differently shaped lesson and compare the response delta.
+- lesson: tr_fr(where, où); tr_fr(is, est); tr_fr(bathroom, salle de bains); gender_fr(salle de bains, f); tr_fr(the, la)
+- after: Où est la "salle de bains" la.
+- judge: The answer contains errors: 'salle de bains' should not be in quotes and the redundant 'la' at the end is incorrect.
+
+### Round 7 — skipped
+- Q: I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?
+- before: That looks like a snippet of code.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the engine's input classification layer to prevent non-riddle text from triggering unrelated answer templates.
+- judge: The riddle requires unary constraint predicates (needs_air/1, killed_by/2) and their engine rules that don't exist; the failure is an infrastructure gap (the engine classified text as code instead of attempting riddle-solving), not a KB knowledge gap. No teachable KB facts would fix this class of failure.
+
+
+## Run 2026-07-11 11:52:06 — model minimax-m2.5, 2 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 0 · failed 0 · engine-gap 0 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — already-capable
+- Q: What is the longest river in Africa?
+- before: The_nile.
+- judge: The answer correctly identifies the Nile as Africa's longest river.
+
+### Round 2 — already-capable
+- Q: What does the chemical symbol "Ag" represent on the periodic table?
+- before: Silver.
+- judge: The answer correctly identifies Ag as the chemical symbol for Silver.
+
+
+## Run 2026-07-11 11:52:32 — model minimax-m2.5, 2 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 0 · failed 0 · engine-gap 0 · skipped 0 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+### Round 1 — already-capable
+- Q: Which country in the world shares its border with the most other countries?
+- before: China and Russia each border 14 countries, the most in the world.
+- judge: The answer correctly identifies China and Russia as bordering 14 countries each, which is accurate and directly answers the question.
+
+### Round 2 — already-capable
+- Q: What planet in our solar system is known as the "Ringed Planet"?
+- before: Saturn is the Ringed Planet.
+- judge: Correct and concise answer identifying Saturn as the Ringed Planet.
+

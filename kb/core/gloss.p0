@@ -111,6 +111,12 @@ tr_fr_phrase(goodbye, "au revoir").
 tr_fr_phrase("take care", "prends soin de toi").
 tr_fr_phrase("once in a blue moon", "une fois tous les trente-six du mois").
 tr_fr_phrase("how much does it cost", "combien ça coûte").
+tr_fr_phrase("what's your name", "comment vous appelez-vous").
+tr_fr_phrase("what is your name", "comment vous appelez-vous").
+tr_fr(where, où).
+tr_fr(is, est).
+tr_fr(bathroom, "salle de bains").
+gender_fr("salle de bains", f).
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).
 tr_es_phrase("thank you very much", "muchas gracias").
@@ -126,5 +132,7 @@ tr_es_phrase("i dont understand", "no entiendo").
 tr_es_phrase("i need help", "necesito ayuda").
 tr_es_phrase("how much does it cost", "cuánto cuesta").
 tr_es_phrase("what time is it", "qué hora es").
+tr_es_phrase("how much does this cost", "cuánto cuesta esto").
+tr_es_phrase("what's your name", "cómo te llamas").
 gender_fr(chat, m).
 gender_fr(tapis, m).

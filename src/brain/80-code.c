@@ -1176,7 +1176,7 @@ static int mod_symbolic(Brain *b, const char *norm, const char *raw,
         return name_register(b, "That looks like leetspeak.",
                              "Letters as numbers — that's leetspeak.", out, out_size);
 
-    if (looks_code(lc, w, nw))
+    if (!strstr(lc, "what am i") && looks_code(lc, w, nw))
         return name_register(b, "That looks like a snippet of code.",
                              "Looks like a fragment of code.", out, out_size);
 
@@ -1225,4 +1225,3 @@ static int is_it_det(const char *w) {
            strcmp(w, "lo") == 0 || strcmp(w, "un") == 0 ||
            strcmp(w, "una") == 0 || strcmp(w, "uno") == 0;
 }
-

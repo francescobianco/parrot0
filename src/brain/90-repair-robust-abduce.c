@@ -72,6 +72,13 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     if (nw < 2) return 0;
     if (!is_question_opener(w[0])) return 0;     /* only questions/commands */
     if (strstr(norm, "refer to")) return 0;      /* WSC coref judgement (mod_same) */
+    /* Translation requests quote or mention the source expression. A pronoun in
+     * that payload ("how much does it cost") is linguistic material, not a
+     * discourse entity that needs repair, so let mod_translate consume it. */
+    if ((strstr(norm, "translate") || strstr(norm, "how do you say")) &&
+        (strstr(norm, "french") || strstr(norm, "spanish") ||
+         strstr(norm, "italian") || strstr(norm, "english")))
+        return 0;
     if (b->has_last_entity) return 0;            /* a referent is available */
     /* gen250: in contrast questions, canonicalized "it's" becomes the grammatical
      * phrase "it is". That is an object of comparison ("its" vs "it is"), not a

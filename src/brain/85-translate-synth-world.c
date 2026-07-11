@@ -2,7 +2,7 @@ static int fr_lookup(Brain *b, const char *en, char *out, size_t out_sz) {
     const char *q[] = { en, NULL };
     char hit[1][KB_TERM_LEN];
     if (!b || !b->kb || kb_match(b->kb, "tr_fr", q, 2, hit, 1) != 1) return 0;
-    snprintf(out, out_sz, "%s", hit[0]);
+    snprintf(out, out_sz, "%s", kb_dequote(hit[0]));
     return 1;
 }
 
@@ -11,7 +11,12 @@ static int fr_gender_for_en(Brain *b, const char *en, char *gender) {
     if (!fr_lookup(b, en, fr, sizeof fr)) return 0;
     const char *q[] = { fr, NULL };
     char hit[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "gender_fr", q, 2, hit, 1) != 1) return 0;
+    if (kb_match(b->kb, "gender_fr", q, 2, hit, 1) != 1) {
+        char qfr[KB_TERM_LEN + 2];
+        snprintf(qfr, sizeof qfr, "\"%s\"", fr);
+        const char *qq[] = { qfr, NULL };
+        if (kb_match(b->kb, "gender_fr", qq, 2, hit, 1) != 1) return 0;
+    }
     *gender = hit[0][0];
     return 1;
 }
@@ -201,7 +206,8 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
                     if (fr_gender_for_en(b, tok, &gnoun) && i > 0) {
                         char *prev = strip_edge_punct(fw[i - 1]);
                         char adj[KB_TERM_LEN], gdummy;
-                        if (!fr_gender_for_en(b, prev, &gdummy) &&
+                        if (strcmp(prev, "the") != 0 &&
+                            !fr_gender_for_en(b, prev, &gdummy) &&
                             fr_lookup(b, prev, adj, sizeof adj)) {
                             size_t pl = strlen(piece), al = strlen(adj);
                             if (pl + al + 2 < sizeof piece) {

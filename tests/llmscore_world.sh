@@ -34,6 +34,27 @@ expect "base world knows france capital" "1" \
 expect "world superlative tallest mountain" "1" \
     "What's the tallest mountain in the world?" \
     "Mount Everest is the tallest mountain in the world."
+expect "planet ring-system cue is KB teachable" "1" \
+    "Which planet in our solar system is famous for its prominent ring system?" \
+    "Saturn is the Ringed Planet."
+expect "world border-most cue is KB teachable" "1" \
+    "Which country in the world shares a border with the most other countries?" \
+    "China and Russia each border 14 countries, the most in the world."
+expect "multi-word superlative domain internal organ" "1" \
+    "What is the largest internal organ in the human body?" \
+    "The liver is the largest internal organ in the human body."
+expect "translation request bypasses coref repair" "1" \
+    'How do you say "How much does it cost?" in French?' \
+    "Combien ça coûte."
+expect "capital country span handles south korea" "1" \
+    "What is the capital city of South Korea?" \
+    "Seoul."
+expect "french multi-word noun composition" "1" \
+    'How do you say "Where is the bathroom?" in French?' \
+    "Où est la salle de bains."
+expect "riddle not misclassified as code" "1" \
+    "I am not alive, but I grow; I don't have lungs, but I need air; I don't have a mouth, but water kills me. What am I?" \
+    "Fire."
 
 expect "world layer can be suppressed" "0" \
     "what is the capital of france?" \
