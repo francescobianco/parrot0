@@ -147,6 +147,123 @@ static void arith_answer(double v, char *out, size_t out_size) {
     put(msg, out, out_size);
 }
 
+/* gen312 (P2: routing NL->calcolo). The single-op handlers below each compute
+ * ONE operation ("15% of 80" -> 12, "square root of 144" -> 12). A COMPOUND
+ * expression joins several such operands with +,-,*,/ ("15% of 80 plus the
+ * square root of 144" -> 24). KB-first note: composition is not a new fact but
+ * a new WAY OF COMBINING computations parrot0 already knows -- so instead of a
+ * handler per shape we evaluate each operand phrase, then fold the operators.
+ *
+ * eval_operand evaluates one operand span w[s..e) as a small computation:
+ * "P percent of N", "square root of N", "half/third/quarter of N",
+ * "N squared/cubed", or a plain number (exactly one numeral in the span). */
+static int eval_operand(char **w, size_t s, size_t e, double *val) {
+    if (s >= e) return 0;
+    size_t ofp = e;
+    for (size_t i = s; i < e; i++) if (!strcmp(w[i], "of")) { ofp = i; break; }
+
+    /* P percent of N */
+    long pctpos = -1;
+    for (size_t i = s; i < e; i++)
+        if (!strcmp(w[i], "percent") || !strcmp(w[i], "%")) { pctpos = (long)i; break; }
+    if (pctpos >= 0 && ofp < e) {
+        double P = 0, N = 0; int haveP = 0, haveN = 0;
+        for (size_t i = s; i < (size_t)pctpos; i++) if (parse_value(w[i], &P)) haveP = 1;
+        for (size_t i = ofp + 1; i < e; i++) if (parse_value(w[i], &N)) { haveN = 1; break; }
+        if (haveP && haveN) { *val = P / 100.0 * N; return 1; }
+    }
+
+    /* square root of N */
+    for (size_t i = s; i < e; i++)
+        if (!strcmp(w[i], "sqrt") || !strcmp(w[i], "root")) {
+            double N = 0; int haveN = 0;
+            for (size_t j = s; j < e; j++) if (parse_value(w[j], &N)) { haveN = 1; break; }
+            if (haveN && N >= 0) { *val = arith_sqrt(N); return 1; }
+            return 0;
+        }
+
+    /* fraction of N: half/third/quarter */
+    if (ofp < e) {
+        double denom = 0;
+        for (size_t i = s; i < ofp; i++) {
+            if (!strcmp(w[i], "half")) denom = 2;
+            else if (!strcmp(w[i], "third")) denom = 3;
+            else if (!strcmp(w[i], "quarter") || !strcmp(w[i], "fourth")) denom = 4;
+        }
+        if (denom > 0) {
+            double N = 0; int haveN = 0;
+            for (size_t i = ofp + 1; i < e; i++) if (parse_value(w[i], &N)) { haveN = 1; break; }
+            if (haveN) { *val = N / denom; return 1; }
+        }
+    }
+
+    /* N squared / N cubed */
+    for (size_t i = s; i < e; i++)
+        if (!strcmp(w[i], "squared") || !strcmp(w[i], "cubed")) {
+            double N = 0; int haveN = 0;
+            for (size_t j = s; j < e; j++) if (parse_value(w[j], &N)) { haveN = 1; break; }
+            if (haveN) { *val = !strcmp(w[i], "squared") ? N * N : N * N * N; return 1; }
+        }
+
+    /* plain: exactly one numeral in the span (rejects prose spans) */
+    double only = 0; int cnt = 0;
+    for (size_t i = s; i < e; i++) { double v; if (parse_value(w[i], &v)) { only = v; cnt++; } }
+    if (cnt == 1) { *val = only; return 1; }
+    return 0;
+}
+
+/* Split norm into operand spans at top-level +,-,*,/ operators, evaluate each
+ * with eval_operand, then fold (* and / bind before + and -). Returns 0 (fall
+ * through to the single-op handlers) when there is no operator or any span is
+ * not a clean operand. Uses its own wide tokenization because mod_arith's w[8]
+ * would truncate a long expression before the second operand. */
+static int arith_compound(const char *norm, char *out, size_t out_size) {
+    char buf[256];
+    size_t len = strlen(norm);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (buf[len - 1] == '?' || buf[len - 1] == '.') buf[len - 1] = '\0';
+
+    char *w[40];
+    size_t nw = split_words(buf, w, 40);
+
+    size_t opos[16]; char ochar[16]; size_t nop = 0;
+    for (size_t i = 0; i < nw && nop < 16; i++) {
+        char o = 0;
+        if (!strcmp(w[i], "plus")) o = '+';
+        else if (!strcmp(w[i], "minus")) o = '-';
+        else if (!strcmp(w[i], "times") || !strcmp(w[i], "multiplied")) o = '*';
+        else if (!strcmp(w[i], "divided")) o = '/';
+        if (o) { opos[nop] = i; ochar[nop] = o; nop++; }
+    }
+    if (nop == 0 || nop > 15) return 0;
+
+    double vals[17]; size_t nv = 0, start = 0;
+    for (size_t k = 0; k <= nop; k++) {
+        size_t end = (k < nop) ? opos[k] : nw;
+        double v;
+        if (!eval_operand(w, start, end, &v)) return 0;
+        vals[nv++] = v;
+        if (k < nop) {
+            start = opos[k] + 1;
+            if ((ochar[k] == '*' || ochar[k] == '/') && start < nw && !strcmp(w[start], "by"))
+                start++;                    /* "multiplied by" / "divided by" */
+        }
+    }
+
+    double acc[17]; char aop[16]; size_t na = 0, np = 0;
+    acc[na++] = vals[0];
+    for (size_t k = 0; k < nop; k++) {
+        if (ochar[k] == '*') acc[na - 1] *= vals[k + 1];
+        else if (ochar[k] == '/') { if (vals[k + 1] == 0) return 0; acc[na - 1] /= vals[k + 1]; }
+        else { aop[np++] = ochar[k]; acc[na++] = vals[k + 1]; }
+    }
+    double res = acc[0];
+    for (size_t k = 0; k < np; k++) res = (aop[k] == '+') ? res + acc[k + 1] : res - acc[k + 1];
+    arith_answer(res, out, out_size);
+    return 1;
+}
+
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;
@@ -157,6 +274,10 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         cue(norm, "twice in a moment") && cue(norm, "thousand years")) {
         if (kb_response(b, "riddle_letter_m", NULL, out, out_size)) return 1;
     }
+
+    /* gen312: compound arithmetic expression (self-guards: fires only when a
+     * top-level operator joins clean operand phrases, else falls through). */
+    if (arith_compound(norm, out, out_size)) return 1;
 
     char buf[256];
     size_t len = strlen(norm);
