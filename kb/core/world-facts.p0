@@ -536,6 +536,10 @@ magnitude_cue(farthest, distance_from_sun, max).
 magnitude_cue(longest, length, max).
 magnitude_cue(shortest, length, min).
 magnitude(length, the_nile, 1).
+% category link so the superlative consumer's "river" filter matches the_nile
+% ("which river is the longest?" -> The_nile). NB: the "what is the longest
+% river?" phrasing is still intercepted upstream (engine ordering gap).
+category_member(river, the_nile).
 magnitude(size, ant, 1).
 magnitude(size, strawberry, 2).
 magnitude(size, mouse, 2).
@@ -1399,6 +1403,7 @@ process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stre
 tr_es(good, bueno).
 tr_es(bad, malo).
 tr_es(food, comida).
+tr_es(bathroom, baño).
 tr_es(love, amor).
 tr_es(where, dónde).
 tr_es(what, qué).
@@ -1707,6 +1712,10 @@ chemical_symbol(hg, mercury).
 chemical_symbol(pb, lead).
 answer_frame("symbol", chemical_symbol).
 answer_frame("short for", chemical_symbol).
+% the only mammal capable of true flight (bats). rel + answer_frame so the
+% "what is the only mammal capable of true flight?" phrasing is answerable.
+mammal_true_flight(bat, mammal).
+answer_frame("true flight", mammal_true_flight).
 % capital_on_river(Capital, River): which capital a river runs through.
 capital_on_river(cairo, nile).
 capital_on_river(khartoum, nile).

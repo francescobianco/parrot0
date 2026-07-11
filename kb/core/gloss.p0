@@ -88,10 +88,12 @@ tr_fr_phrase("enjoy your meal", "bon appétit").
 tr_fr_phrase(cheers, santé).
 tr_fr_phrase(goodbye, "au revoir").
 tr_fr_phrase("take care", "prends soin de toi").
+tr_fr_phrase("once in a blue moon", "une fois tous les trente-six du mois").
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).
 tr_es_phrase("thank you very much", "muchas gracias").
 tr_es_phrase("nice to meet you", "mucho gusto").
 tr_es_phrase("i love you", "te amo").
+tr_es_phrase("see you later", "hasta luego").
 gender_fr(chat, m).
 gender_fr(tapis, m).
