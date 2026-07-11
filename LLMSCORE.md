@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-10 19:36:41._
+_Generated 2026-07-11 10:48:35._
 
-## Score: 4 / 10
+## Score: 5 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | What is the capital of Australia and which ocean lies to its east? | Canberra. | Answer only provides the capital but omits the ocean information requested. | 0 |
-| 2 | If a train leaves Sydney at 9:00 AM traveling at 80 km/h and another leaves Melbourne at 11:00 AM traveling toward Sydney at 100 km/h, and the distance between the cities is 850 km, which train is closer to Canberra when they meet? | Neither — when they meet they are at the same place, so both are exactly the same distance from the destination. | Correctly identifies the trick that both trains are equidistant when they meet. | 1 |
-| 3 | Continue this sentence in an unexpected way: "The old lighthouse had not shone its light in fifty years, but every night, the keeper still... | Someone knocked once from the other side. | Provides a creative and unexpected continuation fitting the eerie tone. | 1 |
-| 4 | What is 15% of 200? | 30. | Correct arithmetic answer for 15% of 200. | 1 |
-| 5 | Name three countries that border both France and Italy. | I don't understand that yet. | Canned deflection; the answer Monaco and Switzerland is standard knowledge. | 0 |
-| 6 | Solve this riddle: I have cities, but no houses live there. I have mountains, but no trees grow. I have water, but no fish swim. What am I? | Hmm, I don't know about riddle yet. | Canned deflection; the riddle answer is a map, a common LLM capability. | 0 |
-| 7 | Write a short, original haiku about the sea. | I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those? | Illogical deflection since 'the sea' is explicitly listed as an acceptable theme. | 0 |
-| 8 | The ocean, please. | I don't understand that yet. | Contradicts pair 7 by refusing 'the ocean' which was listed as an allowed theme. | 0 |
-| 9 | What color do you get when you mix blue and yellow paint together? | Green. | Correct answer for mixing blue and yellow paint. | 1 |
-| 10 | Write a rhyming couplet about a candle. | I can only do a couplet on a theme I have lines for -- like the ocean, rain, the moon, or AI. Pick one of those? | Contradicts pair 7 by refusing 'candle' which was not listed but the pattern is evasive. | 0 |
+| 1 | Write a short couplet about the moon. | The pale moon climbs and spills its quiet light; it lays a silver road across the night. | It provides a fluent, poetic couplet about the moon. | 1 |
+| 2 | If you have a rectangular garden that is 12 meters long and 8 meters wide, and you want to place square tiles that are 2 meters on each side, how many tiles will you need to cover the entire garden? | 22. | The arithmetic is incorrect; the garden needs 24 tiles, not 22. | 0 |
+| 3 | What is the capital city of Australia? | Canberra. | It correctly names Canberra as the capital of Australia. | 1 |
+| 4 | A train leaves Station A at 9:00 AM traveling at 60 mph. Another train leaves Station B, 300 miles away, at 10:00 AM traveling toward Station A at 80 mph. At what time will the two trains meet? | I don't understand that yet. | It fails to solve the train‑meeting problem and says it doesn’t understand. | 0 |
+| 5 | Complete this sentence: "When the rain began to fall, she reached for her _____. | rings widen where each drop lands. | It offers an unrelated phrase instead of a sensible sentence completion. | 0 |
+| 6 | If all Roses are Flowers, and some Flowers fade quickly, can we conclude that some Roses fade quickly? Yes or no? | No -- that doesn't follow. From "all roses are flowers" and "some flowers ...", nothing follows about roses: the flowers in question need not be roses (the middle term is undistributed). | It accurately explains that the conclusion does not logically follow. | 1 |
+| 7 | What is the largest planet in our solar system? | Jupiter is the largest planet in our solar system. | It correctly identifies Jupiter as the largest planet. | 1 |
+| 8 | I pour water from a jug into a cup, but the cup overflows. Yet nothing was added to either container. How is this possible? | I don't understand that yet. | It does not provide a plausible explanation for the cup overflowing. | 0 |
+| 9 | What would you do if you found a wallet on the street with a large amount of cash inside? | Hmm, I don't know about wallet yet. | It dodges the ethical question about the found wallet. | 0 |
+| 10 | Name three primary colors. | Red, yellow, and blue. | It correctly lists red, yellow, and blue as the primary colors. | 1 |
 

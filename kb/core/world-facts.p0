@@ -1558,6 +1558,13 @@ tr_es(how, cómo).
 tr_es(are, estás).
 tr_es(you, tú).
 tr_es(you, te).
+tr_es(much, cuánto).
+tr_es(this, esto).
+tr_es(cost, cuesta).
+tr_es(how_much, cuánto).
+tr_es(please, "por favor").
+tr_es("thank you", gracias).
+tr_es(car, coche).
 % --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
 borders(andorra, france).
 borders(france, andorra).

@@ -1255,3 +1255,91 @@ Le tre decisioni che ora spettano a te
 - before: A coin has a head and a tail but no body.
 - judge: The answer correctly identifies a coin as the classic riddle solution.
 
+
+## Run 2026-07-11 10:53:13 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 3 · taught 1 · failed 0 · engine-gap 1 · skipped 0 · kept 21 facts (1 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · missing_fact 1**
+
+### Round 1 — already-capable
+- Q: What is the capital city of Egypt?
+- before: Cairo.
+- judge: The answer correctly identifies Cairo as the capital city of Egypt.
+
+### Round 2 — engine-gap
+- Q: Which planet in our solar system is famous for its prominent ring system?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test if the model can retrieve and generate simple facts immediately after they are stored.
+- lesson: famous_for(saturn, ring_system); answer_frame(prominent, famous_for)
+- after: Hmm, I don't know about planet yet.
+- judge: The answer deflects instead of providing the correct answer (Saturn), which is a well-known fact.
+
+### Round 3 — already-capable
+- Q: Translate the common English phrase "I don't understand" into Spanish.
+- before: No entiendo.
+- judge: The translation is accurate and uses the standard Spanish phrasing.
+
+### Round 4 — taught
+- Q: How do you say "Good afternoon" in French?
+- before: I can translate most of it, but I don't know the French for "afternoon".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add 'afternoon' = 'après-midi' (French) as a basic vocabulary entry in the KB.
+- lesson: tr_fr(afternoon, après-midi)
+- multiplied (+20): tr_fr(morning, matin); tr_fr(evening, soir); tr_fr(night, nuit); tr_fr(day, jour); tr_fr(week, semaine); tr_fr(month, mois); tr_fr(year, année); tr_fr(hour, heure); tr_fr(minute, minute); tr_fr(second, seconde); tr_fr(tomorrow, demain); tr_fr(yesterday, hier); tr_fr(monday, lundi); tr_fr(tuesday, mardi); tr_fr(wednesday, mercredi); tr_fr(thursday, jeudi); tr_fr(friday, vendredi); tr_fr(saturday, samedi); tr_fr(sunday, dimanche); tr_fr(bread, pain)
+- after: Bon après-midi.
+- judge: The answer correctly translates 'Good afternoon' to French as 'Bon après-midi.'
+
+### Round 5 — already-capable
+- Q: I have cities, but no houses live there. I have mountains, but no trees grow there. I have water, but no fish swim there. I have roads, but no cars drive there. I have a map. What am I?
+- before: You are a map.
+- judge: The answer correctly identifies the riddle's solution - a map depicts cities, mountains, water, and roads but none of the living things or vehicles associated with them.
+
+
+## Run 2026-07-11 10:57:04 — model minimax-m2.5, 5 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 1 · taught 2 · failed 0 · engine-gap 1 · skipped 1 · kept 27 facts (7 seed + 20 multiplied, deduped)**
+
+**diagnoses: engine_gap 1 · idiom_gap 1 · missing_fact 2**
+
+### Round 1 — engine-gap
+- Q: Which country in the world shares a border with the most other countries?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Test whether the engine can correctly retrieve the entity with the maximum value when given magnitude_cue facts, ensuring it outputs the correct country names rather than unrelated guesses.
+- lesson: borders(china, afghanistan); borders(china, bhutan); borders(china, india); borders(china, kazakhstan); borders(china, north_korea); borders(china, kyrgyzstan); borders(china, laos); borders(china, mongolia); borders(china, myanmar); borders(china, nepal); magnitude(borders, russia, 14); magnitude(borders, china, 14); magnitude(borders, brazil, 10); magnitude(borders, australia, 10); magnitude_cue(most, borders, max); magnitude_cue(most, border, max)
+- after: Canada and USA.
+- judge: The answer is factually wrong - Canada borders only 1 country and USA only 2; China and Russia each border 14 countries, the most in the world.
+
+### Round 2 — skipped
+- Q: What is the largest internal organ in the human body?
+- before: is_a(skin, organ).
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add a whitelisted fact linking the liver to being the largest internal organ, such as largest_internal_organ(liver) or superlative(liver, largest, internal_organ).
+- judge: no whitelisted facts (1 dropped)
+
+### Round 3 — taught
+- Q: Translate the common English phrase "How much is this?" into Spanish.
+- before: I can translate most of it, but I don't know the Spanish for "much".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach the direct translation: 'much' → 'cuánto' in price context, plus the full phrase template '¿Cuánto cuesta [item]?
+- lesson: tr_es(much, cuánto); tr_es(this, esto); tr_es(cost, cuesta); tr_es(how_much, cuánto); tr_es_phrase(how much is this, cuánto cuesta esto)
+- multiplied (+20): tr_es(hello, hola); tr_es(goodbye, adiós); tr_es(please, por favor); tr_es(thank you, gracias); tr_es(yes, sí); tr_es(no, no); tr_es(water, agua); tr_es(food, comida); tr_es(house, casa); tr_es(car, coche); tr_es_phrase(good morning, buenos días); tr_es_phrase(good night, buenas noches); tr_es_phrase(how are you, cómo estás); tr_es_phrase(what is your name, cómo te llamas); tr_es_phrase(where is the bathroom, dónde está el baño); tr_es_phrase(i dont understand, no entiendo); tr_es_phrase(i need help, necesito ayuda); tr_es_phrase(how much does it cost, cuánto cuesta); tr_es_phrase(what time is it, qué hora es); tr_es_phrase(thank you very much, muchas gracias)
+- after: Cuánto cuesta esto.
+- judge: The translation is correct and natural Spanish, properly accented and grammatically accurate.
+
+### Round 4 — taught
+- Q: How do you say "How much does it cost?" in French?
+- before: Who or what does "it" refer to?
+- diagnosis: idiom_gap · teachable=true · mode=template
+- next: Add idiomatic phrase patterns where dummy pronouns like 'it' require no resolution to the template whitelist for direct translation.
+- lesson: tr_fr_phrase(how much does it cost, combien ça coûte); dummy_pronoun_en(it, how much does it cost)
+- after: Combien ça coûte.
+- judge: The answer correctly provides the standard French phrase 'Combien ça coûte' which directly translates to 'How much does it cost?'
+
+### Round 5 — already-capable
+- Q: What walks on four legs in the morning, two legs in the afternoon, and three legs at night?
+- before: A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age
+- judge: The answer correctly identifies the riddle's solution as representing the stages of human life: crawling as a baby, walking upright as an adult, and using a cane in old age.
+

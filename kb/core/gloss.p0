@@ -64,6 +64,26 @@ tr_fr(sun, soleil).
 tr_fr(shining, brille).
 tr_fr(good, bon).
 tr_fr(morning, matin).
+tr_fr(afternoon, après-midi).
+tr_fr(evening, soir).
+tr_fr(night, nuit).
+tr_fr(day, jour).
+tr_fr(week, semaine).
+tr_fr(month, mois).
+tr_fr(year, année).
+tr_fr(hour, heure).
+tr_fr(minute, minute).
+tr_fr(second, seconde).
+tr_fr(tomorrow, demain).
+tr_fr(yesterday, hier).
+tr_fr(monday, lundi).
+tr_fr(tuesday, mardi).
+tr_fr(wednesday, mercredi).
+tr_fr(thursday, jeudi).
+tr_fr(friday, vendredi).
+tr_fr(saturday, samedi).
+tr_fr(sunday, dimanche).
+tr_fr(bread, pain).
 % gen310: fixed multi-word phrases as TRANSLATION UNITS — the idiomatic (non-
 % compositional) leaf of the translation plan. mod_translate longest-matches these
 % before word-by-word, so "how do you say X in <lang>?" works for whole phrases.
@@ -90,11 +110,21 @@ tr_fr_phrase(cheers, santé).
 tr_fr_phrase(goodbye, "au revoir").
 tr_fr_phrase("take care", "prends soin de toi").
 tr_fr_phrase("once in a blue moon", "une fois tous les trente-six du mois").
+tr_fr_phrase("how much does it cost", "combien ça coûte").
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).
 tr_es_phrase("thank you very much", "muchas gracias").
 tr_es_phrase("nice to meet you", "mucho gusto").
 tr_es_phrase("i love you", "te amo").
 tr_es_phrase("see you later", "hasta luego").
+tr_es_phrase("how much is this", "cuánto cuesta esto").
+tr_es_phrase("good night", "buenas noches").
+tr_es_phrase("how are you", "cómo estás").
+tr_es_phrase("what is your name", "cómo te llamas").
+tr_es_phrase("where is the bathroom", "dónde está el baño").
+tr_es_phrase("i dont understand", "no entiendo").
+tr_es_phrase("i need help", "necesito ayuda").
+tr_es_phrase("how much does it cost", "cuánto cuesta").
+tr_es_phrase("what time is it", "qué hora es").
 gender_fr(chat, m).
 gender_fr(tapis, m).
