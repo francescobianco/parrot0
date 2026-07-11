@@ -57,6 +57,10 @@ tr_fr(rug, tapis).
 tr_fr(i, je).
 tr_fr(french, français).
 tr_fr(love, aime).
+tr_fr(love, amour).
+tr_fr(music, musique).
+tr_fr(food, nourriture).
+tr_fr(school, école).
 tr_fr(you, te).
 % gen308: distributed from kb/learning/autolearn.p0 (autolearn's verified lexicon
 % becomes official knowledge; the scratch file is deleted).
@@ -113,9 +117,25 @@ tr_fr_phrase("once in a blue moon", "une fois tous les trente-six du mois").
 tr_fr_phrase("how much does it cost", "combien ça coûte").
 tr_fr_phrase("what's your name", "comment vous appelez-vous").
 tr_fr_phrase("what is your name", "comment vous appelez-vous").
+tr_fr_phrase("what time is it", "quelle heure est-il").
 tr_fr(where, où).
 tr_fr(is, est).
 tr_fr(bathroom, "salle de bains").
+tr_fr(what, quelle).
+tr_fr(dog, chien).
+tr_fr(house, maison).
+tr_fr(water, eau).
+tr_fr(milk, lait).
+tr_fr(apple, pomme).
+tr_fr(book, livre).
+tr_fr(car, voiture).
+tr_fr(moon, lune).
+tr_fr(tree, arbre).
+tr_fr(flower, fleur).
+tr_fr(friend, ami).
+tr_fr(city, ville).
+tr_fr(country, pays).
+tr_fr(time, heure).
 gender_fr("salle de bains", f).
 tr_es_phrase("good morning", "buenos días").
 tr_es_phrase("thank you", gracias).
@@ -134,5 +154,16 @@ tr_es_phrase("how much does it cost", "cuánto cuesta").
 tr_es_phrase("what time is it", "qué hora es").
 tr_es_phrase("how much does this cost", "cuánto cuesta esto").
 tr_es_phrase("what's your name", "cómo te llamas").
+tr_es_phrase("how old are you", "cuántos años tienes").
+tr_es_phrase("you're welcome", "de nada").
+tr_es_phrase("good afternoon", "buenas tardes").
+tr_es_phrase("good evening", "buenas noches").
+tr_es_phrase(goodbye, adiós).
+tr_es_phrase(please, "por favor").
+tr_es_phrase("excuse me", disculpe).
+tr_es_phrase(sorry, "lo siento").
+tr_es_phrase("i love you", "te quiero").
+tr_es_phrase("i don't understand", "no entiendo").
+tr_es_phrase("can you help me", "puedes ayudarme").
 gender_fr(chat, m).
 gender_fr(tapis, m).

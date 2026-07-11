@@ -121,6 +121,10 @@ opposite(yes, no).
 opposite(no, yes).
 opposite(young, old).
 opposite(old, young).
+opposite(old, new).
+opposite(inside, outside).
+opposite(front, back).
+opposite(male, female).
 opposite(full, empty).
 opposite(empty, full).
 opposite(wet, dry).
@@ -239,6 +243,8 @@ opposite(diligent, lazy).
 opposite(verbose, concise).
 opposite(verbose, succinct).
 opposite(verbose, brief).
+opposite(artificial, natural).
+opposite(large, small).
 
 % --- gen254: defining-phrase vocabulary — word_for(KeyPhrase, Word). The phrase
 % is matched as a substring of the turn (like idiom_meaning), so "what word
@@ -483,7 +489,11 @@ world_superlative(highest, mountain, "Mount Everest is the highest mountain in t
 world_superlative(smallest, bone, "the stapes").
 world_superlative(largest, internal_organ, "The liver is the largest internal organ in the human body").
 world_superlative(most_neighboring_countries, country, "China and Russia each border 14 countries, the most in the world").
+world_superlative(longest_coastline, country, canada).
+world_superlative(coastline, country, "canada has the longest coastline in the world").
+world_superlative(fastest, land_animal, "the cheetah").
 world_superlative_cue("shares a border with the most", most_neighboring_countries, country).
+world_superlative_cue("longest coastline", coastline, country).
 world_superlative_cue("border with the most", most_neighboring_countries, country).
 world_superlative_cue("most other countries", most_neighboring_countries, country).
 

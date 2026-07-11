@@ -1749,3 +1749,168 @@ Le tre decisioni che ora spettano a te
 - before: Saturn is the Ringed Planet.
 - judge: Correct and concise answer identifying Saturn as the Ringed Planet.
 
+
+## Run 2026-07-11 12:01:54 — model minimax-m2.5, 10 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 2 · taught 4 · failed 0 · engine-gap 3 · skipped 1 · kept 68 facts (8 seed + 60 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 3 · idiom_gap 2 · missing_fact 2**
+
+### Round 1 — taught
+- Q: Which country has the longest coastline in the world?
+- before: I don't understand that yet.
+- diagnosis: composition_gap · teachable=true · mode=template
+- next: Train the model to respond to superlative questions by composing 'Country has the [superlative attribute]' when the relevant fact is stored.
+- lesson: world_superlative(longest_coastline, country, canada); world_superlative(coastline, country, canada has the longest coastline in the world); world_superlative_cue(longest coastline, coastline, country)
+- after: canada has the longest coastline in the world.
+- judge: The answer correctly identifies Canada as having the world's longest coastline.
+
+### Round 2 — already-capable
+- Q: What is the chemical symbol for oxygen on the periodic table?
+- before: O.
+- judge: The answer correctly identifies 'O' as the chemical symbol for oxygen.
+
+### Round 3 — taught
+- Q: Translate this common English phrase into Spanish: "How old are you?
+- before: I can translate most of it, but I don't know the Spanish for "old".
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach only the missing lexical facts and re-probe.
+- lesson: tr_es_phrase(how old are you, cuántos años tienes)
+- multiplied (+20): tr_es_phrase(what is your name, cómo te llamas); tr_es_phrase(nice to meet you, mucho gusto); tr_es_phrase(thank you, gracias); tr_es_phrase(you're welcome, de nada); tr_es_phrase(good morning, buenos días); tr_es_phrase(good afternoon, buenas tardes); tr_es_phrase(good evening, buenas noches); tr_es_phrase(goodbye, adiós); tr_es_phrase(see you later, hasta luego); tr_es_phrase(please, por favor); tr_es_phrase(excuse me, disculpe); tr_es_phrase(sorry, lo siento); tr_es_phrase(how are you, cómo estás); tr_es_phrase(i love you, te quiero); tr_es_phrase(i don't understand, no entiendo); tr_es_phrase(where is the bathroom, dónde está el baño); tr_es_phrase(how much does it cost, cuánto cuesta); tr_es_phrase(what time is it, qué hora es); tr_es_phrase(can you help me, puedes ayudarme); tr_es_phrase(i need help, necesito ayuda)
+- after: Cuántos años tienes.
+- judge: The translation is accurate and uses the correct informal Spanish form.
+
+### Round 4 — taught
+- Q: How do you say "What time is it?" in French?
+- before: I can translate most of it, but I don't know the French for "what".
+- diagnosis: idiom_gap · teachable=true · mode=template
+- next: Teach the complete template 'Quelle heure est-il?' as a fixed unit rather than composable from individual word translations.
+- lesson: tr_fr(what, quelle); tr_fr(time, heure); tr_fr_phrase(what time is it, quelle heure est-il)
+- multiplied (+20): tr_fr(cat, chat); tr_fr(dog, chien); tr_fr(house, maison); tr_fr(water, eau); tr_fr(bread, pain); tr_fr(milk, lait); tr_fr(apple, pomme); tr_fr(book, livre); tr_fr(car, voiture); tr_fr(sun, soleil); tr_fr(moon, lune); tr_fr(tree, arbre); tr_fr(flower, fleur); tr_fr(friend, ami); tr_fr(city, ville); tr_fr(country, pays); tr_fr(love, amour); tr_fr(music, musique); tr_fr(food, nourriture); tr_fr(school, école)
+- after: Quelle heure est-il.
+- judge: The answer correctly translates 'What time is it?' to French as 'Quelle heure est-il.'
+
+### Round 5 — skipped
+- Q: What is black and white and red all over?
+- before: light_mix(red, blue, magenta); light_mix(blue, red, magenta); light_mix(red, green, yellow); light_mix(green, red, yellow).
+- diagnosis: idiom_gap · teachable=true · mode=fact
+- next: Teach the specific riddle-answer pair as a fact entry in the KB.
+- judge: no whitelisted facts (3 dropped)
+
+### Round 6 — taught
+- Q: What is the opposite of the word "artificial"?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the natural/artificial antonym relation to the knowledge base.
+- lesson: opposite(artificial, natural)
+- multiplied (+20): opposite(hot, cold); opposite(day, night); opposite(light, dark); opposite(large, small); opposite(old, new); opposite(rich, poor); opposite(happy, sad); opposite(full, empty); opposite(strong, weak); opposite(fast, slow); opposite(soft, hard); opposite(dry, wet); opposite(loud, quiet); opposite(clean, dirty); opposite(open, closed); opposite(inside, outside); opposite(front, back); opposite(up, down); opposite(male, female); opposite(love, hate)
+- after: Natural.
+- judge: The answer 'Natural' is correct, as it is the standard antonym for 'artificial'.
+
+### Round 7 — already-capable
+- Q: What does it mean when someone says they need to "bite the bullet"?
+- before: "bite the bullet" means to face something difficult or unpleasant with courage.
+- judge: The answer correctly defines the idiom 'bite the bullet' as facing something difficult or unpleasant with courage.
+
+### Round 8 — engine-gap
+- Q: What is the only bird that can fly backwards?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test engine retrieval with simpler fact recall after teaching.
+- lesson: tr_es(hummingbird, colibrí); tr_fr(hummingbird, colibri); bird_trait(hummingbird, flies_backwards); answer_frame(can fly backwards, bird_trait); unique_trait(hummingbird, flies_backwards)
+- after: Hmm, I don't know about backwards yet.
+- judge: The answer fails to provide the correct response; hummingbirds are the only birds that can fly backwards.
+
+### Round 9 — engine-gap
+- Q: Which is larger, Saturn or Jupiter?
+- before: I recognize a comparison on size, but I don't have magnitudes for Saturn and Jupiter.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the inference engine or truth-tracking mechanism that inverted a simple ordinal ranking; the facts were present and correct, so no lesson is needed.
+- lesson: planet_superlative(largest, jupiter, jupiter is the largest planet); planet_superlative(largest, saturn, saturn is the second largest planet); magnitude(size, jupiter, 1); magnitude(size, saturn, 2); magnitude_cue(larger, size, max); magnitude_cue(largest, size, max)
+- after: Saturn.
+- judge: The answer is factually incorrect; Jupiter is larger than Saturn.
+
+### Round 10 — engine-gap
+- Q: What does the word "ephemeral" mean?
+- before: I don't have a module by that name. Ask 'what can you do?' for a list.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: wiki_concept(ephemeral, vocabulary, lasting for a very short time; transient)
+- after: I don't have a module by that name. Ask 'what can you do?' for a list.
+- judge: The answer is off-topic and fails to define the word 'ephemeral'.
+
+
+## Run 2026-07-11 12:04:24 — model minimax-m2.5, 10 round(s), 5 workers, multiply x20 (autonomous)
+
+**already 5 · taught 1 · failed 0 · engine-gap 3 · skipped 1 · kept 1 facts (1 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 3 · missing_fact 2**
+
+### Round 1 — skipped
+- Q: What is the longest river in South America?
+- before: The_nile.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact: longest_river(south_america, amazon)
+- judge: no whitelisted facts (1 dropped)
+
+### Round 2 — already-capable
+- Q: What does the chemical symbol "Pb" represent on the periodic table?
+- before: Lead.
+- judge: Correct, concise answer identifying Pb as the symbol for Lead.
+
+### Round 3 — already-capable
+- Q: How do you say "See you later" in Spanish?
+- before: Hasta luego.
+- judge: The answer provides the correct and most common Spanish translation for 'See you later'.
+
+### Round 4 — already-capable
+- Q: How do you say "See you later" in French?
+- before: à plus tard.
+- judge: Correct and idiomatic French translation of 'See you later'.
+
+### Round 5 — engine-gap
+- Q: Take off my skin and I won't cry, but you might. What am I?
+- before: I don't understand that yet.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the core engine's ability to recognize riddle patterns and map them to stored response templates before further lesson-based training.
+- lesson: response_template(onion_skin_riddle, You are an onion.)
+- after: I didn't quite catch that. What would you like to know?
+- judge: The answer deflects rather than solving the riddle about an onion.
+
+### Round 6 — already-capable
+- Q: What is the opposite of the word "verbose"?
+- before: Concise.
+- judge: The answer 'Concise' is correct - it is the standard antonym for verbose, meaning using few words to express an idea.
+
+### Round 7 — already-capable
+- Q: What does it mean when someone says they "hit the nail on the head"?
+- before: "hit the nail on the head" means to describe exactly what is causing a situation or problem.
+- judge: The answer correctly explains the idiom as meaning to describe or identify something exactly right.
+
+### Round 8 — taught
+- Q: What is the fastest land animal in the world?
+- before: I don't understand that yet.
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Add the fact 'cheetah is the fastest land animal' to the knowledge base.
+- lesson: world_superlative(fastest, land_animal, the cheetah)
+- after: the cheetah.
+- judge: The cheetah is indeed the fastest land animal, correct and on-topic.
+
+### Round 9 — engine-gap
+- Q: Which is heavier: a grown African elephant or a fully grown hippopotamus?
+- before: I recognize a comparison on weight, but I don't have magnitudes for Grown african elephant and Fully grown hippopotamus.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: magnitude(weight, african_elephant, 6000); magnitude(weight, hippopotamus, 1500); magnitude_cue(heavier, weight, max)
+- after: I recognize a comparison on weight, but I don't have magnitudes for Grown african elephant and Fully grown hippopotamus.
+- judge: The answer deflects by claiming lack of knowledge when this is basic factual information an elephant is significantly heavier than a hippo.
+
+### Round 10 — engine-gap
+- Q: What does the word "pragmatic" mean?
+- before: I don't have a module by that name. Ask 'what can you do?' for a list.
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: wiki_concept(pragmatic, adjective, dealing with things sensibly and realistically; practical rather than theoretical)
+- after: I don't have a module by that name. Ask 'what can you do?' for a list.
+- judge: The answer deflects with an irrelevant response about modules instead of providing the definition of 'pragmatic.'
+
