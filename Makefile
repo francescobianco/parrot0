@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test gate piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -221,6 +221,11 @@ rulescore: build
 # $OPENCODE_API_KEY + network; NOT part of `make test`.
 longtalk-bench: build
 	@$(BENCH_PY) ./tests/longtalk_bench.py $(LONGTALK_ARGS)
+
+# gen316 (forge W0): run every benchmark the manifest (tests/benchmarks.json)
+# declares as a 'gate' ratchet; red gate = baseline-broken, nothing promotes.
+gate: build
+	@$(BENCH_PY) ./tests/gate.py
 
 test: build
 	@./tests/run.sh
