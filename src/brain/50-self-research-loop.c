@@ -700,16 +700,46 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen325: a faculty id from the ledger (multi_file_editing) as English
+ * (multi file editing). The C knows the SHAPE of an identifier, never the list
+ * of faculties — those are facts. */
+static void self_readable(char *dst, size_t dsz, const char *id) {
+    size_t i = 0;
+    for (; id[i] && i + 1 < dsz; i++)
+        dst[i] = (id[i] == '_') ? ' ' : id[i];
+    dst[i] = '\0';
+}
+
+/* gen325: the wall that blocks a faculty's next level, read from the KB. The
+ * .p0 stores it quoted; strip the quotes as kb_cue_match does. */
+static int self_capability_wall(Brain *b, const char *id, char *dst, size_t dsz) {
+    if (!b || !b->kb) return 0;
+    char walls[1][KB_TERM_LEN];
+    const char *q[2] = { id, NULL };
+    if (kb_match(b->kb, "capability_wall", q, 2, walls, 1) == 0) return 0;
+    char *p = walls[0];
+    size_t l = strlen(p);
+    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+    if (!*p) return 0;
+    snprintf(dst, dsz, "%s", p);
+    return 1;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
  * and one `module(<name>)` per registered part (asserted at birth — see
  * brain_create). This module answers introspective questions by *querying that
  * model*, so the answers are derived from real state, never hard-coded.
+ *
+ * gen325 (forge §18): it also knows where it ENDS — capability/2 and
+ * capability_wall/2, projected from the ledger that the gates verify.
  */
 static int mod_self(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
-    (void)raw;
+    /* gen325: `raw` is now READ (the self_limits branch below): normalization
+     * erases the negation that distinguishes "what can you do" from "what can
+     * you NOT do", so the negative reading must see the user's own words. */
     if (!b || !b->kb) return 0;
 
     char buf[256];
@@ -732,6 +762,84 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
      * capability query — a leading conditional means it isn't asking about me. */
     if (capability && (kb_cue_match(b, "50_self_research_loop_chain458", buf)))
         capability = 0;
+
+    /* gen325 (TODO.md P6, forge plan §18): WHERE I END.
+     *
+     * Asked what it could not do, parrot0 answered "I am parrot0." — the identity
+     * module took the turn — and in Italian ("cosa non sai fare?") it listed what
+     * it CAN do, which is worse than a wall: the question was inverted and the
+     * answer was still a brochure.
+     *
+     * It had no notion of its own envelope, because the self-model derived only
+     * from module(name): a module either exists or it does not, and that says
+     * nothing about how FAR it reaches. The capability ledger already knew —
+     * maturity plus the wall that blocks the next level, verified by
+     * `make capability-report` against real gate results. gen325 projects it into
+     * knowledge (kb/core/capabilities.p0, generated) and answers from THOSE facts.
+     *
+     * So this is derived, never written: no faculty name appears in this C. If a
+     * capability regresses, the report downgrades it and parrot0's answer shrinks
+     * with it. A self-description that cannot shrink is a brochure.
+     *
+     * Tested BEFORE capability/identity: "what are you unable to do" contains the
+     * cues of both, and the negative reading is the specific one.
+     *
+     * Matched on the RAW turn, not on `norm`: normalization ERASES the negation
+     * (it canonicalizes "cosa non sai fare" and "cosa sai fare" to the same
+     * thing, which is exactly why the Italian question got the capability list
+     * and the apostrophe in "can't" was lost). The negation IS the signal here,
+     * so this reads the words the user actually typed. */
+    char rawlow[256];
+    { size_t i = 0;
+      for (; raw && raw[i] && i + 1 < sizeof rawlow; i++)
+          rawlow[i] = (char)tolower((unsigned char)raw[i]);
+      rawlow[i] = '\0';
+      while (i > 0 && (rawlow[i-1] == '?' || rawlow[i-1] == ' ')) rawlow[--i] = '\0'; }
+
+    if (kb_cue_match(b, "self_limits", rawlow)) {
+        char absent[12][KB_TERM_LEN], seed[12][KB_TERM_LEN];
+        const char *qa[2] = { NULL, "absent" };
+        const char *qs[2] = { NULL, "seed" };
+        size_t na = kb_match(b->kb, "capability", qa, 2, absent, 12);
+        size_t ns = kb_match(b->kb, "capability", qs, 2, seed, 12);
+        if (na == 0 && ns == 0) return 0;   /* no ledger loaded -> claim nothing */
+
+        char body[900];
+        size_t off = (size_t)snprintf(body, sizeof body,
+            "From my capability ledger, which is generated from real test results "
+            "and not a description I wrote about myself: ");
+
+        if (na > 0 && off < sizeof body) {
+            off += (size_t)snprintf(body + off, sizeof body - off, "I cannot do ");
+            for (size_t i = 0; i < na && off < sizeof body; i++) {
+                char nm[KB_TERM_LEN]; self_readable(nm, sizeof nm, absent[i]);
+                char wall[KB_TERM_LEN];
+                int haswall = self_capability_wall(b, absent[i], wall, sizeof wall);
+                off += (size_t)snprintf(body + off, sizeof body - off,
+                    "%s%s%s%s%s", (i == 0) ? "" : (i + 1 == na) ? " or " : ", ",
+                    nm, haswall ? " (it would need " : "",
+                    haswall ? wall : "", haswall ? ")" : "");
+            }
+            if (off < sizeof body)
+                off += (size_t)snprintf(body + off, sizeof body - off, ". ");
+        }
+        if (ns > 0 && off < sizeof body) {
+            off += (size_t)snprintf(body + off, sizeof body - off,
+                "These I can only do as a seed — one demonstrated case, not "
+                "reliably: ");
+            for (size_t i = 0; i < ns && off < sizeof body; i++) {
+                char nm[KB_TERM_LEN]; self_readable(nm, sizeof nm, seed[i]);
+                off += (size_t)snprintf(body + off, sizeof body - off, "%s%s",
+                    (i == 0) ? "" : (i + 1 == ns) ? " and " : ", ", nm);
+            }
+            if (off < sizeof body)
+                snprintf(body + off, sizeof body - off, ".");
+        }
+        put(body, out, out_size);
+        store_proof(b, "Derived from capability/2 and capability_wall/2 in the KB "
+                       "(kb/core/capabilities.p0, generated from gate results).");
+        return 1;
+    }
 
     /* capability is the more specific intent ("what are you ABLE TO DO" also
      * contains the identity cue "what are you"), so test it first. Describe what

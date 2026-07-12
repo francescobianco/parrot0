@@ -496,6 +496,12 @@ static int is_internal_pred(const char *pred) {
         "reaction_word", "i_am", "module", "cont", "cont2",
         /* gen215: linguistic-glue self-model (kb/core/glue.p0, reified) — machinery. */
         "glue_role", "glue_faculty",
+        /* gen325: the capability ledger — the agent's model of ITSELF (how far
+         * each faculty reaches, and the wall past it), exactly like module/1.
+         * NOT knowledge about the world: a hermetic brain taught nothing must
+         * still say "I know 0 fact(s)", or the self-model masquerades as world
+         * knowledge — the pollution gen275 named for dispatch vocabulary. */
+        "capability", "capability_wall",
         "cmd", "flag",
         /* gen193: the conjunction/1 lexical class (kb/core/lexicon.p0, plus any
          * taught at runtime) is closed-class function-word substrate the parsers

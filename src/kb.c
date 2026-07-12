@@ -1543,7 +1543,14 @@ static int is_model_pred(const char *pred) {
            strcmp(pred, "intent_cue") == 0 || strcmp(pred, "goal_cue") == 0 ||
            strcmp(pred, "response_template") == 0 ||
            strcmp(pred, "plan_param") == 0 || strcmp(pred, "lookup_call") == 0 ||
-           strcmp(pred, "codebase_lookup") == 0 || strcmp(pred, "learnable") == 0;
+           strcmp(pred, "codebase_lookup") == 0 || strcmp(pred, "learnable") == 0 ||
+           /* gen325: the capability LEDGER (kb/core/capabilities.p0) is the
+            * agent's model of ITSELF — how far each faculty reaches and what
+            * blocks the next level — exactly like module/2. It is not knowledge
+            * about the world, so a hermetic brain that has been taught nothing
+            * must still answer "I know 0 facts": otherwise the self-model
+            * masquerades as world knowledge, the pollution gen275 named. */
+           strcmp(pred, "capability") == 0 || strcmp(pred, "capability_wall") == 0;
 }
 
 /* gen151: structural metadata predicates — registry/relation plumbing from the

@@ -1,4 +1,55 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen325: parrot0 knows where it ENDS (TODO.md P6, forge §18)
+
+**The defect, and it was worse in Italian.**
+
+```
+you> what are you unable to do?
+parrot0> I am parrot0.                                   (identity took the turn)
+
+you> cosa non sai fare?
+parrot0> I can answer questions about facts and rules, ...    (the CAPABILITY list)
+```
+
+The question was inverted and the answer was still a brochure. parrot0 had no
+notion of its own envelope, because the self-model derived only from
+`module(name)` — a module either exists or it does not, which says nothing about
+how FAR it reaches.
+
+**The ledger already knew.** `tests/benchmarks.json` declares each faculty's
+maturity (ABSENT/SEED/TRANSFER/FIELD/HARDENED) and the WALL blocking the next
+level, and `make capability-report` verifies those claims against real gate
+results. Nothing loaded it. Forge plan §18 asks for exactly this, so
+`tests/capability_facts.py` projects it into knowledge:
+
+    capability(multi_file_editing, absent).
+    capability_wall(multi_file_editing, "patch transaction + rollback").
+
+and `mod_self` answers from THOSE facts. **No faculty name appears in the C.**
+
+**Two things the implementation had to get right, and neither was the obvious one.**
+
+*Normalization erases the negation.* "cosa non sai fare" and "cosa sai fare"
+canonicalize to the same `norm` — which is precisely why the Italian question got
+the positive list, and why the apostrophe in "can't" was lost. The negation IS
+the signal here, so the branch reads the RAW turn. The positive questions are
+ratcheted as the polarity pair: they must NOT be stolen.
+
+*The self-model is not world knowledge.* Loaded as KB_BASE, the ledger made a
+hermetic brain report "I know 24 fact(s)" when it had been taught nothing —
+`introspect.chat` caught it. So `capability`/`capability_wall` join `module` and
+`i_am` in the internal-predicate filters: the pollution gen275 named for dispatch
+vocabulary, now for the self-model.
+
+**The ratchet is an ABLATION** (`tests/selflimits.sh`, 8/8), because "derived" is
+a claim like any other: a faculty ADDED to the ledger appears in the answer with
+no code change, a faculty REMOVED disappears, and with no ledger at all parrot0
+claims no limits it cannot evidence. A self-description that cannot shrink is a
+brochure.
+
+Evidence: 246/246 `tests/run.sh`, 25/25 code-bench, 7/7 compose-bench. Full
+`make gate` not run at F.'s instruction.
+
 ## 2026-07-12 - gen324: the evaluator computes `s += i` (TODO.md P2, corrected)
 
 **The plan was wrong, and the code said so.** TODO.md P2 read "the evaluator

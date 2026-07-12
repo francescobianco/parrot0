@@ -709,3 +709,29 @@ intent_cue(code_explain, "spiega questo codice").
 intent_cue(code_explain, "spiega cosa fa").
 intent_cue(code_explain, "cosa fa questo codice").
 intent_cue(code_explain, "cosa fa questo").
+
+% --- gen325 (TODO.md P6, forge plan §18): WHERE I END ------------------------
+% "what are you unable to do?" was claimed by the identity module ("I am
+% parrot0."), and "cosa non sai fare?" got the CAPABILITY list — the question was
+% inverted and the answer was still a brochure. The negative reading is the
+% specific one, so mod_self tests these cues BEFORE identity and capability.
+% The ANSWER is derived from capability/2 + capability_wall/2 (kb/core/
+% capabilities.p0, generated from gate results) — no faculty name lives in C.
+intent_cue(self_limits, "unable to do").
+intent_cue(self_limits, "can't you do").
+intent_cue(self_limits, "cant you do").
+intent_cue(self_limits, "cannot you do").
+intent_cue(self_limits, "can you not do").
+intent_cue(self_limits, "not able to do").
+intent_cue(self_limits, "your limitations").
+intent_cue(self_limits, "your limits").
+intent_cue(self_limits, "what are your weaknesses").
+intent_cue(self_limits, "don't you know").
+intent_cue(self_limits, "dont you know").
+intent_cue(self_limits, "what you cannot").
+intent_cue(self_limits, "what you can't").
+intent_cue(self_limits, "non sai fare").
+intent_cue(self_limits, "non riesci a fare").
+intent_cue(self_limits, "non puoi fare").
+intent_cue(self_limits, "i tuoi limiti").
+intent_cue(self_limits, "quali sono i tuoi limiti").

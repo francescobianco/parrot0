@@ -156,7 +156,16 @@ TRANSFER` an honest claim rather than a bench artifact.
 
 ---
 
-## P2 — the evaluator cannot execute a LOOP
+## P2 — ~~the evaluator cannot execute a LOOP~~ → it cannot do `s += i` — **DONE, gen324**
+
+> **This row was MISDIAGNOSED, and the code refuted it.** The evaluator executes
+> loops fine (gen178 bounded `while`, gen179 three-clause `for`). I inferred the
+> cause from parrot0's symptom instead of reading the evaluator. The real wall was
+> COMPOUND ASSIGNMENT — `s += i`, the one statement almost every loop body is made
+> of, which is why every real loop looked like a loop failure. Desugared to
+> `x = x OP e` through the same expression parser; `/=` and `%=` by zero refuse
+> rather than fabricate an integer. The wrong diagnosis is left visible below: a
+> plan is allowed to be wrong, but not allowed to hide it.
 
 ```
 you> what does sum(3) return: int sum(int n){ int s=0; for(int i=0;i<=n;i++) s+=i; return s; }
@@ -243,7 +252,24 @@ the test must generate **fresh nonsense predicates on every run**.
 
 ---
 
-## P6 — a routing collision: "what are you unable to do?"
+## P6 — a routing collision: "what are you unable to do?" — **DONE, gen325**
+
+> **Closed, and it was worse than a collision.** In Italian, "cosa non sai fare?"
+> returned the list of what parrot0 CAN do — the question inverted, the answer
+> still a brochure. The real defect: parrot0 had no notion of its envelope,
+> because the self-model derived only from `module(name)`.
+>
+> The answer is now DERIVED from the capability ledger (forge §18) —
+> `capability/2` + `capability_wall/2`, projected by `tests/capability_facts.py`
+> from the manifest the gates verify. No faculty name appears in the C.
+>
+> Two non-obvious things. **Normalization erases the negation** ("cosa non sai
+> fare" and "cosa sai fare" canonicalize identically), so the branch reads the RAW
+> turn. And **the self-model is not world knowledge** — loaded as KB_BASE it made
+> a hermetic brain claim "I know 24 fact(s)", so it joins `module`/`i_am` in the
+> internal-predicate filter. The ratchet is an ABLATION (8/8): add a faculty and
+> it appears, remove one and it disappears. A self-description that cannot shrink
+> is a brochure.
 
 ```
 you> what are you unable to do?
@@ -267,8 +293,8 @@ cosmetic feature for this project. It is the anti-impostor property itself.
 |---|---|---|
 | ~~P0~~ | ~~the fabrication~~ | **DONE gen322** — grounded the syntax claim in the compiler that was already in the tree. Left behind: every other `check_*` still needs its correct-input negative |
 | ~~P1~~ | ~~the code keyhole~~ | **DONE gen323** — cues became FACTS (cue-chains 317 -> 248); tightening the register in the same gen killed a second live misclaim (prose classified as Python because `is` is a keyword) |
-| P6 | the routing collision | cheap, and it restores honest self-report |
-| P2 | loops in the evaluator | the precondition for reasoning about real code |
+| ~~P6~~ | ~~the routing collision~~ | **DONE gen325** — the self-model now derives its LIMITS from the ledger the gates verify (forge §18) |
+| ~~P2~~ | ~~loops in the evaluator~~ | **DONE gen324** — the row was misdiagnosed: loops already worked, `+=` did not |
 | P5 | in-turn rule intake | cheap, structural, closes a rung LLMs give free |
 | P4 | the agentic loop | the biggest jump; needs P1+P2 to have anything to drive |
 | P3 | schema induction | the only row that makes growth compound instead of add |

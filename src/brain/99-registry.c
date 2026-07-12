@@ -460,6 +460,22 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/responses.p0");
 
+    /* gen325 (TODO.md P6, forge plan §18): the capability LEDGER as knowledge —
+     * capability(Id, Maturity) and capability_wall(Id, "…"), projected by
+     * tests/capability_facts.py from tests/benchmarks.json (whose claims
+     * `make capability-report` verifies against real gate results). This is what
+     * lets mod_self answer where the envelope ENDS instead of listing modules.
+     * GENERATED: never hand-edit kb/core/capabilities.p0.
+     *
+     * Tagged KB_REFLECTIVE, like module(…) and i_am(…): this is the agent's model
+     * OF ITSELF, not knowledge about the world. It is regenerated every boot and
+     * never persisted (DESIGN.md D3). Loading it as KB_BASE made a hermetic brain
+     * report "I know 24 fact(s)" when it should know none — the self-model would
+     * have masqueraded as world knowledge, which is exactly the pollution gen275
+     * fixed for dispatch vocabulary. */
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_load(b->kb, "kb/core/capabilities.p0");
+
     /* gen215 (docs/plans/the-linguistic-glue.md, G0): curated glue_role/2 — which
      * faculties carry cross-turn coherence and what each contributes. Reified below into
      * glue_faculty/2 only for modules that really exist, so the self-model can't drift. */

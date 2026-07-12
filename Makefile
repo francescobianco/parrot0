@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test check gate capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test check gate capability-facts capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -254,6 +254,12 @@ longtalk-bench: build
 check: build
 	@$(BENCH_PY) ./tests/check.py
 
+# gen325 (forge §18): project the capability ledger into KB facts, so parrot0's
+# answer about its own LIMITS is derived from gate evidence, not hand-written.
+# kb/core/capabilities.p0 is GENERATED — never hand-edit it.
+capability-facts:
+	@$(BENCH_PY) ./tests/capability_facts.py
+
 # gen316 (forge W0): run every benchmark the manifest (tests/benchmarks.json)
 # declares as a 'gate' ratchet; red gate = baseline-broken, nothing promotes.
 gate: build
@@ -269,6 +275,7 @@ test: build
 	@./tests/run.sh
 	@./tests/checkfocal.sh
 	@./tests/buildstamp.sh
+	@./tests/selflimits.sh
 	@$(BENCH_PY) ./tests/manifest_audit.py
 	@./tests/cuechains.sh
 	@./tests/archetype.sh
