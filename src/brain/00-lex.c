@@ -244,7 +244,7 @@ static int is_article(const char *w);
 static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
-static int is_internal_pred(const char *pred);
+static int is_internal_pred(const KB *kb, const char *pred);
 static int run_shell(const char *cmd, char *out, size_t out_size);
 static int identify_code_lang(const char *code, Brain *b);
 

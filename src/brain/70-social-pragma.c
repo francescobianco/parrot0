@@ -537,7 +537,7 @@ static int has_content_predicate(Brain *b, const char *canon, char **w, size_t n
         if (!t || !*t) continue;
         if (isdigit((unsigned char)t[0])) return 1;
         if (b && b->kb && strlen(t) >= 3) {
-            if (kb_knows_pred(b->kb, t) && !is_internal_pred(t)) return 1;
+            if (kb_knows_pred(b->kb, t) && !is_internal_pred(b->kb, t)) return 1;
         }
     }
     return 0;

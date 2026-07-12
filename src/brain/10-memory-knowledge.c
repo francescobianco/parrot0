@@ -887,7 +887,7 @@ static size_t auto_induce(Brain *b, char *out, size_t out_size) {
     size_t kept = 0;
     size_t out_len = strlen(out);
     for (size_t i = 0; i < k; i++) {
-        if (is_internal_pred(heads[i]) || is_internal_pred(bodies[i])) continue;
+        if (is_internal_pred(b->kb, heads[i]) || is_internal_pred(b->kb, bodies[i])) continue;
         if (out_len + 2 < out_size) {
             if (kept == 0) {
                 if (out_len > 0) { out[out_len] = ' '; out[out_len + 1] = '\0'; out_len++; }
@@ -5314,7 +5314,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         size_t kept = 0;
         char fheads[16][KB_TERM_LEN], fbodies[16][KB_TERM_LEN];
         for (size_t i = 0; i < k; i++) {
-            if (is_internal_pred(heads[i]) || is_internal_pred(bodies[i])) continue;
+            if (is_internal_pred(b->kb, heads[i]) || is_internal_pred(b->kb, bodies[i])) continue;
             snprintf(fheads[kept], KB_TERM_LEN, "%s", heads[i]);
             snprintf(fbodies[kept], KB_TERM_LEN, "%s", bodies[i]);
             kept++;

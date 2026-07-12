@@ -489,8 +489,26 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 }
 
 /* gen77: introspection helpers — filter internal predicates so "what do you
- * know?" shows only user-facing knowledge, not KB machinery. */
-static int is_internal_pred(const char *pred) {
+ * know?" shows only user-facing knowledge, not KB machinery.
+ *
+ * gen329: the list below is no longer the only source. Four times now (gen193,
+ * gen275, gen325, gen327 — see their comments) a new machinery predicate has
+ * leaked into "how many facts do you know?", and the note left at gen327 named the
+ * cause exactly: "the declaration is easy to forget because it lives far from the
+ * fact that needs it." Adding tool_for/tool_subcmd here would have been the fifth
+ * time, so the rule moves to where it can no longer be forgotten — the KB file
+ * that introduces the predicate declares it:
+ *
+ *     machinery(tool_for).      % right next to the tool_for/2 facts
+ *
+ * The C list stays (secondary structures are kept, per the project's rule), but it
+ * is now the FALLBACK for predicates whose home is C. New knowledge declares its
+ * own status, in the same file, in the same breath. */
+static int is_internal_pred(const KB *kb, const char *pred) {
+    if (kb) {
+        const char *m[] = { pred };
+        if (kb_query((KB *)kb, "machinery", m, 1)) return 1;
+    }
     static const char *internal[] = {
         "stopword", "social_marker", "social_pattern", "question_word",
         "reaction_word", "i_am", "module", "cont", "cont2",
@@ -630,7 +648,7 @@ static size_t kb_user_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t m
     size_t np = kb_predicates(kb, preds, 128);
     size_t n = 0;
     for (size_t i = 0; i < np && n < max; i++)
-        if (!is_internal_pred(preds[i]) && kb_pred_fact_count(kb, preds[i]) > 0) {
+        if (!is_internal_pred(kb, preds[i]) && kb_pred_fact_count(kb, preds[i]) > 0) {
             snprintf(out[n], KB_TERM_LEN, "%s", preds[i]);
             n++;
         }
@@ -643,7 +661,7 @@ static size_t kb_user_facts(const KB *kb) {
     size_t np = kb_predicates(kb, preds, 128);
     size_t total = 0;
     for (size_t i = 0; i < np; i++) {
-        if (is_internal_pred(preds[i])) continue;
+        if (is_internal_pred(kb, preds[i])) continue;
         total += kb_pred_fact_count(kb, preds[i]);
     }
     return total;
@@ -655,7 +673,7 @@ static int kb_dump_user(const KB *kb, char *out, size_t out_size) {
     size_t np = kb_predicates(kb, preds, 128);
     size_t off = 0, written = 0;
     for (size_t p = 0; p < np && off + 1 < out_size; p++) {
-        if (is_internal_pred(preds[p])) continue;
+        if (is_internal_pred(kb, preds[p])) continue;
         if (kb_pred_fact_count(kb, preds[p]) == 0) continue;
         const char *pat[] = {NULL};
         char hits[256][KB_TERM_LEN];
@@ -1163,7 +1181,7 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
     const char *linking = NULL; /* a relation found between A and B, if any */
     for (size_t i = 0; i < np; i++) {
         const char *R = preds[i];
-        if (is_internal_pred(R)) continue;
+        if (is_internal_pred(b->kb, R)) continue;
         char res[4][KB_TERM_LEN];
         const char *ab[] = { A, B }, *ba[] = { B, A };
         const char *fwd[] = { C, NULL }, *rev[] = { NULL, C };
@@ -1614,7 +1632,7 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
         size_t np = kb_predicates(b->kb, preds, 128);
         for (size_t pi = 0; pi < np && !*result; pi++) {
             const char *R = preds[pi];
-            if (is_internal_pred(R)) continue;
+            if (is_internal_pred(b->kb, R)) continue;
             int fwd = 1, rev = 1;
             for (size_t i = 0; i < nex; i++) {
                 const char *ab[] = { in[i], ot[i] }, *ba[] = { ot[i], in[i] };

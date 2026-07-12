@@ -19,6 +19,7 @@
 #include "kb.h"
 #include "learn.h"
 #include "code.h"
+#include "exec.h"   /* gen329: every act on the machine returns an Observation */
 
 #include <ctype.h>
 #include <stdio.h>

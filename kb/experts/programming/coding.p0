@@ -23,3 +23,61 @@
 %                                                          outside the live range
 repair_rule(not_ordered, flip_comparator).
 repair_rule(not_permutation, tighten_inner_bound).
+
+% --- gen329 (TODO.md P0/04): the TOOL CONTRACTS ------------------------------
+% Counterexample that ended the old design: `run git status; printf P0_CHAINED`
+% executed the second command. The guard was a whitelist of command PREFIXES,
+% checked against a string that was then handed whole to popen(3) — and a shell
+% string is not a command, it is a program the shell may reinterpret. No list of
+% approved prefixes can survive that, because the danger is in the SUFFIX.
+%
+% So the string is gone: p0_exec takes argv[] and execve's it, and a ';' is now
+% just a character inside argv[1]. What survives here is the AUTHORIZATION, and
+% it belongs in knowledge, not in a C array:
+%
+%   tool_for(Purpose, Argv0)   parrot0 may execute this program, for this reason
+%   tool_subcmd(Argv0, Sub)    ...and if any of these exist for Argv0, then
+%                              argv[1] must be one of them (so `git` means
+%                              status/diff/log — never `git push`)
+%
+% Authorizing a new tool is now a FACT, teachable at runtime; it is not a
+% recompile, and it can never widen into "run anything".
+tool_for(build, make).
+tool_for(build, cargo).
+tool_for(build, go).
+tool_for(build, cc).
+tool_for(build, gcc).
+tool_for(test, pytest).
+tool_for(test, ctest).
+tool_for(test, npm).
+tool_for(test, python3).
+tool_for(inspect, git).
+tool_for(inspect, grep).
+tool_for(inspect, find).
+tool_for(inspect, ls).
+tool_for(inspect, wc).
+
+tool_subcmd(git, status).
+tool_subcmd(git, diff).
+tool_subcmd(git, log).
+tool_subcmd(git, show).
+tool_subcmd(npm, test).
+tool_subcmd(npm, run).
+tool_subcmd(cargo, build).
+tool_subcmd(cargo, test).
+tool_subcmd(go, build).
+tool_subcmd(go, test).
+
+% The tool contracts are MACHINERY, not world knowledge: knowing that parrot0 may
+% run `make` is knowing something about parrot0, not about the world, so a brain
+% taught nothing must still answer "I know 0 fact(s)". gen329 moved this
+% declaration OUT of the C list in 40-meta-reflection.c and next to the facts it
+% governs, because four generations in a row forgot to add it there.
+machinery(tool_for).
+machinery(tool_subcmd).
+
+% ...and machinery/1 is itself machinery. Without this line parrot0 answers "I know
+% these predicates: machinery" to a brain that was taught nothing — the declaration
+% of what is not knowledge would be counted as knowledge. It is the only fact in the
+% KB that has to be true of itself.
+machinery(machinery).

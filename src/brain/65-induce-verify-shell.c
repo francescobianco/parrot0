@@ -315,13 +315,25 @@ static int mod_verify(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
-/* Run the real shell command via popen and capture its stdout. */
+/* gen329 (TODO.md P0/04-06): the shell ORACLE — the one place where a shell is
+ * still the right answer, because the thing being checked IS a shell pipeline
+ * (`what does echo hi | tr a-z A-Z print?`). The distinction that matters is not
+ * "shell = bad" but WHO WROTE THE COMMAND: here the user is explicitly asking for
+ * a pipeline's real output, under PARROT0_ORACLE=1, and the shell is the ground
+ * truth parrot0's own simulate_pipeline() is being graded against. In mod_piact,
+ * by contrast, parrot0 was BUILDING a shell line out of a prompt — that is the
+ * injection surface, and it is gone.
+ *
+ * Even so, the oracle no longer runs through popen(3): it goes through p0_exec,
+ * so it is bounded (wall clock, CPU, address space, file size, process count),
+ * killed as a process group, and its exit status is actually read. An oracle that
+ * can hang or fail silently is not an oracle. */
 static int run_shell(const char *cmd, char *out, size_t out_size) {
-    FILE *f = popen(cmd, "r");
-    if (!f) return 0;
-    size_t n = fread(out, 1, out_size - 1, f);
-    out[n] = '\0';
-    pclose(f);
+    char *argv[] = {(char*)"sh", (char*)"-c", (char*)cmd, NULL};
+    P0Obs obs;
+    p0_exec(argv, ".", 5000, NULL, &obs);
+    if (obs.verdict != P0_OK && obs.verdict != P0_EXIT_NONZERO) return 0;
+    snprintf(out, out_size, "%s", obs.out);
     return 1;
 }
 

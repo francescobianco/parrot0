@@ -165,13 +165,16 @@ static void collapse_ws(const char *src, char *dst, size_t cap) {
     dst[o] = '\0';
 }
 
-/* A path/dir/glob token is SAFE iff every char is alnum or one of . _ / - and the
- * glob star. Anything
- * else (space is impossible — tokens are whitespace-split — but ';', '$', '`',
- * '|', quotes, etc.) means we refuse to build a command from it. This, plus
- * single-quoting the grep pattern, is what keeps a hostile prompt from injecting a
- * second command into the shell parrot0 runs. */
-static int safe_pathish(const char *t) {
+/* gen329 (TODO.md P0/05): a path token is plausible iff its characters could
+ * belong to a path. That is ALL this predicate ever knew, and mistaking it for a
+ * containment check is what let `read /etc/os-release` walk out of the repository:
+ * "/etc/os-release" is made of perfectly innocent characters and points perfectly
+ * outside the workspace. Containment is not a character class — it is a resolution
+ * discipline, and it now lives in p0_open_in_root/p0_safe_rel (openat + O_NOFOLLOW
+ * from a dirfd on the root, one component at a time). This function survives only
+ * as what it always was: a cheap TOKENIZER filter that tells a path-shaped word
+ * apart from prose, before the real gate ever sees it. It grants nothing. */
+static int pathish_token(const char *t) {
     if (!t || !*t) return 0;
     for (const char *p = t; *p; p++) {
         char c = *p;
@@ -215,19 +218,51 @@ static int detect_glob(const char *low, char *glob, size_t cap) {
     return 0;
 }
 
-/* A command is allowed for the "run" intent only if its head is a known build /
- * test / inspection tool. parrot0 will execute arbitrary read-only listings on its
- * own authority, but running a command the user dictated is gated to a whitelist so
- * a prompt cannot turn parrot0 into a general shell. */
-static int run_whitelisted(const char *cmd) {
-    static const char *const ok[] = {
-        "make ", "make\0", "npm test", "npm run", "pnpm ", "yarn ",
-        "pytest", "python -m pytest", "python3 -m pytest", "cargo test",
-        "cargo build", "go test", "go build", "ctest", "./tests/", "bash tests/",
-        "sh tests/", "git status", "git diff", "git log", NULL };
-    for (int i = 0; ok[i]; i++)
-        if (ci_prefix(cmd, ok[i])) return 1;
-    return strcmp(cmd, "make") == 0;
+/* gen329 (TODO.md P0/04): AUTHORIZATION, now that the shell is gone.
+ *
+ * The old gate matched the PREFIX of a command string that was then handed whole
+ * to popen(3) — so `git status; printf P0_CHAINED` passed the gate on its head and
+ * ran its tail. The string is gone (p0_exec execve's an argv vector, in which a
+ * ';' is an ordinary character), and what is left to decide is not "does this text
+ * look safe" but "is parrot0 authorized to run this PROGRAM" — a question of
+ * knowledge, answered by the KB:
+ *
+ *   tool_for(Purpose, Argv0)   parrot0 may execute Argv0 (and why)
+ *   tool_subcmd(Argv0, Sub)    if any exist for Argv0, argv[1] must be one of them
+ *
+ * so `git` means status/diff/log and never `git push`, and authorizing a new tool
+ * is a fact — teachable at runtime, never a recompile, and unable to widen into
+ * "run anything". Returns 1 iff argv is authorized; on refusal `why` says which
+ * clause was missing (the Gap, not a scolding). */
+static int tool_authorized(Brain *b, char *const *argv, size_t argc,
+                           char *why, size_t whysz) {
+    if (why && whysz) why[0] = '\0';
+    if (!b || !b->kb || argc == 0) return 0;
+
+    const char *q[2] = {NULL, argv[0]};
+    char purpose[4][KB_TERM_LEN];
+    if (kb_match(b->kb, "tool_for", q, 2, purpose, 4) == 0) {
+        if (why) snprintf(why, whysz,
+                          "no tool_for(_, %s) — I have no contract authorizing `%s`",
+                          argv[0], argv[0]);
+        return 0;
+    }
+    /* If the KB constrains this tool's subcommands, argv[1] must be one of them. */
+    const char *qs[2] = {argv[0], NULL};
+    char subs[16][KB_TERM_LEN];
+    size_t ns = kb_match(b->kb, "tool_subcmd", qs, 2, subs, 16);
+    if (ns > 0) {
+        if (argc < 2) {
+            if (why) snprintf(why, whysz, "`%s` needs one of its authorized subcommands",
+                              argv[0]);
+            return 0;
+        }
+        for (size_t i = 0; i < ns; i++)
+            if (strcmp(subs[i], argv[1]) == 0) return 1;
+        if (why) snprintf(why, whysz, "no tool_subcmd(%s, %s)", argv[0], argv[1]);
+        return 0;
+    }
+    return 1;
 }
 
 /* Find the first token after one of the locator words ("in", "inside", ...) that
@@ -263,13 +298,13 @@ static const char *find_dir(char **w, size_t nw) {
         rstrip_punct(w[j]);
         /* "in this folder" / "in questa cartella" / "here"/"qui" -> current directory. */
         if (dir_here_word(w[j]) || dir_deictic_det(w[j])) return ".";
-        if (safe_pathish(w[j]) && strchr(w[j], '/')) return w[j];
-        if (safe_pathish(w[j]) && !dir_noun(w[j])) return w[j];
+        if (pathish_token(w[j]) && strchr(w[j], '/')) return w[j];
+        if (pathish_token(w[j]) && !dir_noun(w[j])) return w[j];
     }
     /* a bare token that contains a slash is very likely the directory. */
     for (size_t i = 0; i < nw; i++) {
         rstrip_punct(w[i]);
-        if (strchr(w[i], '/') && safe_pathish(w[i])) return w[i];
+        if (strchr(w[i], '/') && pathish_token(w[i])) return w[i];
     }
     return NULL;
 }
@@ -277,39 +312,107 @@ static const char *find_dir(char **w, size_t nw) {
 /* Find a file path token: one containing '/', else one ending in a known-looking
  * .ext (e.g. main.c) — used by the "read" intent. */
 static const char *find_file(char **w, size_t nw) {
-    for (size_t i = 0; i < nw; i++) { rstrip_punct(w[i]); if (strchr(w[i],'/') && safe_pathish(w[i])) return w[i]; }
+    for (size_t i = 0; i < nw; i++) { rstrip_punct(w[i]); if (strchr(w[i],'/') && pathish_token(w[i])) return w[i]; }
     for (size_t i = 0; i < nw; i++) {
         char *dot = strrchr(w[i], '.');
-        if (dot && dot != w[i] && isalpha((unsigned char)dot[1]) && safe_pathish(w[i]))
+        if (dot && dot != w[i] && isalpha((unsigned char)dot[1]) && pathish_token(w[i]))
             return w[i];
     }
     return NULL;
 }
 
-/* Run `cmd` locally, fold its real output into `out` as one line tagged by the
- * human-facing `label`, record the proof, and claim the turn. */
-static int piact_run(Brain *b, const char *cmd, const char *label,
+/* gen329 (TODO.md P0/07): an act RETURNS AN OBSERVATION, and the answer is
+ * RENDERED FROM IT.
+ *
+ * What stood here before took a command string, ran it through popen(3), threw
+ * away the exit status — pclose's return value was not even looked at — and
+ * printed whatever bytes came back under a cheerful human label. So at gen328
+ * `run make bogus-target-xyz` answered "`make bogus-target-xyz`: make: *** No rule
+ * to make target. Stop." in exactly the register it used for a successful build:
+ * a failure, narrated as a result. That is the impostor shape PRINCIPLES.md
+ * forbids, sitting in the one place where parrot0 touches the real world.
+ *
+ * Now every act goes through p0_exec and comes back as a P0Obs — argv, cwd, exit
+ * code, terminating signal, stdout and stderr SEPARATELY, truncation, duration,
+ * digest. The renderer below is a total function over the verdict: each verdict
+ * gets its own sentence, and only P0_OK may be spoken as a result. A failure
+ * cannot be dressed as an answer, because the sentence for a failure is a
+ * different sentence. The Observation is also what the proof cites, so
+ * "how do you know?" quotes the RUN — exit status and digest — not the claim. */
+static int piact_obs(Brain *b, char *const *argv, const char *label,
                      char *out, size_t out_size) {
-    char raw_out[8192];
-    if (!run_shell(cmd, raw_out, sizeof raw_out)) {
-        char m[320]; snprintf(m, sizeof m, "I tried to run `%s` but the tool would not start.", cmd);
-        put(m, out, out_size);
-        return 1;
-    }
+    P0Obs obs;
+    p0_exec(argv, ".", 20000, NULL, &obs);
+
     char flat[4000];
-    collapse_ws(raw_out, flat, sizeof flat);
-    char msg[4400];
-    if (flat[0] == '\0')
-        snprintf(msg, sizeof msg, "%s: nothing. (ran `%s`)", label, cmd);
-    else
-        snprintf(msg, sizeof msg, "%s: %s (ran `%s`)", label, flat, cmd);
+    collapse_ws(obs.out, flat, sizeof flat);
+    char eflat[600];
+    collapse_ws(obs.err, eflat, sizeof eflat);
+
+    char msg[5200];
+    switch (obs.verdict) {
+    case P0_OK:
+        if (flat[0] == '\0')
+            snprintf(msg, sizeof msg, "%s: nothing. (`%s` ran, exit 0)", label, obs.cmd);
+        else
+            snprintf(msg, sizeof msg, "%s: %s%s (`%s`, exit 0)", label, flat,
+                     obs.out_truncated ? " …[truncated]" : "", obs.cmd);
+        break;
+    case P0_EXIT_NONZERO:
+        snprintf(msg, sizeof msg, "`%s` FAILED (exit %d).%s%s", obs.cmd, obs.exit_code,
+                 eflat[0] ? " " : "", eflat[0] ? eflat : (flat[0] ? flat : ""));
+        break;
+    case P0_TIMEOUT:
+        snprintf(msg, sizeof msg,
+                 "`%s` TIMED OUT after %ld ms — I killed it. I do not know whether it "
+                 "would have succeeded.", obs.cmd, obs.duration_ms);
+        break;
+    case P0_SIGNALED:
+        snprintf(msg, sizeof msg, "`%s` was KILLED by signal %d — it did not complete.",
+                 obs.cmd, obs.term_signal);
+        break;
+    case P0_SPAWN_FAILED:
+        snprintf(msg, sizeof msg, "`%s` never started: %s.", obs.cmd, obs.detail);
+        break;
+    case P0_UNSAFE_PATH:
+        snprintf(msg, sizeof msg,
+                 "unsafe_path: that is outside my workspace (%s). I only read inside it.",
+                 p0_root());
+        break;
+    default:
+        snprintf(msg, sizeof msg, "I did not run `%s`: %s.", obs.cmd,
+                 obs.detail[0] ? obs.detail : p0_verdict_name(obs.verdict));
+        break;
+    }
     put(msg, out, out_size);
+
     if (b) {
-        snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "%s", cmd);
+        snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "%s", obs.cmd);
         b->has_last_tool_cmd = 1;
-        char proof[320];
-        snprintf(proof, sizeof proof, "ran local tool: %s", cmd);
+        char proof[512];
+        p0_obs_proof(&obs, proof, sizeof proof);
         store_proof(b, proof);
+    }
+    return 1;
+}
+
+/* gen329 (TODO.md P0/05): resolve a user-named directory INSIDE the workspace,
+ * through the real gate (openat/O_NOFOLLOW from the root dirfd), and hand back the
+ * relative form that the resolution actually produced — never the user's spelling.
+ * If it escapes, parrot0 declines by NAME (`unsafe_path`) and claims the turn: a
+ * precise decline is green, a quiet look outside the repository is not. */
+static int piact_dir(const char *dir, char *rel, size_t cap,
+                     char *out, size_t out_size, int *claimed) {
+    *claimed = 0;
+    if (!dir || !pathish_token(dir)) { snprintf(rel, cap, "."); return 1; }
+    if (p0_safe_rel(dir, 1, rel, cap) != P0_OK) {
+        char m[600];
+        snprintf(m, sizeof m,
+                 "unsafe_path: `%s` is not a directory inside my workspace (%s), "
+                 "so I did not look there.", dir, p0_root());
+        put(m, out, out_size);
+        *claimed = 1;
+        return 0;
     }
     return 1;
 }
@@ -362,15 +465,20 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         }
         if (!pat && nw >= 2) pat = w[nw-1];
         if (!pat) return 0;
-        char patbuf[128], clean[128]; size_t o = 0;
+        /* gen329: the pattern is no longer scrubbed of quotes and backticks. It used
+         * to be, because it was about to be pasted between single quotes into a
+         * SHELL LINE, where a quote would break out of the quoting and a backtick
+         * would start a command substitution. There is no shell line any more: the
+         * pattern is argv[3] of an execve'd grep, and a backtick there is a backtick.
+         * Removing the sanitizer is not a relaxation — it is the proof that the
+         * injection surface it was defending is gone. */
+        char patbuf[128];
         rstrip_punct((char*)pat);
-        for (const char *p = pat; *p && o + 1 < sizeof clean; p++)
-            if (*p != '\'' && *p != '`' && *p != '\\') clean[o++] = *p;
-        clean[o] = '\0';
-        if (clean[0] == '\0') return 0;
-        snprintf(patbuf, sizeof patbuf, "%s", clean);
+        if (!*pat) return 0;
+        snprintf(patbuf, sizeof patbuf, "%s", pat);
         const char *dir = find_dir(w, nw);
-        char dirbuf[256]; snprintf(dirbuf, sizeof dirbuf, "%s", (dir && safe_pathish(dir)) ? dir : ".");
+        char dirbuf[256]; int claimed;
+        if (!piact_dir(dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
 
         /* KB-FIRST: when the target is a bare code identifier, answer by STRUCTURE,
          * not by text. code_locate / code_find_callers are the very localizers that
@@ -416,11 +524,12 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
             /* identifier but no structural hit — fall through to a text grep. */
         }
 
-        char cmd[640];
-        snprintf(cmd, sizeof cmd,
-                 "grep -rn '%s' %s 2>/dev/null | head -n 40", patbuf, dirbuf);
+        /* `--` so a pattern that begins with '-' stays a pattern and never becomes
+         * an option: with the shell gone, argv-level confusion is the only injection
+         * left, and it is closed by construction rather than by scrubbing. */
+        char *gargv[] = {(char*)"grep", (char*)"-rn", (char*)"--", patbuf, dirbuf, NULL};
         char label[160]; snprintf(label, sizeof label, "Matches for `%s`", patbuf);
-        return piact_run(b, cmd, label, out, out_size);
+        return piact_obs(b, gargv, label, out, out_size);
     }
 
     /* ---- find a file by name ---- */
@@ -431,38 +540,63 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         if (!name && nw >= 2) name = w[nw-1];
         if (!name) return 0;
         rstrip_punct((char*)name);
-        if (!safe_pathish(name)) return 0;
+        if (!pathish_token(name)) return 0;
         const char *dir = find_dir(w, nw);
-        char dirbuf[256]; snprintf(dirbuf, sizeof dirbuf, "%s", (dir && safe_pathish(dir)) ? dir : ".");
-        char cmd[640];
-        snprintf(cmd, sizeof cmd, "find %s -name '%s' 2>/dev/null | head -n 40", dirbuf, name);
+        char dirbuf[256]; int claimed;
+        if (!piact_dir(dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
+        char *fargv[] = {(char*)"find", dirbuf, (char*)"-name", (char*)name, NULL};
         char label[200]; snprintf(label, sizeof label, "Found `%s`", name);
-        return piact_run(b, cmd, label, out, out_size);
+        return piact_obs(b, fargv, label, out, out_size);
     }
 
     /* ---- list files (optionally filtered by a glob) ---- */
     if (want_list) {
         const char *dir = find_dir(w, nw);
-        char dirbuf[256]; snprintf(dirbuf, sizeof dirbuf, "%s", (dir && safe_pathish(dir)) ? dir : ".");
+        char dirbuf[256]; int claimed;
+        if (!piact_dir(dir, dirbuf, sizeof dirbuf, out, out_size, &claimed)) return claimed;
         char glob[64]; int has_glob = detect_glob(low, glob, sizeof glob);
-        char cmd[640], label[200];
-        if (has_glob) {
-            snprintf(cmd, sizeof cmd,
-                     "find %s -maxdepth 1 -name '%s' -type f 2>/dev/null | sort | head -n 60",
-                     dirbuf, glob);
-            snprintf(label, sizeof label, "The `%s` files in %s", glob, dirbuf);
-        } else {
-            snprintf(cmd, sizeof cmd,
-                     "find %s -maxdepth 1 -type f 2>/dev/null | sort | head -n 60", dirbuf);
-            snprintf(label, sizeof label, "The files in %s", dirbuf);
-        }
-        return piact_run(b, cmd, label, out, out_size);
+        char label[200];
+        char *largv_glob[] = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
+                              (char*)"-name", glob, (char*)"-type", (char*)"f", NULL};
+        char *largv_all[]  = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
+                              (char*)"-type", (char*)"f", NULL};
+        if (has_glob) snprintf(label, sizeof label, "The `%s` files in %s", glob, dirbuf);
+        else          snprintf(label, sizeof label, "The files in %s", dirbuf);
+        return piact_obs(b, has_glob ? largv_glob : largv_all, label, out, out_size);
     }
 
     /* ---- read a file ---- */
     if (want_read) {
         const char *file = find_file(w, nw);
-        if (!file || !safe_pathish(file)) return 0;
+        if (!file || !pathish_token(file)) return 0;
+
+        /* gen329 (TODO.md P0/05): the bytes come through the WORKSPACE GATE, before
+         * anything else looks at them. This is the exact line where `read
+         * /etc/os-release` used to leave the repository: the old code called
+         * code_read_file() — an unguarded fopen — and, failing that, shelled out to
+         * `head -n 40 /etc/os-release`. Neither ever asked WHERE the file was.
+         * p0_read_in_root answers that question by construction, and an escape is
+         * declined by name (`unsafe_path`) instead of being quietly served.
+         *
+         * Reading is also no longer a subprocess at all: no `head`, no shell, no
+         * pipe — just the fd that the containment walk itself opened and validated. */
+        static char code[262144];
+        int trunc = 0;
+        P0Verdict rv = p0_read_in_root(file, code, sizeof code, &trunc);
+        if (rv != P0_OK) {
+            char m[600];
+            snprintf(m, sizeof m,
+                     "unsafe_path: `%s` is not a regular file inside my workspace (%s), "
+                     "so I did not read it.", file, p0_root());
+            put(m, out, out_size);
+            if (b) {
+                char proof[320];
+                snprintf(proof, sizeof proof, "refused to read %s: unsafe_path (outside %s)",
+                         file, p0_root());
+                store_proof(b, proof);
+            }
+            return 1;
+        }
 
         /* KB-FIRST read. A remote LLM "reads" a file by pulling its bytes into its
          * context; parrot0 reads it into STRUCTURE. It parses the file with the
@@ -471,63 +605,116 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
          * answer is the functions it really defines AND a later "where is X" / "what
          * calls X" is now a KB query, not another disk scan. Only when the file is
          * not ingestable source (a header with no defs, plain data) does it fall back
-         * to an honest textual head. */
+         * to an honest textual look. */
         if (b->kb) {
-            static char code[262144];
-            if (code_read_file(file, code, sizeof code)) {
-                code_strip(code);
-                char names[32][KB_TERM_LEN];
-                int clang = identify_code_lang(code, b);
-                size_t k = (clang == 2) ? code_ingest_py(b->kb, code, names, 32)
-                                        : code_ingest(b->kb, code, names, 32);
-                if (k > 0) {
-                    size_t shown = k < 32 ? k : 32;
-                    size_t off = (size_t)snprintf(out, out_size,
-                                 "I read %s into structure: it defines ", file);
-                    for (size_t i = 0; i < shown && off < out_size; i++) {
-                        const char *sep = (i==0) ? "" : (i==shown-1) ? " and " : ", ";
-                        off += (size_t)snprintf(out+off, out_size-off, "%s%s", sep, names[i]);
-                    }
-                    if (off < out_size)
-                        snprintf(out+off, out_size-off,
-                                 ". (%zu function%s now in the KB.)", k, k==1?"":"s");
-                    if (b) {
-                        char proof[320];
-                        snprintf(proof, sizeof proof,
-                                 "read+ingested %s: %zu code_function fact(s) asserted", file, k);
-                        store_proof(b, proof);
-                        snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd,
-                                 "code_ingest(%s)", file);
-                        b->has_last_tool_cmd = 1;
-                    }
-                    return 1;
+            code_strip(code);
+            char names[32][KB_TERM_LEN];
+            int clang = identify_code_lang(code, b);
+            size_t k = (clang == 2) ? code_ingest_py(b->kb, code, names, 32)
+                                    : code_ingest(b->kb, code, names, 32);
+            if (k > 0) {
+                size_t shown = k < 32 ? k : 32;
+                size_t off = (size_t)snprintf(out, out_size,
+                             "I read %s into structure: it defines ", file);
+                for (size_t i = 0; i < shown && off < out_size; i++) {
+                    const char *sep = (i==0) ? "" : (i==shown-1) ? " and " : ", ";
+                    off += (size_t)snprintf(out+off, out_size-off, "%s%s", sep, names[i]);
                 }
+                if (off < out_size)
+                    snprintf(out+off, out_size-off,
+                             ". (%zu function%s now in the KB.)", k, k==1?"":"s");
+                char proof[320];
+                snprintf(proof, sizeof proof,
+                         "read+ingested %s: %zu code_function fact(s) asserted", file, k);
+                store_proof(b, proof);
+                snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "code_ingest(%s)", file);
+                b->has_last_tool_cmd = 1;
+                return 1;
             }
         }
-        /* not ingestable source — an honest bounded textual look. */
-        char cmd[640];
-        snprintf(cmd, sizeof cmd, "head -n 40 %s 2>/dev/null", file);
-        char label[256]; snprintf(label, sizeof label, "%s", file);
-        return piact_run(b, cmd, label, out, out_size);
+        /* not ingestable source — an honest bounded textual look at the bytes we
+         * already hold. Truncation is DECLARED, not silently swallowed. */
+        char flat[4000];
+        collapse_ws(code, flat, sizeof flat);
+        char msg[4400];
+        if (flat[0] == '\0')
+            snprintf(msg, sizeof msg, "%s is empty.", file);
+        else
+            snprintf(msg, sizeof msg, "%s: %s%s", file, flat,
+                     trunc ? " …[truncated]" : "");
+        put(msg, out, out_size);
+        if (b) {
+            char proof[320];
+            snprintf(proof, sizeof proof, "read %s inside the workspace (%zu bytes%s)",
+                     file, strlen(code), trunc ? ", truncated" : "");
+            store_proof(b, proof);
+            snprintf(b->last_tool_cmd, sizeof b->last_tool_cmd, "read(%s)", file);
+            b->has_last_tool_cmd = 1;
+        }
+        return 1;
     }
 
-    /* ---- run a build/test command (whitelisted) ---- */
+    /* ---- run a build/test command (authorized by a KB tool contract) ---- */
     if (want_run) {
+        /* gen329 (TODO.md P0/04): THE injection site. What used to happen here:
+         * the text after "run " was copied into a string, its PREFIX was compared
+         * against a whitelist, and the whole string — tail included — was handed to
+         * popen(3). `run git status; printf P0_CHAINED` passed on its head and ran
+         * its tail. The bug was never the whitelist's contents; it was that a shell
+         * string cannot be validated by looking at its beginning.
+         *
+         * Now the prompt does not build a command at all. It is TOKENIZED into an
+         * argv vector, the vector is authorized against tool_for/tool_subcmd facts
+         * in the KB, and p0_exec execve's it. No shell is involved, so ';' has no
+         * meaning left to exploit — it is simply part of argv[1], where `git` will
+         * reject it as an unknown subcommand. We check for shell metacharacters
+         * anyway, not because they are dangerous now, but because their presence
+         * means the user thinks they are talking to a shell, and the honest answer
+         * is to say that they are not. */
         const char *after = NULL;
         if (ci_prefix(low, "run ")) after = raw + 4;
         else { const char *p = strstr(raw, "compile"); if (p) after = p; }
         if (!after) after = raw;
         while (*after == ' ') after++;
-        char cmd[300]; snprintf(cmd, sizeof cmd, "%s", after);
-        rstrip_punct(cmd);
-        if (!run_whitelisted(cmd)) {
-            put("I only run build/test commands I recognize (make, pytest, cargo, go, the project's tests).",
-                out, out_size);
+
+        char cmdline[512]; snprintf(cmdline, sizeof cmdline, "%s", after);
+        rstrip_punct(cmdline);
+        if (strpbrk(cmdline, ";|&$`><\n")) {
+            char m[600];
+            snprintf(m, sizeof m,
+                     "unsafe_command: I do not run shell syntax — I execute one program "
+                     "with its arguments, so `;`, `|`, `&&` and `$(…)` have no meaning "
+                     "here. Ask me to run a single tool (e.g. `run make test`).");
+            put(m, out, out_size);
+            if (b) store_proof(b, "refused: unsafe_command (shell metacharacters, no shell exists)");
             return 1;
         }
-        char full[360]; snprintf(full, sizeof full, "%s 2>&1 | tail -n 20", cmd);
-        char label[320]; snprintf(label, sizeof label, "`%s`", cmd);
-        return piact_run(b, full, label, out, out_size);
+
+        /* the label must be taken BEFORE split_words, which writes NULs into the
+         * buffer in place — after it, `cmdline` is only its first word. */
+        char label[320]; snprintf(label, sizeof label, "`%s`", cmdline);
+
+        char *cargv[32]; size_t cargc = split_words(cmdline, cargv, 31);
+        if (cargc == 0) return 0;
+        cargv[cargc] = NULL;
+
+        char why[256];
+        if (!tool_authorized(b, cargv, cargc, why, sizeof why)) {
+            char m[700];
+            snprintf(m, sizeof m,
+                     "unsafe_command: I am not authorized to run `%s` — %s. "
+                     "My tool contracts live in the KB (tool_for/2, tool_subcmd/2); "
+                     "teach me one and I will.", cargv[0], why);
+            put(m, out, out_size);
+            if (b) {
+                char proof[400];
+                snprintf(proof, sizeof proof, "refused to run %s: unsafe_command (%s)",
+                         cargv[0], why);
+                store_proof(b, proof);
+            }
+            return 1;
+        }
+        return piact_obs(b, cargv, label, out, out_size);
     }
 
     return 0;
