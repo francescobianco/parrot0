@@ -76,6 +76,20 @@
       "note": "gen322 (TODO.md P0): parrot0 FABRICATED a code defect — every correct one-line C function was reported 'Missing semicolon'. Found by talking to it, not by a benchmark: 25/25 code-bench gates were green because no case ever fed the checkers CORRECT code. The syntax claim is now vetoed by cc -fsyntax-only, the oracle that was already in the tree. A misclaim is worse than a wall."
     },
     {
+      "id": "code.compound-assign.en",
+      "capability": "code_reading",
+      "owner": ["code_eval", "ev_simple"],
+      "depends_on": ["src/code.c"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/codeloop.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["numbers"],
+      "note": "gen324: TODO.md P2 claimed the evaluator 'cannot execute a LOOP'. The code refuted the plan — gen178 added a bounded while, gen179 a three-clause for. The wall was `s += i`: the one statement almost every loop BODY is made of, which is why every real loop looked like a loop failure. /= and %= by zero must REFUSE, not fabricate an integer."
+    },
+    {
       "id": "code.question-surface.en",
       "capability": "code_reading",
       "owner": ["mod_code", "kb/core/intents.p0", "identify_code_lang"],

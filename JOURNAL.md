@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen324: the evaluator computes `s += i` (TODO.md P2, corrected)
+
+**The plan was wrong, and the code said so.** TODO.md P2 read "the evaluator
+cannot execute a LOOP". It can: gen178 added a bounded `while`, gen179 a
+three-clause `for`, both with a termination ceiling. I wrote that row from the
+symptom parrot0 reported —
+
+```
+you> what does sum(3) return: int sum(int n){ int s=0; for(int i=0;i<=n;i++) s+=i; return s; }
+parrot0> I read it as code, but I cannot compute sum(3) yet — its body is beyond
+         my arithmetic evaluator.
+```
+
+— and inferred the wrong cause. These two snippets differ by nothing else, and
+only the first was computable:
+
+```
+for (i=1; i<=n; i++) { s = s + i; }   -> sum(3) = 6      (worked all along)
+for (i=1; i<=n; i++) { s += i; }      -> "beyond my arithmetic evaluator"
+```
+
+The wall was never iteration. It was **compound assignment** — the one statement
+almost every loop BODY is made of, which is exactly why every real loop looked
+like a loop failure. A misdiagnosis in a plan is cheap only if the code is
+allowed to refute it; this is why the row is fixed in place rather than quietly
+rewritten.
+
+**The fix.** `+=`, `-=`, `*=`, `/=`, `%=` desugared to `x = x OP e` in
+`ev_simple`, through the SAME expression parser — no second path. Division and
+modulo by zero latch `err`, so the evaluator **refuses** instead of returning a
+fabricated integer; a wrong number here would be exactly the fabrication class
+gen322 closed.
+
+Now computable: `sum(3) = 6`, `fact(5) = 120`, `g(4) = 30` (sum of squares via a
+`while`) — answers that cannot be read off the source, only produced by running
+the loop.
+
+**Ratchet:** `tests/cases/codeloop.chat`, addressable as
+`make check TEST=code.compound-assign.en`. Evidence: 246/246 `tests/run.sh`,
+25/25 code-bench, 7/7 compose-bench. Full `make gate` not run at F.'s instruction.
+
 ## 2026-07-12 - gen323: the code faculty becomes reachable through language (TODO.md P1)
 
 **The keyhole.** The capability ledger claims `code_reading = TRANSFER` on 25/25

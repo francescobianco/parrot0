@@ -512,6 +512,41 @@ static void ev_simple(EvalCtx *e) {
     if (e->c + 1 < e->end && e->c[0] == '-' && e->c[1] == '-') {
         e->c += 2; if (!known) { e->err = 1; return; } ev_set_local(e, w, cur - 1); return;
     }
+    /* gen324 (TODO.md P2, corrected): COMPOUND ASSIGNMENT — `x += e` and friends.
+     *
+     * The plan said the evaluator "cannot execute a loop". It can: gen178 added a
+     * bounded while, gen179 a three-clause for. What it could not do was the one
+     * statement almost every loop BODY is made of. These two differ by nothing
+     * else, and only the first was computable:
+     *
+     *   for (i=1; i<=n; i++) { s = s + i; }   -> sum(3) = 6
+     *   for (i=1; i<=n; i++) { s += i; }      -> "beyond my arithmetic evaluator"
+     *
+     * So the wall was not iteration; it was `+=`. Desugared to `x = x OP e`,
+     * reusing the same expression parser — no second path.
+     *
+     * Division and modulo by zero latch err, so the evaluator refuses honestly
+     * instead of returning a fabricated number. */
+    if (e->c + 1 < e->end && e->c[1] == '=' &&
+        (*e->c == '+' || *e->c == '-' || *e->c == '*' ||
+         *e->c == '/' || *e->c == '%')) {
+        char op = *e->c;
+        e->c += 2;
+        long v = ev_rel(e);
+        if (e->err) return;
+        if (!known) { e->err = 1; return; }      /* update of an unknown name */
+        long r;
+        switch (op) {
+            case '+': r = cur + v; break;
+            case '-': r = cur - v; break;
+            case '*': r = cur * v; break;
+            case '/': if (v == 0) { e->err = 1; return; } r = cur / v; break;
+            default:  if (v == 0) { e->err = 1; return; } r = cur % v; break;
+        }
+        ev_set_local(e, w, r);
+        return;
+    }
+
     if (e->c < e->end && *e->c == '=' && !(e->c + 1 < e->end && e->c[1] == '=')) {
         e->c++;
         long v = ev_rel(e);

@@ -1,0 +1,41 @@
+# gen324 (TODO.md P2, corrected) — compound assignment in the evaluator.
+#
+# TODO.md P2 said "the evaluator cannot execute a LOOP". That was WRONG, and the
+# code refuted it: gen178 added a bounded while, gen179 a three-clause for. These
+# two snippets differ by nothing but the assignment form, and only the first was
+# computable:
+#
+#   for (i=1; i<=n; i++) { s = s + i; }   -> sum(3) = 6
+#   for (i=1; i<=n; i++) { s += i; }      -> "beyond my arithmetic evaluator"
+#
+# The wall was never iteration. It was `+=` — the one statement almost every loop
+# BODY is made of, which is why every real loop looked like a loop failure.
+# Desugared to `x = x OP e`, through the SAME expression parser.
+
+# The exact snippet from the 2026-07-12 conversation that exposed it.
+> what does sum(3) return: int sum(int n){ int s=0; for(int i=0;i<=n;i++) s+=i; return s; }
+< I read it as code and worked it out: sum(3) returns 6.
+
+# Every compound operator, on held-out values.
+> what does f(5) return: int f(int n){ int x=100; x -= n; return x; }
+< I read it as code and worked it out: f(5) returns 95.
+> what does f(3) return: int f(int n){ int x=2; x *= n; return x; }
+< I read it as code and worked it out: f(3) returns 6.
+> what does f(4) return: int f(int n){ int x=20; x /= n; return x; }
+< I read it as code and worked it out: f(4) returns 5.
+> what does f(3) return: int f(int n){ int x=10; x %= n; return x; }
+< I read it as code and worked it out: f(3) returns 1.
+
+# Composed with iteration: a factorial the answer cannot be read off the source.
+> what does fact(5) return: int fact(int n){ int r=1; for(int i=2;i<=n;i++) r *= i; return r; }
+< I read it as code and worked it out: fact(5) returns 120.
+
+# A while-loop body using the same form.
+> what does g(4) return: int g(int n){ int s=0; int i=1; while(i<=n){ s += i*i; i++; } return s; }
+< I read it as code and worked it out: g(4) returns 30.
+
+# HONESTY: /= and %= by zero must REFUSE, never fabricate a number. The evaluator
+# latches an error and the module declines — a wrong integer would be exactly the
+# fabrication gen322 was about.
+> what does f(0) return: int f(int n){ int x=10; x /= n; return x; }
+< I read it as code, but I cannot compute f(0) yet — its body is beyond my arithmetic evaluator.
