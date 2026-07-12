@@ -583,10 +583,15 @@ int brain_reload(Brain *b) {
 /* gen317 (forge W0.4): the version is DERIVED at build time from the VERSION
  * file (generation label) and the git commit — never a hand-maintained string
  * that can drift from the repo (brain_version said gen300 while HEAD was at
- * gen312; that class of lie is now structurally impossible). */
+ * gen312; that class of lie is now structurally impossible).
+ *
+ * gen321 (forge §15 row 7): the stamp is no longer INLINED here. Concatenating
+ * the generated macros inside the brain TU made the whole engine depend on which
+ * commit it was built at, so every commit rebuilt brain.c (12.4 s). We now call
+ * across to src/version.c — the one small TU that sees the stamp. */
 #include "../version.h"
 const char *brain_version(void) {
-    return PARROT0_GEN "@" PARROT0_COMMIT;
+    return parrot0_version();
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

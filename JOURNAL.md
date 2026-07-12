@@ -1,4 +1,44 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen321: the commit stamp is isolated — 11.8 s -> 0.14 s (forge §15 row 7)
+
+**The debt (§3.5), paid on every single generation.** The commit hash was
+generated into `src/version.h`, and every object depends on every header (a
+correct rule: `KB_TERM_LEN` and friends define struct layout, so a stale object
+would link with a mismatched ABI). So a *semantically neutral* commit changed the
+stamp, invalidated every object, and rebuilt the whole brain — **11.8 s of
+compile buying nothing**. I paid it after each of gen318/319/320 in this
+session, which is how it earned its turn.
+
+The deeper harm is not the wall clock. It changed the build fingerprint of an
+engine that had not changed, so no content-addressed cache could ever hit across
+a commit (§10.16). A cache keyed on "what the code means" cannot be keyed on
+"which commit it was built at".
+
+**The fix is where the artifact lives.** A build artifact under `src/` is what
+dragged the commit into every object's header closure. Now:
+
+- `obj/version_stamp.h` — generated into the BUILD DIR from VERSION + git HEAD;
+- `src/version.c` — the one small TU that includes it (`-Iobj`), deliberately
+  tiny because it is the only thing that recompiles on a commit;
+- `src/version.h` — a stable, TRACKED declaration (`parrot0_version()`), no
+  macros, no commit;
+- `brain_version()` no longer concatenates the macros inside the 12 s brain TU;
+  it calls across.
+
+Measured: a neutral commit now recompiles one TU and relinks — **0.14 s**. Cold
+build unchanged (12.1 s), no-op build unchanged (0.02 s).
+
+**Ratchet (`tests/buildstamp.sh`, in `make test`, 5/5).** Two properties that
+pull against each other, so both are pinned: DERIVATION (gen317's — the version
+still reports the VERSION label and the real git HEAD; a hand-maintained string
+that drifts from the repo is exactly the lie gen317 abolished) and ISOLATION
+(gen321's). Isolation is proved against a stamp that really differs — a fake
+commit is written into the build dir and `make -n` is asked what it WOULD
+rebuild; the assertion is that exactly one TU compiles and it is `version.c`,
+and that the brain TU is not in the set. It also refuses a generated stamp
+reappearing under `src/`, which is the regression that would quietly restore the
+debt.
+
 ## 2026-07-12 - gen320: the manifest is audited, because it was lying (forge §15 row 3)
 
 **The debt (§3.4).** `tests/benchmarks.json` is supposed to be the

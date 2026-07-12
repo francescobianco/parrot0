@@ -60,19 +60,32 @@ $(BIN): $(OBJ) | bin
 # generation label lives in the VERSION file (single source) and the commit is
 # read from git at build time. Content-compare so an unchanged version never
 # touches the header (no spurious rebuilds).
+#
+# gen321 (forge §15 row 7): the stamp is generated into the BUILD DIR, not src/.
+# It used to be src/version.h, and since every object depends on every header, a
+# semantically neutral commit invalidated all of them and rebuilt the whole brain
+# (12.4 s measured, §3.5). A build artifact under src/ is what dragged it into
+# every object's header closure. Now only obj/version.o sees it (-Iobj), so a
+# commit recompiles one tiny TU and relinks — the engine's semantic fingerprint
+# no longer depends on WHICH COMMIT it was built at.
 GITHASH := $(shell git rev-parse --short HEAD 2>/dev/null || echo nogit)
-src/version.h: VERSION FORCE
+obj/version_stamp.h: VERSION FORCE | obj
 	@printf '#define PARROT0_GEN "%s"\n#define PARROT0_COMMIT "%s"\n' \
-	  "$$(cat VERSION)" "$(GITHASH)" > src/version.h.tmp; \
-	if cmp -s src/version.h.tmp src/version.h; then rm -f src/version.h.tmp; \
-	else mv src/version.h.tmp src/version.h; fi
+	  "$$(cat VERSION)" "$(GITHASH)" > obj/version_stamp.h.tmp; \
+	if cmp -s obj/version_stamp.h.tmp obj/version_stamp.h; then rm -f obj/version_stamp.h.tmp; \
+	else mv obj/version_stamp.h.tmp obj/version_stamp.h; fi
 FORCE:
 
 # Depend on ALL headers: KB_TERM_LEN etc. live in kb.h and define struct
 # layout, so a header change must rebuild every object or the binary links
 # translation units with mismatched ABIs (silent memory corruption).
-obj/%.o: src/%.c $(HDR) src/version.h | obj
+obj/%.o: src/%.c $(HDR) | obj
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+# The one TU that sees the generated stamp. Explicit rule: it overrides the
+# pattern above so no other object gains -Iobj or a dependency on the commit.
+obj/version.o: src/version.c obj/version_stamp.h $(HDR) | obj
+	$(CC) $(CFLAGS) -Iobj -c -o $@ src/version.c
 
 # brain.o additionally depends on its #include'd fragments.
 obj/brain.o: $(BRAIN_PARTS)
@@ -255,6 +268,7 @@ capability-report: build
 test: build
 	@./tests/run.sh
 	@./tests/checkfocal.sh
+	@./tests/buildstamp.sh
 	@$(BENCH_PY) ./tests/manifest_audit.py
 	@./tests/cuechains.sh
 	@./tests/archetype.sh

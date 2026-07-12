@@ -35,11 +35,22 @@ exist. glue's exit code is now load-bearing on its 9 mechanical continuity check
 `tests/manifest_audit.py` (in `make test`) goes red on a false classification and
 is itself ratcheted against manifests that lie.
 
-**Next rows of §15, in order.** 4-7 are the build-latency block: split
+**Done — gen321 (§15 row 7): the commit stamp is isolated.** A semantically
+neutral commit rebuilt the whole brain (11.8 s) because the hash was generated
+into `src/version.h` and every object depends on every header. The stamp now
+lives in the build dir (`obj/version_stamp.h`), seen only by the tiny
+`src/version.c`; `src/version.h` is a stable tracked declaration. A neutral
+commit recompiles one TU and relinks: **0.14 s**. Beyond the wall clock, this
+stops a semantically unchanged engine from changing its build fingerprint, which
+is what would have made any content-addressed cache (§10.16) unable to hit across
+a commit. Ratchet `tests/buildstamp.sh` (5/5) pins both derivation (gen317's) and
+isolation.
+
+**Next rows of §15, in order.** 4-6, the rest of the build block: split
 `obj/dev`+`bin/dev` from `obj/release`+`bin/release`, pick the dev profile on
-MEASURED compile+focal time (not by decree), generate real `.d` deps, and isolate
-the commit stamp in its own TU — today a semantically neutral commit rebuilds the
-whole brain (11.8 s measured, §3.5). 8-9: a content-addressed `gate-result.json`
+MEASURED compile+focal time (not by decree — brain alone is 1.92 s at O0 vs
+9.33 s at O2), generate real `-MMD -MP` deps so a local header stops rebuilding
+the world. 8-9: a content-addressed `gate-result.json`
 so `make capability-report` stops re-running the six gates it just certified
 (gate + report ≈ 7m47s today). 10-12: isolate piagent/sortlearn ports and tmp,
 shard llmscore_world under a global budget, and a scheduler without nested
