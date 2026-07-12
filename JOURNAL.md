@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen319: every llmscore_world probe addressable by id (forge §15 row 2)
+
+**The wall.** `tests/llmscore_world.sh` is the richest behavioural corpus in the
+suite — 127 probes — and the second most expensive path in `make test` (69.7 s,
+127 fresh boots). It was all-or-nothing: to ask ONE question you paid for the
+126 probes nobody asked about. gen318 made contracts addressable; this makes the
+biggest un-addressable block addressable.
+
+**The change is a filter, not a rewrite.** The oracle is untouched — same
+command, same env, same comparison. Added: an id DERIVED from each probe's
+description (so a probe cannot drift away from its name), a selection gate, and
+two flags:
+
+    tests/llmscore_world.sh --list        # 127 ids
+    tests/llmscore_world.sh --id <id>     # exactly that probe   (0.94 s)
+    tests/llmscore_world.sh               # the full suite       (69.7 s)
+
+Sealed the baseline before touching it (127 pass / 0 fail) and re-measured after
+(127 pass / 0 fail): the suite is what it was.
+
+**Nothing left unclaimed.** Two probes were open-coded `if` blocks — the only
+rows a catalog could not name. They became `expect_turns` (same oracle: two
+turns, compare the last reply), so all 127 rows are addressable and none is
+quietly exempt. `slug()` is pure bash on purpose: a `tr|sed` pipe forked 254
+processes to answer one question, which is the very cost this row exists to
+remove (1.39 s → 0.94 s for a single probe).
+
+**The runner learned a second oracle kind.** `tests/check.py` grows
+`oracle_kind: script-row`: a contract whose oracle is one ROW of a shell
+harness, addressed with `--id`. The harness owns its own boot (that IS the
+contract it asserts), so no env is injected — the catalog says so with
+`boot_profile: script-owned` rather than pretending otherwise. Its exit code
+carries the same honest three-way meaning: 0 pass, 1 functional red, 2 not-run.
+A mistyped id exits 2; a probe that silently ran nothing must never read green.
+
+**Ratchet** (`tests/checkfocal.sh`, 12/12): the script-row contract runs alone
+and green; all 127 probes are addressable with UNIQUE ids (a duplicate slug
+would silently shadow a probe, and a shadowed probe is an unratcheted one); a
+mistyped id is not-run, not green. The full-suite oracle stays ratcheted where
+it always was — `make test` still runs the whole script.
+
 ## 2026-07-12 - gen318: `make check TEST=<id>` — the focal runner (forge M-1a)
 
 **The wall this closes.** Until today the only probe was `make test`: 171 s, 38

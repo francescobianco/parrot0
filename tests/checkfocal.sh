@@ -142,6 +142,37 @@ else
     no "an unknown contract id was not refused (rc=$rc): $out"
 fi
 
+# ---- 5. gen319: a script-row contract runs ALONE (§15 row 2) -----------------
+# llmscore_world is 127 fresh boots / ~70 s; a single probe must be addressable
+# without paying for the 126 nobody asked about. The full-suite oracle itself is
+# ratcheted where it always was — `make test` runs the whole script.
+out="$(cd "$ROOT" && TEST=world.tallest-mountain.en "$PY" tests/check.py 2>&1)"; rc=$?
+if [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -q '^\[S1 1/1 PASS'; then
+    ok "a script-row probe is addressable alone and green"
+else
+    no "the script-row probe did not run green (rc=$rc): $out"
+fi
+
+# Every probe must be addressable, and no two may share a slug — a duplicate id
+# would silently shadow a probe, and a shadowed probe is an unratcheted one.
+ids="$(cd "$ROOT" && ./tests/llmscore_world.sh --list)"
+n_ids="$(printf '%s\n' "$ids" | wc -l)"
+n_uniq="$(printf '%s\n' "$ids" | sort -u | wc -l)"
+n_rows="$(cd "$ROOT" && grep -cE '^expect(_full|_turns)? "' tests/llmscore_world.sh)"
+if [ "$n_ids" -eq "$n_rows" ] && [ "$n_uniq" -eq "$n_ids" ]; then
+    ok "all $n_ids llmscore_world probes are addressable, ids unique"
+else
+    no "probe ids not 1:1 with rows (ids=$n_ids uniq=$n_uniq rows=$n_rows)"
+fi
+
+# A mistyped probe id is NOT-RUN, never green.
+(cd "$ROOT" && ./tests/llmscore_world.sh --id no-such-probe >/dev/null 2>&1); rc=$?
+if [ "$rc" -eq 2 ]; then
+    ok "a mistyped probe id exits 2 (not-run), never 0"
+else
+    no "a mistyped probe id did not exit 2 (rc=$rc)"
+fi
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]

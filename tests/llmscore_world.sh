@@ -1,15 +1,66 @@
 #!/usr/bin/env bash
 # gen235: common world facts must improve llmscore without destroying dynamic
 # learning tests. Prove the layer can be present, suppressed, and relearned.
+#
+# gen319 (forge-master-plan §15 row 2): every probe is now ADDRESSABLE BY ID.
+# The whole script costs ~70 s across 127 fresh boots, so using it to answer one
+# hypothesis meant paying for 126 probes you did not ask about. The oracle is
+# UNCHANGED — the same command, the same env, the same comparison; the only
+# addition is a selection filter and an id derived from the description:
+#
+#   tests/llmscore_world.sh --list          # every probe id
+#   tests/llmscore_world.sh --id <id>       # run exactly that probe
+#   tests/llmscore_world.sh                 # the full suite, byte-identical
+#
+# A filter that matches nothing exits 2 (not-run), never 0 — a probe that
+# silently ran nothing must not read as green.
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "llmscore-world: binary not built" >&2; exit 1; }
 
-pass=0 fail=0
+ONLY="" LIST=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --list) LIST=1; shift ;;
+        --id) ONLY="${2-}"; shift 2 ;;
+        --id=*) ONLY="${1#--id=}"; shift ;;
+        *) echo "llmscore-world: unknown argument '$1'" >&2; exit 2 ;;
+    esac
+done
+
+pass=0 fail=0 selected=0
+
+# The id is DERIVED from the description, so a probe cannot drift away from its
+# name: lowercase, non-alphanumerics collapsed to '-'. Descriptions are unique.
+# Pure bash on purpose: every probe is slugged on every run, and a tr|sed pipe
+# here forked 254 processes to answer one question — the cost this row exists
+# to remove.
+slug() {
+    local s="${1,,}"
+    s="${s//[^a-z0-9]/-}"
+    while [ "${s//--/-}" != "$s" ]; do s="${s//--/-}"; done
+    s="${s#-}"; s="${s%-}"
+    printf '%s' "$s"
+}
+
+# Selection gate shared by every probe form. With no --id/--list this is always
+# true, so the full run is exactly the suite it was before.
+selected() {
+    local id; id="$(slug "$1")"
+    if [ "$LIST" -eq 1 ]; then
+        printf 'llmscore-world.%s\n' "$id"
+        return 1
+    fi
+    [ -z "$ONLY" ] && { selected=$((selected+1)); return 0; }
+    [ "$ONLY" = "$id" ] || [ "$ONLY" = "llmscore-world.$id" ] || return 1
+    selected=$((selected+1))
+    return 0
+}
 
 expect() { # desc env_flag input expected_first_line
     local desc="$1" world="$2" input="$3" want="$4" got
+    selected "$desc" || return 0
     got="$(printf '%s\n/quit\n' "$input" | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS="$world" "$BIN" 2>/dev/null | head -1)"
     if [ "$got" = "$want" ]; then
         echo "PASS llmscore-world: $desc"; pass=$((pass+1))
@@ -20,7 +71,22 @@ expect() { # desc env_flag input expected_first_line
 
 expect_full() { # desc env_flag input expected_full_response
     local desc="$1" world="$2" input="$3" want="$4" got
+    selected "$desc" || return 0
     got="$(printf '%s\n/quit\n' "$input" | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS="$world" "$BIN" 2>/dev/null)"
+    if [ "$got" = "$want" ]; then
+        echo "PASS llmscore-world: $desc"; pass=$((pass+1))
+    else
+        echo "FAIL llmscore-world: $desc - want [$want] got [$got]" >&2; fail=$((fail+1))
+    fi
+}
+
+# gen319: the two multi-turn probes were open-coded if-blocks, so they were the
+# only rows the catalog could not address. Same oracle (two turns, compare the
+# LAST reply) — now a probe like every other.
+expect_turns() { # desc env_flag turn1 turn2 expected_last_line
+    local desc="$1" world="$2" t1="$3" t2="$4" want="$5" got
+    selected "$desc" || return 0
+    got="$(printf '%s\n%s\n/quit\n' "$t1" "$t2" | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS="$world" "$BIN" 2>/dev/null | tail -1)"
     if [ "$got" = "$want" ]; then
         echo "PASS llmscore-world: $desc"; pass=$((pass+1))
     else
@@ -90,17 +156,10 @@ expect "world layer can be suppressed" "0" \
     "what is the capital of france?" \
     "I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from."
 
-learned="$(printf '%s\n%s\n/quit\n' \
+expect_turns "suppressed world can relearn capital" "0" \
     "paris is the capital of france" \
     "what is the capital of france?" \
-    | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=0 "$BIN" 2>/dev/null | tail -1)"
-if [ "$learned" = "Paris." ]; then
-    echo "PASS llmscore-world: suppressed world can relearn capital"
-    pass=$((pass+1))
-else
-    echo "FAIL llmscore-world: suppressed world can relearn capital - want [Paris.] got [$learned]" >&2
-    fail=$((fail+1))
-fi
+    "Paris."
 
 # --- gen241 (docs/plans/llmscore-check.md): sweep of bench prompts scored 0, each
 # fixed KB-first against world-facts.p0. All single-line, deterministic on a fresh
@@ -430,16 +489,18 @@ expect "arrangement optimization calibrated decline" "1" \
     "A farmer has 20 sheep and 5 fences. Each fence can enclose a separate area, but the farmer wants to arrange them so that each enclosed area shares a fence with at least one other area. What's the maximum number of sheep that can be kept separate from all others, assuming each separate area must contain at least one sheep?" \
     "That's a constrained-arrangement puzzle: I can read the quantities, but I don't have a solver that can verify an optimal arrangement under those sharing constraints, so I won't guess a number."
 
-follow="$(printf '%s\n%s\n/quit\n' \
+expect_turns "creative follow-up picks offered theme" "1" \
     "Write a short, two-line rhyming poem about glass." \
     "Moon." \
-    | PARROT0_BASE= PARROT0_SESSION= PARROT0_WORLD_FACTS=1 "$BIN" 2>/dev/null | tail -1)"
-if [ "$follow" = "The pale moon climbs and spills its quiet light; it lays a silver road across the night." ]; then
-    echo "PASS llmscore-world: creative follow-up picks offered theme"
-    pass=$((pass+1))
-else
-    echo "FAIL llmscore-world: creative follow-up picks offered theme - want [The pale moon climbs and spills its quiet light; it lays a silver road across the night.] got [$follow]" >&2
-    fail=$((fail+1))
+    "The pale moon climbs and spills its quiet light; it lays a silver road across the night."
+
+[ "$LIST" -eq 1 ] && exit 0
+
+# A filter that matched nothing is NOT-RUN, never green (forge plan §1.8): a
+# mistyped id must not read as a passing probe.
+if [ -n "$ONLY" ] && [ "$selected" -eq 0 ]; then
+    echo "llmscore-world: no probe matches '$ONLY' (see --list)" >&2
+    exit 2
 fi
 
 echo "---"

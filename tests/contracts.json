@@ -11,6 +11,10 @@
         "PARROT0_WORLD_FACTS": "0",
         "PARROT0_LANG": "en"
       }
+    },
+    "script-owned": {
+      "_comment": "for oracle_kind 'script-row': the harness sets its own boot (that IS part of the contract it asserts), so the runner injects no env of its own.",
+      "env": {}
     }
   },
 
@@ -56,6 +60,21 @@
       "timeout_ms": 5000,
       "mutators": ["numbers"],
       "note": "collision NEGATIVE for the agent-search contracts: pure arithmetic must still be claimed by math. A fix that hands search its turn by weakening arithmetic turns this row red."
+    },
+    {
+      "id": "world.tallest-mountain.en",
+      "capability": "world_knowledge",
+      "owner": ["mod_knowledge", "kb/core/world.p0"],
+      "depends_on": ["kb/core/world.p0", "src/brain/10-memory-knowledge.c"],
+      "boot_profile": "script-owned",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/llmscore_world.sh",
+      "oracle_kind": "script-row",
+      "oracle_row": "llmscore-world.world-superlative-tallest-mountain",
+      "timeout_ms": 5000,
+      "mutators": ["language"],
+      "note": "gen319 (§15 row 2): the first probe of llmscore_world addressable ALONE. The suite is 127 fresh boots / ~70 s, so answering one hypothesis used to cost 126 probes nobody asked about. `--id` selects; the oracle (command, env, comparison) is unchanged. All 127 rows are addressable — `tests/llmscore_world.sh --list` — and migrate into this catalog as generations touch them."
     }
   ]
 }

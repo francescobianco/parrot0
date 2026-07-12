@@ -83,12 +83,48 @@ def read_reply(proc: subprocess.Popen, deadline: float) -> list[str] | None:
         lines.append(line)
 
 
+def run_script_row(c: dict, oracle: Path) -> dict:
+    """gen319: a contract whose oracle is one ROW of a shell harness.
+
+    The harness owns its own boot (that IS the contract), so no env is injected;
+    it is addressed with `--id <row>` and its exit code carries the same honest
+    three-way meaning the runner uses: 0 pass, 1 functional red, 2 not-run.
+    """
+    t0 = time.monotonic()
+    try:
+        proc = subprocess.run(
+            [str(oracle), "--id", c["oracle_row"]], cwd=ROOT,
+            capture_output=True, text=True,
+            timeout=c["timeout_ms"] / 1000.0)
+    except subprocess.TimeoutExpired:
+        return {"execution_state": "timeout", "verdict": "unknown",
+                "detail": f"exceeded {c['timeout_ms']} ms",
+                "ms": (time.monotonic() - t0) * 1000.0}
+
+    ms = (time.monotonic() - t0) * 1000.0
+    out = [l for l in (proc.stdout + proc.stderr).splitlines() if l.strip()]
+    if proc.returncode == 0:
+        return {"execution_state": "ran", "verdict": "pass", "turns": 1, "ms": ms}
+    if proc.returncode == 1:
+        # The harness already states want/got in its own words; quote it rather
+        # than re-render it into a shape it does not have.
+        return {"execution_state": "ran", "verdict": "fail", "turn": 1,
+                "user": c["oracle_row"],
+                "lines": [l for l in out if l.startswith("FAIL")] or out[-1:],
+                "ms": ms}
+    return {"execution_state": "infra_error", "verdict": "unknown",
+            "detail": out[-1] if out else f"exit {proc.returncode}", "ms": ms}
+
+
 def run_contract(c: dict, profiles: dict) -> dict:
     """Execute one contract in its own process. Stops at the first bad turn."""
     oracle = ROOT / c["oracle"]
     if not oracle.is_file():
         return {"execution_state": "infra_error", "verdict": "unknown",
                 "detail": f"oracle missing: {c['oracle']}", "ms": 0.0}
+
+    if c.get("oracle_kind") == "script-row":
+        return run_script_row(c, oracle)
 
     turns = parse_case(oracle)
     if not turns:
@@ -206,9 +242,11 @@ def main() -> int:
         if r["verdict"] == "fail":
             print(f"{tag} FAIL ] {ms:6.0f} ms  turn {r['turn']}: "
                   f"{r['user']!r}", flush=True)
-            for line in r["expected"]:
+            for line in r.get("lines", []):
+                print(f"        {line}")
+            for line in r.get("expected", []):
                 print(f"        expected: {line}")
-            for line in r["observed"]:
+            for line in r.get("observed", []):
                 print(f"        observed: {line}")
             print(f"first broken contract: {c['id']} "
                   f"(owner: {', '.join(c['owner'])})")
