@@ -2481,6 +2481,30 @@ int code_compile(const char *path, char *err_out, size_t err_sz) {
     return 0;
 }
 
+/* gen322: ask the real compiler about a snippet held in memory. See code.h —
+ * this exists to REFUTE a syntax claim, never to make one. */
+int code_syntax_ok(const char *src) {
+    if (!src || !*src) return -1;
+
+    /* A bare statement/expression fragment is not a translation unit; cc would
+     * reject it for reasons that say nothing about the user's question. Only a
+     * snippet that at least declares something is submitted to the oracle —
+     * anything else returns -1 (unknown), never a verdict. */
+    if (!strchr(src, '{')) return -1;
+
+    char tmp[64];   /* gen278: per-process temp (parallel-safe) */
+    snprintf(tmp, sizeof tmp, ".p0_syntax_%ld.c", (long)getpid());
+    FILE *f = fopen(tmp, "w");
+    if (!f) return -1;
+    fputs(src, f);
+    fputc('\n', f);
+    fclose(f);
+
+    int r = code_compile(tmp, NULL, 0);
+    remove(tmp);
+    return r;
+}
+
 int code_build(const char *src_path, char *err_out, size_t err_sz) {
     if (err_out && err_sz) err_out[0] = '\0';
     if (!src_path || !*src_path) return -1;

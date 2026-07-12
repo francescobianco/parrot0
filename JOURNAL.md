@@ -1,4 +1,69 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen322: parrot0 stops FABRICATING code defects (TODO.md P0)
+
+**Found by talking to it, not by a benchmark.** F.'s critique was that a morning
+of forge work had improved the process and not parrot0. Opening `make chat` and
+asking it real coding questions produced this within four turns:
+
+```
+you> what is wrong with this code: int add(int a, int b) { return a + b; }
+parrot0> Issue found: Missing semicolon at the end of a statement.
+```
+
+That is correct C. parrot0 invented a defect that does not exist — the one thing
+a verifiable coding agent may never do (PRINCIPLES.md; a misclaim is worse than
+a wall). It did it for *every* correct one-line function.
+
+**Root cause** (`70-social-pragma.c`): the check found `return `, then compared
+the character **immediately before** the closing `}` against `;`. In a one-line
+function — the only shape the line-based chat surface can receive — that
+character is a **space**. The two snippets below differ by ONE SPACE and used to
+get opposite verdicts:
+
+```
+int f(void) { return 0; }   -> "Missing semicolon"        (fabricated)
+int f(void) { return 0;}    -> "no obvious errors"        (right)
+int f(void) { return 0 }    -> "Missing semicolon"        (right, by accident)
+```
+
+**Why 25/25 code-bench gates were green.** Every existing case fed the checkers
+BROKEN code. Not one ever fed them CORRECT code, so nothing ever proved they stay
+SILENT — and a checker is only trustworthy once it has been shown to say nothing.
+The green suite was measuring the half of the contract that could not fail.
+
+**The fix is not the off-by-one.** That is patched (step back over whitespace,
+test the last real character), but patching a hand-rolled scanner leaves the
+whole CLASS alive. The claim itself is now grounded in an oracle that was already
+sitting in the tree: `code_syntax_ok()` submits the snippet to `cc -fsyntax-only`
+(gen186's sandboxed compiler). If the compiler accepts the translation unit,
+there IS no missing semicolon, no unclosed string, no unbalanced brace — by
+construction, so the finding is refuted.
+
+The oracle is a **veto, never a source**: it can only kill a finding, never
+invent one. It is three-way (1 compiles / 0 rejected / -1 not judgeable), and a
+fragment it cannot judge leaves the scanners exactly as they were. Type-mismatch
+and unknown-function are deliberately NOT vetoed: `cc -w` accepts
+`int x = "hi"`, so silence there would prove nothing.
+
+**And the answer names its own limit**, because the honest reply to "what is
+wrong with this code" is not "nothing":
+
+```
+I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I
+checked: I cannot yet tell you whether it computes what you intended.
+```
+
+So the deliberately-wrong `for (i = 0; i <= n; i++)` (sums 1..n, not 1..n-1) is
+ratcheted as a case parrot0 must NOT claim to solve. It cannot see a semantic
+bug, and it must not invent a syntactic one to look useful.
+
+**Ratchet:** `tests/cases/code.chat` gains the negative contract that was never
+sealed — correct code ⇒ no finding — over held-out shapes (loop, pointer swap,
+multi-statement) plus the one-space pair that localizes the old bug exactly.
+Addressable as `make check TEST=code.no-fabricated-defect.en` (1.5 s).
+Evidence: 243/243 `tests/run.sh`, 25/25 code-bench. Full `make gate` not run at
+F.'s instruction — this is not gate-certified evidence.
+
 ## 2026-07-12 - gen321: the commit stamp is isolated — 11.8 s -> 0.14 s (forge §15 row 7)
 
 **The debt (§3.5), paid on every single generation.** The commit hash was

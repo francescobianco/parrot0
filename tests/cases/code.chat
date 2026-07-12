@@ -35,3 +35,34 @@
 # --- explain code ---
 > explain this code: printf("hello");
 < This is a C code snippet. It prints output using printf.
+
+# --- gen322: CORRECT code must produce NO finding (the contract nobody sealed) ---
+# Every case above feeds the checkers BROKEN code, so nothing ever proved they
+# stay SILENT. They did not: the missing-semicolon check compared the character
+# immediately before '}' — a SPACE in a one-line function — so every correct
+# one-line C function was reported "Missing semicolon at the end of a statement."
+# A checker is only trustworthy once it has been shown to say nothing.
+# The claim is now grounded in the compiler that was already in the tree: if
+# cc -fsyntax-only accepts the translation unit, a syntax finding is false by
+# construction.
+> what is wrong with this code: int add(int a, int b) { return a + b; }
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+
+# The whitespace pair that localizes the old bug exactly: these two differ by ONE
+# SPACE, and used to get opposite verdicts.
+> what is wrong with this code: int f(void) { return 0; }
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+> what is wrong with this code: int f(void) { return 0;}
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+
+# Held-out shapes: a loop, a call, a pointer, multiple statements.
+> find the bug in: int sum(int n) { int s = 0; for (int i = 0; i < n; i++) s += i; return s; }
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+> what is wrong with this code: void swap(int *a, int *b) { int t = *a; *a = *b; *b = t; }
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+
+# HONESTY: this one really IS wrong (i <= n sums 1..n, not 1..n-1), and parrot0
+# cannot see a SEMANTIC bug. It must say what it checked and stop — never invent
+# a syntax defect to look useful. A misclaim is worse than a wall.
+> what is wrong with this code: int sum(int n) { int s = 0; for (int i = 0; i <= n; i++) s += i; return s; }
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.

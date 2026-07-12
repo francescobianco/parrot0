@@ -1031,7 +1031,23 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
 
     if (lang == 1) {  /* C */
         char r[256];
-        if (check_missing_semicolons(code, r, sizeof r)) {
+        /* gen322: the COMPILER is the oracle for syntax, and it was sitting
+         * right here unused. These scanners are hand-rolled and they fabricated:
+         * every correct one-line C function was reported as "Missing semicolon"
+         * (the check compared the char before '}', which is a space). A false
+         * finding is worse than a wall.
+         *
+         * So a pure-syntax claim is now VETOED by cc -fsyntax-only: if the
+         * compiler accepts the translation unit, there IS no missing semicolon,
+         * no unclosed string and no unbalanced brace — by construction. The
+         * oracle can only refute a finding, never invent one, so a fragment it
+         * cannot judge (syn == -1) leaves the scanners exactly as they were.
+         *
+         * Type mismatch and unknown-function are NOT vetoed: `cc -w` accepts
+         * `int x = "hi"`, so silence there would mean nothing. */
+        int syn = code_syntax_ok(code);
+
+        if (syn != 1 && check_missing_semicolons(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
@@ -1041,17 +1057,17 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (check_unclosed_string(code, r, sizeof r)) {
+        if (syn != 1 && check_unclosed_string(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (check_balanced_braces(code, r, sizeof r)) {
+        if (syn != 1 && check_balanced_braces(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (check_balanced_parens(code, r, sizeof r)) {
+        if (syn != 1 && check_balanced_parens(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
@@ -1060,6 +1076,17 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
+        }
+
+        /* Nothing found AND the compiler verified it: say so with the evidence,
+         * and name the limit honestly — a clean syntax check says nothing about
+         * whether the code COMPUTES the right thing. */
+        if (errors == 0 && syn == 1 && (qtype == 1 || qtype == 2)) {
+            snprintf(out, out_size,
+                     "I compiled it (cc -fsyntax-only) and it has no syntax errors. "
+                     "That is all I checked: I cannot yet tell you whether it "
+                     "computes what you intended.");
+            return 1;
         }
     } else if (lang == 2) {  /* Python */
         if (strstr(code, "def ") || strstr(code, "if ") || strstr(code, "for ") ||

@@ -16,7 +16,27 @@
 
 ---
 
-## P0 — parrot0 FABRICATES a code defect (honesty regression)
+## P0 — parrot0 FABRICATES a code defect (honesty regression) — **DONE, gen322**
+
+> **Closed.** The syntax claim is now vetoed by `cc -fsyntax-only`
+> (`code_syntax_ok()`), the oracle that was already in the tree: if the compiler
+> accepts the translation unit, a syntax finding is false by construction. The
+> veto can only refute a finding, never invent one. The off-by-one at
+> `70-social-pragma.c` is fixed too, but that alone would have left the whole
+> class alive. The reply now names its own limit — *"I compiled it: no syntax
+> errors. That is all I checked: I cannot yet tell you whether it computes what
+> you intended."* — so the deliberately-wrong `i <= n` is ratcheted as a case
+> parrot0 must NOT claim to solve.
+>
+> **The lesson that generalizes, and the reason this was invisible:** every
+> existing case fed the checkers BROKEN code. Not one fed them CORRECT code. A
+> checker is only trustworthy once it has been shown to stay **silent**, and
+> 25/25 green gates were measuring the half of the contract that could not fail.
+> **Every `check_*` in the tree still needs its correct-input negative.** That is
+> the next honesty sweep, and it is cheap.
+
+<details>
+<summary>original report (kept as the counterexample that produced the fix)</summary>
 
 This outranks every feature. `PRINCIPLES.md` forbids the impostor, and the forge
 plan is explicit that a **misclaim is worse than a wall** (§1.6).
@@ -62,6 +82,8 @@ cross-checks against the compiler that sits right next to it.
 **Wider lesson to encode:** every `check_*` in the code module needs a
 correct-code negative. A checker is only trustworthy if it has been shown to stay
 silent.
+
+</details>
 
 ---
 
@@ -215,7 +237,7 @@ cosmetic feature for this project. It is the anti-impostor property itself.
 
 | # | Row | Why here |
 |---|---|---|
-| P0 | the fabrication | an agent that invents defects is worse than one that declines; it is also a one-line fix with a free oracle |
+| ~~P0~~ | ~~the fabrication~~ | **DONE gen322** — grounded the syntax claim in the compiler that was already in the tree. Left behind: every other `check_*` still needs its correct-input negative |
 | P1 | the code keyhole | it unlocks faculties that ALREADY EXIST — highest leverage per line, and it is KB-first, not C |
 | P6 | the routing collision | cheap, and it restores honest self-report |
 | P2 | loops in the evaluator | the precondition for reasoning about real code |

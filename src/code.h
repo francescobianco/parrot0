@@ -240,6 +240,21 @@ int code_delete_function(const char *src_path, const char *fnname,
  * compiles, 0 if not (diagnostics in err_out), -1 if it could not be run. */
 int code_compile(const char *path, char *err_out, size_t err_sz);
 
+/* gen322: the same compiler, asked about a SNIPPET held in memory rather than a
+ * file on disk. It exists to REFUTE a claim, never to make one.
+ *
+ * parrot0's syntax "checks" were hand-rolled scanners whose findings were
+ * asserted as truth with no oracle, and they fabricated: every correct one-line
+ * C function was reported as "Missing semicolon at the end of a statement."
+ * A compiler that can settle the question was already in the tree. If cc accepts
+ * the translation unit under -fsyntax-only, then a syntax finding is FALSE by
+ * construction — and a false finding is worse than a wall (PRINCIPLES.md).
+ *
+ * Three-way on purpose: 1 = it compiles, 0 = the compiler rejects it, -1 = the
+ * oracle could not be run OR the snippet is not a standalone translation unit.
+ * -1 is NOT "fine" and NOT "broken"; the caller must not read it as either. */
+int code_syntax_ok(const char *src);
+
 /* gen192: F5 verification by BUILDING — compile AND link `src_path` into a temp
  * executable (sandboxed subprocess, no shell, path whitelist, timeout; the temp
  * executable is removed before returning). Unlike code_compile's -fsyntax-only,

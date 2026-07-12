@@ -918,15 +918,26 @@ static int check_missing_semicolons(const char *code, char *findings,
             if (strcmp(fw, *k) == 0) { is_kw = 1; break; }
         if (is_kw && l[len-1] != '}') issues++;
         /* Check for statement before closing brace: scan for "keyword ... }"
-         * e.g. "int main() { return 0 }" — "return 0 }" has no semicolon */
+         * e.g. "int main() { return 0 }" — "return 0 }" has no semicolon.
+         *
+         * gen322: this fabricated. It compared the character IMMEDIATELY before
+         * the '}' against ';' — but in a one-line function (the only shape the
+         * line-based chat surface can receive) that character is a SPACE:
+         *
+         *   "int f(void) { return 0; }"  -> char before '}' is ' ' -> "missing ;"
+         *   "int f(void) { return 0;}"   -> char before '}' is ';' -> silent
+         *
+         * So every correct one-line function was reported broken, and the truly
+         * broken one passed only by accident. Step back over the whitespace and
+         * test the last REAL character of the statement. */
         if (l[len-1] == '}' && strchr(l, '{')) {
             const char *p = l;
             while ((p = strstr(p, "return ")) != NULL) {
                 const char *q = p + 7; while (*q && isspace((unsigned char)*q)) q++;
-                /* Find next } or end */
-                const char *br = strchr(q, '}');
-                size_t n = br ? (size_t)(br - p) : strlen(p);
-                if (n > 0 && p[n-1] != ';') { issues++; break; }
+                const char *end = strchr(q, '}');      /* next } or end of line */
+                if (!end) end = q + strlen(q);
+                while (end > q && isspace((unsigned char)end[-1])) end--;
+                if (end > q && end[-1] != ';') { issues++; break; }
                 p++;
             }
         }

@@ -62,6 +62,20 @@
       "note": "collision NEGATIVE for the agent-search contracts: pure arithmetic must still be claimed by math. A fix that hands search its turn by weakening arithmetic turns this row red."
     },
     {
+      "id": "code.no-fabricated-defect.en",
+      "capability": "code_reading",
+      "owner": ["mod_code", "check_missing_semicolons", "code_syntax_ok"],
+      "depends_on": ["src/brain/80-code.c", "src/brain/70-social-pragma.c", "src/code.c"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/code.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["whitespace", "decoy"],
+      "note": "gen322 (TODO.md P0): parrot0 FABRICATED a code defect — every correct one-line C function was reported 'Missing semicolon'. Found by talking to it, not by a benchmark: 25/25 code-bench gates were green because no case ever fed the checkers CORRECT code. The syntax claim is now vetoed by cc -fsyntax-only, the oracle that was already in the tree. A misclaim is worse than a wall."
+    },
+    {
       "id": "world.tallest-mountain.en",
       "capability": "world_knowledge",
       "owner": ["mod_knowledge", "kb/core/world.p0"],
