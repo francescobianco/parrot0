@@ -59,3 +59,18 @@
 # numbers) is left for mod_agent, not claimed as a one-shot computation.
 > start at 3 and double until you reach 50
 < Reached 96 after 5 steps: 3 -> 6 -> 12 -> 24 -> 48 -> 96.
+
+# gen312/gen313: COMPOUND expressions fold single-op operands over +,-,*,/
+# (* and / bind first). These are the tests gen312 shipped without.
+> what is 15 percent of 80 plus the square root of 144
+< 24.
+> what is 4 times 5 plus 2
+< 22.
+> what is 100 minus half of 40
+< 80.
+
+# gen313 anti-overreach: prose that merely mentions "times"/"twice" is a word
+# problem, not an expression — the compound evaluator must decline (any content
+# word outside the expression vocabulary), leaving the turn to the solver.
+> A father is four times as old as his son. In 20 years, the father will be twice as old as his son. How old are they both right now?
+< The son is 10 and the father is 40.

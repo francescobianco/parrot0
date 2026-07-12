@@ -212,6 +212,34 @@ static int eval_operand(char **w, size_t s, size_t e, double *val) {
     return 0;
 }
 
+/* gen313: a spoken arithmetic EXPRESSION contains only expression vocabulary —
+ * numerals, operators, computation forms and question lead-ins. Any other
+ * content word ("father", "old", "years", "apples") means the sentence is
+ * PROSE that merely mentions an operation; those turns belong to the
+ * word-problem/algebra modules downstream, so the compound evaluator must
+ * decline instead of stealing them ("four times as old as his son" is not
+ * 4 * anything). The "exactly one numeral per span" check alone could not
+ * see the difference. */
+static int expr_vocab_ok(char **w, size_t nw) {
+    static const char *const ok[] = {
+        "what", "whats", "is", "how", "much", "calculate", "compute",
+        "evaluate", "tell", "me", "the", "a", "an", "of", "and", "equals",
+        "equal", "to", "result", "value", "sum",
+        "percent", "%", "sqrt", "root", "square", "squared", "cubed",
+        "half", "third", "quarter", "fourth",
+        "plus", "minus", "times", "multiplied", "divided", "by",
+        NULL };
+    for (size_t i = 0; i < nw; i++) {
+        double v;
+        if (!w[i][0] || parse_value(w[i], &v)) continue;
+        int hit = 0;
+        for (size_t k = 0; ok[k]; k++)
+            if (!strcmp(w[i], ok[k])) { hit = 1; break; }
+        if (!hit) return 0;
+    }
+    return 1;
+}
+
 /* Split norm into operand spans at top-level +,-,*,/ operators, evaluate each
  * with eval_operand, then fold (* and / bind before + and -). Returns 0 (fall
  * through to the single-op handlers) when there is no operator or any span is
@@ -227,6 +255,7 @@ static int arith_compound(const char *norm, char *out, size_t out_size) {
     char *w[40];
     size_t nw = split_words(buf, w, 40);
     for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
+    if (!expr_vocab_ok(w, nw)) return 0;
 
     size_t opos[16]; char ochar[16]; size_t nop = 0;
     for (size_t i = 0; i < nw && nop < 16; i++) {
