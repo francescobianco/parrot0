@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test gate capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test check gate capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -234,6 +234,13 @@ rulescore: build
 longtalk-bench: build
 	@$(BENCH_PY) ./tests/longtalk_bench.py $(LONGTALK_ARGS)
 
+# gen318 (forge W0b, M-1a): the FOCAL runner — address ONE contract by id, see
+# it stream, stop at the first counterexample. `make check` lists the catalog;
+# `make check TEST=routing.agent-search.en` runs that contract; a prefix runs the
+# family. This is the Tick's instrument: the whole suite is not a probe.
+check: build
+	@$(BENCH_PY) ./tests/check.py
+
 # gen316 (forge W0): run every benchmark the manifest (tests/benchmarks.json)
 # declares as a 'gate' ratchet; red gate = baseline-broken, nothing promotes.
 gate: build
@@ -247,6 +254,7 @@ capability-report: build
 
 test: build
 	@./tests/run.sh
+	@./tests/checkfocal.sh
 	@./tests/cuechains.sh
 	@./tests/archetype.sh
 	@./tests/persist.sh

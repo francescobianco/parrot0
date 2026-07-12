@@ -1,0 +1,61 @@
+{
+  "_comment": "gen318 (forge-master-plan W0b M-1a, §10.12): the GRANULAR contract catalog. tests/benchmarks.json catalogs whole AREAS ('make test' is one row); this catalogs individual executable CONTRACTS, addressable by id: `make check TEST=routing.agent-search.en`. A contract names its owner, its dependencies, its boot profile, its lane (tier), its isolation, its mechanical oracle and its hard timeout — so a red result names the level that owns it instead of only printing a wrong sentence.",
+  "_migration_comment": "M-1a requires ONE real contract, not a big-bang migration: every area migrates when a generation TOUCHES it. The rows below are the C1 campaign corpus (§16) — the agent-search routing contracts that gen313-315 fixed, plus the arithmetic collision negative that used to steal them. Unmigrated cases still run inside the 'core' area via tests/run.sh and are NOT silently claimed here.",
+
+  "boot_profiles": {
+    "hermetic-en": {
+      "_comment": "the tests/run.sh boot: no kb/ files, no session, no world facts, language pinned to English so a case is deterministic regardless of the developer's OS locale.",
+      "env": {
+        "PARROT0_BASE": "",
+        "PARROT0_SESSION": "",
+        "PARROT0_WORLD_FACTS": "0",
+        "PARROT0_LANG": "en"
+      }
+    }
+  },
+
+  "contracts": [
+    {
+      "id": "routing.agent-search.en",
+      "capability": "agent.routing",
+      "owner": ["mod_search", "router"],
+      "depends_on": ["src/brain/60-agent-tools.c", "src/brain/20-math.c"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/agent_search.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["numbers", "language", "decoy"],
+      "note": "gen119 BFS planner. gen313-315 red: compound arithmetic preempted the router and stole this turn."
+    },
+    {
+      "id": "routing.agent-search.it",
+      "capability": "agent.routing",
+      "owner": ["mod_search", "router"],
+      "depends_on": ["src/brain/60-agent-tools.c", "src/brain/20-math.c"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/agent_search.it.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["numbers", "decoy"],
+      "note": "the same search competence through Italian framing words — one code path, not a duplicated handler."
+    },
+    {
+      "id": "routing.arith-pure.en",
+      "capability": "agent.routing",
+      "owner": ["mod_math", "router"],
+      "depends_on": ["src/brain/20-math.c"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/arith.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["numbers"],
+      "note": "collision NEGATIVE for the agent-search contracts: pure arithmetic must still be claimed by math. A fix that hands search its turn by weakening arithmetic turns this row red."
+    }
+  ]
+}

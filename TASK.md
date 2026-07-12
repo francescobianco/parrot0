@@ -2,7 +2,39 @@
 
 > One goal at a time. When it is done, replace this with the next one.
 
-## Active — MCP engine mission (docs/plans/mcp-engine.md), F. 2026-07-06
+## Active — PARROT0 FORGE (docs/plans/parrot0-forge-master-plan.md), F. 2026-07-12
+
+The master plan is the canonical order of work. Current milestone: **M-1a
+Direction** (§19) — make an experiment cheap, progressive and attributable
+BEFORE adding features or more promotion bureaucracy. Its table of the next
+twelve promotions is §15; each row must reduce a MEASURED latency or close a
+real counterexample, or it does not earn a generation.
+
+**Done — gen318 (§15 row 1): the focal runner.** `make check TEST=<id>`
+addresses one contract by id, streams START/PASS/FAIL as it happens and stops at
+the first counterexample. `tests/contracts.json` is the granular catalog (§10.12:
+owner, depends_on, boot_profile, tier, isolation, oracle, timeout); the first
+rows are the C1 campaign corpus (§16) — agent-search EN/IT plus the arithmetic
+collision negative. Measured: focal contract 0.38 s, C1 family 1.21 s, first
+event 0 ms (budgets: 5 s / 500 ms). Execution and function stay separate — a
+timeout or broken harness is `verdict=unknown`, exit 2, never a functional FAIL
+(§1.8). Ratchet `tests/checkfocal.sh` (9/9, in `make test`) proves the fail-fast
+is real against a known-red fixture.
+
+**Next rows of §15, in order.** 2: expose `llmscore_world`'s expect rows by id.
+3: make manifest and exit semantics agree for glue/mimic/MMLU/BBH (the manifest
+currently calls `glue-bench` a gate while the script always exits 0 — §3.4).
+4-7: split `obj/dev`+`bin/dev` from `obj/release`+`bin/release`, pick the dev
+profile on measured compile+focal time, generate real `.d` deps, isolate the
+commit stamp in its own TU (today a neutral commit rebuilds the whole brain:
+11.8 s). 8-9: a content-addressed `gate-result.json` so `make capability-report`
+stops re-running the six gates it just certified (gate+report ≈ 7m47s today).
+
+Discipline unchanged: one contract per generation, KB-first where a capability is
+a fact set or lexical class, honest decline over fabrication, `make gate` green
+before a promotion lands.
+
+## Parked — MCP engine mission (docs/plans/mcp-engine.md), F. 2026-07-06
 
 **The mission.** `parrot0 --mcp-engine` = a JSON-RPC-over-stdio MCP server that
 exposes the Prolog engine + generation primitives as tools, so an external agent

@@ -1,4 +1,50 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen318: `make check TEST=<id>` — the focal runner (forge M-1a)
+
+**The wall this closes.** Until today the only probe was `make test`: 171 s, 38
+serial harnesses, every verdict withheld until the final aggregation. A wrong
+hypothesis therefore cost minutes, and a red line named a wrong sentence, never
+the level that owned it. The master plan calls this the decision-latency
+invariant (§1.8): the time from edit to first counterexample is a property of
+the product, not a developer comfort. This is the first row of its §15 table.
+
+**The catalog (§10.12).** `tests/benchmarks.json` catalogs whole AREAS — `make
+test` is ONE row. `tests/contracts.json` is the new GRANULAR catalog: a contract
+declares id, capability, owner, depends_on, boot_profile, tier, isolation,
+oracle and hard timeout. M-1a asks for one real contract, not a big-bang
+migration, so the rows are the C1 campaign corpus (§16): the two agent-search
+routing contracts that gen313-315 repaired, plus the arithmetic case that used
+to steal their turns, registered as their explicit collision NEGATIVE. Every
+other case still runs inside the `core` area and is not silently claimed here.
+
+**The runner.** `make check TEST=routing.agent-search.en` addresses one contract
+by id; a prefix runs the family, cheapest first. Turns are framed per-turn
+through the real process (PARROT0_EOT), so the run streams a verdict as it
+happens and STOPS at the first counterexample. Measured: the focal contract
+0.38 s, the whole C1 family 1.21 s, first event 0 ms — against the M-1a budgets
+of 5 s and 500 ms.
+
+**Honesty, where a runner usually cheats.** Execution and function are separate
+results (§10.6 r5): `execution_state ∈ {ran, timeout, infra_error}` beside
+`verdict ∈ {pass, fail, unknown}`. A timeout or a broken harness exits 2 with
+verdict=unknown — it is not a functional FAIL and must not be re-run blind
+(§1.8). Evidence is reported `fresh`: there is no cache yet, and a cache of hope
+is worse than none (§10.16 is a later row). The runner does NOT report a
+`winner=` — the structured status/winner/proof seam of §10.13 does not exist
+yet, so it reports the owner the CATALOG declares, the turn that broke, and
+expected against observed. It claims no seam it does not have.
+
+**The ratchet (`tests/checkfocal.sh`, in `make test`).** A runner that can only
+say PASS is worthless, so the ratchet feeds it a fixture catalog holding a
+known-red contract and proves: fail-fast is REAL (the contract queued behind the
+red one never starts), the red names turn/expected/observed/owner, a broken
+harness is infra_error/unknown and exits 2 rather than 1, and an unknown id is
+refused instead of being reported green. 9/9.
+
+This generation is `harness` work in the §10.3 sense — it adds no capability to
+parrot0 and is counted separately. It buys the thing every later row spends:
+direction before the hypothesis cools.
+
 ## 2026-07-10 - gen305: `make autolearn` — the autonomous MCP trainer (T0.e)
 
 **F.'s design**: "una target make autolearn che si mette lì ad automigliorarsi con
