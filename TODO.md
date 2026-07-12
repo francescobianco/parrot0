@@ -233,7 +233,24 @@ This is the forge plan's W3 and the single biggest structural jump on the list.
 
 ---
 
-## P5 — a nonce-word syllogism walls
+## P5 — a nonce-word syllogism walls — **DONE, gen326**
+
+> **Closed — and the row was half wrong, in an instructive way.** parrot0 has had
+> premises-in-the-turn reasoning since gen231 (nonce vocabulary, multi-link
+> chains, honest refusals, a scratch KB that pollutes nothing). I did not check,
+> and nearly shipped a SECOND syllogism module beside it — the duplication
+> PRINCIPLES forbids. It was already stealing `transitivity.chat` turns before I
+> found the original. Deleted.
+>
+> The real gap was ONE question form: gen231 resolved only a GROUND conclusion
+> ("is socrates a mortal?"). The UNIVERSAL form its own premises entail ("are all
+> bloops lazzies?") walled, because it names no individual to look up. A universal
+> is now proved the way a universal is proved — an ARBITRARY WITNESS of the
+> subject class, asserted into the scratch KB the core already builds, resolved by
+> the SAME query path. 55 lines, one helper, both surfaces.
+>
+> **Method note for the next row: read the code before writing the plan.** Two of
+> my six TODO rows (P2, P5) misdiagnosed a capability parrot0 already had.
 
 ```
 you> if all bloops are razzies and all razzies are lazzies, are all bloops lazzies?
@@ -295,7 +312,7 @@ cosmetic feature for this project. It is the anti-impostor property itself.
 | ~~P1~~ | ~~the code keyhole~~ | **DONE gen323** — cues became FACTS (cue-chains 317 -> 248); tightening the register in the same gen killed a second live misclaim (prose classified as Python because `is` is a keyword) |
 | ~~P6~~ | ~~the routing collision~~ | **DONE gen325** — the self-model now derives its LIMITS from the ledger the gates verify (forge §18) |
 | ~~P2~~ | ~~loops in the evaluator~~ | **DONE gen324** — the row was misdiagnosed: loops already worked, `+=` did not |
-| P5 | in-turn rule intake | cheap, structural, closes a rung LLMs give free |
+| ~~P5~~ | ~~in-turn rule intake~~ | **DONE gen326** — it existed since gen231; the real gap was the UNIVERSAL conclusion, 55 lines inside the existing core |
 | P4 | the agentic loop | the biggest jump; needs P1+P2 to have anything to drive |
 | P3 | schema induction | the only row that makes growth compound instead of add |
 

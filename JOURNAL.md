@@ -1,4 +1,50 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen326: the UNIVERSAL conclusion (TODO.md P5) — and a duplicate I nearly shipped
+
+**The mistake first, because it is the lesson.** TODO.md P5 said "a nonce-word
+syllogism walls", and I started writing a syllogism module: a clause splitter, a
+premise parser, a sub-brain, a witness. It worked. Then I went to add the test
+case and found `tests/cases/syllogism.chat` — **already there, since gen231**.
+parrot0 has done premises-inside-the-turn reasoning for 95 generations: invented
+vocabulary, multi-link chains, honest refusals, a scratch KB that pollutes
+nothing. I had built a SECOND reasoner beside the first, which is precisely the
+duplication PRINCIPLES.md forbids, and it had already begun to misbehave — its
+looser gate was stealing `transitivity.chat` and `decompose.chat` turns from the
+modules that own them.
+
+Deleted, entirely. What survives is 55 lines inside the core that already existed.
+
+**The real gap was one question form.** gen231 could only resolve a GROUND
+conclusion — "is socrates a mortal?" Asked the UNIVERSAL form the same premises
+entail:
+
+    if all bloops are razzies and all razzies are lazzies, are all bloops lazzies?
+
+it walled, because "are all bloops lazzies" names no individual to look up.
+
+**A universal is proved the way a universal is actually proved.** Assert an
+ARBITRARY WITNESS of the subject class into the scratch KB the core already
+builds, and hand the SAME query path a question it can answer. Nothing
+distinguishes the witness, so what holds for it holds for all. One helper
+(`universal_to_witness`), both surfaces — the packed "if …, are all …?" and
+gen290's multi-sentence form. No new module, no second inference path that could
+quietly disagree with the first.
+
+**Two things I assumed and the code refuted.** `singularize()` already exists,
+with the irregular table (men/man, mouse/mice) and the -ies rule — the `plural/2`
+facts I had added to the KB were redundant, and unused knowledge is a lie about
+what the code reads. And the earlier "bloops/razzies" failure I blamed on the
+engine was English: "razzies" singularizes to "razzy", not "razzie".
+
+**Ratchet:** `tests/syllogism.sh` generates FRESH nonce classes on every run
+(TASKLIST C8: "the capability must be structural, not lexical" — a phrasebook
+cannot pass it twice), and asserts the anti-impostor case: the identical sentence
+shape with one link cut must come back **No**. Plus zero pollution — after the
+turn, the live KB knows nothing of the invented world.
+
+Evidence: 246/246 `tests/run.sh`, 25/25 code-bench, 7/7 compose-bench, 9/9
+glue-bench. Full `make gate` not run at F.'s instruction.
+
 ## 2026-07-12 - gen325: parrot0 knows where it ENDS (TODO.md P6, forge §18)
 
 **The defect, and it was worse in Italian.**

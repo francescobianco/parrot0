@@ -276,6 +276,7 @@ test: build
 	@./tests/checkfocal.sh
 	@./tests/buildstamp.sh
 	@./tests/selflimits.sh
+	@./tests/syllogism.sh
 	@$(BENCH_PY) ./tests/manifest_audit.py
 	@./tests/cuechains.sh
 	@./tests/archetype.sh

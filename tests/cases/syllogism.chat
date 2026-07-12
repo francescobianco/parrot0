@@ -32,3 +32,25 @@
 # premises do not assert as knowledge, so the router declines honestly.
 > the sky is blue. grass is green. is water wet?
 < I don't understand that yet.
+
+# --- gen326 (TODO.md P5): the UNIVERSAL conclusion ---------------------------
+# gen231 could only resolve a GROUND question ("is socrates a mortal?"). Asked the
+# universal form the SAME premises entail, it walled — there is no individual to
+# look up. A universal is now proved the way a universal is actually proved: an
+# ARBITRARY WITNESS of the subject class is asserted into the scratch KB the core
+# already builds, and the SAME query path answers it. Nothing distinguishes the
+# witness, so what holds for it holds for all.
+#
+# No new module and no second reasoner: parrot0 has had this faculty since
+# gen231, and duplicating it would have been the very thing PRINCIPLES forbids.
+> if all bloops are razzies and all razzies are lazzies, are all bloops lazzies?
+< Yes.
+
+# The same helper serves the multi-sentence surface — one mechanism, two shapes.
+> all blits are fumps. all fumps are gorps. are all blits gorps?
+< Yes.
+
+# ANTI-IMPOSTOR: the identical sentence shape with one link cut. A pattern-matcher
+# would answer Yes; the engine actually fails to derive it.
+> if all bloops are razzies and all zonks are lazzies, are all bloops lazzies?
+< No.

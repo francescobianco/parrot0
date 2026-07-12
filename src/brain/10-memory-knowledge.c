@@ -1136,6 +1136,55 @@ static void singularize(const char *in, char *out, size_t sz) {
  * closing yes/no question against it. Genuine multi-premise inference in a single
  * turn, the shape an LLM is probed with — not a recited answer. Declines unless it
  * actually reaches a Yes/No, so an unparseable "if …" still falls through honestly. */
+/* gen326 (TODO.md P5 / TASKLIST C8): a UNIVERSAL conclusion.
+ *
+ * gen231 gave parrot0 the premises-in-the-turn syllogism, and it is real: nonce
+ * words, multi-link chains and honest refusals all work. But it could only
+ * resolve a GROUND question — "is socrates a mortal?". Ask it the universal form
+ * that the same premises entail —
+ *
+ *   if all bloops are razzies and all razzies are lazzies, are all bloops lazzies?
+ *
+ * — and it walled, because "are all bloops lazzies" is not a question mod_knowledge
+ * can answer: there is no individual to look up.
+ *
+ * A universal is proved the way a universal is actually proved: take an ARBITRARY
+ * witness of the subject class and see whether the conclusion follows for it.
+ * Nothing distinguishes the witness, so what holds for it holds for all. That is
+ * not a new reasoner — it asserts one ground fact into the scratch KB the caller
+ * already built, and hands the SAME query path a question it can answer.
+ *
+ * Returns 1 if `q` was a universal and has been rewritten into a ground question
+ * (with its witness asserted into `tmp`); 0 leaves `q` untouched. */
+static int universal_to_witness(Brain *tmp, char *q, size_t qsz) {
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", q);
+    char *w[16];
+    size_t n = split_words(buf, w, 16);
+    for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+    if (n < 4) return 0;
+    if (strcmp(w[0], "are") != 0 && strcmp(w[0], "is") != 0) return 0;
+    if (strcmp(w[1], "all") != 0 && strcmp(w[1], "every") != 0 &&
+        strcmp(w[1], "any") != 0) return 0;
+
+    size_t si = 2;
+    while (si < n && is_article(w[si])) si++;   /* "all THE bloops" */
+    if (si >= n - 1) return 0;
+
+    char sj[KB_TERM_LEN], cl[KB_TERM_LEN];
+    singularize(w[si], sj, sizeof sj);
+    singularize(w[n - 1], cl, sizeof cl);       /* the concluded class */
+    if (!*sj || !*cl || strcmp(sj, cl) == 0) return 0;
+
+    /* The witness: an individual with no properties but the one we give it. */
+    char turn[128], discard[256];
+    snprintf(turn, sizeof turn, "someone is a %s", sj);
+    if (!mod_knowledge(tmp, turn, turn, discard, sizeof discard)) return 0;
+
+    snprintf(q, qsz, "is someone a %s", cl);
+    return 1;
+}
+
 static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_size) {
     (void)b;
     size_t L = strlen(norm);
@@ -1164,6 +1213,9 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
 
     char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", q);
+    /* gen326: "are all bloops lazzies?" — resolve the universal through an
+     * arbitrary witness, then let the SAME query path answer it. */
+    universal_to_witness(&tmp, qbuf, sizeof qbuf);
     char ans[256];
     int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
     kb_destroy(tmp.kb);
@@ -1233,6 +1285,9 @@ static int multi_sentence_syllogism(Brain *b, const char *norm,
 
     char qbuf[256];
     snprintf(qbuf, sizeof qbuf, "%s", query);
+    /* gen326: the universal conclusion reaches the multi-sentence form through
+     * the SAME witness helper — one mechanism, both surfaces. */
+    universal_to_witness(&tmp, qbuf, sizeof qbuf);
     char ans[256];
     int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
     kb_destroy(tmp.kb);
