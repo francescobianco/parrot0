@@ -457,6 +457,14 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/intents.p0");
 
+    /* Universal input perception (docs/plans/universal-input.md): register
+     * evidence, delimiter/indent closure, open segment roles, provenance and
+     * faculty routing are knowledge.  The fixed C engine measures bytes and
+     * compares hypotheses; teaching a new cue/register changes this live table
+     * without rebuilding the binary. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/input.p0");
+
     /* gen212 (cardinal KB-first principle, OUTPUT side): the agent's own reply
      * phrasings — "Nice to meet you, {name}!" etc. — live in kb/core/responses.p0, not
      * as C literals. kb_response() fills response_template/2; a phrasing taught at

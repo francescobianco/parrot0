@@ -124,11 +124,23 @@ static char *build_prompt(const JVal *messages) {
     return prompt;
 }
 
-/* parrot0 is line-based: collapse newlines to spaces and cap the length, in
- * place. Mirrors pi_server.py's prompt sanitation. */
+/* Preserve the user's text stream byte structure.  Collapsing newlines here
+ * destroyed indentation, fences, tracebacks and pytest/diff line prefixes before
+ * the universal segmenter could see them. Normalize CRLF/CR to LF in place; the
+ * existing 2000-byte adapter budget remains explicit debt under TODO 10/11; this
+ * change fixes structure preservation without pretending the size limit is gone. */
 static void sanitize_prompt(char *p) {
     if (!p) return;
-    for (char *q = p; *q; q++) if (*q == '\n' || *q == '\r') *q = ' ';
+    char *r = p, *w = p;
+    while (*r) {
+        if (*r == '\r') {
+            if (r[1] == '\n') r++;
+            *w++ = '\n'; r++;
+        } else {
+            *w++ = *r++;
+        }
+    }
+    *w = '\0';
     if (strlen(p) > 2000) p[2000] = '\0';
 }
 

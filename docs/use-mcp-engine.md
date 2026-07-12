@@ -51,7 +51,7 @@ utili: `scripts/mcp-live.sh tools` (elenca i tool), `... raw '<json>'` (richiest
 JSON-RPC arbitraria). La cartella di stato è `$PARROT0_MCP_DIR`
 (default `/tmp/parrot0-mcp`).
 
-## I tool (17)
+## I tool (19)
 
 | Tool | Cosa fa | Primitiva |
 |---|---|---|
@@ -68,6 +68,8 @@ JSON-RPC arbitraria). La cartella di stato è `$PARROT0_MCP_DIR`
 | `kb.stats` `{}` | quanti fatti | `kb_size` |
 | `kb.save` `{path}` | persiste il delta di sessione su file | `brain_save_session` |
 | `kb.restore` `{}` | dimentica il non salvato, ricarica i file da disco | `brain_reload` (gen276) |
+| `input.segment` `{text}` | span con offset, ruolo aperto, registro, score, proof e faculty; pareggi espliciti | `input_segment` (gen332) |
+| `input.classify` `{relation,text,candidates?}` | confronta ipotesi KB → winner/gap/ambiguous con gli stessi supporti di intenti e registri | `kb_hypothesis_best` (gen332) |
 | `gen.respond` `{input}` | turno completo attraverso il brain | `brain_respond` |
 | `text.extract` `{passage}` | legge un passaggio ed estrae fatti nella KB | `mod_reader` |
 | `style.set_temperature` `{value}` | temperatura di scelta della forma | fatto `style_temperature` |

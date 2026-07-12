@@ -273,36 +273,54 @@ int code_syntax_ok(const char *src);
  *
  * So the prompt is SEGMENTED into typed spans before anything is compiled:
  *
- *   INSTRUCTION  "fix this code:"                       what to do
- *   CODE         "int absval(int x) { … }"              the only bytes cc may see
- *   EXPECTED     "It should return the absolute value"  the intended behaviour
- *   CONSTRAINT   "without using recursion"              a restriction on the fix
+ *   instruction  "fix this code:"                       what to do
+ *   code:c       "int absval(int x) { … }"              the only bytes cc may see
+ *   expected     "It should return the absolute value"  the intended behaviour
+ *   constraint   "without using recursion"              a restriction on the fix
  *
  * Spans, not copies: each segment carries its byte offset into the raw prompt, so
  * a later faculty (TODO 20's issue contract) can cite exactly where a claim came
- * from. When the code-like region does not close — a paste that lost its last brace
- * — the answer is `ambiguous_input`, NOT a diagnosis: parrot0 does not guess at the
- * shape of a program in order to have something to say about it. */
-typedef enum {
-    CODE_SEG_INSTRUCTION = 0,
-    CODE_SEG_CODE,
-    CODE_SEG_EXPECTED,
-    CODE_SEG_CONSTRAINT
-} CodeSegKind;
-
+ * from.  Roles are OPEN KB terms, not a C enum: asserting
+ * `segment_role(repro, "to recreate")` can therefore produce `repro` without a
+ * code change.  The register is an independently supported hypothesis and every
+ * span carries the exact facts that selected it.  Retraction is naturally seen
+ * on the next segmentation because no classification is cached.
+ *
+ * When a region does not close, or two top hypotheses tie, the answer is
+ * `ambiguous_input`, NOT a diagnosis: parrot0 does not guess at a shape in order
+ * to have something to say about it. */
 typedef struct {
-    CodeSegKind kind;
-    size_t      start;   /* byte offset into the raw prompt */
-    size_t      len;
-} CodeSeg;
+    size_t start;                         /* byte offset into the raw stream */
+    size_t len;
+    char   role[KB_TERM_LEN];             /* instruction/code/repro/... open */
+    char   register_name[KB_TERM_LEN];    /* c/python/json/diff/... or empty */
+    int    score;                         /* winning evidence score */
+    char   proof[KB_EVIDENCE_PROOF_LEN];  /* exact KB support / typed gap */
+} InputSpan;
 
-/* Segment a mixed prompt into typed spans. Returns the number of segments; sets
- * *ambiguous when the prompt holds code-like structure that does not close. */
-size_t code_segment(const char *raw, CodeSeg *segs, size_t max, int *ambiguous);
+/* Historical name retained as an alias while consumers migrate from "code
+ * segment" to the universal input type.  The representation itself is open. */
+typedef InputSpan CodeSeg;
+
+/* Segment a mixed text stream into typed spans. Returns the number of spans;
+ * sets *ambiguous on an unclosed region or an evidence tie. The KB supplies all
+ * register/role/closure/faculty knowledge. */
+size_t input_segment(KB *kb, const char *raw, InputSpan *segs, size_t max,
+                     int *ambiguous);
+size_t code_segment(KB *kb, const char *raw, CodeSeg *segs, size_t max,
+                    int *ambiguous);
 
 /* Just the source, please. Returns 1 (extracted), 0 (no code span found), or
  * -1 (ambiguous — say so, do not diagnose). */
-int code_extract_source(const char *raw, char *out, size_t cap);
+int code_extract_source(KB *kb, const char *raw, char *out, size_t cap);
+
+/* As above, also return the selected span (register, score and proof). */
+int code_extract_source_span(KB *kb, const char *raw, char *out, size_t cap,
+                             InputSpan *span);
+
+/* Render the term used by faculty_for/2: `code(c)` for a registered code span,
+ * otherwise the open role itself. */
+void input_span_type(const InputSpan *span, char *out, size_t cap);
 
 /* gen330: the compiler's verdict on a snippet, with its own words.
  *

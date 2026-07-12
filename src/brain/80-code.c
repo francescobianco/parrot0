@@ -1,3 +1,28 @@
+/* Exact source-path evidence.  A token ending in `.conf` is not a `.c` token;
+ * path routing must obey the same no-substring law as register hypotheses. */
+static int code_token_extension(const char *token, const char *ext) {
+    if (!token || !ext) return 0;
+    size_t n = strlen(token), e = strlen(ext);
+    while (n && strchr(".,;:!?)]}'\"`", token[n - 1])) n--;
+    return n >= e && strncasecmp(token + n - e, ext, e) == 0;
+}
+
+static int code_text_has_path(const char *text, int c_family, int python) {
+    if (!text) return 0;
+    for (const char *p = text; *p; ) {
+        while (*p && isspace((unsigned char)*p)) p++;
+        const char *t = p; while (*p && !isspace((unsigned char)*p)) p++;
+        size_t n = (size_t)(p - t);
+        if (!n || n >= 256) continue;
+        char token[256]; memcpy(token, t, n); token[n] = '\0';
+        if (strchr(token, '/')) return 1;
+        if (c_family && (code_token_extension(token, ".c") ||
+                         code_token_extension(token, ".h"))) return 1;
+        if (python && code_token_extension(token, ".py")) return 1;
+    }
+    return 0;
+}
+
 /* --- module: rulespec (gen265, the first RULESCORE pull) -----------------
  * Recognize a RULES-SPEC implementation request as a CATEGORY and answer it
  * honestly: say what WAS understood (title, how many numbered rules, which
@@ -253,7 +278,7 @@ static int mod_rulespec(Brain *b, const char *norm, const char *raw,
 static int mod_codeast(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     if (!b || !b->kb || !raw || !norm) return 0;
-    char s[512]; copy_trim(s, sizeof s, raw);
+    static char s[65536]; copy_trim(s, sizeof s, raw);
     if (!*s) return 0;
 
     /* The question text (before the ':' that introduces the code section). */
@@ -299,15 +324,15 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * compiler — the grounded oracle, not a guess. */
     if ((cue(qpart, "delete") || cue(qpart, "remove") || cue(qpart, "elimina") ||
          cue(qpart, "rimuovi")) && (cue(qpart, "function") || cue(qpart, "funzione")) &&
-        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".h"))) {
+        code_text_has_path(qpart, 1, 0)) {
         char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char fnname[KB_TERM_LEN] = "", path[256] = "";
         for (size_t i = 0; i < nw; i++) {
             if ((!strcmp(w[i], "function") || !strcmp(w[i], "funzione")) && i + 1 < nw)
                 snprintf(fnname, sizeof fnname, "%s", strip_edge_punct(w[i+1]));
-            if (strchr(w[i], '/') ||
-                (strlen(w[i]) >= 2 && (strstr(w[i], ".c") || strstr(w[i], ".h"))))
+            if (strchr(w[i], '/') || code_token_extension(w[i], ".c") ||
+                code_token_extension(w[i], ".h"))
                 snprintf(path, sizeof path, "%s", strip_edge_punct(w[i]));
         }
         if (!fnname[0] || !path[0]) return 0;
@@ -410,7 +435,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * read the file, rename the identifier (non-destructively, to a temp), compile
      * the result to VERIFY, report, and delete the temp. The original is untouched. */
     if (cue(qpart, "rename") && cue(qpart, " to ") &&
-        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".h"))) {
+        code_text_has_path(qpart, 1, 0)) {
         char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", qpart);
         char *w[48]; size_t nw = split_words(qbuf, w, 48);
         char oldn[KB_TERM_LEN] = "", newn[KB_TERM_LEN] = "", path[256] = "";
@@ -419,8 +444,8 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                 snprintf(oldn, sizeof oldn, "%s", strip_edge_punct(w[i-1]));
                 snprintf(newn, sizeof newn, "%s", strip_edge_punct(w[i+1]));
             }
-            if (strchr(w[i], '/') ||
-                (strlen(w[i]) >= 2 && (strstr(w[i], ".c") || strstr(w[i], ".h"))))
+            if (strchr(w[i], '/') || code_token_extension(w[i], ".c") ||
+                code_token_extension(w[i], ".h"))
                 snprintf(path, sizeof path, "%s", strip_edge_punct(w[i]));
         }
         if (!oldn[0] || !newn[0] || !path[0]) return 0;
@@ -548,7 +573,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
                     cue(qpart, "trova") || cue(qpart, "dove") || cue(qpart, "identify");
     if ((sym_write || sym_find) &&
         (cue(qpart, "symmetry") || cue(qpart, "simmetria") || cue(qpart, "bug")) &&
-        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".py"))) {
+        code_text_has_path(qpart, 1, 1)) {
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
             while (*p == ' ' || *p == '\t') p++;
@@ -685,7 +710,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * double the answer. The path is still taken from raw to preserve case. */
     if ((cue(norm, "run") || cue(norm, "execute") || cue(norm, "esegui") ||
          cue(norm, "esegu")) &&
-        (cue(qpart, "/") || cue(qpart, ".c") || cue(qpart, ".py"))) {
+        code_text_has_path(qpart, 1, 1)) {
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
             while (*p == ' ' || *p == '\t') p++;
@@ -818,7 +843,16 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * read is sandboxed to the working directory (see code_read_file). */
     static char code[262144];
     code[0] = '\0';
-    if (!find_code_section(s, code, sizeof code)) {
+    InputSpan source_span;
+    int section = find_code_section(b, s, code, sizeof code, &source_span);
+    if (section != 1) {
+        if (section < 0) {
+            const char *why = source_span.proof[0] ? source_span.proof
+                                                   : "the input register does not close";
+            snprintf(out, out_size, "ambiguous_input: %s", why);
+            store_proof(b, why);
+            return 1;
+        }
         char path[256] = "";
         for (const char *p = qpart; *p; ) {
             while (*p == ' ' || *p == '\t') p++;
@@ -1054,7 +1088,7 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     (void)norm;
     if (!raw) return 0;
 
-    char s[512]; copy_trim(s, sizeof s, raw);
+    static char s[65536]; copy_trim(s, sizeof s, raw);
     if (!*s) return 0;
 
     /* gen323 (TODO.md P1): the question shape is KNOWLEDGE, not a C phrasebook.
@@ -1068,31 +1102,88 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
      * Cues are matched on a LOWERCASED copy — copy_trim does not fold case, so
      * "What is wrong…" used to miss — while the code itself is extracted from
      * `s`, which is case-sensitive and must stay that way. */
-    char low[512];
+    static char low[65536];
     { size_t i = 0; for (; s[i] && i + 1 < sizeof low; i++)
           low[i] = (char)tolower((unsigned char)s[i]);
       low[i] = '\0'; }
 
     int qtype = 0; /* 0=none 1=wrong/debug 2=fix 3=what-lang 4=valid 5=explain */
-    if (kb_cue_match(b, "code_debug", low))        qtype = 1;
-    else if (kb_cue_match(b, "code_fix", low))     qtype = 2;
-    else if (kb_cue_match(b, "code_lang", low))    qtype = 3;
-    else if (kb_cue_match(b, "code_valid", low))   qtype = 4;
-    else if (kb_cue_match(b, "code_explain", low)) qtype = 5;
-    else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
+    const char *intent_candidates[] = {
+        "code_debug", "code_fix", "code_lang", "code_valid", "code_explain"
+    };
+    char intent[KB_TERM_LEN], intent_proof[KB_EVIDENCE_PROOF_LEN]; int intent_score = 0;
+    int ir = kb_hypothesis_best(b->kb, "intent_cue", low,
+                                intent_candidates, 5,
+                                intent, sizeof intent, &intent_score,
+                                intent_proof, sizeof intent_proof);
+    if (ir == -1) {
+        snprintf(out, out_size, "ambiguous_input: %s", intent_proof);
+        store_proof(b, intent_proof);
+        return 1;
+    }
+    if (ir == 1) {
+        if (!strcmp(intent, "code_debug")) qtype = 1;
+        else if (!strcmp(intent, "code_fix")) qtype = 2;
+        else if (!strcmp(intent, "code_lang")) qtype = 3;
+        else if (!strcmp(intent, "code_valid")) qtype = 4;
+        else if (!strcmp(intent, "code_explain")) qtype = 5;
+    } else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
                (strstr(s, "in C") || strstr(s, "in Python") || strstr(s, "in programming"))) {
         /* Concept query handled by mod_knowledge via KB concept() facts */
         return 0;
     }
     if (!qtype) return 0;
 
-    char code[512] = {0};
-    if (!find_code_section(s, code, sizeof code)) {
-        /* Try without colon: if the query is short and followed by code-like content */
-        const char *c = s;
-        while (*c && *c != ':') c++;
-        if (!*c) return 0; /* no colon, can't extract code */
-        return 0;
+    /* Universal input: segment the ORIGINAL stream once, retain every role proof,
+     * and give checkers only a code_register span.  The old colon extraction is
+     * an additive Gap fallback, never an ambiguity tiebreak. */
+    InputSpan spans[64]; int input_ambiguous = 0;
+    size_t nspans = input_segment(b->kb, s, spans, 64, &input_ambiguous);
+    if (input_ambiguous) {
+        const char *why = nspans ? spans[0].proof : "register hypotheses tied";
+        snprintf(out, out_size,
+                 "ambiguous_input: I cannot determine a single closed register span. %s",
+                 why);
+        store_proof(b, why);
+        return 1;
+    }
+
+    char intake_proof[KB_EVIDENCE_PROOF_LEN] = "";
+    size_t ipo = 0;
+    for (size_t i = 0; i < nspans && ipo + 2 < sizeof intake_proof; i++) {
+        if (!spans[i].proof[0]) continue;
+        const char *piece = spans[i].proof;
+        if (!strncmp(piece, "because ", 8)) piece += 8;
+        int wrote = snprintf(intake_proof + ipo, sizeof intake_proof - ipo,
+                             "%s%s", ipo ? "; " : "", piece);
+        if (wrote < 0) break;
+        if ((size_t)wrote >= sizeof intake_proof - ipo) {
+            ipo = sizeof intake_proof - 1; break;
+        }
+        ipo += (size_t)wrote;
+    }
+    if (intake_proof[0]) store_proof(b, intake_proof);
+
+    static char code[65536]; code[0] = '\0';
+    InputSpan source_span; memset(&source_span, 0, sizeof source_span);
+    int have_source = 0;
+    for (size_t i = 0; i < nspans && !have_source; i++) {
+        char modes[1][KB_TERM_LEN];
+        const char *rq[2] = { spans[i].register_name, NULL };
+        if (!spans[i].register_name[0] ||
+            kb_match(b->kb, "code_register", rq, 2, modes, 1) == 0) continue;
+        size_t len = spans[i].len;
+        if (len >= sizeof code) len = sizeof code - 1;
+        memcpy(code, s + spans[i].start, len); code[len] = '\0';
+        source_span = spans[i]; have_source = 1;
+    }
+    if (!have_source) {
+        int section = find_code_section(b, s, code, sizeof code, &source_span);
+        if (section < 0) {
+            snprintf(out, out_size, "ambiguous_input: the input register does not close.");
+            return 1;
+        }
+        if (section == 0) return 0;
     }
 
     /* gen330 (TODO.md P0/01): SEGMENT before diagnosing.
@@ -1113,25 +1204,21 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
      * When the code-like region does not close, the answer is `ambiguous_input`.
      * parrot0 does not guess at the shape of a program in order to have something
      * to say about it — a precise decline is green; an invented finding is red. */
-    char seg[512];
-    int ex = code_extract_source(s, seg, sizeof seg);
-    if (ex == -1) {
-        snprintf(out, out_size,
-                 "ambiguous_input: I can see code in there, but its braces never "
-                 "close, so I cannot tell where the program ends and your description "
-                 "begins. Show me the snippet on its own and I will read it.");
-        store_proof(b, "declined: ambiguous_input (code region does not close)");
+    /* Identify the already isolated register through the SAME evidence scorer.
+     * The integer is only a legacy adapter for the existing C/Python checkers. */
+    char input_reg[KB_TERM_LEN] = "", reg_proof[KB_EVIDENCE_PROOF_LEN] = "";
+    int reg_score = 0;
+    int rr = identify_register(code, b, input_reg, sizeof input_reg,
+                               reg_proof, sizeof reg_proof, &reg_score);
+    if (source_span.register_name[0])
+        snprintf(input_reg, sizeof input_reg, "%s", source_span.register_name);
+    if (rr == -1 && !source_span.register_name[0]) {
+        snprintf(out, out_size, "ambiguous_input: %s", reg_proof);
+        store_proof(b, reg_proof);
         return 1;
     }
-    if (ex == 1) {
-        snprintf(code, sizeof code, "%s", seg);   /* the SOURCE, and nothing else */
-    }
-    /* ex == 0: no C body in the prompt (a Python def, a bare fragment). The old
-     * whole-section text stands — the compiler cannot be fooled by prose it never
-     * sees, and the syntax gate below now demands a REJECTION, not a non-answer. */
-
-    /* Identify language */
-    int lang = identify_code_lang(code, b);
+    int lang = !strcmp(input_reg, "c") ? 1 :
+               !strcmp(input_reg, "python") ? 2 : 0;
 
     /* gen323: REGISTER EVIDENCE — widening the question surface is only safe if
      * the module refuses turns that are not actually about code. It did not:
@@ -1178,19 +1265,23 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
 
     /* For language-only queries */
     if (qtype == 3) {
-        char ln[32]; lang_name(lang, ln, sizeof ln);
-        if (lang == 0) {
+        char ln[64]; register_name(b, input_reg, ln, sizeof ln);
+        if (!input_reg[0]) {
             snprintf(out, out_size, "I can not identify the language. "
                      "It does not look like C or Python to me.");
         } else {
-            snprintf(out, out_size, "This looks like %s code.", ln);
+            char roles[1][KB_TERM_LEN]; const char *rq[2] = { input_reg, NULL };
+            int code_role = kb_match(b->kb, "code_register", rq, 2, roles, 1) == 1;
+            snprintf(out, out_size, code_role ? "This looks like %s code."
+                                               : "This looks like %s.", ln);
         }
+        if (reg_proof[0]) store_proof(b, reg_proof);
         return 1;
     }
 
     /* For explain queries */
     if (qtype == 5) {
-        char ln[32]; lang_name(lang, ln, sizeof ln);
+        char ln[64]; register_name(b, input_reg, ln, sizeof ln);
         snprintf(out, out_size, "This is a %s code snippet.", ln);
         if (strstr(code, "printf")) {
             size_t l = strlen(out);

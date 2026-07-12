@@ -16,11 +16,15 @@
  */
 #include "kb.h"
 
+#include <errno.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/stat.h>
 
 /* KB_MAX_BODY is declared in kb.h (part of kb_assert_rule_n's contract). */
@@ -329,6 +333,20 @@ static int split_compound(const char *s, char *functor,
     }
     if (d != 0) return 0;
     return parse_term(s, functor, args, argc);
+}
+
+/* True only when unification can bind something inside this term.  A ground
+ * compound such as keyword(int) is still safe for the exact-fact fast path;
+ * s($X) and a top-level $X are not. */
+static int term_contains_var(const char *s, int depth) {
+    if (is_var(s)) return 1;
+    if (depth > KB_MAX_DEPTH) return 0;
+    char functor[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t argc = 0;
+    if (!split_compound(s, functor, args, &argc)) return 0;
+    for (size_t i = 0; i < argc; i++)
+        if (term_contains_var(args[i], depth + 1)) return 1;
+    return 0;
 }
 
 /* Follow the binding chain to a constant or an unbound variable. */
@@ -702,8 +720,43 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
 }
 
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
-    if (!kb || argc > KB_MAX_ARGS) return 0;
+    if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
+    for (size_t i = 0; i < argc; i++) if (!term_ok(args[i])) return 0;
     if (kb_is_negated(kb, pred, args, argc)) return 0;
+
+    /* The overwhelmingly common KB-first lookup is a ground fact predicate with
+     * no rules. Avoid constructing an SLD search that scans every unrelated fact
+     * at every evidence query; rule-bearing predicates keep the full solver. */
+    int has_rule = (argc == 2 && strcmp(pred, "chars") == 0); /* solver builtin */
+    for (size_t i = 0; i < kb->nr; i++)
+        if (kb->rules[i].head.argc == argc &&
+            strcmp(kb->rules[i].head.pred, pred) == 0) { has_rule = 1; break; }
+    /* A body-less clause is stored in the fact table and may still contain
+     * variables/compound terms.  Such facts require real unification too. */
+    for (size_t i = 0; i < kb->n && !has_rule; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
+        for (size_t a = 0; a < argc; a++) {
+            if (term_contains_var(f->args[a], 0)) {
+                has_rule = 1;
+                break;
+            }
+        }
+    }
+    for (size_t i = 0; i < argc && !has_rule; i++)
+        if (args[i] && term_contains_var(args[i], 0))
+            has_rule = 1; /* variable/structural unify */
+    if (!has_rule) {
+        for (size_t i = 0; i < kb->n; i++) {
+            const Fact *f = &kb->facts[i];
+            if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
+            Subst s = { .n = 0 }; int same = 1;
+            for (size_t a = 0; a < argc; a++)
+                if (!unify(&s, args[a], f->args[a])) { same = 0; break; }
+            if (same) return 1;
+        }
+        return 0;
+    }
 
     Term g;
     if (!term_make(&g, pred, args, argc)) return 0;
@@ -718,7 +771,52 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
 
 size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max) {
-    if (!kb || argc > KB_MAX_ARGS) return 0;
+    if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args) ||
+        (max && !out)) return 0;
+
+    /* Fast exact-fact pattern match when no rule can derive this predicate and
+     * the only variables are the public NULL slots.  Semantics are identical to
+     * the solver path (distinct NULL variables; collect the first; deduplicate).
+     * Compound patterns containing nested $/_ variables still use unification. */
+    int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0;
+    for (size_t i = 0; i < argc; i++) {
+        if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
+        if (term_contains_var(args[i], 0))
+            simple = 0;
+    }
+    if (first_var < 0) simple = 0; /* preserve the boolean-query behaviour */
+    for (size_t i = 0; i < kb->nr && simple; i++)
+        if (kb->rules[i].head.argc == argc &&
+            strcmp(kb->rules[i].head.pred, pred) == 0) simple = 0;
+    for (size_t i = 0; i < kb->n && simple; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
+        for (size_t a = 0; a < argc; a++) {
+            if (term_contains_var(f->args[a], 0)) {
+                simple = 0;
+                break;
+            }
+        }
+    }
+    if (simple) {
+        size_t count = 0;
+        for (size_t i = 0; i < kb->n; i++) {
+            const Fact *f = &kb->facts[i];
+            if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
+            Subst s = { .n = 0 }; int match = 1;
+            for (size_t a = 0; a < argc; a++)
+                if (args[a] && !unify(&s, args[a], f->args[a])) {
+                    match = 0; break;
+                }
+            if (match) {
+                char value[KB_TERM_LEN];
+                deep_resolve(&s, f->args[first_var], value, sizeof value, 0);
+                push_unique(out, &count, max, value);
+            }
+            if (count >= max) break;
+        }
+        return count;
+    }
 
     Term g;
     memset(&g, 0, sizeof g);
@@ -1145,6 +1243,795 @@ int kb_load(KB *kb, const char *path) {
     return count;
 }
 
+/* ----------------------------------------------------------------------------
+ * universal evidence / hypothesis engine (universal-input U1/U3/U7/U8)
+ * ------------------------------------------------------------------------- */
+
+/* `kb_match` deliberately caps its result at the caller's buffer.  Evidence
+ * discovery, unlike a presentation buffer, must not silently drop a 257th
+ * hypothesis/support: retry with a growing buffer until the result no longer
+ * fills it.  The KB is finite, so one final retry also disambiguates the exact
+ * power-of-two case. */
+static int kb_match_all(const KB *kb, const char *pred,
+                        const char *const *args, size_t argc,
+                        char (**out)[KB_TERM_LEN], size_t *nout) {
+    if (!out || !nout) return 0;
+    *out = NULL;
+    *nout = 0;
+    size_t cap = 16;
+    char (*rows)[KB_TERM_LEN] = NULL;
+    for (;;) {
+        if (cap > (size_t)-1 / sizeof *rows) {
+            free(rows);
+            return 0;
+        }
+        char (*grown)[KB_TERM_LEN] = realloc(rows, cap * sizeof *rows);
+        if (!grown) {
+            free(rows);
+            return 0;
+        }
+        rows = grown;
+        size_t n = kb_match(kb, pred, args, argc, rows, cap);
+        if (n < cap) {
+            *out = rows;
+            *nout = n;
+            return 1;
+        }
+        if (cap > (size_t)-1 / 2) {
+            free(rows);
+            return 0;
+        }
+        cap *= 2;
+    }
+}
+
+static void evidence_atom_text(const char *atom, char *out, size_t outsz) {
+    if (!out || outsz == 0) return;
+    out[0] = '\0';
+    if (!atom) return;
+    size_t n = strlen(atom);
+    const char *p = atom;
+    if (n >= 2 && atom[0] == '"' && atom[n - 1] == '"') {
+        p++;
+        n -= 2;
+    }
+    if (n >= outsz) n = outsz - 1;
+    memcpy(out, p, n);
+    out[n] = '\0';
+}
+
+static int evidence_word_char(unsigned char c) {
+    return isalnum(c) || c == '_';
+}
+
+static int evidence_ci_at(const char *s, const char *needle) {
+    for (size_t i = 0; needle[i]; i++) {
+        if (!s[i] || tolower((unsigned char)s[i]) !=
+                     tolower((unsigned char)needle[i])) return 0;
+    }
+    return 1;
+}
+
+static size_t evidence_ci_find(const char *s, const char *needle, size_t from) {
+    if (!s || !needle || !*needle) return (size_t)-1;
+    size_t n = strlen(s), m = strlen(needle);
+    if (m > n || from > n - m) return (size_t)-1;
+    for (size_t i = from; i + m <= n; i++)
+        if (evidence_ci_at(s + i, needle)) return i;
+    return (size_t)-1;
+}
+
+static size_t evidence_keyword_find(const char *s, const char *word, size_t from) {
+    size_t n = strlen(s), m = strlen(word), at = from;
+    while (m && at <= n) {
+        at = evidence_ci_find(s, word, at);
+        if (at == (size_t)-1) return at;
+        int left = (at == 0) || !evidence_word_char((unsigned char)s[at - 1]);
+        int right = (at + m >= n) ||
+                    !evidence_word_char((unsigned char)s[at + m]);
+        if (left && right) return at;
+        at++;
+    }
+    return (size_t)-1;
+}
+
+static size_t evidence_line_prefix_find(const char *s, const char *prefix,
+                                        size_t from) {
+    size_t n = strlen(s), m = strlen(prefix);
+    for (size_t at = 0; at <= n; ) {
+        if (at >= from && at + m <= n && evidence_ci_at(s + at, prefix)) return at;
+        const char *nl = strchr(s + at, '\n');
+        if (!nl) break;
+        at = (size_t)(nl - s) + 1;
+    }
+    return (size_t)-1;
+}
+
+static size_t evidence_line_suffix_find(const char *s, const char *suffix,
+                                        size_t from) {
+    size_t n = strlen(s), m = strlen(suffix);
+    for (size_t ls = 0; ls <= n; ) {
+        const char *nl = strchr(s + ls, '\n');
+        size_t le = nl ? (size_t)(nl - s) : n;
+        while (le > ls && (s[le - 1] == '\r' || s[le - 1] == ' ' ||
+                           s[le - 1] == '\t')) le--;
+        if (le >= ls + m && le - m >= from &&
+            strncasecmp(s + le - m, suffix, m) == 0)
+            return le - m;
+        if (!nl) break;
+        ls = (size_t)(nl - s) + 1;
+    }
+    return (size_t)-1;
+}
+
+static int evidence_token_extension(const char *s, const char *ext, size_t from,
+                                    size_t *at_out, size_t *len_out) {
+    size_t n = strlen(s), el = strlen(ext);
+    for (size_t i = from; i < n; ) {
+        while (i < n && isspace((unsigned char)s[i])) i++;
+        size_t a = i;
+        while (i < n && !isspace((unsigned char)s[i])) i++;
+        size_t b = i;
+        while (b > a && strchr(".,;:!?)]}'\"`", s[b - 1])) b--;
+        if (b >= a + el && strncasecmp(s + b - el, ext, el) == 0) {
+            if (at_out) *at_out = b - el;
+            if (len_out) *len_out = el;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static size_t evidence_fence_find(const char *s, const char *tag, size_t from,
+                                  size_t *len_out) {
+    char pat[KB_TERM_LEN + 4];
+    snprintf(pat, sizeof pat, "```%s", tag);
+    size_t plen = strlen(pat);
+    for (;;) {
+        size_t at = evidence_ci_find(s, pat, from);
+        if (at == (size_t)-1) return at;
+        unsigned char after = (unsigned char)s[at + plen];
+        int line_start = at == 0 || s[at - 1] == '\n';
+        int tag_end = after == '\0' || after == '\n' || after == '\r' ||
+                      after == ' ' || after == '\t';
+        if (line_start && tag_end) {
+            if (len_out) *len_out = plen;
+            return at;
+        }
+        from = at + 1;
+    }
+}
+
+static int evidence_quote_at(const char *s, size_t i, size_t n) {
+    if (s[i] == '"') return 1;
+    if (s[i] != '\'') return 0;
+    /* Apostrophes inside words are punctuation, not the start of a quoted
+     * region: "don't" must not hide every delimiter that follows it. */
+    if (i > 0 && i + 1 < n && isalnum((unsigned char)s[i - 1]) &&
+        isalnum((unsigned char)s[i + 1])) return 0;
+    for (size_t j = i + 1; j < n && s[j] != '\n'; j++) {
+        if (s[j] == '\\' && j + 1 < n) { j++; continue; }
+        if (s[j] == '\'') return 1;
+    }
+    return 0;
+}
+
+static size_t evidence_visible_find(const char *s, const char *needle,
+                                    size_t from, size_t end) {
+    size_t nl = strlen(needle), n = strlen(s);
+    if (end > n) end = n;
+    if (!nl) return from <= end ? from : (size_t)-1;
+    for (size_t i = from; i + nl <= end; ) {
+        if (evidence_quote_at(s, i, n)) {
+            char q = s[i++];
+            while (i < end && s[i] != q) {
+                if (s[i] == '\\' && i + 1 < end) i += 2; else i++;
+            }
+            if (i < end) i++;
+            continue;
+        }
+        if (strncasecmp(s + i, needle, nl) == 0) return i;
+        i++;
+    }
+    return (size_t)-1;
+}
+
+/* Match a generic delimiter pair, ignoring quoted regions and backslash escapes.
+ * Quote/comment policy can grow as facts later; this fixed primitive deliberately
+ * names no language or concrete delimiter. */
+static int evidence_balanced_find(const char *s, const char *open,
+                                  const char *close, size_t from,
+                                  size_t *at_out, size_t *len_out) {
+    size_t ol = strlen(open), cl = strlen(close), n = strlen(s);
+    if (!ol || !cl || from >= n) return 0;
+
+    /* Symmetric delimiters are non-nesting: the next visible occurrence closes
+     * the first. This keeps `delim_pair(pipe, "|", "|")` a valid runtime fact. */
+    if (ol == cl && memcmp(open, close, ol) == 0) {
+        size_t at = (size_t)-1;
+        for (size_t i = from; i < n; ) {
+            int mark_quote = ol == 1 && (open[0] == '\'' || open[0] == '"');
+            if (i + ol <= n && memcmp(s + i, open, ol) == 0 &&
+                (!mark_quote || evidence_quote_at(s, i, n))) {
+                at = i;
+                break;
+            }
+            if (!mark_quote && evidence_quote_at(s, i, n)) {
+                char q = s[i++];
+                while (i < n && s[i] != q) {
+                    if (s[i] == '\\' && i + 1 < n) i += 2; else i++;
+                }
+                if (i < n) i++;
+            } else i++;
+        }
+        if (at == (size_t)-1) return 0;
+        for (size_t i = at + ol; i < n; ) {
+            if (s[i] == '\\' && i + 1 < n) { i += 2; continue; }
+            int mark_quote = ol == 1 && (open[0] == '\'' || open[0] == '"');
+            if (!mark_quote && evidence_quote_at(s, i, n)) {
+                char q = s[i++];
+                while (i < n && s[i] != q) {
+                    if (s[i] == '\\' && i + 1 < n) i += 2; else i++;
+                }
+                if (i < n) i++;
+                continue;
+            }
+            if (i + cl <= n && memcmp(s + i, close, cl) == 0) {
+                if (at_out) *at_out = at;
+                if (len_out) *len_out = i + cl - at;
+                return 1;
+            }
+            i++;
+        }
+        return 0;
+    }
+
+    size_t at = (size_t)-1;
+    for (size_t i = from; i < n; ) {
+        if (evidence_quote_at(s, i, n)) {
+            char q = s[i++];
+            while (i < n && s[i] != q) {
+                if (s[i] == '\\' && i + 1 < n) i += 2; else i++;
+            }
+            if (i < n) i++;
+            continue;
+        }
+        if (i + ol <= n && memcmp(s + i, open, ol) == 0) { at = i; break; }
+        i++;
+    }
+    if (at == (size_t)-1) return 0;
+    size_t depth = 0;
+    for (size_t i = at; i < n; ) {
+        if (evidence_quote_at(s, i, n)) {
+            char q = s[i++];
+            while (i < n && s[i] != q) {
+                if (s[i] == '\\' && i + 1 < n) i += 2;
+                else i++;
+            }
+            if (i < n) i++;
+            continue;
+        }
+        if (i + ol <= n && memcmp(s + i, open, ol) == 0) {
+            depth++;
+            i += ol;
+            continue;
+        }
+        if (i + cl <= n && memcmp(s + i, close, cl) == 0) {
+            if (depth > 0) depth--;
+            i += cl;
+            if (depth == 0) {
+                if (at_out) *at_out = at;
+                if (len_out) *len_out = i - at;
+                return 1;
+            }
+            continue;
+        }
+        i++;
+    }
+    return 0;
+}
+
+static int evidence_indent_find(const char *s, size_t from,
+                                size_t *at_out, size_t *len_out) {
+    size_t n = strlen(s);
+    for (size_t ls = 0; ls < n; ) {
+        const char *nl = strchr(s + ls, '\n');
+        size_t le = nl ? (size_t)(nl - s) : n;
+        size_t next = nl ? le + 1 : n;
+        if (next >= n) break;
+        size_t ind = 0, nind = 0;
+        while (ls + ind < le && (s[ls + ind] == ' ' || s[ls + ind] == '\t')) ind++;
+        size_t ne = next;
+        while (ne < n && s[ne] != '\n') ne++;
+        while (next + nind < ne && (s[next + nind] == ' ' ||
+                                     s[next + nind] == '\t')) nind++;
+        if (ls >= from && nind > ind && next + nind < ne) {
+            if (at_out) *at_out = ls;
+            if (len_out) *len_out = ne - ls;
+            return 1;
+        }
+        if (!nl) break;
+        ls = le + 1;
+    }
+    return 0;
+}
+
+static int evidence_kind(const char *evidence, char *kind, size_t kindsz,
+                         char args[][KB_TERM_LEN], size_t *argc) {
+    char pred[KB_TERM_LEN];
+    size_t ac = 0;
+    int bare_default = evidence && strcmp(evidence, "default") == 0;
+    /* A quoted atom is surface text even when the text itself contains parens. */
+    if (evidence && evidence[0] != '"' &&
+        split_compound(evidence, pred, args, &ac)) {
+        snprintf(kind, kindsz, "%s", pred);
+        if (argc) *argc = ac;
+        return 1;
+    }
+    evidence_atom_text(evidence, kind, kindsz);
+    if (!bare_default) snprintf(kind, kindsz, "cue");
+    if (argc) *argc = 0;
+    return 0;
+}
+
+static int evidence_weight(const KB *kb, const char *kind) {
+    char vals[1][KB_TERM_LEN];
+    const char *q[2] = { kind, NULL };
+    if (kb_match(kb, "evidence_weight", q, 2, vals, 1) == 1) {
+        char v[KB_TERM_LEN];
+        evidence_atom_text(vals[0], v, sizeof v);
+        char *end = NULL;
+        errno = 0;
+        long w = strtol(v, &end, 10);
+        while (end && isspace((unsigned char)*end)) end++;
+        if (errno == 0 && end && *end == '\0' && w > 0 && w <= INT_MAX)
+            return (int)w;
+    }
+    return 1;
+}
+
+/* Locate the next occurrence of one evidence term at or after `from`. */
+static int evidence_next(const KB *kb, const char *evidence, const char *text,
+                         size_t from, size_t *at_out, size_t *len_out,
+                         int *is_default) {
+    char kind[KB_TERM_LEN], a[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t ac = 0, at = (size_t)-1, len = 0;
+    int compound = evidence_kind(evidence, kind, sizeof kind, a, &ac);
+    if (is_default) *is_default = 0;
+
+    if (!strcmp(kind, "default")) {
+        if (from > 0) return 0;
+        if (is_default) *is_default = 1;
+        at = 0;
+    } else if (!strcmp(kind, "cue") || !strcmp(kind, "contains")) {
+        char needle[KB_TERM_LEN];
+        evidence_atom_text(compound && ac ? a[0] : evidence, needle, sizeof needle);
+        at = evidence_ci_find(text, needle, from);
+        len = strlen(needle);
+    } else if (!strcmp(kind, "keyword") && ac >= 1) {
+        char word[KB_TERM_LEN]; evidence_atom_text(a[0], word, sizeof word);
+        at = evidence_keyword_find(text, word, from); len = strlen(word);
+    } else if (!strcmp(kind, "line_prefix") && ac >= 1) {
+        char p[KB_TERM_LEN]; evidence_atom_text(a[0], p, sizeof p);
+        at = evidence_line_prefix_find(text, p, from); len = strlen(p);
+    } else if (!strcmp(kind, "line_suffix") && ac >= 1) {
+        char p[KB_TERM_LEN]; evidence_atom_text(a[0], p, sizeof p);
+        at = evidence_line_suffix_find(text, p, from); len = strlen(p);
+    } else if (!strcmp(kind, "prefix") && ac >= 1) {
+        char p[KB_TERM_LEN]; evidence_atom_text(a[0], p, sizeof p);
+        if (from == 0 && evidence_ci_at(text, p)) { at = 0; len = strlen(p); }
+    } else if (!strcmp(kind, "suffix") && ac >= 1) {
+        char p[KB_TERM_LEN]; evidence_atom_text(a[0], p, sizeof p);
+        size_t n = strlen(text), pl = strlen(p);
+        while (n && isspace((unsigned char)text[n - 1])) n--;
+        if (from == 0 && n >= pl && strncasecmp(text + n - pl, p, pl) == 0) {
+            at = n - pl; len = pl;
+        }
+    } else if (!strcmp(kind, "extension") && ac >= 1) {
+        char p[KB_TERM_LEN]; evidence_atom_text(a[0], p, sizeof p);
+        if (!evidence_token_extension(text, p, from, &at, &len)) at = (size_t)-1;
+    } else if (!strcmp(kind, "balanced") && ac >= 1) {
+        char open[KB_TERM_LEN] = "", close[KB_TERM_LEN] = "";
+        if (ac >= 2) {
+            evidence_atom_text(a[0], open, sizeof open);
+            evidence_atom_text(a[1], close, sizeof close);
+        } else {
+            char opens[16][KB_TERM_LEN];
+            const char *q[3] = { a[0], NULL, NULL };
+            size_t no = kb_match(kb, "delim_pair", q, 3, opens, 16);
+            for (size_t i = 0; i < no && !open[0]; i++) {
+                char closes[1][KB_TERM_LEN];
+                const char *cq[3] = { a[0], opens[i], NULL };
+                if (kb_match(kb, "delim_pair", cq, 3, closes, 1) == 1) {
+                    evidence_atom_text(opens[i], open, sizeof open);
+                    evidence_atom_text(closes[0], close, sizeof close);
+                }
+            }
+        }
+        if (!evidence_balanced_find(text, open, close, from, &at, &len))
+            at = (size_t)-1;
+    } else if (!strcmp(kind, "paired_contains") && ac >= 2) {
+        char open[KB_TERM_LEN] = "", close[KB_TERM_LEN] = "";
+        char opens[16][KB_TERM_LEN];
+        const char *q[3] = { a[0], NULL, NULL };
+        size_t no = kb_match(kb, "delim_pair", q, 3, opens, 16);
+        for (size_t i = 0; i < no && !open[0]; i++) {
+            char closes[1][KB_TERM_LEN]; const char *cq[3] = { a[0], opens[i], NULL };
+            if (kb_match(kb, "delim_pair", cq, 3, closes, 1) == 1) {
+                evidence_atom_text(opens[i], open, sizeof open);
+                evidence_atom_text(closes[0], close, sizeof close);
+            }
+        }
+        size_t bat = 0, blen = 0, scan = from;
+        char needle[KB_TERM_LEN]; evidence_atom_text(a[1], needle, sizeof needle);
+        at = (size_t)-1;
+        while (evidence_balanced_find(text, open, close, scan, &bat, &blen)) {
+            size_t hit = evidence_visible_find(text, needle, bat, bat + blen);
+            if (hit != (size_t)-1) {
+                at = hit; len = strlen(needle);
+                break;
+            }
+            size_t next = bat + (blen ? blen : 1);
+            if (next <= scan) break;
+            scan = next;
+        }
+    } else if (!strcmp(kind, "block") && ac >= 1) {
+        char mode[KB_TERM_LEN]; evidence_atom_text(a[0], mode, sizeof mode);
+        if (strcmp(mode, "indent") != 0 ||
+            !evidence_indent_find(text, from, &at, &len)) at = (size_t)-1;
+    } else if (!strcmp(kind, "fence") && ac >= 1) {
+        char tag[KB_TERM_LEN];
+        evidence_atom_text(a[0], tag, sizeof tag);
+        at = evidence_fence_find(text, tag, from, &len);
+    }
+
+    if (at == (size_t)-1) return 0;
+    if (at_out) *at_out = at;
+    if (len_out) *len_out = len;
+    return 1;
+}
+
+static int evidence_match_cmp(const KbEvidenceMatch *a,
+                              const KbEvidenceMatch *b) {
+    if (a->start != b->start) return a->start < b->start ? -1 : 1;
+    int c = strcmp(a->hypothesis, b->hypothesis);
+    if (c) return c;
+    return strcmp(a->evidence, b->evidence);
+}
+
+/* Keep the earliest `max` matches while still scanning every fact and every
+ * occurrence.  This makes a small caller buffer independent of KB fact order. */
+static void evidence_match_keep(KbEvidenceMatch *out, size_t max, size_t *kept,
+                                const KbEvidenceMatch *candidate) {
+    size_t n = *kept;
+    if (n < max) {
+        out[n++] = *candidate;
+        *kept = n;
+    } else {
+        if (evidence_match_cmp(candidate, &out[n - 1]) >= 0) return;
+        out[n - 1] = *candidate;
+    }
+    size_t i = n - 1;
+    while (i > 0 && evidence_match_cmp(&out[i], &out[i - 1]) < 0) {
+        KbEvidenceMatch tmp = out[i];
+        out[i] = out[i - 1];
+        out[i - 1] = tmp;
+        i--;
+    }
+}
+
+size_t kb_evidence_matches(const KB *kb, const char *relation,
+                           const char *hypothesis, const char *text,
+                           KbEvidenceMatch *out, size_t max) {
+    if (!kb || !term_ok(relation) || !text || !out || max == 0 ||
+        (hypothesis && (!term_ok(hypothesis) || term_contains_var(hypothesis, 0))))
+        return 0;
+    char (*classes)[KB_TERM_LEN] = NULL;
+    size_t nc = 0;
+    if (hypothesis) {
+        classes = malloc(sizeof *classes);
+        if (!classes) return 0;
+        snprintf(classes[nc++], KB_TERM_LEN, "%s", hypothesis);
+    } else {
+        const char *q[2] = { NULL, NULL };
+        if (!kb_match_all(kb, relation, q, 2, &classes, &nc)) return 0;
+    }
+
+    size_t found = 0;
+    for (size_t ci = 0; ci < nc; ci++) {
+        /* A rule/unit clause may expose a partially-ground first argument such
+         * as f($X).  It is not a class name; feeding it back to kb_match would
+         * reinterpret it as a pattern and merge unrelated hypotheses. */
+        if (!term_ok(classes[ci]) || term_contains_var(classes[ci], 0)) continue;
+        char (*evs)[KB_TERM_LEN] = NULL;
+        const char *q[2] = { classes[ci], NULL };
+        size_t ne = 0;
+        if (!kb_match_all(kb, relation, q, 2, &evs, &ne)) {
+            free(classes);
+            return 0;
+        }
+        for (size_t ei = 0; ei < ne; ei++) {
+            char kind[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN]; size_t ac = 0;
+            evidence_kind(evs[ei], kind, sizeof kind, args, &ac);
+            int weight = evidence_weight(kb, kind);
+            size_t from = 0;
+            for (;;) {
+                size_t at = 0, len = 0; int def = 0;
+                if (!evidence_next(kb, evs[ei], text, from, &at, &len, &def)) break;
+                KbEvidenceMatch candidate;
+                memset(&candidate, 0, sizeof candidate);
+                snprintf(candidate.hypothesis, KB_TERM_LEN, "%s", classes[ci]);
+                snprintf(candidate.evidence, KB_TERM_LEN, "%s", evs[ei]);
+                candidate.start = at;
+                candidate.len = len;
+                candidate.weight = weight;
+                evidence_match_keep(out, max, &found, &candidate);
+                if (def || at + (len ? len : 1) <= from) break;
+                from = at + (len ? len : 1);
+            }
+        }
+        free(evs);
+    }
+    free(classes);
+
+    /* Stable insertion sort: evidence files are small, while deterministic byte
+     * order makes span construction and proof tests independent of fact order. */
+    for (size_t i = 1; i < found; i++) {
+        KbEvidenceMatch x = out[i];
+        size_t j = i;
+        while (j > 0 && evidence_match_cmp(&x, &out[j - 1]) < 0) {
+            out[j] = out[j - 1];
+            j--;
+        }
+        out[j] = x;
+    }
+    return found;
+}
+
+typedef struct {
+    char name[KB_TERM_LEN];
+    long long score;
+    long long fallback_score;
+    int specific;
+    char (*support)[KB_TERM_LEN];
+    size_t nsupport, capsupport;
+    char (*fallback_support)[KB_TERM_LEN];
+    size_t nfallback_support, capfallback_support;
+} EvidenceHyp;
+
+static int evidence_support_push(char (**rows)[KB_TERM_LEN],
+                                 size_t *n, size_t *cap, const char *value) {
+    if (*n == *cap) {
+        size_t next = *cap ? *cap * 2 : 8;
+        if (next < *cap || next > (size_t)-1 / sizeof **rows) return 0;
+        char (*grown)[KB_TERM_LEN] = realloc(*rows, next * sizeof **rows);
+        if (!grown) return 0;
+        *rows = grown;
+        *cap = next;
+    }
+    snprintf((*rows)[(*n)++], KB_TERM_LEN, "%s", value);
+    return 1;
+}
+
+static void evidence_hypotheses_free(EvidenceHyp *hs, size_t nh) {
+    if (!hs) return;
+    for (size_t i = 0; i < nh; i++) {
+        free(hs[i].support);
+        free(hs[i].fallback_support);
+    }
+    free(hs);
+}
+
+static void evidence_score_add(long long *score, int weight) {
+    if (*score > LLONG_MAX - weight) *score = LLONG_MAX;
+    else *score += weight;
+}
+
+typedef struct {
+    char *out;
+    size_t cap;
+    size_t len;
+    int truncated;
+} EvidenceProofBuf;
+
+static void evidence_proof_mark_truncated(EvidenceProofBuf *p) {
+    static const char marker[] = " [truncated]";
+    p->truncated = 1;
+    if (!p->out || p->cap == 0) return;
+    size_t avail = p->cap - 1;
+    size_t ml = sizeof marker - 1;
+    if (avail >= ml) {
+        size_t start = avail - ml;
+        memcpy(p->out + start, marker, ml);
+        p->out[avail] = '\0';
+        p->len = avail;
+    } else {
+        memcpy(p->out, marker, avail);
+        p->out[avail] = '\0';
+        p->len = avail;
+    }
+}
+
+static void evidence_proof_init(EvidenceProofBuf *p, char *out, size_t cap) {
+    p->out = out;
+    p->cap = cap;
+    p->len = 0;
+    p->truncated = 0;
+    if (out && cap) out[0] = '\0';
+}
+
+static void evidence_proof_append(EvidenceProofBuf *p, const char *fmt, ...) {
+    if (p->truncated) return;
+    if (!p->out || p->cap == 0 || p->len >= p->cap) {
+        evidence_proof_mark_truncated(p);
+        return;
+    }
+    va_list ap;
+    va_start(ap, fmt);
+    int w = vsnprintf(p->out + p->len, p->cap - p->len, fmt, ap);
+    va_end(ap);
+    if (w < 0 || (size_t)w >= p->cap - p->len) {
+        evidence_proof_mark_truncated(p);
+        return;
+    }
+    p->len += (size_t)w;
+}
+
+int kb_hypothesis_best(const KB *kb, const char *relation, const char *text,
+                       const char *const *candidates, size_t ncandidates,
+                       char *winner, size_t winner_sz,
+                       int *score, char *proof, size_t proof_sz) {
+    if (winner && winner_sz) winner[0] = '\0';
+    if (score) *score = 0;
+    EvidenceProofBuf pb;
+    evidence_proof_init(&pb, proof, proof_sz);
+    if (!kb || !term_ok(relation) || !text) return 0;
+    if (!candidates && ncandidates) {
+        evidence_proof_append(&pb, "gap(%s): missing hypothesis candidates", relation);
+        return 0;
+    }
+    if (candidates && ncandidates) {
+        for (size_t i = 0; i < ncandidates; i++) {
+            if (!term_ok(candidates[i]) || term_contains_var(candidates[i], 0)) {
+                evidence_proof_append(&pb,
+                                      "gap(%s): invalid hypothesis candidate",
+                                      relation);
+                return 0;
+            }
+        }
+    }
+
+    char (*discovered)[KB_TERM_LEN] = NULL;
+    size_t nd = 0;
+    if (!candidates || ncandidates == 0) {
+        const char *q[2] = { NULL, NULL };
+        if (!kb_match_all(kb, relation, q, 2, &discovered, &nd)) {
+            evidence_proof_append(&pb, "gap(%s): evidence discovery failed", relation);
+            return 0;
+        }
+    }
+
+    EvidenceHyp *hs = NULL;
+    size_t nh = 0;
+    size_t total = candidates && ncandidates ? ncandidates : nd;
+    if (total > (size_t)-1 / sizeof *hs) goto oom;
+    if (total) {
+        hs = calloc(total, sizeof *hs);
+        if (!hs) goto oom;
+    }
+    for (size_t ci = 0; ci < total; ci++) {
+        const char *name = candidates && ncandidates ? candidates[ci] : discovered[ci];
+        if (!term_ok(name) || term_contains_var(name, 0)) continue;
+        int seen = 0;
+        for (size_t j = 0; j < nh; j++) if (!strcmp(hs[j].name, name)) seen = 1;
+        if (seen) continue;
+        EvidenceHyp *h = &hs[nh++];
+        snprintf(h->name, sizeof h->name, "%s", name);
+
+        char (*evs)[KB_TERM_LEN] = NULL;
+        const char *q[2] = { name, NULL };
+        size_t ne = 0;
+        if (!kb_match_all(kb, relation, q, 2, &evs, &ne)) goto oom;
+        for (size_t ei = 0; ei < ne; ei++) {
+            size_t at, len; int def = 0;
+            if (!evidence_next(kb, evs[ei], text, 0, &at, &len, &def)) continue;
+            char kind[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN]; size_t ac = 0;
+            evidence_kind(evs[ei], kind, sizeof kind, args, &ac);
+            int weight = evidence_weight(kb, kind);
+            if (def) {
+                evidence_score_add(&h->fallback_score, weight);
+                if (!evidence_support_push(&h->fallback_support,
+                                           &h->nfallback_support,
+                                           &h->capfallback_support, evs[ei])) {
+                    free(evs);
+                    goto oom;
+                }
+            } else {
+                evidence_score_add(&h->score, weight);
+                h->specific = 1;
+                if (!evidence_support_push(&h->support, &h->nsupport,
+                                           &h->capsupport, evs[ei])) {
+                    free(evs);
+                    goto oom;
+                }
+            }
+        }
+        free(evs);
+    }
+
+    int any_specific = 0;
+    for (size_t i = 0; i < nh; i++) if (hs[i].specific) any_specific = 1;
+    if (!any_specific) {
+        for (size_t i = 0; i < nh; i++) {
+            hs[i].score = hs[i].fallback_score;
+            free(hs[i].support);
+            hs[i].support = hs[i].fallback_support;
+            hs[i].nsupport = hs[i].nfallback_support;
+            hs[i].capsupport = hs[i].capfallback_support;
+            hs[i].fallback_support = NULL;
+            hs[i].nfallback_support = 0;
+            hs[i].capfallback_support = 0;
+        }
+    }
+    long long top = 0; size_t ntop = 0, topidx = 0;
+    for (size_t i = 0; i < nh; i++) {
+        if (any_specific && !hs[i].specific) continue;
+        if (hs[i].score <= 0) continue;
+        if (hs[i].score > top) { top = hs[i].score; ntop = 1; topidx = i; }
+        else if (hs[i].score == top) ntop++;
+    }
+
+    if (top == 0) {
+        evidence_proof_append(&pb, "gap(%s): no evidence matched", relation);
+        evidence_hypotheses_free(hs, nh);
+        free(discovered);
+        return 0;
+    }
+    if (score) *score = top > INT_MAX ? INT_MAX : (int)top;
+
+    if (ntop > 1) {
+        if (proof && proof_sz) {
+            evidence_proof_append(&pb, "ambiguous_hypothesis(%s): ", relation);
+            int first = 1;
+            for (size_t i = 0; i < nh; i++) {
+                if ((any_specific && !hs[i].specific) || hs[i].score != top) continue;
+                evidence_proof_append(&pb, "%s%s=%lld because ",
+                                      first ? "" : "; ", hs[i].name, hs[i].score);
+                for (size_t k = 0; k < hs[i].nsupport && !pb.truncated; k++)
+                    evidence_proof_append(&pb, "%s%s(%s, %s)",
+                                          k ? " + " : "", relation,
+                                          hs[i].name, hs[i].support[k]);
+                first = 0;
+                if (pb.truncated) break;
+            }
+        }
+        evidence_hypotheses_free(hs, nh);
+        free(discovered);
+        return -1;
+    }
+
+    EvidenceHyp *best = &hs[topidx];
+    if (winner && winner_sz) snprintf(winner, winner_sz, "%s", best->name);
+    if (proof && proof_sz) {
+        evidence_proof_append(&pb, "because ");
+        for (size_t i = 0; i < best->nsupport && !pb.truncated; i++)
+            evidence_proof_append(&pb, "%s%s(%s, %s)", i ? " + " : "",
+                                  relation, best->name, best->support[i]);
+        if (!pb.truncated)
+            evidence_proof_append(&pb, " [score=%lld]", best->score);
+    }
+    evidence_hypotheses_free(hs, nh);
+    free(discovered);
+    return 1;
+
+oom:
+    evidence_hypotheses_free(hs, nh);
+    free(discovered);
+    evidence_proof_init(&pb, proof, proof_sz);
+    evidence_proof_append(&pb, "gap(%s): evidence collection out of memory", relation);
+    return 0;
+}
+
 static void write_term(FILE *f, const Term *t) {
     fprintf(f, "%s(", t->pred);
     for (size_t i = 0; i < t->argc; i++) {
@@ -1528,7 +2415,14 @@ static int append_piece(char *out, size_t out_size, size_t *off,
  * world beliefs about an entity (gen41): a passage fed to `read:` populates the
  * KB with both. Introspection ("what do you know about x?") should report
  * knowledge, not the language model's internals, so these are filtered out. */
-static int is_model_pred(const char *pred) {
+static int is_model_pred(const KB *kb, const char *pred) {
+    /* New machinery declares itself beside the facts that introduce it.  This
+     * keeps input/intent evidence out of concept similarity and descriptions
+     * without growing another distant C whitelist for every learned schema. */
+    if (kb) {
+        const char *m[] = { pred };
+        if (kb_query((KB *)kb, "machinery", m, 1)) return 1;
+    }
     return strcmp(pred, "cont") == 0 || strcmp(pred, "cont2") == 0 ||
            strcmp(pred, "module") == 0 ||
            strcmp(pred, "stopword") == 0 || strcmp(pred, "question_word") == 0 ||
@@ -1637,7 +2531,7 @@ int kb_describe_entity(const KB *kb, const char *entity,
     int count = 0;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
-        if (!fact_mentions(f, entity) || is_model_pred(f->pred) ||
+        if (!fact_mentions(f, entity) || is_model_pred(kb, f->pred) ||
             is_struct_pred(f->pred)) continue;
         char piece[220];
         if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
@@ -1681,7 +2575,7 @@ int kb_define_entity(const KB *kb, const char *entity,
     int count = 0;
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         if (f->argc < 1 || strcmp(f->args[0], entity) != 0) continue;
         /* speakable only: unary class fact or quoted description — the raw
          * clause fallback of render_fact_direct is machinery, not a definition */
@@ -1759,7 +2653,7 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[0], ctoks, 96);
         nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
@@ -1776,7 +2670,7 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[0], ctoks, 96);
         nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
@@ -1806,7 +2700,7 @@ int kb_is_concept_key(const KB *kb, const char *term) {
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         if (strcmp(f->args[0], term) == 0) return 1;
     }
     return 0;
@@ -1821,7 +2715,7 @@ int kb_concept_def(const KB *kb, const char *key, char *out, size_t out_size) {
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         if (strcmp(f->args[0], key) != 0) continue;
         snprintf(out, out_size, "%s", f->args[f->argc - 1] + 1); /* skip open quote */
         size_t l = strlen(out);
@@ -1846,7 +2740,7 @@ int kb_concept_mentioning(const KB *kb, const char *term,
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         if (strcmp(f->args[0], term) == 0) continue;   /* a concept never contains itself */
         if (!valid_member(kb, term, f->pred)) continue; /* gen159: sibling, not a part */
         char ctoks[96][KB_TERM_LEN];
@@ -1885,7 +2779,7 @@ static const char *concept_pred(const KB *kb, const char *key) {
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         if (strcmp(f->args[0], key) == 0) return f->pred;
     }
     return NULL;
@@ -1910,7 +2804,7 @@ int kb_derive_part_of(KB *kb) {
     for (size_t i = 0; i < n0 && nkeys < 512; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         int dup = 0;
         for (size_t k = 0; k < nkeys; k++) if (strcmp(keys[k], f->args[0]) == 0) { dup = 1; break; }
         if (!dup) snprintf(keys[nkeys++], KB_TERM_LEN, "%s", f->args[0]);
@@ -1921,7 +2815,7 @@ int kb_derive_part_of(KB *kb) {
     for (size_t i = 0; i < n0; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         int names_other = 0;
@@ -1942,7 +2836,7 @@ int kb_derive_part_of(KB *kb) {
     for (size_t i = 0; i < n0; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         int container = 0;
         for (size_t p = 0; p < npreds; p++)
             if (strcmp(preds[p], f->pred) == 0) { container = (pcnt[p] >= 2); break; }

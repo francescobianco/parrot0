@@ -1,12 +1,13 @@
 # L'input è UNO — nessun flusso di testo si classifica nel C
 
-> **Stato:** aperto a gen331 (2026-07-12), come **debito riconosciuto** subito dopo
-> aver chiuso TODO.md 01 (gen330). Il comportamento è verde — il counterexample non
-> torna, l'oracolo `tests/segment.sh` regge 28/28 — ma la **forma è sbagliata**: ho
-> risolto un problema di *comprensione* con un *classificatore cablato nel C*, e
-> dentro ci ho messo perfino un frasario bilingue (`strstr(low,"without") ||
-> strstr(low,"senza") || …`, `src/code.c:2743`). È esattamente l'impostore che
-> [[kb-first-manifesto]] vieta, nel punto in cui il piano chiedeva il contrario.
+> **Stato:** **chiuso a gen332 (2026-07-12)**. Il debito era stato riconosciuto a
+> gen331, subito dopo TODO.md 01: il comportamento era verde ma viveva in un enum,
+> in un parser C-only e in un frasario bilingue. Ora `InputSpan` ha ruoli aperti,
+> `input_segment(KB*, …)` confronta evidenze con proof e senza tiebreak, e tutta la
+> tassonomia vive in `kb/core/input.p0`. L'oracolo dedicato
+> `tests/universal-input.sh` regge 64/64, `kb-evidence-scale` 11/11 e il payload
+> MCP oltre 95 KB resta parseabile, insieme a `segment` 28/28 e `codebench` 25/25
+> (73/73 turni).
 > **Ruolo:** questo documento nomina il concetto, spiega perché il C non ha diritto
 > di classificare un flusso di testo, e traccia la rotta per rifare TODO 01 nella
 > forma giusta.
@@ -234,8 +235,8 @@ Per non farne un dogma:
   quello della tabella §3, non «zero C».
 - **Non dice di cancellare il C esistente.** Vale la regola di F.
   ([[keep-secondary-structures]]): cambi **additivi**. `code_segment()` resta come
-  fallback finché il percorso KB non domina; il dispatch first-match rende innocua
-  la ridondanza.
+  adapter compatibile sopra `input_segment()`; il vecchio estrattore dopo i due
+  punti interviene soltanto su un Gap, mai per sciogliere un'ambiguità KB.
 - **Non promette che l'evidenza basti sempre.** Quando due registri restano
   equiprobabili, la risposta corretta è `ambiguous_input` — non un tiebreak cablato
   per far passare un test.
@@ -245,44 +246,45 @@ Per non farne un dogma:
 Ordinata: ogni voce parte da un counterexample e si chiude con un oracolo. Una per
 generazione.
 
-- [ ] **U1 — La KB entra nel segmentatore.** `code_segment(KB*, …)`: passare la KB
+- [x] **U1 — La KB entra nel segmentatore.** `code_segment(KB*, …)`: passare la KB
       (già inclusa in `code.c`) e sostituire il frasario di `src/code.c:2743` con
       `segment_role/2` letto via `kb_match`/`kb_cue_match`. **Done:** insegnare
       «a condizione che» come `constraint` a **runtime** cambia la segmentazione,
       senza ricompilare; `tests/segment.sh` resta 28/28.
 
-- [ ] **U2 — I ruoli diventano aperti.** Eliminare il vincolo dell'`enum` chiuso:
+- [x] **U2 — I ruoli diventano aperti.** Eliminare il vincolo dell'`enum` chiuso:
       il ruolo è un termine KB, non una costante C. **Done:** `segment_role(repro, …)`
       asserito a runtime produce una span tipizzata `repro` interrogabile, con **zero**
       righe di C nuove.
 
-- [ ] **U3 — Il registro è un'IPOTESI, non un `if`.** `register_evidence/2` +
+- [x] **U3 — Il registro è un'IPOTESI, non un `if`.** `register_evidence/2` +
       confronto di ipotesi con punteggio e proof; nessun tiebreak cablato.
       **Done:** «what language is this: the sky is blue» resta prosa (regressione
       gen323 blindata), `.conf` non è più `.c` (il counterexample di TODO 23), e due
       registri equiprobabili producono `ambiguous_input`.
 
-- [ ] **U4 — Il motore smette di conoscere il C.** Le graffe escono dal C e
+- [x] **U4 — Il motore smette di conoscere il C.** Le graffe escono dal C e
       diventano `code_register(c, brace)` + `delim_pair(brace,"{","}")`; il motore
       bilancia una coppia *qualsiasi*. **Done:** aggiungere il registro `json`
       (`delim_pair` già esistente) è **zero C**, e un blocco JSON dentro un turno
       viene isolato correttamente.
 
-- [ ] **U5 — Python entra dalla stessa porta.** `code_register(python, indent)`:
+- [x] **U5 — Python entra dalla stessa porta.** `code_register(python, indent)`:
       il motore misura l'indentazione, la KB dice che è Python a usarla.
       **Done:** una `def` con prosa in coda produce le stesse span tipizzate del C;
       nessun ramo Python dedicato nel dispatcher.
 
-- [ ] **U6 — Registri non-sorgente.** `diff`, `pytest`, `cc`, `traceback` come
+- [x] **U6 — Registri non-sorgente.** `diff`, `pytest`, `cc`, `traceback` come
       `register_evidence/2`. **Done:** un output di pytest incollato nel turno è
-      isolato e tipizzato; il verdict di TODO 21 lo legge senza un parser nuovo.
+      isolato e tipizzato e `faculty_for(log, verdict_builder)` consegna la stessa
+      span al futuro verdict di TODO 21, che resta una faculty da implementare.
 
-- [ ] **U7 — Le span portano provenance.** Ogni span cita l'evidenza che l'ha
+- [x] **U7 — Le span portano provenance.** Ogni span cita l'evidenza che l'ha
       tipizzata (`because register_evidence(...)` / `segment_role(...)`).
       **Done:** «perché hai pensato che fosse un vincolo?» risponde con il fatto
       esatto, e una correzione dell'utente ritratta la tipizzazione (TODO 24).
 
-- [ ] **U8 — Fusione con TODO 23.** Intento e registro usano lo **stesso**
+- [x] **U8 — Fusione con TODO 23.** Intento e registro usano lo **stesso**
       confronto di ipotesi e la stessa proof. **Done:** una sola implementazione
       serve entrambi; l'ablation di un `intent_cue` e quella di un
       `register_evidence` producono Gap della stessa forma.
@@ -297,6 +299,29 @@ Il piano è chiuso quando **tutte** queste sono vere insieme:
 3. `tests/segment.sh` (28/28) e `codebench` (25/25) restano verdi: **nessuna
    regressione di comportamento** in cambio della forma giusta.
 4. Ogni span risponde a «perché?» con un fatto, e una correzione la ritratta.
+
+### Esito gen332
+
+- `kb_hypothesis_best` è l'unico scorer per `intent_cue`, `register_evidence` e
+  qualunque futura relazione di evidenza: `winner`, `gap` e `ambiguous` hanno la
+  stessa forma e conservano i fatti di supporto.
+- `input.segment` e `input.classify` espongono il meccanismo via MCP. Lo stesso
+  processo può asserire `segment_role(repro, …)`, vedere la nuova span, ritrarre il
+  fatto e vedere sparire la tipizzazione senza restart o rebuild.
+- Fence, coppie di delimitatori arbitrarie, indentazione e run di righe sono
+  meccaniche fisse; C, Python, JSON, diff, pytest, cc, traceback e i loro consumer
+  sono fatti. Il test aggiunge anche `notice` con un solo fatto e `anglelang` con
+  delimitatori `< >`, più una coppia simmetrica `| |`, senza una riga di C
+  specifica.
+- L'output MCP delle span resta JSON completo anche oltre il vecchio scratch da
+  70 KB (`tests/mcp-input-payload.sh`: 128 span e payload da oltre 95 KB).
+- Discovery e proof crescono con la KB senza soglie semantiche nascoste:
+  `tests/kb-evidence-scale.sh` copre 257 ipotesi/supporti, truncation esplicita e
+  fast-path strutturali (11/11, anche sotto ASan+UBSan).
+- La parte di TODO 23 qui chiusa è il confronto intent/register (incluso il routing
+  degli intenti code e il match esatto delle estensioni). Il proposal routing
+  transazionale globale resta nella sua voce. Analogamente TODO 24 resta owner
+  dell'invalidazione di proof *già emesse*; la risegmentazione live non usa cache.
 
 > Il codice giusto era già stato scritto: `kb-first.md:21` lo diceva a gen~180.
 > Quello che mancava era accorgersi che **anche la percezione dell'input** è una

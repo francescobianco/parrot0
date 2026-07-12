@@ -1,0 +1,190 @@
+% Universal input model (docs/plans/universal-input.md).
+%
+% The C engine only measures byte spans, delimiters, lines, indentation and
+% evidence.  What a span IS, how a register closes, which role surrounds it and
+% which faculty may consume it are knowledge and therefore live here.
+
+% Evidence weights are policy, not a hidden tiebreak in C.  Independent supports
+% add; equal top scores remain ambiguous.  `default` participates only when no
+% specific evidence matched.
+evidence_weight(default, 1).
+evidence_weight(cue, 2).
+evidence_weight(contains, 2).
+evidence_weight(prefix, 2).
+evidence_weight(suffix, 2).
+evidence_weight(extension, 3).
+evidence_weight(keyword, 3).
+evidence_weight(line_prefix, 4).
+evidence_weight(line_suffix, 4).
+evidence_weight(balanced, 4).
+evidence_weight(paired_contains, 3).
+evidence_weight(block, 4).
+evidence_weight(fence, 8).
+
+% Generic boundary vocabulary.  Adding a delimiter-driven register requires
+% facts only; the balancer never names any of these concrete pairs.
+delim_pair(brace, "{", "}").
+delim_pair(paren, "(", ")").
+delim_pair(bracket, "[", "]").
+delim_line_comment(brace, "//").
+delim_block_comment(brace, "/*", "*/").
+
+code_register(c, brace).
+code_register(python, indent).
+code_register(json, brace).
+code_register(json, bracket).
+
+% Register hypotheses.  Structural evidence is deliberately shared where the
+% surface is shared: `{}` alone ties C and JSON and is therefore ambiguous;
+% language-specific evidence must make one hypothesis dominate.
+register_evidence(c, balanced(brace)).
+register_evidence(c, keyword(int)).
+register_evidence(c, keyword(void)).
+register_evidence(c, keyword(char)).
+register_evidence(c, keyword(float)).
+register_evidence(c, keyword(double)).
+register_evidence(c, keyword(struct)).
+register_evidence(c, keyword(typedef)).
+register_evidence(c, contains(";")).
+register_evidence(c, fence(c)).
+register_evidence(c, extension(".c")).
+register_evidence(c, extension(".h")).
+
+register_evidence(python, keyword(def)).
+register_evidence(python, keyword(import)).
+register_evidence(python, keyword(class)).
+register_evidence(python, keyword(lambda)).
+register_evidence(python, contains("__init__")).
+register_evidence(python, block(indent)).
+register_evidence(python, fence(python)).
+register_evidence(python, fence(py)).
+register_evidence(python, extension(".py")).
+
+register_evidence(json, balanced(brace)).
+register_evidence(json, balanced(bracket)).
+register_evidence(json, paired_contains(brace, ":")).
+register_evidence(json, fence(json)).
+register_evidence(json, extension(".json")).
+
+register_evidence(diff, line_prefix("diff --git ")).
+register_evidence(diff, line_prefix("@@ ")).
+register_evidence(diff, line_prefix("--- ")).
+register_evidence(diff, line_prefix("+++ ")).
+register_evidence(diff, line_prefix("-")).
+register_evidence(diff, line_prefix("+")).
+register_evidence(diff, fence(diff)).
+register_evidence(diff, extension(".diff")).
+register_evidence(diff, extension(".patch")).
+
+register_evidence(pytest, line_prefix("E   ")).
+register_evidence(pytest, line_prefix("FAILED ")).
+register_evidence(pytest, line_prefix("ERROR ")).
+register_evidence(pytest, line_prefix("===== ")).
+register_evidence(pytest, fence(pytest)).
+
+register_evidence(cc, line_prefix("cc:")).
+register_evidence(cc, line_prefix("gcc:")).
+register_evidence(cc, line_prefix("clang:")).
+register_evidence(cc, keyword(error)).
+register_evidence(cc, keyword(warning)).
+register_evidence(cc, contains("undefined reference")).
+
+register_evidence(traceback, line_prefix("Traceback (most recent call last):")).
+register_evidence(traceback, line_prefix("  File ")).
+register_evidence(traceback, contains("Error:")).
+register_evidence(traceback, fence(traceback)).
+
+register_evidence(log, line_prefix("[INFO]")).
+register_evidence(log, line_prefix("[WARN]")).
+register_evidence(log, line_prefix("[ERROR]")).
+register_evidence(prose, default).
+
+% The register and role are independent axes.  A register added at runtime with
+% no row here simply uses its own name as the open role; code_register/2 implies
+% the generic `code` role automatically.
+register_role(c, code).
+register_role(python, code).
+register_role(json, code).
+register_role(diff, diff).
+register_role(pytest, log).
+register_role(cc, log).
+register_role(traceback, log).
+register_role(log, log).
+register_role(prose, prose).
+
+register_label(c, "C").
+register_label(python, "Python").
+register_label(json, "JSON").
+register_label(diff, "diff").
+register_label(pytest, "pytest output").
+register_label(cc, "compiler output").
+register_label(traceback, "Python traceback").
+register_label(log, "log").
+
+% Open prose roles.  These cues may be asserted/retracted in the live KB; no C
+% enum, switch or language phrasebook changes when a role or phrasing is added.
+segment_role(expected, "it should").
+segment_role(expected, "should return").
+segment_role(expected, "expected").
+segment_role(expected, "dovrebbe").
+segment_role(expected, "mi aspetto").
+segment_role(expected, "risultato atteso").
+
+segment_role(observed, "it returns").
+segment_role(observed, "observed").
+segment_role(observed, "instead it").
+segment_role(observed, "invece restituisce").
+segment_role(observed, "invece ottengo").
+segment_role(observed, "ma ottengo").
+
+segment_role(constraint, "without").
+segment_role(constraint, "must not").
+segment_role(constraint, "do not use").
+segment_role(constraint, "do not change").
+segment_role(constraint, "senza").
+segment_role(constraint, "non deve").
+segment_role(constraint, "non usare").
+segment_role(constraint, "non cambiare").
+
+segment_role(repro, "to reproduce").
+segment_role(repro, "reproduction steps").
+segment_role(repro, "per riprodurre").
+segment_role(non_goal, "out of scope").
+segment_role(non_goal, "non-goal").
+segment_role(non_goal, "fuori ambito").
+
+% Uncued gaps are still classified by knowledge about their position relative
+% to a typed register, rather than by a C constant.
+segment_default(before, instruction).
+segment_default(after, expected).
+segment_default(between, prose).
+segment_default(standalone, prose).
+
+% Consumers are declarative.  Legacy faculties remain adapters while this table
+% is already queryable by input.segment and future proposal routing.
+faculty_for(code(c), compiler_oracle).
+faculty_for(code(python), python_checker).
+faculty_for(code(json), structured_reader).
+faculty_for(instruction, planner).
+faculty_for(expected, contract_builder).
+faculty_for(observed, contract_builder).
+faculty_for(repro, contract_builder).
+faculty_for(constraint, planner).
+faculty_for(non_goal, planner).
+faculty_for(diff, patch_reader).
+faculty_for(log, verdict_builder).
+faculty_for(prose, reasoner).
+
+% This schema describes parrot0's perception/routing machinery, not world facts.
+machinery(evidence_weight).
+machinery(delim_pair).
+machinery(delim_line_comment).
+machinery(delim_block_comment).
+machinery(code_register).
+machinery(register_evidence).
+machinery(register_role).
+machinery(register_label).
+machinery(segment_role).
+machinery(segment_default).
+machinery(faculty_for).
+machinery(machinery).

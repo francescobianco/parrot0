@@ -299,6 +299,9 @@ test: build
 	@./tests/repair.sh
 	@./tests/toolexec.sh
 	@./tests/segment.sh
+	@./tests/universal-input.sh
+	@./tests/kb-evidence-scale.sh
+	@./tests/mcp-input-payload.sh
 	@./tests/learnbuild.sh
 	@$(BENCH_PY) ./tests/manifest_audit.py
 	@./tests/cuechains.sh

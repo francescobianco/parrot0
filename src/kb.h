@@ -104,6 +104,51 @@ int    kb_query(KB *kb, const char *pred, const char *const *args, size_t argc);
 size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max);
 
+/* Universal evidence matching (docs/plans/universal-input.md).
+ *
+ * A two-argument KB relation such as
+ *
+ *     intent_cue(code_fix, "fix this")
+ *     register_evidence(c, keyword(int))
+ *
+ * describes hypotheses in its first argument and evidence in its second.  The
+ * fixed engine below evaluates the evidence against a byte stream; the classes,
+ * surface forms and structural choices remain facts.  `start`/`len` are byte
+ * offsets in `text`, and `evidence` is preserved exactly as it lives in the KB
+ * so it can be cited or retracted without losing quote/compound-term fidelity.
+ */
+#define KB_EVIDENCE_PROOF_LEN 512
+
+typedef struct {
+    char   hypothesis[KB_TERM_LEN];
+    char   evidence[KB_TERM_LEN];
+    size_t start;
+    size_t len;
+    int    weight;
+} KbEvidenceMatch;
+
+/* Enumerate every occurrence supported by `relation`/2.  If `hypothesis` is
+ * non-NULL only that class is considered; NULL discovers every class from the
+ * KB.  Results are ordered by byte offset, then by hypothesis/evidence. */
+size_t kb_evidence_matches(const KB *kb, const char *relation,
+                           const char *hypothesis, const char *text,
+                           KbEvidenceMatch *out, size_t max);
+
+/* Compare hypotheses using the same scorer for intent_cue, register_evidence,
+ * segment_role, and future evidence relations. `candidates` may be NULL/empty
+ * to discover all first arguments from the relation. Returns:
+ *   1  one unique best hypothesis (winner/proof/score filled)
+ *   0  no evidence matched (proof is a typed gap)
+ *  -1  top hypotheses tied (proof names the ambiguity; no tiebreak is applied)
+ * Evidence weights are data (`evidence_weight(Kind, Integer)`); absent weights
+ * default to one. `default` evidence is considered only when no specific
+ * evidence matched, so prose(default) cannot tie a genuinely supported register.
+ */
+int kb_hypothesis_best(const KB *kb, const char *relation, const char *text,
+                       const char *const *candidates, size_t ncandidates,
+                       char *winner, size_t winner_sz,
+                       int *score, char *proof, size_t proof_sz);
+
 /* Induce definite rules from the ground facts — parrot0's deterministic,
  * legible analogue of "training" (see PRINCIPLES.md). For unary predicates
  * P, Q with P != Q: if EVERY constant c with fact P(c) also has fact Q(c),

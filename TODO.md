@@ -13,7 +13,7 @@ una trace strutturata e l'aggiornamento automatico del capability ledger.
 
 ## P0 — verità operativa, feedback e sicurezza
 
-- [x] **01 — Separare issue, prosa e sorgente prima di diagnosticare codice.** Counterexample reale: `fix this code: int absval(...) ... It should return ...` su C sintatticamente valido risponde falsamente “add a semicolon”. Introdurre segmenti tipizzati con span (`instruction`, `constraint`, `code`, `expected`) e compilare soltanto il sorgente estratto; se l'estrazione è ambigua, restituire `ambiguous_input`, non una diagnosi. **Done:** 20 layout misti EN/IT e input multilinea non producono falsi syntax finding; i corrispondenti snippet realmente rotti restano rilevati dal compilatore. ⚠️ **Comportamento verde, FORMA in debito** (gen331): la segmentazione è stata chiusa con un classificatore cablato nel C — frasario bilingue in `src/code.c:2743`, ruoli in un `enum` chiuso, parser che conosce solo le graffe del C. Viola `kb-first.md:21/:35` e `universal-comprehension.md:54` nel punto esatto in cui chiedevano il contrario. La rotta di riparazione, con la sua TODO list (U1-U8), è in `docs/plans/universal-input.md`; si fonde con la voce 23.
+- [x] **01 — Separare issue, prosa e sorgente prima di diagnosticare codice.** Counterexample reale: `fix this code: int absval(...) ... It should return ...` su C sintatticamente valido risponde falsamente “add a semicolon”. Introdurre segmenti tipizzati con span (`instruction`, `constraint`, `code`, `expected`) e compilare soltanto il sorgente estratto; se l'estrazione è ambigua, restituire `ambiguous_input`, non una diagnosi. **Done:** 20 layout misti EN/IT e input multilinea non producono falsi syntax finding; i corrispondenti snippet realmente rotti restano rilevati dal compilatore. ✅ **Debito di forma chiuso in gen332:** ruoli aperti, registri/evidenze/delimitatori/faculty in `kb/core/input.p0`, scorer condiviso con gli intenti e proof per span; vedi `docs/plans/universal-input.md` e `tests/universal-input.sh` (64/64).
 
 - [x] **02 — Fare l'honesty sweep di tutti i checker.** Per ogni `check_*`/diagnostica aggiungere almeno un programma corretto sul quale deve restare silente, un difetto vero, mutazioni di whitespace/commenti e un oracle meccanico (compiler, sanitizer, test o property), evitando che un pattern scanner possa emettere da solo un claim. **Done:** false-positive rate 0 sul corpus correct/clean e ablation di ogni veto riaccende il suo counterexample.
 
@@ -80,6 +80,26 @@ chiaro" su codice che sa essere rotto.
 Se le graffe non chiudono: `ambiguous_input`. parrot0 non indovina la forma di un
 programma pur di avere qualcosa da dire.
 
+### Chiuso in gen332 (`InputSpan`, `kb_hypothesis_best`, `kb/core/input.p0`)
+
+Il debito dichiarato da gen331 era reale: `code_segment` riceveva soltanto byte,
+classificava quattro ruoli con un enum e decideva `constraint` tramite sei substring
+EN/IT; `identify_code_lang` era poi un secondo classificatore C/Python con un altro
+punteggio e altri marker. Ora il motore riceve la KB e produce `InputSpan` con offset,
+ruolo aperto, registro, score e proof. `segment_role/2`, `register_evidence/2`,
+`code_register/2`, `delim_pair/3`, `faculty_for/2` e i pesi sono fatti curati; assert e
+retract runtime cambiano la segmentazione nello stesso processo.
+
+Lo scorer `kb_hypothesis_best` serve sia `intent_cue` sia i registri: nessun
+first-match nel routing code e nessun tiebreak in un pareggio. Fence, delimitatori
+arbitrari, indentazione e righe sono le sole meccaniche C. JSON, Python, diff, pytest,
+cc e traceback entrano dalla stessa porta; un registro `notice` viene aggiunto dal
+test con un fatto e un registro delimitato `< >` con soli fatti. `input.segment` e
+`input.classify` rendono span, Gap e proof interrogabili via MCP. Le estensioni sono
+matchate esattamente, quindi `.conf` non è `.c`. Restano nelle rispettive voci il
+proposal routing globale di 23, il verdict builder di 21 e l'invalidazione delle proof
+già emesse di 24.
+
 ### Chiuso in gen329 (`src/exec.c`, oracolo `tests/toolexec.sh`, 25/25)
 
 04/05/06/07 cadono insieme perché erano lo stesso strato: parrot0 *parlava* al
@@ -133,7 +153,7 @@ riporta l'arenamento e muore, il padre riprova una volta *con* rete e lo dichiar
 
 - [ ] **22 — Portare lettura ed explanation dal lessico alla semantica.** Counterexample reale: `explain what this does` rende solo “returns a value; contains a loop”, mentre una paraphrase italiana/inglese mura. Derivare nome funzione, parametri, state change, loop invariant/accumulatore, return e limiti dall'IR, marcando ogni frase come parsed/derived/hypothesized. **Done:** spiegazioni di 30 snippet C/Python sono verificate contro trace/esecuzione o golden strutturali e non descrivono semantica oltre prova.
 
-- [ ] **23 — Sostituire il keyhole linguistico con intenti dichiarativi e proposal routing.** Counterexample reali: `explain what this does` passa ma `can you explain what this function computes` e `spiegami in dettaglio` no; `locate the definition...` viene rubato da `definition`; `.conf` viene interpretato come `.c` per substring. Estendere `intent_cue`/classi lessicali nel KB, usare token/extension match esatto e selezionare su registro+struttura+evidence confrontando più Proposal, non first-match. **Done:** 10x paraphrase EN/IT per intent raggiungono la stessa faculty, negativi prose/code e suffissi sovrapposti non collidono, cue nuova è insegnabile senza ricompilare.
+- [ ] **23 — Sostituire il keyhole linguistico con intenti dichiarativi e proposal routing.** Counterexample reali: `explain what this does` passa ma `can you explain what this function computes` e `spiegami in dettaglio` no; `locate the definition...` viene rubato da `definition`; `.conf` viene interpretato come `.c` per substring. Estendere `intent_cue`/classi lessicali nel KB, usare token/extension match esatto e selezionare su registro+struttura+evidence confrontando più Proposal, non first-match. **Parziale gen332:** scorer intent/register condiviso, intenti code confrontati e extension match esatto sono chiusi; restano proposal routing globale, purezza/commit e la matrice 10x paraphrase. **Done:** 10x paraphrase EN/IT per intent raggiungono la stessa faculty, negativi prose/code e suffissi sovrapposti non collidono, cue nuova è insegnabile senza ricompilare.
 
 ## P2 — fedeltà KB-first e crescita che compone
 

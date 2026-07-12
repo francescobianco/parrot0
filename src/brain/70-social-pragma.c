@@ -834,7 +834,18 @@ static int name_register(Brain *b, const char *a, const char *alt,
  * Grounded in kb/experts/programming/coding.p0 — the KB is the source of truth for
  * keywords, stdlib functions, error patterns and fix suggestions. */
 
-static int find_code_section(const char *input, char *code, size_t code_size) {
+static int find_code_section(Brain *b, const char *input,
+                             char *code, size_t code_size, InputSpan *span) {
+    /* Universal path first. A tie/unclosed region is terminal (-1): the legacy
+     * colon adapter must never become a hidden tiebreak. */
+    if (b && b->kb) {
+        int ex = code_extract_source_span(b->kb, input, code, code_size, span);
+        if (ex != 0) return ex;
+    }
+
+    /* Additive fallback for shapes the KB segmenter has no supported register
+     * for yet. It preserves the old code faculties while evidence coverage
+     * grows, but runs only after a genuine Gap (never after ambiguity). */
     const char *p = input;
     while (*p && *p != ':') p++;
     if (*p == ':') {
@@ -844,82 +855,40 @@ static int find_code_section(const char *input, char *code, size_t code_size) {
         while (*p && n + 1 < code_size) { code[n++] = *p; p++; }
         while (n > 0 && isspace((unsigned char)code[n - 1])) n--;
         code[n] = '\0';
-        return n > 1;
+        return n > 1 ? 1 : 0;
     }
     return 0;
 }
 
-/* gen323 (TODO.md P1): does this section carry the STRUCTURAL evidence of code?
- *
- * identify_code_lang() below tallies keyword() facts word by word, and `is`,
- * `in`, `not`, `and`, `or`, `if`, `for` are Python keywords AND ordinary English
- * words. So one common word decided the register:
- *
- *   you> what language is this: the sky is blue
- *   parrot0> This looks like Python code.
- *   you> what is wrong with this: the sky is blue
- *   parrot0> I did not find obvious errors in this code snippet.
- *
- * Prose was misclaimed as code, and then "checked". TASKLIST C14 named this
- * exactly: a code module may engage only when structural evidence DOMINATES
- * natural-language evidence, never merely because a token co-occurs.
- *
- * So a keyword tally is no longer sufficient on its own — the section must also
- * show a mark that prose does not make: a brace, a statement terminator, a
- * preprocessor line, or a declaration/definition/call form. The FORM stays
- * structural C (like mod_rulespec); the WORD CLASSES stay KB knowledge. */
-static int has_code_register(const char *code) {
-    if (!code || !*code) return 0;
-    if (strchr(code, '{') || strchr(code, '}') || strchr(code, ';') ||
-        strstr(code, "#include") || strstr(code, "#define"))
-        return 1;
-    static const char *const forms[] = {
-        "def ", "import ", "class ", "lambda ", "self.", "return ", "elif ",
-        "printf(", "scanf(", "malloc(", "print(", "__init__",
-        "int ", "void ", "char ", "float ", "double ", "long ", NULL
-    };
-    for (const char *const *f = forms; *f; f++)
-        if (strstr(code, *f)) return 1;
-    return 0;
+/* Universal register comparison (universal-input U3/U8).  The same hypothesis
+ * engine used by kb_cue_match(intent_cue, ...) now ranks register_evidence.
+ * There is no first-match and no surface tiebreak: a tie is returned as -1 with
+ * its proof, prose(default) wins only when no specific evidence exists. */
+static int identify_register(const char *text, Brain *b,
+                             char *reg, size_t regsz,
+                             char *proof, size_t proofsz, int *score) {
+    if (reg && regsz) reg[0] = '\0';
+    if (proof && proofsz) proof[0] = '\0';
+    if (score) *score = 0;
+    if (!text || !*text || !b || !b->kb) return 0;
+    int r = kb_hypothesis_best(b->kb, "register_evidence", text, NULL, 0,
+                               reg, regsz, score, proof, proofsz);
+    if (r == 1 && reg && !strcmp(reg, "prose")) {
+        if (regsz) reg[0] = '\0';
+        return 0;
+    }
+    return r;
 }
 
+/* Legacy front-end adapter: downstream AST/checker code still uses 1/2 while
+ * register perception itself is open and KB-driven. */
 static int identify_code_lang(const char *code, Brain *b) {
-    int c_kw = 0, py_kw = 0;
-    /* gen323: no structural evidence, no register. A keyword tally alone made
-     * "the sky is blue" Python, because `is` is a Python keyword. Unknown (0) is
-     * the honest verdict for prose — and every caller already handles it. */
-    if (!has_code_register(code)) return 0;
-    if (b && b->kb) {
-        char buf[512]; snprintf(buf, sizeof buf, "%s", code);
-        char *w[128]; size_t nw = split_words(buf, w, 128);
-        for (size_t i = 0; i < nw; i++) {
-            char *t = w[i]; size_t tl = strlen(t);
-            while (tl > 0 && (t[tl-1] == ';' || t[tl-1] == ':' ||
-                              t[tl-1] == '(' || t[tl-1] == ')')) { t[tl-1] = '\0'; tl--; }
-            if (tl < 2) continue;
-            const char *args_c[] = {"c", t};
-            if (kb_query(b->kb, "keyword", args_c, 2)) c_kw++;
-            const char *args_py[] = {"python", t};
-            if (kb_query(b->kb, "keyword", args_py, 2)) py_kw++;
-        }
-    }
-    /* Surface features — used as tiebreaker and also when KB is sparse.
-     * C markers: int, void, #include, semicolons, braces, printf, scanf, malloc.
-     * Python markers: def, import, print(, : after for/if/while/def/class, indentation. */
-    if (strstr(code, "int ") || strstr(code, "void ") || strstr(code, "char ") ||
-        strstr(code, "#include") || strstr(code, "printf(") || strstr(code, "scanf(") ||
-        strstr(code, "malloc("))
-        c_kw += 2;
-    if (strstr(code, "def ") || strstr(code, "import ") || strstr(code, "print(") ||
-        strstr(code, "class ") || strstr(code, "elif ") || strstr(code, "lambda ") ||
-        strstr(code, "self.") || strstr(code, "__init__"))
-        py_kw += 2;
-    /* Semicolons and braces strongly suggest C over Python */
-    if (strchr(code, ';') || strchr(code, '{'))
-        c_kw++;
-    if (c_kw > py_kw) return 1;  /* C */
-    if (py_kw > c_kw) return 2;  /* Python */
-    return 0;                    /* unknown */
+    char reg[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+    if (identify_register(code, b, reg, sizeof reg,
+                          proof, sizeof proof, &score) != 1) return 0;
+    if (!strcmp(reg, "c")) return 1;
+    if (!strcmp(reg, "python")) return 2;
+    return 0;
 }
 
 static int check_missing_semicolons(const char *code, char *findings,
@@ -1108,9 +1077,19 @@ static int check_unknown_function(const char *code, Brain *b, char *findings,
     return 0;
 }
 
-static void lang_name(int lang, char *out, size_t out_size) {
-    if (lang == 1) snprintf(out, out_size, "C");
-    else if (lang == 2) snprintf(out, out_size, "Python");
-    else snprintf(out, out_size, "unknown");
+static void register_name(Brain *b, const char *reg, char *out, size_t out_size) {
+    if (!out || out_size == 0) return;
+    if (!reg || !*reg) { snprintf(out, out_size, "unknown"); return; }
+    if (b && b->kb) {
+        char labels[1][KB_TERM_LEN]; const char *q[2] = { reg, NULL };
+        if (kb_match(b->kb, "register_label", q, 2, labels, 1) == 1) {
+            char *p = labels[0]; size_t n = strlen(p);
+            if (n >= 2 && p[0] == '"' && p[n - 1] == '"') {
+                p[n - 1] = '\0'; p++;
+            }
+            snprintf(out, out_size, "%s", p);
+            return;
+        }
+    }
+    snprintf(out, out_size, "%s", reg);
 }
-

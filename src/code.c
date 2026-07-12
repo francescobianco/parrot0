@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -2591,179 +2592,810 @@ int code_syntax_verdict(const char *src, char *diag, size_t diag_sz) {
     return r;
 }
 
-/* ---- gen330 (TODO.md P0/01): segmenting a prompt into typed spans ------------
+/* ---- universal input segmentation (docs/plans/universal-input.md) ----------
  *
- * See code.h for the counterexample. The job: find where the SOURCE starts and
- * ends inside a sentence that also contains an instruction and a description of
- * the bug, so that only the source is ever handed to a compiler.
- *
- * The anchor is structure, not vocabulary: a C function is a declarator followed
- * by a brace-balanced body. We find the first '{', walk BACKWARD to the head of
- * its declaration, then brace-count FORWARD to the matching close — and repeat
- * while the next non-space thing still looks like another declaration, so several
- * functions in a row stay one code span. Whatever precedes is the instruction;
- * whatever follows is the user's prose about the code.
- *
- * If the braces never balance, the span is not a program and we say so
- * (ambiguous) rather than diagnose a shape we had to guess at. */
+ * This engine knows only byte/line mechanics: fences, arbitrary delimiter pairs,
+ * indentation, offsets and evidence comparison.  Register names, concrete
+ * delimiters, surface cues, roles and consumers are all queried from the KB.
+ * `code_segment` remains as an adapter name for existing consumers; InputSpan is
+ * the actual, register-agnostic type. */
 
-/* Walk back from the '(' of a declarator over "int", "static char *", … */
-static size_t decl_head_start(const char *s, size_t open_paren) {
-    size_t i = open_paren;
-    /* skip back over the function name and the type words before it */
-    while (i > 0) {
-        char c = s[i - 1];
-        if (isalnum((unsigned char)c) || c == '_' || c == '*' || c == ' ' ||
-            c == '\t' || c == '\n')
-            i--;
-        else
-            break;      /* ':', '.', ',', ')', … — the prose ends here */
+#define INPUT_MAX_REGS 128
+#define INPUT_MAX_CANDIDATES 128
+
+typedef struct {
+    char open[KB_TERM_LEN], close[KB_TERM_LEN];
+    char line_comment[8][KB_TERM_LEN]; size_t nline;
+    char block_open[8][KB_TERM_LEN], block_close[8][KB_TERM_LEN]; size_t nblock;
+} InputDelim;
+
+typedef struct {
+    size_t start, end;                 /* end is exclusive */
+    char reg[KB_TERM_LEN];
+    char role[KB_TERM_LEN];
+    int score;
+    int priority;
+    char proof[KB_EVIDENCE_PROOF_LEN];
+} InputCandidate;
+
+static void input_atom_text(const char *atom, char *out, size_t cap) {
+    if (!out || cap == 0) return;
+    out[0] = '\0';
+    if (!atom) return;
+    size_t n = strlen(atom); const char *p = atom;
+    if (n >= 2 && p[0] == '"' && p[n - 1] == '"') { p++; n -= 2; }
+    if (n >= cap) n = cap - 1;
+    memcpy(out, p, n); out[n] = '\0';
+}
+
+static int input_has_value(char values[][KB_TERM_LEN], size_t n, const char *v) {
+    for (size_t i = 0; i < n; i++) if (!strcmp(values[i], v)) return 1;
+    return 0;
+}
+
+static int input_load_delim(KB *kb, const char *mode, InputDelim *d) {
+    memset(d, 0, sizeof *d);
+    char opens[8][KB_TERM_LEN];
+    const char *q[3] = { mode, NULL, NULL };
+    size_t no = kb_match(kb, "delim_pair", q, 3, opens, 8);
+    if (no == 0) return 0;
+    char closes[1][KB_TERM_LEN];
+    const char *cq[3] = { mode, opens[0], NULL };
+    if (kb_match(kb, "delim_pair", cq, 3, closes, 1) != 1) return 0;
+    input_atom_text(opens[0], d->open, sizeof d->open);
+    input_atom_text(closes[0], d->close, sizeof d->close);
+
+    char line[8][KB_TERM_LEN]; const char *lq[2] = { mode, NULL };
+    size_t nl = kb_match(kb, "delim_line_comment", lq, 2, line, 8);
+    for (size_t i = 0; i < nl; i++)
+        input_atom_text(line[i], d->line_comment[d->nline++], KB_TERM_LEN);
+
+    char bos[8][KB_TERM_LEN]; const char *bq[3] = { mode, NULL, NULL };
+    size_t nb = kb_match(kb, "delim_block_comment", bq, 3, bos, 8);
+    for (size_t i = 0; i < nb && d->nblock < 8; i++) {
+        char bcs[1][KB_TERM_LEN]; const char *bcq[3] = { mode, bos[i], NULL };
+        if (kb_match(kb, "delim_block_comment", bcq, 3, bcs, 1) != 1) continue;
+        input_atom_text(bos[i], d->block_open[d->nblock], KB_TERM_LEN);
+        input_atom_text(bcs[0], d->block_close[d->nblock], KB_TERM_LEN);
+        d->nblock++;
     }
-    while (i < open_paren && isspace((unsigned char)s[i])) i++;
+    return d->open[0] && d->close[0];
+}
+
+static int input_starts(const char *s, size_t i, size_t n, const char *mark) {
+    size_t m = strlen(mark);
+    return m && i + m <= n && memcmp(s + i, mark, m) == 0;
+}
+
+static int input_quote_at(const char *s, size_t i, size_t n) {
+    if (s[i] == '"') return 1;
+    if (s[i] != '\'') return 0;
+    if (i > 0 && i + 1 < n && isalnum((unsigned char)s[i - 1]) &&
+        isalnum((unsigned char)s[i + 1])) return 0;
+    for (size_t j = i + 1; j < n && s[j] != '\n'; j++) {
+        if (s[j] == '\\' && j + 1 < n) { j++; continue; }
+        if (s[j] == '\'') return 1;
+    }
+    return 0;
+}
+
+/* A fence marker is structural only at the beginning of a physical line.  A
+ * literal ``` inside the fenced payload must not close the region (and an
+ * inline mention of backticks in prose must not open one). */
+static const char *input_find_line_fence(const char *s, size_t from) {
+    size_t n = strlen(s);
+    while (from + 3 <= n) {
+        const char *p = strstr(s + from, "```");
+        if (!p) return NULL;
+        size_t at = (size_t)(p - s);
+        if (at == 0 || s[at - 1] == '\n') return p;
+        from = at + 3;
+    }
+    return NULL;
+}
+
+static int input_find_delim_open(const char *s, size_t from, const InputDelim *d,
+                                 size_t *at_out) {
+    size_t n = strlen(s);
+    for (size_t i = from; i < n; ) {
+        int mark_quote = !strcmp(d->open, d->close) && strlen(d->open) == 1 &&
+                         (d->open[0] == '\'' || d->open[0] == '"');
+        if (mark_quote && input_starts(s, i, n, d->open) &&
+            input_quote_at(s, i, n)) {
+            if (at_out) *at_out = i;
+            return 1;
+        }
+        if (input_quote_at(s, i, n)) {
+            char q = s[i++];
+            while (i < n && s[i] != q) {
+                if (s[i] == '\\' && i + 1 < n) i += 2; else i++;
+            }
+            if (i < n) i++;
+            continue;
+        }
+        int skipped = 0;
+        for (size_t k = 0; k < d->nline && !skipped; k++) {
+            if (!input_starts(s, i, n, d->line_comment[k])) continue;
+            while (i < n && s[i] != '\n') i++;
+            skipped = 1;
+        }
+        if (skipped) continue;
+        for (size_t k = 0; k < d->nblock && !skipped; k++) {
+            if (!input_starts(s, i, n, d->block_open[k])) continue;
+            const char *p = strstr(s + i + strlen(d->block_open[k]), d->block_close[k]);
+            i = p ? (size_t)(p - s) + strlen(d->block_close[k]) : n;
+            skipped = 1;
+        }
+        if (skipped) continue;
+        if (input_starts(s, i, n, d->open)) {
+            if (at_out) *at_out = i;
+            return 1;
+        }
+        i++;
+    }
+    return 0;
+}
+
+/* Balance a pair selected by KB. Quoted regions are a universal text primitive;
+ * optional line/block opaque markers are themselves mode facts. */
+static int input_delim_end(const char *s, size_t open_at, const InputDelim *d,
+                           size_t *end_out) {
+    size_t n = strlen(s), ol = strlen(d->open), cl = strlen(d->close);
+    if (ol == cl && memcmp(d->open, d->close, ol) == 0) {
+        int mark_quote = ol == 1 && (d->open[0] == '\'' || d->open[0] == '"');
+        for (size_t i = open_at + ol; i < n; ) {
+            if (s[i] == '\\' && i + 1 < n) { i += 2; continue; }
+            if (!mark_quote && input_quote_at(s, i, n)) {
+                char q = s[i++];
+                while (i < n && s[i] != q) {
+                    if (s[i] == '\\' && i + 1 < n) i += 2; else i++;
+                }
+                if (i < n) i++;
+                continue;
+            }
+            int skipped = 0;
+            for (size_t k = 0; k < d->nline && !skipped; k++) {
+                if (!input_starts(s, i, n, d->line_comment[k])) continue;
+                while (i < n && s[i] != '\n') i++;
+                skipped = 1;
+            }
+            if (skipped) continue;
+            for (size_t k = 0; k < d->nblock && !skipped; k++) {
+                if (!input_starts(s, i, n, d->block_open[k])) continue;
+                const char *p = strstr(s + i + strlen(d->block_open[k]),
+                                       d->block_close[k]);
+                i = p ? (size_t)(p - s) + strlen(d->block_close[k]) : n;
+                skipped = 1;
+            }
+            if (skipped) continue;
+            if (input_starts(s, i, n, d->close)) {
+                if (end_out) *end_out = i + cl;
+                return 1;
+            }
+            i++;
+        }
+        return 0;
+    }
+    size_t depth = 0;
+    for (size_t i = open_at; i < n; ) {
+        if (input_quote_at(s, i, n)) {
+            char quote = s[i++];
+            while (i < n && s[i] != quote) {
+                if (s[i] == '\\' && i + 1 < n) i += 2; else i++;
+            }
+            if (i < n) i++;
+            continue;
+        }
+        int skipped = 0;
+        for (size_t k = 0; k < d->nline && !skipped; k++) {
+            if (!input_starts(s, i, n, d->line_comment[k])) continue;
+            while (i < n && s[i] != '\n') i++;
+            skipped = 1;
+        }
+        if (skipped) continue;
+        for (size_t k = 0; k < d->nblock && !skipped; k++) {
+            if (!input_starts(s, i, n, d->block_open[k])) continue;
+            const char *p = strstr(s + i + strlen(d->block_open[k]), d->block_close[k]);
+            i = p ? (size_t)(p - s) + strlen(d->block_close[k]) : n;
+            skipped = 1;
+        }
+        if (skipped) continue;
+        if (i + ol <= n && memcmp(s + i, d->open, ol) == 0) {
+            depth++; i += ol; continue;
+        }
+        if (i + cl <= n && memcmp(s + i, d->close, cl) == 0) {
+            if (depth) depth--;
+            i += cl;
+            if (depth == 0) { if (end_out) *end_out = i; return 1; }
+            continue;
+        }
+        i++;
+    }
+    return 0;
+}
+
+/* A balanced region may have a generic head immediately before its opener
+ * (identifier/type words followed by a balanced parameter list), or may begin at
+ * the opener itself (JSON and any other brace-shaped data).  No language name or
+ * keyword participates in this mechanical candidate boundary. */
+static size_t input_structured_start(const char *s, size_t opener) {
+    size_t i = opener;
+    while (i > 0 && isspace((unsigned char)s[i - 1])) i--;
+    if (i == 0 || s[i - 1] != ')') return opener;
+    size_t j = i - 1, depth = 0;
+    for (;;) {
+        if (s[j] == ')') depth++;
+        else if (s[j] == '(') {
+            if (--depth == 0) break;
+        }
+        if (j == 0) return opener;
+        j--;
+    }
+    i = j;
+    while (i > 0) {
+        unsigned char c = (unsigned char)s[i - 1];
+        if (isalnum(c) || c == '_' || c == '*' || c == '[' || c == ']' ||
+            c == ' ' || c == '\t') i--;
+        else break;
+    }
+    while (i < j && isspace((unsigned char)s[i])) i++;
     return i;
 }
 
-/* From the '{' at `open`, find its matching '}'. Returns 0 if it never closes.
- * Braces inside string/char literals and comments do not count. */
-static size_t brace_match(const char *s, size_t open, size_t n) {
-    int depth = 0;
-    for (size_t i = open; i < n; i++) {
-        char c = s[i];
-        if (c == '"' || c == '\'') {                 /* skip a literal            */
-            char q = c; i++;
-            while (i < n && s[i] != q) { if (s[i] == '\\') i++; i++; }
-            continue;
-        }
-        if (c == '/' && i + 1 < n && s[i+1] == '/') { /* line comment             */
-            while (i < n && s[i] != '\n') i++;
-            continue;
-        }
-        if (c == '/' && i + 1 < n && s[i+1] == '*') { /* block comment            */
-            i += 2;
-            while (i + 1 < n && !(s[i] == '*' && s[i+1] == '/')) i++;
-            i++;
-            continue;
-        }
-        if (c == '{') depth++;
-        else if (c == '}') { depth--; if (depth == 0) return i; }
-    }
-    return 0;                                        /* never closed              */
+static int input_overlap(const InputCandidate *c, size_t start, size_t end) {
+    return start < c->end && end > c->start;
 }
 
-size_t code_segment(const char *raw, CodeSeg *segs, size_t max, int *ambiguous) {
-    if (ambiguous) *ambiguous = 0;
-    if (!raw || !segs || max == 0) return 0;
+static int input_covered(const InputCandidate *c, size_t nc, size_t at,
+                         size_t *past) {
+    for (size_t i = 0; i < nc; i++) {
+        if (at >= c[i].start && at < c[i].end) {
+            if (past) *past = c[i].end;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static void input_register_role(KB *kb, const char *reg, char *role, size_t cap) {
+    char r[1][KB_TERM_LEN]; const char *q[2] = { reg, NULL };
+    if (kb_match(kb, "register_role", q, 2, r, 1) == 1) {
+        input_atom_text(r[0], role, cap);
+        return;
+    }
+    if (kb_match(kb, "code_register", q, 2, r, 1) == 1)
+        snprintf(role, cap, "code");
+    else
+        snprintf(role, cap, "%s", reg);
+}
+
+static int input_add_candidate(InputCandidate *c, size_t *nc,
+                               size_t start, size_t end, const char *reg,
+                               int score, int priority, const char *proof,
+                               KB *kb) {
+    if (start >= end || *nc >= INPUT_MAX_CANDIDATES) return 0;
+    for (size_t i = 0; i < *nc; i++) {
+        if (!input_overlap(&c[i], start, end)) continue;
+        if (c[i].priority >= priority) return 0;
+        c[i] = c[--(*nc)];
+        i--;
+    }
+    InputCandidate *x = &c[(*nc)++]; memset(x, 0, sizeof *x);
+    x->start = start; x->end = end; x->score = score; x->priority = priority;
+    snprintf(x->reg, sizeof x->reg, "%s", reg);
+    input_register_role(kb, reg, x->role, sizeof x->role);
+    snprintf(x->proof, sizeof x->proof, "%s", proof ? proof : "");
+    return 1;
+}
+
+static int input_slice_rank(KB *kb, const char *raw, size_t start, size_t end,
+                            const char *const *candidates, size_t ncandidates,
+                            char *winner, size_t wsz, int *score,
+                            char *proof, size_t psz) {
+    if (end < start) return 0;
+    size_t len = end - start;
+    char *slice = malloc(len + 1);
+    if (!slice) return 0;
+    memcpy(slice, raw + start, len); slice[len] = '\0';
+    int r = kb_hypothesis_best(kb, "register_evidence", slice,
+                               candidates, ncandidates,
+                               winner, wsz, score, proof, psz);
+    free(slice);
+    return r;
+}
+
+static size_t input_regs_for_mode(KB *kb, const char *mode,
+                                  char regs[][KB_TERM_LEN], size_t max) {
+    const char *q[2] = { NULL, mode };
+    return kb_match(kb, "code_register", q, 2, regs, max);
+}
+
+static size_t input_candidates_with_prose(char regs[][KB_TERM_LEN], size_t nr,
+                                          const char **ptrs, size_t max) {
+    size_t n = 0;
+    for (size_t i = 0; i < nr && n < max; i++) ptrs[n++] = regs[i];
+    int have = 0;
+    for (size_t i = 0; i < nr; i++) if (!strcmp(regs[i], "prose")) have = 1;
+    if (!have && n < max) ptrs[n++] = "prose";
+    return n;
+}
+
+static size_t input_after_colon_anchor(const char *raw, size_t line_start,
+                                       size_t evidence_at) {
+    size_t start = line_start;
+    for (size_t i = line_start; i < evidence_at; i++)
+        if (raw[i] == ':') start = i + 1;
+    while (start < evidence_at && isspace((unsigned char)raw[start])) start++;
+    return start;
+}
+
+static size_t input_indent_end(const char *raw, size_t start) {
+    size_t n = strlen(raw), ls = start;
+    while (ls > 0 && raw[ls - 1] != '\n') ls--;
+    size_t first_end = start;
+    while (first_end < n && raw[first_end] != '\n') first_end++;
+    if (first_end == n) return n;
+
+    size_t base = 0;
+    while (ls + base < start && (raw[ls + base] == ' ' || raw[ls + base] == '\t')) base++;
+    if (ls + base != start) base = 0; /* an inline block after an instruction */
+
+    size_t end = first_end, p = first_end + 1;
+    while (p < n) {
+        size_t le = p; while (le < n && raw[le] != '\n') le++;
+        size_t ind = 0; while (p + ind < le &&
+            (raw[p + ind] == ' ' || raw[p + ind] == '\t')) ind++;
+        int blank = p + ind == le;
+        if (!blank && ind <= base) break;
+        end = le;
+        p = le < n ? le + 1 : n;
+    }
+    return end;
+}
+
+static int input_emit_ambiguous(const char *raw, InputSpan *segs, size_t max,
+                                size_t start, size_t end, const char *proof,
+                                int *ambiguous) {
+    if (ambiguous) *ambiguous = 1;
+    if (!segs || max == 0) return 0;
     size_t n = strlen(raw);
-    size_t nseg = 0;
-
-    /* A fenced block is an explicit declaration of where the code is. Believe it. */
-    const char *f1 = strstr(raw, "```");
-    if (f1) {
-        const char *body = f1 + 3;
-        while (*body && *body != '\n' && !isspace((unsigned char)*body)) body++; /* ```c */
-        while (*body == ' ' || *body == '\n') body++;
-        const char *f2 = strstr(body, "```");
-        if (!f2) { if (ambiguous) *ambiguous = 1; return 0; }   /* fence never closes */
-        if ((size_t)(f1 - raw) > 0)
-            segs[nseg++] = (CodeSeg){CODE_SEG_INSTRUCTION, 0, (size_t)(f1 - raw)};
-        if (nseg < max)
-            segs[nseg++] = (CodeSeg){CODE_SEG_CODE, (size_t)(body - raw),
-                                     (size_t)(f2 - body)};
-        size_t after = (size_t)(f2 - raw) + 3;
-        if (after < n && nseg < max)
-            segs[nseg++] = (CodeSeg){CODE_SEG_EXPECTED, after, n - after};
-        return nseg;
-    }
-
-    /* Otherwise: anchor on the first '{' and the declarator in front of it. */
-    const char *brace = strchr(raw, '{');
-    if (!brace) return 0;                       /* no C body here — not our shape */
-    size_t bpos = (size_t)(brace - raw);
-
-    /* find the ')' that should precede it (allowing whitespace), then its '(' */
-    size_t i = bpos;
-    while (i > 0 && isspace((unsigned char)raw[i - 1])) i--;
-    size_t start;
-    if (i > 0 && raw[i - 1] == ')') {
-        size_t close = i - 1, depth = 0, j = close;
-        while (j > 0) {
-            if (raw[j] == ')') depth++;
-            else if (raw[j] == '(') { depth--; if (depth == 0) break; }
-            j--;
-        }
-        if (raw[j] != '(') return 0;
-        start = decl_head_start(raw, j);
-    } else {
-        /* a brace with no declarator (a bare block, a struct initializer in prose):
-         * we cannot say where the program begins. */
-        return 0;
-    }
-
-    /* forward: consume consecutive brace-balanced bodies */
-    size_t end = 0, scan = bpos;
-    for (;;) {
-        size_t close = brace_match(raw, scan, n);
-        if (!close) { if (ambiguous) *ambiguous = 1; return 0; }  /* never closes  */
-        end = close;
-        /* another function right after? (declarator … '(' … ')' … '{') */
-        size_t k = close + 1;
-        while (k < n && isspace((unsigned char)raw[k])) k++;
-        if (k >= n) break;
-        const char *nb = strchr(raw + k, '{');
-        if (!nb) break;
-        size_t nbpos = (size_t)(nb - raw);
-        /* it is a following function only if what lies between is a declarator —
-         * i.e. no sentence punctuation intervenes. */
-        int declish = 1;
-        for (size_t q = k; q < nbpos; q++)
-            if (strchr(".!?,:;", raw[q])) { declish = 0; break; }
-        if (!declish) break;
-        size_t m = nbpos;
-        while (m > k && isspace((unsigned char)raw[m - 1])) m--;
-        if (m == k || raw[m - 1] != ')') break;
-        scan = nbpos;
-    }
-
-    if (start > 0)
-        segs[nseg++] = (CodeSeg){CODE_SEG_INSTRUCTION, 0, start};
-    if (nseg < max)
-        segs[nseg++] = (CodeSeg){CODE_SEG_CODE, start, end - start + 1};
-
-    /* Trailing prose. "It should return X" is what the code is EXPECTED to do;
-     * "without recursion" / "senza ricorsione" restricts HOW it may be fixed. The
-     * distinction is knowledge the later faculties want (TODO 20), so it is drawn
-     * here, at the only place that still knows the byte offsets. */
-    size_t after = end + 1;
-    while (after < n && isspace((unsigned char)raw[after])) after++;
-    if (after < n && nseg < max) {
-        char low[256]; size_t li = 0;
-        for (size_t q = after; q < n && li + 1 < sizeof low; q++)
-            low[li++] = (char)tolower((unsigned char)raw[q]);
-        low[li] = '\0';
-        int constraint = strstr(low, "without") || strstr(low, "senza") ||
-                         strstr(low, "must not") || strstr(low, "non deve") ||
-                         strstr(low, "do not use") || strstr(low, "non usare");
-        segs[nseg++] = (CodeSeg){constraint ? CODE_SEG_CONSTRAINT : CODE_SEG_EXPECTED,
-                                 after, n - after};
-    }
-    return nseg;
+    if (start > n) start = n;
+    if (end > n) end = n;
+    if (end < start) end = start;
+    memset(&segs[0], 0, sizeof segs[0]);
+    segs[0].start = start;
+    segs[0].len = end - start;
+    snprintf(segs[0].role, sizeof segs[0].role, "ambiguous_input");
+    snprintf(segs[0].proof, sizeof segs[0].proof, "%s", proof);
+    return 1;
 }
 
-int code_extract_source(const char *raw, char *out, size_t cap) {
+static int input_push_span(InputSpan *segs, size_t *ns, size_t max,
+                           size_t start, size_t end, const char *role,
+                           const char *reg, int score, const char *proof) {
+    if (start >= end || *ns >= max) return 0;
+    InputSpan *s = &segs[(*ns)++]; memset(s, 0, sizeof *s);
+    s->start = start; s->len = end - start; s->score = score;
+    snprintf(s->role, sizeof s->role, "%s", role ? role : "");
+    snprintf(s->register_name, sizeof s->register_name, "%s", reg ? reg : "");
+    snprintf(s->proof, sizeof s->proof, "%s", proof ? proof : "");
+    return 1;
+}
+
+static void input_trim_range(const char *raw, size_t *start, size_t *end) {
+    while (*start < *end && isspace((unsigned char)raw[*start])) (*start)++;
+    while (*end > *start && isspace((unsigned char)raw[*end - 1])) (*end)--;
+}
+
+static int input_default_role(KB *kb, const char *context,
+                              char *role, size_t rsz,
+                              char *proof, size_t psz) {
+    char rows[1][KB_TERM_LEN]; const char *q[2] = { context, NULL };
+    if (kb_match(kb, "segment_default", q, 2, rows, 1) != 1) return 0;
+    input_atom_text(rows[0], role, rsz);
+    snprintf(proof, psz, "because segment_default(%s, %s)", context, rows[0]);
+    return 1;
+}
+
+typedef struct {
+    size_t at;
+    size_t len;
+    char role[KB_TERM_LEN];
+    char evidence[KB_TERM_LEN];
+    int score;
+} InputRoleMark;
+
+/* Split a prose gap at every role cue.  A new role is therefore an ordinary KB
+ * first argument and several roles in one tail remain several byte spans. */
+static int input_add_prose(KB *kb, const char *raw, size_t start, size_t end,
+                           const char *context, InputSpan *segs, size_t *ns,
+                           size_t max, char *ambproof, size_t apsz,
+                           size_t *ambstart, size_t *ambend) {
+    input_trim_range(raw, &start, &end);
+    if (start >= end) return 1;
+    size_t len = end - start;
+    char *text = malloc(len + 1);
+    if (!text) return 0;
+    memcpy(text, raw + start, len); text[len] = '\0';
+    KbEvidenceMatch hits[256];
+    size_t nh = kb_evidence_matches(kb, "segment_role", NULL, text, hits, 256);
+    InputRoleMark marks[128]; size_t nm = 0;
+    for (size_t i = 0; i < nh && nm < 128; ) {
+        size_t at = hits[i].start, j = i;
+        int best = -1, tie = 0; size_t bi = i;
+        while (j < nh && hits[j].start == at) {
+            if (hits[j].weight > best) { best = hits[j].weight; bi = j; tie = 0; }
+            else if (hits[j].weight == best &&
+                     strcmp(hits[j].hypothesis, hits[bi].hypothesis) != 0) tie = 1;
+            j++;
+        }
+        if (tie) {
+            snprintf(ambproof, apsz,
+                     "ambiguous_hypothesis(segment_role) at byte %zu", start + at);
+            *ambstart = start + at; *ambend = end;
+            free(text); return -1;
+        }
+        if (nm > 0 && at < marks[nm - 1].at + marks[nm - 1].len) {
+            /* Overlapping cues for the same role corroborate one boundary.
+             * Different roles must actually compete: a unique higher weight
+             * survives, while equal support is a typed ambiguity. Never split
+             * a span before the evidence cited by its proof has even ended. */
+            if (!strcmp(marks[nm - 1].role, hits[bi].hypothesis) ||
+                hits[bi].weight < marks[nm - 1].score) {
+                i = j;
+                continue;
+            }
+            if (hits[bi].weight == marks[nm - 1].score) {
+                snprintf(ambproof, apsz,
+                         "ambiguous_hypothesis(segment_role): %s=%d because "
+                         "segment_role(%s, %s); %s=%d because "
+                         "segment_role(%s, %s)",
+                         marks[nm - 1].role, marks[nm - 1].score,
+                         marks[nm - 1].role, marks[nm - 1].evidence,
+                         hits[bi].hypothesis, hits[bi].weight,
+                         hits[bi].hypothesis, hits[bi].evidence);
+                *ambstart = start + marks[nm - 1].at;
+                size_t left_end = marks[nm - 1].at + marks[nm - 1].len;
+                size_t right_end = at + hits[bi].len;
+                *ambend = start + (left_end > right_end ? left_end : right_end);
+                free(text);
+                return -1;
+            }
+            /* The later cue has strictly stronger declared evidence. */
+            nm--;
+        }
+        if (nm == 0 || marks[nm - 1].at != at ||
+            strcmp(marks[nm - 1].role, hits[bi].hypothesis) != 0) {
+            marks[nm].at = at; marks[nm].len = hits[bi].len;
+            marks[nm].score = hits[bi].weight;
+            snprintf(marks[nm].role, sizeof marks[nm].role, "%s", hits[bi].hypothesis);
+            snprintf(marks[nm].evidence, sizeof marks[nm].evidence, "%s", hits[bi].evidence);
+            nm++;
+        }
+        i = j;
+    }
+    free(text);
+
+    size_t cursor = start;
+    if (nm == 0 || marks[0].at > 0) {
+        size_t upto = nm ? start + marks[0].at : end;
+        char role[KB_TERM_LEN] = "prose", proof[KB_EVIDENCE_PROOF_LEN] = "";
+        input_default_role(kb, context, role, sizeof role, proof, sizeof proof);
+        input_trim_range(raw, &cursor, &upto);
+        input_push_span(segs, ns, max, cursor, upto, role, "", 1, proof);
+        cursor = upto;
+    }
+    for (size_t i = 0; i < nm; i++) {
+        size_t a = start + marks[i].at;
+        size_t b = (i + 1 < nm) ? start + marks[i + 1].at : end;
+        input_trim_range(raw, &a, &b);
+        char proof[KB_EVIDENCE_PROOF_LEN];
+        snprintf(proof, sizeof proof, "because segment_role(%s, %s) [score=%d]",
+                 marks[i].role, marks[i].evidence, marks[i].score);
+        input_push_span(segs, ns, max, a, b, marks[i].role, "",
+                        marks[i].score, proof);
+    }
+    return 1;
+}
+
+static int input_candidate_cmp(const void *aa, const void *bb) {
+    const InputCandidate *a = aa, *b = bb;
+    if (a->start != b->start) return a->start < b->start ? -1 : 1;
+    if (a->end != b->end) return a->end > b->end ? -1 : 1;
+    return strcmp(a->reg, b->reg);
+}
+
+size_t input_segment(KB *kb, const char *raw, InputSpan *segs, size_t max,
+                     int *ambiguous) {
+    if (ambiguous) *ambiguous = 0;
+    if (!kb || !raw || !segs || max == 0) return 0;
+    size_t n = strlen(raw), nc = 0;
+    InputCandidate cand[INPUT_MAX_CANDIDATES];
+    char ambproof[KB_EVIDENCE_PROOF_LEN] = ""; size_t ambstart = 0, ambend = n;
+
+    /* 1. Explicit fences: the boundary is mechanical; the tag/body still compete
+     * as register evidence. Multiple fenced regions are independent spans. */
+    size_t fp = 0;
+    while (fp < n) {
+        const char *f = input_find_line_fence(raw, fp);
+        if (!f) break;
+        size_t fs = (size_t)(f - raw), line_end = fs + 3;
+        while (line_end < n && raw[line_end] != '\n') line_end++;
+        size_t body = line_end < n ? line_end + 1 : line_end;
+        const char *close = input_find_line_fence(raw, body);
+        if (!close) {
+            snprintf(ambproof, sizeof ambproof,
+                     "ambiguous_input: fence opened at byte %zu but never closed", fs);
+            return input_emit_ambiguous(raw, segs, max, fs, n, ambproof, ambiguous);
+        }
+        size_t fe = (size_t)(close - raw), after = fe + 3;
+        char reg[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+        int r = input_slice_rank(kb, raw, fs, after, NULL, 0,
+                                 reg, sizeof reg, &score, proof, sizeof proof);
+        if (r != 1 || !strcmp(reg, "prose")) {
+            snprintf(ambproof, sizeof ambproof, "%s",
+                     r == -1 ? proof : "gap(register_evidence): fenced register is unknown");
+            return input_emit_ambiguous(raw, segs, max, body, fe, ambproof, ambiguous);
+        }
+        input_add_candidate(cand, &nc, body, fe, reg, score, 30, proof, kb);
+        fp = after;
+    }
+
+    /* Discover every boundary mode from code_register/2; no switch names C,
+     * Python, JSON or a future runtime-added register. */
+    char allregs[INPUT_MAX_REGS][KB_TERM_LEN]; const char *crq[2] = { NULL, NULL };
+    size_t nar = kb_match(kb, "code_register", crq, 2, allregs, INPUT_MAX_REGS);
+    char modes[INPUT_MAX_REGS][KB_TERM_LEN]; size_t nmode = 0;
+    for (size_t i = 0; i < nar; i++) {
+        char rm[16][KB_TERM_LEN]; const char *mq[2] = { allregs[i], NULL };
+        size_t nr = kb_match(kb, "code_register", mq, 2, rm, 16);
+        for (size_t j = 0; j < nr; j++)
+            if (!input_has_value(modes, nmode, rm[j]) && nmode < INPUT_MAX_REGS)
+                snprintf(modes[nmode++], KB_TERM_LEN, "%s", rm[j]);
+    }
+
+    /* 2. Arbitrary balanced delimiter modes. */
+    for (size_t mi = 0; mi < nmode; mi++) {
+        if (!strcmp(modes[mi], "indent")) continue; /* mechanics selected below */
+        InputDelim d; if (!input_load_delim(kb, modes[mi], &d)) continue;
+        char regs[INPUT_MAX_REGS][KB_TERM_LEN];
+        size_t nr = input_regs_for_mode(kb, modes[mi], regs, INPUT_MAX_REGS);
+        const char *rptr[INPUT_MAX_REGS + 1];
+        size_t nrp = input_candidates_with_prose(regs, nr, rptr, INPUT_MAX_REGS + 1);
+        size_t pos = 0;
+        while (pos < n) {
+            size_t oa = 0, past = 0;
+            if (!input_find_delim_open(raw, pos, &d, &oa)) break;
+            if (input_covered(cand, nc, oa, &past)) { pos = past; continue; }
+            size_t start = input_structured_start(raw, oa), end = 0;
+            if (!input_delim_end(raw, oa, &d, &end)) {
+                snprintf(ambproof, sizeof ambproof,
+                         "ambiguous_input: delim_pair(%s, %s, %s) opened at "
+                         "byte %zu but never closed",
+                         modes[mi], d.open, d.close, oa);
+                return input_emit_ambiguous(raw, segs, max, start, n,
+                                            ambproof, ambiguous);
+            }
+
+            char reg[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+            int r = input_slice_rank(kb, raw, start, end, rptr, nrp,
+                                     reg, sizeof reg, &score, proof, sizeof proof);
+            if (r == -1) {
+                return input_emit_ambiguous(raw, segs, max, start, end,
+                                            proof, ambiguous);
+            }
+            if (r == 1 && strcmp(reg, "prose") != 0)
+                input_add_candidate(cand, &nc, start, end, reg, score, 20, proof, kb);
+            pos = end > oa ? end : oa + strlen(d.open);
+        }
+    }
+
+    /* 3. Indentation mode. Any register can opt in with code_register(R,indent);
+     * evidence supplies the anchor and dedentation supplies the end. */
+    for (size_t mi = 0; mi < nmode; mi++) {
+        if (strcmp(modes[mi], "indent") != 0) continue;
+        char regs[INPUT_MAX_REGS][KB_TERM_LEN];
+        size_t nr = input_regs_for_mode(kb, modes[mi], regs, INPUT_MAX_REGS);
+        const char *rptr[INPUT_MAX_REGS + 1];
+        size_t nrp = input_candidates_with_prose(regs, nr, rptr, INPUT_MAX_REGS + 1);
+        for (size_t ri = 0; ri < nr; ri++) {
+            KbEvidenceMatch hits[256];
+            size_t nh = kb_evidence_matches(kb, "register_evidence", regs[ri], raw,
+                                            hits, 256);
+            for (size_t hi = 0; hi < nh; hi++) {
+                if (!strncmp(hits[hi].evidence, "block(", 6) ||
+                    !strncmp(hits[hi].evidence, "balanced(", 9) ||
+                    !strncmp(hits[hi].evidence, "fence(", 6) ||
+                    !strncmp(hits[hi].evidence, "extension(", 10)) continue;
+                size_t at = hits[hi].start, past;
+                if (input_covered(cand, nc, at, &past)) continue;
+                size_t ls = at; while (ls > 0 && raw[ls - 1] != '\n') ls--;
+                size_t start = input_after_colon_anchor(raw, ls, at);
+                if (start > at) start = at;
+                size_t end = input_indent_end(raw, start);
+                char reg[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+                int r = input_slice_rank(kb, raw, start, end, rptr, nrp,
+                                         reg, sizeof reg, &score, proof, sizeof proof);
+                if (r == -1)
+                    return input_emit_ambiguous(raw, segs, max, start, end,
+                                                proof, ambiguous);
+                if (r == 1 && strcmp(reg, "prose") != 0)
+                    input_add_candidate(cand, &nc, start, end, reg, score, 20,
+                                        proof, kb);
+            }
+        }
+    }
+
+    /* 4. Line evidence is also a boundary primitive. This is what makes a new
+     * diff/log/pytest-like register cost one register_evidence fact: a supported
+     * line is immediately a typed span, with no register-specific parser. */
+    for (size_t ls = 0; ls < n; ) {
+        size_t le = ls; while (le < n && raw[le] != '\n') le++;
+        size_t past;
+        int fence_line = 0;
+        for (size_t p = ls; p + 2 < le; p++)
+            if (raw[p] == '`' && raw[p + 1] == '`' && raw[p + 2] == '`')
+                fence_line = 1;
+        if (!fence_line && !input_covered(cand, nc, ls, &past) && le > ls) {
+            char reg[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+            int r = input_slice_rank(kb, raw, ls, le, NULL, 0,
+                                     reg, sizeof reg, &score, proof, sizeof proof);
+            int line_anchored = 0;
+            if (r == 1 && strcmp(reg, "prose") != 0) {
+                size_t llen = le - ls;
+                char *line = malloc(llen + 1);
+                if (line) {
+                    memcpy(line, raw + ls, llen); line[llen] = '\0';
+                    KbEvidenceMatch lh[64];
+                    size_t nlh = kb_evidence_matches(kb, "register_evidence", reg,
+                                                     line, lh, 64);
+                    for (size_t h = 0; h < nlh; h++)
+                        if (lh[h].start == 0 &&
+                            !strncmp(lh[h].evidence, "line_prefix(", 12))
+                            line_anchored = 1;
+                    free(line);
+                }
+            }
+            /* If whole-line evidence ties, a colon before an uncovered inline
+             * payload is a second mechanical candidate. Ranking that suffix can
+             * separate a compiler diagnostic from its `.c` filename evidence.
+             * A unique line hypothesis keeps the whole line (notably traceback
+             * `ValueError:` and pytest node ids such as test.py::case). */
+            if (!line_anchored && r == -1) {
+                size_t probe = ls;
+                for (size_t p = ls; p < le; p++) if (raw[p] == ':') {
+                    probe = p + 1;
+                    while (probe < le && isspace((unsigned char)raw[probe])) probe++;
+                    break;
+                }
+                size_t covered_past = 0;
+                if (probe != ls && input_covered(cand, nc, probe, &covered_past)) {
+                    r = 0; reg[0] = '\0'; /* higher-priority structured span owns it */
+                } else if (probe != ls) {
+                    r = input_slice_rank(kb, raw, probe, le, NULL, 0,
+                                         reg, sizeof reg, &score, proof, sizeof proof);
+                }
+            }
+            if (r == -1)
+                return input_emit_ambiguous(raw, segs, max, ls, le, proof, ambiguous);
+            if (r == 1 && strcmp(reg, "prose") != 0) {
+                char role[KB_TERM_LEN]; input_register_role(kb, reg, role, sizeof role);
+                size_t start = ls;
+                int extension_only = 0;
+                if (!strcmp(role, "code")) {
+                    size_t llen = le - ls;
+                    char *line = malloc(llen + 1);
+                    if (line) {
+                        memcpy(line, raw + ls, llen); line[llen] = '\0';
+                        KbEvidenceMatch h[64];
+                        size_t nh = kb_evidence_matches(kb, "register_evidence", reg,
+                                                        line, h, 64);
+                        extension_only = nh > 0;
+                        for (size_t k = 0; k < nh; k++)
+                            if (strncmp(h[k].evidence, "extension(", 10) != 0)
+                                extension_only = 0;
+                        if (nh) start = input_after_colon_anchor(raw, ls,
+                                                                 ls + h[0].start);
+                        free(line);
+                    }
+                }
+                /* An extension names a referenced file/register; it is evidence
+                 * for identification, not source bytes to compile or ingest. */
+                if (!extension_only)
+                    input_add_candidate(cand, &nc, start, le, reg, score, 10, proof, kb);
+            }
+        }
+        ls = le < n ? le + 1 : n;
+    }
+
+    qsort(cand, nc, sizeof cand[0], input_candidate_cmp);
+    /* Join adjacent lines of the same register, preserving a combined proof. */
+    for (size_t i = 0; i + 1 < nc; ) {
+        int whitespace = 1;
+        for (size_t p = cand[i].end; p < cand[i + 1].start; p++)
+            if (!isspace((unsigned char)raw[p])) whitespace = 0;
+        if (whitespace && !strcmp(cand[i].reg, cand[i + 1].reg)) {
+            cand[i].end = cand[i + 1].end;
+            if (strcmp(cand[i].proof, cand[i + 1].proof) != 0) {
+                char next_proof[KB_EVIDENCE_PROOF_LEN];
+                snprintf(next_proof, sizeof next_proof, "%s", cand[i + 1].proof);
+                size_t off = strlen(cand[i].proof);
+                if (off < sizeof cand[i].proof)
+                    snprintf(cand[i].proof + off, sizeof cand[i].proof - off,
+                             "; %s", next_proof);
+            }
+            memmove(&cand[i + 1], &cand[i + 2], (nc - i - 2) * sizeof cand[0]);
+            nc--;
+        } else i++;
+    }
+
+    size_t ns = 0, cursor = 0;
+    for (size_t i = 0; i < nc; i++) {
+        if (cand[i].start > cursor) {
+            const char *ctx = (i == 0) ? "before" : "between";
+            int pr = input_add_prose(kb, raw, cursor, cand[i].start, ctx,
+                                     segs, &ns, max, ambproof, sizeof ambproof,
+                                     &ambstart, &ambend);
+            if (pr == -1)
+                return input_emit_ambiguous(raw, segs, max, ambstart, ambend,
+                                            ambproof, ambiguous);
+        }
+        input_push_span(segs, &ns, max, cand[i].start, cand[i].end,
+                        cand[i].role, cand[i].reg, cand[i].score, cand[i].proof);
+        if (cand[i].end > cursor) cursor = cand[i].end;
+    }
+    if (cursor < n || nc == 0) {
+        const char *ctx = nc ? "after" : "standalone";
+        int pr = input_add_prose(kb, raw, cursor, n, ctx, segs, &ns, max,
+                                 ambproof, sizeof ambproof, &ambstart, &ambend);
+        if (pr == -1)
+            return input_emit_ambiguous(raw, segs, max, ambstart, ambend,
+                                        ambproof, ambiguous);
+    }
+    return ns;
+}
+
+size_t code_segment(KB *kb, const char *raw, CodeSeg *segs, size_t max,
+                    int *ambiguous) {
+    return input_segment(kb, raw, segs, max, ambiguous);
+}
+
+void input_span_type(const InputSpan *span, char *out, size_t cap) {
+    if (!out || cap == 0) return;
+    out[0] = '\0';
+    if (!span) return;
+    if (!strcmp(span->role, "code") && span->register_name[0])
+        snprintf(out, cap, "code(%s)", span->register_name);
+    else
+        snprintf(out, cap, "%s", span->role);
+}
+
+int code_extract_source_span(KB *kb, const char *raw, char *out, size_t cap,
+                             InputSpan *span) {
     if (out && cap) out[0] = '\0';
-    CodeSeg segs[8];
-    int amb = 0;
-    size_t ns = code_segment(raw, segs, 8, &amb);
-    if (amb) return -1;
+    if (span) memset(span, 0, sizeof *span);
+    if (!kb || !raw || !out || cap == 0) return 0;
+    InputSpan segs[64]; int amb = 0;
+    size_t ns = input_segment(kb, raw, segs, 64, &amb);
+    if (amb) {
+        if (span && ns > 0) *span = segs[0];
+        return -1;
+    }
     for (size_t i = 0; i < ns; i++) {
-        if (segs[i].kind != CODE_SEG_CODE) continue;
+        char modes[1][KB_TERM_LEN]; const char *q[2] = { segs[i].register_name, NULL };
+        if (!segs[i].register_name[0] ||
+            kb_match(kb, "code_register", q, 2, modes, 1) == 0) continue;
         size_t len = segs[i].len;
         if (len + 1 > cap) len = cap - 1;
-        memcpy(out, raw + segs[i].start, len);
-        out[len] = '\0';
+        memcpy(out, raw + segs[i].start, len); out[len] = '\0';
+        if (span) *span = segs[i];
         return 1;
     }
     return 0;
+}
+
+int code_extract_source(KB *kb, const char *raw, char *out, size_t cap) {
+    return code_extract_source_span(kb, raw, out, cap, NULL);
 }
 
 int code_build(const char *src_path, char *err_out, size_t err_sz) {

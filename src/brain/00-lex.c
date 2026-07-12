@@ -60,16 +60,11 @@ static int kb_intent_match(Brain *b, const char *intent, const char *norm) {
  * runtime with no code edit. */
 static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
     if (!b || !b->kb || !intent || !norm) return 0;
-    char cues[64][KB_TERM_LEN];
-    const char *q[2] = { intent, NULL };
-    size_t n = kb_match(b->kb, "intent_cue", q, 2, cues, 64);
-    for (size_t i = 0; i < n; i++) {
-        char *p = cues[i];
-        size_t l = strlen(p);
-        if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
-        if (*p && strstr(norm, p)) return 1;
-    }
-    return 0;
+    const char *candidate[] = { intent };
+    char winner[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+    return kb_hypothesis_best(b->kb, "intent_cue", norm,
+                              candidate, 1, winner, sizeof winner,
+                              &score, proof, sizeof proof) == 1;
 }
 
 /* gen212 (cardinal KB-first principle, OUTPUT side): build a reply for `intent` from a
@@ -383,4 +378,3 @@ static int try_teach_form(Brain *b, const char *norm, const char *raw,
     }
     return 0;
 }
-

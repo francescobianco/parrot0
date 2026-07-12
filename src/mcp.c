@@ -16,6 +16,7 @@
 #include "json.h"
 #include "kb.h"
 #include "brain.h"
+#include "code.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -294,6 +295,17 @@ static const McpTool TOOLS[] = {
 {"kb.restore", "Forget the unsaved session and reload every KB file from disk "
  "in place (the /restore of gen276) — makes file edits go live.",
  "{\"type\":\"object\",\"properties\":{}}"},
+{"input.segment", "Segment one raw text stream into open KB-typed byte spans. "
+ "Returns role, register, offsets, score, exact supporting facts and faculty; "
+ "ties/unclosed regions are explicit ambiguous_input results.",
+ "{\"type\":\"object\",\"properties\":{\"text\":{\"type\":\"string\"}},"
+ "\"required\":[\"text\"]}"},
+{"input.classify", "Compare KB hypotheses for any evidence relation with the "
+ "same scorer used by intent routing and register perception. Returns winner, "
+ "gap or ambiguity plus the exact supporting facts.",
+ "{\"type\":\"object\",\"properties\":{\"relation\":{\"type\":\"string\"},"
+ "\"text\":{\"type\":\"string\"},\"candidates\":{\"type\":\"array\","
+ "\"items\":{\"type\":\"string\"}}},\"required\":[\"relation\",\"text\"]}"},
 {"gen.respond", "Route a natural-language turn through parrot0's full brain and "
  "return the reply (the same path the chat REPL uses).",
  "{\"type\":\"object\",\"properties\":{\"input\":{\"type\":\"string\"}},"
@@ -319,6 +331,56 @@ static int need_pred_args(const JVal *a, const char **pred, const JVal **args,
     *pred = jstr(a, "pred");
     *args = jobj_get(a, "args");
     if (!*pred) { snprintf(err, errsz, "{\"error\":\"missing 'pred'\"}"); return 0; }
+    return 1;
+}
+
+/* input.segment is intentionally not funneled through tool_call's fixed-size
+ * compatibility buffer.  A valid request can yield 128 richly annotated
+ * spans, and their provenance can legitimately exceed that buffer.  Keep the
+ * payload in the growable builder all the way to emit_tool so truncation can
+ * never turn a successful tool result into malformed inner JSON. */
+static int tool_input_segment(Brain *b, const JVal *a, SB *out) {
+    KB *kb = brain_kb(b);
+    const char *raw = jstr(a, "text");
+    if (!raw) {
+        sb_puts(out, "{\"error\":\"missing 'text'\"}");
+        return 0;
+    }
+
+    InputSpan spans[128];
+    int ambiguous = 0;
+    size_t ns = input_segment(kb, raw, spans, 128, &ambiguous);
+    sb_puts(out, "{\"ambiguous\":");
+    sb_puts(out, ambiguous ? "true" : "false");
+    sb_puts(out, ",\"spans\":[");
+    for (size_t i = 0; i < ns; i++) {
+        if (i) sb_putc(out, ',');
+        char num[64], type[KB_TERM_LEN];
+        input_span_type(&spans[i], type, sizeof type);
+        sb_puts(out, "{\"start\":");
+        snprintf(num, sizeof num, "%zu", spans[i].start); sb_puts(out, num);
+        sb_puts(out, ",\"len\":");
+        snprintf(num, sizeof num, "%zu", spans[i].len); sb_puts(out, num);
+        sb_puts(out, ",\"role\":"); sb_jstr(out, spans[i].role);
+        sb_puts(out, ",\"register\":");
+        if (spans[i].register_name[0]) sb_jstr(out, spans[i].register_name);
+        else sb_puts(out, "null");
+        sb_puts(out, ",\"type\":"); sb_jstr(out, type);
+        sb_puts(out, ",\"score\":");
+        snprintf(num, sizeof num, "%d", spans[i].score); sb_puts(out, num);
+        sb_puts(out, ",\"proof\":"); sb_jstr(out, spans[i].proof);
+        sb_puts(out, ",\"faculty\":");
+        char faculty[1][KB_TERM_LEN];
+        const char *fq[2] = { type, NULL };
+        if (kb_match(kb, "faculty_for", fq, 2, faculty, 1) == 1) {
+            char decoded[KB_TERM_LEN];
+            sb_jstr(out, lit_decode(faculty[0], decoded, sizeof decoded));
+        } else {
+            sb_puts(out, "null");
+        }
+        sb_putc(out, '}');
+    }
+    sb_puts(out, "]}");
     return 1;
 }
 
@@ -513,6 +575,35 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
         snprintf(out, outsz, "{\"ok\":true,\"clauses\":%d}", n);
         return 1;
     }
+    if (strcmp(name, "input.classify") == 0) {
+        const char *relation = jstr(a, "relation");
+        const char *textv = jstr(a, "text");
+        if (!relation || !textv) {
+            snprintf(out, outsz, "{\"error\":\"missing 'relation' or 'text'\"}");
+            return 0;
+        }
+        const JVal *jc = jobj_get(a, "candidates");
+        const char *candidates[128]; size_t nc = 0;
+        if (jc && jc->type == J_ARR)
+            for (size_t i = 0; i < jc->n && nc < 128; i++)
+                if (jc->items[i] && jc->items[i]->type == J_STR)
+                    candidates[nc++] = jc->items[i]->str;
+        char winner[KB_TERM_LEN], why[KB_EVIDENCE_PROOF_LEN]; int score = 0;
+        int r = kb_hypothesis_best(kb, relation, textv,
+                                   nc ? candidates : NULL, nc,
+                                   winner, sizeof winner, &score,
+                                   why, sizeof why);
+        SB s; sb_init(&s);
+        sb_puts(&s, "{\"status\":");
+        sb_jstr(&s, r == 1 ? "winner" : r == -1 ? "ambiguous" : "gap");
+        sb_puts(&s, ",\"hypothesis\":");
+        if (r == 1) sb_jstr(&s, winner); else sb_puts(&s, "null");
+        char num[32]; snprintf(num, sizeof num, ",\"score\":%d,\"proof\":", score);
+        sb_puts(&s, num); sb_jstr(&s, why); sb_putc(&s, '}');
+        snprintf(out, outsz, "%s", s.oom ? "{\"error\":\"oom\"}" : s.buf);
+        sb_free(&s);
+        return 1;
+    }
     if (strcmp(name, "gen.respond") == 0) {
         const char *input = jstr(a, "input");
         if (!input) { snprintf(out, outsz, "{\"error\":\"missing 'input'\"}"); return 0; }
@@ -603,6 +694,19 @@ static void handle_tools_call(Brain *b, const JVal *id, const JVal *params) {
     const char *name = jstr(params, "name");
     if (!name) { emit_error(id, -32602, "missing tool name"); return; }
     JVal *args = jobj_get(params, "arguments");
+
+    if (strcmp(name, "input.segment") == 0) {
+        SB payload;
+        sb_init(&payload);
+        int rc = tool_input_segment(b, args, &payload);
+        if (payload.oom)
+            emit_tool(id, "{\"error\":\"out of memory\"}", 1);
+        else
+            emit_tool(id, payload.buf, rc == 0);
+        sb_free(&payload);
+        return;
+    }
+
     static char payload[70000];
     int rc = tool_call(b, name, args, payload, sizeof payload);
     if (rc < 0) { emit_error(id, -32602, "unknown tool"); return; }
