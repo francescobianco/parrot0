@@ -421,8 +421,6 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)norm;
     if (!b) return 0;
-    const char *en = getenv("PARROT0_TOOLS");
-    if (!en || strcmp(en, "1") != 0) return 0;
 
     size_t rl = strlen(raw);
     if (rl == 0 || rl >= 480) return 0;
@@ -450,6 +448,16 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
     int want_run  = ci_prefix(low,"run ") || kb_cue_match(b, "piact_run", low);
     if (!(want_grep || want_find || want_list || want_read || want_run))
         return 0;
+
+    /* gen331 (TODO.md P1/09): with tools off this module simply steps aside, as it
+     * always did — because several faculties BELOW it (codeast reading a snippet
+     * into structure, prosepage extracting facts from a page) legitimately serve
+     * these same phrasings without needing tool mode. Claiming the turn here in
+     * order to announce the policy would steal it from them, which is what my first
+     * attempt did: it broke eleven passing contracts to deliver an honest sentence
+     * nobody had asked for. The policy is announced instead by mod_toolpolicy, at
+     * the END of the registry — where it speaks only if nobody else could. */
+    if (!brain_policy_on(b, "tools")) return 0;
 
     char rawcopy[512]; snprintf(rawcopy, sizeof rawcopy, "%s", raw);
     char *w[96]; size_t nw = split_words(rawcopy, w, 96);
@@ -1863,5 +1871,71 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
              "only synthesize what an oracle can check (a sort from a learned "
              "shape, arithmetic composition, a count-to-threshold game).");
     store_proof(b, out);
+    return 1;
+}
+
+/* gen331 (TODO.md P1/09): the LAST-RESORT policy decline.
+ *
+ * Counterexample: `make chat` loaded the AGI profile without PARROT0_TOOLS, so
+ *
+ *   you> list the files in src
+ *   parrot0> I don't understand that yet.
+ *
+ * It understood perfectly. It was not permitted. Answering a permission with a
+ * comprehension failure is a false claim about its own capability — the same
+ * species of lie as reporting a failed build as a result (gen329) or inventing a
+ * semicolon that is not there (gen330). parrot0 is allowed to be unable; it is not
+ * allowed to misdescribe why.
+ *
+ * Why HERE, at the end of the registry, rather than inside mod_piact where the
+ * intent is recognized: several faculties below piact — codeast reading a snippet
+ * into structure, prosepage extracting facts from a page — legitimately answer
+ * these same phrasings with no tool mode at all. Declining the turn early, to
+ * announce the policy, stole it from them and broke eleven passing contracts. A
+ * policy is not an intent handler: it may only speak when the intent handlers have
+ * all passed. So this module sits last, and says the true thing only when the
+ * alternative is the fallback saying a false one. */
+static int mod_toolpolicy(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t out_size) {
+    if (!b || !raw) return 0;
+    if (brain_policy_on(b, "tools")) return 0;   /* enabled: piact already ran */
+
+    /* Read the PER-CLAUSE canonical surface, not the raw turn. The "and"-compound
+     * handler dispatches each half with the clause in `norm` and the WHOLE input
+     * still in `raw` — so a module that reads `raw` sees the run verb again while
+     * handling the trailing half, and answers it twice. That is exactly what
+     * happened: "run tests/code/buildable/exit7.c and tell me its exit code" came
+     * back as "it ran and exited with code 7. tools_disabled: …", the second clause
+     * having re-fired this decline over an answer another faculty had already given
+     * correctly. (tests/cases/run_execute.it.chat left a note about this trap in
+     * gen-past; I walked into it anyway.) */
+    const char *src = (norm && *norm) ? norm : raw;
+    size_t rl = strlen(src);
+    if (rl == 0 || rl >= 480) return 0;
+    char low[512];
+    for (size_t i = 0; i <= rl; i++) low[i] = (char)tolower((unsigned char)src[i]);
+
+    /* The SAME cues mod_piact uses — the point is that the two agree about what
+     * was understood, and differ only about what is permitted. */
+    const char *kind = NULL;
+    if (ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low))            kind = "search";
+    else if ((cue(low,"find") && (cue(low,"named") || cue(low,"called"))) ||
+             kb_cue_match(b, "piact_find", low))                                 kind = "find";
+    else if ((cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
+             ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
+             kb_cue_match(b, "piact_list", low))                                 kind = "list";
+    else if (ci_prefix(low,"read ") || ci_prefix(low,"cat ") ||
+             kb_cue_match(b, "piact_read", low))                                 kind = "read";
+    else if (ci_prefix(low,"run ") || kb_cue_match(b, "piact_run", low))         kind = "run";
+    if (!kind) return 0;
+
+    char mode[32]; brain_mode(b, mode, sizeof mode);
+    char m[440];
+    snprintf(m, sizeof m,
+             "tools_disabled: I understood that — it is a %s request, and I can do it — "
+             "but in %s mode I may not touch the filesystem. Start me with "
+             "`make chat-agent` and I will run it.", kind, mode);
+    put(m, out, out_size);
+    store_proof(b, "declined: tools_disabled (policy(tools, off))");
     return 1;
 }

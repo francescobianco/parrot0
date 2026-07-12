@@ -49,6 +49,15 @@ int brain_load(Brain *b, const char *path, int as_base);
  * self-model) to `path`. Returns clauses written, or -1 on error. */
 int brain_save_session(Brain *b, const char *path);
 
+/* gen331 (TODO.md P1/09): the EFFECTIVE runtime policy, projected into the KB at
+ * boot as policy(tools|network|mode, …) and read back through these. Every host
+ * and every module must ask HERE rather than call getenv() and reach its own
+ * conclusion — otherwise the banner can promise what a decline denies, which is
+ * precisely what `make chat` did: it advertised the AGI profile, refused every
+ * file request as "I don't understand", and silently enabled the network. */
+int  brain_policy_on(Brain *b, const char *key);      /* "tools" / "network" */
+void brain_mode(Brain *b, char *out, size_t cap);     /* conversational|agent|acquire */
+
 /* gen276: load the outer KB layers on top of a freshly-created brain — the
  * curated base, the session delta, the coding expert, and (if named by
  * PARROT0_PROFILE) an expert/skill profile. brain_create() already loads the

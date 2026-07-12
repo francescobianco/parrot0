@@ -210,9 +210,17 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    fprintf(stderr, "parrot0 [%s] - say something ('/quit' to exit, "
-                    "'/save' to persist, '/restore' to reload the KB from disk)\n",
-            brain_version());
+    /* gen331 (TODO.md P1/09): the banner reports the EFFECTIVE policy, read from
+     * the same KB facts the modules obey. Before this it said nothing about the
+     * mode, and `make chat` — which had tools OFF and the network ON — looked
+     * identical to the agent. A user cannot calibrate what they cannot see. */
+    { char mode[32]; brain_mode(brain, mode, sizeof mode);
+      fprintf(stderr, "parrot0 [%s] - mode: %s (tools %s, network %s)\n"
+                      "say something ('/quit' to exit, '/save' to persist, "
+                      "'/restore' to reload the KB from disk)\n",
+              brain_version(), mode,
+              brain_policy_on(brain, "tools")   ? "on" : "off",
+              brain_policy_on(brain, "network") ? "on" : "off"); }
 
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];

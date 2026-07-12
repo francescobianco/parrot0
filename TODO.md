@@ -29,6 +29,31 @@ una trace strutturata e l'aggiornamento automatico del capability ledger.
 
 - [ ] **08 — Rendere dispatch e decomposizione transazionali.** La selezione speculativa non deve mutare KB, memoria, filesystem o rieseguire tool: i moduli prima producono `Proposal`, poi il router seleziona e solo il champion commette effetti; rollback completo su sottogoal successivo fallito. **Done:** prompt articolati con secondo passo impossibile lasciano zero effetti parziali, e replay/shadow non duplicano action o fatti.
 
+### Chiuso in gen331 (`policy/2`, `mod_toolpolicy`, tre target di chat)
+
+`make chat` caricava il profilo AGI ma non `PARROT0_TOOLS`, quindi `list the files
+in src` — verde in piagent-bench — rispondeva "I don't understand that yet".
+parrot0 capiva benissimo: non era *autorizzato*. Rispondere a un permesso con un
+fallimento di comprensione è una dichiarazione falsa su di sé, la stessa specie del
+build fallito raccontato come risultato (gen329). E lo stesso target accendeva in
+silenzio il fetch Wikipedia: la modalità che dichiarava meno capacità era quella che
+toccava la rete.
+
+Ora l'ambiente è proiettato nel KB al boot — `policy(tools|network|mode, …)` — e
+banner, self-model e declini leggono QUEI fatti invece di chiamare getenv per conto
+proprio: una sola fonte di verità, così il banner non può promettere ciò che il
+declino nega. Tre target espliciti: `chat` (conversazionale, niente tool, niente
+rete), `chat-agent` (tool locali, niente rete, stessi contract dell'API),
+`chat-acquire` (l'unica che può uscire in rete, e lo dice).
+
+Due lezioni prese a testate: (1) il declino NON può stare dentro mod_piact, perché
+faculties più in basso (codeast, prosepage) servono legittimamente le stesse frasi
+senza tool mode — rubavo loro il turno e rompevo 11 contract; ora `mod_toolpolicy`
+sta in fondo al registry e parla solo se nessun altro poteva. (2) il compound "and"
+passa la clausola in `norm` ma il RAW intero in `raw`: leggere `raw` faceva
+ri-scattare il declino sulla seconda metà di "run X.c and tell me its exit code".
+Un commento in `run_execute.it.chat` avvertiva esattamente di questa trappola.
+
 ### Chiuso in gen330 (`code_segment`, oracolo `tests/segment.sh`, 28/28)
 
 01/02 sono lo stesso difetto visto da due lati. `find_code_section()` definiva il
@@ -80,7 +105,7 @@ riporta l'arenamento e muore, il padre riprova una volta *con* rete e lo dichiar
 
 ## P1 — un vero kernel da coding agent
 
-- [ ] **09 — Allineare `make chat` ai capability realmente disponibili.** Counterexample reale: `make chat` carica il profilo AGI ma non `PARROT0_TOOLS=1`, quindi gli stessi prompt read/list/where verdi in `piagent-bench` murano; inoltre abilita implicitamente il fetch Wikipedia. Offrire target/modi espliciti (`chat`, `chat-agent`, `chat-acquire`), rete off nel runtime safe, banner e self-model derivati dalla policy effettiva. **Done:** la chat agent esegue gli stessi contract dell'API, quella conversazionale dichiara i tool disabilitati e soltanto ACQUIRE abilita rete/quarantena, senza claim discordanti.
+- [x] **09 — Allineare `make chat` ai capability realmente disponibili.** Counterexample reale: `make chat` carica il profilo AGI ma non `PARROT0_TOOLS=1`, quindi gli stessi prompt read/list/where verdi in `piagent-bench` murano; inoltre abilita implicitamente il fetch Wikipedia. Offrire target/modi espliciti (`chat`, `chat-agent`, `chat-acquire`), rete off nel runtime safe, banner e self-model derivati dalla policy effettiva. **Done:** la chat agent esegue gli stessi contract dell'API, quella conversazionale dichiara i tool disabilitati e soltanto ACQUIRE abilita rete/quarantena, senza claim discordanti.
 
 - [ ] **10 — Eliminare troncamenti silenziosi e supportare input coding multilinea.** Sostituire i buffer rigidi di turn/task/response con arena o buffer bounded dinamici; multiline paste deve funzionare senza escape terminali, conservando byte e span. **Done:** issue+diff da almeno 64 KiB e sorgente multilinea attraversano CLI/API senza perdita; oltre budget arriva `input_too_large` con limite e hash, mai parsing di un prefisso come task completo.
 

@@ -199,6 +199,10 @@ static const Module registry[] = {
     {"chitchat",  mod_chitchat},
     {"reqgen",    mod_reqgen},
     {"learn",     mod_learn},
+    /* gen331: after every faculty that could genuinely serve the turn, and before
+     * the conversational fallback — so a tool request in a tools-off mode hears
+     * "I understood, I am not permitted" instead of "I don't understand". */
+    {"toolpolicy", mod_toolpolicy},
     {"smalltalk", mod_smalltalk},   /* gen240: last-resort conversational continuity */
 };
 static const size_t registry_len = sizeof registry / sizeof registry[0];
@@ -565,6 +569,63 @@ KB *brain_kb(Brain *b) { return b ? b->kb : NULL; }
  * self-model; this adds base/session/coding/profile. Paths come from the
  * environment with the historical defaults; an empty value skips that layer
  * (brain_load/kb_load treat "" as a no-op). */
+/* gen331 (TODO.md P1/09): the runtime POLICY becomes knowledge.
+ *
+ * Counterexample: `make chat` loaded the AGI profile but did not set
+ * PARROT0_TOOLS=1 — so the very prompts that are green in piagent-bench ("list the
+ * files in src") came back "I don't understand that yet." parrot0 understood
+ * perfectly; it simply was not permitted. Answering a permission with a
+ * comprehension failure is a discordant claim about itself, and it is the same
+ * species of lie as reporting a failed build as a result. Meanwhile the same target
+ * quietly turned the Wikipedia fetch ON, so the mode that claimed the least
+ * capability was the one reaching the network.
+ *
+ * The environment is therefore projected into the KB at boot, ONCE, and everything
+ * downstream — the banner, the self-model, the declines — reads those facts instead
+ * of calling getenv() on its own and drawing its own conclusion:
+ *
+ *   policy(tools, on|off)      may parrot0 touch the filesystem / run tools?
+ *   policy(network, on|off)    may it fetch?
+ *   policy(mode, conversational|agent|acquire)
+ *
+ * One source of truth, so a banner cannot promise what a decline denies. */
+static void brain_policy(Brain *b) {
+    if (!b || !b->kb) return;
+    const char *t = getenv("PARROT0_TOOLS");
+    const char *n = getenv("PARROT0_WIKI_FETCH");
+    int tools = t && strcmp(t, "1") == 0;
+    int net   = n && strcmp(n, "1") == 0;
+
+    const char *pt[] = { "tools",   tools ? "on" : "off" };
+    const char *pn[] = { "network", net   ? "on" : "off" };
+    const char *pm[] = { "mode",    net ? "acquire" : (tools ? "agent" : "conversational") };
+    kb_assert(b->kb, "policy", pt, 2);
+    kb_assert(b->kb, "policy", pn, 2);
+    kb_assert(b->kb, "policy", pm, 2);
+
+    /* policy/2 is machinery: knowing that parrot0 may run tools is knowing
+     * something about parrot0, not about the world. (gen329's rule, applied at the
+     * point where the fact is born rather than in a list somewhere else.) */
+    const char *m[] = { "policy" };
+    kb_assert(b->kb, "machinery", m, 1);
+}
+
+/* The effective policy, for the hosts (banner) and the modules (declines). */
+int brain_policy_on(Brain *b, const char *key) {
+    if (!b || !b->kb) return 0;
+    const char *q[] = { key, "on" };
+    return kb_query(b->kb, "policy", q, 2);
+}
+
+void brain_mode(Brain *b, char *out, size_t cap) {
+    if (!out || !cap) return;
+    snprintf(out, cap, "conversational");
+    if (!b || !b->kb) return;
+    const char *q[] = { "mode", NULL };
+    char v[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "policy", q, 2, v, 1) == 1) snprintf(out, cap, "%s", v[0]);
+}
+
 void brain_boot(Brain *b) {
     if (!b) return;
     const char *base = getenv("PARROT0_BASE");
@@ -577,6 +638,7 @@ void brain_boot(Brain *b) {
     brain_load(b, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain */
     if (profile && *profile)
         brain_load(b, profile, 1);                        /* gen150: expert/skill profile */
+    brain_policy(b);                                      /* gen331: the effective policy */
 }
 
 /* gen276: rebuild the brain's knowledge and session state in place from the

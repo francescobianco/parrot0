@@ -245,8 +245,11 @@ static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
 static int is_internal_pred(const KB *kb, const char *pred);
+int brain_policy_on(Brain *b, const char *key);       /* gen331: the effective policy */
+void brain_mode(Brain *b, char *out, size_t cap);
 static int run_shell(const char *cmd, char *out, size_t out_size);
 static int identify_code_lang(const char *code, Brain *b);
+static int mod_toolpolicy(Brain *b, const char *norm, const char *raw, char *out, size_t out_size);
 
 /* Copy the last whitespace-separated word of `raw` into `dst`, preserving its
  * original casing and trimming trailing punctuation/whitespace. Used to keep
