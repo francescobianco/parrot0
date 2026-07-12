@@ -26,15 +26,16 @@ def git_commit() -> str:
         return "unknown"
 
 
-def run_target(target: str) -> tuple[bool, str]:
-    """Run one make target; return (green, last output line)."""
+def run_target(target: str) -> tuple[bool, str, list[str]]:
+    """Run one make target; return (green, last output line, FAIL lines)."""
     proc = subprocess.run(
         ["make", "-s", target], cwd=ROOT,
         capture_output=True, text=True, timeout=1800,
     )
     lines = [l for l in (proc.stdout + proc.stderr).splitlines() if l.strip()]
     tail = lines[-1] if lines else ""
-    return proc.returncode == 0, tail
+    fails = [l for l in lines if l.startswith("FAIL")][:10]
+    return proc.returncode == 0, tail, fails
 
 
 def main() -> int:
@@ -47,9 +48,11 @@ def main() -> int:
           f"({len(skipped)} non-gate listed, not run)")
     red = []
     for e in gates:
-        ok, tail = run_target(e["target"])
+        ok, tail, fails = run_target(e["target"])
         mark = "GREEN" if ok else "RED"
         print(f"  {mark:5} {e['id']:12} make {e['target']:18} {tail[:90]}")
+        for f in fails:
+            print(f"        {f[:110]}")
         if not ok:
             red.append(e["id"])
     for e in skipped:

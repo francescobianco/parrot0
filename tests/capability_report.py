@@ -44,7 +44,7 @@ def main() -> int:
         if b["semantics"] != "gate":
             status[b["id"]] = "not-run"
             continue
-        ok, _ = run_target(b["target"])
+        ok, _, _ = run_target(b["target"])
         status[b["id"]] = "green" if ok else "red"
 
     rows = []
