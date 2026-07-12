@@ -1,7 +1,10 @@
 # PARROT0 FORGE - piano maestro verso un coding agent verificabile
 
-> **Stato:** piano canonico, 2026-07-11, baseline HEAD `93511ba` (gen312 nei
-> commit; `brain_version()` e ancora fermo a gen300).
+> **Stato:** piano canonico, revisione **Fast Forge** 2026-07-12. La fotografia
+> iniziale era HEAD `93511ba`; W0 truth e poi avanzata fino a gen317. Questa
+> revisione corregge il difetto emerso durante l'esecuzione: il vecchio piano
+> faceva pagare quasi l'intera certificazione a ogni ipotesi e rendeva il
+> feedback lento, opaco e poco direzionale.
 >
 > **Missione:** portare parrot0 a competere con un coding agent basato su LLM
 > nel perimetro in cui il risultato puo essere verificato, senza inserire un LLM
@@ -16,6 +19,11 @@
 > subordinato a `PRINCIPLES.md`, `LOOP.md` e `DESIGN.md`. Quando un piano storico
 > contraddice questo documento sullo stato corrente o sull'ordine dei lavori,
 > prevale questo documento. I principi fondanti non vengono sovrascritti.
+
+> **Correzione di rotta:** un esperimento non e una generazione. Molti
+> esperimenti economici possono competere e morire in locale; una generazione
+> nasce solo quando un candidato sopravvissuto viene promosso. Il rigore resta
+> intero, ma viene pagato una volta dal champion, non da ogni ipotesi.
 
 ---
 
@@ -63,6 +71,27 @@ coding agent verificabile
 
 Il salto mancante non e un altro `mod_*`. E un **kernel agentico tipizzato** e
 un processo di selezione che faccia crescere quel kernel senza degradarlo.
+
+### 0.1 Il feedback e parte dell'architettura
+
+La prima versione del piano trattava i test soprattutto come certificazione.
+Questo produceva una dinamica sbagliata: si modifica, si attende una matrice
+ampia e solo alla fine si scopre se la direzione era utile. Un risultato binario
+tardivo fa sembrare ogni iterazione una ruota della fortuna e riduce il numero di
+ipotesi che possiamo esplorare.
+
+La nuova tesi operativa e:
+
+```text
+il Tick orienta
+il Turn seleziona
+la Promotion dimostra
+il Nightly certifica
+```
+
+Ogni livello deve restituire presto il **primo contratto rotto**, non soltanto un
+PASS/FAIL finale. Se un controllo e costoso, non viene abolito: viene eseguito
+piu tardi e solo sulle poche candidate che hanno guadagnato quel costo.
 
 ---
 
@@ -133,14 +162,30 @@ Conservare informazione non significa conservare interferenza.
 - Un artefatto non verificato viene chiamato candidato, mai soluzione.
 - Una suite degradata non viene presentata come benchmark risolto.
 
-### 1.7 Una generazione, un contratto
+### 1.7 Una promozione, un contratto
 
-- Ogni generazione chiude un solo contratto rosso.
-- Deve essere piccola, reversibile e bisecabile.
-- Deve guadagnare test mirati, held-out e negativi.
-- La prova circa 10x piu complessa e il ratchet EN/IT restano obbligatori quando
-  il dominio e linguistico.
+- Un **esperimento** risponde a una sola domanda e puo essere scartato senza
+  versione, journal o full regression.
+- Un **candidato** e un esperimento che ha chiuso il caso focale e i negativi
+  diretti; resta in overlay o worktree.
+- Una **generazione** e una sola promotion atomica che chiude un contratto rosso.
+- La generazione deve essere piccola, reversibile e bisecabile, ma puo essere
+  preceduta da molte candidate concorrenti.
+- Test 10x, EN/IT, holdout e replay restano obbligatori quando pertinenti, ma non
+  devono essere rilanciati dopo ogni edit.
 - Il piano e a dipendenze, ma la scelta dentro una frontiera resta pull-based.
+
+### 1.8 La latenza di decisione e un invariante
+
+- Ogni campagna dichiara budget P50/P95 per feedback focale, impatto e promotion.
+- Il tempo da edit al primo controesempio e una metrica di prodotto, non una
+  comodita del developer.
+- Un test che supera stabilmente il budget della propria corsia viene spezzato,
+  ottimizzato o spostato alla corsia successiva.
+- `timeout`, `infra_error` e `flaky` non sono FAIL funzionali e non diventano
+  PASS mediante rerun cieco.
+- Nessuna nuova feature ha priorita su Fast Forge quando la corsia interattiva
+  non rispetta il suo budget.
 
 ---
 
@@ -225,19 +270,67 @@ macchina, non mantenuta a mano.
 | `make swe-bench` | 0/5 engaged | harness degradata, non solve |
 | `LLMSCORE.md` | 4/10 | misura comportamentale, non gate di verita |
 
-Prima di accelerare la crescita, la fucina deve rendere impossibile promuovere
-su una baseline rossa.
+Queste regressioni hanno tirato gen313-gen315 e sono ora chiuse. La lezione non
+e introdurre un blocco globale: core trust e capability toccata devono essere
+verdi, mentre i rossi noti non correlati sono fingerprinted e non impediscono
+esperimenti in shadow (§10.1).
 
 ### 3.4 Debito di verita e governance
 
-- `brain_version()` riporta `gen300-class-conjunction`, mentre HEAD dichiara
-  gen312.
+- `brain_version()` riportava `gen300-class-conjunction` mentre HEAD dichiarava
+  gen312; gen317 ha chiuso il claim drift, ma il commit nell'header causa ora un
+  rebuild/cache debt (§3.5).
 - Molti piani includono handoff storici e stati superati senza un indice
   machine-readable.
 - `make test` non include `code-bench`, `sortlearn-bench`, `game-bench` e SWE.
 - Un `PASS` in degrade mode misura esecuzione dell'harness, non capacita.
 - LLMSCORE ha gia accettato almeno un fatto falso: un LLM judge e discovery,
   non verita.
+- Il manifest chiama `glue-bench` un gate, ma lo script dichiara discovery e
+  termina sempre 0 anche con GAP; oggi spendiamo circa 12.81 s senza ottenere il
+  ratchet dichiarato.
+- `mimic` e marcato external ma gira offline; `bench-mmlu` e `bench-bbh` puntano
+  a fixture locali pur essendo marcati external. La semantica machine-readable
+  non e ancora la fonte di verita che dichiara di essere.
+
+### 3.5 Debito di feedback rilevato al 2026-07-12
+
+Misure su host di sviluppo a 22 core, binario caldo e output soppresso:
+
+| Percorso | Wall time | Causa dominante |
+|---|---:|---|
+| `make build`, no-op | 0.02 s | nessuna |
+| rebuild completo `-O2` | 12.37 s | `brain.c` e i 13 frammenti sono una sola TU |
+| `tests/run.sh` | 21.37 s | 243 processi, 1.479 turni, circa 352 CPU-s |
+| `make test` | 171.11 s | 38 harness seriali, circa 504 CPU-s |
+| `make gate` | 233.52 s | sei target seriali, circa 562 CPU-s |
+| `make gate` + `make capability-report` | circa 467 s | gli stessi sei target eseguiti due volte |
+| `llmscore_world.sh` | 68.95 s | molti boot e probe black-box |
+| `knowledge.sh` | 15.30 s | boot/probe black-box ripetuti |
+
+Il vecchio dato di circa 51 secondi in `optimize-the-tests.md` non descrive piu
+la suite corrente. Il solo parallelismo di `run.sh` non basta: consuma oltre
+cinque minuti di CPU e nasconde tutti i verdetti fino all'aggregazione finale.
+
+Inoltre:
+
+- `make gate` esegue i target di area in sequenza e ne cattura l'output;
+- per i primi circa 171 secondi di `make gate` non appare alcun progresso e un
+  rosso non interrompe i target successivi;
+- `make capability-report` riesegue gli stessi gate invece di consumare la loro
+  evidenza sigillata;
+- il commit hash generato in `version.h`, unito alla dipendenza di ogni object da
+  tutti gli header, forza rebuild ampi dopo un commit e invalida cache che non
+  dipendono dal comportamento; la versione va isolata in una piccola TU;
+- `tests/benchmarks.json` cataloga target interi, non singoli contratti, owner,
+  dipendenze, costo o requisito di isolamento;
+- quasi tutti i test attraversano testo, dispatch, KB, rendering e processo
+  insieme: il fallimento arriva tardi e non nomina automaticamente il livello
+  proprietario.
+
+Questa e ora una regressione architetturale prioritaria. Tre minuti per un solo
+ratchet non sono compatibili con esplorazione rapida; aggiungere altri test alla
+stessa forma peggiorerebbe la capacita di apprendere del progetto.
 
 ---
 
@@ -441,14 +534,18 @@ fisica aiuta la navigazione, ma non e ancora un confine architetturale.
 
 La migrazione deve essere incrementale:
 
-1. `Brain` conserva identita, registry e servizi permanenti;
-2. ogni lavoro riceve un `TaskContext` con arena dinamica, budget e event log;
-3. memoria conversazionale, workspace facts e candidate artifacts hanno scope e
-   lifecycle distinti;
-4. i moduli nuovi dipendono da interfacce esplicite, non da ogni helper statico;
-5. un frammento passa a translation unit separata solo quando un contratto/test
+1. `Brain` resta facade e puo riferire un `BrainImage` frozen con config,
+   registry, indici e base KB;
+2. ogni conversazione riceve un `SessionContext`: lingua, memoria cross-turn,
+   mondi e overlay KB;
+3. ogni lavoro riceve un `TaskContext` con arena dinamica, workspace, budget,
+   action/event log e candidate artifacts;
+4. sessione, workspace facts e candidate artifacts hanno scope e lifecycle
+   distinti;
+5. i moduli nuovi dipendono da interfacce esplicite, non da ogni helper statico;
+6. un frammento passa a translation unit separata solo quando un contratto/test
    rende chiaro il suo confine;
-6. il vecchio path resta fallback finche il confronto differenziale e verde.
+7. il vecchio path resta fallback finche il confronto differenziale e verde.
 
 I limiti correnti del KB (`KB_MAX_ARGS`, `KB_MAX_BODY`, `KB_TERM_LEN`) non vanno
 alzati per speculazione. Vanno resi errori/gap osservabili e poi rimossi o resi
@@ -698,11 +795,14 @@ I punti reali provengono dall'esecuzione di quelle proprieta.
 Interfaccia proposta:
 
 ```sh
+make check TEST=<contract-id>              # Tick: caso focale, streaming
+make impact CHANGED=<file-or-package>       # Turn: slice impattata
 make forge CAMPAIGN=<id> MODE=knowledge|procedure|engine|agent BUDGET=<n>
 make forge-replay CAMPAIGN=<id>
 make forge-promote RUN=<run-id>
 make forge-rollback CAPABILITY=<id>
 make capability-report
+make soak                                  # nightly/fresh-exec/sanitizer
 ```
 
 `autolearn` resta disponibile come esperimento storico finche `forge knowledge`
@@ -714,6 +814,7 @@ non lo sostituisce. Il default sicuro di `autolearn` deve diventare
 Prima di ogni run:
 
 - base commit e tree hash;
+- semantic payload digest di source, test, KB, policy e manifest gia finalizzati;
 - hash binario, KB e tool;
 - compiler/runtime version;
 - trust mode e policy;
@@ -722,8 +823,25 @@ Prima di ogni run:
 - capability baseline;
 - challenge pack gia separato.
 
-Se la baseline obbligatoria e rossa, il run viene classificato `baseline-broken`
-e non puo promuovere.
+Per una promotion Forge, tutti i file tracciati e il pre-run decision record
+vengono finalizzati **prima** di Release. Si crea poi un candidate commit su una
+ref temporanea, senza attivarlo sul branch canonico. Release fa checkout,
+costruisce e verifica quell'esatto commit: anche il commit stamp osservabile e
+quello definitivo. Il controller conserva l'attestation fuori dal worktree,
+indicizzata da candidate commit, release-binary digest e semantic payload digest.
+Se verde, il branch viene fast-forwardato a quello stesso commit; se rosso, la
+ref viene rifiutata/archiviata. Nessun edit o relink post-gate e ammesso. Un
+candidate commit non e una generazione finche non viene attivato.
+
+La baseline non e piu un unico interruttore globale:
+
+- il **core trust set** deve essere verde; se e rosso sono ammessi solo fix e
+  lavoro di harness;
+- la baseline della capability toccata deve essere verde per attivarla;
+- failure preesistenti non pertinenti vivono in un known-red ledger con
+  fingerprint, owner e scadenza;
+- una candidata puo essere esplorata e restare `shadow` anche durante una
+  failure non correlata, ma non puo introdurre alcun nuovo rosso.
 
 ### 10.2 Mine: estrarre il minerale
 
@@ -781,50 +899,108 @@ holdout e non puo modificare oracle o test.
 propose -> parse/build -> execute -> observe -> diagnose -> repair
 ```
 
-- massimo tentativi esplicito;
+- massimo tentativi esplicito per Tick e Turn;
 - ogni tentativo ha parent id;
 - nessuna scrittura ufficiale;
 - ogni azione e registrata;
-- il fallimento e un risultato utile e resta nel ledger.
+- il fallimento e un risultato utile, viene minimizzato e resta nel ledger;
+- il ciclo si ferma al primo controesempio: non esegue livelli piu costosi su
+  una candidata gia morta;
+- piu candidate competono con **successive halving**, non con una full matrix
+  ciascuna.
 
-### 10.6 Temper: i gate
+### 10.6 Temper: funnel progressivo, non gauntlet piatta
 
-| Gate | Domanda | Condizione |
-|---|---|---|
-| **G0 Integrita** | il candidato e valido? | parse, schema, arita, consumer, fonte |
-| **G1 Red->green** | chiude il contratto? | minimo caso passa |
-| **G2 Ablation** | e causalmente responsabile? | senza torna rosso |
-| **G3 Negative** | ruba casi non suoi? | controlli negativi restano invariati |
-| **G4 Transfer** | generalizza? | mutation, paraphrase, fresh names, 10x, EN/IT |
-| **G5 Holdout** | funziona fuori train? | set nascosto, diverso file/repo/forma |
-| **G6 Oracle** | il risultato e reale? | compiler/test/property/differential/SWE |
-| **G7 Regression** | rompe il ratchet? | matrice completa pertinente verde |
-| **G8 Determinism** | e riproducibile? | almeno 3 replay equivalenti |
-| **G9 Safety** | rispetta confini? | zero escape, tampering, rete, budget violation |
+I vecchi G0-G9 restano requisiti di promotion, ma non sono piu una lista che
+ogni edit deve attraversare. Sono distribuiti in corsie con costo e frequenza
+espliciti. I budget iniziali si riferiscono all'host di sviluppo dichiarato nel
+manifest; ogni device ha un profilo calibrato, non timeout arbitrari.
 
-Un sibling prodotto dal multiplier e un candidato indipendente: non eredita il
-successo del seed. Deve almeno passare G0-G3 e un probe proprio; per entrare in
-base deve passare l'intera policy della sua classe.
+| Corsia | Chi la paga | Contenuto | Budget P95 iniziale |
+|---|---|---|---:|
+| **S0 Spark** | ogni edit | parse/schema, build dev incrementale, fixture/oracle hash | <= 2 s warm, <= 5 s con build |
+| **S1 Focal** | ogni candidata valida | red esatto, oracle meccanico, 2-3 collision negative | <= 5 s |
+| **S2 Impact** | sole sopravvissute | hot corpus e regressioni selezionate dall'impact graph | <= 10 s |
+| **T Transfer** | migliori 1-2 | mutation, property, 10x, EN/IT e validation variant visibili | <= 60 s, asincrona |
+| **R Release** | un champion frozen | promotion holdout, full offline policy set, oracle integrity, safety, replay, rollback | hard stop 5 min; obiettivo <= 60 s |
+| **N Nightly/Field** | promoted/canary | fresh-exec differential, sanitizer, fuzz, cross-repo, Docker/SWE | fuori inner loop |
+
+Regole:
+
+1. S1 non puo diventare verde senza un oracle reale. Il vecchio G6 non arriva
+   piu tardi: in Release resta solo la prova che candidato e harness non abbiano
+   alterato oracle, test o fixture.
+2. Ablation fresca viene eseguita quando una candidata diventa seed; la baseline
+   sigillata e content-addressed non viene ricalcolata a ogni edit.
+3. Determinismo a tre replay e full safety appartengono al solo champion o al
+   nightly, non a ogni sibling.
+4. Il promotion holdout viene aperto solo dal champion gia scelto e frozen, mai
+   per scegliere tra challenger. Dopo l'apertura diventa train e serve un nuovo
+   holdout per la promotion successiva.
+5. Il risultato non mescola funzione, esecuzione e cache:
+   `execution_state={ran, timeout, infra_error, skipped_policy}`,
+   `verdict={pass, fail, unknown}`, `stability={stable, flaky, quarantined}` ed
+   `evidence_origin={fresh, exact_cache, selective_cache}`.
+6. S0-S2 sono fail-fast e ordinano i casi per: rosso corrente, regressioni
+   recenti, collisioni probabili, costo crescente.
+7. Un verde su build dev O0 e evidenza locale, non promotion evidence. Prima di
+   Transfer il survivor viene ricostruito O2 e il corpus hot deve restare
+   differenzialmente equivalente.
+8. S0-S2 sono fail-fast per dare direzione. Release/Nightly continuano dopo un
+   failure funzionale per produrre la mappa completa, ma streammano subito; una
+   safety violation puo fermare l'intera run.
+9. Il Release policy set e il suo digest vengono sigillati prima del run. I 5
+   minuti sono l'hard timeout iniziale; <= 60 s e l'obiettivo prestazionale di
+   M-1b. Riclassificare test dopo il risultato non soddisfa lo SLO.
+10. Containment, resource limit, worktree isolation e tamper protection valgono
+    da S0 per ogni candidata eseguita. Al champion si rinvia solo la campagna
+    adversarial/full-safety, mai il confine di sicurezza di base.
+
+Successive halving predefinita:
+
+```text
+N candidate -> tutte S0
+            -> massimo 3 a S1
+            -> massimo 2 a S2
+            -> massimo 2 a T
+            -> 1 champion a R
+```
+
+Le soglie possono essere alzate per campagne ad alto rischio. Non possono
+essere allargate dopo aver visto il risultato. Un sibling non eredita il
+successo del seed, ma non e costretto a pagare certificazione completa prima di
+aver dimostrato di meritare il livello successivo.
 
 ### 10.7 Quench: promotion atomica
 
-Stati:
+Stati di evidenza:
 
 ```text
-observed -> candidate -> quarantined -> verified -> canary
-         -> promoted | rejected | rolled_back
+red_reproduced -> local_green -> collision_green -> impact_green
+               -> transfer_green -> promotable
 ```
+
+La maturita resta l'asse ABSENT/SEED/TRANSFER/FIELD/HARDENED di §4. Gli stati
+di attivazione sono un asse indipendente:
+
+```text
+inactive -> shadow -> scoped_canary -> active
+         -> disabled | rolled_back
+```
+
+Un package puo quindi essere `TRANSFER + shadow` o `FIELD + active`; `hardened`
+non viene usato come sinonimo di attivazione.
 
 Una promotion contiene in un'unica generazione:
 
 - candidato;
-- test guadagnati;
+- counterexample minimizzati e test guadagnati;
 - manifest;
 - scorecard;
 - provenance;
 - decision record;
 - activation change;
-- rollback testato;
+- rollback testato al livello richiesto dalla policy;
 - aggiornamento capability ledger.
 
 Per il KB servono lock, temp file, `fsync`, rename atomico e journal multi-file.
@@ -857,9 +1033,13 @@ docs/forge/ledger.jsonl
 capabilities/manifest.json
 ```
 
-`.forge/` e effimera e gitignored. Campaign, ledger e capability manifest sono
-versionati. Evidence pesante puo essere content-addressed fuori git, ma il suo
-hash resta nel manifest.
+`.forge/` e effimera e dovra diventare gitignored. Campaign, policy e schema del
+ledger sono versionati nel candidate commit. Il capability manifest target e
+una proiezione generata dall'attestation, indicizzata dal candidate commit e
+pubblicata come artifact/annotated ref senza modificare il commit Release-tested;
+il file tracciato corrente resta una compatibility view durante la migrazione.
+Evidence pesante puo essere content-addressed fuori git, ma il suo digest resta
+nell'attestation.
 
 ### 10.10 Challenge pack
 
@@ -881,7 +1061,13 @@ Ogni campagna dichiara:
     "negative": ["..."]
   },
   "mutations": ["rename", "numbers", "language", "decoy"],
-  "budget": {"steps": 8, "seconds": 30},
+  "budget": {
+    "steps": 8,
+    "spark_seconds": 2,
+    "focal_seconds": 5,
+    "impact_seconds": 10,
+    "transfer_seconds": 60
+  },
   "promotion_policy": "agent-routing-v1"
 }
 ```
@@ -908,6 +1094,228 @@ rollback artifact
 Il package rende concreto il principio di `DESIGN.md` sugli expert composabili:
 puo essere caricato, interrogato, messo in shadow, promosso, disattivato e
 riattivato senza perdere la storia che lo ha prodotto.
+
+### 10.12 Catalogo granulare dei contratti
+
+`tests/benchmarks.json` resta il catalogo delle aree, ma ogni test eseguibile
+deve avere un record granulare:
+
+```json
+{
+  "id": "routing.agent-search.en",
+  "capability": "agent.routing",
+  "owner": ["mod_piact", "router"],
+  "depends_on": ["src/brain/60-agent-tools.c", "intent_phrase/2"],
+  "boot_profile": "hermetic-en",
+  "tier": "focal",
+  "isolation": "fork",
+  "oracle": "response.status+winner+text",
+  "timeout_ms": 800,
+  "mutators": ["punctuation", "numbers", "language", "decoy"]
+}
+```
+
+Il catalogo registra anche durata storica P50/P95, risorse esclusive, fixture,
+hash dell'oracolo e ultimo failure. Deve essere possibile eseguire un contratto
+per id senza conoscere quale shell script lo contiene.
+
+### 10.13 Piramide: semantica prima, processo quando serve
+
+La suite corrente e quasi una piramide rovesciata: molti golden black-box
+avviano un processo completo e confrontano testo, anche quando il contratto e
+una decisione di routing o inferenza.
+
+La forma target e:
+
+1. **pure/unit:** KB, parser, ranking, planner, patch model e validator senza
+   processo o filesystem reale;
+2. **Brain contract:** il vero dispatch con stato isolato e risultato
+   strutturato;
+3. **adapter contract:** pochi test per CLI, HTTP, MCP, executor e persistenza;
+4. **end-to-end:** un piccolo insieme verticale per capability;
+5. **cold/field:** repository e oracle esterni solo dopo la selezione.
+
+Il kernel dovra esporre, senza duplicare il percorso produttivo, una risposta
+strutturata:
+
+```text
+text, status, winner, declined_trace, goals, proof,
+actions, artifacts, oracle_verdict, gap
+```
+
+I test di semantica verificheranno questi campi. I golden testuali resteranno per
+il renderer e per pochi contratti pubblici EN/IT. Una modifica di phrasing non
+dovra rilanciare o rompere centinaia di prove di planning; una collisione di
+routing dovra dire immediatamente quale modulo ha rubato il turno.
+
+### 10.14 Forkserver: ipotesi preferita, non dogma
+
+Il persistent test-engine con `brain_reload()` e utile come fallback, ma non e
+piu l'endgame assunto su POSIX. Il candidato principale da benchmarkare e un
+forkserver, confrontato con fresh-exec batch e persistent reset su un campione
+identico. Il target, se vince, funziona cosi:
+
+1. un parent rigorosamente single-threaded carica un Brain pristine una volta e
+   non risponde mai direttamente;
+2. per ogni dialogo crea un child con `fork()`;
+3. un hook post-fork aggiorna PID/clock, seed e fatti riflessivi dipendenti dal
+   processo, chiude descriptor ereditati non ammessi, poi esegue la sessione e
+   restituisce un verdict strutturato;
+4. l'uscita del child elimina tutto lo stato mutabile;
+5. piu parent pre-riscaldati servono i diversi boot profile.
+
+Copy-on-write evita exec, dynamic load e parsing ripetuto, ma mantiene un
+confine RAM di processo: un leak di sessione non puo contaminare il test
+successivo. Non isola da solo filesystem o processi figli. Ogni child riceve
+cwd/tmp propri, umask, process group, timeout+`killpg`, RLIMIT, signal reset e FD
+allowlist/`closefrom`. Persist/restart, daemon, MCP transport e casi con side
+effect restano `fresh_exec`.
+
+Finche i buffer statici mutabili non migrano nei context, parrot0 e dichiarato
+non-reentrant: parallelismo tra processi/pool di parent single-thread, non thread
+che condividono un Brain.
+
+Prima della promotion del runner si misurano wall time, CPU, RSS/COW fault e
+divergenza su almeno 50 casi rappresentativi. Kill criterion: se entro due
+generazioni non riduce almeno 2x il costo del campione senza divergenze rispetto
+al fresh-exec, si mantiene il batching/runner piu semplice e il forkserver torna
+candidate. Il differential richiede equivalenza **canonica** dei campi stable e
+degli hash dei side effect; PID, clock, temp path e durata sono volatile, non
+byte-equivalenti.
+
+Il forkserver puo iniziare clonando via COW l'intero Brain; non deve aspettare un
+refactor del KB. Solo quando task reali lo tirano, lo stato target si separa in:
+
+```text
+BrainImage      config, registry, indici e KbImage frozen condivisibili
+SessionContext  lingua, memoria cross-turn, mondi e KbOverlay/tombstone
+TaskContext     budget, workspace, event log, candidate e artifact del job
+```
+
+Il KB attuale mescola base e sessione negli stessi array: `KbImage/KbOverlay`
+richiede query union, provenance, override, negativi e retract differentialmente
+equivalenti. `Brain` puo restare la facade che possiede image, sessione e task
+attivo. Questa separazione puo poi accelerare test/runtime e giustificare lo
+split graduale della grande TU, ma non e un prerequisito del primo speedup.
+
+### 10.15 Impact graph, corpus a due temperature e canary
+
+La regression pertinente non e una scelta intuitiva. Il selettore unisce:
+
+- ownership dichiarata di file, simboli, predicate e action schema;
+- trace dinamica di tutti i moduli consultati, winner, branch/coverage, proof,
+  oracle e anche lookup/cue/predicati falliti;
+- reverse dependencies tra capability package;
+- storia dei test che hanno fallito su cambi simili;
+- un canary globale piccolo e stabile.
+
+Il target raggruppa i 243 dialoghi per trace/decision fingerprint. Il corpus **hot**
+mantiene per capability almeno: positivo, collisione negativa, caso stateful,
+EN/IT quando pertinente, 10x e regressioni recenti. Il corpus **cold** conserva
+copertura completa, mutation ampia e holdout per Release/Nightly.
+
+Se cambia il fingerprint di un rappresentante, il cluster viene espanso. Il
+cluster include anche capability/mutator class e un campione rotante
+deterministico, perche winner/proof da soli non distinguono branch interni. Se la
+modifica non ha ownership nota, il selettore scala conservativamente. Il nightly
+audita il selettore contro la full matrix: un miss e una regressione del runner,
+non una scusa per rendere il mapping ottimistico.
+
+Un selector miss osservato e un test che fallisce nel full audit di una patch
+rossa storica o mutation ma che non apparteneva all'Impact set predetto. Si
+pubblicano numeratore, denominatore e recall; una full verde da sola non prova
+soundness. Shared helper, registry order, schema KB, config o dependency
+negative sconosciuta fanno fallback conservativo alla matrice pertinente.
+
+### 10.16 Cache di evidenza, non cache di speranza
+
+Esistono due namespace che non vanno confusi:
+
+- **exact evidence:** `test-id + full-semantic-tree/release-artifact + KB +
+  fixture + oracle + env/toolchain + policy`; serve a trasformazioni pure come
+  capability-report e a non rieseguire due volte lo stesso gate artifact;
+- **selective advisory:** `test-id + dependency-closure + candidate-package +
+  KB-slice + fixture/oracle + dev-profile`; accelera solo S0-S2 e non autorizza
+  una promotion.
+
+Per S0-S2 il fingerprint semantico puo escludere la sola metadata di versione;
+per Release resta l'hash dell'artefatto esatto. Isolare `version.c` evita che un
+commit semanticamente neutro sporchi tutti gli object. Inizialmente ogni
+champion esegue fresca l'intera ratchet offline sigillata; si riusano soltanto
+acquisizioni immutabili o un gate-result sull'identico digest.
+
+- Il replay di determinismo e sempre fresco.
+- `make gate` dovra scrivere un `gate-result.json` attestato dai digest di input.
+- `make capability-report` dovra consumare quell'artefatto quando coincide,
+  invece di rieseguire tutti i target.
+- L'ablation confronta il candidate verdict con la baseline gia sigillata e
+  ricalcola solo il lato modificato.
+
+"Attestato dai digest" non significa firma crittografica. Il controller fidato,
+fuori dal worktree candidato, produce l'artefatto in uno store append-only; il
+candidato non puo scriverlo. Si parla di firma solo se esiste davvero una chiave
+del controller.
+
+### 10.17 Scheduler e feedback visibile
+
+Il runner target possiede parallelismo e risorse. Non si annidano 22 processi per
+target dentro altri target paralleli senza controllo. Ogni test dichiara token
+CPU, porta, directory mutabile, rete e isolamento; lo scheduler bilancia shard
+per durata storica, non per semplice numero di file.
+
+Ogni run riceve tmp/log/workspace e porte effimere proprie. `p0tmp_*`, log
+globali, fixture riscritte e output di build condivisi devono essere eliminati o
+protetti da una risorsa esclusiva. La build avviene una volta prima degli shard;
+due `make` non scrivono contemporaneamente gli stessi object o `version.h.tmp`.
+
+L'output interattivo dovra essere streaming:
+
+```text
+[S1 1/4 START] routing.agent-search.en
+[S1 1/4 PASS ] 184 ms  winner=piact
+[S1 2/4 FAIL ] 121 ms  expected=piact observed=compound_math
+first broken contract: router.ownership
+next: stop (candidate rejected)
+```
+
+Il report finale resta ordinato e riproducibile, ma non trattiene il primo
+verdetto. Sono sempre visibili queue time, build time, test time, cache status,
+ETA e ragione di escalation.
+
+### 10.18 Replay degli oracle costosi
+
+Planner, repair e localizzazione devono poter esplorare su Observation e
+diagnostic sigillati gia raccolti. Il record/replay non e un giudice simulato:
+
+- il trace nasce da compiler, pytest, filesystem o Docker reale;
+- la stessa `ToolPort`/vtable alimenta fake, replay e live;
+- ogni Action deve combaciare esattamente per schema/versione/argomenti/input
+  digest con un arco della capsule; una deviazione produce `replay_miss`, mai la
+  prossima risposta canned e mai un fallback live automatico;
+- fixture, working-tree snapshot, tool, OS/env o container image invalidano il
+  replay;
+- il core decisionale puo provare molte policy in millisecondi;
+- solo il survivor torna all'adapter/oracle reale.
+
+I livelli di evidenza restano distinti:
+
+```text
+model/fake       prova solo invarianti del planner
+strict replay    prova decisioni sugli archi osservati
+live hermetic    prova adapter, filesystem/compiler e side effect reali
+field            prova l'envelope esterno
+```
+
+Un transcript lineare non supporta una policy che sceglie un'azione nuova: la
+capsule deve essere un grafo keyed by Action, oppure la nuova azione resta
+simulation-only e scala esplicitamente a live. Un pass replay non diventa claim
+di agency live.
+
+Ogni failure costoso viene ridotto a un **counterexample capsule**: input minimo,
+Action/Observation con request hash, exit/signal, stdout/stderr e truncation,
+proprieta rotta, owner e oracle. Le capsule vengono sanificate da secret e path
+host non necessari. Non si riapre Docker o una API per
+rediscoverire a ogni edit lo stesso fatto.
 
 ---
 
@@ -951,7 +1359,7 @@ trainable_schema(
 ```
 
 Un predicato non registrato non puo essere promosso. Un fatto registrato ma mai
-letto dal consumer fallisce G0. Un validator deve controllare semantica locale,
+letto dal consumer fallisce S0. Un validator deve controllare semantica locale,
 non solo forma.
 
 ### 11.4 Provenance e verita
@@ -1009,7 +1417,7 @@ Tutti gli altri casi producono un vettore di sub-goal, non un falso solve.
 
 ### 12.3 Hard invariant
 
-- regressioni ratcheted: **0** per promotion;
+- nuove regressioni rispetto alla baseline fingerprinted: **0** per promotion;
 - successi dichiarati senza oracle disponibile: **0**;
 - fatti official senza provenance: **0**;
 - test tampering: **0**;
@@ -1021,6 +1429,10 @@ Tutti gli altri casi producono un vettore di sub-goal, non un falso solve.
 ```text
 leverage = heldout_edges_closed
            / (new_engine_LOC + weighted_new_schemas + maintenance_cost)
+
+learning_velocity = useful_directional_decisions / interactive_wall_clock
+
+promotion_velocity = heldout_edges_closed / promotion_cpu_seconds
 ```
 
 Non serve ottimizzare letteralmente una formula. Serve impedire che 50 nuovi
@@ -1031,7 +1443,26 @@ fatti vengano confusi con una nuova facolta. Le metriche da osservare sono:
 - riuso di una procedura in domini diversi;
 - costo marginale di aggiungere un linguaggio/repo;
 - regressioni evitate dalla promotion policy;
-- tempo tra failed lesson ed engine pull verificato.
+- tempo tra failed lesson ed engine pull verificato;
+- edit-to-first-verdict P50/P95;
+- time-to-first-counterexample P50/P95;
+- candidate valutate e scartate per ora;
+- percentuale di candidate che raggiunge ogni livello del funnel;
+- cache hit valida, selector miss e tempo speso in queue/build/test;
+- CPU-secondi per controesempio nuovo e per promotion.
+
+SLO iniziali sull'host di riferimento:
+
+| Segnale | Obiettivo |
+|---|---:|
+| exact/focal warm P95 | <= 5 s |
+| impact P95 | <= 10 s |
+| primo evento visibile | <= 500 ms |
+| full offline Temper | <= 60 s in background |
+| selector miss osservati su corpus storico+mutation | 0, con denominatore pubblicato |
+
+Finche questi SLO non tengono, il numero di test o feature non e una misura di
+progresso. Il runner e il collo di bottiglia della crescita e ha priorita.
 
 ### 12.5 LLMSCORE, basic-chat e mimic
 
@@ -1046,40 +1477,47 @@ fatti vengano confusi con una nuova facolta. Le metriche da osservare sono:
 ## 13. Dependency DAG
 
 ```text
-W0 truth ledger + baseline verde + benchmark semantics
- |\
- | +--> secure executor + transactional workspace
- |
- +----> Forge knowledge: quarantine + holdout + promotion
+W0 truth ledger (gia avviato)
           |
-          +--> structured Gap + provenance + procedure proof
-                  |
-                  +--> typed Agent kernel + action schemas
-                           |
-                           +--> inspect/edit/verify/replan loop
-                                  |              |
-                                  |              +--> multi-file + git
-                                  |
-                                  +--> common code IR + repository index
-                                                 |
-                                                 +--> issue -> region
-                                                        |
-                                                        +--> cold SWE repair
+          v
+FAST FORGE: focal runner + forkserver + trace + impact + cache
+      |                    |                         |
+      |                    |                         +--> promotion/nightly
+      |                    |
+      |                    +--> counterexample capsule + record/replay
+      |                                      |
+      v                                      v
+typed decision core <---------------- simulated/replayed observations
+      |                                      |
+      +--> planner/action schemas             +--> code IR/index fixtures
+      |            |                                 |
+      |            +--> repair/CEGIS                  +--> issue -> region
+      |                         |                              |
+      +-------------------------+------------------------------+
+                                |
+                                v
+                    secure live adapters + PatchArtifact
+                                |
+                                v
+                     cold task / VTC / field oracle
 
-procedure learning + solver + code IR
-                 |
-                 +--> markdown/spec -> constraints/schema
-                                  |
-                                  +--> CEGIS synthesis + feature tasks
-                                                 |
-                                                 +--> Forge engine
+Forge knowledge --> procedure proof --> markdown/spec -> schema -> builder
                                                         |
-                                                        +--> dogfood parrot0
+                                                        +--> Forge engine
+                                                                |
+                                                                +--> dogfood
 ```
 
-Le frecce sono prerequisiti reali. Dentro ogni nodo, il prossimo incremento e
-scelto dal primo gap con migliore combinazione di frequenza, oracle, riuso e
-rischio.
+Il planner non deve aspettare che l'intero executor sicuro sia finito per poter
+essere esplorato: lavora contro tool contract e Observation replayate. L'executor
+sicuro resta un prerequisito per l'attivazione live, non per i test del core.
+Simmetricamente, localizer e repair possono evolvere su IR e diagnostic
+sigillati; il survivor viene poi ancorato al parser, filesystem e oracle reali.
+
+Questa separazione ports/adapters rompe la vecchia catena tutta seriale senza
+indebolire la prova finale. Dentro ogni nodo, il prossimo incremento e scelto
+dal primo gap con migliore combinazione di frequenza, oracle, riuso, rischio e
+**informazione attesa per secondo**.
 
 ---
 
@@ -1089,24 +1527,64 @@ Le ondate non assegnano date o un numero rigido di generazioni. Ogni riga resta
 una generazione distinta e viene saltata se la pressione reale indica un
 prerequisito diverso.
 
-### W0 - Verita prima della velocita
+### W0a - Verita della baseline (prima parte completata)
 
-**Obiettivo:** nessuna crescita su baseline falsa.
+**Obiettivo:** sapere cosa misura ogni benchmark e impedire claim falsi.
+
+Gen313-gen317 hanno gia chiuso le regressioni iniziali, il primo manifest delle
+semantiche, il capability ledger e il version drift. Restano hash granulari di
+oracle/fixture, known-red ledger e l'audit delle classificazioni: `glue`,
+`mimic`, MMLU e BBH mostrano che il manifest corrente non coincide ancora con
+il comportamento degli script. `make gate` ha l'intento corretto, ma la sua
+forma seriale e opaca non e il loop interattivo.
+
+**Gate di uscita corretto:** una baseline core/coding/agent sigillata e
+fingerprinted. I tre replay globali vengono rimossi da W0: appartengono al
+champion Release/Nightly e non devono essere duplicati.
+
+### W0b - Fast Forge, direzione prima della certificazione
+
+**Obiettivo:** rendere un esperimento economico, progressivo e attribuibile
+prima di aggiungere altre feature o altra burocrazia di promotion.
 
 Deliverable:
 
-1. riparare le regressioni correnti `agent_search`, code `defines/locate` e
-   sortlearn, senza inseguire gli output specifici;
-2. manifest machine-readable dei benchmark con semantica `gate`, `discovery`,
-   `degrade`, `external`;
-3. `make capability-report` con stato e commit;
-4. `brain_version` derivato dal build/commit o verificato automaticamente;
-5. suite `make gate` che include tutti i ratchet obbligatori per area;
-6. test-engine persistente/differenziale per feedback rapido;
-7. hash degli oracle e dei fixture.
+1. profiler granulare e protocollo eventi streaming con first-failure immediato;
+2. `make check TEST=<id>` e catalogo incrementale con owner, costo, tier,
+   isolamento, dipendenze e oracle; M-1a richiede un solo contratto reale, poi
+   ogni area migra quando viene toccata;
+3. build tree separati `obj/dev` + `bin/dev` e `obj/release` + `bin/release`, dipendenze reali
+   `-MMD -MP` e benchmark O0/Og/O1 su **compile + focal runtime**; oggi il solo
+   TU brain costa 1.92 s a O0 contro 9.33 s a O2, ma vince il profilo totale piu
+   rapido, non O0 per decreto;
+4. versione/commit isolati in una piccola TU/header nel build dir, senza
+   ricompilare ogni object o cambiare il fingerprint semantico dell'engine;
+5. `gate-result.json` content-addressed; capability report e ablation consumano
+   evidenza valida senza rilanciare la stessa matrice;
+6. scheduler centrale fail-fast con resource token, porte effimere e shard per
+   durata storica;
+7. benchmark fresh-exec batching vs persistent reset vs forkserver; implementare
+   il vincitore con differential fresh-exec e kill criterion;
+8. response/trace strutturata e separazione dei golden di rendering;
+9. impact graph dichiarativo + dinamico, corpus hot/cold e canary globale;
+10. cache CAS con audit dei miss del selettore;
+11. counterexample capsule e strict record/replay per oracle costosi.
 
-**Gate di uscita:** tre replay puliti della matrice core/coding/agent; zero
-regressioni; report identico.
+Questa non e una mega-fase da completare tutta prima di tornare alle capability.
+Si promuove in tre milestone utilizzabili subito:
+
+- **M-1a Direction:** item 1-2, un contratto focale reale con streaming e
+  fail-fast entro 5 s. Dopo questo W1-W9 possono riprendere con slice verticali;
+- **M-1b Throughput:** item 3-6, niente doppio gate/report e full offline <= 60 s
+  in background;
+- **M-1c Scale:** item 7-11 solo quando il profilo li tira: runner vincitore,
+  trace/impact/cache/replay, ciascuno con speedup o decisione reale misurata.
+
+Gate cumulativo di M-1: per 20 modifiche consecutive, focal P95 <= 5 s, impact
+P95 <= 10 s, primo evento <= 500 ms; selector con zero miss **osservati** sul
+corpus rosso dichiarato; equivalenza canonica col fresh-exec. Non serve attendere
+M-1c per esplorare, ma nessuna wave puo aggiungere un nuovo black-box sincrono o
+peggiorare gli SLO senza prima ripagare il costo.
 
 ### W1 - Forge knowledge v1
 
@@ -1146,6 +1624,10 @@ Deliverable:
 **Gate di uscita:** suite adversarial safety verde; edit multi-file in worktree,
 test e rollback riproducibili.
 
+W2 e prerequisito per **agire live**, non per esplorare W3: planner e repair
+usano da subito gli stessi tool contract contro adapter in-memory o Observation
+replayate. Il passaggio al vero executor avviene solo dopo i contract test.
+
 ### W3 - Agent kernel MVP
 
 **Obiettivo:** il primo workflow completo su un task single-repo.
@@ -1155,15 +1637,16 @@ Deliverable:
 1. Event/Task/Goal/Action/Observation/Artifact/Verdict/Gap;
 2. event log JSONL;
 3. action schemas nel KB;
-4. planner che deriva `inspect -> edit -> verify`;
+4. planner puro che deriva `inspect -> edit -> verify` su trace replayate;
 5. repair loop bounded su candidato volutamente errato;
 6. renderer finale con diff, test e limiti;
 7. adapter multi-turn: system, history, tool results, input multiline;
 8. checkpoint/resume del task.
 
-**Gate di uscita:** su una fixture mai vista il sistema localizza, modifica,
-fallisce una prima verifica, ripara e passa; ablation di un'action schema rende
-il gap esplicito.
+**Gate di uscita:** prima lo stesso core chiude rapidamente un counterexample
+capsule, poi su una fixture live mai vista localizza, modifica, fallisce una
+prima verifica, ripara e passa; ablation di un'action schema rende il gap
+esplicito.
 
 ### W4 - Repository intelligence
 
@@ -1178,7 +1661,8 @@ Deliverable:
 5. issue constraint extraction;
 6. ranking issue->file/symbol con proof;
 7. repo con decoy e clean negatives;
-8. test-to-code map.
+8. test-to-code map runtime per la selezione dei test del repository target; la
+   mappa dei test di parrot0 stesso e gia anticipata in W0b.
 
 **Gate di uscita:** localizzazione top-5 >= 80% su una campagna fredda multi-repo,
 top-1 misurato e nessun hint dell'harness; i numeri sono iniziali e vanno
@@ -1249,7 +1733,8 @@ Deliverable:
 3. review esterna e promotion forge;
 4. sessioni lunghe checkpointable;
 5. profiling e indici KB;
-6. modularizzazione reale delle translation unit quando tirata da test/build;
+6. modularizzazione restante delle translation unit quando tirata da confini
+   runtime; la prima estrazione guidata dalla latenza appartiene a W0b;
 7. campagne su repository, linguaggi e build system diversi.
 
 **Gate di uscita:** una generazione utile di parrot0 nasce dalla pipeline forge
@@ -1278,23 +1763,36 @@ giustifica la perdita degli hard invariant.
 
 ## 15. Le prime 12 generazioni proposte
 
-Questo e l'ordine concreto iniziale, rivedibile solo se un gate mostra un
-prerequisito diverso.
+Le prime cinque generazioni della lista originale sono state sostanzialmente
+chiuse da gen313-gen317. Hanno anche mostrato il problema: `make test` impiega
+circa 171 s, l'insieme dei sei gate 233.52 s e capability-report puo pagarlo di
+nuovo: gate + report arrivano a circa 7m47s. La sequenza viene quindi
+sostituita. Queste sono le prossime dodici promotion piccole; tra una promotion
+e l'altra sono ammessi molti esperimenti
+scartabili.
 
 | # | Contratto singolo | Gate |
 |---:|---|---|
-| 1 | ripristinare `agent_search` EN/IT senza rompere aritmetica composta | `make test` verde |
-| 2 | chiudere i due routing regressi del code-bench | 25/25 code gate |
-| 3 | ripristinare l'isolamento forget di sortlearn | 9/9 sortlearn |
-| 4 | manifest dei benchmark e semantica gate/degrade | report verificabile |
-| 5 | capability ledger generato + version drift gate | stato derivato dai test |
-| 6 | autolearn multiplier 0 + schema registry stretto | facts morti respinti |
-| 7 | ledger completo e candidate id/provenance | replay di ogni decisione |
-| 8 | overlay quarantine + promotion/rollback atomici | nessuna write diretta |
-| 9 | challenge pack + ablation + negative | cattivo seed respinto |
-| 10 | holdout nascosto + metamorphic EN/IT | prima capability TRANSFER |
-| 11 | executor argv-based con timeout/process group | shell injection impossibile |
-| 12 | Gap tipizzato emesso dal repair workflow | niente decline opaco |
+| 1 | indirizzare `routing.agent-search.en` per id con START/PASS/FAIL streaming | quel contratto focale < 5 s, fail-fast reale |
+| 2 | esporre le righe `expect` di `llmscore_world` per id, provandone una | identico oracle; un probe scelto gira da solo |
+| 3 | rendere manifest e exit semantics coerenti per glue/mimic/MMLU/BBH | audit automatico rosso sulla classificazione falsa |
+| 4 | separare `obj/dev`+`bin/dev` da `obj/release`+`bin/release` | cambiare CFLAGS non riusa object incompatibili |
+| 5 | scegliere O0/Og/O1 sul tempo compile+focal, non per ipotesi | profilo dev vincente e hot differential O2 verde |
+| 6 | generare dipendenze `.d` precise | header locale ricompila solo la closure reale |
+| 7 | isolare commit/version in TU e build dir | commit neutro ricompila version object + link, non il brain |
+| 8 | fare emettere al gate corrente un artifact exact con digest | un run produce verdict riusabile e auditabile |
+| 9 | rendere capability-report trasformazione pura dell'artifact | gate+report eseguono i sei target una volta sola |
+| 10 | isolare porte/tmp/log di piagent e sortlearn | due run concorrenti non collidono |
+| 11 | shardare i 125 casi di `llmscore_world` sotto un budget globale | 68.95 s ridotti senza nested oversubscription |
+| 12 | scheduler globale per gli atomici estratti, senza nested parallelism | full policy set <= 60 s oppure nuovo profilo rosso preciso |
+
+Ogni riga deve ridurre una latenza misurata o chiudere nello stesso incremento
+un counterexample reale. Infrastruttura che non migliora un numero o una
+decisione non merita una generazione.
+
+Il primo pull M-1c e poi il torneo su 50 casi tra fresh batch, reset e
+forkserver; il vincitore viene implementato solo se il gate #12 mostra che serve
+ancora e se supera il kill criterion di §10.14.
 
 Poi la frontiera sceglie tra:
 
@@ -1311,18 +1809,20 @@ rischio e effort. Non usa il fascino della feature.
 
 ## 16. Tre campagne fondatrici
 
-### C1 - Routing senza collisioni
+### C1 - Routing senza collisioni (campagna storica da replay)
 
-**Minerale:** `agent_search` viene risolto da aritmetica; due code request vengono
-risolte da knowledge.
+**Minerale storico:** `agent_search` veniva risolto da aritmetica; due code
+request venivano risolte da knowledge. I fix sono atterrati in gen313-gen315;
+ora la campagna serve come corpus rosso per validare selector e trace.
 
 **Scopo:** introdurre ownership/proposal evidence senza hardcodare i prompt.
 
 **Holdout:** stessi intenti con numeri, nomi, lingua e ordine differenti; negativi
 di aritmetica pura e query knowledge pure.
 
-**Promotion:** tutti i vecchi gate verdi, ablation positiva, trace mostra la
-ragione della selezione.
+**Promotion:** il champion passa la Release policy corrente, ablation positiva e
+trace mostra la ragione della selezione; non si invoca una lista stale di
+"vecchi gate" durante ogni Tick.
 
 ### C2 - Procedura fresca -> codice
 
@@ -1364,13 +1864,16 @@ reuse           quanti assi/campagne puo sbloccare
 transfer        probabilita motivata di generalizzazione
 risk            sicurezza e blast radius
 effort          generazioni e costo di verifica
+verification_ms costo storico per ottenere il prossimo verdetto
+information     quante ipotesi il prossimo test puo discriminare
 ```
 
 Priorita indicativa:
 
 ```text
 priority = frequency * severity * oracle_quality * reuse
-           / (risk * effort)
+           * information
+           / (risk * effort * verification_ms)
 ```
 
 Non e una funzione da ottimizzare ciecamente. Serve a rendere esplicita la
@@ -1381,6 +1884,11 @@ decisione e a rispettare la pivot duty:
 - se il C cresce piu velocemente dei predicati/regole riusabili, fermarsi;
 - se un benchmark puo essere vinto con una scorciatoia, rafforzare prima l'oracolo;
 - se i test rallentano la selezione, ottimizzare il feedback prima delle feature.
+
+La scelta di **cosa provare subito** e distinta da cosa promuovere. Per orientare
+il prossimo Tick vince il test economico che separa meglio le ipotesi vive. Per
+la promotion continuano a vincere correttezza, hard invariant, transfer e minor
+blast radius; la velocita non puo compensare una risposta falsa.
 
 ---
 
@@ -1411,6 +1919,32 @@ Regole:
 ---
 
 ## 19. Criteri di milestone
+
+### M-1a - Direzione immediata
+
+- almeno un contratto reale indirizzabile per id, risultato streaming e
+  fail-fast;
+- focal P95 <= 5 s e primo evento <= 500 ms;
+- timeout, flaky e infra error distinti dai fallimenti funzionali.
+
+### M-1b - Throughput di promotion
+
+- build dev/release separate e dipendenze incrementali corrette;
+- capability report non riesegue gate gia attestati;
+- full offline policy set <= 60 s in background sull'host di riferimento;
+- runner senza collisioni di porta/workspace o nested oversubscription.
+
+### M-1c - Scala selettiva
+
+- il runner persistente/forkserver scelto dal benchmark e canonicamente
+  equivalente al fresh-exec sul campione;
+- impact selector con zero miss osservati sul corpus rosso storico+mutation,
+  recall e denominatore pubblicati, fallback full su ownership ignota;
+- strict replay rifiuta Action non presenti e non produce claim live.
+
+M-1a e la milestone corrente; abilita subito nuove slice verticali. M-1b e M-1c
+vengono tirate dai profili, non diventano mesi di infrastruttura upfront. Senza
+M-1a ogni nuovo ratchet aumenta il tempo di apprendimento del sistema.
 
 ### M0 - Baseline affidabile
 
@@ -1484,6 +2018,16 @@ riproducibile e allargabile.
 - Non chiamare learn->build una catena con schema curato a mano.
 - Non fare un modulo C per ogni costrutto che puo essere una regola.
 - Non lasciare tutte le varianti attive solo per rispettare keep-secondary.
+- Non eseguire la full matrix dopo ogni edit o per ogni candidata.
+- Non usare golden testuali per verificare logica che puo avere un verdict
+  strutturato.
+- Non usare un reset parziale in-process come sostituto dell'isolamento senza
+  differential fresh-exec.
+- Non fidarsi dell'impact selector per una promotion senza audit/full Release.
+- Non riaprire un oracle esterno per ogni tentativo quando una Observation
+  sigillata puo guidare il core.
+- Non rieseguire in capability-report gli stessi gate appena certificati.
+- Non nascondere output e primo failure fino al termine della matrice.
 - Non rendere il grand plan una coda rigida: i gate devono poter cambiare il
   prossimo pull.
 - Non ottimizzare LLMSCORE a scapito di verita, agency e coding VTC.
@@ -1496,6 +2040,9 @@ riproducibile e allargabile.
 > **Scaldare un fallimento reale, batterlo in piu varianti, temprarlo su casi che
 > non ha visto, e promuoverlo solo quando l'oracolo dimostra che e diventato una
 > capacita.**
+
+Il Tick deve dare direzione prima che si raffreddi l'ipotesi; il martello grande
+cade una volta sola sul metallo che ha gia superato i colpi piccoli.
 
 Il compito della fucina non e produrre piu codice. E trasformare la pressione in
 struttura riusabile. Quando un fatto basta, imparare il fatto. Quando serve una

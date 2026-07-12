@@ -1,10 +1,73 @@
 # Making the test suite fast
 
-> Translated from the original Italian note (`ottimizzare-i-test.md`) and
-> extended at gen277 with an analysis of the `--test-engine` strategy F. proposed:
-> is it genuinely worth building, or a waste of energy?
+> **Status 2026-07-12:** historical analysis, superseded operationally by
+> **Fast Forge** in `parrot0-forge-master-plan.md` §§0.1, 10.6 and 10.12-10.18.
+> The gen277/gen278 parallelism remains useful, but it no longer solves the
+> current suite and a reset-based persistent engine is no longer the preferred
+> endgame. The leading POSIX hypothesis is a forkserver plus fresh-exec
+> differential verification, but it must beat batching and persistent reset in
+> a measured prototype before becoming architecture.
 
-## Measured timings of `make test`
+## Current baseline and revised verdict (2026-07-12)
+
+Measurements on the 22-core development host, warm binary, output suppressed:
+
+| Path | Wall time | CPU/user signal |
+|---|---:|---:|
+| no-op build | 0.02 s | negligible |
+| full release rebuild (`-O2`) | 12.37 s | brain unity TU dominates |
+| `tests/run.sh` | 21.37 s | 351.64 user-s |
+| `make test` | 171.11 s | 503.94 user-s |
+| `make code-bench` | 24.29 s | 22.51 user-s |
+| `make compose-bench` | 17.24 s | 7 per-dialog process launches |
+| `make glue-bench` | 12.81 s | 11 per-dialog process launches |
+| `make gate` (six offline targets) | 233.52 s | 561.83 user-s |
+| `make gate` + capability report | about 467 s | same gates twice |
+
+Inside `make test`, the current leaders are `llmscore_world.sh` 68.95 s,
+`run.sh` 21.37 s, `knowledge.sh` 15.30 s, `profiles.sh` 8.66 s and
+`grammar.sh` 8.15 s. The old approximately 51 s baseline below described a
+smaller suite and must not be used for planning.
+
+`gate.py` produces no progress during the first approximately 171 seconds
+because target output is captured, and it keeps running later targets after a
+red result. The current gate+capability-report workflow is therefore about
+7m47s and feels opaque even when it eventually succeeds.
+
+The revised conclusion is broader than “make `run.sh` parallel”:
+
+1. **Do not put the full suite in the edit loop.** Run exact contract, collision
+   negatives and impacted hot corpus first; full regression belongs to the one
+   promotion champion.
+2. **Benchmark a forkserver for conversational isolation.** Compare a 50-case
+   prototype against fresh-exec batching and persistent reset. If it wins, load
+   Brain/KB once, fork a child per session and let process exit discard mutable
+   RAM; if it fails the speed/differential kill criterion, keep the simpler
+   winner.
+3. **Expose semantic verdicts.** Tests of routing/inference should assert
+   status/winner/proof rather than paying for exact text and every adapter.
+4. **Catalog individual contracts and select by impact.** Target ownership,
+   dynamic trace, history and a global canary; audit the selector against the
+   full nightly suite.
+5. **Cache sealed evidence and never run it twice.** In particular,
+   `capability-report` must consume a matching gate artifact rather than rerun
+   the gate.
+6. **Split dev and release build trees, then benchmark the dev profile.** The
+   dominant brain TU compiles in about 1.92 s at `-O0`, 4.89 s at `-O1` and
+   9.33 s at `-O2`; choose O0/Og/O1 on compile+focal wall time, keep objects
+   separate and verify the champion with release flags.
+7. **Stream progress and first failure.** Deterministic final ordering must not
+   mean withholding all useful output until completion.
+
+The historical material below is kept because it documents why parallelism was
+introduced and the isolation bugs it exposed. Its “test-engine is the endgame”
+recommendation is superseded by the measured runner tournament above.
+
+---
+
+## Historical gen277/gen278 analysis
+
+### Measured timings of the then-current `make test`
 
 Binary already compiled, real numbers from one pass:
 
@@ -32,7 +95,7 @@ Binary already compiled, real numbers from one pass:
 | wiki_learning  |    0.12 |       0.2% |
 | **TOTAL**      | **~51.4 s** | **100%** |
 
-## The bottleneck is `run.sh`
+### The bottleneck was `run.sh`
 
 On its own it accounts for 34.6 s ≈ 67% of all of `make test`. The reason is
 **structural, not a slow turn**:
@@ -49,7 +112,7 @@ turns in 1.27 s, most of which is still startup).
 The other tests are all under 3 s; `wiki_learning`/`research_learn` are very fast
 because they are offline by default (the fetch is gated).
 
-## The levers, in order of effectiveness
+### The levers considered, in order of effectiveness
 
 1. **Run a single process across many conversations in `run.sh`** (would need a
    session separator in the `.chat` protocol) — removes most of the 34 s.
@@ -59,7 +122,7 @@ because they are offline by default (the fetch is gated).
 
 ---
 
-# The `--test-engine` strategy — analysis (gen277)
+### The `--test-engine` strategy — analysis (gen277, historical)
 
 **The mission (F.).** Make the tests *extremely* fast. The idea: parrot0 is
 itself a **test engine**. Launching `parrot0 --test-engine` starts a service that
@@ -67,9 +130,9 @@ accepts dialog files (or texts) framed as tests with expectations; **no new
 processes are spawned** — every test is run by a single instance. All tests
 should be easy to reduce to this technology.
 
-## Verdict up front
+#### Verdict at gen277
 
-**The idea is sound and NOT a waste of energy — parrot0 already has the exact
+**The conclusion at gen277 was:** the idea is sound and NOT a waste of energy — parrot0 already has the exact
 primitives it needs — but it is not the highest-ROI *first* move, and it carries
 one real risk that must be managed.** The honest recommendation is a sequence:
 parallelism first (a one-liner, same single-machine payoff, zero risk), then the
@@ -77,7 +140,7 @@ test-engine as the structural endgame that *composes* with parallelism and
 unifies the harness — built on the **robust** whole-brain reset, never a sloppy
 partial one, and guarded by a differential check against the per-process oracle.
 
-## Why the idea is genuinely good
+#### Why the idea is genuinely good
 
 1. **It targets the actual cost.** The 34.6 s of `run.sh` is 209 × (fork + exec +
    dynamic-link + KB load), i.e. startup, not inference. One persistent process
@@ -109,7 +172,7 @@ partial one, and guarded by a differential check against the per-process oracle.
    each running a shard of the cases, gives (cores) × (no-respawn) speedup —
    strictly better than either lever alone.
 
-## The real risks (and how to keep it from becoming a waste)
+#### The real risks (and how to keep it from becoming a waste)
 
 1. **Isolation is a FEATURE, not just overhead — do not trade it away.** The whole
    reason each case runs in a fresh process today is hermetic isolation: a bug
@@ -145,7 +208,7 @@ partial one, and guarded by a differential check against the per-process oracle.
    reduces to one engine" over-promises; scoped to the conversation suite it is
    exactly right.
 
-## A rough cost model (to keep the claims honest)
+#### A rough cost model (to keep the claims honest)
 
 - Today: `run.sh` ≈ 34.6 s = 209 × ~166 ms, of which the great majority is
   startup, a small tail is the ~1320 turns.
@@ -161,12 +224,12 @@ partial one, and guarded by a differential check against the per-process oracle.
   acceptable behind the differential gold-oracle guard above.
 - **Both (sharded engines):** the floor, and the right long-term shape.
 
-## Recommendation
+#### Recommendation made at gen277
 
 1. **Now (free win):** parallelize `run.sh` with `xargs -P` (or GNU `parallel`),
    keeping each case in its own process. Immediate ~10× on this machine, zero
    risk, nothing new to maintain.
-2. **Then (the endgame):** build the test-engine — ideally as an MCP tool
+2. **Then (called the endgame at the time):** build the test-engine — ideally as an MCP tool
    `test.run` on the existing `--mcp-engine`, or a thin `--test-engine` mode —
    using `brain_reload` as the reset. Scope it to the `.chat` conversation suite.
    Add a differential CI check: a sample of cases must produce identical verdicts
@@ -175,7 +238,7 @@ partial one, and guarded by a differential check against the per-process oracle.
    `synth`, `posix`) on their own path — they test things a single instance
    structurally cannot.
 
-## Implemented — recommendation #1 (gen278)
+### Implemented — recommendation #1 (gen278)
 
 `tests/run.sh` now runs the cases in parallel via `xargs -P` (degree
 `$PARROT0_TEST_JOBS`, default `nproc`), each case still in its own hermetic
@@ -197,9 +260,12 @@ This is exactly the "parallelism is not entirely free — shared mutable state
 hides here" lesson; it was in the C temp files, not in the brain state, and it is
 now closed. `.gitignore` gained `.p0_*`.
 
-Recommendation #2 (the test-engine) remains the endgame, unblocked and unchanged.
+Historical note written at gen278: recommendation #2 was then considered the
+endgame. **This sentence is superseded as of 2026-07-12:** build the forkserver
+prototype and its alternatives first; implement the measured winner and verify
+it against fresh-exec.
 
-**In one line:** the test-engine is a legitimate, on-brand extension that parrot0
+**Historical gen278 summary:** the test-engine is a legitimate, on-brand extension that parrot0
 is already 90% equipped for; it becomes a waste only if it is built with a sloppy
 reset that trades away hermetic isolation, or if it is done *instead of* the
 one-line parallelism win rather than *after and alongside* it.

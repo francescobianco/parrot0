@@ -18,47 +18,85 @@ from iterating this loop.
 - The brain must keep `brain_respond()`'s signature so the harness always
   compiles and tests.
 
-## One iteration
+## Unit of work: experiment != generation
 
-1. **Select/read the task.** `TASK.md` holds the single current goal. If it is
-   empty or done, promote exactly one next item from `TASKLIST.md` into
-   `TASK.md` before observing. Do not substitute a local housekeeping idea unless
-   the user explicitly asks for it.
-2. **Observe.** Run `make chat` and talk to the current generation. Notice
-   where it fails the task.
-3. **Hypothesize.** Decide the smallest algorithmic change to `brain.c` that
-   moves toward the task. Prefer one idea per iteration.
-4. **Self-challenge parity.** Before editing, restate the current `TASK.md`
-   problem to parrot0 as a conversational challenge about itself and ask what
-   should change. Do **not** let parrot0 manage itself: it must not edit files,
-   choose the task, run tests, commit, or push. Judge only the quality of its
-   proposed solution against the external agent hypothesis: did it name the
-   missing behaviour, the likely module/dispatch point, the test ratchet, the
-   version / journal bookkeeping, and its limits? If its support is weaker than
-   the external solution, record that gap; it may become the next task.
-5. **Implement.** Edit `brain.c`. Bump `brain_version()` if behaviour changed.
-6. **Encode the expectation.** Add/adjust a case in `tests/cases/*.chat` that
-   captures the new behaviour you want to hold forever. **Then add the
-   equivalent `tests/cases/*.it.chat` case** that exercises the *same* behaviour
-   in Italian through the *same* code path (gen43). This is the bilingual
-   ratchet: a competence proven in two languages lives in the algorithm, not in
-   an English phrasebook (PRINCIPLES.md). If the Italian case passes only by
-   *duplicating logic* (not by extending the `canonicalize_lang` lexicon), stop
-   - that is the signal the logic was overfit to English; fix the core instead.
-   Italian is not scored by the bench; it is the internal generalization probe.
-7. **Verify.** `make test` must pass (old behaviour preserved, new behaviour
-   present). `make chat` should feel better.
-8. **Stress the feature (mandatory).** When experimenting with a new feature,
-   first try it with basic, minimal experiments. Once it works, immediately add
-   or run a trial set roughly **10x more complex** to see whether the structure
-   generalizes or only survives the toy case.
-9. **Record.** Append a dated entry to `JOURNAL.md`: what changed, why, what
-   you observed, what comes next.
-10. **Commit & push.** Run `convcommit` to commit the iteration and push it to the
-   remote (e.g. `convcommit -t feat -s brain -m "genN - one-line summary" -a -p`).
-   Every iteration ends with a pushed commit, so each generation is an atomic,
-   recoverable step on the remote - never batch several generations into one push.
-11. **Iterate.** Go back to step 1.
+- A **Tick** is one cheap hypothesis and its first directional verdict. It may be
+  discarded; it is not a generation and does not require a commit or full suite.
+- A **Turn** selects whether a locally-green candidate deserves transfer tests.
+- A **generation** is one promoted champion, after the expensive Release gate.
+- Many Ticks may compete inside one generation. Only the winner pays complete
+  regression, determinism replay and the full adversarial safety campaign.
+- Containment, resource limits, test/oracle tamper protection and workspace
+  isolation apply to **every** executed candidate; they are not deferred.
+
+This distinction preserves atomic generations while removing the old mistake
+of treating every edit as if it were already a release candidate.
+
+## One generation
+
+1. **Select/read one contract.** `TASK.md` holds the current goal. If it is empty
+   or done, promote exactly one next item from `TASKLIST.md`. Seal a minimal red
+   contract/counterexample and name its owner and mechanical oracle. Do not
+   substitute unrelated housekeeping unless the user asked for it.
+2. **Observe focally.** Prefer `make check TEST=<id>` once W0b provides it; until
+   then drive the exact fixture/script directly instead of using the whole suite
+   as a probe. Use `make chat` only when live conversation is the contract.
+   Record the first broken semantic layer, not merely the final wrong sentence.
+3. **Hypothesize.** Produce one small idea, or several explicit alternatives
+   when comparison is informative. Rank the next probe by information gained
+   per second.
+4. **Self-challenge parity once per candidate family.** Restate the task to
+   parrot0 and compare its proposal with the external hypothesis. Do **not** let
+   parrot0 edit files, choose the task, run tests, commit or push. Repeating the
+   same self-challenge after every mechanical edit adds latency but no evidence.
+5. **Implement an experiment.** Work in an overlay/worktree where possible.
+   Use the dev build once W0b provides separate build trees; until then use the
+   current build and the exact focal test. Keep the change reversible. A failed
+   experiment is deleted or archived as a counterexample; it does not consume a
+   generation.
+6. **Encode the expectation at the lowest truthful seam.** Prefer a structured
+   status/winner/proof/action assertion once that seam exists; until then use the
+   smallest honest golden or direct oracle. Exact text belongs to rendering or
+   public CLI contracts. Add the equivalent Italian case when the behaviour is
+   linguistic, through the same code path; never duplicate logic to pass it.
+7. **Tick — Spark + Focal.** Run static/build checks, the exact red test and a
+   few collision negatives. Stop at the first counterexample. Iterate steps
+   3-7 rapidly; do not run `make test` after each edit.
+8. **Turn — Impact + stress.** Only locally-green candidates run the hot impact
+   slice and the roughly **10x more complex** trial. Mutation, EN/IT and visible
+   variants choose one champion. Only after that choice is frozen may the
+   champion see the promotion holdout. If it fails, that case becomes train and
+   a new holdout is sealed before the next attempt. Reject or keep in shadow;
+   never hide timeout, flaky harness or infra error as a functional result.
+9. **Freeze one champion and use the promotion mode actually available.** The
+   Impact selector never replaces full promotion regression.
+
+   - **Legacy transition (today):** run exactly one `make gate` on the finalized
+     working tree (`gate` already includes `make test`). If green, this permits a
+     legacy generation, but does **not** prove Forge attestation, exact-artifact
+     identity, atomic rollback or generalized oracle-integrity; do not claim
+     those properties before their milestones land.
+   - **Forge promotion (after W0b/W1/W2 provide it):** finalize source, tests,
+     KB, manifest/policy and the pre-run decision record; create a candidate
+     commit on a temporary ref; checkout/build that exact commit; run promotion
+     holdout, the full offline ratchet, oracle-integrity, required safety,
+     replay and rollback. The trusted controller writes evidence outside the
+     candidate worktree, keyed by candidate commit and release-binary digest.
+10. **Record without changing a Forge candidate.** In legacy mode append the
+    dated journal entry after the green gate and state explicitly that evidence
+    is legacy. In Forge mode the tracked pre-run record is already in the
+    candidate commit; the final verdict lives in the external attestation or an
+    annotated ref/tag that does not change that commit. A red candidate is not
+    activated.
+11. **Promote exactly what was tested.** Legacy mode uses `convcommit` once after
+    the gate and accepts that the resulting commit was not exact-artifact Forge
+    evidence. Forge mode fast-forwards/activates and pushes the **same candidate
+    commit** whose binary passed Release; no post-gate edit or relink is allowed.
+    Never batch multiple promoted contracts into one generation.
+12. **Anneal.** Nightly/periodic full, fresh-exec differential and field tests
+    may downgrade or rollback the package. Their result becomes the next
+    minimized hot counterexample, not a surprise rediscovered at the end of a
+    later generation.
 
 ## Principles
 
@@ -66,6 +104,10 @@ from iterating this loop.
   sentence.
 - **Tests are the ratchet.** Behaviour that earns a test never silently
   regresses.
+- **Feedback is progressive.** Cheap tests direct exploration; the full ratchet
+  certifies the survivor. Neither substitutes for the other.
+- **Latency is a constraint.** If Focal or Impact exceeds its budget, improve
+  the test seam before adding more synchronous black-box cases.
 - **Emergence over design.** Don't hand-build a grand architecture up front;
   let structure appear because the tasks demanded it.
 - **Stay pure C.** No runtime model, no network. Complexity is allowed; magic
