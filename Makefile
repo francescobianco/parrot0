@@ -278,6 +278,7 @@ test: build
 	@./tests/selflimits.sh
 	@./tests/syllogism.sh
 	@./tests/repair.sh
+	@./tests/learnbuild.sh
 	@$(BENCH_PY) ./tests/manifest_audit.py
 	@./tests/cuechains.sh
 	@./tests/archetype.sh

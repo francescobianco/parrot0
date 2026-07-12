@@ -43,3 +43,41 @@ program_output(hello_world, "Hello, World!").
 % created in the working directory under hard guards (plain basename, never
 % overwrite). Without this fact mod_reqgen only declines: KB is the switch.
 artifact_shape(empty_file, touch).
+
+% --- gen328 (TODO.md P3, forge C2/W6): the SCHEMA IS INDUCED, not curated ------
+% algo_shape(bubblesort, …) above is CURATED — a human wrote it. That is the
+% linear, impostor-shaped growth LOOP.md warns about: each new algorithm costs a
+% generation of C or a hand-written fact, so generation n buys capability n.
+%
+% The compounding move is to make a FRESH page produce its own schema. These
+% facts are what the inducer reads:
+%
+%   step_cue(Kind, "phrase")     which words in a step indicate which STEP KIND
+%   shape_signature(Shape, Kind) which kinds a SHAPE requires (one fact per kind)
+%
+% A page is reduced to the SET of step kinds it actually describes; a shape is
+% induced only when EVERY kind its signature requires is present. So the
+% induction is structural: it reads what the steps DO, never the algorithm's
+% name. A page describing a different structure (insertion sort shifts and
+% inserts; it never compares adjacent pairs across repeated passes) matches no
+% signature and is honestly declined — no schema is invented to have one.
+%
+% Teaching a new step kind, or a new shape's signature, costs a FACT.
+
+step_cue(repeat_passes, "repeat").
+step_cue(repeat_passes, "pass").
+step_cue(repeat_passes, "passes").
+step_cue(repeat_passes, "again").
+step_cue(repeat_passes, "until no swaps").
+step_cue(compare_adjacent, "adjacent").
+step_cue(compare_adjacent, "next to").
+step_cue(compare_adjacent, "neighbour").
+step_cue(compare_adjacent, "neighbor").
+step_cue(compare_adjacent, "each pair").
+step_cue(swap_out_of_order, "swap").
+step_cue(swap_out_of_order, "exchange").
+step_cue(swap_out_of_order, "switch them").
+
+shape_signature(nested_loop_compare_swap, repeat_passes).
+shape_signature(nested_loop_compare_swap, compare_adjacent).
+shape_signature(nested_loop_compare_swap, swap_out_of_order).

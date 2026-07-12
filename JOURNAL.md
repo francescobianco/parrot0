@@ -1,4 +1,55 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen328: the schema is INDUCED from a page (TODO.md P3, forge C2/W6)
+
+**The impostor was the curation.** `algo_shape(bubblesort, nested_loop_compare_swap)`
+was written by a human. Every new algorithm therefore cost a generation: growth
+n buys capability n, nothing compounds — exactly what LOOP.md warns is the
+phrasebook wearing a different hat. This is the only row on the TODO list whose
+point is that the NEXT row should get cheaper.
+
+**A page of steps now produces its own schema.** The page is reduced to the SET
+of step kinds it actually describes (`step_cue(Kind, "phrase")` facts say which
+words mean which kind), and a shape is induced only when EVERY kind its signature
+requires is present (`shape_signature(Shape, Kind)`). Both are KNOWLEDGE:
+teaching a new step kind, or a new shape's signature, costs a fact.
+
+**The algorithm's name is never read.** The proof is in the ratchet: the name is
+generated fresh every run and is nonsense, and it appears in no knowledge file —
+asserted explicitly, so a future lexical shortcut is caught. A page whose steps
+describe a bubble sweep builds and verifies whatever it is called:
+
+```
+you> learn zorble from these steps: repeat passes; compare adjacent items; swap when out of order
+p0 > Learned: those steps describe the nested_loop_compare_swap structure, so I now
+     have a schema for zorble.
+you> write a zorble function
+p0 > void zorble(int a[], int n) { … }
+     /* verified by execution: sorted ascending AND a permutation of the input on
+        8 vectors (run via the code_check_sort oracle) */
+```
+
+**The chain is causal in both directions, which is what C2 actually demands.**
+ABLATION: without the page, the algorithm cannot be built at all — honest decline,
+no schema, no code. INDUCTION: the page yields the schema. BUILD: the schema is
+instantiated and disposed by a real compile-and-run on 8 vectors, so a wrong body
+cannot pass by looking right.
+
+**And the tempting failure is refused.** There is exactly ONE shape the
+synthesizer can instantiate, so the seductive move is to fit every page into it.
+A page for insertion sort — which shifts and inserts, and never sweeps adjacent
+pairs across repeated passes — is DECLINED, naming the step kind it could not
+find: *"they do not describe a structure I can build yet: I found no step that
+means repeat_passes. I will not invent a schema I cannot instantiate and verify."*
+Inventing a schema to have one would be the gen322 fabrication in a new costume.
+
+What is still curated: the SHAPE library itself (one entry). Inducing a shape
+nobody has implemented is a different, larger problem — synthesis of a control
+structure, not recognition of one — and claiming otherwise would overstate this.
+
+**Ratchet:** `tests/learnbuild.sh` 6/6, fresh nonce name per run.
+Evidence: 246/246 `tests/run.sh`, 25/25 code-bench, 9/9 sortlearn, 14/14 piagent.
+Full `make gate` not run at F.'s instruction.
+
 ## 2026-07-12 - gen326: the UNIVERSAL conclusion (TODO.md P5) — and a duplicate I nearly shipped
 
 **The mistake first, because it is the lesson.** TODO.md P5 said "a nonce-word

@@ -624,6 +624,78 @@ static int sort_shape_from_kb(Brain *b, const char *low,
     return 0;
 }
 
+/* gen328 (TODO.md P3, forge C2/W6): INDUCE the schema from a page.
+ *
+ * algo_shape(bubblesort, nested_loop_compare_swap) was CURATED — a human wrote
+ * it. That is the linear growth LOOP.md calls the impostor: every new algorithm
+ * costs a generation, so generation n buys capability n and nothing compounds.
+ *
+ * This reads a page of STEPS and derives the schema from what the steps DO. The
+ * page is reduced to the SET of step kinds it describes (step_cue facts say which
+ * words mean which kind), and a shape is induced only when EVERY kind its
+ * signature requires is present (shape_signature facts). The algorithm's NAME is
+ * never consulted — a page could call it anything, and a page that describes a
+ * different structure (insertion sort shifts and inserts; it never sweeps
+ * adjacent pairs across repeated passes) covers no signature and is DECLINED.
+ * Inventing a schema to have one would be the fabrication class all over again.
+ *
+ * Writes the induced shape into `shape` and returns 1; 0 if the page covers no
+ * signature (with `missing` naming the first requirement it could not find).
+ */
+static int induce_shape_from_steps(Brain *b, const char *steps,
+                                   char *shape, size_t shsz,
+                                   char *missing, size_t msz) {
+    if (!b || !b->kb || !steps) return 0;
+    if (missing && msz) missing[0] = '\0';
+
+    char low[1024];
+    { size_t i = 0;
+      for (; steps[i] && i + 1 < sizeof low; i++)
+          low[i] = (char)tolower((unsigned char)steps[i]);
+      low[i] = '\0'; }
+
+    /* Every shape the synthesizer could instantiate. */
+    char shapes[8][KB_TERM_LEN];
+    const char *qs[2] = { NULL, NULL };
+    size_t ns = kb_match(b->kb, "shape_signature", qs, 2, shapes, 8);
+
+    for (size_t i = 0; i < ns; i++) {
+        /* the kinds THIS shape requires */
+        char kinds[8][KB_TERM_LEN];
+        const char *qk[2] = { shapes[i], NULL };
+        size_t nk = kb_match(b->kb, "shape_signature", qk, 2, kinds, 8);
+        if (nk == 0) continue;
+
+        int covered = 1;
+        for (size_t k = 0; k < nk && covered; k++) {
+            /* is this kind actually described in the page? */
+            char cues[16][KB_TERM_LEN];
+            const char *qc[2] = { kinds[k], NULL };
+            size_t nc = kb_match(b->kb, "step_cue", qc, 2, cues, 16);
+            int found = 0;
+            for (size_t c = 0; c < nc && !found; c++) {
+                char *cue_s = cues[c];
+                size_t l = strlen(cue_s);
+                if (l >= 2 && cue_s[0] == '"' && cue_s[l - 1] == '"') {
+                    cue_s[l - 1] = '\0'; cue_s++;
+                }
+                if (*cue_s && strstr(low, cue_s)) found = 1;
+            }
+            if (!found) {
+                covered = 0;
+                if (missing && msz && !*missing)
+                    snprintf(missing, msz, "%s", kinds[k]);
+            }
+        }
+        if (covered) {
+            snprintf(shape, shsz, "%s", shapes[i]);
+            if (missing && msz) missing[0] = '\0';
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int compose_one(Brain *b, const char *raw, const char *low,
                        char *nameo, size_t nsz, char *src, size_t srcsz,
                        char *note, size_t notesz) {
@@ -854,10 +926,18 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
     for (size_t i = 0; i < lim; i++) low[i] = (char)tolower((unsigned char)raw[i]);
     low[lim] = '\0';
 
+    /* gen328 (TODO.md P3): TEACH an algorithm from a page of steps —
+     *   "learn sinking sort from these steps: repeat passes over the list;
+     *    compare each adjacent pair; swap them if they are out of order"
+     * The schema is INDUCED from what the steps do (never from the name), so a
+     * page for an algorithm nobody curated becomes buildable. */
+    int teach = (cue(low, "learn ") || cue(low, "impara ")) &&
+                (cue(low, "steps") || cue(low, "passi")) && strchr(raw, ':');
+
     int want = (cue(low,"write") || cue(low,"generate") || cue(low,"create") ||
                 cue(low,"scrivi") || cue(low,"implement")) &&
                (cue(low,"function") || cue(low,"funzione"));
-    if (!want) return 0;
+    if (!want && !teach) return 0;
 
     /* Lazily load the generative substrate into the REFLECTIVE layer (never
      * persisted, filtered from introspection) the first time the composer runs, so
@@ -869,6 +949,49 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
         kb_load(b->kb, "kb/experts/programming/algo_steps.p0"); /* gen209 (B1) */
         kb_set_origin(b->kb, KB_SESSION);
         b->compose_kb_loaded = 1;
+    }
+
+    if (teach) {
+        /* the name sits between "learn" and "from"; the steps after the colon */
+        const char *ln = strstr(low, "learn ");
+        if (!ln) ln = strstr(low, "impara ");
+        const char *nstart = ln + 6;
+        while (*nstart == ' ') nstart++;
+        const char *nend = strstr(nstart, " from");
+        if (!nend) nend = strstr(nstart, " da ");
+        const char *colon = strchr(raw, ':');
+        if (!nend || !colon || nend <= nstart) return 0;
+
+        char key[KB_TERM_LEN]; size_t k = 0;
+        for (const char *p = nstart; p < nend && k + 1 < sizeof key; p++)
+            key[k++] = (*p == ' ') ? '_' : *p;
+        key[k] = '\0';
+        if (k == 0) return 0;
+
+        char shape[64] = "", missing[64] = "";
+        if (!induce_shape_from_steps(b, colon + 1, shape, sizeof shape,
+                                     missing, sizeof missing)) {
+            /* No signature is covered. Say what was missing and refuse to invent
+             * a schema — a schema nobody can build from is worse than none. */
+            snprintf(out, out_size,
+                     "I read those steps but they do not describe a structure I "
+                     "can build yet%s%s. I will not invent a schema I cannot "
+                     "instantiate and verify.",
+                     *missing ? ": I found no step that means " : "",
+                     *missing ? missing : "");
+            return 1;
+        }
+        const char *fa[2] = { key, shape };
+        kb_set_origin(b->kb, KB_SESSION);
+        kb_assert(b->kb, "algo_shape", fa, 2);
+        /* provenance: this schema was LEARNED, not curated. */
+        const char *fp[2] = { key, "taught_from_steps" };
+        kb_assert(b->kb, "algo_source", fp, 2);
+        snprintf(out, out_size,
+                 "Learned: those steps describe the %s structure, so I now have a "
+                 "schema for %s. Ask me to write it and I will synthesize it and "
+                 "run it against the sort oracle.", shape, key);
+        return 1;
     }
 
     /* gen207: if the request is ARTICULATED (a strong sequencer chains several

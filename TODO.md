@@ -186,7 +186,27 @@ language-as-delta rule, CODE-MASTERY §7b).
 
 ---
 
-## P3 — synthesis has exactly three schemas
+## P3 — synthesis has exactly three schemas — **DONE (seed), gen328**
+
+> **The impostor was the curation.** `algo_shape(bubblesort, …)` was written by a
+> human, so every new algorithm cost a generation — growth n buys capability n and
+> nothing compounds.
+>
+> A page of steps now produces its OWN schema: the page is reduced to the set of
+> step kinds it describes (`step_cue` facts), and a shape is induced only when
+> every kind its signature requires is present (`shape_signature` facts). Both are
+> knowledge. **The algorithm's name is never read** — the ratchet generates a
+> nonsense name per run and asserts it appears in no knowledge file. The chain is
+> causal both ways: without the page it cannot be built (ablation), with the page
+> it is synthesized and disposed by a real run on 8 vectors.
+>
+> A page for a DIFFERENT structure (insertion sort shifts and inserts) is declined
+> naming the step it could not find, rather than force-fitted into the one shape
+> we have. Inventing a schema to have one is gen322's fabrication in a new costume.
+>
+> **Still curated: the SHAPE LIBRARY itself** (one entry). Inducing a shape nobody
+> has implemented is synthesis of a control structure, not recognition of one — a
+> larger problem, and claiming otherwise would overstate this row.
 
 ```
 you> write a C function that reverses a string in place
@@ -212,7 +232,25 @@ is one more brick, not a faculty.
 
 ---
 
-## P4 — there is no agentic loop (goal → act → observe → verify → repair)
+## P4 — there is no agentic loop (goal → act → observe → verify → repair) — **DONE (seed), gen327**
+
+> **Closed at its smallest honest seam.** A candidate the oracle REFUTED used to
+> be abandoned — no diagnosis, no alternative, no second attempt: a one-shot
+> generator with a test attached. Now the loop runs, and every step is grounded in
+> a real compile-and-run: OBSERVE (the judge) → DIAGNOSE (a STRUCTURED verdict:
+> `not_ordered` vs `not_permutation` — "it failed" cannot direct a repair) →
+> PROPOSE (`repair_rule(Diagnosis, Fix)` FACTS; the C knows only HOW to transform,
+> never WHICH) → SELECT (smallest blast radius) → ACT → VERIFY (re-run the same
+> judge) → STOP within N, trace kept.
+>
+> Correct code is run, passes, and nothing is invented to fix it. A defect no rule
+> repairs is DECLINED naming the real diagnosis, and **no patch is emitted** — a
+> patch nobody ran is a fabrication.
+>
+> **What this is NOT:** it is a repair loop over one oracle (sort), not the typed
+> Event/Goal/Action/Observation kernel of forge §6, and not issue→localize→patch
+> on a cold repo. `make swe-bench` still engages 0 of 5. The seed is real; the
+> field is not claimed.
 
 Everything above is single-turn. The mission needs the loop: read an issue,
 locate the region, edit, run the tests, **read the failure**, repair, stop when
@@ -313,8 +351,8 @@ cosmetic feature for this project. It is the anti-impostor property itself.
 | ~~P6~~ | ~~the routing collision~~ | **DONE gen325** — the self-model now derives its LIMITS from the ledger the gates verify (forge §18) |
 | ~~P2~~ | ~~loops in the evaluator~~ | **DONE gen324** — the row was misdiagnosed: loops already worked, `+=` did not |
 | ~~P5~~ | ~~in-turn rule intake~~ | **DONE gen326** — it existed since gen231; the real gap was the UNIVERSAL conclusion, 55 lines inside the existing core |
-| P4 | the agentic loop | the biggest jump; needs P1+P2 to have anything to drive |
-| P3 | schema induction | the only row that makes growth compound instead of add |
+| ~~P4~~ | ~~the agentic loop~~ | **DONE (seed) gen327** — observe/diagnose/propose/verify, bounded, over one real oracle. NOT the typed kernel, NOT cold-repo agency: swe-bench still engages 0/5 |
+| ~~P3~~ | ~~schema induction~~ | **DONE (seed) gen328** — a fresh page induces its own schema, structurally (the name is never read). The SHAPE LIBRARY is still curated |
 
 **The discipline stays.** One contract per generation; seal the red first; prefer
 knowledge over C (P1 and P5 are facts, not modules); a decline is a success and a
