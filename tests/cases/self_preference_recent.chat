@@ -1,0 +1,11 @@
+# gen333 (LLMSCORE Q10): a second-person recent-interest question is about
+# parrot0, not a story the user just told.  Route it to the existing honest
+# self-preference knowledge; never fabricate a recent hobby or experience.
+> What's something you've been into lately that you've been enjoying?
+< I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.
+> Have you been enjoying any hobbies lately?
+< No genuine preferences here: I don't experience days or hobbies. What's your take?
+
+# Deictic control: first person describes the USER and remains conversational.
+> I've been into pottery lately.
+< Interesting -- what got you into it?

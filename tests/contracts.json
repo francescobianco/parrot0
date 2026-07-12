@@ -144,7 +144,7 @@
       "oracle_row": "llmscore-world.world-superlative-tallest-mountain",
       "timeout_ms": 5000,
       "mutators": ["language"],
-      "note": "gen319 (§15 row 2): the first probe of llmscore_world addressable ALONE. The suite is 127 fresh boots / ~70 s, so answering one hypothesis used to cost 126 probes nobody asked about. `--id` selects; the oracle (command, env, comparison) is unchanged. All 127 rows are addressable — `tests/llmscore_world.sh --list` — and migrate into this catalog as generations touch them."
+      "note": "gen319 (§15 row 2): the first probe of llmscore_world addressable ALONE. The suite is now 131 fresh boots, so answering one hypothesis would otherwise cost 130 probes nobody asked about. `--id` selects; the oracle (command, env, comparison) is unchanged. All 131 rows are addressable — `tests/llmscore_world.sh --list` — and migrate into this catalog as generations touch them."
     }
   ]
 }

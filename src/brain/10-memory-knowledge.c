@@ -3114,6 +3114,55 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen333: the same E-proposition requested as a relationship. All surface
+     * roles are KB cue classes; C keeps only adjacency, slot binding and the
+     * unordered-pair comparison. A new marker/connector becomes live through
+     * intent_cue facts without rebuilding this parser. */
+    if (kb_cue_match(b, "logic_no_quantifier", norm) &&
+        kb_cue_match(b, "logic_plural_copula", norm) &&
+        kb_cue_match(b, "logic_relationship_marker", norm) &&
+        kb_cue_match(b, "logic_between_connector", norm)) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char X[64] = "", Y[64] = "", qx[64] = "", qy[64] = "";
+        for (size_t i = 0; i + 3 < n; i++) {
+            if (!kb_cue_match(b, "logic_no_quantifier", w[i]) ||
+                !kb_cue_match(b, "logic_plural_copula", w[i + 2]))
+                continue;
+            snprintf(X, sizeof X, "%s", w[i + 1]);
+            snprintf(Y, sizeof Y, "%s", w[i + 3]);
+            break;
+        }
+        for (size_t i = 0; i + 4 < n; i++) {
+            if (!kb_cue_match(b, "logic_relationship_marker", w[i]) ||
+                !kb_cue_match(b, "logic_between_connector", w[i + 1]) ||
+                !is_conjunction(b, w[i + 3]))
+                continue;
+            snprintf(qx, sizeof qx, "%s", w[i + 2]);
+            snprintf(qy, sizeof qy, "%s", w[i + 4]);
+            break;
+        }
+        if (X[0] && Y[0] && qx[0] && qy[0]) {
+            char xs[64], ys[64], qxs[64], qys[64];
+            snprintf(xs, sizeof xs, "%s", X); snprintf(ys, sizeof ys, "%s", Y);
+            snprintf(qxs, sizeof qxs, "%s", qx); snprintf(qys, sizeof qys, "%s", qy);
+            size_t l;
+            l = strlen(xs); if (l > 1 && xs[l - 1] == 's') xs[l - 1] = '\0';
+            l = strlen(ys); if (l > 1 && ys[l - 1] == 's') ys[l - 1] = '\0';
+            l = strlen(qxs); if (l > 1 && qxs[l - 1] == 's') qxs[l - 1] = '\0';
+            l = strlen(qys); if (l > 1 && qys[l - 1] == 's') qys[l - 1] = '\0';
+            if ((!strcmp(xs, qxs) && !strcmp(ys, qys)) ||
+                (!strcmp(xs, qys) && !strcmp(ys, qxs))) {
+                if (!kb_response(b, "logic_no_overlap_relationship", NULL,
+                                 out, out_size))
+                    return 0;
+                store_proof(b, "The explicit no-overlap premise rules out being both.");
+                return 1;
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): "describe what a sunset looks like to you." parrot0 has
      * no senses, so it says so honestly — then gives the DESCRIPTION from KB
      * knowledge (appearance/2) rather than walling. The C only selects by the
@@ -4661,10 +4710,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* gen241 (LLMSCORE-check): anagram. "rearrange the letters in 'listen'" ->
      * anagram_of(Word, "Result"); the C verifies the letters match before answering. */
-    if ((cue(buf, "rearrange") || cue(buf, "anagram") || cue(buf, "scramble") ||
-         cue(buf, "letters in") || cue(buf, "letters of")) &&
-        (cue(buf, "word") || cue(buf, "letters") || cue(buf, "anagram") ||
-         cue(buf, "form") || cue(buf, "make"))) {
+    if (kb_cue_match(b, "anagram_request", buf) &&
+        kb_cue_match(b, "anagram_output", buf) &&
+        !(kb_cue_match(b, "initials_projection", buf) &&
+          kb_cue_match(b, "initials_word_scope", buf))) {
         char ab[256]; snprintf(ab, sizeof ab, "%s", buf);
         char *aw[64]; size_t anw = split_words(ab, aw, 64);
         for (size_t i = 0; i < anw; i++) {

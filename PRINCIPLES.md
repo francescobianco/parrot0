@@ -107,6 +107,13 @@ shape this experiment refuses. So a **cardinal rule**:
 > **knowledge in the KB**, queried by a fixed engine. The **engine is fixed; the
 > lexicon learns.**
 
+**Parser-looking words are still language.** Connectors, prepositions,
+quantifiers, range markers and question forms (for example `between`, `from`,
+`and`, `through`) do not become fixed mechanics merely because a C parser uses
+them to bind slots. Their *ordering and binding algorithm* may live in C; the
+forms that activate each role must live in the KB and reach that algorithm
+through `kb_cue_match`/the shared evidence scorer.
+
 - **Words** (gen193): `conjunction/1`, `stopword/1`, `social_marker/2` live in
   `kb/core/*.p0`; the parsers query them, so the class grows at runtime with no code
   edit ("use X as a conjunction" → `assert conjunction(X)`).
@@ -140,6 +147,11 @@ without recompiling?* If a behaviour depends on a `static const char *[]` of phr
 C, it is a phrasebook to be migrated into the KB. Pull each migration when a form is
 needed that the array did not foresee — the same discovery-harness discipline as the
 rest of the project.
+
+For every new linguistic recognizer, make that test executable: add a runtime
+assert/retract (or equivalent ablation) showing that the same compiled engine
+acquires and loses a surface form when its KB fact is added and removed. A
+fixed input/output golden by itself proves behaviour, not KB-first architecture.
 
 ## Identity & self-reflection — "I know that I am"
 

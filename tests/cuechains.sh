@@ -14,8 +14,11 @@
 # six chains of 65-induce-verify-shell migrated (the wellbeing one skipped by
 # per-chain applicability: `b` is not in scope there) -> 333. gen275: all 16
 # chains of 50-self-research-loop migrated (zero skips) -> 317.
+# gen333: LLMSCORE range/initial/anagram/relationship vocabulary moved behind
+# kb_cue_match -> 246. Freeze the actual post-migration count: a new C OR-chain
+# now fails instead of hiding inside the old 71-chain allowance.
 set -u
-MAX=317
+MAX=246
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "cuechains: binary not built" >&2; exit 1; }

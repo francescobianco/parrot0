@@ -77,8 +77,16 @@ static int kb_cue_match(Brain *b, const char *intent, const char *norm) {
  * fallback so the agent is never mute even if the KB file is absent). */
 static void current_lang(Brain *b, char *out, size_t sz);   /* gen240, defined in 10 */
 
-static int kb_response(Brain *b, const char *intent, const char *slot,
-                       char *out, size_t outsz) {
+typedef struct {
+    const char *name;
+    const char *value;
+} KbResponseSlot;
+
+/* Fixed renderer for KB response templates with named slots. The wording and
+ * placeholder layout remain knowledge; C only substitutes values. */
+static int kb_response_slots(Brain *b, const char *intent,
+                             const KbResponseSlot *slots, size_t nslots,
+                             char *out, size_t outsz) {
     if (!b || !b->kb || !intent || !out || outsz == 0) return 0;
     char tpl[16][KB_TERM_LEN];
     /* gen240 (universal-comprehension): prefer a LOCALIZED template for the current
@@ -115,19 +123,38 @@ static int kb_response(Brain *b, const char *intent, const char *slot,
     size_t l = strlen(p);
     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }  /* strip quotes */
 
-    /* substitute every "{name}" with `slot` (or "" if no slot was given) */
-    const char *s = slot ? slot : "";
+    /* Substitute every recognized {slot}; unknown placeholders remain literal
+     * so a malformed/taught template does not silently lose information. */
     size_t o = 0;
     for (const char *c = p; *c && o + 1 < outsz; ) {
-        if (strncmp(c, "{name}", 6) == 0) {
-            o += (size_t)snprintf(out + o, outsz - o, "%s", s);
-            c += 6;
-        } else {
-            out[o++] = *c++;
+        int filled = 0;
+        if (*c == '{') {
+            const char *r = strchr(c + 1, '}');
+            if (r) {
+                size_t nl = (size_t)(r - (c + 1));
+                for (size_t i = 0; i < nslots; i++) {
+                    if (!slots[i].name || strlen(slots[i].name) != nl ||
+                        strncmp(c + 1, slots[i].name, nl) != 0)
+                        continue;
+                    const char *v = slots[i].value ? slots[i].value : "";
+                    size_t vl = strlen(v);
+                    if (vl >= outsz - o) vl = outsz - o - 1;
+                    memcpy(out + o, v, vl); o += vl;
+                    c = r + 1; filled = 1;
+                    break;
+                }
+            }
         }
+        if (!filled) out[o++] = *c++;
     }
     out[o < outsz ? o : outsz - 1] = '\0';
     return 1;
+}
+
+static int kb_response(Brain *b, const char *intent, const char *slot,
+                       char *out, size_t outsz) {
+    const KbResponseSlot named[] = { { "name", slot ? slot : "" } };
+    return kb_response_slots(b, intent, named, 1, out, outsz);
 }
 
 /* Return the index of token `t` in `w[0..nw)`, or `nw` if absent. */

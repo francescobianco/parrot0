@@ -85,7 +85,28 @@ else
     no "the ground syllogism regressed: $got"
 fi
 
-# ---- 5. ZERO POLLUTION: the invented world must not survive the turn ---------
+# ---- 5. explicit no-overlap through a RELATIONSHIP question ------------------
+# Same E-proposition as the older "can X also be Y?" path, but a held-out
+# question form and freshly generated classes prove this is structural parsing,
+# not a Zork/Gazook phrasebook entry.
+got="$(ask "if all ${A}s are ${B}s, and some ${B}s are ${C}s, but no ${C}s are ${A}s, can we conclude anything about the relationship between ${A}s and ${C}s?")"
+if [ "$got" = "Those classes do not overlap -- the explicit no-overlap premise states that directly." ]; then
+    ok "a relationship question reports the explicit no-overlap premise"
+else
+    no "the relationship-form no-overlap conclusion did not derive: $got"
+fi
+
+# ---- 6. ANTI-IMPOSTOR: an unrelated no-premise licenses nothing --------------
+# The surface is identical, but no(C,D) is not a fact about the queried pair
+# A,C. A pair-blind pattern matcher would invent a disjointness conclusion.
+got="$(ask "if all ${A}s are ${B}s, and some ${B}s are ${C}s, but no ${C}s are ${D}s, can we conclude anything about the relationship between ${A}s and ${C}s?")"
+if [ "$got" = "I don't understand that yet." ]; then
+    ok "an unrelated no-premise does not invent disjointness"
+else
+    no "it projected an unrelated no-premise onto the queried pair: $got"
+fi
+
+# ---- 7. ZERO POLLUTION: the invented world must not survive the turn ---------
 # TASKLIST C8: facts introduced for a question may be used for that answer and
 # must pollute nothing. The premises live in a scratch KB destroyed with the turn.
 got="$(ask "if all ${A}s are ${B}s and all ${B}s are ${C}s, are all ${A}s ${C}s?" \

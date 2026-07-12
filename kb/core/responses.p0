@@ -58,6 +58,22 @@ response_template(self_location, "There's no weather where I am: I'm a program w
 response_template(self_preference, "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain.").
 response_template(self_preference, "No genuine preferences here: I don't experience days or hobbies. What's your take?").
 
+% --- gen333 (LLMSCORE): wording for computed range counts and the explicit
+% no-overlap relationship. Values are filled by the fixed named-slot renderer;
+% the natural-language frame remains editable KB knowledge. ---
+response_template(arith_range_count, "There are {count} {property} numbers between {low} and {high} (inclusive).").
+response_template(arith_range_too_large, "That interval is too large for my bounded exact counter.").
+response_template(logic_no_overlap_relationship, "Those classes do not overlap -- the explicit no-overlap premise states that directly.").
+response_template(initials_projection, "{name}.").
+number_property_label(prime, "prime").
+number_property_label(even, "even").
+number_property_label(odd, "odd").
+number_property_label(even_prime, "even prime").
+number_property_label(odd_prime, "odd prime").
+number_property_label(even_odd, "simultaneously even and odd").
+number_property_label(prime_even_odd, "simultaneously prime, even and odd").
+machinery(number_property_label).
+
 % --- gen231 (LLMSCORE): generative intent - "write a sentence using the word X".
 % {name} is filled with the target word; kb_response rotates the frame. Simple by
 % design (parrot0 composes from a template, it does not author prose). ---

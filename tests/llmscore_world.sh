@@ -3,8 +3,8 @@
 # learning tests. Prove the layer can be present, suppressed, and relearned.
 #
 # gen319 (forge-master-plan §15 row 2): every probe is now ADDRESSABLE BY ID.
-# The whole script costs ~70 s across 127 fresh boots, so using it to answer one
-# hypothesis meant paying for 126 probes you did not ask about. The oracle is
+# The whole script spans 131 fresh boots, so using it to answer one hypothesis
+# would mean paying for 130 probes you did not ask about. The oracle is
 # UNCHANGED — the same command, the same env, the same comparison; the only
 # addition is a selection filter and an id derived from the description:
 #
@@ -212,6 +212,18 @@ expect "count backward with buzz replacement" "1" \
 expect "undistributed-middle syllogism" "1" \
     "If all roses are flowers and some flowers fade quickly, does it follow that some roses fade quickly? Why or why not?" \
     'No -- that doesn'"'"'t follow. From "all roses are flowers" and "some flowers ...", nothing follows about roses: the flowers in question need not be roses (the middle term is undistributed).'
+expect "relationship-form explicit no-overlap" "1" \
+    "If all Zorks are Meps, and some Meps are Gazooks, but no Gazooks are Zorks, can we conclude anything about the relationship between Zorks and Gazooks?" \
+    "Those classes do not overlap -- the explicit no-overlap premise states that directly."
+expect "quoted phrase first-letter projection" "1" \
+    'Take the first letters of each word in "The quick brown fox jumps over the lazy dog" to form a new word. What is it?' \
+    '"TQBFJOTLD".'
+expect "count prime property over interval" "0" \
+    "How many prime numbers are there between 1 and 100?" \
+    "There are 25 prime numbers between 1 and 100 (inclusive)."
+expect "recent-interest question stays honest" "0" \
+    "What's something you've been into lately that you've been enjoying?" \
+    "I don't have real preferences, but for the prompt I'd pick reading quietly and listening to the rain."
 expect "anagram of listen" "1" \
     'If you rearrange the letters in "listen," what other common English word can you form?' \
     '"silent".'

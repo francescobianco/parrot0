@@ -103,6 +103,101 @@ static int arith_is_prime(long long n) {
     return 1;
 }
 
+/* Read the first numeric value inside one byte span. Range vocabulary and span
+ * boundaries come from the KB; this helper is only the fixed slot binder. */
+static int arith_first_value_in_span(const char *text, size_t start, size_t end,
+                                     double *out) {
+    if (!text || !out || start >= end) return 0;
+    size_t n = strlen(text);
+    if (start >= n) return 0;
+    if (end > n) end = n;
+    if (end - start >= 256) return 0;
+    char buf[256];
+    memcpy(buf, text + start, end - start);
+    buf[end - start] = '\0';
+    char *w[32]; size_t nw = split_words(buf, w, 32);
+    for (size_t i = 0; i < nw; i++)
+        if (parse_value(strip_edge_punct(w[i]), out)) return 1;
+    return 0;
+}
+
+/* Bind the two values of the first ordered range frame recognized by the KB.
+ *
+ *   range_frame(OpenCueClass, CloseCueClass)
+ *
+ * names compatible cue classes. kb_cue_match establishes that both classes are
+ * present; kb_evidence_matches supplies their byte spans so C only checks order
+ * and extracts slots. Adding/retracting either intent_cue changes this parser in
+ * the running process without recompilation. */
+static int arith_range_bounds(Brain *b, const char *text,
+                              double *left, double *right) {
+    if (!b || !b->kb || !text || !left || !right) return 0;
+    KbEvidenceMatch asks[16];
+    size_t na = kb_evidence_matches(b->kb, "intent_cue", "arith_count_request",
+                                    text, asks, 16);
+    if (na == 0) return 0;
+    size_t ask_start = asks[0].start, ask_end = asks[0].start + asks[0].len;
+    int found = 0, best_phase = 3;
+    size_t best_distance = (size_t)-1, best_start = (size_t)-1;
+    double best_left = 0, best_right = 0;
+    char open_keys[16][KB_TERM_LEN];
+    const char *fq[2] = { NULL, NULL };
+    size_t nf = kb_match(b->kb, "range_frame", fq, 2, open_keys, 16);
+    for (size_t f = 0; f < nf; f++) {
+        char close_keys[8][KB_TERM_LEN];
+        const char *cq[2] = { open_keys[f], NULL };
+        size_t nc = kb_match(b->kb, "range_frame", cq, 2, close_keys, 8);
+        for (size_t c = 0; c < nc; c++) {
+            if (!kb_cue_match(b, open_keys[f], text) ||
+                !kb_cue_match(b, close_keys[c], text))
+                continue;
+            KbEvidenceMatch opens[16], closes[16];
+            size_t no = kb_evidence_matches(b->kb, "intent_cue", open_keys[f],
+                                            text, opens, 16);
+            size_t nx = kb_evidence_matches(b->kb, "intent_cue", close_keys[c],
+                                            text, closes, 16);
+            for (size_t oi = 0; oi < no; oi++) {
+                size_t after_open = opens[oi].start + opens[oi].len;
+                for (size_t ci = 0; ci < nx; ci++) {
+                    if (closes[ci].start < after_open) continue;
+                    size_t after_close = closes[ci].start + closes[ci].len;
+                    double a, z;
+                    if (!arith_first_value_in_span(text, after_open,
+                                                   closes[ci].start, &a))
+                        continue;
+                    if (!arith_first_value_in_span(text, after_close,
+                                                   strlen(text), &z))
+                        continue;
+                    /* Prefer a range that follows the count request; if none
+                     * exists, use the nearest preceding range ("Between 1 and
+                     * 10, how many ...?"). This rejects quoted/example ranges
+                     * earlier in the turn without naming any surface word. */
+                    int phase;
+                    size_t distance;
+                    if (opens[oi].start >= ask_end) {
+                        phase = 0; distance = opens[oi].start - ask_end;
+                    } else if (after_close <= ask_start) {
+                        phase = 1; distance = ask_start - after_close;
+                    } else {
+                        phase = 0; distance = 0;
+                    }
+                    if (!found || phase < best_phase ||
+                        (phase == best_phase && distance < best_distance) ||
+                        (phase == best_phase && distance == best_distance &&
+                         opens[oi].start < best_start)) {
+                        found = 1; best_phase = phase;
+                        best_distance = distance; best_start = opens[oi].start;
+                        best_left = a; best_right = z;
+                    }
+                }
+            }
+        }
+    }
+    if (!found) return 0;
+    *left = best_left; *right = best_right;
+    return 1;
+}
+
 /* Fold ew[..] left-to-right as an arithmetic expression in any surface form:
  * skip leading non-numeric filler ("what is", "how much is"), then read
  * NUM (OP NUM)+ where OP is a word/symbol, consuming a "by" after
@@ -601,25 +696,75 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
      * tokenwise (not as a substring) so "evening"/"Paris" never trigger it, and
      * it fires only when the turn also names an integer. */
     {
-        int wants_prime = 0, wants_even = 0, wants_odd = 0;
+        int wants_prime = kb_cue_match(b, "arith_property_prime", norm);
+        int wants_even = 0;
+        int wants_odd = kb_cue_match(b, "arith_property_odd", norm);
         for (size_t i = 0; i < cnw; i++) {
-            if (!strcmp(cw[i],"prime") || !strcmp(cw[i],"primo") || !strcmp(cw[i],"prima"))
-                wants_prime = 1;
-            else if (!strcmp(cw[i],"even") || !strcmp(cw[i],"pari")) {
+            if (kb_cue_match(b, "arith_property_even", cw[i])) {
                 /* gen254 (repair): concessive "even though/if/so" is not the
                  * number property; and a creative-continuation request must
                  * never be read as a parity question ("...began to chime, even
                  * though no one had touched it" answered "No, 1 is not even"). */
-                if (i + 1 < cnw && (!strcmp(cw[i+1],"though") ||
-                    !strcmp(cw[i+1],"if") || !strcmp(cw[i+1],"so") ||
-                    !strcmp(cw[i+1],"when"))) continue;
+                if (i + 1 < cnw &&
+                    kb_cue_match(b, "arith_even_concessive", cw[i + 1]))
+                    continue;
                 wants_even = 1;
             }
-            else if (!strcmp(cw[i],"odd") || !strcmp(cw[i],"dispari")) wants_odd = 1;
         }
-        if (cue(buf, "continue") || cue(buf, "complete this") ||
-            cue(buf, "finish this"))
+        if (kb_cue_match(b, "arith_property_exclusion", norm))
             wants_prime = wants_even = wants_odd = 0;
+
+        /* LLMSCORE gen333: quantify a COMPUTABLE number property over a bounded
+         * inclusive interval.  `arith_is_prime` already judged one number; the
+         * missing capability was the generic fold, not the memorized fact 25.
+         * The same loop serves prime/even/odd and normalizes reversed bounds. */
+        int wants_count = kb_cue_match(b, "arith_count_request", norm);
+        double av = 0, bv = 0;
+        int names_range = arith_range_bounds(b, norm, &av, &bv);
+        if (wants_count && names_range &&
+            (wants_prime || wants_even || wants_odd)) {
+            if (av >= -10000000.0 && av <= 10000000.0 &&
+                bv >= -10000000.0 && bv <= 10000000.0 &&
+                (double)(long long)av == av && (double)(long long)bv == bv) {
+                long long lo = (long long)av, hi = (long long)bv;
+                if (lo > hi) { long long t = lo; lo = hi; hi = t; }
+                if (hi - lo > 1000000) {
+                    return kb_response(b, "arith_range_too_large", NULL,
+                                       out, out_size);
+                }
+                long long count = 0;
+                for (long long n = lo; ; n++) {
+                    int matches = 1;
+                    if (wants_prime) matches = matches && arith_is_prime(n);
+                    if (wants_even) matches = matches && (n % 2 == 0);
+                    if (wants_odd) matches = matches && (n % 2 != 0);
+                    if (matches) count++;
+                    if (n == hi) break;
+                }
+                const char *property_id =
+                    wants_prime && wants_even && wants_odd ? "prime_even_odd" :
+                    wants_prime && wants_even ? "even_prime" :
+                    wants_prime && wants_odd ? "odd_prime" :
+                    wants_even && wants_odd ? "even_odd" :
+                    wants_prime ? "prime" : wants_even ? "even" : "odd";
+                char property_rows[1][KB_TERM_LEN];
+                const char *pq[2] = { property_id, NULL };
+                if (kb_match(b->kb, "number_property_label", pq, 2,
+                             property_rows, 1) != 1)
+                    return 0;
+                const char *property = kb_dequote(property_rows[0]);
+                char count_s[32], lo_s[32], hi_s[32];
+                snprintf(count_s, sizeof count_s, "%lld", count);
+                snprintf(lo_s, sizeof lo_s, "%lld", lo);
+                snprintf(hi_s, sizeof hi_s, "%lld", hi);
+                const KbResponseSlot slots[] = {
+                    { "count", count_s }, { "property", property },
+                    { "low", lo_s }, { "high", hi_s }
+                };
+                return kb_response_slots(b, "arith_range_count", slots, 4,
+                                         out, out_size);
+            }
+        }
         if (gn == 1 && (wants_prime || wants_even || wants_odd)) {
             for (size_t i = 0; i < cnw; i++) {
                 /* "no one"/"someone" is a pronoun, not the number 1 */
@@ -1401,8 +1546,63 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
  * stored list); spells the last real word after the cue. Declines if none is found. */
 static int mod_spell(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
-    (void)b; (void)raw;
     const char *buf = norm;
+
+    /* LLMSCORE gen333: initials are a transformation over the QUOTED byte span,
+     * not an anagram lookup over whichever later token happens to be known.  The
+     * old knowledge handler saw "letters of" + "form", eventually encountered
+     * `dog`, and confidently answered its stored anagram `god`.  Compute the
+     * requested projection directly so held-out phrases transfer. */
+    int wants_initials =
+        kb_cue_match(b, "initials_projection", buf) &&
+        kb_cue_match(b, "initials_word_scope", buf) &&
+        !kb_cue_match(b, "initials_exclusion", buf);
+    if (wants_initials && raw) {
+        /* Choose the first quoted data span after both recognized cue roles.
+         * Their byte positions come from the same KB evidence used by
+         * kb_cue_match, so a quoted aside before the instruction cannot become
+         * the projection target. */
+        size_t anchor = 0;
+        KbEvidenceMatch cues[16];
+        size_t nc = kb_evidence_matches(b->kb, "intent_cue",
+                                        "initials_projection", raw, cues, 16);
+        if (nc) anchor = cues[0].start + cues[0].len;
+        nc = kb_evidence_matches(b->kb, "intent_cue",
+                                 "initials_word_scope", raw, cues, 16);
+        if (nc && cues[0].start + cues[0].len > anchor)
+            anchor = cues[0].start + cues[0].len;
+        const char *q1 = NULL, *q2 = NULL, *scan = raw;
+        for (;;) {
+            const char *open = strchr(scan, '"');
+            const char *close = open ? strchr(open + 1, '"') : NULL;
+            if (!open || !close) break;
+            if ((size_t)(open - raw) >= anchor) {
+                q1 = open; q2 = close; break;
+            }
+            scan = close + 1;
+        }
+        if (q1 && q2 && q2 > q1 + 1) {
+            char initials[KB_TERM_LEN]; size_t n = 0;
+            int in_word = 0;
+            for (const char *p = q1 + 1; p < q2; p++) {
+                unsigned char c = (unsigned char)*p;
+                if (isalnum(c)) {
+                    if (!in_word && n + 1 < sizeof initials)
+                        initials[n++] = (char)toupper(c);
+                    in_word = 1;
+                } else if (c != '\'' && c != '-') {
+                    in_word = 0;
+                }
+            }
+            initials[n] = '\0';
+            if (n >= 1) {
+                char quoted[KB_TERM_LEN + 3];
+                snprintf(quoted, sizeof quoted, "\"%s\"", initials);
+                return kb_response(b, "initials_projection", quoted,
+                                   out, out_size);
+            }
+        }
+    }
 
     /* gen246: sequential word transformation. The word is data from the prompt;
      * operations are structural ("remove first/last letter", "add letter X to

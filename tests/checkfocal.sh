@@ -143,8 +143,8 @@ else
 fi
 
 # ---- 5. gen319: a script-row contract runs ALONE (§15 row 2) -----------------
-# llmscore_world is 127 fresh boots / ~70 s; a single probe must be addressable
-# without paying for the 126 nobody asked about. The full-suite oracle itself is
+# llmscore_world is 131 fresh boots; a single probe must be addressable
+# without paying for the 130 nobody asked about. The full-suite oracle itself is
 # ratcheted where it always was — `make test` runs the whole script.
 out="$(cd "$ROOT" && TEST=world.tallest-mountain.en "$PY" tests/check.py 2>&1)"; rc=$?
 if [ "$rc" -eq 0 ] && printf '%s\n' "$out" | grep -q '^\[S1 1/1 PASS'; then

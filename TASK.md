@@ -21,9 +21,9 @@ timeout or broken harness is `verdict=unknown`, exit 2, never a functional FAIL
 (§1.8). Ratchet `tests/checkfocal.sh` (9/9, in `make test`) proves the fail-fast
 is real against a known-red fixture.
 
-**Done — gen319 (§15 row 2): every llmscore_world probe addressable.** 127 probes,
+**Done — gen319 (§15 row 2): every llmscore_world probe addressable.** 131 probes,
 69.7 s, all-or-nothing; now `--list` / `--id <id>` runs exactly one (0.94 s) with
-the oracle untouched (127 pass / 0 fail before and after). The two open-coded
+the oracle untouched (131 pass / 0 fail). The two open-coded
 `if` blocks became `expect_turns`, so no row is exempt from the catalog.
 `check.py` grew `oracle_kind: script-row`.
 

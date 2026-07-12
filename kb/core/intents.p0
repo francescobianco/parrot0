@@ -160,10 +160,95 @@ intent_cue(self_preference, "do you like").
 intent_cue(self_preference, "do you enjoy").
 intent_cue(self_preference, "do you prefer").
 intent_cue(self_preference, "what do you enjoy").
+% gen333 (LLMSCORE): recent-interest questions use the English second-person
+% present-perfect frame. Keep the INTERROGATIVE anchor in every cue: a statement
+% such as "I'm glad you've been enjoying the books" is about the user and must
+% not be stolen by the self-preference handler.
+intent_cue(self_preference, "what's something you've been into").
+intent_cue(self_preference, "what is something you've been into").
+intent_cue(self_preference, "what have you been into").
+intent_cue(self_preference, "have you been into").
+intent_cue(self_preference, "what's something you've been enjoying").
+intent_cue(self_preference, "what is something you've been enjoying").
+intent_cue(self_preference, "what have you been enjoying").
+intent_cue(self_preference, "have you been enjoying").
 intent_cue(self_preference, "il tuo preferito").
 intent_cue(self_preference, "la tua preferita").
 intent_cue(self_preference, "cosa ti piace").
 intent_cue(self_preference, "ti piace").
+
+% --- gen333 (LLMSCORE counterexamples): surface vocabulary for fixed engines. ---
+% These are deliberately intent_cue facts even when the words look like parser
+% punctuation. C owns ordering, binding and computation; the KB owns which forms
+% mean "count", "range endpoint", "initial", or "relationship". keyword/1 asks
+% the shared evidence scorer for token boundaries instead of substring guesses.
+
+% Computed number-property counts over bounded ranges.
+intent_cue(arith_count_request, "how many").
+intent_cue(arith_count_request, keyword(quanti)).
+intent_cue(arith_count_request, keyword(quante)).
+intent_cue(arith_property_prime, keyword(prime)).
+intent_cue(arith_property_prime, keyword(primes)).
+intent_cue(arith_property_prime, keyword(primo)).
+intent_cue(arith_property_prime, keyword(prima)).
+intent_cue(arith_property_prime, keyword(primi)).
+intent_cue(arith_property_even, keyword(even)).
+intent_cue(arith_property_even, keyword(pari)).
+intent_cue(arith_property_odd, keyword(odd)).
+intent_cue(arith_property_odd, keyword(dispari)).
+intent_cue(arith_property_exclusion, keyword(continue)).
+intent_cue(arith_property_exclusion, "complete this").
+intent_cue(arith_property_exclusion, "finish this").
+intent_cue(arith_even_concessive, keyword(though)).
+intent_cue(arith_even_concessive, keyword(if)).
+intent_cue(arith_even_concessive, keyword(so)).
+intent_cue(arith_even_concessive, keyword(when)).
+
+% A frame maps an open-cue class to its compatible close-cue class. Adding a
+% cue to either class changes the parser live; adding a new pair needs one
+% range_frame/2 fact, not a branch in C.
+range_frame(arith_range_between_open, arith_range_between_close).
+range_frame(arith_range_from_open, arith_range_from_close).
+machinery(range_frame).
+intent_cue(arith_range_between_open, keyword(between)).
+intent_cue(arith_range_between_open, keyword(tra)).
+intent_cue(arith_range_between_open, keyword(fra)).
+intent_cue(arith_range_between_close, keyword(and)).
+intent_cue(arith_range_between_close, keyword(e)).
+intent_cue(arith_range_from_open, keyword(from)).
+intent_cue(arith_range_from_open, keyword(da)).
+intent_cue(arith_range_from_close, keyword(to)).
+intent_cue(arith_range_from_close, keyword(through)).
+intent_cue(arith_range_from_close, keyword(until)).
+intent_cue(arith_range_from_close, keyword(a)).
+
+% Quoted per-word initial projection and the nearby anagram intent. Keeping both
+% in the KB lets the engine distinguish "letters of ... form" from the more
+% specific initials+scope request without deleting a working anagram surface.
+intent_cue(initials_projection, "first letter").
+intent_cue(initials_projection, "initial letter").
+intent_cue(initials_projection, keyword(initials)).
+intent_cue(initials_word_scope, "each word").
+intent_cue(initials_word_scope, "every word").
+intent_cue(initials_exclusion, keyword(remove)).
+intent_cue(initials_exclusion, keyword(drop)).
+intent_cue(anagram_request, keyword(rearrange)).
+intent_cue(anagram_request, keyword(anagram)).
+intent_cue(anagram_request, keyword(scramble)).
+intent_cue(anagram_request, "letters in").
+intent_cue(anagram_request, "letters of").
+intent_cue(anagram_output, keyword(word)).
+intent_cue(anagram_output, keyword(letters)).
+intent_cue(anagram_output, keyword(anagram)).
+intent_cue(anagram_output, keyword(form)).
+intent_cue(anagram_output, keyword(make)).
+
+% Explicit no-overlap propositions and their two question shapes.
+intent_cue(logic_no_quantifier, keyword(no)).
+intent_cue(logic_plural_copula, keyword(are)).
+intent_cue(logic_relationship_marker, keyword(relation)).
+intent_cue(logic_relationship_marker, keyword(relationship)).
+intent_cue(logic_between_connector, keyword(between)).
 
 % --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"
 % choice itself is recognized structurally in mod_chitchat, not listed here). ---

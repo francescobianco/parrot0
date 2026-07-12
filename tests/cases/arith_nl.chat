@@ -51,6 +51,25 @@
 > is 8 an even number
 < Yes, 8 is an even number.
 
+# LLMSCORE gen333: quantify the same computed property over an inclusive range.
+# The bounds and property are data; no stored answer for 25 participates.
+> How many prime numbers are there between 1 and 100?
+< There are 25 prime numbers between 1 and 100 (inclusive).
+> How many prime numbers are there from 10 through 20?
+< There are 4 prime numbers between 10 and 20 (inclusive).
+> How many prime numbers are there between 20 and 10?
+< There are 4 prime numbers between 10 and 20 (inclusive).
+> How many primes are there between 2 and 7?
+< There are 4 prime numbers between 2 and 7 (inclusive).
+> How many even numbers are there between 3 and 9?
+< There are 3 even numbers between 3 and 9 (inclusive).
+> In base 10, how many prime numbers are there between 1 and 100?
+< There are 25 prime numbers between 1 and 100 (inclusive).
+> How many odd prime numbers are there between 1 and 100?
+< There are 24 odd prime numbers between 1 and 100 (inclusive).
+> The example "between 5 and 7" is irrelevant. How many prime numbers are there from 1 to 10?
+< There are 4 prime numbers between 1 and 10 (inclusive).
+
 # Chained infix folds left to right.
 > how much is 1+1+1+1+1
 < 5.

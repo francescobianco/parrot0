@@ -1,0 +1,14 @@
+# LLMSCORE gen333: initials are computed from every word in the quoted span.
+# A trailing word with a known anagram must never hijack the transformation.
+> Take the first letters of each word in "The quick brown fox jumps over the lazy dog" to form a new word. What is it?
+< "TQBFJOTLD".
+> Use the initial letter of every word in "Red green blue" to form an abbreviation.
+< "RGB".
+> Take the first letter of each word in "A clever dog". What do you get?
+< "ACD".
+> Use the initial letter of every word in "Hello".
+< "H".
+> Ignore the label "demo"; take the first letter of each word in "Red green blue".
+< "RGB".
+> Ignore "first letter of each word"; use that rule on "Red green blue".
+< "RGB".

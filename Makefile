@@ -300,6 +300,7 @@ test: build
 	@./tests/toolexec.sh
 	@./tests/segment.sh
 	@./tests/universal-input.sh
+	@./tests/llmscore-kbfirst.sh
 	@./tests/kb-evidence-scale.sh
 	@./tests/mcp-input-payload.sh
 	@./tests/learnbuild.sh
