@@ -173,6 +173,64 @@ else
     no "a mistyped probe id did not exit 2 (rc=$rc)"
 fi
 
+# ---- 6. gen320: the manifest audit goes RED on a false claim (§15 row 3) -----
+# An audit nobody has seen fail is just another unverified claim, so feed it
+# manifests that lie — each lie is one the real manifest actually told (§3.4).
+audit() { # fixture-json -> prints output, sets rc
+    printf '%s' "$1" > "$WORK/manifest.json"
+    (cd "$ROOT" && PARROT0_MANIFEST="$WORK/manifest.json" \
+        "$PY" tests/manifest_audit.py 2>&1)
+}
+
+# (a) the truthful manifest passes.
+out="$(cd "$ROOT" && "$PY" tests/manifest_audit.py 2>&1)"; rc=$?
+if [ "$rc" -eq 0 ]; then
+    ok "the real manifest matches its scripts"
+else
+    no "the real manifest does not match its scripts: $out"
+fi
+
+# (b) a 'gate' whose script cannot exit non-zero is not a gate.
+out="$(audit '{"capabilities":[],"benchmarks":[{"id":"mimic","target":"mimic-bench",
+  "script":"tests/mimic.sh","area":"behaviour","semantics":"gate",
+  "exit_contract":"red-on-failure","requires":[],"oracle":"x","gate":"x"}]}')"; rc=$?
+if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'CANNOT go red'; then
+    ok "a gate whose script cannot fail is caught (the pre-gen320 glue lie)"
+else
+    no "an unfailable gate was not caught (rc=$rc): $out"
+fi
+
+# (c) an 'external' that touches no external resource is not external.
+out="$(audit '{"capabilities":[],"benchmarks":[{"id":"mimic","target":"mimic-bench",
+  "script":"tests/mimic.sh","area":"behaviour","semantics":"external",
+  "exit_contract":"always-zero","requires":["network"],"oracle":"x","gate":"x"}]}')"; rc=$?
+if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'runs offline, so it is not external'; then
+    ok "an offline benchmark declared external is caught (the mimic/mmlu/bbh lie)"
+else
+    no "a false external was not caught (rc=$rc): $out"
+fi
+
+# (d) a phantom script is caught.
+out="$(audit '{"capabilities":[],"benchmarks":[{"id":"basic-chat",
+  "target":"basic-chat-bench","script":"tests/basic_chat_bench.sh",
+  "area":"conversation","semantics":"discovery","exit_contract":"always-zero",
+  "requires":[],"oracle":"x","gate":"x"}]}')"; rc=$?
+if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'does not exist'; then
+    ok "a manifest naming a phantom script is caught (the basic-chat lie)"
+else
+    no "a phantom script was not caught (rc=$rc): $out"
+fi
+
+# (e) an offline row reaching for an LLM key is caught.
+out="$(audit '{"capabilities":[],"benchmarks":[{"id":"llmscore","target":"llmscore",
+  "script":"tests/llmscore.py","area":"behaviour","semantics":"discovery",
+  "exit_contract":"always-zero","requires":[],"oracle":"x","gate":"x"}]}')"; rc=$?
+if [ "$rc" -eq 1 ] && printf '%s\n' "$out" | grep -q 'external dependency'; then
+    ok "an LLM-judge benchmark declared offline is caught"
+else
+    no "a mislabelled offline row was not caught (rc=$rc): $out"
+fi
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]

@@ -4,9 +4,13 @@
 # (docs/plans/the-linguistic-glue.md, G1). The essay's insight: the "colla linguistica"
 # becomes visible WHEN IT IS MISSING. So we make its five absence-symptoms into metrics:
 # multi-turn held-out dialogues where a later turn depends on an earlier one, and we check
-# whether parrot0 carried the continuity. Modelled on swe-bench: a DISCOVERY instrument,
-# not a pass/fail gate — it never fails the build; its product is the gap map that PULLS
-# the next connective mechanism (G2). It is NOT part of `make test`.
+# whether parrot0 carried the continuity. Its product is the gap map that PULLS the next
+# connective mechanism (G2).
+#
+# gen320: TWO semantics live here, and they are no longer confused (§3.4). The has:/no:
+# rows are mechanical CHECKS and are a real ratchet — 9/9 hold, and a regression exits 1.
+# The `show` rows stay DISCOVERY: printed, never scored, never gating. It is not part of
+# `make test` (it is its own gate row in the manifest).
 #
 # Each case: ID  SYMPTOM  CHECK  DIALOGUE(turns joined by '|').
 #   CHECK = has:STR  -> glue HELD iff the LAST reply contains STR
@@ -91,4 +95,15 @@ for s in "${!sym_tot[@]}"; do
 done | sort
 echo
 echo "checked: $((held+gap)) (held: $held, gap: $gap)   qualitative: $shown"
-echo "PASS glue-bench: discovery instrument ran; gaps are the next pulls, not build failures."
+
+# gen320 (forge-master-plan §15 row 3): the exit code is LOAD-BEARING. The
+# manifest called this a gate while the script always exited 0 even with a GAP —
+# so ~12.8 s of every `make gate` bought a ratchet that could not fire (§3.4).
+# The checked rows (has:/no:) are mechanical, and all 9 hold: a continuity that
+# regresses now turns the build red. The qualitative `show` rows keep their
+# discovery semantics — they are printed, never scored, and never gate.
+if [ "$gap" -gt 0 ]; then
+    echo "FAIL glue-bench: $gap of $((held+gap)) checked continuities regressed (ratchet: 0 gaps)" >&2
+    exit 1
+fi
+echo "PASS glue-bench: $held/$((held+gap)) checked continuities hold; $shown qualitative rows are discovery, not gates."

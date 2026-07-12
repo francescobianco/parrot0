@@ -1,4 +1,53 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen320: the manifest is audited, because it was lying (forge §15 row 3)
+
+**The debt (§3.4).** `tests/benchmarks.json` is supposed to be the
+machine-readable truth about what each benchmark measures. It was not:
+
+- `glue` was declared a **gate**, but `tests/gluebench.sh` ended on an
+  unconditional `echo PASS` and exited 0 even with a GAP — its own header called
+  itself "a DISCOVERY instrument, not a pass/fail gate". So ~12.8 s of every
+  `make gate` bought a ratchet that could not fire. The manifest and the script
+  contradicted each other and nothing noticed.
+- `mimic`, `mmlu` and `bbh` were declared **external** while running entirely
+  offline on local fixtures — no API key, no network, no download.
+- `basic-chat` named `tests/basic_chat_bench.sh`, a script that does not exist.
+
+A manifest nobody checks drifts into decoration, and a decorative gate is worse
+than a missing one: it launders an unverified claim as evidence.
+
+**Glue becomes the gate it claimed to be** rather than being demoted. Its
+has:/no: rows are mechanical continuity checks and all 9 hold, so the exit code
+is now load-bearing: a regressed continuity exits 1. The 2 qualitative `show`
+rows keep discovery semantics — printed, never scored, never gating. Two
+semantics lived in one script and are no longer confused.
+
+**mimic/mmlu/bbh are reclassified honestly** as discovery. They are offline
+fixture instruments; the teacher-comparison and the real datasets they were named
+for do not exist yet, and pretending otherwise is how a suite starts believing
+its own labels.
+
+**The audit (`tests/manifest_audit.py`, in `make test`).** Three checks, each one
+a lie the manifest actually told: (1) the script a row names must exist; (2)
+`gate` requires a load-bearing exit — a script ending in unconditional success
+CANNOT go red, so it is an instrument, not a ratchet; (3) `external` must name
+its `requires` and the script must really reference an API key, network, docker
+or dataset — and symmetrically, an offline row reaching for an LLM key is
+mislabelled.
+
+The audit immediately caught a row I had not predicted: `swe-solve` looked
+offline because its entry point does not speak docker — it hands off to
+`tests/swebench/oracle.sh`, which does, 11 times. Rather than weaken the rule to
+make the red go away, the audit now follows one hop of delegation. Its remaining
+limit is stated rather than hidden: check (2) reads the exit contract
+statically, proving a script CAN fail, not that it fails on every wrong answer;
+mutation-proving each oracle belongs to Nightly (§10.6), not to `make test`.
+
+**Ratchet** (`tests/checkfocal.sh`, 17/17): an audit nobody has seen fail is just
+another unverified claim, so it is fed manifests that lie — the unfailable gate,
+the offline "external", the phantom script, the LLM-judge declared offline — and
+must go red on each.
+
 ## 2026-07-12 - gen319: every llmscore_world probe addressable by id (forge §15 row 2)
 
 **The wall.** `tests/llmscore_world.sh` is the richest behavioural corpus in the

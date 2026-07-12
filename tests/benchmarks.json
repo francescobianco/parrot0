@@ -1,6 +1,7 @@
 {
   "_comment": "gen316 (forge-master-plan W0.2): machine-readable benchmark manifest. Semantics: 'gate' = ratchet, must be green before any promotion; 'discovery' = instrument that surfaces gaps, red rows are pulls, not build failures; 'degrade' = harness runs but the capability is NOT engaged (a PASS measures the harness, never the capability); 'external' = needs resources outside the repo (LLM API, dataset download, docker), excluded from offline gating.",
   "_capabilities_comment": "gen317 (W0.3): faculty maturity claims (forge plan §4: ABSENT/SEED/TRANSFER/FIELD/HARDENED) with the benchmarks that evidence them. make capability-report VERIFIES each claim against real results: a red gate in the evidence downgrades the claim to REGRESSED; evidence that is only discovery/external is reported as claimed-unverified. The ledger is generated, never hand-written.",
+  "_audit_comment": "gen320 (§15 row 3): the manifest is now AUDITED, because it was lying (§3.4). Three fields make each claim mechanically checkable, and `make manifest-audit` (in `make test`) goes red on a false one: 'script' = the file the target actually runs (it must exist — 'basic-chat' named tests/basic_chat_bench.sh, which does not); 'exit_contract' = red-on-failure (the exit code is load-bearing) or always-zero (an instrument that reports, never fails); 'requires' = the external resources the target genuinely needs. A 'gate' whose script cannot exit non-zero is not a gate; an 'external' that touches no external resource is not external. Fixed in this generation: glue was gated but always exited 0; mimic/mmlu/bbh were called external while running entirely on local fixtures, offline.",
   "capabilities": [
     {"id": "kb_inference", "maturity": "FIELD", "evidence": ["core", "compose"], "wall": "scale, tabling, general conflict handling"},
     {"id": "teachable_procedures", "maturity": "SEED", "evidence": ["core"], "wall": "P3 proof, cross-domain holdout"},
@@ -19,162 +20,222 @@
     {
       "id": "core",
       "target": "test",
+      "script": "tests/run.sh",
       "area": "core",
       "semantics": "gate",
-      "oracle": "tests/run.sh + 38 suite scripts (Makefile 'test' recipe)",
+      "exit_contract": "red-on-failure",
+      "requires": [],
+      "oracle": "tests/run.sh + the suite scripts in the Makefile 'test' recipe",
       "gate": "every suite exits 0 (each prints 'passed: N, failed: 0')"
     },
     {
       "id": "code",
       "target": "code-bench",
+      "script": "tests/codebench.sh",
       "area": "coding",
       "semantics": "gate",
+      "exit_contract": "red-on-failure",
+      "requires": [],
       "oracle": "tests/codebench.sh",
       "gate": "all ratcheted gates hold (25/25 at gen313), 0 open gaps counted as failures"
     },
     {
       "id": "compose",
       "target": "compose-bench",
+      "script": "tests/composebench.sh",
       "area": "conversation",
       "semantics": "gate",
+      "exit_contract": "red-on-failure",
+      "requires": [],
       "oracle": "tests/composebench.sh",
       "gate": "all compositional dialogues hold (7 dialogues / 47 turns at gen312)"
     },
     {
       "id": "glue",
       "target": "glue-bench",
+      "script": "tests/gluebench.sh",
       "area": "conversation",
       "semantics": "gate",
+      "exit_contract": "red-on-failure",
+      "requires": [],
       "oracle": "tests/gluebench.sh",
-      "gate": "all held checks stay held (9/9); qualitative rows are embedded discovery, not gates"
+      "gate": "gen320: the exit code is now load-bearing. The 9 mechanical has:/no: continuity checks must all hold (0 gaps); the 2 qualitative 'show' rows are embedded discovery and never gate. Before gen320 this row claimed a ratchet the script could not fire."
     },
     {
       "id": "piagent",
       "target": "piagent-bench",
+      "script": "tests/piagent/piagent_bench.py",
       "area": "agent",
       "semantics": "gate",
+      "exit_contract": "red-on-failure",
+      "requires": [],
       "oracle": "tests/piagent/piagent_bench.py",
       "gate": "all tool/safety cases pass (14/14 at gen312)"
     },
     {
       "id": "sortlearn",
       "target": "sortlearn-bench",
+      "script": "tests/piagent/sortlearn_bench.py",
       "area": "agent",
       "semantics": "gate",
+      "exit_contract": "red-on-failure",
+      "requires": [],
       "oracle": "tests/piagent/sortlearn_bench.py",
       "gate": "forget/relearn/multistep all pass (9/9 at gen315)"
     },
     {
       "id": "game",
       "target": "game-bench",
+      "script": "tests/piagent/game_bench.py",
       "area": "agent",
       "semantics": "discovery",
+      "exit_contract": "always-zero",
+      "requires": [],
       "oracle": "tests/piagent/game_bench.py",
       "gate": "none — 1/3 steps built at gen312; planner and winner-function are open pulls"
     },
     {
       "id": "basic-chat",
       "target": "basic-chat-bench",
+      "script": "tests/basicchat.sh",
       "area": "conversation",
       "semantics": "discovery",
-      "oracle": "tests/basic_chat_bench.sh over basic-chat.md",
+      "exit_contract": "always-zero",
+      "requires": [],
+      "oracle": "tests/basicchat.sh over docs/plans/basic-chat.md",
       "gate": "none — corpus of probes; closed prompts ratchet via tests/cases"
     },
     {
       "id": "superglue-local",
       "target": "bench-superglue-local",
+      "script": "tests/bench.sh",
       "area": "language",
       "semantics": "discovery",
+      "exit_contract": "always-zero",
+      "requires": [],
       "oracle": "tests/bench.sh superglue (local fixtures)",
       "gate": "none — accuracy tracked, not gated"
     },
     {
       "id": "swe",
       "target": "swe-bench",
+      "script": "tests/swebench.sh",
       "area": "coding",
       "semantics": "degrade",
+      "exit_contract": "always-zero",
+      "requires": [],
       "oracle": "tests/swebench/ harness (docker oracle when available)",
       "gate": "none — 0/5 issues actually engaged; a PASS here measures the harness only (forge plan §3.2)"
     },
     {
       "id": "swe-solve",
       "target": "swe-solve",
+      "script": "tests/swebench/parrot_solve.sh",
       "area": "coding",
       "semantics": "external",
+      "exit_contract": "red-on-failure",
+      "requires": ["docker"],
       "oracle": "SWE-bench Lite docker oracle",
       "gate": "none — smell/localization demonstrator on selected instances, not cold-issue agency"
     },
     {
       "id": "llmscore",
       "target": "llmscore",
+      "script": "tests/llmscore.py",
       "area": "behaviour",
       "semantics": "external",
+      "exit_contract": "always-zero",
+      "requires": ["OPENCODE_API_KEY", "network"],
       "oracle": "LLM judge (discovery instrument; never a truth gate — forge plan §12.5)",
       "gate": "none"
     },
     {
       "id": "rulescore",
       "target": "rulescore",
+      "script": "tests/rulescore.py",
       "area": "coding",
       "semantics": "external",
+      "exit_contract": "always-zero",
+      "requires": ["OPENCODE_API_KEY", "network"],
       "oracle": "LLM-invented rule games + LLM judge (mine of tasks; not promotion evidence until properties are mechanical — §9.5)",
       "gate": "none"
     },
     {
       "id": "sym",
       "target": "sym-bench",
+      "script": "tests/symbench.py",
       "area": "behaviour",
       "semantics": "external",
+      "exit_contract": "always-zero",
+      "requires": ["OPENCODE_API_KEY", "network"],
       "oracle": "non-reasoning LLM oracle vs parrot0 on cryptic stimuli (behavioural signal)",
       "gate": "none"
     },
     {
       "id": "chat-sim",
       "target": "chat-sim",
+      "script": "tests/chatsim.py",
       "area": "conversation",
       "semantics": "external",
+      "exit_contract": "always-zero",
+      "requires": ["OPENCODE_API_KEY", "network"],
       "oracle": "LLM user simulator",
       "gate": "none"
     },
     {
       "id": "longtalk",
       "target": "longtalk-bench",
+      "script": "tests/longtalk_bench.py",
       "area": "conversation",
       "semantics": "external",
+      "exit_contract": "always-zero",
+      "requires": ["OPENCODE_API_KEY", "network"],
       "oracle": "LLM conversational endurance probe",
       "gate": "none"
     },
     {
       "id": "mimic",
       "target": "mimic-bench",
+      "script": "tests/mimic.sh",
       "area": "behaviour",
-      "semantics": "external",
-      "oracle": "LLM style comparison",
-      "gate": "none"
+      "semantics": "discovery",
+      "exit_contract": "always-zero",
+      "requires": [],
+      "oracle": "local style probes against a style profile (kb/profiles)",
+      "gate": "none — gen320: this was marked 'external' but runs entirely OFFLINE on local fixtures; no API key, no network. The teacher-comparison it was named for does not exist yet (§3.4)."
     },
     {
       "id": "superglue",
       "target": "bench-superglue",
+      "script": "tests/bench_superglue.py",
       "area": "language",
       "semantics": "external",
+      "exit_contract": "always-zero",
+      "requires": ["network", "dataset:superglue"],
       "oracle": "SuperGLUE dataset download + scorer",
       "gate": "none"
     },
     {
       "id": "mmlu",
       "target": "bench-mmlu",
+      "script": "tests/bench.sh",
       "area": "language",
-      "semantics": "external",
-      "oracle": "MMLU dataset",
-      "gate": "none"
+      "semantics": "discovery",
+      "exit_contract": "always-zero",
+      "requires": [],
+      "oracle": "tests/bench.sh mmlu (LOCAL fixture slices, not the MMLU dataset)",
+      "gate": "none — gen320: was marked 'external'; it reads local fixtures offline and downloads nothing (§3.4). The real dataset run is 'superglue'-style and does not exist for MMLU yet."
     },
     {
       "id": "bbh",
       "target": "bench-bbh",
+      "script": "tests/bench.sh",
       "area": "language",
-      "semantics": "external",
-      "oracle": "BBH dataset",
-      "gate": "none"
+      "semantics": "discovery",
+      "exit_contract": "always-zero",
+      "requires": [],
+      "oracle": "tests/bench.sh bbh (LOCAL fixture slices, not the BIG-Bench Hard dataset)",
+      "gate": "none — gen320: was marked 'external'; it reads local fixtures offline and downloads nothing (§3.4)."
     }
   ]
 }

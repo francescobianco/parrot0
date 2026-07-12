@@ -21,14 +21,29 @@ timeout or broken harness is `verdict=unknown`, exit 2, never a functional FAIL
 (§1.8). Ratchet `tests/checkfocal.sh` (9/9, in `make test`) proves the fail-fast
 is real against a known-red fixture.
 
-**Next rows of §15, in order.** 2: expose `llmscore_world`'s expect rows by id.
-3: make manifest and exit semantics agree for glue/mimic/MMLU/BBH (the manifest
-currently calls `glue-bench` a gate while the script always exits 0 — §3.4).
-4-7: split `obj/dev`+`bin/dev` from `obj/release`+`bin/release`, pick the dev
-profile on measured compile+focal time, generate real `.d` deps, isolate the
-commit stamp in its own TU (today a neutral commit rebuilds the whole brain:
-11.8 s). 8-9: a content-addressed `gate-result.json` so `make capability-report`
-stops re-running the six gates it just certified (gate+report ≈ 7m47s today).
+**Done — gen319 (§15 row 2): every llmscore_world probe addressable.** 127 probes,
+69.7 s, all-or-nothing; now `--list` / `--id <id>` runs exactly one (0.94 s) with
+the oracle untouched (127 pass / 0 fail before and after). The two open-coded
+`if` blocks became `expect_turns`, so no row is exempt from the catalog.
+`check.py` grew `oracle_kind: script-row`.
+
+**Done — gen320 (§15 row 3): the manifest is audited.** It was lying (§3.4):
+`glue` was gated but its script could not go red; `mimic`/`mmlu`/`bbh` were
+"external" while running offline; `basic-chat` named a script that does not
+exist. glue's exit code is now load-bearing on its 9 mechanical continuity checks
+(the qualitative rows stay discovery); the other three are reclassified honestly;
+`tests/manifest_audit.py` (in `make test`) goes red on a false classification and
+is itself ratcheted against manifests that lie.
+
+**Next rows of §15, in order.** 4-7 are the build-latency block: split
+`obj/dev`+`bin/dev` from `obj/release`+`bin/release`, pick the dev profile on
+MEASURED compile+focal time (not by decree), generate real `.d` deps, and isolate
+the commit stamp in its own TU — today a semantically neutral commit rebuilds the
+whole brain (11.8 s measured, §3.5). 8-9: a content-addressed `gate-result.json`
+so `make capability-report` stops re-running the six gates it just certified
+(gate + report ≈ 7m47s today). 10-12: isolate piagent/sortlearn ports and tmp,
+shard llmscore_world under a global budget, and a scheduler without nested
+oversubscription.
 
 Discipline unchanged: one contract per generation, KB-first where a capability is
 a fact set or lexical class, honest decline over fabrication, `make gate` green
