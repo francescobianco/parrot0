@@ -1095,6 +1095,41 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         return 0;
     }
 
+    /* gen330 (TODO.md P0/01): SEGMENT before diagnosing.
+     *
+     * find_code_section() above defines the code as "everything after the first
+     * colon" — so the user's own account of the bug ("It should return the absolute
+     * value but it returns a negative number for x = -5") was compiled as part of
+     * the program. The compiler rejected the paragraph, gen322's syntax veto
+     * therefore never engaged, and the scanner announced a missing semicolon in
+     * flawless C. The defect was in the ENGLISH.
+     *
+     * code_segment finds the real boundaries of the source by structure — the
+     * declarator before the first '{', brace-matched to its close — and only those
+     * bytes go to a compiler or a checker. The trailing prose is not thrown away:
+     * it is typed (EXPECTED / CONSTRAINT) with its byte span, which is what TODO 20
+     * will read to build the issue contract.
+     *
+     * When the code-like region does not close, the answer is `ambiguous_input`.
+     * parrot0 does not guess at the shape of a program in order to have something
+     * to say about it — a precise decline is green; an invented finding is red. */
+    char seg[512];
+    int ex = code_extract_source(s, seg, sizeof seg);
+    if (ex == -1) {
+        snprintf(out, out_size,
+                 "ambiguous_input: I can see code in there, but its braces never "
+                 "close, so I cannot tell where the program ends and your description "
+                 "begins. Show me the snippet on its own and I will read it.");
+        store_proof(b, "declined: ambiguous_input (code region does not close)");
+        return 1;
+    }
+    if (ex == 1) {
+        snprintf(code, sizeof code, "%s", seg);   /* the SOURCE, and nothing else */
+    }
+    /* ex == 0: no C body in the prompt (a Python def, a bare fragment). The old
+     * whole-section text stands — the compiler cannot be fooled by prose it never
+     * sees, and the syntax gate below now demands a REJECTION, not a non-answer. */
+
     /* Identify language */
     int lang = identify_code_lang(code, b);
 
@@ -1195,9 +1230,30 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
          *
          * Type mismatch and unknown-function are NOT vetoed: `cc -w` accepts
          * `int x = "hi"`, so silence there would mean nothing. */
-        int syn = code_syntax_ok(code);
+        /* gen330 (TODO.md P0/02, the honesty sweep): a syntax claim now requires a
+         * REJECTION, not merely the absence of an approval.
+         *
+         * gen322's veto read `syn != 1`, which let every scanner fire whenever the
+         * oracle returned -1 — "I cannot judge this". And -1 was not a rare corner:
+         * it was returned for every fragment without a brace, and (until gen330
+         * segmented the input) for every prompt whose trailing English made the
+         * "translation unit" unparseable. So the checks were loudest exactly where
+         * the compiler was blindest, which is the worst possible arrangement.
+         *
+         * code_syntax_verdict wraps a bare fragment in a main() so cc can judge it
+         * too, and the gate becomes `syn == 0`: the compiler must have actually
+         * refused these bytes. No oracle, no claim. The compiler's own diagnostic
+         * is carried along and reported, because "cc says: expected ';' before '}'"
+         * is a fact, while "add a semicolon at the end of each statement" was a
+         * guess dressed as one.
+         *
+         * Type mismatch and unknown-function stay OUTSIDE this gate on purpose:
+         * `cc -w` accepts `int x = "hi"`, so the compiler's silence there is not
+         * evidence of anything. */
+        char diag[256] = "";
+        int syn = code_syntax_verdict(code, diag, sizeof diag);
 
-        if (syn != 1 && check_missing_semicolons(code, r, sizeof r)) {
+        if (syn == 0 && check_missing_semicolons(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
@@ -1207,19 +1263,29 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (syn != 1 && check_unclosed_string(code, r, sizeof r)) {
+        if (syn == 0 && check_unclosed_string(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (syn != 1 && check_balanced_braces(code, r, sizeof r)) {
+        if (syn == 0 && check_balanced_braces(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
             errors++;
         }
-        if (syn != 1 && check_balanced_parens(code, r, sizeof r)) {
+        if (syn == 0 && check_balanced_parens(code, r, sizeof r)) {
             size_t ol = strlen(findings);
             snprintf(findings + ol, sizeof findings - ol, "%s. ", r);
+            errors++;
+        }
+        /* The compiler refused it and not one scanner could name why. Say what the
+         * compiler said — a real finding we did not have a pattern for is still a
+         * real finding, and inventing a nearby one to fill the silence is the exact
+         * failure this generation exists to end. */
+        if (syn == 0 && errors == 0 && diag[0]) {
+            size_t ol = strlen(findings);
+            snprintf(findings + ol, sizeof findings - ol, "the compiler rejects it: %s. ",
+                     diag);
             errors++;
         }
         if (check_unknown_function(code, b, r, sizeof r)) {
@@ -1303,6 +1369,15 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             snprintf(out, out_size, "Fix: check the function name spelling or include the right header. Did you mean printf instead of print?");
         else if (strstr(findings, "colon"))
             snprintf(out, out_size, "Fix: add a colon at the end of the block-introducing line.");
+        else if (strstr(findings, "the compiler rejects it"))
+            /* gen330: the compiler refused the code and none of our patterns could
+             * name the defect. Before this, that landed in the `else` below — "I did
+             * not find a clear fix" — which is a false statement about code we KNOW
+             * is broken, and it hid a real finding behind a shrug. Report cc's own
+             * words: the defect is a fact, the repair is what we don't have. */
+            snprintf(out, out_size,
+                     "It does not compile — %s. I have no repair rule for that one, "
+                     "so I will not invent a patch.", findings);
         else
             snprintf(out, out_size, "I did not find a clear fix. Can you describe what behavior you expect?");
     } else if (qtype == 4) {

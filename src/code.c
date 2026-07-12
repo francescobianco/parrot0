@@ -2540,6 +2540,232 @@ int code_syntax_ok(const char *src) {
     return r;
 }
 
+/* gen330 (TODO.md P0/01): the compiler's verdict on a snippet, in its own words —
+ * and reachable for a FRAGMENT, which code_syntax_ok could never judge.
+ *
+ * A bare "int x = 5" is not a translation unit, so code_syntax_ok returns -1
+ * (unknown) — and -1 was precisely the hole the hand-rolled scanners lived in: no
+ * oracle could contradict them there. Wrapping the fragment in a minimal main()
+ * turns it into something cc CAN judge, which closes the hole without inventing a
+ * judge of our own. The wrap is only attempted for fragments that look like
+ * statements (no brace of their own, no preprocessor line); anything else keeps
+ * the honest -1. */
+int code_syntax_verdict(const char *src, char *diag, size_t diag_sz) {
+    if (diag && diag_sz) diag[0] = '\0';
+    if (!src || !*src) return -1;
+
+    int wrap = (strchr(src, '{') == NULL) && (strchr(src, '#') == NULL);
+
+    char tmp[64];
+    snprintf(tmp, sizeof tmp, ".p0_verdict_%ld.c", (long)getpid());
+    FILE *f = fopen(tmp, "w");
+    if (!f) return -1;
+    if (wrap) fputs("int main(void){\n", f);
+    fputs(src, f);
+    fputc('\n', f);
+    if (wrap) fputs("}\n", f);
+    fclose(f);
+
+    char err[1024];
+    int r = code_compile(tmp, err, sizeof err);
+    remove(tmp);
+
+    if (r == 0 && diag && diag_sz) {
+        /* Hand back cc's FIRST diagnostic line, stripped of the temp file name —
+         * the user must read the compiler's finding, not our paraphrase of it. */
+        const char *p = err;
+        const char *colon = strstr(p, ".c:");
+        if (colon) {
+            p = colon + 3;
+            while (*p && *p != ':') p++;   /* past the line number   */
+            if (*p) p++;
+            while (*p && *p != ':') p++;   /* past the column number */
+            if (*p) p++;
+        }
+        while (*p == ' ') p++;
+        size_t n = 0;
+        while (p[n] && p[n] != '\n' && n + 1 < diag_sz) n++;
+        memcpy(diag, p, n);
+        diag[n] = '\0';
+    }
+    return r;
+}
+
+/* ---- gen330 (TODO.md P0/01): segmenting a prompt into typed spans ------------
+ *
+ * See code.h for the counterexample. The job: find where the SOURCE starts and
+ * ends inside a sentence that also contains an instruction and a description of
+ * the bug, so that only the source is ever handed to a compiler.
+ *
+ * The anchor is structure, not vocabulary: a C function is a declarator followed
+ * by a brace-balanced body. We find the first '{', walk BACKWARD to the head of
+ * its declaration, then brace-count FORWARD to the matching close — and repeat
+ * while the next non-space thing still looks like another declaration, so several
+ * functions in a row stay one code span. Whatever precedes is the instruction;
+ * whatever follows is the user's prose about the code.
+ *
+ * If the braces never balance, the span is not a program and we say so
+ * (ambiguous) rather than diagnose a shape we had to guess at. */
+
+/* Walk back from the '(' of a declarator over "int", "static char *", … */
+static size_t decl_head_start(const char *s, size_t open_paren) {
+    size_t i = open_paren;
+    /* skip back over the function name and the type words before it */
+    while (i > 0) {
+        char c = s[i - 1];
+        if (isalnum((unsigned char)c) || c == '_' || c == '*' || c == ' ' ||
+            c == '\t' || c == '\n')
+            i--;
+        else
+            break;      /* ':', '.', ',', ')', … — the prose ends here */
+    }
+    while (i < open_paren && isspace((unsigned char)s[i])) i++;
+    return i;
+}
+
+/* From the '{' at `open`, find its matching '}'. Returns 0 if it never closes.
+ * Braces inside string/char literals and comments do not count. */
+static size_t brace_match(const char *s, size_t open, size_t n) {
+    int depth = 0;
+    for (size_t i = open; i < n; i++) {
+        char c = s[i];
+        if (c == '"' || c == '\'') {                 /* skip a literal            */
+            char q = c; i++;
+            while (i < n && s[i] != q) { if (s[i] == '\\') i++; i++; }
+            continue;
+        }
+        if (c == '/' && i + 1 < n && s[i+1] == '/') { /* line comment             */
+            while (i < n && s[i] != '\n') i++;
+            continue;
+        }
+        if (c == '/' && i + 1 < n && s[i+1] == '*') { /* block comment            */
+            i += 2;
+            while (i + 1 < n && !(s[i] == '*' && s[i+1] == '/')) i++;
+            i++;
+            continue;
+        }
+        if (c == '{') depth++;
+        else if (c == '}') { depth--; if (depth == 0) return i; }
+    }
+    return 0;                                        /* never closed              */
+}
+
+size_t code_segment(const char *raw, CodeSeg *segs, size_t max, int *ambiguous) {
+    if (ambiguous) *ambiguous = 0;
+    if (!raw || !segs || max == 0) return 0;
+    size_t n = strlen(raw);
+    size_t nseg = 0;
+
+    /* A fenced block is an explicit declaration of where the code is. Believe it. */
+    const char *f1 = strstr(raw, "```");
+    if (f1) {
+        const char *body = f1 + 3;
+        while (*body && *body != '\n' && !isspace((unsigned char)*body)) body++; /* ```c */
+        while (*body == ' ' || *body == '\n') body++;
+        const char *f2 = strstr(body, "```");
+        if (!f2) { if (ambiguous) *ambiguous = 1; return 0; }   /* fence never closes */
+        if ((size_t)(f1 - raw) > 0)
+            segs[nseg++] = (CodeSeg){CODE_SEG_INSTRUCTION, 0, (size_t)(f1 - raw)};
+        if (nseg < max)
+            segs[nseg++] = (CodeSeg){CODE_SEG_CODE, (size_t)(body - raw),
+                                     (size_t)(f2 - body)};
+        size_t after = (size_t)(f2 - raw) + 3;
+        if (after < n && nseg < max)
+            segs[nseg++] = (CodeSeg){CODE_SEG_EXPECTED, after, n - after};
+        return nseg;
+    }
+
+    /* Otherwise: anchor on the first '{' and the declarator in front of it. */
+    const char *brace = strchr(raw, '{');
+    if (!brace) return 0;                       /* no C body here — not our shape */
+    size_t bpos = (size_t)(brace - raw);
+
+    /* find the ')' that should precede it (allowing whitespace), then its '(' */
+    size_t i = bpos;
+    while (i > 0 && isspace((unsigned char)raw[i - 1])) i--;
+    size_t start;
+    if (i > 0 && raw[i - 1] == ')') {
+        size_t close = i - 1, depth = 0, j = close;
+        while (j > 0) {
+            if (raw[j] == ')') depth++;
+            else if (raw[j] == '(') { depth--; if (depth == 0) break; }
+            j--;
+        }
+        if (raw[j] != '(') return 0;
+        start = decl_head_start(raw, j);
+    } else {
+        /* a brace with no declarator (a bare block, a struct initializer in prose):
+         * we cannot say where the program begins. */
+        return 0;
+    }
+
+    /* forward: consume consecutive brace-balanced bodies */
+    size_t end = 0, scan = bpos;
+    for (;;) {
+        size_t close = brace_match(raw, scan, n);
+        if (!close) { if (ambiguous) *ambiguous = 1; return 0; }  /* never closes  */
+        end = close;
+        /* another function right after? (declarator … '(' … ')' … '{') */
+        size_t k = close + 1;
+        while (k < n && isspace((unsigned char)raw[k])) k++;
+        if (k >= n) break;
+        const char *nb = strchr(raw + k, '{');
+        if (!nb) break;
+        size_t nbpos = (size_t)(nb - raw);
+        /* it is a following function only if what lies between is a declarator —
+         * i.e. no sentence punctuation intervenes. */
+        int declish = 1;
+        for (size_t q = k; q < nbpos; q++)
+            if (strchr(".!?,:;", raw[q])) { declish = 0; break; }
+        if (!declish) break;
+        size_t m = nbpos;
+        while (m > k && isspace((unsigned char)raw[m - 1])) m--;
+        if (m == k || raw[m - 1] != ')') break;
+        scan = nbpos;
+    }
+
+    if (start > 0)
+        segs[nseg++] = (CodeSeg){CODE_SEG_INSTRUCTION, 0, start};
+    if (nseg < max)
+        segs[nseg++] = (CodeSeg){CODE_SEG_CODE, start, end - start + 1};
+
+    /* Trailing prose. "It should return X" is what the code is EXPECTED to do;
+     * "without recursion" / "senza ricorsione" restricts HOW it may be fixed. The
+     * distinction is knowledge the later faculties want (TODO 20), so it is drawn
+     * here, at the only place that still knows the byte offsets. */
+    size_t after = end + 1;
+    while (after < n && isspace((unsigned char)raw[after])) after++;
+    if (after < n && nseg < max) {
+        char low[256]; size_t li = 0;
+        for (size_t q = after; q < n && li + 1 < sizeof low; q++)
+            low[li++] = (char)tolower((unsigned char)raw[q]);
+        low[li] = '\0';
+        int constraint = strstr(low, "without") || strstr(low, "senza") ||
+                         strstr(low, "must not") || strstr(low, "non deve") ||
+                         strstr(low, "do not use") || strstr(low, "non usare");
+        segs[nseg++] = (CodeSeg){constraint ? CODE_SEG_CONSTRAINT : CODE_SEG_EXPECTED,
+                                 after, n - after};
+    }
+    return nseg;
+}
+
+int code_extract_source(const char *raw, char *out, size_t cap) {
+    if (out && cap) out[0] = '\0';
+    CodeSeg segs[8];
+    int amb = 0;
+    size_t ns = code_segment(raw, segs, 8, &amb);
+    if (amb) return -1;
+    for (size_t i = 0; i < ns; i++) {
+        if (segs[i].kind != CODE_SEG_CODE) continue;
+        size_t len = segs[i].len;
+        if (len + 1 > cap) len = cap - 1;
+        memcpy(out, raw + segs[i].start, len);
+        out[len] = '\0';
+        return 1;
+    }
+    return 0;
+}
+
 int code_build(const char *src_path, char *err_out, size_t err_sz) {
     if (err_out && err_sz) err_out[0] = '\0';
     if (!src_path || !*src_path) return -1;

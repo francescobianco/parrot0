@@ -13,9 +13,9 @@ una trace strutturata e l'aggiornamento automatico del capability ledger.
 
 ## P0 — verità operativa, feedback e sicurezza
 
-- [ ] **01 — Separare issue, prosa e sorgente prima di diagnosticare codice.** Counterexample reale: `fix this code: int absval(...) ... It should return ...` su C sintatticamente valido risponde falsamente “add a semicolon”. Introdurre segmenti tipizzati con span (`instruction`, `constraint`, `code`, `expected`) e compilare soltanto il sorgente estratto; se l'estrazione è ambigua, restituire `ambiguous_input`, non una diagnosi. **Done:** 20 layout misti EN/IT e input multilinea non producono falsi syntax finding; i corrispondenti snippet realmente rotti restano rilevati dal compilatore.
+- [x] **01 — Separare issue, prosa e sorgente prima di diagnosticare codice.** Counterexample reale: `fix this code: int absval(...) ... It should return ...` su C sintatticamente valido risponde falsamente “add a semicolon”. Introdurre segmenti tipizzati con span (`instruction`, `constraint`, `code`, `expected`) e compilare soltanto il sorgente estratto; se l'estrazione è ambigua, restituire `ambiguous_input`, non una diagnosi. **Done:** 20 layout misti EN/IT e input multilinea non producono falsi syntax finding; i corrispondenti snippet realmente rotti restano rilevati dal compilatore.
 
-- [ ] **02 — Fare l'honesty sweep di tutti i checker.** Per ogni `check_*`/diagnostica aggiungere almeno un programma corretto sul quale deve restare silente, un difetto vero, mutazioni di whitespace/commenti e un oracle meccanico (compiler, sanitizer, test o property), evitando che un pattern scanner possa emettere da solo un claim. **Done:** false-positive rate 0 sul corpus correct/clean e ablation di ogni veto riaccende il suo counterexample.
+- [x] **02 — Fare l'honesty sweep di tutti i checker.** Per ogni `check_*`/diagnostica aggiungere almeno un programma corretto sul quale deve restare silente, un difetto vero, mutazioni di whitespace/commenti e un oracle meccanico (compiler, sanitizer, test o property), evitando che un pattern scanner possa emettere da solo un claim. **Done:** false-positive rate 0 sul corpus correct/clean e ablation di ogni veto riaccende il suo counterexample.
 
 - [ ] **03 — Completare Fast Forge come inner loop direzionale.** Estendere l'embrione `make check TEST=<id>` a tutti i nuovi counterexample di questa lista, con catalogo atomico, owner, tier, timeout, oracle, START/PASS/FAIL streaming e primo contratto rotto; generare evidence artifact content-addressed riusabile dal capability report. **Done:** 20 modifiche consecutive con focal P95 <= 5 s, primo evento <= 500 ms, nessuna riesecuzione gate→report e timeout/infra/flaky distinti da FAIL.
 
@@ -28,6 +28,32 @@ una trace strutturata e l'aggiornamento automatico del capability ledger.
 - [x] **07 — Rendere ogni tool result un'Observation, non testo ottimistico.** Registrare argv, input digest, cwd, exit code, signal, stdout/stderr separati, truncation, durata, side effect e artifact hash; oggi `run_shell()` ignora lo status e non ha timeout. **Done:** un `make` fallito non può essere descritto come successo, output vuoto/fallimento/timeout sono distinti, e `how do you know?` cita l'Observation esatta.
 
 - [ ] **08 — Rendere dispatch e decomposizione transazionali.** La selezione speculativa non deve mutare KB, memoria, filesystem o rieseguire tool: i moduli prima producono `Proposal`, poi il router seleziona e solo il champion commette effetti; rollback completo su sottogoal successivo fallito. **Done:** prompt articolati con secondo passo impossibile lasciano zero effetti parziali, e replay/shadow non duplicano action o fatti.
+
+### Chiuso in gen330 (`code_segment`, oracolo `tests/segment.sh`, 28/28)
+
+01/02 sono lo stesso difetto visto da due lati. `find_code_section()` definiva il
+codice come "tutto dopo il primo due punti", quindi la descrizione del bug scritta
+dall'utente veniva *compilata* insieme al programma: cc rifiutava il paragrafo, il
+veto sintattico di gen322 (`syn != 1`) non scattava mai, e uno scanner fatto a mano
+annunciava un punto e virgola mancante dentro C perfetto. Il difetto era
+nell'inglese. Ora `code_segment` trova i confini reali del sorgente per struttura
+(il dichiaratore prima della prima `{`, brace-matched fino alla sua chiusura) e
+produce span TIPIZZATI — instruction / code / expected / constraint — con offset di
+byte: solo il codice arriva al compilatore, e la prosa resta disponibile (con la
+sua posizione) per il contratto-issue di TODO 20.
+
+L'honesty sweep: una diagnosi sintattica richiede ora un RIFIUTO del compilatore
+(`syn == 0`), non l'assenza di un'approvazione. Il vecchio `syn != 1` lasciava
+sparare gli scanner proprio quando l'oracolo diceva "non so giudicare" (-1) — cioè
+erano più rumorosi esattamente dove il compilatore era più cieco. `code_syntax_verdict`
+avvolge un frammento in un `main()` così cc può giudicare anche quello, e il
+messaggio riportato è quello *del compilatore*, non la nostra parafrasi. Se cc
+rifiuta e nessuno scanner sa dire perché, parrot0 riporta la diagnosi di cc e
+dichiara di non avere una regola di riparazione — invece di dire "non trovo un fix
+chiaro" su codice che sa essere rotto.
+
+Se le graffe non chiudono: `ambiguous_input`. parrot0 non indovina la forma di un
+programma pur di avere qualcosa da dire.
 
 ### Chiuso in gen329 (`src/exec.c`, oracolo `tests/toolexec.sh`, 25/25)
 

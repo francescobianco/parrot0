@@ -255,6 +255,65 @@ int code_compile(const char *path, char *err_out, size_t err_sz);
  * -1 is NOT "fine" and NOT "broken"; the caller must not read it as either. */
 int code_syntax_ok(const char *src);
 
+/* gen330 (TODO.md P0/01): a prompt is not a source file.
+ *
+ * The counterexample, on the real gen328 binary:
+ *
+ *   you> fix this code: int absval(int x) { if (x < 0) { return -x; } return x; }
+ *        It should return the absolute value but it returns a negative number
+ *        for x = -5
+ *   parrot0> Fix: add a semicolon at the end of each statement.
+ *
+ * The C is flawless. The "missing semicolon" is in the ENGLISH. find_code_section()
+ * defined the code as "everything after the first colon", so the user's own
+ * description of the bug was compiled as part of the program — the compiler
+ * naturally rejected the paragraph, the syntax veto gen322 installed therefore did
+ * not engage, and a hand-rolled scanner invented a defect that does not exist. The
+ * user asked about a semantic bug and was answered with a fabricated syntactic one.
+ *
+ * So the prompt is SEGMENTED into typed spans before anything is compiled:
+ *
+ *   INSTRUCTION  "fix this code:"                       what to do
+ *   CODE         "int absval(int x) { … }"              the only bytes cc may see
+ *   EXPECTED     "It should return the absolute value"  the intended behaviour
+ *   CONSTRAINT   "without using recursion"              a restriction on the fix
+ *
+ * Spans, not copies: each segment carries its byte offset into the raw prompt, so
+ * a later faculty (TODO 20's issue contract) can cite exactly where a claim came
+ * from. When the code-like region does not close — a paste that lost its last brace
+ * — the answer is `ambiguous_input`, NOT a diagnosis: parrot0 does not guess at the
+ * shape of a program in order to have something to say about it. */
+typedef enum {
+    CODE_SEG_INSTRUCTION = 0,
+    CODE_SEG_CODE,
+    CODE_SEG_EXPECTED,
+    CODE_SEG_CONSTRAINT
+} CodeSegKind;
+
+typedef struct {
+    CodeSegKind kind;
+    size_t      start;   /* byte offset into the raw prompt */
+    size_t      len;
+} CodeSeg;
+
+/* Segment a mixed prompt into typed spans. Returns the number of segments; sets
+ * *ambiguous when the prompt holds code-like structure that does not close. */
+size_t code_segment(const char *raw, CodeSeg *segs, size_t max, int *ambiguous);
+
+/* Just the source, please. Returns 1 (extracted), 0 (no code span found), or
+ * -1 (ambiguous — say so, do not diagnose). */
+int code_extract_source(const char *raw, char *out, size_t cap);
+
+/* gen330: the compiler's verdict on a snippet, with its own words.
+ *
+ * code_syntax_ok returns -1 for anything that is not a standalone translation
+ * unit, which left every bare fragment ("int x = 5") beyond the oracle's reach —
+ * and an unjudged fragment was exactly where the hand-rolled scanners were still
+ * free to invent. This wraps such a fragment in a minimal main() so the compiler
+ * CAN judge it, and hands back the diagnostic it produced. Same three-way as
+ * code_syntax_ok: 1 accepted, 0 rejected (diag filled), -1 genuinely unknown. */
+int code_syntax_verdict(const char *src, char *diag, size_t diag_sz);
+
 /* gen192: F5 verification by BUILDING — compile AND link `src_path` into a temp
  * executable (sandboxed subprocess, no shell, path whitelist, timeout; the temp
  * executable is removed before returning). Unlike code_compile's -fsyntax-only,
