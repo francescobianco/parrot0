@@ -183,9 +183,13 @@ static const Module registry[] = {
      * aggregate_frame(Cue, Pred, ReturnArg, Mode) — a fold (group+count+extremum),
      * before mod_knowledge which would else mis-claim "which river ...?". */
     {"aggregate", mod_aggregate},
-    {"knowledge", mod_knowledge},
+    /* gen313: code modules must claim code queries before mod_knowledge's
+     * describe_cue handler intercepts "define"/"defines" turns. All three
+     * code entry points have tight gates (code-keyword + structure pattern)
+     * so they never claim non-code queries. */
     {"codeast",   mod_codeast},
     {"code",      mod_code},
+    {"knowledge", mod_knowledge},
     {"symbolic",  mod_symbolic},
     {"summary",   mod_summary},
     {"discourse", mod_discourse},

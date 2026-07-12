@@ -1613,6 +1613,8 @@ static int is_struct_pred(const char *pred) {
         "pair_magnitude", "clue_verb", "emits", "is_like", "inanimate", "cries",
         "flashes", "depicts", "contains", "has_part", "has_property", "can_do",
         "add", "len", "nat", "riddle_sig", "response_template",
+        /* gen313: code/KB-substrate predicates — never entity descriptions */
+        "code_function", "code_calls", "day_order",
         NULL,
     };
     for (size_t i = 0; s[i]; i++) if (strcmp(pred, s[i]) == 0) return 1;
