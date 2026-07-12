@@ -127,8 +127,16 @@ def main() -> int:
         return 1
     try:
         r = _post_chat("tell me about bubble sort")
+        # gen315: assert the SEMANTICS of a clean honest miss, not one historical
+        # phrasing (the informed-decline wording legitimately evolves): the reply
+        # must admit the missing source ("no source" / "don't have a source"),
+        # must not fabricate content, and nothing may be persisted.
+        rl = r.lower()
+        admits_no_source = "no source" in rl or "t have a source" in rl
+        fabricates = "swaps adjacent elements" in rl or "read it up" in rl
+        persisted = learn_kb.read_text() if learn_kb.is_file() else ""
         check("forget-honest-miss",
-              "don't actually know" in r.lower() and "no source" in r.lower(),
+              admits_no_source and not fabricates and "wiki_concept" not in persisted,
               r)
     finally:
         _stop(srv)
