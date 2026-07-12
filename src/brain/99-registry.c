@@ -580,8 +580,13 @@ int brain_reload(Brain *b) {
     return (int)kb_size(b->kb);
 }
 
+/* gen317 (forge W0.4): the version is DERIVED at build time from the VERSION
+ * file (generation label) and the git commit — never a hand-maintained string
+ * that can drift from the repo (brain_version said gen300 while HEAD was at
+ * gen312; that class of lie is now structurally impossible). */
+#include "../version.h"
 const char *brain_version(void) {
-    return "gen300-class-conjunction";
+    return PARROT0_GEN "@" PARROT0_COMMIT;
 }
 
 /* gen55 (C5a): an honest, NON-repeating not-understood reply. The chatsim users

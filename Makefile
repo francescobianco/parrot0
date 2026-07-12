@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat pi test gate piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat pi test gate capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -56,10 +56,22 @@ build: $(BIN)
 $(BIN): $(OBJ) | bin
 	$(CC) $(CFLAGS) -o $@ $(OBJ) $(CURL_LDLIBS)
 
+# gen317 (forge W0.4): brain_version is DERIVED, never hand-maintained — the
+# generation label lives in the VERSION file (single source) and the commit is
+# read from git at build time. Content-compare so an unchanged version never
+# touches the header (no spurious rebuilds).
+GITHASH := $(shell git rev-parse --short HEAD 2>/dev/null || echo nogit)
+src/version.h: VERSION FORCE
+	@printf '#define PARROT0_GEN "%s"\n#define PARROT0_COMMIT "%s"\n' \
+	  "$$(cat VERSION)" "$(GITHASH)" > src/version.h.tmp; \
+	if cmp -s src/version.h.tmp src/version.h; then rm -f src/version.h.tmp; \
+	else mv src/version.h.tmp src/version.h; fi
+FORCE:
+
 # Depend on ALL headers: KB_TERM_LEN etc. live in kb.h and define struct
 # layout, so a header change must rebuild every object or the binary links
 # translation units with mismatched ABIs (silent memory corruption).
-obj/%.o: src/%.c $(HDR) | obj
+obj/%.o: src/%.c $(HDR) src/version.h | obj
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 # brain.o additionally depends on its #include'd fragments.
@@ -226,6 +238,12 @@ longtalk-bench: build
 # declares as a 'gate' ratchet; red gate = baseline-broken, nothing promotes.
 gate: build
 	@$(BENCH_PY) ./tests/gate.py
+
+# gen317 (forge W0.3): the capability ledger, GENERATED from gate results —
+# verifies each faculty maturity claim against its evidence benchmarks and
+# writes capabilities/manifest.json. Exits red if a claim regressed.
+capability-report: build
+	@$(BENCH_PY) ./tests/capability_report.py
 
 test: build
 	@./tests/run.sh

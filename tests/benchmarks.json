@@ -1,5 +1,20 @@
 {
   "_comment": "gen316 (forge-master-plan W0.2): machine-readable benchmark manifest. Semantics: 'gate' = ratchet, must be green before any promotion; 'discovery' = instrument that surfaces gaps, red rows are pulls, not build failures; 'degrade' = harness runs but the capability is NOT engaged (a PASS measures the harness, never the capability); 'external' = needs resources outside the repo (LLM API, dataset download, docker), excluded from offline gating.",
+  "_capabilities_comment": "gen317 (W0.3): faculty maturity claims (forge plan §4: ABSENT/SEED/TRANSFER/FIELD/HARDENED) with the benchmarks that evidence them. make capability-report VERIFIES each claim against real results: a red gate in the evidence downgrades the claim to REGRESSED; evidence that is only discovery/external is reported as claimed-unverified. The ledger is generated, never hand-written.",
+  "capabilities": [
+    {"id": "kb_inference", "maturity": "FIELD", "evidence": ["core", "compose"], "wall": "scale, tabling, general conflict handling"},
+    {"id": "teachable_procedures", "maturity": "SEED", "evidence": ["core"], "wall": "P3 proof, cross-domain holdout"},
+    {"id": "conversational_comprehension", "maturity": "TRANSFER", "evidence": ["glue", "compose"], "wall": "universal intent schema, typed gaps"},
+    {"id": "code_reading", "maturity": "TRANSFER", "evidence": ["code"], "wall": "IR, scope, CFG/dataflow"},
+    {"id": "local_tools", "maturity": "TRANSFER", "evidence": ["piagent"], "wall": "secure executor, cold repos"},
+    {"id": "structural_repair", "maturity": "SEED", "evidence": ["swe-solve"], "wall": "issue->region, decoys, cold cases"},
+    {"id": "agentic_planning", "maturity": "SEED", "evidence": ["game"], "wall": "action model, replan on observation"},
+    {"id": "multi_file_editing", "maturity": "ABSENT", "evidence": [], "wall": "patch transaction + rollback"},
+    {"id": "learn_build", "maturity": "SEED", "evidence": ["sortlearn"], "wall": "fresh markdown -> induced schema"},
+    {"id": "autolearn", "maturity": "SEED", "evidence": [], "wall": "quarantine, holdout, safe promotion"},
+    {"id": "coding_agent_api", "maturity": "SEED", "evidence": ["piagent"], "wall": "history, tool calls, streaming"},
+    {"id": "autonomous_safety", "maturity": "ABSENT", "evidence": [], "wall": "process/fs/net/resource isolation"}
+  ],
   "benchmarks": [
     {
       "id": "core",

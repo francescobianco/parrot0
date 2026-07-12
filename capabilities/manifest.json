@@ -1,0 +1,245 @@
+{
+  "commit": "c5c5517",
+  "brain_version": "gen317-forge-w0@c5c5517",
+  "generated": "2026-07-12 09:14:42",
+  "benchmarks": [
+    {
+      "id": "core",
+      "semantics": "gate",
+      "status": "green"
+    },
+    {
+      "id": "code",
+      "semantics": "gate",
+      "status": "green"
+    },
+    {
+      "id": "compose",
+      "semantics": "gate",
+      "status": "green"
+    },
+    {
+      "id": "glue",
+      "semantics": "gate",
+      "status": "green"
+    },
+    {
+      "id": "piagent",
+      "semantics": "gate",
+      "status": "green"
+    },
+    {
+      "id": "sortlearn",
+      "semantics": "gate",
+      "status": "green"
+    },
+    {
+      "id": "game",
+      "semantics": "discovery",
+      "status": "not-run"
+    },
+    {
+      "id": "basic-chat",
+      "semantics": "discovery",
+      "status": "not-run"
+    },
+    {
+      "id": "superglue-local",
+      "semantics": "discovery",
+      "status": "not-run"
+    },
+    {
+      "id": "swe",
+      "semantics": "degrade",
+      "status": "not-run"
+    },
+    {
+      "id": "swe-solve",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "llmscore",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "rulescore",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "sym",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "chat-sim",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "longtalk",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "mimic",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "superglue",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "mmlu",
+      "semantics": "external",
+      "status": "not-run"
+    },
+    {
+      "id": "bbh",
+      "semantics": "external",
+      "status": "not-run"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "kb_inference",
+      "maturity": "FIELD",
+      "evidence": [
+        "core",
+        "compose"
+      ],
+      "wall": "scale, tabling, general conflict handling",
+      "verdict": "verified",
+      "evidence_status": {
+        "core": "green",
+        "compose": "green"
+      }
+    },
+    {
+      "id": "teachable_procedures",
+      "maturity": "SEED",
+      "evidence": [
+        "core"
+      ],
+      "wall": "P3 proof, cross-domain holdout",
+      "verdict": "verified",
+      "evidence_status": {
+        "core": "green"
+      }
+    },
+    {
+      "id": "conversational_comprehension",
+      "maturity": "TRANSFER",
+      "evidence": [
+        "glue",
+        "compose"
+      ],
+      "wall": "universal intent schema, typed gaps",
+      "verdict": "verified",
+      "evidence_status": {
+        "glue": "green",
+        "compose": "green"
+      }
+    },
+    {
+      "id": "code_reading",
+      "maturity": "TRANSFER",
+      "evidence": [
+        "code"
+      ],
+      "wall": "IR, scope, CFG/dataflow",
+      "verdict": "verified",
+      "evidence_status": {
+        "code": "green"
+      }
+    },
+    {
+      "id": "local_tools",
+      "maturity": "TRANSFER",
+      "evidence": [
+        "piagent"
+      ],
+      "wall": "secure executor, cold repos",
+      "verdict": "verified",
+      "evidence_status": {
+        "piagent": "green"
+      }
+    },
+    {
+      "id": "structural_repair",
+      "maturity": "SEED",
+      "evidence": [
+        "swe-solve"
+      ],
+      "wall": "issue->region, decoys, cold cases",
+      "verdict": "claimed",
+      "evidence_status": {
+        "swe-solve": "not-run"
+      }
+    },
+    {
+      "id": "agentic_planning",
+      "maturity": "SEED",
+      "evidence": [
+        "game"
+      ],
+      "wall": "action model, replan on observation",
+      "verdict": "claimed",
+      "evidence_status": {
+        "game": "not-run"
+      }
+    },
+    {
+      "id": "multi_file_editing",
+      "maturity": "ABSENT",
+      "evidence": [],
+      "wall": "patch transaction + rollback",
+      "verdict": "claimed",
+      "evidence_status": {}
+    },
+    {
+      "id": "learn_build",
+      "maturity": "SEED",
+      "evidence": [
+        "sortlearn"
+      ],
+      "wall": "fresh markdown -> induced schema",
+      "verdict": "verified",
+      "evidence_status": {
+        "sortlearn": "green"
+      }
+    },
+    {
+      "id": "autolearn",
+      "maturity": "SEED",
+      "evidence": [],
+      "wall": "quarantine, holdout, safe promotion",
+      "verdict": "claimed",
+      "evidence_status": {}
+    },
+    {
+      "id": "coding_agent_api",
+      "maturity": "SEED",
+      "evidence": [
+        "piagent"
+      ],
+      "wall": "history, tool calls, streaming",
+      "verdict": "verified",
+      "evidence_status": {
+        "piagent": "green"
+      }
+    },
+    {
+      "id": "autonomous_safety",
+      "maturity": "ABSENT",
+      "evidence": [],
+      "wall": "process/fs/net/resource isolation",
+      "verdict": "claimed",
+      "evidence_status": {}
+    }
+  ]
+}

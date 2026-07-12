@@ -8,6 +8,8 @@
 # generated session knowledge (base.p0 is curated & tracked)
 /kb/core/session.p0
 
+# generated at build from VERSION + git (gen317)
+/src/version.h
 # editor / OS noise
 *.o
 *.out
