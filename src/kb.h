@@ -154,6 +154,14 @@ int    kb_explain(KB *kb, const char *pred, const char *const *args,
 int    kb_describe_entity(const KB *kb, const char *entity,
                           char *out, size_t out_size);
 
+/* gen313: the DEFINITION view — like kb_describe_entity but only facts that
+ * speak about `entity` as their SUBJECT and render naturally (unary class
+ * facts or quoted descriptions). Never dumps a raw clause and never claims on
+ * a mere object mention, so definition frames ("what is the X", "define X")
+ * cannot leak machinery; the full dump stays with kb_describe_entity. */
+int    kb_define_entity(const KB *kb, const char *entity,
+                        char *out, size_t out_size);
+
 /* gen155: recall the description-bearing concept whose key+description best
  * OVERLAP the query's content words `qwords` (cognate-tolerant, so it crosses
  * EN<->IT for loanwords). Writes the winning key/description and returns the

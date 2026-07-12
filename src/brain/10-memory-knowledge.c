@@ -4987,7 +4987,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (!strcmp(kb_dequote(dcues[k]), cand)) is_cue = 1;
                 if (is_cue) continue;
                 char desc[1024];
-                if (kb_describe_entity(b->kb, cand, desc, sizeof desc)) {
+                /* gen313: definition frames use the strict subject-only view,
+                 * same reason as the "what is the X" path below. */
+                if (kb_define_entity(b->kb, cand, desc, sizeof desc)) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
                     remember_entity(b, cand, cand);
@@ -5112,7 +5114,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (size_t i = start; i < nw; i++) {
                 if (is_article(w[i]) || is_stopword(b, w[i])) continue;
                 char desc[1024];
-                if (kb_describe_entity(b->kb, w[i], desc, sizeof desc)) {
+                /* gen313: a DEFINITION must be speakable subject-first knowledge
+                 * (kb_define_entity), never a raw clause that merely mentions the
+                 * word as an object — is_a(skin, organ) is not what "the organ
+                 * that pumps blood" means, and claiming here stole the turn from
+                 * the idf recall below. */
+                if (kb_define_entity(b->kb, w[i], desc, sizeof desc)) {
                     put(desc, out, out_size);
                     store_proof(b, desc);
                     remember_entity(b, w[i], w[i]);

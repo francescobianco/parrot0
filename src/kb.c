@@ -1656,6 +1656,45 @@ int kb_describe_entity(const KB *kb, const char *entity,
     return 1;
 }
 
+/* gen313: the DEFINITION view of an entity. kb_describe_entity above is the
+ * honest full belief dump ("what do you know about X?") and may render raw
+ * clauses and object mentions — that is ratcheted behavior. A DEFINITION frame
+ * ("what is the X", "define X") is stricter: only facts that SPEAK about the
+ * entity as their subject qualify — pred(entity) ("X is a pred") or a
+ * description-bearing pred(entity, ..., "text"). A fact that would fall back
+ * to a raw clause dump, or that merely mentions the entity as an object
+ * (is_a(skin, organ) is not a definition of "organ"), never claims here, so
+ * fuzzy recall and honest declines downstream keep their turn. */
+int kb_define_entity(const KB *kb, const char *entity,
+                     char *out, size_t out_size) {
+    if (!kb || !term_ok(entity) || !out || out_size == 0) return 0;
+    out[0] = '\0';
+
+    size_t off = 0;
+    int count = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (is_model_pred(f->pred) || is_struct_pred(f->pred)) continue;
+        if (f->argc < 1 || strcmp(f->args[0], entity) != 0) continue;
+        /* speakable only: unary class fact or quoted description — the raw
+         * clause fallback of render_fact_direct is machinery, not a definition */
+        if (f->argc != 1 && f->args[f->argc - 1][0] != '"') continue;
+        char piece[220];
+        if (kb_find_neg(kb, f)) render_conflict_direct(f, entity, piece, sizeof piece);
+        else render_fact_direct(f, entity, 0, piece, sizeof piece);
+        if (!append_piece(out, out_size, &off, piece)) break;
+        count++;
+    }
+    if (count == 0) return 0;
+    if (off + 1 < out_size) {
+        out[off++] = '.';
+        out[off] = '\0';
+    } else {
+        out[out_size - 1] = '\0';
+    }
+    return 1;
+}
+
 /* gen155: the first brick of a SIMILARITY SPACE. An LLM generalises by vector
  * proximity; in discrete C the honest analogue is structural overlap derived
  * from the KB's own descriptions — not an enumerated synonym table. Two words
