@@ -344,6 +344,26 @@ int code_create_empty_file(const char *name);
 int code_check_sort(const char *func_src, const char *fnname,
                     char *err_out, size_t err_sz);
 
+/* gen327 (TODO.md P4): the same judge, with a STRUCTURED verdict. "it did not
+ * sort" cannot direct a repair; the loop needs to know WHICH contract broke.
+ * `diag` receives one of: "not_ordered" (the result is not non-decreasing),
+ * "not_permutation" (an element was lost or duplicated), "crashed",
+ * "build_failed". Two different defects, two different fixes — and the ORACLE is
+ * what tells them apart, never a guess about the source. */
+int code_check_sort_diag(const char *func_src, const char *fnname,
+                         char *diag, size_t dsz,
+                         char *err_out, size_t err_sz);
+
+/* gen327 (forge plan §9.3): apply ONE named repair transformation to a
+ * candidate's source. Structural rewrites, not a library of answers: the C knows
+ * only HOW to transform, never WHICH transformation to try — that comes from
+ * repair_rule(Diagnosis, Fix) facts in the KB, selected by the oracle's verdict.
+ * `blast` receives the size of the edit, so the loop can prefer the smallest
+ * change that could explain the failure (a repair that rewrites half the function
+ * is a rewrite, not a repair). Returns 1 applied, 0 not applicable, -1 bad args. */
+int code_repair_apply(const char *src, const char *fix, char *out, size_t osz,
+                      int *blast);
+
 /* gen209 (Track B/B2): the SYNTHESIZER. Instantiate a GENERAL algorithm schema named
  * `shape` into a concrete C function `void name(int a[], int n)`, parameterised by the
  * `comparator` ('>' yields ascending order, '<' descending), and write the source into

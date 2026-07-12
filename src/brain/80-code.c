@@ -950,6 +950,105 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* gen327: is this snippet a candidate the SORT oracle can judge? It must define
+ * exactly the contract the judge calls: void <name>(int a[], int n). Anything
+ * else is declined — an agent that "repairs" what it cannot verify is guessing,
+ * and the whole point of the loop is that every step is disposed by a real run. */
+static int code_sort_candidate(const char *src, char *fn, size_t fnsz) {
+    const char *p = strstr(src, "void ");
+    if (!p) return 0;
+    p += 5;
+    while (*p == ' ') p++;
+    const char *s = p;
+    while (*p && (isalnum((unsigned char)*p) || *p == '_')) p++;
+    size_t l = (size_t)(p - s);
+    if (l == 0 || l >= fnsz) return 0;
+    while (*p == ' ') p++;
+    if (*p != '(') return 0;
+    /* the array+length signature the judge calls with */
+    if (!strstr(p, "[]") || !strstr(p, "int")) return 0;
+    memcpy(fn, s, l); fn[l] = '\0';
+    return 1;
+}
+
+/* gen327: OBSERVE -> DIAGNOSE -> PROPOSE -> SELECT -> ACT -> VERIFY, bounded.
+ * Returns 1 if it claimed the turn (repaired, already-green, or an honest
+ * decline naming the real diagnosis), 0 to let the ordinary checkers have it. */
+#define P0_REPAIR_MAX 3
+static int repair_loop(Brain *b, const char *src, const char *fn,
+                       char *out, size_t out_size) {
+    char diag[64] = "", err[256] = "";
+    int v = code_check_sort_diag(src, fn, diag, sizeof diag, err, sizeof err);
+    if (v == 1) {
+        snprintf(out, out_size,
+                 "I ran it against the sort oracle (8 vectors, compiled and "
+                 "executed): it sorts every one and never loses an element. I "
+                 "found nothing to repair.");
+        return 1;
+    }
+    if (!*diag) return 0;                 /* the oracle could not judge it */
+
+    /* PROPOSE: the fixes worth trying for THIS diagnosis are knowledge. */
+    char fixes[8][KB_TERM_LEN];
+    const char *q[2] = { diag, NULL };
+    size_t nf = kb_match(b->kb, "repair_rule", q, 2, fixes, 8);
+
+    /* SELECT: build the applicable candidates and order them by blast radius —
+     * the smallest edit that could explain the failure goes first. */
+    typedef struct { char src[2048]; char fix[KB_TERM_LEN]; int blast; } RepairCand;
+    RepairCand cand[8];
+    size_t nc = 0;
+    for (size_t i = 0; i < nf && nc < 8; i++) {
+        int blast = 0;
+        char patched[2048];
+        if (code_repair_apply(src, fixes[i], patched, sizeof patched, &blast) != 1)
+            continue;
+        snprintf(cand[nc].src, sizeof cand[nc].src, "%s", patched);
+        snprintf(cand[nc].fix, sizeof cand[nc].fix, "%s", fixes[i]);
+        cand[nc].blast = blast;
+        nc++;
+    }
+    for (size_t i = 0; i + 1 < nc; i++)
+        for (size_t j = i + 1; j < nc; j++)
+            if (cand[j].blast < cand[i].blast) {
+                RepairCand tmp = cand[i]; cand[i] = cand[j]; cand[j] = tmp;
+            }
+
+    /* ACT + VERIFY, bounded. The trace is kept whatever happens. */
+    char trace[512];
+    size_t to = (size_t)snprintf(trace, sizeof trace,
+        "the oracle ran it and reported %s", diag);
+    size_t attempts = (nc < P0_REPAIR_MAX) ? nc : P0_REPAIR_MAX;
+
+    for (size_t i = 0; i < attempts; i++) {
+        char d2[64] = "", e2[256] = "";
+        int v2 = code_check_sort_diag(cand[i].src, fn, d2, sizeof d2, e2, sizeof e2);
+        if (to < sizeof trace)
+            to += (size_t)snprintf(trace + to, sizeof trace - to,
+                                   "; tried %s -> %s", cand[i].fix,
+                                   v2 == 1 ? "the oracle now passes it" : (*d2 ? d2 : "still red"));
+        if (v2 == 1) {
+            snprintf(out, out_size,
+                     "Repaired, and verified by running it: %s. The fix: %s.\n"
+                     "```c\n%s\n```\n(Trace: %s.)",
+                     "it now sorts all 8 vectors and loses no element",
+                     cand[i].fix, cand[i].src, trace);
+            store_proof(b, trace);
+            return 1;
+        }
+    }
+
+    /* No candidate survived the oracle. Say what was actually observed and stop —
+     * a repair nobody ran is a fabrication, and a wall is better than that. */
+    snprintf(out, out_size,
+             "I can't repair that yet. %s. I have %zu repair rule(s) for that "
+             "diagnosis and none of them made the oracle pass, so I won't hand "
+             "you a patch I could not verify.",
+             trace, nf);
+    store_proof(b, trace);
+    return 1;
+}
+
 static int mod_code(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     (void)norm;
@@ -1012,6 +1111,35 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
      * dominates). qtype 3 is exempt — "what language is this: …" is precisely
      * the question whose honest answer may be "I cannot identify it". */
     if (lang == 0 && qtype != 3) return 0;
+
+    /* gen327 (TODO.md P4, forge plan §9.3): the bounded REPAIR LOOP.
+     *
+     * Until now a candidate the oracle refuted was simply abandoned — "the judge
+     * ran it but it did not sort every vector", and stop. No diagnosis, no
+     * alternative, no second attempt. That is a one-shot generator with a test,
+     * not an agent.
+     *
+     * The loop is the plan's B4 gate, and every step is grounded:
+     *   OBSERVE   run the real judge (compile + execute on 8 vectors)
+     *   DIAGNOSE  the verdict is STRUCTURED — not_ordered / not_permutation /
+     *             crashed / build_failed. "It failed" cannot direct a repair.
+     *   PROPOSE   repair_rule(Diagnosis, Fix) facts in the KB name the candidate
+     *             transformations. The C never chooses; the oracle's verdict does.
+     *   SELECT    smallest blast radius first — a repair that rewrites half the
+     *             function is a rewrite, not a repair.
+     *   ACT       apply the transformation to a COPY.
+     *   VERIFY    re-run the same judge.
+     *   STOP      within N attempts; the trace is reported either way.
+     *
+     * It engages only for a candidate the sort oracle can actually judge, and a
+     * failure it cannot repair is declined with the last real diagnosis — never
+     * with a patched-looking source nobody ran. */
+    if ((qtype == 1 || qtype == 2) && lang == 1) {
+        char fn[KB_TERM_LEN] = "";
+        if (code_sort_candidate(code, fn, sizeof fn)) {
+            if (repair_loop(b, code, fn, out, out_size)) return 1;
+        }
+    }
 
     /* For language-only queries */
     if (qtype == 3) {

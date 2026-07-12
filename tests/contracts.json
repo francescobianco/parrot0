@@ -76,6 +76,20 @@
       "note": "gen322 (TODO.md P0): parrot0 FABRICATED a code defect — every correct one-line C function was reported 'Missing semicolon'. Found by talking to it, not by a benchmark: 25/25 code-bench gates were green because no case ever fed the checkers CORRECT code. The syntax claim is now vetoed by cc -fsyntax-only, the oracle that was already in the tree. A misclaim is worse than a wall."
     },
     {
+      "id": "code.repair-loop.en",
+      "capability": "structural_repair",
+      "owner": ["mod_code", "repair_loop", "code_check_sort_diag", "kb/experts/programming/coding.p0"],
+      "depends_on": ["src/brain/80-code.c", "src/code.c", "kb/experts/programming/coding.p0"],
+      "boot_profile": "script-owned",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/repair.sh",
+      "oracle_kind": "script",
+      "timeout_ms": 60000,
+      "mutators": ["decoy"],
+      "note": "gen327 (TODO.md P4, forge §9.3 B4): the bounded repair loop. Before it, a candidate the oracle REFUTED was abandoned with no diagnosis and no second attempt — a one-shot generator with a test, not an agent. Now: observe (real compile+run) -> STRUCTURED verdict (not_ordered vs not_permutation) -> propose from repair_rule/2 FACTS -> select by blast radius -> act -> re-verify -> stop within N, trace kept. An unrepairable defect is DECLINED naming the real diagnosis: a patch nobody ran is a fabrication."
+    },
+    {
       "id": "code.compound-assign.en",
       "capability": "code_reading",
       "owner": ["code_eval", "ev_simple"],

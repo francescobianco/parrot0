@@ -91,9 +91,14 @@ def run_script_row(c: dict, oracle: Path) -> dict:
     three-way meaning the runner uses: 0 pass, 1 functional red, 2 not-run.
     """
     t0 = time.monotonic()
+    # oracle_kind "script" runs the whole harness; "script-row" addresses ONE row
+    # of it. A contract must not claim a row the harness cannot select.
+    argv = [str(oracle)]
+    if c.get("oracle_kind") == "script-row":
+        argv += ["--id", c["oracle_row"]]
     try:
         proc = subprocess.run(
-            [str(oracle), "--id", c["oracle_row"]], cwd=ROOT,
+            argv, cwd=ROOT,
             capture_output=True, text=True,
             timeout=c["timeout_ms"] / 1000.0)
     except subprocess.TimeoutExpired:
@@ -109,7 +114,7 @@ def run_script_row(c: dict, oracle: Path) -> dict:
         # The harness already states want/got in its own words; quote it rather
         # than re-render it into a shape it does not have.
         return {"execution_state": "ran", "verdict": "fail", "turn": 1,
-                "user": c["oracle_row"],
+                "user": c.get("oracle_row", c["oracle"]),
                 "lines": [l for l in out if l.startswith("FAIL")] or out[-1:],
                 "ms": ms}
     return {"execution_state": "infra_error", "verdict": "unknown",
@@ -123,7 +128,7 @@ def run_contract(c: dict, profiles: dict) -> dict:
         return {"execution_state": "infra_error", "verdict": "unknown",
                 "detail": f"oracle missing: {c['oracle']}", "ms": 0.0}
 
-    if c.get("oracle_kind") == "script-row":
+    if c.get("oracle_kind") in ("script-row", "script"):
         return run_script_row(c, oracle)
 
     turns = parse_case(oracle)

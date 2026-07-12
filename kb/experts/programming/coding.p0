@@ -5,3 +5,21 @@
 :- include(c.p0).
 :- include(python.p0).
 :- include(debug.p0).
+
+% --- gen327 (TODO.md P4, forge plan §9.3): the REPAIR loop's knowledge ---------
+% Until now a candidate that failed the oracle was simply abandoned: "the judge
+% ran it but it did not sort every vector" — no diagnosis, no alternative, no
+% second attempt. That is not an agent; it is a one-shot generator with a test.
+%
+% repair_rule(Diagnosis, Fix) is the map from WHAT THE ORACLE OBSERVED to a
+% transformation worth trying. The C knows only HOW to perform each named
+% transformation; it never decides WHICH to try — the oracle's verdict selects
+% the rule, and the rules are facts. Teaching a new defect class costs a fact,
+% not a generation.
+%
+% The diagnoses are produced by code_check_sort_diag from the real run:
+%   not_ordered      the result is not non-decreasing  -> the order is inverted
+%   not_permutation  an element was lost or duplicated -> a slot was read/written
+%                                                          outside the live range
+repair_rule(not_ordered, flip_comparator).
+repair_rule(not_permutation, tighten_inner_bound).

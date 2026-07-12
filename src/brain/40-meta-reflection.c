@@ -496,6 +496,14 @@ static int is_internal_pred(const char *pred) {
         "reaction_word", "i_am", "module", "cont", "cont2",
         /* gen215: linguistic-glue self-model (kb/core/glue.p0, reified) — machinery. */
         "glue_role", "glue_faculty",
+        /* gen327: repair_rule/2 is the agent's own REPAIR vocabulary (which fix to
+         * try for which oracle verdict) — machinery, like code_action/code_template.
+         * Knowing that not_ordered suggests flipping a comparator is not knowing
+         * something about the world, and a brain taught nothing must still say
+         * "I know 0 fact(s)". (Third time a new machinery predicate has leaked into
+         * the knowledge count — the declaration is easy to forget because it lives
+         * far from the fact that needs it.) */
+        "repair_rule",
         /* gen325: the capability ledger — the agent's model of ITSELF (how far
          * each faculty reaches, and the wall past it), exactly like module/1.
          * NOT knowledge about the world: a hermetic brain taught nothing must

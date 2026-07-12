@@ -2872,8 +2872,9 @@ int code_check_print_program(const char *src, const char *message,
  * verdict: 0 = all cases sorted+permuted, non-zero = the index (1-based) of the first
  * failing case. We never trust the candidate's output channel — the harness recomputes
  * sortedness and the permutation relation itself. */
-int code_check_sort(const char *func_src, const char *fnname,
-                    char *err_out, size_t err_sz) {
+int code_check_sort_diag(const char *func_src, const char *fnname,
+                         char *diag, size_t dsz,
+                         char *err_out, size_t err_sz) {
     if (err_out && err_sz) err_out[0] = '\0';
     if (!func_src || !*func_src || !fnname || !*fnname) return -1;
     if (strlen(func_src) > 4096) return -1;
@@ -2905,7 +2906,8 @@ int code_check_sort(const char *func_src, const char *fnname,
         "    int n=lens[c]; int orig[16], work[16];\n"
         "    for(int i=0;i<n;i++){orig[i]=cases[c][i]; work[i]=cases[c][i];}\n"
         "    %s(work,n);\n"
-        "    if(!__p0_sorted(work,n)||!__p0_perm(orig,work,n)) return c+1;\n"
+        "    if(!__p0_sorted(work,n)) return 10+c;\n"
+        "    if(!__p0_perm(orig,work,n)) return 40+c;\n"
         "  }\n"
         "  return 0;\n}\n";
 
@@ -2925,9 +2927,91 @@ int code_check_sort(const char *func_src, const char *fnname,
     int exit_code = 0;
     int r = code_run(path, &exit_code, err_out, err_sz);
     remove(path);
-    if (r < 0) return -1;          /* build/run failure (diagnostics in err_out) */
-    if (r == 0) return 0;          /* crashed / timed out -> failed the judge */
-    return exit_code == 0 ? 1 : 0; /* 0 = every case passed; else a case failed */
+
+    /* gen327 (TODO.md P4): the verdict is STRUCTURED. "it did not sort" is not a
+     * diagnosis and cannot direct a repair — the loop needs to know WHICH
+     * contract broke. The harness now encodes that in its exit status:
+     *   10+c  the result is not non-decreasing  -> the ORDER is wrong
+     *   40+c  the result is not a permutation   -> an ELEMENT was lost or dupd
+     * Two different defects with two different fixes, and the oracle is what
+     * tells them apart — never a guess about the source. */
+    if (diag && dsz) diag[0] = '\0';
+    if (r < 0) { if (diag && dsz) snprintf(diag, dsz, "build_failed"); return -1; }
+    if (r == 0) { if (diag && dsz) snprintf(diag, dsz, "crashed"); return 0; }
+    if (exit_code == 0) return 1;
+    if (diag && dsz) {
+        if (exit_code >= 40)      snprintf(diag, dsz, "not_permutation");
+        else if (exit_code >= 10) snprintf(diag, dsz, "not_ordered");
+        else                      snprintf(diag, dsz, "failed");
+    }
+    return 0;
+}
+
+/* gen327 (TODO.md P4, forge plan §9.3): apply ONE named repair transformation to
+ * a candidate's source. These are structural rewrites, not a library of answers:
+ * the C knows only HOW to perform a transformation, never WHICH one to try — that
+ * comes from repair_rule(Diagnosis, Fix) facts in the KB, chosen by the oracle's
+ * verdict. Teaching a new diagnosis->fix mapping costs a fact.
+ *
+ * `blast` receives the size of the edit (characters changed), so the loop can
+ * prefer the smallest change that could explain the failure — a repair that
+ * rewrites half the function is a rewrite, not a repair.
+ *
+ * Returns 1 if the transformation applied and changed something, 0 if it does not
+ * apply to this source (the candidate is then left untouched and the loop moves
+ * on), -1 on a bad argument.
+ */
+int code_repair_apply(const char *src, const char *fix, char *out, size_t osz,
+                      int *blast) {
+    if (!src || !fix || !out || osz == 0) return -1;
+    if (blast) *blast = 0;
+
+    /* flip_comparator: the ORDER is wrong, so the relational operator that decides
+     * a swap is backwards. Flip the first '>'/'<' that sits inside a comparison of
+     * two array elements — that is the node the ordering contract depends on. */
+    if (strcmp(fix, "flip_comparator") == 0) {
+        const char *br = strstr(src, "if (");
+        if (!br) br = strstr(src, "if(");
+        if (!br) return 0;
+        const char *p = br;
+        while (*p && *p != '>' && *p != '<' && *p != '\n') p++;
+        if (*p != '>' && *p != '<') return 0;
+        if (p[1] == '=') return 0;              /* >= / <= : not this node */
+        size_t at = (size_t)(p - src);
+        if (at + 1 >= osz) return -1;
+        snprintf(out, osz, "%s", src);
+        out[at] = (*p == '>') ? '<' : '>';
+        if (blast) *blast = 1;
+        return 1;
+    }
+
+    /* tighten_inner_bound: an ELEMENT was lost, the signature of reading one slot
+     * past the live range — `a[j+1]` with `j` allowed to reach the end. Narrow the
+     * inner loop's bound by one. */
+    if (strcmp(fix, "tighten_inner_bound") == 0) {
+        const char *n1 = strstr(src, "- i;");
+        const char *n2 = strstr(src, "- i ;");
+        const char *hit = n1 ? n1 : n2;
+        if (!hit) return 0;
+        size_t at = (size_t)(hit - src);
+        size_t keep = at + (n1 ? 4 : 5);        /* past "- i;" */
+        if (keep + 8 >= osz) return -1;
+        snprintf(out, osz, "%.*s", (int)at, src);
+        size_t o = strlen(out);
+        int w = snprintf(out + o, osz - o, "- i - 1;%s", src + keep);
+        if (w < 0) return -1;
+        if (blast) *blast = 4;
+        return 1;
+    }
+
+    return 0;                                   /* unknown fix: apply nothing */
+}
+
+/* The gen209 signature, kept so every existing caller compiles unchanged
+ * (keep-secondary): the diagnosis is optional, not a breaking change. */
+int code_check_sort(const char *func_src, const char *fnname,
+                    char *err_out, size_t err_sz) {
+    return code_check_sort_diag(func_src, fnname, NULL, 0, err_out, err_sz);
 }
 
 /* gen209 (Track B/B2): see code.h. Emit a concrete C function from a GENERAL schema.
