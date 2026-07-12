@@ -1,4 +1,62 @@
 # parrot0 evolution journal
+## 2026-07-12 - gen323: the code faculty becomes reachable through language (TODO.md P1)
+
+**The keyhole.** The capability ledger claims `code_reading = TRANSFER` on 25/25
+code-bench gates. That claim was true of the **engine** and false of the
+**surface**: the faculty answered only to an exact C phrasebook.
+
+```
+you> what functions does this define: int sum(int n){ ... }
+parrot0> I read it as code: it defines sum.          (the cue fits)
+
+you> explain what this does: int sum(int n){ ... }
+parrot0> That looks like a snippet of code.          (the wall)
+```
+
+Same snippet, same faculty, one phrasing away. An agent whose analysis is
+reachable only by the magic words cannot receive a GitHub issue — which is the
+whole mission.
+
+**The fix is knowledge, not C.** `mod_code`'s five question types were
+`cue(s,"explain this code") || …` chains. They are now `intent_cue` facts in
+`kb/core/intents.p0` (54 cues, EN+IT), read through `kb_cue_match` — the cardinal
+law of gen51/gen193/gen211. So the surface grows **at runtime**: a new way of
+asking costs a FACT, not a generation. The C cue-chain counter fell 317 → 248:
+the surface grew while the phrasebook shrank, which is the direction PRINCIPLES
+demands. Cues are matched case-folded, so "What is wrong…" no longer misses.
+
+**Widening was only safe because register evidence was tightened in the same
+generation** — and that exposed a second live misclaim:
+
+```
+you> what language is this: the sky is blue
+parrot0> This looks like Python code.
+
+you> what is wrong with this: the sky is blue
+parrot0> I did not find obvious errors in this code snippet.
+```
+
+`identify_code_lang` tallied `keyword()` facts word by word — and `is`, `in`,
+`not`, `and`, `for` are Python keywords **and** ordinary English words. One common
+word decided the register, and prose was then "syntax-checked". TASKLIST C14 named
+this exactly: a code module may engage only when structural evidence **dominates**
+natural-language evidence, never merely because a token co-occurs.
+
+So `has_code_register()` now requires a mark prose does not make (brace,
+statement terminator, preprocessor line, declaration/definition/call form). No
+structural evidence ⇒ language is *unknown*, and `mod_code` declines the turn
+instead of claiming it. The FORM stays structural C (the `mod_rulespec`
+precedent); the WORD CLASSES stay KB knowledge.
+
+Also fixed: `for(int i=0;…)` with no space was invisible to the explainer, which
+silently dropped the most salient thing in the snippet.
+
+**Ratchets:** `codeintent.chat` / `codeintent.it.chat` — held-out phrasings that
+were NOT C cues, plus both prose misclaims. Addressable as
+`make check TEST=code` (3 contracts, 3.1 s). Evidence: 245/245 `tests/run.sh`,
+25/25 code-bench, cuechains 248 (descends). Full `make gate` not run at F.'s
+instruction — this is not gate-certified evidence.
+
 ## 2026-07-12 - gen322: parrot0 stops FABRICATING code defects (TODO.md P0)
 
 **Found by talking to it, not by a benchmark.** F.'s critique was that a morning

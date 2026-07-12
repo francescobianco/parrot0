@@ -76,6 +76,34 @@
       "note": "gen322 (TODO.md P0): parrot0 FABRICATED a code defect — every correct one-line C function was reported 'Missing semicolon'. Found by talking to it, not by a benchmark: 25/25 code-bench gates were green because no case ever fed the checkers CORRECT code. The syntax claim is now vetoed by cc -fsyntax-only, the oracle that was already in the tree. A misclaim is worse than a wall."
     },
     {
+      "id": "code.question-surface.en",
+      "capability": "code_reading",
+      "owner": ["mod_code", "kb/core/intents.p0", "identify_code_lang"],
+      "depends_on": ["src/brain/80-code.c", "src/brain/70-social-pragma.c", "kb/core/intents.p0"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/codeintent.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["language", "punctuation", "decoy"],
+      "note": "gen323 (TODO.md P1): the code faculty was REAL but reachable only through an exact C phrasebook — 'explain this code:' answered, 'explain what this does:' walled on the same snippet. The phrasings are now intent_cue FACTS, so the surface grows at runtime. Widening it is safe only because register evidence was tightened in the same generation: prose ('the sky is blue') used to be classified as Python, because `is` is a Python keyword."
+    },
+    {
+      "id": "code.question-surface.it",
+      "capability": "code_reading",
+      "owner": ["mod_code", "kb/core/intents.p0"],
+      "depends_on": ["src/brain/80-code.c", "kb/core/intents.p0"],
+      "boot_profile": "hermetic-en",
+      "tier": "focal",
+      "isolation": "process",
+      "oracle": "tests/cases/codeintent.it.chat",
+      "oracle_kind": "golden-turn-text",
+      "timeout_ms": 5000,
+      "mutators": ["decoy"],
+      "note": "the bilingual ratchet: Italian is a row in the KB, never a duplicated C branch. If it passes because a second handler was written, the cuechains ratchet (which may only descend) says so."
+    },
+    {
       "id": "world.tallest-mountain.en",
       "capability": "world_knowledge",
       "owner": ["mod_knowledge", "kb/core/world.p0"],

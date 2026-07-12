@@ -958,24 +958,29 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
     char s[512]; copy_trim(s, sizeof s, raw);
     if (!*s) return 0;
 
+    /* gen323 (TODO.md P1): the question shape is KNOWLEDGE, not a C phrasebook.
+     * These were `cue(s, "explain this code") || …` chains, so the faculty —
+     * which is real, 25/25 code-bench gates — answered only to the magic words:
+     * "explain this code:" worked, "explain what this does:" walled on the SAME
+     * snippet. Now the phrasings are intent_cue facts in kb/core/intents.p0 and
+     * the set grows at RUNTIME: a new way of asking costs a fact, not a
+     * generation. (gen51/gen193/gen211, the cardinal KB-first law.)
+     *
+     * Cues are matched on a LOWERCASED copy — copy_trim does not fold case, so
+     * "What is wrong…" used to miss — while the code itself is extracted from
+     * `s`, which is case-sensitive and must stay that way. */
+    char low[512];
+    { size_t i = 0; for (; s[i] && i + 1 < sizeof low; i++)
+          low[i] = (char)tolower((unsigned char)s[i]);
+      low[i] = '\0'; }
+
     int qtype = 0; /* 0=none 1=wrong/debug 2=fix 3=what-lang 4=valid 5=explain */
-    if (cue(s, "what is wrong") || cue(s, "what s wrong") ||
-        cue(s, "debug") || cue(s, "find the bug") || cue(s, "find the error") ||
-        cue(s, "cosa non va") || cue(s, "trova l errore") || cue(s, "debugga")) {
-        qtype = 1;
-    } else if (cue(s, "fix this") || cue(s, "correct this") ||
-               cue(s, "correggi questo") || cue(s, "aggiusta")) {
-        qtype = 2;
-    } else if (cue(s, "what language is this") ||
-               cue(s, "che linguaggio")) {
-        qtype = 3;
-    } else if (cue(s, "is this valid") || cue(s, "e valido") ||
-               cue(s, "is this correct")) {
-        qtype = 4;
-    } else if (cue(s, "explain this code") || cue(s, "spiega questo codice") ||
-               cue(s, "what does this code do") || cue(s, "cosa fa questo codice")) {
-        qtype = 5;
-    } else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
+    if (kb_cue_match(b, "code_debug", low))        qtype = 1;
+    else if (kb_cue_match(b, "code_fix", low))     qtype = 2;
+    else if (kb_cue_match(b, "code_lang", low))    qtype = 3;
+    else if (kb_cue_match(b, "code_valid", low))   qtype = 4;
+    else if (kb_cue_match(b, "code_explain", low)) qtype = 5;
+    else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
                (strstr(s, "in C") || strstr(s, "in Python") || strstr(s, "in programming"))) {
         /* Concept query handled by mod_knowledge via KB concept() facts */
         return 0;
@@ -993,6 +998,20 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
 
     /* Identify language */
     int lang = identify_code_lang(code, b);
+
+    /* gen323: REGISTER EVIDENCE — widening the question surface is only safe if
+     * the module refuses turns that are not actually about code. It did not:
+     *
+     *   you> what is wrong with this: the sky is blue
+     *   parrot0> I did not find obvious errors in this code snippet.
+     *
+     * Prose was misclaimed as code, and the syntax checkers "passed" it. So when
+     * the section after the colon is recognizably neither C nor Python, mod_code
+     * declines and the turn goes to the modules that can actually read it
+     * (TASKLIST C14: a code module may engage only when structural evidence
+     * dominates). qtype 3 is exempt — "what language is this: …" is precisely
+     * the question whose honest answer may be "I cannot identify it". */
+    if (lang == 0 && qtype != 3) return 0;
 
     /* For language-only queries */
     if (qtype == 3) {
@@ -1018,7 +1037,10 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It returns a value.");
         }
-        if (strstr(code, "for ") || strstr(code, "while ")) {
+        /* gen323: `for(int i=0;…)` — no space — was not seen as a loop, so the
+         * explanation silently dropped the most salient thing in the snippet. */
+        if (strstr(code, "for ") || strstr(code, "for(") ||
+            strstr(code, "while ") || strstr(code, "while(")) {
             size_t l = strlen(out);
             snprintf(out + l, out_size - l, " It contains a loop.");
         }

@@ -625,3 +625,87 @@ intent_cue(deep_reason_fresh, "ragiona a fondo").
 intent_cue(deep_reason_it, "pensaci").
 intent_cue(deep_reason_it, "ragiona").
 intent_cue(deep_reason_it, "ragionaci").
+
+% --- gen323 (TODO.md P1, the code KEYHOLE) ------------------------------------
+% The code faculties were REAL (25/25 code-bench gates) but reachable only
+% through an exact C phrasebook: `cue(s,"explain this code")` answered, while
+% "explain what this does:" — the same faculty, the same snippet, one phrasing
+% away — hit the wall "That looks like a snippet of code.". A coding agent whose
+% analysis is reachable only by the magic words cannot receive a GitHub issue,
+% which is the whole mission.
+%
+% This is the C-series law applied to code (gen51, gen193, gen211): a lexical
+% class is KNOWLEDGE, not a C branch. mod_code now asks kb_cue_match, so the
+% phrasing set grows AT RUNTIME — "call X a way of asking about code" widens the
+% surface with no rebuild, and adding a phrasing costs a fact, not a generation.
+%
+% Widening the language surface is only safe because the REGISTER evidence was
+% tightened in the same generation: mod_code declines when the section after the
+% colon is not recognizably C or Python, so prose keeps its turn. (Before that
+% guard, "what is wrong with this: the sky is blue" was answered with "I did not
+% find obvious errors in this code snippet" — prose misclaimed as code.)
+
+% qtype 1 — find the defect.
+intent_cue(code_debug, "what is wrong").
+intent_cue(code_debug, "what s wrong").
+intent_cue(code_debug, "whats wrong").
+intent_cue(code_debug, "anything wrong").
+intent_cue(code_debug, "debug").
+intent_cue(code_debug, "find the bug").
+intent_cue(code_debug, "find the error").
+intent_cue(code_debug, "there is a bug").
+intent_cue(code_debug, "there s a bug").
+intent_cue(code_debug, "theres a bug").
+intent_cue(code_debug, "is there a bug").
+intent_cue(code_debug, "any bugs").
+intent_cue(code_debug, "spot the bug").
+intent_cue(code_debug, "what is the bug").
+intent_cue(code_debug, "review this code").
+intent_cue(code_debug, "check this code").
+intent_cue(code_debug, "cosa non va").
+intent_cue(code_debug, "trova l errore").
+intent_cue(code_debug, "trova il bug").
+intent_cue(code_debug, "debugga").
+intent_cue(code_debug, "c e un bug").
+intent_cue(code_debug, "controlla questo codice").
+
+% qtype 2 — repair it.
+intent_cue(code_fix, "fix this").
+intent_cue(code_fix, "fix the code").
+intent_cue(code_fix, "correct this").
+intent_cue(code_fix, "repair this").
+intent_cue(code_fix, "how do i fix").
+intent_cue(code_fix, "correggi questo").
+intent_cue(code_fix, "aggiusta").
+intent_cue(code_fix, "sistema questo codice").
+
+% qtype 3 — which language.
+intent_cue(code_lang, "what language is this").
+intent_cue(code_lang, "which language is this").
+intent_cue(code_lang, "what language").
+intent_cue(code_lang, "che linguaggio").
+intent_cue(code_lang, "quale linguaggio").
+
+% qtype 4 — is it valid.
+intent_cue(code_valid, "is this valid").
+intent_cue(code_valid, "is this correct").
+intent_cue(code_valid, "does this compile").
+intent_cue(code_valid, "will this compile").
+intent_cue(code_valid, "e valido").
+intent_cue(code_valid, "e corretto").
+intent_cue(code_valid, "compila questo").
+
+% qtype 5 — explain it. These are the phrasings that walled in the 2026-07-12
+% conversation with F.; each one is now a fact, not a C branch.
+intent_cue(code_explain, "explain this code").
+intent_cue(code_explain, "explain what this does").
+intent_cue(code_explain, "explain this").
+intent_cue(code_explain, "what does this code do").
+intent_cue(code_explain, "what does this do").
+intent_cue(code_explain, "what is this code doing").
+intent_cue(code_explain, "describe this code").
+intent_cue(code_explain, "walk me through").
+intent_cue(code_explain, "spiega questo codice").
+intent_cue(code_explain, "spiega cosa fa").
+intent_cue(code_explain, "cosa fa questo codice").
+intent_cue(code_explain, "cosa fa questo").

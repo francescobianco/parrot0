@@ -87,7 +87,33 @@ silent.
 
 ---
 
-## P1 — the code faculty is real but UNREACHABLE through language (the keyhole)
+## P1 — the code faculty is real but UNREACHABLE through language (the keyhole) — **DONE, gen323**
+
+> **Closed.** The five question types are now `intent_cue` FACTS in
+> `kb/core/intents.p0` (54 cues, EN+IT) read through `kb_cue_match`, so the
+> surface grows at runtime: a new way of asking costs a fact, not a generation.
+> The C cue-chain counter fell **317 → 248** — the surface grew while the
+> phrasebook shrank.
+>
+> **What widening exposed, and why it had to be paired.** Loosening the cues
+> without tightening the register would have handed prose to the code module. It
+> turned out prose was ALREADY being taken: `identify_code_lang` tallied
+> `keyword()` facts word by word, and `is`/`in`/`not`/`and`/`for` are Python
+> keywords *and* ordinary English words — so *"what language is this: the sky is
+> blue"* answered *"This looks like Python code."*, and *"what is wrong with
+> this: the sky is blue"* answered *"I did not find obvious errors in this code
+> snippet."* A second live misclaim, found while fixing the first.
+> `has_code_register()` now demands a mark prose does not make; no structural
+> evidence ⇒ the module declines the turn (TASKLIST C14).
+>
+> **Still open here:** the explainer itself is thin — *"This is a C code snippet.
+> It returns a value. It contains a loop."* is reachable now, but it is not an
+> explanation. It should name the function, its parameters, and what the loop
+> accumulates. That needs P2 (the evaluator must understand a loop before it can
+> describe one), which is why it is next.
+
+<details>
+<summary>original report (kept as the counterexample that produced the fix)</summary>
 
 The capability ledger claims `code_reading = TRANSFER` on the evidence of 25/25
 `code-bench` gates. That claim is about the **engine**. The **surface** to it is
@@ -125,6 +151,8 @@ exists). Growing a new C branch per phrasing would be the phrasebook.
 **Measure:** the same code question, in 10 held-out natural phrasings EN+IT, must
 reach the same faculty. This is also the gate that makes `code_reading =
 TRANSFER` an honest claim rather than a bench artifact.
+
+</details>
 
 ---
 
@@ -238,7 +266,7 @@ cosmetic feature for this project. It is the anti-impostor property itself.
 | # | Row | Why here |
 |---|---|---|
 | ~~P0~~ | ~~the fabrication~~ | **DONE gen322** — grounded the syntax claim in the compiler that was already in the tree. Left behind: every other `check_*` still needs its correct-input negative |
-| P1 | the code keyhole | it unlocks faculties that ALREADY EXIST — highest leverage per line, and it is KB-first, not C |
+| ~~P1~~ | ~~the code keyhole~~ | **DONE gen323** — cues became FACTS (cue-chains 317 -> 248); tightening the register in the same gen killed a second live misclaim (prose classified as Python because `is` is a keyword) |
 | P6 | the routing collision | cheap, and it restores honest self-report |
 | P2 | loops in the evaluator | the precondition for reasoning about real code |
 | P5 | in-turn rule intake | cheap, structural, closes a rung LLMs give free |

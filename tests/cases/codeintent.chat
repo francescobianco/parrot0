@@ -1,0 +1,41 @@
+# gen323 (TODO.md P1) — the code KEYHOLE, and the register guard that makes
+# widening it safe.
+#
+# The code faculties were real (25/25 code-bench gates) but reachable only
+# through an exact C phrasebook. In the 2026-07-12 conversation with F., the SAME
+# snippet answered to "what functions does this define:" and walled on "explain
+# what this does:" — one phrasing away. An agent whose analysis is reachable only
+# by the magic words cannot receive a GitHub issue, which is the whole mission.
+#
+# The phrasings are now intent_cue facts (kb/core/intents.p0), so the surface
+# grows at RUNTIME: a new way of asking costs a FACT, not a generation. These
+# cases are the held-out phrasings — none of them existed as a C cue.
+
+# --- explain: the phrasing that walled ---
+> explain what this does: int sum(int n){ int s=0; for(int i=0;i<n;i++) s+=i; return s; }
+< This is a C code snippet. It returns a value. It contains a loop.
+
+# The loop is named: `for(` with no space used to be invisible to the explainer.
+> what does this do: void swap(int *a, int *b) { int t = *a; *a = *b; *b = t; }
+< This is a C code snippet.
+
+# --- debug: "there is a bug in this code" was not a cue; "find the bug" was ---
+> there is a bug in this code: int f(int n) { return n * 2 }
+< Issue found: Missing semicolon at the end of a statement.
+
+# --- case folding: copy_trim does not fold case, so a capital used to miss ---
+> Is there a bug in: int g(void) { return 0; }
+< I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+
+# --- the REGISTER GUARD: widening the surface is only safe with this ---
+# `is` is a Python keyword AND an ordinary English word, so a keyword tally alone
+# made prose into code: "what language is this: the sky is blue" answered "This
+# looks like Python code." Structural evidence must dominate (TASKLIST C14).
+> what language is this: the sky is blue
+< I can not identify the language. It does not look like C or Python to me.
+
+# And a prose turn wearing a code question's clothes must NOT be claimed by the
+# code module at all — it used to answer "I did not find obvious errors in this
+# code snippet", which is a misclaim about what the turn even IS.
+> what is wrong with this: the sky is blue
+< I don't understand that yet.

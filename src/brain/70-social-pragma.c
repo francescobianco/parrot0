@@ -849,8 +849,46 @@ static int find_code_section(const char *input, char *code, size_t code_size) {
     return 0;
 }
 
+/* gen323 (TODO.md P1): does this section carry the STRUCTURAL evidence of code?
+ *
+ * identify_code_lang() below tallies keyword() facts word by word, and `is`,
+ * `in`, `not`, `and`, `or`, `if`, `for` are Python keywords AND ordinary English
+ * words. So one common word decided the register:
+ *
+ *   you> what language is this: the sky is blue
+ *   parrot0> This looks like Python code.
+ *   you> what is wrong with this: the sky is blue
+ *   parrot0> I did not find obvious errors in this code snippet.
+ *
+ * Prose was misclaimed as code, and then "checked". TASKLIST C14 named this
+ * exactly: a code module may engage only when structural evidence DOMINATES
+ * natural-language evidence, never merely because a token co-occurs.
+ *
+ * So a keyword tally is no longer sufficient on its own — the section must also
+ * show a mark that prose does not make: a brace, a statement terminator, a
+ * preprocessor line, or a declaration/definition/call form. The FORM stays
+ * structural C (like mod_rulespec); the WORD CLASSES stay KB knowledge. */
+static int has_code_register(const char *code) {
+    if (!code || !*code) return 0;
+    if (strchr(code, '{') || strchr(code, '}') || strchr(code, ';') ||
+        strstr(code, "#include") || strstr(code, "#define"))
+        return 1;
+    static const char *const forms[] = {
+        "def ", "import ", "class ", "lambda ", "self.", "return ", "elif ",
+        "printf(", "scanf(", "malloc(", "print(", "__init__",
+        "int ", "void ", "char ", "float ", "double ", "long ", NULL
+    };
+    for (const char *const *f = forms; *f; f++)
+        if (strstr(code, *f)) return 1;
+    return 0;
+}
+
 static int identify_code_lang(const char *code, Brain *b) {
     int c_kw = 0, py_kw = 0;
+    /* gen323: no structural evidence, no register. A keyword tally alone made
+     * "the sky is blue" Python, because `is` is a Python keyword. Unknown (0) is
+     * the honest verdict for prose — and every caller already handles it. */
+    if (!has_code_register(code)) return 0;
     if (b && b->kb) {
         char buf[512]; snprintf(buf, sizeof buf, "%s", code);
         char *w[128]; size_t nw = split_words(buf, w, 128);
