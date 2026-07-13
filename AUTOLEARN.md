@@ -2378,3 +2378,208 @@ Le tre decisioni che ora spettano a te
 - after: A human.
 - judge: The answer is correct; a human crawls on all fours as an infant, walks on two legs in adulthood, and uses a cane in old age.
 
+
+## Run 2026-07-13 15:38:45 — model minimax-m2.5, 12 round(s), 4 workers, multiply x0 (probes)
+
+**already 0 · taught 0 · failed 1 · engine-gap 7 · skipped 4 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: composition_gap 1 · engine_gap 4 · missing_fact 1 · routing_gap 4 · unknown 2**
+
+### Round 1 — engine-gap
+- Q: Explain photosynthesis in two concise sentences.
+- before: I don't understand that yet.
+- input: winner lang_name · score=2 · because intent_cue(lang_name, "c") [score=2]
+- diagnosis: routing_gap · teachable=true · mode=template
+- next: intent_cue target describe has no live consumer/hypothesis in the structure catalog.
+- lesson: intent_cue(describe, explain); describe_cue(explain); wiki_concept(photosynthesis, biology, the process by which plants convert sunlight, water, and carbon dioxide into glucose and oxygen)
+- judge: intent_cue target describe has no live consumer/hypothesis in the structure catalog.
+
+### Round 2 — engine-gap
+- Q: A rectangle is 8 cm long and 5 cm wide. What are its area and perimeter? Show the reasoning.
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); arith_range_from_close=3 because intent_cue(arith_range_from_close, keyword(a)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are))
+- diagnosis: routing_gap · teachable=true · mode=fact
+- next: intent_cue target arith_rectangle_geometry has no live consumer/hypothesis in the structure catalog.
+- lesson: intent_cue(arith_rectangle_geometry, keyword(rectangle)); intent_cue(arith_rectangle_geometry, keyword(area)); intent_cue(arith_rectangle_geometry, keyword(perimeter)); intent_cue(arith_rectangle_geometry, keyword(length)); intent_cue(arith_rectangle_geometry, keyword(wide))
+- judge: intent_cue target arith_rectangle_geometry has no live consumer/hypothesis in the structure catalog.
+
+### Round 3 — skipped
+- Q: All daxes are wugs. Every wug is blue. Taro is a dax. Is Taro blue? Explain.
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_range_from_close=3 because intent_cue(arith_range_from_close, keyword(a)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are))
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: Syllogistic logic (transitivity of category membership and property inheritance) is not expressible in any whitelist predicate schema. No fact pattern can teach the engine to chain 'all A are B' + 'all B are C' -> 'C has property P'.
+
+### Round 4 — engine-gap
+- Q: Summarize this in one sentence: The city planted trees along busy roads. Air quality improved, summer shade increased, and residents began walking more often.
+- before: We haven't talked about much yet.
+- input: winner arith_range_between_close · score=3 · because intent_cue(arith_range_between_close, keyword(and)) [score=3]
+- diagnosis: routing_gap · teachable=false · mode=skip
+- next: intent_cue target summarize has no live consumer/hypothesis in the structure catalog.
+- lesson: intent_cue(summarize, keyword(summarize)); intent_cue(summarize, keyword(summary)); intent_cue(summarize, keyword(one sentence))
+- judge: intent_cue target summarize has no live consumer/hypothesis in the structure catalog.
+
+### Round 5 — engine-gap
+- Q: Give me three practical steps for debugging a segmentation fault.
+- before: I don't know the steps to make fault yet.
+- input: winner plan_request · score=12 · because intent_cue(plan_request, keyword(debugging)) + intent_cue(plan_request, keyword(segmentation)) + intent_cue(plan_request, keyword(fault)) + intent_cue(plan_request, keyword(steps)) [score=12]
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Record the failed lesson as a consumer gap before adding more facts.
+- lesson: intent_cue(plan_request, keyword(debugging)); intent_cue(plan_request, keyword(segmentation)); intent_cue(plan_request, keyword(fault)); intent_cue(plan_request, keyword(steps))
+- structural proof: intent_cue(plan_request, keyword(debugging)) gap→winner score 0→3; intent_cue(plan_request, keyword(segmentation)) winner→winner score 3→6; intent_cue(plan_request, keyword(fault)) winner→winner score 6→9; intent_cue(plan_request, keyword(steps)) winner→winner score 9→12
+- after: I don't know the steps to make fault yet.
+- judge: The answer refuses to provide the requested steps and does not address the question.
+
+### Round 6 — failed-lesson
+- Q: Translate into French: Can you help me?
+- before: I can translate most of it, but I don't know the French for "can".
+- input: ambiguous · score=2 · ambiguous_hypothesis(intent_cue): lang_name=2 because intent_cue(lang_name, "c"); 50_self_research_loop_chain450=2 because intent_cue(50_self_research_loop_chain450, "can you help")
+- diagnosis: composition_gap · teachable=true · mode=template
+- next: Test with a simpler question like 'Can you swim?' to verify aux_question routing before adding full verb phrases.
+- lesson: tr_fr(can, pouvez); tr_fr(help, aider); tr_fr(me, m); conj_fr(can, you, pouvez); aux_question(can)
+- after: Vous aider m.
+- judge: The translation is incomplete and grammatically incorrect; 'Vous aider m.' is not a valid French sentence; it should be 'Pouvez-vous m'aider?' or 'Vous pouvez m'aider?'
+
+### Round 7 — engine-gap
+- Q: How do you say What is your email address? in Spanish?
+- before: I can translate most of it, but I don't know the Spanish for "your".
+- input: winner smalltalk_continue · score=2 · because intent_cue(smalltalk_continue, "do you") [score=2]
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Do not retrain on vocabulary; the engine should be updated to stop deflecting with false ignorance claims on common words and instead attempt composition or acknowledge uncertainty accurately.
+- lesson: tr_es(your, tu)
+- after: I can translate most of it, but I don't know the Spanish for "email".
+- judge: The assistant deflects by claiming ignorance about a common word; 'email' translates to 'correo electrónico' or simply 'email' in Spanish.
+
+### Round 8 — skipped
+- Q: How many prime numbers are there betwixt 1 and 10?
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_property_prime=3 because intent_cue(arith_property_prime, keyword(prime)); arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are))
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Debug the composition/execution layer for arith_count_request when intersecting arith_property_prime with arith_range_between_close.
+- judge: Engine composition gap: intents arith_property_prime and arith_range_between_close correctly identified but execution layer fails to compose arith_count_request. This requires debugging the intersection logic for counting properties in ranges, not a KB fact gap.
+
+### Round 9 — engine-gap
+- Q: Take the leading character of every word in Red green blue.
+- before: I don't understand that yet.
+- input: winner initials_word_scope · score=5 · because intent_cue(initials_word_scope, "every word") + intent_cue(initials_word_scope, keyword(leading)) [score=5]
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Test whether the system can produce R, G, B after the same lesson to confirm the engine can execute the learned capability.
+- lesson: intent_cue(initials_projection, keyword(leading)); intent_cue(initials_word_scope, keyword(leading))
+- structural proof: intent_cue(initials_projection, keyword(leading)) gap→winner score 0→3; intent_cue(initials_word_scope, keyword(leading)) winner→winner score 2→5
+- after: Hmm, I don't know about leading yet.
+- judge: The answer deflects and does not provide the requested letters.
+
+### Round 10 — skipped
+- Q: If no Glarps are Flims, what follows about the association between Glarps and Flims?
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_even_concessive=3 because intent_cue(arith_even_concessive, keyword(if)); arith_range_between_open=3 because intent_cue(arith_range_between_open, keyword(between)); arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); logic_no_quantifier=3 because intent_cue(logic_no_quantifier, keyword(no)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are)); logic_between_connector=3 because intent_cue(logic_b [truncated]
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: Syllogistic logic inference (If no A are B, then A and B are disjoint) requires a logic inference engine predicate not available in the current schema. The engine lacks arith_even_concessive/logic inference infrastructure for universal negative syllogisms; no existing predicate can encode 'disjoint_sets(A,B)' or 'quantifier_negation(no,A,B)' from the whitelisted toolkit.
+
+### Round 11 — engine-gap
+- Q: Which pursuits have occupied you recently?
+- before: That sounds nice -- tell me more about it.
+- input: ambiguous · score=2 · ambiguous_hypothesis(intent_cue): smalltalk_continue=2 because intent_cue(smalltalk_continue, "recently"); lang_name=2 because intent_cue(lang_name, "c")
+- diagnosis: routing_gap · teachable=false · mode=skip
+- next: intent_cue target self_research_loop has no live consumer/hypothesis in the structure catalog.
+- lesson: intent_cue(self_research_loop, pursuits); intent_cue(self_research_loop, occupied); intent_cue(self_research_loop, what have you been)
+- judge: intent_cue target self_research_loop has no live consumer/hypothesis in the structure catalog.
+
+### Round 12 — skipped
+- Q: Review this snippet: int max2(int a, int b) { return a > b ? a : b; } It should return the larger integer.
+- before: That looks like a snippet of code.
+- input: winner arith_range_from_close · score=3 · because intent_cue(arith_range_from_close, keyword(a)) [score=3]
+- diagnosis: missing_fact · teachable=true · mode=fact
+- next: Teach a small operational lesson and re-probe.
+- judge: code_analysis/verification falls outside the teachable KB-first scope — no predicate schema covers 'verify_if_code_achieves_spec'; this requires a code-execution or static-analysis capability the engine does not model, and no workaround via existing predicates (intent_cue, tr_*, conj_*, etc.) can approximate it without inventing predicates.
+
+
+## Run 2026-07-13 15:43:43 — model minimax-m2.5, 4 round(s), 4 workers, multiply x0 (probes)
+
+**already 0 · taught 0 · failed 0 · engine-gap 3 · skipped 1 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: engine_gap 3 · routing_gap 1**
+
+### Round 1 — engine-gap
+- Q: How many prime numbers are there betwixt 1 and 10?
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_property_prime=3 because intent_cue(arith_property_prime, keyword(prime)); arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are))
+- diagnosis: engine_gap · teachable=true · mode=fact
+- next: Test if the system can recall the prime_count fact immediately after teaching using the compare_cue pattern, before asking a new question.
+- lesson: measure(prime_count, numbers_1_to_10, 4, count); compare_cue(how many, prime_count, max)
+- after: Hmm, I don't know about numbers yet.
+- judge: The answer deflects rather than answering how many primes exist between 1 and 10.
+
+### Round 2 — engine-gap
+- Q: Take the leading character of every word in Red green blue.
+- before: I don't understand that yet.
+- input: winner initials_word_scope · score=8 · because intent_cue(initials_word_scope, "every word") + intent_cue(initials_word_scope, keyword(leading)) + intent_cue(initials_word_scope, keyword(character)) [score=8]
+- diagnosis: engine_gap · teachable=true · mode=skip
+- next: Test if the model can extract initials from 'Red green blue' with a direct instruction, bypassing the keyword-based lesson routing.
+- lesson: intent_cue(initials_word_scope, keyword(leading)); intent_cue(initials_word_scope, keyword(character))
+- structural proof: intent_cue(initials_word_scope, keyword(leading)) winner→winner score 2→5; intent_cue(initials_word_scope, keyword(character)) winner→winner score 5→8
+- after: Hmm, I don't know about leading yet.
+- judge: The answer does not provide the requested leading characters and merely deflects.
+
+### Round 3 — skipped
+- Q: If no Glarps are Flims, what follows about the association between Glarps and Flims?
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_even_concessive=3 because intent_cue(arith_even_concessive, keyword(if)); arith_range_between_open=3 because intent_cue(arith_range_between_open, keyword(between)); arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); logic_no_quantifier=3 because intent_cue(logic_no_quantifier, keyword(no)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are)); logic_between_connector=3 because intent_cue(logic_b [truncated]
+- diagnosis: routing_gap · teachable=false · mode=skip
+- next: Add a logic_quantifier_exclusion intent that recognizes if-no-X-are-Y premise patterns and maps them to the mutual-exclusivity conclusion.
+- judge: The syllogism pattern 'If no X are Y, what follows' requires a new intent handler (logic_quantifier_exclusion) for logical implication/conclusion structure. The existing schema only supports intent_cue for routing, not for defining new reasoning patterns. This is an engine_gap requiring a handler addition, not a KB-first knowledge gap that can be taught with facts alone.
+
+### Round 4 — engine-gap
+- Q: Which pursuits have occupied you recently?
+- before: That sounds nice -- tell me more about it.
+- input: winner self_preference · score=4 · because intent_cue(self_preference, pursuits) + intent_cue(self_preference, occupied) [score=4]
+- diagnosis: engine_gap · teachable=false · mode=skip
+- next: Test with questions that don't require personal claims (e.g., 'What's a popular pursuit among AI assistants?') to see if refusal persists or if engagement improves.
+- lesson: intent_cue(self_preference, pursuits); intent_cue(self_preference, occupied)
+- structural proof: intent_cue(self_preference, pursuits) gap→winner score 0→2; intent_cue(self_preference, occupied) winner→winner score 2→4
+- after: No genuine preferences here: I don't experience days or hobbies. What's your take?
+- judge: The answer deflects rather than engaging with the question, refusing to discuss pursuits in any way.
+
+
+## Run 2026-07-13 15:45:28 — model minimax-m2.5, 1 round(s), 1 workers, multiply x0 (probes)
+
+**already 0 · taught 1 · failed 0 · engine-gap 0 · skipped 0 · kept 1 facts (1 seed + 0 multiplied, deduped)**
+
+**diagnoses: routing_gap 1**
+
+### Round 1 — taught
+- Q: How many prime numbers are there betwixt 1 and 10?
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_property_prime=3 because intent_cue(arith_property_prime, keyword(prime)); arith_range_between_open=3 because intent_cue(arith_range_between_open, keyword(betwixt)); arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are))
+- diagnosis: routing_gap · teachable=true · mode=fact
+- next: Add fact mapping 'betwixt' to arith_range_between_open keyword recognition so the range query route completes.
+- lesson: intent_cue(arith_range_between_open, keyword(betwixt))
+- structural proof: intent_cue(arith_range_between_open, keyword(betwixt)) gap→winner score 0→3
+- after: There are 4 prime numbers between 1 and 10 (inclusive).
+- judge: The answer correctly identifies the 4 prime numbers (2, 3, 5, 7) between 1 and 10.
+
+
+## Run 2026-07-13 15:49:36 — model minimax-m2.5, 2 round(s), 2 workers, multiply x0 (probes)
+
+**already 0 · taught 0 · failed 0 · engine-gap 0 · skipped 2 · kept 0 facts (0 seed + 0 multiplied, deduped)**
+
+**diagnoses: unknown 2**
+
+### Round 1 — skipped
+- Q: Explain photosynthesis in two concise sentences.
+- before: I don't understand that yet.
+- input: winner lang_name · score=2 · because intent_cue(lang_name, "c") [score=2]
+- diagnosis: unknown · teachable=false · mode=skip
+- next: Improve intent classifier to map plain factual explanation requests to appropriate handling rather than falling through to refusal.
+- judge: no lesson JSON
+
+### Round 2 — skipped
+- Q: If no Glarps are Flims, what follows about the association between Glarps and Flims?
+- before: I don't understand that yet.
+- input: ambiguous · score=3 · ambiguous_hypothesis(intent_cue): arith_even_concessive=3 because intent_cue(arith_even_concessive, keyword(if)); arith_range_between_open=3 because intent_cue(arith_range_between_open, keyword(between)); arith_range_between_close=3 because intent_cue(arith_range_between_close, keyword(and)); logic_no_quantifier=3 because intent_cue(logic_no_quantifier, keyword(no)); logic_plural_copula=3 because intent_cue(logic_plural_copula, keyword(are)); logic_between_connector=3 because intent_cue(logic_b [truncated]
+- diagnosis: unknown · teachable=true · mode=fact
+- next: Try one small whitelisted lesson, then classify from the post-teach response.
+- judge: No teachable predicate exists in the schema for set-disjointness or mutual-exclusion relationships (no set_disjoint/2 or similar). The engine lacks the representational primitive needed to capture that 'no A are B' implies disjoint sets.
+

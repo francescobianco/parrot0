@@ -82,6 +82,7 @@ wiki_concept(dna, biology, "Deoxyribonucleic acid is a polymer composed of two p
 % source: https://en.wikipedia.org/wiki/Photosynthesis
 % revision: 1358838651; processed: 2026-06-27T21:40:48Z
 wiki_concept(photosynthesis, biology, "system of biological processes by which photopigment-bearing autotrophic organisms, such as most plants, algae and...").
+wiki_concept(photosynthesis, biology, "the process by which plants use light energy to convert water and carbon dioxide into sugars, releasing oxygen").
 
 % biology / Evolution
 % source: https://en.wikipedia.org/wiki/Evolution

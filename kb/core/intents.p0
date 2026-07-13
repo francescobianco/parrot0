@@ -152,6 +152,8 @@ intent_cue(self_location, "dove vivi").
 % to do on a rainy day", "do you enjoy music"). parrot0 has no personal tastes or
 % lived experience; the honest answer engages instead of walling and is the same an
 % LLM gives. Anchored on "your favorite/favourite" and "do you like/enjoy/prefer". ---
+intent_family(self_preference, self_preference).
+intent_required(self_preference, self_preference).
 intent_cue(self_preference, "your favorite").
 intent_cue(self_preference, "your favourite").
 intent_cue(self_preference, "favorite thing").
@@ -184,6 +186,23 @@ intent_cue(self_preference, "ti piace").
 % the shared evidence scorer for token boundaries instead of substring guesses.
 
 % Computed number-property counts over bounded ranges.
+% intent_family/2 is the trainer-visible consumer contract: these hypotheses
+% cooperate inside one faculty and therefore must not be read as mutually
+% exclusive global intents. autolearn queries each component through the shared
+% input.classify scorer and can teach the one Gap while leaving mechanics in C.
+intent_family(range_property_count, arith_count_request).
+intent_family(range_property_count, arith_property_prime).
+intent_family(range_property_count, arith_property_even).
+intent_family(range_property_count, arith_property_odd).
+intent_family(range_property_count, arith_property_exclusion).
+intent_family(range_property_count, arith_even_concessive).
+intent_family(range_property_count, arith_range_between_open).
+intent_family(range_property_count, arith_range_between_close).
+intent_family(range_property_count, arith_range_from_open).
+intent_family(range_property_count, arith_range_from_close).
+intent_required(range_property_count, arith_count_request).
+machinery(intent_family).
+machinery(intent_required).
 intent_cue(arith_count_request, "how many").
 intent_cue(arith_count_request, keyword(quanti)).
 intent_cue(arith_count_request, keyword(quante)).
@@ -212,6 +231,7 @@ range_frame(arith_range_from_open, arith_range_from_close).
 machinery(range_frame).
 intent_cue(arith_range_between_open, keyword(between)).
 intent_cue(arith_range_between_open, keyword(tra)).
+intent_cue(arith_range_between_open, keyword(betwixt)).
 intent_cue(arith_range_between_open, keyword(fra)).
 intent_cue(arith_range_between_close, keyword(and)).
 intent_cue(arith_range_between_close, keyword(e)).
@@ -225,6 +245,11 @@ intent_cue(arith_range_from_close, keyword(a)).
 % Quoted per-word initial projection and the nearby anagram intent. Keeping both
 % in the KB lets the engine distinguish "letters of ... form" from the more
 % specific initials+scope request without deleting a working anagram surface.
+intent_family(initials, initials_projection).
+intent_family(initials, initials_word_scope).
+intent_family(initials, initials_exclusion).
+intent_required(initials, initials_projection).
+intent_required(initials, initials_word_scope).
 intent_cue(initials_projection, "first letter").
 intent_cue(initials_projection, "initial letter").
 intent_cue(initials_projection, keyword(initials)).
@@ -244,10 +269,19 @@ intent_cue(anagram_output, keyword(form)).
 intent_cue(anagram_output, keyword(make)).
 
 % Explicit no-overlap propositions and their two question shapes.
+intent_family(no_overlap, logic_no_quantifier).
+intent_family(no_overlap, logic_plural_copula).
+intent_family(no_overlap, logic_relationship_marker).
+intent_family(no_overlap, logic_between_connector).
+intent_required(no_overlap, logic_no_quantifier).
+intent_required(no_overlap, logic_plural_copula).
+intent_required(no_overlap, logic_relationship_marker).
+intent_required(no_overlap, logic_between_connector).
 intent_cue(logic_no_quantifier, keyword(no)).
 intent_cue(logic_plural_copula, keyword(are)).
 intent_cue(logic_relationship_marker, keyword(relation)).
 intent_cue(logic_relationship_marker, keyword(relationship)).
+intent_cue(logic_relationship_marker, keyword(association)).
 intent_cue(logic_between_connector, keyword(between)).
 
 % --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"

@@ -300,6 +300,7 @@ test: build
 	@./tests/toolexec.sh
 	@./tests/segment.sh
 	@./tests/universal-input.sh
+	@$(BENCH_PY) ./tests/autolearn_structure.py
 	@./tests/llmscore-kbfirst.sh
 	@./tests/kb-evidence-scale.sh
 	@./tests/mcp-input-payload.sh

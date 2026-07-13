@@ -1331,6 +1331,7 @@ describe_cue("mean").
 describe_cue("means").
 describe_cue("define").
 describe_cue("definition").
+describe_cue(explain).
 wiki_concept(ephemeral, language, "lasting for a very short time").
 wiki_concept(pragmatic, language, "dealing with things sensibly and realistically; practical rather than theoretical").
 

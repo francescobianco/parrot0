@@ -2,11 +2,13 @@
 """autolearn — the autonomous MCP trainer (T0.e, docs/plans/llmscore-strategies.md).
 
 parrot0 self-improves WITHOUT touching C: an opencode-GO model plays three roles
-around parrot0's own MCP training interface (the U-series, gen279-289):
+around parrot0's own MCP training interface (the U-series, gen279-289, gen332):
 
     INTERVIEWER  asks one ability-probing question (or takes it from --probes);
     parrot0      answers from its real state (chat, session KB loaded);
     JUDGE        votes 0/1 on the exchange (same criteria as llmscore);
+    PERCEPTION   exposes input.segment + input.classify proofs and the live
+                 hypothesis catalog, so a bad surface route is observable;
     TEACHER      on a 0, reads parrot0's honest decline — which NAMES the gap —
                  and formulates a LESSON: whitelisted KB facts, taught live via
                  --mcp-engine (kb.assert -> kb.save). Re-probe; retry while the
@@ -60,11 +62,15 @@ ABILITIES = [
     "an anagram of a common word",
     "a single word for a definition (a person who studies/does X)",
     "complete a common English sentence sensibly",
+    "a familiar task asked with an unusual but clear paraphrase",
+    "a mixed prose-and-code request with an expected result or constraint",
 ]
 
 # Facts the teacher may assert: predicates with a VERIFIED consumer in the engine.
 # Anything else is dropped before teaching (and noted), so a hallucinated schema
-# can never pollute the KB. Routing/self predicates are blacklisted outright.
+# can never pollute the KB. gen334 admits the three universal-input evidence
+# relations, but only toward hypotheses already present in the live KB; see
+# audit_lesson() and session_teach().
 WHITELIST = {
     "tr_es": 2, "tr_fr": 2, "gender_es": 2, "gender_fr": 2,
     "tr_es_phrase": 2, "tr_fr_phrase": 2,  # gen310: multi-word translation units
@@ -91,12 +97,18 @@ WHITELIST = {
     "clue_verb": 2, "emits": 2, "is_like": 2, "inanimate": 1,  # gen311: riddle-by-inference facts
     "depicts": 2, "contains": 2,         # gen311 (U1): "have A but no B" = depicts ∧ ¬contains
     "has_part": 2, "has_property": 2, "can_do": 2,  # gen311 (U1): "has X but cannot Y" riddles
+    "intent_cue": 2, "segment_role": 2, "register_evidence": 2,
 }
 # Generic binary relations ("what is the <rel> of <y>" frame, gen11) are also
 # consumable: allow any simple lowercase pred/2 not blacklisted.
-BLACKLIST = {"module", "learnable", "intent_cue", "intent_phrase", "cont", "cont2",
-             "i_am", "fact_source", "weight"}
+BLACKLIST = {"module", "learnable", "intent_phrase", "cont", "cont2",
+             "i_am", "fact_source", "policy", "weight"}
 KNOWN_RIDDLE_CONSTRAINTS = {"cries", "flashes"}
+STRUCTURE_RELATIONS = {
+    "intent_cue": "intents",
+    "segment_role": "roles",
+    "register_evidence": "registers",
+}
 
 INTERVIEW_SYS = (
     "You are probing the abilities of an unknown chat subject, one short question "
@@ -127,6 +139,22 @@ TEACHER_SYS = (
     '  {"facts": [{"pred": "...", "args": ["...", "..."]}, ...]}   (max 10 facts)\n'
     'or {"skip": "one-line reason"} when no teachable lesson applies.\n'
     "PREDICATE SCHEMAS THE ENGINE CONSUMES (use ONLY these shapes):\n"
+    "- UNIVERSAL INPUT / ROUTING (prefer these when the structural observation "
+    "shows a Gap, ambiguity, or wrong hypothesis): intent_cue(existing_intent, "
+    "evidence), segment_role(existing_role, evidence), or register_evidence("
+    "existing_register, evidence). The first argument MUST occur in the live "
+    "STRUCTURE CATALOG supplied with the failure. Evidence may be a specific "
+    "lowercase phrase or a scorer form such as keyword(word), prefix(text), "
+    "line_prefix(text), fence(name), or extension(.ext). Never invent a new "
+    "intent/role/register, never use a one-letter cue, and never teach a broad "
+    "function word. These facts are accepted only if they change input.classify's "
+    "proof in the live MCP process and the answer then passes the judge. INTENT "
+    "FAMILIES are fixed consumer contracts: their components cooperate rather "
+    "than compete. When a relevant family has matching components plus one Gap, "
+    "teach that missing existing component instead of declaring a global "
+    "ambiguity or inventing a new intent. STRUCTURAL SUGGESTIONS are derived "
+    "mechanically from those contracts; when present, target their named Gap "
+    "before proposing domain facts.\n"
     "- tr_es(english_word, spanish_word) / tr_fr(english_word, french_word): "
     "translation lexicon, one WORD per fact, lowercase. THIS IS THE DEFAULT for any "
     "sentence translation: teach EVERY plausibly-missing content WORD and let the "
@@ -316,12 +344,15 @@ BATCH_JUDGE_SYS = (
 DIAG_SYS = (
     "You are diagnosing WHY parrot0 failed a question and WHETHER the current KB-first "
     "engine could plausibly be improved by teaching whitelisted facts. Reply STRICT JSON only:\n"
-    '{"failure_class":"missing_fact|composition_gap|morphology_gap|idiom_gap|engine_gap|unknown",'
+    '{"failure_class":"missing_fact|composition_gap|morphology_gap|idiom_gap|routing_gap|segmentation_gap|engine_gap|unknown",'
     '"teachable":true|false,'
     '"lesson_mode":"fact|template|skip",'
     '"reason":"one short sentence",'
     '"next_action":"one short sentence"}\n'
-    "Use missing_fact when parrot0 names missing knowledge or a small set of facts may "
+    "Use routing_gap when the input.classify proof selects an unrelated intent or a "
+    "known intent lacks the new surface evidence. Use segmentation_gap when a mixed "
+    "input span has the wrong role/register. Use missing_fact when parrot0 names "
+    "missing knowledge or a small set of facts may "
     "close the gap. Use composition_gap/morphology_gap/idiom_gap when facts may be true "
     "but the observed answer form is wrong. Use engine_gap only after evidence that facts "
     "were tried but the answer path still cannot consume them."
@@ -330,7 +361,7 @@ DIAG_SYS = (
 REFLECT_SYS = (
     "You are reviewing one failed autolearn attempt. Classify the failure from evidence, "
     "not from the topic. Reply STRICT JSON only:\n"
-    '{"failure_class":"missing_fact|composition_gap|morphology_gap|idiom_gap|engine_gap|unknown",'
+    '{"failure_class":"missing_fact|composition_gap|morphology_gap|idiom_gap|routing_gap|segmentation_gap|engine_gap|unknown",'
     '"teachable":true|false,'
     '"lesson_mode":"fact|template|skip",'
     '"reason":"one short sentence",'
@@ -463,6 +494,120 @@ def probe(question, sess):
     return (sess.call("gen.respond", {"input": question}).get("output") or "").strip()
 
 
+def inspect_input(question, sess, include_catalog=True):
+    """Read gen332's structural view of a turn from the same live MCP brain.
+
+    The trainer used to see only the final string response. That collapsed a
+    routing failure, a segmentation failure and missing world knowledge into the
+    same loss. Keep the proof-bearing perception beside the response instead.
+    """
+    snap = {"segments": {}, "routing": {}, "catalog": {}}
+    try:
+        snap["segments"] = sess.call("input.segment", {"text": question})
+        snap["routing"] = sess.call(
+            "input.classify", {"relation": "intent_cue", "text": question})
+    except Exception as e:
+        snap["error"] = str(e)
+        return snap
+    if not include_catalog:
+        return snap
+    for relation, label in STRUCTURE_RELATIONS.items():
+        try:
+            out = sess.call("kb.match", {"pred": relation, "args": [None, None]})
+            snap["catalog"][label] = sorted(set(out.get("bindings") or []))
+        except Exception as e:
+            snap["catalog"][label] = []
+            snap.setdefault("catalog_errors", {})[label] = str(e)
+    snap["intent_families"] = {}
+    try:
+        out = sess.call("kb.match", {"pred": "intent_family", "args": [None, None]})
+        for family in sorted(set(out.get("bindings") or [])):
+            members = sess.call(
+                "kb.match", {"pred": "intent_family", "args": [family, None]})
+            states = []
+            for target in sorted(set(members.get("bindings") or [])):
+                state = sess.call("input.classify", {
+                    "relation": "intent_cue", "text": question,
+                    "candidates": [target],
+                })
+                states.append({"target": target, "status": state.get("status"),
+                               "score": state.get("score", 0),
+                               "proof": state.get("proof", "")})
+            snap["intent_families"][family] = states
+    except Exception as e:
+        snap["intent_family_error"] = str(e)
+    snap["structural_suggestions"] = []
+    try:
+        required = sess.call(
+            "kb.match", {"pred": "intent_required", "args": [None, None]})
+        for family in sorted(set(required.get("bindings") or [])):
+            targets = sess.call(
+                "kb.match", {"pred": "intent_required", "args": [family, None]})
+            states = {s["target"]: s for s in snap["intent_families"].get(family, [])}
+            winners = [s for s in states.values() if s.get("status") == "winner"]
+            if not winners:
+                continue
+            for target in sorted(set(targets.get("bindings") or [])):
+                if states.get(target, {}).get("status") == "gap":
+                    snap["structural_suggestions"].append({
+                        "family": family, "target": target,
+                        "reason": f"required component is Gap while {len(winners)} sibling(s) match",
+                    })
+
+        pairs = sess.call("kb.match", {"pred": "range_frame", "args": [None, None]})
+        for opener in sorted(set(pairs.get("bindings") or [])):
+            closes = sess.call("kb.match", {"pred": "range_frame", "args": [opener, None]})
+            for closer in sorted(set(closes.get("bindings") or [])):
+                for family, rows in snap["intent_families"].items():
+                    states = {s["target"]: s for s in rows}
+                    if opener not in states or closer not in states:
+                        continue
+                    winners = [s for s in states.values() if s.get("status") == "winner"]
+                    if len(winners) < 3:
+                        continue
+                    if (states[opener].get("status") == "gap" and
+                            states[closer].get("status") == "winner"):
+                        snap["structural_suggestions"].append({
+                            "family": family, "target": opener,
+                            "reason": f"paired opener is Gap while {closer} and frame siblings match",
+                        })
+                    if (states[closer].get("status") == "gap" and
+                            states[opener].get("status") == "winner"):
+                        snap["structural_suggestions"].append({
+                            "family": family, "target": closer,
+                            "reason": f"paired closer is Gap while {opener} and frame siblings match",
+                        })
+    except Exception as e:
+        snap["structural_suggestion_error"] = str(e)
+    return snap
+
+
+def structure_context(snap):
+    """Compact, stable prompt form; omit span text because QUESTION already has it."""
+    spans = []
+    for s in (snap.get("segments") or {}).get("spans", []):
+        spans.append({k: s.get(k) for k in
+                      ("start", "len", "role", "register", "score", "proof", "faculty")})
+    view = {
+        "ambiguous_input": (snap.get("segments") or {}).get("ambiguous", False),
+        "spans": spans,
+        "intent_classification": snap.get("routing") or {},
+        "intent_families": snap.get("intent_families") or {},
+        "structural_suggestions": snap.get("structural_suggestions") or [],
+        "catalog": snap.get("catalog") or {},
+    }
+    return json.dumps(view, ensure_ascii=True, separators=(",", ":"))
+
+
+def classify_structure_fact(sess, question, fact):
+    """Return the proof state for one proposed structural target."""
+    return sess.call("input.classify", {
+        "relation": fact["pred"],
+        "text": question,
+        "candidates": [fact["args"][0]],
+    })
+
+
 def persist_facts(facts, save_path, env, cwd):
     """Assert facts over --mcp-engine and persist the session to save_path.
     Returns (n_stored, errors)."""
@@ -474,6 +619,20 @@ def persist_facts(facts, save_path, env, cwd):
                                 "params": {"name": "kb.assert",
                                            "arguments": {"pred": f["pred"],
                                                          "args": f["args"]}}}))
+    # setup_brain projects the active execution policy into the session layer for
+    # honest self-reporting. It is process state, not learned knowledge; retract it
+    # before saving so a training run cannot freeze "tools off" into the curated KB.
+    runtime_facts = [
+        {"pred": "policy", "args": ["tools", "off"]},
+        {"pred": "policy", "args": ["network", "off"]},
+        {"pred": "policy", "args": ["mode", "conversational"]},
+        {"pred": "machinery", "args": ["policy"]},
+    ]
+    for i, f in enumerate(runtime_facts):
+        reqs.append(json.dumps({"jsonrpc": "2.0", "id": 800 + i,
+                                "method": "tools/call",
+                                "params": {"name": "kb.retract",
+                                           "arguments": f}}))
     reqs.append(json.dumps({"jsonrpc": "2.0", "id": 999, "method": "tools/call",
                             "params": {"name": "kb.save",
                                        "arguments": {"path": save_path}}}))
@@ -486,8 +645,8 @@ def persist_facts(facts, save_path, env, cwd):
     # a pure unrouted spill instead of a mixed session dump.
     try:
         with open(save_path) as fh:
-            keep = [ln for ln in fh
-                    if not re.match(r"(process_pid|os_language|current_language)\(", ln)]
+            keep = [ln for ln in fh if not re.match(
+                r"(process_pid|os_language|current_language|policy)\(", ln)]
         with open(save_path, "w") as fh:
             fh.writelines(keep)
     except FileNotFoundError:
@@ -495,17 +654,50 @@ def persist_facts(facts, save_path, env, cwd):
     return stored, errors
 
 
-def session_teach(sess, facts):
-    stored, errors = 0, []
+def session_teach(sess, facts, question):
+    """Teach facts and prove each structural fact changed perception.
+
+    Content facts retain the existing answer-level oracle. A structural fact has
+    an additional local oracle: input.classify for its target must change in the
+    same process. Ineffective cues are immediately retracted and cannot hitchhike
+    into persistence behind a useful content fact.
+    """
+    accepted, errors, effects = [], [], []
     for f in facts:
+        before = None
+        if f["pred"] in STRUCTURE_RELATIONS:
+            try:
+                before = classify_structure_fact(sess, question, f)
+            except Exception as e:
+                errors.append(f"{fact_str(f)} pre-classify: {e}")
+                continue
         try:
             res = sess.call("kb.assert", {"pred": f["pred"], "args": f["args"]})
         except Exception as e:
             errors.append(str(e))
             continue
-        if res.get("stored"):
-            stored += 1
-    return stored, errors
+        if f["pred"] not in STRUCTURE_RELATIONS:
+            accepted.append(f)
+            continue
+        if not res.get("stored"):
+            continue
+        try:
+            after = classify_structure_fact(sess, question, f)
+        except Exception as e:
+            sess.call("kb.retract", {"pred": f["pred"], "args": f["args"]})
+            errors.append(f"{fact_str(f)} post-classify: {e}")
+            continue
+        changed = any(before.get(k) != after.get(k)
+                      for k in ("status", "hypothesis", "score", "proof"))
+        if not changed:
+            sess.call("kb.retract", {"pred": f["pred"], "args": f["args"]})
+            effects.append({"fact": fact_str(f), "accepted": False,
+                            "before": before, "after": after})
+            continue
+        accepted.append(f)
+        effects.append({"fact": fact_str(f), "accepted": True,
+                        "before": before, "after": after})
+    return accepted, errors, effects
 
 
 def sanitize_lesson(obj, limit=10):
@@ -529,6 +721,30 @@ def sanitize_lesson(obj, limit=10):
             continue
         facts.append({"pred": pred, "args": args})
     return facts, dropped
+
+
+def filter_structural_targets(facts, structure):
+    """Drop only unsafe structural rows; preserve independent content facts.
+
+    A teacher may correctly propose describe_cue(explain) beside an invented
+    intent_cue(describe,...). Rejecting the whole batch loses a valid gradient
+    step. Structural rows have a stronger consumer/catalog contract, so they can
+    be filtered independently before the remaining lesson is audited.
+    """
+    kept, dropped = [], []
+    catalog = (structure or {}).get("catalog") or {}
+    for f in facts:
+        if f["pred"] not in STRUCTURE_RELATIONS:
+            kept.append(f)
+            continue
+        known = set(catalog.get(STRUCTURE_RELATIONS[f["pred"]]) or [])
+        evidence = f["args"][1].strip()
+        surface = evidence.split("(", 1)[-1].rstrip(")").strip()
+        if f["args"][0] not in known or len(surface) < 2:
+            dropped.append(f)
+        else:
+            kept.append(f)
+    return kept, dropped
 
 
 def fact_str(f):
@@ -571,11 +787,13 @@ def local_diagnose(question, answer):
     }
 
 
-def diagnose_failure(key, model, question, answer, judge_reason):
+def diagnose_failure(key, model, question, answer, judge_reason, structure=None):
+    structural = structure_context(structure or {})
     raw = first_json(call_model(key, model, [
         {"role": "system", "content": DIAG_SYS},
         {"role": "user", "content":
             f"QUESTION: {question}\nANSWER: {answer}\nJUDGE: {judge_reason}\n"
+            f"STRUCTURAL OBSERVATION: {structural}\n"
             "Diagnose the failure for the current KB-first engine."}], 0.0, 600))
     loc = local_diagnose(question, answer)
     if not raw:
@@ -588,20 +806,33 @@ def diagnose_failure(key, model, question, answer, judge_reason):
         "next_action": one_line(str(raw.get("next_action", loc["next_action"]))),
     }
     if out["failure_class"] not in {"missing_fact", "composition_gap", "morphology_gap",
-                                    "idiom_gap", "engine_gap", "unknown"}:
+                                    "idiom_gap", "routing_gap", "segmentation_gap",
+                                    "engine_gap", "unknown"}:
         out["failure_class"] = loc["failure_class"]
     if out["lesson_mode"] not in {"fact", "template", "skip"}:
         out["lesson_mode"] = loc["lesson_mode"]
     return out
 
 
-def audit_lesson(question, diag, facts):
+def audit_lesson(question, diag, facts, structure=None):
     _ = diag
     if not facts:
         return {"ok": False, "kind": "empty", "reason": "no facts survived sanitization"}
     ql = question.lower()
     preds = {f["pred"] for f in facts}
     for f in facts:
+        if f["pred"] in STRUCTURE_RELATIONS:
+            label = STRUCTURE_RELATIONS[f["pred"]]
+            known = set(((structure or {}).get("catalog") or {}).get(label) or [])
+            if f["args"][0] not in known:
+                return {"ok": False, "kind": "bad_lesson",
+                        "reason": (f"{f['pred']} target {f['args'][0]} has no live "
+                                   "consumer/hypothesis in the structure catalog.")}
+            evidence = f["args"][1].strip()
+            surface = evidence.split("(", 1)[-1].rstrip(")").strip()
+            if len(surface) < 2:
+                return {"ok": False, "kind": "bad_lesson",
+                        "reason": "structural evidence must be more specific than one character."}
         if f["pred"] == "magnitude_cue" and " " in f["args"][0]:
             return {"ok": False, "kind": "engine_gap",
                     "reason": "magnitude_cue needs a single cue word; multi-word cues never match."}
@@ -673,7 +904,8 @@ def reflect_attempt(key, model, question, before, lesson, after, judge_reason):
         "next_action": one_line(str(raw.get("next_action", loc["next_action"]))),
     }
     if out["failure_class"] not in {"missing_fact", "composition_gap", "morphology_gap",
-                                    "idiom_gap", "engine_gap", "unknown"}:
+                                    "idiom_gap", "routing_gap", "segmentation_gap",
+                                    "engine_gap", "unknown"}:
         out["failure_class"] = loc["failure_class"]
     if out["lesson_mode"] not in {"fact", "template", "skip"}:
         out["lesson_mode"] = loc["lesson_mode"]
@@ -711,6 +943,7 @@ def log(msg):
 
 
 def append_ledger(path, stamp, model, result):
+    structural = result.get("structure") or {}
     row = {
         "ts": stamp,
         "model": model,
@@ -720,6 +953,9 @@ def append_ledger(path, stamp, model, result):
         "after": result.get("a1"),
         "judge": result.get("reason"),
         "diagnosis": result.get("diag"),
+        "structure": {"segments": structural.get("segments", {}),
+                      "routing": structural.get("routing", {})},
+        "structure_effects": result.get("structure_effects", []),
         "lesson": result.get("lesson", []),
         "multiplied": result.get("multiplied", []),
     }
@@ -801,6 +1037,7 @@ def do_round(idx, given_q, args, key, skip_set=None):
         if q.startswith("[model error") or q == "[empty]":
             return {"verdict": "interviewer-error", "q": q, "kept": []}
 
+        structure = inspect_input(q, sess)
         a0 = probe(q, sess) or "(empty)"
         j0 = first_json(call_model(key, args.model, [
             {"role": "system", "content": JUDGE_SYS},
@@ -811,11 +1048,11 @@ def do_round(idx, given_q, args, key, skip_set=None):
             elapsed = t_probe - t_start
             log(f"[{idx+1}] already   {q[:70]}  ({elapsed:.1f}s)")
             return {"verdict": "already-capable", "q": q, "a0": a0,
-                    "reason": j0_reason, "kept": []}
+                    "reason": j0_reason, "structure": structure, "kept": []}
 
-        diag = diagnose_failure(key, args.model, q, a0, j0_reason)
+        diag = diagnose_failure(key, args.model, q, a0, j0_reason, structure)
 
-        lessons, a1, v1, jr = [], a0, 0, ""
+        lessons, structure_effects, a1, v1, jr = [], [], a0, 0, ""
         for _ in range(args.retries + 1):
             t = first_json(call_model(key, args.model, [
                 {"role": "system", "content": TEACHER_SYS},
@@ -823,6 +1060,8 @@ def do_round(idx, given_q, args, key, skip_set=None):
                     f"QUESTION: {q}\nPARROT0'S FAILING REPLY: {a1}\n"
                     f"DIAGNOSIS: class={diag['failure_class']}; mode={diag['lesson_mode']}; "
                     f"reason={diag['reason']}; next={diag['next_action']}\n"
+                    f"STRUCTURAL OBSERVATION AND LIVE CATALOG: "
+                    f"{structure_context(structure)}\n"
                     + (f"FACTS ALREADY TAUGHT THIS ROUND: "
                        f"{'; '.join(fact_str(f) for f in lessons)}\n" if lessons else "")
                     + "Formulate the lesson."}], 0.2, max_tokens=3000))
@@ -833,18 +1072,20 @@ def do_round(idx, given_q, args, key, skip_set=None):
                         f"total={t_skip-t_start:.1f}s)")
                     return {"verdict": "skipped", "q": q, "a0": a0,
                             "reason": (t or {}).get("skip", "no lesson JSON"),
-                            "diag": diag, "kept": []}
+                            "diag": diag, "structure": structure, "kept": []}
                 break
             facts, dropped = sanitize_lesson(t)
+            facts, unsafe_structure = filter_structural_targets(facts, structure)
+            dropped += unsafe_structure
             if not facts:
                 if not lessons:
                     t_skip = time.time()
                     log(f"[{idx+1}] skip nofacts (total={t_skip-t_start:.1f}s)")
                     return {"verdict": "skipped", "q": q, "a0": a0,
                             "reason": f"no whitelisted facts ({len(dropped)} dropped)",
-                            "diag": diag, "kept": []}
+                            "diag": diag, "structure": structure, "kept": []}
                 break
-            audit = audit_lesson(q, diag, facts)
+            audit = audit_lesson(q, diag, facts, structure)
             if not audit["ok"]:
                 if not lessons:
                     t_gap = time.time()
@@ -852,41 +1093,52 @@ def do_round(idx, given_q, args, key, skip_set=None):
                         f"probe={t_probe-t_gen:.1f}s teach={t_gap-t_probe:.1f}s)")
                     return {"verdict": "engine-gap", "q": q, "a0": a0, "reason": audit["reason"],
                             "diag": {**diag, "next_action": audit["reason"]},
+                            "structure": structure,
                             "lesson": [fact_str(f) for f in facts], "kept": []}
                 break
-            stored, errors = session_teach(sess, facts)
-            if stored == 0 and errors:
+            accepted, errors, effects = session_teach(sess, facts, q)
+            structure_effects += effects
+            if not accepted:
                 return {"verdict": "skipped", "q": q, "a0": a0,
-                        "reason": "; ".join(errors[:3]), "diag": diag, "kept": []}
-            lessons += facts
+                        "reason": ("; ".join(errors[:3]) if errors else
+                                   "no proposed structural fact changed its MCP proof"),
+                        "diag": diag, "structure": structure,
+                        "structure_effects": structure_effects, "kept": []}
+            lessons += accepted
             a1 = probe(q, sess) or "(empty)"
+            structure = inspect_input(q, sess)
             j1 = first_json(call_model(key, args.model, [
                 {"role": "system", "content": JUDGE_SYS},
                 {"role": "user", "content": f"Q: {q}\nA: {a1}"}], 0.0)) or {}
             v1, jr = int(j1.get("vote", 0)), j1.get("reason", "")
             if v1 == 1:
                 break
-            diag = reflect_attempt(key, args.model, q, a0, facts, a1, jr)
+            diag = reflect_attempt(key, args.model, q, a0, accepted, a1, jr)
             if not diag.get("teachable", True) or diag.get("lesson_mode") == "skip":
                 break
 
         if lessons and v1 == 1:
-            sibs = multiply_lesson(key, args.model, lessons, args.multiply)
+            multiplier_seeds = [f for f in lessons if f["pred"] not in STRUCTURE_RELATIONS]
+            sibs = multiply_lesson(key, args.model, multiplier_seeds, args.multiply)
             t_mult = time.time()
             log(f"[{idx+1}] TAUGHT   {q[:56]}  (+{len(lessons)} seed +{len(sibs)} x)"
                 f"  gen={t_gen-t_start:.1f}s teach={t_mult-t_probe:.1f}s")
             return {"verdict": "taught", "q": q, "a0": a0, "a1": a1, "reason": jr,
                     "diag": diag,
+                    "structure": structure, "structure_effects": structure_effects,
                     "lesson": [fact_str(f) for f in lessons],
                     "multiplied": [fact_str(f) for f in sibs],
                     "kept": lessons + sibs}
-        fail_diag = diag if lessons else diagnose_failure(key, args.model, q, a1, jr or j0_reason)
+        fail_diag = (diag if lessons else
+                     diagnose_failure(key, args.model, q, a1, jr or j0_reason, structure))
         verdict = "engine-gap" if fail_diag.get("failure_class") == "engine_gap" else "failed-lesson"
         t_end = time.time()
         log(f"[{idx+1}] {'gap' if verdict == 'engine-gap' else 'failed':<8} {q[:70]}"
             f"  gen={t_gen-t_start:.1f}s probe={t_probe-t_gen:.1f}s total={t_end-t_start:.1f}s")
         return {"verdict": verdict, "q": q, "a0": a0, "a1": a1, "reason": jr,
-                "diag": fail_diag, "lesson": [fact_str(f) for f in lessons], "kept": []}
+                "diag": fail_diag, "structure": structure,
+                "structure_effects": structure_effects,
+                "lesson": [fact_str(f) for f in lessons], "kept": []}
     finally:
         sess.close()
 
@@ -963,6 +1215,11 @@ def run(args, key):
             fh.write(f"### Round {i} — {r.get('verdict','?')}\n- Q: {r.get('q','')}\n")
             if "a0" in r:
                 fh.write(f"- before: {r['a0']}\n")
+            routing = (r.get("structure") or {}).get("routing") or {}
+            if routing:
+                fh.write(f"- input: {routing.get('status','?')}"
+                         f"{(' ' + str(routing.get('hypothesis'))) if routing.get('hypothesis') else ''}"
+                         f" · score={routing.get('score',0)} · {routing.get('proof','')}\n")
             if r.get("diag"):
                 d = r["diag"]
                 fh.write(f"- diagnosis: {d.get('failure_class','?')} · "
@@ -971,6 +1228,14 @@ def run(args, key):
                 fh.write(f"- next: {d.get('next_action','')}\n")
             if r.get("lesson"):
                 fh.write(f"- lesson: {'; '.join(r['lesson'])}\n")
+            accepted_effects = [e for e in r.get("structure_effects", [])
+                                if e.get("accepted")]
+            if accepted_effects:
+                fh.write("- structural proof: " + "; ".join(
+                    f"{e['fact']} {e['before'].get('status','?')}→"
+                    f"{e['after'].get('status','?')} score "
+                    f"{e['before'].get('score',0)}→{e['after'].get('score',0)}"
+                    for e in accepted_effects) + "\n")
             if r.get("multiplied"):
                 fh.write(f"- multiplied (+{len(r['multiplied'])}): "
                          f"{'; '.join(r['multiplied'][:24])}\n")
