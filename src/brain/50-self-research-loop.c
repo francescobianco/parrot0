@@ -244,14 +244,17 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
 static int acquire_knowledge(Brain *b, const char *key, char *def, size_t def_sz) {
     if (!b || !b->kb || !key || !*key) return 0;
     if (kb_concept_def(b->kb, key, def, def_sz)) return 2;        /* already known */
-    if (learn_topic(b->kb, key, key, def, def_sz)) return 1;      /* local corpus */
-    if (wiki_fetch_topic(key) && learn_topic(b->kb, key, key, def, def_sz)) {
-        /* the fetch wrote a page file — record it as a session artifact */
+    /* gen335i: try bilingual Wikipedia fetch BEFORE local corpus lookup.
+     * Even if the EN page exists locally, the IT fetch may add the
+     * cross-language wiki_alias link that persists on /save. */
+    wiki_fetch_bilingual(b->kb, key);
+    if (learn_topic(b->kb, key, key, def, def_sz)) {
+        /* page existed locally or was just downloaded — record artifact */
         const char *dir = getenv("PARROT0_WIKI_DIR");
         if (!dir || !*dir) dir = "kb/learning/pages";
         char path[256]; snprintf(path, sizeof path, "%s/%s.md", dir, key);
         note_artifact(b, "file", path);
-        return 1;                                                 /* on-demand fetch */
+        return 1;                                                 /* local or fetched */
     }
     return 0;
 }

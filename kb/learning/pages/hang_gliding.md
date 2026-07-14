@@ -1,6 +1,7 @@
-# Hang_gliding
+# Hang gliding
 
 - Domain: `general`
+- Language: `en`
 - Source: https://en.wikipedia.org/wiki/Hang_gliding
 
 ## Learned Concept

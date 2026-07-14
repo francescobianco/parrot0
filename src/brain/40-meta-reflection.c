@@ -638,6 +638,7 @@ static int is_internal_pred(const KB *kb, const char *pred) {
         "sensory_topic", "sensory_phrase", "concise_topic", "concise_explain",
         /* gen335d: knowledge-gap bridge predicates (session state, like last_result) */
         "pending_gap", "pending_gap_question", "pending_gap_failed",
+        "wiki_alias",  /* gen335i: cross-language topic links */
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

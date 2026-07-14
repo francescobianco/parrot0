@@ -195,11 +195,75 @@ static int json_extract_field(const char *json, const char *field,
 }
 
 int wiki_fetch_topic(const char *key) {
+    return wiki_fetch_topic_lang(key, "en");
+}
+
+/* gen335i: bilingual Wikipedia fetch. After a successful EN fetch, queries
+ * the Wikipedia API for the Italian-language page title via langlinks, then
+ * fetches the IT summary. If both return valid summaries, asserts
+ * wiki_alias(en_key, it_title) into the KB (persists on /save). */
+int wiki_fetch_bilingual(KB *kb, const char *en_key) {
+    if (!kb || !en_key || !*en_key) return 0;
+    if (!wiki_fetch_topic_lang(en_key, "en")) return 0;
+    /* EN succeeded — discover the IT page title via Wikipedia API langlinks */
+    char it_title[128] = "";
+    {
+        char ll_url[384];
+        snprintf(ll_url, sizeof ll_url,
+                 "https://en.wikipedia.org/w/api.php"
+                 "?action=query&titles=%s&prop=langlinks&lllang=it&format=json",
+                 en_key);
+        char *json = http_get(ll_url);
+        if (json) {
+            /* extract the Italian title from the JSON: "langlinks":[{"lang":"it","*":"..."}] */
+            const char *p = strstr(json, "\"lang\":\"it\"");
+            if (p) {
+                const char *star = strstr(p, "\"*\":\"");
+                if (star) {
+                    star += 5;
+                    const char *end = strchr(star, '"');
+                    if (end && end > star && (size_t)(end - star) < sizeof it_title) {
+                        memcpy(it_title, star, (size_t)(end - star));
+                        it_title[end - star] = '\0';
+                    }
+                }
+            }
+            free(json);
+        }
+    }
+    if (!it_title[0]) {
+        /* gen335i: langlinks may not return a link for all pages.
+         * Try IT Wikipedia directly with the EN key — the REST API
+         * handles redirects for many pages (Hang_gliding → Deltaplano). */
+        int it_ok = wiki_fetch_topic_lang(en_key, "it");
+        if (it_ok && kb) {
+            /* We don't know the exact IT title, but the fetch succeeded.
+             * Use the EN key as the alias target. */
+            kb_set_origin(kb, KB_SESSION);
+            const char *aa[] = { en_key, it_title[0] ? it_title : en_key };
+            kb_assert(kb, "wiki_alias", aa, 2);
+        }
+        return 1; /* EN success, IT best-effort */
+    }
+    /* Fetch the Italian Wikipedia summary using the actual IT page title */
+    { int it_ok = wiki_fetch_topic_lang(it_title, "it");
+    if (!it_ok) return 1; /* EN only — IT fetch failed */
+    /* Both languages succeeded — store the cross-language alias */
+    if (kb) {
+        kb_set_origin(kb, KB_SESSION);
+        const char *aa[] = { en_key, it_title };
+        kb_assert(kb, "wiki_alias", aa, 2);
+    }
+    return 2; /* bilingual success */
+    }
+}
+
+int wiki_fetch_topic_lang(const char *key, const char *lang) {
     const char *en = getenv("PARROT0_WIKI_FETCH");
     if (!en || !*en || !strcmp(en, "0")) return 0;
-    if (!key || !*key) return 0;
+    if (!key || !*key || !lang || !*lang) return 0;
 
-    /* sanitize the key to [a-z0-9_] (it already is, from mod_learn) */
+    /* sanitize the key to [a-z0-9_] */
     char k[96]; size_t kn = 0;
     for (const char *p = key; *p && kn + 1 < sizeof k; p++) {
         char c = *p;
@@ -214,17 +278,22 @@ int wiki_fetch_topic(const char *key) {
     if (title[0]) title[0] = (char)toupper((unsigned char)title[0]);
 
     char url[256];
+    /* gen335i: language-specific Wikipedia URL */
     snprintf(url, sizeof url,
-             "https://en.wikipedia.org/api/rest_v1/page/summary/%s", title);
+             "https://%s.wikipedia.org/api/rest_v1/page/summary/%s", lang, title);
     char *json = http_get(url);
     if (!json) return 0;
 
     char extract[4096];
     int got = json_extract_field(json, "extract", extract, sizeof extract);
+    /* gen335i: also extract the actual page title (may differ from `title`
+     * due to Wikipedia redirect — e.g. "Hang_gliding" → "Hang gliding") */
+    char actual_title[128] = "";
+    json_extract_field(json, "title", actual_title, sizeof actual_title);
     free(json);
     if (!got || strlen(extract) < 10) return 0;
 
-    /* first sentence (>= 30 chars) as the lead concept, matching the corpus */
+    /* first sentence (>= 30 chars) as the lead concept */
     size_t el = strlen(extract), cut = 0;
     for (size_t i = 0; i < el; i++)
         if ((extract[i] == '.' || extract[i] == '!' || extract[i] == '?') &&
@@ -236,17 +305,24 @@ int wiki_fetch_topic(const char *key) {
     if (cut >= sizeof concept) cut = sizeof concept - 1;
     memcpy(concept, extract, cut); concept[cut] = '\0';
 
+    /* use the actual Wikipedia title for the page header (resolved redirect) */
+    char page_title[128];
+    if (actual_title[0]) snprintf(page_title, sizeof page_title, "%s", actual_title);
+    else snprintf(page_title, sizeof page_title, "%s", title);
+
     const char *dir = getenv("PARROT0_WIKI_DIR");
     if (!dir || !*dir) dir = "kb/learning/pages";
     char path[512];
-    snprintf(path, sizeof path, "%s/%s.md", dir, k);
+    /* gen335i: suffix IT pages with _it to avoid overwriting the EN page */
+    const char *suffix = (strcmp(lang, "en") == 0) ? "" : "_it";
+    snprintf(path, sizeof path, "%s/%s%s.md", dir, k, suffix);
     FILE *f = fopen(path, "w");
     if (!f) return 0;
     fprintf(f,
-            "# %s\n\n- Domain: `general`\n- Source: "
-            "https://en.wikipedia.org/wiki/%s\n\n"
+            "# %s\n\n- Domain: `general`\n- Language: `%s`\n- Source: "
+            "https://%s.wikipedia.org/wiki/%s\n\n"
             "## Learned Concept\n\n%s\n\n## Extract\n\n%s\n",
-            title, title, concept, extract);
+            page_title, lang, lang, title, concept, extract);
     fclose(f);
     return 1;
 }

@@ -28,4 +28,14 @@ int learn_topic(KB *kb, const char *key, const char *title,
  * usable page (caller then calls learn_topic), 0 otherwise. */
 int wiki_fetch_topic(const char *key);
 
+/* gen335i: bilingual Wikipedia fetch. Fetches from both en.wikipedia.org and
+ * it.wikipedia.org for the same key. If both succeed, asserts wiki_alias/2
+ * (en_key → it_title) into the KB as session knowledge (persists on /save).
+ * Returns 2 if bilingual, 1 if EN only, 0 on failure. */
+int wiki_fetch_bilingual(KB *kb, const char *en_key);
+
+/* gen335i: language-specific Wikipedia fetch. `lang` is "en" or "it". Writes
+ * the page to kb/learning/pages/<key>.md (EN) or <key>_it.md (IT). */
+int wiki_fetch_topic_lang(const char *key, const char *lang);
+
 #endif /* PARROT0_LEARN_H */
