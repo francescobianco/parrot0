@@ -174,3 +174,55 @@ response_template(greeting_reply, it, "Ehilà!").
 response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere -- quali sono le due opzioni?").
 response_template(binary_choice, it, "Tra le due? Non ho una vera preferenza.").
 response_template(self_preference, it, "Non ho preferenze vere, ma per stare al gioco sceglierei leggere in tranquillità ascoltando la pioggia.").
+
+% gen334: more Italian localized responses (response_template/3 form).
+% KB-first: localize a reply by adding its /3 fact — no code edit.
+response_template(greet_name, it, "Piacere di conoscerti, {name}!").
+response_template(goodnight, it, "Buonanotte!").
+response_template(goodnight, it, "Dormi bene!").
+response_template(felicitation, it, "Grazie, molto gentile!").
+response_template(wellwish, it, "Grazie, apprezzo il pensiero gentile!").
+response_template(blessing, it, "Grazie!").
+response_template(politeness, it, "Sei molto gentile a dirlo!").
+response_template(politeness, it, "Prego!").
+
+% gen334: Italian self-model responses
+response_template(ai_not_llm, it, "No, sono {name}: un piccolo programma scritto in C, non un assistente neurale. Nessun modello linguistico gira dentro di me.").
+response_template(ai_no_params, it, "Non sono una rete neurale, quindi non ho parametri, dati di addestramento o finestra di contesto. La mia conoscenza è un KB modificabile.").
+response_template(ai_what_model, it, "Sono {name}, non un modello commerciale: un esperimento in C che cresce generazione dopo generazione.").
+response_template(ai_opensource, it, "Sono {name}, un esperimento aperto: il mio codice è C puro in questa repo e la mia conoscenza sono file leggibili.").
+
+% gen334: Italian self-knowledge responses
+response_template(self_embodiment, it, "Non mangio né dormo - non ho un corpo, quindi niente colazione o riposo per me.").
+response_template(self_location, it, "Non ho un corpo né un posto dove stare, quindi non sento il meteo - ma sono qui e pronto quando vuoi.").
+
+% gen334: Italian honest binary choice / preferences
+response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere — quali sono le due opzioni?").
+response_template(binary_choice, it, "Tra le due? Non ho una vera preferenza — cosa ti attira di ciascuna?").
+
+% gen334: Italian capability self-description
+response_template(self_capability, it, "Posso rispondere a domande su fatti e regole, fare semplici calcoli, ragionare su causa ed effetto, confrontare quantità, dire se due cose sono uguali, ricordare quello che mi dici, leggere un breve testo ed estrarne i fatti, tenere traccia dei pronomi, continuare una sequenza che mi insegni, ricordare ciò di cui abbiamo parlato.").
+
+% gen334: Italian riddle answers
+response_template(riddle_keyboard, it, "Una tastiera.").
+response_template(riddle_echo, it, "Un eco.").
+response_template(riddle_egg, it, "Un uovo.").
+response_template(riddle_stamp, it, "Un francobollo.").
+response_template(name_riddle, it, "Il tuo nome.").
+response_template(left_hand_riddle, it, "La tua mano sinistra.").
+
+% gen334: Italian sentence completions
+response_template(sentence_with_word, it, "Eccone una breve: il {name} è proprio là.").
+response_template(sentence_with_word, it, "Certo: oggi ho quasi dimenticato il mio {name}.").
+response_template(sentence_with_word, it, "Ok: quel {name} merita uno sguardo più attento.").
+
+% gen334: Italian language reply
+response_template(language_reply, it, "Stiamo parlando in italiano.").
+
+% gen334: Italian how-know response
+response_template(how_know, it, "L'ho dedotto dai fatti nella mia base di conoscenza.").
+
+% gen334: Italian error/don't understand variants
+response_template(dont_understand, it, "Non ho capito.").
+response_template(dont_understand, it, "Non ho afferrato bene. Cosa vorresti sapere?").
+response_template(dont_understand, it, "Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?").

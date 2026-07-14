@@ -13,7 +13,7 @@ static int mod_loop(Brain *b, const char *norm, const char *raw,
         if (ispunct((unsigned char)pre[i]) && pre[i] != '-') pre[i] = ' ';
 
     char buf[256];
-    canonicalize_lang(pre, buf, sizeof buf);
+    canonicalize_lang(b, pre, buf, sizeof buf);
     size_t len = strlen(buf);
     if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
     while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
@@ -297,7 +297,7 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
             char sent[400], nrm[400], canon[400], msg[256];
             memcpy(sent, p, slen); sent[slen] = '\0';
             normalize(sent, nrm, sizeof nrm);
-            canonicalize_lang(nrm, canon, sizeof canon);
+            canonicalize_lang(b, nrm, canon, sizeof canon);
             msg[0] = '\0';
             if (extract_class_statement(b, canon, msg, sizeof msg, 1)) {
                 const char *fact = msg;
@@ -550,7 +550,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     (void)raw;
     if (!b) return 0;
     char buf[256];
-    canonicalize_lang(norm, buf, sizeof buf);
+    canonicalize_lang(b, norm, buf, sizeof buf);
 
     /* Definitional gap: extract the topic X. STRONG heads (article / "about" /
      * "who" / Italian) signal definitional intent and allow a multi-word topic;
@@ -749,15 +749,28 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
     while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
 
+    /* gen334: identity cues in the KB may be in the user's original language
+     * (e.g. "come ti chiami") — canonicalization would have folded function
+     * words, so match against the raw normalized input too. Non-canonicalized
+     * raw forms are never modified, so Italian intent_cue entries stay intact. */
+    char ribuf[256];
+    normalize(raw, ribuf, sizeof ribuf);
+    len = strlen(ribuf);
+    if (len > 0 && ribuf[len - 1] == '?') ribuf[--len] = '\0';
+    while (len > 0 && ribuf[len - 1] == ' ') ribuf[--len] = '\0';
+
     const char *var[] = {NULL};
 
     /* gen51 (C1): recognize intent by KEYWORD CUES, not one rigid template, so
      * many phrasings of the same question land. The answer is still derived from
      * the real self-model (i_am / module facts), never canned — robustness comes
      * from cue matching + the KB, not from a list of accepted sentences. */
-    int identity = kb_cue_match(b, "50_self_research_loop_chain439", buf);
-    int exists = kb_cue_match(b, "50_self_research_loop_chain448", buf);
-    int capability = kb_cue_match(b, "50_self_research_loop_chain450", buf);
+    int identity = kb_cue_match(b, "50_self_research_loop_chain439", buf) ||
+                   kb_cue_match(b, "50_self_research_loop_chain439", ribuf);
+    int exists = kb_cue_match(b, "50_self_research_loop_chain448", buf) ||
+                 kb_cue_match(b, "50_self_research_loop_chain448", ribuf);
+    int capability = kb_cue_match(b, "50_self_research_loop_chain450", buf) ||
+                     kb_cue_match(b, "50_self_research_loop_chain450", ribuf);
     /* gen240: "if you're happy and you know it, what do you do?" is a song, not a
      * capability query — a leading conditional means it isn't asking about me. */
     if (capability && (kb_cue_match(b, "50_self_research_loop_chain458", buf)))

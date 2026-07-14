@@ -2088,3 +2088,291 @@ aggregate_frame("most capital", capital_on_river, second, max).
 % hardest natural substance on earth?" via the word "earth" -> diamond.
 hardest_natural_substance(diamond, earth).
 answer_frame("hardest", hardest_natural_substance).
+
+% ==================================================================
+% gen334: expanded world knowledge. KB-first: every new fact extends
+% comprehension with zero C changes. Engine fixed, knowledge learns.
+% ==================================================================
+
+% --- More color_of facts for common objects ---
+color_of(gold, gold).
+color_of(silver, silver).
+color_of(rose, red).
+color_of(flamingo, pink).
+color_of(dolphin, grey).
+color_of(penguin, black).
+color_of(polar_bear, white).
+color_of(tiger, orange).
+color_of(frog, green).
+color_of(sunflower, yellow).
+color_of(lavender, purple).
+color_of(ruby, red).
+color_of(sapphire, blue).
+color_of(diamond, white).
+color_of(pearl, white).
+color_of(coral, pink).
+color_of(sand, yellow).
+
+% --- More sound_of facts for animal sounds ---
+sound_of(bear, growl).
+sound_of(bear, roar).
+sound_of(elephant, trumpet).
+sound_of(wolf, howl).
+sound_of(mouse, squeak).
+sound_of(donkey, bray).
+sound_of(goat, bleat).
+sound_of(cow, moo).
+sound_of(duck, quack).
+sound_of(chicken, cluck).
+sound_of(sheep, baa).
+sound_of(lion, roar).
+sound_of(bee, buzz).
+sound_of(snake, hiss).
+sound_of(frog, croak).
+sound_of(horse, neigh).
+sound_of(pig, oink).
+sound_of(owl, hoot).
+sound_of(rooster, crow).
+sound_of(bird, tweet).
+sound_of(koala, bellow).
+sound_of(seal, bark).
+
+% --- More animal facts: what they eat ---
+eats(bear, fish).
+eats(bear, berries).
+eats(cat, fish).
+eats(cat, mouse).
+eats(dog, meat).
+eats(horse, grass).
+eats(cow, grass).
+eats(sheep, grass).
+eats(goat, grass).
+eats(rabbit, carrot).
+eats(elephant, leaves).
+eats(lion, zebra).
+eats(tiger, deer).
+eats(wolf, rabbit).
+eats(fox, rabbit).
+eats(owl, mouse).
+eats(snake, mouse).
+eats(frog, insect).
+eats(bird, seed).
+eats(duck, fish).
+eats(chicken, seed).
+eats(monkey, banana).
+eats(panda, bamboo).
+eats(whale, plankton).
+
+% --- More quantity facts for common things ---
+quantity(human, eyes, 2).
+quantity(human, ears, 2).
+quantity(human, feet, 2).
+quantity(human, nose, 1).
+quantity(human, mouth, 1).
+quantity(human, teeth, 32).
+quantity(human, ribs, 24).
+quantity(human, vertebrae, 33).
+quantity(octopus, hearts, 3).
+quantity(spider, eyes, 8).
+quantity(dog, teeth, 42).
+quantity(cat, teeth, 30).
+quantity(elephant, teeth, 26).
+quantity(human, chromosomes, 46).
+quantity(earth, moons, 1).
+quantity(mars, moons, 2).
+quantity(jupiter, moons, 95).
+quantity(saturn, moons, 146).
+quantity(sun, planets, 8).
+quantity(atmosphere, layers, 5).
+quantity(earth, oceans, 5).
+quantity(guitar, strings, 6).
+quantity(violin, strings, 4).
+quantity(octave, notes, 8).
+
+% --- More opposite pairs (both directions) ---
+opposite(war, peace).
+opposite(peace, war).
+opposite(alive, dead).
+opposite(dead, alive).
+opposite(interesting, boring).
+opposite(boring, interesting).
+opposite(thick, thin).
+opposite(thin, thick).
+opposite(wild, tame).
+opposite(tame, wild).
+opposite(brave, scared).
+opposite(scared, brave).
+opposite(famous, unknown).
+opposite(unknown, famous).
+opposite(polite, impolite).
+opposite(impolite, polite).
+opposite(legal, illegal).
+opposite(illegal, legal).
+opposite(possible, impossible).
+opposite(impossible, possible).
+opposite(safe, dangerous).
+opposite(dangerous, safe).
+opposite(healthy, sick).
+opposite(sick, healthy).
+opposite(expensive, cheap).
+opposite(cheap, expensive).
+opposite(beautiful, ugly).
+opposite(ugly, beautiful).
+opposite(brave, coward).
+opposite(coward, brave).
+
+% --- More paint_mix pairs (both directions) ---
+paint_mix(red, white, pink).
+paint_mix(white, red, pink).
+paint_mix(black, white, grey).
+paint_mix(white, black, grey).
+
+% --- More category members ---
+category_member(planet, mercury).
+category_member(planet, venus).
+category_member(planet, earth).
+category_member(planet, mars).
+category_member(planet, jupiter).
+category_member(planet, saturn).
+category_member(planet, uranus).
+category_member(planet, neptune).
+category_member(instrument, piano).
+category_member(instrument, guitar).
+category_member(instrument, violin).
+category_member(instrument, drum).
+category_member(instrument, flute).
+category_member(instrument, trumpet).
+category_member(instrument, harp).
+category_member(furniture, chair).
+category_member(furniture, table).
+category_member(furniture, bed).
+category_member(furniture, sofa).
+category_member(furniture, desk).
+category_member(furniture, shelf).
+category_member(bird, eagle).
+category_member(bird, owl).
+category_member(bird, penguin).
+category_member(bird, sparrow).
+category_member(bird, duck).
+category_member(bird, chicken).
+category_member(bird, parrot).
+category_member(fish, salmon).
+category_member(fish, tuna).
+category_member(fish, shark).
+category_member(fish, goldfish).
+category_member(reptile, snake).
+category_member(reptile, lizard).
+category_member(reptile, turtle).
+category_member(reptile, crocodile).
+category_member(mammal, dog).
+category_member(mammal, cat).
+category_member(mammal, horse).
+category_member(mammal, whale).
+category_member(mammal, elephant).
+category_member(mammal, human).
+category_member(mammal, lion).
+category_member(mammal, bear).
+category_member(insect, ant).
+category_member(insect, bee).
+category_member(insect, butterfly).
+category_member(insect, fly).
+category_member(insect, mosquito).
+category_member(insect, beetle).
+category_member(vegetable, carrot).
+category_member(vegetable, potato).
+category_member(vegetable, tomato).
+category_member(vegetable, onion).
+category_member(vegetable, lettuce).
+category_member(vegetable, broccoli).
+category_member(vegetable, spinach).
+category_member(vegetable, pepper).
+category_member(metal, gold).
+category_member(metal, silver).
+category_member(metal, iron).
+category_member(metal, copper).
+category_member(metal, aluminum).
+category_member(metal, zinc).
+category_member(metal, lead).
+
+% --- More capital_of_country facts ---
+capital_of_country(stockholm, sweden).
+capital_of_country(oslo, norway).
+capital_of_country(helsinki, finland).
+capital_of_country(copenhagen, denmark).
+capital_of_country(rejkjavik, iceland).
+capital_of_country(dublin, ireland).
+capital_of_country(amsterdam, netherlands).
+capital_of_country(brussels, belgium).
+capital_of_country(bern, switzerland).
+capital_of_country(vienna, austria).
+capital_of_country(warsaw, poland).
+capital_of_country(prague, czechia).
+capital_of_country(budapest, hungary).
+capital_of_country(bucharest, romania).
+capital_of_country(kiev, ukraine).
+capital_of_country(ankara, turkey).
+capital_of_country(athens, greece).
+capital_of_country(lisbon, portugal).
+capital_of_country(tehran, iran).
+capital_of_country(bangkok, thailand).
+capital_of_country(hanoi, vietnam).
+capital_of_country(jakarta, indonesia).
+
+% --- More landmark_of facts ---
+landmark_of(egypt, "the Great Pyramids of Giza").
+landmark_of(india, "the Taj Mahal").
+landmark_of(china, "the Great Wall").
+landmark_of(brazil, "Christ the Redeemer").
+landmark_of(peru, "Machu Picchu").
+landmark_of(greece, "the Parthenon").
+landmark_of(italy, "the Colosseum").
+landmark_of(france, "the Eiffel Tower").
+landmark_of(russia, "Saint Basil's Cathedral").
+landmark_of(turkey, "the Hagia Sophia").
+
+% --- More planet facts ---
+quantity(mercury, moons, 0).
+quantity(venus, moons, 0).
+
+% --- More synonym pairs ---
+synonym(fast, quick).
+synonym(quick, fast).
+synonym(intelligent, smart).
+synonym(smart, intelligent).
+synonym(brave, courageous).
+synonym(courageous, brave).
+synonym(angry, mad).
+synonym(mad, angry).
+synonym(huge, enormous).
+synonym(enormous, huge).
+synonym(tiny, small).
+synonym(glad, happy).
+
+% --- More because/2 (causal knowledge) ---
+because(water_wet, "its molecules stick to surfaces they touch, spreading out instead of beading up").
+because(leaves_brown, "they stop making chlorophyll in autumn, so the green fades").
+because(fish_silent, "fish do not have vocal cords like land animals do").
+
+% --- More used_for facts (analogy substrate) ---
+used_for(microscope, examining).
+used_for(telescope, observing).
+used_for(thermometer, measuring).
+used_for(compass, navigating).
+used_for(stethoscope, listening).
+used_for(mirror, reflecting).
+used_for(candle, lighting).
+used_for(umbrella, protecting).
+used_for(sunglasses, shielding).
+used_for(helmet, protecting).
+used_for(gloves, protecting).
+used_for(lock, securing).
+used_for(map, navigating).
+used_for(calculator, computing).
+used_for(scale, weighing).
+
+% --- More difference_between facts ---
+difference_between(ephemeral, permanent, "Ephemeral means lasting a very short time; permanent means lasting indefinitely").
+difference_between(byte, bit, "A bit is a single 0 or 1; a byte is 8 bits").
+difference_between(kb, mb, "A kilobyte is about a thousand bytes; a megabyte is about a million bytes").
+difference_between(analog, digital, "Analog signals are continuous; digital signals use discrete steps").
+difference_between(sun, moon, "The Sun is a star that produces its own light; the Moon is a rocky body that reflects sunlight").

@@ -225,7 +225,7 @@ static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size
     char norm[256];
     normalize(clause, norm, sizeof norm);
     char canon[256];
-    canonicalize_lang(norm, canon, sizeof canon);
+    canonicalize_lang(b, norm, canon, sizeof canon);
     for (size_t i = 0; i < registry_len; i++) {
         if (strcmp(registry[i].name, "compose") == 0) continue; /* no re-entry */
         if (strcmp(registry[i].name, "repair") == 0) continue;  /* no clarification */
@@ -1178,7 +1178,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * without duplicating a module. `raw` (input) is left untouched, so the
      * reader still induces its generative model from the original prose. */
     char canon[256];
-    canonicalize_lang(norm, canon, sizeof canon);
+    canonicalize_lang(b, norm, canon, sizeof canon);
 
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */

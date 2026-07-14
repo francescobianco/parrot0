@@ -829,7 +829,7 @@ static int extract_clause(Brain *b, char *clause) {
      * SAME fact by the SAME modules — no duplicated reader. The original surface
      * sentence is what a later summary quotes, so the Italian text is preserved. */
     char canon[256];
-    canonicalize_lang(norm, canon, sizeof canon);
+    canonicalize_lang(b, norm, canon, sizeof canon);
 
     char resp[256];
     if (mod_quantity(b, canon, c, resp, sizeof resp) ||
@@ -1171,7 +1171,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
     /* route the question through the existing query modules */
     char qn[512], qc[512];
     normalize(question, qn, sizeof qn);
-    canonicalize_lang(qn, qc, sizeof qc);
+    canonicalize_lang(b, qn, qc, sizeof qc);
     size_t L = strlen(qc);
     if (L > 0 && L + 1 < sizeof qc && qc[L - 1] != '?') {
         qc[L] = '?'; qc[L + 1] = '\0';

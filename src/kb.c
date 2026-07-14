@@ -2799,15 +2799,20 @@ int kb_derive_part_of(KB *kb) {
     if (!kb) return 0;
     const size_t n0 = kb->n;
 
-    /* collect the concept keys once (exact membership, not cognate) */
+    /* collect the concept keys AND their predicates once (exact membership) */
     char keys[512][KB_TERM_LEN]; size_t nkeys = 0;
+    char key_pred[512][KB_TERM_LEN];  /* gen334: cached predicate per key */
     for (size_t i = 0; i < n0 && nkeys < 512; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
         if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
         int dup = 0;
         for (size_t k = 0; k < nkeys; k++) if (strcmp(keys[k], f->args[0]) == 0) { dup = 1; break; }
-        if (!dup) snprintf(keys[nkeys++], KB_TERM_LEN, "%s", f->args[0]);
+        if (!dup) {
+            snprintf(keys[nkeys], KB_TERM_LEN, "%s", f->args[0]);
+            snprintf(key_pred[nkeys], KB_TERM_LEN, "%s", f->pred);
+            nkeys++;
+        }
     }
 
     /* per-predicate count of facts that name some OTHER concept key */
@@ -2819,10 +2824,19 @@ int kb_derive_part_of(KB *kb) {
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         int names_other = 0;
-        for (size_t c = 0; c < nc; c++)
-            if (strcmp(ctoks[c], f->args[0]) != 0 &&
-                str_in((const char (*)[KB_TERM_LEN])keys, nkeys, ctoks[c]) &&
-                valid_member(kb, ctoks[c], f->pred)) { names_other = 1; break; }
+        for (size_t c = 0; c < nc; c++) {
+            if (strcmp(ctoks[c], f->args[0]) == 0) continue;
+            if (!str_in((const char (*)[KB_TERM_LEN])keys, nkeys, ctoks[c])) continue;
+            {   /* gen334: cached key→predicate lookup, O(nkeys) instead of
+                 * old concept_pred()'s O(n0). */
+                int ok = 0;
+                for (size_t ki = 0; ki < nkeys; ki++)
+                    if (strcmp(keys[ki], ctoks[c]) == 0 &&
+                        strcmp(key_pred[ki], f->pred) != 0) { ok = 1; break; }
+                if (!ok) continue;
+            }
+            names_other = 1; break;
+        }
         if (!names_other) continue;
         size_t p = 0; for (; p < npreds; p++) if (strcmp(preds[p], f->pred) == 0) break;
         if (p == npreds && npreds < 128) { snprintf(preds[npreds], KB_TERM_LEN, "%s", f->pred); pcnt[npreds] = 0; npreds++; }
@@ -2841,18 +2855,21 @@ int kb_derive_part_of(KB *kb) {
         for (size_t p = 0; p < npreds; p++)
             if (strcmp(preds[p], f->pred) == 0) { container = (pcnt[p] >= 2); break; }
         if (!container) continue;
-        /* Copy the container key and predicate BEFORE asserting: kb_assert may
-         * realloc kb->facts and leave `f` (a pointer into it) dangling, which was
-         * a heap-use-after-free once the KB was large enough to move on growth. */
         char key[KB_TERM_LEN], pred[KB_TERM_LEN];
         snprintf(key, sizeof key, "%s", f->args[0]);
         snprintf(pred, sizeof pred, "%s", f->pred);
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
-            if (strcmp(ctoks[c], key) == 0 ||
-                !str_in((const char (*)[KB_TERM_LEN])keys, nkeys, ctoks[c])) continue;
-            if (!valid_member(kb, ctoks[c], pred)) continue; /* sibling, not a part */
+            if (strcmp(ctoks[c], key) == 0) continue;
+            if (!str_in((const char (*)[KB_TERM_LEN])keys, nkeys, ctoks[c])) continue;
+            {   /* gen334: cached key→predicate lookup */
+                int ok = 0;
+                for (size_t ki = 0; ki < nkeys; ki++)
+                    if (strcmp(keys[ki], ctoks[c]) == 0 &&
+                        strcmp(key_pred[ki], pred) != 0) { ok = 1; break; }
+                if (!ok) continue;
+            }
             const char *args[2] = { ctoks[c], key };
             if (kb_assert(kb, "part_of", args, 2)) added++;
         }

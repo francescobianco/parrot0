@@ -706,6 +706,9 @@ intent_cue(50_self_research_loop_chain439, "your identity").
 intent_cue(50_self_research_loop_chain439, "who sei").
 intent_cue(50_self_research_loop_chain439, "come ti chiami").
 intent_cue(50_self_research_loop_chain439, "il tuo nome").
+intent_cue(50_self_research_loop_chain439, "chi sei").
+intent_cue(50_self_research_loop_chain439, "cosa sei").
+intent_cue(50_self_research_loop_chain439, "che cosa sei").
 intent_cue(50_self_research_loop_chain448, "you exist").
 intent_cue(50_self_research_loop_chain448, "are you real").
 intent_cue(50_self_research_loop_chain448, "esisti").
@@ -854,3 +857,49 @@ intent_cue(self_limits, "non riesci a fare").
 intent_cue(self_limits, "non puoi fare").
 intent_cue(self_limits, "i tuoi limiti").
 intent_cue(self_limits, "quali sono i tuoi limiti").
+
+% gen334: Italian intent phrases for common conversational patterns.
+% The engine is fixed; these phrasings are KB knowledge, teachable at runtime.
+% All use intent_phrase (exact normalized-turn match) or intent_cue (substring).
+
+% --- Italian identity probes ---
+intent_cue(ai_not_llm, "sei un programma").
+intent_cue(ai_not_llm, "sei un computer").
+intent_cue(ai_not_llm, "sei umano").
+intent_cue(ai_not_llm, "cosa sei").
+
+% --- Italian greetings and social ---
+intent_phrase(ask_name, "come ti chiami").
+intent_phrase(ask_name, "come ti chiami?").
+intent_cue(ask_name, "ti chiami").
+
+% --- Italian capability self-description ---
+intent_cue(self_capability, "cosa puoi fare").
+intent_cue(self_capability, "che cosa sai fare").
+intent_cue(self_capability, "cosa sai fare tu").
+intent_cue(self_capability, "di cosa sei capace").
+intent_cue(self_capability, "di che cosa sei capace").
+
+% --- Italian how-know probes ---
+intent_cue(how_know, "come fai a sapere").
+intent_cue(how_know, "come lo sai").
+intent_cue(how_know, "da dove lo sai").
+
+% --- Italian language probes ---
+intent_cue(language_reply, "che lingua parli").
+intent_cue(language_reply, "che lingua stai parlando").
+intent_cue(language_reply, "in che lingua parliamo").
+
+% --- Italian system probes ---
+intent_cue(system_info, "che sistema usi").
+intent_cue(system_info, "su che computer sei").
+intent_cue(system_info, "dove sei installato").
+
+% --- Italian function words as cues ---
+intent_cue(why_explain, "dimmi perché").
+intent_cue(why_explain, "spiegami perché").
+intent_cue(why_explain, "perché è").
+intent_cue(why_explain, "per quale motivo").
+intent_cue(how_explain, "dimmi come").
+intent_cue(how_explain, "spiegami come").
+intent_cue(how_explain, "in che modo").

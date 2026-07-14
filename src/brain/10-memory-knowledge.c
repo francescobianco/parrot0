@@ -612,6 +612,11 @@ static const char *canonical_token(const char *w) {
         {"si",  "is"}, {"chiama", "called"},
         {"ogni","every"}, {"tutti","all"}, {"tutte","all"},
         {"chi", "who"},
+        {"che", "what"}, {"cosa", "what"}, {"quale", "which"},
+        {"quanto", "how much"}, {"quanti", "how many"}, {"quante", "how many"},
+        {"come", "how"}, {"dove", "where"},
+        {"quando", "when"}, {"perché", "why"}, {"perche", "why"},
+        {"cosa", "what"},
 
         {"non", "not"},
         {"anche","also"},
@@ -663,17 +668,47 @@ static const char *canonical_token(const char *w) {
         {"it's", "it is"},
         {"dont",  "do not"},  {"cant", "can not"}, {"isnt", "is not"},
         {"isn't", "is not"}, {"pls", "please"},
+        /* gen334: Italian articles and common verbs for question-answering.
+         * "il"/"la" are function words — mechanics, not content — so they
+         * belong in the canonical_token motor per PRINCIPLES.md. */
+        {"il", "the"}, {"la", "the"}, {"lo", "the"},
+        {"fa", "makes"}, {"fanno", "make"},
+        {"del", "of the"}, {"della", "of the"}, {"dei", "of the"},
+        {"al", "to the"}, {"alla", "to the"}, {"ai", "to the"},
+        {"di", "of"}, {"da", "from"}, {"su", "on"},
+        {"ha", "has"}, {"hanno", "have"},
+        {"dimmi", "tell me"}, {"dammi", "give me"},
     };
     for (size_t i = 0; i < sizeof lex / sizeof lex[0]; i++)
         if (strcmp(w, lex[i].src) == 0) return lex[i].dst;
     return NULL;
 }
 
+/* gen334 (kb-first EN↔IT canonicalization): query the tr/2 relation in the KB
+ * for IT→EN content-word translation. The tr(English, Italian) fact is stored
+ * English-first; we query with the Italian word as second argument to find the
+ * English canonical form. This is KNOWLEDGE (tr/2 in gloss.p0), not a C array
+ * — per PRINCIPLES.md and universal-input.md, the engine is a motor that queries
+ * knowledge, not a phrasebook. */
+static int kb_tr_it_en(Brain *b, const char *it, char *en, size_t en_sz) {
+    if (!b || !b->kb || !it || !*it || en_sz == 0) return 0;
+    const char *q[] = { NULL, it };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "tr", q, 2, hit, 1) != 1) return 0;
+    snprintf(en, en_sz, "%s", hit[0]);
+    return 1;
+}
+
 /* Rewrite a normalized line, canonicalizing each word's function-word form.
  * A trailing '?' is kept on its token so question parsers still see it. For
  * all-English input every token maps to NULL, so the output equals the input
- * (modulo whitespace already collapsed by the parsers' tokenizer). */
-static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
+ * (modulo whitespace already collapsed by the parsers' tokenizer).
+ *
+ * gen334 (kb-first): content words are translated via tr/2 in the KB. The
+ * function-word map (canonical_token) stays in C as motor mechanism; content
+ * knowledge lives in gloss.p0. Per PRINCIPLES.md and universal-input.md, the
+ * engine is fixed — knowledge learns. */
+static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_size) {
     if (out_size == 0) return;
     char buf[256];
     size_t len = strlen(norm);
@@ -723,9 +758,34 @@ static void canonicalize_lang(const char *norm, char *out, size_t out_size) {
             i += 2;         /* consume <adj> and "di" */
             continue;
         }
+        /* gen334: Italian "di che <noun>" -> "what <noun>" — the "di" is a
+         * preposition that introduces a topic ("di che colore" = "what color",
+         * "di che materiale" = "what material"). Dropping "di" and keeping
+         * "che"->"what" + <noun> avoids the reader module mis-parsing the
+         * canonicalized "of what ..." as an assertion. */
+        if (strcmp(tok, "di") == 0 && i + 1 < nw &&
+            strcmp(w[i + 1], "che") == 0) {
+            off += (size_t)snprintf(out + off, out_size - off, "%swhat",
+                                    i ? " " : "");
+            i++;            /* consume "che" (keep "che"->"what" logic from above) */
+            continue;
+        }
         const char *canon = canonical_token(tok);
-        off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
-                                i ? " " : "", canon ? canon : tok, tail);
+        if (canon) {
+            off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                    i ? " " : "", canon, tail);
+        } else {
+            /* gen334: KB-first content-word translation via tr/2 (gloss.p0).
+             * Try Italian→English mapping from the knowledge base, falling back
+             * to the original token if no translation is known. */
+            char en[KB_TERM_LEN];
+            if (kb_tr_it_en(b, tok, en, sizeof en))
+                off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                        i ? " " : "", en, tail);
+            else
+                off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                        i ? " " : "", tok, tail);
+        }
     }
 }
 
@@ -2467,10 +2527,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen245: reverse animal-sound frame. The relation is still sound_of/2; this
-     * just inverts the lookup for "what animal is known for saying 'meow'?". */
-    if ((cue(norm, "animal") || cue(norm, "known for saying") ||
-         cue(norm, "known for making")) &&
-        (cue(norm, "saying") || cue(norm, "sound") || cue(norm, "noise"))) {
+     * inverts the lookup for "what animal barks?", "which animal says woof?", etc.
+     * gen334: broadened to accept "say"/"says"/"make"/"makes"/"making" in addition
+     * to "saying"/"sound"/"noise", and the bare sound word (e.g. "barks") without
+     * requiring an explicit conveyor. */
+    if (cue(norm, "animal") || cue(norm, "known for saying") ||
+        cue(norm, "known for making")) {
         const char *aq[] = { NULL, NULL };
         char animals[64][KB_TERM_LEN];
         size_t an = kb_match(b->kb, "sound_of", aq, 2, animals, 64);
@@ -3935,7 +3997,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             snprintf(query_text, sizeof query_text, "%s", sep + sep_len);
             char sn[256], sc[256];
             normalize(supp, sn, sizeof sn);
-            canonicalize_lang(sn, sc, sizeof sc);
+            canonicalize_lang(b, sn, sc, sizeof sc);
             /* Assert supposition, then query. */
             Brain hypo = {0};
             hypo.kb = kb_create();
@@ -3945,7 +4007,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             mod_knowledge(&hypo, sc, sc, discard, sizeof discard);
             char qn[256], qc[256];
             normalize(query_text, qn, sizeof qn);
-            canonicalize_lang(qn, qc, sizeof qc);
+            canonicalize_lang(b, qn, qc, sizeof qc);
             char qbuf[256];
             size_t ql = strlen(qc);
             if (ql >= sizeof qbuf) ql = sizeof qbuf - 1;
