@@ -717,12 +717,40 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     char def[KB_TERM_LEN];
     char msg[320];
 
+    /* gen335h: when the topic came from a raw Italian head (use_raw), the key
+     * may be Italian ("deltaplano"). acquire_knowledge uses it directly for
+     * file lookup and Wikipedia fetch — but the page on Wikipedia is named
+     * in English ("hang_gliding"). Build a canonical English key via tr/2
+     * and try it as a fallback if the raw key fails. */
+    char key_en[80] = "";
+    if (use_raw) {
+        size_t keo = 0;
+        for (size_t i = start; i < nt; i++) {
+            char *t = strip_edge_punct(tok[i]);
+            if (!*t) continue;
+            char en[KB_TERM_LEN];
+            const char *word = t;
+            if (kb_tr_it_en(b, t, en, sizeof en)) word = en;
+            keo += (size_t)snprintf(key_en + keo, sizeof key_en - keo,
+                                    "%s%s", keo ? "_" : "", word);
+            if (keo >= sizeof key_en - 8) break;
+        }
+    }
+
     /* gen240 (universal-comprehension §7): pursue the precondition know(X) via the
      * acquire-knowledge action — already in RAM, learned from the local certified
      * corpus, or fetched on demand from Wikipedia (all in C). On a miss, give the
      * INFORMED decline (§2): name what was understood and be honest it can learn —
      * never a blind "I don't understand". */
     int st = acquire_knowledge(b, key, def, sizeof def);
+    /* gen335h: if the raw Italian key failed and we have a canonical English
+     * key, retry with it. Wikipedia pages are named in English, not Italian.
+     * Use the key that succeeded for extraction and gap tracking. */
+    const char *eff_key = key;
+    if (st == 0 && key_en[0] && strcmp(key_en, key) != 0) {
+        st = acquire_knowledge(b, key_en, def, sizeof def);
+        if (st) eff_key = key_en;
+    }
     if (st == 2)
         snprintf(msg, sizeof msg,
                  it ? "Mi ero già documentato su %s: %s."
@@ -736,7 +764,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
          * learn wiki_concept → extract structured facts (is_a, located_in,
          * capital_of, etc.) from the ## Extract section. */
         char facts[512] = "";
-        int nf = extract_page_facts(b, key, facts, sizeof facts);
+        int nf = extract_page_facts(b, eff_key, facts, sizeof facts);
         if (nf > 0) {
             size_t ml = strlen(msg);
             snprintf(msg + ml, sizeof msg - ml,
@@ -751,10 +779,10 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         const char *gq[] = { NULL };
         char gcheck[1][KB_TERM_LEN];
         int already_gap = kb_match(b->kb, "pending_gap", gq, 1, gcheck, 1) > 0;
-        const char *fq[] = { key, NULL };
+        const char *fq[] = { eff_key, NULL };
         int already_failed = kb_query(b->kb, "pending_gap_failed", fq, 1);
         if (!already_gap && !already_failed) {
-            const char *ga[] = { key };
+            const char *ga[] = { key_en[0] ? key_en : eff_key };
             kb_assert(b->kb, "pending_gap", ga, 1);
             char qq[KB_TERM_LEN];
             /* gen335e: store the RAW question so dispatch_one can re-canonicalize
