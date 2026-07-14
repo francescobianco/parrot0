@@ -494,6 +494,12 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/glue.p0");
 
+    /* gen335 (KB-first morphology): plural→singular facts for the research
+     * pipeline. The engine queries singular/2 before Wikipedia/file lookup so
+     * "cavalli" resolves to "cavallo". A new plural form is a fact, not a C branch. */
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/morphology.p0");
+
     /* gen230/gen235: curated world commons. Tests that must prove dynamic
      * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
      * ordinary chat keep the layer loaded. */
@@ -750,13 +756,15 @@ static void not_understood(Brain *b, const char *canon,
             const char *qa[] = { qq };
             kb_assert(b->kb, "pending_gap_question", qa, 1);
             kb_set_origin(b->kb, KB_SESSION);
-            snprintf(cand, sizeof cand, it
-                     ? "Mmh, non conosco ancora %s. Vuoi che mi documenti?"
-                     : "Hmm, I don't know about %s yet. Want me to learn about it?",
-                     sw);
+            {
+                const KbResponseSlot slots[] = { {"topic", sw} };
+                kb_response_slots(b, "fallback_gap_offer", slots, 1, cand, sizeof cand);
+            }
         } else {
-            snprintf(cand, sizeof cand, it ? "Mmh, non conosco ancora %s."
-                                            : "Hmm, I don't know about %s yet.", sw);
+            {
+                const KbResponseSlot slots[] = { {"topic", sw} };
+                kb_response_slots(b, "fallback_still_gap", slots, 1, cand, sizeof cand);
+            }
         }
     }
     else    snprintf(cand, sizeof cand, "%s", v[k % NV]);
@@ -1198,6 +1206,15 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * normalized turn (before canonicalization folds Italian into English). */
     detect_set_language(b, norm);
 
+    /* gen335 (KB-first teachability): try_teach_form runs BEFORE any content
+     * module — a user teaching a new phrasing must not be intercepted by the
+     * intent they're trying to retrain (e.g. "insegnami a rispondere il tuo nome"
+     * must reach the teach handler, not mod_self). */
+    if (b && try_teach_form(b, norm, input, out, out_size)) {
+        note_arith_result(b, out); conv_log(b, input, out);
+        return strlen(out);
+    }
+
     /* gen43: canonicalize the parsing surface (function words -> English tokens)
      * before dispatch, so the reasoning core answers in any mapped language
      * without duplicating a module. `raw` (input) is left untouched, so the
@@ -1248,6 +1265,15 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         if (kb_match(b->kb, "pending_gap", gq, 1, gtopics, 1) > 0) {
             char topic[KB_TERM_LEN];
             snprintf(topic, sizeof topic, "%s", kb_dequote(gtopics[0]));
+
+            /* gen335 (KB-first morphology): normalize plural topic to singular
+             * so Wikipedia finds the right page ("cavalli" → "cavallo"). */
+            {
+                char sing[4][KB_TERM_LEN];
+                const char *sq[] = { topic, NULL };
+                if (kb_match(b->kb, "singular", sq, 2, sing, 4) > 0)
+                    snprintf(topic, sizeof topic, "%s", sing[0]);
+            }
             /* Save the stored question BEFORE retracting */
             char stored_q[256] = "";
             {
@@ -1289,11 +1315,10 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
             if (!confirm) {
                 /* Not confirmed — dispatch normally below */
             } else if (stored_q[0]) {
-                char lang[8]; current_lang(b, lang, sizeof lang);
-                int it = strcmp(lang, "it") == 0;
-                snprintf(out, out_size, it
-                         ? "Mi documento su %s — un attimo..."
-                         : "Let me learn about %s — one moment...", topic);
+                {
+                    const KbResponseSlot slots[] = { {"topic", topic} };
+                    kb_response_slots(b, "gap_looking_up", slots, 1, out, out_size);
+                }
                 char def[512] = "";
                 /* gen335k: on user confirmation, try Wikipedia fetch first.
                  * acquire_knowledge only uses local sources — the network
@@ -1303,14 +1328,15 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                 size_t ol = strlen(out);
                 if (got && def[0])
                     snprintf(out + ol, out_size - ol, " %s", def);
-                else if (got)
-                    snprintf(out + ol, out_size - ol, it
-                             ? " Fatto."
-                             : " Done.");
+                else if (got) {
+                    char tail[32];
+                    kb_response_slots(b, "gap_done", NULL, 0, tail, sizeof tail);
+                    snprintf(out + ol, out_size - ol, "%s", tail);
+                }
                 else {
-                    snprintf(out + ol, out_size - ol, it
-                             ? " Non ho trovato informazioni."
-                             : " I couldn't find information.");
+                    char tail[64];
+                    kb_response_slots(b, "gap_not_found", NULL, 0, tail, sizeof tail);
+                    snprintf(out + ol, out_size - ol, "%s", tail);
                     /* gen335e: mark this topic as failed so not_understood
                      * won't re-offer the same gap on re-dispatch. */
                     const char *fa[] = { topic };
@@ -1323,10 +1349,12 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                     char facts[512] = "";
                     int nf = extract_page_facts(b, topic, facts, sizeof facts);
                     if (nf > 0) {
+                        char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
+                        char tail[64];
+                        const KbResponseSlot fslots[] = { {"count", fstr} };
+                        kb_response_slots(b, "gap_extracted", fslots, 1, tail, sizeof tail);
                         ol = strlen(out);
-                        snprintf(out + ol, out_size - ol,
-                                 it ? " Ho estratto %d fatti dalla pagina."
-                                    : " I extracted %d facts from the page.", nf);
+                        snprintf(out + ol, out_size - ol, "%s", tail);
                     }
                 }
                 /* Re-dispatch the original question through dispatch_one

@@ -1,0 +1,70 @@
+% Morphological knowledge — plural→singular mappings for the research pipeline.
+% KB-first: a new plural form is a fact, never a C branch. The engine queries
+% singular/2 before Wikipedia/file lookup so "cavalli" resolves to "cavallo".
+
+% --- Italian plural → singular ---
+singular(cavalli, cavallo).
+singular(cani, cane).
+singular(gatti, gatto).
+singular(uomini, uomo).
+singular(donne, donna).
+singular(case, casa).
+singular(tavoli, tavolo).
+singular(libri, libro).
+singular(fiori, fiore).
+singular(alberi, albero).
+singular(frutti, frutto).
+singular(pesci, pesce).
+singular(uccelli, uccello).
+singular(animali, animale).
+singular(studenti, studente).
+singular(professori, professore).
+singular(amici, amico).
+singular(numeri, numero).
+singular(colori, colore).
+singular(montagne, montagna).
+singular(stelle, stella).
+singular(pianeti, pianeta).
+singular(città, città).
+singular(film, film).
+singular(leoni, leone).
+singular(lupi, lupo).
+singular(orsi, orso).
+singular(tigri, tigre).
+singular(serpenti, serpente).
+singular(insetti, insetto).
+singular(ragni, ragno).
+singular(farfalle, farfalla).
+singular(formiche, formica).
+singular(api, ape).
+singular(uova, uovo).
+singular(dita, dito).
+singular(braccia, braccio).
+singular(orecchie, orecchio).
+singular(occhi, occhio).
+singular(mani, mano).
+singular(piedi, piede).
+
+% --- English irregular plural → singular ---
+singular(horses, horse).
+singular(children, child).
+singular(men, man).
+singular(women, woman).
+singular(mice, mouse).
+singular(geese, goose).
+singular(feet, foot).
+singular(teeth, tooth).
+singular(leaves, leaf).
+singular(wolves, wolf).
+singular(fish, fish).
+singular(sheep, sheep).
+singular(deer, deer).
+
+% --- Disambiguation flags: phrases inside a definition that signal it may NOT
+% match the user's intended meaning. Detected post-fetch to warn or refuse. ---
+disambig_flag(en, "may refer to").
+disambig_flag(en, "is a surname").
+disambig_flag(en, "can refer to").
+disambig_flag(it, "è un cognome").
+disambig_flag(it, "può riferirsi a").
+disambig_flag(it, "è un cognome italiano").

@@ -639,6 +639,9 @@ static int is_internal_pred(const KB *kb, const char *pred) {
         /* gen335d: knowledge-gap bridge predicates (session state, like last_result) */
         "pending_gap", "pending_gap_question", "pending_gap_failed",
         "wiki_alias",  /* gen335i: cross-language topic links */
+        /* gen335 (KB-first morphology): plural→singular + disambigFlag are engine
+         * machinery the research pipeline queries, not facts the user taught. */
+        "singular", "disambig_flag",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

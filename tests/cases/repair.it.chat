@@ -4,10 +4,11 @@
 # competence lives in the mechanism, not an English-only surface (LOOP.md ratchet).
 
 # A fresh question instead of an answer expires the pending repair.
+# gen335 (KB-first): identity responses localize via current_language.
 > è esso un cane?
 < Who or what does "it" refer to?
 > chi sei?
-< I am parrot0.
+< Mi chiamo parrot0.
 
 # Knowledge gap opened in Italian, resolved by an Italian teaching answer: the
 # stored pronoun then resolves by coreference and the original question is

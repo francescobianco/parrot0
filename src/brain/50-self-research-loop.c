@@ -681,6 +681,14 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     if (ko < 3) return 0;
     if (weak && strlen(tok[start]) < 3) return 0;  /* gen335e: allow 3-char topics (DNA, ACL) */
 
+    /* gen335 (KB-first morphology): normalize plural key to singular for lookup.
+     * "cavalli" → "cavallo" so Wikipedia finds the animal, not the surname. */
+    char sing[4][KB_TERM_LEN];
+    const char *sq[] = { key, NULL };
+    if (kb_match(b->kb, "singular", sq, 2, sing, 4) > 0) {
+        snprintf(key, sizeof key, "%s", sing[0]);
+    }
+
     /* deep-reasoning M2: a DEEP read extracts every fact from the page's prose
      * (extract_page_facts), each with its source (M1) — distinct from the shallow
      * concept-learn below. Honest miss if the page has no page or no facts. */
@@ -730,6 +738,15 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen335 (KB-first morphology): also normalize the English-fallback key,
+     * so a plural key_en ("cavalli") doesn't override a singular key ("cavallo")
+     * and re-find the wrong concept. */
+    if (key_en[0]) {
+        const char *sq2[] = { key_en, NULL };
+        if (kb_match(b->kb, "singular", sq2, 2, sing, 4) > 0)
+            snprintf(key_en, sizeof key_en, "%s", sing[0]);
+    }
+
     /* gen240 (universal-comprehension §7): pursue the precondition know(X) via the
      * acquire-knowledge action — already in RAM, learned from the local certified
      * corpus, or fetched on demand from Wikipedia (all in C). On a miss, give the
@@ -744,25 +761,58 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         st = acquire_knowledge(b, key_en, def, sizeof def);
         if (st) eff_key = key_en;
     }
-    if (st == 2)
-        snprintf(msg, sizeof msg,
-                 it ? "Mi ero già documentato su %s: %s."
-                    : "I already read up on %s: %s.", disp, def);
+
+    /* gen335 (KB-first disambiguation): if the definition matches a disambig_flag
+     * (e.g. "is a surname", "può riferirsi a"), warn the user that the result may
+     * not match their intended meaning. Flags are KB facts, not C strings. */
+    int disambig = 0;
+    if (st && def[0]) {
+        char lang[8]; current_lang(b, lang, sizeof lang);
+        for (int pass = 0; pass < 2 && !disambig; pass++) {
+            const char *L = pass == 0 ? lang : "en";
+            const char *dq[] = { L, NULL };
+            char dh[8][KB_TERM_LEN];
+            size_t dn = kb_match(b->kb, "disambig_flag", dq, 2, dh, 8);
+            for (size_t di = 0; di < dn; di++)
+                if (strstr(def, dh[di])) { disambig = 1; break; }
+            if (strcmp(lang, "en") == 0) break;
+        }
+    }
+    if (st == 2) {
+        {
+            const KbResponseSlot slots[] = { {"topic", disp}, {"def", def} };
+            kb_response_slots(b, "learn_already_know", slots, 2, msg, sizeof msg);
+        }
+        if (disambig) {
+            char note[100];
+            kb_response_slots(b, "learn_disambig_note", NULL, 0, note, sizeof note);
+            size_t ml = strlen(msg);
+            snprintf(msg + ml, sizeof msg - ml, "%s", note);
+        }
+    }
     else if (st == 1) {
-        snprintf(msg, sizeof msg,
-                 it ? "Non conoscevo %s, così mi sono documentato: %s."
-                    : "I didn't know about %s, so I just read it up: %s.", disp, def);
+        {
+            const KbResponseSlot slots[] = { {"topic", disp}, {"def", def} };
+            kb_response_slots(b, "learn_found", slots, 2, msg, sizeof msg);
+        }
+        if (disambig) {
+            char note[100];
+            kb_response_slots(b, "learn_disambig_note", NULL, 0, note, sizeof note);
+            size_t ml = strlen(msg);
+            snprintf(msg + ml, sizeof msg - ml, "%s", note);
+        }
         /* gen335g: after a successful acquire, also extract structured facts
-         * from the page prose. This gives the full pipeline: download page →
-         * learn wiki_concept → extract structured facts (is_a, located_in,
-         * capital_of, etc.) from the ## Extract section. */
+         * from the page prose. */
         char facts[512] = "";
         int nf = extract_page_facts(b, eff_key, facts, sizeof facts);
         if (nf > 0) {
-            size_t ml = strlen(msg);
-            snprintf(msg + ml, sizeof msg - ml,
-                     it ? " Ho estratto %d fatti dalla pagina."
-                        : " I extracted %d facts from the page.", nf);
+            char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
+            char tail[80];
+            const KbResponseSlot fslots[] = { {"count", fstr} };
+            if (kb_response_slots(b, "learn_extracted", fslots, 1, tail, sizeof tail)) {
+                size_t ml = strlen(msg);
+                snprintf(msg + ml, sizeof msg - ml, "%s", tail);
+            }
         }
     }
     else {
@@ -784,19 +834,15 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
             snprintf(qq, sizeof qq, "\"%s\"", raw && *raw ? raw : norm);
             const char *qa[] = { qq };
             kb_assert(b->kb, "pending_gap_question", qa, 1);
-            snprintf(msg, sizeof msg,
-                     it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, "
-                           "ma non ho ancora trovato una fonte. Vuoi che impari "
-                           "dalle pagine disponibili?"
-                        : "I understood you're asking about %s: I tried to look it up, "
-                          "but I don't have a source yet. Want me to learn about it "
-                          "from available pages?", disp);
+            {
+                const KbResponseSlot slots[] = { {"topic", disp} };
+                kb_response_slots(b, "learn_gap_offer", slots, 1, msg, sizeof msg);
+            }
         } else {
-            snprintf(msg, sizeof msg,
-                     it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, ma "
-                           "non ho ancora trovato una fonte su cui impararlo."
-                        : "I understood you're asking about %s: I tried to look it up, "
-                          "but I don't have a source to learn it from yet.", disp);
+            {
+                const KbResponseSlot slots[] = { {"topic", disp} };
+                kb_response_slots(b, "learn_still_gap", slots, 1, msg, sizeof msg);
+            }
         }
         kb_set_origin(b->kb, KB_SESSION);
     }
@@ -999,13 +1045,16 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
         size_t k = kb_match(b->kb, "i_am", var, 1, id, 4);
         char msg[128];
         char proof[160];
-        if (k == 0) snprintf(msg, sizeof msg, "I don't know what I am.");
+        if (k == 0)
+            kb_response_slots(b, "self_identity_unknown", NULL, 0, msg, sizeof msg);
         else if (exists) {
-            snprintf(msg, sizeof msg, "Yes, I am %s.", id[0]);
+            const KbResponseSlot slots[] = { {"name", id[0]} };
+            kb_response_slots(b, "self_identity_exists", slots, 1, msg, sizeof msg);
             snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]);
         }
         else {
-            snprintf(msg, sizeof msg, "I am %s.", id[0]);
+            const KbResponseSlot slots[] = { {"name", id[0]} };
+            kb_response_slots(b, "self_identity_name", slots, 1, msg, sizeof msg);
             snprintf(proof, sizeof proof, "i_am(%s) is a reflective fact in my knowledge base.", id[0]);
         }
         put(msg, out, out_size);

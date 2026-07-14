@@ -17,5 +17,6 @@
 < That doesn't look like words to me — did a key get stuck? I'm here when you'd like to ask something.
 
 # Guard: an Italian self-question reaches the self-model untouched.
+# gen335 (KB-first): identity responses localize via current_language.
 > chi sei
-< I am parrot0.
+< Mi chiamo parrot0.

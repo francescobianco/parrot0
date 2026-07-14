@@ -11,7 +11,7 @@
 # wiki fetch when enabled) and, on a miss, gives the INFORMED decline instead of
 # "I don't know anything about X". (Tests stay offline: no PARROT0_WIKI_FETCH.)
 > what is a_flamingo?
-< I understood you're asking about a_flamingo: I tried to look it up, but I don't have a source to learn it from yet.
+< I don't know much about a_flamingo yet. Want me to look it up?
 
 # gen146 (E5): open-domain humility. These are not answered from general
 # knowledge; parrot0 names the exact missing relation/predicate/tool and offers

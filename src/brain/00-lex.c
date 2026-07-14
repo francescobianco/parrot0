@@ -346,7 +346,7 @@ static const char *find_possession_name(Brain *b, const char *thing) {
  * So a new learnable intent is DATA (a learnable/3 row), never new C. KB_SESSION, so it
  * persists on /save. Returns 1 if it claimed the turn. Defined here, after cue()/put(),
  * since it uses them. */
-static int try_teach_form(Brain *b, const char *norm, const char *raw,
+int try_teach_form(Brain *b, const char *norm, const char *raw,
                           char *out, size_t outsz) {
     if (!b || !b->kb || !raw) return 0;
     char low[512];                                  /* raw, lowercased, NOT canonicalized */
@@ -395,9 +395,29 @@ static int try_teach_form(Brain *b, const char *norm, const char *raw,
         char phrase[KB_TERM_LEN]; memcpy(phrase, s1 + 1, pl); phrase[pl] = '\0';
 
         char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
-        const char *ar[2] = { intent[0], quoted };
         kb_set_origin(b->kb, KB_SESSION);
-        kb_assert(b->kb, pred, ar, 2);
+        if (from_raw) {
+            /* Fill mode: assert with the session language so the
+             * taught phrasing is reachable. Query current_language/1
+             * directly from the KB (current_lang() is in a later .c). */
+            char clang[8] = "en";
+            {
+                const char *cq[] = { NULL };
+                char ch[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "current_language", cq, 1, ch, 1) > 0)
+                    snprintf(clang, sizeof clang, "%s", ch[0]);
+            }
+            if (strcmp(clang, "en") != 0) {
+                const char *ar3[3] = { intent[0], clang, quoted };
+                kb_assert(b->kb, pred, ar3, 3);
+            } else {
+                const char *ar2[2] = { intent[0], quoted };
+                kb_assert(b->kb, pred, ar2, 2);
+            }
+        } else {
+            const char *ar[2] = { intent[0], quoted };
+            kb_assert(b->kb, pred, ar, 2);
+        }
         char msg[256];
         snprintf(msg, sizeof msg, "Got it - I'll take \"%s\" as a way to %s now.", phrase, ls);
         put(msg, out, outsz);

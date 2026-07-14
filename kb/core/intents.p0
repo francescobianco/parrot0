@@ -317,6 +317,42 @@ learnable("salutare",             greet_name, fill).
 learnable("a teaching verb",      00_lex_chain332, substring).
 learnable("verbo di insegnamento", 00_lex_chain332, substring).
 
+% gen335 (KB-first research responses): teachable response phrasings.
+% Each intent has an EN+IT label so the user can say "insegnami a <label> con <new text>"
+% and the new phrasing joins the rotation; on /save it persists in the session KB.
+learnable("reply when you find a topic",   learn_found,     fill).
+learnable("risposta quando trovi un tema", learn_found,     fill).
+learnable("reply when you already know",   learn_already_know, fill).
+learnable("risposta quando sai già",       learn_already_know, fill).
+learnable("offer to look up a gap",        learn_gap_offer,   fill).
+learnable("offerta per cercare un tema",   learn_gap_offer,   fill).
+learnable("say you still don't know",      learn_still_gap,   fill).
+learnable("risposta ancora sconosciuto",   learn_still_gap,   fill).
+learnable("extracted facts note",          learn_extracted,   fill).
+learnable("nota fatti estratti",           learn_extracted,   fill).
+learnable("disambiguation warning",        learn_disambig_note, fill).
+learnable("avviso di disambiguazione",     learn_disambig_note, fill).
+learnable("looking up topic message",      gap_looking_up,    fill).
+learnable("messaggio ricerca in corso",    gap_looking_up,    fill).
+learnable("done fetching message",         gap_done,          fill).
+learnable("messaggio ricerca completata",  gap_done,          fill).
+learnable("not found message",             gap_not_found,     fill).
+learnable("messaggio non trovato",         gap_not_found,     fill).
+learnable("gap extracted facts note",      gap_extracted,     fill).
+learnable("nota fatti estratti ricerca",   gap_extracted,     fill).
+learnable("your name reply",               self_identity_name,   fill).
+learnable("rispondere il tuo nome",         self_identity_name,   fill).
+learnable("rispondere come ti chiami",      self_identity_name,   fill).
+learnable("risposta il tuo nome",           self_identity_name,   fill).
+learnable("your existence reply",          self_identity_exists, fill).
+learnable("risposta esisti",               self_identity_exists, fill).
+learnable("don't know what you are",       self_identity_unknown, fill).
+learnable("risposta non so cosa sei",      self_identity_unknown, fill).
+learnable("fallback gap offer",            fallback_gap_offer, fill).
+learnable("offerta gap fallback",          fallback_gap_offer, fill).
+learnable("fallback still unknown",        fallback_still_gap,  fill).
+learnable("fallback ancora sconosciuto",   fallback_still_gap,  fill).
+
 % --- gen240 (universal-comprehension, social branch): smalltalk CONTINUITY. A
 % conversational/experiential turn (first-person experience or opinion, or a
 % question turned back to parrot0) is COMPREHENSIBLE even with no fact to fetch:
@@ -539,8 +575,10 @@ intent_cue(00_lex_chain332, "treat ").
 intent_cue(00_lex_chain332, "use ").
 intent_cue(00_lex_chain332, "impara ").
 intent_cue(00_lex_chain332, "insegna ").
+intent_cue(00_lex_chain332, "insegnami ").
 intent_cue(00_lex_chain332, "tratta ").
 intent_cue(00_lex_chain332, "usa ").
+intent_cue(00_lex_chain332, "aggiungi ").
 
 % gen273 (Track 5.4, second real migration — by whole module): the two
 % counterfactual chains of src/brain/85-translate-synth-world.c
@@ -903,3 +941,21 @@ intent_cue(why_explain, "per quale motivo").
 intent_cue(how_explain, "dimmi come").
 intent_cue(how_explain, "spiegami come").
 intent_cue(how_explain, "in che modo").
+
+% --- language-switch cues (KB-first, migrated from mod_chitchat hardcoded phrasebook).
+% Previously a cue() chain in C that lived in a closed set; now runtime-teachable
+% via learnable/substring, queryable, and localizable. ---
+intent_cue(language_switch, "in inglese").
+intent_cue(language_switch, "in italiano").
+intent_cue(language_switch, "in english").
+intent_cue(language_switch, "in italian").
+intent_cue(language_switch, "parliamo in").
+intent_cue(language_switch, "talk in").
+intent_cue(language_switch, "english only").
+intent_cue(language_switch, "parli italiano").
+intent_cue(language_switch, "speak english").
+intent_cue(language_switch, "parli inglese").
+intent_cue(language_switch, "perche rispondi in inglese").
+intent_cue(language_switch, "perché rispondi in inglese").
+intent_cue(language_switch, "why do you answer in english").
+intent_cue(language_switch, "why are you answering in english").

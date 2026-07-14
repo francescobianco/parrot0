@@ -14,7 +14,8 @@
 > which part of you answered that?
 < No module could handle that — it fell through to the not-understood fallback.
 # Italian cues.
+# gen335 (KB-first): identity responses localize via current_language.
 > chi sei?
-< I am parrot0.
+< Mi chiamo parrot0.
 > quale modulo ha risposto?
 < The 'self' module answered your last question.

@@ -233,11 +233,7 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                       cue(norm, "babes") || cue(norm, "friend") ||
                       cue(norm, "buddy") || cue(norm, "amico") ||
                       cue(norm, "tesoro");
-    int language    = cue(norm, "in inglese") || cue(norm, "in italiano") ||
-                      cue(norm, "in english") || cue(norm, "in italian") ||
-                      cue(norm, "parliamo in") || cue(norm, "talk in") ||
-                      cue(norm, "english only") || cue(norm, "parli italiano") ||
-                      cue(norm, "speak english") || cue(norm, "parli inglese");
+    int language = kb_cue_match(b, "language_switch", norm);
     int filler      = cue(norm, "nothing much") || cue(norm, "just hanging") ||
                       cue(norm, "just bored") || cue(norm, "just vibing") ||
                       cue(norm, "just chatting") || cue(norm, "hanging out") ||
@@ -276,8 +272,13 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
     if (encourage) { put("Thanks — I'm learning as we go.", out, out_size); return 1; }
     if (agree)     { put("Glad that lands. What would you like to do next?",
                          out, out_size); return 1; }
-    if (language)  { put("We can chat in either language — I'll do my best.",
-                         out, out_size); return 1; }
+    if (language)  {
+        char msg[256];
+        if (!lang_template(b, "language_switch", msg, sizeof msg))
+            snprintf(msg, sizeof msg, "%s", "We can chat in either language — I'll do my best.");
+        put(msg, out, out_size);
+        return 1;
+    }
     if (no_topic)  { put("We can start simple: tell me something about your day, or ask me to remember or reason about a small fact.",
                          out, out_size); return 1; }
     if (mood_down) {

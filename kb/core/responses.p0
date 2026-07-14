@@ -226,3 +226,47 @@ response_template(how_know, it, "L'ho dedotto dai fatti nella mia base di conosc
 response_template(dont_understand, it, "Non ho capito.").
 response_template(dont_understand, it, "Non ho afferrato bene. Cosa vorresti sapere?").
 response_template(dont_understand, it, "Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?").
+
+% gen335: language-switch reply — KB-first, bilingual. Formerly a hardcoded
+% put("We can chat in either language...") in mod_chitchat; now lives as a
+% knowledge fact, localizable with a /3 fact, teachable at runtime.
+response_template(language_switch, en, "We can chat in either language — I'll do my best.").
+response_template(language_switch, it, "Possiamo parlare in entrambe le lingue — farò del mio meglio.").
+
+% gen335 (KB-first): research-pipeline responses migrated from ternary C to
+% response_template with {topic} / {def} / {count} / {name} slots.
+% /2 form = English default, /3 form = localized (additive: no code change).
+
+response_template(learn_found, "Here is what I found about {topic}: {def}.").
+response_template(learn_found, it, "Ecco cosa ho trovato su {topic}: {def}.").
+response_template(learn_already_know, "I already know about {topic}: {def}.").
+response_template(learn_already_know, it, "So già qualcosa su {topic}: {def}.").
+response_template(learn_gap_offer, "I don't know much about {topic} yet. Want me to look it up?").
+response_template(learn_gap_offer, it, "Non so ancora molto su {topic}. Vuoi che cerchi informazioni?").
+response_template(learn_still_gap, "I still don't know much about {topic}.").
+response_template(learn_still_gap, it, "Ancora non so molto su {topic}.").
+response_template(learn_extracted, " I extracted {count} facts.").
+response_template(learn_extracted, it, " Ho estratto {count} fatti.").
+response_template(learn_disambig_note, " Note: this might refer to a different meaning.").
+response_template(learn_disambig_note, it, " Nota: potrebbe riferirsi a un significato diverso.").
+
+response_template(gap_looking_up, "Looking up {topic}...").
+response_template(gap_looking_up, it, "Cerco informazioni su {topic}...").
+response_template(gap_done, " Done.").
+response_template(gap_done, it, " Trovato.").
+response_template(gap_not_found, " I couldn't find information.").
+response_template(gap_not_found, it, " Non ho trovato informazioni.").
+response_template(gap_extracted, " I extracted {count} facts.").
+response_template(gap_extracted, it, " Ho estratto {count} fatti.").
+
+response_template(self_identity_name, "I am {name}.").
+response_template(self_identity_name, it, "Mi chiamo {name}.").
+response_template(self_identity_exists, "Yes, I am {name}.").
+response_template(self_identity_exists, it, "Sì, sono {name}.").
+response_template(self_identity_unknown, "I don't know what I am.").
+response_template(self_identity_unknown, it, "Non so cosa sono.").
+
+response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want me to learn about it?").
+response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
+response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
+response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
