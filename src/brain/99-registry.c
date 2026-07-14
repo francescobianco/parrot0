@@ -1295,6 +1295,10 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                          ? "Mi documento su %s — un attimo..."
                          : "Let me learn about %s — one moment...", topic);
                 char def[512] = "";
+                /* gen335k: on user confirmation, try Wikipedia fetch first.
+                 * acquire_knowledge only uses local sources — the network
+                 * step is gated behind the user's explicit "si". */
+                wiki_fetch_bilingual(b->kb, topic);
                 int got = acquire_knowledge(b, topic, def, sizeof def);
                 size_t ol = strlen(out);
                 if (got && def[0])
