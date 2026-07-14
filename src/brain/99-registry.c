@@ -732,8 +732,34 @@ static void not_understood(Brain *b, const char *canon,
     }
     char cand[256];
     unsigned long k = b->fallbacks;
-    if (sw) snprintf(cand, sizeof cand, it ? "Mmh, non conosco ancora %s."
-                                           : "Hmm, I don't know about %s yet.", sw);
+    if (sw) {
+        /* gen335d (linguistic glue, KB-first): store the knowledge gap as a KB
+         * fact, not a C field. The fact of not-knowing IS knowledge. Following
+         * the same pattern as last_result/1 (REFLECTIVE) and user_value/2
+         * (SESSION): assert into the KB, query on the next turn, retract when
+         * resolved. The gap fact is KB_REFLECTIVE — working memory, never
+         * persisted to /save. */
+        const char *gq[] = { NULL };
+        char gcheck[1][KB_TERM_LEN];
+        int already_gap = kb_match(b->kb, "pending_gap", gq, 1, gcheck, 1) > 0;
+        if (!already_gap) {
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            const char *ga[] = { sw };
+            kb_assert(b->kb, "pending_gap", ga, 1);
+            char qq[KB_TERM_LEN];
+            snprintf(qq, sizeof qq, "\"%s\"", canon);
+            const char *qa[] = { qq };
+            kb_assert(b->kb, "pending_gap_question", qa, 1);
+            kb_set_origin(b->kb, KB_SESSION);
+            snprintf(cand, sizeof cand, it
+                     ? "Mmh, non conosco ancora %s. Vuoi che mi documenti?"
+                     : "Hmm, I don't know about %s yet. Want me to learn about it?",
+                     sw);
+        } else {
+            snprintf(cand, sizeof cand, it ? "Mmh, non conosco ancora %s."
+                                            : "Hmm, I don't know about %s yet.", sw);
+        }
+    }
     else    snprintf(cand, sizeof cand, "%s", v[k % NV]);
     for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)
         snprintf(cand, sizeof cand, "%s", v[(k + t) % NV]);
@@ -1212,6 +1238,90 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * -> "12."). Pre-dispatch so the bare fragment cannot fall to not-understood. */
     if (b && continue_resolve(b, canon, out, out_size))
         { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
+
+    /* gen335d (linguistic glue, KB-first): knowledge-gap bridge. The gap
+     * state lives as KB facts (pending_gap/1, pending_gap_question/1) in the
+     * REFLECTIVE layer — working memory, never persisted. On the next turn:
+     * confirmation → acquire + re-answer; anything else → retract + dispatch. */
+    if (b && b->kb) {
+        const char *gq[] = { NULL };
+        char gtopics[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "pending_gap", gq, 1, gtopics, 1) > 0) {
+            char topic[KB_TERM_LEN];
+            snprintf(topic, sizeof topic, "%s", kb_dequote(gtopics[0]));
+            /* Save the stored question BEFORE retracting */
+            char stored_q[256] = "";
+            {
+                const char *sqq[] = { NULL };
+                char sq_hit[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "pending_gap_question", sqq, 1, sq_hit, 1) > 0)
+                    snprintf(stored_q, sizeof stored_q, "%s",
+                             kb_dequote(sq_hit[0]));
+            }
+            /* Check for confirmation — against BOTH canonicalized form
+             * (for English) and raw normalized form (for Italian "si" which
+             * canonical_token maps "si"→"is"). */
+            char clow[256]; snprintf(clow, sizeof clow, "%s", canon);
+            for (char *cp = clow; *cp; cp++)
+                *cp = (char)tolower((unsigned char)*cp);
+            char rlow[256]; snprintf(rlow, sizeof rlow, "%s", input);
+            for (char *cp = rlow; *cp; cp++)
+                *cp = (char)tolower((unsigned char)*cp);
+            int confirm = (strcmp(clow, "yes") == 0 || strcmp(clow, "si") == 0 ||
+                           strcmp(clow, "ok") == 0 || strcmp(clow, "okay") == 0 ||
+                           strcmp(clow, "sure") == 0 || strcmp(clow, "vai") == 0 ||
+                           strcmp(clow, "learn") == 0 || strcmp(clow, "impara") == 0 ||
+                           strncmp(clow, "yes ", 4) == 0 || strncmp(clow, "si ", 3) == 0 ||
+                           strcmp(rlow, "si") == 0 || strcmp(rlow, "sì") == 0 ||
+                           strcmp(rlow, "yes") == 0 || strcmp(rlow, "ok") == 0 ||
+                           strcmp(rlow, "vai") == 0);
+
+            /* Always retract the gap facts — single-turn window consumed */
+            { const char *rga[] = { gtopics[0] }; kb_retract(b->kb, "pending_gap", rga, 1); }
+            {
+                const char *rqq[] = { NULL };
+                char rq_hit[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "pending_gap_question", rqq, 1, rq_hit, 1) > 0) {
+                    const char *rqa[] = { rq_hit[0] };
+                    kb_retract(b->kb, "pending_gap_question", rqa, 1);
+                }
+            }
+
+            if (!confirm) {
+                /* Not confirmed — dispatch normally below */
+            } else if (stored_q[0]) {
+                char lang[8]; current_lang(b, lang, sizeof lang);
+                int it = strcmp(lang, "it") == 0;
+                snprintf(out, out_size, it
+                         ? "Mi documento su %s — un attimo..."
+                         : "Let me learn about %s — one moment...", topic);
+                char def[512] = "";
+                int got = acquire_knowledge(b, topic, def, sizeof def);
+                size_t ol = strlen(out);
+                if (got && def[0])
+                    snprintf(out + ol, out_size - ol, " %s", def);
+                else if (got)
+                    snprintf(out + ol, out_size - ol, it
+                             ? " Fatto."
+                             : " Done.");
+                else
+                    snprintf(out + ol, out_size - ol, it
+                             ? " Non ho trovato informazioni."
+                             : " I couldn't find information.");
+                /* Re-dispatch the original question through dispatch_one
+                 * (NOT brain_respond — that would recurse and corrupt state).
+                 * dispatch_one normalizes+canonicalizes and walks the registry. */
+                char re_ans[256] = "";
+                if (dispatch_one(b, stored_q, re_ans, sizeof re_ans)) {
+                ol = strlen(out);
+                if (re_ans[0])
+                    snprintf(out + ol, out_size - ol, " %s", re_ans);
+                conv_log(b, input, out);
+                return strlen(out);
+            }
+        }
+    }
+    }
 
     /* Walk the registry; first module to claim the turn wins. */
     int handled = 0, handled_by_discourse = 0;

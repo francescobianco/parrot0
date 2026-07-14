@@ -686,16 +686,28 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         snprintf(msg, sizeof msg,
                  it ? "Non conoscevo %s, così mi sono documentato: %s."
                     : "I didn't know about %s, so I just read it up: %s.", disp, def);
-    else
-        /* gen243: reaching here means acquire_knowledge already tried RAM, the
-         * local corpus, and (when PARROT0_WIKI_FETCH is on) a certified Wikipedia
-         * fetch — and found nothing. The INFORMED decline says so honestly: it
-         * looked but has no source yet, never a blind wall. */
+    else {
+        /* gen335d (linguistic glue, KB-first): the informed decline now offers
+         * to learn. Store the gap as KB knowledge (pending_gap/1 + 
+         * pending_gap_question/1 in REFLECTIVE layer) so the next turn can
+         * confirm and trigger the plan. The gap IS knowledge — a KB fact,
+         * not a C variable. Following the same pattern as last_result/1. */
+        kb_set_origin(b->kb, KB_REFLECTIVE);
+        const char *ga[] = { key };
+        kb_assert(b->kb, "pending_gap", ga, 1);
+        char qq[KB_TERM_LEN];
+        snprintf(qq, sizeof qq, "\"%s\"", norm);
+        const char *qa[] = { qq };
+        kb_assert(b->kb, "pending_gap_question", qa, 1);
+        kb_set_origin(b->kb, KB_SESSION);
         snprintf(msg, sizeof msg,
-                 it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, ma "
-                      "non ho ancora trovato una fonte su cui impararlo."
+                 it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, "
+                       "ma non ho ancora trovato una fonte. Vuoi che impari "
+                       "dalle pagine disponibili?"
                     : "I understood you're asking about %s: I tried to look it up, "
-                      "but I don't have a source to learn it from yet.", disp);
+                      "but I don't have a source yet. Want me to learn about it "
+                      "from available pages?", disp);
+    }
     put(msg, out, out_size);
     return 1;
 }
