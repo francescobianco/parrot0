@@ -637,6 +637,35 @@ tr(lazio, lazio).
 tr(lazio, laziale).
 tr(campania, campania).
 tr(campania, campano).
+% gen335b: more place names and professions for completion chains
+tr(berlin, berlino).
+tr(madrid, madrid).
+tr(barcelona, barcellona).
+tr(paris, parigi).
+tr(london, londra).
+tr(athens, atene).
+tr(new_york, new_york).
+tr(tokyo, tokyo).
+tr(doctor, medico).
+tr(medic, medico).
+tr(lawyer, avvocato).
+tr(engineer, ingegnere).
+tr(teacher, insegnante).
+tr(professor, professore).
+tr(chef, cuoco).
+tr(cook, cuoco).
+tr(nurse, infermiere).
+tr(scientist, scienziato).
+tr(musician, musicista).
+tr(painter, pittore).
+tr(writer, scrittore).
+tr(architect, architetto).
+tr(journalist, giornalista).
+tr(pilot, pilota).
+tr(farmer, contadino).
+tr(fisherman, pescatore).
+tr(octopus, polpo).
+tr(eats, mangia).
 
 % gen252: small EN->FR substrate for compositional translation. tr_fr is word
 % knowledge; gender_fr lets the C choose le/la and place adjectives after nouns.
@@ -768,3 +797,6 @@ tr_es_phrase("where are you from (temp)", "de dónde estás").
 gender_fr(chat, m).
 gender_fr(chance, f).
 gender_fr(tapis, m).
+tr(brave, coraggioso).
+tr(coward, codardo).
+tr(crab, granchio).

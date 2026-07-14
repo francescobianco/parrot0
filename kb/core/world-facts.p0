@@ -340,6 +340,8 @@ quantity(human, fingers, 10).
 quantity(heart, chambers, 4).
 quantity(hand, fingers, 5).
 quantity(octopus, arms, 8).
+quantity(octopus, legs, 8).
+quantity(crab, legs, 10).
 quantity(triangle, sides, 3).
 quantity(square, sides, 4).
 quantity(rectangle, sides, 4).
@@ -2389,7 +2391,7 @@ demonym(milan, milanese).
 demonym(naples, neapolitan).
 demonym(venice, venetian).
 demonym(florence, florentine).
-demonym(turin, turin).
+demonym(turin, turinese).
 demonym(bologna, bolognese).
 demonym(genoa, genovese).
 demonym(palermo, palermitan).
@@ -2415,3 +2417,17 @@ demonym(athens, athenian).
 % sentence ends with a blank/article, query ResultPred(X, ?Y) and respond
 % with Y. The C motor (mod_knowledge) reads this; the data grows here.
 completion_chain(born_in, demonym).
+% gen335b: profession chain — "studied X, therefore I am a ___"
+% study medicine → doctor, study law → lawyer, etc.
+profession(medicine, doctor).
+profession(law, lawyer).
+profession(engineering, engineer).
+profession(music, musician).
+profession(art, painter).
+profession(literature, writer).
+profession(architecture, architect).
+profession(nursing, nurse).
+profession(cooking, chef).
+profession(farming, farmer).
+profession(fishing, fisherman).
+completion_chain(studied, profession).

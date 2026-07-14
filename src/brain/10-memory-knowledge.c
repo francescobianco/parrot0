@@ -770,6 +770,16 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             i++;            /* consume "che" (keep "che"->"what" logic from above) */
             continue;
         }
+        /* gen335: Italian "nato/ nata a" / "nato/ nata in" — the preposition
+         * "a" means "in" after birthplace verbs. Collapse "a" → "in" when the
+         * previous token is a form of "born"/"nato". Works for both languages. */
+        if (strcmp(tok, "a") == 0 && i >= 1 &&
+            (strcmp(w[i - 1], "nato") == 0 || strcmp(w[i - 1], "nata") == 0 ||
+             strcmp(w[i - 1], "born") == 0)) {
+            off += (size_t)snprintf(out + off, out_size - off, "%sin",
+                                    i ? " " : "");
+            continue;
+        }
         const char *canon = canonical_token(tok);
         if (canon) {
             off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
@@ -2603,6 +2613,54 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char msg[96]; snprintf(msg, sizeof msg, "A %s.", name);
             put(msg, out, out_size);
             return 1;
+        }
+    }
+
+    /* gen335: animal diet — "what does a lion eat?" / "what eats zebra?".
+     * KB-first: the facts are eats/2 in world-facts.p0; the engine is a
+     * fixed forward+reverse lookup, same shape as the sound_of handler. */
+    if (cue(norm, "eat") || cue(norm, "eats") || cue(norm, "diet") ||
+        cue(norm, "food") || cue(norm, "mangia") || cue(norm, "mangiano")) {
+        char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
+        char *ew[64]; size_t en = split_words(eb, ew, 64);
+        for (size_t i = 0; i < en; i++) {
+            char *t = strip_edge_punct(ew[i]); size_t tl = strlen(t);
+            if (tl < 2) continue;
+            char sg[64]; snprintf(sg, sizeof sg, "%s", t);
+            if (tl > 1 && sg[tl - 1] == 's') sg[tl - 1] = '\0';
+            const char *q[] = { sg, NULL }; char hit[16][KB_TERM_LEN];
+            size_t nh = kb_match(b->kb, "eats", q, 2, hit, 16);
+            if (nh > 0) {
+                char msg[200]; size_t mo = 0;
+                for (size_t h = 0; h < nh && mo + 4 < sizeof msg; h++) {
+                    mo += (size_t)snprintf(msg + mo, sizeof msg - mo,
+                        "%s%s", h ? (h + 1 == nh ? " and " : ", ") : "",
+                        kb_dequote(hit[h]));
+                }
+                if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
+                if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+                char outm[256];
+                snprintf(outm, sizeof outm, "A %s eats %s", sg, msg);
+                put(outm, out, out_size);
+                return 1;
+            }
+        }
+        /* reverse: "what eats X?" — look up by food */
+        const char *rq[] = { NULL, NULL };
+        char eaters[64][KB_TERM_LEN];
+        size_t nr = kb_match(b->kb, "eats", rq, 2, eaters, 64);
+        for (size_t i = 0; i < nr; i++) {
+            const char *fq[] = { eaters[i], NULL };
+            char food[16][KB_TERM_LEN];
+            size_t nf = kb_match(b->kb, "eats", fq, 2, food, 16);
+            for (size_t f = 0; f < nf; f++) {
+                char *fd = kb_dequote(food[f]);
+                if (!*fd || !cue(norm, fd)) continue;
+                char msg[128];
+                snprintf(msg, sizeof msg, "A %s.", eaters[i]);
+                put(msg, out, out_size);
+                return 1;
+            }
         }
     }
 
