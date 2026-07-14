@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat chat-agent chat-acquire pi test check gate capability-facts capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat chat-agent pi test check gate capability-facts capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -93,31 +93,20 @@ obj/brain.o: $(BRAIN_PARTS)
 bin obj:
 	@mkdir -p $@
 
-# gen243: the interactive chat is AUTONOMOUS — PARROT0_WIKI_FETCH=1 so a knowledge
-# gap triggers the self-documentation plan (mod_learn -> acquire_knowledge ->
-# certified Wikipedia fetch), per universal-comprehension §7. Only `make chat` opts
-# in; `make test` and the benches never set it, so they stay offline/deterministic.
-# gen331 (TODO.md P1/09): THREE EXPLICIT MODES, because one implicit one lied.
-# `make chat` loaded the AGI profile but NOT PARROT0_TOOLS, so every file request
-# came back "I don't understand that yet" — while the same target quietly switched
-# the Wikipedia fetch ON. The mode that claimed the least capability was the one
-# reaching the network. Now the policy is named at the door, projected into the KB
-# (policy/2), printed in the banner, and obeyed by the declines:
+# gen243/335: the interactive chat is AUTONOMOUS — PARROT0_WIKI_FETCH=1 so a
+# knowledge gap triggers the self-documentation plan (mod_learn -> acquire_knowledge
+# -> certified Wikipedia fetch), per universal-comprehension §7. Tools are also on
+# for file operations. `make test` and the benches never set these, so they stay
+# offline/deterministic.
 #
-#   chat          conversational — no tools, no network. The safe default.
-#   chat-agent    the coding agent — local tools on, still no network. Same
-#                 contracts as the API/piagent-bench, so what is green there is
-#                 green here.
-#   chat-acquire  the only mode that may reach the network (self-documentation
-#                 via the certified Wikipedia fetch), and it says so.
+#   chat          conversational with tools + network (wikipedia fetch)
+#   chat-agent    the coding agent — local tools on, network on. Same
+#                 contracts as the API/piagent-bench.
 chat: build
-	@PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
+	@PARROT0_WIKI_FETCH=1 PARROT0_TOOLS=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 
 chat-agent: build
-	@PARROT0_TOOLS=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
-
-chat-acquire: build
-	@PARROT0_WIKI_FETCH=1 PARROT0_TOOLS=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
+	@PARROT0_TOOLS=1 PARROT0_WIKI_FETCH=1 PARROT0_PROFILE=kb/profiles/agi.p0 ./$(BIN)
 
 # gen223: build parrot0, free the port (kill any old daemon), prepare ~/.pi/agent/
 # models.json (merged, never clobbering other providers), start the parrot0 daemon,
