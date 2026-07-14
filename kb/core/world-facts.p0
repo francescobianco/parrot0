@@ -2376,3 +2376,42 @@ difference_between(byte, bit, "A bit is a single 0 or 1; a byte is 8 bits").
 difference_between(kb, mb, "A kilobyte is about a thousand bytes; a megabyte is about a million bytes").
 difference_between(analog, digital, "Analog signals are continuous; digital signals use discrete steps").
 difference_between(sun, moon, "The Sun is a star that produces its own light; the Moon is a rocky body that reflects sunlight").
+
+% ==================================================================
+% gen335: demonym knowledge — place → demonym for completion queries.
+% KB-first: add a demonym/2 fact and "born in X, therefore I am a ___"
+% resolves with zero C changes. The completion_chain/2 consumer in
+% mod_knowledge reads the cue + predicate; the data is KB knowledge.
+% ==================================================================
+demonym(sicily, sicilian).
+demonym(rome, roman).
+demonym(milan, milanese).
+demonym(naples, neapolitan).
+demonym(venice, venetian).
+demonym(florence, florentine).
+demonym(turin, turin).
+demonym(bologna, bolognese).
+demonym(genoa, genovese).
+demonym(palermo, palermitan).
+demonym(catania, catanese).
+demonym(bari, barese).
+demonym(sardinia, sardinian).
+demonym(tuscany, tuscan).
+demonym(lombardy, lombard).
+demonym(lazio, laziale).
+demonym(campania, campanian).
+demonym(puglia, apulian).
+demonym(paris, parisian).
+demonym(london, londoner).
+demonym(new_york, new_yorker).
+demonym(berlin, berliner).
+demonym(tokyo, tokyoite).
+demonym(madrid, madrilenian).
+demonym(barcelona, barcelonian).
+demonym(amsterdam, amsterdammer).
+demonym(athens, athenian).
+
+% completion_chain(Cue, ResultPred): when the user says "Cue X" and the
+% sentence ends with a blank/article, query ResultPred(X, ?Y) and respond
+% with Y. The C motor (mod_knowledge) reads this; the data grows here.
+completion_chain(born_in, demonym).

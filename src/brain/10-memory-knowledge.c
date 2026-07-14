@@ -2366,6 +2366,61 @@ static int mod_aggregate(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* gen335 (kb-first): completion_chain/2 — schema-driven sentence completion.
+ * KB facts: completion_chain(Cue, ResultPred).
+ * e.g. completion_chain("born in", demonym).
+ * The C motor is fixed & generic: reads completion_chain from the KB, matches
+ * the cue in the canonical input, extracts the word after it, queries the
+ * result predicate. Adding a new completion costs one KB fact, zero C. */
+static int completion_chain_resolve(Brain *b, const char *norm,
+                                     char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    char chains[32][KB_TERM_LEN];
+    const char *cq[2] = { NULL, NULL };
+    size_t nc = kb_match(b->kb, "completion_chain", cq, 2, chains, 32);
+    for (size_t ci = 0; ci < nc; ci++) {
+        char cueword[KB_TERM_LEN];
+        snprintf(cueword, sizeof cueword, "%s", kb_dequote(chains[ci]));
+        /* gen335: the .p0 parser may truncate quoted atoms with internal
+         * spaces — work around by using underscores in the KB fact
+         * (completion_chain(born_in, demonym)) and expanding them to
+         * spaces for substring matching. */
+        char cue_exp[KB_TERM_LEN];
+        snprintf(cue_exp, sizeof cue_exp, "%s", cueword);
+        for (char *cp = cue_exp; *cp; cp++)
+            if (*cp == '_') *cp = ' ';
+        if (!*cueword || !cue(norm, cue_exp)) continue;
+        char rpred[1][KB_TERM_LEN];
+        const char *rq[2] = { chains[ci], NULL };
+        if (kb_match(b->kb, "completion_chain", rq, 2, rpred, 1) != 1) continue;
+        char pred[KB_TERM_LEN];
+        snprintf(pred, sizeof pred, "%s", kb_dequote(rpred[0]));
+
+        const char *pos = strstr(norm, cue_exp);
+        if (!pos) continue;
+        pos += strlen(cue_exp);
+        while (*pos && !isalnum((unsigned char)*pos)) pos++;
+        if (!*pos) continue;
+        char slot[KB_TERM_LEN]; size_t sl = 0;
+        while (*pos && (isalnum((unsigned char)*pos) || *pos == '_') &&
+               sl + 1 < sizeof slot)
+            slot[sl++] = (char)tolower((unsigned char)*pos++);
+        slot[sl] = '\0';
+        if (sl < 2 || is_stopword(b, slot)) continue;
+
+        char ans[4][KB_TERM_LEN];
+        const char *dq[2] = { slot, NULL };
+        if (kb_match(b->kb, pred, dq, 2, ans, 4) > 0) {
+            char msg[128];
+            snprintf(msg, sizeof msg, "%s.", kb_dequote(ans[0]));
+            if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
@@ -2424,6 +2479,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
+
+    if (completion_chain_resolve(b, norm, out, out_size)) return 1;
 
     /* M1 (deep-reasoning §4bis): a fact's PROVENANCE. "where did you learn about
      * X?" / "what is your source for X?" -> the raw fragment each extracted fact

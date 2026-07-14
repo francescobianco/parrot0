@@ -598,6 +598,45 @@ tr(parrot0, parrot0).
 tr(strawberry, fragola).
 tr(legs, zampe).
 tr(paws, zampe).
+% gen335: demonym completions
+tr(born, nato).
+tr(therefore, quindi).
+tr(sicily, sicilia).
+tr(sicilian, siciliano).
+tr(rome, roma).
+tr(roman, romano).
+tr(milan, milano).
+tr(milanese, milanese).
+tr(naples, napoli).
+tr(neapolitan, napoletano).
+tr(venice, venezia).
+tr(venetian, veneziano).
+tr(florence, firenze).
+tr(florentine, fiorentino).
+tr(turin, torino).
+tr(turin, torinese).
+tr(bologna, bologna).
+tr(bolognese, bolognese).
+tr(genoa, genova).
+tr(genovese, genovese).
+tr(palermo, palermo).
+tr(palermo, palermitano).
+tr(catania, catania).
+tr(catania, catanese).
+tr(bari, bari).
+tr(bari, barese).
+tr(sardinia, sardegna).
+tr(sardinian, sardo).
+tr(puglia, puglia).
+tr(apulian, pugliese).
+tr(tuscany, toscana).
+tr(tuscan, toscano).
+tr(lombardy, lombardia).
+tr(lombard, lombardo).
+tr(lazio, lazio).
+tr(lazio, laziale).
+tr(campania, campania).
+tr(campania, campano).
 
 % gen252: small EN->FR substrate for compositional translation. tr_fr is word
 % knowledge; gender_fr lets the C choose le/la and place adjectives after nouns.
