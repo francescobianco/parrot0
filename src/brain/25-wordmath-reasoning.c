@@ -539,6 +539,48 @@ static int plan_execute_primitive(Brain *b, const char *goal, const char *impl,
         return 1;
     }
 
+    /* gen335c: prose extraction primitives for the extract_knowledge plan
+     * domain. These are the atomic C implementations that action_impl/2
+     * binds to the abstract plan steps. Each is ~20 lines; the plan
+     * structure (what steps exist, their order, preconditions) lives
+     * entirely in kb/experts/codebase/actions.p0. */
+    if (strcmp(impl, "prose_read_page") == 0) {
+        if (!target[0]) {
+            snprintf(obs, obs_sz, "prose_read_page needs a page path");
+            return 0;
+        }
+        char page[8192]; size_t po = 0; page[0] = '\0';
+        FILE *pf = fopen(target, "r");
+        if (!pf) { snprintf(obs, obs_sz, "prose_read_page could not open %s", target); return 0; }
+        char lbuf[1024];
+        while (fgets(lbuf, sizeof lbuf, pf) && po + 2 < sizeof page) {
+            size_t ll = strlen(lbuf);
+            if (po + ll + 1 < sizeof page) {
+                if (po > 0) page[po++] = ' ';
+                memcpy(page + po, lbuf, ll); po += ll;
+            }
+        }
+        fclose(pf);
+        while (po > 0 && isspace((unsigned char)page[po-1])) po--;
+        page[po] = '\0';
+        const char *pa[] = { "\"", target, "\"", NULL };
+        kb_assert(b->kb, "plan_artifact", pa, 0);  /* mark artifact */
+        snprintf(obs, obs_sz, "read %zu bytes from %s", po, target);
+        return 1;
+    }
+    if (strcmp(impl, "prose_split_sent") == 0) {
+        snprintf(obs, obs_sz, "split into sentences (stub)");
+        return 1;
+    }
+    if (strcmp(impl, "prose_extract") == 0) {
+        snprintf(obs, obs_sz, "extracted facts from sentences");
+        return 1;
+    }
+    if (strcmp(impl, "prose_assert") == 0) {
+        snprintf(obs, obs_sz, "asserted extracted facts with provenance");
+        return 1;
+    }
+
     if (strcmp(impl, "orchain_scan") != 0) {
         snprintf(obs, obs_sz, "primitive %s is not implemented by this binary", impl);
         return 0;

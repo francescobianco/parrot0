@@ -173,6 +173,71 @@ sistematicamente nell'estrazione.
 
 ---
 
+## 2bis. Il piano è KB-driven: `plan_goal` in `actions.p0`
+
+Il meccanismo per orchestrare l'estrazione **non è un pipeline C cablato**.
+È un **piano dichiarativo in KB**, interpretato dal backward chainer generico
+di `mod_plan` (`src/brain/25-wordmath-reasoning.c:130`).
+
+### Il dominio plan in `kb/experts/codebase/actions.p0`
+
+```prolog
+plan_goal(extract_knowledge, kb_facts).
+
+action_yields(read_page_file, raw_page).
+action_needs(read_page_file, page_path).
+action_impl(read_page_file, prose_read_page).
+
+action_yields(split_sentences, sentences).
+action_needs(split_sentences, raw_page).
+action_impl(split_sentences, prose_split_sent).
+
+action_yields(extract_frames, candidate_facts).
+action_needs(extract_frames, sentences).
+action_impl(extract_frames, prose_extract).
+
+action_yields(assert_extracted, kb_facts).
+action_needs(assert_extracted, candidate_facts).
+action_impl(assert_extracted, prose_assert).
+
+plan_given(page_path).
+```
+
+### Come funziona
+
+1. **L'utente** dice "extract knowledge from sicily" o "leggi e impara la sicilia"
+2. **`goal_cue`** mappa la frase al goal `extract_knowledge`
+3. **`plan_chain`** (C, generico) cammina all'indietro da `kb_facts` attraverso
+   `action_needs`/`action_yields` e produce l'ordine: `read_page_file` →
+   `split_sentences` → `extract_frames` → `assert_extracted`
+4. **`plan_execute_goal`** esegue ogni step cercando `action_impl` e dispatchando
+   al primitivo C corrispondente (`prose_read_page`, `prose_split_sent`, ...)
+5. **L'artefatto finale** `kb_facts` è raggiunto: i fatti sono nella KB
+
+### Proprietà anti-impostor
+
+- **Cambiare il piano** (aggiungere un passo, cambiare ordine) = editare fatti in
+  `actions.p0`. Zero C nel chainer.
+- **Insegnare un nuovo goal** = aggiungere `plan_goal` + `goal_cue`. Zero C.
+- **Aggiungere un'azione** = `action_yields` + `action_needs` + `action_impl`
+  (quest'ultimo richiede ~20 righe di C nel dispatch dei primitivi, ma è un
+  motore atomico, non conoscenza di dominio)
+- Il chainer **non sa nulla** di prosa, estrazione, o fatti KB. Se scambi i
+  fatti con quelli di `external_help`, lo stesso C pianifica "chiedere aiuto".
+
+Questo è il principio **"plan by KB"** che governa tutta l'architettura di
+parrot0: il piano è conoscenza, il motore è fisso.
+
+### Stato attuale dei primitivi
+
+I primitivi `prose_read_page`, `prose_split_sent`, `prose_extract`, `prose_assert`
+sono stub che restituiscono successo senza fare lavoro reale. Vanno implementati
+con la logica di `read_passage`/`extract_clause` già esistente in
+`src/brain/30-generation-reading.c`. Questa è la parte C rimanente — ma è
+**motore atomico**, non conoscenza di dominio.
+
+---
+
 ## 3. Il piano concreto (roadmap)
 
 Ogni passo è un obiettivo per generazione, con un counterexample reale e un

@@ -115,3 +115,42 @@ action_needs(load_answer, answer_facts).
 action_desc(load_answer, "load the answers as native knowledge and resume the blocked plan").
 
 plan_given(missing_knowledge).
+
+% --- Domain 3: extract knowledge from prose (gen335c) --------------------------
+% The plan for "read a page and extract KB facts from its prose" is KB
+% knowledge, not a C pipeline. The same backward chainer (plan_chain in
+% 25-wordmath-reasoning.c) that walks kbfirst_migration and external_help
+% also walks this domain. Swap the facts, same engine plans a different world.
+%
+% The anti-impostor property: teach a new extraction action by adding
+% action_yields/action_needs/action_impl facts here. Zero changes to the
+% C plan chainer.
+plan_goal(extract_knowledge, kb_facts).
+goal_cue(extract_knowledge, "extract knowledge").
+goal_cue(extract_knowledge, "read and learn").
+goal_cue(extract_knowledge, "learn from prose").
+goal_cue(extract_knowledge, "estrai conoscenza").
+goal_cue(extract_knowledge, "leggi e impara").
+goal_cue(extract_knowledge, "impara dalla prosa").
+
+action_yields(read_page_file, raw_page).
+action_needs(read_page_file, page_path).
+action_desc(read_page_file, "read the markdown page from disk into raw text").
+
+action_yields(split_sentences, sentences).
+action_needs(split_sentences, raw_page).
+action_desc(split_sentences, "split the page text into individual sentences on '.'").
+
+action_yields(extract_frames, candidate_facts).
+action_needs(extract_frames, sentences).
+action_desc(extract_frames, "run each sentence through the comprehension parser in extract-only mode; collect the facts it understands").
+
+action_yields(assert_extracted, kb_facts).
+action_needs(assert_extracted, candidate_facts).
+action_desc(assert_extracted, "assert every extracted candidate fact into the session KB with provenance (fact_source/3)").
+
+plan_given(page_path).
+action_impl(read_page_file, prose_read_page).
+action_impl(split_sentences, prose_split_sent).
+action_impl(extract_frames, prose_extract).
+action_impl(assert_extracted, prose_assert).
