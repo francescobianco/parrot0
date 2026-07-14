@@ -805,4 +805,14 @@ tr(was, era).
 tr(were, erano).
 tr(chess, scacchi).
 tr(play, gioca).
+% gen335f: more missing IT words
+tr(hang_gliding, deltaplano).
+tr(paragliding, parapendio).
+tr(sailing, vela).
+tr(surfing, surf).
+tr(skiing, sci).
+tr(climbing, arrampicata).
+tr(diving, immersione).
+tr(hiking, escursionismo).
+tr(cycling, ciclismo).
 tr(chess, scacchi).

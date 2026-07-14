@@ -587,7 +587,12 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
          * must match is the post-canonical "cosa is " / "che cosa is ". */
         "che cosa is ", "cosa is ",
         "parlami di ", "cosa sai di ", "chi è ", "impara ", "studia ",
-        "informati su ", "documentati su ", NULL,
+        "informati su ", "documentati su ",
+        /* gen335f: Italian articulated prepositions after tell-me verbs */
+        "parlami del ", "parlami della ", "parlami dei ", "parlami degli ",
+        "dimmi del ", "dimmi della ",
+        "raccontami del ", "raccontami della ",
+        NULL,
     };
     static const char *const weak_heads[] = {
         "what is ", "what are ", "what was ", NULL,
@@ -651,17 +656,23 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     }
 
     /* gen335e: when head matched against raw Italian form, canonicalize each
-     * topic token to English so the concept key is canonical (chess, not scacchi). */
+     * topic token to English so the concept key is canonical (chess, not scacchi).
+     * Overwrite in-place if the canonical form fits, otherwise trust the original
+     * (the acquire_knowledge function also tries both forms). */
     if (use_raw) {
         for (size_t i = start; i < nt; i++) {
             char *t = strip_edge_punct(tok[i]);
             char canon_tok[KB_TERM_LEN];
             if (kb_tr_it_en(b, t, canon_tok, sizeof canon_tok)) {
-                /* tok[i] points into xbuf — overwrite with canonical form */
                 size_t cl = strlen(canon_tok);
-                if (cl >= strlen(tok[i])) cl = strlen(tok[i]) - 1;
-                memcpy(tok[i], canon_tok, cl);
-                tok[i][cl] = '\0';
+                size_t ol = strlen(tok[i]);
+                if (cl <= ol) {
+                    memcpy(tok[i], canon_tok, cl);
+                    if (cl < ol) tok[i][cl] = '\0';
+                }
+                /* if canonical is longer, keep the original — the key builder
+                 * will use the untranslated form, which is still fine for
+                 * acquire_knowledge file lookups */
             }
         }
     }
