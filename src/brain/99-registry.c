@@ -1312,6 +1312,19 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                     const char *fa[] = { topic };
                     kb_assert(b->kb, "pending_gap_failed", fa, 1);
                 }
+                /* gen335g: after a successful acquire, also extract structured
+                 * facts from the page prose (extract_page_facts). This gives
+                 * the full pipeline: download → learn concept → extract facts. */
+                if (got) {
+                    char facts[512] = "";
+                    int nf = extract_page_facts(b, topic, facts, sizeof facts);
+                    if (nf > 0) {
+                        ol = strlen(out);
+                        snprintf(out + ol, out_size - ol,
+                                 it ? " Ho estratto %d fatti dalla pagina."
+                                    : " I extracted %d facts from the page.", nf);
+                    }
+                }
                 /* Re-dispatch the original question through dispatch_one
                  * (NOT brain_respond — that would recurse and corrupt state).
                  * dispatch_one normalizes+canonicalizes and walks the registry. */

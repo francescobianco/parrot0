@@ -727,10 +727,23 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         snprintf(msg, sizeof msg,
                  it ? "Mi ero già documentato su %s: %s."
                     : "I already read up on %s: %s.", disp, def);
-    else if (st == 1)
+    else if (st == 1) {
         snprintf(msg, sizeof msg,
                  it ? "Non conoscevo %s, così mi sono documentato: %s."
                     : "I didn't know about %s, so I just read it up: %s.", disp, def);
+        /* gen335g: after a successful acquire, also extract structured facts
+         * from the page prose. This gives the full pipeline: download page →
+         * learn wiki_concept → extract structured facts (is_a, located_in,
+         * capital_of, etc.) from the ## Extract section. */
+        char facts[512] = "";
+        int nf = extract_page_facts(b, key, facts, sizeof facts);
+        if (nf > 0) {
+            size_t ml = strlen(msg);
+            snprintf(msg + ml, sizeof msg - ml,
+                     it ? " Ho estratto %d fatti dalla pagina."
+                        : " I extracted %d facts from the page.", nf);
+        }
+    }
     else {
         /* gen335d (linguistic glue, KB-first): the informed decline now offers
          * to learn. gen335e: skip if this topic was already tried and failed. */
