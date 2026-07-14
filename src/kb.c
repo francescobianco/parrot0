@@ -2444,7 +2444,13 @@ static int is_model_pred(const KB *kb, const char *pred) {
             * about the world, so a hermetic brain that has been taught nothing
             * must still answer "I know 0 facts": otherwise the self-model
             * masquerades as world knowledge, the pollution gen275 named. */
-           strcmp(pred, "capability") == 0 || strcmp(pred, "capability_wall") == 0;
+           strcmp(pred, "capability") == 0 || strcmp(pred, "capability_wall") == 0 ||
+           /* gen335d: knowledge-gap bridge predicates are session-state machinery,
+            * not world knowledge — filter from concept descriptions and fact counts
+            * like last_result/1 and user_value/2. */
+           strcmp(pred, "pending_gap") == 0 ||
+           strcmp(pred, "pending_gap_question") == 0 ||
+           strcmp(pred, "pending_gap_failed") == 0;
 }
 
 /* gen151: structural metadata predicates — registry/relation plumbing from the

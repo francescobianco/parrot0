@@ -636,6 +636,8 @@ static int is_internal_pred(const KB *kb, const char *pred) {
         "limerick_l4", "limerick_l5", "poem4", "completion_exact", "fill_three",
         "scenario_step", "activity_topic", "activity_step", "activity_summary", "place_for",
         "sensory_topic", "sensory_phrase", "concise_topic", "concise_explain",
+        /* gen335d: knowledge-gap bridge predicates (session state, like last_result) */
+        "pending_gap", "pending_gap_question", "pending_gap_failed",
         NULL
     };
     for (size_t i = 0; internal[i]; i++)

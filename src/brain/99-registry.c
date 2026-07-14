@@ -734,15 +734,14 @@ static void not_understood(Brain *b, const char *canon,
     unsigned long k = b->fallbacks;
     if (sw) {
         /* gen335d (linguistic glue, KB-first): store the knowledge gap as a KB
-         * fact, not a C field. The fact of not-knowing IS knowledge. Following
-         * the same pattern as last_result/1 (REFLECTIVE) and user_value/2
-         * (SESSION): assert into the KB, query on the next turn, retract when
-         * resolved. The gap fact is KB_REFLECTIVE — working memory, never
-         * persisted to /save. */
+         * fact, not a C field. The fact of not-knowing IS knowledge.
+         * gen335e: skip if this topic was already tried and failed. */
         const char *gq[] = { NULL };
         char gcheck[1][KB_TERM_LEN];
         int already_gap = kb_match(b->kb, "pending_gap", gq, 1, gcheck, 1) > 0;
-        if (!already_gap) {
+        const char *fq[] = { sw, NULL };
+        int already_failed = kb_query(b->kb, "pending_gap_failed", fq, 1);
+        if (!already_gap && !already_failed) {
             kb_set_origin(b->kb, KB_REFLECTIVE);
             const char *ga[] = { sw };
             kb_assert(b->kb, "pending_gap", ga, 1);
@@ -1304,10 +1303,15 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                     snprintf(out + ol, out_size - ol, it
                              ? " Fatto."
                              : " Done.");
-                else
+                else {
                     snprintf(out + ol, out_size - ol, it
                              ? " Non ho trovato informazioni."
                              : " I couldn't find information.");
+                    /* gen335e: mark this topic as failed so not_understood
+                     * won't re-offer the same gap on re-dispatch. */
+                    const char *fa[] = { topic };
+                    kb_assert(b->kb, "pending_gap_failed", fa, 1);
+                }
                 /* Re-dispatch the original question through dispatch_one
                  * (NOT brain_respond — that would recurse and corrupt state).
                  * dispatch_one normalizes+canonicalizes and walks the registry. */

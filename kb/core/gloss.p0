@@ -800,3 +800,9 @@ gender_fr(tapis, m).
 tr(brave, coraggioso).
 tr(coward, codardo).
 tr(crab, granchio).
+% gen335e: fix gaps — missing IT function/content words
+tr(was, era).
+tr(were, erano).
+tr(chess, scacchi).
+tr(play, gioca).
+tr(chess, scacchi).

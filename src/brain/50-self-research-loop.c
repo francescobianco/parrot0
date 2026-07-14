@@ -547,10 +547,16 @@ static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
 
 static int mod_learn(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
-    (void)raw;
     if (!b) return 0;
     char buf[256];
     canonicalize_lang(b, norm, buf, sizeof buf);
+
+    /* gen335e: Italian heads containing "di"/"a"/"in" get broken by
+     * canonicalization ("di"→"of"). Also try matching against the raw
+     * normalized form so "parlami di X" matches "parlami di " even when
+     * the canon form is "parlami of X". */
+    char rawbuf[256] = "";
+    normalize(raw && *raw ? raw : norm, rawbuf, sizeof rawbuf);
 
     /* Definitional gap: extract the topic X. STRONG heads (article / "about" /
      * "who" / Italian) signal definitional intent and allow a multi-word topic;
@@ -563,6 +569,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     while (wl > 0 && (work[wl-1] == '?' || work[wl-1] == ' ')) work[--wl] = '\0';
     const char *x = NULL;
     int weak = 0;
+    int use_raw = 0;  /* gen335e: flag: extract topic from raw form */
     static const char *const strong_heads[] = {
         "what is a ", "what is an ", "tell me about ",
         "what do you know about ", "who is ", "who was ",
@@ -593,6 +600,17 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     for (const char *const *h = strong_heads; *h; h++) {
         size_t hl = strlen(*h);
         if (strncmp(work, *h, hl) == 0) { x = work + hl; matched = *h; break; }
+    }
+    /* gen335e: if canonical form didn't match, try raw normalized form.
+     * Italian heads like "parlami di " are broken by "di"→"of" canonicalization.
+     * The raw form preserves "di" and matches the original head. */
+    if (!x && rawbuf[0]) {
+        for (const char *const *h = strong_heads; *h; h++) {
+            size_t hl = strlen(*h);
+            if (strncmp(rawbuf, *h, hl) == 0) {
+                x = rawbuf + hl; matched = *h; use_raw = 1; break;
+            }
+        }
     }
     if (!x) for (const char *const *h = weak_heads; *h; h++) {
         size_t hl = strlen(*h);
@@ -631,6 +649,22 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
             !strcmp(t,"per")||!strcmp(t,"diviso"))
             return 0;
     }
+
+    /* gen335e: when head matched against raw Italian form, canonicalize each
+     * topic token to English so the concept key is canonical (chess, not scacchi). */
+    if (use_raw) {
+        for (size_t i = start; i < nt; i++) {
+            char *t = strip_edge_punct(tok[i]);
+            char canon_tok[KB_TERM_LEN];
+            if (kb_tr_it_en(b, t, canon_tok, sizeof canon_tok)) {
+                /* tok[i] points into xbuf — overwrite with canonical form */
+                size_t cl = strlen(canon_tok);
+                if (cl >= strlen(tok[i])) cl = strlen(tok[i]) - 1;
+                memcpy(tok[i], canon_tok, cl);
+                tok[i][cl] = '\0';
+            }
+        }
+    }
     char key[80]; size_t ko = 0;
     char disp[80]; size_t dpo = 0;
     for (size_t i = start; i < nt; i++) {
@@ -641,7 +675,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
         if (ko >= sizeof key - 8) break;
     }
     if (ko < 3) return 0;
-    if (weak && strlen(tok[start]) < 4) return 0;
+    if (weak && strlen(tok[start]) < 3) return 0;  /* gen335e: allow 3-char topics (DNA, ACL) */
 
     /* deep-reasoning M2: a DEEP read extracts every fact from the page's prose
      * (extract_page_facts), each with its source (M1) — distinct from the shallow
@@ -688,25 +722,38 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
                     : "I didn't know about %s, so I just read it up: %s.", disp, def);
     else {
         /* gen335d (linguistic glue, KB-first): the informed decline now offers
-         * to learn. Store the gap as KB knowledge (pending_gap/1 + 
-         * pending_gap_question/1 in REFLECTIVE layer) so the next turn can
-         * confirm and trigger the plan. The gap IS knowledge — a KB fact,
-         * not a C variable. Following the same pattern as last_result/1. */
+         * to learn. gen335e: skip if this topic was already tried and failed. */
         kb_set_origin(b->kb, KB_REFLECTIVE);
-        const char *ga[] = { key };
-        kb_assert(b->kb, "pending_gap", ga, 1);
-        char qq[KB_TERM_LEN];
-        snprintf(qq, sizeof qq, "\"%s\"", norm);
-        const char *qa[] = { qq };
-        kb_assert(b->kb, "pending_gap_question", qa, 1);
+        const char *gq[] = { NULL };
+        char gcheck[1][KB_TERM_LEN];
+        int already_gap = kb_match(b->kb, "pending_gap", gq, 1, gcheck, 1) > 0;
+        const char *fq[] = { key, NULL };
+        int already_failed = kb_query(b->kb, "pending_gap_failed", fq, 1);
+        if (!already_gap && !already_failed) {
+            const char *ga[] = { key };
+            kb_assert(b->kb, "pending_gap", ga, 1);
+            char qq[KB_TERM_LEN];
+            /* gen335e: store the RAW question so dispatch_one can re-canonicalize
+             * with full language context. The canonical form loses Italian prepositions
+             * ("di"→"of") that strong heads depend on. */
+            snprintf(qq, sizeof qq, "\"%s\"", raw && *raw ? raw : norm);
+            const char *qa[] = { qq };
+            kb_assert(b->kb, "pending_gap_question", qa, 1);
+            snprintf(msg, sizeof msg,
+                     it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, "
+                           "ma non ho ancora trovato una fonte. Vuoi che impari "
+                           "dalle pagine disponibili?"
+                        : "I understood you're asking about %s: I tried to look it up, "
+                          "but I don't have a source yet. Want me to learn about it "
+                          "from available pages?", disp);
+        } else {
+            snprintf(msg, sizeof msg,
+                     it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, ma "
+                           "non ho ancora trovato una fonte su cui impararlo."
+                        : "I understood you're asking about %s: I tried to look it up, "
+                          "but I don't have a source to learn it from yet.", disp);
+        }
         kb_set_origin(b->kb, KB_SESSION);
-        snprintf(msg, sizeof msg,
-                 it ? "Ho capito che mi chiedi di %s: ho provato a documentarmi, "
-                       "ma non ho ancora trovato una fonte. Vuoi che impari "
-                       "dalle pagine disponibili?"
-                    : "I understood you're asking about %s: I tried to look it up, "
-                      "but I don't have a source yet. Want me to learn about it "
-                      "from available pages?", disp);
     }
     put(msg, out, out_size);
     return 1;
