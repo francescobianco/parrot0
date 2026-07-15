@@ -785,6 +785,19 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                     i ? " " : "", canon, tail);
         } else {
+            /* gen335 (KB-first proper names): check if this token is a
+             * proper_name/1 in the KB — names that should never be
+             * translated. Teachable at runtime: "non tradurre luna". */
+            int is_name = 0;
+            {
+                const char *pnq[] = { tok };
+                is_name = kb_query(b->kb, "proper_name", pnq, 1);
+            }
+            if (is_name) {
+                off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                        i ? " " : "", tok, tail);
+                continue;
+            }
             /* gen334: KB-first content-word translation via tr/2 (gloss.p0).
              * Try Italian→English mapping from the knowledge base, falling back
              * to the original token if no translation is known. */

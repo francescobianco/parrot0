@@ -68,3 +68,11 @@ disambig_flag(en, "can refer to").
 disambig_flag(it, "è un cognome").
 disambig_flag(it, "può riferirsi a").
 disambig_flag(it, "è un cognome italiano").
+
+% --- Proper names: words that should NOT be translated by tr/2,
+% even if a translation exists. Teachable at runtime via learnable.
+% Example: "luna" as a pet name stays "luna", not "moon".
+proper_name(luna).
+proper_name(rosa).
+proper_name(viola).
+proper_name(leo).

@@ -377,10 +377,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
         const char *qm[3] = { labels[i], intent[0], NULL };
         if (kb_match(b->kb, "learnable", qm, 3, mode, 1) != 1) continue;
 
-        const char *pred; int from_raw;
+        const char *pred; int from_raw; int unary = 0;
         if      (!strcmp(mode[0], "exact"))     { pred = "intent_phrase";     from_raw = 0; }
         else if (!strcmp(mode[0], "substring")) { pred = "intent_cue";        from_raw = 0; }
         else if (!strcmp(mode[0], "fill"))      { pred = "response_template"; from_raw = 1; }
+        else if (!strcmp(mode[0], "unary"))     { pred = intent[0];           from_raw = 0; unary = 1; }
         else continue;
 
         /* span: raw (keep casing) for fill; the canonicalized `norm` for exact/substring
@@ -396,7 +397,10 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
 
         char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
         kb_set_origin(b->kb, KB_SESSION);
-        if (from_raw) {
+        if (unary) {
+            const char *ar1[1] = { phrase };
+            kb_assert(b->kb, pred, ar1, 1);
+        } else if (from_raw) {
             /* Fill mode: assert with the session language so the
              * taught phrasing is reachable. Query current_language/1
              * directly from the KB (current_lang() is in a later .c). */

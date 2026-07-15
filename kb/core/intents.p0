@@ -353,6 +353,11 @@ learnable("offerta gap fallback",          fallback_gap_offer, fill).
 learnable("fallback still unknown",        fallback_still_gap,  fill).
 learnable("fallback ancora sconosciuto",   fallback_still_gap,  fill).
 
+% gen335 (proper names): teachable exceptions from translation.
+% "non tradurre luna" adds proper_name(luna) — the canonicalizer skips tr/2 for it.
+learnable("a proper name not to translate", proper_name, unary).
+learnable("un nome proprio da non tradurre", proper_name, unary).
+
 % --- gen240 (universal-comprehension, social branch): smalltalk CONTINUITY. A
 % conversational/experiential turn (first-person experience or opinion, or a
 % question turned back to parrot0) is COMPREHENSIBLE even with no fact to fetch:
@@ -579,6 +584,8 @@ intent_cue(00_lex_chain332, "insegnami ").
 intent_cue(00_lex_chain332, "tratta ").
 intent_cue(00_lex_chain332, "usa ").
 intent_cue(00_lex_chain332, "aggiungi ").
+intent_cue(00_lex_chain332, "non tradurre ").
+intent_cue(00_lex_chain332, "do not translate ").
 
 % gen273 (Track 5.4, second real migration — by whole module): the two
 % counterfactual chains of src/brain/85-translate-synth-world.c
