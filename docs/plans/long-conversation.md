@@ -3,6 +3,9 @@
 > **Stato:** esperimento iniziale gen335+ (2026-07-17).
 > **Missione:** 100 turni consecutivi coerenti.
 > **Partenza:** 3 turni.
+> **Riferimenti:** [[the-linguistic-glue]] (la colla come tessuto connettivo),
+> [[kb-first-manifesto]] (engine fixed, knowledge learns),
+> [[universal-comprehension]] (nessun muro cieco).
 
 ## L'esperimento
 
@@ -21,124 +24,285 @@
 ✓ ✓ ✓   meta: turn count + first utterance + bye (3 coerenti)
 ```
 
-**Soffitto attuale: 3-5 turni coerenti consecutivi.** Fatti isolati sempre recuperabili.
-La conversazione non muore mai (il motore non crasha), ma la coerenza collassa.
+**Soffitto attuale: 3-5 turni coerenti consecutivi.** La conversazione non muore mai
+(il motore non crasha), ma la coerenza collassa rapidamente. Fatti isolati sempre
+recuperabili in qualunque momento.
 
-## I 4 punti di rottura (diagnosi)
+## La colla linguistica come framework
 
-### R1 — Continuazione ("and...")
+La [colla linguistica](the-linguistic-glue.md) non è un modulo. È il **tessuto
+connettivo** che permette a ragionamento, memoria e pianificazione di apparire
+come un interlocutore unico. Non produce inferenze: tiene insieme quelle che
+esistono già.
 
-| Esempio | Cosa succede | Perché |
-|---------|-------------|--------|
-| "2+2?" → "4." poi "and plus 3?" | Muro | `continue_resolve` funziona solo per aritmetica con `last_result` KB. Il "and" non viene riconosciuto come continuazione del turno precedente |
-| "Capital of France?" → "Paris." poi "and of Italy?" | Muro | `decompose_and_dispatch` splitta su "and" solo DENTRO lo stesso turno, non attraverso turni |
-| "Who invented the telephone?" → "Bell." poi "and the light bulb?" | Muro | Nessun meccanismo di "same intent, new entity" attraverso turni |
+I **5 sintomi di colla assente** (dal glue-bench):
 
-**Strategia:** `continue_resolve` va generalizzato. Non solo aritmetica: se il turno corrente è un frammento (inizia con "and", "e", "also", "what about"), il sistema deve recuperare l'INTENT del turno precedente e riapplicarlo con le nuove entità. Esempio: turno N era `capital_of_country(france, ?)`, turno N+1 è "and of Italy?" → `capital_of_country(italy, ?)`.
+| # | Sintomo | Esempio nell'esperimento | Stato glue-bench |
+|---|---------|--------------------------|-----------------|
+| 1 | Fuori-contesto | "and of Italy?" dopo "capital of France?" → muro | qualitativo |
+| 2 | Riferimento implicito | "he" (Einstein) non risolto attraverso turni | **3/3 HELD** |
+| 3 | Letteralità eccessiva | "and plus 3?" non continua "2+2=4" | **2/2 HELD** |
+| 4 | Correzione non integrata | "Remember what I told you?" → perso | **2/2 HELD** |
+| 5 | Più sistemi indipendenti | memoria + aritmetica non si parlano | **2/2 HELD** |
 
-### R2 — Coreferenza attraverso turni ("he", "it", "they")
+**La colla esiste già, sparsa.** Meccanismi già costruiti e funzionanti:
 
-| Esempio | Cosa succede | Perché |
-|---------|-------------|--------|
-| "What year did Einstein die?" → muro → "What year was he born?" | "Who does 'he' refer to?" | `coref_resolve` cerca l'antecedente nelle entità del turno corrente, non nel turno precedente |
-| "Do you still remember my name?" dopo 11 turni | Contesto perso | `memory` tiene il nome ma la domanda non matcha il pattern "what is my name" |
+| Meccanismo | Cosa fa | File |
+|-----------|---------|------|
+| `coref_resolve` | Risolve "it"/"his" all'entità recente e ri-dispatcha | `99-registry.c:958` |
+| `continue_resolve` | "and times 3" continua il calcolo col `last_result` KB | `99-registry.c:1264` |
+| `memref_resolve` | "my favorite number + 3" risolve dalla KB `user_value/2` | `99-registry.c:1257` |
+| `correction_peel` | "no, X non è Y" → retract + ri-deriva | `99-registry.c:1250` |
+| `pragma_peel` | "anyway, ..." → sbuccia l'apertura e ri-dispatcha | `99-registry.c:1244` |
+| `utterance/3` | Log conversazionale queryable | `99-registry.c:1171` |
+| `topics` / `last_entity` | Stato di discorso persistente | `brain.c` |
 
-**Strategia:** `coref_resolve` deve accedere a un registro di entità menzionate nei turni recenti (già esiste `utterance/3` ma non viene usato per risolvere pronomi). Il turno N+1 con "he" dovrebbe matchare l'ultimo nome proprio maschile del turno N.
+## KB-first: la regola cardinale applicata alla conversazione
 
-### R3 — Recall astratto / meta-contesto
+> **Ogni stato conversazionale è un fatto KB. Il C ospita motori; la KB ospita
+> conoscenza. Nessun nuovo campo C per ricordare cose sull'utente o sulla sessione.**
 
-| Esempio | Cosa succede | Perché |
-|---------|-------------|--------|
-| "Remember what I just told you?" | "Oh? What's it like?" | Nessun intento per richieste meta-contestuali |
-| "Do you still remember my name?" (non "what is my name") | Perso | Pattern matching troppo rigido: "remember my name" ≠ "what is my name" |
+Cosa significa in pratica:
 
-**Strategia:** `intent_schema` per richieste meta-contestuali: "remember [what/who/where] [I/you] [told/mentioned/said]" → recupera entità dal turno N-1 o N-2 e rispondi. Il meccanismo `utterance/3` già esiste, va solo interrogato.
+| Stato | Oggi (da migrare o già KB) | Direzione |
+|-------|---------------------------|-----------|
+| Nome utente | `b->name` (campo C) — debito | `user_value(name, "Francesco")` nella KB |
+| Entità recente | `b->last_entity` (campo C) — già funziona | `entity(last, "Einstein")` come fatto KB |
+| Topic corrente | `b->topics` (buffer C) — già funziona | `topic(current, "geography")` come fatto KB |
+| Ultimo risultato | `last_result/1` (KB, REFLECTIVE) — ✅ KB-first | Già fatto. `note_arith_result` asserisce/retract |
+| Valori utente | `user_value/2` (KB, SESSION) — ✅ KB-first | Già fatto. Persiste su `/save` |
+| Turni conversazione | `utterance/3` (KB, REFLECTIVE) — ✅ KB-first | Già fatto. Queryable per "prima cosa che hai detto" |
+| Vincoli attivi | ❌ non esistono | `active_constraint(brevity, max_words(30))` come fatto KB |
+| Goal pendente | ❌ non esiste | `pending_goal(capital_of_country(italy, ?))` come fatto KB |
 
-### R4 — Degrado del contesto nel tempo
+**Test di compliance KB-first per ogni nuovo meccanismo:**
 
-Dopo 11 turni, "Do you still remember my name?" fallisce. Il nome "Francesco" è stato appreso al turno 2 e usato al turno 3, poi mai più referenziato per 8 turni.
+> *Può l'utente ispezionare lo stato con una query KB? Può ritrattarlo? Può
+> insegnare una nuova variante senza ricompilare?*
 
-**Strategia:** le entità apprese (`memory`, `user_name`) sono persistenti. Il problema è il ROUTING: la domanda "Do you still remember my name?" non matcha `kb_match("memory", ...)` perché la formulazione è diversa da "what is my name". Serve un `intent_schema` più flessibile: `[remember/know] [possessive] [name/age/city]` → query `memory(user, name, ?)`.
+Se la risposta a una di queste è no, il meccanismo non è KB-first.
 
-## Le 4 strategie (una per punto di rottura)
+## I 4 punti di rottura (diagnosi attraverso la lente della colla)
 
-### S1 — Continuation intent (attacca R1)
+### R1 — Continuazione attraverso turni (sintomo #3: letteralità)
+
+| Esempio | Sintomo colla | Meccanismo esistente | Perché fallisce |
+|---------|--------------|---------------------|-----------------|
+| "2+2?" → "4." poi "and plus 3?" | Letteralità | `continue_resolve` funziona per aritmetica pura | "and of Italy?" non è aritmetica — il meccanismo copre solo operatori matematici |
+| "Capital of France?" → "Paris." poi "and of Italy?" | Letteralità | Nessuno | `decompose_and_dispatch` splitta "and" solo DENTRO lo stesso turno |
+
+**Strategia KB-first:** `fragment_resolve` come pre-dispatch transform. Se il turno
+inizia con "and"/"e"/"also"/"what about", recupera l'**intent** dell'ultimo turno
+dalla KB:
+
+```
+% KB: mappa un intent a un predicato e al suo slot variabile
+intent_continuation("capital of", capital_of_country, 1).
+intent_continuation("who invented", invented_by, 0).
+
+% KB: l'ultimo intent risolto, asserito a fine turno
+last_intent(capital_of_country(france, paris)).
+```
+
+Il motore C: recupera `last_intent/1`, estrae il predicato, sostituisce l'entità
+con quella nuova dal turno corrente ("Italy"), ri-dispatcha.
+
+### R2 — Coreferenza attraverso turni (sintomo #2: riferimento implicito)
+
+| Esempio | Sintomo colla | Meccanismo esistente | Perché fallisce |
+|---------|--------------|---------------------|-----------------|
+| "What year did Einstein die?" → muro → "What year was he born?" | Riferimento implicito | `coref_resolve` esiste | Cerca antecedente solo nel turno corrente |
+
+**Strategia KB-first:** estendere `coref_resolve` a cercare nel turno N-1 tramite
+`utterance/3`. Le entità sono già nella KB come fatti:
+
+```
+% KB: entità menzionate con genere
+entity_mentioned(einstein, male, 15).   % turno 15
+entity_mentioned(france, neuter, 7).    % turno 7
+```
+
+Il motore C: se un pronome ("he"/"she"/"it"/"they") non è risolto nel turno
+corrente, cerca l'ultimo `entity_mentioned` compatibile per genere nei turni
+precedenti (da `utterance/3` + `entity_mentioned/3`), sostituisci, ri-dispatcha.
+
+### R3 — Recall astratto / meta-contesto (sintomo #1: fuori-contesto)
+
+| Esempio | Sintomo colla | Perché fallisce |
+|---------|--------------|-----------------|
+| "Remember what I just told you?" | Fuori-contesto | Nessun intento per richieste meta-contestuali |
+| "Do you still remember my name?" | Fuori-contesto | Pattern matching rigido: "remember my name" ≠ "what is my name" |
+
+**Strategia KB-first:** `intent_phrase` per richieste meta-contestuali. La risposta
+è derivata dalla KB, non da un template C:
+
+```
+% KB: frasi che significano "recall what I told you"
+intent_phrase(meta_recall, "remember what i told you").
+intent_phrase(meta_recall, "do you still remember").
+intent_phrase(meta_recall, "what did i just say").
+intent_phrase(meta_recall, "tell me what i mentioned").
+
+% KB: il motore query l'ultimo turno utente
+% e risponde con il fatto appreso in quel turno
+```
+
+Il motore C: matcha `meta_recall` via `kb_intent_match`, recupera `utterance(N-1,
+user, $Text)`, cerca fatti appresi in quel turno, risponde.
+
+### R4 — Degrado del contesto nel tempo (sintomo #5: sistemi indipendenti)
+
+Dopo 11 turni, "Do you still remember my name?" fallisce. Il nome è appreso al
+turno 2 ma la formulazione della domanda non matcha i pattern esistenti.
+
+**Strategia KB-first:** routing flessibile. Non un array di pattern C, ma fatti KB:
+
+```
+% KB: tutte le varianti di "what is my name" mappate allo stesso predicato
+intent_phrase(memory_recall_name, "what is my name").
+intent_phrase(memory_recall_name, "do you still remember my name").
+intent_phrase(memory_recall_name, "what's my name again").
+intent_phrase(memory_recall_name, "who am i").
+intent_phrase(memory_recall_name, "tell me my name").
+intent_phrase(memory_recall_name, "come mi chiamo").
+
+% KB: lo slot mappa a un predicato
+memory_slot(name, user_value(name, $V)).
+memory_slot(age, user_value(age, $V)).
+memory_slot(favorite_number, user_value(favorite_number, $V)).
+```
+
+Il motore C: matcha l'intent, risolve lo slot, query `user_value/2`, risponde.
+Aggiungere una variante = un fatto KB. Zero C.
+
+## Le 4 strategie (con vincolo KB-first)
+
+### S1 — Fragment resolve (attacca R1)
 
 ```
 Meccanismo: pre-dispatch transform "fragment_resolve"
-Gate: turno inizia con "and", "e", "also", "what about", "e poi", "ed anche"
-Azione: recupera l'intent dell'ultimo turno da utterance/3, estrai le nuove entità,
-        riapplica lo stesso intent con le nuove entità
-KB: intent_continuation("capital of", capital_of_country). — mappa l'intent
-    a un predicato, così "and of Italy?" → capital_of_country(italy, ?)
+Stato KB: last_intent(Pred, Args), intent_continuation(Cue, Pred, SlotIdx)
+Gate C: turno inizia con "and", "e", "also", "what about"
+Azione C: recupera last_intent dalla KB, matcha intent_continuation,
+          sostituisci l'entità nello slot SlotIdx, ri-dispatcha
+Nuovi fatti KB: 1 intent_continuation per ogni predicato continuabile
+Test: "capital of France?" → "and of Italy?" → "and of Germany?" (3 continuazioni)
 ```
 
 ### S2 — Coref cross-turn (attacca R2)
 
 ```
-Meccanismo: estendere coref_resolve
-Gate: pronome ("he", "she", "it", "they") non risolto nel turno corrente
-Azione: cerca l'ultimo nome proprio nel turno N-1 (da utterance/3), sostituisci,
-        re-dispatcha il turno con il pronome risolto
-KB: entity_gender(Einstein, male). entity_gender(italy, neuter).
+Meccanismo: estendere coref_resolve a leggere entity_mentioned/3
+Stato KB: entity_mentioned(Name, Gender, TurnSeq), utterance/3
+Gate C: pronome non risolto nel turno corrente
+Azione C: cerca entity_mentioned per genere nei turni N-1, N-2, ...
+          sostituisci il pronome, ri-dispatcha
+Nuovi fatti KB: entity_mentioned asserito a ogni turno dal motore (REFLECTIVE)
+Test: "When was Einstein born?" → "When did he die?" (pronome attraverso turni)
 ```
 
-### S3 — Meta-context intent (attacca R3)
+### S3 — Meta-context recall (attacca R3)
 
 ```
-Meccanismo: nuovo intent_schema in mod_knowledge o mod_meta
-Gate: "remember what I", "do you remember", "what did I just", "tell me what I"
-Azione: recupera l'ultimo turno utente da utterance/3, estrai il fatto appreso,
-        rispondi con "You told me that [fatto]."
-KB: intent_phrase(meta_recall, "remember what i told you").
-    intent_phrase(meta_recall, "do you still remember").
+Meccanismo: nuovo intent_schema meta_recall in mod_knowledge
+Stato KB: utterance/3 (già esistente), intent_phrase(meta_recall, ...)
+Gate C: kb_intent_match(b, "meta_recall", norm)
+Azione C: recupera utterance(N-1, user, Text), cerca user_value asseriti,
+          rispondi "You told me that [name] is [value]."
+Nuovi fatti KB: intent_phrase per ogni variante linguistica di meta_recall
+Test: "my name is X" → (3 turni dopo) → "remember what I told you" → "You told me your name is X"
 ```
 
-### S4 — Entity persistence + flexible routing (attacca R4)
+### S4 — Routing flessibile (attacca R4)
 
 ```
-Meccanismo: memory module già esiste; va allargato il routing
-Gate: "[remember/know] [my/your] [name/age/city/fact]" — qualunque variante
-Azione: query memory(user, $Slot, $Value) dove Slot è "name", "age", etc.
-KB: memory_slot("name", name). memory_slot("age", age).
-    intent_phrase(memory_recall, "do you still remember my name").
+Meccanismo: memory recall con memory_slot/2
+Stato KB: user_value/2 (già esistente), memory_slot/2, intent_phrase(memory_recall_name, ...)
+Gate C: kb_intent_match per memory_recall_name
+Azione C: risolvi memory_slot($Slot, user_value($Slot, $V)), query user_value/2, rispondi
+Nuovi fatti KB: intent_phrase per ogni variante, memory_slot per ogni slot
+Test: "what's my name again?" / "do you still remember my name?" / "who am i?" → stesso risultato
 ```
 
-## Le 4 ipotesi (da verificare una alla volta)
+## La disciplina (ereditata dalla colla linguistica)
 
-| # | Ipotesi | Test | Misura |
-|---|---------|------|--------|
-| H1 | `fragment_resolve` porta a 5+ turni coerenti su fatti | "capital of France?" → "and of Italy?" → "and of Germany?" | 3 continuazioni consecutive |
-| H2 | `coref_resolve` cross-turn risolve "he"/"she"/"it" | "When was Einstein born?" → "When did he die?" | 2 turni con pronome |
-| H3 | `meta_recall` risponde a "remember what I told you" | Turno N: "my name is X" → Turno N+3: "remember what I told you?" | Recall dopo 3+ turni |
-| H4 | Routing flessibile risponde a varianti di "what is my name" | "do you still remember my name?" / "what's my name again?" / "who am I?" | 3 varianti, stessa risposta |
+1. **Un meccanismo per generazione, tirato da un fallimento.** Non si pre-progetta
+   l'architettura della conversazione lunga. Si parte dal primo caso che fallisce
+   nel `glue-bench` (o in un test di conversazione), si costruisce il meccanismo
+   minimo, si verifica, si committa. Poi il prossimo.
 
-## I 4 moti (ordine di attacco)
+2. **Deterministico e ispezionabile.** Ogni meccanismo opera su stato KB reale.
+   "Perché hai risposto così?" deve avere una risposta: "perché `user_value(name,
+   "Francesco")` era nella KB."
 
-| Moto | Cosa | Impatto | Sforzo |
-|------|------|---------|--------|
-| M1 — S4 | Routing flessibile per recall memoria | Sblocca "remember my name" in tutte le varianti | Basso (fatti KB + 1 handler) |
-| M2 — S2 | Coref cross-turn | Sblocca "he"/"she"/"it" attraverso turni | Medio (estendere coref_resolve) |
-| M3 — S1 | Continuation intent | Sblocca "and of Italy?", "and plus 3?" | Medio (nuovo pre-dispatch) |
-| M4 — S3 | Meta-context recall | Sblocca "remember what I told you" | Medio (nuovo intent_schema) |
+3. **EN+IT su ogni caso.** Il ratchet bilingue si applica a ogni nuovo meccanismo.
+   Se funziona in inglese ma non in italiano, non è fatto.
 
-## Traiettoria prevista
+4. **Nessun campo C nuovo per conoscenza.** Se un meccanismo ha bisogno di
+   ricordare qualcosa, lo mette nella KB. Il C fornisce solo il motore di
+   risoluzione e sostituzione.
+
+5. **Ogni gap chiuso guadagna un test `.chat` in `make test` e un caso HELD
+   in `glue-bench`.** La misura è binaria: GAP → HELD. Non ci sono sfumature.
+
+## Lo stato della colla oggi (eredità da G0-G2)
+
+| Livello glue-bench | Casi crisp | Stato |
+|-------------------|-----------|-------|
+| Riferimento implicito | 3/3 HELD | `coref_resolve` + `pro-drop` IT |
+| Correzione | 2/2 HELD | `correction_peel` |
+| Un solo interlocutore | 2/2 HELD | `memref_resolve` (memoria→aritmetica) |
+| Letteralità | 2/2 HELD | `continue_resolve` (precisazione aritmetica) |
+| Fuori-contesto | 0/0 crisp | **Unico gap rimasto** — da rendere crisp |
+
+## Traiettoria
 
 ```
-3-5 turni  →  oggi (fatti isolati + memoria nome)
-8-10 turni  →  dopo M1+M2 (coref + routing flessibile)
-15-20 turni →  dopo M3 (continuazione attraverso turni)
-30+ turni  →  dopo M4 (meta-contesto)
-50+ turni  →  composizione dei 4 moti + tuning
-100 turni  →  missione: richiede contesto persistente, riassunto, dimenticanza selettiva
+3-5 turni   →  oggi (fatti isolati + memoria nome + glue-bench 9/9 crisp)
+8-10 turni  →  dopo M1 (fragment_resolve: continuazione fatti attraverso turni)
+12-15 turni →  dopo M2 (coref cross-turn: pronomi risolti attraverso turni)
+18-25 turni →  dopo M4 (routing flessibile: recall memoria in tutte le varianti)
+30+ turni  →  dopo M3 (meta-contesto: "remember what I told you 5 turns ago")
+50+ turni  →  composizione dei 4 moti + vincoli attivi + goal pendenti
+100 turni  →  missione: summarization, forgetting selettivo, topic switching,
+              self-correction, contesto compresso ma queryable
 ```
 
 ## Il salto da 50 a 100
 
-Oltre i 50 turni servono capacità che oggi non esistono:
-- **Summarization:** dopo N turni, il contesto va compresso. `utterance/3` ha una finestra limitata.
-- **Forgetting:** le entità vecchie vanno degradate. Non tutto può restare in RAM.
-- **Topic switching:** cambiare argomento e tornarci dopo 20 turni.
-- **Self-correction:** "no, mi chiamo Marco non Francesco" → aggiornare `memory` e tutte le inferenze derivate.
+Oltre i 50 turni servono capacità che oggi non esistono, tutte KB-first:
 
-Questi sono i gradini oltre il soffitto attuale, da affrontare dopo aver saturato M1-M4.
+- **Summarization:** dopo N turni, `utterance/3` va compresso. Un fatto KB
+  `conversation_summary(TurnRange, "l'utente ha chiesto fatti su geografia e storia")`
+  generato ogni K turni. Il contesto non si perde — si condensa.
+
+- **Forgetting selettivo:** `entity_mentioned/3` con peso decrescente nel tempo.
+  Entità non referenziate per >20 turni → peso zero. La KB può crescere ma i fatti
+  vecchi vengono ritratti. Meccanismo: `entity_decay/1` come regola KB.
+
+- **Topic switching:** `topic(current, $T)` già esiste come buffer. Va reso
+  persistente come fatto KB e queryable. "Torniamo a parlare di geografia" →
+  recupera il topic precedente e le entità associate.
+
+- **Self-correction:** "no, mi chiamo Marco non Francesco" → `correction_peel`
+  già funziona per fatti semplici. Va esteso a: retract di `user_value(name,
+  "Francesco")`, assert di `user_value(name, "Marco")`, ri-derivazione di tutte
+  le risposte che dipendevano dal nome. Il goal `last_intent/1` viene rieseguito
+  con i nuovi fatti.
+
+- **Vincoli attivi persistenti:** "keep it short" → `active_constraint(brevity,
+  max_words(30))` come fatto KB. Ogni risposta viene troncata dal motore se
+  supera il limite. Il vincolo sopravvive ai turni finché non viene ritrattato.
+  Questo chiude l'ultimo sintomo `out-of-context` del glue-bench.
+
+## Ordine di attacco (dalla mappa dei fallimenti)
+
+| # | Moto | Cosa | Impatto | Sforzo | Tira da |
+|---|------|------|---------|--------|---------|
+| 1 | M1 | Fragment resolve (continuazione fatti) | Sblocca "and of Italy?" | Medio | Esperimento R1 |
+| 2 | M2 | Coref cross-turn | Sblocca "he" dopo 1+ turni | Medio | Esperimento R2 |
+| 3 | M4 | Routing flessibile memoria | Sblocca tutte le varianti di "what is my name" | Basso | Esperimento R4 |
+| 4 | M3 | Meta-context recall | Sblocca "remember what I told you" | Medio | Esperimento R3 |
+| 5 | — | Vincoli attivi KB-first | Chiude `out-of-context` (ultimo sintomo glue-bench) | Medio | glue-bench gap #1 |
+| 6 | — | Goal pendenti | Rende la conversazione orientata a obiettivi | Alto | 50+ turni |
+| 7 | — | Summarization + forgetting | Permette 100 turni senza overflow | Alto | 100 turni |
