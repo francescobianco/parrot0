@@ -566,3 +566,23 @@ sequencer(dopo).
 sequencer(infine).
 sequencer(inoltre).
 sequencer(now).
+
+% gen335 (long-conversation): more EXCLUSIVE English function/verb markers so an
+% English turn is detected instead of sticking to os_language (default it). Factored
+% evidence like slot_evidence — English-only tokens (no shared IT words like in/a/no/me).
+language_marker(en, i).      language_marker(en, my).     language_marker(en, me).
+language_marker(en, he).     language_marker(en, she).    language_marker(en, it).
+language_marker(en, they).   language_marker(en, them).   language_marker(en, his).
+language_marker(en, her).    language_marker(en, him).    language_marker(en, do).
+language_marker(en, did).    language_marker(en, was).    language_marker(en, were).
+language_marker(en, have).   language_marker(en, has).    language_marker(en, had).
+language_marker(en, will).   language_marker(en, would).  language_marker(en, can).
+language_marker(en, could).  language_marker(en, should). language_marker(en, of).
+language_marker(en, for).    language_marker(en, from).   language_marker(en, about).
+language_marker(en, there).  language_marker(en, then).   language_marker(en, been).
+language_marker(en, and).    language_marker(en, but).    language_marker(en, not).
+language_marker(en, know).   language_marker(en, want).   language_marker(en, make).
+language_marker(en, tell).   language_marker(en, think).  language_marker(en, work).
+language_marker(en, live).   language_marker(en, name).   language_marker(en, born).
+language_marker(en, when).   language_marker(en, which).  language_marker(en, going).
+language_marker(en, really). language_marker(en, just).   language_marker(en, need).
