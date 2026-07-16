@@ -124,16 +124,52 @@ Il motore (§2) è più potente delle sue **porte di costruzione**. Oggi:
   termini n-ari pieni: **tutta** la potenza del §2 è raggiungibile da qui.
 - Il path **programmatico** `kb_assert_rule_n` (`src/kb.c:259-289`), e quindi il
   tool MCP `kb.assert_rule`, **appiattisce** ogni goal del body a unario
-  (`argc=1, args[0]="X"`). Perciò una regola con join **non è asseribile** così,
-  anche se il solver la eseguirebbe. `kb.assert_rule {"head":"grandparent","body":["parent","parent"]}`
+  (`argc=1, args[0]="X"`). Perciò una regola con join **non è asseribile** con
+  `kb.assert_rule`, anche se il solver la eseguirebbe.
+  `kb.assert_rule {"head":"grandparent","body":["parent","parent"]}`
   → `{"ok":true}` ma `kb.query grandparent(tom,ann)` → `false`.
 
-Quindi, oggi: per insegnare una regola n-aria usa un file `.p0`; per una regola
-unaria qualsiasi porta va bene. Colmare il divario programmatico (`kb.assert_clause`)
-e le tuple di lettura è la roadmap di
-[docs/plans/generative-prolog.md](plans/generative-prolog.md) (§3, passi P1-P2).
-Il principio non cambia: **il motore è fisso, si aprono i condotti** — nessuna
-logica di risoluzione nuova.
+- **`kb.assert_clause` colma il divario (gen311, verificato dal vivo gen335).**
+  Una regola n-aria con JOIN **è** asseribile via MCP — questa parte di §5 non è
+  più "roadmap futura". Head e body come oggetti `{"pred":…,"args":[…]}`, e la
+  risoluzione ricorsiva SLD la esegue. Provato dal vivo:
+  ```
+  kb.assert_clause {"head":{"pred":"is_a","args":["$X","$Z"]},
+                    "body":[{"pred":"is_a","args":["$X","$Y"]},
+                            {"pred":"is_a","args":["$Y","$Z"]}]}
+  # con is_a(dog,mammal), is_a(mammal,animal) nella KB:
+  kb.query   is_a(dog,animal)  → {"provable":true}
+  kb.explain is_a(dog,animal)  → "…because is_a(dog,mammal) and is_a(mammal,animal)"
+  ```
+
+> ⚠️ **Footgun silenzioso (`$` obbligatorio, MCP non avvisa).** In
+> `kb.assert_clause` un argomento **senza `$` è un ATOMO letterale**, non una
+> variabile (è la stessa regola `is_var` del §1, ma via MCP morde forte perché
+> **non c'è errore visibile**). `args:["X","Z"]` asserisce
+> `is_a('X','Z') :- …` — inutile — e restituisce comunque `{"ok":true}`. La query
+> poi fallisce senza spiegazione. **Regola pratica:** ogni variabile in
+> `kb.assert_clause`/`kb.assert` va scritta `$X`, `$Y`, `$Z`. Le MAIUSCOLE nude
+> sono costanti (gen284), non variabili come nel Prolog ISO.
+>
+> ⚠️ **Chiavi dei tool MCP (facili da sbagliare).** `gen.respond` vuole `{"input":…}`
+> (non `text`). `kb.query`/`kb.explain`/`kb.match` vogliono `{"pred":…,"args":[…]}`
+> (non `goal:"is_a(dog,animal)"`). `null` in `args` = variabile di query (slot da
+> legare in `kb.match`).
+>
+> ⚠️ **Provabile ≠ raggiungibile in linguaggio naturale.** Un fatto può essere
+> `provable:true` via `kb.query`/`kb.explain` e comunque restare **irraggiungibile**
+> da `gen.respond` in prosa (la superficie "is a dog an animal?" non instrada al
+> goal `is_a`). È il divario di *routing/colla linguistica*
+> ([docs/plans/universal-input.md](plans/universal-input.md),
+> [docs/plans/the-linguistic-glue.md](plans/the-linguistic-glue.md)), non un buco
+> del motore: la conoscenza c'è, manca la mappa superficie→goal.
+
+Quindi, oggi: una regola n-aria si insegna da un file `.p0` **o** via
+`kb.assert_clause` (con `$`-variabili); `kb.assert_rule` resta valido solo per
+regole unarie. Le tuple di lettura restano la roadmap di
+[docs/plans/generative-prolog.md](plans/generative-prolog.md) (§3). Il principio
+non cambia: **il motore è fisso, si aprono i condotti** — nessuna logica di
+risoluzione nuova.
 
 ## 6. Mappa dei simboli C (per chi tocca il motore)
 

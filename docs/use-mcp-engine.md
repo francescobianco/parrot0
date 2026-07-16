@@ -92,6 +92,16 @@ file da fuori), c'è il loop che la missione descrive:
 Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
 file che `kb.save` scrive (così `brain_reload` lo ricarica).
 
+> **`kb.save` è un ROUTER, non un dump (il "save-map").** Con `PARROT0_KB_ROOT`
+> impostato, `brain_save_session` instrada ogni **fatto ground** nel file curato
+> dei suoi *parenti* — coordinata `(predicato, primo-arg)`, tier
+> coppia-esatta → stesso-predicato → default. **Le regole (`:-`), i negativi e le
+> direttive non si instradano mai**: vanno nel file `default`/`session` (lo spill
+> del non-instradato). L'indice è `<root>/savemap.tsv` (`pred ⇥ token ⇥ file ⇥ riga`),
+> ricostruito a ogni save. Senza `PARROT0_KB_ROOT` è il save legacy a file singolo.
+> Codice: `kb_save_routed` (`src/kb.c:2092`). Uso in una mesh di addestramento e
+> insidie correlate: [docs/plans/learning-mesh.md](plans/learning-mesh.md) §3.1.
+
 ## Limiti noti dei tool (gen281, misurati dal vivo)
 
 > **Risolto dopo gen280:** i letterali insegnati via MCP ora round-trippano
