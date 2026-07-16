@@ -2395,6 +2395,8 @@ static int mod_aggregate(Brain *b, const char *norm, const char *raw,
  * The C motor is fixed & generic: reads completion_chain from the KB, matches
  * the cue in the canonical input, extracts the word after it, queries the
  * result predicate. Adding a new completion costs one KB fact, zero C. */
+static void present_atom(Brain *b, const char *in, char *out, size_t n);
+
 static int completion_chain_resolve(Brain *b, const char *norm,
                                      char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -2434,14 +2436,43 @@ static int completion_chain_resolve(Brain *b, const char *norm,
         char ans[4][KB_TERM_LEN];
         const char *dq[2] = { slot, NULL };
         if (kb_match(b->kb, pred, dq, 2, ans, 4) > 0) {
+            char pres[KB_TERM_LEN];
+            present_atom(b, kb_dequote(ans[0]), pres, sizeof pres);
             char msg[128];
-            snprintf(msg, sizeof msg, "%s.", kb_dequote(ans[0]));
+            snprintf(msg, sizeof msg, "%s.", pres);
             if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
             put(msg, out, out_size);
             return 1;
         }
     }
     return 0;
+}
+
+/* ── Presentation layer (F., gen335) ────────────────────────────────────────────
+ * "Anche la presentazione e la manipolazione del dato in output e KB-first": the
+ * engine holds the MECHANISM (strip a separator, case a word), the KB holds the
+ * KNOWLEDGE — present_rule/1 (kb/core/presentation.p0) says which surface rules
+ * are active, proper_name/1 (morphology.p0, teachable) says which atoms are proper
+ * names to Title-Case. No hardcoded name list, no hardcoded "South America".
+ * Query with the ORIGINAL atom (underscored); render the transformed surface. */
+static void present_atom(Brain *b, const char *in, char *out, size_t n) {
+    if (!out || n == 0) return;
+    if (!in) { out[0] = '\0'; return; }
+    int strip = 0, title = 0;
+    if (b && b->kb) {
+        const char *sr[1] = { "strip_underscore" };
+        strip = kb_query(b->kb, "present_rule", sr, 1);
+        const char *pn[1] = { in };
+        title = kb_query(b->kb, "proper_name", pn, 1);
+    }
+    size_t o = 0; int at_word_start = 1;
+    for (size_t i = 0; in[i] && o + 1 < n; i++) {
+        char c = in[i];
+        if (c == '_' && strip) { out[o++] = ' '; at_word_start = 1; continue; }
+        if (at_word_start && title) c = (char)toupper((unsigned char)c);
+        out[o++] = c; at_word_start = 0;
+    }
+    out[o] = '\0';
 }
 
 static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
@@ -2485,8 +2516,10 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             char msg[400]; size_t mo = 0;
             for (size_t a = 0; a < na && mo + 4 < sizeof msg; a++) {
                 char one[KB_TERM_LEN]; snprintf(one, sizeof one, "%s", ans[a]);
+                char pres[KB_TERM_LEN];
+                present_atom(b, kb_dequote(one), pres, sizeof pres);
                 mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s",
-                    a ? (a + 1 == na ? " and " : ", ") : "", kb_dequote(one));
+                    a ? (a + 1 == na ? " and " : ", ") : "", pres);
             }
             if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
             if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);

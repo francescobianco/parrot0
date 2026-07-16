@@ -500,6 +500,11 @@ Brain *brain_create(void) {
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/morphology.p0");
 
+    /* gen335 (F.): the PRESENTATION layer — how a datum is rendered in the output
+     * surface is knowledge, not C. present_rule/1 + proper_name/1 drive present_atom
+     * (10-memory-knowledge.c). Loaded after morphology because it reuses proper_name/1. */
+    kb_load(b->kb, "kb/core/presentation.p0");
+
     /* gen230/gen235: curated world commons. Tests that must prove dynamic
      * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
      * ordinary chat keep the layer loaded. */

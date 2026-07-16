@@ -1,0 +1,25 @@
+% ── PRESENTATION LAYER ──────────────────────────────────────────────────────────
+% Come un dato viene RESO nella superficie di output. KB-first (F., gen335):
+% "anche la presentazione e la manipolazione del dato in output e kb-first".
+% Il motore C tiene solo il MECCANISMO (present_atom: togliere un separatore,
+% capitalizzare una parola); la CONOSCENZA di cosa fare vive qui.
+%
+%   present_rule/1     attiva una regola di superficie globale
+%   proper_name/1      (kb/core/morphology.p0, teachable) marca gli atomi che
+%                      sono nomi propri → si scrivono in Maiuscolo Ogni Parola
+%
+% Aggiungere una regola di resa = un fatto, non una riga di C. Il costo marginale
+% di una decorazione nuova (virgolette, grassetto, …) deve tendere a un fatto.
+
+% present_rule/1 è machinery: dichiarato QUI, nello stesso respiro del fatto, così
+% non "leaka" mai nel conteggio "quante cose sai?" (is_internal_pred interroga
+% machinery/1 prima della lista C di fallback). Questa è la forma KB-first del
+% marcatore interno: la conoscenza di cosa è substrato vive nella KB, non nel C.
+machinery(present_rule).
+present_rule(strip_underscore).          % gli atomi multi-parola si mostrano con spazi
+
+% Nomi propri "importanti" di default (la conoscenza di CHI si capitalizza).
+% È teachable a runtime come qualsiasi proper_name — la mesh la fa crescere.
+proper_name(marie_curie).
+proper_name(south_america).
+proper_name(north_america).

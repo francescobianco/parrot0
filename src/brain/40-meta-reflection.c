@@ -642,6 +642,10 @@ static int is_internal_pred(const KB *kb, const char *pred) {
         /* gen335 (KB-first morphology): plural→singular + disambigFlag + proper_name
          * are engine machinery, not facts the user taught. */
         "singular", "disambig_flag", "proper_name",
+        /* gen335 (F.): the PRESENTATION layer declares its own machinery in the KB
+         * — machinery(present_rule) in kb/core/presentation.p0 — so present_rule is
+         * caught by the machinery/1 query above, NOT by this C fallback list. This is
+         * the KB-first cure for the recurring leak the comment above names. */
         NULL
     };
     for (size_t i = 0; internal[i]; i++)
