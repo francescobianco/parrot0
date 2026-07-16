@@ -2007,6 +2007,9 @@ haiku_open(time, "The river of hours").
 haiku_open(tree, "The old tree stands still").
 haiku_open(winter, "The world holds its breath").
 happened_in(fall_of_rome, 5th_century_bc).
+happened_in(titanic_sinking, 1912).
+happened_in(world_war_one_end, 1918).
+happened_in(berlin_wall_fall, 1989).
 happened_in(moon_landing, 1969).
 happened_in(ww1_start, 1914).
 happened_in(ww2_end, 1945).

@@ -237,3 +237,23 @@ between_values($V, $Min, $Max) :- ge($V, $Min), le($V, $Max).
 % heavier_than_value/3: X is heavier than V kg
 heavier_than_value($X, $V) :- mass_of($X, $M), gt($M, $V).
 
+% ═══════════════════════════════════════════════════════════
+% Q9 / ANALOGICAL REASONING (KB knowledge, gen335 round-3)
+% ═══════════════════════════════════════════════════════════
+
+% Recognize common numeric relationships between two numbers
+num_relation($X, $Y, square) :- is($Y, mul($X, $X)).
+num_relation($X, $Y, double) :- is($Y, mul($X, 2)).
+num_relation($X, $Y, triple) :- is($Y, mul($X, 3)).
+num_relation($X, $Y, half) :- is($Y, div($X, 2)).
+num_relation($X, $Y, add_1) :- is($Y, add($X, 1)).
+num_relation($X, $Y, add_2) :- is($Y, add($X, 2)).
+num_relation($X, $Y, add_5) :- is($Y, add($X, 5)).
+
+% Given a W:Z pair, find A:B with the same relationship
+analogy_answer($A, $B, $W, $Z) :- num_relation($W, $Z, $R), num_relation($A, $B, $R).
+% Minimal non-trivial: 2:4 is the smallest square after 1:1
+canonical_analogy($W, $Z, $A, $B) :- num_relation($W, $Z, $R),
+    num_relation($A, $B, $R),
+    naf(num_relation($A, $A, $R)).
+

@@ -16,7 +16,7 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
         /* If the user changed the subject instead of answering, expire and let
          * normal dispatch handle this turn fresh (acceptance: repair state
          * expires when the topic clearly changes). */
-        if (is_question_opener(tw[0]) || is_intent_starter(tw[0]) ||
+        if (is_question_opener(tw[0]) || is_intent_starter(b, tw[0]) ||
             strstr(norm, "refer to"))
             return 0;
 

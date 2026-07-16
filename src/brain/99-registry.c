@@ -291,7 +291,7 @@ static int pragma_peel(Brain *b, const char *canon, const char *raw,
     if (nw == 0) return 0;
 
     size_t skip = 0;
-    if (!is_discourse_opener(w, nw, &skip) || skip >= nw) return 0;
+    if (!is_discourse_opener(b, w, nw, &skip) || skip >= nw) return 0;
 
     char residue[256]; size_t off = 0; residue[0] = '\0';
     for (size_t i = skip; i < nw && off + 1 < sizeof residue; i++)
@@ -788,20 +788,17 @@ static void not_understood(Brain *b, const char *canon,
 
 /* gen80: true if word `w` is a likely intent-marker that starts a sub-turn
  * after a discourse connector like "e"/"and" in a compound utterance. */
-static int is_intent_starter(const char *w) {
-    static const char *const starters[] = {
-        "chi", "che", "cosa", "come", "dove", "quando", "perche", "perché",
-        "ricordati", "dimmi", "spiegami", "chiamami", "insegnami", "parlami",
-        "prima", "poi", "non",
-        "what", "who", "where", "when", "why", "how", "which",
-        "quale", "quali", /* gen240 */
-        "remember", "tell", "explain", "call", "teach", "say",
-        "is", "are", "does", "do", "can", "every", "forget",
-        "learn", "describe", "read", "show", "first", "then", "dont",
-        NULL
-    };
-    for (const char *const *s = starters; *s; s++)
-        if (strcmp(w, *s) == 0) return 1;
+static int is_intent_starter(Brain *b, const char *w) {
+    /* gen335 round-3: KB-first migration — query intent_starter/1 from KB
+     * instead of a hardcoded C array. The engine is fixed; the lexicon learns. */
+    if (b && b->kb && w && *w) {
+        char atom[64]; size_t j = 0;
+        for (const char *c = w; *c && j + 1 < sizeof atom; c++)
+            atom[j++] = (char)tolower((unsigned char)*c);
+        atom[j] = 0;
+        const char *args[] = {atom};
+        return kb_query(b->kb, "intent_starter", args, 1);
+    }
     return 0;
 }
 
@@ -849,7 +846,7 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         { first_word[fw] = (char)tolower((unsigned char)after[fw]); fw++; }
     first_word[fw] = '\0';
 
-    if (!is_intent_starter(first_word)) return 0;
+    if (!is_intent_starter(b, first_word)) return 0;
 
     char sub1[256], sub2[256];
     size_t cpos = (size_t)(conn - canon);

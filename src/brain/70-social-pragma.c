@@ -398,17 +398,11 @@ static size_t first_word_tok(char **w, size_t nw, char *dst, size_t dstn) {
  * channel/turn, carrying no propositional content. Single-token forms plus the
  * two-token "by the way". Detected by position (the opener), so it can be peeled
  * off without touching the content that follows. */
-static int is_discourse_opener(char **w, size_t nw, size_t *skip) {
+static int is_discourse_opener(Brain *b, char **w, size_t nw, size_t *skip) {
     if (nw == 0) return 0;
     char tmp[64];
     snprintf(tmp, sizeof tmp, "%s", w[0]);
     const char *t = strip_edge_punct(tmp);
-    static const char *const one[] = {
-        "anyway", "anyhow", "so", "well", "ok", "okay", "now", "look", "listen",
-        "actually", "right", "alright", "hey", "um", "uh", "hmm",
-        "comunque", "allora", "insomma", "senti", "guarda", "dunque", "beh",
-        NULL
-    };
     /* "by the way" -> skip 3 tokens */
     if (nw >= 3 && strcmp(t, "by") == 0) {
         char a[64], c[64];
@@ -416,8 +410,17 @@ static int is_discourse_opener(char **w, size_t nw, size_t *skip) {
         if (strcmp(strip_edge_punct(a), "the") == 0 &&
             strcmp(strip_edge_punct(c), "way") == 0) { *skip = 3; return 1; }
     }
-    for (const char *const *p = one; *p; p++)
-        if (strcmp(t, *p) == 0) { *skip = 1; return 1; }
+    /* gen335 round-3: KB-first migration — query discourse_opener/1 from KB
+     * instead of a hardcoded C array. PRINCIPLES.md: engine fixed, lexicon learns. */
+    if (b && b->kb) {
+        char atom[64];
+        size_t j = 0;
+        for (const char *c = t; *c && j + 1 < sizeof atom; c++)
+            atom[j++] = (char)tolower((unsigned char)*c);
+        atom[j] = 0;
+        const char *args[] = {atom};
+        if (kb_query(b->kb, "discourse_opener", args, 1)) { *skip = 1; return 1; }
+    }
     return 0;
 }
 

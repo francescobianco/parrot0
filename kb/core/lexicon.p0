@@ -463,3 +463,106 @@ response_template(language_reply, en, "We're speaking English.").
 response_template(language_reply, it, "Stiamo parlando in italiano.").
 response_template(audit_report, en, "I audited my own composition on fresh copies of myself: {map}. {n} of {total} triples hold. No file was touched; an external agent owns edits and commits.").
 response_template(audit_report, it, "Ho verificato la mia stessa composizione su copie fresche di me: {map}. {n} di {total} triple reggono. Nessun file è stato toccato; le modifiche e i commit spettano a un agente esterno.").
+
+% ── KB-FIRST MIGRATION (gen335 round-3): discourse parsing vocabulary ──
+% Formerly hardcoded C arrays; now KB facts so the lexicon learns at runtime.
+% The C engine queries these facts instead of iterating static const char *[].
+% Per AGENTS.md: "could a user teach the new surface form at runtime and have
+% the existing engine use it without a C edit?" — now yes.
+
+machinery(discourse_opener).
+machinery(intent_starter).
+machinery(connector).
+machinery(sequencer).
+
+% Discourse openers — peeled off the front of the turn before dispatch
+discourse_opener(anyway).
+discourse_opener(anyhow).
+discourse_opener(so).
+discourse_opener(well).
+discourse_opener(ok).
+discourse_opener(okay).
+discourse_opener(now).
+discourse_opener(look).
+discourse_opener(listen).
+discourse_opener(actually).
+discourse_opener(right).
+discourse_opener(alright).
+discourse_opener(hey).
+discourse_opener(um).
+discourse_opener(uh).
+discourse_opener(hmm).
+discourse_opener(comunque).
+discourse_opener(allora).
+discourse_opener(insomma).
+discourse_opener(senti).
+discourse_opener(guarda).
+discourse_opener(dunque).
+discourse_opener(beh).
+
+% Intent starters — words that signal a new sub-turn after a connector
+intent_starter(chi).
+intent_starter(che).
+intent_starter(cosa).
+intent_starter(come).
+intent_starter(dove).
+intent_starter(quando).
+intent_starter(perche).
+intent_starter(perché).
+intent_starter(ricordati).
+intent_starter(dimmi).
+intent_starter(spiegami).
+intent_starter(chiamami).
+intent_starter(insegnami).
+intent_starter(parlami).
+intent_starter(prima).
+intent_starter(poi).
+intent_starter(non).
+intent_starter(what).
+intent_starter(who).
+intent_starter(where).
+intent_starter(when).
+intent_starter(why).
+intent_starter(how).
+intent_starter(which).
+intent_starter(quale).
+intent_starter(quali).
+intent_starter(remember).
+intent_starter(tell).
+intent_starter(explain).
+intent_starter(call).
+intent_starter(teach).
+intent_starter(say).
+intent_starter(is).
+intent_starter(are).
+intent_starter(does).
+intent_starter(do).
+intent_starter(can).
+intent_starter(every).
+intent_starter(forget).
+intent_starter(learn).
+intent_starter(describe).
+intent_starter(read).
+intent_starter(show).
+intent_starter(first).
+intent_starter(then).
+intent_starter(dont).
+
+% Connectors — split compound turns into sub-turns
+connector(" e ").
+connector(" and ").
+connector(" ed ").
+connector(" ma ").
+connector(" but ").
+
+% Sequencers — stripped from the start of the second sub-turn
+sequencer(then).
+sequencer(also).
+sequencer(next).
+sequencer(finally).
+sequencer(afterwards).
+sequencer(poi).
+sequencer(dopo).
+sequencer(infine).
+sequencer(inoltre).
+sequencer(now).
