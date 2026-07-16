@@ -1,0 +1,73 @@
+% case_study_haiku.p0 — Generative leverage in action.
+%
+% This case study demonstrates parrot0's "generative leverage" model:
+% given an open request with explicit constraints, the engine selects one
+% valid output from a combinatorial space of KB-structured possibilities.
+%
+% Case: "Write a haiku about the ocean."
+%
+% The request contains an explicit form constraint (haiku = 5-7-5) and a
+% topic (ocean). The engine extracts the concept, binds it to three KB
+% predicates (open/mid/close), and assembles a haiku.
+%
+% Each predicate can have MULTIPLE entries for the same topic. The space
+% of valid haikus is the product: |open| x |mid| x |close|. The engine
+% picks one combination (first match, or rotated via anti-repeat).
+%
+% Adding a new theme requires ZERO C changes — just assert new facts.
+% The engine is fixed; the poetic lexicon grows.
+%
+% This case study is cited in docs/plans/generative-leverage.md.
+
+% === The KB: poetic images stored as structured facts ===
+
+% haiku_open/2  — first line (5 syllables), topic as key
+haiku_open(ocean, "Ocean breathes at dawn").
+haiku_open(ocean, "Waves fold into white").
+haiku_open(ocean, "Deep water murmurs").
+
+% haiku_mid/2   — second line (7 syllables), topic as key
+haiku_mid(ocean, "silver waves carry the sun").
+haiku_mid(ocean, "salt wind touches the warm sand").
+haiku_mid(ocean, "whales sing their long quiet songs").
+
+% haiku_close/2 — third line (5 syllables), topic as key
+haiku_close(ocean, "gulls write on the wind").
+haiku_close(ocean, "the tide pulls the moon").
+haiku_close(ocean, "horizon meets sky").
+
+% === The inference space ===
+%
+% Input: "Write a haiku about the ocean."
+% Extracted concept: ocean
+% Valid combinations: 3 x 3 x 3 = 27 possible haikus
+%
+% Example outputs:
+%   Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind.
+%   Waves fold into white / salt wind touches the warm sand / the tide pulls the moon.
+%   Deep water murmurs / whales sing their long quiet songs / horizon meets sky.
+%
+% Every output is grammatically sound (pre-authored lines), semantically
+% coherent (same topic across lines), and structurally correct (5-7-5).
+% None of these exact outputs was stored as a fact — they are COMBINATORIAL,
+% inferred at query time from the KB structure.
+%
+% === Extending the lexicon (runtime, zero C) ===
+%
+% To add "forest" support, teach 3+3+3 facts via MCP or .p0:
+%   haiku_open(forest, "Tall pines hold the mist").
+%   haiku_mid(forest, "a stream runs over old stones").
+%   haiku_close(forest, "moss covers the path").
+%
+% The SAME engine now generates forest haikus. No rebuild, no code edit.
+%
+% === The C engine (meccanica fissa) ===
+%
+% Source: src/brain/30-generation-reading.c, lines 237-271.
+% The engine does four things:
+%   1. Detect "haiku" cue in normalized input
+%   2. Extract concept words, bind to KB via concept_bind()
+%   3. Fetch haiku_open(subject, L1), haiku_mid(object, L2), haiku_close(subject, L3)
+%   4. Emit "L1 / L2 / L3."
+%
+% That's it. The KB holds the language; the C holds the algebra.
