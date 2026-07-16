@@ -474,16 +474,25 @@ propagato tra i nodi (§4.1). Il sì/no derivato attende ancora il suo frame (§
 
 *(esplicitamente richiesti: ciò che compromette la generalità del progetto.)*
 
-- **[MESH-L1 · copertura, non muro] Non ogni superficie è già rispondibile-come-fatto.**
-  La comprensione è conoscenza e la mesh la fa crescere: congelare `answer_frame/2` porta
-  il caso *lookup* fino alla risposta NL, propagata tra i nodi (§4.1). Ma il **sì/no su una
-  relazione derivata** (*"is a dog an animal?"*, §4) resta `kb.query`-only: manca un
-  *consumer* insegnabile che verbalizzi *Yes/No* chiamando `kb.query` sull'operatore.
-  **Da evolvere:** tirare, un frame alla volta, i consumer di comprensione mancanti come
-  fatti KB ([[universal-comprehension]], [[universal-input]], [[the-linguistic-glue]]) — a
-  partire da un `answer_frame`-per-relazioni-booleane che risponda *Yes/No* su una
-  `kb.query(is_a, X, Y)`. Finché quel frame non c'è, quella *specifica* superficie va
-  misurata con `kb.query`; non è un limite della mesh ma la sua prossima commessa.
+- **[MESH-L1 · RISOLTO nel caso a slot-singolo — NON era un muro] La comprensione è
+  conoscenza, quindi la raggiungibilità si INSEGNA.** *(Correzione, gen335, su obiezione di
+  F.: avevo inquadrato la "raggiungibilità" come collo di bottiglia — sbagliato, contraddice
+  "la comprensione è conoscenza".)* Gli operatori **derivati** sono rispondibili in NL
+  insegnando **solo un `answer_frame`**, zero C — dimostrato dal vivo:
+  ```
+  answer_frame("can", able_to). answer_frame("properties", prop_of). answer_frame("ancestors", forebear).
+    "what can a dog do?"              → "Move."                       (able_to ereditato)
+    "what properties does a dog have?"→ "Warm blooded, has hair, moves, eats, breathes, grows and needs water."
+    "who are the ancestors of tom?"   → "Bob, liz, ann, zoe, kim and max."  (forebear ricorsivo)
+  ```
+  `answer_frame` fa `kb_match(pred, token, ?)`, e sulle closure **right-recursive** `kb_match`
+  enumera le risposte derivate senza impiantarsi (vedi MESH-L5, risolto). Quindi il "sì/no
+  derivato" e le domande a token-singolo **non sono muri**: sono un frame da insegnare.
+  **Residuo onesto (comprensione più espressiva, non un muro):** il *word-problem* (Q10) e i
+  puzzle estraggono **più quantità/ruoli** dalla prosa e li legano agli argomenti di una
+  procedura — cosa che `answer_frame` (single-slot) non fa. Serve un frame **multi-slot**
+  (estrazione → binding di più argomenti), ancora conoscenza KB ([[universal-input]]
+  `segment_role`), ma con un consumer più espressivo del single-token attuale.
 
 - **[MESH-L2 · alto] Il router di salvataggio non homa gli OPERATORI, e la mesh deve
   montare il tree instradato — non lo spill.** Il fact routing (§3.1) è la forma giusta
@@ -509,13 +518,14 @@ propagato tra i nodi (§4.1). Il sì/no derivato attende ancora il suo frame (§
   held-out generate prima dell'insegnamento, così il punteggio misura un guadagno reale e
   non la coerenza interna del teacher.
 
-- **[MESH-L5 · minore, da confermare] `kb.match` con variabile su un predicato che ha anche
-  una regola.** In un passaggio `kb.match is_a(dog, null)` non ha enumerato i binding attesi
-  (timeout / vuoto) mentre `kb.query`/`kb.explain` funzionavano. Non ho isolato la causa
-  (transport vs enumerazione sotto clausola). Per l'honesty-check ho usato il grep sul file,
-  più diretto. **Da confermare:** se `kb.match` degrada quando il predicato porta una
-  clausola ricorsiva, è un buco di lettura da chiudere (cfr. "tuple di lettura" in
-  [[generative-prolog-manifesto]]).
+- **[MESH-L5 · RISOLTO — era un artefatto della LEFT-recursion] `kb.match` sulle regole.**
+  Il timeout di `kb.match is_a(dog,null)` NON era un limite del motore: era la closure
+  **left-recursive** `p($X,$Z):-p($X,$Y),p($Y,$Z)` che manda l'SLD in loop. Con le closure in
+  forma **right-recursive a predicato separato** (§4.4, SCOPERTA 1), `kb.match` enumera le
+  risposte derivate senza impiantarsi — verificato: `kind_of_t(dog,?)`→mammal/animal/living_thing,
+  `prop_of(dog,?)`→7 proprietà, `forebear(tom,?)`→tutti i discendenti, `able_to(eagle,?)`→fly/move.
+  Questo è ciò che rende MESH-L1 insegnabile: il lettore dietro `answer_frame` **funziona** sugli
+  operatori ben formati.
 
 - **[MESH-L6 · da investigare a parte] `make test` è ROSSO su `main` (189/60), prima di
   questa sessione.** Le 60 failure sono `.it.chat` che attendono i lemmi italiani (uomo,
@@ -601,17 +611,20 @@ guadagno.*
 
 ## 8.1 Cosa massimizza il risultato — lettura del LLMSCORE 6/10
 
-> **La lezione più importante del 6/10:** gli operatori di ordine superiore congelati
-> in §4.4 (kind_of/prop_of/larger_than/forebear) **non hanno mosso il punteggio**, perché
-> il giudice parla in NL e quegli operatori **non sono rispondibili** (MESH-L1, `kb_match`
-> si impianta sulle regole, MESH-L5). Quindi il collo di bottiglia **non è più conoscenza
-> di ordine superiore — è la RAGGIUNGIBILITÀ** di quella che già esiste. Il moltiplicatore
-> vero è rendere risponibili gli operatori, non aggiungerne altri.
+> **La lezione del 6/10, corretta (gen335, su obiezione di F.):** gli operatori di §4.4 non
+> hanno mosso il punteggio perché il giudice parla in NL e quegli operatori non *erano*
+> rispondibili — ma **NON perché "raggiungibilità" sia un collo di bottiglia diverso dalla
+> conoscenza.** La raggiungibilità **È conoscenza**: si insegna un `answer_frame` e
+> l'operatore derivato risponde in NL (dimostrato, §6 MESH-L1). Avevo inquadrato male
+> chiamandolo "il vero collo di bottiglia": contraddiceva la tesi. Non c'è un muro — c'è un
+> frame da insegnare.
 
-**Il lavoro-abilitante n°1 (sblocca tutto): `kb_match` che enumera SICURO sulle regole.**
-Oggi `kb_match` su un predicato con regola va in loop; per questo `answer_frame` non può
-verbalizzare una conclusione *derivata*. Un `kb_match` depth-bounded (come `kb_query`)
-rende **rispondibile ogni operatore già congelato** — è la leva a più alto ritorno.
+**Cosa serviva davvero (e non era un "consumer C"):** *(1)* le closure in forma
+**right-recursive** (già fatto, §4.4) — così `kb_match`, il lettore dietro `answer_frame`,
+enumera le risposte derivate senza impiantarsi (MESH-L5 era un artefatto della left-recursion,
+risolto); *(2)* **insegnare i frame** che mappano la superficie NL all'operatore — pura
+conoscenza. Fatto entrambi, "what can a dog do?" → "Move.", "properties of a dog" → le 7
+ereditate, "ancestors of tom" → i discendenti. **Nessun C nuovo.**
 
 **Mappa dei 4 punti persi → conoscenza di ordine superiore + lavoro di mesh:**
 
@@ -689,6 +702,13 @@ possibile** (non "i treni"):
 
 Vivono in `kb/core/procedures.p0` (nuovo home caricato al boot). Il primitivo è un **motore**
 generale: `20-math.c` (aritmetica in C) diventa migrabile a procedure insegnate.
+
+**Raggiungibilità in NL — chiarita (gen335):** gli operatori/procedure a **token-singolo**
+sono già rispondibili insegnando un `answer_frame` (dimostrato, §6 MESH-L1; `kb_match` sulle
+closure right-recursive enumera le risposte derivate, MESH-L5 risolto). L'unico residuo, e
+**non è un muro**, è il *word-problem multi-slot* (estrarre più quantità dalla prosa e legarle
+agli argomenti di una procedura): serve un frame più espressivo del single-token, ma è ancora
+conoscenza KB ([[universal-input]] `segment_role`), non un consumer C.
 
 **Scatter (steer di F.):** `kb/core/mesh-knowledge.p0` è stato **sciolto** nei file dei
 parenti così il save-map instrada la crescita futura accanto: tassonomia + ordinamenti +
