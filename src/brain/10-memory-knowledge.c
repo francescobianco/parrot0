@@ -2479,9 +2479,9 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
-    char cues[32][KB_TERM_LEN];
+    char cues[128][KB_TERM_LEN];
     const char *fq[2] = { NULL, NULL };
-    size_t nf = kb_match(b->kb, "answer_frame", fq, 2, cues, 32);   /* the Cue list */
+    size_t nf = kb_match(b->kb, "answer_frame", fq, 2, cues, 128);   /* the Cue list */
     if (nf == 0) return 0;
 
     char tmp[256];
