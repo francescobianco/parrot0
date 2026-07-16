@@ -119,6 +119,15 @@ sono qui in alto proprio perché la prossima volta non si riscoprano da zero.*
 7. **Proposta aperta — invertire `is_internal_pred`** (domanda di F.): oggi il default
    è *pubblico*, si flagga l'*interno*; l'alternativa è default *interno*, si flagga il
    *pubblico*. Analisi e raccomandazione in §6, MESH-L7.
+8. **Il parser `.p0` ora legge PIÙ clausole per riga + ERRORE rumoroso.** Prima
+   `a(1). b(2). c(3).` su una riga caricava solo la prima e scartava il resto **in
+   silenzio** (≥5 volte). Curato in `src/kb.c`: split sui `.` di livello 0 + un errore su
+   stderr per ogni clausola non-vuota che non parsa. (§4.4, [prolog-like-engine.md §1](../prolog-like-engine.md))
+9. **Closure transitiva LEFT-recursive = timeout.** `p($X,$Z):-p($X,$Y),p($Y,$Z)` va in
+   loop; usa la forma a **predicato separato right-recursive** (primo goal = fatto), fatti
+   prima delle regole. (§4.4)
+10. **`KB_TERM_LEN=128` scarta i template lunghi.** L'errore rumoroso ha scovato 13
+    `response_template` morti (~200-356 char) mai caricati. Fix a sé. (§6, MESH-L9)
 
 ---
 
@@ -368,6 +377,43 @@ Dal vivo: `"Marie_curie."→"Marie Curie."`, `"South_america."→"South America.
 > questa (la 4ª) è stata chiusa alla radice, in KB. *Regola d'ora in poi: ogni predicato
 > nuovo che è machinery/substrato si auto-dichiara `machinery(...)` accanto ai suoi fatti.*
 
+## 4.4 Tre giri di conoscenza di ORDINE SUPERIORE (congelata in `kb/core/mesh-knowledge.p0`)
+
+Obiettivo di F.: *massimizzare la conoscenza ad ordini superiori*, poi misurare (LLMSCORE
+come specchio, non come target). Un fatto è una foglia; un **operatore** (regola n-aria) è
+una funzione sui fatti. Tre giri, ognuno un operatore composizionale (ordine-2: una regola
+che ragiona su ciò che un'altra ha reso derivabile), con proof da `kb.explain`:
+
+- **Giro 1 — ereditarietà lungo la tassonomia.** `kind_of` transitivo + `prop_of`/`able_to`
+  che ereditano lungo `kind_of`. `prop_of(dog, breathes)` si deriva a **4 livelli**:
+  `kind_of(dog,mammal) … kind_of(animal,living_thing) … has_own_prop(living_thing,breathes)`.
+- **Giro 2 — ordinamenti transitivi.** `larger_than`, `warmer_than`, `before_in_time`.
+  `larger_than(elephant, ant)` = catena a **5 passi** sulla scala di taglia.
+- **Giro 3 — parentela: join + ricorsione.** `grandparent` (join) e `forebear` (ricorsivo).
+  `forebear(tom, kim)` attraversa **4 generazioni**.
+- **Copertura rispondibile in NL** (ordine-1, `answer_frame` su predicati piatti): paternità
+  ("who wrote Frankenstein?" → *Mary Shelley.*, col layer di presentazione) e geografia.
+
+> ⚠️ **SCOPERTA 1 — closure LEFT-recursive = ricorsione patologica.** Scrivere una closure
+> transitiva come `p($X,$Z):-p($X,$Y),p($Y,$Z)` (stesso predicato, primo goal ricorsivo) manda
+> l'SLD in loop/timeout — **peggio se la regola precede i fatti nel file**. (L'esperimento
+> is_a del §4 reggeva solo perché lì i fatti erano asseriti *prima* della regola.) La forma
+> ROBUSTA è una closure a **predicato separato, right-recursive** col primo goal = FATTO:
+> `closure($X,$Y):-base($X,$Y). closure($X,$Z):-base($X,$Y),closure($Y,$Z).`, e i **fatti prima
+> delle regole**.
+>
+> ⚠️ **SCOPERTA 2 — il parser `.p0` non leggeva più clausole per riga (perdita SILENZIOSA).**
+> `a(1). b(2). c(3).` su una riga caricava solo la prima e scartava il resto senza un fiato —
+> per questo `mesh-knowledge.p0` all'inizio "non caricava". **Curato in `src/kb.c`** (gen335):
+> il loader splitta la riga sui `.` di livello 0 (fuori da parentesi/virgolette) **e ogni
+> clausola non-vuota che non parsa emette un ERRORE su stderr** (mai più perdite silenziose —
+> era già successo ≥5 volte). Vedi [prolog-like-engine.md §1](../prolog-like-engine.md).
+>
+> ⚠️ **SCOPERTA 3 — l'errore rumoroso ha scovato 13 `response_template` MORTI.** Argomenti
+> più lunghi di `KB_TERM_LEN=128` char (spiegazioni di ~200-356 char: cielo blu, stagioni,
+> pioggia…) erano rifiutati da `parse_term` **da sempre**, in silenzio. Fix aperto (§6,
+> MESH-L9): alzare `KB_TERM_LEN` (costo memoria) o accorciare quei template.
+
 ## 5. Procedura riproducibile
 
 Le procedure di questo primo giro, così come sono state eseguite:
@@ -499,6 +545,14 @@ propagato tra i nodi (§4.1). Il sì/no derivato attende ancora il suo frame (§
   L'atomico *"my dog is Rex"* funziona: il buco è lo split della congiunzione in due fatti.
   È meccanismo (C), non conoscenza — fuori dalla leva della mesh; da tirare come pull di
   colla linguistica ([[the-linguistic-glue]]).
+
+- **[MESH-L9 · debito, scoperto dall'errore rumoroso] `KB_TERM_LEN=128` taglia i template
+  lunghi.** `parse_term` rifiuta ogni argomento (virgolette incluse) più lungo di 128 char.
+  L'errore di parse gen335 ha reso visibili **13 `response_template` morti** in
+  `responses.p0`/`lexicon.p0` (spiegazioni di ~200-356 char), silenziosamente non caricati
+  da sempre. **Da decidere (cambio a sé):** alzare `KB_TERM_LEN` (es. 384 — costo memoria su
+  ~7000 fatti e sui buffer di stack, da verificare) oppure accorciare i template sotto i 128
+  char. Nel frattempo l'errore appare a ogni boot: è corretto, segnala dati reali persi.
 
 ## 7. Teoria — perché una mesh può essere moltiplicativa
 

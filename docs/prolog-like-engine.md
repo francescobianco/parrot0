@@ -15,8 +15,26 @@ sappiano esprimere (vedi §5).
 
 ## 1. La sintassi delle clausole (`.p0`)
 
-I file `.p0` sono il formato canonico. Una clausola per riga; `%` inizia un
-commento; la riga termina con `.` opzionale.
+I file `.p0` sono il formato canonico. `%` inizia un commento (anche **inline**:
+tutto ciò che segue un `%` fuori dalle virgolette è commento); ogni clausola
+termina con `.`.
+
+> **gen335 — il parser legge PIÙ clausole per riga.** Fino a gen334 `kb_load`
+> trattava l'intera riga come **una** clausola: `a(1). b(2). c(3).` su una riga
+> caricava solo la prima (o falliva) e **scartava il resto in silenzio** — una
+> perdita di dati che ha morso almeno 5 volte. Ora il loader splitta la riga sui
+> `.` di **livello 0** (fuori da parentesi e da virgolette: un `.` dentro `f(a.b)`
+> o dentro `"…colors."` non è un separatore) e processa ogni clausola.
+> **E ogni clausola non-vuota che NON si parsa emette un errore rumoroso su stderr**
+> (`kb_load: PARSE ERROR in <file>: … dropped: '<clausola>'`): niente più perdite
+> silenziose. Codice: `load_clause` + il loop di `kb_load` in `src/kb.c`.
+
+> ⚠️ **Limite di lunghezza: `KB_TERM_LEN = 128`** (`src/kb.h:21`). Un argomento
+> (incluse le virgolette) più lungo di 128 char è **rifiutato** da `parse_term`
+> (`alen >= KB_TERM_LEN → 0`). L'errore rumoroso gen335 ha scoperto **13
+> `response_template` morti** in `responses.p0`/`lexicon.p0` (spiegazioni di ~200-356
+> char: cielo blu, stagioni, pioggia…) che non caricavano da sempre. Fix aperto:
+> alzare `KB_TERM_LEN` (costo memoria, cambio a sé) o accorciare quei template.
 
 ```prolog
 % FATTO — termine ground, arità qualsiasi

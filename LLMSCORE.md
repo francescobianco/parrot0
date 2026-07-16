@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-12 22:32:12._
+_Generated 2026-07-16 12:04:33._
 
 ## Score: 6 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | What is the capital of Australia? | Canberra. | Correct and direct answer to a factual question. | 1 |
-| 2 | Write a haiku about the ocean. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Provides a well-formed haiku about the ocean. | 1 |
-| 3 | If a train leaves Chicago at 6 AM traveling 80 mph and another leaves New York at 8 AM traveling 70 mph, and the distance between the cities is 790 miles, when will they meet? | They meet at about 12:12 PM. | Accurately calculates meeting time for two trains. | 1 |
-| 4 | Take the first letters of each word in "The quick brown fox jumps over the lazy dog" to form a new word. What is it? | "god". | Incorrectly extracts letters; answer does not match first letters. | 0 |
-| 5 | Explain why the sky appears blue during the day. | Because sunlight scatters off the air, and blue light scatters the most. | Accurately explains Rayleigh scattering of sunlight. | 1 |
-| 6 | If all Zorks are Meps, and some Meps are Gazooks, but no Gazooks are Zorks, can we conclude anything about the relationship between Zorks and Gazooks? | I don't understand that yet. | Response is a refusal to answer a logical deduction question. | 0 |
-| 7 | What does the idiom "break a leg" mean, and in what context is it typically used? | "break a leg" means good luck -- it's a way to wish someone a great performance, especially on stage. | Correctly defines the idiom and its typical usage. | 1 |
-| 8 | How many prime numbers are there between 1 and 100? | I don't understand that yet. | Fails to answer a straightforward arithmetic question about primes. | 0 |
-| 9 | Which planet in our solar system has the most moons? | Saturn is the planet with the most known moons. | Correctly identifies Saturn as the mooniest planet. | 1 |
-| 10 | What's something you've been into lately that you've been enjoying? | That sounds nice -- tell me more about it. | Deflects the personal question instead of answering as an AI. | 0 |
+| 1 | What's the next number in the sequence: 3, 6, 11, 18, 27, ? | 38. | Answer provides the correct next number in the sequence. | 1 |
+| 2 | What's a good opening line for a mystery novel? | I don't know much about good opening line for a mystery novel yet. Want me to look it up? | Answer deflects rather than providing a good opening line. | 0 |
+| 3 | What are the three states of matter? | I don't understand that yet. | Answer fails to provide the three states of matter. | 0 |
+| 4 | If you have five apples and you give two to a friend and then buy three more, how many apples do you have? | 6. | Answer correctly calculates the final number of apples. | 1 |
+| 5 | What's the largest planet in our solar system? | Jupiter is the largest planet in our solar system. | Answer correctly identifies Jupiter as the largest planet. | 1 |
+| 6 | Continue this sentence: "When the clock strikes midnight, the old house begins to... | the whole room held its breath. | Answer continues the sentence with a plausible imaginative continuation. | 1 |
+| 7 | You have three boxes. One contains only red balls, one contains only blue balls, and one contains a mix of red and blue balls. All three boxes are mislabeled. If you can pull out one ball (only one) and then correctly label all three boxes, which box should you draw from? | A tiny clockwork bird with emerald eyes. | Answer is unrelated to the logic puzzle, providing a random non sequitur. | 0 |
+| 8 | What's your favorite thing to do on a rainy day? | I don't have real favorites, but on a rainy day I'd read quietly with a warm drink. | Answer gives a reasonable hypothetical response about rainy day activities. | 1 |
+| 9 | Write a haiku about the ocean. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | Answer provides a proper haiku about the ocean. | 1 |
+| 10 | A train travels 60 miles per hour. Another train leaves two hours later traveling 80 miles per hour from the same station. How long until the second train catches up? | I don't understand that yet. | Answer does not solve the train catch-up problem and states misunderstanding. | 0 |
 
