@@ -2720,3 +2720,60 @@ speed_of(peregrine_falcon, 390).
 speed_of(sound, 343).
 tallest_mountain(europe, mount_elbrus).
 tallest_mountain(world, mount_everest).
+
+% ── DEFAULT REASONING with NAF (non-monotonic) ──
+% "birds fly" with exceptions (gen335 round-2)
+is_a(penguin, bird).
+is_a(ostrich, bird).
+is_a(kiwi, bird).
+is_a(platypus, mammal).
+flightless(penguin).
+flightless(ostrich).
+flightless(kiwi).
+can_fly($X) :- is_a($X, bird), naf(flightless($X)).
+egg_laying(platypus).
+gives_birth($X) :- is_a($X, mammal), naf(egg_laying($X)).
+body_temp($X, cold) :- is_a($X, reptile).
+body_temp($X, warm) :- is_a($X, mammal).
+body_temp($X, warm) :- is_a($X, bird).
+
+% ── HABITAT & DIET ──
+habitat(fish, water).
+habitat(whale, ocean).
+habitat(bird, air).
+habitat(mammal, land).
+habitat(reptile, land).
+habitat(insect, land).
+habitat(amphibian, water).
+habitat(penguin, ice).
+habitat(camel, desert).
+habitat(polar_bear, arctic).
+eats_category(lion, meat).
+eats_category(tiger, meat).
+eats_category(shark, meat).
+eats_category(eagle, meat).
+eats_category(cow, plants).
+eats_category(horse, plants).
+eats_category(rabbit, plants).
+eats_category(bear, omnivore).
+eats_category(human, omnivore).
+eats_category(pig, omnivore).
+
+% ── TEMPORAL PERIODS ──
+period_contains(modern_era, 20th_century).
+period_contains(modern_era, 21st_century).
+period_contains(20th_century, 1945).
+period_contains(20th_century, 1969).
+period_contains(renaissance, 15th_century).
+period_contains(renaissance, 16th_century).
+period_contains(middle_ages, 12th_century).
+period_contains(middle_ages, 13th_century).
+period_contains(20th_century, 1914).
+period_contains(20th_century, 1939).
+period_contains(ancient_times, 5th_century_bc).
+period_contains(ancient_times, 1st_century).
+happened_in(ww2_end, 1945).
+happened_in(moon_landing, 1969).
+happened_in(ww1_start, 1914).
+happened_in(ww2_start, 1939).
+happened_in(fall_of_rome, 5th_century_bc).

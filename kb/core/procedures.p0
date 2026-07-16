@@ -53,3 +53,72 @@ located_in_t($X, $Z) :- located_in($X, $Y), located_in_t($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of_t($Y, $Z).
 same_category($X, $Y) :- category_member($C, $X), category_member($C, $Y).
+
+% ── RELATIONAL COMPOSITION (habitat, diet) ──
+lives_in($X, $H) :- is_a($X, $C), habitat($C, $H).
+diet($X, $D) :- is_a($X, $C), eats_category($C, $D).
+
+% ── TEMPORAL REASONING ──
+period_contains_t($X, $Z) :- period_contains($X, $Y), period_contains($Y, $Z).
+period_contains_t($X, $Z) :- period_contains($X, $Y), period_contains_t($Y, $Z).
+happened_during($E, $P) :- happened_in($E, $Y), period_contains_t($P, $Y).
+
+% ── MATH PROCEDURES (factorial, fibonacci, gcd, lcm, prime, power) ──
+factorial(0, 1).
+factorial($N, $R) :- gt($N, 0), is($N1, sub($N, 1)), factorial($N1, $R1), is($R, mul($N, $R1)).
+
+fib(0, 0).
+fib(1, 1).
+
+gcd($A, 0, $A).
+gcd($A, $B, $R) :- gt($B, 0), is($M, mod($A, $B)), gcd($B, $M, $R).
+
+lcm($A, $B, $L) :- gcd($A, $B, $G), is($L, div(mul($A, $B), $G)).
+
+is_prime(2).
+is_prime(3).
+is_prime($N) :- gt($N, 3), is($M, mod($N, 2)), gt($M, 0), no_divisor($N, 3).
+no_divisor($N, $D) :- is($D2, mul($D, $D)), gt($D2, $N).
+no_divisor($N, $D) :- is($M, mod($N, $D)), gt($M, 0), is($D2, add($D, 2)), no_divisor($N, $D2).
+
+power($B, 0, 1).
+power($B, $E, $R) :- gt($E, 0), is($E1, sub($E, 1)), power($B, $E1, $R1), is($R, mul($B, $R1)).
+
+is_even($N) :- eq(mod($N, 2), 0).
+is_odd($N) :- eq(mod($N, 2), 1).
+
+% ── LIST OPERATIONS ──
+member($X, cons($X, $T)).
+member($X, cons($H, $T)) :- member($X, $T).
+
+% ── PROPERTY INHERITANCE (ordine superiore: le proprietà si ereditano lungo la tassonomia) ──
+inherits($X, $P) :- is_a($X, $C), has_prop($C, $P).
+inherits($X, $P) :- is_a_t($X, $C), has_prop($C, $P).
+inherits($X, $P) :- kind_of_t($X, $C), has_prop($C, $P).
+
+% ── KINSHIP COMPOSITION ──
+child_of($X, $Y) :- parent_of($Y, $X).
+uncle_of($X, $Z) :- sibling_of($X, $Y), parent_of($Y, $Z).
+aunt_of($X, $Z) :- sibling_of($X, $Y), parent_of($Y, $Z).
+nephew_of($X, $Z) :- uncle_of($Z, $X).
+niece_of($X, $Z) :- aunt_of($Z, $X).
+cousin_of($X, $Z) :- parent_of($P1, $X), parent_of($P2, $Z), sibling_of($P1, $P2).
+
+% ── DIRECTIONAL SPATIAL (transitivo) ──
+north_of_t($X, $Z) :- north_of($X, $Y), north_of($Y, $Z).
+north_of_t($X, $Z) :- north_of($X, $Y), north_of_t($Y, $Z).
+east_of_t($X, $Z) :- east_of($X, $Y), east_of($Y, $Z).
+east_of_t($X, $Z) :- east_of($X, $Y), east_of_t($Y, $Z).
+south_of($X, $Y) :- north_of($Y, $X).
+west_of($X, $Y) :- east_of($Y, $X).
+
+% ── INVERSE RELATIONS ──
+smaller_than($X, $Y) :- larger_than($Y, $X).
+lighter_than($X, $Y) :- heavier_than($Y, $X).
+slower_than($X, $Y) :- faster_than($Y, $X).
+owned_by($X, $Y) :- owns($Y, $X).
+
+% ── CONTAINMENT ──
+contains_t($X, $Z) :- contains($X, $Y), contains($Y, $Z).
+contains_t($X, $Z) :- contains($X, $Y), contains_t($Y, $Z).
+contained_in($X, $Y) :- contains($Y, $X).

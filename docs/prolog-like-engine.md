@@ -182,6 +182,18 @@ Il motore (§2) è più potente delle sue **porte di costruzione**. Oggi:
 > ([docs/plans/universal-input.md](plans/universal-input.md),
 > [docs/plans/the-linguistic-glue.md](plans/the-linguistic-glue.md)), non un buco
 > del motore: la conoscenza c'è, manca la mappa superficie→goal.
+>
+> ⚠️ **`answer_frame` matching è lessicale, non semantico.** Il cue insegnato con
+> `answer_frame(Cue, Pred)` deve comparire come **token esatto** nella frase
+> canonicalizzata. "how tall is X?" non matcha `answer_frame("height", ...)` perché
+> il canonicalizzatore produce il token "tall", non "height". "what is the longest
+> river?" non matcha `answer_frame("longest_river", ...)` perché i token separati
+> "longest" e "river" non formano il token composto "longest_river". La regola
+> pratica: il cue deve essere una parola che appare testualmente nella domanda dopo
+> la canonicalizzazione (es. "wrote" per "who wrote X?", "largest" per "what is the
+> largest X?"). Frame confermati funzionanti in gen335: definition, largest,
+> founded, born, died, symbol, capital, currency, continent, population, author,
+> discovered, invented, color, sound, language, sides, prevents.
 
 Quindi, oggi: una regola n-aria si insegna da un file `.p0` **o** via
 `kb.assert_clause` (con `$`-variabili); `kb.assert_rule` resta valido solo per
@@ -189,6 +201,39 @@ regole unarie. Le tuple di lettura restano la roadmap di
 [docs/plans/generative-prolog.md](plans/generative-prolog.md) (§3). Il principio
 non cambia: **il motore è fisso, si aprono i condotti** — nessuna logica di
 risoluzione nuova.
+
+## 5.1 Il divario `.p0` ↔ `kb.assert_clause` MCP (gen335, scoperto dal vivo)
+
+> **Il parser `.p0` supporta nested expressions e builtin che `kb.assert_clause`
+> MCP NON supporta.** La differenza è nell'adattatore JSON→termine, non nel motore.
+
+| Costrutto | `.p0` | `kb.assert_clause` MCP | Note |
+|-----------|-------|------------------------|------|
+| Fatti ground | ✅ | ✅ | |
+| Regole n-arie con join | ✅ | ✅ | head/body come oggetti `{"pred","args"}` |
+| `naf(goal)` nel body | ✅ | ❌ | `naf` con nested `{"pred":...,"args":...}` dà `ok:false` silenzioso. **Va in `.p0`.** |
+| `is($R, expr)` nel body | ✅ | ❌ | `is` con nested `{"pred":"add",...}` dà `ok:false`. **Va in `.p0`.** |
+| `cons($H,$T)` / `nil` | ✅ | ❌ | Liste come argomenti nested. **Vanno in `.p0`.** |
+| `lt/le/gt/ge/eq/ne` con espressioni | ✅ | ❌ | Confronti con nested expr (es. `eq(mod($N,2),0)`) richiedono `.p0`. |
+| `ne/2` tra atomi | ❌ | ❌ | `ne` è solo numerico. `naf(eq(X,Y))` per atomi non è parsabile via MCP. Nessuna `dif/2` builtin. |
+
+**Regola pratica per gen335:** se una clausola contiene `naf(…)`, `is(…)`,
+`cons(…)`, o `lt/le/gt/ge/eq/ne(expr, expr)`, scrivila direttamente nel file
+`.p0`. Usa `kb.assert_clause` MCP solo per clausole Horn pure (solo predicati
+utente nel body, con argomenti atomici o `$`-variabili).
+
+Esempio di clausola che **funziona** via MCP:
+```jsonc
+kb.assert_clause {"head":{"pred":"uncle_of","args":["$X","$Z"]},
+                  "body":[{"pred":"sibling_of","args":["$X","$Y"]},
+                          {"pred":"parent_of","args":["$Y","$Z"]}]}
+```
+
+Esempio di clausola che **NON funziona** via MCP (va in `.p0`):
+```prolog
+can_fly($X) :- is_a($X, bird), naf(flightless($X)).
+factorial($N, $R) :- gt($N, 0), is($N1, sub($N, 1)), factorial($N1, $R1), is($R, mul($N, $R1)).
+```
 
 ## 6. Mappa dei simboli C (per chi tocca il motore)
 

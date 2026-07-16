@@ -102,7 +102,7 @@ file che `kb.save` scrive (così `brain_reload` lo ricarica).
 > Codice: `kb_save_routed` (`src/kb.c:2092`). Uso in una mesh di addestramento e
 > insidie correlate: [docs/plans/learning-mesh.md](plans/learning-mesh.md) §3.1.
 
-## Limiti noti dei tool (gen281, misurati dal vivo)
+## Limiti noti dei tool (gen335, misurati dal vivo)
 
 > **Risolto dopo gen280:** i letterali insegnati via MCP ora round-trippano
 > fedelmente — un nome proprio (`Madrid`), un template sentence-case, un valore
@@ -114,9 +114,15 @@ file che `kb.save` scrive (così `brain_reload` lo ricarica).
 > con join a più variabili (`grandparent(X,Z) :- parent(X,Y), parent(Y,Z)`) ora
 > si insegnano via MCP senza file `.p0`. Vedi `tests/assertclause.sh`. Resta il
 > limite strutturale sotto.
+>
+> **Scoperto in gen335:** `kb.assert_clause` MCP **non supporta nested predicates
+> né nested expressions negli argomenti.** `naf(goal)`, `is($R, expr)`,
+> `cons($H,$T)`, e `lt/le/gt/ge/eq/ne(expr,expr)` restituiscono `{"ok":false}`
+> silenzioso via MCP. Questi costrutti funzionano solo da file `.p0`. Dettaglio
+> completo in [prolog-like-engine.md §5.1](prolog-like-engine.md).
 
 Il **motore** dietro MCP è un Prolog n-ario completo (join a più variabili,
-ricorsione, backtracking, cycle-guard — vedi
+ricorsione, backtracking, cycle-guard, `naf`, `is/2`, liste — vedi
 [il protocollo prolog-like](prolog-like-engine.md)). Un **tool** però ne
 espone solo un sottoinsieme; la differenza è nell'adattatore, non nel motore:
 
@@ -125,9 +131,22 @@ espone solo un sottoinsieme; la differenza è nell'adattatore, non nel motore:
   **tuple** `[["tom","bob"],["bob","ann"]]`. Il join fra i due slot va perso. Le
   tuple sono il passo **P2** dello stesso piano.
 
+- **`kb.assert_clause` MCP non supporta nested expressions (gen335).** Clausole
+  con `naf(…)`, `is(…)`, `cons(…)`, o confronti con espressioni composte vanno
+  scritte direttamente nei file `.p0`. L'alternativa MCP per questi casi non
+  esiste ancora.
+
 Nessuno dei due è un bug del motore: `kb.query`/`kb.explain` risolvono già join e
 ricorsione se la clausola arriva da un `.p0`. Sono i due adattatori di scrittura/
 lettura da estendere.
+
+## Variabili d'ambiente (gen335)
+
+| Variabile | Effetto |
+|-----------|---------|
+| `PARROT0_WORLD_FACTS=0` | **Salta il caricamento di `kb/core/world-facts.p0`.** Usato per esperimenti "learning from empty world" e per la mesh di addestramento. Senza questo flag, `world-facts.p0` è caricato come `KB_BASE` a ogni boot. |
+| `PARROT0_SESSION=<file>` | Carica `<file>` come layer di sessione a ogni boot e a ogni `kb.restore`. Se il file è vuoto, nessun effetto collaterale. |
+| `PARROT0_KB_ROOT=<dir>` | Attiva il **fact router** (save-map). Senza, `kb.save` fa un dump legacy a file singolo. Con, instrada ogni fatto ground nel file curato dei suoi parenti (coordinata `(predicato, primo-arg)`). **Le regole (`:-`) non si instradano mai** — finiscono nello spill. |
 
 ## Sicurezza
 

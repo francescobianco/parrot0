@@ -730,3 +730,65 @@ routing), [docs/use-mcp-engine.md](../use-mcp-engine.md) (il canale MCP),
 [[teachable-comprehension-answer-frame]] (`answer_frame/2`),
 [[autolearn-knowledge-is-official]], [[universal-input]], [[the-linguistic-glue]],
 [[generative-prolog-manifesto]], [[rulescore-harness]], [[llmscore-harness]].
+
+## 10. Secondo giro di addestramento — ordine superiore (gen335, round 2)
+
+> **Eseguito dal vivo 2026-07-16.** 4 batch di costrutti astratti: ereditarietà,
+> default reasoning con `naf`, composizione relazionale, procedure matematiche.
+
+### 10.1 Nuove scoperte da tenere in EVIDENZA
+
+1. **`kb.assert_clause` MCP non supporta nested expressions (gen335).** `naf(goal)`,
+   `is($R, expr)`, `cons($H,$T)`, e confronti con espressioni composte
+   (`eq(mod($N,2),0)`) restituiscono `{"ok":false}` silenzioso via MCP. **Questi
+   costrutti vanno scritti direttamente nei file `.p0`**, dove il parser li gestisce
+   correttamente. Il motore li esegue; è l'adattatore JSON→termine che non li
+   serializza. Dettaglio in [prolog-like-engine.md §5.1](../prolog-like-engine.md).
+
+2. **`ne/2` è solo numerico — non esiste `dif/2` builtin (gen335).** `ne(luca, sofia)`
+   fallisce perché gli atomi non sono espressioni numeriche. `naf(eq(X,Y))` non è
+   parsabile via MCP (vedi punto 1). Per clausole caricate da `.p0`, `naf(eq(X,Y))`
+   funziona ma richiede che $X e $Y siano ground. **Non esiste una `dif/2` builtin.**
+   Il workaround pragmatico: omettere il check di diseguaglianza e accettare falsi
+   positivi (`sibling(X,X)`).
+
+3. **`PARROT0_WORLD_FACTS=0` salta `world-facts.p0` (gen335).** La variabile
+   d'ambiente è usata per "learning from empty world". Nei test senza questo flag,
+   la conoscenza scatterata nei file curati viene caricata normalmente (5188 fatti).
+
+4. **`answer_frame` matching è lessicale, non semantico (gen335).** Il cue deve essere
+   un token esatto nella frase canonicalizzata. "how tall" non matcha "height"; "longest
+   river" non matcha "longest_river". Frame funzionanti: definition, largest, founded,
+   born, symbol, capital, currency, continent, population, author, discovered, invented,
+   color, sound, language, sides, prevents. Frame non funzionanti per questo motivo:
+   height, longest_river, tallest_mountain, speed, age, requires, causes.
+
+### 10.2 Costrutti di ordine superiore insegnati
+
+| Categoria | Operatori | Verificato |
+|-----------|-----------|------------|
+| Property inheritance | `inherits(X,P) :- is_a(X,C), has_prop(C,P)` + varianti transitive | dog→warm_blooded (9 proprietà ereditate) |
+| Inverse relations | `child_of`, `smaller_than`, `lighter_than`, `slower_than`, `south_of`, `west_of`, `owned_by` | Tutti verificati |
+| Kinship composition | `uncle_of`, `aunt_of`, `nephew_of`, `niece_of`, `cousin_of` | uncle/nephew verificati |
+| Directional spatial | `north_of_t`, `east_of_t` (transitivi) + inverse | sweden→italy (3 hop) |
+| Containment | `contains_t` (transitivo), `contained_in` (inverso) | library→page (2 hop) |
+| Default reasoning | `can_fly(X) :- bird(X), naf(flightless(X))` | sparrow→true, penguin→false |
+| Non-monotonic birth | `gives_birth(X) :- mammal(X), naf(egg_laying(X))` | dog→true, platypus→false |
+| Relational composition | `lives_in`, `diet` (join is_a + habitat/eats) | salmon→water, dog→land |
+| Temporal Allen | `period_contains_t`, `happened_during` | moon_landing→modern_era |
+| Math procedures | `factorial`, `gcd`, `lcm`, `is_prime`, `power`, `is_even`, `is_odd` | 5!=120, gcd(12,8)=4, is_prime(11) |
+| List ops | `member` | — |
+
+### 10.3 Il pattern è confermato
+
+Il secondo giro conferma la tesi del §7: un operatore di ordine superiore (es.
+`inherits`) insegnato **una volta** moltiplica ogni nuovo `has_prop` e ogni nuovo
+`is_a` in conclusioni derivate. 24 `has_prop` + il bridge category_member→is_a +
+180 membri di categoria = ogni animale eredita automaticamente le proprietà della
+sua classe. Il costo marginale di una conclusione tende a zero.
+
+Il limite onesto è il **canale di insegnamento**, non il motore: `kb.assert_clause`
+MCP copre solo clausole Horn pure; nested expressions, `naf`, `is/2` e liste
+richiedono il canale `.p0`. Finché l'adattatore JSON→termine non supporta
+argomenti nested, la via `.p0` resta il canale principale per la conoscenza di
+ordine superiore.
