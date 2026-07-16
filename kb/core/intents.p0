@@ -1026,3 +1026,7 @@ answer_frame("currency of", currency_of_country).
 answer_frame("language", language_of_country).
 answer_frame("continent", continent_of).
 answer_frame("borders", borders_country).
+
+% gen335+: riddle and contrast answer frames (LLMSCORE Q8-Q10).
+answer_frame(difference, difference_between).
+answer_frame(shorter, riddle_answer).

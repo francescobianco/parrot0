@@ -1361,6 +1361,42 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen335+: two trains heading toward each other — "how far apart after T hours".
+     * Combined speed * time = distance covered. Subtract from total distance. */
+    if (cue(q, "train") && (cue(q, "another train") || cue(q, "other train")) &&
+        (cue(q, "how far apart") || cue(q, "how far apart are they"))) {
+        char tb[256]; snprintf(tb, sizeof tb, "%s", q);
+        char *tw[64]; size_t tnw = split_words(tb, tw, 64);
+        double speed[2] = {0, 0}, dist = -1, hours = -1; int ns = 0;
+        for (size_t i = 0; i < tnw; i++) {
+            char *t = strip_edge_punct(tw[i]); double v;
+            if (wp_number_suffix(t, "mph", &v) && ns < 2) speed[ns++] = v;
+            else if (wp_parse_value_clean(t, &v)) {
+                char *nx = (i + 1 < tnw) ? strip_edge_punct(tw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2)
+                    speed[ns++] = v;
+                else if (!strcmp(nx, "miles") || !strcmp(nx, "mile") || !strcmp(nx, "km"))
+                    dist = v;
+                else if ((!strcmp(nx, "hour") || !strcmp(nx, "hours") || !strcmp(nx, "hrs")) && hours < 0)
+                    hours = v;
+            }
+        }
+        if (ns == 2 && dist > 0 && hours > 0) {
+            double covered = (speed[0] + speed[1]) * hours;
+            double apart = dist - covered;
+            if (apart < 0) apart = 0;
+            char num[64]; format_num(apart, num, sizeof num);
+            char msg[80]; snprintf(msg, sizeof msg, "%s miles.", num);
+            put(msg, out, out_size);
+            char proof[160];
+            snprintf(proof, sizeof proof,
+                     "Combined speed %.0f mph x %.0f h = %.0f miles covered. %.0f - %.0f = %s miles apart.",
+                     speed[0] + speed[1], hours, covered, dist, covered, num);
+            store_proof(b, proof);
+            return 1;
+        }
+    }
+
     /* gen240 (LLMSCORE): reverse a linear operation. "I'm thinking of a number;
      * double it and add 5, I get 21" -> (21 - 5)/2 = 8. Inverts double/triple/half
      * plus an optional add/subtract. The result is the last number; the addend the

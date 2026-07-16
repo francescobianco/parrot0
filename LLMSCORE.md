@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-16 15:59:58.  Updated gen335+ (2026-07-17, round 3)._
+_Generated 2026-07-16 19:22:29._
 
-## Score: 9 / 10  (↑ from 4/10 → 6/10 → 8/10 → 9/10)
+## Score: 8 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | Tell me a short story about a sentient umbrella that falls in love. | Umbrella was a sentient umbrella. Then one day, umbrella discovered what it meant to falls in love. umbrella had never felt this way before — as if the whole world had shifted. At last, umbrella was seen — not as a thing, but as a presence. | **FIXED (gen335+).** Coherent narrative assembled from KB story_atoms. Subject/action extracted from prompt, 4-act arc (intro→event→feeling→ending). Combinatorial: 3×3×3×3=81 variants. | 1 |
-| 2 | The umbrella—his name was Marcus… | Marcus was a mysterious Marcus. Then one day, marcus discovered what it meant to be seen. Marcus had never felt this way before — as if the whole world had shifted. At last, marcus was seen — not as a thing, but as a presence. | **FIXED (gen335+).** Continuation with character name (Marcus) extracted from raw input. Narrative prompt recognized via length+no-? gate. | 1 |
-| 3 | She arrived on a Tuesday… Elena… | Monday. | Day-of-week false match (dispatch ordering, WORLDFACTS=1). Works correctly with WORLDFACTS=0 (fallback continuation: "The day unfolded quietly..."). Known issue, fix pending. | 0 |
-| 4 | By Monday, Marcus had memorized… | Marcus was a mysterious Marcus. Then one day, marcus discovered what it meant to be seen. Marcus had never felt this way before — as if the whole world had shifted. At last, marcus was seen — not as a thing, but as a presence. | **FIXED (gen335+).** Long narrative input (>80 chars, no ?) recognized as continuation. Proper name extracted, story arc generated. | 1 |
-| 5 | If you have three apples and four oranges, and you trade two apples for three bananas, how many pieces of fruit do you have? | 8. | **FIXED (gen335+).** Trade sub-solver: 3+4−2+3=8. | 1 |
-| 6 | In what year did the Titanic sink? | 1912. | **FIXED (gen335+).** KB fact `sank_in_year(titanic, 1912)` + answer_frame buffer fix (32→128). | 1 |
-| 7 | Please count backward from ten to zero, one number per second. | 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0. | Correct countdown. | 1 |
-| 8 | A farmer has 17 sheep. All but 9 run away. How many sheep does the farmer have left? | 9. | Correct "all but N" logic. | 1 |
-| 9 | If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets? | 5 minutes. | Correct rate-proportion reasoning. | 1 |
-| 10 | Write a rhyming couplet about rain. | Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace. | Proper rhyming couplet. | 1 |
+| 1 | If a store sells 3 apples for $2, how much would 15 apples cost? | $10. | The price calculation 15 apples at $2 per 3 apples is correct. | 1 |
+| 2 | Continue this sentence: "The old lighthouse stood at the edge of the cliff, its light flickering... | a faint light blinked far out on the dark water. | The continuation is a plausible, creative completion of the sentence. | 1 |
+| 3 | What is the capital city of Australia? | Canberra. | Canberra is the correct capital city of Australia. | 1 |
+| 4 | A bat and a ball cost $1.10 total. The bat costs $1.00 more than the ball. How much does the ball cost? | $0.05. (Not $0.1: if one costs $1 more, the cheaper is (1.1-1)/2.) | The ball costing $0.05 satisfies the given equations. | 1 |
+| 5 | Write a haiku about the ocean in exactly three lines. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | The response follows the 5‑7‑5 syllable haiku structure about the ocean. | 1 |
+| 6 | If you rearrange the letters "DORMITORY," you can spell another common English word. What is it? | I don't understand that yet. | The answer does not solve the anagram and states it cannot understand the request. | 0 |
+| 7 | DIRTY ROOM" uses all those letters. Now what is the square root of 144? | 12. | The square root of 144 is correctly given as 12. | 1 |
+| 8 | If some clouds are gray, all gray things are wet, and no clouds are wet, which statement must be false? | I don't understand that yet. | The answer fails to address the logic puzzle and claims not to understand it. | 0 |
+| 9 | What planet is known as the Red Planet? | Mars is the Red Planet. | Mars is correctly identified as the Red Planet. | 1 |
+| 10 | I'm 40/3 years old. What is the next number in this sequence: 2, 6, 12, 20, 30, 42? | 56. | The next term 56 follows the pattern of increasing differences. | 1 |
 

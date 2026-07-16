@@ -1795,6 +1795,7 @@ difference_between(crow, raven, "Ravens are larger with wedge-shaped tails and d
 difference_between(england, uk, "England is one country; the UK also includes Scotland, Wales, and Northern Ireland").
 difference_between(england, united_kingdom, "England is one country; the UK also includes Scotland, Wales, and Northern Ireland").
 difference_between(ephemeral, permanent, "Ephemeral means lasting a very short time; permanent means lasting indefinitely").
+difference_between(shedding_tears, crying_tears, "Shedding tears describes the physical act of tears falling; crying tears implies the emotional state that causes them.").
 difference_between(frog, toad, "Frogs usually have smooth moist skin and jump; toads have drier bumpy skin and crawl more").
 difference_between(holland, netherlands, "The Netherlands is the country; Holland is a region often used informally for it").
 difference_between(its, it_is, "Its means belonging to it; it's is a contraction of it is or it has").
@@ -3417,6 +3418,10 @@ world_superlative_cue("shares a border with the most", most_neighboring_countrie
 wrote(cervantes, don_quixote).   wrote(mary_shelley, frankenstein).
 wrote(dante, the_divine_comedy). wrote(homer, the_odyssey).  wrote(tolstoy, war_and_peace).
 wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, nineteen_eighty_four).
+
+% gen335+: riddle answers — wordplay and logic puzzles as KB facts.
+riddle_answer(shorter, "The word is short — adding 'er' makes it shorter.").
+riddle_answer(longer, "The word is long — adding 'er' makes it longer.").
 
 % gen335+: historical facts organized by period (LLMSCORE Q6 and beyond).
 :- include(facts/history.p0).

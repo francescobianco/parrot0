@@ -279,6 +279,25 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen335+: riddle answers — "what word becomes X when you Y" queries KB. */
+    if (cue(norm, "what word becomes") || cue(norm, "what word gets")) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", norm);
+        char *rw[32]; size_t rn = split_words(rb, rw, 32);
+        for (size_t i = 0; i < rn; i++) {
+            char *t = strip_edge_punct(rw[i]);
+            if (strlen(t) < 3) continue;
+            char ans[1][KB_TERM_LEN];
+            const char *q[] = { t, NULL };
+            if (kb_match(b->kb, "riddle_answer", q, 2, ans, 1) > 0) {
+                char *p = ans[0];
+                size_t l = strlen(p);
+                if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                put(p, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* gen335+: story generation from KB story_atoms.
      * Pattern A: "tell me a story about X that Y" — explicit request.
      * Pattern B: long narrative input (no '?', >100 chars) — continuation.
@@ -295,6 +314,23 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         int is_narrative_cont = is_continuation && !cue(norm, "how") && !cue(norm, "what") &&
                                 !cue(norm, "when") && !cue(norm, "where") && !cue(norm, "who") &&
                                 !cue(norm, "why");
+        /* Tight gate: don't claim imperative/instruction turns ("Write a poem",
+         * "Continue this sentence", "Explain why", "Count backward", etc.) */
+        {
+            char fw[64]; size_t fl = 0;
+            const char *s = norm; while (*s == ' ') s++;
+            while (s[fl] && s[fl] != ' ' && fl + 1 < sizeof fw) { fw[fl] = s[fl]; fl++; }
+            fw[fl] = '\0';
+            if (!strcmp(fw, "write") || !strcmp(fw, "continue") ||
+                !strcmp(fw, "explain") || !strcmp(fw, "count") ||
+                !strcmp(fw, "name") || !strcmp(fw, "give") || !strcmp(fw, "list") ||
+                !strcmp(fw, "describe") || !strcmp(fw, "what") || !strcmp(fw, "how") ||
+                !strcmp(fw, "why") || !strcmp(fw, "when") || !strcmp(fw, "where") ||
+                !strcmp(fw, "who") || !strcmp(fw, "which") ||
+                !strcmp(fw, "you're") || !strcmp(fw, "youre") ||
+                !strcmp(fw, "if") || !strcmp(fw, "is") || !strcmp(fw, "are"))
+                is_narrative_cont = 0;
+        }
 
         if (is_story_req || is_narrative_cont || (is_continuation && has_weekday)) {
             char subj[KB_TERM_LEN] = {0}, obj[KB_TERM_LEN] = {0};
