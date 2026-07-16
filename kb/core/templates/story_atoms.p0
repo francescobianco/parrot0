@@ -1,0 +1,104 @@
+% story_atoms.p0 — Atomic story predicates (gen335+).
+%
+% Each predicate is a self-contained, independent unit of meaning.
+% Any single predicate can be the answer to a narrow prompt
+% (e.g., "introduce a sentient umbrella" → story_intro/4).
+%
+% Predicates compose via nested inference into paragraphs or full stories.
+% The engine does NOT concatenate a monolithic template — it selects the
+% RIGHT atomic predicate for the RIGHT narrative slot, then chains them.
+%
+% This is the same model as haiku_open/mid/close: fixed structure slots,
+% variable content per concept. But here the "concept" can be any combination
+% of (Subject, Object, Adjective, Action).
+%
+% Cited in docs/plans/generative-leverage.md.
+
+% ============================================================
+% SLOT 1 — Introduction: establish the character
+% ============================================================
+% Prompt: "introduce [subject]" / "who is [subject]" / "tell me about [subject]"
+
+story_atom(intro, "[Subject] was a [adjective] [object].").
+story_atom(intro, "There once was a [adjective] [object] named [Subject].").
+story_atom(intro, "[Subject], a [adjective] [object], lived quietly among the [place].").
+
+% ============================================================
+% SLOT 2 — Setting: locate the character in space/time
+% ============================================================
+% Prompt: "where does [subject] live" / "describe the setting"
+
+story_atom(setting, "[Subject] lived in a [place] where the [element] never stopped [verb]ing.").
+story_atom(setting, "Every morning, [subject] would watch the [element] from the [place].").
+story_atom(setting, "The [place] was [subject]'s whole world — and [pronoun] had never known another.").
+
+% ============================================================
+% SLOT 3 — Routine / state before change
+% ============================================================
+% Prompt: "what does [subject] do every day" / "[subject]'s daily life"
+
+story_atom(routine, "Day after day, [subject] would [action], and nothing ever changed.").
+story_atom(routine, "[Subject] had grown used to the [silence/solitude/stillness] of the [place].").
+story_atom(routine, "This was [subject]'s life — [adjective] and [adjective], but [pronoun] did not know any other way.").
+
+% ============================================================
+% SLOT 4 — Inciting event: something changes
+% ============================================================
+% Prompt: "what happened to [subject]" / "the turning point"
+
+story_atom(event, "Then one day, [subject] discovered what it meant to [action].").
+story_atom(event, "Everything changed when [other] arrived — a [adjective] [other_object] who [verb]ed without warning.").
+story_atom(event, "It began as a small thing: [subject] noticed the [element] behaving differently, and [pronoun] could not look away.").
+
+% ============================================================
+% SLOT 5 — Realization / emotional response
+% ============================================================
+% Prompt: "how did [subject] feel" / "[subject]'s reaction"
+
+story_atom(feeling, "[Subject] had never felt this way before — as if the whole world had shifted, and nothing would ever be the same.").
+story_atom(feeling, "A strange warmth filled [subject], something [pronoun] could not name but could not ignore.").
+story_atom(feeling, "[Subject] understood, suddenly and completely, that [pronoun] was no longer the [object] [pronoun] had been.").
+
+% ============================================================
+% SLOT 6 — Waiting / patience / tension
+% ============================================================
+% Prompt: "what did [subject] do next" / "the waiting"
+
+story_atom(waiting, "And so [subject] waited, patient as only [object]s can be.").
+story_atom(waiting, "The days passed, each one longer than the last, but [subject] held on.").
+story_atom(waiting, "[Subject] learned the hardest lesson of all: that some things cannot be hurried, only endured.").
+
+% ============================================================
+% SLOT 7 — Resolution / closure
+% ============================================================
+% Prompt: "how does it end" / "the ending"
+
+story_atom(ending, "At last, [subject] was seen — not as a thing, but as a presence.").
+story_atom(ending, "And in that moment, [subject] knew that every silent year had been worth it.").
+story_atom(ending, "The [element] fell quiet, and [subject] was, for the first time, exactly where [pronoun] belonged.").
+
+% ============================================================
+% SLOT 8 — Moral / reflection (optional)
+% ============================================================
+% Prompt: "what is the moral" / "what did [subject] learn"
+
+story_atom(moral, "[Subject] had learned that even a [adjective] [object] could be loved.").
+story_atom(moral, "Love, [subject] realized, was not something you found — it was something that found you, when you least expected it.").
+story_atom(moral, "And so the [object] who had never moved learned the greatest truth: that stillness, too, is a kind of courage.").
+
+% ============================================================
+% COMPOSITION: story_arc/3 — select a sequence of atoms for a full story
+% ============================================================
+% A story arc is an ordered selection of atomic slots.
+% The engine queries story_arc(Genre, ArcName, $SlotList) to get the sequence,
+% then resolves each slot via story_atom(Slot, $Text) and fills the slots
+% from the prompt context.
+
+% Minimal story: intro → event → feeling → ending
+story_arc(short_story, minimal, cons(intro, cons(event, cons(feeling, cons(ending, nil))))).
+
+% Full arc: intro → setting → routine → event → feeling → waiting → ending
+story_arc(short_story, full, cons(intro, cons(setting, cons(routine, cons(event, cons(feeling, cons(waiting, cons(ending, nil)))))))).
+
+% Romantic arc: intro → event → feeling → waiting → ending → moral
+story_arc(love_story, romantic, cons(intro, cons(event, cons(feeling, cons(waiting, cons(ending, cons(moral, nil))))))).

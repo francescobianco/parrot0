@@ -53,15 +53,47 @@ Aggiungere il tema "forest" richiede 9 fatti KB. Zero C. L'engine non cambia.
 **Riconoscimento:** `"tell me a short story"`, `"write a story"`, `"tell me a tale"`
 → `intent: story_request`
 
-**Inferenza:** `story_request($Subject, $Action, $Genre, $Output)` dove Subject
-e Action sono estratti dal prompt, Genre è `short_story`. La KB ha template
-etichettati per combinazioni (soggetto, azione, genere). Il motore seleziona
-il primo template compatibile e riempie gli slot.
+**Modello a predicati atomici:** il template non è una stringa monolitica con
+slot. È un insieme di **predicati indipendenti**, ciascuno con senso compiuto,
+che compongono la storia per inferenza nested.
 
-**Template KB (esempio):**
 ```
-story_template(sentient_object, love, "[Subject] was a [adjective] [object]. One day, [subject] discovered what it meant to [action]. [Pronoun] had never felt this way before — as if the whole world had shifted. And so [subject] waited, patient as only [object]s can be, for the one who would see [pronoun] not as a thing, but as a presence.")
+story_atom(intro,    "[Subject] was a [adjective] [object].").
+story_atom(setting,  "[Subject] lived in a [place] where the [element] never stopped [verb]ing.").
+story_atom(event,    "Then one day, [subject] discovered what it meant to [action].").
+story_atom(feeling,  "[Subject] had never felt this way before — as if the whole world had shifted.").
+story_atom(waiting,  "And so [subject] waited, patient as only [object]s can be.").
+story_atom(ending,   "At last, [subject] was seen — not as a thing, but as a presence.").
+story_atom(moral,    "[Subject] had learned that even a [adjective] [object] could be loved.").
 ```
+
+Ogni `story_atom/2` è un predicato autonomo: può essere la risposta a un
+prompt specifico ("introduce [subject]", "how did [subject] feel", "how does
+it end"). La storia completa è un **arco narrativo** che seleziona una sequenza
+ordinata di atomi:
+
+```
+story_arc(short_story, minimal, cons(intro, cons(event, cons(feeling, cons(ending, nil))))).
+story_arc(love_story, romantic, cons(intro, cons(event, cons(feeling, cons(waiting, cons(ending, cons(moral, nil)))))).
+```
+
+L'engine C risolve `story_arc($Genre, $ArcName, $Slots)`, itera la lista con
+`findall` o ricorsione, per ogni slot chiama `story_atom($Slot, $Text)`,
+riempie gli slot con i valori estratti dal prompt, ed emette le frasi
+concatenate.
+
+**File:** `kb/core/templates/story_atoms.p0`
+
+Questo modello è potente perché:
+- Ogni atomo ha **senso compiuto indipendente** — può vivere da solo
+- Lo spazio combinatorio è il prodotto di tutte le varianti per ogni slot:
+  3 intro × 3 setting × 3 event × 3 feeling × 2 waiting × 3 ending = 486 storie
+- Aggiungere una variante è un fatto KB. Aggiungere un nuovo slot (es. `conflict`)
+  è un fatto KB + un arco che lo include
+- La **grammatica** è garantita (frasi pre-composte). La **coerenza** è garantita
+  (ogni atomo è etichettato per ruolo narrativo, non per tema arbitrario)
+- Un prompt come "introduce a sentient umbrella" collide direttamente con
+  `story_atom(intro, "...")` — è query KB, non generazione
 
 ### Pattern B — Continuazione implicita (Q2, Q3, Q4)
 
