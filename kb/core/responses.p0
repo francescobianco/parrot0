@@ -169,6 +169,16 @@ response_template(smalltalk_continue, it, "Non ho esperienze mie, ma mi piacereb
 response_template(smalltalk_continue, it, "Bello -- com'è andata?").
 response_template(smalltalk_continue, it, "Bene. Cos'altro ti gira per la testa?").
 response_template(smalltalk_continue, it, "Non l'ho provato di persona, ma sono curioso -- cosa ti piace di questa cosa?").
+
+% gen335 (long-conversation, social branch): an experiential QUESTION addressed to
+% parrot0 ("do you...", "have you got...", "what are your plans...") that reached the
+% last resort -- deflect HONESTLY (no invented experiences) and hand the turn back with
+% an open question. KB-first: add a variant/language as a fact.
+response_template(smalltalk_deflect, "I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours.").
+response_template(smalltalk_deflect, "Not something I do myself, honestly -- but tell me, what about you?").
+response_template(smalltalk_deflect, "I can't claim any of my own, but I'm curious -- what about you?").
+response_template(smalltalk_deflect, it, "Non ne ho di miei -- sono parrot0, un'IA -- ma raccontami dei tuoi.").
+response_template(smalltalk_deflect, it, "Non è una cosa che faccio io, ma dimmi -- e tu?").
 response_template(greeting_reply, it, "Ciao!").
 response_template(greeting_reply, it, "Ehilà!").
 response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere -- quali sono le due opzioni?").

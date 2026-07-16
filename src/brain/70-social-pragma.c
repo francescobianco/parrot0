@@ -338,8 +338,31 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
      * phrases, EN+IT). Last-resort: only turns nothing else claimed reach here, and
      * an impersonal factual question carries no such cue, so it falls through to the
      * honest informed decline rather than getting a "tell me more". */
-    if (!kb_cue_match(b, "smalltalk_continue", norm)) return 0;
-    return kb_response(b, "smalltalk_continue", NULL, out, out_size);
+    if (kb_cue_match(b, "smalltalk_continue", norm))
+        return kb_response(b, "smalltalk_continue", NULL, out, out_size);
+
+    /* gen335 (long-conversation, social branch): an experiential QUESTION addressed to
+     * parrot0 ("do you...", "have you got...", "what are your plans?") that reached the
+     * last resort — nothing factual claimed it, so it is a smalltalk move. Recognise the
+     * STRUCTURE (a second-person question), not a phrase list: a question opener + "you"/
+     * "your". Deflect honestly (no invented experience) and hand the turn back. */
+    {
+        int addressed = 0;
+        for (size_t i = 0; i < nw; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (!strcmp(t, "you") || !strcmp(t, "your") || !strcmp(t, "yours")) { addressed = 1; break; }
+        }
+        const char *o = w[0];
+        int question = (strchr(norm, '?') != NULL) ||
+            !strcmp(o,"do")||!strcmp(o,"does")||!strcmp(o,"did")||!strcmp(o,"have")||
+            !strcmp(o,"has")||!strcmp(o,"are")||!strcmp(o,"is")||!strcmp(o,"was")||
+            !strcmp(o,"were")||!strcmp(o,"can")||!strcmp(o,"could")||!strcmp(o,"would")||
+            !strcmp(o,"will")||!strcmp(o,"what")||!strcmp(o,"how")||!strcmp(o,"why")||
+            !strcmp(o,"ever");
+        if (addressed && question)
+            return kb_response(b, "smalltalk_deflect", NULL, out, out_size);
+    }
+    return 0;
 }
 
 /* --- module: pragma (gen142, E3) -----------------------------------------
