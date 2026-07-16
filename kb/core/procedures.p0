@@ -158,3 +158,82 @@ form_maps_to($F, $P) :- question_form($F, identity_lookup), answer_frame($F, $P)
 % ── L8: ARGUMENTATION ──
 valid_syllogism($A, $B, $C) :- is_a($A, $B), is_a($B, $C).
 justified($C, $P) :- argument(conclusion, $C), argument(premise, $P), argument_supports($P, $C).
+
+% ═══════════════════════════════════════════════════════════
+% L10 — PROOF TREES & EXPLANATION CHAINS
+% ═══════════════════════════════════════════════════════════
+
+% reason_for/3: X has property P because of rule R and supporting fact C
+reason_for($X, $P, inherits) :- inherits($X, $P), is_a($X, $C), has_prop($C, $P).
+reason_for($X, $P, direct) :- has_prop($X, $P).
+
+% explains/2: one-step explanation
+explains(inherits($X, $P), is_a($X, $C)) :- inherits($X, $P), is_a($X, $C), has_prop($C, $P).
+explains(inherits($X, $P), has_prop($C, $P)) :- inherits($X, $P), is_a($X, $C), has_prop($C, $P).
+
+% deduction_chain/3: A derives B via intermediate C
+deduction_chain($A, $B, is_a) :- is_a_t($A, $B).
+deduction_chain($A, $B, kind_of) :- kind_of_t($A, $B).
+deduction_chain($A, $B, causes) :- causes_t($A, $B).
+deduction_chain($A, $B, larger_than) :- larger_than_t($A, $B).
+deduction_chain($A, $B, heavier_than) :- heavier_than_t($A, $B).
+deduction_chain($A, $B, faster_than) :- faster_than_t($A, $B).
+deduction_chain($A, $B, part_of) :- part_of_t($A, $B).
+deduction_chain($A, $B, located_in) :- located_in_t($A, $B).
+deduction_chain($A, $B, north_of) :- north_of_t($A, $B).
+deduction_chain($A, $B, east_of) :- east_of_t($A, $B).
+deduction_chain($A, $B, contains) :- contains_t($A, $B).
+deduction_chain($A, $B, after_time) :- after_in_time($A, $B).
+
+% ═══════════════════════════════════════════════════════════
+% L11 — INDUCTION & GENERALIZATION
+% ═══════════════════════════════════════════════════════════
+
+% generalize/3: from examples (A has P, B has P) infer that category C has P
+generalize($C, $P, $E1) :- category_member($C, $E1), has_prop($E1, $P),
+                            category_member($C, $E2), has_prop($E2, $P).
+generalize($C, $P, $E2) :- category_member($C, $E2), has_prop($E2, $P),
+                            category_member($C, $E1), has_prop($E1, $P).
+
+% all_have/2: every member of category C has property P (induced)
+% A property is universal if no counterexample exists
+counterexample($C, $P, $X) :- category_member($C, $X), naf(has_prop($X, $P)),
+                               naf(inherits($X, $P)).
+
+% typical/2: most members have P (non-universal, inductive)
+typical($C, $P) :- category_member($C, $X), has_prop($X, $P),
+                    naf(counterexample($C, $P, $X)).
+
+% ═══════════════════════════════════════════════════════════
+% L12 — CONSISTENCY & CONSTRAINT CHECKING
+% ═══════════════════════════════════════════════════════════
+
+% contradiction/0: the KB contains a contradiction
+contradiction($X) :- is_a($X, $C1), is_a($X, $C2),
+                      incompatible($C1, $C2).
+
+% constraint_violation/2: X violates constraint C
+constraint_violation($X, unique_capital) :- capital_of_country($C, $X1),
+                                             capital_of_country($C, $X2).
+
+% ═══════════════════════════════════════════════════════════
+% TEMPORAL DURATION & INTERVALS
+% ═══════════════════════════════════════════════════════════
+
+% happened_between/3: event E happened between years Y1 and Y2
+happened_between($E, $Y1, $Y2) :- happened_in($E, $Y),
+                                   ge($Y, $Y1), le($Y, $Y2).
+
+% same_era/2: two events happened in the same period
+same_era($E1, $E2) :- happened_during($E1, $P), happened_during($E2, $P).
+
+% ═══════════════════════════════════════════════════════════
+% NUMERICAL RANGE & CLASSIFICATION
+% ═══════════════════════════════════════════════════════════
+
+% between_values/3: V is between Min and Max (inclusive)
+between_values($V, $Min, $Max) :- ge($V, $Min), le($V, $Max).
+
+% heavier_than_value/3: X is heavier than V kg
+heavier_than_value($X, $V) :- mass_of($X, $M), gt($M, $V).
+

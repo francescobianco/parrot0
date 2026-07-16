@@ -269,6 +269,10 @@
 % via learnable/substring, queryable, and localizable. ---
 
 % ── COMPREHENSION FRAMES (answer_frame) (scattered from mesh-session.p0, gen335) ──
+
+% ── META-COGNITIVE COMPREHENSION FRAMES (L4-L9) ──
+
+% ── META-COGNITIVE + GEOGRAPHY + CHEMISTRY FRAMES (gen335 round-3 saturation) ──
 intent_phrase(ask_name, "what is my name").
 intent_phrase(ask_name, "what is my name?").
 intent_phrase(ask_name, "what's my name").
@@ -1004,11 +1008,21 @@ answer_frame(speed, speed_of).
 answer_frame(symbol, chemical_symbol).
 answer_frame(tallest_mountain, tallest_mountain).
 answer_frame(wrote, author_of).
-
-% ── META-COGNITIVE COMPREHENSION FRAMES (L4-L9) ──
 answer_frame("know about", kb_knows_about).
 answer_frame("knows about", kb_knows_about).
 answer_frame("transitive relation", transitive).
 answer_frame("symmetric relation", symmetric).
 answer_frame("source of", predicate_source).
 answer_frame("confidence in", fact_confidence).
+answer_frame("transitive", transitive).
+answer_frame("asymmetric", asymmetric).
+answer_frame("symmetric", symmetric).
+answer_frame("domain", predicate_domain).
+answer_frame("source", predicate_source).
+answer_frame("confidence", fact_confidence).
+answer_frame("element", chemical_symbol).
+answer_frame("capital of", capital_of_country).
+answer_frame("currency of", currency_of_country).
+answer_frame("language", language_of_country).
+answer_frame("continent", continent_of).
+answer_frame("borders", borders_country).
