@@ -599,6 +599,37 @@ guadagno.*
    ([[autolearn-knowledge-is-official]]) — più nodi, un teacher, un giudice indipendente,
    conoscenza ufficiale committata solo quando la proof regge.
 
+## 8.1 Cosa massimizza il risultato — lettura del LLMSCORE 6/10
+
+> **La lezione più importante del 6/10:** gli operatori di ordine superiore congelati
+> in §4.4 (kind_of/prop_of/larger_than/forebear) **non hanno mosso il punteggio**, perché
+> il giudice parla in NL e quegli operatori **non sono rispondibili** (MESH-L1, `kb_match`
+> si impianta sulle regole, MESH-L5). Quindi il collo di bottiglia **non è più conoscenza
+> di ordine superiore — è la RAGGIUNGIBILITÀ** di quella che già esiste. Il moltiplicatore
+> vero è rendere risponibili gli operatori, non aggiungerne altri.
+
+**Il lavoro-abilitante n°1 (sblocca tutto): `kb_match` che enumera SICURO sulle regole.**
+Oggi `kb_match` su un predicato con regola va in loop; per questo `answer_frame` non può
+verbalizzare una conclusione *derivata*. Un `kb_match` depth-bounded (come `kb_query`)
+rende **rispondibile ogni operatore già congelato** — è la leva a più alto ritorno.
+
+**Mappa dei 4 punti persi → conoscenza di ordine superiore + lavoro di mesh:**
+
+| Perso | Cosa serve (conoscenza di ordine superiore) | Lavoro di mesh |
+|---|---|---|
+| Q3 *"tre stati della materia"* (muro) | **operatore di ENUMERAZIONE/aggregazione**: "quali sono gli X" su una categoria (`aggregate_frame` esiste già). Generalizza a "nomina i pianeti / i colori primari / i continenti" — una classe intera con **un** operatore + fatti di appartenenza. **Il target a più alta leva.** | teacher congela `category_member/2` + il frame di enumerazione; giudice con probe held-out di "elenca gli X" |
+| Q10 *problema dei treni* (muro) | **operatore word-problem/algebrico**: mappare una storia tasso-tempo-distanza a un'equazione e risolverla (`catch_up = head_start/(v2−v1)`). Gli schemi sono conoscenza, KB-first e rispondibili. | teacher congela gli schemi rate/time/distance come regole di riscrittura + il consumer che li risolve |
+| Q7 *puzzle delle scatole* (non-sequitur "clockwork bird") | **il difetto peggiore, ed è ROUTING non conoscenza**: un modulo creativo ha reclamato un turno di logica. Serve disciplina di dispatch (colla linguistica) + un operatore di **soddisfazione di vincoli**. L'incoerenza è l'opposto di un LLM. | non è mesh-di-conoscenza: è un pull di [[the-linguistic-glue]] (il modulo giusto reclama il turno giusto) |
+| Q2 *opening line di un giallo* (deviato) | **soffitto generativo onesto** (classe "genera" del [[kb-first-manifesto]]). Un banco di template di apertura (come `haiku_open`) lo renderebbe rispondibile, ma è il limite vero. | opzionale: teacher congela schemi di apertura narrativa; altrimenti si ammette |
+
+**La forma di mesh che massimizza:** il teacher congela **operatore + il suo CONSUMER
+insieme** (l'operatore da solo non si vede in conversazione), su predicati che un
+`kb_match` sicuro sa enumerare; il giudice indipendente sonda le **classi** esposte dal
+punteggio (enumerazione, word-problem, sì/no derivato), non domande singole. Priorità:
+**(1)** `kb_match` sicuro sulle regole → **(2)** frame enumerazione (Q3, massima
+generalizzazione) → **(3)** schemi word-problem (Q10) → **(4)** routing per Q7. Solo così
+la conoscenza di ordine superiore già congelata *e* quella nuova diventano punteggio.
+
 ## 9. Collegamenti
 
 [docs/prolog-like-engine.md](../prolog-like-engine.md) (§5 — insidie di sintassi + fact
