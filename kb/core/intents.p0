@@ -1030,3 +1030,23 @@ answer_frame("borders", borders_country).
 % gen335+: riddle and contrast answer frames (LLMSCORE Q8-Q10).
 answer_frame(difference, difference_between).
 answer_frame(shorter, riddle_answer).
+
+% gen335 (long-conversation): experiential/leisure markers. "what do you do FOR FUN /
+% in your free time / for a living" is a smalltalk move about experience, not a
+% capability query — this evidence disqualifies the capability reading (mod_smalltalk's
+% honest deflect handles it). Factored evidence, EN+IT; a new marker is one fact.
+intent_cue(experiential_move, "for fun").
+intent_cue(experiential_move, "free time").
+intent_cue(experiential_move, "spare time").
+intent_cue(experiential_move, "for a living").
+intent_cue(experiential_move, "on weekend").
+intent_cue(experiential_move, "for a hobby").
+intent_cue(experiential_move, "hobby").
+intent_cue(experiential_move, "hobbies").
+intent_cue(experiential_move, "to relax").
+intent_cue(experiential_move, "in your free").
+intent_cue(experiential_move, "tempo libero").
+intent_cue(experiential_move, "per divertirti").
+intent_cue(experiential_move, "per hobby").
+intent_cue(experiential_move, "nel weekend").
+intent_cue(experiential_move, "per rilassarti").

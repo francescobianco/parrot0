@@ -407,6 +407,10 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
                 !strcmp(t,"tu")||!strcmp(t,"tuo")||!strcmp(t,"tua")||        /* IT */
                 !strcmp(t,"tuoi")||!strcmp(t,"tue")||!strcmp(t,"ti")) { addressed = 1; break; }
         }
+        /* an experiential marker ("for fun", "hobby", "tempo libero") is itself a
+         * smalltalk signal — covers Italian PRO-DROP questions with no explicit "tu". */
+        if (!addressed && (kb_cue_match(b, "experiential_move", norm) ||
+                           kb_cue_match(b, "experiential_move", raw))) addressed = 1;
         const char *o = w[0];
         int question = (strchr(norm, '?') != NULL) ||
             !strcmp(o,"do")||!strcmp(o,"does")||!strcmp(o,"did")||!strcmp(o,"have")||

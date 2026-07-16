@@ -1678,6 +1678,13 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
     size_t nw = split_words(buf, w, 64);
     if (nw < 2) return 0;
 
+    /* gen335 (long-conversation): "cosa fai nel tempo libero" / "what do you do for fun"
+     * is an experiential smalltalk move, not a produce-this request — an experiential_move
+     * marker defers it to mod_smalltalk's honest deflect. Evidence, not a phrase list. */
+    if (kb_cue_match(b, "experiential_move", buf) ||
+        kb_cue_match(b, "experiential_move", raw))
+        return 0;
+
     size_t vi = (size_t)-1;                 /* the make-verb, imperative slot */
     for (size_t i = 0; i < nw && i < 3; i++)
         if (reqgen_in_class(b, "make_verb", strip_edge_punct(w[i]))) { vi = i; break; }

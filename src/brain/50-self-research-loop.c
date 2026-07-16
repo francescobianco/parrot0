@@ -926,6 +926,14 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     if (capability && (kb_cue_match(b, "50_self_research_loop_chain458", buf)))
         capability = 0;
 
+    /* gen335 (long-conversation): "what do you do FOR FUN / in your free time / for a
+     * living" is an experiential smalltalk move, not a capability query — an
+     * experiential_move marker disqualifies the capability reading so mod_smalltalk's
+     * honest deflect answers it. Evidence (a KB marker present), not a phrase list. */
+    if (capability && (kb_cue_match(b, "experiential_move", buf) ||
+                       kb_cue_match(b, "experiential_move", ribuf)))
+        capability = 0;
+
     /* gen325 (TODO.md P6, forge plan §18): WHERE I END.
      *
      * Asked what it could not do, parrot0 answered "I am parrot0." — the identity
