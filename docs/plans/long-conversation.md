@@ -267,6 +267,25 @@ Nuovi fatti KB: intent_phrase per ogni variante, memory_slot per ogni slot
 Test: "what's my name again?" / "do you still remember my name?" / "who am i?" → stesso risultato
 ```
 
+## Progresso — M-personal (fatto, gen335): cattura+recall di fatti personali, FATTORIZZATO
+
+Primo pull verso la dinamica dominante delle baseline (*memoria di dettagli condivisi*).
+`mod_personal` (`10-memory-knowledge.c`) cattura "I live in Rome" / "I work as a teacher"
+in `user_value(Slot, Value)` e li richiama ("where do I live?" → "Rome.",
+"what do I do for work?" → "Teacher."). **KB-first e FATTORIZZATO** (non una catena di
+frasi, kb-first.md / [[universal-input]] §4): la conoscenza è `slot_evidence(Slot, Cue)`
+con cue corti e discriminanti (come `segment_role`), e **quale slot** è un'ipotesi *scored*
+dal motore condiviso `kb_hypothesis_best` — winner netto agisce, **TIE/nessuna evidenza
+declina onestamente** (no first-match `strstr`). La struttura (frase vs domanda,
+self-reference) è riconosciuta genericamente; aggiungere uno slot o una lingua = fatti in
+`kb/core/personal.p0`, zero C. `make test`: nessuna nuova failure.
+
+**Aperti da qui:** (a) `origin` ("I was born in X") oggi perde contro l'handler-demonimo
+(→ "Milanese") — va risolto l'ordine di dispatch; (b) l'ack a volte esce in italiano su
+input inglese — è il rilevamento lingua (default `os_language` al 1° turno), un pull a sé;
+(c) restano R1 (continuazione fatti), R2 (coref cross-turn — la leva più alta secondo le
+baseline), R3 (meta-recall), M-vincoli.
+
 ## La disciplina (ereditata dalla colla linguistica)
 
 1. **Un meccanismo per generazione, tirato da un fallimento.** Non si pre-progetta

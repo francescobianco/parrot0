@@ -2531,6 +2531,104 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* gen335 (long-conversation, KB-first per F.): generalized personal-fact capture +
+ * recall — FACTORED, not a cue chain (kb-first.md, universal-input.md §4). The knowledge
+ * is small evidence facts, one dimension:
+ *   slot_evidence(Slot, "cue")   — a discriminative marker for a memory slot (like
+ *                                  segment_role(constraint,"senza")). Many per slot = more
+ *                                  evidence, EN+IT.
+ * The DECISION (which slot) is a scored HYPOTHESIS via the shared kb_hypothesis_best (the
+ * same engine behind register_evidence/segment_role): a clear winner acts, a TIE or NO
+ * evidence declines honestly — never a first-match strstr chain. The STRUCTURE (statement
+ * vs question, self-reference) is recognised generically in C; only the winning slot's own
+ * cues are re-scanned to locate the value. Adding "i was born in X" (origin) or an Italian
+ * marker is ONE fact, ZERO C. */
+static const char *PERSONAL_STOP[] = {
+    "in","at","as","from","to","of","on","a","an","the","for","by","with",
+    "di","da","del","della","un","uno","una","il","lo","la","come","a_", NULL };
+static int is_personal_stop(const char *w) {
+    for (size_t i = 0; PERSONAL_STOP[i]; i++) if (!strcmp(w, PERSONAL_STOP[i])) return 1;
+    return 0;
+}
+static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
+                        size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm || !*norm) return 0;
+
+    /* structure: is this about the USER (self-reference), and a question or a statement? */
+    char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
+    char *w[80]; size_t nw = split_words(nb, w, 80);
+    int selfref = 0, question = (strchr(norm, '?') != NULL);
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (!strcmp(t,"i")||!strcmp(t,"my")||!strcmp(t,"im")||!strcmp(t,"me")||
+            !strcmp(t,"io")||!strcmp(t,"mi")||!strcmp(t,"mio")||!strcmp(t,"mia"))
+            selfref = 1;
+        const char *qa[1] = { t };
+        if (kb_query(b->kb, "question_word", qa, 1)) question = 1;
+    }
+    if (!selfref) return 0;   /* not about the user — leave it to another faculty */
+
+    /* which memory SLOT does the evidence point to? shared scorer, honest ambiguity. */
+    char slot[KB_TERM_LEN]; int score = 0; char proof[KB_EVIDENCE_PROOF_LEN];
+    int r = kb_hypothesis_best(b->kb, "slot_evidence", norm, NULL, 0,
+                               slot, sizeof slot, &score, proof, sizeof proof);
+    if (r != 1 || !slot[0]) return 0;   /* gap or ambiguous -> decline, don't guess */
+
+    if (question) {                     /* RECALL from user_value(Slot, ?) */
+        const char *vq[2] = { slot, NULL };
+        char val[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "user_value", vq, 2, val, 1) == 1) {
+            char pres[KB_TERM_LEN];
+            present_atom(b, kb_dequote(val[0]), pres, sizeof pres);
+            if (pres[0]) pres[0] = (char)toupper((unsigned char)pres[0]);
+            char msg[220]; snprintf(msg, sizeof msg, "%s.", pres);
+            put(msg, out, out_size);
+            return 1;
+        }
+        char tmpl[220];
+        if (lang_template(b, "personal_unknown", tmpl, sizeof tmpl)) {
+            put(tmpl, out, out_size);
+        } else {
+            char disp[64]; snprintf(disp, sizeof disp, "%s", slot);
+            for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+            char msg[220];
+            snprintf(msg, sizeof msg, "You haven't told me your %s yet.", disp);
+            put(msg, out, out_size);
+        }
+        return 1;
+    }
+
+    /* CAPTURE: locate the WINNING slot's own cue in the text, value = the tail. */
+    char cues[16][KB_TERM_LEN];
+    const char *cq[2] = { slot, NULL };
+    size_t nc = kb_match(b->kb, "slot_evidence", cq, 2, cues, 16);
+    const char *bestpos = NULL; size_t bestlen = 0;
+    for (size_t i = 0; i < nc; i++) {
+        const char *cd = kb_dequote(cues[i]);
+        const char *pos = strstr(norm, cd);
+        if (pos && strlen(cd) > bestlen) { bestpos = pos; bestlen = strlen(cd); }
+    }
+    if (!bestpos) return 0;
+    char tbuf[256]; snprintf(tbuf, sizeof tbuf, "%s", bestpos + bestlen);
+    char *tw[40]; size_t tn = split_words(tbuf, tw, 40);
+    char value[128]; size_t off = 0; value[0] = '\0';
+    for (size_t k = 0; k < tn && off + 1 < sizeof value; k++) {
+        char *t = strip_edge_punct(tw[k]);
+        if (!*t) continue;
+        if (off == 0 && is_personal_stop(t)) continue;   /* skip leading prep/article */
+        off += (size_t)snprintf(value + off, sizeof value - off, "%s%s", off ? "_" : "", t);
+    }
+    if (!value[0]) return 0;
+    kb_set_origin(b->kb, KB_SESSION);
+    const char *uv[2] = { slot, value };
+    kb_assert(b->kb, "user_value", uv, 2);
+    char tmpl[220];
+    if (lang_template(b, "personal_ack", tmpl, sizeof tmpl)) put(tmpl, out, out_size);
+    else put("Got it, I'll remember that.", out, out_size);
+    return 1;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;

@@ -1,0 +1,26 @@
+% ── PERSONAL FACTS — capture + recall (KB-first, FATTORIZZATO) ────────────────────
+% Le cose che l'utente dice di sé ("I live in Rome", "I work as an engineer") si
+% memorizzano come user_value(Slot, Value) e si richiamano ("where do I live?").
+%
+% NON una catena di frasi (frasario): la conoscenza è FATTORIZZATA in evidenze corte
+% e discriminanti, una per marcatore, come segment_role(constraint,"senza"). La
+% DECISIONE di quale slot è un'ipotesi SCORED dal motore condiviso (kb_hypothesis_best,
+% lo stesso di register_evidence/segment_role): winner netto → agisce, TIE o nessuna
+% evidenza → declina. Il modulo C (mod_personal) riconosce la STRUTTURA (frase vs
+% domanda, self-reference) e estrae il valore. Aggiungere uno slot/una lingua = fatti.
+
+% --- slot_evidence(Slot, Cue): marcatori discriminanti per ciascuno slot (EN + IT) ---
+slot_evidence(residence, "live").      slot_evidence(residence, "reside").
+slot_evidence(residence, "vivo").      slot_evidence(residence, "abito").
+slot_evidence(occupation, "work").     slot_evidence(occupation, "job").
+slot_evidence(occupation, "lavoro").
+% NB: `origin` (born in / come from) resta da abilitare: oggi "I was born in Milan"
+% è intercettato dall'handler demonimo (born in X → "Milanese") PRIMA di mod_personal.
+% Va risolto l'ordine di dispatch (o l'handler deve cedere su una frase in prima
+% persona "I was born in X") — allora basta aggiungere qui gli slot_evidence(origin,…).
+
+% --- risposte (KB, EN + IT) ---
+response_template(personal_ack, en, "Got it, I'll remember that.").
+response_template(personal_ack, it, "Perfetto, me lo ricordo.").
+response_template(personal_unknown, en, "You haven't told me that yet.").
+response_template(personal_unknown, it, "Non me l'hai ancora detto.").

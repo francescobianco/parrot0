@@ -196,6 +196,8 @@ static const Module registry[] = {
     {"discourse", mod_discourse},
     {"pragma",    mod_pragma},
     {"family",    mod_family},
+    {"personal",  mod_personal},   /* gen335: user self-facts; AFTER family so "my father
+                                    * works in a bank" stays a family statement, not a job */
     {"social",    mod_social},
     {"chitchat",  mod_chitchat},
     {"reqgen",    mod_reqgen},
@@ -512,6 +514,11 @@ Brain *brain_create(void) {
      * (The higher-order world knowledge from the mesh was scattered into world-facts.p0
      * and social.p0 so the save-map routes future growth next to its kin.) */
     kb_load(b->kb, "kb/core/procedures.p0");
+
+    /* gen335 (long-conversation): personal-fact capture/recall knowledge — factored
+     * slot_evidence/2 (scored by the shared hypothesis engine) + EN/IT reply templates.
+     * Drives mod_personal (10-memory-knowledge.c). A new slot or language is facts. */
+    kb_load(b->kb, "kb/core/personal.p0");
 
     /* gen230/gen235: curated world commons. Tests that must prove dynamic
      * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
