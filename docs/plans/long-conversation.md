@@ -28,6 +28,49 @@
 (il motore non crasha), ma la coerenza collassa rapidamente. Fatti isolati sempre
 recuperabili in qualunque momento.
 
+## Baseline gold — un LLM che parla con sé stesso (il target, misurabile)
+
+> **Aggiunto gen335 (2026-07-16).** Prima di evolvere la colla su parrot0 serve un
+> **riferimento attendibile** di come *è fatta* una conversazione lunga coerente. Non
+> lo inventiamo: lo **catturiamo** facendo parlare un LLM con sé stesso e conservando i
+> transcript come baseline. `longtalk_bench.py` misura parrot0 *contro* un LLM; queste
+> baseline sono l'altra metà — **cosa deve assomigliare** parrot0.
+
+- **Generatore:** `tests/longchat/selfchat_baseline.py` (stesso framework di
+  `llmscore.py`: opencode-GO, `$OPENCODE_API_KEY`). Due "sedie" A/B, **lo stesso
+  modello** su entrambe, ciascuna con una persona minima che dà una spina alla
+  conversazione (altrimenti due modelli identici collassano in un loop di cortesia).
+- **Baseline conservate:** `tests/longchat/baselines/selfchat-<scenario>-<model>.{md,json}`,
+  3 scenari × 18 turni, `minimax-m2.5`. Ognuna porta un **profilo di dinamica** (euristico).
+
+| Scenario | Turni | Parole/turno | Coref cross-turn | Domande | Dinamica dominante |
+|---|---|---|---|---|---|
+| `acquaintance` (conoscersi) | 19 | 62 | **73** | 18 | memoria di dettagli condivisi + callback |
+| `trip` (pianificare un viaggio) | 19 | 31 | 17 | 9 | continuazione + goal pendente ("book by mid-week") |
+| `opinions` (chiacchiere che derivano) | 19 | 64 | **81** | 12 | topic-drift + correzione + coreferenza densa |
+
+**L'osservazione che ridisegna le priorità del piano.** In tutte e tre le baseline i
+*connettori a inizio turno* ("and of Italy?") sono **rari** (metrica `continuation_openers`
+≈ 0): l'LLM tiene la coerenza **soprattutto per COREFERENZA e callback topicale**
+(73-81 riferimenti cross-turn per sessione), non con frammenti-"and". La continuazione
+esiste ma è **mid-turn** ("Cabin is the move. *And for food*, should we…"). Conseguenza:
+il pull più redditizio non è `fragment_resolve` (R1, connettore iniziale) ma **la
+coreferenza cross-turn + la CONSISTENZA del contesto** (R2 + "un solo interlocutore") —
+è lì che vive il grosso della colla di un LLM. R1 resta valido, ma è una fetta minore di
+quanto il piano assumeva.
+
+**Caveat onesti.** (a) Il profilo è euristico (conta pronomi/`?`), caratterizza la
+baseline, non la *giudica*. (b) `continuation_openers` è turn-initial-only, quindi
+sotto-conta le continuazioni mid-turn — da migliorare. (c) Nello scenario `opinions` una
+sedia ha rivelato "you're an AI?" a metà: è un **artefatto reale del self-chat** (i due
+modelli a volte rompono la finzione), conservato onestamente come parte della dinamica.
+
+**Uso previsto.** Queste baseline sono il **metro di paragone** per far crescere la colla
+di parrot0: per ogni sintomo chiuso (R1-R4, vincoli, ecc.) si confronta il comportamento
+di parrot0 sullo **stesso scenario** con la baseline gold, e si misura quanto della
+dinamica (coref, callback, consistenza) parrot0 riproduce. Rigenerare/estendere:
+`python tests/longchat/selfchat_baseline.py --scenario all --turns 30`.
+
 ## La colla linguistica come framework
 
 La [colla linguistica](the-linguistic-glue.md) non è un modulo. È il **tessuto

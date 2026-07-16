@@ -198,6 +198,14 @@ game-bench: build
 chat-sim: build
 	@$(BENCH_PY) ./tests/chatsim.py
 
+# selfchat-baseline (gen335): an LLM talks to ITSELF, saved as the GOLD reference for
+# the long-conversation mission (docs/plans/long-conversation.md) — what a naturally
+# coherent long dialogue looks like, to evolve/measure parrot0's glue against. Same
+# provider/auth as chat-sim ($OPENCODE_API_KEY). Writes tests/longchat/baselines/.
+# External + non-deterministic, NOT part of `make test`. Vars: ARGS="--turns 30 ...".
+selfchat-baseline:
+	@$(BENCH_PY) ./tests/longchat/selfchat_baseline.py $(ARGS)
+
 # Cryptic-stimulus challenge: a non-reasoning oracle LLM vs parrot0 on short,
 # OPEN-ENDED symbolic stimuli with no checkable answer — ASCII art, odd
 # symmetries, leetspeak, Morse, musical notes, incomplete code. We study HOW the
