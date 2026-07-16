@@ -374,6 +374,13 @@ static void deep_resolve(const Subst *s, const char *t,
                          char *dst, size_t dstsz, int depth) {
     const char *r = resolve(s, t);
     if (depth > KB_MAX_DEPTH) { snprintf(dst, dstsz, "%s", r); return; }
+    /* U9 (gen335+): chain through variable-to-variable bindings — $Q↦$Z↦"belgium"
+     * must resolve to "belgium", not "$Z". Guard against cycles. */
+    for (int vg = 0; vg < KB_MAX_DEPTH && is_var(r); vg++) {
+        const char *nxt = resolve(s, r);
+        if (strcmp(nxt, r) == 0) break;
+        r = nxt;
+    }
     char f[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
     size_t n = 0;
     if (split_compound(r, f, args, &n)) {

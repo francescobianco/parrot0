@@ -1,0 +1,149 @@
+% meta.p0 — Abstraction ceiling saturation L4-L12 (gen335+).
+% Engine primitives: call/1, findall/3, assert/retract, dif/2, prob/2, ranges_over/3.
+% All rules MUST be single-line (parser limitation).
+
+% ============================================================================
+% L4 — ONTOLOGIA DELLE RELAZIONI
+% ============================================================================
+
+relation_domain(is_a, taxonomy).
+relation_domain(has_prop, taxonomy).
+relation_domain(kind_of, taxonomy).
+relation_domain(category_member, taxonomy).
+relation_domain(part_of, mereology).
+relation_domain(contains, mereology).
+relation_domain(located_in, geography).
+relation_domain(capital_of_country, geography).
+relation_domain(borders, geography).
+relation_domain(north_of, geography).
+relation_domain(south_of, geography).
+relation_domain(east_of, geography).
+relation_domain(west_of, geography).
+relation_domain(parent_of, kinship).
+relation_domain(sibling_of, kinship).
+relation_domain(spouse_of, kinship).
+relation_domain(after_in_time, temporal).
+relation_domain(before_in_time, temporal).
+relation_domain(larger_than, comparative).
+relation_domain(heavier_than, comparative).
+relation_domain(faster_than, comparative).
+relation_domain(causes, causality).
+relation_domain(enables, causality).
+relation_domain(author_of, art).
+relation_domain(habitat, biology).
+relation_domain(eats, biology).
+relation_domain(can_fly, biology).
+relation_domain(chemical_symbol, chemistry).
+relation_domain(invented_by, history).
+relation_domain(founded_by, history).
+
+% ============================================================================
+% L5 — RETE SEMANTICA ESPLICITA (expanded edge/3 coverage)
+% ============================================================================
+
+edge($X, $Y, located_in) :- located_in($X, $Y).
+edge($X, $Y, north_of) :- north_of($X, $Y).
+edge($X, $Y, south_of) :- south_of($X, $Y).
+edge($X, $Y, east_of) :- east_of($X, $Y).
+edge($X, $Y, west_of) :- west_of($X, $Y).
+edge($X, $Y, borders) :- borders($X, $Y).
+edge($X, $Y, contains) :- contains($X, $Y).
+edge($X, $Y, heavier_than) :- heavier_than($X, $Y).
+edge($X, $Y, faster_than) :- faster_than($X, $Y).
+edge($X, $Y, after_in_time) :- after_in_time($X, $Y).
+edge($X, $Y, before_in_time) :- before_in_time($X, $Y).
+edge($X, $Y, enables) :- enables($X, $Y).
+edge($X, $Y, born_in) :- born_in($X, $Y).
+edge($X, $Y, died_in) :- died_in($X, $Y).
+edge($X, $Y, discovered_by) :- discovered_by($X, $Y).
+edge($X, $Y, invented_by) :- invented_by($X, $Y).
+edge($X, $Y, founded_by) :- founded_by($X, $Y).
+edge($X, $Y, parent_of) :- parent_of($X, $Y).
+edge($X, $Y, sibling_of) :- sibling_of($X, $Y).
+edge($X, $Y, spouse_of) :- spouse_of($X, $Y).
+edge($X, $Y, author_of) :- author_of($X, $Y).
+edge($X, $Y, habitat) :- habitat($X, $Y).
+edge($X, $Y, eats) :- eats($X, $Y).
+
+% Direct transitive closure for any relation with edges.
+closure_step($R, $X, $Z) :- edge($X, $Z, $R).
+closure_step($R, $X, $Z) :- edge($X, $Y, $R), dif($X, $Z), edge($Y, $Z, $R).
+closure_step($R, $X, $Z) :- edge($X, $Y, $R), dif($X, $Z), closure_step($R, $Y, $Z).
+
+% ============================================================================
+% L8 — ARGOMENTAZIONE E GIUSTIFICAZIONE
+% ============================================================================
+
+incompatible_conclusions(can_fly($X), flightless($X)).
+incompatible_conclusions(gives_birth($X), lays_eggs($X)).
+incompatible_conclusions(flightless($X), can_fly($X)).
+incompatible_conclusions(lays_eggs($X), gives_birth($X)).
+
+argument_attacks($C1, $C2) :- argument(conclusion, $C1), argument(conclusion, $C2), dif($C1, $C2), incompatible_conclusions($C1, $C2).
+
+justified($C) :- argument(conclusion, $C), argument(premise, $P), argument_supports($P, $C).
+
+% ============================================================================
+% L9 — PROVENANCE E CONFIDENZA (using prob/2)
+% ============================================================================
+
+confidence_weight($Fact, $W) :- prob($Fact, $W).
+high_confidence($F) :- confidence_weight($F, high).
+low_confidence($F) :- confidence_weight($F, low).
+medium_confidence($F) :- confidence_weight($F, medium).
+
+% ============================================================================
+% L10 — SPIEGAZIONE MULTI-STEP
+% ============================================================================
+
+deduction_path($X, $Z, cons($R, nil)) :- edge($X, $Z, $R).
+deduction_path($X, $Z, cons($R, $Tail)) :- edge($X, $Y, $R), deduction_path($Y, $Z, $Tail).
+
+% ============================================================================
+% L11 — INDUZIONE ED ESTENSIONE
+% ============================================================================
+
+proposed_rule($Category, $Property) :- category_member($X, $Category), category_member($Y, $Category), dif($X, $Y), call($Property, $X), call($Property, $Y), naf(counterexample($Category, $Property, _)).
+
+% ============================================================================
+% L12 — VINCOLI E CONSISTENZA
+% ============================================================================
+
+incompatible(bird, mammal).
+incompatible(fish, mammal).
+incompatible(reptile, mammal).
+incompatible(mammal, bird).
+incompatible(mammal, fish).
+incompatible(mammal, reptile).
+incompatible(bird, fish).
+incompatible(fish, bird).
+incompatible(bird, reptile).
+incompatible(reptile, bird).
+incompatible(fish, reptile).
+incompatible(reptile, fish).
+
+violates_constraint($X) :- is_a($X, $C1), is_a($X, $C2), incompatible($C1, $C2).
+violates_constraint($X) :- can_fly($X), flightless($X).
+
+consistent_kb :- naf(violates_constraint(_)).
+
+% ============================================================================
+% ANSWER FRAMES — make L4-L12 predicates user-queryable
+% ============================================================================
+
+answer_frame("arity", relation_arity).
+answer_frame("domain", relation_domain).
+answer_frame("predicate", kb_has_predicate).
+answer_frame("edge", edge).
+answer_frame("conclusion", argument).
+answer_frame("supports", argument_supports).
+answer_frame("attacks", argument_attacks).
+answer_frame("justified", justified).
+answer_frame("confidence", confidence_weight).
+answer_frame("high confidence", high_confidence).
+answer_frame("uncertain", medium_confidence).
+answer_frame("explains", explains).
+answer_frame("proposed rule", proposed_rule).
+answer_frame("incompatible", incompatible).
+answer_frame("violation", violates_constraint).
+answer_frame("consistent", consistent_kb).

@@ -257,3 +257,6 @@ canonical_analogy($W, $Z, $A, $B) :- num_relation($W, $Z, $R),
     num_relation($A, $B, $R),
     naf(num_relation($A, $A, $R)).
 
+% gen335+: meta-knowledge layer (L4-L12 saturation).
+:- include(meta.p0).
+
