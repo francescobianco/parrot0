@@ -3417,3 +3417,6 @@ world_superlative_cue("shares a border with the most", most_neighboring_countrie
 wrote(cervantes, don_quixote).   wrote(mary_shelley, frankenstein).
 wrote(dante, the_divine_comedy). wrote(homer, the_odyssey).  wrote(tolstoy, war_and_peace).
 wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, nineteen_eighty_four).
+
+% gen335+: historical facts organized by period (LLMSCORE Q6 and beyond).
+:- include(facts/history.p0).

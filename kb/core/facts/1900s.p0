@@ -1,0 +1,70 @@
+% 1900s.p0 — 20th Century: World Wars, Cold War, Space Age, Information Age.
+
+% — 1900-1910 —
+died_in_year(queen_victoria, 1901).
+invented_in_year(airplane_wright_brothers, 1903).
+born_in_year(salvador_dali, 1904).
+happened_in_year(san_francisco_earthquake, 1906).
+sank_in_year(titanic, 1912).
+happened_in_year(sinking_of_titanic, 1912).
+
+% — World War I —
+happened_in_year(world_war_one, 1914).
+happened_in_year(russian_revolution, 1917).
+happened_in_year(end_of_world_war_one, 1918).
+happened_in_year(treaty_of_versailles, 1919).
+
+% — 1920s —
+discovered_in_year(penicillin, 1928).
+happened_in_year(wall_street_crash, 1929).
+
+% — 1930s —
+happened_in_year(great_depression, 1929).
+born_in_year(anne_frank, 1929).
+died_in_year(anne_frank, 1945).
+born_in_year(martin_luther_king_jr, 1929).
+died_in_year(martin_luther_king_jr, 1968).
+born_in_year(neil_armstrong, 1930).
+died_in_year(neil_armstrong, 2012).
+invented_in_year(nylon, 1935).
+happened_in_year(spanish_civil_war, 1936).
+
+% — World War II —
+happened_in_year(world_war_two, 1939).
+happened_in_year(pearl_harbor_attack, 1941).
+happened_in_year(d_day_invasion, 1944).
+happened_in_year(end_of_world_war_two, 1945).
+happened_in_year(hiroshima_bombing, 1945).
+happened_in_year(nagasaki_bombing, 1945).
+
+% — Post-war —
+founded_in_year(united_nations, 1945).
+discovered_in_year(structure_of_dna, 1953).
+invented_in_year(transistor, 1947).
+happened_in_year(declaration_of_india_independence, 1947).
+founded_in_year(state_of_israel, 1948).
+founded_in_year(nato, 1949).
+happened_in_year(korean_war, 1950).
+happened_in_year(korean_war_end, 1953).
+invented_in_year(polio_vaccine, 1955).
+happened_in_year(hungarian_revolution, 1956).
+launched_in_year(sputnik, 1957).
+born_in_year(barack_obama, 1961).
+happened_in_year(berlin_wall_built, 1961).
+happened_in_year(cuban_missile_crisis, 1962).
+died_in_year(john_f_kennedy, 1963).
+happened_in_year(vietnam_war, 1955).
+happened_in_year(civil_rights_act_usa, 1964).
+happened_in_year(first_moon_landing, 1969).
+invented_in_year(internet_arpanet, 1969).
+happened_in_year(watergate_scandal, 1972).
+happened_in_year(berlin_wall_fell, 1989).
+happened_in_year(chernobyl_disaster, 1986).
+invented_in_year(world_wide_web, 1989).
+happened_in_year(gulf_war, 1991).
+happened_in_year(dissolution_of_ussr, 1991).
+founded_in_year(european_union, 1993).
+happened_in_year(rwandan_genocide, 1994).
+born_in_year(malala_yousafzai, 1997).
+happened_in_year(kosovo_war, 1998).
+invented_in_year(google, 1998).

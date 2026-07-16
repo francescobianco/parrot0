@@ -1,0 +1,34 @@
+% ancient.p0 — Facts from prehistory to 1 AD.
+% Predicates:
+%   happened_in_year(Event, Year).     Year is a number (negative for BC).
+%   born_in_year(Person, Year).
+%   died_in_year(Person, Year).
+%   founded_in_year(City, Year).
+%   built_in_year(Structure, Year).
+%   sank_in_year(Ship, Year).
+
+% — Prehistory —
+built_in_year(stonehenge, -2500).
+built_in_year(great_pyramid_giza, -2560).
+
+% — Ancient civilizations —
+founded_in_year(rome, -753).
+born_in_year(homer, -800).
+happened_in_year(battle_of_thermopylae, -480).
+happened_in_year(fall_of_troy, -1184).
+born_in_year(socrates, -470).
+died_in_year(socrates, -399).
+born_in_year(plato, -427).
+died_in_year(plato, -347).
+born_in_year(aristotle, -384).
+died_in_year(aristotle, -322).
+born_in_year(alexander_the_great, -356).
+died_in_year(alexander_the_great, -323).
+happened_in_year(alexander_conquers_persia, -331).
+founded_in_year(alexandria, -331).
+born_in_year(archimedes, -287).
+died_in_year(archimedes, -212).
+born_in_year(julius_caesar, -100).
+died_in_year(julius_caesar, -44).
+happened_in_year(caesar_crosses_rubicon, -49).
+happened_in_year(cleopatra_death, -30).

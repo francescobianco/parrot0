@@ -1,0 +1,17 @@
+% 0001-1400.p0 — Roman Empire, Middle Ages, to 1399.
+
+happened_in_year(birth_of_jesus, 1).
+happened_in_year(pompeii_destroyed, 79).
+built_in_year(colosseum, 80).
+happened_in_year(fall_of_western_roman_empire, 476).
+died_in_year(attila_the_hun, 453).
+born_in_year(muhammad, 570).
+died_in_year(muhammad, 632).
+happened_in_year(battle_of_hastings, 1066).
+happened_in_year(first_crusade, 1096).
+founded_in_year(university_of_oxford, 1096).
+founded_in_year(university_of_cambridge, 1209).
+happened_in_year(magna_carta, 1215).
+born_in_year(marco_polo, 1254).
+died_in_year(marco_polo, 1324).
+happened_in_year(black_death_europe, 1347).

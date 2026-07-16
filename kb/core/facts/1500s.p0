@@ -1,0 +1,10 @@
+% 1500s.p0 — Reformation, Elizabethan era.
+
+born_in_year(michelangelo, 1475).
+died_in_year(michelangelo, 1564).
+died_in_year(leonardo_da_vinci, 1519).
+happened_in_year(magellan_circumnavigation, 1519).
+born_in_year(galileo_galilei, 1564).
+born_in_year(william_shakespeare, 1564).
+happened_in_year(spanish_armada, 1588).
+died_in_year(giordano_bruno, 1600).

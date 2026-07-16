@@ -1,0 +1,6 @@
+% 2000s.p0 — 21st Century.
+
+happened_in_year(september_eleven_attacks, 2001).
+happened_in_year(iraq_war, 2003).
+discovered_in_year(higgs_boson, 2012).
+happened_in_year(covid_nineteen_pandemic, 2020).

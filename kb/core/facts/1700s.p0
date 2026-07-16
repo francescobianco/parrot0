@@ -1,0 +1,24 @@
+% 1700s.p0 — Enlightenment, American and French Revolutions.
+
+founded_in_year(saint_petersburg, 1703).
+born_in_year(benjamin_franklin, 1706).
+died_in_year(benjamin_franklin, 1790).
+born_in_year(voltaire, 1694).
+died_in_year(voltaire, 1778).
+born_in_year(jean_jacques_rousseau, 1712).
+died_in_year(jean_jacques_rousseau, 1778).
+born_in_year(adam_smith, 1723).
+died_in_year(adam_smith, 1790).
+born_in_year(immanuel_kant, 1724).
+died_in_year(immanuel_kant, 1804).
+born_in_year(george_washington, 1732).
+died_in_year(george_washington, 1799).
+born_in_year(wolfgang_amadeus_mozart, 1756).
+died_in_year(wolfgang_amadeus_mozart, 1791).
+happened_in_year(american_declaration_of_independence, 1776).
+happened_in_year(french_revolution, 1789).
+born_in_year(napoleon_bonaparte, 1769).
+died_in_year(napoleon_bonaparte, 1821).
+discovered_in_year(uranus, 1781).
+invented_in_year(steam_engine_watt, 1769).
+invented_in_year(hot_air_balloon, 1783).

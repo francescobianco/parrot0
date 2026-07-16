@@ -1,0 +1,10 @@
+% 1400s.p0 — Renaissance, Age of Discovery.
+
+born_in_year(joan_of_arc, 1412).
+died_in_year(joan_of_arc, 1431).
+invented_in_year(printing_press, 1440).
+happened_in_year(fall_of_constantinople, 1453).
+born_in_year(leonardo_da_vinci, 1452).
+born_in_year(christopher_columbus, 1451).
+happened_in_year(columbus_reaches_americas, 1492).
+died_in_year(christopher_columbus, 1506).

@@ -2221,6 +2221,48 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* gen335+: trade pattern — "trade X for Y": subtract the traded-away
+     * amount, add the received amount. Works with the multi-step fold below
+     * by setting the sign on "trade"/"for". */
+    if (cue(q, "trade") || cue(q, "trades") || cue(q, "trading") ||
+        cue(q, "exchange") || cue(q, "exchanges") || cue(q, "swap") ||
+        cue(q, "swaps")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", q);
+        char *tw[64]; size_t tnw = split_words(sb, tw, 64);
+        double trade_away = 0, trade_get = 0;
+        int found_trade = 0, found_for = 0;
+        for (size_t i = 0; i < tnw; i++) {
+            char *t = strip_edge_punct(tw[i]);
+            if (!strcmp(t, "trade") || !strcmp(t, "trades") || !strcmp(t, "trading") ||
+                !strcmp(t, "exchange") || !strcmp(t, "exchanges") ||
+                !strcmp(t, "swap") || !strcmp(t, "swaps"))
+                { found_trade = 1; continue; }
+            if (found_trade && !strcmp(t, "for")) { found_for = 1; continue; }
+            double v;
+            if (parse_value(t, &v)) {
+                if (found_for) { trade_get = v; found_for = 0; }
+                else if (found_trade && trade_away == 0) { trade_away = v; }
+            }
+        }
+        if (trade_away > 0 && trade_get > 0 && nn >= 2) {
+            double total = 0; int have = 0;
+            for (size_t i = 0; i < nn; i++) {
+                if (!have) { total = nums[i]; have = 1; }
+                else if (nums[i] != trade_away && nums[i] != trade_get) total += nums[i];
+            }
+            total = total - trade_away + trade_get;
+            char num[64]; format_num(total, num, sizeof num);
+            char msg[80]; snprintf(msg, sizeof msg, "%s.", num);
+            put(msg, out, out_size);
+            char proof[160];
+            snprintf(proof, sizeof proof,
+                     "I started with %.0f items, traded away %.0f, got %.0f: %s.",
+                     total, trade_away, trade_get, num);
+            store_proof(b, proof);
+            return 1;
+        }
+    }
+
     /* gen114: 3+ numbers -> multi-step additive/subtractive fold, clause by
      * clause. The first number is the base; each later number is added, or
      * subtracted if its clause carries a removal verb. Clauses split on

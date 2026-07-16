@@ -1,0 +1,9 @@
+% 1600s.p0 — Scientific Revolution, Thirty Years War.
+
+died_in_year(william_shakespeare, 1616).
+died_in_year(galileo_galilei, 1642).
+born_in_year(isaac_newton, 1642).
+happened_in_year(english_civil_war, 1642).
+happened_in_year(great_fire_of_london, 1666).
+happened_in_year(glorious_revolution, 1688).
+died_in_year(isaac_newton, 1727).

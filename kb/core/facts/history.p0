@@ -1,0 +1,33 @@
+% history.p0 — Master index for historical facts.
+% Organized by era. Each included file covers a specific time period.
+% Add new periods by including new files here; facts load in order.
+
+:- include(ancient.p0).
+:- include(0001-1400.p0).
+:- include(1400s.p0).
+:- include(1500s.p0).
+:- include(1600s.p0).
+:- include(1700s.p0).
+:- include(1800s.p0).
+:- include(1900s.p0).
+:- include(2000s.p0).
+
+% Answer frames — make historical facts queryable.
+% Cues are bare atoms matched as SUBSTRINGS in the user's question.
+% Use individual words (no underscores, no quotes) — multi-word phrases
+% separated by spaces don't match underscored atoms via cue().
+answer_frame(sink, sank_in_year).
+answer_frame(sank, sank_in_year).
+answer_frame(titanic, sank_in_year).
+answer_frame(invented, invented_in_year).
+answer_frame(discovered, discovered_in_year).
+answer_frame(launched, launched_in_year).
+
+% For "born/died in what year", use cues that distinguish from born_in/died_in
+answer_frame(born_in_year, born_in_year).
+answer_frame(died_in_year, died_in_year).
+
+% For general "happened in what year", match on "what year" via individual words
+answer_frame(year, happened_in_year).
+answer_frame(founded_in_year, founded_in_year).
+answer_frame(built_in_year, built_in_year).
