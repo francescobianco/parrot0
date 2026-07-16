@@ -963,21 +963,95 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
  * FALLBACK when the turn as-is was not understood, and claims only if a real module
  * answers the resolved turn — so it never hijacks a turn that already works. Skips coref
  * itself to avoid re-entry. Mirror of pragma_peel. */
+/* gen335 (long-conversation, R2 — F.'s steer: entities ACCUMULATE, so "not that one
+ * but the one before" must resolve): the mentioned entities are an ORDERED HISTORY of
+ * KB facts entity_mentioned(Name, Seq) — unbounded and queryable — NOT a single C
+ * field (b->last_entity was the debt the plan names). A pronoun resolves to a POSITION
+ * in that history (most recent by default; a back-reference "before"/"earlier"/"prima"
+ * steps one earlier), open to more ordinals taught later. Seq lives in the REFLECTIVE
+ * layer (entity_seq_max/1), never persisted. */
+static long entity_max_seq(Brain *b, const char *name) {
+    const char *q[2] = { name, NULL };
+    char v[16][KB_TERM_LEN];
+    size_t n = kb_match(b->kb, "entity_mentioned", q, 2, v, 16);
+    long m = -1;
+    for (size_t i = 0; i < n; i++) { long s = strtol(v[i], NULL, 10); if (s > m) m = s; }
+    return m;
+}
+static long next_entity_seq(Brain *b) {
+    const char *q[1] = { NULL };
+    char v[1][KB_TERM_LEN]; long n = 0;
+    if (kb_match(b->kb, "entity_seq_max", q, 1, v, 1) == 1) n = strtol(v[0], NULL, 10);
+    long nx = n + 1;
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    if (n > 0) { char ob[24]; snprintf(ob, sizeof ob, "%ld", n);
+                 const char *rq[1] = { ob }; kb_retract(b->kb, "entity_seq_max", rq, 1); }
+    char nb[24]; snprintf(nb, sizeof nb, "%ld", nx);
+    const char *na[1] = { nb }; kb_assert(b->kb, "entity_seq_max", na, 1);
+    return nx;
+}
+/* Record a mentioned entity into the ordered KB history (lowercased). Skips a dup of
+ * the current most-recent so a repeated mention does not spam the sequence. */
+static void note_entity_seq(Brain *b, const char *raw_name) {
+    if (!b || !b->kb || !raw_name) return;
+    char low[KB_TERM_LEN]; size_t j = 0;
+    for (size_t i = 0; raw_name[i] && j + 1 < sizeof low; i++) {
+        unsigned char c = (unsigned char)raw_name[i];
+        if (isalnum(c) || c == '_') low[j++] = (char)tolower(c);
+    }
+    low[j] = '\0';
+    if (j < 2) return;
+    const char *sq[1] = { NULL }; char sv[1][KB_TERM_LEN]; long top = 0;
+    if (kb_match(b->kb, "entity_seq_max", sq, 1, sv, 1) == 1) top = strtol(sv[0], NULL, 10);
+    if (entity_max_seq(b, low) == top && top > 0) return;    /* already most recent */
+    long s = next_entity_seq(b);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    char sb[24]; snprintf(sb, sizeof sb, "%ld", s);
+    const char *a[2] = { low, sb }; kb_assert(b->kb, "entity_mentioned", a, 2);
+}
+
 static int coref_resolve(Brain *b, const char *canon, char *out, size_t out_size) {
-    if (!b || !b->has_last_entity) return 0;
+    if (!b || !b->kb) return 0;
+    char nm[64][KB_TERM_LEN]; const char *q0[2] = { NULL, NULL };
+    size_t nn = kb_match(b->kb, "entity_mentioned", q0, 2, nm, 64);
+    if (nn == 0) return 0;
+    char names[64][KB_TERM_LEN]; long seqs[64]; size_t nh = 0;
+    for (size_t i = 0; i < nn && nh < 64; i++) {
+        long s = entity_max_seq(b, nm[i]); if (s < 0) continue;
+        snprintf(names[nh], KB_TERM_LEN, "%s", nm[i]); seqs[nh] = s; nh++;
+    }
+    for (size_t i = 1; i < nh; i++) {                 /* insertion sort, seq desc */
+        char tn[KB_TERM_LEN]; snprintf(tn, sizeof tn, "%s", names[i]); long ts = seqs[i];
+        size_t k = i;
+        while (k > 0 && seqs[k - 1] < ts) {
+            snprintf(names[k], KB_TERM_LEN, "%s", names[k - 1]); seqs[k] = seqs[k - 1]; k--;
+        }
+        snprintf(names[k], KB_TERM_LEN, "%s", tn); seqs[k] = ts;
+    }
+
     char buf[256]; size_t len = strlen(canon);
     if (len == 0 || len >= sizeof buf) return 0;
     memcpy(buf, canon, len + 1);
     char *w[64]; size_t nw = split_words(buf, w, 64);
-    if (nw < 2) return 0;                       /* a bare pronoun is not a query */
+    if (nw < 2) return 0;                             /* a bare pronoun is not a query */
     size_t pidx = nw;
-    for (size_t i = 0; i < nw; i++)
-        if (!strcmp(w[i], "it") || !strcmp(w[i], "its")) { pidx = i; break; }
+    for (size_t i = 0; i < nw; i++) {
+        const char *t = w[i];
+        if (!strcmp(t,"it")||!strcmp(t,"its")||!strcmp(t,"he")||!strcmp(t,"him")||
+            !strcmp(t,"she")||!strcmp(t,"they")||!strcmp(t,"them")) { pidx = i; break; }
+    }
     if (pidx == nw) return 0;
+
+    size_t offset = 0;                               /* ordinal into the history */
+    if (strstr(canon,"before")||strstr(canon,"earlier")||strstr(canon,"previous")||
+        strstr(canon,"prima")||strstr(canon,"precedente"))
+        offset = 1;
+    if (offset >= nh) return 0;
+    const char *ent = names[offset];
 
     char rw[256]; size_t off = 0; rw[0] = '\0';
     for (size_t i = 0; i < nw && off + 1 < sizeof rw; i++) {
-        const char *tok = (i == pidx) ? b->last_entity : w[i];
+        const char *tok = (i == pidx) ? ent : w[i];
         off += (size_t)snprintf(rw + off, sizeof rw - off, "%s%s", i ? " " : "", tok);
     }
     if (!rw[0] || strcmp(rw, canon) == 0) return 0;
@@ -1398,16 +1472,16 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         snprintf(rbuf, sizeof rbuf, "%s", input);
         char *rw[64];
         size_t rnw = split_words(rbuf, rw, 64);
-        for (size_t i = 0; i < rnw && b->entity_count < 8; i++) {
-            if (isupper((unsigned char)rw[i][0]) && strlen(rw[i]) >= 2) {
-                int dup = 0;
-                for (size_t j = 0; j < b->entity_count; j++)
-                    if (strcmp(b->entities[j], rw[i]) == 0) { dup = 1; break; }
-                if (!dup) {
-                    snprintf(b->entities[b->entity_count],
-                             sizeof b->entities[0], "%s", rw[i]);
-                    b->entity_count++;
-                }
+        for (size_t i = 0; i < rnw; i++) {
+            if (!(isupper((unsigned char)rw[i][0]) && strlen(rw[i]) >= 2)) continue;
+            note_entity_seq(b, rw[i]);      /* R2: unbounded KB history for ordinals */
+            if (b->entity_count >= 8) continue;
+            int dup = 0;
+            for (size_t j = 0; j < b->entity_count; j++)
+                if (strcmp(b->entities[j], rw[i]) == 0) { dup = 1; break; }
+            if (!dup) {
+                snprintf(b->entities[b->entity_count], sizeof b->entities[0], "%s", rw[i]);
+                b->entity_count++;
             }
         }
     }
@@ -1451,6 +1525,12 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* gen58: update the rolling discourse topic buffer from the current turn,
      * but a summary question should not add its own words to the buffer. */
     if (handled && !handled_by_discourse) update_topics(b, canon);
+
+    /* gen335 (R2): the salient topic entity a module just resolved (e.g. "heart",
+     * lowercase — not a capitalized proper noun) also enters the accumulating KB
+     * history, so a later pronoun can reach it. Bridges the old last_entity C field
+     * into the KB-first entity_mentioned/2 record. */
+    if (b && b->has_last_entity) note_entity_seq(b, b->last_entity);
 
     /* If no module claimed the turn, fall back to the honest not-understood reply
      * (gen15 retired the gen0 parrot-echo; gen55 made it non-repeating).

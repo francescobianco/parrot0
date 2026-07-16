@@ -182,6 +182,16 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen335 (R2): with entities on record from earlier turns, a bare pronoun most
+     * likely refers to one of them — defer to the cross-turn coref resolver instead of
+     * asking "who does X refer to?" (incoherent when the antecedent is known). The
+     * arithmetic clarification is a different need and stays. */
+    if (b && b->kb && !has_arith_cue(b, w, nw)) {
+        const char *eq[2] = { NULL, NULL };
+        char ev[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "entity_mentioned", eq, 2, ev, 1) >= 1) return 0;
+    }
+
     snprintf(b->pending_canon, sizeof b->pending_canon, "%s", norm);
     snprintf(b->pending_slot, sizeof b->pending_slot, "%s", pron);
     b->pending_repair = 1;

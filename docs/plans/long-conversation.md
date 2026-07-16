@@ -286,6 +286,32 @@ input inglese — è il rilevamento lingua (default `os_language` al 1° turno),
 (c) restano R1 (continuazione fatti), R2 (coref cross-turn — la leva più alta secondo le
 baseline), R3 (meta-recall), M-vincoli.
 
+## Progresso — M-coref-crossturn (R2, fatto gen335): la storia entità è KB, accumulata
+
+`coref_resolve` non usa più il campo C `b->last_entity` (debito, NON kb-first) ma una
+**storia ORDINATA di fatti KB** `entity_mentioned(Name, Seq)` (layer REFLECTIVE, illimitata,
+accumulata a ogni turno da capitalized-token + dall'entità saliente `last_entity`). Un
+pronome (it/he/she/they/him/them) risolve a una **posizione** in quella storia — il più
+recente di default, un back-reference ("before"/"earlier"/"prima") **un passo indietro** —
+così "quello ancora prima" è raggiungibile (accumulo, non un singolo slot). `90-repair`
+**defer** al resolver quando esistono entità a registro, invece di chiedere "who does X
+refer to?". Verificato dal vivo:
+```
+who was Einstein? → (decline)   when was he born? → "Ulm."     (he→Einstein, cross-turn)
+tell me about Germany … tell me about Japan … entity_mentioned = [einstein, germany, japan]
+```
+> **Perché kb-first (steer di F.):** l'antagonista era `b->last_entity`, un campo C che il
+> piano stessa nomina come debito da migrare. R2 lo sostituisce con fatti KB interrogabili
+> ("perché 'he'=Einstein?" → `entity_mentioned(einstein, N)`), ritrattabili, accumulabili.
+>
+> **Aperti:** (a) un riferimento ORDINALE **senza pronome** ("and the one before?") non è
+> ancora sostituito — va trattata la frase stessa come espressione referente; (b) il coref
+> su entità minuscole via "X part of" resta bloccato da un **hang CORE pre-esistente** (già
+> presente a 469eba5, PRIMA di questa sessione — un bug del path pronome/"part of", non R2);
+> (c) `kb/core/meta.p0` + gli operatori in `procedures.p0` (scatter di un altro agente)
+> assumono primitivi inesistenti (`call/findall/dif/prob`) e hanno regole multi-riga
+> malformate (le parser-error le scovano): kb-first nell'intento, **non sani** — da bonificare.
+
 ## La disciplina (ereditata dalla colla linguistica)
 
 1. **Un meccanismo per generazione, tirato da un fallimento.** Non si pre-progetta
