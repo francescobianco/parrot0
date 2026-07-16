@@ -505,6 +505,12 @@ Brain *brain_create(void) {
      * (10-memory-knowledge.c). Loaded after morphology because it reuses proper_name/1. */
     kb_load(b->kb, "kb/core/presentation.p0");
 
+    /* gen335 (F.): higher-order knowledge grown on the learning mesh — composable
+     * OPERATORS (kind_of/prop_of inheritance, transitive orderings, kinship joins)
+     * plus answerable answer_frame coverage. See docs/plans/learning-mesh.md. Fresh
+     * predicate names so no enumerating module hits a ruled predicate (MESH-L5). */
+    kb_load(b->kb, "kb/core/mesh-knowledge.p0");
+
     /* gen230/gen235: curated world commons. Tests that must prove dynamic
      * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
      * ordinary chat keep the layer loaded. */
