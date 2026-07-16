@@ -1004,3 +1004,11 @@ answer_frame(speed, speed_of).
 answer_frame(symbol, chemical_symbol).
 answer_frame(tallest_mountain, tallest_mountain).
 answer_frame(wrote, author_of).
+
+% ── META-COGNITIVE COMPREHENSION FRAMES (L4-L9) ──
+answer_frame("know about", kb_knows_about).
+answer_frame("knows about", kb_knows_about).
+answer_frame("transitive relation", transitive).
+answer_frame("symmetric relation", symmetric).
+answer_frame("source of", predicate_source).
+answer_frame("confidence in", fact_confidence).

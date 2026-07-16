@@ -122,3 +122,39 @@ owned_by($X, $Y) :- owns($Y, $X).
 contains_t($X, $Z) :- contains($X, $Y), contains($Y, $Z).
 contains_t($X, $Z) :- contains($X, $Y), contains_t($Y, $Z).
 contained_in($X, $Y) :- contains($Y, $X).
+
+% ── L4: ONTOLOGY OPERATORS ──
+transitive($R) :- relation_type($R, transitive).
+symmetric($R) :- relation_type($R, symmetric).
+asymmetric($R) :- relation_type($R, asymmetric).
+domain_predicates($D, $P) :- predicate_domain($P, $D).
+
+% ── L5: SEMANTIC NETWORK ──
+node($X) :- is_a($X, $Y).
+node($Y) :- is_a($X, $Y).
+node($X) :- capital_of_country($X, $Y).
+node($Y) :- capital_of_country($X, $Y).
+node($X) :- larger_than($X, $Y).
+node($X) :- causes($X, $Y).
+node($X) :- category_member($C, $X).
+edge($X, $Y, is_a) :- is_a($X, $Y).
+edge($X, $Y, part_of) :- part_of($X, $Y).
+edge($X, $Y, capital_of) :- capital_of_country($X, $Y).
+edge($X, $Y, larger_than) :- larger_than($X, $Y).
+edge($X, $Y, causes) :- causes($X, $Y).
+path_exists($X, $Y, $R) :- edge($X, $Y, $R).
+path_exists($X, $Z, $R) :- edge($X, $Y, $R), path_exists($Y, $Z, $R).
+
+% ── L6: SELF-MODEL ──
+kb_knows_about($D) :- predicate_domain($P, $D).
+kb_has_facts_about($X) :- node($X).
+kb_can_answer(capital) :- capital_of_country($X, $Y).
+kb_can_answer(definition) :- means($X, $Y).
+kb_can_answer(inventor) :- invented_by($X, $Y).
+
+% ── L7: FORM-TO-PREDICATE MAPPING ──
+form_maps_to($F, $P) :- question_form($F, identity_lookup), answer_frame($F, $P).
+
+% ── L8: ARGUMENTATION ──
+valid_syllogism($A, $B, $C) :- is_a($A, $B), is_a($B, $C).
+justified($C, $P) :- argument(conclusion, $C), argument(premise, $P), argument_supports($P, $C).

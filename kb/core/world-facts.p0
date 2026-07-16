@@ -2777,3 +2777,133 @@ happened_in(moon_landing, 1969).
 happened_in(ww1_start, 1914).
 happened_in(ww2_start, 1939).
 happened_in(fall_of_rome, 5th_century_bc).
+
+% ── L4: ONTOLOGY OF RELATIONS (meta-knowledge about predicates) ──
+relation_type(is_a, transitive).
+relation_type(is_a, hierarchical).
+relation_type(kind_of, transitive).
+relation_type(kind_of, hierarchical).
+relation_type(part_of, transitive).
+relation_type(part_of, mereological).
+relation_type(located_in, transitive).
+relation_type(located_in, spatial).
+relation_type(larger_than, transitive).
+relation_type(larger_than, comparative).
+relation_type(heavier_than, transitive).
+relation_type(heavier_than, comparative).
+relation_type(faster_than, transitive).
+relation_type(faster_than, comparative).
+relation_type(causes, transitive).
+relation_type(causes, causal).
+relation_type(parent_of, asymmetric).
+relation_type(parent_of, kinship).
+relation_type(sibling_of, symmetric).
+relation_type(sibling_of, kinship).
+relation_type(north_of, transitive).
+relation_type(north_of, directional).
+relation_type(east_of, transitive).
+relation_type(east_of, directional).
+relation_type(after_in_time, transitive).
+relation_type(after_in_time, temporal).
+relation_type(contains, transitive).
+relation_type(contains, mereological).
+
+predicate_domain(is_a, taxonomy).
+predicate_domain(kind_of, taxonomy).
+predicate_domain(part_of, mereology).
+predicate_domain(located_in, geography).
+predicate_domain(capital_of_country, geography).
+predicate_domain(continent_of, geography).
+predicate_domain(currency_of_country, geography).
+predicate_domain(population_of, geography).
+predicate_domain(borders_country, geography).
+predicate_domain(north_of, geography).
+predicate_domain(east_of, geography).
+predicate_domain(chemical_symbol, chemistry).
+predicate_domain(invented_by, history).
+predicate_domain(founded_by, history).
+predicate_domain(discovered_by, history).
+predicate_domain(born_in, history).
+predicate_domain(died_in, history).
+predicate_domain(author_of, literature).
+predicate_domain(larger_than, physics).
+predicate_domain(heavier_than, physics).
+predicate_domain(faster_than, physics).
+predicate_domain(causes, causality).
+predicate_domain(prevents, causality).
+predicate_domain(parent_of, kinship).
+predicate_domain(sibling_of, kinship).
+predicate_domain(has_prop, biology).
+predicate_domain(inherits, biology).
+predicate_domain(can_fly, biology).
+predicate_domain(category_member, categories).
+predicate_domain(means, definitions).
+predicate_domain(largest_in_category, superlatives).
+predicate_domain(after_in_time, temporal).
+predicate_domain(habitat, ecology).
+predicate_domain(color_of, properties).
+predicate_domain(sound_of, properties).
+
+predicate_source(category_member, curated_base).
+predicate_source(is_a, curated_base).
+predicate_source(kind_of, curated_base).
+predicate_source(capital_of_country, curated_base).
+predicate_source(continent_of, curated_base).
+predicate_source(currency_of_country, curated_base).
+predicate_source(invented_by, taught_session).
+predicate_source(founded_by, taught_session).
+predicate_source(discovered_by, taught_session).
+predicate_source(author_of, taught_session).
+predicate_source(has_prop, taught_session).
+predicate_source(habitat, taught_session).
+predicate_source(can_fly, derived_by_rule).
+predicate_source(inherits, derived_by_rule).
+predicate_source(gives_birth, derived_by_rule).
+
+fact_confidence(capital_of_country, high).
+fact_confidence(continent_of, high).
+fact_confidence(chemical_symbol, high).
+fact_confidence(invented_by, medium).
+fact_confidence(founded_by, medium).
+fact_confidence(discovered_by, medium).
+fact_confidence(author_of, medium).
+fact_confidence(habitat, low).
+fact_confidence(can_fly, low).
+
+% ── L7: QUESTION TYPOLOGY ──
+question_form("who", identity_lookup).
+question_form("what is the", definition_lookup).
+question_form("what is a", definition_lookup).
+question_form("what is an", definition_lookup).
+question_form("is a", boolean_subsumption).
+question_form("what are the", category_enumeration).
+question_form("how many", cardinality_query).
+question_form("why", causal_explanation).
+question_form("what is the difference between", comparative_query).
+question_form("where is", location_lookup).
+question_form("where was", location_lookup).
+question_form("what color", property_lookup).
+question_form("what sound", property_lookup).
+question_form("what language", property_lookup).
+question_form("what is the largest", superlative_query).
+question_form("what is the smallest", superlative_query).
+question_form("what is the capital", capital_lookup).
+question_form("what is the currency", currency_lookup).
+question_form("what continent", continent_lookup).
+question_form("what is the population", population_lookup).
+question_form("what does", definition_lookup).
+question_form("who invented", inventor_lookup).
+question_form("who founded", founder_lookup).
+question_form("who discovered", discoverer_lookup).
+question_form("who wrote", author_lookup).
+question_form("what is the opposite", antonym_lookup).
+
+% ── L8: ARGUMENTATION ──
+% Socrates syllogism (classic example of deductive reasoning)
+is_a(socrates, man).
+is_a(man, mortal).
+argument(premise, socrates_is_a_man).
+argument(premise, all_men_are_mortal).
+argument(conclusion, socrates_is_mortal).
+argument_supports(all_men_are_mortal, socrates_is_mortal).
+argument_supports(socrates_is_a_man, socrates_is_mortal).
