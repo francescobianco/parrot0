@@ -350,7 +350,9 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
         int addressed = 0;
         for (size_t i = 0; i < nw; i++) {
             char *t = strip_edge_punct(w[i]);
-            if (!strcmp(t, "you") || !strcmp(t, "your") || !strcmp(t, "yours")) { addressed = 1; break; }
+            if (!strcmp(t,"you")||!strcmp(t,"your")||!strcmp(t,"yours")||    /* EN */
+                !strcmp(t,"tu")||!strcmp(t,"tuo")||!strcmp(t,"tua")||        /* IT */
+                !strcmp(t,"tuoi")||!strcmp(t,"tue")||!strcmp(t,"ti")) { addressed = 1; break; }
         }
         const char *o = w[0];
         int question = (strchr(norm, '?') != NULL) ||
@@ -358,7 +360,9 @@ static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
             !strcmp(o,"has")||!strcmp(o,"are")||!strcmp(o,"is")||!strcmp(o,"was")||
             !strcmp(o,"were")||!strcmp(o,"can")||!strcmp(o,"could")||!strcmp(o,"would")||
             !strcmp(o,"will")||!strcmp(o,"what")||!strcmp(o,"how")||!strcmp(o,"why")||
-            !strcmp(o,"ever");
+            !strcmp(o,"ever")||                                              /* EN openers */
+            !strcmp(o,"hai")||!strcmp(o,"sei")||!strcmp(o,"cosa")||          /* IT openers */
+            !strcmp(o,"come")||!strcmp(o,"ti")||!strcmp(o,"che");
         if (addressed && question)
             return kb_response(b, "smalltalk_deflect", NULL, out, out_size);
     }
