@@ -327,6 +327,59 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
  * pre-empts a real answer; it only catches turns that carry a social marker
  * (intent_cue(smalltalk_continue, …)) and that nothing else claimed. It fabricates
  * no experience or opinion — the templates are content-neutral continuity moves. */
+/* gen335 (long-conversation): INITIATIVE — parrot0 LEADS instead of mirroring. The
+ * limit of parrot0-vs-parrot0 is that two responders echo each other. When parrot0's
+ * OWN previous reply comes back as the input (a self-play echo / a parroting loop), it
+ * introduces a fresh topic it genuinely knows (conversation_seed/1, EN+IT — real facts,
+ * no invented curiosity) and hands the turn back with an open question. Deterministic
+ * over real state; the seed rotates via seed_shown/1 (REFLECTIVE), resetting when
+ * exhausted. Gated on the loop signal, so it never steals a normal turn. */
+static int mod_initiative(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t out_size) {
+    (void)norm;
+    if (!b || !b->kb || !raw || !b->last_reply[0]) return 0;
+    char a[256], c[256]; size_t i = 0, j = 0;
+    for (; raw[i] && i + 1 < sizeof a; i++) a[i] = (char)tolower((unsigned char)raw[i]);
+    a[i] = '\0';
+    for (; b->last_reply[j] && j + 1 < sizeof c; j++)
+        c[j] = (char)tolower((unsigned char)b->last_reply[j]);
+    c[j] = '\0';
+    if (strlen(a) < 12 || strlen(c) < 12 || strncmp(a, c, 12) != 0) return 0;  /* not a loop */
+
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    int it = (strcmp(lang, "it") == 0);
+    char seeds[64][KB_TERM_LEN]; size_t ns;
+    if (it) { const char *q[2] = { "it", NULL }; ns = kb_match(b->kb, "conversation_seed", q, 2, seeds, 64); }
+    else    { const char *q[1] = { NULL };       ns = kb_match(b->kb, "conversation_seed", q, 1, seeds, 64); }
+    if (ns == 0) return 0;
+
+    const char *chosen = NULL;
+    for (int pass = 0; pass < 2 && !chosen; pass++) {
+        for (size_t k = 0; k < ns; k++) {
+            const char *sd = kb_dequote(seeds[k]);
+            const char *sq[1] = { seeds[k] };
+            if (pass == 0 && kb_query(b->kb, "seed_shown", sq, 1)) continue;   /* skip used */
+            chosen = sd;
+            kb_set_origin(b->kb, KB_REFLECTIVE);
+            kb_assert(b->kb, "seed_shown", sq, 1);
+            break;
+        }
+        if (pass == 0 && !chosen) {          /* all shown -> reset and reuse */
+            for (size_t k = 0; k < ns; k++) { const char *sq[1] = { seeds[k] };
+                kb_retract(b->kb, "seed_shown", sq, 1); }
+        }
+    }
+    if (!chosen) return 0;
+
+    char frame[256];
+    if (!lang_template(b, "initiative_frame", frame, sizeof frame))
+        snprintf(frame, sizeof frame, "%s",
+                 "Here's something I know: %s. What do you make of it?");
+    char msg[512]; snprintf(msg, sizeof msg, frame, chosen);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_smalltalk(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;

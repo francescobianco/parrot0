@@ -122,6 +122,10 @@ static int mod_input(Brain *b, const char *norm, const char *raw,
  * (This table is also reified into the KB as module(...) facts at birth, so
  * the agent's self-description cannot drift from its real structure.) */
 static const Module registry[] = {
+    /* gen335: FIRST — but gated strictly on the loop signal (input echoes parrot0's own
+     * last reply), so it preempts a mirror loop with a fresh KB topic and passes every
+     * normal turn straight through. */
+    {"initiative", mod_initiative},
     {"piact",     mod_piact},
     {"compose",   mod_compose},
     {"repair",    mod_repair},
@@ -519,6 +523,10 @@ Brain *brain_create(void) {
      * slot_evidence/2 (scored by the shared hypothesis engine) + EN/IT reply templates.
      * Drives mod_personal (10-memory-knowledge.c). A new slot or language is facts. */
     kb_load(b->kb, "kb/core/personal.p0");
+
+    /* gen335 (long-conversation): conversational INITIATIVE seeds — real facts parrot0
+     * can bring up to lead a stalled/looping exchange (mod_initiative). */
+    kb_load(b->kb, "kb/core/initiative.p0");
 
     /* gen230/gen235: curated world commons. Tests that must prove dynamic
      * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and

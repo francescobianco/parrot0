@@ -1,0 +1,27 @@
+% ── INITIATIVE — parrot0 GUIDA, non solo risponde (KB-first) ──────────────────────
+% Il limite di parrot0-vs-parrot0: due risponditori si specchiano (loop di eco). Un
+% interlocutore vivo INTRODUCE argomenti. La forma onesta e KB-first: quando la
+% conversazione stalla o si ripete, parrot0 porta un FATTO VERO che conosce (non finge
+% curiosità, non inventa) e rilancia con una domanda aperta. I fatti-seme vivono qui
+% (conoscenza, EN+IT); il modulo C (mod_initiative) rileva il loop e ne sceglie uno
+% non ancora usato. Aggiungere un seme = un fatto.
+
+conversation_seed("the human heart beats about a hundred thousand times a day").
+conversation_seed("octopuses have three hearts and blue blood").
+conversation_seed("honey can last thousands of years without spoiling").
+conversation_seed("Jupiter is the largest planet in our solar system").
+conversation_seed("a day on Venus is longer than a whole year on Venus").
+conversation_seed("the shortest war in history lasted about forty minutes").
+conversation_seed("bananas are berries, but strawberries are not").
+conversation_seed("there are more stars in the sky than grains of sand on Earth").
+
+conversation_seed(it, "il cuore umano batte circa centomila volte al giorno").
+conversation_seed(it, "i polpi hanno tre cuori e sangue blu").
+conversation_seed(it, "il miele puo durare migliaia di anni senza guastarsi").
+conversation_seed(it, "Giove e il pianeta piu grande del sistema solare").
+conversation_seed(it, "un giorno su Venere dura piu di un intero anno su Venere").
+conversation_seed(it, "le banane sono bacche, ma le fragole no").
+
+% frame: come parrot0 offre il seme + rilancio (EN + IT)
+response_template(initiative_frame, en, "Here's something I find interesting: %s. What do you make of it?").
+response_template(initiative_frame, it, "Ecco una cosa che trovo interessante: %s. Tu che ne pensi?").
