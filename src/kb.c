@@ -1141,6 +1141,91 @@ static size_t split_goals(char *body, char *goals[], size_t max) {
     return n;
 }
 
+/* Process ONE clause string `s` (already trimmed, trailing '.' removed): a
+ * `:- include(...)` directive, an explicit negative, a rule (head :- goals) or a
+ * fact. `dir` is the directory of the enclosing file, for relative includes.
+ * Returns the number of clauses added to `kb` (0 or 1; an include loads and counts
+ * its own clauses separately). Factored out of kb_load (gen335) so the loader can
+ * feed it MULTIPLE clauses per physical line — the .p0 parser is now mature enough
+ * to read "a(1). b(2). c(3)." on one line instead of silently dropping all but the
+ * first (F.: multi-clause lines were not read). */
+static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
+    size_t n = strlen(s);
+    if (n == 0) return 0;
+
+    if (strncmp(s, ":- include(", 11) == 0) {   /* gen150: relative include */
+        char inc_path[512];
+        const char *start = s + 11;
+        const char *end = s + n - 1;             /* the ')' (trailing '.' gone) */
+        if (*end == ')') {
+            size_t ilen = (size_t)(end - start);
+            if (ilen > 0 && ilen < sizeof inc_path) {
+                memcpy(inc_path, start, ilen);
+                inc_path[ilen] = '\0';
+                char *ip = inc_path;
+                while (*ip && isspace((unsigned char)*ip)) ip++;
+                if (*ip == '"' || *ip == '\'') { ip++; inc_path[ilen - 1] = '\0'; }
+                size_t iplen = strlen(ip);
+                while (iplen > 0 && (isspace((unsigned char)ip[iplen - 1]) ||
+                       ip[iplen - 1] == '"' || ip[iplen - 1] == '\''))
+                    ip[--iplen] = '\0';
+                char full[768];
+                if (dir[0] && ip[0] != '/')
+                    snprintf(full, sizeof full, "%s/%s", dir, ip);
+                else
+                    snprintf(full, sizeof full, "%s", ip);
+                kb_load(kb, full);
+            }
+        }
+        return 0;
+    }
+
+    char neg_pred[KB_TERM_LEN];
+    char neg_args[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t neg_argc;
+    if (parse_neg_term(s, neg_pred, neg_args, &neg_argc)) {
+        const char *argp[KB_MAX_ARGS];
+        for (size_t i = 0; i < neg_argc; i++) argp[i] = neg_args[i];
+        return kb_assert_neg(kb, neg_pred, argp, neg_argc) ? 1 : 0;
+    }
+
+    char rulebuf[1024];                         /* keep `s` intact for error text */
+    char *arrow = strstr(s, ":-");
+    if (arrow) {                                /* rule: head :- goals */
+        snprintf(rulebuf, sizeof rulebuf, "%s", s);
+        char *rarrow = strstr(rulebuf, ":-");
+        *rarrow = '\0';
+        Rule r;
+        memset(&r, 0, sizeof r);
+        r.origin = kb->origin;
+        int ok = parse_to_term(rulebuf, &r.head);
+        char *goals[KB_MAX_BODY];
+        size_t ng = ok ? split_goals(rarrow + 2, goals, KB_MAX_BODY) : 0;
+        if (ok && ng == 0) ok = 0;
+        for (size_t i = 0; i < ng && ok; i++)
+            if (!parse_goal(goals[i], &r.body[i])) ok = 0;
+        if (ok) { r.nbody = ng; kb_add_rule(kb, &r); return 1; }
+        fprintf(stderr, "kb_load: PARSE ERROR in %s: bad rule, dropped: '%s.'\n",
+                path ? path : "?", s);
+        return 0;
+    }
+
+    char pred[KB_TERM_LEN];                     /* fact */
+    char a[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t ac;
+    if (parse_term(s, pred, a, &ac)) {
+        const char *argp[KB_MAX_ARGS];
+        for (size_t i = 0; i < ac; i++) argp[i] = a[i];
+        return kb_assert(kb, pred, argp, ac) ? 1 : 0;
+    }
+    /* F. (gen335): NEVER drop a non-empty clause in silence — that has bitten us at
+     * least 5 times (multi-clause lines, stray syntax). A loud error is mandatory so
+     * the next malformed .p0 is caught at load, not by a mysterious missing fact. */
+    fprintf(stderr, "kb_load: PARSE ERROR in %s: cannot parse clause, dropped: '%s.'\n",
+            path ? path : "?", s);
+    return 0;
+}
+
 int kb_load(KB *kb, const char *path) {
     if (!kb || !path || !*path) return 0;
     FILE *f = fopen(path, "r");
@@ -1158,84 +1243,37 @@ int kb_load(KB *kb, const char *path) {
     char line[1024];
     int count = 0;
     while (fgets(line, sizeof line, f)) {
-        char *s = line;
-        while (*s && isspace((unsigned char)*s)) s++;
-        size_t n = strlen(s);
-        while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
-        if (n == 0 || s[0] == '%') continue;
-        if (s[n - 1] == '.') {
-            s[--n] = '\0';
-            while (n > 0 && isspace((unsigned char)s[n - 1])) s[--n] = '\0';
-        }
-        if (n == 0) continue;
+        /* Strip an inline comment: the first '%' outside a quoted string ends the
+         * line (also handles whole-line comments). */
+        { int q = 0;
+          for (char *p = line; *p; p++) {
+              if (*p == '"') q = !q;
+              else if (*p == '%' && !q) { *p = '\0'; break; }
+          } }
 
-        /* gen150: :- include(relative_path). directive.
-         * Resolves the path relative to the directory of the current file,
-         * then recursively loads the included file. Skip in the count (the
-         * included file counts its own clauses). */
-        if (strncmp(s, ":- include(", 11) == 0) {
-            char inc_path[512];
-            size_t plen = n;
-            const char *start = s + 11;
-            const char *end = s + plen - 1; /* before the trailing '.' we stripped */
-            if (*end == ')') {
-                size_t ilen = (size_t)(end - start);
-                if (ilen > 0 && ilen < sizeof inc_path) {
-                    memcpy(inc_path, start, ilen);
-                    inc_path[ilen] = '\0';
-                    /* trim whitespace/quotes around the path */
-                    char *ip = inc_path;
-                    while (*ip && isspace((unsigned char)*ip)) ip++;
-                    if (*ip == '"' || *ip == '\'') { ip++; inc_path[ilen-1] = '\0'; }
-                    size_t iplen = strlen(ip);
-                    while (iplen > 0 && (isspace((unsigned char)ip[iplen-1]) ||
-                           ip[iplen-1] == '"' || ip[iplen-1] == '\''))
-                        ip[--iplen] = '\0';
-                    /* resolve relative to dir */
-                    char full[768];
-                    if (dir[0] && ip[0] != '/')
-                        snprintf(full, sizeof full, "%s/%s", dir, ip);
-                    else
-                        snprintf(full, sizeof full, "%s", ip);
-                    kb_load(kb, full);
-                }
-            }
-            continue;
-        }
+        /* gen335: split the physical line into CLAUSES at every '.' that sits at
+         * paren-depth 0 and outside a quoted string — so "a(1). b(2). c(3)." on one
+         * line loads three facts instead of silently dropping two. A '.' inside
+         * parens (include paths, nested terms) or inside quotes is never a splitter. */
+        char *seg = line;
+        int q = 0, depth = 0;
+        for (char *p = line; ; p++) {
+            char c = *p;
+            if (c == '"') q = !q;
+            else if (!q && c == '(') depth++;
+            else if (!q && c == ')') { if (depth > 0) depth--; }
 
-        char neg_pred[KB_TERM_LEN];
-        char neg_args[KB_MAX_ARGS][KB_TERM_LEN];
-        size_t neg_argc;
-        if (parse_neg_term(s, neg_pred, neg_args, &neg_argc)) {
-            const char *argp[KB_MAX_ARGS];
-            for (size_t i = 0; i < neg_argc; i++) argp[i] = neg_args[i];
-            if (kb_assert_neg(kb, neg_pred, argp, neg_argc)) count++;
-            continue;
-        }
-
-        char *arrow = strstr(s, ":-");
-        if (arrow) {                                /* rule: head :- goals */
-            *arrow = '\0';
-            Rule r;
-            memset(&r, 0, sizeof r);
-            r.origin = kb->origin;
-            if (!parse_to_term(s, &r.head)) continue;
-
-            char *goals[KB_MAX_BODY];
-            size_t ng = split_goals(arrow + 2, goals, KB_MAX_BODY);
-            int ok = ng > 0;
-            for (size_t i = 0; i < ng && ok; i++) {
-                if (!parse_goal(goals[i], &r.body[i])) ok = 0;
-            }
-            if (ok) { r.nbody = ng; kb_add_rule(kb, &r); count++; }
-        } else {                                    /* fact */
-            char pred[KB_TERM_LEN];
-            char a[KB_MAX_ARGS][KB_TERM_LEN];
-            size_t ac;
-            if (parse_term(s, pred, a, &ac)) {
-                const char *argp[KB_MAX_ARGS];
-                for (size_t i = 0; i < ac; i++) argp[i] = a[i];
-                if (kb_assert(kb, pred, argp, ac)) count++;
+            if ((c == '.' && !q && depth == 0) || c == '\0') {
+                char terminal = c;
+                *p = '\0';
+                /* trim the segment */
+                char *t = seg;
+                while (*t && isspace((unsigned char)*t)) t++;
+                size_t tl = strlen(t);
+                while (tl > 0 && isspace((unsigned char)t[tl - 1])) t[--tl] = '\0';
+                if (tl > 0) count += load_clause(kb, path, dir, t);
+                if (terminal == '\0') break;
+                seg = p + 1;
             }
         }
     }
