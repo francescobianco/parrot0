@@ -4,6 +4,53 @@
 % Predicates: social_marker/2, social_pattern/2, question_word/1, reaction_word/1.
 
 % --- token-level social markers (whole-word match) ---
+
+
+
+
+
+% --- cue-based patterns (substring match in normalized text) ---
+
+
+
+
+% gen124: casual small-talk openers the chatsim transcripts kept walling on —
+% phatic contact, not information requests. Patterns are matched against the
+% CANONICALIZED text, so "whats up" appears here as its expansion "what is up"
+% (gen74 contraction map), while the apostrophe form "what's up" is left intact.
+
+% --- question words (signal an information request) ---
+
+
+% --- reaction words (laughter/conversational fillers) ---
+
+% --- gen225 (basic-chat cat.1): phatic speech acts (EN + IT) ---
+% Recognized PHRASES live here; the REPLIES live as response_template(type, …)
+% in kb/core/responses.p0. Both are KB knowledge so the classes grow at runtime
+% with no code edit; the C only knows the structural list of act TYPES.
+
+% valediction for the night (kept distinct from a plain goodbye)
+
+% felicitation / congratulation / festive greeting
+
+% well-wishing (luck, recovery, parting care)
+
+% condolence
+
+% blessing (e.g. after a sneeze)
+
+% politeness / appreciation (you-are-welcome family + "that's kind of you")
+
+% gen295 (basic-chat cat.43 "Famiglia"): kinship terms as a lexical class, so
+% mod_family recognizes a family statement ("my father …", "I have two brothers")
+% and an honest self-decline ("what is your sister's name" — parrot0 is an AI, it
+% has no family). Singular forms; the module singularizes plurals before the
+% check. EN + IT so an Italian family statement engages through the same path.
+
+% ═══ Parentela: fatti base + operatori (join + ricorsione) — gen335, learning mesh ═══
+% Accanto a family_relation così il save-map instrada la parentela futura qui.
+
+% ── PARENTAGE OPERATORS (ancestor, descendant, sibling, grandfather) (scattered from mesh-session.p0, gen335) ──
 social_marker(opening, hello).
 social_marker(opening, hi).
 social_marker(opening, hey).
@@ -16,39 +63,29 @@ social_marker(opening, buonasera).
 social_marker(opening, hello!).
 social_marker(opening, sup).
 social_marker(opening, howdy).
-
 social_marker(closing, bye).
 social_marker(closing, goodbye).
 social_marker(closing, farewell).
 social_marker(closing, addio).
 social_marker(closing, arrivederci).
-
 social_marker(thanks, thanks).
 social_marker(thanks, thx).
 social_marker(thanks, ty).
 social_marker(thanks, grazie).
-
 social_marker(apology, sorry).
 social_marker(apology, scusa).
 social_marker(apology, scusate).
 social_marker(apology, scusi).
 social_marker(apology, dispiace).
-
 social_marker(ambiguous, ciao).
-
-% --- cue-based patterns (substring match in normalized text) ---
 social_pattern(opening, good morning).
 social_pattern(opening, good evening).
 social_pattern(opening, good afternoon).
-
 social_pattern(closing, see you).
 social_pattern(closing, a presto).
-
 social_pattern(thanks, thank you).
 social_pattern(thanks, thank u).
-
 social_pattern(apology, mi dispiace).
-
 social_pattern(wellbeing, how are you).
 social_pattern(wellbeing, how r u).
 social_pattern(wellbeing, how do you do).
@@ -60,10 +97,6 @@ social_pattern(wellbeing, hows your day).
 social_pattern(wellbeing, hows it going).
 social_pattern(wellbeing, how are things).
 social_pattern(wellbeing, hows things).
-% gen124: casual small-talk openers the chatsim transcripts kept walling on —
-% phatic contact, not information requests. Patterns are matched against the
-% CANONICALIZED text, so "whats up" appears here as its expansion "what is up"
-% (gen74 contraction map), while the apostrophe form "what's up" is left intact.
 social_pattern(wellbeing, what is up).
 social_pattern(wellbeing, what's up).
 social_pattern(wellbeing, wassup).
@@ -71,8 +104,6 @@ social_pattern(wellbeing, you good).
 social_pattern(wellbeing, u good).
 social_pattern(wellbeing, you doing ok).
 social_pattern(opening, you there).
-
-% --- question words (signal an information request) ---
 question_word(who).
 question_word(what).
 question_word(where).
@@ -80,7 +111,6 @@ question_word(when).
 question_word(why).
 question_word(how).
 question_word(which).
-
 question_word(chi).
 question_word(che).
 question_word(cosa).
@@ -89,8 +119,6 @@ question_word(quando).
 question_word(perche).
 question_word(perché).
 question_word(come).
-
-% --- reaction words (laughter/conversational fillers) ---
 reaction_word(haha).
 reaction_word(lol).
 reaction_word(hehe).
@@ -100,20 +128,11 @@ reaction_word(lmao).
 reaction_word(lolol).
 reaction_word(hehehe).
 reaction_word(hahaha).
-
-% --- gen225 (basic-chat cat.1): phatic speech acts (EN + IT) ---
-% Recognized PHRASES live here; the REPLIES live as response_template(type, …)
-% in kb/core/responses.p0. Both are KB knowledge so the classes grow at runtime
-% with no code edit; the C only knows the structural list of act TYPES.
-
-% valediction for the night (kept distinct from a plain goodbye)
 social_pattern(goodnight, good night).
 social_pattern(goodnight, goodnight).
 social_pattern(goodnight, nighty night).
 social_pattern(goodnight, buonanotte).
 social_pattern(goodnight, buona notte).
-
-% felicitation / congratulation / festive greeting
 social_pattern(felicitation, congratulations).
 social_pattern(felicitation, congrats).
 social_pattern(felicitation, well done).
@@ -129,8 +148,6 @@ social_pattern(felicitation, buon natale).
 social_pattern(felicitation, buon anno).
 social_pattern(felicitation, auguri).
 social_pattern(felicitation, tanti auguri).
-
-% well-wishing (luck, recovery, parting care)
 social_pattern(wellwish, good luck).
 social_pattern(wellwish, best of luck).
 social_pattern(wellwish, get well soon).
@@ -141,19 +158,13 @@ social_pattern(wellwish, buona fortuna).
 social_pattern(wellwish, guarisci presto).
 social_pattern(wellwish, rimettiti presto).
 social_pattern(wellwish, stammi bene).
-
-% condolence
 social_pattern(condolence, rest in peace).
 social_pattern(condolence, my condolences).
 social_pattern(condolence, riposa in pace).
 social_pattern(condolence, condoglianze).
-
-% blessing (e.g. after a sneeze)
 social_pattern(blessing, bless you).
 social_pattern(blessing, god bless).
 social_pattern(blessing, gesundheit).
-
-% politeness / appreciation (you-are-welcome family + "that's kind of you")
 social_pattern(politeness, my pleasure).
 social_pattern(politeness, dont mention it).
 social_pattern(politeness, do not mention it).
@@ -165,12 +176,6 @@ social_pattern(politeness, thats very kind).
 social_pattern(politeness, too kind).
 social_pattern(politeness, troppo gentile).
 social_pattern(politeness, molto gentile).
-
-% gen295 (basic-chat cat.43 "Famiglia"): kinship terms as a lexical class, so
-% mod_family recognizes a family statement ("my father …", "I have two brothers")
-% and an honest self-decline ("what is your sister's name" — parrot0 is an AI, it
-% has no family). Singular forms; the module singularizes plurals before the
-% check. EN + IT so an Italian family statement engages through the same path.
 family_relation(brother).
 family_relation(sister).
 family_relation(father).
@@ -214,11 +219,20 @@ family_relation(nipote).
 family_relation(mamma).
 family_relation(papa).
 family_relation(babbo).
-
-% ═══ Parentela: fatti base + operatori (join + ricorsione) — gen335, learning mesh ═══
-% Accanto a family_relation così il save-map instrada la parentela futura qui.
 progenitor(tom, bob).   progenitor(bob, ann).   progenitor(ann, zoe).
 progenitor(tom, liz).   progenitor(liz, max).   progenitor(zoe, kim).
 grandparent($X, $Z) :- progenitor($X, $Y), progenitor($Y, $Z).
 forebear($X, $Y) :- progenitor($X, $Y).
 forebear($X, $Z) :- progenitor($X, $Y), forebear($Y, $Z).
+ancestor_of($X, $Y) :- parent_of($X, $Y).
+ancestor_of($X, $Z) :- parent_of($X, $Y), ancestor_of($Y, $Z).
+descendant_of($X, $Y) :- ancestor_of($Y, $X).
+grandfather_of($X, $Z) :- parent_of($X, $Y), parent_of($Y, $Z).
+parent_of(ann, tom).
+parent_of(john, mary).
+parent_of(john, peter).
+parent_of(marco, luca).
+parent_of(marco, sofia).
+parent_of(mary, ann).
+parent_of(paul, mary).
+sibling_of($X, $Y) :- parent_of($P, $X), parent_of($P, $Y).

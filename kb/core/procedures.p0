@@ -9,18 +9,21 @@
 % le procedure future accanto alle loro parenti.
 
 % -- parità (l'esempio di F.: "saper ignorare i dispari" è conoscenza) --
-even($X) :- eq(mod($X, 2), 0).
-odd($X)  :- eq(mod($X, 2), 1).
 
 % -- relazione lineare ASTRATTA: A*B=C, risolvibile in ogni direzione nota --
 % copre tasso·tempo=distanza, prezzo·quantità=totale, ecc. con UN operatore.
-product($A, $B, $C) :- is($C, mul($A, $B)).      % noti A,B → C
-factor($C, $B, $A)  :- is($A, div($C, $B)).      % noti C,B → A
 % quanto tempo perché il secondo raggiunga il primo, dato il vantaggio e le velocità
 % (schema catch-up generale, non "i treni"): tempo = vantaggio / (v2 - v1)
-catch_up($Head, $V1, $V2, $T) :- gt($V2, $V1), is($T, div($Head, sub($V2, $V1))).
 
 % -- fold su lista: somma, conteggio, massimo (aggregazione astratta) --
+
+% -- filtro su lista: tieni i pari, scarta i dispari (map/filter astratto) --
+% ── LOGICAL OPERATORS (transitive closures, bridge, same_category) (scattered from mesh-session.p0, gen335) ──
+even($X) :- eq(mod($X, 2), 0).
+odd($X)  :- eq(mod($X, 2), 1).
+product($A, $B, $C) :- is($C, mul($A, $B)).      % noti A,B → C
+factor($C, $B, $A)  :- is($A, div($C, $B)).      % noti C,B → A
+catch_up($Head, $V1, $V2, $T) :- gt($V2, $V1), is($T, div($Head, sub($V2, $V1))).
 sum_list(nil, 0).
 sum_list(cons($H, $T), $S) :- sum_list($T, $S1), is($S, add($H, $S1)).
 count_list(nil, 0).
@@ -28,8 +31,25 @@ count_list(cons($H, $T), $N) :- count_list($T, $N1), is($N, add($N1, 1)).
 max_list(cons($X, nil), $X).
 max_list(cons($H, $T), $M) :- max_list($T, $M1), ge($H, $M1), is($M, $H).
 max_list(cons($H, $T), $M) :- max_list($T, $M1), lt($H, $M1), is($M, $M1).
-
-% -- filtro su lista: tieni i pari, scarta i dispari (map/filter astratto) --
 drop_odds(nil, nil).
 drop_odds(cons($H, $T), cons($H, $R)) :- even($H), drop_odds($T, $R).
 drop_odds(cons($H, $T), $R) :- odd($H), drop_odds($T, $R).
+causes_t($X, $Z) :- causes($X, $Y), causes($Y, $Z).
+causes_t($X, $Z) :- causes($X, $Y), causes_t($Y, $Z).
+enables_t($X, $Z) :- enables($X, $Y), enables($Y, $Z).
+enables_t($X, $Z) :- enables($X, $Y), enables_t($Y, $Z).
+faster_than_t($X, $Z) :- faster_than($X, $Y), faster_than($Y, $Z).
+faster_than_t($X, $Z) :- faster_than($X, $Y), faster_than_t($Y, $Z).
+heavier_than_t($X, $Z) :- heavier_than($X, $Y), heavier_than($Y, $Z).
+heavier_than_t($X, $Z) :- heavier_than($X, $Y), heavier_than_t($Y, $Z).
+is_a_t($X, $Z) :- is_a($X, $Y), is_a($Y, $Z).
+is_a_t($X, $Z) :- is_a($X, $Y), is_a_t($Y, $Z).
+kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of($Y, $Z).
+kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).
+larger_than_t($X, $Z) :- larger_than($X, $Y), larger_than($Y, $Z).
+larger_than_t($X, $Z) :- larger_than($X, $Y), larger_than_t($Y, $Z).
+located_in_t($X, $Z) :- located_in($X, $Y), located_in($Y, $Z).
+located_in_t($X, $Z) :- located_in($X, $Y), located_in_t($Y, $Z).
+part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
+part_of_t($X, $Z) :- part_of($X, $Y), part_of_t($Y, $Z).
+same_category($X, $Y) :- category_member($C, $X), category_member($C, $Y).

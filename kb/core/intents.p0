@@ -17,33 +17,271 @@
 % save, while a runtime-taught form (KB_SESSION) does persist on /save.
 
 % --- ask_name: "what is my name?" and its fixed variants (EN + IT) ---
-intent_phrase(ask_name, "what is my name").
-intent_phrase(ask_name, "what is my name?").
-intent_phrase(ask_name, "what's my name").
-intent_phrase(ask_name, "what's my name?").
-intent_phrase(ask_name, "whats my name").
-intent_phrase(ask_name, "whats my name?").
 % Italian recall idiom — the read-side mirror of "mi chiamo X"; the fixed form of
 % "what's my name?", so it belongs in the same lexicon, not a new handler.
-intent_phrase(ask_name, "come mi chiamo").
-intent_phrase(ask_name, "come mi chiamo?").
 
 % intent_cue(Intent, "fragment") — SUBSTRING cues (matched by kb_cue_match, i.e. the
 % fragment may appear anywhere in the turn), as opposed to intent_phrase/2 which is the
 % WHOLE normalized turn (exact). Same KB-first law: the cue set grows at runtime.
 
 % --- brevity: the user asking for short / non-verbose answers (EN + IT) ---
-intent_cue(brevity, "keep it short").
-intent_cue(brevity, "be brief").
-intent_cue(brevity, "short answers").
-intent_cue(brevity, "risposte brevi").
-intent_cue(brevity, "sii breve").
 
 % --- gen223: pi-agent read-only verbs (mod_piact, docs/use-on-pi-agent.md). The phrasings
 % an OpenAI-style client uses to name each tool live HERE, not as chained cue("…") in C
 % (that was a phrasebook — PRINCIPLES.md's impostor shape). kb_cue_match queries these; a
 % new phrasing is DATA, teachable at runtime, no recompile. Structural anchors (leading
 % "read "/"grep "/"ls" prefix, "find"+"named" AND-logic) stay in C as shape, not vocabulary.
+
+% --- gen227 (basic-chat cat.104): AI/ML identity probes (EN + IT). Answered
+% HONESTLY from the self-model by mod_self: parrot0 is a from-scratch C program
+% with no LLM at runtime. Cues are anchored on "are you …"/"your …" so a generic
+% knowledge question ("what is a neural network") is NOT hijacked. ---
+
+
+
+
+% --- gen229 (LLMSCORE behavioural resemblance): embodiment / daily-life probes.
+% NOT identity questions (those are off-limits in LLMSCORE); these ask about a
+% BODY parrot0 doesn't have, and the honest reply ("I don't eat or sleep") is the
+% same one an LLM gives. Engages instead of walling; states a truth, claims no
+% identity. Cues anchored on eating/sleeping/tiredness so they don't over-fire. ---
+
+% --- gen241 (LLMSCORE-check): location/weather-of-self probes. parrot0 has no body
+% or place, so it can't feel weather; the honest answer engages, it doesn't wall.
+
+% --- gen231 (LLMSCORE): opinion / preference probes ("what's your favorite thing
+% to do on a rainy day", "do you enjoy music"). parrot0 has no personal tastes or
+% lived experience; the honest answer engages instead of walling and is the same an
+% LLM gives. Anchored on "your favorite/favourite" and "do you like/enjoy/prefer". ---
+% gen333 (LLMSCORE): recent-interest questions use the English second-person
+% present-perfect frame. Keep the INTERROGATIVE anchor in every cue: a statement
+% such as "I'm glad you've been enjoying the books" is about the user and must
+% not be stolen by the self-preference handler.
+
+% --- gen333 (LLMSCORE counterexamples): surface vocabulary for fixed engines. ---
+% These are deliberately intent_cue facts even when the words look like parser
+% punctuation. C owns ordering, binding and computation; the KB owns which forms
+% mean "count", "range endpoint", "initial", or "relationship". keyword/1 asks
+% the shared evidence scorer for token boundaries instead of substring guesses.
+
+% Computed number-property counts over bounded ranges.
+% intent_family/2 is the trainer-visible consumer contract: these hypotheses
+% cooperate inside one faculty and therefore must not be read as mutually
+% exclusive global intents. autolearn queries each component through the shared
+% input.classify scorer and can teach the one Gap while leaving mechanics in C.
+
+% A frame maps an open-cue class to its compatible close-cue class. Adding a
+% cue to either class changes the parser live; adding a new pair needs one
+% range_frame/2 fact, not a branch in C.
+
+% Quoted per-word initial projection and the nearby anagram intent. Keeping both
+% in the KB lets the engine distinguish "letters of ... form" from the more
+% specific initials+scope request without deleting a working anagram surface.
+
+% Explicit no-overlap propositions and their two question shapes.
+
+% --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"
+% choice itself is recognized structurally in mod_chitchat, not listed here). ---
+
+% =========================================================================
+% gen214: the LEARNABLE registry — what can be taught at runtime, as DATA.
+%
+% learnable(Label, Intent, Mode). ONE generic handler (try_teach_form) reads this: on a
+% turn that carries a teach verb ("learn/teach/use/impara/…") and a quoted span, it finds
+% the Label that occurs in the turn and asserts the right fact for that Intent:
+%   exact     -> intent_phrase(Intent, "form")      (whole-turn recognition)
+%   substring -> intent_cue(Intent, "fragment")     (substring recognition)
+%   fill      -> response_template(Intent, "text")  (an OUTPUT phrasing; {name} slot)
+% So adding a learnable intent is now DATA (a learnable/3 row + its base forms), not C —
+% the per-intent teach handlers are gone. Label is matched against the raw (non-canonical)
+% turn, so natural EN+IT labels both route. Mode picks the predicate AND the span source
+% (exact/substring store the normalized span; fill keeps the raw casing for {name}).
+% gen272 (Track 5.5, the runtime-growth demo): the teach-verb class ITSELF is
+% learnable. gen271 migrated the guard of try_teach_form to KB
+% (intent_cue(00_lex_chain332, …)), so "learn \"memorizza \" as a teaching
+% verb" asserts a new verb into the very vocabulary that gates teaching — a
+% previously deaf branch hooks with no rebuild, and the new verb can then
+% teach anything else the registry knows. Reflexive growth as pure DATA.
+
+% gen335 (KB-first research responses): teachable response phrasings.
+% Each intent has an EN+IT label so the user can say "insegnami a <label> con <new text>"
+% and the new phrasing joins the rotation; on /save it persists in the session KB.
+
+% gen335 (proper names): teachable exceptions from translation.
+% "non tradurre luna" adds proper_name(luna) — the canonicalizer skips tr/2 for it.
+
+% --- gen240 (universal-comprehension, social branch): smalltalk CONTINUITY. A
+% conversational/experiential turn (first-person experience or opinion, or a
+% question turned back to parrot0) is COMPREHENSIBLE even with no fact to fetch:
+% the honest move is to keep the thread alive (acknowledge + ask back), never a
+% blind wall. These social markers are the cue; mod_smalltalk is the last-resort
+% continuity catch (registered after learn). EN + IT, the lexicon grows here. ---
+
+% gen240: broader smalltalk cues (multi-word social phrases, safe as substrings).
+% Italian conversational phrases
+
+% --- gen257: OR-chain perception (Track 5.1, outer-circle codebase work). The
+% trigger vocabulary for "how many or-chains of calls to <fn> in <path>?" lives
+% HERE from day one — this very feature about C phrasebooks must not be one. A
+% new phrasing is DATA, teachable at runtime via the generic learnable/3 path,
+% no recompile. The function name and path are structural anchors parsed in C
+% (shape, not vocabulary).
+
+% --- gen258: plan requests (Track 5.2). "make a plan to <goal>" — the trigger
+% surface is knowledge; the goal itself is recognized from goal_cue/2 facts in
+% the plan-action domain (kb/experts/codebase/actions.p0) and the steps are
+% DERIVED by the generic backward chainer, never a hardcoded pipeline.
+
+% --- gen259: execute a derived plan through KB action_impl/2 bindings. These
+% cues only ask parrot0 to WALK the plan it can already derive; the domain stays
+% in kb/experts/codebase/actions.p0 and missing implementations are named as the
+% next pull instead of fabricated.
+
+% --- gen265 (the first RULESCORE pull): a rules-spec implementation request is
+% a CATEGORY. The FORM (>=2 ordered numbered rule markers, paragraph length) is
+% structural C in mod_rulespec; the VOCABULARY that names the request and the
+% rule CLASSES lives here — teach a cue, the category widens with no rebuild.
+% First honest step: recognize the spec, report what was understood (title,
+% rule count, rule classes) and decline the translation naming the F4 gap; a
+% chitchat/pragma misclaim is worse than a wall (gen254).
+
+% rule classes (word classes, KB-first): which kinds of rules a spec states
+
+% gen266: rule sub-classes used to EXTRACT count_to_threshold parameters from a
+% recognized spec (all vocabulary, teachable at runtime): the rule that GAINS
+% names the scoring token (the word after an input verb), the rule that REACHES
+% names the threshold, the print cue names the final word.
+
+% --- gen267 (universal-comprehension §2/§4.2, first slice): the request/
+% generate FORM. The schema "[V-imp] [NP] (in <lang>)" is structural C in
+% mod_reqgen (a LATE module: it only catches turns every other module already
+% declined); the imperative-verb class and the language names live here. The
+% payoff is the doc's informed decline: the blind wall becomes "I understood
+% the request — produce X — but ..." with the gap named. Matched as WHOLE
+% tokens, not substrings.
+
+% gen270 (universal-comprehension §8, produce-artifact): the FILE-artifact
+% request. "file" is the artifact word (same token EN/IT); the name markers
+% introduce the filename ("a file NAMED pupo.txt" / "un file CHIAMATO
+% pupo.txt"). Whole-token matched in mod_reqgen; the action itself is gated by
+% artifact_shape(empty_file, …) in the programming KB.
+
+% gen271 (Track 5.4, coding-agent-evolution): the FIRST real cue-chain site
+% migrated out of C by parrot0's own derived kbfirst_migration plan — these
+% eight facts were EMITTED by emit_facts from the OR-chain that guarded
+% try_teach_form (src/brain/00-lex.c, chain at the then-line 332), and the
+% chain is now ONE kb_cue_match(b, "00_lex_chain332", low) call. The teach-verb
+% vocabulary itself became taught knowledge: a new verb is a fact here (or a
+% runtime assert), never a recompile. Trailing spaces are content (the verbs
+% must end the word: "use " must not fire on "user").
+
+% gen273 (Track 5.4, second real migration — by whole module): the two
+% counterfactual chains of src/brain/85-translate-synth-world.c
+% (mod_counterfactual's else_form and question_shape), emitted by the derived
+% plan and applied by the external loop. Counter: 340 -> 338.
+
+% gen274 (Track 5.4, third real migration — with per-chain applicability): five
+% of the six cue chains of src/brain/65-induce-verify-shell.c (mod_summary's
+% want_sum/want_gist/focus_intent, mod_discourse's summary trigger,
+% is_mixed_turn's thanks-corrective cues), emitted by the derived plan and
+% applied by the external loop. The sixth chain (is_wellbeing_content, line 770
+% at emit time) was SKIPPED honestly by the plan itself: the kb_cue_match call
+% shape imports `b`, which that helper never sees — its facts are therefore NOT
+% committed (unused knowledge would be a lie about what the code reads).
+% Counter: 338 -> 333.
+
+% gen275 (Track 5.4, fourth real migration — by whole module): all 16 cue
+% chains of src/brain/50-self-research-loop.c (mod_loop's self-challenge
+% triggers and the identity/existence/capability gates), emitted by the
+% derived plan and applied by the external loop; every chain had `b` in
+% scope, zero skips. NB on chain439: input is canonicalized before matching,
+% so Italian "chi sei" arrives as "who sei" — that cue is correct, not a
+% typo (it was a code comment at the old site). Counter: 333 -> 317.
+
+% M1 (deep-reasoning §4bis): the provenance query — "where did you learn about X?"
+% / "what is your source for X?" (IT "dove hai imparato" / "qual è la tua fonte"
+% -> canonicalized "your source"). KB-first cue set, teachable like the migrated
+% chains; keeps the cuechains ratchet from rising.
+
+% deep-reasoning M3 (docs/plans/deep-reasoning.md §5): the trigger that starts the
+% budgeted multi-hop inference loop on a yes/no question. KB-first, teachable.
+% deep-reasoning M3: the Italian deep-trigger cues, so the report is localized
+% (kb_cue_match, not a C cue chain — keeps the cuechains ratchet at 317).
+
+% --- gen323 (TODO.md P1, the code KEYHOLE) ------------------------------------
+% The code faculties were REAL (25/25 code-bench gates) but reachable only
+% through an exact C phrasebook: `cue(s,"explain this code")` answered, while
+% "explain what this does:" — the same faculty, the same snippet, one phrasing
+% away — hit the wall "That looks like a snippet of code.". A coding agent whose
+% analysis is reachable only by the magic words cannot receive a GitHub issue,
+% which is the whole mission.
+%
+% This is the C-series law applied to code (gen51, gen193, gen211): a lexical
+% class is KNOWLEDGE, not a C branch. mod_code now asks kb_cue_match, so the
+% phrasing set grows AT RUNTIME — "call X a way of asking about code" widens the
+% surface with no rebuild, and adding a phrasing costs a fact, not a generation.
+%
+% Widening the language surface is only safe because the REGISTER evidence was
+% tightened in the same generation: mod_code declines when the section after the
+% colon is not recognizably C or Python, so prose keeps its turn. (Before that
+% guard, "what is wrong with this: the sky is blue" was answered with "I did not
+% find obvious errors in this code snippet" — prose misclaimed as code.)
+
+% qtype 1 — find the defect.
+
+% qtype 2 — repair it.
+
+% qtype 3 — which language.
+
+% qtype 4 — is it valid.
+
+% qtype 5 — explain it. These are the phrasings that walled in the 2026-07-12
+% conversation with F.; each one is now a fact, not a C branch.
+
+% --- gen325 (TODO.md P6, forge plan §18): WHERE I END ------------------------
+% "what are you unable to do?" was claimed by the identity module ("I am
+% parrot0."), and "cosa non sai fare?" got the CAPABILITY list — the question was
+% inverted and the answer was still a brochure. The negative reading is the
+% specific one, so mod_self tests these cues BEFORE identity and capability.
+% The ANSWER is derived from capability/2 + capability_wall/2 (kb/core/
+% capabilities.p0, generated from gate results) — no faculty name lives in C.
+
+% gen334: Italian intent phrases for common conversational patterns.
+% The engine is fixed; these phrasings are KB knowledge, teachable at runtime.
+% All use intent_phrase (exact normalized-turn match) or intent_cue (substring).
+
+% --- Italian identity probes ---
+
+% --- Italian greetings and social ---
+
+% --- Italian capability self-description ---
+
+% --- Italian how-know probes ---
+
+% --- Italian language probes ---
+
+% --- Italian system probes ---
+
+% --- Italian function words as cues ---
+
+% --- language-switch cues (KB-first, migrated from mod_chitchat hardcoded phrasebook).
+% Previously a cue() chain in C that lived in a closed set; now runtime-teachable
+% via learnable/substring, queryable, and localizable. ---
+
+% ── COMPREHENSION FRAMES (answer_frame) (scattered from mesh-session.p0, gen335) ──
+intent_phrase(ask_name, "what is my name").
+intent_phrase(ask_name, "what is my name?").
+intent_phrase(ask_name, "what's my name").
+intent_phrase(ask_name, "what's my name?").
+intent_phrase(ask_name, "whats my name").
+intent_phrase(ask_name, "whats my name?").
+intent_phrase(ask_name, "come mi chiamo").
+intent_phrase(ask_name, "come mi chiamo?").
+intent_cue(brevity, "keep it short").
+intent_cue(brevity, "be brief").
+intent_cue(brevity, "short answers").
+intent_cue(brevity, "risposte brevi").
+intent_cue(brevity, "sii breve").
 intent_cue(piact_grep, "search for").
 intent_cue(piact_grep, "where is").
 intent_cue(piact_grep, "where does").
@@ -71,11 +309,6 @@ intent_cue(piact_read, "summarise").
 intent_cue(piact_run, "run the test").
 intent_cue(piact_run, "build the project").
 intent_cue(piact_run, "compile the").
-
-% --- gen227 (basic-chat cat.104): AI/ML identity probes (EN + IT). Answered
-% HONESTLY from the self-model by mod_self: parrot0 is a from-scratch C program
-% with no LLM at runtime. Cues are anchored on "are you …"/"your …" so a generic
-% knowledge question ("what is a neural network") is NOT hijacked. ---
 intent_cue(ai_not_llm, "are you chatgpt").
 intent_cue(ai_not_llm, "are you gpt").
 intent_cue(ai_not_llm, "are you alexa").
@@ -89,7 +322,6 @@ intent_cue(ai_not_llm, "sei alexa").
 intent_cue(ai_not_llm, "sei siri").
 intent_cue(ai_not_llm, "sei un llm").
 intent_cue(ai_not_llm, "sei una rete neurale").
-
 intent_cue(ai_no_params, "how many parameters").
 intent_cue(ai_no_params, "parameters do you have").
 intent_cue(ai_no_params, "your training data").
@@ -98,24 +330,16 @@ intent_cue(ai_no_params, "context window").
 intent_cue(ai_no_params, "quanti parametri").
 intent_cue(ai_no_params, "dati di addestramento").
 intent_cue(ai_no_params, "finestra di contesto").
-
 intent_cue(ai_what_model, "what model are you").
 intent_cue(ai_what_model, "which model are you").
 intent_cue(ai_what_model, "what bot are you").
 intent_cue(ai_what_model, "che modello sei").
 intent_cue(ai_what_model, "che bot sei").
-
 intent_cue(ai_opensource, "are you open source").
 intent_cue(ai_opensource, "where is your code").
 intent_cue(ai_opensource, "sei open source").
 intent_cue(ai_opensource, "dove e il tuo codice").
 intent_cue(ai_opensource, "dov'e il tuo codice").
-
-% --- gen229 (LLMSCORE behavioural resemblance): embodiment / daily-life probes.
-% NOT identity questions (those are off-limits in LLMSCORE); these ask about a
-% BODY parrot0 doesn't have, and the honest reply ("I don't eat or sleep") is the
-% same one an LLM gives. Engages instead of walling; states a truth, claims no
-% identity. Cues anchored on eating/sleeping/tiredness so they don't over-fire. ---
 intent_cue(self_embodiment, "for breakfast").
 intent_cue(self_embodiment, "for lunch").
 intent_cue(self_embodiment, "for dinner").
@@ -132,9 +356,6 @@ intent_cue(self_embodiment, "cosa hai mangiato").
 intent_cue(self_embodiment, "cosa mangi").
 intent_cue(self_embodiment, "hai dormito").
 intent_cue(self_embodiment, "sei stanco").
-
-% --- gen241 (LLMSCORE-check): location/weather-of-self probes. parrot0 has no body
-% or place, so it can't feel weather; the honest answer engages, it doesn't wall.
 intent_cue(self_location, "weather like where you").
 intent_cue(self_location, "weather where you are").
 intent_cue(self_location, "weather like right now").
@@ -147,11 +368,6 @@ intent_cue(self_location, "che tempo fa dove sei").
 intent_cue(self_location, "che tempo fa lì").
 intent_cue(self_location, "dove ti trovi").
 intent_cue(self_location, "dove vivi").
-
-% --- gen231 (LLMSCORE): opinion / preference probes ("what's your favorite thing
-% to do on a rainy day", "do you enjoy music"). parrot0 has no personal tastes or
-% lived experience; the honest answer engages instead of walling and is the same an
-% LLM gives. Anchored on "your favorite/favourite" and "do you like/enjoy/prefer". ---
 intent_family(self_preference, self_preference).
 intent_required(self_preference, self_preference).
 intent_cue(self_preference, "your favorite").
@@ -162,10 +378,6 @@ intent_cue(self_preference, "do you like").
 intent_cue(self_preference, "do you enjoy").
 intent_cue(self_preference, "do you prefer").
 intent_cue(self_preference, "what do you enjoy").
-% gen333 (LLMSCORE): recent-interest questions use the English second-person
-% present-perfect frame. Keep the INTERROGATIVE anchor in every cue: a statement
-% such as "I'm glad you've been enjoying the books" is about the user and must
-% not be stolen by the self-preference handler.
 intent_cue(self_preference, "what's something you've been into").
 intent_cue(self_preference, "what is something you've been into").
 intent_cue(self_preference, "what have you been into").
@@ -178,18 +390,6 @@ intent_cue(self_preference, "il tuo preferito").
 intent_cue(self_preference, "la tua preferita").
 intent_cue(self_preference, "cosa ti piace").
 intent_cue(self_preference, "ti piace").
-
-% --- gen333 (LLMSCORE counterexamples): surface vocabulary for fixed engines. ---
-% These are deliberately intent_cue facts even when the words look like parser
-% punctuation. C owns ordering, binding and computation; the KB owns which forms
-% mean "count", "range endpoint", "initial", or "relationship". keyword/1 asks
-% the shared evidence scorer for token boundaries instead of substring guesses.
-
-% Computed number-property counts over bounded ranges.
-% intent_family/2 is the trainer-visible consumer contract: these hypotheses
-% cooperate inside one faculty and therefore must not be read as mutually
-% exclusive global intents. autolearn queries each component through the shared
-% input.classify scorer and can teach the one Gap while leaving mechanics in C.
 intent_family(range_property_count, arith_count_request).
 intent_family(range_property_count, arith_property_prime).
 intent_family(range_property_count, arith_property_even).
@@ -222,10 +422,6 @@ intent_cue(arith_even_concessive, keyword(though)).
 intent_cue(arith_even_concessive, keyword(if)).
 intent_cue(arith_even_concessive, keyword(so)).
 intent_cue(arith_even_concessive, keyword(when)).
-
-% A frame maps an open-cue class to its compatible close-cue class. Adding a
-% cue to either class changes the parser live; adding a new pair needs one
-% range_frame/2 fact, not a branch in C.
 range_frame(arith_range_between_open, arith_range_between_close).
 range_frame(arith_range_from_open, arith_range_from_close).
 machinery(range_frame).
@@ -241,10 +437,6 @@ intent_cue(arith_range_from_close, keyword(to)).
 intent_cue(arith_range_from_close, keyword(through)).
 intent_cue(arith_range_from_close, keyword(until)).
 intent_cue(arith_range_from_close, keyword(a)).
-
-% Quoted per-word initial projection and the nearby anagram intent. Keeping both
-% in the KB lets the engine distinguish "letters of ... form" from the more
-% specific initials+scope request without deleting a working anagram surface.
 intent_family(initials, initials_projection).
 intent_family(initials, initials_word_scope).
 intent_family(initials, initials_exclusion).
@@ -267,8 +459,6 @@ intent_cue(anagram_output, keyword(letters)).
 intent_cue(anagram_output, keyword(anagram)).
 intent_cue(anagram_output, keyword(form)).
 intent_cue(anagram_output, keyword(make)).
-
-% Explicit no-overlap propositions and their two question shapes.
 intent_family(no_overlap, logic_no_quantifier).
 intent_family(no_overlap, logic_plural_copula).
 intent_family(no_overlap, logic_relationship_marker).
@@ -283,43 +473,16 @@ intent_cue(logic_relationship_marker, keyword(relation)).
 intent_cue(logic_relationship_marker, keyword(relationship)).
 intent_cue(logic_relationship_marker, keyword(association)).
 intent_cue(logic_between_connector, keyword(between)).
-
-% --- gen228 (basic-chat cat.86): "would you rather" opener (the bare "A or B"
-% choice itself is recognized structurally in mod_chitchat, not listed here). ---
 intent_cue(would_rather, "would you rather").
 intent_cue(would_rather, "preferiresti").
-
-% =========================================================================
-% gen214: the LEARNABLE registry — what can be taught at runtime, as DATA.
-%
-% learnable(Label, Intent, Mode). ONE generic handler (try_teach_form) reads this: on a
-% turn that carries a teach verb ("learn/teach/use/impara/…") and a quoted span, it finds
-% the Label that occurs in the turn and asserts the right fact for that Intent:
-%   exact     -> intent_phrase(Intent, "form")      (whole-turn recognition)
-%   substring -> intent_cue(Intent, "fragment")     (substring recognition)
-%   fill      -> response_template(Intent, "text")  (an OUTPUT phrasing; {name} slot)
-% So adding a learnable intent is now DATA (a learnable/3 row + its base forms), not C —
-% the per-intent teach handlers are gone. Label is matched against the raw (non-canonical)
-% turn, so natural EN+IT labels both route. Mode picks the predicate AND the span source
-% (exact/substring store the normalized span; fill keeps the raw casing for {name}).
 learnable("ask my name",          ask_name,   exact).
 learnable("il mio nome",          ask_name,   exact).
 learnable("ask for short answers", brevity,   substring).
 learnable("risposte brevi",       brevity,    substring).
 learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
-% gen272 (Track 5.5, the runtime-growth demo): the teach-verb class ITSELF is
-% learnable. gen271 migrated the guard of try_teach_form to KB
-% (intent_cue(00_lex_chain332, …)), so "learn \"memorizza \" as a teaching
-% verb" asserts a new verb into the very vocabulary that gates teaching — a
-% previously deaf branch hooks with no rebuild, and the new verb can then
-% teach anything else the registry knows. Reflexive growth as pure DATA.
 learnable("a teaching verb",      00_lex_chain332, substring).
 learnable("verbo di insegnamento", 00_lex_chain332, substring).
-
-% gen335 (KB-first research responses): teachable response phrasings.
-% Each intent has an EN+IT label so the user can say "insegnami a <label> con <new text>"
-% and the new phrasing joins the rotation; on /save it persists in the session KB.
 learnable("reply when you find a topic",   learn_found,     fill).
 learnable("risposta quando trovi un tema", learn_found,     fill).
 learnable("reply when you already know",   learn_already_know, fill).
@@ -352,18 +515,8 @@ learnable("fallback gap offer",            fallback_gap_offer, fill).
 learnable("offerta gap fallback",          fallback_gap_offer, fill).
 learnable("fallback still unknown",        fallback_still_gap,  fill).
 learnable("fallback ancora sconosciuto",   fallback_still_gap,  fill).
-
-% gen335 (proper names): teachable exceptions from translation.
-% "non tradurre luna" adds proper_name(luna) — the canonicalizer skips tr/2 for it.
 learnable("a proper name not to translate", proper_name, unary).
 learnable("un nome proprio da non tradurre", proper_name, unary).
-
-% --- gen240 (universal-comprehension, social branch): smalltalk CONTINUITY. A
-% conversational/experiential turn (first-person experience or opinion, or a
-% question turned back to parrot0) is COMPREHENSIBLE even with no fact to fetch:
-% the honest move is to keep the thread alive (acknowledge + ask back), never a
-% blind wall. These social markers are the cue; mod_smalltalk is the last-resort
-% continuity catch (registered after learn). EN + IT, the lexicon grows here. ---
 intent_cue(smalltalk_continue, "i just").
 intent_cue(smalltalk_continue, "i tried").
 intent_cue(smalltalk_continue, "i love").
@@ -389,20 +542,16 @@ intent_cue(smalltalk_continue, "mi piace").
 intent_cue(smalltalk_continue, "secondo me").
 intent_cue(smalltalk_continue, "oggi ho").
 intent_cue(smalltalk_continue, "hai mai").
-
-% gen240: broader smalltalk cues (multi-word social phrases, safe as substrings).
 intent_cue(smalltalk_continue, "do you").
 intent_cue(smalltalk_continue, "how about you").
 intent_cue(smalltalk_continue, "what's your").
 intent_cue(smalltalk_continue, "whats your").
 intent_cue(smalltalk_continue, "i'm ").
 intent_cue(smalltalk_continue, "i am ").
-% Italian conversational phrases
 intent_cue(smalltalk_continue, "io sono").
 intent_cue(smalltalk_continue, "io ho").
 intent_cue(smalltalk_continue, "sono appena").
 intent_cue(smalltalk_continue, "ho appena").
-intent_cue(smalltalk_continue, "mi piace").
 intent_cue(smalltalk_continue, "ti piace").
 intent_cue(smalltalk_continue, "ti va").
 intent_cue(smalltalk_continue, "ti mette").
@@ -421,13 +570,6 @@ intent_cue(smalltalk_continue, "hai un").
 intent_cue(smalltalk_continue, "come stai").
 intent_cue(smalltalk_continue, "come va").
 intent_cue(smalltalk_continue, "cosa fai").
-
-% --- gen257: OR-chain perception (Track 5.1, outer-circle codebase work). The
-% trigger vocabulary for "how many or-chains of calls to <fn> in <path>?" lives
-% HERE from day one — this very feature about C phrasebooks must not be one. A
-% new phrasing is DATA, teachable at runtime via the generic learnable/3 path,
-% no recompile. The function name and path are structural anchors parsed in C
-% (shape, not vocabulary).
 intent_cue(orchain_query, "or-chains of").
 intent_cue(orchain_query, "or chains of").
 intent_cue(orchain_query, "chains of calls to").
@@ -435,11 +577,6 @@ intent_cue(orchain_query, "or-chain count").
 intent_cue(orchain_query, "catene or di").
 intent_cue(orchain_query, "catene di or").
 intent_cue(orchain_query, "catene di chiamate a").
-
-% --- gen258: plan requests (Track 5.2). "make a plan to <goal>" — the trigger
-% surface is knowledge; the goal itself is recognized from goal_cue/2 facts in
-% the plan-action domain (kb/experts/codebase/actions.p0) and the steps are
-% DERIVED by the generic backward chainer, never a hardcoded pipeline.
 intent_cue(plan_request, "make a plan").
 intent_cue(plan_request, "derive a plan").
 intent_cue(plan_request, "your plan for").
@@ -447,11 +584,6 @@ intent_cue(plan_request, "plan for getting").
 intent_cue(plan_request, "fai un piano").
 intent_cue(plan_request, "deriva un piano").
 intent_cue(plan_request, "pianifica").
-
-% --- gen259: execute a derived plan through KB action_impl/2 bindings. These
-% cues only ask parrot0 to WALK the plan it can already derive; the domain stays
-% in kb/experts/codebase/actions.p0 and missing implementations are named as the
-% next pull instead of fabricated.
 intent_cue(plan_execute, "execute the plan").
 intent_cue(plan_execute, "execute the kb-first plan").
 intent_cue(plan_execute, "run the plan").
@@ -461,14 +593,6 @@ intent_cue(plan_execute, "realize the plan").
 intent_cue(plan_execute, "esegui il piano").
 intent_cue(plan_execute, "esegui il piano kb-first").
 intent_cue(plan_execute, "applica il piano").
-
-% --- gen265 (the first RULESCORE pull): a rules-spec implementation request is
-% a CATEGORY. The FORM (>=2 ordered numbered rule markers, paragraph length) is
-% structural C in mod_rulespec; the VOCABULARY that names the request and the
-% rule CLASSES lives here — teach a cue, the category widens with no rebuild.
-% First honest step: recognize the spec, report what was understood (title,
-% rule count, rule classes) and decline the translation naming the F4 gap; a
-% chitchat/pragma misclaim is worse than a wall (gen254).
 intent_cue(rules_spec_request, "implement this game").
 intent_cue(rules_spec_request, "implement the game").
 intent_cue(rules_spec_request, "implement it in c").
@@ -480,8 +604,6 @@ intent_cue(rules_spec_request, "implementa questo gioco").
 intent_cue(rules_spec_request, "implementa il gioco").
 intent_cue(rules_spec_request, "scrivi un gioco").
 intent_cue(rules_spec_request, "programma c").
-
-% rule classes (word classes, KB-first): which kinds of rules a spec states
 intent_cue(rule_input, "type").
 intent_cue(rule_input, "enter").
 intent_cue(rule_input, "input").
@@ -506,11 +628,6 @@ intent_cue(rule_end, "termina").
 intent_cue(rule_end, "vince").
 intent_cue(rule_end, "perde").
 intent_cue(rule_end, "arriva a").
-
-% gen266: rule sub-classes used to EXTRACT count_to_threshold parameters from a
-% recognized spec (all vocabulary, teachable at runtime): the rule that GAINS
-% names the scoring token (the word after an input verb), the rule that REACHES
-% names the threshold, the print cue names the final word.
 intent_cue(rule_gain, "increases").
 intent_cue(rule_gain, "increase").
 intent_cue(rule_gain, "goes up").
@@ -524,14 +641,6 @@ intent_cue(rule_reach, "arriva a").
 intent_cue(rule_print, "prints").
 intent_cue(rule_print, "print").
 intent_cue(rule_print, "stampa").
-
-% --- gen267 (universal-comprehension §2/§4.2, first slice): the request/
-% generate FORM. The schema "[V-imp] [NP] (in <lang>)" is structural C in
-% mod_reqgen (a LATE module: it only catches turns every other module already
-% declined); the imperative-verb class and the language names live here. The
-% payoff is the doc's informed decline: the blind wall becomes "I understood
-% the request — produce X — but ..." with the gap named. Matched as WHOLE
-% tokens, not substrings.
 intent_cue(make_verb, "create").
 intent_cue(make_verb, "crea").
 intent_cue(make_verb, "make").
@@ -553,27 +662,12 @@ intent_cue(lang_name, "bash").
 intent_cue(lang_name, "java").
 intent_cue(lang_name, "rust").
 intent_cue(lang_name, "go").
-
-% gen270 (universal-comprehension §8, produce-artifact): the FILE-artifact
-% request. "file" is the artifact word (same token EN/IT); the name markers
-% introduce the filename ("a file NAMED pupo.txt" / "un file CHIAMATO
-% pupo.txt"). Whole-token matched in mod_reqgen; the action itself is gated by
-% artifact_shape(empty_file, …) in the programming KB.
 intent_cue(file_word, "file").
 intent_cue(name_marker, "named").
 intent_cue(name_marker, "called").
 intent_cue(name_marker, "chiamato").
 intent_cue(name_marker, "chiamata").
 intent_cue(name_marker, "nome").
-
-% gen271 (Track 5.4, coding-agent-evolution): the FIRST real cue-chain site
-% migrated out of C by parrot0's own derived kbfirst_migration plan — these
-% eight facts were EMITTED by emit_facts from the OR-chain that guarded
-% try_teach_form (src/brain/00-lex.c, chain at the then-line 332), and the
-% chain is now ONE kb_cue_match(b, "00_lex_chain332", low) call. The teach-verb
-% vocabulary itself became taught knowledge: a new verb is a fact here (or a
-% runtime assert), never a recompile. Trailing spaces are content (the verbs
-% must end the word: "use " must not fire on "user").
 intent_cue(00_lex_chain332, "learn ").
 intent_cue(00_lex_chain332, "teach ").
 intent_cue(00_lex_chain332, "treat ").
@@ -586,11 +680,6 @@ intent_cue(00_lex_chain332, "usa ").
 intent_cue(00_lex_chain332, "aggiungi ").
 intent_cue(00_lex_chain332, "non tradurre ").
 intent_cue(00_lex_chain332, "do not translate ").
-
-% gen273 (Track 5.4, second real migration — by whole module): the two
-% counterfactual chains of src/brain/85-translate-synth-world.c
-% (mod_counterfactual's else_form and question_shape), emitted by the derived
-% plan and applied by the external loop. Counter: 340 -> 338.
 intent_cue(85_translate_synth_world_chain494, "what else matched").
 intent_cue(85_translate_synth_world_chain494, "what else could have").
 intent_cue(85_translate_synth_world_chain494, "what else would have").
@@ -601,16 +690,6 @@ intent_cue(85_translate_synth_world_chain494, "che altro").
 intent_cue(85_translate_synth_world_chain506, "would you have").
 intent_cue(85_translate_synth_world_chain506, "would you say").
 intent_cue(85_translate_synth_world_chain506, "avresti").
-
-% gen274 (Track 5.4, third real migration — with per-chain applicability): five
-% of the six cue chains of src/brain/65-induce-verify-shell.c (mod_summary's
-% want_sum/want_gist/focus_intent, mod_discourse's summary trigger,
-% is_mixed_turn's thanks-corrective cues), emitted by the derived plan and
-% applied by the external loop. The sixth chain (is_wellbeing_content, line 770
-% at emit time) was SKIPPED honestly by the plan itself: the kb_cue_match call
-% shape imports `b`, which that helper never sees — its facts are therefore NOT
-% committed (unused knowledge would be a lie about what the code reads).
-% Counter: 338 -> 333.
 intent_cue(65_induce_verify_shell_chain500, "summarize").
 intent_cue(65_induce_verify_shell_chain500, "summary").
 intent_cue(65_induce_verify_shell_chain500, "riassumi").
@@ -645,14 +724,6 @@ intent_cue(65_induce_verify_shell_chain802, "no").
 intent_cue(65_induce_verify_shell_chain802, "sbagliato").
 intent_cue(65_induce_verify_shell_chain802, "errore").
 intent_cue(65_induce_verify_shell_chain802, "male").
-
-% gen275 (Track 5.4, fourth real migration — by whole module): all 16 cue
-% chains of src/brain/50-self-research-loop.c (mod_loop's self-challenge
-% triggers and the identity/existence/capability gates), emitted by the
-% derived plan and applied by the external loop; every chain had `b` in
-% scope, zero skips. NB on chain439: input is canonicalized before matching,
-% so Italian "chi sei" arrives as "who sei" — that cue is correct, not a
-% typo (it was a code comment at the old site). Counter: 333 -> 317.
 intent_cue(50_self_research_loop_chain21, "yourself").
 intent_cue(50_self_research_loop_chain21, "about yourself").
 intent_cue(50_self_research_loop_chain21, "about you").
@@ -769,17 +840,9 @@ intent_cue(50_self_research_loop_chain450, "sai fare").
 intent_cue(50_self_research_loop_chain450, "che cosa sai fare").
 intent_cue(50_self_research_loop_chain458, "if you").
 intent_cue(50_self_research_loop_chain458, "when you").
-
-% M1 (deep-reasoning §4bis): the provenance query — "where did you learn about X?"
-% / "what is your source for X?" (IT "dove hai imparato" / "qual è la tua fonte"
-% -> canonicalized "your source"). KB-first cue set, teachable like the migrated
-% chains; keeps the cuechains ratchet from rising.
 intent_cue(fact_source_query, "where did you learn").
 intent_cue(fact_source_query, "your source").
 intent_cue(fact_source_query, "dove hai imparato").
-
-% deep-reasoning M3 (docs/plans/deep-reasoning.md §5): the trigger that starts the
-% budgeted multi-hop inference loop on a yes/no question. KB-first, teachable.
 intent_cue(deep_reason_fresh, "think deeply").
 intent_cue(deep_reason_fresh, "reason it through").
 intent_cue(deep_reason_fresh, "reason through").
@@ -787,32 +850,9 @@ intent_cue(deep_reason_fresh, "think it through").
 intent_cue(deep_reason_fresh, "pensaci a fondo").
 intent_cue(deep_reason_fresh, "ragionaci su").
 intent_cue(deep_reason_fresh, "ragiona a fondo").
-% deep-reasoning M3: the Italian deep-trigger cues, so the report is localized
-% (kb_cue_match, not a C cue chain — keeps the cuechains ratchet at 317).
 intent_cue(deep_reason_it, "pensaci").
 intent_cue(deep_reason_it, "ragiona").
 intent_cue(deep_reason_it, "ragionaci").
-
-% --- gen323 (TODO.md P1, the code KEYHOLE) ------------------------------------
-% The code faculties were REAL (25/25 code-bench gates) but reachable only
-% through an exact C phrasebook: `cue(s,"explain this code")` answered, while
-% "explain what this does:" — the same faculty, the same snippet, one phrasing
-% away — hit the wall "That looks like a snippet of code.". A coding agent whose
-% analysis is reachable only by the magic words cannot receive a GitHub issue,
-% which is the whole mission.
-%
-% This is the C-series law applied to code (gen51, gen193, gen211): a lexical
-% class is KNOWLEDGE, not a C branch. mod_code now asks kb_cue_match, so the
-% phrasing set grows AT RUNTIME — "call X a way of asking about code" widens the
-% surface with no rebuild, and adding a phrasing costs a fact, not a generation.
-%
-% Widening the language surface is only safe because the REGISTER evidence was
-% tightened in the same generation: mod_code declines when the section after the
-% colon is not recognizably C or Python, so prose keeps its turn. (Before that
-% guard, "what is wrong with this: the sky is blue" was answered with "I did not
-% find obvious errors in this code snippet" — prose misclaimed as code.)
-
-% qtype 1 — find the defect.
 intent_cue(code_debug, "what is wrong").
 intent_cue(code_debug, "what s wrong").
 intent_cue(code_debug, "whats wrong").
@@ -835,8 +875,6 @@ intent_cue(code_debug, "trova il bug").
 intent_cue(code_debug, "debugga").
 intent_cue(code_debug, "c e un bug").
 intent_cue(code_debug, "controlla questo codice").
-
-% qtype 2 — repair it.
 intent_cue(code_fix, "fix this").
 intent_cue(code_fix, "fix the code").
 intent_cue(code_fix, "correct this").
@@ -845,15 +883,11 @@ intent_cue(code_fix, "how do i fix").
 intent_cue(code_fix, "correggi questo").
 intent_cue(code_fix, "aggiusta").
 intent_cue(code_fix, "sistema questo codice").
-
-% qtype 3 — which language.
 intent_cue(code_lang, "what language is this").
 intent_cue(code_lang, "which language is this").
 intent_cue(code_lang, "what language").
 intent_cue(code_lang, "che linguaggio").
 intent_cue(code_lang, "quale linguaggio").
-
-% qtype 4 — is it valid.
 intent_cue(code_valid, "is this valid").
 intent_cue(code_valid, "is this correct").
 intent_cue(code_valid, "does this compile").
@@ -861,9 +895,6 @@ intent_cue(code_valid, "will this compile").
 intent_cue(code_valid, "e valido").
 intent_cue(code_valid, "e corretto").
 intent_cue(code_valid, "compila questo").
-
-% qtype 5 — explain it. These are the phrasings that walled in the 2026-07-12
-% conversation with F.; each one is now a fact, not a C branch.
 intent_cue(code_explain, "explain this code").
 intent_cue(code_explain, "explain what this does").
 intent_cue(code_explain, "explain this").
@@ -876,14 +907,6 @@ intent_cue(code_explain, "spiega questo codice").
 intent_cue(code_explain, "spiega cosa fa").
 intent_cue(code_explain, "cosa fa questo codice").
 intent_cue(code_explain, "cosa fa questo").
-
-% --- gen325 (TODO.md P6, forge plan §18): WHERE I END ------------------------
-% "what are you unable to do?" was claimed by the identity module ("I am
-% parrot0."), and "cosa non sai fare?" got the CAPABILITY list — the question was
-% inverted and the answer was still a brochure. The negative reading is the
-% specific one, so mod_self tests these cues BEFORE identity and capability.
-% The ANSWER is derived from capability/2 + capability_wall/2 (kb/core/
-% capabilities.p0, generated from gate results) — no faculty name lives in C.
 intent_cue(self_limits, "unable to do").
 intent_cue(self_limits, "can't you do").
 intent_cue(self_limits, "cant you do").
@@ -902,45 +925,27 @@ intent_cue(self_limits, "non riesci a fare").
 intent_cue(self_limits, "non puoi fare").
 intent_cue(self_limits, "i tuoi limiti").
 intent_cue(self_limits, "quali sono i tuoi limiti").
-
-% gen334: Italian intent phrases for common conversational patterns.
-% The engine is fixed; these phrasings are KB knowledge, teachable at runtime.
-% All use intent_phrase (exact normalized-turn match) or intent_cue (substring).
-
-% --- Italian identity probes ---
 intent_cue(ai_not_llm, "sei un programma").
 intent_cue(ai_not_llm, "sei un computer").
 intent_cue(ai_not_llm, "sei umano").
 intent_cue(ai_not_llm, "cosa sei").
-
-% --- Italian greetings and social ---
 intent_phrase(ask_name, "come ti chiami").
 intent_phrase(ask_name, "come ti chiami?").
 intent_cue(ask_name, "ti chiami").
-
-% --- Italian capability self-description ---
 intent_cue(self_capability, "cosa puoi fare").
 intent_cue(self_capability, "che cosa sai fare").
 intent_cue(self_capability, "cosa sai fare tu").
 intent_cue(self_capability, "di cosa sei capace").
 intent_cue(self_capability, "di che cosa sei capace").
-
-% --- Italian how-know probes ---
 intent_cue(how_know, "come fai a sapere").
 intent_cue(how_know, "come lo sai").
 intent_cue(how_know, "da dove lo sai").
-
-% --- Italian language probes ---
 intent_cue(language_reply, "che lingua parli").
 intent_cue(language_reply, "che lingua stai parlando").
 intent_cue(language_reply, "in che lingua parliamo").
-
-% --- Italian system probes ---
 intent_cue(system_info, "che sistema usi").
 intent_cue(system_info, "su che computer sei").
 intent_cue(system_info, "dove sei installato").
-
-% --- Italian function words as cues ---
 intent_cue(why_explain, "dimmi perché").
 intent_cue(why_explain, "spiegami perché").
 intent_cue(why_explain, "perché è").
@@ -948,10 +953,6 @@ intent_cue(why_explain, "per quale motivo").
 intent_cue(how_explain, "dimmi come").
 intent_cue(how_explain, "spiegami come").
 intent_cue(how_explain, "in che modo").
-
-% --- language-switch cues (KB-first, migrated from mod_chitchat hardcoded phrasebook).
-% Previously a cue() chain in C that lived in a closed set; now runtime-teachable
-% via learnable/substring, queryable, and localizable. ---
 intent_cue(language_switch, "in inglese").
 intent_cue(language_switch, "in italiano").
 intent_cue(language_switch, "in english").
@@ -966,3 +967,40 @@ intent_cue(language_switch, "perche rispondi in inglese").
 intent_cue(language_switch, "perché rispondi in inglese").
 intent_cue(language_switch, "why do you answer in english").
 intent_cue(language_switch, "why are you answering in english").
+answer_frame(age, age_of).
+answer_frame(author, author_of).
+answer_frame(author_of, author_of).
+answer_frame(borders, borders_country).
+answer_frame(born, born_in).
+answer_frame(capital, capital_of_country).
+answer_frame(causes, causes).
+answer_frame(color_of, color_of).
+answer_frame(continent, continent_of).
+answer_frame(currency, currency_of_country).
+answer_frame(deepest_ocean, deepest_ocean).
+answer_frame(definition, means).
+answer_frame(died, died_in).
+answer_frame(discovered, discovered_by).
+answer_frame(element, chemical_symbol).
+answer_frame(founded, founded_by).
+answer_frame(height, height_of).
+answer_frame(invent, invented_by).
+answer_frame(invented, invented_by).
+answer_frame(inventor, invented_by).
+answer_frame(language, language_of_country).
+answer_frame(largest, largest_in_category).
+answer_frame(longest_river, longest_river).
+answer_frame(meaning, means).
+answer_frame(meaning_of, means).
+answer_frame(opposite_of, opposite).
+answer_frame(population, population_of).
+answer_frame(population_of, population_of).
+answer_frame(prevents, prevents).
+answer_frame(requires, requires).
+answer_frame(side, num_sides).
+answer_frame(smallest, smallest_in_category).
+answer_frame(sound, sound_of).
+answer_frame(speed, speed_of).
+answer_frame(symbol, chemical_symbol).
+answer_frame(tallest_mountain, tallest_mountain).
+answer_frame(wrote, author_of).

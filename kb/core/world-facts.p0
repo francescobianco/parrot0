@@ -15,6 +15,391 @@
 % KB_BASE and filtered from the user-fact count (is_internal_pred), so they are
 % base substrate, never counted as facts the user taught.
 
+
+
+
+
+% --- gen231: antonyms for "what's the opposite of <X>?" — answered by the existing
+% gen11 relational query path (opposite(X, Y)). Stored BOTH directions (one clause
+% per line: the .p0 reader is line-oriented) so the query always resolves. ---
+% --- gen240 (LLMSCORE): more common antonyms (both directions).
+% --- gen254: character/abstract antonyms (LLMSCORE probes vocabulary breadth) ---
+
+% --- gen254: defining-phrase vocabulary — word_for(KeyPhrase, Word). The phrase
+% is matched as a substring of the turn (like idiom_meaning), so "what word
+% describes a person who always tells the truth?" resolves without quoting.
+% Teaching a new entry is one fact, no code edit. ---
+% gen311 (LLMSCORE): broaden the definition->word vocabulary (a common draw).
+
+% --- gen240 (LLMSCORE): known-fact counting. quantity(Entity, Unit, N) reifies
+% "an Entity has N Unit" — answered by the recall parser in 25-wordmath-reasoning.c
+% for "how many <unit> does a <entity> have" and "how many <unit> are in a <entity>".
+% The lexicon grows with facts; the engine is fixed.
+% gen311 (LLMSCORE): more polygon sides, 3D-solid edges/faces/vertices, common counts.
+
+% --- gen231: canonical colours of familiar things for "what color is a banana?"
+% (mod_knowledge recognizer queries color_of/2). One ground colour each; a thing
+% with several real colours just records its prototypical one, honestly partial. ---
+
+% --- gen232 (LLMSCORE #5): causal sentence-completion knowledge. "complete this
+% sentence: the sky is blue because..." / "why is the sky blue?" -> the reason from
+% because/2. The key is the content words of the clause joined subject_adjective
+% (sky_blue); the value is the reason clause (quoted, may contain commas). This is
+% a completion grounded in KNOWLEDGE; an unknown clause is admitted, not invented. ---
+
+% --- gen233 (kb-first manifesto, worked example #4): QUALITATIVE-CHANGE reasoning.
+% grows_with(Feature, Base): Feature increases when Base's size increases (co-monotone;
+% chained transitively in C). increases(Action, Source): the action makes more Source.
+% Together they let "if knowledge is like a circle, what happens to its circumference
+% when you learn?" be DEDUCED (more knowledge -> bigger circle -> bigger circumference),
+% not generated. See docs/plans/kb-first.md. ---
+
+% --- gen235 (LLMSCORE): common geography separated from teachable capital/2.
+% `capital/2` remains available for analogy/few-shot learning; direct world
+% questions use this curated substrate first.
+% gen310: autolearn spill absorbed into world facts
+
+% --- gen240 (LLMSCORE): one famous landmark per country, for compound
+% "capital of X and a famous landmark there" questions. The phrase is KB
+% knowledge; the C only selects by country.
+
+% gen240 (LLMSCORE): reverse lookup — a landmark's city, keyed by a distinctive
+% word in its name. "What city is the Eiffel Tower in?" -> Paris.
+
+% --- gen240 (LLMSCORE): solar-system superlatives. planet_superlative(Property,
+% Planet, "descriptive phrase") is the knowledge; the C maps a cue word in the
+% question to the Property and reads the phrase (engine fixed, lexicon grows).
+
+% gen251: broader world superlatives. world_superlative(Property, Domain,
+% "answer") keeps stable open-world facts as data while the C only maps query
+% tokens onto property/domain slots.
+
+% --- gen239 (kb-first manifesto): island nations have no land-bordering
+% countries. Explicit negative fact — closed-world absence would have implied
+% "I don't know" rather than "zero"; we want the certitude behind a real
+% curated claim, exactly as for `borders/2`. Substrate (is_struct_pred +
+% is_internal_pred), so it never contaminates "how many facts do you know?". ---
+
+% --- gen239 (kb-first manifesto): paint/colour mixing as KNOWLEDGE, not a C
+% literal. Symmetric commutative pairs are stored both directions (the .p0
+% reader is line-oriented) so mixes_to(X, Y, Z) resolves regardless of order. A
+% new pair is DATA: add a fact and the mix recognizer (mod_knowledge) extends
+% with no code edit. ---
+% gen240 (LLMSCORE): purpose relation for analogies ("book is to reading as fork
+% is to ___" -> eating). Left non-substrate so mod_analogy (which skips internal
+% predicates) can use it as the linking relation.
+
+% gen240 (LLMSCORE): a comparable MAGNITUDE relation, so "which is larger/closer:
+% A or B?" is answered by comparing ranks (not pre-cooked answers). magnitude(Dim,
+% Item, Rank) — only the order within a Dim matters.
+
+% gen314: first-class measurements. measure(Dim, Entity, Value, Unit) is for
+% physical/statistical quantities; compare_cue maps a question word to the
+% dimension and direction. This stays separate from legacy magnitude/3 rankings.
+% gen310a: length/river superlatives
+% category link so the superlative consumer's "river" filter matches the_nile
+% ("which river is the longest?" -> The_nile). NB: the "what is the longest
+% river?" phrasing is still intercepted upstream (engine ordering gap).
+
+% gen311: PAIR superlatives. pair_magnitude(Dim, A, B, Value) is a symmetric
+% relation between two entities with a comparable value; the superlative consumer
+% answers "which two X share the longest/shortest <Dim>?" with the extremum pair.
+% Stored ONCE per pair (answer order is immaterial). Grow via autolearn
+% (pair_magnitude is whitelisted). International land borders, length in km.
+
+% gen251: city-to-city separation used by relative-motion frames. Values are
+% ordinary road/rail-scale miles, rounded because the prompt itself is rounded.
+% gen310a: organ size for superlative filtering
+
+% gen250: contrast facts for the generic "difference between X and Y" frame.
+
+% gen240 (LLMSCORE): animal sounds. "what sound does a dog make?" -> woof.
+
+% gen254: ADDITIVE light mixing (RGB), distinct from pigment.
+% gen254: the medium an artist works on — completes "painter is to canvas as
+% sculptor is to ..." through the generic analogy engine (any R(A,B) works).
+
+% --- gen239/240 (kb-first manifesto): land borders as a RELATION. The list
+% handlers ("name three countries that border X", "neighbours of X") and the
+% "which country borders both X and Y" query both INFER from borders/2 — no
+% pre-cooked list facts. Stored both directions (the .p0 reader is line-oriented),
+% so the relation resolves regardless of argument order. NB: Germany does NOT
+% border Italy (a prior fact was wrong and is removed). ---
+
+% --- gen235 (LLMSCORE): kind-level taxonomy for generic questions like
+% "is a dog a mammal or a reptile?" Kept separate from entity facts y(x).
+
+% --- gen235 (LLMSCORE): tiny narrative continuation substrate.
+% gen254: the scene word itself and near-synonyms must also bind the scene.
+% --- gen240 (LLMSCORE): more scene cues so common story openings continue.
+% gen240: a lone watcher / lookout scene (lighthouse, cliff, shore, tower).
+% gen240: an enchanted-object scene (book, shelf, mirror, attic, library).
+% gen240: a moonlit-garden magical scene.
+% gen245: voyage scene for sailor/deck continuations; same scene engine.
+% gen254: a rainfall scene ("Raindrops tap the pond" and kin). The cue words are
+% base forms; compounds (raindrops, rainfall) bind through the morphological
+% prefix rule in the engine, so no alias facts are needed.
+% gen254: story-capable scenes — their continuation_template clauses stand alone,
+% so "tell me a story about X" can chain them. Verb-phrase scenes (magical,
+% voyage) are deliberately absent: their templates need a subject stem.
+% gen254: a traveler-at-dusk scene ("when the last light faded from the horizon,
+% the traveler realized..."). Three templates so "in three different ways"
+% requests have full cardinality; each reads as a clause after "realized".
+% gen246: reveal scene for "the old door creaked open to reveal...".
+% gen247: mysterious-box scene for clockmaker-style story continuations.
+
+% --- gen235 (LLMSCORE): historically grounded guest-list substrate.
+% --- gen236 (LLMSCORE): small lexical/physical commons.
+
+% gen240 (LLMSCORE): two-line rhyming poems as KB knowledge, one per concept.
+% The C assembler only selects by topic word; teaching a new couplet extends it.
+% gen241 (LLMSCORE-check): more couplet themes the bench asked for. Same engine.
+
+% gen241 (LLMSCORE-check): "a place where you might see X" -> the place. place_for(
+% Thing, "a place"). Answers the definition half of riddles like "...means a place
+% where you might see exotic animals" -> a zoo. KB-first: add a fact, extend for free.
+
+% gen241 (LLMSCORE-check): roleplay scenario advice as ordered KB steps. "As a store
+% manager, what would you do?" -> a measured, grounded answer. The C prefaces an honest
+% "I'm not really a manager, but" and lists the steps; adding a scenario is just facts.
+
+% gen241 (LLMSCORE-check): more sentence-completion scenes, so common openers
+% ("Tomorrow I plan to...", "Without music, life would...") complete instead of
+% refusing. Same scene_cue/continuation_template engine.
+
+% gen241 (LLMSCORE-check): exact-length completions for "complete this in exactly N
+% words". completion_exact(Scene, N, "phrase") where the phrase has exactly N words.
+% The C counts and verifies the length before using it, so the constraint is honoured.
+
+% gen241 (LLMSCORE-check): three-word fill-in-the-blank values ("...and always ___
+% ___ ___"). fill_three("phrase") with exactly three words; the C verifies the count.
+
+% gen245: constrained sensory descriptions. sensory_phrase(Topic, N, "phrase")
+% stores exact word-count phrases; sensory_topic maps prompts to the topic.
+
+% gen247: exact-word explanations. concise_explain(Topic, N, "phrase") stores
+% phrases whose word count is part of the fact.
+
+% gen241 (LLMSCORE-check): four-line poems (quatrains). Each line is a separate
+% poem4(Concept, "line") fact (KB atoms cap at 128 chars), kept in order; the C reads
+% the four lines for the topic and joins them. "write a four-line poem about a
+% lighthouse" selects by topic word (engine fixed, lexicon learns).
+
+% gen241 (LLMSCORE-check): primary colours as a category, so "name three primary
+% colors" resolves through mod_namestart's multi-pick path (engine fixed, data grows).
+
+% gen294 (basic-chat cat.52 "Elencazione"): closed sets enumerated by
+% mod_namestart. Keyed by the singular head noun the enumerator derives; the
+% engine reads category_member/2, so adding a set here extends "list/name the X"
+% for free (KB-first). Ordered as they are conventionally recited.
+% keyed zodiac_animal so "Chinese zodiac animals" resolves via the compound
+% (qualifier+head) lookup — without it the enumerator matched the generic
+% category_member(animal, …) and gave a WRONG list (a misclaim, worse than a wall).
+
+% gen241 (LLMSCORE-check): common idioms as KNOWLEDGE. "what does the idiom X mean?"
+% reads idiom_meaning(Phrase, "gloss"). The phrase is the key (matched as a substring
+% of the turn); teaching a new idiom is one fact, no code edit.
+
+% gen311 (KB-first definitions): the "what does X mean / define X" FRAME is taught
+% data, not a C pattern. describe_cue(Cue) lists substrings that mark a description
+% request; the concept consumer then reads a wiki_concept(X, domain, "gloss").
+% Grow both via autolearn (describe_cue + wiki_concept are whitelisted), no C edit.
+
+% gen241 (LLMSCORE-check): phase-change knowledge. boils_at / freezes_at give the
+% temperature and result, so "what happens when you boil water at sea level?" answers
+% with both. One fact per substance; the C only selects by the verb + substance.
+
+% gen241 (LLMSCORE-check): historical facts as KB knowledge. "what year did WWII end,
+% and where was the surrender?" reads one phrase that answers both halves.
+
+% gen241 (LLMSCORE-check): population magnitude (approximate present-day order) so
+% "which country has the most people?" is answered by comparing ranks, not memorized.
+
+% gen241 (LLMSCORE-check): geography for compound capital questions. The capital
+% handler answers the first half from capital_of_country/2 and appends the river or
+% the ocean-to-the-west when the turn asks for it. One fact per city/country.
+% gen255: kinship as COMPOSABLE knowledge. kinship_level(Rel, N) is how many
+% generations Rel stands ABOVE the possessor ("Anna is Maria's grandmother" ->
+% 2); kinship_gender(Rel, G) types the ancestor; kinship_name(N, G, Surface)
+% maps a summed chain back to language. The C solver only parses "X is Y's R"
+% links and adds levels — the lexicon extends here, no code edit.
+
+% gen255: weekday arithmetic substrate — day_order(Day, Index 1..7).
+
+% gen255: DIRECTIONAL borders — border_dir(Country, Direction, Neighbour).
+% The generic borders/2 list stays; a direction word in the turn filters here.
+
+% gen254: riddle SIGNATURES — riddle_sig(Id, "cue") lists the substrings that
+% must all occur for response_template(Id, ...) in responses.p0 to answer.
+% World knowledge (which riddles exist), so it lives here; teaching a riddle
+% is facts only, no C branch.
+% gen308: riddles distributed from kb/learning/autolearn.p0 (answers in responses.p0).
+% gen311 (LLMSCORE): common PROVERB completion reuses the riddle mechanism (cue
+% substrings of the beginning -> the full saying). Two cues per proverb, one per line.
+
+% gen311 (LLMSCORE): common 'explain why X' answers, via the riddle mechanism.
+
+% gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
+% not a memorized cue->answer. The clue verbs map to constraint predicates that are
+% RULES over world knowledge; the answer is the inanimate entity satisfying every
+% clue. "no voice, yet I cry ... no eyes, yet I flash in the dark" -> a storm.
+% Curated here are the bridging rules + seed property/metaphor facts; autolearn grows
+% the FACTS (clue_verb/emits/is_like/inanimate are the teachable layer, not the rules).
+% gen311 (U1, riddles-as-inference): "I have A but no B" = depicts(X,A) ∧ ¬contains(X,B).
+% The negation is load-bearing: a map DEPICTS cities/mountains/water but does not
+% CONTAIN houses/trees/fish, while a real country depicts AND contains them — so the
+% ¬contains constraint is what picks the map. Grow depicts/contains via autolearn.
+% gen311 (U1 extension): "has X but cannot Y / is X but not Y" = has_part(X,·) ∧
+% has_property(X,·) ∧ ¬can_do(X,·). "has an eye but cannot see, is sharp but not
+% alive" -> a needle; "has hands but can't clap" -> a clock. Load-bearing negation:
+% a clock has hands but ¬can_do clap, a person has hands AND can_do clap.
+% gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
+% substring of the turn ("who was the first president of the united states?").
+% Teaching a new role is one fact.
+% gen254: the year a capital took the role (one fact per country).
+% gen254: which city a capital replaced in that role (one fact per country).
+
+% gen241 (LLMSCORE-check): moons, so "name the largest planet and describe one of its
+% moons" answers both halves. moon_of(Planet, "Name", "description").
+
+% gen241 (LLMSCORE-check): anagram knowledge. "rearrange the letters in X" reads
+% anagram_of(Word, "Result"); the C verifies the letters genuinely match before
+% answering, so the fact is checked, never blindly trusted.
+% gen311 (LLMSCORE): common anagrams (the C verifies the letters genuinely match).
+
+% gen241/gen244 (LLMSCORE-check + NEXTMOVE): step-by-step procedures as ordered KB
+% facts. process_topic/2 is the KB-side bridge from request words to a Task;
+% process_step(Task, N, "step") is the content. Adding a task is just more facts --
+% the C only selects by topic overlap, orders, and numbers the steps.
+% gen311 (KB-first morphology): person-indexed verb forms + pro-drop declaration.
+% The translate composer emits the conjugated form for a subject+verb and, where
+% pro_drop holds, drops the subject: "I need help" -> "Necesito ayuda". Grow this
+% table via autolearn (conj_es/pro_drop are whitelisted), never a C conjugator.
+% negation marker: "I don't understand" -> (drop I) + no + entiendo = "No entiendo".
+% French subject "you" is "vous" (tr_fr(you, te) is the OBJECT clitic form).
+% gen311: interrogative preposition-fronting + copula conjugation. "Where are you
+% from?" -> front "from"->"de", de-invert "are you"->"you are", conj_es(are,you,eres)
+% + pro-drop -> "de dónde eres". wh_front_es(prep, spanish_prep) is teachable.
+% French keeps the subject but elides it before a vowel (elide_fr(je, j') in
+% grammar.p0); the progressive aux is dropped (aux_progressive/1). "I am learning
+% French" -> "j'apprends français" from conj_fr + tr_fr(french) + those rules.
+
+% gen244 (NEXTMOVE): everyday recommendations as KB-backed activity steps. The
+% advice engine selects a situation by activity_topic/2 and renders activity_step/3;
+% unknown situations get a scoped gap instead of a blind wall.
+
+% gen241 (LLMSCORE-check): parametric limerick. A limerick is a fixed AABBA form; the
+% five image lines per theme live in the KB (engine fixed, lexicon learns). The C only
+% joins limerick_l1..l5(Theme).
+
+% Minimal ES lexicon for short translation prompts.
+% gen240: more ES glosses for short translation prompts.
+% --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
+
+
+% gen240 (LLMSCORE): parrot0 has no real preferences, but when asked to pick a
+% favourite it offers one honestly rather than dodging. The pick is KB data.
+% gen240: honest picks for "what's your favorite <X>" (weather, season, ...).
+% gen254: more hypothetical-desire topics from live LLMSCORE probes.
+
+% gen240 (LLMSCORE): appearance/2 lets parrot0 DESCRIBE something it cannot see.
+% Asked "describe what a sunset looks like", it admits it has no senses but gives
+% the description from KB knowledge (engine fixed, lexicon grows).
+% gen240: colours, so "describe blue to someone who has never seen it" works.
+
+
+% gen245: library haiku images extend the same KB-only haiku assembler.
+
+% gen240 (LLMSCORE): compound-word riddles. compound_word(First, Second, Whole) —
+% "the word that follows fire and precedes place" -> fireplace.
+
+% --- gen240 (LLMSCORE): parametric haiku. A haiku is a fixed 5-7-5 structure;
+% the poetic image LINES are KB knowledge, pre-syllable-counted, one per concept
+% per slot (open=5, mid=7, close=5). The C assembler weaves open(subject) /
+% mid(object) / close(subject), so teaching a new concept's three lines extends
+% the generator with no code edit (PRINCIPLES.md: engine fixed, lexicon learns).
+% gen254: technology and autumn, so paired-theme prompts ("autumn and
+% technology") can weave open(subj)/mid(obj)/close(subj) across both.
+% gen240: broader haiku lexicon so more requested themes compose (engine fixed).
+
+
+% gen308: autolearn's verified knowledge, made OFFICIAL (F.'s directive: what
+% autolearn learns must be committed as project knowledge). These closed
+% "engine_gap" entries in kb/learning/autolearn-ledger.jsonl by pairing a taught
+% relation with an answer_frame/2 (gen306) — the CONSUMER-gap reduction: the fact
+% alone was inert; the frame makes the question form answerable, no C module.
+% Distributed here from the scratch file kb/learning/autolearn.p0 (now deleted);
+% chemical_symbol was normalized to one canonical order (Symbol, Element) — the
+% scratch file had both directions — and deduplicated.
+% the only mammal capable of true flight (bats). rel + answer_frame so the
+% "what is the only mammal capable of true flight?" phrasing is answerable.
+% capital_on_river(Capital, River): which capital a river runs through.
+% gen309: more rivers so the SUPERLATIVE aggregation is meaningful (the Danube
+% flows through 4 national capitals, the most of any river in the world).
+% "which river runs through the most capital cities?" — a fold over the relation:
+% group by River (second arg), count capitals, take the max. aggregate_frame is
+% the teachable datum; mod_aggregate supplies only the bounded counting.
+% hardest_natural_substance(Substance, Where); the frame answers "what is the
+% hardest natural substance on earth?" via the word "earth" -> diamond.
+
+% ==================================================================
+% gen334: expanded world knowledge. KB-first: every new fact extends
+% comprehension with zero C changes. Engine fixed, knowledge learns.
+% ==================================================================
+
+% --- More color_of facts for common objects ---
+
+% --- More sound_of facts for animal sounds ---
+
+% --- More animal facts: what they eat ---
+
+% --- More quantity facts for common things ---
+
+% --- More opposite pairs (both directions) ---
+
+% --- More paint_mix pairs (both directions) ---
+
+% --- More category members ---
+
+% --- More capital_of_country facts ---
+
+% --- More landmark_of facts ---
+
+% --- More planet facts ---
+
+% --- More synonym pairs ---
+
+% --- More because/2 (causal knowledge) ---
+
+% --- More used_for facts (analogy substrate) ---
+
+% --- More difference_between facts ---
+
+% ==================================================================
+% gen335: demonym knowledge — place → demonym for completion queries.
+% KB-first: add a demonym/2 fact and "born in X, therefore I am a ___"
+% resolves with zero C changes. The completion_chain/2 consumer in
+% mod_knowledge reads the cue + predicate; the data is KB knowledge.
+% ==================================================================
+
+% completion_chain(Cue, ResultPred): when the user says "Cue X" and the
+% sentence ends with a blank/article, query ResultPred(X, ?Y) and respond
+% with Y. The C motor (mod_knowledge) reads this; the data grows here.
+% gen335b: profession chain — "studied X, therefore I am a ___"
+% study medicine → doctor, study law → lawyer, etc.
+
+% ═══ Conoscenza di ordine superiore cresciuta sulla learning mesh (gen335) ═══════
+% Vedi docs/plans/learning-mesh.md §4.4. Fatti QUI accanto ai loro parenti (is_a,
+% answer_frame, capital_of_country) così il save-map instrada la crescita futura.
+% Operatori (regole) in forma robusta: closure a predicato separato, right-recursive.
+
+% -- Tassonomia + ereditarietà di proprietà/abilità (kind_of/prop_of/able_to) --
+
+% -- Ordinamenti transitivi (comparativo + temperatura + temporale) --
+
+% -- Geografia (continente) e paternità letteraria (rispondibili via answer_frame) --
+
+% ── TAXONOMY + CATEGORIES + PROPERTIES + COMPARISONS + CAUSALITY + GEOGRAPHY + SUPERLATIVES (scattered from mesh-session.p0, gen335) ──
 category_member(color, blue).
 category_member(color, black).
 category_member(color, brown).
@@ -30,7 +415,6 @@ category_member(color, gold).
 category_member(color, silver).
 category_member(color, violet).
 category_member(color, indigo).
-
 category_member(animal, ant).
 category_member(animal, bear).
 category_member(animal, cat).
@@ -52,7 +436,6 @@ category_member(animal, snake).
 category_member(animal, tiger).
 category_member(animal, wolf).
 category_member(animal, zebra).
-
 category_member(fruit, apple).
 category_member(fruit, banana).
 category_member(fruit, cherry).
@@ -85,11 +468,6 @@ category_member(country, belgium).
 category_member(country, luxembourg).
 category_member(country, slovenia).
 category_member(country, portugal).
-
-
-% --- gen231: antonyms for "what's the opposite of <X>?" — answered by the existing
-% gen11 relational query path (opposite(X, Y)). Stored BOTH directions (one clause
-% per line: the .p0 reader is line-oriented) so the query always resolves. ---
 opposite(hot, cold).
 opposite(cold, hot).
 opposite(big, small).
@@ -149,7 +527,6 @@ opposite(near, far).
 opposite(far, near).
 opposite(clean, dirty).
 opposite(dirty, clean).
-% --- gen240 (LLMSCORE): more common antonyms (both directions).
 opposite(ancient, modern).
 opposite(modern, ancient).
 opposite(new, old).
@@ -204,7 +581,6 @@ opposite(future, past).
 opposite(past, future).
 opposite(ephemeral, permanent).
 opposite(permanent, ephemeral).
-% --- gen254: character/abstract antonyms (LLMSCORE probes vocabulary breadth) ---
 opposite(generous, selfish).
 opposite(selfish, generous).
 opposite(honest, dishonest).
@@ -245,11 +621,6 @@ opposite(verbose, succinct).
 opposite(verbose, brief).
 opposite(artificial, natural).
 opposite(large, small).
-
-% --- gen254: defining-phrase vocabulary — word_for(KeyPhrase, Word). The phrase
-% is matched as a substring of the turn (like idiom_meaning), so "what word
-% describes a person who always tells the truth?" resolves without quoting.
-% Teaching a new entry is one fact, no code edit. ---
 word_for("always tells the truth", honest).
 word_for("never tells the truth", dishonest).
 word_for("never gives up", persistent).
@@ -279,38 +650,23 @@ word_for("thinks only of themselves", selfish).
 word_for("gives freely to others", generous).
 word_for("keeps a secret", discreet).
 word_for("uses the left hand", "left-handed").
-% gen311 (LLMSCORE): broaden the definition->word vocabulary (a common draw).
 word_for("studies rocks", geologist).
-word_for("studies the stars", astronomer).
 word_for("studies stars", astronomer).
 word_for("studies animals", zoologist).
 word_for("studies plants", botanist).
 word_for("studies the weather", meteorologist).
 word_for("studies weather", meteorologist).
-word_for("studies living things", biologist).
 word_for("studies the past", historian).
 word_for("studies history", historian).
 word_for("studies insects", entomologist).
 word_for("cannot sleep", insomniac).
-word_for("eats only plants", herbivore).
-word_for("eats only meat", carnivore).
-word_for("eats both plants and meat", omnivore).
 word_for("flies planes", pilot).
 word_for("fixes teeth", dentist).
 word_for("treats animals", veterinarian).
 word_for("cuts hair", barber).
 word_for("delivers mail", "mail carrier").
 word_for("fights fires", firefighter).
-word_for("cannot read or write", illiterate).
 word_for("speaks many languages", multilingual).
-word_for("fear of heights", acrophobia).
-word_for("fear of spiders", arachnophobia).
-word_for("fear of enclosed spaces", claustrophobia).
-
-% --- gen240 (LLMSCORE): known-fact counting. quantity(Entity, Unit, N) reifies
-% "an Entity has N Unit" — answered by the recall parser in 25-wordmath-reasoning.c
-% for "how many <unit> does a <entity> have" and "how many <unit> are in a <entity>".
-% The lexicon grows with facts; the engine is fixed.
 quantity(week, days, 7).
 quantity(year, months, 12).
 quantity(year, days, 365).
@@ -346,7 +702,6 @@ quantity(triangle, sides, 3).
 quantity(square, sides, 4).
 quantity(rectangle, sides, 4).
 quantity(pentagon, sides, 5).
-% gen311 (LLMSCORE): more polygon sides, 3D-solid edges/faces/vertices, common counts.
 quantity(hexagon, sides, 6).
 quantity(heptagon, sides, 7).
 quantity(octagon, sides, 8).
@@ -380,28 +735,16 @@ quantity(human, teeth, 32).
 quantity(rainbow, colors, 7).
 quantity(world, continents, 7).
 quantity(earth, continents, 7).
-quantity(week, days, 7).
 quantity(piano, keys, 88).
 quantity("chess board", squares, 64).
 quantity(deck, cards, 52).
 quantity(clock, hours, 12).
-quantity(hexagon, sides, 6).
-quantity(octagon, sides, 8).
-quantity(cube, faces, 6).
-quantity(rainbow, colors, 7).
 quantity(rainbow, colours, 7).
 quantity(alphabet, letters, 26).
 quantity(soccer_team, players, 11).
 quantity(football_team, players, 11).
 quantity(basketball_team, players, 5).
-quantity(piano, keys, 88).
 quantity(chessboard, squares, 64).
-quantity(deck, cards, 52).
-quantity(clock, hours, 12).
-
-% --- gen231: canonical colours of familiar things for "what color is a banana?"
-% (mod_knowledge recognizer queries color_of/2). One ground colour each; a thing
-% with several real colours just records its prototypical one, honestly partial. ---
 color_of(banana, yellow).
 color_of(lemon, yellow).
 color_of(sun, yellow).
@@ -429,12 +772,6 @@ color_of(night, black).
 color_of(chocolate, brown).
 color_of(wood, brown).
 color_of(soil, brown).
-
-% --- gen232 (LLMSCORE #5): causal sentence-completion knowledge. "complete this
-% sentence: the sky is blue because..." / "why is the sky blue?" -> the reason from
-% because/2. The key is the content words of the clause joined subject_adjective
-% (sky_blue); the value is the reason clause (quoted, may contain commas). This is
-% a completion grounded in KNOWLEDGE; an unknown clause is admitted, not invented. ---
 because(sky_blue, "sunlight scatters off the air, and blue light scatters the most").
 because(sunset_red, "sunlight travels through more air, so blue scatters away and red or orange light remains").
 because(sea_blue, "water absorbs red light and reflects blue back").
@@ -449,13 +786,6 @@ because(snow_white, "it reflects all colours of light about equally").
 because(night_dark, "the sun is below the horizon, so its light cannot reach us").
 because(sun_bright, "it releases vast energy as light from nuclear fusion").
 because(birds_fly, "their wings and light bodies let them push against the air").
-
-% --- gen233 (kb-first manifesto, worked example #4): QUALITATIVE-CHANGE reasoning.
-% grows_with(Feature, Base): Feature increases when Base's size increases (co-monotone;
-% chained transitively in C). increases(Action, Source): the action makes more Source.
-% Together they let "if knowledge is like a circle, what happens to its circumference
-% when you learn?" be DEDUCED (more knowledge -> bigger circle -> bigger circumference),
-% not generated. See docs/plans/kb-first.md. ---
 grows_with(circumference, circle).
 grows_with(area, circle).
 grows_with(radius, circle).
@@ -468,7 +798,6 @@ grows_with(leaves, tree).
 grows_with(height, tree).
 grows_with(flame, fire).
 grows_with(heat, fire).
-
 increases(learn, knowledge).
 increases(study, knowledge).
 increases(read, knowledge).
@@ -477,9 +806,6 @@ increases(train, skill).
 increases(exercise, strength).
 increases(grow, tree).
 increases(age, tree).
-% --- gen235 (LLMSCORE): common geography separated from teachable capital/2.
-% `capital/2` remains available for analogy/few-shot learning; direct world
-% questions use this curated substrate first.
 capital_of_country(paris, france).
 capital_of_country(rome, italy).
 capital_of_country(berlin, germany).
@@ -489,7 +815,6 @@ capital_of_country(washington_dc, united_states).
 capital_of_country(tokyo, japan).
 capital_of_country(ottawa, canada).
 capital_of_country(canberra, australia).
-% gen310: autolearn spill absorbed into world facts
 capital_of_country(brasilia, brazil).
 capital_of_country(beijing, china).
 capital_of_country(moscow, russia).
@@ -503,10 +828,6 @@ capital_of_country(buenos_aires, argentina).
 capital_of_country(mexico_city, mexico).
 capital_of_country(lima, peru).
 capital_of_country(santiago, chile).
-
-% --- gen240 (LLMSCORE): one famous landmark per country, for compound
-% "capital of X and a famous landmark there" questions. The phrase is KB
-% knowledge; the C only selects by country.
 landmark_of(australia, "the Sydney Opera House").
 landmark_of(france, "the Eiffel Tower").
 landmark_of(italy, "the Colosseum").
@@ -519,9 +840,6 @@ landmark_of(canada, "the CN Tower").
 landmark_of(egypt, "the Great Pyramids of Giza").
 landmark_of(india, "the Taj Mahal").
 landmark_of(china, "the Great Wall").
-
-% gen240 (LLMSCORE): reverse lookup — a landmark's city, keyed by a distinctive
-% word in its name. "What city is the Eiffel Tower in?" -> Paris.
 landmark_city(eiffel, "Paris").
 landmark_city(colosseum, "Rome").
 landmark_city(liberty, "New York City").
@@ -534,10 +852,6 @@ landmark_city(brandenburg, "Berlin").
 landmark_city(acropolis, "Athens").
 landmark_city(kremlin, "Moscow").
 landmark_city(coliseum, "Rome").
-
-% --- gen240 (LLMSCORE): solar-system superlatives. planet_superlative(Property,
-% Planet, "descriptive phrase") is the knowledge; the C maps a cue word in the
-% question to the Property and reads the phrase (engine fixed, lexicon grows).
 planet_superlative(closest_to_sun, mercury, "closest to the Sun").
 planet_superlative(largest, jupiter, "the largest planet in our solar system").
 planet_superlative(smallest, mercury, "the smallest planet in our solar system").
@@ -550,10 +864,6 @@ planet_superlative_cue("ring system", ringed_planet).
 planet_superlative_cue("prominent ring", ringed_planet).
 planet_superlative_cue(rings, ringed_planet).
 planet_superlative_cue(larger, largest).
-
-% gen251: broader world superlatives. world_superlative(Property, Domain,
-% "answer") keeps stable open-world facts as data while the C only maps query
-% tokens onto property/domain slots.
 world_superlative(tallest, mountain, "Mount Everest is the tallest mountain in the world").
 world_superlative(highest, mountain, "Mount Everest is the highest mountain in the world").
 world_superlative(smallest, bone, "the stapes").
@@ -568,24 +878,9 @@ world_superlative_cue("longest coastline", coastline, country).
 world_superlative_cue("longest river in south america", longest_river, south_america).
 world_superlative_cue("border with the most", most_neighboring_countries, country).
 world_superlative_cue("most other countries", most_neighboring_countries, country).
-
-% --- gen239 (kb-first manifesto): island nations have no land-bordering
-% countries. Explicit negative fact — closed-world absence would have implied
-% "I don't know" rather than "zero"; we want the certitude behind a real
-% curated claim, exactly as for `borders/2`. Substrate (is_struct_pred +
-% is_internal_pred), so it never contaminates "how many facts do you know?". ---
 no_land_border(australia).
 no_land_border(japan).
 no_land_border(united_kingdom).
-
-% --- gen239 (kb-first manifesto): paint/colour mixing as KNOWLEDGE, not a C
-% literal. Symmetric commutative pairs are stored both directions (the .p0
-% reader is line-oriented) so mixes_to(X, Y, Z) resolves regardless of order. A
-% new pair is DATA: add a fact and the mix recognizer (mod_knowledge) extends
-% with no code edit. ---
-% gen240 (LLMSCORE): purpose relation for analogies ("book is to reading as fork
-% is to ___" -> eating). Left non-substrate so mod_analogy (which skips internal
-% predicates) can use it as the linking relation.
 used_for(book, reading).
 used_for(fork, eating).
 used_for(spoon, eating).
@@ -604,10 +899,6 @@ used_for(hammer, hitting).
 used_for(oven, cooking).
 used_for(camera, photography).
 used_for(clock, timekeeping).
-
-% gen240 (LLMSCORE): a comparable MAGNITUDE relation, so "which is larger/closer:
-% A or B?" is answered by comparing ranks (not pre-cooked answers). magnitude(Dim,
-% Item, Rank) — only the order within a Dim matters.
 magnitude_cue(bigger, size, max).
 magnitude_cue(larger, size, max).
 magnitude_cue(biggest, size, max).
@@ -625,10 +916,6 @@ magnitude_cue(closest, distance_from_sun, min).
 magnitude_cue(farther, distance_from_sun, max).
 magnitude_cue(further, distance_from_sun, max).
 magnitude_cue(farthest, distance_from_sun, max).
-
-% gen314: first-class measurements. measure(Dim, Entity, Value, Unit) is for
-% physical/statistical quantities; compare_cue maps a question word to the
-% dimension and direction. This stays separate from legacy magnitude/3 rankings.
 compare_cue(faster, speed, max).
 compare_cue(slower, speed, min).
 compare_cue(heavier, weight, max).
@@ -649,14 +936,10 @@ entity_alias("boeing 747", boeing_747).
 entity_alias("airbus a320", airbus_a320).
 entity_alias("magnus carlsen", magnus_carlsen).
 entity_alias("garry kasparov", garry_kasparov).
-% gen310a: length/river superlatives
 magnitude_cue(longest, length, max).
 magnitude_cue(shortest, length, min).
 magnitude(length, amazon, 6400).
 magnitude(length, the_nile, 6650).
-% category link so the superlative consumer's "river" filter matches the_nile
-% ("which river is the longest?" -> The_nile). NB: the "what is the longest
-% river?" phrasing is still intercepted upstream (engine ordering gap).
 category_member(river, amazon).
 category_member(river, the_nile).
 category_member(south_america, amazon).
@@ -678,19 +961,10 @@ magnitude(size, blue_whale, 11).
 magnitude(size, mountain, 12).
 magnitude(size, saturn, 22).
 magnitude(size, jupiter, 23).
-
-% gen311: PAIR superlatives. pair_magnitude(Dim, A, B, Value) is a symmetric
-% relation between two entities with a comparable value; the superlative consumer
-% answers "which two X share the longest/shortest <Dim>?" with the extremum pair.
-% Stored ONCE per pair (answer order is immaterial). Grow via autolearn
-% (pair_magnitude is whitelisted). International land borders, length in km.
 pair_magnitude(border, canada, united_states, 8891).
 pair_magnitude(border, kazakhstan, russia, 7644).
 pair_magnitude(border, argentina, chile, 5308).
 pair_magnitude(border, botswana, zambia, 0.15).
-
-% gen251: city-to-city separation used by relative-motion frames. Values are
-% ordinary road/rail-scale miles, rounded because the prompt itself is rounded.
 distance_between(chicago, new_york, 790).
 distance_between(new_york, chicago, 790).
 magnitude(size, moon, 13).
@@ -698,7 +972,6 @@ magnitude(size, sun, 14).
 magnitude(size, usa, 20).
 magnitude(size, united_states, 20).
 magnitude(size, canada, 21).
-% gen310a: organ size for superlative filtering
 magnitude(size, skin, 30).
 magnitude(size, hippopotamus, 8).
 magnitude(size, rhinoceros, 7).
@@ -726,8 +999,6 @@ magnitude(distance_from_sun, jupiter, 5).
 magnitude(distance_from_sun, saturn, 6).
 magnitude(distance_from_sun, uranus, 7).
 magnitude(distance_from_sun, neptune, 8).
-
-% gen250: contrast facts for the generic "difference between X and Y" frame.
 difference_between(ram, rom, "RAM is fast volatile working memory; ROM is non-volatile memory for firmware or fixed data").
 difference_between(climate, weather, "Climate is the long-term pattern; weather is short-term local conditions").
 difference_between(cement, concrete, "Cement is a binder; concrete is cement mixed with sand, gravel, and water").
@@ -749,8 +1020,6 @@ difference_between(england, uk, "England is one country; the UK also includes Sc
 difference_between(england, united_kingdom, "England is one country; the UK also includes Scotland, Wales, and Northern Ireland").
 difference_between(holland, netherlands, "The Netherlands is the country; Holland is a region often used informally for it").
 difference_between(left, right_politics, "Left politics stresses equality and public provision; right politics stresses tradition or markets").
-
-% gen240 (LLMSCORE): animal sounds. "what sound does a dog make?" -> woof.
 sound_of(dog, "woof").
 sound_of(dog, bark).
 sound_of(cat, meow).
@@ -787,7 +1056,6 @@ sound_of(rooster, "cock-a-doodle-doo").
 sound_of(snake, "hiss").
 sound_of(koala, bellow).
 sound_of(seal, bark).   % gen308: from autolearn.p0
-
 paint_mix(blue, yellow, green).
 paint_mix(yellow, blue, green).
 paint_mix(red, yellow, orange).
@@ -796,15 +1064,12 @@ paint_mix(blue, red, purple).
 paint_mix(red, blue, purple).
 paint_mix(white, black, grey).
 paint_mix(black, white, grey).
-% gen254: ADDITIVE light mixing (RGB), distinct from pigment.
 light_mix(red, blue, magenta).
 light_mix(blue, red, magenta).
 light_mix(red, green, yellow).
 light_mix(green, red, yellow).
 light_mix(blue, green, cyan).
 light_mix(green, blue, cyan).
-% gen254: the medium an artist works on — completes "painter is to canvas as
-% sculptor is to ..." through the generic analogy engine (any R(A,B) works).
 medium_of(painter, canvas).
 medium_of(sculptor, marble).
 medium_of(writer, page).
@@ -812,13 +1077,6 @@ medium_of(photographer, film).
 medium_of(composer, score).
 medium_of(potter, clay).
 medium_of(carpenter, wood).
-
-% --- gen239/240 (kb-first manifesto): land borders as a RELATION. The list
-% handlers ("name three countries that border X", "neighbours of X") and the
-% "which country borders both X and Y" query both INFER from borders/2 — no
-% pre-cooked list facts. Stored both directions (the .p0 reader is line-oriented),
-% so the relation resolves regardless of argument order. NB: Germany does NOT
-% border Italy (a prior fact was wrong and is removed). ---
 borders(italy, france).
 borders(france, italy).
 borders(italy, austria).
@@ -863,9 +1121,6 @@ borders(austria, czechia).
 borders(czechia, austria).
 borders(austria, slovenia).
 borders(slovenia, austria).
-
-% --- gen235 (LLMSCORE): kind-level taxonomy for generic questions like
-% "is a dog a mammal or a reptile?" Kept separate from entity facts y(x).
 kind_is(dog, mammal).
 kind_is(cat, mammal).
 kind_is(horse, mammal).
@@ -876,9 +1131,6 @@ kind_is(turtle, reptile).
 kind_is(frog, amphibian).
 kind_is(eagle, bird).
 kind_is(salmon, fish).
-
-% --- gen235 (LLMSCORE): tiny narrative continuation substrate.
-% gen254: the scene word itself and near-synonyms must also bind the scene.
 scene_cue(silence, silence).
 scene_cue(silent, silence).
 scene_cue(quiet, silence).
@@ -896,7 +1148,6 @@ continuation_template(darkness, "the shadows seemed to lean closer").
 continuation_template(suspense, "someone knocked once from the other side").
 continuation_template(suspense, "a cold wind rushed in carrying the smell of rain").
 continuation_template(suspense, "a narrow stairway curved down into the dark").
-% --- gen240 (LLMSCORE): more scene cues so common story openings continue.
 scene_cue(house, mystery).
 scene_cue(street, mystery).
 scene_cue(hallway, mystery).
@@ -914,7 +1165,6 @@ continuation_template(wonder, "the colours spilled down until they touched the g
 continuation_template(wonder, "every face turned upward, caught in the same quiet awe").
 continuation_template(wonder, "for a moment the whole valley seemed to hold its breath").
 continuation_template(bottle, "e one golden afternoon, I would keep it for a grey day").
-% gen240: a lone watcher / lookout scene (lighthouse, cliff, shore, tower).
 scene_cue(lighthouse, vigil).
 scene_cue(cliff, vigil).
 scene_cue(shore, vigil).
@@ -923,7 +1173,6 @@ scene_cue(watching, vigil).
 continuation_template(vigil, "a faint light blinked far out on the dark water").
 continuation_template(vigil, "the beam swept once more across the empty, churning sea").
 continuation_template(vigil, "a wave struck the rocks below with a sound like thunder").
-% gen240: an enchanted-object scene (book, shelf, mirror, attic, library).
 scene_cue(book, enchanted).
 scene_cue(shelf, enchanted).
 scene_cue(mirror, enchanted).
@@ -932,23 +1181,18 @@ scene_cue(library, enchanted).
 continuation_template(enchanted, "its pages began to glow with a soft golden light").
 continuation_template(enchanted, "a low hum filled the room as the dust lifted into the air").
 continuation_template(enchanted, "words rose off the page and hung shimmering in the dark").
-% gen240: a moonlit-garden magical scene.
 scene_cue(garden, magical).
 scene_cue(moon, magical).
 scene_cue(moonlight, magical).
 continuation_template(magical, "shimmer with a soft silver light").
 continuation_template(magical, "fill with flowers that had never bloomed before").
 continuation_template(magical, "hum with a quiet music no one could place").
-% gen245: voyage scene for sailor/deck continuations; same scene engine.
 scene_cue(sailor, voyage).
 scene_cue(deck, voyage).
 scene_cue(voyage, voyage).
 continuation_template(voyage, "felt the first pale light touch the rail").
 continuation_template(voyage, "listened for the tide beneath the boards").
 continuation_template(voyage, "watched the harbour lights fade behind him").
-% gen254: a rainfall scene ("Raindrops tap the pond" and kin). The cue words are
-% base forms; compounds (raindrops, rainfall) bind through the morphological
-% prefix rule in the engine, so no alias facts are needed.
 scene_cue(rain, rainfall).
 scene_cue(pond, rainfall).
 scene_cue(puddle, rainfall).
@@ -958,9 +1202,6 @@ continuation_template(rainfall, "rings widen where each drop lands").
 continuation_template(rainfall, "the water wears a coat of silver circles").
 continuation_template(rainfall, "somewhere under the reeds a frog answers").
 story_scene(rainfall).
-% gen254: story-capable scenes — their continuation_template clauses stand alone,
-% so "tell me a story about X" can chain them. Verb-phrase scenes (magical,
-% voyage) are deliberately absent: their templates need a subject stem.
 story_scene(silence).
 story_scene(darkness).
 story_scene(suspense).
@@ -969,9 +1210,6 @@ story_scene(wonder).
 story_scene(vigil).
 story_scene(enchanted).
 story_scene(horizon).
-% gen254: a traveler-at-dusk scene ("when the last light faded from the horizon,
-% the traveler realized..."). Three templates so "in three different ways"
-% requests have full cardinality; each reads as a clause after "realized".
 scene_cue(horizon, horizon).
 scene_cue(traveler, horizon).
 scene_cue(traveller, horizon).
@@ -980,7 +1218,6 @@ scene_cue(dusk, horizon).
 continuation_template(horizon, "that the road behind him had vanished into the dark").
 continuation_template(horizon, "that he no longer knew which way led home").
 continuation_template(horizon, "that the distant lights were not stars but windows").
-% gen246: reveal scene for "the old door creaked open to reveal...".
 scene_cue(creaked, reveal).
 scene_cue(reveal, reveal).
 scene_cue(revealed, reveal).
@@ -989,14 +1226,11 @@ scene_cue(forgotten, reveal_next).
 scene_cue(dusty, reveal_next).
 continuation_template(reveal, "a dusty hallway bathed in pale candlelight").
 continuation_template(reveal_next, "At the far end, a small brass key glinted on the floor").
-% gen247: mysterious-box scene for clockmaker-style story continuations.
 scene_cue(clockmaker, mystery_box).
 scene_cue(mysterious, mystery_box).
 scene_cue(box, mystery_box).
 scene_cue(found, mystery_box).
 continuation_template(mystery_box, "a tiny clockwork bird with emerald eyes").
-
-% --- gen235 (LLMSCORE): historically grounded guest-list substrate.
 historical_figure(einstein).
 figure_domain(einstein, science).
 figure_reason(einstein, "to ask how he learned to think about space and time").
@@ -1006,15 +1240,11 @@ figure_reason(socrates, "to press every easy answer with better questions").
 historical_figure(cleopatra).
 figure_domain(cleopatra, leadership).
 figure_reason(cleopatra, "to hear how power, diplomacy, and survival looked from her side").
-% --- gen236 (LLMSCORE): small lexical/physical commons.
 synonym(happy, glad).
 synonym(sad, unhappy).
 synonym(big, large).
 synonym(small, little).
 very_cold_result(water, "it freezes into ice").
-
-% gen240 (LLMSCORE): two-line rhyming poems as KB knowledge, one per concept.
-% The C assembler only selects by topic word; teaching a new couplet extends it.
 couplet(ai, "Silicon minds trace patterns in the night; human questions teach their borrowed light.").
 couplet(rain, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
 couplet(rainy, "Grey is the sky and the rain won't cease; the dripping afternoon hums soft with peace.").
@@ -1024,7 +1254,6 @@ couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver
 couplet(moonlight, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
 couplet(water, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
 couplet(library, "The quiet library keeps the dust of light; its pages bloom like lanterns in the night.").
-% gen241 (LLMSCORE-check): more couplet themes the bench asked for. Same engine.
 couplet(sea, "The sea rolls in with silver and with foam; it sings the oldest song of going home.").
 couplet(lighthouse, "Alone it stands where wind and grey waves roam; a single faithful light to guide ships home.").
 couplet(storm, "The storm may roar and fling the grey waves wide; the steady beam keeps watch through wind and tide.").
@@ -1037,10 +1266,6 @@ couplet(star, "A single star pricks through the dusk's last glow; old light stil
 couplet(snow, "The snow comes down and hushes all the street; it lays a quiet blanket, cold and sweet.").
 couplet(spring, "The first green shoot pushes through cold black ground; in silence all the waking world is found.").
 couplet(autumn, "Autumn leaves fall over letters left unread; forgotten words sleep softly in their bed.").
-
-% gen241 (LLMSCORE-check): "a place where you might see X" -> the place. place_for(
-% Thing, "a place"). Answers the definition half of riddles like "...means a place
-% where you might see exotic animals" -> a zoo. KB-first: add a fact, extend for free.
 place_for(animals, "a zoo").
 place_for(zoo, "a zoo").
 place_for(books, "a library").
@@ -1054,10 +1279,6 @@ place_for(medicine, "a pharmacy").
 place_for(food, "a restaurant").
 place_for(planes, "an airport").
 place_for(trains, "a station").
-
-% gen241 (LLMSCORE-check): roleplay scenario advice as ordered KB steps. "As a store
-% manager, what would you do?" -> a measured, grounded answer. The C prefaces an honest
-% "I'm not really a manager, but" and lists the steps; adding a scenario is just facts.
 scenario_step(refund, 1, "Stay calm and listen to the whole complaint first").
 scenario_step(refund, 2, "Explain politely that a receipt from another store can't be refunded through our system").
 scenario_step(refund, 3, "Check whether the item was actually bought here before deciding anything").
@@ -1068,10 +1289,6 @@ scenario_step(complaint, 2, "Apologise for the trouble without admitting fault y
 scenario_step(complaint, 3, "Ask clear questions to understand exactly what went wrong").
 scenario_step(complaint, 4, "Offer a concrete remedy within your policy, or escalate to someone who can").
 scenario_step(complaint, 5, "Follow up to confirm the issue was actually resolved").
-
-% gen241 (LLMSCORE-check): more sentence-completion scenes, so common openers
-% ("Tomorrow I plan to...", "Without music, life would...") complete instead of
-% refusing. Same scene_cue/continuation_template engine.
 scene_cue(tomorrow, aspiration).
 scene_cue(plan, aspiration).
 scene_cue(dream, aspiration).
@@ -1086,41 +1303,23 @@ scene_cue(melody, melody).
 continuation_template(melody, "lose much of its colour and its joy").
 continuation_template(melody, "feel a great deal quieter and greyer").
 continuation_template(melody, "be missing one of its oldest comforts").
-
-% gen241 (LLMSCORE-check): exact-length completions for "complete this in exactly N
-% words". completion_exact(Scene, N, "phrase") where the phrase has exactly N words.
-% The C counts and verifies the length before using it, so the constraint is honoured.
 completion_exact(suspense, 5, "a cold wind rushed in").
 completion_exact(vigil, 5, "a distant light blinked twice").
 completion_exact(aspiration, 5, "visit a place I love").
 completion_exact(melody, 5, "be far greyer and quieter").
 completion_exact(mystery, 5, "no one dared go inside").
-
-% gen241 (LLMSCORE-check): three-word fill-in-the-blank values ("...and always ___
-% ___ ___"). fill_three("phrase") with exactly three words; the C verifies the count.
 fill_three("learning something new").
 fill_three("moving steadily forward").
 fill_three("staying kind always").
-
-% gen245: constrained sensory descriptions. sensory_phrase(Topic, N, "phrase")
-% stores exact word-count phrases; sensory_topic maps prompts to the topic.
 sensory_topic(cold_winter_morning, cold).
 sensory_topic(cold_winter_morning, winter).
 sensory_topic(cold_winter_morning, morning).
 sensory_phrase(cold_winter_morning, 3, "crisp cold air").
-
-% gen247: exact-word explanations. concise_explain(Topic, N, "phrase") stores
-% phrases whose word count is part of the fact.
 concise_topic(sky_blue, sky).
 concise_topic(sky_blue, blue).
 concise_topic(sky_blue, daytime).
 concise_topic(sky_blue, day).
 concise_explain(sky_blue, 3, "air scatters blue").
-
-% gen241 (LLMSCORE-check): four-line poems (quatrains). Each line is a separate
-% poem4(Concept, "line") fact (KB atoms cap at 128 chars), kept in order; the C reads
-% the four lines for the topic and joins them. "write a four-line poem about a
-% lighthouse" selects by topic word (engine fixed, lexicon learns).
 poem4(lighthouse, "Alone on the rock where the grey waves roam,").
 poem4(lighthouse, "the lighthouse stands as the storm comes home.").
 poem4(lighthouse, "Through wind and the dark and the breaking spray,").
@@ -1145,17 +1344,9 @@ poem4(rain, "The first drops tap on the windowpane,").
 poem4(rain, "soft and grey comes the falling rain.").
 poem4(rain, "It washes the dust from the tired street,").
 poem4(rain, "and hums a tune that is cool and sweet.").
-
-% gen241 (LLMSCORE-check): primary colours as a category, so "name three primary
-% colors" resolves through mod_namestart's multi-pick path (engine fixed, data grows).
 category_member(primary_color, red).
 category_member(primary_color, yellow).
 category_member(primary_color, blue).
-
-% gen294 (basic-chat cat.52 "Elencazione"): closed sets enumerated by
-% mod_namestart. Keyed by the singular head noun the enumerator derives; the
-% engine reads category_member/2, so adding a set here extends "list/name the X"
-% for free (KB-first). Ordered as they are conventionally recited.
 category_member(day, monday).
 category_member(day, tuesday).
 category_member(day, wednesday).
@@ -1229,9 +1420,6 @@ category_member(noble_gas, argon).
 category_member(noble_gas, krypton).
 category_member(noble_gas, xenon).
 category_member(noble_gas, radon).
-% keyed zodiac_animal so "Chinese zodiac animals" resolves via the compound
-% (qualifier+head) lookup — without it the enumerator matched the generic
-% category_member(animal, …) and gave a WRONG list (a misclaim, worse than a wall).
 category_member(zodiac_animal, rat).
 category_member(zodiac_animal, ox).
 category_member(zodiac_animal, tiger).
@@ -1268,10 +1456,6 @@ idiom_meaning("hang in there", "to stay patient and determined in a difficult si
 idiom_meaning("jump on the bandwagon", "to join a popular activity or trend").
 idiom_meaning("keep an eye on", "to watch someone or something carefully").
 idiom_meaning("give a hand", "to applaud; to help someone").
-
-% gen241 (LLMSCORE-check): common idioms as KNOWLEDGE. "what does the idiom X mean?"
-% reads idiom_meaning(Phrase, "gloss"). The phrase is the key (matched as a substring
-% of the turn); teaching a new idiom is one fact, no code edit.
 idiom_meaning("break a leg", "good luck -- it's a way to wish someone a great performance, especially on stage").
 idiom_meaning("piece of cake", "something very easy to do").
 idiom_meaning("hit the books", "to start studying hard").
@@ -1324,11 +1508,6 @@ idiom_meaning("on thin ice", "in a risky situation").
 idiom_meaning("hit the sack", "to go to sleep").
 idiom_meaning("miss the boat", "to miss an opportunity").
 idiom_meaning("add insult to injury", "to make a bad situation worse").
-
-% gen311 (KB-first definitions): the "what does X mean / define X" FRAME is taught
-% data, not a C pattern. describe_cue(Cue) lists substrings that mark a description
-% request; the concept consumer then reads a wiki_concept(X, domain, "gloss").
-% Grow both via autolearn (describe_cue + wiki_concept are whitelisted), no C edit.
 describe_cue("mean").
 describe_cue("means").
 describe_cue("define").
@@ -1336,20 +1515,10 @@ describe_cue("definition").
 describe_cue(explain).
 wiki_concept(ephemeral, language, "lasting for a very short time").
 wiki_concept(pragmatic, language, "dealing with things sensibly and realistically; practical rather than theoretical").
-
-% gen241 (LLMSCORE-check): phase-change knowledge. boils_at / freezes_at give the
-% temperature and result, so "what happens when you boil water at sea level?" answers
-% with both. One fact per substance; the C only selects by the verb + substance.
 boils_at(water, "100 degrees Celsius (212 degrees Fahrenheit) at sea level -- it turns into steam (water vapour)").
 freezes_at(water, "0 degrees Celsius (32 degrees Fahrenheit) -- it turns into ice").
-
-% gen241 (LLMSCORE-check): historical facts as KB knowledge. "what year did WWII end,
-% and where was the surrender?" reads one phrase that answers both halves.
 historical_fact(wwii_end, "World War II ended in 1945; Japan's surrender was signed on Sept 2, 1945, aboard the USS Missouri in Tokyo Bay.").
 historical_fact(wwi_end, "World War I ended in 1918; the armistice was signed on Nov 11, 1918, near Compiegne, France.").
-
-% gen241 (LLMSCORE-check): population magnitude (approximate present-day order) so
-% "which country has the most people?" is answered by comparing ranks, not memorized.
 magnitude(population, india, 12).
 magnitude(population, china, 11).
 magnitude(population, united_states, 10).
@@ -1362,10 +1531,6 @@ magnitude(population, france, 3).
 magnitude(population, united_kingdom, 2).
 magnitude(population, italy, 2).
 magnitude(population, australia, 1).
-
-% gen241 (LLMSCORE-check): geography for compound capital questions. The capital
-% handler answers the first half from capital_of_country/2 and appends the river or
-% the ocean-to-the-west when the turn asks for it. One fact per city/country.
 river_of(canberra, "the Molonglo River").
 river_of(london, "the River Thames").
 river_of(paris, "the River Seine").
@@ -1375,11 +1540,6 @@ river_of(washington_dc, "the Potomac River").
 river_of(vienna, "the Danube").
 river_of(cairo, "the Nile").
 ocean_west_of(australia, "the Indian Ocean").
-% gen255: kinship as COMPOSABLE knowledge. kinship_level(Rel, N) is how many
-% generations Rel stands ABOVE the possessor ("Anna is Maria's grandmother" ->
-% 2); kinship_gender(Rel, G) types the ancestor; kinship_name(N, G, Surface)
-% maps a summed chain back to language. The C solver only parses "X is Y's R"
-% links and adds levels — the lexicon extends here, no code edit.
 kinship_level(mother, 1).
 kinship_level(father, 1).
 kinship_level(grandmother, 2).
@@ -1400,8 +1560,6 @@ kinship_name(1, m, father).
 kinship_name(2, m, grandfather).
 kinship_name(3, m, "great-grandfather").
 kinship_name(4, m, "great-great-grandfather").
-
-% gen255: weekday arithmetic substrate — day_order(Day, Index 1..7).
 day_order(monday, 1).
 day_order(tuesday, 2).
 day_order(wednesday, 3).
@@ -1409,9 +1567,6 @@ day_order(thursday, 4).
 day_order(friday, 5).
 day_order(saturday, 6).
 day_order(sunday, 7).
-
-% gen255: DIRECTIONAL borders — border_dir(Country, Direction, Neighbour).
-% The generic borders/2 list stays; a direction word in the turn filters here.
 border_dir(germany, south, austria).
 border_dir(germany, south, switzerland).
 border_dir(germany, north, denmark).
@@ -1430,14 +1585,8 @@ border_dir(italy, north, switzerland).
 border_dir(italy, north, austria).
 border_dir(italy, west, france).
 border_dir(italy, east, slovenia).
-
-% gen254: riddle SIGNATURES — riddle_sig(Id, "cue") lists the substrings that
-% must all occur for response_template(Id, ...) in responses.p0 to answer.
-% World knowledge (which riddles exist), so it lives here; teaching a riddle
-% is facts only, no C branch.
 riddle_sig(riddle_polar_bear, "walls facing south").
 riddle_sig(riddle_polar_bear, "bear").
-% gen308: riddles distributed from kb/learning/autolearn.p0 (answers in responses.p0).
 riddle_sig(riddle_match, "dark room").
 riddle_sig(riddle_match, match).
 riddle_sig(riddle_match, fireplace).
@@ -1464,8 +1613,6 @@ riddle_sig(name_riddle, "belongs to you").
 riddle_sig(name_riddle, "use it more").
 riddle_sig(left_hand_riddle, "right hand").
 riddle_sig(left_hand_riddle, "your left").
-% gen311 (LLMSCORE): common PROVERB completion reuses the riddle mechanism (cue
-% substrings of the beginning -> the full saying). Two cues per proverb, one per line.
 riddle_sig(say_stitch, "stitch in time").
 riddle_sig(say_stitch, "saves").
 riddle_sig(say_earlybird, "early bird").
@@ -1496,8 +1643,6 @@ riddle_sig(say_picture, "picture is").
 riddle_sig(say_picture, "worth").
 riddle_sig(say_chickens, "count your").
 riddle_sig(say_chickens, "chickens").
-
-% gen311 (LLMSCORE): common 'explain why X' answers, via the riddle mechanism.
 riddle_sig(expl_sky, "sky").
 riddle_sig(expl_sky, "blue").
 riddle_sig(expl_oceansalt, "ocean").
@@ -1518,13 +1663,6 @@ riddle_sig(expl_yawn, "why").
 riddle_sig(expl_yawn, "yawn").
 riddle_sig(expl_daynight, "day").
 riddle_sig(expl_daynight, "night").
-
-% gen311 (riddles-as-inference, F.): a riddle is an EQUATION solved by inference,
-% not a memorized cue->answer. The clue verbs map to constraint predicates that are
-% RULES over world knowledge; the answer is the inanimate entity satisfying every
-% clue. "no voice, yet I cry ... no eyes, yet I flash in the dark" -> a storm.
-% Curated here are the bridging rules + seed property/metaphor facts; autolearn grows
-% the FACTS (clue_verb/emits/is_like/inanimate are the teachable layer, not the rules).
 clue_verb(cry, cries).
 clue_verb(cries, cries).
 clue_verb(flash, flashes).
@@ -1536,10 +1674,6 @@ emits(storm, lightning).
 is_like(rain, crying).
 is_like(lightning, flash).
 inanimate(storm).
-% gen311 (U1, riddles-as-inference): "I have A but no B" = depicts(X,A) ∧ ¬contains(X,B).
-% The negation is load-bearing: a map DEPICTS cities/mountains/water but does not
-% CONTAIN houses/trees/fish, while a real country depicts AND contains them — so the
-% ¬contains constraint is what picks the map. Grow depicts/contains via autolearn.
 depicts(map, cities).
 depicts(map, mountains).
 depicts(map, water).
@@ -1549,10 +1683,6 @@ depicts(country, water).
 contains(country, houses).
 contains(country, trees).
 contains(country, fish).
-% gen311 (U1 extension): "has X but cannot Y / is X but not Y" = has_part(X,·) ∧
-% has_property(X,·) ∧ ¬can_do(X,·). "has an eye but cannot see, is sharp but not
-% alive" -> a needle; "has hands but can't clap" -> a clock. Load-bearing negation:
-% a clock has hands but ¬can_do clap, a person has hands AND can_do clap.
 has_part(needle, eye).
 has_property(needle, sharp).
 has_part(potato, eye).
@@ -1612,9 +1742,6 @@ riddle_sig(riddle_legs, "2 legs").
 riddle_sig(riddle_legs, "3 legs").
 unique_trait(hummingbird, "fly backwards").
 unique_trait(hummingbird, "flies backwards").
-% gen254: named role holders — role_holder(KeyPhrase, "answer"), matched as a
-% substring of the turn ("who was the first president of the united states?").
-% Teaching a new role is one fact.
 role_holder("first president of the united states", "George Washington, who served from 1789 to 1797").
 role_holder("first person on the moon", "Neil Armstrong, in July 1969").
 role_holder("first man on the moon", "Neil Armstrong, in July 1969").
@@ -1624,12 +1751,10 @@ role_holder("first woman in space", "Valentina Tereshkova, in June 1963").
 role_holder("first emperor of rome", "Augustus, from 27 BC").
 role_holder("first woman to win a nobel prize", "Marie Curie, in 1903").
 role_holder("first prime minister of the united kingdom", "Robert Walpole, from 1721").
-% gen254: the year a capital took the role (one fact per country).
 capital_since(australia, "1927, when parliament moved from Melbourne to Canberra").
 capital_since(brazil, "1960, when Brasília was inaugurated").
 capital_since(nigeria, "1991, when the government moved to Abuja").
 capital_since(kazakhstan, "1997, when the capital moved from Almaty").
-% gen254: which city a capital replaced in that role (one fact per country).
 capital_predecessor(australia, "Melbourne, which served as the seat of government until 1927").
 capital_predecessor(brazil, "Rio de Janeiro, which was the capital until 1960").
 capital_predecessor(nigeria, "Lagos, which was the capital until 1991").
@@ -1640,18 +1765,11 @@ ocean_west_of(united_states, "the Pacific Ocean").
 ocean_west_of(portugal, "the Atlantic Ocean").
 ocean_borders(australia, "Indian Ocean").
 ocean_borders(australia, "Pacific Ocean").
-
-% gen241 (LLMSCORE-check): moons, so "name the largest planet and describe one of its
-% moons" answers both halves. moon_of(Planet, "Name", "description").
 moon_of(jupiter, "Io", "the most volcanically active body in the solar system, dotted with hundreds of erupting volcanoes").
 moon_of(earth, "the Moon", "Earth's only natural satellite, whose gravity drives the ocean tides").
 moon_of(mars, "Phobos", "a small, lumpy moon that orbits Mars faster than the planet itself rotates").
 moon_of(saturn, "Titan", "the only moon with a thick atmosphere, with rivers and lakes of liquid methane").
 moon_of(neptune, "Triton", "an icy moon that orbits backwards and erupts geysers of nitrogen").
-
-% gen241 (LLMSCORE-check): anagram knowledge. "rearrange the letters in X" reads
-% anagram_of(Word, "Result"); the C verifies the letters genuinely match before
-% answering, so the fact is checked, never blindly trusted.
 anagram_of(listen, "silent").
 anagram_of(silent, "listen").
 anagram_of(night, "thing").
@@ -1664,29 +1782,18 @@ anagram_of(cat, "act").
 anagram_of(dog, "god").
 anagram_of(save, "vase").
 anagram_of(angel, "glean").
-% gen311 (LLMSCORE): common anagrams (the C verifies the letters genuinely match).
 anagram_of(master, "stream").
 anagram_of(stream, "master").
-anagram_of(earth, "heart").
 anagram_of(heart, "earth").
-anagram_of(state, "taste").
 anagram_of(taste, "state").
-anagram_of(cat, "act").
 anagram_of(act, "cat").
 anagram_of(read, "dear").
 anagram_of(dear, "read").
-anagram_of(save, "vase").
 anagram_of(vase, "save").
 anagram_of(brag, "grab").
 anagram_of(grab, "brag").
 anagram_of(care, "race").
 anagram_of(race, "care").
-anagram_of(below, "elbow").
-
-% gen241/gen244 (LLMSCORE-check + NEXTMOVE): step-by-step procedures as ordered KB
-% facts. process_topic/2 is the KB-side bridge from request words to a Task;
-% process_step(Task, N, "step") is the content. Adding a task is just more facts --
-% the C only selects by topic overlap, orders, and numbers the steps.
 process_topic(tea, tea).
 process_step(tea, 1, "Fill a kettle with fresh water and bring it to the boil").
 process_step(tea, 2, "Put a tea bag (or loose tea in an infuser) into a cup or teapot").
@@ -1716,13 +1823,8 @@ tr_es(what, qué).
 tr_es(i, yo).
 tr_es(need, necesitar).
 tr_es(help, ayuda).
-% gen311 (KB-first morphology): person-indexed verb forms + pro-drop declaration.
-% The translate composer emits the conjugated form for a subject+verb and, where
-% pro_drop holds, drops the subject: "I need help" -> "Necesito ayuda". Grow this
-% table via autolearn (conj_es/pro_drop are whitelisted), never a C conjugator.
 pro_drop(es).
 conj_es(need, i, necesito).
-% negation marker: "I don't understand" -> (drop I) + no + entiendo = "No entiendo".
 negation_es(don't, no).
 conj_es(understand, i, entiendo).
 conj_es("are from (permanent)", you, eres).
@@ -1732,23 +1834,12 @@ conj_es(speak, you, hablas).
 tr_es(english, inglés).
 conj_fr(speak, you, parlez).
 tr_fr(english, anglais).
-% French subject "you" is "vous" (tr_fr(you, te) is the OBJECT clitic form).
 subject_pron_fr(you, vous).
-% gen311: interrogative preposition-fronting + copula conjugation. "Where are you
-% from?" -> front "from"->"de", de-invert "are you"->"you are", conj_es(are,you,eres)
-% + pro-drop -> "de dónde eres". wh_front_es(prep, spanish_prep) is teachable.
 wh_front_es(from, de).
 conj_es(are, you, eres).
-% French keeps the subject but elides it before a vowel (elide_fr(je, j') in
-% grammar.p0); the progressive aux is dropped (aux_progressive/1). "I am learning
-% French" -> "j'apprends français" from conj_fr + tr_fr(french) + those rules.
 conj_fr(learning, i, apprends).
 process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
 process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
-
-% gen244 (NEXTMOVE): everyday recommendations as KB-backed activity steps. The
-% advice engine selects a situation by activity_topic/2 and renders activity_step/3;
-% unknown situations get a scoped gap instead of a blind wall.
 activity_topic(rainy_sunday, rainy).
 activity_topic(rainy_sunday, rain).
 activity_topic(rainy_sunday, sunday).
@@ -1758,10 +1849,6 @@ activity_step(rainy_sunday, 2, "Make the room comfortable with warm light, a dri
 activity_step(rainy_sunday, 3, "Do one small useful task first so the rest of the afternoon feels unhurried").
 activity_step(rainy_sunday, 4, "Leave time for rest rather than packing the day with errands").
 activity_summary(rainy_sunday, "I don't have real favorites, but on a rainy day I'd read quietly with a warm drink.").
-
-% gen241 (LLMSCORE-check): parametric limerick. A limerick is a fixed AABBA form; the
-% five image lines per theme live in the KB (engine fixed, lexicon learns). The C only
-% joins limerick_l1..l5(Theme).
 limerick_l1(programmer, "There once was a coder named Lee,").
 limerick_l2(programmer, "Who ran on strong coffee and glee;").
 limerick_l3(programmer, "    Each bug that he'd find,").
@@ -1782,8 +1869,6 @@ tr_es(no, no).
 tr_es(thanks, gracias).
 limerick_l4(cat, "    She'd stretch and begin,").
 limerick_l5(cat, "To wind round your feet on the floor.").
-
-% Minimal ES lexicon for short translation prompts.
 tr_es(cat, gato).
 tr_es(dog, perro).
 tr_es(table, mesa).
@@ -1793,7 +1878,6 @@ tr_es(water, agua).
 tr_es(the, el).
 tr_es(is, esta).
 tr_es(on, en).
-% gen240: more ES glosses for short translation prompts.
 tr_es(sitting, sentado).
 tr_es(sit, sentar).
 tr_es(warm, cálido).
@@ -1831,17 +1915,11 @@ tr_es(car, coche).
 tr_es(from, de).
 tr_es(speak, hablar).
 tr_es(spanish, español).
-% --- gen237 (LLMSCORE): additional common facts and lightweight creative forms.
 borders(andorra, france).
 borders(france, andorra).
-
 color_of(school_bus, yellow).
 color_of(bus, yellow).
-
-% gen240 (LLMSCORE): parrot0 has no real preferences, but when asked to pick a
-% favourite it offers one honestly rather than dodging. The pick is KB data.
 default_color(blue).
-% gen240: honest picks for "what's your favorite <X>" (weather, season, ...).
 default_pick(weather, "a light, steady rain").
 default_pick(season, "autumn").
 default_pick(food, "fresh warm bread").
@@ -1863,24 +1941,18 @@ default_pick(language, "Latin, for how much of other languages it explains").
 default_pick(instrument, "the piano").
 default_pick(subject, "astronomy").
 default_pick(superpower, "the ability to read any language").
-% gen254: more hypothetical-desire topics from live LLMSCORE probes.
 default_pick(skill, "speaking every language fluently -- it would open every other door").
 default_pick(talent, "perfect memory for everything I read").
 default_pick(job, "lighthouse keeper -- quiet, useful, and a good view").
 default_pick(color, "deep blue").
 default_pick(era, "the Renaissance, to watch art and science wake up together").
 default_pick(invention, "the printing press -- it multiplied every other idea").
-
-% gen240 (LLMSCORE): appearance/2 lets parrot0 DESCRIBE something it cannot see.
-% Asked "describe what a sunset looks like", it admits it has no senses but gives
-% the description from KB knowledge (engine fixed, lexicon grows).
 appearance(sunset, "the sky glows in bands of orange, pink, and deep red as the sun sinks below the horizon and the light slowly fades into dusk").
 appearance(sunrise, "the dark sky brightens with soft gold and rose as the sun edges over the horizon and daylight returns").
 appearance(rainbow, "a wide arc of colour -- red, orange, yellow, green, blue, and violet -- that appears when sunlight shines through rain").
 appearance(ocean, "a vast expanse of blue-green water reaching to the horizon, its surface forever moving in waves").
 appearance(snow, "soft white flakes that settle into a smooth, bright blanket covering everything in quiet").
 appearance(forest, "tall trees crowded together, green light filtering through the leaves onto a floor of moss and fallen branches").
-% gen240: colours, so "describe blue to someone who has never seen it" works.
 appearance(blue, "a cool, calm colour -- the shade of a clear daytime sky and of deep, still water").
 appearance(red, "a warm, intense colour -- the shade of fire, of ripe strawberries, and of blood").
 appearance(green, "a fresh, restful colour -- the shade of grass and of new spring leaves").
@@ -1890,7 +1962,6 @@ appearance(purple, "a deep, rich colour between blue and red -- the shade of plu
 appearance(black, "the absence of light -- the darkness of a moonless night").
 appearance(white, "the presence of all colours of light together -- the brightness of fresh snow").
 taste_of(banana, "sweet, soft, and creamy, with a mellow fruit flavour").
-
 response_template(riddle_head_tail, "A coin has a head and a tail but no body.").
 response_template(sphinx_riddle, "A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age").
 response_template(riddle_chimney, "Rain can go up a chimney down but cannot go down a chimney up.").
@@ -1902,14 +1973,9 @@ response_template(riddle_legs, "A human.").
 response_template(shadow_day_sleep, "You are a shadow.").
 response_template(joke_short, "Why did the function return early? It had a break.").
 response_template(joke_bear_teeth, "A gummy bear.").
-
-% gen245: library haiku images extend the same KB-only haiku assembler.
 haiku_open(library, "Pages breathe softly").
 haiku_mid(library, "Quiet shelves hold hidden worlds").
 haiku_close(library, "Dust glows in moonlight").
-
-% gen240 (LLMSCORE): compound-word riddles. compound_word(First, Second, Whole) —
-% "the word that follows fire and precedes place" -> fireplace.
 compound_word(fire, place, fireplace).
 compound_word(fire, fly, firefly).
 compound_word(fire, work, firework).
@@ -1926,14 +1992,6 @@ compound_word(news, paper, newspaper).
 compound_word(snow, flake, snowflake).
 compound_word(moon, light, moonlight).
 compound_word(bed, room, bedroom).
-
-% --- gen240 (LLMSCORE): parametric haiku. A haiku is a fixed 5-7-5 structure;
-% the poetic image LINES are KB knowledge, pre-syllable-counted, one per concept
-% per slot (open=5, mid=7, close=5). The C assembler weaves open(subject) /
-% mid(object) / close(subject), so teaching a new concept's three lines extends
-% the generator with no code edit (PRINCIPLES.md: engine fixed, lexicon learns).
-% gen254: technology and autumn, so paired-theme prompts ("autumn and
-% technology") can weave open(subj)/mid(obj)/close(subj) across both.
 haiku_open(technology, "A screen glows at dusk").
 haiku_mid(technology, "small lights think in the still house").
 haiku_close(technology, "the machine dreams on").
@@ -1952,7 +2010,6 @@ haiku_close(moon, "shadows softly bloom").
 haiku_open(autumn, "Red leaves let go now").
 haiku_mid(autumn, "the wind carries them away").
 haiku_close(autumn, "bare branches stay still").
-% gen240: broader haiku lexicon so more requested themes compose (engine fixed).
 haiku_open(lamp, "A lamp's quiet glow").
 haiku_mid(lamp, "holds back the dark of the night").
 haiku_close(lamp, "a small warm island").
@@ -2013,7 +2070,6 @@ haiku_close(dream, "dawn erases them").
 haiku_open(hope, "A small green shoot waits").
 haiku_mid(hope, "under the last of the snow").
 haiku_close(hope, "sure of the warm sun").
-
 gender_es(gato, m).
 gender_es(perro, m).
 gender_es(mesa, f).
@@ -2026,15 +2082,6 @@ gender_es(libro, m).
 gender_es(sol, m).
 gender_es(luna, f).
 gender_es(noche, f).
-
-% gen308: autolearn's verified knowledge, made OFFICIAL (F.'s directive: what
-% autolearn learns must be committed as project knowledge). These closed
-% "engine_gap" entries in kb/learning/autolearn-ledger.jsonl by pairing a taught
-% relation with an answer_frame/2 (gen306) — the CONSUMER-gap reduction: the fact
-% alone was inert; the frame makes the question form answerable, no C module.
-% Distributed here from the scratch file kb/learning/autolearn.p0 (now deleted);
-% chemical_symbol was normalized to one canonical order (Symbol, Element) — the
-% scratch file had both directions — and deduplicated.
 chemical_symbol(h, hydrogen).
 chemical_symbol(he, helium).
 chemical_symbol(li, lithium).
@@ -2064,15 +2111,10 @@ chemical_symbol(hg, mercury).
 chemical_symbol(pb, lead).
 answer_frame("symbol", chemical_symbol).
 answer_frame("short for", chemical_symbol).
-% the only mammal capable of true flight (bats). rel + answer_frame so the
-% "what is the only mammal capable of true flight?" phrasing is answerable.
 mammal_true_flight(bat, mammal).
 answer_frame("true flight", mammal_true_flight).
-% capital_on_river(Capital, River): which capital a river runs through.
 capital_on_river(cairo, nile).
 capital_on_river(khartoum, nile).
-% gen309: more rivers so the SUPERLATIVE aggregation is meaningful (the Danube
-% flows through 4 national capitals, the most of any river in the world).
 capital_on_river(vienna, danube).
 capital_on_river(bratislava, danube).
 capital_on_river(budapest, danube).
@@ -2082,21 +2124,9 @@ capital_on_river(paris, seine).
 capital_on_river(rome, tiber).
 capital_on_river(berlin, spree).
 answer_frame("river", capital_on_river).
-% "which river runs through the most capital cities?" — a fold over the relation:
-% group by River (second arg), count capitals, take the max. aggregate_frame is
-% the teachable datum; mod_aggregate supplies only the bounded counting.
 aggregate_frame("most capital", capital_on_river, second, max).
-% hardest_natural_substance(Substance, Where); the frame answers "what is the
-% hardest natural substance on earth?" via the word "earth" -> diamond.
 hardest_natural_substance(diamond, earth).
 answer_frame("hardest", hardest_natural_substance).
-
-% ==================================================================
-% gen334: expanded world knowledge. KB-first: every new fact extends
-% comprehension with zero C changes. Engine fixed, knowledge learns.
-% ==================================================================
-
-% --- More color_of facts for common objects ---
 color_of(gold, gold).
 color_of(silver, silver).
 color_of(rose, red).
@@ -2114,32 +2144,9 @@ color_of(diamond, white).
 color_of(pearl, white).
 color_of(coral, pink).
 color_of(sand, yellow).
-
-% --- More sound_of facts for animal sounds ---
-sound_of(bear, growl).
 sound_of(bear, roar).
-sound_of(elephant, trumpet).
-sound_of(wolf, howl).
-sound_of(mouse, squeak).
-sound_of(donkey, bray).
-sound_of(goat, bleat).
-sound_of(cow, moo).
-sound_of(duck, quack).
-sound_of(chicken, cluck).
-sound_of(sheep, baa).
-sound_of(lion, roar).
-sound_of(bee, buzz).
-sound_of(snake, hiss).
-sound_of(frog, croak).
-sound_of(horse, neigh).
-sound_of(pig, oink).
-sound_of(owl, hoot).
-sound_of(rooster, crow).
 sound_of(bird, tweet).
-sound_of(koala, bellow).
 sound_of(seal, bark).
-
-% --- More animal facts: what they eat ---
 eats(bear, fish).
 eats(bear, berries).
 eats(cat, fish).
@@ -2164,14 +2171,11 @@ eats(chicken, seed).
 eats(monkey, banana).
 eats(panda, bamboo).
 eats(whale, plankton).
-
-% --- More quantity facts for common things ---
 quantity(human, eyes, 2).
 quantity(human, ears, 2).
 quantity(human, feet, 2).
 quantity(human, nose, 1).
 quantity(human, mouth, 1).
-quantity(human, teeth, 32).
 quantity(human, ribs, 24).
 quantity(human, vertebrae, 33).
 quantity(octopus, hearts, 3).
@@ -2190,16 +2194,12 @@ quantity(earth, oceans, 5).
 quantity(guitar, strings, 6).
 quantity(violin, strings, 4).
 quantity(octave, notes, 8).
-
-% --- More opposite pairs (both directions) ---
 opposite(war, peace).
 opposite(peace, war).
 opposite(alive, dead).
 opposite(dead, alive).
 opposite(interesting, boring).
 opposite(boring, interesting).
-opposite(thick, thin).
-opposite(thin, thick).
 opposite(wild, tame).
 opposite(tame, wild).
 opposite(brave, scared).
@@ -2222,22 +2222,8 @@ opposite(beautiful, ugly).
 opposite(ugly, beautiful).
 opposite(brave, coward).
 opposite(coward, brave).
-
-% --- More paint_mix pairs (both directions) ---
 paint_mix(red, white, pink).
 paint_mix(white, red, pink).
-paint_mix(black, white, grey).
-paint_mix(white, black, grey).
-
-% --- More category members ---
-category_member(planet, mercury).
-category_member(planet, venus).
-category_member(planet, earth).
-category_member(planet, mars).
-category_member(planet, jupiter).
-category_member(planet, saturn).
-category_member(planet, uranus).
-category_member(planet, neptune).
 category_member(instrument, piano).
 category_member(instrument, guitar).
 category_member(instrument, violin).
@@ -2280,13 +2266,7 @@ category_member(insect, butterfly).
 category_member(insect, fly).
 category_member(insect, mosquito).
 category_member(insect, beetle).
-category_member(vegetable, carrot).
-category_member(vegetable, potato).
-category_member(vegetable, tomato).
-category_member(vegetable, onion).
 category_member(vegetable, lettuce).
-category_member(vegetable, broccoli).
-category_member(vegetable, spinach).
 category_member(vegetable, pepper).
 category_member(metal, gold).
 category_member(metal, silver).
@@ -2295,8 +2275,6 @@ category_member(metal, copper).
 category_member(metal, aluminum).
 category_member(metal, zinc).
 category_member(metal, lead).
-
-% --- More capital_of_country facts ---
 capital_of_country(stockholm, sweden).
 capital_of_country(oslo, norway).
 capital_of_country(helsinki, finland).
@@ -2319,24 +2297,13 @@ capital_of_country(tehran, iran).
 capital_of_country(bangkok, thailand).
 capital_of_country(hanoi, vietnam).
 capital_of_country(jakarta, indonesia).
-
-% --- More landmark_of facts ---
-landmark_of(egypt, "the Great Pyramids of Giza").
-landmark_of(india, "the Taj Mahal").
-landmark_of(china, "the Great Wall").
 landmark_of(brazil, "Christ the Redeemer").
 landmark_of(peru, "Machu Picchu").
 landmark_of(greece, "the Parthenon").
-landmark_of(italy, "the Colosseum").
-landmark_of(france, "the Eiffel Tower").
 landmark_of(russia, "Saint Basil's Cathedral").
 landmark_of(turkey, "the Hagia Sophia").
-
-% --- More planet facts ---
 quantity(mercury, moons, 0).
 quantity(venus, moons, 0).
-
-% --- More synonym pairs ---
 synonym(fast, quick).
 synonym(quick, fast).
 synonym(intelligent, smart).
@@ -2349,13 +2316,9 @@ synonym(huge, enormous).
 synonym(enormous, huge).
 synonym(tiny, small).
 synonym(glad, happy).
-
-% --- More because/2 (causal knowledge) ---
 because(water_wet, "its molecules stick to surfaces they touch, spreading out instead of beading up").
 because(leaves_brown, "they stop making chlorophyll in autumn, so the green fades").
 because(fish_silent, "fish do not have vocal cords like land animals do").
-
-% --- More used_for facts (analogy substrate) ---
 used_for(microscope, examining).
 used_for(telescope, observing).
 used_for(thermometer, measuring).
@@ -2371,20 +2334,11 @@ used_for(lock, securing).
 used_for(map, navigating).
 used_for(calculator, computing).
 used_for(scale, weighing).
-
-% --- More difference_between facts ---
 difference_between(ephemeral, permanent, "Ephemeral means lasting a very short time; permanent means lasting indefinitely").
 difference_between(byte, bit, "A bit is a single 0 or 1; a byte is 8 bits").
 difference_between(kb, mb, "A kilobyte is about a thousand bytes; a megabyte is about a million bytes").
 difference_between(analog, digital, "Analog signals are continuous; digital signals use discrete steps").
 difference_between(sun, moon, "The Sun is a star that produces its own light; the Moon is a rocky body that reflects sunlight").
-
-% ==================================================================
-% gen335: demonym knowledge — place → demonym for completion queries.
-% KB-first: add a demonym/2 fact and "born in X, therefore I am a ___"
-% resolves with zero C changes. The completion_chain/2 consumer in
-% mod_knowledge reads the cue + predicate; the data is KB knowledge.
-% ==================================================================
 demonym(sicily, sicilian).
 demonym(rome, roman).
 demonym(milan, milanese).
@@ -2412,13 +2366,7 @@ demonym(madrid, madrilenian).
 demonym(barcelona, barcelonian).
 demonym(amsterdam, amsterdammer).
 demonym(athens, athenian).
-
-% completion_chain(Cue, ResultPred): when the user says "Cue X" and the
-% sentence ends with a blank/article, query ResultPred(X, ?Y) and respond
-% with Y. The C motor (mod_knowledge) reads this; the data grows here.
 completion_chain(born_in, demonym).
-% gen335b: profession chain — "studied X, therefore I am a ___"
-% study medicine → doctor, study law → lawyer, etc.
 profession(medicine, doctor).
 profession(law, lawyer).
 profession(engineering, engineer).
@@ -2431,13 +2379,6 @@ profession(cooking, chef).
 profession(farming, farmer).
 profession(fishing, fisherman).
 completion_chain(studied, profession).
-
-% ═══ Conoscenza di ordine superiore cresciuta sulla learning mesh (gen335) ═══════
-% Vedi docs/plans/learning-mesh.md §4.4. Fatti QUI accanto ai loro parenti (is_a,
-% answer_frame, capital_of_country) così il save-map instrada la crescita futura.
-% Operatori (regole) in forma robusta: closure a predicato separato, right-recursive.
-
-% -- Tassonomia + ereditarietà di proprietà/abilità (kind_of/prop_of/able_to) --
 kind_of(dog, mammal).      kind_of(cat, mammal).     kind_of(human, mammal).
 kind_of(whale, mammal).    kind_of(mammal, animal).  kind_of(sparrow, bird).
 kind_of(eagle, bird).      kind_of(bird, animal).    kind_of(salmon, fish).
@@ -2456,8 +2397,6 @@ prop_of($X, $P) :- has_own_prop($X, $P).
 prop_of($X, $P) :- kind_of($X, $Y), prop_of($Y, $P).
 able_to($X, $A) :- has_own_ability($X, $A).
 able_to($X, $A) :- kind_of($X, $Y), able_to($Y, $A).
-
-% -- Ordinamenti transitivi (comparativo + temperatura + temporale) --
 larger_step(elephant, horse).  larger_step(horse, dog).  larger_step(dog, cat).
 larger_step(cat, mouse).       larger_step(mouse, ant).
 warmer_step(sun, fire).  warmer_step(fire, boiling_water).  warmer_step(boiling_water, room).
@@ -2471,8 +2410,6 @@ warmer_than($X, $Y) :- warmer_step($X, $Y).
 warmer_than($X, $Z) :- warmer_step($X, $Y), warmer_than($Y, $Z).
 before_in_time($X, $Y) :- time_step($X, $Y).
 before_in_time($X, $Z) :- time_step($X, $Y), before_in_time($Y, $Z).
-
-% -- Geografia (continente) e paternità letteraria (rispondibili via answer_frame) --
 continent_of(egypt, africa).      continent_of(brazil, south_america).
 continent_of(japan, asia).        continent_of(france, europe).
 continent_of(canada, north_america). continent_of(australia, oceania).
@@ -2481,3 +2418,305 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 wrote(dante, the_divine_comedy). wrote(homer, the_odyssey).  wrote(tolstoy, war_and_peace).
 wrote(cervantes, don_quixote).   wrote(mary_shelley, frankenstein).
 answer_frame("wrote", wrote).   answer_frame("author of", wrote).
+after_in_time($X, $Z) :- after_in_time($X, $Y), after_in_time($Y, $Z).
+after_in_time(baroque, renaissance).
+after_in_time(classical, baroque).
+after_in_time(cold_war, ww2).
+after_in_time(friday, thursday).
+after_in_time(internet_era, cold_war).
+after_in_time(modern_era, romantic).
+after_in_time(renaissance, middle_ages).
+after_in_time(romantic, classical).
+after_in_time(saturday, friday).
+after_in_time(sunday, saturday).
+after_in_time(ww2, ww1).
+age_of(earth, 4500000000).
+age_of(pyramids, 4500).
+age_of(roman_empire, 2000).
+age_of(universe, 13800000000).
+author_of(hamlet, william_shakespeare).
+author_of(odyssey, homer).
+author_of(war_and_peace, leo_tolstoy).
+borders_country(china, india).
+borders_country(china, russia).
+borders_country(france, belgium).
+borders_country(france, germany).
+borders_country(france, italy).
+borders_country(france, spain).
+borders_country(germany, france).
+borders_country(germany, poland).
+borders_country(italy, austria).
+borders_country(italy, france).
+borders_country(italy, switzerland).
+borders_country(spain, france).
+borders_country(spain, portugal).
+borders_country(united_states, canada).
+borders_country(united_states, mexico).
+born_in(einstein, ulm).
+born_in(marie_curie, warsaw).
+born_in(napoleon, ajaccio).
+capital_of_country(australia, canberra).
+capital_of_country(brazil, brasilia).
+capital_of_country(egypt, cairo).
+capital_of_country(france, paris).
+capital_of_country(japan, tokyo).
+category_member(bird, crow).
+category_member(bird, flamingo).
+category_member(bird, hummingbird).
+category_member(bird, ostrich).
+category_member(bird, peacock).
+category_member(continent, north_america).
+category_member(continent, south_america).
+category_member(day_of_week, friday).
+category_member(day_of_week, monday).
+category_member(day_of_week, saturday).
+category_member(day_of_week, sunday).
+category_member(day_of_week, thursday).
+category_member(day_of_week, tuesday).
+category_member(day_of_week, wednesday).
+category_member(dinosaur, ankylosaurus).
+category_member(dinosaur, brachiosaurus).
+category_member(dinosaur, diplodocus).
+category_member(dinosaur, pterodactyl).
+category_member(dinosaur, stegosaurus).
+category_member(dinosaur, triceratops).
+category_member(dinosaur, tyrannosaurus).
+category_member(dinosaur, velociraptor).
+category_member(fish, bass).
+category_member(fish, cod).
+category_member(fish, sardine).
+category_member(fish, trout).
+category_member(insect, cricket).
+category_member(insect, dragonfly).
+category_member(insect, grasshopper).
+category_member(insect, ladybug).
+category_member(mammal, bat).
+category_member(mammal, cow).
+category_member(mammal, dolphin).
+category_member(mammal, goat).
+category_member(mammal, pig).
+category_member(mammal, rabbit).
+category_member(mammal, sheep).
+category_member(mammal, tiger).
+category_member(metal, aluminium).
+category_member(metal, mercury).
+category_member(metal, nickel).
+category_member(metal, platinum).
+category_member(metal, tin).
+category_member(metal, titanium).
+category_member(metal, tungsten).
+category_member(musical_instrument, cello).
+category_member(musical_instrument, clarinet).
+category_member(musical_instrument, drums).
+category_member(musical_instrument, flute).
+category_member(musical_instrument, guitar).
+category_member(musical_instrument, harp).
+category_member(musical_instrument, piano).
+category_member(musical_instrument, saxophone).
+category_member(musical_instrument, trumpet).
+category_member(musical_instrument, violin).
+category_member(ocean, arctic).
+category_member(ocean, atlantic).
+category_member(ocean, indian).
+category_member(ocean, pacific).
+category_member(ocean, southern).
+category_member(organ, brain).
+category_member(organ, eyes).
+category_member(organ, heart).
+category_member(organ, intestines).
+category_member(organ, kidneys).
+category_member(organ, liver).
+category_member(organ, lungs).
+category_member(organ, pancreas).
+category_member(organ, spleen).
+category_member(organ, stomach).
+category_member(profession, architect).
+category_member(profession, artist).
+category_member(profession, chef).
+category_member(profession, doctor).
+category_member(profession, engineer).
+category_member(profession, farmer).
+category_member(profession, firefighter).
+category_member(profession, lawyer).
+category_member(profession, musician).
+category_member(profession, nurse).
+category_member(profession, pilot).
+category_member(profession, police_officer).
+category_member(profession, scientist).
+category_member(profession, teacher).
+category_member(profession, writer).
+category_member(reptile, chameleon).
+category_member(reptile, gecko).
+category_member(reptile, iguana).
+category_member(reptile, komodo_dragon).
+category_member(shape, circle).
+category_member(shape, diamond).
+category_member(shape, hexagon).
+category_member(shape, octagon).
+category_member(shape, oval).
+category_member(shape, pentagon).
+category_member(shape, rectangle).
+category_member(shape, square).
+category_member(shape, triangle).
+category_member(vegetable, cucumber).
+category_member(vegetable, garlic).
+causes(climate_change, rising_seas).
+causes(earthquake, tsunami).
+causes(exercise, health).
+causes(fire, smoke).
+causes(health, longevity).
+causes(plant_growth, oxygen).
+causes(pollution, climate_change).
+causes(rain, wet_ground).
+causes(sun, plant_growth).
+causes(wet_ground, slippery_surfaces).
+chemical_symbol(gold, au).
+chemical_symbol(iron, fe).
+chemical_symbol(silver, ag).
+chemical_symbol(sodium, na).
+continent_of(brazil, south_america).
+continent_of(egypt, africa).
+continent_of(france, europe).
+continent_of(japan, asia).
+currency_of_country(japan, yen).
+currency_of_country(switzerland, swiss_franc).
+currency_of_country(united_kingdom, pound_sterling).
+deepest_ocean(point, mariana_trench).
+deepest_ocean(world, pacific).
+died_in(einstein, princeton).
+died_in(napoleon, saint_helena).
+discovered_by(penicillin, alexander_fleming).
+discovered_by(polonium, marie_curie).
+enables(education, better_jobs).
+enables(electricity, modern_life).
+enables(internet, global_communication).
+enables(language, culture).
+faster_than(car, bicycle).
+faster_than(cheetah, horse).
+faster_than(horse, human).
+faster_than(human, turtle).
+faster_than(light, sound).
+faster_than(sound, car).
+founded_by(amazon, jeff_bezos).
+founded_by(apple, steve_jobs).
+founded_by(microsoft, bill_gates).
+heavier_than(cat, mouse).
+heavier_than(elephant, horse).
+heavier_than(gold, iron).
+heavier_than(horse, human).
+heavier_than(human, cat).
+heavier_than(iron, aluminium).
+height_of(burj_khalifa, 828).
+height_of(eiffel_tower, 330).
+height_of(mount_everest, 8848).
+height_of(mount_kilimanjaro, 5895).
+invented_by(light_bulb, thomas_edison).
+invented_by(radio, guglielmo_marconi).
+invented_by(telephone, alexander_graham_bell).
+is_a($X, $C) :- category_member($C, $X).
+is_a(animal, living_thing).
+is_a(bird, vertebrate).
+is_a(cat, mammal).
+is_a(dog, mammal).
+is_a(fish, vertebrate).
+is_a(mammal, vertebrate).
+is_a(oak, tree).
+is_a(plant, living_thing).
+is_a(salmon, fish).
+is_a(sparrow, bird).
+is_a(tree, plant).
+is_a(vertebrate, animal).
+kind_of(animal, living_thing).
+kind_of(bird, vertebrate).
+kind_of(cat, mammal).
+kind_of(dog, mammal).
+kind_of(fish, vertebrate).
+kind_of(horse, mammal).
+kind_of(insect, invertebrate).
+kind_of(invertebrate, animal).
+kind_of(mammal, vertebrate).
+kind_of(plant, living_thing).
+kind_of(reptile, vertebrate).
+kind_of(spider, invertebrate).
+kind_of(vertebrate, animal).
+kind_of(whale, mammal).
+language_of_country(brazil, portuguese).
+language_of_country(china, mandarin).
+language_of_country(egypt, arabic).
+language_of_country(france, french).
+language_of_country(germany, german).
+language_of_country(italy, italian).
+language_of_country(japan, japanese).
+language_of_country(russia, russian).
+language_of_country(spain, spanish).
+language_of_country(united_kingdom, english).
+larger_than(canada, united_states).
+larger_than(cat, mouse).
+larger_than(dog, cat).
+larger_than(earth, moon).
+larger_than(elephant, horse).
+larger_than(horse, dog).
+larger_than(russia, canada).
+larger_than(sun, earth).
+larger_than(whale, elephant).
+largest_in_category(animal, blue_whale).
+largest_in_category(continent, asia).
+largest_in_category(country, russia).
+largest_in_category(ocean, pacific).
+largest_in_category(planet, jupiter).
+located_in(australia, oceania).
+located_in(colosseum, rome).
+located_in(eiffel_tower, paris).
+located_in(france, europe).
+located_in(great_barrier_reef, australia).
+located_in(italy, europe).
+located_in(mount_everest, asia).
+located_in(new_york, united_states).
+located_in(paris, france).
+located_in(rome, italy).
+located_in(sahara_desert, africa).
+located_in(statue_of_liberty, new_york).
+located_in(united_states, north_america).
+longest_river(south_america, amazon).
+longest_river(world, nile).
+means(eloquent, "fluent and persuasive in speaking or writing").
+means(ephemeral, "lasting for a very short time").
+means(ubiquitous, "present or found everywhere").
+num_sides(hexagon, 6).
+num_sides(octagon, 8).
+num_sides(pentagon, 5).
+num_sides(rectangle, 4).
+num_sides(square, 4).
+num_sides(triangle, 3).
+part_of(arm, human_body).
+part_of(book, library).
+part_of(branch, tree_trunk).
+part_of(car, vehicle).
+part_of(chapter, book).
+part_of(engine, car).
+part_of(finger, hand).
+part_of(hand, arm).
+part_of(leaf, branch).
+part_of(page, chapter).
+part_of(tree_trunk, tree).
+part_of(wheel, car).
+population_of(china, 1400000000).
+population_of(india, 1400000000).
+population_of(united_states, 331000000).
+prevents(seatbelt, injury).
+prevents(sunscreen, sunburn).
+prevents(umbrella, getting_wet).
+prevents(vaccine, disease).
+requires(car, fuel).
+requires(computer, electricity).
+requires(fire, oxygen).
+requires(human, water).
+requires(plant, sunlight).
+smallest_in_category(continent, australia).
+smallest_in_category(country, vatican_city).
+speed_of(cheetah, 120).
+speed_of(light, 299792458).
+speed_of(peregrine_falcon, 390).
+speed_of(sound, 343).
+tallest_mountain(europe, mount_elbrus).
+tallest_mountain(world, mount_everest).
