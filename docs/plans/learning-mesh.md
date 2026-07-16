@@ -672,6 +672,36 @@ moduli C. Questa è "engine fixed, knowledge learns" alla sua **essenza massima*
 ([[teachable-procedures-pivot]]): il C smette di crescere in consumer, la conoscenza —
 fatti *e* procedure — cresce sulla mesh.
 
+### 8.3 Fatto (gen335): il primitivo `is/2` + le procedure astratte + lo scatter
+
+Il passo **(0)** è **implementato**. `src/kb.c` ora ha i primitivi di valutazione nel corpo
+delle clausole: `is($R, Expr)` (`add/sub/mul/div/mod`, annidabili, su numeri **reali**) +
+i confronti `lt/le/gt/ge/eq/ne` (valutano entrambi i lati). Nomi riservati come `chars`/`naf`.
+Da qui le procedure si insegnano come clausole — dimostrato dal vivo, il **più astratto
+possibile** (non "i treni"):
+
+- **`even/odd`** (l'esempio di F.): `even($X):-eq(mod($X,2),0)` — "ignorare i dispari" è conoscenza.
+- **fold**: `sum_list`, `count_list`, `max_list` — aggregazione su lista. `sum_list([3,4,5])→12`.
+- **filtro**: `drop_odds([1,2,3,4])→[2,4]` — map/filter astratto.
+- **relazione lineare ASTRATTA**: `product(A,B,C)`/`factor(C,B,A)` (A·B=C in ogni direzione) —
+  copre tasso·tempo, prezzo·quantità, ecc.; e `catch_up(vantaggio,v1,v2,T)` generale
+  (`catch_up(120,60,80)→6`), **non** una regola sui treni.
+
+Vivono in `kb/core/procedures.p0` (nuovo home caricato al boot). Il primitivo è un **motore**
+generale: `20-math.c` (aritmetica in C) diventa migrabile a procedure insegnate.
+
+**Scatter (steer di F.):** `kb/core/mesh-knowledge.p0` è stato **sciolto** nei file dei
+parenti così il save-map instrada la crescita futura accanto: tassonomia + ordinamenti +
+geografia + paternità → `world-facts.p0` (kin: `is_a`, `answer_frame`, `capital_of_country`);
+parentela → `social.p0` (kin: `family_relation`); nomi propri → `presentation.p0`; procedure
+→ `procedures.p0`. Restano aperti **(1)** `kb_match` sicuro (raggiungibilità NL degli
+operatori) e il **routing NL** dei word-problem verso le procedure.
+
+> **Bonus dell'errore rumoroso:** lo scatter ha fatto ripassare `world-facts.p0` dal parser
+> maturato, che ha scovato **un altro** difetto silenzioso preesistente — un commento in
+> stile C `/* … */` (il char di commento `.p0` è `%`) su `sound_of(seal,bark)`. Corretto.
+> Sesta perdita silenziosa intercettata da quando l'errore è rumoroso.
+
 ## 9. Collegamenti
 
 [docs/prolog-like-engine.md](../prolog-like-engine.md) (§5 — insidie di sintassi + fact
