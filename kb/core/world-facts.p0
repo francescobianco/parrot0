@@ -786,7 +786,7 @@ sound_of(owl, "hoot").
 sound_of(rooster, "cock-a-doodle-doo").
 sound_of(snake, "hiss").
 sound_of(koala, bellow).
-sound_of(seal, bark).   /* gen308: from autolearn.p0 */
+sound_of(seal, bark).   % gen308: from autolearn.p0
 
 paint_mix(blue, yellow, green).
 paint_mix(yellow, blue, green).
@@ -2431,3 +2431,53 @@ profession(cooking, chef).
 profession(farming, farmer).
 profession(fishing, fisherman).
 completion_chain(studied, profession).
+
+% ═══ Conoscenza di ordine superiore cresciuta sulla learning mesh (gen335) ═══════
+% Vedi docs/plans/learning-mesh.md §4.4. Fatti QUI accanto ai loro parenti (is_a,
+% answer_frame, capital_of_country) così il save-map instrada la crescita futura.
+% Operatori (regole) in forma robusta: closure a predicato separato, right-recursive.
+
+% -- Tassonomia + ereditarietà di proprietà/abilità (kind_of/prop_of/able_to) --
+kind_of(dog, mammal).      kind_of(cat, mammal).     kind_of(human, mammal).
+kind_of(whale, mammal).    kind_of(mammal, animal).  kind_of(sparrow, bird).
+kind_of(eagle, bird).      kind_of(bird, animal).    kind_of(salmon, fish).
+kind_of(fish, animal).     kind_of(animal, living_thing).
+kind_of(oak, tree).        kind_of(tree, plant).     kind_of(plant, living_thing).
+has_own_prop(living_thing, breathes).   has_own_prop(living_thing, grows).
+has_own_prop(living_thing, needs_water). has_own_prop(animal, moves).
+has_own_prop(animal, eats).             has_own_prop(mammal, warm_blooded).
+has_own_prop(mammal, has_hair).         has_own_prop(bird, has_feathers).
+has_own_prop(fish, has_scales).         has_own_prop(plant, photosynthesizes).
+has_own_ability(bird, fly).  has_own_ability(fish, swim).
+has_own_ability(animal, move). has_own_ability(whale, swim).
+kind_of_t($X, $Y) :- kind_of($X, $Y).
+kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).
+prop_of($X, $P) :- has_own_prop($X, $P).
+prop_of($X, $P) :- kind_of($X, $Y), prop_of($Y, $P).
+able_to($X, $A) :- has_own_ability($X, $A).
+able_to($X, $A) :- kind_of($X, $Y), able_to($Y, $A).
+
+% -- Ordinamenti transitivi (comparativo + temperatura + temporale) --
+larger_step(elephant, horse).  larger_step(horse, dog).  larger_step(dog, cat).
+larger_step(cat, mouse).       larger_step(mouse, ant).
+warmer_step(sun, fire).  warmer_step(fire, boiling_water).  warmer_step(boiling_water, room).
+warmer_step(room, ice).  warmer_step(ice, liquid_nitrogen).
+time_step(ancient_rome, middle_ages).  time_step(middle_ages, renaissance).
+time_step(renaissance, industrial_revolution).
+time_step(industrial_revolution, information_age).
+larger_than($X, $Y) :- larger_step($X, $Y).
+larger_than($X, $Z) :- larger_step($X, $Y), larger_than($Y, $Z).
+warmer_than($X, $Y) :- warmer_step($X, $Y).
+warmer_than($X, $Z) :- warmer_step($X, $Y), warmer_than($Y, $Z).
+before_in_time($X, $Y) :- time_step($X, $Y).
+before_in_time($X, $Z) :- time_step($X, $Y), before_in_time($Y, $Z).
+
+% -- Geografia (continente) e paternità letteraria (rispondibili via answer_frame) --
+continent_of(egypt, africa).      continent_of(brazil, south_america).
+continent_of(japan, asia).        continent_of(france, europe).
+continent_of(canada, north_america). continent_of(australia, oceania).
+answer_frame("continent", continent_of).
+wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, nineteen_eighty_four).
+wrote(dante, the_divine_comedy). wrote(homer, the_odyssey).  wrote(tolstoy, war_and_peace).
+wrote(cervantes, don_quixote).   wrote(mary_shelley, frankenstein).
+answer_frame("wrote", wrote).   answer_frame("author of", wrote).

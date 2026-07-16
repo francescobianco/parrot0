@@ -23,3 +23,7 @@ present_rule(strip_underscore).          % gli atomi multi-parola si mostrano co
 proper_name(marie_curie).
 proper_name(south_america).
 proper_name(north_america).
+proper_name(mary_shelley).
+proper_name(don_quixote).
+proper_name(ancient_rome).
+proper_name(middle_ages).

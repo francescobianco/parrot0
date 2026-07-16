@@ -214,3 +214,11 @@ family_relation(nipote).
 family_relation(mamma).
 family_relation(papa).
 family_relation(babbo).
+
+% ═══ Parentela: fatti base + operatori (join + ricorsione) — gen335, learning mesh ═══
+% Accanto a family_relation così il save-map instrada la parentela futura qui.
+progenitor(tom, bob).   progenitor(bob, ann).   progenitor(ann, zoe).
+progenitor(tom, liz).   progenitor(liz, max).   progenitor(zoe, kim).
+grandparent($X, $Z) :- progenitor($X, $Y), progenitor($Y, $Z).
+forebear($X, $Y) :- progenitor($X, $Y).
+forebear($X, $Z) :- progenitor($X, $Y), forebear($Y, $Z).

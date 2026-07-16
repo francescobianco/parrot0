@@ -1,0 +1,35 @@
+% ── PROCEDURE COMPUTAZIONALI ─────────────────────────────────────────────────────
+% "Anche le PROCEDURE sono conoscenza" (F., [[teachable-procedures]]): saper sommare,
+% ignorare i dispari, risolvere una relazione — è KB, non un consumer C. Il motore
+% tiene solo i PRIMITIVI di valutazione (gen335, src/kb.c):
+%   is($R, Expr)              valuta Expr e lega $R      (Expr: add/sub/mul/div/mod, annidabili)
+%   lt/le/gt/ge/eq/ne($A,$B)  confrontano (valutano entrambi i lati come espressioni)
+% Da qui OGNI procedura di calcolo si insegna come clausola. Nomi predicato freschi;
+% liste in forma cons($H,$T)/nil. Questo file è il HOME dove il save-map instraderà
+% le procedure future accanto alle loro parenti.
+
+% -- parità (l'esempio di F.: "saper ignorare i dispari" è conoscenza) --
+even($X) :- eq(mod($X, 2), 0).
+odd($X)  :- eq(mod($X, 2), 1).
+
+% -- relazione lineare ASTRATTA: A*B=C, risolvibile in ogni direzione nota --
+% copre tasso·tempo=distanza, prezzo·quantità=totale, ecc. con UN operatore.
+product($A, $B, $C) :- is($C, mul($A, $B)).      % noti A,B → C
+factor($C, $B, $A)  :- is($A, div($C, $B)).      % noti C,B → A
+% quanto tempo perché il secondo raggiunga il primo, dato il vantaggio e le velocità
+% (schema catch-up generale, non "i treni"): tempo = vantaggio / (v2 - v1)
+catch_up($Head, $V1, $V2, $T) :- gt($V2, $V1), is($T, div($Head, sub($V2, $V1))).
+
+% -- fold su lista: somma, conteggio, massimo (aggregazione astratta) --
+sum_list(nil, 0).
+sum_list(cons($H, $T), $S) :- sum_list($T, $S1), is($S, add($H, $S1)).
+count_list(nil, 0).
+count_list(cons($H, $T), $N) :- count_list($T, $N1), is($N, add($N1, 1)).
+max_list(cons($X, nil), $X).
+max_list(cons($H, $T), $M) :- max_list($T, $M1), ge($H, $M1), is($M, $H).
+max_list(cons($H, $T), $M) :- max_list($T, $M1), lt($H, $M1), is($M, $M1).
+
+% -- filtro su lista: tieni i pari, scarta i dispari (map/filter astratto) --
+drop_odds(nil, nil).
+drop_odds(cons($H, $T), cons($H, $R)) :- even($H), drop_odds($T, $R).
+drop_odds(cons($H, $T), $R) :- odd($H), drop_odds($T, $R).
