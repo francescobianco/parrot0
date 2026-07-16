@@ -630,6 +630,48 @@ punteggio (enumerazione, word-problem, sì/no derivato), non domande singole. Pr
 generalizzazione) → **(3)** schemi word-problem (Q10) → **(4)** routing per Q7. Solo così
 la conoscenza di ordine superiore già congelata *e* quella nuova diventano punteggio.
 
+### 8.2 Correzione (steer di F.): il SOLVER è una PROCEDURA insegnabile, non un consumer C
+
+> **Sopra ho sottovalutato [[teachable-procedures]].** Ho scritto "operatore + CONSUMER":
+> ma il consumer scritto in C è proprio ciò che quel pivot (gen311) abolisce. F.: *«grazie
+> al KB-first anche le procedure sono conoscenza — saper ignorare i dispari, fare la somma
+> deve essere conoscenza, non motore C; in tutti i casi in cui ha fallito si doveva
+> insegnare ampia conoscenza PROCEDURALE.»* Ha ragione, ed è già la rotta documentata.
+
+**La conoscenza è fatti + PROCEDURE**, entrambe KB, entrambe insegnabili
+([[teachable-procedures]] §0). E non è teoria: è **già parzialmente vivo** —
+`apply_token_rewrite` interpreta regole `rewrite_es(LHS,RHS)` insegnate (grammar.p0), e
+**la somma è già conoscenza in Peano**: `add(z,$N,$N). add(s($M),$N,s($R)):-add($M,$N,$R).`
+(grammar.p0:124, `kb.query add(s(s(z)),s(z),s(s(s(z))))` → `provable:true`). Il motore SLD
+calcola già da knowledge.
+
+Quindi i fallimenti LLMSCORE si rileggono così — **niente consumer C, si insegna la
+procedura**:
+
+| Perso | La PROCEDURA da insegnare (non C) |
+|---|---|
+| Q10 treni | lo *schema* rate·time=distance e la regola di catch-up come **clausole/rewrite** (`catch_up_time`), non un modulo word-problem in C |
+| Q3 enumerazione | il *fold* "raccogli tutti gli X membri di C" come **clausola ricorsiva** (come `add`/liste Peano), non un aggregate-consumer C |
+| "ignorare i dispari" (esempio di F.) | un **filtro** ricorsivo sui numeri = clausola, non un ramo C |
+| Q7 puzzle | la **deduzione a vincoli** come procedura di riscrittura/inferenza (stesso interprete di [[universal-solver]]) |
+
+**Il caveat onesto (dove il C resta legittimo).** Il motore tiene i *primitivi* (unificazione,
+SLD): quelli sì in C, come dice il manifesto. Oggi però **manca un primitivo di valutazione
+numerica dentro le clausole** (un `is/2` alla Prolog): la computazione procedurale gira solo
+in **Peano/successore**, impraticabile per numeri reali (60, 80, 120 miglia). L'aritmetica
+reale vive ancora in `20-math.c` (un consumer C). Perciò l'abilitatore a più alta leva **non
+è un consumer**: è **un solo primitivo generale** — valutazione numerica invocabile nel corpo
+di una clausola — dopo il quale **ogni** procedura di calcolo (somme, tassi, confronti, filtri)
+diventa conoscenza insegnabile, e `20-math.c` diventa migrabile a procedure insegnate. Un
+primitivo (motore), non un consumer per compito: è la riga giusta del confine KB-first.
+
+**Priorità corretta:** **(0)** il primitivo `eval`/`is` nel corpo delle clausole (motore,
+generale) → **(1)** `kb_match` sicuro sulle regole (raggiungibilità) → **(2)** la mesh
+insegna PROCEDURE (rate/time, fold-enumerazione, filtri) come regole `rewrite`/Horn, non
+moduli C. Questa è "engine fixed, knowledge learns" alla sua **essenza massima**
+([[teachable-procedures-pivot]]): il C smette di crescere in consumer, la conoscenza —
+fatti *e* procedure — cresce sulla mesh.
+
 ## 9. Collegamenti
 
 [docs/prolog-like-engine.md](../prolog-like-engine.md) (§5 — insidie di sintassi + fact
