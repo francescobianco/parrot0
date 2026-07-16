@@ -579,6 +579,47 @@ static int charlist_to_atom(const char *list, char *out, size_t outsz) {
 
 /* Prove the goal list under substitution `s`. Returns 1 to stop all search
  * (boolean solution found, or the collector is full). */
+/* gen335 (teachable-procedures): a small arithmetic evaluator over a RESOLVED term
+ * string, so taught PROCEDURES can compute with real numbers as KNOWLEDGE (not a C
+ * consumer). Grammar:  expr := number | fn '(' expr ',' expr ')'  with fn in
+ * {add,sub,mul,div,mod}. Numbers are doubles; integer results render without a
+ * fraction. Returns 1 on success, 0 if the expression is ill-formed or has an
+ * unbound variable (the builtin then flounders honestly). No <math.h> dependency. */
+static int eval_num(const char *e, double *out) {
+    while (*e && isspace((unsigned char)*e)) e++;
+    { char *end; double v = strtod(e, &end);        /* a bare number? */
+      const char *p = end; while (*p && isspace((unsigned char)*p)) p++;
+      if (end != e && *p == '\0') { *out = v; return 1; } }
+    const char *lp = strchr(e, '(');                 /* else fn(a, b) */
+    if (!lp) return 0;
+    size_t fl = (size_t)(lp - e);
+    while (fl > 0 && isspace((unsigned char)e[fl - 1])) fl--;
+    const char *rp = strrchr(lp, ')');
+    if (!rp || rp < lp) return 0;
+    int d = 0; const char *comma = NULL;             /* top-level comma */
+    for (const char *p = lp + 1; p < rp; p++) {
+        if (*p == '(') d++;
+        else if (*p == ')') d--;
+        else if (*p == ',' && d == 0) { comma = p; break; }
+    }
+    if (!comma) return 0;
+    char ab[256], bb[256];
+    size_t al = (size_t)(comma - (lp + 1)), bl = (size_t)(rp - (comma + 1));
+    if (al >= sizeof ab || bl >= sizeof bb) return 0;
+    memcpy(ab, lp + 1, al); ab[al] = '\0';
+    memcpy(bb, comma + 1, bl); bb[bl] = '\0';
+    double a, b;
+    if (!eval_num(ab, &a) || !eval_num(bb, &b)) return 0;
+    if (fl != 3) return 0;
+    if (!strncmp(e, "add", 3)) { *out = a + b; return 1; }
+    if (!strncmp(e, "sub", 3)) { *out = a - b; return 1; }
+    if (!strncmp(e, "mul", 3)) { *out = a * b; return 1; }
+    if (!strncmp(e, "div", 3)) { if (b == 0) return 0; *out = a / b; return 1; }
+    if (!strncmp(e, "mod", 3)) { if ((long long)b == 0) return 0;
+                                 *out = (double)((long long)a % (long long)b); return 1; }
+    return 0;
+}
+
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth) {
     if (idx == ngoals) {                       /* a complete solution */
@@ -622,6 +663,42 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             return 0;
         }
         return 0;                              /* both unbound: flounder */
+    }
+
+    /* gen335 (teachable-procedures): arithmetic EVALUATION as engine primitives, so a
+     * taught clause computes with real numbers — "how to sum / compare / filter" is
+     * KNOWLEDGE, not a C consumer. `is($R, expr)` evaluates expr and binds $R; the
+     * comparisons lt/le/gt/ge/eq/ne evaluate BOTH sides as expressions and succeed or
+     * fail. Reserved builtin names (like chars/naf): they never fall through to the KB. */
+    if (strcmp(g->pred, "is") == 0 && g->argc == 2) {
+        char ex[KB_TERM_LEN]; double r;
+        deep_resolve(s, g->args[1], ex, sizeof ex, 0);
+        if (!eval_num(ex, &r)) return 0;       /* unbound/ill-formed -> flounder */
+        char rs[64];
+        if (r == (double)(long long)r) snprintf(rs, sizeof rs, "%lld", (long long)r);
+        else snprintf(rs, sizeof rs, "%g", r);
+        Subst s2 = *s;
+        if (unify(&s2, g->args[0], rs))
+            return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        return 0;
+    }
+    if (g->argc == 2 &&
+        (strcmp(g->pred,"lt")==0 || strcmp(g->pred,"le")==0 ||
+         strcmp(g->pred,"gt")==0 || strcmp(g->pred,"ge")==0 ||
+         strcmp(g->pred,"eq")==0 || strcmp(g->pred,"ne")==0)) {
+        char ea[KB_TERM_LEN], eb[KB_TERM_LEN]; double a, b;
+        deep_resolve(s, g->args[0], ea, sizeof ea, 0);
+        deep_resolve(s, g->args[1], eb, sizeof eb, 0);
+        if (!eval_num(ea, &a) || !eval_num(eb, &b)) return 0;
+        int ok = 0;
+        if      (!strcmp(g->pred,"lt")) ok = a <  b;
+        else if (!strcmp(g->pred,"le")) ok = a <= b;
+        else if (!strcmp(g->pred,"gt")) ok = a >  b;
+        else if (!strcmp(g->pred,"ge")) ok = a >= b;
+        else if (!strcmp(g->pred,"eq")) ok = a == b;
+        else if (!strcmp(g->pred,"ne")) ok = a != b;
+        if (!ok) return 0;
+        return solve(S, goals, ngoals, idx + 1, s, depth);
     }
 
     for (size_t i = 0; i < S->kb->n; i++) {    /* match facts */
@@ -727,7 +804,10 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     /* The overwhelmingly common KB-first lookup is a ground fact predicate with
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
-    int has_rule = (argc == 2 && strcmp(pred, "chars") == 0); /* solver builtin */
+    int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
+        strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
+        strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||
+        strcmp(pred,"ne")==0));
     for (size_t i = 0; i < kb->nr; i++)
         if (kb->rules[i].head.argc == argc &&
             strcmp(kb->rules[i].head.pred, pred) == 0) { has_rule = 1; break; }
