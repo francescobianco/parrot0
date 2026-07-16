@@ -1,145 +1,96 @@
-# Generative Leverage — narrative and continuation (LLMSCORE Q1-Q4)
+# Generative Leverage — sintesi operativa (LLMSCORE Q1-Q4)
 
-> **Stato:** piano scritto a gen335+ (2026-07-16), dopo l'analisi LLMSCORE.
-> Definisce la strategia per risolvere i 4 fallimenti di scrittura creativa
-> e continuazione narrativa, il dominio dove un sistema deterministico (KB +
-> regole Horn) è strutturalmente svantaggiato rispetto a un LLM.
+> **Stato:** sintesi gen335+ (2026-07-17). Sostituisce il documento esteso.
 
-## I 4 casi falliti
+## L'osservazione chiave
 
-| # | Prompt | Errore parrot0 | Problema |
-|---|--------|---------------|----------|
-| Q1 | Tell me a short story about a sentient umbrella that falls in love. | "Rings widen where each drop lands..." — frammento poetico non pertinente | Generazione creativa ex-novo |
-| Q2 | [Continuazione] The umbrella—his name was Marcus... | Stesso verso criptico di Q1 | Non riconosce il prompt come continuazione |
-| Q3 | [Continuazione] She arrived on a Tuesday... | "Monday." — parola singola dal testo | Pattern-matching su giorno invece che continuazione |
-| Q4 | [Continuazione] By Monday, Marcus had memorized... | "I don't understand that yet." | Nessun modulo matcha |
+In tutti e 4 i casi, **la forma dell'output atteso è già nel prompt**. L'utente
+dichiara esplicitamente cosa vuole:
 
-## Perché è difficile per parrot0
+| Q | Prompt | Forma esplicita |
+|---|--------|----------------|
+| Q1 | *"Tell me **a short story** about a sentient umbrella that falls in love."* | `a short story` — genere, soggetto, azione |
+| Q2-Q4 | Paragrafi narrativi lunghi, nessun `?`, nomi propri, virgolette | È già l'inizio di una storia — va **continuata** |
 
-parrot0 non genera testo — lo recupera. Il suo motore è SLD con backtracking
-su fatti + regole Horn. Non ha un modello linguistico, non campiona token, non
-completa sequenze probabilisticamente. Ogni output è deterministico: una risposta
-da `response_template`, un fatto dalla KB, o un fallback.
+Non serve generazione. Serve **riconoscimento deterministico** del formato
+richiesto + **slot-filling** da template KB.
 
-La scrittura creativa richiede **generazione combinatoria** di superficie
-linguistica nuova, non recupero. Questo è fuori dal perimetro architetturale.
+## Due pattern, due fix
 
-## La scommessa: "generative leverage"
+### Pattern A — Richiesta esplicita di storia (Q1)
 
-Invece di generare, parrot0 può **sfruttare il testo fornito dall'utente** per
-costruire una continuazione coerente. Il prompt contiene già personaggi, nomi,
-ambientazioni, stile. parrot0 non deve inventare — deve **riassemblare**.
+**Riconoscimento:** `"tell me a short story"`, `"write a story"`, `"tell me a tale"`
+→ `intent: story_request`
 
-La strategia è a tre livelli:
+**Slot estratti dal prompt:** soggetto (`umbrella`), azione (`falls in love`), attributi (`sentient`)
 
-### Livello 1: Template narrativi KB (Q1)
-
-Per prompt ex-novo come "Tell me a short story about X that Y":
-
+**Template KB:**
 ```
-story_template(sentient_object, "[Name] was a [object] who lived in [place]. One day, [pronoun] discovered that [object]s could [action], and everything changed. From that moment, [name] knew that [pronoun] would never be [adjective] again.").
+story_template(sentient_love, "[Subject] was a [adjective] [object]. One day, [subject] discovered what it meant to [action]. [Pronoun] had never felt this way before — as if the whole world had shifted, and nothing would ever be the same. And so [subject] waited, patient as only [object]s can be, for the one who would see [pronoun] not as a thing, but as a presence.")
 ```
 
-Il template ha slot da riempire con:
-- `[Name]` — generato o chiesto all'utente
-- `[object]` — estratto dal prompt (umbrella)
-- `[place]` — da un set di default KB
-- `[action]` — da `can_do/1` KB o default
-- `[pronoun]` — accordo di genere
-- `[adjective]` — da default o opposto di una proprietà
+Il C riempie `[Subject]`, `[adjective]`, `[object]`, `[action]`, `[pronoun]` con
+quanto estratto dal prompt. Se un elemento manca (es. nome proprio), lo pesca da
+un default set KB o lo genera con una regola semplice (nomi da `given_name/1`).
 
-Il risultato è template-based, non generativo, ma **coerente con il prompt**
-e molto meglio del frammento poetico casuale.
+**File:** `kb/core/templates/story.p0`
 
-### Livello 2: Continuazione per estrazione (Q2, Q4)
+### Pattern B — Continuazione implicita (Q2, Q3, Q4)
 
-Quando il prompt è una continuazione (input lungo, narrativo, senza punto
-interrogativo), il sistema:
+**Riconoscimento:** input > 120 caratteri, nessun `?`, contiene maiuscole interne
+(nomi propri) → `intent: story_continuation`
 
-1. Riconosce il pattern: input > 100 caratteri, contiene virgolette/nomi propri,
-   non è una domanda → `intent: story_continuation`
-2. Estrae entità nominate (Marcus, Elena, umbrella, Tuesday, Fifth...)
-3. Seleziona l'ultima entità o azione menzionata
-4. Produce una continuazione template-based che riprende gli elementi estratti
+Il prompt di Q2-Q4 **è già** un paragrafo narrativo. parrot0 deve scrivere il
+paragrafo successivo, riprendendo l'ultima entità o azione menzionata.
 
-Esempio per Q2:
+**Slot estratti:** ultimo nome proprio, ultimo verbo significativo, oggetto
+centrale (es. `umbrella`/`Marcus` da Q2, `Elena`/`umbrella` da Q3, `Marcus` da Q4)
+
+**Template KB (3-4 varianti, anti-repeat):**
 ```
-Input: "The umbrella—his name was Marcus, though no one had called him that
-in years—opened himself slowly as the first clouds gathered..."
-
-Output: "Marcus felt the familiar weight of the coming rain. He had waited
-so long for this moment — for someone who would notice him, not as an
-object but as a presence."
+response_template(story_continuation, "[Name] felt the familiar weight of the moment. [Pronoun] had been waiting for this — not the rain, but the chance to be seen. And now, as [entity] drew closer, [name] understood that some things are worth every silent year.")
 ```
 
-Il template usa `[Name]` e `[object]` estratti, più un `response_template`
-per `story_continuation` che varia a ogni chiamata (anti-repeat instinct).
+**Fix Q3 (anti-pattern):** il modulo `sequence` non deve claimare quando:
+- `nw > 8` (input lungo)
+- la parola matchata è un giorno della settimana (`Monday`..`Sunday`) o un mese
+- → non è una richiesta di sequenza, è narrativa
 
-### Livello 3: Anti-pattern per Q3 (false match su giorni)
+File: `src/brain/20-math.c`, `mod_sequence`.
 
-Q3 è un bug specifico: il modulo `sequence` o `continuation` matcha "Tuesday"
-e risponde "Monday." — una sequenza giorni. Il fix è:
+## Architettura
 
-1. Nel modulo `sequence`, aggiungere un guard: se l'input contiene più di N
-   parole e la parola matchata è un giorno della settimana, **non** claimare
-   (la probabilità che sia una richiesta di sequenza giorni in un prompt
-   narrativo è zero).
-2. Alternativa: abbassare la priorità del modulo `sequence` nel registry.
+Un modulo solo: `mod_story` in `src/brain/`. Due gate:
 
-Questo è un fix puntuale, non architetturale.
-
-## Piano di implementazione
-
-### Step 1 — Fix Q3 (il più facile, massimo ritorno)
-
-- In `mod_sequence` (o il modulo `continuation`), aggiungere guardia:
-  se `nw > 8` e la parola matchata è un giorno/mese, non claimare.
-- File: `src/brain/20-math.c` o `src/brain/30-generation-reading.c`
-- Test: Q3 deve restituire una continuazione, non "Monday."
-
-### Step 2 — Story continuation module (Q2, Q4)
-
-- Nuovo modulo `mod_story` in `src/brain/`:
-  - Gate: input > 100 chars, no `?`, contiene nomi propri o virgolette
-  - Estrazione: `split_words`, identifica capitalized words come entità
-  - Output: `response_template(story_continuation, ...)` con slot filling
-- KB: `kb/core/responses.p0` — nuovi `response_template` per narrativa
-- Intenti: `intent_cue(story_continuation, ...)` per riconoscere prompt narrativi
-
-### Step 3 — Story generation from scratch (Q1)
-
-- KB: `kb/core/templates/story.p0` — template narrativi con slot
-- Riconoscimento: `intent_phrase("tell me a story about", story_request)`
-- Modulo: estende `mod_story` o nuovo `mod_storygen`
-- Riempimento slot: entità dal prompt, proprietà dalla KB, default creativi
-
-### Step 4 — KB-first compliance
-
-Tutti i template, le frasi di continuazione, e i cue di riconoscimento vivono
-nella KB come:
 ```
-response_template(story_continuation, "[Name] felt the familiar weight...")
-intent_cue(story_continuation, keyword(umbrella))
-story_template(sentient_object, "[Name] was a [object] who...")
+Gate A: cue(norm, "tell me a story") ∨ cue(norm, "write a story") → story_request
+Gate B: nw > 15 ∧ no "?" ∧ has_proper_nouns(norm) → story_continuation
 ```
 
-Il C fornisce solo il motore di slot-filling (meccanica fissa). La superficie
-linguistica è conoscenza.
+Se nessuno dei due matcha, `return 0` (lascia passare).
 
-## Misurazione
+Il C è solo il motore di slot-filling (meccanica fissa):
+1. Estrai slot dal prompt (`split_words`, cerca maiuscole, cerca `about X that Y`)
+2. Scegli template dalla KB (`story_template` o `response_template`)
+3. Sostituisci `[slot]` con i valori estratti
+4. Emetti
 
-Dopo ogni step, rieseguire LLMSCORE. Il target:
-- Step 1: Q3 passa (score +1)
-- Step 2: Q2, Q4 passano (score +2)
-- Step 3: Q1 passa (score +1)
-- Target finale: 8/10 (dal 4/10 attuale)
+Tutta la superficie linguistica (template, varianti, soggetti, azioni, default)
+vive nella KB. Il C non contiene una sola frase in linguaggio naturale.
 
-I restanti 2 punti (Q5 trade, Q6 titanic) sono coperti separatamente da
-questo stesso ciclo di lavoro.
+## Implementazione
 
-## Onestà
+| Step | Cosa | File | Impatto |
+|------|------|------|---------|
+| 0 | Fix Q3: guardia `mod_sequence` per giorni in input lunghi | `src/brain/20-math.c` | Q3 ✓ |
+| 1 | Nuovo modulo `mod_story` con pattern A e B | `src/brain/` nuovo file | Q1 ✓, Q2 ✓, Q4 ✓ |
+| 2 | Template KB per storie e continuazioni | `kb/core/templates/story.p0` | superficie linguistica |
+| 3 | Intenti KB: `intent_phrase(story_request, ...)`, `intent_cue(story_continuation, ...)` | `kb/core/intents.p0` | riconoscimento KB-first |
+| 4 | Registra `mod_story` nel registry, prima di `mod_answer_frame` | `src/brain/99-registry.c` | dispatch |
 
-La scrittura creativa di parrot0 non sarà mai indistinguibile da un LLM.
-Il punto non è fingere — è dimostrare che un sistema deterministico,
-KB-first, può produrre输出 testuale coerente sfruttando il testo fornito
-dall'utente come àncora. Non è generazione: è **reassembly**.
+## Target
+
+Da 6/10 → 8/10 (Q1 e Q3 recuperabili; Q2 e Q4 dipendono dalla qualità dei template).
+I 2 punti restanti sono il soffitto onesto: senza un modello linguistico, la
+scrittura creativa è reassembly, non generazione. Accettarlo non è un limite —
+è il confine del metodo.
