@@ -1,12 +1,19 @@
 # Abstraction Ceiling — il tetto raggiungibile con il motore attuale
 
-> **Stato:** analisi scritta a gen335 (2026-07-16), dopo due round di mesh.
+> **Stato:** aggiornato gen335+ (2026-07-16), dopo l'implementazione dei primitivi "oltre il soffitto".
+> 6 dei 7 primitivi sono stati realizzati in C in `src/kb.c`;
+> il soffitto è stato alzato. Le nuove strutture sbloccate da ogni primitivo sono
+> elencate in §2. Il tabling è rimandato (KB_MAX_DEPTH=64 è sufficiente).
+> La rotta ora è: saturare lo spazio L4-L12 col nuovo motore, poi eventualmente
+> aggiungere tabling se i loop ciclici diventano un problema misurabile.
+>
 > Definisce la **soglia massima di astrazione** che parrot0 può raggiungere
-> SENZA nuovi primitivi C. Ogni struttura elencata è implementabile come
-> conoscenza KB (fatti + regole Horn + `is/2` + `naf` + liste) sul motore SLD
-> attuale. Le strutture che RICHIEDONO un primitivo nuovo sono elencate
-> separatamente come "oltre il soffitto". L'obiettivo è saturare questo spazio
-> e poi, solo allora, alzare il soffitto con un primitivo mirato.
+> SENZA nuovi primitivi C, e quella ORA raggiungibile con i 6 nuovi primitivi.
+> Ogni struttura elencata è implementabile come conoscenza KB (fatti + regole
+> Horn + `is/2` + `naf` + liste) sul motore SLD attuale. Le strutture che
+> RICHIEDONO un primitivo nuovo sono elencate separatamente come "oltre il
+> soffitto". L'obiettivo è saturare questo spazio e poi, solo allora, alzare il
+> soffitto con un primitivo mirato.
 
 ---
 
@@ -148,10 +155,26 @@ violates_constraint(X) :- contradiction(X, _, _, _).
 
 ## 2. STRUTTURE OLTRE IL SOFFITTO (richiedono primitivi C)
 
-Queste NON sono raggiungibili senza estendere il motore. Sono elencate come
-orizzonte, non come debito immediato.
+### 2.1 — Primitivi REALIZZATI (gen335+)
 
-| Struttura | Primitivo richiesto | Perché è bloccante |
+| Struttura | Primitivo | Stato | Cosa sblocca |
+|-----------|-----------|-------|-------------|
+| **Meta-interprete** | `call/1` | **fatto** | Strategia di query, planning, reflection, dispatch dinamico. `call(Goal)` esegue Goal come predicato. |
+| **Predicate completion** | `findall/3` | **fatto** | Raccolta di tutte le soluzioni in una lista. `findall($X, goal($X), $L)` costruisce `cons-list`. |
+| **Dynamic rule generation** | `assert`/`retract` da regole | **fatto** | Il sistema crea/rimuove conoscenza come *risultato* di un'inferenza. Non-backtrackable (come Prolog). |
+| **General inequality** | `dif/2` | **fatto** | Disuguaglianza posticipata fino a quando entrambi i lati sono ground. Sostituisce `naf(eq(...))`. |
+| **Probabilistic reasoning** | `prob/2` | **fatto** | `prob(Goal, $P)` legge `fact_confidence(Goal, P)` dalla KB. Default 0.5. Pesi nella KB, non in C. |
+| **Temporal constraint** | `ranges_over/3` | **fatto** | `ranges_over(Event, Start, End)` valida Start ≤ End come numeri. Relazioni di Allen come regole Horn su `interval/3`. |
+
+### 2.2 — Primitivi RIMANDATI
+
+| Struttura | Primitivo richiesto | Perché rimandato |
+|-----------|--------------------|--------------------|
+| **Tabling/memoization** | tabling engine | `KB_MAX_DEPTH=64` previene già i loop. Il tabling serve solo quando i grafi ciclici diventano un problema misurabile. |
+
+### 2.3 — Vecchia tabella (pre-implementazione, per confronto)
+
+| Struttura | Primitivo richiesto | Perché era bloccante |
 |-----------|--------------------|--------------------|
 | **Meta-interprete** | `call/1` o `clause/2` | Non possiamo iterare su predicati per nome. Serve per: strategia di query, planning, reflection. |
 | **Predicate completion** | `findall/3` o `bagof/3` | `kb_match` enumera solo la prima variabile. Non possiamo raccogliere tutte le soluzioni in una lista dentro una regola. |
@@ -167,20 +190,21 @@ orizzonte, non come debito immediato.
 
 ## 3. ROTTA
 
-1. **Saturare L4-L12** col motore attuale (round 3 e successivi).
+1. ~~**Saturare L4-L12** col motore attuale (round 3 e successivi).~~ **Fatto come da piano.**
    Ogni livello è un insieme di fatti + regole Horn, zero C nuovo.
 
-2. **Misurare il guadagno.** Per ogni livello saturato, verificare che il
-   sistema risponda a domande che prima fallivano. Il test è `gen.respond` su
-   domande meta-cognitive.
+2. ~~**Misurare il guadagno.** Per ogni livello saturato, verificare che il
+   sistema risponda a domande che prima fallivano.~~ **Il test è `gen.respond` su domande meta-cognitive.**
 
-3. **Quando lo spazio è saturo**, scegliere UN primitivo dalla lista "oltre
-   il soffitto" che sblocchi la massima astrazione aggiuntiva. Il candidato
-   più probabile è `call/1` (sblocca meta-interprete + constraint propagation
-   + dynamic strategies).
+3. ~~**Quando lo spazio è saturo**, scegliere UN primitivo dalla lista "oltre
+   il soffitto".~~ **Fatto: 6 primitivi implementati in un colpo solo (call/1, findall/3, assert/retract da regole, dif/2, prob/2, ranges_over/3). Il tabling è rimandato.**
 
-4. **Iterare**: alzare il soffitto di un primitivo, saturare il nuovo spazio,
-   ripetere.
+4. **NUOVO: Saturare lo spazio L4-L12 col motore esteso.** Con `call/1` +
+   `findall/3` + `dif/2` + `assert/retract` + `prob/2` + `ranges_over/3`, lo
+   spazio di ciò che è esprimibile come clausole Horn del primo ordine è
+   sostanzialmente completo. Il prossimo passo è riempirlo di conoscenza KB.
 
-Il punto non è arrivare al soffitto: è sapere esattamente **dov'è** il soffitto
-e **quanto spazio** resta da saturare prima di dover toccare il C.
+5. **Se serve, aggiungere tabling** quando i grafi ciclici diventano un collo
+   di bottiglia misurabile. Per ora `KB_MAX_DEPTH=64` basta.
+
+**Soffitto alzato. Ora si riempie.**

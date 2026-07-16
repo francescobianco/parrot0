@@ -303,8 +303,12 @@ int kb_assert_rule_n(KB *kb, const char *head,
  * unification + SLD resolution with backtracking (gen11)
  * ------------------------------------------------------------------------- */
 
+#define KB_MAX_DIF 32  /* max deferred dif/2 constraints per branch */
+
 typedef struct { char var[KB_TERM_LEN]; char val[KB_TERM_LEN]; } Bind;
-typedef struct { Bind b[KB_MAX_BIND]; size_t n; } Subst;
+typedef struct { char a[KB_TERM_LEN]; char b[KB_TERM_LEN]; } DifConstraint;
+typedef struct { Bind b[KB_MAX_BIND]; size_t n;
+                 DifConstraint dif[KB_MAX_DIF]; size_t ndif; } Subst;
 
 /* fwd: structural unification (U3) splits compound-term strings with parse_term,
  * defined further down with the .p0 loader. */
@@ -395,13 +399,38 @@ static int bind_add(Subst *s, const char *var, const char *val) {
     return 1;
 }
 
+static int dif_check(Subst *s) {
+    for (size_t i = 0; i < s->ndif; i++) {
+        char ra[KB_TERM_LEN], rb[KB_TERM_LEN];
+        deep_resolve(s, s->dif[i].a, ra, sizeof ra, 0);
+        deep_resolve(s, s->dif[i].b, rb, sizeof rb, 0);
+        if (!is_var(ra) && !is_var(rb) && strcmp(ra, rb) == 0)
+            return 0;
+    }
+    return 1;
+}
+
+static int dif_add(Subst *s, const char *a, const char *b) {
+    if (s->ndif >= KB_MAX_DIF) return 0;
+    snprintf(s->dif[s->ndif].a, KB_TERM_LEN, "%s", a);
+    snprintf(s->dif[s->ndif].b, KB_TERM_LEN, "%s", b);
+    s->ndif++;
+    return dif_check(s);
+}
+
+static int bind_add_dif(Subst *s, const char *var, const char *val) {
+    if (!bind_add(s, var, val)) return 0;
+    if (!dif_check(s)) { s->n--; return 0; }
+    return 1;
+}
+
 static int unify(Subst *s, const char *a, const char *b) {
     const char *ra = resolve(s, a);
     const char *rb = resolve(s, b);
     int va = is_var(ra), vb = is_var(rb);
-    if (va && vb) return strcmp(ra, rb) == 0 ? 1 : bind_add(s, ra, rb);
-    if (va) return bind_add(s, ra, rb);
-    if (vb) return bind_add(s, rb, ra);
+    if (va && vb) return strcmp(ra, rb) == 0 ? 1 : bind_add_dif(s, ra, rb);
+    if (va) return bind_add_dif(s, ra, rb);
+    if (vb) return bind_add_dif(s, rb, ra);
 
     /* U3: both non-variable — unify STRUCTURALLY. A term of the form f(a…) is a
      * compound; unify recurses into it (a variable can already have bound to a
@@ -487,6 +516,7 @@ static void push_unique(char out[][KB_TERM_LEN], size_t *count, size_t max,
 
 typedef struct {
     const KB *kb;
+    KB *kb_mut;                /* mutable KB for assert/retract builtins */
     const char *qvar;          /* variable to collect, or NULL for boolean */
     char (*out)[KB_TERM_LEN];
     size_t max;
@@ -497,6 +527,7 @@ typedef struct {
 
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth);   /* fwd: naf helpers call solve */
+static int parse_to_term(const char *s, Term *t); /* fwd: call/1 builtin */
 
 /* U6 (teach-comprehension-via-mcp.md §6.2) negation-as-failure helpers. A body
  * goal marked `neg` (from naf(G)) succeeds iff G is NOT derivable. */
@@ -518,7 +549,7 @@ static int goal_ground(const Term *g) {
 static int goal_provable(const KB *kb, const Term *g, int depth) {
     Solver S;
     memset(&S, 0, sizeof S);
-    S.kb = kb; S.qvar = NULL;
+    S.kb = kb; S.kb_mut = NULL; S.qvar = NULL;
     Subst s = { .n = 0 };
     solve(&S, g, 1, 0, &s, depth);
     return S.found;
@@ -701,6 +732,112 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return solve(S, goals, ngoals, idx + 1, s, depth);
     }
 
+    if (strcmp(g->pred, "call") == 0 && g->argc == 1) {   /* call/1 meta-call */
+        char resolved[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], resolved, sizeof resolved, 0);
+        Term called;
+        if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
+        Term ng[KB_MAX_GOALS];
+        size_t m = 0;
+        if (m < KB_MAX_GOALS) ng[m++] = called;
+        for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
+            ng[m++] = goals[k];
+        if (m >= KB_MAX_GOALS && idx + 1 < ngoals) return 0;
+        return solve(S, ng, m, 0, s, depth + 1);
+    }
+
+    if (g->argc >= 1 && g->argc <= KB_MAX_ARGS + 1 &&
+        (strcmp(g->pred, "assert") == 0 || strcmp(g->pred, "retract") == 0)) {
+        if (!S->kb_mut) return 0;
+        int is_retract = (strcmp(g->pred, "retract") == 0);
+        char pred[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], pred, sizeof pred, 0);
+        const char *fact_args[KB_MAX_ARGS];
+        char argbufs[KB_MAX_ARGS][KB_TERM_LEN];
+        size_t arity = g->argc - 1;
+        if (arity > KB_MAX_ARGS) return 0;
+        for (size_t i = 0; i < arity; i++) {
+            deep_resolve(s, g->args[i + 1], argbufs[i], KB_TERM_LEN, 0);
+            if (is_var(argbufs[i])) return 0;
+            fact_args[i] = argbufs[i];
+        }
+        int ok;
+        if (is_retract)
+            ok = kb_retract(S->kb_mut, pred, fact_args, arity);
+        else
+            ok = kb_assert(S->kb_mut, pred, fact_args, arity);
+        if (!ok) return 0;
+        return solve(S, goals, ngoals, idx + 1, s, depth);
+    }
+
+    if (strcmp(g->pred, "dif") == 0 && g->argc == 2) {   /* dif/2 deferred inequality */
+        char ra[KB_TERM_LEN], rb[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], ra, sizeof ra, 0);
+        deep_resolve(s, g->args[1], rb, sizeof rb, 0);
+        if (!is_var(ra) && !is_var(rb))
+            return strcmp(ra, rb) != 0 ? solve(S, goals, ngoals, idx + 1, s, depth) : 0;
+        Subst s2 = *s;
+        if (!dif_add(&s2, g->args[0], g->args[1])) return 0;
+        return solve(S, goals, ngoals, idx + 1, &s2, depth);
+    }
+
+    if (strcmp(g->pred, "findall") == 0 && g->argc == 3) {  /* findall/3 */
+        char gs[KB_TERM_LEN], tv[KB_TERM_LEN];
+        deep_resolve(s, g->args[1], gs, sizeof gs, 0);
+        deep_resolve(s, g->args[0], tv, sizeof tv, 0);
+        Term goal;
+        if (!parse_to_term(gs, &goal) || goal.argc == 0) return 0;
+        size_t max_sol = 8192;
+        char (*solutions)[KB_TERM_LEN] = calloc(max_sol, KB_TERM_LEN);
+        if (!solutions) return 0;
+        Solver F;
+        memset(&F, 0, sizeof F);
+        F.kb = S->kb; F.kb_mut = S->kb_mut;
+        F.qvar = is_var(tv) ? tv : "$Q";
+        F.out = solutions;
+        F.max = max_sol;
+        Subst fs = *s;
+        solve(&F, &goal, 1, 0, &fs, 0);
+        char list_buf[KB_CHARLIST_MAX];
+        snprintf(list_buf, sizeof list_buf, "nil");
+        for (size_t i = F.count; i > 0; i--) {
+            char nxt[KB_CHARLIST_MAX];
+            int w = snprintf(nxt, sizeof nxt, "cons(%s, %s)", solutions[i - 1], list_buf);
+            if (w < 0 || (size_t)w >= (int)sizeof nxt) { free(solutions); return 0; }
+            memcpy(list_buf, nxt, (size_t)w + 1);
+        }
+        free(solutions);
+        Subst s2 = *s;
+        if (unify(&s2, g->args[2], list_buf))
+            return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        return 0;
+    }
+
+    if (strcmp(g->pred, "prob") == 0 && g->argc == 2) {   /* prob/2 KB-backed */
+        char gs[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], gs, sizeof gs, 0);
+        if (is_var(gs)) return 0;
+        char pbuf[KB_TERM_LEN];
+        const char *cargs[2] = {gs, NULL};
+        char matches[1][KB_TERM_LEN];
+        size_t nm = kb_match(S->kb, "fact_confidence", cargs, 2, matches, 1);
+        snprintf(pbuf, sizeof pbuf, "%s", nm > 0 ? matches[0] : "0.5");
+        Subst s2 = *s;
+        if (unify(&s2, g->args[1], pbuf))
+            return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        return 0;
+    }
+
+    if (strcmp(g->pred, "ranges_over") == 0 && g->argc == 3) { /* temporal range */
+        char ea[KB_TERM_LEN], eb[KB_TERM_LEN];
+        double a, b;
+        deep_resolve(s, g->args[1], ea, sizeof ea, 0);
+        deep_resolve(s, g->args[2], eb, sizeof eb, 0);
+        if (!eval_num(ea, &a) || !eval_num(eb, &b)) return 0;
+        if (a > b) return 0;
+        return solve(S, goals, ngoals, idx + 1, s, depth);
+    }
+
     for (size_t i = 0; i < S->kb->n; i++) {    /* match facts */
         Subst s2 = *s;
         if (unify_term_fact(&s2, g, &S->kb->facts[i])) {
@@ -807,7 +944,10 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
         strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||
-        strcmp(pred,"ne")==0));
+        strcmp(pred,"ne")==0 || strcmp(pred,"call")==0 ||
+        strcmp(pred,"assert")==0 || strcmp(pred,"retract")==0 ||
+        strcmp(pred,"dif")==0 ||         strcmp(pred,"findall")==0 || strcmp(pred,"prob")==0 ||
+        strcmp(pred,"ranges_over")==0));
     for (size_t i = 0; i < kb->nr; i++)
         if (kb->rules[i].head.argc == argc &&
             strcmp(kb->rules[i].head.pred, pred) == 0) { has_rule = 1; break; }
@@ -843,7 +983,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
 
     Solver S;
     memset(&S, 0, sizeof S);
-    S.kb = kb;
+    S.kb = kb; S.kb_mut = kb;
     Subst s = { .n = 0 };
     solve(&S, &g, 1, 0, &s, 0);
     return S.found;
@@ -918,7 +1058,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
 
     Solver S;
     memset(&S, 0, sizeof S);
-    S.kb = kb;
+    S.kb = kb; S.kb_mut = (KB *)kb;
     S.qvar = hasvar ? "$Q" : NULL;
     S.out = out;
     S.max = max;
@@ -964,6 +1104,80 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
             char inner[KB_PROOF_LEN];
             render_goal(s, g, inner, sizeof inner);
             snprintf(out[idx], KB_PROOF_LEN, "not %s", inner);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(g->pred, "call") == 0 && g->argc == 1) { /* call/1 proof */
+        char resolved[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], resolved, sizeof resolved, 0);
+        Term called;
+        if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
+        Term comb[KB_PROOF_PG];
+        size_t m = 0;
+        if (m < KB_PROOF_PG) comb[m++] = called;
+        for (size_t k = idx + 1; k < n && m < KB_PROOF_PG; k++)
+            comb[m++] = goals[k];
+        char cout[KB_PROOF_PG][KB_PROOF_LEN];
+        if (prove_seq_ex(kb, comb, m, 0, s, depth, frame, cout)) {
+            snprintf(out[idx], KB_PROOF_LEN, "%s", cout[0]);
+            for (size_t k = idx + 1; k < n; k++)
+                strcpy(out[k], cout[1 + (k - (idx + 1))]);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(g->pred, "assert") == 0 || strcmp(g->pred, "retract") == 0) {
+        if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
+            char body[KB_PROOF_LEN];
+            render_goal(s, g, body, sizeof body);
+            snprintf(out[idx], KB_PROOF_LEN, "%s", body);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(g->pred, "dif") == 0 && g->argc == 2) {
+        char ra[KB_TERM_LEN], rb[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], ra, sizeof ra, 0);
+        deep_resolve(s, g->args[1], rb, sizeof rb, 0);
+        if (!is_var(ra) && !is_var(rb) && strcmp(ra, rb) == 0) return 0;
+        if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
+            char body[KB_PROOF_LEN];
+            render_goal(s, g, body, sizeof body);
+            snprintf(out[idx], KB_PROOF_LEN, "%s", body);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(g->pred, "findall") == 0 && g->argc == 3) { /* findall/3 proof */
+        if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
+            char body[KB_PROOF_LEN];
+            render_goal(s, g, body, sizeof body);
+            snprintf(out[idx], KB_PROOF_LEN, "%s", body);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(g->pred, "prob") == 0 && g->argc == 2) { /* prob/2 proof */
+        if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
+            char body[KB_PROOF_LEN];
+            render_goal(s, g, body, sizeof body);
+            snprintf(out[idx], KB_PROOF_LEN, "%s", body);
+            return 1;
+        }
+        return 0;
+    }
+
+    if (strcmp(g->pred, "ranges_over") == 0 && g->argc == 3) { /* ranges_over proof */
+        if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
+            char body[KB_PROOF_LEN];
+            render_goal(s, g, body, sizeof body);
+            snprintf(out[idx], KB_PROOF_LEN, "%s", body);
             return 1;
         }
         return 0;
