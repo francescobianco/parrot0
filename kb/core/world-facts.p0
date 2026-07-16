@@ -3420,3 +3420,6 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 
 % gen335+: historical facts organized by period (LLMSCORE Q6 and beyond).
 :- include(facts/history.p0).
+
+% gen335+: atomic story predicates for narrative generation.
+:- include(templates/story_atoms.p0).

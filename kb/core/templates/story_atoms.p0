@@ -17,74 +17,34 @@
 % ============================================================
 % SLOT 1 — Introduction: establish the character
 % ============================================================
-% Prompt: "introduce [subject]" / "who is [subject]" / "tell me about [subject]"
 
 story_atom(intro, "[Subject] was a [adjective] [object].").
 story_atom(intro, "There once was a [adjective] [object] named [Subject].").
 story_atom(intro, "[Subject], a [adjective] [object], lived quietly among the [place].").
 
 % ============================================================
-% SLOT 2 — Setting: locate the character in space/time
+% SLOT 2 — Inciting event: something changes
 % ============================================================
-% Prompt: "where does [subject] live" / "describe the setting"
-
-story_atom(setting, "[Subject] lived in a [place] where the [element] never stopped [verb]ing.").
-story_atom(setting, "Every morning, [subject] would watch the [element] from the [place].").
-story_atom(setting, "The [place] was [subject]'s whole world — and [pronoun] had never known another.").
-
-% ============================================================
-% SLOT 3 — Routine / state before change
-% ============================================================
-% Prompt: "what does [subject] do every day" / "[subject]'s daily life"
-
-story_atom(routine, "Day after day, [subject] would [action], and nothing ever changed.").
-story_atom(routine, "[Subject] had grown used to the [silence/solitude/stillness] of the [place].").
-story_atom(routine, "This was [subject]'s life — [adjective] and [adjective], but [pronoun] did not know any other way.").
-
-% ============================================================
-% SLOT 4 — Inciting event: something changes
-% ============================================================
-% Prompt: "what happened to [subject]" / "the turning point"
 
 story_atom(event, "Then one day, [subject] discovered what it meant to [action].").
-story_atom(event, "Everything changed when [other] arrived — a [adjective] [other_object] who [verb]ed without warning.").
-story_atom(event, "It began as a small thing: [subject] noticed the [element] behaving differently, and [pronoun] could not look away.").
+story_atom(event, "Everything changed when [other] arrived — and [subject] could not look away.").
+story_atom(event, "It began as a small thing: [subject] noticed the world behaving differently, and nothing would ever be the same.").
 
 % ============================================================
-% SLOT 5 — Realization / emotional response
+% SLOT 3 — Realization / emotional response
 % ============================================================
-% Prompt: "how did [subject] feel" / "[subject]'s reaction"
 
-story_atom(feeling, "[Subject] had never felt this way before — as if the whole world had shifted, and nothing would ever be the same.").
+story_atom(feeling, "[Subject] had never felt this way before — as if the whole world had shifted.").
 story_atom(feeling, "A strange warmth filled [subject], something [pronoun] could not name but could not ignore.").
 story_atom(feeling, "[Subject] understood, suddenly and completely, that [pronoun] was no longer the [object] [pronoun] had been.").
 
 % ============================================================
-% SLOT 6 — Waiting / patience / tension
+% SLOT 4 — Resolution / closure
 % ============================================================
-% Prompt: "what did [subject] do next" / "the waiting"
-
-story_atom(waiting, "And so [subject] waited, patient as only [object]s can be.").
-story_atom(waiting, "The days passed, each one longer than the last, but [subject] held on.").
-story_atom(waiting, "[Subject] learned the hardest lesson of all: that some things cannot be hurried, only endured.").
-
-% ============================================================
-% SLOT 7 — Resolution / closure
-% ============================================================
-% Prompt: "how does it end" / "the ending"
 
 story_atom(ending, "At last, [subject] was seen — not as a thing, but as a presence.").
 story_atom(ending, "And in that moment, [subject] knew that every silent year had been worth it.").
 story_atom(ending, "The [element] fell quiet, and [subject] was, for the first time, exactly where [pronoun] belonged.").
-
-% ============================================================
-% SLOT 8 — Moral / reflection (optional)
-% ============================================================
-% Prompt: "what is the moral" / "what did [subject] learn"
-
-story_atom(moral, "[Subject] had learned that even a [adjective] [object] could be loved.").
-story_atom(moral, "Love, [subject] realized, was not something you found — it was something that found you, when you least expected it.").
-story_atom(moral, "And so the [object] who had never moved learned the greatest truth: that stillness, too, is a kind of courage.").
 
 % ============================================================
 % COMPOSITION: story_arc/3 — select a sequence of atoms for a full story

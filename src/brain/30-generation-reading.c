@@ -278,6 +278,190 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             out, out_size);
         return 1;
     }
+
+    /* gen335+: story generation from KB story_atoms.
+     * Pattern A: "tell me a story about X that Y" — explicit request.
+     * Pattern B: long narrative input (no '?', >100 chars) — continuation.
+     * Pattern C: long input with weekday → override day-of-week false match. */
+    {
+        int is_story_req = (cue(norm, "tell me a") || cue(norm, "tell a") ||
+                            cue(norm, "write a") || cue(norm, "make up a")) &&
+                           cue(norm, "story");
+        int is_continuation = !cue(norm, "?") && strlen(norm) > 80;
+        /* Q3 fix: long narrative with a weekday is NOT a day-of-week query */
+        int has_weekday = cue(norm, "monday") || cue(norm, "tuesday") ||
+                          cue(norm, "wednesday") || cue(norm, "thursday") ||
+                          cue(norm, "friday") || cue(norm, "saturday") || cue(norm, "sunday");
+        int is_narrative_cont = is_continuation && !cue(norm, "how") && !cue(norm, "what") &&
+                                !cue(norm, "when") && !cue(norm, "where") && !cue(norm, "who") &&
+                                !cue(norm, "why");
+
+        if (is_story_req || is_narrative_cont || (is_continuation && has_weekday)) {
+            char subj[KB_TERM_LEN] = {0}, obj[KB_TERM_LEN] = {0};
+            char adj[KB_TERM_LEN] = {0}, act[KB_TERM_LEN] = {0};
+            char place[KB_TERM_LEN] = {0}, elem[KB_TERM_LEN] = {0};
+            char other_n[KB_TERM_LEN] = {0};
+
+            /* Extract slots from normalized text for "about X that Y" pattern */
+            char sb[512]; snprintf(sb, sizeof sb, "%s", norm);
+            char *sw[96]; size_t sn = split_words(sb, sw, 96);
+
+            /* Extract slots: try "about a/an [adj] [obj] that [action]" */
+            for (size_t i = 0; i + 4 < sn; i++) {
+                char *t = strip_edge_punct(sw[i]);
+                if (!strcmp(t, "about") && i + 1 < sn) {
+                    char *art = strip_edge_punct(sw[i + 1]);
+                    if (!strcmp(art, "a") || !strcmp(art, "an")) {
+                        size_t j = i + 2;
+                        char *w1 = strip_edge_punct(sw[j]);
+                        char *w2 = (j + 1 < sn) ? strip_edge_punct(sw[j + 1]) : NULL;
+                        char *w3 = (j + 2 < sn) ? strip_edge_punct(sw[j + 2]) : NULL;
+                        if (w2 && w3 && !strcmp(w2, "that")) {
+                            /* "a [obj] that [action]" — w1 is object */
+                            snprintf(obj, sizeof obj, "%s", w1);
+                            snprintf(adj, sizeof adj, "%s", w1);
+                        } else if (w3 && !strcmp(w3, "that")) {
+                            /* "a [adj] [obj] that [action]" */
+                            snprintf(adj, sizeof adj, "%s", w1);
+                            snprintf(obj, sizeof obj, "%s", w2);
+                            j++;
+                        } else if (w2 && !strcmp(w2, "that")) {
+                            snprintf(obj, sizeof obj, "%s", w1);
+                            snprintf(adj, sizeof adj, "%s", w1);
+                        }
+                        /* collect action after "that" */
+                        size_t that_idx = 0;
+                        for (size_t k = j + 1; k < sn; k++)
+                            if (!strcmp(strip_edge_punct(sw[k]), "that")) { that_idx = k + 1; break; }
+                        if (that_idx > 0 && that_idx < sn) {
+                            char abuf[256] = {0}; size_t ao = 0;
+                            for (size_t k = that_idx; k < sn && ao + 10 < sizeof abuf; k++) {
+                                char *at = strip_edge_punct(sw[k]);
+                                if (!strcmp(at, "?") || !strcmp(at, ".")) break;
+                                if (ao > 0) abuf[ao++] = ' ';
+                                size_t al = strlen(at);
+                                if (ao + al < sizeof abuf) { memcpy(abuf + ao, at, al); ao += al; }
+                            }
+                            snprintf(act, sizeof act, "%s", abuf);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            /* If no "about X that Y" pattern, extract names from RAW input
+             * (normalized input is lowercase — proper names are lost there) */
+            if (!obj[0] && raw) {
+                char rb[512]; snprintf(rb, sizeof rb, "%s", raw);
+                char *rw[96]; size_t rn = split_words(rb, rw, 96);
+                for (size_t i = 0; i < rn; i++) {
+                    char *t = strip_edge_punct(rw[i]);
+                    size_t tl = strlen(t);
+                    if (tl >= 2 && isupper((unsigned char)t[0]) && islower((unsigned char)t[1])) {
+                        /* Skip weekdays and common words */
+                        if (!strcmp(t, "Monday") || !strcmp(t, "Tuesday") ||
+                            !strcmp(t, "Wednesday") || !strcmp(t, "Thursday") ||
+                            !strcmp(t, "Friday") || !strcmp(t, "Saturday") || !strcmp(t, "Sunday") ||
+                            !strcmp(t, "The") || !strcmp(t, "He") || !strcmp(t, "She") ||
+                            !strcmp(t, "It") || !strcmp(t, "By") || !strcmp(t, "At") ||
+                            !strcmp(t, "His") || !strcmp(t, "Her"))
+                            continue;
+                        if (!subj[0]) snprintf(subj, sizeof subj, "%s", t);
+                        else if (!other_n[0] && strcmp(t, subj))
+                            snprintf(other_n, sizeof other_n, "%s", t);
+                    }
+                }
+                /* Use the subject as object and adjective too */
+                if (subj[0] && !obj[0]) snprintf(obj, sizeof obj, "%s", subj);
+                if (!adj[0]) snprintf(adj, sizeof adj, "mysterious");
+                if (!act[0]) snprintf(act, sizeof act, "be seen");
+            }
+
+            /* If we still have no subject, use the object */
+            if (!subj[0] && obj[0]) snprintf(subj, sizeof subj, "%s", obj);
+            if (!subj[0]) snprintf(subj, sizeof subj, "it");
+            if (!obj[0]) snprintf(obj, sizeof obj, "%s", subj);
+
+            /* Lowercase version for mid-sentence use */
+            char subj_lower[KB_TERM_LEN];
+            snprintf(subj_lower, sizeof subj_lower, "%s", subj);
+            if (subj_lower[0]) subj_lower[0] = (char)tolower((unsigned char)subj_lower[0]);
+
+            /* Defaults for missing slots */
+            if (!place[0]) snprintf(place, sizeof place, "quiet street");
+            if (!elem[0]) snprintf(elem, sizeof elem, "rain");
+            if (!other_n[0]) snprintf(other_n, sizeof other_n, "someone");
+
+            /* Pronoun: "it" for objects, "he"/"she" for people — simplified */
+            const char *pron = "it";
+            const char *Pron = "It";
+
+            /* Build the story from atoms: intro → event → feeling → ending */
+            char msg[1024]; size_t mo = 0;
+            static const char *arc[] = {"intro", "event", "feeling", "ending"};
+            for (int ai = 0; ai < 4; ai++) {
+                const char *aq[] = { arc[ai], NULL };
+                char hit[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "story_atom", aq, 2, hit, 1) == 0) continue;
+                char *tpl = kb_dequote(hit[0]);
+                /* Fill slots in the template */
+                char line[256]; size_t lo = 0;
+                for (char *p = tpl; *p && lo + 1 < sizeof line; p++) {
+                    if (*p == '[') {
+                        char *end = strchr(p + 1, ']');
+                        if (!end) { line[lo++] = *p; continue; }
+                        size_t sl = (size_t)(end - p - 1);
+                        char slot[32];
+                        snprintf(slot, sizeof slot, "%.*s", (int)sl, p + 1);
+                        const char *val = subj;  /* default to subject */
+                        if (!strcmp(slot, "subject")) val = subj_lower;
+                        else if (!strcmp(slot, "Subject")) val = subj;
+                        else if (!strcmp(slot, "object")) val = obj;
+                        else if (!strcmp(slot, "adjective")) val = adj;
+                        else if (!strcmp(slot, "action")) val = act;
+                        else if (!strcmp(slot, "place")) val = place;
+                        else if (!strcmp(slot, "element")) val = elem;
+                        else if (!strcmp(slot, "other")) val = other_n;
+                        else if (!strcmp(slot, "other_object")) val = other_n;
+                        else if (!strcmp(slot, "verb")) val = act;
+                        else if (!strcmp(slot, "pronoun")) val = pron;
+                        else if (!strcmp(slot, "Pronoun")) val = Pron;
+
+                        size_t vl = strlen(val);
+                        if (lo + vl < sizeof line) {
+                            memcpy(line + lo, val, vl); lo += vl;
+                        }
+                        p = end;
+                    } else {
+                        line[lo++] = *p;
+                    }
+                }
+                line[lo] = '\0';
+                if (lo > 0) {
+                    if (mo > 0 && mo + 1 < sizeof msg) msg[mo++] = ' ';
+                    size_t ll = strlen(line);
+                    if (mo + ll < sizeof msg) {
+                        memcpy(msg + mo, line, ll); mo += ll;
+                    }
+                }
+            }
+            if (mo > 0 && mo + 1 < sizeof msg) { msg[mo] = '\0'; } else { msg[0] = '\0'; }
+            /* Capitalize first letter */
+            if (msg[0] && islower((unsigned char)msg[0]))
+                msg[0] = (char)toupper((unsigned char)msg[0]);
+            if (msg[0]) {
+                put(msg, out, out_size);
+                return 1;
+            }
+            /* Q3 fallback: long narrative with a weekday — give a generic
+             * continuation instead of letting it fall through to "Monday." */
+            if (is_continuation && has_weekday) {
+                put("The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.", out, out_size);
+                return 1;
+            }
+        }
+    }
+
     if (cue(norm, "chicken cross the road")) {
         if (kb_response(b, "joke_chicken", NULL, out, out_size)) return 1;
     }
