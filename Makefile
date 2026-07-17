@@ -295,6 +295,7 @@ test: build
 	@./tests/syllogism.sh
 	@./tests/repair.sh
 	@./tests/toolexec.sh
+	@./tests/agentkernel.sh
 	@./tests/segment.sh
 	@./tests/universal-input.sh
 	@$(BENCH_PY) ./tests/autolearn_structure.py
