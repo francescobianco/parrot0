@@ -153,6 +153,50 @@ violates_constraint(X) :- contradiction(X, _, _, _).
 
 ---
 
+## 1b. LIVELLI OLTRE L12 — la portata AMPLIATA (gen338+)
+
+> I livelli L0-L12 sono logica pura: fatti, chiusure, vincoli. I livelli che
+> seguono sono la **cognizione sopra la logica**: cosa una forma di superficie
+> FA (atto linguistico), cosa IMPLICA (dietro le righe), come i domini si
+> INCROCIANO. Ognuno resta clausole Horn + fatti — il soffitto del motore non
+> si alza; si alza il livello a cui la conoscenza lavora. Ogni livello è
+> tirato da un muro reale misurato (batteria di sonde gen338), mai inventato.
+
+### L13 — PRAGMATICA: leggere dietro le righe **(saturato gen338)**
+Atti linguistici indiretti e implicature come conoscenza:
+```
+pragma_act(indirect_request).                 % il REGISTRO (il C legge questo)
+intent_cue(indirect_request, "pass me the").  % la forma di superficie
+response_template(indirect_request, "I read that as a request, ...").
+pragmatic_meaning(salt, "asking whether you CAN pass the salt is an indirect request ...").
+answer_frame("usually mean", pragmatic_meaning).
+```
+`kb/core/pragmatics.p0` (incluso da social.p0). Un atto nuovo = tre fatti,
+zero C: il loop in mod_chitchat cammina il registro `pragma_act/1`.
+Comportamento: «can you pass me the salt?» → letta come richiesta (prima veniva
+deflessa come smalltalk); «it is cold in here» → l'allusione è nominata; «what
+does "…" usually mean?» → risponde dai fatti `pragmatic_meaning` (idiomi
+inclusi). Ratchet: `tests/cases/pragmatics.chat` (EN+IT). Meccanica nuova
+minima: un pronome DENTRO virgolette è menzione, non uso (il coref-repair non
+apre più chiarimenti su «"isn't it"»).
+
+### L14 — META-RAGIONAMENTO INTERROGABILE (prossimo giro)
+Le proprietà delle relazioni come fatti interrogabili in conversazione:
+`relation_type(is_a, transitive)` + frame («which relations are transitive?»),
+tipologia delle domande L7 servita in chat, contrasti di ragionamento
+(`difference_between(deduction, induction, …)`, causa vs condizione
+abilitante). Muri misurati: «which relations are transitive?» e «what kind of
+question is …» oggi murano; «cause vs enabling condition» dichiara il contrast
+fact mancante.
+
+### L15 — CATENE CROSS-DOMINIO (giro successivo)
+Il ragionamento che attraversa domini: requisiti ambientali + geografia
+(«why can't a fish live in the desert?»), tempo + invenzioni («which came
+first…»), analogie con la relazione GIUSTA (worn_on per hand:glove::foot:?).
+Muri misurati nella batteria gen338.
+
+---
+
 ## 2. STRUTTURE OLTRE IL SOFFITTO (richiedono primitivi C)
 
 ### 2.1 — Primitivi REALIZZATI (gen335+)

@@ -350,6 +350,15 @@ stopword(again).
 language_name(en, "English").
 language_name(it, "Italian").
 % Italian-only markers (ASCII; do not occur as English words).
+% gen338: everyday-request vocabulary (the L13 pragmatics probes showed
+% «puoi aprire la finestra?» not flipping the language in hermetic runs).
+language_marker(it, puoi).
+language_marker(it, aprire).
+language_marker(it, chiudere).
+language_marker(it, finestra).
+language_marker(it, freddo).
+language_marker(it, caldo).
+language_marker(it, passami).
 language_marker(it, grazie).
 language_marker(it, prego).
 language_marker(it, perche).

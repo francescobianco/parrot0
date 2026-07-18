@@ -142,7 +142,28 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
     const char *pron = NULL;
     for (size_t i = 1; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (is_entity_pronoun(t)) { pron = t; break; }
+        if (!is_entity_pronoun(t)) continue;
+        /* gen338 (L13 pragmatics probe): a pronoun INSIDE a double-quoted span
+         * is MENTION, not use — «what does "nice weather, isn't it" usually
+         * mean?» quotes the pronoun; it refers to nothing in the discourse.
+         * Only a pronoun visible OUTSIDE every quoted span of the raw turn
+         * opens a clarification. Pure mechanics: quote parity + word bounds. */
+        int outside = 0;
+        if (raw && strchr(raw, '"')) {
+            size_t pl = strlen(t);
+            int inq = 0;
+            for (const char *p = raw; *p && !outside; p++) {
+                if (*p == '"') { inq = !inq; continue; }
+                if (inq) continue;
+                int at_start = (p == raw) || !isalpha((unsigned char)p[-1]);
+                if (!at_start) continue;
+                size_t k = 0;
+                while (k < pl && tolower((unsigned char)p[k]) ==
+                                 tolower((unsigned char)t[k])) k++;
+                if (k == pl && !isalpha((unsigned char)p[pl])) outside = 1;
+            }
+        } else outside = 1;
+        if (outside) { pron = t; break; }
     }
     if (!pron) return 0;
 

@@ -236,3 +236,6 @@ parent_of(marco, sofia).
 parent_of(mary, ann).
 parent_of(paul, mary).
 sibling_of($X, $Y) :- parent_of($P, $X), parent_of($P, $Y).
+
+% gen338 (L13): pragmatics — speech acts, implicature and idiom meanings.
+:- include(pragmatics.p0).

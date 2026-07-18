@@ -149,6 +149,26 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
     if (!b) return 0;
 
+    /* gen338 (L13 pragmatics, abstraction-ceiling beyond L12): speech acts
+     * read between the lines. The act TYPES are a KB registry (pragma_act/1,
+     * kb/core/pragmatics.p0); each act's surface forms are intent_cue facts
+     * and its engaged reply a response_template (EN+IT). A NEW act is three
+     * facts, zero C — this loop only walks the registry. Fires before the
+     * smalltalk deflect ever sees the turn, so «can you pass me the salt?»
+     * is read as the request it is, not as a question about parrot0's day. */
+    {
+        char acts[16][KB_TERM_LEN];
+        const char *aq[1] = { NULL };
+        size_t na = kb_match(b->kb, "pragma_act", aq, 1, acts, 16);
+        for (size_t i = 0; i < na; i++) {
+            /* raw too: Italian surface forms are rewritten by canonicalization
+             * before norm reaches us (the experiential_move precedent). */
+            if (!kb_cue_match(b, acts[i], norm) &&
+                !(raw && kb_cue_match(b, acts[i], raw))) continue;
+            if (kb_response(b, acts[i], NULL, out, out_size)) return 1;
+        }
+    }
+
     /* gen228 (basic-chat cat.86): a bare binary choice answered honestly —
      * parrot0 has no genuine preference. "would you rather" is its own honest
      * opener. Cues/replies are KB-first (intent_cue/response_template, EN+IT). */

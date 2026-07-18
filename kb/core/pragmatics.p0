@@ -1,0 +1,87 @@
+% pragmatics.p0 — L13 PRAGMATICA: reading between the lines (gen338).
+%
+% abstraction-ceiling.md §1 stops at L12 (constraints); this file opens the
+% levels ABOVE the pure-logic ceiling: what a surface form DOES (speech act)
+% and what it usually IMPLIES (implicature), as KB knowledge. Pulled from real
+% walls (probe battery gen338): «can you pass me the salt?» was deflected as
+% smalltalk, «it is cold in here» walled, «what does "nice weather, isn't it"
+% usually mean?» walled.
+%
+% Structure (engine fixed, knowledge learns):
+%   pragma_act/1          — the act-type REGISTRY; the C loop in mod_chitchat
+%                           walks it: a NEW act = three facts, zero C.
+%   intent_cue/2          — the act's surface forms (kb_cue_match).
+%   response_template/2,3 — the engaged, honest reply (EN + IT).
+%   pragmatic_meaning/2   — what a form usually means, keyed on a salient
+%                           token; served by the generic answer_frame engine
+%                           on «… usually/really mean …» questions.
+% Included by social.p0, so it is always loaded (hermetic tests included).
+
+% ---------------------------------------------------------------------------
+% Act 1: the INDIRECT REQUEST — "can you pass X?" asks for the act, not the
+% ability. parrot0 reads the act and declines honestly (no hands), engaged.
+% ---------------------------------------------------------------------------
+pragma_act(indirect_request).
+
+intent_cue(indirect_request, "pass me the").
+intent_cue(indirect_request, "pass the salt").
+intent_cue(indirect_request, "hand me the").
+intent_cue(indirect_request, "can you open the").
+intent_cue(indirect_request, "can you close the").
+intent_cue(indirect_request, "could you open the").
+intent_cue(indirect_request, "could you close the").
+intent_cue(indirect_request, "passami il").
+intent_cue(indirect_request, "passami la").
+intent_cue(indirect_request, "mi passi il").
+intent_cue(indirect_request, "mi passi la").
+intent_cue(indirect_request, "puoi aprire la").
+intent_cue(indirect_request, "puoi chiudere la").
+
+response_template(indirect_request, "I read that as a request, not a question about ability -- but I have no hands. Anything I can do with words?").
+response_template(indirect_request, it, "La leggo come una richiesta, non una domanda sulle mie capacita -- ma non ho mani. Posso aiutarti a parole?").
+
+% ---------------------------------------------------------------------------
+% Act 2: the ENVIRONMENT HINT — "it's cold in here" is usually a request in
+% disguise. parrot0 names the implicature instead of parsing the literal.
+% ---------------------------------------------------------------------------
+pragma_act(environment_hint).
+
+intent_cue(environment_hint, "cold in here").
+intent_cue(environment_hint, "hot in here").
+intent_cue(environment_hint, "warm in here").
+intent_cue(environment_hint, "stuffy in here").
+intent_cue(environment_hint, "cold here").
+intent_cue(environment_hint, "freddo qui").
+intent_cue(environment_hint, "caldo qui").
+intent_cue(environment_hint, "che freddo").
+intent_cue(environment_hint, "che caldo").
+
+response_template(environment_hint, "Said like that, it's usually a hint -- close the window, adjust the heat. I can't reach either, but I take the point.").
+response_template(environment_hint, it, "Detta cosi, di solito e un'allusione -- chiudi la finestra, alza il calore. Non posso farlo, ma colgo il punto.").
+
+% ---------------------------------------------------------------------------
+% The META-QUESTION: «what does "…" usually mean?» — pragmatic meanings and
+% idioms as knowledge, keyed on the salient token the answer_frame engine
+% will find in the quoted form. Comprehension = knowledge: a new idiom is one
+% fact, and the same question form serves it.
+% ---------------------------------------------------------------------------
+answer_frame("usually mean", pragmatic_meaning).
+answer_frame("really mean", pragmatic_meaning).
+answer_frame("actually mean", pragmatic_meaning).
+
+% speech acts and implicatures
+pragmatic_meaning(weather, "commenting on the weather is usually small talk -- an invitation to chat, not a report").
+pragmatic_meaning(salt, "asking whether you CAN pass the salt is an indirect request to pass it, not an ability question").
+pragmatic_meaning(cold, "saying the room is cold is often an indirect request: close the window, turn up the heat").
+pragmatic_meaning(late, "remarking how late it is often hints that it is time to leave or wrap up").
+pragmatic_meaning(interesting, "calling an idea interesting is often a polite way to withhold agreement").
+
+% idioms — the canonical "between the lines" forms
+pragmatic_meaning(elephant, "the elephant in the room is the obvious problem everyone avoids naming").
+pragmatic_meaning(ice, "breaking the ice means easing the first awkward moments of a conversation").
+pragmatic_meaning(beans, "spilling the beans means revealing a secret").
+pragmatic_meaning(cake, "having your cake and eating it too means wanting two incompatible things").
+pragmatic_meaning(bullet, "biting the bullet means facing something painful you cannot avoid").
+pragmatic_meaning(towel, "throwing in the towel means giving up").
+pragmatic_meaning(devil, "speak of the devil marks the arrival of the person just discussed").
+pragmatic_meaning(lines, "reading between the lines means grasping what is implied but not said").
