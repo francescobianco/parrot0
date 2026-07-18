@@ -362,9 +362,11 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
     const char *rq1 = strchr(raw, '"'), *rq2 = rq1 ? strchr(rq1 + 1, '"') : NULL;
     if (!rq2 || rq2 <= rq1 + 1) return 0;
 
-    char labels[32][KB_TERM_LEN];
+    /* gen337: the registry outgrew the gen214 bound (48 learnable rows > 32);
+     * rows past the cap were silently unteachable. 96 leaves headroom. */
+    char labels[96][KB_TERM_LEN];
     const char *qa[3] = { NULL, NULL, NULL };
-    size_t nl = kb_match(b->kb, "learnable", qa, 3, labels, 32);
+    size_t nl = kb_match(b->kb, "learnable", qa, 3, labels, 96);
     for (size_t i = 0; i < nl; i++) {
         char lab[KB_TERM_LEN]; snprintf(lab, sizeof lab, "%s", labels[i]);  /* quoted */
         char *ls = lab; size_t ll = strlen(ls);
@@ -377,11 +379,12 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
         const char *qm[3] = { labels[i], intent[0], NULL };
         if (kb_match(b->kb, "learnable", qm, 3, mode, 1) != 1) continue;
 
-        const char *pred; int from_raw; int unary = 0;
+        const char *pred; int from_raw; int unary = 0; int define = 0;
         if      (!strcmp(mode[0], "exact"))     { pred = "intent_phrase";     from_raw = 0; }
         else if (!strcmp(mode[0], "substring")) { pred = "intent_cue";        from_raw = 0; }
         else if (!strcmp(mode[0], "fill"))      { pred = "response_template"; from_raw = 1; }
         else if (!strcmp(mode[0], "unary"))     { pred = intent[0];           from_raw = 0; unary = 1; }
+        else if (!strcmp(mode[0], "define"))    { pred = intent[0];           from_raw = 1; define = 1; }
         else continue;
 
         /* span: raw (keep casing) for fill; the canonicalized `norm` for exact/substring
@@ -392,11 +395,49 @@ int try_teach_form(Brain *b, const char *norm, const char *raw,
             if (n2 && n2 > n1 + 1) { s1 = n1; s2 = n2; }
         }
         size_t pl = (size_t)(s2 - (s1 + 1));
-        if (pl >= KB_TERM_LEN - 2) return 0;
+        if (pl >= KB_TERM_LEN - 2) {
+            /* gen337: a teach-shaped turn whose quoted span exceeds the atom
+             * bound used to fall through SILENTLY — and a later module (the
+             * story generator) would fabricate a reply to a teaching turn: a
+             * misclaim, worse than a wall. Name the mechanical limit instead. */
+            char lim[160];
+            snprintf(lim, sizeof lim,
+                     "That quoted span is too long for one fact (%zu chars, "
+                     "limit %d) - can you shorten it?", pl, KB_TERM_LEN - 3);
+            put(lim, out, outsz);
+            return 1;
+        }
         char phrase[KB_TERM_LEN]; memcpy(phrase, s1 + 1, pl); phrase[pl] = '\0';
 
         char quoted[KB_TERM_LEN]; snprintf(quoted, sizeof quoted, "\"%s\"", phrase);
         kb_set_origin(b->kb, KB_SESSION);
+        if (define) {
+            /* gen337: definitional teaching — the capture side of the concept
+             * consumer that already existed (kb_concept_def reads any
+             * pred(Key, "Description")). The TERM being defined is what sits
+             * between the label ("definition of"/"definizione di" — KB data)
+             * and the quoted description; spaces become '_' so a multi-word
+             * term matches the what-is join key. The label names WHICH
+             * predicate to assert (the Intent column) — knowledge, not C. */
+            const char *lp = strstr(low, ls);
+            if (!lp) continue;
+            lp += strlen(ls);
+            while (*lp == ' ') lp++;
+            char term[KB_TERM_LEN]; size_t tl = 0;
+            while (lp[tl] && lp[tl] != ':' && lp[tl] != '"' &&
+                   tl + 1 < sizeof term) { term[tl] = lp[tl]; tl++; }
+            while (tl && (term[tl - 1] == ' ' || term[tl - 1] == ':' ||
+                          term[tl - 1] == ',')) tl--;
+            term[tl] = '\0';
+            for (size_t t = 0; t < tl; t++) if (term[t] == ' ') term[t] = '_';
+            if (!tl) continue;
+            const char *ard[2] = { term, quoted };
+            kb_assert(b->kb, pred, ard, 2);
+            char dmsg[320];
+            snprintf(dmsg, sizeof dmsg, "Got it - %s: %s.", term, phrase);
+            put(dmsg, out, outsz);
+            return 1;
+        }
         if (unary) {
             const char *ar1[1] = { phrase };
             kb_assert(b->kb, pred, ar1, 1);

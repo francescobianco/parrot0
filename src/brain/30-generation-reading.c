@@ -330,6 +330,16 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 !strcmp(fw, "you're") || !strcmp(fw, "youre") ||
                 !strcmp(fw, "if") || !strcmp(fw, "is") || !strcmp(fw, "are"))
                 is_narrative_cont = 0;
+            /* gen337: the opener class grows in the KB (imperative_opener/1,
+             * lexicon.p0) — "execute the kb-first plan in <path>" is a command
+             * over 80 chars, not a narrative to continue; claiming it here was
+             * a misclaim. A taught opener extends this gate with no rebuild.
+             * (The C list above is legacy vocabulary for T18 to migrate.) */
+            if (is_narrative_cont) {
+                const char *ioq[] = { fw };
+                if (kb_query(b->kb, "imperative_opener", ioq, 1))
+                    is_narrative_cont = 0;
+            }
         }
 
         if (is_story_req || is_narrative_cont || (is_continuation && has_weekday)) {

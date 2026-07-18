@@ -241,7 +241,8 @@ derivato → patch → giudice differenziale byte-identico + fixture estraneo co
 anti-impostor). T16 è indipendente e può essere tirata in qualsiasi momento —
 consigliata presto: è il vocabolario dell'agente stesso.
 
-- [ ] **T16 — Vocabolario agent-tools → KB (O1).**
+- [x] **T16 — Vocabolario agent-tools → KB (O1).** *(catene cue chiuse gen337;
+  residuo strstr sotto)*
   **Cosa:** le 48 catene `cue(` di `60-agent-tools.c` e gli `strstr` di controllo
   (`until/finch/fino a`, `even/pari/odd/dispari`, ` in `) diventano `intent_cue/2`
   + classi lessicali in KB, matchati da `kb_cue_match`; i verbi dei tool diventano
@@ -250,6 +251,23 @@ consigliata presto: è il vocabolario dell'agente stesso.
   runtime, senza ricompilare — e l'agente smette di violare la propria disciplina.
   **Dipende da:** niente di bloccante. **KB-first:** è il task KB-first per
   definizione; runtime-growth test obbligatorio (assert/retract cambia il riconoscimento).
+  **Stato:** chiuso per le catene `cue(` (gen337) — e chiuso **da parrot0 stesso**,
+  guidato a prompt in una sessione outer-circle (il protocollo è
+  `docs/plans/act-as-subagent.md`): il piano derivato kbfirst_migration
+  (scan → vocab → emit → patch) eseguito su `src/brain/60-agent-tools.c` ha
+  migrato tutte le 25 catene reali (90 call) in `kb_cue_match` + 90 fatti
+  `intent_cue(60_agent_tools_chainNN, …)` ora in `kb/core/intents.p0`; parrot0 si
+  è fermato onestamente al passo verify (il file è frammento di TU: giudica la
+  suite del progetto). Verifica: build 0 warning, fail-set di `make test`
+  byte-identico alla baseline (73 casi, ereditati da gen334, nessuna regressione),
+  ratchet `cuechains` 251→**226** (MAX abbassato; ripagato anche il debito
+  246→251 di gen334-336). Runtime-growth: `tests/cases/toolvocab_growth.chat`
+  (insegnare «letter tally» fa scattare il riconoscitore migrato senza rebuild;
+  righe `learnable/3` per chain48 e chain1286, EN+IT). **Residuo aperto:** gli
+  `strstr` di controllo (`until/finch/fino a`, `even/pari/odd/dispari`, ` in `)
+  non sono catene `cue(` e la macchina Track 5 non li vede: restano da migrare a
+  classi lessicali KB in un prossimo round (stessa tecnica di
+  `imperative_opener/1`, gen337).
 
 - [ ] **T17 — Vocabolario code → KB (O2, O6).**
   **Cosa:** `80-code.c` (run/execute/esegui, "in C"/"in Python") in `intent_cue`;

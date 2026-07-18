@@ -1,0 +1,16 @@
+# gen337: definitional teaching — mode=define of the generic teach handler
+# (try_teach_form + learnable/3). The capture frame is KB data
+# (learnable("definition of"/"definizione di", concept, define) in
+# kb/core/intents.p0); the consumer already existed (kb_concept_def and the
+# what-is path read any pred(Key, "Description")). Teaching a concept via a
+# prompt makes it answerable on the next turn — no C edit, no rebuild. This is
+# the cognitive structure that lets a teacher hand parrot0 a NEW concept (e.g.
+# what "kb-first" means) purely in conversation. EN + IT (bilingual ratchet).
+> learn the definition of kb-first: "engine fixed, knowledge learns"
+< Got it - kb-first: engine fixed, knowledge learns.
+> what is kb-first?
+< kb-first is engine fixed, knowledge learns.
+> impara la definizione di catena-cue: "una lista di parole in codice C"
+< Got it - catena-cue: una lista di parole in codice C.
+> cosa è catena-cue?
+< catena-cue is una lista di parole in codice C.

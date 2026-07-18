@@ -1,4 +1,45 @@
 # parrot0 evolution journal
+## 2026-07-18 - gen337: parrot0 migrates its OWN agent vocabulary, as a taught subagent (T16)
+
+**The round is the product.** An LLM supervisor drove parrot0 through a full
+outer-circle round on `src/brain/60-agent-tools.c`: taught it what "kb-first"
+means with 8 `learn the definition of …` prompts (session knowledge, replayed
+each round from `scripts/prompts/kbfirst-preamble.txt`), then commanded
+`execute the kb-first plan for chains of calls to cue in …`. parrot0's own
+derived plan (scan → vocab → emit → patch) migrated all 25 real cue chains
+(90 calls) into `kb_cue_match` + 90 `intent_cue` facts, and stopped honestly at
+verify ("its own build must judge"). The protocol is now a recallable document:
+`docs/plans/act-as-subagent.md`.
+
+**Structural vs session knowledge (F.'s steer).** What parrot0 learns about a
+codebase is session knowledge and dies with the round. What is PRESERVED are
+the cognitive structures that make the lesson teachable by prompt: the new
+`define` mode of the generic teach handler (`learn the definition of X: "…"`
+asserts `concept(X, "…")`, which the what-is path already reads), the
+`imperative_opener/1` lexical class (a long command is no longer claimed by the
+story generator — a real glue misclaim found live), and an honest decline when
+a taught span exceeds the atom bound (it used to fall through to the story
+module: an impostor reply to a teaching turn).
+
+**Evidence (differential, because main was inherited red).** Baseline main:
+176/73 with the cuechains ratchet BROKEN (251 > 246, debt from gen334-336);
+the 73 `.it` failures trace to gen334's IT→EN canonicalization (`b11373b`), a
+design direction of F.'s, not this round. After the round: build 0 warnings,
+fail-set byte-identical (73 = 73, same files), cuechains 251→226 (MAX lowered;
+the gen334 debt paid back below the old 246 line), and two new hermetic
+ratchets: `define_teach.chat` (the teachable definition frame, EN+IT) and
+`toolvocab_growth.chat` (teach "letter tally" at runtime → the migrated
+recognizer fires, no rebuild — T16's mandatory runtime-growth proof).
+
+**Observed:** the learnable/3 registry had outgrown its gen214 read cap (48
+rows > 32): rows past the cap were silently unteachable. Raised to 96. Honest
+residue: the strstr controls of 60-agent-tools (`until/finch/fino a`,
+`even/pari/odd/dispari`) are not cue chains — the Track 5 machine cannot see
+them; they are the top of the next round's queue.
+
+**Next:** act-as-subagent.md §8 — strstr residue, then T17 (`80-code.c`, 31
+chains), then the dense residues (25-wordmath: 71 chains) one file per round.
+
 ## 2026-07-12 - gen328: the schema is INDUCED from a page (TODO.md P3, forge C2/W6)
 
 **The impostor was the curation.** `algo_shape(bubblesort, nested_loop_compare_swap)`

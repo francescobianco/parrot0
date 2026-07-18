@@ -1,0 +1,15 @@
+# gen337 (T16, coding-agent-todo): the agent-tools vocabulary lives in the KB.
+# The 25 cue( OR-chains of 60-agent-tools.c were migrated BY PARROT0 ITSELF
+# (derived kb-first plan, outer-circle session) into intent_cue facts keyed
+# 60_agent_tools_chainNN in kb/core/intents.p0, matched by kb_cue_match. The
+# REQUIRED runtime-growth proof: teaching a NEW phrasing for a migrated tool
+# verb is one learnable/3-driven assert — the very same recognizer fires next
+# turn, no C edit, no rebuild. EN + IT behavior stays green after migration.
+> how many letters in banana
+< There are 6 letters in "banana".
+> quante lettere in ramarro
+< There are 7 letters in "ramarro".
+> learn "letter tally" as a letter-count phrase
+< Got it - I'll take "letter tally" as a way to a letter-count phrase now.
+> letter tally in banana
+< There are 6 letters in "banana".

@@ -26,8 +26,7 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
     /* gen254: alphabet-coverage check — "what does 'The quick brown fox...'
      * contain that most sentences do not?" is COMPUTED over the quoted text
      * (26 distinct letters -> pangram), never a stored trivia answer. */
-    if ((cue(low, "contain") || cue(low, "special") || cue(low, "unusual") ||
-         cue(low, "unique")) && strchr(low, '"')) {
+    if ((kb_cue_match(b, "60_agent_tools_chain29", low)) && strchr(low, '"')) {
         const char *q1 = strchr(low, '"');
         const char *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
         if (q1 && q2 && q2 - q1 > 15) {
@@ -45,12 +44,9 @@ static int mod_tool(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    int want_letters = cue(low, "how many letters") ||
-                       cue(low, "count the letters") ||
-                       cue(low, "quante lettere");
+    int want_letters = kb_cue_match(b, "60_agent_tools_chain48", low);
     int want_words = !want_letters &&
-                     (cue(low, "how many words") || cue(low, "count the words") ||
-                      cue(low, "quante parole")  || cue(low, "conta le parole"));
+                     (kb_cue_match(b, "60_agent_tools_chain52", low));
     if (!want_words && !want_letters) return 0;
     if (want_letters) {
         const char *p = strchr(low, ':');
@@ -438,7 +434,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
      * Only the *structural* anchors (a leading "read "/"grep "/"ls" prefix) and the AND
      * logic ("find" + "named") stay in C, since those are shape, not vocabulary. */
     int want_grep = ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low);
-    int want_find = (cue(low,"find") && (cue(low,"named") || cue(low,"called"))) ||
+    int want_find = (cue(low,"find") && (kb_cue_match(b, "60_agent_tools_chain441", low))) ||
                     kb_cue_match(b, "piact_find", low);
     int want_list = (cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
                     ci_prefix(low,"ls ") || ci_eq(low,"ls") ||
@@ -497,8 +493,7 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
         int is_ident = isalpha((unsigned char)patbuf[0]) || patbuf[0] == '_';
         for (const char *p = patbuf; *p && is_ident; p++)
             if (!(isalnum((unsigned char)*p) || *p == '_')) is_ident = 0;
-        int want_callers = cue(low,"call") || cue(low,"caller") ||
-                           cue(low,"uses of") || cue(low,"used by");
+        int want_callers = kb_cue_match(b, "60_agent_tools_chain500", low);
         if (is_ident) {
             char file[256] = ""; int located = code_locate(dirbuf, patbuf, file, sizeof file);
             char callers[16][KB_TERM_LEN]; size_t nc = code_find_callers(dirbuf, patbuf, callers, 16);
@@ -1048,12 +1043,9 @@ static int compose_plan(Brain *b, const char *raw, char *out, size_t out_size) {
 
         step++;
         char piece[760] = {0};
-        int is_compose = (cue(cllow,"write")||cue(cllow,"generate")||cue(cllow,"create")||
-                          cue(cllow,"implement")||cue(cllow,"scrivi")) &&
-                         (cue(cllow,"function")||cue(cllow,"funzione")||
-                          cue(cllow,"variant")||cue(cllow,"variante"));
-        int is_eval = cue(cllow,"compute")||cue(cllow,"evaluate")||cue(cllow,"calcola")||
-                      cue(cllow,"valuta")||cue(cllow,"call ");
+        int is_compose = (kb_cue_match(b, "60_agent_tools_chain1051", cllow)) &&
+                         (kb_cue_match(b, "60_agent_tools_chain1053", cllow));
+        int is_eval = kb_cue_match(b, "60_agent_tools_chain1055", cllow);
 
         if (is_compose) {
             char nm[64], src[256], note[200];
@@ -1126,12 +1118,11 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
      *    compare each adjacent pair; swap them if they are out of order"
      * The schema is INDUCED from what the steps do (never from the name), so a
      * page for an algorithm nobody curated becomes buildable. */
-    int teach = (cue(low, "learn ") || cue(low, "impara ")) &&
-                (cue(low, "steps") || cue(low, "passi")) && strchr(raw, ':');
+    int teach = (kb_cue_match(b, "60_agent_tools_chain1129", low)) &&
+                (kb_cue_match(b, "60_agent_tools_chain1130", low)) && strchr(raw, ':');
 
-    int want = (cue(low,"write") || cue(low,"generate") || cue(low,"create") ||
-                cue(low,"scrivi") || cue(low,"implement")) &&
-               (cue(low,"function") || cue(low,"funzione"));
+    int want = (kb_cue_match(b, "60_agent_tools_chain1132", low)) &&
+               (kb_cue_match(b, "60_agent_tools_chain1134", low));
     if (!want && !teach) return 0;
 
     /* Lazily load the generative substrate into the REFLECTIVE layer (never
@@ -1283,8 +1274,7 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
 
     /* Must look like an iterate-until-goal instruction: a start anchor and an
      * "until" boundary. Without both, this is not our turn. */
-    int has_start = cue(low, "start") || cue(low, "begin") || cue(low, "parti") ||
-                    cue(low, "inizia") || cue(low, "comincia");
+    int has_start = kb_cue_match(b, "60_agent_tools_chain1286", low);
     char *until = strstr(low, "until");
     if (!until) { char *u2 = strstr(low, "finch"); if (u2) until = u2; }
     if (!until) { char *u3 = strstr(low, "fino a"); if (u3) until = u3; }
@@ -1404,19 +1394,15 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
     /* Read the operation from the left clause. Word-named operators (double,
      * halve, triple) carry their operand; the rest take the second number. */
     const char *op = NULL; double k = 0;
-    if (cue(left, "double") || cue(left, "raddoppi"))      { op = "*"; k = 2; }
-    else if (cue(left, "triple") || cue(left, "triplic"))  { op = "*"; k = 3; }
-    else if (cue(left, "halve")  || cue(left, "dimezz"))   { op = "/"; k = 2; }
+    if (kb_cue_match(b, "60_agent_tools_chain1407", left))      { op = "*"; k = 2; }
+    else if (kb_cue_match(b, "60_agent_tools_chain1408", left))  { op = "*"; k = 3; }
+    else if (kb_cue_match(b, "60_agent_tools_chain1409", left))   { op = "/"; k = 2; }
     else if (ln >= 2) {
         k = lnums[1];
-        if (cue(left, "add") || cue(left, "plus") || cue(left, "aggiung") ||
-            cue(left, "somma") || cue(left, "più"))            op = "+";
-        else if (cue(left, "subtract") || cue(left, "minus") ||
-                 cue(left, "sottra") || cue(left, "togli"))    op = "-";
-        else if (cue(left, "multiply") || cue(left, "times") ||
-                 cue(left, "moltiplic"))                       op = "*";
-        else if (cue(left, "divide") || cue(left, "dividi") ||
-                 cue(left, "diviso"))                          op = "/";
+        if (kb_cue_match(b, "60_agent_tools_chain1412", left))            op = "+";
+        else if (kb_cue_match(b, "60_agent_tools_chain1414", left))    op = "-";
+        else if (kb_cue_match(b, "60_agent_tools_chain1416", left))                       op = "*";
+        else if (kb_cue_match(b, "60_agent_tools_chain1418", left))                          op = "/";
     }
     if (!op) return 0;
 
@@ -1424,15 +1410,10 @@ static int mod_agent(Brain *b, const char *norm, const char *raw,
      * whether the operation grows or shrinks the value. */
     enum agent_cmp cmp;
     int have_cmp = 1;
-    if (cue(right, "exceed") || cue(right, "pass") || cue(right, "above") ||
-        cue(right, "over") || cue(right, "more than") || cue(right, "surpass") ||
-        cue(right, "super") || cue(right, "oltre"))            cmp = AGT_GT;
-    else if (cue(right, "reach") || cue(right, "at least") ||
-             cue(right, "almeno") || cue(right, "raggiung"))   cmp = AGT_GE;
-    else if (cue(right, "at most") || cue(right, "al massimo")) cmp = AGT_LE;
-    else if (cue(right, "below") || cue(right, "under") ||
-             cue(right, "less than") || cue(right, "beneath") ||
-             cue(right, "sotto") || cue(right, "minore"))      cmp = AGT_LT;
+    if (kb_cue_match(b, "60_agent_tools_chain1427", right))            cmp = AGT_GT;
+    else if (kb_cue_match(b, "60_agent_tools_chain1430", right))   cmp = AGT_GE;
+    else if (kb_cue_match(b, "60_agent_tools_chain1432", right)) cmp = AGT_LE;
+    else if (kb_cue_match(b, "60_agent_tools_chain1433", right))      cmp = AGT_LT;
     else have_cmp = 0;
     if (!have_cmp) {
         int grows = (strcmp(op, "+") == 0) ||
@@ -1926,7 +1907,7 @@ static int mod_toolpolicy(Brain *b, const char *norm, const char *raw,
      * was understood, and differ only about what is permitted. */
     const char *kind = NULL;
     if (ci_prefix(low,"grep ") || kb_cue_match(b, "piact_grep", low))            kind = "search";
-    else if ((cue(low,"find") && (cue(low,"named") || cue(low,"called"))) ||
+    else if ((cue(low,"find") && (kb_cue_match(b, "60_agent_tools_chain1929", low))) ||
              kb_cue_match(b, "piact_find", low))                                 kind = "find";
     else if ((cue(low,"list") && (cue(low,"file") || strstr(low,"*."))) ||
              ci_prefix(low,"ls ") || ci_eq(low,"ls") ||

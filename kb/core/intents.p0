@@ -487,6 +487,13 @@ learnable("greet a new name",     greet_name, fill).
 learnable("salutare",             greet_name, fill).
 learnable("a teaching verb",      00_lex_chain332, substring).
 learnable("verbo di insegnamento", 00_lex_chain332, substring).
+% gen337: definitional teaching (mode=define) — the CAPTURE frame that makes any
+% concept teachable by prompt: «learn the definition of X: "…"» asserts
+% concept(X, "…") into the session; the consumer (kb_concept_def and the what-is
+% path) already read any pred(Key, "Description"). Comprehension = knowledge:
+% a new phrasing of this frame is another learnable row, never C.
+learnable("definition of",  concept, define).
+learnable("definizione di", concept, define).
 learnable("reply when you find a topic",   learn_found,     fill).
 learnable("risposta quando trovi un tema", learn_found,     fill).
 learnable("reply when you already know",   learn_already_know, fill).
@@ -1050,3 +1057,107 @@ intent_cue(experiential_move, "per divertirti").
 intent_cue(experiential_move, "per hobby").
 intent_cue(experiential_move, "nel weekend").
 intent_cue(experiential_move, "per rilassarti").
+
+% --- gen337 (T16, coding-agent-todo): the agent-tools vocabulary, MIGRATED BY
+% PARROT0 ITSELF — the derived kb-first plan (scan → vocab → emit → patch) run
+% over src/brain/60-agent-tools.c in an outer-circle session; these facts are
+% its emit_facts output, one key per chain site (the gen271 convention). The
+% 25 OR-chains (90 calls) in the C are now one kb_cue_match each; a new tool
+% phrasing is an asserted fact, no rebuild. ---
+intent_cue(60_agent_tools_chain29, "contain").
+intent_cue(60_agent_tools_chain29, "special").
+intent_cue(60_agent_tools_chain29, "unusual").
+intent_cue(60_agent_tools_chain29, "unique").
+intent_cue(60_agent_tools_chain48, "how many letters").
+intent_cue(60_agent_tools_chain48, "count the letters").
+intent_cue(60_agent_tools_chain48, "quante lettere").
+intent_cue(60_agent_tools_chain52, "how many words").
+intent_cue(60_agent_tools_chain52, "count the words").
+intent_cue(60_agent_tools_chain52, "quante parole").
+intent_cue(60_agent_tools_chain52, "conta le parole").
+intent_cue(60_agent_tools_chain441, "named").
+intent_cue(60_agent_tools_chain441, "called").
+intent_cue(60_agent_tools_chain500, "call").
+intent_cue(60_agent_tools_chain500, "caller").
+intent_cue(60_agent_tools_chain500, "uses of").
+intent_cue(60_agent_tools_chain500, "used by").
+intent_cue(60_agent_tools_chain1051, "write").
+intent_cue(60_agent_tools_chain1051, "generate").
+intent_cue(60_agent_tools_chain1051, "create").
+intent_cue(60_agent_tools_chain1051, "implement").
+intent_cue(60_agent_tools_chain1051, "scrivi").
+intent_cue(60_agent_tools_chain1053, "function").
+intent_cue(60_agent_tools_chain1053, "funzione").
+intent_cue(60_agent_tools_chain1053, "variant").
+intent_cue(60_agent_tools_chain1053, "variante").
+intent_cue(60_agent_tools_chain1055, "compute").
+intent_cue(60_agent_tools_chain1055, "evaluate").
+intent_cue(60_agent_tools_chain1055, "calcola").
+intent_cue(60_agent_tools_chain1055, "valuta").
+intent_cue(60_agent_tools_chain1055, "call ").
+intent_cue(60_agent_tools_chain1129, "learn ").
+intent_cue(60_agent_tools_chain1129, "impara ").
+intent_cue(60_agent_tools_chain1130, "steps").
+intent_cue(60_agent_tools_chain1130, "passi").
+intent_cue(60_agent_tools_chain1132, "write").
+intent_cue(60_agent_tools_chain1132, "generate").
+intent_cue(60_agent_tools_chain1132, "create").
+intent_cue(60_agent_tools_chain1132, "scrivi").
+intent_cue(60_agent_tools_chain1132, "implement").
+intent_cue(60_agent_tools_chain1134, "function").
+intent_cue(60_agent_tools_chain1134, "funzione").
+intent_cue(60_agent_tools_chain1286, "start").
+intent_cue(60_agent_tools_chain1286, "begin").
+intent_cue(60_agent_tools_chain1286, "parti").
+intent_cue(60_agent_tools_chain1286, "inizia").
+intent_cue(60_agent_tools_chain1286, "comincia").
+intent_cue(60_agent_tools_chain1407, "double").
+intent_cue(60_agent_tools_chain1407, "raddoppi").
+intent_cue(60_agent_tools_chain1408, "triple").
+intent_cue(60_agent_tools_chain1408, "triplic").
+intent_cue(60_agent_tools_chain1409, "halve").
+intent_cue(60_agent_tools_chain1409, "dimezz").
+intent_cue(60_agent_tools_chain1412, "add").
+intent_cue(60_agent_tools_chain1412, "plus").
+intent_cue(60_agent_tools_chain1412, "aggiung").
+intent_cue(60_agent_tools_chain1412, "somma").
+intent_cue(60_agent_tools_chain1412, "più").
+intent_cue(60_agent_tools_chain1414, "subtract").
+intent_cue(60_agent_tools_chain1414, "minus").
+intent_cue(60_agent_tools_chain1414, "sottra").
+intent_cue(60_agent_tools_chain1414, "togli").
+intent_cue(60_agent_tools_chain1416, "multiply").
+intent_cue(60_agent_tools_chain1416, "times").
+intent_cue(60_agent_tools_chain1416, "moltiplic").
+intent_cue(60_agent_tools_chain1418, "divide").
+intent_cue(60_agent_tools_chain1418, "dividi").
+intent_cue(60_agent_tools_chain1418, "diviso").
+intent_cue(60_agent_tools_chain1427, "exceed").
+intent_cue(60_agent_tools_chain1427, "pass").
+intent_cue(60_agent_tools_chain1427, "above").
+intent_cue(60_agent_tools_chain1427, "over").
+intent_cue(60_agent_tools_chain1427, "more than").
+intent_cue(60_agent_tools_chain1427, "surpass").
+intent_cue(60_agent_tools_chain1427, "super").
+intent_cue(60_agent_tools_chain1427, "oltre").
+intent_cue(60_agent_tools_chain1430, "reach").
+intent_cue(60_agent_tools_chain1430, "at least").
+intent_cue(60_agent_tools_chain1430, "almeno").
+intent_cue(60_agent_tools_chain1430, "raggiung").
+intent_cue(60_agent_tools_chain1432, "at most").
+intent_cue(60_agent_tools_chain1432, "al massimo").
+intent_cue(60_agent_tools_chain1433, "below").
+intent_cue(60_agent_tools_chain1433, "under").
+intent_cue(60_agent_tools_chain1433, "less than").
+intent_cue(60_agent_tools_chain1433, "beneath").
+intent_cue(60_agent_tools_chain1433, "sotto").
+intent_cue(60_agent_tools_chain1433, "minore").
+intent_cue(60_agent_tools_chain1929, "named").
+intent_cue(60_agent_tools_chain1929, "called").
+
+% teachable labels for the migrated tool vocabulary (learnable/3, mode=substring):
+% teaching «learn "…" as a letter-count phrase» grows chain48 at runtime.
+learnable("a letter-count phrase", 60_agent_tools_chain48, substring).
+learnable("frase di conteggio lettere", 60_agent_tools_chain48, substring).
+learnable("a start verb", 60_agent_tools_chain1286, substring).
+learnable("verbo di avvio", 60_agent_tools_chain1286, substring).

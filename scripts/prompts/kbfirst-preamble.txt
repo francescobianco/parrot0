@@ -1,0 +1,24 @@
+# kb-first teaching preamble — the preparatory prompts a supervisor (human or
+# LLM) feeds parrot0 at the START of a codebase-work session, BEFORE any work
+# command. One prompt per line; lines starting with '#' are comments.
+#
+# Why this file exists (F.'s steer, 2026-07-18): the knowledge parrot0 builds
+# about a codebase while working on it — its own src/brain included — is
+# SESSION knowledge (transient, rebuilt each time from its tools). What must be
+# PRESERVED is the ability to teach it the method by prompt: the cognitive
+# structures live in the engine + kb/core (the define teach-frame,
+# learnable/3, the plan domain in kb/experts/codebase/actions.p0), and THIS
+# preamble is the reusable lesson that gives "kb-first" its meaning in a fresh
+# session. Feed it, then give work commands in plain language.
+#
+# Usage: grep -v '^#' scripts/prompts/kbfirst-preamble.txt | ./bin/parrot0
+# (or cat it into a live session before your own prompts).
+
+learn the definition of kb-first: "engine fixed, knowledge learns - every surface form lives in the KB as facts, the C holds only motors"
+learn the definition of cue-chain: "an OR-chain of cue() calls in C - a word list encoded as code, the phrasebook shape kb-first forbids"
+learn the definition of impostor: "code that simulates knowledge instead of querying facts - a printf or strstr posing as understanding"
+learn the definition of intent-cue: "a KB fact naming a surface fragment that signals an intent - matched by the fixed motor kb_cue_match"
+learn the definition of cue-migration: "replacing a cue chain with one kb_cue_match call plus intent_cue facts - new vocabulary needs no recompile"
+learn the definition of outer-circle: "working on your own source tree as an ordinary codebase - scan it, patch a copy, verify; no privilege"
+learn the definition of session-knowledge: "what you learn about a codebase while working - transient, rediscovered each session with your tools"
+learn the definition of structural-knowledge: "the method itself - teach frames, plan actions and this lesson, preserved across sessions"

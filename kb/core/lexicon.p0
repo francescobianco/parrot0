@@ -15,6 +15,21 @@ conjunction(ed).
 conjunction(o).
 conjunction(oppure).
 
+% gen337: imperative openers — first words that mark a COMMAND turn, so the
+% narrative-continuation gate (30-generation-reading.c) never claims a long
+% command ("execute the kb-first plan for … in src/brain/60-agent-tools.c") as
+% a story to continue. A class, not a phrasebook: the gate queries
+% imperative_opener/1, so a new opener is a fact — teachable, no rebuild.
+imperative_opener(execute).
+imperative_opener(esegui).
+imperative_opener(run).
+imperative_opener(apply).
+imperative_opener(applica).
+imperative_opener(migrate).
+imperative_opener(migra).
+imperative_opener(scan).
+imperative_opener(scansiona).
+
 % English function words and high-frequency conversational operators.
 stopword(the).
 stopword(a).

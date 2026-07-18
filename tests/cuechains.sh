@@ -17,8 +17,12 @@
 # gen333: LLMSCORE range/initial/anagram/relationship vocabulary moved behind
 # kb_cue_match -> 246. Freeze the actual post-migration count: a new C OR-chain
 # now fails instead of hiding inside the old 71-chain allowance.
+# gen337 (T16): all 25 chains of 60-agent-tools.c migrated BY PARROT0 ITSELF
+# (derived kb-first plan, outer-circle session; facts in kb/core/intents.p0)
+# -> 226. NOTE: the gen334-336 generations had pushed the count to 251 with the
+# ratchet red; this migration paid that debt back below the old 246 line too.
 set -u
-MAX=246
+MAX=226
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/bin/parrot0"
 [ -x "$BIN" ] || { echo "cuechains: binary not built" >&2; exit 1; }
