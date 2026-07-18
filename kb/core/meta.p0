@@ -147,3 +147,82 @@ answer_frame("proposed rule", proposed_rule).
 answer_frame("incompatible", incompatible).
 answer_frame("violation", violates_constraint).
 answer_frame("consistent", consistent_kb).
+
+% ============================================================================
+% L14 — META-RAGIONAMENTO INTERROGABILE (gen339, abstraction-ceiling §1b)
+% Pulled from measured walls: «which relations are transitive?», «what kind of
+% question is …?», «cause vs enabling condition» all walled or named the gap.
+% ============================================================================
+
+% -- relation properties (completes the L4 promise of relation_type/2) --
+relation_type(is_a, transitive).
+relation_type(part_of, transitive).
+relation_type(located_in, transitive).
+relation_type(contains, transitive).
+relation_type(larger_than, transitive).
+relation_type(heavier_than, transitive).
+relation_type(faster_than, transitive).
+relation_type(before_in_time, transitive).
+relation_type(after_in_time, transitive).
+relation_type(borders, symmetric).
+relation_type(sibling_of, symmetric).
+relation_type(spouse_of, symmetric).
+relation_type(incompatible, symmetric).
+relation_type(parent_of, asymmetric).
+relation_type(capital_of_country, asymmetric).
+relation_type(eats, asymmetric).
+relation_type(is_a, hierarchical).
+relation_type(part_of, mereological).
+
+answer_frame("transitive", relation_type).
+answer_frame("symmetric", relation_type).
+answer_frame("asymmetric", relation_type).
+
+% -- converse pairs, keyed on plain words so turn tokens reach them --
+inverse_of(parent, child).
+inverse_of(child, parent).
+inverse_of(before, after).
+inverse_of(after, before).
+inverse_of(above, below).
+inverse_of(below, above).
+inverse_of(buy, sell).
+inverse_of(sell, buy).
+inverse_of(teacher, student).
+inverse_of(student, teacher).
+inverse_of(predecessor, successor).
+inverse_of(successor, predecessor).
+inverse_of(larger, smaller).
+inverse_of(smaller, larger).
+
+answer_frame("inverse", inverse_of).
+answer_frame("converse", inverse_of).
+
+% -- L7 question typology, finally answerable (keys are the interrogatives;
+%    served by the answer_frame engine's stopword second pass, gen339) --
+question_form(who, "a who-question asks for the identity of a person or agent").
+question_form(why, "a why-question asks for a cause, a reason or a justification").
+question_form(where, "a where-question asks for a place or location").
+question_form(when, "a when-question asks for a time or a date").
+question_form(how, "a how-question asks for a method, a process or a degree").
+question_form(which, "a which-question asks to choose among known alternatives").
+question_form(whether, "a whether-question asks for a yes or a no").
+
+answer_frame("kind of question", question_form).
+answer_frame("type of question", question_form).
+
+% -- reasoning contrasts: thinking about thinking, one fact per distinction --
+difference_between(cause, enabling_condition, "A cause actively produces the effect; an enabling condition only makes it possible").
+difference_between(deduction, induction, "Deduction derives what must follow from rules; induction generalizes a rule from examples").
+difference_between(deduction, abduction, "Deduction goes from rule to consequence; abduction guesses the best explanation of an observation").
+difference_between(induction, abduction, "Induction generalizes from many cases; abduction explains one case by the most plausible hypothesis").
+difference_between(correlation, causation, "Correlation means two things vary together; causation means one actually produces the other").
+difference_between(fact, rule, "A fact states one concrete case; a rule derives new conclusions from other facts").
+difference_between(fact, opinion, "A fact can be checked against the world; an opinion expresses a preference or a judgement").
+difference_between(knowledge, belief, "Knowledge is belief that is true and justified; a belief may be neither").
+difference_between(necessary, sufficient, "A necessary condition must hold for the effect; a sufficient one guarantees it by itself").
+difference_between(syntax, semantics, "Syntax is the form of an expression; semantics is its meaning").
+difference_between(metaphor, simile, "A simile compares with like or as; a metaphor asserts that one thing IS the other").
+difference_between(validity, truth, "Validity is about an argument's form; truth is about its premises and conclusion").
+% Italian keys (the canonicalizer leaves untranslated content words as-is)
+difference_between(correlazione, causalita, "Correlazione: due cose variano insieme; causalita: una produce davvero l'altra").
+difference_between(deduzione, induzione, "La deduzione ricava cio che segue dalle regole; l'induzione generalizza una regola dagli esempi").

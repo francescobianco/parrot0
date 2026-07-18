@@ -180,20 +180,65 @@ inclusi). Ratchet: `tests/cases/pragmatics.chat` (EN+IT). Meccanica nuova
 minima: un pronome DENTRO virgolette è menzione, non uso (il coref-repair non
 apre più chiarimenti su «"isn't it"»).
 
-### L14 — META-RAGIONAMENTO INTERROGABILE (prossimo giro)
-Le proprietà delle relazioni come fatti interrogabili in conversazione:
-`relation_type(is_a, transitive)` + frame («which relations are transitive?»),
-tipologia delle domande L7 servita in chat, contrasti di ragionamento
-(`difference_between(deduction, induction, …)`, causa vs condizione
-abilitante). Muri misurati: «which relations are transitive?» e «what kind of
-question is …» oggi murano; «cause vs enabling condition» dichiara il contrast
-fact mancante.
+### L14 — META-RAGIONAMENTO INTERROGABILE **(parziale, gen339)**
+Le proprietà delle relazioni come fatti interrogabili in conversazione.
+**Fatto (gen339, in `meta.p0` + ratchet `tests/cases/meta_reasoning.chat`):**
+coppie converse `inverse_of/2` («what is the inverse of before?» → After);
+tipologia L7 `question_form/2` servita in chat («what kind of question is
+"why …"?»), resa raggiungibile dal **secondo passaggio sulle stopword** del
+motore answer_frame (gli interrogativi SONO stopword — pass 1 li rivisita solo
+se il pass 0 non trova nulla); contrasti di ragionamento `difference_between/3`
+(causa/condizione abilitante, deduzione/induzione/abduzione,
+correlazione/causazione, necessario/sufficiente, validità/verità, …).
+I fatti `relation_type/2` (transitivo/simmetrico/asimmetrico) sono in KB ma il
+loro frame chat NON risponde ancora — vedi HANDOFF.
 
 ### L15 — CATENE CROSS-DOMINIO (giro successivo)
 Il ragionamento che attraversa domini: requisiti ambientali + geografia
 («why can't a fish live in the desert?»), tempo + invenzioni («which came
 first…»), analogie con la relazione GIUSTA (worn_on per hand:glove::foot:?).
 Muri misurati nella batteria gen338.
+
+---
+
+## 1c. HANDOFF (2026-07-18, fine sessione gen337-339) — il lavoro che riprende da qui
+
+> Protocollo di ripresa: [[act-as-subagent]] per i round guidati; questa lista
+> è l'ordine consigliato. Verifica sempre DIFFERENZIALE (la baseline main ha
+> 73 casi `.it` rossi ereditati da gen334 — `b11373b`, canonicalizzazione
+> IT→EN via `tr/2`, decisione di F. da sciogliere: o si aggiornano i test o si
+> scopa la canonicalizzazione dietro un gate).
+
+1. **L14 residuo — il frame `relation_type` non risponde.** «which relations
+   are transitive/symmetric?» mura e «what is the arity of X?» mura ANCHE con
+   il frame pre-esistente `answer_frame("arity", relation_arity)`: il percorso
+   backward di `mod_answer_frame` (pred(?, v)) non emerge mai in chat — da
+   investigare (chi intercetta il turno? il backward kb_match funziona?). I
+   fatti sono già in `meta.p0`. Nota: `relation_arity/2` promesso da §1 L4 non
+   esiste proprio come fatti.
+2. **Contrasti IT murano.** `difference_between(correlazione, causalita, …)` è
+   in KB ma «qual e la differenza tra correlazione e causalita?» non arriva al
+   consumer (catena IT→canonicalizzazione da tracciare con PARROT0_TRACE).
+3. **20 PARSE ERROR al boot (pre-esistenti, conoscenza droppata in silenzio!):**
+   template oltre `KB_TERM_LEN`=128 in `lexicon.p0`/`responses.p0` (expl_sky,
+   expl_rain, audit_report, …) e la regola `consistent_kb :-
+   naf(violates_constraint(_)).` che non parsa ('bad rule'). Accorciare o
+   spezzare; il fix della regola sblocca anche il punto 4.
+4. **«is your knowledge consistent?» → misclaim** (smalltalk_deflect). Serve il
+   consumer derivato su `consistent_kb`/`violates_constraint` (thin hook in
+   40-meta + cue KB). Idem «can something be both a bird and a mammal?» su
+   `incompatible/2`.
+5. **L15 intero:** requires/lacks per «why can't a fish live in the desert?»,
+   anni di invenzione per «which came first…», fatti `worn_on` per l'analogia
+   hand:glove::foot:? (il motore analogico gen già completa qualunque relazione
+   binaria: servono solo i fatti — attenzione: oggi risponde «related by
+   incompatible», capire da dove viene quel link).
+6. **Coda act-as-subagent §8:** residuo strstr di 60-agent-tools (chiude T16),
+   T17 (80-code.c, 31 catene), T18 (25-wordmath: 71 catene, un file per round).
+7. **Idea aperta (da F.):** «is your knowledge consistent?» e le meta-domande
+   in genere dovrebbero poggiare su fatti L6 (auto-modello) GENERATI dalla
+   struttura reale, non curati a mano — verificare cosa produce già
+   `kb_has_predicate`/`predicate_domain` al boot riflessivo.
 
 ---
 

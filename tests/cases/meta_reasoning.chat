@@ -1,0 +1,19 @@
+# gen339 — L14 META-REASONING (abstraction-ceiling §1b): thinking about
+# thinking as KB knowledge in kb/core/meta.p0. Converse pairs (inverse_of/2),
+# the L7 question typology (question_form/2, reachable through the answer_frame
+# engine's stopword second pass — interrogatives ARE stopwords), and reasoning
+# contrasts (difference_between/3). Each was a measured wall in the gen338
+# probe battery. NOTE: relation_type/2 facts also landed, but their chat frame
+# («which relations are transitive?») is still walled — the open handoff item.
+> what is the inverse of before?
+< After.
+> what kind of question is "why is the sky blue"?
+< A why-question asks for a cause, a reason or a justification.
+> what kind of question is "where is paris"?
+< A where-question asks for a place or location.
+> what is the difference between correlation and causation?
+< Correlation means two things vary together; causation means one actually produces the other
+> what is the difference between a cause and an enabling condition?
+< A cause actively produces the effect; an enabling condition only makes it possible
+> what is the difference between deduction and induction?
+< Deduction derives what must follow from rules; induction generalizes a rule from examples

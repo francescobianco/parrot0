@@ -2499,12 +2499,20 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[0]));
         if (!*pred) continue;
 
+        /* gen339 (L14): two passes. Pass 0 skips stopwords as before; pass 1
+         * revisits ONLY stopword tokens, and only when pass 0 matched nothing —
+         * question_form/2 keys its facts on the interrogatives themselves
+         * ("why", "who", …), which the stopword filter used to make
+         * unreachable. Safe: junk keys ("the", "of") have no facts, so the
+         * frame still claims only on a real pred match. */
+        for (size_t pass = 0; pass < 2; pass++) {
         for (size_t t = 0; t < nw; t++) {
             char *v = strip_edge_punct(w[t]);
             /* gen311: allow SINGLE-letter tokens — chemical symbols are 1 char
              * (K, O, H, N). Safe because the frame claims only on a real pred
              * match, and is_stopword already drops articles/function words. */
-            if (strlen(v) < 1 || is_stopword(b, v)) continue;
+            if (strlen(v) < 1) continue;
+            if (is_stopword(b, v) != (pass == 1)) continue;
             char ans[16][KB_TERM_LEN]; size_t na;
             const char *ffw[2] = { v, NULL };
             na = kb_match(b->kb, pred, ffw, 2, ans, 16);        /* pred(v, ?) -> arg2 */
@@ -2526,6 +2534,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             store_proof(b, msg);
             return 1;
+        }
         }
     }
     return 0;
