@@ -1,8 +1,8 @@
 # Dossier operativo — round guidati verso un coding agent usabile
 
-> **Stato:** handoff finalizzato in `gen340`; ciclo guidato chiuso a T06 il
-> 2026-07-19, a partire da `gen339`. La missione complessiva resta aperta e
-> riparte dai residui ordinati nella sezione 10.
+> **Stato:** handoff aggiornato in `gen341`; ciclo guidato chiuso a T06 e
+> ritaratura semantica della suite avviata il 2026-07-19. La missione
+> complessiva resta aperta e riparte dai residui ordinati nelle sezioni 10-11.
 > **Scopo:** conservare le scoperte prodotte mentre un supervisore usa parrot0
 > come subagent, e ordinare le leve logiche che trasformano i suoi fallimenti in
 > facoltà generali. Questo dossier affianca
@@ -507,3 +507,84 @@ Ogni nuovo round deve lasciare qui: incarico esatto, decisioni autonome
 osservate, artefatti e `P0Obs`, primo controesempio, fatto KB aggiunto/retratto,
 fail-set differenziale e residuo tipizzato. Se manca uno di questi elementi, il
 round può aver aggiunto codice, ma non ha ancora dimostrato una nuova facoltà.
+
+## 11. Handoff gen341 — ritaratura semantica, non fotografia dei bug
+
+### 11.1 Diagnosi del debito
+
+Il fail-set ereditato non è omogeneo. Il commit `b11373b` (`gen334`) introdusse
+la canonicalizzazione IT→EN KB-first, centinaia di fatti e risposte localizzate,
+ma non modificò alcun fixture. Questo rende obsolete molte rappresentazioni
+attese; non rende però corretto ogni output nuovo.
+
+Il triage riga-per-riga della baseline `gen340` ha classificato:
+
+- 50 fixture `*.it.chat`, 148 mismatch: 14 golden-only sicure (37 righe), una
+  condizionale, 12 miste e 23 regressioni core pure; 75 righe sono equivalenze
+  dell'interlingua e 6 localizzazioni migliori, mentre 65 sono regressioni;
+- 23 fixture senza suffisso `.it.chat`: 8 golden obsolete, 14 regressioni core
+  e una mista (`priority.chat`).
+
+Golden-only IT sicure: `cause`, `coref_prodrop`, `facts`, `memory_recall`,
+`mixed`, `negation`, `possession_dinome`, `prosefact`, `rederive`, `repair`,
+`robust`, `rules`, `teachverb`, `whatifnot`. Golden-only senza suffisso:
+`apology`, `correction`, `lexicon_it`, `parrot`, `self`, `social`, `strategy`,
+`teachverb`. `counterfactual.it` richiede prima di rendere linguistico il
+verdetto interno; `priority` contiene insieme `gatto→cat` corretto e una
+duplicazione di dispatch errata.
+
+La regola di prosecuzione è: aggiornare solo equivalenze semantiche e
+localizzazioni coerenti con `current_language`; non ratificare `Non capisco`,
+fatti malformati, metadati interni, perdita di source text, duplicazioni o
+routing verso una faculty più debole. Nomi propri, stringhe citate, frammenti
+di sorgente, esempi few-shot e sequenze generative restano opachi anche quando
+i concetti ordinari entrano nell'interlingua.
+
+### 11.2 Due regressioni generali già chiuse
+
+Senza cambiare un solo golden sono state corrette due cause ad alta leva:
+
+1. `entity_mentioned/2` e `entity_seq_max/1` sono ora dichiarati
+   `machinery/1`; la salienza riflessiva non compare più come proprietà del
+   soggetto nelle risposte utente.
+2. `mod_initiative` riconosce un loop soltanto se l'intero input è un'eco
+   case-insensitive dell'ultima risposta. Il vecchio confronto sui primi 12
+   byte rubava fatti distinti con lo stesso prefisso e rompeva i named world.
+
+Build: zero warning. Harness conversazionale: **187 pass / 66 fail**, contro
+**180/73** prima della correzione. Sono diventati verdi `belief`, `blankwall`,
+`compose_coref`, `coref`, `gen_describe`, `proof_trace` e `world_stress` (fixture
+non-IT), mostrando che erano regressioni e non golden da aggiornare.
+
+### 11.3 Coda suite, in ordine di leva
+
+1. Filtrare `kb_user_facts/predicates/dump` per origine utente e machinery;
+   separare i fatti dimostrativi `progenitor/2` dal core conversazionale.
+2. Passare raw-span distinti ai due rami di `decompose_and_dispatch`, invece
+   dell'intero input a entrambi.
+3. Preservare raw/source per generation, few-shot, strategy e translation;
+   ripristinare gender e morfologia inversa come fatti KB non order-dependent.
+4. Far consultare raw normalizzato ai consumer IT persi (meta, module tracking,
+   pragma, role, user model), con assert/retract runtime dei cue.
+5. Solo dopo questi fix applicare i golden-only sopra elencati e pretendere
+   `tests/run.sh` completamente verde; il vecchio criterio del fail-set
+   differenziale è ritirato per `gen341`.
+
+### 11.4 Iterazione successiva progettata, non implementata
+
+La ricognizione del bridge richiesto dalla sezione 10 è completa. Il seam minimo
+è una callback PatchArtifact basata su `rootfd` borrowed e un
+`p0_patch_check()` che rimaterializzi un artefatto persistito, verifichi la
+postimage, esegua l'oracolo con `p0_exec_at`, riverifichi i touched path e
+distrugga la stage. L'oracolo sort deve abbandonare `.p0-sort-*`; build e run
+restano due `P0Obs`. Il commit richiede una policy KB per ogni operazione/path e
+un post-check canonico; policy assente produce `Gap(policy)` e zero scritture,
+post-check rosso produce rollback verificato. Un candidato verde non rende il
+Task `done`: serve lo stato intermedio `verified_candidate` fino al commit.
+
+Ratchet da costruire: artefatto repository-bound persistito/riletto; tool
+ablation; policy ablation; commit verde con nuovo oracolo canonico; post-check
+rosso con rollback byte/path/mode; fatti P0A e digest come assert, mai wording.
+Restano invariati i limiti: `p0_exec_at` non è chroot, PatchArtifact non è
+crash-atomic, output non-touched del checker non è coperto dal rollback, dedup
+multi-file T06 usa ancora FNV64 e il P0A store non è durable.

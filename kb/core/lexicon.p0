@@ -498,6 +498,10 @@ machinery(discourse_opener).
 machinery(intent_starter).
 machinery(connector).
 machinery(sequencer).
+% Discourse salience is reflective control state, never a user-taught property
+% of the entity being described.
+machinery(entity_mentioned).
+machinery(entity_seq_max).
 
 % Discourse openers — peeled off the front of the turn before dispatch
 discourse_opener(anyway).

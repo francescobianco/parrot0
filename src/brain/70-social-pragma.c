@@ -358,13 +358,12 @@ static int mod_initiative(Brain *b, const char *norm, const char *raw,
                           char *out, size_t out_size) {
     (void)norm;
     if (!b || !b->kb || !raw || !b->last_reply[0]) return 0;
-    char a[256], c[256]; size_t i = 0, j = 0;
-    for (; raw[i] && i + 1 < sizeof a; i++) a[i] = (char)tolower((unsigned char)raw[i]);
-    a[i] = '\0';
-    for (; b->last_reply[j] && j + 1 < sizeof c; j++)
-        c[j] = (char)tolower((unsigned char)b->last_reply[j]);
-    c[j] = '\0';
-    if (strlen(a) < 12 || strlen(c) < 12 || strncmp(a, c, 12) != 0) return 0;  /* not a loop */
+    size_t alen = strlen(raw), clen = strlen(b->last_reply);
+    if (alen < 12 || alen != clen) return 0;
+    for (size_t i = 0; i < alen; i++)
+        if (tolower((unsigned char)raw[i]) !=
+            tolower((unsigned char)b->last_reply[i]))
+            return 0;                    /* not an exact self-play echo */
 
     char lang[8]; current_lang(b, lang, sizeof lang);
     int it = (strcmp(lang, "it") == 0);
