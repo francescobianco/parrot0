@@ -15,6 +15,7 @@
 #define PARROT0_BRAIN_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 /* Opaque, persistent state the brain may accumulate during a session.
  * v0 keeps almost nothing here, but evolution will grow it. */
@@ -27,6 +28,12 @@ typedef struct KB KB;
 /* gen277: the brain's knowledge base, so a host (the MCP engine) can call the
  * kb.h primitives directly on it — expose the engine, don't wrap every call. */
 KB *brain_kb(Brain *b);
+
+/* Atomically change one typed agent record's state. The in-memory P0AStore and
+ * its live rec(Id,Kind,Parent,State) projection either both move or both remain
+ * at the old state. Returns 1 on success, 0 for an unknown id/invalid input or
+ * a projection failure. This is the sole state-transition seam for agent loops. */
+int brain_agent_set_state(Brain *b, uint64_t id, const char *state);
 
 /* Create / destroy brain state. Returns NULL on allocation failure. */
 Brain *brain_create(void);

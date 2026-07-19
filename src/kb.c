@@ -33,6 +33,12 @@
 #define KB_MAX_BIND  128/* bindings per substitution                   */
 #define KB_PROOF_LEN 480/* max length of a rendered proof string       */
 #define KB_PROOF_PG  16 /* goals tracked while building an explanation */
+/* One serialized rule can contain a head plus KB_MAX_BODY goals, each with a
+ * predicate and KB_MAX_ARGS full-size arguments. Keep transport allocation
+ * derived from those representation limits: a missing terminator must not turn
+ * kb_load into an unbounded-memory sink. The small suffix budget covers commas,
+ * parens, `:-`, `naf(...)`, and whitespace. */
+#define KB_CLAUSE_MAX (((KB_MAX_BODY + 1) * (KB_MAX_ARGS + 1) * KB_TERM_LEN) + 256)
 
 /* A term: predicate + args. An arg is a constant (lowercase atom) or a
  * variable (starts uppercase or '_'). Facts are ground terms; rule heads and
@@ -532,8 +538,20 @@ typedef struct {
     int    frame;
 } Solver;
 
+/* KB_TERM_LEN also sizes substitutions and resolvents. Keeping those two large
+ * scratch objects in every recursive C frame would make the logical depth limit
+ * depend on the host thread's stack (and raising the text ceiling exposed that
+ * at factorial(15)). One bounded scratch object per logical frame lives on the
+ * heap instead; ownership is exactly the wrapper call below. */
+typedef struct {
+    Subst subst;
+    Term  goals[KB_MAX_GOALS];
+} SolveFrame;
+
 static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                  const Subst *s, int depth);   /* fwd: naf helpers call solve */
+static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                       const Subst *s, int depth, SolveFrame *scratch);
 static int parse_to_term(const char *s, Term *t); /* fwd: call/1 builtin */
 
 /* U6 (teach-comprehension-via-mcp.md §6.2) negation-as-failure helpers. A body
@@ -557,8 +575,10 @@ static int goal_provable(const KB *kb, const Term *g, int depth) {
     Solver S;
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = NULL; S.qvar = NULL;
-    Subst s = { .n = 0 };
-    solve(&S, g, 1, 0, &s, depth);
+    Subst *s = calloc(1, sizeof *s);
+    if (!s) return 0;
+    solve(&S, g, 1, 0, s, depth);
+    free(s);
     return S.found;
 }
 
@@ -669,6 +689,16 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     }
     if (depth > KB_MAX_DEPTH) return 0;
 
+    SolveFrame *scratch = malloc(sizeof *scratch);
+    if (!scratch) return 0;
+    int result = solve_frame(S, goals, ngoals, idx, s, depth, scratch);
+    free(scratch);
+    return result;
+}
+
+static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
+                       const Subst *s, int depth, SolveFrame *scratch) {
+
     const Term *g = &goals[idx];
 
     if (g->neg) {                              /* U6: negation-as-failure */
@@ -685,19 +715,20 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         deep_resolve(s, g->args[1], a1, sizeof a1, 0);
         int g0 = !is_var(a0) && strchr(a0, '$') == NULL;   /* arg0 fully ground */
         int g1 = !is_var(a1) && strchr(a1, '$') == NULL;   /* arg1 fully ground */
-        Subst s2 = *s;
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
         if (g0) {                              /* atom -> char-list */
             char list[KB_CHARLIST_MAX];
             if (atom_to_charlist(a0, list, sizeof list) &&
-                unify(&s2, g->args[1], list))
-                return solve(S, goals, ngoals, idx + 1, &s2, depth);
+                unify(s2, g->args[1], list))
+                return solve(S, goals, ngoals, idx + 1, s2, depth);
             return 0;
         }
         if (g1) {                              /* char-list -> atom */
             char atom[KB_TERM_LEN];
             if (charlist_to_atom(a1, atom, sizeof atom) &&
-                unify(&s2, g->args[0], atom))
-                return solve(S, goals, ngoals, idx + 1, &s2, depth);
+                unify(s2, g->args[0], atom))
+                return solve(S, goals, ngoals, idx + 1, s2, depth);
             return 0;
         }
         return 0;                              /* both unbound: flounder */
@@ -715,9 +746,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         char rs[64];
         if (r == (double)(long long)r) snprintf(rs, sizeof rs, "%lld", (long long)r);
         else snprintf(rs, sizeof rs, "%g", r);
-        Subst s2 = *s;
-        if (unify(&s2, g->args[0], rs))
-            return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify(s2, g->args[0], rs))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
     }
     if (g->argc == 2 &&
@@ -744,7 +776,7 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         deep_resolve(s, g->args[0], resolved, sizeof resolved, 0);
         Term called;
         if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
-        Term ng[KB_MAX_GOALS];
+        Term *ng = scratch->goals;
         size_t m = 0;
         if (m < KB_MAX_GOALS) ng[m++] = called;
         for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
@@ -783,9 +815,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         deep_resolve(s, g->args[1], rb, sizeof rb, 0);
         if (!is_var(ra) && !is_var(rb))
             return strcmp(ra, rb) != 0 ? solve(S, goals, ngoals, idx + 1, s, depth) : 0;
-        Subst s2 = *s;
-        if (!dif_add(&s2, g->args[0], g->args[1])) return 0;
-        return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (!dif_add(s2, g->args[0], g->args[1])) return 0;
+        return solve(S, goals, ngoals, idx + 1, s2, depth);
     }
 
     if (strcmp(g->pred, "findall") == 0 && g->argc == 3) {  /* findall/3 */
@@ -803,8 +836,9 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         F.qvar = is_var(tv) ? tv : "$Q";
         F.out = solutions;
         F.max = max_sol;
-        Subst fs = *s;
-        solve(&F, &goal, 1, 0, &fs, 0);
+        Subst *fs = &scratch->subst;
+        *fs = *s;
+        solve(&F, &goal, 1, 0, fs, 0);
         char list_buf[KB_CHARLIST_MAX];
         snprintf(list_buf, sizeof list_buf, "nil");
         for (size_t i = F.count; i > 0; i--) {
@@ -814,9 +848,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             memcpy(list_buf, nxt, (size_t)w + 1);
         }
         free(solutions);
-        Subst s2 = *s;
-        if (unify(&s2, g->args[2], list_buf))
-            return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify(s2, g->args[2], list_buf))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
     }
 
@@ -829,9 +864,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         char matches[1][KB_TERM_LEN];
         size_t nm = kb_match(S->kb, "fact_confidence", cargs, 2, matches, 1);
         snprintf(pbuf, sizeof pbuf, "%s", nm > 0 ? matches[0] : "0.5");
-        Subst s2 = *s;
-        if (unify(&s2, g->args[1], pbuf))
-            return solve(S, goals, ngoals, idx + 1, &s2, depth);
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify(s2, g->args[1], pbuf))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
         return 0;
     }
 
@@ -846,9 +882,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     }
 
     for (size_t i = 0; i < S->kb->n; i++) {    /* match facts */
-        Subst s2 = *s;
-        if (unify_term_fact(&s2, g, &S->kb->facts[i])) {
-            if (solve(S, goals, ngoals, idx + 1, &s2, depth)) return 1;
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify_term_fact(s2, g, &S->kb->facts[i])) {
+            if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
         }
     }
 
@@ -861,10 +898,11 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         int anon = 0; /* fresh-anonymous counter, shared across this clause */
         Term rhead;
         rename_term(&R->head, fr, &anon, &rhead);
-        Subst s2 = *s;
-        if (!unify_term_term(&s2, g, &rhead)) continue;
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (!unify_term_term(s2, g, &rhead)) continue;
 
-        Term ng[KB_MAX_GOALS];
+        Term *ng = scratch->goals;
         size_t m = 0;
         int overflow = 0;
         for (size_t b = 0; b < R->nbody; b++) {
@@ -876,7 +914,7 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             ng[m++] = goals[k];
         }
         if (overflow) continue;
-        if (solve(S, ng, m, 0, &s2, depth + 1)) return 1;
+        if (solve(S, ng, m, 0, s2, depth + 1)) return 1;
     }
     return 0;
 }
@@ -974,14 +1012,18 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         if (args[i] && term_contains_var(args[i], 0))
             has_rule = 1; /* variable/structural unify */
     if (!has_rule) {
+        Subst *work = malloc(sizeof *work);
+        if (!work) return 0;
         for (size_t i = 0; i < kb->n; i++) {
             const Fact *f = &kb->facts[i];
             if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
-            Subst s = { .n = 0 }; int same = 1;
+            work->n = 0; work->ndif = 0;
+            int same = 1;
             for (size_t a = 0; a < argc; a++)
-                if (!unify(&s, args[a], f->args[a])) { same = 0; break; }
-            if (same) return 1;
+                if (!unify(work, args[a], f->args[a])) { same = 0; break; }
+            if (same) { free(work); return 1; }
         }
+        free(work);
         return 0;
     }
 
@@ -991,8 +1033,11 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     Solver S;
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = kb;
-    Subst s = { .n = 0 };
-    solve(&S, &g, 1, 0, &s, 0);
+    Subst *s = malloc(sizeof *s);
+    if (!s) return 0;
+    s->n = 0; s->ndif = 0;
+    solve(&S, &g, 1, 0, s, 0);
+    free(s);
     return S.found;
 }
 
@@ -1027,21 +1072,25 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     }
     if (simple) {
         size_t count = 0;
+        Subst *work = malloc(sizeof *work);
+        if (!work) return 0;
         for (size_t i = 0; i < kb->n; i++) {
             const Fact *f = &kb->facts[i];
             if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
-            Subst s = { .n = 0 }; int match = 1;
+            work->n = 0; work->ndif = 0;
+            int match = 1;
             for (size_t a = 0; a < argc; a++)
-                if (args[a] && !unify(&s, args[a], f->args[a])) {
+                if (args[a] && !unify(work, args[a], f->args[a])) {
                     match = 0; break;
                 }
             if (match) {
                 char value[KB_TERM_LEN];
-                deep_resolve(&s, f->args[first_var], value, sizeof value, 0);
+                deep_resolve(work, f->args[first_var], value, sizeof value, 0);
                 push_unique(out, &count, max, value);
             }
             if (count >= max) break;
         }
+        free(work);
         return count;
     }
 
@@ -1069,8 +1118,11 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     S.qvar = hasvar ? "$Q" : NULL;
     S.out = out;
     S.max = max;
-    Subst s = { .n = 0 };
-    solve(&S, &g, 1, 0, &s, 0);
+    Subst *s = malloc(sizeof *s);
+    if (!s) return 0;
+    s->n = 0; s->ndif = 0;
+    solve(&S, &g, 1, 0, s, 0);
+    free(s);
     return S.count;
 }
 
@@ -1089,6 +1141,16 @@ static void render_goal(const Subst *s, const Term *g, char *buf, size_t sz) {
     if (off > 0 && (size_t)off < sz) snprintf(buf + off, sz - (size_t)off, ")");
 }
 
+typedef struct {
+    Subst subst;
+    Term  goals[KB_PROOF_PG];
+    char  proofs[KB_PROOF_PG][KB_PROOF_LEN];
+} ProofFrame;
+
+static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
+                           const Subst *s, int depth, int *frame,
+                           char out[][KB_PROOF_LEN], ProofFrame *scratch);
+
 /* Prove goals[idx..n-1] and, on success, render each goal's proof into
  * out[idx..n-1]. A goal proven by a fact renders as the ground goal; a goal
  * proven by a rule renders as "<goal> because <sub0> and <sub1> ...". The
@@ -1100,6 +1162,16 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
                         char out[][KB_PROOF_LEN]) {
     if (idx == n) return 1;
     if (idx >= KB_PROOF_PG) return 0;
+    ProofFrame *scratch = malloc(sizeof *scratch);
+    if (!scratch) return 0;
+    int result = prove_seq_frame(kb, goals, n, idx, s, depth, frame, out, scratch);
+    free(scratch);
+    return result;
+}
+
+static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
+                           const Subst *s, int depth, int *frame,
+                           char out[][KB_PROOF_LEN], ProofFrame *scratch) {
     const Term *g = &goals[idx];
 
     if (g->neg) {                                   /* U6: NAF in the proof */
@@ -1121,12 +1193,12 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
         deep_resolve(s, g->args[0], resolved, sizeof resolved, 0);
         Term called;
         if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
-        Term comb[KB_PROOF_PG];
+        Term *comb = scratch->goals;
         size_t m = 0;
         if (m < KB_PROOF_PG) comb[m++] = called;
         for (size_t k = idx + 1; k < n && m < KB_PROOF_PG; k++)
             comb[m++] = goals[k];
-        char cout[KB_PROOF_PG][KB_PROOF_LEN];
+        char (*cout)[KB_PROOF_LEN] = scratch->proofs;
         if (prove_seq_ex(kb, comb, m, 0, s, depth, frame, cout)) {
             snprintf(out[idx], KB_PROOF_LEN, "%s", cout[0]);
             for (size_t k = idx + 1; k < n; k++)
@@ -1191,10 +1263,11 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
     }
 
     for (size_t i = 0; i < kb->n; i++) {            /* close by a fact */
-        Subst s2 = *s;
-        if (unify_term_fact(&s2, g, &kb->facts[i])) {
-            if (prove_seq_ex(kb, goals, n, idx + 1, &s2, depth, frame, out)) {
-                render_goal(&s2, g, out[idx], KB_PROOF_LEN);
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify_term_fact(s2, g, &kb->facts[i])) {
+            if (prove_seq_ex(kb, goals, n, idx + 1, s2, depth, frame, out)) {
+                render_goal(s2, g, out[idx], KB_PROOF_LEN);
                 return 1;
             }
         }
@@ -1208,10 +1281,11 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
         int fr = ++(*frame), anon = 0;
         Term rhead;
         rename_term(&R->head, fr, &anon, &rhead);
-        Subst s2 = *s;
-        if (!unify_term_term(&s2, g, &rhead)) continue;
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (!unify_term_term(s2, g, &rhead)) continue;
 
-        Term comb[KB_PROOF_PG];
+        Term *comb = scratch->goals;
         size_t m = 0;
         int overflow = 0;
         for (size_t b = 0; b < R->nbody; b++) {
@@ -1224,10 +1298,10 @@ static int prove_seq_ex(KB *kb, const Term *goals, size_t n, size_t idx,
         }
         if (overflow) continue;
 
-        char cout[KB_PROOF_PG][KB_PROOF_LEN];
-        if (prove_seq_ex(kb, comb, m, 0, &s2, depth + 1, frame, cout)) {
+        char (*cout)[KB_PROOF_LEN] = scratch->proofs;
+        if (prove_seq_ex(kb, comb, m, 0, s2, depth + 1, frame, cout)) {
             char head[KB_PROOF_LEN];
-            render_goal(&s2, g, head, sizeof head);
+            render_goal(s2, g, head, sizeof head);
             int off = snprintf(out[idx], KB_PROOF_LEN, "%s because ", head);
             for (size_t b = 0; b < R->nbody && off > 0 &&
                                (size_t)off < KB_PROOF_LEN; b++) {
@@ -1249,11 +1323,16 @@ int kb_explain(KB *kb, const char *pred, const char *const *args,
     if (!term_make(&g, pred, args, argc)) return 0;
 
     char proofs[KB_PROOF_PG][KB_PROOF_LEN];
-    Subst s = { .n = 0 };
+    Subst *s = calloc(1, sizeof *s);
+    if (!s) return 0;
     int frame = 0;
-    if (!prove_seq_ex(kb, &g, 1, 0, &s, 0, &frame, proofs)) return 0;
+    if (!prove_seq_ex(kb, &g, 1, 0, s, 0, &frame, proofs)) {
+        free(s);
+        return 0;
+    }
 
     snprintf(out, out_size, "%s", proofs[0]);
+    free(s);
     return 1;
 }
 
@@ -1275,7 +1354,8 @@ size_t kb_induce(KB *kb, size_t min_support,
     int saved_origin = kb->origin;
     kb->origin = KB_INDUCED; /* tag everything we induce */
 
-    char preds[256][KB_TERM_LEN];
+    char (*preds)[KB_TERM_LEN] = malloc(256 * sizeof *preds);
+    if (!preds) { kb->origin = saved_origin; return 0; }
     size_t np = 0;
     for (size_t i = 0; i < kb->n; i++) {
         /* gen73: skip meta-knowledge predicates (lexicon, social, reflective).
@@ -1324,6 +1404,7 @@ size_t kb_induce(KB *kb, size_t min_support,
     }
 
     kb->origin = saved_origin;
+    free(preds);
     return found;
 }
 
@@ -1335,6 +1416,18 @@ static int parse_term(const char *s, char *pred,
                       char args[][KB_TERM_LEN], size_t *argc) {
     while (*s && isspace((unsigned char)*s)) s++;
     const char *lp = strchr(s, '(');
+    if (!lp) {                                    /* zero-arity atom: ready. */
+        size_t plen = strlen(s);
+        while (plen > 0 && isspace((unsigned char)s[plen - 1])) plen--;
+        if (plen == 0 || plen >= KB_TERM_LEN) return 0;
+        for (size_t i = 0; i < plen; i++)
+            if (!(isalnum((unsigned char)s[i]) || s[i] == '_' || s[i] == '$'))
+                return 0;
+        memcpy(pred, s, plen);
+        pred[plen] = '\0';
+        *argc = 0;
+        return 1;
+    }
     const char *rp = lp ? strrchr(lp, ')') : NULL;
     if (!lp || !rp || rp < lp) return 0;
 
@@ -1346,6 +1439,10 @@ static int parse_term(const char *s, char *pred,
 
     *argc = 0;
     const char *p = lp + 1;
+    {   const char *empty = p;
+        while (empty < rp && isspace((unsigned char)*empty)) empty++;
+        if (empty == rp) return 1;                /* explicit zero arity: ready() */
+    }
     while (p < rp) {
         while (p < rp && isspace((unsigned char)*p)) p++;
         const char *start = p;
@@ -1355,9 +1452,15 @@ static int parse_term(const char *s, char *pred,
              * The stored atom keeps its quotes, so the description renderer can
              * recognise it. Without this, prose descriptions with commas were
              * shredded into garbage multi-arg facts. */
+            int escaped = 0, closed = 0;
             p++;                                   /* opening quote */
-            while (p < rp && *p != '"') p++;
-            if (p < rp) p++;                       /* closing quote */
+            while (p < rp) {
+                if (escaped) { escaped = 0; p++; continue; }
+                if (*p == '\\') { escaped = 1; p++; continue; }
+                if (*p == '"') { p++; closed = 1; break; }
+                p++;
+            }
+            if (!closed) return 0;
         } else {
             /* U3: split on TOP-LEVEL commas only, so a compound-term argument
              * f(a, b) stays one arg (nested commas are structure, not
@@ -1414,7 +1517,7 @@ static int parse_neg_term(const char *s, char *pred,
                           char args[][KB_TERM_LEN], size_t *argc) {
     size_t n = strlen(s);
     if (n < 7 || strncmp(s, "not(", 4) != 0 || s[n - 1] != ')') return 0;
-    char inner[1024];
+    char inner[KB_TERM_LEN * (KB_MAX_ARGS + 1)];
     size_t len = n - 5; /* strip "not(" and the final ')' */
     if (len == 0 || len >= sizeof inner) return 0;
     memcpy(inner, s + 4, len);
@@ -1426,15 +1529,21 @@ static int parse_neg_term(const char *s, char *pred,
  * input buffer is modified in place. */
 static size_t split_goals(char *body, char *goals[], size_t max) {
     size_t n = 0;
-    int depth = 0;
+    int depth = 0, quoted = 0, escaped = 0;
     char *start = body;
     for (char *p = body;; p++) {
-        if (*p == '(') depth++;
+        if (quoted) {
+            if (escaped) escaped = 0;
+            else if (*p == '\\') escaped = 1;
+            else if (*p == '"') quoted = 0;
+        } else if (*p == '"') quoted = 1;
+        else if (*p == '(') depth++;
         else if (*p == ')') depth--;
-        if ((*p == ',' && depth == 0) || *p == '\0') {
+        if ((*p == ',' && depth == 0 && !quoted) || *p == '\0') {
             char saved = *p;
             *p = '\0';
-            if (n < max) goals[n++] = start;
+            if (n < max) goals[n] = start;
+            n++;                                    /* preserve overflow evidence */
             start = p + 1;
             if (saved == '\0') break;
         }
@@ -1490,10 +1599,15 @@ static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
         return kb_assert_neg(kb, neg_pred, argp, neg_argc) ? 1 : 0;
     }
 
-    char rulebuf[1024];                         /* keep `s` intact for error text */
     char *arrow = strstr(s, ":-");
     if (arrow) {                                /* rule: head :- goals */
-        snprintf(rulebuf, sizeof rulebuf, "%s", s);
+        char *rulebuf = malloc(n + 1);           /* keep `s` intact for error text */
+        if (!rulebuf) {
+            fprintf(stderr, "kb_load: PARSE ERROR in %s: out of memory while parsing clause\n",
+                    path ? path : "?");
+            return 0;
+        }
+        memcpy(rulebuf, s, n + 1);
         char *rarrow = strstr(rulebuf, ":-");
         *rarrow = '\0';
         Rule r;
@@ -1502,12 +1616,25 @@ static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
         int ok = parse_to_term(rulebuf, &r.head);
         char *goals[KB_MAX_BODY];
         size_t ng = ok ? split_goals(rarrow + 2, goals, KB_MAX_BODY) : 0;
+        if (ng > KB_MAX_BODY) {
+            fprintf(stderr,
+                    "kb_load: PARSE ERROR in %s: too many body goals (limit %d), dropped without partial rule: '%s.'\n",
+                    path ? path : "?", KB_MAX_BODY, s);
+            free(rulebuf);
+            return 0;
+        }
         if (ok && ng == 0) ok = 0;
         for (size_t i = 0; i < ng && ok; i++)
             if (!parse_goal(goals[i], &r.body[i])) ok = 0;
-        if (ok) { r.nbody = ng; kb_add_rule(kb, &r); return 1; }
+        if (ok) {
+            r.nbody = ng;
+            ok = kb_add_rule(kb, &r);
+            free(rulebuf);
+            return ok ? 1 : 0;
+        }
         fprintf(stderr, "kb_load: PARSE ERROR in %s: bad rule, dropped: '%s.'\n",
                 path ? path : "?", s);
+        free(rulebuf);
         return 0;
     }
 
@@ -1527,6 +1654,35 @@ static int load_clause(KB *kb, const char *path, const char *dir, char *s) {
     return 0;
 }
 
+/* Grow the logical-clause accumulator without imposing a second, unrelated
+ * line-size ceiling. The term/arity parser remains the authority on what can be
+ * represented; the transport must not silently truncate before it gets there. */
+/* 1 = appended, 0 = allocation failure, -1 = structural clause budget hit. */
+static int loadbuf_put(char **buf, size_t *len, size_t *cap, char c) {
+    if (*len >= KB_CLAUSE_MAX) return -1;
+    if (*len + 1 >= *cap) {
+        size_t next = *cap ? *cap * 2 : 256;
+        if (next > KB_CLAUSE_MAX + 1) next = KB_CLAUSE_MAX + 1;
+        if (next <= *cap || next > (size_t)-1 / sizeof **buf) return 0;
+        char *grown = realloc(*buf, next);
+        if (!grown) return 0;
+        *buf = grown;
+        *cap = next;
+    }
+    (*buf)[(*len)++] = c;
+    (*buf)[*len] = '\0';
+    return 1;
+}
+
+static void loadbuf_trim(char *buf, size_t *len) {
+    size_t start = 0;
+    while (start < *len && isspace((unsigned char)buf[start])) start++;
+    while (*len > start && isspace((unsigned char)buf[*len - 1])) (*len)--;
+    if (start > 0) memmove(buf, buf + start, *len - start);
+    *len -= start;
+    buf[*len] = '\0';
+}
+
 int kb_load(KB *kb, const char *path) {
     if (!kb || !path || !*path) return 0;
     FILE *f = fopen(path, "r");
@@ -1541,43 +1697,84 @@ int kb_load(KB *kb, const char *path) {
         }
     }
 
-    char line[1024];
+    char *clause = NULL;
+    size_t len = 0, cap = 0;
     int count = 0;
-    while (fgets(line, sizeof line, f)) {
-        /* Strip an inline comment: the first '%' outside a quoted string ends the
-         * line (also handles whole-line comments). */
-        { int q = 0;
-          for (char *p = line; *p; p++) {
-              if (*p == '"') q = !q;
-              else if (*p == '%' && !q) { *p = '\0'; break; }
-          } }
-
-        /* gen335: split the physical line into CLAUSES at every '.' that sits at
-         * paren-depth 0 and outside a quoted string — so "a(1). b(2). c(3)." on one
-         * line loads three facts instead of silently dropping two. A '.' inside
-         * parens (include paths, nested terms) or inside quotes is never a splitter. */
-        char *seg = line;
-        int q = 0, depth = 0;
-        for (char *p = line; ; p++) {
-            char c = *p;
-            if (c == '"') q = !q;
-            else if (!q && c == '(') depth++;
-            else if (!q && c == ')') { if (depth > 0) depth--; }
-
-            if ((c == '.' && !q && depth == 0) || c == '\0') {
-                char terminal = c;
-                *p = '\0';
-                /* trim the segment */
-                char *t = seg;
-                while (*t && isspace((unsigned char)*t)) t++;
-                size_t tl = strlen(t);
-                while (tl > 0 && isspace((unsigned char)t[tl - 1])) t[--tl] = '\0';
-                if (tl > 0) count += load_clause(kb, path, dir, t);
-                if (terminal == '\0') break;
-                seg = p + 1;
-            }
+    int quoted = 0, escaped = 0, comment = 0, depth = 0, oom = 0;
+    int discarding = 0;
+    int ch;
+    while ((ch = fgetc(f)) != EOF) {
+        char c = (char)ch;
+        if (comment) {
+            if (c != '\n') continue;
+            comment = 0;
+            c = ' ';                             /* do not merge tokens across comment */
         }
+
+        if (quoted) {
+            if (escaped) escaped = 0;
+            else if (c == '\\') escaped = 1;
+            else if (c == '"') quoted = 0;
+            if (!discarding) {
+                int put = loadbuf_put(&clause, &len, &cap, c);
+                if (put < 0) {
+                    fprintf(stderr,
+                            "kb_load: PARSE ERROR in %s: clause too large (limit %d bytes), dropped without parsing\n",
+                            path ? path : "?", KB_CLAUSE_MAX);
+                    discarding = 1;
+                    len = 0;
+                    clause[0] = '\0';
+                } else if (put == 0) { oom = 1; break; }
+            }
+            continue;
+        }
+
+        if (c == '%') { comment = 1; continue; }
+        if (c == '"') quoted = 1;
+        else if (c == '(') depth++;
+        else if (c == ')' && depth > 0) depth--;
+
+        if (c == '.' && depth == 0 && !quoted) {
+            if (discarding) {
+                discarding = 0;
+                len = 0;
+                if (clause) clause[0] = '\0';
+            } else if (clause) {
+                loadbuf_trim(clause, &len);
+                if (len > 0) count += load_clause(kb, path, dir, clause);
+                len = 0;
+                clause[0] = '\0';
+            }
+            continue;
+        }
+        if (discarding) continue;
+
+        if (isspace((unsigned char)c) && !quoted) {
+            if (len == 0 || isspace((unsigned char)clause[len - 1])) continue;
+            c = ' ';
+        }
+        { int put = loadbuf_put(&clause, &len, &cap, c);
+          if (put < 0) {
+              fprintf(stderr,
+                      "kb_load: PARSE ERROR in %s: clause too large (limit %d bytes), dropped without parsing\n",
+                      path ? path : "?", KB_CLAUSE_MAX);
+              discarding = 1;
+              len = 0;
+              clause[0] = '\0';
+          } else if (put == 0) { oom = 1; break; } }
     }
+
+    if (oom) {
+        fprintf(stderr, "kb_load: PARSE ERROR in %s: out of memory while accumulating clause\n",
+                path ? path : "?");
+    } else if (!discarding && clause) {
+        loadbuf_trim(clause, &len);
+        if (len > 0)
+            fprintf(stderr,
+                    "kb_load: PARSE ERROR in %s: unterminated clause at EOF, dropped: '%s'\n",
+                    path ? path : "?", clause);
+    }
+    free(clause);
     fclose(f);
     return count;
 }
@@ -3143,13 +3340,24 @@ static int valid_member(const KB *kb, const char *mem, const char *contpred) {
     return mp && strcmp(mp, contpred) != 0;
 }
 
+typedef struct {
+    char keys[512][KB_TERM_LEN];
+    char key_pred[512][KB_TERM_LEN];
+    char preds[128][KB_TERM_LEN];
+    int  pcnt[128];
+    char tokens[96][KB_TERM_LEN];
+} DerivePartFrame;
+
 int kb_derive_part_of(KB *kb) {
     if (!kb) return 0;
     const size_t n0 = kb->n;
+    DerivePartFrame *scratch = malloc(sizeof *scratch);
+    if (!scratch) return 0;
 
     /* collect the concept keys AND their predicates once (exact membership) */
-    char keys[512][KB_TERM_LEN]; size_t nkeys = 0;
-    char key_pred[512][KB_TERM_LEN];  /* gen334: cached predicate per key */
+    char (*keys)[KB_TERM_LEN] = scratch->keys;
+    char (*key_pred)[KB_TERM_LEN] = scratch->key_pred;
+    size_t nkeys = 0;
     for (size_t i = 0; i < n0 && nkeys < 512; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
@@ -3164,12 +3372,14 @@ int kb_derive_part_of(KB *kb) {
     }
 
     /* per-predicate count of facts that name some OTHER concept key */
-    char preds[128][KB_TERM_LEN]; int pcnt[128]; size_t npreds = 0;
+    char (*preds)[KB_TERM_LEN] = scratch->preds;
+    int *pcnt = scratch->pcnt;
+    size_t npreds = 0;
     for (size_t i = 0; i < n0; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
         if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
-        char ctoks[96][KB_TERM_LEN];
+        char (*ctoks)[KB_TERM_LEN] = scratch->tokens;
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         int names_other = 0;
         for (size_t c = 0; c < nc; c++) {
@@ -3206,7 +3416,7 @@ int kb_derive_part_of(KB *kb) {
         char key[KB_TERM_LEN], pred[KB_TERM_LEN];
         snprintf(key, sizeof key, "%s", f->args[0]);
         snprintf(pred, sizeof pred, "%s", f->pred);
-        char ctoks[96][KB_TERM_LEN];
+        char (*ctoks)[KB_TERM_LEN] = scratch->tokens;
         size_t nc = concept_tokens(f->args[f->argc - 1], ctoks, 96);
         for (size_t c = 0; c < nc; c++) {
             if (strcmp(ctoks[c], key) == 0) continue;
@@ -3223,6 +3433,7 @@ int kb_derive_part_of(KB *kb) {
         }
     }
     kb_set_origin(kb, saved);
+    free(scratch);
     return added;
 }
 

@@ -294,10 +294,15 @@ test: build
 	@./tests/selflimits.sh
 	@./tests/syllogism.sh
 	@./tests/repair.sh
+	@./tests/agentrepair.sh
 	@./tests/toolexec.sh
+	@./tests/exec-dirfd.sh
 	@./tests/agentkernel.sh
+	@./tests/code-task-agent.sh
+	@./tests/patch-artifact.sh
 	@./tests/segment.sh
 	@./tests/universal-input.sh
+	@$(BENCH_PY) ./tests/openai-input-limit.py
 	@$(BENCH_PY) ./tests/autolearn_structure.py
 	@./tests/llmscore-kbfirst.sh
 	@./tests/kb-evidence-scale.sh

@@ -33,6 +33,11 @@
 
 #define RESP_MAX_LEN 8192          /* matches main.c's brain_respond buffer */
 #define REQ_MAX_LEN  (4 * 1024 * 1024) /* refuse absurd requests */
+/* main.c hands brain_respond a NUL-terminated buffer of 65536 bytes, and the
+ * Brain's raw-input code paths use the same capacity.  The HTTP adapter must
+ * therefore preserve every prompt byte through this inclusive surface limit,
+ * and reject larger prompts atomically instead of feeding a plausible prefix. */
+#define PROMPT_MAX_LEN (64 * 1024 - 1)
 
 /* ------------------------------------------------------------------------- */
 /* optional traffic log (PARROT0_PI_LOG), mirroring pi_server.py's _log       */
@@ -125,12 +130,11 @@ static char *build_prompt(const JVal *messages) {
 }
 
 /* Preserve the user's text stream byte structure.  Collapsing newlines here
- * destroyed indentation, fences, tracebacks and pytest/diff line prefixes before
- * the universal segmenter could see them. Normalize CRLF/CR to LF in place; the
- * existing 2000-byte adapter budget remains explicit debt under TODO 10/11; this
- * change fixes structure preservation without pretending the size limit is gone. */
-static void sanitize_prompt(char *p) {
-    if (!p) return;
+ * destroys indentation, fences, tracebacks and pytest/diff line prefixes before
+ * the universal segmenter can see them. Normalize CRLF/CR to LF in place and
+ * return the exact number of bytes that would be handed to brain_respond. */
+static size_t sanitize_prompt(char *p) {
+    if (!p) return 0;
     char *r = p, *w = p;
     while (*r) {
         if (*r == '\r') {
@@ -141,7 +145,19 @@ static void sanitize_prompt(char *p) {
         }
     }
     *w = '\0';
-    if (strlen(p) > 2000) p[2000] = '\0';
+    return (size_t)(w - p);
+}
+
+/* Same stable 64-bit digest used by the execution kernel.  It identifies the
+ * complete rejected prompt without logging or echoing potentially sensitive
+ * content, and is deliberately computed before any Brain state can change. */
+static void prompt_digest(const char *data, size_t n, char out[17]) {
+    unsigned long long h = 1469598103934665603ULL;
+    for (size_t i = 0; i < n; i++) {
+        h ^= (unsigned char)data[i];
+        h *= 1099511628211ULL;
+    }
+    snprintf(out, 17, "%016llx", h);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -254,7 +270,21 @@ static void handle_chat(int fd, Brain *brain, const char *body, size_t blen) {
     int streaming = (stream_v && stream_v->type == J_BOOL && stream_v->b);
 
     char *prompt = build_prompt(jobj_get(root, "messages"));
-    sanitize_prompt(prompt);
+    size_t prompt_len = sanitize_prompt(prompt);
+    if (prompt_len > PROMPT_MAX_LEN) {
+        char digest[17], error[256];
+        prompt_digest(prompt, prompt_len, digest);
+        snprintf(error, sizeof error,
+                 "{\"error\":{\"code\":\"input_too_large\",\"bytes\":%zu,"
+                 "\"limit\":%d,\"digest\":\"fnv1a64:%s\"}}",
+                 prompt_len, PROMPT_MAX_LEN, digest);
+        serve_log("input_too_large bytes=%zu limit=%d digest=fnv1a64:%s",
+                  prompt_len, PROMPT_MAX_LEN, digest);
+        free(prompt);
+        jfree(root);
+        send_json(fd, 413, "Payload Too Large", error);
+        return;
+    }
 
     char resp[RESP_MAX_LEN];
     resp[0] = '\0';

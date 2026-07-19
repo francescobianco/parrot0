@@ -218,6 +218,30 @@ static int plan_goal_steps(Brain *b, const char *goal,
     return 1;
 }
 
+/* Materialize the derived plan as typed agent state. The record graph is built
+ * from the goal id, action ids and missing artifact already held by the planner;
+ * no rendered sentence is parsed back into structure. The store remains the
+ * append-only audit trail and brain_agent_record projects each record into KB
+ * facts that the same process can query on later turns/MCP calls. */
+static void plan_record_trace(Brain *b, const char *request, const char *goal,
+                              char steps[][KB_TERM_LEN], size_t nsteps,
+                              const char *missing, int complete) {
+    if (!b || !goal || !*goal) return;
+    uint64_t task = brain_agent_record(b, P0A_TASK, 0, 0,
+                                       request ? request : goal,
+                                       "active", "");
+    if (!task) return;
+    uint64_t goal_rec = brain_agent_record(b, P0A_GOAL, task, task, goal,
+                                           complete ? "active" : "blocked", "");
+    if (!goal_rec) return;
+    for (size_t i = 0; i < nsteps; i++)
+        brain_agent_record(b, P0A_ACTION, goal_rec, goal_rec, steps[i],
+                           "candidate", "");
+    if (!complete && missing && *missing)
+        brain_agent_record(b, P0A_GAP, goal_rec, goal_rec, missing,
+                           "open", "");
+}
+
 static void plan_step_desc(Brain *b, const char *step, char *line, size_t line_sz) {
     if (!line || line_sz == 0) return;
     const char *qd[2] = { step, NULL };
@@ -632,6 +656,7 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
     plan_humanize(goal, goal_h, sizeof goal_h);
     int gr = plan_goal_steps(b, goal, steps, &nsteps, 16, missing, sizeof missing);
     if (gr == 0) return 0;
+    plan_record_trace(b, praw, goal, steps, nsteps, missing, gr > 0);
     if (gr < 0) {
         char miss_h[KB_TERM_LEN];
         plan_humanize(missing, miss_h, sizeof miss_h);
@@ -718,6 +743,8 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
                 plan_humanize(goal, goal_h, sizeof goal_h);
                 int gr = plan_goal_steps(b, goal, steps, &nsteps, 16,
                                          missing, sizeof missing);
+                if (gr != 0)
+                    plan_record_trace(b, praw, goal, steps, nsteps, missing, gr > 0);
                 if (gr < 0) {
                     char miss_h[KB_TERM_LEN];
                     plan_humanize(missing, miss_h, sizeof miss_h);

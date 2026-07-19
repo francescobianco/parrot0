@@ -1005,71 +1005,197 @@ static int code_sort_candidate(const char *src, char *fn, size_t fnsz) {
     return 1;
 }
 
-/* gen327: OBSERVE -> DIAGNOSE -> PROPOSE -> SELECT -> ACT -> VERIFY, bounded.
- * Returns 1 if it claimed the turn (repaired, already-green, or an honest
- * decline naming the real diagnosis), 0 to let the ordinary checkers have it. */
-#define P0_REPAIR_MAX 3
+/* Sort is one adapter over the domain-neutral T06 controller.  Its only domain
+ * knowledge is how to invoke the existing structural transform and sort oracle;
+ * candidate ordering, budgets, replanning, de-dup and P0A transitions live in
+ * 75-agent-repair.c. */
+typedef struct {
+    Brain *brain;
+    char fn[KB_TERM_LEN];
+    int last_check;
+    char last_diagnosis[KB_TERM_LEN];
+} SortRepairAdapter;
+
+static int sort_repair_materialize(void *opaque, const P0PatchArtifact *base,
+                                   const char *transform,
+                                   P0PatchArtifact **candidate) {
+    (void)opaque;
+    if (candidate) *candidate = NULL;
+    if (!base || !transform || !candidate || p0_patch_count(base) != 1)
+        return -1;
+    P0PatchOpView op;
+    if (!p0_patch_op(base, 0, &op) || !op.has_after ||
+        op.after_len > P0_PATCH_MAX_BYTES - 128)
+        return -1;
+
+    char *source = malloc(op.after_len + 1);
+    char *patched = malloc(op.after_len + 128);
+    if (!source || !patched) { free(source); free(patched); return -1; }
+    memcpy(source, op.after, op.after_len);
+    source[op.after_len] = '\0';
+    int ignored_blast = 0; /* controller derives blast from artifact bytes */
+    int made = code_repair_apply(source, transform, patched,
+                                 op.after_len + 128, &ignored_blast);
+    if (made != 1) { free(source); free(patched); return made; }
+
+    P0PatchReport report;
+    P0PatchResult pr = p0_patch_prepare_image(op.path ? op.path : "candidate.c",
+                                              op.after, op.after_len,
+                                              op.after_mode,
+                                              patched, strlen(patched),
+                                              op.after_mode, NULL, NULL,
+                                              candidate, &report);
+    free(source);
+    free(patched);
+    return pr == P0_PATCH_OK && *candidate && p0_patch_is_detached(*candidate)
+             ? 1 : -1;
+}
+
+static int sort_repair_observe(void *opaque, const P0PatchArtifact *candidate,
+                               P0RepairEvidence *evidence) {
+    SortRepairAdapter *adapter = opaque;
+    if (!adapter || !candidate || !evidence || p0_patch_count(candidate) != 1)
+        return -1;
+    memset(evidence, 0, sizeof *evidence);
+    P0PatchOpView op;
+    if (!p0_patch_op(candidate, 0, &op) || !op.has_after ||
+        op.after_len > P0_PATCH_MAX_BYTES - 1)
+        return -1;
+    char *source = malloc(op.after_len + 1);
+    if (!source) return -1;
+    memcpy(source, op.after, op.after_len);
+    source[op.after_len] = '\0';
+
+    /* Authorization is queried afresh for every verification.  Retraction at
+     * runtime stops before p0_exec; code.c enforces the same boolean at the
+     * effect boundary. */
+    const char *tool[] = { "build", "cc" };
+    int cc_allowed = kb_query(adapter->brain->kb, "tool_for", tool, 2);
+    P0SortCheckObs observed;
+    char err[256] = "";
+    adapter->last_diagnosis[0] = '\0';
+    adapter->last_check = code_check_sort_diag_obs(
+        source, adapter->fn, adapter->last_diagnosis,
+        sizeof adapter->last_diagnosis, err, sizeof err,
+        cc_allowed, &observed);
+    free(source);
+    if (adapter->last_check == -2) return -2;
+    if (observed.has_build) {
+        evidence->obs[evidence->count] = observed.build;
+        snprintf(evidence->stage[evidence->count],
+                 sizeof evidence->stage[evidence->count], "%s", "build");
+        evidence->count++;
+    }
+    if (observed.has_run && evidence->count < P0_REPAIR_MAX_OBS) {
+        evidence->obs[evidence->count] = observed.run;
+        snprintf(evidence->stage[evidence->count],
+                 sizeof evidence->stage[evidence->count], "%s", "run");
+        evidence->count++;
+    }
+    return evidence->count ? 1 : -1;
+}
+
+static int sort_repair_diagnose(void *opaque,
+                                const P0RepairEvidence *evidence,
+                                char *diagnosis, size_t diagnosis_cap) {
+    SortRepairAdapter *adapter = opaque;
+    if (!adapter || !evidence || evidence->count == 0) return -1;
+    const P0Obs *build = &evidence->obs[0];
+    if (build->verdict == P0_EXIT_NONZERO) {
+        snprintf(diagnosis, diagnosis_cap, "%s", "build_failed");
+        return 0;
+    }
+    if (build->verdict != P0_OK || evidence->count < 2) return -1;
+    const P0Obs *run = &evidence->obs[1];
+    if (run->verdict == P0_OK) return 1;
+    if (run->verdict != P0_EXIT_NONZERO) return -1;
+    snprintf(diagnosis, diagnosis_cap, "%s",
+             adapter->last_diagnosis[0] ? adapter->last_diagnosis : "failed");
+    return 0;
+}
+
+static int sort_repair_source(const P0PatchArtifact *patch,
+                              char *out, size_t out_cap) {
+    P0PatchOpView op;
+    if (!patch || p0_patch_count(patch) != 1 ||
+        !p0_patch_op(patch, 0, &op) || !op.has_after ||
+        op.after_len >= out_cap)
+        return 0;
+    memcpy(out, op.after, op.after_len);
+    out[op.after_len] = '\0';
+    return 1;
+}
+
+/* Returns 1 if it claimed the turn (repaired, already-green, or an honest
+ * typed decline), 0 to let the ordinary checkers have it. */
 static int repair_loop(Brain *b, const char *src, const char *fn,
                        char *out, size_t out_size) {
-    char diag[64] = "", err[256] = "";
-    int v = code_check_sort_diag(src, fn, diag, sizeof diag, err, sizeof err);
-    if (v == 1) {
+    P0PatchArtifact *initial = NULL;
+    P0PatchReport report;
+    if (p0_patch_prepare_image("sort_candidate.c", src, strlen(src), 0644,
+                               src, strlen(src), 0644, NULL, NULL,
+                               &initial, &report) != P0_PATCH_OK)
+        return 0;
+    SortRepairAdapter adapter;
+    memset(&adapter, 0, sizeof adapter);
+    adapter.brain = b;
+    snprintf(adapter.fn, sizeof adapter.fn, "%s", fn);
+    const P0RepairOps ops = {
+        sort_repair_materialize,
+        sort_repair_observe,
+        sort_repair_diagnose
+    };
+    P0RepairResult result;
+    if (!agent_repair_run(b, "sort_contract", initial, &ops, &adapter, &result))
+        return 0;
+
+    if (result.terminal == P0_REPAIR_ALREADY_GREEN) {
         snprintf(out, out_size,
                  "I ran it against the sort oracle (8 vectors, compiled and "
                  "executed): it sorts every one and never loses an element. I "
                  "found nothing to repair.");
+        p0_patch_free(result.winner);
         return 1;
     }
-    if (!*diag) return 0;                 /* the oracle could not judge it */
 
-    /* PROPOSE: the fixes worth trying for THIS diagnosis are knowledge. */
-    char fixes[8][KB_TERM_LEN];
-    const char *q[2] = { diag, NULL };
-    size_t nf = kb_match(b->kb, "repair_rule", q, 2, fixes, 8);
-
-    /* SELECT: build the applicable candidates and order them by blast radius —
-     * the smallest edit that could explain the failure goes first. */
-    typedef struct { char src[2048]; char fix[KB_TERM_LEN]; int blast; } RepairCand;
-    RepairCand cand[8];
-    size_t nc = 0;
-    for (size_t i = 0; i < nf && nc < 8; i++) {
-        int blast = 0;
-        char patched[2048];
-        if (code_repair_apply(src, fixes[i], patched, sizeof patched, &blast) != 1)
-            continue;
-        snprintf(cand[nc].src, sizeof cand[nc].src, "%s", patched);
-        snprintf(cand[nc].fix, sizeof cand[nc].fix, "%s", fixes[i]);
-        cand[nc].blast = blast;
-        nc++;
+    if (result.terminal == P0_REPAIR_INFRA ||
+        result.terminal == P0_REPAIR_MISSING_TOOL) {
+        const char *intent = result.terminal == P0_REPAIR_MISSING_TOOL
+                               ? "repair_missing_tool" : "repair_infra";
+        if (!kb_response_slots(b, intent, NULL, 0, out, out_size))
+            snprintf(out, out_size, "%s", agent_repair_terminal_name(result.terminal));
+        store_proof(b, agent_repair_terminal_name(result.terminal));
+        return 1;
     }
-    for (size_t i = 0; i + 1 < nc; i++)
-        for (size_t j = i + 1; j < nc; j++)
-            if (cand[j].blast < cand[i].blast) {
-                RepairCand tmp = cand[i]; cand[i] = cand[j]; cand[j] = tmp;
-            }
 
-    /* ACT + VERIFY, bounded. The trace is kept whatever happens. */
+    /* Keep the established user renderer; it consumes the typed trace instead
+     * of controlling the search. */
     char trace[512];
     size_t to = (size_t)snprintf(trace, sizeof trace,
-        "the oracle ran it and reported %s", diag);
-    size_t attempts = (nc < P0_REPAIR_MAX) ? nc : P0_REPAIR_MAX;
-
-    for (size_t i = 0; i < attempts; i++) {
-        char d2[64] = "", e2[256] = "";
-        int v2 = code_check_sort_diag(cand[i].src, fn, d2, sizeof d2, e2, sizeof e2);
+        "the oracle ran it and reported %s", result.initial_diagnosis);
+    for (size_t i = 0; i < result.attempts; i++) {
         if (to < sizeof trace)
             to += (size_t)snprintf(trace + to, sizeof trace - to,
-                                   "; tried %s -> %s", cand[i].fix,
-                                   v2 == 1 ? "the oracle now passes it" : (*d2 ? d2 : "still red"));
-        if (v2 == 1) {
-            snprintf(out, out_size,
-                     "Repaired, and verified by running it: %s. The fix: %s.\n"
-                     "```c\n%s\n```\n(Trace: %s.)",
-                     "it now sorts all 8 vectors and loses no element",
-                     cand[i].fix, cand[i].src, trace);
-            store_proof(b, trace);
-            return 1;
+                                   "; tried %s -> %s", result.history[i].transform,
+                                   strcmp(result.history[i].after, "verified") == 0
+                                     ? "the oracle now passes it"
+                                     : (result.history[i].after[0]
+                                          ? result.history[i].after : "still red"));
+    }
+    if (result.terminal == P0_REPAIR_VERIFIED) {
+        char repaired[8192];
+        if (!sort_repair_source(result.winner, repaired, sizeof repaired)) {
+            p0_patch_free(result.winner);
+            return 0;
         }
+        snprintf(out, out_size,
+                 "Repaired, and verified by running it: %s. The fix: %s.\n"
+                 "```c\n%s\n```\n(Trace: %s.)",
+                 "it now sorts all 8 vectors and loses no element",
+                 result.winner_transform, repaired, trace);
+        p0_patch_free(result.winner);
+        store_proof(b, trace);
+        return 1;
     }
 
     /* No candidate survived the oracle. Say what was actually observed and stop —
@@ -1078,7 +1204,7 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
              "I can't repair that yet. %s. I have %zu repair rule(s) for that "
              "diagnosis and none of them made the oracle pass, so I won't hand "
              "you a patch I could not verify.",
-             trace, nf);
+             trace, result.last_rule_count);
     store_proof(b, trace);
     return 1;
 }
@@ -1127,11 +1253,20 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         else if (!strcmp(intent, "code_lang")) qtype = 3;
         else if (!strcmp(intent, "code_valid")) qtype = 4;
         else if (!strcmp(intent, "code_explain")) qtype = 5;
+    } else if (kb_cue_match(b, "code_fix", low)) {
+        /* A single-hypothesis fallback still consumes the same runtime KB cue
+         * relation; it only avoids letting unrelated weak hypotheses suppress a
+         * known repair request before the typed controller can see it. */
+        qtype = 2;
     } else if (cue(s, "what is a") && !strstr(s, "what is a ") &&
                (strstr(s, "in C") || strstr(s, "in Python") || strstr(s, "in programming"))) {
         /* Concept query handled by mod_knowledge via KB concept() facts */
         return 0;
     }
+    /* An explicitly supported repair cue wins over weaker incidental evidence
+     * inside the code span (keywords can otherwise outscore the request).  The
+     * cue set remains entirely live KB knowledge. */
+    if (kb_cue_match(b, "code_fix", low)) qtype = 2;
     if (!qtype) return 0;
 
     /* Universal input: segment the ORIGINAL stream once, retain every role proof,

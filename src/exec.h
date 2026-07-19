@@ -127,6 +127,22 @@ P0Verdict p0_read_in_root(const char *path, char *buf, size_t cap, int *truncate
 P0Verdict p0_exec(char *const argv[], const char *cwd, int timeout_ms,
                   const char *stdin_data, P0Obs *obs);
 
+/* Run with an already-open directory descriptor as the execution root.  This is
+ * the capability form used for staged/candidate trees: cwd is resolved from
+ * rootfd component by component with openat(O_NOFOLLOW), then the child enters
+ * the resolved directory with fchdir().  The argv, limits, environment,
+ * observation, tracing and one-time network-namespace retry contract are
+ * otherwise exactly p0_exec's.
+ *
+ * rootfd is a trusted capability supplied by the caller and remains owned by
+ * the caller.  This is cwd containment, NOT a chroot: an explicitly authorized
+ * process can still use absolute paths or other descriptors inherited by the
+ * operating-system process.  Callers must therefore keep using tool contracts
+ * for argv authorization and must not mistake this API for a hostile-code
+ * filesystem sandbox. */
+P0Verdict p0_exec_at(int rootfd, char *const argv[], const char *cwd,
+                     int timeout_ms, const char *stdin_data, P0Obs *obs);
+
 /* Append the Observation to the JSONL trace at $PARROT0_TRACE, if that is set.
  * The trace is the replayable record the capability report and the future typed
  * kernel (TODO 12) read; it is written for every act, success or not. */

@@ -154,3 +154,49 @@ action_impl(read_page_file, prose_read_page).
 action_impl(split_sentences, prose_split_sent).
 action_impl(extract_frames, prose_extract).
 action_impl(assert_extracted, prose_assert).
+
+% --- Domain 4: a bounded code task plan (coding-agent T03) -------------------
+% This is deliberately a PLAN domain, not yet a write-capable implementation.
+% The generic chainer consumes only needs/yields; the remaining facts preserve
+% the action contract that later execution stages must satisfy. Adding/removing
+% one consumed action_yields/action_needs fact changes the plan in the running
+% binary; action_schema/risk/cost/tool are inspectable metadata for later stages.
+plan_goal(code_task, verified_code_change).
+goal_cue(code_task, "code task").
+goal_cue(code_task, "repair the repository").
+goal_cue(code_task, "fix the repository").
+goal_cue(code_task, "compito di codice").
+
+action_schema(code_task, inspect_workspace).
+action_yields(inspect_workspace, workspace_observation).
+action_needs(inspect_workspace, code_task_request).
+action_desc(inspect_workspace, "inspect the workspace and collect grounded repository evidence").
+action_risk(inspect_workspace, read_only).
+action_cost(inspect_workspace, 1).
+action_tool(inspect_workspace, inspect).
+
+action_schema(code_task, localize_change).
+action_yields(localize_change, target_region).
+action_needs(localize_change, workspace_observation).
+action_desc(localize_change, "localize the smallest code region supported by the evidence").
+action_risk(localize_change, read_only).
+action_cost(localize_change, 2).
+action_tool(localize_change, inspect).
+
+action_schema(code_task, edit_candidate).
+action_yields(edit_candidate, patch_candidate).
+action_needs(edit_candidate, target_region).
+action_desc(edit_candidate, "produce a candidate patch without claiming it is verified").
+action_risk(edit_candidate, workspace_write).
+action_cost(edit_candidate, 3).
+action_tool(edit_candidate, edit).
+
+action_schema(code_task, verify_candidate).
+action_yields(verify_candidate, verified_code_change).
+action_needs(verify_candidate, patch_candidate).
+action_desc(verify_candidate, "run the relevant oracle and accept only a passing candidate").
+action_risk(verify_candidate, process_execute).
+action_cost(verify_candidate, 3).
+action_tool(verify_candidate, test).
+
+plan_given(code_task_request).

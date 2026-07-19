@@ -18,10 +18,11 @@
 #include <stddef.h>
 
 #define KB_MAX_ARGS 4   /* arity ceiling for now */
-#define KB_TERM_LEN 128 /* max length of a predicate or argument atom. gen152:
-                         * raised from 64 so the gen150 expert/skill description
-                         * strings survive term_ok at load instead of being
-                         * silently dropped. */
+#define KB_TERM_LEN 512 /* max length of a predicate or argument atom. 512 is
+                         * the next power-of-two above the longest curated quoted
+                         * value (335 bytes including quotes); unlike the former
+                         * 128-byte ceiling it leaves useful runtime-growth room
+                         * without treating response templates specially. */
 #define KB_MAX_BODY 8   /* goals per rule body (conjunctive rules) */
 
 /* Provenance of a clause (bit flags, so save can select layers). See DESIGN.md
@@ -165,10 +166,13 @@ size_t kb_induce(KB *kb, size_t min_support,
 void   kb_set_origin(KB *kb, int origin);
 
 /* Load clauses from a human-readable Prolog-like file and union them into the
- * KB (so multiple files JOIN). Format: one clause per line, `pred(a, b).` or
- * `head(X) :- body(X).`, blank lines and `%` comments ignored, malformed lines
- * skipped. An empty/NULL path or a missing file is a no-op. Returns the number
- * of clauses loaded. */
+ * KB (so multiple files JOIN). Format: logical clauses terminated by a top-level
+ * `.`; clauses may span lines and several clauses may share one line. Blank
+ * space and `%` comments outside quoted values are ignored. Malformed terminated
+ * clauses are skipped with an explicit diagnostic; clauses beyond the structural
+ * size/body-goal budgets are rejected whole, never loaded as a valid prefix. A
+ * non-empty unterminated EOF fragment is rejected just as loudly. An empty/NULL
+ * path or a missing file is a no-op. Returns the number of clauses loaded. */
 int    kb_load(KB *kb, const char *path);
 
 /* Write clauses whose provenance matches `origin_mask` (e.g. KB_SESSION |

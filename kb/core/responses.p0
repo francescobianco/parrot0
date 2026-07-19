@@ -280,3 +280,8 @@ response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want
 response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
 response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
+
+% T06: machine-control failures are rendered from knowledge, never confused
+% with a red candidate observation and never coined inside the C controller.
+response_template(repair_missing_tool, "I cannot verify a repair because the required build-tool contract is missing.").
+response_template(repair_infra, "I cannot verify a repair because the verification infrastructure failed.").

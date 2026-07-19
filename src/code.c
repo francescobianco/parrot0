@@ -1,3 +1,4 @@
+#define _POSIX_C_SOURCE 200809L
 /* gen173: parrot0's in-C structural code reader. See code.h for the contract and
  * the principle (AST-as-KB, deterministic parse, straight into RAM). This is the
  * F2 (grammar/structure) faculty of docs/CODE-MASTERY.md, the one place where the
@@ -3724,16 +3725,11 @@ int code_check_print_program(const char *src, const char *message,
     return (ex == 0 && strcmp(got, want) == 0) ? 1 : 0;
 }
 
-/* gen209 (Track B/B0): see code.h. Build a complete program = the candidate function
- * + a generated main that exercises it on fixed vectors and self-checks each result,
- * write it to a sandboxed temp .c, and run it through code_run. The exit status is the
- * verdict: 0 = all cases sorted+permuted, non-zero = the index (1-based) of the first
- * failing case. We never trust the candidate's output channel — the harness recomputes
- * sortedness and the permutation relation itself. */
-int code_check_sort_diag(const char *func_src, const char *fnname,
-                         char *diag, size_t dsz,
-                         char *err_out, size_t err_sz) {
-    if (err_out && err_sz) err_out[0] = '\0';
+/* Build the fixed judge program once for both the keep-secondary legacy runner
+ * and the executor-grounded typed loop.  Candidate bytes remain data passed to
+ * snprintf; they are never a format string. */
+static int code_sort_program(const char *func_src, const char *fnname,
+                             char *full, size_t full_sz) {
     if (!func_src || !*func_src || !fnname || !*fnname) return -1;
     if (strlen(func_src) > 4096) return -1;
     /* fnname must be a plain C identifier (so it can't smuggle code into the call). */
@@ -3771,9 +3767,23 @@ int code_check_sort_diag(const char *func_src, const char *fnname,
 
     /* The harness format has exactly two %s: the candidate function body and the
      * call site. Both are arguments, so candidate code is never interpreted. */
+    int m = snprintf(full, full_sz, harness, func_src, fnname);
+    return (m < 0 || (size_t)m >= full_sz) ? -1 : m;
+}
+
+/* gen209 (Track B/B0): see code.h. Build a complete program = the candidate function
+ * + a generated main that exercises it on fixed vectors and self-checks each result,
+ * write it to a sandboxed temp .c, and run it through code_run. The exit status is the
+ * verdict: 0 = all cases sorted+permuted, non-zero = the index (1-based) of the first
+ * failing case. We never trust the candidate's output channel — the harness recomputes
+ * sortedness and the permutation relation itself. */
+int code_check_sort_diag(const char *func_src, const char *fnname,
+                         char *diag, size_t dsz,
+                         char *err_out, size_t err_sz) {
+    if (err_out && err_sz) err_out[0] = '\0';
     char full[8192];
-    int m = snprintf(full, sizeof full, harness, func_src, fnname);
-    if (m < 0 || (size_t)m >= sizeof full) return -1;
+    int m = code_sort_program(func_src, fnname, full, sizeof full);
+    if (m < 0) return -1;
 
     char path[64];   /* gen278: per-process temp (parallel-safe) */
     snprintf(path, sizeof path, ".p0_sortcheck_%ld.c", (long)getpid());
@@ -3801,6 +3811,80 @@ int code_check_sort_diag(const char *func_src, const char *fnname,
         if (exit_code >= 40)      snprintf(diag, dsz, "not_permutation");
         else if (exit_code >= 10) snprintf(diag, dsz, "not_ordered");
         else                      snprintf(diag, dsz, "failed");
+    }
+    return 0;
+}
+
+/* T06: the same oracle contract, but every machine action crosses exec.c and
+ * remains a distinct P0Obs.  A private 0700 directory makes the output target
+ * non-clobbering even when several brains share a workspace.  The compiler
+ * reads the complete harness from stdin; no source file is smuggled in. */
+int code_check_sort_diag_obs(const char *func_src, const char *fnname,
+                             char *diag, size_t dsz,
+                             char *err_out, size_t err_sz,
+                             int cc_allowed, P0SortCheckObs *observations) {
+    if (diag && dsz) diag[0] = '\0';
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!observations) return -1;
+    memset(observations, 0, sizeof *observations);
+
+    /* Authorization is knowledge owned by Brain, but enforcement stays adjacent
+     * to the effect: no caller can accidentally cross p0_exec after a failed
+     * live tool_for(build,cc) query.  No Observation is invented for a skipped
+     * action; the repair controller records the resulting named Gap. */
+    if (!cc_allowed) return -2;
+
+    char full[8192];
+    if (code_sort_program(func_src, fnname, full, sizeof full) < 0) {
+        return -1;
+    }
+
+    char tempdir[] = ".p0-sort-XXXXXX";
+    if (!mkdtemp(tempdir)) return -1;
+    char exe_path[96];
+    int pn = snprintf(exe_path, sizeof exe_path, "%s/judge", tempdir);
+    if (pn < 0 || (size_t)pn >= sizeof exe_path) {
+        rmdir(tempdir);
+        return -1;
+    }
+
+    char *cc_argv[] = {
+        (char *)"cc", (char *)"-w", (char *)"-x", (char *)"c",
+        (char *)"-", (char *)"-o", (char *)"judge", NULL
+    };
+    observations->has_build = 1;
+    p0_exec(cc_argv, tempdir, 20000, full, &observations->build);
+    if (!p0_obs_ok(&observations->build)) {
+        if (diag && dsz) snprintf(diag, dsz, "build_failed");
+        if (err_out && err_sz)
+            snprintf(err_out, err_sz, "%s", observations->build.err[0]
+                     ? observations->build.err : observations->build.detail);
+        remove(exe_path);            /* cc may leave a partial output image */
+        rmdir(tempdir);
+        return -1;
+    }
+
+    char *run_argv[] = { (char *)"./judge", NULL };
+    observations->has_run = 1;
+    p0_exec(run_argv, tempdir, 15000, NULL, &observations->run);
+
+    remove(exe_path);
+    rmdir(tempdir);
+
+    if (observations->run.verdict == P0_OK) return 1;
+    if (observations->run.verdict != P0_EXIT_NONZERO) {
+        if (diag && dsz) snprintf(diag, dsz, "crashed");
+        if (err_out && err_sz)
+            snprintf(err_out, err_sz, "%s", observations->run.err[0]
+                     ? observations->run.err : observations->run.detail);
+        return 0;
+    }
+    if (diag && dsz) {
+        if (observations->run.exit_code >= 40)
+            snprintf(diag, dsz, "not_permutation");
+        else if (observations->run.exit_code >= 10)
+            snprintf(diag, dsz, "not_ordered");
+        else                           snprintf(diag, dsz, "failed");
     }
     return 0;
 }

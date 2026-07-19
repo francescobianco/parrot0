@@ -146,10 +146,17 @@ int p0a_write_jsonl(const P0AStore *s, FILE *out)
 void p0a_fact(const P0ARec *r, char *buf, size_t cap)
 {
     if (!r || !buf || cap == 0) return;
-    snprintf(buf, cap, "rec(%llu,%s,%llu,%llu,%s).",
+    snprintf(buf, cap, "rec(%llu,%s,%llu,%s).",
              (unsigned long long)r->id, p0a_kind_name(r->kind),
-             (unsigned long long)r->parent, (unsigned long long)r->source,
+             (unsigned long long)r->parent,
              r->state[0] ? r->state : "open");
+}
+
+void p0a_fact_source(const P0ARec *r, char *buf, size_t cap)
+{
+    if (!r || !buf || cap == 0) return;
+    snprintf(buf, cap, "rec_source(%llu,%llu).",
+             (unsigned long long)r->id, (unsigned long long)r->source);
 }
 
 void p0a_fact_name(const P0ARec *r, char *buf, size_t cap)

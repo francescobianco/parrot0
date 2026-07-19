@@ -38,8 +38,9 @@
  * KB-first, by construction: this module is mechanics — ids, parentage,
  * sequence, JSONL — and like exec.c it has no Brain dependency and no natural
  * language anywhere. The vocabulary INSIDE records (goal text, constraint text)
- * is data. And the store projects every record as a KB fact (p0a_fact), so the
- * planner queries state instead of inferring it from text.
+ * is data. And the store projects every record as KB facts (p0a_fact plus the
+ * provenance/name projections), so the planner queries state instead of
+ * inferring it from text.
  *
  * State vocabulary (mechanics, the p0_verdict_name precedent of exec.c):
  * open, active, candidate, done, failed, declined, blocked, budget_exhausted.
@@ -117,12 +118,16 @@ const P0ARec *p0a_last(const P0AStore *s, int kind, uint64_t parent);
  * Returns 0 on success, -1 on a stream error. */
 int         p0a_write_jsonl(const P0AStore *s, FILE *out);
 
-/* KB projection. p0a_fact renders the structural fact
- *     rec(Id,Kind,Parent,Source,State).
+/* KB projection. The engine's public arity ceiling is KB_MAX_ARGS=4, so the
+ * structural record is deliberately split instead of emitting an unloadable
+ * rec/5 term:
+ *     rec(Id,Kind,Parent,State).
+ *     rec_source(Id,Source).
  * p0a_fact_name renders the label fact (only when name is non-empty)
  *     rec_name(Id,"Name").
  * so a planner can query task state with kb_match instead of parsing text. */
 void        p0a_fact(const P0ARec *r, char *buf, size_t cap);
+void        p0a_fact_source(const P0ARec *r, char *buf, size_t cap);
 void        p0a_fact_name(const P0ARec *r, char *buf, size_t cap);
 
 const char *p0a_kind_name(P0AKind kind);

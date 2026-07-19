@@ -75,10 +75,12 @@ const char *p0_root(void) { p0_root_init(); return g_root; }
  * `want_dir` picks the type of the final component. `rel_out` (optional) receives
  * the cleaned relative path, so a caller building argv passes on the form it
  * actually resolved rather than the user's spelling. */
-static P0Verdict walk_in_root(const char *path, int want_dir,
-                              int *fd_out, char *rel_out, size_t rel_cap) {
-    p0_root_init();
-    if (g_root_fd < 0 || !path || !*path) return P0_UNSAFE_PATH;
+static P0Verdict walk_from_rootfd(int rootfd, const char *path, int want_dir,
+                                  int *fd_out, char *rel_out, size_t rel_cap) {
+    struct stat root_st;
+    if (rootfd < 0 || fstat(rootfd, &root_st) != 0 || !S_ISDIR(root_st.st_mode) ||
+        !path || !*path)
+        return P0_UNSAFE_PATH;
     if (path[0] == '/') return P0_UNSAFE_PATH;         /* absolute: not ours     */
     if (strlen(path) >= PATH_MAX) return P0_UNSAFE_PATH;
 
@@ -86,7 +88,7 @@ static P0Verdict walk_in_root(const char *path, int want_dir,
     snprintf(work, sizeof work, "%s", path);
 
     char rel[PATH_MAX]; size_t rl = 0; rel[0] = '\0';
-    int dirfd = dup(g_root_fd);                        /* never close g_root_fd  */
+    int dirfd = fcntl(rootfd, F_DUPFD_CLOEXEC, 3);     /* never close rootfd     */
     if (dirfd < 0) return P0_UNSAFE_PATH;
 
     char *save = NULL;
@@ -141,6 +143,12 @@ static P0Verdict walk_in_root(const char *path, int want_dir,
     if (rel_out && rel_cap) snprintf(rel_out, rel_cap, "%s", rl ? rel : ".");
     if (fd_out) *fd_out = fd; else close(fd);
     return P0_OK;
+}
+
+static P0Verdict walk_in_root(const char *path, int want_dir,
+                              int *fd_out, char *rel_out, size_t rel_cap) {
+    p0_root_init();
+    return walk_from_rootfd(g_root_fd, path, want_dir, fd_out, rel_out, rel_cap);
 }
 
 P0Verdict p0_open_in_root(const char *path, int want_dir, int *fd_out) {
@@ -266,8 +274,8 @@ static void sink(char *buf, size_t cap, size_t *len, int *trunc,
     buf[*len] = '\0';
 }
 
-static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
-                           const char *stdin_data, P0Obs *obs) {
+static P0Verdict exec_once_at(int rootfd, char *const argv[], const char *cwd,
+                              int timeout_ms, const char *stdin_data, P0Obs *obs) {
     if (!obs) return P0_SPAWN_FAILED;
     memset(obs, 0, sizeof *obs);
     obs->exit_code = -1;
@@ -287,25 +295,29 @@ static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
         o += (size_t)snprintf(obs->cmd + o, sizeof obs->cmd - o, "%s%s",
                               i ? " " : "", argv[i]);
 
-    /* The cwd must itself be inside the root — an act cannot be sent to run
-     * somewhere the agent is not allowed to look. */
+    /* Resolve cwd to the object we will actually enter.  Keeping this descriptor
+     * through fork closes the check/use race that an absolute path plus chdir()
+     * would leave open, and also lets candidate trees be capabilities rather
+     * than temporary process-global roots. */
     char rel[PATH_MAX] = ".";
-    if (cwd && strcmp(cwd, ".") != 0) {
-        if (p0_safe_rel(cwd, 1, rel, sizeof rel) != P0_OK) {
-            obs->verdict = P0_UNSAFE_PATH;
-            snprintf(obs->detail, sizeof obs->detail, "cwd escapes the workspace: %s", cwd);
-            p0_obs_trace(obs);
-            return obs->verdict;
-        }
+    int cwd_fd = -1;
+    if (walk_from_rootfd(rootfd, cwd ? cwd : ".", 1, &cwd_fd,
+                         rel, sizeof rel) != P0_OK) {
+        obs->verdict = P0_UNSAFE_PATH;
+        snprintf(obs->detail, sizeof obs->detail,
+                 "invalid root capability or cwd: %s", cwd ? cwd : ".");
+        p0_obs_trace(obs);
+        return obs->verdict;
     }
-    char abs_cwd[PATH_MAX * 2];
-    snprintf(abs_cwd, sizeof abs_cwd, "%s/%s", p0_root(), rel);
 
     int op[2], ep[2], ip[2];
-    if (pipe(op) != 0) { obs->verdict = P0_SPAWN_FAILED; return obs->verdict; }
+    if (pipe(op) != 0) { close(cwd_fd); obs->verdict = P0_SPAWN_FAILED;
+                         return obs->verdict; }
     if (pipe(ep) != 0) { close(op[0]); close(op[1]);
+                         close(cwd_fd);
                          obs->verdict = P0_SPAWN_FAILED; return obs->verdict; }
     if (pipe(ip) != 0) { close(op[0]); close(op[1]); close(ep[0]); close(ep[1]);
+                         close(cwd_fd);
                          obs->verdict = P0_SPAWN_FAILED; return obs->verdict; }
 
     struct timespec t0; clock_gettime(CLOCK_MONOTONIC, &t0);
@@ -316,6 +328,7 @@ static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
     int sp[2];
     if (pipe(sp) != 0) { close(op[0]); close(op[1]); close(ep[0]); close(ep[1]);
                          close(ip[0]); close(ip[1]);
+                         close(cwd_fd);
                          obs->verdict = P0_SPAWN_FAILED; return obs->verdict; }
     fcntl(sp[1], F_SETFD, FD_CLOEXEC);
 
@@ -323,6 +336,7 @@ static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
     if (pid < 0) {
         close(op[0]); close(op[1]); close(ep[0]); close(ep[1]);
         close(ip[0]); close(ip[1]); close(sp[0]); close(sp[1]);
+        close(cwd_fd);
         obs->verdict = P0_SPAWN_FAILED;
         snprintf(obs->detail, sizeof obs->detail, "fork: %s", strerror(errno));
         p0_obs_trace(obs);
@@ -338,7 +352,12 @@ static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
          * hand the fact to the parent and die rather than exec as the wrong user. */
         if (netiso < 0) _exit(126);
 
-        if (chdir(abs_cwd) != 0) _exit(127);
+        if (fchdir(cwd_fd) != 0) _exit(127);
+        close(cwd_fd);
+        /* The caller keeps ownership in the parent; the executed tool does not
+         * need the root capability after fchdir and must not inherit it merely
+         * because its supplier omitted FD_CLOEXEC. */
+        if (rootfd >= 0 && rootfd != cwd_fd) close(rootfd);
         dup2(ip[0], STDIN_FILENO);
         dup2(op[1], STDOUT_FILENO);
         dup2(ep[1], STDERR_FILENO);
@@ -365,6 +384,7 @@ static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
     /* ---- parent ------------------------------------------------------------ */
     setpgid(pid, pid);                                  /* race-free with child  */
     close(op[1]); close(ep[1]); close(ip[0]); close(sp[1]);
+    close(cwd_fd);
 
     if (stdin_data && *stdin_data) {
         size_t n = strlen(stdin_data), off = 0;
@@ -465,12 +485,18 @@ static P0Verdict exec_once(char *const argv[], const char *cwd, int timeout_ms,
  * wasted fork per PROCESS, not per act. Any other failure is the act's real
  * verdict and is returned as it stands — a retry loop over genuine failures is
  * how an agent talks itself into a success it never had. */
+P0Verdict p0_exec_at(int rootfd, char *const argv[], const char *cwd,
+                     int timeout_ms, const char *stdin_data, P0Obs *obs) {
+    P0Verdict v = exec_once_at(rootfd, argv, cwd, timeout_ms, stdin_data, obs);
+    if (v == P0_SPAWN_FAILED && obs && strcmp(obs->detail, "userns_stranded") == 0)
+        v = exec_once_at(rootfd, argv, cwd, timeout_ms, stdin_data, obs);
+    return v;
+}
+
 P0Verdict p0_exec(char *const argv[], const char *cwd, int timeout_ms,
                   const char *stdin_data, P0Obs *obs) {
-    P0Verdict v = exec_once(argv, cwd, timeout_ms, stdin_data, obs);
-    if (v == P0_SPAWN_FAILED && obs && strcmp(obs->detail, "userns_stranded") == 0)
-        v = exec_once(argv, cwd, timeout_ms, stdin_data, obs);
-    return v;
+    p0_root_init();
+    return p0_exec_at(g_root_fd, argv, cwd, timeout_ms, stdin_data, obs);
 }
 
 /* ---------------------------------------------------------------- the record */

@@ -20,6 +20,7 @@
 #include "learn.h"
 #include "code.h"
 #include "exec.h"   /* gen329: every act on the machine returns an Observation */
+#include "agent.h"  /* typed task/action/observation spine */
 
 #include <ctype.h>
 #include <stdio.h>
@@ -41,6 +42,7 @@ struct Brain {
     unsigned long fallbacks; /* how many not-understood turns — rotates variants */
     long utter_seq;        /* gen240: monotonic index for the session conversation log */
     KB  *kb;               /* the knowledge base (gen4+) */
+    P0AStore *agent_store; /* typed agent records; projected into the live KB */
 
     /* gen76: proof trace. When a module answers a KB-backed query, it stores the
      * proof chain here so a follow-up "how do you know?" can cite real state. */
@@ -240,6 +242,105 @@ struct Brain {
 
 };
 
+static void brain_agent_rec_args(const P0ARec *r,
+                                 char id_s[32], char parent_s[32],
+                                 const char *args[4]) {
+    snprintf(id_s, 32, "%llu", (unsigned long long)r->id);
+    snprintf(parent_s, 32, "%llu", (unsigned long long)r->parent);
+    args[0] = id_s;
+    args[1] = p0a_kind_name(r->kind);
+    args[2] = parent_s;
+    args[3] = r->state[0] ? r->state : "open";
+}
+
+static int brain_agent_assert_rec(Brain *b, const P0ARec *r) {
+    if (!b || !b->kb || !r) return 0;
+    char id_s[32], parent_s[32];
+    const char *args[4];
+    brain_agent_rec_args(r, id_s, parent_s, args);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    int ok = kb_assert(b->kb, "rec", args, 4);
+    kb_set_origin(b->kb, KB_SESSION);
+    return ok;
+}
+
+static int brain_agent_retract_rec(Brain *b, const P0ARec *r) {
+    if (!b || !b->kb || !r) return 0;
+    char id_s[32], parent_s[32];
+    const char *args[4];
+    brain_agent_rec_args(r, id_s, parent_s, args);
+    return kb_retract(b->kb, "rec", args, 4);
+}
+
+/* Append one typed record and project its queryable shape into the live KB.
+ * Projection is mechanics: values come from the request/action domain, while the
+ * fixed predicates merely preserve record structure. rec/4 stays within the
+ * engine's public arity ceiling; provenance is the separate rec_source/2 fact. */
+static uint64_t brain_agent_record(Brain *b, P0AKind kind, uint64_t parent,
+                                   uint64_t source, const char *name,
+                                   const char *state, const char *payload) {
+    if (!b || !b->agent_store || !b->kb) return 0;
+    uint64_t id = p0a_add(b->agent_store, kind, parent, source,
+                          name, state, payload);
+    const P0ARec *r = p0a_get(b->agent_store, id);
+    if (!r) return 0;
+
+    char id_s[32], source_s[32];
+    snprintf(id_s, sizeof id_s, "%llu", (unsigned long long)r->id);
+    snprintf(source_s, sizeof source_s, "%llu", (unsigned long long)r->source);
+    const char *source_args[] = { id_s, source_s };
+
+    brain_agent_assert_rec(b, r);
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    kb_assert(b->kb, "rec_source", source_args, 2);
+    if (r->name[0]) {
+        char qname[KB_TERM_LEN];
+        size_t o = 0;
+        qname[o++] = '"';
+        for (size_t i = 0; r->name[i] && o + 2 < sizeof qname; i++) {
+            char c = r->name[i];
+            if (c == '"') c = '\'';
+            if (c == '\n' || c == '\r') c = ' ';
+            qname[o++] = c;
+        }
+        qname[o++] = '"';
+        qname[o] = '\0';
+        const char *name_args[] = { id_s, qname };
+        kb_assert(b->kb, "rec_name", name_args, 2);
+    }
+    kb_set_origin(b->kb, KB_SESSION);
+    return id;
+}
+
+int brain_agent_set_state(Brain *b, uint64_t id, const char *state) {
+    if (!b || !b->agent_store || !b->kb || !state) return 0;
+    const P0ARec *current = p0a_get(b->agent_store, id);
+    if (!current) return 0;
+    P0ARec old = *current;
+
+    /* Remove exactly the projection that corresponds to the store snapshot.
+     * If it is absent, do not mutate the store and do not guess which fact to
+     * replace: the caller has encountered pre-existing drift. */
+    if (!brain_agent_retract_rec(b, &old)) return 0;
+
+    if (!p0a_set_state(b->agent_store, id, state)) {
+        brain_agent_assert_rec(b, &old);
+        return 0;
+    }
+
+    const P0ARec *updated = p0a_get(b->agent_store, id);
+    if (updated && brain_agent_assert_rec(b, updated)) return 1;
+
+    /* Compensating transaction: restore the store snapshot, then its exact fact.
+     * Retracting the old fact freed one KB slot, so this reassert does not need
+     * the fact table to grow. */
+    if (p0a_set_state(b->agent_store, id, old.state)) {
+        const P0ARec *rolled_back = p0a_get(b->agent_store, id);
+        if (rolled_back) brain_agent_assert_rec(b, rolled_back);
+    }
+    return 0;
+}
+
 /* gen142 (E8): record that the user has just asserted `pred(arg)` with polarity
  * `positive`. If the OPPOSITE polarity is currently in the KB (the about-to-be
  * overwritten claim), the user has contradicted themselves about this atom this
@@ -278,6 +379,7 @@ static void note_contradiction(Brain *b, const char *pred, const char *arg,
 #include "brain/60-agent-tools.c"
 #include "brain/65-induce-verify-shell.c"
 #include "brain/70-social-pragma.c"
+#include "brain/75-agent-repair.c"
 #include "brain/80-code.c"
 #include "brain/85-translate-synth-world.c"
 #include "brain/90-repair-robust-abduce.c"

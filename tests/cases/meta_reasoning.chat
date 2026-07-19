@@ -3,8 +3,8 @@
 # the L7 question typology (question_form/2, reachable through the answer_frame
 # engine's stopword second pass — interrogatives ARE stopwords), and reasoning
 # contrasts (difference_between/3). Each was a measured wall in the gen338
-# probe battery. NOTE: relation_type/2 facts also landed, but their chat frame
-# («which relations are transitive?») is still walled — the open handoff item.
+# probe battery. relation_type/2 is reached through an additive answer_frame
+# registry: when one cue has several predicates, the first one with evidence wins.
 > what is the inverse of before?
 < After.
 > what kind of question is "why is the sky blue"?
@@ -17,3 +17,9 @@
 < A cause actively produces the effect; an enabling condition only makes it possible
 > what is the difference between deduction and induction?
 < Deduction derives what must follow from rules; induction generalizes a rule from examples
+> which relations are transitive?
+< Is a, part of, located in, contains, larger than, heavier than, faster than, before in time and after in time.
+> which relations are symmetric?
+< Borders, sibling of, spouse of and incompatible.
+> which relations are asymmetric?
+< Parent of, capital of country and eats.

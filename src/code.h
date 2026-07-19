@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include "kb.h"
+#include "exec.h"
 
 /* gen173: AST-as-KB — the first step of docs/CODE-MASTERY.md. A code snippet is
  * just another corpus: parrot0 parses its structure DETERMINISTICALLY (the C
@@ -430,6 +431,23 @@ int code_check_sort(const char *func_src, const char *fnname,
 int code_check_sort_diag(const char *func_src, const char *fnname,
                          char *diag, size_t dsz,
                          char *err_out, size_t err_sz);
+
+/* Executor-grounded sibling used by the typed agent repair loop.  Build and run
+ * are separate machine actions and therefore remain separate observations;
+ * has_run stays false when the build did not produce an executable.  The caller
+ * supplies the result of its live KB tool_for(build,cc) check: a false value
+ * refuses before p0_exec and produces no synthetic observation. */
+typedef struct {
+    int has_build;
+    int has_run;
+    P0Obs build;
+    P0Obs run;
+} P0SortCheckObs;
+
+int code_check_sort_diag_obs(const char *func_src, const char *fnname,
+                             char *diag, size_t dsz,
+                             char *err_out, size_t err_sz,
+                             int cc_allowed, P0SortCheckObs *observations);
 
 /* gen327 (forge plan §9.3): apply ONE named repair transformation to a
  * candidate's source. Structural rewrites, not a library of answers: the C knows

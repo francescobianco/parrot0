@@ -421,6 +421,8 @@ Brain *brain_create(void) {
     if (!b) return NULL;
     b->kb = kb_create();
     if (!b->kb) { free(b); return NULL; }
+    b->agent_store = p0a_new();
+    if (!b->agent_store) { kb_destroy(b->kb); free(b); return NULL; }
     b->start_time = 0; /* gen251: conversation time starts on first user turn. */
     b->active_world = -1; /* gen142 (E7): no local world is open at birth */
 
@@ -598,6 +600,7 @@ int brain_save_session(Brain *b, const char *path) {
 
 void brain_destroy(Brain *b) {
     if (!b) return;
+    p0a_free(b->agent_store);
     kb_destroy(b->kb);
     free(b);
 }
@@ -686,7 +689,8 @@ void brain_boot(Brain *b) {
 /* gen276: rebuild the brain's knowledge and session state in place from the
  * files on disk. Builds a fresh brain the SAME way boot did (brain_create +
  * brain_boot), then MOVES its guts into *b — a whole-struct copy so no session
- * field can be missed (the only owned pointer is the KB, handled explicitly).
+ * field can be missed (the KB and typed-record store are owned pointers, handled
+ * explicitly).
  * The unsaved session dies with the old KB; the fresh KB reflects the current
  * file contents, so newly-written knowledge goes live without a restart. */
 int brain_reload(Brain *b) {
@@ -694,9 +698,10 @@ int brain_reload(Brain *b) {
     Brain *fresh = brain_create();
     if (!fresh) return -1;              /* *b left untouched on failure */
     brain_boot(fresh);
+    p0a_free(b->agent_store);            /* /restore drops the in-memory task trail */
     kb_destroy(b->kb);                  /* drop the old (possibly unsaved) KB */
-    *b = *fresh;                        /* move every field, incl. the fresh KB ptr */
-    free(fresh);                        /* free only the shell; fresh->kb now owned by b */
+    *b = *fresh;                        /* move every field, including owned pointers */
+    free(fresh);                        /* free shell; fresh's KB/store now belong to b */
     return (int)kb_size(b->kb);
 }
 

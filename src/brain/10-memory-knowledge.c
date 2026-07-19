@@ -2493,11 +2493,16 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         char cue_s[KB_TERM_LEN]; snprintf(cue_s, sizeof cue_s, "%s", cues[i]);
         const char *cd = kb_dequote(cue_s);
         if (!*cd || !cue(norm, cd)) continue;
-        char preds[1][KB_TERM_LEN];
+        /* answer_frame/2 is a registry, not a function: one surface cue may
+         * name several candidate relations.  Keep their KB insertion order
+         * and let the first candidate that produces evidence win.  This is
+         * important for additive growth: a stale/inapplicable older mapping
+         * must not make a later taught mapping unreachable.  kb_match already
+         * deduplicates bindings, so repeated identical rows do no extra work. */
+        char preds[128][KB_TERM_LEN];
         const char *pq[2] = { cues[i], NULL };
-        if (kb_match(b->kb, "answer_frame", pq, 2, preds, 1) != 1) continue;
-        char pred[KB_TERM_LEN]; snprintf(pred, sizeof pred, "%s", kb_dequote(preds[0]));
-        if (!*pred) continue;
+        size_t np = kb_match(b->kb, "answer_frame", pq, 2, preds, 128);
+        if (np == 0) continue;
 
         /* gen339 (L14): two passes. Pass 0 skips stopwords as before; pass 1
          * revisits ONLY stopword tokens, and only when pass 0 matched nothing —
@@ -2506,6 +2511,10 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
          * unreachable. Safe: junk keys ("the", "of") have no facts, so the
          * frame still claims only on a real pred match. */
         for (size_t pass = 0; pass < 2; pass++) {
+        for (size_t p = 0; p < np; p++) {
+        char pred[KB_TERM_LEN];
+        snprintf(pred, sizeof pred, "%s", kb_dequote(preds[p]));
+        if (!*pred) continue;
         for (size_t t = 0; t < nw; t++) {
             char *v = strip_edge_punct(w[t]);
             /* gen311: allow SINGLE-letter tokens — chemical symbols are 1 char
@@ -2534,6 +2543,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             store_proof(b, msg);
             return 1;
+        }
         }
         }
     }

@@ -115,8 +115,19 @@ static int scene_from_cues(Brain *b, char **w, size_t nw,
 
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
-    (void)raw;
     if (!b || !b->kb) return 0;
+
+    /* A code-repair request may contain prose/story cues inside the candidate.
+     * Keep the established registry order for ordinary generation, but let the
+     * later code faculty see a request when BOTH pieces of evidence are live:
+     * the request cue comes from the KB and universal-input finds a code span.
+     * Retracting either relation removes the pass-through without a rebuild. */
+    if (kb_cue_match(b, "code_fix", norm)) {
+        static char repair_source[65536];
+        if (code_extract_source(b->kb, raw, repair_source,
+                                sizeof repair_source) == 1)
+            return 0;
+    }
 
     /* learn the continuation relation from an example: "learn sequence: a b c" */
     if (strncmp(norm, "learn sequence:", 15) == 0) {

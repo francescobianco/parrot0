@@ -19,8 +19,8 @@
 #   audit is data   the JSONL must PARSE BACK through the real json.c — a trail
 #                   that only looks right when printed is prose with braces. A name
 #                   containing a quote and a newline is the test that finds this.
-#   KB projection   rec/5 + rec_name/2 must stay p0-legal: unquoted lowercase atoms
-#                   for the state vocabulary, a quoted atom for free text.
+#   KB projection   rec/4 + rec_source/2 + rec_name/2 must stay inside the KB's
+#                   arity ceiling: atom state, separate provenance, quoted label.
 #
 # Mechanics only: no Brain, no natural language, exactly like exec.c (gen329).
 set -u
@@ -176,8 +176,11 @@ int main(void)
     /* ---- the KB projection: a planner queries facts, not prose ------------ */
     r = p0a_get(s, art);
     p0a_fact(r, buf, sizeof buf);
-    chk(strcmp(buf, "rec(5,artifact,2,4,candidate).") == 0,
-        "p0a_fact renders rec(Id,Kind,Parent,Source,State) with atom kinds");
+    chk(strcmp(buf, "rec(5,artifact,2,candidate).") == 0,
+        "p0a_fact renders loadable rec(Id,Kind,Parent,State) within KB arity 4");
+    p0a_fact_source(r, buf, sizeof buf);
+    chk(strcmp(buf, "rec_source(5,4).") == 0,
+        "p0a_fact_source preserves provenance without an unloadable rec/5");
     p0a_fact_name(r, buf, sizeof buf);
     chk(strcmp(buf, "rec_name(5,\"parser.c.diff\").") == 0,
         "p0a_fact_name quotes the free-text label");

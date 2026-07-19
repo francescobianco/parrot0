@@ -23,6 +23,7 @@
 %                                                          outside the live range
 repair_rule(not_ordered, flip_comparator).
 repair_rule(not_permutation, tighten_inner_bound).
+repair_budget(sort_contract, 3).
 
 % --- gen329 (TODO.md P0/04): the TOOL CONTRACTS ------------------------------
 % Counterexample that ended the old design: `run git status; printf P0_CHAINED`

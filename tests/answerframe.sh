@@ -70,6 +70,83 @@ else
     no "false-positive guard failed: $(gl 5)"
 fi
 
+# ---- Path 4: one cue can grow more than one candidate predicate -----------
+# `answer_frame` is a registry, not a function.  The first mapping below is a
+# deliberate sterile collision: transitive/1 cannot answer the binary lookup
+# performed by the generic frame.  Adding relation_type/2 under the SAME cue
+# must become live immediately; retracting only that mapping must remove it.
+#
+# The same live MCP process also proves that the pre-existing arity frame was
+# never the problem: a relation_arity/2 fact makes it answer immediately, and
+# retracting the fact removes the answer again.
+multi="$( {
+  printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05"}}'
+  printf '%s\n' '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"relation_type","args":["mirror_link","involutive"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"answer_frame","args":["involutive","transitive"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":4,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"which relations are involutive?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":5,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"answer_frame","args":["involutive","relation_type"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":6,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"which relations are involutive?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":7,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"answer_frame","args":["involutive","relation_type"]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":8,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"which relations are involutive?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":9,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"what is the arity of ternary_bridge?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"relation_arity","args":["ternary_bridge",3]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"what is the arity of ternary_bridge?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"relation_arity","args":["ternary_bridge",3]}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"what is the arity of ternary_bridge?"}}}'
+  printf '%s\n' '{"jsonrpc":"2.0","id":14,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"which relations are transitive?"}}}'
+} | PARROT0_SESSION= PARROT0_PROFILE= PARROT0_WORLD_FACTS=0 "$BIN" --mcp-engine 2>/dev/null)"
+
+ml() { printf '%s\n' "$multi" | grep -F "\"id\":$1,"; }
+
+rpc_ok=1
+for id in $(seq 1 14); do
+    [ "$(printf '%s\n' "$multi" | grep -Fc "\"id\":$id,")" -eq 1 ] || rpc_ok=0
+done
+if [ "$rpc_ok" -eq 1 ]; then
+    ok "many-to-one/arity runtime-growth RPC sequence completed"
+else
+    no "many-to-one/arity runtime-growth RPC sequence was incomplete"
+fi
+
+if ! ml 4 | grep -Fqi 'Mirror link.'; then
+    ok "collision RED: the sterile first mapping cannot answer"
+else
+    no "collision RED unexpectedly reached the later relation: $(ml 4)"
+fi
+if ml 6 | grep -Fqi 'Mirror link.'; then
+    ok "collision GREEN: a second predicate under the same cue becomes live"
+else
+    no "collision GREEN did not reach the second predicate: $(ml 6)"
+fi
+if ! ml 8 | grep -Fqi 'Mirror link.'; then
+    ok "collision ablation: retracting the second mapping removes recognition"
+else
+    no "collision mapping survived retraction: $(ml 8)"
+fi
+
+if ! ml 9 | grep -Fq '\"output\":\"3.\"'; then
+    ok "arity RED: no answer exists before relation_arity/2 is taught"
+else
+    no "arity RED unexpectedly answered: $(ml 9)"
+fi
+if ml 11 | grep -Fq '\"output\":\"3.\"'; then
+    ok "arity GREEN: a runtime relation_arity/2 fact is consumed"
+else
+    no "arity GREEN did not answer 3: $(ml 11)"
+fi
+if ! ml 13 | grep -Fq '\"output\":\"3.\"'; then
+    ok "arity ablation: retracting relation_arity/2 removes the answer"
+else
+    no "arity fact survived retraction: $(ml 13)"
+fi
+
+if ml 14 | grep -Fqi 'is a' && ml 14 | grep -Fqi 'part of'; then
+    ok "L14 regression: the built-in transitive collision reaches relation_type/2"
+else
+    no "L14 transitive frame still walled: $(ml 14)"
+fi
+
 echo "---"
 echo "passed: $pass, failed: $fail"
 [ "$fail" -eq 0 ]
