@@ -1,7 +1,7 @@
 # Dossier operativo — round guidati verso un coding agent usabile
 
-> **Stato:** handoff finalizzato e pronto al commit; ciclo guidato chiuso a T06
-> il 2026-07-19, a partire da `gen339`. La missione complessiva resta aperta e
+> **Stato:** handoff finalizzato in `gen340`; ciclo guidato chiuso a T06 il
+> 2026-07-19, a partire da `gen339`. La missione complessiva resta aperta e
 > riparte dai residui ordinati nella sezione 10.
 > **Scopo:** conservare le scoperte prodotte mentre un supervisore usa parrot0
 > come subagent, e ordinare le leve logiche che trasformano i suoi fallimenti in
