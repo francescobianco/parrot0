@@ -77,6 +77,20 @@ tool_subcmd(go, test).
 machinery(tool_for).
 machinery(tool_subcmd).
 
+% --- gen342 (T06 bridge): the COMMIT POLICY ---------------------------------
+% A verified candidate is not a done task. The canonical workspace changes only
+% when a LIVE fact authorizes the exact operation on the exact path:
+%
+%   commit_policy(Op, Path)   Op in edit|create|delete|rename; the repair
+%                             controller requires one per touched path (two for
+%                             a rename) before p0_patch_commit may move a byte.
+%
+% There are deliberately NO default facts here: denial is the safe ground
+% state, so an absent policy is a typed Gap(commit_policy) with zero writes,
+% never an implicit yes. Authorizing a commit is a runtime assertion tied to a
+% task — and retracting it in the same session provably stops the write.
+machinery(commit_policy).
+
 % ...and machinery/1 is itself machinery. Without this line parrot0 answers "I know
 % these predicates: machinery" to a brain that was taught nothing — the declaration
 % of what is not knowledge would be counted as knowledge. It is the only fact in the

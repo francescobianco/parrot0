@@ -103,6 +103,16 @@ typedef struct P0PatchArtifact P0PatchArtifact;
 typedef int (*P0PatchCheckFn)(const char *root, void *ctx,
                               char *why, size_t why_cap);
 
+/* The capability form of a stage check: the callback receives a BORROWED
+ * directory descriptor on the isolated candidate tree root (owned by the
+ * caller, valid only for the duration of the call) plus the tree path for
+ * diagnostics.  This is the seam through which an oracle runs via
+ * p0_exec_at(rootfd, ...): build and test execute with their cwd resolved
+ * inside the candidate tree, never by trusting a path string.  rootfd is cwd
+ * containment, not a chroot — the same honesty boundary as p0_exec_at. */
+typedef int (*P0PatchRootCheckFn)(int rootfd, const char *root, void *ctx,
+                                  char *why, size_t why_cap);
+
 /* Canonical workspace mutation is R3.  NULL or a zero result denies it.  A Brain
  * adapter can back this callback with a KB policy without coupling this mechanics
  * module to language or to the KB representation. */
@@ -131,6 +141,19 @@ P0PatchResult p0_patch_prepare_image(const char *label,
                                      mode_t after_mode,
                                      P0PatchCheckFn stage_check, void *check_ctx,
                                      P0PatchArtifact **out, P0PatchReport *report);
+
+/* Re-materialize an artifact (including one just re-loaded from disk) into a
+ * fresh isolated candidate tree: optionally copy the bounded workspace
+ * context, write the recorded preimages, apply the batch, verify every
+ * postimage, then hand the tree root to `check` as a borrowed rootfd.  After
+ * a green check every touched postimage is verified once more, so an oracle
+ * that mutated a touched path cannot certify it.  The stage is always
+ * destroyed and the canonical workspace is never written.  Returns
+ * P0_PATCH_OK only when the mechanics AND the check are green;
+ * P0_PATCH_STAGE_CHECK_FAILED means the oracle itself ran and answered red. */
+P0PatchResult p0_patch_check(const P0PatchArtifact *artifact, int with_context,
+                             P0PatchRootCheckFn check, void *check_ctx,
+                             P0PatchReport *report);
 
 void   p0_patch_free(P0PatchArtifact *artifact);
 size_t p0_patch_count(const P0PatchArtifact *artifact);

@@ -4,7 +4,17 @@
  * diagnose the resulting observations.  This controller owns the loop:
  * exhaustive live-rule lookup, mechanical blast selection, digest de-dup,
  * budget, replanning and the P0A provenance graph.  In particular it contains
- * no diagnosis-specific branch and emits no user-facing wording. */
+ * no diagnosis-specific branch and emits no user-facing wording.
+ *
+ * The bridge (dossier §10.4): a detached winner stays a verified proposal
+ * handed back to its domain.  A REPOSITORY-BOUND winner instead stops at
+ * `verified_candidate` and crosses the canonical boundary only through
+ * p0_patch_commit: a live KB commit_policy(Op,Path) fact per touched path is
+ * the authorization, the domain's canonical_check re-runs the oracle on the
+ * committed bytes as the post-check, and a red post-check restores and
+ * re-verifies every touched path.  A green candidate therefore never marks
+ * the Task done by itself — the commit does, or a typed Gap names what
+ * stopped it. */
 #include "../patch.h"
 
 #include <limits.h>
@@ -20,7 +30,11 @@ typedef enum {
     P0_REPAIR_NO_APPLICABLE,
     P0_REPAIR_INFRA,
     P0_REPAIR_MISSING_TOOL,
-    P0_REPAIR_BUDGET_EXHAUSTED
+    P0_REPAIR_BUDGET_EXHAUSTED,
+    P0_REPAIR_COMMITTED,
+    P0_REPAIR_POLICY_GAP,
+    P0_REPAIR_POST_CHECK_FAILED,
+    P0_REPAIR_COMMIT_CONFLICT
 } P0RepairTerminal;
 
 typedef struct {
@@ -39,6 +53,13 @@ typedef struct {
     /* 1 = green, 0 = red diagnosis, -1 = infrastructure verdict. */
     int (*diagnose)(void *ctx, const P0RepairEvidence *evidence,
                     char *diagnosis, size_t diagnosis_cap);
+    /* Optional, repository-bound domains only: re-run the oracle against the
+     * CANONICAL workspace root after commit, filling evidence with the real
+     * P0Obs.  1 = green, 0 = red, -1 = infrastructure.  NULL means the commit
+     * proves bytes only (no canonical oracle). */
+    int (*canonical_check)(void *ctx, const char *root,
+                           P0RepairEvidence *evidence,
+                           char *why, size_t why_cap);
 } P0RepairOps;
 
 typedef struct {
@@ -74,13 +95,17 @@ typedef struct {
 
 static const char *agent_repair_terminal_name(P0RepairTerminal t) {
     switch (t) {
-        case P0_REPAIR_VERIFIED:         return "verified";
-        case P0_REPAIR_ALREADY_GREEN:    return "already_green";
-        case P0_REPAIR_ZERO_RULE:        return "zero_rule";
-        case P0_REPAIR_NO_APPLICABLE:    return "no_applicable";
-        case P0_REPAIR_MISSING_TOOL:     return "missing_tool_contract";
-        case P0_REPAIR_BUDGET_EXHAUSTED: return "budget_exhausted";
-        default:                         return "infra";
+        case P0_REPAIR_VERIFIED:          return "verified";
+        case P0_REPAIR_ALREADY_GREEN:     return "already_green";
+        case P0_REPAIR_ZERO_RULE:         return "zero_rule";
+        case P0_REPAIR_NO_APPLICABLE:     return "no_applicable";
+        case P0_REPAIR_MISSING_TOOL:      return "missing_tool_contract";
+        case P0_REPAIR_BUDGET_EXHAUSTED:  return "budget_exhausted";
+        case P0_REPAIR_COMMITTED:         return "committed";
+        case P0_REPAIR_POLICY_GAP:        return "policy_gap";
+        case P0_REPAIR_POST_CHECK_FAILED: return "post_check_failed";
+        case P0_REPAIR_COMMIT_CONFLICT:   return "commit_conflict";
+        default:                          return "infra";
     }
 }
 
@@ -344,6 +369,182 @@ static int agent_repair_candidate_cmp(const P0RepairCandidate *a,
     int by_name = strcmp(a->transform, b->transform);
     if (by_name) return by_name;
     return strcmp(a->state_digest, b->state_digest);
+}
+
+/* ------------------------------------------------------------------ commit --
+ * The canonical boundary of a repository-bound winner.  Authorization is a
+ * LIVE KB fact per touched path — commit_policy(Op,Path) — queried afresh for
+ * every commit, so retracting the policy in the same session stops the write
+ * with zero bytes moved.  The post-check is the domain's canonical oracle;
+ * a red one restores and re-verifies every touched path. */
+
+static int agent_repair_authorize(const P0PatchArtifact *a, void *ctx,
+                                  char *why, size_t why_cap) {
+    Brain *b = ctx;
+    if (!b || !b->kb) {
+        snprintf(why, why_cap, "no_live_kb");
+        return 0;
+    }
+    for (size_t i = 0; i < p0_patch_count(a); i++) {
+        P0PatchOpView op;
+        if (!p0_patch_op(a, i, &op) || !op.path) {
+            snprintf(why, why_cap, "op_view_failed:index=%zu", i);
+            return 0;
+        }
+        const char *args[] = { p0_patch_op_name(op.kind), op.path };
+        if (!kb_query(b->kb, "commit_policy", args, 2)) {
+            snprintf(why, why_cap, "commit_policy_absent:op=%s:path=%s",
+                     p0_patch_op_name(op.kind), op.path);
+            return 0;
+        }
+        if (op.kind == P0_PATCH_RENAME && op.path2) {
+            const char *args2[] = { p0_patch_op_name(op.kind), op.path2 };
+            if (!kb_query(b->kb, "commit_policy", args2, 2)) {
+                snprintf(why, why_cap, "commit_policy_absent:op=%s:path=%s",
+                         p0_patch_op_name(op.kind), op.path2);
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+typedef struct {
+    const P0RepairOps *ops;
+    void *domain_ctx;
+    P0RepairEvidence *evidence;
+} P0RepairPostCtx;
+
+static int agent_repair_post_check(const char *root, void *ctx,
+                                   char *why, size_t why_cap) {
+    P0RepairPostCtx *pc = ctx;
+    if (!pc->ops->canonical_check) return 1;
+    return pc->ops->canonical_check(pc->domain_ctx, root, pc->evidence,
+                                    why, why_cap) == 1;
+}
+
+static void agent_repair_commit_fact(Brain *b, const P0RepairResult *result,
+                                     uint64_t artifact_id,
+                                     const char *outcome) {
+    char goal_s[32], artifact_s[32];
+    snprintf(goal_s, sizeof goal_s, "%llu",
+             (unsigned long long)result->goal_id);
+    snprintf(artifact_s, sizeof artifact_s, "%llu",
+             (unsigned long long)artifact_id);
+    const char *args[] = { goal_s, artifact_s, outcome };
+    agent_repair_fact(b, "repair_commit", args, 3);
+}
+
+/* Consumes nothing; `current` stays owned by the caller and becomes
+ * result->winner only on P0_REPAIR_COMMITTED.  Every other outcome leaves the
+ * workspace provably as found and names a typed Gap. */
+static int agent_repair_commit_phase(Brain *b, const P0RepairOps *ops,
+                                     void *ctx, P0RepairResult *result,
+                                     uint64_t artifact_id,
+                                     P0PatchArtifact *current) {
+    /* A green candidate is a verified_candidate, never a done task. */
+    brain_agent_set_state(b, artifact_id, "verified_candidate");
+    uint64_t action = brain_agent_record(b, P0A_ACTION, result->goal_id,
+                                         artifact_id, "commit_candidate",
+                                         "active", "{}");
+    if (!action) {
+        agent_repair_finish_gap(b, result, P0_REPAIR_INFRA, artifact_id);
+        return 1;
+    }
+
+    P0RepairEvidence evidence;
+    memset(&evidence, 0, sizeof evidence);
+    P0RepairPostCtx pc = { ops, ctx, &evidence };
+    P0PatchReport report;
+    P0PatchResult pr = p0_patch_commit(current, agent_repair_authorize, b,
+                                       agent_repair_post_check, &pc, &report);
+
+    if (pr == P0_PATCH_OK) {
+        uint64_t last = action;
+        for (size_t i = 0; i < evidence.count; i++) {
+            uint64_t obs_id = agent_repair_observation(b, action, artifact_id,
+                                                       evidence.stage[i],
+                                                       &evidence.obs[i]);
+            if (!obs_id) {
+                agent_repair_finish_gap(b, result, P0_REPAIR_INFRA, action);
+                return 1;
+            }
+            last = obs_id;
+        }
+        uint64_t verdict = brain_agent_record(b, P0A_VERDICT, artifact_id,
+                                              last, "canonical_oracle",
+                                              "done", "{}");
+        if (!verdict) {
+            agent_repair_finish_gap(b, result, P0_REPAIR_INFRA, action);
+            return 1;
+        }
+        char verdict_s[32], artifact_s[32], obs_s[32];
+        snprintf(verdict_s, sizeof verdict_s, "%llu",
+                 (unsigned long long)verdict);
+        snprintf(artifact_s, sizeof artifact_s, "%llu",
+                 (unsigned long long)artifact_id);
+        snprintf(obs_s, sizeof obs_s, "%llu", (unsigned long long)last);
+        const char *vargs[] = { verdict_s, artifact_s, obs_s,
+                                "canonical_oracle" };
+        agent_repair_fact(b, "repair_verdict", vargs, 4);
+        agent_repair_commit_fact(b, result, artifact_id, "committed");
+        brain_agent_set_state(b, action, "done");
+        brain_agent_set_state(b, artifact_id, "done");
+        brain_agent_set_state(b, result->goal_id, "done");
+        brain_agent_set_state(b, result->task_id, "done");
+        result->terminal = P0_REPAIR_COMMITTED;
+        result->winner = current;
+        snprintf(result->last_diagnosis, sizeof result->last_diagnosis,
+                 "%s", "committed");
+        agent_repair_terminal_fact(b, result);
+        return 1;
+    }
+
+    /* Failure typing.  Policy denial and a stale base move ZERO bytes by
+     * construction (authorization and preimage revalidation both precede the
+     * first write); a red canonical post-check is answered with a verified
+     * byte/path/mode rollback by patch.c. */
+    P0RepairTerminal terminal;
+    const char *gap_name;
+    const char *outcome;
+    int candidate_refuted = 0;
+    if (pr == P0_PATCH_POLICY_DENIED) {
+        terminal = P0_REPAIR_POLICY_GAP;
+        gap_name = "commit_policy";
+        outcome = "policy_denied";
+    } else if (pr == P0_PATCH_CONFLICT) {
+        terminal = P0_REPAIR_COMMIT_CONFLICT;
+        gap_name = "stale_base";
+        outcome = "conflict";
+    } else if (pr == P0_PATCH_POST_CHECK_FAILED) {
+        terminal = P0_REPAIR_POST_CHECK_FAILED;
+        gap_name = "canonical_post_check";
+        outcome = "post_check_failed";
+        candidate_refuted = 1;
+    } else {
+        terminal = P0_REPAIR_INFRA;
+        gap_name = "repair_infra";
+        outcome = "infra";
+    }
+    char payload[P0A_PAYLOAD];
+    char *detail_json = json_escape(report.detail[0] ? report.detail : "");
+    snprintf(payload, sizeof payload,
+             "{\"result\":\"%s\",\"detail\":\"%s\","
+             "\"rollback_attempted\":%d,\"rollback_ok\":%d}",
+             p0_patch_result_name(pr),
+             detail_json ? detail_json : "",
+             report.rollback_attempted, report.rollback_ok);
+    free(detail_json);
+    result->gap_id = brain_agent_record(b, P0A_GAP, result->goal_id, action,
+                                        gap_name, "open", payload);
+    agent_repair_commit_fact(b, result, artifact_id, outcome);
+    brain_agent_set_state(b, action, "failed");
+    if (candidate_refuted) brain_agent_set_state(b, artifact_id, "failed");
+    brain_agent_set_state(b, result->goal_id, "blocked");
+    brain_agent_set_state(b, result->task_id, "blocked");
+    result->terminal = terminal;
+    agent_repair_terminal_fact(b, result);
+    return 1;
 }
 
 /* Consumes `initial`.  On success result->winner owns the final artifact;
@@ -612,13 +813,19 @@ static int agent_repair_run(Brain *b, const char *domain,
         agent_repair_fact(b, "repair_attempt", aargs, 4);
 
         if (disposition == 1) {
+            snprintf(result->winner_transform,
+                     sizeof result->winner_transform, "%s", chosen.transform);
+            if (!p0_patch_is_detached(current)) {
+                /* Repository-bound: the commit boundary disposes the verified
+                 * candidate (policy KB -> commit -> canonical oracle). */
+                return agent_repair_commit_phase(b, ops, ctx, result,
+                                                 artifact_id, current);
+            }
             brain_agent_set_state(b, artifact_id, "done");
             brain_agent_set_state(b, result->goal_id, "done");
             brain_agent_set_state(b, result->task_id, "done");
             result->terminal = P0_REPAIR_VERIFIED;
             result->winner = current;
-            snprintf(result->winner_transform,
-                     sizeof result->winner_transform, "%s", chosen.transform);
             snprintf(result->last_diagnosis, sizeof result->last_diagnosis,
                      "%s", "verified");
             agent_repair_terminal_fact(b, result);

@@ -1008,20 +1008,27 @@ static int code_sort_candidate(const char *src, char *fn, size_t fnsz) {
 /* Sort is one adapter over the domain-neutral T06 controller.  Its only domain
  * knowledge is how to invoke the existing structural transform and sort oracle;
  * candidate ordering, budgets, replanning, de-dup and P0A transitions live in
- * 75-agent-repair.c. */
+ * 75-agent-repair.c.  canonical_path empty selects the detached conversational
+ * form; set, the candidates bind to that repository path and the verified
+ * winner crosses the commit boundary under live commit_policy facts. */
 typedef struct {
     Brain *brain;
     char fn[KB_TERM_LEN];
+    char canonical_path[512];
+    char stage_path[512];
     int last_check;
     char last_diagnosis[KB_TERM_LEN];
+    int have_observed;
+    P0SortCheckObs observed;
 } SortRepairAdapter;
 
 static int sort_repair_materialize(void *opaque, const P0PatchArtifact *base,
                                    const char *transform,
                                    P0PatchArtifact **candidate) {
-    (void)opaque;
+    SortRepairAdapter *adapter = opaque;
     if (candidate) *candidate = NULL;
-    if (!base || !transform || !candidate || p0_patch_count(base) != 1)
+    if (!adapter || !base || !transform || !candidate ||
+        p0_patch_count(base) != 1)
         return -1;
     P0PatchOpView op;
     if (!p0_patch_op(base, 0, &op) || !op.has_after ||
@@ -1039,16 +1046,75 @@ static int sort_repair_materialize(void *opaque, const P0PatchArtifact *base,
     if (made != 1) { free(source); free(patched); return made; }
 
     P0PatchReport report;
-    P0PatchResult pr = p0_patch_prepare_image(op.path ? op.path : "candidate.c",
-                                              op.after, op.after_len,
-                                              op.after_mode,
-                                              patched, strlen(patched),
-                                              op.after_mode, NULL, NULL,
-                                              candidate, &report);
+    P0PatchResult pr;
+    if (adapter->canonical_path[0]) {
+        /* Repository-bound candidate: the preimage is re-snapshotted from the
+         * live canonical file, so a later commit revalidates against the very
+         * bytes the loop started from.  post_mode 0 preserves the file mode. */
+        P0PatchSpec spec = { P0_PATCH_EDIT, adapter->canonical_path, NULL,
+                             patched, strlen(patched), 0 };
+        pr = p0_patch_prepare(&spec, 1, NULL, NULL, candidate, &report);
+        free(source);
+        free(patched);
+        return pr == P0_PATCH_OK && *candidate &&
+               !p0_patch_is_detached(*candidate) ? 1 : -1;
+    }
+    pr = p0_patch_prepare_image(op.path ? op.path : "candidate.c",
+                                op.after, op.after_len,
+                                op.after_mode,
+                                patched, strlen(patched),
+                                op.after_mode, NULL, NULL,
+                                candidate, &report);
     free(source);
     free(patched);
     return pr == P0_PATCH_OK && *candidate && p0_patch_is_detached(*candidate)
              ? 1 : -1;
+}
+
+/* The candidate-stage oracle: judge the very bytes p0_patch_check verified in
+ * the isolated tree, via p0_exec_at on the borrowed stage rootfd.  Returns 1
+ * only when the run contract is green; any red build/run is still a REAL
+ * observation set for the controller's diagnose step. */
+static int sort_stage_oracle(int rootfd, const char *root, void *opaque,
+                             char *why, size_t why_cap) {
+    SortRepairAdapter *adapter = opaque;
+    (void)root;
+    if (!adapter || adapter->stage_path[0] == '\0') return 0;
+    int fd = openat(rootfd, adapter->stage_path,
+                    O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0) return 0;
+    struct stat st;
+    if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode) || st.st_size < 0 ||
+        (uint64_t)st.st_size > P0_PATCH_MAX_BYTES - 1) {
+        close(fd);
+        return 0;
+    }
+    size_t len = (size_t)st.st_size;
+    char *source = malloc(len + 1);
+    if (!source) { close(fd); return 0; }
+    size_t off = 0;
+    int bad = 0;
+    while (off < len) {
+        ssize_t n = read(fd, source + off, len - off);
+        if (n < 0 && errno == EINTR) continue;
+        if (n <= 0) { bad = 1; break; }
+        off += (size_t)n;
+    }
+    close(fd);
+    if (bad) { free(source); return 0; }
+    source[len] = '\0';
+    adapter->last_check = code_check_sort_at(rootfd, source, adapter->fn,
+        adapter->last_diagnosis, sizeof adapter->last_diagnosis,
+        NULL, 0, &adapter->observed);
+    free(source);
+    adapter->have_observed = 1;
+    if (adapter->last_check != 1) {
+        if (why && why_cap)
+            snprintf(why, why_cap, "%s", adapter->last_diagnosis[0]
+                     ? adapter->last_diagnosis : "oracle_red");
+        return 0;
+    }
+    return 1;
 }
 
 static int sort_repair_observe(void *opaque, const P0PatchArtifact *candidate,
@@ -1058,36 +1124,32 @@ static int sort_repair_observe(void *opaque, const P0PatchArtifact *candidate,
         return -1;
     memset(evidence, 0, sizeof *evidence);
     P0PatchOpView op;
-    if (!p0_patch_op(candidate, 0, &op) || !op.has_after ||
+    if (!p0_patch_op(candidate, 0, &op) || !op.has_after || !op.path ||
         op.after_len > P0_PATCH_MAX_BYTES - 1)
         return -1;
-    char *source = malloc(op.after_len + 1);
-    if (!source) return -1;
-    memcpy(source, op.after, op.after_len);
-    source[op.after_len] = '\0';
 
     /* Authorization is queried afresh for every verification.  Retraction at
-     * runtime stops before p0_exec; code.c enforces the same boolean at the
-     * effect boundary. */
+     * runtime stops before any staging or p0_exec_at; no Observation is
+     * invented for the skipped action. */
     const char *tool[] = { "build", "cc" };
-    int cc_allowed = kb_query(adapter->brain->kb, "tool_for", tool, 2);
-    P0SortCheckObs observed;
-    char err[256] = "";
+    if (!kb_query(adapter->brain->kb, "tool_for", tool, 2)) return -2;
+
+    adapter->have_observed = 0;
     adapter->last_diagnosis[0] = '\0';
-    adapter->last_check = code_check_sort_diag_obs(
-        source, adapter->fn, adapter->last_diagnosis,
-        sizeof adapter->last_diagnosis, err, sizeof err,
-        cc_allowed, &observed);
-    free(source);
-    if (adapter->last_check == -2) return -2;
-    if (observed.has_build) {
-        evidence->obs[evidence->count] = observed.build;
+    snprintf(adapter->stage_path, sizeof adapter->stage_path, "%s", op.path);
+    P0PatchReport report;
+    P0PatchResult pr = p0_patch_check(candidate, 0, sort_stage_oracle,
+                                      adapter, &report);
+    if (!adapter->have_observed) return -1;
+    if (pr != P0_PATCH_OK && pr != P0_PATCH_STAGE_CHECK_FAILED) return -1;
+    if (adapter->observed.has_build) {
+        evidence->obs[evidence->count] = adapter->observed.build;
         snprintf(evidence->stage[evidence->count],
                  sizeof evidence->stage[evidence->count], "%s", "build");
         evidence->count++;
     }
-    if (observed.has_run && evidence->count < P0_REPAIR_MAX_OBS) {
-        evidence->obs[evidence->count] = observed.run;
+    if (adapter->observed.has_run && evidence->count < P0_REPAIR_MAX_OBS) {
+        evidence->obs[evidence->count] = adapter->observed.run;
         snprintf(evidence->stage[evidence->count],
                  sizeof evidence->stage[evidence->count], "%s", "run");
         evidence->count++;
@@ -1126,6 +1188,75 @@ static int sort_repair_source(const P0PatchArtifact *patch,
     return 1;
 }
 
+/* The canonical post-check of the bridge: read the COMMITTED source from the
+ * canonical workspace root and re-judge it.  The build/run sandbox is a fresh
+ * scratch tree (the compiler output must not become a workspace side effect),
+ * but the bytes under judgement are the canonical ones.  Evidence keeps the
+ * two P0Obs as canonical_build/canonical_run for the controller to record. */
+static int sort_canonical_check(void *opaque, const char *root,
+                                P0RepairEvidence *evidence,
+                                char *why, size_t why_cap) {
+    SortRepairAdapter *adapter = opaque;
+    if (!adapter || !root || !evidence || !adapter->canonical_path[0])
+        return -1;
+    memset(evidence, 0, sizeof *evidence);
+
+    char full[1024];
+    int pn = snprintf(full, sizeof full, "%s/%s", root, adapter->canonical_path);
+    if (pn < 0 || (size_t)pn >= sizeof full) return -1;
+    FILE *f = fopen(full, "rb");
+    if (!f) return -1;
+    size_t cap = P0_PATCH_MAX_BYTES;
+    char *source = malloc(cap);
+    if (!source) { fclose(f); return -1; }
+    size_t len = fread(source, 1, cap - 1, f);
+    int bad = ferror(f) || !feof(f);
+    fclose(f);
+    if (bad) { free(source); return -1; }
+    source[len] = '\0';
+
+    char tempdir[] = "/tmp/parrot0-sort-canonical-XXXXXX";
+    if (!mkdtemp(tempdir)) { free(source); return -1; }
+    (void)chmod(tempdir, 0700);
+    int rootfd = open(tempdir, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (rootfd < 0) { rmdir(tempdir); free(source); return -1; }
+    adapter->last_diagnosis[0] = '\0';
+    int r = code_check_sort_at(rootfd, source, adapter->fn,
+                               adapter->last_diagnosis,
+                               sizeof adapter->last_diagnosis,
+                               NULL, 0, &adapter->observed);
+    close(rootfd);
+    char exe_path[128];
+    snprintf(exe_path, sizeof exe_path, "%s/judge", tempdir);
+    remove(exe_path);
+    rmdir(tempdir);
+    free(source);
+
+    if (adapter->observed.has_build) {
+        evidence->obs[evidence->count] = adapter->observed.build;
+        snprintf(evidence->stage[evidence->count],
+                 sizeof evidence->stage[evidence->count], "%s",
+                 "canonical_build");
+        evidence->count++;
+    }
+    if (adapter->observed.has_run && evidence->count < P0_REPAIR_MAX_OBS) {
+        evidence->obs[evidence->count] = adapter->observed.run;
+        snprintf(evidence->stage[evidence->count],
+                 sizeof evidence->stage[evidence->count], "%s",
+                 "canonical_run");
+        evidence->count++;
+    }
+    if (r == 1) return 1;
+    if (r == 0 || (adapter->observed.has_build &&
+                   adapter->observed.build.verdict == P0_EXIT_NONZERO)) {
+        if (why && why_cap)
+            snprintf(why, why_cap, "%s", adapter->last_diagnosis[0]
+                     ? adapter->last_diagnosis : "canonical_oracle_red");
+        return 0;
+    }
+    return -1;
+}
+
 /* Returns 1 if it claimed the turn (repaired, already-green, or an honest
  * typed decline), 0 to let the ordinary checkers have it. */
 static int repair_loop(Brain *b, const char *src, const char *fn,
@@ -1143,7 +1274,8 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
     const P0RepairOps ops = {
         sort_repair_materialize,
         sort_repair_observe,
-        sort_repair_diagnose
+        sort_repair_diagnose,
+        NULL    /* detached: no canonical boundary to re-judge */
     };
     P0RepairResult result;
     if (!agent_repair_run(b, "sort_contract", initial, &ops, &adapter, &result))
@@ -1207,6 +1339,102 @@ static int repair_loop(Brain *b, const char *src, const char *fn,
              trace, result.last_rule_count);
     store_proof(b, trace);
     return 1;
+}
+
+/* Repository-bound sibling of repair_loop (the T06 bridge): the source lives
+ * at rel_path inside the workspace, so the initial artifact and every
+ * candidate are real PatchArtifacts on that path.  The winner is only a
+ * verified_candidate until the live commit_policy KB authorizes the canonical
+ * write and the canonical oracle re-passes; every stop is a typed terminal
+ * with its KB-recorded Gap, never a narrated success. */
+static int repair_file_loop(Brain *b, const char *rel_path, const char *src,
+                            const char *fn, char *out, size_t out_size) {
+    P0PatchSpec spec = { P0_PATCH_EDIT, rel_path, NULL, src, strlen(src), 0 };
+    P0PatchArtifact *initial = NULL;
+    P0PatchReport report;
+    if (p0_patch_prepare(&spec, 1, NULL, NULL, &initial,
+                         &report) != P0_PATCH_OK)
+        return 0;
+    SortRepairAdapter adapter;
+    memset(&adapter, 0, sizeof adapter);
+    adapter.brain = b;
+    snprintf(adapter.fn, sizeof adapter.fn, "%s", fn);
+    snprintf(adapter.canonical_path, sizeof adapter.canonical_path, "%s",
+             rel_path);
+    const P0RepairOps ops = {
+        sort_repair_materialize,
+        sort_repair_observe,
+        sort_repair_diagnose,
+        sort_canonical_check
+    };
+    P0RepairResult result;
+    if (!agent_repair_run(b, "sort_contract", initial, &ops, &adapter,
+                          &result))
+        return 0;
+
+    const KbResponseSlot path_slot[] = { { "path", rel_path } };
+    int rendered = 0;
+    const char *terminal = agent_repair_terminal_name(result.terminal);
+    const char *intent = NULL;
+    if (result.terminal == P0_REPAIR_COMMITTED)
+        intent = "repair_committed";
+    else if (result.terminal == P0_REPAIR_ALREADY_GREEN)
+        intent = "repair_already_green";
+    else if (result.terminal == P0_REPAIR_POLICY_GAP)
+        intent = "repair_policy_gap";
+    else if (result.terminal == P0_REPAIR_POST_CHECK_FAILED)
+        intent = "repair_post_check_failed";
+    else if (result.terminal == P0_REPAIR_COMMIT_CONFLICT)
+        intent = "repair_commit_conflict";
+    else if (result.terminal == P0_REPAIR_MISSING_TOOL)
+        intent = "repair_missing_tool";
+    else if (result.terminal == P0_REPAIR_INFRA)
+        intent = "repair_infra";
+    if (intent)
+        rendered = kb_response_slots(b, intent, path_slot, 1, out, out_size);
+    if (!rendered) {
+        if (result.terminal == P0_REPAIR_VERIFIED) {
+            /* Unreachable for a repository-bound winner (the commit phase
+             * disposes it), but never narrate a success the graph lacks. */
+            snprintf(out, out_size, "%s", terminal);
+        } else {
+            snprintf(out, out_size,
+                     "I can't repair %s yet. The last real diagnosis is %s "
+                     "and no live rule made the oracle pass within budget, so "
+                     "the file is unchanged.",
+                     rel_path,
+                     result.last_diagnosis[0] ? result.last_diagnosis
+                                              : terminal);
+        }
+    }
+    if (result.winner) p0_patch_free(result.winner);
+    store_proof(b, terminal);
+    return 1;
+}
+
+/* The structural half of the repository-bound route: find a token in the raw
+ * input that names a readable regular file inside the workspace.  Only
+ * trailing punctuation is stripped — a leading '.' is part of the name.
+ * p0_safe_rel does the real containment validation (no absolute paths, no
+ * '..', no symlinks, regular file), so a look-alike token is simply skipped. */
+static int code_fix_target_path(const char *text, char *rel_out, size_t cap) {
+    if (!text || !rel_out) return 0;
+    for (const char *p = text; *p; ) {
+        while (*p && isspace((unsigned char)*p)) p++;
+        const char *t = p;
+        while (*p && !isspace((unsigned char)*p)) p++;
+        size_t n = (size_t)(p - t);
+        while (n && strchr(".,;:!?)]}'\"`", t[n - 1])) n--;
+        if (!n || n >= 256) continue;
+        char token[256];
+        memcpy(token, t, n);
+        token[n] = '\0';
+        if (!strchr(token, '/') && !code_token_extension(token, ".c") &&
+            !code_token_extension(token, ".h"))
+            continue;
+        if (p0_safe_rel(token, 0, rel_out, cap) == P0_OK) return 1;
+    }
+    return 0;
 }
 
 static int mod_code(Brain *b, const char *norm, const char *raw,
@@ -1312,6 +1540,25 @@ static int mod_code(Brain *b, const char *norm, const char *raw,
         memcpy(code, s + spans[i].start, len); code[len] = '\0';
         source_span = spans[i]; have_source = 1;
     }
+    if (!have_source && qtype == 2) {
+        /* T06 bridge: "fix the code in <workspace path>" — the intent is the
+         * same live KB cue set as any other fix request; only the SOURCE of
+         * the bytes changes, from an inline span to a contained regular file.
+         * The loop is then repository-bound: candidates are PatchArtifacts on
+         * that path, the oracle runs in the candidate tree via p0_exec_at,
+         * and the canonical write needs live commit_policy facts. */
+        char rel[256];
+        if (code_fix_target_path(s, rel, sizeof rel)) {
+            static char fsrc[65536];
+            int truncated = 0;
+            char fn[KB_TERM_LEN] = "";
+            if (p0_read_in_root(rel, fsrc, sizeof fsrc, &truncated) == P0_OK &&
+                !truncated && code_sort_candidate(fsrc, fn, sizeof fn) &&
+                repair_file_loop(b, rel, fsrc, fn, out, out_size))
+                return 1;
+        }
+    }
+
     if (!have_source) {
         int section = find_code_section(b, s, code, sizeof code, &source_span);
         if (section < 0) {

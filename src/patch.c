@@ -949,9 +949,15 @@ const char *p0_patch_digest(const P0PatchArtifact *a) {
 
 int p0_patch_is_detached(const P0PatchArtifact *a) { return a ? a->detached : 0; }
 
-static P0PatchResult validate_stage(const P0PatchArtifact *a,
-                                    P0PatchCheckFn stage_check, void *check_ctx,
-                                    P0PatchReport *report) {
+/* The shared stage lifecycle behind validate_stage and p0_patch_check: build
+ * the isolated candidate tree, verify it, run ONE check (path-based or
+ * rootfd-capability), then prove the oracle left every touched postimage
+ * byte-and-mode exact.  The stage is always destroyed; the canonical
+ * workspace is never written here. */
+static P0PatchResult stage_run(const P0PatchArtifact *a, int with_context,
+                               P0PatchCheckFn stage_check, void *check_ctx,
+                               P0PatchRootCheckFn root_check, void *root_ctx,
+                               P0PatchReport *report) {
     char stage[] = "/tmp/parrot0-patch-stage-XXXXXX";
     if (!mkdtemp(stage)) {
         report_set(report, P0_PATCH_IO_ERROR, "stage_create:errno=%d", errno);
@@ -973,7 +979,7 @@ static P0PatchResult validate_stage(const P0PatchArtifact *a,
         return P0_PATCH_IO_ERROR;
     }
     P0PatchResult r = P0_PATCH_OK;
-    if (stage_check) r = materialize_context(stagefd, report);
+    if (with_context) r = materialize_context(stagefd, report);
     for (size_t i = 0; i < a->count && r == P0_PATCH_OK; i++) {
         const P0PatchOp *op = &a->ops[i];
         if (op->has_before)
@@ -996,7 +1002,15 @@ static P0PatchResult validate_stage(const P0PatchArtifact *a,
             r = P0_PATCH_STAGE_CHECK_FAILED;
         }
     }
-    if (r == P0_PATCH_OK && stage_check) {
+    if (r == P0_PATCH_OK && root_check) {
+        char why[P0_PATCH_DETAIL] = "";
+        if (!root_check(stagefd, stage, root_ctx, why, sizeof why)) {
+            report_set(report, P0_PATCH_STAGE_CHECK_FAILED, "%s",
+                       *why ? why : "stage_check_red");
+            r = P0_PATCH_STAGE_CHECK_FAILED;
+        }
+    }
+    if (r == P0_PATCH_OK && (stage_check || root_check)) {
         P0PatchReport check_report;
         report_init(&check_report);
         if (verify_all(a, stagefd, 1, &check_report) != P0_PATCH_OK) {
@@ -1009,6 +1023,24 @@ static P0PatchResult validate_stage(const P0PatchArtifact *a,
     close(stagefd);
     remove_stage(stage);
     return r;
+}
+
+static P0PatchResult validate_stage(const P0PatchArtifact *a,
+                                    P0PatchCheckFn stage_check, void *check_ctx,
+                                    P0PatchReport *report) {
+    return stage_run(a, stage_check != NULL, stage_check, check_ctx,
+                     NULL, NULL, report);
+}
+
+P0PatchResult p0_patch_check(const P0PatchArtifact *a, int with_context,
+                             P0PatchRootCheckFn check, void *check_ctx,
+                             P0PatchReport *report) {
+    report_init(report);
+    if (!a || a->count == 0) {
+        report_set(report, P0_PATCH_INVALID, "artifact_invalid");
+        return P0_PATCH_INVALID;
+    }
+    return stage_run(a, with_context, NULL, NULL, check, check_ctx, report);
 }
 
 P0PatchResult p0_patch_prepare(const P0PatchSpec *specs, size_t count,

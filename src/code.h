@@ -449,6 +449,18 @@ int code_check_sort_diag_obs(const char *func_src, const char *fnname,
                              char *err_out, size_t err_sz,
                              int cc_allowed, P0SortCheckObs *observations);
 
+/* The capability form of the same oracle: compile and run INSIDE an
+ * already-open candidate tree via p0_exec_at(rootfd, ...), so the compiler
+ * output lands in the very tree under judgement and the observations describe
+ * that tree.  rootfd is borrowed (owned by the caller) and is cwd
+ * containment, not a chroot.  The caller still enforces the live
+ * tool_for(build,cc) contract BEFORE crossing here.  Returns the same
+ * 1 / 0 / -1 contract as code_check_sort_diag. */
+int code_check_sort_at(int rootfd, const char *func_src, const char *fnname,
+                       char *diag, size_t dsz,
+                       char *err_out, size_t err_sz,
+                       P0SortCheckObs *observations);
+
 /* gen327 (forge plan §9.3): apply ONE named repair transformation to a
  * candidate's source. Structural rewrites, not a library of answers: the C knows
  * only HOW to transform, never WHICH transformation to try — that comes from

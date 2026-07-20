@@ -21,8 +21,11 @@
 #include "code.h"
 #include "exec.h"   /* gen329: every act on the machine returns an Observation */
 #include "agent.h"  /* typed task/action/observation spine */
+#include "json.h"   /* string escaping for record payloads */
 
 #include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

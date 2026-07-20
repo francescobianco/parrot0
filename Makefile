@@ -300,6 +300,8 @@ test: build
 	@./tests/agentkernel.sh
 	@./tests/code-task-agent.sh
 	@./tests/patch-artifact.sh
+	@./tests/patch-check.sh
+	@./tests/agentcommit.sh
 	@./tests/segment.sh
 	@./tests/universal-input.sh
 	@$(BENCH_PY) ./tests/openai-input-limit.py

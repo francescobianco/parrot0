@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 /* gen173: parrot0's in-C structural code reader. See code.h for the contract and
  * the principle (AST-as-KB, deterministic parse, straight into RAM). This is the
  * F2 (grammar/structure) faculty of docs/CODE-MASTERY.md, the one place where the
@@ -3815,36 +3815,23 @@ int code_check_sort_diag(const char *func_src, const char *fnname,
     return 0;
 }
 
-/* T06: the same oracle contract, but every machine action crosses exec.c and
- * remains a distinct P0Obs.  A private 0700 directory makes the output target
- * non-clobbering even when several brains share a workspace.  The compiler
- * reads the complete harness from stdin; no source file is smuggled in. */
-int code_check_sort_diag_obs(const char *func_src, const char *fnname,
-                             char *diag, size_t dsz,
-                             char *err_out, size_t err_sz,
-                             int cc_allowed, P0SortCheckObs *observations) {
+/* T06 bridge: the oracle core, run INSIDE a candidate tree addressed by an
+ * already-open rootfd.  Build and run cross p0_exec_at and remain two distinct
+ * P0Obs; the compiler output `judge` lands in (and is unlinked from) the very
+ * tree under judgement.  The compiler reads the complete harness from stdin;
+ * no source file is smuggled in.  rootfd is borrowed and stays owned by the
+ * caller — cwd containment, not a chroot. */
+int code_check_sort_at(int rootfd, const char *func_src, const char *fnname,
+                       char *diag, size_t dsz,
+                       char *err_out, size_t err_sz,
+                       P0SortCheckObs *observations) {
     if (diag && dsz) diag[0] = '\0';
     if (err_out && err_sz) err_out[0] = '\0';
-    if (!observations) return -1;
+    if (rootfd < 0 || !observations) return -1;
     memset(observations, 0, sizeof *observations);
-
-    /* Authorization is knowledge owned by Brain, but enforcement stays adjacent
-     * to the effect: no caller can accidentally cross p0_exec after a failed
-     * live tool_for(build,cc) query.  No Observation is invented for a skipped
-     * action; the repair controller records the resulting named Gap. */
-    if (!cc_allowed) return -2;
 
     char full[8192];
     if (code_sort_program(func_src, fnname, full, sizeof full) < 0) {
-        return -1;
-    }
-
-    char tempdir[] = ".p0-sort-XXXXXX";
-    if (!mkdtemp(tempdir)) return -1;
-    char exe_path[96];
-    int pn = snprintf(exe_path, sizeof exe_path, "%s/judge", tempdir);
-    if (pn < 0 || (size_t)pn >= sizeof exe_path) {
-        rmdir(tempdir);
         return -1;
     }
 
@@ -3853,23 +3840,21 @@ int code_check_sort_diag_obs(const char *func_src, const char *fnname,
         (char *)"-", (char *)"-o", (char *)"judge", NULL
     };
     observations->has_build = 1;
-    p0_exec(cc_argv, tempdir, 20000, full, &observations->build);
+    p0_exec_at(rootfd, cc_argv, NULL, 20000, full, &observations->build);
     if (!p0_obs_ok(&observations->build)) {
         if (diag && dsz) snprintf(diag, dsz, "build_failed");
         if (err_out && err_sz)
             snprintf(err_out, err_sz, "%s", observations->build.err[0]
                      ? observations->build.err : observations->build.detail);
-        remove(exe_path);            /* cc may leave a partial output image */
-        rmdir(tempdir);
+        (void)unlinkat(rootfd, "judge", 0);   /* cc may leave a partial image */
         return -1;
     }
 
     char *run_argv[] = { (char *)"./judge", NULL };
     observations->has_run = 1;
-    p0_exec(run_argv, tempdir, 15000, NULL, &observations->run);
+    p0_exec_at(rootfd, run_argv, NULL, 15000, NULL, &observations->run);
 
-    remove(exe_path);
-    rmdir(tempdir);
+    (void)unlinkat(rootfd, "judge", 0);
 
     if (observations->run.verdict == P0_OK) return 1;
     if (observations->run.verdict != P0_EXIT_NONZERO) {
@@ -3887,6 +3872,40 @@ int code_check_sort_diag_obs(const char *func_src, const char *fnname,
         else                           snprintf(diag, dsz, "failed");
     }
     return 0;
+}
+
+/* T06: the same oracle contract, but every machine action crosses exec.c and
+ * remains a distinct P0Obs.  Kept as the path-based compatibility form over
+ * code_check_sort_at: a private 0700 scratch tree in /tmp makes the output
+ * target non-clobbering even when several brains share a workspace. */
+int code_check_sort_diag_obs(const char *func_src, const char *fnname,
+                             char *diag, size_t dsz,
+                             char *err_out, size_t err_sz,
+                             int cc_allowed, P0SortCheckObs *observations) {
+    if (diag && dsz) diag[0] = '\0';
+    if (err_out && err_sz) err_out[0] = '\0';
+    if (!observations) return -1;
+    memset(observations, 0, sizeof *observations);
+
+    /* Authorization is knowledge owned by Brain, but enforcement stays adjacent
+     * to the effect: no caller can accidentally cross p0_exec after a failed
+     * live tool_for(build,cc) query.  No Observation is invented for a skipped
+     * action; the repair controller records the resulting named Gap. */
+    if (!cc_allowed) return -2;
+
+    char tempdir[] = "/tmp/parrot0-sort-check-XXXXXX";
+    if (!mkdtemp(tempdir)) return -1;
+    (void)chmod(tempdir, 0700);
+    int rootfd = open(tempdir, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (rootfd < 0) { rmdir(tempdir); return -1; }
+    int r = code_check_sort_at(rootfd, func_src, fnname, diag, dsz,
+                               err_out, err_sz, observations);
+    close(rootfd);
+    char exe_path[128];
+    snprintf(exe_path, sizeof exe_path, "%s/judge", tempdir);
+    remove(exe_path);
+    rmdir(tempdir);
+    return r;
 }
 
 /* gen327 (TODO.md P4, forge plan §9.3): apply ONE named repair transformation to

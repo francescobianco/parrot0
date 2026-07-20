@@ -285,3 +285,12 @@ response_template(fallback_still_gap, it, "Mmh, non conosco ancora {topic}.").
 % with a red candidate observation and never coined inside the C controller.
 response_template(repair_missing_tool, "I cannot verify a repair because the required build-tool contract is missing.").
 response_template(repair_infra, "I cannot verify a repair because the verification infrastructure failed.").
+
+% T06 bridge: the canonical boundary outcomes of a repository-bound repair.
+% Each names the real terminal — commit, policy denial, red canonical oracle,
+% stale base — and the state of the workspace, never a vaguer story.
+response_template(repair_committed, "Repaired {path}: the candidate passed the oracle in isolation, the live policy authorized the edit, and the canonical re-check passes. The workspace now holds the fix.").
+response_template(repair_already_green, "I ran {path} against the oracle: it already passes every case, so there was nothing to repair.").
+response_template(repair_policy_gap, "The repair for {path} passed the oracle, but no live commit_policy authorizes that edit, so I did not write anything. Assert the policy fact and ask again if you want it committed.").
+response_template(repair_post_check_failed, "The candidate passed in isolation but the canonical oracle went red after commit, so I rolled {path} back byte-and-mode. The workspace is unchanged.").
+response_template(repair_commit_conflict, "The base of {path} changed while the candidate was being verified, so the commit was refused before any write. The workspace is unchanged.").
