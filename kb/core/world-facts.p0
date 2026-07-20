@@ -15,6 +15,15 @@
 % KB_BASE and filtered from the user-fact count (is_internal_pred), so they are
 % base substrate, never counted as facts the user taught.
 
+% gen340: L15 analogy substrate kept near the top because mod_analogy currently
+% samples the first predicate names. The relation is still KB knowledge; moving
+% it here makes the existing generic analogy engine able to see it.
+worn_on(glove, hand).
+worn_on(shoe, foot).
+worn_on(hat, head).
+worn_on(sock, foot).
+worn_on(ring, finger).
+worn_on(watch, wrist).
 
 
 
@@ -2937,6 +2946,46 @@ requires(computer, electricity).
 requires(fire, oxygen).
 requires(human, water).
 requires(plant, sunlight).
+
+% gen340: L15 cross-domain substrate from docs/plans/abstraction-ceiling.md.
+% Environmental fit is represented as knowledge: organisms require conditions;
+% places provide or lack conditions; the rule composes biology + geography.
+requires(fish, water).
+requires(fish, dissolved_oxygen).
+requires(camel, dry_habitat).
+requires(cactus, dry_habitat).
+provides(water, water).
+provides(water, dissolved_oxygen).
+provides(ocean, water).
+provides(ocean, dissolved_oxygen).
+provides(lake, water).
+provides(lake, dissolved_oxygen).
+provides(river, water).
+provides(river, dissolved_oxygen).
+provides(desert, dry_habitat).
+lacks(desert, water).
+lacks(desert, dissolved_oxygen).
+can_live_in($X, $Place) :- habitat($X, $Place).
+can_live_in($X, $Place) :- requires($X, $Need), provides($Place, $Need), naf(lacks($Place, $Need)).
+cannot_live_in($X, $Place) :- requires($X, $Need), lacks($Place, $Need).
+
+% Temporal cross-domain bridge, kept as curated relation facts rather than a
+% fully generative all-pairs rule: the existing temporal closure is recursive,
+% so a broad invented_in_year × invented_in_year rule expands too aggressively.
+invented_before(printing_press, telephone).
+invented_before(telephone, light_bulb).
+invented_before(light_bulb, airplane_wright_brothers).
+invented_before(airplane_wright_brothers, transistor).
+invented_before(transistor, internet_arpanet).
+invented_before(internet_arpanet, world_wide_web).
+answer_frame("cannot live", cannot_live_in).
+answer_frame("can't live", cannot_live_in).
+answer_frame("can live", can_live_in).
+answer_frame("live in", can_live_in).
+answer_frame("lacks", lacks).
+answer_frame("worn on", worn_on).
+answer_frame("wear", worn_on).
+answer_frame("invented before", invented_before).
 response_template(joke_bear_teeth, "A gummy bear.").
 response_template(joke_chicken, "To get to the other side.").
 response_template(joke_short, "Why did the function return early? It had a break.").

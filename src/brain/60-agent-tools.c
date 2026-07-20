@@ -334,7 +334,11 @@ static const char *find_file(char **w, size_t nw) {
  * gets its own sentence, and only P0_OK may be spoken as a result. A failure
  * cannot be dressed as an answer, because the sentence for a failure is a
  * different sentence. The Observation is also what the proof cites, so
- * "how do you know?" quotes the RUN — exit status and digest — not the claim. */
+ * "how do you know?" quotes the RUN — exit status and digest — not the claim.
+ *
+ * gen342: the command line is now SECOND-LEVEL information. A normal successful
+ * answer says the observed content only; the exact argv/exit/digest remain in
+ * last_tool_cmd + last_proof for "come lo sai?" / audit. */
 static int piact_obs(Brain *b, char *const *argv, const char *label,
                      char *out, size_t out_size) {
     P0Obs obs;
@@ -346,13 +350,16 @@ static int piact_obs(Brain *b, char *const *argv, const char *label,
     collapse_ws(obs.err, eflat, sizeof eflat);
 
     char msg[5200];
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    int it = strcmp(lang, "it") == 0;
     switch (obs.verdict) {
     case P0_OK:
-        if (flat[0] == '\0')
-            snprintf(msg, sizeof msg, "%s: nothing. (`%s` ran, exit 0)", label, obs.cmd);
-        else
-            snprintf(msg, sizeof msg, "%s: %s%s (`%s`, exit 0)", label, flat,
-                     obs.out_truncated ? " …[truncated]" : "", obs.cmd);
+        if (flat[0] == '\0') {
+            snprintf(msg, sizeof msg, "%s: %s.", label, it ? "nessun risultato" : "nothing");
+        } else {
+            snprintf(msg, sizeof msg, "%s: %s%s", label, flat,
+                     obs.out_truncated ? " …[truncated]" : "");
+        }
         break;
     case P0_EXIT_NONZERO:
         snprintf(msg, sizeof msg, "`%s` FAILED (exit %d).%s%s", obs.cmd, obs.exit_code,
@@ -563,8 +570,13 @@ static int mod_piact(Brain *b, const char *norm, const char *raw,
                               (char*)"-name", glob, (char*)"-type", (char*)"f", NULL};
         char *largv_all[]  = {(char*)"find", dirbuf, (char*)"-maxdepth", (char*)"1",
                               (char*)"-type", (char*)"f", NULL};
-        if (has_glob) snprintf(label, sizeof label, "The `%s` files in %s", glob, dirbuf);
-        else          snprintf(label, sizeof label, "The files in %s", dirbuf);
+        char lang[8]; current_lang(b, lang, sizeof lang);
+        int it = strcmp(lang, "it") == 0;
+        if (has_glob)
+            snprintf(label, sizeof label, it ? "I file `%s` in %s" : "The `%s` files in %s",
+                     glob, dirbuf);
+        else
+            snprintf(label, sizeof label, it ? "I file in %s" : "The files in %s", dirbuf);
         return piact_obs(b, has_glob ? largv_glob : largv_all, label, out, out_size);
     }
 

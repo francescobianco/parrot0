@@ -37,6 +37,47 @@ relation_domain(chemical_symbol, chemistry).
 relation_domain(invented_by, history).
 relation_domain(founded_by, history).
 
+% Relation arity facts promised by the abstraction-ceiling L4 section. These are
+% meta-knowledge, not parser machinery: adding a new predicate description here
+% makes the existing answer_frame path able to talk about it.
+relation_arity(is_a, 2).
+relation_arity(has_prop, 2).
+relation_arity(kind_of, 2).
+relation_arity(category_member, 2).
+relation_arity(part_of, 2).
+relation_arity(contains, 2).
+relation_arity(located_in, 2).
+relation_arity(capital_of_country, 2).
+relation_arity(borders, 2).
+relation_arity(north_of, 2).
+relation_arity(south_of, 2).
+relation_arity(east_of, 2).
+relation_arity(west_of, 2).
+relation_arity(parent_of, 2).
+relation_arity(sibling_of, 2).
+relation_arity(spouse_of, 2).
+relation_arity(after_in_time, 2).
+relation_arity(before_in_time, 2).
+relation_arity(larger_than, 2).
+relation_arity(heavier_than, 2).
+relation_arity(faster_than, 2).
+relation_arity(causes, 2).
+relation_arity(enables, 2).
+relation_arity(author_of, 2).
+relation_arity(habitat, 2).
+relation_arity(eats, 2).
+relation_arity(can_fly, 1).
+relation_arity(chemical_symbol, 2).
+relation_arity(invented_by, 2).
+relation_arity(invented_in_year, 2).
+relation_arity(invented_before, 2).
+relation_arity(founded_by, 2).
+relation_arity(requires, 2).
+relation_arity(lacks, 2).
+relation_arity(worn_on, 2).
+relation_arity(can_live_in, 2).
+relation_arity(cannot_live_in, 2).
+
 % ============================================================================
 % L5 — RETE SEMANTICA ESPLICITA (expanded edge/3 coverage)
 % ============================================================================

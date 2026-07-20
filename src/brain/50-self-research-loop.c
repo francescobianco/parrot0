@@ -875,6 +875,31 @@ static int self_capability_wall(Brain *b, const char *id, char *dst, size_t dsz)
     return 1;
 }
 
+/* gen342: human-facing capability names are OUTPUT wording, hence KB knowledge.
+ * The C only enumerates capability(Id, Maturity), filters by maturity, and fills
+ * a localized label from capability_label(Id, Lang, Text). If a capability is
+ * downgraded to absent it disappears; if a label is taught/changed, this branch
+ * changes without recompilation. */
+static int self_capability_label(Brain *b, const char *id, char *dst, size_t dsz) {
+    if (!b || !b->kb || !id || !dst || dsz == 0) return 0;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    for (int pass = 0; pass < 2; pass++) {
+        const char *L = pass == 0 ? lang : "en";
+        const char *q[3] = { id, L, NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "capability_label", q, 3, hit, 1) > 0) {
+            char *p = hit[0];
+            size_t l = strlen(p);
+            if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+            if (!*p) break;
+            snprintf(dst, dsz, "%s", p);
+            return 1;
+        }
+    }
+    self_readable(dst, dsz, id);
+    return 1;
+}
+
 /* --- module: self --------------------------------------------------------
  * Identity & self-reflection (PRINCIPLES.md, "I know that I am"). The agent's
  * self-model lives in the very same KB it uses for the world: `i_am(parrot0).`
@@ -1013,38 +1038,42 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
     }
 
     /* capability is the more specific intent ("what are you ABLE TO DO" also
-     * contains the identity cue "what are you"), so test it first. Describe what
-     * the registered modules let me do, in plain language (not the module(...)
-     * jargon) — grounded in the real module set, a module absent contributes
-     * nothing. */
+     * contains the identity cue "what are you"), so test it first. Describe the
+     * capability LEDGER, not a C-side brochure: capability/2 decides what exists
+     * and capability_label/3 decides how to say it in the current language. */
     if (capability) {
-        static const struct { const char *mod, *say; } cap[] = {
-            {"knowledge", "answer questions about facts and rules"},
-            {"arith",     "do simple arithmetic"},
-            {"cause",     "reason about cause and effect"},
-            {"compare",   "compare quantities"},
-            {"same",      "tell whether two things are the same"},
-            {"memory",    "remember things you tell me"},
-            {"reader",    "read a short passage and pull out facts"},
-            {"coref",     "track what a pronoun refers to"},
-            {"gen",       "continue a sequence you teach me"},
-            {"discourse", "remember what we talked about"},
-        };
-        char list[600];
+        const char *levels[] = { "hardened", "field", "transfer", "seed", NULL };
+        char list[900];
         size_t off = 0, n = 0;
-        for (size_t i = 0; i < sizeof cap / sizeof cap[0]; i++) {
-            const char *m[] = {cap[i].mod};
-            if (!kb_query(b->kb, "module", m, 1)) continue;
-            const char *sep = (n == 0) ? "" : ", ";
-            off += (size_t)snprintf(list + off, sizeof list - off,
-                                    "%s%s", sep, cap[i].say);
-            n++;
+        char lang[8]; current_lang(b, lang, sizeof lang);
+        int it = strcmp(lang, "it") == 0;
+        for (size_t lv = 0; levels[lv]; lv++) {
+            char ids[24][KB_TERM_LEN];
+            const char *q[2] = { NULL, levels[lv] };
+            size_t ni = kb_match(b->kb, "capability", q, 2, ids, 24);
+            for (size_t i = 0; i < ni; i++) {
+                char label[KB_TERM_LEN];
+                if (!self_capability_label(b, ids[i], label, sizeof label)) continue;
+                const char *sep = "";
+                if (n > 0) sep = it ? "; " : "; ";
+                if (off + strlen(sep) + strlen(label) + 1 >= sizeof list) break;
+                off += (size_t)snprintf(list + off, sizeof list - off,
+                                        "%s%s", sep, label);
+                n++;
+            }
         }
-        char msg[700];
-        if (n == 0) snprintf(msg, sizeof msg, "Not much yet.");
-        else snprintf(msg, sizeof msg, "I can %s.", list);
+        char msg[1100];
+        if (n == 0) {
+            if (!kb_response_slots(b, "self_capability_none", NULL, 0, msg, sizeof msg))
+                snprintf(msg, sizeof msg, "Not much yet.");
+        } else {
+            const KbResponseSlot slots[] = { {"items", list} };
+            if (!kb_response_slots(b, "self_capability_from_ledger", slots, 1,
+                                   msg, sizeof msg))
+                snprintf(msg, sizeof msg, "From my capability ledger, I can currently: %s.", list);
+        }
         put(msg, out, out_size);
-        store_proof(b, "This is derived from my registered module list.");
+        store_proof(b, "Derived from capability/2 and capability_label/3 in the KB.");
         return 1;
     }
 

@@ -210,8 +210,34 @@ response_template(self_location, it, "Non ho un corpo né un posto dove stare, q
 response_template(would_rather, it, "Ci sto, anche se non ho preferenze vere — quali sono le due opzioni?").
 response_template(binary_choice, it, "Tra le due? Non ho una vera preferenza — cosa ti attira di ciascuna?").
 
-% gen334: Italian capability self-description
-response_template(self_capability, it, "Posso rispondere a domande su fatti e regole, fare semplici calcoli, ragionare su causa ed effetto, confrontare quantità, dire se due cose sono uguali, ricordare quello che mi dici, leggere un breve testo ed estrarne i fatti, tenere traccia dei pronomi, continuare una sequenza che mi insegni, ricordare ciò di cui abbiamo parlato.").
+% gen342: self-capability wording derived from the generated capability ledger.
+% C enumerates capability/2; these labels/templates provide localized surface
+% wording. Add/change facts here to change how the same real state is described.
+response_template(self_capability_from_ledger, "From my capability ledger, I can currently: {items}.").
+response_template(self_capability_from_ledger, it, "Dal mio registro delle capacità, ora posso: {items}.").
+response_template(self_capability_none, "My capability ledger does not currently show usable capabilities.").
+response_template(self_capability_none, it, "Il mio registro delle capacità non indica capacità utilizzabili al momento.").
+capability_label(kb_inference, en, "answer from KB facts and rules, with limited inference").
+capability_label(kb_inference, it, "rispondere da fatti e regole della KB, con inferenza limitata").
+capability_label(teachable_procedures, en, "learn simple procedures from examples").
+capability_label(teachable_procedures, it, "imparare procedure semplici da esempi").
+capability_label(conversational_comprehension, en, "understand common conversational intents and route them to specialized faculties").
+capability_label(conversational_comprehension, it, "capire intenti conversazionali comuni e instradarli alle facoltà specializzate").
+capability_label(code_reading, en, "read and explain small code fragments").
+capability_label(code_reading, it, "leggere e spiegare piccoli frammenti di codice").
+capability_label(local_tools, en, "use local tools when they are enabled").
+capability_label(local_tools, it, "usare strumenti locali quando sono abilitati").
+capability_label(structural_repair, en, "attempt small structural repairs when an oracle exposes the failure").
+capability_label(structural_repair, it, "tentare piccole riparazioni strutturali quando un oracolo espone il guasto").
+capability_label(agentic_planning, en, "make simple plans and track prerequisite structure").
+capability_label(agentic_planning, it, "fare piani semplici e tracciare strutture di prerequisiti").
+capability_label(learn_build, en, "acquire knowledge and build a small KB representation from it").
+capability_label(learn_build, it, "acquisire conoscenza e costruirne una piccola rappresentazione nella KB").
+capability_label(autolearn, en, "try cautious autolearning with quarantine and promotion still immature").
+capability_label(autolearn, it, "tentare autolearning prudente, con quarantena e promozione ancora immature").
+capability_label(coding_agent_api, en, "use the early coding-agent API surface").
+capability_label(coding_agent_api, it, "usare la superficie iniziale dell'API da coding agent").
+machinery(capability_label).
 
 % gen334: Italian riddle answers
 response_template(riddle_keyboard, it, "Una tastiera.").
