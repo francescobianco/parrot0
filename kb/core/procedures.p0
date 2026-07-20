@@ -257,6 +257,13 @@ canonical_analogy($W, $Z, $A, $B) :- num_relation($W, $Z, $R),
     num_relation($A, $B, $R),
     naf(num_relation($A, $A, $R)).
 
+% gen343 (KB-first gaps): unit conversion as procedural knowledge.
+% Adding a new conversion is one rule here — zero C code.
+fahrenheit_to_celsius($F, $C) :- is($C, div(mul(sub($F, 32), 5), 9)).
+celsius_to_fahrenheit($C, $F) :- is($F, add(div(mul($C, 9), 5), 32)).
+km_to_miles($KM, $M) :- is($M, div(mul($KM, 62137), 100000)).
+miles_to_km($M, $KM) :- is($KM, div(mul($M, 100000), 62137)).
+
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).
 

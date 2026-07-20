@@ -3506,6 +3506,38 @@ wrote(shakespeare, hamlet).   wrote(shakespeare, macbeth).   wrote(orwell, ninet
 riddle_answer(shorter, "The word is short — adding 'er' makes it shorter.").
 riddle_answer(longer, "The word is long — adding 'er' makes it longer.").
 
+% gen343 (KB-first gaps): world knowledge as answer_frame facts.
+% Adding a new "who won X" fact = one row here, zero C.
+
+% Sports results
+answer_frame("world cup", world_cup_winner).
+answer_frame("mondiali", world_cup_winner).
+world_cup_winner(2022, argentina).
+world_cup_winner(2018, france).
+world_cup_winner(2014, germany).
+world_cup_winner(2010, spain).
+world_cup_winner(2006, italy).
+
+% Olympics
+answer_frame("olympics", olympic_host).
+olympic_host(2024, paris).
+olympic_host(2020, tokyo).
+olympic_host(2016, rio_de_janeiro).
+olympic_host(2012, london).
+
+% Current world leaders (as of base knowledge; teach to update)
+answer_frame("president of", president_of).
+answer_frame("presidente", president_of).
+president_of(italy, sergio_mattarella).
+president_of(france, emmanuel_macron).
+president_of(usa, joe_biden).
+
+% Unit conversion answer_frame routing
+answer_frame("fahrenheit", fahrenheit_to_celsius).
+answer_frame("celsius", celsius_to_fahrenheit).
+answer_frame("km to miles", km_to_miles).
+answer_frame("miles to km", miles_to_km).
+
 % gen335+: historical facts organized by period (LLMSCORE Q6 and beyond).
 :- include(facts/history.p0).
 
