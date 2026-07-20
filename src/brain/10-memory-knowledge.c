@@ -4069,14 +4069,77 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * below see only fragments. */
     if (multi_sentence_syllogism(b, norm, out, out_size)) return 1;
 
+    /* gen342: attribute-contained-in-input. This is the abstraction of:
+     *   "di che colore è il cavallo bianco?"      -> bianco
+     *   "di che materiale è il portafoglio di pelle?" -> pelle
+     * The linguistic cues and value vocabulary are KB facts:
+     * attribute_question_cue(Dim, Cue) and attribute_word(Dim, Surface, Canon).
+     * C only detects the already-existing attribute value in the input and fills
+     * a KB response template. A new dimension is data, not a new branch. */
+    int attr_color_question = 0;
+    if (b->kb) {
+        char rawnorm[256];
+        normalize(raw, rawnorm, sizeof rawnorm);
+        char dims[32][KB_TERM_LEN];
+        const char *dq[2] = { NULL, NULL };
+        size_t nd = kb_match(b->kb, "attribute_question_cue", dq, 2, dims, 32);
+        for (size_t di = 0; di < nd; di++) {
+            char cues[16][KB_TERM_LEN];
+            const char *cq0[2] = { dims[di], NULL };
+            size_t nc = kb_match(b->kb, "attribute_question_cue", cq0, 2, cues, 16);
+            int matched = 0;
+            for (size_t ci = 0; ci < nc && !matched; ci++) {
+                char cue_s[KB_TERM_LEN]; snprintf(cue_s, sizeof cue_s, "%s", kb_dequote(cues[ci]));
+                for (char *cp = cue_s; *cp; cp++) if (*cp == '_') *cp = ' ';
+                if (*cue_s && (cue(norm, cue_s) || cue(rawnorm, cue_s))) matched = 1;
+            }
+            if (!matched) continue;
+            if (strcmp(dims[di], "color") == 0) attr_color_question = 1;
+
+            for (int pass = 0; pass < 2; pass++) {
+                char tmp[256];
+                snprintf(tmp, sizeof tmp, "%s", pass == 0 ? norm : rawnorm);
+                char *ww[64]; size_t nn = split_words(tmp, ww, 64);
+                for (size_t i = 0; i < nn; i++) {
+                    char *t = strip_edge_punct(ww[i]);
+                    if (strlen(t) < 2 || !isalpha((unsigned char)t[0])) continue;
+                    const char *aq[3] = { dims[di], t, NULL };
+                    char canon[2][KB_TERM_LEN];
+                    if (kb_match(b->kb, "attribute_word", aq, 3, canon, 2) == 0) continue;
+
+                    char surface[KB_TERM_LEN];
+                    snprintf(surface, sizeof surface, "%s", t);
+                    char lang[8]; current_lang(b, lang, sizeof lang);
+                    if (strcmp(lang, "it") == 0) {
+                        const char *tq[2] = { canon[0], NULL };
+                        char itval[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "tr", tq, 2, itval, 1) > 0)
+                            snprintf(surface, sizeof surface, "%s", itval[0]);
+                    }
+                    const KbResponseSlot slots[] = { {"value", surface} };
+                    char msg[128];
+                    if (!kb_response_slots(b, "inferred_attribute_from_phrase", slots, 1,
+                                           msg, sizeof msg))
+                        snprintf(msg, sizeof msg, "It's %s.", surface);
+                    put(msg, out, out_size);
+                    store_proof(b, "The question contains an attribute value recognized by attribute_word/3 in the KB.");
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* gen234/gen342: color lookup fallback. The question surface is no longer a
+     * C literal gate: the generic attribute_question_cue/2 matcher above sets
+     * attr_color_question when the KB says this is a color question. This branch
+     * only performs the older color_of(Entity, Color) slot binding. */
     /* gen234 (LLMSCORE): "what color is (a/the) <X>?" -> color_of(X, C). The colour
      * facts are KB ground knowledge (world-facts.p0). Rather than guess which token
      * is the noun, try EVERY content token against color_of and answer on the first
      * that has a colour — robust to adjectives ("a RIPE banana"), articles, and
      * trailing phrases ("the SKY during the day"). Honest: declines when none has a
      * colour fact, so it never invents one. */
-    if (strstr(norm, "what color is") || strstr(norm, "what colour is") ||
-        strstr(norm, "di che colore")) {
+    if (attr_color_question) {
         char tmp[256]; snprintf(tmp, sizeof tmp, "%s", norm);
         char *ww[64]; size_t nn = split_words(tmp, ww, 64);
         for (size_t i = 0; i < nn && b->kb; i++) {

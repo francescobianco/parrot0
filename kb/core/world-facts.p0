@@ -895,6 +895,40 @@ category_member(color, silver).
 category_member(color, violet).
 category_member(color, white).
 category_member(color, yellow).
+% gen342: words that directly denote a color. This supports compositional
+% questions where the answer is already present as an adjective in the input:
+% "what color is the white horse?" / "di che colore è il cavallo bianco?".
+% C only asks color_word(Token, Color); the vocabulary and translation live here.
+color_word($W, $W) :- category_member(color, $W).
+color_word($Surface, $Color) :- tr($Color, $Surface), category_member(color, $Color).
+% gen342: generic attribute-contained-in-input schema. A dimension declares the
+% question cue that asks for it and the words that can fill it. This generalizes
+% the white-horse case to material and other dimensions without more C.
+attribute_question_cue(color, "what color").
+attribute_question_cue(color, "what colour").
+attribute_question_cue(color, "di che colore").
+attribute_question_cue(material, "what material").
+attribute_question_cue(material, "made of what").
+attribute_question_cue(material, "di che materiale").
+attribute_word(color, $Surface, $Color) :- color_word($Surface, $Color).
+attribute_word(material, leather, leather).
+attribute_word(material, skin, leather).
+attribute_word(material, pelle, leather).
+attribute_word(material, cuoio, leather).
+attribute_word(material, cotton, cotton).
+attribute_word(material, cotone, cotton).
+attribute_word(material, wool, wool).
+attribute_word(material, lana, wool).
+attribute_word(material, wood, wood).
+attribute_word(material, legno, wood).
+attribute_word(material, metal, metal).
+attribute_word(material, metallo, metal).
+attribute_word(material, gold, gold).
+attribute_word(material, oro, gold).
+attribute_word(material, silver, silver).
+attribute_word(material, argento, silver).
+attribute_word(material, plastic, plastic).
+attribute_word(material, plastica, plastic).
 category_member(continent, "north america").
 category_member(continent, "south america").
 category_member(continent, africa).

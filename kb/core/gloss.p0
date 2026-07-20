@@ -118,6 +118,12 @@ tr(bellow, muggisce).
 % ============================================================
 tr(head, testa).
 tr(arm, braccio).
+tr(leather, pelle).
+tr(cotton, cotone).
+tr(wool, lana).
+tr(wood, legno).
+tr(metal, metallo).
+tr(plastic, plastica).
 tr(leg, gamba).
 tr(hand, mano).
 tr(foot, piede).
@@ -207,12 +213,15 @@ tr(red, rosso).
 tr(green, verde).
 tr(yellow, giallo).
 tr(black, nero).
+tr(black, nera).
 tr(white, bianco).
+tr(white, bianca).
 tr(orange, arancione).
 tr(purple, viola).
 tr(pink, rosa).
 tr(brown, marrone).
 tr(grey, grigio).
+tr(grey, grigia).
 tr(gold, oro).
 tr(silver, argento).
 
@@ -536,6 +545,7 @@ tr(mexico, messico).
 tr(animal, animale).
 tr(color, colore).
 tr(colour, colore).
+tr(material, materiale).
 tr(sound, suono).
 tr(noise, rumore).
 tr(language, lingua).

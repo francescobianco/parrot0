@@ -147,6 +147,10 @@ response_template(riddle_map, "A map appears.").
 response_template(riddle_map, "Map detected.").
 response_template(riddle_letter_m, "The letter M.").
 response_template(diff_fruit_vegetable, "A fruit is the seed-bearing part of a plant, while a vegetable is another edible plant part such as a root, stem, or leaf.").
+response_template(inferred_color_from_phrase, "It's {color}.").
+response_template(inferred_color_from_phrase, it, "È {color}.").
+response_template(inferred_attribute_from_phrase, "It's {value}.").
+response_template(inferred_attribute_from_phrase, it, "È {value}.").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.
 % Honest: they keep the conversation going (acknowledge + open question) and never
