@@ -1,0 +1,22 @@
+# migrated from tests/cases/intent.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test intent]
+# gen51 (C1): paraphrase-robust intent. The same intent is reached from many
+# phrasings via keyword CUES + the self-model, not one rigid template. These
+# phrasings are held out (not the exact ones in self.chat), so passing proves
+# cue recognition, not enumerated strings.
+> what is your name?
+< I am parrot0.
+> what should I call you?
+< I am parrot0.
+> tell me about yourself
+< I am parrot0.
+> what are you able to do?
+< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.

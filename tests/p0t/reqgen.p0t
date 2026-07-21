@@ -1,0 +1,68 @@
+# migrated from tests/cases/reqgen.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reqgen]
+# gen267 (universal-comprehension §2/§4.2, first slice): the request/generate
+# FORM read structurally — an imperative make-verb (KB word class) + an object
+# noun-phrase, optionally closed by "in <lang>" (KB class). Registered late, so
+# it catches exactly the turns that used to hit the blind wall and turns them
+# into the INFORMED decline: the parsed object quoted back (proof of
+# understanding) plus the named gap — never a fabricated attempt.
+# gen268: the flagship flip — "hello world" is WORLD KNOWLEDGE
+# (program_output/2: the artifact name carries its canonical text), the
+# print_message program schema is a KB fact, and the emitted program is
+# DISPOSED by really running it (stdout must be exactly the message, exit 0).
+# gen269: replies are MULTI-LINE — verdict first, then the program in a
+# markdown ```c fence with real indentation (consecutive '<' lines are one reply).
+> create a simple hello world in c
+< Verified by execution: it prints "Hello, World!" and exits 0 (print_message schema, run via the code_run oracle).
+< 
+< ```c
+< #include <stdio.h>
+< 
+< int main(void) {
+<     printf("Hello, World!\n");
+<     return 0;
+< }
+< ```
+
+# the general form of the same category: the request spells the message
+> write a program that prints good morning
+< Verified by execution: it prints "good morning" and exits 0 (print_message schema, run via the code_run oracle).
+< 
+< ```c
+< #include <stdio.h>
+< 
+< int main(void) {
+<     printf("good morning\n");
+<     return 0;
+< }
+< ```
+
+# the category border stays honest: no schema for this, informed decline
+> build a web scraper in python
+< I understood the request — produce "web scraper" in python — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+> generate a birthday poem
+< I understood the request — produce "birthday poem" — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+
+# gen270: the simplest produce-artifact REALLY happens — an empty file, plain
+# basename in the working directory, verified by stat, recorded as session
+# knowledge; asking again refuses honestly (O_EXCL, never overwrite). Path
+# requests (../x, /etc/x) fall to the informed decline, no side effect.
+> create a file named p0tmp_pupo.txt
+< I understood — create the file p0tmp_pupo.txt — but a file with that name already exists here, and I won't overwrite it.
+> create a file named p0tmp_pupo.txt
+< I understood — create the file p0tmp_pupo.txt — but a file with that name already exists here, and I won't overwrite it.
+> what have you created in this session?
+< I haven't created any files this session.
+
+# negative controls: content questions and arithmetic are untouched (the module
+# is last-but-two in the registry, and the form needs verb + object)
+> what is 2 plus 2
+< 4.

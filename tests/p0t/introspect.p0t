@@ -1,0 +1,42 @@
+# migrated from tests/cases/introspect.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test introspect]
+# gen77: self-model introspection depth. Internal predicates are filtered
+# so "what do you know?" shows only user-facing knowledge.
+# Start with zero user-facing facts.
+> what do you know?
+< I know 195 fact(s) across 26 predicate(s). Ask me about a specific topic.
+> how many facts do you know?
+< I know 195 fact(s).
+> what predicates do you know?
+< I know these predicates: imperative_opener, progenitor, parent_of, pragma_act, pragmatic_meaning, sum_list, count_list, max_list, drop_odds, factorial, fib, gcd, is_prime, power, member, relation_domain, relation_arity, incompatible_conclusions, incompatible, relation_type, inverse_of, question_form, slot_evidence, conversation_seed, repair_budget, part_of.
+> show me your knowledge
+< Here is everything I know: imperative_opener(execute). imperative_opener(esegui). imperative_opener(run). imperative_opener(apply). imperative_opener(applica). imperative_opener(migrate). imperative_opener(migra). imperative_opener(scan). imperative_opener(scansiona). pragma_act(indirect_request). pragma_act(environment_hint). is_prime(2). is_prime(3). conversation_seed("the human heart beats about a hundred thousand times a day"). conversation_seed("octopuses have three hearts and blue blood"). conversation_seed("honey can last thousands of years without spoiling"). conversation_seed("Jupiter is the largest planet in our solar system"). conversation_seed("a day on Venus is longer than a whole year on Venus"). conversation_seed("the shortest war in history lasted about forty minutes"). conversation_seed("bananas are berries, but strawberries are not"). conversation_seed("there are more stars in the sky than grains of sand on Earth").
+# Teach some facts and re-query.
+> rex is a dog
+< Learned: dog(rex).
+> fido is a dog
+< Learned: dog(fido).
+> every dog is a mammal
+< Learned rule: mammal(X) :- dog(X).
+# Direct facts only: dog(rex), dog(fido). mammal is rule-derived.
+> what do you know?
+< I know 197 fact(s) across 27 predicate(s). Ask me about a specific topic.
+> how many facts do you know?
+< I know 197 fact(s).
+> what predicates do you know?
+< I know these predicates: imperative_opener, progenitor, parent_of, pragma_act, pragmatic_meaning, sum_list, count_list, max_list, drop_odds, factorial, fib, gcd, is_prime, power, member, relation_domain, relation_arity, incompatible_conclusions, incompatible, relation_type, inverse_of, question_form, slot_evidence, conversation_seed, repair_budget, part_of, dog.
+> show me your knowledge
+< Here is everything I know: imperative_opener(execute). imperative_opener(esegui). imperative_opener(run). imperative_opener(apply). imperative_opener(applica). imperative_opener(migrate). imperative_opener(migra). imperative_opener(scan). imperative_opener(scansiona). pragma_act(indirect_request). pragma_act(environment_hint). is_prime(2). is_prime(3). conversation_seed("the human heart beats about a hundred thousand times a day"). conversation_seed("octopuses have three hearts and blue blood"). conversation_seed("honey can last thousands of years without spoiling"). conversation_seed("Jupiter is the largest planet in our solar system"). conversation_seed("a day on Venus is longer than a whole year on Venus"). conversation_seed("the shortest war in history lasted about forty minutes"). conversation_seed("bananas are berries, but strawberries are not"). conversation_seed("there are more stars in the sky than grains of sand on Earth"). dog(rex). dog(fido).
+# Identity and capability still work.
+> who are you?
+< I am parrot0.
+> what can you do?
+< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.

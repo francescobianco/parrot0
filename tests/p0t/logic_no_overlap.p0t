@@ -1,0 +1,14 @@
+# migrated from tests/cases/logic_no_overlap.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test logic_no_overlap]
+# gen249: an explicit "no X are Y" premise rules out being both, even when a
+# "some" premise appears elsewhere.
+> If all Zorks are Morks, some Morks are Borks, and no Borks are Zorks, can a Bork also be a Zork? Explain your reasoning.
+< No -- the statement says those classes do not overlap.
+

@@ -1,0 +1,14 @@
+# migrated from tests/cases/self_preference_declarative.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test self_preference_declarative]
+# gen333: second-person wording alone is not a question about parrot0.
+# This declarative user statement must stay in conversational continuity.
+> I'm glad you've been enjoying the books.
+< That sounds nice -- tell me more about it.
+

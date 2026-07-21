@@ -1,0 +1,27 @@
+# migrated from tests/cases/memref_arith.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test memref_arith]
+# gen221 (docs/plans/the-linguistic-glue.md, G2 — symptom #5, "one interlocutor across
+# faculties"): the essay's deepest absence-symptom — the sense of talking to several
+# independent systems rather than one — closed as DETERMINISTIC, KB-first glue. A numeric
+# personal fact stated earlier lives ONLY in the KB (user_value/2) and is INFERRED back
+# from there, both to recall it and to feed a later computation. memref_resolve (registry)
+# resolves "my <key>" to its stored value and re-dispatches so the arithmetic core
+# computes the turn. Bilingual EN+IT; the value is never held in a C field (PRINCIPLES.md:
+# knowledge lives in the KB). A bare recall (no operator) is left for the memory module.
+> remember my favorite number is 7
+< Got it: your favorite number is 7.
+> what is my favorite number
+< Your favorite number is 7.
+> what is my favorite number plus 3
+< 10.
+> il mio numero preferito è 7
+< Got it: your numero preferito is 7.
+> quanto fa il mio numero preferito più 3
+< 10.

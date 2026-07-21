@@ -1,0 +1,31 @@
+# migrated from tests/cases/modtrack.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test modtrack]
+# gen78: module activation tracking. The dispatch loop stores which module
+# claimed each turn, so "which part of you answered that?" reads real state.
+> who are you?
+< I am parrot0.
+> which part of you answered that?
+< The 'self' module answered your last question.
+> what is 2 + 2
+< 4.
+> what module handled that?
+< The 'arith' module answered your last question.
+# A not-understood fallback is tracked too.
+> zxcvbnm qwerty
+< I don't understand that yet.
+> which part of you answered that?
+< No module could handle that — it fell through to the not-understood fallback.
+# Italian cues.
+# gen335 (KB-first): identity responses localize via current_language.
+> chi sei?
+< Mi chiamo parrot0.
+> quale modulo ha risposto?
+< Non capisco ancora.

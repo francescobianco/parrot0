@@ -1,0 +1,34 @@
+# migrated from tests/cases/prosepage.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test prosepage]
+# deep-reasoning M2 (docs/plans/deep-reasoning.md §8): the PROSE extractor. A DEEP
+# read of a corpus page runs each sentence of its `## Extract` lead paragraph
+# through the SAME comprehension parser M0 extended (extract_class_statement, now
+# in extract-only mode so the simple "X is a Y" is asserted too), and every fact
+# carries its source fragment (M1). Broad by design (§4.4): it over-extracts
+# (capital(paris) is a partitive mis-read) and that is tolerated — the loop
+# re-checks facts against their source (M4). Pages are curated static snapshots in
+# kb/learning/pages/ (paris/france/whale/mammal), read even in the hermetic suite.
+
+> read the page on Paris
+< From the paris page I extracted 2 facts: capital(paris), located_in(paris, france).
+# each extracted fact remembers the exact sentence it came from (M1 provenance).
+> where did you learn about paris?
+< I learned capital(paris) from: "paris is the capital of france"; located_in(paris, france) from: "paris is located in france".
+
+> read the page on whale
+< From the whale page I extracted 2 facts: mammal(whale), aquatic_animal(whale).
+# an extracted membership is real, queryable knowledge.
+> is a whale a mammal?
+< Yes.
+
+# honest: a topic with no curated page yields no facts, never invented.
+> read the page on Xyzzy
+< I don't have a page with extractable facts on xyzzy.
+

@@ -1,0 +1,24 @@
+# migrated from tests/cases/memory_natural.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test memory_natural]
+# gen57 (C3): natural-shape personal memory. The possession frame and
+# "call me" extend the rigid "my name is" / "X is a Y" paths.
+> I have a dog named Rex
+< Got it: your dog is called Rex.
+> what is my dog called?
+< Rex.
+> my cat is Luna
+< Got it: your cat is Luna.
+> what is my cat called?
+< Luna.
+> call me Sam
+< Nice to meet you, Sam!
+> what is my name?
+< Your name is Sam.
+

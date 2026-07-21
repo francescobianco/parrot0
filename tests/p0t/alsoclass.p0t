@@ -1,0 +1,24 @@
+# migrated from tests/cases/alsoclass.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test alsoclass]
+# gen46: additional-class assertion. Explanatory prose adds memberships
+# incrementally -- "a dolphin is also a mammal". "<x> is also a/an <y>" asserts
+# y(x), the same membership as "x is a y" with one extra class. A small step
+# growing the extractor toward real prose (the bench's wall is open-domain
+# language; this is one honest shape closer).
+> flipper is a dolphin
+< Learned: dolphin(flipper).
+> flipper is also a mammal
+< Learned: mammal(flipper).
+# Both memberships now hold.
+> is flipper a mammal?
+< Yes.
+> is flipper a dolphin?
+< Yes.
+

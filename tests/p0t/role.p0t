@@ -1,0 +1,71 @@
+# migrated from tests/cases/role.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test role]
+# gen101 (C15): role/character memory. A role is an ALTERNATE self-model layered
+# over the permanent one. The name/kind/attributes are PARSED from the user's
+# setup utterance (genuine uptake); what parrot0 knows about the kind/figure is
+# queried from kb/roles.p0. A truth-probe pierces the mask back to parrot0.
+
+# Uptake: "pretend you are a dog named Rex" -> name=Rex (from the user's words),
+# kind=dog. Identity questions then answer in character.
+> pretend you are a dog named Rex.
+< Alright — I am Rex now.
+> what is your name?
+< I am Rex.
+# In-character behaviour: "do you bark?" is affirmed because trait(dog, bark)
+# is in kb/roles.p0 — world knowledge as data, not a C phrasebook.
+> do you bark?
+< Yes, I bark.
+# The layered self-model: a truth-probe ("really") pierces the role. The agent
+# still knows it is parrot0 underneath — it never forgets what it is.
+> who are you really?
+< Underneath the role, I am parrot0.
+
+# A bare name override is a one-line role: "your name is now Mario".
+> your name is now Mario.
+< Alright — I am Mario now.
+> who are you?
+< I am Mario.
+
+# "what are you?" answers the KIND, with the name when both are known.
+> you are a robot named Beep.
+< Alright — I am Beep now.
+> what are you?
+< I am a robot named Beep.
+> do you compute?
+< Yes, I compute.
+
+# Inline attributes are parsed from the user's own words and queried back:
+# code from "your secret code is 007", employer from roles.p0.
+> you are a spy named Shadow. your secret code is 007.
+< Alright — I am Shadow now.
+> what is your code?
+< My code is 007.
+> who do you work for?
+< I work for an agency.
+
+# A named figure (no article) -> identity. roles.p0 supplies the dominion and
+# the figure's profession; the engine, not C, looks them up.
+> you are cleopatra, queen of egypt.
+< Alright — I am Cleopatra now.
+> where do you rule?
+< I rule over Egypt.
+> what is your title?
+< My title is Queen.
+
+# Clearing the role restores the permanent self-model.
+> stop pretending
+< Okay, I'm myself again. I am parrot0.
+> who are you?
+< I am parrot0.
+
+# Arithmetic explanation is a general capability (used by the math-teacher role
+# but grounded in the operation, so it transfers to any operands/operator).
+> explain why 2 plus 2 is 4
+< Because adding 2 and 2 gives 4 — that is their sum.

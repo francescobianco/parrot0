@@ -1,0 +1,26 @@
+# migrated from tests/cases/compose_coref.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test compose_coref]
+# gen162+gen163 (E1): the social composition that closed the last benchmark gap,
+# ratcheted. Bare self-introduction "i'm vera" (gen162) fills name memory; the
+# named pet "smoke" becomes the salient entity so an unbound "she/her" (gen163)
+# binds to it — possession memory composing with discourse reference — and the
+# query/summary read it back. Fresh vocab (vera/cat/smoke).
+> hi, i'm vera
+< Nice to meet you, vera!
+> i have a cat named smoke
+< Got it: your cat is called smoke.
+> smoke is a pet
+< Learned: pet(smoke).
+> is she a pet?
+< Yes.
+> what do you know about her?
+< called(cat, smoke); smoke is a pet.
+> what is my name?
+< Your name is vera.

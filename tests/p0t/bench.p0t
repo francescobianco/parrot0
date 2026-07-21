@@ -1,0 +1,30 @@
+# migrated from tests/cases/bench.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test bench]
+# gen45: the benchmark bridge. The SuperGLUE driver wraps each example as one
+# line "...Passage: <P> Question: <Q> Answer yes or no." parrot0 matched none of
+# it and abstained -> 0%, worse than a coin flip (it never guesses). This bridge
+# recognizes the envelope, READS the passage through the existing extractor, and
+# ANSWERS the question through the existing query modules -- emitting yes/no only
+# when the answer is genuinely derivable. It is I/O wiring, not new reasoning and
+# not a phrasebook: on open prose it still abstains, so the score measures real
+# reasoning coverage. (On real validation that coverage is ~0 until the prose
+# grammar grows -- the honest wall, D-2026-06-15e.)
+# In-grammar passage -> the query is provable -> "yes".
+> SuperGLUE BoolQ. Passage: barq is a soft drink. barq is a beverage. Question: is barq a beverage? Answer yes or no.
+< yes
+# Known-but-false predicate -> closed-world "no".
+> SuperGLUE BoolQ. Passage: rex is a dog. rex is not a cat. Question: is rex a cat? Answer yes or no.
+< no
+# Open prose that does not parse -> reasoning abstains, so a lexical-overlap
+# BASELINE answers (gen49): "mood"/"tense" do not occur in the passage -> "no".
+# Valid and content-derived, near chance -- labeled a baseline, not reasoning.
+> SuperGLUE BoolQ. Passage: the weather was lovely and everyone felt calm. Question: was the mood tense? Answer yes or no.
+< no
+

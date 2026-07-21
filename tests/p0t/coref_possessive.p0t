@@ -1,0 +1,20 @@
+# migrated from tests/cases/coref_possessive.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test coref_possessive]
+# gen217 (docs/plans/the-linguistic-glue.md, G2 — next pull from glue-bench's gap map):
+# possessive-pronoun anaphora as DETERMINISTIC glue, not an emergent field. The recent
+# possession ("my dog is Rex") becomes the salient owned entity; the pronoun "his" in the
+# next turn resolves to it WITHOUT repeating the noun ("what is his name" -> Rex).
+# Claims only when a recent possession is actually on record (real session state), so it
+# never invents a referent. (Italian pro-drop — "come si chiama" with no pronoun token —
+# stays a distinct gap in glue-bench, not faked here.)
+> my dog is Rex
+< Got it: your dog is Rex.
+> what is his name
+< Your dog is called Rex.

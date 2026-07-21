@@ -1,0 +1,35 @@
+# migrated from tests/cases/gen_weight.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test gen_weight]
+# gen111 (D-prop1 step 2): the decoder's choice ranking is itself KB knowledge.
+# The generation loop (gen36-42) interpolates trigram and bigram evidence to pick
+# the next word; gen111 moves the interpolation COEFFICIENTS out of hardcoded C
+# into editable weight(trigram, N) / weight(bigram, N) facts. Editing the policy
+# (a fact) changes which continuation wins — the ranking lives in the KB, not the
+# code (DESIGN.md D6: shrink the hardcoded C, grow behaviour as knowledge).
+
+# Teach two contexts that DISAGREE: the bigram "apple ->" favours juice (seen
+# twice) over pie (once), but the trigram "red apple ->" has only ever seen pie.
+> learn sequence: red apple pie
+< Learned 2 transition(s).
+> learn sequence: green apple juice
+< Learned 2 transition(s).
+> learn sequence: green apple juice
+< Learned 2 transition(s).
+# Default policy: the trigram context dominates, so "red apple ___" -> pie, even
+# though "juice" has the stronger bigram count.
+> say red
+< red apple pie
+# Now EDIT the policy as knowledge: tell the decoder to ignore trigram context.
+> set trigram weight to 0
+< Ok, trigram weight is now 0.
+# Same seed, same data — but the choice flips, because the bigram majority now
+# decides. Generation behaviour was steered by editing a fact, not the C.
+> say red
+< red apple juice

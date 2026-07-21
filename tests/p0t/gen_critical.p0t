@@ -1,0 +1,36 @@
+# migrated from tests/cases/gen_critical.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test gen_critical]
+# gen40 (capstone): critical decoding -- the KB's beliefs constrain the learned
+# generator. When the running output is a claim "<x> is a ___", any continuation
+# the KB knows false is vetoed, so the language model cannot utter something the
+# system rejects. This is the point of the whole decode arc: an LLM-like
+# generative surface disciplined by inference. Held-out tokens.
+> learn sequence: tweety is a plane
+< Learned 3 transition(s).
+> learn sequence: tweety is a plane
+< Learned 3 transition(s).
+> learn sequence: tweety is a bird
+< Learned 3 transition(s).
+# Frequency alone would say "plane" (seen twice) -- see gen_freq. But:
+> tweety is not a plane
+< Learned: not plane(tweety).
+# Generation refuses the known-false claim and takes the next-best continuation.
+> say tweety
+< tweety is a bird
+# Block every candidate and it stops at "a" rather than asserting a falsehood.
+> tweety is not a bird
+< Learned: not bird(tweety).
+> say tweety
+< tweety is a
+# A non-claim sequence is unaffected -- the filter only guards "<x> is a ___".
+> learn sequence: red apple pie
+< Learned 2 transition(s).
+> say red
+< red apple pie

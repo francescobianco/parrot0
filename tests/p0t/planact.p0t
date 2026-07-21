@@ -1,0 +1,64 @@
+# migrated from tests/cases/planact.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test planact]
+# gen258 (Track 5.2): plans INFERRED from KB action knowledge, never a hardcoded
+# pipeline (F.'s steer). The trigger words are intent_cue(plan_request,…) facts;
+# the goal is recognized from goal_cue/2; the steps are DERIVED by a generic
+# backward chainer over action_yields/action_needs in
+# kb/experts/codebase/actions.p0 (postorder honors AND-preconditions: the
+# intent_cue facts are written BEFORE the sites are patched). The chainer knows
+# nothing of codebases or needhelp — two structurally different domains run
+# through the same C. An unknown goal falls through honestly. The needhelp
+# protocol (F.'s public pattern) is here as KNOWLEDGE, not a wired fallback.
+> make a plan to bring the cue chains of a module into kb-first regime
+< My derived plan for kbfirst migration: 1) locate the OR-chains of calls in the target source (the vocabulary sites); 2) extract the word list each chain encodes; 3) write the words as intent_cue facts in a .p0 file; 4) replace each chain with a kb_cue_match lookup in a patched copy; 5) run the full test suite; the refactor must be behavior-preserving.
+> make a plan for getting external help
+< My derived plan for external help: 1) write what I lack as facts in a needhelp.p0 at the project root; 2) periodically re-read needhelp.p0 to see if someone answered; 3) load the answers as native knowledge and resume the blocked plan.
+# gen267 upgraded this fall-through: the unknown goal still declines (mod_plan
+# has no action knowledge for it), but universal-comprehension §2 replaces the
+# blind wall with an INFORMED decline — the request/generate form was read.
+> make a plan to conquer the moon
+< I understood the request — produce "plan to conquer the moon" — but I don't have a verified schema for that artifact yet; I only synthesize what an oracle can check (a sort from a learned shape, arithmetic composition, a count-to-threshold game).
+
+# gen259–263: execute the derived plan through KB action_impl bindings — ALL
+# FIVE actions are bound, so the whole kbfirst_migration plan runs end-to-end on
+# the FOREIGN fixture: real OR-chain perception, vocabulary extraction, loadable
+# intent_cue facts (one key per chain site), each chain replaced by one call to
+# the target's own lookup primitive (plan_param lookup_fn — knowledge, not a C
+# constant) in a .p0fix copy the real compiler accepts, and finally the
+# DIFFERENTIAL judge: original and patched run the same probe harness (one probe
+# per vocabulary word + a miss; plan_param probe_fn) and stdout must be
+# byte-identical. Originals never touched; artifacts gitignored (*.p0fix,
+# *.cues.p0). A broken lookup makes step 5 answer DIVERGES — the verdict is
+# computed, not asserted.
+> execute the kb-first plan for chains of calls to flag in tests/fixtures/orchain/foreign.c
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `flag` in tests/fixtures/orchain/foreign.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: alpha, beta, gamma, epsilon, zeta; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/foreign.c.cues.p0; 4) patch_chains replaced 2 chains with calls to `lookup` in tests/fixtures/orchain/foreign.c.p0fix and the result still compiles; 5) verify_behavior ran `classify` on 6 probes in both versions; outputs are byte-identical — the patch preserves behavior.
+
+# gen271 (Track 5.4): the plan meets files that are FRAGMENTS of a larger
+# translation unit — every real module file. Which lookup a codebase owns and
+# the SHAPE of a call to it are FACTS (codebase_lookup/2, lookup_call/2 in
+# actions.p0), never C constants: the fragment fixture's helper is
+# vocab_hit(ctx, KEY, ARG), a different name and signature from parrot0's own.
+# Both compile judges answer honestly here: the standalone check does not apply
+# to a fragment (saying "broke the build" would be a false verdict), and step 5
+# names the codebase's own test suite as the real judge instead of failing.
+# gen274 (per-chain applicability): the fixture's second chain lives in a helper
+# whose scope never sees `ctx` — the identifier the call shape imports — so
+# patching it could not compile. The patcher SKIPS that site honestly (chain
+# kept verbatim, named in the report) and still migrates the reachable one.
+> execute the kb-first plan for chains of calls to cue in tests/fixtures/orchain/fragment.c
+< Executed derived plan for kbfirst migration: 1) orchain_scan found 2 OR-chains of calls to `cue` in tests/fixtures/orchain/fragment.c (5 calls in chains); 2) orchain_vocab extracted 5 cues: start, begin, avvia, quit, exit; 3) emit_facts wrote 5 intent_cue facts for 2 chains to tests/fixtures/orchain/fragment.c.cues.p0; 4) patch_chains replaced 1 chains with calls to `vocab_hit` in tests/fixtures/orchain/fragment.c.p0fix and skipped 1 sites where `ctx` is not in scope; the target is a fragment of a larger unit, so its own build must judge the copy; stopped at step 5 run test suite via verify_behavior: verify_behavior cannot run tests/fixtures/orchain/fragment.c standalone — it is a fragment of a larger unit; the codebase's own test suite must judge the patch.
+
+# gen271, the real thing: src/brain/00-lex.c's teach-verb guard was the FIRST
+# real cue chain migrated by this very plan (kb_cue_match(b, "00_lex_chain332",
+# low); the 8 verbs now live in kb/core/intents.p0). This pins that the site
+# STAYS migrated: the scan of the real file finds nothing left to migrate.
+> execute the kb-first plan for chains of calls to cue in src/brain/00-lex.c
+< Executed derived plan for kbfirst migration: 1) orchain_scan found no OR-chains of calls to `cue` in src/brain/00-lex.c; stopped at step 2 extract vocabulary via orchain_vocab: orchain_vocab found no OR-chains of calls to `cue` in src/brain/00-lex.c.
+

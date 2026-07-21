@@ -1,0 +1,54 @@
+# migrated from tests/cases/plan.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test plan]
+# gen108 (L13): ordered procedure to a goal — a tiny planner. Prerequisites are
+# taught as requires(Goal, Step) facts in ANY order; "how do I make X?" returns a
+# correctly ORDERED plan, derived by a depth-first topological sort of the
+# dependency DAG so every step precedes what depends on it. The sequence is never
+# stored — it is recomputed from the scattered facts (anti-impostor: the order is
+# reasoned, not recited). Held-out goals.
+
+# Teach the prerequisites SCRAMBLED — deliberately not in any usable order.
+> batter requires eggs
+< Learned: requires(batter, eggs).
+> cake requires batter
+< Learned: requires(cake, batter).
+> cake requires oven
+< Learned: requires(cake, oven).
+> batter requires flour
+< Learned: requires(batter, flour).
+# The plan comes out correctly ordered: eggs and flour (no prereqs) before
+# batter (which needs them), batter and oven before cake. Never taught as a list.
+> how do I make cake?
+< To make cake: eggs, flour, batter, oven, then cake.
+# The justification is the ordering principle itself, derived from the facts.
+> how do you know?
+< Because ordered by prerequisites: each step follows everything it requires.
+
+# A transitive chain orders correctly too: kettle before hot_water before tea.
+> tea requires hot_water
+< Learned: requires(tea, hot_water).
+> hot_water requires kettle
+< Learned: requires(hot_water, kettle).
+> tea requires cup
+< Learned: requires(tea, cup).
+> how do I make tea?
+< To make tea: kettle, hot_water, cup, then tea.
+
+# A goal with no known prerequisites is honestly unknown — no invented steps.
+> how do I make pizza?
+< I don't know the steps to make pizza yet.
+
+# A circular prerequisite cannot be ordered — say so rather than loop or guess.
+> loopa requires loopb
+< Learned: requires(loopa, loopb).
+> loopb requires loopa
+< Learned: requires(loopb, loopa).
+> how do I make loopa?
+< The steps for loopa have a circular prerequisite — I can't order them.

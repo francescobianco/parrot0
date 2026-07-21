@@ -1,0 +1,27 @@
+# migrated from tests/cases/mmlu.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test mmlu]
+# Generation 25: tiny MMLU-like multiple-choice class questions.
+> lyra is a botanist
+< Learned: botanist(lyra).
+> which is a botanist: orion, lyra, vega?
+< lyra.
+> every botanist is a scientist
+< Learned rule: scientist(X) :- botanist(X).
+> which is a scientist: lyra, orion?
+< lyra.
+> orion is a scientist
+< Learned: scientist(orion).
+> which is a scientist: lyra, orion, vega?
+< lyra, orion.
+> which is a scientist: vega, nova?
+< None of them.
+> which is a mineral: quartz, basalt?
+< I don't know about mineral.
+

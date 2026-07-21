@@ -1,0 +1,34 @@
+# migrated from tests/cases/reader.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reader]
+# gen32: the text -> facts bridge. "read: <passage>" splits a passage into
+# clauses and feeds each to the existing assertion parsers (quantity, cause,
+# knowledge), asserting what parses into the session KB and *counting* what
+# does not. This is the wall the gen28-gen31 run kept naming: the reasoning
+# primitives existed, but nothing turned prose into facts. The extractor lifts
+# only sentence shapes parrot0 already knows -- it does not understand open
+# prose, and the skipped count is the honest measure of that (Decision
+# D-2026-06-15e). Held-out content.
+#
+# One passage populates the KB; the unparseable sentence is skipped, not faked.
+# (The decimal-safe splitter keeps "1.3"-style numbers intact.)
+> read: zibo has 2 gold. nibo has 5 gold. fire causes smoke. tariq is a knight. every knight is a noble. the market square was unusually crowded that morning.
+< Learned 5 fact(s), skipped 1.
+# Now every gen28-gen31 primitive answers from the *extracted* facts.
+> does nibo have more gold than zibo?
+< Yes.
+> what is the effect of fire?
+< smoke.
+> is tariq a noble?
+< Yes.
+> how many gold does zibo have?
+< zibo has 2 gold.
+# A passage of only unparseable prose learns nothing -- and admits it.
+> read: the weather was lovely. nobody knew what would happen next.
+< Learned 0 fact(s), skipped 2.

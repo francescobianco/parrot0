@@ -1,0 +1,29 @@
+# migrated from tests/cases/memory.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test memory]
+# Generation 3: session memory — the brain carries context across turns.
+# Before being told, it doesn't know.
+> what is my name?
+< I don't know your name yet.
+# Teach it, with original case preserved.
+> my name is Francesco
+< Nice to meet you, Francesco!
+# Recall, across later turns (and despite a greeting in between).
+> hello
+< Hi there!
+> what is my name?
+< Your name is Francesco.
+# Phrasing variants are understood.
+> what's my name
+< Your name is Francesco.
+# It can be updated.
+> my name is Bob
+< Nice to meet you, Bob!
+> whats my name?
+< Your name is Bob.

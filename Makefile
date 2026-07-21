@@ -375,6 +375,51 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/priority.p0t
 	@./$(BIN) --test-send tests/p0t/retract.p0t
 	@./$(BIN) --test-send tests/p0t/teachverb.p0t
+	@./$(BIN) --test-send tests/p0t/alsoclass.p0t
+	@./$(BIN) --test-send tests/p0t/bench.p0t
+	@./$(BIN) --test-send tests/p0t/bench_record.p0t
+	@./$(BIN) --test-send tests/p0t/compose_coref.p0t
+	@./$(BIN) --test-send tests/p0t/comprehension.p0t
+	@./$(BIN) --test-send tests/p0t/coref_possessive.p0t
+	@./$(BIN) --test-send tests/p0t/cue_learn.p0t
+	@./$(BIN) --test-send tests/p0t/discarded.p0t
+	@./$(BIN) --test-send tests/p0t/factsource.p0t
+	@./$(BIN) --test-send tests/p0t/fallback_grounded.p0t
+	@./$(BIN) --test-send tests/p0t/fallback_word.p0t
+	@./$(BIN) --test-send tests/p0t/gen.p0t
+	@./$(BIN) --test-send tests/p0t/gen_critical.p0t
+	@./$(BIN) --test-send tests/p0t/gen_ctx.p0t
+	@./$(BIN) --test-send tests/p0t/gen_describe.p0t
+	@./$(BIN) --test-send tests/p0t/gen_freq.p0t
+	@./$(BIN) --test-send tests/p0t/gen_interp.p0t
+	@./$(BIN) --test-send tests/p0t/gen_read.p0t
+	@./$(BIN) --test-send tests/p0t/gen_stop.p0t
+	@./$(BIN) --test-send tests/p0t/gen_weight.p0t
+	@./$(BIN) --test-send tests/p0t/input.p0t
+	@./$(BIN) --test-send tests/p0t/intent_learn.p0t
+	@./$(BIN) --test-send tests/p0t/intent_reply.p0t
+	@./$(BIN) --test-send tests/p0t/kb_conjunction.p0t
+	@./$(BIN) --test-send tests/p0t/logic_no_overlap.p0t
+	@./$(BIN) --test-send tests/p0t/memory.p0t
+	@./$(BIN) --test-send tests/p0t/memory_natural.p0t
+	@./$(BIN) --test-send tests/p0t/memory_recall.p0t
+	@./$(BIN) --test-send tests/p0t/memref_arith.p0t
+	@./$(BIN) --test-send tests/p0t/mmlu.p0t
+	@./$(BIN) --test-send tests/p0t/planact.p0t
+	@./$(BIN) --test-send tests/p0t/plan.p0t
+	@./$(BIN) --test-send tests/p0t/plan_qty.p0t
+	@./$(BIN) --test-send tests/p0t/pragma.p0t
+	@./$(BIN) --test-send tests/p0t/pragmatics.p0t
+	@./$(BIN) --test-send tests/p0t/prosepage.p0t
+	@./$(BIN) --test-send tests/p0t/reader.p0t
+	@./$(BIN) --test-send tests/p0t/role.p0t
+	@./$(BIN) --test-send tests/p0t/rulespec.p0t
+	@./$(BIN) --test-send tests/p0t/self_preference_declarative.p0t
+	@./$(BIN) --test-send tests/p0t/intent.p0t
+	@./$(BIN) --test-send tests/p0t/introspect.p0t
+	@./$(BIN) --test-send tests/p0t/modtrack.p0t
+	@./$(BIN) --test-send tests/p0t/parrot.p0t
+	@./$(BIN) --test-send tests/p0t/reqgen.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

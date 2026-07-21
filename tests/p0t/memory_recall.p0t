@@ -1,0 +1,19 @@
+# migrated from tests/cases/memory_recall.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test memory_recall]
+# gen60 (C5b): shorter recall shape for personal memory.
+> I have a dog named Rex
+< Got it: your dog is called Rex.
+> what is my dog?
+< Your dog is Rex.
+> my cat is Luna
+< Got it: your cat is Luna.
+> what is my cat?
+< Your cat is Luna.
+

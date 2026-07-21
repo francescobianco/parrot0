@@ -1,0 +1,20 @@
+# migrated from tests/cases/cue_learn.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test cue_learn]
+# gen213+gen214 (SUBSTRING cues): the fragments that signal a brevity request live in the
+# KB (intent_cue(brevity, …) in kb/core/intents.p0), matched anywhere in the turn by
+# kb_cue_match. A new cue is taught through the generic teach path (try_teach_form +
+# learnable/3, mode=substring) — "learn \"…\" to ask for short answers" — and fires next
+# turn, no code edit. The generic handler runs before the matcher, so the teaching
+# utterance (which itself contains "short answers") isn't consumed as a brevity request.
+> learn "be concise" to ask for short answers
+< Got it - I'll take "be concise" as a way to ask for short answers now.
+> be concise please
+< Got it: I will keep it short.
+
