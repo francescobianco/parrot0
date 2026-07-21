@@ -3218,6 +3218,13 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
      * weighted by 1/df, so ties that plain counting could not break ("the bone
      * that protects the brain": skull vs skeletal) resolve toward the concept
      * the rarer words point at. */
+    /* gen346 (scalability): tokenize each concept ONCE. Pass 1 records, per fact,
+     * a bitmask of which query words it matched (nq<=64) and accumulates the
+     * document frequency; pass 2 scores straight from the bitmasks — no fact is
+     * tokenized or word_sim'd twice, so this stays fast as the KB grows. Behaviour
+     * is identical to the old two-tokenization version. */
+    unsigned long long *hits = calloc(kb->n ? kb->n : 1, sizeof *hits);
+    if (!hits) return 0;
     size_t df[64] = {0};
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
@@ -3226,9 +3233,12 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
         char ctoks[96][KB_TERM_LEN];
         size_t nc = concept_tokens(f->args[0], ctoks, 96);
         nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
+        unsigned long long mask = 0;
         for (size_t q = 0; q < nq; q++)
             for (size_t c = 0; c < nc; c++)
-                if (word_sim(qwords[q], ctoks[c])) { df[q]++; break; }
+                if (word_sim(qwords[q], ctoks[c])) { mask |= 1ULL << q; break; }
+        hits[i] = mask;
+        for (size_t q = 0; q < nq; q++) if (mask & (1ULL << q)) df[q]++;
     }
     double w[64];
     for (size_t q = 0; q < nq; q++) w[q] = 1.0 / (double)(df[q] ? df[q] : 1);
@@ -3237,19 +3247,15 @@ int kb_nearest_concept(const KB *kb, const char *const *qwords, size_t nq,
     int bestcount = 0;
     const Fact *bestf = NULL;
     for (size_t i = 0; i < kb->n; i++) {
-        const Fact *f = &kb->facts[i];
-        if (f->argc < 2 || f->args[f->argc - 1][0] != '"') continue;
-        if (is_model_pred(kb, f->pred) || is_struct_pred(f->pred)) continue;
-        char ctoks[96][KB_TERM_LEN];
-        size_t nc = concept_tokens(f->args[0], ctoks, 96);
-        nc += concept_tokens(f->args[f->argc - 1], ctoks + nc, 96 - nc);
+        unsigned long long mask = hits[i];
+        if (!mask) continue;
         double sw = 0.0; int cnt = 0;
         for (size_t q = 0; q < nq; q++)
-            for (size_t c = 0; c < nc; c++)
-                if (word_sim(qwords[q], ctoks[c])) { sw += w[q]; cnt++; break; }
-        if (sw > bestw) { secondw = bestw; bestw = sw; bestcount = cnt; bestf = f; }
+            if (mask & (1ULL << q)) { sw += w[q]; cnt++; }
+        if (sw > bestw) { secondw = bestw; bestw = sw; bestcount = cnt; bestf = &kb->facts[i]; }
         else if (sw > secondw) secondw = sw;
     }
+    free(hits);
     /* Need real evidence (>=2 overlapping words) AND a clear WEIGHTED winner over
      * the runner-up, so one coincidental token never triggers a confident guess
      * and a genuinely symmetric tie still abstains. */

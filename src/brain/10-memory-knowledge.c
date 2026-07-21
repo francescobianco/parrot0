@@ -5676,6 +5676,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
          * an "of"/"di" marker means this is not a plain description request. */
         for (size_t i = start; start && i < nw; i++)
             if (strcmp(w[i], "of") == 0 || strcmp(w[i], "di") == 0) start = 0;
+        /* gen346: "what is X plus Y" is arithmetic, not a definition — arith already
+         * declined it for non-numeric operands, so skip the whole definitional path
+         * (several O(kb) concept scans) and let it fall through to an honest decline. */
+        for (size_t i = start; start && i < nw; i++)
+            if (strcmp(w[i], "plus") == 0 || strcmp(w[i], "minus") == 0 ||
+                strcmp(w[i], "times") == 0 || strcmp(w[i], "divided") == 0 ||
+                strcmp(w[i], "multiplied") == 0) start = 0;
         if (start) {
             /* gen344 (language mirroring): a mature interlocutor answers in the
              * ASKER's language. When the turn is not English and a localized
