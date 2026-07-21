@@ -1,3 +1,12 @@
+# migrated from tests/cases/symbolic.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test symbolic]
 # Generation 65 (sym-bench driven): symbolic-register recognition. The
 # cryptic-stimulus challenge showed the LLM's first move is to NAME the register
 # of a non-prose stimulus, not wall. parrot0 now classifies by structural form
@@ -19,3 +28,4 @@
 # Guard: plain prose must NOT be hijacked by any recognizer — it falls through.
 > the otter swims downstream
 < I don't understand that yet.
+

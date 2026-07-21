@@ -1,3 +1,12 @@
+# migrated from tests/cases/reflexive_compose.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reflexive_compose]
 # gen164/gen165 (E1 reflexive): parrot0 reasons about composing its OWN parts.
 # The gen160 self-challenge probe walled here; now a composition self-challenge —
 # varied surface, held-out — lands in mod_loop with a loop-shaped METHOD (the

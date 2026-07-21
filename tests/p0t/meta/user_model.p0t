@@ -1,3 +1,12 @@
+# migrated from tests/cases/user_model.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test user_model]
 # gen148 (E4): ordinary user model. Durable personal facts (name,
 # possessions, preferences) are reported separately from session-only context
 # (mood, current topic, constraints).
@@ -23,3 +32,4 @@
 < Your current constraint is: keep it short.
 > what do you remember about me?
 < I remember: your name is Dana; your dog is Rex; you like jazz. Session context: you feel tired; current topic is cooking; constraint: keep it short.
+

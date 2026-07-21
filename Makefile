@@ -420,6 +420,18 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/meta/modtrack.p0t
 	@./$(BIN) --test-send tests/p0t/generation/parrot.p0t
 	@./$(BIN) --test-send tests/p0t/intent/reqgen.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/syllogism_universal.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/symbolic.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/wsc.p0t
+	@./$(BIN) --test-send tests/p0t/meta/self_preference_recent.p0t
+	@./$(BIN) --test-send tests/p0t/meta/session_stats.p0t
+	@./$(BIN) --test-send tests/p0t/meta/user_model.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_skeleton.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_derived.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_compose.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit_retract.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest_seam.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/strategy.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

@@ -1,3 +1,12 @@
+# migrated from tests/cases/self_preference_recent.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test self_preference_recent]
 # gen333 (LLMSCORE Q10): a second-person recent-interest question is about
 # parrot0, not a story the user just told.  Route it to the existing honest
 # self-preference knowledge; never fabricate a recent hobby or experience.
@@ -9,3 +18,4 @@
 # Deictic control: first person describes the USER and remains conversational.
 > I've been into pottery lately.
 < Interesting -- what got you into it?
+

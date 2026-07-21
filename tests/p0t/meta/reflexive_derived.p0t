@@ -1,0 +1,18 @@
+# migrated from tests/cases/reflexive_derived.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reflexive_derived]
+# gen165 (E1 reflexive): proof that the composition self-challenge names parts
+# DERIVED from the live module(X) self-model, not a fixed triple. Retracting
+# module(abduce) drops abduction from the named parts — the next composable-core
+# module, calibration, takes its place. The proposal reads the same fact base
+# "who is a module?" reads; change the facts, the proposal changes.
+> forget that abduce is a module
+< Forgotten: module(abduce).
+> how would you prove that your subsystems compose?
+< I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — knowledge (facts and rules), robustness (which facts are load-bearing), and calibration (how sure I am) — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.

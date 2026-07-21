@@ -1,3 +1,12 @@
+# migrated from tests/cases/wsc.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test wsc]
 # gen31: coreference decision — "does <a> refer to <b>?", the yes/no judgement
 # the first SuperGLUE WSC question asks. Built on gen22's discourse model (a
 # pronoun resolves to the most recent concrete entity). We judge against that

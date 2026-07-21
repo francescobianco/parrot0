@@ -1,8 +1,0 @@
-# gen169 (E1 reflexive): proof the audit map is COMPUTED, not tabulated. Retract
-# module(abduce): every triple that names abduce can no longer compose (parrot0 no
-# longer believes it has that part), and the abduce-free triple was already a seam,
-# so the map collapses to 0 of 3. Change the self-model, the real map changes.
-> forget that abduce is a module
-< Forgotten: module(abduce).
-> audit your composition
-< I audited my own composition on fresh copies of myself: knowledge+abduce+robust seam; knowledge+abduce+calibrate seam; knowledge+robust+calibrate seam. 0 of 3 triples hold. No file was touched; an external agent owns edits and commits.

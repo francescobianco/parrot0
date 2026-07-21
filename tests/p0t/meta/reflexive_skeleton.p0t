@@ -1,3 +1,12 @@
+# migrated from tests/cases/reflexive_skeleton.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reflexive_skeleton]
 # gen166 (E1 reflexive): introspection closed to execution. Asked to SHOW the
 # dialogue (not just describe the method), parrot0 emits a runnable, single-line
 # `>`-turn skeleton built from the parts it derives from its own module(X)

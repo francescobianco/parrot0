@@ -1,3 +1,0 @@
-# gen248: universal syllogism chain from the prompt, without KB facts.
-> All dogs are mammals, and all mammals breathe. What can you conclude about dogs?
-< Dogs breathe.
