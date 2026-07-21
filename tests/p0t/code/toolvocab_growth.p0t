@@ -1,3 +1,12 @@
+# migrated from tests/cases/toolvocab_growth.chat
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test toolvocab_growth]
 # gen337 (T16, coding-agent-todo): the agent-tools vocabulary lives in the KB.
 # The 25 cue( OR-chains of 60-agent-tools.c were migrated BY PARROT0 ITSELF
 # (derived kb-first plan, outer-circle session) into intent_cue facts keyed

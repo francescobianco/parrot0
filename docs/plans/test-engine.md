@@ -1,12 +1,22 @@
 # The test-engine — one live instance validates `.p0t` suites
 
-> **Stato:** gen346 (commit `e3b26de`). `make test` = **151 passed, 0 failed**.
-> `parrot0 --test-engine` è un demone su socket Unix che tiene UN brain vivo; i
-> file `.p0t` gli si mandano con `--test-send`. Il vecchio harness è `make
-> legacy-test` (file `.chat` in `tests/cases/`, girati da `tests/run.sh`); le sue
-> suite si migrano incrementalmente in `tests/p0t/*.p0t`.
-> **15 casi migrati**, **238 `.chat` restano**. La sezione **§9 HANDOFF** ha tutto
-> il necessario per riprendere senza ristudiare il progetto.
+> **Stato:** gen346. `make test` = **1034 passed, 0 failed** (~31s). `parrot0
+> --test-engine` è un demone su socket Unix che tiene UN brain vivo; i file `.p0t`
+> gli si mandano con `--test-send`. Il vecchio harness è `make legacy-test` (file
+> `.chat` in `tests/cases/`, girati da `tests/run.sh`).
+> **~148 casi migrati** in `tests/p0t/<categoria>/`. **106 `.chat` restano**, e si
+> dividono in due gruppi che richiedono una DECISIONE prima di procedere:
+> - **91 `.it`** → dipendono dalla semantica della lingua (matrice
+>   `tests/p0t/language/language.p0t`, canonicalizzazione IT→EN gen334). Da
+>   sciogliere con F. prima di migrarli.
+> - **15 perf-held** (calibrate\*, conjunction, deepreason\*, proof_trace, robust,
+>   compose, \*_stress, reflexive_selftest\*/audit) → un turno supera 1s e il
+>   `!timeout` li blocca. Causa comune PRE-ESISTENTE: `mod_robust`
+>   (`90-repair-robust-abduce.c`) fa uno sweep di ablazione O(fatti-unari ×
+>   ri-derivazione); e il ragionamento profondo. Opzioni: (a) ottimizzare lo sweep,
+>   (b) migrarli con `!timeout N` per-test (costo sul wall di `make test`).
+>
+> La sezione **§9 HANDOFF** ha tutto il necessario per riprendere.
 
 ---
 

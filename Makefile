@@ -446,6 +446,8 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/repair/repair.p0t
 	@./$(BIN) --test-send tests/p0t/code/symfix.p0t
 	@./$(BIN) --test-send tests/p0t/code/smelltree.p0t
+	@./$(BIN) --test-send tests/p0t/code/tool.p0t
+	@./$(BIN) --test-send tests/p0t/code/toolvocab_growth.p0t
 	@./$(BIN) --test-send tests/p0t/knowledge/research.p0t
 	@./$(BIN) --test-send tests/p0t/conversation/compose_social.p0t
 	@./$(BIN) --test-send tests/p0t/meta/self.p0t

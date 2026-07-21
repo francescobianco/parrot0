@@ -1,3 +1,12 @@
+# migrated from tests/cases/tool.chat
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test tool]
 # gen115 (L15): the first deliberate mid-turn TOOL CALL — the honest seam
 # between "reason" and "act". A word-count question can't be answered by lookup
 # or inference, so the brain COMPILES it to a real command and INVOKES a
