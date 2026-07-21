@@ -120,11 +120,9 @@ static void te_flush(TeState *t) {
     if (!t->have_expect) return;
     const char *got = t->have_reply ? t->reply : "";
     if (strcmp(t->expect, got) == 0) {
-        t->passed++;
-        fprintf(t->out, "  PASS  [%s] line %d\n",
-                t->section[0] ? t->section : "-", t->expect_startline);
+        t->passed++;                         /* silent — the one-line file report counts it */
     } else {
-        t->failed++;
+        t->failed++;                         /* only failures print, with useful detail */
         fprintf(t->out, "  FAIL  [%s] line %d\n",
                 t->section[0] ? t->section : "-", t->expect_startline);
         fprintf(t->out, "        expected: %s\n", t->expect);
@@ -184,8 +182,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             char *hdr = p + 1;
             char *sp = strchr(hdr, ' ');          /* label = text after the type word */
             snprintf(t->section, sizeof t->section, "%s", sp ? sp + 1 : hdr);
-            fprintf(t->out, "[%s]\n", t->section);
-            continue;
+            continue;                             /* section name surfaces only in a FAIL */
         }
         if (p[0] == '>') { te_turn(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (p[0] == '<') { te_expect(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
@@ -317,16 +314,18 @@ int test_engine_serve(Brain *b, const char *sockpath) {
         if (fin && fout) {
             t.out = fout;
             t.line_no = 0;         /* line numbers refer to the file just sent */
-            int failed_before = t.failed;
+            int passed_before = t.passed, failed_before = t.failed;
             te_process_stream(&t, fin);
-            if (t.shutdown) {
-                /* --test-report: the whole-session verdict, then stop. */
-                te_summary(&t);
-                fprintf(fout, "EXIT %d\n", t.failed > 0 ? 1 : 0);
-            } else {
-                /* --test-send: FAIL-FAST — this file's own verdict, so a failing
-                 * file makes the client exit 1 and `make` stops right there. */
-                fprintf(fout, "EXIT %d\n", (t.failed - failed_before) > 0 ? 1 : 0);
+            /* The client turns COUNT into the one-line file report and EXIT into
+             * its exit code. On a normal send the counts are THIS file's (fail-fast:
+             * a failing file exits 1 and stops make); on --test-report they are the
+             * whole-session grand totals. Failure detail was already written above. */
+            if (t.shutdown)
+                fprintf(fout, "COUNT %d %d\nEXIT %d\n", t.passed, t.failed,
+                        t.failed > 0 ? 1 : 0);
+            else {
+                int fp = t.passed - passed_before, ff = t.failed - failed_before;
+                fprintf(fout, "COUNT %d %d\nEXIT %d\n", fp, ff, ff > 0 ? 1 : 0);
             }
         }
         if (fout) fclose(fout);
@@ -344,7 +343,14 @@ int test_engine_serve(Brain *b, const char *sockpath) {
 
 /* ── client (featherweight: no brain, no KB — just a socket relay) ─────────── */
 
-int test_engine_send(const char *sockpath, FILE *in) {
+/* basename of a path, for a tidy one-line report ("facts.p0t", not the full path) */
+static const char *te_base(const char *path) {
+    if (!path) return NULL;
+    const char *b = strrchr(path, '/');
+    return b ? b + 1 : path;
+}
+
+int test_engine_send(const char *sockpath, FILE *in, const char *label) {
     int fd = socket(AF_UNIX, SOCK_STREAM, 0);
     if (fd < 0) { perror("test-send: socket"); return 2; }
     struct sockaddr_un addr;
@@ -384,27 +390,40 @@ int test_engine_send(const char *sockpath, FILE *in) {
     close(fd);
     if (rep) rep[len] = '\0';
 
-    int code = 0;
+    int code = 0, passed = 0, failed = 0;
+    size_t body = len;   /* bytes of the reply that are failure detail (printed) */
     if (rep && len) {
-        /* find the last non-empty line; if it is "EXIT n", strip it and adopt n */
+        /* strip the trailing control lines, youngest first: EXIT then COUNT. */
         size_t e = len;
         while (e > 0 && (rep[e - 1] == '\n' || rep[e - 1] == '\r')) e--;
-        size_t ls = e;
-        while (ls > 0 && rep[ls - 1] != '\n') ls--;
+        size_t ls = e; while (ls > 0 && rep[ls - 1] != '\n') ls--;
         if (strncmp(rep + ls, "EXIT ", 5) == 0) {
             code = atoi(rep + ls + 5);
-            len = ls;                 /* hide the control line from the printout */
+            e = ls; while (e > 0 && rep[e - 1] == '\n') e--;
+            ls = e; while (ls > 0 && rep[ls - 1] != '\n') ls--;
         }
-        fwrite(rep, 1, len, stdout);
+        if (strncmp(rep + ls, "COUNT ", 6) == 0) {
+            sscanf(rep + ls + 6, "%d %d", &passed, &failed);
+            body = ls;              /* everything before COUNT is failure detail */
+        }
+    }
+
+    if (failed > 0 && body > 0) fwrite(rep, 1, body, stdout);   /* useful detail */
+    if (label) {
+        const char *name = te_base(label);
+        if (failed > 0) printf("FAIL  %s — %d passed, %d failed\n", name, passed, failed);
+        else            printf("ok    %s — %d passed\n", name, passed);
+    } else {
+        printf("total: %d passed, %d failed\n", passed, failed);
     }
     free(rep);
     return code;
 }
 
-int test_engine_send_str(const char *sockpath, const char *payload) {
+int test_engine_send_str(const char *sockpath, const char *payload, const char *label) {
     FILE *m = fmemopen((void *)payload, strlen(payload), "r");
     if (!m) return 2;
-    int rc = test_engine_send(sockpath, m);
+    int rc = test_engine_send(sockpath, m, label);
     fclose(m);
     return rc;
 }

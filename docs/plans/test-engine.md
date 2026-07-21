@@ -31,8 +31,12 @@ connessione riparte però dall'**ambiente di default** (gli override `!set` sono
 azzerati a inizio file), così un file ermetico non "sporca" il successivo. Socket
 di default: `obj/test-engine.sock`.
 
-`--test-report` stampa il totale ed esce con `1` se qualcosa è fallito (così
-`make test` fallisce di conseguenza).
+**Report per-file:** ogni `--test-send` stampa UNA riga — `ok NOME — N passed` —
+oppure, se qualcosa fallisce, prima il dettaglio (`FAIL [sezione] linea`,
+`expected:`/`got:`) e poi `FAIL NOME — N passed, M failed`, uscendo con `1`
+(fail-fast: `make` si ferma lì). `--test-report` chiude il demone e stampa
+`total: N passed, M failed`, uscendo `1` se qualcosa è fallito nell'intera
+sessione.
 
 ## 2. La sintassi `.p0t`
 

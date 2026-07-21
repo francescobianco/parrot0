@@ -198,11 +198,11 @@ int main(int argc, char **argv) {
     if (send_mode) {
         FILE *in = send_file ? fopen(send_file, "rb") : stdin;
         if (!in) { fprintf(stderr, "parrot0: cannot open '%s'\n", send_file); return 2; }
-        int rc = test_engine_send(sockpath, in);
+        int rc = test_engine_send(sockpath, in, send_file ? send_file : "stdin");
         if (in != stdin) fclose(in);
         return rc;
     }
-    if (report_mode) return test_engine_send_str(sockpath, "!shutdown\n");
+    if (report_mode) return test_engine_send_str(sockpath, "!shutdown\n", NULL);
 
     /* --test-engine is the DAEMON: one brain, listening on the Unix socket. */
     if (test_mode) {

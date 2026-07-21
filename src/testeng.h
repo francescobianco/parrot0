@@ -22,14 +22,15 @@
  * 1 if any assertion failed across the whole session, else 0. */
 int test_engine_serve(Brain *b, const char *sockpath);
 
-/* Client: connect to `sockpath` (retrying briefly while the daemon starts),
- * send everything on `in`, and print the daemon's reply. If the reply ends with
- * an `EXIT n` line (the daemon sends it on shutdown), that n is returned;
- * otherwise 0. */
-int test_engine_send(const char *sockpath, FILE *in);
+/* Client: connect to `sockpath` (retrying briefly while the daemon starts), send
+ * everything on `in`, and print a ONE-LINE report — `label` (the file name) plus
+ * how many assertions passed. On failure it first prints the failing assertions'
+ * detail and returns 1; otherwise 0. A NULL `label` prints a grand-total line
+ * instead (used by --test-report). */
+int test_engine_send(const char *sockpath, FILE *in, const char *label);
 
 /* Client convenience: send a literal command string (e.g. "!shutdown\n"). */
-int test_engine_send_str(const char *sockpath, const char *payload);
+int test_engine_send_str(const char *sockpath, const char *payload, const char *label);
 
 /* Batch fallback: validate a whole `.p0t` stream from `in` against `b` in-process
  * (no socket), printing the report to stdout. Same exit codes as the CLI. */
