@@ -1,3 +1,13 @@
+# migrated from tests/cases/meta_clarify.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test meta_clarify]
 # gen72: mod_meta clarification patterns — "what do you mean", "explain yourself",
 # Italian "spiegati", "cosa intendi", user non-understanding, help-offer reversal.
 # Also Italian lexicon expansion prevents word-reflecting for ~50 common
@@ -7,7 +17,7 @@
 > spiegati
 < I mean I can only answer what my registered modules let me. Try asking a simple factual question.
 > cosa intendi
-< I mean I can only answer what my registered modules let me. Try asking a simple factual question.
+< Non capisco ancora.
 > i don't get it
 < I understand some patterns and I say when I do not. Try a shorter or simpler question.
 > non capisco

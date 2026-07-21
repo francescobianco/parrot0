@@ -1,0 +1,24 @@
+# migrated from tests/cases/explain_more.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test explain_more]
+# gen85-88: explanation depth + per-module caps + negation of intent.
+# Multi-level explanation.
+> rex is a dog
+< Learned: dog(rex).
+> is rex a dog?
+< Yes.
+> tell me more
+< The supporting fact is: dog(rex). This is stored directly in my knowledge base.
+# Per-module capability.
+> what can the arith module do?
+< The arith module can compute arithmetic (plus, minus, times, divisible by).
+# Negation of intent: "non" suppresses the first sub-turn, only second fires.
+> non rispondere chi sei e dimmi cosa sai fare
+< Dal mio registro delle capacità, ora posso: rispondere da fatti e regole della KB, con inferenza limitata; capire intenti conversazionali comuni e instradarli alle facoltà specializzate; leggere e spiegare piccoli frammenti di codice; usare strumenti locali quando sono abilitati; imparare procedure semplici da esempi; tentare piccole riparazioni strutturali quando un oracolo espone il guasto; fare piani semplici e tracciare strutture di prerequisiti; acquisire conoscenza e costruirne una piccola rappresentazione nella KB; tentare autolearning prudente, con quarantena e promozione ancora immature; usare la superficie iniziale dell'API da coding agent.

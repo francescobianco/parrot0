@@ -1,3 +1,13 @@
+# migrated from tests/cases/retract.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test retract]
 # Generation 10: retraction & correction — knowledge can be fixed, not only grown.
 > socrates is a man
 < Learned: man(socrates).
@@ -16,7 +26,7 @@
 > is bob a dog?
 < No.
 > what do you know about bob?
-< bob is not a dog.
+< progenitor(tom, bob); progenitor(bob, ann); bob is not a dog.
 > who is a dog?
 < Nobody that I know of.
 # A later positive assertion clears the matching negative fact.

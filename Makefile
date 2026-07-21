@@ -367,6 +367,14 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/sequence_next.p0t
 	@./$(BIN) --test-send tests/p0t/string_transform.p0t
 	@./$(BIN) --test-send tests/p0t/summary.p0t
+	@./$(BIN) --test-send tests/p0t/correction.p0t
+	@./$(BIN) --test-send tests/p0t/decompose.p0t
+	@./$(BIN) --test-send tests/p0t/explain_more.p0t
+	@./$(BIN) --test-send tests/p0t/meta_clarify.p0t
+	@./$(BIN) --test-send tests/p0t/mixed.p0t
+	@./$(BIN) --test-send tests/p0t/priority.p0t
+	@./$(BIN) --test-send tests/p0t/retract.p0t
+	@./$(BIN) --test-send tests/p0t/teachverb.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

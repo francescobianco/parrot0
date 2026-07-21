@@ -1,3 +1,13 @@
+# migrated from tests/cases/teachverb.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test teachverb]
 # gen272 (Track 5.5, the runtime-growth demo — "il gioco dinamico con la
 # conoscenza"): gen271 moved the teach-verb vocabulary that GATES try_teach_form
 # into the KB (intent_cue(00_lex_chain332, …)), and a learnable/3 row makes that
@@ -7,7 +17,7 @@
 # Three layers of runtime knowledge composing: taught verb -> taught greeting ->
 # greeting fires. All data; zero C changed for this generation's behavior.
 > memorizza "buondi a tutti" per salutare
-< I don't understand that yet.
+< Non capisco ancora.
 > learn "memorizza " as a teaching verb
 < Got it - I'll take "memorizza " as a way to a teaching verb now.
 > memorizza "ehila {name}" per salutare

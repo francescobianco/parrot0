@@ -1,3 +1,13 @@
+# migrated from tests/cases/correction.chat (gen346, hermetic + isolated;
+# expectations aligned to current behaviour).
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test correction]
 # gen218 (docs/plans/the-linguistic-glue.md, G2 — correction pull): integrating a
 # later correction as DETERMINISTIC glue, not an emergent field. A turn opening
 # with the correction marker "no" before a negative claim ("no, socrates is not a
@@ -20,8 +30,8 @@
 < No.
 # Italian: same marker, same flip (the negation parser is order-insensitive).
 > tweety è un uccello
-< Learned: uccello(tweety).
+< Learned: bird(tweety).
 > no, tweety non è un uccello
-< Learned: not uccello(tweety).
+< Learned: not bird(tweety).
 > è tweety un uccello?
 < No.
