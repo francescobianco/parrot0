@@ -1,3 +1,12 @@
+# migrated from tests/cases/numwords.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test numwords]
 # gen112: number words in prose. The word-problem and algebra parsers now read
 # number WORDS as well as digits ("three apples", "twelve cookies"), including
 # hyphenated compounds ("twenty-one") and multipliers ("two hundred"). The

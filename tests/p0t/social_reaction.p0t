@@ -1,3 +1,12 @@
+# migrated from tests/cases/social_reaction.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test social_reaction]
 # gen72: laughter/reaction markers in mod_social. Short reaction-only turns
 # (<=3 words) get a friendly acknowledgment. Longer reaction+content turns
 # fall through to content modules.
@@ -11,3 +20,4 @@
 < :) Glad you're enjoying the conversation.
 > lol are you a bot or what
 < Yes, I am parrot0.
+

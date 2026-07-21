@@ -1,3 +1,12 @@
+# migrated from tests/cases/social_opener.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test social_opener]
 # gen52: the ELIMINATION move. A single contentless word as the very first turn,
 # claimed by no content module, is by exclusion a phatic contact act -- so a
 # NOVEL opener parrot0 never listed ("ahoy") is still handled, with an opening
@@ -5,3 +14,4 @@
 # structure (form + discourse position), not a bigger greeting list.
 > ahoy
 < Hi there! What would you like to talk about?
+

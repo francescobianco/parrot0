@@ -1,3 +1,12 @@
+# migrated from tests/cases/arith_nl.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test arith_nl]
 # gen190 (basic-chat cat.4): arithmetic in natural language. The four operations
 # asked in many surface forms all reduce to the same oracle — these frames are
 # structural extractors of (operator, operands), not stored phrases, so they
@@ -93,3 +102,4 @@
 # word outside the expression vocabulary), leaving the turn to the solver.
 > A father is four times as old as his son. In 20 years, the father will be twice as old as his son. How old are they both right now?
 < The son is 10 and the father is 40.
+

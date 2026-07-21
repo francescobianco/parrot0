@@ -6,6 +6,7 @@
 !set PARROT0_SESSION=
 !set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
+!reset
 
 [test facts]
 > is socrates a man?

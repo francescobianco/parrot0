@@ -1,3 +1,12 @@
+# migrated from tests/cases/contractions.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test contractions]
 # gen74: chat contraction canonicalization. Common abbreviated forms
 # are expanded to canonical spaced forms so existing parsers work.
 # "sup" added to social.p0 as an opening marker.
@@ -18,3 +27,4 @@
 < I'm well, thanks. How can I help?
 > hows your day
 < I'm well, thanks. How can I help?
+

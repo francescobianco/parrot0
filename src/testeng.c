@@ -16,20 +16,28 @@
  *
  *   !set NAME=VALUE           pilot a runtime config global (env.h): PARROT0_BASE,
  *                             PARROT0_WORLD_FACTS, PARROT0_LANG, PARROT0_ORACLE,
- *                             HOME, PARROT0_PID, … A memory-affecting NAME whose
- *                             value actually changed marks the brain dirty; the
- *                             reload then re-derives the loaded knowledge. Reloads
- *                             are SMART: coalesced and skipped when nothing changed
- *                             (a value-only set, or a per-turn var like HOME).
- *   !reload                   force the smart reload now (no-op if not dirty)
+ *                             HOME, PARROT0_PID, … The brain reloads only when the
+ *                             effective memory-config actually MOVES (a no-op set —
+ *                             a repeat, or a value equal to the real current one —
+ *                             costs nothing; a per-turn var like HOME needs no
+ *                             reload at all).
+ *   !reload                   apply the config reload now (no-op if the effective
+ *                             memory-config did not change)
+ *   !reset                    virgin brain with the current config, for per-case
+ *                             isolation (opt-in) — but SMART: it is skipped when
+ *                             the brain is ALREADY virgin for this config, i.e.
+ *                             neither the loading footprint changed NOR anything
+ *                             was taught since the last clean load. Mesh tests that
+ *                             want state to persist across files just omit it.
  *
  * A section is MULTI-TURN: list several `> / <` pairs and they run in order
  * against the same live brain. A reply is MULTI-LINE: write one `<` per output
  * line and consecutive `<` lines are matched against the whole multi-line reply.
  *
- * A dirty brain is reloaded LAZILY, right before the next `>` turn, so a batch of
- * `!set`s costs at most one reload. `!shutdown` is the internal control line
- * (sent by --test-report) and is not a test primitive.
+ * Two state axes make !reload and !reset exact and cheap: the config SIGNATURE
+ * (what the brain loaded with) and the LEARNED delta (kb grew since that load).
+ * `!shutdown` is the internal control line (sent by --test-report), not a test
+ * primitive.
  */
 #define _POSIX_C_SOURCE 200809L
 
@@ -45,6 +53,7 @@
 
 #include "testeng.h"
 #include "env.h"
+#include "kb.h"
 
 #ifndef TE_LINE
 #define TE_LINE 4096
@@ -65,9 +74,29 @@ typedef struct {
     int  have_expect;
     int  expect_startline;
 
-    char loaded_sig[2048];   /* memory-config signature the brain is loaded with */
+    /* The brain's state is signed on TWO axes so both !reload and !reset can tell
+     * exactly what (if anything) needs redoing:
+     *   loaded_sig    — the KB-LOADING footprint (which config the brain booted
+     *                   with). Only a change here needs a full reload from disk.
+     *   clean_kb_size — the KB size right after that clean load. A later turn that
+     *                   TAUGHT something grows it; that is the "learned" axis a
+     *                   !reset must undo. If neither axis moved, the brain is
+     *                   already virgin for this config and nothing is done. */
+    char loaded_sig[2048];
+    size_t clean_kb_size;
     int passed, failed, line_no, shutdown;
 } TeState;
+
+/* record the just-loaded clean state on both axes */
+static void te_mark_clean(TeState *t) {
+    p0env_mem_signature(t->loaded_sig, sizeof t->loaded_sig);
+    t->clean_kb_size = kb_size(brain_kb(t->b));
+}
+
+/* did a turn teach anything since the last clean load? (the "learned" axis) */
+static int te_learned(TeState *t) {
+    return kb_size(brain_kb(t->b)) != t->clean_kb_size;
+}
 
 /* Reload the brain ONLY if the effective memory-config actually differs from what
  * it is currently loaded with. This is the fully-smart reload the design asks for:
@@ -80,7 +109,7 @@ static void te_apply_config(TeState *t) {
     if (strcmp(cur, t->loaded_sig) == 0) return;    /* nothing effective changed */
     brain_reload(t->b);
     t->have_reply = 0;
-    snprintf(t->loaded_sig, sizeof t->loaded_sig, "%s", cur);
+    te_mark_clean(t);
     if (getenv("PARROT0_TE_DEBUG"))
         fprintf(stderr, "test-engine: brain reloaded (config changed)\n");
 }
@@ -162,6 +191,29 @@ static int te_process_stream(TeState *t, FILE *in) {
         if (p[0] == '<') { te_expect(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (strncmp(p, "!shutdown", 9) == 0) { te_flush(t); t->shutdown = 1; continue; }
         if (strncmp(p, "!reload", 7) == 0) { te_flush(t); te_apply_config(t); continue; }
+        if (strncmp(p, "!reset", 6) == 0) {
+            /* Isolation, opt-in — but SMART: a virgin brain with this exact config
+             * is already what a reset would produce, so skip when NEITHER axis
+             * moved (config unchanged AND nothing was taught since the last clean
+             * load). Consecutive query-only cases with the same footprint pay no
+             * reset; a case that taught facts, or changed the config, does reset.
+             * Mesh tests that WANT state to persist across files just omit !reset. */
+            te_flush(t);
+            char cur[2048];
+            p0env_mem_signature(cur, sizeof cur);
+            int config_changed = strcmp(cur, t->loaded_sig) != 0;
+            if (!config_changed && !te_learned(t)) {
+                if (getenv("PARROT0_TE_DEBUG"))
+                    fprintf(stderr, "test-engine: reset skipped (already virgin, config unchanged)\n");
+                continue;
+            }
+            brain_reload(t->b);
+            t->have_reply = 0;
+            te_mark_clean(t);
+            if (getenv("PARROT0_TE_DEBUG"))
+                fprintf(stderr, "test-engine: brain reset (virgin)\n");
+            continue;
+        }
         if (strncmp(p, "!set", 4) == 0 && (p[4] == ' ' || p[4] == '\t')) {
             te_flush(t);
             char *q = p + 4;
@@ -195,7 +247,7 @@ int test_engine_run(Brain *b, FILE *in) {
     memset(&t, 0, sizeof t);
     t.b = b;
     t.out = stdout;
-    p0env_mem_signature(t.loaded_sig, sizeof t.loaded_sig);  /* what boot loaded with */
+    te_mark_clean(&t);   /* baseline: config + kb size the brain booted with */
     int rc = te_process_stream(&t, in);
     te_summary(&t);
     if (rc == 2) return 2;
@@ -232,7 +284,7 @@ int test_engine_serve(Brain *b, const char *sockpath) {
     TeState t;
     memset(&t, 0, sizeof t);
     t.b = b;
-    p0env_mem_signature(t.loaded_sig, sizeof t.loaded_sig);  /* what boot loaded with */
+    te_mark_clean(&t);   /* baseline: config + kb size the brain booted with */
 
     for (;;) {
         int cfd = accept(lfd, NULL, NULL);

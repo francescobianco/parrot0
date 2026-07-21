@@ -313,6 +313,16 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/world.p0t
 	@./$(BIN) --test-send tests/p0t/facts.p0t
 	@./$(BIN) --test-send tests/p0t/syllogism.p0t
+	@./$(BIN) --test-send tests/p0t/casefold.p0t
+	@./$(BIN) --test-send tests/p0t/contractions.p0t
+	@./$(BIN) --test-send tests/p0t/numwords.p0t
+	@./$(BIN) --test-send tests/p0t/initials.p0t
+	@./$(BIN) --test-send tests/p0t/social_reaction.p0t
+	@./$(BIN) --test-send tests/p0t/social_opener.p0t
+	@./$(BIN) --test-send tests/p0t/smalltalk.p0t
+	@./$(BIN) --test-send tests/p0t/chitchat.p0t
+	@./$(BIN) --test-send tests/p0t/arith_flex.p0t
+	@./$(BIN) --test-send tests/p0t/arith_nl.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

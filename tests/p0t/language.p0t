@@ -1,0 +1,56 @@
+# language.p0t — LANGUAGE-BEHAVIOUR MATRIX (gen346).
+#
+# Verifies reply language across (environment language) x (prompt language). The
+# environment is piloted with !set PARROT0_LANG + !reset; the prompt is a clear
+# English greeting ("hello"), a clear Italian greeting ("buongiorno"), and an
+# AMBIGUOUS one ("ciao") whose language the token alone cannot settle.
+#
+# NB "ciao" is placed FIRST in each block so it lands at turn 1 (a greeting): the
+# same token late in a conversation is a farewell (discourse position), which is a
+# DIFFERENT axis than language and would otherwise confound this matrix.
+#
+# DESIRED behaviour asserted here:
+#   - a CLEAR prompt is answered in the prompt's own language (per-turn detection);
+#   - an AMBIGUOUS prompt defers to the ENVIRONMENT language (the seed).
+# Failing cells document where the engine diverges (today: the environment seed is
+# ignored, so "ciao" is answered in Italian regardless of PARROT0_LANG).
+
+# ============================ ENVIRONMENT = ENGLISH ============================
+[mock env-english]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test en-env / ambiguous ciao -> environment english]
+> ciao
+< Hi there!
+
+[test en-env / clear-english hello]
+> hello
+< Hi there!
+
+[test en-env / clear-italian buongiorno]
+> buongiorno
+< Ciao!
+
+# ============================ ENVIRONMENT = ITALIAN ============================
+[mock env-italian]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=it
+!reset
+
+[test it-env / ambiguous ciao -> environment italian]
+> ciao
+< Ciao!
+
+[test it-env / clear-english hello]
+> hello
+< Hi there!
+
+[test it-env / clear-italian buongiorno]
+> buongiorno
+< Ciao!

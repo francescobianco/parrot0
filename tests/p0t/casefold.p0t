@@ -1,3 +1,12 @@
+# migrated from tests/cases/casefold.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test casefold]
 # gen210: structural CASE-FOLDING localization — a fourth general bug smell. On the
 # REAL astropy qdp.py (SWE-bench astropy-14365), parrot0 finds — from structure alone —
 # that the parser matches all-caps keyword literals case-SENSITIVELY in two mechanisms
@@ -8,3 +17,4 @@
 # PASS_TO_PASS); this case ratchets the derivation hermetically (no Docker).
 > find the bug in tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py
 < In tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py, the code matches all-caps keywords case-sensitively (a flagless re.compile and an uppercase-literal ==) where case should not matter; the coupled fix is: [1] `re.compile(_type_re)` -> `re.compile(_type_re, re.IGNORECASE)` [2] `v == "NO"` -> `v.upper() == "NO"`
+
