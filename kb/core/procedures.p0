@@ -42,7 +42,7 @@ faster_than_t($X, $Z) :- faster_than($X, $Y), faster_than($Y, $Z).
 faster_than_t($X, $Z) :- faster_than($X, $Y), faster_than_t($Y, $Z).
 heavier_than_t($X, $Z) :- heavier_than($X, $Y), heavier_than($Y, $Z).
 heavier_than_t($X, $Z) :- heavier_than($X, $Y), heavier_than_t($Y, $Z).
-is_a_t($X, $Z) :- is_a($X, $Y), is_a($Y, $Z).
+is_a_t($X, $Y) :- is_a($X, $Y).
 is_a_t($X, $Z) :- is_a($X, $Y), is_a_t($Y, $Z).
 kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of($Y, $Z).
 kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).

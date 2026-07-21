@@ -52,6 +52,9 @@ sessione.
                             HOME, PARROT0_PID, …
 !reload                     applica ora un cambio di config (no-op se non è cambiato)
 !reset                      brain vergine con la config corrente (isolamento, opt-in)
+!timeout SECONDI            budget per-test di un turno (default 1s, reset a ogni
+                            [test]); un turno più lento è un FAIL (guardia anti-
+                            regressione di performance); 0 lo disabilita
 ```
 
 - **Multi-turno:** più coppie `> / <` in una sezione girano in ordine sullo stesso

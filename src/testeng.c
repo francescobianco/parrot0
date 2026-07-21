@@ -29,6 +29,9 @@
  *                             neither the loading footprint changed NOR anything
  *                             was taught since the last clean load. Mesh tests that
  *                             want state to persist across files just omit it.
+ *   !timeout SECONDS          per-test turn budget (default 1s, reset at each
+ *                             [test]). A turn slower than the budget is a FAILURE
+ *                             (a perf-regression guard); 0 disables it.
  *
  * A section is MULTI-TURN: list several `> / <` pairs and they run in order
  * against the same live brain. A reply is MULTI-LINE: write one `<` per output
@@ -84,8 +87,12 @@ typedef struct {
      *                   already virgin for this config and nothing is done. */
     char loaded_sig[2048];
     size_t clean_kb_size;
+    double timeout_sec;      /* per-test budget for a turn (default 1s; 0 = off) */
+    int poisoned;            /* the current turn already failed (e.g. on timeout) */
     int passed, failed, line_no, shutdown;
 } TeState;
+
+#define TE_DEFAULT_TIMEOUT 1.0   /* each test's turn budget unless it says otherwise */
 
 /* record the just-loaded clean state on both axes */
 static void te_mark_clean(TeState *t) {
@@ -117,6 +124,11 @@ static void te_apply_config(TeState *t) {
 /* ── assertion ─────────────────────────────────────────────────────────────── */
 
 static void te_flush(TeState *t) {
+    if (t->poisoned) {                /* the turn already failed (timeout) — absorb its < */
+        t->poisoned = 0;
+        t->expect_len = 0; t->expect[0] = '\0'; t->have_expect = 0;
+        return;
+    }
     if (!t->have_expect) return;
     const char *got = t->have_reply ? t->reply : "";
     if (strcmp(t->expect, got) == 0) {
@@ -136,11 +148,26 @@ static void te_flush(TeState *t) {
 static void te_turn(TeState *t, const char *text) {
     te_flush(t);
     te_apply_config(t);               /* reload lazily iff the config really moved */
+    /* time ONLY the turn itself (a reload above is infrastructure, not the test). */
+    struct timespec ta, tb;
+    clock_gettime(CLOCK_MONOTONIC, &ta);
     brain_respond(t->b, text, t->reply, sizeof t->reply);
+    clock_gettime(CLOCK_MONOTONIC, &tb);
     size_t n = strlen(t->reply);
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))
         t->reply[--n] = '\0';
     t->have_reply = 1;
+    if (t->timeout_sec > 0) {
+        double el = (double)(tb.tv_sec - ta.tv_sec) +
+                    (double)(tb.tv_nsec - ta.tv_nsec) / 1e9;
+        if (el > t->timeout_sec) {    /* too slow IS a failure (perf regression guard) */
+            t->failed++;
+            fprintf(t->out, "  FAIL  [%s] line %d — turn took %.2fs (timeout %.2fs)\n",
+                    t->section[0] ? t->section : "-", t->line_no, el, t->timeout_sec);
+            fprintf(t->out, "        > %s\n", text);
+            t->poisoned = 1;          /* absorb the following < so it isn't double-judged */
+        }
+    }
 }
 
 static void te_expect(TeState *t, const char *raw) {
@@ -182,12 +209,18 @@ static int te_process_stream(TeState *t, FILE *in) {
             char *hdr = p + 1;
             char *sp = strchr(hdr, ' ');          /* label = text after the type word */
             snprintf(t->section, sizeof t->section, "%s", sp ? sp + 1 : hdr);
+            t->timeout_sec = TE_DEFAULT_TIMEOUT;  /* each test starts at the 1s default */
             continue;                             /* section name surfaces only in a FAIL */
         }
         if (p[0] == '>') { te_turn(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (p[0] == '<') { te_expect(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (strncmp(p, "!shutdown", 9) == 0) { te_flush(t); t->shutdown = 1; continue; }
         if (strncmp(p, "!reload", 7) == 0) { te_flush(t); te_apply_config(t); continue; }
+        if (strncmp(p, "!timeout", 8) == 0 && (p[8] == ' ' || p[8] == '\t')) {
+            const char *q = p + 8; while (*q == ' ' || *q == '\t') q++;
+            t->timeout_sec = atof(q);   /* seconds (may be fractional); 0 disables */
+            continue;
+        }
         if (strncmp(p, "!reset", 6) == 0) {
             /* Isolation, opt-in — but SMART: a virgin brain with this exact config
              * is already what a reset would produce, so skip when NEITHER axis
@@ -245,6 +278,7 @@ int test_engine_run(Brain *b, FILE *in) {
     t.b = b;
     t.out = stdout;
     te_mark_clean(&t);   /* baseline: config + kb size the brain booted with */
+    t.timeout_sec = TE_DEFAULT_TIMEOUT;
     int rc = te_process_stream(&t, in);
     te_summary(&t);
     if (rc == 2) return 2;
@@ -282,6 +316,7 @@ int test_engine_serve(Brain *b, const char *sockpath) {
     memset(&t, 0, sizeof t);
     t.b = b;
     te_mark_clean(&t);   /* baseline: config + kb size the brain booted with */
+    t.timeout_sec = TE_DEFAULT_TIMEOUT;
 
     for (;;) {
         int cfd = accept(lfd, NULL, NULL);
