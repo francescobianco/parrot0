@@ -1,3 +1,12 @@
+# migrated from tests/cases/agent_search.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent_search]
 # gen119 (rung 19 + rung 13, deeper): goal-directed SEARCH — the planner agent.
 # gen116 iterated ONE given action; gen118 INDUCED a rule from data; gen119 is the
 # deductive complement: given a start, a target, and a SET of available actions,
@@ -26,3 +35,4 @@
 # unreachable — the search exhausts and admits it instead of fabricating a plan.
 > from 2, using times 2, reach 7.
 < I couldn't reach 7 from 2 with those operations.
+

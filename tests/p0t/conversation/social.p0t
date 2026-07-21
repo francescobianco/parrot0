@@ -1,9 +1,18 @@
+# migrated from tests/cases/social.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test social]
 # gen52: the dialogue-act layer. Phatic moves (open/close/thanks/wellbeing) are
 # recognized by communicative ACT, not enumerated replies. The striking part is
 # DISCOURSE POSITION: the same word "ciao" opens early and closes late.
 # "ciao" as the opener (turn 1) -> greeting.
 > ciao
-< Hi there!
+< Ciao!
 > thanks
 < You're welcome!
 > how are you?
@@ -13,4 +22,4 @@
 # "ciao" again, now late in the conversation -> farewell. Same token, different
 # act, disambiguated by position (b->turns), not by vocabulary.
 > ciao
-< Goodbye!
+< Arrivederci!

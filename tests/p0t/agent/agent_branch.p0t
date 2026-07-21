@@ -1,3 +1,12 @@
+# migrated from tests/cases/agent_branch.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent_branch]
 # gen117 (rung 19, deeper): the OBSERVATION-DRIVEN branching act-loop. In gen116
 # the agent's action was a fixed operation; here the action each step is CHOSEN
 # by observing the state. A two-branch rule ("if it is even, halve it; if it is

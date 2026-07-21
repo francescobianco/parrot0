@@ -1,3 +1,12 @@
+# migrated from tests/cases/apology.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test apology]
 # gen71: apology markers in mod_social — "sorry", "scusa", "scusate", "scusi",
 # "mi dispiace" are recognised as phatic apology acts and answered with
 # "No problem.". Mixed turns (apology + content) are declined so content
@@ -11,6 +20,6 @@
 > mi dispiace
 < No problem.
 > scusa, puoi aiutarmi?
-< I don't understand that yet.
+< Non capisco ancora.
 > mi dispiace, ho sbagliato
-< Hmm, I don't know about sbagliato yet.
+< Non ho afferrato bene. Cosa vorresti sapere?

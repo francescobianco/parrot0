@@ -432,6 +432,27 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit_retract.p0t
 	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest_seam.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/strategy.p0t
+	@./$(BIN) --test-send tests/p0t/agent/agent_branch.p0t
+	@./$(BIN) --test-send tests/p0t/agent/agent.p0t
+	@./$(BIN) --test-send tests/p0t/agent/agent_induce.p0t
+	@./$(BIN) --test-send tests/p0t/agent/agent_search.p0t
+	@./$(BIN) --test-send tests/p0t/agent/agent_verify.p0t
+	@./$(BIN) --test-send tests/p0t/code/code.p0t
+	@./$(BIN) --test-send tests/p0t/code/codeast.p0t
+	@./$(BIN) --test-send tests/p0t/code/codeintent.p0t
+	@./$(BIN) --test-send tests/p0t/code/codeloop.p0t
+	@./$(BIN) --test-send tests/p0t/code/eval_py.p0t
+	@./$(BIN) --test-send tests/p0t/code/run_execute.p0t
+	@./$(BIN) --test-send tests/p0t/repair/repair.p0t
+	@./$(BIN) --test-send tests/p0t/code/symfix.p0t
+	@./$(BIN) --test-send tests/p0t/code/smelltree.p0t
+	@./$(BIN) --test-send tests/p0t/knowledge/research.p0t
+	@./$(BIN) --test-send tests/p0t/conversation/compose_social.p0t
+	@./$(BIN) --test-send tests/p0t/meta/self.p0t
+	@./$(BIN) --test-send tests/p0t/conversation/social.p0t
+	@./$(BIN) --test-send tests/p0t/conversation/apology.p0t
+	@./$(BIN) --test-send tests/p0t/language/lexicon_it.p0t
+	@./$(BIN) --test-send tests/p0t/language/translate.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

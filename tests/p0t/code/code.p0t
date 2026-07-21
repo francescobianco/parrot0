@@ -1,3 +1,12 @@
+# migrated from tests/cases/code.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test code]
 # gen149: inline code debugging — mod_code module.
 # Basic checks: missing semicolons, type mismatches, unclosed strings,
 # unbalanced braces/parens, unknown functions, language identification.
@@ -66,3 +75,4 @@
 # a syntax defect to look useful. A misclaim is worse than a wall.
 > what is wrong with this code: int sum(int n) { int s = 0; for (int i = 0; i <= n; i++) s += i; return s; }
 < I compiled it (cc -fsyntax-only) and it has no syntax errors. That is all I checked: I cannot yet tell you whether it computes what you intended.
+

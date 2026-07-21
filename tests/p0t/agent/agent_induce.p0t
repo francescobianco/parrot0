@@ -1,3 +1,12 @@
+# migrated from tests/cases/agent_induce.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent_induce]
 # gen118 (rung 19 + L10, deeper): rule INDUCTION from observed transitions. In
 # gen117 the agent was TOLD the law; here it DISCOVERS it. Shown a handful of
 # integer transitions, it fits a hypothesis — a single global operation, else a
@@ -25,3 +34,4 @@
 # space, so it is declined honestly rather than fitted with a spurious rule.
 > 3 -> 9, 4 -> 16, 5 -> 25. what is the rule?
 < Those examples don't all follow one rule I can express yet.
+

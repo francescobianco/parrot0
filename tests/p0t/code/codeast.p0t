@@ -1,3 +1,12 @@
+# migrated from tests/cases/codeast.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test codeast]
 # gen173 (code as KB): parrot0 parses a C snippet deterministically, asserts its
 # structure into the same KB, and names the functions it DEFINES from the AST —
 # a call (printf) and control-flow heads (for/if) are not functions. Honest when
@@ -58,3 +67,4 @@
 # gen187 (edit: rename a missing function — honest, no exec needed for this case).
 > rename the function nope to plus in tests/code/fixtures/sample.c
 < I did not find nope in tests/code/fixtures/sample.c, so nothing was renamed.
+

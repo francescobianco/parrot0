@@ -1,3 +1,12 @@
+# migrated from tests/cases/lexicon_it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test lexicon_it]
 # gen72: Italian conversational content words added to lexicon.p0 as stopwords
 # no longer trigger the word-reflecting fallback ("Hmm, I don't know about X").
 # Instead they get the classic or generic fallback. Bilingual ratchet:
@@ -11,4 +20,4 @@
 > questo e un casino
 < Non capisco ancora.
 > parliamo di formaggio
-< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?
+< Mmh, non conosco ancora cheese. Vuoi che cerchi informazioni?

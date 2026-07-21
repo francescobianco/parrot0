@@ -1,3 +1,12 @@
+# migrated from tests/cases/self.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test self]
 # Generation 8: identity & self-reflection — answered from the self-model
 # the agent wrote into its own KB at birth (derived from real state).
 > who are you?
@@ -10,16 +19,16 @@
 # module set (a module absent from the KB contributes nothing) — not the
 # module(...) jargon dump it used to be.
 > what can you do?
-< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
+< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.
 # gen64 (chat-sim driven): the capability intent is robust to chat-register
 # shorthand. "u" -> "you" via canonicalization, so "what can u do?" reaches the
 # same self-model answer instead of walling — the form many real users type.
 > what can u do?
-< I can answer questions about facts and rules, do simple arithmetic, reason about cause and effect, compare quantities, tell whether two things are the same, remember things you tell me, read a short passage and pull out facts, track what a pronoun refers to, continue a sequence you teach me, remember what we talked about.
+< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< piact, compose, repair, input, deepreason, count, namestart, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, strategy, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, gen, coref, bench, reader, shell, answerframe, aggregate, codeast, code, knowledge, symbolic, summary, discourse, pragma, family, social, chitchat, reqgen, learn, toolpolicy, smalltalk.
+< initiative, piact, compose, repair, input, gen, deepreason, count, namestart, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, strategy, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, coref, bench, reader, shell, answerframe, aggregate, codeast, code, knowledge, symbolic, summary, discourse, pragma, family, personal, social, chitchat, reqgen, learn, toolpolicy, smalltalk.
 # gen145: self-challenge parity. parrot0 does not manage its own repo, but
 # when the external loop poses a problem about parrot0 itself, it should propose
 # a comparable smallest-change/test/journal solution instead of walling.

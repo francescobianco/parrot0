@@ -1,3 +1,12 @@
+# migrated from tests/cases/repair.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test repair]
 # gen141 (E2): the conversational repair loop. A turn with a referential gap a
 # resolver cannot fill does NOT hit the wall — the agent asks a narrow
 # clarification, STORES the unfinished intent, and RESUMES it on the next turn.
@@ -32,3 +41,4 @@
 #    of the way and the normal path answers honestly (no clarification loop).
 > is it an animal?
 < I don't know about animal.
+

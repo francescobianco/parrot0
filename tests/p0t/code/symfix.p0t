@@ -1,3 +1,12 @@
+# migrated from tests/cases/symfix.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test symfix]
 # gen200: structural symmetry-break localization (X6 by structure, not by issue
 # association). On the REAL astropy separable.py (the SWE-bench astropy-12907 file),
 # parrot0 finds — from structure alone — that a sibling branch assigns the literal

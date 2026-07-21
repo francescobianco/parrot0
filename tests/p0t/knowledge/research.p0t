@@ -1,3 +1,12 @@
+# migrated from tests/cases/research.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test research]
 # gen171 (dynamic knowledge): on a definitional gap, parrot0 reads a local
 # markdown source into RAM through the in-C learner and says honestly that it just
 # learned it. If the topic has no local markdown source, it says so without a
@@ -10,3 +19,4 @@
 < prime number is natural number greater than 1 that is not a product of two smaller natural numbers.
 > tell me about quaternions
 < I don't know much about quaternions yet. Want me to look it up?
+

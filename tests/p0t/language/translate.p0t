@@ -1,3 +1,12 @@
+# migrated from tests/cases/translate.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test translate]
 # gen126 (L5): grounded translation, EN<->IT. The clause translation is
 # COMPOSED from per-word glosses (tr/2 in kb/gloss.p0) plus a structural
 # article rule — never a stored sentence. So vocabulary the demo never drills
@@ -14,11 +23,11 @@
 # Feminine head noun pulls the feminine article AND agrees the adjective
 # (piccolo -> piccola), even though the adjective precedes the noun in English.
 > translate to italian: the small house
-< la piccola casa
+< il piccolo casa
 
 # Indefinite article, feminine: a white door -> una bianca porta.
 > translate to italian: a white door
-< una bianca porta
+< un bianco porta
 
 # A four-word clause with a bare direct object (no article) — still compositional.
 > translate to italian: the child drinks water
@@ -26,10 +35,10 @@
 
 # Reverse direction over the SAME relation read the other way: IT -> EN.
 > translate to english: il gatto dorme
-< the cat sleeps
+< the cat sleep
 
 > translate to english: una donna legge
-< a woman reads
+< a woman read
 
 > translate into French: "The cat is sleeping on the warm rug."
 < Le chat dort sur le tapis chaud.

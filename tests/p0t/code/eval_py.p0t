@@ -1,3 +1,12 @@
+# migrated from tests/cases/eval_py.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test eval_py]
 # gen199: Python F3 semantics by delta (CODE-MASTERY §7b). The SAME symbolic
 # evaluator that computes a C function's return now computes a Python function's,
 # reached through the `def name(params): return expr` surface — one engine, the

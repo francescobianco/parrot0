@@ -1,3 +1,12 @@
+# migrated from tests/cases/agent.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent]
 # gen116 (rung 19): the autonomous ACT-LOOP — parrot0's first perceive ->
 # decide -> act -> observe cycle. gen115 made a single tool call; this REPEATS
 # one to pursue a goal. Given a start value, an operation, and a stop condition,

@@ -1,3 +1,12 @@
+# migrated from tests/cases/agent_verify.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent_verify]
 # gen120 (rung 19 + rung 16, the capstone): hypothesis TESTING / falsification.
 # gen118 forms a law from examples; gen120 puts it on trial. Shown examples plus
 # a held-out transition, the agent induces the rule from the examples, applies it
@@ -22,3 +31,4 @@
 # And a violation of the even branch is refuted with the real Collatz value.
 > 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. does 8 -> 5 fit the rule?
 < No — the rule (if even: n / 2; if odd: 3n + 1) predicts 8 -> 4, not 5.
+

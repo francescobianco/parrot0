@@ -1,3 +1,12 @@
+# migrated from tests/cases/codeintent.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test codeintent]
 # gen323 (TODO.md P1) — the code KEYHOLE, and the register guard that makes
 # widening it safe.
 #
@@ -39,3 +48,4 @@
 # code snippet", which is a misclaim about what the turn even IS.
 > what is wrong with this: the sky is blue
 < I don't understand that yet.
+

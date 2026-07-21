@@ -1,3 +1,12 @@
+# migrated from tests/cases/run_execute.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test run_execute]
 # gen198: F5 verification by RUNNING. parrot0 compiles+links a source file, then
 # EXECUTES it and reports the program's REAL exit status from the process — the
 # grounded "did it run, and what did it do?" oracle (CODE-MASTERY §4), not a
