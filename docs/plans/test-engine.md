@@ -207,7 +207,15 @@ mandare direttamente al demone per categorizzarlo prima di aggiungere il preambo
    prompt sensibili, o forzare un reset reale (cambio config o apprendimento
    precedente). Da valutare se aggiungere lo stato-sessione come terzo asse.
 
-### 9f. Già migrati (in `tests/p0t/`, cablati in `make test`)
+### 9e-bis. Organizzazione dei file
+`tests/p0t/` è suddiviso in **sottocartelle per categoria**: `conversation/`,
+`reasoning/`, `math/`, `knowledge/`, `language/`, `meta/`, `generation/`,
+`intent/`, `planning/`, `bench/`. Un nuovo `.p0t` va nella cartella della sua
+categoria; la ricetta §9c scrive in `tests/p0t/<categoria>/<nome>.p0t` e la riga
+`--test-send` nel Makefile usa lo stesso path. Il report mostra comunque il solo
+basename (es. `ok reqgen.p0t — 8 passed`).
+
+### 9f. Già migrati (in `tests/p0t/<categoria>/`, cablati in `make test`)
 `basics`, `conversation` (demo nuove, full-KB) · `greet`, `arith`, `world`
 (full-KB) · `facts`, `syllogism`, `casefold`, `contractions`, `numwords`,
 `initials`, `social_reaction`, `social_opener`, `smalltalk`, `chitchat`,
