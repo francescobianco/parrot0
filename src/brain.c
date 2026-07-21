@@ -17,6 +17,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include "brain.h"
 #include "kb.h"
+#include "env.h"   /* gen346: pilotable runtime config (getenv frozen into globals) */
 #include "learn.h"
 #include "code.h"
 #include "exec.h"   /* gen329: every act on the machine returns an Observation */

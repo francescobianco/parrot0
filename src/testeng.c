@@ -6,7 +6,7 @@
  * once, in the daemon; the client loads NOTHING — it is a bare socket relay, so
  * every `make test` line is cheap.
  *
- * ── .p0t GRAMMAR (minimal base) ───────────────────────────────────────────────
+ * ── .p0t GRAMMAR ──────────────────────────────────────────────────────────────
  *
  *   # comment                 a comment line, ignored (also: blank lines)
  *   [test NAME]               open a named section (for the report)
@@ -14,14 +14,22 @@
  *   > text                    send `text` to parrot0 as one user turn
  *   < text                    assert the reply equals `text`
  *
- * A section is MULTI-TURN: list several `> / <` pairs and they run in order
- * against the same live brain (so coreference across turns is testable). A reply
- * is MULTI-LINE: write one `<` per output line and consecutive `<` lines are
- * joined and matched against the whole multi-line reply.
+ *   !set NAME=VALUE           pilot a runtime config global (env.h): PARROT0_BASE,
+ *                             PARROT0_WORLD_FACTS, PARROT0_LANG, PARROT0_ORACLE,
+ *                             HOME, PARROT0_PID, … A memory-affecting NAME whose
+ *                             value actually changed marks the brain dirty; the
+ *                             reload then re-derives the loaded knowledge. Reloads
+ *                             are SMART: coalesced and skipped when nothing changed
+ *                             (a value-only set, or a per-turn var like HOME).
+ *   !reload                   force the smart reload now (no-op if not dirty)
  *
- * Mock / stub / flag / KB-state control are NOT part of this base — they will be
- * designed later. `!shutdown` is the one internal control line (sent by
- * --test-report) and is not a test primitive.
+ * A section is MULTI-TURN: list several `> / <` pairs and they run in order
+ * against the same live brain. A reply is MULTI-LINE: write one `<` per output
+ * line and consecutive `<` lines are matched against the whole multi-line reply.
+ *
+ * A dirty brain is reloaded LAZILY, right before the next `>` turn, so a batch of
+ * `!set`s costs at most one reload. `!shutdown` is the internal control line
+ * (sent by --test-report) and is not a test primitive.
  */
 #define _POSIX_C_SOURCE 200809L
 
@@ -36,6 +44,7 @@
 #include <unistd.h>
 
 #include "testeng.h"
+#include "env.h"
 
 #ifndef TE_LINE
 #define TE_LINE 4096
@@ -56,8 +65,25 @@ typedef struct {
     int  have_expect;
     int  expect_startline;
 
+    char loaded_sig[2048];   /* memory-config signature the brain is loaded with */
     int passed, failed, line_no, shutdown;
 } TeState;
+
+/* Reload the brain ONLY if the effective memory-config actually differs from what
+ * it is currently loaded with. This is the fully-smart reload the design asks for:
+ * a batch of `!set`s costs at most one reload, and `!set`s that don't change any
+ * effective value (identical repeats, or a value equal to the real current one)
+ * cost none — the signatures match, so nothing happens. */
+static void te_apply_config(TeState *t) {
+    char cur[2048];
+    p0env_mem_signature(cur, sizeof cur);
+    if (strcmp(cur, t->loaded_sig) == 0) return;    /* nothing effective changed */
+    brain_reload(t->b);
+    t->have_reply = 0;
+    snprintf(t->loaded_sig, sizeof t->loaded_sig, "%s", cur);
+    if (getenv("PARROT0_TE_DEBUG"))
+        fprintf(stderr, "test-engine: brain reloaded (config changed)\n");
+}
 
 /* ── assertion ─────────────────────────────────────────────────────────────── */
 
@@ -82,6 +108,7 @@ static void te_flush(TeState *t) {
 
 static void te_turn(TeState *t, const char *text) {
     te_flush(t);
+    te_apply_config(t);               /* reload lazily iff the config really moved */
     brain_respond(t->b, text, t->reply, sizeof t->reply);
     size_t n = strlen(t->reply);
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))
@@ -134,6 +161,21 @@ static int te_process_stream(TeState *t, FILE *in) {
         if (p[0] == '>') { te_turn(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (p[0] == '<') { te_expect(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (strncmp(p, "!shutdown", 9) == 0) { te_flush(t); t->shutdown = 1; continue; }
+        if (strncmp(p, "!reload", 7) == 0) { te_flush(t); te_apply_config(t); continue; }
+        if (strncmp(p, "!set", 4) == 0 && (p[4] == ' ' || p[4] == '\t')) {
+            te_flush(t);
+            char *q = p + 4;
+            while (*q == ' ' || *q == '\t') q++;
+            char name[TE_NAME]; size_t k = 0;      /* NAME up to '=' or space */
+            while (*q && *q != '=' && *q != ' ' && *q != '\t' && k + 1 < sizeof name)
+                name[k++] = *q++;
+            name[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (*q == '=') q++;                     /* the value is the rest, verbatim */
+            if (k == 0) { syntax_err = 1; continue; }
+            p0env_set(name, q);   /* the signature check in te_apply_config decides reload */
+            continue;
+        }
 
         syntax_err = 1;
     }
@@ -153,6 +195,7 @@ int test_engine_run(Brain *b, FILE *in) {
     memset(&t, 0, sizeof t);
     t.b = b;
     t.out = stdout;
+    p0env_mem_signature(t.loaded_sig, sizeof t.loaded_sig);  /* what boot loaded with */
     int rc = te_process_stream(&t, in);
     te_summary(&t);
     if (rc == 2) return 2;
@@ -189,10 +232,16 @@ int test_engine_serve(Brain *b, const char *sockpath) {
     TeState t;
     memset(&t, 0, sizeof t);
     t.b = b;
+    p0env_mem_signature(t.loaded_sig, sizeof t.loaded_sig);  /* what boot loaded with */
 
     for (;;) {
         int cfd = accept(lfd, NULL, NULL);
         if (cfd < 0) { if (errno == EINTR) continue; break; }
+        /* each file starts from the default environment: a hermetic file's
+         * overrides never bleed into the next. te_apply_config still reloads only
+         * if the resulting signature actually differs from what's loaded, so two
+         * files that need the SAME context in a row cost a single reload. */
+        p0env_clear();
 
         /* slurp the whole payload (client half-closes its write side at EOF) */
         char *inbuf = NULL; size_t incap = 0, inlen = 0; char rd[4096]; ssize_t k;

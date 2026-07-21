@@ -1,3 +1,6 @@
+# migrated from tests/cases/greet.chat (gen345 — context-neutral: passes on the full-KB daemon)
+[test greet]
+
 # Generation 1: greetings & farewells become intent, not echo.
 > hello
 < Hi there!

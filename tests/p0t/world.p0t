@@ -1,3 +1,6 @@
+# migrated from tests/cases/world.chat (gen345 — context-neutral: passes on the full-KB daemon)
+[test world]
+
 # gen142 (E7): local-world working memory. A TEMPORARY, named scope for a
 # fiction or task. Facts introduced "in this story" live in a session overlay,
 # are usable in later turns, can be inspected ("what is assumed?"), and tear down
@@ -33,3 +36,4 @@
 < Forgotten the story world; none of it reached my memory.
 > is rex a dragon?
 < I don't know about dragon.
+

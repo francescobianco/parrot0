@@ -308,6 +308,11 @@ test-engine: build
 test: test-engine
 	@./$(BIN) --test-send tests/p0t/basics.p0t
 	@./$(BIN) --test-send tests/p0t/conversation.p0t
+	@./$(BIN) --test-send tests/p0t/greet.p0t
+	@./$(BIN) --test-send tests/p0t/arith.p0t
+	@./$(BIN) --test-send tests/p0t/world.p0t
+	@./$(BIN) --test-send tests/p0t/facts.p0t
+	@./$(BIN) --test-send tests/p0t/syllogism.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

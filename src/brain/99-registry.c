@@ -429,7 +429,7 @@ Brain *brain_create(void) {
     /* Curated lexical knowledge used by the kernel itself. It lives in the
      * knowledge layer, not as C word arrays; loading it as base keeps it out of
      * session saves while tests stay independent of world knowledge files. */
-    const char *lexicon = getenv("PARROT0_LEXICON");
+    const char *lexicon = p0env("PARROT0_LEXICON");
     if (!lexicon) lexicon = "kb/core/lexicon.p0";
     if (*lexicon) {
         kb_set_origin(b->kb, KB_BASE);
@@ -533,7 +533,7 @@ Brain *brain_create(void) {
     /* gen230/gen235: curated world commons. Tests that must prove dynamic
      * learning from an empty world can set PARROT0_WORLD_FACTS=0; llmscore and
      * ordinary chat keep the layer loaded. */
-    if (!getenv("PARROT0_WORLD_FACTS") || strcmp(getenv("PARROT0_WORLD_FACTS"), "0") != 0) {
+    if (!p0env("PARROT0_WORLD_FACTS") || strcmp(p0env("PARROT0_WORLD_FACTS"), "0") != 0) {
         kb_set_origin(b->kb, KB_BASE);
         kb_load(b->kb, "kb/core/world-facts.p0");
     }
@@ -563,12 +563,17 @@ Brain *brain_create(void) {
      * Italian machine, English elsewhere. Per-turn detection still overrides. */
     {
         kb_set_origin(b->kb, KB_SESSION);
-        char pid[24]; snprintf(pid, sizeof pid, "%ld", (long)getpid());
+        /* gen346: the PID is a system read too, so it is pilotable — PARROT0_PID
+         * overrides getpid() (a test can freeze it for a deterministic reply). */
+        char pid[24];
+        const char *pid_over = p0env("PARROT0_PID");
+        if (pid_over && *pid_over) snprintf(pid, sizeof pid, "%s", pid_over);
+        else snprintf(pid, sizeof pid, "%ld", (long)getpid());
         const char *pa[] = { pid }; kb_assert(b->kb, "process_pid", pa, 1);
-        const char *loc = getenv("PARROT0_LANG");
-        if (!loc || !*loc) loc = getenv("LANG");
-        if (!loc || !*loc) loc = getenv("LC_ALL");
-        if (!loc || !*loc) loc = getenv("LC_MESSAGES");
+        const char *loc = p0env("PARROT0_LANG");
+        if (!loc || !*loc) loc = p0env("LANG");
+        if (!loc || !*loc) loc = p0env("LC_ALL");
+        if (!loc || !*loc) loc = p0env("LC_MESSAGES");
         char osl[8] = "en";
         if (loc && (loc[0] == 'i' && loc[1] == 't')) snprintf(osl, sizeof osl, "it");
         const char *oa[] = { osl }; kb_assert(b->kb, "os_language", oa, 1);
@@ -592,7 +597,7 @@ int brain_save_session(Brain *b, const char *path) {
     /* When a KB root is configured, route each new fact next to its kin in the
      * curated tree (the soft save-map). Opt-in via PARROT0_KB_ROOT so hermetic
      * tests keep the legacy single-file save. */
-    const char *root = getenv("PARROT0_KB_ROOT");
+    const char *root = p0env("PARROT0_KB_ROOT");
     if (root && *root)
         return kb_save_routed(b->kb, path, root);
     return kb_save(b->kb, path, KB_SESSION | KB_INDUCED);
@@ -636,8 +641,8 @@ KB *brain_kb(Brain *b) { return b ? b->kb : NULL; }
  * One source of truth, so a banner cannot promise what a decline denies. */
 static void brain_policy(Brain *b) {
     if (!b || !b->kb) return;
-    const char *t = getenv("PARROT0_TOOLS");
-    const char *n = getenv("PARROT0_WIKI_FETCH");
+    const char *t = p0env("PARROT0_TOOLS");
+    const char *n = p0env("PARROT0_WIKI_FETCH");
     int tools = t && strcmp(t, "1") == 0;
     int net   = n && strcmp(n, "1") == 0;
 
@@ -673,9 +678,9 @@ void brain_mode(Brain *b, char *out, size_t cap) {
 
 void brain_boot(Brain *b) {
     if (!b) return;
-    const char *base = getenv("PARROT0_BASE");
-    const char *sess = getenv("PARROT0_SESSION");
-    const char *profile = getenv("PARROT0_PROFILE");
+    const char *base = p0env("PARROT0_BASE");
+    const char *sess = p0env("PARROT0_SESSION");
+    const char *profile = p0env("PARROT0_PROFILE");
     if (!base) base = "kb/core/base.p0";
     if (!sess) sess = "kb/core/session.p0";
     brain_load(b, base, 1);

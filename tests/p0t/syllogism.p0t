@@ -1,0 +1,30 @@
+# migrated from tests/cases/syllogism.chat (gen346).
+# HERMETIC context: no world facts (so "grass is green" has no because/2 to recall)
+# and empty base — every Yes is genuine inference on novel or given premises.
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+
+[test syllogism]
+> Socrates is a man. All men are mortal. Is Socrates mortal?
+< Yes.
+> zorb is a blit. all blits are fumps. is zorb a fump?
+< Yes.
+> if all cats are mammals and Tom is a cat, is Tom a mammal
+< Yes.
+> plato is a man. all men are humans. all humans are mortal. is plato mortal?
+< Yes.
+> aristotle is a man. all dogs are loyal. all men are mortal. is aristotle mortal?
+< Yes.
+> rex is a dog. all cats are animals. is rex an animal?
+< No.
+> the sky is blue. grass is green. is water wet?
+< I don't understand that yet.
+> if all bloops are razzies and all razzies are lazzies, are all bloops lazzies?
+< Yes.
+> all blits are fumps. all fumps are gorps. are all blits gorps?
+< Yes.
+> if all bloops are razzies and all zonks are lazzies, are all bloops lazzies?
+< No.
