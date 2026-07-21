@@ -1,3 +1,12 @@
+# migrated from tests/cases/counterfactual.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test counterfactual]
 # gen128 (L20-deep): COUNTERFACTUAL meta-reasoning — the reflexive closure of
 # mod_strategy. gen105 reported the real trace ("why did you answer that way?").
 # This answers "what would you have said WITHOUT module X?" and it does not
@@ -37,3 +46,4 @@
 < :) Glad you're enjoying the conversation.
 > what would you have said without social?
 < Without 'social', the next module that matches is 'chitchat', and it would answer "Ha, you're playful! Ask me something?"
+

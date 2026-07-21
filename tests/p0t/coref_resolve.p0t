@@ -1,3 +1,12 @@
+# migrated from tests/cases/coref_resolve.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test coref_resolve]
 # gen216 (docs/plans/the-linguistic-glue.md, G2 — first pull from glue-bench's gap map):
 # linguistic glue as a DETERMINISTIC operation, not an emergent field. A reference carries
 # across turns: "rex is a dog" sets the recent entity, then the pronoun "it" in the next
@@ -10,3 +19,4 @@
 < Learned: dog(rex).
 > is it a dog
 < Yes.
+

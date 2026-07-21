@@ -1,3 +1,12 @@
+# migrated from tests/cases/equality.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test equality]
 # Generation 292: EQUALITY CHAIN (basic-chat cat.7 prompt 124), the last cat.7 red.
 # "a=b, b=c, what is a" -> a equals b and c. Equality is an EQUIVALENCE relation
 # (reflexive, symmetric, transitive), so the value of a is its whole equivalence
@@ -21,3 +30,4 @@
 # Not hijacked: a bare "what is X" with no equality is left to normal handling.
 > what is a?
 < I don't understand that yet.
+

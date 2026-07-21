@@ -1,3 +1,12 @@
+# migrated from tests/cases/wordproblem.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test wordproblem]
 # gen109 (L17, prose): one-sentence word problems — prose -> arithmetic relation
 # -> solve. gen107 solved a symbolic equation; this maps a natural-language
 # problem onto an operation chosen from SEMANTIC cues (verbs of gaining/losing/

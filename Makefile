@@ -323,6 +323,31 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/chitchat.p0t
 	@./$(BIN) --test-send tests/p0t/arith_flex.p0t
 	@./$(BIN) --test-send tests/p0t/arith_nl.p0t
+	@./$(BIN) --test-send tests/p0t/abduce.p0t
+	@./$(BIN) --test-send tests/p0t/abduce_chain.p0t
+	@./$(BIN) --test-send tests/p0t/algebra.p0t
+	@./$(BIN) --test-send tests/p0t/algebra2.p0t
+	@./$(BIN) --test-send tests/p0t/analogy.p0t
+	@./$(BIN) --test-send tests/p0t/cause.p0t
+	@./$(BIN) --test-send tests/p0t/compare.p0t
+	@./$(BIN) --test-send tests/p0t/conj.p0t
+	@./$(BIN) --test-send tests/p0t/coref.p0t
+	@./$(BIN) --test-send tests/p0t/coref_resolve.p0t
+	@./$(BIN) --test-send tests/p0t/counterfactual.p0t
+	@./$(BIN) --test-send tests/p0t/entail.p0t
+	@./$(BIN) --test-send tests/p0t/equality.p0t
+	@./$(BIN) --test-send tests/p0t/family.p0t
+	@./$(BIN) --test-send tests/p0t/hypothesis.p0t
+	@./$(BIN) --test-send tests/p0t/induce.p0t
+	@./$(BIN) --test-send tests/p0t/orchain.p0t
+	@./$(BIN) --test-send tests/p0t/quantity.p0t
+	@./$(BIN) --test-send tests/p0t/relations.p0t
+	@./$(BIN) --test-send tests/p0t/rules.p0t
+	@./$(BIN) --test-send tests/p0t/transitivity.p0t
+	@./$(BIN) --test-send tests/p0t/unify.p0t
+	@./$(BIN) --test-send tests/p0t/whatifnot.p0t
+	@./$(BIN) --test-send tests/p0t/wordproblem.p0t
+	@./$(BIN) --test-send tests/p0t/wordproblem_multi.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

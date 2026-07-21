@@ -1,3 +1,12 @@
+# migrated from tests/cases/abduce_chain.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test abduce_chain]
 # gen132 (L16/L19): CHAINED abduction — the backward dual of gen130's forward
 # sweep. When the premise that would entail a goal is ITSELF derivable, the rule
 # engine runs backwards through the whole chain to the ROOT fact you could
@@ -52,3 +61,4 @@
 < Learned: human(socrates). Now socrates is a mortal after all.
 > is socrates a mortal?
 < Yes.
+

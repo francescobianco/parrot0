@@ -1,3 +1,12 @@
+# migrated from tests/cases/entail.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test entail]
 # Generation 23: tiny SuperGLUE-like textual entailment surface.
 > premise: rhea is a pilot; hypothesis: is rhea a pilot?
 < Entailed.
@@ -30,3 +39,4 @@
 < Neutral.
 > label premise: base says nora is a pilot and session says nora is not a pilot; hypothesis: is nora a pilot?
 < Neutral.
+

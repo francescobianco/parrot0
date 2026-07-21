@@ -1,3 +1,12 @@
+# migrated from tests/cases/relations.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test relations]
 # Generation 11: binary relations — assert and query relations between things.
 > tom is the parent of bob
 < Learned: parent(tom, bob).
@@ -16,3 +25,4 @@
 # Unknown relation -> graceful.
 > who is the parent of zara?
 < Nobody that I know of.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/induce.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test induce]
 # Generation 7: induction — learn rules from the facts (the "training").
 > socrates is a man
 < Learned: man(socrates).
@@ -24,3 +33,4 @@
 # Nothing left to learn from the current facts.
 > generalize
 < Nothing new to generalize.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/coref.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test coref]
 # Generation 22: minimal discourse coreference for unary factual turns.
 > he is a pilot
 < I don't know who he refers to.
@@ -15,3 +24,4 @@
 < dana is a pilot; dana is a teacher; dana is not a robot.
 > why is she a teacher?
 < teacher(dana) is a known fact.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/family.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test family]
 # gen295 (basic-chat cat.43 "Famiglia"): two structural moves on the kinship
 # class family_relation/1 (kb/core/social.p0, loaded in the hermetic base too),
 # not a phrasebook of families:
@@ -36,3 +45,4 @@
 # and the real handlers answer.
 > what is your name
 < I am parrot0.
+

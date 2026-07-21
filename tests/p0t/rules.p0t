@@ -1,3 +1,12 @@
+# migrated from tests/cases/rules.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test rules]
 # Generation 6: rules + backward-chaining resolution.
 > socrates is a man
 < Learned: man(socrates).
@@ -23,3 +32,4 @@
 # Unknown subject stays false under closed-world.
 > is rex a mortal?
 < No.
+

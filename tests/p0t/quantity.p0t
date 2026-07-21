@@ -1,3 +1,12 @@
+# migrated from tests/cases/quantity.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test quantity]
 # gen28: quantities as knowledge — assert, recall, and compare magnitudes that
 # live in the KB (quantity(entity, unit, value)). This lifts gen27's literal
 # comparator into a fact-driven one: the comparison can now be *stated in

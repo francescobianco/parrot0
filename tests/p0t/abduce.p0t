@@ -1,3 +1,12 @@
+# migrated from tests/cases/abduce.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test abduce]
 # gen131 (L16/L19): ABDUCTION — inference to the missing premise, the inverse of
 # deduction and the mirror of gen129's subtraction. gen129 removed a belief and
 # watched a conclusion fall; abduction starts from a conclusion that does NOT
@@ -38,3 +47,4 @@
 # the real proof instead of an antecedent.
 > why might socrates be a mortal?
 < I already conclude that: mortal(socrates) because man(socrates).
+

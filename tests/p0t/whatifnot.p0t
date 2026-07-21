@@ -1,3 +1,12 @@
+# migrated from tests/cases/whatifnot.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test whatifnot]
 # gen129 (L20-deep / L16): EPISTEMIC counterfactual — the knowledge-sibling of
 # gen128's control-flow counterfactual. "What would you conclude if you didn't
 # know that <fact>?" HYPOTHETICALLY retracts a believed fact from the live KB,
@@ -38,3 +47,4 @@
 < Yes.
 > what would you conclude if you didn't know that plato is a man?
 < Even without knowing that plato is a man, plato would still be a mortal — I can reach that another way.
+

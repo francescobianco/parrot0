@@ -1,3 +1,12 @@
+# migrated from tests/cases/unify.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test unify]
 # Generation 5: variable queries resolved by unification over the facts.
 > socrates is a man
 < Learned: man(socrates).
@@ -20,3 +29,4 @@
 # Ground query still works (no regression).
 > is socrates a man?
 < Yes.
+

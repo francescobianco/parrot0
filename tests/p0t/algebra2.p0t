@@ -1,3 +1,12 @@
+# migrated from tests/cases/algebra2.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test algebra2]
 # gen113: two-step linear equations. gen107 solved one operation; gen113 handles
 # a coefficient on the unknown ("2x + 1 = 7"): solve for the value of the term
 # coef*var, then divide by the coefficient. Also the one-step coefficient form

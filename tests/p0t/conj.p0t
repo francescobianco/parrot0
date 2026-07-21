@@ -1,3 +1,12 @@
+# migrated from tests/cases/conj.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test conj]
 # gen34: conjunctive membership -- multi-fact AND, the smallest multi-hop step
 # (MultiRC family). Each conjunct goes through kb_query, so rule-derived
 # membership counts just like a single query; no new solver. Held-out predicates,

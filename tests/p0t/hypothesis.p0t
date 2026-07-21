@@ -1,3 +1,12 @@
+# migrated from tests/cases/hypothesis.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test hypothesis]
 # gen84: hypothesis mode — "suppose X, then Y" creates a scoped fact
 # and queries against it.
 > suppose rex is a dog, then is rex a dog?
@@ -7,3 +16,4 @@
 # Supposition doesn't persist — rex is NOT known as a dog now.
 > is rex a dog?
 < I don't know about dog.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/transitivity.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test transitivity]
 # Generation 291: relational TRANSITIVITY (basic-chat cat.7 prompt 123).
 # "if A is bigger than B and B is bigger than C, is A bigger than C?" -> Yes.
 #
@@ -25,3 +34,4 @@
 # relations (bigger vs taller) is declined rather than silently coerced.
 > if a is bigger than b and b is taller than c, is a bigger than c?
 < I don't understand that yet.
+
