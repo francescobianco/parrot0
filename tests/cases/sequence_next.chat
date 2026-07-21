@@ -1,4 +1,0 @@
-# gen247: a count prompt that already supplies terms and asks "what comes next"
-# belongs to the sequence solver, not the count generator.
-> Count backward from 100 by 7s: 100, 93, 86... what comes next?
-< 79.

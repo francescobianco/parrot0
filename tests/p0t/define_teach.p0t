@@ -1,3 +1,12 @@
+# migrated from tests/cases/define_teach.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test define_teach]
 # gen337: definitional teaching — mode=define of the generic teach handler
 # (try_teach_form + learnable/3). The capture frame is KB data
 # (learnable("definition of"/"definizione di", concept, define) in

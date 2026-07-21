@@ -1,3 +1,12 @@
+# migrated from tests/cases/meta_reasoning.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test meta_reasoning]
 # gen339 — L14 META-REASONING (abstraction-ceiling §1b): thinking about
 # thinking as KB knowledge in kb/core/meta.p0. Converse pairs (inverse_of/2),
 # the L7 question typology (question_form/2, reachable through the answer_frame
@@ -23,3 +32,4 @@
 < Borders, sibling of, spouse of and incompatible.
 > which relations are asymmetric?
 < Parent of, capital of country and eats.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/emerge.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test emerge]
 # gen79: emergent rule induction. After each RULE assertion, kb_induce runs
 # and any newly discovered implications are announced as "Induced: ...".
 # The induction is statistical: implications hold where ALL known entities
@@ -26,3 +35,4 @@
 # induction finds bidirectional implications with happy.
 > every pet is a happy
 < Learned rule: happy(X) :- pet(X). Induced: dog(X) :- happy(X). pet(X) :- happy(X).
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/prosefact.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test prosefact]
 # Generation 296 (deep-reasoning M0, comprehension frame 1): a leading DETERMINER on
 # the subject of a class statement — the way Wikipedia lead sentences and ordinary
 # prose phrase a membership fact. First step of prose->fact extraction
@@ -67,3 +76,4 @@
 # article on the second conjunct, so it is left alone rather than mis-extracted.
 > Paris is the capital and largest city of France
 < I don't understand that yet.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/continuation.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test continuation]
 # gen222 (docs/plans/the-linguistic-glue.md, G2 — symptom #3, "over-literal"): a
 # precisation that CONTINUES the previous computation. "and times 3" after "what is 2
 # plus 2" means "(2 plus 2) times 3" = 12, not a literal fragment. The implicit left

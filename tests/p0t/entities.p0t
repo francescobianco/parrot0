@@ -1,3 +1,12 @@
+# migrated from tests/cases/entities.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test entities]
 # gen83: named entity detection. Capitalized words in user turns are
 # collected as entity candidates throughout the session.
 > my dog is called Rex
@@ -6,3 +15,4 @@
 < I don't understand that yet.
 > what names have i mentioned?
 < You mentioned: Rex, Luna, Max.
+

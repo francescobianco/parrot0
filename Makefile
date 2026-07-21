@@ -348,6 +348,25 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/whatifnot.p0t
 	@./$(BIN) --test-send tests/p0t/wordproblem.p0t
 	@./$(BIN) --test-send tests/p0t/wordproblem_multi.p0t
+	@./$(BIN) --test-send tests/p0t/belief.p0t
+	@./$(BIN) --test-send tests/p0t/blankwall.p0t
+	@./$(BIN) --test-send tests/p0t/branching_abduce.p0t
+	@./$(BIN) --test-send tests/p0t/condasym.p0t
+	@./$(BIN) --test-send tests/p0t/continuation.p0t
+	@./$(BIN) --test-send tests/p0t/define_teach.p0t
+	@./$(BIN) --test-send tests/p0t/discourse.p0t
+	@./$(BIN) --test-send tests/p0t/emerge.p0t
+	@./$(BIN) --test-send tests/p0t/entities.p0t
+	@./$(BIN) --test-send tests/p0t/fewshot.p0t
+	@./$(BIN) --test-send tests/p0t/meta.p0t
+	@./$(BIN) --test-send tests/p0t/meta_reasoning.p0t
+	@./$(BIN) --test-send tests/p0t/polar_meta.p0t
+	@./$(BIN) --test-send tests/p0t/prosefact.p0t
+	@./$(BIN) --test-send tests/p0t/rederive.p0t
+	@./$(BIN) --test-send tests/p0t/same.p0t
+	@./$(BIN) --test-send tests/p0t/sequence_next.p0t
+	@./$(BIN) --test-send tests/p0t/string_transform.p0t
+	@./$(BIN) --test-send tests/p0t/summary.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

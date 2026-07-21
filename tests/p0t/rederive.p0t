@@ -1,3 +1,12 @@
+# migrated from tests/cases/rederive.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test rederive]
 # gen103 (L16): self-correction that RE-DERIVES. The engine already resolves
 # rules at query time, so a retracted premise silently changes a conclusion.
 # This generation makes the agent VOLUNTEER that downstream effect: when a

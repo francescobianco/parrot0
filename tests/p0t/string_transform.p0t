@@ -1,4 +1,14 @@
+# migrated from tests/cases/string_transform.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test string_transform]
 # gen246: sequential word edits. The target word and added letter come from the
 # prompt; the operation frame applies the edits in order.
 > Take the word "reasoning," remove the first letter, then add the letter "g" to the end. What word do you get?
 < easoningg.
+

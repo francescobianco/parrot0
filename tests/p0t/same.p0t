@@ -1,3 +1,12 @@
+# migrated from tests/cases/same.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test same]
 # gen33: equivalence / sameness — pulled by BoolQ #1 ("is house tax and
 # property tax are same"). A symmetric relation same(a, b) parrot0 lacked,
 # distinct from class membership. We test stated equivalences; deciding

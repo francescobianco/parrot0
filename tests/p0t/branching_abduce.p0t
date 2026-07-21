@@ -1,3 +1,12 @@
+# migrated from tests/cases/branching_abduce.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test branching_abduce]
 # gen134 (L16/L19): BRANCHING abduction — enumerating the hypothesis space. When
 # several rules conclude the same goal, abduction reports every ALTERNATIVE
 # explanation, not just the first. Closes the open edge gen131/132 flagged. The
@@ -95,3 +104,4 @@
 < Learned: cat(rex).
 > is rex a pet?
 < Yes.
+

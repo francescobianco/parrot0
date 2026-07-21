@@ -1,3 +1,12 @@
+# migrated from tests/cases/blankwall.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test blankwall]
 # gen59 (C5): best-effort over the blank wall. "what is <X>?" reuses the KB
 # description path instead of falling back when X is known.
 > Socrates is a man
@@ -45,3 +54,4 @@
 < I do not know why ziri is invisible: I have no invisible(ziri) fact/rule or cause explaining it. Teach me facts or rules, or give me a passage to read.
 > what is the weather of milan?
 < I do not know the relation weather yet, so I cannot answer the weather of milan. You can teach me with thing is the weather of milan, or give facts/rules to reason from.
+

@@ -1,3 +1,12 @@
+# migrated from tests/cases/meta.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test meta]
 # gen68: meta-conversation questions are about the exchange itself, not facts.
 # The answers are grounded in local conversational state and limits.
 > are you paying attention?
@@ -10,3 +19,4 @@
 < I understand some patterns, and I say when I do not.
 > why do you keep saying that?
 < I repeat when no module can claim the message; that is a gap to improve.
+

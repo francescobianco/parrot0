@@ -1,3 +1,12 @@
+# migrated from tests/cases/polar_meta.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test polar_meta]
 # gen69 (C6 step 2): polar meta-conversation questions should be answered
 # from self/conversation state, not from world knowledge or generic fallback.
 > are you there?
@@ -6,3 +15,4 @@
 < No, I only read text. I can't hear audio.
 > are you a bot?
 < Yes, I am parrot0.
+

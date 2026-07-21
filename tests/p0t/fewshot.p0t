@@ -1,3 +1,12 @@
+# migrated from tests/cases/fewshot.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test fewshot]
 # gen104 (L10): few-shot pattern induction in ONE turn — the signature emergent
 # ability of LLMs (in-context learning), done deterministically. Given 2+
 # labelled examples and a probe on a single line, parrot0 induces the rule the
