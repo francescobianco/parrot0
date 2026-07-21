@@ -511,6 +511,8 @@ static int is_internal_pred(const KB *kb, const char *pred) {
     }
     static const char *internal[] = {
         "stopword", "social_marker", "social_pattern", "question_word",
+        "question_filler", /* gen344: interrogative-filler grammar, not world knowledge */
+        "concept_gloss",   /* gen344: localized definition sentences (substrate for language mirroring) */
         "reaction_word", "i_am", "module", "cont", "cont2",
         /* gen215: linguistic-glue self-model (kb/core/glue.p0, reified) — machinery. */
         "glue_role", "glue_faculty",

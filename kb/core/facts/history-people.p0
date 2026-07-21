@@ -1,0 +1,166 @@
+% history-people.p0 — people, works, inventions and discoveries (gen344).
+% Feeds answer_frame(author, author_of), (invent, invented_by),
+% (discovered, discovered_by), (founded, founded_by), born_in/died_in, and the
+% temporal "which came first" reasoning. One clause per line.
+
+% ============================================================
+% AUTHORS — author_of(Work, Person)
+% ============================================================
+author_of(romeo_and_juliet, william_shakespeare).
+author_of(macbeth, william_shakespeare).
+author_of(the_divine_comedy, dante_alighieri).
+author_of(don_quixote, miguel_de_cervantes).
+author_of(the_odyssey, homer).
+author_of(the_iliad, homer).
+author_of(pride_and_prejudice, jane_austen).
+author_of(moby_dick, herman_melville).
+author_of(crime_and_punishment, fyodor_dostoevsky).
+author_of(the_brothers_karamazov, fyodor_dostoevsky).
+author_of(anna_karenina, leo_tolstoy).
+author_of(les_miserables, victor_hugo).
+author_of(great_expectations, charles_dickens).
+author_of(oliver_twist, charles_dickens).
+author_of(the_great_gatsby, f_scott_fitzgerald).
+author_of(nineteen_eighty_four, george_orwell).
+author_of(animal_farm, george_orwell).
+author_of(brave_new_world, aldous_huxley).
+author_of(the_old_man_and_the_sea, ernest_hemingway).
+author_of(one_hundred_years_of_solitude, gabriel_garcia_marquez).
+author_of(the_metamorphosis, franz_kafka).
+author_of(ulysses, james_joyce).
+author_of(faust, johann_wolfgang_von_goethe).
+author_of(the_trial, franz_kafka).
+author_of(hamlet, william_shakespeare).
+author_of(the_republic, plato).
+author_of(the_prince, niccolo_machiavelli).
+author_of(the_origin_of_species, charles_darwin).
+author_of(the_lord_of_the_rings, j_r_r_tolkien).
+author_of(harry_potter, j_k_rowling).
+
+% ============================================================
+% COMPOSERS & WORKS — composed_by(Work, Person)
+% ============================================================
+composed_by(the_ninth_symphony, ludwig_van_beethoven).
+composed_by(the_magic_flute, wolfgang_amadeus_mozart).
+composed_by(the_four_seasons, antonio_vivaldi).
+composed_by(the_brandenburg_concertos, johann_sebastian_bach).
+composed_by(swan_lake, pyotr_tchaikovsky).
+composed_by(the_barber_of_seville, gioachino_rossini).
+
+% ============================================================
+% PAINTERS & WORKS — painted_by(Work, Person)
+% ============================================================
+painted_by(the_mona_lisa, leonardo_da_vinci).
+painted_by(the_last_supper, leonardo_da_vinci).
+painted_by(the_starry_night, vincent_van_gogh).
+painted_by(guernica, pablo_picasso).
+painted_by(the_persistence_of_memory, salvador_dali).
+painted_by(the_scream, edvard_munch).
+painted_by(the_sistine_chapel_ceiling, michelangelo).
+painted_by(girl_with_a_pearl_earring, johannes_vermeer).
+
+% ============================================================
+% INVENTIONS — invented_by(Thing, Person) and invented_in_year
+% ============================================================
+invented_by(the_telephone, alexander_graham_bell).
+invented_by(the_steam_engine, james_watt).
+invented_by(the_printing_press, johannes_gutenberg).
+invented_by(dynamite, alfred_nobel).
+invented_by(the_airplane, the_wright_brothers).
+invented_by(the_radio, guglielmo_marconi).
+invented_by(the_light_bulb, thomas_edison).
+invented_by(the_phonograph, thomas_edison).
+invented_by(the_world_wide_web, tim_berners_lee).
+invented_by(the_telescope, hans_lippershey).
+invented_by(the_thermometer, galileo_galilei).
+invented_by(the_polio_vaccine, jonas_salk).
+invented_in_year(the_printing_press, 1440).
+invented_in_year(the_steam_engine, 1769).
+invented_in_year(the_airplane, 1903).
+invented_in_year(the_radio, 1895).
+invented_in_year(the_world_wide_web, 1989).
+invented_in_year(the_transistor, 1947).
+invented_in_year(the_automobile, 1886).
+
+% ============================================================
+% DISCOVERIES — discovered_by(Thing, Person) and discovered_in_year
+% ============================================================
+discovered_by(gravity, isaac_newton).
+discovered_by(the_law_of_buoyancy, archimedes).
+discovered_by(radium, marie_curie).
+discovered_by(the_structure_of_dna, watson_and_crick).
+discovered_by(the_theory_of_relativity, albert_einstein).
+discovered_by(the_electron, jj_thomson).
+discovered_by(the_americas, christopher_columbus).
+discovered_by(evolution_by_natural_selection, charles_darwin).
+discovered_by(the_law_of_gravitation, isaac_newton).
+discovered_by(oxygen, joseph_priestley).
+discovered_in_year(the_americas, 1492).
+discovered_in_year(the_structure_of_dna, 1953).
+discovered_in_year(radium, 1898).
+discovered_in_year(the_electron, 1897).
+
+% ============================================================
+% FOUNDED — founded_by(Thing, Person/Group)
+% ============================================================
+founded_by(microsoft, bill_gates).
+founded_by(apple, steve_jobs).
+founded_by(amazon, jeff_bezos).
+founded_by(tesla, elon_musk).
+founded_by(facebook, mark_zuckerberg).
+founded_by(rome, romulus).
+founded_by(buddhism, siddhartha_gautama).
+founded_by(psychoanalysis, sigmund_freud).
+
+% ============================================================
+% MORE BORN / DIED — extending the historical timeline
+% ============================================================
+born_in_year(william_shakespeare, 1564).
+died_in_year(william_shakespeare, 1616).
+born_in_year(wolfgang_amadeus_mozart, 1756).
+died_in_year(wolfgang_amadeus_mozart, 1791).
+born_in_year(ludwig_van_beethoven, 1770).
+died_in_year(ludwig_van_beethoven, 1827).
+born_in_year(marie_curie, 1867).
+died_in_year(marie_curie, 1934).
+born_in_year(winston_churchill, 1874).
+died_in_year(winston_churchill, 1965).
+born_in_year(mahatma_gandhi, 1869).
+died_in_year(mahatma_gandhi, 1948).
+born_in_year(william_the_conqueror, 1028).
+died_in_year(william_the_conqueror, 1087).
+born_in_year(genghis_khan, 1162).
+died_in_year(genghis_khan, 1227).
+born_in_year(johann_sebastian_bach, 1685).
+died_in_year(johann_sebastian_bach, 1750).
+born_in_year(jane_austen, 1775).
+died_in_year(jane_austen, 1817).
+born_in_year(fyodor_dostoevsky, 1821).
+died_in_year(fyodor_dostoevsky, 1881).
+born_in_year(sigmund_freud, 1856).
+died_in_year(sigmund_freud, 1939).
+born_in_year(george_orwell, 1903).
+died_in_year(george_orwell, 1950).
+born_in_year(frida_kahlo, 1907).
+died_in_year(frida_kahlo, 1954).
+born_in_year(nelson_mandela, 1918).
+died_in_year(nelson_mandela, 2013).
+born_in_year(steve_jobs, 1955).
+died_in_year(steve_jobs, 2011).
+
+% ============================================================
+% HISTORICAL EVENTS — happened_in_year(Event, Year)
+% ============================================================
+happened_in_year(the_fall_of_rome, 476).
+happened_in_year(the_norman_conquest, 1066).
+happened_in_year(the_black_death, 1347).
+happened_in_year(the_fall_of_constantinople, 1453).
+happened_in_year(the_french_revolution, 1789).
+happened_in_year(the_first_world_war, 1914).
+happened_in_year(the_second_world_war, 1939).
+happened_in_year(the_moon_landing, 1969).
+happened_in_year(the_fall_of_the_berlin_wall, 1989).
+happened_in_year(the_signing_of_the_magna_carta, 1215).
+happened_in_year(the_american_declaration_of_independence, 1776).
+happened_in_year(the_russian_revolution, 1917).
+happened_in_year(the_invention_of_the_internet, 1983).

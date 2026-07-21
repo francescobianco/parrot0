@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat chat-agent pi test check gate capability-facts capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat chat-agent pi test test-engine legacy-test check gate capability-facts capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -287,7 +287,38 @@ gate: build
 capability-report: build
 	@$(BENCH_PY) ./tests/capability_report.py
 
-test: build
+# gen345 — the NEW test system. `test-engine` OWNS the background daemon's
+# lifecycle: it kills a stale instance (via the pidfile) and starts a fresh one,
+# so a fail-fast run that left a daemon alive is cleanly reran. TEST_SOCK must
+# match TEST_ENGINE_SOCK_DEFAULT in src/testeng.h so the --test-send lines below
+# stay clean (no --sock). The daemon loads the KB once; --test-send/--test-report
+# load nothing. The old per-process `.chat` harness is now `legacy-test`, and its
+# suites are being migrated. See docs/plans/test-engine.md.
+TEST_SOCK := obj/test-engine.sock
+TEST_PID  := obj/test-engine.pid
+
+test-engine: build
+	@-test -f $(TEST_PID) && kill `cat $(TEST_PID)` 2>/dev/null || true
+	@rm -f $(TEST_SOCK) $(TEST_PID)
+	@./$(BIN) --test-engine & echo $$! > $(TEST_PID)
+
+# Reads as: start engine, send first file, send second file, ask for the total.
+# FAIL-FAST: a --test-send exits 1 the instant its file has a failed assertion,
+# so make stops on that line. Comment a --test-send line out to skip that suite.
+test: test-engine
+	@./$(BIN) --test-send tests/p0t/basics.p0t
+	@./$(BIN) --test-send tests/p0t/conversation.p0t
+	@./$(BIN) --test-report
+
+# legacy-test — the pre-gen345 conversation suite. These states are being
+# MIGRATED to the test-engine (parrot0 --test-engine, .p0t files); each script
+# here should become one or more .p0t files under tests/p0t/. See
+# docs/plans/test-engine.md.
+legacy-test: build
+	@echo "############################################################"
+	@echo "# legacy-test: these suites are being MIGRATED to the new  #"
+	@echo "# test-engine (.p0t files, 'make test'). Do not add to them.#"
+	@echo "############################################################"
 	@./tests/run.sh
 	@./tests/checkfocal.sh
 	@./tests/buildstamp.sh

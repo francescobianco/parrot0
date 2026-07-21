@@ -829,3 +829,29 @@ tr(diaper, pannolino).
 tr(diapers, pannolini).
 tr(strawberries, fragole).
 tr(chess, scacchi).
+
+% gen344: content words for the curated encyclopedia concepts, so an Italian
+% question resolves to the English concept key (which then selects the localized
+% concept_gloss). Teaching a new concept in Italian = one tr/2 fact.
+tr(gravity, gravita).
+tr(gravity, gravità).
+tr(democracy, democrazia).
+tr(inflation, inflazione).
+tr(photosynthesis, fotosintesi).
+tr(evolution, evoluzione).
+tr(electron, elettrone).
+tr(atom, atomo).
+tr(algorithm, algoritmo).
+tr(entropy, entropia).
+tr(volcano, vulcano).
+tr(cell, cellula).
+tr(energy, energia).
+tr(force, forza).
+tr(light, luce).
+tr(sound, suono).
+tr(heat, calore).
+tr(matter, materia).
+tr(molecule, molecola).
+tr(planet, pianeta).
+tr(star, stella).
+tr(gene, gene).

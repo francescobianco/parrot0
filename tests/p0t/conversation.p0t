@@ -1,0 +1,16 @@
+# conversation.p0t — MULTI-TURN assertions (gen345).
+# A section runs its `> / <` pairs in order against the same live brain, so state
+# taught in one turn is visible to a later turn. (Mock / stub / flag / KB-state
+# control are not part of this base — they come later.)
+
+[test name-memory]
+> my name is Francesco
+< Nice to meet you, Francesco!
+> what is my name
+< Your name is Francesco.
+
+[test follow-up-topic]
+> what is the capital of italy
+< Rome.
+> what is the capital of japan
+< Tokyo.

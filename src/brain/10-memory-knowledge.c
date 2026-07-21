@@ -635,6 +635,12 @@ static const char *canonical_token(const char *w) {
         {"fallisci", "fail"}, {"fallisce", "fail"},
 
         {"cos'è", "what is"},
+        /* gen344: apostrophe-less chat-register forms of "cos'è" ("cose
+         * l'acqua?"). Folding the bare "cose" trades away its reading as the
+         * plural noun "things" — acceptable while no supported question uses
+         * that reading; revisit if "quante cose sai?" gets a consumer. */
+        {"cosè", "what is"}, {"cose'", "what is"}, {"cose", "what is"},
+        {"cos'e", "what is"},
         {"qual", "what"},  /* gen155: "qual è ..." -> "what is ..." reaches the
                             * same concept-recall path as English. */
         {"sono", "am"},
@@ -724,12 +730,42 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
         size_t tl = strlen(tok);
         const char *tail = "";
         if (tl > 0 && tok[tl - 1] == '?') { tok[tl - 1] = '\0'; tail = "?"; }
+        /* gen344 (KB-first): a leading interrogative FILLER ("che cos'è ..." =
+         * "what is ...") is redundant before another interrogative. WHICH words
+         * may act as fillers is knowledge (question_filler/1); the motor drops
+         * one only when the NEXT token is itself an interrogative (question_word/1,
+         * also knowledge). "che ore sono" keeps "che"->"what" because "ore" is
+         * not a question_word. A new filler, in any language, is one fact, no C. */
+        {
+            const char *filq[] = { tok };
+            if (b && b->kb && i + 1 < nw &&
+                kb_query(b->kb, "question_filler", filq, 1)) {
+                char nxt[KB_TERM_LEN];
+                snprintf(nxt, sizeof nxt, "%s", w[i + 1]);
+                char *nx = strip_edge_punct(nxt);
+                const char *nc = canonical_token(nx);
+                char head[KB_TERM_LEN];
+                snprintf(head, sizeof head, "%s", nc ? nc : nx);
+                char *sp = strchr(head, ' ');
+                if (sp) *sp = '\0';
+                const char *qwq[] = { head };
+                if (kb_query(b->kb, "question_word", qwq, 1)) continue; /* drop filler */
+            }
+        }
         /* gen220: Italian naming idiom "di nome" — a two-word naming marker
          * ("ho un cane di nome rex") equivalent to "named"/"chiamato". Mapped at
          * the language layer (not in a single module) so EVERY parser that
          * already handles "named" gets the variant for free — same no-duplication
          * rule as the per-token map. Only the exact bigram "di nome" collapses;
          * a bare "di" stays "di" (it serves as "of" in relations elsewhere). */
+        /* gen344: "che cos'e/cosè/cos'è ..." — the leading "che" is part of the
+         * interrogative, not a separate "what"; drop it so the pair does not
+         * canonicalize to "what what is". */
+        if (strcmp(tok, "che") == 0 && i + 1 < nw &&
+            (strncmp(w[i + 1], "cos'", 4) == 0 || strncmp(w[i + 1], "cosè", 4) == 0 ||
+             strcmp(w[i + 1], "cose") == 0)) {
+            continue;
+        }
         if (strcmp(tok, "di") == 0 && i + 1 < nw && strcmp(w[i + 1], "nome") == 0) {
             off += (size_t)snprintf(out + off, out_size - off, "%snamed",
                                     i ? " " : "");
@@ -780,10 +816,32 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                                     i ? " " : "");
             continue;
         }
+        /* gen344: Italian ELISION is a mechanic, not vocabulary — split the
+         * elided article off its content word so "l'acqua" reaches proper_name
+         * and tr/2 as "acqua". Longest prefix wins; apostrophized function
+         * words handled whole ("cos'e") never carry a content remainder. */
+        const char *lead = off ? " " : "";
+        {
+            static const struct { const char *pre; const char *en; } elis[] = {
+                {"dell'", "of the"}, {"all'", "to the"}, {"nell'", "in the"},
+                {"sull'", "on the"}, {"quest'", "this"}, {"un'", "a"},
+                {"l'", "the"}, {"d'", "of"},
+            };
+            for (size_t k = 0; k < sizeof elis / sizeof elis[0]; k++) {
+                size_t pl = strlen(elis[k].pre);
+                if (strncmp(tok, elis[k].pre, pl) == 0 && tok[pl]) {
+                    off += (size_t)snprintf(out + off, out_size - off, "%s%s",
+                                            lead, elis[k].en);
+                    tok += pl;
+                    lead = " ";
+                    break;
+                }
+            }
+        }
         const char *canon = canonical_token(tok);
         if (canon) {
             off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
-                                    i ? " " : "", canon, tail);
+                                    lead, canon, tail);
         } else {
             /* gen335 (KB-first proper names): check if this token is a
              * proper_name/1 in the KB — names that should never be
@@ -795,7 +853,7 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             }
             if (is_name) {
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
-                                        i ? " " : "", tok, tail);
+                                        lead, tok, tail);
                 continue;
             }
             /* gen334: KB-first content-word translation via tr/2 (gloss.p0).
@@ -804,10 +862,10 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             char en[KB_TERM_LEN];
             if (kb_tr_it_en(b, tok, en, sizeof en))
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
-                                        i ? " " : "", en, tail);
+                                        lead, en, tail);
             else
                 off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
-                                        i ? " " : "", tok, tail);
+                                        lead, tok, tail);
         }
     }
 }
@@ -4632,13 +4690,16 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen236 (LLMSCORE): synonym lookup for "means the same as X" prompts. */
-    if (cue(buf, "same as") || cue(buf, "synonym")) {
+    /* gen236 (LLMSCORE): synonym lookup for "means the same as X" prompts.
+     * gen344: "another word for X" is the most common synonym phrasing — the
+     * cue joins the same lookup (the target-word scan already skips "word"). */
+    if (cue(buf, "same as") || cue(buf, "synonym") || cue(buf, "another word")) {
         char qb[256]; snprintf(qb, sizeof qb, "%s", buf);
         char *qw[32]; size_t qn = split_words(qb, qw, 32);
         for (size_t i = qn; i > 0; i--) {
             char *t = strip_edge_punct(qw[i - 1]);
-            if (!*t || is_stopword(b, t) || strcmp(t, "same") == 0 || strcmp(t, "synonym") == 0) continue;
+            if (!*t || is_stopword(b, t) || strcmp(t, "same") == 0 ||
+                strcmp(t, "synonym") == 0 || strcmp(t, "word") == 0) continue;
             const char *pat[] = { t, NULL };
             char res[4][KB_TERM_LEN];
             if (kb_match(b->kb, "synonym", pat, 2, res, 4) > 0) {
@@ -5616,6 +5677,40 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = start; start && i < nw; i++)
             if (strcmp(w[i], "of") == 0 || strcmp(w[i], "di") == 0) start = 0;
         if (start) {
+            /* gen344 (language mirroring): a mature interlocutor answers in the
+             * ASKER's language. When the turn is not English and a localized
+             * concept_gloss/3 sentence exists for a named concept, speak it
+             * verbatim — knowledge, not a translation the engine fabricates. An
+             * exact single-word key first, then the underscore-joined compound
+             * key. English (and any topic without a gloss) falls through to the
+             * curated English definition below: honest, no invented translation. */
+            {
+                char lang[8]; current_lang(b, lang, sizeof lang);
+                if (strcmp(lang, "en") != 0) {
+                    char gl[1024];
+                    for (size_t i = start; i < nw; i++) {
+                        if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                        if (kb_concept_gloss(b->kb, w[i], lang, gl, sizeof gl)) {
+                            put(gl, out, out_size);
+                            store_proof(b, gl);
+                            remember_entity(b, w[i], w[i]);
+                            return 1;
+                        }
+                    }
+                    char gkey[128]; size_t go = 0;
+                    for (size_t i = start; i < nw; i++) {
+                        if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                        go += (size_t)snprintf(gkey + go, sizeof gkey - go,
+                                               "%s%s", go ? "_" : "", w[i]);
+                    }
+                    if (go && strchr(gkey, '_') &&
+                        kb_concept_gloss(b->kb, gkey, lang, gl, sizeof gl)) {
+                        put(gl, out, out_size);
+                        store_proof(b, gl);
+                        return 1;
+                    }
+                }
+            }
             /* An exact concept key named directly ("what is the heart") always
              * wins — a precise match must beat a fuzzy guess. */
             for (size_t i = start; i < nw; i++) {

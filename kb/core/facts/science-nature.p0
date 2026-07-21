@@ -1,0 +1,195 @@
+% science-nature.p0 — taxonomy, biology, and natural-science substrate (gen344).
+% Heavy on is_a/has_prop so property inheritance (L3) and cross-domain reasoning
+% (L15) have real depth to walk. One clause per line.
+
+% ============================================================
+% TAXONOMY — is_a(Sub, Super). Chained transitively by is_a_t in reasoning.p0,
+% which also bridges class membership (animal($X) :- is_a_t($X, animal)).
+% ============================================================
+is_a(sparrow, bird).
+is_a(eagle, bird).
+is_a(penguin, bird).
+is_a(owl, bird).
+is_a(robin, bird).
+is_a(bird, vertebrate).
+is_a(salmon, fish).
+is_a(shark, fish).
+is_a(tuna, fish).
+is_a(fish, vertebrate).
+is_a(frog, amphibian).
+is_a(toad, amphibian).
+is_a(amphibian, vertebrate).
+is_a(snake, reptile).
+is_a(lizard, reptile).
+is_a(crocodile, reptile).
+is_a(turtle, reptile).
+is_a(reptile, vertebrate).
+is_a(lion, mammal).
+is_a(tiger, mammal).
+is_a(elephant, mammal).
+is_a(whale, mammal).
+is_a(dolphin, mammal).
+is_a(bat, mammal).
+is_a(horse, mammal).
+is_a(cow, mammal).
+is_a(human, mammal).
+is_a(mouse, mammal).
+is_a(vertebrate, animal).
+is_a(insect, invertebrate).
+is_a(ant, insect).
+is_a(bee, insect).
+is_a(butterfly, insect).
+is_a(beetle, insect).
+is_a(spider, arachnid).
+is_a(scorpion, arachnid).
+is_a(arachnid, invertebrate).
+is_a(octopus, mollusc).
+is_a(snail, mollusc).
+is_a(mollusc, invertebrate).
+is_a(invertebrate, animal).
+is_a(oak, tree).
+is_a(pine, tree).
+is_a(maple, tree).
+is_a(tree, plant).
+is_a(rose, flower).
+is_a(tulip, flower).
+is_a(flower, plant).
+is_a(fern, plant).
+is_a(moss, plant).
+is_a(plant, living_thing).
+is_a(bacterium, microorganism).
+is_a(virus, microorganism).
+is_a(fungus, living_thing).
+is_a(gold, metal).
+is_a(silver, metal).
+is_a(iron, metal).
+is_a(copper, metal).
+is_a(aluminium, metal).
+is_a(metal, element).
+is_a(oxygen, gas).
+is_a(hydrogen, gas).
+is_a(nitrogen, gas).
+is_a(helium, gas).
+is_a(triangle, polygon).
+is_a(square, polygon).
+is_a(pentagon, polygon).
+is_a(hexagon, polygon).
+is_a(polygon, shape).
+is_a(circle, shape).
+is_a(cube, solid).
+is_a(sphere, solid).
+is_a(pyramid, solid).
+is_a(car, vehicle).
+is_a(truck, vehicle).
+is_a(bicycle, vehicle).
+is_a(train, vehicle).
+is_a(airplane, vehicle).
+is_a(ship, vehicle).
+is_a(guitar, instrument).
+is_a(piano, instrument).
+is_a(violin, instrument).
+is_a(drum, instrument).
+is_a(flute, instrument).
+
+% ============================================================
+% PROPERTY INHERITANCE — has_prop(Class, Property). Risen by inherits/2.
+% ============================================================
+has_prop(bird, has_feathers).
+has_prop(bird, lays_eggs).
+has_prop(fish, breathes_underwater).
+has_prop(fish, has_scales).
+has_prop(mammal, has_hair).
+has_prop(mammal, feeds_milk).
+has_prop(reptile, cold_blooded).
+has_prop(amphibian, moist_skin).
+has_prop(vertebrate, has_backbone).
+has_prop(animal, needs_food).
+has_prop(animal, can_move).
+has_prop(plant, does_photosynthesis).
+has_prop(plant, has_roots).
+has_prop(living_thing, grows).
+has_prop(living_thing, reproduces).
+has_prop(metal, conducts_electricity).
+has_prop(metal, is_shiny).
+has_prop(gas, has_no_fixed_shape).
+
+% ============================================================
+% CROSS-DOMAIN REQUIREMENTS (L15) — requires/lacks for "why can't X live in Y".
+% ============================================================
+requires(cactus, dry_soil).
+requires(polar_bear, cold_climate).
+requires(camel, dry_climate).
+requires(fire, oxygen).
+requires(fire, fuel).
+lacks(ocean, dry_land).
+lacks(space, air).
+lacks(arctic, warmth).
+provides(sun, light).
+provides(sun, heat).
+provides(tree, oxygen).
+provides(tree, shade).
+provides(cow, milk).
+provides(bee, honey).
+
+% ============================================================
+% NATURAL-SCIENCE CAUSES — because(Subject_Adjective, "reason").
+% ============================================================
+because(rainbow_appears, "sunlight is split into its colours by water droplets in the air").
+because(sea_salty, "rivers carry dissolved minerals into the sea, and water evaporates leaving the salt behind").
+because(moon_glows, "it reflects light from the sun; it makes no light of its own").
+because(iron_rusts, "it reacts slowly with oxygen and water to form iron oxide").
+because(bread_rises, "yeast releases carbon dioxide gas that gets trapped in the dough").
+because(metals_cold, "metal conducts heat away from your hand quickly, so it feels cold").
+because(ice_floats, "frozen water is less dense than liquid water, so it floats").
+because(sound_travels, "vibrations pass from one air molecule to the next as a wave").
+
+% ============================================================
+% PHYSICAL PROPERTIES — boils_at / freezes_at phrases.
+% ============================================================
+freezes_at(water, "0 degrees Celsius (32 degrees Fahrenheit) -- it turns into ice").
+boils_at(ethanol, "78 degrees Celsius, lower than water").
+freezes_at(mercury, "about -39 degrees Celsius, so it stays liquid at room temperature").
+boils_at(nitrogen, "-196 degrees Celsius, so it is a gas at everyday temperatures").
+
+% ============================================================
+% PLANETS & ASTRONOMY — orbits, order, size.
+% ============================================================
+orbits(mercury, sun).
+orbits(venus, sun).
+orbits(earth, sun).
+orbits(mars, sun).
+orbits(jupiter, sun).
+orbits(saturn, sun).
+orbits(uranus, sun).
+orbits(neptune, sun).
+orbits(moon, earth).
+planet_order(mercury, 1).
+planet_order(venus, 2).
+planet_order(earth, 3).
+planet_order(mars, 4).
+planet_order(jupiter, 5).
+planet_order(saturn, 6).
+planet_order(uranus, 7).
+planet_order(neptune, 8).
+larger_than(jupiter, earth).
+larger_than(sun, jupiter).
+larger_than(earth, moon).
+larger_than(saturn, neptune).
+
+% ============================================================
+% ANIMAL SOUNDS & DIETS — sound_of / eats extensions.
+% ============================================================
+sound_of(lion, roar).
+sound_of(wolf, howl).
+sound_of(snake, hiss).
+sound_of(bee, buzz).
+sound_of(frog, croak).
+sound_of(owl, hoot).
+sound_of(horse, neigh).
+sound_of(donkey, bray).
+sound_of(sheep, bleat).
+eats(panda, bamboo).
+eats(koala, eucalyptus).
+eats(giraffe, leaves).
+eats(whale, krill).
+eats(caterpillar, leaves).

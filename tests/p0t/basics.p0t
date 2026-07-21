@@ -1,0 +1,23 @@
+# basics.p0t — a minimal test-engine suite (gen345).
+# Run by: make test  (which pipes every tests/p0t/*.p0t into one engine instance)
+# Syntax: docs/plans/test-engine.md — `>` a turn, `<` the expected reply.
+
+[test greeting]
+> hello
+< Hi there!
+
+[test arithmetic]
+> what is 12 * 12
+< 144.
+
+[test capital-known]
+> what is the capital of france
+< Paris.
+
+[test taxonomy]
+> is a tiger a mammal
+< Yes.
+
+[test antonym]
+> what is the opposite of hot
+< Cold.

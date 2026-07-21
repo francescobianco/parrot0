@@ -1,0 +1,30 @@
+% encyclopedia.p0 — curated concept definitions (gen344 massive KB growth).
+% wiki_concept(Topic, Domain, "one-sentence definition") is the definitional
+% substrate the research/definition path reads for "what is X" / "tell me
+% about X". Hand-curated static knowledge, same predicate as learned.p0 so the
+% existing consumer serves it with zero C. One clause per line.
+
+wiki_concept(water, chemistry, "a transparent, tasteless liquid made of hydrogen and oxygen (H2O), essential to all known forms of life").
+wiki_concept(gravity, physics, "the force by which a planet or other body draws objects toward its center, giving weight to matter").
+wiki_concept(democracy, politics, "a system of government in which power belongs to the people, who rule directly or through elected representatives").
+wiki_concept(inflation, economics, "a general rise in prices over time that reduces the purchasing power of money").
+wiki_concept(electron, physics, "a tiny negatively charged particle that surrounds the nucleus of an atom and carries electric current").
+wiki_concept(atom, chemistry, "the smallest unit of ordinary matter, made of a nucleus of protons and neutrons surrounded by electrons").
+wiki_concept(volcano, geology, "an opening in a planet's crust through which molten rock, ash, and gases erupt from below the surface").
+% photosynthesis, evolution, algorithm, entropy and dna already have an English
+% wiki_concept in kb/learning/learned.p0 — not duplicated here (a second def only
+% clutters the recall). The Italian concept_gloss for them below has no duplicate.
+
+% --- localized definitions: concept_gloss(Key, Lang, "full sentence") ---
+% A mature interlocutor answers in the asker's language; these are the Italian
+% renderings the definitional path speaks when the turn is in Italian.
+concept_gloss(water, it, "L'acqua è un liquido trasparente e insapore composto da idrogeno e ossigeno (H2O), essenziale per tutte le forme di vita conosciute.").
+concept_gloss(gravity, it, "La gravità è la forza con cui un pianeta o un altro corpo attira gli oggetti verso il proprio centro, dando peso alla materia.").
+concept_gloss(democracy, it, "La democrazia è un sistema di governo in cui il potere appartiene al popolo, che governa direttamente o tramite rappresentanti eletti.").
+concept_gloss(inflation, it, "L'inflazione è un aumento generale dei prezzi nel tempo che riduce il potere d'acquisto della moneta.").
+concept_gloss(photosynthesis, it, "La fotosintesi è il processo con cui le piante usano l'energia della luce per trasformare acqua e anidride carbonica in zuccheri, liberando ossigeno.").
+concept_gloss(evolution, it, "L'evoluzione è il cambiamento dei tratti ereditari delle popolazioni di esseri viventi nel corso delle generazioni, guidato dalla selezione naturale.").
+concept_gloss(atom, it, "L'atomo è la più piccola unità della materia ordinaria, formata da un nucleo di protoni e neutroni circondato da elettroni.").
+concept_gloss(algorithm, it, "Un algoritmo è una sequenza finita e ben definita di passi per risolvere un problema o eseguire un calcolo.").
+concept_gloss(dna, it, "Il DNA è la molecola che contiene le istruzioni genetiche per lo sviluppo e il funzionamento degli organismi viventi.").
+concept_gloss(volcano, it, "Un vulcano è un'apertura nella crosta di un pianeta attraverso cui roccia fusa, cenere e gas eruttano dalle profondità.").

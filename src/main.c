@@ -17,6 +17,7 @@
 #include "brain.h"
 #include "serve.h"
 #include "mcp.h"
+#include "testeng.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -160,21 +161,56 @@ static Brain *setup_brain(const char **out_sess) {
 int main(int argc, char **argv) {
     /* gen221: `parrot0 --daemon [--port N] [--host H]` serves the
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
-    int daemon_mode = 0, mcp_mode = 0, port = 9902;
+    int daemon_mode = 0, mcp_mode = 0, test_mode = 0, port = 9902;
+    int send_mode = 0, report_mode = 0;
     const char *host = "127.0.0.1";
+    const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
+    const char *send_file = NULL;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
         else if (strcmp(argv[i], "--mcp-engine") == 0) mcp_mode = 1;
+        else if (strcmp(argv[i], "--test-engine") == 0) test_mode = 1;
+        else if (strcmp(argv[i], "--test-send") == 0) {
+            send_mode = 1;
+            if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) send_file = argv[++i];
+        }
+        else if (strcmp(argv[i], "--test-report") == 0) report_mode = 1;
+        else if (strcmp(argv[i], "--sock") == 0 && i + 1 < argc) sockpath = argv[++i];
+        else if (strncmp(argv[i], "--sock=", 7) == 0) sockpath = argv[i] + 7;
         else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc) port = atoi(argv[++i]);
         else if (strncmp(argv[i], "--port=", 7) == 0) port = atoi(argv[i] + 7);
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
         else {
             fprintf(stderr, "parrot0: unknown argument '%s'\n"
-                    "usage: parrot0 [--daemon [--port N] [--host H]] [--mcp-engine]\n",
+                    "usage: parrot0 [--daemon [--port N] [--host H]] [--mcp-engine]\n"
+                    "               [--test-engine [--sock PATH]]\n"
+                    "               [--test-send FILE [--sock PATH]] [--test-report [--sock PATH]]\n",
                     argv[i]);
             return 2;
         }
+    }
+
+    /* gen345: the test-engine CLIENTS run FIRST and load NOTHING — no brain, no
+     * KB — so every `make test` line is a cheap socket relay to the one daemon.
+     * --test-send FILE streams a `.p0t` file; --test-report asks for the summary
+     * and stops the daemon, propagating its pass/fail as the exit code. */
+    if (send_mode) {
+        FILE *in = send_file ? fopen(send_file, "rb") : stdin;
+        if (!in) { fprintf(stderr, "parrot0: cannot open '%s'\n", send_file); return 2; }
+        int rc = test_engine_send(sockpath, in);
+        if (in != stdin) fclose(in);
+        return rc;
+    }
+    if (report_mode) return test_engine_send_str(sockpath, "!shutdown\n");
+
+    /* --test-engine is the DAEMON: one brain, listening on the Unix socket. */
+    if (test_mode) {
+        Brain *brain = setup_brain(NULL);
+        if (!brain) { fprintf(stderr, "parrot0: out of memory\n"); return 1; }
+        int rc = test_engine_serve(brain, sockpath);
+        brain_destroy(brain);
+        return rc;
     }
 
     /* gen277: --mcp-engine serves the Prolog engine + generation primitives as

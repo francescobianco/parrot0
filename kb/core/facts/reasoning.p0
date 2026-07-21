@@ -1,0 +1,23 @@
+% reasoning.p0 — structured reasoning substrate (gen344 massive KB growth).
+% Taxonomy network (is_a), property inheritance, cross-domain requirements
+% (L15), all as facts + single-line Horn rules on the fixed SLD engine.
+
+% --- taxonomy seed ---
+is_a(dog, mammal).
+is_a(cat, mammal).
+is_a(mammal, animal).
+is_a(animal, living_thing).
+
+% transitive closure over is_a
+is_a_t($X, $Y) :- is_a($X, $Y).
+is_a_t($X, $Z) :- is_a($X, $Y), is_a_t($Y, $Z).
+
+% property inheritance
+has_prop(mammal, warm_blooded).
+inherits($X, $P) :- has_prop($X, $P).
+inherits($X, $P) :- is_a_t($X, $C), has_prop($C, $P).
+
+% class-membership bridge: "is a dog an animal?" arrives as animal(dog) —
+% one bridge rule per class name exposes the taxonomy to the unary query path.
+animal($X) :- is_a_t($X, animal).
+mammal($X) :- is_a_t($X, mammal).

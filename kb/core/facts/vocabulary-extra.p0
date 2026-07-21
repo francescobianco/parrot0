@@ -1,0 +1,152 @@
+% vocabulary-extra.p0 — synonyms, antonyms and defining-phrase vocabulary (gen344).
+% synonym/2 answers "another word for X"; opposite/2 answers "the opposite of X"
+% (both directions stored, matching the existing convention); word_for(Phrase,
+% Word) answers "what word describes ...". One clause per line.
+
+% ============================================================
+% SYNONYMS — synonym(A, B), both directions
+% ============================================================
+synonym(begin, start).
+synonym(start, begin).
+synonym(end, finish).
+synonym(finish, end).
+synonym(quick, fast).
+synonym(fast, quick).
+synonym(smart, clever).
+synonym(clever, smart).
+synonym(sad, unhappy).
+synonym(unhappy, sad).
+synonym(glad, pleased).
+synonym(pleased, glad).
+synonym(tired, weary).
+synonym(weary, tired).
+synonym(rich, wealthy).
+synonym(wealthy, rich).
+synonym(strange, odd).
+synonym(odd, strange).
+synonym(tiny, minuscule).
+synonym(minuscule, tiny).
+synonym(quiet, silent).
+synonym(silent, quiet).
+synonym(strong, powerful).
+synonym(powerful, strong).
+synonym(difficult, hard).
+synonym(hard, difficult).
+synonym(easy, simple).
+synonym(simple, easy).
+synonym(important, significant).
+synonym(significant, important).
+synonym(beautiful, gorgeous).
+synonym(gorgeous, beautiful).
+synonym(scared, afraid).
+synonym(afraid, scared).
+synonym(funny, amusing).
+synonym(amusing, funny).
+synonym(smart, intelligent).
+synonym(intelligent, smart).
+synonym(buy, purchase).
+synonym(purchase, buy).
+synonym(help, assist).
+synonym(assist, help).
+synonym(show, display).
+synonym(display, show).
+synonym(make, create).
+synonym(create, make).
+synonym(answer, reply).
+synonym(reply, answer).
+synonym(idea, concept).
+synonym(concept, idea).
+synonym(job, occupation).
+synonym(occupation, job).
+synonym(happy, joyful).
+synonym(joyful, happy).
+
+% ============================================================
+% ANTONYMS — opposite(A, B), both directions (new pairs)
+% ============================================================
+opposite(win, lose).
+opposite(lose, win).
+opposite(buy, sell).
+opposite(sell, buy).
+opposite(push, pull).
+opposite(pull, push).
+opposite(rise, fall).
+opposite(fall, rise).
+opposite(open, close).
+opposite(close, open).
+opposite(accept, refuse).
+opposite(refuse, accept).
+opposite(remember, forget).
+opposite(forget, remember).
+opposite(build, destroy).
+opposite(destroy, build).
+opposite(increase, decrease).
+opposite(decrease, increase).
+opposite(attack, defend).
+opposite(defend, attack).
+opposite(wide, narrow).
+opposite(narrow, wide).
+opposite(smooth, rough).
+opposite(rough, smooth).
+opposite(sharp, blunt).
+opposite(blunt, sharp).
+opposite(tight, loose).
+opposite(loose, tight).
+opposite(guilty, innocent).
+opposite(innocent, guilty).
+opposite(major, minor).
+opposite(minor, major).
+opposite(ancient, modern).
+opposite(modern, ancient).
+opposite(temporary, permanent).
+opposite(permanent, temporary).
+opposite(private, public).
+opposite(public, private).
+opposite(natural, artificial).
+opposite(artificial, natural).
+opposite(freedom, captivity).
+opposite(captivity, freedom).
+opposite(victory, defeat).
+opposite(defeat, victory).
+opposite(expand, shrink).
+opposite(shrink, expand).
+opposite(hire, fire).
+opposite(fire, hire).
+
+% ============================================================
+% DEFINING-PHRASE VOCABULARY — word_for(KeyPhrase, Word)
+% The phrase is matched as a substring of the turn (like idiom_meaning).
+% ============================================================
+word_for("fear of heights", acrophobia).
+word_for("fear of spiders", arachnophobia).
+word_for("fear of enclosed spaces", claustrophobia).
+word_for("a doctor for teeth", dentist).
+word_for("a doctor for animals", veterinarian).
+word_for("a doctor for the heart", cardiologist).
+word_for("a person who studies stars", astronomer).
+word_for("a person who studies the past", historian).
+word_for("a person who studies living things", biologist).
+word_for("a person who writes books", author).
+word_for("a person who flies a plane", pilot).
+word_for("a person who cannot see", blind).
+word_for("a person who cannot hear", deaf).
+word_for("a group of wolves", pack).
+word_for("a group of lions", pride).
+word_for("a group of fish", school).
+word_for("a group of birds", flock).
+word_for("a group of cows", herd).
+word_for("a baby dog", puppy).
+word_for("a baby cat", kitten).
+word_for("a baby cow", calf).
+word_for("a baby horse", foal).
+word_for("a place where books are kept", library).
+word_for("a place where money is kept", bank).
+word_for("a place where animals are kept for viewing", zoo).
+word_for("a word that means the same as another", synonym).
+word_for("a word that means the opposite of another", antonym).
+word_for("a shape with three sides", triangle).
+word_for("a shape with no corners", circle).
+word_for("the study of living things", biology).
+word_for("the study of the stars and planets", astronomy).
+word_for("the study of the past", history).
+word_for("the study of numbers and shapes", mathematics).

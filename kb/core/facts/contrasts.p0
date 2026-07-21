@@ -1,0 +1,47 @@
+% contrasts.p0 — difference_between(A, B, "distinction") (gen344).
+% Feeds the "what is the difference between X and Y?" contrast frame
+% (10-memory-knowledge.c). Stored one direction; the consumer tries both.
+% One clause per line; the distinction is a quoted string.
+
+% --- science ---
+difference_between(mass, weight, "Mass is the amount of matter in an object; weight is the force of gravity on that mass, so weight changes with location but mass does not").
+difference_between(speed, velocity, "Speed is how fast something moves; velocity is speed together with a direction").
+difference_between(heat, temperature, "Heat is the total thermal energy transferred; temperature measures the average energy of the particles").
+difference_between(atom, molecule, "An atom is a single unit of an element; a molecule is two or more atoms bonded together").
+difference_between(element, compound, "An element is made of one kind of atom; a compound is two or more elements chemically combined").
+difference_between(weather, climate, "Weather is the atmosphere's state right now; climate is the average weather over many years").
+difference_between(virus, bacterium, "A bacterium is a living single-celled organism; a virus is not truly alive and can only reproduce inside a host cell").
+difference_between(vein, artery, "Arteries carry blood away from the heart; veins carry blood back to it").
+difference_between(renewable, nonrenewable, "A renewable resource is replaced naturally in a short time; a non-renewable one is used up faster than it forms").
+difference_between(fusion, fission, "Fusion joins light nuclei into heavier ones; fission splits a heavy nucleus into lighter ones").
+
+% --- mathematics & logic ---
+difference_between(mean, median, "The mean is the arithmetic average; the median is the middle value when the data are ordered").
+difference_between(area, perimeter, "Area is the space inside a shape; perimeter is the distance around its edge").
+difference_between(prime, composite, "A prime number has exactly two divisors, 1 and itself; a composite number has more").
+difference_between(precision, accuracy, "Accuracy is how close a measurement is to the true value; precision is how close repeated measurements are to each other").
+
+% --- language & grammar ---
+difference_between(affect, effect, "Affect is usually a verb meaning to influence; effect is usually a noun meaning the result").
+difference_between(its, it_s, "Its is the possessive form; it's is the contraction of 'it is'").
+difference_between(fewer, less, "Fewer is used for things you can count; less is used for quantities you cannot").
+difference_between(a_metaphor, a_simile, "A simile compares using 'like' or 'as'; a metaphor states one thing IS another").
+difference_between(synonym, antonym, "A synonym means the same as another word; an antonym means the opposite").
+
+% --- computing ---
+difference_between(hardware, software, "Hardware is the physical parts of a computer; software is the programs and instructions it runs").
+difference_between(ram, storage, "RAM holds data the computer is using right now and is cleared when powered off; storage keeps data permanently").
+difference_between(compiler, interpreter, "A compiler translates the whole program to machine code before running; an interpreter translates and runs it line by line").
+difference_between(http, https, "HTTPS is HTTP with an encrypted, authenticated connection, so the data in transit is protected").
+difference_between(a_list, a_set, "A list keeps order and allows duplicates; a set is unordered and holds each element only once").
+
+% --- economics & society ---
+difference_between(stock, bond, "A stock is a share of ownership in a company; a bond is a loan to a company or government that pays interest").
+difference_between(recession, depression, "A recession is a temporary decline in economic activity; a depression is a far deeper and longer one").
+difference_between(microeconomics, macroeconomics, "Microeconomics studies individual people and firms; macroeconomics studies the economy as a whole").
+
+% --- everyday & biology ---
+difference_between(fruit, vegetable, "Botanically a fruit develops from a flower and carries seeds; a vegetable is any other edible plant part").
+difference_between(alligator, crocodile, "A crocodile has a narrow V-shaped snout and visible lower teeth; an alligator has a wide U-shaped snout").
+difference_between(turtle, tortoise, "A tortoise lives on land with a domed shell and stumpy legs; a turtle lives mostly in water with a flatter shell").
+difference_between(poison, venom, "Poison harms when you swallow or touch it; venom must be injected, as by a bite or sting").

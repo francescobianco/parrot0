@@ -119,6 +119,12 @@ question_word(quando).
 question_word(perche).
 question_word(perché).
 question_word(come).
+% gen344: an interrogative FILLER particle — redundant when it directly precedes
+% another interrogative ("che cos'è ..." = "what is ..."). The motor in
+% canonicalize_lang drops a question_filler only when the next token is itself a
+% question_word; otherwise it canonicalizes normally ("che ore sono" -> "what
+% ..."). Which words may act as fillers is knowledge; teaching one is a fact.
+question_filler(che).
 reaction_word(haha).
 reaction_word(lol).
 reaction_word(hehe).

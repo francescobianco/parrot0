@@ -227,6 +227,16 @@ int    kb_is_concept_key(const KB *kb, const char *term);
  * `out`; returns 1 if found, 0 otherwise. Used to answer a re-ask from RAM. */
 int    kb_concept_def(const KB *kb, const char *key, char *out, size_t out_size);
 
+/* gen345 (test-engine): assert a single clause from text via the full .p0 parser.
+ * Trailing '.' optional. Returns the number of clauses added (0 or 1). */
+int    kb_load_clause(KB *kb, const char *text);
+
+/* gen344: a language-specific full-sentence definition — concept_gloss(Key, Lang,
+ * "sentence"). Returns 1 + the dequoted sentence when one exists for `lang`, so
+ * the definitional path can mirror the asker's language. Knowledge, not C. */
+int    kb_concept_gloss(const KB *kb, const char *key, const char *lang,
+                        char *out, size_t out_size);
+
 /* gen157: recover an emergent containment relation — the concept whose
  * description NAMES `term` (e.g. circulatory's description names the heart, so
  * "what is the heart part of?" -> circulatory). Derived from text, never

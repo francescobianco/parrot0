@@ -3543,3 +3543,13 @@ answer_frame("miles to km", miles_to_km).
 
 % gen335+: atomic story predicates for narrative generation.
 :- include(templates/story_atoms.p0).
+
+% gen344: massive KB growth — encyclopedia definitions, structured reasoning,
+% expanded world geography/science/history/vocabulary and contrast facts.
+:- include(facts/encyclopedia.p0).
+:- include(facts/reasoning.p0).
+:- include(facts/geography-world.p0).
+:- include(facts/science-nature.p0).
+:- include(facts/history-people.p0).
+:- include(facts/contrasts.p0).
+:- include(facts/vocabulary-extra.p0).

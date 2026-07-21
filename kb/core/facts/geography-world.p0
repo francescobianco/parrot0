@@ -1,0 +1,515 @@
+% geography-world.p0 — comprehensive world geography (gen344 massive KB growth).
+% Substrate for answer_frame(capital, capital_of_country), continent_of,
+% currency_of_country, language_of_country, landmark_of, river_of, height_of.
+% One clause per line; multi-word atoms use underscores (present_atom renders
+% them with spaces, proper_name/1 title-cases known names).
+
+% ============================================================
+% CAPITALS — capital_of_country(Country, Capital)
+% ============================================================
+capital_of_country(afghanistan, kabul).
+capital_of_country(albania, tirana).
+capital_of_country(algeria, algiers).
+capital_of_country(andorra, andorra_la_vella).
+capital_of_country(angola, luanda).
+capital_of_country(armenia, yerevan).
+capital_of_country(azerbaijan, baku).
+capital_of_country(bahamas, nassau).
+capital_of_country(bahrain, manama).
+capital_of_country(bangladesh, dhaka).
+capital_of_country(barbados, bridgetown).
+capital_of_country(belarus, minsk).
+capital_of_country(belize, belmopan).
+capital_of_country(benin, porto_novo).
+capital_of_country(bhutan, thimphu).
+capital_of_country(bolivia, la_paz).
+capital_of_country(bosnia, sarajevo).
+capital_of_country(botswana, gaborone).
+capital_of_country(brunei, bandar_seri_begawan).
+capital_of_country(bulgaria, sofia).
+capital_of_country(burkina_faso, ouagadougou).
+capital_of_country(burundi, gitega).
+capital_of_country(cambodia, phnom_penh).
+capital_of_country(cameroon, yaounde).
+capital_of_country(chad, ndjamena).
+capital_of_country(chile, santiago).
+capital_of_country(colombia, bogota).
+capital_of_country(costa_rica, san_jose).
+capital_of_country(croatia, zagreb).
+capital_of_country(cuba, havana).
+capital_of_country(cyprus, nicosia).
+capital_of_country(czechia, prague).
+capital_of_country(denmark, copenhagen).
+capital_of_country(djibouti, djibouti_city).
+capital_of_country(dominica, roseau).
+capital_of_country(ecuador, quito).
+capital_of_country(el_salvador, san_salvador).
+capital_of_country(eritrea, asmara).
+capital_of_country(estonia, tallinn).
+capital_of_country(eswatini, mbabane).
+capital_of_country(ethiopia, addis_ababa).
+capital_of_country(fiji, suva).
+capital_of_country(finland, helsinki).
+capital_of_country(gabon, libreville).
+capital_of_country(gambia, banjul).
+capital_of_country(georgia, tbilisi).
+capital_of_country(ghana, accra).
+capital_of_country(guatemala, guatemala_city).
+capital_of_country(guinea, conakry).
+capital_of_country(guyana, georgetown).
+capital_of_country(haiti, port_au_prince).
+capital_of_country(honduras, tegucigalpa).
+capital_of_country(hungary, budapest).
+capital_of_country(iceland, reykjavik).
+capital_of_country(indonesia, jakarta).
+capital_of_country(iran, tehran).
+capital_of_country(iraq, baghdad).
+capital_of_country(ireland, dublin).
+capital_of_country(israel, jerusalem).
+capital_of_country(jamaica, kingston).
+capital_of_country(jordan, amman).
+capital_of_country(kazakhstan, astana).
+capital_of_country(kenya, nairobi).
+capital_of_country(kuwait, kuwait_city).
+capital_of_country(kyrgyzstan, bishkek).
+capital_of_country(laos, vientiane).
+capital_of_country(latvia, riga).
+capital_of_country(lebanon, beirut).
+capital_of_country(lesotho, maseru).
+capital_of_country(liberia, monrovia).
+capital_of_country(libya, tripoli).
+capital_of_country(liechtenstein, vaduz).
+capital_of_country(lithuania, vilnius).
+capital_of_country(luxembourg, luxembourg_city).
+capital_of_country(madagascar, antananarivo).
+capital_of_country(malawi, lilongwe).
+capital_of_country(malaysia, kuala_lumpur).
+capital_of_country(maldives, male).
+capital_of_country(mali, bamako).
+capital_of_country(malta, valletta).
+capital_of_country(mauritania, nouakchott).
+capital_of_country(mauritius, port_louis).
+capital_of_country(moldova, chisinau).
+capital_of_country(monaco, monaco).
+capital_of_country(mongolia, ulaanbaatar).
+capital_of_country(montenegro, podgorica).
+capital_of_country(morocco, rabat).
+capital_of_country(mozambique, maputo).
+capital_of_country(myanmar, naypyidaw).
+capital_of_country(namibia, windhoek).
+capital_of_country(nepal, kathmandu).
+capital_of_country(new_zealand, wellington).
+capital_of_country(nicaragua, managua).
+capital_of_country(niger, niamey).
+capital_of_country(nigeria, abuja).
+capital_of_country(north_korea, pyongyang).
+capital_of_country(north_macedonia, skopje).
+capital_of_country(oman, muscat).
+capital_of_country(pakistan, islamabad).
+capital_of_country(panama, panama_city).
+capital_of_country(papua_new_guinea, port_moresby).
+capital_of_country(paraguay, asuncion).
+capital_of_country(peru, lima).
+capital_of_country(philippines, manila).
+capital_of_country(qatar, doha).
+capital_of_country(romania, bucharest).
+capital_of_country(rwanda, kigali).
+capital_of_country(saudi_arabia, riyadh).
+capital_of_country(senegal, dakar).
+capital_of_country(serbia, belgrade).
+capital_of_country(sierra_leone, freetown).
+capital_of_country(singapore, singapore).
+capital_of_country(slovakia, bratislava).
+capital_of_country(slovenia, ljubljana).
+capital_of_country(somalia, mogadishu).
+capital_of_country(south_africa, pretoria).
+capital_of_country(south_korea, seoul).
+capital_of_country(south_sudan, juba).
+capital_of_country(sri_lanka, colombo).
+capital_of_country(sudan, khartoum).
+capital_of_country(suriname, paramaribo).
+capital_of_country(sweden, stockholm).
+capital_of_country(switzerland, bern).
+capital_of_country(syria, damascus).
+capital_of_country(taiwan, taipei).
+capital_of_country(tajikistan, dushanbe).
+capital_of_country(tanzania, dodoma).
+capital_of_country(thailand, bangkok).
+capital_of_country(togo, lome).
+capital_of_country(tunisia, tunis).
+capital_of_country(turkmenistan, ashgabat).
+capital_of_country(uganda, kampala).
+capital_of_country(ukraine, kyiv).
+capital_of_country(uruguay, montevideo).
+capital_of_country(uzbekistan, tashkent).
+capital_of_country(venezuela, caracas).
+capital_of_country(vietnam, hanoi).
+capital_of_country(yemen, sanaa).
+capital_of_country(zambia, lusaka).
+capital_of_country(zimbabwe, harare).
+
+% ============================================================
+% CONTINENTS — continent_of(Country, Continent)
+% ============================================================
+continent_of(afghanistan, asia).
+continent_of(albania, europe).
+continent_of(algeria, africa).
+continent_of(angola, africa).
+continent_of(armenia, asia).
+continent_of(azerbaijan, asia).
+continent_of(bangladesh, asia).
+continent_of(belarus, europe).
+continent_of(benin, africa).
+continent_of(bhutan, asia).
+continent_of(bolivia, south_america).
+continent_of(bosnia, europe).
+continent_of(botswana, africa).
+continent_of(bulgaria, europe).
+continent_of(burkina_faso, africa).
+continent_of(burundi, africa).
+continent_of(cambodia, asia).
+continent_of(cameroon, africa).
+continent_of(chad, africa).
+continent_of(chile, south_america).
+continent_of(colombia, south_america).
+continent_of(costa_rica, north_america).
+continent_of(croatia, europe).
+continent_of(cuba, north_america).
+continent_of(cyprus, europe).
+continent_of(czechia, europe).
+continent_of(denmark, europe).
+continent_of(ecuador, south_america).
+continent_of(el_salvador, north_america).
+continent_of(eritrea, africa).
+continent_of(estonia, europe).
+continent_of(ethiopia, africa).
+continent_of(fiji, oceania).
+continent_of(finland, europe).
+continent_of(gabon, africa).
+continent_of(georgia, asia).
+continent_of(ghana, africa).
+continent_of(guatemala, north_america).
+continent_of(guinea, africa).
+continent_of(guyana, south_america).
+continent_of(haiti, north_america).
+continent_of(honduras, north_america).
+continent_of(hungary, europe).
+continent_of(iceland, europe).
+continent_of(indonesia, asia).
+continent_of(iran, asia).
+continent_of(iraq, asia).
+continent_of(ireland, europe).
+continent_of(israel, asia).
+continent_of(jamaica, north_america).
+continent_of(jordan, asia).
+continent_of(kazakhstan, asia).
+continent_of(kenya, africa).
+continent_of(kuwait, asia).
+continent_of(kyrgyzstan, asia).
+continent_of(laos, asia).
+continent_of(latvia, europe).
+continent_of(lebanon, asia).
+continent_of(lesotho, africa).
+continent_of(liberia, africa).
+continent_of(libya, africa).
+continent_of(lithuania, europe).
+continent_of(luxembourg, europe).
+continent_of(madagascar, africa).
+continent_of(malawi, africa).
+continent_of(malaysia, asia).
+continent_of(mali, africa).
+continent_of(malta, europe).
+continent_of(mauritania, africa).
+continent_of(mexico, north_america).
+continent_of(moldova, europe).
+continent_of(mongolia, asia).
+continent_of(montenegro, europe).
+continent_of(morocco, africa).
+continent_of(mozambique, africa).
+continent_of(myanmar, asia).
+continent_of(namibia, africa).
+continent_of(nepal, asia).
+continent_of(new_zealand, oceania).
+continent_of(nicaragua, north_america).
+continent_of(niger, africa).
+continent_of(nigeria, africa).
+continent_of(north_korea, asia).
+continent_of(north_macedonia, europe).
+continent_of(norway, europe).
+continent_of(oman, asia).
+continent_of(pakistan, asia).
+continent_of(panama, north_america).
+continent_of(papua_new_guinea, oceania).
+continent_of(paraguay, south_america).
+continent_of(peru, south_america).
+continent_of(philippines, asia).
+continent_of(poland, europe).
+continent_of(portugal, europe).
+continent_of(qatar, asia).
+continent_of(romania, europe).
+continent_of(russia, europe).
+continent_of(rwanda, africa).
+continent_of(saudi_arabia, asia).
+continent_of(senegal, africa).
+continent_of(serbia, europe).
+continent_of(sierra_leone, africa).
+continent_of(singapore, asia).
+continent_of(slovakia, europe).
+continent_of(slovenia, europe).
+continent_of(somalia, africa).
+continent_of(south_africa, africa).
+continent_of(south_korea, asia).
+continent_of(south_sudan, africa).
+continent_of(sri_lanka, asia).
+continent_of(sudan, africa).
+continent_of(suriname, south_america).
+continent_of(sweden, europe).
+continent_of(switzerland, europe).
+continent_of(syria, asia).
+continent_of(taiwan, asia).
+continent_of(tajikistan, asia).
+continent_of(tanzania, africa).
+continent_of(thailand, asia).
+continent_of(togo, africa).
+continent_of(tunisia, africa).
+continent_of(turkey, asia).
+continent_of(turkmenistan, asia).
+continent_of(uganda, africa).
+continent_of(ukraine, europe).
+continent_of(uruguay, south_america).
+continent_of(uzbekistan, asia).
+continent_of(venezuela, south_america).
+continent_of(vietnam, asia).
+continent_of(yemen, asia).
+continent_of(zambia, africa).
+continent_of(zimbabwe, africa).
+
+% ============================================================
+% CURRENCIES — currency_of_country(Country, Currency)
+% ============================================================
+currency_of_country(afghanistan, afghani).
+currency_of_country(albania, lek).
+currency_of_country(argentina, argentine_peso).
+currency_of_country(australia, australian_dollar).
+currency_of_country(bangladesh, taka).
+currency_of_country(brazil, real).
+currency_of_country(bulgaria, lev).
+currency_of_country(canada, canadian_dollar).
+currency_of_country(chile, chilean_peso).
+currency_of_country(china, yuan).
+currency_of_country(colombia, colombian_peso).
+currency_of_country(costa_rica, colon).
+currency_of_country(croatia, euro).
+currency_of_country(cuba, cuban_peso).
+currency_of_country(czechia, koruna).
+currency_of_country(denmark, danish_krone).
+currency_of_country(egypt, egyptian_pound).
+currency_of_country(ethiopia, birr).
+currency_of_country(france, euro).
+currency_of_country(germany, euro).
+currency_of_country(ghana, cedi).
+currency_of_country(greece, euro).
+currency_of_country(hungary, forint).
+currency_of_country(iceland, icelandic_krona).
+currency_of_country(india, rupee).
+currency_of_country(indonesia, rupiah).
+currency_of_country(iran, rial).
+currency_of_country(iraq, iraqi_dinar).
+currency_of_country(ireland, euro).
+currency_of_country(israel, shekel).
+currency_of_country(italy, euro).
+currency_of_country(japan, yen).
+currency_of_country(kenya, kenyan_shilling).
+currency_of_country(malaysia, ringgit).
+currency_of_country(mexico, mexican_peso).
+currency_of_country(mongolia, tugrik).
+currency_of_country(morocco, dirham).
+currency_of_country(netherlands, euro).
+currency_of_country(new_zealand, new_zealand_dollar).
+currency_of_country(nigeria, naira).
+currency_of_country(norway, norwegian_krone).
+currency_of_country(pakistan, pakistani_rupee).
+currency_of_country(peru, sol).
+currency_of_country(philippines, philippine_peso).
+currency_of_country(poland, zloty).
+currency_of_country(portugal, euro).
+currency_of_country(qatar, qatari_riyal).
+currency_of_country(romania, leu).
+currency_of_country(russia, ruble).
+currency_of_country(saudi_arabia, riyal).
+currency_of_country(singapore, singapore_dollar).
+currency_of_country(south_africa, rand).
+currency_of_country(south_korea, won).
+currency_of_country(spain, euro).
+currency_of_country(sweden, swedish_krona).
+currency_of_country(switzerland, swiss_franc).
+currency_of_country(taiwan, taiwan_dollar).
+currency_of_country(thailand, baht).
+currency_of_country(tunisia, tunisian_dinar).
+currency_of_country(turkey, lira).
+currency_of_country(ukraine, hryvnia).
+currency_of_country(united_kingdom, pound_sterling).
+currency_of_country(uruguay, uruguayan_peso).
+currency_of_country(venezuela, bolivar).
+currency_of_country(vietnam, dong).
+
+% ============================================================
+% LANGUAGES — language_of_country(Country, Language)
+% ============================================================
+language_of_country(argentina, spanish).
+language_of_country(australia, english).
+language_of_country(austria, german).
+language_of_country(bangladesh, bengali).
+language_of_country(brazil, portuguese).
+language_of_country(chile, spanish).
+language_of_country(china, mandarin).
+language_of_country(colombia, spanish).
+language_of_country(cuba, spanish).
+language_of_country(czechia, czech).
+language_of_country(denmark, danish).
+language_of_country(egypt, arabic).
+language_of_country(ethiopia, amharic).
+language_of_country(finland, finnish).
+language_of_country(france, french).
+language_of_country(germany, german).
+language_of_country(greece, greek).
+language_of_country(hungary, hungarian).
+language_of_country(iceland, icelandic).
+language_of_country(india, hindi).
+language_of_country(indonesia, indonesian).
+language_of_country(iran, persian).
+language_of_country(iraq, arabic).
+language_of_country(israel, hebrew).
+language_of_country(italy, italian).
+language_of_country(japan, japanese).
+language_of_country(kenya, swahili).
+language_of_country(mexico, spanish).
+language_of_country(mongolia, mongolian).
+language_of_country(morocco, arabic).
+language_of_country(netherlands, dutch).
+language_of_country(nigeria, english).
+language_of_country(norway, norwegian).
+language_of_country(pakistan, urdu).
+language_of_country(peru, spanish).
+language_of_country(philippines, filipino).
+language_of_country(poland, polish).
+language_of_country(portugal, portuguese).
+language_of_country(romania, romanian).
+language_of_country(russia, russian).
+language_of_country(saudi_arabia, arabic).
+language_of_country(south_korea, korean).
+language_of_country(spain, spanish).
+language_of_country(sweden, swedish).
+language_of_country(switzerland, german).
+language_of_country(thailand, thai).
+language_of_country(turkey, turkish).
+language_of_country(ukraine, ukrainian).
+language_of_country(united_kingdom, english).
+language_of_country(uruguay, spanish).
+language_of_country(venezuela, spanish).
+language_of_country(vietnam, vietnamese).
+
+% ============================================================
+% LANDMARKS — landmark_of(Country, "phrase")
+% ============================================================
+landmark_of(cambodia, "Angkor Wat").
+landmark_of(chile, "the moai statues of Easter Island").
+landmark_of(greece, "the Parthenon").
+landmark_of(jordan, "Petra").
+landmark_of(mexico, "Chichen Itza").
+landmark_of(peru, "Machu Picchu").
+landmark_of(portugal, "the Belem Tower").
+landmark_of(russia, "the Kremlin and Red Square").
+landmark_of(south_africa, "Table Mountain").
+landmark_of(spain, "the Sagrada Familia").
+landmark_of(turkey, "the Hagia Sophia").
+landmark_of(vietnam, "Ha Long Bay").
+
+% ============================================================
+% RIVERS — river_of(Country/Region, River)
+% ============================================================
+river_of(egypt, nile).
+river_of(brazil, amazon).
+river_of(china, yangtze).
+river_of(india, ganges).
+river_of(usa, mississippi).
+river_of(russia, volga).
+river_of(germany, rhine).
+river_of(austria, danube).
+river_of(france, seine).
+river_of(england, thames).
+river_of(italy, po).
+river_of(spain, ebro).
+river_of(vietnam, mekong).
+river_of(iraq, tigris).
+river_of(pakistan, indus).
+river_of(australia, murray).
+river_of(canada, mackenzie).
+river_of(colombia, magdalena).
+river_of(nigeria, niger_river).
+river_of(sudan, nile).
+
+% ============================================================
+% MOUNTAINS & HEIGHTS — height_of(Thing, "phrase")
+% ============================================================
+height_of(mount_everest, "8849 meters, the tallest mountain on Earth").
+height_of(k2, "8611 meters, the second tallest mountain").
+height_of(kilimanjaro, "5895 meters, the tallest mountain in Africa").
+height_of(mont_blanc, "4808 meters, the tallest mountain in the Alps").
+height_of(denali, "6190 meters, the tallest mountain in North America").
+height_of(aconcagua, "6961 meters, the tallest mountain in the Americas").
+height_of(matterhorn, "4478 meters, on the border of Switzerland and Italy").
+height_of(fuji, "3776 meters, the tallest mountain in Japan").
+height_of(eiffel_tower, "about 330 meters").
+height_of(burj_khalifa, "828 meters, the tallest building in the world").
+
+% ============================================================
+% WORLD SUPERLATIVES
+% ============================================================
+largest_ocean(pacific).
+largest_desert(sahara).
+largest_country(russia).
+smallest_country(vatican_city).
+most_populous_country(india).
+largest_lake(caspian_sea).
+largest_island(greenland).
+largest_rainforest(amazon).
+
+% ============================================================
+% US STATES — capital_of_state(State, Capital)
+% ============================================================
+capital_of_state(california, sacramento).
+capital_of_state(texas, austin).
+capital_of_state(florida, tallahassee).
+capital_of_state(new_york, albany).
+capital_of_state(illinois, springfield).
+capital_of_state(washington, olympia).
+capital_of_state(arizona, phoenix).
+capital_of_state(colorado, denver).
+capital_of_state(massachusetts, boston).
+capital_of_state(ohio, columbus).
+capital_of_state(michigan, lansing).
+capital_of_state(oregon, salem).
+capital_of_state(nevada, carson_city).
+capital_of_state(hawaii, honolulu).
+capital_of_state(alaska, juneau).
+
+% italian regions — capital_of_region(Region, Capoluogo)
+capital_of_region(lombardia, milano).
+capital_of_region(lazio, roma).
+capital_of_region(toscana, firenze).
+capital_of_region(sicilia, palermo).
+capital_of_region(veneto, venezia).
+capital_of_region(piemonte, torino).
+capital_of_region(campania, napoli).
+capital_of_region(puglia, bari).
+capital_of_region(sardegna, cagliari).
+capital_of_region(liguria, genova).
+capital_of_region(emilia_romagna, bologna).
+capital_of_region(umbria, perugia).
+
+% route the new relations through the teachable answer frame
+answer_frame(state, capital_of_state).
+answer_frame(region, capital_of_region).
+answer_frame(regione, capital_of_region).
+answer_frame(capoluogo, capital_of_region).

@@ -1683,6 +1683,25 @@ static void loadbuf_trim(char *buf, size_t *len) {
     buf[*len] = '\0';
 }
 
+/* gen345 (test-engine): assert a SINGLE clause from a text string, reusing the
+ * full .p0 parser (facts, rules, quoted strings, negatives). A trailing '.' is
+ * optional — load_clause is fed the clause with the period already stripped, so
+ * we drop one here if present. `dir` is "." so a bare include would resolve from
+ * the CWD; test mocks assert facts, not includes. Returns clauses added (0/1). */
+int kb_load_clause(KB *kb, const char *text) {
+    if (!kb || !text) return 0;
+    char buf[KB_CLAUSE_MAX + 1];
+    size_t n = strlen(text);
+    if (n > KB_CLAUSE_MAX) return 0;
+    memcpy(buf, text, n + 1);
+    size_t len = n;
+    loadbuf_trim(buf, &len);
+    if (len > 0 && buf[len - 1] == '.') buf[--len] = '\0';
+    loadbuf_trim(buf, &len);
+    if (len == 0) return 0;
+    return load_clause(kb, "<mock>", ".", buf);
+}
+
 int kb_load(KB *kb, const char *path) {
     if (!kb || !path || !*path) return 0;
     FILE *f = fopen(path, "r");
@@ -3005,6 +3024,11 @@ static int is_struct_pred(const char *pred) {
         "data_structure", "complexity", "faster_than",
         "fix", "fix_suggestion", "review_check", "review_pattern",
         "tr", "gender", "trait", "family_relation", /* gen295: kinship class */
+        "concept_gloss", /* gen344: localized definition — spoken by the language-aware
+                          * definitional path, NOT a second English definition of the key */
+        "learning_event", "learning_event_concept", "learning_event_time",
+        /* gen344: autolearn bookkeeping (learned.p0) — internal provenance, must
+         * not leak into a "what is X" concept dump as if it described X */
         "tr_es_phrase", "tr_fr_phrase", /* gen310: phrase translation units */
         "fact_source", "answer_frame", "aggregate_frame",
         /* gen286/gen287/gen288/gen289 (U5): grammar glue (grammar.p0), not concepts */
@@ -3268,6 +3292,27 @@ int kb_concept_def(const KB *kb, const char *key, char *out, size_t out_size) {
         return 1;
     }
     return 0;
+}
+
+/* gen344 (language mirroring): a mature interlocutor answers in the ASKER's
+ * language. The definition text is knowledge; its localizations are knowledge
+ * too — concept_gloss(Key, Lang, "full localized sentence"). When the current
+ * language is not English and such a gloss exists, the definitional path speaks
+ * it verbatim (a complete sentence, article and copula included, so no English
+ * "%s is %s" frame wraps it). Returns 1 + the dequoted sentence, 0 if none.
+ * Teaching an Italian (or any-language) definition is ONE fact, zero C. */
+int kb_concept_gloss(const KB *kb, const char *key, const char *lang,
+                     char *out, size_t out_size) {
+    if (!kb || !key || !lang || !out || out_size == 0) return 0;
+    const char *q[3] = { key, lang, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match((KB *)kb, "concept_gloss", q, 3, hit, 1) != 1) return 0;
+    const char *s = hit[0];
+    if (*s == '"') s++;
+    snprintf(out, out_size, "%s", s);
+    size_t l = strlen(out);
+    if (l > 0 && out[l - 1] == '"') out[l - 1] = '\0';
+    return 1;
 }
 
 /* gen157: relational reasoning DERIVED from unstructured descriptions. parrot0
