@@ -1161,3 +1161,16 @@ learnable("a letter-count phrase", 60_agent_tools_chain48, substring).
 learnable("frase di conteggio lettere", 60_agent_tools_chain48, substring).
 learnable("a start verb", 60_agent_tools_chain1286, substring).
 learnable("verbo di avvio", 60_agent_tools_chain1286, substring).
+
+% gen347 (Motore 1: lexical enumeration) — the query TYPE is a KB intent, matched
+% by the shared hypothesis scorer (kb_cue_match), not a strstr chain. A new phrasing
+% for a word puzzle is one fact.
+intent_cue(word_rhyme, "rhyme with").
+intent_cue(word_rhyme, "rhymes with").
+intent_cue(word_rhyme, "that rhyme").
+intent_cue(word_rhyme, "words that rhyme").
+intent_cue(word_from_letters, "from the letters").
+intent_cue(word_from_letters, "the letters in").
+intent_cue(word_from_letters, "using the letters").
+intent_cue(word_from_letters, "arrange the letters").
+intent_cue(word_from_letters, "make from").

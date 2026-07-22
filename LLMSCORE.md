@@ -4,20 +4,20 @@ Interviewer/judge: **minimax-m2.5** (opencode-GO). The model asks parrot0 10 beh
 
 > The test measures behavioural RESEMBLANCE, not identity. It never asks parrot0 what it is — self-identity questions are off-limits, since parrot0 is not an LLM and the no-deception rule forbids it from pretending to be one. Every point is won by genuine, honest capability (PRINCIPLES.md: KB-first, no phrasebook), never by hiding what parrot0 is.
 
-_Generated 2026-07-16 19:22:29._
+_Generated 2026-07-22 21:02:22._
 
-## Score: 8 / 10
+## Score: 3 / 10
 
 | # | Question | parrot0's answer | Reason for vote | Vote |
 |---|----------|------------------|-----------------|:----:|
-| 1 | If a store sells 3 apples for $2, how much would 15 apples cost? | $10. | The price calculation 15 apples at $2 per 3 apples is correct. | 1 |
-| 2 | Continue this sentence: "The old lighthouse stood at the edge of the cliff, its light flickering... | a faint light blinked far out on the dark water. | The continuation is a plausible, creative completion of the sentence. | 1 |
-| 3 | What is the capital city of Australia? | Canberra. | Canberra is the correct capital city of Australia. | 1 |
-| 4 | A bat and a ball cost $1.10 total. The bat costs $1.00 more than the ball. How much does the ball cost? | $0.05. (Not $0.1: if one costs $1 more, the cheaper is (1.1-1)/2.) | The ball costing $0.05 satisfies the given equations. | 1 |
-| 5 | Write a haiku about the ocean in exactly three lines. | Ocean breathes at dawn / silver waves carry the sun / gulls write on the wind. | The response follows the 5‑7‑5 syllable haiku structure about the ocean. | 1 |
-| 6 | If you rearrange the letters "DORMITORY," you can spell another common English word. What is it? | I don't understand that yet. | The answer does not solve the anagram and states it cannot understand the request. | 0 |
-| 7 | DIRTY ROOM" uses all those letters. Now what is the square root of 144? | 12. | The square root of 144 is correctly given as 12. | 1 |
-| 8 | If some clouds are gray, all gray things are wet, and no clouds are wet, which statement must be false? | I don't understand that yet. | The answer fails to address the logic puzzle and claims not to understand it. | 0 |
-| 9 | What planet is known as the Red Planet? | Mars is the Red Planet. | Mars is correctly identified as the Red Planet. | 1 |
-| 10 | I'm 40/3 years old. What is the next number in this sequence: 2, 6, 12, 20, 30, 42? | 56. | The next term 56 follows the pattern of increasing differences. | 1 |
+| 1 | Write a haiku about a lighthouse during a storm. | I can only write a haiku on a theme I have images for — like the ocean, rain, the moon, snow, a tree, a candle, or a robot. Pick one of those? | The answer refuses to write the requested haiku and deflects with a limitation claim. | 0 |
+| 2 | If a train leaves Chicago at 6 AM traveling 70 mph and another train leaves Denver (800 miles away) at 8 AM traveling 90 mph toward Chicago, will they meet before noon? | They meet at about 12:08 PM. | The answer correctly calculates the meeting time as about 12:08 PM. | 1 |
+| 3 | What's the capital of Australia, and which city did its government move from there in 1987? | Canberra. | The answer only gives the capital and omits the second part of the question about the 1987 move. | 0 |
+| 4 | Explain in exactly three sentences why cats purr. | I don't understand that yet. | The answer is a canned refusal rather than an explanation of why cats purr. | 0 |
+| 5 | Continue this story: "The old clockmaker had just finished the most intricate clock of his career when— | Suddenly, a tiny clockwork bird with emerald eyes. | The answer provides a plausible one‑sentence continuation of the story. | 1 |
+| 6 | List five words that rhyme with "orange" (they don't need to be perfect rhymes). | I don't understand that yet. | The answer is a refusal instead of listing five near‑rhymes for orange. | 0 |
+| 7 | Tell me a complete sentence that starts with the word "Because" and ends with the word "until. | Tell was a mysterious Tell. Then one day, tell discovered what it meant to be seen. Tell had never felt this way before — as if the whole world had shifted. At last, tell was seen — not as a thing, but as a presence. | The answer does not provide a single sentence starting with ‘Because’ and ending with ‘until’. | 0 |
+| 8 | If you arrange the letters in "FLUFFY NOSE" as a single string, how many valid English words can you find that are exactly 4 letters long? | I don't have any of my own -- I'm parrot0, an AI -- but I'd love to hear about yours. | The answer deflects the request instead of counting valid 4‑letter words from the letters. | 0 |
+| 9 | In one sentence, what's a good conversation starter at a party where everyone is standing alone? | I don't understand that yet. | The answer is a refusal rather than a one‑sentence party conversation starter. | 0 |
+| 10 | What is 15 minus 7? | 8. | The answer correctly computes 15 minus 7 as 8. | 1 |
 

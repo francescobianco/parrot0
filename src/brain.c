@@ -238,6 +238,7 @@ struct Brain {
      * touches ordinary conversation or the boot KB. This guards the one-time load. */
     int  compose_kb_loaded;
     int  actions_kb_loaded;   /* gen258: lazy plan-action domain (KB_REFLECTIVE) */
+    int  lexeme_kb_loaded;    /* gen347: lazy common-word pool for word puzzles (Motore 1) */
 
     /* gen212 (KB-first responses): rotation cursor over response_template/2 phrasings,
      * so when more than one form is registered for an intent they alternate (the gen55

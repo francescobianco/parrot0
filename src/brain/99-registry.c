@@ -138,6 +138,7 @@ static const Module registry[] = {
     {"deepreason", mod_deep_reason},
     {"count",     mod_count},
     {"namestart", mod_namestart},
+    {"wordquery", mod_wordquery},
     {"sequence",  mod_sequence},
     {"spell",     mod_spell},
     {"world",     mod_world},

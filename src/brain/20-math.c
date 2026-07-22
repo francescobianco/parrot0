@@ -1449,6 +1449,174 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* ── Motore 1: lexical enumeration under a computable constraint (gen347) ────────
+ * A word puzzle — "words that rhyme with X", "N-letter words from the letters L"
+ * — is ENUMERATE(lexeme, constraint): the POOL (lexeme/1) is knowledge that grows,
+ * the CONSTRAINTS (rhyme = shared final rime; buildable = letter-multiset subset;
+ * length) are fixed string MOTORS, and the query TYPE is a KB intent (intent_cue,
+ * matched by the shared hypothesis scorer). One mechanism, a whole family of
+ * puzzles; adding one word extends them all. The pool is lazy-loaded so it never
+ * bloats an ordinary brain (docs/plans/universal-input.md: motor in C, forms in KB). */
+static void ensure_lexeme(Brain *b) {
+    if (!b || !b->kb || b->lexeme_kb_loaded) return;
+    kb_set_origin(b->kb, KB_BASE);
+    kb_load(b->kb, "kb/core/lexeme.p0");
+    kb_set_origin(b->kb, KB_SESSION);
+    b->lexeme_kb_loaded = 1;
+}
+
+/* the rime: T's final K letters (K=3 for longer words, 2 for short) — an
+ * orthographic near-rhyme, exactly what the task allows ("need not be perfect"). */
+static int rime_of(const char *t, char *suf, size_t sz) {
+    size_t l = strlen(t);
+    if (l < 2) return 0;
+    size_t k = (l >= 5) ? 3 : 2;
+    if (k >= l) k = l - 1;
+    snprintf(suf, sz, "%s", t + (l - k));
+    return 1;
+}
+
+static int wq_num(const char *w) {
+    static const struct { const char *s; int n; } nums[] = {
+        {"one",1},{"two",2},{"three",3},{"four",4},{"five",5},{"six",6},
+        {"seven",7},{"eight",8},{"nine",9},{"ten",10},{NULL,0} };
+    for (int i = 0; nums[i].s; i++) if (strcmp(w, nums[i].s) == 0) return nums[i].n;
+    if (w[0] >= '1' && w[0] <= '9') return atoi(w);
+    return 0;
+}
+
+#define WQ_MAX 40000
+static int mod_wordquery(Brain *b, const char *norm, const char *raw,
+                         char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    int is_rhyme   = kb_cue_match(b, "word_rhyme", norm);
+    int is_letters = kb_cue_match(b, "word_from_letters", norm);
+    if (!is_rhyme && !is_letters) return 0;
+
+    /* parse the shared modifiers: a length filter ("N letter(s)" / "N-letter"),
+     * a list size ("five words"), and count vs list mode ("how many"). */
+    char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
+    char *w[80]; size_t nw = split_words(nb, w, 80);
+    int want_count = cue(norm, "how many") || cue(norm, "how much");
+    int list_n = 0, len_filter = 0;
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (strstr(t, "-letter")) { int v = wq_num(t); if (v > 0) len_filter = v; continue; }
+        int v = wq_num(t);
+        if (v <= 0) continue;
+        int is_len = (i + 1 < nw && strncmp(strip_edge_punct(w[i + 1]), "letter", 6) == 0);
+        if (is_len) len_filter = v; else if (!list_n) list_n = v;
+    }
+
+    ensure_lexeme(b);
+    char (*pool)[KB_TERM_LEN] = malloc((size_t)WQ_MAX * KB_TERM_LEN);
+    if (!pool) return 0;
+    const char *anyq[] = { NULL };
+    size_t np = kb_match(b->kb, "lexeme", anyq, 1, pool, WQ_MAX);
+
+    char hits[64][KB_TERM_LEN]; size_t nh = 0; int total = 0;
+
+    if (is_rhyme) {
+        const char *target = NULL;
+        for (size_t i = 0; i < nw; i++)
+            if (strcmp(strip_edge_punct(w[i]), "with") == 0 && i + 1 < nw) {
+                target = strip_edge_punct(w[i + 1]); break;
+            }
+        char suf[8];
+        if (!target || !*target || !rime_of(target, suf, sizeof suf)) { free(pool); return 0; }
+        size_t ls = strlen(suf), want = (size_t)(list_n > 0 ? list_n : 5);
+        /* collect all matches, then prefer the shortest — a good rhyme is usually a
+         * short common word ("cat" -> hat, not acrobat), which reads more like an
+         * LLM than the alphabetically-first long word. */
+        for (size_t i = 0; i < np && nh < 64; i++) {
+            const char *lx = pool[i]; size_t ll = strlen(lx);
+            if (ll <= ls || strcmp(lx + (ll - ls), suf) != 0) continue;
+            if (strcmp(lx, target) == 0) continue;
+            snprintf(hits[nh++], KB_TERM_LEN, "%s", lx);
+        }
+        free(pool);
+        for (size_t i = 0; i + 1 < nh; i++)             /* stable sort by length asc */
+            for (size_t j = i + 1; j < nh; j++)
+                if (strlen(hits[j]) < strlen(hits[i])) {
+                    char tmp[KB_TERM_LEN]; snprintf(tmp, sizeof tmp, "%s", hits[i]);
+                    snprintf(hits[i], KB_TERM_LEN, "%s", hits[j]);
+                    snprintf(hits[j], KB_TERM_LEN, "%s", tmp);
+                }
+        if (nh > want) nh = want;
+        if (nh == 0) return 0;
+        char msg[600]; size_t o = (size_t)snprintf(msg, sizeof msg,
+            "Near-rhymes for \"%s\": ", target);
+        for (size_t i = 0; i < nh && o + 4 < sizeof msg; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+                                  i ? (i + 1 == nh ? " and " : ", ") : "", hits[i]);
+        if (o + 2 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
+    /* from-letters: the letter pool is a quoted span in the raw turn, else the
+     * words right after a "letters in/of/from" marker. */
+    int avail[26] = {0}; int have_src = 0;
+    if (raw) {
+        const char *q1 = strchr(raw, '"');
+        if (q1) { const char *q2 = strchr(q1 + 1, '"');
+            if (q2) { for (const char *p = q1 + 1; p < q2; p++) {
+                char c = (char)tolower((unsigned char)*p);
+                if (c >= 'a' && c <= 'z') { avail[c - 'a']++; have_src = 1; } } } }
+    }
+    if (!have_src) {                       /* fall back to words after the marker */
+        for (size_t i = 0; i + 1 < nw; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (strcmp(t, "letters") == 0 || strcmp(t, "string") == 0) {
+                for (size_t j = i + 1; j < nw; j++) {
+                    char *s = strip_edge_punct(w[j]);
+                    if (!strcmp(s, "in") || !strcmp(s, "of") || !strcmp(s, "from") ||
+                        !strcmp(s, "the")) continue;
+                    if (is_stopword(b, s)) break;
+                    for (char *p = s; *p; p++) { char c = (char)tolower((unsigned char)*p);
+                        if (c >= 'a' && c <= 'z') { avail[c - 'a']++; have_src = 1; } }
+                }
+                break;
+            }
+        }
+    }
+    if (!have_src) { free(pool); return 0; }
+
+    for (size_t i = 0; i < np; i++) {
+        const char *lx = pool[i]; size_t ll = strlen(lx);
+        if (len_filter && (int)ll != len_filter) continue;
+        int need[26] = {0}, ok = 1;
+        for (const char *p = lx; *p; p++) if (*p >= 'a' && *p <= 'z') need[*p - 'a']++;
+        for (int c = 0; c < 26 && ok; c++) if (need[c] > avail[c]) ok = 0;
+        if (!ok) continue;
+        total++;
+        if (nh < 64) snprintf(hits[nh++], KB_TERM_LEN, "%s", lx);
+    }
+    free(pool);
+    if (total == 0) return 0;
+
+    char msg[700];
+    if (want_count) {
+        size_t o = (size_t)snprintf(msg, sizeof msg,
+            "I count %d%s word%s you can build: ", total,
+            len_filter ? "" : "", total == 1 ? "" : "s");
+        size_t show = nh < 12 ? nh : 12;
+        for (size_t i = 0; i < show && o + 4 < sizeof msg; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s", i ? ", " : "", hits[i]);
+        if (nh > show && o + 8 < sizeof msg) o += (size_t)snprintf(msg + o, sizeof msg - o, ", …");
+        if (o + 2 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+    } else {
+        size_t want = list_n > 0 ? (size_t)list_n : (nh < 8 ? nh : 8);
+        size_t o = (size_t)snprintf(msg, sizeof msg, "You can make: ");
+        for (size_t i = 0; i < nh && i < want && o + 4 < sizeof msg; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+                                  i ? (i + 1 == want ? " and " : ", ") : "", hits[i]);
+        if (o + 2 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+    }
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* gen231 (LLMSCORE, ambitious): continue a number sequence. "what comes next 2 4
  * 6 8" -> 10. Detects an arithmetic (constant difference) or geometric (constant
  * ratio) progression from >=3 given terms and extends it by one — the rule is

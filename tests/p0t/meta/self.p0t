@@ -28,7 +28,7 @@
 # The reflexive payoff persists: the self-model is queried by the SAME logic
 # engine as world knowledge — "who is a module?" resolves over module(X).
 > who is a module?
-< initiative, piact, compose, repair, input, gen, deepreason, count, namestart, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, strategy, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, coref, bench, reader, shell, answerframe, aggregate, codeast, code, knowledge, symbolic, summary, discourse, pragma, family, personal, social, chitchat, reqgen, learn, toolpolicy, smalltalk.
+< initiative, piact, compose, repair, input, gen, deepreason, count, namestart, wordquery, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, strategy, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype, fewshot, compare, rulespec, algebra, arith, plan, wordproblem, agent, search, tool, quantity, cause, same, analogy, conj, coref, bench, reader, shell, answerframe, aggregate, codeast, code, knowledge, symbolic, summary, discourse, pragma, family, personal, social, chitchat, reqgen, learn, toolpolicy, smalltalk.
 # gen145: self-challenge parity. parrot0 does not manage its own repo, but
 # when the external loop poses a problem about parrot0 itself, it should propose
 # a comparable smallest-change/test/journal solution instead of walling.
