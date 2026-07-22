@@ -1532,6 +1532,43 @@ static int transitive_comparison(Brain *b, const char *norm,
     KbGoal body[2] = { { rel, ba, 2, 0 }, { rel, bc, 2, 0 } };
     kb_assert_clause(tmp.kb, &head, body, 2);
 
+    /* gen349 (Fase 3): a SUPERLATIVE query ("who is the shortest/tallest?") has no
+     * final than-frame — ALL frames are premises. Answer the extremum of the order
+     * instead of a yes/no. The min vs max end is chosen by whether the superlative
+     * shares the comparative's stem (taller/tallest = max) or is its antonym
+     * (taller/shortest = min) -- the stems decide, no adjective word-list. */
+    {
+        char super[64] = "";
+        char nb2[512]; snprintf(nb2, sizeof nb2, "%s", norm);
+        char *w2[96]; size_t n2 = split_words(nb2, w2, 96);
+        for (size_t i = 0; i < n2; i++) {
+            char *t = strip_edge_punct(w2[i]); size_t l = strlen(t);
+            if (l >= 5 && !strcmp(t + l - 3, "est")) snprintf(super, sizeof super, "%s", t);
+        }
+        if (super[0] && strstr(norm, "who")) {
+            char cstem[64]; snprintf(cstem, sizeof cstem, "%s", rel);
+            { size_t l = strlen(cstem); if (l > 2 && !strcmp(cstem + l - 2, "er")) cstem[l-2]='\0'; }
+            char sstem[64]; snprintf(sstem, sizeof sstem, "%s", super);
+            { size_t l = strlen(sstem); if (l > 3 && !strcmp(sstem + l - 3, "est")) sstem[l-3]='\0'; }
+            int want_max = !strcmp(cstem, sstem);
+            char ans[KB_TERM_LEN] = "";
+            for (size_t i = 0; i < nt; i++) {
+                const char *cand = want_max ? lefts[i] : rights[i];
+                int on_other = 0;
+                for (size_t f = 0; f < nt; f++)
+                    if (!strcmp(cand, want_max ? rights[f] : lefts[f])) { on_other = 1; break; }
+                if (!on_other) { snprintf(ans, sizeof ans, "%s", cand); break; }
+            }
+            kb_destroy(tmp.kb);
+            if (!ans[0]) return 0;
+            char msg[80]; snprintf(msg, sizeof msg, "%c%s.",
+                (char)toupper((unsigned char)ans[0]), ans + 1);
+            put(msg, out, out_size);
+            store_proof(b, "Transitive order: chained comparisons, extremum by stem polarity.");
+            return 1;
+        }
+    }
+
     const char *qa[] = { lefts[nt - 1], rights[nt - 1] };   /* query = last frame */
     int yes = kb_query(tmp.kb, rel, qa, 2);
     kb_destroy(tmp.kb);
@@ -2947,8 +2984,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen335: animal diet — "what does a lion eat?" / "what eats zebra?".
      * KB-first: the facts are eats/2 in world-facts.p0; the engine is a
      * fixed forward+reverse lookup, same shape as the sound_of handler. */
-    if (cue(norm, "eat") || cue(norm, "eats") || cue(norm, "diet") ||
-        cue(norm, "food") || cue(norm, "mangia") || cue(norm, "mangiano")) {
+    /* gen349: match diet cue words as WHOLE TOKENS -- substring cue() falsely
+     * fired on "feathers" (f-EAT-hers), hijacking "does a robin have feathers?"
+     * into "a bird eats seed". */
+    int diet_q = 0;
+    {
+        char db[256]; snprintf(db, sizeof db, "%s", norm);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        for (size_t i = 0; i < dn && !diet_q; i++) {
+            char *t = strip_edge_punct(dw[i]);
+            if (!strcmp(t, "eat") || !strcmp(t, "eats") || !strcmp(t, "eating") ||
+                !strcmp(t, "diet") || !strcmp(t, "food") || !strcmp(t, "mangia") ||
+                !strcmp(t, "mangiano")) diet_q = 1;
+        }
+    }
+    if (diet_q) {
         char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
         char *ew[64]; size_t en = split_words(eb, ew, 64);
         for (size_t i = 0; i < en; i++) {
@@ -3761,6 +3811,47 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen349 (Fase 2, motorize-the-class): UNIVERSAL creation query. "Who <verb>
+     * <work>?" resolves via the abstract created_by(Creator, Work, Verb) relation
+     * -- the surface verb is DATA mixed into the match, so painted/wrote/composed/
+     * sculpted share ONE concept, no per-verb C predicate. The creation verbs live
+     * in KB (creation_verb/1). */
+    if (b->kb && strstr(norm, "who ")) {
+        char verbs[24][KB_TERM_LEN]; const char *vq[1] = { NULL };
+        size_t nv = kb_match(b->kb, "creation_verb", vq, 1, verbs, 24);
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        for (size_t i = 0; i + 1 < n; i++) {
+            int is_cv = 0;
+            for (size_t v = 0; v < nv && !is_cv; v++)
+                if (!strcmp(w[i], kb_dequote(verbs[v]))) is_cv = 1;
+            if (!is_cv) continue;
+            /* the work: tokens after the verb, joined snake_case, skipping a
+             * leading article ("the mona lisa" -> mona_lisa). */
+            char work[128]; size_t wl = 0; work[0] = '\0';
+            for (size_t j = i + 1; j < n; j++) {
+                if (wl == 0 && is_article(w[j])) continue;
+                if (!*w[j]) continue;
+                wl += (size_t)snprintf(work + wl, sizeof work - wl, "%s%s",
+                                       wl ? "_" : "", w[j]);
+            }
+            if (!work[0]) break;
+            const char *cq[3] = { NULL, work, w[i] };   /* Creator unbound; Work+Verb bound */
+            char cr[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "created_by", cq, 3, cr, 1) == 1) {
+                char nm[128]; snprintf(nm, sizeof nm, "%s", cr[0]);
+                for (char *p = nm; *p; p++) if (*p == '_') *p = ' ';
+                if (nm[0]) nm[0] = (char)toupper((unsigned char)nm[0]);
+                char msg[160]; snprintf(msg, sizeof msg, "%s.", nm);
+                put(msg, out, out_size);
+                store_proof(b, "Universal created_by relation: verb + work select the creator.");
+                return 1;
+            }
+            break;
+        }
+    }
+
     /* gen349 (Fase 2, motorize-the-class): "how many X are there / in the world?"
      * -> count_of(X, N). One motor for the whole count class; a new count is a
      * fact, not C. */
@@ -3779,6 +3870,41 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 put(msg, out, out_size);
                 store_proof(b, "Answered from a count_of/2 fact in the KB.");
                 return 1;
+            }
+        }
+    }
+
+    /* gen349 (Fase 3): Barbara with an INSTANCE. "All A <have/are/…> P. X is a A.
+     * Does X <have/is> P?" -> Yes. Fixes the wrong 'a bird eats seed' hijack. */
+    if (cue(norm, "all") && strstr(norm, " is a")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[96]; size_t n = split_words(sb, w, 96);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char A[64] = "", P[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "all")) {
+                snprintf(A, sizeof A, "%s", w[i + 1]);
+                snprintf(P, sizeof P, "%s", w[i + 3]);   /* content word after the verb */
+                break;
+            }
+        if (A[0] && P[0] && strlen(P) > 2) {
+            char as[64]; snprintf(as, sizeof as, "%s", A);
+            { size_t l = strlen(as); if (l > 1 && as[l-1]=='s') as[l-1]='\0'; }
+            char X[64] = "";
+            for (size_t i = 1; i + 2 < n; i++)
+                if (!strcmp(w[i], "is") && is_article(w[i + 1])) {
+                    char cs[64]; snprintf(cs, sizeof cs, "%s", w[i + 2]);
+                    { size_t l = strlen(cs); if (l > 1 && cs[l-1]=='s') cs[l-1]='\0'; }
+                    if (!strcmp(cs, as)) { snprintf(X, sizeof X, "%s", w[i - 1]); break; }
+                }
+            if (X[0]) {
+                char xs[64]; snprintf(xs, sizeof xs, "%s", X);
+                { size_t l = strlen(xs); if (l > 1 && xs[l-1]=='s') xs[l-1]='\0'; }
+                if (strstr(norm, xs) && strstr(norm, P)) {
+                    put("Yes.", out, out_size);
+                    store_proof(b, "Barbara with an instance: all A have P and X is an A, so X has P.");
+                    return 1;
+                }
             }
         }
     }

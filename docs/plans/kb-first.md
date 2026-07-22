@@ -53,6 +53,20 @@ a derivarne lo scheletro logico e aver dimostrato che non c'è. Quasi sempre c'�
   è un fatto `causal_process_verb/1` (o `intent_cue`, `verb_syn`, …) mascherato da C. Il C
   tiene solo *come* si cerca (il ciclo di match); *cosa* si cerca vive nella KB. Regola
   gemella di "Engine fixed, knowledge learns" applicata al riconoscimento dell'input.
+- **Astrai fino al punto fisso: non moltiplicare i predicati per una relazione sola.**
+  Se due predicati differiscono solo per un *verbo/etichetta* che potrebbe variare
+  (`wrote`, `painted`, `composed`, `sculpted` → tutti "un agente crea un'opera"), quella
+  etichetta è un **parametro** di UNA relazione astratta (`created_by(Creator, Work, Verb)`),
+  non un nome di predicato distinto. La domanda da porsi ogni volta che si sta per
+  aggiungere un predicato:
+  > *"È una relazione NUOVA, o la STESSA relazione vista attraverso un verbo/etichetta
+  > diverso?"*
+  Se è la seconda, il verbo è un campo, non un predicato. È l'anima logica di §1 portata
+  fino in fondo: lo scheletro di "who painted X" e "who wrote X" è identico. **Il rischio
+  è estendere per analogia col codice esistente** (c'è già `wrote/2`, quindi aggiungo
+  `painted/2`) invece di ri-derivare dallo scheletro: così si *propaga un debito* di
+  disaggregazione. Analogo relazionale della regola sulle liste — lì non moltiplicare
+  *stringhe* in C, qui non moltiplicare *predicati* in KB per ciò che è una relazione.
 
 ## 3. Il test: deduci · abduci · genera
 

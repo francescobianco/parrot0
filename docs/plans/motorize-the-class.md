@@ -94,9 +94,11 @@ Investimento limitato, alta certezza: copre l'intera classe puzzle-logici.
       un pattern copre fish/whale, reptiles/snake, cats/Rex. deduction 50%→20%.
 - [ ] Barbara con predicato ("All A are B. All B need W. Do A need W? → Yes").
 - [ ] Darii ("Some A are B. All B are C. Are some A C? → Yes").
-- [ ] **RISPOSTE SBAGLIATE (priorità: peggio di un muro)**: "birds have
-      feathers → 'a bird eats seed'" (dirottato); "taller-than → 'No'"
-      (transitività relazionale d'ordine non gestita).
+- [x] **RISPOSTE SBAGLIATE corrette**: "birds have feathers → Yes" (il cue
+      substring `eat` scattava su "f-EAT-hers" → match a parola intera + Barbara
+      con istanza); "taller-than → C/A" (esteso `transitive_comparison` alla
+      forma superlativa "who is the shortest/tallest?", estremo per polarità
+      dello stem comparativo vs superlativo).
 
 > **Limite del metro (Fase 0):** il wall-rate conta i muri, NON le risposte
 > sbagliate. Una risposta errata è *peggio* di un muro (dottrina no-deception)

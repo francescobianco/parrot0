@@ -3673,13 +3673,23 @@ time_unit(year).
 % KNOWLEDGE they were missing, plus a generic count.
 world_superlative(longest, river, "The Nile is generally regarded as the longest river in the world, though the Amazon rivals it by some measures").
 wrote(shakespeare, romeo_and_juliet).
-painted(leonardo_da_vinci, the_mona_lisa).
-painted(leonardo_da_vinci, mona_lisa).
-painted(vincent_van_gogh, the_starry_night).
-painted(pablo_picasso, guernica).
-answer_frame("painted", painted).
-answer_frame("painter of", painted).
-answer_frame("who painted", painted).
+% Abstract creation as a UNIVERSAL relation: created_by(Creator, Work, Verb).
+% The surface verb (painted/wrote/composed/sculpted/…) is DATA mixed into the
+% match -- ONE concept of "who made this", not a per-verb C predicate. A new
+% creative act is a fact + (if new) a creation_verb; zero C.
+created_by(leonardo_da_vinci, mona_lisa, painted).
+created_by(vincent_van_gogh, starry_night, painted).
+created_by(pablo_picasso, guernica, painted).
+created_by(michelangelo, the_david, sculpted).
+created_by(gustave_eiffel, the_eiffel_tower, designed).
+creation_verb(wrote).
+creation_verb(painted).
+creation_verb(composed).
+creation_verb(sculpted).
+creation_verb(directed).
+creation_verb(built).
+creation_verb(invented).
+creation_verb(designed).
 % count_of(Thing, N): "how many <thing>s are there?" -> N. A new count is a fact.
 count_of(continent, seven).
 count_of(planet, eight).

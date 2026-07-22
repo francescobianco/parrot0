@@ -617,7 +617,8 @@ static int is_internal_pred(const KB *kb, const char *pred) {
          * knowledge dump exactly like roles.p0's wrote/title/profession. */
         "category_member", "opposite", "color_of", "because",
         "grows_with", "increases", "explanation", "qa_cue", "qa_reply",
-        "verb_syn", "causal_process_verb", "time_unit",
+        "verb_syn", "causal_process_verb", "time_unit", "count_of",
+        "created_by", "creation_verb",
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "scene_cue", "continuation_template",
         "tr_es", "gender_es", "tr_fr", "gender_fr",

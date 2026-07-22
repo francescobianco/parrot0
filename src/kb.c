@@ -3041,7 +3041,7 @@ static int is_struct_pred(const char *pred) {
         "category_member", /* gen230: mod_namestart substrate, not describable */
         "opposite", /* gen231: antonym relation, queried not described */
         "color_of", /* gen231: colour facts, queried not described */
-        "because", "explanation", "qa_cue", "qa_reply", "verb_syn", "causal_process_verb", "time_unit", "count_of", "painted", /* gen232/349: causal reasons + verb-synonym/trigger/unit/count maps, queried not described */
+        "because", "explanation", "qa_cue", "qa_reply", "verb_syn", "causal_process_verb", "time_unit", "count_of", "created_by", "creation_verb", /* gen232/349: causal reasons + verb-synonym/trigger/unit/count + universal created_by maps, queried not described */
         "grows_with", "increases", /* gen233: qualitative-change substrate */
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "landmark_of", "planet_superlative", "planet_superlative_cue",
