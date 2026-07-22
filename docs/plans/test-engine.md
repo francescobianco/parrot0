@@ -1,12 +1,18 @@
 # The test-engine — one live instance validates `.p0t` suites
 
-> **Stato:** gen346. `make test` = **1357 passed, 0 failed** (~44s). Migrati anche
-> gli 83/91 casi `.it` (40 as-is + 43 allineati) dopo le fix lingua A/D/E (vedi
-> sotto). **Restano 23 `.chat`, TUTTI perf-held** (15 EN + 8 IT): calibrate\*,
-> conjunction, deepreason\*, proof_trace, robust, compose, fewshot, \*_stress,
-> reflexive_selftest\*/audit — un turno supera il budget `!timeout` di 1s (causa
-> comune pre-esistente: lo sweep di ablazione O(n) di `mod_robust`). Vanno
-> migrati DOPO aver ottimizzato lo sweep, o con `!timeout N` per-test.
+> **Stato:** gen346 — **MIGRAZIONE COMPLETA.** `make test` = **1557 passed, 0
+> failed** (~55s). Tutti i 253 `.chat` legacy migrati in `tests/p0t/<categoria>/`
+> (256 `.p0t`); `tests/cases/` è vuoto. Il guard `!timeout` a 1s è attivo ovunque
+> (solo `fewshot.it`/`strategy.it`, naturalmente ~1.3s, hanno `!timeout 3`).
+>
+> **Perf risolta:** i 23 casi "perf-held" (conjunction/robust/calibrate\*/…)
+> erano lenti (fino a 27s) per lo sweep di ablazione di `mod_robust` /
+> `calib_load_bearing` che ablazionava OGNI fatto unario. Ora entrambe le sweep
+> fanno pruning ai soli predicati **raggiungibili dall'obiettivo via regole**
+> (`kb_rules_for_head`/`kb_nth_rule_body_preds`) — esatto e ~30-130× più veloce
+> (conjunction 15s→0.5s). `make test` è passato da ~3min a ~55s (il residuo è il
+> costo dei reload di `!reset` su 256 file ermetici — ottimizzazione futura: un
+> reset di sessione più leggero).
 >
 > **Fix lingua fatte (decisione F. = ibrido):** A) l'input ambiguo ("ciao")
 > deferisce al seed `PARROT0_LANG` (tolto `language_marker(it, ciao)`); D) le
