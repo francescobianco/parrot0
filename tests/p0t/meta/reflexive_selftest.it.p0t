@@ -7,7 +7,6 @@
 !reset
 
 [test reflexive_selftest.it]
-!timeout 0
 # gen167/168 (E1 reflexive, capstone): the self-test in Italian — "esegui tu il
 # test di composizione dei tuoi moduli" reaches the same mod_loop path and runs
 # the same composition on a fresh sub-brain, no duplicated logic.

@@ -7,7 +7,6 @@
 !reset
 
 [test calibrate_stress]
-!timeout 0
 # gen142 (E8) STRESS: ~10x the minimal case. All five epistemic states, each with
 # DIFFERENT grounded confidence language, plus the "why?" and "what would change
 # your mind?" follow-ups, interleaved across many held-out nonsense predicates so

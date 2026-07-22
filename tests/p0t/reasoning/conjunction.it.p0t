@@ -7,7 +7,6 @@
 !reset
 
 [test conjunction.it]
-!timeout 0
 # gen133, Italian probe: the SAME conjunctive-concept machinery through Italian
 # surface ("ogni cane amichevole è un bravo"). One mechanism, two languages, one
 # code path — the bilingual ratchet over rule intake, article-free assertion,

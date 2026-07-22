@@ -7,7 +7,6 @@
 !reset
 
 [test calibrate]
-!timeout 0
 # gen142 (E8): metacognitive calibration. The agent reports HOW it knows the last
 # conclusion, with confidence language COMPUTED from the real proof state, and
 # answers "why do you think that?" / "what would make you change your mind?" from

@@ -7,7 +7,6 @@
 !reset
 
 [test deepreason-correct]
-!timeout 0
 # deep-reasoning M4 (docs/plans/deep-reasoning.md §4bis, Study 4): SELF-CORRECTION,
 # the resilience pillar. Broad extraction (§4.4) is allowed to learn WRONG facts;
 # the loop RECOVERS from them instead of preventing them. Here the germany page has

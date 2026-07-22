@@ -7,7 +7,6 @@
 !reset
 
 [test reflexive_selftest_fresh]
-!timeout 0
 # gen168 (E1 reflexive): the anti-memorization proof. Two self-tests in one
 # session use DIFFERENT held-out vocabulary (a brave knight named aldric, then a
 # loyal hound named bryn) — each generated and executed on a fresh sub-brain, each

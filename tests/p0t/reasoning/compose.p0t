@@ -7,7 +7,6 @@
 !reset
 
 [test compose]
-!timeout 0
 # gen160 (E1): compositional emergence — the analytical half, ratcheted so the
 # cooperation of eight independently-evolved subsystems over FRESH vocabulary
 # (loyal/hound/companion/bryn, none in any other case) can never silently

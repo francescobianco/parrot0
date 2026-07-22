@@ -7,7 +7,6 @@
 !reset
 
 [test reflexive_selftest]
-!timeout 0
 # gen167/168 (E1 reflexive, capstone): parrot0 RUNS its own composition. Asked to
 # prove its parts compose by running it itself, it spins up a fresh copy of itself
 # (brain_create), generates a held-out dialogue (gen168: fresh vocab per run) over

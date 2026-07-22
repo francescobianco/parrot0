@@ -7,7 +7,6 @@
 !reset
 
 [test robust.it]
-!timeout 0
 # gen130 (L20-deep), Italian probe: the SAME self-perturbation sweep reached
 # through the Italian trigger ("da cosa dipende …"). One mechanism, two
 # languages, one code path — the bilingual ratchet.

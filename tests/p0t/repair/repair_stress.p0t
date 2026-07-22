@@ -7,7 +7,6 @@
 !reset
 
 [test repair_stress]
-!timeout 0
 # gen141 (E2) stress probe (LOOP.md step 7): the repair loop run ~10x over one
 # conversation, with varied operators, the pronoun in either operand slot,
 # interleaved expiries, and a coref-teaching resume at the end. The point is to

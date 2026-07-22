@@ -7,7 +7,6 @@
 !reset
 
 [test world_stress]
-!timeout 0
 # gen142 (E7) STRESS — ~10x the toy case: three overlapping named worlds, the
 # SAME entities (rex, max) meaning different things in each, scope switching,
 # "what is assumed?", an anonymous-then-named scratch world, explicit teardown

@@ -7,7 +7,6 @@
 !reset
 
 [test user_model_stress]
-!timeout 0
 # gen148 (E4) stress: varied lightweight user-model facts and session context.
 > what do you remember about me?
 < I remember no durable personal facts yet.

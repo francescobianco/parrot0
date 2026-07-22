@@ -7,7 +7,6 @@
 !reset
 
 [test conjunction]
-!timeout 0
 # gen133 (T-series rule grammar): CONJUNCTIVE concepts. "every friendly dog is a
 # goodboy" learns a multi-condition rule goodboy(X) :- friendly(X), dog(X) (the
 # engine always supported multi-goal bodies; gen133 adds the intake + an

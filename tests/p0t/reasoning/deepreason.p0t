@@ -7,7 +7,6 @@
 !reset
 
 [test deepreason]
-!timeout 0
 # deep-reasoning M3 (docs/plans/deep-reasoning.md §3/§7): the budgeted multi-hop
 # inference LOOP. "think deeply: <yes/no question>" parses the target, seeds a
 # frontier, and repeatedly ACQUIRES facts from a concept's page (extract_page_facts,

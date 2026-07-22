@@ -7,7 +7,6 @@
 !reset
 
 [test calibrate.it]
-!timeout 0
 # gen142 (E8): metacognitive calibration in Italian — the SAME behaviour through
 # the SAME code path. Italian function words (è/un/una/non/ogni/supponi che) are
 # canonicalized so the assertions and the supposition reach the English-parsing

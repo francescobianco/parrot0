@@ -7,7 +7,6 @@
 !reset
 
 [test robust]
-!timeout 0
 # gen130 (L20-deep): ROBUSTNESS by self-perturbation. Composes gen129's single
 # ablation into a SWEEP — remove EACH ground fact in turn, re-derive, restore —
 # to discover whether the last conclusion is FRAGILE (one load-bearing fact) or

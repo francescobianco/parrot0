@@ -5,9 +5,9 @@
 !set PARROT0_WORLD_FACTS=0
 !set PARROT0_LANG=en
 !reset
+!timeout 3
 
 [test fewshot.it]
-!timeout 0
 # gen104 (L10) — the bilingual ratchet (LOOP.md). The SAME few-shot code reads
 # Italian exemplars because it keys on the arrow markers and the STRUCTURE of the
 # transformation, not on any English surface word. No logic is duplicated: the

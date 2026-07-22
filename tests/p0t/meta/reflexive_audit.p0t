@@ -7,7 +7,6 @@
 !reset
 
 [test reflexive_audit]
-!timeout 0
 # gen169 (E1 reflexive): the self-audit MATRIX. parrot0 runs several different
 # triples of its own parts — each on a fresh copy of itself, with held-out vocab —
 # and reports a real cooperation map (the compose-bench matrix turned inward).

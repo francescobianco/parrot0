@@ -7,7 +7,6 @@
 !reset
 
 [test pragma_stress]
-!timeout 0
 # gen142 (E3) STRESS: ~14 HELD-OUT phrasings the classifier was NOT coded
 # against (none appear in pragma.chat or in mod_pragma's cue strings), across all
 # the speech acts. Passing this proves the routing comes from turn-SHAPE FEATURES

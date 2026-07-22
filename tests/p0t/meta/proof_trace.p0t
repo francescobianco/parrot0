@@ -7,7 +7,6 @@
 !reset
 
 [test proof_trace]
-!timeout 0
 # gen76: proof trace as structured memory. When the KB answers a query,
 # the proof chain is stored so "how do you know?" can cite real state.
 # Ground query -> "how do you know?" reads from stored proof.
