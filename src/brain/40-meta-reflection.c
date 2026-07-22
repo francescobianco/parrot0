@@ -616,7 +616,7 @@ static int is_internal_pred(const KB *kb, const char *pred) {
          * taught it; filter it from "how many facts do you know?" and the
          * knowledge dump exactly like roles.p0's wrote/title/profession. */
         "category_member", "opposite", "color_of", "because",
-        "grows_with", "increases",
+        "grows_with", "increases", "explanation", "suggestion", "sentence_frame",
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "scene_cue", "continuation_template",
         "tr_es", "gender_es", "tr_fr", "gender_fr",

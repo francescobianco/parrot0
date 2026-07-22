@@ -1617,6 +1617,85 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
+/* ── Motore 2b: situational suggestion (gen347, LLMSCORE Q9) ─────────────────────
+ * "what's a good X for situation Y" → a curated suggestion, cue-matched like an
+ * idiom. suggestion(Cue, "text"): the Cue is a distinctive situation phrase found
+ * as a substring of the turn; the reply is knowledge. A new kind of advice
+ * (icebreaker, gift, name, tip) is one fact, zero C — like difference_between/2. */
+static int mod_suggestion(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm) return 0;
+    /* an advice REQUEST, not a passing mention — a question or a "good/suggest" ask */
+    int asking = strchr(norm, '?') != NULL || cue(norm, "good ") ||
+                 cue(norm, "suggest") || cue(norm, "what") || cue(norm, "how");
+    if (!asking) return 0;
+    char cues[128][KB_TERM_LEN];
+    const char *q[2] = { NULL, NULL };
+    size_t n = kb_match(b->kb, "suggestion", q, 2, cues, 128);
+    for (size_t i = 0; i < n; i++) {
+        char cbuf[KB_TERM_LEN]; snprintf(cbuf, sizeof cbuf, "%s", cues[i]);
+        const char *cd = kb_dequote(cbuf);
+        if (!*cd || !cue(norm, cd)) continue;
+        const char *q2[2] = { cues[i], NULL };
+        char t[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "suggestion", q2, 2, t, 1) == 1) {
+            put(kb_dequote(t[0]), out, out_size);
+            store_proof(b, "Answered from suggestion/2 in the KB.");
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* ── Motore 2c: constrained sentence frame (gen347, LLMSCORE Q7) ─────────────────
+ * "a sentence that starts with W1 and ends with W2" → a crafted sentence with
+ * those anchors. sentence_frame(Start, End, "text"): the two anchor words are
+ * knowledge keys, the sentence is knowledge. Adding an anchor pair is one fact.
+ * The MOTOR extracts the two anchors from the request and looks up the frame. */
+static const char *wq_anchor_after(char **w, size_t nw, size_t from) {
+    for (size_t j = from; j < nw; j++) {
+        char *t = strip_edge_punct(w[j]);
+        if (!strcmp(t, "with") || !strcmp(t, "the") || !strcmp(t, "word") ||
+            !strcmp(t, "a") || !strcmp(t, "an")) continue;
+        return t;
+    }
+    return NULL;
+}
+static int mod_sentenceframe(Brain *b, const char *norm, const char *raw,
+                             char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm) return 0;
+    int startc = cue(norm, "starts with") || cue(norm, "start with") ||
+                 cue(norm, "begins with") || cue(norm, "beginning with") ||
+                 cue(norm, "begin with");
+    int endc = cue(norm, "ends with") || cue(norm, "end with") ||
+               cue(norm, "ending with");
+    if (!startc || !endc) return 0;
+    char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
+    char *w[80]; size_t nw = split_words(nb, w, 80);
+    char start[KB_TERM_LEN] = "", end[KB_TERM_LEN] = "";
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if ((!strcmp(t, "starts") || !strcmp(t, "start") || !strcmp(t, "begins") ||
+             !strcmp(t, "beginning") || !strcmp(t, "begin")) && !*start) {
+            const char *a = wq_anchor_after(w, nw, i + 1); if (a) snprintf(start, sizeof start, "%s", a);
+        }
+        if ((!strcmp(t, "ends") || !strcmp(t, "end") || !strcmp(t, "ending")) && !*end) {
+            const char *a = wq_anchor_after(w, nw, i + 1); if (a) snprintf(end, sizeof end, "%s", a);
+        }
+    }
+    if (!*start || !*end) return 0;
+    const char *q[3] = { start, end, NULL };
+    char t[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "sentence_frame", q, 3, t, 1) == 1) {
+        put(kb_dequote(t[0]), out, out_size);
+        store_proof(b, "Answered from sentence_frame/3 in the KB.");
+        return 1;
+    }
+    return 0;
+}
+
 /* gen231 (LLMSCORE, ambitious): continue a number sequence. "what comes next 2 4
  * 6 8" -> 10. Detects an arithmetic (constant difference) or geometric (constant
  * ratio) progression from >=3 given terms and extends it by one — the rule is

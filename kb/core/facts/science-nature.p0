@@ -193,3 +193,12 @@ eats(koala, eucalyptus).
 eats(giraffe, leaves).
 eats(whale, krill).
 eats(caterpillar, leaves).
+% ============================================================
+% gen347 (Motore 2): rich multi-sentence explanations spoken verbatim for
+% "explain why X" / "why do X" — content is knowledge (three sentences), not
+% generated prose. Keyed subject_verb like because/2; a new topic is one fact.
+% ============================================================
+explanation(cats_purr, "Cats purr by rapidly vibrating the muscles of the larynx, which flutter the vocal cords as the cat breathes in and out. The most familiar reason is contentment -- a relaxed cat often purrs while being stroked or resting. But purring is also self-soothing and may aid healing: cats purr when frightened, injured, or giving birth, and the low frequency is thought to help tissue repair.").
+explanation(dogs_bark, "Dogs bark as a flexible signal that evolved alongside people. A bark can warn of an intruder, demand attention or play, express excitement or anxiety, or answer another dog. The pitch and rhythm carry the meaning -- a low slow bark tends to threaten, while a high repeated one tends to invite.").
+explanation(leaves_change, "In autumn shorter days and cooler nights signal trees to stop making chlorophyll, the green pigment that had masked other colours. As the green fades, the yellow and orange pigments already in the leaf show through. Some trees also make new red pigments from trapped sugars, giving the vivid reds of maples.").
+explanation(ice_floats, "Water is unusual: as it freezes its molecules lock into an open hexagonal lattice that takes up more space than liquid water. Because the same mass now fills a larger volume, ice is less dense than the water around it. So it floats, which is why ponds freeze from the top down and fish can survive beneath.").

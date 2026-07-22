@@ -4329,6 +4329,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (nkeys >= 2 && b->kb) {
                 const char *pat[2] = { key, NULL };
                 char res[4][KB_TERM_LEN];
+                /* gen347 (Motore 2, form/content split): a RICH multi-sentence answer
+                 * lives in explanation(key, "…") and is spoken VERBATIM — it satisfies
+                 * "explain in three sentences why cats purr" because the CONTENT is
+                 * three sentences of knowledge, not generated prose. Tried before the
+                 * one-line because/2. The key extraction (subject+verb, e.g. cats_purr)
+                 * is shared, so a new topic is one fact. */
+                if (kb_match(b->kb, "explanation", pat, 2, res, 4) > 0) {
+                    char *r = res[0]; size_t rlen = strlen(r);
+                    if (rlen >= 2 && r[0] == '"' && r[rlen - 1] == '"') { r[rlen - 1] = '\0'; r++; }
+                    put(r, out, out_size);
+                    store_proof(b, r);
+                    return 1;
+                }
                 if (kb_match(b->kb, "because", pat, 2, res, 4) > 0) {
                     char *r = res[0];
                     size_t rlen = strlen(r);

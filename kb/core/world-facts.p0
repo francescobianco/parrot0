@@ -3553,3 +3553,15 @@ answer_frame("miles to km", miles_to_km).
 :- include(facts/history-people.p0).
 :- include(facts/contrasts.p0).
 :- include(facts/vocabulary-extra.p0).
+
+% gen347 (Motore 2b, LLMSCORE Q9): situational suggestions — cue -> advice text.
+% A new kind of advice is one fact (like difference_between/2). Cue is a
+% distinctive situation phrase matched as a substring of the turn.
+suggestion("conversation starter", "Ask what brought them here, or react to something you can both see -- everyone standing alone is hoping for the same easy opening, so a warm, specific question almost always breaks the ice.").
+suggestion("icebreaker", "Try an open question that invites a story rather than a yes/no -- 'what's kept you busy lately?' gets people talking far better than 'how are you?'.").
+suggestion("break the ice", "Comment on the shared situation and follow with a light question -- naming the awkwardness ('quite the crowd, isn't it?') and then asking about them puts you both at ease.").
+
+% gen347 (Motore 2c, LLMSCORE Q7): constrained sentence frames — a complete
+% sentence keyed by its first and last word. A new anchor pair is one fact.
+sentence_frame(because, until, "Because the harbor light had gone dark, the fishermen rowed slowly by memory and counted the waves, refusing to turn back and trusting the night would hold them safe until.").
+sentence_frame(although, tomorrow, "Although the road ahead was long and the sky threatened rain, she shouldered her pack, smiled at the horizon, and decided the journey could wait no longer than tomorrow.").
