@@ -1491,7 +1491,8 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     if (!b || !b->kb || !norm) return 0;
     int is_rhyme   = kb_cue_match(b, "word_rhyme", norm);
     int is_letters = kb_cue_match(b, "word_from_letters", norm);
-    if (!is_rhyme && !is_letters) return 0;
+    int is_starts  = kb_cue_match(b, "word_starts_with", norm);
+    if (!is_rhyme && !is_letters && !is_starts) return 0;
 
     /* parse the shared modifiers: a length filter ("N letter(s)" / "N-letter"),
      * a list size ("five words"), and count vs list mode ("how many"). */
@@ -1554,6 +1555,49 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    /* starts-with: a first-letter filter over the lexeme. The letter is the token
+     * after "with"/"letter" (a quoted 'q' or a bare q). Prefer short common words,
+     * like the rhyme branch, so the reply reads like an LLM's pick. */
+    if (is_starts) {
+        char letter = 0;
+        for (size_t i = 0; i + 1 < nw; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (strcmp(t, "with") && strcmp(t, "letter")) continue;
+            char *nx = strip_edge_punct(w[i + 1]);
+            if (nx[0] && isalpha((unsigned char)nx[0])) {
+                letter = (char)tolower((unsigned char)nx[0]); break;
+            }
+        }
+        if (!letter) { free(pool); return 0; }
+        for (size_t i = 0; i < np && nh < 64; i++) {
+            const char *lx = pool[i];
+            if ((char)tolower((unsigned char)lx[0]) != letter) continue;
+            if (len_filter && (int)strlen(lx) != len_filter) continue;
+            snprintf(hits[nh++], KB_TERM_LEN, "%s", lx);
+        }
+        free(pool);
+        if (nh == 0) return 0;
+        for (size_t i = 0; i + 1 < nh; i++)
+            for (size_t j = i + 1; j < nh; j++)
+                if (strlen(hits[j]) < strlen(hits[i])) {
+                    char tmp[KB_TERM_LEN]; snprintf(tmp, sizeof tmp, "%s", hits[i]);
+                    snprintf(hits[i], KB_TERM_LEN, "%s", hits[j]);
+                    snprintf(hits[j], KB_TERM_LEN, "%s", tmp);
+                }
+        size_t want = list_n > 0 ? (size_t)list_n : 1;
+        if (nh > want) nh = want;
+        char msg[400];
+        size_t o = (size_t)snprintf(msg, sizeof msg,
+            nh > 1 ? "Words that start with \"%c\": " : "A word that starts with \"%c\": ",
+            letter);
+        for (size_t i = 0; i < nh && o + 4 < sizeof msg; i++)
+            o += (size_t)snprintf(msg + o, sizeof msg - o, "%s%s",
+                                  i ? (i + 1 == nh ? " and " : ", ") : "", hits[i]);
+        if (o + 2 < sizeof msg) snprintf(msg + o, sizeof msg - o, ".");
+        put(msg, out, out_size);
+        return 1;
+    }
+
     /* from-letters: the letter pool is a quoted span in the raw turn, else the
      * words right after a "letters in/of/from" marker. */
     int avail[26] = {0}; int have_src = 0;
@@ -1572,7 +1616,10 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                     char *s = strip_edge_punct(w[j]);
                     if (!strcmp(s, "in") || !strcmp(s, "of") || !strcmp(s, "from") ||
                         !strcmp(s, "the")) continue;
-                    if (is_stopword(b, s)) break;
+                    /* single letters ARE the payload ("t, s, a, r" — 'a' is a
+                     * letter here, not the article); only a multi-char stopword
+                     * ends the list. */
+                    if (strlen(s) > 1 && is_stopword(b, s)) break;
                     for (char *p = s; *p; p++) { char c = (char)tolower((unsigned char)*p);
                         if (c >= 'a' && c <= 'z') { avail[c - 'a']++; have_src = 1; } }
                 }

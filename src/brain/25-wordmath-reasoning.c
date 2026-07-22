@@ -900,6 +900,20 @@ static int wp_removal_word(const char *t) {
            strstr(t, "regal") || strstr(t, "vend")  || strstr(t, "spes");
 }
 
+/* gen349: is `word` a KB time_unit (sing/plural)? Enumerates time_unit/1 and
+ * compares — a fully-bound kb_match on an arity-1 fact does not report the hit,
+ * so we list the (few) facts and match here. KB-first: the units live in KB. */
+static int kb_is_time_unit(Brain *b, const char *word) {
+    if (!b || !b->kb || !word || !*word) return 0;
+    char ws[32]; snprintf(ws, sizeof ws, "%s", word);
+    size_t l = strlen(ws); if (l > 1 && ws[l - 1] == 's') ws[l - 1] = '\0';
+    char units[16][KB_TERM_LEN]; const char *tq[1] = { NULL };
+    size_t nu = kb_match(b->kb, "time_unit", tq, 1, units, 16);
+    for (size_t i = 0; i < nu; i++)
+        if (!strcmp(ws, kb_dequote(units[i]))) return 1;
+    return 0;
+}
+
 static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
                            char *out, size_t out_size) {
     (void)norm;
@@ -978,17 +992,80 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen238 (LLMSCORE): rate puzzle. If N machines make N widgets in T minutes,
-     * scaling machines and widgets by the same factor keeps the time at T. */
-    if (cue(q, "machines") && cue(q, "minutes") && cue(q, "widgets") && cue(q, "how long")) {
+    /* gen238/349 (LLMSCORE): rate puzzle, noun-AGNOSTIC. "If N workers make N
+     * outputs in T <time>, how long for M workers to make M outputs?" -> T. The
+     * invariant is purely numeric (each worker makes one output per T), so the
+     * agent/output NOUNS are irrelevant — the old machines/widgets word-list is
+     * gone. The time UNIT is read from KB (time_unit/1), so a new unit is a fact,
+     * not C. Guard: workers==outputs in scenario 1 and the scaled pair is equal. */
+    if (cue(q, "how long")) {
         char rb[256]; snprintf(rb, sizeof rb, "%s", q);
         char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        /* the time unit: first token that is a KB time_unit (sing/plural) */
+        char unit[32] = "";
+        for (size_t i = 0; i < rn && !unit[0]; i++) {
+            char t[32]; snprintf(t, sizeof t, "%s", strip_edge_punct(rw[i]));
+            size_t l = strlen(t); if (l > 1 && t[l-1] == 's') t[l-1] = '\0';
+            if (kb_is_time_unit(b, t)) snprintf(unit, sizeof unit, "%s", t);
+        }
         double nums[8]; size_t nn = collect_numbers(rw, rn, nums, 8);
-        if (nn >= 3 && nums[0] == nums[2]) {
+        if (unit[0] && nn >= 3 && nums[0] == nums[2] &&
+            (nn < 5 || nums[3] == nums[4])) {
             char num[64]; format_num(nums[1], num, sizeof num);
-            char msg[96]; snprintf(msg, sizeof msg, "%s minutes.", num);
+            char msg[96]; snprintf(msg, sizeof msg, "%s %s%s.", num, unit,
+                                   nums[1] == 1 ? "" : "s");
             put(msg, out, out_size);
-            store_proof(b, "Same per-machine rate, same time for proportional machines and widgets.");
+            store_proof(b, "Same per-worker rate: scaling workers and outputs together keeps the time.");
+            return 1;
+        }
+    }
+
+    /* gen349 (Fase 1, motorize-the-class): average speed = distance / time. The
+     * time number is the one followed by a KB time_unit; the other is the
+     * distance, its unit read straight from the text (no distance-unit list). */
+    if (cue(q, "speed") || cue(q, "how fast")) {
+        char sbf[256]; snprintf(sbf, sizeof sbf, "%s", q);
+        char *sw[64]; size_t sn = split_words(sbf, sw, 64);
+        double D = -1, T = -1; char dunit[32] = "", tunit[32] = "";
+        for (size_t i = 0; i + 1 < sn; i++) {
+            double v; if (!parse_value(strip_edge_punct(sw[i]), &v)) continue;
+            char nx[32]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(sw[i + 1]));
+            char ns[32]; snprintf(ns, sizeof ns, "%s", nx);
+            size_t l = strlen(ns); if (l > 1 && ns[l-1] == 's') ns[l-1] = '\0';
+            if (kb_is_time_unit(b, ns)) { T = v; snprintf(tunit, sizeof tunit, "%s", ns); }
+            else { D = v; snprintf(dunit, sizeof dunit, "%s", nx); }
+        }
+        if (D > 0 && T > 0 && dunit[0] && tunit[0]) {
+            char num[64]; format_num(D / T, num, sizeof num);
+            char msg[128]; snprintf(msg, sizeof msg, "%s %s per %s.", num, dunit, tunit);
+            put(msg, out, out_size);
+            store_proof(b, "Average speed is distance divided by time.");
+            return 1;
+        }
+    }
+
+    /* gen349 (Fase 1): percent discount. "N dollars, P percent off -> price?" is
+     * N*(1-P/100). P is the number before percent/%; the base is the number
+     * carrying the currency. */
+    if ((cue(q, "percent off") || cue(q, "% off") || cue(q, "off")) &&
+        (cue(q, "price") || cue(q, "cost") || cue(q, "pay") || cue(q, "final"))) {
+        char pbf[256]; snprintf(pbf, sizeof pbf, "%s", q);
+        char *pw[64]; size_t pn = split_words(pbf, pw, 64);
+        double base = -1, pct = -1; char cur[32] = "dollars";
+        for (size_t i = 0; i + 1 < pn; i++) {
+            double v; if (!parse_value(strip_edge_punct(pw[i]), &v)) continue;
+            char nx[32]; snprintf(nx, sizeof nx, "%s", strip_edge_punct(pw[i + 1]));
+            if (!strcmp(nx, "percent") || !strcmp(nx, "%")) pct = v;
+            else if (!strcmp(nx, "dollars") || !strcmp(nx, "dollar") ||
+                     !strcmp(nx, "euros") || !strcmp(nx, "pounds")) {
+                base = v; snprintf(cur, sizeof cur, "%s", nx);
+            }
+        }
+        if (base > 0 && pct >= 0 && pct <= 100) {
+            char num[64]; format_num(base * (1.0 - pct / 100.0), num, sizeof num);
+            char msg[128]; snprintf(msg, sizeof msg, "%s %s.", num, cur);
+            put(msg, out, out_size);
+            store_proof(b, "Percent discount: multiply the base by (1 - percent/100).");
             return 1;
         }
     }

@@ -968,8 +968,14 @@ static int decompose_and_dispatch(Brain *b, const char *canon, const char *input
         }
     }
 
-    snprintf(out, out_size, "%s%s%s", r1,
-             (r2[0] && r1[0]) ? " " : "", r2);
+    /* gen349: a handler that reads the whole turn from `input` (e.g.
+     * mod_wordproblem) answers both halves identically — emit it once, not
+     * "15 dollars. 15 dollars.". */
+    if (r1[0] && !strcmp(r1, r2))
+        snprintf(out, out_size, "%s", r1);
+    else
+        snprintf(out, out_size, "%s%s%s", r1,
+                 (r2[0] && r1[0]) ? " " : "", r2);
     if (!is_but && h1 && !h1_disc) update_topics(b, sub1);
     return 1;
 }

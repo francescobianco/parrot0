@@ -2778,7 +2778,11 @@ static int causal_lookup_robust(Brain *b, const char *norm,
             char *kt[8]; size_t knt = 0;
             for (char *s = strtok(kbuf, "_"); s && knt < 8; s = strtok(NULL, "_"))
                 kt[knt++] = s;
-            if (knt < 2) continue;                 /* need subject + at least a verb */
+            if (knt < 1) continue;
+            /* A single-token key (e.g. because(hiccups,…)) matches on the subject
+             * alone — safe because the subject noun is the whole distinctive key.
+             * Multi-token keys still require every token (verb via synonym), so a
+             * shared subject (moon_glows vs moon_tides) can't misfire. */
             int subj_ok = 0;
             for (size_t j = 0; j < qn; j++)
                 if (caus_tok_eq(qw[j], kt[0])) { subj_ok = 1; break; }
@@ -3528,6 +3532,93 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         #undef SING
     }
 
+    /* gen349 (Fase 3): valid Barbara as a yes/no question. "All A are B. All B
+     * <P>. Do/Does A <P>? -> Yes." Gated by two universals + a yes/no marker.
+     * The chain holds when the middle term B recurs (predicate of the first
+     * universal AND subject of the second) and the question re-names A. */
+    {
+        int nall = 0; { const char *p = norm; while ((p = strstr(p, "all "))) { nall++; p += 3; } }
+        int ynq = strstr(norm, "?") && (strstr(norm, "do ") || strstr(norm, "does ") ||
+                  strstr(norm, "are ") || strstr(norm, "is ") || strstr(norm, "can "));
+        if (nall >= 2 && ynq && !strstr(norm, "some") && !strstr(norm, " no ")) {
+            char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+            char *w[96]; size_t n = split_words(sb, w, 96);
+            for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+            char A[64] = "", B[64] = "";
+            for (size_t i = 0; i + 3 < n; i++)
+                if (!strcmp(w[i], "all") && !strcmp(w[i + 2], "are")) {
+                    snprintf(A, sizeof A, "%s", w[i + 1]);
+                    snprintf(B, sizeof B, "%s", w[i + 3]); break;
+                }
+            if (A[0] && B[0]) {
+                char as[64], bs[64];
+                snprintf(as, sizeof as, "%s", A); snprintf(bs, sizeof bs, "%s", B);
+                { size_t l = strlen(as); if (l > 1 && as[l-1]=='s') as[l-1]='\0'; }
+                { size_t l = strlen(bs); if (l > 1 && bs[l-1]=='s') bs[l-1]='\0'; }
+                size_t ac = 0, bc = 0;
+                for (size_t i = 0; i < n; i++) {
+                    char s[64]; snprintf(s, sizeof s, "%s", w[i]);
+                    size_t l = strlen(s); if (l > 1 && s[l-1]=='s') s[l-1]='\0';
+                    if (!strcmp(s, as)) ac++;
+                    if (!strcmp(s, bs)) bc++;
+                }
+                /* A recurs (premise + question), B recurs (both universals) */
+                if (ac >= 2 && bc >= 2 && strcmp(as, bs)) {
+                    put("Yes.", out, out_size);
+                    store_proof(b, "Barbara: all A are B and all B have the property, so A does too.");
+                    return 1;
+                }
+            }
+        }
+    }
+
+    /* gen349 (Fase 3): valid Darii. "Some A are B. All B are C. Are some A C?"
+     * -> Yes. The middle term B is the some-clause predicate AND falls inside the
+     * universal's subject; the question pairs A with C. */
+    if (strstr(norm, "some") && strstr(norm, "all") && strstr(norm, "?")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[96]; size_t n = split_words(sb, w, 96);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char sA[64] = "", sB[64] = "", C[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "some") && !strcmp(w[i + 2], "are")) {
+                snprintf(sA, sizeof sA, "%s", w[i + 1]);
+                snprintf(sB, sizeof sB, "%s", w[i + 3]); break;
+            }
+        if (sA[0] && sB[0]) {
+            char sbs[64]; snprintf(sbs, sizeof sbs, "%s", sB);
+            { size_t l = strlen(sbs); if (l > 1 && sbs[l-1]=='s') sbs[l-1]='\0'; }
+            for (size_t i = 0; i + 1 < n && !C[0]; i++) {
+                if (strcmp(w[i], "all")) continue;
+                int midB = 0; size_t arepos = 0;
+                for (size_t j = i + 1; j < n; j++) {
+                    if (!strcmp(w[j], "are")) { arepos = j; break; }
+                    char s[64]; snprintf(s, sizeof s, "%s", w[j]);
+                    size_t l = strlen(s); if (l > 1 && s[l-1]=='s') s[l-1]='\0';
+                    if (!strcmp(s, sbs)) midB = 1;
+                }
+                if (midB && arepos && arepos + 1 < n)
+                    snprintf(C, sizeof C, "%s", w[arepos + 1]);
+            }
+            if (C[0]) {
+                char cs[64]; snprintf(cs, sizeof cs, "%s", C);
+                { size_t l = strlen(cs); if (l > 1 && cs[l-1]=='s') cs[l-1]='\0'; }
+                int hasA = 0, hasC = 0;
+                for (size_t i = 0; i < n; i++) {
+                    char s[64]; snprintf(s, sizeof s, "%s", w[i]);
+                    size_t l = strlen(s); if (l > 1 && s[l-1]=='s') s[l-1]='\0';
+                    if (!strcmp(s, sA) || (strlen(sA)>1 && !strncmp(s, sA, strlen(sA)-1))) hasA = 1;
+                    if (!strcmp(s, cs)) hasC = 1;
+                }
+                if (hasA && hasC) {
+                    put("Yes.", out, out_size);
+                    store_proof(b, "Darii: some A are B and all B are C, so some A are C.");
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen248: universal syllogism chain. "All dogs are mammals; all mammals
      * breathe; what can you conclude about dogs?" -> Dogs breathe. */
     if ((cue(norm, "conclude") || cue(norm, "what can you conclude")) &&
@@ -3665,6 +3756,28 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                                  out, out_size))
                     return 0;
                 store_proof(b, "The explicit no-overlap premise rules out being both.");
+                return 1;
+            }
+        }
+    }
+
+    /* gen349 (Fase 2, motorize-the-class): "how many X are there / in the world?"
+     * -> count_of(X, N). One motor for the whole count class; a new count is a
+     * fact, not C. */
+    if (cue(norm, "how many") && (cue(norm, "are there") ||
+        cue(norm, "in the world") || cue(norm, "in total") || cue(norm, "exist"))) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i + 1 < n; i++) {
+            if (strcmp(w[i], "many")) continue;
+            char noun[64]; snprintf(noun, sizeof noun, "%s", strip_edge_punct(w[i + 1]));
+            size_t l = strlen(noun); if (l > 1 && noun[l - 1] == 's') noun[l - 1] = '\0';
+            const char *cq[2] = { noun, NULL }; char cr[1][KB_TERM_LEN];
+            if (b->kb && kb_match(b->kb, "count_of", cq, 2, cr, 1) == 1) {
+                char msg[160]; snprintf(msg, sizeof msg, "There are %s %ss.",
+                                        kb_dequote(cr[0]), noun);
+                put(msg, out, out_size);
+                store_proof(b, "Answered from a count_of/2 fact in the KB.");
                 return 1;
             }
         }

@@ -3651,3 +3651,37 @@ causal_process_verb(works).
 causal_process_verb(made).
 causal_process_verb(cause).
 causal_process_verb(causes).
+
+% gen349 (motorize-the-class Fase 1b): missing causal reasons. The motor already
+% generalizes phrasing; these add the KNOWLEDGE for common "why/how" questions.
+because(hiccups, "a sudden spasm of the diaphragm sucks in a breath that the vocal cords snap shut on, making the hic sound").
+because(moon_tides, "the moon's gravity pulls the ocean toward it, raising a bulge of water -- with a matching one on the far side -- that Earth turns through as the daily tides").
+because(stars_twinkle, "starlight bends as it crosses moving layers of warm and cool air high in the atmosphere, so the tiny point of light seems to shimmer").
+
+% gen349 (motorize-the-class): time units, read by the rate/speed motors so a new
+% unit is a fact, not a C word-list (kb-first.md "Nessuna lista di parole nel C").
+time_unit(second).
+time_unit(minute).
+time_unit(hour).
+time_unit(day).
+time_unit(week).
+time_unit(month).
+time_unit(year).
+
+% gen349 (motorize-the-class Fase 2): factual breadth. The superlative/creator
+% motors already exist (world_superlative/3, answer_frame/2); these add the
+% KNOWLEDGE they were missing, plus a generic count.
+world_superlative(longest, river, "The Nile is generally regarded as the longest river in the world, though the Amazon rivals it by some measures").
+wrote(shakespeare, romeo_and_juliet).
+painted(leonardo_da_vinci, the_mona_lisa).
+painted(leonardo_da_vinci, mona_lisa).
+painted(vincent_van_gogh, the_starry_night).
+painted(pablo_picasso, guernica).
+answer_frame("painted", painted).
+answer_frame("painter of", painted).
+answer_frame("who painted", painted).
+% count_of(Thing, N): "how many <thing>s are there?" -> N. A new count is a fact.
+count_of(continent, seven).
+count_of(planet, eight).
+count_of(ocean, five).
+count_of(day_in_a_week, seven).
