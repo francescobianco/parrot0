@@ -3490,9 +3490,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* gen249: explicit no-overlap beats existential uncertainty. */
+    /* gen249: explicit no-overlap beats existential uncertainty. gen348: accept
+     * both "can a X also be a Y" and "can any X be a Y" existential phrasings. */
     if ((cue(norm, "can") || cue(norm, "could")) && cue(norm, "no ") &&
-        cue(norm, " are ") && cue(norm, "also be")) {
+        cue(norm, " are ") && (cue(norm, "also be") || cue(norm, " be "))) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
@@ -3503,17 +3504,22 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 snprintf(Y, sizeof Y, "%s", w[i + 3]);
                 break;
             }
-        for (size_t i = 0; i + 5 < n; i++)
-            if ((!strcmp(w[i], "can") || !strcmp(w[i], "could")) &&
-                is_article(w[i + 1]) && !strcmp(w[i + 3], "also") &&
-                !strcmp(w[i + 4], "be")) {
-                snprintf(qx, sizeof qx, "%s", w[i + 2]);
-                if (is_article(w[i + 5]) && i + 6 < n)
-                    snprintf(qy, sizeof qy, "%s", w[i + 6]);
-                else
-                    snprintf(qy, sizeof qy, "%s", w[i + 5]);
-                break;
-            }
+        for (size_t i = 0; i + 2 < n; i++) {
+            if (strcmp(w[i], "can") && strcmp(w[i], "could")) continue;
+            size_t j = i + 1;
+            /* optional determiner/quantifier before the subject */
+            if (is_article(w[j]) || !strcmp(w[j], "any") ||
+                !strcmp(w[j], "some")) j++;
+            if (j >= n) break;
+            snprintf(qx, sizeof qx, "%s", w[j]); j++;
+            if (j < n && !strcmp(w[j], "also")) j++;       /* optional "also" */
+            if (j >= n || strcmp(w[j], "be")) continue;    /* require copula */
+            j++;
+            if (j < n && is_article(w[j])) j++;            /* optional article */
+            if (j >= n) continue;
+            snprintf(qy, sizeof qy, "%s", w[j]);
+            break;
+        }
         if (X[0] && Y[0] && qx[0] && qy[0]) {
             char xs[64], ys[64], qxs[64], qys[64];
             snprintf(xs, sizeof xs, "%s", X); snprintf(ys, sizeof ys, "%s", Y);

@@ -3579,6 +3579,19 @@ qa_cue(q_australia_seat, "government").
 qa_cue(q_australia_seat, "move").
 qa_reply(q_australia_seat, "Canberra is the capital of Australia. The seat of government was moved there from Melbourne, which had been the interim capital -- but that transfer was completed in 1927, not 1987.").
 
+% gen348 (LLMSCORE Q6): the four-walls-facing-south riddle. A house whose every
+% wall faces south can only sit at the North Pole; the answer is fixed knowledge.
+qa_cue(q_south_house_bear, "sides").
+qa_cue(q_south_house_bear, "south").
+qa_cue(q_south_house_bear, "bear").
+qa_reply(q_south_house_bear, "White. A house whose four walls all face south can only stand at the North Pole, so the bear walking past is a polar bear.").
+
+% gen348 (LLMSCORE Q7): why summer is warmer than winter -- Earth's axial tilt.
+qa_cue(q_summer_warmer, "warmer").
+qa_cue(q_summer_warmer, "summer").
+qa_cue(q_summer_warmer, "winter").
+qa_reply(q_summer_warmer, "Summer is warmer because Earth's axis is tilted, so in summer your hemisphere leans toward the Sun and its rays strike more directly and for longer days, concentrating the heat.").
+
 % gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are
 % knowledge, so a new theme is three facts (open 5 / mid 7 / close 5 syllables).
 haiku_open(lighthouse, "A lighthouse stands watch").
