@@ -3565,3 +3565,24 @@ suggestion("break the ice", "Comment on the shared situation and follow with a l
 % sentence keyed by its first and last word. A new anchor pair is one fact.
 sentence_frame(because, until, "Because the harbor light had gone dark, the fishermen rowed slowly by memory and counted the waves, refusing to turn back and trusting the night would hold them safe until.").
 sentence_frame(although, tomorrow, "Although the road ahead was long and the sky threatened rain, she shouldered her pack, smiled at the horizon, and decided the journey could wait no longer than tomorrow.").
+
+% gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are
+% knowledge, so a new theme is three facts (open 5 / mid 7 / close 5 syllables).
+haiku_open(lighthouse, "A lighthouse stands watch").
+haiku_mid(lighthouse, "its slow beam sweeps the black water").
+haiku_close(lighthouse, "steadfast through the night").
+haiku_open(storm, "The storm hurls the sea").
+haiku_mid(storm, "waves claw at the trembling grey shore").
+haiku_close(storm, "wind screaming its rage").
+haiku_open(wind, "The wind wanders far").
+haiku_mid(wind, "bending the tall grass as it runs").
+haiku_close(wind, "and is gone unseen").
+haiku_open(fire, "A small flame wakes up").
+haiku_mid(fire, "climbing the wood in bright ribbons").
+haiku_close(fire, "warm against the dark").
+haiku_open(mountain, "The old mountain waits").
+haiku_mid(mountain, "clouds resting upon its shoulders").
+haiku_close(mountain, "patient as the stone").
+haiku_open(river, "The river hurries").
+haiku_mid(river, "carrying the sky on its back").
+haiku_close(river, "toward a far sea").
