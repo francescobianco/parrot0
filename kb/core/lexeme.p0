@@ -3341,6 +3341,9 @@ lexeme(bookies).
 lexeme(booking).
 lexeme(bookings).
 lexeme(bookish).
+lexeme(bookkeeper).
+lexeme(bookkeepers).
+lexeme(bookkeeping).
 lexeme(booklet).
 lexeme(booklets).
 lexeme(bookmark).

@@ -1,4 +1,4 @@
-# Motorize the Class — strategia per massimizzare LLMSCORE
+# Motorize the Class — missione LLMSCORE-max
 
 > **Principio unico:** *motorizza la classe, poi nutri il motore su scala — non
 > memorizzare istanze.* Ogni classe che parrot0 vince oggi è un MOTORE su una KB
@@ -10,6 +10,56 @@
 Coerente con lo steer di F.: **meno moduli, più KB**. Un motore causale è UN
 motore per l'intera classe "perché" — l'opposto di N moduli-qa. I motori sono
 C (motori, non frasi); la conoscenza cresce nella KB per processo.
+
+## Missione aggiornata — massimizzare il punteggio atteso, non il run visto
+
+LLMSCORE non misura una checklist fissa: campiona 10 richieste da una coda lunga
+di comportamenti LLM-like. Dopo gen350 il probe interno può dire **70/70 answered**
+e il run ufficiale può ancora cadere a **4/10**. Questo non contraddice il piano:
+dimostra che il vecchio metro primario, il wall-rate, misurava solo la prima
+frontiera. La missione ora è più stretta:
+
+> **Massimizzare il valore atteso di LLMSCORE sotto alta varianza, riducendo sia
+> muri sia risposte sbagliate, tramite crescita KB-first di classi componibili.**
+
+La domanda guida non è più soltanto "parrot0 sa ingaggiare questa classe?" ma:
+
+1. **completezza multi-intento:** se il prompt chiede A **e** B, la risposta deve
+   coprire entrambe le slot, non fermarsi al primo frame che matcha;
+2. **fedeltà di formato:** se il prompt chiede due righe, tre modi, una lista, una
+   frase semplice, il formato è parte del task, non decorazione;
+3. **calcolo semanticamente tipato:** numeri e operazioni non bastano; servono gli
+   slot giusti (`price`, `change`, `width`, `length`, `digit_count`);
+4. **fatti bundle/compositi:** le domande factuali spesso combinano capitale +
+   motivo storico, anno + entità correlate, opera + autore + contesto;
+5. **anti-collisione di routing:** il primo modulo che risponde può ancora essere
+   quello sbagliato. Il routing deve imparare a declinare quando un cue più
+   specifico o compositivo è presente.
+
+Quindi il piano non mira a inseguire il prossimo `LLMSCORE.md`. Usa ogni failure
+come campione da una distribuzione latente e chiede: *quale famiglia di prompt ha
+appena esposto? quale rappresentazione KB la copre a pioggia? quale test runtime
+dimostra che la superficie è insegnabile senza rebuild?*
+
+## Diagnosi gen351 — perché 0% wall non basta
+
+Ultimo campione osservato: **4/10**. I failure non sono "mancano sette risposte":
+sono segnali di classi deboli.
+
+| Failure | Sintomo | Classe latente da motorizzare |
+|---|---|---|
+| Poema due-linee | contenuto buono, formato sbagliato | post-shaper di formato come KB task constraint |
+| Rettangolo perimetro/lunghezza doppia | numero arbitrario, slot mancanti | algebra schema-backed: variabili, equazioni, output dimensionale |
+| Canberra compromesso | prima risposta factual vince e tronca il "why" | domanda composta: answer plan con più subgoal |
+| Apples + change | calcola prezzo ma non resto | chain aritmetica multi-step con ledger di quantità |
+| WWII + atomic cities | risponde all'anno ma non alle entità correlate | factual bundle/event frame |
+| Digit 7 tra 1 e 100 | aritmetica generica sbaglia count combinatorio | enumeratore/count procedure per digit/range |
+
+Pattern comune: parrot0 oggi eccelle nei **single-goal frames**. LLMSCORE campiona
+sempre più spesso **compound goals**: task + formato, fatto + spiegazione, calcolo
+seguito da secondo calcolo, evento + attributi multipli. La prossima frontiera è quindi una
+KB che non memorizza solo fatti atomici, ma anche **piani di risposta**: frame che
+dicono quali subgoal devono essere soddisfatti prima di parlare.
 
 ## Mantra operativi — da eseguire PRIMA di ogni passo
 
@@ -41,13 +91,70 @@ Regole imposte a noi stessi per non ricadere nel fix puntuale. Prima di scrivere
    Per i cue discriminanti, match a PAROLA INTERA.
 8. **Il wall-rate non vede le risposte sbagliate.** Quando tocchi una classe,
    ispeziona a mano anche le risposte marcate "ok".
+9. **Nessuna risposta prima di aver soddisfatto il piano.** Se il prompt contiene
+   più richieste coordinate, il modulo deve costruire un `answer_plan` o declinare.
+   Vietato rispondere al primo subgoal e ignorare il resto.
+10. **Il formato è un vincolo semantico.** "two-line", "three ways", "one
+    sentence", "simple terms", "as a list" vive in KB come `format_constraint/2`
+    o relazione equivalente. Il post-shaper deve provare il formato.
+11. **Ogni numero deve avere un ruolo.** Prima di fare aritmetica, lega i numeri a
+    slot (`total`, `unit_price`, `paid`, `width`, `length`, `range_low`). Se non
+    sai il ruolo, non calcolare.
+12. **Preferisci event frames ai fatti sparsi.** Una domanda su WWII non è solo
+    `ended_in(world_war_ii, 1945)`: è un evento con anno, luogo, attori, cause,
+    conseguenze e oggetti correlati. La KB deve crescere per frame interrogabili.
+13. **Ogni collisione diventa una guardia teachable.** Se un frame generico vince
+    su uno specifico, non riordinare a mano soltanto: aggiungi un cue/registro KB
+    che fa declinare il generico davanti alla classe compositiva.
+14. **Un failure LLMSCORE vale come seed di fuzzing.** Dopo il fix, genera varianti
+    della classe: sinonimi, ordine invertito, numeri diversi, multiword entities,
+    formato diverso. Il test non deve coprire il prompt, ma il fascio.
+
+## Evoluzione KB richiesta per LLMSCORE-max
+
+La KB di parrot0 deve passare da "grande dizionario di fatti interrogabili" a
+"substrato di piani, procedure e frame compositivi". Le nuove famiglie di fatti
+da far crescere sistematicamente:
+
+| Famiglia KB | Scopo | Esempio |
+|---|---|---|
+| `format_constraint/2` + `format_realizer/2` | rendere verificabile il formato richiesto | `format_constraint(two_line, "two-line")` |
+| `answer_plan/3` | mappare un task composto a subgoal obbligatori | `answer_plan(capital_and_reason, [capital, reason])` |
+| `quantity_role/3` | assegnare ruolo ai numeri prima del calcolo | `quantity_role(change_problem, paid, "$20")` |
+| procedure in `procedures.p0` | portare calcoli combinatori fuori dal C | `digit_count_between(D,Lo,Hi,N)` |
+| `event_frame/1` e `event_attr/3` | interrogare eventi come pacchetti coerenti | `event_attr(wwii, atomic_bomb_cities, ...)` |
+| `relation_registry/*` | dichiarare quali relazioni un motore può usare | `analogy_relation(used_for)` |
+| `compound_guard/2` | far declinare frame generici se c'è un task più ricco | `compound_guard(answerframe, border_intersection)` |
+
+Questa crescita è "a pioggia" solo se ogni fatto aumenta il prodotto cartesiano:
+un nuovo `format_constraint` vale per poesia, story, explain, advice; una nuova
+procedura di range vale per digit-count, letter-count, prime-count; un event frame
+vale per anno, luoghi, cause e domande composte.
+
+## Nuovo ciclo operativo LLMSCORE
+
+1. **Leggi il failure come distribuzione.** Non chiedere "come rispondo a questa
+   frase?", ma "quale famiglia di frasi avrebbe lo stesso errore?".
+2. **Classifica l'errore:** wall, fatto mancante, procedura mancante, formato,
+   routing collision, compound incompleto, risposta falsa.
+3. **Disegna il frame KB:** cue, slot, subgoal obbligatori, template, procedure.
+4. **Collega il C solo come adattatore:** parse NL→goal, ordering, slot binding,
+   primitive generali. Nessuna parola naturale nuova nel C.
+5. **Espandi a pioggia:** aggiungi fatti/procedure/registri che coprono varianti
+   future della classe, non solo l'istanza.
+6. **Ablazione runtime:** assert/retract del cue o registro che prova la crescita
+   senza rebuild.
+7. **Fuzz focused:** 5-20 varianti della classe, inclusi ordini e sinonimi.
+8. **Ricontrollo manuale delle "ok":** wall-rate verde non basta.
 
 ## Perché i fix puntuali perdono
 
 Il giudice campiona 10 domande da una distribuzione illimitata. I run osservati
 condividono ~0 domande. Una coppia `qa_cue/qa_reply` copre misura-zero →
 valore atteso ~0 sul run successivo. Ottimizziamo il **punteggio atteso sulla
-distribuzione**, non il prossimo campione di 10.
+distribuzione**, non il prossimo campione di 10. Dopo gen351 questo vale anche
+per i **fix di classe troppo stretti**: una batteria interna può diventare verde
+mentre il giudice campiona fuori dal bordo. Ogni fix deve allargare il bordo.
 
 ## Tassonomia delle classi e stato (baseline)
 
@@ -61,6 +168,10 @@ distribuzione**, non il prossimo campione di 10.
 | Enciclopedico (fatti) | fatti a mano | capitali 175, resto sottile | ❌ fragile |
 | Riddle laterali | lookup `qa_reply` | 6 istanze | ❌ fragile |
 | Pragmatica / persona | insieme di fatti persona | comuni | 🟢 ok |
+| Formato/post-shaping | vincoli parziali | alcune forme | ❌ fragile |
+| Compound question | primo frame che vince | A o B, raramente A+B | ❌ fragile |
+| Algebra schema | arithmetic generica | calcoli scalari | ❌ fragile |
+| Event frames | fatti isolati | anno/capitale singoli | ❌ fragile |
 
 **Insight:** vinciamo dove abbiamo un motore su KB ampia; perdiamo dove abbiamo
 un lookup su tabella sparsa.
@@ -145,17 +256,82 @@ mai come blocchi. Post-shaper generico impone il formato.
 ### Fase 5 — Fallback anti-muro
 Ultimo stadio generativo che ingaggia la domanda in-dominio invece di murare.
 
+### Fase 6 — Answer planner per domande composte *(nuova priorità alta)*
+Costruire un planner leggero che riconosce cue coordinati e produce subgoal
+obbligatori. Esempi:
+
+- `capital(X)` + `why_created_as_compromise(X)` → risposta con capitale **e**
+  motivazione;
+- `event_end_year(world_war_ii)` + `event_attr(world_war_ii, atomic_bomb_cities, Cities)`;
+- `price_for_quantity` + `change_from_payment`.
+
+Il planner non deve inventare: se un subgoal manca, deve dire quale parte sa e
+quale manca, non fingere completezza. La forma della risposta sta in
+`response_template` o in un composer di subgoal.
+
+### Fase 7 — Format contract layer *(nuova priorità alta)*
+Separare contenuto e rendering. Il motore produce una struttura (`poem_line/2`,
+`continuation/3`, `explanation/1`), il post-shaper applica il vincolo:
+
+- due righe = output con newline reale e due unità;
+- tre modi = tre elementi distinti;
+- one sentence = un solo periodo;
+- simple terms = lessico breve, niente prova lunga;
+- exactly N words = verificatore già esistente come procedura di formato.
+
+Il contratto deve essere testabile: non basta contenuto corretto.
+
+### Fase 8 — Algebra e word-problem schemas
+Portare in KB gli schemi ricorrenti, non solo le operazioni:
+
+- rettangolo: `perimeter_rectangle(L,W,P)`, `twice(L,W)`, solve `L=2W`;
+- unit price + total quantity + change;
+- mixture/ratio/rate multi-step;
+- digit/range counting.
+
+Il C lega quantità e ruoli; `procedures.p0` risolve. Ogni schema deve avere prove
+con numeri diversi e varianti lessicali insegnabili.
+
+### Fase 9 — Event-frame ingestion
+L'enciclopedico LLMSCORE non chiede solo fatti singoli. Serve ingestione verso
+frame:
+
+```
+event_frame(world_war_ii).
+event_attr(world_war_ii, end_year, 1945).
+event_attr(world_war_ii, atomic_bomb_cities, cons(hiroshima, cons(nagasaki, nil))).
+event_attr(canberra, created_as_compromise_between, cons(sydney, cons(melbourne, nil))).
+event_attr(canberra, compromise_reason, "Sydney and Melbourne both wanted the capital, so a planned inland capital was chosen between them").
+```
+
+La pipeline deve preferire fatti collegati dallo stesso evento, perché il giudice
+campiona domande con più slot correlati.
+
+### Fase 10 — Oracolo qualità e anti-wrong
+Il wall-rate resta utile ma subordinato. Servono due metriche nuove:
+
+- **completion-rate:** percentuale di subgoal obbligatori soddisfatti;
+- **wrong-rate:** risposte factualmente o semanticamente errate.
+
+Finché non c'è giudice automatico, ogni failure LLMSCORE aggiunge un oracle
+deterministico per la classe (`has`, `lacks`, formato, numeri, subgoal).
+
 ## Criteri di misura (definizione di "fatto")
 
 - **Wall-rate per classe** ↓ (metro primario Fase 0, senza API).
 - **Copertura per classe %** (attempt plausibile) tracciata run-su-run.
+- **Completion-rate per compound question** ↑: tutti i subgoal richiesti presenti.
+- **Format-pass rate** ↑: il rendering soddisfa il vincolo esplicito.
+- **Wrong-rate** ↓: risposte sbagliate contano più dei muri.
 - LLMSCORE ufficiale come controllo esterno, NON come metro di sviluppo
   (non-deterministico, campione piccolo).
 
 ## Ordine di esecuzione raccomandato
 
-Fase 0 + Fase 1 insieme (senza la batteria non sappiamo se Fase 1 muove la
-classe o l'istanza). Fasi 3-4 come quick-win in parallelo. Fase 2 e 5 dopo.
+Fase 6 + Fase 7 prima: gli ultimi run mostrano che il collo di bottiglia non è
+più solo "muro", ma incompletezza e formato. Fase 8 subito dopo per tagliare le
+risposte numeriche sbagliate. Fase 9 in parallelo come crescita KB a pioggia.
+Fase 10 deve accompagnare ogni modifica.
 
 ## Bug noti (rimandati) — da riprendere
 
@@ -198,6 +374,19 @@ mantra; annotati per riprenderli senza riscoprirli.
   `creation_verb_form/2` + `creation_passive_agent_marker/1`.
 - **B10 — messaggio "Learned: mammal.(platypus)"** ha un punto spurio nel nome
   predicato (cosmetico, pre-esistente all'estrazione copula).
+- **B11 — formato poesia ignorato.** "two-line rhyming poem" genera una sola riga.
+  Serve Format contract layer: newline reale + conteggio righe.
+- **B12 — wordproblem rettangolo collassa a scalare.** "perimeter 24, length twice
+  width" risponde `48`. Serve schema algebraico con ruoli e output dimensionale.
+- **B13 — domanda composta capital+why tronca al primo fatto.** `answerframe`
+  risponde Canberra e ignora la spiegazione storica. Serve answer planner e guardia
+  contro first-frame incomplete.
+- **B14 — prezzo+change tronca al primo calcolo.** Serve ledger quantità con
+  subgoal obbligatori: prezzo totale e resto.
+- **B15 — event bundle WWII incompleto.** L'anno è noto, le città atomiche no o non
+  vengono aggregate. Serve `event_frame/event_attr`.
+- **B16 — digit count fra range usa aritmetica sbagliata.** Serve procedura
+  combinatoria/enumerativa `digit_count_between/4`, non calcolo generico.
 
 ## Stato
 
@@ -240,3 +429,9 @@ mantra; annotati per riprenderli senza riscoprirli.
 
 **Risultato gen350:** `make llmscore-probe` = **0/70 wall, 70/70 answered**.
 Per classe: arithmetic/causal/creative/deduction/factual/lexical/pragma = 0%.
+
+**Aggiornamento gen351:** LLMSCORE ufficiale successivo = **4/10** nonostante il
+probe interno verde. Diagnosi: il piano ha vinto la prima frontiera (muri) ma non
+ancora la seconda (completezza, formato, wrong-rate). Da qui la missione diventa
+LLMSCORE-max sotto alta varianza: answer planner, format contract, algebra schema,
+event frames e oracolo qualità.

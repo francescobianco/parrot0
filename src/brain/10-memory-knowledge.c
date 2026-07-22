@@ -2707,6 +2707,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                             char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb) return 0;
+    if (kb_cue_match(b, "border_intersection", norm)) return 0;
     char cues[128][KB_TERM_LEN];
     const char *fq[2] = { NULL, NULL };
     size_t nf = kb_match(b->kb, "answer_frame", fq, 2, cues, 128);   /* the Cue list */
@@ -3648,6 +3649,41 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         #undef KSING
     }
 
+    if (kb_cue_match(b, "definite_conclusion_query", norm) &&
+        cue(norm, "all") && cue(norm, "some")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[64]; size_t n = split_words(sb, w, 64);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+        char A[64] = "", B[64] = "", C[64] = "";
+        for (size_t i = 0; i + 3 < n; i++) {
+            if (!A[0] && !strcmp(w[i], "all") && !strcmp(w[i + 2], "are")) {
+                snprintf(A, sizeof A, "%s", w[i + 1]);
+                snprintf(B, sizeof B, "%s", w[i + 3]);
+            }
+            if (!C[0] && !strcmp(w[i], "some") && !strcmp(w[i + 2], "are")) {
+                char bsing[64], ssing[64];
+                snprintf(bsing, sizeof bsing, "%s", B);
+                snprintf(ssing, sizeof ssing, "%s", w[i + 1]);
+                size_t bl = strlen(bsing), sl = strlen(ssing);
+                if (bl > 1 && bsing[bl - 1] == 's') bsing[bl - 1] = '\0';
+                if (sl > 1 && ssing[sl - 1] == 's') ssing[sl - 1] = '\0';
+                if (!strcmp(bsing, ssing)) snprintf(C, sizeof C, "%s", w[i + 3]);
+            }
+        }
+        if (A[0] && B[0] && C[0]) {
+            const KbResponseSlot slots[] = {
+                { "subject", A },
+                { "class", B },
+                { "other", C }
+            };
+            if (kb_response_slots(b, "definite_conclusion_limited", slots, 3,
+                                  out, out_size)) {
+                store_proof(b, "Undistributed middle: all A are B plus some B are C does not entail any A are C.");
+                return 1;
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): the INVALID syllogism (undistributed middle). "All A are
      * B, some B are/​do C, can we conclude some A are C?" does NOT follow — the B
      * that are C needn't be the A ones. Honest reasoning means saying No, not
@@ -4507,6 +4543,46 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 put(msg, out, out_size);
                 store_proof(b, "Listed neighbours inferred from the borders relation.");
                 return 1;
+            }
+        }
+    }
+
+    if (kb_cue_match(b, "border_intersection", norm) && cue(norm, "capital")) {
+        char cb[256]; snprintf(cb, sizeof cb, "%s", norm);
+        char *cw[64]; size_t cnw = split_words(cb, cw, 64);
+        const char *left = NULL, *right = NULL;
+        for (size_t i = 0; i < cnw; i++) cw[i] = strip_edge_punct(cw[i]);
+        for (size_t i = 0; i < cnw; i++) {
+            if (!left) {
+                const char *cq[] = { "country", cw[i] };
+                if (kb_query(b->kb, "category_member", cq, 2)) left = cw[i];
+                continue;
+            }
+            if (strcmp(cw[i], left) == 0) continue;
+            const char *cq[] = { "country", cw[i] };
+            if (kb_query(b->kb, "category_member", cq, 2)) { right = cw[i]; break; }
+        }
+        if (left && right) {
+            const char *cp[] = { "country", NULL };
+            char countries[64][KB_TERM_LEN];
+            size_t n = kb_match(b->kb, "category_member", cp, 2, countries, 64);
+            for (size_t i = 0; i < n; i++) {
+                if (!strcmp(countries[i], left) || !strcmp(countries[i], right)) continue;
+                const char *ba[] = { countries[i], left };
+                const char *bb[] = { countries[i], right };
+                if (!kb_query(b->kb, "borders", ba, 2) ||
+                    !kb_query(b->kb, "borders", bb, 2)) continue;
+                const char *capq[] = { NULL, countries[i] };
+                char cap[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "capital_of_country", capq, 2, cap, 1) > 0) {
+                    char disp[64]; snprintf(disp, sizeof disp, "%s", cap[0]);
+                    for (char *p = disp; *p; p++) if (*p == '_') *p = ' ';
+                    if (disp[0]) disp[0] = (char)toupper((unsigned char)disp[0]);
+                    char msg[96]; snprintf(msg, sizeof msg, "%s.", disp);
+                    put(msg, out, out_size);
+                    store_proof(b, "Found a country bordering both named countries, then queried its capital.");
+                    return 1;
+                }
             }
         }
     }

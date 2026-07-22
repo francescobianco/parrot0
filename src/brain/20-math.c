@@ -1633,6 +1633,42 @@ static int wq_num(const char *w) {
     return 0;
 }
 
+static int wq_max_double_runs(const char *word) {
+    int best = 0, cur = 0;
+    size_t n = strlen(word);
+    for (size_t i = 0; i + 1 < n;) {
+        if (isalpha((unsigned char)word[i]) &&
+            tolower((unsigned char)word[i]) == tolower((unsigned char)word[i + 1])) {
+            cur++;
+            if (cur > best) best = cur;
+            i += 2;
+        } else {
+            cur = 0;
+            i++;
+        }
+    }
+    return best;
+}
+
+static int wq_letter_counts(const char *s, int counts[26]) {
+    int any = 0;
+    memset(counts, 0, 26 * sizeof counts[0]);
+    for (const char *p = s; p && *p; p++) {
+        unsigned char ch = (unsigned char)*p;
+        if (!isalpha(ch)) continue;
+        counts[tolower(ch) - 'a']++;
+        any = 1;
+    }
+    return any;
+}
+
+static int wq_same_letters(const char *a, const char *b) {
+    int ca[26], cb[26];
+    if (!wq_letter_counts(a, ca) || !wq_letter_counts(b, cb)) return 0;
+    for (int i = 0; i < 26; i++) if (ca[i] != cb[i]) return 0;
+    return 1;
+}
+
 #define WQ_MAX 40000
 static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
@@ -1640,7 +1676,11 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     int is_rhyme   = kb_cue_match(b, "word_rhyme", norm);
     int is_letters = kb_cue_match(b, "word_from_letters", norm);
     int is_starts  = kb_cue_match(b, "word_starts_with", norm);
-    if (!is_rhyme && !is_letters && !is_starts) return 0;
+    int is_double  = kb_cue_match(b, "word_double_runs", norm);
+    int is_full_anagram = kb_cue_match(b, "full_anagram_request", norm) ||
+        (is_letters && kb_cue_match(b, "anagram_request", norm) &&
+         kb_cue_match(b, "anagram_output", norm));
+    if (!is_rhyme && !is_letters && !is_starts && !is_double && !is_full_anagram) return 0;
 
     /* parse the shared modifiers: a length filter ("N letter(s)" / "N-letter"),
      * a list size ("five words"), and count vs list mode ("how many"). */
@@ -1657,31 +1697,6 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         if (is_len) len_filter = v; else if (!list_n) list_n = v;
     }
 
-    if (is_letters &&
-        kb_cue_match(b, "anagram_request", norm) &&
-        kb_cue_match(b, "anagram_output", norm)) {
-        for (size_t i = 0; i + 1 < nw; i++) {
-            char *t = strip_edge_punct(w[i]);
-            if (strcmp(t, "of") && strcmp(t, "in")) continue;
-            char *src = strip_edge_punct(w[i + 1]);
-            if (!strcmp(src, "the") && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
-            if (strlen(src) < 3) continue;
-            int alpha = 1;
-            for (size_t k = 0; src[k]; k++)
-                if (!isalpha((unsigned char)src[k])) { alpha = 0; break; }
-            if (!alpha) continue;
-            const char *q[] = { src, NULL };
-            char hit[1][KB_TERM_LEN];
-            if (kb_match(b->kb, "anagram_of", q, 2, hit, 1) > 0) {
-                char *p = kb_dequote(hit[0]);
-                char msg[160]; snprintf(msg, sizeof msg, "\"%s\".", p);
-                put(msg, out, out_size);
-                return 1;
-            }
-            break;
-        }
-    }
-
     ensure_lexeme(b);
     char (*pool)[KB_TERM_LEN] = malloc((size_t)WQ_MAX * KB_TERM_LEN);
     if (!pool) return 0;
@@ -1689,6 +1704,89 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     size_t np = kb_match(b->kb, "lexeme", anyq, 1, pool, WQ_MAX);
 
     char hits[64][KB_TERM_LEN]; size_t nh = 0; int total = 0;
+
+    if (is_full_anagram) {
+        char srcbuf[KB_TERM_LEN] = "";
+        if (raw) {
+            const char *q1 = strchr(raw, '"');
+            if (q1) {
+                const char *q2 = strchr(q1 + 1, '"');
+                if (q2 && q2 > q1 + 1) {
+                    size_t n = (size_t)(q2 - q1 - 1);
+                    if (n >= sizeof srcbuf) n = sizeof srcbuf - 1;
+                    memcpy(srcbuf, q1 + 1, n); srcbuf[n] = '\0';
+                }
+            }
+        }
+        if (!srcbuf[0]) {
+            for (size_t i = 0; i + 1 < nw && !srcbuf[0]; i++) {
+                char *t = strip_edge_punct(w[i]);
+                if (strcmp(t, "of") && strcmp(t, "in")) continue;
+                char *src = strip_edge_punct(w[i + 1]);
+                if (!strcmp(src, "the") && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
+                if (strlen(src) >= 3) snprintf(srcbuf, sizeof srcbuf, "%s", src);
+            }
+        }
+        for (char *p = srcbuf; *p; p++) *p = (char)tolower((unsigned char)*p);
+        strip_edge_punct(srcbuf);
+        if (srcbuf[0]) {
+            const char *q[] = { srcbuf, NULL };
+            char hit[8][KB_TERM_LEN];
+            size_t hn = kb_match(b->kb, "anagram_of", q, 2, hit, 8);
+            for (size_t i = 0; i < hn && nh < 64; i++) {
+                char *p = kb_dequote(hit[i]);
+                if (wq_same_letters(srcbuf, p) && strcmp(srcbuf, p))
+                    snprintf(hits[nh++], KB_TERM_LEN, "%s", p);
+            }
+            for (size_t i = 0; i < np && nh < 64; i++) {
+                const char *lx = pool[i];
+                if (strcmp(lx, srcbuf) && wq_same_letters(srcbuf, lx) &&
+                    !seen_term(hits, nh, lx))
+                    snprintf(hits[nh++], KB_TERM_LEN, "%s", lx);
+            }
+            free(pool);
+            if (nh == 0) return 0;
+            char msg[160]; snprintf(msg, sizeof msg, "\"%s\".", hits[0]);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+
+    if (is_double) {
+        int need_runs = 0;
+        for (size_t i = 0; i < nw; i++) {
+            int v = wq_num(strip_edge_punct(w[i]));
+            if (v > 0) { need_runs = v; break; }
+        }
+        if (need_runs <= 0) need_runs = 2;
+        for (size_t i = 0; i < np && nh < 64; i++) {
+            const char *lx = pool[i];
+            if (wq_max_double_runs(lx) < need_runs) continue;
+            snprintf(hits[nh++], KB_TERM_LEN, "%s", lx);
+        }
+        free(pool);
+        if (nh == 0) return 0;
+        for (size_t i = 0; i + 1 < nh; i++)
+            for (size_t j = i + 1; j < nh; j++)
+                if (strlen(hits[j]) < strlen(hits[i])) {
+                    char tmp[KB_TERM_LEN]; snprintf(tmp, sizeof tmp, "%s", hits[i]);
+                    snprintf(hits[i], KB_TERM_LEN, "%s", hits[j]);
+                    snprintf(hits[j], KB_TERM_LEN, "%s", tmp);
+                }
+        char runs[16];
+        snprintf(runs, sizeof runs, "%d", need_runs);
+        const KbResponseSlot slots[] = {
+            { "word", hits[0] },
+            { "runs", runs }
+        };
+        if (kb_response_slots(b, "word_double_runs_answer", slots, 2,
+                              out, out_size)) return 1;
+        char msg[160];
+        snprintf(msg, sizeof msg, "%s.", hits[0]);
+        if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+        put(msg, out, out_size);
+        return 1;
+    }
 
     if (is_rhyme) {
         const char *target = NULL;

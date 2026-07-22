@@ -3071,6 +3071,8 @@ static int is_struct_pred(const char *pred) {
         "unique_trait", "measure", "compare_cue", "entity_alias",
         "distance_between", /* gen240/gen251: queried world commons */
         "scene_cue", "continuation_template",
+        "synesthetic_taste", "synesthetic_default",
+        "opening_scene_cue", "opening_line", "past_participle",
         "tr_es", "gender_es", "tr_fr", "gender_fr", "very_cold_result",
         "historical_figure", "figure_domain", "figure_reason",
         "paint_mix", /* gen239: curated world commons, not describable */
@@ -3087,6 +3089,7 @@ static int is_struct_pred(const char *pred) {
         "compound_word", /* gen240: compound-word riddle facts */
         "appearance", /* gen240: sensory descriptions, queried not described */
         "taste_of",
+        "analogy_relation",
         "synonym", /* gen231/236: synonym relation, queried not described */
         "idiom_meaning", "boils_at", "freezes_at", "historical_fact", /* gen241 */
         "river_of", "ocean_west_of", "ocean_borders", "moon_of", "anagram_of", /* gen241 */
@@ -3103,7 +3106,8 @@ static int is_struct_pred(const char *pred) {
         "flashes", "depicts", "contains", "has_part", "has_property", "can_do",
         "add", "len", "nat", "choose", "valid_hypergeom_take",
         "skip_hypergeom_take", "hypergeom_term", "fav_at_least",
-        "probability_procedure", "riddle_sig", "response_template",
+        "probability_procedure", "approach_speed", "meet_time",
+        "riddle_sig", "response_template",
         /* gen313: code/KB-substrate predicates — never entity descriptions */
         "code_function", "code_calls", "day_order",
         /* gen335 (F.): presentation-layer machinery (kb/core/presentation.p0) —

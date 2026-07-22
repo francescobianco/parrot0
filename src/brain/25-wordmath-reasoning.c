@@ -1181,6 +1181,66 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
+    if (kb_cue_match(b, "train_meet_time", q) &&
+        (cue(q, "mph") || cue(q, "km/h"))) {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", q);
+        char *mw[64]; size_t mnw = split_words(mb, mw, 64);
+        double speed[2], dist = -1.0; int ns = 0; int unit_km = 0;
+        for (size_t i = 0; i < mnw; i++) {
+            char *t = strip_edge_punct(mw[i]);
+            double v;
+            if (wp_number_suffix(t, "mph", &v) && ns < 2) speed[ns++] = v;
+            else if (wp_number_suffix(t, "km/h", &v) && ns < 2) {
+                speed[ns++] = v; unit_km = 1;
+            } else if (wp_parse_value_clean(t, &v)) {
+                char *nx = (i + 1 < mnw) ? strip_edge_punct(mw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2) {
+                    speed[ns++] = v; if (!strcmp(nx, "km/h")) unit_km = 1;
+                } else if ((!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
+                            !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
+                            !strcmp(nx, "kilometres")) && dist < 0) {
+                    dist = v; if (!strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
+                                  !strcmp(nx, "kilometres")) unit_km = 1;
+                }
+            }
+        }
+        if (ns == 2 && dist > 0 && speed[0] > 0 && speed[1] > 0) {
+            char ds[32], v1s[32], v2s[32];
+            snprintf(ds, sizeof ds, "%.15g", dist);
+            snprintf(v1s, sizeof v1s, "%.15g", speed[0]);
+            snprintf(v2s, sizeof v2s, "%.15g", speed[1]);
+            const char *mq[] = { ds, v1s, v2s, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "meet_time", mq, 4, hit, 1) > 0) {
+                double hours = atof(hit[0]);
+                long mins = (long)(hours * 60.0 + 0.5);
+                char dur[64];
+                if (mins % 60 == 0) {
+                    long h = mins / 60;
+                    snprintf(dur, sizeof dur, "%ld %s", h, h == 1 ? "hour" : "hours");
+                } else if (mins < 60) {
+                    snprintf(dur, sizeof dur, "%ld minutes", mins);
+                } else {
+                    long h = mins / 60, m = mins % 60;
+                    snprintf(dur, sizeof dur, "%ld %s %ld minutes",
+                             h, h == 1 ? "hour" : "hours", m);
+                }
+                char closes[32]; snprintf(closes, sizeof closes, "%.15g", speed[0] + speed[1]);
+                const KbResponseSlot slots[] = {
+                    { "duration", dur },
+                    { "speed", closes },
+                    { "distance", ds }
+                };
+                if (kb_response_slots(b, "train_meet_time", slots, 3,
+                                      out, out_size)) {
+                    store_proof(b, "meet_time(D,V1,V2,T) from KB computed D / (V1 + V2).");
+                    (void)unit_km;
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen252: destination-arrival race for two trains from opposite cities. This
      * is not the meet-at-one-point trick: each train covers the full separation
      * to the other city, so compare departure_time + distance/speed. */

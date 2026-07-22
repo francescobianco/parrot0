@@ -281,5 +281,10 @@ celsius_to_fahrenheit($C, $F) :- is($F, add(div(mul($C, 9), 5), 32)).
 km_to_miles($KM, $M) :- is($M, div(mul($KM, 62137), 100000)).
 miles_to_km($M, $KM) :- is($KM, div(mul($M, 100000), 62137)).
 
+% gen350 (LLMSCORE): closing time for two movers heading toward each other.
+% C only binds the numeric slots from language; the computation lives here.
+approach_speed($V1, $V2, $V) :- is($V, add($V1, $V2)).
+meet_time($D, $V1, $V2, $T) :- approach_speed($V1, $V2, $V), is($T, div($D, $V)).
+
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).

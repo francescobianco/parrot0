@@ -1191,10 +1191,45 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
           strcmp(target, "blank") == 0 || blank || target[0] == '\0'))
         return 0;
 
+    char rels[64][KB_TERM_LEN];
+    const char *rq[] = { NULL };
+    size_t nr = kb_match(b->kb, "analogy_relation", rq, 1, rels, 64);
+    const char *linking = NULL; /* a relation found between A and B, if any */
+    for (size_t i = 0; i < nr; i++) {
+        const char *R = rels[i];
+        char res[4][KB_TERM_LEN];
+        const char *ab[] = { A, B }, *ba[] = { B, A };
+        const char *fwd[] = { C, NULL }, *rev[] = { NULL, C };
+        const char *D = NULL;
+        char dir = 'f';
+        if (kb_query(b->kb, R, ab, 2)) {
+            linking = R;
+            if (kb_match(b->kb, R, fwd, 2, res, 4)) { D = res[0]; dir = 'f'; }
+        }
+        if (!D && kb_query(b->kb, R, ba, 2)) {
+            linking = R;
+            if (kb_match(b->kb, R, rev, 2, res, 4)) { D = res[0]; dir = 'r'; }
+        }
+        if (D) {
+            char msg[96]; snprintf(msg, sizeof msg, "%s.", D);
+            put(msg, out, out_size);
+            char proof[256];
+            if (dir == 'f')
+                snprintf(proof, sizeof proof,
+                         "%s(%s, %s) holds, and %s(%s, %s) — so %s.",
+                         R, A, B, R, C, D, D);
+            else
+                snprintf(proof, sizeof proof,
+                         "%s(%s, %s) holds, and %s(%s, %s) — so %s.",
+                         R, B, A, R, D, C, D);
+            store_proof(b, proof);
+            return 1;
+        }
+    }
+
     /* search the relations the KB actually holds for one linking A and B. */
     char preds[128][KB_TERM_LEN];
     size_t np = kb_predicates(b->kb, preds, 128);
-    const char *linking = NULL; /* a relation found between A and B, if any */
     for (size_t i = 0; i < np; i++) {
         const char *R = preds[i];
         if (is_internal_pred(b->kb, R)) continue;

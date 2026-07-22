@@ -65,7 +65,12 @@ response_template(arith_range_count, "There are {count} {property} numbers betwe
 response_template(arith_range_too_large, "That interval is too large for my bounded exact counter.").
 response_template(handshake_count, "{count}. With {people} people, each pair meets once, so the total is {people} choose 2.").
 response_template(probability_at_least_count, "{fraction}, about {percent}%. There are {favorable} favorable draws out of {total} equally likely draws.").
+response_template(word_double_runs_answer, "{word}. It has {runs} adjacent double-letter pairs in sequence.").
 response_template(logic_no_overlap_relationship, "Those classes do not overlap -- the explicit no-overlap premise states that directly.").
+response_template(story_opening_line, "{line}.").
+response_template(train_meet_time, "{duration}. Closing speed is {speed} mph across {distance} miles.").
+response_template(past_participle_answer, "The past participle of {verb} is {participle}.").
+response_template(definite_conclusion_limited, "We can conclude that {subject} are {class}, but not that {subject} are {other}. The 'some {class} are {other}' premise may refer to different {class}.").
 response_template(initials_projection, "{name}.").
 number_property_label(prime, "prime").
 number_property_label(even, "even").
@@ -136,6 +141,7 @@ response_template(expl_yawn, "We yawn to take in a deep breath of air and, some 
 response_template(expl_daynight, "We have day and night because the Earth spins on its axis, so each place faces the Sun (day) and then turns away from it (night).").
 response_template(expl_sky_daynight, "By day the sky looks blue because sunlight scatters in the air and blue light scatters strongly. At night it is dark because that part of Earth faces away from the Sun, so there is no direct sunlight to scatter.").
 response_template(quality_reason, "I would choose {quality}: {reason}.").
+response_template(synesthetic_description, "Imagine {topic} as {description}.").
 % gen308: riddle answers distributed from kb/learning/autolearn.p0 (cues in world-facts.p0).
 response_template(riddle_match, "You light the match first.").
 response_template(riddle_vine, "You are a vine.").

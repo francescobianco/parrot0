@@ -32,6 +32,44 @@ out="$( {
   call '{"jsonrpc":"2.0","id":18,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"In a bag with 4 red balls and 2 blue balls, mystery take 2 balls. What is the result for at least 1 red ball?"}}}'
   call '{"jsonrpc":"2.0","id":19,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"intent_cue","args":["probability_draw","mystery take"]}}}'
   call '{"jsonrpc":"2.0","id":20,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"In a bag with 4 red balls and 2 blue balls, mystery take 2 balls. What is the result for at least 1 red ball?"}}}'
+  call '{"jsonrpc":"2.0","id":21,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What word in the English language has three consecutive double letters?"}}}'
+  call '{"jsonrpc":"2.0","id":22,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What word has three paired-letter streaks?"}}}'
+  call '{"jsonrpc":"2.0","id":23,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"intent_cue","args":["word_double_runs","paired-letter streaks"]}}}'
+  call '{"jsonrpc":"2.0","id":24,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What word has three paired-letter streaks?"}}}'
+  call '{"jsonrpc":"2.0","id":25,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"intent_cue","args":["word_double_runs","paired-letter streaks"]}}}'
+  call '{"jsonrpc":"2.0","id":26,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What word has three paired-letter streaks?"}}}'
+  call '{"jsonrpc":"2.0","id":27,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Describe the taste of a color to someone who has never seen."}}}'
+  call '{"jsonrpc":"2.0","id":28,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"synesthetic_default","args":["synesthetic_description","blue"]}}}'
+  call '{"jsonrpc":"2.0","id":29,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Describe the taste of a color to someone who has never seen."}}}'
+  call '{"jsonrpc":"2.0","id":30,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"synesthetic_default","args":["synesthetic_description","blue"]}}}'
+  call '{"jsonrpc":"2.0","id":31,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Flavor-imagine blue for someone who cannot see it."}}}'
+  call '{"jsonrpc":"2.0","id":32,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"intent_cue","args":["synesthetic_description","flavor-imagine"]}}}'
+  call '{"jsonrpc":"2.0","id":33,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Flavor-imagine blue for someone who cannot see it."}}}'
+  call '{"jsonrpc":"2.0","id":34,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"intent_cue","args":["synesthetic_description","flavor-imagine"]}}}'
+  call '{"jsonrpc":"2.0","id":35,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Flavor-imagine blue for someone who cannot see it."}}}'
+  call '{"jsonrpc":"2.0","id":36,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Write a short opening line for a mystery story set in a place that has never seen the sun."}}}'
+  call '{"jsonrpc":"2.0","id":37,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What is the capital of the country that borders both Poland and Ukraine?"}}}'
+  call '{"jsonrpc":"2.0","id":38,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"If you rearrange the letters in \"FLUSTER,\" you can also form which other common English word?"}}}'
+  call '{"jsonrpc":"2.0","id":39,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Complete this analogy: Book is to Reading as Fork is to ______."}}}'
+  call '{"jsonrpc":"2.0","id":40,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"All cats are mammals. Some mammals are pets. Therefore, what can we definitely conclude?"}}}'
+  call '{"jsonrpc":"2.0","id":41,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"A train leaves New York at 60 mph. Another train leaves Los Angeles at 80 mph. They are 2,800 miles apart. How long before they meet?"}}}'
+  call '{"jsonrpc":"2.0","id":42,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What is the past participle of the verb \"to forego\"?"}}}'
+  call '{"jsonrpc":"2.0","id":43,"method":"tools/call","params":{"name":"kb.match","arguments":{"pred":"meet_time","args":["2800","60","80",null]}}}'
+  call '{"jsonrpc":"2.0","id":44,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Incipit hook for a mystery set in a place that has never seen the sun."}}}'
+  call '{"jsonrpc":"2.0","id":45,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"intent_cue","args":["story_opening_request","incipit hook"]}}}'
+  call '{"jsonrpc":"2.0","id":46,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Incipit hook for a mystery set in a place that has never seen the sun."}}}'
+  call '{"jsonrpc":"2.0","id":47,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"intent_cue","args":["story_opening_request","incipit hook"]}}}'
+  call '{"jsonrpc":"2.0","id":48,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Incipit hook for a mystery set in a place that has never seen the sun."}}}'
+  call '{"jsonrpc":"2.0","id":49,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What is the third form of forego?"}}}'
+  call '{"jsonrpc":"2.0","id":50,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"intent_cue","args":["participle_query","third form"]}}}'
+  call '{"jsonrpc":"2.0","id":51,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What is the third form of forego?"}}}'
+  call '{"jsonrpc":"2.0","id":52,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"intent_cue","args":["participle_query","third form"]}}}'
+  call '{"jsonrpc":"2.0","id":53,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"What is the third form of forego?"}}}'
+  call '{"jsonrpc":"2.0","id":54,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Two trains travel at 60 mph and 80 mph, 2800 miles apart. How many hours rendezvous after?"}}}'
+  call '{"jsonrpc":"2.0","id":55,"method":"tools/call","params":{"name":"kb.assert","arguments":{"pred":"intent_cue","args":["train_meet_time","rendezvous after"]}}}'
+  call '{"jsonrpc":"2.0","id":56,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Two trains travel at 60 mph and 80 mph, 2800 miles apart. How many hours rendezvous after?"}}}'
+  call '{"jsonrpc":"2.0","id":57,"method":"tools/call","params":{"name":"kb.retract","arguments":{"pred":"intent_cue","args":["train_meet_time","rendezvous after"]}}}'
+  call '{"jsonrpc":"2.0","id":58,"method":"tools/call","params":{"name":"gen.respond","arguments":{"input":"Two trains travel at 60 mph and 80 mph, 2800 miles apart. How many hours rendezvous after?"}}}'
 } | PARROT0_SESSION= PARROT0_PROFILE= PARROT0_WORLD_FACTS=1 "$BIN" --mcp-engine 2>/dev/null)"
 
 line() { printf '%s\n' "$out" | grep -F "\"id\":$1,"; }
@@ -45,7 +83,7 @@ lacks() {
 }
 
 rpc_ok=1
-for id in $(seq 1 20); do
+for id in $(seq 1 58); do
   row="$(line "$id" || true)"
   rows="$(printf '%s\n' "$row" | sed '/^$/d' | wc -l)"
   if [ "$rows" -ne 1 ] || printf '%s\n' "$row" | grep -Fq '"isError":true' ||
@@ -81,6 +119,34 @@ has  15 '14/15' "probability procedure registry restore enables computation"
 lacks 16 '14/15' "probability draw cue absent before teaching"
 has  18 '14/15' "probability draw cue taught at runtime"
 lacks 20 '14/15' "probability draw cue retract removes recognition"
+has  21 'bookkeeper' "three consecutive double letters answered by lexical constraint"
+lacks 22 'bookkeeper' "novel double-run cue absent before teaching"
+has  24 'bookkeeper' "novel double-run cue taught at runtime"
+lacks 26 'bookkeeper' "novel double-run cue retract removes recognition"
+has  27 'Imagine blue as' "generic color synesthesia uses KB default"
+has  27 'cool water' "synesthetic description is rendered from KB"
+lacks 29 'cool water' "synesthetic default retract removes generic color answer"
+lacks 31 'cool water' "novel synesthetic cue absent before teaching"
+has  33 'cool water' "novel synesthetic cue taught at runtime"
+lacks 35 'cool water' "novel synesthetic cue retract removes recognition"
+has  36 'footprint' "mystery opening line uses story KB instead of synesthesia"
+lacks 36 'cool water' "story opening no longer hijacked by synesthetic cue"
+has  37 'Minsk' "border intersection capital resolves through borders plus capital facts"
+has  38 'restful' "full anagram uses all FLUSTER letters"
+has  39 'eating' "analogy relation registry reaches used_for facts"
+has  40 'not that cats are pets' "undistributed middle states the limited conclusion"
+has  41 '20 hours' "train meet time computed from combined speed"
+has  42 'foregone' "past participle fact answers forego"
+has  43 '20' "meet_time procedure computes D/(V1+V2)"
+lacks 44 'footprint' "novel story-opening cue absent before teaching"
+has  46 'footprint' "novel story-opening cue taught at runtime"
+lacks 48 'footprint' "novel story-opening cue retract removes recognition"
+lacks 49 'foregone' "novel participle cue absent before teaching"
+has  51 'foregone' "novel participle cue taught at runtime"
+lacks 53 'foregone' "novel participle cue retract removes recognition"
+lacks 54 '20 hours' "novel train-meet cue absent before teaching"
+has  56 '20 hours' "novel train-meet cue taught at runtime"
+lacks 58 '20 hours' "novel train-meet cue retract removes recognition"
 
 echo "---"
 echo "passed: $pass, failed: $fail"

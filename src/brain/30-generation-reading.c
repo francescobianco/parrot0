@@ -274,6 +274,119 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    if (kb_cue_match(b, "participle_query", norm)) {
+        char verb[KB_TERM_LEN] = "";
+        if (raw) {
+            const char *q1 = strchr(raw, '"');
+            if (q1) {
+                const char *q2 = strchr(q1 + 1, '"');
+                if (q2 && q2 > q1 + 1) {
+                    size_t n = (size_t)(q2 - q1 - 1);
+                    if (n >= sizeof verb) n = sizeof verb - 1;
+                    memcpy(verb, q1 + 1, n); verb[n] = '\0';
+                    char *v = verb;
+                    while (*v && isspace((unsigned char)*v)) v++;
+                    if (!strncmp(v, "to ", 3)) memmove(v, v + 3, strlen(v + 3) + 1);
+                    if (v != verb) memmove(verb, v, strlen(v) + 1);
+                    for (char *p = verb; *p; p++) *p = (char)tolower((unsigned char)*p);
+                    strip_edge_punct(verb);
+                }
+            }
+        }
+        if (!verb[0]) {
+            char pb[256]; snprintf(pb, sizeof pb, "%s", norm);
+            char *pw[64]; size_t pn = split_words(pb, pw, 64);
+            for (size_t i = 0; i < pn && !verb[0]; i++) {
+                char *t = strip_edge_punct(pw[i]);
+                const char *pq[] = { t, NULL };
+                char hit[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "past_participle", pq, 2, hit, 1) > 0)
+                    snprintf(verb, sizeof verb, "%s", t);
+            }
+        }
+        if (verb[0]) {
+            const char *pq[] = { verb, NULL };
+            char part[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "past_participle", pq, 2, part, 1) > 0) {
+                const KbResponseSlot slots[] = {
+                    { "verb", verb },
+                    { "participle", kb_dequote(part[0]) }
+                };
+                if (kb_response_slots(b, "past_participle_answer", slots, 2,
+                                      out, out_size)) return 1;
+            }
+        }
+    }
+
+    if (kb_cue_match(b, "story_opening_request", norm)) {
+        char scenes[64][KB_TERM_LEN];
+        const char *sq[] = { NULL, NULL };
+        size_t ns = kb_match(b->kb, "opening_scene_cue", sq, 2, scenes, 64);
+        char scene[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < ns && !scene[0]; i++) {
+            if (seen_term(scenes, i, scenes[i])) continue;
+            const char *cq[] = { scenes[i], NULL };
+            char cues[16][KB_TERM_LEN];
+            size_t cn = kb_match(b->kb, "opening_scene_cue", cq, 2, cues, 16);
+            for (size_t j = 0; j < cn && !scene[0]; j++) {
+                char *frag = kb_dequote(cues[j]);
+                if (cue(norm, frag)) snprintf(scene, sizeof scene, "%s", scenes[i]);
+            }
+        }
+        if (!scene[0] && ns >= 1) snprintf(scene, sizeof scene, "%s", scenes[0]);
+        if (scene[0]) {
+            const char *lq[] = { scene, "mystery", NULL };
+            char line[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "opening_line", lq, 3, line, 1) > 0) {
+                const KbResponseSlot slots[] = {
+                    { "line", kb_dequote(line[0]) }
+                };
+                if (kb_response_slots(b, "story_opening_line", slots, 1,
+                                      out, out_size)) return 1;
+            }
+        }
+    }
+
+    if (kb_cue_match(b, "synesthetic_description", norm)) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *sw[64]; size_t sn = split_words(sb, sw, 64);
+        char topics[64][KB_TERM_LEN];
+        const char *tq[] = { NULL, NULL };
+        size_t tn = kb_match(b->kb, "synesthetic_taste", tq, 2, topics, 64);
+        char best[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < tn && !best[0]; i++) {
+            if (seen_term(topics, i, topics[i])) continue;
+            if (token_list_has(sw, sn, kb_dequote(topics[i])))
+                snprintf(best, sizeof best, "%s", kb_dequote(topics[i]));
+        }
+        if (!best[0]) {
+            for (size_t i = 0; i < sn && !best[0]; i++) {
+                char *t = strip_edge_punct(sw[i]);
+                const char *cq[] = { "color", t };
+                if (kb_query(b->kb, "category_member", cq, 2))
+                    snprintf(best, sizeof best, "%s", t);
+            }
+        }
+        if (!best[0]) {
+            const char *dq0[] = { "synesthetic_description", NULL };
+            char def[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "synesthetic_default", dq0, 2, def, 1) > 0)
+                snprintf(best, sizeof best, "%s", kb_dequote(def[0]));
+        }
+        if (best[0]) {
+            const char *dq[] = { best, NULL };
+            char desc[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "synesthetic_taste", dq, 2, desc, 1) > 0) {
+                const KbResponseSlot slots[] = {
+                    { "topic", best },
+                    { "description", kb_dequote(desc[0]) }
+                };
+                if (kb_response_slots(b, "synesthetic_description", slots, 2,
+                                      out, out_size)) return 1;
+            }
+        }
+    }
+
     /* gen245: constrained sensory-description frame. Topic detection is KB-backed
      * (sensory_topic/2) and the exact word-count surface lives in sensory_phrase/3. */
     if ((cue(norm, "describe") || cue(norm, "in three words") ||

@@ -127,6 +127,8 @@ worn_on(watch, wrist).
 % gen254: ADDITIVE light mixing (RGB), distinct from pigment.
 % gen254: the medium an artist works on — completes "painter is to canvas as
 % sculptor is to ..." through the generic analogy engine (any R(A,B) works).
+analogy_relation(medium_for).
+analogy_relation(used_for).
 
 % --- gen239/240 (kb-first manifesto): land borders as a RELATION. The list
 % handlers ("name three countries that border X", "neighbours of X") and the
@@ -504,6 +506,7 @@ anagram_of(elbow, "below").
 anagram_of(grab, "brag").
 anagram_of(heart, "earth").
 anagram_of(listen, "silent").
+anagram_of(fluster, "restful").
 anagram_of(master, "stream").
 anagram_of(night, "thing").
 anagram_of(race, "care").
@@ -512,6 +515,7 @@ anagram_of(save, "vase").
 anagram_of(silent, "listen").
 anagram_of(state, "taste").
 anagram_of(stream, "master").
+anagram_of(restful, "fluster").
 anagram_of(stressed, "desserts").
 anagram_of(taste, "state").
 anagram_of(vase, "save").
@@ -731,6 +735,8 @@ borders(germany, luxembourg).
 borders(germany, netherlands).
 borders(germany, poland).
 borders(germany, switzerland).
+borders(belarus, poland).
+borders(belarus, ukraine).
 borders(italy, austria).
 borders(italy, france).
 borders(italy, slovenia).
@@ -738,8 +744,11 @@ borders(italy, switzerland).
 borders(luxembourg, france).
 borders(luxembourg, germany).
 borders(netherlands, germany).
+borders(poland, belarus).
 borders(poland, germany).
 borders(portugal, spain).
+borders(slovakia, poland).
+borders(slovakia, ukraine).
 borders(slovenia, austria).
 borders(slovenia, italy).
 borders(spain, andorra).
@@ -749,6 +758,8 @@ borders(switzerland, austria).
 borders(switzerland, france).
 borders(switzerland, germany).
 borders(switzerland, italy).
+borders(ukraine, belarus).
+borders(ukraine, slovakia).
 borders_country(china, india).
 borders_country(china, russia).
 borders_country(france, belgium).
@@ -781,6 +792,7 @@ capital_of_country(belgium, brussels).
 capital_of_country(berlin, germany).
 capital_of_country(bern, switzerland).
 capital_of_country(brasilia, brazil).
+capital_of_country(bratislava, slovakia).
 capital_of_country(brazil, brasilia).
 capital_of_country(brussels, belgium).
 capital_of_country(bucharest, romania).
@@ -820,6 +832,7 @@ capital_of_country(london, united_kingdom).
 capital_of_country(madrid, spain).
 capital_of_country(mexico, mexico_city).
 capital_of_country(mexico_city, mexico).
+capital_of_country(minsk, belarus).
 capital_of_country(morocco, rabat).
 capital_of_country(moscow, russia).
 capital_of_country(nairobi, kenya).
@@ -846,6 +859,7 @@ capital_of_country(seoul, south_korea).
 capital_of_country(south_africa, pretoria).
 capital_of_country(south_korea, seoul).
 capital_of_country(spain, madrid).
+capital_of_country(slovakia, bratislava).
 capital_of_country(stockholm, sweden).
 capital_of_country(sweden, stockholm).
 capital_of_country(switzerland, bern).
@@ -853,6 +867,7 @@ capital_of_country(tehran, iran).
 capital_of_country(thailand, bangkok).
 capital_of_country(tokyo, japan).
 capital_of_country(turkey, ankara).
+capital_of_country(ukraine, kiev).
 capital_of_country(united_kingdom, london).
 capital_of_country(united_states, washington_dc).
 capital_of_country(venezuela, caracas).
@@ -977,6 +992,7 @@ category_member(country, andorra).
 category_member(country, argentina).
 category_member(country, australia).
 category_member(country, austria).
+category_member(country, belarus).
 category_member(country, belgium).
 category_member(country, brazil).
 category_member(country, canada).
@@ -1012,6 +1028,7 @@ category_member(country, poland).
 category_member(country, portugal).
 category_member(country, russia).
 category_member(country, saudi_arabia).
+category_member(country, slovakia).
 category_member(country, slovenia).
 category_member(country, south_africa).
 category_member(country, south_korea).
@@ -1020,6 +1037,7 @@ category_member(country, sweden).
 category_member(country, switzerland).
 category_member(country, thailand).
 category_member(country, turkey).
+category_member(country, ukraine).
 category_member(country, united_kingdom).
 category_member(country, united_states).
 category_member(country, venezuela).
@@ -3397,6 +3415,10 @@ story_scene(silence).
 story_scene(suspense).
 story_scene(vigil).
 story_scene(wonder).
+opening_scene_cue(dark_place, "never seen the sun").
+opening_scene_cue(dark_place, "sunless").
+opening_scene_cue(dark_place, "without sunlight").
+opening_line(dark_place, mystery, "The first footprint appeared in the ash where no sunlight had ever fallen").
 subject_pron_fr(you, vous).
 synonym(angry, mad).
 synonym(big, large).
@@ -3417,6 +3439,34 @@ synonym(tiny, small).
 tallest_mountain(europe, mount_elbrus).
 tallest_mountain(world, mount_everest).
 taste_of(banana, "sweet, soft, and creamy, with a mellow fruit flavour").
+synesthetic_default(synesthetic_description, blue).
+synesthetic_taste(black, "dark coffee and quiet smoke, heavy on the tongue").
+synesthetic_taste(blue, "cool water with a clean mineral edge").
+synesthetic_taste(brown, "warm bread crust and earth after rain").
+synesthetic_taste(gold, "honey warmed by sunlight").
+synesthetic_taste(green, "fresh cucumber, cut grass, and a bright herbal snap").
+synesthetic_taste(grey, "unsweetened tea and rain on stone").
+synesthetic_taste(orange, "citrus zest with a little heat").
+synesthetic_taste(pink, "strawberry cream with a soft floral note").
+synesthetic_taste(purple, "dark berries with a slow, velvety sweetness").
+synesthetic_taste(red, "ripe berries with a sharp spark of spice").
+synesthetic_taste(silver, "cold sparkling water with a metallic crispness").
+synesthetic_taste(white, "cool milk and clean air").
+synesthetic_taste(yellow, "lemon and honey, bright and warm").
+past_participle(be, been).
+past_participle(begin, begun).
+past_participle(break, broken).
+past_participle(choose, chosen).
+past_participle(do, done).
+past_participle(eat, eaten).
+past_participle(forego, foregone).
+past_participle(forgo, forgone).
+past_participle(give, given).
+past_participle(go, gone).
+past_participle(know, known).
+past_participle(see, seen).
+past_participle(take, taken).
+past_participle(write, written).
 time_step(ancient_rome, middle_ages).  time_step(middle_ages, renaissance).
 time_step(industrial_revolution, information_age).
 time_step(renaissance, industrial_revolution).

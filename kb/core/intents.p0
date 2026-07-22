@@ -1176,6 +1176,10 @@ intent_cue(word_from_letters, "arrange the letters").
 intent_cue(word_from_letters, "make from").
 intent_cue(word_from_letters, "unscramble").
 intent_cue(word_from_letters, "rearrange the letters").
+intent_cue(full_anagram_request, "rearrange the letters").
+intent_cue(full_anagram_request, "anagram of").
+intent_cue(full_anagram_request, "using all letters").
+intent_cue(full_anagram_request, "also form").
 % gen349 (Fase 5, motorize-the-class): "give me a word that starts with X" —
 % a first-letter filter over the lexeme, a new mode of the same word motor.
 intent_cue(word_starts_with, "starts with").
@@ -1183,3 +1187,30 @@ intent_cue(word_starts_with, "start with").
 intent_cue(word_starts_with, "begins with").
 intent_cue(word_starts_with, "begin with").
 intent_cue(word_starts_with, "starting with").
+intent_cue(word_double_runs, "consecutive double letters").
+intent_cue(word_double_runs, "double letters in a row").
+intent_cue(word_double_runs, "adjacent double letters").
+intent_cue(word_double_runs, "successive double letters").
+intent_cue(word_double_runs, "repeated letter pairs").
+intent_cue(synesthetic_description, "taste of").
+intent_cue(synesthetic_description, "taste like").
+intent_cue(synesthetic_description, "describe the taste").
+intent_cue(synesthetic_description, "color to someone who has never seen").
+intent_cue(synesthetic_description, "colour to someone who has never seen").
+intent_cue(story_opening_request, "opening line").
+intent_cue(story_opening_request, "opening sentence").
+intent_cue(story_opening_request, "first line").
+intent_cue(story_genre_mystery, "mystery story").
+intent_cue(story_genre_mystery, "mystery").
+intent_cue(border_intersection, "borders both").
+intent_cue(border_intersection, "bordering both").
+intent_cue(border_intersection, "borders poland and ukraine").
+intent_cue(train_meet_time, "before they meet").
+intent_cue(train_meet_time, "when do they meet").
+intent_cue(train_meet_time, "when will they meet").
+intent_cue(train_meet_time, "until they meet").
+intent_cue(participle_query, "past participle").
+intent_cue(participle_query, "participle of").
+intent_cue(definite_conclusion_query, "definitely conclude").
+intent_cue(definite_conclusion_query, "what can we definitely conclude").
+intent_cue(definite_conclusion_query, "therefore what can").
