@@ -113,8 +113,21 @@ classe o l'istanza). Fasi 3-4 come quick-win in parallelo. Fase 2 e 5 dopo.
 
 ## Stato
 
-- [ ] Fase 0: batteria sonde + `make llmscore-probe` + baseline wall-rate
-- [ ] Fase 1: motore causale + ingestione cause→effetto
+- [x] Fase 0: batteria sonde + `make llmscore-probe` + baseline wall-rate.
+      **Baseline (2026-07-22): 31% wall overall (48/70 risposte).**
+      Per classe: deduction 50%, causal 40%, factual 40%, arithmetic 30%,
+      creative/lexical/pragma 20%. Conferma le priorità.
+- [ ] Fase 1: motore causale + ingestione cause→effetto.
+      **Diagnosi:** il motore ESISTE (`10-memory-knowledge.c:4302`, key =
+      content-word joined → `because/2`/`explanation/2`). I wall causali sono:
+      (a) "how does X form/work?" non instrada al motore (solo "why");
+      (b) key brittle: `rainbow_form` ≠ `rainbow_appears` (verb-synonymy);
+      (c) fatti mancanti (hiccups, tides, stars_twinkle, onions).
+      **Cautela:** match a sovrapposizione lasca dà risposte SBAGLIATE
+      (moon→`moon_glows` per "tides") — peggio di un muro. Il fix va fatto
+      con canonicalizzazione verbo-sinonimi + guardia `make llmscore-probe`,
+      NON con overlap ingenuo. Prossimo passo: (1) routing "how does X"
+      sicuro; (2) ingestione cause→effetto subject-keyed da `kb/learning/pages`.
 - [ ] Fase 2: ingestione enciclopedica mirata
 - [ ] Fase 3: quadrato opposizioni completo
 - [ ] Fase 4: layer framing/formato
