@@ -3670,6 +3670,65 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen349 (Fase 3, motorize-the-class): E-syllogism with an INSTANCE.
+     * "No A are B. Z is a B. Is/Can Z (be) a(n) A?" -> No, because Z belongs to
+     * one of two disjoint classes and the question asks the other. One pattern
+     * covers the whole class (fish/whale, reptiles/snake, cats/Rex), not a
+     * phrasing. Declines unless all three parts bind, so a non-syllogism never
+     * triggers it. Answer is bare Yes/No to stay grammatical for noun AND
+     * adjective classes ("warm-blooded"); the reasoning lives in store_proof. */
+    if (cue(norm, "no ") && cue(norm, " are ") && strstr(norm, " is ")) {
+        char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
+        char *w[96]; size_t n = split_words(sb, w, 96);
+        for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
+#define P0_SING(dst, src) do { snprintf(dst, sizeof dst, "%s", src); \
+        size_t _l = strlen(dst); if (_l > 1 && dst[_l-1] == 's') dst[_l-1] = '\0'; } while (0)
+        char A[64] = "", B[64] = "";
+        for (size_t i = 0; i + 3 < n; i++)
+            if (!strcmp(w[i], "no") && !strcmp(w[i + 2], "are")) {
+                P0_SING(A, w[i + 1]); P0_SING(B, w[i + 3]); break;
+            }
+        if (A[0] && B[0]) {
+            /* middle premise: "Z is [a/an] C", C in {A,B}, Z a real subject */
+            char Z[64] = "", Zclass[64] = "";
+            for (size_t i = 1; i + 1 < n; i++) {
+                if (strcmp(w[i], "is")) continue;
+                size_t c = i + 1;
+                if (c < n && is_article(w[c])) c++;
+                if (c >= n) continue;
+                char cs[64]; P0_SING(cs, w[c]);
+                if (strcmp(cs, A) && strcmp(cs, B)) continue;
+                if (!strcmp(w[i - 1], "no") || is_article(w[i - 1])) continue;
+                P0_SING(Z, w[i - 1]);
+                snprintf(Zclass, sizeof Zclass, "%s", cs);
+                break;
+            }
+            /* question: "is/can Z2 [be] [a/an] D", D in {A,B} */
+            char Qs[64] = "", Qclass[64] = "";
+            for (size_t i = 0; i + 1 < n && !Qclass[0]; i++) {
+                if (strcmp(w[i], "is") && strcmp(w[i], "can") &&
+                    strcmp(w[i], "could")) continue;
+                size_t j = i + 1;
+                if (j < n && is_article(w[j])) j++;
+                if (j >= n) continue;
+                P0_SING(Qs, w[j]); j++;
+                if (j < n && !strcmp(w[j], "be")) j++;
+                if (j < n && is_article(w[j])) j++;
+                if (j >= n) { Qs[0] = '\0'; continue; }
+                char ds[64]; P0_SING(ds, w[j]);
+                if (strcmp(ds, A) && strcmp(ds, B)) { Qs[0] = '\0'; continue; }
+                snprintf(Qclass, sizeof Qclass, "%s", ds);
+            }
+            if (Z[0] && Zclass[0] && Qs[0] && Qclass[0] && !strcmp(Z, Qs)) {
+                put(strcmp(Qclass, Zclass) ? "No." : "Yes.", out, out_size);
+                store_proof(b, "E-syllogism with an instance: two disjoint classes "
+                               "fix the membership, so the other class is ruled out.");
+                return 1;
+            }
+        }
+#undef P0_SING
+    }
+
     /* gen240 (LLMSCORE): "describe what a sunset looks like to you." parrot0 has
      * no senses, so it says so honestly — then gives the DESCRIPTION from KB
      * knowledge (appearance/2) rather than walling. The C only selects by the

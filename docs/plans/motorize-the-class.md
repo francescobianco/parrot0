@@ -87,9 +87,22 @@ Autolearn puntato su classi di entità ad alta frequenza: superlativi
 ("il più alto/lungo"), autori↔opere, invenzioni↔date, capitali (già). Recall
 factuale scala col processo.
 
-### Fase 3 — Completezza deduttiva
+### Fase 3 — Completezza deduttiva *(parziale)*
 Quadrato delle opposizioni completo (all/some/no × aff/neg) + catene 2-3 passi.
 Investimento limitato, alta certezza: copre l'intera classe puzzle-logici.
+- [x] **Forma-E con istanza** ("No A are B. Z is a B. Is/Can Z a A? → No"):
+      un pattern copre fish/whale, reptiles/snake, cats/Rex. deduction 50%→20%.
+- [ ] Barbara con predicato ("All A are B. All B need W. Do A need W? → Yes").
+- [ ] Darii ("Some A are B. All B are C. Are some A C? → Yes").
+- [ ] **RISPOSTE SBAGLIATE (priorità: peggio di un muro)**: "birds have
+      feathers → 'a bird eats seed'" (dirottato); "taller-than → 'No'"
+      (transitività relazionale d'ordine non gestita).
+
+> **Limite del metro (Fase 0):** il wall-rate conta i muri, NON le risposte
+> sbagliate. Una risposta errata è *peggio* di un muro (dottrina no-deception)
+> ma non appare nel wall-rate. Serve un secondo metro (giudice o oracolo per-
+> classe) che marchi le risposte errate. Fino ad allora, ispezionare le
+> risposte "ok" a mano quando si tocca una classe.
 
 ### Fase 4 — Layer di framing/formato (universal-input)
 Verbi di cornice (describe/explain/write/tell) e vincoli (in one sentence /
