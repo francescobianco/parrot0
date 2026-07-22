@@ -225,6 +225,11 @@ sym-bench: build
 llmscore: build
 	@$(BENCH_PY) ./tests/llmscore.py
 
+# LLMSCORE-PROBE (Fase 0, docs/plans/motorize-the-class.md) — wall-rate per
+# class over a held-out battery. No API, deterministic; the development metric.
+llmscore-probe: build
+	@$(BENCH_PY) ./tests/llmscore_probe.py
+
 # AUTOLEARN (F., 2026-07-10) — the autonomous MCP trainer (T0.e, docs/plans/
 # llmscore-strategies.md). An opencode-GO model interviews parrot0, judges each
 # exchange, and on a failure formulates a LESSON (whitelisted KB facts) taught

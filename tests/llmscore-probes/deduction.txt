@@ -1,0 +1,10 @@
+All birds have feathers. A robin is a bird. Does a robin have feathers?
+If all Zorks are Mips, and some Mips are Glorps, but no Glorps are Zorks, can any Zork be a Glorp?
+No fish are mammals. A whale is a mammal. Is a whale a fish?
+All roses are flowers. All flowers need water. Do roses need water?
+Some cars are red. All red things are visible. Are some cars visible?
+If A is taller than B, and B is taller than C, who is the shortest?
+No reptiles are warm-blooded. A snake is a reptile. Is a snake warm-blooded?
+Every square is a rectangle. This shape is a square. Is it a rectangle?
+If all Bloops are Razzies and all Razzies are Lazzies, are all Bloops Lazzies?
+No cats are dogs. Rex is a dog. Can Rex be a cat?
