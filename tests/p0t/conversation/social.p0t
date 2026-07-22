@@ -12,7 +12,7 @@
 # DISCOURSE POSITION: the same word "ciao" opens early and closes late.
 # "ciao" as the opener (turn 1) -> greeting.
 > ciao
-< Ciao!
+< Hi there!
 > thanks
 < You're welcome!
 > how are you?
@@ -22,4 +22,4 @@
 # "ciao" again, now late in the conversation -> farewell. Same token, different
 # act, disambiguated by position (b->turns), not by vocabulary.
 > ciao
-< Arrivederci!
+< Goodbye!

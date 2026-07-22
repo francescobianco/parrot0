@@ -411,7 +411,6 @@ language_marker(it, belli).
 language_marker(it, belle).
 language_marker(it, bravo).
 language_marker(it, brava).
-language_marker(it, ciao).
 language_marker(it, buongiorno).
 language_marker(it, buonasera).
 language_marker(it, arrivederci).
