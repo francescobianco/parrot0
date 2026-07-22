@@ -1,0 +1,20 @@
+# migrated from tests/cases/intent_learn.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test intent_learn.it]
+# gen214, Italian probe: teach a new ask_name form through the Italian label "il mio
+# nome" ("impara \"…\" per il mio nome"). The generic teach path matches the label
+# against the RAW (non-canonical) turn, so EN and IT labels both route through one
+# handler — the bilingual ratchet. The stored form is the canonicalized span, so a later
+# turn recalls the name through it.
+> mi chiamo Bob
+< Nice to meet you, Bob!
+> impara "come mi chiami" per il mio nome
+< Got it - I'll take "come mi chiami" as a way to il mio nome now.
+> come mi chiami
+< Non capisco ancora.

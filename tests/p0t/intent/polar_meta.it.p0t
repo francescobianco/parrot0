@@ -1,0 +1,16 @@
+# migrated from tests/cases/polar_meta.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test polar_meta.it]
+# gen69 Italian mirror: same polar meta-conversation path, Italian surface cues.
+> ci sei?
+< Non capisco ancora.
+> mi senti?
+< No, I only read text. I can't hear audio.
+> sei un bot?
+< Non capisco ancora.

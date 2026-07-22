@@ -1,6 +1,27 @@
 # The test-engine — one live instance validates `.p0t` suites
 
-> **Stato:** gen346. `make test` = **1034 passed, 0 failed** (~31s). `parrot0
+> **Stato:** gen346. `make test` = **1357 passed, 0 failed** (~44s). Migrati anche
+> gli 83/91 casi `.it` (40 as-is + 43 allineati) dopo le fix lingua A/D/E (vedi
+> sotto). **Restano 23 `.chat`, TUTTI perf-held** (15 EN + 8 IT): calibrate\*,
+> conjunction, deepreason\*, proof_trace, robust, compose, fewshot, \*_stress,
+> reflexive_selftest\*/audit — un turno supera il budget `!timeout` di 1s (causa
+> comune pre-esistente: lo sweep di ablazione O(n) di `mod_robust`). Vanno
+> migrati DOPO aver ottimizzato lo sweep, o con `!timeout N` per-test.
+>
+> **Fix lingua fatte (decisione F. = ibrido):** A) l'input ambiguo ("ciao")
+> deferisce al seed `PARROT0_LANG` (tolto `language_marker(it, ciao)`); D) le
+> risposte italiane usano il termine italiano (fratello, non brother — ritradotto
+> via `tr/2`); E) `canonicalize_lang` fa lo strip di QUALSIASI punteggiatura finale
+> (non solo `?`), così le parole prima di un punto in una frase multipla italiana
+> si canonicalizzano (syllogism.it → Yes). B/C (predicati salvati e messaggi
+> d'errore anglicizzati) accettati e allineati nei test. Il caso ambiguo/lingua è
+> blindato da `tests/p0t/language/language.p0t` (6/6).
+>
+> NOTA: i 43 casi `.it` **allineati** catturano il comportamento corrente via
+> snapshot — vanno riguardati (potrebbero enshrinare qualche forma anglicizzata
+> B/C come "attesa").
+>
+> [Stato storico:] gen346. `make test` era 1034. `parrot0
 > --test-engine` è un demone su socket Unix che tiene UN brain vivo; i file `.p0t`
 > gli si mandano con `--test-send`. Il vecchio harness è `make legacy-test` (file
 > `.chat` in `tests/cases/`, girati da `tests/run.sh`).

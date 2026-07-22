@@ -1,0 +1,23 @@
+# migrated from tests/cases/teachverb.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test teachverb.it]
+# gen272, Italian mirror of teachverb.chat through the SAME code path: a fresh
+# verb ("registra ") is deaf, is taught via the Italian label of the same
+# learnable/3 row family ("verbo di insegnamento"), then teaches a greeting.
+# One mechanism, two languages — the bilingual ratchet of LOOP.md.
+> registra "ciao ciao" per salutare
+< I don't understand that yet.
+> insegna "registra " come verbo di insegnamento
+< Got it - I'll take "registra " as a way to verbo di insegnamento now.
+> registra "eccoti {name}" per salutare
+< Got it - I'll take "eccoti {name}" as a way to salutare now.
+> im anna
+< Nice to meet you, anna!
+> im bea
+< eccoti bea

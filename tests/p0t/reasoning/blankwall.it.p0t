@@ -1,0 +1,24 @@
+# migrated from tests/cases/blankwall.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test blankwall.it]
+# gen59 (C5): sforzo sul muro vuoto. "cos'è <X>?" usa lo stesso percorso di
+# descrizione KB tramite la canonicalizzazione del lessico.
+> Socrate è un uomo
+< Learned: man(socrate).
+> Socrate è un mortale
+< Learned: mortal(socrate).
+> cos'è Socrate?
+< socrate is a man; socrate is a mortal.
+
+# gen146 (E5): stessa umiltà open-domain sulla relazione mancante, attraverso
+# lo stesso parser E5 (cos'è -> what is; capitale -> capital; di locale).
+> cos'è capitale di francia?
+< I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from.
+> cos'è sindaco di roma?
+< I do not know the relation sindaco yet, so I cannot answer the sindaco of rome. You can teach me with thing is the sindaco of rome, or give facts/rules to reason from.

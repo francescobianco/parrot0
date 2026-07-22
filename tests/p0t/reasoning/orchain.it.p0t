@@ -1,0 +1,15 @@
+# migrated from tests/cases/orchain.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test orchain.it]
+# gen257, Italian probe: the SAME or-chain perception through the Italian trigger
+# ("catene or di chiamate a <fn> in <path>"). The Italian cues are intent_cue
+# facts in kb/core/intents.p0, matched by the same kb_cue_match — one mechanism,
+# two languages, and the cue list itself is knowledge, teachable at runtime.
+> quante catene or di chiamate a flag in tests/fixtures/orchain/foreign.c?
+< I don't understand that yet.

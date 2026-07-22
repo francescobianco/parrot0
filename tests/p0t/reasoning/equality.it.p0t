@@ -1,0 +1,25 @@
+# migrated from tests/cases/equality.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test equality.it]
+# Generation 292: the SAME equality chain in Italian through the SAME code path
+# (bilingual ratchet, LOOP.md). The '=' surface and the connected-components walk
+# are language-neutral; only the wh-query is Italian, canonicalized to "what is":
+# "quanto vale <X>" ("what is the value of X") and "cos'è <X>" both reach the same
+# equality_chain handler.
+
+# "quanto vale a?" -> what is a.
+> a=b, b=c, quanto vale a?
+< b and c.
+# "cos'è a?" is the other natural Italian form, same path.
+> a=b, b=c, cos'è a?
+< b and c.
+# Symmetric across the language too: the middle term returns the ends.
+> a=b, b=c, quanto vale b?
+< a and c.
+

@@ -1,0 +1,26 @@
+# migrated from tests/cases/user_model.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test user_model.it]
+# gen148 (E4): Italian probe through the same user-model state.
+> mi chiamo Lia
+< Nice to meet you, Lia!
+> mi piace cinema
+< Got it: you like cinema.
+> cosa mi piace?
+< Ah sì? Com'è?
+> sono stanca
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> come mi sento?
+< Non capisco ancora.
+> possiamo parlare di cucina
+< Mmh, non conosco ancora parlare. Vuoi che cerchi informazioni?
+> di cosa parliamo?
+< Non capisco ancora.
+> cosa ricordi di me?
+< Mmh, non conosco ancora ricordi. Vuoi che cerchi informazioni?

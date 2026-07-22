@@ -1,0 +1,24 @@
+# migrated from tests/cases/algebra.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test algebra.it]
+# gen107 (L17) — the bilingual ratchet (LOOP.md). An equation is symbolic, so
+# "x + 3 = 7" is identical in any language; only the leading filler word
+# ("risolvi") and the spelled-out operators ("meno", "per") differ, and those
+# map onto the same canonical operators. Same solver, same code path — the
+# competence is structural, not an English phrasebook.
+
+# "solve x + 3 = 7" with the Italian imperative filler stripped.
+> risolvi x + 3 = 7
+< x = 4.
+# Italian operator word "meno" (minus) inverts to addition, same as "-".
+> x meno 4 = 1
+< x = 5.
+# "per" (times) inverts to division.
+> 3 per x = 12
+< x = 4.

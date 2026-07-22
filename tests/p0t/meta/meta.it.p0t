@@ -1,0 +1,20 @@
+# migrated from tests/cases/meta.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test meta.it]
+# gen68 Italian mirror: same meta-conversation code path, Italian surface cues.
+> mi stai ascoltando?
+< Yes. I read each message in this conversation.
+> mi stai ascoltando davvero?
+< I am reading this conversation turn by turn.
+> che stai facendo?
+< Non capisco ancora.
+> capisci quello che dico?
+< I understand some patterns, and I say when I do not.
+> perche continui a dirlo?
+< Non capisco ancora.

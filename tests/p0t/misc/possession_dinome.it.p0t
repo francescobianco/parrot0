@@ -1,0 +1,21 @@
+# migrated from tests/cases/possession_dinome.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test possession_dinome.it]
+# gen220: Italian naming idiom "di nome". "ho un cane di nome rex" is the natural
+# Italian for "I have a dog named rex" — but the naming marker is the BIGRAM "di
+# nome", not the single word "chiamato" (which already canonicalizes to "named").
+# The two-word idiom is collapsed to "named" at the language layer, so the
+# existing possession-frame parser ("I have a <thing> named <name>") handles the
+# variant with no per-module change — the same no-duplication rule as the
+# function-word map. A bare "di" still means "of" in relation queries.
+> ho un cane di nome rex
+< Got it: your dog is called rex.
+# The recalled name then flows through the IT pro-drop path (gen219).
+> come si chiama
+< Your dog is called rex.

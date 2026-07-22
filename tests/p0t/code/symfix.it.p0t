@@ -1,0 +1,15 @@
+# migrated from tests/cases/symfix.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test symfix.it]
+# gen200, Italian probe: the SAME structural localizer reached through the Italian
+# trigger ("trova il bug ... in"). One mechanism, two languages, one code path —
+# the bilingual ratchet over the symmetry-break repair faculty. The report is the
+# same because the analysis is language-of-input independent (it reads code).
+> trova il bug di simmetria in tests/swebench/lite/astropy__astropy-12907/repo_excerpt/astropy/modeling/separable.py
+< In tests/swebench/lite/astropy__astropy-12907/repo_excerpt/astropy/modeling/separable.py, `cright[-right.shape[0]:, -right.shape[1]:] = 1` breaks the symmetry with its sibling branch; the fix is `cright[-right.shape[0]:, -right.shape[1]:] = right`.

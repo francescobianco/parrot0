@@ -1,0 +1,55 @@
+# migrated from tests/cases/arith_nl.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test arith_nl.it]
+# gen190 bilingual ratchet: the SAME natural-language arithmetic extractors run
+# in Italian. Operator words (per/diviso/più), verbs (aggiungi/sottrai/...),
+# the unary "di" frames (metà/doppio/radice/quadrato/fattoriale) and the
+# property words (primo/pari) are recognised on the same code path — not a second
+# implementation. Numbers are language-neutral, so the answers match the English.
+
+> quanto fa 100 diviso 4
+< 25.
+> quanto fa 6 per 7
+< 42.
+> quanto fa due più due
+< 4.
+
+# Verb-led imperative frames.
+> aggiungi 5 e 7
+< 12.
+> sottrai 3 da 10
+< 7.
+> moltiplica 4 per 9
+< 36.
+> dividi 20 per 5
+< 4.
+
+# Unary "di" frames and suffixes.
+> quanto fa la metà di 50
+< 25.
+> quanto fa il doppio di 8
+< 16.
+> quanto fa la radice quadrata di 16
+< 4.
+> quanto fa 3 al quadrato
+< 9.
+> quanto fa il fattoriale di 5
+< 120.
+
+# Percent ("per cento", NOT read as 100) and n-ary list.
+> quanto fa 20 per cento di 100
+< I don't understand that yet.
+> quanto fa la somma di 3 e 4 e 5
+< 12.
+
+# Number-property predicates with Italian property words, number-first word order.
+> 15 è un numero primo
+< No, 15 is not a prime number.
+> 8 è un numero pari
+< Yes, 8 is an even number.

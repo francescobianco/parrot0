@@ -1,0 +1,24 @@
+# migrated from tests/cases/rederive.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test rederive.it]
+# gen103 (L16) — the bilingual ratchet (LOOP.md). Italian uses the subject-first
+# interrogative "<x> è un <y>?"; a trailing '?' marks the query through the SAME
+# core path as English (no duplicated logic — the fix was in the parser, not a
+# second phrasebook). So re-derivation + consequence announcement fire in Italian.
+
+> ogni uomo è un mortale
+< Learned rule: mortal(X) :- man(X).
+> socrates è un uomo
+< Learned: man(socrates).
+# Subject-first interrogative is a QUERY, not an assertion, thanks to the '?'.
+> socrates è un mortale?
+< Yes.
+# The correction re-derives the conclusion and volunteers the consequence.
+> socrates non è un uomo
+< Learned: not man(socrates). Then socrates is no longer a mortal.

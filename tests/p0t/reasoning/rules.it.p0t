@@ -1,0 +1,38 @@
+# migrated from tests/cases/rules.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test rules.it]
+# gen43: multilingual probe (Italian mirror of rules.chat). Backward-chaining
+# resolution -- rules, transitive chains, generalization to a new subject, and
+# variable queries -- all answered in Italian through the UNCHANGED reasoning
+# core. Only function words are canonicalized (ogni->every, è->is, un->a,
+# chi->who); the rule logic is the same code that serves English.
+> socrate è un uomo
+< Learned: man(socrate).
+# A rule, not a fact: every man is mortal.
+> ogni uomo è un mortale
+< Learned rule: mortal(X) :- man(X).
+# Derived, not stored: resolution proves it via the rule.
+> è socrate un mortale?
+< Yes.
+# Rule chains transitively.
+> ogni mortale è un essere
+< Learned rule: essere(X) :- mortal(X).
+> è socrate un essere?
+< Yes.
+# Generalization to a NEW subject through the rule (never asserted mortale).
+> platone è un uomo
+< Learned: man(platone).
+> è platone un mortale?
+< Yes.
+# Variable query includes rule-derived members, in order.
+> chi è un mortale?
+< socrate, platone.
+# Unknown subject stays false under closed-world.
+> è rex un mortale?
+< No.

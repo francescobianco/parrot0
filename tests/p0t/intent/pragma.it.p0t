@@ -1,0 +1,44 @@
+# migrated from tests/cases/pragma.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test pragma.it]
+# gen142 (E3) — the bilingual ratchet (LOOP.md). The SAME mod_pragma classifies
+# Italian turns by the SAME shape features through the SAME code path: no phrase
+# table is duplicated. Italian function words (qualcosa, forse/magari, d'accordo,
+# possiamo/potremmo, parliamo di, comunque/allora) are canonicalized or read as
+# shape cues, so the speech act transfers without re-listing every phrasing.
+
+# --- soft request: an open-quantifier object ("qualcosa") -> invite a thread.
+> dimmi qualcosa di interessante
+< Happy to. Pick a thread — your day, a small fact to remember, or something to reason about — and I'll run with it.
+
+# --- hesitation: stacked hedges (forse/magari/boh) -> lower the stakes.
+> forse magari boh
+< No pressure — we can take it slowly. What's on your mind?
+
+# --- disagreement: a negated stance predicate ("non ... d'accordo").
+> non sono d'accordo
+< Fair enough — tell me where I went wrong, and we can take it from there.
+
+# --- topic-change invitation: modal "possiamo" (-> can) + frame "parlare di" +
+#     object pulled by SHAPE (head noun after "di").
+> possiamo parlare di formaggio
+< Non capisco ancora.
+
+# --- mixed social + content: an Italian discourse-marker opener ("comunque")
+#     wraps a real question; it is peeled and the residue re-dispatched, so the
+#     CONTENT survives (the query runs for real).
+> socrates is a man
+< Learned: man(socrates).
+> comunque is socrates a man
+< Yes.
+
+# --- composition: an Italian opener ("allora") peeled, leaving an Italian topic
+#     invitation that the SAME shape move then claims.
+> allora possiamo parlare di musica
+< Non capisco ancora.

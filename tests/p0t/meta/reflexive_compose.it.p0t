@@ -1,0 +1,17 @@
+# migrated from tests/cases/reflexive_compose.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reflexive_compose.it]
+# gen164/gen165 (E1 reflexive): the composition self-challenge in Italian — the
+# parts and composition words (sottosistemi, moduli, composizione, compongono)
+# carry the meaning through the same mod_loop path, and the named parts are
+# derived from the same module(X) self-model, no duplicated logic.
+> come dimostreresti che i tuoi sottosistemi si compongono?
+< I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — knowledge (facts and rules), abduction (the missing premise), and robustness (which facts are load-bearing) — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.
+> cosa cambieresti per testare la composizione di tre moduli?
+< I would treat it as a composition self-challenge, not self-management: from my own module set I would pick three parts I actually have — knowledge (facts and rules), abduction (the missing premise), and robustness (which facts are load-bearing) — and write ONE held-out dialogue, with fresh names so it cannot be memorized, that needs all three at once; it passes only if they cooperate with no new special-case module. I would ratchet it in English and Italian, bump my version, and journal whether composition held or a seam appeared. I can propose this; an external agent edits, runs the tests, and commits.

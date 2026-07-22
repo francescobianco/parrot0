@@ -1,0 +1,20 @@
+# migrated from tests/cases/numwords.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test numwords.it]
+# gen112 — the bilingual ratchet (LOOP.md). Italian number words (due, tre,
+# venti, cinque) parse through the SAME single_word_number table and the same
+# collector. Verb cues are matched on stems ("compr", "mangi") so conjugations
+# vary freely. Same code path, no English templates.
+
+# "ho due ... compro tre" -> two plus three.
+> ho due mele e ne compro tre. quante mele ho?
+< 5.
+# "venti ... mangia cinque" -> twenty minus five (word tens + word unit).
+> Marco ha venti caramelle e ne mangia cinque. Quante ne rimangono?
+< 15.

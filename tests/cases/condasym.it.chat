@@ -1,6 +1,0 @@
-# gen204, Italian probe: the SAME condition-asymmetry localizer through the Italian
-# trigger ("trova il bug in"). One structural mechanism, two languages, one code
-# path — the bilingual ratchet. The report is identical because the analysis reads
-# code, independent of the natural language of the request.
-> trova il bug in tests/swebench/lite/astropy__astropy-14995/repo_excerpt/astropy/nddata/mixins/ndarithmetic.py
-< In tests/swebench/lite/astropy__astropy-14995/repo_excerpt/astropy/nddata/mixins/ndarithmetic.py, `elif operand is None:` is an asymmetric None-check that should test the attribute its sibling branches use; the fix is `elif operand.mask is None:`.

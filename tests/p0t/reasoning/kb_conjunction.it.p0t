@@ -1,0 +1,27 @@
+# migrated from tests/cases/kb_conjunction.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test kb_conjunction.it]
+# gen193 bilingual ratchet: the SAME conjunction/1 KB class and the SAME list
+# parser, reached in Italian. "e" is a built-in conjunction; "p" is taught at
+# runtime via "usa X come congiunzione" and the parser then splits on it too —
+# proving the capability is in the engine+KB, not an English phrasebook.
+
+# Built-in Italian conjunction "e" splits the list.
+> torta richiede uova e farina
+< Learned 2 prerequisites for torta.
+# Unknown "p" is a bogus extra item until taught.
+> dolce richiede zucchero p burro
+< Learned 3 prerequisites for dolce.
+# Teach "p" through the Italian surface; same conjunction/1 class.
+> usa p come congiunzione
+< Non capisco ancora.
+> crostata richiede noci p miele
+< Learned 3 prerequisites for crostata.
+> come faccio crostata
+< To make crostata: noci, p, miele, then crostata.

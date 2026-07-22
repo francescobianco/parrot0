@@ -1,0 +1,43 @@
+# migrated from tests/cases/prosefact.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test prosefact.it]
+# Generation 296 (deep-reasoning M0): the SAME leading-determiner frame in Italian,
+# through the SAME code path (bilingual ratchet). "un/uno/una" canonicalize to "a";
+# the definite "il/lo/la" are stripped by the same shift. Nothing duplicated.
+
+# Indefinite article on the subject (canonicalizes "un" -> "a").
+> un cane è un animale
+< Learned: animal(dog).
+# Definite article + subject-first query.
+> il cane è un animale?
+< Yes.
+# Multi-hop category chain in Italian, over the extracted membership.
+> ogni animale è un essere
+< Learned rule: essere(X) :- animal(X).
+> il cane è un essere?
+< Yes.
+
+# gen298 (frame 2): Italian past copula "era"/"erano", rewritten to "is"/"are" only
+# in copula position (an article follows), so the noun "era" is safe.
+> socrate era un filosofo
+< Learned: filosofo(socrate).
+> socrate è un filosofo?
+< Yes.
+
+# gen299 (frames 3/4/6) in Italian, same extractor, same path.
+> la balena blu è un mammifero marino
+< Learned: mammifero_marino(whale_blue).
+> la Francia è un paese in Europa
+< Learned: country(france), located_in(france, europa).
+> Parigi è in Francia
+< Learned: located_in(paris, france).
+
+# gen300 (frame 5): Italian conjunction uses "e" for "and" — same extractor.
+> un delfino è un mammifero e un nuotatore
+< Learned: mammifero(delfino), nuotatore(delfino).

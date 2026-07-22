@@ -1,0 +1,25 @@
+# migrated from tests/cases/comprehension.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test comprehension.it]
+# gen122/gen123 — bilingual ratchet for the gist and the focused digest. Italian
+# queries flow through the same code path: the reader canonicalizes the passage's
+# function words so the facts extract, and the gist/focus intents key off Italian
+# cues (di cosa parla, imparato su). Concepts/sentences are quoted in the original
+# Italian; the salience ranking is language-agnostic.
+
+> read: Mercurio è un pianeta. Venere è un pianeta. Marte è un pianeta. Marte è rosso.
+< Learned 3 fact(s), skipped 1.
+
+# Gist in Italian — the central concept "pianeta" and a salient sentence.
+> di cosa parla?
+< Non capisco ancora.
+
+# Focused digest in Italian — the sentence about Marte.
+> cosa hai imparato su marte?
+< Mmh, non conosco ancora imparato. Vuoi che cerchi informazioni?

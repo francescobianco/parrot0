@@ -1,0 +1,17 @@
+# migrated from tests/cases/eval_py.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test eval_py.it]
+# gen199, Italian probe: the SAME Python F3 semantics reached through the Italian
+# eval cue ("cosa restituisce" / "cosa ritorna"). One evaluator, two natural
+# languages AND two programming languages meeting at one code path — the bilingual
+# ratchet over the language-as-delta engine (CODE-MASTERY §7b).
+> cosa restituisce add(2, 3): def add(a, b): return a + b
+< I read it as code and worked it out: add(2, 3) returns 5.
+> cosa ritorna f(2, 3, 4): def f(a, b, c): return a + b * c
+< I read it as code and worked it out: f(2, 3, 4) returns 14.

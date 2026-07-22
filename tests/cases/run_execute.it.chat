@@ -1,9 +1,0 @@
-# gen198, Italian probe: the SAME run-grounding reached through the Italian verb
-# "esegui". One mechanism (compile+link+execute, real exit status), two languages,
-# one code path — the bilingual ratchet. The compound connector "e ... dimmi" must
-# NOT double the answer: the run verb is read from the per-clause canonical surface,
-# so the trailing "dimmi ..." clause does not re-fire the run.
-> esegui tests/code/buildable/prog.c e dimmi il suo exit code
-< it ran and exited with code 0.
-> esegui tests/code/buildable/exit7.c e dimmi il suo exit code
-< it ran and exited with code 7.

@@ -1,0 +1,23 @@
+# migrated from tests/cases/agent_verify.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent_verify.it]
+# gen120 (rung 19 + rung 16) — bilingual ratchet for hypothesis testing. The same
+# code path (induce a rule from the examples, then judge the last transition
+# against it) runs from an Italian query: the falsification competence lives in
+# the algorithm. Only the cue differs (è coerente / rispetta la regola); the
+# induction, the prediction, and the verdict are shared.
+
+# Consistent with the induced Collatz rule (odd branch): confirmed.
+> 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. 9 -> 28 è coerente?
+< Yes — 9 -> 28 fits the rule (if even: n / 2; if odd: 3n + 1).
+
+# A violation of the even branch: refuted, with the real predicted value named.
+> 6 -> 3, 3 -> 10, 10 -> 5, 5 -> 16, 4 -> 2. 10 -> 6 rispetta la regola?
+< No — the rule (if even: n / 2; if odd: 3n + 1) predicts 10 -> 5, not 6.
+

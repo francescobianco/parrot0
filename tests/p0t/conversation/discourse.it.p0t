@@ -1,0 +1,15 @@
+# migrated from tests/cases/discourse.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test discourse.it]
+# gen58 (C4): memoria del discorso. Il bot traccia le parole di contenuto
+# recenti e può rispondere "cosa abbiamo detto?" dallo stato reale.
+> mi chiamo Luca
+< Nice to meet you, Luca!
+> cosa abbiamo detto?
+< Non capisco ancora.

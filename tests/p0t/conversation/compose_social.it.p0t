@@ -1,0 +1,29 @@
+# migrated from tests/cases/compose_social.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test compose_social.it]
+# gen160 (E1): the social composition in Italian (mia/gatto/neve) — bilingual
+# ratchet for the social half. Six subsystems via the same path: greeting, name
+# memory, possession memory, KB fact intake, discourse reference ("esso" binds to
+# the last subject) and possession recall.
+> ciao
+< Hi there!
+> mi chiamo mia
+< Piacere di conoscerti, mia!
+> ho un gatto chiamato neve
+< Got it: your cat is called neve.
+> neve è un felino
+< Learned: felino(snow).
+> è esso un felino?
+< Yes.
+> cos'è il mio gatto?
+< Your cat is neve.
+# gen161: Italian name recall "come mi chiamo?" now hits the same store the
+# "mi chiamo X" teach fills — the read-side mirror of the intake.
+> come mi chiamo?
+< Non capisco ancora.

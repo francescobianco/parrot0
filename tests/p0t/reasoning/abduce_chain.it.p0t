@@ -1,0 +1,24 @@
+# migrated from tests/cases/abduce_chain.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test abduce_chain.it]
+# gen132 (L16/L19), Italian probe: the SAME multi-step backward chaining reached
+# through the Italian trigger ("cosa renderebbe …"). One mechanism, two
+# languages, one code path — the bilingual ratchet over a two-link rule chain.
+
+> ogni uomo è un mortale
+< Learned rule: mortal(X) :- man(X).
+> ogni umano è un uomo
+< Learned rule: man(X) :- human(X).
+> socrate è un mortale?
+< No.
+> cosa renderebbe socrate un mortale?
+< Non capisco ancora.
+> perché socrate non è un mortale?
+< socrate is not a mortal because I am missing the root premise: socrate is a human. By human -> man -> mortal.
+

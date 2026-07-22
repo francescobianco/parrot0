@@ -1,6 +1,0 @@
-# gen210, Italian probe: the SAME case-folding localizer through the Italian trigger
-# ("trova il bug in"). One structural mechanism, two languages, one code path — the
-# bilingual ratchet. The report is identical because the analysis reads code, not the
-# natural language of the request.
-> trova il bug in tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py
-< In tests/swebench/lite/astropy__astropy-14365/repo_excerpt/astropy/io/ascii/qdp.py, the code matches all-caps keywords case-sensitively (a flagless re.compile and an uppercase-literal ==) where case should not matter; the coupled fix is: [1] `re.compile(_type_re)` -> `re.compile(_type_re, re.IGNORECASE)` [2] `v == "NO"` -> `v.upper() == "NO"`

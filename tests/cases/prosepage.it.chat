@@ -1,9 +1,0 @@
-# deep-reasoning M2, Italian half: the DEEP-read command through an Italian head
-# ("leggi la pagina su X" / "estrai i fatti da X"), localized by the matched head.
-# The facts are language-neutral (the page prose is English); the report is Italian.
-
-> leggi la pagina su whale
-< Dalla pagina su whale ho estratto 2 fatti: mammal(whale), aquatic_animal(whale).
-
-> leggi la pagina su Xyzzy
-< Non ho una pagina con fatti estraibili su xyzzy.

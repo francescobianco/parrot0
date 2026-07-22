@@ -1,0 +1,23 @@
+# migrated from tests/cases/agent.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test agent.it]
+# gen116 (rung 19) — bilingual ratchet for the autonomous act-loop. The same
+# perceive -> decide -> act -> observe code path drives the loop from an Italian
+# instruction: the agent competence lives in the algorithm, not in an English
+# phrasebook. Italian carries the trigger words (parti da, raddoppia, finché,
+# superi, dimezza, sotto); the canonical loop report stays English, exactly like
+# the other reasoning modules (analogy.it, plan.it).
+
+# "Start at 3 and double until you exceed 40" (superi = strict >): stops at 48.
+> parti da 3 e raddoppia finché superi 40
+< Reached 48 after 4 steps: 3 -> 6 -> 12 -> 24 -> 48.
+
+# A shrinking loop in Italian: halve (dimezza) until below (sotto) 10.
+> parti da 100 e dimezza finché sotto 10
+< Reached 6.25 after 4 steps: 100 -> 50 -> 25 -> 12.5 -> 6.25.

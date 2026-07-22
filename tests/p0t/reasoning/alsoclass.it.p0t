@@ -1,0 +1,21 @@
+# migrated from tests/cases/alsoclass.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test alsoclass.it]
+# gen46 (Italian mirror): "<x> è anche un <y>" canonicalizes to "x is also a y"
+# (anche->also) and asserts y(x) through the same extractor -- no second parser.
+# The bilingual ratchet: the additional-class shape is proven language-agnostic.
+> flipper è un delfino
+< Learned: delfino(flipper).
+> flipper è anche un mammifero
+< Learned: mammifero(flipper).
+> è flipper un mammifero?
+< Yes.
+> è flipper un delfino?
+< Yes.
+

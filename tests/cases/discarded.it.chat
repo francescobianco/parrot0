@@ -1,6 +1,0 @@
-# gen201, Italian probe: the SAME discarded-result localizer through the Italian
-# trigger ("trova il bug in"). One structural mechanism, two languages, one code
-# path — the bilingual ratchet. The report is identical because the analysis reads
-# code, independent of the natural language of the request.
-> trova il bug in tests/swebench/lite/astropy__astropy-6938/repo_excerpt/astropy/io/fits/fitsrec.py
-< In tests/swebench/lite/astropy__astropy-6938/repo_excerpt/astropy/io/fits/fitsrec.py, `output_field.replace(encode_ascii('E'), encode_ascii('D'))` discards the result of a value-returning call; the fix is `output_field[:] = output_field.replace(encode_ascii('E'), encode_ascii('D'))`.

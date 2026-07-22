@@ -1,0 +1,20 @@
+# migrated from tests/cases/plan_qty.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test plan_qty.it]
+# gen110 (L13+) — the bilingual ratchet (LOOP.md). Conjunction and quantities go
+# through the SAME list parser in Italian: "per X serve/servono A e B", with
+# optional leading numbers. The separators ("e") and filler are language-mapped;
+# the planning and the amount annotation are identical to English.
+
+> per torta serve impasto e forno
+< Learned 2 prerequisites for torta.
+> per impasto servono 3 uova e 2 farina
+< Learned 2 prerequisites for impasto.
+> come faccio la torta?
+< To make torta: 3 uova, 2 farina, impasto, forno, then torta.

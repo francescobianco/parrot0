@@ -1,9 +1,0 @@
-# gen113 — the bilingual ratchet (LOOP.md). Two-step equations are symbolic, so
-# the same solver runs in Italian: the imperative filler "risolvi" is stripped
-# and the operator word "meno" maps to '-'. The coefficient handling is
-# language-neutral. Same code path.
-
-> risolvi 2x + 1 = 7
-< x = 3.
-> 3y meno 2 = 10
-< y = 4.

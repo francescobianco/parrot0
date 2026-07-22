@@ -1,0 +1,40 @@
+# migrated from tests/cases/branching_abduce.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test branching_abduce.it]
+# gen134, Italian probe: the SAME enumeration of alternative explanations through
+# the Italian trigger ("cosa renderebbe …"). Two rules conclude animale; both
+# ways are offered. One mechanism, two languages, one code path.
+
+> ogni gatto è un animale
+< Learned rule: animal(X) :- cat(X).
+> ogni cane è un animale
+< Learned rule: animal(X) :- dog(X).
+> rex è un animale?
+< No.
+> cosa renderebbe rex un animale?
+< Non capisco ancora.
+> perché rex non è un animale?
+< rex is not a animal because every alternative is blocked: cat -> animal needs rex is a cat; dog -> animal needs rex is a dog.
+
+# gen138, Italian probe: optimal abduction through the same rule-cost path.
+> ogni cane preparato è un campione
+< Learned rule: campione(X) :- dog(X), preparato(X).
+> ogni nobile vip è un campione
+< Learned rule: campione(X) :- nobile(X), vip(X).
+> rex è un cane
+< Learned: dog(rex). Now rex is a animal after all.
+> modo piu facile per rendere rex un campione?
+< Non capisco ancora.
+> prova il modo piu facile per rendere rex un campione
+< Mmh, non conosco ancora rendere. Vuoi che cerchi informazioni?
+> rex è un campione?
+< No.
+
+
+

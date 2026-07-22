@@ -1,0 +1,22 @@
+# migrated from tests/cases/tool.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test tool.it]
+# gen115 (L15) — bilingual ratchet for the first mid-turn TOOL CALL. The same
+# code path (mod_tool: cue -> compile -> invoke the pure POSIX oracle -> fold the
+# result) serves Italian: the word-count competence lives in the algorithm, not
+# in an English phrasebook. The oracle's output and the command it runs are
+# language-agnostic; only the trigger phrase differs.
+
+# "How many words are in ...": the tool counts the held-out Italian text.
+> quante parole in: il gatto dorme sul tappeto
+< 5. (I ran the tool: echo il gatto dorme sul tappeto | wc -w.)
+
+# A different Italian cue reaches the same tool.
+> conta le parole in: uno due tre quattro
+< 4. (I ran the tool: echo uno due tre quattro | wc -w.)

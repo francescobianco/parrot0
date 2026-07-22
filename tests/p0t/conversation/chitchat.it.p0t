@@ -1,0 +1,34 @@
+# migrated from tests/cases/chitchat.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test chitchat.it]
+# gen125 — bilingual ratchet for the affective register. Italian affective cues
+# (tranquillo/imparerai for encouragement, parliamo in for a language offer) reach
+# the same mod_chitchat branches as their English counterparts: the register
+# competence lives in the cue set, not an English-only phrasebook.
+
+# Italian encouragement.
+> tranquillo, imparerai!
+< Thanks — I'm learning as we go.
+
+# Italian offer to switch language (KB-first: response_template localizes).
+> ok parliamo in inglese
+< Possiamo parlare in entrambe le lingue — farò del mio meglio.
+
+# gen140: Italian casual companion cues through the same chitchat branches.
+> non so cosa dire
+< Non capisco ancora.
+> dimmi qualcosa
+< Mmh, non conosco ancora qualcosa. Vuoi che cerchi informazioni?
+> facciamo due chiacchiere
+< Non capisco ancora.
+> sono stanco
+< Sembra un momento un po' fiacco. Teniamola leggera: raccontami una cosa che ti è successa, o chiedimi qualcosa di piccolo.
+> che bello
+< Non capisco ancora.
+

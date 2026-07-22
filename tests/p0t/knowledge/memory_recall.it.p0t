@@ -1,0 +1,14 @@
+# migrated from tests/cases/memory_recall.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test memory_recall.it]
+# gen60 (C5b): forma italiana di richiamo della memoria personale.
+> ho un cane chiamato Rex
+< Got it: your dog is called Rex.
+> cos'è il mio cane?
+< Your dog is Rex.

@@ -1,0 +1,30 @@
+# migrated from tests/cases/repair.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test repair.it]
+# gen141 (E2), Italian probe: the repair loop reaches the SAME code path through
+# canonicalize_lang. The Italian subject pronoun "esso" maps to "it", so a cold
+# referential gap opens the same clarification and resumes the same way — the
+# competence lives in the mechanism, not an English-only surface (LOOP.md ratchet).
+
+# A fresh question instead of an answer expires the pending repair.
+# gen335 (KB-first): identity responses localize via current_language.
+> è esso un cane?
+< Who or what does "it" refer to?
+> chi sei?
+< Mi chiamo parrot0.
+
+# Knowledge gap opened in Italian, resolved by an Italian teaching answer: the
+# stored pronoun then resolves by coreference and the original question is
+# answered for real.
+> ogni cane è un mammifero
+< Learned rule: mammifero(X) :- dog(X).
+> è esso un mammifero?
+< Who or what does "it" refer to?
+> rex è un cane
+< Yes.

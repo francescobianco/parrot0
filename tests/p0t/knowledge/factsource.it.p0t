@@ -1,0 +1,21 @@
+# migrated from tests/cases/factsource.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test factsource.it]
+# deep-reasoning M1, Italian half: the SAME provenance path through Italian input.
+# The extraction canonicalizes the sentence, so the stored source is the fragment
+# the parser consumed (which is exactly what the self-correction loop will re-parse);
+# the provenance ANSWER is localized by current_lang.
+
+> una balena è un mammifero
+< Learned: mammifero(whale).
+> dove hai imparato su balena?
+< Non capisco ancora.
+
+> qual è la tua fonte per marte?
+< Non ho una fonte registrata per mars.

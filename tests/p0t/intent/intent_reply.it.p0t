@@ -1,0 +1,20 @@
+# migrated from tests/cases/intent_reply.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test intent_reply.it]
+# gen214, Italian probe: teach a new greeting phrasing through the Italian label
+# "salutare" ("usa \"…\" per salutare un nuovo nome"), mode=fill. Same generic teach
+# path, two languages. The phrasing keeps its original casing (the fill mode takes the
+# span from the raw input), so "Benvenuto, {name}!" reads naturally.
+> mi chiamo Bob
+< Nice to meet you, Bob!
+> usa "Benvenuto, {name}!" per salutare un nuovo nome
+< Got it - I'll take "Benvenuto, {name}!" as a way to salutare now.
+> mi chiamo Cleo
+< Benvenuto, Cleo!
+

@@ -1,0 +1,27 @@
+# migrated from tests/cases/whatifnot.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test whatifnot.it]
+# gen129 (L20-deep), Italian probe: the SAME hypothetical retract+re-derive
+# reached through the Italian trigger ("se non sapessi che …"). Predicates are
+# Italian words (uomo/mortale) but the dependency reasoning is identical — the
+# bilingual ratchet: one mechanism, two languages, through one code path.
+
+> socrate è un uomo
+< Learned: man(socrate).
+> ogni uomo è un mortale
+< Learned rule: mortal(X) :- man(X).
+> socrate è un mortale?
+< Yes.
+
+# "cosa concluderesti se non sapessi che socrate è un uomo?"
+> cosa concluderesti se non sapessi che socrate è un uomo?
+< If I didn't know that socrate is a man, I could no longer conclude that socrate is a mortal — that conclusion rests on it.
+# Non-destructive: belief restored.
+> socrate è un mortale?
+< Yes.

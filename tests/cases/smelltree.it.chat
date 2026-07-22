@@ -1,8 +1,0 @@
-# gen256, Italian probe: the SAME tree self-localization reached through the
-# Italian trigger ("trova il bug in <dir>"). One mechanism, two languages, one
-# code path — the report is identical because the analysis reads code, not the
-# language of the request.
-> trova il bug in tests/swebench/lite/astropy__astropy-12907/repo_excerpt
-< In tests/swebench/lite/astropy__astropy-12907/repo_excerpt/astropy/modeling/separable.py, `cright[-right.shape[0]:, -right.shape[1]:] = 1` breaks the symmetry with its sibling branch; the fix is `cright[-right.shape[0]:, -right.shape[1]:] = right`.
-> trova il bug in tests/swebench/lite/astropy__astropy-14995/repo_excerpt
-< In tests/swebench/lite/astropy__astropy-14995/repo_excerpt/astropy/nddata/mixins/ndarithmetic.py, `elif operand is None:` is an asymmetric None-check that should test the attribute its sibling branches use; the fix is `elif operand.mask is None:`.

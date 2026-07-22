@@ -1,0 +1,24 @@
+# migrated from tests/cases/mixed.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test mixed.it]
+# gen56 (C2b) / gen63 (C2c): i marcatori sociali non devono rubare un turno
+# che porta anche contenuto. Questi turni misti passano ai moduli di contenuto.
+# i turni con solo marcatori sono ancora gestiti dal layer dialogico.
+# gen335 (KB-first): identity responses localize via current_language.
+> ciao
+< Hi there!
+> ciao, chi sei?
+< Mi chiamo parrot0.
+> salve, chi sei?
+< Mi chiamo parrot0.
+> buongiorno, il mio cane si chiama Rex.
+< Got it: your dog is called Rex.
+> grazie, era sbagliato
+< Non capisco ancora.
+

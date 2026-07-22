@@ -1,0 +1,29 @@
+# migrated from tests/cases/abduce.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test abduce.it]
+# gen131 (L16/L19), Italian probe: the SAME backward rule-search reached through
+# the Italian trigger ("cosa renderebbe …"). Predicates are Italian words
+# (uomo/mortale) but the abductive mechanism is identical — bilingual ratchet.
+
+> ogni uomo è un mortale
+< Learned rule: mortal(X) :- man(X).
+> socrate è un mortale?
+< No.
+> cosa renderebbe socrate un mortale?
+< Non capisco ancora.
+
+# gen135, Italian probe: "perché ... non" canonicalizes into the same contrastive
+# why-not path and names the missing conjunct from the real rule body.
+> ogni cane amichevole è un bravo
+< Learned rule: bravo(X) :- dog(X), amichevole(X).
+> rex è un cane
+< Learned: dog(rex).
+> perché rex non è un bravo?
+< rex is not a bravo because I am missing: rex is a amichevole. The rule is dog and amichevole -> bravo.
+

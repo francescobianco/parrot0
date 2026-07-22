@@ -1,0 +1,24 @@
+# migrated from tests/cases/arith_flex.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test arith_flex.it]
+# gen75: flexible arith parser -- bilingual ratchet. Italian "cos'è" maps to
+# "what is" via canonicalization; the compact-form and symbol-operator paths
+# are language-neutral, so the same arith code answers.
+> cos'è 2 + 2
+< 4.
+> cos'è 10 - 3
+< 7.
+> cos'è 2+2
+< 4.
+> cos'è 3*7
+< 21.
+# gen190: Italian word-number operands compute through the same path too.
+> cos'è due più due
+< 4.
+

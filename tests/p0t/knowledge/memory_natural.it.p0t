@@ -1,0 +1,20 @@
+# migrated from tests/cases/memory_natural.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test memory_natural.it]
+# gen57 (C3): la memoria personale in forma naturale. L'italiano estende lo
+# stesso percorso di "call me" con "chiamami" / "mi chiamo".
+> chiamami Sam
+< Nice to meet you, Sam!
+> what is my name?
+< Your name is Sam.
+> mi chiamo Luca
+< Nice to meet you, Luca!
+> what is my name?
+< Your name is Luca.
+

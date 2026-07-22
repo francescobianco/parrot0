@@ -1,0 +1,14 @@
+# migrated from tests/cases/research.it.chat (gen346, hermetic + isolated)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test research.it]
+# gen171 (dynamic knowledge): the same definitional-gap path handles Italian
+# prompts, but now learns only from local markdown and no longer keeps a queue.
+> cos'è un numero perfetto?
+< I don't know much about numero perfetto yet. Want me to look it up?
+

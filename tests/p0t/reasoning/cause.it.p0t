@@ -1,0 +1,22 @@
+# migrated from tests/cases/cause.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test cause.it]
+# gen47: the multilingual probe reaches causation. "fuoco causa fumo"
+# canonicalizes (causa->causes) and asserts causes(fuoco, fumo) through the same
+# mod_cause. The striking part: the fact is read back by the ENGLISH query --
+# proof the two languages share ONE language-neutral KB, not parallel stores.
+> fuoco causa fumo
+< Learned: causes(fire, fumo).
+# Asserted in Italian, queried in English: same relation, same KB.
+> what is the effect of fuoco?
+< fumo.
+> pioggia causa alluvione
+< Learned: causes(rain, alluvione).
+> what is the cause of alluvione?
+< rain.

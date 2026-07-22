@@ -1,6 +1,0 @@
-# gen257, Italian probe: the SAME or-chain perception through the Italian trigger
-# ("catene or di chiamate a <fn> in <path>"). The Italian cues are intent_cue
-# facts in kb/core/intents.p0, matched by the same kb_cue_match — one mechanism,
-# two languages, and the cue list itself is knowledge, teachable at runtime.
-> quante catene or di chiamate a flag in tests/fixtures/orchain/foreign.c?
-< In tests/fixtures/orchain/foreign.c, I found 2 OR-chains of calls to `flag` (5 calls in chains); the first starts at line 13.

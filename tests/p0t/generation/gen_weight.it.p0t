@@ -1,0 +1,27 @@
+# migrated from tests/cases/gen_weight.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test gen_weight.it]
+# gen111 (D-prop1 step 2) — the bilingual ratchet (LOOP.md). The weighted choice
+# is over symbolic tokens, so the SAME policy-as-knowledge mechanism steers
+# Italian generation. The trigram context "rosso mela ___" has only seen torta;
+# the bigram "mela ___" favours succo. Editing weight(trigram) flips the choice,
+# exactly as in English — same code path, language-neutral.
+
+> learn sequence: rosso mela torta
+< Learned 2 transition(s).
+> learn sequence: verde mela succo
+< Learned 2 transition(s).
+> learn sequence: verde mela succo
+< Learned 2 transition(s).
+> say rosso
+< red apple torta
+> set trigram weight to 0
+< Ok, trigram weight is now 0.
+> say rosso
+< red apple succo

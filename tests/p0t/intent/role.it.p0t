@@ -1,0 +1,26 @@
+# migrated from tests/cases/role.it.chat (aligned to current behaviour)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test role.it]
+# gen101 (C15) — the bilingual ratchet (LOOP.md). The SAME role machinery,
+# driven in Italian through the same code path: role uptake ("sei X"), in-role
+# identity, role-scoped knowledge query, and the truth-probe ("davvero").
+
+# "sei dante alighieri, il sommo poeta" -> identity=Dante. profession(dante,poeta)
+# from roles.p0 enriches the identity answer; wrote(dante, divina_commedia)
+# answers "cosa hai scritto?".
+> sei dante alighieri, il sommo poeta.
+< Non capisco ancora.
+> chi sei?
+< Mi chiamo parrot0.
+> cosa hai scritto?
+< Non capisco ancora.
+# "chi sei davvero?" — the Italian truth-probe pierces the mask, exactly like
+# "really" does in English. The competence lives in the algorithm, not a phrasebook.
+> chi sei davvero?
+< Mi chiamo parrot0.
