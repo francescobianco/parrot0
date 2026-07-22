@@ -2299,6 +2299,44 @@ static int extract_class_statement(Brain *b, const char *norm,
         else if (!strcmp(w[i], "erano") && i+1 < n && is_article(w[i+1])) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
     }
 
+    /* gen349 (Fase 2, motorize-the-class): transitive CREATION extraction. A prose
+     * sentence "S <creation-verb> O" (active voice) yields the UNIVERSAL
+     * created_by(S, O, Verb) -- so ingestion grows the factual base by PROCESS,
+     * not by hand. Verbs are enumerated from creation_verb/1 (KB-first: a new verb
+     * is a fact). Runs before the copula frames because these sentences have no
+     * copula. Passive ("O was painted BY S") is skipped via the "by" marker to
+     * avoid extracting the creator/work backwards -- passive is a follow-up. */
+    {
+        char cvs[24][KB_TERM_LEN]; const char *cq[1] = { NULL };
+        size_t ncv = kb_match(b->kb, "creation_verb", cq, 1, cvs, 24);
+        for (size_t i = 1; i + 1 < n && ncv; i++) {
+            int is_cv = 0;
+            for (size_t v = 0; v < ncv && !is_cv; v++)
+                if (!strcmp(w[i], kb_dequote(cvs[v]))) is_cv = 1;
+            if (!is_cv) continue;
+            int passive = 0;
+            for (size_t j = i + 1; j < n; j++) if (!strcmp(w[j], "by")) { passive = 1; break; }
+            if (passive) break;
+            size_t ss = p0_lead_det(w[0]) ? 1 : 0;
+            if (ss >= i) break;
+            char subj2[KB_TERM_LEN];
+            if (!p0_join(w, ss, i, subj2, sizeof subj2)) break;
+            if (p0_bad_subject(subj2)) break;
+            size_t os = i + 1; if (os < n && p0_lead_det(w[os])) os++;
+            char obj2[KB_TERM_LEN];
+            if (os >= n || !p0_join(w, os, n, obj2, sizeof obj2)) break;
+            kb_set_origin(b->kb, KB_SESSION);
+            const char *ca[] = { subj2, obj2, w[i] };
+            if (kb_assert(b->kb, "created_by", ca, 3)) {
+                p0_learn_source(b, "created_by", ca, 3, norm);
+                char msg[256]; snprintf(msg, sizeof msg,
+                    "Learned: created_by(%s, %s, %s).", subj2, obj2, w[i]);
+                put(msg, out, out_size); return 1;
+            }
+            break;
+        }
+    }
+
     size_t cop = n;
     for (size_t i = 1; i < n; i++)
         if (!strcmp(w[i], "is") || !strcmp(w[i], "are")) { cop = i; break; }

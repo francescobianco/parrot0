@@ -11,6 +11,32 @@ Coerente con lo steer di F.: **meno moduli, più KB**. Un motore causale è UN
 motore per l'intera classe "perché" — l'opposto di N moduli-qa. I motori sono
 C (motori, non frasi); la conoscenza cresce nella KB per processo.
 
+## Mantra operativi — da eseguire PRIMA di ogni passo
+
+Regole imposte a noi stessi per non ricadere nel fix puntuale. Prima di scrivere
+*qualsiasi* riga, si passa questa checklist. Nate dagli errori reali di gen348-349.
+
+1. **"È generalizzabile KB-first?"** — la domanda zero. Non fixare l'istanza,
+   motorizza la CLASSE. Se la risposta è "sì ma è più lavoro", si fa il lavoro.
+2. **Niente liste di parole nel C.** Trigger, cue, sinonimi, unità, verbi: sono
+   fatti KB enumerabili (`causal_process_verb/1`, `verb_syn/2`, `time_unit/1`).
+   Test: *"parrot0 può impararne un nuovo membro domani senza ricompilare?"*
+3. **Astrai fino al punto fisso.** Non moltiplicare *predicati* per una relazione
+   vista attraverso verbi diversi: `wrote`/`painted`/`composed` = UNA relazione
+   `created_by(Creator, Work, Verb)`, il verbo è un campo. Chiedi: *"relazione
+   NUOVA o STESSA relazione sotto un'etichetta diversa?"*
+4. **Cerca il motore esistente prima di scriverne uno nuovo.** (Avevo duplicato
+   `transitive_comparison` senza accorgermene.) `grep` prima di scrivere.
+5. **Non estendere per analogia col codice esistente.** Se c'è già `wrote/2`,
+   NON aggiungere `painted/2` per riflesso: ri-derivare dallo scheletro, o
+   propaghi il debito di disaggregazione.
+6. **Uccidi il muro, MAI con una risposta sbagliata.** Un errore factuale è
+   peggio di un muro (dottrina no-deception). Nel dubbio, declina.
+7. **Attenzione ai cue substring.** `cue()` è substring: "eat" ⊂ "f-EAT-hers".
+   Per i cue discriminanti, match a PAROLA INTERA.
+8. **Il wall-rate non vede le risposte sbagliate.** Quando tocchi una classe,
+   ispeziona a mano anche le risposte marcate "ok".
+
 ## Perché i fix puntuali perdono
 
 Il giudice campiona 10 domande da una distribuzione illimitata. I run osservati
@@ -126,6 +152,44 @@ Ultimo stadio generativo che ingaggia la domanda in-dominio invece di murare.
 Fase 0 + Fase 1 insieme (senza la batteria non sappiamo se Fase 1 muove la
 classe o l'istanza). Fasi 3-4 come quick-win in parallelo. Fase 2 e 5 dopo.
 
+## Bug noti (rimandati) — da riprendere
+
+Trovati durante gen349 e consapevolmente NON risolti ora. Ognuno viola almeno un
+mantra; annotati per riprenderli senza riscoprirli.
+
+- **B1 — il decomposer spezza unità semantiche su " and ".** "Romeo and Juliet"
+  → "romeo" + "juliet"; e i word-problem multi-frase vengono divisi. Aggravante:
+  `mod_wordproblem` legge il turno intero da `input`, non il sub-clause → rispose
+  due volte ("15 dollars. 15 dollars."); tamponato con un dedup, ma la radice è
+  che il decomposer divide ciò che è UNA unità. Serve una guardia: non decomporre
+  quando il turno è un problema/entità singola (numeri+cue matematico, o titolo).
+- **B2 — `answer_frame`/`created_by` falliscono sui titoli multi-parola sotto
+  "the".** "Mona Lisa", "Starry Night" murano (Guernica, David — parola singola —
+  funzionano). Un blocco precedente in `mod_knowledge` intercetta "the <X multi>";
+  inoltre il motore `created_by` è piazzato tardi. Serve: estrazione del titolo
+  multi-parola + anticipare il motore.
+- **B3 — `kb_match` arity-1 completamente LEGATO non riporta l'hit.** Una query
+  `time_unit(hour)` con arg legato torna 0 anche su match; ho dovuto ENUMERARE e
+  confrontare. Quirk del motore KB: verificare se è un bug generale di `kb_match`.
+- **B4 — "make a word from the letters r,e,a,d" va a `mod_compose`** invece di
+  `mod_wordquery` (precedenza di routing: "make a word" → code synth). Non è un
+  muro (risposta non-muro), ma è una non-risposta.
+- **B5 — `cue()` è substring, ovunque.** Fixato eat/feathers, ma il pattern può
+  ripresentarsi su altri cue discriminanti. Valutare un `cue_word()` a parola
+  intera come default per i cue discriminanti.
+- **B6 — sillogismo affermativo con pronome mangia il testo.** "Every square is a
+  rectangle. This shape is a square. Is it a rectangle?" → "Yes -- Is is a
+  Rectangle" (giusto ma sgrammaticato: "it" diventa "Is").
+- **B7 — le parole-cue della dieta (eat/eats/diet/food) sono ancora una lista in
+  C** (le ho rese whole-word ma restano cablate) → viola mantra #2, portarle in KB.
+- **B8 — il wall-rate non conta le risposte sbagliate** (vedi Fase 0). Serve un
+  secondo oracolo per-classe che marchi gli errori.
+- **B9 — estrazione CREATION solo attiva.** "The Odyssey was written by Homer"
+  (passivo) non viene estratto (declina, non sbaglia). Aggiungere il frame
+  passivo "O was <verb>ed by S" → `created_by(S, O, verb)`.
+- **B10 — messaggio "Learned: mammal.(platypus)"** ha un punto spurio nel nome
+  predicato (cosmetico, pre-esistente all'estrazione copula).
+
 ## Stato
 
 - [x] Fase 0: batteria sonde + `make llmscore-probe` + baseline wall-rate.
@@ -143,7 +207,14 @@ classe o l'istanza). Fasi 3-4 come quick-win in parallelo. Fase 2 e 5 dopo.
       con canonicalizzazione verbo-sinonimi + guardia `make llmscore-probe`,
       NON con overlap ingenuo. Prossimo passo: (1) routing "how does X"
       sicuro; (2) ingestione cause→effetto subject-keyed da `kb/learning/pages`.
-- [ ] Fase 2: ingestione enciclopedica mirata
+- [~] Fase 2: ingestione enciclopedica mirata. **AVVIATA (gen349):** estrazione
+      CREATION transitiva KB-first in `extract_class_statement` — la prosa
+      "S <creation-verb> O" → `created_by(S,O,Verb)`, verbi da `creation_verb/1`.
+      Testato end-to-end: "Claude Monet painted Water Lilies" → fatto estratto →
+      "Who painted Water Lilies?" → "Claude monet". La base factual cresce per
+      PROCESSO, non a mano. Prossimo: passivo (B9), altre relazioni (borders,
+      composed…) via una tabella generica `extract_frame(Verb, Pred)`, poi far
+      girare l'estrazione sulle `kb/learning/pages/`.
 - [ ] Fase 3: quadrato opposizioni completo
 - [ ] Fase 4: layer framing/formato
 - [ ] Fase 5: fallback anti-muro
