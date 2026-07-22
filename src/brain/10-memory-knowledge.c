@@ -728,8 +728,16 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
     for (size_t i = 0; i < nw && off + 1 < out_size; i++) {
         char *tok = w[i];
         size_t tl = strlen(tok);
-        const char *tail = "";
-        if (tl > 0 && tok[tl - 1] == '?') { tok[tl - 1] = '\0'; tail = "?"; }
+        /* gen346 (lang fix E): strip ANY trailing sentence punctuation (not just
+         * '?') so a content word before a period — "uomo.", "mortale." in a
+         * multi-sentence Italian syllogism — still reaches tr/2 and canonicalizes.
+         * The punctuation is re-attached as `tail`, preserving sentence boundaries
+         * that downstream parsers (the multi-sentence syllogism) rely on. */
+        char tailbuf[2] = "";
+        if (tl > 0 && strchr("?.,!;:", tok[tl - 1])) {
+            tailbuf[0] = tok[tl - 1]; tok[tl - 1] = '\0'; tl--;
+        }
+        const char *tail = tailbuf;
         /* gen344 (KB-first): a leading interrogative FILLER ("che cos'è ..." =
          * "what is ...") is redundant before another interrogative. WHICH words
          * may act as fillers is knowledge (question_filler/1); the motor drops
@@ -2116,6 +2124,18 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
     char lang[8]; current_lang(b, lang, sizeof lang);
     int it = strcmp(lang, "it") == 0;
 
+    /* gen346 (lang fix D): the kinship term was canonicalized to English
+     * (fratello->brother) for matching; an ITALIAN reply must speak it back in
+     * Italian, so translate first_kin via tr/2 (tr(brother,fratello)). No English
+     * word leaks into the Italian sentence. */
+    char kin_disp[KB_TERM_LEN]; snprintf(kin_disp, sizeof kin_disp, "%s", first_kin);
+    if (it) {
+        const char *tq[] = { first_kin, NULL };
+        char trhit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "tr", tq, 2, trhit, 1) == 1)
+            snprintf(kin_disp, sizeof kin_disp, "%s", trhit[0]);
+    }
+
     /* (B) about parrot0's own family -> honest decline ("your <kin>" or the
      * second-person "do you have <kin>"). */
     if ((has_your || has_youhave) && !has_my && !has_ihave) {
@@ -2124,7 +2144,7 @@ static int mod_family(Brain *b, const char *norm, const char *raw,
             /* Italian avoids a gendered article (un/una) on the relation. */
             snprintf(msg, sizeof msg,
                      "Sono parrot0, un'IA: non ho una famiglia, quindi niente %s da nominare.",
-                     first_kin);
+                     kin_disp);
         else {
             const char *art = strchr("aeiou", first_kin[0]) ? "an" : "a";
             snprintf(msg, sizeof msg,

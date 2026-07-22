@@ -855,3 +855,14 @@ tr(molecule, molecola).
 tr(planet, pianeta).
 tr(star, stella).
 tr(gene, gene).
+
+% gen346 (lang fix E): reasoning/kinship vocabulary the .it syllogism/deduction
+% cases need canonicalized, so an Italian premise and its query use the same
+% English predicate (mortale->mortal, so 'ogni uomo è mortale' + 'è mortale?'
+% resolve). Teaching an Italian content word = one tr/2 fact.
+tr(mortal, mortale).
+tr(animal, animale).
+tr(human, umano).
+tr(person, persona).
+tr(alive, vivo).
+tr(dead, morto).
