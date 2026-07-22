@@ -406,13 +406,45 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
     size_t np = kb_unary_predicates(b->kb, preds, 64);
     char crit[16][96];
     size_t ncrit = 0;
+
+    /* gen346 (perf): only ablate facts of predicates that can actually REACH the
+     * goal through the rule graph. A fact of an unreachable predicate (a stopword,
+     * a question word, …) can never appear in a derivation of the goal, so removing
+     * it can never change goal_truth — skipping it is exact, not heuristic. This
+     * turns a whole-KB sweep (hundreds of irrelevant facts) into a handful, with
+     * identical load-bearing results. reach = goal_pred + every body predicate of
+     * every rule reachable from it (BFS to a fixpoint over the growing frontier). */
+    char reach[64][KB_TERM_LEN]; size_t nreach = 0;
+    snprintf(reach[nreach++], KB_TERM_LEN, "%s", b->last_goal_pred);
+    for (size_t i = 0; i < nreach; i++) {
+        size_t nrules = kb_rules_for_head(b->kb, reach[i], 1);
+        for (size_t r = 0; r < nrules; r++) {
+            char bod[16][KB_TERM_LEN];
+            size_t nb = kb_nth_rule_body_preds(b->kb, reach[i], 1, r, bod, 16);
+            for (size_t k = 0; k < nb; k++) {
+                int seen = 0;
+                for (size_t j = 0; j < nreach; j++)
+                    if (strcmp(reach[j], bod[k]) == 0) { seen = 1; break; }
+                if (!seen && nreach < 64)
+                    snprintf(reach[nreach++], KB_TERM_LEN, "%s", bod[k]);
+            }
+        }
+    }
+
+    int _dbg = getenv("PARROT0_ROBUST_DEBUG") != NULL; size_t _iter = 0;
+    struct timespec _t0, _t1; if (_dbg) clock_gettime(CLOCK_MONOTONIC, &_t0);
     for (size_t p = 0; p < np; p++) {
+        int rel = 0;
+        for (size_t j = 0; j < nreach; j++)
+            if (strcmp(reach[j], preds[p]) == 0) { rel = 1; break; }
+        if (!rel) continue;                    /* unreachable -> cannot be load-bearing */
         char consts[128][KB_TERM_LEN];
         const char *pat[] = {NULL};
         size_t nc = kb_match(b->kb, preds[p], pat, 1, consts, 128);
         for (size_t c = 0; c < nc; c++) {
             const char *a[] = {consts[c]};
             if (!kb_retract(b->kb, preds[p], a, 1)) continue;
+            _iter++;
             int after = goal_truth(b);
             kb_set_origin(b->kb, KB_SESSION);
             kb_assert(b->kb, preds[p], a, 1); /* restore — footprint-free */
@@ -420,6 +452,9 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
                 snprintf(crit[ncrit++], sizeof crit[0], "%s(%s)", preds[p], consts[c]);
         }
     }
+    if (_dbg) { clock_gettime(CLOCK_MONOTONIC, &_t1);
+        fprintf(stderr, "robust sweep: np=%zu iters=%zu %.3fs\n", np, _iter,
+                (double)(_t1.tv_sec-_t0.tv_sec)+(_t1.tv_nsec-_t0.tv_nsec)/1e9); }
 
     char msg[640];
     if (ncrit == 0) {
@@ -519,7 +554,32 @@ static size_t calib_load_bearing(Brain *b, char buf[][96], size_t max) {
     size_t n = 0;
     char preds[64][KB_TERM_LEN];
     size_t np = kb_unary_predicates(b->kb, preds, 64);
+
+    /* gen346 (perf): same rule-reachability pruning as mod_robust — only ablate
+     * predicates that can reach the goal, so an unrelated fact is never re-derived
+     * against. Exact (unreachable facts can't be load-bearing), and it takes this
+     * sweep from a whole-KB scan to a handful of facts. */
+    char reach[64][KB_TERM_LEN]; size_t nreach = 0;
+    if (b->has_last_goal) snprintf(reach[nreach++], KB_TERM_LEN, "%s", b->last_goal_pred);
+    for (size_t i = 0; i < nreach; i++) {
+        size_t nrules = kb_rules_for_head(b->kb, reach[i], 1);
+        for (size_t r = 0; r < nrules; r++) {
+            char bod[16][KB_TERM_LEN];
+            size_t nb = kb_nth_rule_body_preds(b->kb, reach[i], 1, r, bod, 16);
+            for (size_t k = 0; k < nb; k++) {
+                int seen = 0;
+                for (size_t j = 0; j < nreach; j++)
+                    if (strcmp(reach[j], bod[k]) == 0) { seen = 1; break; }
+                if (!seen && nreach < 64) snprintf(reach[nreach++], KB_TERM_LEN, "%s", bod[k]);
+            }
+        }
+    }
+
     for (size_t p = 0; p < np && n < max; p++) {
+        int rel = 0;
+        for (size_t j = 0; j < nreach; j++)
+            if (strcmp(reach[j], preds[p]) == 0) { rel = 1; break; }
+        if (!rel) continue;
         char consts[128][KB_TERM_LEN];
         const char *pat[] = {NULL};
         size_t nc = kb_match(b->kb, preds[p], pat, 1, consts, 128);
