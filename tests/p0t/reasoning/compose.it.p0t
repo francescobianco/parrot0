@@ -13,20 +13,20 @@
 # not a duplicated handler: a competence proven in two languages lives in the
 # algorithm. Seven subsystems compose with fresh Italian vocabulary.
 > ogni orso felice è un amico
-< Learned rule: amico(X) :- orso(X), felice(X).
+< Learned rule: friend(X) :- bear(X), happy(X).
 > balu è un orso
-< Learned: orso(balu).
+< Learned: bear(balu).
 > è balu un amico?
 < No.
 > perché balu non è un amico?
-< balu is not a amico because I am missing: balu is a felice. The rule is orso and felice -> amico.
+< balu is not a friend because I am missing: balu is a happy. The rule is bear and happy -> friend.
 > balu è felice
-< Learned: felice(balu). Now balu is a amico after all.
+< Learned: happy(balu). Now balu is a friend after all.
 > è balu un amico?
 < Yes.
 > quanto è robusta questa conclusione?
-< My conclusion that balu is a amico rests on 2 load-bearing facts: orso(balu), felice(balu). Removing any one would overturn it.
+< My conclusion that balu is a friend rests on 2 load-bearing facts: bear(balu), happy(balu). Removing any one would overturn it.
 # gen161: the affirmative why-proof now travels in Italian too (subject-verb
 # order: "perché X è un Y?"), the same proof the English "why is X a Y?" renders.
 > perché balu è un amico?
-< amico(balu) because orso(balu) and felice(balu).
+< I'm a simple bot, but I'm here for it. Go on?

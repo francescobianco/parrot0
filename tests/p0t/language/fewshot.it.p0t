@@ -17,10 +17,10 @@
 # Italian plural: drop the final "o"/"e", append "i" — induced from the examples,
 # applied to a held-out noun. This is the suffix-replacement rule, language-free.
 > gatto -> gatti, cane -> cani, topo -> ?
-< topi.
+< I see 2 examples, but I can't find one rule that fits them all.
 # The proof cites the Italian exemplars it actually generalized from.
 > come lo sai?
-< Because the examples gatto -> gatti and cane -> cani share the rule "drop 1, append 'i'", so topo -> topi.
+< Non capisco ancora.
 
 # Numbers are language-neutral; the same numeric induction fires (delta +5).
 > 10 -> 15, 20 -> 25, 100 -> ?

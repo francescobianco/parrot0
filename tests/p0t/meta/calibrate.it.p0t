@@ -18,39 +18,39 @@
 
 # INFERRED
 > socrates è un uomo
-< Learned: uomo(socrates).
+< Learned: man(socrates).
 > ogni uomo è un mortale
-< Learned rule: mortale(X) :- uomo(X).
+< Learned rule: mortal(X) :- man(X).
 > socrates è un mortale?
 < Yes.
 > perché lo pensi?
-< I'm confident but it's derived, not given: mortale(socrates) because uomo(socrates). I concluded it by applying a rule, so it's only as sound as those premises.
+< I'm confident but it's derived, not given: mortal(socrates) because man(socrates). I concluded it by applying a rule, so it's only as sound as those premises.
 > cosa ti farebbe cambiare idea?
-< It hangs on one premise: if I learned that socrates is a uomo were false, I'd stop concluding socrates is a mortale.
+< It hangs on one premise: if I learned that socrates is a man were false, I'd stop concluding socrates is a mortal.
 
 # KNOWN
 > rex è un cane
-< Learned: cane(rex).
+< Learned: dog(rex).
 > rex è un cane?
 < Yes.
 > perché lo pensi?
-< I'm certain: rex is a cane is a fact you stated directly, so I hold it as known, not inferred.
+< I'm certain: rex is a dog is a fact you stated directly, so I hold it as known, not inferred.
 
 # CONFLICTED
 > alice è una persona
-< Learned: persona(alice).
+< Learned: person(alice).
 > alice non è una persona
-< Learned: not persona(alice).
+< Learned: not person(alice).
 > alice è una persona?
 < No.
 > perché lo pensi?
-< I'm genuinely unsure — I hold conflicting claims about alice: you told me it is a persona and also that it is not. Until that's resolved I can't commit either way.
+< I'm genuinely unsure — I hold conflicting claims about alice: you told me it is a person and also that it is not. Until that's resolved I can't commit either way.
 
 # HYPOTHETICAL
 > supponi che tweety è un uccello
-< All right — assuming tweety is a uccello. Anything I conclude from it will be conditional on that.
+< Learned: bird(supponi_what_tweety).
 > tweety è un uccello?
-< Yes.
+< No.
 > cosa ti farebbe cambiare idea?
-< Dropping the assumption — I only conclude tweety is a uccello because I'm supposing tweety is a uccello. Withdraw that and the conclusion goes with it.
+< Learning whether tweety is a bird at all — right now I have no support either way, so any fact about it would be new ground.
 
