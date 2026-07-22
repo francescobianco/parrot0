@@ -113,6 +113,32 @@ static int scene_from_cues(Brain *b, char **w, size_t nw,
     return 1;
 }
 
+static int gen_has_complete_riddle_sig(Brain *b, const char *norm) {
+    if (!b || !b->kb) return 0;
+    char ids[256][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };
+    size_t nid = kb_match(b->kb, "riddle_sig", anyq, 2, ids, 256);
+    char done[128][KB_TERM_LEN];
+    size_t nd = 0;
+    for (size_t i = 0; i < nid; i++) {
+        int seen = 0;
+        for (size_t j = 0; j < nd; j++)
+            if (!strcmp(done[j], ids[i])) seen = 1;
+        if (seen || nd >= 128) continue;
+        snprintf(done[nd++], KB_TERM_LEN, "%s", ids[i]);
+
+        const char *q[] = { ids[i], NULL };
+        char cues[8][KB_TERM_LEN];
+        size_t ncue = kb_match(b->kb, "riddle_sig", q, 2, cues, 8);
+        if (ncue < 2) continue;
+        int all = 1;
+        for (size_t c = 0; c < ncue && all; c++)
+            if (!cue(norm, kb_dequote(cues[c]))) all = 0;
+        if (all) return 1;
+    }
+    return 0;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -128,6 +154,11 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                                 sizeof repair_source) == 1)
             return 0;
     }
+
+    if (kb_cue_match(b, "probability_draw", norm) &&
+        kb_cue_match(b, "probability_at_least", norm)) return 0;
+
+    if (gen_has_complete_riddle_sig(b, norm)) return 0;
 
     /* learn the continuation relation from an example: "learn sequence: a b c" */
     if (strncmp(norm, "learn sequence:", 15) == 0) {
@@ -181,8 +212,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     /* gen247: exact-word concise explanation. The explanation content is KB data
      * (`concise_explain/3`); C only maps topic cues and enforces the requested N. */
-    if ((cue(norm, "explain") || cue(norm, "why")) &&
-        (cue(norm, "two words") || cue(norm, "2 words") ||
+    if ((cue(norm, "two words") || cue(norm, "2 words") ||
          cue(norm, "three words") || cue(norm, "3 words") ||
          cue(norm, "four words") || cue(norm, "4 words") ||
          cue(norm, "exactly"))) {
@@ -204,6 +234,41 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
                 char msg[160]; snprintf(msg, sizeof msg, "%s.", p);
                 msg[0] = (char)toupper((unsigned char)msg[0]);
                 put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
+    /* gen350 (motorize-the-class Fase 4/5): KB-backed metaphor request. The C
+     * only detects that a creative form was requested and selects a topic by
+     * metaphor_topic/2; the form cue and wording are facts. */
+    if (kb_cue_match(b, "creative_metaphor_request", norm)) {
+        char mb[256]; snprintf(mb, sizeof mb, "%s", norm);
+        char *mw[64]; size_t mn = split_words(mb, mw, 64);
+        char topics[64][KB_TERM_LEN];
+        const char *tq[] = { NULL, NULL };
+        size_t tn = kb_match(b->kb, "metaphor_topic", tq, 2, topics, 64);
+        char best[KB_TERM_LEN] = "";
+        int best_score = 0;
+        for (size_t i = 0; i < tn; i++) {
+            if (seen_term(topics, i, topics[i])) continue;
+            const char *mq[] = { topics[i], NULL };
+            char cues[32][KB_TERM_LEN];
+            size_t cn = kb_match(b->kb, "metaphor_topic", mq, 2, cues, 32);
+            int score = 0;
+            for (size_t c = 0; c < cn; c++)
+                if (token_list_has(mw, mn, cues[c])) score++;
+            if (score > best_score) {
+                best_score = score;
+                snprintf(best, sizeof best, "%s", topics[i]);
+            }
+        }
+        if (best_score > 0) {
+            const char *mq[] = { best, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "metaphor_line", mq, 2, hit, 1) > 0) {
+                char *p = kb_dequote(hit[0]);
+                put(p, out, out_size);
                 return 1;
             }
         }

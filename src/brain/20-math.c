@@ -389,6 +389,121 @@ static int arith_compound(const char *norm, char *out, size_t out_size) {
     return 1;
 }
 
+static unsigned long long p0_gcd_ull(unsigned long long a, unsigned long long b) {
+    while (b) {
+        unsigned long long r = a % b;
+        a = b;
+        b = r;
+    }
+    return a ? a : 1;
+}
+
+static int p0_probability_draw(Brain *b, const char *norm,
+                               char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    if (!kb_cue_match(b, "probability_draw", norm)) return 0;
+    if (!kb_cue_match(b, "probability_at_least", norm)) return 0;
+
+    char buf[512];
+    size_t len = strlen(norm);
+    if (len >= sizeof buf) return 0;
+    memcpy(buf, norm, len + 1);
+    if (len > 0 && buf[len - 1] == '?') buf[len - 1] = '\0';
+
+    char *w[96];
+    size_t nw = split_words(buf, w, 96);
+    struct CountWord { long long n; char word[KB_TERM_LEN]; size_t idx; } cw[32];
+    size_t ncw = 0;
+    for (size_t i = 0; i + 1 < nw && ncw < 32; i++) {
+        double v = 0;
+        const char *tok = strip_edge_punct(w[i]);
+        const char *next = strip_edge_punct(w[i + 1]);
+        if (!parse_num(tok, &v)) continue;
+        long long iv = (long long)v;
+        if ((double)iv != v || iv < 0) continue;
+        if (!next[0] || !isalpha((unsigned char)next[0])) continue;
+        cw[ncw].n = iv;
+        snprintf(cw[ncw].word, sizeof cw[ncw].word, "%s", next);
+        cw[ncw].idx = i;
+        ncw++;
+    }
+    if (ncw < 3) return 0;
+
+    size_t threshold_i = ncw - 1;
+    size_t draw_i = threshold_i;
+    while (draw_i > 0) {
+        draw_i--;
+        if (cw[draw_i].n > 0) break;
+    }
+    if (draw_i >= threshold_i) return 0;
+
+    long long draw = cw[draw_i].n;
+    long long need = cw[threshold_i].n;
+    if (draw <= 0 || need <= 0) return 0;
+
+    long long total_items = 0;
+    long long target_items = 0;
+    for (size_t i = 0; i < draw_i; i++) {
+        total_items += cw[i].n;
+        if (!strcmp(cw[i].word, cw[threshold_i].word))
+            target_items += cw[i].n;
+    }
+    if (total_items <= 0 || target_items <= 0 || draw > total_items) return 0;
+
+    long long other_items = total_items - target_items;
+    char fav_pred[1][KB_TERM_LEN], den_pred[1][KB_TERM_LEN];
+    const char *fpq[] = { "probability_at_least_count", "favorable", NULL };
+    const char *dpq[] = { "probability_at_least_count", "denominator", NULL };
+    if (kb_match(b->kb, "probability_procedure", fpq, 3, fav_pred, 1) != 1)
+        return 0;
+    if (kb_match(b->kb, "probability_procedure", dpq, 3, den_pred, 1) != 1)
+        return 0;
+
+    char total_items_s[32], target_s[32], other_s[32], draw_s[32], need_s[32];
+    snprintf(total_items_s, sizeof total_items_s, "%lld", total_items);
+    snprintf(target_s, sizeof target_s, "%lld", target_items);
+    snprintf(other_s, sizeof other_s, "%lld", other_items);
+    snprintf(draw_s, sizeof draw_s, "%lld", draw);
+    snprintf(need_s, sizeof need_s, "%lld", need);
+
+    char favhit[1][KB_TERM_LEN], denhit[1][KB_TERM_LEN], hg[128];
+    snprintf(hg, sizeof hg, "hg(%s, %s, %s, %s)", target_s, other_s, draw_s, need_s);
+    const char *fq[] = { hg, NULL };
+    const char *dq[] = { total_items_s, draw_s, NULL };
+    if (kb_match(b->kb, kb_dequote(fav_pred[0]), fq, 2, favhit, 1) != 1) return 0;
+    if (kb_match(b->kb, kb_dequote(den_pred[0]), dq, 3, denhit, 1) != 1) return 0;
+
+    char *end = NULL;
+    unsigned long long fav = strtoull(kb_dequote(favhit[0]), &end, 10);
+    if (!end || *end) return 0;
+    end = NULL;
+    unsigned long long total = strtoull(kb_dequote(denhit[0]), &end, 10);
+    if (!end || *end || !total || !fav) return 0;
+
+    unsigned long long g = p0_gcd_ull(fav, total);
+    char fraction[64], favbuf[64], totalbuf[64], pctbuf[64];
+    snprintf(fraction, sizeof fraction, "%llu/%llu", fav / g, total / g);
+    snprintf(favbuf, sizeof favbuf, "%llu", fav);
+    snprintf(totalbuf, sizeof totalbuf, "%llu", total);
+    snprintf(pctbuf, sizeof pctbuf, "%.1f", ((double)fav * 100.0) / (double)total);
+
+    const KbResponseSlot slots[] = {
+        { "fraction", fraction },
+        { "favorable", favbuf },
+        { "total", totalbuf },
+        { "percent", pctbuf }
+    };
+    if (kb_response_slots(b, "probability_at_least_count", slots, 4,
+                          out, out_size)) {
+        store_proof(b, "Hypergeometric draw solved by KB procedures choose/3 and fav_at_least/2.");
+        return 1;
+    }
+    char msg[160];
+    snprintf(msg, sizeof msg, "%s, about %s%%.", fraction, pctbuf);
+    put(msg, out, out_size);
+    return 1;
+}
+
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;
@@ -404,6 +519,8 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
      * top-level operator joins clean operand phrases, else falls through). */
     if (arith_compound(norm, out, out_size)) return 1;
 
+    if (p0_probability_draw(b, norm, out, out_size)) return 1;
+
     char buf[256];
     size_t len = strlen(norm);
     if (len >= sizeof buf) return 0;
@@ -412,6 +529,37 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
 
     char *w[8];
     size_t nw = split_words(buf, w, 8);
+
+    if (b && b->kb && kb_cue_match(b, "handshake_problem", norm)) {
+        double n = 0;
+        int found = 0;
+        char hb[256]; snprintf(hb, sizeof hb, "%s", norm);
+        char *hw[64]; size_t hn = split_words(hb, hw, 64);
+        for (size_t i = 0; i < hn; i++) {
+            if (parse_num(strip_edge_punct(hw[i]), &n) && n >= 0) {
+                found = 1;
+                break;
+            }
+        }
+        long long people = (long long)n;
+        if (found && (double)people == n && people >= 2 && people <= 1000000) {
+            long long total = people * (people - 1) / 2;
+            char cbuf[64], pbuf[64];
+            snprintf(cbuf, sizeof cbuf, "%lld", total);
+            snprintf(pbuf, sizeof pbuf, "%lld", people);
+            const KbResponseSlot slots[] = {
+                { "count", cbuf },
+                { "people", pbuf }
+            };
+            if (kb_response_slots(b, "handshake_count", slots, 2, out, out_size)) {
+                store_proof(b, "Pairwise count: n people each connect once, so n*(n-1)/2.");
+                return 1;
+            }
+            char msg[96]; snprintf(msg, sizeof msg, "%lld.", total);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
 
     /* Expand tokens containing embedded operators (e.g. "2+2" -> "2","+","2").
      * Pure numbers (which may start with '-') are left intact so parse_num works.
@@ -1507,6 +1655,31 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
         if (v <= 0) continue;
         int is_len = (i + 1 < nw && strncmp(strip_edge_punct(w[i + 1]), "letter", 6) == 0);
         if (is_len) len_filter = v; else if (!list_n) list_n = v;
+    }
+
+    if (is_letters &&
+        kb_cue_match(b, "anagram_request", norm) &&
+        kb_cue_match(b, "anagram_output", norm)) {
+        for (size_t i = 0; i + 1 < nw; i++) {
+            char *t = strip_edge_punct(w[i]);
+            if (strcmp(t, "of") && strcmp(t, "in")) continue;
+            char *src = strip_edge_punct(w[i + 1]);
+            if (!strcmp(src, "the") && i + 2 < nw) src = strip_edge_punct(w[i + 2]);
+            if (strlen(src) < 3) continue;
+            int alpha = 1;
+            for (size_t k = 0; src[k]; k++)
+                if (!isalpha((unsigned char)src[k])) { alpha = 0; break; }
+            if (!alpha) continue;
+            const char *q[] = { src, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "anagram_of", q, 2, hit, 1) > 0) {
+                char *p = kb_dequote(hit[0]);
+                char msg[160]; snprintf(msg, sizeof msg, "\"%s\".", p);
+                put(msg, out, out_size);
+                return 1;
+            }
+            break;
+        }
     }
 
     ensure_lexeme(b);

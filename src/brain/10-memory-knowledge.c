@@ -2249,6 +2249,58 @@ static int p0_join(char **w, size_t a, size_t b, char *out, size_t sz) {
     return out[0] != '\0';
 }
 
+static int p0_kb_unary_has(Brain *b, const char *pred, const char *term) {
+    if (!b || !b->kb || !pred || !term || !*term) return 0;
+    char vals[128][KB_TERM_LEN];
+    const char *q[1] = { NULL };
+    size_t n = kb_match(b->kb, pred, q, 1, vals, 128);
+    for (size_t i = 0; i < n; i++)
+        if (!strcmp(term, kb_dequote(vals[i]))) return 1;
+    return 0;
+}
+
+static int p0_complete_riddle_sig(Brain *b, const char *norm) {
+    if (!b || !b->kb) return 0;
+    char ids[256][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };
+    size_t nid = kb_match(b->kb, "riddle_sig", anyq, 2, ids, 256);
+    char done[128][KB_TERM_LEN];
+    size_t nd = 0;
+    for (size_t i = 0; i < nid; i++) {
+        int seen = 0;
+        for (size_t j = 0; j < nd; j++)
+            if (!strcmp(done[j], ids[i])) seen = 1;
+        if (seen || nd >= 128) continue;
+        snprintf(done[nd++], KB_TERM_LEN, "%s", ids[i]);
+        const char *q[] = { ids[i], NULL };
+        char cues[8][KB_TERM_LEN];
+        size_t ncue = kb_match(b->kb, "riddle_sig", q, 2, cues, 8);
+        if (ncue < 2) continue;
+        int all = 1;
+        for (size_t c = 0; c < ncue && all; c++)
+            if (!cue(norm, kb_dequote(cues[c]))) all = 0;
+        if (all) return 1;
+    }
+    return 0;
+}
+
+static int p0_creation_canonical(Brain *b, const char *surface,
+                                 char *canon, size_t canon_sz) {
+    if (!b || !b->kb || !surface || !*surface || !canon || canon_sz == 0) return 0;
+    char rows[64][KB_TERM_LEN];
+    const char *q[2] = { NULL, surface };
+    size_t n = kb_match(b->kb, "creation_verb_form", q, 2, rows, 64);
+    if (n > 0) {
+        snprintf(canon, canon_sz, "%s", kb_dequote(rows[0]));
+        return canon[0] != '\0';
+    }
+    if (p0_kb_unary_has(b, "creation_verb", surface)) {
+        snprintf(canon, canon_sz, "%s", surface);
+        return 1;
+    }
+    return 0;
+}
+
 /* gen299 (deep-reasoning M0, frames 3/4/6): the EXTENDED class statement, the way
  * Wikipedia lead sentences phrase facts — MULTI-WORD subject/class ("the blue whale
  * is a marine mammal" -> marine_mammal(blue_whale)), a trailing PREPOSITIONAL PHRASE
@@ -2299,24 +2351,47 @@ static int extract_class_statement(Brain *b, const char *norm,
         else if (!strcmp(w[i], "erano") && i+1 < n && is_article(w[i+1])) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
     }
 
-    /* gen349 (Fase 2, motorize-the-class): transitive CREATION extraction. A prose
-     * sentence "S <creation-verb> O" (active voice) yields the UNIVERSAL
+    /* gen349/350 (Fase 2, motorize-the-class): transitive CREATION extraction.
+     * A prose sentence "S <creation-verb> O" (active voice) yields the UNIVERSAL
      * created_by(S, O, Verb) -- so ingestion grows the factual base by PROCESS,
      * not by hand. Verbs are enumerated from creation_verb/1 (KB-first: a new verb
-     * is a fact). Runs before the copula frames because these sentences have no
-     * copula. Passive ("O was painted BY S") is skipped via the "by" marker to
-     * avoid extracting the creator/work backwards -- passive is a follow-up. */
+     * is a fact). Passive "O was <verb-form> by S" uses the same canonical verb
+     * via creation_verb_form/2, and the agent marker is KB data too. */
     {
-        char cvs[24][KB_TERM_LEN]; const char *cq[1] = { NULL };
-        size_t ncv = kb_match(b->kb, "creation_verb", cq, 1, cvs, 24);
-        for (size_t i = 1; i + 1 < n && ncv; i++) {
-            int is_cv = 0;
-            for (size_t v = 0; v < ncv && !is_cv; v++)
-                if (!strcmp(w[i], kb_dequote(cvs[v]))) is_cv = 1;
-            if (!is_cv) continue;
-            int passive = 0;
-            for (size_t j = i + 1; j < n; j++) if (!strcmp(w[j], "by")) { passive = 1; break; }
-            if (passive) break;
+        for (size_t i = 1; i + 1 < n; i++) {
+            char canon[KB_TERM_LEN];
+            if (!p0_creation_canonical(b, w[i], canon, sizeof canon)) continue;
+            size_t agent = n;
+            for (size_t j = i + 1; j < n; j++) {
+                if (p0_kb_unary_has(b, "creation_passive_agent_marker", strip_edge_punct(w[j]))) {
+                    agent = j;
+                    break;
+                }
+            }
+            if (agent < n) {
+                size_t os = p0_lead_det(w[0]) ? 1 : 0;
+                if (os >= i) break;
+                char obj2[KB_TERM_LEN];
+                size_t oe = i;
+                if (oe > os && (!strcmp(strip_edge_punct(w[oe - 1]), "is") ||
+                                !strcmp(strip_edge_punct(w[oe - 1]), "are") ||
+                                !strcmp(strip_edge_punct(w[oe - 1]), "been")))
+                    oe--;
+                if (!p0_join(w, os, oe, obj2, sizeof obj2)) break;
+                size_t ss = agent + 1; if (ss < n && p0_lead_det(w[ss])) ss++;
+                char subj2[KB_TERM_LEN];
+                if (ss >= n || !p0_join(w, ss, n, subj2, sizeof subj2)) break;
+                if (p0_bad_subject(subj2)) break;
+                kb_set_origin(b->kb, KB_SESSION);
+                const char *ca[] = { subj2, obj2, canon };
+                if (kb_assert(b->kb, "created_by", ca, 3)) {
+                    p0_learn_source(b, "created_by", ca, 3, norm);
+                    char msg[256]; snprintf(msg, sizeof msg,
+                        "Learned: created_by(%s, %s, %s).", subj2, obj2, canon);
+                    put(msg, out, out_size); return 1;
+                }
+                break;
+            }
             size_t ss = p0_lead_det(w[0]) ? 1 : 0;
             if (ss >= i) break;
             char subj2[KB_TERM_LEN];
@@ -2326,11 +2401,11 @@ static int extract_class_statement(Brain *b, const char *norm,
             char obj2[KB_TERM_LEN];
             if (os >= n || !p0_join(w, os, n, obj2, sizeof obj2)) break;
             kb_set_origin(b->kb, KB_SESSION);
-            const char *ca[] = { subj2, obj2, w[i] };
+            const char *ca[] = { subj2, obj2, canon };
             if (kb_assert(b->kb, "created_by", ca, 3)) {
                 p0_learn_source(b, "created_by", ca, 3, norm);
                 char msg[256]; snprintf(msg, sizeof msg,
-                    "Learned: created_by(%s, %s, %s).", subj2, obj2, w[i]);
+                    "Learned: created_by(%s, %s, %s).", subj2, obj2, canon);
                 put(msg, out, out_size); return 1;
             }
             break;
@@ -3024,18 +3099,18 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * fixed forward+reverse lookup, same shape as the sound_of handler. */
     /* gen349: match diet cue words as WHOLE TOKENS -- substring cue() falsely
      * fired on "feathers" (f-EAT-hers), hijacking "does a robin have feathers?"
-     * into "a bird eats seed". */
+     * into "a bird eats seed". gen350: the cue vocabulary is diet_cue/1 in KB;
+     * C only performs token comparison. */
     int diet_q = 0;
     {
         char db[256]; snprintf(db, sizeof db, "%s", norm);
         char *dw[64]; size_t dn = split_words(db, dw, 64);
         for (size_t i = 0; i < dn && !diet_q; i++) {
             char *t = strip_edge_punct(dw[i]);
-            if (!strcmp(t, "eat") || !strcmp(t, "eats") || !strcmp(t, "eating") ||
-                !strcmp(t, "diet") || !strcmp(t, "food") || !strcmp(t, "mangia") ||
-                !strcmp(t, "mangiano")) diet_q = 1;
+            if (p0_kb_unary_has(b, "diet_cue", t)) diet_q = 1;
         }
     }
+    if (diet_q && p0_complete_riddle_sig(b, norm)) diet_q = 0;
     if (diet_q) {
         char eb[256]; snprintf(eb, sizeof eb, "%s", norm);
         char *ew[64]; size_t en = split_words(eb, ew, 64);
@@ -3855,27 +3930,23 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * sculpted share ONE concept, no per-verb C predicate. The creation verbs live
      * in KB (creation_verb/1). */
     if (b->kb && strstr(norm, "who ")) {
-        char verbs[24][KB_TERM_LEN]; const char *vq[1] = { NULL };
-        size_t nv = kb_match(b->kb, "creation_verb", vq, 1, verbs, 24);
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *w[64]; size_t n = split_words(sb, w, 64);
         for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
         for (size_t i = 0; i + 1 < n; i++) {
-            int is_cv = 0;
-            for (size_t v = 0; v < nv && !is_cv; v++)
-                if (!strcmp(w[i], kb_dequote(verbs[v]))) is_cv = 1;
-            if (!is_cv) continue;
+            char canon[KB_TERM_LEN];
+            if (!p0_creation_canonical(b, w[i], canon, sizeof canon)) continue;
             /* the work: tokens after the verb, joined snake_case, skipping a
              * leading article ("the mona lisa" -> mona_lisa). */
             char work[128]; size_t wl = 0; work[0] = '\0';
             for (size_t j = i + 1; j < n; j++) {
-                if (wl == 0 && is_article(w[j])) continue;
+                if (wl == 0 && p0_lead_det(w[j])) continue;
                 if (!*w[j]) continue;
                 wl += (size_t)snprintf(work + wl, sizeof work - wl, "%s%s",
                                        wl ? "_" : "", w[j]);
             }
             if (!work[0]) break;
-            const char *cq[3] = { NULL, work, w[i] };   /* Creator unbound; Work+Verb bound */
+            const char *cq[3] = { NULL, work, canon };   /* Creator unbound; Work+Verb bound */
             char cr[1][KB_TERM_LEN];
             if (kb_match(b->kb, "created_by", cq, 3, cr, 1) == 1) {
                 char nm[128]; snprintf(nm, sizeof nm, "%s", cr[0]);
@@ -3887,6 +3958,37 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
             break;
+        }
+    }
+
+    /* gen351 (LLMSCORE missing): "important quality for a <role> and why" is a
+     * role-quality query. Surface request cues and role topics live in KB; C only
+     * selects the best role and renders important_quality(Role, Quality, Reason). */
+    if (kb_cue_match(b, "quality_request", norm)) {
+        char qb[256]; snprintf(qb, sizeof qb, "%s", norm);
+        char *qw[64]; size_t qn = split_words(qb, qw, 64);
+        char role[KB_TERM_LEN];
+        if (kb_topic_task(b, "important_quality", "quality_topic", qw, qn,
+                          role, sizeof role)) {
+            const char *iq[] = { role, NULL, NULL };
+            char qualities[8][KB_TERM_LEN];
+            if (kb_match(b->kb, "important_quality", iq, 3, qualities, 8) > 0) {
+                char *quality = kb_dequote(qualities[0]);
+                const char *rq[] = { role, quality, NULL };
+                char reasons[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "important_quality", rq, 3, reasons, 1) > 0) {
+                    char *reason = kb_dequote(reasons[0]);
+                    const KbResponseSlot slots[] = {
+                        { "quality", quality },
+                        { "reason", reason }
+                    };
+                    if (kb_response_slots(b, "quality_reason", slots, 2,
+                                          out, out_size)) {
+                        store_proof(b, "Role quality selected from important_quality/3.");
+                        return 1;
+                    }
+                }
+            }
         }
     }
 
@@ -5751,7 +5853,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (activity_favorite ||
         cue(buf, "best way to") || cue(buf, "good way to") ||
         cue(buf, "what should i do") || cue(buf, "how should i spend") ||
-        cue(buf, "way to spend") || cue(buf, "recommend") || cue(buf, "suggest")) {
+        cue(buf, "way to spend") || cue(buf, "recommend") || cue(buf, "suggest") ||
+        kb_cue_match(b, "activity_request", buf)) {
         char ab[512]; snprintf(ab, sizeof ab, "%s", buf);
         char *aw[96]; size_t an = split_words(ab, aw, 96);
         char scene[KB_TERM_LEN];

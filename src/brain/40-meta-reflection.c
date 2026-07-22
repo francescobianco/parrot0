@@ -910,6 +910,8 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
     if (len > 0 && buf[len - 1] == '?') buf[--len] = '\0';
     while (len > 0 && buf[len - 1] == ' ') buf[--len] = '\0';
 
+    if (kb_cue_match(b, "handshake_problem", buf)) return 0;
+
     /* --- role CLEAR: only when it is the primary intent of the turn (so a setup
      * line ending "...and be yourself" still establishes the role first). --- */
     int clear = (strncmp(buf, "stop pretending", 15) == 0 ||

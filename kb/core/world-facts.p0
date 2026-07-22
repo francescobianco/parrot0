@@ -439,6 +439,41 @@ activity_topic(rainy_sunday, afternoon).
 activity_topic(rainy_sunday, rain).
 activity_topic(rainy_sunday, rainy).
 activity_topic(rainy_sunday, sunday).
+activity_step(new_job, 1, "Learn the team's expectations before trying to prove yourself").
+activity_step(new_job, 2, "Ask clear questions and write down the answers").
+activity_step(new_job, 3, "Build trust by doing small commitments reliably").
+activity_topic(new_job, job).
+activity_topic(new_job, new).
+activity_topic(new_job, starting).
+intent_cue(activity_request, "advice").
+intent_cue(activity_request, "guidance").
+intent_cue(activity_request, "recommendation").
+intent_cue(activity_request, "what should").
+intent_cue(quality_request, "important quality").
+intent_cue(quality_request, "best quality").
+intent_cue(quality_request, "most valuable trait").
+intent_cue(quality_request, "what trait").
+important_quality(leader, trustworthiness, "people follow hard decisions only when they believe the leader is honest and consistent").
+important_quality(manager, clarity, "clear expectations let people coordinate without guessing what success means").
+important_quality(teacher, patience, "students learn at different speeds, and patience keeps correction useful instead of discouraging").
+important_quality(doctor, judgment, "medical skill depends on choosing the right action under uncertainty and pressure").
+important_quality(engineer, rigor, "small unchecked assumptions can become large failures in the finished system").
+important_quality(parent, steadiness, "children need care they can rely on, especially when things are difficult").
+important_quality(friend, loyalty, "friendship depends on showing up when support actually costs something").
+important_quality(reviewer, honesty, "a review helps only when it names the real risk instead of flattering the work").
+quality_topic(leader, leader).
+quality_topic(leader, leadership).
+quality_topic(manager, manager).
+quality_topic(manager, management).
+quality_topic(teacher, teacher).
+quality_topic(teacher, teaching).
+quality_topic(doctor, doctor).
+quality_topic(doctor, physician).
+quality_topic(engineer, engineer).
+quality_topic(engineer, engineering).
+quality_topic(parent, parent).
+quality_topic(friend, friend).
+quality_topic(reviewer, reviewer).
 after_in_time($X, $Z) :- after_in_time($X, $Y), after_in_time($Y, $Z).
 after_in_time(baroque, renaissance).
 after_in_time(classical, baroque).
@@ -1595,6 +1630,36 @@ concise_topic(sky_blue, blue).
 concise_topic(sky_blue, day).
 concise_topic(sky_blue, daytime).
 concise_topic(sky_blue, sky).
+concise_explain(happiness, 3, "meaningful shared joy").
+concise_topic(happiness, happiness).
+intent_cue(creative_metaphor_request, "metaphor").
+metaphor_line(time, "Time is a river carrying yesterday out of reach.").
+metaphor_topic(time, time).
+metaphor_topic(time, passing).
+intent_cue(handshake_problem, "shakes hands").
+intent_cue(handshake_problem, "handshakes").
+intent_cue(handshake_problem, "shake hands").
+intent_cue(handshake_problem, "each guest").
+intent_cue(handshake_problem, "each person").
+intent_cue(handshake_problem, "everyone meets every other").
+intent_cue(handshake_problem, "each team plays every other").
+intent_cue(handshake_problem, "round robin").
+intent_cue(handshake_problem, "pairwise").
+intent_cue(probability_draw, "probability").
+intent_cue(probability_draw, "chance").
+intent_cue(probability_draw, "odds").
+intent_cue(probability_draw, "at random").
+intent_cue(probability_draw, "randomly").
+intent_cue(probability_draw, "without looking").
+intent_cue(probability_draw, "blindfolded").
+intent_cue(probability_draw, "draw").
+intent_cue(probability_draw, "grab").
+intent_cue(probability_draw, "reach in").
+intent_cue(probability_draw, "pick").
+intent_cue(probability_at_least, "at least").
+intent_cue(probability_at_least, "at minimum").
+intent_cue(probability_at_least, "or more").
+intent_cue(probability_at_least, "no fewer than").
 conj_es("are from (permanent)", you, eres).
 conj_es("are from (temporary)", you, estás).
 conj_es(are, you, eres).
@@ -3031,6 +3096,10 @@ response_template(riddle_newspaper, "A newspaper.").
 response_template(riddle_onion, "An onion.").
 response_template(shadow_day_sleep, "You are a shadow.").
 response_template(sphinx_riddle, "A human crawls on four legs as a baby walks on two legs as an adult and uses a cane in old age").
+riddle_sig(expl_sky_daynight, "sky").
+riddle_sig(expl_sky_daynight, "blue").
+riddle_sig(expl_sky_daynight, "day").
+riddle_sig(expl_sky_daynight, "night").
 riddle_sig(expl_daynight, "day").
 riddle_sig(expl_daynight, "night").
 riddle_sig(expl_grassgreen, "grass").
@@ -3067,6 +3136,10 @@ riddle_sig(riddle_chimney, "go down a chimney").
 riddle_sig(riddle_chimney, "go up a chimney").
 riddle_sig(riddle_echo, "hear without ears").
 riddle_sig(riddle_echo, "speak without a mouth").
+riddle_sig(riddle_elevator_short, "10th floor").
+riddle_sig(riddle_elevator_short, "7th floor").
+riddle_sig(riddle_elevator_short, elevator).
+riddle_sig(riddle_elevator_short, walks).
 riddle_sig(riddle_egg, "broken before").
 riddle_sig(riddle_egg, "use it").
 riddle_sig(riddle_fire, "need air").
@@ -3113,6 +3186,18 @@ riddle_sig(riddle_river_crossing, "boat").
 riddle_sig(riddle_river_crossing, "corn").
 riddle_sig(riddle_river_crossing, "fox").
 riddle_sig(riddle_river_crossing, "goose").
+riddle_sig(riddle_river_crossing_chicken_grain, "boat").
+riddle_sig(riddle_river_crossing_chicken_grain, "fox").
+riddle_sig(riddle_river_crossing_chicken_grain, "chicken").
+riddle_sig(riddle_river_crossing_chicken_grain, "grain").
+riddle_sig(riddle_river_crossing_chicken_corn, "boat").
+riddle_sig(riddle_river_crossing_chicken_corn, "fox").
+riddle_sig(riddle_river_crossing_chicken_corn, "chicken").
+riddle_sig(riddle_river_crossing_chicken_corn, "corn").
+riddle_sig(riddle_river_crossing_goose_grain, "boat").
+riddle_sig(riddle_river_crossing_goose_grain, "fox").
+riddle_sig(riddle_river_crossing_goose_grain, "goose").
+riddle_sig(riddle_river_crossing_goose_grain, "grain").
 riddle_sig(riddle_silence, "break it").
 riddle_sig(riddle_silence, "say its name").
 riddle_sig(riddle_stamp, "around the world").
@@ -3236,6 +3321,9 @@ scene_cue(shore, vigil).
 scene_cue(silence, silence).
 scene_cue(silent, silence).
 scene_cue(sky, wonder).
+scene_cue(star, wonder).
+scene_cue(fall, wonder).
+scene_cue(falling, wonder).
 scene_cue(someday, aspiration).
 scene_cue(song, melody).
 scene_cue(stopped, silence).
@@ -3682,6 +3770,7 @@ created_by(vincent_van_gogh, starry_night, painted).
 created_by(pablo_picasso, guernica, painted).
 created_by(michelangelo, the_david, sculpted).
 created_by(gustave_eiffel, the_eiffel_tower, designed).
+created_by(shakespeare, romeo_and_juliet, wrote).
 creation_verb(wrote).
 creation_verb(painted).
 creation_verb(composed).
@@ -3690,6 +3779,27 @@ creation_verb(directed).
 creation_verb(built).
 creation_verb(invented).
 creation_verb(designed).
+% Surface forms normalize to the canonical verb stored in created_by/3. This
+% keeps active questions ("who wrote X?") and passive prose ("X was written by Y")
+% on one relation; a new inflection is one KB fact.
+creation_verb_form(wrote, wrote).
+creation_verb_form(wrote, written).
+creation_verb_form(painted, painted).
+creation_verb_form(composed, composed).
+creation_verb_form(sculpted, sculpted).
+creation_verb_form(directed, directed).
+creation_verb_form(built, built).
+creation_verb_form(invented, invented).
+creation_verb_form(designed, designed).
+creation_passive_agent_marker(by).
+% Diet question vocabulary: the diet motor matches these as whole tokens.
+diet_cue(eat).
+diet_cue(eats).
+diet_cue(eating).
+diet_cue(diet).
+diet_cue(food).
+diet_cue(mangia).
+diet_cue(mangiano).
 % count_of(Thing, N): "how many <thing>s are there?" -> N. A new count is a fact.
 count_of(continent, seven).
 count_of(planet, eight).

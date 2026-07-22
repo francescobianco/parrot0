@@ -63,6 +63,8 @@ response_template(self_preference, "No genuine preferences here: I don't experie
 % the natural-language frame remains editable KB knowledge. ---
 response_template(arith_range_count, "There are {count} {property} numbers between {low} and {high} (inclusive).").
 response_template(arith_range_too_large, "That interval is too large for my bounded exact counter.").
+response_template(handshake_count, "{count}. With {people} people, each pair meets once, so the total is {people} choose 2.").
+response_template(probability_at_least_count, "{fraction}, about {percent}%. There are {favorable} favorable draws out of {total} equally likely draws.").
 response_template(logic_no_overlap_relationship, "Those classes do not overlap -- the explicit no-overlap premise states that directly.").
 response_template(initials_projection, "{name}.").
 number_property_label(prime, "prime").
@@ -96,6 +98,9 @@ response_template(riddle_keyboard, "A keyboard.").
 response_template(riddle_polar_bear, "White -- if all four walls face south, the house stands at the North Pole, so the bear is a polar bear.").
 response_template(riddle_word_lengths, "It's a statement: 'what' has four letters, 'sometimes' has nine, 'never' has five.").
 response_template(riddle_river_crossing, "Take the goose first; bring the fox but carry the goose back; take the corn over; return for the goose.").
+response_template(riddle_river_crossing_chicken_grain, "Take the chicken first; bring the fox across but bring the chicken back; take the grain across; return for the chicken.").
+response_template(riddle_river_crossing_chicken_corn, "Take the chicken first; bring the fox across but bring the chicken back; take the corn across; return for the chicken.").
+response_template(riddle_river_crossing_goose_grain, "Take the goose first; bring the fox across but bring the goose back; take the grain across; return for the goose.").
 response_template(riddle_echo, "An echo.").
 response_template(riddle_egg, "An egg.").
 response_template(riddle_stamp, "A stamp.").
@@ -129,10 +134,13 @@ response_template(expl_icefloats, "Ice floats because water expands when it free
 response_template(expl_rain, "It rains because water vapor rises, cools, and condenses into droplets in clouds; when the droplets grow heavy enough, they fall as rain.").
 response_template(expl_yawn, "We yawn to take in a deep breath of air and, some scientists think, to help cool the brain and stay alert.").
 response_template(expl_daynight, "We have day and night because the Earth spins on its axis, so each place faces the Sun (day) and then turns away from it (night).").
+response_template(expl_sky_daynight, "By day the sky looks blue because sunlight scatters in the air and blue light scatters strongly. At night it is dark because that part of Earth faces away from the Sun, so there is no direct sunlight to scatter.").
+response_template(quality_reason, "I would choose {quality}: {reason}.").
 % gen308: riddle answers distributed from kb/learning/autolearn.p0 (cues in world-facts.p0).
 response_template(riddle_match, "You light the match first.").
 response_template(riddle_vine, "You are a vine.").
 response_template(map_riddle, "You are a map.").
+response_template(riddle_elevator_short, "He is too short to reach the 10th-floor button, so he can reach the 7th-floor button and then walks the remaining flights.").
 response_template(riddle_footsteps, "Footsteps.").
 response_template(riddle_candle, "A candle.").
 response_template(riddle_towel, "A towel.").

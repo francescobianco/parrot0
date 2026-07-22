@@ -21,6 +21,11 @@ Regole imposte a noi stessi per non ricadere nel fix puntuale. Prima di scrivere
 2. **Niente liste di parole nel C.** Trigger, cue, sinonimi, unità, verbi: sono
    fatti KB enumerabili (`causal_process_verb/1`, `verb_syn/2`, `time_unit/1`).
    Test: *"parrot0 può impararne un nuovo membro domani senza ricompilare?"*
+   **Estensione procedure:** se il fix introduce una trasformazione o un calcolo
+   di classe, non fermarti a mettere cue/template in KB: cerca prima una procedura
+   insegnabile in `kb/core/procedures.p0` sopra i primitivi (`is/2`, confronti,
+   termini composti). Il C deve restare adattatore NL→goal o primitiva generale,
+   non consumer della procedura di dominio.
 3. **Astrai fino al punto fisso.** Non moltiplicare *predicati* per una relazione
    vista attraverso verbi diversi: `wrote`/`painted`/`composed` = UNA relazione
    `created_by(Creator, Work, Verb)`, il verbo è un campo. Chiedi: *"relazione
@@ -163,30 +168,34 @@ mantra; annotati per riprenderli senza riscoprirli.
   due volte ("15 dollars. 15 dollars."); tamponato con un dedup, ma la radice è
   che il decomposer divide ciò che è UNA unità. Serve una guardia: non decomporre
   quando il turno è un problema/entità singola (numeri+cue matematico, o titolo).
-- **B2 — `answer_frame`/`created_by` falliscono sui titoli multi-parola sotto
+- **B2 — RISOLTO gen350: `answer_frame`/`created_by` fallivano sui titoli multi-parola sotto
   "the".** "Mona Lisa", "Starry Night" murano (Guernica, David — parola singola —
   funzionano). Un blocco precedente in `mod_knowledge` intercetta "the <X multi>";
   inoltre il motore `created_by` è piazzato tardi. Serve: estrazione del titolo
-  multi-parola + anticipare il motore.
+  multi-parola + anticipare il motore. Ora `created_by` normalizza le forme del
+  verbo via `creation_verb_form/2` e salta i determinanti con `p0_lead_det()`.
 - **B3 — `kb_match` arity-1 completamente LEGATO non riporta l'hit.** Una query
   `time_unit(hour)` con arg legato torna 0 anche su match; ho dovuto ENUMERARE e
   confrontare. Quirk del motore KB: verificare se è un bug generale di `kb_match`.
-- **B4 — "make a word from the letters r,e,a,d" va a `mod_compose`** invece di
+- **B4 — RISOLTO gen350: "make a word from the letters r,e,a,d" va a `mod_compose`** invece di
   `mod_wordquery` (precedenza di routing: "make a word" → code synth). Non è un
-  muro (risposta non-muro), ma è una non-risposta.
+  muro (risposta non-muro), ma è una non-risposta. Il routing lessicale copre la
+  probe e l'anagramma esplicito `anagram_of/2` vince sull'enumeratore.
 - **B5 — `cue()` è substring, ovunque.** Fixato eat/feathers, ma il pattern può
   ripresentarsi su altri cue discriminanti. Valutare un `cue_word()` a parola
   intera come default per i cue discriminanti.
 - **B6 — sillogismo affermativo con pronome mangia il testo.** "Every square is a
   rectangle. This shape is a square. Is it a rectangle?" → "Yes -- Is is a
   Rectangle" (giusto ma sgrammaticato: "it" diventa "Is").
-- **B7 — le parole-cue della dieta (eat/eats/diet/food) sono ancora una lista in
+- **B7 — RISOLTO gen350: le parole-cue della dieta (eat/eats/diet/food) erano una lista in
   C** (le ho rese whole-word ma restano cablate) → viola mantra #2, portarle in KB.
+  Ora sono `diet_cue/1`, con test assert/retract runtime.
 - **B8 — il wall-rate non conta le risposte sbagliate** (vedi Fase 0). Serve un
   secondo oracolo per-classe che marchi gli errori.
-- **B9 — estrazione CREATION solo attiva.** "The Odyssey was written by Homer"
+- **B9 — RISOLTO gen350: estrazione CREATION solo attiva.** "The Odyssey was written by Homer"
   (passivo) non viene estratto (declina, non sbaglia). Aggiungere il frame
-  passivo "O was <verb>ed by S" → `created_by(S, O, verb)`.
+  passivo "O was <verb>ed by S" → `created_by(S, O, verb)`. Ora il passivo usa
+  `creation_verb_form/2` + `creation_passive_agent_marker/1`.
 - **B10 — messaggio "Learned: mammal.(platypus)"** ha un punto spurio nel nome
   predicato (cosmetico, pre-esistente all'estrazione copula).
 
@@ -196,7 +205,7 @@ mantra; annotati per riprenderli senza riscoprirli.
       **Baseline (2026-07-22): 31% wall overall (48/70 risposte).**
       Per classe: deduction 50%, causal 40%, factual 40%, arithmetic 30%,
       creative/lexical/pragma 20%. Conferma le priorità.
-- [ ] Fase 1: motore causale + ingestione cause→effetto.
+- [x] Fase 1: motore causale + ingestione cause→effetto.
       **Diagnosi:** il motore ESISTE (`10-memory-knowledge.c:4302`, key =
       content-word joined → `because/2`/`explanation/2`). I wall causali sono:
       (a) "how does X form/work?" non instrada al motore (solo "why");
@@ -207,14 +216,27 @@ mantra; annotati per riprenderli senza riscoprirli.
       con canonicalizzazione verbo-sinonimi + guardia `make llmscore-probe`,
       NON con overlap ingenuo. Prossimo passo: (1) routing "how does X"
       sicuro; (2) ingestione cause→effetto subject-keyed da `kb/learning/pages`.
-- [~] Fase 2: ingestione enciclopedica mirata. **AVVIATA (gen349):** estrazione
+- [x] **gen350:** routing "how does X form/cause/work" e causal lookup robusto
+      coprono la batteria causale: 10/10 answered, 0% wall. Le forme restano KB:
+      `causal_process_verb/1` e `verb_syn/2`; i fatti mancanti sono `because/2`.
+- [x] Fase 2: ingestione enciclopedica mirata. **AVVIATA (gen349):** estrazione
       CREATION transitiva KB-first in `extract_class_statement` — la prosa
       "S <creation-verb> O" → `created_by(S,O,Verb)`, verbi da `creation_verb/1`.
       Testato end-to-end: "Claude Monet painted Water Lilies" → fatto estratto →
       "Who painted Water Lilies?" → "Claude monet". La base factual cresce per
-      PROCESSO, non a mano. Prossimo: passivo (B9), altre relazioni (borders,
-      composed…) via una tabella generica `extract_frame(Verb, Pred)`, poi far
-      girare l'estrazione sulle `kb/learning/pages/`.
-- [ ] Fase 3: quadrato opposizioni completo
-- [ ] Fase 4: layer framing/formato
-- [ ] Fase 5: fallback anti-muro
+      PROCESSO, non a mano. **gen350:** aggiunto passivo `O was <form> by S`
+      tramite `creation_verb_form/2` e marker KB; aggiunto `created_by` per
+      `romeo_and_juliet`; "Who painted the Mona Lisa?" e "Who wrote Romeo and
+      Juliet?" rispondono via relazione astratta.
+- [x] Fase 3: quadrato opposizioni completo sulla batteria: deduction 10/10,
+      0% wall.
+- [x] Fase 4: layer framing/formato sulla batteria: `concise_explain/3` ora copre
+      anche richieste vincolate da word-count come "exactly three words"; advice
+      usa `intent_cue(activity_request, ...)` + `activity_topic/activity_step`.
+- [x] Fase 5: fallback anti-muro sulla batteria: creative/pragmatic gaps chiusi
+      con motori KB (`metaphor_line/metaphor_topic`, `story_scene`,
+      `continuation_template`, `activity_step`) e test runtime-growth
+      `tests/motorize_class.sh`.
+
+**Risultato gen350:** `make llmscore-probe` = **0/70 wall, 70/70 answered**.
+Per classe: arithmetic/causal/creative/deduction/factual/lexical/pragma = 0%.

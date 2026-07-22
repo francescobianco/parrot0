@@ -1125,6 +1125,10 @@ static int mod_compose(Brain *b, const char *norm, const char *raw,
     for (size_t i = 0; i < lim; i++) low[i] = (char)tolower((unsigned char)raw[i]);
     low[lim] = '\0';
 
+    if (kb_cue_match(b, "handshake_problem", low)) return 0;
+    if (kb_cue_match(b, "probability_draw", low) &&
+        kb_cue_match(b, "probability_at_least", low)) return 0;
+
     /* gen328 (TODO.md P3): TEACH an algorithm from a page of steps —
      *   "learn sinking sort from these steps: repeat passes over the list;
      *    compare each adjacent pair; swap them if they are out of order"

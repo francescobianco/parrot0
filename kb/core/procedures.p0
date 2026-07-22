@@ -84,6 +84,23 @@ no_divisor($N, $D) :- is($M, mod($N, $D)), gt($M, 0), is($D2, add($D, 2)), no_di
 power($B, 0, 1).
 power($B, $E, $R) :- gt($E, 0), is($E1, sub($E, 1)), power($B, $E1, $R1), is($R, mul($B, $R1)).
 
+choose($N, $K, $R) :- is($R, binom($N, $K)).
+
+valid_hypergeom_take(hg($K, $O, $D, $X)) :- le($X, $K), le($X, $D), is($Y, sub($D, $X)), le($Y, $O).
+skip_hypergeom_take(hg($K, $O, $D, $X)) :- le($X, $K), le($X, $D), is($Y, sub($D, $X)), gt($Y, $O).
+hypergeom_term(hg($K, $O, $D, $X), $Term) :- is($Y, sub($D, $X)), choose($K, $X, $A),
+                                             choose($O, $Y, $B), is($Term, mul($A, $B)).
+fav_at_least(hg($K, $O, $D, $X), 0) :- gt($X, $K).
+fav_at_least(hg($K, $O, $D, $X), 0) :- gt($X, $D).
+fav_at_least(hg($K, $O, $D, $X), $R) :- skip_hypergeom_take(hg($K, $O, $D, $X)),
+                                        is($X1, add($X, 1)), fav_at_least(hg($K, $O, $D, $X1), $R).
+fav_at_least(hg($K, $O, $D, $X), $R) :- valid_hypergeom_take(hg($K, $O, $D, $X)),
+                                        hypergeom_term(hg($K, $O, $D, $X), $Term),
+                                        is($X1, add($X, 1)), fav_at_least(hg($K, $O, $D, $X1), $Rest),
+                                        is($R, add($Term, $Rest)).
+probability_procedure(probability_at_least_count, favorable, fav_at_least).
+probability_procedure(probability_at_least_count, denominator, choose).
+
 is_even($N) :- eq(mod($N, 2), 0).
 is_odd($N) :- eq(mod($N, 2), 1).
 
@@ -266,4 +283,3 @@ miles_to_km($M, $KM) :- is($KM, div(mul($M, 100000), 62137)).
 
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).
-

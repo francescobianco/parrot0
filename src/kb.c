@@ -640,7 +640,7 @@ static int charlist_to_atom(const char *list, char *out, size_t outsz) {
 /* gen335 (teachable-procedures): a small arithmetic evaluator over a RESOLVED term
  * string, so taught PROCEDURES can compute with real numbers as KNOWLEDGE (not a C
  * consumer). Grammar:  expr := number | fn '(' expr ',' expr ')'  with fn in
- * {add,sub,mul,div,mod}. Numbers are doubles; integer results render without a
+ * {add,sub,mul,div,mod,binom}. Numbers are doubles; integer results render without a
  * fraction. Returns 1 on success, 0 if the expression is ill-formed or has an
  * unbound variable (the builtin then flounders honestly). No <math.h> dependency. */
 static int eval_num(const char *e, double *out) {
@@ -668,6 +668,28 @@ static int eval_num(const char *e, double *out) {
     memcpy(bb, comma + 1, bl); bb[bl] = '\0';
     double a, b;
     if (!eval_num(ab, &a) || !eval_num(bb, &b)) return 0;
+    if (fl == 5 && !strncmp(e, "binom", 5)) {
+        long long n = (long long)a, k = (long long)b;
+        if ((double)n != a || (double)k != b || n < 0 || k < 0 || k > n) return 0;
+        if (k > n - k) k = n - k;
+        unsigned long long r = 1;
+        for (long long i = 1; i <= k; i++) {
+            unsigned long long num = (unsigned long long)(n - k + i);
+            unsigned long long den = (unsigned long long)i;
+            unsigned long long g = 0, x = num, y = den;
+            while (y) { unsigned long long t = x % y; x = y; y = t; }
+            g = x ? x : 1;
+            num /= g; den /= g;
+            x = r; y = den;
+            while (y) { unsigned long long t = x % y; x = y; y = t; }
+            g = x ? x : 1;
+            r /= g; den /= g;
+            if (den != 1 || (num && r > 18446744073709551615ULL / num)) return 0;
+            r *= num;
+        }
+        *out = (double)r;
+        return 1;
+    }
     if (fl != 3) return 0;
     if (!strncmp(e, "add", 3)) { *out = a + b; return 1; }
     if (!strncmp(e, "sub", 3)) { *out = a - b; return 1; }
@@ -3079,7 +3101,9 @@ static int is_struct_pred(const char *pred) {
         "wh_front_es", "subject_pron_fr", "rewrite_es", "elide_join", "describe_cue",
         "pair_magnitude", "clue_verb", "emits", "is_like", "inanimate", "cries",
         "flashes", "depicts", "contains", "has_part", "has_property", "can_do",
-        "add", "len", "nat", "riddle_sig", "response_template",
+        "add", "len", "nat", "choose", "valid_hypergeom_take",
+        "skip_hypergeom_take", "hypergeom_term", "fav_at_least",
+        "probability_procedure", "riddle_sig", "response_template",
         /* gen313: code/KB-substrate predicates — never entity descriptions */
         "code_function", "code_calls", "day_order",
         /* gen335 (F.): presentation-layer machinery (kb/core/presentation.p0) —
