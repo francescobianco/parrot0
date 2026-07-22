@@ -1,0 +1,73 @@
+# migrated from tests/cases/world_stress.chat (hermetic + isolated, perf-held)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test world_stress]
+!timeout 0
+# gen142 (E7) STRESS — ~10x the toy case: three overlapping named worlds, the
+# SAME entities (rex, max) meaning different things in each, scope switching,
+# "what is assumed?", an anonymous-then-named scratch world, explicit teardown
+# AND leave, and a final proof that NOTHING leaked into permanent memory.
+
+# Build two worlds that disagree about the same names.
+> in the saga world rex is a dragon
+< In the saga world, rex is a dragon.
+> in the saga world max is a knight
+< In the saga world, max is a knight.
+> is rex a dragon?
+< Yes.
+> in the office world rex is a manager
+< In the office world, rex is a manager.
+> in the office world max is an intern
+< In the office world, max is an intern.
+
+# The office scope is active now, so the same name answers differently.
+> who is rex?
+< In the office world, rex is a manager.
+
+# Switch back to the saga scope and read its overlay.
+> in the saga world
+< Opened the saga world. Tell me what is true in it.
+> who is max?
+< In the saga world, max is a knight.
+> what is assumed?
+< In the saga world I am assuming: rex is a dragon; max is a knight.
+
+# A class true in office but never assumed in saga is unknown here, not false.
+> is max a manager?
+< Not assumed in the saga world.
+
+# A third, named world started explicitly; its rex is a third thing.
+> start a world called dream
+< Opened the dream world. Tell me what is true in it.
+> rex is a cloud
+< In the dream world, rex is a cloud.
+> who is rex?
+< In the dream world, rex is a cloud.
+
+# Switch to office; its rex is unchanged by the dream scope.
+> in the office world
+< Opened the office world. Tell me what is true in it.
+> who is rex?
+< In the office world, rex is a manager.
+
+# Tear the dream world down, leave the active scope.
+> forget the dream world
+< Forgotten the dream world; none of it reached my memory.
+> leave the world
+< Left the office world.
+
+# No world is active: a fact now reaches permanent memory and answers normally.
+> bob is a human
+< Learned: human(bob).
+> is bob a human?
+< Yes.
+
+# Anti-leak: none of the three worlds' facts ever entered permanent memory.
+> is rex a dragon?
+< I don't know about dragon.
+

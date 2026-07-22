@@ -538,6 +538,29 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/reasoning/transitivity.it.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/whatifnot.it.p0t
 	@./$(BIN) --test-send tests/p0t/repair/repair.it.p0t
+	@./$(BIN) --test-send tests/p0t/meta/calibrate.p0t
+	@./$(BIN) --test-send tests/p0t/meta/calibrate.it.p0t
+	@./$(BIN) --test-send tests/p0t/meta/calibrate_stress.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/compose.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/compose.it.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/conjunction.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/conjunction.it.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/deepreason.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/deepreason-correct.p0t
+	@./$(BIN) --test-send tests/p0t/language/fewshot.it.p0t
+	@./$(BIN) --test-send tests/p0t/intent/pragma_stress.p0t
+	@./$(BIN) --test-send tests/p0t/meta/proof_trace.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit.it.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest_fresh.p0t
+	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest.it.p0t
+	@./$(BIN) --test-send tests/p0t/repair/repair_stress.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/robust.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/robust.it.p0t
+	@./$(BIN) --test-send tests/p0t/meta/strategy.it.p0t
+	@./$(BIN) --test-send tests/p0t/conversation/user_model_stress.p0t
+	@./$(BIN) --test-send tests/p0t/knowledge/world_stress.p0t
 	@./$(BIN) --test-report
 
 # legacy-test — the pre-gen345 conversation suite. These states are being

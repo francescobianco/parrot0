@@ -1,0 +1,67 @@
+# migrated from tests/cases/calibrate.chat (hermetic + isolated, perf-held)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test calibrate]
+!timeout 0
+# gen142 (E8): metacognitive calibration. The agent reports HOW it knows the last
+# conclusion, with confidence language COMPUTED from the real proof state, and
+# answers "why do you think that?" / "what would make you change your mind?" from
+# that state. Five epistemic states, each with DIFFERENT grounded language.
+# Held-out names (rex/zara/socrates/alice) and predicates.
+
+# INFERRED — derived through a rule. Confidence cites the proof chain; the lever
+# is the load-bearing premise found by ablation.
+> socrates is a man
+< Learned: man(socrates).
+> every man is a mortal
+< Learned rule: mortal(X) :- man(X).
+> is socrates a mortal?
+< Yes.
+> why do you think that?
+< I'm confident but it's derived, not given: mortal(socrates) because man(socrates). I concluded it by applying a rule, so it's only as sound as those premises.
+> what would make you change your mind?
+< It hangs on one premise: if I learned that socrates is a man were false, I'd stop concluding socrates is a mortal.
+
+# KNOWN — a direct stored fact. Certain; the lever is contradicting the fact.
+> rex is a dog
+< Learned: dog(rex).
+> is rex a dog?
+< Yes.
+> why do you think that?
+< I'm certain: rex is a dog is a fact you stated directly, so I hold it as known, not inferred.
+> what would make you change your mind?
+< Learning that rex is NOT a dog — that's the single fact it rests on, so contradicting it would overturn my belief.
+
+# UNKNOWN — known predicate, unknown entity. Honest absence of support.
+> is zara a dog?
+< No.
+> why do you think that?
+< I don't actually think that — I have no support for zara being a dog, so I can't claim it either way.
+
+# CONFLICTED — both polarities stated. Genuinely unsure; both claims named.
+> alice is a person
+< Learned: person(alice).
+> alice is not a person
+< Learned: not person(alice).
+> is alice a person?
+< No.
+> why do you think that?
+< I'm genuinely unsure — I hold conflicting claims about alice: you told me it is a person and also that it is not. Until that's resolved I can't commit either way.
+> what would make you change your mind?
+< Telling me which to trust — you've claimed both that alice is a person and that it is not. Retract one and I'd settle on the other.
+
+# HYPOTHETICAL — a standing supposition. Conditional; the lever is dropping it.
+> suppose tweety is a bird
+< All right — assuming tweety is a bird. Anything I conclude from it will be conditional on that.
+> is tweety a bird?
+< Yes.
+> why do you think that?
+< Only conditionally: tweety is a bird holds because I'm ASSUMING tweety is a bird. Drop that assumption and I'd have no ground for it.
+> what would make you change your mind?
+< Dropping the assumption — I only conclude tweety is a bird because I'm supposing tweety is a bird. Withdraw that and the conclusion goes with it.
+

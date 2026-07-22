@@ -1,0 +1,23 @@
+# migrated from tests/cases/robust.it.chat (hermetic + isolated, perf-held)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test robust.it]
+!timeout 0
+# gen130 (L20-deep), Italian probe: the SAME self-perturbation sweep reached
+# through the Italian trigger ("da cosa dipende …"). One mechanism, two
+# languages, one code path — the bilingual ratchet.
+
+> socrate è un uomo
+< Learned: uomo(socrate).
+> ogni uomo è un mortale
+< Learned rule: mortale(X) :- uomo(X).
+> socrate è un mortale?
+< Yes.
+> da cosa dipende questa conclusione?
+< My conclusion that socrate is a mortale is fragile: it rests entirely on one fact — uomo(socrate). Forget that and it falls.
+

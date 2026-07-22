@@ -1,0 +1,30 @@
+# migrated from tests/cases/conjunction.it.chat (hermetic + isolated, perf-held)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test conjunction.it]
+!timeout 0
+# gen133, Italian probe: the SAME conjunctive-concept machinery through Italian
+# surface ("ogni cane amichevole è un bravo"). One mechanism, two languages, one
+# code path — the bilingual ratchet over rule intake, article-free assertion,
+# abduction and robustness together.
+
+> ogni cane amichevole è un bravo
+< Learned rule: bravo(X) :- cane(X), amichevole(X).
+> rex è un cane
+< Learned: cane(rex).
+> rex è un bravo?
+< No.
+> cosa renderebbe rex un bravo?
+< If you told me that rex is a amichevole, then rex would be a bravo — that's the rule cane and amichevole -> bravo.
+> rex è amichevole
+< Learned: amichevole(rex). Now rex is a bravo after all.
+> rex è un bravo?
+< Yes.
+> da cosa dipende?
+< My conclusion that rex is a bravo rests on 2 load-bearing facts: cane(rex), amichevole(rex). Removing any one would overturn it.
+

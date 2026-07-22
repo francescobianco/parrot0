@@ -1,0 +1,15 @@
+# migrated from tests/cases/reflexive_selftest.it.chat (hermetic + isolated, perf-held)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reflexive_selftest.it]
+!timeout 0
+# gen167/168 (E1 reflexive, capstone): the self-test in Italian — "esegui tu il
+# test di composizione dei tuoi moduli" reaches the same mod_loop path and runs
+# the same composition on a fresh sub-brain, no duplicated logic.
+> esegui tu il test di composizione dei tuoi moduli
+< I ran it on a fresh copy of myself with held-out names (a brave knight named aldric): knowledge, abduce and robust — 3 of 3 parts fired and cooperated. Observed: My conclusion that aldric is a hero rests on 2 load-bearing facts: knight(aldric), brave(aldric). Removing any one would overturn it. Composition holds (PASS). No file was touched; an external agent still owns edits and commits.

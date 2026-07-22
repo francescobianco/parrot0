@@ -1,0 +1,16 @@
+# migrated from tests/cases/reflexive_audit.it.chat (hermetic + isolated, perf-held)
+[mock hermetic]
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+[test reflexive_audit.it]
+!timeout 0
+# gen169 (E1 reflexive): the self-audit matrix in Italian — "verifica quali tuoi
+# moduli si compongono" reaches the same mod_loop path and runs the same triples
+# on fresh sub-brains, no duplicated logic.
+> verifica quali tuoi moduli si compongono
+< Ho verificato la mia stessa composizione su copie fresche di me: knowledge+abduce+robust compose; knowledge+abduce+calibrate compose; knowledge+robust+calibrate seam. 2 di 3 triple reggono. Nessun file è stato toccato; le modifiche e i commit spettano a un agente esterno.
+
