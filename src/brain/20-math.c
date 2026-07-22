@@ -1617,83 +1617,47 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
     return 1;
 }
 
-/* ── Motore 2b: situational suggestion (gen347, LLMSCORE Q9) ─────────────────────
- * "what's a good X for situation Y" → a curated suggestion, cue-matched like an
- * idiom. suggestion(Cue, "text"): the Cue is a distinctive situation phrase found
- * as a substring of the turn; the reply is knowledge. A new kind of advice
- * (icebreaker, gift, name, tip) is one fact, zero C — like difference_between/2. */
-static int mod_suggestion(Brain *b, const char *norm, const char *raw,
-                          char *out, size_t out_size) {
+/* ── ONE generic curated-answer motor (gen347) ──────────────────────────────────
+ * The KB-first cure for "a module per capability": a recognized request whose
+ * answer is a fixed piece of KNOWLEDGE — a suggestion, a constrained sentence, a
+ * specific fact the structured KB can't derive — is NOT a new C module. It is a
+ * pair of facts read by ONE motor:
+ *     qa_cue(Id, "word")   — a discriminative word the request must contain (many
+ *                            per Id: ALL must be present for Id to fire)
+ *     qa_reply(Id, "text") — the answer, spoken verbatim
+ * The most-specific Id (most cues matched) wins, so a broad request never steals a
+ * narrow one. A whole new curated capability — advice, a sentence with fixed
+ * anchors, a tricky historical detail — costs facts, zero C. (Computation-bearing
+ * capabilities — rhyme/anagram enumeration, question decomposition — stay real
+ * motors; only the "retrieve curated knowledge by cue" family collapses here.) */
+static int mod_qa(Brain *b, const char *norm, const char *raw,
+                  char *out, size_t out_size) {
     (void)raw;
     if (!b || !b->kb || !norm) return 0;
-    /* an advice REQUEST, not a passing mention — a question or a "good/suggest" ask */
-    int asking = strchr(norm, '?') != NULL || cue(norm, "good ") ||
-                 cue(norm, "suggest") || cue(norm, "what") || cue(norm, "how");
-    if (!asking) return 0;
-    char cues[128][KB_TERM_LEN];
-    const char *q[2] = { NULL, NULL };
-    size_t n = kb_match(b->kb, "suggestion", q, 2, cues, 128);
-    for (size_t i = 0; i < n; i++) {
-        char cbuf[KB_TERM_LEN]; snprintf(cbuf, sizeof cbuf, "%s", cues[i]);
-        const char *cd = kb_dequote(cbuf);
-        if (!*cd || !cue(norm, cd)) continue;
-        const char *q2[2] = { cues[i], NULL };
-        char t[1][KB_TERM_LEN];
-        if (kb_match(b->kb, "suggestion", q2, 2, t, 1) == 1) {
-            put(kb_dequote(t[0]), out, out_size);
-            store_proof(b, "Answered from suggestion/2 in the KB.");
-            return 1;
+    char ids[128][KB_TERM_LEN];
+    const char *aq[2] = { NULL, NULL };
+    size_t nid = kb_match(b->kb, "qa_reply", aq, 2, ids, 128);   /* the Id column */
+    const char *best = NULL; size_t best_id = 0, best_n = 0;
+    for (size_t i = 0; i < nid; i++) {
+        char cues[16][KB_TERM_LEN];
+        const char *cq[2] = { ids[i], NULL };
+        size_t nc = kb_match(b->kb, "qa_cue", cq, 2, cues, 16);
+        if (nc == 0) continue;
+        int all = 1;
+        for (size_t c = 0; c < nc; c++) {
+            char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[c]);
+            const char *cd = kb_dequote(cb);
+            if (!*cd || !cue(norm, cd)) { all = 0; break; }
         }
+        if (all && nc > best_n) { best_n = nc; best = ids[i]; best_id = i; }
     }
-    return 0;
-}
-
-/* ── Motore 2c: constrained sentence frame (gen347, LLMSCORE Q7) ─────────────────
- * "a sentence that starts with W1 and ends with W2" → a crafted sentence with
- * those anchors. sentence_frame(Start, End, "text"): the two anchor words are
- * knowledge keys, the sentence is knowledge. Adding an anchor pair is one fact.
- * The MOTOR extracts the two anchors from the request and looks up the frame. */
-static const char *wq_anchor_after(char **w, size_t nw, size_t from) {
-    for (size_t j = from; j < nw; j++) {
-        char *t = strip_edge_punct(w[j]);
-        if (!strcmp(t, "with") || !strcmp(t, "the") || !strcmp(t, "word") ||
-            !strcmp(t, "a") || !strcmp(t, "an")) continue;
-        return t;
-    }
-    return NULL;
-}
-static int mod_sentenceframe(Brain *b, const char *norm, const char *raw,
-                             char *out, size_t out_size) {
-    (void)raw;
-    if (!b || !b->kb || !norm) return 0;
-    int startc = cue(norm, "starts with") || cue(norm, "start with") ||
-                 cue(norm, "begins with") || cue(norm, "beginning with") ||
-                 cue(norm, "begin with");
-    int endc = cue(norm, "ends with") || cue(norm, "end with") ||
-               cue(norm, "ending with");
-    if (!startc || !endc) return 0;
-    char nb[512]; snprintf(nb, sizeof nb, "%s", norm);
-    char *w[80]; size_t nw = split_words(nb, w, 80);
-    char start[KB_TERM_LEN] = "", end[KB_TERM_LEN] = "";
-    for (size_t i = 0; i < nw; i++) {
-        char *t = strip_edge_punct(w[i]);
-        if ((!strcmp(t, "starts") || !strcmp(t, "start") || !strcmp(t, "begins") ||
-             !strcmp(t, "beginning") || !strcmp(t, "begin")) && !*start) {
-            const char *a = wq_anchor_after(w, nw, i + 1); if (a) snprintf(start, sizeof start, "%s", a);
-        }
-        if ((!strcmp(t, "ends") || !strcmp(t, "end") || !strcmp(t, "ending")) && !*end) {
-            const char *a = wq_anchor_after(w, nw, i + 1); if (a) snprintf(end, sizeof end, "%s", a);
-        }
-    }
-    if (!*start || !*end) return 0;
-    const char *q[3] = { start, end, NULL };
-    char t[1][KB_TERM_LEN];
-    if (kb_match(b->kb, "sentence_frame", q, 3, t, 1) == 1) {
-        put(kb_dequote(t[0]), out, out_size);
-        store_proof(b, "Answered from sentence_frame/3 in the KB.");
-        return 1;
-    }
-    return 0;
+    if (!best) return 0;
+    const char *rq[2] = { ids[best_id], NULL };
+    char rep[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "qa_reply", rq, 2, rep, 1) != 1) return 0;
+    put(kb_dequote(rep[0]), out, out_size);
+    store_proof(b, "Answered from a qa_cue/qa_reply pattern in the KB.");
+    return 1;
 }
 
 /* gen231 (LLMSCORE, ambitious): continue a number sequence. "what comes next 2 4

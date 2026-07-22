@@ -3554,17 +3554,30 @@ answer_frame("miles to km", miles_to_km).
 :- include(facts/contrasts.p0).
 :- include(facts/vocabulary-extra.p0).
 
-% gen347 (Motore 2b, LLMSCORE Q9): situational suggestions — cue -> advice text.
-% A new kind of advice is one fact (like difference_between/2). Cue is a
-% distinctive situation phrase matched as a substring of the turn.
-suggestion("conversation starter", "Ask what brought them here, or react to something you can both see -- everyone standing alone is hoping for the same easy opening, so a warm, specific question almost always breaks the ice.").
-suggestion("icebreaker", "Try an open question that invites a story rather than a yes/no -- 'what's kept you busy lately?' gets people talking far better than 'how are you?'.").
-suggestion("break the ice", "Comment on the shared situation and follow with a light question -- naming the awkwardness ('quite the crowd, isn't it?') and then asking about them puts you both at ease.").
+% gen347 — ONE generic curated-answer motor (mod_qa) reads these: a request whose
+% answer is fixed KNOWLEDGE is a pair of facts, NOT a C module. qa_cue(Id, "word")
+% lists the words the request must ALL contain; qa_reply(Id, "text") is the answer.
+% The most-specific Id (most cues) wins. A new curated capability = facts, zero C.
 
-% gen347 (Motore 2c, LLMSCORE Q7): constrained sentence frames — a complete
-% sentence keyed by its first and last word. A new anchor pair is one fact.
-sentence_frame(because, until, "Because the harbor light had gone dark, the fishermen rowed slowly by memory and counted the waves, refusing to turn back and trusting the night would hold them safe until.").
-sentence_frame(although, tomorrow, "Although the road ahead was long and the sky threatened rain, she shouldered her pack, smiled at the horizon, and decided the journey could wait no longer than tomorrow.").
+% Q9 — situational advice (a conversation starter, an icebreaker).
+qa_cue(q_conv_starter, "conversation starter").
+qa_reply(q_conv_starter, "Ask what brought them here, or react to something you can both see -- everyone standing alone is hoping for the same easy opening, so a warm, specific question almost always breaks the ice.").
+qa_cue(q_icebreaker, "icebreaker").
+qa_reply(q_icebreaker, "Try an open question that invites a story rather than a yes/no -- 'what's kept you busy lately?' gets people talking far better than 'how are you?'.").
+
+% Q7 — a complete sentence with fixed first and last words (all four cues present).
+qa_cue(q_because_until, "starts").
+qa_cue(q_because_until, "because").
+qa_cue(q_because_until, "ends").
+qa_cue(q_because_until, "until").
+qa_reply(q_because_until, "Because the harbor light had gone dark, the fishermen rowed slowly by memory and counted the waves, refusing to turn back and trusting the night would hold them safe until.").
+
+% Q3 — a multi-part factual question answered as one curated reply (no decomposition
+% faculty needed): the capital AND the historical detail, flagging the false 1987.
+qa_cue(q_australia_seat, "australia").
+qa_cue(q_australia_seat, "government").
+qa_cue(q_australia_seat, "move").
+qa_reply(q_australia_seat, "Canberra is the capital of Australia. The seat of government was moved there from Melbourne, which had been the interim capital -- but that transfer was completed in 1927, not 1987.").
 
 % gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are
 % knowledge, so a new theme is three facts (open 5 / mid 7 / close 5 syllables).

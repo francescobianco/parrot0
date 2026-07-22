@@ -131,7 +131,7 @@ static const Module registry[] = {
     {"repair",    mod_repair},
     {"input",     mod_input},
     /* gen335+: moved earlier so riddle/story handlers claim before coref (174). */
-    {"sentframe", mod_sentenceframe},
+    {"qa",        mod_qa},
     {"gen",       mod_gen},
     /* deep-reasoning M3: the budgeted multi-hop inference loop. Fires only on the
      * "think deeply" trigger (deep_reason_fresh), so it claims a deep-reason turn
@@ -140,7 +140,6 @@ static const Module registry[] = {
     {"count",     mod_count},
     {"namestart", mod_namestart},
     {"wordquery", mod_wordquery},
-    {"suggestion", mod_suggestion},
     {"sequence",  mod_sequence},
     {"spell",     mod_spell},
     {"world",     mod_world},

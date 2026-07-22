@@ -3041,7 +3041,7 @@ static int is_struct_pred(const char *pred) {
         "category_member", /* gen230: mod_namestart substrate, not describable */
         "opposite", /* gen231: antonym relation, queried not described */
         "color_of", /* gen231: colour facts, queried not described */
-        "because", "explanation", "suggestion", "sentence_frame", /* gen232: causal-completion reasons, queried not described */
+        "because", "explanation", "qa_cue", "qa_reply", /* gen232: causal-completion reasons, queried not described */
         "grows_with", "increases", /* gen233: qualitative-change substrate */
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "landmark_of", "planet_superlative", "planet_superlative_cue",
