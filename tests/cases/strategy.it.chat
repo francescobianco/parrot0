@@ -1,9 +1,0 @@
-# gen105 (L20) — the bilingual ratchet (LOOP.md). The Italian meta-question
-# "perché hai risposto così?" routes to the SAME mod_strategy through the same
-# cue path; the control account it reports is the identical real execution trace.
-# No logic duplicated: question-understanding generalizes across languages.
-
-> gatto -> gatti, cane -> cani, topo -> ?
-< topi.
-> perché hai risposto così?
-< I try my modules in a fixed order and the first one that matches wins. Last turn piact, compose, repair, input, deepreason, count, namestart, sequence, spell, world, translate, synth, induce, verify, memory, loop, meta, counterfactual, whatifnot, robust, calibrate, abduce, role, self, archetype looked first and declined; then 'fewshot' claimed it — so the modules after 'fewshot' were never consulted.

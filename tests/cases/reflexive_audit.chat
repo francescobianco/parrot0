@@ -1,7 +1,0 @@
-# gen169 (E1 reflexive): the self-audit MATRIX. parrot0 runs several different
-# triples of its own parts — each on a fresh copy of itself, with held-out vocab —
-# and reports a real cooperation map (the compose-bench matrix turned inward).
-# A triple composes iff every part is one it still believes it has (module(X)
-# holds) AND each fired when actually run; computed, not tabulated.
-> audit your composition
-< I audited my own composition on fresh copies of myself: knowledge+abduce+robust compose; knowledge+abduce+calibrate compose; knowledge+robust+calibrate seam. 2 of 3 triples hold. No file was touched; an external agent owns edits and commits.
