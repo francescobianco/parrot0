@@ -42,6 +42,17 @@ a derivarne lo scheletro logico e aver dimostrato che non c'è. Quasi sempre c'�
 - **Substrato vs conoscenza dell'utente.** I fatti curati che spediamo (geografia, colori,
   monotonie, …) sono *substrato*: vanno marcati in `is_internal_pred` (conteggio/ dump) e
   in `is_struct_pred` di `kb.c` (descrizione), così non inquinano "quante cose sai?".
+- **Nessuna lista di parole nel C (lo smell test decisivo).** Qualunque *elenco letterale
+  di parole di superficie* nel C che faccia da trigger, cue, sinonimo, filtro o
+  classificatore — i verbi che marcano un intento, i filler, i sinonimi, le parole-gate —
+  **è conoscenza, non un motore**, e va nella KB come fatti (enumerati con `kb_match` /
+  `kb_cue_match`). La domanda che decide, da porsi PRIMA di scrivere l'elenco:
+  > *"parrot0 potrebbe imparare un nuovo membro di questa lista domani, senza ricompilare?"*
+  Se sì → KB. La spia inequivocabile è una catena
+  `strstr(norm,"form") || strstr(norm,"happen") || strstr(norm,"occur") || …`: quella lista
+  è un fatto `causal_process_verb/1` (o `intent_cue`, `verb_syn`, …) mascherato da C. Il C
+  tiene solo *come* si cerca (il ciclo di match); *cosa* si cerca vive nella KB. Regola
+  gemella di "Engine fixed, knowledge learns" applicata al riconoscimento dell'input.
 
 ## 3. Il test: deduci · abduci · genera
 

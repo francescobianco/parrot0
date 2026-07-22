@@ -3612,3 +3612,42 @@ haiku_close(mountain, "patient as the stone").
 haiku_open(river, "The river hurries").
 haiku_mid(river, "carrying the sky on its back").
 haiku_close(river, "toward a far sea").
+
+% gen349 (motorize-the-class Fase 1): verb-synonym map for the causal motor.
+% causal_lookup_robust matches a stored key's verb token against a question verb
+% via verb_syn/2 (both directions), so one stored reason answers many phrasings.
+% This is KNOWLEDGE (facts), zero C: a new phrasing is one verb_syn fact.
+verb_syn(appears, form).
+verb_syn(appears, forms).
+verb_syn(appears, appear).
+verb_syn(appears, happen).
+verb_syn(appears, happens).
+verb_syn(appears, occur).
+verb_syn(appears, occurs).
+verb_syn(appears, made).
+verb_syn(glows, shine).
+verb_syn(glows, shines).
+verb_syn(glows, glow).
+verb_syn(change, changes).
+verb_syn(change, turn).
+verb_syn(change, turns).
+verb_syn(rises, rise).
+verb_syn(rises, grows).
+verb_syn(floats, float).
+verb_syn(rusts, rust).
+verb_syn(rusts, corrode).
+verb_syn(salty, salt).
+
+% gen349 (motorize-the-class Fase 1): process verbs that mark a "how does X ...?"
+% as a CAUSAL question. KB-first: a new trigger word is one fact here, no C edit.
+causal_process_verb(form).
+causal_process_verb(forms).
+causal_process_verb(happen).
+causal_process_verb(happens).
+causal_process_verb(occur).
+causal_process_verb(occurs).
+causal_process_verb(work).
+causal_process_verb(works).
+causal_process_verb(made).
+causal_process_verb(cause).
+causal_process_verb(causes).

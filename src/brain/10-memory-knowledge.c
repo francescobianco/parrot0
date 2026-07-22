@@ -2726,6 +2726,89 @@ static int mod_personal(Brain *b, const char *norm, const char *raw, char *out,
     return 1;
 }
 
+/* gen349 (Fase 1, motorize-the-class): robust causal lookup. Two content tokens
+ * match if equal after stripping a trailing plural 's' — so "leaves"/"leaf" and
+ * "star"/"stars" unify without a stemmer. */
+static int caus_tok_eq(const char *a, const char *b) {
+    char x[64], y[64];
+    snprintf(x, sizeof x, "%s", a); snprintf(y, sizeof y, "%s", b);
+    size_t lx = strlen(x), ly = strlen(y);
+    if (lx > 3 && x[lx - 1] == 's') x[lx - 1] = '\0';
+    if (ly > 3 && y[ly - 1] == 's') y[ly - 1] = '\0';
+    return *x && !strcmp(x, y);
+}
+
+/* A key verb token is satisfied by a question token that equals it OR is a KB
+ * verb-synonym of it (verb_syn/2, checked both directions). This is what keeps
+ * the match SAFE: "rainbow_appears" needs "appears" or a synonym ("form") in the
+ * question, so a shared subject alone (moon_glows vs "moon ... tides") can never
+ * pull a wrong reason. New phrasings are verb_syn facts, zero C. */
+static int caus_verb_ok(Brain *b, const char *qtok, const char *ktok) {
+    if (caus_tok_eq(qtok, ktok)) return 1;
+    char res[16][KB_TERM_LEN];
+    const char *f[2] = { ktok, NULL };
+    size_t n = kb_match(b->kb, "verb_syn", f, 2, res, 16);
+    for (size_t i = 0; i < n; i++)
+        if (caus_tok_eq(qtok, kb_dequote(res[i]))) return 1;
+    const char *g[2] = { qtok, NULL };
+    n = kb_match(b->kb, "verb_syn", g, 2, res, 16);
+    for (size_t i = 0; i < n; i++)
+        if (caus_tok_eq(ktok, kb_dequote(res[i]))) return 1;
+    return 0;
+}
+
+/* Enumerate stored because/explanation keys and pick the one whose SUBJECT (first
+ * key token) AND every remaining token are present in the question (verb tokens
+ * via caus_verb_ok). Most-specific key (most tokens) wins. Declines cleanly when
+ * no key is fully covered — a missing reason stays a wall, never a wrong answer. */
+static int causal_lookup_robust(Brain *b, const char *norm,
+                                char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    char qb[256]; snprintf(qb, sizeof qb, "%s", norm);
+    char *qw[64]; size_t qn = split_words(qb, qw, 64);
+    for (size_t i = 0; i < qn; i++) qw[i] = strip_edge_punct(qw[i]);
+    const char *preds[2] = { "explanation", "because" };
+    for (int p = 0; p < 2; p++) {
+        char keys[256][KB_TERM_LEN];
+        const char *aq[2] = { NULL, NULL };
+        size_t nk = kb_match(b->kb, preds[p], aq, 2, keys, 256);
+        const char *bestkey = NULL; size_t best_score = 0;
+        for (size_t i = 0; i < nk; i++) {
+            char kbuf[KB_TERM_LEN]; snprintf(kbuf, sizeof kbuf, "%s", keys[i]);
+            char *kt[8]; size_t knt = 0;
+            for (char *s = strtok(kbuf, "_"); s && knt < 8; s = strtok(NULL, "_"))
+                kt[knt++] = s;
+            if (knt < 2) continue;                 /* need subject + at least a verb */
+            int subj_ok = 0;
+            for (size_t j = 0; j < qn; j++)
+                if (caus_tok_eq(qw[j], kt[0])) { subj_ok = 1; break; }
+            if (!subj_ok) continue;
+            int allok = 1;
+            for (size_t t = 1; t < knt && allok; t++) {
+                int hit = 0;
+                for (size_t j = 0; j < qn && !hit; j++)
+                    if (caus_verb_ok(b, qw[j], kt[t])) hit = 1;
+                if (!hit) allok = 0;
+            }
+            if (allok && knt > best_score) { best_score = knt; bestkey = keys[i]; }
+        }
+        if (bestkey) {
+            const char *rq[2] = { bestkey, NULL };
+            char res[1][KB_TERM_LEN];
+            if (kb_match(b->kb, preds[p], rq, 2, res, 1) == 1) {
+                char *r = res[0]; size_t rl = strlen(r);
+                if (rl >= 2 && r[0] == '"' && r[rl - 1] == '"') { r[rl - 1] = '\0'; r++; }
+                if (p == 0) { put(r, out, out_size); }
+                else { char msg[360]; snprintf(msg, sizeof msg, "Because %s.", r);
+                       put(msg, out, out_size); }
+                store_proof(b, "Causal reason matched by subject+verb (motorize-the-class Fase 1).");
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
 static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     (void)raw;
@@ -4259,6 +4342,20 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* gen240: any "why" question is a candidate — the key lookup below declines
          * (falls through) when no because/2 fact matches, so a broad trigger is safe. */
         int whyq = strstr(norm, "why") != NULL;
+        /* gen349 (Fase 1): a "how does X form/work/happen?" is a causal question
+         * too. The process verbs that mark it live in KB (causal_process_verb/1),
+         * NOT in C — so a new trigger is a learnable fact. Gated so "how many/how
+         * are you" don't fire; the key lookup below still declines on no match. */
+        int howq = 0;
+        if (strstr(norm, "how ") && b->kb) {
+            char pv[64][KB_TERM_LEN];
+            const char *pq[1] = { NULL };
+            size_t npv = kb_match(b->kb, "causal_process_verb", pq, 1, pv, 64);
+            for (size_t i = 0; i < npv && !howq; i++) {
+                const char *v = kb_dequote(pv[i]);
+                if (*v && strstr(norm, v)) howq = 1;
+            }
+        }
         /* gen240: day/night compound — "why is the sky blue during the day but dark
          * at night" answers BOTH clauses from because(sky_blue) + because(night_dark). */
         if (whyq && b->kb && strstr(norm, "sky") &&
@@ -4299,7 +4396,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 return 1;
             }
         }
-        if (comp || whyq) {
+        if (comp || whyq || howq) {
             char key[KB_TERM_LEN]; size_t kl = 0, nkeys = 0; key[0] = '\0';
             for (size_t i = 0; i < nn && nkeys < 3; i++) {
                 char *t = strip_edge_punct(ww[i]);
@@ -4361,6 +4458,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     return 1;
                 }
             }
+            /* gen349 (Fase 1): exact subject_verb key missed — try the robust
+             * subject+verb(+synonym) match over the whole because/explanation
+             * table, so phrasing variants ("how does a rainbow form") reach an
+             * existing reason without a wrong-answer risk. */
+            if (causal_lookup_robust(b, norm, out, out_size)) return 1;
         }
     }
 
