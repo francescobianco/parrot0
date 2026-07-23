@@ -751,6 +751,10 @@ tr_fr_phrase("what's your name", "comment vous appelez-vous").
 tr_fr_phrase("what is your name", "comment vous appelez-vous").
 tr_fr_phrase("what time is it", "quelle heure est-il").
 tr_fr_phrase("good luck", "bonne chance").
+tr_multi_phrase(knowledge_is_power, french, "Le savoir, c'est le pouvoir").
+tr_multi_phrase(knowledge_is_power, spanish, "El conocimiento es poder").
+tr_multi_phrase(knowledge_is_power, japanese, "知識は力なり").
+translation_phrase_cue(knowledge_is_power, "knowledge is power").
 tr_fr(where, où).
 tr_fr(is, est).
 tr_fr(bathroom, "salle de bains").

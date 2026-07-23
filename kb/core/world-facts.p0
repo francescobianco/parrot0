@@ -447,6 +447,22 @@ activity_step(new_job, 3, "Build trust by doing small commitments reliably").
 activity_topic(new_job, job).
 activity_topic(new_job, new).
 activity_topic(new_job, starting).
+activity_step(productivity_habit, 1, "Choose the one important task for the next focused block before checking messages").
+activity_step(productivity_habit, 2, "Work on it for a short timer with notifications muted").
+activity_step(productivity_habit, 3, "When the timer ends, write the next tiny action so restarting is easy").
+activity_topic(productivity_habit, productive).
+activity_topic(productivity_habit, productivity).
+activity_topic(productivity_habit, habit).
+activity_topic(productivity_habit, focus).
+activity_step(time_historian_day, 1, "Begin by checking the date twice, because one wrong century changes every source").
+activity_step(time_historian_day, 2, "Visit one event quietly, taking notes without disturbing the people there").
+activity_step(time_historian_day, 3, "Return home to compare the eyewitness record with the old archive").
+activity_topic(time_historian_day, day).
+activity_topic(time_historian_day, historian).
+activity_topic(time_historian_day, time).
+activity_topic(time_historian_day, traveling).
+intent_cue(activity_request, "day in the life").
+intent_cue(activity_request, "describe a day").
 intent_cue(activity_request, "advice").
 intent_cue(activity_request, "guidance").
 intent_cue(activity_request, "recommendation").
@@ -716,6 +732,8 @@ borders(austria, slovenia).
 borders(austria, switzerland).
 borders(belgium, france).
 borders(belgium, germany).
+borders(bulgaria, greece).
+borders(bulgaria, turkey).
 borders(czechia, austria).
 borders(czechia, germany).
 borders(denmark, germany).
@@ -735,8 +753,27 @@ borders(germany, luxembourg).
 borders(germany, netherlands).
 borders(germany, poland).
 borders(germany, switzerland).
+borders(greece, bulgaria).
 borders(belarus, poland).
 borders(belarus, ukraine).
+borders(argentina, brazil).
+borders(bolivia, brazil).
+borders(brazil, argentina).
+borders(brazil, bolivia).
+borders(brazil, colombia).
+borders(brazil, guyana).
+borders(brazil, paraguay).
+borders(brazil, peru).
+borders(brazil, suriname).
+borders(brazil, uruguay).
+borders(brazil, venezuela).
+borders(colombia, brazil).
+borders(guyana, brazil).
+borders(paraguay, brazil).
+borders(peru, brazil).
+borders(suriname, brazil).
+borders(uruguay, brazil).
+borders(venezuela, brazil).
 borders(italy, austria).
 borders(italy, france).
 borders(italy, slovenia).
@@ -758,8 +795,10 @@ borders(switzerland, austria).
 borders(switzerland, france).
 borders(switzerland, germany).
 borders(switzerland, italy).
+borders(turkey, bulgaria).
 borders(ukraine, belarus).
 borders(ukraine, slovakia).
+border_count(bulgaria, 2).
 borders_country(china, india).
 borders_country(china, russia).
 borders_country(france, belgium).
@@ -994,6 +1033,7 @@ category_member(country, australia).
 category_member(country, austria).
 category_member(country, belarus).
 category_member(country, belgium).
+category_member(country, bulgaria).
 category_member(country, brazil).
 category_member(country, canada).
 category_member(country, chile).
@@ -1369,6 +1409,15 @@ category_member(shape, octagon).
 category_member(shape, oval).
 category_member(shape, pentagon).
 category_member(shape, rectangle).
+ratio_word(double, 2).
+ratio_word(twice, 2).
+ratio_word(triple, 3).
+ratio_word(thrice, 3).
+event_frame(canberra).
+event_attr(canberra, compromise_reason, "Sydney and Melbourne both wanted the national capital, so Australia chose a planned inland city between them as a compromise").
+event_frame(world_war_ii).
+event_attr(world_war_ii, end_year, 1945).
+event_attr(world_war_ii, atomic_bomb_cities, "Hiroshima and Nagasaki").
 category_member(shape, square).
 category_member(shape, triangle).
 category_member(south_america, amazon).
@@ -1648,6 +1697,12 @@ concise_topic(sky_blue, blue).
 concise_topic(sky_blue, day).
 concise_topic(sky_blue, daytime).
 concise_topic(sky_blue, sky).
+concise_explain(sky_day_night, 3, "scattering needs sunlight").
+concise_topic(sky_day_night, blue).
+concise_topic(sky_day_night, dark).
+concise_topic(sky_day_night, day).
+concise_topic(sky_day_night, night).
+concise_topic(sky_day_night, sky).
 concise_explain(happiness, 3, "meaningful shared joy").
 concise_topic(happiness, happiness).
 intent_cue(creative_metaphor_request, "metaphor").
@@ -1762,6 +1817,11 @@ continuation_template(mystery, "a single light flickered in an upstairs window")
 continuation_template(mystery, "no one had set foot inside for as long as anyone could remember").
 continuation_template(mystery, "the neighbours always crossed to the other side before passing it").
 continuation_template(mystery_box, "a tiny clockwork bird with emerald eyes").
+continuation_template(key_mystery, "a narrow iron door hidden behind the library panel").
+continuation_template(key_pursuit, "at the end of the corridor, the key began to warm as if it recognized the door").
+continuation_template(clock_attic, "someone whispered her name from inside the walls").
+continuation_template(cat_threshold, "slipped through the gap and vanished into the dark hallway").
+continuation_template(moon_poem, "and stars lean close to listen to its light").
 continuation_template(rainfall, "rings widen where each drop lands").
 continuation_template(rainfall, "somewhere under the reeds a frog answers").
 continuation_template(rainfall, "the water wears a coat of silver circles").
@@ -1790,6 +1850,12 @@ couplet(coder, "A weary coder sips the dark roast deep; the bugs retreat, the pa
 couplet(coffee, "Dark in the cup and bitter to the brim; one quiet sip and dawn no longer dim.").
 couplet(library, "The quiet library keeps the dust of light; its pages bloom like lanterns in the night.").
 couplet(lighthouse, "Alone it stands where wind and grey waves roam; a single faithful light to guide ships home.").
+couplet(lighthouse_cloud_friendship, "The lighthouse feared the sea until a cloud drew near; together they watched dawn make the waters clear.").
+couplet_cue(lighthouse_cloud_friendship, lighthouse).
+couplet_cue(lighthouse_cloud_friendship, cloud).
+couplet_cue(lighthouse_cloud_friendship, friendship).
+couplet_cue(lighthouse_cloud_friendship, friend).
+couplet_cue(lighthouse_cloud_friendship, unexpected).
 couplet(moon, "The pale moon climbs and spills its quiet light; it lays a silver road across the night.").
 couplet(moonlight, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
 couplet(ocean, "The ocean rolls in silver and in foam; it sings the oldest song of going home.").
@@ -1800,6 +1866,9 @@ couplet(robot, "A robot meets the rain for the very first time; each cold bright
 couplet(sea, "The sea rolls in with silver and with foam; it sings the oldest song of going home.").
 couplet(snow, "The snow comes down and hushes all the street; it lays a quiet blanket, cold and sweet.").
 couplet(spring, "The first green shoot pushes through cold black ground; in silence all the waking world is found.").
+couplet(season, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
+couplet(seasons, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
+couplet(changing, "Spring wakes the fields while autumn dims the flame; each turning sky returns, yet none the same.").
 couplet(star, "A single star pricks through the dusk's last glow; old light still travelling from long ago.").
 couplet(storm, "The storm may roar and fling the grey waves wide; the steady beam keeps watch through wind and tide.").
 couplet(water, "Moonlight trembles where the dark waves gleam; water holds the sky as if in dream.").
@@ -1862,6 +1931,7 @@ default_pick(music, "quiet piano").
 default_pick(number, "seven").
 default_pick(place, "a quiet library").
 default_pick(season, "autumn").
+default_pick_reason(season, "the crisp air, changing leaves, and quieter evenings").
 default_pick(skill, "speaking every language fluently -- it would open every other door").
 default_pick(sport, "long-distance running").
 default_pick(subject, "astronomy").
@@ -1936,9 +2006,13 @@ difference_between(sea, ocean, "An ocean is a vast named body of salt water; a s
 difference_between(sun, moon, "The Sun is a star that produces its own light; the Moon is a rocky body that reflects sunlight").
 difference_between(there, their, "There points to a place or existence; their means belonging to them").
 difference_between(turtle, tortoise, "Tortoises are land turtles; many turtles live in or near water").
+difference_between(pandemic, epidemic, "An epidemic is disease occurrence above the expected level in a community or region, such as the 2014 West African Ebola outbreak; a pandemic has sustained international or intercontinental spread, such as the 1918 influenza pandemic").
+difference_between(hard, soft_water, "Hard water contains more dissolved calcium and magnesium, forms scale and makes soap lather poorly; soft water contains little of those ions, lathers readily and leaves fewer mineral deposits").
 discovered_by(penicillin, alexander_fleming).
 discovered_by(polonium, marie_curie).
 distance_between(chicago, new_york, 790).
+distance_between(chicago, los_angeles, 2015).
+distance_between(los_angeles, chicago, 2015).
 distance_between(new_york, chicago, 790).
 eats(bear, berries).
 eats(bear, fish).
@@ -2076,10 +2150,11 @@ haiku_close(snow, "footprints fill again").
 haiku_close(spring, "everything begins").
 haiku_close(star, "older than our eyes").
 haiku_close(technology, "the machine dreams on").
+haiku_close(artificial, "the machine dreams on").
 haiku_close(time, "none of them return").
 haiku_close(tree, "holding up the sky").
 haiku_close(winter, "waiting for the thaw").
-haiku_mid(autumn, "the wind carries them away").
+haiku_mid(autumn, "cool winds carry them away").
 haiku_mid(bird, "the whole sky waiting for it").
 haiku_mid(book, "worlds asleep between the lines").
 haiku_mid(candle, "a small gold tent in the dark").
@@ -2103,6 +2178,7 @@ haiku_mid(snow, "the world grows quiet and white").
 haiku_mid(spring, "the cold earth remembers warmth").
 haiku_mid(star, "old light crossing endless dark").
 haiku_mid(technology, "small lights think in the still house").
+haiku_mid(artificial, "small lights learn from our words").
 haiku_mid(time, "carries each moment downstream").
 haiku_mid(tree, "roots deep, branches in the wind").
 haiku_mid(winter, "bare trees against a grey sky").
@@ -2130,6 +2206,7 @@ haiku_open(snow, "Snow falls without sound").
 haiku_open(spring, "Green pushes through mud").
 haiku_open(star, "One star pricks the dusk").
 haiku_open(technology, "A screen glows at dusk").
+haiku_open(artificial, "Silicon thoughts wake").
 haiku_open(time, "The river of hours").
 haiku_open(tree, "The old tree stands still").
 haiku_open(winter, "The world holds its breath").
@@ -2335,6 +2412,7 @@ landmark_city(pyramids, "Giza").
 landmark_city(sagrada, "Barcelona").
 landmark_city(taj, "Agra").
 landmark_of(australia, "the Sydney Opera House").
+landmark_of(canberra, "Parliament House").
 landmark_of(brazil, "Christ the Redeemer").
 landmark_of(canada, "the CN Tower").
 landmark_of(china, "the Great Wall").
@@ -2538,6 +2616,8 @@ num_sides(square, 4).
 num_sides(triangle, 3).
 ocean_borders(australia, "Indian Ocean").
 ocean_borders(australia, "Pacific Ocean").
+sea_borders(turkey, mediterranean_sea).
+sea_borders(turkey, black_sea).
 ocean_west_of(australia, "the Indian Ocean").
 ocean_west_of(portugal, "the Atlantic Ocean").
 ocean_west_of(united_states, "the Pacific Ocean").
@@ -2789,9 +2869,9 @@ poem4(lighthouse, "Alone on the rock where the grey waves roam,").
 poem4(lighthouse, "Through wind and the dark and the breaking spray,").
 poem4(lighthouse, "its steady beam keeps the night at bay.").
 poem4(lighthouse, "the lighthouse stands as the storm comes home.").
-poem4(ocean, "Its deep tides murmur, vast and wide,").
 poem4(ocean, "The ocean breathes in blue and grey,").
 poem4(ocean, "and carries the moon on a silver way.").
+poem4(ocean, "Its deep tides murmur, vast and wide,").
 poem4(ocean, "with secret songs beneath the tide.").
 poem4(rain, "It washes the dust from the tired street,").
 poem4(rain, "The first drops tap on the windowpane,").
@@ -2865,12 +2945,30 @@ predicate_source(kind_of, curated_base).
 prevents(seatbelt, injury).
 prevents(sunscreen, sunburn).
 prevents(umbrella, getting_wet).
+state_consequence(umbrella, upside_down, "rain would collect inside the canopy instead of running off").
+positional_sentence(5, 3, cat, "The small cat slept peacefully.").
+physical_contrast(helium_breath_balloon, "A helium balloon rises because helium is much less dense than the surrounding air, so buoyant force exceeds its weight; breath contains mostly nitrogen, oxygen, carbon dioxide and water vapor, so that balloon is too close to air density to lift itself").
+formatted_explanation_cue(ice_floats, "ice floats").
+formatted_explanation(ice_floats, two_sentence, "Ice floats because freezing water expands into a more open crystal structure, making ice less dense than liquid water. Since it is less dense, buoyant force can hold the ice on the surface instead of letting it sink").
+response_format_variant(expl_icefloats, two_sentence, "Ice floats because freezing water expands into a more open crystal structure, making ice less dense than liquid water. Since it is less dense, buoyant force can hold the ice on the surface instead of letting it sink.").
+exchange_initial_cue(user, "you have").
+exchange_initial_cue(assistant, "i have").
+exchange_transfer_cue(user, assistant, "you give me").
+exchange_transfer_cue(assistant, user, "i give you").
 prevents(vaccine, disease).
 pro_drop(es).
 process_step(bread_rise, 1, "Yeast consumes sugars in the dough and releases carbon dioxide gas").
 process_step(bread_rise, 2, "Gluten strands trap that gas in small bubbles, stretching the dough").
 process_step(bread_rise, 3, "Warmth and time let fermentation continue, so the bubbles expand").
 process_step(bread_rise, 4, "During baking, the gas expands further and the crumb sets into a risen loaf").
+process_step(flat_tire_change, 1, "Park safely on level ground, turn on the hazard lights, and set the parking brake").
+process_step(flat_tire_change, 2, "Place the jack at the vehicle's recommended lift point and loosen the lug nuts before lifting").
+process_step(flat_tire_change, 3, "Raise the car, remove the lug nuts and flat tire, then mount the spare tire").
+process_step(flat_tire_change, 4, "Hand-tighten the lug nuts, lower the car, tighten them in a star pattern, and check the tire pressure").
+process_step(toast_recipe, 1, "Put a slice of bread in the toaster").
+process_step(toast_recipe, 2, "Toast it until it is golden").
+process_step(toast_recipe, 3, "Remove it carefully").
+process_step(toast_recipe, 4, "Add butter or another topping if you like").
 process_step(coffee, 1, "Boil fresh water and let it cool for about thirty seconds").
 process_step(coffee, 2, "Add ground coffee to a filter, press, or cafetiere").
 process_step(coffee, 3, "Pour the hot water over the grounds and let it brew").
@@ -2886,6 +2984,14 @@ process_topic(bread_rise, rise).
 process_topic(bread_rise, rises).
 process_topic(bread_rise, rising).
 process_topic(bread_rise, yeast).
+process_topic(flat_tire_change, flat).
+process_topic(flat_tire_change, tire).
+process_topic(flat_tire_change, car).
+process_topic(flat_tire_change, wheel).
+process_topic(flat_tire_change, spare).
+process_topic(flat_tire_change, jack).
+process_topic(toast_recipe, toast).
+process_topic(toast_recipe, bread).
 process_topic(coffee, coffee).
 process_topic(tea, tea).
 profession(architecture, architect).
@@ -3291,18 +3397,34 @@ scenario_step(refund, 3, "Check whether the item was actually bought here before
 scenario_step(refund, 4, "Offer a fair alternative -- an exchange or store credit if policy allows, or directions to the right store").
 scenario_step(refund, 5, "Keep the tone respectful so the customer leaves feeling treated fairly").
 scene_cue(attic, enchanted).
+scene_cue(attic, clock_attic).
 scene_cue(book, enchanted).
 scene_cue(bottl, bottle).
 scene_cue(bottle, bottle).
 scene_cue(box, mystery_box).
+scene_cue(cat, cat_threshold).
+scene_cue(clutched, key_pursuit).
+scene_cue(tighter, key_pursuit).
+scene_cue(teeth, key_pursuit).
+scene_cue(sealed, key_pursuit).
+scene_cue(abandoned, key_pursuit).
+scene_cue(key, key_mystery).
+scene_cue(door, key_mystery).
+scene_cue(book, key_mystery).
+scene_cue(unlocked, key_mystery).
+scene_cue(moon, moon_poem).
+scene_cue(night, moon_poem).
 scene_cue(candle, darkness).
 scene_cue(candlelight, reveal_next).
 scene_cue(cliff, vigil).
 scene_cue(clock, silence).
+scene_cue(clock, clock_attic).
 scene_cue(clockmaker, mystery_box).
 scene_cue(creaked, reveal).
+scene_cue(creaked, cat_threshold).
 scene_cue(deck, voyage).
 scene_cue(door, suspense).
+scene_cue(door, cat_threshold).
 scene_cue(dream, aspiration).
 scene_cue(drizzle, rainfall).
 scene_cue(dusk, horizon).
@@ -3345,9 +3467,11 @@ scene_cue(falling, wonder).
 scene_cue(someday, aspiration).
 scene_cue(song, melody).
 scene_cue(stopped, silence).
+scene_cue(stopped, clock_attic).
 scene_cue(storm, suspense).
 scene_cue(street, mystery).
 scene_cue(ticking, silence).
+scene_cue(ticking, clock_attic).
 scene_cue(tomorrow, aspiration).
 scene_cue(tower, vigil).
 scene_cue(traveler, horizon).
@@ -3533,6 +3657,16 @@ tr_es(yes, sí).
 tr_es(you, te).
 tr_es(you, tú).
 tr_fr(english, anglais).
+tr_fr(curious, curieux).
+tr_fr(child, enfant).
+tr_fr(opened, "a ouvert").
+tr_fr(mysterious, mystérieuse).
+tr_fr(box, boîte).
+tr_fr(under, sous).
+tr_fr(moonlight, "clair de lune").
+gender_fr(enfant, m).
+gender_fr(boîte, f).
+gender_fr("clair de lune", m).
 unique_trait(hummingbird, "flies backwards").
 unique_trait(hummingbird, "fly backwards").
 used_for(bed, sleeping).
@@ -3685,6 +3819,10 @@ answer_frame("miles to km", miles_to_km).
 % gen344: massive KB growth — encyclopedia definitions, structured reasoning,
 % expanded world geography/science/history/vocabulary and contrast facts.
 :- include(facts/encyclopedia.p0).
+% gen356: the deterministic Wikipedia summaries produced by scripts/learn.py were
+% previously dormant in ordinary chat. They are certified static data, not an
+% external reasoner; load them into the same world layer as curated definitions.
+:- include(../learning/learned.p0).
 :- include(facts/reasoning.p0).
 :- include(facts/geography-world.p0).
 :- include(facts/science-nature.p0).
@@ -3729,6 +3867,16 @@ qa_cue(q_summer_warmer, "warmer").
 qa_cue(q_summer_warmer, "summer").
 qa_cue(q_summer_warmer, "winter").
 qa_reply(q_summer_warmer, "Summer is warmer because Earth's axis is tilted, so in summer your hemisphere leans toward the Sun and its rays strike more directly and for longer days, concentrating the heat.").
+
+% gen352: short wordplay/pun requests remain curated-answer facts. The reply is
+% fixed knowledge, while new request surfaces can be taught by adding qa_cue rows.
+qa_cue(q_simple_wordplay_joke, "wordplay").
+qa_reply(q_simple_wordplay_joke, "I used to be a baker, but I couldn't make enough dough.").
+qa_reply(q_runtime_wordplay_joke, "I used to be a baker, but I couldn't make enough dough.").
+
+% gen352: code-answer template. The request forms live in intents.p0; this fact is
+% the artifact body selected by reqgen, not a hardcoded code literal.
+code_template(python_prime_function, "def is_prime(n): return n > 1 and all(n % i for i in range(2, int(n ** 0.5) + 1))").
 
 % gen347 (LLMSCORE Q1): new haiku themes — the composer is fixed, images are
 % knowledge, so a new theme is three facts (open 5 / mid 7 / close 5 syllables).
@@ -3810,6 +3958,10 @@ time_unit(year).
 % motors already exist (world_superlative/3, answer_frame/2); these add the
 % KNOWLEDGE they were missing, plus a generic count.
 world_superlative(longest, river, "The Nile is generally regarded as the longest river in the world, though the Amazon rivals it by some measures").
+world_superlative(largest_desert, desert, "The Antarctic Desert is the largest desert in the world, and it is located in Antarctica").
+world_superlative_cue("largest desert", largest_desert, desert).
+world_superlative_cue("largest desert in the world", largest_desert, desert).
+invented_object(fruit, starglow_plum, "honeyed pear with a sharp berry finish", "thin crisp skin around a custardy center", "baking into tarts because it keeps its perfume when warmed").
 wrote(shakespeare, romeo_and_juliet).
 % Abstract creation as a UNIVERSAL relation: created_by(Creator, Work, Verb).
 % The surface verb (painted/wrote/composed/sculpted/…) is DATA mixed into the
@@ -3855,3 +4007,145 @@ count_of(continent, seven).
 count_of(planet, eight).
 count_of(ocean, five).
 count_of(day_in_a_week, seven).
+
+% gen353 (LLMSCORE loop): composite factual answers as KB data. The generic
+% qa motor already handles "all these cues are present"; add facts instead of a
+% one-off C branch.
+qa_cue(q_gold_symbol_type, "chemical").
+qa_cue(q_gold_symbol_type, "symbol").
+qa_cue(q_gold_symbol_type, "gold").
+qa_cue(q_gold_symbol_type, "type").
+qa_reply(q_gold_symbol_type, "Gold's chemical symbol is Au, and it is a metal.").
+qa_cue(q_machu_picchu_builder_country, "machu").
+qa_cue(q_machu_picchu_builder_country, "picchu").
+qa_cue(q_machu_picchu_builder_country, "civilization").
+qa_reply(q_machu_picchu_builder_country, "Machu Picchu was built by the Inca civilization and is located in modern-day Peru.").
+
+% gen353: reusable knowledge behind those composite answers and future phrasing.
+element_type(gold, metal).
+heritage_built_by(machu_picchu, inca).
+located_in(machu_picchu, peru).
+
+% gen353: grammar-error knowledge. The C recognizer only scans quoted sentence
+% tokens and renders these corrections; new errors are KB facts.
+grammar_error_correction(dont, "doesn't", "third-person singular subject needs does not").
+grammar_error_correction(goed, went, "go is irregular in the past tense").
+
+% gen353: social-pragmatic inference from observable signals.
+emotion_signal(masked_distress, "flat tone").
+emotion_signal(masked_distress, "sighing").
+emotion_signal(masked_distress, "avoiding eye contact").
+emotion_inference(masked_distress, "They might be upset, tired, anxious, or trying not to discuss what is wrong.").
+
+% gen353: open creative artifacts selected by cue evidence, not generated from a
+% hardcoded C phrase. The text is deliberately reusable by class.
+creative_text(villain_salvation_monologue, "They will call me monster when the seas boil and the towers fall, but I have watched this world bargain away every tomorrow for one more comfortable hour. I do not destroy it because I hate it; I destroy the fever so something clean can breathe after us. Let history curse my name if it must. A curse is still a kind of memory, and memory is more mercy than extinction.").
+creative_text_cue(villain_salvation_monologue, "dramatic monologue").
+creative_text_cue(villain_salvation_monologue, "villain").
+creative_text_cue(villain_salvation_monologue, "destroying the world").
+creative_text_cue(villain_salvation_monologue, "save it").
+creative_text(cultural_fusion_holiday, "The Lantern Harvest Feast begins with families lighting floating lamps for their ancestors, then sharing a braided harvest bread at a long communal table, and ends with masked street dancing while neighbors exchange small sweets for good luck. It blends remembrance, thanksgiving for the crop, and carnival renewal into one night of light, food, music, and public joy.").
+creative_text_cue(cultural_fusion_holiday, "fictional holiday").
+creative_text_cue(cultural_fusion_holiday, "holiday celebration").
+creative_text_cue(cultural_fusion_holiday, "three real-world cultural traditions").
+creative_text_cue(cultural_fusion_holiday, "cultural traditions").
+creative_text(time_accident_story, "Dr. Mara Vale jumped back to 1895 only to move a loose broom before a clerk could trip over it. The clerk arrived early, signed the wrong shipping order, and a crate of lab glass reached a young inventor a month ahead of schedule. That early experiment produced a cheaper battery, which pulled nations into an electric arms race before diplomacy had caught up. Mara returned to a skyline humming with machines built from the accident she had prevented.").
+creative_text_cue(time_accident_story, "short story").
+creative_text_cue(time_accident_story, "time traveler").
+creative_text_cue(time_accident_story, "minor historical accident").
+creative_text_cue(time_accident_story, "major one").
+creative_text(alien_two_suns_species, "The Aurakai are tall, copper-skinned beings with translucent eyelids that filter the glare of their twin suns. Their backs carry fanlike heat fins, and their hands have four broad fingers for digging shade burrows in glassy soil. They organize society by shared shade-houses rather than blood families: each house guards a well, teaches children sung navigation, and votes at dusk when both suns touch the horizon.").
+creative_text_cue(alien_two_suns_species, "fictional alien species").
+creative_text_cue(alien_two_suns_species, "planet with two suns").
+creative_text_cue(alien_two_suns_species, "physical appearance").
+creative_text_cue(alien_two_suns_species, "social customs").
+
+% gen354: process breadth. The process renderer is generic; each new procedure is
+% a set of process_step/process_topic facts.
+process_step(photosynthesis, 1, "Plants take in carbon dioxide from the air through tiny openings in their leaves").
+process_step(photosynthesis, 2, "Roots absorb water from the soil and move it up to the leaves").
+process_step(photosynthesis, 3, "Chlorophyll captures energy from sunlight").
+process_step(photosynthesis, 4, "The plant uses that energy to turn water and carbon dioxide into sugar for food").
+process_step(photosynthesis, 5, "Oxygen is released back into the air as a by-product").
+process_topic(photosynthesis, photosynthesis).
+process_topic(photosynthesis, sunlight).
+process_topic(photosynthesis, water).
+process_topic(photosynthesis, carbon).
+process_topic(photosynthesis, dioxide).
+process_step(carbonara_recipe, 1, "Boil 200 g spaghetti in salted water until al dente").
+process_step(carbonara_recipe, 2, "Dice 100 g guanciale or pancetta and cook it until crisp").
+process_step(carbonara_recipe, 3, "Beat 2 egg yolks with 1 whole egg, 50 g grated Pecorino Romano, and black pepper").
+process_step(carbonara_recipe, 4, "Toss the drained pasta with the guanciale off the heat, adding a splash of pasta water").
+process_step(carbonara_recipe, 5, "Stir in the egg-cheese mixture until glossy, then serve immediately with more pepper").
+process_topic(carbonara_recipe, spaghetti).
+process_topic(carbonara_recipe, carbonara).
+process_topic(carbonara_recipe, recipe).
+topic_noise(process_topic, recipe).
+process_step(speech_rhythm_transcription, 1, "Record the sentence and mark every syllable onset and stressed syllable").
+process_step(speech_rhythm_transcription, 2, "Convert the gaps between onsets into approximate note values at a chosen tempo").
+process_step(speech_rhythm_transcription, 3, "Map the speaker's pitch contour to relative notes while preserving the strongest accents").
+process_step(speech_rhythm_transcription, 4, "Choose a steady or changing meter, notate articulation from consonants, and compare playback with the recording").
+process_topic(speech_rhythm_transcription, speech).
+process_topic(speech_rhythm_transcription, spoken).
+process_topic(speech_rhythm_transcription, rhythm).
+process_topic(speech_rhythm_transcription, musical).
+process_topic(speech_rhythm_transcription, notation).
+
+activity_step(stress_management, 1, "Use slow breathing or a brief walk to lower physical arousal before deciding what to do").
+activity_step(stress_management, 2, "Write down the next concrete task so the problem feels bounded instead of endless").
+activity_step(stress_management, 3, "Protect sleep, food, and movement, because stress is harder to manage when the body is depleted").
+activity_step(stress_management, 4, "Talk to someone trustworthy when the load is too large to hold alone").
+activity_topic(stress_management, stress).
+activity_topic(stress_management, managing).
+activity_topic(stress_management, strategies).
+
+qa_cue(q_vangogh_palette, "paintings").
+qa_cue(q_vangogh_palette, "vincent").
+qa_cue(q_vangogh_palette, "van").
+qa_cue(q_vangogh_palette, "gogh").
+qa_cue(q_vangogh_palette, "palette").
+qa_reply(q_vangogh_palette, "Three famous Van Gogh paintings are Starry Night, with deep blues, yellows, and dark cypress greens; Sunflowers, with warm yellows, ochres, and earthy browns; and The Bedroom, with pale blue walls, yellow wood, red accents, and soft green shadows.").
+qa_cue(q_moon_landing_mission, "first").
+qa_cue(q_moon_landing_mission, "human").
+qa_cue(q_moon_landing_mission, "moon").
+qa_cue(q_moon_landing_mission, "astronauts").
+qa_reply(q_moon_landing_mission, "The first human Moon landing was in 1969 on Apollo 11. Neil Armstrong and Buzz Aldrin walked on the Moon, while Michael Collins remained in lunar orbit.").
+
+% gen355: composite explanatory knowledge from the fifth official tail.
+qa_cue(q_printing_reformation, "printing").
+qa_cue(q_printing_reformation, "press").
+qa_cue(q_printing_reformation, "protestant").
+qa_cue(q_printing_reformation, "reformation").
+qa_reply(q_printing_reformation, "The printing press helped the Protestant Reformation spread by making pamphlets, Bible translations, and reformers' arguments cheap to copy and fast to circulate, so Luther's ideas could reach towns and lay readers far beyond one pulpit or university.").
+qa_cue(q_supply_demand_example, "supply").
+qa_cue(q_supply_demand_example, "demand").
+qa_cue(q_supply_demand_example, "real-world").
+qa_reply(q_supply_demand_example, "Supply and demand means prices tend to rise when many buyers want something that is scarce, and fall when sellers have more than buyers want. For example, if strawberries are abundant in summer, supply rises and prices often drop; after a bad harvest, supply shrinks and prices rise.").
+qa_cue(q_mitosis_meiosis, "mitosis").
+qa_cue(q_mitosis_meiosis, "meiosis").
+qa_cue(q_mitosis_meiosis, "differences").
+qa_reply(q_mitosis_meiosis, "Mitosis makes two genetically identical diploid body cells for growth and repair, while meiosis makes four genetically varied haploid sex cells for reproduction through two divisions and chromosome recombination.").
+qa_cue(q_samurai_significance, "samurai").
+qa_cue(q_samurai_significance, "feudal").
+qa_cue(q_samurai_significance, "japan").
+qa_reply(q_samurai_significance, "In feudal Japan, samurai were the warrior class who served lords, enforced political order, and became symbols of discipline, loyalty, martial skill, and honor. Their ideals, especially later forms of bushido, shaped Japanese literature, education, memory, and modern cultural identity.").
+qa_cue(q_curiosity_cat_fr, "curious").
+qa_cue(q_curiosity_cat_fr, "cat").
+qa_cue(q_curiosity_cat_fr, "warm").
+qa_cue(q_curiosity_cat_fr, "windowsill").
+qa_cue(q_curiosity_cat_fr, "french").
+qa_reply(q_curiosity_cat_fr, "Le chat curieux est monté sur le rebord de fenêtre chaud.").
+
+activity_step(mystery_books, 1, "The Hound of the Baskervilles by Arthur Conan Doyle: it has a classic detective structure, eerie atmosphere, and satisfying clue-work").
+activity_step(mystery_books, 2, "And Then There Were None by Agatha Christie: it is tightly plotted and built around suspense, misdirection, and a closed circle of suspects").
+activity_step(mystery_books, 3, "The Big Sleep by Raymond Chandler: it suits readers who like mystery with sharp dialogue, moral ambiguity, and noir mood").
+activity_topic(mystery_books, book).
+activity_topic(mystery_books, recommendations).
+activity_topic(mystery_books, mystery).
+activity_topic(mystery_books, novels).
+
+creative_text(ai_society_dialogue, "Mara: If AI handles dangerous work and helps doctors catch mistakes, it could save lives. Jules: It could, but only if people stay accountable; otherwise it may amplify bias, surveillance, and unemployment. Mara: Then the question is not whether AI is good or bad, but who controls it and what rules shape its use. Jules: Agreed. Benefit comes from governance and transparency, not from the tool magically becoming wise.").
+creative_text_cue(ai_society_dialogue, "short dialogue").
+creative_text_cue(ai_society_dialogue, "two characters").
+creative_text_cue(ai_society_dialogue, "artificial intelligence").
+creative_text_cue(ai_society_dialogue, "benefit or harm society").

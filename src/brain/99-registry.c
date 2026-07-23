@@ -841,6 +841,13 @@ static int is_negation_marker(const char *w) {
  * 1 if decomposition was applied, 0 to use normal dispatch. */
 static int decompose_and_dispatch(Brain *b, const char *canon, const char *input,
                                    char *out, size_t out_size) {
+    if (b && b->kb) {
+        char guards[32][KB_TERM_LEN];
+        const char *gq[] = { "decompose", NULL };
+        size_t ng = kb_match(b->kb, "compound_guard", gq, 2, guards, 32);
+        for (size_t gi = 0; gi < ng; gi++)
+            if (kb_cue_match(b, kb_dequote(guards[gi]), canon)) return 0;
+    }
     /* Don't decompose structured prompts — they have their own parser. */
     if (strncmp(canon, "premise:", 8) == 0 ||
         strncmp(canon, "label premise:", 14) == 0 ||

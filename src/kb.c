@@ -718,6 +718,34 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
     return result;
 }
 
+static int parse_ll_strict(const char *s, long long *out) {
+    if (!s || !out || is_var(s)) return 0;
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", s);
+    char *p = buf;
+    size_t l = strlen(p);
+    if (l >= 2 && p[0] == '"' && p[l - 1] == '"') {
+        p[l - 1] = '\0';
+        p++;
+    }
+    char *end = NULL;
+    long long v = strtoll(p, &end, 10);
+    if (!end || *end) return 0;
+    *out = v;
+    return 1;
+}
+
+static long long digit_count_value(long long n, int digit) {
+    if (n < 0) n = -n;
+    if (n == 0) return digit == 0 ? 1 : 0;
+    long long count = 0;
+    while (n > 0) {
+        if ((int)(n % 10) == digit) count++;
+        n /= 10;
+    }
+    return count;
+}
+
 static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                        const Subst *s, int depth, SolveFrame *scratch) {
 
@@ -791,6 +819,31 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         else if (!strcmp(g->pred,"ne")) ok = a != b;
         if (!ok) return 0;
         return solve(S, goals, ngoals, idx + 1, s, depth);
+    }
+
+    if (strcmp(g->pred, "digit_count_between_prim") == 0 && g->argc == 4) {
+        char db[KB_TERM_LEN], lb[KB_TERM_LEN], hb[KB_TERM_LEN];
+        long long digit_ll, low, high;
+        deep_resolve(s, g->args[0], db, sizeof db, 0);
+        deep_resolve(s, g->args[1], lb, sizeof lb, 0);
+        deep_resolve(s, g->args[2], hb, sizeof hb, 0);
+        if (!parse_ll_strict(db, &digit_ll) ||
+            !parse_ll_strict(lb, &low) ||
+            !parse_ll_strict(hb, &high))
+            return 0;
+        if (digit_ll < 0 || digit_ll > 9) return 0;
+        if (low > high) { long long t = low; low = high; high = t; }
+        if (high - low > 1000000) return 0;
+        long long count = 0;
+        for (long long n = low; n <= high; n++)
+            count += digit_count_value(n, (int)digit_ll);
+        char cs[64];
+        snprintf(cs, sizeof cs, "%lld", count);
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify(s2, g->args[3], cs))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        return 0;
     }
 
     if (strcmp(g->pred, "call") == 0 && g->argc == 1) {   /* call/1 meta-call */
@@ -3068,6 +3121,11 @@ static int is_struct_pred(const char *pred) {
         "capital_of_country", "kind_is", "borders", "no_land_border",
         "landmark_of", "planet_superlative", "planet_superlative_cue",
         "world_superlative", "world_superlative_cue",
+        "element_type", "heritage_built_by", "grammar_error_correction",
+        "emotion_signal", "emotion_inference", "creative_text", "creative_text_cue",
+        "creative_response",
+        "semantic_alias", "semantic_topic_cue", "semantic_summary",
+        "answer_projection", "projection_source", "topic_noise",
         "unique_trait", "measure", "compare_cue", "entity_alias",
         "distance_between", /* gen240/gen251: queried world commons */
         "scene_cue", "continuation_template",
@@ -3107,6 +3165,19 @@ static int is_struct_pred(const char *pred) {
         "add", "len", "nat", "choose", "valid_hypergeom_take",
         "skip_hypergeom_take", "hypergeom_term", "fav_at_least",
         "probability_procedure", "approach_speed", "meet_time",
+        "paired_dimensions_from_doubled_sum_ratio",
+        "rectangle_dimensions_from_perimeter_ratio", "proportional_cost",
+        "change_due", "digit_count_between", "digit_count_between_prim",
+        "ratio_word", "quantity_role_cue", "schema_role_class",
+        "event_frame", "event_attr",
+        "compound_guard",
+        "state_cue", "ordinal_position", "border_count", "sea_borders",
+        "state_consequence", "positional_sentence",
+        "physical_contrast", "default_pick_reason",
+        "formatted_explanation", "formatted_explanation_cue",
+        "response_format_variant",
+        "exchange_initial_cue", "exchange_transfer_cue",
+        "country_with_two_border_constraints",
         "riddle_sig", "response_template",
         /* gen313: code/KB-substrate predicates — never entity descriptions */
         "code_function", "code_calls", "day_order",

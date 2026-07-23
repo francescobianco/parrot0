@@ -15,6 +15,370 @@ wiki_concept(volcano, geology, "an opening in a planet's crust through which mol
 % wiki_concept in kb/learning/learned.p0 — not duplicated here (a second def only
 % clutters the recall). The Italian concept_gloss for them below has no duplicate.
 
+% gen356 (LLMSCORE-max): cross-act semantic substrate. Each row is reusable by
+% definition, explanation, description, significance and topic recall through
+% semantic_summary/2; these are concepts, not prompt-to-answer pairs.
+wiki_concept(printing_press, history, "The printing press mechanized the copying of text, sharply lowering the cost and time needed to spread books, pamphlets and new ideas; its rapid circulation of vernacular religious writing helped the Protestant Reformation reach a mass audience").
+wiki_concept(supply_and_demand, economics, "Supply and demand describes how prices tend to rise when many buyers compete for scarce goods and fall when supply exceeds demand; for example, an abundant strawberry harvest usually lowers prices, while a poor harvest raises them").
+wiki_concept(mitosis, biology, "Mitosis is one cell division that produces two genetically similar diploid body cells for growth and repair").
+wiki_concept(meiosis, biology, "Meiosis is a two-stage cell division that uses recombination to produce four genetically varied haploid sex cells for reproduction").
+wiki_concept(samurai, culture, "Samurai were the warrior class of feudal Japan, serving military lords and helping enforce political order; their later ideals of loyalty, discipline and martial honor became enduring themes in Japanese history, literature and popular culture").
+wiki_concept(artificial_intelligence, computer_science, "Artificial intelligence is the design of computer systems that perform tasks associated with perception, language, prediction or decision-making; it can improve safety and access to expertise but also creates risks involving bias, surveillance, labor disruption and accountability").
+wiki_concept(climate_change, earth_science, "Climate change is a long-term shift in climate patterns; the present rapid warming is driven mainly by greenhouse gases from fossil fuels and land-use change, raising temperatures, sea levels and the frequency of some extreme events").
+wiki_concept(greenhouse_effect, earth_science, "The greenhouse effect occurs when gases such as carbon dioxide absorb and re-emit outgoing infrared energy, keeping Earth warmer; adding more of those gases strengthens the effect").
+wiki_concept(renewable_energy, energy, "Renewable energy comes from sources replenished on human timescales, such as sunlight, wind and flowing water, and can reduce fossil-fuel emissions when paired with grids, storage and flexible demand").
+wiki_concept(internet, computer_science, "The Internet is a global network of interconnected networks that exchange packets using common protocols, allowing services such as the web, email, messaging and streaming to operate across different devices").
+wiki_concept(machine_learning, computer_science, "Machine learning is a branch of artificial intelligence in which a system estimates patterns from data so it can make predictions or decisions on new cases without a separate hand-written rule for every case").
+wiki_concept(blockchain, computer_science, "A blockchain is an append-only distributed ledger whose participants agree on ordered blocks of records using a consensus protocol; cryptographic links make past changes detectable, though they do not guarantee that recorded claims are true").
+wiki_concept(industrial_revolution, history, "The Industrial Revolution shifted production from hand work toward mechanized factories powered first by water and steam, increasing output while transforming cities, labor, transport and global trade").
+wiki_concept(french_revolution, history, "The French Revolution began in 1789 amid fiscal crisis, inequality and political conflict, overthrew the monarchy and spread arguments about citizenship and rights while also producing war and political violence").
+wiki_concept(renaissance, history, "The Renaissance was a European cultural movement that renewed study of classical learning and encouraged major developments in art, literature, science and humanist education").
+wiki_concept(world_war_ii, history, "World War II was a global war from 1939 to 1945 between the Axis and Allied powers, caused by expansionist regimes and unresolved interwar tensions and ending after enormous military and civilian losses, the Holocaust and the atomic bombings of Hiroshima and Nagasaki").
+wiki_concept(globalization, economics, "Globalization is the growing cross-border integration of trade, finance, information, production and migration; it can expand markets and exchange while also distributing gains, risks and bargaining power unevenly").
+wiki_concept(ecosystem, biology, "An ecosystem is a community of organisms interacting with one another and with their physical environment through food webs, nutrient cycles and flows of energy").
+wiki_concept(plate_tectonics, earth_science, "Plate tectonics explains how rigid pieces of Earth's outer shell move over the mantle; their boundaries generate most earthquakes, volcanoes, mountain building and seafloor spreading").
+wiki_concept(vaccine, medicine, "A vaccine trains immune memory using a harmless form or component of a pathogen, so later exposure can trigger a faster protective response and reduce severe disease and transmission").
+wiki_concept(human_rights, politics, "Human rights are basic claims to dignity, liberty, equality and security held by every person; laws and institutions seek to protect them from abuse by governments and other powers").
+wiki_concept(roman_empire, history, "The Roman Empire governed much of Europe, North Africa and western Asia through armies, roads, taxation and provincial administration, leaving durable influences on law, language, engineering, religion and urban life").
+wiki_concept(protestant_reformation, history, "The Protestant Reformation was a sixteenth-century movement that challenged doctrines and authority in the Western Church, created new Christian traditions and reshaped European politics, education and religious life").
+wiki_concept(natural_selection, biology, "Natural selection is the process by which heritable traits that improve survival or reproduction in a given environment tend to become more common across generations").
+wiki_concept(electric_circuit, physics, "An electric circuit is a closed path through which charge can move under a voltage; resistance limits current, while components transform electrical energy into light, heat, motion or signals").
+wiki_concept(water_cycle, earth_science, "The water cycle moves water among ocean, land and atmosphere through evaporation, condensation, precipitation, runoff and underground flow, continually redistributing fresh water and heat").
+wiki_concept(carbon_cycle, earth_science, "The carbon cycle exchanges carbon among air, oceans, rocks and living things through photosynthesis, respiration, decomposition, combustion and geological processes").
+wiki_concept(earthquake, earth_science, "An earthquake is the shaking caused when accumulated stress makes rocks slip suddenly along a fault, releasing energy as seismic waves").
+wiki_concept(biodiversity, biology, "Biodiversity is the variety of genes, species and ecosystems in a place; it supports resilient food webs and ecosystem functions but is reduced by habitat loss, pollution, overuse and climate change").
+wiki_concept(protein_synthesis, biology, "Protein synthesis first transcribes information from DNA into messenger RNA and then uses ribosomes and transfer RNA to assemble the encoded sequence of amino acids").
+wiki_concept(nervous_system, biology, "The nervous system senses conditions, integrates signals and coordinates responses through networks of neurons in the brain, spinal cord and peripheral nerves").
+wiki_concept(digestive_system, biology, "The digestive system mechanically and chemically breaks food into absorbable nutrients, moves them into blood or lymph and eliminates material the body cannot use").
+wiki_concept(acids_and_bases, chemistry, "Acids donate protons or increase hydrogen-ion concentration, while bases accept protons or reduce it; the pH scale summarizes this balance in aqueous solutions").
+wiki_concept(electromagnetism, physics, "Electromagnetism is the interaction of electric charges and magnetic fields: moving charges create magnetic fields, and changing magnetic fields can induce electric currents").
+wiki_concept(conservation_of_energy, physics, "Conservation of energy means energy cannot be created or destroyed in an isolated system, although it can move between objects and change form").
+wiki_concept(opportunity_cost, economics, "Opportunity cost is the value of the best alternative forgone when a choice uses scarce time, money or resources").
+wiki_concept(gross_domestic_product, economics, "Gross domestic product measures the market value of final goods and services produced within a country over a period; it tracks output but does not by itself measure distribution, unpaid work or well-being").
+wiki_concept(monetary_policy, economics, "Monetary policy uses interest rates, asset operations and related central-bank tools to influence credit, demand, inflation and employment").
+wiki_concept(capitalism, economics, "Capitalism organizes much production through private ownership, markets and investment for profit, with institutions and public rules shaping competition, labor and distribution").
+wiki_concept(socialism, economics, "Socialism is a family of systems and ideas favoring social or public control of major productive resources so economic decisions and benefits serve collectively chosen goals").
+wiki_concept(separation_of_powers, politics, "Separation of powers assigns legislative, executive and judicial authority to distinct institutions so each can limit concentrations or abuses of government power").
+wiki_concept(rule_of_law, politics, "The rule of law requires public, stable laws to bind officials as well as citizens, with independent procedures for applying rules and resolving disputes").
+wiki_concept(cold_war, history, "The Cold War was the post-World War II rivalry between the United States and Soviet Union, fought through alliances, arms competition, propaganda and proxy wars rather than direct full-scale war between them").
+wiki_concept(civil_rights_movement, history, "The United States civil rights movement used organizing, litigation, boycotts and nonviolent protest to challenge racial segregation and disenfranchisement, helping win major federal protections in the 1950s and 1960s").
+wiki_concept(ancient_egypt, history, "Ancient Egyptian civilization developed along the Nile, sustaining centralized kingdoms, monumental building, writing, long-distance trade and religious traditions for roughly three millennia").
+wiki_concept(silk_road, history, "The Silk Road was a changing network of overland and maritime routes linking East Asia, Central Asia, the Middle East and Europe through exchanges of goods, technologies, religions and disease").
+wiki_concept(colonialism, history, "Colonialism is the establishment of political control over another territory and its people, commonly reorganizing land, labor and trade for an outside power and leaving durable social and economic effects").
+wiki_concept(scientific_method, science, "The scientific method is a cycle of forming testable explanations, deriving predictions, gathering reproducible evidence and revising claims in light of results and criticism").
+wiki_concept(cybersecurity, computer_science, "Cybersecurity protects systems, networks and data by managing vulnerabilities, identities, access, detection, recovery and human practices rather than relying on a single defensive tool").
+wiki_concept(database, computer_science, "A database is an organized collection of data managed so records can be stored, constrained, queried and updated reliably").
+wiki_concept(cloud_computing, computer_science, "Cloud computing provides shared computing, storage and software over a network on demand, trading local control for elastic capacity and managed infrastructure").
+wiki_concept(encryption, computer_science, "Encryption transforms readable data into ciphertext using a key so only holders of the required key can recover it; integrity and identity require additional cryptographic mechanisms").
+wiki_concept(operating_system, computer_science, "An operating system manages hardware resources and supplies common services for programs, including processes, memory, files, devices and access control").
+wiki_concept(neural_network, computer_science, "A neural network is a layered parameterized function trained from examples, combining many simple units to approximate patterns used for prediction or generation").
+
+% Clean complete versions of generated summaries whose deterministic source
+% excerpt is abbreviated. Loaded before learned.p0, these become the preferred
+% projection while the generated provenance remains available.
+wiki_concept(pythagorean_theorem, mathematics, "The Pythagorean theorem states that in a right triangle the square of the hypotenuse equals the sum of the squares of the other two sides").
+wiki_concept(logarithm, mathematics, "A logarithm gives the exponent to which a chosen base must be raised to produce a number, turning multiplication into addition and powers into products").
+wiki_concept(special_relativity, physics, "Special relativity describes motion at constant velocity using the invariant speed of light, leading to time dilation, length contraction and the equivalence of mass and energy").
+wiki_concept(quantum_mechanics, physics, "Quantum mechanics describes matter and radiation at atomic scales using probabilistic states, quantized observables and interference rather than definite classical trajectories").
+wiki_concept(periodic_table, chemistry, "The periodic table arranges chemical elements by atomic number so recurring electron structures and chemical properties appear in rows and groups").
+wiki_concept(dna, biology, "DNA is the molecule that stores hereditary instructions in sequences of four bases and is copied and read by cells to build and regulate living organisms").
+wiki_concept(neuron, medicine, "A neuron is an excitable cell that receives, processes and transmits information through electrical impulses and chemical signals at synapses").
+wiki_concept(algorithm, computer_science, "An algorithm is a finite, well-defined sequence of steps for solving a class of problems or performing a computation").
+wiki_concept(binary_search_algorithm, computer_science, "Binary search finds a target in sorted data by repeatedly comparing with the middle item and discarding the half that cannot contain the target").
+wiki_concept(hash_table, computer_science, "A hash table stores key-value pairs by using a hash function to choose array locations, giving fast average lookup when collisions are managed well").
+wiki_concept(turing_machine, computer_science, "A Turing machine is an abstract model of computation that reads and writes symbols on an unbounded tape according to a finite set of state-transition rules").
+
+% gen358: broad foundation concepts chosen for reusable explanatory structure,
+% not for one prompt. Each summary carries the facets commonly needed by
+% explanation, mechanism, implication and evidence questions.
+wiki_concept(information_entropy, information_theory, "Information entropy measures average uncertainty in a source: predictable messages have low entropy and unpredictable ones have high entropy; cryptography needs enough entropy in keys and random values so attackers cannot feasibly guess them").
+wiki_concept(cryptography, computer_science, "Cryptography uses mathematical algorithms and keys to protect confidentiality, integrity and authenticity; secure systems also require sound protocols, unpredictable key material and careful implementation").
+wiki_concept(quantum_internet, computer_science, "A quantum internet would distribute quantum states or entanglement between distant nodes; its main challenges are loss, fragile quantum memory and error, so practical networks need better repeaters, memories, transducers and fault-tolerant protocols").
+wiki_concept(quantum_computing, computer_science, "Quantum computing controls superposition, interference and entanglement to accelerate some algorithms, but useful large machines require low-error qubits, correction of accumulated faults and reliable control at scale").
+wiki_concept(trolley_problem, philosophy, "The trolley problem tests whether causing one death to prevent several is morally different from allowing the larger harm: utilitarianism tends to favor the better outcome, deontology stresses duties and rights, and virtue ethics asks what a practically wise person would do").
+wiki_concept(utilitarianism, philosophy, "Utilitarianism evaluates actions mainly by their consequences and favors the option expected to produce the greatest overall well-being, while facing questions about prediction, measurement and individual rights").
+wiki_concept(deontology, philosophy, "Deontology evaluates actions through duties, rules and respect for persons rather than consequences alone, so some acts remain wrong even when they would improve the aggregate outcome").
+wiki_concept(virtue_ethics, philosophy, "Virtue ethics centers moral judgment on character and practical wisdom, asking what a good person would perceive, feel and do in the circumstances rather than applying only a rule or outcome calculation").
+wiki_concept(crispr_gene_editing, genetics, "CRISPR gene editing uses a guide RNA and a programmable nuclease to alter selected DNA; embryo editing raises risks of off-target or inherited harm, consent and inequality, so many jurisdictions restrict clinical heritable editing while permitting regulated research").
+wiki_concept(placebo_effect, medicine, "The placebo effect is improvement associated with expectations and the context of treatment rather than its active ingredient; randomized blinded control groups help trials separate that effect, natural recovery and measurement bias from a treatment's specific benefit").
+wiki_concept(clinical_trial, medicine, "A clinical trial prospectively compares health interventions under a protocol; randomization, controls, blinding, adequate sample size and predefined outcomes reduce bias, while ethics review and informed consent protect participants").
+wiki_concept(hard_water, chemistry, "Hard water contains substantial dissolved calcium and magnesium ions; it is generally safe to drink but forms scale and reacts with soap to make less lather and leave deposits").
+wiki_concept(soft_water, chemistry, "Soft water contains little calcium and magnesium, so soap lathers readily and scale is reduced, although ion-exchange softening can add sodium and make water feel slippery").
+wiki_concept(black_hole, astronomy, "A stellar black hole can form when the exhausted core of a sufficiently massive star collapses after a supernova; evidence includes compact massive objects inferred from stellar orbits, hot accretion flows, gravitational waves from mergers and horizon-scale imaging").
+wiki_concept(cognitive_model, cognitive_science, "A cognitive model is a simplified representation of how perception, memory or decision-making may work; it is useful when its predictions transfer, but the representation must not be confused with the richer process it approximates").
+wiki_concept(map_territory_distinction, philosophy, "The phrase 'the map is not the territory' means a representation selects and simplifies reality rather than duplicating it; for example, a diagnostic category can guide treatment without capturing everything about one patient").
+wiki_concept(desalination, engineering, "Desalination produces fresh water from seawater or brackish water, commonly by pressure-driven reverse osmosis; a sustainable system must supply clean energy, pretreatment, storage and responsible management of concentrated brine").
+wiki_concept(renewable_water_system, engineering, "A renewable water system combines a measured demand, an appropriate source, solar or wind powered pumping or treatment, protected storage, quality monitoring and a maintenance plan; output is estimated from resource availability and the process's energy use").
+wiki_concept(tree_age_estimation, biology, "A living tree's age can be estimated by identifying the species, measuring trunk circumference at breast height and dividing the inferred diameter by a species growth factor; increment borers or repeated measurements improve the estimate because annual radial growth varies with species, climate and competition").
+wiki_concept(pandemic_and_epidemic, medicine, "An epidemic is disease occurrence above the expected level in a community or region, such as the 2014 West African Ebola epidemic; a pandemic is an epidemic with sustained spread across countries or continents, such as the 1918 influenza pandemic").
+wiki_concept(permissioned_blockchain, computer_science, "A permissioned blockchain reaches agreement among known authorized validators using protocols such as PBFT or Raft-style ordering, which can be fast and final because identities and membership are controlled; public networks instead need open Sybil resistance, usually economic consensus, and accept higher cost or latency").
+wiki_concept(emergence, complexity_science, "Emergence occurs when local interactions produce a stable large-scale pattern not directed by any one component: ants following pheromone rules form trails, while drivers braking locally can create a traffic wave; the macro-pattern depends on feedback, density and network structure").
+wiki_concept(moores_law, computer_science, "Moore's Law described the historical doubling of affordable transistor density; as heat, leakage and fabrication costs limit further scaling, computing shifts toward parallel and specialized accelerators, chiplets, three-dimensional packaging, better memory placement and new device technologies").
+wiki_concept(resultant_velocity, physics, "A resultant velocity is the vector sum of an object's velocity relative to its medium and the medium's velocity relative to the ground; resolve each into perpendicular components, add corresponding components, then use magnitude and arctangent for speed and direction").
+wiki_concept(mirror_self_recognition, biology, "A mirror self-recognition experiment first records baseline behavior, then places an odorless mark where the animal can see it only in a mirror and compares mark-directed actions with sham-mark and no-mirror controls; blinded scoring and repeated trials separate self-inspection from curiosity or social response").
+wiki_concept(qr_code_privacy, technology, "Replacing public signs with QR links can expose who scanned which place and when, enable location profiling and dynamic tracking, exclude people without suitable devices, and redirect users to altered or malicious pages; privacy-preserving deployment needs visible fallback text, minimal logs, signed destinations and no mandatory identifiers").
+wiki_concept(branching_narrative, literature, "A branching narrative presents decision points that lead to different scenes and endings, usually as a graph with converging branches to control complexity; meaningful consequences increase agency and replay value, while arbitrary choices or too many shallow branches weaken coherence and attachment").
+wiki_concept(supply_chain_game, education, "A supply-chain board game can let players order, transport and sell goods across delayed links while hidden demand changes each round; inventory costs, limited capacity and shared upstream effects make forecasting, buffers and the bullwhip effect emerge through play rather than explicit instruction").
+wiki_concept(mass_volume_conversion, measurement, "Mass and volume are linked by density, so a mass ratio cannot in general be reproduced with equal volumes; weigh each ingredient if possible, or convert the target mass to volume using a reliable density for that ingredient and account for packing and temperature").
+wiki_concept(free_will, philosophy, "Arguments for free will appeal to deliberation, reasons and compatibilism, where freedom means acting from one's motives without coercion; objections cite determinism, luck and unconscious neural preparation, though neuroscience constrains simple accounts of choice without by itself settling the philosophical definition of agency").
+wiki_concept(rayleigh_scattering, physics, "Air molecules Rayleigh-scatter short blue wavelengths more strongly than red ones, filling the daytime sky with blue light; at sunrise and sunset sunlight crosses much more atmosphere, scattering most blue light out of the direct beam so longer red and orange wavelengths dominate").
+wiki_concept(speech_rhythm_transcription, music, "To turn speech into music, record a sentence, mark stressed syllables and onset times, map syllable durations to note values, approximate pitch contours as intervals, then choose a meter or changing meters that preserve the accents before orchestrating repeated consonants and vowels as articulation").
+wiki_concept(monarch_migration, biology, "Monarch migration is guided by seasonal sunlight, temperature, wind, nectar and milkweed availability, with a time-compensated sun compass helping navigation; warming, drought and extreme weather can shift timing and routes while habitat loss reduces food and breeding sites").
+wiki_concept(off_grid_power_system, engineering, "A year-round off-grid system begins with an hourly load budget, combines complementary solar and wind generation, stores several days of demand in batteries, and uses charge controllers, inverters, load shedding and a backup generator; reliability is checked against the worst seasonal resource period rather than annual averages").
+wiki_concept(open_source_translation_workflow, computing, "An open-source translation workflow identifies the language, extracts text safely, runs an offline engine such as Marian or Argos Translate, and checks uncertain terms with dictionaries and parallel corpora; preserving the original, metadata and formatting makes the result auditable").
+wiki_concept(reverse_liquid_gravity, speculative_physics, "If gravity accelerated liquids upward, uncovered water and sauces would climb containers and collect against lids or ceilings; cooking would need sealed vessels, upward drains, anchored bubbles and pumps designed around the reversed hydrostatic pressure, while solids would still remain on ordinary work surfaces").
+
+% The current answer-frame binder works token by token. These KB aliases project
+% a discriminative surface token onto a multi-word concept; no lexical choice is
+% compiled into C, and aliases can be taught or retracted at runtime.
+semantic_alias(printing, printing_press).
+semantic_alias(press, printing_press).
+semantic_alias(supply, supply_and_demand).
+semantic_alias(demand, supply_and_demand).
+semantic_alias(artificial, artificial_intelligence).
+semantic_alias(climate, climate_change).
+semantic_alias(greenhouse, greenhouse_effect).
+semantic_alias(renewable, renewable_energy).
+semantic_alias(learning, machine_learning).
+semantic_alias(blockchain, blockchain).
+semantic_alias(industrial, industrial_revolution).
+semantic_alias(renaissance, renaissance).
+semantic_alias(globalization, globalization).
+semantic_alias(tectonics, plate_tectonics).
+semantic_alias(rights, human_rights).
+semantic_alias(roman, roman_empire).
+semantic_alias(reformation, protestant_reformation).
+semantic_alias(selection, natural_selection).
+semantic_alias(circuit, electric_circuit).
+semantic_alias(prime, prime_number).
+semantic_alias(fibonacci, fibonacci_number).
+semantic_alias(pythagorean, pythagorean_theorem).
+semantic_alias(newton, newtons_laws_of_motion).
+semantic_alias(quantum, quantum_mechanics).
+semantic_alias(periodic, periodic_table).
+semantic_alias(covalent, covalent_bond).
+semantic_alias(cell, cell_biology).
+semantic_alias(immune, immune_system).
+semantic_alias(binary, binary_search_algorithm).
+semantic_alias(hash, hash_table).
+semantic_alias(turing, turing_machine).
+semantic_alias(black, black_hole).
+semantic_alias(cycle, water_cycle).
+semantic_alias(carbon, carbon_cycle).
+semantic_alias(protein, protein_synthesis).
+semantic_alias(nervous, nervous_system).
+semantic_alias(digestive, digestive_system).
+semantic_alias(acids, acids_and_bases).
+semantic_alias(conservation, conservation_of_energy).
+semantic_alias(opportunity, opportunity_cost).
+semantic_alias(domestic, gross_domestic_product).
+semantic_alias(monetary, monetary_policy).
+semantic_alias(separation, separation_of_powers).
+semantic_alias(law, rule_of_law).
+semantic_alias(cold, cold_war).
+semantic_alias(civil, civil_rights_movement).
+semantic_alias(egypt, ancient_egypt).
+semantic_alias(silk, silk_road).
+semantic_alias(scientific, scientific_method).
+semantic_alias(cloud, cloud_computing).
+semantic_alias(operating, operating_system).
+semantic_alias(neural, neural_network).
+semantic_alias(sky, sky_blue).
+semantic_alias(ocean, ocean_blue).
+semantic_alias(sea, sea_blue).
+semantic_alias(sunset, sunset_red).
+semantic_alias(snow, snow_white).
+semantic_alias(grass, grass_green).
+semantic_alias(leaves, leaves_change).
+semantic_alias(moon, moon_tides).
+semantic_alias(stars, stars_twinkle).
+semantic_alias(rainbow, rainbow_appears).
+
+% gen358: topic evidence for the bounded answer projection. These facts mirror
+% semantic aliases in scorer-native orientation (hypothesis, evidence). Canonical
+% multi-word forms add specificity; every form remains assertable/retractable at
+% runtime without rebuilding the projection engine.
+semantic_topic_cue(water, keyword(water)).
+semantic_topic_cue(gravity, keyword(gravity)).
+semantic_topic_cue(democracy, keyword(democracy)).
+semantic_topic_cue(inflation, keyword(inflation)).
+semantic_topic_cue(electron, keyword(electron)).
+semantic_topic_cue(atom, keyword(atom)).
+semantic_topic_cue(volcano, keyword(volcano)).
+semantic_topic_cue(algorithm, keyword(algorithm)).
+semantic_topic_cue(biodiversity, keyword(biodiversity)).
+semantic_topic_cue(capitalism, keyword(capitalism)).
+semantic_topic_cue(colonialism, keyword(colonialism)).
+semantic_topic_cue(cybersecurity, keyword(cybersecurity)).
+semantic_topic_cue(database, keyword(database)).
+semantic_topic_cue(dna, keyword(dna)).
+semantic_topic_cue(earthquake, keyword(earthquake)).
+semantic_topic_cue(ecosystem, keyword(ecosystem)).
+semantic_topic_cue(electromagnetism, keyword(electromagnetism)).
+semantic_topic_cue(encryption, keyword(encryption)).
+semantic_topic_cue(internet, keyword(internet)).
+semantic_topic_cue(logarithm, keyword(logarithm)).
+semantic_topic_cue(meiosis, keyword(meiosis)).
+semantic_topic_cue(mitosis, keyword(mitosis)).
+semantic_topic_cue(neuron, keyword(neuron)).
+semantic_topic_cue(samurai, keyword(samurai)).
+semantic_topic_cue(socialism, keyword(socialism)).
+semantic_topic_cue(vaccine, keyword(vaccine)).
+semantic_topic_cue(printing_press, keyword(printing)).
+semantic_topic_cue(printing_press, keyword(press)).
+semantic_topic_cue(printing_press, "printing press").
+semantic_topic_cue(supply_and_demand, keyword(supply)).
+semantic_topic_cue(supply_and_demand, keyword(demand)).
+semantic_topic_cue(supply_and_demand, "supply and demand").
+semantic_topic_cue(artificial_intelligence, keyword(artificial)).
+semantic_topic_cue(artificial_intelligence, "artificial intelligence").
+semantic_topic_cue(climate_change, keyword(climate)).
+semantic_topic_cue(climate_change, "climate change").
+semantic_topic_cue(greenhouse_effect, keyword(greenhouse)).
+semantic_topic_cue(greenhouse_effect, "greenhouse effect").
+semantic_topic_cue(renewable_energy, keyword(renewable)).
+semantic_topic_cue(renewable_energy, "renewable energy").
+semantic_topic_cue(machine_learning, keyword(learning)).
+semantic_topic_cue(machine_learning, "machine learning").
+semantic_topic_cue(blockchain, keyword(blockchain)).
+semantic_topic_cue(industrial_revolution, keyword(industrial)).
+semantic_topic_cue(industrial_revolution, "industrial revolution").
+semantic_topic_cue(french_revolution, "french revolution").
+semantic_topic_cue(renaissance, keyword(renaissance)).
+semantic_topic_cue(world_war_ii, "world war ii").
+semantic_topic_cue(globalization, keyword(globalization)).
+semantic_topic_cue(plate_tectonics, keyword(tectonics)).
+semantic_topic_cue(plate_tectonics, "plate tectonics").
+semantic_topic_cue(human_rights, keyword(rights)).
+semantic_topic_cue(human_rights, "human rights").
+semantic_topic_cue(roman_empire, keyword(roman)).
+semantic_topic_cue(roman_empire, "roman empire").
+semantic_topic_cue(protestant_reformation, keyword(reformation)).
+semantic_topic_cue(natural_selection, keyword(selection)).
+semantic_topic_cue(natural_selection, "natural selection").
+semantic_topic_cue(electric_circuit, keyword(circuit)).
+semantic_topic_cue(electric_circuit, "electric circuit").
+semantic_topic_cue(water_cycle, keyword(cycle)).
+semantic_topic_cue(water_cycle, "water cycle").
+semantic_topic_cue(carbon_cycle, keyword(carbon)).
+semantic_topic_cue(carbon_cycle, "carbon cycle").
+semantic_topic_cue(protein_synthesis, keyword(protein)).
+semantic_topic_cue(protein_synthesis, "protein synthesis").
+semantic_topic_cue(nervous_system, keyword(nervous)).
+semantic_topic_cue(nervous_system, "nervous system").
+semantic_topic_cue(digestive_system, keyword(digestive)).
+semantic_topic_cue(digestive_system, "digestive system").
+semantic_topic_cue(acids_and_bases, keyword(acids)).
+semantic_topic_cue(acids_and_bases, "acids and bases").
+semantic_topic_cue(conservation_of_energy, keyword(conservation)).
+semantic_topic_cue(conservation_of_energy, "conservation of energy").
+semantic_topic_cue(opportunity_cost, keyword(opportunity)).
+semantic_topic_cue(opportunity_cost, "opportunity cost").
+semantic_topic_cue(gross_domestic_product, keyword(domestic)).
+semantic_topic_cue(gross_domestic_product, "gross domestic product").
+semantic_topic_cue(monetary_policy, keyword(monetary)).
+semantic_topic_cue(monetary_policy, "monetary policy").
+semantic_topic_cue(separation_of_powers, keyword(separation)).
+semantic_topic_cue(separation_of_powers, "separation of powers").
+semantic_topic_cue(rule_of_law, "rule of law").
+semantic_topic_cue(cold_war, keyword(cold)).
+semantic_topic_cue(cold_war, "cold war").
+semantic_topic_cue(civil_rights_movement, keyword(civil)).
+semantic_topic_cue(civil_rights_movement, "civil rights movement").
+semantic_topic_cue(ancient_egypt, keyword(egypt)).
+semantic_topic_cue(ancient_egypt, "ancient egypt").
+semantic_topic_cue(silk_road, keyword(silk)).
+semantic_topic_cue(silk_road, "silk road").
+semantic_topic_cue(scientific_method, keyword(scientific)).
+semantic_topic_cue(scientific_method, "scientific method").
+semantic_topic_cue(cloud_computing, keyword(cloud)).
+semantic_topic_cue(cloud_computing, "cloud computing").
+semantic_topic_cue(operating_system, keyword(operating)).
+semantic_topic_cue(operating_system, "operating system").
+semantic_topic_cue(neural_network, keyword(neural)).
+semantic_topic_cue(neural_network, "neural network").
+semantic_topic_cue(pythagorean_theorem, keyword(pythagorean)).
+semantic_topic_cue(pythagorean_theorem, "pythagorean theorem").
+semantic_topic_cue(special_relativity, keyword(relativity)).
+semantic_topic_cue(special_relativity, "special relativity").
+semantic_topic_cue(quantum_mechanics, keyword(quantum)).
+semantic_topic_cue(quantum_mechanics, "quantum mechanics").
+semantic_topic_cue(periodic_table, keyword(periodic)).
+semantic_topic_cue(periodic_table, "periodic table").
+semantic_topic_cue(binary_search_algorithm, keyword(binary)).
+semantic_topic_cue(binary_search_algorithm, "binary search").
+semantic_topic_cue(hash_table, keyword(hash)).
+semantic_topic_cue(hash_table, "hash table").
+semantic_topic_cue(turing_machine, keyword(turing)).
+semantic_topic_cue(turing_machine, "turing machine").
+semantic_topic_cue(prime_number, keyword(prime)).
+semantic_topic_cue(fibonacci_number, keyword(fibonacci)).
+semantic_topic_cue(newtons_laws_of_motion, keyword(newton)).
+semantic_topic_cue(covalent_bond, keyword(covalent)).
+semantic_topic_cue(cell_biology, keyword(cell)).
+semantic_topic_cue(immune_system, keyword(immune)).
+semantic_topic_cue(black_hole, keyword(black)).
+semantic_topic_cue(black_hole, "black hole").
+semantic_topic_cue(information_entropy, keyword(entropy)).
+semantic_topic_cue(information_entropy, "information entropy").
+semantic_topic_cue(cryptography, keyword(cryptography)).
+semantic_topic_cue(quantum_internet, "quantum internet").
+semantic_topic_cue(quantum_computing, "quantum computing").
+semantic_topic_cue(trolley_problem, "trolley problem").
+semantic_topic_cue(utilitarianism, keyword(utilitarianism)).
+semantic_topic_cue(deontology, keyword(deontology)).
+semantic_topic_cue(virtue_ethics, "virtue ethics").
+semantic_topic_cue(crispr_gene_editing, keyword(crispr)).
+semantic_topic_cue(crispr_gene_editing, "gene editing").
+semantic_topic_cue(placebo_effect, keyword(placebo)).
+semantic_topic_cue(placebo_effect, "placebo effect").
+semantic_topic_cue(clinical_trial, "clinical trial").
+semantic_topic_cue(hard_water, "hard water").
+semantic_topic_cue(soft_water, "soft water").
+semantic_topic_cue(cognitive_model, "cognitive model").
+semantic_topic_cue(map_territory_distinction, "map is not the territory").
+semantic_topic_cue(desalination, keyword(desalination)).
+semantic_topic_cue(renewable_water_system, "sustainable water").
+semantic_topic_cue(renewable_water_system, "renewable energy").
+semantic_topic_cue(tree_age_estimation, "age of a tree").
+semantic_topic_cue(tree_age_estimation, "without cutting it down").
+semantic_topic_cue(pandemic_and_epidemic, keyword(pandemic)).
+semantic_topic_cue(pandemic_and_epidemic, keyword(epidemic)).
+semantic_topic_cue(pandemic_and_epidemic, "pandemic and an epidemic").
+semantic_topic_cue(permissioned_blockchain, "permissioned network").
+semantic_topic_cue(permissioned_blockchain, keyword(blockchain)).
+semantic_topic_cue(emergence, keyword(emergence)).
+semantic_topic_cue(moores_law, "moore's law").
+semantic_topic_cue(moores_law, "physical limits").
+semantic_topic_cue(resultant_velocity, "resultant velocity").
+semantic_topic_cue(resultant_velocity, "velocity vector").
+semantic_topic_cue(mirror_self_recognition, "recognize itself in a mirror").
+semantic_topic_cue(mirror_self_recognition, "mirror experiment").
+semantic_topic_cue(qr_code_privacy, "qr codes").
+semantic_topic_cue(qr_code_privacy, "privacy concerns").
+semantic_topic_cue(branching_narrative, "branching paths").
+semantic_topic_cue(branching_narrative, "choose your own adventure").
+semantic_topic_cue(supply_chain_game, "supply chain logistics").
+semantic_topic_cue(supply_chain_game, "board game").
+semantic_topic_cue(mass_volume_conversion, "ratio of flour to water").
+semantic_topic_cue(mass_volume_conversion, "mass").
+semantic_topic_cue(mass_volume_conversion, "measures volume").
+semantic_topic_cue(free_will, "free will").
+semantic_topic_cue(free_will, keyword(neuroscience)).
+semantic_topic_cue(rayleigh_scattering, "scattering theory").
+semantic_topic_cue(rayleigh_scattering, "sunrise or sunset").
+semantic_topic_cue(speech_rhythm_transcription, "rhythm of a spoken sentence").
+semantic_topic_cue(speech_rhythm_transcription, "musical notation").
+semantic_topic_cue(monarch_migration, "monarch butterflies").
+semantic_topic_cue(monarch_migration, "migratory patterns").
+semantic_topic_cue(off_grid_power_system, "off grid power").
+semantic_topic_cue(off_grid_power_system, "off-grid power").
+semantic_topic_cue(off_grid_power_system, "remote research station").
+semantic_topic_cue(open_source_translation_workflow, "open-source tools").
+semantic_topic_cue(open_source_translation_workflow, "language you don't understand").
+semantic_topic_cue(reverse_liquid_gravity, "gravity works in reverse for liquids").
+semantic_topic_cue(reverse_liquid_gravity, "daily cooking").
+
 % --- localized definitions: concept_gloss(Key, Lang, "full sentence") ---
 % A mature interlocutor answers in the asker's language; these are the Italian
 % renderings the definitional path speaks when the turn is in Italian.

@@ -29,6 +29,12 @@ imperative_opener(migrate).
 imperative_opener(migra).
 imperative_opener(scan).
 imperative_opener(scansiona).
+imperative_opener(propose).
+imperative_opener(design).
+imperative_opener(devise).
+imperative_opener(recommend).
+imperative_opener(suggest).
+imperative_opener(imagine).
 
 % English function words and high-frequency conversational operators.
 stopword(the).

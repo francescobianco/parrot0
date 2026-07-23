@@ -11,6 +11,24 @@ static int haiku_line(Brain *b, const char *pred, const char *concept,
     return 1;
 }
 
+static void render_couplet_with_format(Brain *b, const char *norm,
+                                       const char *line,
+                                       char *out, size_t out_size) {
+    if (!line || !out || out_size == 0) return;
+    if (b && b->kb && kb_cue_match(b, "two_line_format", norm)) {
+        const char *sep = strchr(line, ';');
+        if (sep) {
+            size_t left = (size_t)(sep - line);
+            while (left > 0 && isspace((unsigned char)line[left - 1])) left--;
+            const char *right = sep + 1;
+            while (*right && isspace((unsigned char)*right)) right++;
+            snprintf(out, out_size, "%.*s\n%s", (int)left, line, right);
+            return;
+        }
+    }
+    put(line, out, out_size);
+}
+
 /* gen254: morphological concept binding. An English compound keeps its modifier
  * first (moonlight = moon+light, raindrops = rain+drops), so a turn word also
  * binds a KB concept when the concept is a prefix of it. Guards: the concept
@@ -139,6 +157,45 @@ static int gen_has_complete_riddle_sig(Brain *b, const char *norm) {
     return 0;
 }
 
+/* Extract the payload after the most specific topic marker registered in the
+ * KB. Surface vocabulary and optional suffix boundaries remain runtime data;
+ * C only copies the bounded byte span selected by the shared evidence matcher. */
+static int creative_topic_tail(Brain *b, const char *norm,
+                               char *topic, size_t topic_size) {
+    if (!b || !b->kb || !norm || !topic || topic_size == 0) return 0;
+    KbEvidenceMatch markers[16];
+    size_t nm = kb_evidence_matches(b->kb, "intent_cue",
+                                    "creative_topic_marker",
+                                    norm, markers, 16);
+    if (nm == 0) return 0;
+    size_t start = 0;
+    for (size_t i = 0; i < nm; i++) {
+        size_t candidate = markers[i].start + markers[i].len;
+        if (candidate > start) start = candidate;
+    }
+    while (norm[start] &&
+           (isspace((unsigned char)norm[start]) ||
+            norm[start] == ':' || norm[start] == '-' || norm[start] == ','))
+        start++;
+    size_t end = strlen(norm);
+    KbEvidenceMatch stops[16];
+    size_t ns = kb_evidence_matches(b->kb, "intent_cue",
+                                    "creative_topic_end",
+                                    norm, stops, 16);
+    for (size_t i = 0; i < ns; i++) {
+        if (stops[i].start > start && stops[i].start < end)
+            end = stops[i].start;
+    }
+    while (end > start &&
+           (isspace((unsigned char)norm[end - 1]) ||
+            strchr(".?!,:;\"'", norm[end - 1]) != NULL))
+        end--;
+    if (end <= start || end - start >= topic_size) return 0;
+    memcpy(topic, norm + start, end - start);
+    topic[end - start] = '\0';
+    return 1;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -159,6 +216,97 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         kb_cue_match(b, "probability_at_least", norm)) return 0;
 
     if (gen_has_complete_riddle_sig(b, norm)) return 0;
+
+    /* gen358: closed artifact contracts over open request wording. The candidate
+     * intents and their response frames are both KB facts; the universal evidence
+     * scorer selects a unique best intent. Adding a creative_response/2 mapping,
+     * its intent_cue rows and a response_template grows this composer at runtime
+     * without a C branch or a whole-prompt lookup. */
+    {
+        char ids[32][KB_TERM_LEN];
+        const char *rq[] = { NULL, NULL };
+        size_t ni = kb_match(b->kb, "creative_response", rq, 2, ids, 32);
+        const char *candidates[32];
+        for (size_t i = 0; i < ni; i++) candidates[i] = ids[i];
+        char winner[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+        int score = 0;
+        if (ni > 0 &&
+            kb_hypothesis_best(b->kb, "intent_cue", norm,
+                               candidates, ni, winner, sizeof winner,
+                               &score, proof, sizeof proof) == 1) {
+            char frames[1][KB_TERM_LEN];
+            const char *fq[] = { winner, NULL };
+            if (kb_match(b->kb, "creative_response", fq, 2, frames, 1) == 1 &&
+                kb_response(b, kb_dequote(frames[0]), NULL, out, out_size)) {
+                store_proof(b, proof);
+                return 1;
+            }
+        }
+    }
+
+    if (kb_cue_match(b, "relational_country_constraint", norm) ||
+        kb_cue_match(b, "physical_affordance_prediction", norm) ||
+        kb_cue_match(b, "translation_request", norm) ||
+        kb_cue_match(b, "two_party_exchange", norm) ||
+        kb_cue_match(b, "constrained_permutation_count", norm) ||
+        kb_cue_match(b, "python_prime_function_request", norm))
+        return 0;
+
+    if (kb_cue_match(b, "sentence_completion_request", norm)) {
+        char cb[512]; snprintf(cb, sizeof cb, "%s", norm);
+        char *cw[96]; size_t cn = split_words(cb, cw, 96);
+        char picked_scene[KB_TERM_LEN];
+        if (scene_from_cues(b, cw, cn, picked_scene, sizeof picked_scene)) {
+            const char *tq[] = { picked_scene, NULL };
+            char cont[4][KB_TERM_LEN];
+            if (kb_match(b->kb, "continuation_template", tq, 2, cont, 4) > 0) {
+                char msg[240];
+                snprintf(msg, sizeof msg, "%s.", kb_dequote(cont[0]));
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    if (kb_cue_match(b, "positional_rhyme_sentence", norm)) {
+        char pb[256]; snprintf(pb, sizeof pb, "%s", norm);
+        char *pw[64]; size_t pn = split_words(pb, pw, 64);
+        double count = 0;
+        int have_count = 0;
+        char pos[16] = "", target[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < pn; i++) {
+            char *t = strip_edge_punct(pw[i]);
+            double v;
+            if (!have_count && parse_value(t, &v) && v > 0) {
+                count = v;
+                have_count = 1;
+            }
+            if (!pos[0]) {
+                const char *oq[] = { t, NULL };
+                char oh[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "ordinal_position", oq, 2, oh, 1) > 0)
+                    snprintf(pos, sizeof pos, "%s", kb_dequote(oh[0]));
+            }
+        }
+        if (!target[0] && pn > 0)
+            snprintf(target, sizeof target, "%s", strip_edge_punct(pw[pn - 1]));
+        if (have_count && count == (double)(long long)count && pos[0] && target[0]) {
+            char count_s[16];
+            snprintf(count_s, sizeof count_s, "%lld", (long long)count);
+            const char *sq[] = { count_s, pos, target, NULL };
+            char sent[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "positional_sentence", sq, 4, sent, 1) > 0) {
+                const KbResponseSlot slots[] = {
+                    { "sentence", kb_dequote(sent[0]) }
+                };
+                if (kb_response_slots(b, "positional_rhyme_sentence_answer",
+                                      slots, 1, out, out_size))
+                    return 1;
+            }
+        }
+        return 0;
+    }
 
     /* learn the continuation relation from an example: "learn sequence: a b c" */
     if (strncmp(norm, "learn sequence:", 15) == 0) {
@@ -274,6 +422,86 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    if (kb_cue_match(b, "creative_text_request", norm)) {
+        char ids[64][KB_TERM_LEN], best[KB_TERM_LEN] = "";
+        int best_score = 0;
+        const char *any[] = { NULL, NULL };
+        size_t ni = kb_match(b->kb, "creative_text_cue", any, 2, ids, 64);
+        for (size_t i = 0; i < ni; i++) {
+            if (seen_term(ids, i, ids[i])) continue;
+            const char *q[] = { ids[i], NULL };
+            char cues[16][KB_TERM_LEN];
+            size_t nc = kb_match(b->kb, "creative_text_cue", q, 2, cues, 16);
+            int score = 0;
+            for (size_t c = 0; c < nc; c++)
+                if (cue(norm, kb_dequote(cues[c]))) score++;
+            if (score > best_score) {
+                best_score = score;
+                snprintf(best, sizeof best, "%s", ids[i]);
+            }
+        }
+        if (best_score > 0) {
+            const char *q[] = { best, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "creative_text", q, 2, hit, 1) > 0) {
+                put(kb_dequote(hit[0]), out, out_size);
+                return 1;
+            }
+        }
+        if (kb_cue_match(b, "generic_dialogue_request", norm)) {
+            char topic[192];
+            if (creative_topic_tail(b, norm, topic, sizeof topic)) {
+                const KbResponseSlot slots[] = {
+                    { "topic", topic }
+                };
+                if (kb_response_slots(b, "generic_dialogue_answer", slots, 1,
+                                      out, out_size))
+                    return 1;
+            }
+        }
+    }
+
+    if (kb_cue_match(b, "creative_invention_request", norm)) {
+        char ib[256]; snprintf(ib, sizeof ib, "%s", norm);
+        char *iw[64]; size_t in = split_words(ib, iw, 64);
+        char domain[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < in && !domain[0]; i++) {
+            char *t = strip_edge_punct(iw[i]);
+            const char *dq[] = { t, NULL, NULL, NULL, NULL };
+            char hit[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "invented_object", dq, 5, hit, 1) > 0)
+                snprintf(domain, sizeof domain, "%s", t);
+        }
+        if (domain[0]) {
+            const char *q[] = { domain, NULL, NULL, NULL, NULL };
+            char name[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "invented_object", q, 5, name, 1) > 0) {
+                const char *q2[] = { domain, name[0], NULL, NULL, NULL };
+                char taste[1][KB_TERM_LEN];
+                if (kb_match(b->kb, "invented_object", q2, 5, taste, 1) > 0) {
+                    const char *q3[] = { domain, name[0], taste[0], NULL, NULL };
+                    char texture[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "invented_object", q3, 5, texture, 1) > 0) {
+                        const char *q4[] = { domain, name[0], taste[0], texture[0], NULL };
+                        char use[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "invented_object", q4, 5, use, 1) > 0) {
+                            char nm[KB_TERM_LEN]; snprintf(nm, sizeof nm, "%s", name[0]);
+                            for (char *p = nm; *p; p++) if (*p == '_') *p = ' ';
+                            if (nm[0]) nm[0] = (char)toupper((unsigned char)nm[0]);
+                            char msg[520];
+                            snprintf(msg, sizeof msg,
+                                     "%s tastes like %s, has %s, and is best for %s.",
+                                     nm, kb_dequote(taste[0]), kb_dequote(texture[0]),
+                                     kb_dequote(use[0]));
+                            put(msg, out, out_size);
+                            return 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if (kb_cue_match(b, "participle_query", norm)) {
         char verb[KB_TERM_LEN] = "";
         if (raw) {
@@ -347,7 +575,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if (kb_cue_match(b, "synesthetic_description", norm)) {
+    if (kb_cue_match(b, "synesthetic_description", norm) &&
+        !kb_cue_match(b, "causal_explanation_query", norm)) {
         char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
         char *sw[64]; size_t sn = split_words(sb, sw, 64);
         char topics[64][KB_TERM_LEN];
@@ -737,6 +966,17 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             return 1;
         }
+        if (kb_cue_match(b, "generic_poem_request", norm)) {
+            char topic[192];
+            if (creative_topic_tail(b, norm, topic, sizeof topic)) {
+                const KbResponseSlot slots[] = {
+                    { "topic", topic }
+                };
+                if (kb_response_slots(b, "generic_quatrain_answer", slots, 1,
+                                      out, out_size))
+                    return 1;
+            }
+        }
     }
 
     /* gen241: a "what word rhymes with X" riddle is NOT a couplet request; don't let
@@ -749,11 +989,41 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         cue(norm, "poem about") || cue(norm, "poem on") || cue(norm, "verse about") ||
         ((cue(norm, "poem") || cue(norm, "rhyme")) &&
          (cue(norm, "two line") || cue(norm, "two-line") || cue(norm, "rhym"))))) {
+        {
+            char pt[256]; snprintf(pt, sizeof pt, "%s", norm);
+            char *pw[64]; size_t pn = split_words(pt, pw, 64);
+            char concepts[64][KB_TERM_LEN];
+            const char *cq0[] = { NULL, NULL };
+            size_t cn0 = kb_match(b->kb, "couplet_cue", cq0, 2, concepts, 64);
+            char best[KB_TERM_LEN] = "";
+            int best_score = 0;
+            for (size_t ci = 0; ci < cn0; ci++) {
+                if (seen_term(concepts, ci, concepts[ci])) continue;
+                const char *cq[] = { concepts[ci], NULL };
+                char cues[16][KB_TERM_LEN];
+                size_t cnum = kb_match(b->kb, "couplet_cue", cq, 2, cues, 16);
+                int score = 0;
+                for (size_t k = 0; k < cnum; k++)
+                    if (token_list_has(pw, pn, kb_dequote(cues[k]))) score++;
+                if (score > best_score) {
+                    best_score = score;
+                    snprintf(best, sizeof best, "%s", concepts[ci]);
+                }
+            }
+            if (best_score >= 2) {
+                char l[KB_TERM_LEN];
+                if (haiku_line(b, "couplet", best, l, sizeof l)) {
+                    render_couplet_with_format(b, norm, l, out, out_size);
+                    return 1;
+                }
+            }
+        }
         /* legacy alias: "ai"/"artificial intelligence" map to concept `ai` */
         if (cue(norm, "artificial intelligence") || cue(norm, " ai")) {
             char l[KB_TERM_LEN];
             if (haiku_line(b, "couplet", "ai", l, sizeof l)) {
-                put(l, out, out_size); return 1;
+                render_couplet_with_format(b, norm, l, out, out_size);
+                return 1;
             }
         }
         char pt[256]; snprintf(pt, sizeof pt, "%s", norm);
@@ -763,7 +1033,19 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             if (strlen(t) < 3) continue;
             char l[KB_TERM_LEN];
             if (haiku_line(b, "couplet", t, l, sizeof l)) {
-                put(l, out, out_size); return 1;
+                render_couplet_with_format(b, norm, l, out, out_size);
+                return 1;
+            }
+        }
+        if (kb_cue_match(b, "generic_poem_request", norm)) {
+            char topic[192];
+            if (creative_topic_tail(b, norm, topic, sizeof topic)) {
+                const KbResponseSlot slots[] = {
+                    { "topic", topic }
+                };
+                if (kb_response_slots(b, "generic_couplet_answer", slots, 1,
+                                      out, out_size))
+                    return 1;
             }
         }
         /* gen240: a couplet was asked but no theme has lines — CLAIM the turn with

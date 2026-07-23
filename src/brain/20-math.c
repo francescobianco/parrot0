@@ -1,3 +1,17 @@
+/* A module-level guard is knowledge: compound_guard(Module, CueClass) says that
+ * a richer schema owns this surface. The fixed engine only enumerates guards
+ * and asks the shared matcher for evidence. Adding or retracting a guard changes
+ * routing at runtime, without recompiling or naming vocabulary here. */
+static int kb_module_guarded(Brain *b, const char *module, const char *norm) {
+    if (!b || !b->kb || !module || !norm) return 0;
+    char guards[64][KB_TERM_LEN];
+    const char *q[] = { module, NULL };
+    size_t n = kb_match(b->kb, "compound_guard", q, 2, guards, 64);
+    for (size_t i = 0; i < n; i++)
+        if (kb_cue_match(b, kb_dequote(guards[i]), norm)) return 1;
+    return 0;
+}
+
 static int mod_compare(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     (void)b; (void)raw;
@@ -504,9 +518,221 @@ static int p0_probability_draw(Brain *b, const char *norm,
     return 1;
 }
 
+static int arith_digit_count_between(Brain *b, const char *norm,
+                                     char *out, size_t out_size) {
+    if (!b || !b->kb || !kb_cue_match(b, "digit_count_request", norm)) return 0;
+    char nb[256];
+    if (strlen(norm) >= sizeof nb) return 0;
+    snprintf(nb, sizeof nb, "%s", norm);
+    char *w[64];
+    size_t nw = split_words(nb, w, 64);
+    double nums[8];
+    size_t nn = collect_numbers(w, nw, nums, 8);
+    if (nn < 3) return 0;
+    double low = 0, high = 0;
+    int have_range = arith_range_bounds(b, norm, &low, &high);
+    double digit = nums[0];
+    if (!have_range) {
+        low = nums[1];
+        high = nums[2];
+    }
+    if (digit < 0 || digit > 9 ||
+        digit != (double)(long long)digit ||
+        low != (double)(long long)low ||
+        high != (double)(long long)high)
+        return 0;
+
+    char db[32], lb[32], hb[32];
+    snprintf(db, sizeof db, "%lld", (long long)digit);
+    snprintf(lb, sizeof lb, "%lld", (long long)low);
+    snprintf(hb, sizeof hb, "%lld", (long long)high);
+    const char *q[] = { db, lb, hb, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "digit_count_between", q, 4, hit, 1) == 0) return 0;
+    KbResponseSlot slots[] = {
+        { "digit", db },
+        { "low", lb },
+        { "high", hb },
+        { "count", kb_dequote(hit[0]) }
+    };
+    if (kb_response_slots(b, "digit_count_between_answer", slots, 4,
+                          out, out_size)) {
+        store_proof(b, "digit_count_between/4 enumerates the inclusive range and counts the requested digit.");
+        return 1;
+    }
+    return 0;
+}
+
+/* Count fixed-length digit strings whose values lie in an explicit inclusive
+ * range and whose sum is fixed. Request vocabulary is three independent KB cue
+ * classes; C only extracts integers and performs bounded dynamic programming. */
+static int arith_digit_sum_combinations(Brain *b, const char *norm,
+                                        char *out, size_t out_size) {
+    if (!b || !b->kb ||
+        !kb_cue_match(b, "digit_sequence_container", norm) ||
+        !kb_cue_match(b, "digit_sum_constraint", norm) ||
+        !kb_cue_match(b, "combination_count_request", norm))
+        return 0;
+
+    long long values[16];
+    size_t nv = 0;
+    for (const char *p = norm; *p && nv < 16; ) {
+        if (!isdigit((unsigned char)*p)) {
+            p++;
+            continue;
+        }
+        char *end = NULL;
+        values[nv++] = strtoll(p, &end, 10);
+        if (!end || end <= p) return 0;
+        p = end;
+    }
+    if (nv < 4) return 0;
+
+    long long width = values[0];
+    long long low = values[1];
+    long long high = values[2];
+    long long target = values[nv - 1];
+    if (width <= 0 || width > 16 || low < 0 || high < low ||
+        high > 36 || target < 0 || target > 1000)
+        return 0;
+
+    unsigned long long ways[17][1001] = {{0}};
+    ways[0][0] = 1;
+    for (long long pos = 0; pos < width; pos++) {
+        for (long long sum = 0; sum <= target; sum++) {
+            if (!ways[pos][sum]) continue;
+            for (long long digit = low;
+                 digit <= high && sum + digit <= target; digit++) {
+                unsigned long long old = ways[pos + 1][sum + digit];
+                unsigned long long add = ways[pos][sum];
+                ways[pos + 1][sum + digit] =
+                    ULLONG_MAX - old < add ? ULLONG_MAX : old + add;
+            }
+        }
+    }
+
+    char count[64], width_s[32], target_s[32];
+    snprintf(count, sizeof count, "%llu", ways[width][target]);
+    snprintf(width_s, sizeof width_s, "%lld", width);
+    snprintf(target_s, sizeof target_s, "%lld", target);
+    const KbResponseSlot slots[] = {
+        { "count", count },
+        { "width", width_s },
+        { "target", target_s }
+    };
+    if (kb_response_slots(b, "digit_sum_combination_answer", slots, 3,
+                          out, out_size)) {
+        store_proof(b, "Counted bounded digit strings by dynamic programming over position and partial sum.");
+        return 1;
+    }
+    put(count, out, out_size);
+    return 1;
+}
+
+static int arith_token_matches_cueclass(Brain *b, const char *cueclass,
+                                        const char *tok) {
+    if (!b || !b->kb || !cueclass || !tok) return 0;
+    const char *q[] = { cueclass, NULL };
+    char cues[16][KB_TERM_LEN];
+    size_t nc = kb_match(b->kb, "intent_cue", q, 2, cues, 16);
+    for (size_t i = 0; i < nc; i++)
+        if (!strcmp(tok, kb_dequote(cues[i]))) return 1;
+    return 0;
+}
+
+static int arith_ratio_word(Brain *b, const char *tok, double *ratio) {
+    if (!b || !b->kb || !tok || !ratio) return 0;
+    const char *q[] = { tok, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "ratio_word", q, 2, hit, 1) == 0) return 0;
+    return parse_value(hit[0], ratio);
+}
+
+static int arith_schema_role_class(Brain *b, const char *schema,
+                                   const char *role, char *out, size_t out_size) {
+    if (!b || !b->kb || !schema || !role || !out || out_size == 0) return 0;
+    const char *q[] = { schema, role, NULL };
+    char hit[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "schema_role_class", q, 3, hit, 1) == 0) return 0;
+    snprintf(out, out_size, "%s", kb_dequote(hit[0]));
+    return 1;
+}
+
+static int arith_paired_dimensions_from_doubled_sum(Brain *b, const char *norm,
+                                                    const char *schema_intent,
+                                                    char *out, size_t out_size) {
+    if (!schema_intent) return 0;
+    if (!b || !b->kb || !kb_cue_match(b, schema_intent, norm)) return 0;
+    char sum_role[KB_TERM_LEN], major_role[KB_TERM_LEN], minor_role[KB_TERM_LEN];
+    if (!arith_schema_role_class(b, schema_intent, "doubled_sum",
+                                 sum_role, sizeof sum_role) ||
+        !arith_schema_role_class(b, schema_intent, "major_dimension",
+                                 major_role, sizeof major_role) ||
+        !arith_schema_role_class(b, schema_intent, "minor_dimension",
+                                 minor_role, sizeof minor_role))
+        return 0;
+    char rb[256];
+    if (strlen(norm) >= sizeof rb) return 0;
+    snprintf(rb, sizeof rb, "%s", norm);
+    char *w[64];
+    size_t nw = split_words(rb, w, 64);
+    double per = -1, ratio = -1;
+    size_t lpos = nw, wpos = nw, rpos = nw;
+    char unit[32] = "units";
+    for (size_t i = 0; i < nw; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (arith_token_matches_cueclass(b, major_role, t) && lpos == nw)
+            lpos = i;
+        if (arith_token_matches_cueclass(b, minor_role, t) && wpos == nw)
+            wpos = i;
+        if (arith_token_matches_cueclass(b, sum_role, t) && per < 0) {
+            for (size_t j = i + 1; j <= i + 4 && j < nw; j++) {
+                double v;
+                if (parse_value(strip_edge_punct(w[j]), &v)) {
+                    per = v;
+                    if (j + 1 < nw) snprintf(unit, sizeof unit, "%s", strip_edge_punct(w[j + 1]));
+                    break;
+                }
+            }
+        }
+        if (ratio < 0 && arith_ratio_word(b, t, &ratio)) rpos = i;
+    }
+    if (per <= 0 || ratio <= 0) return 0;
+    int length_is_multiple = !(wpos < rpos && lpos > rpos);
+    char ps[32], ks[32];
+    format_num(per, ps, sizeof ps);
+    format_num(ratio, ks, sizeof ks);
+    const char *wq[] = { ps, ks, NULL, NULL };
+    char wh[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "paired_dimensions_from_doubled_sum_ratio", wq, 4, wh, 1) == 0)
+        return 0;
+    const char *lq[] = { ps, ks, wh[0], NULL };
+    char lh[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "paired_dimensions_from_doubled_sum_ratio", lq, 4, lh, 1) == 0)
+        return 0;
+    char ws[32], ls[32];
+    snprintf(ws, sizeof ws, "%s", kb_dequote(wh[0]));
+    snprintf(ls, sizeof ls, "%s", kb_dequote(lh[0]));
+    KbResponseSlot slots[] = {
+        { "length", length_is_multiple ? ls : ws },
+        { "width", length_is_multiple ? ws : ls },
+        { "unit", unit }
+    };
+    if (kb_response_slots(b, "paired_dimensions_answer", slots, 3,
+                          out, out_size)) {
+        store_proof(b, "paired_dimensions_from_doubled_sum_ratio/4 binds the two dimensions before rendering.");
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;
+
+    /* gen357: a scalar fold must not preempt a registered multi-step schema.
+     * This is plan-first dispatch: the lexicon and ownership table live in KB. */
+    if (kb_module_guarded(b, "arith", norm)) return 0;
 
     /* gen252: classic letter riddles contain numbers but are not arithmetic.
      * Catch this before expression folding turns "twice ... thousand" into math. */
@@ -514,6 +740,13 @@ static int mod_arith(Brain *b, const char *norm, const char *raw,
         cue(norm, "twice in a moment") && cue(norm, "thousand years")) {
         if (kb_response(b, "riddle_letter_m", NULL, out, out_size)) return 1;
     }
+
+    if (arith_digit_sum_combinations(b, norm, out, out_size)) return 1;
+    if (arith_digit_count_between(b, norm, out, out_size)) return 1;
+    if (arith_paired_dimensions_from_doubled_sum(b, norm,
+                                                "rectangle_dimension_schema",
+                                                out, out_size)) return 1;
+    if (b && b->kb && kb_cue_match(b, "rectangle_dimension_schema", norm)) return 0;
 
     /* gen312: compound arithmetic expression (self-guards: fires only when a
      * top-level operator joins clean operand phrases, else falls through). */
@@ -988,6 +1221,9 @@ static size_t algebra_tokenize(const char *s, char store[][KB_TERM_LEN],
                m + 1 < KB_TERM_LEN) {
             store[n][m++] = s[k++];
         }
+        while (m > 0 && ispunct((unsigned char)store[n][m - 1]) &&
+               store[n][m - 1] != '.')
+            m--;
         store[n][m] = '\0'; toks[n] = store[n]; n++;
     }
     return n;
@@ -1019,6 +1255,13 @@ static int mod_algebra(Brain *b, const char *norm, const char *raw,
     /* drop a leading run of filler words ("solve", "risolvi", ...). */
     size_t s0 = 0;
     while (s0 < nt && algebra_is_filler(t[s0])) s0++;
+    if (s0 + 1 < nt && strlen(t[s0]) == 1 && isalpha((unsigned char)t[s0][0])) {
+        const char *next = t[s0 + 1];
+        size_t d = 0;
+        while (isdigit((unsigned char)next[d]) || next[d] == '.') d++;
+        if (d > 0 && next[d] == t[s0][0] && next[d + 1] == '\0')
+            s0++;
+    }
     char **tk = t + s0; size_t n = nt - s0;
 
     /* locate the single '=' */
@@ -1673,6 +1916,7 @@ static int wq_same_letters(const char *a, const char *b) {
 static int mod_wordquery(Brain *b, const char *norm, const char *raw,
                          char *out, size_t out_size) {
     if (!b || !b->kb || !norm) return 0;
+    if (kb_cue_match(b, "positional_rhyme_sentence", norm)) return 0;
     int is_rhyme   = kb_cue_match(b, "word_rhyme", norm);
     int is_letters = kb_cue_match(b, "word_from_letters", norm);
     int is_starts  = kb_cue_match(b, "word_starts_with", norm);

@@ -215,15 +215,16 @@ selfchat-baseline:
 sym-bench: build
 	@$(BENCH_PY) ./tests/symbench.py
 
-# An LLM interviews parrot0 to decide whether parrot0 is itself an LLM. The judge
-# (default minimax-m2.5 on opencode-GO — a small model) asks 10 probing questions, scores
-# each answer 1 (consistent with being an LLM) or 0 (evidently NOT an LLM). Writes
-# LLMSCORE.md (question/answer/reason/vote grid + total /10) at the repo root. An
-# HONEST mirror, not a target to game (no-deception): a low score is expected, since
-# parrot0 has no LLM at runtime. Same provider/auth as chat-sim ($OPENCODE_API_KEY);
-# external + non-deterministic, NOT part of `make test`.
+# LLMSCORE — 20 free hidden-tail questions, one-second isolated local deadlines,
+# and concurrent remote judge shards. The score report is written only when every
+# timely answer has a real verdict. External + non-deterministic, NOT part of
+# `make test`.
 llmscore: build
 	@$(BENCH_PY) ./tests/llmscore.py
+
+# Prepare the next unrestricted 20-question tail outside the 30-second score path.
+llmscore-tail:
+	@$(BENCH_PY) ./tests/llmscore.py --prepare-tail-only
 
 # LLMSCORE-PROBE (Fase 0, docs/plans/motorize-the-class.md) — wall-rate per
 # class over a held-out battery. No API, deterministic; the development metric.

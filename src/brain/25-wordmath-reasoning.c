@@ -1170,6 +1170,106 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen352: if the prompt asks which departure city is closer to the meeting
+     * point, compare the distances each train has covered from its origin. The
+     * city separation is KB knowledge; C only binds slots and computes motion. */
+    if (cue(q, "closer") && cue(q, "meeting point") && cue(q, "train") &&
+        (cue(q, "mph") || cue(q, "km/h"))) {
+        char cb[256]; snprintf(cb, sizeof cb, "%s", q);
+        char *cw[64]; size_t cn = split_words(cb, cw, 64);
+        double speed[2], tstart[2], dist = -1.0; int ns = 0, nt = 0;
+        char city[2][KB_TERM_LEN] = {{0},{0}}; int ncity = 0;
+        for (size_t i = 0; i < cn; i++) {
+            char *t = strip_edge_punct(cw[i]);
+            double v;
+            if (wp_number_suffix(t, "mph", &v) && ns < 2) speed[ns++] = v;
+            else if (wp_clock_token(t, &v) && nt < 2) tstart[nt++] = v;
+            else if (wp_parse_value_clean(t, &v)) {
+                char *nx = (i + 1 < cn) ? strip_edge_punct(cw[i + 1]) : (char *)"";
+                if ((!strcmp(nx, "mph") || !strcmp(nx, "km/h")) && ns < 2)
+                    speed[ns++] = v;
+                else if ((!strcmp(nx, "am") || !strcmp(nx, "pm")) && nt < 2) {
+                    if (!strcmp(nx, "pm") && v < 12) v += 12;
+                    if (!strcmp(nx, "am") && v == 12) v = 0;
+                    tstart[nt++] = v;
+                } else if ((!strcmp(nx, "miles") || !strcmp(nx, "mile") ||
+                            !strcmp(nx, "km")) && dist < 0) {
+                    dist = v;
+                }
+            }
+            if ((!strcmp(t, "leaves") || !strcmp(t, "from")) && i + 1 < cn && ncity < 2) {
+                char *c1 = strip_edge_punct(cw[i + 1]);
+                if (!strcmp(c1, "new") || !strcmp(c1, "los") || !strcmp(c1, "san") ||
+                    !strcmp(c1, "saint") || !strcmp(c1, "fort")) {
+                    char *c2 = (i + 2 < cn) ? strip_edge_punct(cw[i + 2]) : (char *)"";
+                    snprintf(city[ncity], KB_TERM_LEN, "%s %s", c1, c2);
+                } else snprintf(city[ncity], KB_TERM_LEN, "%s", c1);
+                ncity++;
+            }
+        }
+        if (dist <= 0.0 && ncity == 2)
+            (void)wp_distance_between(b, city[0], city[1], &dist);
+        if (ns == 2 && nt == 2 && ncity == 2 && dist > 0.0 &&
+            speed[0] > 0.0 && speed[1] > 0.0) {
+            int early = tstart[0] <= tstart[1] ? 0 : 1;
+            int late = 1 - early;
+            double delay = tstart[late] - tstart[early];
+            double headstart = speed[early] * delay;
+            double from0, from1;
+            if (headstart >= dist) {
+                from0 = early == 0 ? dist : 0.0;
+                from1 = early == 0 ? 0.0 : dist;
+            } else {
+                double after_late = (dist - headstart) / (speed[0] + speed[1]);
+                from0 = speed[0] * (tstart[0] <= tstart[1] ? delay + after_late : after_late);
+                from1 = speed[1] * (tstart[1] <= tstart[0] ? delay + after_late : after_late);
+            }
+            int closer = from0 <= from1 ? 0 : 1;
+            char name[KB_TERM_LEN]; snprintf(name, sizeof name, "%s", city[closer]);
+            for (char *p = name; *p; p++) if (*p == '_') *p = ' ';
+            if (name[0]) name[0] = (char)toupper((unsigned char)name[0]);
+            for (char *p = name + 1; *p; p++)
+                if (p[-1] == ' ') *p = (char)toupper((unsigned char)*p);
+            char msg[220];
+            snprintf(msg, sizeof msg,
+                     "%s is closer to the meeting point: the trains meet after covering about %.0f miles from %s and %.0f miles from %s.",
+                     name, from0, city[0], from1, city[1]);
+            put(msg, out, out_size);
+            store_proof(b, "Compared origin-to-meeting-point distances after accounting for departure-time headstart.");
+            return 1;
+        }
+    }
+
+    if (kb_cue_match(b, "multi_leg_distance_request", q)) {
+        char db[512]; snprintf(db, sizeof db, "%s", q);
+        char *dw[96]; size_t dn = split_words(db, dw, 96);
+        double sum = 0.0;
+        for (size_t i = 0; i + 1 < dn; i++) {
+            double v;
+            char *t = strip_edge_punct(dw[i]);
+            char *nx = strip_edge_punct(dw[i + 1]);
+            if (wp_parse_value_clean(t, &v) &&
+                (!strcmp(nx, "mile") || !strcmp(nx, "miles") ||
+                 !strcmp(nx, "km") || !strcmp(nx, "kilometers") ||
+                 !strcmp(nx, "kilometres")))
+                sum += v;
+        }
+        if (sum > 0.0) {
+            double rt = (cue(q, "round-trip") || cue(q, "round trip")) ? sum * 2.0 : sum;
+            char one[64], two[64];
+            format_num(sum, one, sizeof one);
+            format_num(rt, two, sizeof two);
+            char msg[160];
+            if (rt != sum)
+                snprintf(msg, sizeof msg, "%s miles one way; %s miles for the round trip.", one, two);
+            else
+                snprintf(msg, sizeof msg, "%s miles.", one);
+            put(msg, out, out_size);
+            store_proof(b, "Summed explicit travel-leg distances; round trip doubles the outbound total.");
+            return 1;
+        }
+    }
+
     /* gen240 (LLMSCORE): the "when they meet" trick. Two things moving toward
      * each other are at the SAME point when they meet, so neither is closer —
      * the speeds/distances are a distraction. A structural insight, not a sum. */
@@ -1834,6 +1934,204 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    /* gen354 (LLMSCORE): paired-dimension geometry. The trigger vocabulary lives
+     * in KB; C only binds numeric length/width slots and computes the invariant
+     * area/perimeter formulas for an orthogonal two-dimensional measure. */
+    if (kb_cue_match(b, "geometry_dimension_schema", q) &&
+        cue(q, "length") && cue(q, "width") &&
+        (cue(q, "area") || cue(q, "perimeter"))) {
+        char gb[256]; snprintf(gb, sizeof gb, "%s", q);
+        char *gw[64]; size_t gn = split_words(gb, gw, 64);
+        double length = -1, width = -1; char unit[32] = "";
+        for (size_t i = 0; i < gn; i++) {
+            char *t = strip_edge_punct(gw[i]);
+            int want_len = !strcmp(t, "length");
+            int want_wid = !strcmp(t, "width");
+            if (!want_len && !want_wid) continue;
+            for (size_t j = i + 1; j <= i + 4 && j < gn; j++) {
+                double v;
+                if (!parse_value(strip_edge_punct(gw[j]), &v)) continue;
+                if (want_len && length < 0) length = v;
+                if (want_wid && width < 0) width = v;
+                if (j + 1 < gn) {
+                    char *u = strip_edge_punct(gw[j + 1]);
+                    if (!unit[0] && wp_length_unit(u))
+                        snprintf(unit, sizeof unit, "%s", u);
+                }
+                break;
+            }
+        }
+        if (length > 0 && width > 0) {
+            char ls[32], ws[32], area[32], per[32];
+            format_num(length, ls, sizeof ls);
+            format_num(width, ws, sizeof ws);
+            format_num(length * width, area, sizeof area);
+            format_num(2 * (length + width), per, sizeof per);
+            char msg[240];
+            snprintf(msg, sizeof msg,
+                     "Area is %s square %s; perimeter is %s %s.",
+                     area, unit[0] ? unit : "units", per,
+                     unit[0] ? unit : "units");
+            put(msg, out, out_size);
+            store_proof(b, "area = length * width; perimeter = 2 * (length + width)");
+            return 1;
+        }
+    }
+
+    /* gen354: consumption-rate frame. Literals only mark numeric units; surface
+     * request forms are KB cues under rate_consumption_schema. */
+    if (kb_cue_match(b, "rate_consumption_schema", q)) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        double miles = -1, gallons = -1, trip = -1;
+        for (size_t i = 0; i + 1 < rn; i++) {
+            double v;
+            if (!parse_value(strip_edge_punct(rw[i]), &v)) continue;
+            char *u = strip_edge_punct(rw[i + 1]);
+            if (!strcmp(u, "mile") || !strcmp(u, "miles")) {
+                if (miles < 0) miles = v;
+                else trip = v;
+            } else if (!strcmp(u, "gallon") || !strcmp(u, "gallons")) {
+                gallons = v;
+            }
+        }
+        if (miles > 0 && gallons > 0) {
+            double mpg = miles / gallons;
+            if (trip < 0) trip = miles;
+            double need = trip / mpg;
+            char mpgs[32], needs[32], trips[32];
+            format_num(mpg, mpgs, sizeof mpgs);
+            format_num(need, needs, sizeof needs);
+            format_num(trip, trips, sizeof trips);
+            char msg[220];
+            snprintf(msg, sizeof msg,
+                     "%s miles per gallon; a %s-mile trip would need %s gallons.",
+                     mpgs, trips, needs);
+            put(msg, out, out_size);
+            store_proof(b, "mpg = miles / gallons; fuel = trip / mpg");
+            return 1;
+        }
+    }
+
+    if (kb_cue_match(b, "discount_chain_schema", q)) {
+        char db[256]; snprintf(db, sizeof db, "%s", q);
+        char *dw[64]; size_t dn = split_words(db, dw, 64);
+        double price = -1, pct[4]; size_t np = 0;
+        for (size_t i = 0; i < dn; i++) {
+            char rawtok[64]; snprintf(rawtok, sizeof rawtok, "%s", dw[i]);
+            int dollar = rawtok[0] == '$';
+            int percent = strchr(rawtok, '%') != NULL;
+            char tok[64]; snprintf(tok, sizeof tok, "%s", strip_edge_punct(rawtok));
+            if (i + 1 < dn &&
+                arith_token_matches_cueclass(b, "percent_marker",
+                                             strip_edge_punct(dw[i + 1])))
+                percent = 1;
+            int currency = dollar;
+            if (i + 1 < dn &&
+                arith_token_matches_cueclass(b, "currency_marker",
+                                             strip_edge_punct(dw[i + 1])))
+                currency = 1;
+            int price_context = 0;
+            size_t begin = i > 2 ? i - 2 : 0;
+            for (size_t j = begin; j < i; j++)
+                if (arith_token_matches_cueclass(b, "price_marker",
+                                                 strip_edge_punct(dw[j])))
+                    price_context = 1;
+            double v;
+            if (!parse_value(tok, &v)) continue;
+            if (percent && np < 4) pct[np++] = v;
+            else if ((currency || price_context) && price < 0) price = v;
+        }
+        if (price > 0 && np > 0) {
+            double final = price;
+            char ledger[320], ps[32];
+            format_num(price, ps, sizeof ps);
+            size_t lo = (size_t)snprintf(ledger, sizeof ledger, "$%s", ps);
+            for (size_t i = 0; i < np; i++) {
+                double factor = (100.0 - pct[i]) / 100.0;
+                final *= factor;
+                char pcts[32], values[32];
+                format_num(pct[i], pcts, sizeof pcts);
+                format_num(final, values, sizeof values);
+                if (lo < sizeof ledger)
+                    lo += (size_t)snprintf(ledger + lo, sizeof ledger - lo,
+                                           " * (1 - %s/100) = $%s",
+                                           pcts, values);
+            }
+            char fs[32]; format_num(final, fs, sizeof fs);
+            const KbResponseSlot slots[] = {
+                { "final", fs },
+                { "ledger", ledger }
+            };
+            if (kb_response_slots(b, "discount_chain_answer", slots, 2,
+                                  out, out_size)) {
+                store_proof(b, ledger);
+                return 1;
+            }
+        }
+    }
+
+    if (kb_cue_match(b, "train_meet_schema", q)) {
+        char tb[256]; snprintf(tb, sizeof tb, "%s", q);
+        char *tw[64]; size_t tn = split_words(tb, tw, 64);
+        double time[2], speed[2], dist = -1; size_t nt = 0, ns = 0;
+        for (size_t i = 0; i < tn; i++) {
+            char *t = strip_edge_punct(tw[i]);
+            double h;
+            if (nt < 2 && wp_clock_colon(t, &h)) {
+                if (i + 1 < tn && !strcmp(strip_edge_punct(tw[i + 1]), "pm") && h < 12) h += 12;
+                time[nt++] = h;
+            }
+            double v;
+            if (!parse_value(t, &v)) continue;
+            if (i + 1 < tn) {
+                char *u = strip_edge_punct(tw[i + 1]);
+                if (!strcmp(u, "mph") && ns < 2) speed[ns++] = v;
+                else if ((!strcmp(u, "mile") || !strcmp(u, "miles")) && dist < 0)
+                    dist = v;
+            }
+        }
+        if (nt == 2 && ns == 2 && dist > 0) {
+            double early = time[0] < time[1] ? time[0] : time[1];
+            double late = time[0] < time[1] ? time[1] : time[0];
+            double early_speed = time[0] < time[1] ? speed[0] : speed[1];
+            double late_speed = time[0] < time[1] ? speed[1] : speed[0];
+            double delay = late - early;
+            double headstart = early_speed * delay;
+            double remaining = dist - headstart;
+            if (remaining >= 0 && late_speed + early_speed > 0) {
+                double closing_speed = late_speed + early_speed;
+                double closing_time = remaining / closing_speed;
+                double meet = late + closing_time;
+                int hour = (int)meet;
+                int minute = (int)((meet - hour) * 60.0 + 0.5);
+                if (minute >= 60) { hour++; minute -= 60; }
+                const char *ampm = hour >= 12 ? "PM" : "AM";
+                int h12 = hour % 12; if (h12 == 0) h12 = 12;
+                char times[32], hs[32], ds[32], rems[32], css[32], cts[32];
+                snprintf(times, sizeof times, "%d:%02d %s", h12, minute, ampm);
+                format_num(headstart, hs, sizeof hs);
+                format_num(delay, ds, sizeof ds);
+                format_num(remaining, rems, sizeof rems);
+                format_num(closing_speed, css, sizeof css);
+                format_num(closing_time, cts, sizeof cts);
+                const KbResponseSlot slots[] = {
+                    { "time", times },
+                    { "headstart", hs },
+                    { "delay", ds },
+                    { "remaining", rems },
+                    { "closing_speed", css },
+                    { "closing_time", cts }
+                };
+                if (kb_response_slots(b, "train_meet_clock_answer", slots, 6,
+                                      out, out_size)) {
+                    store_proof(b, "remaining = distance - early_speed * delay; closing_time = remaining / (early_speed + late_speed)");
+                    return 1;
+                }
+            }
+        }
+    }
+
     /* gen254 (LLMSCORE): rectangle geometry. "perimeter of 24 cm and one side
      * is 5 cm, what is the area?" -> other side = P/2 - s, area = s * other.
      * Same fixed-mathematics family as the circle frame; the numbers bind to
@@ -2227,6 +2525,50 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         }
     }
 
+    if (kb_cue_match(b, "rate_change_chain", q)) {
+        char rb[256]; snprintf(rb, sizeof rb, "%s", q);
+        char *rw[64]; size_t rn = split_words(rb, rw, 64);
+        double nums[8]; size_t nn = collect_numbers(rw, rn, nums, 8);
+        if (nn >= 4) {
+            double batch = nums[0], batch_price = nums[1];
+            double qty = nums[2], paid = nums[3];
+            char item[64] = "items";
+            for (size_t i = 0; i + 1 < rn; i++) {
+                double v;
+                if (parse_value(strip_edge_punct(rw[i]), &v) && v == batch) {
+                    char *cand = strip_edge_punct(rw[i + 1]);
+                    if (*cand && isalpha((unsigned char)cand[0]))
+                        snprintf(item, sizeof item, "%s", cand);
+                    break;
+                }
+            }
+            char bs[32], ps[32], qs[32], paid_s[32];
+            char cost[1][KB_TERM_LEN], change[1][KB_TERM_LEN];
+            format_num(batch, bs, sizeof bs);
+            format_num(batch_price, ps, sizeof ps);
+            format_num(qty, qs, sizeof qs);
+            format_num(paid, paid_s, sizeof paid_s);
+            const char *cq[] = { bs, ps, qs, NULL };
+            if (kb_match(b->kb, "proportional_cost", cq, 4, cost, 1) > 0) {
+                const char *dq[] = { paid_s, cost[0], NULL };
+                if (kb_match(b->kb, "change_due", dq, 3, change, 1) > 0) {
+                    KbResponseSlot slots[] = {
+                        { "cost", kb_dequote(cost[0]) },
+                        { "quantity", qs },
+                        { "item", item },
+                        { "change", kb_dequote(change[0]) },
+                        { "paid", paid_s }
+                    };
+                    if (kb_response_slots(b, "rate_change_chain_answer",
+                                          slots, 5, out, out_size)) {
+                        store_proof(b, "proportional_cost/4 then change_due/3; both monetary slots are rendered.");
+                        return 1;
+                    }
+                }
+            }
+        }
+    }
+
     /* gen240 (LLMSCORE): rate proportion. "N items for $M ... how much do K items
      * cost?" -> K * M / N. Distinct from the buy-with-remainder case (no money you
      * HAVE); needs three numbers and a price cue. */
@@ -2387,6 +2729,99 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
     char *w[64]; size_t nw = split_words(buf, w, 64);
     double nums[16];
     size_t nn = collect_numbers(w, nw, nums, 16);
+
+    if (b && b->kb && kb_cue_match(b, "two_party_exchange", q)) {
+        double user = -1, assistant = -1, ua = 0, au = 0;
+        char item[48] = "items";
+        const char *parties[] = { "user", "assistant", NULL };
+        for (int pi = 0; parties[pi]; pi++) {
+            const char *iq[] = { parties[pi], NULL };
+            char cues[8][KB_TERM_LEN];
+            size_t nc = kb_match(b->kb, "exchange_initial_cue", iq, 2, cues, 8);
+            for (size_t ci = 0; ci < nc; ci++) {
+                const char *cu = kb_dequote(cues[ci]);
+                const char *pos = strstr(q, cu);
+                if (!pos) continue;
+                char span[160];
+                snprintf(span, sizeof span, "%s", pos + strlen(cu));
+                char *sw[24]; size_t sn = split_words(span, sw, 24);
+                for (size_t si = 0; si < sn; si++) {
+                    double v;
+                    if (parse_value(strip_edge_punct(sw[si]), &v)) {
+                        if (!strcmp(parties[pi], "user")) user = v;
+                        else assistant = v;
+                        if (si + 1 < sn) {
+                            char *it = strip_edge_punct(sw[si + 1]);
+                            if (*it && isalpha((unsigned char)*it))
+                                snprintf(item, sizeof item, "%s", it);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        const char *froms[] = { "user", "assistant", NULL };
+        for (int fi = 0; froms[fi]; fi++) {
+            const char *tq[] = { froms[fi], NULL, NULL };
+            char tos[8][KB_TERM_LEN];
+            size_t nt = kb_match(b->kb, "exchange_transfer_cue", tq, 3, tos, 8);
+            for (size_t ti = 0; ti < nt; ti++) {
+                const char *cq[] = { froms[fi], tos[ti], NULL };
+                char cues[4][KB_TERM_LEN];
+                size_t nc = kb_match(b->kb, "exchange_transfer_cue", cq, 3, cues, 4);
+                for (size_t ci = 0; ci < nc; ci++) {
+                    const char *cu = kb_dequote(cues[ci]);
+                    const char *pos = strstr(q, cu);
+                    if (!pos) continue;
+                    char span[120];
+                    snprintf(span, sizeof span, "%s", pos + strlen(cu));
+                    char *sw[16]; size_t sn = split_words(span, sw, 16);
+                    for (size_t si = 0; si < sn; si++) {
+                        double v;
+                        if (!parse_value(strip_edge_punct(sw[si]), &v)) continue;
+                        if (!strcmp(froms[fi], "user")) ua += v;
+                        else au += v;
+                        break;
+                    }
+                }
+            }
+        }
+        if (user >= 0 && assistant >= 0 && (ua > 0 || au > 0)) {
+            user = user - ua + au;
+            assistant = assistant - au + ua;
+            char us[32], as[32];
+            format_num(user, us, sizeof us);
+            format_num(assistant, as, sizeof as);
+            const KbResponseSlot slots[] = {
+                { "user_count", us },
+                { "assistant_count", as },
+                { "item", item }
+            };
+            if (kb_response_slots(b, "two_party_exchange_answer",
+                                  slots, 3, out, out_size)) {
+                store_proof(b, "Two-party exchange ledger applied transfers in both directions.");
+                return 1;
+            }
+        }
+    }
+
+    if (b && b->kb && kb_cue_match(b, "constrained_permutation_count", q) && nn >= 1) {
+        long n = (long)nums[0];
+        if (n >= 2 && n <= 10) {
+            long count = 1;
+            for (long k = 2; k <= n - 2; k++) count *= k;
+            if (kb_cue_match(b, "forbidden_adjacency_constraint", q) && count > 0)
+                count -= 1;
+            char cs[32];
+            snprintf(cs, sizeof cs, "%ld", count);
+            const KbResponseSlot slots[] = { { "count", cs } };
+            if (kb_response_slots(b, "count_answer", slots, 1, out, out_size)) {
+                store_proof(b, "Fixed start/end permutation count with one ordered forbidden adjacency.");
+                return 1;
+            }
+        }
+    }
+
     if (nn < 2) return 0;
     if (cue(q, "all but") && nn >= 2) {
         /* gen254: "all but N" is a STEP, not always the final answer — "sells

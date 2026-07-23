@@ -35,8 +35,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
 
     /* gen240 (universal-comprehension): the process is session context — PID and
      * the OS locale language are queryable session facts. */
-    if (cue(buf, "your pid") || cue(buf, "process id") || cue(buf, "process pid") ||
-        cue(buf, "il tuo pid") || (cue(buf, "pid") && cue(buf, "what"))) {
+    if (b->kb && kb_cue_match(b, "process_id_request", buf)) {
         char v[1][KB_TERM_LEN];
         const char *q[] = { NULL };
         if (b->kb && kb_match(b->kb, "process_pid", q, 1, v, 1) > 0) {
@@ -298,6 +297,17 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                 if (b->kb && kb_match(b->kb, "default_pick", pq, 2, pk, 1) > 0) {
                     char *p = pk[0]; size_t l = strlen(p);
                     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }
+                    const char *rq[] = { topic, NULL };
+                    char rr[1][KB_TERM_LEN];
+                    if (b->kb && kb_match(b->kb, "default_pick_reason", rq, 2, rr, 1) > 0) {
+                        const KbResponseSlot slots[] = {
+                            { "pick", p },
+                            { "reason", kb_dequote(rr[0]) }
+                        };
+                        if (kb_response_slots(b, "default_pick_reason_answer",
+                                              slots, 2, out, out_size))
+                            return 1;
+                    }
                     char msg[160];
                     snprintf(msg, sizeof msg,
                              "I don't have real preferences, but if I had to choose, "
@@ -629,6 +639,11 @@ static int is_internal_pred(const KB *kb, const char *pred) {
         "haiku_open", "haiku_mid", "haiku_close", "couplet", /* gen240 */
         "quantity", "landmark_of", "planet_superlative", "planet_superlative_cue",
         "world_superlative", "world_superlative_cue",
+        "element_type", "heritage_built_by", "grammar_error_correction",
+        "emotion_signal", "emotion_inference", "creative_text", "creative_text_cue",
+        "creative_response",
+        "semantic_alias", "semantic_topic_cue", "semantic_summary",
+        "answer_projection", "projection_source", "topic_noise",
         "unique_trait", "measure", "compare_cue", "entity_alias",
         "distance_between", /* gen240/gen251 */
         "synonym", "default_color", "appearance", "compound_word", "default_pick", "landmark_city",
@@ -902,6 +917,7 @@ static int is_truth_probe(const char *q) {
 static int mod_role(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    if (norm && kb_cue_match(b, "physical_affordance_prediction", norm)) return 0;
 
     char buf[256];
     size_t len = strlen(norm);

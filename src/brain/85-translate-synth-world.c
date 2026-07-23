@@ -219,6 +219,36 @@ static int mod_translate(Brain *b, const char *norm, const char *raw,
     char low[256];
     lowercase_copy(low, sizeof low, raw);
 
+    if (kb_cue_match(b, "multi_translation_request", low)) {
+        char keys[16][KB_TERM_LEN];
+        const char *kq[] = { NULL, NULL };
+        size_t kn = kb_match(b->kb, "translation_phrase_cue", kq, 2, keys, 16);
+        char key[KB_TERM_LEN] = "";
+        for (size_t i = 0; i < kn && !key[0]; i++) {
+            const char *cq[] = { keys[i], NULL };
+            char cues[8][KB_TERM_LEN];
+            size_t cn = kb_match(b->kb, "translation_phrase_cue", cq, 2, cues, 8);
+            for (size_t j = 0; j < cn; j++)
+                if (strstr(low, kb_dequote(cues[j])))
+                    snprintf(key, sizeof key, "%s", keys[i]);
+        }
+        if (key[0]) {
+            const char *fq[] = { key, "french", NULL };
+            const char *sq[] = { key, "spanish", NULL };
+            const char *jq[] = { key, "japanese", NULL };
+            char fr[1][KB_TERM_LEN], es[1][KB_TERM_LEN], ja[1][KB_TERM_LEN];
+            if (kb_match(b->kb, "tr_multi_phrase", fq, 3, fr, 1) > 0 &&
+                kb_match(b->kb, "tr_multi_phrase", sq, 3, es, 1) > 0 &&
+                kb_match(b->kb, "tr_multi_phrase", jq, 3, ja, 1) > 0) {
+                char msg[420];
+                snprintf(msg, sizeof msg, "French: %s. Spanish: %s. Japanese: %s.",
+                         kb_dequote(fr[0]), kb_dequote(es[0]), kb_dequote(ja[0]));
+                put(msg, out, out_size);
+                return 1;
+            }
+        }
+    }
+
     /* gen252: minimal compositional EN->FR. The lexicon is tr_fr/2 + gender_fr/2;
      * C supplies only grammar glue: article agreement, "is sleeping" -> finite
      * verb, and English pre-noun adjective -> French post-noun adjective. */

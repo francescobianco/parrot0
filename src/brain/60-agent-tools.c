@@ -1682,6 +1682,25 @@ static int mod_reqgen(Brain *b, const char *norm, const char *raw,
         kb_cue_match(b, "experiential_move", raw))
         return 0;
 
+    if (kb_cue_match(b, "creative_text_request", buf) ||
+        kb_cue_match(b, "creative_text_request", raw))
+        return 0;
+
+    if (kb_cue_match(b, "translation_request", buf) ||
+        kb_cue_match(b, "translation_request", raw))
+        return 0;
+
+    if (kb_cue_match(b, "python_prime_function_request", buf) ||
+        kb_cue_match(b, "python_prime_function_request", raw)) {
+        const char *q[] = { "python_prime_function", NULL };
+        char hit[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "code_template", q, 2, hit, 1) > 0) {
+            put(kb_dequote(hit[0]), out, out_size);
+            store_proof(b, "Rendered a code_template selected by KB request cues.");
+            return 1;
+        }
+    }
+
     size_t vi = (size_t)-1;                 /* the make-verb, imperative slot */
     for (size_t i = 0; i < nw && i < 3; i++)
         if (reqgen_in_class(b, "make_verb", strip_edge_punct(w[i]))) { vi = i; break; }

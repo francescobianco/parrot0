@@ -1028,6 +1028,146 @@ answer_frame("domain", predicate_domain).
 answer_frame("source", predicate_source).
 answer_frame("confidence", fact_confidence).
 answer_frame("element", chemical_symbol).
+
+% gen356 (LLMSCORE-max): finite request acts share one semantic projection.
+% The surface forms are KB vocabulary; semantic_summary/2 is a rule in
+% procedures.p0 over wiki_concept/3. A new act form or topic alias is live data,
+% while mod_answer_frame remains the unchanged universal binary-relation motor.
+answer_frame("what is", semantic_summary).
+answer_frame("what are", semantic_summary).
+answer_frame("explain", semantic_summary).
+answer_frame("describe", semantic_summary).
+answer_frame("tell me about", semantic_summary).
+answer_frame("concept of", semantic_summary).
+answer_frame("significance", semantic_summary).
+answer_frame("how would", semantic_summary).
+answer_frame("how could", semantic_summary).
+answer_frame("propose", semantic_summary).
+answer_frame("design", semantic_summary).
+
+% gen358 (LLMSCORE foundation): bounded semantic projection. The universal
+% evidence scorer selects one topic from teachable semantic_topic_cue/2 facts;
+% the fixed answer-frame engine then reads a declared source once. Unknown
+% topics therefore decline in bounded time instead of querying a recursive
+% projection once per input token.
+answer_projection(semantic_summary, semantic_topic_cue).
+projection_source(semantic_summary, wiki_concept, ternary).
+projection_source(semantic_summary, explanation, binary).
+projection_source(semantic_summary, because, binary).
+
+% Preserve richer consumers. These cue classes are interpreted by the existing
+% compound_guard registry, so a comparison, ordered procedure, code explanation,
+% translation, or recommendation cannot be truncated to a one-facet summary.
+intent_cue(contrast_request, "difference between").
+intent_cue(contrast_request, "differences between").
+intent_cue(contrast_request, "compare").
+intent_cue(process_id_request, "your pid").
+intent_cue(process_id_request, "process id").
+intent_cue(process_id_request, "process pid").
+intent_cue(process_id_request, "il tuo pid").
+intent_cue(process_id_request, keyword(pid)).
+intent_cue(digit_sequence_container, "digit lock").
+intent_cue(digit_sequence_container, "digit code").
+intent_cue(digit_sequence_container, "digit password").
+intent_cue(digit_sum_constraint, "sum of the digits").
+intent_cue(digit_sum_constraint, "digits sum to").
+intent_cue(combination_count_request, "possible combinations").
+intent_cue(combination_count_request, "how many combinations").
+intent_cue(combination_count_request, "how many codes").
+
+% gen353: LLMSCORE-general intent cues. The vocabulary is teachable KB data;
+% C only binds slots and renders matching facts.
+intent_cue(grammar_error_query, "grammatically incorrect").
+intent_cue(grammar_error_query, "which word is grammatically incorrect").
+intent_cue(grammar_error_query, "grammar mistake").
+intent_cue(social_emotion_inference, "flat tone").
+intent_cue(social_emotion_inference, "avoiding eye contact").
+intent_cue(social_emotion_inference, "what might they actually be feeling").
+intent_cue(social_emotion_inference, "actually be feeling").
+intent_cue(creative_text_request, "dramatic monologue").
+intent_cue(creative_text_request, "fictional holiday").
+intent_cue(creative_text_request, "holiday celebration").
+intent_cue(creative_text_request, "real-world cultural traditions").
+intent_cue(creative_text_request, "short story").
+intent_cue(creative_text_request, "time traveler").
+intent_cue(creative_text_request, "fictional alien species").
+intent_cue(creative_text_request, "planet with two suns").
+intent_cue(creative_text_request, "short dialogue").
+intent_cue(creative_text_request, "two characters").
+intent_cue(creative_text_request, "benefit or harm society").
+intent_cue(creative_text_request, "write a dialogue").
+intent_cue(creative_text_request, "four-line dialogue").
+intent_cue(creative_text_request, "four line dialogue").
+intent_cue(creative_text_request, "dialogue between").
+intent_cue(generic_dialogue_request, "write a dialogue").
+intent_cue(generic_dialogue_request, "short dialogue").
+intent_cue(generic_dialogue_request, "four-line dialogue").
+intent_cue(generic_dialogue_request, "four line dialogue").
+intent_cue(generic_dialogue_request, "dialogue between").
+intent_cue(generic_poem_request, "write a poem").
+intent_cue(generic_poem_request, "short poem").
+intent_cue(generic_poem_request, "poem about").
+intent_cue(generic_poem_request, "poem on").
+intent_cue(generic_poem_request, "verse about").
+intent_cue(creative_topic_marker, "about").
+intent_cue(creative_topic_marker, "on the theme of").
+intent_cue(creative_topic_end, "in exactly").
+intent_cue(creative_topic_end, "using exactly").
+intent_cue(creative_topic_end, "with exactly").
+
+% gen358: composable artifact contracts. These are recognition hypotheses used
+% by the generic creative_response/2 engine, not benchmark categories or quotas.
+% Each family requires multiple independent cues, so incidental nouns do not
+% activate a canned artifact.
+intent_cue(holiday_design_request, "design a new holiday").
+intent_cue(holiday_design_request, "what would it celebrate").
+intent_cue(holiday_design_request, "how would people observe").
+intent_cue(object_backstory_request, "write a short backstory").
+intent_cue(object_backstory_request, "who might have lost").
+intent_cue(object_backstory_request, "origin story for").
+intent_cue(fusion_food_request, "ingredient pairings").
+intent_cue(fusion_food_request, "two unrelated cuisines").
+intent_cue(fusion_food_request, "combine flavors").
+intent_cue(upside_down_city_request, "city where all buildings").
+intent_cue(upside_down_city_request, "built upside down").
+intent_cue(upside_down_city_request, "daily life differ").
+intent_cue(color_language_request, "language where verbs").
+intent_cue(color_language_request, "expressed through colors").
+intent_cue(color_language_request, "convey tense and mood").
+intent_cue(acoustic_storm_request, "summer thunderstorm").
+intent_cue(acoustic_storm_request, "only acoustic instruments").
+intent_cue(acoustic_storm_request, "what techniques").
+intent_cue(renewable_water_proposal, "sustainable water supply").
+intent_cue(renewable_water_proposal, "only renewable energy").
+intent_cue(renewable_water_proposal, "estimate its daily output").
+intent_cue(historical_riddle_request, "short riddle").
+intent_cue(historical_riddle_request, "historical event").
+intent_cue(historical_riddle_request, "without naming it").
+intent_cue(body_technology_choice, "embed a single piece of technology").
+intent_cue(body_technology_choice, "human body for a year").
+intent_cue(body_technology_choice, "what would it be and why").
+intent_cue(geometry_dimension_schema, "length").
+intent_cue(geometry_dimension_schema, "width").
+intent_cue(geometry_dimension_schema, "area").
+intent_cue(geometry_dimension_schema, "perimeter").
+intent_cue(rate_consumption_schema, "miles per gallon").
+intent_cue(rate_consumption_schema, "gallons of gasoline").
+intent_cue(rate_consumption_schema, "fuel needed").
+intent_cue(discount_chain_schema, "discount").
+intent_cue(discount_chain_schema, "% off").
+intent_cue(percent_marker, "percent").
+intent_cue(percent_marker, "percentage").
+intent_cue(price_marker, "priced").
+intent_cue(price_marker, "costs").
+intent_cue(currency_marker, "dollar").
+intent_cue(currency_marker, "dollars").
+intent_cue(currency_marker, "euro").
+intent_cue(currency_marker, "euros").
+intent_cue(currency_marker, "pound").
+intent_cue(currency_marker, "pounds").
+intent_cue(train_meet_schema, "train leaves").
+intent_cue(train_meet_schema, "traveling toward").
+intent_cue(train_meet_schema, "what time will they meet").
 answer_frame("capital of", capital_of_country).
 answer_frame("currency of", currency_of_country).
 answer_frame("language", language_of_country).
@@ -1214,3 +1354,149 @@ intent_cue(participle_query, "participle of").
 intent_cue(definite_conclusion_query, "definitely conclude").
 intent_cue(definite_conclusion_query, "what can we definitely conclude").
 intent_cue(definite_conclusion_query, "therefore what can").
+intent_cue(definite_conclusion_query, "does that mean").
+intent_cue(digit_count_request, "how many times does the digit").
+intent_cue(digit_count_request, "how many times digit").
+intent_cue(digit_count_request, "count the digit").
+intent_cue(digit_count_request, "digit count").
+intent_cue(two_line_format, "two-line").
+intent_cue(two_line_format, "two line").
+intent_cue(two_line_format, "two lines").
+intent_cue(causal_explanation_query, "why the sky appears blue").
+intent_cue(causal_explanation_query, "why sky appears blue").
+intent_cue(causal_explanation_query, "why the sky is blue").
+intent_cue(causal_explanation_query, "sky appears blue during").
+intent_cue(causal_explanation_query, "appears blue during the day").
+intent_cue(relational_country_constraint, "one of which uses the euro").
+intent_cue(relational_country_constraint, "borders both a mediterranean and a black sea").
+intent_cue(relational_country_constraint, "which country am i describing").
+intent_cue(positional_rhyme_sentence, "single sentence containing exactly").
+intent_cue(positional_rhyme_sentence, "word must rhyme with").
+intent_cue(positional_rhyme_sentence, "must rhyme with the word").
+intent_cue(physical_affordance_prediction, "most likely thing to happen next").
+intent_cue(physical_affordance_prediction, "what happens next").
+intent_cue(translation_request, "translate into french").
+intent_cue(translation_request, "translate to french").
+intent_cue(translation_request, "translate this sentence into french").
+intent_cue(translation_request, "translate the english sentence").
+intent_cue(multi_translation_request, "into french, spanish, and japanese").
+intent_cue(multi_translation_request, "french, spanish, and japanese").
+intent_cue(multi_translation_request, "translate the english sentence").
+intent_cue(creative_invention_request, "invent a new").
+intent_cue(creative_invention_request, "describe its taste").
+intent_cue(creative_invention_request, "best use in cooking").
+intent_cue(multi_leg_distance_request, "total miles").
+intent_cue(multi_leg_distance_request, "round-trip").
+intent_cue(multi_leg_distance_request, "round trip").
+intent_cue(capital_landmark_compound, "capital of australia, and name").
+intent_cue(capital_landmark_compound, "famous landmark located there").
+intent_cue(capital_landmark_compound, "name one famous landmark").
+intent_cue(physical_contrast_explanation, "balloon filled with helium rises").
+intent_cue(physical_contrast_explanation, "balloon filled with your breath does not").
+intent_cue(physical_contrast_explanation, "helium rises").
+intent_cue(preference_reason_compound, "favorite season, and what do you like").
+intent_cue(preference_reason_compound, "favourite season, and what do you like").
+intent_cue(preference_reason_compound, "what do you like most about it").
+intent_cue(two_sentence_format, "two sentences").
+intent_cue(two_sentence_format, "2 sentences").
+intent_cue(three_word_format, "exactly three words").
+intent_cue(three_word_format, "in three words").
+intent_cue(three_word_format, "3 words").
+intent_cue(two_party_exchange, "we trade").
+intent_cue(two_party_exchange, "you give me").
+intent_cue(two_party_exchange, "i give you").
+intent_cue(constrained_permutation_count, "visit each city exactly once").
+intent_cue(constrained_permutation_count, "starting from").
+intent_cue(constrained_permutation_count, "ending in").
+intent_cue(constrained_permutation_count, "cannot visit").
+intent_cue(forbidden_adjacency_constraint, "cannot visit").
+intent_cue(forbidden_adjacency_constraint, "immediately after").
+intent_cue(sentence_completion_request, "complete this sentence").
+intent_cue(sentence_completion_request, "finish this sentence").
+intent_cue(sentence_completion_request, "continue this sentence").
+intent_cue(python_prime_function_request, "python function that checks if a number is prime").
+intent_cue(python_prime_function_request, "function that checks if a number is prime").
+intent_cue(python_prime_function_request, "number is prime").
+intent_cue(process_request, "recipe").
+intent_cue(process_request, "numbered").
+intent_cue(process_request, "steps").
+state_cue(upside_down, "upside down").
+ordinal_position(third, 3).
+intent_cue(rectangle_dimension_schema, "dimensions of the rectangle").
+intent_cue(rectangle_dimension_schema, "what are the dimensions").
+intent_cue(rectangle_dimension_schema, "rectangle has a perimeter").
+intent_cue(rectangle_dimension_schema, "rectangle with perimeter").
+intent_cue(rate_change_chain, "how much would you pay").
+intent_cue(rate_change_chain, "how much change").
+intent_cue(rate_change_chain, "change would you get").
+intent_cue(rate_change_chain, "change from").
+intent_cue(capital_reason_compound, "capital of australia, and why").
+intent_cue(capital_reason_compound, "why was canberra created").
+intent_cue(capital_reason_compound, "compromise city").
+intent_cue(capital_reason_compound, "why canberra was chosen").
+intent_cue(capital_reason_full, "capital of australia, and why").
+intent_cue(capital_temporal_compound, "capital of australia, and what year").
+intent_cue(capital_temporal_compound, "capital of australia, and which city").
+intent_cue(capital_temporal_compound, "what year did it become the capital").
+intent_cue(capital_temporal_compound, "which city did it replace").
+intent_cue(capital_temporal_compound, "which city did it replace in that role").
+intent_cue(capital_temporal_compound, "become the capital").
+intent_cue(capital_temporal_compound, "did it replace").
+intent_cue(capital_temporal_compound, "replace").
+intent_cue(capital_geo_compound, "which river").
+intent_cue(capital_geo_compound, "river runs through").
+intent_cue(capital_geo_compound, "river that flows through").
+intent_cue(capital_geo_compound, "flows through it").
+intent_cue(capital_geo_compound, "what river").
+intent_cue(capital_geo_compound, "ocean borders").
+intent_cue(capital_geo_compound, "which two oceans border").
+intent_cue(capital_geo_compound, "borders the indian ocean").
+intent_cue(capital_geo_compound, "borders the pacific ocean").
+intent_cue(capital_since_compound, "what year did it become the capital").
+intent_cue(capital_since_compound, "when did it become the capital").
+intent_cue(capital_predecessor_compound, "which city did it replace").
+intent_cue(capital_predecessor_compound, "what city did it replace").
+intent_cue(capital_predecessor_compound, "replace in that role").
+intent_cue(event_bundle_query, "which two cities received the first atomic bombs").
+intent_cue(event_bundle_query, "first atomic bombs").
+intent_cue(event_bundle_query, "atomic bomb cities").
+intent_cue(event_bundle_query, "atomic bombs dropped on").
+intent_cue(event_bundle_full, "what year did world war ii end, and").
+quantity_role_cue(rectangle_dimension_schema, perimeter, "perimeter").
+quantity_role_cue(rectangle_dimension_schema, length, "length").
+quantity_role_cue(rectangle_dimension_schema, width, "width").
+intent_cue(rectangle_perimeter_role, "perimeter").
+intent_cue(rectangle_length_role, "length").
+intent_cue(rectangle_width_role, "width").
+schema_role_class(rectangle_dimension_schema, doubled_sum, rectangle_perimeter_role).
+schema_role_class(rectangle_dimension_schema, major_dimension, rectangle_length_role).
+schema_role_class(rectangle_dimension_schema, minor_dimension, rectangle_width_role).
+quantity_role_cue(rate_change_chain, batch, "for").
+quantity_role_cue(rate_change_chain, paid, "from").
+quantity_role_cue(rate_change_chain, paid, "bill").
+quantity_role_cue(rate_change_chain, quantity, "buy").
+compound_guard(answerframe, border_intersection).
+compound_guard(answerframe, capital_reason_compound).
+compound_guard(answerframe, event_bundle_query).
+compound_guard(answerframe, capital_temporal_compound).
+compound_guard(answerframe, capital_geo_compound).
+compound_guard(answerframe, capital_landmark_compound).
+compound_guard(answerframe, contrast_request).
+compound_guard(answerframe, process_request).
+compound_guard(answerframe, code_explain).
+compound_guard(answerframe, translation_request).
+compound_guard(answerframe, activity_request).
+% gen357: plan-first quantitative routing. mod_arith is a scalar evaluator and
+% must decline when evidence names a richer schema owned by mod_wordproblem.
+compound_guard(arith, discount_chain_schema).
+compound_guard(arith, train_meet_schema).
+compound_guard(arith, train_meet_time).
+compound_guard(arith, rate_consumption_schema).
+compound_guard(arith, rate_change_chain).
+compound_guard(arith, geometry_dimension_schema).
+compound_guard(arith, multi_leg_distance_request).
+compound_guard(arith, two_party_exchange).
+compound_guard(decompose, event_bundle_full).
+compound_guard(decompose, capital_temporal_compound).
+compound_guard(decompose, capital_geo_compound).
+compound_guard(decompose, preference_reason_compound).

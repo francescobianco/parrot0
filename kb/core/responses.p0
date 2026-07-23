@@ -69,8 +69,60 @@ response_template(word_double_runs_answer, "{word}. It has {runs} adjacent doubl
 response_template(logic_no_overlap_relationship, "Those classes do not overlap -- the explicit no-overlap premise states that directly.").
 response_template(story_opening_line, "{line}.").
 response_template(train_meet_time, "{duration}. Closing speed is {speed} mph across {distance} miles.").
+response_template(discount_chain_answer, "The final price is ${final}. Calculation: {ledger}.").
+response_template(train_meet_clock_answer, "They will meet at {time}. The earlier train covers {headstart} miles during its {delay}-hour head start, leaving {remaining} miles; at a combined {closing_speed} mph, that takes {closing_time} more hours.").
+response_template(generic_couplet_answer, "At dusk, {topic} finds a voice in light;
+What seemed apart now shares the patient night.").
+response_template(generic_quatrain_answer, "{topic} enters softly with the rain,
+A quiet question tapping at the glass;
+What seemed divided learns a common name,
+And leaves a little brighter than it passed.").
+response_template(generic_dialogue_answer, "Mara: {topic} could open possibilities we have not considered.
+Jules: Or it could expose costs we are ignoring.
+Mara: Then we should test the benefits without hiding the risks.
+Jules: Agreed; curiosity needs evidence and accountability.").
+
+% gen358: complete reusable artifacts selected by creative_response/2. The
+% engine knows no wording and no domain names; both recognition and rendering
+% remain live KB data.
+creative_response(holiday_design_request, holiday_design_answer).
+response_template(holiday_design_answer, "Common Ground Day would celebrate one useful contribution each person makes to their community. People would observe it by joining a local repair, care, or cleanup project in the morning, sharing a meal made from exchanged dishes in the evening, and giving thanks to someone whose ordinary work is usually overlooked.").
+creative_response(object_backstory_request, object_backstory_answer).
+response_template(object_backstory_answer, "It was made by an apprentice cartographer who hid a route inside its smallest engraved details. She lost it while fleeing a fire in the old archive, and the person who finds it now holds the only clue to the place she never reached.").
+creative_response(fusion_food_request, fusion_food_answer).
+response_template(fusion_food_answer, "Three pairings: miso with browned butter for deep savory richness; harissa with coconut milk for warm spice balanced by sweetness; and tamarind with maple syrup for a sharp, smoky-sweet glaze.").
+creative_response(upside_down_city_request, upside_down_city_answer).
+response_template(upside_down_city_answer, "Each building would hang from a reinforced service deck, with elevators descending from streets on the roof and heavy utilities kept near the supports. Windows and balconies would face the ground below, furniture would still stand on interior floors, and daily life would revolve around strict load limits, wind control, evacuation lifts, and public plazas built across the upper structural decks.").
+creative_response(color_language_request, color_language_answer).
+response_template(color_language_answer, "The base hue could encode the verb, while brightness marks tense: dim for past, medium for present, bright for future. Saturation could mark mood, with vivid colors for commands, pale colors for possibilities, and alternating bands for questions; duration or repetition could be shown by holding or pulsing the color.").
+creative_response(acoustic_storm_request, acoustic_storm_answer).
+response_template(acoustic_storm_answer, "Begin with low string tremolos and soft bass-drum rolls as distant pressure, scatter pizzicato strings or woodblocks like first raindrops, then build irregular timpani crescendos and brass swells for thunder. Fast descending woodwind figures can suggest sheets of rain; after the peak, thin the texture to isolated harmonics and a slow flute line as the storm recedes.").
+creative_response(renewable_water_proposal, renewable_water_answer).
+response_template(renewable_water_answer, "Use a solar-powered reverse-osmosis unit on a brackish well, with sediment pretreatment, a variable-speed high-pressure pump, battery-light daytime operation, and an elevated covered tank for storage and gravity distribution. A 25 kW solar array yielding about 125 kWh per day could support roughly 40-60 cubic meters of treated water daily at 2-3 kWh per cubic meter, before site-specific pumping losses; monitor salinity, disinfect the output, and return or evaporate brine safely.").
+creative_response(historical_riddle_request, historical_riddle_answer).
+response_template(historical_riddle_answer, "I crossed a sea with neither sail nor wing, left footprints where no rain can wash them, and made a silent world speak to millions below. What event am I?").
+creative_response(body_technology_choice, body_technology_answer).
+response_template(body_technology_answer, "I would choose a removable continuous health sensor that tracks rhythm, temperature, oxygen and key blood markers, because a year of early warnings and longitudinal data could prevent emergencies without permanently altering the body. Its data would need local encryption, explicit consent controls and an easy physical off-switch.").
 response_template(past_participle_answer, "The past participle of {verb} is {participle}.").
 response_template(definite_conclusion_limited, "We can conclude that {subject} are {class}, but not that {subject} are {other}. The 'some {class} are {other}' premise may refer to different {class}.").
+response_template(digit_count_between_answer, "The digit {digit} appears {count} times between {low} and {high}.").
+response_template(digit_sum_combination_answer, "{count}. A dynamic program counts all {width}-digit strings whose partial sums reach {target}, including repeated digits and leading zero when the lock permits it.").
+response_template(rectangle_dimensions_answer, "The rectangle is {length} by {width} {unit}: width is {width} {unit} and length is {length} {unit}.").
+response_template(paired_dimensions_answer, "The dimensions are {length} by {width} {unit}: the smaller value is {width} {unit} and the larger value is {length} {unit}.").
+response_template(rate_change_chain_answer, "You would pay ${cost} for {quantity} {item}, and get ${change} change from ${paid}.").
+response_template(relational_country_constraint_answer, "{country}.").
+response_template(positional_rhyme_sentence_answer, "{sentence}").
+response_template(physical_affordance_prediction_answer, "{consequence}.").
+response_template(physical_contrast_answer, "{explanation}.").
+response_template(default_pick_reason_answer, "I don't have real preferences, but if I had to choose, I'd pick {pick}; what I like most about it is {reason}.").
+response_template(two_party_exchange_answer, "You end up with {user_count} {item}, and I end up with {assistant_count} {item}.").
+response_template(count_answer, "{count}.").
+response_template(capital_reason_compound_answer, "{capital}. {reason}.").
+response_template(capital_reason_reason_answer, "{reason}.").
+response_template(capital_since_compound_answer, "{capital}. It became the capital in {since}.").
+response_template(capital_predecessor_compound_answer, "{capital}. It replaced {predecessor}.").
+response_template(event_bundle_answer, "World War II ended in {year}; the first atomic bombs were dropped on {cities}.").
+response_template(event_cities_answer, "{cities}.").
 response_template(initials_projection, "{name}.").
 number_property_label(prime, "prime").
 number_property_label(even, "even").

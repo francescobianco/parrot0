@@ -286,5 +286,50 @@ miles_to_km($M, $KM) :- is($KM, div(mul($M, 100000), 62137)).
 approach_speed($V1, $V2, $V) :- is($V, add($V1, $V2)).
 meet_time($D, $V1, $V2, $T) :- approach_speed($V1, $V2, $V), is($T, div($D, $V)).
 
+% gen351 (LLMSCORE-max): domain schemas live here; C binds roles from language.
+% Generic paired-dimension algebra: a doubled sum (e.g. rectangle perimeter) and
+% a ratio between the parts determine the small and large component.
+paired_dimensions_from_doubled_sum_ratio($DoubledSum, $K, $Small, $Large) :-
+    is($HalfSum, div($DoubledSum, 2)),
+    is($Small, div($HalfSum, add($K, 1))),
+    is($Large, mul($K, $Small)).
+rectangle_dimensions_from_perimeter_ratio($P, $K, $W, $L) :-
+    paired_dimensions_from_doubled_sum_ratio($P, $K, $W, $L).
+proportional_cost($Batch, $BatchPrice, $Quantity, $Cost) :-
+    is($Cost, div(mul($Quantity, $BatchPrice), $Batch)).
+change_due($Paid, $Cost, $Change) :- is($Change, sub($Paid, $Cost)).
+digit_count_between($Digit, $Low, $High, $Count) :-
+    digit_count_between_prim($Digit, $Low, $High, $Count).
+country_with_two_border_constraints($Country) :-
+    border_count($Country, 2),
+    borders($Country, $EuroNeighbor),
+    currency_of_country($EuroNeighbor, euro),
+    borders($Country, $SeaNeighbor),
+    sea_borders($SeaNeighbor, mediterranean_sea),
+    sea_borders($SeaNeighbor, black_sea),
+    dif($EuroNeighbor, $SeaNeighbor).
+
+% gen356 (LLMSCORE-max): one binary semantic view over the existing
+% wiki_concept/3 corpus. answer_frame already consumes binary relations, so this
+% projection makes every loaded concept available to several request acts without
+% a C branch or a prompt-specific reply. Multi-word concepts are reached through
+% semantic_alias/2; adding or retracting an alias changes resolution at runtime.
+semantic_summary($Topic, $Text) :-
+    wiki_concept($Topic, $Domain, $Text).
+semantic_summary($Surface, $Text) :-
+    semantic_alias($Surface, $Topic),
+    wiki_concept($Topic, $Domain, $Text).
+semantic_summary($Topic, $Text) :-
+    explanation($Topic, $Text).
+semantic_summary($Surface, $Text) :-
+    semantic_alias($Surface, $Topic),
+    explanation($Topic, $Text).
+semantic_summary($Topic, $Text) :-
+    because($Topic, $Text).
+semantic_summary($Surface, $Text) :-
+    semantic_alias($Surface, $Topic),
+    because($Topic, $Text).
+machinery(semantic_summary).
+
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).
