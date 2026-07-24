@@ -2872,6 +2872,51 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
     return 0;
 }
 
+/* gen359 (LLMSCORE-max, motorize-the-class): HOIST the KB semantic answer.
+ *
+ * A well-formed analytical question about a concept parrot0 actually knows
+ * ("Explain the Maillard reaction …", "Why do violin instruments … richer
+ * timbre?", "Analyze the geopolitics of Arctic shipping …") was being lost to
+ * an EARLIER module — the narrative composer turned it into a short story, the
+ * creation extractor read it as "S wrote O", the role player answered as a
+ * character — because the semantic-projection consumer (mod_answer_frame) sits
+ * late in the registry. This is the routing-collision failure the plan names.
+ *
+ * The cure is pure engine, KB-first: run the SAME projection first, but only
+ * when the turn is genuinely an analytical question about a resolvable KB
+ * topic. Nothing here is a phrasebook — the frame verbs are answer_frame facts
+ * (mapped to semantic_summary) and the topics are semantic_topic_cue +
+ * wiki_concept facts; teaching a new concept tomorrow is one fact pair, no C.
+ *
+ * The gate is deliberately tight so ordinary turns, math word problems, gap
+ * topics and the causal/coding faculties fall straight through:
+ *   (a) the turn is long (a real question, not "hi" or "what is 2+2");
+ *   (b) at least one answer_frame(Cue, semantic_summary) cue is present;
+ *   (c) a UNIQUE topic resolves through the universal evidence scorer AND that
+ *       topic has a declared source (wiki_concept / explanation / because).
+ * When any condition fails it declines (returns 0) and the registry runs as
+ * before — so a question with no KB concept still reaches mod_cause, mod_code,
+ * the informed decline, etc. */
+static int semantic_lead(Brain *b, const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    if (strlen(norm) < 24) return 0;                 /* (a) long questions only */
+
+    /* (b) an analytical frame that projects to semantic_summary must be present */
+    char cues[128][KB_TERM_LEN];
+    const char *fq[2] = { NULL, "semantic_summary" };
+    size_t nf = kb_match(b->kb, "answer_frame", fq, 2, cues, 128);
+    int framed = 0;
+    for (size_t i = 0; i < nf && !framed; i++) {
+        const char *cd = kb_dequote(cues[i]);
+        if (*cd && cue(norm, cd)) framed = 1;
+    }
+    if (!framed) return 0;
+
+    /* (c) resolve a unique KB topic and read its declared source, in bounded
+     * time — answer_projection_resolve returns 1 only on a real answer. */
+    return answer_projection_resolve(b, "semantic_summary", norm, out, out_size) == 1;
+}
+
 /* gen335 (long-conversation, KB-first per F.): generalized personal-fact capture +
  * recall — FACTORED, not a cue chain (kb-first.md, universal-input.md §4). The knowledge
  * is small evidence facts, one dimension:

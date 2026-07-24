@@ -1346,6 +1346,17 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
 
+    /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed analytical question
+     * about a concept parrot0 knows is answered from the KB semantic projection
+     * BEFORE any module (narrative composer, creation extractor, role player, the
+     * compound decomposer) can mis-claim it. The gate is tight — a frame verb plus
+     * a uniquely-resolved KB topic — so every other turn falls straight through. */
+    if (b && semantic_lead(b, canon, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "semantic_lead");
+        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+    }
+
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")
      * before the normal single-turn dispatch. */
     if (b && decompose_and_dispatch(b, canon, input, out, out_size))

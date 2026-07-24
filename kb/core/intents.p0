@@ -1044,6 +1044,23 @@ answer_frame("how would", semantic_summary).
 answer_frame("how could", semantic_summary).
 answer_frame("propose", semantic_summary).
 answer_frame("design", semantic_summary).
+% gen359 (LLMSCORE-max): more analytical frame verbs share the one projection.
+% Each only ever fires the semantic answer when a KB topic actually resolves, so
+% "why is the sky blue" (no topic) still reaches the causal engine, etc.
+answer_frame("how does", semantic_summary).
+answer_frame("how do", semantic_summary).
+answer_frame("how did", semantic_summary).
+answer_frame("how has", semantic_summary).
+answer_frame("why do", semantic_summary).
+answer_frame("why does", semantic_summary).
+answer_frame("analyze", semantic_summary).
+answer_frame("analyse", semantic_summary).
+answer_frame("evaluate", semantic_summary).
+answer_frame("discuss", semantic_summary).
+answer_frame("what interdisciplinary", semantic_summary).
+answer_frame("what physiological", semantic_summary).
+answer_frame("what engineering", semantic_summary).
+answer_frame("what are the strongest", semantic_summary).
 
 % gen358 (LLMSCORE foundation): bounded semantic projection. The universal
 % evidence scorer selects one topic from teachable semantic_topic_cue/2 facts;

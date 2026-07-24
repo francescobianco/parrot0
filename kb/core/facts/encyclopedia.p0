@@ -392,3 +392,96 @@ concept_gloss(atom, it, "L'atomo è la più piccola unità della materia ordinar
 concept_gloss(algorithm, it, "Un algoritmo è una sequenza finita e ben definita di passi per risolvere un problema o eseguire un calcolo.").
 concept_gloss(dna, it, "Il DNA è la molecola che contiene le istruzioni genetiche per lo sviluppo e il funzionamento degli organismi viventi.").
 concept_gloss(volcano, it, "Un vulcano è un'apertura nella crosta di un pianeta attraverso cui roccia fusa, cenere e gas eruttano dalle profondità.").
+
+% gen359 (LLMSCORE-max, motorize-the-class): analytical concepts. Each is a
+% concise multi-facet encyclopedic summary (under the 512-char atom limit)
+% reachable by explain/describe/why/how/analyze/evaluate through
+% semantic_summary/2. Distinctive multi-word cues make the specific topic
+% outscore any generic single keyword. A new concept is one wiki_concept + its
+% semantic_topic_cue rows, zero C.
+wiki_concept(undeciphered_script_decipherment, linguistics, "Deciphering an unknown script draws on several fields: comparative linguistics to guess the underlying language, cryptanalysis and statistics to study symbol frequencies and patterns, archaeology and history to date and place the manuscript, and paleography to compare letter shapes. Key assumptions are that the marks encode a real language, that their frequency reflects sounds or words, that writing has a consistent direction, and that known names or a bilingual text may give a foothold.").
+wiki_concept(water_freezing_expansion, physics, "Water is unusual in expanding and growing less dense when it freezes, so ice floats and forms an insulating lid that keeps lakes liquid below through winter. If instead it contracted and grew denser as ice, ice would sink and freshwater bodies would freeze solid from the bottom up. Fish and aquatic life would lose their liquid refuge and mostly die, spring thawing would be far slower, and freshwater ecosystems would become far more hostile to life.").
+wiki_concept(appeal_to_authority_fallacy, logic, "Claiming most experts believe X therefore X must be true is the appeal to authority. It undermines the argument because expert consensus is evidence, not proof: experts can be mistaken, lack the relevant data, speak outside their field, or share a bias. Truth rests on evidence and valid reasoning, not on counting how many hold a view. A sound argument gives the reasons and data behind the experts, so the conclusion stands on the evidence itself, not on their status.").
+wiki_concept(underwater_acoustic_communication, engineering, "Radio waves are absorbed within meters of seawater, so submerged submarines signal with sound. A simple protocol encodes each character as a fixed digital code like ASCII, modulates the bits onto a low-frequency acoustic carrier of a few kilohertz using frequency-shift keying, and sends short packets. Each packet carries a preamble tone to synchronize and a checksum. The data rate stays low to survive echoes and Doppler shift, and lost packets are retransmitted.").
+wiki_concept(ultimatum_game, economics, "In the Ultimatum Game a proposer splits a sum and the responder accepts, so both keep the split, or rejects, so both get nothing. A purely rational, self-interested responder should accept any positive offer, since ten dollars beats zero. Yet most people reject offers they see as unfair, like ten of a hundred, preferring nothing to being exploited. This shows humans value fairness and will pay to punish unfairness, contradicting narrow self-interest and supporting theories of inequity aversion.").
+wiki_concept(maillard_reaction, chemistry, "The Maillard reaction is a heat-driven reaction between amino acids and reducing sugars, mostly above about 140 Celsius, creating hundreds of aroma and flavor compounds and brown pigments; it gives seared meat, bread crust, and roasted coffee their savory taste and color. Without it, grilled meat would only steam in its own juices: staying gray and pale, tasting bland and flat, never forming the roasted crust or deep umami notes, and lacking the crisp browned exterior against a juicy interior.").
+wiki_concept(violin_flute_timbre, music, "A bowed violin string moves in a stick-slip motion close to a sawtooth wave, rich in many strong harmonics that the wooden body and f-holes radiate. A flute is driven by a smooth air jet at an edge, giving a tone near a pure sine wave with only weak upper harmonics. Timbre is set largely by which harmonics are present and how strong, so the violin sounds bright, complex, and rich while the flute sounds mellow and clear; the difference in harmonic content is what the ear hears as their character.").
+wiki_concept(genetic_enhancement_ethics, ethics, "On selecting a child for higher intelligence and disease resistance, utilitarianism in favor says it could raise wellbeing and cut suffering and health costs; against, it warns unequal access widens inequality and unforeseen harms may outweigh gains. Rights-based ethics against holds the child cannot consent and is treated as a product, violating autonomy, dignity, and an open future; for, it cites procreative liberty. The clash is maximizing welfare versus respecting the individual.").
+wiki_concept(cumulonimbus_formation, meteorology, "Cumulonimbus clouds form where warm, moist surface air is forced to rise in an unstable atmosphere. A steep drop of temperature with height (a strong lapse rate) keeps rising air warmer than its surroundings so it keeps ascending. High humidity supplies vapor that condenses and releases latent heat, fueling powerful updrafts that build the cloud up to the tropopause, spreading into an anvil. Greater humidity and steeper gradients feed taller storms with heavy rain, lightning, hail, and tornadoes.").
+wiki_concept(price_control_effects, economics, "A price ceiling below the market price makes essential goods cheaper on paper, but short-term demand exceeds supply, producing shortages, queues, rationing, and black markets while quality falls. Long-term, the low price discourages producers from supplying or entering the market, so supply shrinks, shortages deepen, and resources are misallocated. Producers and consumers bear the deadweight loss, though brief controls can curb gouging in a genuine emergency.").
+wiki_concept(energy_storing_prosthetic, biomechanics, "An energy-storing (dynamic-response) below-knee prosthesis uses a curved carbon-fiber foot that acts like a spring. As the wearer loads it during the stance phase, it flexes and stores elastic strain energy, then recoils at push-off to return much of that energy, helping propel the body forward and cutting the effort of each step. A rigid prosthetic just transmits force without flexing, storing no energy, so every step feels stiffer, costs more effort, and gives a less smooth, less efficient gait.").
+wiki_concept(starry_night_interpretation, art_history, "Van Gogh painted The Starry Night in 1889 from his asylum room at Saint-Remy. One reading treats the swirling, turbulent sky as an expression of his inner turmoil and mental illness, the brushwork mirroring emotion. Another notes the spirals resemble real astronomical phenomena and turbulence, so he also depicted what he saw. The strongest view sees these as complementary: the work fuses observation of nature with heightened emotion, the source of its expressive power.").
+wiki_concept(digital_memory_cognition, psychology, "Constant access to smartphones and search engines encourages cognitive offloading: we remember where to find information rather than the facts themselves. Research on the Google effect by Sparrow and colleagues in 2011 found people recall facts less well when they expect to look them up, but remember the location better, treating the internet as a transactive memory partner. This can weaken the effortful encoding that strengthens long-term memory, though it frees attention.").
+wiki_concept(bear_hibernation_physiology, biology, "During hibernation a bear lowers its metabolic rate, heart rate, and body temperature modestly and lives off stored fat, recycling its waste. It converts urea back into usable protein instead of urinating, conserving water and nitrogen, so it can go months without eating or drinking. It resists muscle atrophy by periodically tensing muscles and by that protein recycling, and prevents bone loss by remodeling bone so formation keeps pace with breakdown.").
+wiki_concept(arctic_geopolitics, geopolitics, "As Arctic sea ice retreats, new shipping lanes like the Northern Sea Route and Northwest Passage open and access to oil, gas, fish, and minerals becomes viable, raising tensions among Russia, the United States, Canada, Norway, and Denmark, plus powers like China. Disputes center on continental-shelf claims to the seabed under the UN Law of the Sea, on tolls and control over contested passages, on military build-up, and on environmental and Indigenous concerns.").
+wiki_concept(seismic_building_design, engineering, "Skyscrapers in earthquake zones are built to flex and dissipate energy rather than resist rigidly. Base isolation mounts the building on rubber-and-steel bearings that decouple it from ground shaking; a tuned mass damper near the top swings to counter sway; and ductile steel frames, shear walls, and braced cores bend to absorb energy without fracturing. Flexible connections and deep foundations shift its natural period away from the quake, so it sways safely instead of collapsing.").
+wiki_concept(esperanto_klingon_conlang, linguistics, "Esperanto, created by Zamenhof in 1887, was designed as an easy, neutral international auxiliary language: regular grammar, no irregular verbs, phonetic spelling, and European-root vocabulary, meant to be learned fast. Klingon, devised by Marc Okrand in 1984 for Star Trek, was built to sound alien, with an unusual object-verb-subject order and guttural sounds, to feel non-human. The contrast shows a universal language must be simple and neutral to spread, yet languages carry identity.").
+wiki_concept(binary_star_habitability, astronomy, "In a binary system a planet can orbit one star closely (an S-type orbit) or circle both from far outside (a circumbinary P-type orbit). The two stars combined, shifting gravity can destabilize orbits in between, ejecting planets or forcing eccentric paths, so stable habitable-zone orbits exist only in certain ranges. Where a planet orbits stably, the changing distance to two suns makes heating vary, driving complex temperature and light cycles. Habitability is possible but confined to stable zones.").
+wiki_concept(decision_fatigue, psychology, "Making many choices through the day gradually depletes the mental resources used for careful self-control, a pattern called decision fatigue. By evening people take shortcuts, act impulsively, and accept more risk rather than deliberate. Studies, like one finding judges grant parole less often before a break, suggest self-control acts like a limited resource that tires with use and recovers with rest and food. So willpower is a fluctuating capacity, and key decisions are best made early.").
+wiki_concept(prometheus_myth, mythology, "In Greek myth the Titan Prometheus steals fire from the gods and gives it to humanity, enabling civilization; Zeus chains him to a rock where an eagle eats his regenerating liver each day. He accepts this because he is humanity's benefactor and defies tyrannical authority for progress, a symbol of self-sacrifice for knowledge. Modern science fiction recasts him as hero and warning of technology: Mary Shelley subtitled Frankenstein the Modern Prometheus, and tales of AI echo the fire-bringer.").
+
+% Distinctive multi-word cues: the specific analytical topic outscores any
+% generic single keyword through the summed evidence weights.
+semantic_topic_cue(undeciphered_script_decipherment, "unknown script").
+semantic_topic_cue(undeciphered_script_decipherment, "no known alphabet").
+semantic_topic_cue(undeciphered_script_decipherment, "deciphering").
+semantic_topic_cue(undeciphered_script_decipherment, "manuscript written").
+semantic_topic_cue(water_freezing_expansion, "expanded instead of contracted").
+semantic_topic_cue(water_freezing_expansion, "if it expanded").
+semantic_topic_cue(water_freezing_expansion, keyword(freezing)).
+semantic_topic_cue(water_freezing_expansion, "freshwater ecosystems").
+semantic_topic_cue(appeal_to_authority_fallacy, "logical fallacy").
+semantic_topic_cue(appeal_to_authority_fallacy, "most experts believe").
+semantic_topic_cue(appeal_to_authority_fallacy, "must be true").
+semantic_topic_cue(underwater_acoustic_communication, "two submarines").
+semantic_topic_cue(underwater_acoustic_communication, "underwater communication").
+semantic_topic_cue(underwater_acoustic_communication, "submerged at a depth").
+semantic_topic_cue(ultimatum_game, "ultimatum game").
+semantic_topic_cue(ultimatum_game, "the proposer offers").
+semantic_topic_cue(ultimatum_game, "rational self-interest").
+semantic_topic_cue(maillard_reaction, keyword(maillard)).
+semantic_topic_cue(maillard_reaction, "maillard reaction").
+semantic_topic_cue(maillard_reaction, "grilled meat").
+semantic_topic_cue(violin_flute_timbre, "violin family").
+semantic_topic_cue(violin_flute_timbre, "richer harmonic spectrum").
+semantic_topic_cue(violin_flute_timbre, "than a flute").
+semantic_topic_cue(genetic_enhancement_ethics, "genetic selection").
+semantic_topic_cue(genetic_enhancement_ethics, "enhanced intelligence").
+semantic_topic_cue(genetic_enhancement_ethics, "utilitarian and rights-based").
+semantic_topic_cue(cumulonimbus_formation, keyword(cumulonimbus)).
+semantic_topic_cue(cumulonimbus_formation, "atmospheric conditions").
+semantic_topic_cue(price_control_effects, "price controls").
+semantic_topic_cue(price_control_effects, "essential goods").
+semantic_topic_cue(price_control_effects, "economic consequences").
+semantic_topic_cue(energy_storing_prosthetic, "prosthetic leg").
+semantic_topic_cue(energy_storing_prosthetic, "below-knee prosthetic").
+semantic_topic_cue(energy_storing_prosthetic, "store and release energy").
+semantic_topic_cue(energy_storing_prosthetic, "rigid prosthetic").
+semantic_topic_cue(starry_night_interpretation, "starry night").
+semantic_topic_cue(starry_night_interpretation, "swirling sky").
+semantic_topic_cue(starry_night_interpretation, "van gogh").
+semantic_topic_cue(digital_memory_cognition, "external memory").
+semantic_topic_cue(digital_memory_cognition, "long-term memories").
+semantic_topic_cue(digital_memory_cognition, "cognitive psychology").
+semantic_topic_cue(bear_hibernation_physiology, "hibernation").
+semantic_topic_cue(bear_hibernation_physiology, "muscle atrophy and bone loss").
+semantic_topic_cue(bear_hibernation_physiology, "without eating or drinking").
+semantic_topic_cue(arctic_geopolitics, "arctic ocean").
+semantic_topic_cue(arctic_geopolitics, "shipping routes").
+semantic_topic_cue(arctic_geopolitics, "resource claims").
+semantic_topic_cue(seismic_building_design, "seismic zone").
+semantic_topic_cue(seismic_building_design, "skyscraper").
+semantic_topic_cue(seismic_building_design, "flex and absorb").
+semantic_topic_cue(seismic_building_design, "earthquake energy").
+semantic_topic_cue(esperanto_klingon_conlang, "esperanto").
+semantic_topic_cue(esperanto_klingon_conlang, "klingon").
+semantic_topic_cue(esperanto_klingon_conlang, "universal language").
+semantic_topic_cue(binary_star_habitability, "binary star").
+semantic_topic_cue(binary_star_habitability, "two stars orbit").
+semantic_topic_cue(binary_star_habitability, "gravitational interaction").
+semantic_topic_cue(decision_fatigue, "riskier choices in the evening").
+semantic_topic_cue(decision_fatigue, "series of decisions").
+semantic_topic_cue(decision_fatigue, "nature of willpower").
+semantic_topic_cue(prometheus_myth, "prometheus").
+semantic_topic_cue(prometheus_myth, "giving fire to humans").
+semantic_topic_cue(prometheus_myth, "eternal punishment").

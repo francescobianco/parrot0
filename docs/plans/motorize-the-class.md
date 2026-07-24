@@ -251,6 +251,63 @@ nuovo tail senza leggerlo con `make llmscore-tail`, poi eseguire
 `make llmscore`. Nessuna sonda intermedia sul vecchio campione viene usata come
 oracle di sviluppo.
 
+### Gen359 — la collisione di routing era il collo di bottiglia, non la KB
+
+Il campione ufficiale `LLMSCORE.md` a **0/20** ha esposto che i tre difetti non
+erano indipendenti ma **un solo difetto di posizione**. Con il DBG del modulo
+vincente su ciascuno dei 20:
+
+- 8 muri secchi (`fallback`): nessun topic risolto → la richiesta arrivava fino
+  a `not_understood`;
+- 5 timeout: stessa assenza di topic, ma un modulo tardivo esplodeva in ricerca
+  prima del muro;
+- 5 misclaim: `gen` (narratore) trasformava «The Starry Night… evaluate» in una
+  favola su «Starry»; `role` rispondeva all'Ultimatum Game come personaggio
+  («I am a $100»); l'estrattore di creazione, dentro `decompose_and_dispatch`,
+  leggeva «manuscript **written**…» come `created_by`; `knowledge` dava un piano
+  al posto della decision-fatigue;
+- 2 topic troppo generici: `answerframe` sceglieva `water`/`earthquake` e
+  troncava la domanda composta alla definizione.
+
+Il consumer semantico (`mod_answer_frame`) **esisteva ed era corretto**: perdeva
+solo perché è registrato in coda (pos. 188), dopo `gen`, `role`, e dopo il
+decomposer che gira ancora prima della registry. La cura non è un nuovo modulo
+per classe ma **anticipare la proiezione**: `semantic_lead` (motore fisso in
+`10-memory-knowledge.c`) gira come pre-dispatch in `brain_respond`, prima di
+`decompose_and_dispatch`, e reclama il turno **solo** se (a) è una domanda lunga,
+(b) è presente un cue di cornice `answer_frame(_, semantic_summary)`, e (c) il
+universal evidence scorer risolve **un unico** topic con fonte dichiarata. Fuori
+da queste tre condizioni declina, quindi aritmetica, rime, causali senza topic,
+coding e small-talk cadono attraverso invariati (make test: stesse 10 failure
+pre-esistenti, zero nuove).
+
+La leva è KB-first e combinatoria, non una tabella:
+
+> un motore (`semantic_lead`) × ogni concetto del corpus. I verbi di cornice
+> sono `answer_frame`, i topic sono `semantic_topic_cue` + `wiki_concept`;
+> insegnare un concetto domani è **una coppia di fatti, zero C**.
+
+I due topic generici si battono per **specificità sommata**: un topic specifico
+riceve più cue (frase `contains`=2 + `keyword`=3), quindi supera `keyword(water)`
+=3 senza tiebreak cablato. La completezza multi-intento è oggi portata dal testo
+del summary (ogni `wiki_concept` copre entrambe le slot della domanda composta),
+non ancora da un `answer_plan` su faccette.
+
+**Caveat di attribuzione (onestà, come gen357):** questi 20 erano il campione
+**già committato** in `LLMSCORE.md`, quindi è **riparazione in-campione**, non
+prova fuori campione. Ciò che è fuori campione è il *meccanismo*: il pre-dispatch
+e la specificità valgono per qualunque futura domanda analitica su un concetto
+risolto, e il costo di un miss resta un solo scorer pass (niente più esplosioni).
+Il prossimo tail unseen è il controllo reale.
+
+**Prossimo incremento raccomandato:** il corpus `wiki_concept` è ancora curato a
+mano e sparso — la crescita durevole è **ingestione per processo** (autolearn →
+`wiki_concept` ufficiale, [[autolearn-knowledge-is-official]]), così ogni nuovo
+concetto alimenta lo stesso `semantic_lead` senza altro C. Poi, per le domande
+davvero composte con formato vincolato, salire da «summary multi-faccetta» a
+`semantic_atom(Topic, Facet, Text)` + `answer_plan(Act, Facet, …)` così la
+completezza è provata, non solo scritta nel testo.
+
 ### Primo controllo fuori campione e seconda iterazione
 
 Il primo tail nuovo dopo la fondazione resta a **0/20**, ma cambia il profilo
