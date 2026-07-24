@@ -568,6 +568,8 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/conversation/user_model_stress.p0t
 	@./$(BIN) --test-send tests/p0t/knowledge/world_stress.p0t
 	@./$(BIN) --test-report
+	@./tests/analysis_planner_growth.sh
+	@./tests/probability_inverse_growth.sh
 
 # legacy-test — the pre-gen345 conversation suite. These states are being
 # MIGRATED to the test-engine (parrot0 --test-engine, .p0t files); each script

@@ -412,6 +412,86 @@ static unsigned long long p0_gcd_ull(unsigned long long a, unsigned long long b)
     return a ? a : 1;
 }
 
+/* Invert the probability of two same-category draws without replacement.
+ * Vocabulary and wording are KB-owned; C only binds the observed scalar to the
+ * integer constraint R(R-1) / N(N-1) and finds a witness. */
+static int p0_probability_inverse_draw(Brain *b, const char *norm,
+                                       char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    if (!kb_cue_match(b, "probability_draw", norm) ||
+        !kb_cue_match(b, "probability_inverse_draw", norm))
+        return 0;
+    const char *pq[] = { "inverse_pair_probability", "solver", NULL };
+    char solver[1][KB_TERM_LEN];
+    if (kb_match(b->kb, "probability_procedure", pq, 3, solver, 1) != 1)
+        return 0;
+
+    char buf[512];
+    if (strlen(norm) >= sizeof buf) return 0;
+    snprintf(buf, sizeof buf, "%s", norm);
+    char *w[96];
+    size_t nw = split_words(buf, w, 96);
+    double probability = 0;
+    char probability_text[32] = "";
+    for (size_t i = 0; i < nw; i++) {
+        char *tok = strip_edge_punct(w[i]);
+        double v = 0;
+        if (parse_num(tok, &v) && v > 0 && v < 1) {
+            probability = v;
+            snprintf(probability_text, sizeof probability_text, "%s", tok);
+            break;
+        }
+    }
+    if (probability <= 0 || probability >= 1) return 0;
+
+    unsigned long long numerator = 0, denominator = 0;
+    for (unsigned long long d = 2; d <= 1000; d++) {
+        double scaled = probability * (double)d;
+        unsigned long long n = (unsigned long long)(scaled + 0.5);
+        double error = scaled - (double)n;
+        if (error < 0) error = -error;
+        if (n > 0 && n < d && error < 1e-9) {
+            unsigned long long g = p0_gcd_ull(n, d);
+            numerator = n / g;
+            denominator = d / g;
+            break;
+        }
+    }
+    if (!numerator || !denominator) return 0;
+
+    unsigned long long witness_total = 0, witness_target = 0;
+    for (unsigned long long total = 2;
+         total <= 1000 && !witness_total; total++) {
+        unsigned long long rhs =
+            numerator * total * (total - 1);
+        for (unsigned long long target = 2; target <= total; target++) {
+            unsigned long long lhs =
+                denominator * target * (target - 1);
+            if (lhs == rhs) {
+                witness_total = total;
+                witness_target = target;
+                break;
+            }
+            if (lhs > rhs) break;
+        }
+    }
+    if (!witness_total) return 0;
+
+    char target_text[32], total_text[32];
+    snprintf(target_text, sizeof target_text, "%llu", witness_target);
+    snprintf(total_text, sizeof total_text, "%llu", witness_total);
+    const KbResponseSlot slots[] = {
+        { "probability", probability_text },
+        { "target", target_text },
+        { "total", total_text }
+    };
+    if (!kb_response_slots(b, "probability_inverse_pair_answer",
+                           slots, 3, out, out_size))
+        return 0;
+    store_proof(b, "Integer witness satisfies R(R-1)/N(N-1) for two draws without replacement.");
+    return 1;
+}
+
 static int p0_probability_draw(Brain *b, const char *norm,
                                char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -729,6 +809,8 @@ static int arith_paired_dimensions_from_doubled_sum(Brain *b, const char *norm,
 static int mod_arith(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     (void)raw;
+
+    if (p0_probability_inverse_draw(b, norm, out, out_size)) return 1;
 
     /* gen357: a scalar fold must not preempt a registered multi-step schema.
      * This is plan-first dispatch: the lexicon and ownership table live in KB. */

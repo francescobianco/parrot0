@@ -1312,15 +1312,6 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
         b->turns++;
     }
 
-    /* gen158: once the whole KB (base + profile) is loaded, materialize the
-     * part_of/2 relation latent in the concept descriptions, so the resolution
-     * engine can prove and query it. Done on the first turn, when loading is
-     * complete; KB_REFLECTIVE so it never persists. */
-    if (b && b->kb && !b->relations_derived) {
-        kb_derive_part_of(b->kb);
-        b->relations_derived = 1;
-    }
-
     char norm[256];
     normalize(input, norm, sizeof norm);
 
@@ -1346,15 +1337,45 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
 
-    /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed analytical question
-     * about a concept parrot0 knows is answered from the KB semantic projection
-     * BEFORE any module (narrative composer, creation extractor, role player, the
-     * compound decomposer) can mis-claim it. The gate is tight — a frame verb plus
-     * a uniquely-resolved KB topic — so every other turn falls straight through. */
+    /* gen360 (LLMSCORE-max): open analytical requests are planned before any
+     * first-match consumer can turn their opener into a story, role or extracted
+     * assertion. Both the act and the broad subject must win the universal KB
+     * evidence scorer, and every answer_plan slot must be filled, so uncertain or
+     * incomplete candidates decline without disturbing the established registry. */
+    if (b && structured_analysis_lead(b, canon, 0, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_plan");
+        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+    }
+
+    /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed definitional or
+     * analytical question about a specific concept parrot0 knows is answered from
+     * the KB semantic projection before the ordinary first-match registry. */
     if (b && semantic_lead(b, canon, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "semantic_lead");
         note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+    }
+
+    /* A reusable field family is broader than an indexed concept summary. Try
+     * it only after semantic_lead had the chance to use concrete knowledge, so
+     * words such as "proof", "physical", or "system" cannot replace a known
+     * subject with generic methodology. */
+    if (b && structured_analysis_lead(b, canon, 1, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_family");
+        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+    }
+
+    /* gen360: part_of materialization is an expensive reflective inference over
+     * the complete world. Analytical projections above do not consume it, so
+     * defer the work until a turn actually falls through to the general
+     * reasoner. This preserves the once-per-brain semantics for every existing
+     * consumer while keeping a proved analytical answer inside LLMSCORE's
+     * one-second process budget. */
+    if (b && b->kb && !b->relations_derived) {
+        kb_derive_part_of(b->kb);
+        b->relations_derived = 1;
     }
 
     /* gen80: try to decompose compound turns (e.g. "chi sei e ricordati X")

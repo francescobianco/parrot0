@@ -105,6 +105,13 @@ int    kb_query(KB *kb, const char *pred, const char *const *args, size_t argc);
 size_t kb_match(const KB *kb, const char *pred, const char *const *args,
                 size_t argc, char out[][KB_TERM_LEN], size_t max);
 
+/* Dynamically enumerate every distinct binding that `kb_match` would return,
+ * without a caller-selected cap. On success the caller owns `*out` and must
+ * free it; an empty result is successful with `*nout == 0`. */
+int kb_match_all(const KB *kb, const char *pred,
+                 const char *const *args, size_t argc,
+                 char (**out)[KB_TERM_LEN], size_t *nout);
+
 /* Universal evidence matching (docs/plans/universal-input.md).
  *
  * A two-argument KB relation such as
@@ -275,6 +282,13 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
 /* Collect all distinct predicate symbols (any arity). gen77 for self-model
  * introspection: "what predicates do you know?". Returns count (capped). */
 size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
+
+/* Collect the distinct direct binary relations that hold for (left, right).
+ * This is an indexed-shape discovery primitive for analogy/routing consumers:
+ * one linear fact pass instead of enumerating every predicate and re-querying
+ * the whole KB for each one. Returns count (capped). */
+size_t kb_binary_relations(const KB *kb, const char *left, const char *right,
+                           char out[][KB_TERM_LEN], size_t max);
 
 /* Write all facts in the KB to out as human-readable lines, one per fact,
  * truncated to out_size. Returns 1, 0 if empty. gen77. */

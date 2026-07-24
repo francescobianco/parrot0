@@ -1733,6 +1733,11 @@ intent_cue(probability_at_least, "at least").
 intent_cue(probability_at_least, "at minimum").
 intent_cue(probability_at_least, "or more").
 intent_cue(probability_at_least, "no fewer than").
+intent_cue(probability_inverse_draw, "two red").
+intent_cue(probability_inverse_draw, "drawing two").
+intent_cue(probability_inverse_draw, "in succession").
+intent_cue(probability_inverse_draw, "two consecutive draws").
+intent_cue(probability_inverse_draw, "what can you infer").
 conj_es("are from (permanent)", you, eres).
 conj_es("are from (temporary)", you, estás).
 conj_es(are, you, eres).
@@ -2210,6 +2215,12 @@ haiku_open(artificial, "Silicon thoughts wake").
 haiku_open(time, "The river of hours").
 haiku_open(tree, "The old tree stands still").
 haiku_open(winter, "The world holds its breath").
+haiku_open(black, "Dark star bends the light").
+haiku_mid(black, "Time falls past the silent rim").
+haiku_close(black, "No dawn can return").
+haiku_open(hole, "Dark star bends the light").
+haiku_mid(hole, "Time falls past the silent rim").
+haiku_close(hole, "No dawn can return").
 happened_in(fall_of_rome, 5th_century_bc).
 happened_in(titanic_sinking, 1912).
 happened_in(world_war_one_end, 1918).
@@ -3819,6 +3830,8 @@ answer_frame("miles to km", miles_to_km).
 % gen344: massive KB growth — encyclopedia definitions, structured reasoning,
 % expanded world geography/science/history/vocabulary and contrast facts.
 :- include(facts/encyclopedia.p0).
+% gen360: reusable semantic atoms for complete open-ended answer plans.
+:- include(facts/analysis.p0).
 % gen356: the deterministic Wikipedia summaries produced by scripts/learn.py were
 % previously dormant in ordinary chat. They are certified static data, not an
 % external reasoner; load them into the same world layer as curated definitions.
@@ -4044,21 +4057,29 @@ creative_text_cue(villain_salvation_monologue, "dramatic monologue").
 creative_text_cue(villain_salvation_monologue, "villain").
 creative_text_cue(villain_salvation_monologue, "destroying the world").
 creative_text_cue(villain_salvation_monologue, "save it").
+creative_text_gate(villain_salvation_monologue, "dramatic monologue").
+creative_text_gate(villain_salvation_monologue, keyword(villain)).
 creative_text(cultural_fusion_holiday, "The Lantern Harvest Feast begins with families lighting floating lamps for their ancestors, then sharing a braided harvest bread at a long communal table, and ends with masked street dancing while neighbors exchange small sweets for good luck. It blends remembrance, thanksgiving for the crop, and carnival renewal into one night of light, food, music, and public joy.").
 creative_text_cue(cultural_fusion_holiday, "fictional holiday").
 creative_text_cue(cultural_fusion_holiday, "holiday celebration").
 creative_text_cue(cultural_fusion_holiday, "three real-world cultural traditions").
 creative_text_cue(cultural_fusion_holiday, "cultural traditions").
+creative_text_gate(cultural_fusion_holiday, "fictional holiday").
+creative_text_gate(cultural_fusion_holiday, "cultural traditions").
 creative_text(time_accident_story, "Dr. Mara Vale jumped back to 1895 only to move a loose broom before a clerk could trip over it. The clerk arrived early, signed the wrong shipping order, and a crate of lab glass reached a young inventor a month ahead of schedule. That early experiment produced a cheaper battery, which pulled nations into an electric arms race before diplomacy had caught up. Mara returned to a skyline humming with machines built from the accident she had prevented.").
 creative_text_cue(time_accident_story, "short story").
 creative_text_cue(time_accident_story, "time traveler").
 creative_text_cue(time_accident_story, "minor historical accident").
 creative_text_cue(time_accident_story, "major one").
+creative_text_gate(time_accident_story, "time traveler").
+creative_text_gate(time_accident_story, "minor historical accident").
 creative_text(alien_two_suns_species, "The Aurakai are tall, copper-skinned beings with translucent eyelids that filter the glare of their twin suns. Their backs carry fanlike heat fins, and their hands have four broad fingers for digging shade burrows in glassy soil. They organize society by shared shade-houses rather than blood families: each house guards a well, teaches children sung navigation, and votes at dusk when both suns touch the horizon.").
 creative_text_cue(alien_two_suns_species, "fictional alien species").
 creative_text_cue(alien_two_suns_species, "planet with two suns").
 creative_text_cue(alien_two_suns_species, "physical appearance").
 creative_text_cue(alien_two_suns_species, "social customs").
+creative_text_gate(alien_two_suns_species, "fictional alien species").
+creative_text_gate(alien_two_suns_species, "planet with two suns").
 
 % gen354: process breadth. The process renderer is generic; each new procedure is
 % a set of process_step/process_topic facts.
@@ -4090,6 +4111,33 @@ process_topic(speech_rhythm_transcription, spoken).
 process_topic(speech_rhythm_transcription, rhythm).
 process_topic(speech_rhythm_transcription, musical).
 process_topic(speech_rhythm_transcription, notation).
+process_step(sensory_balance_recipe, 1, "Whisk white miso, roasted mushroom stock, honey, rice vinegar, and a small spoon of tahini into a glossy sauce").
+process_step(sensory_balance_recipe, 2, "Glaze roasted eggplant and shiitake mushrooms with the sauce so miso and mushrooms supply umami while honey rounds their bitterness").
+process_step(sensory_balance_recipe, 3, "Add pear slices and toasted sesame for clean sweetness, acidity, aroma, and texture rather than more sugar").
+process_step(sensory_balance_recipe, 4, "For a safe metallic hint, serve with iron-rich spinach and a pinch of mineral salt; never add metal or reactive filings to food").
+process_step(sensory_balance_recipe, 5, "Taste warm and adjust with vinegar if sweetness dominates or mushroom stock if the metallic mineral note becomes sharp").
+process_topic(sensory_balance_recipe, umami).
+process_topic(sensory_balance_recipe, sweetness).
+process_topic(sensory_balance_recipe, metallic).
+process_topic(sensory_balance_recipe, harmonious).
+process_step(scavenged_electric_generator, 1, "Salvage insulated copper wire, strong permanent magnets, a steel shaft, bearings or smooth bushings, scrap wood, and a low-voltage LED; never connect the build to mains wiring").
+process_step(scavenged_electric_generator, 2, "Wind several hundred neat turns of insulated wire around a cardboard or plastic former, leave two leads, and scrape insulation only from their ends").
+process_step(scavenged_electric_generator, 3, "Mount alternating magnet poles on a balanced rotor and support its shaft so the magnets pass close to the stationary coil without touching it").
+process_step(scavenged_electric_generator, 4, "Attach a hand crank, bicycle wheel, wind rotor, or water wheel, secure loose parts behind a guard, and spin slowly while measuring the coil with a multimeter").
+process_step(scavenged_electric_generator, 5, "Feed the low-voltage output through salvaged rectifier diodes and a capacitor if available, then test an LED; add turns or speed gradually while checking heat and mechanical stability").
+process_topic(scavenged_electric_generator, electric).
+process_topic(scavenged_electric_generator, generator).
+process_topic(scavenged_electric_generator, scavenged).
+process_topic(scavenged_electric_generator, materials).
+process_step(aged_fermented_dessert, 1, "Combine sour cherries and plums with sugar, cocoa nibs, and a reputable food-safe fermentation starter in a sanitized jar, following the starter maker's salt, temperature, and batch-size limits").
+process_step(aged_fermented_dessert, 2, "Keep fruit submerged under a fermentation weight with an airlock, label the date, and ferment in the specified cool range for two to three weeks without opening repeatedly").
+process_step(aged_fermented_dessert, 3, "Discard the batch for mold, rot, unsafe acidity, a broken seal, or an odor outside the starter guidance; otherwise refrigerate as soon as the verified endpoint is reached").
+process_step(aged_fermented_dessert, 4, "Cook a portion of the tangy fermented fruit into a thick compote with dark chocolate and vanilla, then cool it completely").
+process_step(aged_fermented_dessert, 5, "Layer the compote with mascarpone or cultured cashew cream and toasted rye crumbs, using unheated reserved syrup only when the verified starter instructions permit it").
+process_topic(aged_fermented_dessert, dessert).
+process_topic(aged_fermented_dessert, fermentation).
+process_topic(aged_fermented_dessert, ferment).
+process_topic(aged_fermented_dessert, weeks).
 
 activity_step(stress_management, 1, "Use slow breathing or a brief walk to lower physical arousal before deciding what to do").
 activity_step(stress_management, 2, "Write down the next concrete task so the problem feels bounded instead of endless").
@@ -4149,3 +4197,5 @@ creative_text_cue(ai_society_dialogue, "short dialogue").
 creative_text_cue(ai_society_dialogue, "two characters").
 creative_text_cue(ai_society_dialogue, "artificial intelligence").
 creative_text_cue(ai_society_dialogue, "benefit or harm society").
+creative_text_gate(ai_society_dialogue, "artificial intelligence").
+creative_text_gate(ai_society_dialogue, "benefit or harm society").

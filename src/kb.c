@@ -20,6 +20,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <limits.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,13 +67,22 @@ typedef struct {
     int    origin;
 } Rule;
 
+typedef struct {
+    uint64_t hash;
+    size_t index_plus_one;
+} FactIndexEntry;
+
 struct KB {
     Fact  *facts;
     size_t n;
     size_t cap;
+    FactIndexEntry *fact_index;
+    size_t fact_index_cap;
     Fact  *neg;
     size_t nn;
     size_t ncap;
+    FactIndexEntry *neg_index;
+    size_t neg_index_cap;
     Rule  *rules;
     size_t nr;
     size_t rcap;
@@ -92,7 +102,9 @@ void kb_set_origin(KB *kb, int origin) {
 void kb_destroy(KB *kb) {
     if (!kb) return;
     free(kb->facts);
+    free(kb->fact_index);
     free(kb->neg);
+    free(kb->neg_index);
     free(kb->rules);
     free(kb);
 }
@@ -137,6 +149,21 @@ static int fact_eq(const Fact *a, const Fact *b) {
     return 1;
 }
 
+static uint64_t fact_hash(const Fact *f) {
+    uint64_t h = UINT64_C(1469598103934665603);
+    const unsigned char *p = (const unsigned char *)f->pred;
+    while (*p) { h ^= *p++; h *= UINT64_C(1099511628211); }
+    h ^= (uint64_t)f->argc;
+    h *= UINT64_C(1099511628211);
+    for (size_t i = 0; i < f->argc; i++) {
+        p = (const unsigned char *)f->args[i];
+        while (*p) { h ^= *p++; h *= UINT64_C(1099511628211); }
+        h ^= UINT64_C(255);
+        h *= UINT64_C(1099511628211);
+    }
+    return h;
+}
+
 static const Fact *fact_find(const Fact *facts, size_t n, const Fact *needle) {
     for (size_t i = 0; i < n; i++) {
         if (fact_eq(&facts[i], needle)) return &facts[i];
@@ -144,12 +171,68 @@ static const Fact *fact_find(const Fact *facts, size_t n, const Fact *needle) {
     return NULL;
 }
 
+static const Fact *fact_index_find(const FactIndexEntry *index, size_t cap,
+                                   const Fact *facts, size_t n,
+                                   const Fact *needle) {
+    if (!index || cap == 0) return fact_find(facts, n, needle);
+    uint64_t hash = fact_hash(needle);
+    size_t pos = (size_t)hash & (cap - 1);
+    for (size_t probes = 0; probes < cap; probes++) {
+        const FactIndexEntry *e = &index[pos];
+        if (e->index_plus_one == 0) return NULL;
+        size_t fi = e->index_plus_one - 1;
+        if (e->hash == hash && fi < n && fact_eq(&facts[fi], needle))
+            return &facts[fi];
+        pos = (pos + 1) & (cap - 1);
+    }
+    return NULL;
+}
+
+static void fact_index_insert(FactIndexEntry *index, size_t cap,
+                              const Fact *facts, size_t fi) {
+    uint64_t hash = fact_hash(&facts[fi]);
+    size_t pos = (size_t)hash & (cap - 1);
+    while (index[pos].index_plus_one != 0)
+        pos = (pos + 1) & (cap - 1);
+    index[pos].hash = hash;
+    index[pos].index_plus_one = fi + 1;
+}
+
+static int fact_index_rebuild(FactIndexEntry **index, size_t *cap,
+                              const Fact *facts, size_t n,
+                              size_t needed) {
+    size_t next = 16;
+    if (needed < n) needed = n;
+    while (next / 2 < needed) {
+        if (next > SIZE_MAX / 2) return 0;
+        next *= 2;
+    }
+    FactIndexEntry *fresh = calloc(next, sizeof *fresh);
+    if (!fresh) return 0;
+    for (size_t i = 0; i < n; i++)
+        fact_index_insert(fresh, next, facts, i);
+    free(*index);
+    *index = fresh;
+    *cap = next;
+    return 1;
+}
+
+static void fact_index_rebuild_after_remove(FactIndexEntry **index, size_t *cap,
+                                            const Fact *facts, size_t n) {
+    if (fact_index_rebuild(index, cap, facts, n, n)) return;
+    free(*index);
+    *index = NULL;
+    *cap = 0;
+}
+
 static const Fact *kb_find(const KB *kb, const Fact *needle) {
-    return fact_find(kb->facts, kb->n, needle);
+    return fact_index_find(kb->fact_index, kb->fact_index_cap,
+                           kb->facts, kb->n, needle);
 }
 
 static const Fact *kb_find_neg(const KB *kb, const Fact *needle) {
-    return fact_find(kb->neg, kb->nn, needle);
+    return fact_index_find(kb->neg_index, kb->neg_index_cap,
+                           kb->neg, kb->nn, needle);
 }
 
 static int fact_remove(Fact *facts, size_t *n, const Fact *needle) {
@@ -187,23 +270,47 @@ static int fact_append(Fact **facts, size_t *n, size_t *cap, const Fact *f) {
     return 1;
 }
 
+static int fact_append_indexed(Fact **facts, size_t *n, size_t *cap,
+                               FactIndexEntry **index, size_t *index_cap,
+                               const Fact *f) {
+    size_t needed = *n + 1;
+    if (!*index || needed * 10 >= *index_cap * 7) {
+        if (!fact_index_rebuild(index, index_cap, *facts, *n, needed)) {
+            free(*index);
+            *index = NULL;
+            *index_cap = 0;
+        }
+    }
+    if (!fact_append(facts, n, cap, f)) return 0;
+    if (*index)
+        fact_index_insert(*index, *index_cap, *facts, *n - 1);
+    return 1;
+}
+
 int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
 
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin);
+    if (fact_remove_origin(kb->neg, &kb->nn, &f, kb->origin))
+        fact_index_rebuild_after_remove(&kb->neg_index, &kb->neg_index_cap,
+                                        kb->neg, kb->nn);
     if (kb_find(kb, &f)) return 1; /* already known — idempotent */
     f.origin = kb->origin;
-    return fact_append(&kb->facts, &kb->n, &kb->cap, &f);
+    return fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
+                               &kb->fact_index, &kb->fact_index_cap, &f);
 }
 
 int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
-    return fact_remove(kb->facts, &kb->n, &f);
+    int removed = fact_remove(kb->facts, &kb->n, &f);
+    if (removed)
+        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
+                                        kb->facts, kb->n);
+    return removed;
 }
 
 int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
@@ -213,10 +320,13 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    fact_remove_origin(kb->facts, &kb->n, &f, kb->origin);
+    if (fact_remove_origin(kb->facts, &kb->n, &f, kb->origin))
+        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
+                                        kb->facts, kb->n);
     if (kb_find_neg(kb, &f)) return 1; /* already known false */
     f.origin = kb->origin;
-    return fact_append(&kb->neg, &kb->nn, &kb->ncap, &f);
+    return fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
+                               &kb->neg_index, &kb->neg_index_cap, &f);
 }
 
 int kb_is_negated(const KB *kb, const char *pred, const char *const *args,
@@ -1882,9 +1992,9 @@ int kb_load(KB *kb, const char *path) {
  * hypothesis/support: retry with a growing buffer until the result no longer
  * fills it.  The KB is finite, so one final retry also disambiguates the exact
  * power-of-two case. */
-static int kb_match_all(const KB *kb, const char *pred,
-                        const char *const *args, size_t argc,
-                        char (**out)[KB_TERM_LEN], size_t *nout) {
+int kb_match_all(const KB *kb, const char *pred,
+                 const char *const *args, size_t argc,
+                 char (**out)[KB_TERM_LEN], size_t *nout) {
     if (!out || !nout) return 0;
     *out = NULL;
     *nout = 0;
@@ -2507,6 +2617,27 @@ static void evidence_proof_append(EvidenceProofBuf *p, const char *fmt, ...) {
     p->len += (size_t)w;
 }
 
+static int evidence_hyp_consume(const KB *kb, EvidenceHyp *h,
+                                const char *evidence, const char *text) {
+    size_t at, len;
+    int def = 0;
+    if (!evidence_next(kb, evidence, text, 0, &at, &len, &def)) return 1;
+    char kind[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t ac = 0;
+    evidence_kind(evidence, kind, sizeof kind, args, &ac);
+    int weight = evidence_weight(kb, kind);
+    if (def) {
+        evidence_score_add(&h->fallback_score, weight);
+        return evidence_support_push(&h->fallback_support,
+                                     &h->nfallback_support,
+                                     &h->capfallback_support, evidence);
+    }
+    evidence_score_add(&h->score, weight);
+    h->specific = 1;
+    return evidence_support_push(&h->support, &h->nsupport,
+                                 &h->capsupport, evidence);
+}
+
 int kb_hypothesis_best(const KB *kb, const char *relation, const char *text,
                        const char *const *candidates, size_t ncandidates,
                        char *winner, size_t winner_sz,
@@ -2533,60 +2664,91 @@ int kb_hypothesis_best(const KB *kb, const char *relation, const char *text,
 
     char (*discovered)[KB_TERM_LEN] = NULL;
     size_t nd = 0;
-    if (!candidates || ncandidates == 0) {
-        const char *q[2] = { NULL, NULL };
-        if (!kb_match_all(kb, relation, q, 2, &discovered, &nd)) {
-            evidence_proof_append(&pb, "gap(%s): evidence discovery failed", relation);
-            return 0;
-        }
-    }
-
     EvidenceHyp *hs = NULL;
     size_t nh = 0;
-    size_t total = candidates && ncandidates ? ncandidates : nd;
-    if (total > (size_t)-1 / sizeof *hs) goto oom;
-    if (total) {
-        hs = calloc(total, sizeof *hs);
-        if (!hs) goto oom;
-    }
-    for (size_t ci = 0; ci < total; ci++) {
-        const char *name = candidates && ncandidates ? candidates[ci] : discovered[ci];
-        if (!term_ok(name) || term_contains_var(name, 0)) continue;
-        int seen = 0;
-        for (size_t j = 0; j < nh; j++) if (!strcmp(hs[j].name, name)) seen = 1;
-        if (seen) continue;
-        EvidenceHyp *h = &hs[nh++];
-        snprintf(h->name, sizeof h->name, "%s", name);
 
-        char (*evs)[KB_TERM_LEN] = NULL;
-        const char *q[2] = { name, NULL };
-        size_t ne = 0;
-        if (!kb_match_all(kb, relation, q, 2, &evs, &ne)) goto oom;
-        for (size_t ei = 0; ei < ne; ei++) {
-            size_t at, len; int def = 0;
-            if (!evidence_next(kb, evs[ei], text, 0, &at, &len, &def)) continue;
-            char kind[KB_TERM_LEN], args[KB_MAX_ARGS][KB_TERM_LEN]; size_t ac = 0;
-            evidence_kind(evs[ei], kind, sizeof kind, args, &ac);
-            int weight = evidence_weight(kb, kind);
-            if (def) {
-                evidence_score_add(&h->fallback_score, weight);
-                if (!evidence_support_push(&h->fallback_support,
-                                           &h->nfallback_support,
-                                           &h->capfallback_support, evs[ei])) {
-                    free(evs);
-                    goto oom;
-                }
-            } else {
-                evidence_score_add(&h->score, weight);
-                h->specific = 1;
-                if (!evidence_support_push(&h->support, &h->nsupport,
-                                           &h->capsupport, evs[ei])) {
+    /* Direct two-column evidence tables are the dominant KB-first form
+     * (intent_cue, semantic_topic_cue, analysis_*_cue, ...). The generic path
+     * historically discovered candidates and then rescanned the whole KB once
+     * per candidate. That is semantically sound but O(facts * hypotheses), and
+     * under LLMSCORE's eight fresh processes it pushed correct answers over the
+     * one-second deadline. When no rule can derive the relation, collect and
+     * score all rows in ONE fact pass. Rule-backed/non-ground tables retain the
+     * full solver path below; the result and proof contract is unchanged. */
+    int direct_fast = (!candidates || ncandidates == 0);
+    for (size_t i = 0; i < kb->nr && direct_fast; i++)
+        if (kb->rules[i].head.argc == 2 &&
+            strcmp(kb->rules[i].head.pred, relation) == 0)
+            direct_fast = 0;
+    size_t direct_rows = 0;
+    for (size_t i = 0; i < kb->n && direct_fast; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != 2 || strcmp(f->pred, relation) != 0) continue;
+        if (term_contains_var(f->args[0], 0) ||
+            term_contains_var(f->args[1], 0)) {
+            direct_fast = 0;
+            break;
+        }
+        direct_rows++;
+    }
+
+    if (direct_fast) {
+        if (direct_rows > (size_t)-1 / sizeof *hs) goto oom;
+        if (direct_rows) {
+            hs = calloc(direct_rows, sizeof *hs);
+            if (!hs) goto oom;
+        }
+        for (size_t i = 0; i < kb->n; i++) {
+            const Fact *f = &kb->facts[i];
+            if (f->argc != 2 || strcmp(f->pred, relation) != 0) continue;
+            if (!term_ok(f->args[0]) || term_contains_var(f->args[0], 0))
+                continue;
+            size_t hi = 0;
+            while (hi < nh && strcmp(hs[hi].name, f->args[0]) != 0) hi++;
+            if (hi == nh) {
+                snprintf(hs[nh].name, sizeof hs[nh].name, "%s", f->args[0]);
+                nh++;
+            }
+            if (!evidence_hyp_consume(kb, &hs[hi], f->args[1], text)) goto oom;
+        }
+    } else {
+        if (!candidates || ncandidates == 0) {
+            const char *q[2] = { NULL, NULL };
+            if (!kb_match_all(kb, relation, q, 2, &discovered, &nd)) {
+                evidence_proof_append(&pb, "gap(%s): evidence discovery failed",
+                                      relation);
+                return 0;
+            }
+        }
+        size_t total = candidates && ncandidates ? ncandidates : nd;
+        if (total > (size_t)-1 / sizeof *hs) goto oom;
+        if (total) {
+            hs = calloc(total, sizeof *hs);
+            if (!hs) goto oom;
+        }
+        for (size_t ci = 0; ci < total; ci++) {
+            const char *name =
+                candidates && ncandidates ? candidates[ci] : discovered[ci];
+            if (!term_ok(name) || term_contains_var(name, 0)) continue;
+            int seen = 0;
+            for (size_t j = 0; j < nh; j++)
+                if (!strcmp(hs[j].name, name)) seen = 1;
+            if (seen) continue;
+            EvidenceHyp *h = &hs[nh++];
+            snprintf(h->name, sizeof h->name, "%s", name);
+
+            char (*evs)[KB_TERM_LEN] = NULL;
+            const char *q[2] = { name, NULL };
+            size_t ne = 0;
+            if (!kb_match_all(kb, relation, q, 2, &evs, &ne)) goto oom;
+            for (size_t ei = 0; ei < ne; ei++) {
+                if (!evidence_hyp_consume(kb, h, evs[ei], text)) {
                     free(evs);
                     goto oom;
                 }
             }
+            free(evs);
         }
-        free(evs);
     }
 
     int any_specific = 0;
@@ -3624,6 +3786,20 @@ size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
         push_unique(out, &n, max, kb->facts[i].pred);
     for (size_t i = 0; i < kb->nr; i++)
         push_unique(out, &n, max, kb->rules[i].head.pred);
+    return n;
+}
+
+size_t kb_binary_relations(const KB *kb, const char *left, const char *right,
+                           char out[][KB_TERM_LEN], size_t max) {
+    if (!kb || !left || !right || (max && !out)) return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (f->argc != 2 || strcmp(f->args[0], left) != 0 ||
+            strcmp(f->args[1], right) != 0)
+            continue;
+        push_unique(out, &n, max, f->pred);
+    }
     return n;
 }
 

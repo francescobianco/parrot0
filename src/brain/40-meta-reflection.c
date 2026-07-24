@@ -1243,7 +1243,51 @@ static int mod_analogy(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    /* search the relations the KB actually holds for one linking A and B. */
+    /* Search direct binary facts by SHAPE in one KB pass. The old fallback
+     * enumerated a fixed number of predicate names and queried the entire KB for
+     * each: growth could hide a newly taught relation, while lifting the cap made
+     * a negative analogy quadratic and too slow. This primitive stays O(facts)
+     * and discovers every direct relation regardless of unrelated KB growth. */
+    char direct[64][KB_TERM_LEN];
+    size_t nd = kb_binary_relations(b->kb, A, B, direct, 64);
+    for (size_t i = 0; i < nd; i++) {
+        const char *R = direct[i];
+        if (is_internal_pred(b->kb, R)) continue;
+        linking = R;
+        char res[4][KB_TERM_LEN];
+        const char *fwd[] = { C, NULL };
+        if (kb_match(b->kb, R, fwd, 2, res, 4)) {
+            char msg[96]; snprintf(msg, sizeof msg, "%s.", res[0]);
+            put(msg, out, out_size);
+            char proof[256];
+            snprintf(proof, sizeof proof,
+                     "%s(%s, %s) holds, and %s(%s, %s) — so %s.",
+                     R, A, B, R, C, res[0], res[0]);
+            store_proof(b, proof);
+            return 1;
+        }
+    }
+    nd = kb_binary_relations(b->kb, B, A, direct, 64);
+    for (size_t i = 0; i < nd; i++) {
+        const char *R = direct[i];
+        if (is_internal_pred(b->kb, R)) continue;
+        linking = R;
+        char res[4][KB_TERM_LEN];
+        const char *rev[] = { NULL, C };
+        if (kb_match(b->kb, R, rev, 2, res, 4)) {
+            char msg[96]; snprintf(msg, sizeof msg, "%s.", res[0]);
+            put(msg, out, out_size);
+            char proof[256];
+            snprintf(proof, sizeof proof,
+                     "%s(%s, %s) holds, and %s(%s, %s) — so %s.",
+                     R, B, A, R, res[0], C, res[0]);
+            store_proof(b, proof);
+            return 1;
+        }
+    }
+
+    /* Preserve bounded discovery of rule-derived relations. Direct taught facts
+     * no longer depend on this historical cap, and negative misses stay bounded. */
     char preds[128][KB_TERM_LEN];
     size_t np = kb_predicates(b->kb, preds, 128);
     for (size_t i = 0; i < np; i++) {
@@ -1695,8 +1739,50 @@ static int mod_fewshot(Brain *b, const char *norm, const char *raw,
      * from the exemplars and answers a held-out probe from world knowledge it
      * was told only as separate facts, never as a pair in this format. */
     if (!*result && b && b->kb) {
+        /* Direct relations are discovered from the first example's SHAPE in one
+         * fact pass. They must not disappear when unrelated predicate families
+         * push a taught relation beyond a fixed predicate-enumeration cap. */
+        char direct[64][KB_TERM_LEN];
+        size_t nd = kb_binary_relations(b->kb, in[0], ot[0], direct, 64);
+        for (size_t pi = 0; pi < nd && !*result; pi++) {
+            const char *R = direct[pi];
+            if (is_internal_pred(b->kb, R)) continue;
+            int fits = 1;
+            for (size_t i = 1; i < nex && fits; i++) {
+                const char *ab[] = { in[i], ot[i] };
+                if (!kb_query(b->kb, R, ab, 2)) fits = 0;
+            }
+            if (fits) {
+                char res[4][KB_TERM_LEN];
+                const char *q[] = { probe_in, NULL };
+                if (kb_match(b->kb, R, q, 2, res, 4)) {
+                    snprintf(result, sizeof result, "%s", res[0]);
+                    snprintf(rule, sizeof rule, "%s(x, y)", R);
+                }
+            }
+        }
+        nd = kb_binary_relations(b->kb, ot[0], in[0], direct, 64);
+        for (size_t pi = 0; pi < nd && !*result; pi++) {
+            const char *R = direct[pi];
+            if (is_internal_pred(b->kb, R)) continue;
+            int fits = 1;
+            for (size_t i = 1; i < nex && fits; i++) {
+                const char *ba[] = { ot[i], in[i] };
+                if (!kb_query(b->kb, R, ba, 2)) fits = 0;
+            }
+            if (fits) {
+                char res[4][KB_TERM_LEN];
+                const char *q[] = { NULL, probe_in };
+                if (kb_match(b->kb, R, q, 2, res, 4)) {
+                    snprintf(result, sizeof result, "%s", res[0]);
+                    snprintf(rule, sizeof rule, "%s(y, x)", R);
+                }
+            }
+        }
+
+        /* Bounded legacy fallback for relations that exist only as rule heads. */
         char preds[128][KB_TERM_LEN];
-        size_t np = kb_predicates(b->kb, preds, 128);
+        size_t np = *result ? 0 : kb_predicates(b->kb, preds, 128);
         for (size_t pi = 0; pi < np && !*result; pi++) {
             const char *R = preds[pi];
             if (is_internal_pred(b->kb, R)) continue;

@@ -100,6 +100,7 @@ fav_at_least(hg($K, $O, $D, $X), $R) :- valid_hypergeom_take(hg($K, $O, $D, $X))
                                         is($R, add($Term, $Rest)).
 probability_procedure(probability_at_least_count, favorable, fav_at_least).
 probability_procedure(probability_at_least_count, denominator, choose).
+probability_procedure(inverse_pair_probability, solver, integer_pair_search).
 
 is_even($N) :- eq(mod($N, 2), 0).
 is_odd($N) :- eq(mod($N, 2), 1).
@@ -330,6 +331,111 @@ semantic_summary($Surface, $Text) :-
     semantic_alias($Surface, $Topic),
     because($Topic, $Text).
 machinery(semantic_summary).
+machinery(projection_gate).
+machinery(semantic_topic_gate).
+projection_gate(semantic_summary, semantic_topic_gate).
+
+% gen360: finite analytical acts as complete facet plans. The subject remains
+% open: semantic_atom/3 in the world layer supplies domain knowledge, while the
+% fixed consumer verifies every required facet before rendering anything.
+machinery(answer_plan).
+machinery(format_realizer).
+machinery(semantic_atom).
+machinery(creative_response_gate).
+machinery(creative_text_gate).
+machinery(compound_guard_evidence).
+machinery(analysis_domain_cue).
+machinery(analysis_domain_gate).
+machinery(analysis_domain_act).
+machinery(analysis_family_cue).
+machinery(analysis_family_gate).
+machinery(analysis_family_act).
+machinery(analysis_default_domain).
+
+% A finite act can still execute when the open subject has no curated specific
+% domain. These defaults provide only the subject-neutral context; the remaining
+% required facets come from semantic_atom(general, ...). A field family with
+% stronger evidence supersedes them.
+analysis_default_domain(impact_analysis, default_impact).
+analysis_default_domain(design_analysis, default_design).
+analysis_default_domain(mechanism_analysis, default_mechanism).
+analysis_default_domain(ethical_analysis, default_ethics).
+analysis_default_domain(investigation_analysis, default_investigation).
+analysis_default_domain(risk_analysis, default_risk).
+analysis_default_domain(interpretive_analysis, default_interpretation).
+analysis_default_domain(comparison_analysis, default_comparison).
+analysis_default_domain(advice_analysis, default_advice).
+
+answer_plan(impact_analysis, context, 1, domain_required).
+answer_plan(impact_analysis, direct_effect, 2, required).
+answer_plan(impact_analysis, secondary_effect, 3, required).
+answer_plan(impact_analysis, qualification, 4, required).
+
+answer_plan(design_analysis, context, 1, domain_required).
+answer_plan(design_analysis, objective, 2, required).
+answer_plan(design_analysis, intervention, 3, required).
+answer_plan(design_analysis, tradeoff, 4, required).
+answer_plan(design_analysis, validation, 5, required).
+
+answer_plan(mechanism_analysis, context, 1, domain_required).
+answer_plan(mechanism_analysis, mechanism, 2, required).
+answer_plan(mechanism_analysis, consequence, 3, required).
+answer_plan(mechanism_analysis, evidence, 4, required).
+answer_plan(mechanism_analysis, qualification, 5, required).
+
+answer_plan(ethical_analysis, context, 1, domain_required).
+answer_plan(ethical_analysis, stakeholders, 2, required).
+answer_plan(ethical_analysis, harms, 3, required).
+answer_plan(ethical_analysis, safeguards, 4, required).
+answer_plan(ethical_analysis, tradeoff, 5, required).
+
+answer_plan(investigation_analysis, context, 1, domain_required).
+answer_plan(investigation_analysis, hypotheses, 2, required).
+answer_plan(investigation_analysis, verification, 3, required).
+answer_plan(investigation_analysis, controls, 4, required).
+answer_plan(investigation_analysis, synthesis, 5, required).
+
+answer_plan(risk_analysis, context, 1, domain_required).
+answer_plan(risk_analysis, hazard, 2, required).
+answer_plan(risk_analysis, pathway, 3, required).
+answer_plan(risk_analysis, mitigation, 4, required).
+answer_plan(risk_analysis, monitoring, 5, required).
+
+answer_plan(interpretive_analysis, context, 1, domain_required).
+answer_plan(interpretive_analysis, premise, 2, required).
+answer_plan(interpretive_analysis, technique, 3, required).
+answer_plan(interpretive_analysis, tension, 4, required).
+answer_plan(interpretive_analysis, implication, 5, required).
+
+answer_plan(comparison_analysis, context, 1, domain_required).
+answer_plan(comparison_analysis, contrast, 2, required).
+answer_plan(comparison_analysis, consequence, 3, required).
+answer_plan(comparison_analysis, qualification, 4, required).
+
+answer_plan(advice_analysis, context, 1, domain_required).
+answer_plan(advice_analysis, criteria, 2, required).
+answer_plan(advice_analysis, options, 3, required).
+answer_plan(advice_analysis, rationale, 4, required).
+answer_plan(advice_analysis, caveat, 5, required).
+
+answer_plan(proof_exposition, context, 1, domain_required).
+answer_plan(proof_exposition, construction, 2, domain_required).
+answer_plan(proof_exposition, visual_invariant, 3, domain_required).
+answer_plan(proof_exposition, conclusion, 4, domain_required).
+
+answer_plan(narrative_composition, opening, 1, domain_required).
+answer_plan(narrative_composition, voice, 2, domain_required).
+answer_plan(narrative_composition, sensory_image, 3, domain_required).
+answer_plan(narrative_composition, reveal, 4, domain_required).
+answer_plan(narrative_composition, tension, 5, domain_required).
+
+answer_plan(cultural_synthesis, context, 1, domain_required).
+answer_plan(cultural_synthesis, ritual, 2, domain_required).
+answer_plan(cultural_synthesis, costume, 3, domain_required).
+answer_plan(cultural_synthesis, food, 4, domain_required).
+answer_plan(cultural_synthesis, meaning, 5, domain_required).
+
+format_realizer(numbered, numbered_lines).
 
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).

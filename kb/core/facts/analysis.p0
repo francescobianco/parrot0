@@ -1,0 +1,1679 @@
+% gen360 — compositional analytical knowledge for LLMSCORE-max.
+%
+% This is deliberately not a prompt/reply table. analysis_domain_cue/2 maps
+% teachable evidence to broad reusable domains. semantic_atom/3 stores one
+% independently reusable facet. answer_plan/4 (procedures.p0) selects several
+% facets and the C consumer speaks only when every required slot is available.
+% The leverage is acts x domains x format constraints, not one answer per sample.
+
+% ── domain evidence ───────────────────────────────────────────────────────────
+analysis_domain_cue(physical_mechanics, keyword(gravity)).
+analysis_domain_cue(physical_mechanics, keyword(force)).
+analysis_domain_cue(physical_mechanics, keyword(forces)).
+analysis_domain_cue(physical_mechanics, keyword(acceleration)).
+analysis_domain_cue(physical_mechanics, keyword(weight)).
+analysis_domain_cue(physical_mechanics, keyword(lift)).
+analysis_domain_cue(physical_mechanics, keyword(flight)).
+analysis_domain_cue(physical_mechanics, keyword(aircraft)).
+analysis_domain_cue(physical_mechanics, "fluid mechanics").
+
+analysis_domain_cue(evidence_investigation, keyword(authenticity)).
+analysis_domain_cue(evidence_investigation, keyword(authenticated)).
+analysis_domain_cue(evidence_investigation, keyword(provenance)).
+analysis_domain_cue(evidence_investigation, keyword(forensic)).
+analysis_domain_cue(evidence_investigation, keyword(radiocarbon)).
+analysis_domain_cue(evidence_investigation, keyword(manuscript)).
+analysis_domain_cue(evidence_investigation, keyword(dating)).
+analysis_domain_cue(evidence_investigation, "conflicting evidence").
+analysis_domain_cue(evidence_investigation, "conflicting findings").
+analysis_domain_cue(evidence_investigation, "independent laboratory").
+
+analysis_domain_cue(language_cognition, keyword(language)).
+analysis_domain_cue(language_cognition, keyword(linguistic)).
+analysis_domain_cue(language_cognition, keyword(syntax)).
+analysis_domain_cue(language_cognition, keyword(phonology)).
+analysis_domain_cue(language_cognition, keyword(phonological)).
+analysis_domain_cue(language_cognition, keyword(vocabulary)).
+analysis_domain_cue(language_cognition, "number words").
+analysis_domain_cue(language_cognition, "tonal language").
+analysis_domain_cue(language_cognition, "word meaning").
+
+analysis_domain_cue(visual_language_design, "communicates via color").
+analysis_domain_cue(visual_language_design, "color patterns").
+analysis_domain_cue(visual_language_design, "rather than sound").
+analysis_domain_cue(visual_language_design, "phonological and syntactic").
+analysis_domain_cue(visual_language_design, "spoken language for a species").
+
+analysis_domain_cue(limited_number_language, "no words for numbers").
+analysis_domain_cue(limited_number_language, "numbers beyond").
+analysis_domain_cue(limited_number_language, "higher quantities").
+analysis_domain_cue(limited_number_language, "mathematical development").
+analysis_domain_cue(limited_number_language, "exact number words").
+
+analysis_domain_cue(tonal_language_learning, "tonal language").
+analysis_domain_cue(tonal_language_learning, keyword(mandarin)).
+analysis_domain_cue(tonal_language_learning, "pitch changes word meaning").
+analysis_domain_cue(tonal_language_learning, "early exposure").
+analysis_domain_cue(tonal_language_learning, "auditory processing").
+
+analysis_domain_cue(sensory_prediction, keyword(sensory)).
+analysis_domain_cue(sensory_prediction, keyword(perception)).
+analysis_domain_cue(sensory_prediction, keyword(perceived)).
+analysis_domain_cue(sensory_prediction, keyword(auditory)).
+analysis_domain_cue(sensory_prediction, keyword(sweetness)).
+analysis_domain_cue(sensory_prediction, "predictive processing").
+analysis_domain_cue(sensory_prediction, "body sway").
+analysis_domain_cue(sensory_prediction, "sense of presence").
+analysis_domain_cue(sensory_prediction, "tension and resolution").
+
+analysis_domain_cue(taste_contrast, keyword(salt)).
+analysis_domain_cue(taste_contrast, keyword(sugar)).
+analysis_domain_cue(taste_contrast, keyword(sweetness)).
+analysis_domain_cue(taste_contrast, keyword(dessert)).
+analysis_domain_cue(taste_contrast, "taste receptors").
+
+analysis_domain_cue(embodied_presence, keyword(avatar)).
+analysis_domain_cue(embodied_presence, "virtual reality").
+analysis_domain_cue(embodied_presence, "body sway").
+analysis_domain_cue(embodied_presence, "sense of presence").
+analysis_domain_cue(embodied_presence, "mirrors their own").
+
+analysis_domain_cue(auditory_prediction, "musical chords").
+analysis_domain_cue(auditory_prediction, "tension-release").
+analysis_domain_cue(auditory_prediction, "tension and resolution").
+analysis_domain_cue(auditory_prediction, keyword(auditory)).
+analysis_domain_cue(auditory_prediction, keyword(predictions)).
+analysis_domain_cue(auditory_prediction, keyword(harmony)).
+
+analysis_domain_cue(data_ethics, "crowd-sourced data").
+analysis_domain_cue(data_ethics, "social media data").
+analysis_domain_cue(data_ethics, "mental health trends").
+analysis_domain_cue(data_ethics, keyword(privacy)).
+analysis_domain_cue(data_ethics, keyword(consent)).
+analysis_domain_cue(data_ethics, keyword(surveillance)).
+analysis_domain_cue(data_ethics, "personal data").
+analysis_domain_cue(data_ethics, "algorithmic bias").
+
+analysis_domain_cue(social_ethics, keyword(fairness)).
+analysis_domain_cue(social_ethics, keyword(rights)).
+analysis_domain_cue(social_ethics, keyword(dignity)).
+analysis_domain_cue(social_ethics, keyword(autonomy)).
+analysis_domain_cue(social_ethics, keyword(equity)).
+analysis_domain_cue(social_ethics, "ethical considerations").
+analysis_domain_cue(social_ethics, "moral responsibility").
+
+analysis_domain_cue(astronomy_observation, keyword(astronomy)).
+analysis_domain_cue(astronomy_observation, keyword(astronomical)).
+analysis_domain_cue(astronomy_observation, keyword(eclipse)).
+analysis_domain_cue(astronomy_observation, keyword(corona)).
+analysis_domain_cue(astronomy_observation, "black hole").
+analysis_domain_cue(astronomy_observation, "neutron star").
+analysis_domain_cue(astronomy_observation, "gravitational waves").
+analysis_domain_cue(astronomy_observation, "electromagnetic radiation").
+
+analysis_domain_cue(eclipse_optics, keyword(eclipse)).
+analysis_domain_cue(eclipse_optics, keyword(corona)).
+analysis_domain_cue(eclipse_optics, "moon fully covers").
+analysis_domain_cue(eclipse_optics, "sky not become completely dark").
+analysis_domain_cue(eclipse_optics, "direct sunlight").
+
+analysis_domain_cue(compact_object_merger, "black hole").
+analysis_domain_cue(compact_object_merger, "neutron star").
+analysis_domain_cue(compact_object_merger, keyword(merge)).
+analysis_domain_cue(compact_object_merger, keyword(merger)).
+analysis_domain_cue(compact_object_merger, "gravitational waves").
+analysis_domain_cue(compact_object_merger, "electromagnetic radiation").
+analysis_domain_cue(compact_object_merger, "observational signatures").
+
+analysis_domain_cue(quantum_information, keyword(entanglement)).
+analysis_domain_cue(quantum_information, keyword(entangled)).
+analysis_domain_cue(quantum_information, "quantum information").
+analysis_domain_cue(quantum_information, "faster than light").
+analysis_domain_cue(quantum_information, "one is measured").
+analysis_domain_cue(quantum_information, "no-signalling").
+
+analysis_domain_cue(infrastructure_policy, keyword(infrastructure)).
+analysis_domain_cue(infrastructure_policy, keyword(grid)).
+analysis_domain_cue(infrastructure_policy, keyword(renewable)).
+analysis_domain_cue(infrastructure_policy, keyword(traffic)).
+analysis_domain_cue(infrastructure_policy, keyword(congestion)).
+analysis_domain_cue(infrastructure_policy, keyword(election)).
+analysis_domain_cue(infrastructure_policy, "voting systems").
+analysis_domain_cue(infrastructure_policy, "public policy").
+analysis_domain_cue(infrastructure_policy, "pricing system").
+
+analysis_domain_cue(election_systems, keyword(election)).
+analysis_domain_cue(election_systems, "multiple candidates").
+analysis_domain_cue(election_systems, "voting systems").
+analysis_domain_cue(election_systems, "spoiler effect").
+analysis_domain_cue(election_systems, "ranked choice").
+analysis_domain_cue(election_systems, "electorate preferences").
+
+analysis_domain_cue(ecological_intervention, keyword(ecological)).
+analysis_domain_cue(ecological_intervention, keyword(ecosystem)).
+analysis_domain_cue(ecological_intervention, keyword(biodiversity)).
+analysis_domain_cue(ecological_intervention, keyword(landfill)).
+analysis_domain_cue(ecological_intervention, keyword(mosquitoes)).
+analysis_domain_cue(ecological_intervention, "genetically modified").
+analysis_domain_cue(ecological_intervention, "release into the wild").
+analysis_domain_cue(ecological_intervention, "invasive species").
+
+analysis_domain_cue(security_cognition, keyword(password)).
+analysis_domain_cue(security_cognition, keyword(passphrase)).
+analysis_domain_cue(security_cognition, keyword(cybersecurity)).
+analysis_domain_cue(security_cognition, keyword(authentication)).
+analysis_domain_cue(security_cognition, keyword(memorable)).
+analysis_domain_cue(security_cognition, keyword(secure)).
+analysis_domain_cue(security_cognition, "easy to remember").
+analysis_domain_cue(security_cognition, "easy for a human to remember").
+analysis_domain_cue(security_cognition, "highly secure").
+
+analysis_domain_cue(creative_interpretation, keyword(narrative)).
+analysis_domain_cue(creative_interpretation, keyword(character)).
+analysis_domain_cue(creative_interpretation, keyword(author)).
+analysis_domain_cue(creative_interpretation, keyword(themes)).
+analysis_domain_cue(creative_interpretation, keyword(symbolism)).
+analysis_domain_cue(creative_interpretation, keyword(identity)).
+analysis_domain_cue(creative_interpretation, "parallel universe").
+analysis_domain_cue(creative_interpretation, "diverged history").
+
+analysis_domain_cue(human_behavior, keyword(psychology)).
+analysis_domain_cue(human_behavior, keyword(cognitive)).
+analysis_domain_cue(human_behavior, keyword(behavior)).
+analysis_domain_cue(human_behavior, keyword(behaviour)).
+analysis_domain_cue(human_behavior, keyword(learning)).
+analysis_domain_cue(human_behavior, keyword(memory)).
+analysis_domain_cue(human_behavior, keyword(decision)).
+analysis_domain_cue(human_behavior, "human development").
+
+analysis_domain_cue(medicine_health, keyword(medical)).
+analysis_domain_cue(medicine_health, keyword(health)).
+analysis_domain_cue(medicine_health, keyword(disease)).
+analysis_domain_cue(medicine_health, keyword(patient)).
+analysis_domain_cue(medicine_health, keyword(clinical)).
+analysis_domain_cue(medicine_health, keyword(treatment)).
+analysis_domain_cue(medicine_health, "public health").
+
+analysis_domain_cue(computing_technology, keyword(software)).
+analysis_domain_cue(computing_technology, keyword(algorithm)).
+analysis_domain_cue(computing_technology, keyword(digital)).
+analysis_domain_cue(computing_technology, keyword(network)).
+analysis_domain_cue(computing_technology, keyword(technology)).
+analysis_domain_cue(computing_technology, "artificial intelligence").
+analysis_domain_cue(computing_technology, "virtual reality").
+
+analysis_domain_cue(chemistry_materials, keyword(chemical)).
+analysis_domain_cue(chemistry_materials, keyword(reaction)).
+analysis_domain_cue(chemistry_materials, keyword(molecule)).
+analysis_domain_cue(chemistry_materials, keyword(material)).
+analysis_domain_cue(chemistry_materials, keyword(materials)).
+analysis_domain_cue(chemistry_materials, keyword(salt)).
+analysis_domain_cue(chemistry_materials, keyword(sugar)).
+
+analysis_domain_cue(economics_choice, keyword(economic)).
+analysis_domain_cue(economics_choice, keyword(economics)).
+analysis_domain_cue(economics_choice, keyword(price)).
+analysis_domain_cue(economics_choice, keyword(incentive)).
+analysis_domain_cue(economics_choice, keyword(market)).
+analysis_domain_cue(economics_choice, keyword(voting)).
+analysis_domain_cue(economics_choice, "collective choice").
+
+analysis_domain_cue(complex_system, "complex system").
+analysis_domain_cue(complex_system, "interacting constraints").
+analysis_domain_cue(complex_system, "feedback loop").
+analysis_domain_cue(complex_system, "feedback over time").
+analysis_domain_cue(complex_system, keyword(emergence)).
+
+analysis_domain_cue(measurement_inference, "unknown unit").
+analysis_domain_cue(measurement_inference, "unit system").
+analysis_domain_cue(measurement_inference, keyword(measurements)).
+analysis_domain_cue(measurement_inference, keyword(translator)).
+analysis_domain_cue(measurement_inference, "ship's log").
+analysis_domain_cue(measurement_inference, "modern measurements").
+analysis_domain_cue(measurement_inference, "bilingual reference").
+
+analysis_domain_cue(biological_capability_society, keyword(photosynthesize)).
+analysis_domain_cue(biological_capability_society, keyword(photosynthesis)).
+analysis_domain_cue(biological_capability_society, "humans could").
+analysis_domain_cue(biological_capability_society, "food systems").
+analysis_domain_cue(biological_capability_society, "social and economic implications").
+analysis_domain_cue(biological_capability_society, "personal identity").
+
+analysis_domain_cue(music_expression, keyword(composer)).
+analysis_domain_cue(music_expression, keyword(symphony)).
+analysis_domain_cue(music_expression, keyword(movement)).
+analysis_domain_cue(music_expression, keyword(instrumentation)).
+analysis_domain_cue(music_expression, "stage of grief").
+analysis_domain_cue(music_expression, "musical themes").
+analysis_domain_cue(music_expression, "emotional progression").
+
+analysis_domain_cue(digital_identity_law, "memories could be stored").
+analysis_domain_cue(digital_identity_law, "accessed like files").
+analysis_domain_cue(digital_identity_law, "legal framework").
+analysis_domain_cue(digital_identity_law, "criminal responsibility").
+analysis_domain_cue(digital_identity_law, "personal identity").
+analysis_domain_cue(digital_identity_law, "external memory").
+
+analysis_domain_cue(acoustic_bioprocess, "frequencies of sound").
+analysis_domain_cue(acoustic_bioprocess, keyword(cheese)).
+analysis_domain_cue(acoustic_bioprocess, keyword(aging)).
+analysis_domain_cue(acoustic_bioprocess, "flavor profiles").
+analysis_domain_cue(acoustic_bioprocess, "scientific mechanism").
+analysis_domain_cue(acoustic_bioprocess, "microbial activity").
+
+analysis_domain_cue(ecological_signaling, keyword(coral)).
+analysis_domain_cue(ecological_signaling, keyword(reefs)).
+analysis_domain_cue(ecological_signaling, keyword(fluorescence)).
+analysis_domain_cue(ecological_signaling, keyword(fluoresce)).
+analysis_domain_cue(ecological_signaling, "marine organisms").
+analysis_domain_cue(ecological_signaling, "behavior of fish").
+analysis_domain_cue(ecological_signaling, "visual signals").
+
+analysis_domain_cue(statistical_inference, "statistically significant").
+analysis_domain_cue(statistical_inference, keyword(clustering)).
+analysis_domain_cue(statistical_inference, keyword(pattern)).
+analysis_domain_cue(statistical_inference, keyword(prime)).
+analysis_domain_cue(statistical_inference, "null hypothesis").
+analysis_domain_cue(statistical_inference, "proving or disproving").
+
+analysis_domain_cue(knowledge_preservation, "post-apocalyptic").
+analysis_domain_cue(knowledge_preservation, "technology is destroyed").
+analysis_domain_cue(knowledge_preservation, "practical knowledge").
+analysis_domain_cue(knowledge_preservation, keyword(preserve)).
+analysis_domain_cue(knowledge_preservation, "future generations").
+analysis_domain_cue(knowledge_preservation, keyword(transmitted)).
+
+analysis_domain_cue(biomimetic_structure, keyword(architect)).
+analysis_domain_cue(biomimetic_structure, keyword(buildings)).
+analysis_domain_cue(biomimetic_structure, keyword(biology)).
+analysis_domain_cue(biomimetic_structure, keyword(organisms)).
+analysis_domain_cue(biomimetic_structure, "physically grow").
+analysis_domain_cue(biomimetic_structure, "structural principles").
+analysis_domain_cue(biomimetic_structure, keyword(biomimetic)).
+
+analysis_domain_cue(scaling_ecology, keyword(insects)).
+analysis_domain_cue(scaling_ecology, "size of dogs").
+analysis_domain_cue(scaling_ecology, "cascading effects").
+analysis_domain_cue(scaling_ecology, keyword(agriculture)).
+analysis_domain_cue(scaling_ecology, "daily life").
+analysis_domain_cue(scaling_ecology, "square-cube law").
+
+analysis_domain_cue(false_memory_investigation, "before they were born").
+analysis_domain_cue(false_memory_investigation, "vivid events").
+analysis_domain_cue(false_memory_investigation, "neuroscientific explanations").
+analysis_domain_cue(false_memory_investigation, "investigate their validity").
+analysis_domain_cue(false_memory_investigation, keyword(confabulation)).
+analysis_domain_cue(false_memory_investigation, "source monitoring").
+
+analysis_domain_cue(post_work_economy, "ai does most work").
+analysis_domain_cue(post_work_economy, "forms of currency").
+analysis_domain_cue(post_work_economy, "value exchange").
+analysis_domain_cue(post_work_economy, "post-work economy").
+analysis_domain_cue(post_work_economy, "automated economy").
+
+analysis_domain_cue(navigation_transition, keyword(cartographer)).
+analysis_domain_cue(navigation_transition, "18th century").
+analysis_domain_cue(navigation_transition, "modern navigation").
+analysis_domain_cue(navigation_transition, "map-related concepts").
+analysis_domain_cue(navigation_transition, keyword(gps)).
+analysis_domain_cue(navigation_transition, "digital maps").
+
+analysis_domain_cue(identity_philosophy, keyword(consciousness)).
+analysis_domain_cue(identity_philosophy, "transferred between bodies").
+analysis_domain_cue(identity_philosophy, "personal continuity").
+analysis_domain_cue(identity_philosophy, "nature of self").
+analysis_domain_cue(identity_philosophy, "philosophical problems").
+analysis_domain_cue(identity_philosophy, "same person").
+
+analysis_domain_cue(adaptive_narrative, keyword(novelist)).
+analysis_domain_cue(adaptive_narrative, "physical location").
+analysis_domain_cue(adaptive_narrative, "which ending").
+analysis_domain_cue(adaptive_narrative, "work technically").
+analysis_domain_cue(adaptive_narrative, "location data").
+analysis_domain_cue(adaptive_narrative, "reader's location").
+
+analysis_domain_cue(time_perception, "time seem to pass").
+analysis_domain_cue(time_perception, keyword(bored)).
+analysis_domain_cue(time_perception, keyword(frightened)).
+analysis_domain_cue(time_perception, "subjective experience").
+analysis_domain_cue(time_perception, "temporal information").
+analysis_domain_cue(time_perception, "time perception").
+
+analysis_domain_cue(anomalous_observation, "river has begun flowing uphill").
+analysis_domain_cue(anomalous_observation, "flowing uphill").
+analysis_domain_cue(anomalous_observation, keyword(supernatural)).
+analysis_domain_cue(anomalous_observation, "scientific explanations").
+analysis_domain_cue(anomalous_observation, "before concluding").
+analysis_domain_cue(anomalous_observation, "measurement error").
+
+analysis_domain_cue(strategic_communication, "game theory").
+analysis_domain_cue(strategic_communication, "simultaneously choose").
+analysis_domain_cue(strategic_communication, keyword(share)).
+analysis_domain_cue(strategic_communication, keyword(steal)).
+analysis_domain_cue(strategic_communication, "communicate before choosing").
+analysis_domain_cue(strategic_communication, "optimal strategies").
+
+analysis_domain_cue(truthful_institutions, "forgot how to lie").
+analysis_domain_cue(truthful_institutions, "law, business, and diplomacy").
+analysis_domain_cue(truthful_institutions, "institutional changes").
+analysis_domain_cue(truthful_institutions, keyword(diplomacy)).
+analysis_domain_cue(truthful_institutions, keyword(truthful)).
+analysis_domain_cue(truthful_institutions, keyword(deception)).
+
+analysis_domain_cue(interactive_art, "audience controls").
+analysis_domain_cue(interactive_art, "biometric data").
+analysis_domain_cue(interactive_art, keyword(performer)).
+analysis_domain_cue(interactive_art, keyword(listener)).
+analysis_domain_cue(interactive_art, "collective biometric").
+analysis_domain_cue(interactive_art, "aspects of the composition").
+analysis_domain_cue(interactive_art, "applause tempo").
+analysis_domain_cue(interactive_art, "audience's applause").
+analysis_domain_cue(interactive_art, "live performance").
+
+% ── claim gates ──────────────────────────────────────────────────────────────
+% Supporting vocabulary may improve a specific domain's score, but one of these
+% discriminating cues must also be present. This prevents words such as
+% agriculture, privacy, algorithm, prime, or gravity from authorizing a whole
+% answer written for a much narrower scenario.
+analysis_domain_gate(scaling_ecology, keyword(insects)).
+analysis_domain_gate(scaling_ecology, "size of dogs").
+analysis_domain_gate(scaling_ecology, "square-cube law").
+analysis_domain_gate(data_ethics, "crowd-sourced data").
+analysis_domain_gate(data_ethics, "social media data").
+analysis_domain_gate(data_ethics, "mental health trends").
+analysis_domain_gate(data_ethics, "algorithmic bias").
+analysis_domain_gate(computing_technology, keyword(software)).
+analysis_domain_gate(computing_technology, "artificial intelligence").
+analysis_domain_gate(computing_technology, "technical system").
+analysis_domain_gate(evidence_investigation, keyword(authenticity)).
+analysis_domain_gate(evidence_investigation, keyword(provenance)).
+analysis_domain_gate(evidence_investigation, keyword(radiocarbon)).
+analysis_domain_gate(evidence_investigation, "conflicting authentication").
+analysis_domain_gate(statistical_inference, "statistically significant").
+analysis_domain_gate(statistical_inference, keyword(clustering)).
+analysis_domain_gate(statistical_inference, "null hypothesis").
+analysis_domain_gate(creative_interpretation, "parallel universe").
+analysis_domain_gate(creative_interpretation, "diverged history").
+analysis_domain_gate(identity_philosophy, "transferred between bodies").
+analysis_domain_gate(identity_philosophy, "personal continuity").
+analysis_domain_gate(identity_philosophy, "nature of self").
+analysis_domain_gate(identity_philosophy, "same person").
+analysis_domain_gate(adaptive_narrative, "location data").
+analysis_domain_gate(adaptive_narrative, "reader's location").
+analysis_domain_gate(adaptive_narrative, "physical location").
+analysis_domain_gate(physical_mechanics, keyword(flight)).
+analysis_domain_gate(physical_mechanics, keyword(aircraft)).
+analysis_domain_gate(physical_mechanics, keyword(lift)).
+analysis_domain_gate(physical_mechanics, "greater gravity").
+analysis_domain_gate(chemistry_materials, keyword(salt)).
+analysis_domain_gate(chemistry_materials, keyword(sugar)).
+analysis_domain_gate(chemistry_materials, "taste receptors").
+analysis_domain_gate(chemistry_materials, "chemical reaction").
+analysis_domain_gate(interactive_art, "audience controls").
+analysis_domain_gate(interactive_art, "biometric data").
+analysis_domain_gate(interactive_art, "collective biometric").
+analysis_domain_gate(interactive_art, "applause tempo").
+analysis_domain_gate(interactive_art, "audience's applause").
+
+% A topic may complete several plans mechanically through general facets, but
+% it is allowed to claim only acts for which its own atoms are semantically
+% appropriate.
+analysis_domain_act(physical_mechanics, impact_analysis).
+analysis_domain_act(physical_mechanics, mechanism_analysis).
+analysis_domain_act(evidence_investigation, investigation_analysis).
+analysis_domain_act(language_cognition, impact_analysis).
+analysis_domain_act(language_cognition, mechanism_analysis).
+analysis_domain_act(language_cognition, design_analysis).
+analysis_domain_act(visual_language_design, design_analysis).
+analysis_domain_act(limited_number_language, impact_analysis).
+analysis_domain_act(tonal_language_learning, impact_analysis).
+analysis_domain_act(sensory_prediction, mechanism_analysis).
+analysis_domain_act(taste_contrast, mechanism_analysis).
+analysis_domain_act(embodied_presence, mechanism_analysis).
+analysis_domain_act(auditory_prediction, mechanism_analysis).
+analysis_domain_act(data_ethics, ethical_analysis).
+analysis_domain_act(social_ethics, ethical_analysis).
+analysis_domain_act(astronomy_observation, mechanism_analysis).
+analysis_domain_act(eclipse_optics, mechanism_analysis).
+analysis_domain_act(compact_object_merger, impact_analysis).
+analysis_domain_act(compact_object_merger, mechanism_analysis).
+analysis_domain_act(quantum_information, mechanism_analysis).
+analysis_domain_act(infrastructure_policy, design_analysis).
+analysis_domain_act(infrastructure_policy, risk_analysis).
+analysis_domain_act(election_systems, design_analysis).
+analysis_domain_act(ecological_intervention, risk_analysis).
+analysis_domain_act(security_cognition, design_analysis).
+analysis_domain_act(security_cognition, advice_analysis).
+analysis_domain_act(creative_interpretation, interpretive_analysis).
+analysis_domain_act(human_behavior, mechanism_analysis).
+analysis_domain_act(medicine_health, mechanism_analysis).
+analysis_domain_act(medicine_health, risk_analysis).
+analysis_domain_act(computing_technology, design_analysis).
+analysis_domain_act(computing_technology, risk_analysis).
+analysis_domain_act(chemistry_materials, mechanism_analysis).
+analysis_domain_act(economics_choice, mechanism_analysis).
+analysis_domain_act(economics_choice, design_analysis).
+analysis_domain_act(complex_system, impact_analysis).
+analysis_domain_act(complex_system, mechanism_analysis).
+analysis_domain_act(measurement_inference, investigation_analysis).
+analysis_domain_act(biological_capability_society, impact_analysis).
+analysis_domain_act(music_expression, impact_analysis).
+analysis_domain_act(digital_identity_law, design_analysis).
+analysis_domain_act(acoustic_bioprocess, mechanism_analysis).
+analysis_domain_act(ecological_signaling, impact_analysis).
+analysis_domain_act(statistical_inference, investigation_analysis).
+analysis_domain_act(knowledge_preservation, impact_analysis).
+analysis_domain_act(biomimetic_structure, design_analysis).
+analysis_domain_act(scaling_ecology, impact_analysis).
+analysis_domain_act(false_memory_investigation, investigation_analysis).
+analysis_domain_act(post_work_economy, design_analysis).
+analysis_domain_act(navigation_transition, impact_analysis).
+analysis_domain_act(identity_philosophy, interpretive_analysis).
+analysis_domain_act(adaptive_narrative, impact_analysis).
+analysis_domain_act(adaptive_narrative, ethical_analysis).
+analysis_domain_act(time_perception, mechanism_analysis).
+analysis_domain_act(anomalous_observation, investigation_analysis).
+analysis_domain_act(strategic_communication, mechanism_analysis).
+analysis_domain_act(truthful_institutions, design_analysis).
+analysis_domain_act(interactive_art, impact_analysis).
+analysis_domain_act(interactive_art, risk_analysis).
+analysis_domain_act(guarded_system, impact_analysis).
+
+analysis_family_gate(empirical_inquiry, keyword(experiment)).
+analysis_family_gate(empirical_inquiry, keyword(experiments)).
+analysis_family_gate(empirical_inquiry, keyword(experimental)).
+analysis_family_gate(empirical_inquiry, keyword(laboratory)).
+analysis_family_gate(empirical_inquiry, keyword(researcher)).
+analysis_family_gate(empirical_inquiry, keyword(scientists)).
+analysis_family_gate(empirical_inquiry, keyword(forensic)).
+analysis_family_gate(empirical_inquiry, "testable predictions").
+analysis_family_gate(empirical_inquiry, "experimental setup").
+analysis_family_gate(engineered_system, keyword(technical)).
+analysis_family_gate(engineered_system, keyword(system)).
+analysis_family_gate(engineered_system, keyword(algorithm)).
+analysis_family_gate(engineered_system, keyword(network)).
+analysis_family_gate(engineered_system, keyword(control)).
+analysis_family_gate(engineered_system, keyword(robot)).
+analysis_family_gate(engineered_system, keyword(robotics)).
+analysis_family_gate(institutional_system, keyword(legal)).
+analysis_family_gate(institutional_system, keyword(education)).
+analysis_family_gate(institutional_system, keyword(educational)).
+analysis_family_gate(institutional_system, keyword(society)).
+analysis_family_gate(institutional_system, keyword(verdicts)).
+analysis_family_gate(institutional_system, keyword(assessments)).
+analysis_family_gate(institutional_system, keyword(bias)).
+analysis_family_gate(institutional_system, keyword(privacy)).
+analysis_family_gate(institutional_system, "philosophical frameworks").
+analysis_family_gate(adaptive_art, keyword(narrator)).
+analysis_family_gate(adaptive_art, keyword(narrative)).
+analysis_family_gate(adaptive_art, keyword(novel)).
+analysis_family_gate(adaptive_art, keyword(novelist)).
+analysis_family_gate(adaptive_art, keyword(music)).
+analysis_family_gate(adaptive_art, keyword(poetry)).
+analysis_family_gate(adaptive_art, keyword(story)).
+analysis_family_gate(adaptive_art, keyword(audience)).
+analysis_family_gate(adaptive_art, keyword(reader)).
+analysis_family_gate(adaptive_art, keyword(performance)).
+analysis_family_gate(adaptive_art, keyword(protagonist)).
+analysis_family_gate(environmental_management, keyword(aquifer)).
+analysis_family_gate(environmental_management, keyword(ecosystems)).
+analysis_family_gate(environmental_management, keyword(ecological)).
+analysis_family_gate(environmental_management, keyword(pollution)).
+analysis_family_gate(environmental_management, keyword(habitat)).
+analysis_family_gate(environmental_management, "water quality").
+analysis_family_gate(material_process, keyword(material)).
+analysis_family_gate(material_process, keyword(chemical)).
+analysis_family_gate(material_process, keyword(museum)).
+analysis_family_gate(material_process, keyword(painting)).
+analysis_family_gate(material_process, keyword(restore)).
+analysis_family_gate(material_process, keyword(dehydrate)).
+analysis_family_gate(material_process, keyword(flavor)).
+analysis_family_gate(material_process, keyword(acoustic)).
+analysis_family_gate(material_process, keyword(superconductivity)).
+analysis_family_gate(language_fieldwork, keyword(language)).
+analysis_family_gate(language_fieldwork, keyword(linguist)).
+analysis_family_gate(language_fieldwork, keyword(grammar)).
+analysis_family_gate(language_fieldwork, keyword(gestures)).
+analysis_family_gate(language_fieldwork, keyword(tones)).
+analysis_family_gate(formal_system, keyword(mathematician)).
+analysis_family_gate(formal_system, keyword(number)).
+analysis_family_gate(formal_system, keyword(prime)).
+analysis_family_gate(formal_system, keyword(composite)).
+analysis_family_gate(formal_system, keyword(operations)).
+analysis_family_gate(unknown_encoding, "binary code").
+analysis_family_gate(unknown_encoding, "error-correcting").
+analysis_family_gate(unknown_encoding, "error correcting").
+analysis_family_gate(unknown_encoding, "unknown scheme").
+analysis_family_gate(quantitative_attribution, keyword(authorship)).
+analysis_family_gate(quantitative_attribution, keyword(stylistic)).
+analysis_family_gate(quantitative_attribution, keyword(attribution)).
+analysis_family_gate(quantitative_attribution, keyword(anonymous)).
+analysis_family_gate(cyclical_coordination, keyword(calendar)).
+analysis_family_gate(cyclical_coordination, keyword(lunar)).
+analysis_family_gate(cyclical_coordination, keyword(solar)).
+analysis_family_gate(cyclical_coordination, keyword(seasonal)).
+analysis_family_gate(identity_continuity, keyword(identity)).
+analysis_family_gate(identity_continuity, keyword(memory)).
+analysis_family_gate(identity_continuity, keyword(continuity)).
+analysis_family_gate(identity_continuity, "brain uploading").
+
+analysis_family_act(empirical_inquiry, investigation_analysis).
+analysis_family_act(empirical_inquiry, mechanism_analysis).
+analysis_family_act(engineered_system, design_analysis).
+analysis_family_act(engineered_system, risk_analysis).
+analysis_family_act(engineered_system, mechanism_analysis).
+analysis_family_act(institutional_system, design_analysis).
+analysis_family_act(institutional_system, ethical_analysis).
+analysis_family_act(institutional_system, impact_analysis).
+analysis_family_act(adaptive_art, design_analysis).
+analysis_family_act(adaptive_art, interpretive_analysis).
+analysis_family_act(adaptive_art, investigation_analysis).
+analysis_family_act(adaptive_art, ethical_analysis).
+analysis_family_act(adaptive_art, risk_analysis).
+analysis_family_act(environmental_management, design_analysis).
+analysis_family_act(environmental_management, risk_analysis).
+analysis_family_act(environmental_management, impact_analysis).
+analysis_family_act(material_process, design_analysis).
+analysis_family_act(material_process, mechanism_analysis).
+analysis_family_act(material_process, investigation_analysis).
+analysis_family_act(material_process, risk_analysis).
+analysis_family_act(language_fieldwork, design_analysis).
+analysis_family_act(language_fieldwork, mechanism_analysis).
+analysis_family_act(language_fieldwork, investigation_analysis).
+analysis_family_act(language_fieldwork, impact_analysis).
+analysis_family_act(formal_system, impact_analysis).
+analysis_family_act(formal_system, mechanism_analysis).
+analysis_family_act(formal_system, investigation_analysis).
+analysis_family_act(unknown_encoding, investigation_analysis).
+analysis_family_act(quantitative_attribution, investigation_analysis).
+analysis_family_act(cyclical_coordination, impact_analysis).
+analysis_family_act(identity_continuity, ethical_analysis).
+analysis_family_act(identity_continuity, interpretive_analysis).
+analysis_family_act(runtime_family, impact_analysis).
+
+% ── broad field evidence ─────────────────────────────────────────────────────
+% Families are deliberately wider than the curated domains above. They provide
+% reusable methods when the exact open-world subject is new, while a complete
+% answer still comes from the same act plan and facet checks.
+analysis_family_cue(empirical_inquiry, keyword(experiment)).
+analysis_family_cue(empirical_inquiry, keyword(experiments)).
+analysis_family_cue(empirical_inquiry, keyword(experimental)).
+analysis_family_cue(empirical_inquiry, keyword(laboratory)).
+analysis_family_cue(empirical_inquiry, keyword(researcher)).
+analysis_family_cue(empirical_inquiry, keyword(scientists)).
+analysis_family_cue(empirical_inquiry, keyword(evidence)).
+analysis_family_cue(empirical_inquiry, keyword(measurements)).
+analysis_family_cue(empirical_inquiry, keyword(quantitative)).
+analysis_family_cue(empirical_inquiry, keyword(methods)).
+analysis_family_cue(empirical_inquiry, keyword(metrics)).
+analysis_family_cue(empirical_inquiry, keyword(verify)).
+analysis_family_cue(empirical_inquiry, keyword(predictions)).
+analysis_family_cue(empirical_inquiry, keyword(forensic)).
+analysis_family_cue(empirical_inquiry, "testable predictions").
+analysis_family_cue(empirical_inquiry, "experimental setup").
+
+analysis_family_cue(engineered_system, keyword(technical)).
+analysis_family_cue(engineered_system, keyword(system)).
+analysis_family_cue(engineered_system, keyword(algorithm)).
+analysis_family_cue(engineered_system, keyword(network)).
+analysis_family_cue(engineered_system, keyword(control)).
+analysis_family_cue(engineered_system, keyword(robot)).
+analysis_family_cue(engineered_system, keyword(robotics)).
+analysis_family_cue(engineered_system, keyword(coordination)).
+analysis_family_cue(engineered_system, "real-time").
+analysis_family_cue(engineered_system, "without central coordination").
+
+analysis_family_cue(institutional_system, keyword(legal)).
+analysis_family_cue(institutional_system, keyword(education)).
+analysis_family_cue(institutional_system, keyword(educational)).
+analysis_family_cue(institutional_system, keyword(society)).
+analysis_family_cue(institutional_system, keyword(public)).
+analysis_family_cue(institutional_system, keyword(policy)).
+analysis_family_cue(institutional_system, keyword(verdicts)).
+analysis_family_cue(institutional_system, keyword(assessments)).
+analysis_family_cue(institutional_system, keyword(bias)).
+analysis_family_cue(institutional_system, keyword(safeguards)).
+analysis_family_cue(institutional_system, keyword(privacy)).
+analysis_family_cue(institutional_system, "philosophical frameworks").
+
+analysis_family_cue(adaptive_art, keyword(narrator)).
+analysis_family_cue(adaptive_art, keyword(narrative)).
+analysis_family_cue(adaptive_art, keyword(novel)).
+analysis_family_cue(adaptive_art, keyword(novelist)).
+analysis_family_cue(adaptive_art, keyword(music)).
+analysis_family_cue(adaptive_art, keyword(musician)).
+analysis_family_cue(adaptive_art, keyword(poetry)).
+analysis_family_cue(adaptive_art, keyword(story)).
+analysis_family_cue(adaptive_art, keyword(audience)).
+analysis_family_cue(adaptive_art, keyword(reader)).
+analysis_family_cue(adaptive_art, keyword(performance)).
+analysis_family_cue(adaptive_art, "piece of music").
+analysis_family_cue(adaptive_art, keyword(protagonist)).
+analysis_family_cue(adaptive_art, "detective story").
+
+analysis_family_cue(environmental_management, keyword(aquifer)).
+analysis_family_cue(environmental_management, keyword(water)).
+analysis_family_cue(environmental_management, keyword(ecosystems)).
+analysis_family_cue(environmental_management, keyword(ecological)).
+analysis_family_cue(environmental_management, keyword(pollution)).
+analysis_family_cue(environmental_management, keyword(habitat)).
+analysis_family_cue(environmental_management, "water quality").
+
+analysis_family_cue(material_process, keyword(material)).
+analysis_family_cue(material_process, keyword(chemical)).
+analysis_family_cue(material_process, keyword(physical)).
+analysis_family_cue(material_process, keyword(museum)).
+analysis_family_cue(material_process, keyword(painting)).
+analysis_family_cue(material_process, keyword(restore)).
+analysis_family_cue(material_process, keyword(damage)).
+analysis_family_cue(material_process, keyword(dehydrate)).
+analysis_family_cue(material_process, keyword(rehydrates)).
+analysis_family_cue(material_process, keyword(flavor)).
+analysis_family_cue(material_process, keyword(acoustic)).
+analysis_family_cue(material_process, keyword(superconductivity)).
+
+analysis_family_cue(language_fieldwork, keyword(language)).
+analysis_family_cue(language_fieldwork, keyword(linguist)).
+analysis_family_cue(language_fieldwork, keyword(grammar)).
+analysis_family_cue(language_fieldwork, keyword(gestures)).
+analysis_family_cue(language_fieldwork, keyword(tones)).
+analysis_family_cue(language_fieldwork, keyword(decipher)).
+analysis_family_cue(language_fieldwork, "unknown language").
+
+analysis_family_cue(formal_system, keyword(mathematician)).
+analysis_family_cue(formal_system, keyword(number)).
+analysis_family_cue(formal_system, keyword(prime)).
+analysis_family_cue(formal_system, keyword(composite)).
+analysis_family_cue(formal_system, keyword(operations)).
+analysis_family_cue(formal_system, keyword(proof)).
+
+analysis_family_cue(unknown_encoding, "binary code").
+analysis_family_cue(unknown_encoding, "error-correcting").
+analysis_family_cue(unknown_encoding, "error correcting").
+analysis_family_cue(unknown_encoding, "unknown scheme").
+analysis_family_cue(unknown_encoding, "without prior knowledge").
+analysis_family_cue(unknown_encoding, keyword(decode)).
+analysis_family_cue(unknown_encoding, keyword(encoded)).
+
+analysis_family_cue(quantitative_attribution, keyword(authorship)).
+analysis_family_cue(quantitative_attribution, keyword(stylistic)).
+analysis_family_cue(quantitative_attribution, keyword(attribution)).
+analysis_family_cue(quantitative_attribution, keyword(anonymous)).
+analysis_family_cue(quantitative_attribution, "quantitative methods").
+analysis_family_cue(quantitative_attribution, "based solely on").
+
+analysis_family_cue(cyclical_coordination, keyword(calendar)).
+analysis_family_cue(cyclical_coordination, keyword(lunar)).
+analysis_family_cue(cyclical_coordination, keyword(solar)).
+analysis_family_cue(cyclical_coordination, keyword(seasonal)).
+analysis_family_cue(cyclical_coordination, keyword(festivals)).
+analysis_family_cue(cyclical_coordination, keyword(scheduled)).
+analysis_family_cue(cyclical_coordination, keyword(cycles)).
+
+analysis_family_cue(material_process, "acoustic vibrations").
+analysis_family_cue(material_process, "room temperature").
+analysis_family_cue(material_process, "synthesized material").
+
+analysis_family_cue(identity_continuity, keyword(identity)).
+analysis_family_cue(identity_continuity, keyword(memory)).
+analysis_family_cue(identity_continuity, keyword(experiences)).
+analysis_family_cue(identity_continuity, keyword(continuity)).
+analysis_family_cue(identity_continuity, keyword(consciousness)).
+analysis_family_cue(identity_continuity, "brain uploading").
+analysis_family_cue(identity_continuity, "identity-changing technologies").
+
+% ── default subject contexts ─────────────────────────────────────────────────
+semantic_atom(default_impact, context, "Treat the proposed change as a counterfactual: state the baseline, change one condition, and trace direct effects before adaptations and feedbacks.").
+semantic_atom(default_design, context, "Treat the requested design as a system with an objective, inputs, constraints, users, failure modes, and feedback rather than as a single feature.").
+semantic_atom(default_mechanism, context, "A mechanism must connect an initial condition to intermediate processes and observable outcomes, while distinguishing causation from correlation.").
+semantic_atom(default_ethics, context, "Evaluate the proposal through consequences, rights, fairness, consent, responsibility, and the distribution of power rather than a single aggregate benefit.").
+semantic_atom(default_investigation, context, "Turn the unfamiliar question into rival hypotheses that make different observable predictions before selecting measurements or interpreting results.").
+semantic_atom(default_risk, context, "Analyze risk as a chain from hazard through exposure and vulnerability to consequence, with uncertainty and reversibility made explicit.").
+semantic_atom(default_interpretation, context, "Build the interpretation from the work's premise, formal choices, recurring contrasts, and consequences rather than attaching a theme without textual support.").
+semantic_atom(default_comparison, context, "Compare the alternatives against one shared baseline and the same dimensions so differences in mechanism are not confused with differences in scale.").
+semantic_atom(default_advice, context, "A useful recommendation begins with the person's objective and constraints, then compares distinct options by explicit criteria and uncertainty.").
+semantic_atom(runtime_family, context, "Runtime family selected.").
+
+% ── field-family facets ──────────────────────────────────────────────────────
+semantic_atom(empirical_inquiry, context, "For an unfamiliar empirical claim, define the observable signal, plausible generating processes, measurement limits, and what result would distinguish competing accounts.").
+semantic_atom(empirical_inquiry, hypotheses, "Write several candidate models, including artifact and null explanations, and derive a different measurable prediction from each before looking for the preferred pattern.").
+semantic_atom(empirical_inquiry, verification, "Collect raw observations with calibrated instruments, preserve metadata, quantify uncertainty, and compare likelihood or predictive accuracy on held-out data rather than relying on a visual match.").
+semantic_atom(empirical_inquiry, controls, "Use negative and positive controls, blinded analysis where possible, independent replication, perturbations that isolate variables, and simulated data with known ground truth.").
+semantic_atom(empirical_inquiry, synthesis, "Rank explanations by predictive performance, robustness across methods, and parsimony; report ambiguity and name the next observation that would change the ranking.").
+semantic_atom(empirical_inquiry, mechanism, "Specify which variables interact, their direction and timing, and the observation each link predicts; a label for the phenomenon is not yet a causal mechanism.").
+semantic_atom(empirical_inquiry, consequence, "A supported mechanism should predict new cases, boundary conditions, dose or scale effects, and characteristic failures rather than only reproduce the discovery sample.").
+semantic_atom(empirical_inquiry, evidence, "Strong evidence combines preregistered predictions, calibrated measurement, controlled perturbation, replication, effect sizes, uncertainty intervals, and out-of-sample success.").
+semantic_atom(empirical_inquiry, qualification, "Correlation, a flexible post-hoc fit, or one striking case cannot by itself identify the process; alternatives remain live until discriminating tests exclude them.").
+
+semantic_atom(engineered_system, context, "An engineered system should be decomposed into local state, information flow, decision rules, actuators, feedback, resource limits, and failure recovery.").
+semantic_atom(engineered_system, objective, "Define measurable success, convergence time, resource and latency budgets, safety invariants, and acceptable degradation before selecting an algorithm or architecture.").
+semantic_atom(engineered_system, intervention, "Use modular local rules, explicit interfaces, feedback and error detection, graceful fallback, simulation, and staged deployment with an operator-visible override path.").
+semantic_atom(engineered_system, tradeoff, "More responsiveness and autonomy can reduce latency but amplify noise, instability, coordination errors, attack surface, and verification cost.").
+semantic_atom(engineered_system, validation, "Test nominal, noisy, delayed, adversarial, partial-failure, and scale-up cases; measure convergence, stability, accuracy, resource use, recovery, and worst-case behavior.").
+semantic_atom(engineered_system, hazard, "Likely failures include noisy sensing, ambiguous state, delay, oscillation, local decisions that conflict globally, cascading faults, unsafe edge cases, and loss of observability.").
+semantic_atom(engineered_system, pathway, "Trace each failure from input or component fault through state estimation and feedback to the downstream action, including how repetition or coupling can amplify it.").
+semantic_atom(engineered_system, mitigation, "Combine filtering, redundancy, bounded actions, consensus or conflict resolution, safe defaults, isolation, authentication, monitoring, and tested recovery procedures.").
+semantic_atom(engineered_system, monitoring, "Log inputs, state transitions, confidence, decisions, latency, resource use, and interventions so drift and emergent failures can be detected and reproduced.").
+
+semantic_atom(institutional_system, context, "An institution converts evidence and values into decisions through rules, officials, incentives, records, review, and remedies, so both accuracy and legitimacy must be designed.").
+semantic_atom(institutional_system, objective, "Define the public outcome, evidentiary standard, protected rights, distributional constraints, and conditions for review instead of rewarding one proxy.").
+semantic_atom(institutional_system, intervention, "Use transparent criteria, independent review, representative participation, documented reasons, periodic audits, appeal, and correction when evidence or circumstances change.").
+semantic_atom(institutional_system, tradeoff, "Consistency and speed can conflict with individualized judgment, privacy, access, experimentation, and protection from errors that fall unevenly across groups.").
+semantic_atom(institutional_system, validation, "Audit decisions against outcomes and counterfactual cases, measure subgroup error and participation, publish limitations, and revise rules when incentives distort the stated goal.").
+semantic_atom(institutional_system, stakeholders, "Include subjects of decisions, officials, experts, affected communities, future users, and people who are absent from the data or cannot realistically opt out.").
+semantic_atom(institutional_system, harms, "Opaque thresholds can encode historical bias, turn uncertainty into false authority, chill participation, expose private information, and deny recourse to groups with less power.").
+semantic_atom(institutional_system, safeguards, "Require explainable evidence, proportionality, privacy limits, conflict-of-interest rules, independent oversight, adversarial challenge, appeal, and regular bias and outcome audits.").
+
+semantic_atom(adaptive_art, context, "An adaptive work is a rule-governed composition: audience or reader input changes selected parameters while motifs, character goals, pacing, and thematic constraints preserve identity.").
+semantic_atom(adaptive_art, objective, "Specify what may vary, what must remain invariant, how prior choices affect later material, and what experience the adaptation should create for different paths.").
+semantic_atom(adaptive_art, intervention, "Represent motifs and narrative facts as reusable state, map inputs to bounded transformations, compose transitions rather than isolated branches, and periodically return to shared anchors.").
+semantic_atom(adaptive_art, tradeoff, "More responsiveness increases agency and novelty but can weaken pacing, authorial intent, accessibility, tonal continuity, and the audience's ability to understand cause and effect.").
+semantic_atom(adaptive_art, validation, "Walk every reachable transition, test contradictory histories and noisy input, compare emotional and structural arcs across paths, and observe whether audiences perceive coherence and agency.").
+semantic_atom(adaptive_art, premise, "Make the adaptive rule perceptible through consequences while keeping a stable dramatic question, recurring motifs, and character motivations across variations.").
+semantic_atom(adaptive_art, technique, "Use state summaries, modular scenes, leitmotifs, controlled variation, callbacks, convergent anchor points, and transitions that acknowledge the path just taken.").
+semantic_atom(adaptive_art, tension, "The work should let participation reshape expression without making every choice arbitrary or allowing the loudest signal to erase minority and quiet experiences.").
+semantic_atom(adaptive_art, implication, "Authorship becomes shared among designer, performer, audience, and system, raising questions about agency, interpretation, data use, and responsibility for emergent outcomes.").
+
+semantic_atom(environmental_management, context, "An environmental system links sources, flows, storage, treatment, organisms, human exposure, seasonal variation, and downstream receptors across one connected boundary.").
+semantic_atom(environmental_management, objective, "Set health- and ecosystem-based limits for contaminants, flow, habitat, and cumulative exposure, with stricter protection for irreversible or poorly observed harms.").
+semantic_atom(environmental_management, intervention, "Separate dirty and clean flows, use source control and treatment barriers, protect recharge zones, retain natural filtration, limit residence-time hazards, and provide bypass and shutdown modes.").
+semantic_atom(environmental_management, tradeoff, "Capacity, access, cost, energy use, land disturbance, ecological connectivity, and treatment reliability must be balanced without using dilution as a substitute for prevention.").
+semantic_atom(environmental_management, validation, "Establish upstream and downstream baselines, sample chemistry and pathogens across seasons and storms, use tracers and sentinel species, audit operations, and publish threshold breaches.").
+semantic_atom(environmental_management, hazard, "Hazards include pathogens, metals, persistent chemicals, salinity, sediment, oxygen loss, altered flow, invasive organisms, and concentrated exposure after storage or drought.").
+semantic_atom(environmental_management, pathway, "Map each source through runoff, leakage, infiltration, transport, accumulation, uptake, and drinking or ecological contact, including delayed release from soil and sediment.").
+semantic_atom(environmental_management, mitigation, "Use layered source control, pretreatment, monitoring wells, physical separation, maintenance, emergency isolation, habitat buffers, and enforceable stop and remediation plans.").
+semantic_atom(environmental_management, monitoring, "Track flow, pressure, turbidity, temperature, oxygen, microbial indicators, priority chemicals, ecological condition, and trends at multiple points rather than one outlet average.").
+
+semantic_atom(material_process, context, "Preserving a material or product requires controlling composition, phase, moisture, temperature, oxygen, light, mechanical stress, interfaces, and the reversibility of each treatment.").
+semantic_atom(material_process, objective, "Define which original structures and functional or sensory properties must survive, acceptable change, storage life, and a non-destructive or reversible intervention boundary.").
+semantic_atom(material_process, intervention, "Characterize layers first, stabilize the environment, remove or transform damaging agents selectively, use compatible barriers or supports, and test treatment on small representative areas.").
+semantic_atom(material_process, tradeoff, "Stronger drying, heating, cleaning, bonding, or stabilization can improve durability while driving reactions, distortion, volatile loss, concentration gradients, or irreversible alteration.").
+semantic_atom(material_process, validation, "Compare treated and untreated samples with imaging, chemical and physical measurements, accelerated aging or cycling, repeated-use tests, and expert or sensory evaluation where relevant.").
+semantic_atom(material_process, mechanism, "Transport of heat, water, gases, solutes, and stress changes reaction rates, phase and microstructure; interfaces and gradients often fail before the bulk material.").
+semantic_atom(material_process, consequence, "The chosen process can preserve one property while degrading another, and later storage or rehydration may expose cracking, oxidation, separation, texture, or flavor losses.").
+semantic_atom(material_process, evidence, "Measure composition, moisture and temperature histories, structure, mechanical or sensory response, and reversibility across controlled process conditions rather than judging appearance alone.").
+semantic_atom(material_process, qualification, "The safe operating window depends on the original formulation, prior damage, geometry, contaminants, and intended use, so trials must precede full treatment.").
+
+semantic_atom(language_fieldwork, context, "Unknown communication should be analyzed as a system of recurring forms, contrasts, ordering, reference, interaction, and context before assigning translations from intuition.").
+semantic_atom(language_fieldwork, hypotheses, "Propose competing segmentations and meanings for repeated gestures, tones, sequences, and pauses, including the possibility that simultaneous channels carry different grammatical roles.").
+semantic_atom(language_fieldwork, verification, "Record synchronized video, audio, context, participants, and outcomes; elicit minimal contrasts, substitutions, recombinations, and descriptions of the same event from different speakers.").
+semantic_atom(language_fieldwork, controls, "Vary one form or context at a time, check natural conversations as well as elicitation, compare speakers and situations, and avoid treating one culturally guessed meaning as ground truth.").
+semantic_atom(language_fieldwork, synthesis, "Build a lexicon and grammar only from recurring form-meaning correspondences, test them by predicting novel utterances, and revise when fluent speakers reject or reinterpret the prediction.").
+semantic_atom(language_fieldwork, mechanism, "Contrastive forms become reusable units; order, timing, simultaneity, repetition, and spatial relation can mark roles, scope, negation, questions, and discourse structure.").
+semantic_atom(language_fieldwork, consequence, "A correct analysis should predict how familiar units combine in unseen messages and distinguish lexical meaning from emotion, performance, deixis, and conversational turn-taking.").
+semantic_atom(language_fieldwork, evidence, "Minimal pairs, distribution across contexts, speaker judgments, successful novel predictions, and converging behavioral responses support a grammatical analysis.").
+semantic_atom(language_fieldwork, qualification, "Early translations remain hypotheses: researcher expectations, performance conventions, politeness, and multimodal context can imitate lexical or grammatical contrasts.").
+
+semantic_atom(formal_system, context, "A proposed mathematical object needs explicit axioms, a domain, operations, invariants, examples and counterexamples, and consistency with or a stated revision of existing definitions.").
+semantic_atom(formal_system, direct_effect, "Changing a defining property partitions familiar objects differently and can invalidate uniqueness, factorization, ordering, or closure results that depended on the old boundary.").
+semantic_atom(formal_system, secondary_effect, "The new class may motivate generalized invariants and theorems, but it is useful only if it organizes multiple cases and yields results not obtained by renaming an existing exception.").
+semantic_atom(formal_system, qualification, "Apparent contradiction often means that different operations or algebraic structures are being conflated; every prime-like or composite-like claim must name the operation and domain.").
+semantic_atom(formal_system, mechanism, "Define the operation, identity and units first, then state exactly when factorization exists, is nontrivial, and is unique up to the relevant equivalence.").
+semantic_atom(formal_system, consequence, "The revised definition changes which lemmas survive and may produce new factorization theories, spectra, algorithms, or counterexamples across related structures.").
+semantic_atom(formal_system, evidence, "Check closure and consistency, construct nontrivial examples, search small cases mechanically, prove the key invariants, and identify a theorem whose statement becomes simpler or stronger.").
+
+semantic_atom(unknown_encoding, context, "An unknown encoding must be separated into framing, symbol mapping, source structure, redundancy, synchronization, and channel errors before any bit pattern is assigned a meaning.").
+semantic_atom(unknown_encoding, hypotheses, "Test candidate block and convolutional families, interleaving, parity and checksum structures, repetition, scramblers, compression, and multiple layers rather than assuming one terrestrial code.").
+semantic_atom(unknown_encoding, verification, "Search for periodicity, block boundaries, autocorrelation, low-rank parity relations, syndrome-like clusters, invariant headers, and error patterns across repeated messages, then fit candidate encoders.").
+semantic_atom(unknown_encoding, controls, "Validate on held-out transmissions, inject synthetic bit flips and bursts, compare with shuffled and random streams, and require one inferred scheme to correct corruption without destroying stable payload structure.").
+semantic_atom(unknown_encoding, synthesis, "Prefer the smallest encoder that predicts redundancy and reconstructs consistent unseen frames; keep several interpretations when framing, compression, encryption, and error correction remain confounded.").
+
+semantic_atom(quantitative_attribution, context, "Quantitative attribution compares stable, hard-to-control patterns in a questioned work with representative samples while measuring genre, era, topic, editing, and sample-length confounds.").
+semantic_atom(quantitative_attribution, hypotheses, "Define candidate-author and open-set alternatives, plus null models for genre or period effects, before selecting features or inspecting which candidate scores highest.").
+semantic_atom(quantitative_attribution, verification, "Combine character and function-word n-grams, punctuation and sentence-length distributions, syntactic patterns, vocabulary richness, and topic-controlled embeddings in regularized classifiers or likelihood models.").
+semantic_atom(quantitative_attribution, controls, "Use nested cross-validation split by document, balanced same-genre controls, ablation of topic words, calibration, permutation tests, and an explicit unknown-author rejection threshold.").
+semantic_atom(quantitative_attribution, synthesis, "Report effect sizes, confidence and error rates across independent feature families; convergent held-out attribution is stronger than one opaque model, and short or edited texts may remain indeterminate.").
+
+semantic_atom(cyclical_coordination, context, "A schedule tied to one natural cycle must distinguish events fixed to that cycle from activities that depend on another drifting seasonal or environmental cycle.").
+semantic_atom(cyclical_coordination, direct_effect, "Cycle-based dates remain regular within their own count but move relative to the omitted reference, so seasonal work cannot rely on the same named date from year to year.").
+semantic_atom(cyclical_coordination, secondary_effect, "Communities would use direct environmental observations, local seasonal markers, or periodic correction rules for practical work, while observances may either migrate through seasons or adopt an intercalation convention.").
+semantic_atom(cyclical_coordination, qualification, "Pure adherence and seasonal alignment are different goals: inserting corrective periods restores alignment but makes the system no longer based only on the shorter cycle.").
+
+semantic_atom(material_process, hypotheses, "Separate intrinsic composition, phase and microstructure from effects of temperature, stress, frequency, amplitude, coupling, sensor artifact, contamination, and irreversible sample change.").
+semantic_atom(material_process, verification, "Use a controlled chamber with calibrated excitation and independent temperature, structural, electrical or functional measurements while sweeping one process variable at a time across the claimed transition.").
+semantic_atom(material_process, controls, "Test excitation off and sham frequencies, multiple amplitudes and orientations, duplicate samples and instruments, thermal and mechanical artifacts, blinded analysis, and independent replication.").
+semantic_atom(material_process, synthesis, "Map the response over the full operating space, test reversibility and hysteresis, and accept a mechanism only if it predicts new frequency, geometry, composition, or boundary-condition results.").
+
+semantic_atom(adaptive_art, hypotheses, "Define alternative alignment models for timing, intensity, valence, tension, motif, structure, and audience perception instead of reducing correspondence to one global similarity score.").
+semantic_atom(adaptive_art, verification, "Align time-resolved features, compare lagged and multiscale trajectories, score motif and structural correspondences, and combine correlation or distance measures with blinded human judgments.").
+semantic_atom(adaptive_art, controls, "Compare against shuffled, time-reversed, genre-matched, and independently generated pairings; separate agreement with the source from generic emotional plausibility and test diverse listeners or readers.").
+semantic_atom(adaptive_art, synthesis, "Report several preregistered metrics, uncertainty, baselines, and human inter-rater reliability; strong alignment should survive held-out works and predict where audiences perceive matching turns.").
+
+semantic_atom(interactive_art, hazard, "Real-time audience feedback can be corrupted by reverberation, overlapping events, latency, tempo ambiguity, outliers, deliberate gaming, sensor dropout, and unstable mappings that make the performance oscillate.").
+semantic_atom(interactive_art, pathway, "Microphones or sensors feed onset detection and tempo estimation; aggregation, smoothing, confidence and latency then shape the control signal, so an error at any stage can produce an abrupt musical change.").
+semantic_atom(interactive_art, mitigation, "Use multiple sensors, band and source separation, robust onset consensus, confidence thresholds, bounded tempo changes, hysteresis, manual override, fallback values, and visible consent and data limits.").
+semantic_atom(interactive_art, monitoring, "Track signal quality, detected onsets, tempo confidence, end-to-end latency, rejected outliers, mapping state, performer overrides, and audience response during rehearsal and performance.").
+
+semantic_atom(identity_continuity, context, "Identity-changing technology separates experiential continuity, memory, character, embodiment, causal history, and legal recognition, which ordinary life usually treats as one person.").
+semantic_atom(identity_continuity, stakeholders, "Stakeholders include the original person, any successor or copy, relatives, counterparties, institutions assigning rights and duties, and people affected by unequal access or non-consensual alteration.").
+semantic_atom(identity_continuity, harms, "A system may create a psychologically similar successor while ending the original stream, duplicate one identity into competing claimants, alter consent or responsibility, and concentrate control over memory and personhood.").
+semantic_atom(identity_continuity, safeguards, "Require explicit criteria for continuity, informed and revocable consent, rights for every resulting subject, privacy and integrity of mental data, independent oversight, and rules for duplication, failure, inheritance, and liability.").
+semantic_atom(identity_continuity, tradeoff, "Preserving memories or function may support survival and autonomy, but benefits do not settle whether numerical identity continues or justify treating a copy, altered person, or inaccessible original as property.").
+
+% ── reusable general facets ──────────────────────────────────────────────────
+semantic_atom(general, direct_effect, "First compare the changed condition with a clear baseline, keep other assumptions fixed, and trace the nearest causal effect before adding feedbacks.").
+semantic_atom(general, secondary_effect, "Then follow adaptations, indirect effects, and distributional consequences; a response that helps one component can shift costs or risks to another.").
+semantic_atom(general, qualification, "The conclusion depends on scale, boundary conditions, time horizon, and behavior, so those assumptions should be stated instead of presenting one scenario as inevitable.").
+semantic_atom(general, objective, "Define the objective as measurable outcomes rather than a technology or policy by itself, including who should benefit and which constraints cannot be violated.").
+semantic_atom(general, intervention, "Use several coordinated levers, assign responsibility for each one, and stage deployment so evidence from an early phase can change the later design.").
+semantic_atom(general, tradeoff, "The central trade-off is usually performance against cost, access, resilience, or unintended effects; make that exchange explicit instead of hiding it in an average result.").
+semantic_atom(general, validation, "Pilot the design against a baseline, publish the metrics and failure criteria in advance, and revise or stop it when observed results contradict its assumptions.").
+semantic_atom(general, mechanism, "Separate the triggering condition, the intermediate process, and the observable result; this distinguishes a causal account from a label or correlation.").
+semantic_atom(general, consequence, "That mechanism predicts both a primary effect and secondary responses, which may amplify, compensate for, or redistribute the original change.").
+semantic_atom(general, evidence, "A useful test varies the proposed cause while controlling alternatives and checks for the specific observations the mechanism predicts.").
+semantic_atom(general, stakeholders, "Identify the people who supply the inputs, receive the benefits, bear the errors, and lack power to refuse or appeal.").
+semantic_atom(general, harms, "The main risks include unequal error rates, loss of autonomy, hidden externalities, and harms that appear only after data or decisions are reused in a new context.").
+semantic_atom(general, safeguards, "Use informed consent where possible, data minimization, independent oversight, transparent criteria, meaningful appeal, and a route to withdraw or repair harm.").
+semantic_atom(general, hypotheses, "List competing explanations for the discrepancy, including error, contamination, changed provenance, later repair, sampling bias, and a mistaken initial assumption.").
+semantic_atom(general, verification, "Repeat each measurement with documented samples and independent methods, and inspect the full chain of custody rather than trusting only the final label.").
+semantic_atom(general, controls, "Use known positive and negative controls, blind the comparison where practical, and ask independent specialists to reproduce the analysis.").
+semantic_atom(general, synthesis, "Reconcile the evidence by weighting method reliability and chronology; if the conflict remains, report the uncertainty and the observations that would resolve it.").
+semantic_atom(general, hazard, "Enumerate plausible harms, their severity, reversibility, and the populations or systems exposed, including low-probability failures with very large consequences.").
+semantic_atom(general, pathway, "For each hazard, show the causal pathway from release or decision to exposure and harm, including spread, feedback, misuse, and failure of containment.").
+semantic_atom(general, mitigation, "Reduce risk with layered controls, limited trials, containment, reversibility, clear stop rules, and responsibility for remediation rather than one optimistic safeguard.").
+semantic_atom(general, monitoring, "Measure leading indicators before and after deployment, compare them with controls, publish adverse outcomes, and keep long-term surveillance because delayed effects matter.").
+semantic_atom(general, premise, "Make the altered premise concrete through choices and consequences rather than explaining it only in exposition.").
+semantic_atom(general, technique, "Use parallel scenes, recurring images, and contrasting character decisions so the abstract idea becomes visible in action.").
+semantic_atom(general, tension, "Let attractive possibilities coexist with losses and contradictions; that tension prevents the work from collapsing into a simple moral.").
+semantic_atom(general, implication, "The result can connect the immediate case to broader questions about agency, responsibility, identity, and which alternatives people treat as possible.").
+semantic_atom(general, contrast, "Compare the cases on the same dimensions and baseline, distinguishing a difference in mechanism from a difference only in degree or context.").
+semantic_atom(general, criteria, "Choose explicit criteria such as likely benefit, effort, cost, reversibility, and fit with the person's constraints before ranking any option.").
+semantic_atom(general, options, "Offer a small set of genuinely distinct options rather than cosmetic variants, including a low-risk default and a more ambitious alternative.").
+semantic_atom(general, rationale, "Explain which criterion each option serves and why it is preferable under those conditions, so the recommendation can be adapted rather than merely copied.").
+semantic_atom(general, caveat, "Treat the recommendation as a starting point, check local constraints and preferences, and change course when the expected benefit does not appear.").
+
+% ── domain anchors and high-value overrides ──────────────────────────────────
+semantic_atom(physical_mechanics, context, "For a mechanics question, begin with the force balance and distinguish mass from weight, then compare the new environment with the Earth baseline.").
+semantic_atom(physical_mechanics, direct_effect, "Greater gravity raises weight in direct proportion while mass and inertia stay unchanged, so flight needs more lift and therefore more speed, wing area, or angle of attack.").
+semantic_atom(physical_mechanics, secondary_effect, "Birds would favor stronger muscles, lighter bodies, and larger wings, while aircraft would need higher power, stronger landing gear and structures, longer takeoff runs, and smaller payloads.").
+semantic_atom(physical_mechanics, mechanism, "Lift must balance weight; changing gravity changes the required lift, and the extra aerodynamic force raises induced drag, power demand, structural load, and stall constraints.").
+semantic_atom(physical_mechanics, evidence, "The claim can be checked with nondimensional force and power ratios, wind-tunnel tests, and scaled prototypes under equivalent loading.").
+
+semantic_atom(evidence_investigation, context, "Conflicting authentication evidence should be treated as competing claims about object, sample, chronology, and method, not as a reason to choose the preferred result.").
+semantic_atom(evidence_investigation, hypotheses, "A later date can reflect a replacement support, restoration, relining, contamination, a mislabelled sample, workshop practice, forgery, or error in the style attribution.").
+semantic_atom(evidence_investigation, verification, "Re-sample documented locations, repeat dating in independent laboratories, identify pigments and fibers, examine underdrawings and layer order, and reconstruct provenance and conservation records.").
+semantic_atom(evidence_investigation, controls, "Blind stylistic comparisons and laboratory controls should include securely dated works and known restoration materials, with every sample tied photographically to its location.").
+semantic_atom(evidence_investigation, synthesis, "A coherent chronology must explain all layers: the image may be old on a replaced canvas, partly restored, workshop-made, or modern; the conclusion should report confidence and unresolved conflicts.").
+
+semantic_atom(language_cognition, context, "Language builds discrete, reusable symbols from distinctions its users can perceive and produce, while learning tunes attention toward contrasts that reliably change meaning.").
+semantic_atom(language_cognition, mechanism, "Repeated exposure sharpens categorical perception for meaningful contrasts and links them to stable concepts; compositional syntax then combines a finite inventory into unbounded messages.").
+semantic_atom(language_cognition, consequence, "Missing words encourage approximation, grouping, gesture, or relational descriptions rather than erasing the underlying concept, but they make exact comparison and formal calculation slower to externalize.").
+semantic_atom(language_cognition, objective, "Design contrastive units in the species' available channel, then add compositional ordering, role marking, negation, reference, and recursion instead of copying human sound categories.").
+semantic_atom(language_cognition, intervention, "Map distinct colors or patterns to reusable morphemes, reserve combinations for grammar, and use spatial or temporal ordering to mark argument roles and clause structure.").
+semantic_atom(language_cognition, direct_effect, "Early exposure preserves sensitivity to practiced distinctions and recruits faster neural discrimination, while unused contrasts become harder to separate later.").
+semantic_atom(language_cognition, qualification, "Vocabulary influences habitual strategies and memory, but it does not impose a hard limit on thought; people can use approximation, external marks, and newly taught symbols.").
+
+semantic_atom(visual_language_design, context, "For a species that controls visible patterns, color, brightness, shape, position, and timing can play the contrastive role that human languages assign to speech sounds.").
+semantic_atom(visual_language_design, objective, "Choose a small set of perceptually separated pattern features, make them robust under distance and lighting, and reserve combinations for compositional grammar.").
+semantic_atom(visual_language_design, intervention, "Treat elementary color-pattern changes as phoneme-like units; build morphemes from sequences, and mark agent, action, object, tense, negation, and questions by order, location, or synchronized layers.").
+semantic_atom(visual_language_design, tradeoff, "More simultaneous channels increase speed but can overload perception and create ambiguity, while strict sequential signaling is easier to parse but slower.").
+semantic_atom(visual_language_design, validation, "Test discrimination under realistic viewing conditions, then measure whether unfamiliar users can segment signals, recover roles, and understand novel recursive combinations.").
+
+semantic_atom(limited_number_language, context, "A language with exact words only up to three can still represent larger quantity approximately, relationally, or with external marks, but exact values are harder to hold and communicate.").
+semantic_atom(limited_number_language, direct_effect, "Speakers may use forms like many, a few groups of three, one more, matching, fingers, piles, or one-to-one correspondence instead of a stable exact label for each cardinality.").
+semantic_atom(limited_number_language, secondary_effect, "Approximate estimation and practical comparison can remain strong, while exact arithmetic, place value, written algorithms, and transmission of large calculations develop more slowly until new symbols are invented or borrowed.").
+semantic_atom(limited_number_language, qualification, "This constrains linguistic tools rather than innate numerical perception: trade, schooling, notation, and contact can create an exact counting system without changing human cognitive capacity.").
+
+semantic_atom(tonal_language_learning, context, "In a tonal language, pitch contour is a lexical contrast, so infants learn to treat changes in fundamental frequency as evidence for different words rather than only emotion or melody.").
+semantic_atom(tonal_language_learning, direct_effect, "Early exposure preserves fine discrimination of tone categories, strengthens neural phase-locking and categorical responses to pitch contours, and makes tone recognition faster and more automatic.").
+semantic_atom(tonal_language_learning, secondary_effect, "Later listeners may attend more efficiently to linguistically relevant pitch and sometimes transfer that sensitivity to music or speech in noise, while ignoring pitch variation that does not change a word in context.").
+semantic_atom(tonal_language_learning, qualification, "The advantage depends on continuing use, musical experience, age, and the tested task; it is experience-dependent tuning, not uniformly superior hearing.").
+
+semantic_atom(sensory_prediction, context, "Perception combines incoming signals with expectations, adaptation, and comparisons across channels, so the same physical stimulus can feel different when its context changes.").
+semantic_atom(sensory_prediction, mechanism, "Neural gain control and lateral contrast emphasize differences, while predictive processing reduces expected input and flags mismatches; aligned visual, motor, and bodily signals strengthen a common interpretation.").
+semantic_atom(sensory_prediction, consequence, "Congruent cues increase salience, presence, or resolution, whereas conflict produces uncertainty, tension, adaptation, or a drive toward the more statistically expected state.").
+semantic_atom(sensory_prediction, evidence, "Vary one cue at a time, include matched controls, and measure both discrimination and subjective reports; the mechanism predicts systematic changes with congruence and expectation.").
+semantic_atom(sensory_prediction, qualification, "Learning, attention, culture, and individual physiology change the strength of the effect, so a general mechanism need not produce an identical experience in everyone.").
+
+semantic_atom(taste_contrast, context, "Taste is encoded by interacting receptor pathways and by neural contrast, so a small amount of one tastant can change the salience of another without adding sweetness itself.").
+semantic_atom(taste_contrast, mechanism, "At low concentration, salt can suppress bitter notes and alter gain across taste pathways; removing that competing bitterness makes the sugar signal stand out as sweeter.").
+semantic_atom(taste_contrast, consequence, "The dessert tastes sweeter because the balance among signals changes, not because salt is converted into sugar or activates the sweet pathway as strongly as sugar does.").
+semantic_atom(taste_contrast, evidence, "A blind concentration series with equal sugar predicts an inverted-U effect: a small salt dose can enhance perceived sweetness, while enough salt eventually tastes salty and reduces liking.").
+semantic_atom(taste_contrast, qualification, "The size and direction of the effect depend on dose, recipe, temperature, and the person's taste sensitivity; it is contrast enhancement, not an unlimited rule.").
+
+semantic_atom(embodied_presence, context, "Presence in virtual reality increases when visual body motion, proprioception, vestibular input, and the user's motor commands agree about where the self is and what caused the motion.").
+semantic_atom(embodied_presence, mechanism, "The brain combines cues by reliability and predicts the sensory consequences of movement; matching subtle sway reduces prediction error and strengthens body ownership and agency over the avatar.").
+semantic_atom(embodied_presence, consequence, "Tighter visuomotor synchrony makes the avatar feel like the user's body and the simulated space feel like the current environment, while delay or mismatched motion weakens presence and can cause discomfort.").
+semantic_atom(embodied_presence, evidence, "Vary sway gain and delay while measuring ownership, presence, postural response, and motion sickness; the account predicts a graded loss as synchrony moves outside the integration window.").
+semantic_atom(embodied_presence, qualification, "Visual fidelity alone is insufficient: latency, tracking noise, vestibular conflict, prior embodiment, and individual sensory weighting all modify the effect.").
+
+semantic_atom(auditory_prediction, context, "Tonal tension is a learned and partly acoustic expectation: listeners infer likely continuations from harmonic regularities while roughness and beating make some combinations less stable.").
+semantic_atom(auditory_prediction, mechanism, "A chord outside the established key or containing close, interacting frequencies produces prediction error and sensory roughness; a consonant tonic fits the learned hierarchy and reduces both.").
+semantic_atom(auditory_prediction, consequence, "Resolution feels satisfying because the auditory system moves from uncertain, high-error alternatives to a stable continuation it assigned high probability in that musical context.").
+semantic_atom(auditory_prediction, evidence, "Change key context while holding the same chord constant and measure expectancy, reaction time, and neural mismatch responses; perceived tension should follow context as well as raw acoustics.").
+semantic_atom(auditory_prediction, qualification, "Culture and training shape harmonic probabilities, so tension is not identical across musical systems even though beating, roughness, and predictive learning are general mechanisms.").
+
+semantic_atom(data_ethics, context, "Inferring population health from digital traces combines a public-health benefit with unusually sensitive data that were often created for a different audience and purpose.").
+semantic_atom(data_ethics, stakeholders, "Stakeholders include the people represented in the data, absent or underrepresented groups, clinicians, public agencies, platforms, researchers, and communities that may be labelled or targeted.").
+semantic_atom(data_ethics, harms, "Posts can be re-identified; consent is weak; platform users are not representative; language and access create bias; false trends can stigmatize groups or redirect resources and surveillance.").
+semantic_atom(data_ethics, safeguards, "Minimize and aggregate data, test subgroup error and representativeness, prohibit individual targeting, use community and ethics oversight, secure access, publish limitations, and provide redress.").
+semantic_atom(data_ethics, tradeoff, "Earlier warning may help allocate care, but predictive value must be weighed against privacy, chilling effects, discrimination, and the danger that a noisy proxy is treated as diagnosis.").
+
+semantic_atom(social_ethics, context, "An ethical analysis should separate overall welfare, individual rights, fairness of distribution, consent, and responsibility for foreseeable harm.").
+semantic_atom(social_ethics, stakeholders, "Include direct beneficiaries and subjects, people exposed to error or exclusion, future generations, and groups with little ability to refuse the decision.").
+semantic_atom(social_ethics, harms, "A policy can raise aggregate benefit yet still coerce individuals, deepen structural inequality, normalize surveillance, or make vulnerable groups bear concentrated risks.").
+semantic_atom(social_ethics, safeguards, "Use necessity and proportionality tests, equal protection, informed participation, transparent rules, independent review, appeal, and periodic reconsideration.").
+semantic_atom(social_ethics, tradeoff, "The central question is not benefit versus no benefit, but which benefits justify which burdens, who decides, and whether a less restrictive alternative can achieve the goal.").
+
+semantic_atom(astronomy_observation, context, "Astronomical events must be separated into geometry, the radiation or waves produced at the source, and what survives propagation to an observer and instrument.").
+semantic_atom(astronomy_observation, mechanism, "Blocking a bright source removes direct light but not scattered atmospheric light or emission from an extended region; a violent merger can produce gravitational waves even when electromagnetic emission is weak or absent.").
+semantic_atom(astronomy_observation, consequence, "Different channels arrive with characteristic timing, spectrum, polarization, and waveform, so combining them constrains geometry, masses, matter ejection, and the surrounding environment.").
+semantic_atom(astronomy_observation, evidence, "Test the account with synchronized multi-messenger observations, spectral evolution, sky localization, waveform shape, and comparison with physical simulations.").
+semantic_atom(astronomy_observation, qualification, "Visibility depends strongly on orientation, distance, intervening material, detector sensitivity, and whether matter exists outside the compact remnant to radiate.").
+
+semantic_atom(eclipse_optics, context, "Totality blocks the bright solar photosphere along one line of sight, but the observer remains inside an atmosphere illuminated by light from outside the narrow path of totality.").
+semantic_atom(eclipse_optics, mechanism, "Air and aerosols scatter light arriving from the bright horizon, while the Sun's extended corona remains visible around the Moon because it lies outside the occulted photospheric disk.").
+semantic_atom(eclipse_optics, consequence, "The sky becomes dramatically dimmer but not perfectly black; the horizon can glow like twilight, and the faint corona becomes visible precisely because direct photospheric glare is removed.").
+semantic_atom(eclipse_optics, evidence, "Brightness and spectrum measured across the sky should vary with distance from the path center, atmospheric aerosols, horizon geometry, and coronal activity.").
+semantic_atom(eclipse_optics, qualification, "Clouds and local atmospheric conditions change the residual light, while the corona contributes a striking visible structure but much less total illumination than scattered sky light.").
+
+semantic_atom(compact_object_merger, context, "A black-hole-neutron-star merger is a multi-messenger event whose signatures depend on masses, spins, orientation, and whether the neutron star is disrupted before crossing the horizon.").
+semantic_atom(compact_object_merger, direct_effect, "The gravitational wave signal should chirp upward in frequency and amplitude and then cut off or change near merger; tidal disruption can imprint a high-frequency departure from a black-hole binary waveform.").
+semantic_atom(compact_object_merger, secondary_effect, "If disruption ejects neutron-rich matter outside the horizon, it can power a short gamma-ray burst, a radioactive kilonova, and later radio or X-ray afterglow; a direct plunge may be electromagnetically dark.").
+semantic_atom(compact_object_merger, mechanism, "Orbital energy radiates as a chirping gravitational waveform, while only matter left outside the final black hole can form a disk, ejecta, jets, and electromagnetic emission.").
+semantic_atom(compact_object_merger, consequence, "Joint timing and localization can constrain the neutron-star equation of state, ejecta mass, jet geometry, and the fraction of heavy elements made by the event.").
+semantic_atom(compact_object_merger, evidence, "Search the gravitational-wave sky region rapidly in gamma-ray, optical, infrared, X-ray, and radio bands, then compare the light curve and spectrum with disruption and kilonova models.").
+semantic_atom(compact_object_merger, qualification, "A high black-hole mass, low aligned spin, unfavorable orientation, or large distance can suppress tidal disruption or hide the electromagnetic counterpart.").
+
+semantic_atom(quantum_information, context, "Entanglement creates correlations between joint measurement outcomes, but a correlation is not a controllable message sent from one detector to the other.").
+semantic_atom(quantum_information, mechanism, "Each local result is random; choosing a measurement on one side cannot set the distant result, and the correlation becomes visible only after the two records are compared through an ordinary classical channel.").
+semantic_atom(quantum_information, consequence, "The state update can be described as nonlocal, yet it cannot transmit usable information faster than light, so it does not violate relativistic causality.").
+semantic_atom(quantum_information, evidence, "Bell tests reject local hidden-variable explanations while still obeying the no-signalling predictions in each observer's local statistics.").
+semantic_atom(quantum_information, qualification, "Interpretations disagree about what the state update means, but standard quantum theory and experiment agree on the operational no-signalling limit.").
+
+semantic_atom(infrastructure_policy, context, "Infrastructure policy is a coupled technical and social system: capacity, reliability, prices, land, institutions, and distributional effects change together.").
+semantic_atom(infrastructure_policy, objective, "Set measurable targets for service quality, congestion or emissions, reliability, affordability, and access, with separate metrics for vulnerable groups rather than one citywide average.").
+semantic_atom(infrastructure_policy, intervention, "Combine a clear price or standard with viable alternatives, phased investment, real-time operational data, and rules that adapt by location and demand instead of relying on one blunt instrument.").
+semantic_atom(infrastructure_policy, tradeoff, "A strong signal improves efficiency but can burden people with inflexible schedules or low income; exemptions, credits, revenue recycling, and better public alternatives preserve effectiveness while improving equity.").
+semantic_atom(infrastructure_policy, validation, "Pilot in representative areas, compare against untreated baselines, measure behavior, reliability and distributional outcomes, publish the results, and adjust thresholds before scaling.").
+semantic_atom(infrastructure_policy, hazard, "Major hazards are reliability gaps, stranded costs, political backlash, unequal access, supply-chain bottlenecks, land conflict, and shifting pollution rather than removing it.").
+semantic_atom(infrastructure_policy, mitigation, "Sequence investment before restrictions, retain reserve capacity, diversify suppliers, recycle revenue transparently, and protect essential users with targeted support rather than broad loopholes.").
+
+semantic_atom(election_systems, context, "The spoiler effect occurs when similar candidates divide support under plurality voting, allowing a less broadly preferred candidate to win.").
+semantic_atom(election_systems, objective, "Preserve expressive voter preferences, reduce incentives for strategic withdrawal or lesser-evil voting, and make the winner depend on broad support rather than one split plurality.").
+semantic_atom(election_systems, intervention, "Ranked-choice voting eliminates the lowest candidate and transfers ballots; a two-round runoff lets voters regroup; approval or score voting lets support extend to several candidates; proportional systems allocate seats by vote share.").
+semantic_atom(election_systems, tradeoff, "Ranked systems and runoffs reduce simple vote splitting but differ in complexity, monotonicity, cost, minority representation, and vulnerability to strategic ranking; proportional representation changes the goal from one winner to fair seat shares.").
+semantic_atom(election_systems, validation, "Test systems against real and simulated preference profiles for spoiler resistance, representation, exhausted ballots, strategic incentives, auditability, and whether voters understand the ballot.").
+
+semantic_atom(ecological_intervention, context, "Releasing an organism or heritable trait into an ecosystem is an open-system intervention: it can reproduce, mutate, disperse, and interact with species far beyond the target site.").
+semantic_atom(ecological_intervention, hazard, "Risks include escape, non-target effects, food-web disruption, horizontal gene transfer, pathogen or prey adaptation, displacement of native species, and loss of control after spread.").
+semantic_atom(ecological_intervention, pathway, "Map survival, reproduction, dispersal, gene flow, predation, competition, and environmental transport from the release site through connected habitats and seasonal conditions.").
+semantic_atom(ecological_intervention, mitigation, "Begin with contained laboratory and mesocosm tests, use geographic or genetic confinement, stage any field trial, define stop rules, and prefer reversible designs before self-propagating ones.").
+semantic_atom(ecological_intervention, monitoring, "Track target and non-target populations, genes, ecosystem functions, resistance, and spread against pre-release baselines for many generations, with independent reporting and funded remediation.").
+semantic_atom(ecological_intervention, consequence, "A useful metabolism or disease reduction can lower waste or illness, but rapid population growth and changed resource flows can create new niches, competition, emissions, or dependence.").
+
+semantic_atom(security_cognition, context, "Memorable authentication must combine high search space with reliable human recall; complexity rules that merely force substitutions often damage recall without adding much entropy.").
+semantic_atom(security_cognition, objective, "Aim for a unique secret with enough random choices to resist guessing, low interference with other memories, and a recovery path that does not expose the secret.").
+semantic_atom(security_cognition, intervention, "Use several randomly selected unrelated words, encode them as a vivid personal image or spatial story, keep one unique credential per service, and store the set in a password manager.").
+semantic_atom(security_cognition, tradeoff, "A meaningful phrase is easier to recall but more predictable; random selection supplies entropy, while chunking, imagery, and spaced retrieval supply memorability without making the words personally guessable.").
+semantic_atom(security_cognition, validation, "Estimate entropy from the selection process rather than appearance, test recall after delays, block common and breached choices, rate-limit guesses, and add multi-factor authentication.").
+semantic_atom(security_cognition, caveat, "Do not reuse the phrase or base it on public biography, and prefer a password manager plus multi-factor authentication when the account protects high-value data.").
+
+semantic_atom(creative_interpretation, context, "A counterfactual narrative turns abstract questions into lived experience by confronting a character with a world that is recognizable yet built from different historical choices.").
+semantic_atom(creative_interpretation, premise, "Show concrete divergences in institutions, streets, relationships, and memories, then make the character choose between the familiar self and possibilities that exist only in the alternate history.").
+semantic_atom(creative_interpretation, technique, "Pair locations and people across the two cities, repeat images with changed meanings, and reveal the divergence through action, documents, and conflicting memories rather than a lecture.").
+semantic_atom(creative_interpretation, tension, "The alternate world can offer repaired injustices while erasing relationships the character values, making contingency both liberating and painful instead of simply better or worse.").
+semantic_atom(creative_interpretation, implication, "Identity emerges as partly continuous character and partly accumulated history: the premise asks which self is chosen, which is inherited, and whether different circumstances make a different person.").
+
+semantic_atom(human_behavior, context, "Human behavior reflects an interaction among perception, learned expectations, memory limits, motivation, social context, and the strategies available in the environment.").
+semantic_atom(human_behavior, mechanism, "Repeated practice strengthens useful representations and makes retrieval more automatic, while attention, reward, and prediction errors update which cues guide later behavior.").
+semantic_atom(human_behavior, consequence, "The same adaptation can improve speed in a familiar setting yet create bias or brittleness when cues, incentives, or cultural context change.").
+semantic_atom(human_behavior, evidence, "Use longitudinal and controlled comparisons, behavioral measures rather than self-report alone, and tests that separate learning from selection and prior exposure.").
+semantic_atom(human_behavior, qualification, "Average effects do not determine an individual's outcome; development remains plastic and is shaped by education, health, opportunity, and continued experience.").
+
+semantic_atom(medicine_health, context, "Health decisions combine biological mechanism, uncertain evidence, patient values, population effects, and unequal access to benefits and harms.").
+semantic_atom(medicine_health, mechanism, "Trace the intervention from biological target through measurable intermediate effects to patient outcomes, separating a plausible pathway from demonstrated clinical benefit.").
+semantic_atom(medicine_health, hazard, "Consider direct adverse effects, delayed effects, interactions, diagnostic error, resistance, unequal access, and harms caused by acting on an uncertain prediction.").
+semantic_atom(medicine_health, safeguards, "Use staged trials, informed consent, independent safety review, representative recruitment, privacy protection, adverse-event reporting, and clear stopping criteria.").
+semantic_atom(medicine_health, evidence, "Compare meaningful outcomes against an appropriate control, report absolute as well as relative effects, and examine subgroup uncertainty and follow-up duration.").
+
+semantic_atom(computing_technology, context, "A technical system should be analyzed as data, model or mechanism, interface, users, incentives, failure modes, and operational feedback rather than as an isolated algorithm.").
+semantic_atom(computing_technology, objective, "Specify the user task, acceptable error, latency, security, accessibility, and accountability before choosing an architecture or optimizing a headline metric.").
+semantic_atom(computing_technology, intervention, "Use modular components, explicit interfaces, least privilege, observable state, human override for high-impact actions, and staged deployment with rollback.").
+semantic_atom(computing_technology, hazard, "Failures include biased or stale data, distribution shift, automation surprise, privacy leakage, adversarial use, cascading dependencies, and users trusting output beyond its evidence.").
+semantic_atom(computing_technology, validation, "Test representative and adversarial cases, calibrate uncertainty, measure subgroup errors and downstream outcomes, monitor drift, and investigate incidents instead of averaging them away.").
+
+semantic_atom(chemistry_materials, context, "Chemical and material behavior follows interactions among composition, structure, concentration, temperature, surface area, and the surrounding medium.").
+semantic_atom(chemistry_materials, mechanism, "At the molecular level, competing interactions change binding, transport, reaction rates, or receptor responses; a small additive can therefore alter an existing signal without contributing much bulk.").
+semantic_atom(chemistry_materials, consequence, "The direct change can shift thresholds and relative contrast, while secondary effects depend on concentration, temperature, phase, and interactions with other components.").
+semantic_atom(chemistry_materials, evidence, "Use concentration series, matched controls, blind sensory or instrument measurements, and a mechanistic prediction that distinguishes enhancement from simple addition.").
+semantic_atom(chemistry_materials, qualification, "The effect is rarely monotonic: beyond a useful range the additive can dominate, inhibit the process, or introduce a new signal.").
+
+semantic_atom(economics_choice, context, "Economic and collective-choice systems translate individual incentives and preferences into prices, allocations, or winners, so both efficiency and strategic behavior matter.").
+semantic_atom(economics_choice, mechanism, "Rules change the payoff for each action; participants adapt by shifting time, route, price, vote, entry, or information, and those responses determine the equilibrium rather than the announced rule alone.").
+semantic_atom(economics_choice, consequence, "A mechanism can reduce one inefficiency while creating avoidance, market power, exclusion, or strategic voting, so incidence and behavior must be measured.").
+semantic_atom(economics_choice, tradeoff, "Simplicity and decisive outcomes trade off against proportional representation, resistance to manipulation, minority voice, administrative cost, and ease of understanding.").
+semantic_atom(economics_choice, validation, "Simulate strategic cases, pilot with real behavior, compare distributional outcomes and failure modes, and revise thresholds or transfers before broad adoption.").
+
+semantic_atom(complex_system, context, "A complex system is shaped by interacting components, constraints, delays, and feedback, so local changes cannot be evaluated in isolation.").
+semantic_atom(complex_system, direct_effect, "A changed parameter first alters the components directly coupled to it, with the sign and size determined by their local relationship and available slack.").
+semantic_atom(complex_system, secondary_effect, "Feedback can amplify, damp, delay, or redirect that effect, producing thresholds and emergent behavior that a linear extrapolation misses.").
+semantic_atom(complex_system, mechanism, "Map stocks, flows, coupling, delays, reinforcing loops, and balancing loops, then trace how a disturbance propagates through that structure.").
+semantic_atom(complex_system, consequence, "The system may settle into a new equilibrium, oscillate, cross a tipping point, or remain resilient by reorganizing interactions.").
+semantic_atom(complex_system, evidence, "Perturb one input across scales, observe trajectories rather than endpoints, compare with a control, and test whether the proposed feedback predicts timing as well as direction.").
+semantic_atom(complex_system, qualification, "Results depend on system boundary, initial conditions, time scale, and omitted links, so sensitivity analysis is part of the answer rather than an afterthought.").
+
+semantic_atom(measurement_inference, context, "An unknown measurement system can be decoded from repeated quantities, internal consistency, physical constraints, and comparison with features that still exist, even when no vocabulary is shared.").
+semantic_atom(measurement_inference, hypotheses, "Test whether each symbol is a unit, multiplier, fraction, tally, or context marker, and whether different columns measure length, mass, volume, time, or speed.").
+semantic_atom(measurement_inference, verification, "Align repeated voyages, cargo totals, depths, times, and surviving ship dimensions with plausible modern values, then fit conversion ratios across many independent entries.").
+semantic_atom(measurement_inference, controls, "Check that one conversion predicts held-out records, preserves dimensional relationships, and remains stable across scribes, routes, cargo types, and rounding conventions.").
+semantic_atom(measurement_inference, synthesis, "A convincing solution is the simplest unit map that explains all tables with small residuals; report alternative scales when the evidence cannot distinguish them.").
+
+semantic_atom(biological_capability_society, context, "Human photosynthesis would add a diffuse energy source but would not remove needs for protein, minerals, water, land, or food, because a human body uses far more power than skin-sized sunlight can usually provide.").
+semantic_atom(biological_capability_society, direct_effect, "Cities would value sunlight, roof and facade exposure, parks, and schedules around daylight, while food demand would shift more than vanish and agriculture would emphasize nutrients rather than calories alone.").
+semantic_atom(biological_capability_society, secondary_effect, "Energy savings and food prices could change labor and inequality, but access to light, climate, skin area, housing, and outdoor safety would become new economic and political divides.").
+semantic_atom(biological_capability_society, qualification, "Identity could incorporate light practices and visible biological differences, yet the scale of social change depends on photosynthetic efficiency; ordinary plant efficiency would supply only a fraction of human metabolism.").
+
+semantic_atom(music_expression, context, "A grief symphony can preserve one recognizable motif while harmony, tempo, register, rhythm, orchestration, and formal stability change across emotional stages.").
+semantic_atom(music_expression, direct_effect, "Denial can keep the motif veiled and harmonically suspended; anger can fragment it with brass, percussion, dissonance, and unstable meter; bargaining can sequence competing variations.").
+semantic_atom(music_expression, secondary_effect, "Depression can thin the texture, slow pulse, lower register, and leave phrases unresolved, while acceptance returns the motif in a transformed consonant setting without pretending the earlier movements never happened.").
+semantic_atom(music_expression, qualification, "The stages should be dramatic lenses rather than a rigid clinical order; recurring material and transitions can show grief looping, overlapping, and changing intensity.").
+
+semantic_atom(digital_identity_law, context, "External memories separate biological person, stored record, access credential, and narrative identity, so the law would need to define ownership and responsibility for each layer.").
+semantic_atom(digital_identity_law, objective, "Protect continuity and autonomy while distinguishing an authentic memory, a copy, an edit, coerced access, and conduct performed with or without relevant recollection.").
+semantic_atom(digital_identity_law, intervention, "Treat memory files as highly protected personal data, require consent and provenance logs for access or alteration, criminalize tampering, and let courts examine control and intent at the time of an act.").
+semantic_atom(digital_identity_law, tradeoff, "A person should not escape liability by deleting a memory, but a planted or inaccessible record can undermine mens rea; copies also create conflicts between privacy, evidence, inheritance, and competing identity claims.").
+semantic_atom(digital_identity_law, validation, "Use independent audit trails, authenticity standards, due process for contested memories, and narrow rules tested against loss, duplication, corruption, coercion, and multiple simultaneous copies.").
+
+semantic_atom(acoustic_bioprocess, context, "Cheese flavor emerges from microbial metabolism, enzyme activity, moisture, gas transport, and matrix structure during aging; sound would have to alter one of those physical or biological processes.").
+semantic_atom(acoustic_bioprocess, mechanism, "Vibration could change micro-mixing, oxygen and moisture transport, curd microstructure, or microbial stress responses, thereby shifting proteolysis and lipolysis products that produce aroma and taste.").
+semantic_atom(acoustic_bioprocess, consequence, "Resonant frequencies could create reproducible local differences, but loudness, temperature, humidity, vibration amplitude, and contamination are simpler competing explanations.").
+semantic_atom(acoustic_bioprocess, evidence, "Age matched cheeses with silent, sham-vibration, and frequency conditions; measure vibration, microbes, metabolites, texture, and blind sensory ratings, then replicate across batches.").
+semantic_atom(acoustic_bioprocess, qualification, "Without controlled chemical and microbiological differences, distinct flavor reports would support expectation or batch effects rather than a frequency-specific mechanism.").
+
+semantic_atom(ecological_signaling, context, "Reef fluorescence is an underwater visual signal whose salience depends on wavelength, depth, ambient light, species vision, and whether organisms use it for navigation, camouflage, courtship, prey detection, or habitat choice.").
+semantic_atom(ecological_signaling, direct_effect, "More intense fluorescence could attract species that seek the cue, repel or expose organisms that use camouflage, and alter recognition or mating when the engineered signal no longer tracks reef quality.").
+semantic_atom(ecological_signaling, secondary_effect, "Changed movement and encounter rates can cascade through predation, grazing, recruitment, competition, and polluting light environments, even if the coral itself remains healthy.").
+semantic_atom(ecological_signaling, qualification, "Effects will differ by species and depth, so spectral sensitivity and behavior must be measured in field conditions rather than assuming brighter fluorescence has one universal meaning.").
+
+semantic_atom(statistical_inference, context, "A visual cluster is not evidence until the observation rule, comparison population, and search process are defined; otherwise selection after seeing the data creates a look-elsewhere effect.").
+semantic_atom(statistical_inference, hypotheses, "Specify a null model for how primes and years would align by chance, the clustering statistic, the time interval, and plausible alternatives before calculating significance.").
+semantic_atom(statistical_inference, verification, "Use permutation or simulation under the null, compare the observed statistic with its sampling distribution, report effect size and confidence intervals, and test on held-out years.").
+semantic_atom(statistical_inference, controls, "Correct for every pattern, window, calendar encoding, and subgroup searched; inspect dependence and nonstationarity, and preregister a replication on untouched data.").
+semantic_atom(statistical_inference, synthesis, "A small corrected p-value plus stable out-of-sample effect would reject the null, while disappearance under alternate windows or replication would identify a chance cluster.").
+
+semantic_atom(knowledge_preservation, context, "After digital infrastructure disappears, the highest-value knowledge is actionable, locally maintainable, and able to rebuild prerequisites rather than a catalogue that depends on vanished machines.").
+semantic_atom(knowledge_preservation, direct_effect, "Preserve clean water, sanitation, agriculture, nutrition, first aid, infection control, childbirth, materials, mechanical power, measurement, navigation, governance, and methods for testing claims.").
+semantic_atom(knowledge_preservation, secondary_effect, "Redundant printed manuals, durable diagrams, apprenticeship, oral mnemonics, demonstration farms, and distributed libraries protect against loss while teaching literacy and maintenance skills.").
+semantic_atom(knowledge_preservation, qualification, "Priorities vary by ecology and available tools, so communities should preserve principles and diagnostic procedures alongside recipes, with periodic practice to keep tacit skills alive.").
+
+semantic_atom(biomimetic_structure, context, "Growing architecture would need to couple a load-bearing hierarchy with modular growth, sensing, transport, repair, and limits that keep local growth from destabilizing the whole structure.").
+semantic_atom(biomimetic_structure, objective, "Maintain safety and useful geometry while adding material only where loads and environment justify it, using replaceable cells and a stable primary frame.").
+semantic_atom(biomimetic_structure, intervention, "Borrow branching vascular networks for transport, bone remodeling for load-responsive reinforcement, plant meristems for controlled growth zones, cellular redundancy for repair, and feedback inhibition for size control.").
+semantic_atom(biomimetic_structure, tradeoff, "Adaptability and self-repair trade off against predictability, fire safety, material aging, uncontrolled growth, inspection difficulty, and the energy and nutrients required by active components.").
+semantic_atom(biomimetic_structure, validation, "Test digital twins and scaled modules under changing loads, verify growth stops and fault isolation, and retain passive safety margins when sensing or metabolism fails.").
+
+semantic_atom(scaling_ecology, context, "Making insects dog-sized changes biomechanics as well as ecology: square-cube scaling raises mass faster than supporting area and makes current exoskeletons, tracheal respiration, and heat exchange inadequate.").
+semantic_atom(scaling_ecology, direct_effect, "If the animals somehow survived, each would consume far more food, damage crops and structures, alter pollination, predation, disease transmission, and competition, while many current prey species would collapse.").
+semantic_atom(scaling_ecology, secondary_effect, "Population density would likely fall, but agriculture would need barriers and new pest control, ecosystems would reorganize around huge arthropod herbivores and predators, and transport and outdoor life would become hazardous.").
+semantic_atom(scaling_ecology, qualification, "The literal sudden transformation would kill many insects through scaling limits; ecological cascades require the stronger counterfactual assumption that their physiology also adapts.").
+
+semantic_atom(false_memory_investigation, context, "A vivid memory is a reconstruction, not a recording; confidence can remain high when source, date, or ownership of an image is wrong.").
+semantic_atom(false_memory_investigation, hypotheses, "Possible explanations include dreams, childhood stories, photographs, suggestion, source-monitoring error, cryptomnesia, confabulation, temporal misdating, or a neurological or psychiatric condition.").
+semantic_atom(false_memory_investigation, verification, "Interview neutrally, record the account before feedback, seek independent contemporaneous evidence, compare details with information the patient could have encountered, and assess cognition, sleep, medication, and symptoms.").
+semantic_atom(false_memory_investigation, controls, "Avoid leading questions and repeated rehearsal, blind corroborators to the claim, distinguish verifiable details from generic ones, and use neuropsychological tests as context rather than a truth detector.").
+semantic_atom(false_memory_investigation, synthesis, "If details track later sources or change with suggestion, reconstruction is likely; unexplained accuracy warrants further provenance work but does not by itself establish memory before birth.").
+
+semantic_atom(post_work_economy, context, "When automated systems produce most goods, scarcity shifts from labor toward ownership, energy, compute, land, attention, trust, status, and access to collective decision-making.").
+semantic_atom(post_work_economy, objective, "Design exchange so people can claim basic output, signal preferences for scarce resources, reward care and civic contribution, and prevent owners of automation from capturing every return.").
+semantic_atom(post_work_economy, intervention, "Possible forms include universal social dividends, compute or energy credits, time-banking for human care, reputation-backed community tokens, data or attention royalties, and participatory budget shares.").
+semantic_atom(post_work_economy, tradeoff, "Programmable credits can target scarcity but threaten privacy and freedom; reputation rewards contribution but entrenches bias; ordinary money remains useful unless governance changes ownership and distribution.").
+semantic_atom(post_work_economy, validation, "Pilot systems for inclusion, price stability, gaming, privacy, political capture, and whether people can convert entitlements without losing essential access.").
+
+semantic_atom(navigation_transition, context, "An eighteenth-century cartographer would recognize latitude, longitude, bearings, and projections but be surprised that maps are dynamic computational services rather than fixed surveyed sheets.").
+semantic_atom(navigation_transition, direct_effect, "Satellite positioning, global datums, real-time traffic, turn-by-turn routing, continuously updated layers, remote sensing, and zoomable vector maps separate position and map display from local landmark observation.").
+semantic_atom(navigation_transition, secondary_effect, "They would also confront map-matching, geocoding, probabilistic accuracy, multiple projections on demand, crowdsourced edits, and algorithms choosing a route by time rather than geometric distance.").
+semantic_atom(navigation_transition, qualification, "The underlying problems of scale, distortion, uncertainty, and political boundary choices remain familiar; the confusing change is speed, automation, global reference, and invisible computation.").
+
+semantic_atom(identity_philosophy, context, "Body transfer separates several criteria normally bundled into one person: bodily continuity, brain continuity, memory, character, causal history, and recognition by others.").
+semantic_atom(identity_philosophy, premise, "A theory must say whether identity follows the conscious pattern, the originating organism, an unbroken causal process, or a social and legal relation.").
+semantic_atom(identity_philosophy, technique, "Test the criterion with duplication, interrupted transfer, gradual replacement, memory loss, and two successors who each claim the same past; branching exposes where simple sameness fails.").
+semantic_atom(identity_philosophy, tension, "Psychological continuity supports survival intuitions, while bodily continuity anchors responsibility and relationships; copying suggests continuity may come in degrees even when numerical identity cannot.").
+semantic_atom(identity_philosophy, implication, "The scenario affects consent, inheritance, punishment, promises, and death, and may force a distinction between preserving a person and creating a very similar successor.").
+
+semantic_atom(adaptive_narrative, context, "A location-dependent story combines a narrative branching system with geolocation, local context, and a policy for what data may influence the reader's ending.").
+semantic_atom(adaptive_narrative, direct_effect, "The app can map coarse GPS regions or locally processed place categories to story variables, cache branches, and reveal endings through landmarks or augmented-reality cues without sending precise traces to a server.").
+semantic_atom(adaptive_narrative, secondary_effect, "Place makes the reader a participant and can connect fiction to local history, but it can exclude remote or disabled readers, expose sensitive movement, reinforce neighborhood stereotypes, and make endings unequal.").
+semantic_atom(adaptive_narrative, qualification, "Use opt-in coarse location, on-device processing, deletion, transparent branching, accessible alternatives, and equivalent non-location paths so novelty does not require surveillance.").
+semantic_atom(adaptive_narrative, stakeholders, "Implement the branch with coarse geofences or on-device place categories, cached story variables, and an explicit fallback; stakeholders include readers, bystanders, local communities, the author, and the service handling location.").
+semantic_atom(adaptive_narrative, harms, "Precise traces can reveal home, work, religion, health, or relationships; place-locked endings can exclude remote and disabled readers or attach stereotypes and unequal narrative value to neighborhoods.").
+semantic_atom(adaptive_narrative, safeguards, "Ask for opt-in coarse location, process it on device, retain no route history, explain how place changes the branch, provide deletion and accessible non-location alternatives, and avoid sensitive-place targeting.").
+semantic_atom(adaptive_narrative, tradeoff, "Location can create genuine site-specific discovery and local history, but the artistic gain must justify data exposure and unequal access; equivalent paths can preserve agency without making surveillance the price of participation.").
+
+semantic_atom(time_perception, context, "Subjective time depends on attention, arousal, memory encoding, and retrospective event density rather than a literal change in physical time.").
+semantic_atom(time_perception, mechanism, "During fear, high arousal and attention to rapid internal or external changes can increase temporal resolution and memory detail; during boredom, attention repeatedly monitors time because little else occupies it.").
+semantic_atom(time_perception, consequence, "Both states can feel prolonged in the moment for different reasons, while busy intervals may feel short prospectively but long in retrospect because they leave many distinct memories.").
+semantic_atom(time_perception, evidence, "Compare interval production, duration discrimination, physiological arousal, attention, and later recall under controlled boredom, threat, and engaged conditions; measurable biases need not imply a faster neural clock.").
+semantic_atom(time_perception, qualification, "Effects vary with task, emotion, age, medication, and whether judgment is made during or after the interval, so no single clock-speed account explains every result.").
+
+semantic_atom(anomalous_observation, context, "An apparently uphill river should first be treated as a conflict among visual reference, local topography, fluid level, wind, pressure, and measurement, not as a suspension of gravity.").
+semantic_atom(anomalous_observation, hypotheses, "Check an optical slope illusion, surveying or datum error, strong wind, tides or storm surge, a pressurized channel or siphon, pumping, backwater from a blockage, density flow, and temporary seismic tilting.").
+semantic_atom(anomalous_observation, verification, "Survey water-surface elevation with independent levels and GPS, release tracers, measure velocity and pressure, inspect upstream and downstream controls, and repeat across weather and tidal cycles.").
+semantic_atom(anomalous_observation, controls, "Calibrate instruments on known benchmarks, compare multiple sight lines, use a still-water reference, and have independent teams reproduce direction and elevation change.").
+semantic_atom(anomalous_observation, synthesis, "Water can move against a local bed slope when pressure or momentum drives it, but sustained free-surface flow still loses total hydraulic head; the measurements should identify that energy source.").
+
+semantic_atom(strategic_communication, context, "Pre-play communication changes beliefs and coordination but, unless promises are binding or reputation matters, it does not directly change the payoffs of share and steal.").
+semantic_atom(strategic_communication, mechanism, "Players can signal intent, negotiate reciprocal sharing, identify focal strategies, or deceive; credible commitments and repeated relationships make cooperation rational, while cheap talk alone may unravel when stealing remains a dominant action.").
+semantic_atom(strategic_communication, consequence, "Communication can raise the probability of mutual sharing by creating trust and correlated expectations, yet optimal play still depends on the payoff matrix, enforcement, risk attitude, and belief that the other message is credible.").
+semantic_atom(strategic_communication, evidence, "Solve the base game's Nash equilibria, then model cheap talk, binding contracts, repetition, and reputation separately and compare predicted and observed cooperation rates.").
+semantic_atom(strategic_communication, qualification, "There is no unique optimal strategy without exact payoffs: talk helps coordination most when interests partly align and commitments or future consequences make honesty incentive-compatible.").
+
+semantic_atom(truthful_institutions, context, "If deliberate lying vanished, institutions would still face error, secrecy, ambiguity, self-deception, incomplete knowledge, and conflicts over what must be disclosed.").
+semantic_atom(truthful_institutions, objective, "Replace rules designed mainly to detect deception with rules that govern relevance, privacy, verification, correction, and fair use of truthful but strategically withheld information.").
+semantic_atom(truthful_institutions, intervention, "Courts could shorten credibility contests but retain evidence standards; contracts would emphasize shared definitions and mistakes; diplomacy would need explicit confidentiality and staged disclosure instead of deniable signals.").
+semantic_atom(truthful_institutions, tradeoff, "Trust and transaction costs would improve, while privacy, negotiation, security, politeness, and protection from coercive questioning could worsen if truthfulness were mistaken for mandatory total disclosure.").
+semantic_atom(truthful_institutions, validation, "Institutions should preserve rights to silence, document uncertainty, audit factual claims, and test procedures against honest mistakes, conflicting interpretations, and coercion.").
+
+semantic_atom(interactive_art, context, "Audience-responsive control turns a performance from one-way delivery into a feedback system in which applause, movement, or collective bodily response becomes musical input.").
+semantic_atom(interactive_art, direct_effect, "Heart rate, movement, breathing, or arousal can be aggregated into tempo, density, dynamics, harmony, or form, making each event responsive and partly co-authored while the performer shapes the mapping.").
+semantic_atom(interactive_art, secondary_effect, "Listeners become aware of one another and may intentionally steer the piece; the performer shifts from sole author toward facilitator, improviser, and designer of constraints and feedback.").
+semantic_atom(interactive_art, qualification, "Consent, privacy, accessibility, noisy sensors, crowd manipulation, and the dominance of majority signals matter, so data should be minimized, aggregated, visible in use, and never treated as an objective reading of emotion.").
+
+% ── gen362: subject-specific knowledge for composable open acts ─────────────
+% These are concept bundles, not whole-prompt keys. Recognition is the same
+% scored analysis_domain_cue relation and every claim still needs an act,
+% an act-compatible domain, its gate, and a complete answer_plan.
+
+analysis_domain_cue(poetic_translation, keyword(meter)).
+analysis_domain_cue(poetic_translation, keyword(fidelity)).
+analysis_domain_cue(poetic_translation, keyword(humor)).
+analysis_domain_cue(poetic_translation, keyword(translation)).
+analysis_domain_cue(poetic_translation, keyword(memes)).
+analysis_domain_gate(poetic_translation, keyword(meter)).
+analysis_domain_gate(poetic_translation, keyword(fidelity)).
+analysis_domain_act(poetic_translation, comparison_analysis).
+
+analysis_domain_cue(emergency_warning, "alarm system").
+analysis_domain_cue(emergency_warning, keyword(disasters)).
+analysis_domain_cue(emergency_warning, "cyber attacks").
+analysis_domain_cue(emergency_warning, keyword(panic)).
+analysis_domain_cue(emergency_warning, keyword(residents)).
+analysis_domain_gate(emergency_warning, "alarm system").
+analysis_domain_act(emergency_warning, design_analysis).
+
+analysis_domain_cue(autonomous_vehicle_ethics, "self-driving car").
+analysis_domain_cue(autonomous_vehicle_ethics, keyword(pedestrian)).
+analysis_domain_cue(autonomous_vehicle_ethics, keyword(passenger)).
+analysis_domain_cue(autonomous_vehicle_ethics, "decision-making algorithm").
+analysis_domain_gate(autonomous_vehicle_ethics, "self-driving car").
+analysis_domain_gate(autonomous_vehicle_ethics, keyword(pedestrian)).
+analysis_domain_act(autonomous_vehicle_ethics, ethical_analysis).
+
+analysis_domain_cue(inflected_lexicography, "construct a dictionary").
+analysis_domain_cue(inflected_lexicography, keyword(dictionary)).
+analysis_domain_cue(inflected_lexicography, keyword(noun)).
+analysis_domain_cue(inflected_lexicography, keyword(color)).
+analysis_domain_cue(inflected_lexicography, "translation challenges").
+analysis_domain_gate(inflected_lexicography, keyword(dictionary)).
+analysis_domain_gate(inflected_lexicography, "translation challenges").
+analysis_domain_act(inflected_lexicography, design_analysis).
+
+analysis_domain_cue(observer_dependence, "stable only when observed").
+analysis_domain_cue(observer_dependence, "observed by a human").
+analysis_domain_cue(observer_dependence, "new element").
+analysis_domain_cue(observer_dependence, keyword(laboratory)).
+analysis_domain_cue(observer_dependence, keyword(theoretical)).
+analysis_domain_gate(observer_dependence, "stable only when observed").
+analysis_domain_gate(observer_dependence, "observed by a human").
+analysis_domain_act(observer_dependence, investigation_analysis).
+
+analysis_domain_cue(ethical_game_design, "board game").
+analysis_domain_cue(ethical_game_design, "moral dilemma").
+analysis_domain_cue(ethical_game_design, "ethical choices").
+analysis_domain_cue(ethical_game_design, keyword(mechanics)).
+analysis_domain_gate(ethical_game_design, "board game").
+analysis_domain_gate(ethical_game_design, "moral dilemma").
+analysis_domain_act(ethical_game_design, design_analysis).
+analysis_domain_act(ethical_game_design, ethical_analysis).
+
+analysis_domain_cue(atmospheric_bioengineering, keyword(venus)).
+analysis_domain_cue(atmospheric_bioengineering, keyword(terraforming)).
+analysis_domain_cue(atmospheric_bioengineering, "engineered algae").
+analysis_domain_cue(atmospheric_bioengineering, keyword(atmosphere)).
+analysis_domain_gate(atmospheric_bioengineering, keyword(venus)).
+analysis_domain_gate(atmospheric_bioengineering, keyword(terraforming)).
+analysis_domain_act(atmospheric_bioengineering, impact_analysis).
+
+analysis_domain_cue(odd_square_visual_proof, "first n odd numbers").
+analysis_domain_cue(odd_square_visual_proof, "sum of the first").
+analysis_domain_cue(odd_square_visual_proof, "visual argument").
+analysis_domain_cue(odd_square_visual_proof, keyword(odd)).
+analysis_domain_gate(odd_square_visual_proof, "first n odd numbers").
+analysis_domain_gate(odd_square_visual_proof, "visual argument").
+analysis_domain_act(odd_square_visual_proof, proof_exposition).
+
+analysis_domain_cue(privacy_preserving_proof, "zero-knowledge proof").
+analysis_domain_cue(privacy_preserving_proof, "exact age").
+analysis_domain_cue(privacy_preserving_proof, keyword(revealing)).
+analysis_domain_cue(privacy_preserving_proof, keyword(prove)).
+analysis_domain_gate(privacy_preserving_proof, "zero-knowledge proof").
+analysis_domain_gate(privacy_preserving_proof, "exact age").
+analysis_domain_gate(privacy_preserving_proof, keyword(revealing)).
+analysis_domain_act(privacy_preserving_proof, mechanism_analysis).
+analysis_domain_act(privacy_preserving_proof, proof_exposition).
+
+analysis_domain_cue(crossmodal_visualization, "sounds of a forest").
+analysis_domain_cue(crossmodal_visualization, "visual texture").
+analysis_domain_cue(crossmodal_visualization, keyword(painter)).
+analysis_domain_cue(crossmodal_visualization, keyword(auditory)).
+analysis_domain_gate(crossmodal_visualization, "visual texture").
+analysis_domain_gate(crossmodal_visualization, keyword(painter)).
+analysis_domain_act(crossmodal_visualization, design_analysis).
+
+analysis_domain_cue(communication_counterfactual, keyword(waterloo)).
+analysis_domain_cue(communication_counterfactual, keyword(napoleon)).
+analysis_domain_cue(communication_counterfactual, keyword(smartphones)).
+analysis_domain_cue(communication_counterfactual, "modern communication").
+analysis_domain_gate(communication_counterfactual, keyword(waterloo)).
+analysis_domain_gate(communication_counterfactual, keyword(napoleon)).
+analysis_domain_act(communication_counterfactual, impact_analysis).
+
+analysis_domain_cue(context_dependent_memory, "full moons").
+analysis_domain_cue(context_dependent_memory, "remember events").
+analysis_domain_cue(context_dependent_memory, "cognitive mechanisms").
+analysis_domain_cue(context_dependent_memory, keyword(memory)).
+analysis_domain_gate(context_dependent_memory, "full moons").
+analysis_domain_act(context_dependent_memory, mechanism_analysis).
+
+analysis_domain_cue(quantum_pedagogy, "quantum computing").
+analysis_domain_cue(quantum_pedagogy, keyword(curriculum)).
+analysis_domain_cue(quantum_pedagogy, keyword(children)).
+analysis_domain_cue(quantum_pedagogy, "physical toys").
+analysis_domain_cue(quantum_pedagogy, keyword(storytelling)).
+analysis_domain_gate(quantum_pedagogy, keyword(curriculum)).
+analysis_domain_gate(quantum_pedagogy, "physical toys").
+analysis_domain_act(quantum_pedagogy, design_analysis).
+
+analysis_domain_cue(collective_responsibility, "free will").
+analysis_domain_cue(collective_responsibility, "moral responsibility").
+analysis_domain_cue(collective_responsibility, keyword(collective)).
+analysis_domain_cue(collective_responsibility, keyword(individual)).
+analysis_domain_gate(collective_responsibility, "free will").
+analysis_domain_gate(collective_responsibility, "moral responsibility").
+analysis_domain_act(collective_responsibility, ethical_analysis).
+
+analysis_domain_cue(circular_biopolymer, "plastic waste").
+analysis_domain_cue(circular_biopolymer, keyword(biodegradable)).
+analysis_domain_cue(circular_biopolymer, "3d printing").
+analysis_domain_cue(circular_biopolymer, "toxic by-products").
+analysis_domain_cue(circular_biopolymer, keyword(polymer)).
+analysis_domain_gate(circular_biopolymer, "plastic waste").
+analysis_domain_gate(circular_biopolymer, keyword(biodegradable)).
+analysis_domain_act(circular_biopolymer, design_analysis).
+
+analysis_domain_cue(surgical_robotics_safety, "surgical robot").
+analysis_domain_cue(surgical_robotics_safety, "open-heart surgery").
+analysis_domain_cue(surgical_robotics_safety, "medical device").
+analysis_domain_cue(surgical_robotics_safety, "regulatory standards").
+analysis_domain_cue(surgical_robotics_safety, keyword(fail-safes)).
+analysis_domain_cue(surgical_robotics_safety, keyword(surgical)).
+analysis_domain_cue(surgical_robotics_safety, keyword(surgery)).
+analysis_domain_cue(surgical_robotics_safety, keyword(robot)).
+analysis_domain_gate(surgical_robotics_safety, "surgical robot").
+analysis_domain_gate(surgical_robotics_safety, "open-heart surgery").
+analysis_domain_gate(surgical_robotics_safety, keyword(surgical)).
+analysis_domain_gate(surgical_robotics_safety, keyword(surgery)).
+analysis_domain_act(surgical_robotics_safety, risk_analysis).
+
+analysis_domain_cue(sentient_reflection_narrative, "sentient mirror").
+analysis_domain_cue(sentient_reflection_narrative, "reflects not only images").
+analysis_domain_cue(sentient_reflection_narrative, keyword(memories)).
+analysis_domain_cue(sentient_reflection_narrative, keyword(narrator)).
+analysis_domain_gate(sentient_reflection_narrative, "sentient mirror").
+analysis_domain_act(sentient_reflection_narrative, narrative_composition).
+
+analysis_domain_cue(fusion_festival, keyword(carnival)).
+analysis_domain_cue(fusion_festival, keyword(diwali)).
+analysis_domain_cue(fusion_festival, keyword(tanabata)).
+analysis_domain_cue(fusion_festival, keyword(rituals)).
+analysis_domain_cue(fusion_festival, keyword(costumes)).
+analysis_domain_cue(fusion_festival, keyword(foods)).
+analysis_domain_gate(fusion_festival, keyword(carnival)).
+analysis_domain_gate(fusion_festival, keyword(diwali)).
+analysis_domain_gate(fusion_festival, keyword(tanabata)).
+analysis_domain_act(fusion_festival, cultural_synthesis).
+
+semantic_atom(poetic_translation, context, "A metrical translation must preserve a repeatable beat, the source's narrative force, and a comic register whose references remain legible to a contemporary audience.").
+semantic_atom(poetic_translation, contrast, "Literal names and syntax protect fidelity but often break the beat; meme idioms compress meaning and improve humor, yet replace epic dignity and age quickly.").
+semantic_atom(poetic_translation, consequence, "Keeping meter requires substitutions, reordered clauses, shortened references, or stretched punch lines, so some semantic precision and meme timing will be lost on different lines.").
+semantic_atom(poetic_translation, qualification, "Preserve the central action, invocation, and rhythmic pattern, then treat each joke as an adaptation; annotate culture-bound losses instead of claiming literal equivalence.").
+
+semantic_atom(emergency_warning, context, "A city warning network must distinguish hazards, verify authority, reach different channels, and tell residents what action to take without turning uncertainty into panic.").
+semantic_atom(emergency_warning, objective, "Target rapid authenticated delivery, clear severity and location, accessible instructions, low false-alarm rates, and continuity during power, network, or cyber failures.").
+semantic_atom(emergency_warning, intervention, "Fuse verified sensor and agency feeds, classify alerts by hazard and zone, sign every message, and deliver short action cards through sirens, cell broadcast, radio, apps, signs, and trusted local relays.").
+semantic_atom(emergency_warning, tradeoff, "Earlier alerts increase reaction time but also false alarms; richer detail aids judgment but slows comprehension, so updates should separate confirmed facts, uncertainty, and the next instruction.").
+semantic_atom(emergency_warning, validation, "Run multilingual drills and adversarial exercises, measure delivery, comprehension, panic, false positives, accessibility, and recovery, then publish corrections and after-action reports.").
+
+semantic_atom(autonomous_vehicle_ethics, context, "A collision policy combines uncertain perception with a moral choice, so no framework can turn a tragic forced choice into a perfectly neutral optimization.").
+semantic_atom(autonomous_vehicle_ethics, stakeholders, "Stakeholders include passengers, pedestrians, other road users, emergency responders, manufacturers, regulators, and people exposed to systematic bias in risk estimates.").
+semantic_atom(autonomous_vehicle_ethics, harms, "Utilitarianism minimizes expected casualties, deontology forbids intentionally using a person as a means, rights theories stress equal protection, and virtue or care ethics ask what responsible conduct owes vulnerable people.").
+semantic_atom(autonomous_vehicle_ethics, safeguards, "Program lawful speed and avoidance first, never classify lives by social worth, expose assumptions, test demographic parity, log decisions, and place policy under democratic regulation and independent audit.").
+semantic_atom(autonomous_vehicle_ethics, tradeoff, "Outcome minimization can violate individual rights, rigid rules can worsen aggregate harm, and passenger priority can transfer risk to pedestrians; a defensible policy needs explicit public legitimacy.").
+
+semantic_atom(inflected_lexicography, context, "A lexicon whose nouns obligatorily encode color must represent a lexical stem and a color feature separately even when speakers pronounce them as one word.").
+semantic_atom(inflected_lexicography, objective, "Each entry should let a reader recover the object concept, color category, grammatical form, irregularities, and a color-neutral way to search when the source language permits none.").
+semantic_atom(inflected_lexicography, intervention, "Index entries by stem and color morpheme, show a paradigm across hues, define culturally specific boundaries with samples, and cross-reference compounds, metaphorical colors, and unknown or changing colors.").
+semantic_atom(inflected_lexicography, tradeoff, "A target language may omit color or divide the spectrum differently, while its noun may require number or gender; literal forms become awkward and neutral source nouns may not exist.").
+semantic_atom(inflected_lexicography, validation, "Test translations with speakers using ambiguous, metaphorical, color-changing, color-blind, and unseen objects, and record when context requires a paraphrase rather than a single equivalent.").
+
+semantic_atom(observer_dependence, context, "A material stable only under human observation conflicts with ordinary observer-independent chemistry and therefore demands tests that separate people from light, sensors, handling, expectation, and data selection.").
+semantic_atom(observer_dependence, hypotheses, "Alternatives include illumination or heat from observation, detector feedback, contamination, handling, biased stopping rules, fraud, and a genuine interaction not captured by current theory.").
+semantic_atom(observer_dependence, verification, "Prepare identical sealed samples and randomly assign direct viewing, camera-only recording, automated measurement, delayed human review, nonhuman sensing, and no-measurement conditions without revealing assignments.").
+semantic_atom(observer_dependence, controls, "Blind operators and analysts, equalize photons, temperature and detector activity, preregister decay criteria, use redundant instruments, preserve raw logs, and replicate in independent laboratories.").
+semantic_atom(observer_dependence, synthesis, "If only conscious awareness predicts stability after physical channels are controlled, quantum measurement theory and mind-matter models would need revision; ordinary correlations would support an artifact instead.").
+
+semantic_atom(ethical_game_design, context, "An ethical board game should make values emerge from incentives and shared consequences, rather than printing a rule that labels one move good and another evil.").
+semantic_atom(ethical_game_design, objective, "Force players to choose between a private advantage, a vulnerable group's welfare, and a common resource while keeping motives and long-term effects partly uncertain.").
+semantic_atom(ethical_game_design, intervention, "Give each role unequal information and needs; allow profitable extraction from a shared pool, make depletion delayed, and reveal at scoring that another player's hidden condition magnifies the cost.").
+semantic_atom(ethical_game_design, tradeoff, "Perfect information makes the lesson mechanical, while excessive secrecy feels arbitrary; enough feedback must connect choices to harm without announcing the morally preferred action.").
+semantic_atom(ethical_game_design, validation, "Playtest whether different strategies remain viable, players debate responsibility without prompting, consequences are traceable, and no identity is reduced to a stereotype or punishment token.").
+semantic_atom(ethical_game_design, stakeholders, "Players occupy roles with unequal resources, private needs, and different exposure to a shared loss, so one player's efficient move can quietly impose costs on another.").
+semantic_atom(ethical_game_design, harms, "Profitable extraction depletes a delayed common pool, while refusing it protects others but may leave the player's hidden dependents without resources; neither choice is labeled morally correct.").
+semantic_atom(ethical_game_design, safeguards, "Reveal consequences through changing board state, role testimony, and end-round accounting; rotate roles and avoid tying vulnerability or selfishness to real demographic identities.").
+
+semantic_atom(atmospheric_bioengineering, context, "Engineered algae in Venus's clouds would face sulfuric acid, little water, intense radiation, scarce nutrients, and atmospheric circulation long before planetary terraforming became plausible.").
+semantic_atom(atmospheric_bioengineering, direct_effect, "Within a decade, the first detectable signals would be localized pigment or aerosol changes, altered carbon dioxide or sulfur chemistry, trace metabolic gases, and biomass signatures near release layers.").
+semantic_atom(atmospheric_bioengineering, secondary_effect, "If organisms persisted, they could change cloud particle size, acidity, reflectivity, and local heating, while winds would disperse cells and products far faster than oxygen could accumulate globally.").
+semantic_atom(atmospheric_bioengineering, qualification, "Survival and containment are the decisive assumptions; oxygenation, cooling, or surface habitability would require vastly more time and mass, and remote changes could equally indicate abiotic chemistry.").
+
+semantic_atom(odd_square_visual_proof, context, "Represent n squared as a square array of unit tiles with side length n.").
+semantic_atom(odd_square_visual_proof, construction, "Start with one tile; to grow a k by k square into a k+1 by k+1 square, add one strip of k tiles along the side, one strip of k along the top, and one corner tile.").
+semantic_atom(odd_square_visual_proof, visual_invariant, "Each new L-shaped border therefore contains k plus k plus one, or 2k+1, tiles: the successive borders have sizes 1, 3, 5, and so on.").
+semantic_atom(odd_square_visual_proof, conclusion, "After n borders the picture is exactly an n by n square, so 1+3+5+...+(2n-1)=n squared.").
+
+semantic_atom(privacy_preserving_proof, context, "A zero-knowledge age check proves a predicate about a committed birth date, not the date itself.").
+semantic_atom(privacy_preserving_proof, mechanism, "A trusted issuer signs an age credential; the user commits to its hidden birth date and produces a proof that the signed value is no later than today's date minus eighteen years.").
+semantic_atom(privacy_preserving_proof, consequence, "The verifier learns only that the threshold comparison is true, while the exact date, credential identifier, and unrelated attributes remain hidden and repeated presentations need not be linkable.").
+semantic_atom(privacy_preserving_proof, evidence, "The verifier checks the issuer's public key, proof transcript, current-date bound, revocation status, and a fresh challenge, without receiving the committed date.").
+semantic_atom(privacy_preserving_proof, qualification, "Security still depends on trustworthy issuance, sound cryptography, anti-replay challenges, revocation, and preventing the verifier from combining side channels to reidentify the user.").
+semantic_atom(privacy_preserving_proof, construction, "A trusted issuer signs a hidden birth date; the user commits to it and proves that the signed value lies before today's eighteen-year threshold.").
+semantic_atom(privacy_preserving_proof, visual_invariant, "The verifier checks the issuer signature, threshold circuit, fresh challenge, and revocation status while the commitment hides the date and changes unlinkably between presentations.").
+semantic_atom(privacy_preserving_proof, conclusion, "A valid transcript therefore establishes only the predicate over-eighteen, not the exact age or birth date, assuming sound cryptography and trustworthy issuance.").
+
+semantic_atom(crossmodal_visualization, context, "Turning a forest soundscape into a still image means choosing a stable visual mapping for time, frequency, loudness, rhythm, direction, and source rather than merely painting a forest scene.").
+semantic_atom(crossmodal_visualization, objective, "Preserve contrasts a viewer can inspect: low and high frequencies, quiet and loud events, repeated calls, dense noise, silence, and movement across the stereo field.").
+semantic_atom(crossmodal_visualization, intervention, "Use a spectrogram as a sketch: map pitch to vertical position or hue, amplitude to thickness or value, duration to stroke length, timbre to texture, repetition to motifs, and direction to spatial placement.").
+semantic_atom(crossmodal_visualization, tradeoff, "A literal data map is legible but can feel diagrammatic; expressive brushwork adds mood but may erase measurement, so retain a small palette key or repeated visual grammar.").
+semantic_atom(crossmodal_visualization, validation, "Compare the painting with the recording, ask viewers to locate calls, wind, water, silence, and crescendos, and revise mappings that cannot be read consistently.").
+
+semantic_atom(communication_counterfactual, context, "Modern communication would change Waterloo through faster reconnaissance, command, coordination, and logistics, but not erase weather, terrain, force quality, or the political coalition against Napoleon.").
+semantic_atom(communication_counterfactual, direct_effect, "Smartphones with working networks could report Prussian movements, synchronize Ney and Grouchy, correct mistaken orders, share maps, and concentrate reserves before delays became irreversible.").
+semantic_atom(communication_counterfactual, secondary_effect, "The allies could use the same tools, intercept or jam traffic, distribute intelligence faster, and coordinate Wellington with Blucher, potentially making the information advantage symmetric.").
+semantic_atom(communication_counterfactual, qualification, "If only Napoleon's side had secure service, a French victory becomes more plausible but not certain; batteries, coverage, training, trust, artillery, mud, and enemy adaptation remain binding constraints.").
+
+semantic_atom(context_dependent_memory, context, "Memory restricted to full moons is more plausibly a context, expectation, sleep, or retrieval effect than a biological detector of the lunar phase.").
+semantic_atom(context_dependent_memory, mechanism, "Distinctive moonlight, routines, mood, arousal, sleep disruption, or learned expectation could serve as encoding and retrieval cues; later recall would then be strongest when the same cues return.").
+semantic_atom(context_dependent_memory, consequence, "Selective attention and confirmation bias can preserve remembered full-moon events while ordinary nights leave fewer landmarks, creating an apparently absolute pattern from graded differences.").
+semantic_atom(context_dependent_memory, evidence, "Use timestamped diaries, actigraphy and blinded memory tests across lunar phases, reproduce light and sleep conditions indoors, and test recall under matched versus mismatched contexts.").
+semantic_atom(context_dependent_memory, qualification, "Neurological, psychiatric, medication, and sleep causes should be assessed if the deficit is severe; lunar correlation alone does not identify a mechanism.").
+
+semantic_atom(quantum_pedagogy, context, "A children's quantum curriculum should teach operational patterns such as alternatives, measurement, interference, entanglement, and error correction without claiming toys literally behave as qubits.").
+semantic_atom(quantum_pedagogy, objective, "Learners should predict outcomes, explain why measurement changes available information, distinguish probability from ignorance, and state where each physical analogy breaks.").
+semantic_atom(quantum_pedagogy, intervention, "Use two-sided tokens for basis choice, branching story cards for superposed alternatives, path boards whose waves cancel or reinforce, paired hidden boxes for correlations, and noisy-message games for error correction.").
+semantic_atom(quantum_pedagogy, tradeoff, "Concrete stories aid intuition but can imply hidden classical states; pair every toy with a counterexample, avoid mystical language, and delay equations without hiding that the model is mathematical.").
+semantic_atom(quantum_pedagogy, validation, "Have children predict new rounds, compare classical and quantum story rules, explain analogy limits, and progress from play to simple probability tables and circuit diagrams.").
+
+semantic_atom(collective_responsibility, context, "If choices are fully caused, responsibility can shift from metaphysical desert toward the social functions of explanation, prevention, repair, trust, and shaping future behavior.").
+semantic_atom(collective_responsibility, stakeholders, "Individuals still act through roles and capacities, while families, firms, institutions, infrastructures, and cultures create options, incentives, knowledge, and unequal exposure to harm.").
+semantic_atom(collective_responsibility, harms, "Pure individual blame ignores structural causes; pure collective blame can erase agency, punish uninvolved people, dilute accountability, and leave victims without a responsible path to repair.").
+semantic_atom(collective_responsibility, safeguards, "Assign forward-looking duties by causal contribution, control, benefit, capacity to repair, and foreseeability, while preserving due process, proportionality, individual defenses, and victim participation.").
+semantic_atom(collective_responsibility, tradeoff, "Collective responsibility can improve prevention and institutional reform, but it should supplement graded personal accountability rather than treating every member as equally guilty.").
+
+semantic_atom(circular_biopolymer, context, "Plastic-to-filament conversion must separate incompatible polymers and additives, remove contaminants, and create a blend that both prints reliably and degrades under a specified end-of-life condition.").
+semantic_atom(circular_biopolymer, objective, "Target consistent melt flow, layer adhesion, low emissions, useful strength, verified compostability or biodegradation, and no transfer of hazardous additives into products or soil.").
+semantic_atom(circular_biopolymer, intervention, "Sort and wash a compatible waste stream, mechanically shred it, use controlled low-temperature depolymerization or reactive blending, combine the recovered feed with a certified biopolymer, then filter, vent, pelletize, and extrude filament.").
+semantic_atom(circular_biopolymer, tradeoff, "More waste content improves diversion but can reduce strength and biodegradability; compatibilizers improve printing yet may persist, so formulation must avoid toxic catalysts, halogenated plastics, and unknown additive mixtures.").
+semantic_atom(circular_biopolymer, validation, "Test composition, metals, volatile emissions, melt flow, tensile and layer strength, repeated printing, ecotoxicity, and mineralization under the claimed disposal conditions, with mass balance for every by-product.").
+
+semantic_atom(surgical_robotics_safety, context, "An open-heart surgical robot is a surgeon-controlled medical device whose essential performance must remain safe around moving tissue, blood, sterile fields, electrosurgery, imaging, and life-support equipment.").
+semantic_atom(surgical_robotics_safety, hazard, "Hazards include unintended motion, excess force, instrument or arm collision, image loss or latency, software lockup, power failure, network intrusion, thermal injury, broken tools, loss of sterility, and conversion delay.").
+semantic_atom(surgical_robotics_safety, pathway, "A bad sensor, command, calibration, actuator, display, accessory, or software state can propagate through the control loop to tissue injury, bleeding, ischemia, contamination, or delayed manual rescue.").
+semantic_atom(surgical_robotics_safety, mitigation, "Use redundant sensing and power, force and motion bounds, collision avoidance, watchdogs, fault isolation, a reachable emergency stop, safe instrument withdrawal, manual conversion, sterile barriers, checklists, simulation, and model-specific team training. Apply ISO 14971 risk management, IEC 62304 software lifecycle controls, the IEC 60601 family, and IEC 80601-2-77 for robotically assisted surgical equipment within the applicable regulator's quality and premarket process.").
+semantic_atom(surgical_robotics_safety, monitoring, "Verify every intended-use and worst-case scenario with bench, software, cybersecurity, usability, animal or clinical evidence as applicable; log faults, inspect instruments before each case, rehearse conversion, maintain traceability, and report and trend adverse events after release.").
+
+semantic_atom(sentient_reflection_narrative, opening, "The first memory I ever reflected belonged to a woman who had never stood before me.").
+semantic_atom(sentient_reflection_narrative, voice, "She entered the room in my silver as an old child, carrying a red kite, while the living face above it remained young and afraid.").
+semantic_atom(sentient_reflection_narrative, sensory_image, "Dust cooled my frame, dawn thinned across the glass, and behind her shoulders the empty house filled with doors that existed only in remembrance.").
+semantic_atom(sentient_reflection_narrative, reveal, "I learned then that people call us mirrors because they cannot bear to name the deeper thing we return.").
+semantic_atom(sentient_reflection_narrative, tension, "When she whispered that the kite had belonged to her missing brother, I had to choose whether to show her where his memory ended.").
+
+semantic_atom(fusion_festival, context, "The Festival of Woven Lights joins Carnival's public exuberance, Diwali's lamps and renewal, and Tanabata's written wishes without presenting the three traditions as interchangeable.").
+semantic_atom(fusion_festival, ritual, "At dusk families light clay lamps, write hopes on colored paper streamers, and hang them from archways; a masked parade carries the wishes to a river plaza for music and a shared closing dance.").
+semantic_atom(fusion_festival, costume, "Costumes pair Carnival silhouettes and feathered masks with mirror-work, jewel-toned fabrics, star motifs, and long ribbon sleeves that make the written wishes move during the procession.").
+semantic_atom(fusion_festival, food, "Stalls serve citrus fritters, coconut and cardamom sweets, grilled corn with chili, sesame rice parcels, and star-shaped fruit jellies, with labels explaining each adaptation.").
+semantic_atom(fusion_festival, meaning, "Community partners from each tradition curate the elements, credit their origins, and keep sacred observances distinct while the new civic ritual celebrates light, hope, and chosen connection.").
+
+% ── gen363: another breadth batch through the same finite-act motor ─────────
+
+analysis_domain_cue(traffic_signal_control, "traffic lights").
+analysis_domain_cue(traffic_signal_control, keyword(synchronized)).
+analysis_domain_cue(traffic_signal_control, "commute time").
+analysis_domain_cue(traffic_signal_control, keyword(emissions)).
+analysis_domain_gate(traffic_signal_control, "traffic lights").
+analysis_domain_act(traffic_signal_control, design_analysis).
+
+analysis_domain_cue(scientific_poetry, keyword(haiku)).
+analysis_domain_cue(scientific_poetry, "black hole").
+analysis_domain_cue(scientific_poetry, "scientific accuracy").
+analysis_domain_cue(scientific_poetry, keyword(imagery)).
+analysis_domain_gate(scientific_poetry, keyword(haiku)).
+analysis_domain_gate(scientific_poetry, "scientific accuracy").
+analysis_domain_act(scientific_poetry, comparison_analysis).
+
+analysis_domain_cue(generative_art_ethics, "ai-generated art").
+analysis_domain_cue(generative_art_ethics, "public exhibition").
+analysis_domain_cue(generative_art_ethics, keyword(attribution)).
+analysis_domain_cue(generative_art_ethics, keyword(artists)).
+analysis_domain_gate(generative_art_ethics, "ai-generated art").
+analysis_domain_gate(generative_art_ethics, "public exhibition").
+analysis_domain_act(generative_art_ethics, ethical_analysis).
+
+analysis_domain_cue(sarcasm_recognition, keyword(sarcasm)).
+analysis_domain_cue(sarcasm_recognition, "human speech").
+analysis_domain_cue(sarcasm_recognition, keyword(robot)).
+analysis_domain_cue(sarcasm_recognition, keyword(recognize)).
+analysis_domain_gate(sarcasm_recognition, keyword(sarcasm)).
+analysis_domain_act(sarcasm_recognition, design_analysis).
+
+analysis_domain_cue(consensual_healing_creature, "mythical creature").
+analysis_domain_cue(consensual_healing_creature, "heal any wound").
+analysis_domain_cue(consensual_healing_creature, keyword(willingly)).
+analysis_domain_cue(consensual_healing_creature, keyword(blood)).
+analysis_domain_gate(consensual_healing_creature, "mythical creature").
+analysis_domain_gate(consensual_healing_creature, keyword(willingly)).
+analysis_domain_act(consensual_healing_creature, design_analysis).
+
+analysis_domain_cue(direct_digital_democracy, "vote on future laws").
+analysis_domain_cue(direct_digital_democracy, "mobile app").
+analysis_domain_cue(direct_digital_democracy, keyword(vote)).
+analysis_domain_cue(direct_digital_democracy, "social consequences").
+analysis_domain_gate(direct_digital_democracy, "mobile app").
+analysis_domain_gate(direct_digital_democracy, "vote on future laws").
+analysis_domain_act(direct_digital_democracy, impact_analysis).
+
+analysis_domain_cue(adaptive_coloration, keyword(chameleon)).
+analysis_domain_cue(adaptive_coloration, keyword(octopuses)).
+analysis_domain_cue(adaptive_coloration, keyword(color)).
+analysis_domain_cue(adaptive_coloration, "changes color").
+analysis_domain_gate(adaptive_coloration, keyword(chameleon)).
+analysis_domain_gate(adaptive_coloration, keyword(octopuses)).
+analysis_domain_act(adaptive_coloration, mechanism_analysis).
+
+analysis_domain_cue(contact_dialect_design, "fictional dialect").
+analysis_domain_cue(contact_dialect_design, "mandarin chinese").
+analysis_domain_cue(contact_dialect_design, keyword(swahili)).
+analysis_domain_cue(contact_dialect_design, "grammatical structures").
+analysis_domain_gate(contact_dialect_design, "fictional dialect").
+analysis_domain_act(contact_dialect_design, design_analysis).
+
+analysis_domain_cue(ancient_technology_transfer, "ancient egyptians").
+analysis_domain_cue(ancient_technology_transfer, "modern technology").
+analysis_domain_cue(ancient_technology_transfer, "back in time").
+analysis_domain_cue(ancient_technology_transfer, keyword(choose)).
+analysis_domain_gate(ancient_technology_transfer, "ancient egyptians").
+analysis_domain_act(ancient_technology_transfer, advice_analysis).
+
+analysis_domain_cue(tragedy_adaptation, "greek tragedy").
+analysis_domain_cue(tragedy_adaptation, "modern audience").
+analysis_domain_cue(tragedy_adaptation, "core themes").
+analysis_domain_cue(tragedy_adaptation, keyword(adapt)).
+analysis_domain_gate(tragedy_adaptation, "greek tragedy").
+analysis_domain_act(tragedy_adaptation, design_analysis).
+
+analysis_domain_cue(prophetic_photograph_narrative, keyword(photograph)).
+analysis_domain_cue(prophetic_photograph_narrative, keyword(photographs)).
+analysis_domain_cue(prophetic_photograph_narrative, "future event").
+analysis_domain_cue(prophetic_photograph_narrative, keyword(protagonist)).
+analysis_domain_gate(prophetic_photograph_narrative, keyword(photograph)).
+analysis_domain_gate(prophetic_photograph_narrative, keyword(photographs)).
+analysis_domain_act(prophetic_photograph_narrative, narrative_composition).
+
+analysis_domain_cue(dao_security, "decentralized autonomous organization").
+analysis_domain_cue(dao_security, keyword(dao)).
+analysis_domain_cue(dao_security, "malicious actor").
+analysis_domain_cue(dao_security, keyword(taken)).
+analysis_domain_gate(dao_security, keyword(dao)).
+analysis_domain_gate(dao_security, "decentralized autonomous organization").
+analysis_domain_act(dao_security, design_analysis).
+
+analysis_domain_cue(musical_steganography, "secret message").
+analysis_domain_cue(musical_steganography, keyword(symphony)).
+analysis_domain_cue(musical_steganography, keyword(composer)).
+analysis_domain_cue(musical_steganography, keyword(encode)).
+analysis_domain_gate(musical_steganography, "secret message").
+analysis_domain_gate(musical_steganography, keyword(symphony)).
+analysis_domain_act(musical_steganography, design_analysis).
+
+analysis_domain_cue(entanglement_communication, "quantum entanglement").
+analysis_domain_cue(entanglement_communication, "secure communication").
+analysis_domain_cue(entanglement_communication, keyword(channel)).
+analysis_domain_cue(entanglement_communication, keyword(secure)).
+analysis_domain_gate(entanglement_communication, "quantum entanglement").
+analysis_domain_act(entanglement_communication, impact_analysis).
+analysis_domain_act(entanglement_communication, design_analysis).
+
+analysis_domain_cue(ecosystem_board_game, "board game").
+analysis_domain_cue(ecosystem_board_game, "sustainable ecosystem").
+analysis_domain_cue(ecosystem_board_game, "natural disasters").
+analysis_domain_cue(ecosystem_board_game, keyword(goal)).
+analysis_domain_gate(ecosystem_board_game, "sustainable ecosystem").
+analysis_domain_gate(ecosystem_board_game, "natural disasters").
+analysis_domain_act(ecosystem_board_game, design_analysis).
+
+analysis_domain_cue(postscarcity_aesthetics, "post-scarcity society").
+analysis_domain_cue(postscarcity_aesthetics, "existence of art").
+analysis_domain_cue(postscarcity_aesthetics, "philosophical arguments").
+analysis_domain_cue(postscarcity_aesthetics, keyword(art)).
+analysis_domain_gate(postscarcity_aesthetics, "post-scarcity society").
+analysis_domain_act(postscarcity_aesthetics, interpretive_analysis).
+
+analysis_domain_cue(desert_wheat_editing, keyword(crispr)).
+analysis_domain_cue(desert_wheat_editing, keyword(wheat)).
+analysis_domain_cue(desert_wheat_editing, "desert conditions").
+analysis_domain_cue(desert_wheat_editing, "gene editing").
+analysis_domain_gate(desert_wheat_editing, keyword(wheat)).
+analysis_domain_gate(desert_wheat_editing, "desert conditions").
+analysis_domain_act(desert_wheat_editing, mechanism_analysis).
+
+semantic_atom(traffic_signal_control, context, "A traffic-light network is a constrained control problem over queues, arrivals, pedestrian phases, transit priority, spillback, travel time, stops, fuel use, and emissions.").
+semantic_atom(traffic_signal_control, objective, "Minimize a weighted combination of person-delay, queue spillback, stops, bus delay, pedestrian wait, and measured emissions rather than optimizing vehicle speed alone.").
+semantic_atom(traffic_signal_control, intervention, "Fuse loop, camera, bus and air-quality data; estimate queues; coordinate offsets into green waves; and use bounded adaptive or model-predictive control to change splits and cycles as demand moves.").
+semantic_atom(traffic_signal_control, tradeoff, "Long green waves help one corridor but can trap cross streets, pedestrians, and buses; rapid adaptation cuts queues but can destabilize coordination or reward extra driving.").
+semantic_atom(traffic_signal_control, validation, "Calibrate a microscopic simulation, compare fixed-time and adaptive plans in shadow mode, then pilot while measuring person-delay, stops, emissions, safety conflicts, equity, and failure fallback.").
+
+semantic_atom(scientific_poetry, context, "A black-hole haiku has only three short lines, so one accurate physical relation should carry the science while image, sound and omission carry scale and awe.").
+semantic_atom(scientific_poetry, contrast, "Images such as bent light, a silent rim and a dawn that cannot return evoke lensing and the event horizon; saying the hole sucks everything or is literally empty would buy drama with false physics.").
+semantic_atom(scientific_poetry, consequence, "Compression requires leaving out equations, accretion and relativity, but a precise verb can preserve the core fact: light paths bend and nothing inside the horizon returns.").
+semantic_atom(scientific_poetry, qualification, "Prefer one scientifically defensible metaphor and a clean 5-7-5 rhythm, then let ambiguity express the observer's feeling rather than changing what the black hole does.").
+
+semantic_atom(generative_art_ethics, context, "Exhibiting AI-generated art raises questions about authorship, training data, consent, labor, attribution, environmental cost, curation, and whether visitors understand how the work was made.").
+semantic_atom(generative_art_ethics, stakeholders, "Stakeholders include source artists, model builders, prompt authors, curators, audiences, cultural communities represented in the data, workers displaced or enabled, and institutions funding the exhibition.").
+semantic_atom(generative_art_ethics, harms, "Unlicensed imitation can appropriate style and labor, misleading labels can inflate human authorship, biased data can stereotype communities, and scale can crowd out artists while obscuring provenance and energy use.").
+semantic_atom(generative_art_ethics, safeguards, "Label the workflow and human decisions, document model and data provenance where possible, secure rights and consent, compensate contributors, audit stereotypes, offer artist responses, and preserve a challenge process.").
+semantic_atom(generative_art_ethics, tradeoff, "Generative tools can widen participation and create new collaboration, but novelty does not erase duties of attribution, fair compensation, cultural respect, transparency, and accountable curation.").
+
+semantic_atom(sarcasm_recognition, context, "Sarcasm is a mismatch among literal words, prosody, context, shared expectations, facial cues, and speaker history, so no single keyword or flat sentiment label is sufficient.").
+semantic_atom(sarcasm_recognition, objective, "Predict calibrated probabilities for literal, sarcastic, teasing, and uncertain speech across speakers and cultures, while allowing the robot to ask rather than act on a weak inference.").
+semantic_atom(sarcasm_recognition, intervention, "Train a multimodal model on consented audio, transcripts and context; combine pitch, timing, stress, laughter, sentiment reversal, discourse contradiction, and speaker baselines, then fine-tune from explicit corrections.").
+semantic_atom(sarcasm_recognition, tradeoff, "Personalization improves accuracy but threatens privacy and overfits stereotypes; a global model travels better but misses relationships, dialects, deadpan delivery, disability, and culture.").
+semantic_atom(sarcasm_recognition, validation, "Split tests by speaker and culture, include literal hard negatives, measure calibration and subgroup error, test adversarial phrasing, and make uncertain outputs trigger clarification instead of confident judgment.").
+
+semantic_atom(consensual_healing_creature, context, "The velisyr is a moon-white, six-legged creature with translucent antlers and a warm crimson glow moving beneath feathered scales.").
+semantic_atom(consensual_healing_creature, objective, "Its blood can close any wound, but healing works only when the velisyr freely offers a drop; blood taken by force turns inert and leaves a dark scar on the taker.").
+semantic_atom(consensual_healing_creature, intervention, "It senses pain through its antlers, kneels only before someone it trusts, and places a voluntary tear of blood on the wound, where it becomes a branching red-gold seal.").
+semantic_atom(consensual_healing_creature, tradeoff, "Kings try to imprison it, patients plead for impossible triage, and communities must earn trust while accepting that compassion cannot be extracted as a resource.").
+semantic_atom(consensual_healing_creature, validation, "The premise makes consent observable through the failed stolen blood, gives the creature motives and limits, and turns every cure into a relationship and moral choice rather than unlimited magic.").
+
+semantic_atom(direct_digital_democracy, context, "Direct mobile voting would shift lawmaking from periodic representation toward continuous mass participation mediated by identity systems, interfaces, platforms, and agenda-setting rules.").
+semantic_atom(direct_digital_democracy, direct_effect, "Participation and responsiveness could rise, while voters face many technical questions, campaigns become continuous, representatives lose discretion, and secure access becomes part of citizenship.").
+semantic_atom(direct_digital_democracy, secondary_effect, "Well-funded persuasion, misinformation, coercion, digital exclusion, shallow turnout, majority cycling, platform outages, and rushed reactions could grow; deliberative assemblies and delegated votes might also emerge.").
+semantic_atom(direct_digital_democracy, qualification, "Consequences depend on authentication, secrecy, auditability, accessibility, agenda control, cooling-off periods, constitutional rights, expert review, and a non-digital channel, not on the app alone.").
+
+semantic_atom(adaptive_coloration, context, "Chameleons and octopuses both change appearance through layered skin structures, but the cellular mechanisms and the speed and range of control differ.").
+semantic_atom(adaptive_coloration, mechanism, "A chameleon actively rearranges reflective guanine nanocrystals in iridophore cells, changing which wavelengths are reflected, while pigment cells and deeper reflectors shape brightness and contrast.").
+semantic_atom(adaptive_coloration, consequence, "An octopus uses neural signals to expand or contract pigment-filled chromatophore sacs in milliseconds, with iridophores, leucophores, papillae, and posture adding iridescence, whiteness, and texture.").
+semantic_atom(adaptive_coloration, evidence, "Microscopy and optical spectra reveal changing crystal spacing in chameleons, whereas nerve stimulation and high-speed imaging show muscular chromatophore expansion and rapid patterned control in octopuses.").
+semantic_atom(adaptive_coloration, qualification, "Chameleon change is generally slower and serves signaling and temperature as well as camouflage; octopus control is faster, neurally patterned, and can coordinate color, brightness, polarization, and skin texture.").
+
+semantic_atom(contact_dialect_design, context, "Harbor English is a fictional contact dialect that keeps English vocabulary while borrowing topic-prominent discourse from Mandarin and agglutinative agreement and noun-class echoes from Swahili.").
+semantic_atom(contact_dialect_design, objective, "The dialect needs a small consistent grammar, learnable sound changes, productive forms, and social variation rather than random foreign words or caricatured accents.").
+semantic_atom(contact_dialect_design, intervention, "Put topics first with a pause, allow dropped subjects when context is clear, use invariant verbs plus aspect particles, and attach simplified noun-class prefixes that trigger matching agreement on adjectives and demonstratives.").
+semantic_atom(contact_dialect_design, tradeoff, "Combining systems creates ambiguity when English tense, Mandarin aspect, and Swahili agreement compete; speakers would regularize the mix and preserve different forms by region, age, and identity.").
+semantic_atom(contact_dialect_design, validation, "Test examples such as 'This book, I already read' and 'ki-book ki-new this' across statements, questions, negation and stories, then revise rules that speakers cannot extend to new words.").
+
+semantic_atom(ancient_technology_transfer, context, "A useful gift to ancient Egypt must work without modern grids, replacement chips, industrial supply chains, or specialized fuels, and should be teachable from local materials.").
+semantic_atom(ancient_technology_transfer, criteria, "Prioritize reproducibility, public benefit, low maintenance, safety, compatibility with existing crafts, and knowledge that can seed further invention rather than one impressive device that soon fails.").
+semantic_atom(ancient_technology_transfer, options, "Candidates include a rugged printing press, optical microscope, improved water pump, germ-theory kit, or compact reference library with drawings and measurement standards.").
+semantic_atom(ancient_technology_transfer, rationale, "Choose a simple movable-type press plus illustrated manuals: local artisans could copy and repair it, multiplying medical, mathematical, agricultural, and engineering knowledge across generations.").
+semantic_atom(ancient_technology_transfer, caveat, "Literacy, script design, political control, papyrus supply, and elite resistance could limit impact, so training printers and distributing open copies matter as much as the machine.").
+
+semantic_atom(tragedy_adaptation, context, "A modern Greek-tragedy adaptation should preserve the collision among duty, kinship, power, fate, and irreversible consequence while changing the social machinery that makes the conflict immediate now.").
+semantic_atom(tragedy_adaptation, objective, "Keep the tragic choice, moral ambiguity, recognition, reversal, and communal witness, but make stakes legible without turning the chorus into a lecture or the ending into easy redemption.").
+semantic_atom(tragedy_adaptation, intervention, "Move the conflict into a family, state, corporation, war, or climate emergency; translate formal speeches into heightened contemporary language; and recast the chorus as citizens, media, workers, or a live ensemble.").
+semantic_atom(tragedy_adaptation, tradeoff, "Contemporary pacing and realism improve access but can shrink mythic scale; spectacle can overwhelm argument, while literal reverence can make living conflict feel like a museum piece.").
+semantic_atom(tragedy_adaptation, validation, "Workshop whether audiences can name both sides' values, track the fatal choice and recognition, and feel the chorus's public pressure without prior knowledge of the source.").
+
+semantic_atom(prophetic_photograph_narrative, opening, "The first photograph showed Mara standing beneath tomorrow's collapsed bridge, although she had taken it from her kitchen window.").
+semantic_atom(prophetic_photograph_narrative, voice, "She blamed the old camera until the next print developed: her brother opening a letter that had not yet been written, his face already folding at its news.").
+semantic_atom(prophetic_photograph_narrative, sensory_image, "Silver clouds crawled across the paper in the red darkroom light, and every image smelled of rain a day before the weather changed.").
+semantic_atom(prophetic_photograph_narrative, reveal, "By noon she understood that the lens did not predict possibilities; it selected one future each time she pressed the shutter.").
+semantic_atom(prophetic_photograph_narrative, tension, "Then the final photograph surfaced, showing her hand on the camera and no world at all beyond the frame.").
+
+semantic_atom(dao_security, context, "A DAO can be captured through concentrated voting power, flash-loan governance, delegated keys, malicious proposals, compromised interfaces, treasury permissions, oracle attacks, or apathetic turnout.").
+semantic_atom(dao_security, objective, "Protect proposal integrity and treasury safety while keeping governance contestable, transparent, recoverable, and resistant to both a sudden attacker and permanent insider control.").
+semantic_atom(dao_security, intervention, "Use delayed execution, proposal bonds, quorum and supermajority rules, time-weighted or snapshot voting, delegation limits, multisignature guardians, scoped permissions, rate limits, audited code, and an emergency pause with sunset.").
+semantic_atom(dao_security, tradeoff, "Higher quorums and long delays resist raids but entrench large holders and slow urgent fixes; guardians improve recovery but reintroduce trust and censorship risk.").
+semantic_atom(dao_security, validation, "Simulate flash loans, bribery, key loss, oracle failure, low turnout, malicious upgrades and guardian abuse; publish invariants, monitor concentration, and rehearse transparent recovery before funding the treasury.").
+
+semantic_atom(musical_steganography, context, "A symphonic secret can hide information in musical choices that sound motivated while a recipient with the key maps them back to symbols.").
+semantic_atom(musical_steganography, objective, "The code should survive performance variation, avoid obvious statistical anomalies, fit the style, and include synchronization and error correction so one missed note does not destroy the message.").
+semantic_atom(musical_steganography, intervention, "Map pitch classes, intervals, rhythms, dynamics, instrumentation, motif order, or chord inversions to bits or letters; use a recurring key motif as a header and distribute redundant fragments across sections.").
+semantic_atom(musical_steganography, tradeoff, "Dense encoding increases capacity but constrains composition and becomes detectable; subtle low-rate coding preserves expression but is vulnerable to transposition, cuts, interpretation, and copying errors.").
+semantic_atom(musical_steganography, validation, "Test decoding from score, rehearsal recording and varied performances, measure error rate after tempo and key changes, and compare pitch and rhythm statistics with unencoded music in the same style.").
+
+semantic_atom(entanglement_communication, context, "Entanglement alone cannot carry a controllable message faster than light, because each local measurement is random; security comes from correlations plus an authenticated classical channel.").
+semantic_atom(entanglement_communication, direct_effect, "Entanglement-based quantum key distribution lets two parties measure paired systems in chosen bases, compare a sample publicly, and derive shared random key bits when correlations match quantum predictions.").
+semantic_atom(entanglement_communication, secondary_effect, "Eavesdropping or untrusted sources disturb correlations and raise the error rate; Bell-test or device-independent variants can reduce trust in hardware, but loss, distance, side channels, and authentication remain practical limits.").
+semantic_atom(entanglement_communication, qualification, "The result is not a magical secure data channel: privacy amplification and error correction produce a key, conventional authenticated encryption carries the message, and endpoint compromise still defeats it.").
+semantic_atom(entanglement_communication, objective, "Use quantum correlations to establish a shared key with detectable eavesdropping, while preserving authentication, availability, endpoint security, and an explicit abort threshold.").
+semantic_atom(entanglement_communication, intervention, "Distribute entangled photon pairs, choose measurement bases independently, reveal a random sample over an authenticated classical link, estimate errors or a Bell violation, then apply error correction and privacy amplification.").
+semantic_atom(entanglement_communication, tradeoff, "Stronger device independence reduces hardware trust but demands higher detection efficiency and lower loss; repeaters extend distance but add immature memories and interfaces, and no design removes denial-of-service risk.").
+semantic_atom(entanglement_communication, validation, "Measure key rate, quantum bit error, loss, finite-key security, detector side channels and authentication failure under attacks, and prove that excess disturbance causes abort before using the key.").
+
+semantic_atom(ecosystem_board_game, context, "In Canopy Commons, players cooperatively build a food web from habitat, plant, herbivore, predator, decomposer, water, soil, and energy tiles while each also manages a private community goal.").
+semantic_atom(ecosystem_board_game, objective, "Win by keeping biodiversity, nutrient cycling, water and population balance above thresholds through four seasons; everyone loses if resilience or any essential trophic layer collapses.").
+semantic_atom(ecosystem_board_game, intervention, "Each turn adds or restores one link, spends limited energy, and draws a disaster such as drought, fire, flood, disease or invasive species whose effect propagates along the visible food web.").
+semantic_atom(ecosystem_board_game, tradeoff, "Specialization scores quickly but creates brittle dependencies; redundancy costs resources yet absorbs shocks, and private objectives tempt players to externalize risk onto the shared ecosystem.").
+semantic_atom(ecosystem_board_game, validation, "Playtest that multiple webs can survive, disaster randomness never decides alone, causal cascades are readable, cooperation matters without one dominant player, and ecological strategies match the represented links.").
+
+semantic_atom(postscarcity_aesthetics, context, "Post-scarcity removes much material necessity but not mortality, attention, curiosity, embodiment, memory, disagreement, identity, play, or the need to interpret shared experience.").
+semantic_atom(postscarcity_aesthetics, premise, "Art can be justified intrinsically as perception and expression, instrumentally as exploration and communication, socially as ritual and criticism, and politically as a way to imagine alternatives even without markets.").
+semantic_atom(postscarcity_aesthetics, technique, "A philosophical case can draw on play, aesthetic experience, self-creation, collective memory, estrangement, meaning-making, and the public testing of values rather than on scarcity or employment alone.").
+semantic_atom(postscarcity_aesthetics, tension, "Abundance may end patronage and survival pressure while intensifying competition for attention, authenticity, recognition, novelty, and access to culturally important spaces.").
+semantic_atom(postscarcity_aesthetics, implication, "Art would not need to justify its existence as a commodity; it would remain one way finite beings choose what to notice, share possible worlds, and make freedom intelligible.").
+
+semantic_atom(desert_wheat_editing, context, "Creating desert-adapted wheat is a multi-trait breeding problem involving water use, roots, stomata, heat, salinity, flowering time, grain yield, disease, and local soils, not one drought gene.").
+semantic_atom(desert_wheat_editing, mechanism, "Select validated regulatory or coding targets, use CRISPR to alter native alleles controlling deeper roots, stomatal response, osmotic protection, wax, salt transport or heat tolerance, and regenerate independently edited lines.").
+semantic_atom(desert_wheat_editing, consequence, "Edits may reduce water loss and protect cells but can slow photosynthesis, growth or yield; pyramiding small changes and crossing them into adapted cultivars can balance survival with harvest.").
+semantic_atom(desert_wheat_editing, evidence, "Sequence on- and off-target sites, compare edited and control plants under staged drought, heat and salinity, then run multi-season field trials measuring water use, yield, grain quality, disease and ecological effects.").
+semantic_atom(desert_wheat_editing, qualification, "Field success also needs soil management, irrigation strategy, farmer access, seed diversity, biosafety review, and testing across environments because greenhouse tolerance may not survive real deserts.").

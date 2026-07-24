@@ -714,6 +714,7 @@ static int plan_execute_goal(Brain *b, const char *goal, const char *praw,
 static int mod_plan(Brain *b, const char *norm, const char *raw,
                     char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
+    if (kb_module_guarded(b, "plan", norm)) return 0;
 
     /* gen258/gen259 (Track 5.2/5.3, F.'s steer: the plan is INFERRED, never a
      * hardcoded pipeline). "make a plan to <goal>" renders the derived steps;

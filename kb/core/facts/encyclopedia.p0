@@ -227,6 +227,10 @@ semantic_topic_cue(vaccine, keyword(vaccine)).
 semantic_topic_cue(printing_press, keyword(printing)).
 semantic_topic_cue(printing_press, keyword(press)).
 semantic_topic_cue(printing_press, "printing press").
+semantic_topic_gate(printing_press, "printing press").
+semantic_topic_gate(printing_press, keyword(gutenberg)).
+semantic_topic_gate(printing_press, keyword(pamphlet)).
+semantic_topic_gate(printing_press, keyword(pamphlets)).
 semantic_topic_cue(supply_and_demand, keyword(supply)).
 semantic_topic_cue(supply_and_demand, keyword(demand)).
 semantic_topic_cue(supply_and_demand, "supply and demand").
@@ -303,6 +307,9 @@ semantic_topic_cue(special_relativity, keyword(relativity)).
 semantic_topic_cue(special_relativity, "special relativity").
 semantic_topic_cue(quantum_mechanics, keyword(quantum)).
 semantic_topic_cue(quantum_mechanics, "quantum mechanics").
+semantic_topic_gate(quantum_mechanics, "quantum mechanics").
+semantic_topic_gate(quantum_mechanics, keyword(wavefunction)).
+semantic_topic_gate(quantum_mechanics, keyword(observables)).
 semantic_topic_cue(periodic_table, keyword(periodic)).
 semantic_topic_cue(periodic_table, "periodic table").
 semantic_topic_cue(binary_search_algorithm, keyword(binary)).

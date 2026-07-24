@@ -65,6 +65,7 @@ response_template(arith_range_count, "There are {count} {property} numbers betwe
 response_template(arith_range_too_large, "That interval is too large for my bounded exact counter.").
 response_template(handshake_count, "{count}. With {people} people, each pair meets once, so the total is {people} choose 2.").
 response_template(probability_at_least_count, "{fraction}, about {percent}%. There are {favorable} favorable draws out of {total} equally likely draws.").
+response_template(probability_inverse_pair_answer, "The probability alone does not determine a unique total. Integer counts must satisfy R(R-1)/[N(N-1)] = {probability}; for example, R = {target} and N = {total} works. Another count or the initial red fraction is needed to identify N uniquely.").
 response_template(word_double_runs_answer, "{word}. It has {runs} adjacent double-letter pairs in sequence.").
 response_template(logic_no_overlap_relationship, "Those classes do not overlap -- the explicit no-overlap premise states that directly.").
 response_template(story_opening_line, "{line}.").

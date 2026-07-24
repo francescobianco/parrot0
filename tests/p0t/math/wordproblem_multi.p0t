@@ -30,7 +30,7 @@
 < 9.
 # Relative motion without clock times: 420 / (60 + 80) = 3 hours.
 > Two trains are 420 miles apart and travel toward each other at 60 mph and 80 mph. How long until they meet?
-< 3 hours.
+< 3 hours. Closing speed is 140 mph across 420 miles.
 # Weighted average speed over two legs: (120 + 60) / (2 + 2) = 45 mph.
 > If a train travels 120 miles in 2 hours, then slows down and travels the next 60 miles in 2 more hours, what is its average speed for the entire trip?
 < 45 mph.
@@ -43,4 +43,3 @@
 # Compare two average speeds: both are 60 mph, so the difference is 0.
 > If a train travels 120 miles in 2 hours, and another train travels 180 miles in 3 hours, how much faster is the second train going per hour?
 < 0 mph.
-

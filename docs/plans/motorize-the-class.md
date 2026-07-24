@@ -878,3 +878,106 @@ probe interno verde. Diagnosi: il piano ha vinto la prima frontiera (muri) ma no
 ancora la seconda (completezza, formato, wrong-rate). Da qui la missione diventa
 LLMSCORE-max sotto alta varianza: answer planner, format contract, algebra schema,
 event frames e oracolo qualità.
+
+## Gen360–361 — planner analitico completo, famiglie aperte e costo negativo
+
+L'iterazione realizza il salto che gen359 lasciava esplicitamente aperto:
+`semantic_summary/2` non è più l'unità minima di una risposta analitica. Il nuovo
+consumer esegue il prodotto:
+
+```
+atto richiesto
+  × (dominio specifico | famiglia trasversale | default dell'atto)
+  × faccette obbligatorie
+  × realizzatore di formato
+```
+
+Le scelte semantiche vivono nelle relazioni
+`analysis_act_cue/2`, `analysis_domain_cue/2`,
+`analysis_domain_gate/2`, `analysis_family_cue/2`,
+`analysis_default_domain/2`, `answer_plan/4`, `semantic_atom/3`,
+`format_constraint/2` e `format_realizer/2`. Il C misura evidenza, prova le slot,
+ordina e concatena; non contiene parole che significhino “analizza”, “tra”,
+“metodi” o “lista”, né frasi di risposta.
+
+Il routing prova tre livelli in ordine:
+
+1. un dominio specifico vince soltanto se passa l'eventuale gate
+   discriminante e completa tutte le faccette dell'atto;
+2. una famiglia trasversale fornisce metodi riusabili per soggetti nuovi
+   (`empirical_inquiry`, `engineered_system`, `institutional_system`,
+   `material_process`, `language_fieldwork`, `adaptive_art`, ecc.);
+3. il default dell'atto parla soltanto con un piano completo e prudente.
+
+Un piano specifico incompleto non chiude più il turno: diventa evidenza per
+provare il livello successivo. Viceversa, un singolo cue generico non autorizza
+più una risposta stretta. È la correzione al failure in cui `agriculture` e
+`daily life` facevano vincere la risposta sugli insetti giganti davanti a una
+domanda sulla gravità o sul calendario.
+
+`compound_guard(analysis_plan, Intent)` lascia priorità ai consumer più ricchi
+per traduzione, codice, rulespec e artefatti creativi. Anche questa precedenza è
+insegnabile: aggiungere o ritrarre il cue dell'intento cambia a runtime se il
+planner reclama o declina.
+
+### Prova KB-first
+
+`tests/analysis_planner_growth.sh` copre ora 20 proprietà:
+
+- assert/retract di un cue di atto;
+- assert/retract di un dominio;
+- assert/retract di una famiglia;
+- assert/retract del gate discriminante;
+- assert/retract di un guard verso un consumer più specifico;
+- assert/retract di un vincolo di formato;
+- rifiuto atomico di un piano con una slot required assente.
+
+Quindi atto, soggetto largo, specificità, precedenza e forma crescono senza
+rebuild. Il moltiplicatore non è il numero di prompt aggiunti, ma
+**9 atti × domini/famiglie × vincoli di formato**.
+
+### Il timeout era una struttura dati
+
+La seconda causa di zero non era semantica. Ogni processo LLMSCORE ricostruiva
+la KB e `kb_assert` cercava i duplicati con una scansione lineare: il caricamento
+era quadratico nel numero di fatti. Inoltre `kb_derive_part_of` materializzava
+relazioni riflessive prima di qualunque consumer, anche quando il planner non le
+interrogava.
+
+Gen361 aggiunge un indice hash esatto per fatti positivi e negativi, ricostruito
+in modo sicuro dopo una retract, e sposta `part_of` oltre i due consumer
+semantici che non lo usano. Misure sullo stesso host:
+
+- una risposta analitica singola: circa **0,98 s → 0,07 s**;
+- intervista locale di 20 domande con 8 worker: **2,75 s e 10 timeout →
+  0,23 s e 0 timeout**;
+- `kb-evidence-scale`: **11/11**;
+- `analysis_planner_growth`: **20/20**;
+- `motorize_class`: **14/14**;
+- `llmscore-kbfirst`: **14/14**;
+- `make llmscore-probe`: **70/70 answered**, 0% wall.
+
+La suite principale attraversa tutti i test fino a `rulespec.p0t`; il secondo
+caso rulespec resta oltre il suo timeout di un secondo (**3,38 s**). La stessa
+prova sulla baseline pulita `14ec932` richiedeva circa **9,56 s**, quindi il
+failure è preesistente e migliorato, non introdotto dal planner.
+
+### Attribuzione LLMSCORE senza autoinganno
+
+Due tail davvero nuovi, generati e consumati senza leggerli prima, hanno segnato
+**0/20** prima dell'introduzione delle famiglie trasversali. La riparazione
+manuale dei domini del primo tail arrivava a **12/20**, ma era ormai in-sample:
+utile come diagnostica del consumer, non come stima attesa.
+
+Dopo gen361, sul secondo tail ormai pubblico, tutte le 20 risposte arrivano in
+tempo e le classi riusabili producono risposte pertinenti per conservazione dei
+materiali, sicurezza idrica, sistemi distribuiti, fieldwork linguistico,
+attribuzione quantitativa, codici ignoti, calendari ciclici, identità,
+performance interattiva e valutazione multimodale. Due tentativi di giudizio
+sono stati invalidi perché il provider non ha restituito tutti i verdict entro
+la deadline; `LLMSCORE.md` è stato correttamente preservato. Non si inventa uno
+score dai verdict parziali.
+
+Il controllo conclusivo resta un altro tail libero, prefetchato e non letto.
+Qualunque punteggio ottenuto sul tail diagnostico deve essere etichettato
+in-sample; soltanto il nuovo campione misura il guadagno atteso delle famiglie.

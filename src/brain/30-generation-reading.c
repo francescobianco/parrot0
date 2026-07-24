@@ -196,6 +196,25 @@ static int creative_topic_tail(Brain *b, const char *norm,
     return 1;
 }
 
+/* Optional candidate-local evidence gates keep one generic request cue from
+ * authorizing a complete but unrelated artifact. Candidates without gate rows
+ * retain the open runtime-growth behavior; candidates with rows must match at
+ * least one KB-owned discriminating cue. */
+static int creative_candidate_gate_pass(Brain *b, const char *gate_relation,
+                                        const char *intent,
+                                        const char *norm) {
+    char rows[1][KB_TERM_LEN];
+    const char *q[] = { intent, NULL };
+    if (kb_match(b->kb, gate_relation, q, 2, rows, 1) == 0)
+        return 1;
+    const char *candidate[] = { intent };
+    char winner[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+    int score = 0;
+    return kb_hypothesis_best(b->kb, gate_relation, norm,
+                              candidate, 1, winner, sizeof winner,
+                              &score, proof, sizeof proof) == 1;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -223,17 +242,31 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * its intent_cue rows and a response_template grows this composer at runtime
      * without a C branch or a whole-prompt lookup. */
     {
-        char ids[32][KB_TERM_LEN];
+        char (*ids)[KB_TERM_LEN] = NULL;
         const char *rq[] = { NULL, NULL };
-        size_t ni = kb_match(b->kb, "creative_response", rq, 2, ids, 32);
-        const char *candidates[32];
-        for (size_t i = 0; i < ni; i++) candidates[i] = ids[i];
+        size_t ni = 0, nc = 0;
+        if (!kb_match_all(b->kb, "creative_response", rq, 2, &ids, &ni))
+            ni = 0;
+        const char **candidates = ni ? calloc(ni, sizeof *candidates) : NULL;
+        if (ni && !candidates) {
+            free(ids);
+            ids = NULL;
+            ni = 0;
+        }
+        for (size_t i = 0; i < ni; i++)
+            if (creative_candidate_gate_pass(b, "creative_response_gate",
+                                             ids[i], norm))
+                candidates[nc++] = ids[i];
         char winner[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
         int score = 0;
-        if (ni > 0 &&
-            kb_hypothesis_best(b->kb, "intent_cue", norm,
-                               candidates, ni, winner, sizeof winner,
-                               &score, proof, sizeof proof) == 1) {
+        int best = nc > 0
+            ? kb_hypothesis_best(b->kb, "intent_cue", norm,
+                                 candidates, nc, winner, sizeof winner,
+                                 &score, proof, sizeof proof)
+            : 0;
+        free(candidates);
+        free(ids);
+        if (best == 1) {
             char frames[1][KB_TERM_LEN];
             const char *fq[] = { winner, NULL };
             if (kb_match(b->kb, "creative_response", fq, 2, frames, 1) == 1 &&
@@ -429,6 +462,9 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         size_t ni = kb_match(b->kb, "creative_text_cue", any, 2, ids, 64);
         for (size_t i = 0; i < ni; i++) {
             if (seen_term(ids, i, ids[i])) continue;
+            if (!creative_candidate_gate_pass(b, "creative_text_gate",
+                                              ids[i], norm))
+                continue;
             const char *q[] = { ids[i], NULL };
             char cues[16][KB_TERM_LEN];
             size_t nc = kb_match(b->kb, "creative_text_cue", q, 2, cues, 16);

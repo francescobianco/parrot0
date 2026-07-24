@@ -1126,6 +1126,7 @@ intent_cue(generic_poem_request, "short poem").
 intent_cue(generic_poem_request, "poem about").
 intent_cue(generic_poem_request, "poem on").
 intent_cue(generic_poem_request, "verse about").
+intent_cue(generic_poem_request, keyword(haiku)).
 intent_cue(creative_topic_marker, "about").
 intent_cue(creative_topic_marker, "on the theme of").
 intent_cue(creative_topic_end, "in exactly").
@@ -1158,6 +1159,17 @@ intent_cue(renewable_water_proposal, "sustainable water supply").
 intent_cue(renewable_water_proposal, "only renewable energy").
 intent_cue(renewable_water_proposal, "estimate its daily output").
 intent_cue(historical_riddle_request, "short riddle").
+creative_response_gate(holiday_design_request, "design a new holiday").
+creative_response_gate(object_backstory_request, "write a short backstory").
+creative_response_gate(object_backstory_request, "origin story for").
+creative_response_gate(fusion_food_request, "two unrelated cuisines").
+creative_response_gate(fusion_food_request, "combine flavors").
+creative_response_gate(upside_down_city_request, "built upside down").
+creative_response_gate(color_language_request, "expressed through colors").
+creative_response_gate(acoustic_storm_request, "summer thunderstorm").
+creative_response_gate(acoustic_storm_request, "only acoustic instruments").
+creative_response_gate(renewable_water_proposal, "sustainable water supply").
+creative_response_gate(historical_riddle_request, "short riddle").
 intent_cue(historical_riddle_request, "historical event").
 intent_cue(historical_riddle_request, "without naming it").
 intent_cue(body_technology_choice, "embed a single piece of technology").
@@ -1396,6 +1408,7 @@ intent_cue(translation_request, "translate into french").
 intent_cue(translation_request, "translate to french").
 intent_cue(translation_request, "translate this sentence into french").
 intent_cue(translation_request, "translate the english sentence").
+intent_cue(translation_request, "how do you say").
 intent_cue(multi_translation_request, "into french, spanish, and japanese").
 intent_cue(multi_translation_request, "french, spanish, and japanese").
 intent_cue(multi_translation_request, "translate the english sentence").
@@ -1503,6 +1516,36 @@ compound_guard(answerframe, process_request).
 compound_guard(answerframe, code_explain).
 compound_guard(answerframe, translation_request).
 compound_guard(answerframe, activity_request).
+compound_guard(analysis_plan, translation_request).
+compound_guard(analysis_plan, multi_translation_request).
+compound_guard(analysis_plan, rules_spec_request).
+compound_guard(analysis_plan, code_debug).
+compound_guard(analysis_plan, code_fix).
+compound_guard(analysis_plan, code_explain).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, c).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, python).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, json).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, diff).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, pytest).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, cc).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, traceback).
+compound_guard_evidence(analysis_plan, code_debug, register_evidence, log).
+compound_guard_evidence(analysis_plan, code_fix, register_evidence, c).
+compound_guard_evidence(analysis_plan, code_fix, register_evidence, python).
+compound_guard_evidence(analysis_plan, code_fix, register_evidence, json).
+compound_guard_evidence(analysis_plan, code_fix, register_evidence, diff).
+compound_guard_evidence(analysis_plan, code_explain, register_evidence, c).
+compound_guard_evidence(analysis_plan, code_explain, register_evidence, python).
+compound_guard_evidence(analysis_plan, code_explain, register_evidence, json).
+compound_guard_evidence(analysis_plan, code_explain, register_evidence, diff).
+compound_guard(analysis_plan, generic_dialogue_request).
+compound_guard(analysis_plan, object_backstory_request).
+compound_guard(analysis_plan, story_opening_request).
+compound_guard(analysis_plan, sentence_completion_request).
+compound_guard(analysis_plan, creative_invention_request).
+compound_guard(analysis_plan, process_request).
+compound_guard(semantic_summary, generic_poem_request).
+compound_guard(plan, process_request).
 % gen357: plan-first quantitative routing. mod_arith is a scalar evaluator and
 % must decline when evidence names a richer schema owned by mod_wordproblem.
 compound_guard(arith, discount_chain_schema).
@@ -1517,3 +1560,173 @@ compound_guard(decompose, event_bundle_full).
 compound_guard(decompose, capital_temporal_compound).
 compound_guard(decompose, capital_geo_compound).
 compound_guard(decompose, preference_reason_compound).
+
+% gen360 (LLMSCORE-max): evidence for the compositional analytical planner.
+% These relations are consumed only through kb_hypothesis_best: adding or
+% retracting a surface form changes routing immediately, with no C edit.
+machinery(analysis_act_cue).
+analysis_act_cue(impact_analysis, "how would").
+analysis_act_cue(impact_analysis, "how might").
+analysis_act_cue(impact_analysis, keyword(affect)).
+analysis_act_cue(impact_analysis, keyword(influence)).
+analysis_act_cue(impact_analysis, keyword(impact)).
+analysis_act_cue(impact_analysis, keyword(expect)).
+analysis_act_cue(impact_analysis, "what would happen").
+analysis_act_cue(impact_analysis, "what are the consequences").
+analysis_act_cue(impact_analysis, "what consequences").
+analysis_act_cue(impact_analysis, "cascading effects").
+analysis_act_cue(impact_analysis, "would this have").
+analysis_act_cue(impact_analysis, keyword(implications)).
+analysis_act_cue(impact_analysis, "what implications").
+analysis_act_cue(design_analysis, keyword(design)).
+analysis_act_cue(design_analysis, keyword(designing)).
+analysis_act_cue(design_analysis, keyword(redesign)).
+analysis_act_cue(design_analysis, keyword(redesigned)).
+analysis_act_cue(design_analysis, keyword(construct)).
+analysis_act_cue(design_analysis, keyword(curriculum)).
+analysis_act_cue(design_analysis, keyword(create)).
+analysis_act_cue(design_analysis, keyword(adapt)).
+analysis_act_cue(design_analysis, "construct a dictionary").
+analysis_act_cue(design_analysis, keyword(propose)).
+analysis_act_cue(design_analysis, keyword(outline)).
+analysis_act_cue(design_analysis, keyword(techniques)).
+analysis_act_cue(design_analysis, "what techniques").
+analysis_act_cue(design_analysis, "what control algorithms").
+analysis_act_cue(design_analysis, "what systems").
+analysis_act_cue(design_analysis, "what safeguards").
+analysis_act_cue(design_analysis, keyword(transition)).
+analysis_act_cue(design_analysis, keyword(prioritize)).
+analysis_act_cue(design_analysis, "could be designed").
+analysis_act_cue(design_analysis, "what systems could").
+analysis_act_cue(design_analysis, "voting systems could").
+analysis_act_cue(design_analysis, "how could").
+analysis_act_cue(design_analysis, keyword(prevent)).
+analysis_act_cue(design_analysis, "what legal framework").
+analysis_act_cue(design_analysis, "what practical knowledge").
+analysis_act_cue(design_analysis, "what new forms").
+analysis_act_cue(design_analysis, "what structural principles").
+analysis_act_cue(design_analysis, "what institutional changes").
+analysis_act_cue(design_analysis, "need to occur").
+analysis_act_cue(mechanism_analysis, keyword(mechanism)).
+analysis_act_cue(mechanism_analysis, keyword(mechanisms)).
+analysis_act_cue(mechanism_analysis, keyword(underlie)).
+analysis_act_cue(mechanism_analysis, keyword(explain)).
+analysis_act_cue(mechanism_analysis, "explain how").
+analysis_act_cue(mechanism_analysis, "cognitive mechanisms").
+analysis_act_cue(mechanism_analysis, "why does").
+analysis_act_cue(mechanism_analysis, "why do").
+analysis_act_cue(mechanism_analysis, "what role").
+analysis_act_cue(mechanism_analysis, "how does").
+analysis_act_cue(mechanism_analysis, "how do").
+analysis_act_cue(mechanism_analysis, "what processes").
+analysis_act_cue(mechanism_analysis, "what properties").
+analysis_act_cue(mechanism_analysis, keyword(processes)).
+analysis_act_cue(ethical_analysis, keyword(ethical)).
+analysis_act_cue(ethical_analysis, keyword(ethics)).
+analysis_act_cue(ethical_analysis, keyword(moral)).
+analysis_act_cue(ethical_analysis, keyword(frameworks)).
+analysis_act_cue(ethical_analysis, keyword(privacy)).
+analysis_act_cue(ethical_analysis, "moral considerations").
+analysis_act_cue(ethical_analysis, "philosophical frameworks").
+analysis_act_cue(ethical_analysis, "ethical choices").
+analysis_act_cue(ethical_analysis, "ethical implications").
+analysis_act_cue(ethical_analysis, "affect the ethics").
+analysis_act_cue(ethical_analysis, "ethics of").
+analysis_act_cue(ethical_analysis, "protecting their own privacy").
+analysis_act_cue(ethical_analysis, "prevent bias").
+analysis_act_cue(investigation_analysis, keyword(investigate)).
+analysis_act_cue(investigation_analysis, keyword(investigative)).
+analysis_act_cue(investigation_analysis, keyword(experiments)).
+analysis_act_cue(investigation_analysis, keyword(reconcile)).
+analysis_act_cue(investigation_analysis, keyword(assess)).
+analysis_act_cue(investigation_analysis, "assess the authenticity").
+analysis_act_cue(investigation_analysis, "conflicting findings").
+analysis_act_cue(investigation_analysis, "evaluate the evidence").
+analysis_act_cue(investigation_analysis, keyword(decode)).
+analysis_act_cue(investigation_analysis, keyword(decipher)).
+analysis_act_cue(investigation_analysis, keyword(verify)).
+analysis_act_cue(investigation_analysis, keyword(evaluate)).
+analysis_act_cue(investigation_analysis, keyword(metrics)).
+analysis_act_cue(investigation_analysis, keyword(methods)).
+analysis_act_cue(investigation_analysis, keyword(predictions)).
+analysis_act_cue(investigation_analysis, "experimental setup").
+analysis_act_cue(investigation_analysis, "testable predictions").
+analysis_act_cue(investigation_analysis, "how would a linguist").
+analysis_act_cue(investigation_analysis, "how could scientists").
+analysis_act_cue(investigation_analysis, "approach proving").
+analysis_act_cue(investigation_analysis, "approach disproving").
+analysis_act_cue(investigation_analysis, "how would you investigate").
+analysis_act_cue(investigation_analysis, "explanations would you investigate").
+analysis_act_cue(investigation_analysis, "statistically significant").
+analysis_act_cue(risk_analysis, keyword(risk)).
+analysis_act_cue(risk_analysis, keyword(risks)).
+analysis_act_cue(risk_analysis, keyword(challenges)).
+analysis_act_cue(risk_analysis, keyword(consequences)).
+analysis_act_cue(risk_analysis, "risk-assessment").
+analysis_act_cue(risk_analysis, "potential consequences").
+analysis_act_cue(risk_analysis, "what could go wrong").
+analysis_act_cue(risk_analysis, "safety protocols").
+analysis_act_cue(risk_analysis, "fail-safes").
+analysis_act_cue(risk_analysis, "regulatory standards").
+analysis_act_cue(interpretive_analysis, keyword(themes)).
+analysis_act_cue(interpretive_analysis, keyword(interpret)).
+analysis_act_cue(interpretive_analysis, keyword(symbolism)).
+analysis_act_cue(interpretive_analysis, "author use").
+analysis_act_cue(interpretive_analysis, "explore themes").
+analysis_act_cue(interpretive_analysis, "symbolic meaning").
+analysis_act_cue(interpretive_analysis, keyword(philosophical)).
+analysis_act_cue(interpretive_analysis, "nature of self").
+analysis_act_cue(impact_analysis, keyword(confuse)).
+analysis_act_cue(impact_analysis, "first observable changes").
+analysis_act_cue(impact_analysis, "social consequences").
+analysis_act_cue(impact_analysis, keyword(social)).
+analysis_act_cue(comparison_analysis, keyword(compromises)).
+analysis_act_cue(comparison_analysis, "between fidelity and").
+analysis_act_cue(comparison_analysis, "balance imagery").
+analysis_act_cue(comparison_analysis, keyword(imagery)).
+analysis_act_cue(design_analysis, "design a board game").
+analysis_act_cue(design_analysis, "game mechanics").
+analysis_act_cue(design_analysis, "adapt a").
+analysis_act_cue(investigation_analysis, "what experiments").
+analysis_act_cue(comparison_analysis, keyword(compare)).
+analysis_act_cue(comparison_analysis, keyword(difference)).
+analysis_act_cue(comparison_analysis, keyword(differences)).
+analysis_act_cue(comparison_analysis, "in contrast").
+analysis_act_cue(comparison_analysis, keyword(versus)).
+analysis_act_cue(advice_analysis, keyword(recommend)).
+analysis_act_cue(advice_analysis, keyword(recommendations)).
+analysis_act_cue(advice_analysis, keyword(advice)).
+analysis_act_cue(advice_analysis, "best way").
+analysis_act_cue(advice_analysis, "which would you choose").
+analysis_act_cue(advice_analysis, "choose and why").
+
+% gen362: additional finite answer acts. The surface vocabulary is evidence
+% data; the planner still owns only scoring, slot completeness and ordering.
+analysis_act_cue(proof_exposition, keyword(prove)).
+analysis_act_cue(proof_exposition, keyword(proof)).
+analysis_act_cue(proof_exposition, "visual argument").
+analysis_act_cue(proof_exposition, "show that").
+analysis_act_cue(narrative_composition, "first paragraph").
+analysis_act_cue(narrative_composition, "opening paragraph").
+analysis_act_cue(narrative_composition, "novel whose narrator").
+analysis_act_cue(narrative_composition, "write a short story").
+analysis_act_cue(narrative_composition, keyword(protagonist)).
+analysis_act_cue(cultural_synthesis, keyword(festival)).
+analysis_act_cue(cultural_synthesis, keyword(rituals)).
+analysis_act_cue(cultural_synthesis, keyword(costumes)).
+analysis_act_cue(cultural_synthesis, keyword(foods)).
+
+% Long imperatives are not narrative continuations merely because they omit a
+% question mark. These forms grow the existing KB-owned imperative class.
+imperative_opener(prove).
+imperative_opener(develop).
+
+% Explicit output constraints are evidence too. The engine only knows the
+% structural numbered_lines realizer; all words that request it stay here.
+machinery(format_constraint).
+format_constraint(numbered, keyword(outline)).
+format_constraint(numbered, keyword(numbered)).
+format_constraint(numbered, keyword(steps)).
+format_constraint(numbered, "as a list").
+format_constraint(numbered, "list of").
+format_constraint(numbered, "three ways").
