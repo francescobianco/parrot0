@@ -183,7 +183,10 @@ def generate_questions(key, model, count, excluded_questions, log, phase,
         {"role": "user",
          "content": f"Generate {count} questions. Excluded questions: {excluded}"},
     ]
-    raw = call_model(key, model, msgs, 1.0, max_tokens=3000,
+    # The generator is a reasoning model: its server-side reasoning is billed
+    # against the same completion budget, so a tight max_tokens truncates the
+    # JSON mid-array and the whole tail is discarded as unusable.
+    raw = call_model(key, model, msgs, 1.0, max_tokens=12000,
                      log=log, phase=phase, request_timeout=request_timeout)
     generated = []
     for value in json_values(raw):
@@ -193,6 +196,16 @@ def generate_questions(key, model, count, excluded_questions, log, phase,
         if isinstance(value, list):
             generated = value
             break
+    if not generated:
+        # Truncated array: recover the complete string literals that did arrive
+        # rather than throwing away a whole remote call. Questions are plain
+        # sentences, so a closed JSON string is a usable question.
+        body = raw.split("[", 1)[1] if "[" in raw else ""
+        for match in re.finditer(r'"((?:[^"\\]|\\.)*)"', body):
+            try:
+                generated.append(json.loads('"' + match.group(1) + '"'))
+            except json.JSONDecodeError:
+                continue
     out = []
     seen = {q.lower() for q in excluded_questions}
     for item in generated:
@@ -491,6 +504,23 @@ def main():
         return 1
     log(f"# question-tail={source}")
 
+    # The tail was always meant to be produced CONCURRENTLY with the scored
+    # phases, so repeating `make llmscore` is self-sustaining: each run consumes
+    # the tail the previous run prepared while it was judging. gen357 moved the
+    # generation out because it competed for the 30s budget and for remote
+    # capacity — but pulling it into a separate command broke the loop it exists
+    # for, and made every iteration pay an extra out-of-band call.
+    #
+    # Both requirements hold at once here: the generator starts now, on its own
+    # thread and its own timeout, and is joined only AFTER the report is written.
+    # It can neither delay a verdict nor consume the score deadline, and if it
+    # fails the run is still valid — `--prepare-tail-only` remains as the
+    # bootstrap/recovery path rather than a step of the normal loop.
+    tail_pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    tail_future = tail_pool.submit(
+        prepare_next_questions, key, args.model, questions,
+        lambda s: None, args.tail_timeout)
+
     log(f"--- local interview: timeout={args.question_timeout:g}s, "
         f"workers={args.local_workers} ---")
     phase_started = time.monotonic()
@@ -535,6 +565,22 @@ def main():
     log(f"\nScore: {total}/{n}")
     log(f"report saved: {args.out}")
     log(f"total elapsed: {total_elapsed:.3f}s / {args.budget:g}s budget")
+
+    # Off-budget: collect the tail that was being generated during judging, so
+    # the next `make llmscore` already has a fresh unseen sample.
+    try:
+        next_questions = tail_future.result(timeout=args.tail_timeout)
+    except Exception as exc:                       # noqa: BLE001 — never fatal
+        next_questions = []
+        log(f"next tail unavailable ({exc}); run `make llmscore-tail` before "
+            f"the next scored run")
+    tail_pool.shutdown(wait=False)
+    if next_questions and save_questions(TAIL_PATH, next_questions):
+        log(f"next free question tail saved: {TAIL_PATH} "
+            f"(prepared concurrently, outside the {args.budget:g}s budget)")
+    elif next_questions:
+        log("next tail incomplete; run `make llmscore-tail` before the next "
+            "scored run")
     return 0
 
 

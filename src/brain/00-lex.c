@@ -82,6 +82,52 @@ typedef struct {
     const char *value;
 } KbResponseSlot;
 
+/* The ONE slot-substitution engine (gen362: extracted from kb_response_slots so
+ * every consumer of a KB-authored phrasing shares it — a taught template and a
+ * reusable semantic_atom must fill "{name}" by the same rule).
+ *
+ * `strict` selects what an unbound placeholder means:
+ *   0  leave it literal — a malformed or half-taught template must not silently
+ *      lose information (the historical response_template behaviour);
+ *   1  fail — the caller is proving a plan, and a slot it cannot bind means the
+ *      claim is incomplete, so it must decline rather than speak.
+ * A placeholder whose name begins with a capital asks for the value with its
+ * first letter capitalized, so an atom can open a sentence with a slot. */
+static int kb_fill_slots(const char *tpl, const KbResponseSlot *slots,
+                         size_t nslots, int strict, char *out, size_t outsz) {
+    if (!tpl || !out || outsz == 0) return 0;
+    size_t o = 0;
+    for (const char *c = tpl; *c && o + 1 < outsz; ) {
+        int filled = 0;
+        if (*c == '{') {
+            const char *r = strchr(c + 1, '}');
+            if (r) {
+                size_t nl = (size_t)(r - (c + 1));
+                int capital = nl && isupper((unsigned char)c[1]);
+                for (size_t i = 0; i < nslots; i++) {
+                    if (!slots[i].name || strlen(slots[i].name) != nl ||
+                        strncasecmp(c + 1, slots[i].name, nl) != 0)
+                        continue;
+                    const char *v = slots[i].value ? slots[i].value : "";
+                    if (strict && !*v) return 0;
+                    size_t vl = strlen(v);
+                    if (vl >= outsz - o) vl = outsz - o - 1;
+                    memcpy(out + o, v, vl);
+                    if (capital && vl)
+                        out[o] = (char)toupper((unsigned char)out[o]);
+                    o += vl;
+                    c = r + 1; filled = 1;
+                    break;
+                }
+                if (!filled && strict) return 0;
+            }
+        }
+        if (!filled) out[o++] = *c++;
+    }
+    out[o < outsz ? o : outsz - 1] = '\0';
+    return out[0] != '\0';
+}
+
 /* Fixed renderer for KB response templates with named slots. The wording and
  * placeholder layout remain knowledge; C only substitutes values. */
 static int kb_response_slots(Brain *b, const char *intent,
@@ -122,32 +168,10 @@ static int kb_response_slots(Brain *b, const char *intent,
     b->response_pick++;
     size_t l = strlen(p);
     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }  /* strip quotes */
-
-    /* Substitute every recognized {slot}; unknown placeholders remain literal
-     * so a malformed/taught template does not silently lose information. */
-    size_t o = 0;
-    for (const char *c = p; *c && o + 1 < outsz; ) {
-        int filled = 0;
-        if (*c == '{') {
-            const char *r = strchr(c + 1, '}');
-            if (r) {
-                size_t nl = (size_t)(r - (c + 1));
-                for (size_t i = 0; i < nslots; i++) {
-                    if (!slots[i].name || strlen(slots[i].name) != nl ||
-                        strncmp(c + 1, slots[i].name, nl) != 0)
-                        continue;
-                    const char *v = slots[i].value ? slots[i].value : "";
-                    size_t vl = strlen(v);
-                    if (vl >= outsz - o) vl = outsz - o - 1;
-                    memcpy(out + o, v, vl); o += vl;
-                    c = r + 1; filled = 1;
-                    break;
-                }
-            }
-        }
-        if (!filled) out[o++] = *c++;
-    }
-    out[o < outsz ? o : outsz - 1] = '\0';
+    if (!kb_fill_slots(p, slots, nslots, 0, out, outsz)) return 0;
+    /* gen363: record WHICH frame spoke, so a rule over knowledge can later ask
+     * what kind of reply this was without inspecting its words. */
+    snprintf(b->turn_frame, sizeof b->turn_frame, "%s", intent);
     return 1;
 }
 
@@ -156,6 +180,22 @@ static int kb_response(Brain *b, const char *intent, const char *slot,
     const KbResponseSlot named[] = { { "name", slot ? slot : "" } };
     return kb_response_slots(b, intent, named, 1, out, outsz);
 }
+
+/* gen363 (motorize-the-class) — a reply carries the FRAME that produced it.
+ *
+ * A consumer that matched a request but had no facts for it used to write its
+ * surrender as a literal sentence in C. That is a phrasebook (mantra #2) and,
+ * worse, it is indistinguishable from an answer: the turn counts as handled, so
+ * the last-resort planner never runs and the judge sees a guaranteed zero.
+ *
+ * gen362 tried to recognize those sentences with `wall_marker/1`. Matching the
+ * text parrot0 itself produced is the wrong layer: a consumer that wrote "for
+ * that situation" escaped a marker written "for that topic". So the engine keeps
+ * only PROVENANCE — which frame spoke — and the meaning of a frame stays in the
+ * KB (`gap_frame/1`). Teaching that a frame is a surrender, in any wording or
+ * language, is one fact and zero C. The recording happens in kb_response_slots
+ * above, so EVERY frame carries provenance, not just the ones a module thought
+ * to mark. */
 
 /* Return the index of token `t` in `w[0..nw)`, or `nw` if absent. */
 static size_t find_token(char **w, size_t nw, const char *t) {

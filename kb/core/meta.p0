@@ -267,3 +267,37 @@ difference_between(validity, truth, "Validity is about an argument's form; truth
 % Italian keys (the canonicalizer leaves untranslated content words as-is)
 difference_between(correlazione, causalita, "Correlazione: due cose variano insieme; causalita: una produce davvero l'altra").
 difference_between(deduzione, induzione, "La deduzione ricava cio che segue dalle regole; l'induzione generalizza una regola dagli esempi").
+
+% gen362 — parrot0 sa riconoscere un PROPRIO muro.
+% Finora questa conoscenza viveva solo in tests/llmscore_probe.py: un giudizio
+% su parrot0 tenuto fuori da parrot0. Portarla qui la rende un fatto
+% interrogabile e la mette a disposizione del motore: un turno la cui risposta
+% è un muro dichiarato non è "gestito", quindi il pianificatore analitico può
+% ancora provare un piano completo prima che il muro venga pronunciato.
+% Insegnare una nuova forma di resa è UN fatto, zero C.
+machinery(wall_marker).
+wall_marker("i don't understand").
+wall_marker("i dont understand").
+wall_marker("i don't know about").
+wall_marker("i dont know about").
+wall_marker("want me to learn").
+wall_marker("haven't learned").
+wall_marker("havent learned").
+wall_marker("not sure i followed").
+wall_marker("no idea what to say").
+wall_marker("say it another way").
+wall_marker("not sure which function").
+wall_marker("but i don't have").
+wall_marker("i don't have process_step").
+wall_marker("facts for that topic yet").
+
+% ── gen363: che COSA è un frame di resa ─────────────────────────────────────
+% gen362 provava a riconoscere le rese di parrot0 dal testo (`wall_marker/1`).
+% È il livello sbagliato: un consumer che scriveva "for that situation" sfuggiva
+% a un marker scritto "for that topic". Il motore ora registra soltanto QUALE
+% frame ha parlato (provenance, come `last_module`); il significato del frame è
+% questo fatto. Dichiarare che un nuovo frame è una resa è UN fatto, zero C, e
+% vale in qualunque lingua perché non guarda le parole.
+machinery(gap_frame).
+gap_frame(process_step_gap).
+gap_frame(activity_step_gap).

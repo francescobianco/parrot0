@@ -366,6 +366,16 @@ analysis_default_domain(interpretive_analysis, default_interpretation).
 analysis_default_domain(comparison_analysis, default_comparison).
 analysis_default_domain(advice_analysis, default_advice).
 
+answer_plan(impact_analysis, framing, 0, required).
+answer_plan(design_analysis, framing, 0, required).
+answer_plan(mechanism_analysis, framing, 0, required).
+answer_plan(ethical_analysis, framing, 0, required).
+answer_plan(investigation_analysis, framing, 0, required).
+answer_plan(risk_analysis, framing, 0, required).
+answer_plan(interpretive_analysis, framing, 0, required).
+answer_plan(comparison_analysis, framing, 0, required).
+answer_plan(advice_analysis, framing, 0, required).
+
 answer_plan(impact_analysis, context, 1, domain_required).
 answer_plan(impact_analysis, direct_effect, 2, required).
 answer_plan(impact_analysis, secondary_effect, 3, required).
@@ -439,3 +449,127 @@ format_realizer(numbered, numbered_lines).
 
 % gen335+: meta-knowledge layer (L4-L12 saturation).
 :- include(meta.p0).
+
+% ── gen362: la frase analitica si COSTRUISCE, non si deposita ────────────────
+% F.: "la prosa lunga nei predicati va tradotta in predicati in costruzione,
+% relazioni e regole di inferenza". Una frase-paragrafo memorizzata è un
+% frasario con un nome migliore: non si ricombina, non si interroga, e un atto
+% nuovo non ne può riusare metà. Qui la frase di apertura è DERIVATA da:
+%
+%   act_move(Act, Gerundio)        il movimento cognitivo dell'atto
+%   analysis_lens(Act, Lente)      le dimensioni attraverso cui l'atto ragiona
+%   lens_gloss(Lente, "frase")     una lente glossata UNA volta, riusata da
+%                                  ogni atto che la prende in prestito
+%   atom_frame(Facet, superficie)  la superficie con gli slot
+%   atom_slot(Slot, forma)         come si risolve lo slot (unaria o serie)
+%
+% La leva è il prodotto: lenti x atti. `constraint`, `failure_mode`,
+% `reversibility` sono glossate una sola volta e valgono per design, rischio e
+% impatto insieme. Aggiungere una dimensione a un atto è UN fatto.
+machinery(act_move).
+machinery(analysis_lens).
+machinery(lens_gloss).
+machinery(atom_frame).
+machinery(atom_slot).
+machinery(list_frame).
+
+atom_frame(framing, "On {subject}, {move} turns on {lenses}.").
+atom_slot(move, unary(act_move)).
+atom_slot(lenses, series(analysis_lens, lens_gloss)).
+list_frame(series, ", ", " and ").
+
+act_move(impact_analysis, "a consequence analysis").
+act_move(design_analysis, "a workable design").
+act_move(mechanism_analysis, "a causal account").
+act_move(ethical_analysis, "an ethical judgement").
+act_move(investigation_analysis, "a sound investigation").
+act_move(risk_analysis, "a risk assessment").
+act_move(interpretive_analysis, "a close reading").
+act_move(comparison_analysis, "a useful comparison").
+act_move(advice_analysis, "a defensible recommendation").
+
+% Le lenti: ogni atto dichiara le proprie, e le condivide con gli altri.
+analysis_lens(design_analysis, objective).
+analysis_lens(design_analysis, constraint).
+analysis_lens(design_analysis, failure_mode).
+analysis_lens(impact_analysis, baseline).
+analysis_lens(impact_analysis, adaptation).
+analysis_lens(impact_analysis, distribution).
+analysis_lens(mechanism_analysis, trigger).
+analysis_lens(mechanism_analysis, intermediate).
+analysis_lens(mechanism_analysis, observable).
+analysis_lens(ethical_analysis, beneficiary).
+analysis_lens(ethical_analysis, exposure).
+analysis_lens(ethical_analysis, refusal).
+analysis_lens(investigation_analysis, rival_account).
+analysis_lens(investigation_analysis, discriminating_test).
+analysis_lens(investigation_analysis, provenance).
+analysis_lens(risk_analysis, hazard_source).
+analysis_lens(risk_analysis, exposure).
+analysis_lens(risk_analysis, reversibility).
+analysis_lens(interpretive_analysis, premise).
+analysis_lens(interpretive_analysis, formal_choice).
+analysis_lens(interpretive_analysis, tension).
+analysis_lens(comparison_analysis, shared_baseline).
+analysis_lens(comparison_analysis, dimension).
+analysis_lens(comparison_analysis, scale).
+analysis_lens(advice_analysis, objective).
+analysis_lens(advice_analysis, option_set).
+analysis_lens(advice_analysis, uncertainty).
+
+% Le glosse: frammenti corti, indipendenti, riusabili da qualunque atto.
+lens_gloss(objective, "what would count as success").
+lens_gloss(constraint, "what cannot be violated").
+lens_gloss(failure_mode, "how it fails in practice").
+lens_gloss(baseline, "what the situation looks like unchanged").
+lens_gloss(adaptation, "how people and systems adjust once it holds").
+lens_gloss(distribution, "who gains and who absorbs the cost").
+lens_gloss(trigger, "the condition that starts it").
+lens_gloss(intermediate, "the process that carries it").
+lens_gloss(observable, "the effect one could actually measure").
+lens_gloss(beneficiary, "who gains").
+lens_gloss(exposure, "who is exposed to the harm").
+lens_gloss(refusal, "who is able to refuse").
+lens_gloss(rival_account, "the competing explanations").
+lens_gloss(discriminating_test, "the observation that separates them").
+lens_gloss(provenance, "the chain of evidence behind each claim").
+lens_gloss(hazard_source, "where the harm originates").
+lens_gloss(reversibility, "whether the outcome can be undone").
+lens_gloss(premise, "the premise it commits to").
+lens_gloss(formal_choice, "the formal choices that carry it").
+lens_gloss(tension, "the tension it refuses to resolve").
+lens_gloss(shared_baseline, "the baseline both share").
+lens_gloss(dimension, "the dimensions worth holding fixed").
+lens_gloss(scale, "the difference scale alone would explain").
+lens_gloss(option_set, "the genuinely distinct options").
+lens_gloss(uncertainty, "what remains uncertain").
+
+% ── gen363: la faccetta GROUNDING ───────────────────────────────────────────
+% gen362 sosteneva che la specificità fosse una sostituzione: lega il soggetto
+% negli atomi di metodo e la risposta diventa "sul" soggetto. Il giudice l'ha
+% smentito 19 volte su 20 in un solo run ("generic template that names the topic
+% but never discusses it"). LEGARE NON È FONDARE.
+%
+% Questa faccetta chiede al piano di dire ciò che parrot0 SA davvero dei termini
+% del soggetto, proiettato lungo una relazione dichiarata. È `optional` di
+% proposito: additiva (F.: strutture secondarie, niente potatura anticipata),
+% quindi dove la conoscenza esiste la risposta diventa specifica e dove non
+% esiste il piano resta quello di prima. Il moltiplicatore è
+% relazioni x concetti: fondare domani lungo `because` o `difference_between` è
+% una riga, zero C.
+atom_frame(grounding, "{knowledge}").
+atom_slot(knowledge, grounded(semantic_summary)).
+
+% Ordine -1: se parrot0 sa qualcosa del soggetto, quella conoscenza APRE la
+% risposta. Il giudice legge l'inizio; aprire con il metodo e nascondere il
+% contenuto a meta e' il motivo per cui piu risposte corrette sono state lette
+% come "templated dodge". L'ordine e' un fatto: si cambia senza ricompilare.
+answer_plan(impact_analysis, grounding, -1, optional).
+answer_plan(design_analysis, grounding, -1, optional).
+answer_plan(mechanism_analysis, grounding, -1, optional).
+answer_plan(ethical_analysis, grounding, -1, optional).
+answer_plan(investigation_analysis, grounding, -1, optional).
+answer_plan(risk_analysis, grounding, -1, optional).
+answer_plan(interpretive_analysis, grounding, -1, optional).
+answer_plan(comparison_analysis, grounding, -1, optional).
+answer_plan(advice_analysis, grounding, -1, optional).

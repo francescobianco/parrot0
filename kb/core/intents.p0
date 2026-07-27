@@ -1730,3 +1730,138 @@ format_constraint(numbered, keyword(steps)).
 format_constraint(numbered, "as a list").
 format_constraint(numbered, "list of").
 format_constraint(numbered, "three ways").
+
+% gen362 — atti mancanti esposti dal campione libero. Un atto è una CLASSE di
+% richieste, non una domanda: ciascuna riga qui vale per ogni soggetto futuro.
+analysis_act_cue(ethical_analysis, "arguments could justify").
+analysis_act_cue(ethical_analysis, "could justify").
+analysis_act_cue(ethical_analysis, keyword(justify)).
+analysis_act_cue(ethical_analysis, "the right to own").
+analysis_act_cue(ethical_analysis, "philosophical arguments").
+analysis_act_cue(advice_analysis, "what strategies").
+analysis_act_cue(advice_analysis, "what methods").
+analysis_act_cue(advice_analysis, "what approaches").
+analysis_act_cue(advice_analysis, keyword(strategies)).
+analysis_act_cue(design_analysis, "describe the steps").
+analysis_act_cue(design_analysis, "steps to").
+analysis_act_cue(design_analysis, keyword(taxonomy)).
+analysis_act_cue(impact_analysis, keyword(discuss)).
+analysis_act_cue(impact_analysis, "the doctrine of").
+
+% gen362 — verbi d'atto mancanti. Ogni riga è una CLASSE: vale per ogni
+% soggetto futuro, e più evidenza specifica scioglie i pareggi fra atti senza
+% alcun tiebreak cablato (la "specificità sommata" del piano).
+analysis_act_cue(investigation_analysis, keyword(verify)).
+analysis_act_cue(investigation_analysis, keyword(verified)).
+analysis_act_cue(investigation_analysis, keyword(verifying)).
+analysis_act_cue(investigation_analysis, keyword(confirm)).
+analysis_act_cue(investigation_analysis, keyword(prove)).
+analysis_act_cue(investigation_analysis, keyword(validate)).
+analysis_act_cue(investigation_analysis, keyword(reconcile)).
+analysis_act_cue(investigation_analysis, "how would they verify").
+analysis_act_cue(investigation_analysis, "how could they verify").
+analysis_act_cue(investigation_analysis, "verify this").
+analysis_act_cue(investigation_analysis, "how do we know").
+
+analysis_act_cue(design_analysis, keyword(describe)).
+analysis_act_cue(design_analysis, "describe a method").
+analysis_act_cue(design_analysis, "a method for").
+analysis_act_cue(design_analysis, "a framework for").
+analysis_act_cue(design_analysis, keyword(framework)).
+analysis_act_cue(design_analysis, keyword(build)).
+analysis_act_cue(design_analysis, keyword(compose)).
+analysis_act_cue(design_analysis, keyword(devise)).
+analysis_act_cue(design_analysis, keyword(plan)).
+analysis_act_cue(design_analysis, keyword(organize)).
+
+analysis_act_cue(mechanism_analysis, "describe how").
+analysis_act_cue(mechanism_analysis, "explain the").
+analysis_act_cue(mechanism_analysis, keyword(applied)).
+
+analysis_act_cue(comparison_analysis, keyword(compare)).
+analysis_act_cue(comparison_analysis, keyword(contrast)).
+analysis_act_cue(comparison_analysis, "difference between").
+analysis_act_cue(comparison_analysis, "differences between").
+analysis_act_cue(comparison_analysis, "choose between").
+analysis_act_cue(comparison_analysis, "two competing").
+
+analysis_act_cue(advice_analysis, keyword(recommend)).
+analysis_act_cue(advice_analysis, keyword(advise)).
+analysis_act_cue(advice_analysis, keyword(evaluate)).
+analysis_act_cue(advice_analysis, keyword(evaluating)).
+analysis_act_cue(advice_analysis, "what should").
+analysis_act_cue(advice_analysis, "how should").
+
+analysis_act_cue(risk_analysis, keyword(risks)).
+analysis_act_cue(risk_analysis, keyword(dangers)).
+analysis_act_cue(risk_analysis, "what could go wrong").
+
+analysis_act_cue(impact_analysis, "what happens if").
+analysis_act_cue(impact_analysis, "what would happen if").
+analysis_act_cue(impact_analysis, keyword(effects)).
+
+% ── gen363: le due catene di cue che vivevano nel C ──────────────────────────
+% `mod_knowledge` decideva "è una richiesta di procedura?" e "è una richiesta di
+% consiglio?" con quattordici `cue()` cablati. Erano conoscenza travestita da
+% motore: nessuna poteva essere insegnata, interrogata o ritratta. Ora la classe
+% è UNA chiamata al matcher universale e ogni fraseggio è un fatto.
+intent_cue(process_request, "step by step").
+intent_cue(process_request, "step-by-step").
+intent_cue(process_request, "steps to").
+intent_cue(process_request, "how to make").
+intent_cue(process_request, "how do you make").
+intent_cue(process_request, "how do i make").
+intent_cue(process_request, "process of making").
+intent_cue(process_request, "describe the process").
+intent_cue(process_request, "explain the process").
+intent_cue(process_request, "describe how to").
+
+intent_cue(activity_request, "best way to").
+intent_cue(activity_request, "good way to").
+intent_cue(activity_request, "what should i do").
+intent_cue(activity_request, "how should i spend").
+intent_cue(activity_request, "way to spend").
+intent_cue(activity_request, keyword(recommend)).
+intent_cue(activity_request, keyword(suggest)).
+
+% "Qual è la TUA preferita?" è una classe di richiesta a sé: il consumer deve
+% premettere che parrot0 non ha preferenze reali prima di proporre un piano.
+intent_cue(activity_favorite_request, "favorite thing to do").
+intent_cue(activity_favorite_request, "favourite thing to do").
+intent_cue(activity_favorite_request, "your favorite").
+intent_cue(activity_favorite_request, "your favourite").
+
+% gen363 — verbi d'atto ancora scoperti. Sono CLASSI (ogni soggetto futuro),
+% non domande: è la differenza fra allargare il bordo e cucire un campione.
+analysis_act_cue(advice_analysis, keyword(suggest)).
+analysis_act_cue(advice_analysis, keyword(suggestions)).
+analysis_act_cue(advice_analysis, keyword(brainstorm)).
+analysis_act_cue(advice_analysis, "ways to").
+analysis_act_cue(advice_analysis, "ways a").
+analysis_act_cue(risk_analysis, keyword(critique)).
+analysis_act_cue(risk_analysis, keyword(drawbacks)).
+analysis_act_cue(risk_analysis, keyword(downsides)).
+analysis_act_cue(impact_analysis, keyword(implications)).
+analysis_act_cue(impact_analysis, keyword(consequences)).
+analysis_act_cue(interpretive_analysis, keyword(interpret)).
+analysis_act_cue(interpretive_analysis, keyword(meaning)).
+analysis_act_cue(interpretive_analysis, keyword(significance)).
+
+% ── gen363: il TIPO di artefatto è dichiarato su entrambi i lati ────────────
+% Un testo memorizzato è una coppia prompt/risposta intera — la "tabella
+% sparsa" che il piano condanna — e vinceva sui motori di classe per una sola
+% parola-argomento condivisa: "a dialogue between a time traveler and a scribe"
+% riceveva una STORIA sul viaggio nel tempo. Ora la richiesta dichiara che cosa
+% vuole e il candidato dichiara che cos'è; i candidati non tipizzati restano
+% eleggibili come prima (additivo).
+machinery(request_artifact).
+machinery(artifact_type).
+request_artifact(generic_dialogue_request, dialogue).
+request_artifact(story_request, story).
+request_artifact(poem_request, poem).
+
+artifact_type(ai_society_dialogue, dialogue).
+artifact_type(time_accident_story, story).
+artifact_type(villain_salvation_monologue, monologue).
+artifact_type(alien_two_suns_species, description).
+artifact_type(cultural_fusion_holiday, description).

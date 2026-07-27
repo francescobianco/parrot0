@@ -981,3 +981,146 @@ score dai verdict parziali.
 Il controllo conclusivo resta un altro tail libero, prefetchato e non letto.
 Qualunque punteggio ottenuto sul tail diagnostico deve essere etichettato
 in-sample; soltanto il nuovo campione misura il guadagno atteso delle famiglie.
+
+## Gen363 — tre giri misurati fuori campione, e il muro che si è visto
+
+Tre iterazioni consecutive del piano, ciascuna chiusa da un `make llmscore` su
+tail nuovo e non letto. Nessun fix di istanza, nessuna cucitura sul campione.
+
+| giro | incremento | esito |
+|---|---|---|
+| 1 | gap dichiarato → provenance di frame; due catene di `cue()` C fattorizzate in KB; verbi d'atto mancanti | **0/20** |
+| 2 | faccetta `grounding`: proiezione limitata di ciò che parrot0 SA del soggetto, in apertura di risposta | **0/20** |
+| 3 | tipo di artefatto dichiarato su entrambi i lati; binding dei PARTECIPANTI nominati dal turno | **1/20** fuori campione |
+
+L'unico punto dei tre giri è il dialogo con i due interlocutori del turno
+(«a time traveler» / «a medieval scribe»), giudicato *«fluent, on-topic short
+dialogue»*. È il giro che ha smesso di descrivere e ha cominciato a produrre.
+
+**Nota di attribuzione (onestà).** Il primo `make llmscore` del terzo giro ha
+riusato il tail del secondo, perché la rotazione del tail è stata ripristinata
+in quello stesso commit: quel `0/20` è in campione e non conta. Il numero valido
+del terzo giro è il run successivo su tail fresco.
+
+### Ciò che i tre giri hanno chiuso — e ciò che NON avevano provato
+
+La prima stesura di questa sezione elencava cinque voci come «chiuse». Poi ho
+eseguito l'ablazione sui quattro candidati, e due non reggono. Riscritta con la
+prova accanto, perché una voce senza caso rosso non è una voce chiusa.
+
+| candidato | ablazione | esito |
+|---|---|---|
+| `atom_slot(knowledge, grounded(semantic_summary))` (giro 2) | retract → la conoscenza specifica sparisce, resta il metodo | ✅ **SEED** |
+| `pair_joiner(and)` (giro 3) | retract → il dialogo coi partecipanti sparisce → muro | ✅ **SEED** — ed è il fatto a cui è attribuito l'unico punto |
+| `gap_frame(activity_step_gap)` (giro 1) | retract → risposta **identica** | ❌ **non attribuito** |
+| `gap_frame(process_step_gap)` (giro 1) | retract → risposta **identica** | ❌ **non attribuito** |
+
+Quindi:
+
+- **provato:** binding del soggetto e dei partecipanti; tipizzazione
+  dell'artefatto (una storia non risponde più a una richiesta di dialogo);
+  proiezione fondata sul soggetto; costo del miss costante; le due catene `cue()`
+  di `mod_knowledge` e le frasi di resa cablate diventate fatti;
+- **NON provato:** la riduzione dei muri attribuita al giro 1. Il pre-dispatch
+  analitico reclama il turno prima che `mod_knowledge` lo veda, quindi su quegli
+  input il `gap_frame` non scatta mai. Il lavoro del primo giro è **codice morto**
+  finché non esiste un input che lo riporti al rosso.
+
+E la diagnosi vale più della correzione: le due ablazioni fallite non dicono
+«fatto inutile», dicono che **su quell'input l'elemento portante non è un fatto,
+è la posizione nel registry** — cioè conoscenza cablata nella struttura del
+programma. Un'ablazione che sa togliere solo fatti conclude «morto» dove la
+verità è «oscurato»: sono diagnosi opposte e portano a due fix opposti.
+
+### Il risultato negativo che vale più dei tre punti mancati
+
+Sessanta giudizi fuori campione dicono tutti la stessa cosa, con parole quasi
+identiche: *«generic template that names the topic but never discusses it»*.
+
+> **La tesi di gen362 è falsificata.** «La specificità è una sostituzione» —
+> lega il soggetto negli atomi di metodo e la risposta diventa sul soggetto — è
+> falsa. **Legare non è fondare, e fondare non è FARE.** Un metodo enunciato *a
+> proposito* di un soggetto resta un metodo; il giudice non chiedeva mai come si
+> analizza qualcosa, chiedeva l'analisi.
+
+La distinzione operativa che ne segue, e che il piano deve d'ora in poi imporre
+a ogni consumer:
+
+```
+annunciare la lente   →  "un'analisi etica separa chi guadagna e chi è esposto"
+applicare la lente    →  "chi guadagna sono i coltivatori; chi è esposto sono
+                          gli impollinatori residui e chi non può rifiutare"
+```
+
+`analysis_lens` produce oggi la prima riga. La seconda richiede di attraversare
+le entità del soggetto, non di nominarle.
+
+### La misura misura anche altro: 80% della deadline è avvio a freddo
+
+Cinque zero del terzo giro sono timeout. Non sono esplosioni di ricerca: le
+stesse domande rispondono in `0,16 s` da sole.
+
+- avvio a freddo di `./bin/parrot0`, prima ancora di leggere la domanda: **0,808 s**
+  su una deadline di **1,0 s**;
+- con gli otto worker concorrenti dell'intervista: **1,31 s**.
+
+Quindi **ogni fatto aggiunto alla KB costa punti**: la crescita KB-first, che è
+il principio del progetto, è oggi penalizzata dalla forma del misuratore. È un
+difetto della misura, non del soggetto, e va corretto prima del prossimo giro —
+parrot0 possiede già un processo persistente (`--daemon`, `--test-engine` su
+socket, [[test-engine]]): l'intervista deve interrogare UN processo caldo, non
+pagare venti caricamenti di KB. Finché non è fatto, i timeout vanno letti come
+rumore di misura e non come incapacità.
+
+### Le astrazioni di ordine superiore — e la verifica che NON sono nuovi moduli
+
+L'intuizione, dopo tre giri, è che manchino tre capacità. La disciplina di F.
+impone di verificare che non siano già state percorse. **Nessuna delle tre è un
+modulo nuovo: sono tre piani già scritti che `motorize-the-class` stava
+ri-derivando peggio.**
+
+1. **Applicare la lente = i cammini di [[generative-prolog-manifesto]].**
+   «Prolog genera i PERCORSI di ragionamento attraverso il grafo KB; la lingua è
+   l'ultimo passaggio». Applicare `exposure` a «droni impollinatori» è
+   esattamente un cammino nel grafo: soggetto → entità → ruoli → relazione della
+   lente → realizzazione. Oggi `semantic_atom` è una tabella di frasi per
+   dominio; deve diventare una **proiezione derivata** dal cammino.
+   *Non serve un modulo: serve che il planner interroghi il grafo invece di
+   leggere una tabella.*
+
+2. **Produrre un artefatto = il prodotto di [[generative-leverage]].**
+   «3 open × 3 mid × 3 close = 27 haiku; ~17 atomi = 486 storie.» Il terzo giro
+   ha dimostrato il meccanismo su una sola famiglia (dialogo) e ha vinto l'unico
+   punto. La generalizzazione è `Frame × slot legati dal turno` per indovinello,
+   puzzle, scenario, ricetta, regole di un gioco, dimostrazione — famiglie che il
+   generatore chiede in ogni run.
+   *Non serve un modulo: serve estendere alle altre famiglie il binding che il
+   dialogo ha appena provato.*
+
+3. **Il mondo controfattuale = lo strato C di [[universal-solver]].**
+   Metà delle domande postula un mondo inesistente («se la gravità si invertisse»,
+   «una lingua senza possesso», «oceani sostituiti da un solido trasparente»).
+   Nessuna ingestione le copre: si risponde **deducendo da una KB modificata** —
+   premessa alterata, meccanismi noti, conseguenze derivate. È deduzione +
+   abduzione + verifica, già progettata lì.
+   *Non serve un modulo: serve applicare quel motore a una premessa temporanea.*
+
+### Conseguenza per il piano
+
+La priorità cambia di ordine. Non «più atti, più domini, più famiglie» — quel
+prodotto è saturo e produce metodo. La priorità è:
+
+1. **riparare la misura** (processo caldo): oggi restituisce ~5 falsi zero su 20
+   e tassa la crescita della conoscenza;
+2. **famiglie di artefatti con slot legati** — l'unica leva che ha già segnato,
+   estesa per famiglia, non per prompt;
+3. **lente applicata invece che annunciata** — `semantic_atom` da tabella a
+   cammino sul grafo;
+4. **premessa controfattuale** come primo cittadino del solver.
+
+E una regola nuova, dal risultato negativo, da aggiungere ai mantra operativi:
+
+> **16. Un metodo non è una risposta.** Se l'output descrive *come si
+> affronterebbe* il compito invece di eseguirlo, vale zero anche quando è
+> corretto, completo e legato al soggetto. Prima di rendere, chiedi: *questa
+> frase è un'affermazione sul soggetto, o è la ricetta per farne una?*

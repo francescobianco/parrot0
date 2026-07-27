@@ -215,6 +215,86 @@ static int creative_candidate_gate_pass(Brain *b, const char *gate_relation,
                               &score, proof, sizeof proof) == 1;
 }
 
+/* gen363 — the PARTICIPANTS a turn names, for any composer that needs a pair.
+ *
+ * The same lesson gen362 learned for analysis applies to artifacts: a correct
+ * FORM with the wrong contents reads as a dodge. "A dialogue between a river and
+ * a mountain" was answered with a well-shaped four-line exchange between two
+ * people the turn never mentioned, and the judge rejected it for exactly that —
+ * "does not depict a dialogue between a river and a mountain". The artifact did
+ * not need new templates; it needed to be ABOUT what was asked.
+ *
+ * The engine is a noun-phrase pair around a joiner: scan back from the joiner to
+ * the last phrase opener, and forward across an opener and its head. Which words
+ * join a pair (`pair_joiner/1`) and which open a noun phrase (`np_opener/1`) are
+ * KB grammar, so another language — or "versus", "contro", "e" — is facts. */
+static int np_span(char **w, size_t from, size_t to,
+                   char *out, size_t outsz) {
+    size_t off = 0;
+    out[0] = '\0';
+    for (size_t i = from; i < to; i++) {
+        int wrote = snprintf(out + off, outsz - off, "%s%s",
+                             off ? " " : "", w[i]);
+        if (wrote < 0 || (size_t)wrote >= outsz - off) return 0;
+        off += (size_t)wrote;
+    }
+    return out[0] != '\0';
+}
+
+static int turn_pair_extract(Brain *b, const char *norm,
+                             char *first, size_t fsz,
+                             char *second, size_t ssz) {
+    if (!b || !b->kb || !norm) return 0;
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", norm);
+    char *w[96];
+    size_t nw = split_words(buf, w, 96);
+    for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
+
+    char joiners[8][KB_TERM_LEN];
+    const char *jq[] = { NULL };
+    size_t nj = kb_match(b->kb, "pair_joiner", jq, 1, joiners, 8);
+
+    for (size_t j = 1; j + 1 < nw; j++) {
+        int is_joiner = 0;
+        for (size_t k = 0; k < nj && !is_joiner; k++)
+            if (!strcmp(w[j], kb_dequote(joiners[k]))) is_joiner = 1;
+        if (!is_joiner) continue;
+
+        /* Left: back to the last phrase opener before the joiner. Without one
+         * the span is not a noun phrase and the pair is not claimed. */
+        size_t start = j;
+        while (start > 0) {
+            const char *oq[] = { w[start - 1] };
+            start--;
+            if (kb_query(b->kb, "np_opener", oq, 1)) break;
+            if (j - start > 3) { start = j; break; }
+        }
+        if (start == j) continue;
+        const char *sq[] = { w[start] };
+        if (!kb_query(b->kb, "np_opener", sq, 1)) continue;
+
+        /* Right: an opener and its head, extended across modifiers and closed
+         * by the first function word — "a medieval scribe in which …" keeps the
+         * scribe, "a mountain about the nature …" stops before "about". The
+         * closing class is the KB stopword lexicon, so nothing is listed here. */
+        size_t rs = j + 1, re = rs;
+        const char *rq[] = { w[rs] };
+        if (kb_query(b->kb, "np_opener", rq, 1)) re++;
+        while (re < nw && re - rs < 3) {
+            const char *hq[] = { w[re] };
+            if (kb_query(b->kb, "stopword", hq, 1)) break;
+            re++;
+        }
+        if (re <= rs) continue;
+
+        if (np_span(w, start, j, first, fsz) &&
+            np_span(w, rs, re, second, ssz))
+            return 1;
+    }
+    return 0;
+}
+
 static int mod_gen(Brain *b, const char *norm, const char *raw,
                    char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
@@ -460,11 +540,39 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         int best_score = 0;
         const char *any[] = { NULL, NULL };
         size_t ni = kb_match(b->kb, "creative_text_cue", any, 2, ids, 64);
+        /* gen363: which KIND of artifact was requested. A stored text is a whole
+         * prompt/reply pair — the sparse-table shape the plan condemns — and it
+         * was outscoring the class engines on a shared topic word: "a dialogue
+         * between a time traveler and a scribe" was answered with a time-travel
+         * STORY. Type is declared knowledge on both sides (`request_artifact/2`,
+         * `artifact_type/2`), so a candidate of the wrong kind is ineligible
+         * however many topic cues it shares. Untyped candidates keep the old
+         * open behaviour, so this is additive. */
+        char wanted[KB_TERM_LEN] = "";
+        {
+            char reqs[32][KB_TERM_LEN];
+            const char *rq[] = { NULL, NULL };
+            size_t nr = kb_match(b->kb, "request_artifact", rq, 2, reqs, 32);
+            for (size_t r = 0; r < nr && !wanted[0]; r++) {
+                if (!kb_cue_match(b, reqs[r], norm)) continue;
+                char kinds[1][KB_TERM_LEN];
+                const char *kq[] = { reqs[r], NULL };
+                if (kb_match(b->kb, "request_artifact", kq, 2, kinds, 1) == 1)
+                    snprintf(wanted, sizeof wanted, "%s", kb_dequote(kinds[0]));
+            }
+        }
         for (size_t i = 0; i < ni; i++) {
             if (seen_term(ids, i, ids[i])) continue;
             if (!creative_candidate_gate_pass(b, "creative_text_gate",
                                               ids[i], norm))
                 continue;
+            if (wanted[0]) {
+                char kinds[1][KB_TERM_LEN];
+                const char *tq[] = { ids[i], NULL };
+                if (kb_match(b->kb, "artifact_type", tq, 2, kinds, 1) == 1 &&
+                    strcmp(kb_dequote(kinds[0]), wanted) != 0)
+                    continue;
+            }
             const char *q[] = { ids[i], NULL };
             char cues[16][KB_TERM_LEN];
             size_t nc = kb_match(b->kb, "creative_text_cue", q, 2, cues, 16);
@@ -486,7 +594,29 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
         }
         if (kb_cue_match(b, "generic_dialogue_request", norm)) {
             char topic[192];
-            if (creative_topic_tail(b, norm, topic, sizeof topic)) {
+            int has_topic = creative_topic_tail(b, norm, topic, sizeof topic);
+            /* gen363: the speakers are whoever the turn named. A dialogue
+             * "between a river and a mountain" delivered between two stock
+             * characters is the artifact equivalent of method prose — right
+             * form, wrong contents. A named pair is enough to render even when
+             * no topic tail is recoverable, so the request no longer falls to a
+             * wall just because its subject sat in an unusual position. */
+            char a[96], c[96];
+            if (turn_pair_extract(b, norm, a, sizeof a, c, sizeof c)) {
+                if (a[0]) a[0] = (char)toupper((unsigned char)a[0]);
+                if (c[0]) c[0] = (char)toupper((unsigned char)c[0]);
+                const KbResponseSlot paired[] = {
+                    { "topic", has_topic ? topic : "" },
+                    { "speaker_a", a },
+                    { "speaker_b", c }
+                };
+                if (kb_response_slots(b,
+                                      has_topic ? "named_dialogue_answer"
+                                                : "named_dialogue_open",
+                                      paired, 3, out, out_size))
+                    return 1;
+            }
+            if (has_topic) {
                 const KbResponseSlot slots[] = {
                     { "topic", topic }
                 };

@@ -391,3 +391,28 @@ response_template(repair_already_green, "I ran {path} against the oracle: it alr
 response_template(repair_policy_gap, "The repair for {path} passed the oracle, but no live commit_policy authorizes that edit, so I did not write anything. Assert the policy fact and ask again if you want it committed.").
 response_template(repair_post_check_failed, "The candidate passed in isolation but the canonical oracle went red after commit, so I rolled {path} back byte-and-mode. The workspace is unchanged.").
 response_template(repair_commit_conflict, "The base of {path} changed while the candidate was being verified, so the commit was refused before any write. The workspace is unchanged.").
+
+% ── gen363: i gap DICHIARATI ────────────────────────────────────────────────
+% Un consumer che riconosce la richiesta ma non ha i fatti per servirla non sta
+% rispondendo: sta dichiarando un gap. Prima la frase era cablata nel C, quindi
+% (a) non era insegnabile e (b) era indistinguibile da una risposta, così il
+% turno risultava "gestito" e il pianificatore di ultima istanza non partiva mai.
+% Ora la frase è un frame come tutti gli altri e `gap_frame/1` (meta.p0) dice al
+% motore che cosa quel frame significa.
+response_template(process_step_gap, "I understood you're asking for a process, but I don't have the steps for that topic yet.").
+response_template(activity_step_gap, "I understood you're asking for a recommendation, but I don't have a grounded plan for that situation yet.").
+
+% gen363: lo stesso scambio, ma fra i partecipanti che il turno ha nominato.
+% La forma è identica a generic_dialogue_answer — cambia solo chi parla, ed è
+% esattamente ciò che il giudice ha rilevato come mancante.
+response_template(named_dialogue_answer, "{speaker_a}: {topic} could open possibilities we have not considered.
+{speaker_b}: Or it could expose costs we are ignoring.
+{speaker_a}: Then we should test the benefits without hiding the risks.
+{speaker_b}: Agreed; curiosity needs evidence and accountability.").
+
+% gen363: lo stesso scambio quando il turno nomina i due interlocutori ma non
+% lascia una coda-argomento riconoscibile: i partecipanti bastano a rendere.
+response_template(named_dialogue_open, "{speaker_a}: We see the same thing and call it by different names.
+{speaker_b}: Then say what you mean, and I will say where I disagree.
+{speaker_a}: What looks like change to me may only be patience to you.
+{speaker_b}: And what looks like permanence to me may only be a slower change.").

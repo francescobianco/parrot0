@@ -125,3 +125,81 @@ add(z, $N, $N).
 add(s($M), $N, s($R)) :- add($M, $N, $R).
 len(nil, z).
 len(cons($H, $T), s($N)) :- len($T, $N).
+
+% gen362 — la classe PREPOSIZIONE, chiusa e riusabile.
+% Serviva a un consumer analitico (una frase non può cominciare con "of ..."
+% dopo un verbo che già regge "of"), ma è conoscenza grammaticale generale, non
+% un elenco locale: qualunque motore che debba isolare un sintagma nominale la
+% interroga. Distinta da article/1 apposta: un articolo va TENUTO in testa a un
+% sintagma, una preposizione va lasciata alla reggenza che la precede.
+machinery(preposition).
+preposition(of).
+preposition(for).
+preposition(to).
+preposition(in).
+preposition(on).
+preposition(at).
+preposition(by).
+preposition(with).
+preposition(from).
+preposition(about).
+preposition(into).
+preposition(onto).
+preposition(over).
+preposition(under).
+preposition(between).
+preposition(among).
+preposition(through).
+preposition(during).
+preposition(against).
+preposition(within).
+preposition(across).
+preposition(toward).
+preposition(towards).
+preposition(upon).
+
+% gen362 — ausiliari e modali: la testa di una domanda-wh li lascia davanti al
+% soggetto reale ("what strategies CAN a novelist use…"), quindi un motore che
+% isola un sintagma deve poterli riconoscere. Classe chiusa, riusabile.
+machinery(auxiliary).
+auxiliary(can).
+auxiliary(could).
+auxiliary(would).
+auxiliary(should).
+auxiliary(shall).
+auxiliary(will).
+auxiliary(might).
+auxiliary(may).
+auxiliary(must).
+auxiliary(do).
+auxiliary(does).
+auxiliary(did).
+auxiliary(is).
+auxiliary(are).
+auxiliary(was).
+auxiliary(were).
+auxiliary(be).
+auxiliary(been).
+auxiliary(has).
+auxiliary(have).
+auxiliary(had).
+
+% ── gen363: la coppia di partecipanti che un turno nomina ───────────────────
+% Grammatica minima e teachable: che cosa UNISCE due partecipanti e che cosa
+% APRE un sintagma nominale. Il motore non conosce nessuna di queste parole:
+% aggiungere "versus", "contro" o "e" è un fatto, zero C.
+machinery(pair_joiner).
+machinery(np_opener).
+pair_joiner(and).
+pair_joiner(versus).
+pair_joiner(vs).
+np_opener(a).
+np_opener(an).
+np_opener(the).
+np_opener(my).
+np_opener(your).
+np_opener(his).
+np_opener(her).
+np_opener(its).
+np_opener(their).
+np_opener(our).

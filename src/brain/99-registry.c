@@ -1310,6 +1310,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
                 b->has_start_ts = 1;
         }
         b->turns++;
+        b->turn_frame[0] = '\0';   /* gen363: provenance is per-turn */
     }
 
     char norm[256];
@@ -1342,7 +1343,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * assertion. Both the act and the broad subject must win the universal KB
      * evidence scorer, and every answer_plan slot must be filled, so uncertain or
      * incomplete candidates decline without disturbing the established registry. */
-    if (b && structured_analysis_lead(b, canon, 0, out, out_size)) {
+    if (b && structured_analysis_lead(b, canon, input, 0, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_plan");
         note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
@@ -1351,7 +1352,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* gen359 (LLMSCORE-max, motorize-the-class): a well-formed definitional or
      * analytical question about a specific concept parrot0 knows is answered from
      * the KB semantic projection before the ordinary first-match registry. */
-    if (b && semantic_lead(b, canon, out, out_size)) {
+    if (b && semantic_lead(b, canon, input, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "semantic_lead");
         note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
@@ -1361,7 +1362,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
      * it only after semantic_lead had the chance to use concrete knowledge, so
      * words such as "proof", "physical", or "system" cannot replace a known
      * subject with generic methodology. */
-    if (b && structured_analysis_lead(b, canon, 1, out, out_size)) {
+    if (b && structured_analysis_lead(b, canon, input, 1, out, out_size)) {
         snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
         snprintf(b->last_module, sizeof b->last_module, "%s", "analysis_family");
         note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
@@ -1600,11 +1601,77 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     /* If no module claimed the turn, fall back to the honest not-understood reply
      * (gen15 retired the gen0 parrot-echo; gen55 made it non-repeating).
      * Honest admission, never a mirror or a wrong "No.". */
+    /* gen362: a DECLARED GAP is not an answer. A consumer that claimed the turn
+     * only to say it has no facts leaves the same guaranteed zero as the blind
+     * wall, and it also blocks the last-resort planner behind `handled`. The
+     * shapes of parrot0's own surrenders are now KB (`wall_marker/1`), so this
+     * check is a rule over knowledge rather than a phrase list in C.
+     *
+     * gen363: matching parrot0's own sentences was itself the fragile part — a
+     * consumer that said "for that SITUATION" escaped a marker written "for that
+     * topic". The reply now carries PROVENANCE (`turn_frame`, recorded for every
+     * rendered frame), and the KB says which frames are surrenders
+     * (`gap_frame/1`). No phrase has to be recognized, in any language.
+     * `wall_marker/1` stays as the secondary structure covering the consumers
+     * that still write their own text (keep-secondary-structures). */
+    if (handled && b && b->kb && out && *out) {
+        char lowered[512];
+        size_t li = 0;
+        for (const char *p = out; *p && li + 1 < sizeof lowered; p++)
+            lowered[li++] = (char)tolower((unsigned char)*p);
+        lowered[li] = '\0';
+        const char *gq[] = { b->turn_frame };
+        int declared_gap = b->turn_frame[0] &&
+                           kb_query(b->kb, "gap_frame", gq, 1);
+        int surrendered = declared_gap ||
+                          analysis_reply_ignores_subject(b, canon, input, out);
+        char markers[32][KB_TERM_LEN];
+        const char *mq[] = { NULL };
+        size_t nm = surrendered ? 0
+                                : kb_match(b->kb, "wall_marker", mq, 1,
+                                           markers, 32);
+        if (surrendered &&
+            structured_analysis_lead(b, canon, input, 2, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s",
+                     "analysis_last_resort");
+        }
+        for (size_t i = 0; i < nm; i++) {
+            char marker[KB_TERM_LEN];
+            snprintf(marker, sizeof marker, "%s", markers[i]);
+            size_t ml = strlen(marker);
+            char *m = marker;
+            if (ml >= 2 && m[0] == '"' && m[ml - 1] == '"') { m[ml - 1] = '\0'; m++; }
+            if (!*m || !strstr(lowered, m)) continue;
+            if (structured_analysis_lead(b, canon, input, 2, out, out_size)) {
+                snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+                snprintf(b->last_module, sizeof b->last_module, "%s",
+                         "analysis_last_resort");
+            }
+            break;
+        }
+    }
+
     if (!handled) {
         /* gen216 (glue G2): before giving up, try resolving an entity pronoun to the
          * recent entity and re-dispatching — carries a reference across turns. */
         if (coref_resolve(b, canon, out, out_size)) {
             handled = 1;
+            if (!handled_by_discourse) update_topics(b, canon);
+        } else if (b && structured_analysis_lead(b, canon, input, 2,
+                                                 out, out_size)) {
+            /* gen362 (Fase 5, anti-wall): the analytical planner runs a LAST
+             * time here, past every specialized consumer, so it can never steal
+             * a turn a competent module would have served — and so a compound
+             * guard that yields to a consumer which then has no facts no longer
+             * costs a blind wall. At this point nothing else claimed the turn,
+             * so a complete plan bound to the turn's own subject is strictly
+             * better than "I don't understand that yet", and it stays honest:
+             * it reasons about what was named and asserts nothing about it. */
+            handled = 1;
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s",
+                     "analysis_last_resort");
             if (!handled_by_discourse) update_topics(b, canon);
         } else {
             not_understood(b, canon, out, out_size);

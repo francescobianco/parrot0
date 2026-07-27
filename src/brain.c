@@ -58,6 +58,14 @@ struct Brain {
      * turn, so "which part of you answered that?" reads real state. */
     char last_module[32];
 
+    /* gen363 (motorize-the-class): PROVENANCE of the rendered reply — which
+     * response frame produced it. Pure mechanism, exactly like `last_module` and
+     * `last_proof`: the C records WHICH frame spoke and knows nothing about what
+     * any frame means. Whether a frame is a surrender rather than an answer is
+     * knowledge (`gap_frame/1`), so teaching that a new frame declares a gap is
+     * one fact and zero C. Cleared at the head of each turn. */
+    char turn_frame[KB_TERM_LEN];
+
     /* gen82: session start time for "how long have we been talking?" */
     time_t start_time;
     struct timespec start_ts;
