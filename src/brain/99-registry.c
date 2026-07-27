@@ -1338,6 +1338,15 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     char canon[256];
     canonicalize_lang(b, norm, canon, sizeof canon);
 
+    /* gen366: typed Task IR + proof-carrying operators run before the old open
+     * analysis planner.  A complete operator result is more specific than a
+     * rhetorical template; an incomplete IR or proof declines cleanly. */
+    if (b && reasoning_task_lead(b, canon, input, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "reasoning_task");
+        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
+    }
+
     /* gen360 (LLMSCORE-max): open analytical requests are planned before any
      * first-match consumer can turn their opener into a story, role or extracted
      * assertion. Both the act and the broad subject must win the universal KB

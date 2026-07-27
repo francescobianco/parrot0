@@ -513,3 +513,23 @@ answer_frame(state, capital_of_state).
 answer_frame(region, capital_of_region).
 answer_frame(regione, capital_of_region).
 answer_frame(capoluogo, capital_of_region).
+
+% gen365 — geographic joins over independently curated tables.
+% These are model edges: adding a country row to any parent table immediately
+% changes every compatible derived view without adding a country-specific rule.
+capital_in_continent($Capital, $Continent) :-
+    capital_of_country($Country, $Capital), continent_of($Country, $Continent).
+capital_language($Capital, $Language) :-
+    capital_of_country($Country, $Capital), language_of_country($Country, $Language).
+country_profile($Country, $Capital, $Continent, $Language) :-
+    capital_of_country($Country, $Capital),
+    continent_of($Country, $Continent),
+    language_of_country($Country, $Language).
+same_continent($C1, $C2, $Continent) :-
+    continent_of($C1, $Continent), continent_of($C2, $Continent).
+shared_official_language($C1, $C2, $Language) :-
+    language_of_country($C1, $Language), language_of_country($C2, $Language).
+landmark_in_continent($Landmark, $Continent) :-
+    landmark_of($Country, $Landmark), continent_of($Country, $Continent).
+river_in_continent($River, $Continent) :-
+    river_of($Country, $River), continent_of($Country, $Continent).

@@ -202,3 +202,39 @@ explanation(cats_purr, "Cats purr by rapidly vibrating the muscles of the larynx
 explanation(dogs_bark, "Dogs bark as a flexible signal that evolved alongside people. A bark can warn of an intruder, demand attention or play, express excitement or anxiety, or answer another dog. The pitch and rhythm carry the meaning -- a low slow bark tends to threaten, while a high repeated one tends to invite.").
 explanation(leaves_change, "In autumn shorter days and cooler nights signal trees to stop making chlorophyll, the green pigment that had masked other colours. As the green fades, the yellow and orange pigments already in the leaf show through. Some trees also make new red pigments from trapped sugars, giving the vivid reds of maples.").
 explanation(ice_floats, "Water is unusual: as it freezes its molecules lock into an open hexagonal lattice that takes up more space than liquid water. Because the same mass now fills a larger volume, ice is less dense than the water around it. So it floats, which is why ponds freeze from the top down and fish can survive beneath.").
+
+% gen365 — quantitative and relational operators over the science substrate.
+% Facts remain in their curated parent tables; these clauses are the missing
+% dependencies that make those tables compose.
+element_identity($Element, $Number, $Symbol) :-
+    atomic_number($Element, $Number), chemical_symbol($Element, $Symbol).
+element_before($E1, $E2) :-
+    atomic_number($E1, $N1), atomic_number($E2, $N2), lt($N1, $N2).
+
+% Separate right-recursive closure: a direct orbit is tried before recursion.
+orbits_t($Body, $Center) :- orbits($Body, $Center).
+orbits_t($Body, $Center) :-
+    orbits($Body, $Intermediate), orbits_t($Intermediate, $Center).
+shared_orbit_center($B1, $B2, $Center) :-
+    orbits($B1, $Center), orbits($B2, $Center).
+planet_before($P1, $P2) :-
+    planet_order($P1, $N1), planet_order($P2, $N2), lt($N1, $N2).
+
+same_quantity($E1, $E2, $Unit, $Count) :-
+    quantity($E1, $Unit, $Count), quantity($E2, $Unit, $Count).
+more_of($E1, $E2, $Unit) :-
+    quantity($E1, $Unit, $N1), quantity($E2, $Unit, $N2), gt($N1, $N2).
+greater_magnitude($Dimension, $Larger, $Smaller) :-
+    magnitude($Dimension, $Larger, $M1),
+    magnitude($Dimension, $Smaller, $M2),
+    gt($M1, $M2).
+same_magnitude($Dimension, $E1, $E2, $Value) :-
+    magnitude($Dimension, $E1, $Value), magnitude($Dimension, $E2, $Value).
+
+% Sound observations now feed the general emission relation already consumed by
+% the causal model (for example cries/1).
+emits($Animal, $Sound) :- sound_of($Animal, $Sound).
+shared_sound($A1, $A2, $Sound) :-
+    sound_of($A1, $Sound), sound_of($A2, $Sound).
+shared_color($E1, $E2, $Color) :-
+    color_of($E1, $Color), color_of($E2, $Color).

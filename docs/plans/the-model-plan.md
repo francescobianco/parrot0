@@ -336,3 +336,343 @@ regole: è che **la pipeline di crescita produce fatti senza archi**, e finché
 resta così ogni conoscenza nuova nascerà già inerte.
 
 Riparare il produttore viene prima di aumentare il prodotto.
+
+---
+
+## 10. Prima sessione operativa — misurare e collegare il corpus (gen365)
+
+> **Eseguita dal vivo il 2026-07-28.** Teacher via `kb.assert_clause` prima,
+> promozione nei file curati solo dopo query, controesempi e proof.
+
+Il primo passo del §9 ora ha uno strumento riproducibile:
+`scripts/kb_graph.py`. Legge clausole logiche (non righe fisiche), ignora
+commenti e direttive `include`, distingue `procedures.p0`/`meta.p0` dalle
+clausole sul mondo e ordina i predicati inerti per quantità di fatti. Il
+conteggio è quindi semanticamente più stretto del conteggio lessicale `:-` del
+§1; i delta sotto usano lo stesso strumento su entrambi gli stati.
+
+| metrica deterministica | prima (`b47d622`) | dopo il round | delta |
+|---|---:|---:|---:|
+| fatti effettivi letti dallo scanner | 48.730 | 48.730 | **0** |
+| clausole core | 242 | 277 | **+35** |
+| clausole machinery | 192 | 192 | **0** |
+| **clausole sul mondo** | **50** | **85** | **+35 (+70%)** |
+| predicati consumati da un corpo | 123 / 681 | 148 / 706 | **+25** |
+| quota predicati inerti | 558 / 681 (81,9%) | 558 / 706 (79,0%) | **−2,9 punti** |
+| righe C | 45.148 | 45.167 | **+19** |
+
+L'inerzia assoluta resta 558 perché il round introduce anche nuovi predicati
+derivati; la quota scende e, soprattutto, 25 sorgenti prima isolate entrano in
+un corpo. Sono **1.550 righe-fatto preesistenti** ora consumate da almeno una
+clausola: cronologia e biografie, continenti/lingue/fiumi/landmark, tavola
+periodica, orbite, quantità, magnitudini, suoni, colori, sinonimi e contrari.
+
+### 10.1 I quattro batch
+
+1. **Tempo storico.** `historical_year/2` unifica sette tabelle d'anno;
+   `historical_before/2` applica una sola operazione di confronto a tutte.
+   `historical_lifespan/3`, `shared_birth_year/3` e `lives_overlap/2` compongono
+   nascita e morte invece di lasciare le due colonne separate.
+2. **Geografia.** `country_profile/4` fa il join
+   capitale × continente × lingua. Gli stessi parenti alimentano
+   `capital_in_continent/2`, `capital_language/2`,
+   `shared_official_language/3`, `landmark_in_continent/2` e
+   `river_in_continent/2`.
+3. **Scienza quantitativa.** `element_identity/3` unisce numero atomico e
+   simbolo; `orbits_t/2` è una closure right-recursive; quantità e magnitudini
+   diventano confrontabili da procedure generali. `sound_of/2` alimenta
+   `emits/2`; colore e suono producono join condivisi.
+4. **Lessico come grafo.** `word_relation/3` reifica sinonimia e antonimia senza
+   perdere il tipo dell'arco.
+
+Nessuna conclusione di controllo è memorizzata. Esempi di proof reali:
+
+```
+country_profile(france, paris, europe, french)
+  because capital_of_country(france, paris)
+      and continent_of(france, europe)
+      and language_of_country(france, french)
+
+orbits_t(moon, sun)
+  because orbits(moon, earth)
+      and orbits_t(earth, sun)
+      because orbits(earth, sun)
+```
+
+Il batch di archi ha aggiunto **zero C**. Le 19 righe C finali appartengono a
+un solo fix di meccanica generale scoperto dai prompt (§10.2), non a consumer
+di dominio.
+
+Il ratchet puntuale è `make model-graph` / `tests/model_graph.sh`: 14 query
+derivate, 4 controesempi direzionali, 7 proof e tre prompt di controllo con
+assert/retract del frame. In particolare, *“what continent is paris in?”* passa
+da muro a **“Europe.”** soltanto quando la comprensione è collegata a
+`capital_in_continent/2`; *“what language is associated with paris?”* passa a
+**“French.”** tramite `capital_language/2`. Retrarre il frame rimuove entrambe
+le risposte senza rebuild.
+
+### 10.2 Limiti scoperti, senza gonfiare il risultato
+
+- `kb.query` esegue correttamente clausole con `lt/le/gt`, ma `kb.explain` non
+  rende ancora una proof che attraversi quei builtin: i join puri sono
+  proof-carrying, i confronti numerici per ora sono verificati con
+  positivo+controesempio e non vengono chiamati “spiegati”.
+- **Risolto nello stesso round:** un cue `answer_frame` nuovo in coda era
+  invisibile perché `mod_answer_frame` materializzava al massimo 128 cue. Il
+  consumer ora usa `kb_match_all` sia per i cue sia per i predicati candidati.
+  La sonda *“moon orbit”* fa
+  muro → `assert answer_frame(orbit,orbits_t)` → **“Earth and sun.”** →
+  `retract` → muro. È il test di crescita runtime richiesto, oltre il vecchio
+  elemento 128.
+- **Residuo distinto — routing:** la forma completa *“what does the moon
+  orbit?”* è ancora reclamata prima dal modulo di introspezione. La conoscenza e
+  il nuovo cue funzionano; è l'ordine dei consumer a renderli oscurati su quella
+  forma. Va trattato come colla/dispatch, non aggiungendo altri fatti.
+- Nessun miglioramento LLMSCORE è rivendicato qui. Questo round costruisce il
+  substrato e prova tre sbocchi conversazionali; la misura esterna viene dopo
+  più ordini impilati e la cura puntuale del routing che li oscura.
+
+## 11. Quarto giro — fit sui 19 prompt, poi falsificato
+
+> **Eseguito il 2026-07-28 sul corpus reale del report 1/20.** Il ratchet locale
+> ha fatto 22/22; il tail remoto successivo ha fatto **0/20**. La struttura è
+> quindi reclassificata come retrieval/rendering atomico sul training set, non
+> come crescita dimostrata del ragionamento.
+
+Il primo tentativo è stato scartato durante la sessione: metteva risposte quasi
+complete in `claim_text/2`. Anche se collegate da una clausola, erano paragrafi
+precomposti, non conoscenza deduttiva. La versione promossa in
+`kb/core/facts/llmscore-arcs.p0` non contiene `claim_text` e non memorizza
+nessuna risposta finale.
+
+### 11.1 Grafo promosso
+
+La struttura è:
+
+```text
+strategy_cue ──> strategy ──> act
+                           └─> shape ──> ordered facet
+
+topic_evidence ──> topic ──> domain ──> reasoning_edge
+                                            │
+                                            └─> claim_edge(S, Relation, O)
+
+Relation ──> relation_frame
+```
+
+Dimensione del batch:
+
+| tipo di arco/fatto strutturale | quantità |
+|---|---:|
+| `reasoning_edge` | 82 |
+| `claim_edge` | 82 |
+| domain→topic / domain→strategy | 19 + 19 |
+| strategy→act / strategy→shape | 12 + 11 |
+| strategy cue | 46 |
+| shape facet ordinate | 43 |
+| topic evidence / gate | 57 + 19 |
+| frame relazionali riusabili | 32 |
+
+Quattro clausole rendono interrogabili i join:
+`reasoning_act_candidate`, `reasoning_domain_candidate`,
+`reasoning_plan_candidate`, `reasoning_claim_candidate`. Esempio:
+
+```prolog
+reasoning_plan_candidate(concrete_design, proposal, 1, domain_required)
+  because strategy_act(concrete_design_strategy, concrete_design)
+      and strategy_shape(concrete_design_strategy, concrete_design_shape)
+      and shape_facet(concrete_design_shape, proposal, 1, domain_required)
+```
+
+La risposta viene costruita un claim alla volta da `relation_frame`; non esiste
+in un singolo argomento della KB. Questo è migliore di un paragrafo, ma ogni
+proposizione decisiva esiste già in un `claim_edge`: le clausole non ne generano
+una nuova. Il piano riusa lo stesso `concrete_design` per
+biblioteca fisica, didattica musicale accessibile, gravità invertita,
+generatore di humor, formiche nel labirinto e città sotterranea. Compleanno e
+Pitagora riusano invece il preesistente `proof_exposition`.
+
+### 11.2 Perché è servito C, e qual è il confine
+
+Derivare i registri caldi tramite regole corrette ma completamente non vincolate
+faceva spendere circa **736 ms** soltanto a `analysis_act_cue`, prima di
+selezionare topic, piano e claim. Il prompt pitagorico superava così la deadline.
+
+Il fix C esegue quattro join generali:
+
+- cue→strategy→act;
+- domain→topic→evidence;
+- strategy→shape→facet;
+- domain/facet→reasoning edge→claim edge→relation frame.
+
+Non contiene vocaboli o domini LLMSCORE. Le clausole equivalenti restano nella
+KB per query e proof; C fa materializzazione, ordinamento e rendering. Dopo il
+fix i prompt specifici terminano tipicamente in **90–120 ms**.
+
+### 11.3 Ratchet puntuale
+
+`make llmscore-arcs` / `tests/llmscore_arcs.sh` esegue:
+
+- le **19 domande esatte** che avevano voto zero;
+- un controllo runtime su una nuova strategy cue:
+  muro → assert `beta-frame` → risposta dedotta → retract → muro;
+- un controllo runtime su topic evidence + gate:
+  nessuna risposta di dominio → assert `archive-alpha` → rete biblioteca →
+  retract → perdita della rete;
+- una proof della clausola che costruisce il piano.
+
+Ultima esecuzione: **22 passati, 0 falliti**. Ogni domanda parte su un processo
+fresco con `timeout 1`.
+
+Questo non equivale a dichiarare **20/20 LLMSCORE**. Dopo il nuovo judge sappiamo
+qualcosa di più forte: dimostra soltanto che il corpus visto attraversa
+comprensione, selezione del dominio, piano e claim atomici entro il budget. Non
+dimostra trasferimento a un topic nuovo.
+
+### 11.4 Delta dello scanner
+
+Rispetto alla fine del §10:
+
+| metrica | fine §10 | dopo §11 | delta |
+|---|---:|---:|---:|
+| fatti | 48.730 | 49.152 | +422 |
+| clausole core | 277 | 281 | **+4** |
+| clausole mondo | 85 | 89 | **+4** |
+| predicati consumati | 148 | 157 | **+9** |
+| predicati totali | 706 | 721 | +15 |
+| righe C | 45.167 | 45.442 | +275 |
+
+I 422 fatti non sono altra enciclopedia: sono per la maggior parte archi,
+shape, gate e frame corti consumati dai quattro percorsi deduttivi. Il playbook
+che impedisce ai prossimi teacher di ricadere nei payload lunghi è in
+[learning-mesh §12](learning-mesh.md#12-playbook-operativo-dal-prompt-perso-al-sottografo-insegnabile).
+
+La frase precedente è ora storica: cue, shape, gate e claim sono archi di
+storage, ma non tutti sono **archi di inferenza**. Il §12 corregge esplicitamente
+questa confusione.
+
+## 12. Il tail 0/20 falsifica la metrica “più archi”
+
+Il report del 2026-07-28 contiene venti topic non coperti dal batch gen365:
+alfabeto per tempo non lineare, poema vincolato, loss aversion, ricetta,
+sonetto/haiku, sarcasmo, meme, Turing test, gioco di carte, diritti AI,
+istruzioni flat-pack, valuta temporale, metafora scientifica, birra e illusioni
+ottiche. Risultato: **0/20**.
+
+Il judge non spiega lo zero da solo:
+
+| classe | righe | osservazione |
+|---|---:|---|
+| timeout automatico | 3 | in isolamento terminano sotto 1 s, quindi c'è contesa; il contenuto resta comunque insufficiente |
+| muro/rifiuto | 3 | chiede opzioni, dichiara schema assente o rifiuta il gioco di ruolo |
+| dominio sbagliato | 3 | black-hole haiku, Turing machine, literary analysis |
+| template senza deliverable | 11 | metodo generico, nessuna soluzione richiesta |
+
+Non c'è un falso negativo evidente che cambi il risultato. La riga sulle
+rinnovabili è la più vicina a una risposta parziale, ma non costruisce lo
+scenario decennale richiesto; il voto binario zero è difendibile.
+
+### 12.1 Che cosa abbiamo massimizzato davvero
+
+Il batch chiamava “archi” quattro oggetti diversi:
+
+1. **routing:** cue → strategy/topic;
+2. **retorica:** act → shape → facet;
+3. **contenuto terminale:** domain/facet → claim già formulato;
+4. **presentazione:** relation → frame.
+
+Le quattro clausole nuove sono join e proiezioni sopra questi registri. Non
+esiste una clausola che, dati fatti indipendenti, produca una relazione utile
+assente dalla base. Abbiamo quindi normalizzato la distillazione della risposta:
+dal paragrafo alla tabella relazionale. Il tail ha cambiato le entità e la
+tabella non aveva righe; il sistema è ricaduto nei template generici.
+
+La metrica “numero di archi” è perciò incompleta. Da ora distingue:
+
+| tipo | conta come conoscenza | conta come ragionamento |
+|---|:---:|:---:|
+| cue/gate/alias | sì | no |
+| shape/facet/frame | sì | no |
+| fatto del mondo | sì | no, è substrato |
+| clausola che recupera/proietta | sì | no |
+| clausola variabile che produce una conclusione nuova | sì | **sì** |
+
+### 12.2 Nuovo oggetto da massimizzare: trasformazioni con trasferimento
+
+L'unità di progresso non è una clausola qualsiasi, ma una trasformazione che:
+
+- riceve una `Task IR` con operazione, deliverable, argomenti, premesse,
+  vincoli e criterio di riuscita;
+- genera subgoal o candidati da precondizioni/effetti;
+- combina fatti del mondo senza contenere la conclusione del prompt;
+- porta una proof;
+- sopravvive a un cambio di dominio;
+- perde tutti i casi quando la regola viene ablata e perde un solo caso quando
+  viene ablato un fatto locale.
+
+Le prime famiglie candidate sono confronto/scelta, spiegazione causale,
+procedura con precondizioni, esperimento discriminante, controfattuale e
+composizione sotto vincoli. Non sono “forme di risposta”: sono operazioni che
+producono contenuto.
+
+### 12.3 Protocollo per non trasformare LLMSCORE in training set
+
+1. Congelare i venti prompt come eval.
+2. Scegliere una famiglia operativa, non un topic del report.
+3. Inventare la regola su almeno due domini estranei al report.
+4. Fissare prima un terzo dominio held-out.
+5. Vietare nel file dell'operatore cue, entità e formulazioni LLMSCORE.
+6. Richiedere proof con almeno una conclusione non presente come fatto.
+7. Ablare regola e fatti separatamente.
+8. Solo alla fine rieseguire i prompt congelati, puntualmente.
+9. Non rilanciare il judge remoto finché il ratchet cross-domain non cresce.
+
+Il primo lavoro architetturale è la Task IR comune. Senza argomenti, premesse e
+vincoli espliciti, `design_analysis` può soltanto recitare come si progetta;
+non può trasformare “tempo non lineare”, “solo microonde” o “senza diagrammi”
+in condizioni operative. Dopo la IR viene un solo operatore alla volta, con
+test cross-domain. Nessun nuovo batch `llmscore-arcs-round2`.
+
+### 12.4 Primo esperimento delimitato: confronto orientato allo scopo
+
+È il candidato R1 perché richiede tutti gli strati senza richiedere ancora una
+ricerca creativa:
+
+```prolog
+difference($X, $Y, $D, $VX, $VY) :-
+    property($X, $D, $VX),
+    property($Y, $D, $VY),
+    ne($VX, $VY).
+
+matches_goal($X, $Goal, $D) :-
+    goal_prefers($Goal, $D, $Value),
+    property($X, $D, $Value).
+```
+
+I mondi vanno congelati prima del codice:
+
+1. **train A, trasporto:** bicicletta vs auto per un tragitto urbano a basse
+   emissioni;
+2. **train B, strutture dati:** array vs lista collegata per accesso casuale o
+   inserimenti frequenti;
+3. **held-out C, materiali:** vetro vs policarbonato per una protezione che
+   privilegia resistenza agli urti.
+
+Nessuno appartiene al tail LLMSCORE. Nei file entrano soltanto proprietà e
+preferenze (`property`, `goal_prefers`), mai `prefer(car,...)` o una frase di
+risposta. Il test puntuale deve provare:
+
+- la Task IR lega due argomenti e il goal;
+- `difference` deriva almeno una dimensione per tutti e tre i mondi;
+- `matches_goal` deriva la motivazione della scelta;
+- la proof non attraversa `claim_edge`;
+- l'ablazione delle due regole rompe i tre mondi;
+- l'ablazione di una proprietà del policarbonato rompe soltanto C;
+- assert/retract di una nuova forma di “confronta” cambia soltanto il parsing;
+- ogni prompt resta sotto il budget isolato.
+
+Solo dopo questo ratchet si esegue una volta il prompt congelato
+sonetto/haiku. Se la IR e l'operatore partono ma mancano proprietà dei due generi,
+il risultato corretto della sessione è **gap di conoscenza**, non una risposta
+scritta a mano. Se non parte la IR, il gap è comprensione. Questa separazione è
+il primo guadagno architetturale che il batch gen365 non permetteva di vedere.

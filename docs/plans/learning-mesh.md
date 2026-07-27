@@ -792,3 +792,504 @@ MCP copre solo clausole Horn pure; nested expressions, `naf`, `is/2` e liste
 richiedono il canale `.p0`. Finché l'adattatore JSON→termine non supporta
 argomenti nested, la via `.p0` resta il canale principale per la conoscenza di
 ordine superiore.
+
+## 11. Terzo giro — il teacher massimizza archi sul corpus reale (gen365)
+
+> **Eseguito dal vivo il 2026-07-28.** Questo giro applica la correzione di
+> [the-model-plan](the-model-plan.md): il target non è il numero di predicati o
+> fatti ma il numero di dipendenze che compongono fatti già presenti.
+
+### 11.1 Round teacher e promozione
+
+Il teacher ha prima asserito via MCP i candidati su una normale istanza, con
+sonda rossa prima e verde dopo. Solo i candidati che hanno retto query,
+controesempio e — dove il proof engine lo consente — `kb.explain` sono stati
+promossi nei file dei parenti:
+
+- storia → `kb/core/facts/history.p0`;
+- geografia → `kb/core/facts/geography-world.p0`;
+- scienza → `kb/core/facts/science-nature.p0`;
+- relazioni lessicali → `kb/core/facts/vocabulary-extra.p0`.
+
+Risultato misurato da `scripts/kb_graph.py`: clausole mondiali effettive
+**50→85 (+70%)**, machinery **192→192**, righe C **invariate**; i predicati
+consumati in un corpo passano **123→148**. Dettaglio e proof in
+[the-model-plan §10](the-model-plan.md#10-prima-sessione-operativa--misurare-e-collegare-il-corpus-gen365).
+
+### 11.2 Freeze→propagate reale A→B
+
+Il round successivo è stato eseguito con due processi persistenti e lo stesso
+mount effimero:
+
+```
+B prima:  shared_color(banana, lemon, yellow)  → false
+A teach:  shared_color($X,$Y,$C) :-
+              color_of($X,$C), color_of($Y,$C)
+A proof:  ... because color_of(banana,yellow)
+                    and color_of(lemon,yellow)
+A save:   mount condiviso, 8 righe
+B prima del restore: false
+B restore: 11.873 clausole
+B dopo:   stessa proof → true
+```
+
+La conclusione ground non compariva nel mount: vi era soltanto la regola
+generale, oltre a sette fatti runtime. Dopo la verifica il mount effimero è
+stato rimosso e l'operatore è stato promosso nel file scientifico curato.
+
+### 11.3 Il controllo deve arrivare al prompt
+
+Su richiesta di F. il gate non è l'intera suite, ma sonde puntuali sui prompt
+che devono consumare la conoscenza appena inserita:
+
+```
+"what continent is paris in?"
+  senza frame  → muro
+  assert answer_frame(continent, capital_in_continent)
+               → "Europe."
+  retract      → muro
+
+"what language is associated with paris?"
+  senza frame  → muro
+  assert answer_frame(language, capital_language)
+               → "French."
+  retract      → muro
+
+"moon orbit"
+  senza frame  → muro
+  assert answer_frame(orbit, orbits_t)
+               → "Earth and sun."  (closure a due hop)
+  retract      → muro
+```
+
+Questo distingue tre risultati che non vanno confusi: la clausola è
+**provabile**, porta una **proof**, ed è **raggiungibile da un prompt** tramite
+comprensione insegnata a runtime.
+
+### 11.4 Limite emerso e chiuso; residuo di routing
+
+Il primo tentativo col cue nuovo `orbit → orbits_t` non veniva visto:
+`mod_answer_frame` materializzava solo 128 cue e la registry attuale è più
+grande. **Chiuso nello stesso round:** cue e predicati candidati ora vengono
+enumerati con `kb_match_all`, senza cap scelto dal consumer. La terza sonda del
+§11.3 è il gate rosso→assert→verde→retract→rosso oltre il vecchio elemento 128.
+
+Il prompt completo *“what does the moon orbit?”* resta invece oscurato da un
+consumer precedente che lo interpreta come introspezione sui moduli. La forma
+stretta *“moon orbit”* raggiunge l'operatore e restituisce la closure. Quindi il
+limite di enumerazione è risolto; il residuo è **routing/dispatch**, la stessa
+conoscenza cablata nella posizione del registry diagnosticata da
+[the-model-plan §5](the-model-plan.md#5-il-motore-c-minimale).
+
+## 12. Playbook operativo: dal prompt perso al sottografo insegnabile
+
+Questa sezione è deliberatamente prescrittiva. Serve a un coding agent che non
+veda spontaneamente la differenza fra «aggiungere una buona risposta» e
+«insegnare la struttura che rende deducibili molte buone risposte».
+
+> **Rettifica gen366, dopo il tail remoto 0/20.** La prima versione di questo
+> playbook fermava il frasario al livello sbagliato. Spezzare un paragrafo in
+> `claim_edge(S,R,O)` rende il contenuto interrogabile, ma non lo rende dedotto.
+> Se `S-R-O` è già la conclusione necessaria a uno dei prompt di training, il
+> sistema continua a scegliere una risposta scritta da noi: ha soltanto una
+> serializzazione più pulita. Le sezioni seguenti sostituiscono quel criterio.
+
+### 12.1 La regola che evita il frasario
+
+> **Una risposta non è conoscenza. È una vista verbalizzata su un sottografo.**
+
+La regola vieta due forme, non una:
+
+```prolog
+% Vietato: risposta intera.
+claim_text(alien_strategy,
+  "Look for recurring units ... then replay purified signals ...").
+
+% Vietato come prova di ragionamento: la stessa risposta, tagliata in pezzi.
+reasoning_edge(alien_chemical_language, sampling, alien_sampling_1).
+claim_edge(alien_sampling_1,
+           "Signal sampling",
+           should_use,
+           "chromatography, mass spectrometry, timing, location, and response").
+reasoning_edge(alien_chemical_language, experiments, alien_experiment_1).
+claim_edge(alien_experiment_1,
+           "Controlled replay",
+           should_test,
+           "one component, order, concentration, and composition at a time").
+```
+
+La seconda forma è migliore come storage, ma `reasoning_claim_candidate/5`
+esegue soltanto una join: non produce alcuna proposizione che non fosse già
+presente in `claim_edge/4`. **Atomicità è organizzazione, non inferenza.**
+
+La forma cercata separa fatti osservabili e trasformazioni riusabili:
+
+```prolog
+% Fatti del mezzo: veri anche senza il prompt LLMSCORE.
+observable_dimension(chemical_signal, compound_identity).
+observable_dimension(chemical_signal, temporal_order).
+observable_dimension(chemical_signal, concentration).
+manipulable_dimension(chemical_signal, compound_identity).
+manipulable_dimension(chemical_signal, temporal_order).
+manipulable_dimension(chemical_signal, concentration).
+transport_risk(chemical_signal, diffusion).
+transport_risk(chemical_signal, persistence).
+
+% Regole generali: valgono anche per suono, gesti, luce o radio.
+candidate_code_dimension($Carrier, $Dimension) :-
+    observable_dimension($Carrier, $Dimension),
+    manipulable_dimension($Carrier, $Dimension).
+
+discriminating_intervention($Carrier, $Dimension, controlled_replay) :-
+    candidate_code_dimension($Carrier, $Dimension).
+
+decoding_confound($Carrier, $Risk) :-
+    transport_risk($Carrier, $Risk).
+```
+
+Ora `controlled_replay` e i limiti sono conseguenze del modello del carrier e
+di regole che non nominano alieni né il benchmark. La lingua realizza la proof
+alla fine. I fatti di dominio restano necessari: il ragionamento non può
+inventare che una sostanza diffonde. Ma un fatto terminale non va contato come
+una regola.
+
+**Test di review:** nascondere il nome del prompt e chiedere «quale conclusione
+nuova produce questa clausola?». Se la risposta è «nessuna, recupera una tripla
+già scritta», non è un arco di ragionamento.
+
+### 12.2 Prima diagnosi: classificare lo zero
+
+Per ogni riga LLMSCORE persa, copiare in una scheda:
+
+```text
+PROMPT:
+RISPOSTA:
+VERDETTO:
+TEMPO LOCALE:
+CONSUMER/PERCORSO:
+```
+
+Poi assegnare **una causa primaria**, senza correggere ancora:
+
+| Sintomo | Diagnosi probabile | Prima mossa |
+|---|---|---|
+| timeout locale | percorso troppo costoso o loop di candidati | cronometrare le fasi; nessuna conoscenza nuova |
+| muro | nessun atto, topic o consumer raggiungibile | trovare l'arco di comprensione mancante |
+| risposta fluente ma generica | atto trovato, nessun operatore ha prodotto conclusioni | cercare fatti di mondo e regole trasferibili; non scrivere il claim finale |
+| fatto corretto ma compito non svolto | semantic lookup ha preceduto proof/design/format | correggere act e routing |
+| contenuto giusto, formato sbagliato | piano/faccetta/formato incompleto | estendere shape o realizer |
+| risposta di un altro tema | cue largo senza gate discriminante | aggiungere o stringere `topic_gate` |
+
+Il **verdetto del judge** è evidenza diagnostica. Frasi come “generic templated
+response”, “never addresses X” e “merely states the theorem” indicano difetti
+diversi. Non vanno tutti curati aggiungendo più facts.
+
+### 12.3 Scomporre il prompt in una Task IR, non in una risposta ideale
+
+Non compilare colonne `output facets` e `claim da dire`: è il percorso che ha
+prodotto il fit 22/22 e il tail 0/20. Estrarre invece soltanto ciò che il turno
+fornisce o richiede:
+
+| Campo IR | Domanda | Esempio astratto |
+|---|---|---|
+| **operazione** | quale trasformazione è richiesta? | confrontare, spiegare, progettare, comporre |
+| **deliverable** | quale artefatto deve esistere alla fine? | scelta motivata, proof, procedura, poema |
+| **argomenti** | su quali entità/processi opera? | X e Y; causa ed effetto; mezzo e ricevente |
+| **premesse** | quali fatti o controfattuali dà il prompt? | tempo non lineare; niente diagrammi |
+| **vincoli** | che cosa è vietato/obbligatorio? | 280 caratteri; tre portate; parole escluse |
+| **criterio** | come si riconosce una soluzione riuscita? | distingue X/Y; rispetta risorse; predice un esito |
+
+Forma concettuale:
+
+```text
+task(Id,
+     operation(Op),
+     deliverable(Type),
+     arguments(Args),
+     premises(Premises),
+     constraints(Constraints),
+     success(Criteria))
+```
+
+La superficie che riempie questi ruoli resta KB-first. Il motore può
+tokenizzare e legare slot; `compare`, `without`, `why`, `under an hour` e le
+loro parafrasi sono conoscenza insegnabile. Il topic serve a recuperare fatti,
+non a scegliere una risposta privata.
+
+La pipeline target è:
+
+```text
+prompt -> Task IR -> operator schema -> subgoal
+                         |
+                         v
+              fatti del mondo + regole
+                         |
+                         v
+                 proof / candidati
+                         |
+                         v
+              verifica -> realizzazione
+```
+
+### 12.4 Come trovare le regole, senza distillare un LLM
+
+Partire dal verbo dell'operazione, non da una risposta di riferimento.
+
+1. Scrivere la **precondizione**: quali fatti rendono applicabile l'operatore?
+2. Scrivere l'**effetto**: quale nuovo goal, candidato o relazione produce?
+3. Separare i fatti del dominio dalla trasformazione. La regola deve avere
+   variabili nei ruoli che cambiano fra domini.
+4. Cercare almeno tre mondi non correlati in cui la stessa trasformazione abbia
+   senso.
+5. Solo dopo aggiungere i fatti mancanti di ciascun mondo.
+6. Derivare una proof; il renderer non può introdurre una proposizione assente
+   dalla proof.
+
+Scheletri iniziali, volutamente indipendenti dal topic:
+
+```prolog
+% Confronto: scopre dimensioni diverse; non contiene sonetti o haiku.
+difference($X, $Y, $Dimension, $VX, $VY) :-
+    property($X, $Dimension, $VX),
+    property($Y, $Dimension, $VY),
+    ne($VX, $VY).
+
+% Scelta condizionata allo scopo.
+satisfies_goal($Candidate, $Goal, $Dimension) :-
+    goal_requires($Goal, $Dimension, $Threshold),
+    property($Candidate, $Dimension, $Value),
+    meets($Value, $Threshold).
+
+% Spiegazione causale: la conclusione può attraversare più fatti.
+explains($Cause, $Effect) :-
+    causes_t($Cause, $Effect).
+
+% Esperimento discriminante: varia una causa e predice una differenza.
+discriminates($Intervention, $H1, $H2, $Observation) :-
+    predicts($H1, $Intervention, $Observation),
+    predicts_not($H2, $Intervention, $Observation).
+
+% Procedura: un passo è eseguibile soltanto quando le precondizioni tengono.
+ready_step($Step, $State) :-
+    requires_state($Step, $Required),
+    holds($State, $Required).
+```
+
+Per composizione creativa la deduzione non basta da sola: serve ricerca
+vincolata. Ma anche qui il sistema non deve conservare il poema finale:
+`candidate_fragment` nasce da associazioni/sensazioni note,
+`violates(Fragment, Constraint)` lo elimina, un ordinatore costruisce
+l'artefatto e un oracolo controlla lunghezza, parole vietate e forma.
+
+Un agente non deve chiedere a un LLM «qual è la buona risposta?» e poi
+atomizzarla. Può usarlo per proporre **ipotesi di operatori**, ma accetta
+l'ipotesi soltanto se passa il test cross-domain e produce conclusioni nuove.
+
+### 12.5 Riutilizzare prima di creare
+
+Ordine obbligatorio:
+
+1. cercare un **operatore** già esistente;
+2. cercare clausole che ne producano i subgoal o i candidati;
+3. cercare fatti del mondo già disponibili per gli argomenti;
+4. aggiungere fatti mancanti senza formulare la conclusione del prompt;
+5. usare shape e frame soltanto dopo che esiste una proof completa;
+6. creare un nuovo operatore solo se precondizioni/effetti sono realmente
+   diversi;
+7. creare C solo dopo aver dimostrato che la meccanica generale non è
+   esprimibile o non rispetta il budget.
+
+Esempio: compleanno e teorema di Pitagora riusano entrambi
+`proof_exposition`. Non servono `birthday_answerer` e
+`pythagorean_answerer`: cambiano i quattro archi della prova, non la procedura
+“contesto → costruzione → invariante → conclusione”.
+
+Al contrario, una palette sinestetica non è una proof. Ha una shape propria
+`palette → mapping → rationale`; forzarla dentro `design_analysis` genera
+proprio il boilerplate bocciato dal judge.
+
+### 12.6 Cue e gate: evitare overfitting e collisioni
+
+Un cue non deve essere l'intera domanda. Deve nominare una classe insegnabile:
+
+```prolog
+strategy_cue(experiment_design_strategy, "design an experiment").
+topic_evidence(dog_tomorrow_topic, keyword(tomorrow)).
+topic_gate(dog_tomorrow_topic, keyword(tomorrow)).
+```
+
+Pratiche:
+
+- preferire 2–4 evidenze indipendenti a una frase completa;
+- usare un gate raro che debba comparire davvero;
+- aggiungere una parafrasi tenuta fuori dal cue come prova di generalizzazione;
+- aggiungere un vicino negativo: `dog + immediate reward` senza `tomorrow` non
+  deve autorizzare l'esperimento temporale;
+- se apostrofi o punteggiatura spezzano una phrase cue, aggiungere un
+  `keyword(...)` semanticamente corretto, non la domanda completa;
+- ogni nuovo recognizer deve avere assert → verde → retract → rosso sullo
+  stesso binario.
+
+Questi test dimostrano crescita della **comprensione superficiale**, non
+trasferimento del ragionamento. Una parafrasi che colpisce lo stesso topic
+resta nello stesso dominio; non sostituisce il terzo mondo held-out del §12.8.
+
+### 12.7 Quando il C è ammesso
+
+Il C può implementare soltanto operazioni che restano identiche cambiando
+lingua, topic e dominio:
+
+- enumerare candidati;
+- eseguire join e unificazione;
+- ordinare faccette;
+- verificare completezza;
+- riempire slot da frame KB;
+- fare caching/materializzazione;
+- applicare limiti di tempo e memoria.
+
+Prima di modificare C, la scheda deve contenere:
+
+```text
+GRAFO COMPLETO?                 sì/no
+QUERY DIRETTA PROVABILE?        sì/no
+PROMPT RAGGIUNGE IL GRAFO?      sì/no
+COSTO MISURATO PER FASE:
+MECCANICA MANCANTE:
+ALMENO 3 DOMINI FUTURI SERVITI:
+LETTERALI LINGUISTICI IN C:     devono essere zero
+```
+
+Il round gen365 fornisce un esempio ammesso **solo di ottimizzazione dei join e
+di separazione KB/C, non di ragionamento generalizzante**. Le clausole che derivavano
+registri caldi e non vincolati erano corrette, ma la sola enumerazione di
+`analysis_act_cue` derivato costava circa **736 ms**, prima di topic, piano e
+rendering. Il fix C non contiene `library`, `Möbius`, `tomorrow` o altre parole:
+esegue direttamente i join generali
+`strategy_cue→strategy_act`, `reasoning_topic→topic_evidence`,
+`strategy_shape→shape_facet` e `reasoning_edge→claim_edge`. Le clausole
+equivalenti restano interrogabili con `kb.explain`. I prompt specifici scendono
+a circa **90–120 ms**.
+
+Un ramo C che riconosce `birthday`, `chemical signals` o `between` è invece
+vietato: quella è conoscenza. Anche un `printf` con la risposta resta vietato.
+
+### 12.8 Protocollo di sessione per il teacher
+
+Ogni sessione deve lasciare questa sequenza:
+
+1. **FREEZE:** conservare il prompt perso come eval; non leggere o scrivere la
+   sua risposta ideale durante lo sviluppo.
+2. **TRACE:** annotare Task IR, consumer e tempo; non editare.
+3. **OPERATOR:** scegliere una trasformazione con precondizioni ed effetti.
+4. **TRAIN WORLDS:** costruire due o più casi indipendenti che non appartengono
+   al topic LLMSCORE.
+5. **HELD-OUT WORLD:** scegliere prima un terzo mondo non usato per inventare
+   la regola.
+6. **TEACH:** aggiungere clausole generali e soli fatti di mondo.
+7. **PROVE:** ottenere una conclusione assente dai fatti terminali.
+8. **ABLATE RULE:** ritrarre la regola deve rompere tutti i mondi; ripristinarla
+   deve recuperarli.
+9. **ABLATE FACT:** ritrarre un fatto locale deve rompere soltanto il suo mondo.
+10. **GROWTH:** assert/retract di una surface cue prova KB-first, non capacità
+    di ragionamento.
+11. **FROZEN PROMPT:** soltanto ora rieseguire il prompt reale e una parafrasi.
+12. **PROMOTE:** promuovere l'operatore solo se migliora il caso tenuto fuori.
+13. **LOG:** registrare transfer fan-out, proof, C, tempi e limiti onesti.
+
+Non eseguire l'intera suite per una sessione di teaching. Usare il ratchet
+puntuale; la suite completa appartiene al gate di integrazione successivo.
+
+### 12.9 Organizzazione dei file e naming
+
+- Lessico e surface evidence: `kb/core/intents.p0` oppure il file tematico che
+  possiede la strategy.
+- Procedure e shape riusabili: `kb/core/procedures.p0`.
+- Fatti di dominio: file del dominio sotto `kb/core/facts/`; non creare un file
+  per la domanda o per la sua risposta.
+- Operatori e clausole cross-domain: `kb/core/procedures.p0` o un file di
+  reasoning comune, mai il file del benchmark.
+- Relazioni di rendering corte: presentation/procedure knowledge, mai C.
+- Test del corpus perso: file indirizzabile dedicato sotto `tests/`.
+
+Nomi consigliati:
+
+```text
+<facoltà>_strategy
+<facoltà>_shape
+<tema>_topic
+<tema>                        % domain
+<tema>_<facet>_<n>            % edge id
+```
+
+Non chiamare un dominio con il numero del benchmark (`question_19`) e non usare
+hash o intere frasi come identità. Il nome deve spiegare quale capacità potrà
+riusare un prompt futuro.
+
+### 12.10 Checklist di consegna
+
+Un agent non dichiara chiuso il round finché non può rispondere:
+
+- Quale verdetto preciso sto correggendo?
+- Quale Task IR è stata estratta senza anticipare la risposta?
+- Quale operatore, con quali precondizioni ed effetti, è stato scelto?
+- Quale nuova conclusione produce ogni clausola?
+- La clausola è stata inventata e verificata su almeno tre domini indipendenti?
+- La risposta finale esiste in qualche singolo fatto? Deve essere **no**.
+- Le sue proposizioni decisive esistono già come `claim_edge` terminali? Per
+  rivendicare ragionamento deve essere **no**.
+- Posso mostrare una proof della procedura?
+- Posso insegnare e ritrarre una superficie a runtime?
+- Il prompt esatto termina entro il budget?
+- Un vicino negativo resta fuori?
+- Ogni riga C è meccanica generale e priva di vocabolario?
+- Quanti archi nuovi consumano conoscenza prima inerte?
+
+Se una risposta manca, il lavoro non è pronto: non compensare con altra prosa.
+
+### 12.11 Esperimento gen365, poi falsificato fuori campione
+
+La prima versione del playbook è stata applicata alle 19 righe a zero del
+report LLMSCORE 2026-07-27:
+
+- 12 strategie/atti collegati a 11 shape;
+- 19 topic e 19 gate;
+- 82 `reasoning_edge` e 82 `claim_edge`;
+- quattro clausole di audit/join;
+- zero `claim_text` e zero risposte finali memorizzate.
+
+`make llmscore-arcs` esegue le 19 domande esatte, due controlli di crescita
+runtime e una proof del piano. Stato al termine del round: **22/22**. Il tail
+remoto immediatamente successivo, composto da venti temi nuovi, ha ottenuto
+**0/20**. Quindi 22/22 misura il fit sul corpus visto, non il trasferimento.
+
+Audit della struttura:
+
+| componente gen365 | quantità | classificazione corretta |
+|---|---:|---|
+| `strategy_cue` + `topic_evidence` + gate | 122 | routing/comprensione |
+| `shape_facet` | 43 | organizzazione retorica |
+| `reasoning_edge` + `claim_edge` | 164 | indice + conclusioni già scritte |
+| `relation_frame` | 32 | presentazione |
+| clausole | 4 | join/proiezione, nessuna conclusione nuova |
+
+Il nome `reasoning_edge` non rende deduttivo un arco. Questo batch resta utile
+come corpus diagnostico e come prova del renderer KB-first, ma **non va esteso
+con i venti nuovi prompt** e non conta verso la massa critica di ragionamento.
+
+### 12.12 Metriche che non possono essere vinte atomizzando risposte
+
+Ogni nuovo operatore riporta almeno:
+
+- **transfer fan-out:** quanti domini tenuti fuori migliora una sola regola;
+- **novel conclusion rate:** quante proposizioni della proof non esistono come
+  fatti terminali;
+- **proof depth:** numero di trasformazioni, esclusi routing e rendering;
+- **ablation fan-out:** rimuovere la regola rompe più domini, rimuovere un fatto
+  rompe solo il dominio che lo usa;
+- **prompt leakage:** frasi/cue/entità presi dal benchmark nel file
+  dell'operatore; deve essere zero;
+- **latenza:** prompt isolato e, separatamente, carico concorrente.
+
+Un incremento di `claim_edge` senza aumento di transfer fan-out è
+arricchimento di conoscenza o storage; può essere legittimo, ma non è un
+avanzamento delle regole di ragionamento.

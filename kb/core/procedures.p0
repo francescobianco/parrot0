@@ -573,3 +573,77 @@ answer_plan(risk_analysis, grounding, -1, optional).
 answer_plan(interpretive_analysis, grounding, -1, optional).
 answer_plan(comparison_analysis, grounding, -1, optional).
 answer_plan(advice_analysis, grounding, -1, optional).
+
+% ── gen366: REASONING OPERATOR R1 — goal-conditioned comparison ─────────────
+%
+% These are transformations, not answer rows.  `property/3` and
+% `goal_prefers/3` live in world files; the conclusions below are absent from
+% the fact base and must be proven by the resolver.  The activation fact makes
+% rule ablation executable at runtime without deleting source.
+reasoning_operator_active(goal_comparison).
+
+task_difference($X, $Y, $Dimension, pair($VX, $VY)) :-
+    reasoning_operator_active(goal_comparison),
+    property($X, $Dimension, $VX),
+    property($Y, $Dimension, $VY),
+    dif($VX, $VY).
+
+task_goal_match($Candidate, $Goal, $Dimension, $Value) :-
+    reasoning_operator_active(goal_comparison),
+    goal_prefers($Goal, $Dimension, $Value),
+    property($Candidate, $Dimension, $Value).
+
+% R2 — explain a system's vulnerability as a reusable trade-off:
+% a normally useful strategy has a failure condition that a phenomenon exploits.
+reasoning_operator_active(failure_explanation).
+
+failure_mechanism($System, $Phenomenon, $Strategy, $Condition) :-
+    reasoning_operator_active(failure_explanation),
+    system_relies_on($System, $Strategy),
+    strategy_failure_condition($Strategy, $Condition),
+    phenomenon_exploits($Phenomenon, $Condition).
+
+normal_strategy_benefit($System, $Strategy, $Benefit) :-
+    reasoning_operator_active(failure_explanation),
+    system_relies_on($System, $Strategy),
+    strategy_benefit($Strategy, $Benefit).
+
+failure_example($Phenomenon, $Example, $Observation) :-
+    reasoning_operator_active(failure_explanation),
+    phenomenon_example($Phenomenon, $Example),
+    example_observation($Example, $Observation).
+
+% R3 — process planning.  The recursive clause proves that a goal state follows
+% from initial state plus action preconditions/effects; C performs the same
+% dependency walk once to order steps, check resources and sum durations.
+reasoning_operator_active(ordered_procedure).
+
+process_reaches($Process, $State) :-
+    reasoning_operator_active(ordered_procedure),
+    process_initial_state($Process, $State).
+
+process_reaches($Process, $Next) :-
+    reasoning_operator_active(ordered_procedure),
+    action_produces($Action, $Next),
+    process_action($Process, $Action),
+    action_requires($Action, $Prior),
+    process_reaches($Process, $Prior).
+
+process_dependency($Process, $Before, $After, $State) :-
+    reasoning_operator_active(ordered_procedure),
+    process_action($Process, $Before),
+    process_action($Process, $After),
+    action_produces($Before, $State),
+    action_requires($After, $State).
+
+% Internal protocol predicates are declared as machinery so self-description
+% never mistakes a task trace or a renderer registry for world knowledge.
+machinery(reasoning_operator_active).
+machinery(task_difference).
+machinery(task_goal_match).
+machinery(failure_mechanism).
+machinery(normal_strategy_benefit).
+machinery(failure_example).
+machinery(process_reaches).
+machinery(process_dependency).
+machinery(task_ir).

@@ -1,0 +1,315 @@
+% gen366 — neutral worlds for reasoning-operator transfer tests.
+%
+% A property is knowledge about an entity.  A goal preference is knowledge
+% about a criterion.  No recommendation or comparison conclusion is stored:
+% task_difference/4 and task_goal_match/4 in procedures.p0 derive those.
+
+% Train world A: urban transport.
+property(bicycle, emissions, low).
+property(bicycle, maneuverability, high).
+property(car, emissions, high).
+property(car, maneuverability, medium).
+goal_prefers(low_emission_urban_trip, emissions, low).
+goal_prefers(low_emission_urban_trip, maneuverability, high).
+
+% Train world B: data structures.
+property(array, random_access, constant_time).
+property(array, mid_sequence_insertion, costly).
+property(linked_list, random_access, linear_time).
+property(linked_list, mid_sequence_insertion, efficient).
+goal_prefers(random_access_workload, random_access, constant_time).
+
+% Frozen held-out world C: protective materials.
+property(glass, impact_resistance, low).
+property(glass, optical_clarity, high).
+property(polycarbonate, impact_resistance, high).
+property(polycarbonate, optical_clarity, medium).
+goal_prefers(impact_resistant_guard, impact_resistance, high).
+
+% Surface glosses are presentation knowledge, kept separate from the facts.
+reasoning_gloss(bicycle, "a bicycle").
+reasoning_gloss(car, "a car").
+reasoning_gloss(array, "an array").
+reasoning_gloss(linked_list, "a linked list").
+reasoning_gloss(glass, "glass").
+reasoning_gloss(polycarbonate, "polycarbonate").
+
+reasoning_gloss(emissions, "emissions").
+reasoning_gloss(maneuverability, "maneuverability").
+reasoning_gloss(random_access, "random access").
+reasoning_gloss(mid_sequence_insertion, "mid-sequence insertion").
+reasoning_gloss(impact_resistance, "impact resistance").
+reasoning_gloss(optical_clarity, "optical clarity").
+
+reasoning_gloss(low_emission_urban_trip, "a low-emission urban trip").
+reasoning_gloss(random_access_workload, "a random-access workload").
+reasoning_gloss(impact_resistant_guard, "an impact-resistant guard").
+
+property_gloss(emissions, low, "low emissions").
+property_gloss(emissions, high, "high tailpipe emissions").
+property_gloss(maneuverability, high, "high maneuverability").
+property_gloss(maneuverability, medium, "moderate maneuverability").
+property_gloss(random_access, constant_time, "constant-time indexed access").
+property_gloss(random_access, linear_time, "linear-time indexed access").
+property_gloss(mid_sequence_insertion, costly, "costly mid-sequence insertion").
+property_gloss(mid_sequence_insertion, efficient, "efficient insertion once the position is known").
+property_gloss(impact_resistance, low, "low impact resistance").
+property_gloss(impact_resistance, high, "high impact resistance").
+property_gloss(optical_clarity, high, "high optical clarity").
+property_gloss(optical_clarity, medium, "moderate optical clarity").
+
+% ── R2 train A: a classifier and an adversarial input ───────────────────────
+system_relies_on(spam_filter, lexical_pattern_matching).
+strategy_failure_condition(lexical_pattern_matching, surface_form_shift).
+strategy_benefit(lexical_pattern_matching, fast_detection_of_known_patterns).
+phenomenon_exploits(adversarial_spelling, surface_form_shift).
+phenomenon_example(adversarial_spelling, inserted_punctuation).
+example_observation(inserted_punctuation,
+  "writing a blocked word with inserted punctuation can evade an exact token pattern while remaining readable").
+
+% R2 train B: automated control and corrupted evidence.
+system_relies_on(autopilot, sensor_fusion).
+strategy_failure_condition(sensor_fusion, mutually_consistent_false_measurements).
+strategy_benefit(sensor_fusion, stable_estimation_from_noisy_inputs).
+phenomenon_exploits(sensor_spoofing, mutually_consistent_false_measurements).
+phenomenon_example(sensor_spoofing, coordinated_false_position).
+example_observation(coordinated_false_position,
+  "coherent but false position and motion readings can make a controller confidently estimate the wrong state").
+
+% R2 frozen held-out C: biological classification.
+system_relies_on(immune_system, self_nonself_discrimination).
+strategy_failure_condition(self_nonself_discrimination, mistaken_self_classification).
+strategy_benefit(self_nonself_discrimination, targeted_defense_against_pathogens).
+phenomenon_exploits(autoimmune_disease, mistaken_self_classification).
+phenomenon_example(autoimmune_disease, type_one_diabetes).
+example_observation(type_one_diabetes,
+  "immune cells attack insulin-producing beta cells after treating them as threats").
+
+% R2 evaluation world: ordinary knowledge, added only after the operator passed
+% on the three unrelated systems above.
+system_relies_on(human_visual_system, predictive_perception).
+strategy_failure_condition(predictive_perception, ambiguous_context).
+strategy_benefit(predictive_perception, fast_stable_interpretation).
+phenomenon_exploits(optical_illusion, ambiguous_context).
+phenomenon_example(optical_illusion, muller_lyer_illusion).
+example_observation(muller_lyer_illusion,
+  "equal-length lines appear different when inward- or outward-pointing fins change the surrounding depth cues").
+
+reasoning_gloss(spam_filter, "a spam filter").
+reasoning_gloss(adversarial_spelling, "adversarial spelling").
+reasoning_gloss(autopilot, "an autopilot").
+reasoning_gloss(sensor_spoofing, "sensor spoofing").
+reasoning_gloss(immune_system, "the immune system").
+reasoning_gloss(autoimmune_disease, "autoimmune disease").
+reasoning_gloss(human_visual_system, "the human visual system").
+reasoning_gloss(optical_illusion, "optical illusions").
+reasoning_gloss(lexical_pattern_matching, "lexical pattern matching").
+reasoning_gloss(sensor_fusion, "sensor fusion").
+reasoning_gloss(self_nonself_discrimination, "self/non-self discrimination").
+reasoning_gloss(predictive_perception, "predictive perception").
+reasoning_gloss(surface_form_shift, "changes in surface form").
+reasoning_gloss(mutually_consistent_false_measurements, "mutually consistent false measurements").
+reasoning_gloss(mistaken_self_classification, "mistaken classification of the body's own tissue").
+reasoning_gloss(ambiguous_context, "ambiguous context and learned visual assumptions").
+reasoning_gloss(fast_detection_of_known_patterns, "fast detection of familiar patterns").
+reasoning_gloss(stable_estimation_from_noisy_inputs, "a stable estimate from several noisy inputs").
+reasoning_gloss(targeted_defense_against_pathogens, "targeted defense against pathogens").
+reasoning_gloss(fast_stable_interpretation, "fast, stable interpretation from incomplete sensory data").
+reasoning_gloss(inserted_punctuation, "inserted punctuation").
+reasoning_gloss(coordinated_false_position, "coordinated false position data").
+reasoning_gloss(type_one_diabetes, "type 1 diabetes").
+reasoning_gloss(muller_lyer_illusion, "the Müller-Lyer illusion").
+
+% ── R3 process worlds ───────────────────────────────────────────────────────
+deadline_minutes(minutes_60, 60).
+reasoning_gloss(minutes_60, "the one-hour limit").
+
+% Train A: pour-over coffee.
+process_initial_state(pour_over_coffee, ingredients_ready).
+process_goal(pour_over_coffee, coffee_ready).
+process_action(pour_over_coffee, heat_coffee_water).
+process_action(pour_over_coffee, grind_coffee).
+process_action(pour_over_coffee, bloom_coffee).
+process_action(pour_over_coffee, pour_coffee).
+action_requires(heat_coffee_water, ingredients_ready).
+action_produces(heat_coffee_water, water_ready).
+action_requires(grind_coffee, water_ready).
+action_produces(grind_coffee, grounds_ready).
+action_requires(bloom_coffee, grounds_ready).
+action_produces(bloom_coffee, coffee_bloomed).
+action_requires(pour_coffee, coffee_bloomed).
+action_produces(pour_coffee, coffee_ready).
+action_instruction(heat_coffee_water, "Heat fresh water to about 93°C, below a rolling boil.").
+action_instruction(grind_coffee, "Grind the beans to a medium consistency and rinse the paper filter.").
+action_instruction(bloom_coffee, "Wet all grounds with a small amount of water and wait about 30 seconds for the bloom.").
+action_instruction(pour_coffee, "Pour the remaining water slowly in controlled circles and let it drain.").
+action_duration(heat_coffee_water, 5).
+action_duration(grind_coffee, 2).
+action_duration(bloom_coffee, 1).
+action_duration(pour_coffee, 4).
+
+% Train B: software release.
+process_initial_state(software_release, tests_passing).
+process_goal(software_release, release_deployed).
+process_action(software_release, build_release_artifact).
+process_action(software_release, stage_release).
+process_action(software_release, deploy_release).
+action_requires(build_release_artifact, tests_passing).
+action_produces(build_release_artifact, artifact_built).
+action_requires(stage_release, artifact_built).
+action_produces(stage_release, staging_verified).
+action_requires(deploy_release, staging_verified).
+action_produces(deploy_release, release_deployed).
+action_instruction(build_release_artifact, "Build an immutable versioned artifact from the tested commit and record its checksum.").
+action_instruction(stage_release, "Deploy that exact artifact to staging and run smoke and migration checks.").
+action_instruction(deploy_release, "Promote the verified artifact gradually, monitor health metrics, and retain a rollback path.").
+action_duration(build_release_artifact, 8).
+action_duration(stage_release, 12).
+action_duration(deploy_release, 10).
+
+% Frozen held-out C: emergency kit.
+process_initial_state(emergency_kit, household_needs_known).
+process_goal(emergency_kit, emergency_kit_ready).
+process_action(emergency_kit, inventory_emergency_supplies).
+process_action(emergency_kit, pack_emergency_supplies).
+process_action(emergency_kit, document_emergency_contacts).
+action_requires(inventory_emergency_supplies, household_needs_known).
+action_produces(inventory_emergency_supplies, supply_gaps_known).
+action_requires(pack_emergency_supplies, supply_gaps_known).
+action_produces(pack_emergency_supplies, supplies_packed).
+action_requires(document_emergency_contacts, supplies_packed).
+action_produces(document_emergency_contacts, emergency_kit_ready).
+action_instruction(inventory_emergency_supplies, "List household medical needs, water, food, lighting, radio, power, and local hazards before buying anything.").
+action_instruction(pack_emergency_supplies, "Fill the identified gaps, label expiry dates, and pack the supplies in an accessible waterproof container.").
+action_instruction(document_emergency_contacts, "Add contact, evacuation, medication, and utility-shutoff instructions, then schedule regular checks.").
+action_duration(inventory_emergency_supplies, 15).
+action_duration(pack_emergency_supplies, 30).
+action_duration(document_emergency_contacts, 10).
+
+% Evaluation process: flat-pack furniture without diagrams.
+process_initial_state(flat_pack_furniture, package_closed).
+process_goal(flat_pack_furniture, furniture_assembled).
+process_satisfies_constraint(flat_pack_furniture, no_diagrams).
+process_action(flat_pack_furniture, unpack_and_group_parts).
+process_action(flat_pack_furniture, identify_fasteners).
+process_action(flat_pack_furniture, assemble_frame_loose).
+process_action(flat_pack_furniture, square_furniture_frame).
+process_action(flat_pack_furniture, tighten_furniture_frame).
+process_action(flat_pack_furniture, install_furniture_panels).
+action_requires(unpack_and_group_parts, package_closed).
+action_produces(unpack_and_group_parts, parts_grouped).
+action_requires(identify_fasteners, parts_grouped).
+action_produces(identify_fasteners, fasteners_matched).
+action_requires(assemble_frame_loose, fasteners_matched).
+action_produces(assemble_frame_loose, frame_loose).
+action_requires(square_furniture_frame, frame_loose).
+action_produces(square_furniture_frame, frame_square).
+action_requires(tighten_furniture_frame, frame_square).
+action_produces(tighten_furniture_frame, frame_rigid).
+action_requires(install_furniture_panels, frame_rigid).
+action_produces(install_furniture_panels, furniture_assembled).
+action_instruction(unpack_and_group_parts, "Lay out every panel with finished faces protected; group matching pieces by size and hole pattern.").
+action_instruction(identify_fasteners, "Sort screws, dowels, cams, brackets, and tools, then match them to holes by diameter and depth without forcing anything.").
+action_instruction(assemble_frame_loose, "Insert dowels and start the frame fasteners only finger-tight so the joints can still move.").
+action_instruction(square_furniture_frame, "Stand the frame on a level surface, align all edges, and compare the two corner-to-corner diagonals until they match.").
+action_instruction(tighten_furniture_frame, "Tighten opposite corners gradually, rechecking that doors or drawers remain square and free.").
+action_instruction(install_furniture_panels, "Attach the back, shelves, doors, or drawers, fit anti-tip hardware, and load-test gently before use.").
+
+% Evaluation process: home beer brewing, with causal flavor annotations.
+process_initial_state(home_beer_brewing, equipment_ready).
+process_goal(home_beer_brewing, packaged_beer).
+process_action(home_beer_brewing, sanitize_brewing_equipment).
+process_action(home_beer_brewing, mash_grain).
+process_action(home_beer_brewing, boil_wort_with_hops).
+process_action(home_beer_brewing, cool_wort).
+process_action(home_beer_brewing, pitch_brewing_yeast).
+process_action(home_beer_brewing, ferment_beer).
+process_action(home_beer_brewing, package_beer).
+action_requires(sanitize_brewing_equipment, equipment_ready).
+action_produces(sanitize_brewing_equipment, equipment_sanitized).
+action_requires(mash_grain, equipment_sanitized).
+action_produces(mash_grain, sweet_wort_ready).
+action_requires(boil_wort_with_hops, sweet_wort_ready).
+action_produces(boil_wort_with_hops, boiled_wort).
+action_requires(cool_wort, boiled_wort).
+action_produces(cool_wort, cooled_wort).
+action_requires(pitch_brewing_yeast, cooled_wort).
+action_produces(pitch_brewing_yeast, fermentation_started).
+action_requires(ferment_beer, fermentation_started).
+action_produces(ferment_beer, fermented_beer).
+action_requires(package_beer, fermented_beer).
+action_produces(package_beer, packaged_beer).
+action_instruction(sanitize_brewing_equipment, "Clean first, then sanitize every vessel, hose, spoon, and package surface that will touch cooled wort or beer.").
+action_instruction(mash_grain, "Hold crushed malt in measured hot water at a controlled mash temperature, then separate the sweet wort.").
+action_instruction(boil_wort_with_hops, "Boil the wort vigorously and add hops at timed points: early for bitterness, late for aroma.").
+action_instruction(cool_wort, "Cool the covered wort rapidly to the yeast's pitching range to limit contamination and unwanted compounds.").
+action_instruction(pitch_brewing_yeast, "Transfer with minimal contamination, aerate as appropriate, pitch healthy yeast, and seal with an airlock.").
+action_instruction(ferment_beer, "Keep fermentation in the yeast strain's temperature range until gravity is stable, then allow conditioning time.").
+action_instruction(package_beer, "Bottle or keg with controlled carbonation, avoid oxygen pickup, and condition before tasting.").
+action_focus_effect(sanitize_brewing_equipment, flavor, preventing_sour_or_medicinal_off_flavors).
+action_focus_effect(mash_grain, flavor, controlling_body_fermentability_and_malt_character).
+action_focus_effect(boil_wort_with_hops, flavor, balancing_bitterness_hop_flavor_and_aroma).
+action_focus_effect(pitch_brewing_yeast, flavor, selecting_ester_and_phenol_character).
+action_focus_effect(ferment_beer, flavor, controlling_esters_fusel_alcohols_and_attenuation).
+
+% Evaluation process: three courses constrained to microwave + toaster.
+process_initial_state(microwave_toaster_meal, kitchen_ready).
+process_goal(microwave_toaster_meal, three_course_meal_ready).
+process_satisfies_constraint(microwave_toaster_meal, microwave_toaster_only).
+process_requires_explicit_resources(microwave_toaster_meal).
+process_action(microwave_toaster_meal, prepare_tomato_lentil_soup).
+process_action(microwave_toaster_meal, microwave_tomato_lentil_soup).
+process_action(microwave_toaster_meal, prepare_couscous_vegetables).
+process_action(microwave_toaster_meal, microwave_couscous_vegetables).
+process_action(microwave_toaster_meal, prepare_apple_crisp).
+process_action(microwave_toaster_meal, toast_apple_crisp_topping).
+process_action(microwave_toaster_meal, finish_three_courses).
+action_requires(prepare_tomato_lentil_soup, kitchen_ready).
+action_produces(prepare_tomato_lentil_soup, soup_prepared).
+action_requires(microwave_tomato_lentil_soup, soup_prepared).
+action_produces(microwave_tomato_lentil_soup, starter_ready).
+action_requires(prepare_couscous_vegetables, starter_ready).
+action_produces(prepare_couscous_vegetables, main_prepared).
+action_requires(microwave_couscous_vegetables, main_prepared).
+action_produces(microwave_couscous_vegetables, main_ready).
+action_requires(prepare_apple_crisp, main_ready).
+action_produces(prepare_apple_crisp, dessert_prepared).
+action_requires(toast_apple_crisp_topping, dessert_prepared).
+action_produces(toast_apple_crisp_topping, dessert_ready).
+action_requires(finish_three_courses, dessert_ready).
+action_produces(finish_three_courses, three_course_meal_ready).
+action_resource(microwave_tomato_lentil_soup, microwave).
+action_resource(microwave_couscous_vegetables, microwave).
+action_resource(toast_apple_crisp_topping, toaster).
+action_instruction(prepare_tomato_lentil_soup, "Starter: combine canned lentils, crushed tomatoes, stock, herbs, and a pinch of salt in a covered microwave-safe bowl.").
+action_instruction(microwave_tomato_lentil_soup, "Microwave the soup for 8–10 minutes, stirring halfway, then adjust seasoning and keep it covered.").
+action_instruction(prepare_couscous_vegetables, "Main: put couscous, frozen vegetables, hot stock, olive oil, and spices in a large microwave-safe dish.").
+action_instruction(microwave_couscous_vegetables, "Microwave for about 8 minutes, rest covered for 5 minutes, then fluff and add lemon.").
+action_instruction(prepare_apple_crisp, "Dessert: dice apples and mix them with cinnamon and a little sugar in a microwave-safe dish.").
+action_instruction(toast_apple_crisp_topping, "Microwave the apples until tender while the toaster browns a slice of oat bread; crumble it with chopped nuts over the apples.").
+action_instruction(finish_three_courses, "Serve the soup first, the couscous second, and the warm apple crisp last.").
+action_duration(prepare_tomato_lentil_soup, 5).
+action_duration(microwave_tomato_lentil_soup, 10).
+action_duration(prepare_couscous_vegetables, 5).
+action_duration(microwave_couscous_vegetables, 13).
+action_duration(prepare_apple_crisp, 5).
+action_duration(toast_apple_crisp_topping, 10).
+action_duration(finish_three_courses, 2).
+
+reasoning_gloss(pour_over_coffee, "Pour-over coffee").
+reasoning_gloss(software_release, "A software release").
+reasoning_gloss(emergency_kit, "An emergency kit").
+reasoning_gloss(flat_pack_furniture, "Flat-pack furniture assembly").
+reasoning_gloss(home_beer_brewing, "Home beer brewing").
+reasoning_gloss(microwave_toaster_meal, "A three-course microwave-and-toaster meal").
+reasoning_gloss(coffee_ready, "brewed coffee").
+reasoning_gloss(release_deployed, "a deployed release").
+reasoning_gloss(emergency_kit_ready, "a ready emergency kit").
+reasoning_gloss(furniture_assembled, "assembled and safety-checked furniture").
+reasoning_gloss(packaged_beer, "packaged, conditioned beer").
+reasoning_gloss(three_course_meal_ready, "three finished courses").
+reasoning_gloss(preventing_sour_or_medicinal_off_flavors, "whether contamination creates sour, medicinal, or phenolic off-flavors").
+reasoning_gloss(controlling_body_fermentability_and_malt_character, "body, fermentability, and malt character").
+reasoning_gloss(balancing_bitterness_hop_flavor_and_aroma, "the balance of bitterness, hop flavor, and aroma").
+reasoning_gloss(selecting_ester_and_phenol_character, "the yeast-derived ester and phenol profile").
+reasoning_gloss(controlling_esters_fusel_alcohols_and_attenuation, "esters, harsh fusel alcohols, and final attenuation").

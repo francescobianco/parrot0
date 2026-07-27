@@ -1,0 +1,591 @@
+% gen365 — reasoning graph pulled from the 2026-07-27 LLMSCORE failures.
+%
+% No question has a stored answer and no paragraph is a predicate payload.
+% A prompt selects a strategy and a topic.  The strategy selects a reusable
+% plan shape; the topic selects a domain.  Each plan facet is then constructed
+% from small subject --relation--> object claims and a reusable relation frame.
+%
+% The hot prompt path performs these joins mechanically in C because resolving
+% an unbound rule over the complete registry exceeded the one-second deadline.
+% The equivalent clauses remain queryable here: they state the deduction and
+% let kb.explain audit it without putting any vocabulary in C.
+
+reasoning_act_candidate($Act, $Evidence) :-
+    strategy_act($Strategy, $Act),
+    strategy_cue($Strategy, $Evidence).
+
+reasoning_domain_candidate($Domain, $Act, $Evidence) :-
+    reasoning_strategy($Domain, $Strategy),
+    strategy_act($Strategy, $Act),
+    reasoning_topic($Domain, $Topic),
+    topic_evidence($Topic, $Evidence).
+
+reasoning_plan_candidate($Act, $Facet, $Order, $Requirement) :-
+    strategy_act($Strategy, $Act),
+    strategy_shape($Strategy, $Shape),
+    shape_facet($Shape, $Facet, $Order, $Requirement).
+
+reasoning_claim_candidate($Domain, $Facet, $Subject, $Relation, $Object) :-
+    reasoning_edge($Domain, $Facet, $Edge),
+    claim_edge($Edge, $Subject, $Relation, $Object).
+
+% Short reusable realizers.  These are presentation knowledge, not claims.
+relation_frame(is, "{subject} is {object}.").
+relation_frame(are, "{subject} are {object}.").
+relation_frame(should_use, "{subject} should use {object}.").
+relation_frame(should_combine, "{subject} should combine {object}.").
+relation_frame(should_preserve, "{subject} should preserve {object}.").
+relation_frame(should_test, "{subject} should test {object}.").
+relation_frame(causes, "{subject} causes {object}.").
+relation_frame(produces, "{subject} produces {object}.").
+relation_frame(requires, "{subject} requires {object}.").
+relation_frame(require, "{subject} require {object}.").
+relation_frame(cannot, "{subject} cannot {object}.").
+relation_frame(limits, "{subject} is limited by {object}.").
+relation_frame(explains, "{subject} explains {object}.").
+relation_frame(explain, "{subject} explain {object}.").
+relation_frame(implies, "{subject} implies {object}.").
+relation_frame(preserves, "{subject} preserves {object}.").
+relation_frame(loses, "{subject} loses {object}.").
+relation_frame(retains, "{subject} retains {object}.").
+relation_frame(updates, "{subject} updates {object}.").
+relation_frame(update, "{subject} update {object}.").
+relation_frame(map_to, "{subject} map to {object}.").
+relation_frame(support, "{subject} support {object}.").
+relation_frame(produce, "{subject} produce {object}.").
+relation_frame(provide, "{subject} provide {object}.").
+relation_frame(tweet_step, "{subject} {object};").
+relation_frame(compare_with, "Compare {subject} with {object}.").
+relation_frame(test_by, "Test {subject} by {object}.").
+relation_frame(formalized_as, "{subject}: {object}.").
+relation_frame(mapped_to, "{subject} maps to {object}.").
+relation_frame(supports, "{subject} supports {object}.").
+relation_frame(separates, "{subject} separates {object}.").
+relation_frame(constrains, "{subject} constrains {object}.").
+
+% ── Reusable acts and plan shapes ────────────────────────────────────────────
+
+strategy_act(concrete_design_strategy, concrete_design).
+strategy_shape(concrete_design_strategy, concrete_design_shape).
+strategy_cue(concrete_design_strategy, "retrieval system").
+strategy_cue(concrete_design_strategy, "large-scale access").
+strategy_cue(concrete_design_strategy, "million simultaneous requests").
+strategy_cue(concrete_design_strategy, "without digital technology").
+strategy_cue(concrete_design_strategy, "blind person").
+strategy_cue(concrete_design_strategy, "visual cues").
+strategy_cue(concrete_design_strategy, "urban planning strategies").
+strategy_cue(concrete_design_strategy, "generate jokes").
+strategy_cue(concrete_design_strategy, "community of ants").
+strategy_cue(concrete_design_strategy, "classic maze").
+strategy_cue(concrete_design_strategy, "built entirely underground").
+strategy_cue(concrete_design_strategy, "architecture evolve").
+shape_facet(concrete_design_shape, proposal, 1, domain_required).
+shape_facet(concrete_design_shape, mechanism, 2, domain_required).
+shape_facet(concrete_design_shape, constraints, 3, domain_required).
+shape_facet(concrete_design_shape, validation, 4, domain_required).
+
+strategy_act(specific_explanation_strategy, specific_explanation).
+strategy_shape(specific_explanation_strategy, specific_explanation_shape).
+strategy_cue(specific_explanation_strategy, "minimum number of cuts").
+strategy_cue(specific_explanation_strategy, "explain why").
+strategy_cue(specific_explanation_strategy, "bayesian reasoning").
+strategy_cue(specific_explanation_strategy, "concrete examples").
+shape_facet(specific_explanation_shape, answer, 1, domain_required).
+shape_facet(specific_explanation_shape, mechanism, 2, domain_required).
+shape_facet(specific_explanation_shape, examples, 3, domain_required).
+shape_facet(specific_explanation_shape, qualification, 4, domain_required).
+
+strategy_act(compact_composition_strategy, compact_composition).
+strategy_shape(compact_composition_strategy, compact_composition_shape).
+strategy_cue(compact_composition_strategy, keyword(tweet)).
+strategy_cue(compact_composition_strategy, "280-character").
+strategy_cue(compact_composition_strategy, "encode the entire history").
+shape_facet(compact_composition_shape, artifact, 1, domain_required).
+shape_facet(compact_composition_shape, priorities, 2, domain_required).
+shape_facet(compact_composition_shape, rationale, 3, domain_required).
+
+strategy_act(culinary_synthesis_strategy, culinary_synthesis).
+strategy_shape(culinary_synthesis_strategy, culinary_synthesis_shape).
+strategy_cue(culinary_synthesis_strategy, "culinary traditions").
+strategy_cue(culinary_synthesis_strategy, "cultural significance").
+strategy_cue(culinary_synthesis_strategy, "create a dish").
+shape_facet(culinary_synthesis_shape, dish, 1, domain_required).
+shape_facet(culinary_synthesis_shape, components, 2, domain_required).
+shape_facet(culinary_synthesis_shape, preservation, 3, domain_required).
+shape_facet(culinary_synthesis_shape, rationale, 4, domain_required).
+
+strategy_act(sensory_translation_strategy, sensory_translation).
+strategy_shape(sensory_translation_strategy, sensory_translation_shape).
+strategy_cue(sensory_translation_strategy, "emotional tone").
+strategy_cue(sensory_translation_strategy, "color palette").
+strategy_cue(sensory_translation_strategy, "first movement").
+shape_facet(sensory_translation_shape, palette, 1, domain_required).
+shape_facet(sensory_translation_shape, mapping, 2, domain_required).
+shape_facet(sensory_translation_shape, rationale, 3, domain_required).
+
+% This strategy reuses the pre-existing proof act and proof plan.
+strategy_act(logical_proof_strategy, proof_exposition).
+strategy_cue(logical_proof_strategy, "logical argument").
+strategy_cue(logical_proof_strategy, "does not rely on diagrams").
+strategy_cue(logical_proof_strategy, "share a birthday").
+
+strategy_act(game_design_strategy, game_design).
+strategy_shape(game_design_strategy, game_design_shape).
+strategy_cue(game_design_strategy, "new sport").
+strategy_cue(game_design_strategy, "basic rules").
+strategy_cue(game_design_strategy, "scoring system").
+shape_facet(game_design_shape, concept, 1, domain_required).
+shape_facet(game_design_shape, rules, 2, domain_required).
+shape_facet(game_design_shape, scoring, 3, domain_required).
+shape_facet(game_design_shape, safety, 4, domain_required).
+
+strategy_act(philosophical_resource_strategy, philosophical_resource_analysis).
+strategy_shape(philosophical_resource_strategy, philosophical_resource_shape).
+strategy_cue(philosophical_resource_strategy, "philosophical implications").
+strategy_cue(philosophical_resource_strategy, "transferable resource").
+strategy_cue(philosophical_resource_strategy, "consciousness is a measurable").
+shape_facet(philosophical_resource_shape, ontology, 1, domain_required).
+shape_facet(philosophical_resource_shape, identity, 2, domain_required).
+shape_facet(philosophical_resource_shape, ethics, 3, domain_required).
+shape_facet(philosophical_resource_shape, institutions, 4, domain_required).
+shape_facet(philosophical_resource_shape, uncertainty, 5, domain_required).
+
+strategy_act(experiment_design_strategy, experiment_design).
+strategy_shape(experiment_design_strategy, experiment_design_shape).
+strategy_cue(experiment_design_strategy, "design an experiment").
+strategy_cue(experiment_design_strategy, "test whether").
+strategy_cue(experiment_design_strategy, "as opposed to").
+shape_facet(experiment_design_shape, hypothesis, 1, domain_required).
+shape_facet(experiment_design_shape, protocol, 2, domain_required).
+shape_facet(experiment_design_shape, controls, 3, domain_required).
+shape_facet(experiment_design_shape, criterion, 4, domain_required).
+
+strategy_act(counterfactual_art_strategy, counterfactual_art_analysis).
+strategy_shape(counterfactual_art_strategy, counterfactual_art_shape).
+strategy_cue(counterfactual_art_strategy, "all metaphors").
+strategy_cue(counterfactual_art_strategy, "literal statements").
+strategy_cue(counterfactual_art_strategy, "what would be lost").
+shape_facet(counterfactual_art_shape, change, 1, domain_required).
+shape_facet(counterfactual_art_shape, losses, 2, domain_required).
+shape_facet(counterfactual_art_shape, retained, 3, domain_required).
+shape_facet(counterfactual_art_shape, qualification, 4, domain_required).
+
+strategy_act(formalization_strategy, formalization).
+strategy_shape(formalization_strategy, formalization_shape).
+strategy_cue(formalization_strategy, "formal logical notation").
+strategy_cue(formalization_strategy, "navigation instructions").
+strategy_cue(formalization_strategy, "avoiding collisions").
+shape_facet(formalization_shape, vocabulary, 1, domain_required).
+shape_facet(formalization_shape, safety_formula, 2, domain_required).
+shape_facet(formalization_shape, progress_formula, 3, domain_required).
+shape_facet(formalization_shape, policy, 4, domain_required).
+
+strategy_act(decoding_strategy, decoding_strategy_analysis).
+strategy_shape(decoding_strategy, decoding_strategy_shape).
+strategy_cue(decoding_strategy, "decode their messages").
+strategy_cue(decoding_strategy, "chemical signals").
+strategy_cue(decoding_strategy, "alien species communicated").
+shape_facet(decoding_strategy_shape, sampling, 1, domain_required).
+shape_facet(decoding_strategy_shape, hypotheses, 2, domain_required).
+shape_facet(decoding_strategy_shape, experiments, 3, domain_required).
+shape_facet(decoding_strategy_shape, limits, 4, domain_required).
+
+% ── Domain selection graph ───────────────────────────────────────────────────
+
+reasoning_topic(manual_library_retrieval, manual_library_topic).
+reasoning_strategy(manual_library_retrieval, concrete_design_strategy).
+topic_evidence(manual_library_topic, keyword(library)).
+topic_evidence(manual_library_topic, "one copy").
+topic_evidence(manual_library_topic, "million simultaneous requests").
+topic_evidence(manual_library_topic, "without digital technology").
+topic_gate(manual_library_topic, keyword(library)).
+
+reasoning_topic(tricultural_dish, tricultural_dish_topic).
+reasoning_strategy(tricultural_dish, culinary_synthesis_strategy).
+topic_evidence(tricultural_dish_topic, keyword(ingredients)).
+topic_evidence(tricultural_dish_topic, "three unrelated").
+topic_evidence(tricultural_dish_topic, "culinary traditions").
+topic_evidence(tricultural_dish_topic, "cultural significance").
+topic_gate(tricultural_dish_topic, "culinary traditions").
+
+reasoning_topic(mobius_cutting, mobius_cutting_topic).
+reasoning_strategy(mobius_cutting, specific_explanation_strategy).
+topic_evidence(mobius_cutting_topic, keyword(mobius)).
+topic_evidence(mobius_cutting_topic, "möbius strip").
+topic_evidence(mobius_cutting_topic, "minimum number of cuts").
+topic_gate(mobius_cutting_topic, "möbius strip").
+
+reasoning_topic(civilization_compression, civilization_compression_topic).
+reasoning_strategy(civilization_compression, compact_composition_strategy).
+topic_evidence(civilization_compression_topic, "human civilization").
+topic_evidence(civilization_compression_topic, keyword(history)).
+topic_evidence(civilization_compression_topic, keyword(tweet)).
+topic_evidence(civilization_compression_topic, "280-character").
+topic_gate(civilization_compression_topic, "human civilization").
+
+reasoning_topic(accessible_music_learning, accessible_music_topic).
+reasoning_strategy(accessible_music_learning, concrete_design_strategy).
+topic_evidence(accessible_music_topic, "blind person").
+topic_evidence(accessible_music_topic, "musical instrument").
+topic_evidence(accessible_music_topic, "visual cues").
+topic_gate(accessible_music_topic, "blind person").
+
+reasoning_topic(reversing_gravity_city, reversing_gravity_topic).
+reasoning_strategy(reversing_gravity_city, concrete_design_strategy).
+topic_evidence(reversing_gravity_topic, "gravity occasionally reverses").
+topic_evidence(reversing_gravity_topic, "urban planning").
+topic_gate(reversing_gravity_topic, "gravity occasionally reverses").
+
+reasoning_topic(personalized_humor_machine, personalized_humor_topic).
+reasoning_strategy(personalized_humor_machine, concrete_design_strategy).
+topic_evidence(personalized_humor_topic, "generate jokes").
+topic_evidence(personalized_humor_topic, "specific individual").
+topic_evidence(personalized_humor_topic, "without pre-programming").
+topic_gate(personalized_humor_topic, "generate jokes").
+
+reasoning_topic(bayesian_early_bird, bayesian_early_bird_topic).
+reasoning_strategy(bayesian_early_bird, specific_explanation_strategy).
+topic_evidence(bayesian_early_bird_topic, "early bird catches the worm").
+topic_evidence(bayesian_early_bird_topic, "bayesian reasoning").
+topic_gate(bayesian_early_bird_topic, "early bird catches the worm").
+
+reasoning_topic(beethoven_fifth_palette, beethoven_fifth_topic).
+reasoning_strategy(beethoven_fifth_palette, sensory_translation_strategy).
+topic_evidence(beethoven_fifth_topic, keyword(beethoven)).
+topic_evidence(beethoven_fifth_topic, "first movement").
+topic_evidence(beethoven_fifth_topic, "color palette").
+topic_gate(beethoven_fifth_topic, keyword(beethoven)).
+
+reasoning_topic(birthday_pigeonhole, birthday_pigeonhole_topic).
+reasoning_strategy(birthday_pigeonhole, logical_proof_strategy).
+topic_evidence(birthday_pigeonhole_topic, "share a birthday").
+topic_evidence(birthday_pigeonhole_topic, "group of strangers").
+topic_evidence(birthday_pigeonhole_topic, "sufficiently large").
+topic_gate(birthday_pigeonhole_topic, "share a birthday").
+
+reasoning_topic(chess_parkour_sport, chess_parkour_topic).
+reasoning_strategy(chess_parkour_sport, game_design_strategy).
+topic_evidence(chess_parkour_topic, keyword(chess)).
+topic_evidence(chess_parkour_topic, keyword(parkour)).
+topic_evidence(chess_parkour_topic, "new sport").
+topic_gate(chess_parkour_topic, keyword(parkour)).
+
+reasoning_topic(transferable_consciousness, transferable_consciousness_topic).
+reasoning_strategy(transferable_consciousness, philosophical_resource_strategy).
+topic_evidence(transferable_consciousness_topic, keyword(consciousness)).
+topic_evidence(transferable_consciousness_topic, "transferable resource").
+topic_evidence(transferable_consciousness_topic, "like electricity").
+topic_gate(transferable_consciousness_topic, keyword(consciousness)).
+
+reasoning_topic(dog_tomorrow_experiment, dog_tomorrow_topic).
+reasoning_strategy(dog_tomorrow_experiment, experiment_design_strategy).
+topic_evidence(dog_tomorrow_topic, keyword(dog)).
+topic_evidence(dog_tomorrow_topic, keyword(tomorrow)).
+topic_evidence(dog_tomorrow_topic, "concept of tomorrow").
+topic_evidence(dog_tomorrow_topic, "immediate reward").
+topic_gate(dog_tomorrow_topic, keyword(tomorrow)).
+
+reasoning_topic(metaphorless_poetry, metaphorless_poetry_topic).
+reasoning_strategy(metaphorless_poetry, counterfactual_art_strategy).
+topic_evidence(metaphorless_poetry_topic, keyword(metaphors)).
+topic_evidence(metaphorless_poetry_topic, keyword(poetry)).
+topic_evidence(metaphorless_poetry_topic, "literal statements").
+topic_gate(metaphorless_poetry_topic, keyword(metaphors)).
+
+reasoning_topic(ant_colony_maze, ant_colony_maze_topic).
+reasoning_strategy(ant_colony_maze, concrete_design_strategy).
+topic_evidence(ant_colony_maze_topic, keyword(ants)).
+topic_evidence(ant_colony_maze_topic, "classic maze").
+topic_gate(ant_colony_maze_topic, keyword(ants)).
+
+reasoning_topic(pythagorean_similarity_proof, pythagorean_proof_topic).
+reasoning_strategy(pythagorean_similarity_proof, logical_proof_strategy).
+topic_evidence(pythagorean_proof_topic, keyword(pythagorean)).
+topic_evidence(pythagorean_proof_topic, "does not rely on diagrams").
+topic_gate(pythagorean_proof_topic, keyword(pythagorean)).
+
+reasoning_topic(underground_circadian_city, underground_circadian_topic).
+reasoning_strategy(underground_circadian_city, concrete_design_strategy).
+topic_evidence(underground_circadian_topic, "built entirely underground").
+topic_evidence(underground_circadian_topic, "no natural light").
+topic_evidence(underground_circadian_topic, "sense of day and night").
+topic_gate(underground_circadian_topic, "built entirely underground").
+
+reasoning_topic(crowded_market_robot, crowded_market_robot_topic).
+reasoning_strategy(crowded_market_robot, formalization_strategy).
+topic_evidence(crowded_market_robot_topic, keyword(robot)).
+topic_evidence(crowded_market_robot_topic, "crowded market").
+topic_evidence(crowded_market_robot_topic, "formal logical notation").
+topic_gate(crowded_market_robot_topic, "crowded market").
+
+reasoning_topic(alien_chemical_language, alien_chemical_topic).
+reasoning_strategy(alien_chemical_language, decoding_strategy).
+topic_evidence(alien_chemical_topic, "alien species").
+topic_evidence(alien_chemical_topic, "chemical signals").
+topic_evidence(alien_chemical_topic, "decode their messages").
+topic_gate(alien_chemical_topic, "chemical signals").
+
+% ── Atomic domain claims ─────────────────────────────────────────────────────
+% Each line pair adds one independently queryable reasoning edge. Long answers
+% emerge only because the selected plan joins several edges in facet order.
+
+reasoning_edge(manual_library_retrieval, proposal, library_proposal_1).
+claim_edge(library_proposal_1, "Regional request depots", should_combine,
+           "a hub-and-spoke physical distribution network").
+reasoning_edge(manual_library_retrieval, proposal, library_proposal_2).
+claim_edge(library_proposal_2, "The distribution network", should_use,
+           "paper catalogues, conveyors, pneumatic tubes, and rail dispatch").
+reasoning_edge(manual_library_retrieval, mechanism, library_mechanism_1).
+claim_edge(library_mechanism_1, "Requests for the same title", require,
+           "batching, scheduled reading sessions, or analog optical projection").
+reasoning_edge(manual_library_retrieval, constraints, library_constraint_1).
+claim_edge(library_constraint_1, "One unique physical book", cannot,
+           "give a million readers simultaneous exclusive possession").
+reasoning_edge(manual_library_retrieval, constraints, library_constraint_2).
+claim_edge(library_constraint_2, "Physical retrieval", limits,
+           "labour, travel time, preservation, and skewed demand").
+reasoning_edge(manual_library_retrieval, validation, library_validation_1).
+claim_edge(library_validation_1, "The catalogue and routes", should_test,
+           "a sudden million-request spike for one title").
+
+reasoning_edge(tricultural_dish, dish, dish_choice_1).
+claim_edge(dish_choice_1, "The dish", should_combine,
+           "Italian polenta, Oaxacan mole, and Japanese tsukemono").
+reasoning_edge(tricultural_dish, components, dish_components_1).
+claim_edge(dish_components_1, "The three components", should_preserve,
+           "their original ingredients, techniques, names, and regional credit").
+reasoning_edge(tricultural_dish, preservation, dish_preservation_1).
+claim_edge(dish_preservation_1, "Separate preparation", preserves,
+           "each component as something diners can also taste on its own").
+reasoning_edge(tricultural_dish, rationale, dish_rationale_1).
+claim_edge(dish_rationale_1, "Polenta, mole, and pickles", provide,
+           "base, depth and heat, and acidic crunch without erasing identity").
+
+reasoning_edge(mobius_cutting, answer, mobius_answer_1).
+claim_edge(mobius_answer_1, "One off-center longitudinal cut", is,
+           "enough to make two distinct linked pieces").
+reasoning_edge(mobius_cutting, mechanism, mobius_mechanism_1).
+claim_edge(mobius_mechanism_1, "A centerline cut", produces,
+           "one longer band with two half-twists, not two pieces").
+reasoning_edge(mobius_cutting, examples, mobius_example_1).
+claim_edge(mobius_example_1, "A cut one third of the width from an edge", produces,
+           "a narrow Möbius band linked with a longer two-twist band").
+reasoning_edge(mobius_cutting, qualification, mobius_qualification_1).
+claim_edge(mobius_qualification_1, "Centerline-only cutting", requires,
+           "two cuts, so the allowed cut path must be stated").
+
+reasoning_edge(civilization_compression, artifact, civilization_tweet_1).
+claim_edge(civilization_tweet_1, "Hunters", tweet_step, "learned").
+reasoning_edge(civilization_compression, artifact, civilization_tweet_2).
+claim_edge(civilization_tweet_2, "farmers", tweet_step, "settled").
+reasoning_edge(civilization_compression, artifact, civilization_tweet_3).
+claim_edge(civilization_tweet_3, "cities", tweet_step, "wrote laws").
+reasoning_edge(civilization_compression, artifact, civilization_tweet_4).
+claim_edge(civilization_tweet_4, "empires", tweet_step, "traded and fought").
+reasoning_edge(civilization_compression, artifact, civilization_tweet_5).
+claim_edge(civilization_tweet_5, "science and industry", tweet_step,
+           "mapped meaning and mechanized power").
+reasoning_edge(civilization_compression, priorities, civilization_priority_1).
+claim_edge(civilization_priority_1, "The compression", should_preserve,
+           "transitions in food, energy, coordination, knowledge, and moral inclusion").
+reasoning_edge(civilization_compression, rationale, civilization_rationale_1).
+claim_edge(civilization_rationale_1, "Cooperation and conflict", explain,
+           "both civilization's achievements and their human cost").
+
+reasoning_edge(accessible_music_learning, proposal, accessible_music_proposal_1).
+claim_edge(accessible_music_proposal_1, "Accessible instruction", should_use,
+           "audio models, tactile landmarks, verbal directions, and Braille music").
+reasoning_edge(accessible_music_learning, mechanism, accessible_music_mechanism_1).
+claim_edge(accessible_music_mechanism_1, "Each passage", requires,
+           "separate practice of posture, movement, rhythm, and sound").
+reasoning_edge(accessible_music_learning, constraints, accessible_music_constraint_1).
+claim_edge(accessible_music_constraint_1, "Sensory substitution", should_preserve,
+           "musical standards, consent, and the learner's independence").
+reasoning_edge(accessible_music_learning, validation, accessible_music_validation_1).
+claim_edge(accessible_music_validation_1, "The method", should_test,
+           "transfer to an unpractised passage without teacher prompts").
+
+reasoning_edge(reversing_gravity_city, proposal, gravity_city_proposal_1).
+claim_edge(gravity_city_proposal_1, "Streets and interiors", should_use,
+           "overhead nets, ceiling handrails, tether points, and refuge bays").
+reasoning_edge(reversing_gravity_city, mechanism, gravity_city_mechanism_1).
+claim_edge(gravity_city_mechanism_1, "Reversal alarms", should_use,
+           "automatic traffic stops, lift locks, and vehicle anchors").
+reasoning_edge(reversing_gravity_city, constraints, gravity_city_constraint_1).
+claim_edge(gravity_city_constraint_1, "Returning normal gravity", causes,
+           "a second impact risk after the upward phase").
+reasoning_edge(reversing_gravity_city, validation, gravity_city_validation_1).
+claim_edge(gravity_city_validation_1, "The safeguards", should_test,
+           "capture injuries, loose debris, warning time, and safe release").
+
+reasoning_edge(personalized_humor_machine, proposal, humor_proposal_1).
+claim_edge(humor_proposal_1, "The generator", should_combine,
+           "incongruity, misdirection, analogy, exaggeration, and callback").
+reasoning_edge(personalized_humor_machine, mechanism, humor_mechanism_1).
+claim_edge(humor_mechanism_1, "A contextual bandit", updates,
+           "the person's humor model from laughter, ratings, skips, and context").
+reasoning_edge(personalized_humor_machine, constraints, humor_constraint_1).
+claim_edge(humor_constraint_1, "Personalization", requires,
+           "consent, topic boundaries, privacy, novelty, and exploration limits").
+reasoning_edge(personalized_humor_machine, validation, humor_validation_1).
+claim_edge(humor_validation_1, "Newly generated jokes", should_test,
+           "sustained voluntary laughter against generic and random baselines").
+
+reasoning_edge(bayesian_early_bird, answer, early_bird_answer_1).
+claim_edge(early_bird_answer_1, "Acting early", supports,
+           "a higher prior probability that an opportunity remains available").
+reasoning_edge(bayesian_early_bird, mechanism, early_bird_mechanism_1).
+claim_edge(early_bird_mechanism_1, "Successes and failures", update,
+           "the probability and value of arriving early").
+reasoning_edge(bayesian_early_bird, examples, early_bird_example_1).
+claim_edge(early_bird_example_1, "Early applications and limited-stock shopping",
+           support, "acting before vacancies or goods disappear").
+reasoning_edge(bayesian_early_bird, qualification, early_bird_qualification_1).
+claim_edge(early_bird_qualification_1, "Late restocking or high waiting costs",
+           update, "the decision toward arriving later").
+
+reasoning_edge(beethoven_fifth_palette, palette, beethoven_palette_1).
+claim_edge(beethoven_palette_1, "The palette", should_combine,
+           "charcoal black, iron gray, dark crimson, steel blue, and white").
+reasoning_edge(beethoven_fifth_palette, mapping, beethoven_mapping_1).
+claim_edge(beethoven_mapping_1, "The four-note motif", mapped_to,
+           "repeating crimson blocks and sharp white flashes").
+reasoning_edge(beethoven_fifth_palette, rationale, beethoven_rationale_1).
+claim_edge(beethoven_rationale_1, "C minor, hard accents, and recurrence",
+           support, "dark urgency interrupted by compressed hard light").
+
+reasoning_edge(birthday_pigeonhole, context, birthday_context_1).
+claim_edge(birthday_context_1, "Calendar birthdays", are,
+           "at most 366 pigeonholes").
+reasoning_edge(birthday_pigeonhole, construction, birthday_construction_1).
+claim_edge(birthday_construction_1, "No shared birthday", implies,
+           "at most one person in each pigeonhole").
+reasoning_edge(birthday_pigeonhole, visual_invariant, birthday_invariant_1).
+claim_edge(birthday_invariant_1, "366 pigeonholes", cannot,
+           "hold 367 people with at most one person in each").
+reasoning_edge(birthday_pigeonhole, conclusion, birthday_conclusion_1).
+claim_edge(birthday_conclusion_1, "A group of 367 people", requires,
+           "at least two people sharing a birthday by the pigeonhole principle").
+
+reasoning_edge(chess_parkour_sport, concept, sport_concept_1).
+claim_edge(sport_concept_1, "Checkpoint Chess", should_combine,
+           "mirrored parkour lanes with one shared chessboard").
+reasoning_edge(chess_parkour_sport, rules, sport_rules_1).
+claim_edge(sport_rules_1, "Each cleared obstacle", produces,
+           "one legal chess move for the runner's team").
+reasoning_edge(chess_parkour_sport, scoring, sport_scoring_1).
+claim_edge(sport_scoring_1, "Checkmate", is,
+           "an immediate win").
+reasoning_edge(chess_parkour_sport, scoring, sport_scoring_2).
+claim_edge(sport_scoring_2, "Timed scoring", formalized_as,
+           "5 for check, 3 for a major capture, 1 for a minor piece or clean obstacle").
+reasoning_edge(chess_parkour_sport, safety, sport_safety_1).
+claim_edge(sport_safety_1, "The course", requires,
+           "padding, landing zones, spotters, height classes, and contact penalties").
+
+reasoning_edge(transferable_consciousness, ontology, consciousness_ontology_1).
+claim_edge(consciousness_ontology_1, "Measurable consciousness", separates,
+           "amount of experience from quality, memory, and personality").
+reasoning_edge(transferable_consciousness, identity, consciousness_identity_1).
+claim_edge(consciousness_identity_1, "Transfer", constrains,
+           "whether identity follows experience, memory, body, or causal continuity").
+reasoning_edge(transferable_consciousness, ethics, consciousness_ethics_1).
+claim_edge(consciousness_ethics_1, "A consciousness market", causes,
+           "risks of coercion, theft, depletion, addiction, and unequal personhood").
+reasoning_edge(transferable_consciousness, institutions, consciousness_institutions_1).
+claim_edge(consciousness_institutions_1, "Law", requires,
+           "minimum rights, measurement standards, consent, custody, and market limits").
+reasoning_edge(transferable_consciousness, uncertainty, consciousness_uncertainty_1).
+claim_edge(consciousness_uncertainty_1, "A consciousness meter", cannot,
+           "settle why experience exists or whether equal readings feel alike").
+
+reasoning_edge(dog_tomorrow_experiment, hypothesis, dog_hypothesis_1).
+claim_edge(dog_hypothesis_1, "An abstract tomorrow cue", should_test,
+           "next-day preparation across new places, objects, and rewards").
+reasoning_edge(dog_tomorrow_experiment, protocol, dog_protocol_1).
+claim_edge(dog_protocol_1, "Neutral now, later-today, and tomorrow symbols",
+           should_use, "token placement or tool saving before delayed activities").
+reasoning_edge(dog_tomorrow_experiment, controls, dog_controls_1).
+claim_edge(dog_controls_1, "Controls", should_combine,
+           "matched delays, blinded handlers, random days, and unrewarded probes").
+reasoning_edge(dog_tomorrow_experiment, criterion, dog_criterion_1).
+claim_edge(dog_criterion_1, "Evidence for tomorrow", requires,
+           "24-hour discrimination and transfer beyond simple delay conditioning").
+
+reasoning_edge(metaphorless_poetry, change, poetry_change_1).
+claim_edge(poetry_change_1, "Literal-only poetry", should_use,
+           "sound, rhythm, syntax, line break, repetition, and sensory description").
+reasoning_edge(metaphorless_poetry, losses, poetry_losses_1).
+claim_edge(poetry_losses_1, "Poetry without metaphor", loses,
+           "compression, ambiguity, conceptual surprise, and layered meaning").
+reasoning_edge(metaphorless_poetry, retained, poetry_retained_1).
+claim_edge(poetry_retained_1, "Poetry", retains,
+           "rhyme, pacing, visual layout, dramatic voice, and irony").
+reasoning_edge(metaphorless_poetry, qualification, poetry_qualification_1).
+claim_edge(poetry_qualification_1, "Complete literalness", requires,
+           "replacing dead metaphors such as grasp, depth, and line").
+
+reasoning_edge(ant_colony_maze, proposal, ants_proposal_1).
+claim_edge(ants_proposal_1, "The maze", should_use,
+           "a nest at the entrance and food at the goal").
+reasoning_edge(ant_colony_maze, mechanism, ants_mechanism_1).
+claim_edge(ants_mechanism_1, "Short routes", produce,
+           "faster pheromone reinforcement while evaporation weakens long routes").
+reasoning_edge(ant_colony_maze, constraints, ants_constraint_1).
+claim_edge(ants_constraint_1, "Convergence", limits,
+           "small colonies, weak evaporation, crowding, noise, and random lock-in").
+reasoning_edge(ant_colony_maze, validation, ants_validation_1).
+claim_edge(ants_validation_1, "The colony's route", should_test,
+           "shortest-path error, convergence time, and obstacle recovery").
+
+reasoning_edge(pythagorean_similarity_proof, context, pythagorean_context_1).
+claim_edge(pythagorean_context_1, "The altitude to hypotenuse c", produces,
+           "segments p and q and two triangles similar to the original").
+reasoning_edge(pythagorean_similarity_proof, construction, pythagorean_construction_1).
+claim_edge(pythagorean_construction_1, "Similarity", implies,
+           "a squared = c times p and b squared = c times q").
+reasoning_edge(pythagorean_similarity_proof, visual_invariant, pythagorean_invariant_1).
+claim_edge(pythagorean_invariant_1, "The hypotenuse partition", implies,
+           "p + q = c").
+reasoning_edge(pythagorean_similarity_proof, conclusion, pythagorean_conclusion_1).
+claim_edge(pythagorean_conclusion_1, "Adding the two equations", produces,
+           "a squared + b squared = c times (p + q) = c squared").
+
+reasoning_edge(underground_circadian_city, proposal, underground_proposal_1).
+claim_edge(underground_proposal_1, "Luminous public courts", should_use,
+           "warm dawn, blue-white day, amber evening, and real darkness").
+reasoning_edge(underground_circadian_city, mechanism, underground_mechanism_1).
+claim_edge(underground_mechanism_1, "High daytime and low warm evening light",
+           supports, "circadian timing and melatonin release").
+reasoning_edge(underground_circadian_city, constraints, underground_constraint_1).
+claim_edge(underground_constraint_1, "The city clock", should_preserve,
+           "blackout control, shift-worker schedules, safety, and energy limits").
+reasoning_edge(underground_circadian_city, validation, underground_validation_1).
+claim_edge(underground_validation_1, "Lighting schedules", should_test,
+           "sleep, melatonin, alertness, mood, wayfinding, and energy use").
+
+reasoning_edge(crowded_market_robot, vocabulary, robot_vocabulary_1).
+claim_edge(robot_vocabulary_1, "The formal state", should_use,
+           "robot position x_r(t), person positions x_p(t), actions A(t), and Goal(x)").
+reasoning_edge(crowded_market_robot, safety_formula, robot_safety_1).
+claim_edge(robot_safety_1, "Safety", formalized_as,
+           "G forall p: Person(p,t) -> distance(x_r(t),x_p(t)) >= d_safe(v_r(t))").
+reasoning_edge(crowded_market_robot, progress_formula, robot_progress_1).
+claim_edge(robot_progress_1, "Progress", formalized_as,
+           "F Goal(x_r) with x_r(t+1) = Motion(x_r(t),a(t)) and G not Collision").
+reasoning_edge(crowded_market_robot, policy, robot_policy_1).
+claim_edge(robot_policy_1, "The robot", should_use,
+           "the least-cost safe action, continuous replanning, yielding, and Stop").
+
+reasoning_edge(alien_chemical_language, sampling, alien_sampling_1).
+claim_edge(alien_sampling_1, "Signal sampling", should_use,
+           "chromatography, mass spectrometry, timing, location, and observed response").
+reasoning_edge(alien_chemical_language, hypotheses, alien_hypothesis_1).
+claim_edge(alien_hypothesis_1, "Compounds, mixtures, order, and gradients", map_to,
+           "candidate words, simultaneous features, syntax, and deixis").
+reasoning_edge(alien_chemical_language, experiments, alien_experiment_1).
+claim_edge(alien_experiment_1, "Controlled replay", should_test,
+           "one component, order, concentration, and novel composition at a time").
+reasoning_edge(alien_chemical_language, limits, alien_limits_1).
+claim_edge(alien_limits_1, "Decoding", limits,
+           "diffusion, persistence, contamination, adaptation, and accidental threats").

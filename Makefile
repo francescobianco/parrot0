@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat chat-agent pi test test-engine legacy-test check gate capability-facts capability-report piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat chat-agent pi test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -230,6 +230,22 @@ llmscore-tail:
 # class over a held-out battery. No API, deterministic; the development metric.
 llmscore-probe: build
 	@$(BENCH_PY) ./tests/llmscore_probe.py
+
+# Deterministic structural measure + proof probes for the living KB model.
+# Unlike LLMSCORE this is a local ratchet: it measures edges and derivations,
+# not linguistic polish.
+model-graph: build
+	@$(BENCH_PY) ./scripts/kb_graph.py
+	@./tests/model_graph.sh
+
+# Focused local ratchet for the 19 zero-vote prompts in the 2026-07-27 report.
+# Exact isolated prompts + runtime growth proofs; no remote judge, no full suite.
+llmscore-arcs: build
+	@./tests/llmscore_arcs.sh
+
+# Focused cross-domain ratchet for Task IR and transferable reasoning operators.
+reasoning-operators: build
+	@./tests/reasoning_operators.sh
 
 # AUTOLEARN (F., 2026-07-10) — the autonomous MCP trainer (T0.e, docs/plans/
 # llmscore-strategies.md). An opencode-GO model interviews parrot0, judges each

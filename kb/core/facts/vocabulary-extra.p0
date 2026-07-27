@@ -150,3 +150,9 @@ word_for("the study of living things", biology).
 word_for("the study of the stars and planets", astronomy).
 word_for("the study of the past", history).
 word_for("the study of numbers and shapes", mathematics).
+
+% gen365 — reify lexical tables as typed graph edges.  The words remain
+% teachable facts; one learned synonym or antonym immediately appears in the
+% same relation model without a C edit.
+word_relation($A, $B, synonymy) :- synonym($A, $B).
+word_relation($A, $B, antonymy) :- opposite($A, $B).

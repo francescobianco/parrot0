@@ -31,3 +31,32 @@ answer_frame(died_in_year, died_in_year).
 answer_frame(year, happened_in_year).
 answer_frame(founded_in_year, founded_in_year).
 answer_frame(built_in_year, built_in_year).
+
+% gen365 — temporal model over the existing historical corpus.
+% The era files above already provide the observations; these clauses connect
+% them so one operation applies across events, inventions, discoveries, builds,
+% launches and sinkings instead of leaving each table as a private island.
+happened_in($Event, $Year) :- happened_in_year($Event, $Year).
+
+historical_year($Thing, $Year) :- happened_in_year($Thing, $Year).
+historical_year($Thing, $Year) :- invented_in_year($Thing, $Year).
+historical_year($Thing, $Year) :- discovered_in_year($Thing, $Year).
+historical_year($Thing, $Year) :- founded_in_year($Thing, $Year).
+historical_year($Thing, $Year) :- built_in_year($Thing, $Year).
+historical_year($Thing, $Year) :- launched_in_year($Thing, $Year).
+historical_year($Thing, $Year) :- sank_in_year($Thing, $Year).
+
+% Pure joins retain an inspectable proof; numeric relations use the general
+% comparison primitives already supplied by the fixed resolver.
+historical_lifespan($Person, $Birth, $Death) :-
+    born_in_year($Person, $Birth), died_in_year($Person, $Death).
+shared_birth_year($P1, $P2, $Year) :-
+    born_in_year($P1, $Year), born_in_year($P2, $Year).
+shared_death_year($P1, $P2, $Year) :-
+    died_in_year($P1, $Year), died_in_year($P2, $Year).
+historical_before($Earlier, $Later) :-
+    historical_year($Earlier, $Y1), historical_year($Later, $Y2), lt($Y1, $Y2).
+lives_overlap($P1, $P2) :-
+    born_in_year($P1, $B1), died_in_year($P1, $D1),
+    born_in_year($P2, $B2), died_in_year($P2, $D2),
+    le($B1, $D2), le($B2, $D1).

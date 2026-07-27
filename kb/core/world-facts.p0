@@ -3832,11 +3832,13 @@ answer_frame("miles to km", miles_to_km).
 :- include(facts/encyclopedia.p0).
 % gen360: reusable semantic atoms for complete open-ended answer plans.
 :- include(facts/analysis.p0).
+:- include(facts/llmscore-arcs.p0).
 % gen356: the deterministic Wikipedia summaries produced by scripts/learn.py were
 % previously dormant in ordinary chat. They are certified static data, not an
 % external reasoner; load them into the same world layer as curated definitions.
 :- include(../learning/learned.p0).
 :- include(facts/reasoning.p0).
+:- include(facts/operator-worlds.p0).
 :- include(facts/geography-world.p0).
 :- include(facts/science-nature.p0).
 :- include(facts/history-people.p0).

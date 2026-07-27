@@ -1865,3 +1865,88 @@ artifact_type(time_accident_story, story).
 artifact_type(villain_salvation_monologue, monologue).
 artifact_type(alien_two_suns_species, description).
 artifact_type(cultural_fusion_holiday, description).
+
+% ── gen366: Task IR surface knowledge ───────────────────────────────────────
+%
+% C binds spans and runs operators; these facts decide which language forms
+% denote an operation, deliverable, entity or goal.  Every relation therefore
+% grows and retracts at runtime without rebuilding.
+task_operation_cue(goal_comparison, keyword(compare)).
+task_operation_cue(goal_comparison, keyword(contrast)).
+task_operation_cue(goal_comparison, "choose between").
+task_operation_cue(goal_comparison, "which should").
+task_operation_cue(goal_comparison, "which is better").
+
+task_operation_cue(failure_explanation, "susceptible to").
+task_operation_cue(failure_explanation, "vulnerable to").
+task_operation_cue(failure_explanation, "fooled by").
+task_operation_cue(ordered_procedure, "step-by-step").
+task_operation_cue(ordered_procedure, "step by step").
+task_operation_cue(ordered_procedure, "instruction manual").
+task_operation_cue(ordered_procedure, "process of").
+task_operation_cue(ordered_procedure, keyword(assembling)).
+task_operation_cue(ordered_procedure, keyword(recipe)).
+
+task_deliverable_cue(reasoned_choice, "which should").
+task_deliverable_cue(reasoned_choice, "which is better").
+task_deliverable_cue(reasoned_choice, keyword(choose)).
+task_deliverable_cue(reasoned_choice, keyword(recommend)).
+task_deliverable_cue(causal_account, "explain why").
+task_deliverable_cue(causal_account, keyword(why)).
+task_deliverable_cue(causal_account, keyword(explain)).
+task_deliverable_cue(ordered_steps, "step-by-step").
+task_deliverable_cue(ordered_steps, "step by step").
+task_deliverable_cue(instruction_manual, "instruction manual").
+task_deliverable_cue(recipe, keyword(recipe)).
+task_deliverable_cue(process_description, "process of").
+
+task_entity_cue(bicycle, keyword(bicycle)).
+task_entity_cue(car, keyword(car)).
+task_entity_cue(array, keyword(array)).
+task_entity_cue(linked_list, "linked list").
+task_entity_cue(glass, keyword(glass)).
+task_entity_cue(polycarbonate, keyword(polycarbonate)).
+task_entity_cue(spam_filter, "spam filter").
+task_entity_cue(adversarial_spelling, "adversarial spelling").
+task_entity_cue(autopilot, keyword(autopilot)).
+task_entity_cue(sensor_spoofing, "sensor spoofing").
+task_entity_cue(immune_system, "immune system").
+task_entity_cue(autoimmune_disease, "autoimmune disease").
+task_entity_cue(human_visual_system, "human brain").
+task_entity_cue(human_visual_system, "visual system").
+task_entity_cue(optical_illusion, "optical illusion").
+task_entity_cue(optical_illusion, "optical illusions").
+task_entity_cue(pour_over_coffee, "pour-over coffee").
+task_entity_cue(pour_over_coffee, "pour over coffee").
+task_entity_cue(software_release, "software release").
+task_entity_cue(emergency_kit, "emergency kit").
+task_entity_cue(flat_pack_furniture, "flat-pack furniture").
+task_entity_cue(flat_pack_furniture, "flat pack furniture").
+task_entity_cue(home_beer_brewing, "brewing beer at home").
+task_entity_cue(home_beer_brewing, "home brewing").
+task_entity_cue(home_beer_brewing, "brew beer at home").
+task_entity_cue(microwave_toaster_meal, "three-course meal").
+task_entity_cue(microwave_toaster_meal, "three course meal").
+
+task_goal_cue(low_emission_urban_trip, "low-emission urban trip").
+task_goal_cue(low_emission_urban_trip, "low emission urban trip").
+task_goal_cue(low_emission_urban_trip, "low-emission short trip").
+task_goal_cue(random_access_workload, "random access").
+task_goal_cue(random_access_workload, "indexed access").
+task_goal_cue(impact_resistant_guard, "impact-resistant").
+task_goal_cue(impact_resistant_guard, "impact resistant").
+task_goal_cue(impact_resistant_guard, "resistance to impacts").
+
+task_resource_cue(microwave, keyword(microwave)).
+task_resource_cue(toaster, keyword(toaster)).
+
+task_constraint_cue(no_diagrams, "without using the included diagrams").
+task_constraint_cue(no_diagrams, "without diagrams").
+task_constraint_cue(microwave_toaster_only, "only a microwave and a toaster").
+task_constraint_cue(microwave_toaster_only, "using only a microwave").
+
+task_focus_cue(flavor, keyword(flavor)).
+task_focus_cue(flavor, keyword(flavour)).
+
+task_deadline_cue(minutes_60, "under an hour").
+task_deadline_cue(minutes_60, "within an hour").

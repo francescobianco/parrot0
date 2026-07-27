@@ -27,3 +27,31 @@ proper_name(mary_shelley).
 proper_name(don_quixote).
 proper_name(ancient_rome).
 proper_name(middle_ages).
+
+% gen366 R1: generic realization of proof-carrying comparisons.  These frames
+% contain no domain entity or conclusion; C fills them only from derived
+% task_difference/task_goal_match results.
+task_response_frame(comparison_first,
+  "{x} and {y} differ on {dimension}: {x} has {x_property}, while {y} has {y_property}.").
+task_response_frame(comparison_next,
+  "On {dimension}, {x} has {x_property}, while {y} has {y_property}.").
+task_response_frame(comparison_choice,
+  "For {goal}, {winner} is the better fit because it provides {matches}.").
+task_response_frame(comparison_tie,
+  "For {goal}, neither option matches more stated requirements; the choice depends on which differing property matters most.").
+task_response_frame(failure_explanation,
+  "{system} is susceptible to {phenomenon} because it relies on {strategy}. This phenomenon exploits {condition}. That strategy is normally useful because it provides {benefit}. For example, {example}: {observation}.").
+task_response_frame(procedure_intro,
+  "{process}, in dependency order:").
+task_response_frame(procedure_intro_deadline,
+  "{process} fits {deadline} with about {minutes} minutes of active and cooking time:").
+task_response_frame(procedure_step,
+  "{number}. {instruction}").
+task_response_frame(procedure_step_focus,
+  "{number}. {instruction} This step strongly affects {impact}.").
+task_response_frame(procedure_finish,
+  "These actions reach {goal}.").
+
+machinery(task_response_frame).
+machinery(reasoning_gloss).
+machinery(property_gloss).
