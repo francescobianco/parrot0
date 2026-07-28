@@ -1,4 +1,4 @@
-te# Learning Mesh — catene di addestramento su una KB condivisa
+# Learning Mesh — catene di addestramento su una KB condivisa
 
 > **Stato:** primo esperimento eseguito dal vivo a **gen335 (2026-07-16)**.
 > Teacher LLM (Claude) → parrot0 A → parrot0 B, con **una sola KB montata** via
@@ -14,6 +14,194 @@ te# Learning Mesh — catene di addestramento su una KB condivisa
 > [docs/use-mcp-engine.md](../use-mcp-engine.md).
 
 ---
+
+## ⇢ HANDOFF / ripartenza (2026-07-28, gen367)
+
+### Dove siamo davvero
+
+La base consegnata è il commit `e1920fd` (`gen367: generalize reasoning over
+open concepts`), costruito sopra `4a3f3be` (`gen366: add transferable reasoning
+operators`). Al momento dell'handoff `main` era pulito e allineato con
+`origin/main`.
+
+Il risultato **non è 20/20** e non va presentato come tale. Dopo gen366/gen367
+non è stato eseguito un altro LLMSCORE remoto: l'ultimo report committato,
+precedente agli operatori, resta 0/20. Il solo gate recente e pertinente è:
+
+- `tests/reasoning_operators.sh`: **43/43**;
+- `make build`: pulito, senza warning;
+- nessuna suite completa eseguita, per richiesta esplicita di F.
+
+Il problema aperto non è «quale altra risposta manca?». È: **quale operazione di
+ragionamento manca per ricondurre prompt nuovi a una struttura già nota?** Ogni
+agente che riparte deve resistere alla tentazione di leggere una domanda fallita
+e insegnarne il contenuto. Le code LLMSCORE ruotano: una correzione che nomina il
+tema corrente non guadagna terreno sulla coda successiva.
+
+### Punto fisso raggiunto: R1–R4
+
+Il lavoro già presente non è un phrasebook. Quattro famiglie usano relazioni
+generali, termini aperti e clausole condivise:
+
+1. **R1 — confronto orientato a un obiettivo.**
+   `effective_property`, `effective_goal_prefers`, `task_difference` e
+   `task_goal_match` confrontano alternative registrate o composti mai
+   registrati. `linen shirt`/`wool coat` e `paper carton`/`plastic crate`
+   attraversano lo stesso operatore.
+2. **R2 — spiegazione causale di un fallimento.**
+   `effective_system_relies_on`, `effective_phenomenon_exploits` ed
+   `effective_phenomenon_example` compongono parti, dipendenze e fenomeni.
+   Gli esempi sono eventi strutturati
+   `example_event(Example, Subject, Relation, Object)`, non frasi salvate.
+3. **R3 — procedura ordinata sotto vincoli.**
+   `process_product`, `product_input`, `action_consumes`,
+   `action_semantics(Action, Verb, Patient)`, `action_parameter`,
+   `action_requires`, `action_produces` e `process_input_covered/4`
+   costituiscono un piccolo calcolo di azioni. Il C fa solo ordinamento
+   topologico, binding, verifica di copertura e resa dei campi semantici.
+   Nessun mondo operatore contiene `action_instruction/2`.
+4. **R4 — sintesi per copertura di requisiti.**
+   `task_candidate`, `task_requirement` e `task_feature_match` scelgono
+   caratteristiche che coprono tutti i requisiti estratti da termini aperti.
+   Le stesse `action_semantics` rendono le caratteristiche.
+
+Il `ReasoningTask` è la Task IR comune. Operazione, deliverable, entità,
+obiettivo, risorse, vincoli, focus e deadline vengono legati attraverso
+registri KB-first. `task_span_pattern/4` e `task_boundary_cue/2` delimitano
+span aperti; `task_term_concept/2` proietta gli n-grammi concettuali
+contigui. `task_entity_cue` è un alias opzionale, **non** la lista delle cose
+che il sistema può ragionare.
+
+File da leggere prima di toccare il comportamento:
+
+- `PRINCIPLES.md`;
+- `docs/plans/the-model-plan.md`, soprattutto §§12.5–12.6;
+- `src/brain/10-memory-knowledge.c`;
+- `kb/core/procedures.p0`, `kb/core/intents.p0`,
+  `kb/core/presentation.p0`;
+- `kb/core/facts/operator-worlds.p0`;
+- `tests/reasoning_operators.sh`.
+
+### Invarianti: «Astrai fino al punto fisso»
+
+Prima di aggiungere un predicato, chiedere:
+
+> È una relazione nuova, oppure la stessa relazione vista attraverso un altro
+> verbo, sostantivo o dominio?
+
+`wrote`/`painted`/`composed` non sono tre predicati: sono valori del campo
+`Verb` di una sola relazione. Analogamente, birra, caffè, release e kit non sono
+quattro recognizer: sono mondi di fatti attraversati dal medesimo calcolo di
+azioni. Il test del punto fisso è sostituire tutti i nomi del dominio: se
+l'operatore resta identico, la scomposizione è sufficientemente astratta.
+
+Vincoli non negoziabili:
+
+- niente fatto, cue o entità preso dalla coda LLMSCORE corrente o passata;
+- niente payload di risposta in `claim_text`, `scenario_text`,
+  `action_instruction` o equivalenti;
+- niente predicato per verbo o per argomento;
+- niente literal NL in C per riconoscere connettivi, preposizioni, question
+  form, sinonimi o boundary: tutto ciò è conoscenza interrogabile nella KB;
+- il C può implementare solo meccanica fissa: tokenizzazione, slot binding,
+  ordinamento, deduplica, ricerca limitata, aritmetica e inferenza;
+- ogni recognizer linguistico nuovo deve avere un test assert/retract a runtime;
+- un test golden da solo non dimostra KB-first;
+- una spiegazione deve poter esibire gli archi/clausole usati, non soltanto una
+  frase plausibile.
+
+Smell check rapido:
+
+```sh
+rg 'action_instruction\(|example_observation\(' kb/core/facts/operator-worlds.p0
+rg 'task_entity_cue' kb/core/facts/operator-worlds.p0
+```
+
+Il primo comando deve restare vuoto. Il secondo richiede una giustificazione
+come alias reale; non si aggiunge un'entità solo per far passare un prompt.
+
+### Ripartenza esatta: R5, proiezione causale/counterfactual
+
+Il prossimo passo non è un'altra tassonomia. È un unico operatore che, dato uno
+stato iniziale, percorre conseguenze a profondità maggiore di uno. Specifica
+minima consigliata:
+
+```prolog
+causal_transition(Prior, Relation, Next).
+scenario_seed(Concept, State).
+
+scenario_effect(Scenario, State) :-
+    scenario_seed(Scenario, State).
+scenario_effect(Scenario, Next) :-
+    scenario_effect(Scenario, Prior),
+    causal_transition(Prior, Relation, Next).
+```
+
+La sintassi concreta dovrà rispettare il dialect e le salvaguardie di
+terminazione già documentate; il frammento descrive l'IR, non autorizza
+left-recursion incontrollata. `Relation` è un campo: causa, impedisce, sposta,
+riduce o amplifica non diventano cinque predicati.
+
+Procedura per un coding agent:
+
+1. **Scomporre il prompt senza rispondergli.** Annotare operazione richiesta,
+   stato mutato, dominio, vincoli, orizzonte e deliverable. Se una parola del
+   prompt compare nella proposta di nome di un predicato, fermarsi e tentare
+   un'astrazione ulteriore.
+2. **Disegnare il grafo.** Ogni sostantivo è candidato a stato/entità; ogni
+   cambiamento è un arco con `Relation` come dato; adattamenti e feedback sono
+   altri archi, non paragrafi. Separare la selezione degli archi dalla loro
+   verbalizzazione.
+3. **Derivare la chiusura.** La KB deve contenere la regola ricorsiva generale;
+   il C può fare una BFS limitata soltanto per evitare cicli, ordinare per
+   profondità e deduplicare.
+4. **Rendere da campi.** Aggiungere frame KB-backed per rendere
+   `{prior} {relation} {next}` e la catena. Non salvare la catena già scritta
+   in prosa.
+5. **Addestrare su mondi disgiunti.** Prima del codice fissare due mondi di
+   training e un terzo held-out, tutti inventati localmente e non presi da
+   LLMSCORE. Esempi accettabili: interruzione elettrica, ingresso scolastico
+   posticipato, rimozione dei parcheggi. I nomi non devono entrare nel C.
+6. **Ablare l'operatore, non decorare l'output.** Rimuovere la clausola generale
+   deve rompere tutti e tre i mondi; rimuovere un arco locale deve rompere solo
+   il mondo che lo usa. Se non accade, il test non sta misurando trasferimento.
+
+Gate puntuale di R5:
+
+- lo span nuovo arriva nella Task IR senza un nuovo `task_entity_cue`;
+- il proof contiene almeno due `causal_transition`;
+- ablazione della clausola generale: falliscono training e held-out;
+- ablazione di un arco locale: fallisce un solo mondo;
+- assert/retract di una nuova cue di richiesta cambia il riconoscimento senza
+  rebuild;
+- ogni probe locale termina entro un secondo.
+
+Solo questi comandi sono autorizzati durante questa fase:
+
+```sh
+make build
+make reasoning-operators
+```
+
+Non lanciare `make test`. Non lanciare `make llmscore` finché R5 non supera il
+gate e non sono state affrontate almeno anche le famiglie successive:
+
+- **argomentazione:** conflitto e composizione fra principi, evidenze e
+  conseguenze, non una raccolta di opinioni;
+- **composizione creativa:** ricerca di una combinazione che soddisfa vincoli
+  simultanei, non una ricetta o un dialogo pre-scritto.
+
+Il remoto va usato alla fine come misura su una coda sempre nuova, mai come
+dataset. Non aprire `.llmscore_tail.json` per addestrare. Un aumento credibile è
+trasferimento su prompt ignoti; 20 fix locali non sono 20 punti.
+
+### Criterio di chiusura
+
+Questo fronte è chiuso soltanto quando code indipendenti mostrano che le stesse
+clausole servono domini e formulazioni non presenti nei mondi di training,
+senza crescita prompt-specifica della KB o del C. Fino ad allora riportare:
+famiglie implementate, prove di ablazione, latenza e score reale. Non dichiarare
+«LLM-like» né 20/20 in anticipo.
 
 ## 0. Giudizio critico e sintetico (in testa, come richiesto)
 

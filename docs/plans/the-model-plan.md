@@ -6,6 +6,9 @@
 > `generative-prolog`, `universal-solver`, `universal-comprehension`) presuppone
 > una struttura che questo documento dimostra assente, prevale questo documento
 > sull'**ordine dei lavori**, mai sui principi.
+>
+> **Handoff operativo corrente:** `docs/plans/learning-mesh.md`, sezione
+> “HANDOFF / ripartenza (2026-07-28, gen367)”.
 
 ---
 
