@@ -58,14 +58,161 @@ property_gloss(impact_resistance, high, "high impact resistance").
 property_gloss(optical_clarity, high, "high optical clarity").
 property_gloss(optical_clarity, medium, "moderate optical clarity").
 
+% R1 open-world concept composition.  None of the compared compound entities
+% is registered: task_term_concept/2 decomposes a new span and the same
+% effective_property/effective_goal_prefers rules inherit these atomic facts.
+property(ceramic, heat_retention, low).
+property(thermos, heat_retention, high).
+goal_prefers(thermal, heat_retention, high).
+
+property(linen, insulation, low).
+property(wool, insulation, high).
+goal_prefers(winter, insulation, high).
+
+property(paper, water_resistance, low).
+property(plastic, water_resistance, high).
+goal_prefers(rain, water_resistance, high).
+
+reasoning_gloss(heat_retention, "heat retention").
+reasoning_gloss(insulation, "insulation").
+reasoning_gloss(water_resistance, "water resistance").
+property_gloss(heat_retention, low, "low heat retention").
+property_gloss(heat_retention, high, "high heat retention").
+property_gloss(insulation, low, "low thermal insulation").
+property_gloss(insulation, high, "high thermal insulation").
+property_gloss(water_resistance, low, "low water resistance").
+property_gloss(water_resistance, high, "high water resistance").
+
+% ── R4 constraint synthesis worlds ─────────────────────────────────────────
+% Candidate features are ordinary objects with properties.  The operator
+% derives a covering set; no design answer or ordered list is stored.
+
+% Train A: a quiet notification system.
+goal_prefers(notification, alert_delivery, immediate).
+goal_prefers(quiet, acoustic_dependency, none).
+candidate_for(notification, haptic_pager).
+candidate_for(notification, low_intensity_visual_beacon).
+property(haptic_pager, alert_delivery, immediate).
+property(haptic_pager, acoustic_dependency, none).
+property(low_intensity_visual_beacon, alert_delivery, immediate).
+property(low_intensity_visual_beacon, acoustic_dependency, none).
+action_semantics(haptic_pager, pulse, wearable_pager).
+action_parameter(haptic_pager, method, with_distinct_vibration_patterns).
+action_produces(haptic_pager, silent_personal_alert).
+action_semantics(low_intensity_visual_beacon, display, shielded_status_light).
+action_parameter(low_intensity_visual_beacon, control, at_low_glare_near_the_recipient).
+action_produces(low_intensity_visual_beacon, silent_shared_alert).
+
+% Train B: a low-power sensor network with intermittent connectivity.
+goal_prefers(low_power, energy_use, low).
+goal_prefers(intermittent_connectivity, disconnection_tolerance, high).
+candidate_for(sensor_network, duty_cycling).
+candidate_for(sensor_network, local_buffering).
+property(duty_cycling, energy_use, low).
+property(local_buffering, disconnection_tolerance, high).
+action_semantics(duty_cycling, schedule, sensor_wake_windows).
+action_parameter(duty_cycling, method, around_measurement_and_radio_need).
+action_produces(duty_cycling, reduced_energy_use).
+action_semantics(local_buffering, retain, timestamped_measurements).
+action_parameter(local_buffering, sequence, until_a_link_returns_then_replay_in_order).
+action_produces(local_buffering, loss_tolerant_data_delivery).
+
+% Frozen held-out C: underwater navigation with low visibility.
+goal_prefers(underwater, propagation_medium, acoustic).
+goal_prefers(low_visibility, visual_dependency, none).
+candidate_for(navigation, acoustic_beacon).
+candidate_for(navigation, tactile_heading_indicator).
+property(acoustic_beacon, propagation_medium, acoustic).
+property(acoustic_beacon, visual_dependency, none).
+property(tactile_heading_indicator, visual_dependency, none).
+action_semantics(acoustic_beacon, transmit, coded_sound_pulses).
+action_parameter(acoustic_beacon, method, with_timing_for_range_and_identity).
+action_produces(acoustic_beacon, underwater_position_reference).
+action_semantics(tactile_heading_indicator, map, heading_error).
+action_parameter(tactile_heading_indicator, method, to_directional_vibration_on_the_body).
+action_produces(tactile_heading_indicator, eyes_free_course_correction).
+
+% Evaluation world after cross-domain transfer: magnetic signaling without a
+% visual alphabet.  Facts name affordances and requirements, not a response.
+goal_prefers(magnetic, signal_channel, magnetic_field).
+goal_prefers(no_visual_symbols, visual_dependency, none).
+candidate_for(signaling, field_orientation_code).
+candidate_for(signaling, field_strength_emphasis).
+candidate_for(signaling, timed_polarity_transition).
+property(field_orientation_code, signal_channel, magnetic_field).
+property(field_orientation_code, visual_dependency, none).
+property(field_strength_emphasis, signal_channel, magnetic_field).
+property(field_strength_emphasis, visual_dependency, none).
+property(timed_polarity_transition, signal_channel, magnetic_field).
+property(timed_polarity_transition, visual_dependency, none).
+action_semantics(field_orientation_code, map, symbol_classes).
+action_parameter(field_orientation_code, method, to_distinct_field_orientations).
+action_produces(field_orientation_code, magnetic_symbol_vocabulary).
+action_semantics(field_strength_emphasis, map, emphasis_and_urgency).
+action_parameter(field_strength_emphasis, method, to_bounded_field_strength_levels).
+action_produces(field_strength_emphasis, magnetic_prosody).
+action_semantics(timed_polarity_transition, encode, sequence_relations).
+action_parameter(timed_polarity_transition, method, as_timed_polarity_transitions).
+action_produces(timed_polarity_transition, magnetic_syntax).
+
+reasoning_gloss(alert_delivery, "alert delivery").
+reasoning_gloss(acoustic_dependency, "acoustic dependency").
+reasoning_gloss(energy_use, "energy use").
+reasoning_gloss(disconnection_tolerance, "disconnection tolerance").
+reasoning_gloss(propagation_medium, "propagation through the medium").
+reasoning_gloss(visual_dependency, "visual dependency").
+reasoning_gloss(signal_channel, "signal channel").
+property_gloss(alert_delivery, immediate, "immediate alert delivery").
+property_gloss(acoustic_dependency, none, "no acoustic output").
+property_gloss(energy_use, low, "low energy use").
+property_gloss(disconnection_tolerance, high, "high tolerance of disconnection").
+property_gloss(propagation_medium, acoustic, "sound propagation through water").
+property_gloss(visual_dependency, none, "no dependence on vision").
+property_gloss(signal_channel, magnetic_field, "a magnetic-field channel").
+
+reasoning_gloss(pulse, "Pulse").
+reasoning_gloss(display, "Display").
+reasoning_gloss(schedule, "Schedule").
+reasoning_gloss(retain, "Retain").
+reasoning_gloss(transmit, "Transmit").
+reasoning_gloss(map, "Map").
+reasoning_gloss(encode, "Encode").
+reasoning_gloss(wearable_pager, "a wearable pager").
+reasoning_gloss(shielded_status_light, "a shielded status light").
+reasoning_gloss(sensor_wake_windows, "sensor wake windows").
+reasoning_gloss(timestamped_measurements, "timestamped measurements").
+reasoning_gloss(coded_sound_pulses, "coded sound pulses").
+reasoning_gloss(heading_error, "heading error").
+reasoning_gloss(symbol_classes, "symbol classes").
+reasoning_gloss(emphasis_and_urgency, "emphasis and urgency").
+reasoning_gloss(sequence_relations, "sequence relations").
+reasoning_gloss(with_distinct_vibration_patterns, "with distinct vibration patterns").
+reasoning_gloss(at_low_glare_near_the_recipient, "at low glare near the intended recipient").
+reasoning_gloss(around_measurement_and_radio_need, "around measurement and radio need").
+reasoning_gloss(until_a_link_returns_then_replay_in_order, "until a link returns, then replay them in order").
+reasoning_gloss(with_timing_for_range_and_identity, "with timing that carries range and identity").
+reasoning_gloss(to_directional_vibration_on_the_body, "to directional vibration on the body").
+reasoning_gloss(to_distinct_field_orientations, "to distinct field orientations").
+reasoning_gloss(to_bounded_field_strength_levels, "to bounded field-strength levels").
+reasoning_gloss(as_timed_polarity_transitions, "as timed polarity transitions").
+reasoning_gloss(silent_personal_alert, "an immediate silent personal alert").
+reasoning_gloss(silent_shared_alert, "an immediate silent shared alert").
+reasoning_gloss(reduced_energy_use, "reduced energy use").
+reasoning_gloss(loss_tolerant_data_delivery, "loss-tolerant data delivery").
+reasoning_gloss(underwater_position_reference, "an underwater position reference").
+reasoning_gloss(eyes_free_course_correction, "eyes-free course correction").
+reasoning_gloss(magnetic_symbol_vocabulary, "a magnetic symbol vocabulary").
+reasoning_gloss(magnetic_prosody, "magnetic prosody").
+reasoning_gloss(magnetic_syntax, "magnetic syntax").
+
 % ── R2 train A: a classifier and an adversarial input ───────────────────────
 system_relies_on(spam_filter, lexical_pattern_matching).
 strategy_failure_condition(lexical_pattern_matching, surface_form_shift).
 strategy_benefit(lexical_pattern_matching, fast_detection_of_known_patterns).
 phenomenon_exploits(adversarial_spelling, surface_form_shift).
 phenomenon_example(adversarial_spelling, inserted_punctuation).
-example_observation(inserted_punctuation,
-  "writing a blocked word with inserted punctuation can evade an exact token pattern while remaining readable").
+example_event(inserted_punctuation, inserted_marks, change,
+              token_surface_without_changing_readability).
 
 % R2 train B: automated control and corrupted evidence.
 system_relies_on(autopilot, sensor_fusion).
@@ -73,8 +220,8 @@ strategy_failure_condition(sensor_fusion, mutually_consistent_false_measurements
 strategy_benefit(sensor_fusion, stable_estimation_from_noisy_inputs).
 phenomenon_exploits(sensor_spoofing, mutually_consistent_false_measurements).
 phenomenon_example(sensor_spoofing, coordinated_false_position).
-example_observation(coordinated_false_position,
-  "coherent but false position and motion readings can make a controller confidently estimate the wrong state").
+example_event(coordinated_false_position, coherent_false_readings, cause,
+              confident_wrong_state_estimate).
 
 % R2 frozen held-out C: biological classification.
 system_relies_on(immune_system, self_nonself_discrimination).
@@ -82,8 +229,8 @@ strategy_failure_condition(self_nonself_discrimination, mistaken_self_classifica
 strategy_benefit(self_nonself_discrimination, targeted_defense_against_pathogens).
 phenomenon_exploits(autoimmune_disease, mistaken_self_classification).
 phenomenon_example(autoimmune_disease, type_one_diabetes).
-example_observation(type_one_diabetes,
-  "immune cells attack insulin-producing beta cells after treating them as threats").
+example_event(type_one_diabetes, immune_cells, attack,
+              insulin_producing_beta_cells).
 
 % R2 evaluation world: ordinary knowledge, added only after the operator passed
 % on the three unrelated systems above.
@@ -92,8 +239,18 @@ strategy_failure_condition(predictive_perception, ambiguous_context).
 strategy_benefit(predictive_perception, fast_stable_interpretation).
 phenomenon_exploits(optical_illusion, ambiguous_context).
 phenomenon_example(optical_illusion, muller_lyer_illusion).
-example_observation(muller_lyer_illusion,
-  "equal-length lines appear different when inward- or outward-pointing fins change the surrounding depth cues").
+example_event(muller_lyer_illusion, contextual_fins, make_appear,
+              equal_length_lines_unequal).
+
+% R2 open-world concepts: no gps_receiver or multipath_interference entity is
+% registered.  Their component concepts activate the same failure calculus.
+system_relies_on(gps, time_of_arrival_ranging).
+strategy_failure_condition(time_of_arrival_ranging, delayed_reflected_signal).
+strategy_benefit(time_of_arrival_ranging, position_from_signal_travel_time).
+phenomenon_exploits(multipath, delayed_reflected_signal).
+phenomenon_example(multipath, urban_canyon_reflection).
+example_event(urban_canyon_reflection, reflected_satellite_signal, arrives,
+              later_than_direct_signal).
 
 reasoning_gloss(spam_filter, "a spam filter").
 reasoning_gloss(adversarial_spelling, "adversarial spelling").
@@ -119,6 +276,26 @@ reasoning_gloss(inserted_punctuation, "inserted punctuation").
 reasoning_gloss(coordinated_false_position, "coordinated false position data").
 reasoning_gloss(type_one_diabetes, "type 1 diabetes").
 reasoning_gloss(muller_lyer_illusion, "the Müller-Lyer illusion").
+reasoning_gloss(time_of_arrival_ranging, "time-of-arrival ranging").
+reasoning_gloss(delayed_reflected_signal, "a reflected signal arriving after the direct path").
+reasoning_gloss(position_from_signal_travel_time, "position estimates from signal travel times").
+reasoning_gloss(urban_canyon_reflection, "an urban-canyon reflection").
+
+reasoning_gloss(inserted_marks, "Inserted punctuation").
+reasoning_gloss(change, "changes").
+reasoning_gloss(token_surface_without_changing_readability, "the token surface without changing what a person reads").
+reasoning_gloss(coherent_false_readings, "Coherent false readings").
+reasoning_gloss(cause, "cause").
+reasoning_gloss(confident_wrong_state_estimate, "a confident estimate of the wrong state").
+reasoning_gloss(immune_cells, "Immune cells").
+reasoning_gloss(attack, "attack").
+reasoning_gloss(insulin_producing_beta_cells, "insulin-producing beta cells after classifying them as threats").
+reasoning_gloss(contextual_fins, "Inward- and outward-pointing fins").
+reasoning_gloss(make_appear, "make").
+reasoning_gloss(equal_length_lines_unequal, "equal-length lines appear unequal").
+reasoning_gloss(reflected_satellite_signal, "A reflected satellite signal").
+reasoning_gloss(arrives, "arrives").
+reasoning_gloss(later_than_direct_signal, "later than the direct signal and biases the inferred range").
 
 % ── R3 process worlds ───────────────────────────────────────────────────────
 deadline_minutes(minutes_60, 60).
@@ -127,6 +304,10 @@ reasoning_gloss(minutes_60, "the one-hour limit").
 % Train A: pour-over coffee.
 process_initial_state(pour_over_coffee, ingredients_ready).
 process_goal(pour_over_coffee, coffee_ready).
+process_product(pour_over_coffee, brewed_coffee).
+product_input(brewed_coffee, fresh_water, ingredient).
+product_input(brewed_coffee, coffee_beans, ingredient).
+product_input(brewed_coffee, paper_filter, component).
 process_action(pour_over_coffee, heat_coffee_water).
 process_action(pour_over_coffee, grind_coffee).
 process_action(pour_over_coffee, bloom_coffee).
@@ -139,10 +320,17 @@ action_requires(bloom_coffee, grounds_ready).
 action_produces(bloom_coffee, coffee_bloomed).
 action_requires(pour_coffee, coffee_bloomed).
 action_produces(pour_coffee, coffee_ready).
-action_instruction(heat_coffee_water, "Heat fresh water to about 93°C, below a rolling boil.").
-action_instruction(grind_coffee, "Grind the beans to a medium consistency and rinse the paper filter.").
-action_instruction(bloom_coffee, "Wet all grounds with a small amount of water and wait about 30 seconds for the bloom.").
-action_instruction(pour_coffee, "Pour the remaining water slowly in controlled circles and let it drain.").
+action_semantics(heat_coffee_water, heat, fresh_water).
+action_semantics(grind_coffee, grind, coffee_beans).
+action_semantics(bloom_coffee, wet, coffee_grounds).
+action_semantics(pour_coffee, pour, remaining_water).
+action_parameter(heat_coffee_water, control, below_rolling_boil).
+action_parameter(grind_coffee, method, to_medium_consistency).
+action_parameter(bloom_coffee, sequence, with_little_water_then_wait_30_seconds).
+action_parameter(pour_coffee, method, slowly_in_controlled_circles).
+action_consumes(heat_coffee_water, fresh_water).
+action_consumes(grind_coffee, coffee_beans).
+action_consumes(bloom_coffee, paper_filter).
 action_duration(heat_coffee_water, 5).
 action_duration(grind_coffee, 2).
 action_duration(bloom_coffee, 1).
@@ -151,6 +339,10 @@ action_duration(pour_coffee, 4).
 % Train B: software release.
 process_initial_state(software_release, tests_passing).
 process_goal(software_release, release_deployed).
+process_product(software_release, deployed_release).
+product_input(deployed_release, tested_commit, source).
+product_input(deployed_release, version_identifier, metadata).
+product_input(deployed_release, deployment_configuration, configuration).
 process_action(software_release, build_release_artifact).
 process_action(software_release, stage_release).
 process_action(software_release, deploy_release).
@@ -160,9 +352,15 @@ action_requires(stage_release, artifact_built).
 action_produces(stage_release, staging_verified).
 action_requires(deploy_release, staging_verified).
 action_produces(deploy_release, release_deployed).
-action_instruction(build_release_artifact, "Build an immutable versioned artifact from the tested commit and record its checksum.").
-action_instruction(stage_release, "Deploy that exact artifact to staging and run smoke and migration checks.").
-action_instruction(deploy_release, "Promote the verified artifact gradually, monitor health metrics, and retain a rollback path.").
+action_semantics(build_release_artifact, build, versioned_artifact).
+action_semantics(stage_release, deploy, versioned_artifact).
+action_semantics(deploy_release, promote, verified_artifact).
+action_parameter(build_release_artifact, method, from_tested_commit_with_checksum).
+action_parameter(stage_release, control, to_staging_with_smoke_and_migration_checks).
+action_parameter(deploy_release, safety, gradually_with_monitoring_and_rollback).
+action_consumes(build_release_artifact, tested_commit).
+action_consumes(build_release_artifact, version_identifier).
+action_consumes(stage_release, deployment_configuration).
 action_duration(build_release_artifact, 8).
 action_duration(stage_release, 12).
 action_duration(deploy_release, 10).
@@ -170,6 +368,10 @@ action_duration(deploy_release, 10).
 % Frozen held-out C: emergency kit.
 process_initial_state(emergency_kit, household_needs_known).
 process_goal(emergency_kit, emergency_kit_ready).
+process_product(emergency_kit, prepared_emergency_kit).
+product_input(prepared_emergency_kit, household_requirements, specification).
+product_input(prepared_emergency_kit, emergency_supplies, component).
+product_input(prepared_emergency_kit, emergency_information, information).
 process_action(emergency_kit, inventory_emergency_supplies).
 process_action(emergency_kit, pack_emergency_supplies).
 process_action(emergency_kit, document_emergency_contacts).
@@ -179,9 +381,15 @@ action_requires(pack_emergency_supplies, supply_gaps_known).
 action_produces(pack_emergency_supplies, supplies_packed).
 action_requires(document_emergency_contacts, supplies_packed).
 action_produces(document_emergency_contacts, emergency_kit_ready).
-action_instruction(inventory_emergency_supplies, "List household medical needs, water, food, lighting, radio, power, and local hazards before buying anything.").
-action_instruction(pack_emergency_supplies, "Fill the identified gaps, label expiry dates, and pack the supplies in an accessible waterproof container.").
-action_instruction(document_emergency_contacts, "Add contact, evacuation, medication, and utility-shutoff instructions, then schedule regular checks.").
+action_semantics(inventory_emergency_supplies, inventory, household_requirements).
+action_semantics(pack_emergency_supplies, pack, emergency_supplies).
+action_semantics(document_emergency_contacts, document, emergency_information).
+action_parameter(inventory_emergency_supplies, method, across_medical_water_food_power_and_local_hazards).
+action_parameter(pack_emergency_supplies, safety, with_expiry_labels_in_waterproof_container).
+action_parameter(document_emergency_contacts, method, with_evacuation_medication_contacts_and_utility_shutoff).
+action_consumes(inventory_emergency_supplies, household_requirements).
+action_consumes(pack_emergency_supplies, emergency_supplies).
+action_consumes(document_emergency_contacts, emergency_information).
 action_duration(inventory_emergency_supplies, 15).
 action_duration(pack_emergency_supplies, 30).
 action_duration(document_emergency_contacts, 10).
@@ -189,6 +397,10 @@ action_duration(document_emergency_contacts, 10).
 % Evaluation process: flat-pack furniture without diagrams.
 process_initial_state(flat_pack_furniture, package_closed).
 process_goal(flat_pack_furniture, furniture_assembled).
+process_product(flat_pack_furniture, assembled_furniture).
+product_input(assembled_furniture, furniture_panels, component).
+product_input(assembled_furniture, furniture_fasteners, component).
+product_input(assembled_furniture, anti_tip_hardware, safety_component).
 process_satisfies_constraint(flat_pack_furniture, no_diagrams).
 process_action(flat_pack_furniture, unpack_and_group_parts).
 process_action(flat_pack_furniture, identify_fasteners).
@@ -208,16 +420,32 @@ action_requires(tighten_furniture_frame, frame_square).
 action_produces(tighten_furniture_frame, frame_rigid).
 action_requires(install_furniture_panels, frame_rigid).
 action_produces(install_furniture_panels, furniture_assembled).
-action_instruction(unpack_and_group_parts, "Lay out every panel with finished faces protected; group matching pieces by size and hole pattern.").
-action_instruction(identify_fasteners, "Sort screws, dowels, cams, brackets, and tools, then match them to holes by diameter and depth without forcing anything.").
-action_instruction(assemble_frame_loose, "Insert dowels and start the frame fasteners only finger-tight so the joints can still move.").
-action_instruction(square_furniture_frame, "Stand the frame on a level surface, align all edges, and compare the two corner-to-corner diagonals until they match.").
-action_instruction(tighten_furniture_frame, "Tighten opposite corners gradually, rechecking that doors or drawers remain square and free.").
-action_instruction(install_furniture_panels, "Attach the back, shelves, doors, or drawers, fit anti-tip hardware, and load-test gently before use.").
+action_semantics(unpack_and_group_parts, arrange, furniture_panels).
+action_semantics(identify_fasteners, classify, furniture_fasteners).
+action_semantics(assemble_frame_loose, join, furniture_frame_parts).
+action_semantics(square_furniture_frame, align, loose_furniture_frame).
+action_semantics(tighten_furniture_frame, tighten, furniture_fasteners).
+action_semantics(install_furniture_panels, attach, remaining_panels_and_hardware).
+action_parameter(unpack_and_group_parts, safety, with_finished_faces_protected).
+action_parameter(unpack_and_group_parts, method, by_size_and_hole_pattern).
+action_parameter(identify_fasteners, method, by_type_diameter_and_depth).
+action_parameter(assemble_frame_loose, control, finger_tight_to_preserve_movement).
+action_parameter(square_furniture_frame, control, until_corner_diagonals_match).
+action_parameter(tighten_furniture_frame, sequence, gradually_across_opposite_corners).
+action_parameter(install_furniture_panels, safety, with_anti_tip_hardware_and_gentle_load_test).
+action_consumes(unpack_and_group_parts, furniture_panels).
+action_consumes(identify_fasteners, furniture_fasteners).
+action_consumes(install_furniture_panels, anti_tip_hardware).
 
 % Evaluation process: home beer brewing, with causal flavor annotations.
 process_initial_state(home_beer_brewing, equipment_ready).
 process_goal(home_beer_brewing, packaged_beer).
+process_product(home_beer_brewing, home_brewed_beer).
+product_input(home_brewed_beer, brewing_water, ingredient).
+product_input(home_brewed_beer, malted_grain, ingredient).
+product_input(home_brewed_beer, hops, ingredient).
+product_input(home_brewed_beer, brewing_yeast, ingredient).
+product_input(home_brewed_beer, brewing_equipment, equipment).
 process_action(home_beer_brewing, sanitize_brewing_equipment).
 process_action(home_beer_brewing, mash_grain).
 process_action(home_beer_brewing, boil_wort_with_hops).
@@ -239,13 +467,25 @@ action_requires(ferment_beer, fermentation_started).
 action_produces(ferment_beer, fermented_beer).
 action_requires(package_beer, fermented_beer).
 action_produces(package_beer, packaged_beer).
-action_instruction(sanitize_brewing_equipment, "Clean first, then sanitize every vessel, hose, spoon, and package surface that will touch cooled wort or beer.").
-action_instruction(mash_grain, "Hold crushed malt in measured hot water at a controlled mash temperature, then separate the sweet wort.").
-action_instruction(boil_wort_with_hops, "Boil the wort vigorously and add hops at timed points: early for bitterness, late for aroma.").
-action_instruction(cool_wort, "Cool the covered wort rapidly to the yeast's pitching range to limit contamination and unwanted compounds.").
-action_instruction(pitch_brewing_yeast, "Transfer with minimal contamination, aerate as appropriate, pitch healthy yeast, and seal with an airlock.").
-action_instruction(ferment_beer, "Keep fermentation in the yeast strain's temperature range until gravity is stable, then allow conditioning time.").
-action_instruction(package_beer, "Bottle or keg with controlled carbonation, avoid oxygen pickup, and condition before tasting.").
+action_semantics(sanitize_brewing_equipment, clean_and_sanitize, brewing_equipment).
+action_semantics(mash_grain, steep, crushed_malted_grain).
+action_semantics(boil_wort_with_hops, boil, sweet_wort_and_hops).
+action_semantics(cool_wort, cool, boiled_wort).
+action_semantics(pitch_brewing_yeast, inoculate, cooled_wort).
+action_semantics(ferment_beer, ferment, inoculated_wort).
+action_semantics(package_beer, package, fermented_beer).
+action_parameter(sanitize_brewing_equipment, sequence, clean_first_then_sanitize_contact_surfaces).
+action_parameter(mash_grain, control, in_measured_water_at_mash_temperature).
+action_parameter(boil_wort_with_hops, sequence, early_hops_for_bitterness_late_hops_for_aroma).
+action_parameter(cool_wort, control, rapidly_to_yeast_pitching_range).
+action_parameter(pitch_brewing_yeast, safety, with_low_contamination_and_an_airlock).
+action_parameter(ferment_beer, control, at_yeast_temperature_until_gravity_is_stable).
+action_parameter(package_beer, safety, with_controlled_carbonation_and_low_oxygen).
+action_consumes(sanitize_brewing_equipment, brewing_equipment).
+action_consumes(mash_grain, brewing_water).
+action_consumes(mash_grain, malted_grain).
+action_consumes(boil_wort_with_hops, hops).
+action_consumes(pitch_brewing_yeast, brewing_yeast).
 action_focus_effect(sanitize_brewing_equipment, flavor, preventing_sour_or_medicinal_off_flavors).
 action_focus_effect(mash_grain, flavor, controlling_body_fermentability_and_malt_character).
 action_focus_effect(boil_wort_with_hops, flavor, balancing_bitterness_hop_flavor_and_aroma).
@@ -255,6 +495,13 @@ action_focus_effect(ferment_beer, flavor, controlling_esters_fusel_alcohols_and_
 % Evaluation process: three courses constrained to microwave + toaster.
 process_initial_state(microwave_toaster_meal, kitchen_ready).
 process_goal(microwave_toaster_meal, three_course_meal_ready).
+process_product(microwave_toaster_meal, three_course_meal).
+product_input(three_course_meal, lentils, ingredient).
+product_input(three_course_meal, tomatoes, ingredient).
+product_input(three_course_meal, couscous, ingredient).
+product_input(three_course_meal, vegetables, ingredient).
+product_input(three_course_meal, apples, ingredient).
+product_input(three_course_meal, oat_bread, ingredient).
 process_satisfies_constraint(microwave_toaster_meal, microwave_toaster_only).
 process_requires_explicit_resources(microwave_toaster_meal).
 process_action(microwave_toaster_meal, prepare_tomato_lentil_soup).
@@ -281,13 +528,26 @@ action_produces(finish_three_courses, three_course_meal_ready).
 action_resource(microwave_tomato_lentil_soup, microwave).
 action_resource(microwave_couscous_vegetables, microwave).
 action_resource(toast_apple_crisp_topping, toaster).
-action_instruction(prepare_tomato_lentil_soup, "Starter: combine canned lentils, crushed tomatoes, stock, herbs, and a pinch of salt in a covered microwave-safe bowl.").
-action_instruction(microwave_tomato_lentil_soup, "Microwave the soup for 8–10 minutes, stirring halfway, then adjust seasoning and keep it covered.").
-action_instruction(prepare_couscous_vegetables, "Main: put couscous, frozen vegetables, hot stock, olive oil, and spices in a large microwave-safe dish.").
-action_instruction(microwave_couscous_vegetables, "Microwave for about 8 minutes, rest covered for 5 minutes, then fluff and add lemon.").
-action_instruction(prepare_apple_crisp, "Dessert: dice apples and mix them with cinnamon and a little sugar in a microwave-safe dish.").
-action_instruction(toast_apple_crisp_topping, "Microwave the apples until tender while the toaster browns a slice of oat bread; crumble it with chopped nuts over the apples.").
-action_instruction(finish_three_courses, "Serve the soup first, the couscous second, and the warm apple crisp last.").
+action_semantics(prepare_tomato_lentil_soup, combine, lentils_and_tomatoes).
+action_semantics(microwave_tomato_lentil_soup, microwave, prepared_soup).
+action_semantics(prepare_couscous_vegetables, combine, couscous_and_vegetables).
+action_semantics(microwave_couscous_vegetables, microwave, prepared_couscous).
+action_semantics(prepare_apple_crisp, combine, diced_apples).
+action_semantics(toast_apple_crisp_topping, heat_and_toast, apples_and_oat_bread).
+action_semantics(finish_three_courses, serve, three_courses).
+action_parameter(prepare_tomato_lentil_soup, method, with_stock_herbs_and_salt_in_covered_bowl).
+action_parameter(microwave_tomato_lentil_soup, control, for_8_to_10_minutes_stirring_halfway).
+action_parameter(prepare_couscous_vegetables, method, with_hot_stock_oil_and_spices).
+action_parameter(microwave_couscous_vegetables, sequence, heat_8_minutes_then_rest_5).
+action_parameter(prepare_apple_crisp, method, with_cinnamon_and_little_sugar).
+action_parameter(toast_apple_crisp_topping, sequence, cook_apples_while_browning_oat_bread).
+action_parameter(finish_three_courses, sequence, soup_then_couscous_then_apple_crisp).
+action_consumes(prepare_tomato_lentil_soup, lentils).
+action_consumes(prepare_tomato_lentil_soup, tomatoes).
+action_consumes(prepare_couscous_vegetables, couscous).
+action_consumes(prepare_couscous_vegetables, vegetables).
+action_consumes(prepare_apple_crisp, apples).
+action_consumes(toast_apple_crisp_topping, oat_bread).
 action_duration(prepare_tomato_lentil_soup, 5).
 action_duration(microwave_tomato_lentil_soup, 10).
 action_duration(prepare_couscous_vegetables, 5).
@@ -313,3 +573,115 @@ reasoning_gloss(controlling_body_fermentability_and_malt_character, "body, ferme
 reasoning_gloss(balancing_bitterness_hop_flavor_and_aroma, "the balance of bitterness, hop flavor, and aroma").
 reasoning_gloss(selecting_ester_and_phenol_character, "the yeast-derived ester and phenol profile").
 reasoning_gloss(controlling_esters_fusel_alcohols_and_attenuation, "esters, harsh fusel alcohols, and final attenuation").
+
+% Compositional action lexicon.  These are reusable values of
+% action_semantics/3 and action_parameter/3, never process-specific sentences.
+reasoning_gloss(heat, "Heat").
+reasoning_gloss(grind, "Grind").
+reasoning_gloss(wet, "Wet").
+reasoning_gloss(pour, "Pour").
+reasoning_gloss(build, "Build").
+reasoning_gloss(deploy, "Deploy").
+reasoning_gloss(promote, "Promote").
+reasoning_gloss(inventory, "Inventory").
+reasoning_gloss(pack, "Pack").
+reasoning_gloss(document, "Document").
+reasoning_gloss(arrange, "Arrange").
+reasoning_gloss(classify, "Classify").
+reasoning_gloss(join, "Join").
+reasoning_gloss(align, "Align").
+reasoning_gloss(tighten, "Tighten").
+reasoning_gloss(attach, "Attach").
+reasoning_gloss(clean_and_sanitize, "Clean and sanitize").
+reasoning_gloss(steep, "Steep").
+reasoning_gloss(boil, "Boil").
+reasoning_gloss(cool, "Cool").
+reasoning_gloss(inoculate, "Inoculate").
+reasoning_gloss(ferment, "Ferment").
+reasoning_gloss(package, "Package").
+reasoning_gloss(combine, "Combine").
+reasoning_gloss(microwave, "Microwave").
+reasoning_gloss(heat_and_toast, "Heat and toast").
+reasoning_gloss(serve, "Serve").
+
+reasoning_gloss(fresh_water, "fresh water").
+reasoning_gloss(coffee_beans, "coffee beans").
+reasoning_gloss(coffee_grounds, "the coffee grounds").
+reasoning_gloss(remaining_water, "the remaining water").
+reasoning_gloss(versioned_artifact, "an immutable versioned artifact").
+reasoning_gloss(verified_artifact, "the verified artifact").
+reasoning_gloss(household_requirements, "household needs and local hazards").
+reasoning_gloss(emergency_supplies, "the missing emergency supplies").
+reasoning_gloss(emergency_information, "contact and evacuation information").
+reasoning_gloss(furniture_panels, "the furniture panels").
+reasoning_gloss(furniture_fasteners, "the screws, dowels, cams, and brackets").
+reasoning_gloss(furniture_frame_parts, "the frame parts").
+reasoning_gloss(loose_furniture_frame, "the loose frame").
+reasoning_gloss(remaining_panels_and_hardware, "the remaining panels and safety hardware").
+reasoning_gloss(brewing_equipment, "all equipment that will contact wort or beer").
+reasoning_gloss(crushed_malted_grain, "crushed malted grain").
+reasoning_gloss(sweet_wort_and_hops, "sweet wort with hops").
+reasoning_gloss(boiled_wort, "the covered boiled wort").
+reasoning_gloss(cooled_wort, "the cooled wort with healthy yeast").
+reasoning_gloss(inoculated_wort, "the inoculated wort").
+reasoning_gloss(fermented_beer, "the fermented beer").
+reasoning_gloss(lentils_and_tomatoes, "lentils and tomatoes").
+reasoning_gloss(prepared_soup, "the prepared soup").
+reasoning_gloss(couscous_and_vegetables, "couscous and vegetables").
+reasoning_gloss(prepared_couscous, "the prepared couscous").
+reasoning_gloss(diced_apples, "diced apples").
+reasoning_gloss(apples_and_oat_bread, "the apples and oat bread").
+reasoning_gloss(three_courses, "the three courses").
+
+reasoning_gloss(below_rolling_boil, "to about 93°C, below a rolling boil").
+reasoning_gloss(to_medium_consistency, "to a medium consistency").
+reasoning_gloss(with_little_water_then_wait_30_seconds, "with a little water, then wait about 30 seconds").
+reasoning_gloss(slowly_in_controlled_circles, "slowly in controlled circles").
+reasoning_gloss(from_tested_commit_with_checksum, "from the tested commit and record its checksum").
+reasoning_gloss(to_staging_with_smoke_and_migration_checks, "to staging with smoke and migration checks").
+reasoning_gloss(gradually_with_monitoring_and_rollback, "gradually with health monitoring and a rollback path").
+reasoning_gloss(across_medical_water_food_power_and_local_hazards, "across medical, water, food, power, and local-hazard needs").
+reasoning_gloss(with_expiry_labels_in_waterproof_container, "with expiry labels in an accessible waterproof container").
+reasoning_gloss(with_evacuation_medication_contacts_and_utility_shutoff, "with contacts, evacuation, medication, and utility-shutoff details").
+reasoning_gloss(with_finished_faces_protected, "with finished faces protected").
+reasoning_gloss(by_size_and_hole_pattern, "by size and hole pattern").
+reasoning_gloss(by_type_diameter_and_depth, "by type, diameter, and hole depth without forcing").
+reasoning_gloss(finger_tight_to_preserve_movement, "only finger-tight so joints can still move").
+reasoning_gloss(until_corner_diagonals_match, "on a level surface until both corner-to-corner diagonals match").
+reasoning_gloss(gradually_across_opposite_corners, "gradually across opposite corners while checking alignment").
+reasoning_gloss(with_anti_tip_hardware_and_gentle_load_test, "with anti-tip hardware and a gentle load test").
+reasoning_gloss(clean_first_then_sanitize_contact_surfaces, "by cleaning first, then sanitizing every contact surface").
+reasoning_gloss(in_measured_water_at_mash_temperature, "in measured hot water at controlled mash temperature").
+reasoning_gloss(early_hops_for_bitterness_late_hops_for_aroma, "with early hops for bitterness and late hops for aroma").
+reasoning_gloss(rapidly_to_yeast_pitching_range, "rapidly to the yeast pitching range").
+reasoning_gloss(with_low_contamination_and_an_airlock, "with low contamination, suitable aeration, and an airlock").
+reasoning_gloss(at_yeast_temperature_until_gravity_is_stable, "at the yeast temperature until gravity is stable, then condition").
+reasoning_gloss(with_controlled_carbonation_and_low_oxygen, "with controlled carbonation and minimal oxygen pickup").
+reasoning_gloss(with_stock_herbs_and_salt_in_covered_bowl, "with stock, herbs, and salt in a covered microwave-safe bowl").
+reasoning_gloss(for_8_to_10_minutes_stirring_halfway, "for 8–10 minutes, stirring halfway").
+reasoning_gloss(with_hot_stock_oil_and_spices, "with hot stock, oil, and spices in a microwave-safe dish").
+reasoning_gloss(heat_8_minutes_then_rest_5, "for 8 minutes, then rest covered for 5 minutes").
+reasoning_gloss(with_cinnamon_and_little_sugar, "with cinnamon and a little sugar").
+reasoning_gloss(cook_apples_while_browning_oat_bread, "until tender while browning the oat bread in the toaster").
+reasoning_gloss(soup_then_couscous_then_apple_crisp, "in the order soup, couscous, then warm apple crisp").
+
+reasoning_gloss(water_ready, "water ready for extraction").
+reasoning_gloss(grounds_ready, "prepared grounds and filter").
+reasoning_gloss(coffee_bloomed, "evenly bloomed grounds").
+reasoning_gloss(artifact_built, "a versioned release artifact").
+reasoning_gloss(staging_verified, "a staging-verified artifact").
+reasoning_gloss(supply_gaps_known, "a list of supply gaps").
+reasoning_gloss(supplies_packed, "packed and dated supplies").
+reasoning_gloss(parts_grouped, "protected, grouped parts").
+reasoning_gloss(fasteners_matched, "fasteners matched to their holes").
+reasoning_gloss(frame_loose, "a loosely joined frame").
+reasoning_gloss(frame_square, "a square frame").
+reasoning_gloss(frame_rigid, "a rigid aligned frame").
+reasoning_gloss(equipment_sanitized, "sanitized brewing equipment").
+reasoning_gloss(sweet_wort_ready, "sweet wort").
+reasoning_gloss(fermentation_started, "inoculated wort ready to ferment").
+reasoning_gloss(starter_ready, "a hot lentil-tomato starter").
+reasoning_gloss(main_prepared, "a prepared couscous main").
+reasoning_gloss(main_ready, "a rested couscous-and-vegetable main").
+reasoning_gloss(dessert_prepared, "a prepared apple dessert").
+reasoning_gloss(dessert_ready, "warm apples with toasted oat topping").

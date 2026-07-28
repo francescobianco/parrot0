@@ -1293,3 +1293,120 @@ Ogni nuovo operatore riporta almeno:
 Un incremento di `claim_edge` senza aumento di transfer fan-out è
 arricchimento di conoscenza o storage; può essere legittimo, ma non è un
 avanzamento delle regole di ragionamento.
+
+### 12.13 Correzione gen367: astrai fino al punto fisso
+
+Il primo R3 superava l'ablazione ma non il criterio più importante. La regola
+ordinava `process_action`, `action_requires` e `action_produces`, però ogni
+passo veniva poi letto da:
+
+```prolog
+action_instruction(mash_grain,
+  "Hold crushed malt in measured hot water ...").
+```
+
+È ancora distillazione: il payload è una riga della risposta. Chiamarlo “fatto
+atomico” non cambia la sua capacità di ricombinazione, che è zero. Anche un
+ratchet 28/28 può quindi essere tautologico: prova che una frase registrata
+viene recuperata, non che la procedura viene costruita.
+
+Il mantra operativo diventa un gate esplicito:
+
+> **Astrai fino al punto fisso.** Se due predicati differiscono soltanto per il
+> verbo o per il topic, sono la stessa relazione con un campo diverso.
+
+Esempi:
+
+```prolog
+% NO: un predicato per etichetta
+brewed(beer, brewer).
+assembled(table, worker).
+deployed(release, agent).
+
+% SÌ: verbo e ruolo sono dati
+action_semantics($Action, $Verb, $Patient).
+product_input($Product, $Input, $Role).
+action_consumes($Action, $Input).
+action_produces($Action, $State).
+```
+
+“Birra” non autorizza un template birra. È un prodotto con input (acqua,
+malto, luppolo, lievito, attrezzatura), trasformazioni, precondizioni, effetti e
+parametri. Lo stesso calcolo deve coprire un mobile, una release software e un
+pasto. La clausola `process_input_covered/4` deriva quale azione consuma ciascun
+input; il planner rifiuta il piano se un input dichiarato resta scoperto. La
+superficie è composta da verbo, paziente, parametri e stato prodotto. Nei mondi
+del nuovo operatore non è ammesso `action_instruction/2`; resta solo come
+fallback legacy per strutture secondarie non ancora migrate.
+
+Il punto fisso vale anche all'ingresso. Una `Task IR` che lega un argomento solo
+quando esiste `task_entity_cue(Entity, Form)` è un lessico chiuso travestito da
+parser. Le cue note devono risolvere alias, non definire l'universo degli
+argomenti. Il motore deve poter delimitare uno span nuovo tramite marcatori
+grammaticali KB-first, canonizzarlo come entità locale del turno e proiettarlo
+nella IR senza rebuild. La conoscenza di mondo potrà mancare; l'argomento non
+deve mancare.
+
+Nuovi controlli obbligatori per ogni operatore:
+
+1. **payload audit:** nessuna frase che realizzi da sola un passo o una
+   conclusione nel file dei mondi di controllo;
+2. **verb-field audit:** verbi paralleli sono valori di una relazione comune,
+   non nuovi predicati;
+3. **input coverage:** ogni ingrediente/componente/risorsa dichiarato è
+   consumato da almeno un'azione provabile;
+4. **novel-span probe:** un'entità inventata dopo il build compare correttamente
+   nella Task IR anche se non ha ancora fatti di mondo;
+5. **separate gaps:** IR presente + nessun piano significa gap di conoscenza;
+   IR assente significa gap di comprensione. Non confonderli con un template
+   generico.
+
+### 12.14 Checkpoint gen367: dall'entità censita al concetto composto
+
+La correzione è ora eseguibile in `make reasoning-operators`:
+
+- la Task IR delimita argomenti nuovi con `task_span_pattern/4` e
+  `task_boundary_cue/2`;
+- `zorbium_cup`, `flaxen_flask`, `gps_receiver` e
+  `repotting_an_orchid` entrano nella IR senza `task_entity_cue`;
+- ogni termine viene scomposto in n-grammi concettuali riflessivi tramite
+  `task_term_concept/2`;
+- `effective_property` ed `effective_goal_prefers` fanno ereditare a un composto
+  soltanto fatti espliciti dei suoi concetti;
+- `effective_system_relies_on` ed
+  `effective_phenomenon_exploits` applicano lo stesso meccanismo alle
+  spiegazioni di vulnerabilità;
+- `example_event(Example, Subject, Relation, Object)` sostituisce
+  `example_observation` nei mondi dell'operatore: anche l'esempio è composto da
+  campi, non letto come frase terminale.
+
+Questo produce trasferimento che il lessico chiuso non poteva dare:
+`linen_shirt` eredita l'isolamento di `linen`, `wool_coat` quello di `wool`;
+`paper_carton` e `plastic_crate` vengono confrontati per protezione dalla
+pioggia; `gps_receiver` e `multipath_interference` attivano il meccanismo di
+ranging tramite i concetti `gps` e `multipath`. Nessuna delle entità composte è
+un fatto del mondo o una cue.
+
+R4 porta lo stesso principio dalla scelta alla costruzione. La sintesi sotto
+vincoli non possiede template “notifica”, “rete”, “subacqueo” o “magnetico”.
+Deriva:
+
+```prolog
+task_candidate(Context, Feature)
+task_requirement(Context, Dimension, Value)
+task_feature_match(Context, Feature, Dimension, Value)
+```
+
+da `candidate_for`, `goal_prefers`, `property` e dai concetti del turno. Il
+consumer seleziona un insieme di feature soltanto se la loro unione copre ogni
+requisito. Le feature sono realizzate con lo stesso
+`action_semantics(Feature, Verb, Patient)` usato dalle procedure: il verbo resta
+un campo. Notifiche silenziose, reti a connettività intermittente, navigazione
+subacquea e segnali magnetici attraversano un'unica trasformazione.
+
+Il ratchet puntuale è **43/43**: include proof, ablazione multi-dominio,
+ablazione di un input locale e crescita runtime sia delle cue operative sia dei
+separatori grammaticali. Non è ancora una prova di 20/20 LLMSCORE: causalità
+controfattuale, argomentazione e composizione creativa restano famiglie
+scoperte. Il valore del checkpoint è che una nuova entità non azzera più il
+parser né le relazioni ereditabili.

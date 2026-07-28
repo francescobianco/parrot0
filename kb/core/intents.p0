@@ -1882,10 +1882,18 @@ task_operation_cue(failure_explanation, "vulnerable to").
 task_operation_cue(failure_explanation, "fooled by").
 task_operation_cue(ordered_procedure, "step-by-step").
 task_operation_cue(ordered_procedure, "step by step").
+task_operation_cue(ordered_procedure, "step-by-step instructions for").
+task_operation_cue(ordered_procedure, "step by step instructions for").
 task_operation_cue(ordered_procedure, "instruction manual").
+task_operation_cue(ordered_procedure, "instruction manual for").
 task_operation_cue(ordered_procedure, "process of").
 task_operation_cue(ordered_procedure, keyword(assembling)).
 task_operation_cue(ordered_procedure, keyword(recipe)).
+task_operation_cue(ordered_procedure, "recipe for").
+task_operation_cue(constraint_synthesis, keyword(design)).
+task_operation_cue(constraint_synthesis, "designing a").
+task_operation_cue(constraint_synthesis, "create a system").
+task_operation_cue(constraint_synthesis, "create a method").
 
 task_deliverable_cue(reasoned_choice, "which should").
 task_deliverable_cue(reasoned_choice, "which is better").
@@ -1899,6 +1907,9 @@ task_deliverable_cue(ordered_steps, "step by step").
 task_deliverable_cue(instruction_manual, "instruction manual").
 task_deliverable_cue(recipe, keyword(recipe)).
 task_deliverable_cue(process_description, "process of").
+task_deliverable_cue(concrete_design, keyword(design)).
+task_deliverable_cue(concrete_design, "create a system").
+task_deliverable_cue(concrete_design, "create a method").
 
 task_entity_cue(bicycle, keyword(bicycle)).
 task_entity_cue(car, keyword(car)).
@@ -1950,3 +1961,52 @@ task_focus_cue(flavor, keyword(flavour)).
 
 task_deadline_cue(minutes_60, "under an hour").
 task_deadline_cue(minutes_60, "within an hour").
+
+% Open-world Task IR binding.  These facts describe grammatical boundaries;
+% they do not enumerate possible entities.  C reads their byte spans and
+% canonicalizes whatever the user put between them.  Consequently a new noun
+% phrase can enter task_ir/2 without task_entity_cue/2 or a rebuild.
+task_boundary_cue(pair_separator, keyword(and)).
+task_boundary_cue(pair_separator, keyword(or)).
+task_boundary_cue(goal_marker, keyword(for)).
+task_boundary_cue(followup_request, "which should").
+task_boundary_cue(followup_request, "which is better").
+task_boundary_cue(followup_request, keyword(explain)).
+task_boundary_cue(followup_request, "provide an example").
+task_boundary_cue(modifier_marker, keyword(emphasizing)).
+task_boundary_cue(modifier_marker, keyword(emphasising)).
+task_boundary_cue(modifier_marker, keyword(using)).
+task_boundary_cue(modifier_marker, keyword(without)).
+task_boundary_cue(modifier_marker, "under an hour").
+task_boundary_cue(modifier_marker, "within an hour").
+task_boundary_cue(resource_marker, "using only").
+task_boundary_cue(resource_marker, keyword(using)).
+task_boundary_cue(resource_marker, "with only").
+task_boundary_cue(constraint_marker, "with no").
+task_boundary_cue(constraint_marker, keyword(without)).
+task_boundary_cue(constraint_marker, "must not").
+
+task_span_pattern(goal_comparison, argument_1,
+                  operation_end, marker_start(pair_separator)).
+task_span_pattern(goal_comparison, argument_2,
+                  marker_end(pair_separator), marker_or_turn_end(goal_marker)).
+task_span_pattern(goal_comparison, goal,
+                  marker_end(goal_marker), marker_or_turn_end(followup_request)).
+
+task_span_pattern(failure_explanation, argument_1,
+                  turn_start, operation_start).
+task_span_pattern(failure_explanation, argument_2,
+                  operation_end, marker_or_turn_end(followup_request)).
+
+task_span_pattern(ordered_procedure, argument_1,
+                  operation_end, marker_or_turn_end(modifier_marker)).
+task_span_pattern(constraint_synthesis, argument_1,
+                  operation_end, turn_end).
+
+task_span_pattern(common, resource,
+                  marker_end(resource_marker), marker_or_turn_end(constraint_marker)).
+task_span_pattern(common, constraint,
+                  marker_end(constraint_marker), turn_end).
+
+machinery(task_boundary_cue).
+machinery(task_span_pattern).

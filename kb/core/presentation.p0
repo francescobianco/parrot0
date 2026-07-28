@@ -41,6 +41,8 @@ task_response_frame(comparison_tie,
   "For {goal}, neither option matches more stated requirements; the choice depends on which differing property matters most.").
 task_response_frame(failure_explanation,
   "{system} is susceptible to {phenomenon} because it relies on {strategy}. This phenomenon exploits {condition}. That strategy is normally useful because it provides {benefit}. For example, {example}: {observation}.").
+task_response_frame(example_event,
+  "{subject} {relation} {object}").
 task_response_frame(procedure_intro,
   "{process}, in dependency order:").
 task_response_frame(procedure_intro_deadline,
@@ -49,9 +51,27 @@ task_response_frame(procedure_step,
   "{number}. {instruction}").
 task_response_frame(procedure_step_focus,
   "{number}. {instruction} This step strongly affects {impact}.").
+% R3 fixed-point rendering.  The instruction slot above remains available to
+% legacy worlds, but operator worlds use only the compositional frame below:
+% verb, patient, parameters and produced state are independent KB fields.
+task_response_frame(procedure_action,
+  "{verb} {patient} {parameters}, producing {result}.").
 task_response_frame(procedure_finish,
   "These actions reach {goal}.").
+task_response_frame(synthesis_intro,
+  "A concrete design for {subject}:").
+task_response_frame(synthesis_feature,
+  "{number}. {instruction} This covers {matches}.").
+task_response_frame(synthesis_finish,
+  "Together these features cover every stated requirement: {requirements}.").
+
+action_parameter_frame(condition, "{value}").
+action_parameter_frame(method, "{value}").
+action_parameter_frame(control, "{value}").
+action_parameter_frame(sequence, "{value}").
+action_parameter_frame(safety, "{value}").
 
 machinery(task_response_frame).
 machinery(reasoning_gloss).
 machinery(property_gloss).
+machinery(action_parameter_frame).

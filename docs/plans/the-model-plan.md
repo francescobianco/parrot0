@@ -676,3 +676,58 @@ sonetto/haiku. Se la IR e l'operatore partono ma mancano proprietà dei due gene
 il risultato corretto della sessione è **gap di conoscenza**, non una risposta
 scritta a mano. Se non parte la IR, il gap è comprensione. Questa separazione è
 il primo guadagno architetturale che il batch gen365 non permetteva di vedere.
+
+### 12.5 Falsificazione interna di R3: ordinare payload non è pianificare
+
+Il primo `ordered_procedure` aveva una trasformazione reale — la chiusura degli
+stati e l'ordinamento topologico — ma terminava in `action_instruction/2`.
+Quindi “birra”, “flat-pack” e “pasto” erano ancora risposte specifiche, soltanto
+spezzate per passo. Questo non può sopravvivere a un tail nuovo.
+
+La correzione gen367 porta la relazione al punto fisso:
+
+- `process_product(Process, Product)`;
+- `product_input(Product, Input, Role)`;
+- `action_consumes(Action, Input)`;
+- `action_semantics(Action, Verb, Patient)`;
+- `action_requires/2` e `action_produces/2`;
+- `action_parameter(Action, Kind, Value)`.
+
+`process_input_covered/4` è la conclusione dedotta comune a cucina,
+assemblaggio e pipeline tecniche. C verifica la quantificazione universale
+“ogni input è coperto” durante lo stesso walk che ordina le azioni. Il renderer
+compone i campi; non legge una frase-passo. L'ablazione di
+`action_consumes(boil_wort_with_hops,hops)` invalida soltanto il prodotto birra,
+mentre la procedura del caffè continua a funzionare.
+
+Questo corregge R3, ma non prova ancora trasferimento open-world: la Task IR
+continua a dipendere da `task_entity_cue`. Il prossimo gate è legare span nuovi
+dal prompt tramite marcatori grammaticali presenti in KB; aggiungere altre
+entità del tail prima di quel gate ripeterebbe l'errore.
+
+### 12.6 Gen367: il gate open-world è superato, non il LLMSCORE
+
+`task_span_pattern/4` separa ora la forma grammaticale dal contenuto del turno.
+I delimitatori sono `task_boundary_cue/2`, quindi assert/retract di un nuovo
+separatore modifica il binding senza rebuild. Gli span non risolti da alias
+diventano termini locali e vengono proiettati in `task_term_concept/2` come
+sequenze concettuali contigue.
+
+R1 e R2 consumano questa proiezione attraverso relazioni `effective_*`.
+L'esperimento decisivo non aggiunge `task_entity_cue` per i composti:
+
+- `linen_shirt` vs `wool_coat` eredita proprietà da `linen` e `wool`;
+- `paper_carton` vs `plastic_crate` eredita da `paper` e `plastic`;
+- `gps_receiver` vulnerabile a `multipath_interference` eredita il meccanismo
+  dai concetti `gps` e `multipath`.
+
+R4 generalizza il goal matching da opzioni date a feature recuperate:
+`task_candidate`, `task_requirement` e `task_feature_match` derivano una
+copertura completa di requisiti. Lo stesso consumer costruisce notifiche,
+sensor network, navigazione subacquea e signaling magnetico; le istruzioni
+emergono da `action_semantics`, parametri ed effetti.
+
+Il controllo puntuale sale a **43/43** e la build è pulita. Questo dimostra
+trasferimento tra termini composti e quattro mondi R4, non 20/20 su domande
+libere. Mancano ancora operatori al punto fisso per proiezione causale,
+argomentazione e composizione creativa; il judge remoto resta prematuro.

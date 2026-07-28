@@ -584,14 +584,31 @@ reasoning_operator_active(goal_comparison).
 
 task_difference($X, $Y, $Dimension, pair($VX, $VY)) :-
     reasoning_operator_active(goal_comparison),
-    property($X, $Dimension, $VX),
-    property($Y, $Dimension, $VY),
+    effective_property($X, $Dimension, $VX),
+    effective_property($Y, $Dimension, $VY),
     dif($VX, $VY).
 
 task_goal_match($Candidate, $Goal, $Dimension, $Value) :-
     reasoning_operator_active(goal_comparison),
-    goal_prefers($Goal, $Dimension, $Value),
-    property($Candidate, $Dimension, $Value).
+    effective_goal_prefers($Goal, $Dimension, $Value),
+    effective_property($Candidate, $Dimension, $Value).
+
+% Open terms inherit only relations explicitly attached to one of their
+% compositional concepts.  "linen_shirt" may therefore reuse a property of
+% linen without an entity cue or a fact naming linen_shirt.
+effective_property($Entity, $Dimension, $Value) :-
+    property($Entity, $Dimension, $Value).
+
+effective_property($Entity, $Dimension, $Value) :-
+    task_term_concept($Entity, $Concept),
+    property($Concept, $Dimension, $Value).
+
+effective_goal_prefers($Goal, $Dimension, $Value) :-
+    goal_prefers($Goal, $Dimension, $Value).
+
+effective_goal_prefers($Goal, $Dimension, $Value) :-
+    task_term_concept($Goal, $Concept),
+    goal_prefers($Concept, $Dimension, $Value).
 
 % R2 — explain a system's vulnerability as a reusable trade-off:
 % a normally useful strategy has a failure condition that a phenomenon exploits.
@@ -599,19 +616,40 @@ reasoning_operator_active(failure_explanation).
 
 failure_mechanism($System, $Phenomenon, $Strategy, $Condition) :-
     reasoning_operator_active(failure_explanation),
-    system_relies_on($System, $Strategy),
+    effective_system_relies_on($System, $Strategy),
     strategy_failure_condition($Strategy, $Condition),
-    phenomenon_exploits($Phenomenon, $Condition).
+    effective_phenomenon_exploits($Phenomenon, $Condition).
 
 normal_strategy_benefit($System, $Strategy, $Benefit) :-
     reasoning_operator_active(failure_explanation),
-    system_relies_on($System, $Strategy),
+    effective_system_relies_on($System, $Strategy),
     strategy_benefit($Strategy, $Benefit).
 
-failure_example($Phenomenon, $Example, $Observation) :-
+failure_example($Phenomenon, $Example, $Relation, $Object) :-
     reasoning_operator_active(failure_explanation),
-    phenomenon_example($Phenomenon, $Example),
-    example_observation($Example, $Observation).
+    effective_phenomenon_example($Phenomenon, $Example),
+    example_event($Example, $Subject, $Relation, $Object).
+
+effective_system_relies_on($System, $Strategy) :-
+    system_relies_on($System, $Strategy).
+
+effective_system_relies_on($System, $Strategy) :-
+    task_term_concept($System, $Concept),
+    system_relies_on($Concept, $Strategy).
+
+effective_phenomenon_exploits($Phenomenon, $Condition) :-
+    phenomenon_exploits($Phenomenon, $Condition).
+
+effective_phenomenon_exploits($Phenomenon, $Condition) :-
+    task_term_concept($Phenomenon, $Concept),
+    phenomenon_exploits($Concept, $Condition).
+
+effective_phenomenon_example($Phenomenon, $Example) :-
+    phenomenon_example($Phenomenon, $Example).
+
+effective_phenomenon_example($Phenomenon, $Example) :-
+    task_term_concept($Phenomenon, $Concept),
+    phenomenon_example($Concept, $Example).
 
 % R3 — process planning.  The recursive clause proves that a goal state follows
 % from initial state plus action preconditions/effects; C performs the same
@@ -636,14 +674,58 @@ process_dependency($Process, $Before, $After, $State) :-
     action_produces($Before, $State),
     action_requires($After, $State).
 
+% A recipe, an assembly and a software pipeline are the same relation at the
+% fixed point: actions consume typed inputs and produce states toward a product.
+% The verb used to describe an action is a field of action_semantics/3, not a
+% predicate such as brewed/assembled/deployed.  This rule proves input coverage;
+% C checks the universal "every declared input is covered" condition while it
+% performs the already-required dependency walk.
+process_input_covered($Process, $Product, $Input, $Action) :-
+    reasoning_operator_active(ordered_procedure),
+    process_product($Process, $Product),
+    product_input($Product, $Input, $Role),
+    process_action($Process, $Action),
+    action_consumes($Action, $Input).
+
+% R4 — constraint synthesis is goal matching without pre-enumerated options.
+% Concepts in an open task term expose requirements and candidate features;
+% properties decide which features cover which requirements.
+reasoning_operator_active(constraint_synthesis).
+
+task_candidate($Context, $Feature) :-
+    reasoning_operator_active(constraint_synthesis),
+    task_term_concept($Context, $Concept),
+    candidate_for($Concept, $Feature).
+
+task_requirement($Context, $Dimension, $Value) :-
+    reasoning_operator_active(constraint_synthesis),
+    task_term_concept($Context, $Concept),
+    goal_prefers($Concept, $Dimension, $Value).
+
+task_feature_match($Context, $Feature, $Dimension, $Value) :-
+    reasoning_operator_active(constraint_synthesis),
+    task_candidate($Context, $Feature),
+    task_requirement($Context, $Dimension, $Value),
+    property($Feature, $Dimension, $Value).
+
 % Internal protocol predicates are declared as machinery so self-description
 % never mistakes a task trace or a renderer registry for world knowledge.
 machinery(reasoning_operator_active).
 machinery(task_difference).
 machinery(task_goal_match).
+machinery(effective_property).
+machinery(effective_goal_prefers).
 machinery(failure_mechanism).
 machinery(normal_strategy_benefit).
 machinery(failure_example).
+machinery(effective_system_relies_on).
+machinery(effective_phenomenon_exploits).
+machinery(effective_phenomenon_example).
 machinery(process_reaches).
 machinery(process_dependency).
+machinery(process_input_covered).
+machinery(task_candidate).
+machinery(task_requirement).
+machinery(task_feature_match).
 machinery(task_ir).
+machinery(task_term_concept).

@@ -3107,6 +3107,53 @@ static int reasoning_frame(Brain *b, const char *id,
     return 1;
 }
 
+static void reasoning_clear_binary(Brain *b, const char *pred) {
+    char left[256][KB_TERM_LEN];
+    const char *lq[] = { NULL, NULL };
+    size_t nl = kb_match(b->kb, pred, lq, 2, left, 256);
+    for (size_t i = 0; i < nl; i++) {
+        char right[256][KB_TERM_LEN];
+        const char *rq[] = { left[i], NULL };
+        size_t nr = kb_match(b->kb, pred, rq, 2, right, 256);
+        for (size_t j = 0; j < nr; j++) {
+            const char *row[] = { left[i], right[j] };
+            kb_retract(b->kb, pred, row, 2);
+        }
+    }
+}
+
+static void reasoning_project_concepts(Brain *b, const char *term) {
+    if (!term || !*term) return;
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", term);
+    char *parts[24];
+    size_t np = 0;
+    char *p = buf;
+    while (*p && np < 24) {
+        while (*p == '_') p++;
+        if (!*p) break;
+        parts[np++] = p;
+        while (*p && *p != '_') p++;
+        if (*p) *p++ = '\0';
+    }
+    for (size_t first = 0; first < np; first++) {
+        char concept[KB_TERM_LEN] = "";
+        size_t used = 0;
+        for (size_t last = first; last < np; last++) {
+            int n = snprintf(concept + used, sizeof concept - used,
+                             "%s%s", used ? "_" : "", parts[last]);
+            if (n < 0 || (size_t)n >= sizeof concept - used) break;
+            used += (size_t)n;
+            if (first == last) {
+                const char *q[] = { concept };
+                if (kb_query(b->kb, "stopword", q, 1)) continue;
+            }
+            const char *row[] = { term, concept };
+            kb_assert(b->kb, "task_term_concept", row, 2);
+        }
+    }
+}
+
 /* task_ir/2 is a one-turn reflective view.  Enumerating fields before values
  * avoids a C list of schema fields, so adding a field remains data-only. */
 static void reasoning_task_project(Brain *b, const ReasoningTask *task) {
@@ -3122,6 +3169,7 @@ static void reasoning_task_project(Brain *b, const ReasoningTask *task) {
             kb_retract(b->kb, "task_ir", rq, 2);
         }
     }
+    reasoning_clear_binary(b, "task_term_concept");
 
     kb_set_origin(b->kb, KB_REFLECTIVE);
     const char *op[] = { "operation", task->operation };
@@ -3148,6 +3196,13 @@ static void reasoning_task_project(Brain *b, const ReasoningTask *task) {
         const char *constraint[] = { "constraint", task->constraints[i] };
         kb_assert(b->kb, "task_ir", constraint, 2);
     }
+    for (size_t i = 0; i < task->nargs; i++)
+        reasoning_project_concepts(b, task->arguments[i]);
+    reasoning_project_concepts(b, task->goal);
+    for (size_t i = 0; i < task->nresources; i++)
+        reasoning_project_concepts(b, task->resources[i]);
+    for (size_t i = 0; i < task->nconstraints; i++)
+        reasoning_project_concepts(b, task->constraints[i]);
     kb_set_origin(b->kb, KB_SESSION);
 }
 
@@ -3166,6 +3221,225 @@ static size_t reasoning_collect_evidence(Brain *b, const char *relation,
         n++;
     }
     return n;
+}
+
+static int reasoning_operation_span(Brain *b, const char *operation,
+                                    const char *norm,
+                                    size_t *start, size_t *end) {
+    KbEvidenceMatch hits[64];
+    size_t nh = kb_evidence_matches(b->kb, "task_operation_cue",
+                                    operation, norm, hits, 64);
+    if (nh == 0) return 0;
+    size_t best = 0;
+    for (size_t i = 1; i < nh; i++) {
+        /* The request head is the earliest operation evidence.  If several
+         * forms begin there, the longest one owns the span ("recipe for"
+         * rather than "recipe"). */
+        if (hits[i].start < hits[best].start ||
+            (hits[i].start == hits[best].start &&
+             hits[i].len > hits[best].len))
+            best = i;
+    }
+    *start = hits[best].start;
+    *end = hits[best].start + hits[best].len;
+    return 1;
+}
+
+static int reasoning_boundary_span(Brain *b, const char *marker,
+                                   const char *norm, size_t after,
+                                   size_t *start, size_t *end) {
+    KbEvidenceMatch hits[64];
+    size_t nh = kb_evidence_matches(b->kb, "task_boundary_cue",
+                                    marker, norm, hits, 64);
+    for (size_t i = 0; i < nh; i++) {
+        if (hits[i].start < after) continue;
+        *start = hits[i].start;
+        *end = hits[i].start + hits[i].len;
+        return 1;
+    }
+    return 0;
+}
+
+/* Resolve an abstract span anchor.  Anchor names are parser mechanics; every
+ * natural-language delimiter they invoke remains in task_boundary_cue/2. */
+static int reasoning_anchor(Brain *b, const char *anchor, const char *norm,
+                            size_t operation_start, size_t operation_end,
+                            size_t after, int is_end, size_t *position) {
+    if (strcmp(anchor, "turn_start") == 0) {
+        *position = 0;
+        return 1;
+    }
+    if (strcmp(anchor, "turn_end") == 0) {
+        *position = strlen(norm);
+        return 1;
+    }
+    if (strcmp(anchor, "operation_start") == 0) {
+        *position = operation_start;
+        return 1;
+    }
+    if (strcmp(anchor, "operation_end") == 0) {
+        *position = operation_end;
+        return 1;
+    }
+
+    char marker[KB_TERM_LEN];
+    int want_start = 0, optional = 0;
+    if (sscanf(anchor, "marker_start(%127[^)])", marker) == 1)
+        want_start = 1;
+    else if (sscanf(anchor, "marker_end(%127[^)])", marker) == 1)
+        want_start = 0;
+    else if (sscanf(anchor, "marker_or_turn_end(%127[^)])", marker) == 1) {
+        want_start = 1;
+        optional = 1;
+    } else return 0;
+
+    size_t ms = 0, me = 0;
+    if (reasoning_boundary_span(b, marker, norm, after, &ms, &me)) {
+        *position = want_start ? ms : me;
+        return 1;
+    }
+    if (optional && is_end) {
+        *position = strlen(norm);
+        return 1;
+    }
+    return 0;
+}
+
+static int reasoning_span_atom(Brain *b, const char *norm,
+                               size_t start, size_t end,
+                               char *atom, size_t atom_size) {
+    if (end <= start || end - start >= 256 || atom_size == 0) return 0;
+    char surface[256];
+    memcpy(surface, norm + start, end - start);
+    surface[end - start] = '\0';
+
+    /* A known alias resolves the open span when possible; aliases refine the
+     * universe but no longer define it. */
+    char known[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+    int score = 0;
+    if (kb_hypothesis_best(b->kb, "task_entity_cue", surface, NULL, 0,
+                           known, sizeof known, &score,
+                           proof, sizeof proof) == 1) {
+        snprintf(atom, atom_size, "%s", known);
+        return 1;
+    }
+
+    char buf[256];
+    snprintf(buf, sizeof buf, "%s", surface);
+    char *words[48];
+    size_t nw = split_words(buf, words, 48), first = 0;
+    while (first < nw) {
+        char *token = strip_edge_punct(words[first]);
+        if (!*token) { first++; continue; }
+        const char *q[] = { token };
+        if (!kb_query(b->kb, "intent_starter", q, 1) &&
+            !kb_query(b->kb, "auxiliary", q, 1) &&
+            !kb_query(b->kb, "np_opener", q, 1))
+            break;
+        first++;
+    }
+
+    size_t used = 0;
+    atom[0] = '\0';
+    for (size_t i = first; i < nw; i++) {
+        char *token = strip_edge_punct(words[i]);
+        for (size_t j = 0; token[j]; j++) {
+            unsigned char c = (unsigned char)token[j];
+            if (!isalnum(c)) {
+                if (used && atom[used - 1] != '_' && used + 1 < atom_size)
+                    atom[used++] = '_';
+                continue;
+            }
+            if (used + 1 >= atom_size) return 0;
+            atom[used++] = (char)tolower(c);
+        }
+        if (i + 1 < nw && used && atom[used - 1] != '_' &&
+            used + 1 < atom_size)
+            atom[used++] = '_';
+    }
+    while (used && atom[used - 1] == '_') used--;
+    atom[used] = '\0';
+    if (!used) return 0;
+    if (isdigit((unsigned char)atom[0])) {
+        if (used + 6 >= atom_size) return 0;
+        memmove(atom + 5, atom, used + 1);
+        memcpy(atom, "turn_", 5);
+    }
+    return 1;
+}
+
+static size_t reasoning_open_spans(Brain *b, const char *norm,
+                                   ReasoningTask *task) {
+    size_t operation_start = 0, operation_end = 0;
+    if (!reasoning_operation_span(b, task->operation, norm,
+                                  &operation_start, &operation_end))
+        return 0;
+
+    size_t bound = 0;
+    const char *pattern_keys[] = { task->operation, "common" };
+    for (size_t key = 0; key < 2; key++) {
+        char roles[16][KB_TERM_LEN];
+        const char *rq[] = { pattern_keys[key], NULL, NULL, NULL };
+        size_t nr = kb_match(b->kb, "task_span_pattern",
+                             rq, 4, roles, 16);
+        for (size_t i = 0; i < nr; i++) {
+            int duplicate = 0;
+            for (size_t j = 0; j < i; j++)
+                if (strcmp(roles[j], roles[i]) == 0) duplicate = 1;
+            if (duplicate) continue;
+
+            char starts[1][KB_TERM_LEN], ends[1][KB_TERM_LEN];
+            const char *sq[] = {
+                pattern_keys[key], roles[i], NULL, NULL
+            };
+            if (kb_match(b->kb, "task_span_pattern",
+                         sq, 4, starts, 1) == 0)
+                continue;
+            const char *eq[] = {
+                pattern_keys[key], roles[i], starts[0], NULL
+            };
+            if (kb_match(b->kb, "task_span_pattern",
+                         eq, 4, ends, 1) == 0)
+                continue;
+
+            size_t from = 0, to = 0;
+            if (!reasoning_anchor(b, starts[0], norm,
+                                  operation_start, operation_end,
+                                  operation_end, 0, &from))
+                continue;
+            if (!reasoning_anchor(b, ends[0], norm,
+                                  operation_start, operation_end,
+                                  from, 1, &to) || to <= from)
+                continue;
+
+            char value[KB_TERM_LEN];
+            if (!reasoning_span_atom(b, norm, from, to,
+                                     value, sizeof value))
+                continue;
+            size_t index = 0;
+            if (sscanf(roles[i], "argument_%zu", &index) == 1 &&
+                index >= 1 && index <= 4) {
+                snprintf(task->arguments[index - 1],
+                         sizeof task->arguments[index - 1], "%s", value);
+                if (task->nargs < index) task->nargs = index;
+                bound++;
+            } else if (strcmp(roles[i], "goal") == 0 && !task->goal[0]) {
+                snprintf(task->goal, sizeof task->goal, "%s", value);
+                bound++;
+            } else if (strcmp(roles[i], "resource") == 0 &&
+                       task->nresources == 0) {
+                snprintf(task->resources[task->nresources++], KB_TERM_LEN,
+                         "%s", value);
+                bound++;
+            } else if (strcmp(roles[i], "constraint") == 0 &&
+                       task->nconstraints == 0) {
+                snprintf(task->constraints[task->nconstraints++], KB_TERM_LEN,
+                         "%s", value);
+                bound++;
+            }
+        }
+    }
+    return bound;
 }
 
 static int reasoning_task_parse(Brain *b, const char *norm,
@@ -3190,23 +3464,26 @@ static int reasoning_task_parse(Brain *b, const char *norm,
                              task->deadline, sizeof task->deadline,
                              &score, proof, sizeof proof);
 
-    KbEvidenceMatch hits[64];
-    size_t nh = kb_evidence_matches(b->kb, "task_entity_cue", NULL,
-                                    norm, hits, 64);
-    for (size_t i = 0; i < nh && task->nargs < 4; i++) {
-        const char *entity = hits[i].hypothesis;
-        int duplicate = 0;
-        for (size_t j = 0; j < task->nargs; j++)
-            if (strcmp(task->arguments[j], entity) == 0) duplicate = 1;
-        if (duplicate) continue;
-        snprintf(task->arguments[task->nargs],
-                 sizeof task->arguments[task->nargs], "%s", entity);
-        task->nargs++;
-    }
     task->nresources = reasoning_collect_evidence(
         b, "task_resource_cue", norm, task->resources, 8);
     task->nconstraints = reasoning_collect_evidence(
         b, "task_constraint_cue", norm, task->constraints, 8);
+    (void)reasoning_open_spans(b, norm, task);
+    if (task->nargs == 0) {
+        KbEvidenceMatch hits[64];
+        size_t nh = kb_evidence_matches(b->kb, "task_entity_cue", NULL,
+                                        norm, hits, 64);
+        for (size_t i = 0; i < nh && task->nargs < 4; i++) {
+            const char *entity = hits[i].hypothesis;
+            int duplicate = 0;
+            for (size_t j = 0; j < task->nargs; j++)
+                if (strcmp(task->arguments[j], entity) == 0) duplicate = 1;
+            if (duplicate) continue;
+            snprintf(task->arguments[task->nargs],
+                     sizeof task->arguments[task->nargs], "%s", entity);
+            task->nargs++;
+        }
+    }
     reasoning_task_project(b, task);
     return 1;
 }
@@ -3242,6 +3519,137 @@ static int reasoning_join_phrases(Brain *b,
     return 1;
 }
 
+static size_t reasoning_effective_dimensions(Brain *b, const char *relation,
+                                             const char *term,
+                                             char out[][KB_TERM_LEN],
+                                             size_t max) {
+    size_t n = 0;
+    char direct[32][KB_TERM_LEN];
+    const char *dq[] = { term, NULL, NULL };
+    size_t nd = kb_match(b->kb, relation, dq, 3, direct, 32);
+    for (size_t i = 0; i < nd && n < max; i++) {
+        int duplicate = 0;
+        for (size_t j = 0; j < n; j++)
+            if (strcmp(out[j], direct[i]) == 0) duplicate = 1;
+        if (!duplicate)
+            snprintf(out[n++], KB_TERM_LEN, "%s", direct[i]);
+    }
+
+    char concepts[256][KB_TERM_LEN];
+    const char *cq[] = { term, NULL };
+    size_t nc = kb_match(b->kb, "task_term_concept",
+                         cq, 2, concepts, 256);
+    for (size_t c = 0; c < nc && n < max; c++) {
+        char inherited[32][KB_TERM_LEN];
+        const char *iq[] = { concepts[c], NULL, NULL };
+        size_t ni = kb_match(b->kb, relation, iq, 3, inherited, 32);
+        for (size_t i = 0; i < ni && n < max; i++) {
+            int duplicate = 0;
+            for (size_t j = 0; j < n; j++)
+                if (strcmp(out[j], inherited[i]) == 0) duplicate = 1;
+            if (!duplicate)
+                snprintf(out[n++], KB_TERM_LEN, "%s", inherited[i]);
+        }
+    }
+    return n;
+}
+
+static int reasoning_effective_value(Brain *b, const char *relation,
+                                     const char *term,
+                                     const char *dimension,
+                                     char *value, size_t value_size) {
+    char hits[1][KB_TERM_LEN];
+    const char *dq[] = { term, dimension, NULL };
+    if (kb_match(b->kb, relation, dq, 3, hits, 1) > 0) {
+        snprintf(value, value_size, "%s", hits[0]);
+        return 1;
+    }
+    char concepts[256][KB_TERM_LEN];
+    const char *cq[] = { term, NULL };
+    size_t nc = kb_match(b->kb, "task_term_concept",
+                         cq, 2, concepts, 256);
+    for (size_t c = 0; c < nc; c++) {
+        const char *iq[] = { concepts[c], dimension, NULL };
+        if (kb_match(b->kb, relation, iq, 3, hits, 1) == 0) continue;
+        snprintf(value, value_size, "%s", hits[0]);
+        return 1;
+    }
+    return 0;
+}
+
+static size_t reasoning_effective_binary_values(
+    Brain *b, const char *relation, const char *term,
+    char out[][KB_TERM_LEN], size_t max) {
+    size_t n = 0;
+    char direct[32][KB_TERM_LEN];
+    const char *dq[] = { term, NULL };
+    size_t nd = kb_match(b->kb, relation, dq, 2, direct, 32);
+    for (size_t i = 0; i < nd && n < max; i++) {
+        int duplicate = 0;
+        for (size_t j = 0; j < n; j++)
+            if (strcmp(out[j], direct[i]) == 0) duplicate = 1;
+        if (!duplicate)
+            snprintf(out[n++], KB_TERM_LEN, "%s", direct[i]);
+    }
+
+    char concepts[256][KB_TERM_LEN];
+    const char *cq[] = { term, NULL };
+    size_t nc = kb_match(b->kb, "task_term_concept",
+                         cq, 2, concepts, 256);
+    for (size_t c = 0; c < nc && n < max; c++) {
+        char inherited[32][KB_TERM_LEN];
+        const char *iq[] = { concepts[c], NULL };
+        size_t ni = kb_match(b->kb, relation, iq, 2, inherited, 32);
+        for (size_t i = 0; i < ni && n < max; i++) {
+            int duplicate = 0;
+            for (size_t j = 0; j < n; j++)
+                if (strcmp(out[j], inherited[i]) == 0) duplicate = 1;
+            if (!duplicate)
+                snprintf(out[n++], KB_TERM_LEN, "%s", inherited[i]);
+        }
+    }
+    return n;
+}
+
+static int reasoning_effective_binary_has(Brain *b, const char *relation,
+                                          const char *term,
+                                          const char *value) {
+    char values[64][KB_TERM_LEN];
+    size_t n = reasoning_effective_binary_values(
+        b, relation, term, values, 64);
+    for (size_t i = 0; i < n; i++)
+        if (strcmp(values[i], value) == 0) return 1;
+    return 0;
+}
+
+static int reasoning_example_event_sentence(Brain *b, const char *example,
+                                            char *out, size_t out_size) {
+    char subjects[1][KB_TERM_LEN], relations[1][KB_TERM_LEN];
+    char objects[1][KB_TERM_LEN];
+    const char *sq[] = { example, NULL, NULL, NULL };
+    if (kb_match(b->kb, "example_event", sq, 4, subjects, 1) == 0)
+        return 0;
+    const char *rq[] = { example, subjects[0], NULL, NULL };
+    if (kb_match(b->kb, "example_event", rq, 4, relations, 1) == 0)
+        return 0;
+    const char *oq[] = { example, subjects[0], relations[0], NULL };
+    if (kb_match(b->kb, "example_event", oq, 4, objects, 1) == 0)
+        return 0;
+
+    char subject[KB_TERM_LEN], relation[KB_TERM_LEN], object[KB_TERM_LEN];
+    reasoning_gloss(b, subjects[0], subject, sizeof subject);
+    reasoning_gloss(b, relations[0], relation, sizeof relation);
+    reasoning_gloss(b, objects[0], object, sizeof object);
+    char frame[KB_TERM_LEN];
+    if (!reasoning_frame(b, "example_event", frame, sizeof frame))
+        return 0;
+    const KbResponseSlot slots[] = {
+        { "subject", subject }, { "relation", relation },
+        { "object", object }
+    };
+    return kb_fill_slots(frame, slots, 3, 1, out, out_size);
+}
+
 static size_t reasoning_goal_matches(Brain *b, const char *candidate,
                                      const char *goal,
                                      char phrases[][KB_TERM_LEN], size_t max,
@@ -3249,28 +3657,32 @@ static size_t reasoning_goal_matches(Brain *b, const char *candidate,
     const char *enabled[] = { "goal_comparison" };
     if (!kb_query(b->kb, "reasoning_operator_active", enabled, 1)) return 0;
     char dimensions[16][KB_TERM_LEN];
-    const char *dq[] = { goal, NULL, NULL };
-    size_t nd = kb_match(b->kb, "goal_prefers", dq, 3, dimensions, 16);
+    size_t nd = reasoning_effective_dimensions(
+        b, "goal_prefers", goal, dimensions, 16);
     size_t n = 0;
     for (size_t i = 0; i < nd && n < max; i++) {
-        char values[1][KB_TERM_LEN];
-        const char *vq[] = { goal, dimensions[i], NULL };
-        if (kb_match(b->kb, "goal_prefers", vq, 3, values, 1) == 0)
+        char value[KB_TERM_LEN];
+        if (!reasoning_effective_value(b, "goal_prefers", goal,
+                                       dimensions[i], value, sizeof value))
             continue;
-        const char *pq[] = { candidate, dimensions[i], values[0] };
-        if (!kb_query(b->kb, "property", pq, 3))
+        char candidate_value[KB_TERM_LEN];
+        if (!reasoning_effective_value(b, "property", candidate,
+                                       dimensions[i], candidate_value,
+                                       sizeof candidate_value) ||
+            strcmp(candidate_value, value) != 0)
             continue;
-        if (!reasoning_property_gloss(b, dimensions[i], values[0],
+        if (!reasoning_property_gloss(b, dimensions[i], value,
                                       phrases[n], KB_TERM_LEN))
             continue;
         if (n == 0 && proof && proof_size) {
             snprintf(proof, proof_size,
                      "task_goal_match(%s, %s, %s, %s) because "
                      "reasoning_operator_active(goal_comparison) and "
-                     "goal_prefers(%s, %s, %s) and property(%s, %s, %s)",
-                     candidate, goal, dimensions[i], values[0],
-                     goal, dimensions[i], values[0],
-                     candidate, dimensions[i], values[0]);
+                     "effective_goal_prefers(%s, %s, %s) and "
+                     "effective_property(%s, %s, %s)",
+                     candidate, goal, dimensions[i], value,
+                     goal, dimensions[i], value,
+                     candidate, dimensions[i], value);
         }
         n++;
     }
@@ -3290,24 +3702,24 @@ static int reasoning_goal_comparison(Brain *b, const ReasoningTask *task,
     reasoning_gloss(b, task->goal, gg, sizeof gg);
 
     char dimensions[16][KB_TERM_LEN];
-    const char *dq[] = { x, NULL, NULL };
-    size_t nd = kb_match(b->kb, "property", dq, 3, dimensions, 16);
+    size_t nd = reasoning_effective_dimensions(
+        b, "property", x, dimensions, 16);
     if (nd == 0) return 0;
 
     out[0] = '\0';
     char combined_proof[512] = "";
     size_t written = 0;
     for (size_t i = 0; i < nd && written < 4; i++) {
-        char xv[1][KB_TERM_LEN], yv[1][KB_TERM_LEN];
-        const char *xq[] = { x, dimensions[i], NULL };
-        const char *yq[] = { y, dimensions[i], NULL };
-        if (kb_match(b->kb, "property", xq, 3, xv, 1) == 0 ||
-            kb_match(b->kb, "property", yq, 3, yv, 1) == 0 ||
-            strcmp(xv[0], yv[0]) == 0)
+        char xv[KB_TERM_LEN], yv[KB_TERM_LEN];
+        if (!reasoning_effective_value(b, "property", x, dimensions[i],
+                                       xv, sizeof xv) ||
+            !reasoning_effective_value(b, "property", y, dimensions[i],
+                                       yv, sizeof yv) ||
+            strcmp(xv, yv) == 0)
             continue;
         char vx[KB_TERM_LEN], vy[KB_TERM_LEN], pair[KB_TERM_LEN];
-        snprintf(vx, sizeof vx, "%s", xv[0]);
-        snprintf(vy, sizeof vy, "%s", yv[0]);
+        snprintf(vx, sizeof vx, "%s", xv);
+        snprintf(vy, sizeof vy, "%s", yv);
         snprintf(pair, sizeof pair, "pair(%s,%s)", vx, vy);
 
         char dg[KB_TERM_LEN], px[KB_TERM_LEN], py[KB_TERM_LEN];
@@ -3331,7 +3743,8 @@ static int reasoning_goal_comparison(Brain *b, const ReasoningTask *task,
             snprintf(combined_proof, sizeof combined_proof,
                      "task_difference(%s, %s, %s, %s) because "
                      "reasoning_operator_active(goal_comparison) and "
-                     "property(%s, %s, %s) and property(%s, %s, %s) "
+                     "effective_property(%s, %s, %s) and "
+                     "effective_property(%s, %s, %s) "
                      "and dif(%s, %s)",
                      x, y, dimensions[i], pair,
                      x, dimensions[i], vx, y, dimensions[i], vy, vx, vy);
@@ -3392,8 +3805,8 @@ static int reasoning_failure_explanation(Brain *b,
     if (!kb_query(b->kb, "reasoning_operator_active", enabled, 1)) return 0;
 
     char strategies[8][KB_TERM_LEN];
-    const char *sq[] = { system, NULL };
-    size_t ns = kb_match(b->kb, "system_relies_on", sq, 2, strategies, 8);
+    size_t ns = reasoning_effective_binary_values(
+        b, "system_relies_on", system, strategies, 8);
     char strategy[KB_TERM_LEN] = "", condition[KB_TERM_LEN] = "";
     for (size_t i = 0; i < ns && !strategy[0]; i++) {
         char conditions[8][KB_TERM_LEN];
@@ -3401,8 +3814,10 @@ static int reasoning_failure_explanation(Brain *b,
         size_t nc = kb_match(b->kb, "strategy_failure_condition",
                              cq, 2, conditions, 8);
         for (size_t j = 0; j < nc; j++) {
-            const char *eq[] = { phenomenon, conditions[j] };
-            if (!kb_query(b->kb, "phenomenon_exploits", eq, 2)) continue;
+            if (!reasoning_effective_binary_has(
+                    b, "phenomenon_exploits",
+                    phenomenon, conditions[j]))
+                continue;
             snprintf(strategy, sizeof strategy, "%s", strategies[i]);
             snprintf(condition, sizeof condition, "%s", conditions[j]);
             break;
@@ -3410,16 +3825,15 @@ static int reasoning_failure_explanation(Brain *b,
     }
     if (!strategy[0]) return 0;
 
-    char benefits[1][KB_TERM_LEN], examples[1][KB_TERM_LEN];
+    char benefits[1][KB_TERM_LEN], examples[8][KB_TERM_LEN];
     const char *bq[] = { strategy, NULL };
-    const char *exq[] = { phenomenon, NULL };
     if (kb_match(b->kb, "strategy_benefit", bq, 2, benefits, 1) == 0 ||
-        kb_match(b->kb, "phenomenon_example", exq, 2, examples, 1) == 0)
+        reasoning_effective_binary_values(
+            b, "phenomenon_example", phenomenon, examples, 8) == 0)
         return 0;
-    char observations[1][KB_TERM_LEN];
-    const char *oq[] = { examples[0], NULL };
-    if (kb_match(b->kb, "example_observation", oq, 2,
-                 observations, 1) == 0)
+    char observation[KB_TERM_LEN];
+    if (!reasoning_example_event_sentence(
+            b, examples[0], observation, sizeof observation))
         return 0;
 
     char sg[KB_TERM_LEN], pg[KB_TERM_LEN], stg[KB_TERM_LEN];
@@ -3437,7 +3851,7 @@ static int reasoning_failure_explanation(Brain *b,
     const KbResponseSlot slots[] = {
         { "system", sg }, { "phenomenon", pg }, { "strategy", stg },
         { "condition", cg }, { "benefit", bg }, { "example", eg },
-        { "observation", kb_dequote(observations[0]) }
+        { "observation", observation }
     };
     if (!kb_fill_slots(frame, slots, 7, 1, out, out_size)) return 0;
     out[0] = (char)toupper((unsigned char)out[0]);
@@ -3446,9 +3860,9 @@ static int reasoning_failure_explanation(Brain *b,
     snprintf(proof, sizeof proof,
              "failure_mechanism(%s, %s, %s, %s) because "
              "reasoning_operator_active(failure_explanation) and "
-             "system_relies_on(%s, %s) and "
+             "effective_system_relies_on(%s, %s) and "
              "strategy_failure_condition(%s, %s) and "
-             "phenomenon_exploits(%s, %s)",
+             "effective_phenomenon_exploits(%s, %s)",
              system, phenomenon, strategy, condition,
              system, strategy, strategy, condition, phenomenon, condition);
     store_proof(b, proof);
@@ -3460,6 +3874,225 @@ static int reasoning_term_present(const char *terms, size_t n,
     for (size_t i = 0; i < n; i++)
         if (strcmp(terms + i * KB_TERM_LEN, term) == 0) return 1;
     return 0;
+}
+
+/* Render an action from semantic fields rather than from a stored instruction.
+ *
+ *   action_semantics(Action, Verb, Patient)
+ *   action_parameter(Action, Kind, Value)
+ *   action_produces(Action, Result)
+ *
+ * The relation is deliberately invariant across brewing, assembly, cooking
+ * and deployment: "brew"/"assemble"/"deploy" are values in Verb, never new
+ * predicates.  C contributes only field lookup, list folding and slot filling.
+ * Legacy worlds may still expose action_instruction/2 as a lower-priority
+ * fallback, but every gen366+ operator world is exercised through this path. */
+static int reasoning_action_sentence(Brain *b, const char *action,
+                                     char *out, size_t out_size) {
+    char verbs[1][KB_TERM_LEN], patients[1][KB_TERM_LEN];
+    const char *vq[] = { action, NULL, NULL };
+    if (kb_match(b->kb, "action_semantics", vq, 3, verbs, 1) == 0)
+        return 0;
+    const char *pq[] = { action, verbs[0], NULL };
+    if (kb_match(b->kb, "action_semantics", pq, 3, patients, 1) == 0)
+        return 0;
+
+    char results[1][KB_TERM_LEN];
+    const char *rq[] = { action, NULL };
+    if (kb_match(b->kb, "action_produces", rq, 2, results, 1) == 0)
+        return 0;
+
+    char verb[KB_TERM_LEN], patient[KB_TERM_LEN], result[KB_TERM_LEN];
+    reasoning_gloss(b, verbs[0], verb, sizeof verb);
+    reasoning_gloss(b, patients[0], patient, sizeof patient);
+    reasoning_gloss(b, results[0], result, sizeof result);
+
+    char kinds[16][KB_TERM_LEN];
+    const char *kq[] = { action, NULL, NULL };
+    size_t nk = kb_match(b->kb, "action_parameter", kq, 3, kinds, 16);
+    char phrases[16][KB_TERM_LEN];
+    size_t np = 0;
+    for (size_t i = 0; i < nk && np < 16; i++) {
+        int duplicate = 0;
+        for (size_t j = 0; j < i; j++)
+            if (strcmp(kinds[j], kinds[i]) == 0) duplicate = 1;
+        if (duplicate) continue;
+
+        char values[8][KB_TERM_LEN];
+        const char *aq[] = { action, kinds[i], NULL };
+        size_t nv = kb_match(b->kb, "action_parameter", aq, 3, values, 8);
+        for (size_t v = 0; v < nv && np < 16; v++) {
+            char frames[1][KB_TERM_LEN], value[KB_TERM_LEN];
+            const char *fq[] = { kinds[i], NULL };
+            if (kb_match(b->kb, "action_parameter_frame", fq, 2,
+                         frames, 1) == 0)
+                continue;
+            reasoning_gloss(b, values[v], value, sizeof value);
+            const KbResponseSlot slots[] = { { "value", value } };
+            if (kb_fill_slots(kb_dequote(frames[0]), slots, 1, 1,
+                              phrases[np], sizeof phrases[np]))
+                np++;
+        }
+    }
+    if (np == 0) return 0;
+
+    char parameters[KB_TERM_LEN];
+    if (!reasoning_join_phrases(b, phrases, np,
+                                parameters, sizeof parameters))
+        return 0;
+
+    char frame[KB_TERM_LEN];
+    if (!reasoning_frame(b, "procedure_action", frame, sizeof frame))
+        return 0;
+    const KbResponseSlot slots[] = {
+        { "verb", verb }, { "patient", patient },
+        { "parameters", parameters }, { "result", result }
+    };
+    return kb_fill_slots(frame, slots, 4, 1, out, out_size);
+}
+
+static int reasoning_constraint_synthesis(Brain *b,
+                                          const ReasoningTask *task,
+                                          char *out, size_t out_size) {
+    if (task->nargs < 1) return 0;
+    const char *enabled[] = { "constraint_synthesis" };
+    if (!kb_query(b->kb, "reasoning_operator_active", enabled, 1)) return 0;
+
+    const char *terms[17];
+    size_t nt = 0;
+    terms[nt++] = task->arguments[0];
+    for (size_t i = 0; i < task->nconstraints && nt < 17; i++)
+        terms[nt++] = task->constraints[i];
+    for (size_t i = 0; i < task->nresources && nt < 17; i++)
+        terms[nt++] = task->resources[i];
+
+    char dimensions[24][KB_TERM_LEN], values[24][KB_TERM_LEN];
+    size_t nrequirements = 0;
+    char candidates[32][KB_TERM_LEN];
+    size_t ncandidates = 0;
+    for (size_t t = 0; t < nt; t++) {
+        char dims[24][KB_TERM_LEN];
+        size_t nd = reasoning_effective_dimensions(
+            b, "goal_prefers", terms[t], dims, 24);
+        for (size_t d = 0; d < nd && nrequirements < 24; d++) {
+            char value[KB_TERM_LEN];
+            if (!reasoning_effective_value(
+                    b, "goal_prefers", terms[t], dims[d],
+                    value, sizeof value))
+                continue;
+            int duplicate = 0;
+            for (size_t r = 0; r < nrequirements; r++)
+                if (strcmp(dimensions[r], dims[d]) == 0 &&
+                    strcmp(values[r], value) == 0)
+                    duplicate = 1;
+            if (!duplicate) {
+                snprintf(dimensions[nrequirements], KB_TERM_LEN,
+                         "%s", dims[d]);
+                snprintf(values[nrequirements], KB_TERM_LEN,
+                         "%s", value);
+                nrequirements++;
+            }
+        }
+
+        char local[32][KB_TERM_LEN];
+        size_t nl = reasoning_effective_binary_values(
+            b, "candidate_for", terms[t], local, 32);
+        for (size_t i = 0; i < nl && ncandidates < 32; i++) {
+            int duplicate = 0;
+            for (size_t c = 0; c < ncandidates; c++)
+                if (strcmp(candidates[c], local[i]) == 0) duplicate = 1;
+            if (!duplicate)
+                snprintf(candidates[ncandidates++], KB_TERM_LEN,
+                         "%s", local[i]);
+        }
+    }
+    if (nrequirements == 0 || ncandidates == 0) return 0;
+
+    int covered[24] = {0};
+    char selected[16][KB_TERM_LEN];
+    char selected_matches[16][KB_TERM_LEN];
+    size_t nselected = 0;
+    for (size_t c = 0; c < ncandidates && nselected < 16; c++) {
+        char matches[24][KB_TERM_LEN];
+        size_t nm = 0;
+        for (size_t r = 0; r < nrequirements; r++) {
+            const char *pq[] = {
+                candidates[c], dimensions[r], values[r]
+            };
+            if (!kb_query(b->kb, "property", pq, 3)) continue;
+            if (!reasoning_property_gloss(
+                    b, dimensions[r], values[r],
+                    matches[nm], KB_TERM_LEN))
+                continue;
+            covered[r] = 1;
+            nm++;
+        }
+        if (nm == 0) continue;
+        if (!reasoning_join_phrases(
+                b, matches, nm, selected_matches[nselected], KB_TERM_LEN))
+            return 0;
+        snprintf(selected[nselected++], KB_TERM_LEN, "%s", candidates[c]);
+    }
+    if (nselected == 0) return 0;
+    for (size_t r = 0; r < nrequirements; r++)
+        if (!covered[r]) return 0;
+
+    char subject[KB_TERM_LEN], frame[KB_TERM_LEN], sentence[KB_TERM_LEN];
+    reasoning_gloss(b, task->arguments[0], subject, sizeof subject);
+    if (!reasoning_frame(b, "synthesis_intro", frame, sizeof frame))
+        return 0;
+    const KbResponseSlot intro_slots[] = { { "subject", subject } };
+    if (!kb_fill_slots(frame, intro_slots, 1, 1,
+                       sentence, sizeof sentence))
+        return 0;
+    snprintf(out, out_size, "%s", sentence);
+    out[0] = (char)toupper((unsigned char)out[0]);
+
+    for (size_t i = 0; i < nselected; i++) {
+        char instruction[KB_TERM_LEN], number[16];
+        if (!reasoning_action_sentence(
+                b, selected[i], instruction, sizeof instruction))
+            return 0;
+        snprintf(number, sizeof number, "%zu", i + 1);
+        if (!reasoning_frame(b, "synthesis_feature", frame, sizeof frame))
+            return 0;
+        const KbResponseSlot slots[] = {
+            { "number", number }, { "instruction", instruction },
+            { "matches", selected_matches[i] }
+        };
+        if (!kb_fill_slots(frame, slots, 3, 1,
+                           sentence, sizeof sentence) ||
+            !reasoning_append(out, out_size, sentence))
+            return 0;
+    }
+
+    char requirement_phrases[24][KB_TERM_LEN], requirement_text[KB_TERM_LEN];
+    for (size_t r = 0; r < nrequirements; r++)
+        if (!reasoning_property_gloss(
+                b, dimensions[r], values[r],
+                requirement_phrases[r], KB_TERM_LEN))
+            return 0;
+    if (!reasoning_join_phrases(
+            b, requirement_phrases, nrequirements,
+            requirement_text, sizeof requirement_text) ||
+        !reasoning_frame(b, "synthesis_finish", frame, sizeof frame))
+        return 0;
+    const KbResponseSlot finish_slots[] = {
+        { "requirements", requirement_text }
+    };
+    if (!kb_fill_slots(frame, finish_slots, 1, 1,
+                       sentence, sizeof sentence) ||
+        !reasoning_append(out, out_size, sentence))
+        return 0;
+
+    char proof[512];
+    snprintf(proof, sizeof proof,
+             "constraint_synthesis(%s) selected %zu feature(s); each "
+             "selection is a task_feature_match and the union covers %zu "
+             "task_requirement conclusions",
+             task->arguments[0], nselected, nrequirements);
+    store_proof(b, proof);
+    return 1;
 }
 
 static int reasoning_ordered_procedure(Brain *b,
@@ -3487,6 +4120,28 @@ static int reasoning_ordered_procedure(Brain *b,
     size_t nstates = kb_match(b->kb, "process_initial_state",
                               iq, 2, states, 64);
     if (na == 0 || nstates == 0) return 0;
+
+    /* A process that declares a product must cover every typed input with at
+     * least one action.  This is the universal half of
+     * process_input_covered/4; it prevents a "recipe" from being merely an
+     * ordered list that silently omits an ingredient or component. */
+    char products[4][KB_TERM_LEN];
+    const char *ppq[] = { process, NULL };
+    size_t nproducts = kb_match(b->kb, "process_product",
+                                ppq, 2, products, 4);
+    for (size_t p = 0; p < nproducts; p++) {
+        char inputs[32][KB_TERM_LEN];
+        const char *piq[] = { products[p], NULL, NULL };
+        size_t ni = kb_match(b->kb, "product_input", piq, 3, inputs, 32);
+        for (size_t in = 0; in < ni; in++) {
+            int covered = 0;
+            for (size_t a = 0; a < na && !covered; a++) {
+                const char *cq[] = { actions[a], inputs[in] };
+                covered = kb_query(b->kb, "action_consumes", cq, 2);
+            }
+            if (!covered) return 0;
+        }
+    }
 
     int done[32] = {0};
     char ordered[32][KB_TERM_LEN];
@@ -3526,12 +4181,7 @@ static int reasoning_ordered_procedure(Brain *b,
             char effects[8][KB_TERM_LEN];
             const char *eq[] = { actions[i], NULL };
             size_t ne = kb_match(b->kb, "action_produces", eq, 2, effects, 8);
-            char instructions[1][KB_TERM_LEN];
-            const char *tq[] = { actions[i], NULL };
-            if (ne == 0 ||
-                kb_match(b->kb, "action_instruction", tq, 2,
-                         instructions, 1) == 0)
-                return 0;
+            if (ne == 0) return 0;
             for (size_t e = 0; e < ne && nstates < 64; e++)
                 if (!reasoning_term_present(&states[0][0], nstates, effects[e]))
                     snprintf(states[nstates++], KB_TERM_LEN, "%s", effects[e]);
@@ -3589,11 +4239,17 @@ static int reasoning_ordered_procedure(Brain *b,
     out[0] = (char)toupper((unsigned char)out[0]);
 
     for (size_t i = 0; i < nordered; i++) {
-        char instructions[1][KB_TERM_LEN];
-        const char *tq[] = { ordered[i], NULL };
-        if (kb_match(b->kb, "action_instruction", tq, 2,
-                     instructions, 1) == 0)
-            return 0;
+        char instruction[KB_TERM_LEN];
+        if (!reasoning_action_sentence(b, ordered[i],
+                                       instruction, sizeof instruction)) {
+            char legacy[1][KB_TERM_LEN];
+            const char *tq[] = { ordered[i], NULL };
+            if (kb_match(b->kb, "action_instruction", tq, 2,
+                         legacy, 1) == 0)
+                return 0;
+            snprintf(instruction, sizeof instruction, "%s",
+                     kb_dequote(legacy[0]));
+        }
         char impacts[1][KB_TERM_LEN], impact_gloss[KB_TERM_LEN] = "";
         int focused = 0;
         if (task->focus[0]) {
@@ -3613,7 +4269,7 @@ static int reasoning_ordered_procedure(Brain *b,
         snprintf(number, sizeof number, "%zu", i + 1);
         const KbResponseSlot step_slots[] = {
             { "number", number },
-            { "instruction", kb_dequote(instructions[0]) },
+            { "instruction", instruction },
             { "impact", impact_gloss }
         };
         if (!kb_fill_slots(frame, step_slots, 3, 1,
@@ -3633,7 +4289,8 @@ static int reasoning_ordered_procedure(Brain *b,
     char proof[512];
     snprintf(proof, sizeof proof,
              "process_reaches(%s, %s) by dependency-ordered applications of "
-             "process_action, action_requires, and action_produces",
+             "process_action, action_requires, and action_produces; every "
+             "declared product_input is process_input_covered",
              process, goals[0]);
     store_proof(b, proof);
     return 1;
@@ -3651,6 +4308,8 @@ static int reasoning_task_lead(Brain *b, const char *norm, const char *raw,
         return reasoning_failure_explanation(b, &task, out, out_size);
     if (strcmp(task.operation, "ordered_procedure") == 0)
         return reasoning_ordered_procedure(b, &task, out, out_size);
+    if (strcmp(task.operation, "constraint_synthesis") == 0)
+        return reasoning_constraint_synthesis(b, &task, out, out_size);
     return 0;
 }
 
