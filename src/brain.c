@@ -36,6 +36,11 @@
 #include <time.h>
 #include <unistd.h>
 
+/* Room for the per-turn module trace. Keep comfortably above the registry length
+ * (see 99-registry.c): the trace is parrot0's own account of how it decided, so
+ * truncating it is a correctness bug, not a display detail. */
+#define BRAIN_TRACE_MAX 128
+
 struct Brain {
     unsigned long turns;   /* how many exchanges we've had this session */
     char name[64];         /* the user's name, once they tell us */
@@ -170,7 +175,12 @@ struct Brain {
      * actual execution path and the first-match-wins control rule, not a
      * confabulated story. Committed only on non-introspective turns, so asking
      * about the strategy never overwrites the trace it is asking about. */
-    char trace_declined[64][24];   /* gen206: cap >= registry length (now ~49) */
+    /* gen376: MUST stay >= registry_len, or "why did you answer that way?" lies by
+     * OMISSION — it silently drops the tail of the modules that declined. The cap
+     * was 64 while the registry had grown to 68, so the last four vanished from
+     * every trace and strategy.p0t went red without anyone reading it as a bug.
+     * A trace that quietly truncates is worse than no trace: it looks complete. */
+    char trace_declined[BRAIN_TRACE_MAX][24];
     size_t trace_declined_n;
     char trace_winner[24];
     int  has_trace;

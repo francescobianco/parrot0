@@ -43,7 +43,7 @@
 
 # A goal with no known prerequisites is honestly unknown — no invented steps.
 > how do I make pizza?
-< I don't know the steps to make pizza yet.
+< I understood you're asking how to make pizza, but I don't have the steps for it yet.
 
 # A circular prerequisite cannot be ordered — say so rather than loop or guess.
 > loopa requires loopb

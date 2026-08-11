@@ -733,9 +733,13 @@ machinery(task_term_concept).
 % una procedura e' macchineria: saper calcolare non e' un fatto sul mondo.
 machinery(probability_procedure).
 
-% Coerenza col principio scritto sopra: una PROCEDURA e' macchineria. Saper
-% sommare, contare, filtrare o decidere la primalita' non e' un fatto sul mondo,
-% quindi non entra in "quante cose sai?".
+% Una PROCEDURA e' macchineria: saper sommare, contare o filtrare non e' un fatto
+% sul mondo. Ma la distinzione corre sulla FORMA, non sul file: questi predicati
+% sono definiti da REGOLE, mentre is_prime/1 e' un elenco di FATTI GROUND — che 2
+% sia primo e' conoscenza matematica, non instradamento. Marcarlo (gen372) ha
+% infatti rotto la risposta "2 is a is_prime" su cui poggia counterfactual.it;
+% gen376 lo ha tolto. La regola pratica: se il predicato ha fatti che qualcuno
+% potrebbe voler CHIEDERE, non e' macchineria.
 machinery(sum_list).
 machinery(count_list).
 machinery(max_list).
@@ -743,6 +747,5 @@ machinery(drop_odds).
 machinery(factorial).
 machinery(fib).
 machinery(gcd).
-machinery(is_prime).
 machinery(power).
 machinery(member).

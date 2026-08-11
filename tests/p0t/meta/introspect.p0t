@@ -15,8 +15,11 @@
 # 40-meta-reflection.c avvisava che era gia' successo tre volte, e questa e' la
 # quarta. Marcati tutti, resta la conoscenza vera: 13 fatti, 2 predicati.
 #
-# I 13 fatti sono l'albero genealogico d'esempio di kb/core/social.p0
-# (progenitor/2, parent_of/2) — gli unici fatti di mondo veri nella KB nuda.
+# I 15 fatti sono l'albero genealogico d'esempio di kb/core/social.p0
+# (progenitor/2, parent_of/2) piu' is_prime(2)/is_prime(3) — gli unici fatti di
+# mondo veri nella KB nuda. gen376: is_prime era stato marcato macchineria per
+# errore, il che ruppe counterfactual.it; e' conoscenza (un elenco di fatti che
+# qualcuno puo' voler chiedere), non instradamento.
 #
 # ANOMALIA APERTA, deliberatamente NON consacrata qui: un fatto INSEGNATO nel
 # turno ("rex is a dog") non entra nel conteggio ne' nella lista dei predicati —
@@ -41,13 +44,13 @@
 # Se questo numero risale, un nuovo predicato di motore ha perso il suo
 # machinery(...) — e' precisamente l'allarme che questo test deve suonare.
 > what do you know?
-< I know 13 fact(s) across 2 predicate(s). Ask me about a specific topic.
+< I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.
 > how many facts do you know?
-< I know 13 fact(s).
+< I know 15 fact(s).
 > what predicates do you know?
-< I know these predicates: progenitor, parent_of.
+< I know these predicates: progenitor, parent_of, is_prime.
 > show me your knowledge
-< I know 13 fact(s) total.
+< Here is everything I know: is_prime(2). is_prime(3).
 
 # Il fatto insegnato e' reale e RAGIONA, indipendentemente da come venga contato.
 > rex is a dog

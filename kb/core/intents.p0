@@ -1545,7 +1545,14 @@ compound_guard(analysis_plan, sentence_completion_request).
 compound_guard(analysis_plan, creative_invention_request).
 compound_guard(analysis_plan, process_request).
 compound_guard(semantic_summary, generic_poem_request).
-compound_guard(plan, process_request).
+% gen376 — guardia RIMOSSA. Esisteva perche' mod_plan rivendicava OGNI process
+% request e, non avendo prerequisiti, rispondeva "I don't know the steps", cosi'
+% oscurando le ricette memorizzate in process_step/3. Il difetto era l'avidita' del
+% modulo, non l'instradamento: ora mod_plan declina quando non ha requires/2 per
+% quel goal, e i due meccanismi COMPONGONO — il pianificatore risponde sui goal di
+% cui conosce i prerequisiti, il renderer sulle ricette memorizzate. Con la
+% guardia attiva il pianificatore era irraggiungibile (kb_conjunction era rosso).
+% compound_guard(plan, process_request).
 % gen357: plan-first quantitative routing. mod_arith is a scalar evaluator and
 % must decline when evidence names a richer schema owned by mod_wordproblem.
 compound_guard(arith, discount_chain_schema).
@@ -1815,6 +1822,15 @@ intent_cue(process_request, "process of making").
 intent_cue(process_request, "describe the process").
 intent_cue(process_request, "explain the process").
 intent_cue(process_request, "describe how to").
+% gen376 — le forme che stavano ancora cablate in mod_plan (25-wordmath-reasoning.c)
+% come disgiunzione di cue in C, italiano compreso. Ora la classe e' UNA sola e la
+% consultano sia il pianificatore su requires/2 sia il renderer di process_step/3:
+% una nuova frase e' un fatto, e vale per entrambi.
+intent_cue(process_request, "how to").
+intent_cue(process_request, "steps for").
+intent_cue(process_request, "come faccio").
+intent_cue(process_request, "come si fa").
+intent_cue(process_request, "come fare").
 
 intent_cue(activity_request, "best way to").
 intent_cue(activity_request, "good way to").

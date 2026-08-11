@@ -815,25 +815,28 @@ static int mod_plan(Brain *b, const char *norm, const char *raw,
             return 1;
         }
     }
-    int howto = (cue(q, "how") && cue(q, "make")) || cue(q, "how to") ||
-                strncmp(q, "steps", 5) == 0 || cue(q, "steps to") ||
-                cue(q, "steps for") ||
-                (cue(q, "come") && (cue(q, "faccio") || cue(q, "fare") ||
-                                    cue(q, "si fa")));    if (!howto || nw < 2) return 0;
+    /* gen376 (mantra #2/#5): the phrasings that open a process request were a
+     * word-list in C, English and Italian, invisible to the KB. They are the SAME
+     * class mod_knowledge already consults for stored recipes — intent_cue(
+     * process_request, …) — so there is one class, one matcher, and a new phrasing
+     * (or a new language) is a fact. */
+    int howto = kb_cue_match(b, "process_request", q);
+    if (!howto || nw < 2) return 0;
 
     char goal[KB_TERM_LEN];
     snprintf(goal, sizeof goal, "%s", w[nw - 1]);
     strip_edge_punct(goal);
 
-    /* a goal we have no prerequisites for is honestly unknown. */
+    /* No prerequisites for this goal: DECLINE rather than answer. Two mechanisms
+     * serve "how do I make X" — this planner over requires/2, and the stored
+     * process_step/3 recipes rendered by mod_knowledge. mod_plan runs first, so
+     * claiming the turn here would shadow every stored recipe (gen376: that is
+     * exactly what broke kb_conjunction). Declining lets them compose: whoever
+     * actually has the knowledge answers, and the honest gap is emitted once, at
+     * the end, by the one that owns it. */
     const char *pat[] = { goal, NULL };
     char pre0[4][KB_TERM_LEN];
-    if (kb_match(b->kb, "requires", pat, 2, pre0, 4) == 0) {
-        char msg[128];
-        snprintf(msg, sizeof msg, "I don't know the steps to make %s yet.", goal);
-        put(msg, out, out_size);
-        return 1;
-    }
+    if (kb_match(b->kb, "requires", pat, 2, pre0, 4) == 0) return 0;
 
     char done[32][KB_TERM_LEN], stack[32][KB_TERM_LEN];
     char order[32][KB_TERM_LEN], par[32][KB_TERM_LEN];

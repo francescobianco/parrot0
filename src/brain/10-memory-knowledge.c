@@ -622,6 +622,31 @@ static int is_relation_prep(Brain *b, const char *w) {
     return lex_class_member(b, "relation_preposition", w);
 }
 
+/* Does the FINAL clause open with an interrogative ("… . what can you conclude
+ * about dogs?") — i.e. is the turn a wh-question rather than a polar one?
+ *
+ * gen376: the Barbara yes/no branch decided "this is a polar question" by looking
+ * for "are "/"do "/"can " ANYWHERE in the turn, so it matched inside the PREMISES
+ * ("all dogs ARE mammals") and inside the question itself ("what CAN you
+ * conclude") — and answered "Yes." to a request to STATE a conclusion. The
+ * discriminator belongs to the last clause, and which words are interrogatives is
+ * knowledge: question_word/1 (kb/core/social.p0), EN+IT, teachable like any other
+ * closed class. */
+static int final_clause_is_wh(Brain *b, const char *norm) {
+    if (!b || !norm) return 0;
+    const char *tail = norm;
+    for (const char *p = norm; *p; p++)
+        if (*p == '.' || *p == ',' || *p == ';') tail = p + 1;
+    while (*tail == ' ' || *tail == '\t') tail++;
+    char first[KB_TERM_LEN]; size_t k = 0;
+    while (tail[k] && tail[k] != ' ' && k + 1 < sizeof first) { first[k] = tail[k]; k++; }
+    first[k] = '\0';
+    if (!k) return 0;
+    while (k > 0 && !isalpha((unsigned char)first[k - 1])) first[--k] = '\0';
+    const char *q[] = { first };
+    return kb_query(brain_kb(b), "question_word", q, 1);
+}
+
 /* gen375 — hold BOTH levels instead of silently choosing one.
  *
  * A new class assertion can sit badly with what parrot0 already holds: told
@@ -6441,7 +6466,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     {
         int nall = 0; { const char *p = norm; while ((p = strstr(p, "all "))) { nall++; p += 3; } }
         int ynq = strstr(norm, "?") && (strstr(norm, "do ") || strstr(norm, "does ") ||
-                  strstr(norm, "are ") || strstr(norm, "is ") || strstr(norm, "can "));
+                  strstr(norm, "are ") || strstr(norm, "is ") || strstr(norm, "can ")) &&
+                  !final_clause_is_wh(b, norm);   /* gen376: a wh-turn is not polar */
         if (nall >= 2 && ynq && !strstr(norm, "some") && !strstr(norm, " no ")) {
             char sb[256]; snprintf(sb, sizeof sb, "%s", norm);
             char *w[96]; size_t n = split_words(sb, w, 96);
@@ -8792,6 +8818,21 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (kb_topic_task(b, "process_step", "process_topic", tw, tn,
                           task, sizeof task) &&
             kb_render_steps(b, "process_step", task, "", out, out_size))
+            return 1;
+        /* gen376: name the missing link, like every other informed decline. The
+         * goal is the last content word of the request ("how do i make pizza"). */
+        char topic[KB_TERM_LEN] = "";
+        for (size_t i = tn; i-- > 0; ) {
+            char cand[KB_TERM_LEN];
+            snprintf(cand, sizeof cand, "%s", tw[i]);
+            strip_edge_punct(cand);
+            if (cand[0] && isalpha((unsigned char)cand[0]) && !is_stopword(b, cand)) {
+                snprintf(topic, sizeof topic, "%s", cand);
+                break;
+            }
+        }
+        const KbResponseSlot gs[] = { { "topic", topic } };
+        if (kb_response_slots(b, "process_step_gap", gs, 1, out, out_size))
             return 1;
         return kb_response(b, "process_step_gap", NULL, out, out_size);
     }

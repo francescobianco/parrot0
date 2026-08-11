@@ -1600,7 +1600,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
 
     /* gen105 (L20): record the real control-flow trace of this turn — the
      * modules consulted that declined, then the one that claimed it. */
-    char declined[64][24]; size_t ndecl = 0;
+    char declined[BRAIN_TRACE_MAX][24]; size_t ndecl = 0;
     const char *winner = "fallback";
     for (size_t i = 0; i < registry_len; i++) {
         if (registry[i].handle(b, canon, input, out, out_size)) {
@@ -1613,7 +1613,7 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
             }
             break;
         }
-        if (ndecl < 64) snprintf(declined[ndecl++], sizeof declined[0], "%s",
+        if (ndecl < BRAIN_TRACE_MAX) snprintf(declined[ndecl++], sizeof declined[0], "%s",
                                  registry[i].name);
     }
 

@@ -7,6 +7,9 @@
 !reset
 
 [test rulespec]
+# Questo caso SINTETIZZA e COMPILA davvero un programma C: i secondi sono il
+# compilatore, non una regressione del motore. Budget adeguato al lavoro reale.
+!timeout 6
 # gen265 (the first RULESCORE pull): a rules-spec implementation request is
 # recognized as a CATEGORY and answered honestly — parrot0 reports what it DID
 # understand (title, numbered-rule count, which rule classes appear: input /

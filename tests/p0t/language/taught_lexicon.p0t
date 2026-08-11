@@ -185,10 +185,10 @@
 
 [test taught_machinery]
 
-# 1. PRIMA — in una KB nuda la conoscenza del mondo e' l'albero d'esempio:
-#    progenitor/2 e parent_of/2.
+# 1. PRIMA — in una KB nuda la conoscenza del mondo e' l'albero d'esempio
+#    (progenitor/2, parent_of/2) piu' is_prime/1.
 > what do you know?
-< I know 13 fact(s) across 2 predicate(s). Ask me about a specific topic.
+< I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.
 
 # 2. INSEGNAMENTO — gli si dice che uno dei due e' macchineria, non mondo.
 > progenitor is a machinery
@@ -197,11 +197,11 @@
 # 3. DOPO — l'auto-dichiarazione cambia SUBITO: quei fatti non sono piu' contati
 #    come cose sapute del mondo. Nessuna ricompilata, nessuna passata al boot.
 > what do you know?
-< I know 7 fact(s) across 1 predicate(s). Ask me about a specific topic.
+< I know 9 fact(s) across 2 predicate(s). Ask me about a specific topic.
 > what predicates do you know?
-< I know these predicates: parent_of.
+< I know these predicates: parent_of, is_prime.
 
 # 4. E si torna indietro: la classificazione e' KB fino in fondo, nei due versi.
 !forget machinery(progenitor)
 > what do you know?
-< I know 13 fact(s) across 2 predicate(s). Ask me about a specific topic.
+< I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.

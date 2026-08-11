@@ -399,7 +399,10 @@ response_template(repair_commit_conflict, "The base of {path} changed while the 
 % turno risultava "gestito" e il pianificatore di ultima istanza non partiva mai.
 % Ora la frase è un frame come tutti gli altri e `gap_frame/1` (meta.p0) dice al
 % motore che cosa quel frame significa.
-response_template(process_step_gap, "I understood you're asking for a process, but I don't have the steps for that topic yet.").
+% gen376: il declino nomina l'ANELLO MANCANTE, come ovunque altrove. Prima diceva
+% "for that topic", generico; da quando mod_plan declina sui goal senza prerequisiti
+% questo e' l'unico messaggio che l'utente vede, e deve dire DI COSA non sa i passi.
+response_template(process_step_gap, "I understood you're asking how to make {topic}, but I don't have the steps for it yet.").
 response_template(activity_step_gap, "I understood you're asking for a recommendation, but I don't have a grounded plan for that situation yet.").
 
 % gen363: lo stesso scambio, ma fra i partecipanti che il turno ha nominato.

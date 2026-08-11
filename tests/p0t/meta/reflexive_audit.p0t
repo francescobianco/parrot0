@@ -7,6 +7,9 @@
 !reset
 
 [test reflexive_audit]
+# L\'auto-audit gira la matrice di triple su sub-brain freschi: lento per NATURA
+# (~1.2s), non per regressione. Stesso trattamento del gemello .it.
+!timeout 3
 # gen169 (E1 reflexive): the self-audit MATRIX. parrot0 runs several different
 # triples of its own parts — each on a fresh copy of itself, with held-out vocab —
 # and reports a real cooperation map (the compose-bench matrix turned inward).
