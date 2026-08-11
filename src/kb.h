@@ -31,6 +31,13 @@
 #define KB_SESSION    2 /* asserted this run / loaded from a session file   */
 #define KB_INDUCED    4 /* created by kb_induce                             */
 #define KB_REFLECTIVE 8 /* the self-model (i_am/module) — never persisted   */
+/* gen373 — a turn's SUPPOSED premises, true only for the question being asked.
+ * Provenance used to serve writing alone (kb_save takes a mask, kb_query has no
+ * scope), which is exactly why a restricted view could only be had by building a
+ * second, knowledge-less KB. With a layer for hypotheses the premises live in the
+ * ONE KB and are told apart by origin instead of by container.
+ * See docs/plans/one-kb.md. */
+#define KB_HYPOTHETICAL 16
 
 typedef struct KB KB;
 
@@ -58,6 +65,23 @@ int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc
  * amputating the KB from outside via load-time env vars. Rules are left alone —
  * a predicate with no facts simply stops deriving. */
 size_t kb_retract_pred(KB *kb, const char *pred);
+
+/* Retract every positive ground fact whose provenance is in `origin_mask`, e.g.
+ * kb_retract_origin(kb, KB_HYPOTHETICAL) to drop a turn's supposed premises when
+ * the question is answered. Returns how many were removed. The read-side twin of
+ * kb_save's origin_mask: a layer you can write, scope and now discard. */
+size_t kb_retract_origin(KB *kb, int origin_mask);
+
+/* Is `pred(args…)` a GROUND fact recorded in one of `origin_mask`'s layers?
+ *
+ * The scoped counterpart of kb_query, and deliberately narrower: it inspects the
+ * fact table only — no rules, no SLD, no negation-as-failure. That is exactly what
+ * is needed to ask "do I hold this as a fact, and at which level?" — for instance
+ * whether a supposed premise (KB_HYPOTHETICAL) contradicts what parrot0 knows
+ * about the world (KB_BASE). Scoping the full solver is the larger, separate
+ * piece described in docs/plans/one-kb.md §4; this is its ground-fact half. */
+int    kb_query_origin(const KB *kb, int origin_mask, const char *pred,
+                       const char *const *args, size_t argc);
 
 /* Assert an explicit negative ground fact: known-false `pred(args...)`.
  * Idempotent. Clears the matching positive fact from the same provenance layer,

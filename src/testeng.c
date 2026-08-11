@@ -34,6 +34,8 @@
  *                             (a perf-regression guard); 0 disables it.
  *   !forget PRED              switch a predicate OFF: retract every fact of it
  *   !forget PRED(a, b)        drop one specific ground fact
+ *   !forget @LAYER            drop a whole provenance layer: @base, @session,
+ *                             @induced, @reflective, @hypothetical
  *
  * On `!forget` (F.): what a test needs ABSENT is the test's job, not the load's.
  * The KB is part of parrot0, not a mounted volume, so knowledge is subtracted
@@ -266,6 +268,21 @@ static int te_process_stream(TeState *t, FILE *in) {
             te_flush(t);
             char *q = p + 7;
             while (*q == ' ' || *q == '\t') q++;
+            /* `!forget @LAYER` drops a whole provenance layer from the ONE KB —
+             * the in-test way to narrow the view, instead of amputating the load
+             * from outside with PARROT0_WORLD_FACTS=0 / an empty BASE. */
+            if (*q == '@') {
+                q++;
+                int mask = 0;
+                if      (!strncmp(q, "base", 4))         mask = KB_BASE;
+                else if (!strncmp(q, "session", 7))      mask = KB_SESSION;
+                else if (!strncmp(q, "induced", 7))      mask = KB_INDUCED;
+                else if (!strncmp(q, "reflective", 10))  mask = KB_REFLECTIVE;
+                else if (!strncmp(q, "hypothetical", 12)) mask = KB_HYPOTHETICAL;
+                if (!mask) { syntax_err = 1; continue; }
+                kb_retract_origin(brain_kb(t->b), mask);
+                continue;
+            }
             char pred[TE_NAME]; size_t k = 0;
             while (*q && *q != '(' && *q != ' ' && *q != '\t' && k + 1 < sizeof pred)
                 pred[k++] = *q++;

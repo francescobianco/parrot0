@@ -328,6 +328,38 @@ size_t kb_retract_pred(KB *kb, const char *pred) {
     return removed;
 }
 
+size_t kb_retract_origin(KB *kb, int origin_mask) {
+    if (!kb || !origin_mask) return 0;
+    size_t removed = 0, w = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        if (kb->facts[i].origin & origin_mask) { removed++; continue; }
+        if (w != i) kb->facts[w] = kb->facts[i];
+        w++;
+    }
+    kb->n = w;
+    if (removed)
+        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
+                                        kb->facts, kb->n);
+    return removed;
+}
+
+int kb_query_origin(const KB *kb, int origin_mask, const char *pred,
+                    const char *const *args, size_t argc) {
+    if (!kb || !origin_mask || !term_ok(pred) || argc > KB_MAX_ARGS) return 0;
+    if (argc && !args) return 0;
+    for (size_t i = 0; i < argc; i++) if (!term_ok(args[i])) return 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (!(f->origin & origin_mask)) continue;
+        if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
+        size_t a = 0;
+        for (; a < argc; a++)
+            if (strcmp(args[a], f->args[a]) != 0) break;
+        if (a == argc) return 1;
+    }
+    return 0;
+}
+
 int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                   size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;

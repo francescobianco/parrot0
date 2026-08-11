@@ -1,0 +1,64 @@
+# STRATI DELLA KB — restringere la vista senza amputare il caricamento.
+#
+# Le provenienze (KB_BASE, KB_SESSION, KB_INDUCED, KB_REFLECTIVE e da gen373
+# KB_HYPOTHETICAL) esistono da sempre su ogni fatto, ma servivano SOLO alla
+# scrittura: `kb_save` prende una maschera di origine, `kb_query` no. Metà
+# implementate cosi', l'unico modo di ottenere una vista ristretta era costruire
+# un contenitore che contenesse soltanto lo strato voluto — da cui i brain di
+# scratch nudi e l'amputazione via `PARROT0_WORLD_FACTS=0`. Vedi
+# docs/plans/one-kb.md.
+#
+# Questo test verifica il primo pezzo del lato lettura: uno strato si puo'
+# BUTTARE VIA, dall'interno del dialogo, sulla KB unica e viva. Non c'e' nessuna
+# seconda KB e nessun ricaricamento: e' lo stesso parrot0, con uno strato in meno.
+#
+# Perche' importa: `!forget @base` fa dall'INTERNO cio' che `PARROT0_WORLD_FACTS=0`
+# fa dall'esterno, ma senza costruire un soggetto diverso da quello che spediamo.
+# E' la forma che i test nuovi devono preferire (docs/plans/test-engine.md §2b).
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test kb_layers]
+# Il primo turno dopo un cambio di config paga la derivazione del mondo (part_of
+# materializzato una volta per brain), che non e' costo del turno: budget largo.
+!timeout 3
+
+# Con il mondo montato, la conoscenza c'e' e risponde.
+> what is the capital of france?
+< Paris.
+
+# Si butta via lo strato BASE — la conoscenza curata del mondo — restando nella
+# stessa KB e nello stesso brain.
+!forget @base
+
+# Ora la relazione non e' piu' nota, e parrot0 lo dice bene: declino informato che
+# NOMINA l'anello mancante e offre come colmarlo. Non un muro cieco, non una
+# risposta inventata: esattamente la reazione giusta a una vista piu' stretta.
+> what is the capital of france?
+< I do not know the relation capital yet, so I cannot answer the capital of france. You can teach me with thing is the capital of france, or give facts/rules to reason from.
+
+# ── IL LIMITE TROVATO QUI, ed e' un risultato, non un intoppo ───────────────
+#
+# Insegnare una relazione nuova adesso NON funziona: la frase non viene nemmeno
+# analizzata. Il motivo e' che `definite_article(the)` e `relation_preposition(of)`
+# — la GRAMMATICA che da' forma a quel frame — vivono in `kb/core/grammar.p0`, che
+# e' caricato come KB_BASE esattamente come i fatti del mondo. Togliere @base ha
+# quindi tolto anche la lingua.
+#
+# Cioe': **le provenienze non separano la MACCHINERIA dal MONDO.** Stanno tutte e
+# due in BASE, e questo rende inesprimibile proprio la vista che serve — "il mondo
+# no, la grammatica si'". E' la stessa amputazione dei brain di scratch, riapparsa
+# a livello di strato: finche' la macchineria non ha una provenienza sua,
+# restringere la vista continuera' a menomare parrot0 invece di focalizzarlo.
+#
+# La riga qui sotto e' quindi il comportamento ATTUALE e un promemoria, non un
+# obiettivo: quando la macchineria avra' il suo strato, questa deve tornare a
+# essere `Learned: capital(rome, italy).` — vedi docs/plans/one-kb.md §4.
+> rome is the capital of italy
+< I don't understand that yet.
