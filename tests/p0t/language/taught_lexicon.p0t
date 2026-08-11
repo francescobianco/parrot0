@@ -134,3 +134,33 @@
 #    cio' che la stessa frase aveva memorizzato due turni prima.
 > zibb is the parent of ann
 < zibb.
+
+# ── il SANDBOX eredita la macchineria, non il mondo (gen371) ─────────────────
+# Le ipotetiche ("if <premesse>, <domanda>") girano in un Brain sandbox con una
+# KB VUOTA di fatti, cosi' che la domanda sia decisa dalle sole premesse. Prima
+# di gen371 quel sandbox era nudo anche di GRAMMATICA, e il C doveva tenersi
+# liste di parole di riserva per poter analizzare le premesse.
+# Le due meta' vanno dimostrate insieme, perche' sono in tensione.
+
+[test sandbox_inherits_machinery]
+
+# META' 1 — la macchineria ENTRA. La parola si insegna al brain REALE, e il
+# sandbox la usa: prima la premessa non e' universale e nulla e' derivabile,
+# dopo la stessa identica domanda si risolve.
+> if puppo cat is a mammal and tom is a cat, is tom a mammal?
+< No.
+> puppo is a universal_quantifier
+< Learned: universal_quantifier(puppo).
+> if puppo cat is a mammal and tom is a cat, is tom a mammal?
+< Yes.
+
+[test sandbox_excludes_world]
+
+# META' 2 — il mondo RESTA FUORI, ed e' la meta' che protegge il ragionamento.
+# parrot0 sa benissimo che un cane e' un animale, ma queste premesse non lo
+# dicono: dicono che i GATTI sono animali. La risposta comoda sarebbe "Yes";
+# quella corretta e' "No", e la si ottiene solo se i fatti del mondo non
+# trapelano nel sandbox. Se un giorno questa riga diventasse "Yes", il sandbox
+# avrebbe smesso di isolare e ogni ipotetica sarebbe da buttare.
+> rex is a dog. all cats are animals. is rex an animal?
+< No.

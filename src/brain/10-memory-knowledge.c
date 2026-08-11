@@ -597,41 +597,29 @@ static int is_article(const char *w) {
  * the engine.
  *
  * The fallback is deliberate and narrow: premise sandboxes build a scratch Brain
- * over a bare kb_create() with none of the core files, so a KB lookup there would
- * find nothing and silently kill a working path. When the brain carries no
- * universal_quantifier facts AT ALL we are in that knowledge-less mode and use
- * the built-in defaults; whenever the KB has the class, the KB alone decides.
- * (That scratch-brain pattern is itself the obstacle to finishing this migration
- * — see docs/plans/kb-first.md.) */
-static int lex_class_member(Brain *b, const char *cls, const char *w,
-                            const char *const *defaults, size_t ndef) {
-    if (b && brain_kb(b)) {
-        const char *q[] = { w };
-        if (kb_query(brain_kb(b), cls, q, 1)) return 1;
-        /* The KB owns the class: its answer is final, including "no". */
-        if (kb_knows_pred(brain_kb(b), cls)) return 0;
-    }
-    for (size_t i = 0; i < ndef; i++)          /* knowledge-less scratch brain only */
-        if (strcmp(w, defaults[i]) == 0) return 1;
-    return 0;
+ * over an empty KB so a hypothetical is decided by its premises alone. Since
+ * gen371 that sandbox still has no world FACTS but does reach parrot0's own
+ * machinery through brain_substrate_query, so a lexical class is available there
+ * exactly as in a real brain — which is why this needs no fallback word list.
+ * See docs/plans/one-kb.md. */
+static int lex_class_member(Brain *b, const char *cls, const char *w) {
+    const char *q[] = { w };
+    return brain_substrate_query(b, cls, q, 1);
 }
 
 /* Opens a UNIVERSAL proposition: "all X are Y", "every X is a Y". */
 static int is_universal_word(Brain *b, const char *w) {
-    static const char *const d[] = { "all", "every", "any" };
-    return lex_class_member(b, "universal_quantifier", w, d, 3);
+    return lex_class_member(b, "universal_quantifier", w);
 }
 
 /* The DEFINITE article introducing a relation name: "x is THE parent of y". */
 static int is_definite_article(Brain *b, const char *w) {
-    static const char *const d[] = { "the" };
-    return lex_class_member(b, "definite_article", w, d, 1);
+    return lex_class_member(b, "definite_article", w);
 }
 
 /* The preposition binding a relation to its object: "x is the parent OF y". */
 static int is_relation_prep(Brain *b, const char *w) {
-    static const char *const d[] = { "of" };
-    return lex_class_member(b, "relation_preposition", w, d, 1);
+    return lex_class_member(b, "relation_preposition", w);
 }
 
 /* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
@@ -1268,12 +1256,10 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
         put(mode == ENT_LABEL ? "Neutral." : "Not entailed.", out, out_size);
 }
 
-static int entailment_reply(const char *premises, const char *hypothesis,
+static int entailment_reply(Brain *b, const char *premises, const char *hypothesis,
                             int mode, char *out, size_t out_size) {
     Brain tmp;
-    memset(&tmp, 0, sizeof tmp);
-    tmp.kb = kb_create();
-    if (!tmp.kb) { put("I couldn't evaluate that entailment.", out, out_size); return 1; }
+    if (!brain_scratch_init(&tmp, b)) { put("I couldn't evaluate that entailment.", out, out_size); return 1; }
 
     char pbuf[512];
     size_t plen = strlen(premises);
@@ -1404,9 +1390,8 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     if (plen == 0 || plen >= sizeof prem) return 0;
     memcpy(prem, norm + 3, plen); prem[plen] = '\0';
 
-    Brain tmp; memset(&tmp, 0, sizeof tmp);
-    tmp.kb = kb_create();
-    if (!tmp.kb) return 0;
+    Brain tmp;
+    if (!brain_scratch_init(&tmp, b)) return 0;
     kb_set_origin(tmp.kb, KB_SESSION);
     if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
 
@@ -1475,9 +1460,7 @@ static int multi_sentence_syllogism(Brain *b, const char *norm,
     }
 
     Brain tmp;
-    memset(&tmp, 0, sizeof tmp);
-    tmp.kb = kb_create();
-    if (!tmp.kb) return 0;
+    if (!brain_scratch_init(&tmp, b)) return 0;
     kb_set_origin(tmp.kb, KB_SESSION);
     if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
 
@@ -1564,9 +1547,7 @@ static int transitive_comparison(Brain *b, const char *norm,
 
     const char *rel = rels[0];
     Brain tmp;
-    memset(&tmp, 0, sizeof tmp);
-    tmp.kb = kb_create();
-    if (!tmp.kb) return 0;
+    if (!brain_scratch_init(&tmp, b)) return 0;
     kb_set_origin(tmp.kb, KB_SESSION);
 
     for (size_t i = 0; i + 1 < nt; i++) {        /* premises = all but the last */
@@ -7781,9 +7762,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             normalize(supp, sn, sizeof sn);
             canonicalize_lang(b, sn, sc, sizeof sc);
             /* Assert supposition, then query. */
-            Brain hypo = {0};
-            hypo.kb = kb_create();
-            if (!hypo.kb) return 0;
+            Brain hypo;
+            if (!brain_scratch_init(&hypo, b)) return 0;
             kb_set_origin(hypo.kb, KB_SESSION);
             char discard[256];
             mod_knowledge(&hypo, sc, sc, discard, sizeof discard);
@@ -7841,7 +7821,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         }
         *hyp = '\0';
         hyp += strlen("; hypothesis:");
-        return entailment_reply(trim_mut(premise_start), trim_mut(hyp),
+        return entailment_reply(b, trim_mut(premise_start), trim_mut(hyp),
                                 entail_mode, out, out_size);
     }
 
@@ -9404,7 +9384,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* The opening quantifier is read from universal_quantifier/1 (grammar.p0),
      * not from a literal here. is_universal_word() falls back to the built-in
      * defaults ONLY for a knowledge-less scratch brain (premise sandboxes are a
-     * bare kb_create()), so the real conversational path is fully KB-driven. */
+     * an empty KB), which since gen371 still reaches the shared machinery. */
     if (nw >= 5 && nw <= 4 + KB_MAX_BODY && is_universal_word(b, w[0]) &&
         strcmp(w[nw - 3], "is") == 0 && is_article(w[nw - 2])) {
         const char *head = w[nw - 1];

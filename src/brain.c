@@ -47,6 +47,25 @@ struct Brain {
     unsigned long fallbacks; /* how many not-understood turns — rotates variants */
     long utter_seq;        /* gen240: monotonic index for the session conversation log */
     KB  *kb;               /* the knowledge base (gen4+) */
+
+    /* gen371 — the SUBSTRATE link, and why it exists.
+     *
+     * Several reasoners build a scratch Brain over a bare kb_create() to hold ONE
+     * turn's premises in isolation, so a hypothetical never pollutes the real KB.
+     * That isolation is right for WORLD knowledge — "is rex a mortal?" must be
+     * decided by the premises alone — but it also stripped parrot0's own
+     * MACHINERY: grammar, closed lexical classes, routing knowledge. A scratch
+     * brain could not tell an article from a noun, so every KB-first lexical
+     * lookup had to keep a hardcoded fallback list in C. That is the doubled KB
+     * access the hermetic-context critique names: a parrot0 built without
+     * parrot0's own knowledge.
+     *
+     * `substrate` is a NON-OWNING link to the brain the scratch was spawned from.
+     * It is consulted only for parrot0's machinery — never for world facts — so
+     * premise reasoning keeps its closed world while the engine keeps its
+     * grammar. NULL on a real brain, which already carries everything. */
+    KB  *substrate;
+
     P0AStore *agent_store; /* typed agent records; projected into the live KB */
 
     /* gen76: proof trace. When a module answers a KB-backed query, it stores the

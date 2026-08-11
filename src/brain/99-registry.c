@@ -615,6 +615,43 @@ void brain_destroy(Brain *b) {
 /* gen277: the brain's KB, for a host that drives the engine directly (MCP). */
 KB *brain_kb(Brain *b) { return b ? b->kb : NULL; }
 
+/* Prepare `scratch` as an isolated reasoning sandbox spawned from `parent`.
+ *
+ * The sandbox owns a fresh, EMPTY KB: premises asserted into it never touch the
+ * real one, and a query over world facts still sees only what this turn stated —
+ * the closed world that makes syllogism reasoning meaningful. What it no longer
+ * loses is parrot0's MACHINERY: `substrate` links back to the parent's KB so
+ * grammar and closed lexical classes stay reachable (brain_substrate_query).
+ *
+ * Returns 0 if the KB could not be created, leaving `scratch` zeroed. */
+int brain_scratch_init(Brain *scratch, Brain *parent) {
+    if (!scratch) return 0;
+    memset(scratch, 0, sizeof *scratch);
+    scratch->kb = kb_create();
+    if (!scratch->kb) return 0;
+    scratch->substrate = parent ? parent->kb : NULL;
+    return 1;
+}
+
+/* Look up a MACHINERY fact: the sandbox's own KB first, then the substrate it
+ * was spawned from. Only for parrot0's own engine knowledge (grammar, lexical
+ * classes, routing) — never a path for world facts to leak into a sandbox. On a
+ * real brain `substrate` is NULL, so this is exactly kb_query. */
+int brain_substrate_query(Brain *b, const char *pred,
+                          const char *const *args, size_t argc) {
+    if (!b) return 0;
+    if (b->kb && kb_query(b->kb, pred, args, argc)) return 1;
+    return b->substrate ? kb_query(b->substrate, pred, args, argc) : 0;
+}
+
+/* True if the class is DEFINED at all (own KB or substrate), so a caller can
+ * tell "the class says no" from "there is no such class here". */
+int brain_substrate_knows(Brain *b, const char *pred) {
+    if (!b) return 0;
+    if (b->kb && kb_knows_pred(b->kb, pred)) return 1;
+    return b->substrate ? kb_knows_pred(b->substrate, pred) : 0;
+}
+
 /* gen276: the outer KB layers, factored out of main.c's setup_brain so the same
  * boot is reachable from every host (chat REPL, --daemon, --mcp-engine) and from
  * brain_reload. brain_create already loaded the kernel lexicon + reflective
