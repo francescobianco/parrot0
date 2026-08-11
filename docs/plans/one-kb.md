@@ -117,6 +117,64 @@ stantio (`tests/p0t/meta/introspect.p0t`: si aspetta 195 fatti, la KB ne ha 310)
 `soft-test` — nove file scelti per il flusso rapido, non per la copertura — una
 modifica di questa ampiezza non è verificabile, e va rimandata.
 
+## 5b. La prova su un LLM reale — e perché cambia la conclusione (F.)
+
+L'obiezione di F.: un LLM non ha alcun sandbox, eppure su quell'item non sbaglia.
+Tiene **entrambi i livelli** — cosa implicano le premesse e cosa è vero nel mondo
+— e **decide** quale gli stia venendo chiesto. Non è isolamento: è una decisione
+adottata dalla conoscenza. Verificato, non supposto: `tests/premise_frame_probe.py`
+(stesso endpoint di `llmscore`, `minimax-m2.5`, temperature 0).
+
+Senza alcuna cornice, sull'item identico, il modello sceglie da sé la lettura
+per entailment e la motiva nominando l'anello mancante:
+
+> *"From these you cannot logically conclude that 'Rex is an animal'. […] The only
+> valid syllogism you can form […] All cats are animals. Rex is a cat →"*
+
+Chiedendo la lettura del mondo dà l'altra (*"a dog is a member of the kingdom
+Animalia"*), e chiedendo entrambe le separa **nominando la loro relazione**:
+
+> *"(b) […] This is a background fact that goes beyond the limited set of premises
+> given."*
+
+Il caso decisivo è quello in cui la premessa è **falsa nel mondo** — `"all birds
+can fly. penguins are birds. can penguins fly?"`. Nessuno gliel'ha chiesto, e il
+modello solleva da solo l'ambiguità:
+
+> *"The answer depends on whether we treat the statement 'all birds can fly' as a
+> true premise or as a simple assertion […] In that strict logical sense: yes.
+> In the real world, however, the premise is false […] no."*
+
+**Lo stesso ventaglio su parrot0 oggi:**
+
+| Domanda | parrot0 | LLM |
+|---|---|---|
+| `is a dog an animal?` | `Yes.` | Yes |
+| `rex is a dog. all cats are animals. is rex an animal?` | `No.` | No, con la spiegazione |
+| entrambe le letture, etichettate | *impossibile* | le dà e le mette in relazione |
+| `all birds can fly. penguins are birds…` | **muro** | rileva la premessa falsa |
+
+parrot0 **sa già fare i due livelli** — `Yes` sul mondo, `No` sulle premesse. Ma
+li fa con **due macchine diverse**, e la scelta fra loro non è una decisione: è la
+FORMA sintattica dell'input che instrada silenziosamente all'una o all'altra. Non
+c'è nessun punto in cui si decida quale cornice sia in gioco, quindi non si può
+né dichiararla, né tenerle insieme, né accorgersi che una premessa contraddice il
+mondo. La terza e la quarta riga della tabella non sono funzioni mancanti: sono
+**inaccessibili per costruzione**, perché il sandbox è amputato apposta.
+
+**Cosa ne segue per il piano.** Il §4 resta la strada giusta ma cambia di segno:
+gli strati interrogabili non servono a *ricostruire l'isolamento in modo pulito*,
+servono a **rendere la cornice una scelta**. Con `kb_query_scoped` parrot0 può
+interrogare `KB_HYPOTHETICAL` da solo, o il mondo da solo, o entrambi e
+confrontarli — e allora "quale cornice sta chiedendo questa domanda?" diventa una
+domanda a cui si risponde **dalla conoscenza**, ispezionabile come ogni altra
+(`why did you answer that way?`). È questo il senso pieno di KB-first qui: non
+impedire strutturalmente un livello, ma **saper decidere** fra i livelli.
+
+E il caso pinguini smette di essere un muro per diventare la capacità più
+interessante del lotto: notare che una premessa data è falsa nel mondo si può fare
+solo se si vedono entrambi gli strati.
+
 ## 6. Verdetto
 
 La distinzione non doveva esistere, e la parte che faceva danno è chiusa: nessun
@@ -125,3 +183,9 @@ più copie di riserva del lessico. Ciò che resta è un residuo strutturale con 
 causa precisa e una cura precisa — le provenienze sono metà implementate, vivono
 in scrittura e non in lettura. Finché è così, «KB nuda» resterà una cosa che si
 può costruire, e qualcuno la costruirà.
+
+Ma la misura giusta non è più «isolare bene» (§5b). Un LLM su quello stesso item
+non isola niente: vede tutto e **sceglie**. L'obiettivo quindi non è un sandbox
+più pulito — è togliere di mezzo il sandbox e mettere al suo posto una decisione
+presa dalla conoscenza. `brain_scratch_init` non va perfezionato: va fatto
+sparire, e con lui l'ultimo posto in cui parrot0 pensa da menomato.
