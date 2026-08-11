@@ -416,3 +416,12 @@ response_template(named_dialogue_open, "{speaker_a}: We see the same thing and c
 {speaker_b}: Then say what you mean, and I will say where I disagree.
 {speaker_a}: What looks like change to me may only be patience to you.
 {speaker_b}: And what looks like permanence to me may only be a slower change.").
+
+% gen375 — quando cio' che ti dicono ADESSO stride con cio' che gia' si sa.
+% parrot0 accettava "a dog is a fish" in silenzio e poi sosteneva sia fish(dog)
+% sia is_a(dog, mammal), due cose che la KB stessa dichiara incompatibili. Non e'
+% un errore da rifiutare — chi parla puo' avere ragione, o stare supponendo — ma
+% tacerlo e' disonesto. Si accetta l'asserzione E si nomina la tensione, tenendo
+% i DUE livelli visibili invece di sceglierne uno di nascosto.
+response_template(class_conflict, "That sits badly with what I already hold: {subject} is a {held}, and {claimed} and {held} cannot both apply.").
+response_template(class_conflict, it, "Questo stride con quello che gia' so: {subject} e' un {held}, e {claimed} e {held} non possono valere insieme.").

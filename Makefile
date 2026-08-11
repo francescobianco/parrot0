@@ -379,10 +379,10 @@ SOFT_TESTS := \
   tests/p0t/reasoning/rules.p0t \
   tests/p0t/reasoning/relations.p0t \
   tests/p0t/knowledge/facts.p0t \
-  tests/p0t/reasoning/investigation.p0t \
   tests/p0t/reasoning/investigation_access.p0t \
   tests/p0t/language/taught_lexicon.p0t \
-  tests/p0t/meta/kb_layers.p0t
+  tests/p0t/meta/kb_layers.p0t \
+  tests/p0t/knowledge/class_conflict.p0t
 
 soft-test: test-engine
 	@start=$$(date +%s); \
@@ -405,6 +405,7 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/math/arith.p0t
 	@./$(BIN) --test-send tests/p0t/knowledge/world.p0t
 	@./$(BIN) --test-send tests/p0t/knowledge/facts.p0t
+	@./$(BIN) --test-send tests/p0t/knowledge/class_conflict.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/syllogism.p0t
 	@./$(BIN) --test-send tests/p0t/conversation/casefold.p0t
 	@./$(BIN) --test-send tests/p0t/conversation/contractions.p0t

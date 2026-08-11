@@ -38,6 +38,9 @@
 !reset
 
 [test investigation_access]
+# Il primo turno dopo un cambio di config paga il reload e la derivazione
+# del mondo, che sono infrastruttura e non costo del turno.
+!timeout 3
 
 # --- Atto I: la scena ------------------------------------------------------
 # Due custodi, due varchi, e un solo varco che porta al caveau. Nessun turno

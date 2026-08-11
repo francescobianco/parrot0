@@ -61,6 +61,9 @@
 !reset
 
 [test investigation]
+# Il primo turno dopo un cambio di config paga il reload e la derivazione
+# del mondo, che sono infrastruttura e non costo del turno.
+!timeout 3
 
 # --- Atto I: la scena -------------------------------------------------------
 # Si stabilisce il mondo in cui l'indagine si svolge. Serve a due cose: dare

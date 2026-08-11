@@ -622,6 +622,44 @@ static int is_relation_prep(Brain *b, const char *w) {
     return lex_class_member(b, "relation_preposition", w);
 }
 
+/* gen375 — hold BOTH levels instead of silently choosing one.
+ *
+ * A new class assertion can sit badly with what parrot0 already holds: told
+ * "a dog is a fish" it used to store fish(dog) without a word, and then answer
+ * Yes to both "is a dog a fish?" and "is a dog a mammal?" — two things the KB
+ * itself declares incompatible. The assertion is still accepted (the speaker may
+ * be right, or supposing), but the tension is NAMED.
+ *
+ * Everything that decides is knowledge: the taxonomy (is_a/2) and the clash
+ * (incompatible/2) are KB facts, so a new incompatibility is a fact and never a
+ * recompile. This is the criterion of docs/plans/one-kb.md §4c applied to the
+ * smallest case parrot0 can already reach: see both levels and report, rather
+ * than see less and be right by construction.
+ *
+ * Appends its sentence to `out` when a clash is found; leaves it alone otherwise. */
+static void note_class_conflict(Brain *b, const char *cls, const char *subj,
+                                char *out, size_t out_size) {
+    if (!b || !b->kb || !cls || !subj) return;
+    char held[16][KB_TERM_LEN];
+    const char *q[] = { subj, NULL };
+    size_t n = kb_match(b->kb, "is_a", q, 2, held, 16);
+    for (size_t i = 0; i < n; i++) {
+        if (strcmp(held[i], cls) == 0) continue;
+        const char *inc[] = { cls, held[i] };
+        if (!kb_query(b->kb, "incompatible", inc, 2)) continue;
+        const KbResponseSlot slots[] = {
+            { "subject", subj }, { "claimed", cls }, { "held", held[i] } };
+        char note[320];
+        if (!kb_response_slots(b, "class_conflict", slots, 3, note, sizeof note))
+            return;
+        size_t len = strlen(out);
+        if (len + 1 < out_size)
+            snprintf(out + len, out_size - len, " %s", note);
+        return;                      /* one clash is enough to flag the tension */
+    }
+}
+
+
 /* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
  * Map one FUNCTION word of any supported language onto the canonical (English)
  * token the reasoning modules already parse, or NULL to leave it untouched.
@@ -9782,6 +9820,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             char msg[128];
             snprintf(msg, sizeof msg, "Learned: %s(%s).", cls, subj);
             put(msg, out, out_size);
+            note_class_conflict(b, cls, subj, out, out_size);  /* gen375 */
             note_consequence(b, cls, before, out, out_size); /* gen103 (L16) */
         } else {
             put("I couldn't store that.", out, out_size);

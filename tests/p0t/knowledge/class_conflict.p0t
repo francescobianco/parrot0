@@ -1,0 +1,53 @@
+# CONFLITTO FRA CIO' CHE TI DICONO E CIO' CHE SAI (gen375).
+#
+# Primo passo costruito col criterio di docs/plans/one-kb.md §4c: aumentare cio'
+# che parrot0 VEDE e la sua capacita' di DECIDERE, invece di ridurre cio' che un
+# suo pezzo vede per avere ragione per costruzione.
+#
+# Prima, a chi diceva "a dog is a fish" parrot0 rispondeva `Learned: fish(dog).` e
+# basta — poi sosteneva sia `is a dog a fish? Yes` sia `is a dog a mammal? Yes`,
+# due cose che la sua stessa KB dichiara incompatibili. Aveva tutti i pezzi per
+# accorgersene e non li metteva insieme.
+#
+# Ora l'asserzione viene ACCETTATA — chi parla puo' avere ragione, o stare
+# supponendo, e rifiutare sarebbe arrogante — ma la tensione viene NOMINATA. E'
+# la versione raggiungibile oggi di cio' che l'LLM fa sui pinguini (§5b): tenere
+# due livelli davanti a se' e dichiararne il contrasto, invece di sceglierne uno
+# di nascosto.
+#
+# Tutto cio' che decide e' conoscenza, non C: la tassonomia (is_a/2), lo scontro
+# (incompatible/2) e il testo (response_template(class_conflict, ...)). Una nuova
+# incompatibilita' e' un fatto, mai una ricompilata.
+#
+# CONTESTO VIVO (docs/plans/test-engine.md §2b): serve il mondo montato, perche'
+# e' proprio il mondo il secondo livello sotto esame.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test class_conflict]
+# Il primo turno dopo un cambio di config paga il reload e la derivazione
+# del mondo, che sono infrastruttura e non costo del turno.
+!timeout 3
+
+# Il conflitto: `fish` contro `is_a(dog, mammal)`, dichiarati incompatibili.
+# Il fatto e' comunque memorizzato, e la frase in piu' nomina i due livelli.
+> a dog is a fish
+< Learned: fish(dog). That sits badly with what I already hold: dog is a mammal, and fish and mammal cannot both apply.
+
+# Niente allarmismo: una classe che NON e' in conflitto passa senza commento.
+# Se questa riga acquisisse la coda, il rilevatore starebbe gridando al lupo.
+> a dog is a pet
+< Learned: pet(dog).
+
+# E il conflitto e' KB fino in fondo: tolta l'incompatibilita' dalla KB, la
+# stessa asserzione torna muta. Non c'e' nessuna lista in C dietro — e per lo
+# stesso motivo se ne puo' INSEGNARE una nuova a runtime.
+!forget incompatible(fish, mammal)
+> a shark is a fish
+< Learned: fish(shark).
