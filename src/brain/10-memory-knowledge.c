@@ -9449,13 +9449,20 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
         /* variable query, subject unknown: "who is the <rel> of <y>?" ->
          * rel(X, y); object unknown: "what is the <rel> of <y>?" -> rel(y, X) */
-        if ((strcmp(w[0], "who") == 0 || strcmp(w[0], "what") == 0) &&
+        /* WHICH argument slot the interrogative leaves unknown is KNOWLEDGE, not C:
+         * it lives in asks_slot/2 (kb/core/meta.p0), so a new interrogative — or
+         * another language's — is a fact, never a recompile. The two strcmp on
+         * "who"/"what" that used to decide it here were English wired into the
+         * engine, i.e. C stealing flexibility from the KB. */
+        char slot[1][KB_TERM_LEN];
+        const char *slot_q[] = { w[0], NULL };
+        if (kb_match(b->kb, "asks_slot", slot_q, 2, slot, 1) == 1 &&
             strcmp(w[1], "is") == 0) {
             if (!kb_knows_pred(b->kb, rel)) { idk(rel, out, out_size); return 1; }
-            const char *who_pat[]  = {NULL, obj};   /* rel(X, y) */
-            const char *what_pat[] = {obj, NULL};   /* rel(y, X) */
+            const char *subj_pat[] = {NULL, obj};   /* rel(X, y) — asks the 1st arg */
+            const char *obj_pat[]  = {obj, NULL};   /* rel(y, X) — asks the 2nd arg */
             const char *const *pat =
-                (strcmp(w[0], "what") == 0) ? what_pat : who_pat;
+                (strcmp(slot[0], "object") == 0) ? obj_pat : subj_pat;
             char hits[64][KB_TERM_LEN];
             size_t k = kb_match(b->kb, rel, pat, 2, hits, 64);
             if (k == 0) { put("Nobody that I know of.", out, out_size); return 1; }

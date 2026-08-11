@@ -51,6 +51,14 @@ int    kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc)
  * explicit negative knowledge. */
 int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc);
 
+/* Retract EVERY positive ground fact whose head predicate is `pred`, whatever
+ * its arity or provenance, preserving the order of the rest. Returns how many
+ * were removed. The general primitive behind the test engine's `!forget`: it
+ * lets a test switch a predicate off from INSIDE the dialogue instead of
+ * amputating the KB from outside via load-time env vars. Rules are left alone —
+ * a predicate with no facts simply stops deriving. */
+size_t kb_retract_pred(KB *kb, const char *pred);
+
 /* Assert an explicit negative ground fact: known-false `pred(args...)`.
  * Idempotent. Clears the matching positive fact from the same provenance layer,
  * if any; opposite claims from distinct layers are preserved as conflicts. */

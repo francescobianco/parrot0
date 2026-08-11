@@ -1,0 +1,118 @@
+# INVESTIGATION II — il grafo relazionale, percorso nei due versi.
+#
+# Secondo test della famiglia investigativa (il primo e' investigation.p0t, che
+# indaga una catena CAUSALE). Qui il materiale e' diverso: un grafo di relazioni
+# BINARIE QUALSIASI, imparate durante il dialogo, percorso all'indietro dal
+# bersaglio verso chi poteva raggiungerlo. Stessa condotta — si parte da un punto
+# e si SEGUE la risposta — su una struttura di conoscenza diversa, per verificare
+# che l'avanzamento non dipenda dalla relazione particolare.
+#
+# Cosa questo test copre e il primo no:
+#   1. relazioni binarie APERTE: `X is the <rel> of Y` accetta qualunque nome di
+#      relazione (keyholder, entry), quindi il dominio investigativo si allarga
+#      con la conoscenza, non con il C;
+#   2. i DUE versi di interrogazione sulla STESSA relazione — `who` chiede il
+#      primo argomento, `what` il secondo;
+#   3. una regola di classe che deriva una PROPRIETA' di un soggetto emerso
+#      dall'indagine;
+#   4. il limite onesto su un nodo mai menzionato.
+#
+# Il punto 2 blinda un'estrazione KB-first: quale slot un interrogativo lascia
+# incognito era cablato in C come due strcmp su "who"/"what" dentro il ramo
+# generico delle relazioni. Ora e' `asks_slot/2` in `kb/core/meta.p0` (incluso da
+# `procedures.p0:451`, quindi presente sempre). Se qualcuno riportasse quella
+# decisione nel C, o sbagliasse la direzione, gli Atti II-III cadrebbero.
+#
+# CONTESTO VIVO, non ermetico: vedi la nota estesa in investigation.p0t e
+# `docs/plans/test-engine.md` §2b. La garanzia che le risposte siano inferenza e
+# non richiamo dal corpus e' la NOVITA' delle entita' (`rossi`, `bianchi`,
+# `nightgate`, `daygate`, `sidegate`, `vault` non compaiono in alcun fatto della
+# KB), non l'amputazione del mondo.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test investigation_access]
+
+# --- Atto I: la scena ------------------------------------------------------
+# Due custodi, due varchi, e un solo varco che porta al caveau. Nessun turno
+# contiene la conclusione: dice solo un arco del grafo.
+> rossi is the keyholder of nightgate
+< Learned: keyholder(rossi, nightgate).
+> bianchi is the keyholder of daygate
+< Learned: keyholder(bianchi, daygate).
+> nightgate is the entry of vault
+< Learned: entry(nightgate, vault).
+
+# --- Atto II: dal bersaglio al varco ----------------------------------------
+# Si parte da cio' che conta (il caveau) e si risale. `who` chiede il PRIMO
+# argomento di entry/2: quale varco e' l'ingresso del caveau.
+> who is the entry of vault?
+< nightgate.
+# Lo stesso predicato interrogato nell'altro verso: `what` chiede il SECONDO
+# argomento — dove porta il varco. Stessa relazione, due domande, due slot.
+# E' qui che asks_slot/2 dimostra di essere conoscenza e non codice.
+> what is the entry of nightgate?
+< vault.
+
+# --- Atto III: si segue la risposta -----------------------------------------
+# `nightgate` non era nella domanda iniziale: e' emerso dall'Atto II. Ora
+# diventa il soggetto della domanda successiva, e rivela la persona.
+> who is the keyholder of nightgate?
+< rossi.
+# Verifica puntuale nei due sensi: la relazione e' direzionale e discrimina.
+> is rossi the keyholder of nightgate?
+< Yes.
+> is bianchi the keyholder of nightgate?
+< No.
+
+# --- Atto IV: la classe qualifica il sospetto -------------------------------
+# L'indagine ha prodotto un nome; ora una regola di classe ne deriva una
+# proprieta' mai asserita direttamente su di lui.
+> rossi is a contractor
+< Learned: contractor(rossi).
+> every contractor is external
+< Got it: if something is a contractor, then it is external.
+> is rossi external?
+< Yes.
+# E non contamina chi la regola non copre: bianchi non e' un contractor.
+> is bianchi external?
+< No.
+
+# --- Atto V: il limite onesto ------------------------------------------------
+# Un varco mai menzionato non produce un nome inventato per chiudere il caso.
+> who is the keyholder of sidegate?
+< Nobody that I know of.
+
+# --- Atto VI: la ritrattazione ----------------------------------------------
+# Il colpo di scena del giallo: una prova cade. `!forget` toglie UN fatto dalla
+# KB dall'INTERNO del dialogo — non ricaricando il mondo da fuori — e l'indagine
+# deve reagire al nuovo stato, non alla vecchia conclusione.
+!forget keyholder(rossi, nightgate)
+> who is the keyholder of nightgate?
+< Nobody that I know of.
+# Cio' che non dipendeva da quella prova resta in piedi: bianchi e' intatto,
+# e la ritrattazione non ha portato via il resto del grafo.
+> who is the keyholder of daygate?
+< bianchi.
+> who is the entry of vault?
+< nightgate.
+# E la proprieta' derivata per regola sopravvive: era fondata su contractor,
+# non sulla chiave. Una prova che cade non deve trascinarne altre con se'.
+> is rossi external?
+< Yes.
+
+# --- Atto VII: spegnere l'intero predicato -----------------------------------
+# La forma senza argomenti ritratta OGNI fatto del predicato. Ora `keyholder`
+# non ha piu' alcun fatto, e la risposta cambia di CATEGORIA: non e' piu'
+# "quel soggetto non risulta" ma il DECLINO INFORMATO sulla relazione, che
+# nomina l'anello mancante e offre come colmarlo. E' la prova che ritrattare
+# l'ultimo fatto di un predicato lo riporta davvero a sconosciuto, non a vuoto.
+!forget keyholder
+> who is the keyholder of daygate?
+< I do not know the relation keyholder yet, so I cannot answer the keyholder of daygate. You can teach me with thing is the keyholder of daygate, or give facts/rules to reason from.

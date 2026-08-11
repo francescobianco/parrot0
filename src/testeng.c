@@ -32,6 +32,15 @@
  *   !timeout SECONDS          per-test turn budget (default 1s, reset at each
  *                             [test]). A turn slower than the budget is a FAILURE
  *                             (a perf-regression guard); 0 disables it.
+ *   !forget PRED              switch a predicate OFF: retract every fact of it
+ *   !forget PRED(a, b)        drop one specific ground fact
+ *
+ * On `!forget` (F.): what a test needs ABSENT is the test's job, not the load's.
+ * The KB is part of parrot0, not a mounted volume, so knowledge is subtracted
+ * from INSIDE the dialogue — a test can teach something, use it, forget it, and
+ * assert that the answer changed. Prefer this over amputating the KB at load time
+ * with `!set PARROT0_WORLD_FACTS=0` / empty BASE: profiles and env stay for
+ * high-level BEHAVIOUR, never for making a fact disappear.
  *
  * A section is MULTI-TURN: list several `> / <` pairs and they run in order
  * against the same live brain. A reply is MULTI-LINE: write one `<` per output
@@ -242,6 +251,48 @@ static int te_process_stream(TeState *t, FILE *in) {
             te_mark_clean(t);
             if (getenv("PARROT0_TE_DEBUG"))
                 fprintf(stderr, "test-engine: brain reset (virgin)\n");
+            continue;
+        }
+        /* `!forget <pred>`  — switch a predicate OFF from inside the test.
+         * `!forget <pred>(a, b)` — drop one specific ground fact.
+         *
+         * F.'s rule: what a test needs absent must be handled BY THE TEST, not by
+         * piloting the KB's load from outside (`!set PARROT0_WORLD_FACTS=0` and
+         * friends). The KB is part of parrot0, not a mounted volume: subtracting
+         * knowledge is a move inside the dialogue, so the same test can teach
+         * something, use it, then make parrot0 forget it and prove the answer
+         * changes. Profiles stay for high-level BEHAVIOUR, never for this. */
+        if (strncmp(p, "!forget", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
+            te_flush(t);
+            char *q = p + 7;
+            while (*q == ' ' || *q == '\t') q++;
+            char pred[TE_NAME]; size_t k = 0;
+            while (*q && *q != '(' && *q != ' ' && *q != '\t' && k + 1 < sizeof pred)
+                pred[k++] = *q++;
+            pred[k] = '\0';
+            if (k == 0) { syntax_err = 1; continue; }
+            while (*q == ' ' || *q == '\t') q++;
+            if (*q != '(') {                       /* whole predicate */
+                kb_retract_pred(brain_kb(t->b), pred);
+                continue;   /* te_learned() sees the size change on its own */
+            }
+            q++;                                   /* one ground fact: pred(a, b) */
+            char argbuf[KB_MAX_ARGS][KB_TERM_LEN];
+            const char *args[KB_MAX_ARGS];
+            size_t argc = 0;
+            while (*q && *q != ')' && argc < KB_MAX_ARGS) {
+                while (*q == ' ' || *q == '\t') q++;
+                size_t a = 0;
+                while (*q && *q != ',' && *q != ')' && a + 1 < KB_TERM_LEN)
+                    argbuf[argc][a++] = *q++;
+                while (a > 0 && (argbuf[argc][a-1] == ' ' || argbuf[argc][a-1] == '\t')) a--;
+                argbuf[argc][a] = '\0';
+                args[argc] = argbuf[argc];
+                argc++;
+                if (*q == ',') q++;
+            }
+            if (argc == 0) { syntax_err = 1; continue; }
+            kb_retract(brain_kb(t->b), pred, args, argc);
             continue;
         }
         if (strncmp(p, "!set", 4) == 0 && (p[4] == ' ' || p[4] == '\t')) {

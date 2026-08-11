@@ -1,0 +1,22 @@
+# HEALTH — la sonda di prontezza del test engine, non una suite.
+#
+# `make test-engine` la manda subito dopo aver avviato il demone. Serve a
+# distinguere tre stati che altrimenti si confondono in un'attesa muta:
+#   1. il demone non e' partito affatto (socket assente)
+#   2. il socket esiste ma e' STANTIO — nessuno ascolta (tipico dopo un kill
+#      che ha lasciato il file dietro di se')
+#   3. il demone ascolta ma il cervello non risponde
+# Senza questa sonda i tre casi si presentano tutti come "i test non partono", e
+# si finisce ad aspettare qualcosa che non era mai partito davvero.
+#
+# Deve restare BANALE e VELOCE: due turni, nessuna dipendenza dal profilo, dal
+# mondo o dalla lingua oltre il default. Non e' il posto dove verificare
+# comportamento — solo che il canale sia vivo e il cervello risponda.
+# Deliberatamente NON usa !set: la config e' quella con cui il demone e' nato, ed
+# e' proprio quella che vogliamo constatare sana.
+
+[test health]
+> what is 2 plus 2?
+< 4.
+> hello
+< Hi there!

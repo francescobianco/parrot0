@@ -251,6 +251,24 @@ question_form(whether, "a whether-question asks for a yes or a no").
 answer_frame("kind of question", question_form).
 answer_frame("type of question", question_form).
 
+% -- quale SLOT di una relazione binaria l'interrogativo lascia INCOGNITO --
+% Era cablato in C come due strcmp su "who"/"what" dentro il ramo generico delle
+% relazioni (10-memory-knowledge.c): parole inglesi che decidevano la semantica,
+% cioe' C che rubava flessibilita' alla KB. Qui e' conoscenza, quindi un nuovo
+% interrogativo — o quello di un'altra lingua — e' un FATTO, non una ricompilata.
+%   asks_slot(Interrogativo, subject)  ->  rel($X, Oggetto)   chiede il 1o argomento
+%   asks_slot(Interrogativo, object)   ->  rel(Oggetto, $X)   chiede il 2o argomento
+% "who is the parent of ann?"  -> parent($X, ann)  -> bob
+% "what is the effect of leak?"-> effect(leak, $X)
+asks_slot(who, subject).
+asks_slot(what, object).
+asks_slot(whom, subject).
+
+% Le forme italiane restano utili anche con canonicalize_lang attivo: se un giorno
+% una frase IT arriva non canonicalizzata, la mappa e' gia' conoscenza.
+asks_slot(chi, subject).
+asks_slot(cosa, object).
+
 % -- reasoning contrasts: thinking about thinking, one fact per distinction --
 difference_between(cause, enabling_condition, "A cause actively produces the effect; an enabling condition only makes it possible").
 difference_between(deduction, induction, "Deduction derives what must follow from rules; induction generalizes a rule from examples").

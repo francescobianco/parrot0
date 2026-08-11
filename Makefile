@@ -318,11 +318,36 @@ capability-report: build
 # suites are being migrated. See docs/plans/test-engine.md.
 TEST_SOCK := obj/test-engine.sock
 TEST_PID  := obj/test-engine.pid
+# The daemon must NOT inherit make's stdout: it outlives the recipe, so holding
+# that pipe open makes `make test-engine` (and anything piping it) hang forever
+# waiting on a writer that never exits. Its output goes to a log instead, which
+# also gives the failure paths below something concrete to point at.
+TEST_LOG  := obj/test-engine.log
 
+# The daemon is started AND VERIFIED. Starting it is not the same as it being
+# usable: the socket file can linger from a killed instance (so it exists while
+# nobody listens), the boot can die on a bad KB, or the brain can come up mute.
+# All three used to surface identically — as tests that silently "don't run" —
+# and cost real time waiting on something that never started properly. So we now
+# wait for the socket to APPEAR, then prove the engine ANSWERS (tests/p0t/health.p0t),
+# and fail loudly with the reason instead of letting the suite run into a wall.
 test-engine: build
 	@-test -f $(TEST_PID) && kill `cat $(TEST_PID)` 2>/dev/null || true
 	@rm -f $(TEST_SOCK) $(TEST_PID)
-	@./$(BIN) --test-engine & echo $$! > $(TEST_PID)
+	@./$(BIN) --test-engine > $(TEST_LOG) 2>&1 & echo $$! > $(TEST_PID)
+	@i=0; while [ ! -S $(TEST_SOCK) ] && [ $$i -lt 150 ]; do sleep 0.1; i=$$((i+1)); done; \
+	 if [ ! -S $(TEST_SOCK) ]; then \
+	   echo "test-engine: FAILED — no socket at $(TEST_SOCK) after 15s."; \
+	   echo "  the daemon did not start. Its output is in $(TEST_LOG):"; \
+	   sed 's/^/    | /' $(TEST_LOG) 2>/dev/null | tail -20; \
+	   exit 1; fi
+	@if ! ./$(BIN) --test-send tests/p0t/health.p0t; then \
+	   echo "test-engine: FAILED — socket exists but the engine is not answering."; \
+	   echo "  usually a STALE socket from a killed daemon, or a brain that came up mute."; \
+	   echo "  daemon log ($(TEST_LOG)):"; \
+	   sed 's/^/    | /' $(TEST_LOG) 2>/dev/null | tail -20; \
+	   exit 1; fi
+	@echo "test-engine: ready (health check passed)"
 
 # Reads as: start engine, send first file, send second file, ask for the total.
 # FAIL-FAST: a --test-send exits 1 the instant its file has a failed assertion,
@@ -361,6 +386,8 @@ test: test-engine
 	@./$(BIN) --test-send tests/p0t/reasoning/family.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/hypothesis.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/induce.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/investigation.p0t
+	@./$(BIN) --test-send tests/p0t/reasoning/investigation_access.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/orchain.p0t
 	@./$(BIN) --test-send tests/p0t/math/quantity.p0t
 	@./$(BIN) --test-send tests/p0t/reasoning/relations.p0t

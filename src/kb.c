@@ -313,6 +313,21 @@ int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     return removed;
 }
 
+size_t kb_retract_pred(KB *kb, const char *pred) {
+    if (!kb || !pred || !*pred) return 0;
+    size_t removed = 0, w = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        if (strcmp(kb->facts[i].pred, pred) == 0) { removed++; continue; }
+        if (w != i) kb->facts[w] = kb->facts[i];
+        w++;
+    }
+    kb->n = w;
+    if (removed)
+        fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
+                                        kb->facts, kb->n);
+    return removed;
+}
+
 int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
                   size_t argc) {
     if (!kb || argc > KB_MAX_ARGS) return 0;

@@ -104,6 +104,52 @@ sessione.
 **Ancora da progettare (F.):** mock, stub, flag e altre forme di controllo dello
 stato della KB. Per ora l'engine fa solo l'assert atteso + il pilotaggio env.
 
+### 2b. Il contesto ermetico è un limite, non un obiettivo (F., 2026-08-11)
+
+Posizione architetturale, presa dopo che la migrazione gen346 ha reso l'ermetismo
+il default di fatto: **251 dei 257 `.p0t` girano con `PARROT0_WORLD_FACTS=0` e
+base/sessione svuotate.**
+
+> *La KB non è qualcosa di separato da parrot0, è una sua parte. parrot0 è
+> software dinamico: la KB evolve evolvendo sé stesso, non è memoria "di volume"
+> come se fosse un volume Docker.* — F.
+
+La conseguenza per i test è netta: **un parrot0 con la conoscenza staccata non è
+lo stesso soggetto con meno dati, è un altro soggetto.** Testarlo amputato e poi
+spedirlo intero misura una creatura che non spediamo. F. segnala che questa
+impostazione ha già prodotto forzature, **sdoppiamenti di accesso alla KB** e il
+problema del **mount differenziale**; l'ermetismo come prodotto — un parrot0
+distribuibile senza la sua conoscenza — non è, almeno per ora, un obiettivo.
+
+**La distinzione operativa da tenere:**
+
+| Leva | Cosa tocca | Verdetto |
+|---|---|---|
+| `PARROT0_PROFILE`, `PARROT0_LANG` | il **comportamento** | legittime — i profili esistono per configurabilità |
+| `!reset` | la **sessione** (non far colare stato fra test) | legittimo — è igiene dell'harness |
+| `PARROT0_WORLD_FACTS=0`, `BASE=`, `SESSION=` | l'**essere** (la conoscenza) | da evitare — amputa il soggetto |
+
+**Cosa mettere al posto dell'amputazione.** L'ermetismo serviva a garantire che
+un `Yes` fosse inferenza e non richiamo dal corpus. Lo stesso risultato si ottiene
+con una garanzia più forte: la **novità delle entità**. Se i soggetti e i legami
+sono introdotti nel test stesso e non compaiono in alcun fatto della KB, nessun
+corpus può fornire la risposta — e la garanzia regge **anche** con tutta la
+conoscenza montata, che è la condizione reale.
+
+**Precedente misurato:** `tests/p0t/reasoning/investigation.p0t` è il primo test
+scritto su questa linea (`[mock live]`, mondo pieno, entità nuove). L'intero arco
+produce output **identico byte per byte** con mondo pieno e con mondo vuoto: per
+quel test l'ermetismo non comprava nulla. Verificata anche la sequenza reale in
+`make test` (file ermetico → file vivo → file ermetico): passa in entrambe le
+direzioni, purché il file vivo **ripristini esplicitamente** le variabili ai
+valori reali (`kb/core/base.p0`, `kb/core/session.p0`, `WORLD_FACTS=1`), perché la
+config è un override globale persistente che i file precedenti lasciano a 0.
+
+**Non è un mandato di migrazione di massa.** I 251 file esistenti restano
+(`keep-secondary-structures`): il punto è la direzione per i test NUOVI, e il
+sospetto motivato che parte delle forzature note vada riletta come conseguenza di
+questa impostazione, non come complessità intrinseca.
+
 ## 3. `!set` e il modello di reload/reset (env layer)
 
 `src/env.{c,h}` è il layer di config: ogni variabile che parrot0 legge a runtime

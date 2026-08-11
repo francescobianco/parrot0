@@ -1,0 +1,125 @@
+# INVESTIGATION — reasoning CONDOTTO, non risposte isolate.
+#
+# Gli altri test di tests/p0t/reasoning/ verificano una singola inferenza per
+# turno: premesse dentro, verdetto fuori. Questo verifica una cosa diversa e per
+# ora non coperta: che parrot0 sostenga un'ESPLORAZIONE, cioè che il discorso
+# AVANZI: si parte da un sintomo, si chiede la causa, si SEGUE la risposta
+# ottenuta e si interroga QUELLA, finché si arriva all'origine e l'indagine si
+# ferma da sola. È il modello del romanzo giallo, applicato a una situazione
+# qualunque — qui un guasto in un deposito refrigerato.
+#
+# Il punto strutturale che questo test blinda: oggi `what is the cause of X?`
+# risale a X <- P <- N e non oltre, quindi la radice a tre salti NON esce in un
+# turno solo — ma esce CONDUCENDO: la risposta al turno n diventa il soggetto
+# della domanda al turno n+1. È l'avanzamento nel discorso a superare il limite
+# di profondità del singolo passo, ed è quello che vogliamo dimostrare.
+#
+# ATTENZIONE — il limite a due salti è DEBITO KB-first, non profondità di
+# ragionamento, e questo test NON lo consacra come desiderato. La chiusura
+# transitiva completa esiste già come procedura insegnabile in
+# `kb/core/procedures.p0`:
+#     causes_t($X, $Z) :- causes($X, $Y), causes($Y, $Z).
+#     causes_t($X, $Z) :- causes($X, $Y), causes_t($Y, $Z).
+# `procedures.p0` è caricato sempre (`99-registry.c:524`, non gated su
+# PARROT0_WORLD_FACTS), ma NESSUN consumer C interroga `causes_t`: il modulo
+# causale rifà per conto suo una camminata a due passi cablata. È il mantra #2
+# (il C deve restare adattatore NL→goal, non consumer della procedura di
+# dominio) e il mantra #5 (cerca il motore esistente prima di scriverne uno).
+# Quando il consumer verrà portato su `causes_t`, gli assert degli Atti III-V
+# cambieranno: dovranno mostrare la catena INTERA. Il valore del test non è la
+# profondità raggiunta — è che il discorso AVANZA, e quello resta vero comunque.
+#
+# CONTESTO VIVO — deliberatamente NON ermetico (F., 2026-08-11).
+#
+# 251 dei 257 .p0t girano amputando la KB (`PARROT0_WORLD_FACTS=0`, base e
+# sessione vuote). Questo test non lo fa, per una ragione di principio: **la KB
+# non è un volume montato accanto a parrot0, è parte di parrot0.** Un parrot0 con
+# la conoscenza staccata non è lo stesso soggetto con meno dati — è un altro
+# soggetto. Testare quello, e poi spedire questo, misura una creatura che non
+# spediamo. I profili restano legittimi (configurano il COMPORTAMENTO); svuotare
+# il mondo no (amputa l'ESSERE).
+#
+# Cosa garantisce allora che le risposte siano inferenza e non richiamo dal
+# corpus? Non l'amputazione: la **novità delle entità**. `generatorfail`,
+# `powerloss`, `thaw`, `spoilage` non compaiono in alcun fatto `causes/2` della
+# KB, e i legami causali fra loro nascono qui dentro, in questi turni. Nessun
+# corpus può fornirli. È una garanzia più forte dell'ermetismo, perché regge
+# ANCHE con tutta la conoscenza montata — ed è verificata: l'intero arco produce
+# output identico byte per byte con mondo pieno e con mondo vuoto.
+#
+# `!reset` resta, ma per igiene di SESSIONE (non far colare i fatti di un test
+# nel successivo), che è un'altra cosa dall'amputare il mondo. Le variabili sono
+# fissate ai loro valori REALI, non svuotate, perché la config è un override
+# globale persistente e i file precedenti lasciano `WORLD_FACTS=0`.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test investigation]
+
+# --- Atto I: la scena -------------------------------------------------------
+# Si stabilisce il mondo in cui l'indagine si svolge. Serve a due cose: dare
+# all'esplorazione un contesto (non solo una catena astratta), e verificare che
+# la conoscenza di classe resti disponibile mentre l'indagine causale procede.
+> the depot is a site
+< Learned: site(depot).
+> the truck is a vehicle
+< Learned: vehicle(truck).
+> every vehicle is an asset
+< Learned rule: asset(X) :- vehicle(X).
+# Derivato dalla regola, mai asserito: il camion è un bene.
+> is the truck an asset?
+< Yes.
+
+# --- Atto II: gli indizi ----------------------------------------------------
+# Le prove arrivano una alla volta, come in un interrogatorio. Nessun turno
+# contiene la conclusione; la conclusione esiste solo nella loro composizione.
+> generatorfail causes powerloss
+< Learned: causes(generatorfail, powerloss).
+> powerloss causes thaw
+< Learned: causes(powerloss, thaw).
+> thaw causes spoilage
+< Learned: causes(thaw, spoilage).
+
+# --- Atto III: dal sintomo alla causa prossima ------------------------------
+# Il sintomo osservato è `spoilage`. Risalendo, parrot0 non dà solo un nome: dà
+# la catena E il percorso — `powerloss` è raggiunto ATTRAVERSO `thaw`, e lo
+# dichiara. È il ragionamento reso ispezionabile, non un'asserzione nuda.
+> what is the cause of spoilage?
+< thaw, powerloss (via thaw).
+# La mossa dell'investigatore: fra due candidati, quale è la causa PROSSIMA.
+# Discriminare fra ipotesi concorrenti, non elencarle.
+> cause of spoilage: thaw or generatorfail?
+< thaw.
+
+# --- Atto IV: si segue la risposta ------------------------------------------
+# QUI sta il cuore del test. `thaw` non era nella domanda iniziale: è emerso
+# dall'atto III. Ora diventa il soggetto della domanda successiva, e proprio
+# questo passo rivela `generatorfail` — la radice, che a partire da `spoilage`
+# era fuori portata. Il discorso avanza, e avanzando vede più lontano.
+> what is the cause of thaw?
+< powerloss, generatorfail (via powerloss).
+> cause of thaw: powerloss or spoilage?
+< powerloss.
+
+# --- Atto V: la verifica in avanti ------------------------------------------
+# Un'indagine onesta non si ferma all'ipotesi: la ripercorre nel verso opposto.
+# Partendo dalla radice trovata si deve ritrovare il sintomo di partenza, e la
+# catena si chiude su sé stessa.
+> what is the effect of generatorfail?
+< powerloss, thaw (via powerloss).
+> what is the effect of powerloss?
+< thaw, spoilage (via thaw).
+
+# --- Atto VI: la roccia madre -----------------------------------------------
+# L'indagine termina da sola, e nel modo giusto: chiedendo la causa della causa
+# radice, parrot0 non inventa un antefatto per compiacere la domanda — dichiara
+# di non saperlo. È il segnale che si è raggiunto il fondo delle prove
+# disponibili, ed è ciò che distingue un ragionatore da un generatore di storie.
+> what is the cause of generatorfail?
+< I don't know the cause of generatorfail.
