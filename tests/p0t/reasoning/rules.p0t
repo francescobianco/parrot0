@@ -33,3 +33,15 @@
 > is rex a mortal?
 < No.
 
+
+# gen369 (KB-first): WHICH word opens a universal is knowledge, not C.
+# universal_quantifier/1 (kb/core/grammar.p0) replaced the literal strcmp chains
+# that decided it. `each` is the proof: it walled before, and now works purely
+# because the KB gained a fact — no recompile. Remove that fact and these three
+# lines fail, which is exactly the property under test.
+> each dog is a mammal
+< Learned rule: mammal(X) :- dog(X).
+> rex is a dog
+< Learned: dog(rex).
+> is rex a mammal?
+< Yes.

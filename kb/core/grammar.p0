@@ -203,3 +203,21 @@ np_opener(her).
 np_opener(its).
 np_opener(their).
 np_opener(our).
+
+% ── QUANTIFICATORI UNIVERSALI ────────────────────────────────────────────────
+% Quali parole aprono una proposizione universale ("all X are Y", "every X is a
+% Y") era cablato in C come una catena di strcmp dentro universal_to_witness
+% (10-memory-knowledge.c): parole inglesi che decidevano una CATEGORIA LOGICA.
+% Una classe chiusa di parole e' conoscenza, quindi vive qui — mantra #2, e il
+% suo test: "parrot0 puo' impararne un nuovo membro domani senza ricompilare?".
+% Le forme italiane (ogni, tutti, tutte) NON si aggiungono qui: canonical_token
+% le porta gia' a every/all prima che questo punto sia raggiunto, e duplicarle
+% sarebbe estendere per analogia (mantra #6).
+% `each` NON e' un'aggiunta per analogia: e' la PROVA della migrazione. Prima
+% andava a muro ("I don't understand that yet"); ora funziona per il solo fatto
+% qui sotto, senza ricompilare. E' blindato da tests/p0t/reasoning/rules.p0t —
+% togliere questa riga fa fallire il test, che e' il punto.
+universal_quantifier(all).
+universal_quantifier(every).
+universal_quantifier(any).
+universal_quantifier(each).

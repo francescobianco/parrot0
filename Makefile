@@ -47,7 +47,7 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat chat-agent pi test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: all build chat chat-agent pi test soft-test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
 
 all: build
 
@@ -352,6 +352,50 @@ test-engine: build
 # Reads as: start engine, send first file, send second file, ask for the total.
 # FAIL-FAST: a --test-send exits 1 the instant its file has a failed assertion,
 # so make stops on that line. Comment a --test-send line out to skip that suite.
+# ── soft-test — la verifica di AVANZAMENTO rapido ────────────────────────────
+#
+# NON e' la suite, ed e' un errore usarlo come tale. `make test` dimostra che
+# nulla e' regredito; `soft-test` risponde a una domanda diversa e piu' frequente:
+# "posso andare avanti?". Contiene percio' solo una minima percentuale dei .p0t —
+# la spina dorsale piu' cio' su cui si sta lavorando adesso — ed e' pensato per
+# essere eseguito di continuo dentro il ciclo di modifica, non a fine lavoro.
+#
+# IL BUDGET E' PARTE DEL CONTRATTO: se l'esecuzione supera SOFT_BUDGET secondi il
+# target FALLISCE anche con tutti i test verdi. Non e' una guardia di performance
+# sul motore — e' una guardia sul FLUSSO. Sforare significa che soft-test si sta
+# caricando di test che nel flusso rapido non servono, e la reazione giusta e'
+# toglierne, non alzare il budget. Un soft-test che cresce fino a somigliare alla
+# suite ha smesso di essere utile: si torna ad aspettare, e si smette di lanciarlo.
+#
+# Il budget misura l'ESECUZIONE dei test, non l'avvio del motore: build e boot
+# del demone sono infrastruttura, esattamente come il reload non e' contato dentro
+# il `!timeout` di un turno.
+SOFT_BUDGET := 15
+SOFT_TESTS := \
+  tests/p0t/health.p0t \
+  tests/p0t/conversation/basics.p0t \
+  tests/p0t/math/arith.p0t \
+  tests/p0t/reasoning/syllogism.p0t \
+  tests/p0t/reasoning/rules.p0t \
+  tests/p0t/reasoning/relations.p0t \
+  tests/p0t/knowledge/facts.p0t \
+  tests/p0t/reasoning/investigation.p0t \
+  tests/p0t/reasoning/investigation_access.p0t
+
+soft-test: test-engine
+	@start=$$(date +%s); \
+	 for f in $(SOFT_TESTS); do \
+	   ./$(BIN) --test-send $$f || exit 1; \
+	 done; \
+	 el=$$(( $$(date +%s) - start )); \
+	 if [ $$el -gt $(SOFT_BUDGET) ]; then \
+	   echo "soft-test: FAILED — $${el}s over a $(SOFT_BUDGET)s budget (tests were green)."; \
+	   echo "  soft-test is the fast progress check, not the suite. Remove cases that do"; \
+	   echo "  not serve the current flow — do not raise the budget."; \
+	   exit 1; \
+	 fi; \
+	 echo "soft-test: green in $${el}s (budget $(SOFT_BUDGET)s)"
+
 test: test-engine
 	@./$(BIN) --test-send tests/p0t/conversation/basics.p0t
 	@./$(BIN) --test-send tests/p0t/conversation/conversation.p0t

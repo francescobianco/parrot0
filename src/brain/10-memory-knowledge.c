@@ -589,6 +589,30 @@ static int is_article(const char *w) {
     return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
 }
 
+/* Does `w` open a UNIVERSAL proposition ("all X are Y", "every X is a Y")?
+ *
+ * The class is knowledge — universal_quantifier/1 in kb/core/grammar.p0 — so a
+ * new member is a fact, not a recompile (mantra #2). The literal chain that used
+ * to live at each call site was English deciding a LOGICAL category from inside
+ * the engine.
+ *
+ * The fallback is deliberate and narrow: premise sandboxes build a scratch Brain
+ * over a bare kb_create() with none of the core files, so a KB lookup there would
+ * find nothing and silently kill a working path. When the brain carries no
+ * universal_quantifier facts AT ALL we are in that knowledge-less mode and use
+ * the built-in defaults; whenever the KB has the class, the KB alone decides.
+ * (That scratch-brain pattern is itself the obstacle to finishing this migration
+ * — see docs/plans/kb-first.md.) */
+static int is_universal_word(Brain *b, const char *w) {
+    if (b && brain_kb(b)) {
+        const char *q[] = { w };
+        if (kb_query(brain_kb(b), "universal_quantifier", q, 1)) return 1;
+        if (kb_knows_pred(brain_kb(b), "universal_quantifier")) return 0;
+    }
+    return strcmp(w, "all") == 0 || strcmp(w, "every") == 0 ||
+           strcmp(w, "any") == 0;
+}
+
 /* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
  * Map one FUNCTION word of any supported language onto the canonical (English)
  * token the reasoning modules already parse, or NULL to leave it untouched.
@@ -1305,7 +1329,7 @@ static void singularize(const char *in, char *out, size_t sz) {
  *
  * Returns 1 if `q` was a universal and has been rewritten into a ground question
  * (with its witness asserted into `tmp`); 0 leaves `q` untouched. */
-static int universal_to_witness(Brain *tmp, char *q, size_t qsz) {
+static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
     char buf[256];
     snprintf(buf, sizeof buf, "%s", q);
     char *w[16];
@@ -1313,8 +1337,13 @@ static int universal_to_witness(Brain *tmp, char *q, size_t qsz) {
     for (size_t i = 0; i < n; i++) w[i] = strip_edge_punct(w[i]);
     if (n < 4) return 0;
     if (strcmp(w[0], "are") != 0 && strcmp(w[0], "is") != 0) return 0;
-    if (strcmp(w[1], "all") != 0 && strcmp(w[1], "every") != 0 &&
-        strcmp(w[1], "any") != 0) return 0;
+    /* WHICH words open a universal is a closed lexical class, i.e. knowledge:
+     * universal_quantifier/1 in kb/core/grammar.p0. It used to be a chain of
+     * strcmp here — English deciding a LOGICAL category from inside the engine.
+     * A new quantifier is now a fact, not a recompile. */
+    /* `tmp` is a bare scratch KB holding only this turn's premises, so the
+     * lexical class is read from the REAL brain (`lex`), where grammar.p0 lives. */
+    if (!is_universal_word(lex, w[1])) return 0;
 
     size_t si = 2;
     while (si < n && is_article(w[si])) si++;   /* "all THE bloops" */
@@ -1335,7 +1364,6 @@ static int universal_to_witness(Brain *tmp, char *q, size_t qsz) {
 }
 
 static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_size) {
-    (void)b;
     size_t L = strlen(norm);
     /* gen290: a trailing '?' is no longer required — the "if <premises>, is <x>
      * <y>" shape is interrogative by structure, so prompt 125 ("if all cats are
@@ -1364,7 +1392,7 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", q);
     /* gen326: "are all bloops lazzies?" — resolve the universal through an
      * arbitrary witness, then let the SAME query path answer it. */
-    universal_to_witness(&tmp, qbuf, sizeof qbuf);
+    universal_to_witness(b, &tmp, qbuf, sizeof qbuf);
     char ans[256];
     int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
     kb_destroy(tmp.kb);
@@ -1436,7 +1464,7 @@ static int multi_sentence_syllogism(Brain *b, const char *norm,
     snprintf(qbuf, sizeof qbuf, "%s", query);
     /* gen326: the universal conclusion reaches the multi-sentence form through
      * the SAME witness helper — one mechanism, both surfaces. */
-    universal_to_witness(&tmp, qbuf, sizeof qbuf);
+    universal_to_witness(b, &tmp, qbuf, sizeof qbuf);
     char ans[256];
     int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
     kb_destroy(tmp.kb);
@@ -9352,7 +9380,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * before the head noun become conjoined premises, e.g. "every friendly dog
      * is a goodboy" -> goodboy(X) :- friendly(X), dog(X). nw==5 (one body word)
      * stays exactly the old single-body rule, so prior behaviour is preserved. */
-    if (nw >= 5 && nw <= 4 + KB_MAX_BODY && strcmp(w[0], "every") == 0 &&
+    /* The opening quantifier is read from universal_quantifier/1 (grammar.p0),
+     * not from a literal here. is_universal_word() falls back to the built-in
+     * defaults ONLY for a knowledge-less scratch brain (premise sandboxes are a
+     * bare kb_create()), so the real conversational path is fully KB-driven. */
+    if (nw >= 5 && nw <= 4 + KB_MAX_BODY && is_universal_word(b, w[0]) &&
         strcmp(w[nw - 3], "is") == 0 && is_article(w[nw - 2])) {
         const char *head = w[nw - 1];
         const char *bodies[KB_MAX_BODY];
