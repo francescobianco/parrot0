@@ -164,3 +164,41 @@
 # avrebbe smesso di isolare e ogni ipotetica sarebbe da buttare.
 > rex is a dog. all cats are animals. is rex an animal?
 < No.
+
+# ── machinery/1 — parrot0 impara a runtime COSA CONTA COME CONOSCENZA ────────
+#
+# Il caso piu' riflessivo del file, e la ragione per cui gen374 (uno strato
+# KB_MACHINERY in C, assegnato al boot) e' stato SCARTATO invece che completato:
+# era ridondante, e per giunta congelava al boot una cosa che la KB sa gia' dire
+# meglio, dal vivo. Se `machinery/1` e' conoscenza, allora deve valere la regola
+# di tutte le altre classi — glielo si dice parlando, e vale subito.
+#
+# Non e' una classe lessicale come le precedenti: e' la classe che decide quali
+# predicati parrot0 consideri MACCHINERIA propria e quali conoscenza del mondo,
+# cioe' cosa risponde a "quante cose sai?". Insegnarla a runtime significa che
+# parrot0 puo' correggere da solo il proprio auto-modello, senza ricompilare e
+# senza che nessuno tocchi il C — che e' precisamente cio' che serve perche'
+# possa apprendere e migliorarsi da solo, senza compromessi architetturali.
+
+[test taught_machinery]
+
+# 1. PRIMA — in una KB nuda la conoscenza del mondo e' l'albero d'esempio:
+#    progenitor/2 e parent_of/2.
+> what do you know?
+< I know 13 fact(s) across 2 predicate(s). Ask me about a specific topic.
+
+# 2. INSEGNAMENTO — gli si dice che uno dei due e' macchineria, non mondo.
+> progenitor is a machinery
+< Learned: machinery(progenitor).
+
+# 3. DOPO — l'auto-dichiarazione cambia SUBITO: quei fatti non sono piu' contati
+#    come cose sapute del mondo. Nessuna ricompilata, nessuna passata al boot.
+> what do you know?
+< I know 7 fact(s) across 1 predicate(s). Ask me about a specific topic.
+> what predicates do you know?
+< I know these predicates: parent_of.
+
+# 4. E si torna indietro: la classificazione e' KB fino in fondo, nei due versi.
+!forget machinery(progenitor)
+> what do you know?
+< I know 13 fact(s) across 2 predicate(s). Ask me about a specific topic.
