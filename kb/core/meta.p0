@@ -319,3 +319,8 @@ wall_marker("facts for that topic yet").
 machinery(gap_frame).
 gap_frame(process_step_gap).
 gap_frame(activity_step_gap).
+
+% il meta-modello delle relazioni descrive la KB, non il mondo.
+machinery(relation_domain).
+machinery(relation_arity).
+machinery(incompatible_conclusions).

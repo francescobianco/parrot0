@@ -2010,3 +2010,20 @@ task_span_pattern(common, constraint,
 
 machinery(task_boundary_cue).
 machinery(task_span_pattern).
+
+% macchineria di percezione/instradamento: cue, guardie e classi di ruolo
+% descrivono COME parrot0 legge un turno, non cosa sa del mondo.
+machinery(state_cue).
+machinery(ordinal_position).
+machinery(quantity_role_cue).
+machinery(schema_role_class).
+machinery(compound_guard).
+machinery(task_operation_cue).
+machinery(task_deliverable_cue).
+machinery(task_entity_cue).
+machinery(task_goal_cue).
+machinery(task_resource_cue).
+machinery(task_constraint_cue).
+machinery(task_focus_cue).
+machinery(task_deadline_cue).
+machinery(imperative_opener).

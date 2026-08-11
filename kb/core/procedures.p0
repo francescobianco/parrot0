@@ -729,3 +729,20 @@ machinery(task_requirement).
 machinery(task_feature_match).
 machinery(task_ir).
 machinery(task_term_concept).
+
+% una procedura e' macchineria: saper calcolare non e' un fatto sul mondo.
+machinery(probability_procedure).
+
+% Coerenza col principio scritto sopra: una PROCEDURA e' macchineria. Saper
+% sommare, contare, filtrare o decidere la primalita' non e' un fatto sul mondo,
+% quindi non entra in "quante cose sai?".
+machinery(sum_list).
+machinery(count_list).
+machinery(max_list).
+machinery(drop_odds).
+machinery(factorial).
+machinery(fib).
+machinery(gcd).
+machinery(is_prime).
+machinery(power).
+machinery(member).

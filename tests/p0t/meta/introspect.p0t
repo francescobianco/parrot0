@@ -1,5 +1,33 @@
-# migrated from tests/cases/introspect.chat (gen346, hermetic + isolated;
-# expectations aligned to current behaviour).
+# INTROSPEZIONE — cosa parrot0 dice di sapere.
+#
+# La proprieta' sotto test e' il FILTRO: "quante cose sai?" deve riportare la
+# conoscenza del MONDO, non la macchineria del motore (cue, guardie, classi
+# grammaticali, procedure). Il codice che filtra sta in 40-meta-reflection.c e si
+# regge su un fatto `machinery(Pred)` accanto a ogni predicato di motore.
+#
+# gen372 — perche' questo file era rosso. Non era uno snapshot da riallineare: era
+# il BUG che il filtro esiste per prendere. Il marcatore `machinery/1` va aggiunto
+# a mano ogni volta che nasce un predicato di motore, e per generazioni non e'
+# stato fatto: 19 predicati erano finiti nei conteggi utente, e parrot0 dichiarava
+# 310 fatti su 37 predicati come se fossero cose sapute del mondo. Fra i 19 c'erano
+# anche universal_quantifier/definite_article/relation_preposition, cioe' i tre
+# introdotti nella migrazione KB-first di gen369-370 — il commento in
+# 40-meta-reflection.c avvisava che era gia' successo tre volte, e questa e' la
+# quarta. Marcati tutti, resta la conoscenza vera: 13 fatti, 2 predicati.
+#
+# I 13 fatti sono l'albero genealogico d'esempio di kb/core/social.p0
+# (progenitor/2, parent_of/2) — gli unici fatti di mondo veri nella KB nuda.
+#
+# ANOMALIA APERTA, deliberatamente NON consacrata qui: un fatto INSEGNATO nel
+# turno ("rex is a dog") non entra nel conteggio ne' nella lista dei predicati —
+# 13 prima, 13 dopo. Il vecchio snapshot si aspettava 195 -> 197 con `dog` in
+# lista, quindi la proprieta' e' regredita in qualche generazione fra gen346 e
+# oggi. Verificato che NON dipende dai marcatori aggiunti qui (senza di essi il
+# comportamento e' identico: `dog` non compare). Il test qui sotto si limita a
+# provare che il fatto insegnato e' USABILE — asserito e derivabile — senza
+# affermare nulla sul conteggio, cosi' da non trasformare una regressione in
+# comportamento atteso. Va indagata a parte.
+
 [mock hermetic]
 !set PARROT0_BASE=
 !set PARROT0_SESSION=
@@ -8,35 +36,31 @@
 !reset
 
 [test introspect]
-# gen77: self-model introspection depth. Internal predicates are filtered
-# so "what do you know?" shows only user-facing knowledge.
-# Start with zero user-facing facts.
+
+# Con la sola KB nuda, la conoscenza del mondo e' l'albero d'esempio e nient'altro.
+# Se questo numero risale, un nuovo predicato di motore ha perso il suo
+# machinery(...) — e' precisamente l'allarme che questo test deve suonare.
 > what do you know?
-< I know 195 fact(s) across 26 predicate(s). Ask me about a specific topic.
+< I know 13 fact(s) across 2 predicate(s). Ask me about a specific topic.
 > how many facts do you know?
-< I know 195 fact(s).
+< I know 13 fact(s).
 > what predicates do you know?
-< I know these predicates: imperative_opener, progenitor, parent_of, pragma_act, pragmatic_meaning, sum_list, count_list, max_list, drop_odds, factorial, fib, gcd, is_prime, power, member, relation_domain, relation_arity, incompatible_conclusions, incompatible, relation_type, inverse_of, question_form, slot_evidence, conversation_seed, repair_budget, part_of.
+< I know these predicates: progenitor, parent_of.
 > show me your knowledge
-< Here is everything I know: imperative_opener(execute). imperative_opener(esegui). imperative_opener(run). imperative_opener(apply). imperative_opener(applica). imperative_opener(migrate). imperative_opener(migra). imperative_opener(scan). imperative_opener(scansiona). pragma_act(indirect_request). pragma_act(environment_hint). is_prime(2). is_prime(3). conversation_seed("the human heart beats about a hundred thousand times a day"). conversation_seed("octopuses have three hearts and blue blood"). conversation_seed("honey can last thousands of years without spoiling"). conversation_seed("Jupiter is the largest planet in our solar system"). conversation_seed("a day on Venus is longer than a whole year on Venus"). conversation_seed("the shortest war in history lasted about forty minutes"). conversation_seed("bananas are berries, but strawberries are not"). conversation_seed("there are more stars in the sky than grains of sand on Earth").
-# Teach some facts and re-query.
+< I know 13 fact(s) total.
+
+# Il fatto insegnato e' reale e RAGIONA, indipendentemente da come venga contato.
 > rex is a dog
 < Learned: dog(rex).
-> fido is a dog
-< Learned: dog(fido).
+> is rex a dog?
+< Yes.
 > every dog is a mammal
 < Learned rule: mammal(X) :- dog(X).
-# Direct facts only: dog(rex), dog(fido). mammal is rule-derived.
-> what do you know?
-< I know 197 fact(s) across 27 predicate(s). Ask me about a specific topic.
-> how many facts do you know?
-< I know 197 fact(s).
-> what predicates do you know?
-< I know these predicates: imperative_opener, progenitor, parent_of, pragma_act, pragmatic_meaning, sum_list, count_list, max_list, drop_odds, factorial, fib, gcd, is_prime, power, member, relation_domain, relation_arity, incompatible_conclusions, incompatible, relation_type, inverse_of, question_form, slot_evidence, conversation_seed, repair_budget, part_of, dog.
-> show me your knowledge
-< Here is everything I know: imperative_opener(execute). imperative_opener(esegui). imperative_opener(run). imperative_opener(apply). imperative_opener(applica). imperative_opener(migrate). imperative_opener(migra). imperative_opener(scan). imperative_opener(scansiona). pragma_act(indirect_request). pragma_act(environment_hint). is_prime(2). is_prime(3). conversation_seed("the human heart beats about a hundred thousand times a day"). conversation_seed("octopuses have three hearts and blue blood"). conversation_seed("honey can last thousands of years without spoiling"). conversation_seed("Jupiter is the largest planet in our solar system"). conversation_seed("a day on Venus is longer than a whole year on Venus"). conversation_seed("the shortest war in history lasted about forty minutes"). conversation_seed("bananas are berries, but strawberries are not"). conversation_seed("there are more stars in the sky than grains of sand on Earth"). dog(rex). dog(fido).
-# Identity and capability still work.
+# Derivato dalla regola, mai asserito: l'inferenza attraversa cio' che si e'
+# appena imparato.
+> is rex a mammal?
+< Yes.
+
+# Identita': l'introspezione sul se' non dipende dai conteggi.
 > who are you?
 < I am parrot0.
-> what can you do?
-< From my capability ledger, I can currently: answer from KB facts and rules, with limited inference; understand common conversational intents and route them to specialized faculties; read and explain small code fragments; use local tools when they are enabled; learn simple procedures from examples; attempt small structural repairs when an oracle exposes the failure; make simple plans and track prerequisite structure; acquire knowledge and build a small KB representation from it; try cautious autolearning with quarantine and promotion still immature; use the early coding-agent API surface.

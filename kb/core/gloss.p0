@@ -870,3 +870,7 @@ tr(human, umano).
 tr(person, persona).
 tr(alive, vivo).
 tr(dead, morto).
+
+% macchineria di traduzione: struttura del motore, non conoscenza del mondo.
+machinery(tr_multi_phrase).
+machinery(translation_phrase_cue).

@@ -85,3 +85,6 @@ pragmatic_meaning(bullet, "biting the bullet means facing something painful you 
 pragmatic_meaning(towel, "throwing in the towel means giving up").
 pragmatic_meaning(devil, "speak of the devil marks the arrival of the person just discussed").
 pragmatic_meaning(lines, "reading between the lines means grasping what is implied but not said").
+% instradamento pragmatico: come si legge un atto linguistico, non cosa si sa.
+machinery(pragma_act).
+machinery(pragmatic_meaning).

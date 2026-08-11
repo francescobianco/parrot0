@@ -230,3 +230,11 @@ universal_quantifier(each).
 % a parrot0 che una parola inventata e' l'articolo, e lui la usa come tale.
 definite_article(the).
 relation_preposition(of).
+
+% Le classi lessicali sono MACCHINERIA, non cose che parrot0 "sa" del mondo:
+% vanno filtrate da "quante cose sai?" (40-meta-reflection.c). Dimenticare questo
+% marcatore e' il modo ricorrente in cui un predicato di motore e' finito nei
+% conteggi utente — e' gia' successo tre volte prima di queste tre.
+machinery(universal_quantifier).
+machinery(definite_article).
+machinery(relation_preposition).
