@@ -380,7 +380,8 @@ SOFT_TESTS := \
   tests/p0t/reasoning/relations.p0t \
   tests/p0t/knowledge/facts.p0t \
   tests/p0t/reasoning/investigation.p0t \
-  tests/p0t/reasoning/investigation_access.p0t
+  tests/p0t/reasoning/investigation_access.p0t \
+  tests/p0t/language/taught_lexicon.p0t
 
 soft-test: test-engine
 	@start=$$(date +%s); \

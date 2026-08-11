@@ -221,3 +221,12 @@ universal_quantifier(all).
 universal_quantifier(every).
 universal_quantifier(any).
 universal_quantifier(each).
+
+% ── ARTICOLO DETERMINATIVO e PREPOSIZIONE RELAZIONALE ────────────────────────
+% Le due parole funzionali che danno forma al frame delle relazioni binarie
+% ("x is THE parent OF y") erano due strcmp su letterali inglesi dentro
+% 10-memory-knowledge.c. Sono classi chiuse, quindi conoscenza.
+% Insegnabili a runtime: vedi tests/p0t/language/taught_lexicon.p0t, dove si dice
+% a parrot0 che una parola inventata e' l'articolo, e lui la usa come tale.
+definite_article(the).
+relation_preposition(of).

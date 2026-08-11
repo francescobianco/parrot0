@@ -1,0 +1,136 @@
+# LESSICO INSEGNATO A RUNTIME — la prova forte del KB-first.
+#
+# Ogni volta che una CLASSE LESSICALE CHIUSA viene tolta dal C e portata in KB,
+# la migrazione va dimostrata qui, e non basta far girare i test esistenti: quelli
+# provano solo che non si e' rotto nulla. La prova vera e' che si possa dire a
+# parrot0, PARLANDO, che una parola inventata appartiene alla classe — e vederlo
+# usare subito quella parola in quel ruolo grammaticale.
+#
+# La forma del test e' sempre la stessa, e il valore sta nel CONTRASTO:
+#   1. PRIMA — la parola strampalata non e' nella classe: la frase viene letta
+#      in un altro modo (di solito come nome di entita');
+#   2. INSEGNAMENTO — un turno normale di conversazione la mette nella classe;
+#   3. DOPO — la STESSA IDENTICA frase del punto 1 viene letta diversamente.
+# Fra 1 e 3 non cambia il binario, non cambia un file, non cambia la config:
+# cambia solo cio' che parrot0 SA. Se la classe tornasse nel C, il punto 3
+# ricadrebbe sul punto 1 e il test fallirebbe.
+#
+# Questo e' il test operativo del mantra #2 ("parrot0 puo' impararne un nuovo
+# membro domani senza ricompilare?") nella sua forma piu' esigente: non domani e
+# non ricompilando — adesso, dicendoglielo.
+#
+# CONTESTO VIVO (docs/plans/test-engine.md §2b): la KB e' parte di parrot0, non un
+# volume montato. Le variabili sono riportate ai valori REALI perche' la config e'
+# un override globale persistente e i file ermetici precedenti la lasciano a 0.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+# ── universal_quantifier/1 (kb/core/grammar.p0) ──────────────────────────────
+# Sito migrato in gen369: quale parola apre una proposizione universale era una
+# catena di strcmp su "all"/"every"/"any" in 10-memory-knowledge.c.
+
+[test taught_universal_quantifier]
+
+# 1. PRIMA — `puppo` non e' un quantificatore, quindi "puppo dog" e' solo il nome
+#    di una cosa, e la frase asserisce un fatto su quella cosa.
+> puppo dog is a mammal
+< Learned: mammal(puppo_dog).
+
+# 2. INSEGNAMENTO — un turno di conversazione qualunque, nessuna sintassi
+#    speciale: la parola entra nella classe come qualsiasi altro fatto.
+> puppo is a universal_quantifier
+< Learned: universal_quantifier(puppo).
+
+# 3. DOPO — la stessa frase del punto 1, ora letta come UNIVERSALE: non piu' un
+#    fatto su un'entita' ma una REGOLA quantificata su una variabile.
+> puppo dog is a mammal
+< Learned rule: mammal(X) :- dog(X).
+
+# E la regola appena capita ragiona davvero: il soggetto non e' mai stato
+# dichiarato mammifero, lo diventa per inferenza attraverso la parola inventata.
+> rex is a dog
+< Learned: dog(rex).
+> is rex a mammal?
+< Yes.
+
+# Dimenticare la parola la riporta fuori dalla classe: la classe e' KB fino in
+# fondo, in entrambe le direzioni. `!forget` toglie il fatto dall'interno del
+# dialogo (docs/plans/test-engine.md §2b).
+!forget universal_quantifier(puppo)
+> puppo cat is a feline
+< Learned: feline(puppo_cat).
+
+# ── definite_article/1 (kb/core/grammar.p0) ──────────────────────────────────
+# Sito migrato in gen370: il frame delle relazioni binarie ("x is THE parent OF
+# y") riconosceva l'articolo con strcmp(w[2], "the").
+
+[test taught_definite_article]
+
+# 1. PRIMA — `zorf` non e' un articolo, quindi la frase non ha la forma del
+#    frame relazionale e non viene compresa affatto.
+> leak is zorf trigger of outage
+< I don't understand that yet.
+
+# 2. INSEGNAMENTO.
+> zorf is a definite_article
+< Learned: definite_article(zorf).
+
+# 3. DOPO — la stessa frase e' ora un'asserzione di relazione binaria: parrot0
+#    ha letto `zorf` nel RUOLO di articolo determinativo.
+> leak is zorf trigger of outage
+< Learned: trigger(leak, outage).
+
+# E la relazione cosi' appresa e' interrogabile nel modo consueto: cio' che e'
+# entrato dalla parola inventata e' conoscenza normale, non un caso speciale.
+> who is the trigger of outage?
+< leak.
+
+# ── relation_preposition/1 (kb/core/grammar.p0) ──────────────────────────────
+# Stesso frame, l'altra parola funzionale: strcmp(w[4], "of").
+
+[test taught_relation_preposition]
+
+# 1. PRIMA — senza la preposizione il frame non si chiude, e le tre parole
+#    finali vengono lette come UN unico nome di classe composto.
+> spark is the cause blim fire
+< Learned: cause_blim_fire(spark).
+
+# 2. INSEGNAMENTO.
+> blim is a relation_preposition
+< Learned: relation_preposition(blim).
+
+# 3. DOPO — la stessa frase si scompone in una relazione binaria vera: il
+#    contrasto qui e' piu' netto di un muro, perche' cambia proprio l'ANALISI.
+> spark is the cause blim fire
+< Learned: cause(spark, fire).
+> who is the cause of fire?
+< spark.
+
+# ── asks_slot/2 (kb/core/meta.p0) ────────────────────────────────────────────
+# Sito migrato in gen368: quale SLOT di una relazione un interrogativo lascia
+# incognito era strcmp(w[0],"who")/strcmp(w[0],"what") nel ramo generico.
+# Qui la classe non e' unaria ma una MAPPA parola->ruolo, e si insegna con lo
+# stesso frame relazionale che governa: "zibb is the asks_slot of subject".
+
+[test taught_interrogative]
+
+# 1. PRIMA — `zibb` non e' un interrogativo, quindi la frase e' un'ASSERZIONE e
+#    il fatto viene memorizzato.
+> zibb is the parent of ann
+< Learned: parent(zibb, ann).
+
+# 2. INSEGNAMENTO — `zibb` chiede il primo argomento (il soggetto).
+> zibb is the asks_slot of subject
+< Learned: asks_slot(zibb, subject).
+
+# 3. DOPO — la frase IDENTICA al punto 1 non asserisce piu': INTERROGA. Ed e' la
+#    prova piu' netta che si possa chiedere, perche' la risposta e' esattamente
+#    cio' che la stessa frase aveva memorizzato due turni prima.
+> zibb is the parent of ann
+< zibb.

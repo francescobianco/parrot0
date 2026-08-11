@@ -603,14 +603,35 @@ static int is_article(const char *w) {
  * the built-in defaults; whenever the KB has the class, the KB alone decides.
  * (That scratch-brain pattern is itself the obstacle to finishing this migration
  * — see docs/plans/kb-first.md.) */
-static int is_universal_word(Brain *b, const char *w) {
+static int lex_class_member(Brain *b, const char *cls, const char *w,
+                            const char *const *defaults, size_t ndef) {
     if (b && brain_kb(b)) {
         const char *q[] = { w };
-        if (kb_query(brain_kb(b), "universal_quantifier", q, 1)) return 1;
-        if (kb_knows_pred(brain_kb(b), "universal_quantifier")) return 0;
+        if (kb_query(brain_kb(b), cls, q, 1)) return 1;
+        /* The KB owns the class: its answer is final, including "no". */
+        if (kb_knows_pred(brain_kb(b), cls)) return 0;
     }
-    return strcmp(w, "all") == 0 || strcmp(w, "every") == 0 ||
-           strcmp(w, "any") == 0;
+    for (size_t i = 0; i < ndef; i++)          /* knowledge-less scratch brain only */
+        if (strcmp(w, defaults[i]) == 0) return 1;
+    return 0;
+}
+
+/* Opens a UNIVERSAL proposition: "all X are Y", "every X is a Y". */
+static int is_universal_word(Brain *b, const char *w) {
+    static const char *const d[] = { "all", "every", "any" };
+    return lex_class_member(b, "universal_quantifier", w, d, 3);
+}
+
+/* The DEFINITE article introducing a relation name: "x is THE parent of y". */
+static int is_definite_article(Brain *b, const char *w) {
+    static const char *const d[] = { "the" };
+    return lex_class_member(b, "definite_article", w, d, 1);
+}
+
+/* The preposition binding a relation to its object: "x is the parent OF y". */
+static int is_relation_prep(Brain *b, const char *w) {
+    static const char *const d[] = { "of" };
+    return lex_class_member(b, "relation_preposition", w, d, 1);
 }
 
 /* gen43 — multilingual as a generalization probe (PRINCIPLES.md: no phrasebook).
@@ -9475,8 +9496,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         return 1;
     }
 
-    /* --- binary relations: "<x> is the <rel> of <y>" (gen11) --- */
-    if (nw == 6 && strcmp(w[2], "the") == 0 && strcmp(w[4], "of") == 0) {
+    /* --- binary relations: "<x> is the <rel> of <y>" (gen11) ---
+     * The two function words that SHAPE this frame — the definite article and
+     * the relational preposition — are closed lexical classes, so they are read
+     * from the KB (definite_article/1, relation_preposition/1 in grammar.p0)
+     * rather than compared against English literals here. */
+    if (nw == 6 && is_definite_article(b, w[2]) && is_relation_prep(b, w[4])) {
         const char *rel = w[3], *obj = w[5];
 
         /* variable query, subject unknown: "who is the <rel> of <y>?" ->
