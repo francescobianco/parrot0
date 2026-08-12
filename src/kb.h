@@ -66,7 +66,9 @@ int    kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc
  * a predicate with no facts simply stops deriving. */
 size_t kb_retract_pred(KB *kb, const char *pred);
 
-/* Retract every positive ground fact whose provenance is in `origin_mask`, e.g.
+/* Retract every positive ground fact AND every rule whose provenance is in
+ * `origin_mask` (gen382k: le regole erano escluse, e una regola sopravvissuta a
+ * un'ipotesi continua a dedurre), e.g.
  * kb_retract_origin(kb, KB_HYPOTHETICAL) to drop a turn's supposed premises when
  * the question is answered. Returns how many were removed. The read-side twin of
  * kb_save's origin_mask: a layer you can write, scope and now discard. */

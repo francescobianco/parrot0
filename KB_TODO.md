@@ -251,3 +251,80 @@ resta visibile e `class_conflict` puo' parlare anche li'.
 La domanda di review: parrot0 sa dire "l'ipotesi che mi hai dato contraddice
 quello che so, e te lo dico prima di ragionarci"?  (Oggi no, e con la sola
 rinominazione non potra' mai.)
+
+## PUNTO 1 (stipula/asserisce): fatto a meta', e una CORREZIONE da fare prima
+
+### La correzione, che viene prima di tutto
+
+gen382i dice di aver migrato `one_turn_syllogism` dalla KB amputata alla
+rinominazione. **Quel sito non viene mai raggiunto.** Verificato con una stampa
+sull'ingresso della funzione: per "if all bloops are razzies and zorb is a bloop,
+is zorb a razzie" — e per ogni variante provata — `mod_knowledge` risponde prima
+di arrivare alla riga che lo chiama (10-memory-knowledge.c:8405).
+
+La dimostrazione che avevo portato ("is tom a cat" -> "I don't know about cat")
+NON provava quello che dicevo: la prova e' compatibile con qualunque percorso che
+non lasci residui, e il sandbox amputato non ne lascia per costruzione. Ho
+scambiato una condizione necessaria per una sufficiente.
+
+Il codice scritto e' corretto e non fa danni (i test restano verdi perche'
+asseriscono il comportamento osservabile, che non e' cambiato), ma **la
+migrazione non e' avvenuta**: e' codice non esercitato. Il commit di gen382i va
+letto con questa nota accanto.
+
+**Prima mossa, prima di qualunque altra cosa:** trovare CHI risponde davvero a
+"if <premesse>, <domanda>". Il modo giusto e' la traccia che parrot0 ha gia'
+("why did you answer that way?" dice `knowledge`, quindi il sito e' dentro
+mod_knowledge, prima della riga 8405), non altre stampe di debug. Poi:
+o si migra QUEL sito, o si rimuove `one_turn_syllogism` se e' morto — un motore
+che non viene mai chiamato e' peggio di un motore che manca, perche' sembra
+esserci.
+
+### Che cosa del punto 1 c'e' davvero
+
+Tutto tranne l'aggancio, e ognuno di questi pezzi e' verificabile da solo:
+
+- `stipulation_cue/1` (grammar.p0, EN+IT) — quali parole STIPULANO invece di
+  asserire. E' la conoscenza che mancava, ed e' il discriminante che la sonda
+  gen382j ha isolato: non una preferenza architetturale, una proprieta' della
+  frase.
+- `response_template(premise_conflict, …)` (EN+IT) — le parole per dire la
+  tensione senza rifiutare la premessa.
+- `premise_conflict_note()` — il gemello RIUSABILE di `note_class_conflict`
+  (gen375), che era legato alle asserzioni di classe. Stessa conoscenza (is_a/2 +
+  incompatible/2), seconda superficie. E' il punto 4 della lista, fatto per meta'
+  e in anticipo.
+- il ramo stipulativo/assertivo in `one_turn_syllogism` — scritto, non
+  esercitato.
+- `kb_retract_origin` ora ritratta anche le REGOLE (gen382k). Questa non e' una
+  rifinitura: senza, una premessa universale non rinominata lascia una regola
+  VIVA nella KB, cioe' conoscenza falsa che continua a dedurre. Era una perdita
+  reale, mascherata dal fatto che finora le premesse morivano col sandbox.
+
+### Il piano, in ordine
+
+1. **Trovare il sito vero** (sopra). Finche' non e' fatto, ogni migrazione
+   successiva rischia di essere di nuovo codice non esercitato.
+2. **Agganciare il punto 1 li'**: stipulativo -> rinomina; assertivo -> niente
+   rinominazione, provenienza ipotetica, e `premise_conflict_note` prima della
+   risposta.
+3. **Chiudere il punto 4**: un solo rilevatore di conflitto, due consumatori
+   (l'asserzione di classe di gen375 e la premessa). Oggi sono due funzioni che
+   leggono gli stessi fatti.
+4. Solo dopo, **i punti 2 e 3** (le ipotesi come oggetti con identita', e lo
+   scope del risolutore). Sono una generazione a se': e' il momento in cui la
+   provenienza smette di essere un'etichetta e diventa un contesto di credenza.
+5. **Non migrare gli altri siti scratch** finche' 1-3 non sono chiusi. Migrarli
+   ora significa scrivere quattro volte l'architettura che non puo' accorgersi
+   del conflitto, e poi disfarla.
+
+### Come non ripetere l'errore
+
+La lezione non e' "fai piu' attenzione". E' che **una prova deve poter fallire**:
+"non restano residui" e' vera anche col sandbox amputato, quindi non distingue le
+due architetture e non prova niente. La prova giusta per una migrazione a
+rinominazione e' che i token freschi COMPAIANO — per esempio chiedendo a parrot0
+la traccia della derivazione, dove i simboli rinominati sono visibili — oppure un
+comportamento possibile SOLO con la KB viva, come il conflitto dichiarato del
+punto 1. Da qui in avanti, per ogni sito migrato: quale osservazione sarebbe
+DIVERSA se la migrazione non fosse avvenuta?

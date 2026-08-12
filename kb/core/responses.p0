@@ -464,3 +464,10 @@ response_template(page_disambiguates, it, "quella pagina disambigua piu' signifi
 % gen382c: conferma dell'atto di insegnamento di una risposta.
 response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
 response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").
+
+% gen382k: una premessa ASSERITIVA che contraddice cio' che parrot0 tiene. Non e'
+% un rifiuto — chi parla puo' avere ragione — ed e' esattamente cio' che la
+% rinominazione rende impossibile dire: se il gatto dell'ipotesi fosse un altro
+% concetto, non ci sarebbe nessun conflitto da nominare.
+response_template(premise_conflict, "Before I answer: what you state clashes with what I hold — I have {held}({subject}), and {claimed} and {held} cannot both apply.").
+response_template(premise_conflict, it, "Prima di rispondere: quello che affermi stride con quello che tengo — ho {held}({subject}), e {claimed} e {held} non possono valere insieme.").

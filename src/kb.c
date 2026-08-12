@@ -535,7 +535,23 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
                                         kb->facts, kb->n);
         pred_stats_invalidate(kb);
     }
-    return removed;
+
+    /* gen382k — anche le REGOLE, e non e' un'estensione di comodo.
+     *
+     * Toglieva solo i fatti, e finche' le premesse ipotetiche vivevano in un
+     * sandbox usa-e-getta non si notava: moriva tutto col sandbox. Nel momento in
+     * cui una supposizione vive sulla KB VERA, "tutti i gatti sono pesci" e' una
+     * REGOLA — e una regola sopravvissuta a un'ipotesi non e' un residuo, e'
+     * conoscenza falsa che continua a dedurre. Una provenienza che si puo'
+     * scrivere ma non ritirare per intero non e' una provenienza. */
+    size_t rw = 0, rremoved = 0;
+    for (size_t i = 0; i < kb->nr; i++) {
+        if (kb->rules[i].origin & origin_mask) { rremoved++; continue; }
+        if (rw != i) kb->rules[rw] = kb->rules[i];
+        rw++;
+    }
+    kb->nr = rw;
+    return removed + rremoved;
 }
 
 int kb_query_origin(const KB *kb, int origin_mask, const char *pred,

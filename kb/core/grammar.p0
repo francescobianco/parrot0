@@ -481,3 +481,30 @@ rule_anaphor(it).   rule_anaphor(lui).  rule_anaphor(lei). rule_anaphor(esso).
 % Dove finisce l'antecedente e comincia il conseguente.
 rule_antecedent_marker(if).   rule_antecedent_marker(se).
 rule_consequent_marker(then). rule_consequent_marker(allora).
+
+% ── STIPULARE o ASSERIRE ─────────────────────────────────────────────────────
+% gen382k. Una premessa ipotetica puo' fare due cose diverse, e finora parrot0
+% le trattava come una sola.
+%
+%   "SUPPONI CHE tutti i gatti siano pesci"  -> STIPULA: apre un mondo possibile.
+%       Il "gatto" di quel mondo e' un altro concetto con la stessa etichetta,
+%       quindi si rinomina e il conflitto con cio' che si sa e' IRRILEVANTE.
+%
+%   "tutti i gatti sono pesci"               -> ASSERISCE: parla del mondo di
+%       sempre, quindi il "gatto" e' lo stesso e il conflitto con cio' che si sa
+%       e' la cosa piu' importante da dire.
+%
+% La distinzione non e' una preferenza architetturale: e' una proprieta' della
+% frase, ed e' portata da parole — quindi e' conoscenza. Misurata su un
+% ragionatore vero in tests/coexistence_probe.py, che di fronte alla stessa
+% premessa distingue le due letture e nomina il discriminante.
+machinery(stipulation_cue).
+stipulation_cue("supponi che").      stipulation_cue("supponiamo che").
+stipulation_cue("immagina che").     stipulation_cue("immaginiamo che").
+stipulation_cue("assumendo che").    stipulation_cue("ammesso che").
+stipulation_cue("per ipotesi").      stipulation_cue("poniamo che").
+stipulation_cue("suppose that").     stipulation_cue("suppose").
+stipulation_cue("imagine that").     stipulation_cue("imagine").
+stipulation_cue("assuming that").    stipulation_cue("assume that").
+stipulation_cue("hypothetically").   stipulation_cue("for the sake of argument").
+stipulation_cue("pretend that").     stipulation_cue("say that").

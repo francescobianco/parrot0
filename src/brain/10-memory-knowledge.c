@@ -1769,6 +1769,53 @@ static int p0_rename_content(Brain *b, P0Rename *m, char *text, size_t sz) {
     return 1;
 }
 
+/* gen382k — la premessa ASSERITIVA confligge con cio' che parrot0 tiene?
+ *
+ * Il gemello riusabile di note_class_conflict (gen375), che era legato alla
+ * singola asserzione di classe e quindi irraggiungibile da qui. Stessa
+ * conoscenza — is_a/2 e incompatible/2 — letta da un'altra superficie: un solo
+ * meccanismo, due consumatori.
+ *
+ * Ed e' esattamente cio' che la rinominazione rende impossibile: se il gatto
+ * dell'ipotesi fosse un altro concetto non ci sarebbe nessun conflitto da
+ * trovare. Qui il gatto e' lo stesso, quindi il conflitto c'e' e si dice. Dirlo
+ * non e' rifiutare: la premessa vale lo stesso e la risposta segue. */
+static int premise_conflict_note(Brain *b, const char *prem,
+                                 char *note, size_t nsz) {
+    if (!b || !b->kb || !prem) return 0;
+    char buf[512]; snprintf(buf, sizeof buf, "%s", prem);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
+
+    /* "<quantificatore> <soggetto> are/is <classe>": il soggetto e' una CLASSE,
+     * e si guarda che cosa se ne sa gia'. */
+    for (size_t i = 0; i + 3 < nw; i++) {
+        if (!is_universal_word(b, w[i])) continue;
+        size_t ci = i + 2;
+        if (ci < nw && (!strcmp(w[ci], "are") || !strcmp(w[ci], "is"))) ci++;
+        while (ci < nw && (is_article(b, w[ci]) || is_definite_article(b, w[ci]))) ci++;
+        if (ci >= nw) continue;
+
+        char claimed[KB_TERM_LEN], sing[KB_TERM_LEN];
+        singularize_kb(b, w[ci], claimed, sizeof claimed);
+        singularize_kb(b, w[i + 1], sing, sizeof sing);
+
+        char held[16][KB_TERM_LEN];
+        const char *q[] = { sing, NULL };
+        size_t n = kb_match(b->kb, "is_a", q, 2, held, 16);
+        for (size_t h = 0; h < n; h++) {
+            if (strcmp(held[h], claimed) == 0) continue;
+            const char *inc[] = { claimed, held[h] };
+            if (!kb_query(b->kb, "incompatible", inc, 2)) continue;
+            const KbResponseSlot slots[] = {
+                { "subject", sing }, { "claimed", claimed }, { "held", held[h] } };
+            if (kb_response_slots(b, "premise_conflict", slots, 3, note, nsz))
+                return 1;
+        }
+    }
+    return 0;
+}
+
 static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_size) {
     size_t L = strlen(norm);
     /* gen290: a trailing '?' is no longer required — the "if <premises>, is <x>
@@ -1789,13 +1836,28 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     if (plen == 0 || plen >= sizeof prem) return 0;
     memcpy(prem, norm + 3, plen); prem[plen] = '\0';
 
-    /* gen382i: niente sandbox amputato. Le premesse e la domanda si rinominano in
-     * token freschi — verificati assenti dalla KB — e vivono sulla KB VERA, con
-     * provenienza ipotetica, per il tempo del turno. */
+    /* gen382k — la premessa STIPULA o ASSERISCE, e le due cose vogliono
+     * trattamenti opposti.
+     *
+     * "SUPPONI CHE tutti i gatti siano pesci" apre un mondo possibile: quel
+     * "gatto" e' un altro concetto con la stessa etichetta, si rinomina, e il
+     * conflitto con cio' che si sa e' irrilevante — anzi, non esiste.
+     *
+     * "tutti i gatti sono pesci" parla del mondo di sempre: il gatto e' LO
+     * STESSO, quindi NON si rinomina, e il conflitto con cio' che si tiene
+     * diventa la cosa piu' importante da dire. Rinominare anche qui era la scelta
+     * che rendeva il conflitto invisibile per costruzione (gen382j).
+     *
+     * Quali parole stipulino e' conoscenza: stipulation_cue/1 in grammar.p0. */
+    int stipulative = kb_cue_match(b, "stipulation_cue", norm);
+    char prem_raw[512]; snprintf(prem_raw, sizeof prem_raw, "%s", prem);
+
     P0Rename map; memset(&map, 0, sizeof map);
     char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", q);
-    if (!p0_rename_content(b, &map, prem, sizeof prem)) return 0;
-    if (!p0_rename_content(b, &map, qbuf, sizeof qbuf)) return 0;
+    if (stipulative) {
+        if (!p0_rename_content(b, &map, prem, sizeof prem)) return 0;
+        if (!p0_rename_content(b, &map, qbuf, sizeof qbuf)) return 0;
+    }
 
     int prev_origin = kb_origin(b->kb);
     kb_set_origin(b->kb, KB_HYPOTHETICAL);
@@ -1814,7 +1876,21 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     if (!claimed) return 0;
     if (strncmp(ans, "Yes", 3) != 0 && strncmp(ans, "No", 2) != 0 &&
         strncmp(ans, "Conflicted", 10) != 0) return 0;
+    /* Se la premessa ASSERIVA e stride con cio' che parrot0 tiene, lo si dice
+     * PRIMA della risposta — e la risposta arriva lo stesso, perche' chi parla
+     * puo' avere ragione o stare supponendo. Tenere i due livelli in vista
+     * invece di sceglierne uno di nascosto e' lo stesso criterio di gen375. */
+    if (!stipulative) {
+        char note[320];
+        if (premise_conflict_note(b, prem_raw, note, sizeof note)) {
+            char joined[512];
+            snprintf(joined, sizeof joined, "%s %s", note, ans);
+            put(joined, out, out_size);
+            return 1;
+        }
+    }
     put(ans, out, out_size);
+    return 1;
     return 1;
 }
 
