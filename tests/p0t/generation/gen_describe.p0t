@@ -9,7 +9,6 @@
 [test gen_describe]
 # Turno al limite del budget di 1s su macchina carica (misurato 1.0-1.1s): e\' il
 # costo reale della generazione descrittiva, non una regressione.
-!timeout 3
 # gen39: grounded verbalization -- reasoning turned back into language.
 # "describe <x>" generates a sentence for every class x is *provably* a member
 # of, including beliefs reached only through rules. Contrast with "what do you

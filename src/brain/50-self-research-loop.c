@@ -278,7 +278,7 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
     extract[eo] = '\0';
     if (eo == 0) return 0;
 
-    int nfacts = 0; size_t mo = 0;
+    int nfacts = 0, nrules = 0, nrejected = 0; size_t mo = 0;
     if (out_sz) out[0] = '\0';
     char *p = extract;
     while (*p) {
@@ -291,21 +291,39 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
             normalize(sent, nrm, sizeof nrm);
             canonicalize_lang(b, nrm, canon, sizeof canon);
             msg[0] = '\0';
-            if (extract_class_statement(b, canon, msg, sizeof msg, 1)) {
+            int r = extract_class_statement(b, canon, msg, sizeof msg, 1);
+            if (r == 2) { nrejected++; continue; }   /* gen382: cancello */
+            if (r) {
+                /* gen382: la prosa produce anche REGOLE (il generico plurale
+                 * "whales are mammals"), e vanno contate come tali. Prima solo
+                 * "Learned: " veniva tolto, quindi il testo del messaggio di una
+                 * regola finiva DENTRO l'elenco dei fatti — la KB si approfondiva
+                 * davvero ma il resoconto lo nascondeva, che e' il modo peggiore
+                 * di crescere: senza poterlo vedere. */
                 const char *fact = msg;
-                if (!strncmp(fact, "Learned: ", 9)) fact += 9;
+                int is_rule = 0;
+                if (!strncmp(fact, "Learned rule: ", 14)) { fact += 14; is_rule = 1; }
+                else if (!strncmp(fact, "Learned: ", 9)) fact += 9;
                 int flen = (int)strcspn(fact, ".");   /* drop the trailing period */
                 if (mo + (size_t)flen + 4 < out_sz) {
                     mo += (size_t)snprintf(out + mo, out_sz - mo, "%s%.*s",
-                                           nfacts ? ", " : "", flen, fact);
-                    nfacts++;
+                                           (nfacts || nrules) ? ", " : "", flen, fact);
+                    if (is_rule) nrules++; else nfacts++;
                 }
             }
         }
         if (!*q) break;
         p = q + 1;
     }
-    return nfacts;
+    /* Il chiamante riceve il TOTALE di cio' che e' entrato in KB — fatti piu'
+     * regole — perche' e' quello il conto della crescita. L'elenco distingue le
+     * due forme perche' le regole si leggono come clausole. */
+    /* Lo scarto viaggia col risultato: una pagina da cui si e' respinto molto non
+     * e' una pagina povera, e' una pagina letta male — e chi guarda deve poterlo
+     * distinguere. */
+    if (nrejected && mo + 40 < out_sz)
+        snprintf(out + mo, out_sz - mo, " (%d scartati dal cancello)", nrejected);
+    return nfacts + nrules;
 }
 
 /* deep-reasoning M3: is `to` reachable from `from` over the binary relation `rel`?
@@ -408,10 +426,10 @@ static int mod_deep_reason(Brain *b, const char *norm, const char *raw,
             p0_join(w, inp + 1, n, obj, sizeof obj)) {
             rel = "located_in"; class_mode = 0;
         } else {
-            size_t s = ip + 1; if (s < n && is_article(w[s])) s++;
+            size_t s = ip + 1; if (s < n && is_article(b, w[s])) s++;
             size_t ap = n;
             for (size_t i = s + 1; i < n; i++)
-                if (is_article(strip_edge_punct(w[i]))) { ap = i; break; }
+                if (is_article(b, strip_edge_punct(w[i]))) { ap = i; break; }
             if (ap != n && ap > s && ap + 1 < n &&
                 p0_join(w, s, ap, subj, sizeof subj) &&
                 p0_join(w, ap + 1, n, obj, sizeof obj)) {
@@ -626,7 +644,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     char xbuf[160]; snprintf(xbuf, sizeof xbuf, "%s", x);
     char *tok[16]; size_t nt = split_words(xbuf, tok, 16);
     size_t start = 0;
-    if (nt > 0 && (is_article(tok[0]) ||
+    if (nt > 0 && (is_article(b, tok[0]) ||
                    !strcmp(tok[0],"the") || !strcmp(tok[0],"il") ||
                    !strcmp(tok[0],"la")  || !strcmp(tok[0],"lo") ||
                    !strcmp(tok[0],"un")  || !strcmp(tok[0],"una") ||

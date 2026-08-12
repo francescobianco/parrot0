@@ -302,7 +302,7 @@ typedef struct {
  * memory needs the stoplist and edge-punctuation stripper from the bench
  * baseline helpers. */
 static size_t split_words(char *s, char **argv, size_t max);
-static int is_article(const char *w);
+static int is_article(Brain *b, const char *w);
 static int is_stopword(Brain *b, const char *w);
 static int is_conjunction(Brain *b, const char *w);
 static char *strip_edge_punct(char *t);
@@ -313,6 +313,9 @@ int brain_scratch_init(Brain *scratch, Brain *parent);
 int brain_substrate_query(Brain *b, const char *pred,
                           const char *const *args, size_t argc);
 int brain_substrate_knows(Brain *b, const char *pred);
+size_t brain_substrate_match(Brain *b, const char *pred,
+                             const char *const *args, size_t argc,
+                             char out[][KB_TERM_LEN], size_t max);
 void brain_mode(Brain *b, char *out, size_t cap);
 static int run_shell(const char *cmd, char *out, size_t out_size);
 static int identify_code_lang(const char *code, Brain *b);

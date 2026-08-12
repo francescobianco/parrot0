@@ -7,10 +7,11 @@
 !reset
 
 [test reflexive_audit.it]
-# L'auto-audit gira l'intera matrice di triple su sub-brain freschi: e' lento per
-# NATURA, non per regressione (~1.3s), quindi il budget di 1s non lo misura bene.
+# L'auto-audit gira l'intera matrice di triple su sub-brain freschi. Il vecchio
+# `!timeout 3` diceva "lento per NATURA (~1.3s)": era una lettura sbagliata. Il
+# costo era la scansione lineare della KB a ogni query; col censimento per
+# predicato (gen382) lo stesso lavoro misura 0.19s e sta nel budget di default.
 # Stesso trattamento gia' usato per fewshot.it/strategy.it (docs/plans/test-engine.md).
-!timeout 3
 # gen169 (E1 reflexive): the self-audit matrix in Italian — "verifica quali tuoi
 # moduli si compongono" reaches the same mod_loop path and runs the same triples
 # on fresh sub-brains, no duplicated logic.

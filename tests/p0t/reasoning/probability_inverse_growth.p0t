@@ -21,7 +21,6 @@
 !reset
 
 [test probability_inverse_growth]
-!timeout 3
 
 # 1. PRIMA — `pairprobe-alpha` non e' un cue noto, quindi la frase non viene letta
 #    come un'estrazione senza reimmissione e il solver inverso non parte.

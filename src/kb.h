@@ -333,6 +333,23 @@ size_t kb_size(const KB *kb);
  * hosts and diagnostics; it does not execute or reinterpret the rules. */
 size_t kb_rule_count(const KB *kb);
 
+/* What the LAST resolution cost, and whether a guard stopped it (gen382).
+ *
+ * `budget_hit` means the search was cut before it finished: the answer that came
+ * back is "not proved within the budget", NOT "false". A caller that reports the
+ * two as the same thing is claiming knowledge it does not have. `loops_cut`
+ * counts branches that were re-asking a question already open above them —
+ * pruning those changes no answer, but a high count is the tell that the
+ * knowledge has grown a cyclic path worth looking at. */
+typedef struct {
+    unsigned long steps;       /* resolution steps spent                     */
+    int           budget_hit;  /* the work ceiling stopped the search        */
+    int           loops_cut;   /* repeated ground goals pruned on some path  */
+    char          goal[KB_TERM_LEN]; /* predicate the search started from    */
+} KbInferenceReport;
+
+void kb_inference_report(const KB *kb, KbInferenceReport *out);
+
 /* Count direct stored facts for a predicate (no rule resolution). gen77. */
 size_t kb_pred_fact_count(const KB *kb, const char *pred);
 

@@ -191,6 +191,29 @@ static void te_turn(TeState *t, const char *text) {
     while (n > 0 && (t->reply[n - 1] == '\n' || t->reply[n - 1] == '\r'))
         t->reply[--n] = '\0';
     t->have_reply = 1;
+    {
+        /* gen382 — the SLOW-TURN LEDGER, independent of the per-test budget.
+         *
+         * `!timeout N` raises the bar for one test, and a raised bar hides what it
+         * covers: a turn that quietly costs 8s reads as green forever. With
+         * PARROT0_TE_SLOW=<seconds> every turn above the threshold is named on
+         * stderr whatever its budget, so the overrides can be re-examined against
+         * measurement instead of belief. Use it after any change to the KB size or
+         * the resolution path: `PARROT0_TE_SLOW=0.2 make test`. */
+        static double slow_at = -1.0;
+        if (slow_at < 0) {
+            const char *env = getenv("PARROT0_TE_SLOW");
+            slow_at = env && *env ? atof(env) : 0.0;
+        }
+        if (slow_at > 0) {
+            double el = (double)(tb.tv_sec - ta.tv_sec) +
+                        (double)(tb.tv_nsec - ta.tv_nsec) / 1e9;
+            if (el >= slow_at)
+                fprintf(stderr, "  slow  %6.2fs (budget %.2fs) [%s] line %d — %s\n",
+                        el, t->timeout_sec, t->section[0] ? t->section : "-",
+                        t->line_no, text);
+        }
+    }
     if (t->timeout_sec > 0) {
         double el = (double)(tb.tv_sec - ta.tv_sec) +
                     (double)(tb.tv_nsec - ta.tv_nsec) / 1e9;

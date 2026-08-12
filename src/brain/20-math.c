@@ -1729,7 +1729,7 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
  * only name what it actually knows, and says so when it knows none. Not a
  * phrasebook — add a category_member fact and the capability extends for free. */
 /* gen294 (cat.52): read a category's members for a COUNTED head noun, robust to
- * English singularization edge cases — singularize("senses") wrongly gives "sens"
+ * English singularization edge cases — singularize_kb(b, "senses") wrongly gives "sens"
  * (the boxes->box rule), so a strip-one-'s' fallback recovers "sense". Tries a
  * compound qualifier first ("primary colors" -> primary_color), then the
  * singularized head, then the head minus a trailing 's', then the raw token.
@@ -1741,7 +1741,7 @@ static size_t enum_category_lookup(Brain *b, const char *prevtok,
                                    char members[][KB_TERM_LEN], size_t max) {
     if (!b || !b->kb || !rawhead || !*rawhead) return 0;
     char head[KB_TERM_LEN];
-    singularize(rawhead, head, sizeof head);
+    singularize_kb(b, rawhead, head, sizeof head);
     if (prevtok && *prevtok) {
         char comp[KB_TERM_LEN];
         snprintf(comp, sizeof comp, "%s_%s", prevtok, head);

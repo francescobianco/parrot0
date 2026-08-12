@@ -203,6 +203,20 @@ np_opener(her).
 np_opener(its).
 np_opener(their).
 np_opener(our).
+% gen382: gli articoli italiani. Erano una catena di strcmp in p0_lead_det e
+% nella macro P0_LEAD_DET (10-memory-knowledge.c) — un SECONDO elenco di parole
+% che diceva la stessa cosa che np_opener/1 dice qui: "questa parola apre un
+% sintagma nominale". Non era una classe nuova, era la stessa classe scritta due
+% volte, una in KB e una nel motore (mantra #3: astrai fino al punto fisso; #5:
+% cerca il motore esistente). Ora ce n'e' una sola, e vale per tutti i consumer:
+% i confini del sintagma in generazione, il salto delle parole funzionali, e la
+% dichiarazione di classe.
+np_opener(il).
+np_opener(lo).
+np_opener(la).
+np_opener(i).
+np_opener(gli).
+np_opener(le).
 
 % ── QUANTIFICATORI UNIVERSALI ────────────────────────────────────────────────
 % Quali parole aprono una proposizione universale ("all X are Y", "every X is a
@@ -231,6 +245,21 @@ universal_quantifier(each).
 definite_article(the).
 relation_preposition(of).
 
+% ── ARTICOLO INDETERMINATIVO ─────────────────────────────────────────────────
+% L'ultima classe chiusa rimasta cablata, e la piu' diffusa: `is_article()` era
+% due strcmp su "a"/"an" letti da 55 punti del motore — la parola che separa il
+% soggetto dalla classe in "rex is A dog", cioe' il perno di quasi ogni frase
+% dichiarativa che parrot0 sa leggere. gen369 l'aveva lasciata indietro proprio
+% per l'ampiezza ("troppi call site, molti senza Brain in scope"); gen371 ha
+% tolto l'ostacolo vero dando ai sandbox l'accesso al substrato, quindi ora la
+% classe puo' vivere dove viveva la conoscenza fin dall'inizio.
+% Le forme italiane (un, uno, una, un') NON si aggiungono qui: canonical_token
+% le porta gia' su "a" prima di questo punto, e duplicarle sarebbe estendere per
+% analogia (mantra #6).
+% Insegnabile a runtime come le altre: tests/p0t/language/taught_lexicon.p0t.
+indefinite_article(a).
+indefinite_article(an).
+
 % Le classi lessicali sono MACCHINERIA, non cose che parrot0 "sa" del mondo:
 % vanno filtrate da "quante cose sai?" (40-meta-reflection.c). Dimenticare questo
 % marcatore e' il modo ricorrente in cui un predicato di motore e' finito nei
@@ -238,3 +267,135 @@ relation_preposition(of).
 machinery(universal_quantifier).
 machinery(definite_article).
 machinery(relation_preposition).
+machinery(indefinite_article).
+
+% ── DOVE FINISCE UN SINTAGMA NOMINALE ────────────────────────────────────────
+% gen382. Estrarre conoscenza dalla prosa vera falliva quasi sempre allo stesso
+% modo: il sintagma non aveva una fine. La scansione della classe si fermava solo
+% davanti a preposizione o congiunzione, cablate in C, e nessuna delle due compare
+% in "an astronomical body so compact THAT its gravity prevents anything" — cosi'
+% l'intera relativa diventava il nome di un predicato.
+%
+% Il confine di un sintagma e' conoscenza sulla lingua, non un dettaglio del
+% motore: e' il caso esemplare del principio per cui la CAPACITA' DI COMPRENDERE
+% deve essere uno stato della KB. Il motore chiede "questa parola chiude il
+% sintagma?" e non conosce nessuna delle risposte; aggiungerne una — o coprire
+% un'altra lingua — e' un fatto.
+machinery(np_closer).
+
+% Preposizioni: aprono un complemento, quindi il nome e' finito.
+np_closer(in).   np_closer(of).   np_closer(to).    np_closer(with).
+np_closer(by).   np_closer(from). np_closer(near).  np_closer(on).
+np_closer(at).   np_closer(for).  np_closer(into).  np_closer(over).
+np_closer(under). np_closer(between). np_closer(through). np_closer(during).
+np_closer(against). np_closer(within). np_closer(across). np_closer(about).
+
+% Congiunzioni: inizia un altro membro, non continua questo.
+np_closer(and).  np_closer(or).   np_closer(but).   np_closer(e).
+np_closer(o).    np_closer(ma).
+
+% Pronomi relativi e subordinatori: aprono una PROPOSIZIONE, ed e' qui che si
+% rompeva la prosa vera. Sono la ragione per cui questa classe esiste.
+np_closer(that).  np_closer(which).  np_closer(who).   np_closer(whom).
+np_closer(whose). np_closer(where).  np_closer(when).  np_closer(while).
+np_closer(because). np_closer(although). np_closer(if). np_closer(unless).
+np_closer(che).   np_closer(cui).    np_closer(quando). np_closer(mentre).
+np_closer(perche). np_closer(se).
+
+% Gradazione: "so compact that ...", "such a body that ...". Aprono una
+% subordinata consecutiva, quindi chiudono il nome tanto quanto un relativo.
+np_closer(so).    np_closer(such).   np_closer(cosi).
+
+% gen382, dalla sonda tests/prose_probe.py: messa davanti alla frase che parrot0
+% sbagliava, e chiesto quali FATTI servissero, un ragionatore vero ha indicato
+% questa lista. Sono participi e temporali che aprono un inciso — "prevents
+% anything, INCLUDING light" — e chiudono il nome esattamente come un relativo.
+% Il valore della sonda sta qui: non ha scritto codice, ha scritto righe di KB.
+np_closer(including). np_closer(after).  np_closer(before).
+np_closer(known).     np_closer(called). np_closer(used).
+np_closer(due).       np_closer(dovuto). np_closer(incluso).
+
+% ── LA COPULA DEL GENERICO ───────────────────────────────────────────────────
+% gen382. "whales are mammals" e' un UNIVERSALE con il quantificatore implicito:
+% dice quello che dice "every whale is a mammal", ed e' la forma piu' comune
+% della prosa enciclopedica. Serviva perche' dalla prosa devono nascere anche
+% REGOLE: una KB che riceve solo fatti si allarga senza approfondirsi.
+% Quale copula apra un generico e' conoscenza sulla lingua; il passaggio
+% plurale->singolare resta morfologia nel motore.
+machinery(generic_copula).
+generic_copula(are).
+generic_copula(sono).
+
+% ── IL PLURALE ───────────────────────────────────────────────────────────────
+% gen382. `singularize()` conteneva otto coppie irregolari e quattro regole di
+% morfologia inglese: una lista di parole e un pezzo di lingua dentro il motore.
+% Il plurale e' conoscenza come tutto il resto — e serve alla comprensione della
+% prosa, dove il generico plurale e' la forma che produce le regole.
+%
+% Due tabelle e un motore cieco. Il motore prova prima l'eccezione esatta, poi
+% la desinenza PIU' LUNGA che combacia; non conosce nessuna di queste stringhe e
+% non sa che lingua sta trattando.
+machinery(plural_of).
+machinery(plural_suffix).
+
+% Eccezioni esatte: irregolari e invarianti.
+plural_of(men, man).        plural_of(women, woman).
+plural_of(people, person).  plural_of(children, child).
+plural_of(feet, foot).      plural_of(teeth, tooth).
+plural_of(mice, mouse).     plural_of(geese, goose).
+plural_of(fish, fish).      plural_of(sheep, sheep).
+plural_of(species, species). plural_of(series, series).
+% Il caso che il C sbagliava e non poteva correggere: -ses e' ambiguo fra
+% "bus+es" e "sense+s", e nessuna regola di suffisso puo' deciderlo. Come
+% eccezione dichiarata si risolve in una riga (era il bug notato in 20-math.c).
+plural_of(senses, sense).   plural_of(cases, case).
+plural_of(bases, base).     plural_of(phases, phase).
+
+% Desinenze, provate dalla piu' lunga alla piu' corta. La seconda colonna e'
+% cio' che prende il posto della prima; `nil` significa "togli e basta".
+plural_suffix(ies, y).      % puppies -> puppy
+plural_suffix(ches, ch).    % beaches -> beach
+plural_suffix(shes, sh).    % dishes  -> dish
+plural_suffix(ses, s).      % buses   -> bus
+plural_suffix(xes, x).      % boxes   -> box
+plural_suffix(zes, z).
+% Una parola in -ss non e' un plurale in -s: la desinenza piu' lunga combacia e
+% la mappa su se stessa, quindi "glass" resta "glass". La vecchia guardia
+% `in[n-2] != 's'` nel C diceva la stessa cosa, ma dove nessuno poteva leggerla.
+plural_suffix(ss, ss).
+plural_suffix(s, nil).      % roses -> rose
+
+% ── I FRAME DI ESTRAZIONE ────────────────────────────────────────────────────
+% gen382. Qui la KB impara a ESTRARRE, non solo a sapere. Ogni riga dice: se la
+% prosa ha questa forma, ne nasce questa relazione. Il motore non conosce nessuno
+% di questi verbi e non sa che "located in" parli di luoghi.
+%
+% @S e @O sono gli slot (soggetto, oggetto) e si fermano dove np_closer/1 dice
+% che finisce un sintagma — lo stesso confine usato dalle classi. Il marcatore e'
+% @ e non $ perche' $ e' il sigillo delle VARIABILI del risolutore: un pattern
+% scritto con $ verrebbe letto come una clausola con variabili invece che come
+% testo, e il fatto smetterebbe di essere ground.
+%
+% Il corollario del piano extract-knowledge-from-prose.md, finalmente vero:
+% aggiungere una forma estraibile costa UN FATTO, non una generazione di C.
+machinery(extract_frame).
+
+extract_frame("@S is located in @O", located_in).
+extract_frame("@S is part of @O", part_of).
+extract_frame("@S is a member of @O", member_of).
+extract_frame("@S borders @O", borders).
+extract_frame("@S contains @O", contains).
+extract_frame("@S was born in @O", born_in).
+extract_frame("@S was founded in @O", founded_in).
+extract_frame("@S is the capital of @O", capital_of).
+extract_frame("@S orbits @O", orbits).
+extract_frame("@S eats @O", eats).
+extract_frame("@S produces @O", produces).
+extract_frame("@S causes @O", causes).
+
+% Il tetto di lunghezza di un CONCETTO. Oltre questo, un atomo non e' piu' il
+% nome di una cosa ma un pezzo di frase. Vive qui perche' e' una decisione sulla
+% lingua e non sul motore: chi trova una lingua che compone nomi piu' lunghi
+% alza questa riga, non ricompila.
+machinery(concept_atom_max_words).
+concept_atom_max_words(3).

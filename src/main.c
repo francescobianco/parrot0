@@ -19,6 +19,7 @@
 #include "serve.h"
 #include "mcp.h"
 #include "testeng.h"
+#include "dream.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,6 +165,10 @@ int main(int argc, char **argv) {
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
     int daemon_mode = 0, mcp_mode = 0, test_mode = 0, port = 9902;
     int send_mode = 0, report_mode = 0;
+    /* gen382 — `--dream <topic>`: esplorazione ricorsiva di un topic attraverso
+     * la sua prosa, parola per parola. Vedi src/dream.h. */
+    const char *dream_topic = NULL;
+    int dream_depth = 0, dream_nodes = 0, dream_fetch = 0, dream_persist = 0;
     const char *host = "127.0.0.1";
     const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
     const char *send_file = NULL;
@@ -185,11 +190,19 @@ int main(int argc, char **argv) {
         else if (strncmp(argv[i], "--port=", 7) == 0) port = atoi(argv[i] + 7);
         else if (strcmp(argv[i], "--host") == 0 && i + 1 < argc) host = argv[++i];
         else if (strncmp(argv[i], "--host=", 7) == 0) host = argv[i] + 7;
+        else if (strcmp(argv[i], "--dream") == 0) {
+            if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) dream_topic = argv[++i];
+        }
+        else if (strncmp(argv[i], "--depth=", 8) == 0) dream_depth = atoi(argv[i] + 8);
+        else if (strncmp(argv[i], "--nodes=", 8) == 0) dream_nodes = atoi(argv[i] + 8);
+        else if (strcmp(argv[i], "--fetch") == 0) dream_fetch = 1;
+        else if (strcmp(argv[i], "--persist") == 0) dream_persist = 1;
         else {
             fprintf(stderr, "parrot0: unknown argument '%s'\n"
                     "usage: parrot0 [--daemon [--port N] [--host H]] [--mcp-engine]\n"
                     "               [--test-engine [--sock PATH]]\n"
-                    "               [--test FILE [--sock PATH]] [--test-report [--sock PATH]]\n",
+                    "               [--test FILE [--sock PATH]] [--test-report [--sock PATH]]\n"
+                    "               [--dream TOPIC [--depth=N] [--nodes=N] [--fetch] [--persist]]\n",
                     argv[i]);
             return 2;
         }
@@ -248,6 +261,15 @@ int main(int argc, char **argv) {
     if (!brain) {
         fprintf(stderr, "parrot0: out of memory\n");
         return 1;
+    }
+
+    /* gen382: il sogno gira sul cervello COMPLETO (e' esplorazione, non un test
+     * ermetico), stampa il suo trace su stdout ed esce. */
+    if (dream_topic) {
+        DreamOpts dopts = { dream_depth, dream_nodes, dream_fetch, dream_persist, stdout };
+        int n = dream_run(brain, dream_topic, &dopts);
+        brain_destroy(brain);
+        return n > 0 ? 0 : 1;
     }
 
     /* gen331 (TODO.md P1/09): the banner reports the EFFECTIVE policy, read from

@@ -237,6 +237,12 @@ llmscore-tail:
 
 # LLMSCORE-PROBE (Fase 0, docs/plans/motorize-the-class.md) — wall-rate per
 # class over a held-out battery. No API, deterministic; the development metric.
+# prose-bench — quanto bene si estrae da PROSA VERA (offline, senza giudice).
+# Metro: malformed rate (da minimizzare) e usable per page (da massimizzare).
+# Non e' in `make test`: e' una misura, non un'asserzione.
+prose-bench: build
+	@$(BENCH_PY) ./tests/prosebench.py
+
 llmscore-probe: build
 	@$(BENCH_PY) ./tests/llmscore_probe.py
 
@@ -449,6 +455,8 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/math/quantity.p0t
 	@./$(BIN) --test tests/p0t/reasoning/relations.p0t
 	@./$(BIN) --test tests/p0t/reasoning/rules.p0t
+	@./$(BIN) --test tests/p0t/reasoning/inference_guard.p0t
+	@./$(BIN) --test tests/p0t/knowledge/magnitude_compare.p0t
 	@./$(BIN) --test tests/p0t/reasoning/transitivity.p0t
 	@./$(BIN) --test tests/p0t/reasoning/unify.p0t
 	@./$(BIN) --test tests/p0t/reasoning/whatifnot.p0t
@@ -560,6 +568,10 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/conversation/social.p0t
 	@./$(BIN) --test tests/p0t/conversation/apology.p0t
 	@./$(BIN) --test tests/p0t/language/lexicon_it.p0t
+# La prova che ogni classe migrata sia INSEGNABILE a runtime. Era solo in
+# soft-test: il file che porta lo standard di prova di ogni migrazione KB-first
+# non veniva eseguito dalla suite (gen382).
+	@./$(BIN) --test tests/p0t/language/taught_lexicon.p0t
 	@./$(BIN) --test tests/p0t/language/translate.p0t
 	@./$(BIN) --test tests/p0t/agent/agent_branch.it.p0t
 	@./$(BIN) --test tests/p0t/agent/agent_induce.it.p0t

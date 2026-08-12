@@ -31,6 +31,11 @@
 /* KB_MAX_BODY is declared in kb.h (part of kb_assert_rule_n's contract). */
 #define KB_MAX_GOALS 64 /* resolvent size ceiling                      */
 #define KB_MAX_DEPTH 64 /* resolution recursion guard (cyclic rules)   */
+/* Work ceiling for ONE resolution (gen382). Depth alone does not bound cost: a
+ * branching rule set explores exponentially many derivations inside depth 64.
+ * Measured headroom: the whole .p0t suite peaks four orders of magnitude below
+ * this, so hitting it means the knowledge is pathological, not merely large. */
+#define KB_MAX_STEPS 500000UL
 #define KB_MAX_BIND  128/* bindings per substitution                   */
 #define KB_PROOF_LEN 480/* max length of a rendered proof string       */
 #define KB_PROOF_PG  16 /* goals tracked while building an explanation */
@@ -72,6 +77,29 @@ typedef struct {
     size_t index_plus_one;
 } FactIndexEntry;
 
+/* Per-PREDICATE census (gen382).
+ *
+ * The fact index answers "is this exact fact stored?" in O(1); nothing answered
+ * "does this predicate exist at all?" without walking every fact. Every ground
+ * lookup therefore paid a full scan of the KB — including the overwhelmingly
+ * common MISS, where the predicate is not in the KB at all. That cost is
+ * invisible while the KB is small and becomes quadratic as it grows: the boot
+ * pass kb_derive_part_of asks is_model_pred() once per fact, and each ask
+ * scanned every fact (13k x 15k on the gen380/381 KB, ~2s on one turn).
+ *
+ * The census is a hash from predicate name to how many facts carry it and how
+ * many of those are NON-GROUND (contain a variable), which is exactly what
+ * kb_query needs to decide whether a ground lookup can be settled by the hash
+ * index alone. It is pure mechanism: it stores no vocabulary and no domain
+ * knowledge, only a count of what the KB already holds. */
+typedef struct {
+    char   pred[KB_TERM_LEN];
+    size_t nfacts;      /* stored facts with this predicate                  */
+    size_t nnonground;  /* ... of which carry a variable in some argument    */
+    size_t *idx;        /* their positions in kb->facts, in insertion order  */
+    size_t  idx_cap;
+} PredStat;
+
 struct KB {
     Fact  *facts;
     size_t n;
@@ -87,6 +115,17 @@ struct KB {
     size_t nr;
     size_t rcap;
     int    origin; /* provenance tag for newly asserted clauses */
+    /* gen382 — what the last resolution cost, and whether a guard stopped it.
+     * Kept on the KB so any host can ask after the fact; see kb_inference_report. */
+    unsigned long infer_steps;
+    int           infer_budget_hit;
+    int           infer_loops_cut;
+    char          infer_goal[KB_TERM_LEN];
+
+    PredStat *pred_stats;      /* the census; NULL = unavailable, scan instead */
+    size_t    pred_stats_cap;  /* power of two, open addressing               */
+    size_t    pred_stats_n;    /* distinct predicates recorded                */
+    int       pred_stats_dirty;/* a removal happened: rebuild before reading  */
 };
 
 KB *kb_create(void) {
@@ -106,6 +145,9 @@ void kb_destroy(KB *kb) {
     free(kb->neg);
     free(kb->neg_index);
     free(kb->rules);
+    if (kb->pred_stats)
+        for (size_t i = 0; i < kb->pred_stats_cap; i++) free(kb->pred_stats[i].idx);
+    free(kb->pred_stats);
     free(kb);
 }
 
@@ -225,6 +267,147 @@ static void fact_index_rebuild_after_remove(FactIndexEntry **index, size_t *cap,
     *cap = 0;
 }
 
+/* ---- the per-predicate census (see PredStat) ---------------------------- */
+
+static int term_contains_var(const char *s, int depth);   /* fwd */
+
+static uint64_t pred_hash(const char *pred) {
+    uint64_t h = UINT64_C(1469598103934665603);
+    for (const unsigned char *p = (const unsigned char *)pred; *p; p++) {
+        h ^= *p; h *= UINT64_C(1099511628211);
+    }
+    return h;
+}
+
+/* Slot for `pred`, or NULL. With `create`, an empty slot is claimed and zeroed;
+ * the table is never full because pred_stats_note() grows it at 70% load. */
+static PredStat *pred_stat_slot(KB *kb, const char *pred, int create) {
+    if (!kb->pred_stats || !kb->pred_stats_cap) return NULL;
+    size_t mask = kb->pred_stats_cap - 1;
+    size_t pos = (size_t)pred_hash(pred) & mask;
+    for (size_t probes = 0; probes <= mask; probes++) {
+        PredStat *e = &kb->pred_stats[pos];
+        if (!e->pred[0]) {
+            if (!create) return NULL;
+            snprintf(e->pred, sizeof e->pred, "%s", pred);
+            e->nfacts = e->nnonground = 0;
+            kb->pred_stats_n++;
+            return e;
+        }
+        if (strcmp(e->pred, pred) == 0) return e;
+        pos = (pos + 1) & mask;
+    }
+    return NULL;
+}
+
+static int fact_is_nonground(const Fact *f) {
+    for (size_t a = 0; a < f->argc; a++)
+        if (term_contains_var(f->args[a], 0)) return 1;
+    return 0;
+}
+
+static void pred_stats_drop(KB *kb) {
+    if (kb->pred_stats)
+        for (size_t i = 0; i < kb->pred_stats_cap; i++) free(kb->pred_stats[i].idx);
+    free(kb->pred_stats);
+    kb->pred_stats = NULL;
+    kb->pred_stats_cap = kb->pred_stats_n = 0;
+    kb->pred_stats_dirty = 1;
+}
+
+/* Record one stored fact (at position `fi`) in the census, growing the table
+ * when it fills. On allocation failure the census is dropped entirely and every
+ * reader falls back to the historical full scan — slower, never wrong. */
+static void pred_stats_note(KB *kb, size_t fi) {
+    if (kb->pred_stats_dirty) return;             /* a rebuild will recount */
+    size_t needed = kb->pred_stats_n + 1;
+    if (!kb->pred_stats || needed * 10 >= kb->pred_stats_cap * 7) {
+        size_t next = kb->pred_stats_cap ? kb->pred_stats_cap * 2 : 64;
+        while (next / 2 < needed) {
+            if (next > SIZE_MAX / 2) { pred_stats_drop(kb); return; }
+            next *= 2;
+        }
+        PredStat *fresh = calloc(next, sizeof *fresh);
+        if (!fresh) { pred_stats_drop(kb); return; }
+        PredStat *old = kb->pred_stats; size_t ocap = kb->pred_stats_cap;
+        kb->pred_stats = fresh; kb->pred_stats_cap = next; kb->pred_stats_n = 0;
+        for (size_t i = 0; i < ocap; i++) {       /* rehash, bucket and all */
+            if (!old[i].pred[0]) continue;
+            PredStat *e = pred_stat_slot(kb, old[i].pred, 1);
+            if (e) *e = old[i];
+            else free(old[i].idx);
+        }
+        free(old);
+    }
+    const Fact *f = &kb->facts[fi];
+    PredStat *e = pred_stat_slot(kb, f->pred, 1);
+    if (!e) { pred_stats_drop(kb); return; }
+    if (e->nfacts == e->idx_cap) {
+        size_t next = e->idx_cap ? e->idx_cap * 2 : 4;
+        size_t *grown = realloc(e->idx, next * sizeof *grown);
+        if (!grown) { pred_stats_drop(kb); return; }
+        e->idx = grown; e->idx_cap = next;
+    }
+    e->idx[e->nfacts++] = fi;
+    if (fact_is_nonground(f)) e->nnonground++;
+}
+
+/* Removals compact the fact array, so every stored position can shift. Rather
+ * than patch the buckets per path we mark the census stale and recount once,
+ * lazily, at the next read. Retraction is rare next to lookup; this keeps the
+ * hot path free of bookkeeping. */
+static void pred_stats_invalidate(KB *kb) { if (kb) kb->pred_stats_dirty = 1; }
+
+static void pred_stats_rebuild(KB *kb) {
+    if (kb->pred_stats)
+        for (size_t i = 0; i < kb->pred_stats_cap; i++) {
+            kb->pred_stats[i].pred[0] = '\0';
+            kb->pred_stats[i].nfacts = kb->pred_stats[i].nnonground = 0;
+            free(kb->pred_stats[i].idx);
+            kb->pred_stats[i].idx = NULL;
+            kb->pred_stats[i].idx_cap = 0;
+        }
+    kb->pred_stats_n = 0;
+    kb->pred_stats_dirty = 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        pred_stats_note(kb, i);
+        if (kb->pred_stats_dirty) return;         /* gave up: readers scan */
+    }
+}
+
+/* The census entry for `pred`, or NULL when there is none — which, when the
+ * census is live, means "no stored fact uses this predicate". `census_live`
+ * tells the two cases apart, since NULL also means "census unavailable". */
+static const PredStat *pred_stats_get(KB *kb, const char *pred, int *census_live) {
+    if (kb->pred_stats_dirty) pred_stats_rebuild(kb);
+    *census_live = (kb->pred_stats != NULL) && !kb->pred_stats_dirty;
+    if (!*census_live) return NULL;
+    return pred_stat_slot(kb, pred, 0);
+}
+
+/* The set of facts a reader must visit to see everything about `pred`.
+ *
+ *   live = 1 -> exactly idx[0..n), the census bucket
+ *   live = 0 -> the census is unavailable; visit every fact as before
+ *
+ * The KB is logically const for readers, so the lazy recount casts it away: the
+ * census is a cache OF the facts, never a change TO them. */
+typedef struct { const size_t *idx; size_t n; int live; } PredBucket;
+
+static PredBucket pred_bucket(const KB *kb, const char *pred) {
+    PredBucket b = { NULL, 0, 0 };
+    int live = 0;
+    const PredStat *ps = pred_stats_get((KB *)kb, pred, &live);
+    if (!live) return b;
+    b.live = 1;
+    if (ps) { b.idx = ps->idx; b.n = ps->nfacts; }
+    return b;
+}
+
+/* Position of the `vi`-th fact to visit for this bucket. */
+#define PRED_AT(bk, vi) ((bk).live ? (bk).idx[(vi)] : (vi))
+#define PRED_VISITS(bk, kb) ((bk).live ? (bk).n : (kb)->n)
+
 static const Fact *kb_find(const KB *kb, const Fact *needle) {
     return fact_index_find(kb->fact_index, kb->fact_index_cap,
                            kb->facts, kb->n, needle);
@@ -298,8 +481,10 @@ int kb_assert(KB *kb, const char *pred, const char *const *args, size_t argc) {
                                         kb->neg, kb->nn);
     if (kb_find(kb, &f)) return 1; /* already known — idempotent */
     f.origin = kb->origin;
-    return fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
-                               &kb->fact_index, &kb->fact_index_cap, &f);
+    if (!fact_append_indexed(&kb->facts, &kb->n, &kb->cap,
+                             &kb->fact_index, &kb->fact_index_cap, &f)) return 0;
+    pred_stats_note(kb, kb->n - 1);
+    return 1;
 }
 
 int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
@@ -307,9 +492,11 @@ int kb_retract(KB *kb, const char *pred, const char *const *args, size_t argc) {
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
     int removed = fact_remove(kb->facts, &kb->n, &f);
-    if (removed)
+    if (removed) {
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
+        pred_stats_invalidate(kb);
+    }
     return removed;
 }
 
@@ -322,9 +509,11 @@ size_t kb_retract_pred(KB *kb, const char *pred) {
         w++;
     }
     kb->n = w;
-    if (removed)
+    if (removed) {
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
+        pred_stats_invalidate(kb);
+    }
     return removed;
 }
 
@@ -337,9 +526,11 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
         w++;
     }
     kb->n = w;
-    if (removed)
+    if (removed) {
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
+        pred_stats_invalidate(kb);
+    }
     return removed;
 }
 
@@ -367,9 +558,11 @@ int kb_assert_neg(KB *kb, const char *pred, const char *const *args,
     Fact f;
     if (!fact_make(&f, pred, args, argc)) return 0;
 
-    if (fact_remove_origin(kb->facts, &kb->n, &f, kb->origin))
+    if (fact_remove_origin(kb->facts, &kb->n, &f, kb->origin)) {
         fact_index_rebuild_after_remove(&kb->fact_index, &kb->fact_index_cap,
                                         kb->facts, kb->n);
+        pred_stats_invalidate(kb);
+    }
     if (kb_find_neg(kb, &f)) return 1; /* already known false */
     f.origin = kb->origin;
     return fact_append_indexed(&kb->neg, &kb->nn, &kb->ncap,
@@ -693,7 +886,55 @@ typedef struct {
     size_t count;
     int    found;
     int    frame;
+
+    /* gen382 — the two anti-HYSTERESIS guards.
+     *
+     * KB_MAX_DEPTH bounds how DEEP a derivation goes; nothing bounded how MUCH
+     * work it does. A knowledge base that grows rules faster than facts can send
+     * the resolver into a search that is finite on paper and unbounded in
+     * practice: mutually recursive rules re-ask the same question at every level
+     * until the depth guard fires, once per branch, and the turn stalls. Growth
+     * in the KB then degrades the ENGINE, which is the failure mode a KB-first
+     * system must not have.
+     *
+     * `steps`  counts resolution steps and stops the search at `budget`.
+     * `anc`    holds the GROUND goals currently open on this derivation path
+     *          (as 64-bit hashes — a Term is 2.6KB and would not fit the stack).
+     *          Meeting the same ground goal again means this branch is asking a
+     *          question already open above it: it cannot yield anything the
+     *          shorter derivation does not, so it is cut. That is the loop check
+     *          that turns `p :- q. q :- p.` from a depth-64 explosion into an
+     *          immediate, honest failure.
+     *
+     * Both events are COUNTED, never silent: kb_inference_report() hands them to
+     * the caller so parrot0 can say it stopped and why, instead of presenting a
+     * truncated search as a confident "no". */
+    unsigned long steps;
+    unsigned long budget;
+    int      budget_hit;
+    int      loops_cut;
+    uint64_t anc[KB_MAX_DEPTH + 2];
+    size_t   nanc;
 } Solver;
+
+/* FNV-1a over a resolved goal. Collisions would cut a live branch, so the
+ * width matters: with at most KB_MAX_DEPTH+2 open goals the chance of a
+ * 64-bit collision on one path is ~1e-17, far below the odds of the
+ * derivation being wrong for ordinary reasons. */
+static uint64_t goal_hash(const Term *g) {
+    uint64_t h = UINT64_C(1469598103934665603);
+    for (const unsigned char *p = (const unsigned char *)g->pred; *p; p++) {
+        h ^= *p; h *= UINT64_C(1099511628211);
+    }
+    h ^= (uint64_t)g->argc; h *= UINT64_C(1099511628211);
+    for (size_t i = 0; i < g->argc; i++) {
+        for (const unsigned char *p = (const unsigned char *)g->args[i]; *p; p++) {
+            h ^= *p; h *= UINT64_C(1099511628211);
+        }
+        h ^= UINT64_C(255); h *= UINT64_C(1099511628211);
+    }
+    return h;
+}
 
 /* KB_TERM_LEN also sizes substitutions and resolvents. Keeping those two large
  * scratch objects in every recursive C frame would make the logical depth limit
@@ -732,6 +973,7 @@ static int goal_provable(const KB *kb, const Term *g, int depth) {
     Solver S;
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = NULL; S.qvar = NULL;
+    S.budget = KB_MAX_STEPS;
     Subst *s = calloc(1, sizeof *s);
     if (!s) return 0;
     solve(&S, g, 1, 0, s, depth);
@@ -867,6 +1109,10 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return S->count >= S->max;
     }
     if (depth > KB_MAX_DEPTH) return 0;
+    /* gen382: the work ceiling. Once hit, every pending branch unwinds without
+     * doing more work, and the caller is told the search was cut short. */
+    if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; return 0; }
+    S->steps++;
 
     SolveFrame *scratch = malloc(sizeof *scratch);
     if (!scratch) return 0;
@@ -1113,10 +1359,14 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return solve(S, goals, ngoals, idx + 1, s, depth);
     }
 
-    for (size_t i = 0; i < S->kb->n; i++) {    /* match facts */
+    /* gen382: unify_term_fact can only succeed on a fact with this goal's
+     * predicate, so the census bucket visits exactly the candidates instead of
+     * the whole KB at every resolution step. */
+    PredBucket gbk = pred_bucket(S->kb, g->pred);
+    for (size_t vi = 0; vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
         Subst *s2 = &scratch->subst;
         *s2 = *s;
-        if (unify_term_fact(s2, g, &S->kb->facts[i])) {
+        if (unify_term_fact(s2, g, &S->kb->facts[PRED_AT(gbk, vi)])) {
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
         }
     }
@@ -1146,7 +1396,32 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             ng[m++] = goals[k];
         }
         if (overflow) continue;
-        if (solve(S, ng, m, 0, s2, depth + 1)) return 1;
+
+        /* gen382 — the loop check. Before descending into this rule, note the
+         * goal it is expanding. If that exact GROUND goal is already open above
+         * us, the branch is re-asking a question this path has not answered yet:
+         * it can only reproduce the derivation we are already inside. Cut it,
+         * count it, and go on to the next rule — the search stays complete for
+         * everything that is not the repetition. Non-ground goals are never cut:
+         * `ancestor_of($X, $Y)` above and `ancestor_of(ann, $Y)` below are
+         * different questions, and pruning on a variable would silence real
+         * answers. */
+        Term rg;
+        resolve_goal(g, s2, &rg);
+        int pushed = 0;
+        if (goal_ground(&rg)) {
+            uint64_t h = goal_hash(&rg);
+            int seen = 0;
+            for (size_t a = 0; a < S->nanc && !seen; a++) if (S->anc[a] == h) seen = 1;
+            if (seen) { S->loops_cut++; continue; }
+            if (S->nanc < sizeof S->anc / sizeof S->anc[0]) {
+                S->anc[S->nanc++] = h;
+                pushed = 1;
+            }
+        }
+        int ok = solve(S, ng, m, 0, s2, depth + 1);
+        if (pushed) S->nanc--;
+        if (ok) return 1;
     }
     return 0;
 }
@@ -1210,6 +1485,16 @@ int kb_assert_clause(KB *kb, const KbGoal *head,
     return kb_add_rule(kb, &r);
 }
 
+/* Record what a finished search cost. `kb` may be the const-cast query target;
+ * this writes only the report, never the knowledge. */
+static void kb_note_inference(KB *kb, const Solver *S, const char *goalpred) {
+    if (!kb) return;
+    kb->infer_steps      = S->steps;
+    kb->infer_budget_hit = S->budget_hit;
+    kb->infer_loops_cut  = S->loops_cut;
+    snprintf(kb->infer_goal, sizeof kb->infer_goal, "%s", goalpred ? goalpred : "");
+}
+
 int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     if (!kb || !term_ok(pred) || argc > KB_MAX_ARGS || (argc && !args)) return 0;
     for (size_t i = 0; i < argc; i++) if (!term_ok(args[i])) return 0;
@@ -1225,12 +1510,37 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         strcmp(pred,"assert")==0 || strcmp(pred,"retract")==0 ||
         strcmp(pred,"dif")==0 ||         strcmp(pred,"findall")==0 || strcmp(pred,"prob")==0 ||
         strcmp(pred,"ranges_over")==0));
-    for (size_t i = 0; i < kb->nr; i++)
+    for (size_t i = 0; i < kb->nr && !has_rule; i++)
         if (kb->rules[i].head.argc == argc &&
             strcmp(kb->rules[i].head.pred, pred) == 0) { has_rule = 1; break; }
+
+    /* gen382 — settle the common lookup from the census, without touching the
+     * fact array. Two decisions become O(1) that used to cost a full scan each:
+     *
+     *   no rule, no fact for this predicate  -> nothing can prove it, answer NO
+     *   no rule, no NON-GROUND fact, ground query -> the hash index is exact
+     *
+     * Both are conservative: whenever the census is unavailable or the predicate
+     * carries a clause with variables, control falls through to the historical
+     * scan below, so behaviour is unchanged and only the cost differs. */
+    int census_live = 0;
+    const PredStat *ps = pred_stats_get(kb, pred, &census_live);
+    int query_ground = 1;
+    for (size_t i = 0; i < argc && query_ground; i++)
+        if (args[i] && term_contains_var(args[i], 0)) query_ground = 0;
+    if (!has_rule && census_live) {
+        if (!ps) return 0;                          /* predicate unknown here */
+        if (ps->nnonground == 0 && query_ground) {
+            Fact needle;
+            if (!fact_make(&needle, pred, args, argc)) return 0;
+            return kb_find(kb, &needle) != NULL;
+        }
+    }
+
     /* A body-less clause is stored in the fact table and may still contain
      * variables/compound terms.  Such facts require real unification too. */
-    for (size_t i = 0; i < kb->n && !has_rule; i++) {
+    if (!has_rule && census_live && ps->nnonground > 0) has_rule = 1;
+    for (size_t i = 0; i < kb->n && !has_rule && !census_live; i++) {
         const Fact *f = &kb->facts[i];
         if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
         for (size_t a = 0; a < argc; a++) {
@@ -1240,14 +1550,14 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
             }
         }
     }
-    for (size_t i = 0; i < argc && !has_rule; i++)
-        if (args[i] && term_contains_var(args[i], 0))
-            has_rule = 1; /* variable/structural unify */
+    if (!has_rule && !query_ground)
+        has_rule = 1; /* variable/structural unify */
     if (!has_rule) {
         Subst *work = malloc(sizeof *work);
         if (!work) return 0;
-        for (size_t i = 0; i < kb->n; i++) {
-            const Fact *f = &kb->facts[i];
+        PredBucket bk = pred_bucket(kb, pred);
+        for (size_t vi = 0; vi < PRED_VISITS(bk, kb); vi++) {
+            const Fact *f = &kb->facts[PRED_AT(bk, vi)];
             if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
             work->n = 0; work->ndif = 0;
             int same = 1;
@@ -1265,10 +1575,12 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     Solver S;
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = kb;
+    S.budget = KB_MAX_STEPS;
     Subst *s = malloc(sizeof *s);
     if (!s) return 0;
     s->n = 0; s->ndif = 0;
     solve(&S, &g, 1, 0, s, 0);
+    kb_note_inference(kb, &S, pred);
     free(s);
     return S.found;
 }
@@ -1292,8 +1604,12 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     for (size_t i = 0; i < kb->nr && simple; i++)
         if (kb->rules[i].head.argc == argc &&
             strcmp(kb->rules[i].head.pred, pred) == 0) simple = 0;
-    for (size_t i = 0; i < kb->n && simple; i++) {
-        const Fact *f = &kb->facts[i];
+    /* gen382: only this predicate's own facts can disqualify the fast path, and
+     * the census names them without walking the KB. */
+    PredBucket bk = pred_bucket(kb, pred);
+    if (simple && bk.live && bk.n == 0) return 0;   /* predicate unknown here */
+    for (size_t vi = 0; vi < PRED_VISITS(bk, kb) && simple; vi++) {
+        const Fact *f = &kb->facts[PRED_AT(bk, vi)];
         if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
         for (size_t a = 0; a < argc; a++) {
             if (term_contains_var(f->args[a], 0)) {
@@ -1306,7 +1622,8 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
         size_t count = 0;
         Subst *work = malloc(sizeof *work);
         if (!work) return 0;
-        for (size_t i = 0; i < kb->n; i++) {
+        for (size_t vi = 0; vi < PRED_VISITS(bk, kb); vi++) {
+            size_t i = PRED_AT(bk, vi);
             const Fact *f = &kb->facts[i];
             if (f->argc != argc || strcmp(f->pred, pred) != 0) continue;
             work->n = 0; work->ndif = 0;
@@ -1347,6 +1664,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     Solver S;
     memset(&S, 0, sizeof S);
     S.kb = kb; S.kb_mut = (KB *)kb;
+    S.budget = KB_MAX_STEPS;
     S.qvar = hasvar ? "$Q" : NULL;
     S.out = out;
     S.max = max;
@@ -1354,6 +1672,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     if (!s) return 0;
     s->n = 0; s->ndif = 0;
     solve(&S, &g, 1, 0, s, 0);
+    kb_note_inference((KB *)kb, &S, pred);
     free(s);
     return S.count;
 }
@@ -1494,10 +1813,11 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         return 0;
     }
 
-    for (size_t i = 0; i < kb->n; i++) {            /* close by a fact */
+    PredBucket pbk = pred_bucket(kb, g->pred);
+    for (size_t vi = 0; vi < PRED_VISITS(pbk, kb); vi++) {  /* close by a fact */
         Subst *s2 = &scratch->subst;
         *s2 = *s;
-        if (unify_term_fact(s2, g, &kb->facts[i])) {
+        if (unify_term_fact(s2, g, &kb->facts[PRED_AT(pbk, vi)])) {
             if (prove_seq_ex(kb, goals, n, idx + 1, s2, depth, frame, out)) {
                 render_goal(s2, g, out[idx], KB_PROOF_LEN);
                 return 1;
@@ -3798,7 +4118,9 @@ int kb_derive_part_of(KB *kb) {
 
 int kb_knows_pred(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
-    for (size_t i = 0; i < kb->n; i++)
+    PredBucket bk = pred_bucket(kb, pred);
+    if (bk.live && bk.n > 0) return 1;
+    for (size_t i = 0; i < kb->n && !bk.live; i++)
         if (strcmp(kb->facts[i].pred, pred) == 0) return 1;
     for (size_t i = 0; i < kb->nn; i++)
         if (strcmp(kb->neg[i].pred, pred) == 0) return 1;
@@ -3876,6 +4198,16 @@ size_t kb_size(const KB *kb) {
 
 size_t kb_rule_count(const KB *kb) {
     return kb ? kb->nr : 0;
+}
+
+void kb_inference_report(const KB *kb, KbInferenceReport *out) {
+    if (!out) return;
+    memset(out, 0, sizeof *out);
+    if (!kb) return;
+    out->steps      = kb->infer_steps;
+    out->budget_hit = kb->infer_budget_hit;
+    out->loops_cut  = kb->infer_loops_cut;
+    snprintf(out->goal, sizeof out->goal, "%s", kb->infer_goal);
 }
 
 size_t kb_pred_fact_count(const KB *kb, const char *pred) {

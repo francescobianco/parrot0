@@ -27,7 +27,6 @@
 [test kb_layers]
 # Il primo turno dopo un cambio di config paga la derivazione del mondo (part_of
 # materializzato una volta per brain), che non e' costo del turno: budget largo.
-!timeout 3
 
 # Con il mondo montato, la conoscenza c'e' e risponde.
 > what is the capital of france?

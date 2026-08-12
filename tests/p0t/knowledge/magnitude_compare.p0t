@@ -1,0 +1,64 @@
+# CONFRONTO DI MAGNITUDINI su conoscenza del mondo (gen382).
+#
+# Il confronto numerico puro sta in reasoning/compare.p0t, ermetico. Questo file
+# copre l'altra meta': la domanda che nomina una CATEGORIA e due suoi membri
+# ("quale fiume e' piu' lungo, il Nilo o il Rio delle Amazzoni"), che ha bisogno
+# della KB montata perche' e' la KB a dire che cosa e' un fiume e quanto e' lungo.
+#
+# CONTESTO VIVO (docs/plans/test-engine.md §2b): la KB e' parte di parrot0.
+# Le variabili tornano ai valori REALI perche' la config e' un override globale
+# persistente e i file ermetici precedenti la lasciano a 0.
+#
+# Che cosa e' stato scoperto scrivendolo, e che percio' vale la pena blindare:
+#
+#  1. `compare_entity_token()` escludeva il nome di categoria "planet" con uno
+#     strcmp. Non era una parola funzionale come le altre quattordici della sua
+#     lista (tutte gia' `stopword/1`): era l'unico membro cablato di una classe
+#     — i nomi di categoria — che la KB gia' possiede in `category_member/2`.
+#     Detta cosi', "quale FIUME" si comporta come "quale PIANETA" senza C nuovo.
+#  2. Il reticolo `magnitude_cue/3` aveva dei buchi: `length` aveva solo i
+#     superlativi, quindi "piu' lungo" cadeva prima di essere analizzato mentre
+#     "il piu' lungo" funzionava. Sei fatti, zero codice.
+#  3. Lo stesso fiume viveva sotto DUE identificatori (`nile` nelle relazioni,
+#     `the_nile` nelle categorie e nelle magnitudini), quindi i suoi fatti non
+#     componevano. Unificato su `nile`, coerente con `amazon`.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test magnitude compare by category]
+# Il nome della categoria non e' parte del nome dell'entita': va scartato per il
+# fatto di NOMINARE una categoria, non perche' qualcuno l'abbia elencato nel C.
+> which river is longer, nile or amazon
+< Nile.
+# Il verso opposto, dallo stesso reticolo: se `shorter` mancasse, questo turno
+# non fallirebbe di poco — non verrebbe proprio analizzato.
+> which river is shorter, nile or amazon
+< Amazon.
+# La forma "than", che passa da un estrattore di span diverso.
+> is the nile longer than the amazon
+< Yes.
+# Il superlativo, che funzionava gia': serve a dire che il completamento del
+# reticolo non ha spostato cio' che era gia' a posto.
+> which river is the longest
+< Nile.
+
+[test known gap: a prepositional phrase inside the span]
+# GAP NOTO, misurato e NON causato da questo lavoro (verificato ricompilando il
+# codice precedente: risposta identica). La domanda sui pianeti nomina la
+# dimensione con un complemento — "farther FROM THE SUN" — e l'estrattore di
+# span, che salta le parole funzionali invece di fermarcisi, incolla "sun" al
+# soggetto e cerca una magnitudine per "Sun mars".
+#
+# Resta qui asserito come comportamento CORRENTE, con la diagnosi accanto: il
+# giorno in cui lo span si fermera' alla preposizione invece di scavalcarla,
+# questo test lo dira'. La risposta e' comunque un declino informato — nomina
+# la dimensione riconosciuta e i termini che non ha trovato — non un muro.
+> which planet is farther from the sun, mars or venus
+<~ comparison on distance_from_sun
+<~ Sun mars

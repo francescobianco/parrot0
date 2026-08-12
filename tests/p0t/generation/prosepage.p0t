@@ -17,10 +17,10 @@
 # kb/learning/pages/ (paris/france/whale/mammal), read even in the hermetic suite.
 
 > read the page on Paris
-< From the paris page I extracted 2 facts: capital(paris), located_in(paris, france).
+< From the paris page I extracted 2 facts: capital_of(paris, france), located_in(paris, france).
 # each extracted fact remembers the exact sentence it came from (M1 provenance).
 > where did you learn about paris?
-< I learned capital(paris) from: "paris is the capital of france"; located_in(paris, france) from: "paris is located in france".
+< I learned capital_of(paris, france) from: "paris is the capital of france"; located_in(paris, france) from: "paris is located in france".
 
 > read the page on whale
 < From the whale page I extracted 2 facts: mammal(whale), aquatic_animal(whale).

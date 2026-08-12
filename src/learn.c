@@ -1,6 +1,7 @@
 /* gen171: parrot0's in-C dynamic learner. See learn.h for the contract and the
  * principle (static knowledge only, straight into RAM, no hot reload). */
 #include "learn.h"
+#include "env.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -38,7 +39,7 @@ int learn_topic(KB *kb, const char *key, const char *title,
     if (!kb || !key || !*key) return 0;
     if (def_out && def_sz) def_out[0] = '\0';
 
-    const char *dir = getenv("PARROT0_WIKI_DIR");
+    const char *dir = p0env("PARROT0_WIKI_DIR");
     if (!dir || !*dir) dir = "kb/learning/pages";
     char path[512];
     snprintf(path, sizeof path, "%s/%s.md", dir, key);
@@ -87,7 +88,7 @@ int learn_topic(KB *kb, const char *key, const char *title,
 
     /* Persist for commit when a learned-KB path is configured (unset in tests,
      * so the hermetic suite writes nothing). */
-    const char *kbpath = getenv("PARROT0_LEARN_KB");
+    const char *kbpath = p0env("PARROT0_LEARN_KB");
     if (kbpath && *kbpath) {
         FILE *o = fopen(kbpath, "a");
         if (o) {
@@ -259,7 +260,12 @@ int wiki_fetch_bilingual(KB *kb, const char *en_key) {
 }
 
 int wiki_fetch_topic_lang(const char *key, const char *lang) {
-    const char *en = getenv("PARROT0_WIKI_FETCH");
+    /* gen382: letto dal layer di configurazione di parrot0 (p0env), non da
+     * getenv. Erano due strati che non si parlavano: `--dream --fetch` alzava il
+     * permesso con p0env_set e questo controllo, guardando solo l'ambiente del
+     * processo, non lo vedeva mai — il sogno diceva "nessuna pagina" mentendo
+     * sul motivo. Un permesso che non si vede e' peggio di un permesso negato. */
+    const char *en = p0env("PARROT0_WIKI_FETCH");
     if (!en || !*en || !strcmp(en, "0")) return 0;
     if (!key || !*key || !lang || !*lang) return 0;
 
@@ -310,7 +316,7 @@ int wiki_fetch_topic_lang(const char *key, const char *lang) {
     if (actual_title[0]) snprintf(page_title, sizeof page_title, "%s", actual_title);
     else snprintf(page_title, sizeof page_title, "%s", title);
 
-    const char *dir = getenv("PARROT0_WIKI_DIR");
+    const char *dir = p0env("PARROT0_WIKI_DIR");
     if (!dir || !*dir) dir = "kb/learning/pages";
     char path[512];
     /* gen335i: suffix IT pages with _it to avoid overwriting the EN page */

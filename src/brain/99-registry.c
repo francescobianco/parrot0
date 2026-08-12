@@ -644,6 +644,20 @@ int brain_substrate_query(Brain *b, const char *pred,
     return b->substrate ? kb_query(b->substrate, pred, args, argc) : 0;
 }
 
+/* Enumerate a MACHINERY relation: the sandbox's own KB first, then the substrate
+ * it was spawned from (gen382). The query twin of brain_substrate_query — needed
+ * as soon as a lexical table has more than a yes/no shape, e.g. the plural rules,
+ * where the engine must READ the endings rather than test one. Same rule: only
+ * parrot0's own machinery, never a path for world facts to reach a sandbox. */
+size_t brain_substrate_match(Brain *b, const char *pred,
+                             const char *const *args, size_t argc,
+                             char out[][KB_TERM_LEN], size_t max) {
+    if (!b) return 0;
+    size_t n = b->kb ? kb_match(b->kb, pred, args, argc, out, max) : 0;
+    if (n) return n;
+    return b->substrate ? kb_match(b->substrate, pred, args, argc, out, max) : 0;
+}
+
 /* True if the class is DEFINED at all (own KB or substrate), so a caller can
  * tell "the class says no" from "there is no such class here". */
 int brain_substrate_knows(Brain *b, const char *pred) {

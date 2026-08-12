@@ -20,7 +20,7 @@
 # Study 1 — geographic transitivity: Paris->France (from the Paris page) and
 # France->Europe (from the France page); neither page says Paris is in Europe.
 > think deeply: is Paris in Europe?
-< Yes -- paris is in europe. I derived it across 2 hops: learned capital(paris), located_in(paris, france) (source: paris); learned country(france), located_in(france, western_europe), located_in(france, europe) (source: france); then by transitivity of "located in" it follows that paris is in europe.
+< Yes -- paris is in europe. I derived it across 2 hops: learned capital_of(paris, france), located_in(paris, france) (source: paris); learned country(france), located_in(france, western_europe), located_in(france, europe) (source: france); then by transitivity of "located in" it follows that paris is in europe.
 
 # Study 2 — category chain: whale->mammal (whale page) and mammal->vertebrate
 # (mammal page), materialized as is_a and closed by transitivity.
@@ -30,7 +30,7 @@
 # Negative control: a conclusion that does NOT follow -> honest decline, never
 # invented, with what it did read.
 > think deeply: is Paris in Asia?
-< I read 2 sources but couldn't derive whether paris is in asia. I learned: learned capital(paris), located_in(paris, france) (source: paris); learned country(france), located_in(france, western_europe), located_in(france, europe) (source: france).
+< I read 2 sources but couldn't derive whether paris is in asia. I learned: learned capital_of(paris, france), located_in(paris, france) (source: paris); learned country(france), located_in(france, western_europe), located_in(france, europe) (source: france).
 
 # No question after the trigger -> ask for one, honestly.
 > think deeply

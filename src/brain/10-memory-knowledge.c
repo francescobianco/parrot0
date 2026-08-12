@@ -145,7 +145,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     NULL,
                 };
                 int ok = c[0] && isalpha((unsigned char)c[0]) &&
-                         strlen(c) >= 2 && !is_article(c) &&
+                         strlen(c) >= 2 && !is_article(b, c) &&
                          !is_stopword(b, c) && !matches_any(c, nonname) &&
                          !(b->kb && kb_knows_pred(b->kb, c));
                 if (ok) {
@@ -180,7 +180,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             {
                 size_t i = find_token(w, nw, "i");
                 if (i + 4 < nw && strcmp(w[i + 1], "have") == 0 &&
-                    is_article(w[i + 2]) && strcmp(w[i + 4], "named") == 0) {
+                    is_article(b, w[i + 2]) && strcmp(w[i + 4], "named") == 0) {
                     const char *thing = w[i + 3];
                     char n[64];
                     copy_last_word(n, sizeof n, raw);
@@ -584,10 +584,6 @@ static size_t split_words(char *s, char **argv, size_t max) {
     return n;
 }
 
-/* "a" or "an" — the article that separates subject from class. */
-static int is_article(const char *w) {
-    return strcmp(w, "a") == 0 || strcmp(w, "an") == 0;
-}
 
 /* Does `w` open a UNIVERSAL proposition ("all X are Y", "every X is a Y")?
  *
@@ -622,6 +618,23 @@ static int is_relation_prep(Brain *b, const char *w) {
     return lex_class_member(b, "relation_preposition", w);
 }
 
+/* The INDEFINITE article — the word that separates a subject from its class in
+ * "rex is A dog" (gen382).
+ *
+ * It was two strcmp on English literals, read from 55 sites: the most widespread
+ * closed class still deciding grammar from inside the engine. gen369 skipped it
+ * on purpose ("~55 call sites, many with no Brain in scope"), but the reason it
+ * could not be done then was the scratch-brain pattern, and gen371 removed that
+ * by giving sandboxes access to parrot0's own machinery. So it now reads
+ * indefinite_article/1 like every other class, through the same one mechanism
+ * (mantra #3) — and a new member is a fact, in any language, with no recompile.
+ *
+ * Declared BELOW lex_class_member because that is the single reader all closed
+ * classes go through. */
+static int is_article(Brain *b, const char *w) {
+    return lex_class_member(b, "indefinite_article", w);
+}
+
 /* Does the FINAL clause open with an interrogative ("… . what can you conclude
  * about dogs?") — i.e. is the turn a wh-question rather than a polar one?
  *
@@ -645,6 +658,55 @@ static int final_clause_is_wh(Brain *b, const char *norm) {
     while (k > 0 && !isalpha((unsigned char)first[k - 1])) first[--k] = '\0';
     const char *q[] = { first };
     return kb_query(brain_kb(b), "question_word", q, 1);
+}
+
+/* Answer "is <subj> a <cls>?" — and say when the search did not actually settle
+ * it (gen382).
+ *
+ * A resolution can end three ways, and only two of them were ever said out loud:
+ * proved, exhausted-without-proof, and STOPPED. The third arrives with knowledge
+ * that leads back into itself — `every zorp is a blim` + `every blim is a zorp`,
+ * four sentences of ordinary conversation — where the resolver would re-ask a
+ * goal it already has open. The guard in kb.c cuts that branch so the turn
+ * returns at all; before it existed the process simply never came back.
+ *
+ * But a cut search has not closed the world, and reporting it as "No." is
+ * negation-as-failure where no negation was earned: it declares FALSE what is
+ * merely UNDETERMINED, and it throws away the most informative thing the turn
+ * discovered — that those classes define each other and nothing anchors them.
+ * So the guard is not a halt. What it noticed becomes the answer, in the KB's
+ * own words (response_template(undetermined_cycle, …), EN+IT, teachable).
+ *
+ * The distinction is the one a real reasoner draws on the same stimulus; the
+ * evidence is in tests/hysteresis_probe.py, a design-time probe that parrot0
+ * itself never calls. */
+static void polar_class_answer(Brain *b, const char *subj, const char *cls,
+                               char *out, size_t out_size) {
+    const char *args[] = { subj };
+    int yes = kb_query(b->kb, cls, args, 1);
+
+    KbInferenceReport rep;
+    kb_inference_report(b->kb, &rep);
+    int settled = 1;
+    if (!yes && (rep.loops_cut > 0 || rep.budget_hit)) {
+        const KbResponseSlot cs[] = { { "subject", subj }, { "klass", cls } };
+        if (kb_response_slots(b, "undetermined_cycle", cs, 2, out, out_size))
+            settled = 0;
+    }
+    if (settled) {
+        put(yes ? "Yes." : "No.", out, out_size);
+        if (yes) {
+            char ex[512];
+            if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex)) store_proof(b, ex);
+        }
+    }
+    /* gen103 (L16): remember this conclusion so a later correction can re-derive
+     * it and flag the consequence. An undetermined turn records the goal too —
+     * it is still the thing that was asked — but never as a settled negative. */
+    snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
+    snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
+    b->last_goal_yes = yes;
+    b->has_last_goal = 1;
 }
 
 /* gen375 — hold BOTH levels instead of silently choosing one.
@@ -1275,7 +1337,10 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
     const char *args[2];
     size_t argc = 0;
 
-    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(w[2])) {
+    /* gen382: `tmp` is the premise sandbox. It carries no world facts, but since
+     * gen371 it reaches parrot0's own machinery through its substrate, so the
+     * lexical class is available here exactly as in a real brain. */
+    if (nw == 4 && strcmp(w[0], "is") == 0 && is_article(tmp, w[2])) {
         pred = w[3];
         args[0] = w[1];
         argc = 1;
@@ -1348,29 +1413,61 @@ static int entailment_reply(Brain *b, const char *premises, const char *hypothes
  * a universal ("all MEN are mortal", "all ROSES are flowers") maps to the singular
  * predicate the fact path uses (man/1, rose/1). A few irregulars, then regular
  * -ies/-es/-s; adjectives and already-singular words pass through unchanged. */
-static void singularize(const char *in, char *out, size_t sz) {
-    static const struct { const char *pl, *sg; } irr[] = {
-        {"men","man"},{"women","woman"},{"people","person"},{"children","child"},
-        {"feet","foot"},{"teeth","tooth"},{"mice","mouse"},{"geese","goose"},{NULL,NULL} };
-    for (size_t i = 0; irr[i].pl; i++)
-        if (strcmp(in, irr[i].pl) == 0) { snprintf(out, sz, "%s", irr[i].sg); return; }
-    size_t n = strlen(in);
-    if (n > 3 && strcmp(in + n - 3, "ies") == 0) {            /* puppies -> puppy */
-        snprintf(out, sz, "%.*sy", (int)(n - 3), in); return;
-    }
-    if (n > 4 && (strcmp(in + n - 4, "ches") == 0 ||
-                  strcmp(in + n - 4, "shes") == 0)) {          /* beaches -> beach */
-        snprintf(out, sz, "%.*s", (int)(n - 2), in); return;
-    }
-    if (n > 3 && (strcmp(in + n - 3, "ses") == 0 ||
-                  strcmp(in + n - 3, "xes") == 0 ||
-                  strcmp(in + n - 3, "zes") == 0)) {           /* boxes -> box */
-        snprintf(out, sz, "%.*s", (int)(n - 2), in); return;
-    }
-    if (n > 2 && in[n - 1] == 's' && in[n - 2] != 's') {      /* roses -> rose */
-        snprintf(out, sz, "%.*s", (int)(n - 1), in); return;
-    }
+static char *kb_dequote(char *s);   /* fwd: le tabelle del plurale sono atomi KB */
+
+/* Dal plurale al singolare, leggendo la KB (gen382).
+ *
+ * Conteneva otto coppie irregolari e quattro regole di morfologia inglese: una
+ * lista di parole e un pezzo di lingua dentro il motore. Ora sono due tabelle in
+ * kb/core/grammar.p0 — `plural_of/2` per le eccezioni esatte, `plural_suffix/2`
+ * per le desinenze — e qui resta solo il modo di cercarle: prima l'eccezione,
+ * poi la desinenza PIU' LUNGA che combacia. Nessuna stringa inglese sopravvive
+ * in questa funzione, e non sa nemmeno quale lingua stia trattando.
+ *
+ * Che sia un guadagno e non solo uno spostamento lo dice un bug: "-ses" e'
+ * ambiguo fra "bus+es" e "sense+s", nessuna regola di suffisso puo' deciderlo, e
+ * infatti il C dava singularize_kb(b, "senses") = "sens" (annotato in 20-math.c come
+ * difetto da aggirare). Come eccezione DICHIARATA e' una riga di KB, e chi la
+ * incontra domani in un'altra parola la aggiunge senza ricompilare.
+ *
+ * Senza brain (o senza queste tabelle) la parola torna invariata: meglio non
+ * sapere che indovinare in inglese. */
+static void singularize_kb(Brain *b, const char *in, char *out, size_t sz) {
     snprintf(out, sz, "%s", in);
+    if (!b || !in || !*in) return;
+
+    /* Le tabelle sono MACCHINERIA, quindi si leggono attraverso il substrato:
+     * un sandbox di premesse ha la sua KB vuota ma raggiunge la grammatica del
+     * cervello che l'ha generato (gen371). Senza questo, "all men are mortal"
+     * dentro un sillogismo perdeva il plurale. */
+    const char *exact[] = { in, NULL };
+    char sing[1][KB_TERM_LEN];
+    if (brain_substrate_match(b, "plural_of", exact, 2, sing, 1) > 0) {
+        snprintf(out, sz, "%s", kb_dequote(sing[0]));
+        return;
+    }
+
+    char endings[64][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };          /* plural_suffix/2: raccoglie le desinenze */
+    size_t ne = brain_substrate_match(b, "plural_suffix", anyq, 2, endings, 64);
+    size_t n = strlen(in);
+    size_t best = ne, bestlen = 0;
+    for (size_t i = 0; i < ne; i++) {
+        const char *e = kb_dequote(endings[i]);
+        size_t el = strlen(e);
+        if (el >= n || el <= bestlen) continue;      /* la piu' lunga vince */
+        if (strcmp(in + n - el, e) != 0) continue;
+        best = i; bestlen = el;
+    }
+    if (best == ne) return;
+
+    const char *ending = kb_dequote(endings[best]);
+    const char *repl[] = { ending, NULL };
+    char sub[1][KB_TERM_LEN];
+    if (brain_substrate_match(b, "plural_suffix", repl, 2, sub, 1) == 0) return;
+    const char *r = kb_dequote(sub[0]);
+    if (strcmp(r, "nil") == 0) r = "";
+    snprintf(out, sz, "%.*s%s", (int)(n - bestlen), in, r);
 }
 
 /* gen231 (LLMSCORE, ambitious): a ONE-TURN syllogism. "if all men are mortal and
@@ -1416,12 +1513,12 @@ static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
     if (!is_universal_word(lex, w[1])) return 0;
 
     size_t si = 2;
-    while (si < n && is_article(w[si])) si++;   /* "all THE bloops" */
+    while (si < n && is_article(lex, w[si])) si++;   /* "all THE bloops" */
     if (si >= n - 1) return 0;
 
     char sj[KB_TERM_LEN], cl[KB_TERM_LEN];
-    singularize(w[si], sj, sizeof sj);
-    singularize(w[n - 1], cl, sizeof cl);       /* the concluded class */
+    singularize_kb(lex, w[si], sj, sizeof sj);
+    singularize_kb(lex, w[n - 1], cl, sizeof cl);     /* the concluded class */
     if (!*sj || !*cl || strcmp(sj, cl) == 0) return 0;
 
     /* The witness: an individual with no properties but the one we give it. */
@@ -1902,23 +1999,48 @@ static void display_key(const char *key, char *out, size_t sz) {
     if (out[0]) out[0] = (char)toupper((unsigned char)out[0]);
 }
 
-static int compare_entity_token(const char *t) {
-    if (!t || !*t) return 0;
-    return !(is_article(t) || !strcmp(t, "the") ||
-             !strcmp(t, "what") || !strcmp(t, "which") ||
-             !strcmp(t, "who") || !strcmp(t, "is") || !strcmp(t, "are") ||
-             !strcmp(t, "does") || !strcmp(t, "do") || !strcmp(t, "than") ||
-             !strcmp(t, "to") || !strcmp(t, "of") || !strcmp(t, "in") ||
-             !strcmp(t, "on") || !strcmp(t, "planet"));
+/* Can this token be part of an ENTITY NAME in a comparison ("is the EARTH
+ * bigger than MARS")? (gen382)
+ *
+ * It used to be a list of fifteen literals. Fourteen of them were already
+ * `stopword/1` facts in kb/core/lexicon.p0, re-typed here — the reader for that
+ * class (is_stopword) existed too, so this was a copy of a KB class AND of the
+ * engine that reads it (mantras #2 and #5).
+ *
+ * The fifteenth was "planet", and it did not belong with the others at all: it
+ * is not a function word, it NAMES A CATEGORY. That is why it had to be excluded
+ * — "which PLANET is bigger, earth or mars" asks about members, not about the
+ * category — and stating it that way generalizes what a literal could not: every
+ * category parrot0 holds behaves the same, and one taught tomorrow works with
+ * no C.
+ *
+ * Honest note on that generalization, because measuring it changed the claim:
+ * "which river is longer" did NOT start working from this change alone. It was
+ * blocked twice more, both times by KNOWLEDGE and not by code — magnitude_cue/3
+ * had `longest` but not `longer`, and the river itself was stored under two
+ * identifiers (`nile` in the relations, `the_nile` in the magnitudes) so its own
+ * facts did not compose. With those two fixed it works; the class filter here is
+ * one of three things that had to be true, not a free win. Locked by
+ * tests/p0t/knowledge/magnitude_compare.p0t. */
+static int names_category(Brain *b, const char *t) {
+    if (!b || !b->kb) return 0;
+    const char *q[] = { t, NULL };
+    char hit[1][KB_TERM_LEN];
+    return kb_match(b->kb, "category_member", q, 2, hit, 1) > 0;
 }
 
-static int join_entity_span(char **w, size_t start, size_t end,
+static int compare_entity_token(Brain *b, const char *t) {
+    if (!t || !*t) return 0;
+    return !is_stopword(b, t) && !names_category(b, t);
+}
+
+static int join_entity_span(Brain *b, char **w, size_t start, size_t end,
                             char *out, size_t out_sz) {
     size_t off = 0;
     out[0] = '\0';
     for (size_t i = start; i < end; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (!compare_entity_token(t)) continue;
+        if (!compare_entity_token(b, t)) continue;
         if (!strcmp(t, "u") && i + 1 < end && !strcmp(strip_edge_punct(w[i + 1]), "s")) {
             t = (char *)"usa"; i++;
         } else if (!strcmp(t, "it") && i + 1 < end && !strcmp(strip_edge_punct(w[i + 1]), "is")) {
@@ -1935,13 +2057,13 @@ static int join_entity_span(char **w, size_t start, size_t end,
     return out[0] != '\0';
 }
 
-static int last_entity_before(char **w, size_t pos, size_t lo,
+static int last_entity_before(Brain *b, char **w, size_t pos, size_t lo,
                               char *out, size_t out_sz) {
     if (pos == 0) return 0;
     size_t j = pos;
     while (j > 0) {
         char *t = strip_edge_punct(w[j - 1]);
-        if (*t && compare_entity_token(t)) break;
+        if (*t && compare_entity_token(b, t)) break;
         j--;
     }
     if (j == 0) return 0;
@@ -1950,22 +2072,22 @@ static int last_entity_before(char **w, size_t pos, size_t lo,
      * whole noun phrase is grabbed ("great white shark", not just "shark").
      * Bounded by `lo` (the cue index + 1) so the comparison cue word ("bigger")
      * is never absorbed when no article separates it from the phrase. */
-    while (start > lo && compare_entity_token(strip_edge_punct(w[start - 1])))
+    while (start > lo && compare_entity_token(b, strip_edge_punct(w[start - 1])))
         start--;
-    return join_entity_span(w, start, j, out, out_sz);
+    return join_entity_span(b, w, start, j, out, out_sz);
 }
 
-static int first_entity_after(char **w, size_t start, size_t nw,
+static int first_entity_after(Brain *b, char **w, size_t start, size_t nw,
                               char *out, size_t out_sz) {
     for (size_t i = start; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
-        if (!compare_entity_token(t)) continue;
+        if (!compare_entity_token(b, t)) continue;
         /* gen311: extend forward over the contiguous entity span (noun phrase)
          * so "blue whale" is grabbed whole, not just "blue". */
         size_t end = i + 1;
-        while (end < nw && compare_entity_token(strip_edge_punct(w[end])))
+        while (end < nw && compare_entity_token(b, strip_edge_punct(w[end])))
             end++;
-        return join_entity_span(w, i, end, out, out_sz);
+        return join_entity_span(b, w, i, end, out, out_sz);
     }
     return 0;
 }
@@ -2209,7 +2331,7 @@ static int kin_canon(Brain *b, const char *tok, char *out, size_t sz) {
     const char *a2[] = { t };
     if (kb_query(b->kb, "family_relation", a2, 1)) { snprintf(out, sz, "%s", t); return 1; }
     char sg[KB_TERM_LEN];
-    singularize(t, sg, sizeof sg);
+    singularize_kb(b, t, sg, sizeof sg);
     const char *a[] = { sg };
     if (kb_query(b->kb, "family_relation", a, 1)) { snprintf(out, sz, "%s", sg); return 1; }
     return 0;
@@ -2305,17 +2427,46 @@ static int p0_is_loc_prep(const char *t) {
     return !strcmp(t, "in") || !strcmp(t, "from") || !strcmp(t, "near") ||
            !strcmp(t, "on") || !strcmp(t, "at");
 }
-static int p0_is_prep(const char *t) {
-    return p0_is_loc_prep(t) || !strcmp(t, "of") || !strcmp(t, "to") ||
-           !strcmp(t, "with") || !strcmp(t, "by");
-}
+/* gen382: p0_is_prep e' stato RIMOSSO, non sostituito. Faceva un solo lavoro —
+ * chiudere il sintagma — e quel lavoro ora e' np_closer/1 in KB. p0_is_loc_prep
+ * resta perche' il suo non e' un confine ma un RUOLO: dice che il complemento
+ * che segue e' un LUOGO, ed e' cio' che distingue "X is in Y" da "X is of Y".
+ * Erano due cose diverse dette dalla stessa lista. */
 static int p0_is_conj(const char *t) {   /* "and" / Italian "e" */
     return !strcmp(t, "and") || !strcmp(t, "e");
 }
-static int p0_lead_det(const char *t) {
-    return is_article(t) || !strcmp(t, "the") || !strcmp(t, "il") ||
-           !strcmp(t, "lo") || !strcmp(t, "la") || !strcmp(t, "i") ||
-           !strcmp(t, "gli") || !strcmp(t, "le");
+
+/* Dove FINISCE un sintagma nominale (gen382).
+ *
+ * L'estrazione da prosa vera si rompeva quasi sempre nello stesso modo: il
+ * sintagma non aveva una fine. "a black hole is an astronomical body so compact
+ * THAT its gravity prevents anything including light from escaping" produceva un
+ * predicato di undici parole, cioe' una relativa inghiottita intera, perche' la
+ * scansione della classe si fermava solo davanti a una preposizione o a una
+ * congiunzione — e nessuna delle due compare li'.
+ *
+ * Il confine di un sintagma non e' un dettaglio del motore: e' CONOSCENZA sulla
+ * lingua, ed e' esattamente cio' che deve stare in KB perche' l'abilita' di
+ * comprendere sia uno stato della KB e non una procedura in C. Il motore chiede
+ * "questa parola chiude il sintagma?"; quali parole lo facciano — in una lingua
+ * qualsiasi, oggi o domani — e' `np_closer/1` in kb/core/grammar.p0.
+ *
+ * p0_is_prep/p0_is_conj restano, ma per il loro RUOLO (un locativo apre un
+ * luogo, una congiunzione continua l'elenco delle classi), non per fare da
+ * confine: erano due cose diverse dette dalla stessa lista. */
+static int p0_np_closer(Brain *b, const char *t) {
+    return lex_class_member(b, "np_closer", t);
+}
+/* Does this token OPEN a noun phrase — "THE cause of x", "IL gatto"? (gen382)
+ *
+ * It was a second word list saying what np_opener/1 in grammar.p0 already said,
+ * one copy in KB and one in the engine. They were never two classes: the same
+ * question, asked by the phrase-boundary reader in generation and by the class
+ * extractor here. So there is one class and one reader (mantras #3 and #5), and
+ * a determiner in a new language is a fact — including the Italian articles that
+ * used to be visible only from inside this function. */
+static int p0_lead_det(Brain *b, const char *t) {
+    return lex_class_member(b, "np_opener", t);
 }
 /* A subject head that must NOT start a class fact: question words, pronouns,
  * copulas/determiners, and common conversational openers. Keeps the broad extractor
@@ -2429,6 +2580,241 @@ static void p0_learn_source(Brain *b, const char *pred, const char *const *args,
     kb_assert(b->kb, "fact_source", fa, 3);
 }
 
+/* Il GENERICO PLURALE: "whales are mammals" (gen382).
+ *
+ * E' la forma piu' comune della prosa enciclopedica, e fino a qui andava a muro.
+ * Contava, perche' e' anche la forma che deve produrre una REGOLA e non un
+ * fatto: senza regole la KB si allarga e non si approfondisce — cresce il numero
+ * di cose sapute e non quello delle cose deducibili.
+ *
+ * Logicamente e' l'universale con il quantificatore lasciato implicito: "whales
+ * are mammals" dice esattamente quello che dice "every whale is a mammal", e
+ * infatti produce la stessa clausola attraverso lo stesso costruttore.
+ *
+ * Che cosa e' conoscenza e che cosa e' meccanismo, qui:
+ *   - QUALE copula apre un generico  -> generic_copula/1 in grammar.p0 (KB);
+ *   - come si passa dal plurale al singolare -> singularize_kb(b, ), morfologia, cioe'
+ *     substrato: e' la testina di lettura, non una decisione sul mondo.
+ *
+ * Il test del plurale e' la guardia contro i falsi positivi, ed e' onesto perche'
+ * non elenca nulla: entrambi i lati DEVONO cambiare passando al singolare. Cosi'
+ * "water is wet" non entra (non e' plurale), "these are mammals" non entra (il
+ * soggetto e' un cattivo soggetto), e "dogs are pets" entra — perche' e' davvero
+ * un universale. */
+static int p0_generic_plural_rule(Brain *b, char **w, size_t n,
+                                  char *out, size_t out_size) {
+    if (!b || !b->kb || n != 3) return 0;
+    char s0[KB_TERM_LEN], s1[KB_TERM_LEN], s2[KB_TERM_LEN];
+    snprintf(s0, sizeof s0, "%s", strip_edge_punct(w[0]));
+    snprintf(s1, sizeof s1, "%s", strip_edge_punct(w[1]));
+    snprintf(s2, sizeof s2, "%s", strip_edge_punct(w[2]));
+    if (!lex_class_member(b, "generic_copula", s1)) return 0;
+    if (p0_bad_subject(s0)) return 0;
+
+    char subj[KB_TERM_LEN], cls[KB_TERM_LEN];
+    singularize_kb(b, s0, subj, sizeof subj);
+    singularize_kb(b, s2, cls, sizeof cls);
+    /* Il plurale si misura sul SOGGETTO, non su entrambi i lati: "sharks are
+     * fish" e' un generico quanto "whales are mammals", ma `fish` e' un plurale
+     * invariante e non cambia passando al singolare. Chiedere che cambiasse
+     * anche la classe escludeva proprio le parole che la morfologia non marca —
+     * una guardia che sembrava severa e invece era solo cieca a una classe di
+     * nomi. Il soggetto plurale + una copula generica bastano: e' li' che sta
+     * l'universale. */
+    if (!strcmp(subj, s0)) return 0;
+    if (!subj[0] || !cls[0] || !strcmp(subj, cls)) return 0;
+
+    const char *body[] = { subj };
+    kb_set_origin(b->kb, KB_SESSION);
+    if (!kb_assert_rule_n(b->kb, cls, body, 1)) return 0;
+    char msg[256];
+    snprintf(msg, sizeof msg, "Learned rule: %s(X) :- %s(X).", cls, subj);
+    put(msg, out, out_size);
+    return 1;
+}
+
+/* Il cancello di qualita', definito piu' sotto: i frame lo usano. */
+static int p0_atom_is_concept(Brain *b, const char *atom);
+static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
+                            size_t argc);
+
+/* Il cancello di qualita', definito piu' sotto: i frame lo usano. */
+static int p0_atom_is_concept(Brain *b, const char *atom);
+static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
+                            size_t argc);
+
+/* I FRAME DI ESTRAZIONE, letti dalla KB (gen382).
+ *
+ * Fino a qui ogni forma che parrot0 sapeva estrarre dalla prosa era una `if` in
+ * questa funzione: "X is located in Y", "X is part of Y", "X is in Y". Erano sei
+ * frame cablati, e il settimo costava una generazione di C. Il piano
+ * docs/plans/extract-knowledge-from-prose.md lo dice dal gen335: aggiungere un
+ * pattern deve costare UN FATTO.
+ *
+ * Qui il motore diventa cieco al dominio. Legge `extract_frame(Pattern, Pred)`,
+ * dove Pattern e' una sequenza di parole letterali e di slot ($S soggetto, $O
+ * oggetto), e prova a farla combaciare con la frase. Non sa che "located in"
+ * parli di luoghi, non sa che "part of" parli di parti, e non deve saperlo: e'
+ * la KB a sapere estrarre.
+ *
+ * Gli slot si fermano dove la KB dice che finisce un sintagma (np_closer/1), che
+ * e' la stessa conoscenza usata dalla scansione delle classi — un solo confine,
+ * un solo posto dove impararlo.
+ *
+ * I frame cablati restano sotto, e non per pigrizia: coprono ancora le forme che
+ * asseriscono DUE fatti insieme (classe + luogo) e vanno sciolte una alla volta
+ * con la loro prova. Questo motore corre PRIMA, quindi un frame dichiarato in KB
+ * vince gia' oggi su quello cablato. */
+static int p0_slot_end(Brain *b, char **w, size_t n, size_t from,
+                       const char *next_literal) {
+    for (size_t i = from; i < n; i++) {
+        char *t = strip_edge_punct(w[i]);
+        if (next_literal && !strcmp(t, next_literal)) return (int)i;
+        if (!next_literal && p0_np_closer(b, t)) return (int)i;
+    }
+    return next_literal ? -1 : (int)n;
+}
+
+static int p0_try_extract_frames(Brain *b, char **w, size_t n,
+                                 const char *norm, char *out, size_t out_size) {
+    if (!b || !b->kb || n < 3) return 0;
+
+    char pats[64][KB_TERM_LEN];
+    const char *anyq[] = { NULL, NULL };
+    size_t np = kb_match(b->kb, "extract_frame", anyq, 2, pats, 64);
+
+    for (size_t pi = 0; pi < np; pi++) {
+        /* kb_dequote toglie le virgolette SUL POSTO: la forma originale va
+         * conservata prima, perche' e' quella con cui il fatto e' memorizzato e
+         * quindi l'unica con cui si puo' rileggere la sua seconda colonna. */
+        char raw[KB_TERM_LEN];
+        snprintf(raw, sizeof raw, "%s", pats[pi]);
+        char pat[KB_TERM_LEN];
+        snprintf(pat, sizeof pat, "%s", kb_dequote(pats[pi]));
+
+        const char *predq[] = { raw, NULL };
+        char preds[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "extract_frame", predq, 2, preds, 1) == 0) continue;
+        char pred[KB_TERM_LEN];
+        snprintf(pred, sizeof pred, "%s", kb_dequote(preds[0]));
+
+        char pbuf[KB_TERM_LEN];
+        snprintf(pbuf, sizeof pbuf, "%s", pat);
+        char *pt[16]; size_t pn = split_words(pbuf, pt, 16);
+        if (pn < 2) continue;
+
+        char subj[KB_TERM_LEN] = "", obj[KB_TERM_LEN] = "";
+        size_t wi = 0; int ok = 1;
+        for (size_t ti = 0; ti < pn && ok; ti++) {
+            if (pt[ti][0] == '@') {
+                const char *next = (ti + 1 < pn && pt[ti + 1][0] != '@')
+                                   ? pt[ti + 1] : NULL;
+                int end = p0_slot_end(b, w, n, wi, next);
+                if (end < 0 || (size_t)end <= wi) { ok = 0; break; }
+                char *dst = (pt[ti][1] == 'S') ? subj : obj;
+                size_t ss = wi;
+                if (ss < (size_t)end && p0_lead_det(b, strip_edge_punct(w[ss]))) ss++;
+                if (ss >= (size_t)end || !p0_join(w, ss, (size_t)end, dst, KB_TERM_LEN))
+                    { ok = 0; break; }
+                wi = (size_t)end;
+            } else {
+                if (wi >= n || strcmp(strip_edge_punct(w[wi]), pt[ti]) != 0)
+                    { ok = 0; break; }
+                wi++;
+            }
+        }
+        if (!ok || !subj[0] || !obj[0]) continue;
+        if (p0_bad_subject(subj)) continue;
+
+        kb_set_origin(b->kb, KB_SESSION);
+        const char *fa[] = { subj, obj };
+        /* Il cancello: un candidato i cui atomi non sono concetti non entra. */
+        if (!p0_fact_is_clean(b, pred, fa, 2)) {
+            snprintf(out, out_size, "Scartato: %s(%s, %s) non e' fatto di concetti.",
+                     pred, subj, obj);
+            return 2;                       /* 2 = respinto, ma non silenzioso */
+        }
+        if (kb_assert(b->kb, pred, fa, 2)) {
+            p0_learn_source(b, pred, fa, 2, norm);
+            char msg[256];
+            snprintf(msg, sizeof msg, "Learned: %s(%s, %s).", pred, subj, obj);
+            put(msg, out, out_size);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/* Questo atomo e' un CONCETTO, o e' una frase travestita? (gen382)
+ *
+ * Il cancello di qualita' fra l'estrazione e la KB. Serve perche' sognare senza
+ * di esso scrive spazzatura nell'albero curato: misurato, quasi un fatto su
+ * quattro estratto da prosa vera ha atomi come
+ * `cells_of_most_eukaryotes_such_as_animals_plants_and_fungi`, che non e' un
+ * concetto — e una KB che cresce di non-concetti non e' piu' grande, e' peggiore.
+ *
+ * Il criterio NON introduce vocabolario nuovo, ed e' questo che lo rende onesto:
+ * un atomo e' rotto quando ha inghiottito un CONFINE, cioe' contiene al proprio
+ * interno una parola che np_closer/1 dichiara chiudere un sintagma. La stessa
+ * conoscenza che dice all'estrattore dove fermarsi dice al cancello quando non
+ * si e' fermato. Piu' un tetto di lunghezza, dichiarato in KB.
+ *
+ * Rifiutare non e' perdere: chi chiama riporta lo scarto, cosi' un candidato
+ * respinto resta visibile invece di sparire in silenzio. */
+static int p0_concept_cap(Brain *b) {
+    char v[4][KB_TERM_LEN];
+    const char *q[] = { NULL };
+    if (kb_match(brain_kb(b), "concept_atom_max_words", q, 1, v, 4) > 0) {
+        int n = atoi(kb_dequote(v[0]));
+        if (n > 0) return n;
+    }
+    return 3;
+}
+
+/* Solo il tetto di lunghezza: per i nomi SCELTI (relazioni dichiarate). */
+static int p0_atom_within_cap(Brain *b, const char *atom) {
+    if (!b || !brain_kb(b) || !atom || !*atom) return 0;
+    int maxw = p0_concept_cap(b);
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", atom);
+    int words = 0;
+    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_"))
+        if (++words > maxw) return 0;
+    return words > 0;
+}
+
+/* Il test pieno: per i nomi RITAGLIATI dalla prosa. */
+static int p0_atom_is_concept(Brain *b, const char *atom) {
+    if (!p0_atom_within_cap(b, atom)) return 0;
+    char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, "%s", atom);
+    for (char *tok = strtok(buf, "_"); tok; tok = strtok(NULL, "_"))
+        if (p0_np_closer(b, tok)) return 0;      /* ha attraversato un confine */
+    return 1;
+}
+
+/* Il fatto nel suo insieme — e qui va tenuta una distinzione che la prima
+ * versione del cancello sbagliava, respingendo `located_in(france, europe)`.
+ *
+ * `located_in` CONTIENE "in", che e' un confine: applicandogli il test degli
+ * span lo si scarta. Ma quel nome non e' uno span: e' l'identificatore di una
+ * relazione DICHIARATA (in extract_frame/2 o nel motore), scelto da chi l'ha
+ * dichiarata, non ritagliato dalla prosa. Gli argomenti invece vengono dal
+ * testo, ed e' li' che il confine attraversato e' il sintomo del difetto.
+ *
+ * Quindi: agli argomenti il test pieno, al nome della relazione il solo tetto di
+ * lunghezza. Non e' un'eccezione di comodo — e' la differenza fra un nome scelto
+ * e un nome ritagliato. */
+static int p0_atom_within_cap(Brain *b, const char *atom);
+
+static int p0_fact_is_clean(Brain *b, const char *pred, const char *const *args,
+                            size_t argc) {
+    if (!p0_atom_within_cap(b, pred)) return 0;
+    for (size_t i = 0; i < argc; i++)
+        if (!p0_atom_is_concept(b, args[i])) return 0;
+    return 1;
+}
+
 static int extract_class_statement(Brain *b, const char *norm,
                                    char *out, size_t out_size, int extract_only) {
     if (!b || !b->kb) return 0;
@@ -2443,8 +2829,8 @@ static int extract_class_statement(Brain *b, const char *norm,
     for (size_t i = 0; i < n; i++) {
         if (!strcmp(w[i], "was")) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
         else if (!strcmp(w[i], "were")) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
-        else if (!strcmp(w[i], "era") && i+1 < n && is_article(w[i+1])) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
-        else if (!strcmp(w[i], "erano") && i+1 < n && is_article(w[i+1])) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
+        else if (!strcmp(w[i], "era") && i+1 < n && is_article(b, w[i+1])) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
+        else if (!strcmp(w[i], "erano") && i+1 < n && is_article(b, w[i+1])) { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
     }
 
     /* gen349/350 (Fase 2, motorize-the-class): transitive CREATION extraction.
@@ -2465,7 +2851,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                 }
             }
             if (agent < n) {
-                size_t os = p0_lead_det(w[0]) ? 1 : 0;
+                size_t os = p0_lead_det(b, w[0]) ? 1 : 0;
                 if (os >= i) break;
                 char obj2[KB_TERM_LEN];
                 size_t oe = i;
@@ -2474,7 +2860,7 @@ static int extract_class_statement(Brain *b, const char *norm,
                                 !strcmp(strip_edge_punct(w[oe - 1]), "been")))
                     oe--;
                 if (!p0_join(w, os, oe, obj2, sizeof obj2)) break;
-                size_t ss = agent + 1; if (ss < n && p0_lead_det(w[ss])) ss++;
+                size_t ss = agent + 1; if (ss < n && p0_lead_det(b, w[ss])) ss++;
                 char subj2[KB_TERM_LEN];
                 if (ss >= n || !p0_join(w, ss, n, subj2, sizeof subj2)) break;
                 if (p0_bad_subject(subj2)) break;
@@ -2488,12 +2874,12 @@ static int extract_class_statement(Brain *b, const char *norm,
                 }
                 break;
             }
-            size_t ss = p0_lead_det(w[0]) ? 1 : 0;
+            size_t ss = p0_lead_det(b, w[0]) ? 1 : 0;
             if (ss >= i) break;
             char subj2[KB_TERM_LEN];
             if (!p0_join(w, ss, i, subj2, sizeof subj2)) break;
             if (p0_bad_subject(subj2)) break;
-            size_t os = i + 1; if (os < n && p0_lead_det(w[os])) os++;
+            size_t os = i + 1; if (os < n && p0_lead_det(b, w[os])) os++;
             char obj2[KB_TERM_LEN];
             if (os >= n || !p0_join(w, os, n, obj2, sizeof obj2)) break;
             kb_set_origin(b->kb, KB_SESSION);
@@ -2508,16 +2894,51 @@ static int extract_class_statement(Brain *b, const char *norm,
         }
     }
 
+    /* gen382: il generico plurale produce una REGOLA, e va provato prima della
+     * copula perche' "whales are mammals" ha la forma di una copula ma il
+     * contenuto di un universale. */
+    if (p0_generic_plural_rule(b, w, n, out, out_size)) return 1;
+
+    /* gen382: i frame DICHIARATI in KB corrono prima di quelli cablati, cosi'
+     * una forma insegnata oggi vince su una compilata ieri. */
+    if (p0_try_extract_frames(b, w, n, norm, out, out_size)) return 1;
+
     size_t cop = n;
     for (size_t i = 1; i < n; i++)
         if (!strcmp(w[i], "is") || !strcmp(w[i], "are")) { cop = i; break; }
     if (cop >= n || cop < 1 || cop + 1 >= n) return 0;
 
-    size_t sstart = p0_lead_det(w[0]) ? 1 : 0;
+    size_t sstart = p0_lead_det(b, w[0]) ? 1 : 0;
     if (sstart >= cop) return 0;
+
+    /* gen382 — il soggetto ha DUE confini, e finora non ne aveva nessuno.
+     *
+     * (a) A SINISTRA: "In mathematics and computer science, an algorithm is ..."
+     *     apre con una cornice che dice DOVE vale la frase, non di che cosa
+     *     parla. Prendendo tutto fino alla copula il soggetto diventava
+     *     `in_mathematics_and_computer_science_an_algorithm`. La virgola chiude
+     *     quella cornice: il soggetto vero comincia dopo l'ultima.
+     *     (E' lo stesso principio del gen378 sull'antecedente condizionale: un
+     *     segmento del turno puo' avere il ruolo "non fa parte del dato".)
+     *
+     * (b) A DESTRA: "the derivative of a function of a single variable is ..."
+     *     — il nome finisce al primo confine dichiarato, esattamente come per la
+     *     classe. Una sola conoscenza, np_closer/1, applicata ai due lati. */
+    for (size_t i = sstart; i < cop; i++) {
+        size_t l = strlen(w[i]);
+        if (l && w[i][l - 1] == ',') sstart = i + 1;      /* cornice iniziale */
+    }
+    if (sstart >= cop) return 0;
+    if (p0_lead_det(b, strip_edge_punct(w[sstart]))) sstart++;   /* "..., AN algorithm" */
+    if (sstart >= cop) return 0;
+
+    size_t send = sstart;
+    while (send < cop && !p0_np_closer(b, strip_edge_punct(w[send]))) send++;
+    if (send == sstart) return 0;                        /* comincia con un confine */
+
     if (p0_bad_subject(strip_edge_punct(w[sstart]))) return 0;   /* not a real subject */
     char subj[KB_TERM_LEN];
-    if (!p0_join(w, sstart, cop, subj, sizeof subj)) return 0;
+    if (!p0_join(w, sstart, send, subj, sizeof subj)) return 0;
     int subj_multi = strchr(subj, '_') != NULL;
 
     size_t p = cop + 1;
@@ -2525,10 +2946,15 @@ static int extract_class_statement(Brain *b, const char *norm,
 
     /* --- locative frames (6): store located_in/part_of and return --- */
     if (!strcmp(w[p], "located") && p + 1 < n && p0_is_loc_prep(w[p + 1])) {
-        size_t os = p + 2; if (os < n && p0_lead_det(w[os])) os++;
+        size_t os = p + 2; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
+            if (!p0_fact_is_clean(b, "located_in", la, 2)) {
+                snprintf(out, out_size,
+                         "Scartato: located_in(%s, %s) non e' fatto di concetti.", subj, obj);
+                return 2;
+            }
             if (kb_assert(b->kb, "located_in", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
@@ -2538,7 +2964,7 @@ static int extract_class_statement(Brain *b, const char *norm,
         return 0;
     }
     if (!strcmp(w[p], "part") && p + 1 < n && !strcmp(w[p + 1], "of")) {
-        size_t os = p + 2; if (os < n && p0_lead_det(w[os])) os++;
+        size_t os = p + 2; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
@@ -2551,10 +2977,15 @@ static int extract_class_statement(Brain *b, const char *norm,
         return 0;
     }
     if (p0_is_loc_prep(w[p])) {                 /* "X is in Y" */
-        size_t os = p + 1; if (os < n && p0_lead_det(w[os])) os++;
+        size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n && p0_join(w, os, n, obj, sizeof obj)) {
             kb_set_origin(b->kb, KB_SESSION);
             const char *la[] = { subj, obj };
+            if (!p0_fact_is_clean(b, "located_in", la, 2)) {
+                snprintf(out, out_size,
+                         "Scartato: located_in(%s, %s) non e' fatto di concetti.", subj, obj);
+                return 2;
+            }
             if (kb_assert(b->kb, "located_in", la, 2)) {
                 p0_learn_source(b, "located_in", la, 2, norm);
                 char msg[256]; snprintf(msg, sizeof msg, "Learned: located_in(%s, %s).", subj, obj);
@@ -2570,17 +3001,20 @@ static int extract_class_statement(Brain *b, const char *norm,
      * ("is long"); a conjunct without its own article ("and most populous city …")
      * stops the scan, leaving the relational/apposition case for later. --- */
     (void)cls;
-    if (!p0_lead_det(w[p])) return 0;
+    if (!p0_lead_det(b, w[p])) return 0;
     p++;
     char classes[4][KB_TERM_LEN]; size_t ncls = 0;
     for (;;) {
         size_t cstart = p;
-        while (p < n && !p0_is_prep(w[p]) && !p0_is_conj(w[p])) p++;
+        /* gen382: il sintagma si ferma al primo confine DICHIARATO dalla KB —
+         * preposizioni, congiunzioni e (la novita' che sblocca la prosa vera)
+         * i pronomi relativi e i subordinatori. */
+        while (p < n && !p0_np_closer(b, strip_edge_punct(w[p]))) p++;
         if (p > cstart && ncls < 4 &&
             p0_join(w, cstart, p, classes[ncls], sizeof classes[ncls])) ncls++;
         if (p < n && p0_is_conj(w[p])) {
             p++;
-            if (p < n && p0_lead_det(w[p])) { p++; continue; }  /* "and/e a <Z>" */
+            if (p < n && p0_lead_det(b, w[p])) { p++; continue; }  /* "and/e a <Z>" */
         }
         break;                                   /* prep, bare "and", or end */
     }
@@ -2588,7 +3022,7 @@ static int extract_class_statement(Brain *b, const char *norm,
 
     int loc = 0;
     if (p < n && p0_is_loc_prep(w[p])) {         /* trailing PP -> located_in (4) */
-        size_t os = p + 1; if (os < n && p0_lead_det(w[os])) os++;
+        size_t os = p + 1; if (os < n && p0_lead_det(b, w[os])) os++;
         if (os < n) loc = p0_join(w, os, n, obj, sizeof obj);
     }
     int cls_multi = (ncls > 1) || strchr(classes[0], '_') != NULL;
@@ -2599,11 +3033,20 @@ static int extract_class_statement(Brain *b, const char *norm,
     if (!subj_multi && !cls_multi && !loc && !extract_only) return 0;
 
     kb_set_origin(b->kb, KB_SESSION);
+    if (!p0_atom_is_concept(b, subj)) {
+        snprintf(out, out_size, "Scartato: \"%s\" non e' un concetto.", subj);
+        return 2;
+    }
     const char *ca[] = { subj };
     char msg[256]; size_t mo = 0;
     mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned: ");
-    int any = 0;
+    int any = 0, rejected = 0;
     for (size_t i = 0; i < ncls; i++) {
+        /* Il cancello, sulla forma piu' comune di tutte: la dichiarazione di
+         * classe. Un predicato che ha inghiottito una subordinata viene respinto
+         * e CONTATO — chi legge deve sapere che una frase e' stata letta e
+         * scartata, non credere che non ci fosse nulla. */
+        if (!p0_atom_is_concept(b, classes[i])) { rejected++; continue; }
         if (kb_assert(b->kb, classes[i], ca, 1)) {
             p0_learn_source(b, classes[i], ca, 1, norm);
             mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(%s)",
@@ -2619,7 +3062,13 @@ static int extract_class_statement(Brain *b, const char *norm,
                                    any ? ", " : "", subj, obj), any = 1;
         }
     }
-    if (!any) return 0;
+    if (!any) {
+        if (rejected) {           /* letta e respinta: dirlo, non tacerlo */
+            snprintf(out, out_size, "Scartato: %d classe/i non fatte di concetti.", rejected);
+            return 2;
+        }
+        return 0;
+    }
     snprintf(msg + mo, sizeof msg - mo, ".");
     put(msg, out, out_size);
     return 1;
@@ -5830,8 +6279,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 cend++;
                 if (closes) break;
             }
-            if (join_entity_span(dw, between + 1, sep, a, sizeof a) &&
-                join_entity_span(dw, sep + 1, cend, c, sizeof c)) {
+            if (join_entity_span(b, dw, between + 1, sep, a, sizeof a) &&
+                join_entity_span(b, dw, sep + 1, cend, c, sizeof c)) {
                 char gloss[KB_TERM_LEN];
                 if (difference_lookup(b, a, c, gloss, sizeof gloss)) {
                     put(gloss, out, out_size);
@@ -5953,15 +6402,15 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 /* gen311: only RETURN on a successful comparison — a 0 (neither
                  * side a magnitude entity) must fall through to other consumers
                  * (e.g. a riddle with "more than"), not exit mod_knowledge. */
-                if (last_entity_before(mw, or_i, cue_i + 1, a, sizeof a) &&
-                    first_entity_after(mw, or_i + 1, mn, c, sizeof c) &&
+                if (last_entity_before(b, mw, or_i, cue_i + 1, a, sizeof a) &&
+                    first_entity_after(b, mw, or_i + 1, mn, c, sizeof c) &&
                     answer_magnitude_compare(b, dim, want_max, a, c, 0, out, out_size))
                     return 1;
             }
             if (than_i < mn && cue_i > 0 && cue_i < than_i) {
                 char a[KB_TERM_LEN], c[KB_TERM_LEN];
-                if (join_entity_span(mw, 1, cue_i, a, sizeof a) &&
-                    first_entity_after(mw, than_i + 1, mn, c, sizeof c) &&
+                if (join_entity_span(b, mw, 1, cue_i, a, sizeof a) &&
+                    first_entity_after(b, mw, than_i + 1, mn, c, sizeof c) &&
                     answer_magnitude_compare(b, dim, want_max, a, c, 1, out, out_size))
                     return 1;
             }
@@ -5987,7 +6436,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     size_t end = j + 1;
                     while (end < mn && strcmp(strip_edge_punct(mw[end]), "and") != 0)
                         end++;
-                    (void)join_entity_span(mw, j + 1, end, region, sizeof region);
+                    (void)join_entity_span(b, mw, j + 1, end, region, sizeof region);
                 }
                 char items[128][KB_TERM_LEN];
                 const char *iq[3] = { dim, NULL, NULL };
@@ -6610,14 +7059,14 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (strcmp(w[i], "can") && strcmp(w[i], "could")) continue;
             size_t j = i + 1;
             /* optional determiner/quantifier before the subject */
-            if (is_article(w[j]) || !strcmp(w[j], "any") ||
+            if (is_article(b, w[j]) || !strcmp(w[j], "any") ||
                 !strcmp(w[j], "some")) j++;
             if (j >= n) break;
             snprintf(qx, sizeof qx, "%s", w[j]); j++;
             if (j < n && !strcmp(w[j], "also")) j++;       /* optional "also" */
             if (j >= n || strcmp(w[j], "be")) continue;    /* require copula */
             j++;
-            if (j < n && is_article(w[j])) j++;            /* optional article */
+            if (j < n && is_article(b, w[j])) j++;            /* optional article */
             if (j >= n) continue;
             snprintf(qy, sizeof qy, "%s", w[j]);
             break;
@@ -6705,7 +7154,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
              * leading article ("the mona lisa" -> mona_lisa). */
             char work[128]; size_t wl = 0; work[0] = '\0';
             for (size_t j = i + 1; j < n; j++) {
-                if (wl == 0 && p0_lead_det(w[j])) continue;
+                if (wl == 0 && p0_lead_det(b, w[j])) continue;
                 if (!*w[j]) continue;
                 wl += (size_t)snprintf(work + wl, sizeof work - wl, "%s%s",
                                        wl ? "_" : "", w[j]);
@@ -6797,7 +7246,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             { size_t l = strlen(as); if (l > 1 && as[l-1]=='s') as[l-1]='\0'; }
             char X[64] = "";
             for (size_t i = 1; i + 2 < n; i++)
-                if (!strcmp(w[i], "is") && is_article(w[i + 1])) {
+                if (!strcmp(w[i], "is") && is_article(b, w[i + 1])) {
                     char cs[64]; snprintf(cs, sizeof cs, "%s", w[i + 2]);
                     { size_t l = strlen(cs); if (l > 1 && cs[l-1]=='s') cs[l-1]='\0'; }
                     if (!strcmp(cs, as)) { snprintf(X, sizeof X, "%s", w[i - 1]); break; }
@@ -6838,11 +7287,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             for (size_t i = 1; i + 1 < n; i++) {
                 if (strcmp(w[i], "is")) continue;
                 size_t c = i + 1;
-                if (c < n && is_article(w[c])) c++;
+                if (c < n && is_article(b, w[c])) c++;
                 if (c >= n) continue;
                 char cs[64]; P0_SING(cs, w[c]);
                 if (strcmp(cs, A) && strcmp(cs, B)) continue;
-                if (!strcmp(w[i - 1], "no") || is_article(w[i - 1])) continue;
+                if (!strcmp(w[i - 1], "no") || is_article(b, w[i - 1])) continue;
                 P0_SING(Z, w[i - 1]);
                 snprintf(Zclass, sizeof Zclass, "%s", cs);
                 break;
@@ -6853,11 +7302,11 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (strcmp(w[i], "is") && strcmp(w[i], "can") &&
                     strcmp(w[i], "could")) continue;
                 size_t j = i + 1;
-                if (j < n && is_article(w[j])) j++;
+                if (j < n && is_article(b, w[j])) j++;
                 if (j >= n) continue;
                 P0_SING(Qs, w[j]); j++;
                 if (j < n && !strcmp(w[j], "be")) j++;
-                if (j < n && is_article(w[j])) j++;
+                if (j < n && is_article(b, w[j])) j++;
                 if (j >= n) { Qs[0] = '\0'; continue; }
                 char ds[64]; P0_SING(ds, w[j]);
                 if (strcmp(ds, A) && strcmp(ds, B)) { Qs[0] = '\0'; continue; }
@@ -7841,7 +8290,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (ql > 0 && qbuf[ql - 1] == '?') qbuf[ql - 1] = '\0';
             char *qw[8];
             size_t qnw = split_words(qbuf, qw, 8);
-            if (qnw == 4 && strcmp(qw[0], "is") == 0 && is_article(qw[2])) {
+            if (qnw == 4 && strcmp(qw[0], "is") == 0 && is_article(b, qw[2])) {
                 const char *args[] = {qw[1]};
                 int yes = kb_query(hypo.kb, qw[3], args, 1);
                 put(yes ? "Yes, under that supposition." : "No, even with that supposition.",
@@ -7981,7 +8430,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (cue(buf, dom_phrase)) domain_seen = 1;
                 for (size_t j = 0; j < qn; j++) {
                     char sg[KB_TERM_LEN];
-                    singularize(qw[j], sg, sizeof sg);
+                    singularize_kb(b, qw[j], sg, sizeof sg);
                     if (!strcmp(sg, doms[d])) { domain_seen = 1; break; }
                 }
                 if (!domain_seen) continue;
@@ -8086,8 +8535,8 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < qn; i++) qw[i] = strip_edge_punct(qw[i]);
         if (qn >= 5 && strcmp(qw[0], "if") == 0 && strcmp(qw[1], "all") == 0) {
             char subj[KB_TERM_LEN], cls[KB_TERM_LEN];
-            singularize(qw[2], subj, sizeof subj);
-            singularize(qw[4], cls, sizeof cls);
+            singularize_kb(b, qw[2], subj, sizeof subj);
+            singularize_kb(b, qw[4], cls, sizeof cls);
             char msg[220];
             snprintf(msg, sizeof msg,
                      "We can conclude that %s are %s; the 'some %s' fact does not prove that %s fade.",
@@ -8298,7 +8747,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                        strcmp(cw[end], "when") != 0 &&
                        strcmp(cw[end], "replace") != 0)
                     end++;
-                if (join_entity_span(cw, i + 1, end, country_buf, sizeof country_buf))
+                if (join_entity_span(b, cw, i + 1, end, country_buf, sizeof country_buf))
                     country = country_buf;
                 break;
             }
@@ -8769,7 +9218,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         char *pw[64]; size_t pnw = split_words(pb, pw, 64);
         for (size_t i = 0; i < pnw; i++) {
             char tok[KB_TERM_LEN];
-            singularize(strip_edge_punct(pw[i]), tok, sizeof tok);
+            singularize_kb(b, strip_edge_punct(pw[i]), tok, sizeof tok);
             /* try plural-as-written too (place_for keys are plural for count nouns) */
             const char *q1[] = { strip_edge_punct(pw[i]), NULL };
             const char *q2[] = { tok, NULL };
@@ -8940,19 +9389,19 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; i < kn; i++) kw[i] = strip_edge_punct(kw[i]);
         if (kn >= 7 && strcmp(kw[0], "is") == 0) {
             size_t si = 1;
-            if (is_article(kw[si]) && si + 1 < kn) si++;
+            if (is_article(b, kw[si]) && si + 1 < kn) si++;
             const char *kind0 = kw[si++];
-            if (si < kn && is_article(kw[si])) si++;
+            if (si < kn && is_article(b, kw[si])) si++;
             if (si + 2 < kn) {
                 const char *c10 = kw[si++];
                 if (si < kn && strcmp(kw[si], "or") == 0) si++;
-                if (si < kn && is_article(kw[si])) si++;
+                if (si < kn && is_article(b, kw[si])) si++;
                 if (si < kn) {
                     const char *c20 = kw[si];
                     char kind[KB_TERM_LEN], c1[KB_TERM_LEN], c2[KB_TERM_LEN];
-                    singularize(kind0, kind, sizeof kind);
-                    singularize(c10, c1, sizeof c1);
-                    singularize(c20, c2, sizeof c2);
+                    singularize_kb(b, kind0, kind, sizeof kind);
+                    singularize_kb(b, c10, c1, sizeof c1);
+                    singularize_kb(b, c20, c2, sizeof c2);
                     const char *a1[] = { kind, c1 };
                     const char *a2[] = { kind, c2 };
                     int yes1 = kb_query(b->kb, "kind_is", a1, 2);
@@ -8980,12 +9429,12 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             kind0 = tw[2];
         else if (tn >= 7 && strcmp(tw[0], "which") == 0 && strcmp(tw[2], "does") == 0) {
             for (size_t i = 3; i + 1 < tn; i++)
-                if (is_article(tw[i])) { kind0 = tw[i + 1]; break; }
+                if (is_article(b, tw[i])) { kind0 = tw[i + 1]; break; }
         }
         const char *colon = strchr(norm, ':');
         if (kind0 && colon) {
             char kind[KB_TERM_LEN];
-            singularize(kind0, kind, sizeof kind);
+            singularize_kb(b, kind0, kind, sizeof kind);
             char opts[256]; snprintf(opts, sizeof opts, "%s", colon + 1);
             char *ow[24]; size_t on = split_words(opts, ow, 24);
             for (size_t i = 0; i < on; i++) {
@@ -9017,9 +9466,9 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         /* Italian past copula "era"/"erano" — but "era" is also the NOUN "era", so
          * rewrite only in copula position (followed by an article), never "the
          * Victorian era". (The English "was"/"were" are unambiguously verbs.) */
-        else if (strcmp(w[i], "era") == 0 && i + 1 < nw && is_article(w[i + 1]))
+        else if (strcmp(w[i], "era") == 0 && i + 1 < nw && is_article(b, w[i + 1]))
             { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }
-        else if (strcmp(w[i], "erano") == 0 && i + 1 < nw && is_article(w[i + 1]))
+        else if (strcmp(w[i], "erano") == 0 && i + 1 < nw && is_article(b, w[i + 1]))
             { w[i][0]='a'; w[i][1]='r'; w[i][2]='e'; w[i][3]='\0'; }
     }
 
@@ -9081,7 +9530,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * an entity. Reuse the existing belief-report path; decline if x is an
      * article or common function word so "what is a ...?" still falls through. */
     if (nw == 3 && strcmp(w[0], "what") == 0 && strcmp(w[1], "is") == 0 &&
-        !is_article(w[2]) && !is_stopword(b, w[2])) {
+        !is_article(b, w[2]) && !is_stopword(b, w[2])) {
         const char *entity;
         if (!resolve_entity(b, w[2], &entity, out, out_size)) return 1;
         char desc[1024];
@@ -9116,7 +9565,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (is_describe) {
             for (size_t i = 0; i < nw; i++) {
                 char *cand = strip_edge_punct(w[i]);
-                if (!*cand || is_article(cand) || is_stopword(b, cand)) continue;
+                if (!*cand || is_article(b, cand) || is_stopword(b, cand)) continue;
                 /* the cue word itself ("mean"/"define") is the frame, not the
                  * concept — skip any word that is a describe_cue. */
                 int is_cue = 0;
@@ -9265,7 +9714,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 if (strcmp(lang, "en") != 0) {
                     char gl[1024];
                     for (size_t i = start; i < nw; i++) {
-                        if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                        if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                         if (kb_concept_gloss(b->kb, w[i], lang, gl, sizeof gl)) {
                             put(gl, out, out_size);
                             store_proof(b, gl);
@@ -9275,7 +9724,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     }
                     char gkey[128]; size_t go = 0;
                     for (size_t i = start; i < nw; i++) {
-                        if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                        if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                         go += (size_t)snprintf(gkey + go, sizeof gkey - go,
                                                "%s%s", go ? "_" : "", w[i]);
                     }
@@ -9290,7 +9739,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             /* An exact concept key named directly ("what is the heart") always
              * wins — a precise match must beat a fuzzy guess. */
             for (size_t i = start; i < nw; i++) {
-                if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                 char desc[1024];
                 /* gen313: a DEFINITION must be speakable subject-first knowledge
                  * (kb_define_entity), never a raw clause that merely mentions the
@@ -9314,7 +9763,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char jkey[128]; size_t jo = 0;
                 char jdisp[128]; size_t jd = 0;
                 for (size_t i = start; i < nw; i++) {
-                    if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                    if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                     jo += (size_t)snprintf(jkey + jo, sizeof jkey - jo,
                                            "%s%s", jo ? "_" : "", w[i]);
                     jd += (size_t)snprintf(jdisp + jd, sizeof jdisp - jd,
@@ -9341,7 +9790,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
              * continuous space; precision is bought with the margin + hedge. */
             const char *qw[24]; size_t nq = 0;
             for (size_t i = start; i < nw && nq < 24; i++) {
-                if (is_article(w[i]) || is_stopword(b, w[i])) continue;
+                if (is_article(b, w[i]) || is_stopword(b, w[i])) continue;
                 if (!strcmp(w[i], "mean") || !strcmp(w[i], "means") ||
                     !strcmp(w[i], "thing") || !strcmp(w[i], "called") ||
                     !strcmp(w[i], "definition")) continue;
@@ -9362,7 +9811,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
 
     /* explanation: "why is <x> a/an <y>?" -> render the proof of y(x) */
     if (nw == 5 && strcmp(w[0], "why") == 0 && strcmp(w[1], "is") == 0 &&
-        is_article(w[3])) {
+        is_article(b, w[3])) {
         const char *subj;
         if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
@@ -9380,7 +9829,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * Transfers to any unseen x/y. */
     if (nw == 5 &&
         (strcmp(w[0], "perché") == 0 || strcmp(w[0], "perche") == 0) &&
-        strcmp(w[2], "is") == 0 && is_article(w[3])) {
+        strcmp(w[2], "is") == 0 && is_article(b, w[3])) {
         const char *subj;
         if (!resolve_entity(b, w[1], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
@@ -9400,7 +9849,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * proof of y(x) as direct (fact) vs multi-step (rule chain) reasoning. */
     if (nw == 8 && strcmp(w[0], "how") == 0 && strcmp(w[1], "do") == 0 &&
         strcmp(w[2], "you") == 0 && strcmp(w[3], "know") == 0 &&
-        strcmp(w[5], "is") == 0 && is_article(w[6])) {
+        strcmp(w[5], "is") == 0 && is_article(b, w[6])) {
         const char *subj;
         if (!resolve_entity(b, w[4], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
@@ -9465,7 +9914,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * defaults ONLY for a knowledge-less scratch brain (premise sandboxes are a
      * an empty KB), which since gen371 still reaches the shared machinery. */
     if (nw >= 5 && nw <= 4 + KB_MAX_BODY && is_universal_word(b, w[0]) &&
-        strcmp(w[nw - 3], "is") == 0 && is_article(w[nw - 2])) {
+        strcmp(w[nw - 3], "is") == 0 && is_article(b, w[nw - 2])) {
         const char *head = w[nw - 1];
         const char *bodies[KB_MAX_BODY];
         size_t nbody = nw - 4; /* body words are w[1 .. nw-4] */
@@ -9489,7 +9938,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     /* gen96: bulk forget — "forget everything about <x>" */
     /* retract: "forget that <x> is a/an <y>" -> remove y(x) */
     if (nw == 6 && strcmp(w[0], "forget") == 0 && strcmp(w[1], "that") == 0 &&
-        strcmp(w[3], "is") == 0 && is_article(w[4])) {
+        strcmp(w[3], "is") == 0 && is_article(b, w[4])) {
         const char *subj, *cl = w[5];
         if (!resolve_entity(b, w[2], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
@@ -9510,7 +9959,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * Word order is surface, not meaning, so one parser serves both languages
      * (the multilingual probe's gen43 finding). Question words are excluded so a
      * negated query is not mistaken for an assertion. */
-    if (nw == 5 && is_article(w[3]) &&
+    if (nw == 5 && is_article(b, w[3]) &&
         strcmp(w[0], "who") != 0 && strcmp(w[0], "what") != 0 &&
         strcmp(w[0], "is") != 0 &&
         ((strcmp(w[1], "is") == 0) || (strcmp(w[2], "is") == 0)) &&
@@ -9541,7 +9990,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * prose adds classes incrementally ("a dolphin is also a mammal"); it is the
      * same assertion as "x is a y", one more membership. */
     if (nw == 5 && strcmp(w[1], "is") == 0 && strcmp(w[2], "also") == 0 &&
-        is_article(w[3])) {
+        is_article(b, w[3])) {
         const char *subj, *cl = w[4];
         if (!resolve_entity(b, w[0], &subj, out, out_size)) return 1;
         const char *args[] = {subj};
@@ -9668,13 +10117,13 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         if (cop >= 2 && cop + 1 < nw) {
             size_t si = cop - 1;                 /* subject: token before copula */
             size_t ci = cop + 1;                 /* class:   token after copula  */
-            if (is_article(w[ci]) && ci + 1 < nw) ci++;   /* skip "a"/"an" */
+            if (is_article(b, w[ci]) && ci + 1 < nw) ci++;   /* skip "a"/"an" */
             char subjb[KB_TERM_LEN], clsb[KB_TERM_LEN];
             char sj[KB_TERM_LEN], cl[KB_TERM_LEN];
             snprintf(subjb, sizeof subjb, "%s", w[si]);
             snprintf(clsb, sizeof clsb, "%s", w[ci]);
-            singularize(strip_edge_punct(subjb), sj, sizeof sj);
-            singularize(strip_edge_punct(clsb), cl, sizeof cl);
+            singularize_kb(b, strip_edge_punct(subjb), sj, sizeof sj);
+            singularize_kb(b, strip_edge_punct(clsb), cl, sizeof cl);
             if (*sj && *cl && strcmp(sj, cl) != 0) {
                 char msg[160];
                 if (kb_assert_rule(b->kb, cl, sj))
@@ -9698,7 +10147,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * query. Guarded on a known predicate so it never feigns a yes/no for an
      * unknown property. */
     if (nw == 3 &&
-        ((strcmp(w[0], "is") == 0 && !is_article(w[1]) &&
+        ((strcmp(w[0], "is") == 0 && !is_article(b, w[1]) &&
           isalpha((unsigned char)w[1][0])) ||
          (interrogative && strcmp(w[1], "is") == 0 &&
           isalpha((unsigned char)w[0][0])))) {
@@ -9739,10 +10188,10 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * (docs/plans/deep-reasoning.md §4.2); multi-word subjects/classes are a later
      * frame. Bilingual: Italian "un/uno/una" canonicalize to "a"; "il/lo/la/i/gli/le"
      * are added here so the same shift fires. */
-    #define P0_LEAD_DET(t) (is_article(t) || strcmp((t),"the")==0 || \
-        strcmp((t),"il")==0 || strcmp((t),"lo")==0 || strcmp((t),"la")==0 || \
-        strcmp((t),"i")==0 || strcmp((t),"gli")==0 || strcmp((t),"le")==0)
-    if (nw == 5 && is_article(w[3])) {
+    /* gen382: was a THIRD copy of the determiner list, expanded inline here.
+     * Same class, same reader — np_opener/1 through p0_lead_det(). */
+    #define P0_LEAD_DET(t) p0_lead_det(b, (t))
+    if (nw == 5 && is_article(b, w[3])) {
         if (strcmp(w[2], "is") == 0 && P0_LEAD_DET(w[0])) {       /* assertion */
             w[0] = w[1]; w[1] = w[2]; w[2] = w[3]; w[3] = w[4];
             nw = 4;
@@ -9760,7 +10209,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
      * deferred back to the proven path. */
     if (!interrogative && extract_class_statement(b, norm, out, out_size, 0)) return 1;
 
-    if (nw != 4 || !is_article(w[2])) return 0;
+    if (nw != 4 || !is_article(b, w[2])) return 0;
     const char *cls = w[3];
 
     /* variable query: "who/what is a <y>?" -> y(X), list the bindings */
@@ -9804,21 +10253,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
                 store_proof(b, ex);
         }
-        else {
-            int yes = kb_query(b->kb, cls, args, 1);
-            put(yes ? "Yes." : "No.", out, out_size);
-            if (yes) {
-                char ex[512];
-                if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
-                    store_proof(b, ex);
-            }
-            /* gen103 (L16): remember this conclusion so a later correction can
-             * re-derive it and flag the consequence. */
-            snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
-            snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
-            b->last_goal_yes = yes;
-            b->has_last_goal = 1;
-        }
+        else polar_class_answer(b, subj, cls, out, out_size);
         remember_entity(b, w[1], subj);
         return 1;
     }
@@ -9833,18 +10268,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *args[] = {subj};
         if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1)) put("Conflicted.", out, out_size);
-        else {
-            int yes = kb_query(b->kb, cls, args, 1);
-            put(yes ? "Yes." : "No.", out, out_size);
-            if (yes) {
-                char ex[512];
-                if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex)) store_proof(b, ex);
-            }
-            snprintf(b->last_goal_pred, sizeof b->last_goal_pred, "%s", cls);
-            snprintf(b->last_goal_arg, sizeof b->last_goal_arg, "%s", subj);
-            b->last_goal_yes = yes;
-            b->has_last_goal = 1;
-        }
+        else polar_class_answer(b, subj, cls, out, out_size);
         remember_entity(b, w[0], subj);
         return 1;
     }

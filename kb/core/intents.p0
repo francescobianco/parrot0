@@ -2074,3 +2074,4 @@ machinery(task_constraint_cue).
 machinery(task_focus_cue).
 machinery(task_deadline_cue).
 machinery(imperative_opener).
+machinery(policy).

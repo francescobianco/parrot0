@@ -106,9 +106,15 @@ worn_on(watch, wrist).
 % physical/statistical quantities; compare_cue maps a question word to the
 % dimension and direction. This stays separate from legacy magnitude/3 rankings.
 % gen310a: length/river superlatives
-% category link so the superlative consumer's "river" filter matches the_nile
-% ("which river is the longest?" -> The_nile). NB: the "what is the longest
-% river?" phrasing is still intercepted upstream (engine ordering gap).
+% gen382: lo stesso fiume viveva sotto DUE identificatori — `nile` nelle
+% relazioni (capital_on_river, longest_river) e `the_nile` nelle categorie e
+% nelle magnitudini — quindi i fatti su di esso non componevano: la domanda
+% "quale fiume e' piu' lungo, il Nilo o il Rio delle Amazzoni" estraeva `nile`
+% e non trovava la magnitudine. Unificato su `nile`, che e' la forma delle
+% relazioni ed e' coerente con `amazon` (nessuno dei due porta l'articolo nel
+% nome). Gli altri `the_*` restano: in "the Odyssey" o "the Divine Comedy"
+% l'articolo fa parte del titolo. NB: la formulazione "what is the longest
+% river?" resta intercettata a monte (engine ordering gap).
 
 % gen311: PAIR superlatives. pair_magnitude(Dim, A, B, Value) is a symmetric
 % relation between two entities with a comparable value; the superlative consumer
@@ -935,7 +941,7 @@ capital_since(australia, "1927, when parliament moved from Melbourne to Canberra
 capital_since(brazil, "1960, when Brasília was inaugurated").
 capital_since(kazakhstan, "1997, when the capital moved from Almaty").
 capital_since(nigeria, "1991, when the government moved to Abuja").
-category_member(africa, the_nile).
+category_member(africa, nile).
 category_member(animal, ant).
 category_member(animal, bear).
 category_member(animal, cat).
@@ -1392,7 +1398,7 @@ category_member(reptile, lizard).
 category_member(reptile, snake).
 category_member(reptile, turtle).
 category_member(river, amazon).
-category_member(river, the_nile).
+category_member(river, nile).
 category_member(season, autumn).
 category_member(season, spring).
 category_member(season, summer).
@@ -2522,7 +2528,7 @@ magnitude(distance_from_sun, saturn, 6).
 magnitude(distance_from_sun, uranus, 7).
 magnitude(distance_from_sun, venus, 2).
 magnitude(length, amazon, 6400).
-magnitude(length, the_nile, 6650).
+magnitude(length, nile, 6650).
 magnitude(population, australia, 1).
 magnitude(population, brazil, 7).
 magnitude(population, china, 11).
@@ -2593,6 +2599,18 @@ magnitude_cue(slower, speed, min).
 magnitude_cue(smaller, size, min).
 magnitude_cue(smallest, size, min).
 magnitude_cue(tinier, size, min).
+% gen382: il reticolo aveva dei buchi, e i buchi si vedono solo elencandolo.
+% Ogni dimensione dovrebbe avere COMPARATIVO e SUPERLATIVO nei due versi; length
+% aveva solo i superlativi (quindi "quale fiume e' piu' LUNGO" cadeva prima
+% ancora di essere analizzato, mentre "il piu' lungo" funzionava), speed e weight
+% solo i comparativi. Sei fatti, zero C: e' il caso limpido in cui la capacita'
+% mancante non era un motore da scrivere ma conoscenza da completare.
+magnitude_cue(longer, length, max).
+magnitude_cue(shorter, length, min).
+magnitude_cue(fastest, speed, max).
+magnitude_cue(slowest, speed, min).
+magnitude_cue(heaviest, weight, max).
+magnitude_cue(lightest, weight, min).
 mammal_true_flight(bat, mammal).
 means(eloquent, "fluent and persuasive in speaking or writing").
 means(ephemeral, "lasting for a very short time").

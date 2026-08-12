@@ -1240,7 +1240,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             const char *rest[6]; size_t nr = 0;
             for (size_t i = 0; i < rn; i++) {
                 if (strcmp(tok[i], "is") == 0 || strcmp(tok[i], "are") == 0) { has_is = 1; continue; }
-                if (!art && is_article(tok[i])) { art = tok[i]; continue; }
+                if (!art && is_article(b, tok[i])) { art = tok[i]; continue; }
                 rest[nr++] = tok[i];
             }
             if (has_is && nr >= 2) {

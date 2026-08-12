@@ -428,3 +428,18 @@ response_template(named_dialogue_open, "{speaker_a}: We see the same thing and c
 % i DUE livelli visibili invece di sceglierne uno di nascosto.
 response_template(class_conflict, "That sits badly with what I already hold: {subject} is a {held}, and {claimed} and {held} cannot both apply.").
 response_template(class_conflict, it, "Questo stride con quello che gia' so: {subject} e' un {held}, e {claimed} e {held} non possono valere insieme.").
+
+% ── RICERCA INTERROTTA: indeterminato, NON falso (gen382) ────────────────────
+% Quando la guardia anti-isteresi taglia un goal gia' aperto piu' in alto, la
+% ricerca non ha ESAURITO le possibilita': si e' fermata. Rispondere "No." in
+% quel caso e' negation-as-failure applicata a un mondo chiuso che non c'e' —
+% e' dichiarare FALSO cio' che e' soltanto INDETERMINATO.
+%
+% La distinzione e' esattamente quella che un ragionatore vero fa sullo stesso
+% stimolo (sonda tests/hysteresis_probe.py, che NON gira a runtime): "con le
+% sole informazioni fornite non possiamo stabilirlo", perche' le classi si
+% implicano a vicenda e nessun fatto le ancora. La circolarita' non e' un
+% guasto da nascondere: e' la cosa piu' informativa che si sia scoperta nel
+% turno, e va detta.
+response_template(undetermined_cycle, "I cannot settle that: {subject} is not tied to {klass} by any fact I hold, and the rules around {klass} lead back into each other, so the search closes on itself instead of reaching an answer. Not proved is not the same as false.").
+response_template(undetermined_cycle, it, "Non posso stabilirlo: nessun fatto che ho lega {subject} a {klass}, e le regole intorno a {klass} si rimandano a vicenda, quindi la ricerca si chiude su se stessa invece di arrivare a una risposta. Non dimostrato non vuol dire falso.").

@@ -1,0 +1,60 @@
+# La guardia anti-ISTERESI del risolutore (gen382).
+#
+# Il punto non e' che una KB scritta male sia lenta: e' che parrot0 IMPARA
+# PARLANDO, quindi una conoscenza patologica entra dalla conversazione. Quattro
+# frasi bastano a chiudere un ciclo con ramificazione fra due classi, e prima di
+# gen382 la domanda successiva non tornava piu' — il processo restava dentro la
+# risoluzione (misurato: >60s, ucciso; con la guardia: 0.4s).
+#
+# KB_MAX_DEPTH limitava quanto a FONDO andava una derivazione, non quanto LAVORO
+# faceva: con due regole per la stessa testa la ricerca si ramifica a ogni
+# livello dentro il limite di profondita'.
+#
+# Cosa blinda questo file:
+#   1. il ciclo insegnato a runtime si CHIUDE, con una risposta onesta;
+#   2. la conoscenza non ciclica sopra le stesse classi continua a dedurre —
+#      la guardia taglia la ripetizione, non il ragionamento.
+#
+# Il budget di default di 1s per turno E' l'asserzione di terminazione: se la
+# guardia regredisce, questo file non diventa rosso "per poco", va a muro.
+
+!set PARROT0_BASE=
+!set PARROT0_SESSION=
+!reset
+
+[test taught cycle terminates]
+# Due classi che si implicano a vicenda, ciascuna raggiunta da DUE regole: e'
+# la forma che si ramifica, non la catena lineare (che il solo limite di
+# profondita' gia' gestiva).
+> every zorp is a blim
+< Learned rule: blim(X) :- zorp(X).
+> every krant is a blim
+< Learned rule: blim(X) :- krant(X).
+> every blim is a zorp
+< Learned rule: zorp(X) :- blim(X).
+> every blim is a krant
+< Learned rule: krant(X) :- blim(X).
+# La domanda che non tornava piu'. Due cose insieme, e la seconda e' quella che
+# conta: (a) la risposta ARRIVA, dentro il budget di 1s; (b) NON e' "No.".
+#
+# "No." sarebbe negation-as-failure applicata a una ricerca che non ha esaurito
+# le possibilita' — si e' FERMATA. Dichiarerebbe falso cio' che e' soltanto
+# indeterminato, e butterebbe via la cosa piu' informativa scoperta nel turno.
+# La guardia non e' un halt: quello che ha visto entra nella risposta.
+> is vex a blim
+<~ cannot settle
+<~ lead back into each other
+<! No.
+> is vex a zorp
+<~ cannot settle
+
+[test the cut removes repetition, not inference]
+# Stesse classi cicliche, ora con un fatto che le ancora: la deduzione deve
+# passare. Se la guardia tagliasse per profondita' invece che per RIPETIZIONE
+# di un goal gia' aperto, questa risposta diventerebbe "No." e il test lo direbbe.
+> vex is a zorp
+< Learned: zorp(vex).
+> is vex a blim
+< Yes.
+> is vex a krant
+< Yes.

@@ -15,12 +15,10 @@
 !reset
 
 [test italian chess enumeration]
-!timeout 8
 > quali sono i pezzi degli scacchi
 < King, queen, rook, bishop, knight and pawn.
 
 [test game expert conversation]
-!timeout 8
 > how do you play poker
 < Betting rounds let players check, bet, call, raise or fold; remaining hands are compared at showdown.
 > what are the poker hands
@@ -31,7 +29,6 @@
 < A logic puzzle that fills a nine by nine grid so each row, column and three by three box contains every digit once.
 
 [test category procedure runtime growth and ablation]
-!timeout 8
 > what are the zorvian pieces
 <! Amber cog
 !assert category_surface(zorvian, zorvian_piece)
@@ -51,7 +48,6 @@
 <! Amber cog
 
 [test repaired clauses are live]
-!timeout 8
 !reset
 > show the reasoning claim for manual_library_retrieval
 <~ Library proposal 1

@@ -241,7 +241,9 @@ static int mod_repair(Brain *b, const char *norm, const char *raw,
 
 /* Parse a simple ground unary fact clause ("socrates is a man" / "socrates is
  * mortal") into pred + single arg. Returns 1 on success. */
-static int parse_ground_unary(const char *clause, char *pred, size_t ps,
+/* gen382: the article that marks "x is A y" is a KB class now, so the parser
+ * takes the brain that holds it. */
+static int parse_ground_unary(Brain *b, const char *clause, char *pred, size_t ps,
                               char *arg, size_t as) {
     char buf[256];
     copy_trim(buf, sizeof buf, clause);
@@ -250,7 +252,7 @@ static int parse_ground_unary(const char *clause, char *pred, size_t ps,
         buf[--n] = '\0';
     char *w[12];
     size_t nw = split_words(buf, w, 12);
-    if (nw >= 4 && strcmp(w[1], "is") == 0 && is_article(w[2])) {
+    if (nw >= 4 && strcmp(w[1], "is") == 0 && is_article(b, w[2])) {
         snprintf(pred, ps, "%s", w[3]); snprintf(arg, as, "%s", w[0]); return 1;
     }
     if (nw == 3 && strcmp(w[1], "is") == 0) {
@@ -326,7 +328,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     char fc[256];
     { char n1[256]; normalize(fact, n1, sizeof n1); canonicalize_lang(b, n1, fc, sizeof fc); }
     char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
-    if (!parse_ground_unary(fc, pred, sizeof pred, arg, sizeof arg)) {
+    if (!parse_ground_unary(b, fc, pred, sizeof pred, arg, sizeof arg)) {
         put("I can only reconsider a simple 'X is a Y' fact for now.", out, out_size);
         return 1;
     }
@@ -617,7 +619,7 @@ static int mod_calibrate(Brain *b, const char *norm, const char *raw,
             if (strncmp(norm, *m, strlen(*m)) == 0) { rest = norm + strlen(*m); break; }
         if (rest && !strstr(rest, " then ") && !strstr(rest, " allora ")) {
             char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
-            if (parse_ground_unary(rest, pred, sizeof pred, arg, sizeof arg)) {
+            if (parse_ground_unary(b, rest, pred, sizeof pred, arg, sizeof arg)) {
                 const char *a[] = {arg};
                 kb_set_origin(b->kb, KB_SESSION);
                 kb_assert(b->kb, pred, a, 1);

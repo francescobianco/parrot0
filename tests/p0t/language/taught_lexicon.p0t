@@ -38,7 +38,6 @@
 [test taught_universal_quantifier]
 # Il primo turno dopo un cambio di config paga il reload e la derivazione
 # del mondo, che sono infrastruttura e non costo del turno.
-!timeout 3
 
 # 1. PRIMA — `puppo` non e' un quantificatore, quindi "puppo dog" e' solo il nome
 #    di una cosa, e la frase asserisce un fatto su quella cosa.
@@ -205,3 +204,75 @@
 !forget machinery(progenitor)
 > what do you know?
 < I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.
+
+# ── indefinite_article/1 (kb/core/grammar.p0) ────────────────────────────────
+# Sito migrato in gen382, e il piu' esteso di tutti: `is_article()` erano due
+# strcmp su "a"/"an" letti da 55 punti del motore — la parola che separa il
+# soggetto dalla classe in "rex is A dog", cioe' il perno di quasi ogni frase
+# dichiarativa. gen369 lo aveva escluso per l'ampiezza; l'ostacolo vero non era
+# il numero di call site ma i sandbox senza conoscenza, e gen371 l'ha tolto.
+#
+# Qui il CONTRASTO e' netto in un modo che le altre classi non danno: prima la
+# frase non e' letta in un altro modo, non e' letta affatto.
+
+[test taught_indefinite_article]
+
+# 1. PRIMA — `zup` non e' un articolo, quindi "rex is zup dog" non ha nessuna
+#    forma che parrot0 sappia leggere: muro.
+> rex is zup dog
+< I don't understand that yet.
+
+# 2. INSEGNAMENTO — un turno di conversazione qualunque.
+> zup is a indefinite_article
+< Learned: indefinite_article(zup).
+
+# 3. DOPO — la stessa identica frase ora e' una dichiarazione di classe, e il
+#    fatto finisce davvero in KB.
+> rex is zup dog
+< Learned: dog(rex).
+> is rex a dog
+< Yes.
+
+# 4. E si torna indietro: tolta la parola dalla classe, la frase torna muro.
+#    Se la classe rientrasse nel C, questo punto continuerebbe a funzionare — ed
+#    e' esattamente cosi' che il test se ne accorgerebbe.
+!forget indefinite_article(zup)
+> rex2 is zup dog
+< I don't understand that yet.
+
+# 5. La classe originale non e' stata scalfita: "a" continua a fare l'articolo
+#    perche' e' un fatto in grammar.p0, non un letterale nel motore.
+> luna is a cat
+< Learned: cat(luna).
+
+# ── np_opener/1, il DETERMINANTE che apre un sintagma (kb/core/grammar.p0) ───
+# Sito migrato in gen382. Qui non e' stata tolta una lista dal C: ne sono state
+# tolte DUE, e nessuna delle due era una classe nuova. `p0_lead_det()` e la macro
+# `P0_LEAD_DET` elencavano ciascuna "the/il/lo/la/i/gli/le" — cioe' ripetevano nel
+# motore quello che np_opener/1 diceva gia' in KB dal gen363, per un altro
+# consumer. Una sola classe, un solo lettore (mantra #3 e #5), e gli articoli
+# italiani sono ora visibili a TUTTI i consumer invece che a quell'unica funzione.
+
+[test taught_np_opener]
+
+# 1. PRIMA — `zib` non apre un sintagma, quindi "zib rex" e' il nome di una cosa
+#    sola e la frase asserisce un fatto su quella cosa.
+> zib rex is a dog
+< Learned: dog(zib_rex).
+
+# 2. INSEGNAMENTO — un turno di conversazione qualunque.
+> zib is a np_opener
+< Learned: np_opener(zib).
+
+# 3. DOPO — la stessa identica frase: ora `zib` e' un determinante, viene lasciato
+#    cadere, e il soggetto e' `rex`. Il "prima" non era un muro, era un ALTRO
+#    parse — che e' il contrasto piu' forte fra quelli che questo file raccoglie.
+> zib rex is a dog
+< Learned: dog(rex).
+> is rex a dog
+< Yes.
+
+# 4. E si torna indietro.
+!forget np_opener(zib)
+> zib luna is a cat
+< Learned: cat(zib_luna).

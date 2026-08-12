@@ -2207,7 +2207,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
         char sp[2][KB_TERM_LEN]; double legs[2]; int nsp = 0;
         for (size_t i = 0; i < hn2 && nsp < 2; i++) {
             char sg[KB_TERM_LEN];
-            singularize(strip_edge_punct(hw2[i]), sg, sizeof sg);
+            singularize_kb(b, strip_edge_punct(hw2[i]), sg, sizeof sg);
             if (!*sg) continue;
             const char *lq[] = { sg, "legs", NULL };
             char lh[1][KB_TERM_LEN];
@@ -2235,7 +2235,7 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
             for (size_t i = 0; i + 1 < hn2; i++) {
                 if (strcmp(strip_edge_punct(hw2[i]), "many")) continue;
                 char sg[KB_TERM_LEN];
-                singularize(strip_edge_punct(hw2[i + 1]), sg, sizeof sg);
+                singularize_kb(b, strip_edge_punct(hw2[i + 1]), sg, sizeof sg);
                 if (!strcmp(sg, sp[1])) asked = 1;
                 break;
             }
@@ -3360,7 +3360,7 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
 
     /* "are <x> and <y> both a/an <z>?" -> z(x) AND z(y) */
     if (nw == 7 && strcmp(w[0], "are") == 0 && strcmp(w[2], "and") == 0 &&
-        strcmp(w[4], "both") == 0 && is_article(w[5])) {
+        strcmp(w[4], "both") == 0 && is_article(b, w[5])) {
         const char *z = w[6], *x = w[1], *y = w[3];
         if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }
         const char *ax[] = {x}, *ay[] = {y};
@@ -3371,7 +3371,7 @@ static int mod_conj(Brain *b, const char *norm, const char *raw,
 
     /* "is <x> both a/an <y> and a/an <z>?" -> y(x) AND z(x) */
     if (nw == 8 && strcmp(w[0], "is") == 0 && strcmp(w[2], "both") == 0 &&
-        is_article(w[3]) && strcmp(w[5], "and") == 0 && is_article(w[6])) {
+        is_article(b, w[3]) && strcmp(w[5], "and") == 0 && is_article(b, w[6])) {
         const char *x = w[1], *y = w[4], *z = w[7];
         if (!kb_knows_pred(b->kb, y)) { idk(y, out, out_size); return 1; }
         if (!kb_knows_pred(b->kb, z)) { idk(z, out, out_size); return 1; }

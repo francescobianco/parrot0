@@ -1107,7 +1107,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
     if (nw >= 3 && strcmp(w[0], "is") == 0) {
         const char *subj = w[1];
         size_t pi = 2;
-        if (is_article(w[2]) && nw >= 4) pi = 3;
+        if (is_article(b, w[2]) && nw >= 4) pi = 3;
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
         int r = world_query(b, subj, pred);
@@ -1129,7 +1129,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         const char *subj = w[0];
         size_t pi = 2;
         if (strcmp(w[2], "not") == 0 && nw >= 4) pi = 3;
-        if (pi < nw && is_article(w[pi]) && pi + 1 < nw) pi++;
+        if (pi < nw && is_article(b, w[pi]) && pi + 1 < nw) pi++;
         if (pi != nw - 1) return 0;
         const char *pred = w[pi];
         int r = world_query(b, subj, pred);
@@ -1178,7 +1178,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         const char *subj = w[0];
         size_t pi = 2; int neg = 0;
         if (strcmp(w[2], "not") == 0 && nw >= 4) { neg = 1; pi = 3; }
-        if (pi < nw && is_article(w[pi]) && pi + 1 < nw) pi++;
+        if (pi < nw && is_article(b, w[pi]) && pi + 1 < nw) pi++;
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
         if (!world_assert(b, subj, pred, neg)) {
@@ -1259,7 +1259,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                     has_world_noun = 1;
                     if (i >= 1) {
                         char *prev = strip_edge_punct(w[i-1]);
-                        if (!is_article(prev) && strcmp(prev, "this") != 0 &&
+                        if (!is_article(b, prev) && strcmp(prev, "this") != 0 &&
                             strcmp(prev, "the") != 0 && strcmp(prev, "that") != 0 &&
                             !is_world_noun(prev) && strcmp(prev, "forget") != 0 &&
                             strcmp(prev, "end") != 0 && strcmp(prev, "close") != 0 &&
@@ -1326,7 +1326,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
                 if (is_world_noun(t)) {
                     size_t name_idx = i; /* default: no name -> use the noun word */
                     char *before = (i >= 1) ? strip_edge_punct(nw_[i-1]) : NULL;
-                    if (before && !is_article(before) &&
+                    if (before && !is_article(b, before) &&
                         strcmp(before, "the") != 0 && strcmp(before, "this") != 0 &&
                         strcmp(before, "that") != 0) {
                         snprintf(wname, sizeof wname, "%s", before);
