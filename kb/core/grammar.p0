@@ -1,3 +1,14 @@
+% ATTRIBUTO DI FILE (gen382f). Tutto cio' che questo file introduce e'
+% vocabolario del MOTORE, non conoscenza del mondo. Dichiarato una volta qui
+% invece che una riga per predicato: la forma per-predicato ha gia' perso dodici
+% predicati per strada (gen275, gen325, gen327, gen372, gen382e).
+%
+% `file_attribute/1` e' un costrutto del linguaggio, non un caso speciale del
+% motore: il caricatore propaga l'attributo a ogni predicato che il file
+% introduce e non sa che cosa "machinery" significhi. Domani
+% `file_attribute(sperimentale).` funziona allo stesso modo, con zero C.
+file_attribute(machinery).
+
 % grammar.p0 — the declarative home of the "grammatical glue" (Secchio B),
 % migrated one rule at a time from C (docs/plans/teach-comprehension-via-mcp.md
 % §5.5 U5). The fixed engine still tokenizes, recognizes the determiner, looks up

@@ -2268,6 +2268,28 @@ int kb_load(KB *kb, const char *path) {
         }
     }
 
+    /* gen382f — la MACCHINERIA si dichiara per FILE, non per predicato.
+     *
+     * La regola "il file che introduce il predicato dichiara il suo stato"
+     * era giusta ma pagata una riga per predicato, e si dimentica: i commenti
+     * del motore registrano quattro fughe (gen275, gen325, gen327, gen372) e
+     * gen382e ne ha trovate altre otto in una volta, nascoste da un troncamento.
+     * Un meccanismo che perde pezzi ogni volta che il progetto cresce non e'
+     * manutenibile.
+     *
+     * Ora il file lo dice UNA volta, con la clausola `machinery_file.` in testa,
+     * e ogni predicato che introduce viene marcato al caricamento. Il dato resta
+     * DICHIARATIVO — sono normalissimi fatti machinery/1, interrogabili,
+     * insegnabili e ritrattabili a runtime — quindi non e' la partizione
+     * congelata al boot che gen374 ha provato e scartato: e' la stessa
+     * conoscenza di prima, derivata dalla provenienza invece che ricopiata.
+     * machinery/1 scritto a mano resta valido per le eccezioni: un file misto
+     * (meta.p0 tiene sia la grammatica interrogativa sia incompatible/2, che e'
+     * conoscenza del mondo) non si dichiara e marca solo cio' che serve. */
+    size_t n0 = kb->n, r0 = kb->nr;
+    char file_attr[KB_MAX_ARGS][KB_TERM_LEN];
+    size_t n_file_attr = 0;
+
     char *clause = NULL;
     size_t len = 0, cap = 0;
     int count = 0;
@@ -2312,7 +2334,25 @@ int kb_load(KB *kb, const char *path) {
                 if (clause) clause[0] = '\0';
             } else if (clause) {
                 loadbuf_trim(clause, &len);
-                if (len > 0) count += load_clause(kb, path, dir, clause);
+                if (len > 0) {
+                    /* Un ATTRIBUTO DI FILE: `file_attribute(X).` in testa vale
+                     * per ogni predicato che il file introduce. Il motore non
+                     * conosce X — non sa cosa sia "machinery" — applica soltanto
+                     * la propagazione; QUALE attributo si propaghi e' conoscenza,
+                     * quindi domani `file_attribute(sperimentale)` funziona con
+                     * zero C. */
+                    if (strncmp(clause, "file_attribute(", 15) == 0 &&
+                        n_file_attr < KB_MAX_ARGS) {
+                        const char *a = clause + 15;
+                        size_t al = strcspn(a, ")");
+                        if (al > 0 && al < KB_TERM_LEN) {
+                            memcpy(file_attr[n_file_attr], a, al);
+                            file_attr[n_file_attr][al] = '\0';
+                            n_file_attr++;
+                        }
+                    }
+                    else count += load_clause(kb, path, dir, clause);
+                }
                 len = 0;
                 clause[0] = '\0';
             }
@@ -2347,6 +2387,23 @@ int kb_load(KB *kb, const char *path) {
     }
     free(clause);
     fclose(f);
+
+    /* La PROPAGAZIONE dell'attributo di file: per ogni attributo dichiarato in
+     * testa, ogni predicato che il file ha introdotto lo riceve come fatto
+     * normale. Il risultato e' indistinguibile da una riga scritta a mano —
+     * interrogabile, insegnabile, ritrattabile — quindi non e' la partizione
+     * congelata al boot che gen374 ha provato e scartato: e' la stessa
+     * conoscenza, derivata dalla provenienza invece che ricopiata. */
+    for (size_t a = 0; a < n_file_attr; a++) {
+        for (size_t i = n0; i < kb->n; i++) {
+            const char *m[] = { kb->facts[i].pred };
+            if (!kb_query(kb, file_attr[a], m, 1)) kb_assert(kb, file_attr[a], m, 1);
+        }
+        for (size_t i = r0; i < kb->nr; i++) {
+            const char *m[] = { kb->rules[i].head.pred };
+            if (!kb_query(kb, file_attr[a], m, 1)) kb_assert(kb, file_attr[a], m, 1);
+        }
+    }
     return count;
 }
 

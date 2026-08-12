@@ -1,3 +1,14 @@
+% ATTRIBUTO DI FILE (gen382f). Tutto cio' che questo file introduce e'
+% vocabolario del MOTORE, non conoscenza del mondo. Dichiarato una volta qui
+% invece che una riga per predicato: la forma per-predicato ha gia' perso dodici
+% predicati per strada (gen275, gen325, gen327, gen372, gen382e).
+%
+% `file_attribute/1` e' un costrutto del linguaggio, non un caso speciale del
+% motore: il caricatore propaga l'attributo a ogni predicato che il file
+% introduce e non sa che cosa "machinery" significhi. Domani
+% `file_attribute(sperimentale).` funziona allo stesso modo, con zero C.
+file_attribute(machinery).
+
 % parrot0 lexical knowledge - curated closed-class/function words.
 % Loaded as base knowledge by brain_create before the optional world/session
 % layers, so filters can consult the KB without persisting these facts.
