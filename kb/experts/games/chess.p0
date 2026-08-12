@@ -31,6 +31,11 @@ game_component(chess, $Piece) :- chess_piece($Piece).
 % l'errore dell'uso comune ne' viceversa — sono due strati di conoscenza
 % intermedia, e la KB li tiene entrambi. Chi vuole il registro tecnico dichiara
 % preferred_register(fsi) e la stessa domanda risponde con l'altro strato.
+% Sono MACCHINERIA di presentazione: il nome con cui si rende un concetto e il
+% simbolo di una notazione non sono fatti sul mondo, e non devono contare fra le
+% cose che parrot0 dice di sapere.
+machinery(concept_label).
+machinery(concept_symbol).
 concept_label(king, it, common, re).
 concept_label(queen, it, common, regina).
 concept_label(rook, it, common, torre).

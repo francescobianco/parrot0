@@ -96,3 +96,7 @@ machinery(commit_policy).
 % of what is not knowledge would be counted as knowledge. It is the only fact in the
 % KB that has to be true of itself.
 machinery(machinery).
+
+% gen382e: quanti tentativi di riparazione concedersi e' politica dell'agente,
+% non un fatto sul mondo.
+machinery(repair_budget).

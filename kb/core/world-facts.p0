@@ -4222,3 +4222,10 @@ creative_text_cue(ai_society_dialogue, "artificial intelligence").
 creative_text_cue(ai_society_dialogue, "benefit or harm society").
 creative_text_gate(ai_society_dialogue, "artificial intelligence").
 creative_text_gate(ai_society_dialogue, "benefit or harm society").
+
+% gen382e — dichiarazioni di MACCHINERIA rimaste implicite finche' un cap le
+% nascondeva. `kb_predicates` si fermava a 128 predicati distinti e questi
+% cadevano oltre: il modello di se' riportava un numero incompleto senza dirlo
+% (stessa famiglia del declined[64] di gen376). Tolto il troncamento, sono
+% emersi — e nessuno di questi e' conoscenza del mondo: sono la grammatica
+% interrogativa, gli slot, il registro di riparazione e i semi di conversazione.

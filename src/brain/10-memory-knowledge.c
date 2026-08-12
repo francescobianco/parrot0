@@ -3546,15 +3546,91 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             }
             if (na == 0) continue;
             char msg[400]; size_t mo = 0;
+            /* Il LAYOUT di un elenco e' conoscenza (gen382e).
+             *
+             * Lo strato dei formati esisteva — format_constraint/2 dice quali
+             * parole chiedono quale formato — ma il realizzatore era uno solo e
+             * cablato (numbered_lines), quindi "un elenco markdown" non era
+             * esprimibile: mancava il DATO che descrive come si dispone una
+             * riga. format_layout(Mode, Prefix, Numbered) e' quel dato, e da
+             * qui un formato nuovo (markdown, trattini, asterischi, numerato)
+             * e' una riga di KB — non un realizzatore in piu' nel motore. */
+            char lay_prefix[KB_TERM_LEN] = "", lay_num[KB_TERM_LEN] = "";
+            int laid_out = 0;
+            {
+                /* Quale formato chiede il turno. Piu' di uno puo' rivendicarlo —
+                 * "give me a markdown list of X" contiene sia "markdown" sia
+                 * "list of" — e l'ambiguita' e' reale, non un difetto. Si
+                 * risolve col principio che la KB usa gia' per le risposte
+                 * curate: vince la superficie PIU' SPECIFICA, cioe' la piu'
+                 * lunga che compare nel turno. Nessuna precedenza cablata fra
+                 * formati: e' una proprieta' delle evidenze, quindi cresce da
+                 * sola quando se ne aggiungono. */
+                char (*rows)[KB_TERM_LEN] = NULL; size_t nrows = 0;
+                const char *aq[3] = { NULL, NULL, NULL };
+                char best_mode[KB_TERM_LEN] = ""; size_t best_len = 0;
+                if (kb_match_all(b->kb, "format_constraint", aq, 2, &rows, &nrows)) {
+                    for (size_t r = 0; r < nrows; r++) {
+                        char mode[KB_TERM_LEN];
+                        snprintf(mode, sizeof mode, "%s", kb_dequote(rows[r]));
+                        char (*evs)[KB_TERM_LEN] = NULL; size_t nev = 0;
+                        const char *eq[] = { rows[r], NULL };
+                        if (!kb_match_all(b->kb, "format_constraint", eq, 2, &evs, &nev)) continue;
+                        for (size_t e = 0; e < nev; e++) {
+                            char ev[KB_TERM_LEN];
+                            snprintf(ev, sizeof ev, "%s", kb_dequote(evs[e]));
+                            char *kw = strstr(ev, "keyword(");
+                            if (kw) { memmove(ev, kw + 8, strlen(kw + 8) + 1);
+                                      char *cp = strchr(ev, ')'); if (cp) *cp = '\0'; }
+                            size_t el = strlen(ev);
+                            if (el <= best_len || !strstr(norm, ev)) continue;
+                            best_len = el;
+                            snprintf(best_mode, sizeof best_mode, "%s", mode);
+                        }
+                        free(evs);
+                    }
+                    free(rows);
+                }
+                if (best_mode[0]) {
+                    char pf[1][KB_TERM_LEN];
+                    const char *lq[] = { best_mode, NULL, NULL };
+                    if (kb_match(b->kb, "format_layout", lq, 3, pf, 1) == 1) {
+                        /* La forma ORIGINALE (con le virgolette) serve per la
+                         * seconda ricerca: kb_dequote toglie le virgolette sul
+                         * posto, e un prefisso vuoto dequotato non ritrova piu'
+                         * la propria riga. */
+                        char pf_raw[KB_TERM_LEN];
+                        snprintf(pf_raw, sizeof pf_raw, "%s", pf[0]);
+                        snprintf(lay_prefix, sizeof lay_prefix, "%s", kb_dequote(pf[0]));
+                        if (strcmp(lay_prefix, "nil") == 0) lay_prefix[0] = '\0';
+                        const char *nq[] = { best_mode, pf_raw, NULL };
+                        char nf[1][KB_TERM_LEN];
+                        if (kb_match(b->kb, "format_layout", nq, 3, nf, 1) == 1)
+                            snprintf(lay_num, sizeof lay_num, "%s", kb_dequote(nf[0]));
+                        laid_out = 1;
+                    }
+                }
+            }
             for (size_t a = 0; a < na && mo + 4 < sizeof msg; a++) {
                 char one[KB_TERM_LEN]; snprintf(one, sizeof one, "%s", ans[a]);
                 char pres[KB_TERM_LEN];
                 present_atom(b, kb_dequote(one), pres, sizeof pres);
+                if (laid_out) {
+                    if (strcmp(lay_num, "yes") == 0)
+                        mo += (size_t)snprintf(msg + mo, sizeof msg - mo,
+                                               "%s%zu. %s", a ? "\n" : "", a + 1, pres);
+                    else
+                        mo += (size_t)snprintf(msg + mo, sizeof msg - mo,
+                                               "%s%s%s", a ? "\n" : "", lay_prefix, pres);
+                    continue;
+                }
                 mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s",
                     a ? (a + 1 == na ? list_and(b) : ", ") : "", pres);
             }
-            if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
-            if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+            if (!laid_out) {
+                if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
+                if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);
+            }
             put(msg, out, out_size);
             store_proof(b, msg);
             free(preds);

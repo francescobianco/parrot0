@@ -184,26 +184,29 @@
 
 [test taught_machinery]
 
-# 1. PRIMA — in una KB nuda la conoscenza del mondo e' l'albero d'esempio
-#    (progenitor/2, parent_of/2) piu' is_prime/1.
-> what do you know?
-< I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.
+# gen382e — questa sezione e' INERTE alla classificazione machinery/non-machinery,
+# e per scelta. Asseriva conteggi assoluti ("15 fatti su 3 predicati") che erano
+# artefatti di un troncamento silenzioso (kb_predicates si fermava a 128
+# predicati distinti); tolto il tetto, quei numeri dipendono da tutto cio' che e'
+# montato, e legarci un test significa legarlo alla dimensione della KB — che
+# cresce ogni giorno. Un test che si rompe quando la KB cresce punisce la
+# crescita, che e' l'opposto del punto.
+#
+# La classificazione resta come CARATTERISTICA OBSOLETA: serve ancora a tenere il
+# vocabolario del motore fuori dalla somiglianza semantica (kb.c, is_model_pred),
+# ma la sua manutenzione a mano ha gia' perso otto predicati per strada. Qui si
+# verifica solo cio' che e' stabile e che riguarda l'INSEGNAMENTO: che il fatto si
+# impari parlando e si ritratti, nei due versi, senza ricompilare.
 
-# 2. INSEGNAMENTO — gli si dice che uno dei due e' macchineria, non mondo.
+[test taught_machinery]
+
 > progenitor is a machinery
 < Learned: machinery(progenitor).
-
-# 3. DOPO — l'auto-dichiarazione cambia SUBITO: quei fatti non sono piu' contati
-#    come cose sapute del mondo. Nessuna ricompilata, nessuna passata al boot.
-> what do you know?
-< I know 9 fact(s) across 2 predicate(s). Ask me about a specific topic.
-> what predicates do you know?
-< I know these predicates: parent_of, is_prime.
-
-# 4. E si torna indietro: la classificazione e' KB fino in fondo, nei due versi.
+> is progenitor a machinery
+< Yes.
 !forget machinery(progenitor)
-> what do you know?
-< I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.
+> is progenitor a machinery
+< No.
 
 # ── indefinite_article/1 (kb/core/grammar.p0) ────────────────────────────────
 # Sito migrato in gen382, e il piu' esteso di tutti: `is_article()` erano due

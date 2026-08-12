@@ -672,27 +672,45 @@ static int is_internal_pred(const KB *kb, const char *pred) {
     return 0;
 }
 
+/* gen382e — il tetto di 128 predicati TRONCAVA il modello di se'.
+ *
+ * La KB ha da tempo piu' di 128 predicati distinti, quindi la lista si fermava
+ * li' e tutto cio' che veniva dopo era invisibile: "quante cose sai?" rispondeva
+ * un numero incompleto SENZA dirlo. E' la stessa famiglia del declined[64] di
+ * gen376 — un troncamento silenzioso che sembra un risultato — e si e' visto
+ * perche' aggiungere UN predicato nuovo faceva sparire is_prime dal conteggio.
+ *
+ * Il tetto e' ora sul mucchio e dimensionato sui fatti realmente presenti: al
+ * massimo un predicato per fatto, quindi non puo' piu' tagliare nulla. */
+#define P0_PRED_CAP(kb) (kb_size(kb) ? kb_size(kb) : 1)
+
 static size_t kb_user_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
-    char preds[128][KB_TERM_LEN];
-    size_t np = kb_predicates(kb, preds, 128);
+    size_t cap = P0_PRED_CAP(kb);
+    char (*preds)[KB_TERM_LEN] = malloc(cap * KB_TERM_LEN);
+    if (!preds) return 0;
+    size_t np = kb_predicates(kb, preds, cap);
     size_t n = 0;
     for (size_t i = 0; i < np && n < max; i++)
         if (!is_internal_pred(kb, preds[i]) && kb_pred_fact_count(kb, preds[i]) > 0) {
             snprintf(out[n], KB_TERM_LEN, "%s", preds[i]);
             n++;
         }
+    free(preds);
     return n;
 }
 
 static size_t kb_user_facts(const KB *kb) {
     if (!kb) return 0;
-    char preds[128][KB_TERM_LEN];
-    size_t np = kb_predicates(kb, preds, 128);
+    size_t cap = P0_PRED_CAP(kb);
+    char (*preds)[KB_TERM_LEN] = malloc(cap * KB_TERM_LEN);
+    if (!preds) return 0;
+    size_t np = kb_predicates(kb, preds, cap);
     size_t total = 0;
     for (size_t i = 0; i < np; i++) {
         if (is_internal_pred(kb, preds[i])) continue;
         total += kb_pred_fact_count(kb, preds[i]);
     }
+    free(preds);
     return total;
 }
 

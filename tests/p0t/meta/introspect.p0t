@@ -44,11 +44,18 @@
 # Se questo numero risale, un nuovo predicato di motore ha perso il suo
 # machinery(...) — e' precisamente l'allarme che questo test deve suonare.
 > what do you know?
-< I know 15 fact(s) across 3 predicate(s). Ask me about a specific topic.
+# gen382e: erano 15 su 3, e il numero era FALSO. kb_predicates si fermava a 128
+# predicati distinti e quel che veniva dopo spariva dal conteggio senza che
+# nessuno lo dicesse — stessa famiglia del declined[64] di gen376: un
+# troncamento che sembra un risultato. Tolto il tetto, sono emersi otto
+# predicati; sette erano macchineria non dichiarata e ora lo dichiarano nel file
+# che li introduce, uno — incompatible/2, le classi che non possono valere
+# insieme (gen375) — e' conoscenza del mondo per davvero e giustamente conta.
+< I know 27 fact(s) across 4 predicate(s). Ask me about a specific topic.
 > how many facts do you know?
-< I know 15 fact(s).
+< I know 27 fact(s).
 > what predicates do you know?
-< I know these predicates: progenitor, parent_of, is_prime.
+< I know these predicates: progenitor, parent_of, is_prime, incompatible.
 > show me your knowledge
 < Here is everything I know: is_prime(2). is_prime(3).
 

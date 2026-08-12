@@ -1045,6 +1045,17 @@ answer_frame("name the", category_enumeration).
 % comprensione, due righe mancanti. Le forme italiane stanno nella grafia che
 % arriva al dispatch (le parole funzionali sono gia' canonicalizzate).
 answer_frame("tell me the", category_enumeration).
+% gen382e: l'ATTO (chiedere i membri) e il FORMATO (come disporli) sono due
+% dimensioni indipendenti, e devono allinearsi entrambe. Queste sono superfici
+% dell'atto che nominano anche il formato: il formato lo intercetta
+% format_constraint/2, qui serve solo che la richiesta venga riconosciuta.
+answer_frame("elenco markdown", category_enumeration).
+answer_frame("markdown list of", category_enumeration).
+answer_frame("markdown list", category_enumeration).
+answer_frame("elenco puntato", category_enumeration).
+answer_frame("elenco numerato", category_enumeration).
+answer_frame("give me a list of", category_enumeration).
+answer_frame("fammi un elenco", category_enumeration).
 answer_frame("the names of", category_enumeration).
 answer_frame("names of the", category_enumeration).
 answer_frame("dimmi i", category_enumeration).
@@ -2118,3 +2129,25 @@ teach_reply_pivot("dici").
 teach_reply_pivot("say").
 teach_reply_pivot("answer").
 teach_reply_pivot("reply").
+
+% ── MARKDOWN: il LAYOUT di un elenco come conoscenza (gen382e) ───────────────
+% Lo strato dei formati esisteva (format_constraint/2 dice quali parole chiedono
+% quale formato) ma il realizzatore era uno solo e cablato nel motore, quindi
+% "un elenco markdown" non era esprimibile: mancava il DATO che descrive come si
+% dispone una riga. Da qui un formato nuovo e' una riga, non un realizzatore.
+%
+%   format_layout(Mode, Prefisso, Numerato)
+% MACCHINERIA: come si dispone una riga non e' conoscenza del mondo.
+% E' MACCHINERIA: come si dispone una riga non e' conoscenza del mondo, e non
+% deve contare fra le cose che parrot0 dice di sapere.
+
+% Quali parole chiedono quel formato. Sono superfici, quindi crescono da sole.
+format_constraint(markdown_list, "markdown").
+format_constraint(markdown_list, "elenco puntato").
+format_constraint(markdown_list, "bullet list").
+format_constraint(markdown_list, "as bullets").
+format_constraint(markdown_numbered, "elenco numerato").
+format_constraint(markdown_numbered, "numbered markdown").
+% gen382e: una checklist stile GitHub, insegnata con DUE fatti e zero C — e' la
+% prova che il layout e' davvero conoscenza e non un realizzatore in piu'.
+format_constraint(checklist, "checklist").

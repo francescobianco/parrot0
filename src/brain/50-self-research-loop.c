@@ -1177,8 +1177,13 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                     (cue(buf, "what topics") && wn <= 6) ||
                     (cue(buf, "quali predicati") && wn <= 4);
     if (pred_list) {
-        char preds[128][KB_TERM_LEN];
-        size_t np = kb_user_predicates(b->kb, preds, 128);
+        /* gen382e: anche qui il tetto di 128 tagliava, e con una KB cresciuta la
+         * risposta degradava a "I know 128 distinct predicate(s)" — un numero
+         * che era il TETTO, non la conoscenza. Dimensionato sui fatti reali. */
+        size_t pcap = kb_size(b->kb) ? kb_size(b->kb) : 1;
+        char (*preds)[KB_TERM_LEN] = malloc(pcap * KB_TERM_LEN);
+        if (!preds) return 0;
+        size_t np = kb_user_predicates(b->kb, preds, pcap);
         if (np == 0) { put("I don't know any predicates yet.", out, out_size); return 1; }
         char list[1024];
         size_t off = 0;
@@ -1220,8 +1225,13 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                     (cue(buf, "cosa sai") && wn <= 3);
     if (what_know) {
         size_t nfacts = kb_user_facts(b->kb);
-        char preds[128][KB_TERM_LEN];
-        size_t np = kb_user_predicates(b->kb, preds, 128);
+        /* gen382e: anche qui il tetto di 128 tagliava, e con una KB cresciuta la
+         * risposta degradava a "I know 128 distinct predicate(s)" — un numero
+         * che era il TETTO, non la conoscenza. Dimensionato sui fatti reali. */
+        size_t pcap = kb_size(b->kb) ? kb_size(b->kb) : 1;
+        char (*preds)[KB_TERM_LEN] = malloc(pcap * KB_TERM_LEN);
+        if (!preds) return 0;
+        size_t np = kb_user_predicates(b->kb, preds, pcap);
         char msg[256];
         snprintf(msg, sizeof msg,
                  "I know %zu fact(s) across %zu predicate(s). Ask me about a specific topic.",

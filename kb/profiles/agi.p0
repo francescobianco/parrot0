@@ -125,3 +125,19 @@ profile_description(agi, "super expert across all domains: programming, mathemat
 :- include(../skills/learning/research.p0).
 % --- autonomous Wikipedia learning ---
 :- include(../learning/learned.p0).
+
+% ── IL LAYOUT DI UN ELENCO ───────────────────────────────────────────────────
+% gen382e. Lo strato dei formati esisteva (format_constraint/2 dice quali parole
+% chiedono quale formato) ma il realizzatore era uno solo e cablato nel motore,
+% quindi "un elenco markdown" non era esprimibile: mancava il DATO che descrive
+% come si dispone una riga. Da qui un formato nuovo e' UNA RIGA, non un
+% realizzatore in piu' nel C.
+%
+%   format_layout(Mode, Prefisso, Numerato)
+machinery(format_layout).
+format_layout(markdown_list, "- ", no).
+format_layout(markdown_star, "* ", no).
+format_layout(markdown_numbered, nil, yes).   % nil = nessun prefisso
+% Una checklist stile GitHub, insegnata con DUE fatti e zero C: e' la prova che
+% il layout e' davvero conoscenza.
+format_layout(checklist, "- [ ] ", no).

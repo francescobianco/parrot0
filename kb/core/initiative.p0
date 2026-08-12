@@ -25,3 +25,10 @@ conversation_seed(it, "le banane sono bacche, ma le fragole no").
 % frame: come parrot0 offre il seme + rilancio (EN + IT)
 response_template(initiative_frame, en, "Here's something I find interesting: %s. What do you make of it?").
 response_template(initiative_frame, it, "Ecco una cosa che trovo interessante: %s. Tu che ne pensi?").
+% gen382e — dichiarazioni di MACCHINERIA rimaste implicite finche' un cap le
+% nascondeva. `kb_predicates` si fermava a 128 predicati distinti e questi
+% cadevano oltre: il modello di se' riportava un numero incompleto senza dirlo
+% (stessa famiglia del declined[64] di gen376). Tolto il troncamento, sono
+% emersi — e nessuno di questi e' conoscenza del mondo: sono la grammatica
+% interrogativa, gli slot, il registro di riparazione e i semi di conversazione.
+machinery(conversation_seed).
