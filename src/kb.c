@@ -134,6 +134,10 @@ KB *kb_create(void) {
     return kb; /* may be NULL; caller handles it */
 }
 
+/* gen382i: l'origine corrente, per poterla ripristinare dopo un ragionamento
+ * ipotetico condotto sulla KB vera. */
+int kb_origin(const KB *kb) { return kb ? kb->origin : 0; }
+
 void kb_set_origin(KB *kb, int origin) {
     if (kb) kb->origin = origin;
 }
@@ -4203,6 +4207,36 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
         if (kb->rules[i].head.argc == 1)
             push_unique(out, &n, max, kb->rules[i].head.pred);
     return n;
+}
+
+/* gen382i — questo termine compare DA QUALCHE PARTE nella KB?
+ *
+ * Serve a garantire che un token scelto per chiudere un ragionamento ipotetico
+ * non sia intercettato da conoscenza esistente: non basta che non sia un
+ * predicato, non deve comparire nemmeno come argomento o dentro la testa o il
+ * corpo di una regola. E' la verifica che rende onesta la rinominazione — e che
+ * l'amputazione non poteva offrire, perche' li' non si verificava nulla: si
+ * toglieva e basta. */
+int kb_mentions_term(const KB *kb, const char *term) {
+    if (!kb || !term || !*term) return 0;
+    for (size_t i = 0; i < kb->n; i++) {
+        const Fact *f = &kb->facts[i];
+        if (strcmp(f->pred, term) == 0) return 1;
+        for (size_t a = 0; a < f->argc; a++)
+            if (strstr(f->args[a], term)) return 1;
+    }
+    for (size_t i = 0; i < kb->nr; i++) {
+        const Rule *r = &kb->rules[i];
+        if (strcmp(r->head.pred, term) == 0) return 1;
+        for (size_t a = 0; a < r->head.argc; a++)
+            if (strstr(r->head.args[a], term)) return 1;
+        for (size_t bgi = 0; bgi < r->nbody; bgi++) {
+            if (strcmp(r->body[bgi].pred, term) == 0) return 1;
+            for (size_t a = 0; a < r->body[bgi].argc; a++)
+                if (strstr(r->body[bgi].args[a], term)) return 1;
+        }
+    }
+    return 0;
 }
 
 size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {

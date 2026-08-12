@@ -1697,6 +1697,78 @@ static int universal_to_witness(Brain *lex, Brain *tmp, char *q, size_t qsz) {
     return 1;
 }
 
+/* gen382i — chiudere il mondo RINOMINANDO, invece di amputare la KB.
+ *
+ * Un ragionamento su premesse ipotetiche deve essere deciso dalle premesse, non
+ * da cio' che parrot0 sa gia'. La soluzione era una KB vuota; ma una KB vuota
+ * non e' lo stesso soggetto con meno dati, e' un soggetto diverso — dentro quel
+ * sandbox parrot0 non riconosceva nemmeno un articolo, e ogni classe lessicale
+ * ha dovuto tenersi una lista di ripiego nel C finche' gen371 non ha aperto una
+ * seconda via d'accesso alla stessa KB.
+ *
+ * Qui la chiusura si ottiene senza togliere niente: i termini di CONTENUTO delle
+ * premesse e della domanda vengono rinominati in token che la KB non menziona da
+ * nessuna parte (brain_fresh_token lo VERIFICA), quindi nessun fatto esistente
+ * puo' unificare con loro. Il mondo e' chiuso per costruzione e la KB resta
+ * intera, viva e interrogabile per tutto il resto del turno.
+ *
+ * Quali parole siano di contenuto e quali funzionali non lo decide questa
+ * funzione: lo chiede alle classi chiuse che la KB gia' dichiara. Una parola
+ * funzionale in una lingua nuova entra come fatto, e la rinominazione la
+ * rispetta senza che nessuno la tocchi qui. */
+static int p0_is_function_word(Brain *b, const char *t) {
+    static const char *const classes[] = {
+        "universal_quantifier", "indefinite_article", "definite_article",
+        "np_opener", "np_closer", "question_word", "auxiliary", "stopword",
+        "rule_variable", "rule_anaphor", NULL };
+    const char *q[] = { t };
+    for (size_t i = 0; classes[i]; i++)
+        if (kb_query(b->kb, classes[i], q, 1)) return 1;
+    return 0;
+}
+
+/* Rinomina in `text` ogni termine di contenuto nel suo gemello fresco, usando la
+ * stessa mappa per tutte le chiamate di un turno (cosi' premesse e domanda
+ * parlano delle stesse cose). Ritorna 0 se non riesce a coniare un token. */
+typedef struct {
+    char from[16][KB_TERM_LEN];
+    char to[16][KB_TERM_LEN];
+    size_t n;
+} P0Rename;
+
+static int p0_rename_content(Brain *b, P0Rename *m, char *text, size_t sz) {
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", text);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    char out[512]; size_t o = 0; out[0] = '\0';
+    for (size_t i = 0; i < nw; i++) {
+        char tok[KB_TERM_LEN];
+        snprintf(tok, sizeof tok, "%s", w[i]);
+        char *core = strip_edge_punct(tok);
+        const char *emit = core;
+        char fresh[KB_TERM_LEN];
+        if (*core && isalpha((unsigned char)core[0]) && !p0_is_function_word(b, core)) {
+            size_t k = 0;
+            for (; k < m->n; k++) if (strcmp(m->from[k], core) == 0) break;
+            if (k == m->n) {
+                if (m->n >= 16 || !brain_fresh_token(b, core, fresh, sizeof fresh))
+                    return 0;
+                snprintf(m->from[m->n], KB_TERM_LEN, "%s", core);
+                snprintf(m->to[m->n], KB_TERM_LEN, "%s", fresh);
+                m->n++;
+                k = m->n - 1;
+            }
+            emit = m->to[k];
+        }
+        int wrote = snprintf(out + o, sizeof out - o, "%s%s", o ? " " : "", emit);
+        if (wrote < 0 || (size_t)wrote >= sizeof out - o) return 0;
+        o += (size_t)wrote;
+    }
+    snprintf(text, sz, "%s", out);
+    return 1;
+}
+
 static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_size) {
     size_t L = strlen(norm);
     /* gen290: a trailing '?' is no longer required — the "if <premises>, is <x>
@@ -1717,18 +1789,28 @@ static int one_turn_syllogism(Brain *b, const char *norm, char *out, size_t out_
     if (plen == 0 || plen >= sizeof prem) return 0;
     memcpy(prem, norm + 3, plen); prem[plen] = '\0';
 
-    Brain tmp;
-    if (!brain_scratch_init(&tmp, b)) return 0;
-    kb_set_origin(tmp.kb, KB_SESSION);
-    if (!apply_premises(&tmp, prem)) { kb_destroy(tmp.kb); return 0; }
-
+    /* gen382i: niente sandbox amputato. Le premesse e la domanda si rinominano in
+     * token freschi — verificati assenti dalla KB — e vivono sulla KB VERA, con
+     * provenienza ipotetica, per il tempo del turno. */
+    P0Rename map; memset(&map, 0, sizeof map);
     char qbuf[256]; snprintf(qbuf, sizeof qbuf, "%s", q);
-    /* gen326: "are all bloops lazzies?" — resolve the universal through an
-     * arbitrary witness, then let the SAME query path answer it. */
-    universal_to_witness(b, &tmp, qbuf, sizeof qbuf);
-    char ans[256];
-    int claimed = mod_knowledge(&tmp, qbuf, qbuf, ans, sizeof ans);
-    kb_destroy(tmp.kb);
+    if (!p0_rename_content(b, &map, prem, sizeof prem)) return 0;
+    if (!p0_rename_content(b, &map, qbuf, sizeof qbuf)) return 0;
+
+    int prev_origin = kb_origin(b->kb);
+    kb_set_origin(b->kb, KB_HYPOTHETICAL);
+    int ok = apply_premises(b, prem);
+    char ans[256]; int claimed = 0;
+    if (ok) {
+        /* gen326: "are all bloops lazzies?" — resolve the universal through an
+         * arbitrary witness, then let the SAME query path answer it. */
+        universal_to_witness(b, b, qbuf, sizeof qbuf);
+        claimed = mod_knowledge(b, qbuf, qbuf, ans, sizeof ans);
+    }
+    /* Il turno finisce e le supposizioni se ne vanno: la provenienza ipotetica
+     * esiste esattamente per poterle togliere tutte in un colpo (gen373). */
+    kb_retract_origin(b->kb, KB_HYPOTHETICAL);
+    kb_set_origin(b->kb, prev_origin);
     if (!claimed) return 0;
     if (strncmp(ans, "Yes", 3) != 0 && strncmp(ans, "No", 2) != 0 &&
         strncmp(ans, "Conflicted", 10) != 0) return 0;

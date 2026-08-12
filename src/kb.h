@@ -203,6 +203,7 @@ size_t kb_induce(KB *kb, size_t min_support,
 /* Set the provenance tag applied to clauses asserted from now on (default
  * KB_SESSION). Used to mark a file as base vs session at load time. */
 void   kb_set_origin(KB *kb, int origin);
+int    kb_origin(const KB *kb);
 
 /* Load clauses from a human-readable Prolog-like file and union them into the
  * KB (so multiple files JOIN). Format: logical clauses terminated by a top-level
@@ -314,6 +315,11 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
 /* Collect all distinct predicate symbols (any arity). gen77 for self-model
  * introspection: "what predicates do you know?". Returns count (capped). */
 size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
+
+/* Il termine compare da qualche parte — predicato, argomento, testa o corpo di
+ * una regola? Verifica che un token scelto per chiudere un ragionamento
+ * ipotetico non sia intercettato da conoscenza esistente (gen382i). */
+int kb_mentions_term(const KB *kb, const char *term);
 
 /* Collect the distinct direct binary relations that hold for (left, right).
  * This is an indexed-shape discovery primitive for analogy/routing consumers:

@@ -167,3 +167,32 @@ riconoscere che DUE punti del turno parlano della STESSA cosa non nominata, e di
 darle un nome fresco. Pronome indefinito + anafora nel dialogo, relativa +
 soggetto nella prosa. Un solo meccanismo, due vocabolari — che e' la forma di
 ogni migrazione riuscita di questa sessione.
+
+## Gli scratch brain rimasti (gen382i, parziale)
+
+Il meccanismo che toglie l'amputazione esiste ed e' in uso su un sito:
+
+- `brain_fresh_token(b, base, out, n)` conia un token e VERIFICA che la KB non lo
+  menzioni da nessuna parte (`kb_mentions_term`: predicato, argomento, testa o
+  corpo di regola);
+- `p0_rename_content` rinomina i termini di CONTENUTO — chiedendo alle classi
+  chiuse gia' dichiarate quali parole siano funzionali, quindi una lingua nuova
+  entra come fatto;
+- le premesse vivono sulla KB vera con provenienza `KB_HYPOTHETICAL` e se ne
+  vanno col turno (`kb_retract_origin`, gen373).
+
+Migrato: `one_turn_syllogism`. Restano quattro siti che costruiscono ancora un
+Brain con KB vuota:
+
+    10-memory-knowledge.c:~1557  entailment_reply
+    10-memory-knowledge.c:~1790  multi_sentence_syllogism
+    10-memory-knowledge.c:~1877  transitive_comparison
+    10-memory-knowledge.c:~8591  l'ipotesi di mod_knowledge
+
+Sono la stessa migrazione, e conviene farli uno per volta con la loro prova: il
+sito migrato ha gia' mostrato che il cambio ha effetti non ovvi (il suffisso del
+token fresco non puo' contenere "_", perche' gli atomi composti si scrivono cosi'
+e il cancello dei concetti conterebbe le parole sbagliate).
+
+La domanda di review: resta un solo posto in cui parrot0 ragiona senza la propria
+conoscenza?  (Oggi quattro. Erano cinque.)

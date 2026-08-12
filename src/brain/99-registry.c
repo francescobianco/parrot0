@@ -685,6 +685,42 @@ int brain_substrate_query(Brain *b, const char *pred,
     return b->substrate ? kb_query(b->substrate, pred, args, argc) : 0;
 }
 
+/* gen382i — un TOKEN FRESCO, dimostrabilmente non intercettato.
+ *
+ * Il ragionamento su premesse ipotetiche ha sempre avuto bisogno di un mondo
+ * chiuso: "se tutti i gatti sono mammiferi e tom e' un gatto, tom e' un
+ * mammifero?" deve essere deciso DALLE PREMESSE, non da cio' che parrot0 sa gia'
+ * dei gatti. La soluzione era amputare — una KB vuota — ma una KB vuota non e'
+ * lo stesso soggetto con meno dati, e' un soggetto diverso: dentro quel sandbox
+ * parrot0 non sapeva nemmeno riconoscere un articolo, e ogni lookup lessicale ha
+ * dovuto tenersi una lista di ripiego in C (gen371 ha rimediato col substrato,
+ * cioe' con una seconda via d'accesso alla stessa KB).
+ *
+ * La chiusura si ottiene senza togliere niente: si RINOMINANO i termini delle
+ * premesse in token che la KB non menziona da nessuna parte. Nessun fatto
+ * esistente puo' unificare con `gatto__h1`, quindi il mondo e' chiuso per
+ * costruzione — e la KB resta intera, viva e interrogabile per tutto il resto.
+ * Non e' un trucco: e' esattamente cio' che fa uno skolem, ed e' verificabile,
+ * che l'amputazione non era.
+ *
+ * Ritorna 0 se non riesce a trovarne uno libero entro un tetto ragionevole. */
+int brain_fresh_token(Brain *b, const char *base, char *out, size_t n) {
+    if (!b || !b->kb || !base || !*base || !out || n == 0) return 0;
+    for (int k = 1; k <= 64; k++) {
+        /* Il suffisso NON contiene underscore, e la ragione e' istruttiva: gli
+         * atomi composti si scrivono unendo le parole con "_", quindi un "__h1"
+         * faceva contare `red__h1_cat__h1` come quattro parole e il cancello dei
+         * concetti (gen382e) lo respingeva. Un token fresco deve essere fresco
+         * senza cambiare la FORMA di cio' che rinomina. */
+        snprintf(out, n, "%sh%dz", base, k);
+        if (kb_knows_pred(b->kb, out)) continue;
+        if (kb_mentions_term(b->kb, out)) continue;
+        return 1;
+    }
+    out[0] = '\0';
+    return 0;
+}
+
 /* Enumerate a MACHINERY relation: the sandbox's own KB first, then the substrate
  * it was spawned from (gen382). The query twin of brain_substrate_query — needed
  * as soon as a lexical table has more than a yes/no shape, e.g. the plural rules,

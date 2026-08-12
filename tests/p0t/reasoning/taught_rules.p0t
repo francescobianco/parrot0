@@ -59,3 +59,29 @@
 < Learned: genitore(bruno, carla).
 > chi è il nonno di carla
 < anna.
+
+[test hypothetical reasoning without amputating the KB]
+# gen382i — le ipotetiche non girano piu' su una KB VUOTA.
+#
+# Il mondo chiuso serviva davvero: "se tutti i gatti sono mammiferi e tom e' un
+# gatto..." deve essere deciso dalle PREMESSE. Ma una KB vuota non e' lo stesso
+# soggetto con meno dati, e' un soggetto diverso — dentro quel sandbox parrot0
+# non riconosceva nemmeno un articolo, e ogni classe lessicale ha dovuto tenersi
+# una lista di ripiego nel C.
+#
+# La chiusura si ottiene RINOMINANDO: i termini di contenuto diventano token che
+# la KB non menziona da nessuna parte (verificato, non supposto), quindi nessun
+# fatto esistente puo' unificare con loro. Il mondo e' chiuso per costruzione e
+# la KB resta intera.
+!set PARROT0_LANG=en
+!reset
+> if all cats are mammals and tom is a cat, is tom a mammal
+< Yes.
+# La prova che il mondo era chiuso E che non e' rimasto niente: fuori
+# dall'ipotesi tom non e' un gatto, perche' quelle premesse avevano provenienza
+# ipotetica e se ne sono andate col turno.
+> is tom a cat
+< I don't know about cat.
+# E la conoscenza vera non e' stata toccata: la domanda successiva la trova.
+> is a whale a mammal
+< Yes.
