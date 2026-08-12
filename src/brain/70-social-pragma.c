@@ -123,7 +123,7 @@ static int has_emoji(const char *s) {
  * leading question word or verb that would make it a real question another module
  * owns ("is it morning or evening"). Recognized by SHAPE, not by a phrase list,
  * so it generalizes to any pair. */
-static int is_binary_choice(const char *norm) {
+static int is_binary_choice(Brain *b, const char *norm) {
     char buf[128];
     if (strlen(norm) >= sizeof buf) return 0;
     strcpy(buf, norm);
@@ -136,12 +136,16 @@ static int is_binary_choice(const char *norm) {
     if (orcount != 1 || orpos == 0 || orpos == nw - 1) return 0;
     size_t left = orpos, right = nw - orpos - 1;
     if (left < 1 || left > 2 || right < 1 || right > 2) return 0;
-    static const char *const bad[] = {
-        "what","which","who","how","when","where","why","is","are","am","do",
-        "does","did","can","could","will","would","should","cosa","che","qual",
-        "quale","dove","quando","perche", NULL };
-    for (size_t i = 0; bad[i]; i++)
-        if (strcmp(w[0], bad[i]) == 0) return 0;
+    /* gen382d: erano 26 letterali, inglesi e italiani, per dire "questa non e'
+     * una scelta binaria ma una domanda". Non erano una classe nuova: erano
+     * l'UNIONE di due che la KB ha gia' — question_word/1 e auxiliary/1 — copiate
+     * a mano e percio' gia' incomplete in entrambe le direzioni (mancavano "am",
+     * "qual", "quale"; e la copia non sapeva di "was", "were", "might"...).
+     * Chiederlo alle classi le tiene allineate per costruzione, e una lingua
+     * nuova entra una volta sola (mantra #3 e #5). */
+    const char *q0[] = { w[0] };
+    if (kb_query(b->kb, "question_word", q0, 1)) return 0;
+    if (kb_query(b->kb, "auxiliary", q0, 1)) return 0;
     return 1;
 }
 
@@ -177,7 +181,7 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
             kb_say(b, "i_ll_play_along_what_are_my_two_option", "I'll play along — what are my two options?", out, out_size);
         return 1;
     }
-    if (is_binary_choice(norm)) {
+    if (is_binary_choice(b, norm)) {
         if (!kb_response(b, "binary_choice", NULL, out, out_size))
             kb_say(b, "between_the_two_i_don_t_have_a_real_pr", "Between the two? I don't have a real preference.", out, out_size);
         return 1;

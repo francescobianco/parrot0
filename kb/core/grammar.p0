@@ -431,3 +431,11 @@ disambiguation_marker("commonly refers to").
 machinery(list_final_joiner).
 list_final_joiner(en, and).
 list_final_joiner(it, e).
+
+% gen382d: i tre membri che mancavano alle classi perche' vivevano solo dentro
+% una lista copiata a mano in 70-social-pragma.c. La copia era incompleta in
+% entrambe le direzioni: aveva "am/qual/quale" che le classi non avevano, e non
+% aveva "was/were/might/must" che le classi avevano.
+auxiliary(am).
+question_word(qual).
+question_word(quale).
