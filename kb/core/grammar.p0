@@ -424,3 +424,10 @@ disambiguation_marker("may refer to").
 disambiguation_marker("may also refer to").
 disambiguation_marker("can refer to").
 disambiguation_marker("commonly refers to").
+
+% La congiunzione finale di un elenco. Era il letterale " and " dentro i cicli di
+% formattazione, e si vedeva: "Re, regina, torre, alfiere, cavallo AND pedone".
+% Una parola che compone la frase e' vocabolario, quindi conoscenza.
+machinery(list_final_joiner).
+list_final_joiner(en, and).
+list_final_joiner(it, e).

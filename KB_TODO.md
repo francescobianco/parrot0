@@ -39,3 +39,29 @@ Before considering this complete:
 The review question remains: can Parrot0 learn a new proverb, map it to an
 existing or newly taught principle, and use it in conversation without a C
 change?
+
+## Strati di nome: registro, simbolo, e chi li consuma
+
+gen382b ha introdotto `concept_label(Concept, Lang, Register, Name)` — il nome di
+un concetto in una lingua e in un REGISTRO, che non e' la traduzione della sua
+parola (`knight` e' "cavaliere", ma il pezzo e' il cavallo). Il registro e' una
+dimensione, non un'eccezione: `preferred_register(fsi)` fa rispondere "donna"
+invece di "regina", con ricaduta automatica sull'uso comune per gli altri pezzi.
+
+Restano aperte tre cose:
+
+- **`concept_symbol/4` non ha ancora un consumatore.** I simboli della notazione
+  (D per la donna FSI, N per il knight algebrico) sono in KB ma nessuna domanda
+  li raggiunge: manca la superficie ("qual e' il simbolo della donna?") e il
+  frame che la mappa. Vale la pena farlo come classe, non per gli scacchi.
+- **Il registro e' globale.** `preferred_register/1` e' una preferenza di
+  sessione; la forma giusta e' probabilmente per-dominio
+  (`preferred_register(chess, fsi)`), cosi' registri diversi convivono.
+- **`dimmi i pezzi degli scacchi` va ancora a muro.** Non e' una riga mancante:
+  `dimmi` e' un `intent_starter` e viene TOLTO prima del dispatch, quindi con lui
+  sparisce l'unica prova che il turno fosse una richiesta e resta un sintagma
+  nudo. Il fix vero e' che l'atto sopravviva allo stripping, non un frame piu'
+  largo. Asserito come comportamento corrente in games.p0t.
+
+La domanda di review: puo' parrot0 imparare il nome di un pezzo in una nuova
+lingua, o in un nuovo registro, senza toccare il C?  (Oggi si': e' un fatto.)

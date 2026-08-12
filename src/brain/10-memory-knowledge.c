@@ -3231,9 +3231,75 @@ static int completion_chain_resolve(Brain *b, const char *norm,
  * are active, proper_name/1 (morphology.p0, teachable) says which atoms are proper
  * names to Title-Case. No hardcoded name list, no hardcoded "South America".
  * Query with the ORIGINAL atom (underscored); render the transformed surface. */
+/* Il nome di un CONCETTO in una lingua e in un REGISTRO (gen382b).
+ *
+ * Non e' la traduzione della sua parola, ed e' questo che rende necessario uno
+ * strato a se': "knight" tradotto e' "cavaliere", ma il pezzo degli scacchi in
+ * italiano e' il CAVALLO; "bishop" e' "vescovo", ma il pezzo e' l'ALFIERE.
+ * Tradurre i letterali darebbe risposte corrette parola per parola e sbagliate
+ * come conoscenza.
+ *
+ * Il registro e' una DIMENSIONE, non un'eccezione: lo stesso pezzo e' "regina"
+ * nell'uso comune e "donna" (simbolo D) nella notazione della Federazione
+ * Scacchistica Italiana. Nessuna delle due e' l'errore dell'altra — sono due
+ * strati di conoscenza intermedia, e la KB deve poterli tenere entrambi.
+ * Percio' `concept_label(Concept, Lang, Register, Name)`: il registro e' un
+ * campo, non un predicato in piu' (mantra #3), e `common` e' quello che il
+ * presentatore sceglie da solo finche' nessuno gliene chiede un altro.
+ *
+ * Sta in present_atom perche' e' il livello di PRESENTAZIONE di qualunque atomo:
+ * cosi' vale per ogni risposta — enumerazioni, singoli, liste — e non per una
+ * classe di domande. */
+static void concept_label_lookup(Brain *b, const char *atom,
+                                 char *out, size_t n) {
+    out[0] = '\0';
+    if (!b || !b->kb || !atom || !*atom) return;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    if (strcmp(lang, "en") == 0) return;          /* le chiavi sono gia' inglesi */
+
+    char reg[KB_TERM_LEN] = "common";
+    {   /* quale registro vuole questa sessione: conoscenza, non costante */
+        char rv[1][KB_TERM_LEN];
+        const char *rq[] = { NULL };
+        if (kb_match(b->kb, "preferred_register", rq, 1, rv, 1) > 0)
+            snprintf(reg, sizeof reg, "%s", kb_dequote(rv[0]));
+    }
+    char hit[1][KB_TERM_LEN];
+    const char *q[] = { atom, lang, reg, NULL };
+    if (kb_match(b->kb, "concept_label", q, 4, hit, 1) > 0) {
+        snprintf(out, n, "%s", kb_dequote(hit[0]));
+        return;
+    }
+    if (strcmp(reg, "common") != 0) {              /* ricaduta sull'uso comune */
+        const char *q2[] = { atom, lang, "common", NULL };
+        if (kb_match(b->kb, "concept_label", q2, 4, hit, 1) > 0)
+            snprintf(out, n, "%s", kb_dequote(hit[0]));
+    }
+}
+
+/* L'ultima congiunzione di un elenco, nella lingua della risposta (gen382b).
+ *
+ * Era il letterale " and " dentro tre cicli di formattazione, e si vedeva:
+ * "Re, regina, torre, alfiere, cavallo AND pedone" — i concetti localizzati e la
+ * congiunzione no. Una parola che compone la frase e' vocabolario, quindi KB. */
+static const char *list_and(Brain *b) {
+    static char buf[KB_TERM_LEN];
+    snprintf(buf, sizeof buf, " and ");
+    if (!b || !b->kb) return buf;
+    char lang[8]; current_lang(b, lang, sizeof lang);
+    char hit[1][KB_TERM_LEN];
+    const char *q[] = { lang, NULL };
+    if (kb_match(b->kb, "list_final_joiner", q, 2, hit, 1) > 0)
+        snprintf(buf, sizeof buf, " %s ", kb_dequote(hit[0]));
+    return buf;
+}
+
 static void present_atom(Brain *b, const char *in, char *out, size_t n) {
     if (!out || n == 0) return;
     if (!in) { out[0] = '\0'; return; }
+    char localized[KB_TERM_LEN];
+    concept_label_lookup(b, in, localized, sizeof localized);
+    if (localized[0]) in = localized;
     int strip = 0, title = 0;
     if (b && b->kb) {
         const char *sr[1] = { "strip_underscore" };
@@ -3485,7 +3551,7 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
                 char pres[KB_TERM_LEN];
                 present_atom(b, kb_dequote(one), pres, sizeof pres);
                 mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s",
-                    a ? (a + 1 == na ? " and " : ", ") : "", pres);
+                    a ? (a + 1 == na ? list_and(b) : ", ") : "", pres);
             }
             if (mo + 2 < sizeof msg) snprintf(msg + mo, sizeof msg - mo, ".");
             if (msg[0]) msg[0] = (char)toupper((unsigned char)msg[0]);

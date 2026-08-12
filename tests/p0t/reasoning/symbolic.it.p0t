@@ -16,6 +16,9 @@
 < Those are musical notes (solfège).
 # Italian prose must NOT be hijacked. Note "la" alone is a note, but the run is
 # not all-notes, so the solfège recognizer correctly declines.
+# gen382b: il muro ora arriva in ITALIANO. La frase e' italiana e ora ha un
+# marcatore riconosciuto ("nel"): il rilevatore di lingua fa il suo lavoro, e
+# declinare nella lingua di chi parla e' parte del declino onesto.
 > la lontra nuota nel fiume
-< I don't understand that yet.
+< Non capisco ancora.
 

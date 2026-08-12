@@ -18,3 +18,39 @@ category_member(chess_piece, knight).
 category_member(chess_piece, pawn).
 chess_piece($Piece) :- category_member(chess_piece, $Piece).
 game_component(chess, $Piece) :- chess_piece($Piece).
+
+% ── I NOMI DEI PEZZI IN ITALIANO, E IL REGISTRO FSI ──────────────────────────
+% gen382b. Il nome di un pezzo in italiano NON e' la traduzione della sua parola
+% inglese, ed e' la ragione per cui questo strato esiste invece di una tabella
+% parola->parola: `knight` tradotto e' "cavaliere", ma il pezzo e' il CAVALLO;
+% `bishop` e' "vescovo", ma il pezzo e' l'ALFIERE. Tradurre i letterali darebbe
+% risposte giuste parola per parola e sbagliate come conoscenza.
+%
+% Il REGISTRO e' una dimensione, non un'eccezione: nella notazione della
+% Federazione Scacchistica Italiana la regina e' la DONNA, simbolo D. Non e'
+% l'errore dell'uso comune ne' viceversa — sono due strati di conoscenza
+% intermedia, e la KB li tiene entrambi. Chi vuole il registro tecnico dichiara
+% preferred_register(fsi) e la stessa domanda risponde con l'altro strato.
+concept_label(king, it, common, re).
+concept_label(queen, it, common, regina).
+concept_label(rook, it, common, torre).
+concept_label(bishop, it, common, alfiere).
+concept_label(knight, it, common, cavallo).
+concept_label(pawn, it, common, pedone).
+
+% Registro FSI: cambia il nome della sola donna, e gli altri ricadono sull'uso
+% comune — la ricaduta e' del motore, non va ripetuta qui.
+concept_label(queen, it, fsi, donna).
+
+% I simboli della notazione algebrica, per lingua e registro. Stessa forma: il
+% simbolo di un pezzo e' un nome breve, non una parola tradotta.
+concept_symbol(king, it, fsi, "R").
+concept_symbol(queen, it, fsi, "D").
+concept_symbol(rook, it, fsi, "T").
+concept_symbol(bishop, it, fsi, "A").
+concept_symbol(knight, it, fsi, "C").
+concept_symbol(king, en, algebraic, "K").
+concept_symbol(queen, en, algebraic, "Q").
+concept_symbol(rook, en, algebraic, "R").
+concept_symbol(bishop, en, algebraic, "B").
+concept_symbol(knight, en, algebraic, "N").

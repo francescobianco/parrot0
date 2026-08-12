@@ -392,6 +392,27 @@ language_marker(it, mia).
 language_marker(it, tuo).
 language_marker(it, tua).
 language_marker(it, della).
+% gen382b: le preposizioni articolate mancanti. "mi dici i nomi DEI pezzi DEGLI
+% scacchi" non aveva un solo marcatore riconosciuto, quindi il rilevatore
+% ripiegava sull'inglese e rispondeva in inglese a una domanda italiana. Non era
+% una frase da aggiungere: era una CLASSE incompleta — della/nella c'erano, dei/
+% degli/delle/dello/dal/nel no. Sono function word, quindi non rischiano di
+% marcare come italiana una frase inglese.
+language_marker(it, dei).
+language_marker(it, degli).
+language_marker(it, delle).
+language_marker(it, dello).
+language_marker(it, dal).
+language_marker(it, dallo).
+language_marker(it, dalla).
+language_marker(it, nel).
+language_marker(it, nello).
+language_marker(it, negli).
+language_marker(it, sul).
+language_marker(it, sulla).
+language_marker(it, sugli).
+language_marker(it, col).
+language_marker(it, dici).
 language_marker(it, nella).
 language_marker(it, gli).
 language_marker(it, anche).

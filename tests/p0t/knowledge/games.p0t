@@ -15,8 +15,12 @@
 !reset
 
 [test italian chess enumeration]
+# gen382b: la risposta a una domanda ITALIANA ora e' italiana, e i nomi non sono
+# la traduzione delle parole inglesi ma i nomi dei PEZZI — `knight` tradotto
+# sarebbe "cavaliere", il pezzo e' il cavallo; `bishop` sarebbe "vescovo", il
+# pezzo e' l'alfiere. Anche la congiunzione finale segue la lingua.
 > quali sono i pezzi degli scacchi
-< King, queen, rook, bishop, knight and pawn.
+< Re, regina, torre, alfiere, cavallo e pedone.
 
 [test game expert conversation]
 > how do you play poker
@@ -55,3 +59,45 @@
 < Honeyed pear with a sharp berry finish.
 
 !reset
+
+[test category request surfaces]
+# gen382b, da una chiacchierata reale: "mi dici i nomi dei pezzi degli scacchi"
+# andava a muro mentre "quali sono i pezzi degli scacchi" rispondeva. Non era un
+# limite di comprensione — era la stessa classe (chiedere i MEMBRI di una
+# categoria) con alcune superfici di richiesta non dichiarate. Il fascio, non il
+# prompt singolo (mantra #15).
+> mi dici i nomi dei pezzi degli scacchi
+< Re, regina, torre, alfiere, cavallo e pedone.
+> tell me the chess pieces
+< King, queen, rook, bishop, knight and pawn.
+> the names of the chess pieces
+< King, queen, rook, bishop, knight and pawn.
+> dimmi il nome dei pezzi degli scacchi
+< Re, regina, torre, alfiere, cavallo e pedone.
+# GAP NOTO, asserito come comportamento CORRENTE: `dimmi` e' un intent_starter e
+# viene TOLTO prima del dispatch, quindi con lui sparisce l'unica prova che il
+# turno fosse una richiesta e resta un sintagma nudo ("i pezzi degli scacchi").
+# Non e' una riga mancante: e' l'informazione dell'atto che si perde nello
+# stripping. Il giorno in cui lo starter sopravvivera' al dispatch, questo test
+# lo dira'.
+# (Il muro arriva in italiano perche' la frase e' italiana: il rilevatore di
+# lingua ha fatto il suo lavoro, ed e' il resto che non c'e'.)
+> dimmi i pezzi degli scacchi
+< Non capisco ancora.
+
+[test the register is a dimension, not an exception]
+# In italiano corrente la regina e' la "regina"; nella notazione della
+# Federazione Scacchistica Italiana e' la DONNA (simbolo D). Nessuna delle due e'
+# l'errore dell'altra: sono due strati di conoscenza intermedia, e il registro e'
+# un CAMPO di concept_label/4, non un predicato in piu' ne' un caso speciale.
+> quali sono i pezzi degli scacchi
+< Re, regina, torre, alfiere, cavallo e pedone.
+!assert preferred_register(fsi)
+# Cambia SOLO cio' che il registro ridefinisce: gli altri pezzi ricadono
+# sull'uso comune, e la ricaduta e' del motore — non va ripetuta nei fatti.
+> quali sono i pezzi degli scacchi
+< Re, donna, torre, alfiere, cavallo e pedone.
+# E si torna indietro: e' conoscenza fino in fondo, nei due versi.
+!forget preferred_register(fsi)
+> quali sono i pezzi degli scacchi
+< Re, regina, torre, alfiere, cavallo e pedone.

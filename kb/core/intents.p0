@@ -1039,6 +1039,20 @@ answer_frame("which are the", category_enumeration).
 answer_frame("quali am i", category_enumeration).
 answer_frame("list the", category_enumeration).
 answer_frame("name the", category_enumeration).
+% gen382b: la stessa classe — chiedere i MEMBRI di una categoria — aveva cinque
+% superfici e non queste. "mi dici i nomi dei pezzi degli scacchi" andava a muro
+% mentre "quali sono i pezzi degli scacchi" rispondeva: non un limite di
+% comprensione, due righe mancanti. Le forme italiane stanno nella grafia che
+% arriva al dispatch (le parole funzionali sono gia' canonicalizzate).
+answer_frame("tell me the", category_enumeration).
+answer_frame("the names of", category_enumeration).
+answer_frame("names of the", category_enumeration).
+answer_frame("dimmi i", category_enumeration).
+answer_frame("dimmi le", category_enumeration).
+answer_frame("mi dici i", category_enumeration).
+answer_frame("mi dici le", category_enumeration).
+answer_frame("i nomi dei", category_enumeration).
+answer_frame("i nomi delle", category_enumeration).
 
 % Generic conversational access to game experts.  Every surface maps to a
 % relation shared by all game files; adding a game or a new phrasing is a KB
