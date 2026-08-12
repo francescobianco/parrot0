@@ -196,3 +196,58 @@ e il cancello dei concetti conterebbe le parole sbagliate).
 
 La domanda di review: resta un solo posto in cui parrot0 ragiona senza la propria
 conoscenza?  (Oggi quattro. Erano cinque.)
+
+## Isolare o far convivere: cosa dice un ragionatore vero (sonda gen382j)
+
+`tests/coexistence_probe.py` (strumento di progetto, mai runtime) estende la
+sonda di gen371 — che aveva gia' stabilito che **l'LLM non isola, DECIDE** — sulla
+domanda che il lavoro di gen382i ha aperto: quando una premessa contraddice il
+mondo, il "gatto" dell'ipotesi e' un ALTRO concetto (rinominazione) o lo STESSO
+con una credenza sospesa (convivenza con provenienza)?
+
+**1. Sono due letture, entrambe legittime, e il discriminante e' la PREMESSA.**
+Interrogato con cura, il modello non sceglie: distingue. In logica del primo
+ordine "gatto" denota lo stesso insieme e la premessa aggiunge una relazione —
+concetto unico, conflitto visibile. Come *stipulazione* (mondo possibile alla
+Kripke) "gatto" e' un concetto nuovo con la stessa etichetta lessicale — ed e'
+esattamente la rinominazione. La deduzione, dice, "opera sulla struttura formale,
+non sul contenuto intuitivo del termine": funziona in entrambi i casi.
+
+Quindi la scelta non e' una preferenza architetturale: e' una **proprieta' della
+premessa**. "Supponi che tutti i gatti siano pesci" stipula; "tutti i gatti sono
+pesci" asserisce, e va in conflitto. parrot0 oggi non distingue le due cose.
+
+**2. Cosa si PERDE rinominando** (la parte che riguarda direttamente gen382i):
+
+| capacita' | perche' la rinominazione non ce l'ha |
+|---|---|
+| rilevare la contraddizione | i simboli sono ortogonali: non c'e' conflitto da trovare |
+| spiegare il conflitto | non puo' dire "so gatto=mammifero ma l'ipotesi dice pesce": sono termini diversi |
+| revisione delle credenze | "cosa cambia se scarto X?" — X non e' mai entrato |
+| abduzione esplicita | "cosa deve essere falso perche' l'ipotesi regga?" |
+
+Sintesi del modello: **la rinominazione e' un motore di conseguenza logica pura,
+la sospensione e' un motore di what-if.**
+
+**3. La tensione dentro parrot0, che questa sonda rende visibile.** gen382i ha
+scelto la rinominazione — e la rinominazione e' precisamente l'architettura che
+NON PUO' accorgersi del conflitto. Ma gen375 (`class_conflict`) ha costruito
+l'abilita' opposta su un'altra superficie: detto "un cane e' un pesce", parrot0
+accetta E NOMINA la tensione con quello che sa. Le due filosofie oggi convivono
+nel sistema senza essersi mai incontrate, e quella scelta a gen382i chiude la
+porta a quella di gen375 sul percorso ipotetico.
+
+**4. La persistenza e' gia' giusta.** Alla domanda "finita la supposizione, Tom
+cosa e'?" il modello tiene i due livelli in una sola risposta: pesce
+nell'ipotesi, mammifero nel mondo. E' cio' che fa `KB_HYPOTHETICAL` con la
+retrazione a fine turno — su questo parrot0 e il ragionatore vero coincidono.
+
+**La direzione che ne esce**, e va decisa prima di migrare gli altri quattro siti
+scratch: la rinominazione non e' sbagliata, e' *incompleta*. Serve che la premessa
+dichiari (o che il motore inferisca) se STIPULA o ASSERISCE, e che il caso
+asseritivo usi la provenienza ipotetica SENZA rinominare — cosi' il conflitto
+resta visibile e `class_conflict` puo' parlare anche li'.
+
+La domanda di review: parrot0 sa dire "l'ipotesi che mi hai dato contraddice
+quello che so, e te lo dico prima di ragionarci"?  (Oggi no, e con la sola
+rinominazione non potra' mai.)
