@@ -53,17 +53,21 @@ profile_description(agi, "super expert across all domains: programming, mathemat
 
 % --- games experts ---
 :- include(../experts/games/chess.p0).
+:- include(../experts/games/chess_board.p0).
 :- include(../experts/games/checkers.p0).
 :- include(../experts/games/go.p0).
+:- include(../experts/games/go_board.p0).
 :- include(../experts/games/backgammon.p0).
 :- include(../experts/games/poker.p0).
 :- include(../experts/games/blackjack.p0).
 :- include(../experts/games/bridge.p0).
+:- include(../experts/games/standard_cards.p0).
 :- include(../experts/games/uno.p0).
 :- include(../experts/games/monopoly.p0).
 :- include(../experts/games/scrabble.p0).
 :- include(../experts/games/dominoes.p0).
 :- include(../experts/games/sudoku.p0).
+:- include(../experts/games/sudoku_grid.p0).
 :- include(../experts/games/mahjong.p0).
 :- include(../experts/games/tic_tac_toe.p0).
 :- include(../experts/games/risk.p0).
