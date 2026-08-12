@@ -320,6 +320,26 @@ machinery(gap_frame).
 gap_frame(process_step_gap).
 gap_frame(activity_step_gap).
 
+% ── gen382n: il registro delle sorgenti di spazio negativo ──────────────────
+% Una sorgente nomina due RELAZIONI, non una funzione C:
+%   obligation(Entity, Facet)  — perche' la domanda e' legittima;
+%   coverage(Entity, Facet)    — che cosa conterebbe come risposta posseduta.
+% knowledge_gap/2 in procedures.p0 applica entrambe attraverso la primitiva
+% generale apply/2. Tipo, soglia e rimedio restano dati sostituibili a runtime.
+machinery(gap_source).
+machinery(gap_policy).
+machinery(gap_remedy).
+gap_source(missing_sibling_attribute, sibling_majority_expected, binary_relation_coverage).
+gap_policy(sibling_majority_expected, minimum_group_size, 3).
+gap_remedy(missing_sibling_attribute, ask_user).
+
+% Il consumer generico esiste gia': answer_frame interroga una relazione
+% binaria. Queste sono solo le superfici con cui si raggiunge la vista dei gap.
+answer_frame("knowledge gap", knowledge_gap).
+answer_frame("lacuna di conoscenza", knowledge_gap).
+answer_frame("gap remedy", knowledge_gap_remedy).
+answer_frame("rimedio della lacuna", knowledge_gap_remedy).
+
 % il meta-modello delle relazioni descrive la KB, non il mondo.
 machinery(relation_domain).
 machinery(relation_arity).

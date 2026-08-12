@@ -1054,6 +1054,47 @@ static int charlist_to_atom(const char *list, char *out, size_t outsz) {
     return 0;
 }
 
+/* Reflective argument lists (gen382n).
+ *
+ * `kb_fact/2` and `apply/2` below expose operation-blind views to the KB: the
+ * direct clauses it contains and the ability to invoke a predicate whose name
+ * is itself data. Arguments use the same cons(..., nil) representation as the
+ * teachable list procedures. This codec is fixed mechanics; it interprets no
+ * predicate name, domain or gap kind. */
+static int args_to_list(const char args[][KB_TERM_LEN], size_t argc,
+                        char *out, size_t outsz) {
+    char acc[KB_TERM_LEN];
+    snprintf(acc, sizeof acc, "nil");
+    for (size_t i = argc; i > 0; i--) {
+        char next[KB_TERM_LEN];
+        int n = snprintf(next, sizeof next, "cons(%s, %s)", args[i - 1], acc);
+        if (n < 0 || (size_t)n >= sizeof next) return 0;
+        memcpy(acc, next, (size_t)n + 1);
+    }
+    return snprintf(out, outsz, "%s", acc) >= 0 && strlen(acc) < outsz;
+}
+
+static int list_to_args(const char *list,
+                        char args[][KB_TERM_LEN], size_t *argc) {
+    char cur[KB_TERM_LEN];
+    snprintf(cur, sizeof cur, "%s", list ? list : "");
+    *argc = 0;
+    for (size_t guard = 0; guard <= KB_MAX_ARGS; guard++) {
+        char *p = cur;
+        while (*p == ' ') p++;
+        if (strcmp(p, "nil") == 0) return 1;
+        if (*argc >= KB_MAX_ARGS) return 0;
+        char fun[KB_TERM_LEN], parts[KB_MAX_ARGS][KB_TERM_LEN];
+        size_t np = 0;
+        if (!split_compound(p, fun, parts, &np) ||
+            strcmp(fun, "cons") != 0 || np != 2)
+            return 0;
+        snprintf(args[(*argc)++], KB_TERM_LEN, "%s", parts[0]);
+        snprintf(cur, sizeof cur, "%s", parts[1]);
+    }
+    return 0;
+}
+
 /* Prove the goal list under substitution `s`. Returns 1 to stop all search
  * (boolean solution found, or the collector is full). */
 /* gen335 (teachable-procedures): a small arithmetic evaluator over a RESOLVED term
@@ -1182,6 +1223,25 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return solve(S, goals, ngoals, idx + 1, s, depth);   /* not provable -> naf ok */
     }
 
+    /* gen382n: virtual reflection over DIRECT positive facts. Clauses can now
+     * derive facts about the fact table without a C scanner for each diagnosis.
+     * Which predicates count as obligations, evidence, machinery or gaps is
+     * deliberately left to KB rules. */
+    if (strcmp(g->pred, "kb_fact") == 0 && g->argc == 2) {
+        for (size_t i = 0; i < S->kb->n; i++) {
+            const Fact *f = &S->kb->facts[i];
+            char list[KB_TERM_LEN];
+            if (!args_to_list(f->args, f->argc, list, sizeof list)) continue;
+            Subst *s2 = &scratch->subst;
+            *s2 = *s;
+            if (!unify(s2, g->args[0], f->pred) ||
+                !unify(s2, g->args[1], list))
+                continue;
+            if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
+        }
+        return 0;
+    }
+
     if (strcmp(g->pred, "chars") == 0 && g->argc == 2) {   /* U4: chars/2 builtin */
         char a0[KB_CHARLIST_MAX], a1[KB_CHARLIST_MAX];
         deep_resolve(s, g->args[0], a0, sizeof a0, 0);
@@ -1274,6 +1334,29 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         deep_resolve(s, g->args[0], resolved, sizeof resolved, 0);
         Term called;
         if (!parse_to_term(resolved, &called) || called.argc == 0) return 0;
+        Term *ng = scratch->goals;
+        size_t m = 0;
+        if (m < KB_MAX_GOALS) ng[m++] = called;
+        for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
+            ng[m++] = goals[k];
+        if (m >= KB_MAX_GOALS && idx + 1 < ngoals) return 0;
+        return solve(S, ng, m, 0, s, depth + 1);
+    }
+
+    /* gen382n: apply(Predicate, ArgsList), the constructive twin of kb_fact/2.
+     * It invokes normal resolution, so coverage includes facts AND rules and a
+     * detector cannot confuse "not stored directly" with "not known". */
+    if (strcmp(g->pred, "apply") == 0 && g->argc == 2) {
+        char pred[KB_TERM_LEN], list[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], pred, sizeof pred, 0);
+        deep_resolve(s, g->args[1], list, sizeof list, 0);
+        if (is_var(pred) || !term_ok(pred)) return 0;
+
+        Term called;
+        memset(&called, 0, sizeof called);
+        snprintf(called.pred, sizeof called.pred, "%s", pred);
+        if (!list_to_args(list, called.args, &called.argc)) return 0;
+
         Term *ng = scratch->goals;
         size_t m = 0;
         if (m < KB_MAX_GOALS) ng[m++] = called;
@@ -1524,6 +1607,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
+        strcmp(pred,"kb_fact")==0 || strcmp(pred,"apply")==0 ||
         strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||
         strcmp(pred,"ne")==0 || strcmp(pred,"call")==0 ||
@@ -1614,7 +1698,8 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
      * the only variables are the public NULL slots.  Semantics are identical to
      * the solver path (distinct NULL variables; collect the first; deduplicate).
      * Compound patterns containing nested $/_ variables still use unification. */
-    int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0;
+    int first_var = -1, simple = max > 0 && strcmp(pred, "chars") != 0 &&
+                    strcmp(pred, "kb_fact") != 0 && strcmp(pred, "apply") != 0;
     for (size_t i = 0; i < argc; i++) {
         if (!args[i]) { if (first_var < 0) first_var = (int)i; continue; }
         if (term_contains_var(args[i], 0))

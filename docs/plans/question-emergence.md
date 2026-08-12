@@ -258,3 +258,302 @@ Oggi: no. Non ha nemmeno il vocabolario per nominare un proprio buco.
 *File aperto. Le proposte possono essere aggiunte in coda come sezioni datate,
 oppure discusse in `KB_TODO.md`. Chi propone: leggere prima `MANTRA.md` — non è
 cerimoniale, è il criterio con cui la proposta verrà giudicata.*
+
+## 9. Quaderno condiviso — gen382n, 13 agosto 2026
+
+Questa sezione non dichiara il problema risolto. Fissa ciò che abbiamo osservato,
+confronta architetture differenti e descrive il primo taglio verticale oggi nel
+worktree. Le etichette hanno un significato preciso:
+
+- **osservato**: riprodotto sul binario corrente;
+- **proposta**: disegno ancora da falsificare;
+- **prototipo**: codice presente nel worktree ma non ancora accettato;
+- **aperto**: decisione per cui serve ancora evidenza.
+
+### 9.1 Prima correzione: un muro non è l'unico fallimento
+
+**Osservato.** L'ultima esecuzione esplorativa di `expertbench.py` ha trovato
+cinque muri su sette per UNO e zero muri su sette per molti altri giochi. Ma
+alcuni degli apparenti successi erano risposte semanticamente estranee alla
+domanda: per esempio una comparazione fra `checker` e `doubling_cube` poteva
+ricevere un elenco, non un confronto. Quindi «non è andato a muro» non equivale
+a «ha risposto».
+
+Il problema va separato in almeno quattro predicati:
+
+```text
+O(q)  la KB rende legittimo aspettarsi una risposta a q
+K(q)  la risposta è derivabile dalla conoscenza, entro una ricerca completa
+R(q)  la domanda raggiunge il predicato/consumer giusto
+V(q)  l'output soddisfa il contratto semantico della domanda
+```
+
+Ne seguono difetti diversi, con rimedi diversi:
+
+```text
+knowledge gap       = O(q) ∧ ricerca_completa(q) ∧ ¬K(q)
+reachability gap    = O(q) ∧ K(q) ∧ ¬R(q)
+surface gap         = R(q) ∧ ¬R(muta(q))
+wrong-answer gap    = R(q) ∧ ¬V(q)
+```
+
+La distinzione è sostanziale. UNO, per esempio, possiede conoscenza di gioco ma
+la parola `uno` compare anche come stopword: è un candidato **reachability gap**,
+non un knowledge gap. «Come ti chiami» funziona e «come tichiami» no: è un
+**surface gap**. Una risposta qualsiasi alla comparazione non è un successo: è
+un possibile **wrong-answer gap**.
+
+`KbInferenceReport.budget_hit` introduce inoltre un terzo esito epistemico:
+
+```text
+proved | finite_failure | incomplete
+```
+
+`incomplete` non può mai essere trasformato in `gap`. Se il budget interrompe
+la ricerca, parrot0 non ha dimostrato un'assenza: ha solo smesso di cercare.
+
+Infine la domanda deve avere un contratto abbastanza preciso. «Quante carte ci
+sono nel poker?» può significare carte nel mazzo, nella mano, sul board o in una
+variante. Senza una dimensione dichiarata, promuoverla automaticamente a gap
+produrrebbe proprio il rumore che vogliamo evitare.
+
+### 9.2 Le architetture considerate
+
+| Soluzione | Che cosa vede bene | Vantaggio | Difetto decisivo | Esito |
+|---|---|---|---|---|
+| Cinque scanner specializzati in C | pattern scelti a priori | semplice da avviare | sorgenti, soglie e vocabolario restano compilati | scartata |
+| Sole regole `.p0` sul modello attuale | fatti meta già espliciti | KB-first puro | la KB oggi non può quantificare sui propri predicati e applicarne uno dato come valore | insufficiente da sola |
+| Analizzatore offline dei file `.p0` | fatti, regole e sintassi completa | ottimo strumento di audit | vede testo su disco, non necessariamente stato runtime, derivabilità e comportamento conversazionale | supporto, non nucleo |
+| Vista riflessiva virtuale + regole KB | struttura runtime e copertura derivata | decisioni e politiche restano insegnabili | richiede primitive generali molto piccole e limiti espliciti | scelta per i gap strutturali |
+| Probe black-box/metamorfico | raggiungibilità, superficie e output reale | misura ciò che l'utente incontra | senza contratto semantico confonde una risposta sbagliata con un successo | scelta per i gap comportamentali |
+| Ibrido riflessione + probe | O, K, R e V separati | falsificabile end-to-end | più stati da rappresentare e isolare | proposta raccomandata |
+
+La conclusione corrente è che non esista un unico osservatore sufficiente. La
+riflessione è adatta a chiedere «che cosa dovrebbe esserci?» e «è derivabile?»;
+il probe è necessario per chiedere «una persona riesce a raggiungerlo?» e «la
+risposta conserva il significato?». L'unione va fatta su record tipizzati, non
+su stringhe di log.
+
+### 9.3 Primo taglio verticale nel worktree
+
+**Prototipo.** Il risolutore espone due sole operazioni cieche rispetto al
+dominio e alla lingua:
+
+```prolog
+kb_fact(Predicate, ArgsList).   % vista dei fatti positivi diretti
+apply(Predicate, ArgsList).     % meta-chiamata attraverso il normale risolutore
+```
+
+`kb_fact/2` rende osservabile la forma della KB; `apply/2` è indispensabile
+perché «coperto» deve voler dire **derivabile da fatti o regole**, non «presente
+fisicamente come fatto». Il C non conosce `poker`, `game_players`, la nozione di
+fratello, una soglia o un tipo di gap.
+
+Sopra queste operazioni, la KB dichiara oggi:
+
+```prolog
+gap_source(missing_sibling_attribute,
+           sibling_majority_expected,
+           binary_relation_coverage).
+gap_policy(sibling_majority_expected, minimum_group_size, 3).
+gap_remedy(missing_sibling_attribute, ask_user).
+```
+
+Le procedure `.p0` enumerano gli attributi binari realmente usati dai membri di
+uno stesso `expert_domain/2`, richiedono almeno tre membri e una maggioranza
+stretta, verificano la copertura via `apply/2` e producono:
+
+```prolog
+gap_record(Type, Entity, Facet, Remedy).
+```
+
+Questa è una **prova di architettura**, non ancora una soluzione alle cinque
+sorgenti. Durante la prima verifica a stadi, riflessione, conteggio del dominio,
+conteggio del supporto e controllo di copertura hanno funzionato; la composizione
+finale della regola di maggioranza ha invece esposto un problema da isolare nel
+passaggio aritmetico. Il dato è utile: il test ha già distinto il prototipo
+funzionante da una semplice presenza di codice, esattamente come chiede §7.
+
+La promessa «una sorgente nuova costa un fatto» va formulata con onestà: un
+nuovo **uso di combinatori già generali** costa un fatto `gap_source/3`; una
+nuova operazione riflessiva fondamentale non può essere inventata dai dati. Per
+essere accettabile, ogni futura primitiva C deve essere indipendente da lingua,
+dominio e tipo di gap, e deve sbloccare un'intera classe di regole insegnabili.
+
+### 9.4 La prova minima che deve passare il taglio verticale
+
+Il caso sintetico evita di cucire il test su poker:
+
+```prolog
+expert_domain(alpha, toy_domain).
+expert_domain(beta,  toy_domain).
+expert_domain(gamma, toy_domain).
+toy_attribute(alpha, one).
+toy_attribute(beta,  two).
+```
+
+Risultati attesi, tutti necessari:
+
+1. emerge `gap_record(missing_sibling_attribute, gamma, toy_attribute,
+   ask_user)`;
+2. aggiungendo a runtime `toy_attribute(gamma, three)` il gap scompare;
+3. ritraendo quel fatto il gap ricompare;
+4. ritraendo `gap_source/3` il detector scompare e riasserendolo ritorna, senza
+   rebuild;
+5. con un solo supporto su tre non emerge nulla;
+6. con una coorte di due membri non emerge nulla;
+7. se `toy_attribute(gamma, Value)` è derivabile da una regola, non emerge un
+   falso gap;
+8. se la ricerca colpisce il budget, il risultato è `incomplete`, non `gap`.
+
+I punti 2–4 sono il test di crescita e ablazione richiesto da `AGENTS.md`. I
+punti 5–8 sono i falsificatori: senza di essi avremmo solo una demo positiva.
+
+Restano due rischi specifici da chiudere prima di considerare il taglio pronto:
+
+- il conteggio deve essere per membri distinti, non per numero di fatti: dieci
+  valori dello stesso membro non costituiscono una maggioranza;
+- il profilo non deve scambiare relazioni strutturali (`expert_domain`, tracce,
+  registri e macchineria) per attributi del mondo. L'esclusione deve essere
+  insegnabile tramite fatti meta, mai una blacklist C.
+
+### 9.5 Disegno del ramo comportamentale
+
+**Proposta.** I gap di superficie richiedono un esperimento metamorfico:
+
+```text
+seed KB-backed che oggi riesce
+        ↓
+operatore di variazione dichiarato nella KB
+        ↓
+esecuzione pulita e mutata in stati isolati equivalenti
+        ↓
+confronto di intent, entità, predicato raggiunto e risposta semantica
+        ↓
+surface_gap(seed, variation, evidence)
+```
+
+Il runner può essere meccanica fissa, ma il piano deve essere conoscenza:
+
+```prolog
+probe_seed(identity_name, "come ti chiami").
+surface_variation(missing_space, split_known_tokens).
+gap_remedy(surface_fragility, repair_hypothesis).
+```
+
+Le stringhe qui sono esempi di fatti insegnabili, non cue compilati. Quali
+variazioni usare, su quali semi e con quale equivalenza sono decisioni KB. Il C
+può applicare operazioni generali su caratteri/token e rieseguire una sessione,
+ma non può sapere che `ti`, `chiami`, `piu` o `perche` hanno un significato
+speciale.
+
+Confrontare il testo grezzo delle due risposte è troppo fragile; controllare
+solo «non-wall» è troppo debole. L'oracolo dovrebbe preferire, in quest'ordine:
+
+1. stessa traccia semantica: intent, entità, relazione e slot;
+2. stesso fatto/prova di risposta;
+3. equivalenza dichiarata dal contratto del probe;
+4. solo come segnale debole, classificazione wall/non-wall.
+
+Ogni variante va eseguita da uno snapshot pulito: una prima domanda può
+insegnare, cambiare il contesto, consumare casualità o influenzare la seconda.
+Anche qui crescita e ablazione sono obbligatorie: asserire una nuova
+`surface_variation` deve aggiungere casi generati; ritirarla deve rimuoverli.
+
+### 9.6 Come trattare le altre sorgenti senza anticipare conclusioni
+
+**Frame senza dati.** Il prodotto `answer_frame × entità` è legittimo solo se il
+frame dichiara il proprio dominio o tipo di argomento. Senza questo contratto
+chiederemmo «come si gioca ad algebra». Serve una relazione insegnabile simile a
+`frame_applies_to(Predicate, Domain)`; non basta iterare tutte le entità.
+
+**Entità opache.** Occorre distinguere un'entità da un valore, un'etichetta o un
+pezzo di macchineria. Un candidato ragionevole è un termine che occupa un ruolo
+dichiarato `entity`, appartiene a un tipo e non è soggetto di alcuna relazione
+descrittiva applicabile. `kb_fact/2` permette di vedere le occorrenze nei fatti,
+ma mancano ancora ruoli degli argomenti e una nozione KB-backed di «relazione
+descrittiva». Prima questi metadati, poi il detector.
+
+**Dialetti privati.** La somiglianza di forma fra due predicati non dimostra
+equivalenza semantica. Un detector può proporre
+`candidate_alias(Private, Canonical, Evidence)`, usando arità, tipi degli
+argomenti, dimensione e tracce dei consumer; non deve asserire automaticamente
+l'alias. `poker_hand_rank/2 → magnitude(hand_rank, …)` è un buon caso di test,
+non una trasformazione da codificare.
+
+**Regole morte.** La vista attuale espone fatti, non corpi di clausole. Servirà
+eventualmente una vista virtuale `kb_rule(Head, Body)` o equivalente. Anche con
+essa, «non ho trovato una soluzione» non significa «regola morta»: il giudizio è
+lecito solo su semi tipizzati e finiti, con ricerca completata. Un budget
+esaurito produce sempre `incomplete`.
+
+### 9.7 Dal gap al rimedio e al sogno
+
+Il detector non deve interrogare direttamente l'utente né avviare Wikipedia.
+Produce evidenza; una politica separata sceglie il rimedio:
+
+```prolog
+gap_remedy(missing_sibling_attribute, ask_user).
+gap_remedy(opaque_entity, dream).
+gap_remedy(private_dialect, restate).
+gap_remedy(surface_fragility, repair_hypothesis).
+```
+
+Per guidare `--dream` non basta contare gap. Serve un ordinamento KB-backed che
+combini almeno:
+
+```text
+legittimità/supporto × valore del dominio × probabilità di colmare il gap
+─────────────────────────────────────────────────────────────────────────
+                         costo/rischio del rimedio
+```
+
+Il sogno deve ricevere un obiettivo tipizzato (`Entity`, `Facet`, `Dimension`),
+non la stringa di una domanda. Dopo l'apprendimento, lo stesso detector deve
+verificare che il gap sia davvero scomparso: questo rende il ciclo emersione →
+rimedio → verifica osservabile e reversibile.
+
+### 9.8 Decisioni aperte, in ordine di dipendenza
+
+1. **Semantica della negazione.** Dove dichiariamo che un predicato/dominio è
+   sufficientemente chiuso da consentire `finite_failure ⇒ uncovered`?
+2. **Contratto della domanda.** Qual è la rappresentazione minima di intent,
+   entità, relazione, dimensione e forma attesa della risposta?
+3. **Riflessione sulle regole.** Basta esporre testa e corpo come termini o
+   servono anche provenienza, file, confidenza e statistiche di esecuzione?
+4. **Traccia semantica.** Quale oggetto stabile deve restituire la pipeline per
+   confrontare due superfici senza dipendere dal wording?
+5. **Ranking.** Come confrontiamo supporto statistico, importanza del dominio,
+   costo del rimedio e rischio di falso positivo?
+6. **Persistenza.** I gap sono viste sempre ricalcolate, osservazioni con
+   evidenza, o entrambe le cose? Come invalidiamo un'evidenza diventata vecchia?
+
+### 9.9 Piste consegnabili a nuovi collaboratori
+
+Ogni pista ha un artefatto e un modo di smentirlo, così i lavori possono
+procedere in parallelo senza convergere solo su opinioni.
+
+- **Algebra e open world:** definire una semantica a tre valori per O/K/R/V e
+  casi limite. Artefatto: tabella di verità + controesempi. Falsificatore: un
+  caso `budget_hit` classificato come gap.
+- **Riflessione del risolutore:** revisionare `kb_fact/2`, `apply/2` e disegnare
+  `kb_rule`. Artefatto: API minima con limiti dichiarati. Falsificatore: una
+  regola derivabile segnalata come conoscenza mancante.
+- **Contratti semantici:** modellare applicabilità dei frame, dimensioni e forma
+  della risposta. Artefatto: fatti `.p0` per almeno giochi e identità.
+  Falsificatore: «come si gioca ad algebra» promosso a gap.
+- **Probe di superficie:** costruire runner isolato e confronto di tracce.
+  Artefatto: corpus generato da seed e variazioni KB. Falsificatore: aggiungere
+  o ritirare una variazione non cambia i casi prodotti.
+- **Dialetti privati:** produrre candidati con evidenza, senza auto-migrazione.
+  Artefatto: ranking su coppie note e coppie-esca. Falsificatore: due relazioni
+  omonime/iso-arie ma semanticamente diverse vengono fuse.
+- **Valutazione:** sostituire la metrica wall-only con contratti e negative
+  controls. Artefatto: report separato per knowledge, reachability, surface e
+  wrong-answer gap. Falsificatore: una lista fuori tema conta come risposta.
+
+La domanda da usare in review resta il mantra, applicato al detector stesso:
+
+> Posso insegnare a runtime un nuovo dominio, una nuova politica, una nuova
+> variazione o un nuovo rimedio e osservare che emergono — e poi scompaiono per
+> ablazione — gap diversi, senza modificare né ricompilare il C?

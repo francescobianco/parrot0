@@ -739,6 +739,71 @@ task_feature_match($Context, $Feature, $Dimension, $Value) :-
     task_requirement($Context, $Dimension, $Value),
     property($Feature, $Dimension, $Value).
 
+% ── SPAZIO NEGATIVO DELLA KB (gen382n, primo taglio verticale) ──────────────
+% kb_fact/2 e apply/2 sono viste riflessive GENERALI del risolutore. Tutta la
+% decisione resta qui: quale gruppo crea un obbligo, quale supporto basta, che
+% cosa conta come copertura e quale rimedio segue dal tipo di lacuna.
+
+% Un attributo osservato e' una relazione binaria diretta il cui primo argomento
+% e' un membro del dominio. La macchineria e' esclusa dalla regola, non dal C:
+% insegnare machinery(NewPred) cambia subito il profilo senza ricompilare.
+observed_domain_attribute($Domain, $Facet, $Entity) :-
+    expert_domain($Entity, $Domain),
+    kb_fact($Facet, cons($Entity, cons($Value, nil))),
+    naf(machinery($Facet)).
+
+domain_member_count($Domain, $Count) :-
+    findall($Member, expert_domain($Member, $Domain), $Members),
+    count_list($Members, $Count).
+
+attribute_support_count($Domain, $Facet, $Count) :-
+    findall($Member, observed_domain_attribute($Domain, $Facet, $Member), $Members),
+    count_list($Members, $Count).
+
+% La maggioranza e' stretta (supporto*2 > popolazione), con una dimensione
+% minima dichiarata da gap_policy/3. Il primo observed_domain_attribute enumera
+% le FACET reali della KB: nessuno schema di attributi e' scritto a mano.
+sibling_majority_expected($Entity, $Facet) :-
+    expert_domain($Entity, $Domain),
+    observed_domain_attribute($Domain, $Facet, $Witness),
+    attribute_support_count($Domain, $Facet, $Support),
+    domain_member_count($Domain, $Population),
+    gap_policy(sibling_majority_expected, minimum_group_size, $Minimum),
+    ge($Population, $Minimum),
+    is($TwiceSupport, mul($Support, 2)),
+    gt($TwiceSupport, $Population).
+
+% Copertura epistemica, non presenza fisica: apply/2 passa dallo stesso
+% risolutore delle domande normali, quindi una regola derivabile vale quanto un
+% fatto e non produce un falso gap.
+binary_relation_coverage($Entity, $Facet) :-
+    apply($Facet, cons($Entity, cons($Value, nil))).
+
+gap_covered($Coverage, $Entity, $Facet) :-
+    apply($Coverage, cons($Entity, cons($Facet, nil))).
+
+gap_uncovered($Coverage, $Entity, $Facet) :-
+    naf(gap_covered($Coverage, $Entity, $Facet)).
+
+knowledge_gap($Entity, $Facet) :-
+    gap_source($Type, $Obligation, $Coverage),
+    apply($Obligation, cons($Entity, cons($Facet, nil))),
+    gap_uncovered($Coverage, $Entity, $Facet).
+
+knowledge_gap_remedy($Entity, $Remedy) :-
+    gap_source($Type, $Obligation, $Coverage),
+    gap_remedy($Type, $Remedy),
+    apply($Obligation, cons($Entity, cons($Facet, nil))),
+    gap_uncovered($Coverage, $Entity, $Facet).
+
+% Forma completa per host, dream e futuri consumer: un record tipizzato e
+% azionabile, non una stringa di diagnosi.
+gap_record($Type, $Entity, $Facet, $Remedy) :-
+    gap_source($Type, $Obligation, $Coverage),
+    gap_remedy($Type, $Remedy),
+    apply($Obligation, cons($Entity, cons($Facet, nil))),
+    gap_uncovered($Coverage, $Entity, $Facet).
+
 % Internal protocol predicates are declared as machinery so self-description
 % never mistakes a task trace or a renderer registry for world knowledge.
 machinery(reasoning_operator_active).
@@ -760,6 +825,16 @@ machinery(task_requirement).
 machinery(task_feature_match).
 machinery(task_ir).
 machinery(task_term_concept).
+machinery(observed_domain_attribute).
+machinery(domain_member_count).
+machinery(attribute_support_count).
+machinery(sibling_majority_expected).
+machinery(binary_relation_coverage).
+machinery(gap_covered).
+machinery(gap_uncovered).
+machinery(knowledge_gap).
+machinery(knowledge_gap_remedy).
+machinery(gap_record).
 
 % una procedura e' macchineria: saper calcolare non e' un fatto sul mondo.
 machinery(probability_procedure).
