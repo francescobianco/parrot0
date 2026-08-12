@@ -2089,3 +2089,32 @@ machinery(task_focus_cue).
 machinery(task_deadline_cue).
 machinery(imperative_opener).
 machinery(policy).
+
+% ── INSEGNARE UNA RISPOSTA PARLANDO ──────────────────────────────────────────
+% gen382c. Il motore delle risposte curate (mod_qa, qa_cue/qa_reply) esisteva dal
+% gen347, ma si poteva alimentare solo scrivendo nei file: mancava l'ATTO. Queste
+% righe sono le superfici con cui glielo si dice in conversazione — "quando ti
+% chiedo X rispondi Y" — e il pezzo in C ritaglia soltanto i due lati.
+% Aggiungere una formulazione, o una lingua, e' un fatto.
+intent_cue(teach_reply, "when i ask about").
+intent_cue(teach_reply, "when i ask you about").
+% Le righe italiane stanno nella grafia che ARRIVA al dispatch: le parole
+% funzionali sono gia' canonicalizzate, quindi la formulazione va scritta come il
+% motore la vede, non come la si scrive (stessa lezione di "quali am i", gen379).
+intent_cue(teach_reply, "chiedo").
+intent_cue(teach_reply, "quando ti chiedo di").
+intent_cue(teach_reply, "quando ti chiedo del").
+intent_cue(teach_reply, "quando ti chiedo della").
+intent_cue(teach_reply, "quando ti chiedo delle").
+intent_cue(teach_reply, "quando ti chiedo dei").
+intent_cue(teach_reply, "quando ti chiedo degli").
+intent_cue(teach_reply, "quando ti chiedo").
+intent_cue(teach_reply, "quando parlo di").
+% Il separatore fra la situazione e la risposta da dare.
+machinery(teach_reply_pivot).
+teach_reply_pivot("rispondi").
+teach_reply_pivot("di'").
+teach_reply_pivot("dici").
+teach_reply_pivot("say").
+teach_reply_pivot("answer").
+teach_reply_pivot("reply").

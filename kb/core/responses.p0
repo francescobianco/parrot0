@@ -449,3 +449,7 @@ response_template(undetermined_cycle, it, "Non posso stabilirlo: nessun fatto ch
 % che non ci fosse nulla.
 response_template(page_disambiguates, "that page disambiguates several meanings rather than describing one").
 response_template(page_disambiguates, it, "quella pagina disambigua piu' significati invece di descriverne uno").
+
+% gen382c: conferma dell'atto di insegnamento di una risposta.
+response_template(taught_reply, "Understood: when you ask about {cue} I will say so.").
+response_template(taught_reply, it, "Capito: quando mi chiedi di {cue} risponderò così.").

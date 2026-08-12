@@ -131,6 +131,10 @@ static const Module registry[] = {
     {"repair",    mod_repair},
     {"input",     mod_input},
     /* gen335+: moved earlier so riddle/story handlers claim before coref (174). */
+    /* gen382c: l'atto di INSEGNARE una risposta corre prima del motore che le
+     * consuma — altrimenti "quando ti chiedo di X rispondi Y" verrebbe letto
+     * come una domanda su X invece che come l'istruzione che e'. */
+    {"teachreply", mod_teach_reply},
     {"qa",        mod_qa},
     {"gen",       mod_gen},
     /* deep-reasoning M3: the budgeted multi-hop inference loop. Fires only on the

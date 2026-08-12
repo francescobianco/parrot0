@@ -2246,6 +2246,122 @@ static int mod_wordquery(Brain *b, const char *norm, const char *raw,
  * anchors, a tricky historical detail — costs facts, zero C. (Computation-bearing
  * capabilities — rhyme/anagram enumeration, question decomposition — stay real
  * motors; only the "retrieve curated knowledge by cue" family collapses here.) */
+/* INSEGNARE UNA RISPOSTA PARLANDO (gen382c).
+ *
+ * mod_qa legge qa_cue/qa_reply dal gen347 — "quando la richiesta contiene queste
+ * parole, rispondi questa" — ma quella coppia si poteva alimentare solo
+ * scrivendo nei file. Il motore c'era e l'ATTO no, che e' il gemello del
+ * "consumer gap" di gen306: li' un fatto senza chi lo interrogasse, qui un
+ * interrogatore senza modo di essere istruito.
+ *
+ * Questa funzione non e' un secondo motore di risposte: ritaglia i due lati di
+ * "quando ti chiedo di X rispondi Y" e li asserisce come la stessa coppia che
+ * mod_qa gia' consuma. Tutto cio' che e' vocabolario sta in KB — le formulazioni
+ * dell'atto (intent_cue(teach_reply, ...)), il separatore
+ * (teach_reply_pivot/1), la conferma (response_template(taught_reply, ...)) —
+ * quindi una nuova formulazione, o una nuova lingua, e' un fatto.
+ *
+ * L'id e' derivato dalla situazione, cosi' insegnare due volte sulla stessa
+ * cosa CORREGGE invece di accumulare: e' "al posto di rispondere cosi', adesso
+ * rispondi cosi'". */
+static int mod_teach_reply(Brain *b, const char *norm, const char *raw,
+                           char *out, size_t out_size) {
+    if (!b || !b->kb || !norm) return 0;
+    if (!kb_cue_match(b, "teach_reply", norm)) return 0;
+
+    /* il separatore fra la situazione e la risposta: quale parola lo sia e' KB */
+    char pivots[16][KB_TERM_LEN];
+    const char *pq[] = { NULL };
+    size_t npv = kb_match(b->kb, "teach_reply_pivot", pq, 1, pivots, 16);
+    const char *cut = NULL; size_t plen = 0;
+    for (size_t i = 0; i < npv; i++) {
+        char pat[KB_TERM_LEN];
+        snprintf(pat, sizeof pat, " %s ", kb_dequote(pivots[i]));
+        const char *hit = strstr(norm, pat);
+        if (hit && (!cut || hit < cut)) { cut = hit; plen = strlen(pat); }
+    }
+    if (!cut) return 0;
+
+    /* la SITUAZIONE: cio' che sta fra la formulazione dell'atto e il separatore */
+    char lhs[256];
+    size_t ll = (size_t)(cut - norm);
+    if (ll >= sizeof lhs) ll = sizeof lhs - 1;
+    memcpy(lhs, norm, ll); lhs[ll] = '\0';
+
+    char cues[8][KB_TERM_LEN];
+    const char *cq[] = { "teach_reply", NULL };
+    size_t nc = kb_match(b->kb, "intent_cue", cq, 2, cues, 8);
+    const char *topic = lhs;
+    for (size_t i = 0; i < nc; i++) {
+        const char *c = kb_dequote(cues[i]);
+        const char *at = strstr(lhs, c);
+        if (at && at + strlen(c) > topic) topic = at + strlen(c);
+    }
+    while (*topic == ' ') topic++;
+    /* La canonicalizzazione porta "del" a "of the": quelle parole aprono o
+     * chiudono un sintagma, non fanno parte della SITUAZIONE. Si tolgono
+     * leggendo le classi che gia' esistono — nessun elenco nuovo. */
+    for (;;) {
+        char first[KB_TERM_LEN]; size_t k = 0;
+        while (topic[k] && topic[k] != ' ' && k + 1 < sizeof first) { first[k] = topic[k]; k++; }
+        first[k] = '\0';
+        if (!k || !topic[k]) break;
+        const char *fq[] = { first };
+        if (!kb_query(b->kb, "np_opener", fq, 1) && !kb_query(b->kb, "np_closer", fq, 1))
+            break;
+        topic += k;
+        while (*topic == ' ') topic++;
+    }
+    if (!*topic) return 0;
+
+    /* La SITUAZIONE si cerca nella forma canonica, perche' li' va confrontata.
+     * La RISPOSTA no: e' testo da PRONUNCIARE, non struttura da analizzare, e
+     * presa dal canonico uscirebbe deformata ("non ho sensori" -> "not i have
+     * sensori"). Si ritaglia dal turno grezzo, dopo lo stesso separatore. */
+    const char *reply = cut + plen;
+    if (raw && *raw) {
+        for (size_t i = 0; i < npv; i++) {
+            char pat[KB_TERM_LEN];
+            snprintf(pat, sizeof pat, " %s ", kb_dequote(pivots[i]));
+            const char *hit = strstr(raw, pat);
+            if (hit) { reply = hit + strlen(pat); break; }
+        }
+    }
+    while (*reply == ' ') reply++;
+    if (!*reply) return 0;
+
+    /* Un id derivato dalla situazione: reinsegnare la stessa cosa CORREGGE. */
+    char id[KB_TERM_LEN];
+    snprintf(id, sizeof id, "taught_%.*s", (int)sizeof id - 12, topic);
+    for (char *c = id; *c; c++) if (*c == ' ') *c = '_';
+
+    char q_cue[KB_TERM_LEN], q_rep[KB_TERM_LEN];
+    snprintf(q_cue, sizeof q_cue, "\"%s\"", topic);
+    snprintf(q_rep, sizeof q_rep, "\"%s\"", reply);
+    kb_set_origin(b->kb, KB_SESSION);
+    /* Reinsegnare la stessa situazione CORREGGE invece di accumulare: e' il
+     * senso di "al posto di rispondere cosi', adesso rispondi cosi'". Si toglie
+     * il valore vecchio leggendolo, perche' la retrazione vuole il fatto esatto. */
+    for (const char *pred = "qa_cue"; pred; pred = (pred[3] == 'c') ? "qa_reply" : NULL) {
+        char old_v[4][KB_TERM_LEN];
+        const char *oq[] = { id, NULL };
+        size_t no = kb_match(b->kb, pred, oq, 2, old_v, 4);
+        for (size_t i = 0; i < no; i++) {
+            const char *ra_old[] = { id, old_v[i] };
+            kb_retract(b->kb, pred, ra_old, 2);
+        }
+    }
+    const char *ca[] = { id, q_cue };
+    const char *ra[] = { id, q_rep };
+    if (!kb_assert(b->kb, "qa_cue", ca, 2) ||
+        !kb_assert(b->kb, "qa_reply", ra, 2)) return 0;
+
+    const KbResponseSlot sl[] = { { "cue", topic } };
+    if (kb_response_slots(b, "taught_reply", sl, 1, out, out_size)) return 1;
+    put("Understood.", out, out_size);
+    return 1;
+}
+
 static int mod_qa(Brain *b, const char *norm, const char *raw,
                   char *out, size_t out_size) {
     (void)raw;
