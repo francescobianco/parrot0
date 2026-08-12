@@ -20,6 +20,12 @@ static size_t   g_n;
  * PARROT0_WIKI_DIR, PARROT0_DEEP_BUDGET, …) are pilotable too but take effect on
  * the next read with no reload, so they are deliberately absent here. */
 static const char *const MEMORY_VARS[] = {
+    /* gen382g: PARROT0_SESSION e' OBSOLETA — la sessione non e' piu' un input e
+     * il boot non la carica. Resta elencata perche' centinaia di test la
+     * impostano e cambiarne il valore deve continuare a contare come "la
+     * configurazione si e' mossa" (il reset intelligente ci si appoggia).
+     * Le nuove: PARROT0_SESSION_DUMP (dove si legge lo stato di runtime),
+     * PARROT0_RUNTIME_DIR, PARROT0_KB_ROOT, PARROT0_SESSION_FALLBACK. */
     "PARROT0_BASE", "PARROT0_SESSION", "PARROT0_PROFILE", "PARROT0_LEXICON",
     "PARROT0_WORLD_FACTS", "PARROT0_KB_ROOT",
     "PARROT0_LANG", "LANG", "LC_ALL", "LC_MESSAGES",

@@ -604,12 +604,41 @@ int brain_load(Brain *b, const char *path, int as_base) {
 
 int brain_save_session(Brain *b, const char *path) {
     if (!b || !b->kb) return -1;
-    /* When a KB root is configured, route each new fact next to its kin in the
-     * curated tree (the soft save-map). Opt-in via PARROT0_KB_ROOT so hermetic
-     * tests keep the legacy single-file save. */
+    /* gen382g: salvare significa INSTRADARE. Ogni fatto nuovo va accanto ai suoi
+     * simili nell'albero curato (il save-map); `path` e' solo la ricaduta per
+     * cio' che il routing non sa dove mettere, e non e' mai un file di sessione.
+     * La radice ha un default perche' l'instradamento e' il comportamento
+     * normale, non un opt-in: senza, cio' che si impara finirebbe tutto in un
+     * unico file indistinto. */
     const char *root = p0env("PARROT0_KB_ROOT");
-    if (root && *root)
-        return kb_save_routed(b->kb, path, root);
+    if (!root || !*root) root = "kb";
+    return kb_save_routed(b->kb, path, root);
+}
+
+/* gen382g — il DUMP della sessione: una fotografia leggibile di cio' che parrot0
+ * ha in memoria ADESSO.
+ *
+ * Non e' un file di conoscenza e non viene mai riletto: e' una rappresentazione
+ * Prolog dello stato di runtime, da guardare con `cat`. Percio' e' UNICO PER
+ * PROCESSO — due parrot0 sulla stessa macchina non si sovrascrivono — e non ha
+ * un default condiviso: chi lo vuole lo chiede con PARROT0_SESSION_DUMP, e
+ * altrimenti vive accanto agli altri artefatti di runtime col PID nel nome. */
+const char *brain_session_dump_path(void) {
+    static char path[512];
+    const char *explicit_path = p0env("PARROT0_SESSION_DUMP");
+    if (explicit_path && *explicit_path) return explicit_path;
+    if (!path[0]) {
+        const char *dir = p0env("PARROT0_RUNTIME_DIR");
+        if (!dir || !*dir) dir = "/tmp";
+        snprintf(path, sizeof path, "%s/parrot0-session-%ld.p0", dir, (long)getpid());
+    }
+    return path;
+}
+
+int brain_session_dump(Brain *b) {
+    if (!b || !b->kb) return -1;
+    const char *path = brain_session_dump_path();
+    if (!path || !*path) return -1;
     return kb_save(b->kb, path, KB_SESSION | KB_INDUCED);
 }
 
@@ -740,12 +769,23 @@ void brain_mode(Brain *b, char *out, size_t cap) {
 void brain_boot(Brain *b) {
     if (!b) return;
     const char *base = p0env("PARROT0_BASE");
-    const char *sess = p0env("PARROT0_SESSION");
     const char *profile = p0env("PARROT0_PROFILE");
     if (!base) base = "kb/core/base.p0";
-    if (!sess) sess = "kb/core/session.p0";
     brain_load(b, base, 1);
-    brain_load(b, sess, 0);
+    /* gen382g — la SESSIONE NON E' UN INPUT.
+     *
+     * session.p0 veniva caricato qui come se fosse un file di conoscenza, ed era
+     * anche il bersaglio di /save: un file che era insieme sorgente e
+     * destinazione, con un default fisso condiviso da ogni parrot0 sulla stessa
+     * macchina. Da qui tre difetti in uno — due istanze si sovrascrivevano a
+     * vicenda, cio' che si salvava rientrava dalla porta del boot invece di
+     * essere instradato nell'albero curato, e la sessione (che e' effimera per
+     * definizione) si comportava come conoscenza permanente.
+     *
+     * Ora la sessione ha una sola natura: e' RUNTIME. Cio' che si impara e si
+     * vuole tenere va nei file opportuni tramite il routing (brain_save_session);
+     * cio' che sta in memoria e' leggibile dal DUMP (brain_session_dump), che si
+     * scrive e non si rilegge mai. */
     brain_load(b, "kb/experts/programming/coding.p0", 1); /* gen149: coding domain */
     if (profile && *profile)
         brain_load(b, profile, 1);                        /* gen150: expert/skill profile */

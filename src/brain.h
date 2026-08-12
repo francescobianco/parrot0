@@ -54,7 +54,18 @@ int brain_load(Brain *b, const char *path, int as_base);
 
 /* Persist the session delta (session + induced clauses, never the reflective
  * self-model) to `path`. Returns clauses written, or -1 on error. */
+/* Salva cio' che si e' imparato INSTRADANDOLO nell'albero curato (save-map).
+ * `path` e' la sola ricaduta per i fatti che il routing non colloca, e non e'
+ * mai un file di sessione. */
 int brain_save_session(Brain *b, const char *path);
+
+/* gen382g — il DUMP della sessione: una fotografia Prolog di cio' che parrot0 ha
+ * in memoria adesso, da leggere con `cat`. Non e' conoscenza da caricare e non
+ * viene mai riletta; e' unica per processo, cosi' due parrot0 sulla stessa
+ * macchina non si sovrascrivono. Percorso da PARROT0_SESSION_DUMP, altrimenti
+ * <PARROT0_RUNTIME_DIR|/tmp>/parrot0-session-<pid>.p0 */
+int brain_session_dump(Brain *b);
+const char *brain_session_dump_path(void);
 
 /* gen331 (TODO.md P1/09): the EFFECTIVE runtime policy, projected into the KB at
  * boot as policy(tools|network|mode, …) and read back through these. Every host

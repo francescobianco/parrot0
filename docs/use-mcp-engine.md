@@ -89,6 +89,11 @@ file da fuori), c'è il loop che la missione descrive:
 3. `kb.restore` ricarica **tutti** i file da disco, in place, senza riavviare;
 4. interroghi la conoscenza nuova.
 
+> **gen382g** — quanto segue descrive il modello precedente, in cui la sessione
+> era un file caricato al boot. Oggi ciò che si impara si **instrada** nell'albero
+> curato (`kb.save` + save-map) e viene riletto da lì; il file di sessione è solo
+> un dump di runtime. Vedi `docs/session-and-provenance.md`.
+
 Perché il passo 3 la ripeschi, avvia il motore con `PARROT0_SESSION` puntato al
 file che `kb.save` scrive (così `brain_reload` lo ricarica).
 
@@ -145,7 +150,9 @@ lettura da estendere.
 | Variabile | Effetto |
 |-----------|---------|
 | `PARROT0_WORLD_FACTS=0` | **Salta il caricamento di `kb/core/world-facts.p0`.** Usato per esperimenti "learning from empty world" e per la mesh di addestramento. Senza questo flag, `world-facts.p0` è caricato come `KB_BASE` a ogni boot. |
-| `PARROT0_SESSION=<file>` | Carica `<file>` come layer di sessione a ogni boot e a ogni `kb.restore`. Se il file è vuoto, nessun effetto collaterale. |
+| `PARROT0_SESSION=<file>` | **Obsoleta da gen382g**: la sessione non è più un input e il boot non la carica. Vedi `docs/session-and-provenance.md`. |
+| `PARROT0_SESSION_DUMP=<file>` | Dove leggere lo stato di runtime (dump Prolog, riscritto a ogni turno, mai riletto). Default: `<runtime-dir>/parrot0-session-<pid>.p0`. |
+| `PARROT0_KB_ROOT=<dir>` | Radice dell'albero curato in cui `kb.save` instrada i fatti nuovi. Default `kb`. |
 | `PARROT0_KB_ROOT=<dir>` | Attiva il **fact router** (save-map). Senza, `kb.save` fa un dump legacy a file singolo. Con, instrada ogni fatto ground nel file curato dei suoi parenti (coordinata `(predicato, primo-arg)`). **Le regole (`:-`) non si instradano mai** — finiscono nello spill. |
 
 ## Sicurezza

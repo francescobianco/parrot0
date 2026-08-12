@@ -20,6 +20,7 @@
 #include "mcp.h"
 #include "testeng.h"
 #include "dream.h"
+#include "env.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -153,8 +154,11 @@ static Brain *setup_brain(const char **out_sess) {
     brain_boot(brain);
 
     if (out_sess) {
-        const char *sess = getenv("PARROT0_SESSION");
-        if (!sess) sess = "kb/core/session.p0";
+        /* gen382g: nessun DEFAULT di sessione. Il file di sessione non e' piu' ne'
+         * un input (il boot non lo carica) ne' il bersaglio di /save (che
+         * instrada): resta solo la ricaduta esplicita, se qualcuno la chiede. */
+        const char *sess = p0env("PARROT0_SESSION_FALLBACK");
+        if (!sess || !*sess) sess = "kb/learning/learned.p0";
         *out_sess = sess;
     }
     return brain;
@@ -322,11 +326,17 @@ int main(int argc, char **argv) {
         if (strcmp(line, "/quit") == 0 || strcmp(line, "/exit") == 0) {
             break;
         }
+        if (strcmp(line, "/session") == 0) {
+            fprintf(stderr, "parrot0: session dump at %s\n", brain_session_dump_path());
+            continue;
+        }
         if (strcmp(line, "/save") == 0) {
+            /* gen382g: si salva INSTRADANDO nell'albero curato, mai su un file di
+             * sessione. `sess` resta come sola ricaduta per i fatti che il
+             * save-map non sa dove collocare. */
             int n = brain_save_session(brain, sess);
-            if (n >= 0) fprintf(stderr, "parrot0: saved %d clause(s) to %s\n",
-                                n, sess);
-            else        fprintf(stderr, "parrot0: could not save to %s\n", sess);
+            if (n >= 0) fprintf(stderr, "parrot0: routed %d clause(s) into the KB tree\n", n);
+            else        fprintf(stderr, "parrot0: could not save\n");
             continue;
         }
         /* gen276: /restore — forget the unsaved session and reload every KB file
@@ -348,6 +358,10 @@ int main(int argc, char **argv) {
         }
 
         brain_respond(brain, line, resp, sizeof resp);
+        /* gen382g: il dump della sessione si riscrive a ogni turno, cosi' un
+         * `cat` mostra sempre cio' che parrot0 ha in memoria ADESSO. Si scrive e
+         * non si rilegge: non e' conoscenza da caricare, e' una finestra. */
+        brain_session_dump(brain);
         printf("%s\n", resp);
         /* gen269: replies may span several lines (markdown-fenced code). Line-
          * based drivers that pair one stdout line per turn can opt into an
