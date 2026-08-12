@@ -118,3 +118,52 @@ gen378 e questo sono lo stesso sito visto dai due lati.
 
 La domanda di review: puo' parrot0 imparare una regola relazionale a due
 variabili, parlando, senza ricompilare?  (Oggi no. E' il prossimo salto.)
+
+### Il gemello: apprendere da PROSA le regole con variabili
+
+Stesso problema, lingua diversa — e la differenza decide il progetto. Nella
+conversazione le variabili si portano con i pronomi indefiniti ("se QUALCUNO
+e'..."); nella prosa enciclopedica quasi mai. La prosa usa il **generico plurale
+piu' una relativa restrittiva**, ed e' li' che sta la variabile:
+
+    mammals THAT live in water are aquatic
+    rivers THAT flow into the sea form deltas
+    a number is prime IF it is divisible only by itself and one
+    WHEN water is heated to 100 degrees IT boils
+
+Misurato oggi, e ogni riga sbaglia in modo diverso:
+
+| prosa | risposta attuale | lettura |
+|---|---|---|
+| mammals that live in water are aquatic | "Amphibian, fish and human." | INTERROGAZIONE, non regola |
+| a number is prime if it is divisible... | "No, 1 is not a prime number." | domanda su un numero |
+| rivers that flow into the sea form deltas | muro | — |
+| when water is heated to 100 degrees it boils | "Who or what does 'it' refer to?" | **anafora riconosciuta** |
+
+Tre cose da qui.
+
+**1. Il risolutore di anafora esiste gia'.** L'ultima riga lo dimostra: parrot0
+sa che "it" richiede un referente e lo CHIEDE. Per una regola il referente non e'
+un'entita' — e' una VARIABILE. Non serve una macchina nuova: serve che quella
+esistente possa legarsi a una variabile invece che a un'entita'.
+
+**2. `that` ha due ruoli, e oggi ne conosce uno solo.** In np_closer/1 `that`
+CHIUDE un sintagma (gen382, ed e' cio' che ha sbloccato l'estrazione da prosa
+vera). In una relativa restrittiva APRE una clausola che vincola la stessa
+variabile del soggetto. Stessa parola, due funzioni, e la discriminante e' cosa
+segue: un verbo finito apre una clausola, un nome chiude il sintagma. La KB deve
+poter dire entrambe le cose della stessa parola — non e' un conflitto da
+risolvere scegliendo, e' una proprieta' da rappresentare.
+
+**3. La lettura restrittiva perde contro quella interrogativa.** "mammals that
+live in water" viene enumerato invece che quantificato. Non basta aggiungere una
+forma: serve decidere QUANDO una relativa e' un filtro di query e quando e'
+l'antecedente di una regola. Il segnale c'e' ed e' sintattico — una regola ha un
+CONSEGUENTE ("...are aquatic"), una query no — quindi e' decidibile senza
+indovinare.
+
+La forma comune con lo strato conversazionale: in entrambi i casi si tratta di
+riconoscere che DUE punti del turno parlano della STESSA cosa non nominata, e di
+darle un nome fresco. Pronome indefinito + anafora nel dialogo, relativa +
+soggetto nella prosa. Un solo meccanismo, due vocabolari — che e' la forma di
+ogni migrazione riuscita di questa sessione.
