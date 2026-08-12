@@ -1,0 +1,21 @@
+% expert: contract bridge
+expert(bridge).
+expert_domain(bridge, games).
+expert_description(bridge, "contract bridge bidding, tricks, trump and partnership play").
+means(bridge, "a four-player partnership trick-taking game with an auction that determines a contract").
+game_players(bridge, 4).
+game_goal(bridge, "bid and make profitable contracts while defeating the opponents' contracts when defending").
+game_setup(bridge, "four players form two fixed partnerships and a standard deck is dealt so each player receives thirteen cards").
+game_play(bridge, "the auction selects level, strain and declarer; then players follow suit when able and the highest trump or led-suit card wins each trick").
+game_end(bridge, "score the contract from tricks made or penalties, then continue deals according to rubber or duplicate scoring").
+game_tip(bridge, "count high-card points, communicate distribution through legal bids and carding, and plan the whole hand before playing from dummy").
+category_surface(bridge, bridge_suit).
+category_member(bridge_suit, clubs).
+category_member(bridge_suit, diamonds).
+category_member(bridge_suit, hearts).
+category_member(bridge_suit, spades).
+bridge_major_suit(hearts).
+bridge_major_suit(spades).
+bridge_minor_suit(clubs).
+bridge_minor_suit(diamonds).
+bridge_suit($Suit) :- category_member(bridge_suit, $Suit).

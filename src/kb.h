@@ -329,6 +329,10 @@ int    kb_dump_all(const KB *kb, char *out, size_t out_size);
 /* Number of distinct facts currently stored. */
 size_t kb_size(const KB *kb);
 
+/* Number of Horn rules currently stored.  This is structural introspection for
+ * hosts and diagnostics; it does not execute or reinterpret the rules. */
+size_t kb_rule_count(const KB *kb);
+
 /* Count direct stored facts for a predicate (no rule resolution). gen77. */
 size_t kb_pred_fact_count(const KB *kb, const char *pred);
 

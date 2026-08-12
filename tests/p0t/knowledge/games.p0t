@@ -1,0 +1,61 @@
+# GAMES + CATEGORY ENUMERATION — live-KB contract.
+#
+# This regression belongs to the .p0t engine, not tests/enumerate.sh.  It checks
+# the same brain loaded by `make chat`, including the AGI profile that owns the
+# per-game expert files.  The nonce category is the strong KB-first proof: the
+# unchanged binary learns a category and new members, then loses them on
+# ablation, using category_enumeration/2 from procedures.p0 throughout.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test italian chess enumeration]
+!timeout 8
+> quali sono i pezzi degli scacchi
+< King, queen, rook, bishop, knight and pawn.
+
+[test game expert conversation]
+!timeout 8
+> how do you play poker
+< Betting rounds let players check, bet, call, raise or fold; remaining hands are compared at showdown.
+> what are the poker hands
+< High card, one pair, two pair, three of a kind, straight, flush, full house, four of a kind and straight flush.
+> how many players play bridge
+< 4.
+> what is sudoku
+< A logic puzzle that fills a nine by nine grid so each row, column and three by three box contains every digit once.
+
+[test category procedure runtime growth and ablation]
+!timeout 8
+> what are the zorvian pieces
+<! Amber cog
+!assert category_surface(zorvian, zorvian_piece)
+!assert category_member(zorvian_piece, amber_cog)
+!assert category_member(zorvian_piece, blue_pin)
+!assert category_member(zorvian_piece, silver_key)
+> what are the zorvian pieces
+< Amber cog, blue pin and silver key.
+!assert category_member(zorvian_piece, green_wheel)
+> what are the zorvian pieces
+< Amber cog, blue pin, silver key and green wheel.
+!forget category_member(zorvian_piece, blue_pin)
+> what are the zorvian pieces
+< Amber cog, silver key and green wheel.
+!forget category_surface(zorvian, zorvian_piece)
+> what are the zorvian pieces
+<! Amber cog
+
+[test repaired clauses are live]
+!timeout 8
+!reset
+> show the reasoning claim for manual_library_retrieval
+<~ Library proposal 1
+> what flavor does starglow_plum have
+< Honeyed pear with a sharp berry finish.
+
+!reset

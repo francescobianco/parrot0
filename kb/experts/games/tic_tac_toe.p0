@@ -1,0 +1,15 @@
+% expert: tic-tac-toe
+expert(tic_tac_toe).
+expert_domain(tic_tac_toe, games).
+expert_description(tic_tac_toe, "tic-tac-toe legal turns, wins, forks and perfect play").
+means(tic_tac_toe, "a two-player placement game on a three by three grid using X and O").
+game_players(tic_tac_toe, 2).
+game_goal(tic_tac_toe, "place three of your marks in one row, column, or diagonal before the opponent").
+game_setup(tic_tac_toe, "begin with an empty three by three grid and choose who uses X; X moves first").
+game_play(tic_tac_toe, "players alternate marking one empty cell and may not move or overwrite an existing mark").
+game_end(tic_tac_toe, "stop at the first line of three matching marks or declare a draw when the full grid has no such line").
+game_tip(tic_tac_toe, "take a winning move, block an immediate loss, create or block forks, then prefer center, opposite corner, corner, and side").
+category_surface(tic_tac_toe, tic_tac_toe_mark).
+category_member(tic_tac_toe_mark, x).
+category_member(tic_tac_toe_mark, o).
+tic_tac_toe_top_win($Mark) :- mark_at($Mark, top_left), mark_at($Mark, top_center), mark_at($Mark, top_right).

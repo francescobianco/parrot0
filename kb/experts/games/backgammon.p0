@@ -1,0 +1,17 @@
+% expert: backgammon
+expert(backgammon).
+expert_domain(backgammon, games).
+expert_description(backgammon, "backgammon movement, hitting, bearing off and doubling").
+means(backgammon, "a two-player race game combining checker movement, blocking, hitting and dice").
+game_players(backgammon, 2).
+game_goal(backgammon, "bear off all fifteen checkers before the opponent").
+game_setup(backgammon, "each player begins with fifteen checkers in the standard four-point distribution on twenty-four points").
+game_play(backgammon, "roll two dice and move checkers by the shown distances; hit a lone opposing blot, enter from the bar first, then bear off from the home board").
+game_end(backgammon, "the first player to bear off every checker wins, with gammon and backgammon increasing the result").
+game_tip(backgammon, "make points, reduce exposed blots, and compare racing chances with contact chances").
+category_surface(backgammon, backgammon_component).
+category_member(backgammon_component, checker).
+category_member(backgammon_component, dice).
+category_member(backgammon_component, doubling_cube).
+backgammon_component($Part) :- category_member(backgammon_component, $Part).
+game_component(backgammon, $Part) :- backgammon_component($Part).

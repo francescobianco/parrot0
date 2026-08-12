@@ -1728,13 +1728,14 @@ static int mod_count(Brain *b, const char *norm, const char *raw,
  * initial and returns the first known member with that initial. Honest: it can
  * only name what it actually knows, and says so when it knows none. Not a
  * phrasebook — add a category_member fact and the capability extends for free. */
-/* gen294 (cat.52): read a category's members for a (plural) head noun, robust to
+/* gen294 (cat.52): read a category's members for a COUNTED head noun, robust to
  * English singularization edge cases — singularize("senses") wrongly gives "sens"
  * (the boxes->box rule), so a strip-one-'s' fallback recovers "sense". Tries a
  * compound qualifier first ("primary colors" -> primary_color), then the
  * singularized head, then the head minus a trailing 's', then the raw token.
- * Returns the member count (0 if the noun names no category). KB-first: the
- * members live in category_member/2, so a new set extends "list the X" for free. */
+ * Returns the member count (0 if the noun names no category). Whole-set
+ * enumeration is no longer handled here: category_enumeration/2 in the KB owns
+ * that procedure and answer_frame/2 supplies its generic conversational bridge. */
 static size_t enum_category_lookup(Brain *b, const char *prevtok,
                                    const char *rawhead,
                                    char members[][KB_TERM_LEN], size_t max) {
@@ -1830,35 +1831,6 @@ static int mod_namestart(Brain *b, const char *norm, const char *raw,
             }
         }
 
-        /* gen294 (cat.52): the WHOLE-SET form — "list the days of the week",
-         * "what are the continents", "name the primary colors": the SAME outer
-         * trigger (name/list/what are/…) but NO count and a definite "the"
-         * (the whole-set signal). Enumerate ALL members. The head noun is found by
-         * scanning backward (so "colors of the rainbow" finds rainbow before
-         * color), and only a genuine category_member set is claimed — any
-         * non-category turn ("what are you") matches nothing and falls through.
-         * A single "the" token gates it (not a cue OR-chain), so recognized
-         * vocabulary stays out of C per the cuechains ratchet. */
-        int has_the = 0;
-        for (size_t i = 0; i < nn0 && !has_the; i++)
-            if (!strcmp(strip_edge_punct(nw0[i]), "the")) has_the = 1;
-        if (want == 0 && has_the) {
-            for (size_t i = nn0; i-- > 0;) {
-                char *tok = strip_edge_punct(nw0[i]);
-                /* the head must be PLURAL (a set request lists many): require a
-                 * trailing 's', so "the largest PLANET and a moon" (singular
-                 * superlative) is left to the superlative handler, while "the
-                 * PLANETS" enumerates. */
-                size_t tl = strlen(tok);
-                if (tl < 2 || tok[tl - 1] != 's') continue;
-                char *prevtok = (i > 0) ? strip_edge_punct(nw0[i - 1]) : NULL;
-                char members[64][KB_TERM_LEN];
-                size_t k = enum_category_lookup(b, prevtok, tok, members, 64);
-                if (k == 0) continue;
-                enum_format(members, k < 32 ? k : 32, out, out_size);
-                return 1;
-            }
-        }
     }
 
     int has_name = cue(buf, "name a") || cue(buf, "name an") ||

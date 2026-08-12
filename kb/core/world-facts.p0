@@ -3976,7 +3976,10 @@ world_superlative(longest, river, "The Nile is generally regarded as the longest
 world_superlative(largest_desert, desert, "The Antarctic Desert is the largest desert in the world, and it is located in Antarctica").
 world_superlative_cue("largest desert", largest_desert, desert).
 world_superlative_cue("largest desert in the world", largest_desert, desert).
-invented_object(fruit, starglow_plum, "honeyed pear with a sharp berry finish", "thin crisp skin around a custardy center", "baking into tarts because it keeps its perfume when warmed").
+invented_object(fruit, starglow_plum).
+invented_object_trait(starglow_plum, taste, "honeyed pear with a sharp berry finish").
+invented_object_trait(starglow_plum, texture, "thin crisp skin around a custardy center").
+invented_object_trait(starglow_plum, use, "baking into tarts because it keeps its perfume when warmed").
 wrote(shakespeare, romeo_and_juliet).
 % Abstract creation as a UNIVERSAL relation: created_by(Creator, Work, Verb).
 % The surface verb (painted/wrote/composed/sculpted/…) is DATA mixed into the

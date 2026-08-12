@@ -1,0 +1,16 @@
+% expert: four-player Chinese-style Mahjong fundamentals
+expert(mahjong).
+expert_domain(mahjong, games).
+expert_description(mahjong, "Mahjong suits, melds, draws, discards and winning hands").
+means(mahjong, "a family of tile games where players draw and discard while building a legal winning hand").
+game_players(mahjong, 4).
+game_goal(mahjong, "complete a legal hand, commonly four melds and a pair, with any required scoring condition of the chosen ruleset").
+game_setup(mahjong, "shuffle the tiles into walls, determine seats and dealer, then deal the ruleset's starting hands").
+game_play(mahjong, "draw one tile and discard one, claiming eligible discards for melds under priority rules until someone declares a legal win").
+game_end(mahjong, "score the winning hand or record an exhaustive draw, rotate seats as required, and continue the match").
+game_tip(mahjong, "identify the exact ruleset first, keep efficient shapes, and compare hand speed with defensive danger").
+category_surface(mahjong, mahjong_suit).
+category_member(mahjong_suit, characters).
+category_member(mahjong_suit, bamboo).
+category_member(mahjong_suit, circles).
+mahjong_suited_tile(tile($Suit, $Rank)) :- category_member(mahjong_suit, $Suit), ge($Rank, 1), le($Rank, 9).

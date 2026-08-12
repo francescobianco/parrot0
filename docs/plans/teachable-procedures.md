@@ -193,6 +193,45 @@ tabella di fatti. Se è di PROCEDURE → regole di trasformazione + interprete. 
 fisso si restringe, la conoscenza (fatti **e** procedure) cresce. Questo è il cuore
 di "engine fixed, knowledge learns", portato fino alle procedure.
 
+### 6a. Caso forense: enumerare una categoria non è ciclare in C sui fatti
+
+Il caso `quali sono i pezzi degli scacchi` ha esposto una distinzione che i
+commenti del vecchio `mod_namestart` rendevano facile perdere. Il ramo whole-set
+leggeva membri da `category_member/2` e si dichiarava KB-first perché aggiungere
+un membro estendeva l'output. Era aperta la dimensione dei **dati**, ma restavano
+in C la procedura che riconosceva la richiesta, ricostruiva il nome della
+categoria, enumerava e formattava. Un insieme nuovo poteva crescere; il modo di
+trasformare una categoria in risposte non era conoscenza insegnabile.
+
+La correzione separa nettamente i ruoli:
+
+```prolog
+category_enumeration(Surface, Member) :-
+    category_surface(Surface, Category),
+    category_member(Category, Member).
+
+answer_frame("what are the", category_enumeration).
+```
+
+La clausola Horn è la procedura generatrice: il solver produce una soluzione per
+ogni `Member`. `answer_frame/2` è il lettore binario universale già esistente e
+non conosce categorie, scacchi o cardinalità. `category_surface/2`, i membri e le
+forme interrogative sono dati sostituibili a runtime. Di conseguenza una nuova
+categoria si insegna con fatti, e lo stesso operatore la usa senza ricompilare.
+
+`findall/3` resta il primitivo giusto quando la lista raccolta deve diventare
+l'input di un'ulteriore trasformazione KB. Non è necessario per presentare tutte
+le soluzioni di una relazione che il lettore universale sa già enumerare; forzare
+qui una seconda pipeline di raccolta e resa avrebbe duplicato una capacità
+esistente.
+
+**Cosa aveva fuorviato l'implementazione:** il commento “aggiungere un
+`category_member` estende gratis” dimostrava soltanto apertura dei dati ed è stato
+scambiato per apertura della procedura. Il test decisivo non è “un altro membro
+compare?”, ma “una categoria nonce e la sua superficie diventano operative, e
+poi smettono di esserlo per ablazione, nello stesso binario?”. È ora il contratto
+di `tests/p0t/knowledge/games.p0t`; il ramo whole-set C è stato rimosso.
+
 ---
 
 ## 7. Gap ledger — cosa manca (aggiornato gen311)

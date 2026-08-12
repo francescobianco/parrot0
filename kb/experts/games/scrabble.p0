@@ -1,0 +1,17 @@
+% expert: Scrabble
+expert(scrabble).
+expert_domain(scrabble, games).
+expert_description(scrabble, "Scrabble word placement, scoring, racks and board premiums").
+means(scrabble, "a word board game where players form connected words from letter tiles and score their values").
+game_players(scrabble, "two to four in the standard game").
+game_goal(scrabble, "finish with the highest score after the tile bag and playable racks are exhausted").
+game_setup(scrabble, "mix the tiles face down, draw seven per player, choose a first player, and begin through the center square").
+game_play(scrabble, "place one line of tiles connected to the existing grid so every new cross-word is valid, then total letter and word premiums").
+game_end(scrabble, "when no tiles remain and a player empties the rack, subtract opponents' rack values and add them to that player").
+game_tip(scrabble, "balance the rack, learn short connecting words, preserve useful letter combinations, and avoid opening huge premiums cheaply").
+category_surface(scrabble, scrabble_premium).
+category_member(scrabble_premium, double_letter).
+category_member(scrabble_premium, triple_letter).
+category_member(scrabble_premium, double_word).
+category_member(scrabble_premium, triple_word).
+scrabble_word_premium($Square) :- category_member(scrabble_premium, $Square).

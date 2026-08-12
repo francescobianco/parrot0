@@ -1,0 +1,16 @@
+% expert: checkers / English draughts
+expert(checkers).
+expert_domain(checkers, games).
+expert_description(checkers, "checkers movement, captures, promotion and tactics").
+means(checkers, "a two-player diagonal capture game played on the dark squares of a board").
+game_players(checkers, 2).
+game_goal(checkers, "capture all opposing pieces or leave the opponent with no legal move").
+game_setup(checkers, "each player places twelve men on the dark squares of the three nearest rows").
+game_play(checkers, "men move diagonally forward, capture by jumping, and become kings on the far row; when a capture is available it is compulsory").
+game_end(checkers, "a player wins when the opponent has no pieces or no legal move; some repeated or blocked positions are draws").
+game_tip(checkers, "keep pieces connected, watch forced multi-jumps, and time promotion races carefully").
+category_surface(checkers, checker_kind).
+category_member(checker_kind, man).
+category_member(checker_kind, king).
+checker_kind($Piece) :- category_member(checker_kind, $Piece).
+game_component(checkers, $Piece) :- checker_kind($Piece).

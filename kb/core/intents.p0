@@ -558,7 +558,9 @@ intent_cue(smalltalk_continue, "how about you").
 intent_cue(smalltalk_continue, "what's your").
 intent_cue(smalltalk_continue, "whats your").
 intent_cue(smalltalk_continue, "i'm ").
-intent_cue(smalltalk_continue, "i am ").
+% Word-bounded multi-word evidence: a raw substring crossed the boundary in
+% Italian `qual[i am] i` after canonicalization and stole factual questions.
+intent_cue(smalltalk_continue, keyword("i am")).
 intent_cue(smalltalk_continue, "io sono").
 intent_cue(smalltalk_continue, "io ho").
 intent_cue(smalltalk_continue, "sono appena").
@@ -1028,6 +1030,32 @@ answer_frame("domain", predicate_domain).
 answer_frame("source", predicate_source).
 answer_frame("confidence", fact_confidence).
 answer_frame("element", chemical_symbol).
+
+% Whole-category questions delegate to category_enumeration/2, a Horn
+% procedure in procedures.p0.  The Italian row names the current canonical
+% surface (function words are normalized before answer-frame dispatch).
+answer_frame("what are the", category_enumeration).
+answer_frame("which are the", category_enumeration).
+answer_frame("quali am i", category_enumeration).
+answer_frame("list the", category_enumeration).
+answer_frame("name the", category_enumeration).
+
+% Generic conversational access to game experts.  Every surface maps to a
+% relation shared by all game files; adding a game or a new phrasing is a KB
+% change, and the answer-frame motor remains domain-blind.
+answer_frame("how do you play", game_play).
+answer_frame("how to play", game_play).
+answer_frame("how is play", game_play).
+answer_frame("rules of", game_play).
+answer_frame("goal of", game_goal).
+answer_frame("objective of", game_goal).
+answer_frame("how many players", game_players).
+answer_frame("setup for", game_setup).
+answer_frame("tip for", game_tip).
+answer_frame("components of", game_component).
+answer_frame("what is", game_summary).
+answer_frame("taste of", invented_object_taste).
+answer_frame("what flavor", invented_object_taste).
 
 % gen356 (LLMSCORE-max): finite request acts share one semantic projection.
 % The surface forms are KB vocabulary; semantic_summary/2 is a rule in

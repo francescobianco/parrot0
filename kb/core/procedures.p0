@@ -54,6 +54,30 @@ part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of_t($Y, $Z).
 same_category($X, $Y) :- category_member($C, $X), category_member($C, $Y).
 
+% ── ENUMERAZIONE DI CATEGORIE ────────────────────────────────────────────────
+% La superficie individua una categoria e la clausola GENERA una soluzione per
+% membro. answer_frame/2 sa già presentare tutte le soluzioni di una qualunque
+% relazione binaria: non serve un secondo enumeratore di dominio in C. Nessun
+% consumer conosce "scacchi", la cardinalità o i membri; una nuova
+% category_surface/2 o category_member/2 entra in uso immediatamente a runtime.
+category_enumeration($Surface, $Member) :-
+    category_surface($Surface, $Category),
+    category_member($Category, $Member).
+
+% A game expert's concise identity is the ordinary means/2 fact, projected
+% through its declared domain so "what is X" does not fall through to a raw dump
+% of every setup, rule and tip attached to X.
+game_summary($Game, $Summary) :-
+    expert_domain($Game, games),
+    means($Game, $Summary).
+
+% Normalized view of the split invented_object/2 + trait/3 representation.  It
+% keeps every callable relation within the engine's four-argument contract and
+% makes a newly taught object's taste immediately answerable by answer_frame/2.
+invented_object_taste($Name, $Taste) :-
+    invented_object($Domain, $Name),
+    invented_object_trait($Name, taste, $Taste).
+
 % ── RELATIONAL COMPOSITION (habitat, diet) ──
 lives_in($X, $H) :- is_a($X, $C), habitat($C, $H).
 diet($X, $D) :- is_a($X, $C), eats_category($C, $D).

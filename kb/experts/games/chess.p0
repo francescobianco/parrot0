@@ -1,0 +1,20 @@
+% expert: chess
+expert(chess).
+expert_domain(chess, games).
+expert_description(chess, "chess rules, pieces, objectives and practical play").
+means(chess, "a two-player strategy board game in which each side protects its king and attacks the opposing king").
+game_players(chess, 2).
+game_goal(chess, "checkmate the opposing king so it is attacked and has no legal escape").
+game_setup(chess, "place each side's major pieces on its back rank and eight pawns on the rank in front, with the queen on her own color").
+game_play(chess, "players alternate one legal move; pieces move in distinct ways, captures remove opposing pieces, and a king may never remain in check").
+game_end(chess, "the game ends by checkmate, resignation, draw agreement, stalemate, repetition, the fifty-move rule, or insufficient mating material").
+game_tip(chess, "develop pieces, contest the center, castle the king, and check the opponent's threats before moving").
+category_surface(chess, chess_piece).
+category_member(chess_piece, king).
+category_member(chess_piece, queen).
+category_member(chess_piece, rook).
+category_member(chess_piece, bishop).
+category_member(chess_piece, knight).
+category_member(chess_piece, pawn).
+chess_piece($Piece) :- category_member(chess_piece, $Piece).
+game_component(chess, $Piece) :- chess_piece($Piece).

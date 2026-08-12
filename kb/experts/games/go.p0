@@ -1,0 +1,16 @@
+% expert: go
+expert(go).
+expert_domain(go, games).
+expert_description(go, "Go liberties, capture, territory and strategic balance").
+means(go, "an abstract two-player board game where black and white stones surround territory and opposing groups").
+game_players(go, 2).
+game_goal(go, "finish with more territory and captured value than the opponent under the chosen scoring rules").
+game_setup(go, "begin with an empty grid; black moves first and players place stones on intersections").
+game_play(go, "placed stones do not move; a connected group is captured when it has no liberties, suicide is normally forbidden, and ko prevents immediate repetition").
+game_end(go, "after both players pass, dead stones are resolved and the position is scored").
+game_tip(go, "balance corners, sides, and center while keeping groups connected enough to make two eyes").
+category_surface(go, go_stone).
+category_member(go_stone, black_stone).
+category_member(go_stone, white_stone).
+go_stone($Stone) :- category_member(go_stone, $Stone).
+game_component(go, $Stone) :- go_stone($Stone).

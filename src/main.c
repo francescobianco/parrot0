@@ -15,6 +15,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "brain.h"
+#include "kb.h"
 #include "serve.h"
 #include "mcp.h"
 #include "testeng.h"
@@ -254,12 +255,19 @@ int main(int argc, char **argv) {
      * mode, and `make chat` — which had tools OFF and the network ON — looked
      * identical to the agent. A user cannot calibrate what they cannot see. */
     { char mode[32]; brain_mode(brain, mode, sizeof mode);
+      size_t facts = kb_size(brain_kb(brain));
+      size_t rules = kb_rule_count(brain_kb(brain));
+      double rule_fact_ratio = facts ? ((double)rules * 100.0 / (double)facts) : 0.0;
       fprintf(stderr, "parrot0 [%s] - mode: %s (tools %s, network %s)\n"
+                      "Facts: %zu\n"
+                      "Rules: %zu\n"
+                      "Rules/Facts: %.4f%%\n"
                       "say something ('/quit' to exit, '/save' to persist, "
                       "'/restore' to reload the KB from disk)\n",
               brain_version(), mode,
               brain_policy_on(brain, "tools")   ? "on" : "off",
-              brain_policy_on(brain, "network") ? "on" : "off"); }
+              brain_policy_on(brain, "network") ? "on" : "off",
+              facts, rules, rule_fact_ratio); }
 
     char line[LINE_MAX_LEN];
     char resp[RESP_MAX_LEN];

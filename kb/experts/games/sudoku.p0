@@ -1,0 +1,23 @@
+% expert: Sudoku
+expert(sudoku).
+expert_domain(sudoku, games).
+expert_description(sudoku, "Sudoku candidates, units, constraints and solving tactics").
+means(sudoku, "a logic puzzle that fills a nine by nine grid so each row, column and three by three box contains every digit once").
+game_players(sudoku, 1).
+game_goal(sudoku, "fill every cell while satisfying the row, column and box uniqueness constraints").
+game_setup(sudoku, "start from the printed clues, which remain fixed throughout the puzzle").
+game_play(sudoku, "eliminate candidates already present in each cell's row, column and box, then place forced values and repeat").
+game_end(sudoku, "the puzzle is complete when every cell is filled and all three kinds of unit contain digits one through nine without repetition").
+game_tip(sudoku, "scan for naked and hidden singles before using pairs, locked candidates, or more advanced patterns").
+category_surface(sudoku, sudoku_digit).
+category_member(sudoku_digit, 1).
+category_member(sudoku_digit, 2).
+category_member(sudoku_digit, 3).
+category_member(sudoku_digit, 4).
+category_member(sudoku_digit, 5).
+category_member(sudoku_digit, 6).
+category_member(sudoku_digit, 7).
+category_member(sudoku_digit, 8).
+category_member(sudoku_digit, 9).
+sudoku_digit($Digit) :- category_member(sudoku_digit, $Digit).
+sudoku_candidate($Cell, $Digit) :- sudoku_digit($Digit), naf(row_has($Cell, $Digit)), naf(column_has($Cell, $Digit)), naf(box_has($Cell, $Digit)).

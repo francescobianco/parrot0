@@ -1,0 +1,17 @@
+% expert: Monopoly
+expert(monopoly).
+expert_domain(monopoly, games).
+expert_description(monopoly, "Monopoly movement, property, rent, building and trading").
+means(monopoly, "a property trading board game driven by movement, rent, negotiation and cash management").
+game_players(monopoly, "commonly two to eight, depending on the edition").
+game_goal(monopoly, "remain solvent after every opponent has gone bankrupt").
+game_setup(monopoly, "choose tokens, give each player the edition's starting cash, place pieces on Go, and keep deeds and buildings with the bank").
+game_play(monopoly, "roll and move, resolve the destination, buy or auction unowned property, pay rent, trade, and build evenly on complete color groups").
+game_end(monopoly, "the last player not bankrupt wins; a timed game needs an agreed scoring rule").
+game_tip(monopoly, "auction declined properties, value cash flow, and trade toward buildable color groups rather than isolated deeds").
+category_surface(monopoly, monopoly_asset).
+category_member(monopoly_asset, property_deed).
+category_member(monopoly_asset, house).
+category_member(monopoly_asset, hotel).
+category_member(monopoly_asset, cash).
+monopoly_buildable($Group) :- owns_complete_group($Player, $Group), unmortgaged_group($Player, $Group).

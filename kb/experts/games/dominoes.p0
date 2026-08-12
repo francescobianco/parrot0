@@ -1,0 +1,17 @@
+% expert: draw dominoes
+expert(dominoes).
+expert_domain(dominoes, games).
+expert_description(dominoes, "domino matching, doubles, drawing, blocking and scoring").
+means(dominoes, "a family of tile games where touching ends normally carry the same pip count").
+game_players(dominoes, "commonly two to four").
+game_goal(dominoes, "empty your hand first or hold the lowest remaining pip total when play is blocked").
+game_setup(dominoes, "shuffle tiles face down, draw the agreed hand size, and leave the rest as the boneyard when the variant uses one").
+game_play(dominoes, "add a tile whose end matches an open end of the layout; draw or pass when unable according to the chosen variant").
+game_end(dominoes, "a round ends when a player goes out or no player can move, then score the remaining pips under the agreed rules").
+game_tip(dominoes, "track exhausted numbers, preserve flexible tiles, and avoid being stranded with high-pip doubles").
+category_surface(dominoes, domino_kind).
+category_member(domino_kind, double).
+category_member(domino_kind, non_double).
+domino_double(tile($Pips, $Pips)).
+domino_kind(tile($A, $B), double) :- eq($A, $B).
+domino_kind(tile($A, $B), non_double) :- dif($A, $B).

@@ -414,6 +414,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/math/arith.p0t
 	@./$(BIN) --test tests/p0t/knowledge/world.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t
+	@./$(BIN) --test tests/p0t/knowledge/games.p0t
 	@./$(BIN) --test tests/p0t/knowledge/class_conflict.p0t
 	@./$(BIN) --test tests/p0t/reasoning/syllogism.p0t
 	@./$(BIN) --test tests/p0t/conversation/casefold.p0t

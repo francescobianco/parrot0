@@ -1,0 +1,31 @@
+% expert: poker, using standard high-hand ranking
+expert(poker).
+expert_domain(poker, games).
+expert_description(poker, "poker hand ranks, betting, position and showdown").
+means(poker, "a family of card games where players wager on hands whose strength may be shown or represented by betting").
+game_players(poker, "commonly two to ten, depending on the variant").
+game_goal(poker, "win pots by holding the best hand at showdown or by making every opponent fold").
+game_setup(poker, "choose a variant, dealer position, stakes and blind or ante structure, then deal according to that variant").
+game_play(poker, "betting rounds let players check, bet, call, raise or fold; remaining hands are compared at showdown").
+game_end(poker, "a hand ends when one player remains or the showdown awards the pot").
+game_tip(poker, "play fewer weak starting hands, value position, track pot odds, and treat bluffing as one part of a balanced strategy").
+category_surface(poker, poker_hand).
+category_member(poker_hand, high_card).
+category_member(poker_hand, one_pair).
+category_member(poker_hand, two_pair).
+category_member(poker_hand, three_of_a_kind).
+category_member(poker_hand, straight).
+category_member(poker_hand, flush).
+category_member(poker_hand, full_house).
+category_member(poker_hand, four_of_a_kind).
+category_member(poker_hand, straight_flush).
+poker_hand_rank(high_card, 1).
+poker_hand_rank(one_pair, 2).
+poker_hand_rank(two_pair, 3).
+poker_hand_rank(three_of_a_kind, 4).
+poker_hand_rank(straight, 5).
+poker_hand_rank(flush, 6).
+poker_hand_rank(full_house, 7).
+poker_hand_rank(four_of_a_kind, 8).
+poker_hand_rank(straight_flush, 9).
+poker_hand_beats($A, $B) :- poker_hand_rank($A, $RA), poker_hand_rank($B, $RB), gt($RA, $RB).

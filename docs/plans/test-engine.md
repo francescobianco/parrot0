@@ -58,6 +58,31 @@
 >
 > La sezione **§9 HANDOFF** ha tutto il necessario per riprendere.
 
+### Correzione operativa 2026-08-12 — un vecchio `.sh` non è un extension point
+
+Durante la correzione dell'enumerazione di categorie è stato aggiunto per errore
+un nuovo caso a `tests/enumerate.sh`. Il nome del file sembrava il punto più
+vicino al comportamento, ma era un indizio storico, non architetturale:
+`tests/enumerate.sh` appartiene a `legacy-test`; la suite conversazionale
+ufficiale di `make test` passa dal demone e dai file `.p0t`.
+
+La regola operativa, da non reinterpretare più, è:
+
+- una nuova regressione conversazionale va in `tests/p0t/<categoria>/*.p0t` e
+  riceve una riga esplicita nel target `test`;
+- un test KB-first deve usare `!assert` e `!forget` per mostrare crescita e
+  ablazione nello stesso brain, non limitarsi a congelare una risposta;
+- la presenza di uno script tematicamente simile sotto `tests/` non autorizza ad
+  estenderlo: gli script restano per trasporto, integrazione o debito legacy e
+  richiedono una motivazione esplicita quando non sono esprimibili nel `.p0t`;
+- il test rapido del lavoro corrente può entrare in `SOFT_TESTS`, ma la sua sede
+  canonica resta comunque il medesimo file `.p0t` eseguito dalla suite completa.
+
+Il caso corretto è `tests/p0t/knowledge/games.p0t`: usa il profilo vivo di
+`make chat`, insegna una categoria nonce, ne aggiunge e ritrae membri, e dimostra
+che il binario invariato segue la KB. Questo è il contratto che lo script shell
+aggiunto in prima battuta non dimostrava.
+
 ---
 
 ## 0. Perché

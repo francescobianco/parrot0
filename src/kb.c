@@ -3874,6 +3874,10 @@ size_t kb_size(const KB *kb) {
     return kb ? kb->n : 0;
 }
 
+size_t kb_rule_count(const KB *kb) {
+    return kb ? kb->nr : 0;
+}
+
 size_t kb_pred_fact_count(const KB *kb, const char *pred) {
     if (!kb || !pred) return 0;
     size_t count = 0;

@@ -1,0 +1,19 @@
+% expert: blackjack
+expert(blackjack).
+expert_domain(blackjack, games).
+expert_description(blackjack, "blackjack totals, player actions and dealer comparison").
+means(blackjack, "a casino card game where each player compares a hand total with the dealer without exceeding twenty-one").
+game_players(blackjack, "one or more players against the dealer").
+game_goal(blackjack, "finish closer to twenty-one than the dealer without busting").
+game_setup(blackjack, "players place bets and receive two cards; the dealer also receives two cards with one normally exposed").
+game_play(blackjack, "choose among hit, stand, double, split, or surrender when allowed; the dealer then follows the table's fixed drawing rule").
+game_end(blackjack, "compare every unbusted player hand with the dealer and settle wins, losses, pushes, and natural blackjacks").
+game_tip(blackjack, "use the table's basic strategy for your total and the dealer upcard rather than guessing from recent cards").
+category_surface(blackjack, blackjack_action).
+category_member(blackjack_action, hit).
+category_member(blackjack_action, stand).
+category_member(blackjack_action, double_down).
+category_member(blackjack_action, split).
+category_member(blackjack_action, surrender).
+blackjack_bust($Total) :- gt($Total, 21).
+blackjack_safe_total($Total) :- le($Total, 21).

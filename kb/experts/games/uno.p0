@@ -1,0 +1,18 @@
+% expert: UNO
+expert(uno).
+expert_domain(uno, games).
+expert_description(uno, "UNO matching, action cards, calling UNO and scoring").
+means(uno, "a shedding card game where players match color, number, or symbol and try to empty their hand").
+game_players(uno, "commonly two to ten").
+game_goal(uno, "be the first to play every card, optionally accumulating points across rounds").
+game_setup(uno, "deal seven cards to each player, place the rest face down, and turn one card up to start the discard pile").
+game_play(uno, "match the top discard by color, number, or symbol; otherwise draw, and apply action-card effects under the agreed edition's rules").
+game_end(uno, "a round ends when a player has no cards; forgetting to call UNO before being caught carries the stated draw penalty").
+game_tip(uno, "save flexible wild cards for awkward colors and watch which colors opponents appear unable to follow").
+category_surface(uno, uno_action).
+category_member(uno_action, skip).
+category_member(uno_action, reverse).
+category_member(uno_action, draw_two).
+category_member(uno_action, wild).
+category_member(uno_action, wild_draw_four).
+uno_action_card($Card) :- category_member(uno_action, $Card).

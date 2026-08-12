@@ -1,0 +1,16 @@
+% expert: Risk
+expert(risk).
+expert_domain(risk, games).
+expert_description(risk, "Risk reinforcement, attacks, continents, cards and negotiation").
+means(risk, "a strategic board game of territorial control, reinforcement and dice-resolved combat").
+game_players(risk, "commonly two to six, depending on the edition").
+game_goal(risk, "achieve the scenario's victory condition, often world domination or a secret objective").
+game_setup(risk, "distribute territories and starting armies using the chosen edition's setup, then determine turn order").
+game_play(risk, "reinforce controlled territories, attack adjacent enemy territories with dice, then fortify along a connected controlled route").
+game_end(risk, "the first player to satisfy the selected domination, capital, or mission condition wins").
+game_tip(risk, "protect short borders, value continent bonuses against their defense cost, and avoid exhausting armies in emotional attacks").
+category_surface(risk, risk_turn_phase).
+category_member(risk_turn_phase, reinforce).
+category_member(risk_turn_phase, attack).
+category_member(risk_turn_phase, fortify).
+risk_can_attack($From, $To) :- risk_adjacent($From, $To), controlled_by($From, $Player), controlled_by($To, $Enemy), dif($Player, $Enemy).

@@ -318,6 +318,8 @@ tr(cloth, stoffa).
 tr(hat, cappello).
 tr(shoes, scarpe).
 tr(clothes, vestiti).
+tr(piece, pezzo).
+tr(pieces, pezzi).
 
 % ============================================================
 % PEOPLE and ROLES
@@ -336,6 +338,10 @@ tr(daughter, figlia).
 tr(baby, neonato).
 tr(king, re).
 tr(queen, regina).
+tr(rook, torre).
+tr(bishop, alfiere).
+tr(knight, cavallo).
+tr(pawn, pedone).
 tr(teacher, insegnante).
 tr(doctor, dottore).
 tr(student, studente).
@@ -557,6 +563,12 @@ tr(problem, problema).
 tr(mistake, errore).
 tr(dream, sogno).
 tr(game, gioco).
+tr(games, giochi).
+tr(player, giocatore).
+tr(players, giocatori).
+tr(goal, obiettivo).
+tr(rules, regole).
+tr(play, giocare).
 tr(story, storia).
 tr(history, storia).
 tr(music, musica).

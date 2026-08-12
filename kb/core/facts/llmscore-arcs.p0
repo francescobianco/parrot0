@@ -25,9 +25,19 @@ reasoning_plan_candidate($Act, $Facet, $Order, $Requirement) :-
     strategy_shape($Strategy, $Shape),
     shape_facet($Shape, $Facet, $Order, $Requirement).
 
-reasoning_claim_candidate($Domain, $Facet, $Subject, $Relation, $Object) :-
+% The claim itself already has a stable identity in Edge. Project that identity
+% here and query claim_edge/4 for its fields; both joins remain representable by
+% the engine instead of duplicating the claim as a five-column tuple.
+reasoning_claim_candidate($Domain, $Facet, $Edge) :-
     reasoning_edge($Domain, $Facet, $Edge),
     claim_edge($Edge, $Subject, $Relation, $Object).
+
+% Binary conversational projection for the universal answer-frame reader.  It
+% also makes the join above observable without reintroducing a five-argument
+% tuple merely for testing or presentation.
+reasoning_claim_edge($Domain, $Edge) :-
+    reasoning_claim_candidate($Domain, $Facet, $Edge).
+answer_frame("reasoning claim", reasoning_claim_edge).
 
 % Short reusable realizers.  These are presentation knowledge, not claims.
 relation_frame(is, "{subject} is {object}.").
