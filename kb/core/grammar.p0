@@ -452,3 +452,32 @@ list_final_joiner(it, e).
 auxiliary(am).
 question_word(qual).
 question_word(quale).
+
+% ── LE VARIABILI DI UNA REGOLA ───────────────────────────────────────────────
+% gen382h. Fino a qui si poteva insegnare parlando una sola forma di regola,
+% l'universale unario ("every X is a Y"): una variabile implicita, due predicati.
+% Tutto cio' che LEGA piu' entita' restava fuori dalla conversazione, quindi
+% parrot0 si addestrava a classificare ma non a ragionare.
+%
+% In lingua naturale le variabili non si scrivono con le lettere: si portano con
+% i PRONOMI INDEFINITI e si riprendono con l'ANAFORA. Sono due classi chiuse,
+% quindi conoscenza — esattamente come np_opener/1 e np_closer/1.
+%
+% Le lettere restano ammesse perche' sono un registro didattico legittimo ("se X
+% e' un barista allora X e' una persona") e sono l'unico modo comodo di portare
+% TRE variabili distinte in una frase sola.
+%
+% La differenza fra le due classi e' quella che la lingua fa gia': una seconda
+% occorrenza di un INDEFINITO introduce una variabile NUOVA ("se qualcuno e' il
+% genitore di qualcuno" = due persone), mentre un'ANAFORA riprende quella di
+% prima ("...allora LUI e' ..." = la stessa).
+rule_variable(someone).  rule_variable(anyone).   rule_variable(something).
+rule_variable(qualcuno). rule_variable(chiunque). rule_variable(qualcosa).
+rule_variable(x). rule_variable(y). rule_variable(z).
+
+rule_anaphor(they). rule_anaphor(them). rule_anaphor(he). rule_anaphor(she).
+rule_anaphor(it).   rule_anaphor(lui).  rule_anaphor(lei). rule_anaphor(esso).
+
+% Dove finisce l'antecedente e comincia il conseguente.
+rule_antecedent_marker(if).   rule_antecedent_marker(se).
+rule_consequent_marker(then). rule_consequent_marker(allora).

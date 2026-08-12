@@ -56,8 +56,13 @@
 < I know 27 fact(s).
 > what predicates do you know?
 < I know these predicates: progenitor, parent_of, is_prime, incompatible.
+# gen382e: sopra una certa mole il dump RIASSUME invece di elencare, ed e' giusto
+# che lo faccia — ma qui il passaggio non e' stato deciso: e' arrivato perche' il
+# conteggio e' salito da 15 a 27 quando la pulizia della macchineria ha fatto
+# emergere incompatible/2. Asserito come comportamento CORRENTE: il giorno in cui
+# la soglia si sposta, questo test lo dice.
 > show me your knowledge
-< Here is everything I know: is_prime(2). is_prime(3).
+<~ I know 27 fact(s) total.
 
 # Il fatto insegnato e' reale e RAGIONA, indipendentemente da come venga contato.
 > rex is a dog

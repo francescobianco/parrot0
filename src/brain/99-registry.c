@@ -134,6 +134,10 @@ static const Module registry[] = {
     /* gen382c: l'atto di INSEGNARE una risposta corre prima del motore che le
      * consuma — altrimenti "quando ti chiedo di X rispondi Y" verrebbe letto
      * come una domanda su X invece che come l'istruzione che e'. */
+    /* gen382h: insegnare una REGOLA con variabili corre prima di chi legge le
+     * frasi come domande — "if someone is a X then they are a Y" ha la forma di
+     * un condizionale e il contenuto di una quantificazione. */
+    {"teachrule",  mod_teach_rule},
     {"teachreply", mod_teach_reply},
     {"qa",        mod_qa},
     {"gen",       mod_gen},

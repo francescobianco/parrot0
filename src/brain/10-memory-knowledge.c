@@ -709,6 +709,173 @@ static void polar_class_answer(Brain *b, const char *subj, const char *cls,
     b->has_last_goal = 1;
 }
 
+/* INSEGNARE UNA REGOLA CON VARIABILI, parlando (gen382h).
+ *
+ * Fino a qui parrot0 imparava a parole una sola forma di regola, l'universale
+ * unario ("every barista is a person"): una variabile implicita, due predicati
+ * unari. Tutto cio' che LEGA piu' entita' restava fuori dalla conversazione, e
+ * quindi lo si poteva addestrare a classificare ma non a ragionare.
+ *
+ * Lo strato linguistico che mancava, e che qui e' tutto in KB: in lingua
+ * naturale le variabili si portano con i PRONOMI INDEFINITI (rule_variable/1) e
+ * si riprendono con l'ANAFORA (rule_anaphor/1); antecedente e conseguente sono
+ * separati da marcatori dichiarati. Il motore non conosce nessuna di quelle
+ * parole — taglia, sostituisce, e consegna la clausola a kb_assert_clause, che
+ * esisteva gia' e sa scrivere teste n-arie con variabili condivise.
+ *
+ * La distinzione fra le due classi e' quella che la lingua fa da sola: un
+ * secondo INDEFINITO introduce una variabile nuova, un'ANAFORA riprende quella
+ * di prima. E' il motivo per cui sono due classi e non una.
+ *
+ * Le clausole riconosciute sono le due forme portanti:
+ *     <v> is a <classe>            -> classe($V)
+ *     <v> is the <rel> of <v2>     -> rel($V, $V2)
+ * piu' la congiunzione "and" nell'antecedente, che e' cio' che rende possibile
+ * la transitivita' ("se X e' il genitore di Y e Y e' il genitore di Z ..."). */
+static int p0_is_conj(const char *t);   /* fwd */
+
+#define P0_RULE_MAXV 8
+
+typedef struct {
+    char name[P0_RULE_MAXV][KB_TERM_LEN];   /* la parola che l'ha introdotta */
+    char var[P0_RULE_MAXV][KB_TERM_LEN];    /* $V1, $V2, ... */
+    size_t n;
+    int last;                               /* l'ultima introdotta: l'anafora */
+} P0RuleVars;
+
+/* Il termine per questa parola: una variabile se e' un indefinito o un'anafora,
+ * altrimenti la parola stessa (una costante). */
+static const char *p0_rule_term(Brain *b, P0RuleVars *v, const char *w) {
+    const char *q[] = { w };
+    if (kb_query(b->kb, "rule_anaphor", q, 1)) {
+        if (v->last >= 0) return v->var[v->last];
+        return NULL;                       /* anafora senza antecedente */
+    }
+    if (!kb_query(b->kb, "rule_variable", q, 1)) return NULL;
+
+    /* Una LETTERA nomina la stessa variabile ovunque compaia (registro
+     * didattico); un indefinito ne introduce una nuova ogni volta, perche' "se
+     * qualcuno e' il genitore di qualcuno" parla di due persone. */
+    int is_letter = (strlen(w) == 1);
+    if (is_letter) {
+        for (size_t i = 0; i < v->n; i++)
+            if (strcmp(v->name[i], w) == 0) { v->last = (int)i; return v->var[i]; }
+    }
+    if (v->n >= P0_RULE_MAXV) return NULL;
+    snprintf(v->name[v->n], KB_TERM_LEN, "%s", w);
+    snprintf(v->var[v->n], KB_TERM_LEN, "$V%zu", v->n + 1);
+    v->last = (int)v->n;
+    v->n++;
+    return v->var[v->n - 1];
+}
+
+/* Una clausola in un goal. Ritorna 1 se l'ha riconosciuta. */
+static int p0_rule_clause(Brain *b, P0RuleVars *v, char **w, size_t n,
+                          char store[3][KB_TERM_LEN], KbGoal *g) {
+    if (n < 3) return 0;
+    const char *subj = p0_rule_term(b, v, w[0]);
+    if (!subj) return 0;
+    if (strcmp(w[1], "is") != 0 && strcmp(w[1], "are") != 0) return 0;
+
+    /* "<v> is the <rel> of <v2>" — la forma relazionale */
+    if (n >= 5 && is_definite_article(b, w[2]) && is_relation_prep(b, w[4])) {
+        if (n < 6) return 0;
+        const char *obj = p0_rule_term(b, v, w[5]);
+        if (!obj) return 0;
+        snprintf(store[0], KB_TERM_LEN, "%s", w[3]);
+        snprintf(store[1], KB_TERM_LEN, "%s", subj);
+        snprintf(store[2], KB_TERM_LEN, "%s", obj);
+        g->pred = store[0];
+        g->argc = 2;
+        return 1;
+    }
+
+    /* "<v> is a <classe>" — la forma di appartenenza */
+    {
+        size_t ci = 2;
+        if (ci < n && (is_article(b, w[ci]) || is_definite_article(b, w[ci]))) ci++;
+        if (ci >= n) return 0;
+        snprintf(store[0], KB_TERM_LEN, "%s", w[ci]);
+        snprintf(store[1], KB_TERM_LEN, "%s", subj);
+        g->pred = store[0];
+        g->argc = 1;
+        return 1;
+    }
+}
+
+static int mod_teach_rule(Brain *b, const char *norm, const char *raw,
+                          char *out, size_t out_size) {
+    (void)raw;
+    if (!b || !b->kb || !norm) return 0;
+
+    char buf[512];
+    snprintf(buf, sizeof buf, "%s", norm);
+    char *w[64];
+    size_t nw = split_words(buf, w, 64);
+    if (nw < 6) return 0;
+    for (size_t i = 0; i < nw; i++) w[i] = strip_edge_punct(w[i]);
+
+    /* i due marcatori: quali parole lo siano e' conoscenza */
+    size_t a_at = nw, c_at = nw;
+    for (size_t i = 0; i < nw; i++) {
+        const char *q[] = { w[i] };
+        if (a_at == nw && kb_query(b->kb, "rule_antecedent_marker", q, 1)) a_at = i;
+        else if (c_at == nw && a_at < nw &&
+                 kb_query(b->kb, "rule_consequent_marker", q, 1)) c_at = i;
+    }
+    if (a_at != 0 || c_at >= nw || c_at <= a_at + 1) return 0;
+
+    P0RuleVars vars; memset(&vars, 0, sizeof vars); vars.last = -1;
+
+    /* ANTECEDENTE: una o piu' clausole unite da "and" */
+    KbGoal body[KB_MAX_BODY];
+    char bstore[KB_MAX_BODY][3][KB_TERM_LEN];
+    const char *bargs[KB_MAX_BODY][2];
+    size_t nbody = 0, seg = a_at + 1;
+    while (seg < c_at && nbody < KB_MAX_BODY) {
+        size_t end = seg;
+        while (end < c_at && !p0_is_conj(w[end])) end++;
+        if (end > seg &&
+            p0_rule_clause(b, &vars, &w[seg], end - seg, bstore[nbody], &body[nbody])) {
+            bargs[nbody][0] = bstore[nbody][1];
+            bargs[nbody][1] = bstore[nbody][2];
+            body[nbody].args = bargs[nbody];
+            body[nbody].neg = 0;
+            nbody++;
+        } else return 0;
+        seg = (end < c_at) ? end + 1 : c_at;
+    }
+    if (nbody == 0) return 0;
+
+    /* CONSEGUENTE: una sola clausola */
+    KbGoal head; char hstore[3][KB_TERM_LEN]; const char *hargs[2];
+    if (!p0_rule_clause(b, &vars, &w[c_at + 1], nw - c_at - 1, hstore, &head))
+        return 0;
+    hargs[0] = hstore[1]; hargs[1] = hstore[2];
+    head.args = hargs; head.neg = 0;
+
+    kb_set_origin(b->kb, KB_SESSION);
+    if (!kb_assert_clause(b->kb, &head, body, nbody)) return 0;
+
+    char msg[512]; size_t mo = 0;
+    mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "Learned rule: %s(", head.pred);
+    for (size_t i = 0; i < head.argc; i++)
+        mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s",
+                               i ? ", " : "", hargs[i]);
+    mo += (size_t)snprintf(msg + mo, sizeof msg - mo, ") :- ");
+    for (size_t j = 0; j < nbody; j++) {
+        mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s(",
+                               j ? ", " : "", body[j].pred);
+        for (size_t i = 0; i < body[j].argc; i++)
+            mo += (size_t)snprintf(msg + mo, sizeof msg - mo, "%s%s",
+                                   i ? ", " : "", bargs[j][i]);
+        mo += (size_t)snprintf(msg + mo, sizeof msg - mo, ")");
+    }
+    snprintf(msg + mo, sizeof msg - mo, ".");
+    put(msg, out, out_size);
+    return 1;
+}
+
 /* gen375 — hold BOTH levels instead of silently choosing one.
  *
  * A new class assertion can sit badly with what parrot0 already holds: told

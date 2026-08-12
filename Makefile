@@ -456,6 +456,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/reasoning/relations.p0t
 	@./$(BIN) --test tests/p0t/reasoning/rules.p0t
 	@./$(BIN) --test tests/p0t/reasoning/inference_guard.p0t
+	@./$(BIN) --test tests/p0t/reasoning/taught_rules.p0t
 	@./$(BIN) --test tests/p0t/knowledge/magnitude_compare.p0t
 	@./$(BIN) --test tests/p0t/reasoning/transitivity.p0t
 	@./$(BIN) --test tests/p0t/reasoning/unify.p0t

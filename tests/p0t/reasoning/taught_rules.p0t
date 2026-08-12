@@ -1,0 +1,61 @@
+# INSEGNARE UNA REGOLA CON VARIABILI, parlando (gen382h).
+#
+# Fino a qui parrot0 imparava a parole una sola forma di regola, l'universale
+# unario ("every barista is a person"): una variabile implicita, due predicati
+# unari. Tutto cio' che LEGA piu' entita' restava fuori dalla conversazione — e
+# quindi lo si poteva addestrare a CLASSIFICARE ma non a RAGIONARE.
+#
+# Lo strato linguistico che mancava sta tutto in KB: le variabili si portano con
+# i pronomi indefiniti (rule_variable/1) e si riprendono con l'anafora
+# (rule_anaphor/1); i marcatori di antecedente e conseguente sono dichiarati. Il
+# motore non conosce nessuna di quelle parole: taglia, sostituisce, e consegna la
+# clausola a kb_assert_clause, che esisteva gia'.
+#
+# CONTESTO VIVO: entita' nuove invece dell'amputazione — nessun fatto della KB
+# puo' rispondere al posto della regola insegnata.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test taught rule with an indefinite and its anaphor]
+# "someone" introduce la variabile, "they" la riprende: e' la distinzione che la
+# lingua fa gia', ed e' il motivo per cui sono due classi e non una.
+> if someone is a zorbist then they are a krantic
+< Learned rule: krantic($V1) :- zorbist($V1).
+# E la regola RAGIONA: il soggetto non e' mai stato dichiarato krantic.
+> vex is a zorbist
+< Learned: zorbist(vex).
+> is vex a krantic
+< Yes.
+
+[test taught relational rule with three variables]
+# Il caso che conta: due predicati BINARI e tre variabili distinte, cioe' la
+# transitivita'. Le lettere sono un registro didattico legittimo, e sono l'unico
+# modo comodo di portare tre variabili in una frase sola.
+> if x is the parent of y and y is the parent of z then x is the grandparent of z
+< Learned rule: grandparent($V1, $V3) :- parent($V1, $V2), parent($V2, $V3).
+> anna is the parent of bruno
+< Learned: parent(anna, bruno).
+> bruno is the parent of carla
+< Learned: parent(bruno, carla).
+# Nessuno ha mai detto chi sia il nonno di chi: la risposta esce dalla regola.
+> who is the grandparent of carla
+< anna.
+
+[test the same rule taught in italian]
+# Le classi sono dichiarate nelle due lingue, quindi non cambia niente nel
+# motore: cambia cosa la KB sa.
+!set PARROT0_LANG=it
+!reset
+> se x è il genitore di y e y è il genitore di z allora x è il nonno di z
+< Learned rule: nonno($V1, $V3) :- genitore($V1, $V2), genitore($V2, $V3).
+> anna è il genitore di bruno
+< Learned: genitore(anna, bruno).
+> bruno è il genitore di carla
+< Learned: genitore(bruno, carla).
+> chi è il nonno di carla
+< anna.
