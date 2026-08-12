@@ -71,6 +71,13 @@ game_summary($Game, $Summary) :-
     expert_domain($Game, games),
     means($Game, $Summary).
 
+% Cross-domain humanities projection.  Topic membership and summaries are facts
+% owned by the expert files; the procedure is shared by literature, philosophy,
+% anthropology, art history and world history.
+humanities_summary($Topic, $Summary) :-
+    humanities_topic($Topic),
+    means($Topic, $Summary).
+
 % Normalized view of the split invented_object/2 + trait/3 representation.  It
 % keeps every callable relation within the engine's four-argument contract and
 % makes a newly taught object's taste immediately answerable by answer_frame/2.

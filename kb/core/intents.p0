@@ -1054,6 +1054,9 @@ answer_frame("setup for", game_setup).
 answer_frame("tip for", game_tip).
 answer_frame("components of", game_component).
 answer_frame("what is", game_summary).
+answer_frame("what is", humanities_summary).
+answer_frame("who is", humanities_summary).
+answer_frame("tell me about", humanities_summary).
 answer_frame("taste of", invented_object_taste).
 answer_frame("what flavor", invented_object_taste).
 

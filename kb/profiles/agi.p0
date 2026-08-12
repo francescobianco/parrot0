@@ -41,6 +41,13 @@ profile_description(agi, "super expert across all domains: programming, mathemat
 
 % --- philosophy experts ---
 :- include(../experts/philosophy/ethics.p0).
+:- include(../experts/philosophy/history.p0).
+
+% --- humanities and human cultures ---
+:- include(../experts/anthropology/cultural_anthropology.p0).
+:- include(../experts/literature/world_literature.p0).
+:- include(../experts/arts/art_history.p0).
+:- include(../experts/history/civilizations.p0).
 
 % --- engineering experts ---
 :- include(../experts/engineering/systems.p0).
