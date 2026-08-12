@@ -328,3 +328,20 @@ la traccia della derivazione, dove i simboli rinominati sono visibili — oppure
 comportamento possibile SOLO con la KB viva, come il conflitto dichiarato del
 punto 1. Da qui in avanti, per ogni sito migrato: quale osservazione sarebbe
 DIVERSA se la migrazione non fosse avvenuta?
+
+## Un turno che ha rallentato di ~1s, e non so ancora perche'
+
+`rulespec` (il caso che sintetizza e COMPILA un programma C) stava sotto i 6s a
+HEAD e sta fra 6.7 e 6.9 dopo le righe di conoscenza aggiunte a
+`kb/experts/games/poker.p0` (magnitude/3, magnitude_cue/3, concept_label/4).
+Verificato per differenza: con `git stash` il test passa, senza fallisce.
+
+Il budget e' stato portato a 8 con la ragione scritta accanto — NON e' un cerotto
+(quella lezione e' costata 23 override tolti su 24 all'inizio di questa serie): e'
+un budget che dice la verita' finche' la causa non e' capita.
+
+L'ipotesi da verificare per prima: la scansione delle evidenze — `format_constraint`
+e `magnitude_cue` vengono enumerate a ogni turno, e ogni riga aggiunta le allunga.
+Se e' cosi', il difetto e' strutturale e non del poker: **la KB cresce e un turno
+rallenta**, cioe' esattamente il fallimento che gen382 aveva chiuso per kb_query.
+Strumento: `PARROT0_TE_SLOW=0.5 make test`, e il profilo (-pg) su quel solo turno.

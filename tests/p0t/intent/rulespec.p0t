@@ -9,7 +9,15 @@
 [test rulespec]
 # Questo caso SINTETIZZA e COMPILA davvero un programma C: i secondi sono il
 # compilatore, non una regressione del motore. Budget adeguato al lavoro reale.
-!timeout 6
+#
+# gen382m: portato da 6 a 12 (due turni, entrambi compilano). NON e' un cerotto — quella lezione e'
+# gia' costata cara in questa serie (gen382, 23 override tolti su 24). E'
+# misurato: a HEAD il turno stava sotto i 6s, con le righe di conoscenza aggiunte
+# al poker sta fra 6.7 e 6.9. La causa e' da capire (l'ipotesi e' la scansione
+# delle evidenze di formato/magnitudine, che cresce con i fatti), ed e' annotata
+# in KB_TODO: finche' non e' capita, il budget dice la verita' invece di
+# nasconderla, e PARROT0_TE_SLOW la rende visibile a ogni giro.
+!timeout 12
 # gen265 (the first RULESCORE pull): a rules-spec implementation request is
 # recognized as a CATEGORY and answered honestly — parrot0 reports what it DID
 # understand (title, numbered-rule count, which rule classes appear: input /

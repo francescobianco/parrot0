@@ -19,6 +19,54 @@ category_member(poker_hand, flush).
 category_member(poker_hand, full_house).
 category_member(poker_hand, four_of_a_kind).
 category_member(poker_hand, straight_flush).
+% gen382l — i ranghi erano detti in un DIALETTO PRIVATO.
+%
+% `poker_hand_rank/2` diceva esattamente cio' che `magnitude(Dim, Item, Rank)`
+% dice per ogni altra grandezza confrontabile del sistema — la lunghezza dei
+% fiumi, la distanza dei pianeti — ma sotto un nome che solo questo file capisce.
+% Risultato: il motore generale di confronto non poteva vedere i ranghi, e "e'
+% piu' forte il full o il poker" andava a muro mentre "quale fiume e' piu' lungo"
+% rispondeva. Non mancava una capacita': mancava che il dato fosse detto nella
+% lingua comune (mantra #3, astrai fino al punto fisso).
+%
+% Le righe `poker_hand_rank/2` restano perche' `poker_hand_beats/2` le usa e le
+% strutture secondarie non si potano (keep-secondary-structures); ma la verita'
+% confrontabile e' qui sotto, dove tutti la leggono.
+magnitude(hand_rank, high_card, 1).
+magnitude(hand_rank, one_pair, 2).
+magnitude(hand_rank, two_pair, 3).
+magnitude(hand_rank, three_of_a_kind, 4).
+magnitude(hand_rank, straight, 5).
+magnitude(hand_rank, flush, 6).
+magnitude(hand_rank, full_house, 7).
+magnitude(hand_rank, four_of_a_kind, 8).
+magnitude(hand_rank, straight_flush, 9).
+
+% Le parole con cui si chiede quel confronto, e i nomi italiani delle mani —
+% che NON sono la traduzione delle parole inglesi ("full house" e' il "full",
+% "four of a kind" e' il "poker"), esattamente come il cavallo degli scacchi.
+% La forma canonica italiana: "piu' forte" arriva al dispatch come "strong",
+% perche' il comparativo italiano si costruisce con "piu'" e la canonicalizzazione
+% lascia l'aggettivo nudo. Dichiarare anche la forma base e' il rimedio locale;
+% quello GENERALE — un comparative_marker/1 che valga per ogni aggettivo e ogni
+% dimensione — e' segnato in KB_TODO, perche' questa riga risolve il poker e non
+% risolve la classe.
+magnitude_cue(strong, hand_rank, max).
+magnitude_cue(weak, hand_rank, min).
+magnitude_cue(stronger, hand_rank, max).
+magnitude_cue(strongest, hand_rank, max).
+magnitude_cue(weaker, hand_rank, min).
+magnitude_cue(weakest, hand_rank, min).
+
+concept_label(full_house, it, common, full).
+concept_label(four_of_a_kind, it, common, poker).
+concept_label(straight_flush, it, common, scala_reale).
+concept_label(three_of_a_kind, it, common, tris).
+concept_label(two_pair, it, common, doppia_coppia).
+concept_label(one_pair, it, common, coppia).
+concept_label(straight, it, common, scala).
+concept_label(flush, it, common, colore).
+
 poker_hand_rank(high_card, 1).
 poker_hand_rank(one_pair, 2).
 poker_hand_rank(two_pair, 3).

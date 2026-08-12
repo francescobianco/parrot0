@@ -2417,6 +2417,8 @@ static int first_entity_after(Brain *b, char **w, size_t start, size_t nw,
     return 0;
 }
 
+static void present_atom(Brain *b, const char *in, char *out, size_t n);  /* fwd */
+
 static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
                                     const char *a, const char *c, int yesno,
                                     char *out, size_t out_size) {
@@ -2453,7 +2455,14 @@ static int answer_magnitude_compare(Brain *b, const char *dim, int want_max,
         }
         const char *win = want_max ? (na > nc ? ca : cc) : (na < nc ? ca : cc);
         char dw[80], msg[96];
-        display_key(win, dw, sizeof dw);
+        /* gen382l: il vincitore passa dal PRESENTATORE, non da display_key.
+         * Altrimenti la risposta esce col nome interno — "Full_house" invece di
+         * "full" — perche' i nomi per lingua e registro (concept_label/4,
+         * gen382b) vivono in present_atom e questo percorso li scavalcava. Due
+         * renderer invece di uno: e' il difetto di sempre, in miniatura. */
+        char pres[KB_TERM_LEN];
+        present_atom(b, win, pres, sizeof pres);
+        display_key(pres, dw, sizeof dw);
         snprintf(msg, sizeof msg, "%s.", dw);
         put(msg, out, out_size);
         return 1;
