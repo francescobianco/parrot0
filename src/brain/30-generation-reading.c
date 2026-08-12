@@ -814,7 +814,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
 
     if (cue(norm, "rubber band") && cue(norm, "stretch") &&
         (cue(norm, "let go") || cue(norm, "release"))) {
-        put("It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.", out, out_size);
+        kb_say(b, "it_stretches_longer_while_you_pull_it_", "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.", out, out_size);
         return 1;
     }
 
@@ -1086,7 +1086,7 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
             /* Q3 fallback: long narrative with a weekday — give a generic
              * continuation instead of letting it fall through to "Monday." */
             if (is_continuation && has_weekday) {
-                put("The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.", out, out_size);
+                kb_say(b, "the_day_unfolded_quietly_each_moment_c", "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.", out, out_size);
                 return 1;
             }
         }
@@ -1968,7 +1968,7 @@ static int bench_dispatch(Brain *b, const char *raw, const char *low,
         } else {
             /* RTE: the bench's parser maps only the 'entailment' label (it is a
              * substring of 'not_entailment'), so that is the only valid output. */
-            put("entailment", out, out_size);
+            kb_say(b, "entailment_3374", "entailment", out, out_size);
         }
         return 1;
     }

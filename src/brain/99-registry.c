@@ -464,6 +464,10 @@ Brain *brain_create(void) {
      * grammar is inspectable/teachable knowledge instead of a C ternary. */
     kb_set_origin(b->kb, KB_BASE);
     kb_load(b->kb, "kb/core/grammar.p0");
+    /* gen382d: le risposte dei moduli. Il letterale in C resta il default e
+     * questo file ha l'ultima parola, quindi ogni messaggio e' sovrascrivibile
+     * a runtime invece che murato nel motore. */
+    kb_load(b->kb, "kb/core/messages.p0");
 
     /* gen211 (cardinal KB-first principle): multi-word INTENT phrases — the exact
      * surface forms that mean "ask my name" etc. — live in kb/core/intents.p0, not in

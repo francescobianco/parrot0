@@ -1250,7 +1250,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                          b->last_module);
             put(msg, out, out_size);
         } else {
-            put("I haven't answered anything yet.", out, out_size);
+            kb_say(b, "i_haven_t_answered_anything_yet", "I haven't answered anything yet.", out, out_size);
         }
         return 1;
     }
@@ -1272,7 +1272,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "You taught me: %s", dump);
             put(msg, out, out_size);
         } else {
-            put("You haven't taught me any facts yet.", out, out_size);
+            kb_say(b, "you_haven_t_taught_me_any_facts_yet", "You haven't taught me any facts yet.", out, out_size);
         }
         return 1;
     }
@@ -1316,7 +1316,7 @@ static int mod_self(Brain *b, const char *norm, const char *raw,
                      (cue(buf, "quali nomi ho menzionato") && wn <= 5);
     if (entities_q) {
         if (b->entity_count == 0) {
-            put("You haven't mentioned any names I recognized.", out, out_size);
+            kb_say(b, "you_haven_t_mentioned_any_names_i_reco", "You haven't mentioned any names I recognized.", out, out_size);
         } else {
             char list[512]; size_t off = 0;
             for (size_t i = 0; i < b->entity_count && off < sizeof list; i++)

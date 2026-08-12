@@ -329,7 +329,7 @@ static int mod_whatifnot(Brain *b, const char *norm, const char *raw,
     { char n1[256]; normalize(fact, n1, sizeof n1); canonicalize_lang(b, n1, fc, sizeof fc); }
     char pred[KB_TERM_LEN], arg[KB_TERM_LEN];
     if (!parse_ground_unary(b, fc, pred, sizeof pred, arg, sizeof arg)) {
-        put("I can only reconsider a simple 'X is a Y' fact for now.", out, out_size);
+        kb_say(b, "i_can_only_reconsider_a_simple_x_is_a_", "I can only reconsider a simple 'X is a Y' fact for now.", out, out_size);
         return 1;
     }
     const char *fargs[] = {arg};

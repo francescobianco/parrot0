@@ -1,0 +1,64 @@
+% messages.p0 — le risposte dei moduli, come CONOSCENZA (gen382d).
+%
+% Erano ~140 letterali dentro i moduli in C: corrette, e mute. Non interrogabili,
+% non localizzabili, e soprattutto non INSEGNABILI — dire a parrot0 "al posto di
+% rispondere cosi' rispondi cosi'" non puo' funzionare su una stringa che il
+% motore porta dentro di se'.
+%
+% Il testo in C resta come DEFAULT: kb_say() chiede prima qui e ripiega sul
+% letterale se la KB tace. Cosi' la migrazione non puo' far sparire una risposta,
+% e ogni riga di questo file e' una decisione sovrascrivibile a runtime — anche
+% in una lingua nuova, con response_template/3.
+%
+% Aggiungere qui una riga CAMBIA quello che parrot0 dice, senza ricompilare.
+% Toglierla lo riporta al suo default.
+
+response_template(between_the_two_i_don_t_have_a_real_pr, "Between the two? I don't have a real preference.").
+response_template(conflicted, "Conflicted.").
+response_template(entailed, "Entailed.").
+response_template(entailment, "Entailment.").
+response_template(entailment_3374, "entailment").
+response_template(glad_you_re_enjoying_the_conversation, ":) Glad you're enjoying the conversation.").
+response_template(got_it_i_will_avoid_technical_detail, "Got it: I will avoid technical detail.").
+response_template(got_it_i_will_keep_it_short, "Got it: I will keep it short.").
+response_template(i_am_reading_this_conversation_turn_by, "I am reading this conversation turn by turn.").
+response_template(i_can_only_reconsider_a_simple_x_is_a_, "I can only reconsider a simple 'X is a Y' fact for now.").
+response_template(i_can_t_predict_the_output_of_that_yet, "I can't predict the output of that yet.").
+response_template(i_can_t_show_that, "I can't show that.").
+response_template(i_couldn_t_run_the_shell_oracle, "I couldn't run the shell oracle.").
+response_template(i_couldn_t_store_that, "I couldn't store that.").
+response_template(i_couldn_t_store_that_rule, "I couldn't store that rule.").
+response_template(i_did_not_catch_the_preference, "I did not catch the preference.").
+response_template(i_didn_t_catch_your_name, "I didn't catch your name.").
+response_template(i_do_not_know_any_current_constraint_y, "I do not know any current constraint yet.").
+response_template(i_do_not_know_the_current_topic_yet, "I do not know the current topic yet.").
+response_template(i_do_not_know_your_current_mood_yet, "I do not know your current mood yet.").
+response_template(i_do_not_know_your_preference_yet, "I do not know your preference yet.").
+response_template(i_don_t_have_a_previous_turn_to_recons, "I don't have a previous turn to reconsider yet.").
+response_template(i_don_t_know_a_command_for_that_yet, "I don't know a command for that yet.").
+response_template(i_don_t_know_your_name_yet, "I don't know your name yet.").
+response_template(i_don_t_understand_that_entailment_yet, "I don't understand that entailment yet.").
+response_template(i_don_t_understand_that_question_yet, "I don't understand that question yet.").
+response_template(i_don_t_watch_movies_or_have_recent_vi, "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.").
+response_template(i_found_the_rule_but_not_the_number_to, "I found the rule but not the number to apply it to.").
+response_template(i_have_conflicting_evidence_for_that, "I have conflicting evidence for that.").
+response_template(i_haven_t_answered_anything_yet, "I haven't answered anything yet.").
+response_template(i_haven_t_created_any_files_this_sessi, "I haven't created any files this session.").
+response_template(i_ll_play_along_what_are_my_two_option, "I'll play along — what are my two options?").
+response_template(i_supposed_that_what_should_i_check, "I supposed that. What should I check?").
+response_template(i_understand_some_patterns_and_i_say_w, "I understand some patterns, and I say when I do not.").
+response_template(it_stretches_longer_while_you_pull_it_, "It stretches longer while you pull it. When you let go, elasticity pulls it back toward its original shape.").
+response_template(no_i_only_read_text_i_can_t_hear_audio, "No, I only read text. I can't hear audio.").
+response_template(no_the_statement_says_those_classes_do, "No -- the statement says those classes do not overlap.").
+response_template(okay_i_m_myself_again_i_am_parrot0, "Okay, I'm myself again. I am parrot0.").
+response_template(that_s_kind_of_you_thank_you, "That's kind of you — thank you!").
+response_template(the_day_unfolded_quietly_each_moment_c, "The day unfolded quietly, each moment carrying the weight of something unspoken. And in that stillness, a new chapter was beginning.").
+response_template(there_is_no_such_world_open, "There is no such world open.").
+response_template(this_world_is_full_i_can_t_assume_more, "This world is full; I can't assume more here.").
+response_template(understood, "Understood.").
+response_template(we_haven_t_talked_about_much_yet, "We haven't talked about much yet.").
+response_template(yes, "Yes.").
+response_template(yes_i_m_here, "Yes, I'm here.").
+response_template(yes_i_read_each_message_in_this_conver, "Yes. I read each message in this conversation.").
+response_template(you_haven_t_mentioned_any_names_i_reco, "You haven't mentioned any names I recognized.").
+response_template(you_haven_t_taught_me_any_facts_yet, "You haven't taught me any facts yet.").

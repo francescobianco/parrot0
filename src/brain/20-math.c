@@ -2358,7 +2358,7 @@ static int mod_teach_reply(Brain *b, const char *norm, const char *raw,
 
     const KbResponseSlot sl[] = { { "cue", topic } };
     if (kb_response_slots(b, "taught_reply", sl, 1, out, out_size)) return 1;
-    put("Understood.", out, out_size);
+    kb_say(b, "understood", "Understood.", out, out_size);
     return 1;
 }
 

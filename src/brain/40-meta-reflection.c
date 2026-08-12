@@ -70,7 +70,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         const char *q[] = { "file", NULL };
         size_t n = b->kb ? kb_match(b->kb, "artifact", q, 2, paths, 16) : 0;
         if (n == 0) {
-            put("I haven't created any files this session.", out, out_size);
+            kb_say(b, "i_haven_t_created_any_files_this_sessi", "I haven't created any files this session.", out, out_size);
             return 1;
         }
         char msg[480]; size_t o = 0;
@@ -115,9 +115,9 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                     cue(buf, "mi ascolti");
     if (attention) {
         if (strcmp(b->last_reply, "Yes. I read each message in this conversation.") == 0)
-            put("I am reading this conversation turn by turn.", out, out_size);
+            kb_say(b, "i_am_reading_this_conversation_turn_by", "I am reading this conversation turn by turn.", out, out_size);
         else
-            put("Yes. I read each message in this conversation.", out, out_size);
+            kb_say(b, "yes_i_read_each_message_in_this_conver", "Yes. I read each message in this conversation.", out, out_size);
         return 1;
     }
 
@@ -177,7 +177,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                      cue(buf, "capisci") ||
                      cue(buf, "capire quello");
     if (understand) {
-        put("I understand some patterns, and I say when I do not.", out, out_size);
+        kb_say(b, "i_understand_some_patterns_and_i_say_w", "I understand some patterns, and I say when I do not.", out, out_size);
         return 1;
     }
 
@@ -188,7 +188,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                    cue(buf, "ci sei") ||
                    cue(buf, "sei li");
     if (presence) {
-        put("Yes, I'm here.", out, out_size);
+        kb_say(b, "yes_i_m_here", "Yes, I'm here.", out, out_size);
         return 1;
     }
 
@@ -197,7 +197,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
                   cue(buf, "mi senti") ||
                   cue(buf, "mi ascolti");
     if (channel) {
-        put("No, I only read text. I can't hear audio.", out, out_size);
+        kb_say(b, "no_i_only_read_text_i_can_t_hear_audio", "No, I only read text. I can't hear audio.", out, out_size);
         return 1;
     }
 
@@ -250,7 +250,7 @@ static int mod_meta(Brain *b, const char *norm, const char *raw,
         if ((cue(buf, "movie") || cue(buf, "film")) &&
             (cue(buf, "watched recently") || cue(buf, "watched") ||
              cue(buf, "seen recently"))) {
-            put("I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.", out, out_size);
+            kb_say(b, "i_don_t_watch_movies_or_have_recent_vi", "I don't watch movies or have recent viewing experiences, but for the prompt I'd pick an old mystery for its careful clues.", out, out_size);
             return 1;
         }
         int situated_activity_fav =
@@ -959,7 +959,7 @@ static int mod_role(Brain *b, const char *norm, const char *raw,
         b->in_role = 0;
         b->role_name[0] = b->role_kind[0] = '\0';
         b->role_attr_count = 0;
-        put("Okay, I'm myself again. I am parrot0.", out, out_size);
+        kb_say(b, "okay_i_m_myself_again_i_am_parrot0", "Okay, I'm myself again. I am parrot0.", out, out_size);
         return 1;
     }
 

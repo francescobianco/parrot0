@@ -181,6 +181,36 @@ static int kb_response(Brain *b, const char *intent, const char *slot,
     return kb_response_slots(b, intent, named, 1, out, outsz);
 }
 
+/* Un messaggio con un DEFAULT nel codice e la parola finale alla KB (gen382d).
+ *
+ * I moduli avevano ~140 risposte scritte come letterali in C: corrette, e mute.
+ * Non erano interrogabili, non erano localizzabili, e soprattutto non erano
+ * INSEGNABILI — dire a parrot0 "al posto di rispondere cosi' rispondi cosi'" non
+ * poteva funzionare su una stringa che il motore porta dentro di se'.
+ *
+ * Migrarle tutte in una volta spostando il testo sarebbe stato rischioso (una
+ * riga di KB dimenticata = una risposta che sparisce). Questo helper le rende
+ * KB-first senza quel rischio: la KB decide se ha qualcosa da dire, altrimenti
+ * vale il letterale. Il letterale non e' piu' LA risposta, e' il suo default —
+ * e da quel momento ogni messaggio e' sovrascrivibile a runtime, in qualunque
+ * lingua, senza ricompilare.
+ *
+ * La chiave e' il nome del messaggio; il testo in C resta come documentazione di
+ * cosa dice di solito. */
+static size_t put(const char *s, char *out, size_t out_size);   /* fwd */
+
+static int kb_say(Brain *b, const char *key, const char *fallback,
+                  char *out, size_t outsz) {
+    char buf[1024];
+    if (b && kb_response_slots(b, key, NULL, 0, buf, sizeof buf) && buf[0]) {
+        put(buf, out, outsz);
+        return 1;
+    }
+    put(fallback, out, outsz);
+    return 1;
+}
+
+
 /* gen363 (motorize-the-class) — a reply carries the FRAME that produced it.
  *
  * A consumer that matched a request but had no facts for it used to write its

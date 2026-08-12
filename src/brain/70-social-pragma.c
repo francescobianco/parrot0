@@ -57,7 +57,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
         for (size_t i = 0; phatic[i]; i++) {
             if (has_social_pattern(b, phatic[i], buf)) {
                 if (!kb_response(b, phatic[i], NULL, out, out_size))
-                    put("That's kind of you — thank you!", out, out_size);
+                    kb_say(b, "that_s_kind_of_you_thank_you", "That's kind of you — thank you!", out, out_size);
                 return 1;
             }
         }
@@ -85,7 +85,7 @@ static int mod_social(Brain *b, const char *norm, const char *raw,
         }
     }
     if (has_reaction && nw <= 3) {
-        put(":) Glad you're enjoying the conversation.", out, out_size);
+        kb_say(b, "glad_you_re_enjoying_the_conversation", ":) Glad you're enjoying the conversation.", out, out_size);
         return 1;
     }
 
@@ -174,12 +174,12 @@ static int mod_chitchat(Brain *b, const char *norm, const char *raw,
      * opener. Cues/replies are KB-first (intent_cue/response_template, EN+IT). */
     if (kb_cue_match(b, "would_rather", norm)) {
         if (!kb_response(b, "would_rather", NULL, out, out_size))
-            put("I'll play along — what are my two options?", out, out_size);
+            kb_say(b, "i_ll_play_along_what_are_my_two_option", "I'll play along — what are my two options?", out, out_size);
         return 1;
     }
     if (is_binary_choice(norm)) {
         if (!kb_response(b, "binary_choice", NULL, out, out_size))
-            put("Between the two? I don't have a real preference.", out, out_size);
+            kb_say(b, "between_the_two_i_don_t_have_a_real_pr", "Between the two? I don't have a real preference.", out, out_size);
         return 1;
     }
 

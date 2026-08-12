@@ -73,7 +73,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     if (strncmp(norm, prefix, plen) == 0) {
         const char *name = skip_ws(skip_ws(raw) + plen);
         if (*name == '\0') {
-            put("I didn't catch your name.", out, out_size);
+            kb_say(b, "i_didn_t_catch_your_name", "I didn't catch your name.", out, out_size);
             return 1;
         }
         copy_trim(b->name, sizeof b->name, name);
@@ -98,7 +98,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     if (name_from) {
         const char *name = skip_ws(name_from);
         if (*name == '\0') {
-            put("I didn't catch your name.", out, out_size);
+            kb_say(b, "i_didn_t_catch_your_name", "I didn't catch your name.", out, out_size);
             return 1;
         }
         copy_trim(b->name, sizeof b->name, name);
@@ -366,7 +366,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                                 snprintf(msg, sizeof msg, "Your name is %s.", b->name);
                                 put(msg, out, out_size);
                             } else {
-                                put("I don't know your name yet.", out, out_size);
+                                kb_say(b, "i_don_t_know_your_name_yet", "I don't know your name yet.", out, out_size);
                             }
                             return 1;
                         }
@@ -407,7 +407,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             char val[64];
             copy_trim(val, sizeof val, skip_ws(val_from));
             if (val[0] == 0) {
-                put("I did not catch the preference.", out, out_size);
+                kb_say(b, "i_did_not_catch_the_preference", "I did not catch the preference.", out, out_size);
                 return 1;
             }
             snprintf(b->user_preference_verb, sizeof b->user_preference_verb, "%s", verb);
@@ -426,14 +426,14 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
     if (kb_cue_match(b, "brevity", norm)) {
         snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "keep it short");
         b->has_user_constraint = 1;
-        put("Got it: I will keep it short.", out, out_size);
+        kb_say(b, "got_it_i_will_keep_it_short", "Got it: I will keep it short.", out, out_size);
         return 1;
     }
     if (cue(norm, "not too technical") || cue(norm, "avoid technical") ||
         cue(norm, "non essere tecnico") || cue(norm, "non troppo tecnico")) {
         snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "avoid technical detail");
         b->has_user_constraint = 1;
-        put("Got it: I will avoid technical detail.", out, out_size);
+        kb_say(b, "got_it_i_will_avoid_technical_detail", "Got it: I will avoid technical detail.", out, out_size);
         return 1;
     }
 
@@ -445,7 +445,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                      b->user_preference_verb, b->user_preference_value);
             put(msg, out, out_size);
         } else {
-            put("I do not know your preference yet.", out, out_size);
+            kb_say(b, "i_do_not_know_your_preference_yet", "I do not know your preference yet.", out, out_size);
         }
         return 1;
     }
@@ -457,7 +457,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "You told me you feel %s.", b->user_mood);
             put(msg, out, out_size);
         } else {
-            put("I do not know your current mood yet.", out, out_size);
+            kb_say(b, "i_do_not_know_your_current_mood_yet", "I do not know your current mood yet.", out, out_size);
         }
         return 1;
     }
@@ -470,7 +470,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "The current topic is %s.", b->current_topic);
             put(msg, out, out_size);
         } else {
-            put("I do not know the current topic yet.", out, out_size);
+            kb_say(b, "i_do_not_know_the_current_topic_yet", "I do not know the current topic yet.", out, out_size);
         }
         return 1;
     }
@@ -482,7 +482,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "Your current constraint is: %s.", b->user_constraint);
             put(msg, out, out_size);
         } else {
-            put("I do not know any current constraint yet.", out, out_size);
+            kb_say(b, "i_do_not_know_any_current_constraint_y", "I do not know any current constraint yet.", out, out_size);
         }
         return 1;
     }
@@ -551,7 +551,7 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
             snprintf(msg, sizeof msg, "Your name is %s.", b->name);
             put(msg, out, out_size);
         } else {
-            put("I don't know your name yet.", out, out_size);
+            kb_say(b, "i_don_t_know_your_name_yet", "I don't know your name yet.", out, out_size);
         }
         return 1;
     }
@@ -1220,7 +1220,7 @@ static void idk(const char *pred, char *out, size_t out_size) {
 static void explain_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
     if (kb_is_conflicted(b->kb, pred, args, argc)) {
-        put("I have conflicting evidence for that.", out, out_size);
+        kb_say(b, "i_have_conflicting_evidence_for_that", "I have conflicting evidence for that.", out, out_size);
         return;
     }
 
@@ -1232,7 +1232,7 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
         put(msg, out, out_size);
         store_proof(b, ex);
     } else {
-        put("I can't show that.", out, out_size);
+        kb_say(b, "i_can_t_show_that", "I can't show that.", out, out_size);
     }
 }
 
@@ -1246,13 +1246,13 @@ static void explain_reply(Brain *b, const char *pred, const char *const *args,
 static void howknow_reply(Brain *b, const char *pred, const char *const *args,
                           size_t argc, char *out, size_t out_size) {
     if (kb_is_conflicted(b->kb, pred, args, argc)) {
-        put("I have conflicting evidence for that.", out, out_size);
+        kb_say(b, "i_have_conflicting_evidence_for_that", "I have conflicting evidence for that.", out, out_size);
         return;
     }
 
     char ex[512];
     if (!kb_explain(b->kb, pred, args, argc, ex, sizeof ex)) {
-        put("I can't show that.", out, out_size);
+        kb_say(b, "i_can_t_show_that", "I can't show that.", out, out_size);
         return;
     }
 
@@ -1351,7 +1351,7 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
         args[1] = w[5];
         argc = 2;
     } else {
-        put("I don't understand that entailment yet.", out, out_size);
+        kb_say(tmp, "i_don_t_understand_that_entailment_yet", "I don't understand that entailment yet.", out, out_size);
         return;
     }
 
@@ -1361,9 +1361,9 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
         put(mode == ENT_LABEL ? "Neutral." : "Conflicted.", out, out_size);
     else if (kb_query(tmp->kb, pred, args, argc)) {
         if (mode == ENT_LABEL) {
-            put("Entailment.", out, out_size);
+            kb_say(tmp, "entailment", "Entailment.", out, out_size);
         } else if (mode == ENT_PLAIN) {
-            put("Entailed.", out, out_size);
+            kb_say(tmp, "entailed", "Entailed.", out, out_size);
         } else {
             char ex[512];
             if (kb_explain(tmp->kb, pred, args, argc, ex, sizeof ex)) {
@@ -1374,7 +1374,7 @@ static void entailment_status(Brain *tmp, const char *hyp, int mode,
                     snprintf(msg, sizeof msg, "Entailed: %s is a known fact.", ex);
                 put(msg, out, out_size);
             } else {
-                put("Entailed.", out, out_size);
+                kb_say(tmp, "entailed", "Entailed.", out, out_size);
             }
         }
     }
@@ -1393,14 +1393,14 @@ static int entailment_reply(Brain *b, const char *premises, const char *hypothes
     size_t plen = strlen(premises);
     if (plen >= sizeof pbuf) {
         kb_destroy(tmp.kb);
-        put("I don't understand that entailment yet.", out, out_size);
+        kb_say(b, "i_don_t_understand_that_entailment_yet", "I don't understand that entailment yet.", out, out_size);
         return 1;
     }
     memcpy(pbuf, premises, plen + 1);
 
     if (!apply_premises(&tmp, pbuf)) {
         kb_destroy(tmp.kb);
-        put("I don't understand that entailment yet.", out, out_size);
+        kb_say(b, "i_don_t_understand_that_entailment_yet", "I don't understand that entailment yet.", out, out_size);
         return 1;
     }
 
@@ -7010,7 +7010,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 }
                 /* A recurs (premise + question), B recurs (both universals) */
                 if (ac >= 2 && bc >= 2 && strcmp(as, bs)) {
-                    put("Yes.", out, out_size);
+                    kb_say(b, "yes", "Yes.", out, out_size);
                     store_proof(b, "Barbara: all A are B and all B have the property, so A does too.");
                     return 1;
                 }
@@ -7057,7 +7057,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                     if (!strcmp(s, cs)) hasC = 1;
                 }
                 if (hasA && hasC) {
-                    put("Yes.", out, out_size);
+                    kb_say(b, "yes", "Yes.", out, out_size);
                     store_proof(b, "Darii: some A are B and all B are C, so some A are C.");
                     return 1;
                 }
@@ -7151,7 +7151,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             l = strlen(qys); if (l > 1 && qys[l - 1] == 's') qys[l - 1] = '\0';
             if ((!strcmp(xs, qxs) && !strcmp(ys, qys)) ||
                 (!strcmp(xs, qys) && !strcmp(ys, qxs))) {
-                put("No -- the statement says those classes do not overlap.", out, out_size);
+                kb_say(b, "no_the_statement_says_those_classes_do", "No -- the statement says those classes do not overlap.", out, out_size);
                 store_proof(b, "The explicit no-overlap premise rules out being both.");
                 return 1;
             }
@@ -7324,7 +7324,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 char xs[64]; snprintf(xs, sizeof xs, "%s", X);
                 { size_t l = strlen(xs); if (l > 1 && xs[l-1]=='s') xs[l-1]='\0'; }
                 if (strstr(norm, xs) && strstr(norm, P)) {
-                    put("Yes.", out, out_size);
+                    kb_say(b, "yes", "Yes.", out, out_size);
                     store_proof(b, "Barbara with an instance: all A have P and X is an A, so X has P.");
                     return 1;
                 }
@@ -8365,7 +8365,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
                 put(yes ? "Yes, under that supposition." : "No, even with that supposition.",
                     out, out_size);
             } else {
-                put("I supposed that. What should I check?", out, out_size);
+                kb_say(b, "i_supposed_that_what_should_i_check", "I supposed that. What should I check?", out, out_size);
             }
             kb_destroy(hypo.kb);
             return 1;
@@ -8398,7 +8398,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (premise_start) {
         char *hyp = strstr(buf, "; hypothesis:");
         if (!hyp) {
-            put("I don't understand that entailment yet.", out, out_size);
+            kb_say(b, "i_don_t_understand_that_entailment_yet", "I don't understand that entailment yet.", out, out_size);
             return 1;
         }
         *hyp = '\0';
@@ -8413,7 +8413,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
     if (choice_start) {
         char *colon = strchr(choice_start, ':');
         if (!colon) {
-            put("I don't understand that question yet.", out, out_size);
+            kb_say(b, "i_don_t_understand_that_question_yet", "I don't understand that question yet.", out, out_size);
             return 1;
         }
         *colon = '\0';
@@ -9999,7 +9999,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             put(msg, out, out_size);
             auto_induce(b, out, out_size);
         } else {
-            put("I couldn't store that rule.", out, out_size);
+            kb_say(b, "i_couldn_t_store_that_rule", "I couldn't store that rule.", out, out_size);
         }
         return 1;
     }
@@ -10117,7 +10117,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             const char *args[] = {subj, obj};
             if (!kb_knows_pred(b->kb, rel)) idk(rel, out, out_size);
             else if (kb_is_conflicted(b->kb, rel, args, 2))
-                put("Conflicted.", out, out_size);
+                kb_say(b, "conflicted", "Conflicted.", out, out_size);
             else put(kb_query(b->kb, rel, args, 2) ? "Yes." : "No.",
                      out, out_size);
             return 1;
@@ -10317,7 +10317,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
         const char *args[] = {subj};
         if (!kb_knows_pred(b->kb, cls)) idk(cls, out, out_size);
         else if (kb_is_conflicted(b->kb, cls, args, 1)) {
-            put("Conflicted.", out, out_size);
+            kb_say(b, "conflicted", "Conflicted.", out, out_size);
             char ex[512];
             if (kb_explain(b->kb, cls, args, 1, ex, sizeof ex))
                 store_proof(b, ex);
@@ -10357,7 +10357,7 @@ static int mod_knowledge(Brain *b, const char *norm, const char *raw,
             note_class_conflict(b, cls, subj, out, out_size);  /* gen375 */
             note_consequence(b, cls, before, out, out_size); /* gen103 (L16) */
         } else {
-            put("I couldn't store that.", out, out_size);
+            kb_say(b, "i_couldn_t_store_that", "I couldn't store that.", out, out_size);
         }
         remember_entity(b, w[0], subj);
         return 1;

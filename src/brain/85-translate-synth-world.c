@@ -819,7 +819,7 @@ static int mod_synth(Brain *b, const char *norm, const char *raw,
         }
     }
     if (!best) {
-        put("I don't know a command for that yet.", out, out_size);
+        kb_say(b, "i_don_t_know_a_command_for_that_yet", "I don't know a command for that yet.", out, out_size);
         return 1;
     }
 
@@ -909,7 +909,7 @@ static int mod_counterfactual(Brain *b, const char *norm, const char *raw,
     if (without_form && !question_shape) return 0;
 
     if (!b->has_last_input || !b->has_trace) {
-        put("I don't have a previous turn to reconsider yet.", out, out_size);
+        kb_say(b, "i_don_t_have_a_previous_turn_to_recons", "I don't have a previous turn to reconsider yet.", out, out_size);
         return 1;
     }
 
@@ -1182,7 +1182,7 @@ static int world_clause(Brain *b, const char *clause, int interrogative,
         if (pi != nw - 1) return 0;            /* one-word class only, for now */
         const char *pred = w[pi];
         if (!world_assert(b, subj, pred, neg)) {
-            put("This world is full; I can't assume more here.", out, out_size);
+            kb_say(b, "this_world_is_full_i_can_t_assume_more", "This world is full; I can't assume more here.", out, out_size);
             return 1;
         }
         char m[300];
@@ -1272,7 +1272,7 @@ static int mod_world(Brain *b, const char *norm, const char *raw,
             if (has_world_noun) {
                 int id = named ? world_find(b, named) : b->active_world;
                 if (id < 0) {
-                    put("There is no such world open.", out, out_size);
+                    kb_say(b, "there_is_no_such_world_open", "There is no such world open.", out, out_size);
                     return 1;
                 }
                 char nm[48]; snprintf(nm, sizeof nm, "%s", b->worlds[id]);

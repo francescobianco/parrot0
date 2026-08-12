@@ -80,7 +80,7 @@ static int mod_induce(Brain *b, const char *norm, const char *raw,
     numbuf[kk] = '\0';
     double n0;
     if (kk == 0 || !parse_value(numbuf, &n0)) {
-        put("I found the rule but not the number to apply it to.", out, out_size);
+        kb_say(b, "i_found_the_rule_but_not_the_number_to", "I found the rule but not the number to apply it to.", out, out_size);
         store_proof(b, rule);
         return 1;
     }
@@ -370,13 +370,13 @@ static int mod_shell(Brain *b, const char *norm, const char *raw,
     if (pred_cmd) {
         char predicted[4096], actual[4096];
         if (!simulate_pipeline(pred_cmd, predicted, sizeof predicted)) {
-            put("I can't predict the output of that yet.", out, out_size);
+            kb_say(b, "i_can_t_predict_the_output_of_that_yet", "I can't predict the output of that yet.", out, out_size);
             return 1;
         }
         char safe_cmd[512];
         snprintf(safe_cmd, sizeof safe_cmd, "%s", pred_cmd);
         if (!run_shell(safe_cmd, actual, sizeof actual)) {
-            put("I couldn't run the shell oracle.", out, out_size);
+            kb_say(b, "i_couldn_t_run_the_shell_oracle", "I couldn't run the shell oracle.", out, out_size);
             return 1;
         }
         if (strcmp(predicted, actual) == 0) {
@@ -638,7 +638,7 @@ static int mod_discourse(Brain *b, const char *norm, const char *raw,
     int summary = kb_cue_match(b, "65_induce_verify_shell_chain628", norm);
     if (!summary) return 0;
     if (b->topic_count == 0) {
-        put("We haven't talked about much yet.", out, out_size);
+        kb_say(b, "we_haven_t_talked_about_much_yet", "We haven't talked about much yet.", out, out_size);
         return 1;
     }
     char msg[256];
