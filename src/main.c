@@ -170,7 +170,10 @@ int main(int argc, char **argv) {
         if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
         else if (strcmp(argv[i], "--mcp-engine") == 0) mcp_mode = 1;
         else if (strcmp(argv[i], "--test-engine") == 0) test_mode = 1;
-        else if (strcmp(argv[i], "--test-send") == 0) {
+        /* `--test FILE` is the name; `--test-send` stays as a compatible alias so
+         * an older script or note keeps working. */
+        else if (strcmp(argv[i], "--test") == 0 ||
+                 strcmp(argv[i], "--test-send") == 0) {
             send_mode = 1;
             if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) send_file = argv[++i];
         }
@@ -185,7 +188,7 @@ int main(int argc, char **argv) {
             fprintf(stderr, "parrot0: unknown argument '%s'\n"
                     "usage: parrot0 [--daemon [--port N] [--host H]] [--mcp-engine]\n"
                     "               [--test-engine [--sock PATH]]\n"
-                    "               [--test-send FILE [--sock PATH]] [--test-report [--sock PATH]]\n",
+                    "               [--test FILE [--sock PATH]] [--test-report [--sock PATH]]\n",
                     argv[i]);
             return 2;
         }
@@ -193,7 +196,7 @@ int main(int argc, char **argv) {
 
     /* gen345: the test-engine CLIENTS run FIRST and load NOTHING — no brain, no
      * KB — so every `make test` line is a cheap socket relay to the one daemon.
-     * --test-send FILE streams a `.p0t` file; --test-report asks for the summary
+     * --test FILE streams a `.p0t` file; --test-report asks for the summary
      * and stops the daemon, propagating its pass/fail as the exit code. */
     if (send_mode) {
         FILE *in = send_file ? fopen(send_file, "rb") : stdin;

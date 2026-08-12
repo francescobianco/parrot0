@@ -1,8 +1,21 @@
 # The test-engine — one live instance validates `.p0t` suites
 
-> **Stato:** gen346 — **MIGRAZIONE COMPLETA.** `make test` = **1557 passed, 0
-> failed** (~55s). Tutti i 253 `.chat` legacy migrati in `tests/p0t/<categoria>/`
-> (256 `.p0t`); `tests/cases/` è vuoto. Il guard `!timeout` a 1s è attivo ovunque
+> **Stato:** gen377 — **MIGRAZIONE DAVVERO COMPLETA.** `make test` = **1619
+> passed, 0 failed**, e per la prima volta il target NON contiene più alcuno
+> script shell: `analysis_planner_growth.sh` e `probability_inverse_growth.sh`
+> sono diventati `.p0t`. Vivevano fuori per una ragione tecnica, non di merito —
+> il formato sapeva TOGLIERE conoscenza (`!forget`) ma non AGGIUNGERLA, e sapeva
+> asserire solo l'uguaglianza esatta. Aggiunti `!assert PRED(a, b, …)`, `<~`
+> (contiene) e `<!` (non contiene), l'ultimo motivo per stare fuori è caduto.
+> Il client si invoca ora `parrot0 --test FILE` (`--test-send` resta come alias).
+>
+> [Stato gen346:] si dichiarava **MIGRAZIONE COMPLETA**, `make test` = 1557
+> passed, 0 failed. Era vero per i `.chat` ma non per la suite: due script shell
+> restavano, e soprattutto il verde non reggeva — a gen372 `make test` era rosso
+> da `introspect.p0t` (riga 442) e il fail-fast nascondeva altri quattro rossi a
+> valle. Una dichiarazione di completezza va riverificata, non ereditata.
+> Tutti i 253 `.chat` legacy migrati in `tests/p0t/<categoria>/`;
+> `tests/cases/` è vuoto. Il guard `!timeout` a 1s è attivo ovunque
 > (solo `fewshot.it`/`strategy.it`, naturalmente ~1.3s, hanno `!timeout 3`).
 >
 > **Perf risolta:** i 23 casi "perf-held" (conjunction/robust/calibrate\*/…)
@@ -29,7 +42,7 @@
 >
 > [Stato storico:] gen346. `make test` era 1034. `parrot0
 > --test-engine` è un demone su socket Unix che tiene UN brain vivo; i file `.p0t`
-> gli si mandano con `--test-send`. Il vecchio harness è `make legacy-test` (file
+> gli si mandano con `--test`. Il vecchio harness è `make legacy-test` (file
 > `.chat` in `tests/cases/`, girati da `tests/run.sh`).
 > **~148 casi migrati** in `tests/p0t/<categoria>/`. **106 `.chat` restano**, e si
 > dividono in due gruppi che richiedono una DECISIONE prima di procedere:
@@ -57,7 +70,7 @@ avvia **una** istanza e le manda tutti i file: la KB si carica una volta sola.
 
 ```
 parrot0 --test-engine  [--sock PATH]   # DEMONE: un brain, in ascolto sul socket
-parrot0 --test-send FILE [--sock PATH] # CLIENT: manda un file .p0t al demone
+parrot0 --test FILE [--sock PATH] # CLIENT: manda un file .p0t al demone
 parrot0 --test-report    [--sock PATH] # CLIENT: chiede il totale e ferma il demone
 ```
 
@@ -68,7 +81,7 @@ connessione riparte però dall'**ambiente di default** (gli override `!set` sono
 azzerati a inizio file), così un file ermetico non "sporca" il successivo. Socket
 di default: `obj/test-engine.sock`.
 
-**Report per-file:** ogni `--test-send` stampa UNA riga — `ok NOME — N passed` —
+**Report per-file:** ogni `--test` stampa UNA riga — `ok NOME — N passed` —
 oppure, se qualcosa fallisce, prima il dettaglio (`FAIL [sezione] linea`,
 `expected:`/`got:`) e poi `FAIL NOME — N passed, M failed`, uscendo con `1`
 (fail-fast: `make` si ferma lì). `--test-report` chiude il demone e stampa
@@ -92,7 +105,21 @@ sessione.
 !timeout SECONDI            budget per-test di un turno (default 1s, reset a ogni
                             [test]); un turno più lento è un FAIL (guardia anti-
                             regressione di performance); 0 lo disabilita
+
+<~ testo                    asserisce che la risposta CONTIENE `testo`
+<! testo                    asserisce che la risposta NON contiene `testo`
+!assert PRED(a, b, …)       aggiunge un fatto ground dall'interno del test
+!forget PRED | PRED(a, b)   toglie un predicato intero o un fatto singolo
+!forget @LAYER              butta via uno strato: @base, @session, @induced,
+                            @reflective, @hypothetical
 ```
+
+L'uguaglianza esatta è giusta per una risposta breve e determinata. Una risposta
+analitica è un paragrafo, e un contratto di crescita asserisce che una FRASE
+compaia o sparisca quando un fatto viene insegnato o ritrattato: inchiodare
+l'intero paragrafo sarebbe fragile e mancherebbe il punto. `!assert` è il gemello
+in scrittura di `!forget`, e la loro asimmetria era il motivo per cui la
+migrazione non si chiudeva.
 
 - **Multi-turno:** più coppie `> / <` in una sezione girano in ordine sullo stesso
   brain (coreferenza e stato tra turni testabili).
@@ -192,12 +219,12 @@ test-engine: build
 	@./$(BIN) --test-engine & echo $$! > $(TEST_PID)
 
 test: test-engine
-	@./$(BIN) --test-send tests/p0t/basics.p0t
-	@./$(BIN) --test-send tests/p0t/…          # una riga per file
+	@./$(BIN) --test tests/p0t/basics.p0t
+	@./$(BIN) --test tests/p0t/…          # una riga per file
 	@./$(BIN) --test-report
 ```
 
-**Fail-fast:** un `--test-send` esce con `1` appena il suo file ha un `FAIL` (il
+**Fail-fast:** un `--test` esce con `1` appena il suo file ha un `FAIL` (il
 report del file esce prima), quindi `make` si ferma lì; il prossimo `make test`
 uccide il demone rimasto e rilancia pulito.
 
@@ -216,7 +243,7 @@ uccide il demone rimasto e rilancia pulito.
   `EXIT n`.
 - `src/env.{c,h}` — `p0env`/`p0env_set`/`p0env_clear`/`p0env_mem_signature` +
   la lista `MEMORY_VARS`. **Qui** si aggiunge una variabile memory-affecting.
-- `src/main.c` — parsing `--test-engine` / `--test-send FILE` / `--test-report` /
+- `src/main.c` — parsing `--test-engine` / `--test FILE` / `--test-report` /
   `--sock`; i client ritornano **prima** di `setup_brain` (footprint zero).
 - `src/brain/99-registry.c` — `brain_create`/`brain_boot`/`brain_policy` leggono
   la config via `p0env(...)` (non più `getenv`). PID pilotabile via `PARROT0_PID`.
@@ -245,10 +272,10 @@ gen_p0t() {  # crea tests/p0t/NAME.p0t da tests/cases/NAME.chat
 Poi: (1) verifica isolata —
 ```
 ./bin/parrot0 --test-engine & sleep 0.3
-./bin/parrot0 --test-send tests/p0t/NAME.p0t | grep -c FAIL   # deve essere 0
+./bin/parrot0 --test tests/p0t/NAME.p0t | grep -c FAIL   # deve essere 0
 ./bin/parrot0 --test-report >/dev/null; kill %1
 ```
-(2) aggiungi una riga `@./$(BIN) --test-send tests/p0t/NAME.p0t` nel target `test`;
+(2) aggiungi una riga `@./$(BIN) --test tests/p0t/NAME.p0t` nel target `test`;
 (3) `make test` (deve restare verde); (4) `git rm tests/cases/NAME.chat`.
 
 Nota: un `.chat` è già `.p0t` valido (stessi `>`/`<`/`#`), quindi lo si può anche
@@ -295,7 +322,7 @@ mandare direttamente al demone per categorizzarlo prima di aggiungere il preambo
 `reasoning/`, `math/`, `knowledge/`, `language/`, `meta/`, `generation/`,
 `intent/`, `planning/`, `bench/`. Un nuovo `.p0t` va nella cartella della sua
 categoria; la ricetta §9c scrive in `tests/p0t/<categoria>/<nome>.p0t` e la riga
-`--test-send` nel Makefile usa lo stesso path. Il report mostra comunque il solo
+`--test` nel Makefile usa lo stesso path. Il report mostra comunque il solo
 basename (es. `ok reqgen.p0t — 8 passed`).
 
 ### 9f. Già migrati (in `tests/p0t/<categoria>/`, cablati in `make test`)

@@ -2,6 +2,12 @@
 
 A self-evolving conversational agent written in **pure C**.
 
+> ### ⛔ Stai per modificare parrot0? Leggi [`MANTRA.md`](MANTRA.md).
+> Le quindici regole operative che decidono se una modifica fa avanzare o
+> regredire l'esperimento. La prima: **non scrivere codice se la conoscenza può
+> farlo.** Vale anche per una modifica di due righe, e anche se sei arrivato qui
+> per tutt'altro motivo.
+
 parrot0 is an experiment. It starts as a parrot — it just repeats what you
 say — and grows, one small generation at a time, into something more
 conversational. The catch: there is **no language model inside it at

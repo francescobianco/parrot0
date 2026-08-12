@@ -1,5 +1,8 @@
 # Founding principle
 
+> **Operativamente:** questo file è il *perché*; [`MANTRA.md`](MANTRA.md) è il
+> *come*, ed è quello da avere davanti mentre si scrive. I due si leggono insieme.
+>
 > Read this before working the loop. It is the *why* of the whole experiment;
 > `LOOP.md` is only the *how*.
 

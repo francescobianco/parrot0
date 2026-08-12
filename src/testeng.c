@@ -2,7 +2,7 @@
  *
  * A local validation SERVICE. `parrot0 --test-engine` boots ONE brain and listens
  * on a Unix socket; `make test` then sends each `.p0t` file as its own connection
- * (`parrot0 --test-send FILE`) and finally `parrot0 --test-report`. The KB loads
+ * (`parrot0 --test FILE`) and finally `parrot0 --test-report`. The KB loads
  * once, in the daemon; the client loads NOTHING — it is a bare socket relay, so
  * every `make test` line is cheap.
  *
@@ -13,6 +13,13 @@
  *
  *   > text                    send `text` to parrot0 as one user turn
  *   < text                    assert the reply equals `text`
+ *   <~ text                   assert the reply CONTAINS `text`
+ *   <! text                   assert the reply does NOT contain `text`
+ *
+ * Exact match is right for a short, fully determined reply. A generated analytical
+ * answer is a paragraph, and a growth contract asserts that one phrase appears or
+ * disappears when a fact is taught or retracted — pinning the whole paragraph would
+ * be brittle and would miss the point.
  *
  *   !set NAME=VALUE           pilot a runtime config global (env.h): PARROT0_BASE,
  *                             PARROT0_WORLD_FACTS, PARROT0_LANG, PARROT0_ORACLE,
@@ -36,6 +43,7 @@
  *   !forget PRED(a, b)        drop one specific ground fact
  *   !forget @LAYER            drop a whole provenance layer: @base, @session,
  *                             @induced, @reflective, @hypothetical
+ *   !assert PRED(a, b, …)     add a ground fact from inside the test
  *
  * On `!forget` (F.): what a test needs ABSENT is the test's job, not the load's.
  * The KB is part of parrot0, not a mounted volume, so knowledge is subtracted
@@ -87,6 +95,12 @@ typedef struct {
     size_t expect_len;
     int  have_expect;
     int  expect_startline;
+    /* gen377: how `expect` is compared. Exact match is right for a short, fully
+     * determined reply, but a generated ANALYTICAL answer is a paragraph, and what
+     * a growth test asserts is that one phrase APPEARS or DISAPPEARS when a fact is
+     * taught or retracted. Pinning the whole paragraph would be brittle and would
+     * miss the point. TE_EXPECT_HAS / _LACKS say exactly what is meant. */
+    enum { TE_EXPECT_EXACT = 0, TE_EXPECT_HAS = 1, TE_EXPECT_LACKS = 2 } expect_mode;
 
     /* The brain's state is signed on TWO axes so both !reload and !reset can tell
      * exactly what (if anything) needs redoing:
@@ -142,18 +156,27 @@ static void te_flush(TeState *t) {
     }
     if (!t->have_expect) return;
     const char *got = t->have_reply ? t->reply : "";
-    if (strcmp(t->expect, got) == 0) {
+    int ok;
+    switch (t->expect_mode) {
+        case TE_EXPECT_HAS:   ok = strstr(got, t->expect) != NULL; break;
+        case TE_EXPECT_LACKS: ok = strstr(got, t->expect) == NULL; break;
+        default:              ok = strcmp(t->expect, got) == 0;    break;
+    }
+    if (ok) {
         t->passed++;                         /* silent — the one-line file report counts it */
     } else {
         t->failed++;                         /* only failures print, with useful detail */
         fprintf(t->out, "  FAIL  [%s] line %d\n",
                 t->section[0] ? t->section : "-", t->expect_startline);
-        fprintf(t->out, "        expected: %s\n", t->expect);
+        fprintf(t->out, "        expected%s: %s\n",
+                t->expect_mode == TE_EXPECT_HAS   ? " (contains)" :
+                t->expect_mode == TE_EXPECT_LACKS ? " (absent)"   : "", t->expect);
         fprintf(t->out, "        got:      %s\n", got);
     }
     t->expect_len = 0;
     t->expect[0] = '\0';
     t->have_expect = 0;
+    t->expect_mode = TE_EXPECT_EXACT;
 }
 
 static void te_turn(TeState *t, const char *text) {
@@ -181,7 +204,10 @@ static void te_turn(TeState *t, const char *text) {
     }
 }
 
-static void te_expect(TeState *t, const char *raw) {
+static void te_expect_mode(TeState *t, const char *raw, int mode) {
+    if (t->have_expect && (mode != TE_EXPECT_EXACT || t->expect_mode != TE_EXPECT_EXACT))
+        te_flush(t);                     /* a substring assertion stands alone */
+    t->expect_mode = mode;
     if (!t->have_expect) { t->have_expect = 1; t->expect_startline = t->line_no; }
     else if (t->expect_len + 1 < sizeof t->expect) {
         t->expect[t->expect_len++] = '\n';        /* consecutive `<` = one reply */
@@ -192,6 +218,10 @@ static void te_expect(TeState *t, const char *raw) {
         memcpy(t->expect + t->expect_len, raw, rl + 1);
         t->expect_len += rl;
     }
+}
+
+static void te_expect(TeState *t, const char *raw) {
+    te_expect_mode(t, raw, TE_EXPECT_EXACT);
 }
 
 /* ── per-stream driver (shared by socket connections and the batch mode) ─────── */
@@ -224,6 +254,14 @@ static int te_process_stream(TeState *t, FILE *in) {
             continue;                             /* section name surfaces only in a FAIL */
         }
         if (p[0] == '>') { te_turn(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
+        if (p[0] == '<' && p[1] == '~') {          /* reply CONTAINS this */
+            const char *v = p + 2; if (*v == ' ') v++;
+            te_expect_mode(t, v, TE_EXPECT_HAS); continue;
+        }
+        if (p[0] == '<' && p[1] == '!') {          /* reply does NOT contain this */
+            const char *v = p + 2; if (*v == ' ') v++;
+            te_expect_mode(t, v, TE_EXPECT_LACKS); continue;
+        }
         if (p[0] == '<') { te_expect(t, p[1] == ' ' ? p + 2 : p + 1); continue; }
         if (strncmp(p, "!shutdown", 9) == 0) { te_flush(t); t->shutdown = 1; continue; }
         if (strncmp(p, "!reload", 7) == 0) { te_flush(t); te_apply_config(t); continue; }
@@ -264,6 +302,40 @@ static int te_process_stream(TeState *t, FILE *in) {
          * knowledge is a move inside the dialogue, so the same test can teach
          * something, use it, then make parrot0 forget it and prove the answer
          * changes. Profiles stay for high-level BEHAVIOUR, never for this. */
+        /* `!assert PRED(a, b, …)` — the WRITE twin of !forget. A test could already
+         * subtract knowledge from inside the dialogue but not add an arbitrary n-ary
+         * fact, so growth contracts (teach a cue, probe, retract, probe) had to live
+         * in shell scripts driving the MCP engine. The asymmetry was the reason the
+         * .p0t migration was not finished; this closes it. */
+        if (strncmp(p, "!assert", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
+            te_flush(t);
+            char *q = p + 7;
+            while (*q == ' ' || *q == '\t') q++;
+            char pred[TE_NAME]; size_t k = 0;
+            while (*q && *q != '(' && *q != ' ' && *q != '\t' && k + 1 < sizeof pred)
+                pred[k++] = *q++;
+            pred[k] = '\0';
+            while (*q == ' ' || *q == '\t') q++;
+            if (k == 0 || *q != '(') { syntax_err = 1; continue; }
+            q++;
+            char argbuf[KB_MAX_ARGS][KB_TERM_LEN];
+            const char *args[KB_MAX_ARGS];
+            size_t argc = 0;
+            while (*q && *q != ')' && argc < KB_MAX_ARGS) {
+                while (*q == ' ' || *q == '\t') q++;
+                size_t a = 0;
+                while (*q && *q != ',' && *q != ')' && a + 1 < KB_TERM_LEN)
+                    argbuf[argc][a++] = *q++;
+                while (a > 0 && (argbuf[argc][a-1] == ' ' || argbuf[argc][a-1] == '\t')) a--;
+                argbuf[argc][a] = '\0';
+                args[argc] = argbuf[argc];
+                argc++;
+                if (*q == ',') q++;
+            }
+            if (argc == 0) { syntax_err = 1; continue; }
+            kb_assert(brain_kb(t->b), pred, args, argc);
+            continue;
+        }
         if (strncmp(p, "!forget", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
             te_flush(t);
             char *q = p + 7;

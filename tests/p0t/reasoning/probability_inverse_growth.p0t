@@ -1,0 +1,43 @@
+# CRESCITA A RUNTIME — la probabilita' inversa senza reimmissione.
+#
+# Migrato da tests/probability_inverse_growth.sh (gen377). Lo script pilotava il
+# motore MCP via JSON-RPC per una ragione sola: il formato .p0t sapeva TOGLIERE
+# conoscenza dall'interno (`!forget`) ma non AGGIUNGERLA, e sapeva asserire solo
+# l'uguaglianza esatta di una risposta. Un contratto di crescita — insegna un cue,
+# sonda, ritratta, risonda — ha bisogno di entrambe. Ora le ha (`!assert`, `<~`,
+# `<!`), e questo e' un test come tutti gli altri: stesso demone, stesso report,
+# stesso fail-fast.
+#
+# Cosa dimostra: il riconoscimento di una forma linguistica e' CONOSCENZA. Senza
+# il cue la frase non attiva il solver inverso; asserito il cue lo attiva subito,
+# senza ricompilare; ritrattato, torna com'era. Le tre sonde sono la stessa frase.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test probability_inverse_growth]
+!timeout 3
+
+# 1. PRIMA — `pairprobe-alpha` non e' un cue noto, quindi la frase non viene letta
+#    come un'estrazione senza reimmissione e il solver inverso non parte.
+> The probability of pairprobe-alpha is 0.2. What follows?
+<! R = 3 and N = 6
+
+# 2. INSEGNAMENTO — il cue entra nella KB come fatto, dal test.
+!assert intent_cue(probability_inverse_draw, pairprobe-alpha)
+
+# 3. DOPO — la stessa identica frase ora attiva il solver, che risolve la coppia
+#    (R, N) coerente con la probabilita' data.
+> The probability of pairprobe-alpha is 0.2. What follows?
+<~ R = 3 and N = 6
+
+# 4. RITRATTAZIONE — tolto il fatto, il riconoscimento sparisce. La crescita e'
+#    reversibile, cioe' e' davvero conoscenza e non uno stato nascosto nel C.
+!forget intent_cue(probability_inverse_draw, pairprobe-alpha)
+> The probability of pairprobe-alpha is 0.2. What follows?
+<! R = 3 and N = 6

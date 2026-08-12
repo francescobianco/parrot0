@@ -1,6 +1,12 @@
 # parrot0 - a self-evolving conversational agent in pure C.
 #
+# ⛔ PRIMA DI MODIFICARE QUALSIASI COSA: leggi MANTRA.md (o `make mantra`).
+#    La regola non e' "scrivi codice che funziona", e' "non scrivere codice se la
+#    conoscenza puo' farlo". Una patch che funziona ma mette vocabolario nel C fa
+#    REGREDIRE l'esperimento, anche a test verdi.
+#
 # Common targets:
+#   make mantra     stampa le regole operative — leggile prima di toccare il C
 #   make            build bin/parrot0
 #   make chat       build, then talk to it interactively
 #   make pi         build, start the parrot0 daemon, launch `pi` with parrot0 selected
@@ -47,7 +53,10 @@ BIN     := bin/parrot0
 BENCH_PY ?= $(shell test -x .venv/bin/python && echo .venv/bin/python || echo python3)
 BENCH_CACHE ?= .cache/huggingface/datasets
 
-.PHONY: all build chat chat-agent pi test soft-test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+.PHONY: mantra all build chat chat-agent pi test soft-test test-engine legacy-test check gate capability-facts capability-report model-graph llmscore-arcs reasoning-operators piagent-bench sortlearn-bench game-bench longtalk-bench glue-bench chat-bench long-chat-bench chat-sim sym-bench code-bench rulescore bench bench-superglue bench-superglue-local bench-mmlu bench-bbh impersonate simclean loop clean
+
+mantra:
+	@cat MANTRA.md
 
 all: build
 
@@ -312,8 +321,8 @@ capability-report: build
 # gen345 — the NEW test system. `test-engine` OWNS the background daemon's
 # lifecycle: it kills a stale instance (via the pidfile) and starts a fresh one,
 # so a fail-fast run that left a daemon alive is cleanly reran. TEST_SOCK must
-# match TEST_ENGINE_SOCK_DEFAULT in src/testeng.h so the --test-send lines below
-# stay clean (no --sock). The daemon loads the KB once; --test-send/--test-report
+# match TEST_ENGINE_SOCK_DEFAULT in src/testeng.h so the --test lines below
+# stay clean (no --sock). The daemon loads the KB once; --test/--test-report
 # load nothing. The old per-process `.chat` harness is now `legacy-test`, and its
 # suites are being migrated. See docs/plans/test-engine.md.
 TEST_SOCK := obj/test-engine.sock
@@ -341,7 +350,7 @@ test-engine: build
 	   echo "  the daemon did not start. Its output is in $(TEST_LOG):"; \
 	   sed 's/^/    | /' $(TEST_LOG) 2>/dev/null | tail -20; \
 	   exit 1; fi
-	@if ! ./$(BIN) --test-send tests/p0t/health.p0t; then \
+	@if ! ./$(BIN) --test tests/p0t/health.p0t; then \
 	   echo "test-engine: FAILED — socket exists but the engine is not answering."; \
 	   echo "  usually a STALE socket from a killed daemon, or a brain that came up mute."; \
 	   echo "  daemon log ($(TEST_LOG)):"; \
@@ -350,8 +359,8 @@ test-engine: build
 	@echo "test-engine: ready (health check passed)"
 
 # Reads as: start engine, send first file, send second file, ask for the total.
-# FAIL-FAST: a --test-send exits 1 the instant its file has a failed assertion,
-# so make stops on that line. Comment a --test-send line out to skip that suite.
+# FAIL-FAST: a --test exits 1 the instant its file has a failed assertion,
+# so make stops on that line. Comment a --test line out to skip that suite.
 # ── soft-test — la verifica di AVANZAMENTO rapido ────────────────────────────
 #
 # NON e' la suite, ed e' un errore usarlo come tale. `make test` dimostra che
@@ -387,7 +396,7 @@ SOFT_TESTS := \
 soft-test: test-engine
 	@start=$$(date +%s); \
 	 for f in $(SOFT_TESTS); do \
-	   ./$(BIN) --test-send $$f || exit 1; \
+	   ./$(BIN) --test $$f || exit 1; \
 	 done; \
 	 el=$$(( $$(date +%s) - start )); \
 	 if [ $$el -gt $(SOFT_BUDGET) ]; then \
@@ -399,267 +408,267 @@ soft-test: test-engine
 	 echo "soft-test: green in $${el}s (budget $(SOFT_BUDGET)s)"
 
 test: test-engine
-	@./$(BIN) --test-send tests/p0t/conversation/basics.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/conversation.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/greet.p0t
-	@./$(BIN) --test-send tests/p0t/math/arith.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/world.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/facts.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/class_conflict.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/syllogism.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/casefold.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/contractions.p0t
-	@./$(BIN) --test-send tests/p0t/math/numwords.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/initials.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/social_reaction.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/social_opener.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/smalltalk.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/chitchat.p0t
-	@./$(BIN) --test-send tests/p0t/math/arith_flex.p0t
-	@./$(BIN) --test-send tests/p0t/math/arith_nl.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/abduce.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/abduce_chain.p0t
-	@./$(BIN) --test-send tests/p0t/math/algebra.p0t
-	@./$(BIN) --test-send tests/p0t/math/algebra2.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/analogy.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/cause.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/compare.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/conj.p0t
-	@./$(BIN) --test-send tests/p0t/language/coref.p0t
-	@./$(BIN) --test-send tests/p0t/language/coref_resolve.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/counterfactual.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/entail.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/equality.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/family.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/hypothesis.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/induce.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/investigation.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/investigation_access.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/orchain.p0t
-	@./$(BIN) --test-send tests/p0t/math/quantity.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/relations.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/rules.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/transitivity.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/unify.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/whatifnot.p0t
-	@./$(BIN) --test-send tests/p0t/math/wordproblem.p0t
-	@./$(BIN) --test-send tests/p0t/math/wordproblem_multi.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/belief.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/blankwall.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/branching_abduce.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/condasym.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/continuation.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/define_teach.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/discourse.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/emerge.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/entities.p0t
-	@./$(BIN) --test-send tests/p0t/bench/fewshot.p0t
-	@./$(BIN) --test-send tests/p0t/meta/meta.p0t
-	@./$(BIN) --test-send tests/p0t/meta/meta_reasoning.p0t
-	@./$(BIN) --test-send tests/p0t/intent/polar_meta.p0t
-	@./$(BIN) --test-send tests/p0t/generation/prosefact.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/rederive.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/same.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/sequence_next.p0t
-	@./$(BIN) --test-send tests/p0t/language/string_transform.p0t
-	@./$(BIN) --test-send tests/p0t/generation/summary.p0t
-	@./$(BIN) --test-send tests/p0t/meta/correction.p0t
-	@./$(BIN) --test-send tests/p0t/meta/decompose.p0t
-	@./$(BIN) --test-send tests/p0t/meta/explain_more.p0t
-	@./$(BIN) --test-send tests/p0t/meta/meta_clarify.p0t
-	@./$(BIN) --test-send tests/p0t/meta/mixed.p0t
-	@./$(BIN) --test-send tests/p0t/meta/priority.p0t
-	@./$(BIN) --test-send tests/p0t/meta/retract.p0t
-	@./$(BIN) --test-send tests/p0t/meta/teachverb.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/alsoclass.p0t
-	@./$(BIN) --test-send tests/p0t/bench/bench.p0t
-	@./$(BIN) --test-send tests/p0t/bench/bench_record.p0t
-	@./$(BIN) --test-send tests/p0t/language/compose_coref.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/comprehension.p0t
-	@./$(BIN) --test-send tests/p0t/language/coref_possessive.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/cue_learn.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/discarded.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/factsource.p0t
-	@./$(BIN) --test-send tests/p0t/bench/fallback_grounded.p0t
-	@./$(BIN) --test-send tests/p0t/bench/fallback_word.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_critical.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_ctx.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_describe.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_freq.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_interp.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_read.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_stop.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_weight.p0t
-	@./$(BIN) --test-send tests/p0t/language/input.p0t
-	@./$(BIN) --test-send tests/p0t/intent/intent_learn.p0t
-	@./$(BIN) --test-send tests/p0t/intent/intent_reply.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/kb_conjunction.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/logic_no_overlap.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/memory.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/memory_natural.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/memory_recall.p0t
-	@./$(BIN) --test-send tests/p0t/math/memref_arith.p0t
-	@./$(BIN) --test-send tests/p0t/bench/mmlu.p0t
-	@./$(BIN) --test-send tests/p0t/planning/planact.p0t
-	@./$(BIN) --test-send tests/p0t/planning/plan.p0t
-	@./$(BIN) --test-send tests/p0t/planning/plan_qty.p0t
-	@./$(BIN) --test-send tests/p0t/intent/pragma.p0t
-	@./$(BIN) --test-send tests/p0t/intent/pragmatics.p0t
-	@./$(BIN) --test-send tests/p0t/generation/prosepage.p0t
-	@./$(BIN) --test-send tests/p0t/generation/reader.p0t
-	@./$(BIN) --test-send tests/p0t/intent/role.p0t
-	@./$(BIN) --test-send tests/p0t/intent/rulespec.p0t
-	@./$(BIN) --test-send tests/p0t/meta/self_preference_declarative.p0t
-	@./$(BIN) --test-send tests/p0t/intent/intent.p0t
-	@./$(BIN) --test-send tests/p0t/meta/introspect.p0t
-	@./$(BIN) --test-send tests/p0t/meta/modtrack.p0t
-	@./$(BIN) --test-send tests/p0t/generation/parrot.p0t
-	@./$(BIN) --test-send tests/p0t/intent/reqgen.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/syllogism_universal.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/symbolic.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/wsc.p0t
-	@./$(BIN) --test-send tests/p0t/meta/self_preference_recent.p0t
-	@./$(BIN) --test-send tests/p0t/meta/session_stats.p0t
-	@./$(BIN) --test-send tests/p0t/meta/user_model.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_skeleton.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_derived.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_compose.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit_retract.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest_seam.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/strategy.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_branch.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_induce.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_search.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_verify.p0t
-	@./$(BIN) --test-send tests/p0t/code/code.p0t
-	@./$(BIN) --test-send tests/p0t/code/codeast.p0t
-	@./$(BIN) --test-send tests/p0t/code/codeintent.p0t
-	@./$(BIN) --test-send tests/p0t/code/codeloop.p0t
-	@./$(BIN) --test-send tests/p0t/code/eval_py.p0t
-	@./$(BIN) --test-send tests/p0t/code/run_execute.p0t
-	@./$(BIN) --test-send tests/p0t/repair/repair.p0t
-	@./$(BIN) --test-send tests/p0t/code/symfix.p0t
-	@./$(BIN) --test-send tests/p0t/code/smelltree.p0t
-	@./$(BIN) --test-send tests/p0t/code/tool.p0t
-	@./$(BIN) --test-send tests/p0t/code/toolvocab_growth.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/research.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/compose_social.p0t
-	@./$(BIN) --test-send tests/p0t/meta/self.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/social.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/apology.p0t
-	@./$(BIN) --test-send tests/p0t/language/lexicon_it.p0t
-	@./$(BIN) --test-send tests/p0t/language/translate.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_branch.it.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_induce.it.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent.it.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_search.it.p0t
-	@./$(BIN) --test-send tests/p0t/agent/agent_verify.it.p0t
-	@./$(BIN) --test-send tests/p0t/code/codeintent.it.p0t
-	@./$(BIN) --test-send tests/p0t/code/eval_py.it.p0t
-	@./$(BIN) --test-send tests/p0t/code/run_execute.it.p0t
-	@./$(BIN) --test-send tests/p0t/code/smelltree.it.p0t
-	@./$(BIN) --test-send tests/p0t/code/symfix.it.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/casefold.it.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/chitchat.it.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/compose_social.it.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/discourse.it.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/social.it.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_read.it.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_stop.it.p0t
-	@./$(BIN) --test-send tests/p0t/generation/gen_weight.it.p0t
-	@./$(BIN) --test-send tests/p0t/generation/prosefact.it.p0t
-	@./$(BIN) --test-send tests/p0t/generation/prosepage.it.p0t
-	@./$(BIN) --test-send tests/p0t/generation/summary.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/intent.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/intent_learn.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/intent_reply.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/polar_meta.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/pragma.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/reqgen.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/role.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/rulespec.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/comprehension.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/cue_learn.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/facts.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/factsource.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/memory_natural.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/memory_recall.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/rederive.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/research.it.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/world.it.p0t
-	@./$(BIN) --test-send tests/p0t/language/compose_coref.it.p0t
-	@./$(BIN) --test-send tests/p0t/language/input.it.p0t
-	@./$(BIN) --test-send tests/p0t/language/translate.it.p0t
-	@./$(BIN) --test-send tests/p0t/math/algebra2.it.p0t
-	@./$(BIN) --test-send tests/p0t/math/algebra.it.p0t
-	@./$(BIN) --test-send tests/p0t/math/arith_flex.it.p0t
-	@./$(BIN) --test-send tests/p0t/math/arith_nl.it.p0t
-	@./$(BIN) --test-send tests/p0t/math/numwords.it.p0t
-	@./$(BIN) --test-send tests/p0t/math/wordproblem.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/meta.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/mixed.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_compose.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_skeleton.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/teachverb.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/user_model.it.p0t
-	@./$(BIN) --test-send tests/p0t/misc/coref_prodrop.it.p0t
-	@./$(BIN) --test-send tests/p0t/misc/negation.it.p0t
-	@./$(BIN) --test-send tests/p0t/misc/possession_dinome.it.p0t
-	@./$(BIN) --test-send tests/p0t/misc/tool.it.p0t
-	@./$(BIN) --test-send tests/p0t/planning/planact.it.p0t
-	@./$(BIN) --test-send tests/p0t/planning/plan.it.p0t
-	@./$(BIN) --test-send tests/p0t/planning/plan_qty.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/abduce_chain.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/abduce.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/alsoclass.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/analogy.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/blankwall.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/branching_abduce.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/cause.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/condasym.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/counterfactual.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/deepreason-correct.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/deepreason.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/discarded.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/equality.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/family.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/kb_conjunction.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/orchain.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/proof_trace.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/rules.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/syllogism.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/symbolic.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/transitivity.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/whatifnot.it.p0t
-	@./$(BIN) --test-send tests/p0t/repair/repair.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/calibrate.p0t
-	@./$(BIN) --test-send tests/p0t/meta/calibrate.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/calibrate_stress.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/compose.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/compose.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/conjunction.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/conjunction.it.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/deepreason.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/deepreason-correct.p0t
-	@./$(BIN) --test-send tests/p0t/language/fewshot.it.p0t
-	@./$(BIN) --test-send tests/p0t/intent/pragma_stress.p0t
-	@./$(BIN) --test-send tests/p0t/meta/proof_trace.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_audit.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest_fresh.p0t
-	@./$(BIN) --test-send tests/p0t/meta/reflexive_selftest.it.p0t
-	@./$(BIN) --test-send tests/p0t/repair/repair_stress.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/robust.p0t
-	@./$(BIN) --test-send tests/p0t/reasoning/robust.it.p0t
-	@./$(BIN) --test-send tests/p0t/meta/strategy.it.p0t
-	@./$(BIN) --test-send tests/p0t/conversation/user_model_stress.p0t
-	@./$(BIN) --test-send tests/p0t/knowledge/world_stress.p0t
+	@./$(BIN) --test tests/p0t/conversation/basics.p0t
+	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
+	@./$(BIN) --test tests/p0t/conversation/greet.p0t
+	@./$(BIN) --test tests/p0t/math/arith.p0t
+	@./$(BIN) --test tests/p0t/knowledge/world.p0t
+	@./$(BIN) --test tests/p0t/knowledge/facts.p0t
+	@./$(BIN) --test tests/p0t/knowledge/class_conflict.p0t
+	@./$(BIN) --test tests/p0t/reasoning/syllogism.p0t
+	@./$(BIN) --test tests/p0t/conversation/casefold.p0t
+	@./$(BIN) --test tests/p0t/conversation/contractions.p0t
+	@./$(BIN) --test tests/p0t/math/numwords.p0t
+	@./$(BIN) --test tests/p0t/knowledge/initials.p0t
+	@./$(BIN) --test tests/p0t/conversation/social_reaction.p0t
+	@./$(BIN) --test tests/p0t/conversation/social_opener.p0t
+	@./$(BIN) --test tests/p0t/conversation/smalltalk.p0t
+	@./$(BIN) --test tests/p0t/conversation/chitchat.p0t
+	@./$(BIN) --test tests/p0t/math/arith_flex.p0t
+	@./$(BIN) --test tests/p0t/math/arith_nl.p0t
+	@./$(BIN) --test tests/p0t/reasoning/abduce.p0t
+	@./$(BIN) --test tests/p0t/reasoning/abduce_chain.p0t
+	@./$(BIN) --test tests/p0t/math/algebra.p0t
+	@./$(BIN) --test tests/p0t/math/algebra2.p0t
+	@./$(BIN) --test tests/p0t/reasoning/analogy.p0t
+	@./$(BIN) --test tests/p0t/reasoning/cause.p0t
+	@./$(BIN) --test tests/p0t/reasoning/compare.p0t
+	@./$(BIN) --test tests/p0t/reasoning/conj.p0t
+	@./$(BIN) --test tests/p0t/language/coref.p0t
+	@./$(BIN) --test tests/p0t/language/coref_resolve.p0t
+	@./$(BIN) --test tests/p0t/reasoning/counterfactual.p0t
+	@./$(BIN) --test tests/p0t/reasoning/entail.p0t
+	@./$(BIN) --test tests/p0t/reasoning/equality.p0t
+	@./$(BIN) --test tests/p0t/reasoning/family.p0t
+	@./$(BIN) --test tests/p0t/reasoning/hypothesis.p0t
+	@./$(BIN) --test tests/p0t/reasoning/induce.p0t
+	@./$(BIN) --test tests/p0t/reasoning/investigation.p0t
+	@./$(BIN) --test tests/p0t/reasoning/investigation_access.p0t
+	@./$(BIN) --test tests/p0t/reasoning/orchain.p0t
+	@./$(BIN) --test tests/p0t/math/quantity.p0t
+	@./$(BIN) --test tests/p0t/reasoning/relations.p0t
+	@./$(BIN) --test tests/p0t/reasoning/rules.p0t
+	@./$(BIN) --test tests/p0t/reasoning/transitivity.p0t
+	@./$(BIN) --test tests/p0t/reasoning/unify.p0t
+	@./$(BIN) --test tests/p0t/reasoning/whatifnot.p0t
+	@./$(BIN) --test tests/p0t/math/wordproblem.p0t
+	@./$(BIN) --test tests/p0t/math/wordproblem_multi.p0t
+	@./$(BIN) --test tests/p0t/reasoning/belief.p0t
+	@./$(BIN) --test tests/p0t/reasoning/blankwall.p0t
+	@./$(BIN) --test tests/p0t/reasoning/branching_abduce.p0t
+	@./$(BIN) --test tests/p0t/reasoning/condasym.p0t
+	@./$(BIN) --test tests/p0t/conversation/continuation.p0t
+	@./$(BIN) --test tests/p0t/knowledge/define_teach.p0t
+	@./$(BIN) --test tests/p0t/conversation/discourse.p0t
+	@./$(BIN) --test tests/p0t/knowledge/emerge.p0t
+	@./$(BIN) --test tests/p0t/knowledge/entities.p0t
+	@./$(BIN) --test tests/p0t/bench/fewshot.p0t
+	@./$(BIN) --test tests/p0t/meta/meta.p0t
+	@./$(BIN) --test tests/p0t/meta/meta_reasoning.p0t
+	@./$(BIN) --test tests/p0t/intent/polar_meta.p0t
+	@./$(BIN) --test tests/p0t/generation/prosefact.p0t
+	@./$(BIN) --test tests/p0t/knowledge/rederive.p0t
+	@./$(BIN) --test tests/p0t/reasoning/same.p0t
+	@./$(BIN) --test tests/p0t/knowledge/sequence_next.p0t
+	@./$(BIN) --test tests/p0t/language/string_transform.p0t
+	@./$(BIN) --test tests/p0t/generation/summary.p0t
+	@./$(BIN) --test tests/p0t/meta/correction.p0t
+	@./$(BIN) --test tests/p0t/meta/decompose.p0t
+	@./$(BIN) --test tests/p0t/meta/explain_more.p0t
+	@./$(BIN) --test tests/p0t/meta/meta_clarify.p0t
+	@./$(BIN) --test tests/p0t/meta/mixed.p0t
+	@./$(BIN) --test tests/p0t/meta/priority.p0t
+	@./$(BIN) --test tests/p0t/meta/retract.p0t
+	@./$(BIN) --test tests/p0t/meta/teachverb.p0t
+	@./$(BIN) --test tests/p0t/reasoning/alsoclass.p0t
+	@./$(BIN) --test tests/p0t/bench/bench.p0t
+	@./$(BIN) --test tests/p0t/bench/bench_record.p0t
+	@./$(BIN) --test tests/p0t/language/compose_coref.p0t
+	@./$(BIN) --test tests/p0t/knowledge/comprehension.p0t
+	@./$(BIN) --test tests/p0t/language/coref_possessive.p0t
+	@./$(BIN) --test tests/p0t/knowledge/cue_learn.p0t
+	@./$(BIN) --test tests/p0t/reasoning/discarded.p0t
+	@./$(BIN) --test tests/p0t/knowledge/factsource.p0t
+	@./$(BIN) --test tests/p0t/bench/fallback_grounded.p0t
+	@./$(BIN) --test tests/p0t/bench/fallback_word.p0t
+	@./$(BIN) --test tests/p0t/generation/gen.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_critical.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_ctx.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_describe.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_freq.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_interp.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_read.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_stop.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_weight.p0t
+	@./$(BIN) --test tests/p0t/language/input.p0t
+	@./$(BIN) --test tests/p0t/intent/intent_learn.p0t
+	@./$(BIN) --test tests/p0t/intent/intent_reply.p0t
+	@./$(BIN) --test tests/p0t/reasoning/kb_conjunction.p0t
+	@./$(BIN) --test tests/p0t/reasoning/logic_no_overlap.p0t
+	@./$(BIN) --test tests/p0t/knowledge/memory.p0t
+	@./$(BIN) --test tests/p0t/knowledge/memory_natural.p0t
+	@./$(BIN) --test tests/p0t/knowledge/memory_recall.p0t
+	@./$(BIN) --test tests/p0t/math/memref_arith.p0t
+	@./$(BIN) --test tests/p0t/bench/mmlu.p0t
+	@./$(BIN) --test tests/p0t/planning/planact.p0t
+	@./$(BIN) --test tests/p0t/planning/plan.p0t
+	@./$(BIN) --test tests/p0t/planning/plan_qty.p0t
+	@./$(BIN) --test tests/p0t/intent/pragma.p0t
+	@./$(BIN) --test tests/p0t/intent/pragmatics.p0t
+	@./$(BIN) --test tests/p0t/generation/prosepage.p0t
+	@./$(BIN) --test tests/p0t/generation/reader.p0t
+	@./$(BIN) --test tests/p0t/intent/role.p0t
+	@./$(BIN) --test tests/p0t/intent/rulespec.p0t
+	@./$(BIN) --test tests/p0t/meta/self_preference_declarative.p0t
+	@./$(BIN) --test tests/p0t/intent/intent.p0t
+	@./$(BIN) --test tests/p0t/meta/introspect.p0t
+	@./$(BIN) --test tests/p0t/meta/modtrack.p0t
+	@./$(BIN) --test tests/p0t/generation/parrot.p0t
+	@./$(BIN) --test tests/p0t/intent/reqgen.p0t
+	@./$(BIN) --test tests/p0t/reasoning/syllogism_universal.p0t
+	@./$(BIN) --test tests/p0t/reasoning/symbolic.p0t
+	@./$(BIN) --test tests/p0t/reasoning/wsc.p0t
+	@./$(BIN) --test tests/p0t/meta/self_preference_recent.p0t
+	@./$(BIN) --test tests/p0t/meta/session_stats.p0t
+	@./$(BIN) --test tests/p0t/meta/user_model.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_skeleton.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_derived.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_compose.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_audit_retract.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_selftest_seam.p0t
+	@./$(BIN) --test tests/p0t/reasoning/strategy.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_branch.p0t
+	@./$(BIN) --test tests/p0t/agent/agent.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_induce.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_search.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_verify.p0t
+	@./$(BIN) --test tests/p0t/code/code.p0t
+	@./$(BIN) --test tests/p0t/code/codeast.p0t
+	@./$(BIN) --test tests/p0t/code/codeintent.p0t
+	@./$(BIN) --test tests/p0t/code/codeloop.p0t
+	@./$(BIN) --test tests/p0t/code/eval_py.p0t
+	@./$(BIN) --test tests/p0t/code/run_execute.p0t
+	@./$(BIN) --test tests/p0t/repair/repair.p0t
+	@./$(BIN) --test tests/p0t/code/symfix.p0t
+	@./$(BIN) --test tests/p0t/code/smelltree.p0t
+	@./$(BIN) --test tests/p0t/code/tool.p0t
+	@./$(BIN) --test tests/p0t/code/toolvocab_growth.p0t
+	@./$(BIN) --test tests/p0t/knowledge/research.p0t
+	@./$(BIN) --test tests/p0t/conversation/compose_social.p0t
+	@./$(BIN) --test tests/p0t/meta/self.p0t
+	@./$(BIN) --test tests/p0t/conversation/social.p0t
+	@./$(BIN) --test tests/p0t/conversation/apology.p0t
+	@./$(BIN) --test tests/p0t/language/lexicon_it.p0t
+	@./$(BIN) --test tests/p0t/language/translate.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_branch.it.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_induce.it.p0t
+	@./$(BIN) --test tests/p0t/agent/agent.it.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_search.it.p0t
+	@./$(BIN) --test tests/p0t/agent/agent_verify.it.p0t
+	@./$(BIN) --test tests/p0t/code/codeintent.it.p0t
+	@./$(BIN) --test tests/p0t/code/eval_py.it.p0t
+	@./$(BIN) --test tests/p0t/code/run_execute.it.p0t
+	@./$(BIN) --test tests/p0t/code/smelltree.it.p0t
+	@./$(BIN) --test tests/p0t/code/symfix.it.p0t
+	@./$(BIN) --test tests/p0t/conversation/casefold.it.p0t
+	@./$(BIN) --test tests/p0t/conversation/chitchat.it.p0t
+	@./$(BIN) --test tests/p0t/conversation/compose_social.it.p0t
+	@./$(BIN) --test tests/p0t/conversation/discourse.it.p0t
+	@./$(BIN) --test tests/p0t/conversation/social.it.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_read.it.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_stop.it.p0t
+	@./$(BIN) --test tests/p0t/generation/gen_weight.it.p0t
+	@./$(BIN) --test tests/p0t/generation/prosefact.it.p0t
+	@./$(BIN) --test tests/p0t/generation/prosepage.it.p0t
+	@./$(BIN) --test tests/p0t/generation/summary.it.p0t
+	@./$(BIN) --test tests/p0t/intent/intent.it.p0t
+	@./$(BIN) --test tests/p0t/intent/intent_learn.it.p0t
+	@./$(BIN) --test tests/p0t/intent/intent_reply.it.p0t
+	@./$(BIN) --test tests/p0t/intent/polar_meta.it.p0t
+	@./$(BIN) --test tests/p0t/intent/pragma.it.p0t
+	@./$(BIN) --test tests/p0t/intent/reqgen.it.p0t
+	@./$(BIN) --test tests/p0t/intent/role.it.p0t
+	@./$(BIN) --test tests/p0t/intent/rulespec.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/comprehension.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/cue_learn.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/facts.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/factsource.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/memory_natural.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/memory_recall.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/rederive.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/research.it.p0t
+	@./$(BIN) --test tests/p0t/knowledge/world.it.p0t
+	@./$(BIN) --test tests/p0t/language/compose_coref.it.p0t
+	@./$(BIN) --test tests/p0t/language/input.it.p0t
+	@./$(BIN) --test tests/p0t/language/translate.it.p0t
+	@./$(BIN) --test tests/p0t/math/algebra2.it.p0t
+	@./$(BIN) --test tests/p0t/math/algebra.it.p0t
+	@./$(BIN) --test tests/p0t/math/arith_flex.it.p0t
+	@./$(BIN) --test tests/p0t/math/arith_nl.it.p0t
+	@./$(BIN) --test tests/p0t/math/numwords.it.p0t
+	@./$(BIN) --test tests/p0t/math/wordproblem.it.p0t
+	@./$(BIN) --test tests/p0t/meta/meta.it.p0t
+	@./$(BIN) --test tests/p0t/meta/mixed.it.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_compose.it.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_skeleton.it.p0t
+	@./$(BIN) --test tests/p0t/meta/teachverb.it.p0t
+	@./$(BIN) --test tests/p0t/meta/user_model.it.p0t
+	@./$(BIN) --test tests/p0t/misc/coref_prodrop.it.p0t
+	@./$(BIN) --test tests/p0t/misc/negation.it.p0t
+	@./$(BIN) --test tests/p0t/misc/possession_dinome.it.p0t
+	@./$(BIN) --test tests/p0t/misc/tool.it.p0t
+	@./$(BIN) --test tests/p0t/planning/planact.it.p0t
+	@./$(BIN) --test tests/p0t/planning/plan.it.p0t
+	@./$(BIN) --test tests/p0t/planning/plan_qty.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/abduce_chain.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/abduce.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/alsoclass.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/analogy.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/blankwall.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/branching_abduce.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/cause.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/condasym.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/counterfactual.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/deepreason-correct.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/deepreason.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/discarded.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/equality.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/family.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/kb_conjunction.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/orchain.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/proof_trace.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/rules.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/syllogism.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/symbolic.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/transitivity.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/whatifnot.it.p0t
+	@./$(BIN) --test tests/p0t/repair/repair.it.p0t
+	@./$(BIN) --test tests/p0t/meta/calibrate.p0t
+	@./$(BIN) --test tests/p0t/meta/calibrate.it.p0t
+	@./$(BIN) --test tests/p0t/meta/calibrate_stress.p0t
+	@./$(BIN) --test tests/p0t/reasoning/compose.p0t
+	@./$(BIN) --test tests/p0t/reasoning/compose.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/conjunction.p0t
+	@./$(BIN) --test tests/p0t/reasoning/conjunction.it.p0t
+	@./$(BIN) --test tests/p0t/reasoning/deepreason.p0t
+	@./$(BIN) --test tests/p0t/reasoning/deepreason-correct.p0t
+	@./$(BIN) --test tests/p0t/language/fewshot.it.p0t
+	@./$(BIN) --test tests/p0t/intent/pragma_stress.p0t
+	@./$(BIN) --test tests/p0t/meta/proof_trace.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_audit.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_audit.it.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_selftest.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_selftest_fresh.p0t
+	@./$(BIN) --test tests/p0t/meta/reflexive_selftest.it.p0t
+	@./$(BIN) --test tests/p0t/repair/repair_stress.p0t
+	@./$(BIN) --test tests/p0t/reasoning/robust.p0t
+	@./$(BIN) --test tests/p0t/reasoning/robust.it.p0t
+	@./$(BIN) --test tests/p0t/meta/strategy.it.p0t
+	@./$(BIN) --test tests/p0t/conversation/user_model_stress.p0t
+	@./$(BIN) --test tests/p0t/knowledge/world_stress.p0t
+	@./$(BIN) --test tests/p0t/reasoning/analysis_planner_growth.p0t
+	@./$(BIN) --test tests/p0t/reasoning/probability_inverse_growth.p0t
 	@./$(BIN) --test-report
-	@./tests/analysis_planner_growth.sh
-	@./tests/probability_inverse_growth.sh
 
 # legacy-test — the pre-gen345 conversation suite. These states are being
 # MIGRATED to the test-engine (parrot0 --test-engine, .p0t files); each script

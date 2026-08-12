@@ -1,5 +1,15 @@
 # Working rules for agents
 
+> ## ⛔ PRIMA DI TUTTO: [`MANTRA.md`](MANTRA.md)
+>
+> Qualunque sia il motivo per cui sei entrato in questa codebase — anche un
+> dettaglio marginale, anche per caso — i mantra vanno passati **prima** di
+> scrivere una riga. Non sono uno stile: sono il criterio con cui si decide se una
+> modifica fa avanzare o regredire l'esperimento.
+>
+> La domanda zero: **è generalizzabile KB-first?** Il test: **"parrot0 può
+> impararne un nuovo membro domani, senza ricompilare?"**
+
 Read `PRINCIPLES.md` before changing parrot0. The KB-first rule is a release
 constraint, not a preference.
 

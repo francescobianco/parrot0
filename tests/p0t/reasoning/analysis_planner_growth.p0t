@@ -1,0 +1,155 @@
+# CRESCITA A RUNTIME del pianificatore analitico (gen360).
+#
+# Migrato da tests/analysis_planner_growth.sh (gen377), l'ultimo test del
+# `make test` che viveva ancora come script shell. Girava sul motore MCP via
+# JSON-RPC per una ragione tecnica, non di merito: il formato .p0t sapeva
+# TOGLIERE conoscenza dall'interno (`!forget`) ma non AGGIUNGERLA, e sapeva
+# asserire solo l'uguaglianza esatta della risposta. Un contratto di crescita ha
+# bisogno di entrambe le cose, e una risposta analitica e' un paragrafo: cio' che
+# si asserisce e' che una FRASE compaia o sparisca, non l'intero testo. Con
+# `!assert`, `<~` e `<!` il formato basta, e questo torna a essere un test come
+# gli altri — stesso demone, stesso report, stesso fail-fast.
+#
+# La tesi sotto test, ripetuta in sei varianti: OGNI superficie che il
+# pianificatore riconosce e' conoscenza interrogabile e modificabile a caldo —
+# dominio, atto, formato, famiglia, cancello (gate) e guardia. Per ciascuna:
+# assente prima, riconosciuta appena insegnata, dimenticata appena ritrattata,
+# senza ricompilare mai.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test analysis_domain_cue_growth]
+!timeout 3
+# Il VOCABOLARIO DI DOMINIO e' evidenza viva: `quorvex` non significa nulla finche'
+# non lo si lega alla classe complex_system.
+> How would quorvex change under constraints and feedback over a long period?
+<! A complex system is shaped
+!assert analysis_domain_cue(complex_system, quorvex)
+> How would quorvex change under constraints and feedback over a long period?
+<~ A complex system is shaped
+!forget analysis_domain_cue(complex_system, quorvex)
+> How would quorvex change under constraints and feedback over a long period?
+<! A complex system is shaped
+
+[test analysis_act_cue_growth]
+!timeout 3
+# L'ATTO e' insegnabile indipendentemente dal dominio: la stessa struttura
+# analitica si apre a un verbo mai visto.
+> Ponderize a complex system with interacting constraints and feedback over time.
+<! A complex system is shaped
+!assert analysis_act_cue(impact_analysis, ponderize)
+> Ponderize a complex system with interacting constraints and feedback over time.
+<~ A complex system is shaped
+!forget analysis_act_cue(impact_analysis, ponderize)
+> Ponderize a complex system with interacting constraints and feedback over time.
+<! A complex system is shaped
+
+[test analysis_format_cue_growth]
+!timeout 3
+# Il FORMATO cambia solo il realizzatore, non il piano ne' il contenuto: la stessa
+# analisi esce NUMERATA quando `gridform` viene legato al vincolo di formato.
+#
+# L'asserzione originale dello script era "1. A complex system is shaped", cioe'
+# inchiodava la frase alla PRIMA voce dell'elenco. Non e' cio' che il contratto
+# dice: il formato non decide quale slot venga per primo, e infatti il piano e'
+# cresciuto di uno slot iniziale e quella frase e' scivolata al numero 2. Il
+# contratto vero e' "l'elenco e' numerato, e il contenuto resta lo stesso", ed e'
+# quello che si asserisce qui — altrimenti si testa l'ordine degli slot fingendo
+# di testare il formato.
+> How would a complex system change under feedback over time in gridform?
+<! 1.
+!assert format_constraint(numbered, gridform)
+> How would a complex system change under feedback over time in gridform?
+<~ 1.
+> How would a complex system change under feedback over time in gridform?
+<~ A complex system is shaped
+!forget format_constraint(numbered, gridform)
+> How would a complex system change under feedback over time in gridform?
+<! 1.
+
+[test analysis_plan_completeness]
+!timeout 3
+# COMPLETEZZA: un candidato riconosciuto ma con uno slot richiesto assente non
+# deve emettere un piano parziale. Meglio tacere che rispondere a meta'.
+!assert analysis_act_cue(incomplete_analysis, audit-alpha)
+!assert answer_plan(incomplete_analysis, context, 1, domain_required)
+!assert answer_plan(incomplete_analysis, absent_slot, 2, required)
+> Audit-alpha a complex system with interacting constraints and feedback over time.
+<! A complex system is shaped
+
+[test analysis_family_cue_growth]
+!timeout 3
+# Una FAMIGLIA di campo e' piu' larga di un dominio: cambia la conoscenza
+# composta senza sostituire l'atto.
+> How would zentropic effects change outcomes across several stages?
+<! Runtime family selected
+!assert analysis_family_cue(runtime_family, zentropic)
+> How would zentropic effects change outcomes across several stages?
+<~ Runtime family selected
+!forget analysis_family_cue(runtime_family, zentropic)
+> How would zentropic effects change outcomes across several stages?
+<! Runtime family selected
+
+[test analysis_domain_gate_growth]
+!timeout 3
+# Un dominio con un CANCELLO dichiarato non puo' rivendicare col solo supporto:
+# serve la superficie discriminante, e anche quella si insegna e si ritratta a caldo.
+!assert analysis_domain_cue(guarded_system, gatecase)
+!assert analysis_domain_gate(guarded_system, sealedmark)
+!assert semantic_atom(guarded_system, context, Guarded domain selected.)
+> How would gatecase change outcomes across several stages?
+<! Guarded domain selected
+!assert analysis_domain_gate(guarded_system, several stages)
+> How would gatecase change outcomes across several stages?
+<~ Guarded domain selected
+!forget analysis_domain_gate(guarded_system, several stages)
+> How would gatecase change outcomes across several stages?
+<! Guarded domain selected
+
+[test analysis_runtime_guard_growth]
+!timeout 3
+# Una GUARDIA insegnata dovrebbe far DECLINARE il pianificatore senza toccare il
+# routing in C.
+#
+# TENSIONE DI DESIGN, non consacrata come desiderata. Lo script si aspettava che
+# `compound_guard(analysis_plan, …)` bastasse a zittire la risposta. Non basta, e
+# la ragione e' esplicita nel motore (10-memory-knowledge.c, `broad_families < 2`):
+# il passo di FAMIGLIA e' l'ultima spiaggia e ignora deliberatamente le guardie,
+# perche' a quel punto ogni consumer specializzato ha gia' declinato e cedere di
+# nuovo produrrebbe solo un muro. Quindi la guardia ferma il piano STRETTO ma non
+# la famiglia, che risponde lo stesso.
+#
+# Due letture possibili, ed e' una decisione da prendere, non da rattoppare qui:
+# o la guardia deve valere anche al livello 2 (e allora il commento nel motore va
+# rivisto), oppure il contratto va scritto per consumer e non per "il pianificatore"
+# in generale. Fino ad allora si asserisce il comportamento REALE, cosi' la suite
+# resta onesta e il giorno in cui cambia questo test lo dice.
+> Transmuteform: how does a number behave under operations across several stages?
+<~ A proposed mathematical object needs explicit axioms
+!assert intent_cue(runtime_guard_request, transmuteform)
+!assert compound_guard(analysis_plan, runtime_guard_request)
+> Transmuteform: how does a number behave under operations across several stages?
+<~ A proposed mathematical object needs explicit axioms
+!forget intent_cue(runtime_guard_request, transmuteform)
+> Transmuteform: how does a number behave under operations across several stages?
+<~ A proposed mathematical object needs explicit axioms
+
+[test analysis_family_gate_growth]
+!timeout 3
+# Anche una famiglia puo' pretendere la propria evidenza discriminante.
+!assert analysis_family_cue(runtime_family, zentropic)
+!assert analysis_family_gate(runtime_family, sealedfamily)
+> How would zentropic effects change outcomes across several stages?
+<! Runtime family selected
+!assert analysis_family_gate(runtime_family, several stages)
+> How would zentropic effects change outcomes across several stages?
+<~ Runtime family selected
+!forget analysis_family_gate(runtime_family, several stages)
+> How would zentropic effects change outcomes across several stages?
+<! Runtime family selected
