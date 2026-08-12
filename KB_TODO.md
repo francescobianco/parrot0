@@ -65,3 +65,56 @@ Restano aperte tre cose:
 
 La domanda di review: puo' parrot0 imparare il nome di un pezzo in una nuova
 lingua, o in un nuovo registro, senza toccare il C?  (Oggi si': e' un fatto.)
+
+## Lo strato linguistico per insegnare REGOLE CON VARIABILI
+
+Oggi si puo' insegnare parlando una sola forma di regola: `every X is a Y` ->
+`y(V) :- x(V)`. Una variabile implicita, due predicati unari. Tutto il resto —
+le regole che legano PIU' entita' — resta fuori dalla conversazione, e quindi
+parrot0 non puo' essere addestrato a ragionare, solo a classificare.
+
+Verificato: nessuna di queste funziona oggi.
+
+    if someone is a barista then they can make coffee
+    if X is a barista then X is a person
+    chi e' un barista sa fare il caffe'
+    if a person is the parent of a parent then he is a grandparent
+
+**L'osservazione che da' la forma alla soluzione:** in lingua naturale le
+variabili non si scrivono con le lettere, si portano con i PRONOMI INDEFINITI
+("someone", "anyone", "chiunque", "chi") e si riprendono con l'ANAFORA ("they",
+"them", "lui", "esso"). Sono due classi chiuse, quindi conoscenza — esattamente
+come np_opener/1 e np_closer/1:
+
+```prolog
+% Le parole che INTRODUCONO una variabile.
+rule_variable(someone).  rule_variable(anyone).  rule_variable(something).
+rule_variable(qualcuno). rule_variable(chiunque). rule_variable(chi).
+
+% Le parole che RIPRENDONO la stessa variabile (anafora).
+rule_anaphor(they). rule_anaphor(them). rule_anaphor(he). rule_anaphor(she).
+rule_anaphor(lui).  rule_anaphor(lei).  rule_anaphor(esso).
+
+% Antecedente e conseguente.
+rule_antecedent_marker(if).   rule_antecedent_marker(se).
+rule_consequent_marker(then). rule_consequent_marker(allora).
+```
+
+Il motore: taglia il turno sui marcatori, dà a ciascuna clausola lo STESSO
+parser di comprensione gia' in uso, e sostituisce ogni `rule_variable` con una
+variabile fresca; ogni `rule_anaphor` si lega all'ultima variabile introdotta.
+Il risultato e' una clausola per kb_assert_clause, che gia' esiste.
+
+Due variabili distinte servono per le regole relazionali ("se qualcuno e' il
+genitore di qualcuno, ..."): la seconda occorrenza di un `rule_variable` nella
+STESSA clausola introduce una variabile NUOVA, l'anafora invece riprende. E' la
+distinzione che la lingua fa gia', e per cui esistono due classi di parole
+invece di una.
+
+Nota di collegamento: "se ... allora ..." e' oggi trattato come CORNICE da
+sbucciare (gen378). Qui va letto come REGOLA. La differenza e' se l'antecedente
+contiene una variabile: senza, e' una cornice; con, e' una quantificazione. Il
+gen378 e questo sono lo stesso sito visto dai due lati.
+
+La domanda di review: puo' parrot0 imparare una regola relazionale a due
+variabili, parlando, senza ricompilare?  (Oggi no. E' il prossimo salto.)

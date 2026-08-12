@@ -362,6 +362,8 @@ plural_suffix(zes, z).
 % Una parola in -ss non e' un plurale in -s: la desinenza piu' lunga combacia e
 % la mappa su se stessa, quindi "glass" resta "glass". La vecchia guardia
 % `in[n-2] != 's'` nel C diceva la stessa cosa, ma dove nessuno poteva leggerla.
+plural_suffix(men, man).   % craftsmen -> craftsman, firemen -> fireman
+plural_suffix(women, woman).
 plural_suffix(ss, ss).
 plural_suffix(s, nil).      % roses -> rose
 
