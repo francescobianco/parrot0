@@ -2901,7 +2901,10 @@ static int extract_class_statement(Brain *b, const char *norm,
 
     /* gen382: i frame DICHIARATI in KB corrono prima di quelli cablati, cosi'
      * una forma insegnata oggi vince su una compilata ieri. */
-    if (p0_try_extract_frames(b, w, n, norm, out, out_size)) return 1;
+    /* Il 2 (respinto dal cancello) va PROPAGATO, non appiattito su 1: altrimenti
+     * un rifiuto viene riportato come se fosse un fatto imparato — lo stesso
+     * difetto che nascondeva le regole dentro l'elenco dei fatti. */
+    { int r = p0_try_extract_frames(b, w, n, norm, out, out_size); if (r) return r; }
 
     size_t cop = n;
     for (size_t i = 1; i < n; i++)

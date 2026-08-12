@@ -443,3 +443,9 @@ response_template(class_conflict, it, "Questo stride con quello che gia' so: {su
 % turno, e va detta.
 response_template(undetermined_cycle, "I cannot settle that: {subject} is not tied to {klass} by any fact I hold, and the rules around {klass} lead back into each other, so the search closes on itself instead of reaching an answer. Not proved is not the same as false.").
 response_template(undetermined_cycle, it, "Non posso stabilirlo: nessun fatto che ho lega {subject} a {klass}, e le regole intorno a {klass} si rimandano a vicenda, quindi la ricerca si chiude su se stessa invece di arrivare a una risposta. Non dimostrato non vuol dire falso.").
+
+% gen382: una pagina di disambiguazione riconosciuta. Il declino e' INFORMATO —
+% dice che la pagina c'era e perche' e' stata rifiutata — invece di far credere
+% che non ci fosse nulla.
+response_template(page_disambiguates, "that page disambiguates several meanings rather than describing one").
+response_template(page_disambiguates, it, "quella pagina disambigua piu' significati invece di descriverne uno").

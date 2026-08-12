@@ -118,7 +118,7 @@ def run(pages, verbose):
     lines = proc.stdout.splitlines() + proc.stderr.splitlines()
 
     read_pages = 0
-    facts_total, malformed_total, usable_total = 0, 0, 0
+    facts_total, malformed_total, usable_total, rejected_total = 0, 0, 0, 0
     detail = []
     for line in lines:
         line = line.strip()
@@ -129,6 +129,14 @@ def run(pages, verbose):
             continue
         read_pages += 1
         for fact in split_facts(m.group(1)):
+            # gen382: un "Scartato:" NON e' un fatto malformato estratto — e' il
+            # cancello che ha fatto il suo lavoro. Contarlo come malformato
+            # premia il silenzio e punisce l'onesta': un sistema che respinge
+            # sembrerebbe peggio di uno che tace.
+            if fact.startswith("Scartato"):
+                rejected_total += 1
+                detail.append(("respinto", fact, ""))
+                continue
             facts_total += 1
             bad = None
             for a in atoms_of(fact):
@@ -141,7 +149,7 @@ def run(pages, verbose):
             else:
                 usable_total += 1
                 detail.append(("usable", fact, ""))
-    return read_pages, facts_total, malformed_total, usable_total, detail
+    return read_pages, facts_total, malformed_total, usable_total, rejected_total, detail
 
 
 def main():
@@ -163,7 +171,7 @@ def main():
         print("prosebench: nessuna pagina in " + PAGES_DIR, file=sys.stderr)
         return 2
 
-    rp, ft, mf, us, detail = run(pages, a.verbose)
+    rp, ft, mf, us, rej, detail = run(pages, a.verbose)
     rate = (mf / ft * 100.0) if ft else 0.0
     per_page = (us / len(pages)) if pages else 0.0
 
@@ -176,6 +184,7 @@ def main():
     print(f"fatti estratti     {ft}")
     print(f"  malformati       {mf}")
     print(f"  usabili          {us}")
+    print(f"respinti dal gate  {rej}      (il cancello ha lavorato, non e' spreco)")
     print(f"MALFORMED RATE     {rate:.1f}%      (da minimizzare)")
     print(f"USABLE PER PAGE    {per_page:.2f}      (da massimizzare)")
 

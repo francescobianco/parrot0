@@ -399,3 +399,28 @@ extract_frame("@S causes @O", causes).
 % alza questa riga, non ricompila.
 machinery(concept_atom_max_words).
 concept_atom_max_words(3).
+
+% ── FORME ESPRESSIVE: come la prosa dice l'ALIAS ─────────────────────────────
+% gen382, raccolte MISURANDO il corpus invece che immaginandole: "known as"
+% ricorre 15 volte nelle 49 pagine, "is called" ~10. Non sono conoscenza su un
+% dominio — sono conoscenza su COME la conoscenza viene detta, ed e' il secondo
+% raccolto del sogno: una forma raccolta migliora l'estrazione di tutti i sogni
+% successivi.
+extract_frame("@S is known as @O", also_known_as).
+extract_frame("@S also known as @O", also_known_as).
+extract_frame("@S is called @O", also_known_as).
+extract_frame("@S is also called @O", also_known_as).
+extract_frame("@S is referred to as @O", also_known_as).
+
+% ── PAGINE CHE DICHIARANO DI NON CONTENERE CONOSCENZA ────────────────────────
+% gen382. "X may refer to ..." e' l'apertura di una pagina di DISAMBIGUAZIONE:
+% non dice nulla su X, elenca cose diverse che portano lo stesso nome. Ricorre 8
+% volte nel corpus, ed e' il difetto che il sogno aveva gia' mostrato — sognando
+% il modale "may" parrot0 ha scaricato il mese di maggio e ci ha imparato sopra.
+% Estrarre da una pagina cosi' non e' imparare poco: e' imparare il falso.
+% Riconoscerla e' conoscenza sulla forma del testo, non sul suo argomento.
+machinery(disambiguation_marker).
+disambiguation_marker("may refer to").
+disambiguation_marker("may also refer to").
+disambiguation_marker("can refer to").
+disambiguation_marker("commonly refers to").

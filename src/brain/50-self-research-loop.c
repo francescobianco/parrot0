@@ -278,6 +278,27 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
     extract[eo] = '\0';
     if (eo == 0) return 0;
 
+    /* gen382: una pagina che DICHIARA di non contenere conoscenza non va letta.
+     * "X may refer to ..." apre una disambiguazione: elenca cose diverse che
+     * portano lo stesso nome. E' la trappola degli omonimi che --dream ha
+     * mostrato — sognare il modale "may" scaricava il mese di maggio — e
+     * imparare da li' non e' imparare poco, e' imparare il falso. Quali frasi
+     * lo dichiarino e' conoscenza: disambiguation_marker/1 in grammar.p0. */
+    {
+        char marks[16][KB_TERM_LEN];
+        const char *mq[] = { NULL };
+        size_t nm = kb_match(b->kb, "disambiguation_marker", mq, 1, marks, 16);
+        char low[512];
+        snprintf(low, sizeof low, "%.*s", (int)sizeof low - 1, extract);
+        for (char *c = low; *c; c++) *c = (char)tolower((unsigned char)*c);
+        for (size_t i = 0; i < nm; i++) {
+            if (strstr(low, kb_dequote(marks[i]))) {
+                kb_response(b, "page_disambiguates", NULL, out, out_sz);
+                return 0;
+            }
+        }
+    }
+
     int nfacts = 0, nrules = 0, nrejected = 0; size_t mo = 0;
     if (out_sz) out[0] = '\0';
     char *p = extract;
@@ -291,9 +312,13 @@ static int extract_page_facts(Brain *b, const char *key, char *out, size_t out_s
             normalize(sent, nrm, sizeof nrm);
             canonicalize_lang(b, nrm, canon, sizeof canon);
             msg[0] = '\0';
+            /* gen382: NIENTE `continue` qui — il ciclo sulle frasi avanza `p` in
+             * fondo al corpo, quindi saltare il fondo e' un loop infinito (lo
+             * era: due pagine su dodici non tornavano piu'). Il rifiuto si
+             * esprime come condizione, non come salto. */
             int r = extract_class_statement(b, canon, msg, sizeof msg, 1);
-            if (r == 2) { nrejected++; continue; }   /* gen382: cancello */
-            if (r) {
+            if (r == 2) nrejected++;                 /* cancello: respinto */
+            else if (r) {
                 /* gen382: la prosa produce anche REGOLE (il generico plurale
                  * "whales are mammals"), e vanno contate come tali. Prima solo
                  * "Learned: " veniva tolto, quindi il testo del messaggio di una
@@ -717,6 +742,7 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
                            strstr(matched, "estrai i fatti"));
     if (deep) {
         char facts[512];
+        facts[0] = '\0';   /* l'estrattore puo' uscire prima di scrivere qui */
         int nf = extract_page_facts(b, key, facts, sizeof facts);
         char dmsg[700];
         if (nf > 0)
@@ -724,6 +750,14 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
                      it ? "Dalla pagina su %s ho estratto %d fatti: %s."
                         : "From the %s page I extracted %d facts: %s.",
                      disp, nf, facts);
+        else if (facts[0])
+            /* gen382: l'estrattore ha un MOTIVO (es. la pagina disambigua piu'
+             * significati). Dirlo e' diverso dal dire "non ho una pagina": il
+             * primo e' un declino informato, il secondo nasconde che la pagina
+             * c'era ed e' stata rifiutata apposta. */
+            snprintf(dmsg, sizeof dmsg,
+                     it ? "Ho una pagina su %s ma %s."
+                        : "I have a page on %s but %s.", disp, facts);
         else
             snprintf(dmsg, sizeof dmsg,
                      it ? "Non ho una pagina con fatti estraibili su %s."
