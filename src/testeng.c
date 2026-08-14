@@ -330,6 +330,20 @@ static int te_process_stream(TeState *t, FILE *in) {
          * fact, so growth contracts (teach a cue, probe, retract, probe) had to live
          * in shell scripts driving the MCP engine. The asymmetry was the reason the
          * .p0t migration was not finished; this closes it. */
+        /* `!clause <text>` — the same move one level up. `!assert` writes a ground
+         * fact; a test that needs to prove something about RULES (that a taught
+         * clause closes a gap, that a derived answer counts as knowledge and not
+         * as a hole) could not state one, and had to fall back to a shell script
+         * driving the MCP engine — exactly the gap the fact form closed at gen345.
+         * The whole .p0 parser does the work, so a rule, a fact, a negative or a
+         * quoted string all arrive by the same door the KB files use. */
+        if (strncmp(p, "!clause", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
+            te_flush(t);
+            char *q = p + 7;
+            while (*q == ' ' || *q == '\t') q++;
+            if (!*q || !kb_load_clause(brain_kb(t->b), q)) syntax_err = 1;
+            continue;
+        }
         if (strncmp(p, "!assert", 7) == 0 && (p[7] == ' ' || p[7] == '\t')) {
             te_flush(t);
             char *q = p + 7;

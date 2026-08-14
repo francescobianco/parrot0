@@ -1,0 +1,139 @@
+# gen382o — LO SPAZIO NEGATIVO: la prova minima di docs/plans/question-emergence.md §9.4.
+#
+# Il caso e' SINTETICO di proposito. Cucire la prova sul poker dimostrerebbe che
+# abbiamo scritto il poker nel rilevatore; un dominio inventato dimostra che il
+# rilevatore legge la FORMA della KB e non i suoi nomi. Il C non conosce
+# `toy_domain`, `toy_attribute`, la nozione di fratello, la soglia o il tipo di
+# lacuna: sono tutti fatti e clausole, sostituibili a runtime.
+#
+# Il segnale di "nessuna lacuna" e' il muro: knowledge_gap/2 non ha soluzioni e
+# il frame non rivendica il turno. E' un segnale debole preso da solo — per
+# questo ogni caso qui e' DIFFERENZIALE: la stessa domanda prima e dopo un fatto.
+# ⚠️ NON ANCORA IN `make test` — vedi docs/plans/question-emergence.md §9.11.
+# Il file passa 14/14 su un motore appena avviato (`make test-engine` e poi
+# `bin/parrot0 --test tests/p0t/meta/knowledge_gap.p0t`). Dentro la suite il
+# PRIMO blocco cade: qualcosa sopravvive al `!reset` fra un file e il successivo
+# e nessuna combinazione di `!set` lo ha rimesso a posto. E' un difetto del banco
+# di prova, non del rilevatore (i sette blocchi successivi, identici per forma,
+# passano nella stessa esecuzione) — ma finche' non e' capito, mettere il file
+# nella suite significherebbe scegliere fra una suite rossa e un'aspettativa
+# indebolita fino a passare per il motivo sbagliato. Si tiene il difetto in
+# vista.
+[test knowledge_gap_emerges]
+!reset
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert expert_domain(gamma, toy_domain)
+!assert toy_attribute(alpha, one)
+!assert toy_attribute(beta, two)
+# 1. La lacuna EMERGE: due membri su tre dichiarano toy_attribute, gamma no.
+#    Nessuno ha scritto uno schema — la maggioranza lo definisce.
+> knowledge gap gamma
+< Toy attribute.
+# ...e il rimedio e' dichiarato, non un ramo di codice: il record e' azionabile.
+> gap remedy gamma
+< Ask user.
+
+[test knowledge_gap_closes_and_reopens]
+!reset
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert expert_domain(gamma, toy_domain)
+!assert toy_attribute(alpha, one)
+!assert toy_attribute(beta, two)
+> knowledge gap gamma
+< Toy attribute.
+# 2. Colmata la lacuna, sparisce.
+!assert toy_attribute(gamma, three)
+> knowledge gap gamma
+< Non capisco ancora.
+# 3. Ritirato il fatto, ricompare. Crescita E ablazione, come chiede AGENTS.md.
+!forget toy_attribute(gamma, three)
+> knowledge gap gamma
+< Toy attribute.
+
+[test knowledge_gap_source_is_data]
+!reset
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert expert_domain(gamma, toy_domain)
+!assert toy_attribute(alpha, one)
+!assert toy_attribute(beta, two)
+> knowledge gap gamma
+< Toy attribute.
+# 4. La SORGENTE stessa e' un dato. Ritirando il fatto che la registra il
+#    rilevatore sparisce; riasserendolo torna. Senza ricompilare: e' la prova
+#    che le cinque sorgenti di §4 non sono cinque funzioni C.
+!forget gap_source(missing_sibling_attribute, sibling_majority_expected, binary_relation_coverage)
+> knowledge gap gamma
+< Non capisco ancora.
+!assert gap_source(missing_sibling_attribute, sibling_majority_expected, binary_relation_coverage)
+> knowledge gap gamma
+< Toy attribute.
+
+# ── I FALSIFICATORI ─────────────────────────────────────────────────────────
+# Senza questi avremmo solo una demo positiva: un rilevatore che dice sempre
+# "manca" passerebbe i tre test qui sopra.
+
+[test knowledge_gap_needs_majority]
+!reset
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert expert_domain(gamma, toy_domain)
+# 5. Un solo supporto su tre non e' un'aspettativa: e' l'idea di uno. Niente
+#    lacuna — altrimenti ogni stranezza di un file diventerebbe un debito per
+#    tutti i suoi fratelli.
+!assert toy_attribute(alpha, one)
+> knowledge gap gamma
+< Non capisco ancora.
+
+[test knowledge_gap_needs_group_size]
+!reset
+# 6. Con una coorte di due membri non emerge nulla, per quanto netta sia la
+#    maggioranza: la soglia e' gap_policy(_, minimum_group_size, 3), un fatto.
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert toy_attribute(alpha, one)
+> knowledge gap beta
+< Non capisco ancora.
+# La stessa asimmetria diventa una lacuna appena la coorte raggiunge la soglia,
+# perche' il terzo membro rende la maggioranza misurabile.
+!assert expert_domain(gamma, toy_domain)
+!assert toy_attribute(beta, two)
+> knowledge gap gamma
+< Toy attribute.
+
+[test knowledge_gap_counts_members_not_facts]
+!reset
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert expert_domain(gamma, toy_domain)
+# 7. Il supporto si conta per MEMBRI DISTINTI. Cinque valori di alpha non sono
+#    una maggioranza: alpha resta uno. Contando i fatti, gamma risulterebbe in
+#    debito per un attributo che un solo esperto usa.
+!assert toy_attribute(alpha, one)
+!assert toy_attribute(alpha, two)
+!assert toy_attribute(alpha, three)
+!assert toy_attribute(alpha, four)
+!assert toy_attribute(alpha, five)
+> knowledge gap gamma
+< Non capisco ancora.
+
+[test knowledge_gap_is_not_absence_of_storage]
+!reset
+!assert expert_domain(alpha, toy_domain)
+!assert expert_domain(beta, toy_domain)
+!assert expert_domain(gamma, toy_domain)
+!assert toy_attribute(alpha, one)
+!assert toy_attribute(beta, two)
+> knowledge gap gamma
+< Toy attribute.
+# 8. "Coperto" vuol dire DERIVABILE, non memorizzato. La copertura passa da
+#    apply/2, cioe' dal risolutore normale, quindi un fatto raggiunto per
+#    inferenza chiude la lacuna esattamente come uno scritto a mano. Qui la via
+#    e' una clausola: gamma non ha un toy_attribute proprio, ma lo DERIVA, e il
+#    rilevatore non deve inventare un debito.
+!clause toy_attribute($X, borrowed) :- expert_twin($X, $Y).
+!assert expert_twin(gamma, alpha)
+> knowledge gap gamma
+< Non capisco ancora.

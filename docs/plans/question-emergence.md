@@ -557,3 +557,158 @@ La domanda da usare in review resta il mantra, applicato al detector stesso:
 > Posso insegnare a runtime un nuovo dominio, una nuova politica, una nuova
 > variazione o un nuovo rimedio e osservare che emergono — e poi scompaiono per
 > ablazione — gap diversi, senza modificare né ricompilare il C?
+
+### 9.10 Che cosa e' cambiato a gen382o — misurato, non progettato
+
+**Osservato.** Il taglio verticale di §9.3 *non funzionava*, e il motivo non era
+quello che il §9.3 supponeva («un problema nel passaggio aritmetico»).
+L'aritmetica era giusta. Erano giusti anche il conteggio, la riflessione e la
+copertura. La regola di maggioranza falliva per due difetti del MOTORE, entrambi
+invisibili dall'esterno perche' si presentavano come «nessuna soluzione» — cioe'
+esattamente come la risposta legittima del rilevatore.
+
+**a. Cattura di variabile attraverso `findall/3`.** Il sotto-risolutore che
+esegue una `findall` ereditava la sostituzione del chiamante ma *ripartiva da
+zero il contatore di frame*. Le variabili di clausola sono rinominate
+`$Nome_<frame>`: ripartire da zero significa riemettere nomi gia' LEGATI sopra,
+quindi una clausola chiamata dentro la `findall` che usa per caso lo stesso nome
+di variabile di un antenato ne ereditava silenziosamente il valore.
+`observed_domain_attribute($Domain, $Facet, $Entity)` ha `$Entity` in testa, e
+anche `sibling_majority_expected($Entity, $Facet)` ce l'ha: l'enumerazione dei
+membri collassava sul singolo membro interrogato, il supporto diventava 0 e la
+maggioranza non si formava mai.
+
+Riproduzione minima, indipendente dal rilevatore:
+
+```prolog
+cap_inner($X, $Y) :- cap_edge($X, $Y).
+cap_count($D, $N) :- findall($X, cap_inner($X, $D), $L), count_list($L, $N).
+cap_outer($X, $N) :- cap_edge($X, $D), cap_count($D, $N).
+```
+
+Con tre `cap_edge(_, d1)`: `cap_count(d1, N)` dava 3 — giusto — e
+`cap_outer(a1, N)` dava **1**. La stessa `findall`, due risposte, per il solo
+fatto di essere chiamata da una clausola che usa il nome `$X`. Il contatore ora
+attraversa il confine in entrambe le direzioni.
+
+Questo difetto non riguardava solo il rilevatore: riguardava **ogni** procedura
+insegnabile che piega una lista dentro una regola. Era un tributo silenzioso su
+tutta la strada `teachable-procedures`.
+
+**b. Il fondo della pista di sostituzione.** Una sostituzione e' una TRACCIA:
+`count_list/2` lascia dietro di se' ogni legame intermedio, quindi piegare una
+lista di N costa ~4N slot e due pieghe nella stessa congiunzione ~8N. Con
+`KB_MAX_BIND` a 128 il tetto stava a una coorte di ~15, e i quindici esperti di
+gioco ci stavano sopra ESATTAMENTE. Effetto: il rilevatore perdeva ogni attributo
+con supporto PIENO e teneva solo quelli sparsi — cioe' produceva, dal proprio
+punto di vista, «qui non ci si aspetta niente». Il tetto e' salito a 384 (il lato
+variabile di un legame e' stato ristretto a 96 byte, che e' anche il motivo per
+cui la traccia piu' lunga non costa piu' memoria in proporzione).
+
+**c. `incomplete` non e' piu' assorbito in `false`.** Erano due, i modi di
+tornare a mani vuote, e il motore ne dichiarava uno solo. Ora:
+
+- `goal_provable` restituisce tre valori (provata / fallimento finito /
+  incompleta) e la negazione per fallimento **declina** invece di riuscire quando
+  la ricerca e' stata tagliata dal budget;
+- la `findall` propaga il proprio budget e il proprio `budget_hit` al chiamante;
+- l'esaurimento della pista di legami alza la stessa bandiera.
+
+E' la richiesta di §9.1 resa esecutiva: un budget esaurito non puo' diventare un
+`gap`. Prima poteva, e nessuno se ne sarebbe accorto.
+
+**d. La vista riflessiva e' indicizzata.** `kb_fact/2` con il predicato gia'
+legato — la forma comune quando un rilevatore ha scelto una faccetta e ne sta
+contando il supporto — visita il censimento di quel predicato invece dell'intera
+KB. Stessa semantica, `knowledge_gap(poker, ?)` da oltre due minuti a ~4 s.
+
+Nessuna di queste quattro e' vocabolario: sono meccanica del risolutore, cieca a
+lingua, dominio e tipo di lacuna.
+
+### 9.11 Che cosa e' PROVATO, e che cosa no
+
+`tests/p0t/meta/knowledge_gap.p0t` — 14 assert, dominio sintetico. Copre i punti
+di §9.4 nell'ordine: la lacuna emerge (1); si chiude asserendo il fatto e
+riapre ritirandolo (2, 3); **ritirando `gap_source/3` il rilevatore sparisce e
+riasserendolo torna, senza ricompilare** (4); un supporto su tre non basta (5);
+una coorte di due non basta (6); il supporto si conta per membri distinti, non
+per fatti; **una copertura DERIVATA da una clausola non produce un falso gap**
+(il punto 7 di §9.4).
+
+Per l'ultimo e' servita una capacita' nuova del banco: `!clause <testo>` nel
+test-engine, il gemello di `!assert` un piano piu' su. `!assert` sapeva scrivere
+un fatto ground; una prova che parla di REGOLE non era esprimibile in `.p0t` e
+finiva in uno script di shell sul motore MCP — la stessa asimmetria che gen345
+aveva chiuso per i fatti. Ora passa dal parser `.p0` completo.
+
+**Non provato:** il punto 8 di §9.4 (budget esaurito ⇒ `incomplete`, mai `gap`).
+Il meccanismo c'e' (§9.10c) ma non ha un test che lo eserciti: serve un caso che
+faccia sforare il budget in modo deterministico.
+
+**Difetto aperto nel banco, non nel rilevatore.** Il file passa 14/14 su un
+motore appena avviato e cade sul PRIMO blocco quando nella stessa esecuzione lo
+precede un altro file — mentre i sette blocchi successivi, identici per forma,
+passano. Qualcosa sopravvive al `!reset` fra un file e il successivo e nessuna
+combinazione di `!set` (BASE, PROFILE, WORLD_FACTS, LANG) lo ha rimesso a posto;
+un secondo `!reset` consecutivo viene saltato dalla logica «reset intelligente».
+Per questo la riga nel `Makefile` e' commentata: mettercela significherebbe
+scegliere fra una suite rossa e un'aspettativa indebolita fino a passare per il
+motivo sbagliato. **E' il primo lavoro del prossimo giro** — finche' non e'
+capito, ogni misura fatta dentro la suite e' sospetta, non solo questa.
+
+### 9.12 Il primo risultato sulla KB vera: uno ZERO, e perche' e' informativo
+
+Con il profilo `agi` (26 702 fatti) il rilevatore di asimmetria fra fratelli
+trova **zero lacune** — su tutti e quindici gli esperti di gioco, e sui cinque di
+programmazione e tre di matematica campionati.
+
+Non e' un guasto. I quindici file di gioco dichiarano tutti e dieci gli stessi
+attributi (`expert_description`, `means`, `game_players`, `game_goal`,
+`game_setup`, `game_play`, `game_end`, `game_tip`, `category_surface`): supporto
+15 su 15, popolazione 15, nessun membro in debito. Il profilo atteso e' saturo
+perche' quei file sono stati scritti dallo stesso stampo.
+
+Che lo zero sia una MISURA e non un silenzio e' verificato per differenza sulla
+KB reale, non su un giocattolo:
+
+```
+knowledge_gap(poker, ?)                    -> []
+retract game_tip(poker, "…")
+knowledge_gap(poker, ?)                    -> [game_tip]
+knowledge_gap_remedy(poker, ?)             -> [ask_user]
+```
+
+Questa e' la risposta empirica alla domanda di §2, ottenuta pero' **dall'interno**
+invece che da un bench in Python: la sorgente 4a e' *strutturalmente incapace* di
+trovare le lacune che hanno aperto questo documento. «Quante carte ha il poker»
+non e' un attributo che i fratelli dichiarano e il poker no: non lo dichiara
+nessuno. Un template uniforme rende la sorgente 4a muta esattamente dove la KB e'
+piu' fragile — **e la sua saturazione e' essa stessa il segnale**: dice che il
+prossimo lavoro non e' affinare 4a, ma aprire una sorgente che non dipenda dal
+consenso fra fratelli.
+
+### 9.13 Da dove riprendere, in ordine
+
+1. **Chiudere il difetto di isolamento del banco** (§9.11) e rimettere
+   `knowledge_gap.p0t` in `make test`. Prima di questo, nessuna misura nuova.
+2. **Rendere la coorte un fatto.** Oggi `expert_domain/2` e' scritto dentro
+   `observed_domain_attribute`. Deve diventare `gap_cohort(Source, Relation)`,
+   cosi' che (a) applicare la stessa sorgente alle classi `is_a` costi UN fatto,
+   e (b) la relazione che DEFINISCE il gruppo smetta di comparire fra gli
+   attributi dei suoi membri — l'esclusione strutturale chiesta da §9.4, per
+   regola e non per lista.
+3. **La seconda sorgente, per provare che una sorgente costa fatti.** Il
+   candidato con il miglior rapporto segnale/rumore e' l'entita' opaca ristretta:
+   un termine che ha un TIPO dichiarato (`category_member(poker_hand,
+   straight_flush)`) e non e' soggetto di alcuna relazione descrittiva. La
+   restrizione «ha un tipo» e' cio' che tiene fuori valori, etichette e numeri
+   senza bisogno dei ruoli degli argomenti che §9.6 chiede e che ancora non
+   abbiamo.
+4. **La superficie (§4e).** Resta la sorgente piu' feconda e la sola che produce
+   lacune misurabili senza conoscenza nuova. Non e' stata toccata.
+5. **Le domande, non le faccette.** Oggi il consumer risponde `game_tip`. La
+   forma interrogativa e' gia' in KB: `answer_frame(Cue, Pred)` dice con quali
+   parole si chiede quella relazione. `gap_question(Entity, Cue) :-
+   knowledge_gap(Entity, Facet), answer_frame(Cue, Facet).` e' una clausola, e
+   trasforma l'elenco di faccette nell'elenco di DOMANDE che §8 chiede — usando
+   il registro che esiste, senza una lista nuova.

@@ -36,7 +36,19 @@
  * Measured headroom: the whole .p0t suite peaks four orders of magnitude below
  * this, so hitting it means the knowledge is pathological, not merely large. */
 #define KB_MAX_STEPS 500000UL
-#define KB_MAX_BIND  128/* bindings per substitution                   */
+/* gen382o — bindings per substitution. Raised from 128 because a substitution is
+ * a TRAIL: a deterministic fold like count_list/2 leaves every intermediate
+ * binding behind, so folding a list of N costs ~4N slots and two folds in one
+ * conjunction cost ~8N. At 128 that put the ceiling at a cohort of ~15, and the
+ * fifteen game experts sat exactly on it — the sibling detector of
+ * question-emergence.md silently lost every attribute with FULL support while
+ * keeping the sparse ones, which reads as "nothing is expected here". The
+ * overflow is now also reported (see `overflow` in Subst): running out of trail
+ * is incompleteness, never a proof of absence.
+ * The variable side of a binding is capped separately: names are short, and
+ * paying a full term for each halved the trail for nothing. */
+#define KB_MAX_BIND  384
+#define KB_VAR_LEN   96 /* a renamed variable name: $Name_<frame>       */
 #define KB_PROOF_LEN 480/* max length of a rendered proof string       */
 #define KB_PROOF_PG  16 /* goals tracked while building an explanation */
 /* One serialized rule can contain a head plus KB_MAX_BODY goals, each with a
@@ -681,10 +693,15 @@ int kb_assert_rule_n(KB *kb, const char *head,
 
 #define KB_MAX_DIF 32  /* max deferred dif/2 constraints per branch */
 
-typedef struct { char var[KB_TERM_LEN]; char val[KB_TERM_LEN]; } Bind;
+typedef struct { char var[KB_VAR_LEN]; char val[KB_TERM_LEN]; } Bind;
 typedef struct { char a[KB_TERM_LEN]; char b[KB_TERM_LEN]; } DifConstraint;
+/* `overflow` points at the owning solver's incompleteness flag. A substitution is
+ * copied by value all the way down a derivation, so the pointer travels with it
+ * and an exhausted trail eight frames deep still reaches the top — where the
+ * answer must become "I could not finish", not "there is nothing". */
 typedef struct { Bind b[KB_MAX_BIND]; size_t n;
-                 DifConstraint dif[KB_MAX_DIF]; size_t ndif; } Subst;
+                 DifConstraint dif[KB_MAX_DIF]; size_t ndif;
+                 int *overflow; } Subst;
 
 /* fwd: structural unification (U3) splits compound-term strings with parse_term,
  * defined further down with the .p0 loader. */
@@ -775,8 +792,11 @@ static void deep_resolve(const Subst *s, const char *t,
 }
 
 static int bind_add(Subst *s, const char *var, const char *val) {
-    if (s->n >= KB_MAX_BIND) return 0;
-    strcpy(s->b[s->n].var, var);
+    if (s->n >= KB_MAX_BIND || strlen(var) >= KB_VAR_LEN) {
+        if (s->overflow) *s->overflow = 1;   /* exhausted, not disproved */
+        return 0;
+    }
+    snprintf(s->b[s->n].var, KB_VAR_LEN, "%s", var);
     strcpy(s->b[s->n].val, val);
     s->n++;
     return 1;
@@ -988,7 +1008,16 @@ static int goal_ground(const Term *g) {
         if (is_var(g->args[i])) return 0;
     return 1;
 }
-/* Is the (ground) goal provable now? A fresh boolean solve, depth-guarded. */
+/* Is the (ground) goal provable now? A fresh boolean solve, depth-guarded.
+ *
+ * Returns 1 provable, 0 finite failure, -1 INCOMPLETE (the search was cut by the
+ * step budget). gen382o: the third answer used to be folded into 0, and that is
+ * the difference between "I searched and it is not there" and "I stopped
+ * searching". Only the first licenses a negative conclusion. Everything that
+ * reasons about ABSENCE — negation as failure, and above all the gap detector of
+ * question-emergence.md, whose whole subject is what the KB does NOT contain —
+ * has to be able to tell them apart, or it will report exhaustion as knowledge. */
+#define GOAL_INCOMPLETE (-1)
 static int goal_provable(const KB *kb, const Term *g, int depth) {
     Solver S;
     memset(&S, 0, sizeof S);
@@ -996,9 +1025,11 @@ static int goal_provable(const KB *kb, const Term *g, int depth) {
     S.budget = KB_MAX_STEPS;
     Subst *s = calloc(1, sizeof *s);
     if (!s) return 0;
+    s->overflow = &S.budget_hit;
     solve(&S, g, 1, 0, s, depth);
     free(s);
-    return S.found;
+    if (S.found) return 1;
+    return S.budget_hit ? GOAL_INCOMPLETE : 0;
 }
 
 /* U4 (teach-comprehension-via-mcp.md §5.3): string ⟷ char-list (de)serialization
@@ -1219,7 +1250,12 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         Term gg;
         resolve_goal(g, s, &gg);
         if (!goal_ground(&gg)) return 0;       /* floundering: decline honestly */
-        if (goal_provable(S->kb, &gg, depth + 1)) return 0;  /* provable -> naf fails */
+        int pv = goal_provable(S->kb, &gg, depth + 1);
+        if (pv == 1) return 0;                              /* provable -> naf fails */
+        if (pv == GOAL_INCOMPLETE) {   /* exhaustion is not absence: decline, loudly */
+            S->budget_hit = 1;
+            return 0;
+        }
         return solve(S, goals, ngoals, idx + 1, s, depth);   /* not provable -> naf ok */
     }
 
@@ -1228,8 +1264,25 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * Which predicates count as obligations, evidence, machinery or gaps is
      * deliberately left to KB rules. */
     if (strcmp(g->pred, "kb_fact") == 0 && g->argc == 2) {
-        for (size_t i = 0; i < S->kb->n; i++) {
+        /* gen382o: when the predicate slot is already BOUND — the common shape
+         * once a detector has picked a facet and is now counting its support —
+         * the census names that predicate's facts, so the reflective view costs
+         * a bucket walk instead of a scan of the whole KB at every step. The
+         * unbound case still enumerates everything: that is the question being
+         * asked, not an oversight. Behaviour is identical either way. */
+        char rp[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], rp, sizeof rp, 0);
+        PredBucket fbk = { NULL, 0, 0 };
+        int bound = !is_var(rp) && term_ok(rp) && !term_contains_var(rp, 0);
+        if (bound) {
+            fbk = pred_bucket(S->kb, rp);
+            if (fbk.live && fbk.n == 0) return 0;   /* predicate unknown here */
+        }
+        size_t visits = bound ? PRED_VISITS(fbk, S->kb) : S->kb->n;
+        for (size_t vi = 0; vi < visits; vi++) {
+            size_t i = bound ? PRED_AT(fbk, vi) : vi;
             const Fact *f = &S->kb->facts[i];
+            if (bound && strcmp(f->pred, rp) != 0) continue;
             char list[KB_TERM_LEN];
             if (!args_to_list(f->args, f->argc, list, sizeof list)) continue;
             Subst *s2 = &scratch->subst;
@@ -1417,9 +1470,28 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         F.qvar = is_var(tv) ? tv : "$Q";
         F.out = solutions;
         F.max = max_sol;
+        /* gen382o — the sub-solver CONTINUES the caller's frame counter.
+         *
+         * Clause variables are renamed apart as `$Name_<frame>`, and this
+         * sub-solve inherits the caller's substitution (`*fs = *s`) because the
+         * findall goal may be partly bound. Restarting the counter at 0 therefore
+         * re-issues names that are already BOUND above, so a callee whose clause
+         * happens to use the same variable NAME as an ancestor silently inherits
+         * its binding — a capture that makes the findall enumerate a subset and
+         * report it as complete. It cost this project a detector that looked like
+         * an arithmetic bug (question-emergence.md §9.3). Names issued below must
+         * never be reissued above either, so the counter travels back out.
+         *
+         * The budget travels too: an interrupted enumeration must not be able to
+         * masquerade as a small finite answer. `incomplete` is a third epistemic
+         * outcome, and anything reasoning about ABSENCE has to be able to see it. */
+        F.frame = S->frame;
+        F.budget = S->budget;
         Subst *fs = &scratch->subst;
         *fs = *s;
         solve(&F, &goal, 1, 0, fs, 0);
+        S->frame = F.frame;
+        if (F.budget_hit) S->budget_hit = 1;
         char list_buf[KB_CHARLIST_MAX];
         snprintf(list_buf, sizeof list_buf, "nil");
         for (size_t i = F.count; i > 0; i--) {
@@ -1682,7 +1754,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
     S.budget = KB_MAX_STEPS;
     Subst *s = malloc(sizeof *s);
     if (!s) return 0;
-    s->n = 0; s->ndif = 0;
+    s->n = 0; s->ndif = 0; s->overflow = &S.budget_hit;
     solve(&S, &g, 1, 0, s, 0);
     kb_note_inference(kb, &S, pred);
     free(s);
@@ -1775,7 +1847,7 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
     S.max = max;
     Subst *s = malloc(sizeof *s);
     if (!s) return 0;
-    s->n = 0; s->ndif = 0;
+    s->n = 0; s->ndif = 0; s->overflow = &S.budget_hit;
     solve(&S, &g, 1, 0, s, 0);
     kb_note_inference((KB *)kb, &S, pred);
     free(s);
@@ -1834,7 +1906,7 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
         Term gg;
         resolve_goal(g, s, &gg);
         if (!goal_ground(&gg)) return 0;
-        if (goal_provable(kb, &gg, depth + 1)) return 0;
+        if (goal_provable(kb, &gg, depth + 1) != 0) return 0;  /* provable OR incomplete */
         if (prove_seq_ex(kb, goals, n, idx + 1, s, depth, frame, out)) {
             char inner[KB_PROOF_LEN];
             render_goal(s, g, inner, sizeof inner);
