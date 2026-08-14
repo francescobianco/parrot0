@@ -687,6 +687,86 @@ piu' fragile — **e la sua saturazione e' essa stessa il segnale**: dice che il
 prossimo lavoro non e' affinare 4a, ma aprire una sorgente che non dipenda dal
 consenso fra fratelli.
 
+### 9.14 CORREZIONE DI ROTTA (F., gen382o): il bersaglio e' il PONTE
+
+> «Impedire che la conoscenza non emerga per colpa del gap di metaconoscenza
+> dialogica.»
+
+Il documento si era spostato sul contenuto: *quale fatto manca*. Il bersaglio e'
+un altro e piu' stretto: **quale conoscenza c'e' e non riesce a uscire**, perche'
+manca il pezzo di meta-conoscenza che collega una domanda alla relazione che la
+risponde. Anche quel pezzo e' conoscenza — quindi anche lui ha uno spazio
+negativo, e si misura con lo stesso strumento.
+
+Le due misure di gen382o, messe una accanto all'altra, dicono esattamente questo:
+
+```
+rilevatore puntato sul MONDO   (coorti expert_domain)   -> 0 lacune su 15+8 esperti
+rilevatore puntato sul PONTE   (dimensioni confrontabili) -> 1 lacuna su 7, al primo colpo
+```
+
+**Il caso, per intero.** `magnitude/3` ha 7 dimensioni. Sei hanno una parola che
+le raggiunge (`magnitude_cue/3`); `population` no.
+
+```prolog
+mag_dim($D)     :- kb_fact(magnitude, cons($D, cons($I, cons($R, nil)))).
+mag_door($D)    :- magnitude_cue($W, $D, $M).
+mag_no_door($D) :- mag_dim($D), naf(mag_door($D)).      % -> [population]
+```
+
+La conoscenza c'e' e ordinata: `magnitude(population, china, 11)`,
+`magnitude(population, india, 12)`. Il motore di confronto generale c'e' e
+funziona. Manca solo la parola che li congiunge. Verifica per differenza, in
+conversazione:
+
+```
+which river is longer, the nile or the amazon   -> Nile.          (length HA la porta)
+e piu forte il full o il poker                  -> Full_house.    (hand_rank, porta aggiunta a mano a gen382l)
+quale paese e' piu popoloso                     -> Non capisco ancora.   ← la lacuna, predetta
+```
+
+**E il muro non e' il danno peggiore.** Le stesse domande in inglese non vanno a
+muro: vanno a una relazione VICINA che risponde a una domanda diversa.
+
+```
+which country has the largest population -> Russia.        (falso)
+which country has the largest area       -> Russia.        (vero)
+which has the bigger population, china or india -> 1400000000.   (un lookup, non un confronto)
+```
+
+`largest_in_category(country, russia)` non ha uno slot per la DIMENSIONE, quindi
+ogni «largest <categoria>» ci arriva, qualunque cosa si stesse chiedendo. La
+lacuna di meta-conoscenza non produce silenzio: produce **una risposta sbagliata
+detta con sicurezza** — mantra #7 violato non da una regola sbagliata, ma da un
+ponte assente che lascia vincere il ponte accanto.
+
+**Che cosa cambia nel meccanismo: niente.** `gap_source(Type, Obligation,
+Coverage)` e' gia' cieca a che cosa siano obbligo e copertura. Cambia solo dove
+la si punta. E il pezzo che serviva era gia' scritto senza saperlo: il
+`naf(machinery($Facet))` messo per tenere la macchineria FUORI dal profilo del
+mondo e' esattamente l'interruttore che, invertito, porta il rilevatore DENTRO
+lo strato dialogico.
+
+**La forma generale.** Ogni registro di superficie apre una relazione:
+`answer_frame(Cue, Pred)`, `aggregate_frame(Cue, Pred, …)`, `question_form(…)`,
+`magnitude_cue(Word, Dim, Mode)`, `intent_cue(…)`. L'obbligo e' «questa
+relazione (o questa chiave dentro la relazione) ha fatti, quindi qualcuno la
+chiedera'»; la copertura e' «un registro la nomina». Un registro nuovo costa un
+fatto:
+
+```prolog
+gap_consumer(magnitude_cue, magnitude, 2).   % apre magnitude(Dim, …) nominando Dim
+gap_consumer(answer_frame,  any,       2).
+```
+
+**Il falso allarme da evitare, dichiarato prima di sbagliarlo.** `answer_frame`
+non e' l'unico consumatore: molti moduli leggono una relazione direttamente dal
+C. Contare «le relazioni senza `answer_frame`» darebbe decine di allarmi falsi —
+lo stesso errore di §7 («come si gioca ad algebra»). Il conteggio ha senso solo
+quando l'INSIEME dei registri e' esso stesso un fatto, e quando ogni consumer
+in C dichiara la relazione che consuma. Fino ad allora si misura per registro,
+come sopra: li' la copertura e' esatta e il risultato e' falsificabile parlando.
+
 ### 9.13 Da dove riprendere, in ordine
 
 1. **Chiudere il difetto di isolamento del banco** (§9.11) e rimettere
@@ -697,15 +777,18 @@ consenso fra fratelli.
    e (b) la relazione che DEFINISCE il gruppo smetta di comparire fra gli
    attributi dei suoi membri — l'esclusione strutturale chiesta da §9.4, per
    regola e non per lista.
-3. **La seconda sorgente, per provare che una sorgente costa fatti.** Il
-   candidato con il miglior rapporto segnale/rumore e' l'entita' opaca ristretta:
-   un termine che ha un TIPO dichiarato (`category_member(poker_hand,
-   straight_flush)`) e non e' soggetto di alcuna relazione descrittiva. La
-   restrizione «ha un tipo» e' cio' che tiene fuori valori, etichette e numeri
-   senza bisogno dei ruoli degli argomenti che §9.6 chiede e che ancora non
-   abbiamo.
+3. **La sorgente «relazione senza porta», per registro** (§9.14). E' la seconda
+   sorgente da fare, non l'entita' opaca: ha gia' un caso vero trovato
+   (`population`), un rimedio che e' UN fatto (`magnitude_cue(populous,
+   population, max)`) e una verifica che si fa parlando. L'entita' opaca resta
+   dopo, quando ci saranno i ruoli degli argomenti di §9.6.
 4. **La superficie (§4e).** Resta la sorgente piu' feconda e la sola che produce
-   lacune misurabili senza conoscenza nuova. Non e' stata toccata.
+   lacune misurabili senza conoscenza nuova. Non e' stata toccata. Sotto la
+   lettura di §9.14 e' anche la piu' centrale: «come tichiami» e' il ponte
+   raw->canonico che si rompe, non un fatto che manca.
+4b. **La dimensione mancante in `largest_in_category/2`** (§9.14): una relazione
+   senza slot per la dimensione fa sbagliare, non tacere. E' il primo rimedio da
+   applicare perche' produce gia' oggi risposte false.
 5. **Le domande, non le faccette.** Oggi il consumer risponde `game_tip`. La
    forma interrogativa e' gia' in KB: `answer_frame(Cue, Pred)` dice con quali
    parole si chiede quella relazione. `gap_question(Entity, Cue) :-
