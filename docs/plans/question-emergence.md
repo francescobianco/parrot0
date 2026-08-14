@@ -795,3 +795,157 @@ come sopra: li' la copertura e' esatta e il risultato e' falsificabile parlando.
    knowledge_gap(Entity, Facet), answer_frame(Cue, Facet).` e' una clausola, e
    trasforma l'elenco di faccette nell'elenco di DOMANDE che §8 chiede — usando
    il registro che esiste, senza una lista nuova.
+
+---
+
+## 10. Punto della situazione dopo alcune elaborazioni
+
+*Ragionamento generale, gen382o. Nasce da una correzione di F.: il bersaglio non
+e' trovare lacune di conoscenza, e'* **impedire che la conoscenza non emerga per
+colpa del gap di metaconoscenza dialogica**. *Questa sezione tira le somme al
+livello di struttura, non di casi. I casi che l'hanno provocata stanno in §9.14.*
+
+### 10.1 Che cosa cambia davvero la riformulazione
+
+Ci sono due strati. **W**, la conoscenza del mondo: relazioni con fatti. **M**, la
+meta-conoscenza dialogica: i legami che portano un enunciato dentro W e ne
+riportano indietro una risposta ben formata. Un turno riesce se esiste un
+*cammino* prompt -> M -> W -> M -> risposta.
+
+La differenza fra i due non e' di contenuto, e' di **algebra**:
+
+- **W cresce per addizione** — un fatto in piu', una risposta in piu';
+- **M cresce per moltiplicazione** — un legame in piu' rende raggiungibile
+  un'intera regione di W.
+
+Ne segue immediatamente che ogni metrica di contenuto — numero di fatti,
+copertura di dominio, wall-rate per entita' — e' **cieca a M per costruzione**,
+perche' M non aggiunge contenuto: cambia soltanto quanto del contenuto esistente
+sia attingibile. E' la ragione strutturale di §2: un bench derivato da cio' che la
+KB *afferma* non puo' vedere M nemmeno in linea di principio.
+
+### 10.2 Perche' una lacuna in M e' peggio di una in W
+
+Una lacuna in W produce un muro, ed e' onesta. Una lacuna in M non produce
+silenzio, e questo e' il punto generale:
+
+> **Il dispatch e' competitivo.** Se il ponte giusto manca, il turno non va da
+> nessuna parte — va al *migliore dei ponti rimasti*. L'assenza dentro un router
+> competitivo non e' silenzio: e' **instradamento sbagliato**.
+
+Quindi le lacune di M sono l'unica classe che fabbrica inganno *a partire da
+conoscenza corretta*: la KB sa la cosa giusta e il sistema dice quella sbagliata,
+con sicurezza. Rispetto alla dottrina anti-inganno di `PRINCIPLES.md` e al mantra
+#7 questa e' la classe prioritaria — non per eleganza, per gravita'.
+
+### 10.3 Perche' sono anche l'unica classe DECIDIBILE
+
+Su W la domanda «manca il fatto F?» non ha risposta senza mondo chiuso o oracolo.
+E' esattamente per questo che §4a ha dovuto ripiegare su un'euristica di
+maggioranza, ed e' per questo che si satura: legge il consenso fra fratelli, e
+fratelli scritti dallo stesso stampo non hanno consenso da rivelare.
+
+Su M la domanda e' di un'altra specie. M e' un insieme di archi fra cose che
+stanno **entrambe dentro il sistema**. «La relazione R e' raggiungibile da
+qualche superficie dichiarata?» e' una domanda sul grafo che la KB ha di se'.
+Niente oracolo, niente mondo aperto, niente soglie.
+
+> Lo spazio negativo di M e' **calcolabile**; quello di W e' al massimo
+> **stimabile**.
+
+Che il rilevatore puntato sulle coorti desse zero e puntato sui ponti colpisse al
+primo tentativo (§9.14) non e' fortuna: e' questa asimmetria.
+
+### 10.4 Le tre forme dello spazio negativo di M, e sono esaustive
+
+M e' bipartito: superfici <-> relazioni. Ogni fatto di M e' un arco. Quindi il
+suo spazio negativo ha esattamente tre forme:
+
+1. **Relazione senza porta** — R ha fatti, nessun arco la raggiunge. Conoscenza
+   che non si puo' chiedere.
+2. **Porta senza relazione** — un arco punta a R, R non ha fatti. Domanda capita,
+   niente dietro.
+3. **Porta che non discrimina** — piu' regioni di W condividono un arco, e l'arco
+   non ha di che distinguerle.
+
+La terza e' quella che nessuno enumera, perche' **entrambi gli estremi
+esistono**: l'arco c'e', e' solo sotto-specificato. Ed e' anche l'unica delle tre
+che produce risposte false invece di muri.
+
+Ha inoltre un rapporto preciso col mantra #3. «Astrai fino al punto fisso» dice
+normalmente di *fondere* relazioni viste attraverso verbi diversi; lo stesso
+criterio letto al contrario dice che un arco il cui fan-in supera la propria
+capacita' di discriminare non chiede una fusione, chiede **uno slot**. Stesso
+test, direzione opposta.
+
+### 10.5 La conseguenza operativa piu' forte: il ciclo si chiude solo su M
+
+Il rimedio a una lacuna di M e' **sempre esprimibile come un singolo fatto di
+M**, perche' la lacuna e' definita come arco mancante in una struttura bipartita
+gia' dichiarata. Per W non e' vero: il rimedio a «quante carte ha il poker» e'
+andare a saperlo.
+
+```text
+lacuna in W  ->  rimedio = ACQUISIZIONE   (esterna, costosa, fallibile)
+lacuna in M  ->  rimedio = ENUNCIAZIONE   (interna, un fatto, verificabile subito)
+```
+
+Quindi il ciclo *emersione -> rimedio -> verifica* si chiude **senza uscire dal
+sistema** solo sul lato M. §6 immaginava di chiuderlo col sogno, ma il sogno non
+puo' chiuderlo su W senza una fonte. Su M si', e la verifica e' doppia:
+rieseguire il rilevatore (la lacuna sparisce) e riprovare **parlando** (il turno
+cambia). E' il ciclo autonomo che il progetto cerca — sta sull'altro strato
+rispetto a dove lo stavamo cercando.
+
+### 10.6 La richiesta strutturale al codice che ne discende
+
+Se M e' dove sta la leva, allora ogni modulo C che consulta una relazione **senza
+dichiarare quale relazione consuma** e' un buco nell'osservabilita' di M. Non
+perche' sia sbagliato: perche' rende invisibile al rilevatore un arco che nel
+sistema esiste. Il grafo che il rilevatore legge non e' il grafo su cui il sistema
+gira, e ogni conteggio globale diventa rumore — lo stesso errore di §7.
+
+E' una richiesta piu' tagliente del mantra «niente vocabolario nel C»:
+
+> **Ogni consumer in C dichiara il proprio arco come fatto.**
+
+Finche' non vale, «relazioni senza porta» non e' misurabile in generale: solo per
+registro, un registro alla volta — dove pero' la copertura e' esatta e il
+risultato e' falsificabile parlando.
+
+### 10.7 Riclassificazione delle cinque sorgenti di §4
+
+Erano ordinate per *dove sta il buco nella KB*. Vanno ordinate per **quale
+freccia della pipeline e' rotta**:
+
+| freccia | sorgente |
+|---|---|
+| grezzo -> canonico | §4e superficie |
+| canonico -> relazione | relazione senza porta; porta che non discrimina |
+| relazione -> dato | porta senza relazione; §4d dialetti privati |
+| dato -> risposta | formato e realizzazione (il V(q) di §9.1) |
+
+Da qui due semplificazioni vere:
+
+- **§4d non e' un fenomeno a se'.** Un dialetto privato *e'* una relazione senza
+  porta, vista dal lato del dato.
+- **Delle cinque sorgenti, solo §4c (entita' opache) e' davvero una lacuna di
+  W.** Le altre quattro parlavano gia' del ponte, e il documento non se n'era
+  accorto.
+
+Non sono cinque problemi: e' **un problema con quattro facce, piu' uno di natura
+diversa**.
+
+### 10.8 Che cosa renderebbe falsa questa tesi
+
+Da mettere per iscritto adesso, prima di innamorarsene. Se M fosse davvero un
+moltiplicatore, aggiungere **un** arco deve rendere risponibili **molte**
+domande.
+
+> Falsificatore: misurare, dopo l'aggiunta di un singolo fatto di M, quante
+> domande prima murate ora passano. Se il numero e' circa 1, M non moltiplica —
+> e' solo un'altra forma di contenuto, e §10 e' una descrizione elegante di
+> niente.
+
+E' anche la metrica giusta per ordinare i rimedi: il valore di un arco e' la
+dimensione della regione di W che sblocca, non il fatto di esistere.
