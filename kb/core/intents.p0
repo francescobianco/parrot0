@@ -2202,6 +2202,16 @@ answer_projection(contextual_denotation, denotation_form_evidence).
 projection_gate(contextual_denotation, denotation_domain_evidence).
 projection_source(contextual_denotation, denotation_identity, binary).
 
+% gen393: superfici riflessive per osservare il kernel comune dei frame. Non
+% costruiscono il frame dal prompt: rendono falsificabili completezza, residuo,
+% proof e letture che il produttore ha materializzato nella KB.
+answer_frame("frame completeness", frame_completeness).
+answer_frame("frame residue", frame_residue).
+answer_frame("frame answer", frame_answer).
+answer_frame("candidate reading", candidate_reading).
+answer_frame("selected reading", selected_reading).
+answer_frame("retained reading", retained_reading).
+
 % ── INSEGNARE UNA RISPOSTA PARLANDO ──────────────────────────────────────────
 % gen382c. Il motore delle risposte curate (mod_qa, qa_cue/qa_reply) esisteva dal
 % gen347, ma si poteva alimentare solo scrivendo nei file: mancava l'ATTO. Queste

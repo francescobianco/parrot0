@@ -1,0 +1,69 @@
+# FRAME, LETTURE E RESIDUO STRUTTURALE — gen393, primo taglio KB-only.
+#
+# Il produttore NL->frame non e' ancora rivendicato: il test materializza uno
+# stesso frame con fatti runtime e verifica che tutte le viste cambino senza
+# rebuild. La risposta del frame passa dal normale solver tramite apply/2.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test complete_frame_reaches_a_derived_answer]
+!assert frame_act(inquiry_alpha, ask)
+!assert frame_source(inquiry_alpha, user_span, span_alpha)
+!assert frame_slot(inquiry_alpha, relation, widget_colour)
+!assert frame_slot(inquiry_alpha, entity, zorb)
+!assert widget_colour(zorb, blue)
+> what is the frame completeness for inquiry_alpha?
+< Complete.
+> what is the frame answer for inquiry_alpha?
+< Blue.
+
+[test removing_one_slot_produces_only_its_residue]
+!forget frame_slot(inquiry_alpha, entity, zorb)
+> what is the frame completeness for inquiry_alpha?
+< Incomplete.
+> what is the frame residue for inquiry_alpha?
+< Missing entity.
+> what is the frame answer for inquiry_alpha?
+<! Blue.
+!assert frame_slot(inquiry_alpha, entity, zorb)
+> what is the frame completeness for inquiry_alpha?
+< Complete.
+> what is the frame answer for inquiry_alpha?
+< Blue.
+
+[test frame_surface_grows_and_retracts_from_kb]
+!forget answer_frame("frame answer", frame_answer)
+> what is the frame answer for inquiry_alpha?
+<! Blue.
+!assert answer_frame("frame answer", frame_answer)
+> what is the frame answer for inquiry_alpha?
+< Blue.
+
+[test readings_remain_concurrent_until_status_is_declared]
+!assert reading_frame(reading_blue, inquiry_alpha)
+!assert reading_evidence(reading_blue, lexical_match)
+!assert reading_frame(reading_azure, inquiry_alpha)
+!assert reading_evidence(reading_azure, domain_context)
+> what is the candidate reading for inquiry_alpha?
+< Reading blue and reading azure.
+> what is the selected reading for inquiry_alpha?
+<! Reading blue.
+> what is the retained reading for inquiry_alpha?
+<! Reading azure.
+!assert reading_status(reading_blue, selected)
+!assert reading_status(reading_azure, retained)
+> what is the selected reading for inquiry_alpha?
+< Reading blue.
+> what is the retained reading for inquiry_alpha?
+< Reading azure.
+!forget reading_status(reading_blue, selected)
+> what is the candidate reading for inquiry_alpha?
+< Reading blue and reading azure.
+> what is the selected reading for inquiry_alpha?
+<! Reading blue.

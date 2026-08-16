@@ -1107,9 +1107,9 @@ come oracolo:
 | gen | task di residenza | evidenza richiesta |
 |---|---|---|
 | 391 | specificare barriera, registry canonica idempotente, stati file, goal trigger ed equivalenza eager; censire boot e caricamenti parziali C | documento Prolog; inventario `lexeme/actions/compose/algo_steps`; nessun `.p0` operativo usa ancora la direttiva |
-| 392 | costruire il manifesto core e dichiarare le frontiere dei provider oggi aperti dai consumer, mantenendo tutto eager | lo stesso grafo riproduce la spina corrente; nessuna barriera operativa anticipa la registry |
-| 393 | introdurre un entrypoint di profilo sperimentale e confrontarlo col boot storico | una sola radice curata produce fatti, regole, proof e ordine equivalenti |
-| 394 | rendere `include/1` idempotente per path canonico e isolare la provenienza fisica | diamante e path equivalenti non duplicano fatti o regole; cicli e fallimenti sono espliciti |
+| 392 | auditare il manifesto core e dichiarare le frontiere dei provider oggi aperti dai consumer, mantenendo tutto eager | ordine e layer sono congelati; `file_layer/1` emerge come prerequisito; nessuna barriera operativa anticipa la registry |
+| 393 | implementare registry canonica, provenienza fisica e `file_layer/1` | diamante e path equivalenti non duplicano fatti o regole; layer incompatibili, cicli e fallimenti sono espliciti |
+| 394 | introdurre un entrypoint di profilo sperimentale e confrontarlo col boot storico | una sola radice curata produce fatti, regole, layer, proof e ordine equivalenti |
 | 395 | rendere conversational e AGI profili completi | il profilo caratterizza tutto il soggetto; i vecchi assi di amputazione entrano in deprecazione |
 | 396 | attivare `lazy_load` semplice, `any(...)`, `all(...)` e formule annidate; migrare i quattro carichi parziali | equivalenza eager/lazy, catalogato distinto da residente, consumer privi di path e flag, misure cold/warm |
 | 397 | applicare la barriera agli expert voluminosi e rimuovere il boot nominale | unico entrypoint globale, memoria ridotta ed equivalenza warm entro il budget ordinario |
@@ -1317,24 +1317,26 @@ realizzazione.
 **Task 393.1 — frame minimo comune.**
 
 ```prolog
-utterance_frame($Turn, $Frame) :- frame_candidate($Turn, $Frame), frame_complete($Frame).
-frame_act($Frame, ask).
+frame_candidate($Frame) :- frame_act($Frame, $Act).
 frame_slot($Frame, relation, $Relation).
 frame_slot($Frame, entity, $Entity).
 frame_slot($Frame, constraint, $Constraint).
 frame_source($Frame, $Role, $Span).
+frame_complete($Frame) :- frame_candidate($Frame), frame_has_relation($Frame), frame_has_entity($Frame).
+frame_answer($Frame, $Value) :- frame_slot($Frame, relation, $Relation), frame_slot($Frame, entity, $Entity), apply($Relation, cons($Entity, cons($Value, nil))).
 ```
 
-Gli ultimi quattro sono forme di schema; i fatti concreti vengono materializzati
-dal turno, non curati per prompt.
+Atto, slot e source sono forme di schema; i fatti concreti devono essere
+materializzati dal turno, non curati per prompt. `frame_answer/2` usa il normale
+solver: una regola derivata vale quanto un fatto e nessun consumer possiede un
+secondo percorso di inferenza.
 
 **Task 393.2 — letture concorrenti.**
 
 ```prolog
-candidate_reading($Turn, $Reading) :- reading_frame($Reading, $Frame), frame_for_turn($Turn, $Frame).
-reading_evidence($Reading, $Evidence).
-reading_status($Reading, selected).
-reading_status($Reading, retained).
+candidate_reading($Frame, $Reading) :- reading_frame($Reading, $Frame), reading_evidence($Reading, $Evidence).
+selected_reading($Frame, $Reading) :- candidate_reading($Frame, $Reading), reading_status($Reading, selected).
+retained_reading($Frame, $Reading) :- candidate_reading($Frame, $Reading), reading_status($Reading, retained).
 ```
 
 **Task 393.3 — diagnosi dei gap.**
@@ -1353,6 +1355,27 @@ nessuna diagnosi da sola autorizza una risposta.
 
 **Definizione di done.** Il muro e il successo descrivono lo stesso tipo di
 frame; una lacuna e' localizzata nel grafo e porta una proof diagnostica.
+
+**Stato di attuazione.** Il primo taglio KB-only e' in
+`core/dialogue-frames.p0`: completezza, residuo di slot, proof positiva e
+letture concorrenti sono viste dello stesso frame. Il ratchet
+`meta/three_axis_gap.p0t` materializza un frame inventato, toglie e ripristina
+uno slot, conserva due letture, cambia selected/retained e abla una superficie
+`answer_frame/2` a runtime. `make soft-test` resta a 6 secondi sul budget 15;
+`make test` chiude 1816 asserzioni, zero fallimenti. Il file e' deliberatamente
+incompleto in due punti:
+
+1. il produttore NL -> frame non esiste ancora, quindi la generazione non e'
+   end-to-end e non va promossa;
+2. `missing_fact` non viene derivato da `naf(frame_answer(...))`: finche' il
+   report `proved | finite_failure | incomplete` non e' interrogabile dalla KB,
+   quella negazione potrebbe trasformare un budget esaurito in una falsa
+   assenza. Oggi vengono derivati soltanto residui strutturali e proof positive.
+
+Il primo rosso del ratchet ha inoltre fissato una regola del dialetto: la NAF
+deve ricevere un goal ground. `frame_residue/2` passa quindi dalle viste positive
+`frame_has_relation/1` e `frame_has_entity/1`, invece di lasciare una variabile
+esistenziale libera dentro `naf(frame_slot(...))`.
 
 ---
 
@@ -1548,8 +1571,8 @@ cambiano il dialogo a runtime; la suite ordinaria resta entro i budget.
 
 ## 16. Stato di avanzamento
 
-Il piano e' partito da **gen391**. Le gen393-397 restano contratti, non
-capacita' rivendicate; gen392 e' il fronte semantico corrente.
+Il piano e' partito da **gen391**. Le gen394-397 restano contratti, non
+capacita' rivendicate; gen393 e' il fronte semantico corrente.
 
 Stato della gen391:
 
@@ -1590,8 +1613,11 @@ Stato corrente della gen392:
    conservate, citazione, ponte tipato fuori dai giochi, retract e crescita del
    ruolo di menzione a runtime;
 5. **filo di residenza preparato, non attivato:** gen392 deve produrre il
-   manifesto core eager. La barriera lazy resta soltanto documentata finche'
-   entrypoint e registry non ne rendono la semantica univoca;
+   manifesto core eager. L'audit ha mostrato che `include/1` da solo perderebbe
+   il layer reflective di `capabilities.p0`; `file_layer/1` e' ora specificato
+   come prerequisito distinto da `file_attribute/1`. La barriera lazy resta
+   soltanto documentata finche' layer, entrypoint e registry non ne rendono la
+   semantica univoca;
 6. **verifica corrente:** `make soft-test` e' verde in 6 secondi sul budget 15;
    `make test` passa 1800 asserzioni senza fallimenti; il diff C contiene una
    sola operazione strutturale parametrizzata da `canonicalization_exempt/1`.
@@ -1608,3 +1634,16 @@ La gen392 puo' essere promossa soltanto dopo che:
 6. il diff non contiene cue, lingue, domini o risposte naturali nel C;
 7. il manifesto core eager del filo di profilo e' almeno definito senza
    dichiarare implementate idempotenza o lazy load.
+
+Avvio della gen393:
+
+1. **kernel logico presente:** frame, slot, source, completezza, residuo, proof
+   positiva e letture sono oggetti della KB;
+2. **crescita/ablazione presente:** il `.p0t` cambia frame e letture con
+   assert/retract senza rebuild;
+3. **producer aperto:** nessun consumer C locale viene ancora promosso a
+   produttore universale; il prossimo taglio deve materializzare lo stesso frame
+   prima del first-match dispatch;
+4. **gap epistemico aperto:** finite failure e incomplete devono diventare
+   distinguibili prima di derivare `missing_fact`, `missing_bridge` o
+   `missing_operator` da un fallimento.

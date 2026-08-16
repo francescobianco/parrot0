@@ -1,0 +1,39 @@
+% FRAME DIALOGICI COME OGGETTI DELLA KB (gen393, primo taglio).
+%
+% Questo file non indovina frame dal testo. Definisce il nucleo logico comune
+% che un futuro produttore NL->frame deve alimentare: atto, slot, provenienza e
+% letture restano fatti; completezza, residuo e risposta sono derivati. In
+% particolare `frame_answer/2` passa da apply/2, quindi una regola vale quanto un
+% fatto e il frame non apre un secondo risolutore privato.
+:- file_attribute(machinery).
+
+% Gli schemi materializzati dal turno compaiono soltanto nei corpi delle regole;
+% dichiararli qui rende esplicito che descrivono il processo cognitivo, non il
+% mondo. I valori di Act, Role, Evidence e Status restano conoscenza aperta.
+machinery(frame_act).
+machinery(frame_slot).
+machinery(frame_source).
+machinery(reading_frame).
+machinery(reading_evidence).
+machinery(reading_status).
+
+frame_candidate($Frame) :- frame_act($Frame, $Act).
+frame_has_relation($Frame) :- frame_slot($Frame, relation, $Relation).
+frame_has_entity($Frame) :- frame_slot($Frame, entity, $Entity).
+frame_complete($Frame) :- frame_candidate($Frame), frame_has_relation($Frame), frame_has_entity($Frame).
+frame_completeness($Frame, complete) :- frame_complete($Frame).
+frame_completeness($Frame, incomplete) :- frame_candidate($Frame), naf(frame_complete($Frame)).
+
+% Il residuo dice quale SLOT strutturale manca. Non dichiara ancora un knowledge
+% gap: assenza di fatto e ricerca incompleta devono restare distinte, e saranno
+% aggiunte soltanto quando il report del solver sara' interrogabile dalla KB.
+frame_residue($Frame, missing_relation) :- frame_candidate($Frame), naf(frame_has_relation($Frame)).
+frame_residue($Frame, missing_entity) :- frame_candidate($Frame), naf(frame_has_entity($Frame)).
+
+% Una proof positiva e' sicura anche prima del protocollo proved/finite_failure/
+% incomplete. La negazione di frame_answer/2 NON viene usata per inventare gap.
+frame_answer($Frame, $Value) :- frame_slot($Frame, relation, $Relation), frame_slot($Frame, entity, $Entity), apply($Relation, cons($Entity, cons($Value, nil))).
+
+candidate_reading($Frame, $Reading) :- reading_frame($Reading, $Frame), reading_evidence($Reading, $Evidence).
+selected_reading($Frame, $Reading) :- candidate_reading($Frame, $Reading), reading_status($Reading, selected).
+retained_reading($Frame, $Reading) :- candidate_reading($Frame, $Reading), reading_status($Reading, retained).

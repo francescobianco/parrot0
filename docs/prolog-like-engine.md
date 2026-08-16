@@ -170,6 +170,34 @@ quel file**. Un incluso aprirà un proprio frame di provenienza e applicherà i
 propri attributi. Altrimenti lo status dello stesso file dipenderebbe dal primo
 percorso che lo include, contraddicendo sia idempotenza sia provenienza.
 
+#### `file_layer/1`: provenienza persistente, non attributo semantico
+
+> **Stato: PROGETTATA, NON ANCORA IMPLEMENTATA.** L'audit del manifesto eager di
+> gen392 ha mostrato che e' necessaria per conservare il layer reflective di
+> `capabilities.p0` dentro un singolo grafo di profilo.
+
+```prolog
+:- file_layer(reflective).
+```
+
+`file_layer/1` seleziona il layer di origine delle clausole fisicamente
+dichiarate nel file. Non asserisce `reflective(Predicato)` e non e' sinonimo di
+`file_attribute(reflective)`: il layer governa persistenza, dump e ciclo di
+vita; l'attributo resta una relazione ordinaria e insegnabile propagata ai nomi
+di predicato.
+
+Il frame di layer e' lessicale al file. Un include eredita il layer del
+chiamante, salvo una propria direttiva; terminato l'include, il chiamante
+riacquista il proprio layer. La versione curata iniziale accettera' soltanto
+`base` e `reflective`: session, induced e hypothetical nascono da eventi del
+processo vivo e un profilo non puo' attribuirseli da solo. La registry canonica
+deve inoltre rifiutare lo stesso file raggiunto con layer incompatibili.
+
+Quando un provider e' lazy, il layer viene catalogato insieme a path,
+espressione di attivazione e attributi, poi riapplicato alla materializzazione.
+Questa direttiva e' quindi un prerequisito del manifesto unico, non una
+decorazione aggiunta dopo `lazy_load/1`.
+
 ### 1.2 `lazy_load/1`: specifica della feature di residenza
 
 > **Stato: PROGETTATA, NON ANCORA IMPLEMENTATA.** Le forme di questa sezione non

@@ -1,6 +1,6 @@
 # Knowledge Base TODO
 
-## Fronte attivo: gen392, denotazione contestuale KB-first
+## Fronte attivo: gen393, frame e residuo sui tre assi
 
 Il piano operativo e' in
 [`docs/plans/frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md),
@@ -31,9 +31,31 @@ Il ratchet `tests/p0t/language/contextual_denotation.p0t` prova omonimia per
 dominio, alternative senza dominio, citazione, ponte fuori dai giochi,
 relazione sbagliata, retract e crescita/ablazione di una cue di menzione
 inventata. `make soft-test` e' verde in 6 secondi sul budget invariato di 15;
-`make test` chiude 1800 asserzioni, zero fallimenti. Prima della promozione resta
-il task di residenza gen392: definire il manifesto core eager senza usarlo come
-falso entrypoint e senza anticipare la registry idempotente.
+`make test` chiude 1800 asserzioni, zero fallimenti.
+
+L'audit del manifesto eager ha trovato un asse che la sola `include/1` non puo'
+esprimere: `capabilities.p0` entra oggi come reflective, mentre gli altri file
+core entrano come base. Un manifesto unico lo renderebbe persistibile anche se
+le risposte restassero verdi. E' stata quindi specificata `file_layer/1`, locale
+al file e distinta da `file_attribute/1`. Finche' layer e registry canonica non
+esistono, non viene creato un manifesto `.p0` morto o semanticamente falso e
+`lazy_load/1` resta non operativa.
+
+Il primo taglio gen393 e' in `kb/core/dialogue-frames.p0`. Atto, slot, source,
+letture e status sono fatti; completezza, residuo strutturale e risposta
+derivabile sono regole. `frame_answer/2` usa `apply/2`, quindi attraversa il
+solver comune. `tests/p0t/meta/three_axis_gap.p0t` prova assert/retract di slot,
+proof positiva, due letture concorrenti e ablazione della superficie; `make
+soft-test` resta verde in 6 secondi e `make test` passa 1816 asserzioni senza
+fallimenti. Questo non e' ancora il producer NL -> frame: il test materializza
+il frame esplicitamente e il TODO resta aperto.
+
+Non va aggiunta per ora la scorciatoia
+`missing_fact :- naf(frame_answer(...))`. `question-emergence.md` richiede tre
+esiti epistemici — proved, finite_failure, incomplete — e il budget esaurito non
+puo' diventare un gap. Prima serve rendere il report del solver interrogabile
+dalle regole; soltanto allora il sensore sui tre assi puo' classificare assenza
+di fatto, ponte o operatore senza mentire.
 
 Il filo di caricamento ha un proprio contratto in
 [`docs/kb-loading-and-profiles.md`](docs/kb-loading-and-profiles.md): il profilo

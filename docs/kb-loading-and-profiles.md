@@ -163,6 +163,66 @@ Un file enorme che unisce domini indipendenti rende la lazy load inutile. Un
 file per ogni fatto trasforma una proof in una sequenza di I/O. La granularita'
 giusta e' il **contesto semantico che si apre e vive insieme**.
 
+### 5.1 Audit gen392: perche' il manifesto eager non e' ancora un file
+
+L'inventario del boot ha mostrato che una lista di `include/1` non basta a
+riprodurne la semantica. L'ordine fisico corrente e' questo:
+
+| ordine | componente | layer corrente | condizione |
+|---:|---|---|---|
+| 1 | `lexicon.p0` | base | percorso sostituibile da `PARROT0_LEXICON` |
+| 2-9 | `social`, `roles`, `gloss`, `grammar`, `messages`, `intents`, `input`, `responses` | base | sempre |
+| 10 | `capabilities.p0` | reflective | sempre; generato dal capability ledger |
+| 11-16 | `glue`, `morphology`, `presentation`, `procedures`, `personal`, `initiative` | base | sempre |
+| 17 | `world-facts.p0` | base | salvo `PARROT0_WORLD_FACTS=0` |
+| 18 | fatti `i_am`, `module`, lingua e PID | reflective/session | proiezione dello stato vivo, non file curati |
+| 19 | `base.p0`, `coding.p0`, profilo additivo | base | caricati da `brain_boot()` |
+| 20 | `policy/2` | session | proiezione delle authority effettive |
+
+`procedures.p0`, `social.p0` e `world-facts.p0` aprono inoltre sotto-grafi di
+include. L'ordine non e' quindi una comodita': stabilisce precedenza, proof e
+provenienza. In particolare, includere `capabilities.p0` da un manifesto caricato
+come base la renderebbe persistibile. Le risposte potrebbero restare verdi mentre
+il modello di se' diventerebbe conoscenza curata: una falsa equivalenza.
+
+Il manifesto operativo richiede percio' un secondo asse di file, distinto da
+`file_attribute/1`:
+
+```prolog
+:- file_layer(reflective).
+```
+
+`file_layer/1` e' una direttiva proposta, non ancora implementata. Governa
+l'origine e quindi il ciclo di vita delle clausole fisicamente dichiarate nel
+file. `file_attribute(machinery)`, invece, continua a produrre normali fatti
+`machinery(Predicato)` e non deve acquisire implicitamente il potere di cambiare
+layer. Confondere le due primitive renderebbe `file_attribute/1` non piu'
+generica e legherebbe il significato di `machinery` al C.
+
+Contratto richiesto per `file_layer/1`:
+
+- il layer del file incluso e' locale al suo frame di caricamento; al ritorno si
+  ripristina quello del chiamante;
+- gli include interni ereditano il layer finche' il proprio file non ne dichiara
+  uno diverso;
+- la semantica riguarda fatti e regole fisicamente introdotti, come per la
+  provenienza corretta di `file_attribute/1`;
+- la prima versione curata ammette `base` e `reflective`; session, induced e
+  hypothetical restano layer prodotti dal processo vivo, non authority che un
+  profilo puo' autoassegnarsi;
+- registry idempotente e path canonico identificano una sola coppia file/layer.
+  Raggiungere lo stesso file chiedendo layer incompatibili e' un errore di
+  manifesto, non un secondo caricamento;
+- `lazy_load/1` conserva il layer catalogato e lo applica quando materializza il
+  corpo, senza dipendere dal goal che ha aperto il provider.
+
+Solo dopo questa primitiva e la registry canonica ha senso creare
+`kb/manifests/core.p0`. Fino ad allora il manifesto resta una specifica
+falsificabile, non un file morto che nessun entrypoint usa. La sua futura
+composizione sara': core base sempre residente; capability ledger reflective;
+world, coding, expert e skill scelti dal profilo; stato vivo proiettato dopo un
+boot riuscito. La sessione non torna a essere un input.
+
 ## 6. Registry unica per eager, include e lazy
 
 Ogni istanza KB possiede una hashmap indicizzata dal path canonico assoluto. Gli
@@ -194,13 +254,17 @@ il difetto di inferenza emerso sulla KB eager.
 1. **gen391 — inventario e oracolo.** Censire l'ordine esatto del boot corrente
    e ogni `kb_load()` differenziale nei moduli; congelare conteggi, query, proof,
    provenance e diamanti di include.
-2. **gen392 — manifesto core.** Creare un aggregatore `.p0` che riproduca la
-   spina corrente e manifesti per i payload oggi aperti dai consumer; nessun
-   file nominale nuovo nel C.
-3. **gen393 — entrypoint unico sperimentale.** Un profilo di test carica core e
-   un dominio tramite una sola chiamata, confrontato col boot storico.
-4. **gen394 — registry idempotente.** Path canonici, regole non duplicate,
-   cicli diagnosticati e provenienza isolata per file fisico.
+2. **gen392 — contratto del manifesto core.** Congelare ordine, layer e
+   componenti condizionali; specificare `file_layer/1` e le frontiere dei
+   payload oggi aperti dai consumer. Non creare un aggregatore morto che il
+   loader corrente non potrebbe interpretare fedelmente.
+3. **gen393 — registry e provenienza.** Path canonici, regole non duplicate,
+   cicli diagnosticati, provenienza isolata per file fisico e `file_layer/1`.
+   Questo passo deve precedere l'entrypoint: il grafo AGI contiene gia' diamanti
+   e un profilo senza registry non sarebbe equivalente.
+4. **gen394 — entrypoint unico sperimentale.** Un profilo di test carica core e
+   un dominio tramite una sola chiamata, confrontato col boot storico su layer,
+   fatti, regole, proof e ordine.
 5. **gen395 — profili completi.** Conversational e AGI diventano radici complete;
    `PARROT0_BASE`, `PARROT0_LEXICON` e `PARROT0_WORLD_FACTS` entrano in
    deprecazione.
