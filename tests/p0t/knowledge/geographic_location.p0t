@@ -1,7 +1,9 @@
 # RAGGIUNGIBILITA' GEOGRAFICA — il fatto, la relazione e la superficie devono
 # comporsi. Il caso reale che tira il test e' `continent_of(rwanda, africa)`:
 # il dato era gia' nella KB, ma "dove si trova" non apriva alcuna porta capace
-# di raggiungerlo. Parigi e un paese inventato impediscono un fix sull'istanza.
+# di raggiungerlo. Il ratchet ora gira col profilo tool-on e copre anche
+# capoluogo, regione, verso degli argomenti e membri inventati: un non-muro con
+# la relazione inversa e' un fallimento, non un successo.
 
 [mock agi]
 !set PARROT0_BASE=kb/core/base.p0
@@ -9,6 +11,8 @@
 !set PARROT0_WORLD_FACTS=1
 !set PARROT0_PROFILE=kb/profiles/agi.p0
 !set PARROT0_LANG=en
+!set PARROT0_TOOLS=1
+!set PARROT0_WIKI_FETCH=0
 !reset
 
 [test italian_exonym_reaches_existing_geography]
@@ -20,6 +24,44 @@
 < France.
 > where is rwanda?
 < Africa.
+
+[test administrative_relations_feed_the_same_spatial_door]
+> dove si trova milano
+< Lombardia.
+> dove si trova firenze
+< Toscana.
+> dove si trova la campania
+< Italia.
+> where is sacramento?
+< California.
+> where is nairobi?
+< Kenya.
+
+[test a_new_administrative_capital_inherits_location_without_rebuild]
+!assert capital_of_region(auroria, novaport)
+> where is novaport?
+< Auroria.
+> where is auroria?
+<! Novaport.
+!assert region_of_country(auroria, borenia)
+> where is auroria?
+< Borenia.
+!forget region_of_country(auroria, borenia)
+> where is auroria?
+<! Borenia.
+<! Novaport.
+!forget answer_frame_input_arg("where is", located_in, 1)
+> where is auroria?
+< Novaport.
+!assert answer_frame_input_arg("where is", located_in, 1)
+> where is auroria?
+<! Novaport.
+!forget capital_of_region(auroria, novaport)
+> where is novaport?
+<! Auroria.
+!assert capital_of_region(auroria, novaport)
+> where is novaport?
+< Auroria.
 
 [test a_new_country_inherits_location_without_rebuild]
 !assert continent_of(nivora, oceania)
@@ -47,3 +89,6 @@
 !assert tr(rwanda, ruanda)
 > dove si trova la ruanda
 < Africa.
+
+# Non lasciare il daemon condiviso in modalita' agent per i file successivi.
+!set PARROT0_TOOLS=0

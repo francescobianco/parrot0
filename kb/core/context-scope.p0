@@ -1,0 +1,66 @@
+% context-scope.p0 — contesti, viste e conflitti come conoscenza (gen395).
+%
+% Un contesto non sostituisce il mondo e non lo modifica: dichiara una vista
+% locale, una provenienza e una politica di commitment. Le proposizioni sono
+% identita' reificate; la loro firma permette di riconoscere incompatibilita'
+% senza attribuire al motore alcun vocabolario di dominio.
+
+:- file_attribute(machinery).
+
+context(world, world).
+
+context_default_parent(hypothesis, world).
+context_default_parent(quotation, world).
+context_default_parent(reported_belief, world).
+
+context_parent($Context, $Parent) :-
+    context($Context, $Kind), context_default_parent($Kind, $Parent).
+
+context_superseded($Context, $Old) :-
+    supersedes_in($Context, $New, $Old), holds_in($Context, $New).
+
+context_effective_belief($Context, $Proposition) :-
+    context($Context, $Kind), holds_in($Context, $Proposition),
+    naf(context_superseded($Context, $Proposition)).
+
+context_inherited_belief($Context, $Proposition) :-
+    context_parent($Context, $Parent), context_effective_belief($Parent, $Proposition).
+context_inherited_belief($Context, $Proposition) :-
+    context_parent($Context, $Parent), context_inherited_belief($Parent, $Proposition).
+
+context_visible_belief($Context, $Proposition) :-
+    context_effective_belief($Context, $Proposition).
+context_visible_belief($Context, $Proposition) :-
+    context_inherited_belief($Context, $Proposition).
+
+incompatible_propositions($Positive, $Negative) :-
+    proposition_signature($Positive, $Entity, $Relation, positive),
+    proposition_signature($Negative, $Entity, $Relation, negative).
+incompatible_propositions($Negative, $Positive) :-
+    proposition_signature($Negative, $Entity, $Relation, negative),
+    proposition_signature($Positive, $Entity, $Relation, positive).
+
+contradicts_across($P, $Q, $C1, $C2) :-
+    context_effective_belief($C1, $P), context_effective_belief($C2, $Q),
+    incompatible_propositions($P, $Q).
+
+context_conflict($C1, $C2) :- contradicts_across($P, $Q, $C1, $C2).
+
+scope_kind_for_act(factual_query, world).
+scope_kind_for_act(entailment_query, hypothesis).
+scope_kind_for_act(quotation_query, quotation).
+scope_kind_for_act(attribution_query, reported_belief).
+
+scope_relevant($Turn, $Context) :-
+    frame_act_for_turn($Turn, $Act), scope_kind_for_act($Act, $Kind),
+    context($Context, $Kind).
+
+commitment_policy(world, speaker_commitment).
+commitment_policy(hypothesis, stipulated_only).
+commitment_policy(quotation, attributed_only).
+commitment_policy(reported_belief, attributed_only).
+
+context_commitment($Context, $Commitment) :-
+    context($Context, $Kind), commitment_policy($Kind, $Commitment).
+
+context_kind($Context, $Kind) :- context($Context, $Kind).

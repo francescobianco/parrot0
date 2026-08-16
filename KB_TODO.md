@@ -1,6 +1,6 @@
 # Knowledge Base TODO
 
-## Fronte attivo: gen394, politica delle mosse sopra frame e gap
+## Fronte attivo: gen395, contesti e scope concorrenti
 
 Il piano operativo e' in
 [`docs/plans/frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md),
@@ -70,14 +70,55 @@ risposta senza rebuild. Il producer NL -> frame generale resta aperto: il caso
 passa ancora dal consumer binario esistente e non autorizza a dichiarare gen393
 end-to-end.
 
+Il prompt successivo «dove si trova Milano» ha falsificato anche quel ratchet:
+Ruanda copriva soltanto `continent_of/2` e Parigi possedeva gia' un fatto
+`located_in/2`, quindi nessuno dei due obbligava le relazioni amministrative a
+comporre. Milano era presente come `capital_of_region(lombardia, milano)`, ma il
+predicato non raggiungeva la vista spaziale e gli atomi locali contraddicevano
+la canonicalizzazione `milano -> milan`. I capoluoghi regionali sono ora
+canonici e `administrative_capital/2` unifica capitali di regione, stato e
+paese; per il vecchio `capital_of_country/2` bidirezionale la guardia
+`continent_of/2` impedisce di invertire paese e capitale. Il ratchet comprende
+Milano, Firenze, Sacramento, Nairobi e una regione inventata asserita e ritratta
+a runtime. Con `PARROT0_TOOLS=1` il rosso ha inoltre scoperto che la cue
+`intent_cue(piact_grep, "where is")` rubava ogni domanda inglese e cercava nel
+filesystem: e' stata sostituita da forme esplicitamente legate al codice, come
+`where is defined`. Il `.p0t` gira ora con strumenti attivi, quindi questo
+conflitto di routing non puo' piu' restare nascosto dal mock. Questo e' il
+livello di trasferimento che il primo test non aveva.
+
+Il controllo «Napoli -> Campania; Campania -> Napoli» ha poi scoperto un
+`wrong-answer gap` nel consumer generale: `answer_frame/2` provava sempre
+`predicato(entita', ?)` e poi `predicato(?, entita')`, trattando ogni relazione
+binaria come interrogabile in entrambe le direzioni. Il protocollo opzionale
+`answer_frame_input_arg(Superficie, Predicato, 1|2)` rende ora il binding uno
+slot della conoscenza; il C applica soltanto la meccanica numerica e non conosce
+ne' `where is` ne' `located_in`. `region_of_country/2` separa inoltre la
+collocazione della regione dal rapporto col capoluogo. Il ratchet prova che
+Campania risponde Italia, che una regione inventata senza contenimento non
+risponde col proprio capoluogo e che ablare/reinserire il metadato riproduce e
+chiude l'errore senza rebuild.
+
 La gen394 e' avviata con `kb/core/dialogue-policy.p0`. `dialogue_state/2`
 trasforma proof e `missing_fact` in evidenza; `move_policy/2` sceglie la mossa e
 `frame_move/2` le compone. Il `.p0t` `conversation/dialogue_moves.p0t` prova che
 lo stesso frame passa da `answer` a `decline`, e da `decline` a `clarify`
 cambiando soltanto la policy a runtime. Non e' ancora il router dialogico: issue,
 obblighi, precedenza effettiva e consumo prima del first-match restano aperti.
-`make soft-test` e' verde in 7 secondi sul budget 15; `make test` chiude 1839
+`make soft-test` e' verde in 7 secondi sul budget 15; `make test` chiude 1870
 asserzioni, zero fallimenti.
+
+La gen395 e' avviata in `kb/core/context-scope.p0`. `context/2`, `holds_in/2`,
+provenienza, confidenza e policy di commitment mantengono mondo, ipotesi,
+citazione e credenza riportata come oggetti distinti. Le viste locale, ereditata
+e visibile restano concorrenti; `proposition_signature/4` permette di derivare
+un conflitto fra contesti e `supersedes_in/3` applica una correzione soltanto
+nello scope che la dichiara. `scope_kind_for_act/2` e' policy retraibile. Il
+ratchet `conversation/context_scope.p0t` materializza fatti inventati a runtime,
+abla lo scope senza cancellarne i fatti e conserva entrambe le risposte sul
+caso dei pinguini. Restano aperti il producer NL -> contesto e la proiezione dei
+vecchi mondi locali, ipotesi e premesse implementati da consumer distinti: la
+gen395 non e' ancora end-to-end.
 
 Il filo di caricamento ha un proprio contratto in
 [`docs/kb-loading-and-profiles.md`](docs/kb-loading-and-profiles.md): il profilo

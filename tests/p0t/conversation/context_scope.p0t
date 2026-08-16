@@ -1,0 +1,75 @@
+# CONTESTI E SCOPE — avvio gen395.
+#
+# Mondo, premessa, citazione e credenza riportata devono restare oggetti
+# distinti e confrontabili. I fatti sono inventati e materializzati a runtime:
+# il ratchet prova il kernel della KB, non rivendica ancora che ogni superficie
+# NL produca da sola questi record.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test world_and_premise_remain_visible_as_distinct_views]
+!assert context(penguin_story, hypothesis)
+!assert proposition_signature(tweety_can_fly, tweety, can_fly, positive)
+!assert proposition_signature(tweety_cannot_fly, tweety, can_fly, negative)
+!assert holds_in(world, tweety_can_fly)
+!assert holds_in(penguin_story, tweety_cannot_fly)
+!assert source_of(tweety_cannot_fly, task_premise)
+!assert confidence_of(tweety_cannot_fly, stipulated)
+> what is the context kind for penguin_story?
+< Hypothesis.
+> what is the local belief for penguin_story?
+< Tweety cannot fly.
+> what is the inherited belief for penguin_story?
+< Tweety can fly.
+> what are the visible beliefs for penguin_story?
+< Tweety cannot fly and tweety can fly.
+> what is the context conflict for penguin_story?
+< World.
+> what is the proposition source for tweety_cannot_fly?
+< Task premise.
+> what is the proposition confidence for tweety_cannot_fly?
+< Stipulated.
+
+[test scope_policy_changes_without_deleting_other_contexts]
+!assert frame_act_for_turn(turn_alpha, entailment_query)
+> what is the relevant scope for turn_alpha?
+< Penguin story.
+!forget scope_kind_for_act(entailment_query, hypothesis)
+> what is the relevant scope for turn_alpha?
+<! Penguin story.
+> what is the local belief for world?
+< Tweety can fly.
+!assert scope_kind_for_act(entailment_query, hypothesis)
+> what is the relevant scope for turn_alpha?
+< Penguin story.
+
+[test quotation_and_reported_belief_do_not_become_speaker_commitment]
+!assert context(alice_quote, quotation)
+!assert context(alice_report, reported_belief)
+> what is the commitment status for alice_quote?
+< Attributed only.
+> what is the commitment status for alice_report?
+< Attributed only.
+
+[test a_local_correction_does_not_erase_the_scope]
+!assert context(correction_scope, hypothesis)
+!assert holds_in(correction_scope, sky_is_green)
+!assert holds_in(correction_scope, sky_is_blue)
+!assert supersedes_in(correction_scope, sky_is_blue, sky_is_green)
+> what is the local belief for correction_scope?
+< Sky is blue.
+!forget context(correction_scope, hypothesis)
+> what is the local belief for correction_scope?
+<! Sky is blue.
+!assert context(correction_scope, hypothesis)
+> what is the local belief for correction_scope?
+< Sky is blue.
+!forget supersedes_in(correction_scope, sky_is_blue, sky_is_green)
+> what is the local belief for correction_scope?
+< Sky is green and sky is blue.

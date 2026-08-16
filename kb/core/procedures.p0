@@ -48,10 +48,16 @@ kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of($Y, $Z).
 kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).
 larger_than_t($X, $Z) :- larger_than($X, $Y), larger_than($Y, $Z).
 larger_than_t($X, $Z) :- larger_than($X, $Y), larger_than_t($Y, $Z).
-% `continent_of/2` e' una specializzazione di `located_in/2`, non un secondo
-% mondo geografico. Il ponte rende ogni paese localizzabile dalla relazione
-% comune e cresce automaticamente con nuovi fatti continent_of/2.
+% Relazioni geografiche specializzate alimentano una sola vista spaziale. La
+% guardia continent_of/2 distingue il verso canonico di capital_of_country/2
+% dalle vecchie righe inverse ancora presenti nella base; stato e regione hanno
+% gia' un verso univoco nel contratto dei rispettivi predicati.
 located_in($Country, $Continent) :- continent_of($Country, $Continent).
+located_in($Region, $Country) :- region_of_country($Region, $Country).
+administrative_capital($Capital, $Country) :- capital_of_country($Country, $Capital), continent_of($Country, $Continent).
+administrative_capital($Capital, $State) :- capital_of_state($State, $Capital).
+administrative_capital($Capital, $Region) :- capital_of_region($Region, $Capital).
+located_in($Capital, $Area) :- administrative_capital($Capital, $Area).
 located_in_t($X, $Z) :- located_in($X, $Y), located_in($Y, $Z).
 located_in_t($X, $Z) :- located_in($X, $Y), located_in_t($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
@@ -934,6 +940,7 @@ machinery(sides).
 % correttamente la provenienza una volta sola per tutti i suoi predicati.
 :- include(dialogue-frames.p0).
 :- include(dialogue-policy.p0).
+:- include(context-scope.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 

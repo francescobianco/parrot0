@@ -4108,6 +4108,26 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
         char pred[KB_TERM_LEN];
         snprintf(pred, sizeof pred, "%s", kb_dequote(preds[p]));
         if (!*pred) continue;
+        /* A binary relation is not automatically reversible.  The surface-to-
+         * relation frame may declare which argument the entity in the question
+         * binds.  This is fixed slot mechanics: cue, predicate and direction
+         * remain runtime KB data.  Frames without metadata retain the historical
+         * either-argument behaviour for compatibility. */
+        int allow_arg1 = 1, allow_arg2 = 1;
+        {
+            char input_args[4][KB_TERM_LEN];
+            const char *iq[] = { cues[i], preds[p], NULL };
+            size_t ni = kb_match(b->kb, "answer_frame_input_arg", iq, 3,
+                                 input_args, 4);
+            if (ni > 0) {
+                allow_arg1 = allow_arg2 = 0;
+                for (size_t ai = 0; ai < ni; ai++) {
+                    const char *arg = kb_dequote(input_args[ai]);
+                    if (strcmp(arg, "1") == 0) allow_arg1 = 1;
+                    if (strcmp(arg, "2") == 0) allow_arg2 = 1;
+                }
+            }
+        }
         int projected = answer_projection_resolve(b, pred, norm,
                                                   out, out_size);
         if (projected > 0) {
@@ -4125,8 +4145,8 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
             if (is_stopword(b, v) != (pass == 1)) continue;
             char ans[16][KB_TERM_LEN]; size_t na;
             const char *ffw[2] = { v, NULL };
-            na = kb_match(b->kb, pred, ffw, 2, ans, 16);        /* pred(v, ?) -> arg2 */
-            if (na == 0) {
+            na = allow_arg1 ? kb_match(b->kb, pred, ffw, 2, ans, 16) : 0;
+            if (na == 0 && allow_arg2) {
                 const char *fbw[2] = { NULL, v };
                 na = kb_match(b->kb, pred, fbw, 2, ans, 16);    /* pred(?, v) -> arg1 */
             }

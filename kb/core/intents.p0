@@ -318,8 +318,13 @@ intent_cue(brevity, "short answers").
 intent_cue(brevity, "risposte brevi").
 intent_cue(brevity, "sii breve").
 intent_cue(piact_grep, "search for").
-intent_cue(piact_grep, "where is").
-intent_cue(piact_grep, "where does").
+% Una domanda locativa non e' evidenza di una ricerca nel filesystem. Il tool
+% richiede una forma che dichiari la relazione col codice; "where is" resta la
+% superficie generale di located_in/2.
+intent_cue(piact_grep, "where is defined").
+intent_cue(piact_grep, "where is declared").
+intent_cue(piact_grep, "where does appear").
+intent_cue(piact_grep, "where does occur").
 intent_cue(piact_grep, "references to").
 intent_cue(piact_grep, "occurrences of").
 intent_cue(piact_grep, "uses of").
@@ -1046,6 +1051,10 @@ answer_frame(language, language_of_country).
 % landmark entrano dalla stessa porta attraverso i loro fatti o regole; il
 % consumer non conosce nessuna classe geografica e la superficie resta KB.
 answer_frame("where is", located_in).
+% La domanda lega il luogo cercato al primo argomento. Senza questo fatto il
+% consumer binario potrebbe scambiare "dove e' la Campania?" con l'inversa
+% located_in(naples, campania) e rispondere Napoli.
+answer_frame_input_arg("where is", located_in, 1).
 answer_frame(largest, largest_in_category).
 answer_frame(longest_river, longest_river).
 answer_frame(meaning, means).
@@ -2215,6 +2224,15 @@ answer_frame("frame answer", frame_answer).
 answer_frame("frame gap", frame_gap).
 answer_frame("frame move", frame_move).
 answer_frame("dialogue policy", move_policy).
+answer_frame("context kind", context_kind).
+answer_frame("local belief", context_effective_belief).
+answer_frame("inherited belief", context_inherited_belief).
+answer_frame("visible beliefs", context_visible_belief).
+answer_frame("context conflict", context_conflict).
+answer_frame("relevant scope", scope_relevant).
+answer_frame("commitment status", context_commitment).
+answer_frame("proposition source", source_of).
+answer_frame("proposition confidence", confidence_of).
 answer_frame("candidate reading", candidate_reading).
 answer_frame("selected reading", selected_reading).
 answer_frame("retained reading", retained_reading).

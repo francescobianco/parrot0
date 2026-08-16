@@ -494,19 +494,36 @@ capital_of_state(nevada, carson_city).
 capital_of_state(hawaii, honolulu).
 capital_of_state(alaska, juneau).
 
-% italian regions — capital_of_region(Region, Capoluogo)
-capital_of_region(lombardia, milano).
-capital_of_region(lazio, roma).
-capital_of_region(toscana, firenze).
-capital_of_region(sicilia, palermo).
-capital_of_region(veneto, venezia).
-capital_of_region(piemonte, torino).
-capital_of_region(campania, napoli).
+% Italian regions — canonical atoms stay language-neutral/English; gloss.p0
+% owns Italian surface forms. capital_of_region(Region, Capital).
+capital_of_region(lombardy, milan).
+capital_of_region(lazio, rome).
+capital_of_region(tuscany, florence).
+capital_of_region(sicily, palermo).
+capital_of_region(veneto, venice).
+capital_of_region(piedmont, turin).
+capital_of_region(campania, naples).
 capital_of_region(puglia, bari).
-capital_of_region(sardegna, cagliari).
-capital_of_region(liguria, genova).
+capital_of_region(sardinia, cagliari).
+capital_of_region(liguria, genoa).
 capital_of_region(emilia_romagna, bologna).
 capital_of_region(umbria, perugia).
+
+% Administrative containment is distinct from the capital relation.  Keeping
+% both edges prevents a question about a region from being answered with its
+% capital merely because the two arguments occur in the opposite direction.
+region_of_country(lombardy, italy).
+region_of_country(lazio, italy).
+region_of_country(tuscany, italy).
+region_of_country(sicily, italy).
+region_of_country(veneto, italy).
+region_of_country(piedmont, italy).
+region_of_country(campania, italy).
+region_of_country(puglia, italy).
+region_of_country(sardinia, italy).
+region_of_country(liguria, italy).
+region_of_country(emilia_romagna, italy).
+region_of_country(umbria, italy).
 
 % route the new relations through the teachable answer frame
 answer_frame(state, capital_of_state).

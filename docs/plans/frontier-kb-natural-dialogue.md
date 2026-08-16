@@ -1390,6 +1390,35 @@ taglio KB-first aggiunge `answer_frame("where is", located_in)`, la regola
 separatamente fatto, porta ed esonimo. Questo chiude il caso di ponte, non il
 producer NL -> frame generale, che resta il gate onesto di gen393.
 
+Il controllo immediatamente successivo, «dove si trova Milano», ha falsificato
+la generalita' del taglio: Ruanda esercitava soltanto `continent_of/2` e Parigi
+aveva gia' un fatto `located_in/2`. La KB conteneva invece Milano nel dialetto
+separato `capital_of_region(lombardia, milano)`, incompatibile anche con il
+canone `tr(milan, milano)`. Il ratchet e' stato quindi allargato alla classe
+amministrativa: `administrative_capital/2` proietta capitali regionali, statali
+e nazionali nella stessa vista `located_in/2`; la variante nazionale richiede
+`continent_of(Country, _)` per non accettare il verso sbagliato delle vecchie
+righe bidirezionali. Milano, Firenze, Sacramento, Nairobi e una regione
+inventata rendono ora osservabile il trasferimento che mancava. Eseguendo il
+ratchet con `PARROT0_TOOLS=1` e' emersa anche la collisione con
+`intent_cue(piact_grep, "where is")`: la forma generica mandava le domande
+inglesi al filesystem. Il cue e' stato ristretto a relazioni dichiaratamente di
+codice (`where is defined`, `where is declared`, ...), sempre nella KB. Il test
+ora copre lo stesso profilo tool-on usato da `make chat`.
+
+Il controllo seguente ha trovato una risposta peggiore del muro:
+«dove si trova Napoli» -> Campania, ma «dove si trova la Campania» -> Napoli.
+La seconda risposta non era inferenza geografica: il consumer generico provava
+prima `located_in(campania, ?)` e poi, senza distinguere i ruoli,
+`located_in(?, campania)`. Il nuovo contratto
+`answer_frame_input_arg(Cue, Predicato, 1|2)` rende il verso uno slot del frame;
+il C esegue soltanto il binding indicato e conserva il comportamento storico
+quando il metadato manca. Per la superficie `where is` la KB dichiara argomento
+1. `region_of_country/2` aggiunge separatamente il contenimento amministrativo,
+cosi' Campania risponde Italia. Il `.p0t` abla il metadato, osserva ricomparire
+l'inversione su una regione inventata e lo riasserisce: e' una prova runtime del
+confine KB-first, non un controllo cucito su Napoli.
+
 ---
 
 ### gen394 — La KB sceglie la mossa dialogica
@@ -1456,10 +1485,10 @@ parrot0 non puo' confrontarli o spiegare perche' ha scelto uno scope.
 
 ```prolog
 context(world, world).
-context($Context, hypothesis).
-context($Context, quotation).
-context($Context, reported_belief).
-context_parent($Context, world).
+context(penguin_story, hypothesis).
+context(alice_quote, quotation).
+context(alice_report, reported_belief).
+context_default_parent(hypothesis, world).
 holds_in($Context, $Proposition).
 ```
 
@@ -1484,6 +1513,25 @@ altri contesti.
 
 **Definizione di done.** parrot0 puo' dare e mettere in relazione due risposte
 diverse senza confonderle e senza perdere provenance.
+
+**Stato di attuazione.** Il kernel KB-only e' presente in
+`core/context-scope.p0`. Le credenze effettive locali escludono soltanto cio'
+che `supersedes_in/3` corregge nello stesso contesto; la vista ereditata conserva
+il parent e la vista visibile unisce entrambe. `proposition_signature/4` rende
+derivabili incompatibilita' e `context_conflict/2`, mentre
+`scope_kind_for_act/2` e `commitment_policy/2` restano dati modificabili. Il
+ratchet `conversation/context_scope.p0t` prova mondo contro premessa, entrambe
+le viste nella stessa risposta, fonte e confidenza, citazione e credenza
+riportata non committenti, correzione locale e ablazione dello scope senza
+cancellare `holds_in/2`. Non sono ancora collegati i producer NL dei mondi
+locali, delle ipotesi e dell'entailment gia' esistenti: questo e' l'avvio di
+gen395, non la definizione di done.
+
+**Verifica corrente.** `make soft-test` chiude in 7 secondi sul budget 15 con
+il percorso geografico in modalita' tool-on; `make test` passa 1870 asserzioni,
+zero fallimenti. Il solo cambiamento C e' la meccanica generale che applica
+`answer_frame_input_arg/3`; cue, predicato, verso e fatti geografici restano KB
+e il ratchet ne prova crescita e ablazione.
 
 ---
 
@@ -1593,9 +1641,9 @@ cambiano il dialogo a runtime; la suite ordinaria resta entro i budget.
 
 ## 16. Stato di avanzamento
 
-Il piano e' partito da **gen391**. Le gen395-397 restano contratti, non
-capacita' rivendicate; gen394 e' il fronte semantico corrente e possiede soltanto
-il primo kernel, non il router end-to-end.
+Il piano e' partito da **gen391**. Le gen396-397 restano contratti, non
+capacita' rivendicate; gen395 e' il fronte semantico corrente e possiede soltanto
+il primo kernel, non il producer end-to-end.
 
 Stato della gen391:
 
@@ -1683,3 +1731,15 @@ Avvio della gen394:
    risposta, declino e chiarimento sulla stessa struttura di frame;
 4. **router aperto:** precedenza, issue, obblighi e consumo universale prima del
    first-match non sono ancora implementati e bloccano la promozione di gen394.
+
+Avvio della gen395:
+
+1. **contesti reificati:** mondo, ipotesi, citazione e credenza riportata sono
+   istanze tipizzate con parent, fatti, fonti, confidenza e commitment;
+2. **viste concorrenti:** locale, ereditata e visibile non cancellano
+   alternative; firme di proposizione compatibili derivano conflitti fra scope;
+3. **crescita e ablazione:** il `.p0t` cambia la scelta di scope ritraendo una
+   policy e prova che i fatti degli altri contesti restano disponibili;
+4. **producer aperto:** i mondi locali, le ipotesi e le premesse dei consumer
+   storici non producono ancora automaticamente `context/2` e `holds_in/2`; la
+   loro proiezione e' il gate della generazione.

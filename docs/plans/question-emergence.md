@@ -1507,3 +1507,37 @@ Tutti e tre silenziosi, e vale la pena averli scritti:
 - **`cavallo` -> «horse»**: il pezzo degli scacchi viene letto come l'animale.
   E' `concept_label` al contrario — la stessa parola denota due concetti in due
   domini — e non e' toccato.
+
+### 14.8 Il verso della relazione e' uno slot della domanda (gen395)
+
+*Stimolo di F.: «dove si trova Napoli» -> Campania; «dove si trova la Campania»
+-> Napoli.*
+
+Il secondo output sembrava fluido ed era semanticamente falso. La KB possedeva
+`located_in(naples, campania)`; il consumer di `answer_frame/2`, non trovando
+`located_in(campania, X)`, cercava automaticamente `located_in(X, campania)` e
+restituiva l'altro argomento. Quindi il difetto non era in W: era una porta di M
+che cancellava il ruolo degli argomenti e trasformava il fallimento finito di
+una domanda nella risposta a una domanda inversa.
+
+Anche dichiarare `relation_type(located_in, asymmetric)` non basterebbe a
+decidere il verso: una superficie diversa potrebbe legittimamente chiedere «che cosa si
+trova in Campania?» e quindi interrogare l'argomento 2. Il ruolo appartiene alla
+coppia superficie/relazione:
+
+```prolog
+answer_frame("where is", located_in).
+answer_frame_input_arg("where is", located_in, 1).
+```
+
+Il motore applica soltanto il binding numerico `1|2`; superficie, predicato e
+verso restano fatti. Senza metadato conserva per compatibilita' la ricerca su
+entrambi gli argomenti. Il ratchet usa una regione inventata con un capoluogo ma
+senza contenimento: col metadato non risponde col capoluogo; ablandolo riproduce
+l'inversione; riasserendolo la elimina senza rebuild. Aggiungendo poi
+`region_of_country(auroria, borenia)`, la risposta Borenia diventa derivabile.
+
+Questo completa la tassonomia O/K/R/V con un caso netto di `wrong-answer gap`:
+`R(q)` era vero, ma la porta distruggeva il contratto degli slot e dunque
+`V(q)` era falso. Un ratchet che misura soltanto muro/non-muro avrebbe premiato
+proprio il comportamento sbagliato.
