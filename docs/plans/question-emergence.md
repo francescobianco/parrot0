@@ -1541,3 +1541,71 @@ Questo completa la tassonomia O/K/R/V con un caso netto di `wrong-answer gap`:
 `R(q)` era vero, ma la porta distruggeva il contratto degli slot e dunque
 `V(q)` era falso. Un ratchet che misura soltanto muro/non-muro avrebbe premiato
 proprio il comportamento sbagliato.
+
+### 14.9 La faccetta esplicita batte la categoria predefinita (gen395)
+
+*Stimolo di F.: «quali sono i colori che identificano gli scacchi» -> «Re,
+regina, torre, alfiere, cavallo e pedone».*
+
+Il dominio era riconosciuto correttamente, ma `category_surface(chess,
+chess_piece)` lo trasformava troppo presto nella sua enumerazione predefinita.
+La domanda conteneva invece una faccetta esplicita, `color`: riconoscere
+`chess` non autorizzava a cancellarla. Anche questo e' un `wrong-answer gap`,
+non una lacuna di fatti.
+
+Il frame corretto conserva insieme relazione e slot:
+
+```prolog
+answer_frame("what are the colors", side_color).
+answer_frame_input_arg("what are the colors", side_color, 1).
+side_color(chess, white).
+side_color(chess, black).
+```
+
+Il gioco reale e' soltanto l'esempio guida. Il ratchet aggiunge un gioco
+inventato e colori nuovi, li ritrae e abla il frame a runtime. La regola di
+astrazione e': una categoria di default puo' colmare una faccetta assente, ma
+non deve mai vincere su una faccetta nominata nella domanda. Il prossimo
+producer universale deve quindi preservare almeno `(atto, relazione, slot,
+dominio)`, non ridurre la domanda a una sola etichetta di topic.
+
+### 14.10 Riconoscere un registro non soddisfa la domanda (gen395)
+
+*Stimolo di F.: `i=0; i++; quanto vale i` -> «That looks like a snippet of
+code.».*
+
+La classificazione era vera e la risposta era comunque sbagliata: il turno
+contiene due span con due ruoli, una traccia strutturata e una query sul suo
+stato. Il vecchio percorso consumava il primo risultato epistemico
+(`register(c)`) come se fosse la mossa finale, perdendo l'obbligo aperto dalla
+domanda. Ora la KB dichiara il confine vivo:
+
+```prolog
+segment_role(query, "quanto vale").
+faculty_for(query, reasoner).
+```
+
+La meccanica chiude lo span strutturato prima della cue e riusa l'interprete di
+statement gia' esistente per leggere il binding richiesto. Una cue inventata,
+asserita e ritratta nel `.p0t`, cambia sia la segmentazione sia l'atto senza
+rebuild. Nessuna parola italiana e nessun nome di variabile e' cablato nel C.
+
+La lezione per il producer di gen395 e' piu' generale: una osservazione
+corretta su un input (`O`) non e' ancora una risposta valida (`V`). Ogni span
+interrogativo deve lasciare un'obbligazione aperta finche' una proposizione,
+un chiarimento o un gap tipizzato non la chiude. Una risposta metalinguistica
+sul registro non puo' assolvere quell'obbligazione.
+
+### 14.11 La riga fisica non e' un confine della KB
+
+Le coppie `stipulation_cue(...)` scritte sulla stessa riga non erano perse: da
+gen335 il loader chiude le clausole sul punto di livello 0, non sulla newline.
+La prova generica `tests/multigoal.sh` passa anche il caso con piu' clausole per
+riga; il nuovo `meta/multiclause_cues.p0t` interroga proprio i secondi membri
+`supponiamo che`, `suppose` e `for the sake of argument`, e abla una cue viva.
+
+Questo distingue tre domande che non vanno confuse: il parser ha caricato la
+clausola? la regola che la usa e' derivabile? un consumer trasforma quella
+derivazione in una mossa? L'organizzazione fisica e' funzionale alla residenza
+della KB, ma non deve introdurre una semantica accidentale di "una riga, un
+fatto".

@@ -1,0 +1,33 @@
+# MULTIPLE CLAUSES ON ONE PHYSICAL LINE — the period, not the newline, closes a
+# .p0 clause. grammar.p0 deliberately places cue pairs on one line; these probes
+# read the second member of three different pairs through ordinary inference.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+!clause cue_probe(second_italian, loaded) :- stipulation_cue("supponiamo che")
+!clause cue_probe(second_english, loaded) :- stipulation_cue("suppose")
+!clause cue_probe(second_phrase, loaded) :- stipulation_cue("for the sake of argument")
+!assert answer_frame("cue probe", cue_probe)
+
+[test second clauses are loaded and queryable]
+> what is the cue probe for second_italian
+< Loaded.
+> what is the cue probe for second_english
+< Loaded.
+> what is the cue probe for second_phrase
+< Loaded.
+
+[test the observed cue is live rather than baked into the probe]
+!forget stipulation_cue("supponiamo che")
+> what is the cue probe for second_italian
+<! Loaded.
+!assert stipulation_cue("supponiamo che")
+> what is the cue probe for second_italian
+< Loaded.
+

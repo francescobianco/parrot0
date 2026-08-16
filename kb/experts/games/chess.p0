@@ -17,6 +17,10 @@ category_member(chess_piece, rook).
 category_member(chess_piece, bishop).
 category_member(chess_piece, knight).
 category_member(chess_piece, pawn).
+% I due lati sono identificati convenzionalmente come bianco e nero. Non sono
+% membri della categoria chess_piece: sono valori di una faccetta del gioco.
+side_color(chess, white).
+side_color(chess, black).
 % ── gen389: LA COMPOSIZIONE, da cui i conteggi si DERIVANO ──────────────────
 %
 % «Quanti pezzi ci sono negli scacchi» non ha UNA risposta: 32 (tutti), 16 (per

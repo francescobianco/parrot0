@@ -1419,6 +1419,30 @@ cosi' Campania risponde Italia. Il `.p0t` abla il metadato, osserva ricomparire
 l'inversione su una regione inventata e lo riasserisce: e' una prova runtime del
 confine KB-first, non un controllo cucito su Napoli.
 
+Gli stimoli immediatamente successivi hanno raffinato lo stesso contratto.
+«Quali sono i colori che identificano gli scacchi» mostrava che il topic
+`chess` cancellava la faccetta richiesta e cadeva sull'enumerazione predefinita
+dei pezzi. La KB conserva ora la faccetta come relazione `side_color/2` e il suo
+slot nel frame; un dominio inventato prova che colori e superficie crescono e
+si ablano a runtime. La regola per il producer e': il default di dominio vale
+soltanto quando la domanda non nomina una faccetta.
+
+`i=0; i++; quanto vale i` mostrava invece una separazione ancora piu'
+importante: identificare correttamente `code(c)` non soddisfa la query che lo
+segue. `segment_role(query, Cue)` e' la singola sorgente KB del confine e
+dell'atto; la meccanica separa la traccia chiusa e ne valuta il binding con
+l'interprete gia' esistente. Il ratchet aggiunge e ritrae una cue nuova senza
+rebuild. Nel producer universale ogni query deve dunque generare
+un'obbligazione che non puo' essere chiusa da una semplice classificazione del
+registro.
+
+L'audit delle `stipulation_cue` affiancate in `grammar.p0` ha infine escluso un
+difetto del parser corrente: il loader gen335 separa sul punto di livello 0 e
+carica entrambi i fatti. Oltre alla prova generica del loader, un `.p0t`
+interroga ora i secondi membri reali delle righe e ne abla uno. Resta da
+costruire il consumer stipulation -> contesto ipotetico; non va confuso con il
+caricamento sintattico che e' gia' operativo.
+
 ---
 
 ### gen394 — La KB sceglie la mossa dialogica
@@ -1742,4 +1766,9 @@ Avvio della gen395:
    policy e prova che i fatti degli altri contesti restano disponibili;
 4. **producer aperto:** i mondi locali, le ipotesi e le premesse dei consumer
    storici non producono ancora automaticamente `context/2` e `holds_in/2`; la
-   loro proiezione e' il gate della generazione.
+   loro proiezione e' il gate della generazione;
+5. **ratchet di precondizione:** faccetta esplicita, query sullo stato di un
+   registro misto e clausole multiple per riga sono ora protette da `.p0t` con
+   crescita/ablazione. `make soft-test` resta nel budget invariato (11s/15s),
+   `make test` chiude 1894 asserzioni verdi e il loader passa 15/15 prove
+   dedicate.

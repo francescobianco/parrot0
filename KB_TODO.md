@@ -99,6 +99,39 @@ Campania risponde Italia, che una regione inventata senza contenimento non
 risponde col proprio capoluogo e che ablare/reinserire il metadato riproduce e
 chiude l'errore senza rebuild.
 
+Due stimoli successivi hanno aggiunto altri due `wrong-answer gap`. «Quali sono
+i colori che identificano gli scacchi» perdeva la faccetta esplicita `color`
+perche' il dominio `chess` selezionava prima la categoria predefinita
+`chess_piece`; ora il frame KB `side_color/2` conserva faccetta e verso, e un
+gioco inventato prova crescita, retrazione e ablazione della superficie a
+runtime. `i=0; i++; quanto vale i` veniva invece soltanto classificato come
+codice: il riconoscimento del registro consumava una domanda ancora aperta. La
+KB dichiara ora `segment_role(query, Cue)` come unica sorgente viva del confine
+e dell'atto; il motore separa lo span chiuso e riusa la propria meccanica di
+statement per il binding finale. Il `.p0t` aggiunge e ritrae una cue inventata
+senza rebuild.
+
+Durante questo taglio una vista Horn
+`segment_role(query, Cue) :- intent_cue(code_state_query, Cue)` ha fatto salire
+`make soft-test` da 10 a 24 secondi pur lasciando verdi le asserzioni. Il budget
+non e' stato alzato: la causa e' la rivalutazione ripetuta della relazione
+derivata da parte di `kb_evidence_matches` quando enumera tutte le ipotesi. La
+sorgente canonica e' stata resa direttamente `segment_role/2`, evitando anche
+la duplicazione semantica, ma il costo delle relazioni di evidenza derivate
+resta un debito del motore da isolare e correggere, non un limite accettato.
+
+Il dubbio sulle coppie `stipulation_cue` in `grammar.p0` non era invece un bug
+del loader corrente. Da gen335 il punto di livello 0, non la newline, chiude una
+clausola. `tests/multigoal.sh` verifica il caso generale e il nuovo
+`meta/multiclause_cues.p0t` interroga i secondi predicati reali di tre righe,
+poi ne ritrae e riasserisce uno. Se una stipulation cue resta inerte, il prossimo
+luogo da indagare e' il collegamento cue -> contesto -> mossa.
+
+Verifica di questo taglio: `make soft-test` verde in 11 secondi sul budget
+invariato di 15; `make test` chiude 1894 asserzioni senza fallimenti;
+`tests/multigoal.sh` chiude 15 prove del loader, inclusa la clausola multipla
+sulla stessa riga.
+
 La gen394 e' avviata con `kb/core/dialogue-policy.p0`. `dialogue_state/2`
 trasforma proof e `missing_fact` in evidenza; `move_policy/2` sceglie la mossa e
 `frame_move/2` le compone. Il `.p0t` `conversation/dialogue_moves.p0t` prova che

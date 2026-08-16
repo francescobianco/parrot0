@@ -275,6 +275,50 @@ static int mod_rulespec(Brain *b, const char *norm, const char *raw,
  * mod_code does. No statistics: the C grammar is formal, so primitives-first
  * wins. Registered BEFORE mod_code so a structural question reaches the real
  * parser, not the pattern matcher. */
+static int code_state_target(Brain *b, const char *raw,
+                             char *target, size_t target_size) {
+    if (!b || !b->kb || !raw || !target || target_size == 0) return 0;
+    target[0] = '\0';
+    size_t n = strlen(raw);
+    if (n == 0 || n >= 65536) return 0;
+    char *lower = malloc(n + 1);
+    if (!lower) return 0;
+    for (size_t i = 0; i < n; i++)
+        lower[i] = (char)tolower((unsigned char)raw[i]);
+    lower[n] = '\0';
+
+    KbEvidenceMatch hits[64];
+    size_t nh = kb_evidence_matches(b->kb, "segment_role", "query",
+                                    lower, hits, 64);
+    size_t at = 0, len = 0;
+    int found = 0;
+    for (size_t i = 0; i < nh; i++) {
+        if (!found || hits[i].start > at ||
+            (hits[i].start == at && hits[i].len > len)) {
+            at = hits[i].start;
+            len = hits[i].len;
+            found = 1;
+        }
+    }
+    free(lower);
+    if (!found || at + len > n) return 0;
+
+    /* The queried binding is an identifier in the question span.  Preserve its
+     * original case; normalization is for intent evidence, not code symbols. */
+    const char *p = raw + at + len;
+    while (*p) {
+        if (!(isalpha((unsigned char)*p) || *p == '_')) { p++; continue; }
+        const char *id = p;
+        while (isalnum((unsigned char)*p) || *p == '_') p++;
+        size_t ilen = (size_t)(p - id);
+        if (ilen > 0 && ilen < target_size) {
+            memcpy(target, id, ilen);
+            target[ilen] = '\0';
+        }
+    }
+    return target[0] != '\0';
+}
+
 static int mod_codeast(Brain *b, const char *norm, const char *raw,
                        char *out, size_t out_size) {
     if (!b || !b->kb || !raw || !norm) return 0;
@@ -829,6 +873,9 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     int wants_eval =
         cue(qpart, "return") || cue(qpart, "returns") || cue(qpart, "evaluate") ||
         cue(qpart, "restituisce") || cue(qpart, "ritorna") || cue(qpart, "valuta");
+    char state_target[KB_TERM_LEN];
+    int wants_state = code_state_target(b, s, state_target,
+                                        sizeof state_target);
     int wants_funcs = !wants_eval &&
         (cue(s, "function") || cue(s, "funzioni") || cue(s, "funzione")) &&
         (cue(s, "define") || cue(s, "defined") || cue(s, "definisce") ||
@@ -836,7 +883,7 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     int wants_calls = !wants_eval && !wants_funcs &&
         (cue(s, "call") || cue(s, "calls") || cue(s, "invoke") ||
          cue(s, "chiama") || cue(s, "invoca"));
-    if (!wants_eval && !wants_funcs && !wants_calls) return 0;
+    if (!wants_eval && !wants_state && !wants_funcs && !wants_calls) return 0;
 
     /* The code comes either inline (after a ':') or, gen181, from a real file on
      * disk named in the question (a token with a '/' or a .c/.h suffix). The file
@@ -847,6 +894,10 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
     int section = find_code_section(b, s, code, sizeof code, &source_span);
     if (section != 1) {
         if (section < 0) {
+            /* A broad live query cue is not evidence of code by itself.  If the
+             * register cannot close, let ordinary prose consumers inspect the
+             * turn; structured code intents keep the typed ambiguity below. */
+            if (wants_state) return 0;
             const char *why = source_span.proof[0] ? source_span.proof
                                                    : "the input register does not close";
             snprintf(out, out_size, "ambiguous_input: %s", why);
@@ -874,6 +925,25 @@ static int mod_codeast(Brain *b, const char *norm, const char *raw,
      * real code (a '(' or '{' inside a comment/string no longer derails parsing).
      * Applied once here for the snippet questions; code_locate strips per file. */
     code_strip(code);
+
+    /* A top-level statement trace is the same state-transition semantics the
+     * function evaluator already executes.  The query surface and its boundary
+     * are live KB evidence; this branch binds only the identifier slot and asks
+     * the fixed evaluator for the resulting integer. */
+    if (wants_state) {
+        long value;
+        if (code_eval_state(code, state_target, &value)) {
+            snprintf(out, out_size, "%ld.", value);
+            store_proof(b, "Evaluated a bounded statement trace and read the requested final binding.");
+            return 1;
+        }
+        const KbResponseSlot slots[] = { { "variable", state_target } };
+        if (!kb_response_slots(b, "code_state_unknown", slots, 1,
+                               out, out_size))
+            return 0;
+        store_proof(b, "The state query was recognized, but the statement evaluator could not derive the binding.");
+        return 1;
+    }
 
     /* B5: symbolic execution. Parse a concrete call NAME(int, int, ...) from the
      * question and COMPUTE its result from the function body — nothing is run. */

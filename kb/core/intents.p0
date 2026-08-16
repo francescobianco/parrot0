@@ -1119,6 +1119,20 @@ answer_frame("mi dici le", category_enumeration).
 answer_frame("i nomi dei", category_enumeration).
 answer_frame("i nomi delle", category_enumeration).
 
+% Una categoria predefinita del dominio non deve cancellare la faccetta
+% nominata dalla domanda.  "what are the chess pieces" resta
+% category_enumeration/2; quando la superficie chiede i colori, la relazione e'
+% side_color/2 e il gioco occupa il primo slot.  Nuovi giochi, colori e forme
+% crescono come fatti senza modificare il consumer binario.
+answer_frame("what are the colors", side_color).
+answer_frame_input_arg("what are the colors", side_color, 1).
+answer_frame("which are the color", side_color).
+answer_frame_input_arg("which are the color", side_color, 1).
+answer_frame("what colors", side_color).
+answer_frame_input_arg("what colors", side_color, 1).
+answer_frame("which colors", side_color).
+answer_frame_input_arg("which colors", side_color, 1).
+
 % Generic conversational access to game experts.  Every surface maps to a
 % relation shared by all game files; adding a game or a new phrasing is a KB
 % change, and the answer-frame motor remains domain-blind.

@@ -190,6 +190,11 @@ static const Module registry[] = {
     {"bench",     mod_bench},
     {"reader",    mod_reader},
     {"shell",     mod_shell},
+    /* A closed code register plus a code question is stronger evidence than a
+     * generic lexical answer frame. codeast has its own structural gate and
+     * declines ordinary prose, so let it avoid an exhaustive relational scan
+     * of mixed `statements; what is X` turns. */
+    {"codeast",   mod_codeast},
     /* teach-comprehension: answer a question about a TAUGHT binary relation via a
      * teachable answer_frame(Cue, Pred) — before mod_knowledge, which would else
      * mis-claim the turn ("Hmm, I don't know about <first word>"). */
@@ -202,7 +207,6 @@ static const Module registry[] = {
      * describe_cue handler intercepts "define"/"defines" turns. All three
      * code entry points have tight gates (code-keyword + structure pattern)
      * so they never claim non-code queries. */
-    {"codeast",   mod_codeast},
     {"code",      mod_code},
     {"knowledge", mod_knowledge},
     {"symbolic",  mod_symbolic},

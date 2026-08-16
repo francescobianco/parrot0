@@ -40,6 +40,13 @@ size_t code_ingest_py(KB *kb, const char *src,
 int code_eval(const char *src, const char *want,
               const long *argv, size_t argc, long *out);
 
+/* Evaluate a finite C-like statement trace and return the final integer binding
+ * of `want`.  This is the top-level twin of code_eval(): it reuses the same
+ * expression/statement interpreter, but accepts REPL-style first assignments
+ * (`i=0; i++;`) as local initialization.  Unknown or updated-before-bound names,
+ * unsupported statements and arithmetic errors are refused. */
+int code_eval_state(const char *src, const char *want, long *out);
+
 /* gen181: read a source file into `buf` so parrot0 can answer structural
  * questions about a real file, not just an inline snippet. Sandboxed to the
  * working directory: relative paths only, no '..' traversal, no absolute/home

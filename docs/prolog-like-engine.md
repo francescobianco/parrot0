@@ -29,6 +29,20 @@ termina con `.`.
 > (`kb_load: PARSE ERROR in <file>: … dropped: '<clausola>'`): niente più perdite
 > silenziose. Codice: `load_clause` + il loop di `kb_load` in `src/kb.c`.
 
+Un caso reale che rende il contratto non ambiguo e' in `kb/core/grammar.p0`:
+
+```prolog
+stipulation_cue("supponi che"). stipulation_cue("supponiamo che").
+stipulation_cue("suppose that"). stipulation_cue("suppose").
+```
+
+Tutti e quattro i fatti vengono caricati. La newline non ha valore sintattico:
+e' il punto di livello 0 a chiudere la clausola. Il ratchet
+`tests/p0t/meta/multiclause_cues.p0t` interroga deliberatamente i secondi fatti
+delle righe, poi ne ritrae e riasserisce uno. Se una di queste forme non produce
+la mossa attesa, quindi, il primo sospetto deve essere il consumer della cue o
+il suo collegamento logico, non la disposizione fisica delle clausole.
+
 > ⚠️ **Limite di lunghezza: `KB_TERM_LEN = 128`** (`src/kb.h:21`). Un argomento
 > (incluse le virgolette) più lungo di 128 char è **rifiutato** da `parse_term`
 > (`alen >= KB_TERM_LEN → 0`). L'errore rumoroso gen335 ha scoperto **13

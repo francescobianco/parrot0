@@ -1,0 +1,45 @@
+# FACETTED ENUMERATION — a domain's default category must not erase the facet
+# explicitly requested by the question.
+#
+# Chess is only the real stimulus.  The invented game and the runtime
+# ablations prove that the answer comes from side_color/2 plus the live frame,
+# not from a chess phrase or from a fixed pair in the renderer.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test the requested facet outranks the domain default]
+> quali sono i colori che identificano gli scacchi
+< Bianco e nero.
+<! Re, regina, torre, alfiere, cavallo e pedone.
+> what are the colors that identify chess
+< White and black.
+<! King, queen, rook, bishop, knight and pawn.
+> what are the chess pieces
+< King, queen, rook, bishop, knight and pawn.
+
+[test a new domain and its facet grow at runtime]
+!assert side_color(zorvian, amber)
+!assert side_color(zorvian, violet)
+> what are the colors that identify zorvian
+< Amber and violet.
+!assert side_color(zorvian, silver)
+> what are the colors that identify zorvian
+< Amber, violet and silver.
+!forget side_color(zorvian, violet)
+> what are the colors that identify zorvian
+< Amber and silver.
+
+[test the surface relation remains live knowledge]
+!forget answer_frame("what are the colors", side_color)
+> what are the colors that identify zorvian
+<! Amber and silver.
+!assert answer_frame("what are the colors", side_color)
+> what are the colors that identify zorvian
+< Amber and silver.
+

@@ -399,6 +399,9 @@ SOFT_TESTS := \
   tests/p0t/language/contextual_denotation.p0t \
   tests/p0t/meta/three_axis_gap.p0t \
   tests/p0t/knowledge/geographic_location.p0t \
+  tests/p0t/knowledge/faceted_enumeration.p0t \
+  tests/p0t/code/code_state.p0t \
+  tests/p0t/meta/multiclause_cues.p0t \
   tests/p0t/conversation/dialogue_moves.p0t \
   tests/p0t/conversation/context_scope.p0t \
   tests/p0t/language/taught_lexicon.p0t \
@@ -431,6 +434,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/knowledge/geographic_location.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t
 	@./$(BIN) --test tests/p0t/knowledge/games.p0t
+	@./$(BIN) --test tests/p0t/knowledge/faceted_enumeration.p0t
 	@./$(BIN) --test tests/p0t/knowledge/class_conflict.p0t
 	@./$(BIN) --test tests/p0t/reasoning/syllogism.p0t
 	@./$(BIN) --test tests/p0t/conversation/casefold.p0t
@@ -484,6 +488,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/knowledge/entities.p0t
 	@./$(BIN) --test tests/p0t/bench/fewshot.p0t
 	@./$(BIN) --test tests/p0t/meta/meta.p0t
+	@./$(BIN) --test tests/p0t/meta/multiclause_cues.p0t
 	@./$(BIN) --test tests/p0t/meta/meta_reasoning.p0t
 	@./$(BIN) --test tests/p0t/intent/polar_meta.p0t
 	@./$(BIN) --test tests/p0t/generation/prosefact.p0t
@@ -566,6 +571,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/code/codeast.p0t
 	@./$(BIN) --test tests/p0t/code/codeintent.p0t
 	@./$(BIN) --test tests/p0t/code/codeloop.p0t
+	@./$(BIN) --test tests/p0t/code/code_state.p0t
 	@./$(BIN) --test tests/p0t/code/eval_py.p0t
 	@./$(BIN) --test tests/p0t/code/run_execute.p0t
 	@./$(BIN) --test tests/p0t/repair/repair.p0t

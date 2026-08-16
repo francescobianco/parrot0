@@ -261,6 +261,7 @@ typedef struct {
      * re-enter the evaluator on the named function. */
     const char *src;
     int depth;
+    int implicit_locals;
     int err;
     int ret;
     long retval;
@@ -553,7 +554,7 @@ static void ev_simple(EvalCtx *e) {
         e->c++;
         long v = ev_rel(e);
         if (e->err) return;
-        if (!known) { e->err = 1; return; }      /* assignment to unknown name */
+        if (!known && !e->implicit_locals) { e->err = 1; return; }
         ev_set_local(e, w, v);
         return;
     }
@@ -817,6 +818,7 @@ static int eval_fn(const char *src, const char *want,
     e.params = params; e.vals = argv;
     e.np = np; e.nv = argc; e.nl = 0;
     e.src = src; e.depth = depth;
+    e.implicit_locals = 0;
     e.err = 0; e.ret = 0; e.retval = 0;
     ev_run_seq(&e);
     if (e.err || !e.ret) return 0;        /* unsupported, or no return reached */
@@ -875,7 +877,8 @@ static int eval_py_fn(const char *src, const char *want,
 
     EvalCtx e;
     e.params = params; e.vals = argv; e.np = np; e.nv = argc; e.nl = 0;
-    e.src = src; e.depth = depth; e.err = 0; e.ret = 0; e.retval = 0;
+    e.src = src; e.depth = depth; e.implicit_locals = 0;
+    e.err = 0; e.ret = 0; e.retval = 0;
     e.c = NULL; e.end = NULL;
 
     /* Walk statements line by line from just after the ':' (covers both the inline
@@ -957,6 +960,31 @@ void code_strip(char *s) {
             if (*p == q) { *p = ' '; p++; }
         } else p++;
     }
+}
+
+int code_eval_state(const char *src, const char *want, long *out) {
+    if (!src || !*src || !want || !out ||
+        !(isalpha((unsigned char)*want) || *want == '_')) return 0;
+    for (const char *p = want + 1; *p; p++)
+        if (!(isalnum((unsigned char)*p) || *p == '_')) return 0;
+    size_t slen = strlen(src);
+    char *clean = malloc(slen + 1);
+    if (!clean) return 0;
+    memcpy(clean, src, slen + 1);
+    code_strip(clean);
+
+    EvalCtx e;
+    memset(&e, 0, sizeof e);
+    e.c = clean;
+    e.end = clean + slen;
+    e.src = clean;
+    e.implicit_locals = 1;
+    ev_run_seq(&e);
+    long *slot = ev_local_slot(&e, want);
+    int ok = !e.err && slot != NULL;
+    if (ok) *out = *slot;
+    free(clean);
+    return ok;
 }
 
 /* gen182: true if `src` defines a function literally named `want`. A focused
@@ -2930,6 +2958,44 @@ static size_t input_after_colon_anchor(const char *raw, size_t line_start,
     return start;
 }
 
+/* A line may change role after a closed structured prefix: for example a run of
+ * statements followed by a natural-language question.  The boundary vocabulary
+ * is entirely segment_role/2 knowledge, including its derived views. Mechanics
+ * only accepts a cut when the prefix independently keeps the same non-prose
+ * register hypothesis; a role cue at the beginning of an ordinary instruction
+ * therefore cannot manufacture a code span. */
+static size_t input_inline_role_boundary(KB *kb, const char *raw,
+                                         size_t start, size_t end,
+                                         const char *register_name) {
+    if (!kb || !raw || !register_name || !*register_name || end <= start)
+        return end;
+    size_t len = end - start;
+    char *line = malloc(len + 1);
+    if (!line) return end;
+    memcpy(line, raw + start, len);
+    line[len] = '\0';
+
+    KbEvidenceMatch hits[256];
+    size_t nh = kb_evidence_matches(kb, "segment_role", NULL,
+                                    line, hits, 256);
+    size_t boundary = end;
+    for (size_t i = 0; i < nh; i++) {
+        if (hits[i].start == 0) continue;
+        size_t candidate = start + hits[i].start;
+        char winner[KB_TERM_LEN], proof[KB_EVIDENCE_PROOF_LEN];
+        int score = 0;
+        int r = input_slice_rank(kb, raw, start, candidate, NULL, 0,
+                                 winner, sizeof winner, &score,
+                                 proof, sizeof proof);
+        if (r == 1 && strcmp(winner, register_name) == 0) {
+            boundary = candidate;
+            break;
+        }
+    }
+    free(line);
+    return boundary;
+}
+
 static size_t input_indent_end(const char *raw, size_t start) {
     size_t n = strlen(raw), ls = start;
     while (ls > 0 && raw[ls - 1] != '\n') ls--;
@@ -3019,7 +3085,8 @@ static int input_add_prose(KB *kb, const char *raw, size_t start, size_t end,
     if (!text) return 0;
     memcpy(text, raw + start, len); text[len] = '\0';
     KbEvidenceMatch hits[256];
-    size_t nh = kb_evidence_matches(kb, "segment_role", NULL, text, hits, 256);
+    size_t nh = kb_evidence_matches(kb, "segment_role", NULL,
+                                    text, hits, 256);
     InputRoleMark marks[128]; size_t nm = 0;
     for (size_t i = 0; i < nh && nm < 128; ) {
         size_t at = hits[i].start, j = i;
@@ -3302,8 +3369,13 @@ size_t input_segment(KB *kb, const char *raw, InputSpan *segs, size_t max,
                 }
                 /* An extension names a referenced file/register; it is evidence
                  * for identification, not source bytes to compile or ingest. */
-                if (!extension_only)
-                    input_add_candidate(cand, &nc, start, le, reg, score, 10, proof, kb);
+                if (!extension_only) {
+                    size_t structured_end = input_inline_role_boundary(kb, raw,
+                                                                       start, le,
+                                                                       reg);
+                    input_add_candidate(cand, &nc, start, structured_end,
+                                        reg, score, 10, proof, kb);
+                }
             }
         }
         ls = le < n ? le + 1 : n;

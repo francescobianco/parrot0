@@ -1,0 +1,42 @@
+# CODE STATE QUERY — code recognition is evidence, not an answer.
+#
+# The engine already evaluates assignments and ++ inside function bodies.  The
+# missing abstraction is a mixed input made of an inline statement trace plus a
+# question about one resulting binding.  The nonce cue proves that the boundary
+# and intent grow from one live KB fact, without rebuilding.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test the exact conversational stimulus is evaluated]
+> i=0; i++; quanto vale i
+< 1.
+> i=0; i++; what is i
+< 1.
+
+[test state evaluation composes existing statement mechanics]
+> total=3; total += 4; what is the final value of total
+< 7.
+> a=2; b=5; a++; what is b
+< 5.
+> int x=4; x *= 3; what is x
+< 12.
+
+[test an update without an initial binding is not fabricated]
+> i++; what is i
+<! 1.
+
+[test a new state-question cue grows and ablates at runtime]
+> z=2; z++; final register z
+<! 3.
+!assert segment_role(query, "final register")
+> z=2; z++; final register z
+< 3.
+!forget segment_role(query, "final register")
+> z=2; z++; final register z
+<! 3.

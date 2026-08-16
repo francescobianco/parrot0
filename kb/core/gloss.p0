@@ -585,7 +585,9 @@ tr(rwanda, ruanda).
 % ============================================================
 tr(animal, animale).
 tr(color, colore).
+tr(color, colori).
 tr(colour, colore).
+tr(identify, identificano).
 tr(material, materiale).
 tr(sound, suono).
 tr(noise, rumore).

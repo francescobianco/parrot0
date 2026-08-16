@@ -170,6 +170,14 @@ segment_role(mention, "la parola").
 segment_role(mention, "denotations of").
 canonicalization_exempt(mention).
 
+% La domanda che segue un registro strutturato e' un secondo span. Il ruolo
+% `query` e' anche il contratto consumato dalla facolta' che soddisfa la domanda:
+% una sola evidenza viva decide sia il confine sia l'atto, senza duplicare cue.
+segment_role(query, "what is the final value of").
+segment_role(query, "what is the value of").
+segment_role(query, "what is").
+segment_role(query, "quanto vale").
+
 % Uncued gaps are still classified by knowledge about their position relative
 % to a typed register, rather than by a C constant.
 segment_default(before, instruction).
@@ -192,6 +200,7 @@ faculty_for(diff, patch_reader).
 faculty_for(log, verdict_builder).
 faculty_for(prose, reasoner).
 faculty_for(mention, reasoner).
+faculty_for(query, reasoner).
 
 % This schema describes parrot0's perception/routing machinery, not world facts.
 machinery(evidence_weight).
