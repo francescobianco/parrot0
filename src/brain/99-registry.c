@@ -1709,6 +1709,72 @@ static void apply_active_constraint(Brain *b, char *out, size_t out_size) {
 static size_t brain_respond_dispatch(Brain *b, const char *input,
                                      char *out, size_t out_size);
 
+/* gen396: project the ONE universal input into the KB.  input_segment already
+ * owns the fixed byte mechanics; every boundary, role and cue it returns was
+ * selected by live KB evidence.  This adapter merely reifies that result and
+ * asks the KB whether the spans compose a complete response plan.  It knows no
+ * conditional connector, natural-language predicate, register or branch form. */
+static int turn_quote(const char *src, size_t start, size_t len,
+                      char *out, size_t out_size) {
+    if (!src || !out || out_size < 3) return 0;
+    size_t end = start + len;
+    while (start < end && isspace((unsigned char)src[start])) start++;
+    while (end > start && isspace((unsigned char)src[end - 1])) end--;
+    if (end - start + 3 > out_size) return 0;
+    size_t o = 0;
+    out[o++] = '"';
+    for (size_t i = start; i < end; i++)
+        out[o++] = src[i] == '"' ? '\'' : src[i];
+    out[o++] = '"';
+    out[o] = '\0';
+    return 1;
+}
+
+static int universal_turn_lead(Brain *b, const char *surface,
+                               char *out, size_t out_size) {
+    if (!b || !b->kb || !surface || !*surface) return 0;
+    InputSpan spans[64];
+    int ambiguous = 0;
+    size_t ns = input_segment(b->kb, surface, spans, 64, &ambiguous);
+    if (ambiguous || ns == 0) return 0;
+
+    kb_retract_pred(b->kb, "turn_span");
+    kb_retract_pred(b->kb, "turn_span_cue");
+    kb_retract_pred(b->kb, "turn_span_surface");
+    kb_set_origin(b->kb, KB_REFLECTIVE);
+    for (size_t i = 0; i < ns; i++) {
+        char index[24], type[KB_TERM_LEN];
+        char text[KB_TERM_LEN], payload[KB_TERM_LEN];
+        snprintf(index, sizeof index, "%zu", i);
+        input_span_type(&spans[i], type, sizeof type);
+        if (!turn_quote(surface, spans[i].start, spans[i].len,
+                        text, sizeof text)) continue;
+        size_t cue_len = spans[i].cue_len;
+        if (cue_len > spans[i].len) cue_len = spans[i].len;
+        if (!turn_quote(surface, spans[i].start + cue_len,
+                        spans[i].len - cue_len, payload, sizeof payload))
+            continue;
+        const char *span_args[] = { "current_turn", index, type, payload };
+        const char *surface_args[] = { "current_turn", index, text };
+        const char *cue_args[] = { "current_turn", index,
+                                   spans[i].cue[0] ? spans[i].cue : "\"\"" };
+        kb_assert(b->kb, "turn_span", span_args, 4);
+        kb_assert(b->kb, "turn_span_surface", surface_args, 3);
+        kb_assert(b->kb, "turn_span_cue", cue_args, 3);
+    }
+    kb_set_origin(b->kb, KB_SESSION);
+
+    const char *candidate[] = { "current_turn" };
+    if (!kb_query(b->kb, "turn_plan_candidate", candidate, 1)) return 0;
+
+    char replies[1][KB_TERM_LEN];
+    const char *q[] = { "current_turn", NULL };
+    size_t nr = kb_match(b->kb, "turn_response", q, 2, replies, 1);
+    if (nr != 1) return 0;
+    put(kb_dequote(replies[0]), out, out_size);
+    return 1;
+}
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     size_t n = brain_respond_dispatch(b, input, out, out_size);
     /* ── gen388: L'ARGOMENTO DEL TURNO LO REGISTRA IL DISPATCH ──────────────
@@ -1776,6 +1842,12 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
     if (b && try_teach_form(b, norm, input, out, out_size)) {
         note_arith_result(b, out); conv_log(b, input, out);
         return strlen(out);
+    }
+
+    if (b && universal_turn_lead(b, norm, out, out_size)) {
+        snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+        snprintf(b->last_module, sizeof b->last_module, "%s", "turn_plan");
+        note_arith_result(b, out); conv_log(b, input, out); return strlen(out);
     }
 
     /* gen43: canonicalize the parsing surface (function words -> English tokens)

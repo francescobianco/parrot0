@@ -2279,6 +2279,7 @@ teach_reply_pivot("dici").
 teach_reply_pivot("say").
 teach_reply_pivot("answer").
 teach_reply_pivot("reply").
+teach_reply_pivot("respond").
 
 % ── MARKDOWN: il LAYOUT di un elenco come conoscenza (gen382e) ───────────────
 % Lo strato dei formati esisteva (format_constraint/2 dice quali parole chiedono

@@ -482,9 +482,16 @@ rule_variable(x). rule_variable(y). rule_variable(z).
 rule_anaphor(they). rule_anaphor(them). rule_anaphor(he). rule_anaphor(she).
 rule_anaphor(it).   rule_anaphor(lui).  rule_anaphor(lei). rule_anaphor(esso).
 
-% Dove finisce l'antecedente e comincia il conseguente.
-rule_antecedent_marker(if).   rule_antecedent_marker(se).
-rule_consequent_marker(then). rule_consequent_marker(allora).
+% Dove finiscono antecedente, conseguente e alternativa. `logic_connector/2`
+% e' la sorgente unica: il parser delle regole vede le due viste storiche,
+% mentre il producer universale puo' costruire un piano a tre span. Una lingua
+% o una congiunzione nuova entra qui e viene consumata da entrambi.
+logic_connector(condition, if).       logic_connector(condition, se).
+logic_connector(consequence, then).   logic_connector(consequence, allora).
+logic_connector(alternative, otherwise). logic_connector(alternative, else).
+logic_connector(alternative, altrimenti).
+rule_antecedent_marker($Cue) :- logic_connector(condition, $Cue).
+rule_consequent_marker($Cue) :- logic_connector(consequence, $Cue).
 
 % ── STIPULARE o ASSERIRE ─────────────────────────────────────────────────────
 % gen382k. Una premessa ipotetica puo' fare due cose diverse, e finora parrot0

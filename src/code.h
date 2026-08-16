@@ -300,8 +300,10 @@ int code_syntax_ok(const char *src);
 typedef struct {
     size_t start;                         /* byte offset into the raw stream */
     size_t len;
+    size_t cue_len;                       /* leading KB evidence, 0 for defaults */
     char   role[KB_TERM_LEN];             /* instruction/code/repro/... open */
     char   register_name[KB_TERM_LEN];    /* c/python/json/diff/... or empty */
+    char   cue[KB_TERM_LEN];              /* exact segment_role/2 evidence */
     int    score;                         /* winning evidence score */
     char   proof[KB_EVIDENCE_PROOF_LEN];  /* exact KB support / typed gap */
 } InputSpan;

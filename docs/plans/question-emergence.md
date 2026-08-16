@@ -1609,3 +1609,73 @@ clausola? la regola che la usa e' derivabile? un consumer trasforma quella
 derivazione in una mossa? L'organizzazione fisica e' funzionale alla residenza
 della KB, ma non deve introdurre una semantica accidentale di "una riga, un
 fatto".
+
+### 14.12 Il turno e' un programma; prosa e codice condividono il substrato (gen396)
+
+*Stimoli di F.: «se Milano e' in Italia allora rispondi Paolo altrimenti
+Piero», la variante con `italiano`, e il richiamo esplicito alla strada dal
+linguaggio naturale al coding.*
+
+La prima implementazione tentata aveva ricostruito nel C un parser del
+condizionale. Era la forma sbagliata: `universal-input` possedeva gia' confini e
+ruoli guidati da `segment_role/2`. Sul turno reale la KB produce sei span:
+
+```text
+condition(milano) -> proposition(italia) -> consequence
+-> reply(paolo) -> alternative -> reply(piero)
+```
+
+Il solo adattatore fisso ora reifica queste osservazioni come
+`turn_span/4`, `turn_span_cue/3` e `turn_span_surface/3`. Tutto cio' che segue
+e' conoscenza: layout ammissibili, predicati candidati, tipi degli argomenti,
+lettura unica o ambigua, policy del falso, ellissi del verbo di ramo e risposta.
+Una nuova `proposition_cue`, un nuovo `logic_connector` o un nuovo verbo di
+risposta cambia il comportamento con assert/retract e senza rebuild.
+
+La sonda al modello di frontiera ha impedito una correzione ortografica cieca:
+
+| condizione | ramo osservato |
+|---|---|
+| Milano in Italia | vero |
+| Milano in italiano | vero: la superficie `milano` e' italiana |
+| Parigi in Italia | falso |
+| Parigi in italiano | vero: la superficie `parigi` e' italiana |
+| Milan in italiano | falso |
+| Milan in Italia | vero |
+
+`Italia` e `italiano` non sono quindi due grafie della stessa intenzione. La
+superficie condivisa «e' in» propone almeno `located_in_t/2` e
+`surface_in_language/2`; sono i tipi `place/place` e `surface/language` a
+selezionare la lettura. La lettura resta ambigua se piu' firme sopravvivono, e
+il fallimento della prova non diventa automaticamente falso: il ramo alternativo
+richiede una policy closed-world o una classe di oggetti mutuamente esclusivi.
+
+Questo taglio ha isolato tre difetti generali del resolver, senza alzare alcuna
+soglia:
+
+1. il loop checker teneva aperto un goal anche durante il congiunto fratello e
+   scambiava sequenza per ricorsione;
+2. `naf/1` risolveva solo le variabili esterne e lasciava esistenziali quelle
+   annidate in `cons(...)`/termini composti;
+3. una unit clause non-ground riusava la stessa variabile fra due invocazioni,
+   invece di standardizzarla a parte.
+
+Il ratchet generico `reasoning/sequential_view.p0t` protegge le tre meccaniche;
+`reasoning/conditional_plan.p0t` protegge 28 esiti conversazionali, inclusi
+ellissi, collisione `se` dentro `otherwise`, Italia/italiano e crescita/ablazione
+runtime. Il caso geografico lento non e' stato coperto con un timeout: mancava
+il caso base `located_in_t(X,Y) :- located_in(X,Y)` nella chiusura KB.
+
+La scala d'astrazione che emerge e' piu' importante del condizionale:
+
+```text
+byte -> span tipizzata -> lettura -> proposizione/effect
+     -> obbligazione e piano -> proof -> realizzazione
+```
+
+Un frammento `i=0; i++; quanto vale i` percorre la stessa scala. Il registro
+`code(c)` non e' una risposta: produce statement/effect; lo span `query` apre
+un'obbligazione sullo stato finale; il piano la chiude con la proposizione
+`value(i,1)`. Il prossimo salto non e' dunque un parser di codice piu' grande,
+ma rendere in KB le viste comuni di **stato, transizione, vincolo, effetto e
+obbligazione**, affinche' prosa e codice possano comparire nello stesso piano.

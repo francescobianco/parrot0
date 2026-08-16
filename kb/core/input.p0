@@ -215,4 +215,7 @@ machinery(segment_role).
 machinery(segment_default).
 machinery(faculty_for).
 machinery(canonicalization_exempt).
+machinery(turn_span).
+machinery(turn_span_cue).
+machinery(turn_span_surface).
 machinery(machinery).

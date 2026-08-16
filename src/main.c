@@ -49,6 +49,7 @@ static void print_usage(FILE *out) {
             "\n"
             "Options:\n"
             "  -h, --help                  Show this help and exit\n"
+            "  --profile FILE.p0           Load FILE.p0 as the KB profile entrypoint\n"
             "  --daemon                    Serve the HTTP API\n"
             "    --host HOST               Bind host (default: 127.0.0.1)\n"
             "    --port PORT               Bind port (default: 9902)\n"
@@ -199,6 +200,7 @@ int main(int argc, char **argv) {
     const char *host = "127.0.0.1";
     const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
     const char *send_file = NULL;
+    const char *profile = NULL;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
             print_usage(stdout);
@@ -215,6 +217,22 @@ int main(int argc, char **argv) {
             if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) send_file = argv[++i];
         }
         else if (strcmp(argv[i], "--test-report") == 0) report_mode = 1;
+        else if (strcmp(argv[i], "--profile") == 0) {
+            if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
+                fprintf(stderr, "parrot0: --profile requires a .p0 file\n\n");
+                print_usage(stderr);
+                return 2;
+            }
+            profile = argv[++i];
+        }
+        else if (strncmp(argv[i], "--profile=", 10) == 0) {
+            if (!argv[i][10]) {
+                fprintf(stderr, "parrot0: --profile requires a .p0 file\n\n");
+                print_usage(stderr);
+                return 2;
+            }
+            profile = argv[i] + 10;
+        }
         else if (strcmp(argv[i], "--sock") == 0 && i + 1 < argc) sockpath = argv[++i];
         else if (strncmp(argv[i], "--sock=", 7) == 0) sockpath = argv[i] + 7;
         else if (strcmp(argv[i], "--port") == 0 && i + 1 < argc) port = atoi(argv[++i]);
@@ -234,6 +252,11 @@ int main(int argc, char **argv) {
             return 2;
         }
     }
+
+    /* A profile is the KB boot entrypoint.  The command line is an explicit
+     * invocation choice and therefore overrides PARROT0_PROFILE; without this
+     * option the environment keeps exactly its historical semantics. */
+    if (profile) setenv("PARROT0_PROFILE", profile, 1);
 
     /* gen345: the test-engine CLIENTS run FIRST and load NOTHING — no brain, no
      * KB — so every `make test` line is a cheap socket relay to the one daemon.

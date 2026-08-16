@@ -326,3 +326,50 @@ Il piano è chiuso quando **tutte** queste sono vere insieme:
 > Il codice giusto era già stato scritto: `kb-first.md:21` lo diceva a gen~180.
 > Quello che mancava era accorgersi che **anche la percezione dell'input** è una
 > capacità, e che una capacità cablata nel C è una capacità che non cresce.
+
+## 10. gen396: dalle span alla memoria di lavoro universale
+
+La segmentazione non termina quando ha assegnato un registro. Ogni turno viene
+ora proiettato nella KB con tre viste meccaniche:
+
+```prolog
+turn_span(current_turn, 0, condition, "milano").
+turn_span_cue(current_turn, 0, keyword(se)).
+turn_span_surface(current_turn, 0, "se milano").
+```
+
+Il C conserva offset, ordine e l'evidenza esatta scelta dallo scorer; non
+conosce `condition`, `reply`, `se`, il predicato della proposizione o il modo di
+rispondere. Questi fatti sono memoria di lavoro riflessiva, sostituita al turno
+successivo e marcata `machinery/1`.
+
+Il primo consumer completo e' il piano condizionale in
+`kb/core/conditional-plans.p0`. E' deliberatamente un esempio, non una nuova
+grammatica privilegiata: le stesse viste devono comporre input misti come:
+
+```text
+turn_span(T, 0, code(c),    "i=0; i++;")
+turn_span(T, 1, query,      "i")
+
+turn_span(T, 0, code(c),    "...")
+turn_span(T, 1, observed,   "ritorna 0")
+turn_span(T, 2, expected,   "dovrebbe ritornare 1")
+turn_span(T, 3, constraint, "senza cambiare l'API")
+```
+
+Il contratto per l'evoluzione NL -> coding e' quindi:
+
+1. **percezione:** delimitare e tipizzare senza consumare la domanda;
+2. **denotazione:** legare superfici e simboli a relazioni candidate;
+3. **semantica operativa:** derivare statement, stato, transizioni, effetti e
+   vincoli con regole KB sopra primitive fisse;
+4. **piano:** conservare tutti gli obblighi del turno e le loro dipendenze;
+5. **verifica:** chiudere ogni obbligo con proof, gap tipizzato o chiarimento;
+6. **realizzazione:** scegliere lingua e registro senza cambiare i claim.
+
+Un nuovo costrutto linguistico o di codice deve entrare aggiungendo membri a
+queste relazioni e superare crescita + ablazione runtime. Il motore puo' offrire
+tokenizzazione, ordering, binding, aritmetica e inferenza; non puo' sapere che
+una parola o un operatore concreto significa uno di questi atti. In particolare
+`register(code(c))` resta un'osservazione, mai una risposta sufficiente: uno span
+`query` mantiene aperta l'obbligazione finche' il piano non ne prova il valore.

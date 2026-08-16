@@ -391,6 +391,7 @@ SOFT_TESTS := \
   tests/p0t/conversation/basics.p0t \
   tests/p0t/math/arith.p0t \
   tests/p0t/reasoning/syllogism.p0t \
+  tests/p0t/reasoning/sequential_view.p0t \
   tests/p0t/reasoning/rules.p0t \
   tests/p0t/reasoning/relations.p0t \
   tests/p0t/knowledge/facts.p0t \
@@ -402,6 +403,7 @@ SOFT_TESTS := \
   tests/p0t/knowledge/faceted_enumeration.p0t \
   tests/p0t/code/code_state.p0t \
   tests/p0t/meta/multiclause_cues.p0t \
+  tests/p0t/reasoning/conditional_plan.p0t \
   tests/p0t/conversation/dialogue_moves.p0t \
   tests/p0t/conversation/context_scope.p0t \
   tests/p0t/language/taught_lexicon.p0t \
@@ -437,6 +439,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/knowledge/faceted_enumeration.p0t
 	@./$(BIN) --test tests/p0t/knowledge/class_conflict.p0t
 	@./$(BIN) --test tests/p0t/reasoning/syllogism.p0t
+	@./$(BIN) --test tests/p0t/reasoning/sequential_view.p0t
 	@./$(BIN) --test tests/p0t/conversation/casefold.p0t
 	@./$(BIN) --test tests/p0t/conversation/contractions.p0t
 	@./$(BIN) --test tests/p0t/math/numwords.p0t
@@ -475,6 +478,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/reasoning/transitivity.p0t
 	@./$(BIN) --test tests/p0t/reasoning/unify.p0t
 	@./$(BIN) --test tests/p0t/reasoning/whatifnot.p0t
+	@./$(BIN) --test tests/p0t/reasoning/conditional_plan.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem_multi.p0t
 	@./$(BIN) --test tests/p0t/reasoning/belief.p0t

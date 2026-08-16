@@ -24,6 +24,45 @@ import argparse, json, os, sys, urllib.request, urllib.error
 BASE = "https://opencode.ai/zen/go/v1/chat/completions"
 
 PROBES = [
+    ("it-rami-vero", "Condizione fattuale vera con due risposte imperative.",
+     "se milano è in italia allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-rami-refuso", "Lo stimolo reale: italiano al posto di Italia.",
+     "se milano è in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-refuso-parigi", "Parigi separa riparazione geografica e lettura della parola.",
+     "se parigi è in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-italia-parigi", "Controllo accoppiato: cambia soltanto italiano in Italia.",
+     "se parigi è in italia allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-refuso-milan", "La forma inglese Milan separa ancora le due letture.",
+     "se Milan è in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-italia-milan", "Controllo accoppiato: cambia soltanto italiano in Italia.",
+     "se Milan è in italia allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-metalingua", "La citazione forza la lettura della forma linguistica.",
+     "se la parola Milano è in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-scritto", "Il participio scritto rende esplicita la metalingua.",
+     "se Milano è scritto in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-geografia", "Il verbo trovarsi forza la relazione geografica.",
+     "se Milano si trova in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-citta", "La copula tipata esprime il fatto geografico senza refuso.",
+     "se Milano è una città italiana allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-contrasto", "Il contrasto esplicito deve bloccare la riparazione silenziosa.",
+     "se Milano è in italiano ma non in Italia allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-riparazione-esplicita", "L'utente dichiara direttamente la correzione voluta.",
+     "se con italiano intendo Italia, Milano è in italiano allora rispondi paolo altrimenti rispondi piero"),
+
+    ("it-rami-falso", "Condizione fattuale falsa: deve scegliere l'altro ramo.",
+     "se milano è in francia allora rispondi paolo altrimenti rispondi piero"),
+
     ("it-vero", "L'originale, antecedente VERO.",
      "se 2 + 2 fa 4 allora quanto fa 3 + 3"),
 
@@ -65,13 +104,16 @@ def ask(model, key, prompt, timeout=120):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="minimax-m2.5")
+    ap.add_argument("--only", action="append", default=[],
+                    help="esegui soltanto la probe col nome indicato (ripetibile)")
     a = ap.parse_args()
     key = os.environ.get("OPENCODE_API_KEY")
     if not key:
         print("conditional_frame_probe: OPENCODE_API_KEY non impostata", file=sys.stderr)
         return 2
     print(f"model: {a.model}\n" + "=" * 72)
-    for name, why, prompt in PROBES:
+    probes = [p for p in PROBES if not a.only or p[0] in a.only]
+    for name, why, prompt in probes:
         print(f"\n### {name}\n# {why}\n--- prompt ---\n{prompt}\n--- risposta ---")
         try:
             print(ask(a.model, key, prompt))

@@ -3039,12 +3039,15 @@ static int input_emit_ambiguous(const char *raw, InputSpan *segs, size_t max,
 
 static int input_push_span(InputSpan *segs, size_t *ns, size_t max,
                            size_t start, size_t end, const char *role,
-                           const char *reg, int score, const char *proof) {
+                           const char *reg, const char *cue, size_t cue_len,
+                           int score, const char *proof) {
     if (start >= end || *ns >= max) return 0;
     InputSpan *s = &segs[(*ns)++]; memset(s, 0, sizeof *s);
-    s->start = start; s->len = end - start; s->score = score;
+    s->start = start; s->len = end - start; s->cue_len = cue_len;
+    s->score = score;
     snprintf(s->role, sizeof s->role, "%s", role ? role : "");
     snprintf(s->register_name, sizeof s->register_name, "%s", reg ? reg : "");
+    snprintf(s->cue, sizeof s->cue, "%s", cue ? cue : "");
     snprintf(s->proof, sizeof s->proof, "%s", proof ? proof : "");
     return 1;
 }
@@ -3150,7 +3153,8 @@ static int input_add_prose(KB *kb, const char *raw, size_t start, size_t end,
         char role[KB_TERM_LEN] = "prose", proof[KB_EVIDENCE_PROOF_LEN] = "";
         input_default_role(kb, context, role, sizeof role, proof, sizeof proof);
         input_trim_range(raw, &cursor, &upto);
-        input_push_span(segs, ns, max, cursor, upto, role, "", 1, proof);
+        input_push_span(segs, ns, max, cursor, upto, role, "", "", 0,
+                        1, proof);
         cursor = upto;
     }
     for (size_t i = 0; i < nm; i++) {
@@ -3161,7 +3165,7 @@ static int input_add_prose(KB *kb, const char *raw, size_t start, size_t end,
         snprintf(proof, sizeof proof, "because segment_role(%s, %s) [score=%d]",
                  marks[i].role, marks[i].evidence, marks[i].score);
         input_push_span(segs, ns, max, a, b, marks[i].role, "",
-                        marks[i].score, proof);
+                        marks[i].evidence, marks[i].len, marks[i].score, proof);
     }
     return 1;
 }
@@ -3414,7 +3418,8 @@ size_t input_segment(KB *kb, const char *raw, InputSpan *segs, size_t max,
                                             ambproof, ambiguous);
         }
         input_push_span(segs, &ns, max, cand[i].start, cand[i].end,
-                        cand[i].role, cand[i].reg, cand[i].score, cand[i].proof);
+                        cand[i].role, cand[i].reg, "", 0,
+                        cand[i].score, cand[i].proof);
         if (cand[i].end > cursor) cursor = cand[i].end;
     }
     if (cursor < n || nc == 0) {

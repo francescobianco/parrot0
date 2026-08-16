@@ -1,0 +1,148 @@
+% conditional-plans.p0 — composizione KB-first degli span universali.
+%
+% input_segment non ha una grammatica condizionale: misura confini e restituisce
+% i ruoli scelti da segment_role/2. Il sottile adattatore universale del brain li
+% reifica come turn_span/4 + turn_span_cue/3. Da quel punto in poi riconoscimento
+% del piano, letture concorrenti, tipi, verita', ellissi e risposta sono clausole.
+% Lo stesso substrato puo' comporre in seguito code(c)+query, diff+constraint o
+% log+expected: il condizionale e' il primo esempio guida, non un nuovo parser.
+
+:- file_attribute(machinery).
+
+% I connettori e i verbi di ramo aprono ruoli dell'universal input. Qualunque
+% membro aggiunto o ritratto cambia la segmentazione al turno successivo. Le
+% superfici sono evidenza word-bounded: `se` non puo' riapparire per substring
+% dentro `otherwise`, ma resta un membro insegnabile di logic_connector/2.
+conditional_role_evidence(condition, keyword($Cue)) :- logic_connector(condition, $Cue).
+conditional_role_evidence(proposition, keyword($Cue)) :- proposition_cue($Relation, $Cue).
+conditional_role_evidence(consequence, keyword($Cue)) :- logic_connector(consequence, $Cue).
+conditional_role_evidence(alternative, keyword($Cue)) :- logic_connector(alternative, $Cue).
+conditional_role_evidence(reply, keyword($Cue)) :- branch_action_cue($Action, $Cue).
+segment_role($Role, $Evidence) :- conditional_role_evidence($Role, $Evidence).
+
+% Una stessa superficie puo' proporre piu' relazioni. I tipi degli argomenti
+% conservano entrambe le letture finche' una sola e' compatibile.
+proposition_cue(located_in_t, "is in").
+proposition_cue(located_in_t, "è in").
+proposition_cue(located_in_t, "si trova in").
+proposition_arg_form(located_in_t, 1, canonical).
+proposition_arg_form(located_in_t, 2, canonical).
+proposition_arg_kind(located_in_t, 1, place).
+proposition_arg_kind(located_in_t, 2, place).
+
+proposition_cue(surface_in_language, "is in").
+proposition_cue(surface_in_language, "è in").
+proposition_cue(surface_in_language, "is written in").
+proposition_cue(surface_in_language, "è scritto in").
+proposition_arg_form(surface_in_language, 1, surface).
+proposition_arg_form(surface_in_language, 2, canonical).
+proposition_arg_kind(surface_in_language, 1, surface).
+proposition_arg_kind(surface_in_language, 2, language).
+proposition_evidence($Relation, keyword($Cue)) :- proposition_cue($Relation, $Cue).
+
+% Le traduzioni sono anche evidenza sulla lingua della FORMA. Il verso conta:
+% tr(milan,milano) prova che "milano" e' italiano e "milan" e' inglese.
+surface_in_language($Surface, italian) :- tr($Canonical, $Surface).
+surface_in_language($Surface, english) :- tr($Surface, $Translation).
+surface_in_language($Surface, french) :- tr_fr($Canonical, $Surface).
+surface_in_language($Surface, spanish) :- tr_es($Canonical, $Surface).
+
+term_kind($Value, any).
+term_kind($Value, language) :- language_of_country($Country, $Value).
+term_kind($Value, country) :- category_member(country, $Value).
+term_kind($Value, place) :- category_member(country, $Value).
+term_kind($Value, place) :- located_in($Value, $Parent).
+term_kind($Value, place) :- located_in($Child, $Value).
+term_kind($Value, place) :- capital_of_region($Value, $Capital).
+term_kind($Value, place) :- capital_of_region($Region, $Value).
+term_kind($Value, place) :- region_of_country($Value, $Country).
+term_kind($Value, surface) :- surface_in_language($Value, $Language).
+proposition_arg_valid($Relation, $Position, $Value) :- proposition_arg_kind($Relation, $Position, $Kind), term_kind($Value, $Kind).
+
+% La forma canonica e' una procedura, non una trasformazione nel consumer. Una
+% superficie presente come secondo argomento di tr/2 prende il suo primo
+% argomento; un atomo senza quella evidenza resta se stesso (vale anche per
+% relazioni e nomi inventati insegnati a runtime).
+translated_surface($Surface) :- tr($Canonical, $Surface).
+canonical_value($Surface, $Canonical) :- tr($Canonical, $Surface).
+canonical_value($Value, $Value) :- naf(translated_surface($Value)).
+argument_value(canonical, $Surface, $Value) :- canonical_value($Surface, $Value).
+argument_value(surface, $Surface, $Surface).
+span_atom($Quoted, $Atom) :- chars($Quoted, $Chars), chars($Atom, $Chars).
+
+% I verbi che introducono una risposta riusano la classe teach_reply_pivot/1.
+% L'alternativa puo' ereditare l'azione del ramo vero: "altrimenti piero".
+branch_action_cue(reply, $Cue) :- teach_reply_pivot($Cue).
+branch_action_evidence($Action, keyword($Cue)) :- branch_action_cue($Action, $Cue).
+branch_action_primitive(reply, emit_literal).
+branch_action_ellipsis(reply, alternative, inherit_previous).
+
+% Layout esplicito:
+%   condition proposition consequence reply alternative reply
+conditional_surface_explicit($Frame) :- turn_span($Frame, 0, condition, $Subject), turn_span($Frame, 1, proposition, $Object), turn_span($Frame, 2, consequence, $Then), turn_span($Frame, 3, reply, $True), turn_span($Frame, 4, alternative, $Else), turn_span($Frame, 5, reply, $False).
+
+% Layout con ellissi dell'azione nel secondo ramo:
+%   condition proposition consequence reply alternative
+conditional_surface_elliptic($Frame) :- turn_span($Frame, 0, condition, $Subject), turn_span($Frame, 1, proposition, $Object), turn_span($Frame, 2, consequence, $Then), turn_span($Frame, 3, reply, $True), turn_span($Frame, 4, alternative, $False), dif($False, "").
+
+conditional_surface($Frame) :- conditional_surface_explicit($Frame).
+conditional_surface($Frame) :- conditional_surface_elliptic($Frame).
+turn_plan_candidate($Frame) :- conditional_surface($Frame).
+
+conditional_raw_proposition($Frame, $Relation, $Subject, $Object) :- conditional_surface($Frame), turn_span($Frame, 0, condition, $RawSubject), turn_span($Frame, 1, proposition, $RawObject), turn_span_cue($Frame, 1, $Evidence), proposition_evidence($Relation, $Evidence), span_atom($RawSubject, $Subject), span_atom($RawObject, $Object).
+
+conditional_subject($Frame, $Relation, $Subject) :- conditional_raw_proposition($Frame, $Relation, $Raw, $Object), proposition_arg_form($Relation, 1, $Form), argument_value($Form, $Raw, $Subject), proposition_arg_valid($Relation, 1, $Subject).
+conditional_object($Frame, $Relation, $Object) :- conditional_raw_proposition($Frame, $Relation, $Subject, $Raw), proposition_arg_form($Relation, 2, $Form), argument_value($Form, $Raw, $Object), proposition_arg_valid($Relation, 2, $Object).
+% La lettura completa lega i due argomenti nella STESSA derivazione. Oltre a
+% essere il piano logico piu' diretto, evita che due enumerazioni indipendenti
+% perdano l'identita' della relazione prima del join.
+conditional_reading($Frame, $Relation, $Subject, $Object) :- conditional_raw_proposition($Frame, $Relation, $RawSubject, $RawObject), proposition_arg_form($Relation, 1, $SubjectForm), argument_value($SubjectForm, $RawSubject, $Subject), proposition_arg_valid($Relation, 1, $Subject), proposition_arg_form($Relation, 2, $ObjectForm), argument_value($ObjectForm, $RawObject, $Object), proposition_arg_valid($Relation, 2, $Object).
+
+% Enumerare una volta evita la ricerca quadratica "una lettura contro ogni altra".
+% Il SET restituito da findall e' anche lo stato epistemico: nil, singleton o
+% molteplicita'. Nessun tiebreak e nessun fallimento viene scambiato per unicita'.
+conditional_reading_key($Frame, reading($Relation, $Subject, $Object)) :- conditional_reading($Frame, $Relation, $Subject, $Object).
+conditional_reading_set($Frame, $Readings) :- findall($Reading, conditional_reading_key($Frame, $Reading), $Readings).
+conditional_has_reading($Frame) :- conditional_reading_set($Frame, cons($Reading, $Tail)).
+conditional_reading_ambiguous($Frame) :- conditional_reading_set($Frame, cons($First, cons($Second, $Tail))).
+conditional_unique_reading($Frame, $Relation, $Subject, $Object) :- conditional_reading_set($Frame, cons(reading($Relation, $Subject, $Object), nil)).
+
+conditional_branch_surface($Frame, when_true, $Action, $Payload) :- conditional_surface($Frame), turn_span($Frame, 3, reply, $Payload), turn_span_cue($Frame, 3, $Evidence), branch_action_evidence($Action, $Evidence).
+conditional_branch_surface($Frame, when_false, $Action, $Payload) :- conditional_surface_explicit($Frame), turn_span($Frame, 5, reply, $Payload), turn_span_cue($Frame, 5, $Evidence), branch_action_evidence($Action, $Evidence).
+conditional_branch_surface($Frame, when_false, $Action, $Payload) :- conditional_surface_elliptic($Frame), turn_span($Frame, 4, alternative, $Payload), conditional_branch_surface($Frame, when_true, $Action, $TruePayload), branch_action_ellipsis($Action, alternative, inherit_previous).
+
+% Il frame non viene montato dal C: e' una vista derivata degli span.
+frame_act($Frame, conditional_execute) :- conditional_unique_reading($Frame, $Relation, $Subject, $Object).
+frame_slot($Frame, relation, $Relation) :- conditional_unique_reading($Frame, $Relation, $Subject, $Object).
+frame_slot($Frame, subject, $Subject) :- conditional_unique_reading($Frame, $Relation, $Subject, $Object).
+frame_slot($Frame, object, $Object) :- conditional_unique_reading($Frame, $Relation, $Subject, $Object).
+frame_branch($Frame, $Role, $Action, $Payload) :- conditional_branch_surface($Frame, $Role, $Action, $Payload).
+
+% La proof operativa porta la lettura una volta sola. Ricostruirla interrogando
+% separatamente act, tre slot e due branch e' logicamente ridondante e moltiplica
+% l'albero SLD: le viste frame_* restano interrogabili, ma l'esecuzione condivide
+% questa derivazione compatta.
+conditional_plan($Frame, $Relation, $Subject, $Object) :- conditional_unique_reading($Frame, $Relation, $Subject, $Object), conditional_branch_surface($Frame, when_true, $TrueAction, $TruePayload), conditional_branch_surface($Frame, when_false, $FalseAction, $FalsePayload).
+conditional_frame_complete($Frame) :- conditional_plan($Frame, $Relation, $Subject, $Object).
+
+conditional_frame_truth($Frame, true) :- conditional_plan($Frame, $Relation, $Subject, $Object), apply($Relation, cons($Subject, cons($Object, nil))).
+conditional_frame_truth($Frame, false) :- conditional_plan($Frame, $Relation, $Subject, $Object), condition_false($Relation, $Subject, $Object).
+
+% Il fallimento non significa automaticamente falso. Solo una policy closed-world
+% o una classe di valori mutuamente esclusivi autorizza il ramo alternativo.
+condition_closed_world(surface_in_language).
+condition_exclusive_object_kind(located_in_t, country).
+condition_false($Relation, $Subject, $Object) :- condition_closed_world($Relation), proposition_arg_valid($Relation, 1, $Subject), proposition_arg_valid($Relation, 2, $Object), naf(apply($Relation, cons($Subject, cons($Object, nil)))).
+condition_false($Relation, $Subject, $Object) :- condition_exclusive_object_kind($Relation, $Kind), term_kind($Object, $Kind), apply($Relation, cons($Subject, cons($Other, nil))), term_kind($Other, $Kind), dif($Object, $Other).
+
+conditional_has_truth($Frame) :- conditional_frame_truth($Frame, $Truth).
+conditional_selected_action($Frame, $Action, $Payload) :- conditional_frame_truth($Frame, $Truth), conditional_branch_role($Truth, $Role), frame_branch($Frame, $Role, $Action, $Payload).
+conditional_branch_role(true, when_true).
+conditional_branch_role(false, when_false).
+
+% turn_response/2 e' il contratto universale col realizzatore. I tre esiti sono
+% disgiunti: risposta provata, ambiguita' reale, oppure gap tipizzato.
+turn_response($Frame, $Payload) :- conditional_selected_action($Frame, $Action, $Payload), branch_action_primitive($Action, emit_literal).
+turn_response($Frame, $Text) :- conditional_surface($Frame), conditional_reading_ambiguous($Frame), current_language($Language), response_template(conditional_plan_ambiguous, $Language, $Text).
+turn_response($Frame, $Text) :- conditional_surface($Frame), naf(conditional_has_reading($Frame)), current_language($Language), response_template(conditional_plan_gap, $Language, $Text).
+turn_response($Frame, $Text) :- conditional_unique_reading($Frame, $Relation, $Subject, $Object), naf(conditional_has_truth($Frame)), current_language($Language), response_template(conditional_plan_gap, $Language, $Text).

@@ -1083,8 +1083,9 @@ necessario a renderlo osservabile in conversazione.
 
 Le clausole mostrate sono **esempi guida della conoscenza da introdurre**, non
 licenza a popolare subito la KB. Entrano nei file `.p0` soltanto nella propria
-generazione, insieme a un consumer reale e al ratchet `.p0t`. Tutte le clausole
-eseguibili dovranno essere scritte su una riga, come richiede il parser attuale.
+generazione, insieme a un consumer reale e al ratchet `.p0t`. Il punto di
+livello zero, non la newline, chiude una clausola: piu' clausole sulla stessa
+riga sono valide e protette da `meta/multiclause_cues.p0t`.
 
 ### Quadro delle sette generazioni
 
@@ -1561,8 +1562,26 @@ e il ratchet ne prova crescita e ablazione.
 
 ### gen396 — Registro multidimensionale e risposta da proposizioni
 
-**Fallimento tirante.** `preferred_register` e `style_temperature` sono
-interruttori larghi; molti template mescolano claim, struttura e stile.
+**Fallimenti tiranti.** `preferred_register` e `style_temperature` sono
+interruttori larghi; molti template mescolano claim, struttura e stile. Inoltre
+«se Milano e' in Italia allora rispondi Paolo altrimenti Piero» non era
+componibile, mentre `i=0; i++; quanto vale i` mostrava che classificare un
+registro non soddisfa l'obbligo del turno. I due casi chiedono la stessa cosa:
+un piano sopra la memoria di lavoro universale.
+
+**Task 396.0 — materializzare il turno senza interpretarlo nel C.** Il
+segmentatore conserva la cue vincente e un adattatore generico proietta:
+
+```prolog
+turn_span($Turn, $Index, $Role, $Payload).
+turn_span_cue($Turn, $Index, $Evidence).
+turn_span_surface($Turn, $Index, $Surface).
+```
+
+Ruolo, evidenza e consumer restano KB. Il primo esempio guida e'
+`conditional-plans.p0`; il secondo deve essere un piano misto code+query. Non e'
+done finche' una nuova cue di proposizione, connettore o azione non cambia il
+piano con assert/retract a runtime.
 
 **Task 396.1 — dimensioni del registro.**
 
@@ -1599,14 +1618,41 @@ answer_relation($P, $Q, qualifies).
 answer_relation($P, $Q, justifies).
 ```
 
-**Task 396.4 — ratchet `.p0t`.** Stessa proof resa comune/tecnica,
+Il piano non e' soltanto una lista di frasi. Deve rappresentare controllo ed
+effetti senza privilegiare la prosa:
+
+```prolog
+plan_condition($Plan, $Proposition).
+plan_branch($Plan, true, $Action, $Payload).
+plan_branch($Plan, false, $Action, $Payload).
+plan_obligation($Plan, state_after, value($Symbol, $Value)).
+span_transition($Span, $Before, $After).
+```
+
+Le relazioni concrete (`located_in_t`, `surface_in_language`, assegnazione,
+incremento) sono membri della KB. Il motore offre soltanto unificazione,
+ordering, binding ed esecuzione delle primitive generali.
+
+**Task 396.4 — ratchet `.p0t`.** Condizionali veri/falsi, ellissi, cue concorrenti
+e crescita/ablazione runtime; code+query e code+expected+constraint devono
+produrre piani completi senza che la risposta sul registro rubi il turno. Poi:
+stessa proof resa comune/tecnica,
 concisa/dettagliata e formale/informale; forma marcata capita ma non riflessa;
 domanda esplicita sul termine dichiara lo status; nessun registro cambia i claim.
 Runtime growth aggiunge una dimensione/form candidate, retract la rimuove.
 
 **Definizione di done.** Il contenuto proposizionale resta identico sotto
 registri diversi; il renderer non introduce fatti; «si dice X o Y?» si chiude
-attraverso menzione + status + mossa, non con un consumer privato.
+attraverso menzione + status + mossa, non con un consumer privato. Prosa, codice
+e input misto attraversano le stesse relazioni di span, proposizione,
+obbligazione, piano e proof.
+
+**Stato di attuazione.** Task 396.0 e il primo taglio di 396.3 sono presenti:
+gli span universali vengono reificati e il piano condizionale e' interamente KB.
+Il ratchet `reasoning/conditional_plan.p0t` copre 28 asserzioni, incluse ellissi,
+Italia/italiano e crescita/ablazione. Restano aperti il piano proposizionale del
+codice, la condivisione strutturata delle proof e tutte le dimensioni di registro
+di 396.1-396.2; gen396 e' quindi avviata, non chiusa.
 
 ---
 
@@ -1665,9 +1711,10 @@ cambiano il dialogo a runtime; la suite ordinaria resta entro i budget.
 
 ## 16. Stato di avanzamento
 
-Il piano e' partito da **gen391**. Le gen396-397 restano contratti, non
-capacita' rivendicate; gen395 e' il fronte semantico corrente e possiede soltanto
-il primo kernel, non il producer end-to-end.
+Il piano e' partito da **gen391**. gen396 e' ora il fronte semantico attivo ma
+possiede soltanto il primo producer end-to-end (il piano condizionale); gen397
+resta un contratto. I producer NL dei contesti gen395 rimangono un debito vivo e
+non vengono dichiarati chiusi dal passaggio di generazione.
 
 Stato della gen391:
 

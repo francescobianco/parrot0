@@ -8,9 +8,9 @@
 
 parrot0 ha un motore d'inferenza **Prolog-like** al centro (`src/kb.c`, da
 gen5/gen11): fatti, regole definite (Horn), unificazione di Robinson, risoluzione
-**SLD** con backtracking e standardize-apart. Non è un Prolog completo (niente
-cut, niente aritmetica dentro le clausole, niente liste come termini), ma il
-nucleo di risoluzione è **n-ario e ricorsivo** — più potente di quanto alcune API
+**SLD** con backtracking e standardize-apart. Non è un Prolog completo (per
+esempio non ha cut), ma il nucleo è **n-ario e ricorsivo**, supporta termini
+composti/liste e offre primitive aritmetiche — più potente di quanto alcune API
 sappiano esprimere (vedi §5).
 
 ## 1. La sintassi delle clausole (`.p0`)
@@ -43,7 +43,7 @@ delle righe, poi ne ritrae e riasserisce uno. Se una di queste forme non produce
 la mossa attesa, quindi, il primo sospetto deve essere il consumer della cue o
 il suo collegamento logico, non la disposizione fisica delle clausole.
 
-> ⚠️ **Limite di lunghezza: `KB_TERM_LEN = 128`** (`src/kb.h:21`). Un argomento
+> ⚠️ **Limite di lunghezza: `KB_TERM_LEN = 512`** (`src/kb.h`). Un argomento
 > (incluse le virgolette) più lungo di 128 char è **rifiutato** da `parse_term`
 > (`alen >= KB_TERM_LEN → 0`). L'errore rumoroso gen335 ha scoperto **13
 > `response_template` morti** in `responses.p0`/`lexicon.p0` (spiegazioni di ~200-356
@@ -397,7 +397,18 @@ misurato:
 | **Azioni-su-stringa come conoscenza** (builtin `chars/2`) | ✅ (gen285, U4) | atomo↔lista-di-char bidirezionale (`chars(madrid,$L)`→`$L=cons(m,…,nil)` e viceversa). Così `capitalize_first($S,$R):-chars($S,cons($H,$T)),upper($H,$U),chars($R,cons($U,$T))` è una REGOLA (la mappa `upper/2` è una tabella di fatti), non C. Stringhe word-like; caratteri speciali un bordo |
 | **Aritmetica come conoscenza** (builtin `is/2` + confronti) | ✅ (gen335) | `is($R, Expr)` valuta `Expr` (`add/sub/mul/div/mod`, annidabili) e lega `$R`; `lt/le/gt/ge/eq/ne($A,$B)` valutano **entrambi** i lati come espressioni e riescono/falliscono. Numeri **reali** (double; interi resi senza frazione), a differenza di Peano. Così *sommare, confrontare, filtrare i dispari, risolvere una relazione lineare* sono REGOLE insegnate (`sum_list`, `drop_odds`, `product/factor`, `catch_up` in `kb/core/procedures.p0`), non un consumer C. `is`,`lt`,`le`,`gt`,`ge`,`eq`,`ne` sono nomi **riservati** (come `chars`/`naf`): non ricadono mai nella KB. È l'abilitatore di [[teachable-procedures]] per il calcolo reale. Codice: `eval_num` + il dispatch in `solve` (`src/kb.c`) |
 | Cut / control | ❌ | nessun `!` |
-| Aritmetica *nativa* (`is/2`) nelle clausole | ❌ | i numeri restano atomi; per calcolare si usa Peano/strutture (U3) o i moduli `brain/*` (wordmath) |
+
+Tre invarianti del resolver sono protetti da
+`tests/p0t/reasoning/sequential_view.p0t` (gen396):
+
+- un goal e' antenato soltanto mentre il suo corpo e' aperto; un congiunto
+  fratello puo' interrogare di nuovo la stessa vista ground senza essere
+  scambiato per ricorsione;
+- prima di `naf/1`, le variabili vengono risolte ricorsivamente anche dentro
+  termini composti come `cons($X, ...)`; un termine con variabili annidate non e'
+  ground e deve flounder;
+- un fatto non-ground e' una unit clause: le sue variabili vengono
+  standardizzate a parte a ogni invocazione, come quelle di una regola con body.
 
 **Prova viva** (via `--mcp-engine`, con le clausole del §1 in un `.p0`):
 

@@ -562,6 +562,7 @@ tr(thousand, mille).
 % GEOGRAPHY and COUNTRIES (all category_member(country, X) entries)
 % ============================================================
 tr(italy, italia).
+tr(italian, italiano).
 tr(france, francia).
 tr(spain, spagna).
 tr(germany, germania).

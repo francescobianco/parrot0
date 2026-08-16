@@ -27,6 +27,19 @@ esso include.
 
 ## 2. Stato corrente da superare
 
+L'interfaccia corrente accetta sia la variabile d'ambiente sia la forma CLI:
+
+```text
+PARROT0_PROFILE=kb/profiles/agi.p0 ./bin/parrot0
+./bin/parrot0 --profile kb/profiles/agi.p0
+./bin/parrot0 --profile=kb/profiles/agi.p0
+```
+
+Quando entrambe sono presenti, `--profile` prevale. Questo rende esplicita la
+radice scelta dal chiamante ma non completa ancora l'architettura obiettivo:
+oggi il boot nominale carica prima il core e usa il profilo come strato
+additivo, come descritto qui sotto.
+
 Oggi il caricamento e' diviso in due fasi e la composizione principale vive nel
 C:
 

@@ -1,0 +1,47 @@
+# SEQUENTIAL DERIVED VIEWS — finishing one conjunct closes its inference scope.
+# Reusing the same ground view in the next conjunct is sequencing, not recursion.
+
+[mock hermetic]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=
+!set PARROT0_WORLD_FACTS=0
+!set PARROT0_LANG=en
+!reset
+
+!assert scope_seed(k, ready)
+!clause scope_view($X) :- scope_seed($X, ready)
+!clause scope_pair($X, ok) :- scope_view($X), scope_view($X)
+!assert answer_frame("scope pair", scope_pair)
+
+[test a completed sibling view is not mistaken for an open recursive call]
+> what is the scope pair for k
+< Ok.
+
+# A variable nested inside an argument-list term must inherit the caller's
+# binding before naf/1 opens its isolated proof.  Otherwise the nested $X turns
+# existential and one unrelated pair makes every requested pair look present.
+!assert pair_seed(kalpha, z)
+!assert missing_pair_target(k, kbeta)
+!assert present_pair_target(k, kalpha)
+!clause missing_pair_result($Key, absent) :- missing_pair_target($Key, $X), naf(apply(pair_seed, cons($X, cons(z, nil))))
+!clause present_pair_result($Key, absent) :- present_pair_target($Key, $X), naf(apply(pair_seed, cons($X, cons(z, nil))))
+!assert answer_frame("missing pair result", missing_pair_result)
+!assert answer_frame("present pair result", present_pair_result)
+
+[test naf grounds variables recursively inside compound arguments]
+> what is the missing pair result for k
+< Absent.
+> what is the present pair result for k
+<! Absent.
+
+# A body-less clause containing variables is still a Prolog clause: each use
+# needs fresh variables.  Reusing one stored $X across sibling goals would turn
+# an open class into accidental equality between the two values.
+!assert wildcard_kind($X, any)
+!clause wildcard_pair(k, ready) :- wildcard_kind(alpha, any), wildcard_kind(beta, any)
+!assert answer_frame("wildcard pair", wildcard_pair)
+
+[test variables in unit clauses are standardized apart on every use]
+> what is the wildcard pair for k
+< Ready.

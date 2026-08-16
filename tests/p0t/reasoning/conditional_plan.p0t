@@ -1,0 +1,93 @@
+# CONDITIONAL ANSWER PLAN — one turn carries a proposition and two executable
+# reply branches.  The surface "is in" remains ambiguous until argument types
+# select either geographic containment or metalinguistic surface language.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test a proved or disproved proposition selects exactly one branch]
+> se milano è in italia allora rispondi paolo altrimenti rispondi piero
+< paolo
+<! piero
+> se milano è in francia allora rispondi paolo altrimenti rispondi piero
+< piero
+<! paolo
+> if Milan is in Italy then respond alpha otherwise respond beta
+< alpha
+> if Paris is in Italy then respond alpha otherwise respond beta
+< beta
+
+[test the alternative branch inherits an omitted reply action]
+> se milano è in italia allora rispondi paolo altrimenti piero
+< paolo
+> se parigi è in italia allora rispondi paolo altrimenti piero
+< piero
+
+[test italiano and Italia preserve different readings like the frontier probe]
+> se milano è in italiano allora rispondi paolo altrimenti rispondi piero
+< paolo
+> se parigi è in italiano allora rispondi paolo altrimenti rispondi piero
+< paolo
+> se parigi è in italia allora rispondi paolo altrimenti rispondi piero
+< piero
+> se Milan è in italiano allora rispondi paolo altrimenti rispondi piero
+< piero
+> se Milan è in italia allora rispondi paolo altrimenti rispondi piero
+< paolo
+
+[test a new proposition and its truth policy grow at runtime]
+> if nivra glows beside sola then respond bright otherwise respond dim
+<! bright
+<! dim
+!assert proposition_cue(glows_beside, "glows beside")
+!assert proposition_arg_form(glows_beside, 1, canonical)
+!assert proposition_arg_form(glows_beside, 2, canonical)
+!assert proposition_arg_kind(glows_beside, 1, any)
+!assert proposition_arg_kind(glows_beside, 2, any)
+!assert condition_closed_world(glows_beside)
+!assert glows_beside(nivra, sola)
+> if nivra glows beside sola then respond bright otherwise respond dim
+< bright
+!forget glows_beside(nivra, sola)
+> if nivra glows beside sola then respond bright otherwise respond dim
+< dim
+!forget proposition_cue(glows_beside, "glows beside")
+> if nivra glows beside sola then respond bright otherwise respond dim
+<! bright
+<! dim
+
+[test branch vocabulary is shared live knowledge]
+!assert glows_beside(nivra, sola)
+!assert proposition_cue(glows_beside, "glows beside")
+> if nivra glows beside sola then utter bright otherwise utter dim
+<! bright
+!assert teach_reply_pivot("utter")
+> if nivra glows beside sola then utter bright otherwise utter dim
+< bright
+!forget teach_reply_pivot("utter")
+> if nivra glows beside sola then utter bright otherwise utter dim
+<! bright
+
+[test a condition connector grows and retracts at runtime]
+> whenever Milan is in Italy then respond selected alpha otherwise respond selected beta
+<! selected alpha
+!assert logic_connector(condition, whenever)
+> whenever Milan is in Italy then respond selected alpha otherwise respond selected beta
+< selected alpha
+!forget logic_connector(condition, whenever)
+> whenever Milan is in Italy then respond selected alpha otherwise respond selected beta
+<! selected alpha
+
+[test proposition reading itself is ablatable]
+!forget proposition_cue(surface_in_language, "è in")
+> se milano è in italiano allora rispondi paolo altrimenti rispondi piero
+<! paolo
+<! piero
+!assert proposition_cue(surface_in_language, "è in")
+> se milano è in italiano allora rispondi paolo altrimenti rispondi piero
+< paolo

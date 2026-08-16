@@ -235,6 +235,10 @@ response_template(inferred_attribute_from_phrase, "It's {value}.").
 response_template(inferred_attribute_from_phrase, it, "È {value}.").
 response_template(code_state_unknown, en, "I read it as code, but I cannot derive a final value for {variable} from those statements.").
 response_template(code_state_unknown, it, "Lo leggo come codice, ma da quegli statement non riesco a ricavare un valore finale per {variable}.").
+response_template(conditional_plan_gap, en, "I can see the conditional plan, but I cannot verify its condition from the KB.").
+response_template(conditional_plan_gap, it, "Vedo il piano condizionale, ma non riesco a verificarne la condizione dalla KB.").
+response_template(conditional_plan_ambiguous, en, "The condition has incompatible readings, so I cannot choose a branch safely.").
+response_template(conditional_plan_ambiguous, it, "La condizione ha letture incompatibili, quindi non posso scegliere un ramo in modo sicuro.").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.
 % Honest: they keep the conversation going (acknowledge + open question) and never

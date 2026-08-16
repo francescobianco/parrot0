@@ -58,8 +58,12 @@ administrative_capital($Capital, $Country) :- capital_of_country($Country, $Capi
 administrative_capital($Capital, $State) :- capital_of_state($State, $Capital).
 administrative_capital($Capital, $Region) :- capital_of_region($Region, $Capital).
 located_in($Capital, $Area) :- administrative_capital($Capital, $Area).
+located_in_t($X, $Z) :- located_in($X, $Z).
 located_in_t($X, $Z) :- located_in($X, $Y), located_in($Y, $Z).
 located_in_t($X, $Z) :- located_in($X, $Y), located_in_t($Y, $Z).
+located_in_t($Capital, $Region) :- capital_of_region($Region, $Capital).
+located_in_t($Region, $Country) :- region_of_country($Region, $Country).
+located_in_t($Capital, $Country) :- capital_of_region($Region, $Capital), region_of_country($Region, $Country).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of_t($Y, $Z).
 same_category($X, $Y) :- category_member($C, $X), category_member($C, $Y).
@@ -941,6 +945,7 @@ machinery(sides).
 :- include(dialogue-frames.p0).
 :- include(dialogue-policy.p0).
 :- include(context-scope.p0).
+:- include(conditional-plans.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 

@@ -1,6 +1,154 @@
 # Knowledge Base TODO
 
-## Fronte attivo: gen395, contesti e scope concorrenti
+## HANDOFF operativo — 2026-08-16
+
+### Missione e criteri non negoziabili
+
+L'obiettivo non e' accumulare risposte speciali, ma portare parrot0 verso il
+comportamento osservabile di un LLM di frontiera tramite una KB viva: capire
+input naturali, mantenere letture alternative, ragionare, scegliere contenuto e
+registro della risposta e attraversare senza cesure il confine fra linguaggio
+naturale e codice. La domanda di revisione resta: **un nuovo membro della classe
+puo' essere insegnato o ritratto a runtime senza ricompilare?**
+
+Vincoli di ripartenza:
+
+- leggere prima `MANTRA.md`, `PRINCIPLES.md` e la parte finale di
+  `docs/plans/question-emergence.md`;
+- KB-first per vocabolario, segmentazione semantica, letture, policy, answer
+  plan e realizzazione; il C puo' fornire solo meccaniche generali;
+- niente MCP salvo richiesta esplicita;
+- test conversazionali in `.p0t`; durante il TDD preferire `make soft-test`;
+- non aggiungere parser C per una costruzione linguistica e non trasformare un
+  limite di inferenza in un aumento permanente dei timeout;
+- profili e layout su disco determinano la vita della KB in memoria, non sono
+  soltanto strumenti di navigazione per umani.
+
+### Stato esatto del taglio gen396
+
+Questo handoff descrive un unico taglio coerente; il commit che contiene il
+documento e' il punto da cui ripartire:
+
+- `src/brain/99-registry.c` pubblica ogni turno come memoria di lavoro
+  `turn_span/4`, `turn_span_surface/3` e `turn_span_cue/3`; poi interroga il
+  protocollo KB generico `turn_plan_candidate(current_turn)` /
+  `turn_response(current_turn, Reply)`. Il C non conosce `se`, `allora`,
+  `altrimenti`, `if`, `then` o `else`;
+- `kb/core/conditional-plans.p0` costruisce letture, proposizioni, verita', rami
+  espliciti o ellittici e risposta. Cue, predicati leggibili, verbi di risposta
+  e policy del falso sono tutti fatti retraibili/estensibili;
+- `kb/core/procedures.p0` offre la vista spaziale transitiva e i ponti
+  amministrativi necessari a valutare fatti come Milano in Lombardia in
+  Italia; `gloss.p0`, `grammar.p0`, `intents.p0`, `responses.p0` e `input.p0`
+  forniscono lessico, classi, realizzazione e metadati, non rami speciali nel C;
+- `tests/p0t/reasoning/conditional_plan.p0t` contiene 28 ratchet, compresi cue,
+  verbo, proposizione e connettore insegnati a runtime, retract e ramo
+  ellittico;
+- `src/kb.c` corregge tre difetti generali emersi dal piano: scope degli
+  antenati fra goal fratelli, grounding profondo sotto `naf/1` e `apply/2`, e
+  standardize-apart delle unit clause non-ground. Il test generico
+  `tests/p0t/reasoning/sequential_view.p0t` li copre con 4 prove;
+- `src/code.c` conserva nel segmento l'evidenza esatta restituita dalla KB. Il
+  prossimo passo non e' aggiungere altre euristiche di codice, ma proiettare
+  statement, stato, effetto e domanda nello stesso piano universale;
+- `src/main.c` accetta `--profile FILE.p0` e `--profile=FILE.p0`; la CLI prevale
+  su `PARROT0_PROFILE`. E' ancora un selettore additivo, non il boot finale con
+  un solo entrypoint curato;
+- `VERSION` identifica il lavoro come `gen396-universal-answer-plan` e i nuovi
+  `.p0t` sono collegati al `Makefile`.
+
+### Evidenza semantica da non perdere
+
+La sonda frontier ha mostrato che `Italia` e `italiano` non vanno trattati come
+una correzione ortografica cieca. Il comportamento di riferimento distingue:
+
+- Milano in Italia: vero;
+- Milano in italiano: vero come lettura della superficie italiana;
+- Parigi in Italia: falso, ma Parigi in italiano: vero;
+- Milan in Italia: vero, ma Milan in italiano: falso;
+- «Milano e' in italiano ma non in Italia»: falso.
+
+Per questo il piano conserva almeno le letture concorrenti
+`located_in_t/2` e `surface_in_language/2`. La naturalita' nasce dalla scelta
+motivata fra letture, non dalla sostituzione anticipata della parola.
+
+### Cerotto temporaneo e stato delle verifiche
+
+`tests/p0t/code/code_state.p0t` assegna **solo al caso negativo** «`i++; what is
+i`» un timeout locale di 2 secondi e ripristina subito il default di 1 secondo.
+Sul commit pulito `00af008` lo stesso caso impiega circa 1,46 secondi e fallisce
+alla stessa soglia: non e' una regressione introdotta da gen396. Il timeout e'
+autorizzato come cerotto di handoff, non come soluzione e non modifica il budget
+globale `SOFT_BUDGET=15`.
+
+Verifica effettiva dell'handoff:
+
+- compilazione e `git diff --check`: verdi;
+- `code_state.p0t`: 9/9 dentro `make soft-test`, compreso il caso coperto dal
+  timeout locale;
+- `sequential_view.p0t`: 4/4 dentro `make soft-test`;
+- `conditional_plan.p0t`: 28/28 quando eseguito da solo su un demone fresco;
+- `make soft-test`: **rosso e riprodotto due volte**. Tutti i file precedenti
+  passano, poi il primo stimolo di `conditional_plan.p0t` risponde «Non capisco
+  ancora.»; lo stesso file termina 27/28. Non e' uno sforamento segnalato dal
+  test engine e il timeout non va esteso per coprirlo: e' un difetto dipendente
+  dall'ordine o dall'isolamento del reload ancora da localizzare;
+- `parrot0 --help`, precedenza CLI del profilo e diagnostica dell'argomento
+  mancante erano gia' verdi prima dell'ultima esecuzione del gate.
+
+### Sequenza precisa di ripartenza
+
+1. Riprodurre prima il rosso order-dependent di `make soft-test`, quindi fare
+   bisezione sui file che precedono `conditional_plan.p0t` usando lo stesso
+   demone. Verificare reset, origin/layer della memoria riflessiva e ogni stato
+   statico del solver. Non correggerlo riordinando la suite o alzando timeout.
+   Se emerge invece un costo, profilare la relazione o il goal responsabile:
+   non alzare `SOFT_BUDGET` e non moltiplicare i timeout locali.
+2. Chiudere il taglio soltanto dopo aver verificato che non siano rimasti flag
+   diagnostici, letterali linguistici nel nuovo C o modifiche estranee; quindi
+   registrare qui test, commit e push.
+3. Continuare gen396 sul caso guida codice + domanda. Dal turno universale
+   derivare in KB oggetti come `statement`, `state_before`, `effect`,
+   `state_after`, `query`, `expected` e `constraint`; riusare l'evaluatore come
+   meccanica fissa, non come router dialogico.
+4. Separare `answer_content` proposizionale da realizzazione, persona, lingua,
+   formalita', densita' e stile. `register(code(c))` descrive una lettura e non
+   puo' consumare da solo un'obbligazione di risposta.
+5. Portare il producer NL -> frame e NL -> contesto fino alle strutture gia'
+   introdotte in gen393/gen395; oggi diversi test materializzano ancora il frame
+   o lo scope direttamente.
+6. Proseguire gen397 con memoria discorsiva, referenti, correzioni e continuita'
+   dei piani; poi misurare gli stessi stimoli contro un modello frontier con
+   rubriche empiriche, non per somiglianza di stringa.
+7. Tenere separato il filo di residenza: implementare profilo come unico
+   entrypoint, include idempotente, `file_attribute/1`, `file_layer/1` e
+   `lazy_load` con OR/AND solo dopo avere chiuso il contratto e i test del grafo.
+
+### Debiti e trappole note
+
+- Gli span copiati nei termini sono limitati da `KB_TERM_LEN` (512). Gli offset
+  raw restano disponibili, ma sorgenti lunghe richiederanno riferimenti/eventi
+  semantici, non la copia integrale del codice dentro un atomo Prolog.
+- `turn_response` e' interrogata con una sola risposta; la concorrenza fra piu'
+  answer plan dovra' diventare ranking/policy KB esplicita.
+- Il vecchio sintomo di costo/nondeterminismo descritto in
+  `question-emergence.md` non va dichiarato interamente risolto dai tre fix del
+  solver: sono invarianti generici provati, non una certificazione globale.
+- `kb/savemap.tsv` non e' una cache letta dal runtime. E' output derivato; il
+  routing futuro deve usare provenienza e doppio indice in memoria.
+- Il caricamento differenziale sparso nei moduli C e i loro flag `loaded`
+  restano debito: non vanno replicati nel nuovo disegno dei profili.
+- Non reintrodurre un parser condizionale in C, non comprimere
+  Italia/italiano in una sola lettura, non usare una risposta golden come unica
+  prova KB-first e non coinvolgere MCP in questo filo.
+
+File guida: `docs/plans/frontier-kb-natural-dialogue.md`,
+`docs/plans/question-emergence.md`, `docs/plans/universal-input.md`,
+`docs/kb-loading-and-profiles.md`, `docs/prolog-like-engine.md`,
+`kb/core/conditional-plans.p0`, `tests/p0t/reasoning/conditional_plan.p0t` e
+`tests/p0t/reasoning/sequential_view.p0t`.
+
+## Fronte attivo: gen396, memoria di lavoro e answer plan universale
 
 Il piano operativo e' in
 [`docs/plans/frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md),
@@ -10,6 +158,33 @@ generazioni consecutive elevano forme linguistiche, denotazione contestuale,
 letture e gap, policy dialogica, scope, registro/answer plan e memoria
 discorsiva. Le clausole future nel piano sono esempi guida, non capacita'
 gia' rivendicate.
+
+Il primo taglio gen396 e' ora operativo. `input_segment` continua a fare soltanto
+meccanica di byte e scoring; l'evidenza esatta di ogni confine viene reificata
+come `turn_span/4`, `turn_span_cue/3` e `turn_span_surface/3`. La KB
+`conditional-plans.p0` compone da queste viste letture tipate, verita', policy
+del falso, rami ed ellissi. `Italia` e `italiano` restano predicati diversi
+(`located_in_t` e `surface_in_language`), come richiesto dalla sonda frontier.
+
+Il ratchet `.p0t` prova 28 casi, inclusi un predicato e un connettore inventati,
+un verbo di ramo insegnato, retract delle cue e l'ellissi «altrimenti Piero».
+Non sono stati aggiunti parser condizionali in C. Il solo timeout cambiato e' il
+cerotto locale e documentato del test negativo `code_state.p0t`; non riguarda
+il piano condizionale e non altera il budget della suite.
+Tre regressioni generiche del solver proteggono: scope degli antenati fra
+congiunti fratelli, grounding ricorsivo dei termini sotto `naf/1` e
+standardize-apart delle unit clause non-ground.
+
+Questo non chiude gen396. Il prossimo task e' proiettare sullo stesso piano gli
+span di codice: statement, stato prima/dopo, effetto, query, expected e
+constraint. `register(code(c))` e' soltanto un'osservazione; non puo' consumare
+una domanda ancora aperta. Dopo quel taglio vengono answer content
+proposizionale e registro multidimensionale, poi la memoria discorsiva gen397.
+
+La CLI accetta ora `--profile FILE.p0` (anche `--profile=FILE.p0`) e la scelta
+esplicita prevale su `PARROT0_PROFILE`. Nel boot corrente il profilo resta ancora
+additivo: questo rende utilizzabile l'entrypoint senza fingere completata la
+migrazione al singolo grafo curato descritta in `docs/kb-loading-and-profiles.md`.
 
 La parte linguistica di gen391 e' promossa nel commit `be3cedf`: viste
 bidirezionali delle forme, status e alternative crescono per assert/retract;

@@ -1066,11 +1066,11 @@ static void resolve_goal(const Term *g, const Subst *s, Term *out) {
     strcpy(out->pred, g->pred);
     out->argc = g->argc;
     for (size_t i = 0; i < g->argc; i++)
-        snprintf(out->args[i], KB_TERM_LEN, "%s", resolve(s, g->args[i]));
+        deep_resolve(s, g->args[i], out->args[i], KB_TERM_LEN, 0);
 }
 static int goal_ground(const Term *g) {
     for (size_t i = 0; i < g->argc; i++)
-        if (is_var(g->args[i])) return 0;
+        if (term_contains_var(g->args[i], 0)) return 0;
     return 1;
 }
 /* Is the (ground) goal provable now? A fresh boolean solve, depth-guarded.
@@ -1321,6 +1321,20 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                        const Subst *s, int depth, SolveFrame *scratch) {
 
     const Term *g = &goals[idx];
+
+    /* A rule body and its caller continuation share one flattened resolvent so
+     * substitutions can flow through them.  The ancestor set must not share
+     * that flattening: once the body has succeeded, the expanded goal is no
+     * longer open and a sibling continuation may legitimately ask the same
+     * ground view again.  This internal marker closes that logical scope before
+     * continuing, then restores it while backtracking unwinds to the owner. */
+    if (strcmp(g->pred, "__end_inference_scope") == 0 && g->argc == 0) {
+        if (S->nanc == 0) return 0;            /* malformed internal resolvent */
+        uint64_t closed = S->anc[--S->nanc];
+        int ok = solve(S, goals, ngoals, idx + 1, s, depth);
+        S->anc[S->nanc++] = closed;
+        return ok;
+    }
 
     if (g->neg) {                              /* U6: negation-as-failure */
         Term gg;
@@ -1617,9 +1631,30 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
      * the whole KB at every resolution step. */
     PredBucket gbk = pred_bucket(S->kb, g->pred);
     for (size_t vi = 0; vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
+        const Fact *f = &S->kb->facts[PRED_AT(gbk, vi)];
         Subst *s2 = &scratch->subst;
         *s2 = *s;
-        if (unify_term_fact(s2, g, &S->kb->facts[PRED_AT(gbk, vi)])) {
+        int nonground = 0;
+        for (size_t a = 0; a < f->argc && !nonground; a++)
+            nonground = term_contains_var(f->args[a], 0);
+        int matched = 0;
+        if (!nonground) {
+            matched = unify_term_fact(s2, g, f);
+        } else {
+            /* A fact containing variables is a unit clause, not a mutable
+             * global substitution.  Its variables are fresh on every use just
+             * like those in an ordinary rule (standardize-apart). */
+            Term unit, renamed;
+            memset(&unit, 0, sizeof unit);
+            snprintf(unit.pred, sizeof unit.pred, "%s", f->pred);
+            unit.argc = f->argc;
+            for (size_t a = 0; a < f->argc; a++)
+                snprintf(unit.args[a], sizeof unit.args[a], "%s", f->args[a]);
+            int anon = 0;
+            rename_term(&unit, ++S->frame, &anon, &renamed);
+            matched = unify_term_term(s2, g, &renamed);
+        }
+        if (matched) {
             if (solve(S, goals, ngoals, idx + 1, s2, depth)) return 1;
         }
     }
@@ -1637,19 +1672,6 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         Subst *s2 = &scratch->subst;
         *s2 = *s;
         if (!unify_term_term(s2, g, &rhead)) continue;
-
-        Term *ng = scratch->goals;
-        size_t m = 0;
-        int overflow = 0;
-        for (size_t b = 0; b < R->nbody; b++) {
-            if (m >= KB_MAX_GOALS) { overflow = 1; break; }
-            rename_term(&R->body[b], fr, &anon, &ng[m++]);
-        }
-        for (size_t k = idx + 1; k < ngoals && !overflow; k++) {
-            if (m >= KB_MAX_GOALS) { overflow = 1; break; }
-            ng[m++] = goals[k];
-        }
-        if (overflow) continue;
 
         /* gen382 — the loop check. Before descending into this rule, note the
          * goal it is expanding. If that exact GROUND goal is already open above
@@ -1672,6 +1694,31 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
                 S->anc[S->nanc++] = h;
                 pushed = 1;
             }
+        }
+
+        Term *ng = scratch->goals;
+        size_t m = 0;
+        int overflow = 0;
+        for (size_t b = 0; b < R->nbody; b++) {
+            if (m >= KB_MAX_GOALS) { overflow = 1; break; }
+            rename_term(&R->body[b], fr, &anon, &ng[m++]);
+        }
+        if (pushed && !overflow) {
+            if (m >= KB_MAX_GOALS) overflow = 1;
+            else {
+                memset(&ng[m], 0, sizeof ng[m]);
+                snprintf(ng[m].pred, sizeof ng[m].pred,
+                         "%s", "__end_inference_scope");
+                m++;
+            }
+        }
+        for (size_t k = idx + 1; k < ngoals && !overflow; k++) {
+            if (m >= KB_MAX_GOALS) { overflow = 1; break; }
+            ng[m++] = goals[k];
+        }
+        if (overflow) {
+            if (pushed) S->nanc--;
+            continue;
         }
         int ok = solve(S, ng, m, 0, s2, depth + 1);
         if (pushed) S->nanc--;
