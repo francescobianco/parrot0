@@ -382,57 +382,126 @@ router dovra' usare la provenienza fisica della registry con due indici:
 casa e' univoca. L'attuale fallback "ultimo file con lo stesso predicato" e'
 dipendente dall'ordine di scansione e non va trasferito tale e quale in hashmap.
 
-## Il muro costa 0,9s, e la misura dice DOVE (gen396)
+## ⛔ PRIORITA': `mod_answer_frame` costa 0,74s per turno e su un muro non serve
 
-Misurato, non supposto. Con il profilo AGI un turno che non sa rispondere —
-`cosa è un flimbo`, `i++; what is i` — costa ~0,95s, cioè al bordo del contratto
-di 1s. La ripartizione:
+*Misurato a gen396, 17 agosto 2026. Non e' una micro-ottimizzazione: e' il
+contratto di §10 del piano frontier — un turno ordinario sta sotto il secondo
+anche col profilo AGI — e oggi lo consuma quasi tutto un solo modulo.*
+
+### Il fatto
+
+Turno che non sa rispondere (`cosa è un flimbo`, `i++; what is i`), profilo AGI,
+27k fatti / 1626 regole:
 
 ```text
-tutto cio' che precede il registry   ~0,06s
-mod_answer_frame                     ~0,83s   <-- qui
-mod_learn (che poi risponde)         ~0,01s
-scansione del topic post-dispatch    ~0,005s
+turno completo                  0,95s   (0,95 / 0,97 / 0,85)
+con mod_answer_frame ablato     0,14s   (0,15 / 0,14 / 0,14)
 ```
 
-Dentro `mod_answer_frame` le `answer_projection_resolve` costano 9ms in tutto
-(sei chiamate, due per relazione: un memo per turno le dimezzerebbe, ma non e' il
-problema). Il resto sta nel prodotto cue x predicato del ciclo su
-`answer_frame/2`. **Il costo cresce con la KB**: le 46 voci di
-`facts/foundations.p0` hanno portato quel modulo da 0,70s a 0,86s, +22%.
+**La risposta e' IDENTICA nei due casi** — «Su flimbo non so ancora molto. Vuoi
+che cerchi?» Quindi su questa classe di turni il modulo spende l'85% del budget e
+non contribuisce nulla.
 
-Vicoli ciechi gia' battuti, per non ripeterli:
+Ripartizione interna, cronometrata sul posto:
 
-- **non e' `kb_nearest_concept`.** Sembrava il colpevole (scansiona OGNI fatto
-  quotato, tokenizza fino a 96 token da 512 byte per fatto), ma su questo turno
-  non viene nemmeno chiamato — verificato con una stampa all'ingresso.
-- **la firma a 4 caratteri non basta da sola.** `word_sim/2` e' uguaglianza
-  oppure prefisso comune di 4 caratteri, quindi i primi 4 byte impacchettati sono
-  una condizione NECESSARIA e permettono di rifiutare con un confronto intero.
-  Scritta e misurata su un turno che usa davvero quella scansione («the organ
-  that pumps blood»): 3,05-3,17s prima, 3,20-3,36s dopo. Nessun guadagno, quindi
-  **non e' stata committata**. Una prova deve poter fallire, anche quando la
-  prova e' un benchmark.
-- **gprof non attribuisce questo carico.** Con `-pg` (sia `-O2` sia `-O0`) il
-  profilo piatto totalizza 0,1s su turni che ne costano 3,6: i campioni non
-  raggiungono il cammino caldo. `perf` e' bloccato da `perf_event_paranoid`. Lo
-  strumento che ha funzionato e' il cronometro per fase e per modulo dentro
-  `brain_respond_dispatch`.
+```text
+guardie (border_intersection + 11 compound_guard)   0,0006s
+kb_match_all(answer_frame, ?, ?) -> 215 righe       0,0001s
+ciclo sulle cue                                     0,7407s   <-- tutto qui
+```
 
-Il prossimo passo utile e' quindi dentro `mod_answer_frame`: indicizzare le cue
-per token invece di provarle tutte, e memoizzare per turno la coppia
-(relazione, superficie). La `lazy_load` del filo di residenza aiuta il boot e la
-memoria, non questo turno: qui la conoscenza pertinente e' gia' residente ed e'
-il ciclo a essere quadratico nella KB.
+### Perche' e' un problema da gestire, non da annotare
+
+1. **Cresce con la conoscenza.** Le 46 voci di `facts/foundations.p0` hanno
+   portato il modulo da 0,70s a 0,86s (+22%). Insegnare una superficie nuova
+   rende piu' lento OGNI muro: e' esattamente «la KB cresce e un turno rallenta»,
+   il fallimento che un sistema KB-first non puo' avere.
+2. **Colpisce il caso peggiore.** `mod_answer_frame` sta in fondo al registry,
+   quindi gira per intero proprio sui turni che nessuno rivendica — quelli in cui
+   l'utente sta gia' aspettando per sentirsi dire che non si sa.
+3. **Sta gia' rompendo il ratchet.** `code_state.p0t` e `code_state_plan.p0t`
+   hanno turni negativi che oscillano fra 0,93s e 1,06s: verdi o rossi a seconda
+   del carico. Alzare quei `!timeout` e' vietato (MANTRA), quindi il difetto va
+   corretto o i casi vanno tolti — e toglierli perde copertura vera.
+
+### Dove NON e', misurato (non ripercorrere)
+
+- **non e' `kb_nearest_concept`.** Sembra il colpevole ideale (scansiona ogni
+  fatto quotato, tokenizza fino a 96 token da 512 byte l'uno), ma su questo turno
+  non viene proprio chiamata — verificato con una stampa all'ingresso.
+- **non sono le guardie.** 0,6ms. L'ablazione con `P0DBG_NOGUARD` non cambia
+  niente.
+- **non e' l'enumerazione delle cue.** `kb_match_all(answer_frame, ?, ?)` rende
+  215 righe in 0,1ms; `answer_frame/2` non ha regole in testa, quindi prende il
+  cammino veloce sui fatti.
+- **non sono le `answer_projection_resolve`.** Sei chiamate, 9ms in tutto. Un
+  memo per turno le dimezzerebbe e non si vedrebbe.
+- **non e' il `kb_match` interno.** Per `what is a flimbo` una sola cue matcha
+  (`what is`) con 3 predicati: 3 x 2 passi x 4 parole x 2 versi = **48**
+  `kb_match`. Quarantotto.
+
+Quindi: il ciclo scorre 215 cue, ne trova UNA applicabile, fa 48 lookup — e costa
+0,74s. **Il costo non e' nel lavoro utile.** L'ipotesi da falsificare per prima e'
+il test `cue(norm, cd)` ripetuto 215 volte insieme all'ordinamento per
+specificita' (che dequota ogni riga a ogni confronto dell'insertion sort, cioe'
+O(n^2) `kb_dequote` su buffer da 512 byte), piu' cio' che il ciclo chiama prima di
+scartare una cue.
+
+### Come si fa il profiling qui (l'unico metodo che ha funzionato)
+
+Due strumenti sono inutili su questo codice, e scoprirlo costa un'ora:
+
+- **`gprof` non attribuisce questo carico.** Con `-pg`, sia `-O2` sia `-O0`, il
+  profilo piatto totalizza 0,1s su turni che ne costano 3,6. I campioni non
+  arrivano al cammino caldo.
+- **`perf` e' bloccato** da `kernel.perf_event_paranoid` su questa macchina.
+
+Quello che funziona, in ordine:
+
+1. **Ablazione binaria con una variabile d'ambiente.** Un `if (getenv("P0DBG_X"))
+   return 0;` in cima al modulo sospetto, poi si confronta il tempo E LA RISPOSTA:
+   se la risposta non cambia, il modulo e' costo puro.
+   ```sh
+   for i in 1 2 3; do PARROT0_PROFILE=kb/profiles/agi.p0 PARROT0_WORLD_FACTS=1 \
+     PARROT0_LANG=it /usr/bin/time -f "%U" ./bin/parrot0 < turno.txt 2>&1 >/dev/null | tail -1
+   done
+   ```
+   **Sempre tre ripetizioni**: su questa macchina il rumore e' ±0,2s, e una misura
+   singola mente. Un `git stash -u` fra le due misure isola la conoscenza dal
+   codice.
+2. **Cronometro per fase dentro la funzione** (`GTOCK("tag")` con
+   `timespec_get`), stampato su stderr. E' cio' che ha separato guardie /
+   enumerazione / ciclo. Attenzione: **i gate a stadi (`P0DBG_STOP<=n`) hanno dato
+   risultati incoerenti** — un gate che sembra applicato ma non compila produce
+   una bisezione falsa. Fai stampare al gate una riga che ne prova la presenza.
+3. **Cronometro per modulo nel registry** (`registry[i].handle` avvolto da
+   `timespec_get`) per trovare CHI, prima di cercare DOVE.
+4. **`PARROT0_TE_SLOW=0.05`** sul demone (non sul client: la variabile la legge
+   `--test-engine`, e l'output va in `obj/test-engine.log`) per vedere i turni
+   lenti dentro la suite senza alzare nessun budget.
+5. **Il demone e' STANTIO** finche' non rifai `make test-engine`. Piu' di una
+   misura sbagliata e' venuta da li'.
+
+### Una prova deve poter fallire, anche quando e' un benchmark
+
+`word_sim/2` e' uguaglianza oppure prefisso comune di 4 caratteri, quindi i primi
+4 byte impacchettati sono una condizione NECESSARIA: si puo' rifiutare quasi ogni
+coppia con un confronto intero, senza materializzare token. Scritta, corretta,
+misurata su un turno che usa davvero quella scansione («the organ that pumps
+blood»): **3,05-3,17s prima, 3,20-3,36s dopo**. Nessun guadagno, quindi **non e'
+stata committata**. Il ragionamento era giusto e il bersaglio sbagliato.
 
 ### Debiti minori misurati nello stesso giro
 
 - **accordo di numero:** «Ho estratto 1 fatti». `{count}` riempie una forma
-  plurale fissa. Serve una selezione della forma per numero come CONOSCENZA
-  (`plural_form/3` o un `response_template` scelto dal conteggio), non un ramo in
-  C.
+  plurale fissa. La selezione della forma per numero va fatta come CONOSCENZA
+  (`plural_form/3`, o un `response_template` scelto dal conteggio), non come ramo
+  in C.
 - **soggetto duplicato:** «blockchain is A blockchain is an append-only...». Il
   frame inglese antepone il soggetto a una glossa che ne ha gia' uno.
+- **`make soft-test` e' a 21-22s su un budget di 15.** Misurato in un worktree
+  pulito, HEAD~1 era gia' a 20,3s: e' carico ambientale, non regressione. Ma il
+  margine e' sparito, e il difetto qui sopra e' il motivo per cui non torna.
 
 ## Popular wisdom and proverbs
 
