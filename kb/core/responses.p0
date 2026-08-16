@@ -388,6 +388,17 @@ response_template(self_identity_exists, it, "Sì, sono {name}.").
 response_template(self_identity_unknown, "I don't know what I am.").
 response_template(self_identity_unknown, it, "Non so cosa sono.").
 
+% gen385 — la riparazione si PROPONE, non si applica. E' la quinta mossa che la
+% sonda all'oracolo ha isolato (question-emergence.md §13.3), e la piu' facile da
+% perdere: una riparazione silenziosa che sbaglia e' indistinguibile da una
+% comprensione sbagliata.
+response_template(spell_repair_one, "I think you mean {guess}: {spelled} is not a word I know.").
+response_template(spell_repair_one, it, "Credo tu intenda {guess}: {spelled} non e' una parola che conosco.").
+response_template(spell_repair_many, "That is not a word I know. Did you mean one of: {guesses}?").
+response_template(spell_repair_many, it, "Non e' una parola che conosco. Forse intendevi: {guesses}?").
+response_template(spell_unknown_word, "As written it is {spelled}, but {word} is not a word I know.").
+response_template(spell_unknown_word, it, "Cosi' com'e' si scrive {spelled}, ma {word} non e' una parola che conosco.").
+
 response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want me to learn about it?").
 response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").

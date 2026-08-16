@@ -2487,6 +2487,71 @@ static int mod_sequence(Brain *b, const char *norm, const char *raw,
 /* gen231 (LLMSCORE): spell a word letter by letter — "spell necessary" ->
  * "n-e-c-e-s-s-a-r-y". A structural lexical capability (the word is the data, not a
  * stored list); spells the last real word after the cue. Declines if none is found. */
+/* gen385 — I VICINI DI UNA STRINGA, per deformazione inversa.
+ *
+ * Le OPERAZIONI sui caratteri sono meccanica fissa e cieca alla lingua: togliere
+ * una lettera, aggiungerne una, sostituirne una, scambiare due adiacenti. QUALI
+ * classi provare e' conoscenza — `surface_variation(Classe, Operazione)` — quindi
+ * una classe nuova (accento caduto, spazio mancante) costa un fatto e nessun
+ * motore. La VALIDAZIONE e' `lexeme/1`: un candidato che non e' una parola nota
+ * non esce di qui, ed e' precisamente cio' che rende questa riparazione piu'
+ * affidabile di quella di un LLM (question-emergence.md §13.2).
+ *
+ * Restituisce quanti candidati distinti ha scritto in `out`. */
+static size_t p0_repair_candidates(Brain *b, const char *word,
+                                   char out[][64], size_t max) {
+    if (!b || !b->kb || !word || max == 0) return 0;
+    size_t wl = strlen(word);
+    if (wl < 3 || wl > 40) return 0;
+
+    char ops[8][KB_TERM_LEN];
+    const char *vq[2] = { NULL, NULL };
+    size_t nops = kb_match(b->kb, "surface_variation", vq, 2, ops, 8);
+    if (nops == 0) return 0;
+
+    size_t n = 0;
+    char buf[64];
+    for (size_t oi = 0; oi < nops && n < max; oi++) {
+        char row[1][KB_TERM_LEN];
+        const char *rq[2] = { ops[oi], NULL };
+        if (kb_match(b->kb, "surface_variation", rq, 2, row, 1) != 1) continue;
+        char opbuf[KB_TERM_LEN];
+        snprintf(opbuf, sizeof opbuf, "%s", row[0]);
+        const char *op = kb_dequote(opbuf);
+
+        for (size_t i = 0; i <= wl && n < max; i++) {
+            int tries = 1;
+            if (!strcmp(op, "substitute_one") || !strcmp(op, "insert_one")) tries = 26;
+            for (int c = 0; c < tries && n < max; c++) {
+                if (!strcmp(op, "drop_one")) {
+                    if (i >= wl) break;
+                    snprintf(buf, sizeof buf, "%.*s%s", (int)i, word, word + i + 1);
+                } else if (op[0] == 's' && !strcmp(op, "substitute_one")) {
+                    if (i >= wl) break;
+                    if (word[i] == 'a' + c) continue;
+                    snprintf(buf, sizeof buf, "%.*s%c%s", (int)i, word,
+                             (char)('a' + c), word + i + 1);
+                } else if (!strcmp(op, "insert_one")) {
+                    snprintf(buf, sizeof buf, "%.*s%c%s", (int)i, word,
+                             (char)('a' + c), word + i);
+                } else if (!strcmp(op, "swap_adjacent")) {
+                    if (i + 1 >= wl) break;
+                    snprintf(buf, sizeof buf, "%.*s%c%c%s", (int)i, word,
+                             word[i + 1], word[i], word + i + 2);
+                } else break;
+
+                if (strlen(buf) < 2) continue;
+                const char *lq[] = { buf };
+                if (!kb_query(b->kb, "lexeme", lq, 1)) continue;
+                int dup = 0;
+                for (size_t k = 0; k < n; k++) if (!strcmp(out[k], buf)) dup = 1;
+                if (!dup) snprintf(out[n++], 64, "%s", buf);
+            }
+        }
+    }
+    return n;
+}
+
 static int mod_spell(Brain *b, const char *norm, const char *raw,
                      char *out, size_t out_size) {
     const char *buf = norm;
@@ -2633,9 +2698,10 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
         }
     }
 
-    if (!(cue(buf, "spell ") || cue(buf, "how do you spell") ||
-          cue(buf, "can you spell") || cue(buf, "come si scrive")))
-        return 0;
+    /* gen385: le superfici della richiesta erano un elenco in C. Ora sono fatti
+     * (`spell_request_cue/1`): una formulazione nuova, in qualunque lingua, costa
+     * una riga di .p0 — che e' il test operativo del mantra #2. */
+    if (!kb_cue_match(b, "spell_request", buf)) return 0;
     /* gen240: don't misfire on an anagram/rearrange task that merely mentions
      * "spell" in an example ("rearrange Listen to spell Silent — now do X"). That
      * is not a spelling request; spelling a stray word there is nonsense. */
@@ -2663,12 +2729,72 @@ static int mod_spell(Brain *b, const char *norm, const char *raw,
     }
     if (!target) return 0;
 
+    /* ── gen385: SCANDIRE UNA PAROLA ROTTA E' UNA MENZOGNA ──────────────────
+     *
+     * Misurato con la sonda all'oracolo (question-emergence.md §13):
+     *
+     *     how do you correctly spell recieve  ->  r-e-c-i-e-v-e
+     *
+     * La domanda chiedeva la grafia CORRETTA e la risposta ha risillabato
+     * l'errore, con sicurezza. E' peggio del muro che le sta accanto in
+     * italiano: un muro non afferma nulla, questo conferma uno sbaglio.
+     *
+     * Il rimedio non e' un correttore ortografico nel motore — sarebbe
+     * vocabolario nel C, e per giunta monolingue. E' quello che l'oracolo fa, e
+     * che parrot0 puo' fare MEGLIO perche' ha di che verificare: si generano i
+     * VICINI della stringa per deformazione inversa, si tengono solo quelli che
+     * sono parole note (`lexeme/1`), e il risultato si PROPONE. Dove l'LLM e'
+     * fluente e a volte falso — il modello debole della sonda ha risposto
+     * "pannino" per "pamino" — qui l'ipotesi e' controllata, non generata: se
+     * "pannino" non e' un lessema, non puo' essere proposto.
+     *
+     * Le quattro mosse dell'oracolo, tutte e quattro presenti:
+     *   ipotizza / enumera se i vicini sono piu' d'uno / non ripara cio' che non
+     *   e' rotto / non inventa quando vicini non ce ne sono. */
+    ensure_lexeme(b);
+    int target_known = 0;
+    {
+        const char *lq[] = { target };
+        target_known = b && b->kb && kb_query(b->kb, "lexeme", lq, 1);
+    }
+
+    char cand[8][64]; size_t ncand = 0;
+    if (!target_known && b && b->kb)
+        ncand = p0_repair_candidates(b, target, cand, 4);
+
     char line[512]; size_t pos = 0; line[0] = '\0';
     for (size_t i = 0; target[i] && pos + 3 < sizeof line; i++) {
         if (i) line[pos++] = '-';
         line[pos++] = target[i];
     }
     line[pos] = '\0';
+
+    if (!target_known) {
+        char msg[600];
+        if (ncand == 1) {
+            const KbResponseSlot s[] = { {"guess", cand[0]}, {"spelled", line} };
+            if (kb_response_slots(b, "spell_repair_one", s, 2, msg, sizeof msg)) {
+                put(msg, out, out_size); return 1;
+            }
+        } else if (ncand > 1) {
+            char list[256]; size_t lp = 0; list[0] = '\0';
+            for (size_t i = 0; i < ncand && lp + 2 < sizeof list; i++)
+                lp += (size_t)snprintf(list + lp, sizeof list - lp, "%s%s",
+                                       i ? ", " : "", cand[i]);
+            const KbResponseSlot s[] = { {"guesses", list} };
+            if (kb_response_slots(b, "spell_repair_many", s, 1, msg, sizeof msg)) {
+                put(msg, out, out_size); return 1;
+            }
+        } else {
+            /* Nessun vicino: si dichiara, non si inventa. E' la mossa che il
+             * modello forte della sonda ha fatto su "zqxvbn". */
+            const KbResponseSlot s[] = { {"word", target}, {"spelled", line} };
+            if (kb_response_slots(b, "spell_unknown_word", s, 2, msg, sizeof msg)) {
+                put(msg, out, out_size); return 1;
+            }
+        }
+    }
+
     put(line, out, out_size);
     return 1;
 }

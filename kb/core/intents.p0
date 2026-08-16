@@ -1122,6 +1122,16 @@ answer_frame("part of", part_of).
 answer_frame("fa parte", part_of).
 answer_frame("parte di", part_of).
 
+% gen385 — le superfici della richiesta di ortografia. Erano quattro `cue()` in
+% C; qui una formulazione nuova costa una riga.
+intent_cue(spell_request, "spell ").
+intent_cue(spell_request, "how do you spell").
+intent_cue(spell_request, "can you spell").
+intent_cue(spell_request, "how is spell").
+intent_cue(spell_request, "how do you write").
+intent_cue(spell_request, "come si scrive").
+intent_cue(spell_request, "spelling of").
+
 answer_frame("how does a game", game_end).
 answer_frame("how does the game", game_end).
 answer_frame("finish", game_end).

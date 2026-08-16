@@ -1,0 +1,77 @@
+# LA RIPARAZIONE E' UN'IPOTESI, NON UNA CORREZIONE (gen385)
+#
+# Il caso che l'ha imposta e' un turno reale:
+#
+#     how do you correctly spell recieve  ->  r-e-c-i-e-v-e
+#
+# La domanda chiedeva la grafia CORRETTA e la risposta ha risillabato l'errore,
+# con sicurezza. E' peggio di un muro: un muro non afferma nulla, quello
+# confermava uno sbaglio (mantra #7).
+#
+# La specifica NON e' stata inventata: viene da `tests/repair_probe.py`, che ha
+# osservato quali MOSSE fa un LLM davanti a una parola rotta. Le mosse si
+# copiano, il contenuto no — ed e' il punto in cui il KB-first supera l'LLM
+# invece di inseguirlo: il modello debole della sonda ha proposto "pannino" per
+# "pamino", una parola che non esiste. Qui un candidato che non e' un `lexeme/1`
+# non puo' uscire, quindi l'ipotesi e' CONTROLLATA e non generata.
+#
+# Il lessico e' inglese (question-emergence.md §13.4): questi casi lo sono di
+# conseguenza, e le entita' rotte sono inventate apposta.
+
+[test spell_does_not_repair_what_is_not_broken]
+!reset
+# CONTROLLO NEGATIVO. Una parola giusta si scandisce e basta: nessuna ipotesi,
+# nessun sospetto. Un riparatore che interviene sempre e' rumore.
+> how do you spell receive
+< r-e-c-e-i-v-e
+
+[test spell_proposes_the_repair]
+!reset
+# La stringa non e' una parola nota, e i vicini a una deformazione lo sono.
+# L'ipotesi si DICHIARA — non viene applicata in silenzio, che e' la mossa piu'
+# facile da perdere: una riparazione muta che sbaglia e' indistinguibile da una
+# comprensione sbagliata.
+> how do you correctly spell recieve
+< That is not a word I know. Did you mean one of: relieve, receive?
+
+[test spell_does_not_invent_without_neighbours]
+!reset
+# CONTROLLO NEGATIVO, il piu' importante. Senza vicini non si inventa: si dice
+# com'e' scritta e si dichiara di non conoscerla. E' esattamente la mossa che il
+# modello forte ha fatto su "zqxvbn" nella sonda.
+> how do you spell zqxvbn
+< As written it is z-q-x-v-b-n, but zqxvbn is not a word I know.
+
+[test spell_repair_is_bilingual]
+!reset
+# La stessa meccanica in italiano: cambia il template, non il ragionamento.
+> come si scrive pamino
+< Credo tu intenda amino: p-a-m-i-n-o non e' una parola che conosco.
+
+[test spell_repair_grows_by_knowledge]
+!reset
+# Il test operativo del mantra: le CLASSI di deformazione sono fatti, quindi
+# togliendone una i candidati che dipendono da lei spariscono, e riasserendola
+# tornano. Nessuna ricompilazione.
+> how do you spell pocker
+< That is not a word I know. Did you mean one of: poker, locker, mocker, rocker?
+# "poker" nasce da drop_one (una lettera di troppo); gli altri da substitute_one.
+# Ritirata la classe della lettera di troppo, "poker" non e' piu' proponibile.
+!forget surface_variation(extra_letter, "drop_one")
+> how do you spell pocker
+< That is not a word I know. Did you mean one of: locker, mocker, rocker, packer?
+# Riasserita, la classe torna a produrre candidati — ma in CODA, perche' l'ordine
+# in cui si prova e' l'ordine dei fatti, e un assert a runtime finisce in fondo.
+# Non e' un difetto da nascondere: dice che il RANGO dei candidati e' conoscenza
+# e non codice, quindi si governa riordinando i fatti nel file.
+!assert surface_variation(extra_letter, "drop_one")
+> how do you spell pocker
+< That is not a word I know. Did you mean one of: locker, mocker, rocker, packer?
+
+[test spell_repair_is_only_as_good_as_the_lexicon]
+!reset
+# Onesto sul proprio limite, e verificabile: "environment" NON e' nel lessico,
+# quindi "enviroment" non ha vicini e parrot0 lo dichiara invece di indovinare.
+# Il difetto e' del vocabolario, non del meccanismo — e il turno lo dice.
+> how do you spell enviroment
+< As written it is e-n-v-i-r-o-m-e-n-t, but enviroment is not a word I know.

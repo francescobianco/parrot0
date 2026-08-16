@@ -81,6 +81,16 @@ function_word(it, quale, "which").
 function_word(it, nomi, "names").
 function_word(it, nome, "name").
 
+% ── CLASSI DI DEFORMAZIONE (gen385) ────────────────────────────────────────
+% Le operazioni sui caratteri sono meccanica fissa nel motore; QUALI provare e'
+% conoscenza. Una classe nuova — accento caduto, spazio mancante, parole unite —
+% si aggiunge qui, e la riparazione la usa senza che il C cambi.
+% Il secondo argomento nomina l'operazione generale che il motore sa eseguire.
+surface_variation(extra_letter, "drop_one").
+surface_variation(wrong_letter, "substitute_one").
+surface_variation(missing_letter, "insert_one").
+surface_variation(swapped_letters, "swap_adjacent").
+
 % --- appartenenza e parti ---
 phrase_canon("fa parte", "part of").
 phrase_canon("fanno parte", "part of").

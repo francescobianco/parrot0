@@ -676,6 +676,7 @@ test: test-engine
 # problema: glue-bench costava ~13s di processi, nessuno lo lanciava, ed e' stato
 # trovato ROSSO da chissa' quando.
 	@./$(BIN) --test tests/p0t/meta/glue.p0t
+	@./$(BIN) --test tests/p0t/language/spell_repair.p0t
 	@./$(BIN) --test tests/p0t/meta/bridge_gap.p0t
 # knowledge_gap.p0t e' fuori suite di proposito: passa 14/14 su un motore appena
 # avviato e cade sul primo blocco quando lo precede un altro file. Il difetto e'
