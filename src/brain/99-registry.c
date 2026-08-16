@@ -1524,7 +1524,104 @@ static void conv_log(Brain *b, const char *input, const char *reply) {
     conv_log_one(b, "self", reply);
 }
 
+/* ── gen386: IL VINCOLO POSTO PRIMA PLASMA LA RISPOSTA DOPO ─────────────────
+ *
+ * E' l'ultimo dei cinque sintomi di the-linguistic-glue.md, qualitativo dal
+ * gen222: «risposte corrette ma fuori contesto». "keep it short" veniva
+ * riconosciuto e CONFERMATO — «Got it: I will keep it short.» — e poi la
+ * risposta successiva era lunga come prima. Il vincolo era registrato e mai
+ * applicato: peggio che ignorarlo, perche' prometteva.
+ *
+ * Qui il vincolo attivo si legge dalla KB (`active_constraint/1`, fatto di
+ * sessione: persiste, si interroga, si ritira parlando) e la FORMA che impone e'
+ * conoscenza a due livelli — quale operazione (`constraint_shape/2`) e con quale
+ * misura (`constraint_limit/3`). Il motore sa solo eseguire operazioni generali
+ * su un testo: prendere la prima frase, tenere N parole. Un vincolo nuovo —
+ * "una riga sola", "niente elenchi" — e' una manciata di fatti.
+ *
+ * Applicato in UN punto, dopo il dispatch, perche' brain_respond ha undici
+ * uscite e un vincolo che vale solo per alcune non e' un vincolo. */
+static void apply_active_constraint(Brain *b, char *out, size_t out_size) {
+    if (!b || !b->kb || !out || !*out) return;
+
+    char cons[4][KB_TERM_LEN];
+    const char *cq[1] = { NULL };
+    size_t nc = kb_match(b->kb, "active_constraint", cq, 1, cons, 4);
+    for (size_t i = 0; i < nc; i++) {
+        /* Un vincolo di FORMA non deve mutilare una risposta il cui contenuto e'
+         * per sua natura un elenco richiesto: «che cosa ricordi di me?» chiede
+         * tutto, e accorciarlo toglie proprio cio' che era stato domandato.
+         * L'esenzione e' un fatto sulla FACOLTA' che ha risposto, non un caso
+         * speciale nel codice: `constraint_exempt(Vincolo, Modulo)`. */
+        if (b->last_module[0]) {
+            const char *eq[2] = { cons[i], b->last_module };
+            if (kb_query(b->kb, "constraint_exempt", eq, 2)) continue;
+        }
+        char shape[1][KB_TERM_LEN];
+        const char *sq[2] = { cons[i], NULL };
+        if (kb_match(b->kb, "constraint_shape", sq, 2, shape, 1) != 1) continue;
+        char opbuf[KB_TERM_LEN];
+        snprintf(opbuf, sizeof opbuf, "%s", shape[0]);
+        const char *op = kb_dequote(opbuf);
+
+        long limit = 0;
+        {
+            char lim[1][KB_TERM_LEN];
+            const char *lq[3] = { cons[i], "words", NULL };
+            if (kb_match(b->kb, "constraint_limit", lq, 3, lim, 1) == 1)
+                limit = atol(lim[0]);
+        }
+
+        if (!strcmp(op, "first_sentence")) {
+            /* La prima frase e' gia' una risposta completa: accorciare cosi'
+             * non tronca un pensiero a meta', che e' il modo sbagliato di
+             * obbedire a "sii breve". */
+            for (size_t k = 0; out[k]; k++) {
+                int stop = (out[k] == '.' && (out[k+1] == '\0' || out[k+1] == ' '));
+                /* Il punto e virgola separa due risposte complete nelle
+                 * descrizioni della KB ("X e' A; X e' B"): la prima e' gia'
+                 * una risposta intera, ed e' un confine migliore di un taglio a
+                 * numero di parole, che cade a meta' sintagma. */
+                if (out[k] == ';') {
+                    if (k && out[k-1] == '.') out[k] = '\0';   /* non raddoppiare il punto */
+                    else { out[k] = '.'; out[k+1] = '\0'; }
+                    break;
+                }
+                if (stop) { out[k+1] = '\0'; break; }
+            }
+        }
+        if (limit > 0) {
+            size_t words = 0;
+            for (size_t k = 0; out[k]; k++) {
+                if (out[k] == ' ') {
+                    words++;
+                    if ((long)words >= limit) {
+                        /* si taglia a parola intera e si chiude la frase */
+                        out[k] = '\0';
+                        size_t l = strlen(out);
+                        while (l && (out[l-1] == ',' || out[l-1] == ';')) out[--l] = '\0';
+                        if (l && out[l-1] != '.' && l + 4 < out_size)
+                            snprintf(out + l, out_size - l, " ...");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+static size_t brain_respond_dispatch(Brain *b, const char *input,
+                                     char *out, size_t out_size);
+
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
+    size_t n = brain_respond_dispatch(b, input, out, out_size);
+    apply_active_constraint(b, out, out_size);
+    n = strlen(out);
+    if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+    return n;
+}
+
+static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, size_t out_size) {
     if (out_size == 0) return 0;
     if (b) {
         if (b->turns == 0) {

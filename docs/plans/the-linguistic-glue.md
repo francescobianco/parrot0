@@ -300,6 +300,44 @@ HELD** (`precise-en`, `precise-it`). **Crisp HELD complessivi 9/9 su 4 dei 5 sin
 (implicit-reference 3/3, correction 2/2, one-interlocutor 2/2, over-literal 2/2).
 Resta qualitativo **solo** #1 (out-of-context/brevità).
 
+### G2 — settimo pull fatto (gen386): il vincolo plasma davvero la risposta
+
+**L'ultimo dei cinque sintomi, aperto dal gen222.** «keep it short» veniva
+riconosciuto e CONFERMATO — «Got it: I will keep it short.» — e la risposta
+successiva era lunga come prima. Un vincolo registrato e mai applicato e' peggio
+di uno ignorato, perche' prometteva.
+
+Il vincolo viveva in un campo C (`b->user_constraint`), da cui veniva soltanto
+RIRACCONTATO («Your current constraint is: keep it short.») e mai applicato — il
+debito che la Disciplina di questo piano nomina per esteso. Ora:
+
+- il vincolo attivo e' un **fatto di sessione** (`active_constraint/1`): persiste,
+  si interroga, si ritira parlando, sopravvive a `/save`;
+- la FORMA che impone e' conoscenza a due livelli — quale operazione
+  (`constraint_shape/2`) e con quale misura (`constraint_limit/3`);
+- il motore sa solo eseguire operazioni generali su un testo (prima frase, N
+  parole), quindi un vincolo nuovo — «una riga sola», «niente elenchi» — e' una
+  manciata di fatti;
+- applicato in **un** punto dopo il dispatch: `brain_respond` ha undici uscite, e
+  un vincolo che vale solo per alcune non e' un vincolo;
+- **esenzione dichiarata** (`constraint_exempt/2`): un elenco che l'utente ha
+  chiesto per intero non si accorcia. «Che cosa ricordi di me?» chiede tutto, e
+  la brevita' toglierebbe proprio la risposta. E' un fatto sulla facolta' che ha
+  risposto, non un ramo nel motore.
+
+**Il predicato prima del meccanismo**, come chiedeva il punto 6: `gluebench.sh`
+ha ora il controllo `max:N` — la risposta dopo il vincolo deve stare entro N
+parole. Il seme e' una descrizione lunga apposta (37 parole senza vincolo, 22
+con), cosi' un HELD non puo' essere accidentale.
+
+> **`glue-bench`: 11/11 crisp HELD, qualitative 0.** Tutti e cinque i sintomi
+> dell'essay sono metriche, e tutte e cinque reggono. Il piano non ha piu' righe
+> qualitative in sospeso.
+
+E i casi sono anche nel cricchetto rapido: `tests/p0t/meta/glue.p0t` sale a 28
+assert, con la prova di ablazione — ritirato `active_constraint(brevity)` la
+risposta torna intera, senza ricompilare.
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
@@ -348,7 +386,13 @@ Ordine consigliato dei prossimi pull (dalla mappa, dal più sbloccante):
    EN+IT, concatenabile (vedi sezione G2 gen222). `precise-en`/`precise-it` HELD.
    **Crisp HELD 9/9 su 4 dei 5 sintomi.**
 
-6. **Ultimo gap: `out-of-context` (brevità).** L'unico sintomo ancora qualitativo. Un
+6. ~~**Ultimo gap: `out-of-context` (brevità).**~~ ✅ **fatto (gen386).** Vincolo
+   come fatto di sessione (`active_constraint/1`), forma e misura come conoscenza
+   (`constraint_shape/2`, `constraint_limit/3`), esenzione dichiarata
+   (`constraint_exempt/2`), predicato crisp `max:N` in `gluebench.sh`.
+   **glue-bench 11/11, qualitative 0 — tutti e cinque i sintomi sono metriche.**
+   Il testo originale della voce, per memoria:
+   *L'unico sintomo ancora qualitativo.* Un
    vincolo di stile posto prima ("keep it short" / "sii breve") deve **plasmare davvero**
    la risposta successiva (accorciarla). Farlo **KB-first**: il vincolo come fatto
    inferibile dalla KB (non un campo C `user_constraint`), e un post-processing

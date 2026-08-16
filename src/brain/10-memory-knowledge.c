@@ -424,6 +424,13 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
      * matched as substrings by kb_cue_match; new cues are taught via the generic
      * learnable/3 path (try_teach_form) at the top of this module — no bespoke handler. */
     if (kb_cue_match(b, "brevity", norm)) {
+        /* gen386: il vincolo diventa un FATTO di sessione, non solo un campo C.
+         * Da li' viene applicato alla risposta successiva (apply_active_constraint),
+         * si interroga, si ritira parlando, e sopravvive a /save. Il campo C resta
+         * per i percorsi che gia' lo raccontano (keep-secondary-structures). */
+        kb_set_origin(b->kb, KB_SESSION);
+        const char *ac[] = { "brevity" };
+        kb_assert(b->kb, "active_constraint", ac, 1);
         snprintf(b->user_constraint, sizeof b->user_constraint, "%s", "keep it short");
         b->has_user_constraint = 1;
         kb_say(b, "got_it_i_will_keep_it_short", "Got it: I will keep it short.", out, out_size);

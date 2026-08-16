@@ -296,6 +296,22 @@ intent_phrase(ask_name, "whats my name").
 intent_phrase(ask_name, "whats my name?").
 intent_phrase(ask_name, "come mi chiamo").
 intent_phrase(ask_name, "come mi chiamo?").
+% gen386 — che FORMA impone il vincolo, e con quale misura. Il motore sa solo
+% eseguire operazioni generali su un testo; quale operazione e quanto stretta
+% sono conoscenza, quindi "una riga sola" o "niente elenchi" costano fatti.
+% first_sentence prima del taglio a parole: accorciare alla prima frase non
+% tronca un pensiero a meta', che e' il modo sbagliato di obbedire a "sii breve".
+machinery(active_constraint).
+machinery(constraint_shape).
+machinery(constraint_limit).
+constraint_shape(brevity, "first_sentence").
+constraint_limit(brevity, words, 20).
+machinery(constraint_exempt).
+% Un elenco che l'utente ha chiesto per intero non si accorcia: «che cosa ricordi
+% di me?» chiede tutto, e la brevita' toglierebbe proprio la risposta. Esenzione
+% dichiarata sulla facolta', non un ramo nel motore.
+constraint_exempt(brevity, memory).
+
 intent_cue(brevity, "keep it short").
 intent_cue(brevity, "be brief").
 intent_cue(brevity, "short answers").

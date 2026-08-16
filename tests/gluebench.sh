@@ -15,6 +15,7 @@
 # Each case: ID  SYMPTOM  CHECK  DIALOGUE(turns joined by '|').
 #   CHECK = has:STR  -> glue HELD iff the LAST reply contains STR
 #           no:STR   -> glue HELD iff the LAST reply does NOT contain STR
+#           max:N    -> glue HELD iff the LAST reply is at most N words (gen386)
 #           show     -> qualitative; print the reply, count as observed (no verdict)
 # Every symptom is probed in English AND Italian (the bilingual ratchet).
 set -u
@@ -38,9 +39,15 @@ CASES=(
   "corr-en|correction|no:Yes|socrates is a man|is socrates a man|no, socrates is not a man|is socrates a man"
   "corr-it|correction|no:Yes|socrate è un uomo|socrate è un uomo?|no, socrate non è un uomo|socrate è un uomo?"
 
-  # --- S1: a constraint set earlier should shape a later answer (qualitative) ---
-  "brevity-en|out-of-context|show|keep it short|tell me about the heart"
-  "brevity-it|out-of-context|show|sii breve|parlami del cuore"
+  # --- S1: a constraint set earlier should shape a later answer ---
+  # gen386: da QUALITATIVO a CRISP. Il piano (the-linguistic-glue.md, punto 6)
+  # chiedeva esplicitamente il predicato prima del meccanismo: "la risposta dopo
+  # 'keep it short' deve stare sotto N parole". Il predicato e' `max:N` sulle
+  # PAROLE della risposta — non su un wording, che sarebbe fragile. Il seme usa
+  # una descrizione lunga apposta: se il vincolo non mordesse, la risposta piena
+  # sarebbe ben oltre il limite.
+  "brevity-en|out-of-context|max:22|keep it short|tell me about photosynthesis"
+  "brevity-it|out-of-context|max:22|sii breve|parlami della fotosintesi"
 
   # --- S3: a precisation that continues a prior request ---
   # gen222: "(2 plus 2) times 3" = 12, the last result carried (KB-first) as the
@@ -84,6 +91,11 @@ for row in "${CASES[@]}"; do
            case "$lreply" in *"$want"*) verdict="HELD";; *) verdict="GAP";; esac ;;
     no:*)  bad="$(printf '%s' "${check#no:}" | tr '[:upper:]' '[:lower:]')"
            case "$lreply" in *"$bad"*)  verdict="GAP";;  *) verdict="HELD";; esac ;;
+    # gen386: max:N -> la colla REGGE se la risposta sta entro N parole. E' il
+    # predicato crisp per il sintomo "fuori contesto": un vincolo posto tre turni
+    # prima deve ancora plasmare questa risposta.
+    max:*) n="${check#max:}"; wc_words=$(printf '%s' "$reply" | wc -w)
+           if [ "$wc_words" -le "$n" ]; then verdict="HELD"; else verdict="GAP"; fi ;;
     show)  verdict="SHOWN" ;;
   esac
 
