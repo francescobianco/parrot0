@@ -444,6 +444,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/knowledge/games.p0t
 	@./$(BIN) --test tests/p0t/knowledge/faceted_enumeration.p0t
 	@./$(BIN) --test tests/p0t/knowledge/foundational_concepts.p0t
+	@./$(BIN) --test tests/p0t/knowledge/gap_dialogue.p0t
 	@./$(BIN) --test tests/p0t/knowledge/class_conflict.p0t
 	@./$(BIN) --test tests/p0t/reasoning/syllogism.p0t
 	@./$(BIN) --test tests/p0t/reasoning/sequential_view.p0t

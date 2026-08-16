@@ -2095,17 +2095,7 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 wiki_fetch_bilingual(b->kb, topic);
                 int got = acquire_knowledge(b, topic, def, sizeof def);
                 size_t ol = strlen(out);
-                if (got && def[0])
-                    snprintf(out + ol, out_size - ol, " %s", def);
-                else if (got) {
-                    char tail[32];
-                    kb_response_slots(b, "gap_done", NULL, 0, tail, sizeof tail);
-                    snprintf(out + ol, out_size - ol, "%s", tail);
-                }
-                else {
-                    char tail[64];
-                    kb_response_slots(b, "gap_not_found", NULL, 0, tail, sizeof tail);
-                    snprintf(out + ol, out_size - ol, "%s", tail);
+                if (!got) {
                     /* gen335e: mark this topic as failed so not_understood
                      * won't re-offer the same gap on re-dispatch. */
                     const char *fa[] = { topic };
@@ -2114,28 +2104,47 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
                 /* gen335g: after a successful acquire, also extract structured
                  * facts from the page prose (extract_page_facts). This gives
                  * the full pipeline: download → learn concept → extract facts. */
+                int nf = 0;
                 if (got) {
                     char facts[512] = "";
-                    int nf = extract_page_facts(b, topic, facts, sizeof facts);
-                    if (nf > 0) {
-                        char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
-                        char tail[64];
-                        const KbResponseSlot fslots[] = { {"count", fstr} };
-                        kb_response_slots(b, "gap_extracted", fslots, 1, tail, sizeof tail);
-                        ol = strlen(out);
-                        snprintf(out + ol, out_size - ol, "%s", tail);
-                    }
+                    nf = extract_page_facts(b, topic, facts, sizeof facts);
                 }
                 /* Re-dispatch the original question through dispatch_one
                  * (NOT brain_respond — that would recurse and corrupt state).
                  * dispatch_one normalizes+canonicalizes and walks the registry. */
                 char re_ans[256] = "";
-                if (dispatch_one(b, stored_q, re_ans, sizeof re_ans)) {
-                ol = strlen(out);
-                if (re_ans[0])
+                int re_ok = dispatch_one(b, stored_q, re_ans, sizeof re_ans);
+
+                /* gen396: acknowledgement, then the ANSWER, then the bookkeeping.
+                 *
+                 * The definition used to be appended here AND repeated by the
+                 * re-dispatched reply, with the extraction count wedged between,
+                 * so a confirmed lookup read «Cerco informazioni su pompa...
+                 * <def>. Ho estratto 2 fatti. So già qualcosa su pompa: <def>.»
+                 * The user asked a question and said yes; what they are owed is
+                 * one answer to it, and the note about what was learned comes
+                 * after it. */
+                if (re_ok && re_ans[0])
                     snprintf(out + ol, out_size - ol, " %s", re_ans);
-                conv_log(b, input, out);
-                return strlen(out);
+                else if (got && def[0])
+                    snprintf(out + ol, out_size - ol, " %s", def);
+                else {
+                    char tail[64];
+                    kb_response_slots(b, got ? "gap_done" : "gap_not_found",
+                                      NULL, 0, tail, sizeof tail);
+                    snprintf(out + ol, out_size - ol, "%s", tail);
+                }
+                if (nf > 0) {
+                    char fstr[16]; snprintf(fstr, sizeof fstr, "%d", nf);
+                    char tail[64];
+                    const KbResponseSlot fslots[] = { {"count", fstr} };
+                    kb_response_slots(b, "gap_extracted", fslots, 1, tail, sizeof tail);
+                    ol = strlen(out);
+                    snprintf(out + ol, out_size - ol, "%s", tail);
+                }
+                if (re_ok) {
+                    conv_log(b, input, out);
+                    return strlen(out);
             }
         }
     }

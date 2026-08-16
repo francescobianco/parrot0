@@ -51,9 +51,10 @@
 
 # A concept invented at runtime proves the class rather than the members: three
 # facts and no rebuild make it both reachable and speakable in two languages.
+# The negative control for a wholly unknown word lives in
+# `knowledge/gap_dialogue.p0t`, which walks that path in both languages; here the
+# subject is the LANGUAGE of the answer, so the block starts from the concept.
 [test a concept taught at runtime is speakable in the asker's language]
-> cosa è un flimbo
-<! flimbo è un buffer
 !assert wiki_concept(flimbo, computing, "A flimbo is a buffer that discards its oldest entry when full")
 > cosa è un flimbo
 <~ A flimbo is a buffer

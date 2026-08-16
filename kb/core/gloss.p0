@@ -953,6 +953,9 @@ tr(protein, proteina).
 tr(temperature, temperatura).
 tr(velocity, velocita).
 tr(velocity, velocità).
+tr(pump, pompa).
+tr(lever, leva).
+tr(engine, motore).
 tr(cryptography, crittografia).
 tr(encryption, cifratura).
 

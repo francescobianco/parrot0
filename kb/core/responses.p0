@@ -389,23 +389,30 @@ response_template(language_switch, it, "Possiamo parlare in entrambe le lingue �
 
 response_template(learn_found, "Here is what I found about {topic}: {def}.").
 response_template(learn_found, it, "Ecco cosa ho trovato su {topic}: {def}.").
-response_template(learn_already_know, "I already know about {topic}: {def}.").
-response_template(learn_already_know, it, "So già qualcosa su {topic}: {def}.").
+% gen396: rispondere a «cosa è X» e' dire che cosa e' X. Il preambolo «So già
+% qualcosa su X:» era meta-commento, e nel flusso di ricerca arrivava dopo un
+% «cerco...» che aveva gia' nominato il topic: la stessa cosa detta tre volte in
+% una riga. Dove l'acknowledgement serve davvero — la conferma dell'utente — lo
+% porta gia' `gap_looking_up`.
+response_template(learn_already_know, "{def}.").
+response_template(learn_already_know, it, "{def}.").
 response_template(learn_gap_offer, "I don't know much about {topic} yet. Want me to look it up?").
-response_template(learn_gap_offer, it, "Non so ancora molto su {topic}. Vuoi che cerchi informazioni?").
+response_template(learn_gap_offer, it, "Su {topic} non so ancora molto. Vuoi che cerchi?").
 response_template(learn_still_gap, "I still don't know much about {topic}.").
-response_template(learn_still_gap, it, "Ancora non so molto su {topic}.").
+% Il topic e' appena stato nominato dalla riga che apre la ricerca: ripeterlo qui
+% e' la goffaggine che rende una risposta corretta poco naturale.
+response_template(learn_still_gap, it, "Non ho trovato niente di utile.").
 response_template(learn_extracted, " I extracted {count} facts.").
 response_template(learn_extracted, it, " Ho estratto {count} fatti.").
 response_template(learn_disambig_note, " Note: this might refer to a different meaning.").
 response_template(learn_disambig_note, it, " Nota: potrebbe riferirsi a un significato diverso.").
 
 response_template(gap_looking_up, "Looking up {topic}...").
-response_template(gap_looking_up, it, "Cerco informazioni su {topic}...").
+response_template(gap_looking_up, it, "Vediamo cosa trovo su {topic}...").
 response_template(gap_done, " Done.").
-response_template(gap_done, it, " Trovato.").
+response_template(gap_done, it, " Fatto.").
 response_template(gap_not_found, " I couldn't find information.").
-response_template(gap_not_found, it, " Non ho trovato informazioni.").
+response_template(gap_not_found, it, " Non ho trovato niente.").
 response_template(gap_extracted, " I extracted {count} facts.").
 response_template(gap_extracted, it, " Ho estratto {count} fatti.").
 

@@ -45,6 +45,11 @@ wiki_concept(random_access_memory, computing, "Working memory holds the code and
 wiki_concept(version_control, computing, "Version control records the successive states of a set of files, so any change can be attributed, compared with what came before and undone without losing the later work").
 wiki_concept(object_oriented_programming, computing, "Object-oriented programming organizes a program around objects that keep their own data and expose the operations allowed on it, so the rest of the program depends on the interface rather than the representation").
 
+wiki_concept(pump, engineering, "A pump moves a fluid by adding energy to it, either by trapping a volume and pushing it along or by accelerating it with a spinning impeller").
+wiki_concept(lever, engineering, "A lever is a rigid bar turning about a fulcrum that trades distance for force, so a small effort over a long arm balances a large load over a short one").
+wiki_concept(engine, engineering, "An engine converts stored energy into mechanical motion, usually by releasing it as heat or pressure and letting that drive a moving part").
+wiki_concept(electric_current, physics, "An electric current is a flow of charge through a conductor, driven by a difference in potential and limited by the resistance of the path").
+
 % ── MATEMATICA ──
 wiki_concept(prime_number, mathematics, "A prime number is a whole number greater than 1 divisible only by 1 and itself; every whole number above 1 factors into primes in exactly one way, which is why they are the building blocks of arithmetic").
 wiki_concept(equation, mathematics, "An equation states that two expressions are equal; solving it means finding the values of its unknowns that make the statement true").
@@ -118,6 +123,14 @@ semantic_topic_cue(version_control, "version control").
 semantic_topic_cue(version_control, "controllo di versione").
 semantic_topic_cue(object_oriented_programming, "object-oriented programming").
 semantic_topic_cue(object_oriented_programming, "programmazione a oggetti").
+semantic_topic_cue(pump, keyword(pump)).
+semantic_topic_cue(pump, keyword(pompa)).
+semantic_topic_cue(lever, keyword(lever)).
+semantic_topic_cue(lever, keyword(leva)).
+semantic_topic_cue(engine, keyword(engine)).
+semantic_topic_cue(engine, keyword(motore)).
+semantic_topic_cue(electric_current, "electric current").
+semantic_topic_cue(electric_current, "corrente elettrica").
 semantic_topic_cue(prime_number, "prime number").
 semantic_topic_cue(prime_number, "numero primo").
 semantic_topic_cue(equation, keyword(equation)).
@@ -190,6 +203,10 @@ concept_gloss(processor, it, "Un processore è il componente che esegue le istru
 concept_gloss(random_access_memory, it, "La memoria di lavoro contiene il codice e i dati che un programma sta usando in questo momento e ne perde il contenuto quando manca l'alimentazione, a differenza della memoria di massa, che li conserva.").
 concept_gloss(version_control, it, "Il controllo di versione registra gli stati successivi di un insieme di file, così ogni modifica può essere attribuita, confrontata con ciò che c'era prima e annullata senza perdere il lavoro successivo.").
 concept_gloss(object_oriented_programming, it, "La programmazione a oggetti organizza un programma attorno a oggetti che custodiscono i propri dati ed espongono le operazioni permesse su di essi, così il resto del programma dipende dall'interfaccia e non dalla rappresentazione.").
+concept_gloss(pump, it, "Una pompa muove un fluido cedendogli energia, o intrappolandone un volume e spingendolo avanti, o accelerandolo con una girante in rotazione.").
+concept_gloss(lever, it, "Una leva è un'asta rigida che ruota attorno a un fulcro e scambia spostamento con forza, così un piccolo sforzo su un braccio lungo equilibra un carico grande su un braccio corto.").
+concept_gloss(engine, it, "Un motore converte energia immagazzinata in movimento meccanico, di solito liberandola come calore o pressione e lasciando che spinga un organo mobile.").
+concept_gloss(electric_current, it, "La corrente elettrica è un flusso di carica in un conduttore, spinto da una differenza di potenziale e limitato dalla resistenza del percorso.").
 concept_gloss(prime_number, it, "Un numero primo è un numero intero maggiore di 1 divisibile soltanto per 1 e per se stesso; ogni intero maggiore di 1 si scompone in primi in un solo modo, ed è per questo che sono i mattoni dell'aritmetica.").
 concept_gloss(equation, it, "Un'equazione afferma che due espressioni sono uguali; risolverla significa trovare i valori delle sue incognite che rendono vera quell'affermazione.").
 concept_gloss(fraction, it, "Una frazione esprime una quantità come un certo numero di parti uguali di un intero, scritta come numeratore su denominatore.").

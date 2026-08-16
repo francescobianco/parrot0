@@ -1,0 +1,106 @@
+# THE GAP EXCHANGE, WITH THE KNOWLEDGE FORGOTTEN FIRST — gen396.
+#
+# Testing a lookup flow against a concept parrot0 already holds proves nothing:
+# the interesting path is the one it takes when it does NOT know.  `!forget`
+# removes the fact from the ONE KB for the length of the test, so the flow can be
+# walked as it really runs — gap, offer, confirmation, honest outcome — and then
+# put back, without amputating the load from outside.
+#
+# The observed exchange this replaces:
+#
+#   you> cosa è una pompa
+#   Non so ancora molto su pompa. Vuoi che cerchi informazioni?
+#   you> si
+#   Cerco informazioni su pompa... Pompa is a commune in Fleti District,
+#   Moldova. Ho estratto 2 fatti. So già qualcosa su pompa: Pompa is a commune
+#   in Fleti District, Moldova..
+#
+# Three faults in three lines: the Italian word went to the English page that
+# happens to share its spelling, the definition was stated twice with the
+# acknowledgement wedged between, and the frame added a second full stop to a
+# sentence that already had one.
+
+[mock live]
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+# Answering «cosa è X» is saying what X is. The preamble that announced knowing
+# was meta-commentary, and in the lookup flow it arrived after a line that had
+# already named the topic.
+[test a known concept is answered, not announced]
+> cosa è una pompa
+<~ Una pompa muove un fluido
+<! So già qualcosa
+<! I already know
+
+[test the answer ends once]
+> cosa è una leva
+<! ..
+<! .."
+
+# Now the concept is genuinely absent, and every step is exercised for real.
+[test an absent concept opens the gap and names the topic once]
+!forget concept_gloss(pump, it, "Una pompa muove un fluido cedendogli energia, o intrappolandone un volume e spingendolo avanti, o accelerandolo con una girante in rotazione.")
+!forget wiki_concept(pump, engineering, "A pump moves a fluid by adding energy to it, either by trapping a volume and pushing it along or by accelerating it with a spinning impeller")
+!forget semantic_topic_cue(pump, keyword(pump))
+!forget semantic_topic_cue(pump, keyword(pompa))
+> cosa è una pompa
+<~ non so ancora molto
+<~ pompa
+
+# The confirmation is where the duplication lived. With no network in the test
+# profile the honest outcome is one line, and the topic is not repeated: the
+# opening line has just said it.
+[test the confirmed lookup says one thing]
+> si
+<~ Vediamo cosa trovo su pompa
+<~ Non ho trovato niente
+<! Ancora non so molto su pompa
+<! Non ho trovato niente. Non ho trovato
+
+[test the knowledge put back is answered again]
+!assert wiki_concept(pump, engineering, "A pump moves a fluid by adding energy to it, either by trapping a volume and pushing it along or by accelerating it with a spinning impeller")
+!assert semantic_topic_cue(pump, keyword(pompa))
+!assert concept_gloss(pump, it, "Una pompa muove un fluido cedendogli energia, o intrappolandone un volume e spingendolo avanti, o accelerandolo con una girante in rotazione.")
+> cosa è una pompa
+<~ Una pompa muove un fluido
+
+# The exonym and the Italian cue are two bridges to the same concept, and they
+# are not the only ones: with both retracted the surface still resolves, because
+# a near-form hypothesis reaches `pump` on its own. Recorded as measured rather
+# than assumed — the ablation that was meant to break the link does not, and that
+# is a property worth holding still.
+[test the concept survives the loss of one bridge]
+!forget tr(pump, pompa)
+!forget semantic_topic_cue(pump, keyword(pompa))
+> cosa è una pompa
+<~ Una pompa muove un fluido
+!forget concept_gloss(pump, it, "Una pompa muove un fluido cedendogli energia, o intrappolandone un volume e spingendolo avanti, o accelerandolo con una girante in rotazione.")
+> cosa è una pompa
+<~ A pump moves a fluid
+<! Una pompa muove un fluido
+!assert tr(pump, pompa)
+!assert semantic_topic_cue(pump, keyword(pompa))
+!assert concept_gloss(pump, it, "Una pompa muove un fluido cedendogli energia, o intrappolandone un volume e spingendolo avanti, o accelerandolo con una girante in rotazione.")
+> cosa è una pompa
+<~ Una pompa muove un fluido
+
+[test the same flow in English]
+!set PARROT0_LANG=en
+!reset
+> what is a pump
+<~ A pump moves a fluid
+<! I already know about
+!forget wiki_concept(pump, engineering, "A pump moves a fluid by adding energy to it, either by trapping a volume and pushing it along or by accelerating it with a spinning impeller")
+!forget semantic_topic_cue(pump, keyword(pump))
+!forget semantic_topic_cue(pump, keyword(pompa))
+> what is a florble
+<~ don't know much about
+> yes
+<~ Looking up florble
+<~ I still don't know much
+!assert wiki_concept(pump, engineering, "A pump moves a fluid by adding energy to it, either by trapping a volume and pushing it along or by accelerating it with a spinning impeller")
+!assert semantic_topic_cue(pump, keyword(pump))
+!assert semantic_topic_cue(pump, keyword(pompa))

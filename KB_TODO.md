@@ -382,6 +382,58 @@ router dovra' usare la provenienza fisica della registry con due indici:
 casa e' univoca. L'attuale fallback "ultimo file con lo stesso predicato" e'
 dipendente dall'ordine di scansione e non va trasferito tale e quale in hashmap.
 
+## Il muro costa 0,9s, e la misura dice DOVE (gen396)
+
+Misurato, non supposto. Con il profilo AGI un turno che non sa rispondere —
+`cosa è un flimbo`, `i++; what is i` — costa ~0,95s, cioè al bordo del contratto
+di 1s. La ripartizione:
+
+```text
+tutto cio' che precede il registry   ~0,06s
+mod_answer_frame                     ~0,83s   <-- qui
+mod_learn (che poi risponde)         ~0,01s
+scansione del topic post-dispatch    ~0,005s
+```
+
+Dentro `mod_answer_frame` le `answer_projection_resolve` costano 9ms in tutto
+(sei chiamate, due per relazione: un memo per turno le dimezzerebbe, ma non e' il
+problema). Il resto sta nel prodotto cue x predicato del ciclo su
+`answer_frame/2`. **Il costo cresce con la KB**: le 46 voci di
+`facts/foundations.p0` hanno portato quel modulo da 0,70s a 0,86s, +22%.
+
+Vicoli ciechi gia' battuti, per non ripeterli:
+
+- **non e' `kb_nearest_concept`.** Sembrava il colpevole (scansiona OGNI fatto
+  quotato, tokenizza fino a 96 token da 512 byte per fatto), ma su questo turno
+  non viene nemmeno chiamato — verificato con una stampa all'ingresso.
+- **la firma a 4 caratteri non basta da sola.** `word_sim/2` e' uguaglianza
+  oppure prefisso comune di 4 caratteri, quindi i primi 4 byte impacchettati sono
+  una condizione NECESSARIA e permettono di rifiutare con un confronto intero.
+  Scritta e misurata su un turno che usa davvero quella scansione («the organ
+  that pumps blood»): 3,05-3,17s prima, 3,20-3,36s dopo. Nessun guadagno, quindi
+  **non e' stata committata**. Una prova deve poter fallire, anche quando la
+  prova e' un benchmark.
+- **gprof non attribuisce questo carico.** Con `-pg` (sia `-O2` sia `-O0`) il
+  profilo piatto totalizza 0,1s su turni che ne costano 3,6: i campioni non
+  raggiungono il cammino caldo. `perf` e' bloccato da `perf_event_paranoid`. Lo
+  strumento che ha funzionato e' il cronometro per fase e per modulo dentro
+  `brain_respond_dispatch`.
+
+Il prossimo passo utile e' quindi dentro `mod_answer_frame`: indicizzare le cue
+per token invece di provarle tutte, e memoizzare per turno la coppia
+(relazione, superficie). La `lazy_load` del filo di residenza aiuta il boot e la
+memoria, non questo turno: qui la conoscenza pertinente e' gia' residente ed e'
+il ciclo a essere quadratico nella KB.
+
+### Debiti minori misurati nello stesso giro
+
+- **accordo di numero:** «Ho estratto 1 fatti». `{count}` riempie una forma
+  plurale fissa. Serve una selezione della forma per numero come CONOSCENZA
+  (`plural_form/3` o un `response_template` scelto dal conteggio), non un ramo in
+  C.
+- **soggetto duplicato:** «blockchain is A blockchain is an append-only...». Il
+  frame inglese antepone il soggetto a una glossa che ne ha gia' uno.
+
 ## Popular wisdom and proverbs
 
 Add popular wisdom from multiple cultures as atomized, inferable knowledge,
