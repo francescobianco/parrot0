@@ -20,4 +20,7 @@
 > questo e un casino
 < Non capisco ancora.
 > parliamo di formaggio
-< Mmh, non conosco ancora cheese. Vuoi che cerchi informazioni?
+# gen384: in italiano il muro NON nomina la parola: il vocabolario copre una
+# lingua sola (lexicon_language/1), quindi li' un'assenza non e' informativa e
+# nominarla direbbe il vero senza servire. Il sensore registra comunque.
+< Non sono sicuro di aver seguito. Puoi dirlo in un altro modo?

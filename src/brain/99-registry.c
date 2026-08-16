@@ -906,13 +906,23 @@ static void not_understood(Brain *b, const char *canon,
     const size_t NV = it ? sizeof v_it / sizeof v_it[0] : sizeof v_en / sizeof v_en[0];
     const char *classic = it ? "Non capisco ancora." : "I don't understand that yet.";
 
-    if (!b || strcmp(classic, b->last_reply) != 0) { /* fine to say it once */
-        put(classic, out, out_size);
-        if (b) b->fallbacks++;
-        return;
-    }
-
-    /* it would repeat -> vary. Prefer reflecting a salient content word. */
+    /* ── gen384: IL MURO DEVE DIRE DOVE SI E' FERMATO ───────────────────────
+     *
+     * Fino a qui il declino informato — «non conosco ancora <parola>» — era
+     * annidato SOTTO il ramo anti-ripetizione: scattava solo quando la risposta
+     * *stava per ripetersi*. Cioe' il sensore delle lacune era un effetto
+     * collaterale di una correzione di naturalezza (gen55), e alla PRIMA
+     * occorrenza non registrava e non diceva niente.
+     *
+     * Il costo, misurato: «quante sono le carte del pocker» si canonicalizza in
+     * "how many are the cards of the pocker" — perfetto tranne una parola — e la
+     * risposta era «Non capisco ancora». parrot0 sapeva esattamente dove si era
+     * fermato e taceva. Un interlocutore che dice *dove* si e' perso e' cio' che
+     * distingue una conversazione da un muro (the-linguistic-glue.md).
+     *
+     * Ora la ricerca della parola opaca viene PRIMA, e il declino informato e' il
+     * caso normale: la frase generica resta per quando non c'e' niente da
+     * nominare — quando tutte le parole erano note e a mancare e' il ponte. */
     char buf[256];
     snprintf(buf, sizeof buf, "%s", canon);
     char *w[64];
@@ -921,23 +931,76 @@ static void not_understood(Brain *b, const char *canon,
     for (size_t i = 0; i < nw; i++) {
         char *t = strip_edge_punct(w[i]);
         char desc[256];
+        /* CHE COSA si nomina. Il criterio resta quello storico — «non ho fatti su
+         * questa cosa» — con una sola esclusione, e nessuna delle due e' un
+         * elenco in C.
+         *
+         * gen384 ha provato a stringerlo su `lexeme/1` (35k voci) per non
+         * nominare parole comuni come "bigger" o "capital". Due misure lo hanno
+         * scartato: «parliamo di formaggio» smetteva di nominare "cheese" — il
+         * caso che conta — e caricare il lessico al muro triplicava la KB e
+         * faceva sforare i tempi dei turni successivi. La lezione e' registrata
+         * perche' non la si ripeta: il discriminante che serve non e' lessicale,
+         * e' POSIZIONALE (quale token e' l'argomento del turno), e arriva col
+         * residuo tipizzato di question-emergence.md §11.5.
+         *
+         * L'esclusione: una parola che parrot0 usa come MARCATORE non e' un
+         * argomento su cui offrirsi di imparare — "thanks, that was wrong" non e'
+         * una domanda su "thanks". I marcatori sono gia' conoscenza
+         * (`social_marker/2`), quindi la frontiera si estende con un fatto. */
+        const char *smq[2] = { NULL, t };
+        char smhit[1][KB_TERM_LEN];
+        int is_marker = b && b->kb &&
+                        kb_match(b->kb, "social_marker", smq, 2, smhit, 1) > 0;
         int known = b && b->kb &&
-                    (kb_knows_pred(b->kb, t) ||
+                    (is_marker ||
+                     kb_knows_pred(b->kb, t) ||
                      kb_describe_entity(b->kb, t, desc, sizeof desc));
+        /* IL SENSORE E LA RISPOSTA SONO DUE COSE DIVERSE.
+         *
+         * Il vocabolario di parrot0 copre UNA lingua (question-emergence.md
+         * §13.4). In italiano, quindi, "non ho fatti su questa parola" non
+         * distingue un argomento sconosciuto da una parola qualunque della
+         * lingua: misurato sulla suite, il declino finiva per nominare
+         * "facciamo", "chiamo", "allora", "parlare", "scritto" — parole funzione
+         * e verbi comuni. Nominarle e' vero alla lettera e privo di senso per
+         * chi legge.
+         *
+         * Quindi la NOMINA vale solo dove il vocabolario e' abbastanza completo
+         * da rendere informativa un'assenza, e quali lingue lo siano e' un fatto
+         * (`lexicon_language/1`). Il SENSORE resta attivo comunque — la lacuna
+         * viene registrata in KB anche quando la risposta non la nomina, perche'
+         * l'autodiscovery lavora sui fatti e non sulle frasi. Il giorno in cui il
+         * vocabolario italiano esiste, un fatto accende la nomina senza toccare
+         * il motore. */
+        if (!known) {
+            char tl[8]; current_lang(b, tl, sizeof tl);
+            const char *llq[] = { tl };
+            if (b && b->kb && !kb_query(b->kb, "lexicon_language", llq, 1))
+                known = 1;
+        }
         if (strlen(t) >= 6 && isalpha((unsigned char)t[0]) &&
             !is_stopword(b, t) && !known) {
             sw = t; break;
         }
     }
+    /* Inizializzato alla frase generica: se un template KB manca o non rende,
+     * il declino resta comunque una frase vera invece di memoria non scritta. */
     char cand[256];
-    unsigned long k = b->fallbacks;
+    snprintf(cand, sizeof cand, "%s", classic);
+    unsigned long k = b ? b->fallbacks : 0;
+    if (!b) { put(classic, out, out_size); return; }
     if (sw) {
         /* gen335d (linguistic glue, KB-first): store the knowledge gap as a KB
          * fact, not a C field. The fact of not-knowing IS knowledge.
          * gen335e: skip if this topic was already tried and failed. */
-        const char *gq[] = { NULL };
-        char gcheck[1][KB_TERM_LEN];
-        int already_gap = kb_match(b->kb, "pending_gap", gq, 1, gcheck, 1) > 0;
+        /* gen384: la guardia era GLOBALE — un solo pending_gap alla volta, per
+         * tutta la sessione — quindi la seconda parola ignota di una conversazione
+         * non veniva mai registrata. Ora e' per TOPIC: chiedere di due cose
+         * sconosciute lascia due tracce, che e' il minimo perche' l'autodiscovery
+         * abbia qualcosa su cui lavorare. */
+        const char *gq[] = { sw };
+        int already_gap = kb_query(b->kb, "pending_gap", gq, 1);
         const char *fq[] = { sw, NULL };
         int already_failed = kb_query(b->kb, "pending_gap_failed", fq, 1);
         if (!already_gap && !already_failed) {
@@ -959,6 +1022,13 @@ static void not_understood(Brain *b, const char *canon,
                 kb_response_slots(b, "fallback_still_gap", slots, 1, cand, sizeof cand);
             }
         }
+    }
+    else if (strcmp(classic, b->last_reply) != 0) {
+        /* Nessuna parola opaca da nominare: le parole c'erano tutte e a non
+         * esserci e' il ponte. La frase generica va bene una volta. */
+        put(classic, out, out_size);
+        b->fallbacks++;
+        return;
     }
     else    snprintf(cand, sizeof cand, "%s", v[k % NV]);
     for (size_t t = 0; t < NV && strcmp(cand, b->last_reply) == 0; t++)

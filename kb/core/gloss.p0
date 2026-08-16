@@ -1,3 +1,15 @@
+% gen384 — queste parole le ha indicate il SENSORE, non io: il declino informato
+% ha nominato "risposto", "inventato", "scherzando" come parole fuori dal
+% lessico mentre provavo conversazioni italiane. E' il giro che si chiude —
+% il muro dice cosa manca, il fatto lo colma, il turno dopo funziona.
+tr(answered, risposto).
+tr(answer, risposta).
+tr(module, modulo).
+tr(modules, moduli).
+tr(invented, inventato).
+tr(high, alto).
+tr(tall, alto).
+
 tr(card, carta).
 tr(cards, carte).
 tr(game, partita).

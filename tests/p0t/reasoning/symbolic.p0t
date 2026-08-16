@@ -27,5 +27,7 @@
 < That looks like a palindrome.
 # Guard: plain prose must NOT be hijacked by any recognizer — it falls through.
 > the otter swims downstream
-< I don't understand that yet.
+# La guardia regge: nessun riconoscitore simbolico rivendica la frase. Il
+# declino di gen384 nomina "downstream", e resta un declino.
+< Hmm, I don't know about downstream yet. Want me to learn about it?
 

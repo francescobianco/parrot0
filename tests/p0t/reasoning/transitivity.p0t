@@ -33,5 +33,9 @@
 # Honesty: two comparatives with no shared middle term do not chain; and mixing
 # relations (bigger vs taller) is declined rather than silently coerced.
 > if a is bigger than b and b is taller than c, is a bigger than c?
-< I don't understand that yet.
+# gen384: il muro nomina "bigger", su cui non ha fatti. LIMITE NOTO: il criterio
+# non distingue un comparativo da un argomento — servirebbe la posizione nel
+# turno, cioe' il residuo tipizzato (question-emergence.md §11.5). L'invariante
+# del caso regge: le relazioni miste non vengono coerciute.
+< Hmm, I don't know about bigger yet. Want me to learn about it?
 

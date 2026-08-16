@@ -35,7 +35,9 @@
 < 8.
 # Non-numbers still fall through.
 > what is gold + silver
-< I don't understand that yet.
+# gen384: il muro NOMINA cio' su cui non ha fatti invece di tacere. Resta un
+# declino — nulla di inventato — ma dice dove si e' fermato.
+< Hmm, I don't know about silver yet. Want me to learn about it?
 # Successful turn resets the fallback state so the classic line can fire.
 > what is 10 + 2
 < 12.

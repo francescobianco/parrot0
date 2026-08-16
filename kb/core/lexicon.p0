@@ -157,6 +157,14 @@ phrase_canon("quanto vale", "what is").
 % gen383 — parole misurate assenti dal lessico durante la messa a punto della
 % canonicalizzazione: senza di loro il turno italiano arrivava ai moduli con
 % isole non tradotte, che nessun cue puo' agganciare.
+% In quali lingue il VOCABOLARIO di parrot0 e' abbastanza completo perche'
+% l'assenza di una parola sia un'informazione. Serve al muro (gen384): in una
+% lingua non coperta, "non ho fatti su questa parola" non distingue un argomento
+% sconosciuto da una parola qualunque, e il declino finirebbe per nominare
+% "allora" o "facciamo". Aggiungere `lexicon_language(it).` il giorno in cui il
+% vocabolario italiano esiste accende la nomina senza toccare il motore.
+lexicon_language(en).
+
 % parrot0 lexical knowledge - curated closed-class/function words.
 % Loaded as base knowledge by brain_create before the optional world/session
 % layers, so filters can consult the KB without persisting these facts.
@@ -424,6 +432,9 @@ stopword(volentieri).
 stopword(nessuno).
 stopword(funziona).
 stopword(ancora).
+% gen384: determinante, non argomento — senza questa riga il muro offriva di
+% imparare "another" da «another blargle».
+stopword(another).
 stopword(parliamo).
 stopword(devi).
 stopword(vuoi).

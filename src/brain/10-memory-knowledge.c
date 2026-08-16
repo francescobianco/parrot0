@@ -3272,6 +3272,31 @@ static int extract_class_statement(Brain *b, const char *norm,
     char *w[32]; size_t n = split_words(s, w, 32);
     if (n < 3) return 0;
 
+    /* ── gen384: UNA DOMANDA NON E' UN'ASSERZIONE ───────────────────────────
+     *
+     * Misurato, e in inglese, quindi non e' un difetto della canonicalizzazione:
+     *
+     *     who has invented the phone  ->  Learned: created_by(who_has, phone, invented).
+     *     who has written hamlet      ->  Learned: created_by(who_has, hamlet, wrote).
+     *
+     * mentre "who invented the telephone" rispondeva correttamente. L'estrattore
+     * di prosa leggeva la forma "S <verbo-di-creazione> O" e prendeva
+     * l'interrogativo come SOGGETTO, incollando "who has" in un'entita'. Il
+     * risultato non e' un muro: e' un fatto FALSO scritto in KB e annunciato come
+     * appreso — la cosa peggiore che questo progetto possa fare (mantra #7), e
+     * peggiore perche' persiste oltre il turno.
+     *
+     * La guardia e' strutturale e non un elenco: se il turno APRE con una parola
+     * interrogativa, sta chiedendo, non affermando. Quali parole siano
+     * interrogative e' gia' conoscenza (`question_word/1`), quindi una lingua
+     * nuova non costa motore. */
+    {
+        char head[KB_TERM_LEN];
+        snprintf(head, sizeof head, "%s", w[0]);
+        const char *qw[] = { strip_edge_punct(head) };
+        if (b && b->kb && kb_query(b->kb, "question_word", qw, 1)) return 0;
+    }
+
     /* past copula -> present (tenseless fact), same rule as the class section */
     for (size_t i = 0; i < n; i++) {
         if (!strcmp(w[i], "was")) { w[i][0]='i'; w[i][1]='s'; w[i][2]='\0'; }

@@ -11,11 +11,11 @@
 # It must not claim ignorance of parrot0, which is known through i_am(parrot0),
 # and it must use KB stopword facts for supported Italian function words.
 > tell me blargle
-< I don't understand that yet.
+< Hmm, I don't know about blargle yet. Want me to learn about it?
 > parrot0 !!!
-< I didn't quite catch that. What would you like to know?
-> another blargle
 < I don't understand that yet.
+> another blargle
+< Hmm, I don't know about blargle yet. Want me to learn about it?
 > ma stai scherzando?
 < Non capisco ancora.
 

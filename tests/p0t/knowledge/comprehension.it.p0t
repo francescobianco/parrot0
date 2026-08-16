@@ -22,4 +22,7 @@
 
 # Focused digest in Italian — the sentence about Marte.
 > cosa hai imparato su marte?
-< Mmh, non conosco ancora imparato. Vuoi che cerchi informazioni?
+# gen384: in italiano il muro NON nomina la parola: il vocabolario copre una
+# lingua sola (lexicon_language/1), quindi li' un'assenza non e' informativa e
+# nominarla direbbe il vero senza servire. Il sensore registra comunque.
+< Non ho afferrato bene. Cosa vorresti sapere?
