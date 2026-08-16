@@ -54,6 +54,23 @@ STIMULI = [
      "stessa ambiguita', altra lingua: la mossa e' la stessa?"),
     ("controllo", "quanti giocatori ci sono a scacchi",
      "CONTROLLO NEGATIVO: domanda NON ambigua — non deve disambiguare nulla"),
+
+    # --- A CHE LIVELLO vive la distinzione pezzo/pedone? (secondo giro) ---
+    # L'ipotesi da falsificare: NON e' tassonomica (una proprieta' del pedone) ma
+    # PRAGMATICA — vive dentro certi USI, e fuori di quelli non esiste. Se e'
+    # cosi', un modello deve rispondere «si'» a «il pedone e' un pezzo?» e
+    # contemporaneamente escludere i pedoni da «ho vinto un pezzo».
+    ("livello_idioma", "negli scacchi cosa vuol dire vincere un pezzo",
+     "L'IDIOMA: e' qui che la distinzione morde davvero? i pedoni sono esclusi?"),
+    ("livello_idioma", "negli scacchi ho vinto un pedone, ho vinto un pezzo?",
+     "il caso che mette in contraddizione la tassonomia e l'idioma"),
+    ("livello_differenza", "che differenza c'e' tra un pezzo e un pedone negli scacchi",
+     "chiesto di petto: risponde con una tassonomia o con un uso?"),
+    ("livello_sottoclasse", "quanti pezzi minori ci sono negli scacchi",
+     "'pezzi minori' e' un livello ANCORA piu' fine: alfieri e cavalli"),
+    ("livello_conteggio_tecnico",
+     "in una partita di scacchi, quanti pezzi ha ogni giocatore escludendo i pedoni",
+     "il conteggio nel registro tecnico: 8"),
 ]
 
 

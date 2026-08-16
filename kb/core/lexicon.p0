@@ -51,6 +51,14 @@ function_word(it, i, "the").
 function_word(it, delle, "of the").
 function_word(it, degli, "of the").
 function_word(it, nel, "in the").
+% gen389: le articolate mancanti trovate misurando («negli scacchi» restava
+% un'isola italiana in mezzo alla frase canonica).
+function_word(it, negli, "in the").
+function_word(it, nelle, "in the").
+function_word(it, dagli, "from the").
+function_word(it, dal, "from the").
+function_word(it, dalla, "from the").
+function_word(it, ogni, "every").
 function_word(it, nella, "in the").
 function_word(it, nei, "in the").
 function_word(it, sul, "on the").

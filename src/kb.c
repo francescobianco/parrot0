@@ -925,6 +925,7 @@ typedef struct {
     size_t max;
     size_t count;
     int    found;
+    int    bag;                /* gen389: 1 = conserva i duplicati (findall_bag) */
     int    frame;
 
     /* gen382 — the two anti-HYSTERESIS guards.
@@ -1197,7 +1198,18 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (S->qvar == NULL) { S->found = 1; return 1; }
         char v[KB_TERM_LEN];
         deep_resolve(s, S->qvar, v, sizeof v, 0);   /* U3: render nested structure */
-        if (!is_var(v)) push_unique(S->out, &S->count, S->max, v);
+        /* gen389: `findall/3` e' un SET — deduplica — e non un BAG come in
+         * Prolog standard. Non e' un difetto in se': contare i MEMBRI distinti di
+         * una coorte, che e' l'uso storico qui, vuole esattamente questo. Ma
+         * rende sbagliata ogni SOMMA: 1+1+2+2+2+8 (i pezzi di un giocatore a
+         * scacchi) diventava 1+2+8 = 11 invece di 16, in silenzio.
+         * `findall_bag/3` conserva i duplicati. Due nomi, due semantiche, nessuna
+         * delle due implicita. */
+        if (!is_var(v)) {
+            if (S->bag) { if (S->count < S->max) snprintf(S->out[S->count++],
+                                                          KB_TERM_LEN, "%s", v); }
+            else push_unique(S->out, &S->count, S->max, v);
+        }
         return S->count >= S->max;
     }
     if (depth > KB_MAX_DEPTH) return 0;
@@ -1455,7 +1467,8 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return solve(S, goals, ngoals, idx + 1, s2, depth);
     }
 
-    if (strcmp(g->pred, "findall") == 0 && g->argc == 3) {  /* findall/3 */
+    if ((strcmp(g->pred, "findall") == 0 ||
+         strcmp(g->pred, "findall_bag") == 0) && g->argc == 3) {
         char gs[KB_TERM_LEN], tv[KB_TERM_LEN];
         deep_resolve(s, g->args[1], gs, sizeof gs, 0);
         deep_resolve(s, g->args[0], tv, sizeof tv, 0);
@@ -1470,6 +1483,7 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         F.qvar = is_var(tv) ? tv : "$Q";
         F.out = solutions;
         F.max = max_sol;
+        F.bag = strcmp(g->pred, "findall_bag") == 0;
         /* gen382o — the sub-solver CONTINUES the caller's frame counter.
          *
          * Clause variables are renamed apart as `$Name_<frame>`, and this
@@ -1684,7 +1698,8 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||
         strcmp(pred,"ne")==0 || strcmp(pred,"call")==0 ||
         strcmp(pred,"assert")==0 || strcmp(pred,"retract")==0 ||
-        strcmp(pred,"dif")==0 ||         strcmp(pred,"findall")==0 || strcmp(pred,"prob")==0 ||
+        strcmp(pred,"dif")==0 ||         strcmp(pred,"findall")==0 ||
+        strcmp(pred,"findall_bag")==0 || strcmp(pred,"prob")==0 ||
         strcmp(pred,"ranges_over")==0));
     for (size_t i = 0; i < kb->nr && !has_rule; i++)
         if (kb->rules[i].head.argc == argc &&

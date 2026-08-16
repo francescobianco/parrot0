@@ -404,6 +404,13 @@ response_template(spell_unknown_word, it, "Cosi' com'e' si scrive {spelled}, ma 
 % giusto: il contenuto arrivava, la lingua no. E' l'ultimo anello — dato ->
 % risposta — di question-emergence.md §10.7. Con un template la localizzazione e'
 % un fatto /3, e l'articolo sbagliato di "A poker has 52 cards" si corregge qui.
+% gen389 — la risposta a una domanda di conteggio ambigua. La forma viene dalla
+% sonda all'oracolo: lettura principale con la CHIAVE dichiarata, lettura vicina,
+% e scomposizione. Non chiede — non scarica sull'utente un lavoro che puo' fare
+% lui — ma non nasconde: chi intendeva un'altra lettura se la trova gia' davanti.
+response_template(count_readings, "{total} in total, {per_side} per side ({parts}), in {kinds} kinds.").
+response_template(count_readings, it, "{total} in tutto, {per_side} per giocatore ({parts}), di {kinds} tipi.").
+
 response_template(quantity_has_frame, "A {entity} has {count} {unit}.").
 response_template(quantity_has_frame, it, "{entity} ha {count} {unit}.").
 response_template(quantity_in_frame, "There are {count} {unit} in a {entity}.").

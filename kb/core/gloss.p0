@@ -30,6 +30,8 @@ tr(kidneys, reni).
 tr(stomach, stomaco).
 tr(skin, pelle).
 
+tr(pieces, pezzi).
+tr(piece, pezzo).
 tr(card, carta).
 tr(cards, carte).
 tr(game, partita).

@@ -845,6 +845,50 @@ machinery(surface_reachable).
 machinery(unreachable_facet).
 machinery(consumer_reads).
 
+% ── LE LETTURE DI UNA DOMANDA DI CONTEGGIO (gen389) ─────────────────────────
+%
+% «Quanti pezzi ci sono negli scacchi» porta due ambiguita' sovrapposte, e la
+% sonda `tests/ambiguity_probe.py` ha mostrato che un modello forte non chiede:
+% sceglie la lettura piu' probabile, la DICHIARA («32 in totale»), e aggiunge
+% subito la lettura vicina e la scomposizione. Qui le letture si DERIVANO dalla
+% composizione, quindi una collezione nuova costa i suoi fatti e nessuna regola.
+%
+% La relazione e' UNA e generale — `part_count(Collezione, Parte, Quante)` — non
+% una per dominio (mantra #3, astrai fino al punto fisso). Il primo tentativo la
+% passava come DATO a `apply/2` per restare generico sul nome; era piu' debole di
+% cosi' e piu' fragile, perche' `apply/2` non si comporta dentro `findall/3`
+% (limite del motore trovato qui, annotato in question-emergence.md). Una
+% relazione sola non ha bisogno di essere meta-chiamata.
+
+collection_kinds($Coll, $N) :-
+    findall($Part, part_count($Coll, $Part, $Q), $Ps),
+    count_list($Ps, $N).
+
+% findall_bag e non findall: qui i duplicati SONO il dato (due torri, due
+% alfieri, due cavalli). Con la findall che deduplica la somma dava 11 invece di
+% 16, in silenzio — vedi il commento in src/kb.c.
+collection_per_side($Coll, $N) :-
+    findall_bag($Q, part_count($Coll, $Part, $Q), $Qs),
+    sum_list($Qs, $N).
+
+collection_total($Coll, $N) :-
+    collection_per_side($Coll, $Per),
+    sides($Coll, $Sides),
+    is($N, mul($Per, $Sides)).
+
+% La vista unica: ogni lettura con la sua CHIAVE, che e' cio' che va detto
+% insieme al numero perche' la risposta non sia una mezza verita'.
+count_reading($Coll, kinds, $N)    :- collection_kinds($Coll, $N).
+count_reading($Coll, per_side, $N) :- collection_per_side($Coll, $N).
+count_reading($Coll, total, $N)    :- collection_total($Coll, $N).
+
+machinery(collection_kinds).
+machinery(collection_per_side).
+machinery(collection_total).
+machinery(count_reading).
+machinery(part_count).
+machinery(sides).
+
 % Internal protocol predicates are declared as machinery so self-description
 % never mistakes a task trace or a renderer registry for world knowledge.
 machinery(reasoning_operator_active).

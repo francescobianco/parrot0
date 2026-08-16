@@ -16,6 +16,34 @@ category_member(chess_piece, rook).
 category_member(chess_piece, bishop).
 category_member(chess_piece, knight).
 category_member(chess_piece, pawn).
+% ── gen389: LA COMPOSIZIONE, da cui i conteggi si DERIVANO ──────────────────
+%
+% «Quanti pezzi ci sono negli scacchi» non ha UNA risposta: 32 (tutti), 16 (per
+% giocatore), 6 (tipi distinti). Scriverle come tre numeri a mano sarebbe fissare
+% l'istanza; qui si dichiara la COMPOSIZIONE e le tre letture si derivano da lei
+% con una procedura che non parla di scacchi (procedures.p0).
+%
+% `part_count/3` e' la relazione GENERALE delle collezioni con parti contate, non
+% una relazione degli scacchi: una collezione nuova — un mazzo, un servizio da te'
+% — usa la stessa e le tre letture le eredita.
+%
+% La composizione ha un secondo pregio, ed e' quello che la sonda all'oracolo ha
+% isolato come mossa migliore: esporla rende il numero VERIFICABILE e contiene
+% implicitamente le altre letture, cosi' chi chiedeva un'altra cosa se la trova
+% gia' davanti senza dover ridomandare.
+part_count(chess, king, 1).
+part_count(chess, queen, 1).
+part_count(chess, rook, 2).
+part_count(chess, bishop, 2).
+part_count(chess, knight, 2).
+part_count(chess, pawn, 8).
+sides(chess, 2).
+% L'unita' della collezione: e' la parola che il turno deve nominare perche' la
+% risposta sui pezzi sia pertinente. Senza, «quanti GIOCATORI ci sono a scacchi»
+% riceveva il conteggio dei pezzi — disambiguare cio' che non e' ambiguo e'
+% peggio che non disambiguare (la quinta mossa isolata dalla sonda).
+collection_unit(chess, pieces).
+
 chess_piece($Piece) :- category_member(chess_piece, $Piece).
 game_component(chess, $Piece) :- chess_piece($Piece).
 

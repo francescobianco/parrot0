@@ -3055,8 +3055,97 @@ static int mod_wordproblem(Brain *b, const char *norm, const char *raw,
  * string atom and is parsed back with parse_num when compared. Turning prose
  * into these facts (open-domain extraction) is deliberately still out of scope:
  * we build the reasoning, not a passage parser. */
+/* ── gen389: UNA DOMANDA DI CONTEGGIO PUO' AVERE PIU' LETTURE ────────────────
+ *
+ * «Quanti pezzi ci sono negli scacchi» non ha una risposta sola: 32 (tutti), 16
+ * (per giocatore), 6 (tipi distinti). Rispondere un numero nudo e' una mezza
+ * verita' — e rispondere «dipende, quale intendi?» scarica sull'utente un lavoro
+ * che si puo' fare per lui.
+ *
+ * La sonda `tests/ambiguity_probe.py` ha osservato che cosa fa un modello forte,
+ * e la mossa non e' chiedere: sceglie la lettura piu' probabile e la DICHIARA
+ * («32 in totale»), poi da' subito la lettura vicina («16 per giocatore») e la
+ * SCOMPOSIZIONE — che rende il numero verificabile e contiene implicitamente le
+ * altre letture, cosi' chi voleva un'altra cosa se la trova gia' davanti.
+ *
+ * Qui il motore compone; i numeri li deriva la KB dalla composizione
+ * (`count_reading/3` in procedures.p0), quale lettura sia la principale e' un
+ * fatto (`reading_default/1`), e le frasi sono `response_template`. Una
+ * collezione nuova — un mazzo, un servizio da te' — costa i suoi `part_count/3`
+ * e eredita tutto. */
+static int count_readings_answer(Brain *b, const char *canon,
+                                 char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+    if (!kb_cue_match(b, "count_question", canon)) return 0;
+
+    char tmp[256]; snprintf(tmp, sizeof tmp, "%s", canon);
+    char *w[64]; size_t nw = split_words(tmp, w, 64);
+
+    for (size_t i = 0; i < nw; i++) {
+        char *ent = strip_edge_punct(w[i]);
+        if (strlen(ent) < 3) continue;
+        /* IL CONTROLLO NEGATIVO, che la sonda ha isolato come quinta mossa: non
+         * si disambigua cio' che non e' ambiguo. Senza questa guardia «quanti
+         * GIOCATORI ci sono a scacchi» riceveva la risposta sui PEZZI — non solo
+         * una disambiguazione inutile, una risposta a un'altra domanda. L'unita'
+         * della collezione e' dichiarata, e dev'essere quella che il turno
+         * nomina. */
+        {
+            char unit[1][KB_TERM_LEN];
+            const char *uq[2] = { ent, NULL };
+            if (kb_match(b->kb, "collection_unit", uq, 2, unit, 1) != 1) continue;
+            char ub[KB_TERM_LEN]; snprintf(ub, sizeof ub, "%s", unit[0]);
+            if (!cue(canon, kb_dequote(ub))) continue;
+        }
+        char kinds[1][KB_TERM_LEN], per[1][KB_TERM_LEN], tot[1][KB_TERM_LEN];
+        const char *q2[2] = { ent, NULL };
+        if (kb_match(b->kb, "collection_kinds",    q2, 2, kinds, 1) != 1) continue;
+        if (kb_match(b->kb, "collection_per_side", q2, 2, per,   1) != 1) continue;
+        if (kb_match(b->kb, "collection_total",    q2, 2, tot,   1) != 1) continue;
+
+        /* la scomposizione, nell'ordine in cui la KB la dichiara */
+        char parts[300]; size_t po = 0; parts[0] = '\0';
+        char names[16][KB_TERM_LEN];
+        const char *pq[3] = { ent, NULL, NULL };
+        size_t np = kb_match(b->kb, "part_count", pq, 3, names, 16);
+        for (size_t k = 0; k < np && po + 2 < sizeof parts; k++) {
+            char cnt[1][KB_TERM_LEN];
+            const char *cq[3] = { ent, names[k], NULL };
+            if (kb_match(b->kb, "part_count", cq, 3, cnt, 1) != 1) continue;
+            char pres[KB_TERM_LEN];
+            present_atom(b, names[k], pres, sizeof pres);
+            /* snprintf restituisce la lunghezza che AVREBBE scritto, non quella
+             * scritta: accumularla senza limite fa scavallare `po` oltre il
+             * buffer, e `sizeof parts - po` va in underflow. Il risultato non e'
+             * un troncamento ma una scrittura oltre il buffer, che qui azzerava
+             * le variabili accanto — i conteggi uscivano 0 mentre la KB li dava
+             * giusti. Si tronca e si ferma. */
+            int wrote = snprintf(parts + po, sizeof parts - po, "%s%s %s",
+                                 po ? ", " : "", cnt[0], pres);
+            if (wrote < 0 || (size_t)wrote >= sizeof parts - po) {
+                po = sizeof parts - 1;
+                break;
+            }
+            po += (size_t)wrote;
+        }
+
+        char ename[KB_TERM_LEN];
+        present_atom(b, ent, ename, sizeof ename);
+        char msg[600];
+        const KbResponseSlot s[] = {
+            {"entity", ename}, {"total", tot[0]},
+            {"per_side", per[0]}, {"kinds", kinds[0]}, {"parts", parts} };
+        if (!kb_response_slots(b, "count_readings", s, 5, msg, sizeof msg))
+            return 0;
+        put(msg, out, out_size);
+        return 1;
+    }
+    return 0;
+}
+
 static int mod_quantity(Brain *b, const char *norm, const char *raw,
                         char *out, size_t out_size) {
+    if (count_readings_answer(b, norm, out, out_size)) return 1;
     (void)raw;
     if (!b || !b->kb) return 0;
 
