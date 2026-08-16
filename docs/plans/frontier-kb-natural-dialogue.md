@@ -1362,15 +1362,19 @@ letture concorrenti sono viste dello stesso frame. Il ratchet
 `meta/three_axis_gap.p0t` materializza un frame inventato, toglie e ripristina
 uno slot, conserva due letture, cambia selected/retained e abla una superficie
 `answer_frame/2` a runtime. `make soft-test` resta a 6 secondi sul budget 15;
-`make test` chiude 1816 asserzioni, zero fallimenti. Il file e' deliberatamente
-incompleto in due punti:
+`make test` chiude 1821 asserzioni, zero fallimenti. Il file e' deliberatamente
+incompleto nel proprio confine end-to-end:
 
 1. il produttore NL -> frame non esiste ancora, quindi la generazione non e'
-   end-to-end e non va promossa;
-2. `missing_fact` non viene derivato da `naf(frame_answer(...))`: finche' il
-   report `proved | finite_failure | incomplete` non e' interrogabile dalla KB,
-   quella negazione potrebbe trasformare un budget esaurito in una falsa
-   assenza. Oggi vengono derivati soltanto residui strutturali e proof positive.
+   end-to-end e non va promossa.
+
+`missing_fact` e' invece ora derivato in modo sicuro. Il solver possiede gia' i
+tre esiti `proved | finite_failure | incomplete`: la NAF riesce soltanto sul
+fallimento finito e declina quando il budget viene esaurito. La regola nega la
+vista ground `frame_has_answer(Frame)`, non `frame_answer(Frame, Value)` con una
+variabile libera. Il `.p0t` prova che assert del solo fatto chiude il gap e che
+retract lo riapre. Resta aperto il falsificatore deterministico che porti davvero
+la ricerca a `incomplete`, oltre ai gap di ponte, operatore e realizzazione.
 
 Il primo rosso del ratchet ha inoltre fissato una regola del dialetto: la NAF
 deve ricevere un goal ground. `frame_residue/2` passa quindi dalle viste positive
@@ -1644,6 +1648,8 @@ Avvio della gen393:
 3. **producer aperto:** nessun consumer C locale viene ancora promosso a
    produttore universale; il prossimo taglio deve materializzare lo stesso frame
    prima del first-match dispatch;
-4. **gap epistemico aperto:** finite failure e incomplete devono diventare
-   distinguibili prima di derivare `missing_fact`, `missing_bridge` o
-   `missing_operator` da un fallimento.
+4. **primo gap epistemico presente:** `missing_fact` nasce soltanto dalla NAF
+   ground su `frame_has_answer/1`; il solver gia' distingue finite failure da
+   incomplete e nel secondo caso non autorizza il gap. Restano da falsificare
+   deterministicamente il caso di budget e da modellare ponte, operatore e
+   realizzazione.

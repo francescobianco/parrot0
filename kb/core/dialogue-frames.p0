@@ -30,9 +30,12 @@ frame_completeness($Frame, incomplete) :- frame_candidate($Frame), naf(frame_com
 frame_residue($Frame, missing_relation) :- frame_candidate($Frame), naf(frame_has_relation($Frame)).
 frame_residue($Frame, missing_entity) :- frame_candidate($Frame), naf(frame_has_entity($Frame)).
 
-% Una proof positiva e' sicura anche prima del protocollo proved/finite_failure/
-% incomplete. La negazione di frame_answer/2 NON viene usata per inventare gap.
+% La proof positiva usa il solver ordinario. Per inferire l'assenza si nega la
+% vista ground frame_has_answer/1: la NAF del motore riesce sul solo fallimento
+% finito e declina se il budget rende la ricerca incompleta.
 frame_answer($Frame, $Value) :- frame_slot($Frame, relation, $Relation), frame_slot($Frame, entity, $Entity), apply($Relation, cons($Entity, cons($Value, nil))).
+frame_has_answer($Frame) :- frame_answer($Frame, $Value).
+frame_gap($Frame, missing_fact) :- frame_complete($Frame), naf(frame_has_answer($Frame)).
 
 candidate_reading($Frame, $Reading) :- reading_frame($Reading, $Frame), reading_evidence($Reading, $Evidence).
 selected_reading($Frame, $Reading) :- candidate_reading($Frame, $Reading), reading_status($Reading, selected).

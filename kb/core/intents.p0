@@ -2208,6 +2208,7 @@ projection_source(contextual_denotation, denotation_identity, binary).
 answer_frame("frame completeness", frame_completeness).
 answer_frame("frame residue", frame_residue).
 answer_frame("frame answer", frame_answer).
+answer_frame("frame gap", frame_gap).
 answer_frame("candidate reading", candidate_reading).
 answer_frame("selected reading", selected_reading).
 answer_frame("retained reading", retained_reading).

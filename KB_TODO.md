@@ -46,16 +46,18 @@ letture e status sono fatti; completezza, residuo strutturale e risposta
 derivabile sono regole. `frame_answer/2` usa `apply/2`, quindi attraversa il
 solver comune. `tests/p0t/meta/three_axis_gap.p0t` prova assert/retract di slot,
 proof positiva, due letture concorrenti e ablazione della superficie; `make
-soft-test` resta verde in 6 secondi e `make test` passa 1816 asserzioni senza
+soft-test` resta verde in 6 secondi e `make test` passa 1821 asserzioni senza
 fallimenti. Questo non e' ancora il producer NL -> frame: il test materializza
 il frame esplicitamente e il TODO resta aperto.
 
-Non va aggiunta per ora la scorciatoia
-`missing_fact :- naf(frame_answer(...))`. `question-emergence.md` richiede tre
-esiti epistemici — proved, finite_failure, incomplete — e il budget esaurito non
-puo' diventare un gap. Prima serve rendere il report del solver interrogabile
-dalle regole; soltanto allora il sensore sui tre assi puo' classificare assenza
-di fatto, ponte o operatore senza mentire.
+Il primo gap epistemico e' ora presente senza nuova primitiva C:
+`frame_gap(Frame, missing_fact)` nega la vista ground
+`frame_has_answer(Frame)`. Il solver possiede gia' i tre esiti richiesti da
+`question-emergence.md` — proved, finite failure, incomplete — e la NAF declina
+quando il budget rende la ricerca incompleta. Il ratchet chiude il gap asserendo
+il solo fatto e lo riapre ritraendolo. Restano aperti il falsificatore che
+esaurisca deterministicamente il budget e le diagnosi di ponte, operatore e
+realizzazione.
 
 Il filo di caricamento ha un proprio contratto in
 [`docs/kb-loading-and-profiles.md`](docs/kb-loading-and-profiles.md): il profilo

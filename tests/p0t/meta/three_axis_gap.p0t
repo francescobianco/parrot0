@@ -45,6 +45,23 @@
 > what is the frame answer for inquiry_alpha?
 < Blue.
 
+[test finite_failure_becomes_a_retractable_missing_fact_gap]
+!assert frame_act(inquiry_beta, ask)
+!assert frame_slot(inquiry_beta, relation, widget_colour)
+!assert frame_slot(inquiry_beta, entity, vint)
+> what is the frame completeness for inquiry_beta?
+< Complete.
+> what is the frame gap for inquiry_beta?
+< Missing fact.
+!assert widget_colour(vint, red)
+> what is the frame gap for inquiry_beta?
+<! Missing fact.
+> what is the frame answer for inquiry_beta?
+< Red.
+!forget widget_colour(vint, red)
+> what is the frame gap for inquiry_beta?
+< Missing fact.
+
 [test readings_remain_concurrent_until_status_is_declared]
 !assert reading_frame(reading_blue, inquiry_alpha)
 !assert reading_evidence(reading_blue, lexical_match)
