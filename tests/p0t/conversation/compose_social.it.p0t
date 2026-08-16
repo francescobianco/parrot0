@@ -16,7 +16,10 @@
 > mi chiamo mia
 < Piacere di conoscerti, mia!
 > ho un gatto chiamato neve
-< Got it: your cat is called neve.
+# gen388: la conferma a una frase italiana e' finalmente italiana — cornice
+# (response_template /3) e VALORI (tr/2, la stessa tabella che canonicalizza
+# l'ingresso). Il nome proprio resta intatto: proper_name/1 lo protegge.
+< Ricevuto: il tuo gatto si chiama neve.
 > neve è un felino
 < Learned: felino(snow).
 > è esso un felino?

@@ -156,7 +156,19 @@ static int kb_response_slots(Brain *b, const char *intent,
      * no profile is loaded (no fact) or t!=0, the gen55 anti-repeat rotation holds.
      * This biases only HOW a reply is phrased, never WHAT is said (see
      * docs/plans/mimic-llm.md). */
-    size_t idx = b->response_pick % n;
+    /* gen388: il contatore di rotazione e' quello di QUESTA famiglia. */
+    unsigned *pick = &b->response_pick;
+    for (size_t i = 0; i < b->n_pick_keys; i++)
+        if (strcmp(b->pick_by_key[i].key, intent) == 0) { pick = &b->pick_by_key[i].n; break; }
+    if (pick == &b->response_pick &&
+        b->n_pick_keys < sizeof b->pick_by_key / sizeof b->pick_by_key[0] &&
+        strlen(intent) < sizeof b->pick_by_key[0].key) {
+        size_t k = b->n_pick_keys++;
+        snprintf(b->pick_by_key[k].key, sizeof b->pick_by_key[k].key, "%s", intent);
+        b->pick_by_key[k].n = 0;
+        pick = &b->pick_by_key[k].n;
+    }
+    size_t idx = *pick % n;
     {
         char tv[1][KB_TERM_LEN];
         const char *tq[1] = { NULL };
@@ -165,9 +177,40 @@ static int kb_response_slots(Brain *b, const char *intent,
             idx = 0;
     }
     char *p = tpl[idx];                        /* selected phrasing */
-    b->response_pick++;
+    (*pick)++;
     size_t l = strlen(p);
     if (l >= 2 && p[0] == '"' && p[l - 1] == '"') { p[l - 1] = '\0'; p++; }  /* strip quotes */
+    /* ── gen388: ANCHE I VALORI PARLANO LA LINGUA DEL TURNO ─────────────────
+     *
+     * Localizzare la cornice non basta: «{entity} ha {count} {unit}» riempito con
+     * atomi inglesi da «poker ha 52 cards», che e' un ibrido peggiore di una
+     * risposta interamente inglese, perche' sembra una svista invece che un
+     * limite. La tabella per tradurli e' la STESSA che canonicalizza l'ingresso —
+     * `tr/2` — quindi la realizzazione e' la canonicalizzazione al contrario, e
+     * non serve una risorsa nuova.
+     *
+     * Guardie: solo atomi di una parola (una descrizione in prosa non si traduce
+     * a pezzi), mai un `proper_name/1` (Rex resta Rex), mai un numero. Cio' che
+     * `tr/2` non copre resta com'e': un'isola inglese e' onesta, un'invenzione no. */
+    KbResponseSlot local[8];
+    if (strcmp(lang, "en") != 0 && nslots && nslots <= 8) {
+        for (size_t i = 0; i < nslots; i++) {
+            local[i] = slots[i];
+            const char *v = slots[i].value;
+            if (!v || !*v || strchr(v, ' ') || strlen(v) >= KB_TERM_LEN) continue;
+            if (isdigit((unsigned char)v[0])) continue;
+            const char *pn[] = { v };
+            if (kb_query(b->kb, "proper_name", pn, 1)) continue;
+            char hit[1][KB_TERM_LEN];
+            const char *q[2] = { v, NULL };
+            if (kb_match(b->kb, "tr", q, 2, hit, 1) == 1) {
+                static char loc[8][KB_TERM_LEN];
+                snprintf(loc[i], KB_TERM_LEN, "%s", hit[0]);
+                local[i].value = loc[i];
+            }
+        }
+        slots = local;
+    }
     if (!kb_fill_slots(p, slots, nslots, 0, out, outsz)) return 0;
     /* gen363: record WHICH frame spoke, so a rule over knowledge can later ask
      * what kind of reply this was without inspecting its words. */

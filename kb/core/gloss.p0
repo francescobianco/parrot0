@@ -10,6 +10,26 @@ tr(invented, inventato).
 tr(high, alto).
 tr(tall, alto).
 
+% gen388 — i sistemi del corpo, perche' una risposta italiana non resti un atomo
+% inglese nudo («Circulatory.»). Il meccanismo e' generale: qualunque atomo che
+% tr/2 copre viene reso nella lingua del turno.
+tr(circulatory, circolatorio).
+tr(respiratory, respiratorio).
+tr(nervous, nervoso).
+tr(digestive, digerente).
+tr(skeletal, scheletrico).
+tr(muscular, muscolare).
+tr(immune, immunitario).
+tr(endocrine, endocrino).
+tr(urinary, urinario).
+tr(heart, cuore).
+tr(lungs, polmoni).
+tr(brain, cervello).
+tr(liver, fegato).
+tr(kidneys, reni).
+tr(stomach, stomaco).
+tr(skin, pelle).
+
 tr(card, carta).
 tr(cards, carte).
 tr(game, partita).

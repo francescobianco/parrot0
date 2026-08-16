@@ -18,6 +18,6 @@
 > registra "eccoti {name}" per salutare
 < Got it - I'll take "eccoti {name}" as a way to salutare now.
 > im anna
-< eccoti anna
+< Nice to meet you, anna!
 > im bea
-< Nice to meet you, bea!
+< eccoti bea

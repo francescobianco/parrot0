@@ -1475,7 +1475,9 @@ static int topic_continue_resolve(Brain *b, const char *canon,
      * TURNO PRECEDENTE: si cerca li' l'ultima entita' che la KB conosce. E'
      * stato reale e ispezionabile, non una continuita' inventata. */
     char topic[KB_TERM_LEN] = "";
-    if (b->has_last_entity && b->last_entity[0])
+    if (b->has_last_topic && b->last_topic[0])
+        snprintf(topic, sizeof topic, "%s", b->last_topic);
+    else if (b->has_last_entity && b->last_entity[0])
         snprintf(topic, sizeof topic, "%s", b->last_entity);
     else if (b->has_last_input && b->last_input_canon[0]) {
         char prev[256]; snprintf(prev, sizeof prev, "%s", b->last_input_canon);
@@ -1705,6 +1707,37 @@ static size_t brain_respond_dispatch(Brain *b, const char *input,
 
 size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size) {
     size_t n = brain_respond_dispatch(b, input, out, out_size);
+    /* ── gen388: L'ARGOMENTO DEL TURNO LO REGISTRA IL DISPATCH ──────────────
+     *
+     * `last_entity` lo scrivevano solo le facolta' che se ne ricordavano. Una
+     * risposta di `mod_quantity` parla DI poker e non lo segnava, quindi il topic
+     * non sopravviveva fra facolta' — che e' letteralmente il sintomo #5
+     * dell'essay («piu' sistemi indipendenti invece di un interlocutore») visto da
+     * dentro: ogni modulo teneva il filo per se'.
+     *
+     * Registrarlo qui, una volta, e' la forma giusta: e' una proprieta' del
+     * TURNO, non di chi lo ha servito.
+     *
+     * Va in `last_topic` e NON in `last_entity`, e la distinzione non e'
+     * pedanteria: scrivendo l'antecedente dei pronomi, «ogni cane e' un
+     * mammifero» / «e' un mammifero?» smetteva di chiedere a chi si riferisse
+     * "it" e sceglieva in silenzio. Un pronome vuole un REFERENTE introdotto; un
+     * topic e' solo cio' di cui si parla. */
+    if (b && b->kb && out && *out) {
+        char cn[256];
+        brain_canonical(b, input, cn, sizeof cn);
+        char *cw[64]; size_t ncw = split_words(cn, cw, 64);
+        for (size_t k = ncw; k-- > 0; ) {
+            char d[256];
+            char *tk = strip_edge_punct(cw[k]);
+            if (strlen(tk) < 3 || is_stopword(b, tk)) continue;
+            if (kb_describe_entity(b->kb, tk, d, sizeof d)) {
+                snprintf(b->last_topic, sizeof b->last_topic, "%s", tk);
+                b->has_last_topic = 1;
+                break;
+            }
+        }
+    }
     apply_active_constraint(b, out, out_size);
     n = strlen(out);
     if (b) snprintf(b->last_reply, sizeof b->last_reply, "%s", out);

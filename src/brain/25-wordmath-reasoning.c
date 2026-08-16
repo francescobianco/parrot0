@@ -3136,13 +3136,26 @@ static int mod_quantity(Brain *b, const char *norm, const char *raw,
             if (k > 0) {
                 char ename[64]; snprintf(ename, sizeof ename, "%s", entity);
                 for (char *p = ename; *p; p++) if (*p == '_') *p = ' ';
-                char msg[160];
-                if (cue(buf, " in "))
-                    snprintf(msg, sizeof msg, "There are %s %s in a %s.",
-                             hits[0], unit, ename);
-                else
-                    snprintf(msg, sizeof msg, "A %s has %s %s.",
-                             ename, hits[0], unit);
+                /* gen388: la cornice della risposta e' un TEMPLATE, non un
+                 * letterale. Una domanda italiana riceveva una risposta inglese
+                 * («A poker has 52 cards.») anche quando il dato era giusto: il
+                 * contenuto arrivava, la lingua no — l'ultimo anello, dato ->
+                 * risposta. Con un template la localizzazione e' un fatto /3, e
+                 * l'articolo sbagliato di «A poker has…» si corregge nella KB
+                 * invece che nel motore. */
+                char msg[200];
+                const KbResponseSlot s[] = {
+                    {"entity", ename}, {"count", hits[0]}, {"unit", unit} };
+                const char *key = cue(buf, " in ") ? "quantity_in_frame"
+                                                   : "quantity_has_frame";
+                if (!kb_response_slots(b, key, s, 3, msg, sizeof msg)) {
+                    if (cue(buf, " in "))
+                        snprintf(msg, sizeof msg, "There are %s %s in a %s.",
+                                 hits[0], unit, ename);
+                    else
+                        snprintf(msg, sizeof msg, "A %s has %s %s.",
+                                 ename, hits[0], unit);
+                }
                 put(msg, out, out_size);
                 return 1;
             }

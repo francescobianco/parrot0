@@ -186,7 +186,9 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     copy_last_word(n, sizeof n, raw);
                     remember_possession(b, thing, n);
                     char msg[160];
-                    snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
+                    { const KbResponseSlot s[] = { {"thing", thing}, {"name", n} };
+                      if (!kb_response_slots(b, "possession_named_ack", s, 2, msg, sizeof msg))
+                          snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n); }
                     put(msg, out, out_size);
                     return 1;
                 }
@@ -203,7 +205,9 @@ static int mod_memory(Brain *b, const char *norm, const char *raw,
                     if (has_called) {
                         remember_possession(b, thing, n);
                         char msg[160];
-                        snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n);
+                        { const KbResponseSlot s[] = { {"thing", thing}, {"name", n} };
+                      if (!kb_response_slots(b, "possession_named_ack", s, 2, msg, sizeof msg))
+                          snprintf(msg, sizeof msg, "Got it: your %s is called %s.", thing, n); }
                         put(msg, out, out_size);
                         return 1;
                     } else {
@@ -3779,6 +3783,27 @@ static void present_atom(Brain *b, const char *in, char *out, size_t n) {
     char localized[KB_TERM_LEN];
     concept_label_lookup(b, in, localized, sizeof localized);
     if (localized[0]) in = localized;
+    else if (b && b->kb) {
+        /* gen388: ricaduta su `tr/2`. `concept_label/4` porta le etichette
+         * CURATE — quelle in cui il nome italiano non e' la traduzione della
+         * parola inglese (il "knight" e' il cavallo, il "full house" e' il full),
+         * e per questo ha anche il registro. Per tutto il resto la traduzione
+         * normale basta, ed e' gia' in KB: senza questa ricaduta una risposta a
+         * una domanda italiana restava un atomo inglese nudo («Circulatory.»).
+         * La cornice era gia' localizzata; mancava il contenuto. */
+        char lg[8]; current_lang(b, lg, sizeof lg);
+        if (strcmp(lg, "en") != 0 && !strchr(in, ' ')) {
+            const char *pn2[] = { in };
+            if (!kb_query(b->kb, "proper_name", pn2, 1)) {
+                char hit[1][KB_TERM_LEN];
+                const char *q[2] = { in, NULL };
+                if (kb_match(b->kb, "tr", q, 2, hit, 1) == 1) {
+                    snprintf(localized, sizeof localized, "%s", hit[0]);
+                    in = localized;
+                }
+            }
+        }
+    }
     int strip = 0, title = 0;
     if (b && b->kb) {
         const char *sr[1] = { "strip_underscore" };

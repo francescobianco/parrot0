@@ -46,6 +46,17 @@ struct Brain {
     char name[64];         /* the user's name, once they tell us */
     int  has_name;         /* whether `name` is set */
     char last_entity[KB_TERM_LEN]; /* most recent concrete KB entity */
+    /* gen388: IL TOPIC NON E' L'ANTECEDENTE.
+     *
+     * Un pronome ha bisogno di un REFERENTE, introdotto da un'espressione che
+     * si riferisce a qualcosa; un topic e' solo cio' di cui si sta parlando.
+     * Confonderli ha un costo misurato: registrando come antecedente ogni entita'
+     * nominata, «ogni cane e' un mammifero» / «e' un mammifero?» smetteva di
+     * chiedere «a chi si riferisce "it"?» e sceglieva in silenzio — cioe' il
+     * sistema inventava una continuita' invece di dichiarare l'ambiguita'
+     * (PRINCIPLES, anti-impostore). Due campi, due nozioni. */
+    char last_topic[KB_TERM_LEN];  /* what the conversation is ABOUT */
+    int  has_last_topic;
     int  has_last_entity;  /* whether `last_entity` is set */
     int  relations_derived; /* gen158: part_of/2 materialized from descriptions once */
     char last_reply[256];  /* our previous response — so we don't repeat it (gen55) */
@@ -282,6 +293,13 @@ struct Brain {
      * so when more than one form is registered for an intent they alternate (the gen55
      * anti-repeat instinct) and a runtime-taught phrasing actually gets used. */
     unsigned response_pick;
+    /* gen388: la rotazione anti-ripetizione e' PER FAMIGLIA di risposta, non
+     * globale. Con un contatore solo, un muro in piu' spostava l'alternanza dei
+     * saluti — due famiglie che non si parlano si influenzavano, ed e' il tipo di
+     * accoppiamento che rende i test fragili e le conversazioni imprevedibili.
+     * Meccanica di forma, non conoscenza: resta in C. */
+    struct { char key[48]; unsigned n; } pick_by_key[24];
+    size_t n_pick_keys;
 
 };
 

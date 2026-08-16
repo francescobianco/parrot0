@@ -399,6 +399,18 @@ response_template(spell_repair_many, it, "Non e' una parola che conosco. Forse i
 response_template(spell_unknown_word, "As written it is {spelled}, but {word} is not a word I know.").
 response_template(spell_unknown_word, it, "Cosi' com'e' si scrive {spelled}, ma {word} non e' una parola che conosco.").
 
+% gen388 — LE CORNICI DELLE RISPOSTE SONO TEMPLATE, non letterali in C.
+% Una domanda italiana riceveva una risposta inglese anche quando il dato era
+% giusto: il contenuto arrivava, la lingua no. E' l'ultimo anello — dato ->
+% risposta — di question-emergence.md §10.7. Con un template la localizzazione e'
+% un fatto /3, e l'articolo sbagliato di "A poker has 52 cards" si corregge qui.
+response_template(quantity_has_frame, "A {entity} has {count} {unit}.").
+response_template(quantity_has_frame, it, "{entity} ha {count} {unit}.").
+response_template(quantity_in_frame, "There are {count} {unit} in a {entity}.").
+response_template(quantity_in_frame, it, "In {entity} ci sono {count} {unit}.").
+response_template(possession_named_ack, "Got it: your {thing} is called {name}.").
+response_template(possession_named_ack, it, "Ricevuto: il tuo {thing} si chiama {name}.").
+
 response_template(fallback_gap_offer, "Hmm, I don't know about {topic} yet. Want me to learn about it?").
 response_template(fallback_gap_offer, it, "Mmh, non conosco ancora {topic}. Vuoi che cerchi informazioni?").
 response_template(fallback_still_gap, "Hmm, I don't know about {topic} yet.").
