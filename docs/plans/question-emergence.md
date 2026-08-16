@@ -1279,20 +1279,42 @@ diverse, nessun modo di separarle. E' la terza forma di §10.4 — **porta che n
 discrimina** — e produce cio' che il mantra #7 vieta: una risposta sbagliata
 detta con sicurezza, peggiore del muro che le sta accanto in italiano.
 
-### 13.2 L'oracolo ha sbagliato, ed e' la lezione
+### 13.2 Due oracoli: la mossa e' invariante, il contenuto no
 
-Su `pamino` l'oracolo ha risposto **«pannino» (con due n), diminutivo di pane**.
-E' falso due volte: la parola e' *panino* con una n, e *pannino* viene da *panno*.
-Mossa giusta, contenuto sbagliato, tono sicuro.
+La sonda e' stata rifatta con un modello piu' forte. Il confronto e' il reperto:
 
-> L'oracolo e' un segnale **comportamentale**, mai un'autorita' sul contenuto.
-> Si copia la mossa; il contenuto parrot0 lo deve poter **verificare**.
+| stimolo | kimi-k2.6 | gpt-5.6-luna |
+|---|---|---|
+| `pamino` | «**pannino**, con due n, diminutivo di pane» | «Si scrive **panino**.» |
+| `zqxvbn` | divaga fra possibilita' | «Si scrive **zqxvbn**. Non e' una parola italiana.» |
+| `pesce` | «p-e-s-c-e» | «Si scrive **pesce**.» |
+| `perche` | ripara (con preambolo di ragionamento) | «**perche'**, con l'accento acuto» + esempio |
+| `recieve` | «receive» | «receive» |
+
+Il modello debole ha sbagliato il contenuto e detto **pannino** con sicurezza —
+falso due volte, perche' la parola e' *panino* con una n e *pannino* viene da
+*panno*. Il modello forte dice *panino*. **Le mosse pero' sono le stesse in
+entrambi**: ipotizzare, non riparare cio' che non e' rotto, non inventare quando
+non ci sono vicini.
+
+> Quello che varia fra modelli e' il **contenuto**; quello che resta invariante
+> e' la **mossa**. Si copia l'invariante, e il contenuto parrot0 lo deve poter
+> **verificare** — perche' non ha modo di sapere se sta imitando il modello che
+> dice *panino* o quello che dice *pannino*.
 
 Ed e' esattamente qui che il KB-first non insegue l'LLM ma lo supera: una
 riparazione generata per deformazione inversa e **validata contro il lessico**
 non puo' proporre `pannino` se `pannino` non e' un lessema. L'ipotesi e'
-controllata, non generata. Dove l'LLM e' fluente e fallibile, parrot0 puo' essere
-meno fluente e non fallibile — che e' il commercio giusto (`PRINCIPLES.md`).
+controllata, non generata. Dove l'LLM e' fluente e a volte falso, parrot0 puo'
+essere meno fluente e non falso — che e' il commercio giusto (`PRINCIPLES.md`).
+
+Nota a margine, istruttiva: sulla stringa **nuda** `pamino`, senza domanda
+intorno, il modello forte ha risposto **in lituano** («Ką turite omenyje sakydami
+"pamino"?»), avendo identificato una lingua dalla sola stringa. Senza contesto,
+anche un modello forte sceglie un mondo e ci si impegna. parrot0 ha lo stesso
+problema al contrario: sulla stringa nuda ha risposto «Ciao! Di cosa ti va di
+parlare?», cioe' ha ignorato il token. Nessuno dei due ha chiesto *in che lingua
+stiamo parlando* — che era l'unica mossa senza rischio.
 
 ### 13.3 Le mosse dell'oracolo, come specifica
 
