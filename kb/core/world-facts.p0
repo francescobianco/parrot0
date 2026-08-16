@@ -3193,6 +3193,20 @@ relation_type(part_of, mereological).
 relation_type(part_of, transitive).
 relation_type(sibling_of, kinship).
 relation_type(sibling_of, symmetric).
+% gen382q — UNA GRANDEZZA DELL'ATTREZZO E' UNA GRANDEZZA DELL'ATTIVITA'.
+%
+% `quantity(deck, cards, 52)` c'era, con un consumer che funziona: "how many
+% cards in a deck" rispondeva. "how many cards in poker" no — non perche'
+% mancasse il dato, ma perche' mancava l'arco fra l'entita' della DOMANDA
+% (poker) e l'entita' del FATTO (deck). E' la terza specie di lacuna di ponte:
+% non superficie-relazione, ma entita'-entita' (question-emergence.md §12).
+%
+% Il rimedio e' una regola sola, e non e' sui giochi: vale per qualunque
+% attivita' che richieda un attrezzo di cui si conosca una grandezza.
+quantity($Activity, $Part, $N) :-
+    requires($Activity, $Thing),
+    quantity($Thing, $Part, $N).
+
 requires(car, fuel).
 requires(computer, electricity).
 requires(fire, oxygen).

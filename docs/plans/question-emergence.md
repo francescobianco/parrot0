@@ -1138,3 +1138,115 @@ per costruzione non sa dire *chi ha quasi risposto e perche' no*.
 3. **Dispatch per evidenza invece che per ordine.** Solo dopo (1) e (2), perche'
    senza osservabilita' non si puo' misurare se un dispatch nuovo migliora.
 4. Poi le sorgenti rimaste di §4, con la superficie (§4e) per prima.
+
+---
+
+## 12. Correzione: M non e' bipartito — c'e' un terzo asse
+
+*gen382q. Questa sezione nasce da un errore mio, corretto da F., e la correzione
+vale piu' del fix che ne e' seguito.*
+
+### 12.1 L'errore
+
+Avevo scritto, chiudendo §11, che «quante carte ha il poker» non era curabile con
+il metodo perche' il numero di carte **non e' nella KB** — quindi lacuna di W,
+non di ponte. Era falso, e il dato c'era in **due** forme indipendenti:
+
+```prolog
+% kb/core/world-facts.p0 — sempre caricato, e con un consumer che FUNZIONA
+quantity(deck, cards, 52).
+
+% kb/experts/games/standard_cards.p0 — nel profilo agi, per estensione
+playing_card(two_of_clubs, two, clubs, 2).   % … x52
+```
+
+E la prova che non era una lacuna di conoscenza si fa in un turno:
+
+```
+how many cards in a deck  ->  A deck has 52 cards.      ← il dato risponde
+how many cards in poker   ->  I don't understand that yet.
+```
+
+Stesso dato, stessa relazione, stesso consumer, stessa lingua. Cambia solo il
+**nome dell'entita' nella domanda**.
+
+Vale la pena registrare *come* ho sbagliato, perche' e' lo stesso errore che il
+documento denuncia: ho concluso «il dato non c'e'» da «il turno non risponde».
+E' esattamente l'inferenza che §10.2 dichiara illecita — l'assenza di risposta
+non e' assenza di conoscenza. Averla fatta mentre scrivevo il capitolo che la
+vieta e' la misura di quanto sia naturale.
+
+### 12.2 La correzione strutturale
+
+§10.4 sosteneva che lo spazio negativo di M avesse **tre forme esaustive**,
+perche' M e' bipartito: superfici <-> relazioni. La tesi era troppo stretta. M ha
+un **terzo asse**, quello delle entita':
+
+```text
+asse 1   superficie <-> relazione     "con quali parole si chiede R"
+asse 2   relazione  <-> dati          "R ha fatti"
+asse 3   entita'    <-> entita'       "il nome nella domanda e il nome nel fatto
+                                       sono la stessa cosa, o l'uno implica l'altro"
+```
+
+Le tre forme di §10.4 restano esaustive **per gli assi 1-2**. L'asse 3 e' un'altra
+famiglia, e ci vivono almeno:
+
+- **etichetta**: `scacchi` e `chess`, `mazzo` e `deck` — la stessa cosa sotto due
+  nomi (`concept_label/4` esiste, e non copre questi);
+- **implicazione**: `poker` non *e'* un `deck`, ma lo **richiede**, e una
+  grandezza dell'attrezzo e' una grandezza dell'attivita';
+- **granularita'**: `quantity("chess board", squares, 64)` sta sotto una chiave di
+  due parole, e la domanda dice «chess».
+
+E' un asse peggiore degli altri due, perche' e' l'unico in cui il ponte mancante
+non e' visibile nemmeno enumerando i registri: entrambe le entita' esistono,
+entrambe hanno fatti, la relazione ha una porta. Non manca niente di
+enumerabile. Manca una **relazione fra due cose note**.
+
+### 12.3 Il rimedio, e perche' non e' sui giochi
+
+Nessuna relazione nuova: `requires/2` esisteva gia' in `world-facts.p0`, con
+arieta' dichiarata in `meta.p0`, e dice esattamente questo (mantra #3 e #5).
+L'arco e' un fatto per gioco; l'ereditarieta' e' **una regola sola**, e non parla
+di giochi:
+
+```prolog
+quantity($Activity, $Part, $N) :-
+    requires($Activity, $Thing),
+    quantity($Thing, $Part, $N).
+
+requires(poker, deck).   requires(blackjack, deck).   requires(bridge, deck).
+```
+
+```
+how many cards in poker      ->  A poker has 52 cards.
+how many cards in blackjack  ->  A blackjack has 52 cards.
+how many cards in bridge     ->  A bridge has 52 cards.
+```
+
+La regola vale anche per `requires(car, fuel)`, `requires(computer, electricity)`
+e ogni altra coppia gia' in KB: e' un moltiplicatore sull'asse 3 come
+`answer_frame` lo era sull'asse 1.
+
+**Difetto residuo, dichiarato invece che nascosto:** «A poker has 52 cards» ha
+l'articolo sbagliato. La conoscenza e' giusta, la realizzazione no — e' il quarto
+anello di §10.7 (dato -> risposta), che questo giro non tocca.
+
+### 12.4 Che cosa cambia nel metodo
+
+Il rilevatore di §11 **non avrebbe trovato** questa lacuna: `unreachable_facet/2`
+guarda gli assi 1-2, e li' era tutto a posto. Serve un obbligo di specie diversa,
+e la forma non e' ancora chiara — enumerare le coppie di entita' che *potrebbero*
+essere collegate genera rumore illimitato, cioe' esattamente l'errore di §7.
+
+L'unica sorgente che vede l'asse 3 senza inventare e' quella che F. indicava dal
+principio: **la domanda vera**. Se un turno nomina un'entita' nota, chiede una
+relazione che ha una porta, e non ottiene risposta, allora o il fatto manca per
+quell'entita' — oppure manca l'arco verso l'entita' che il fatto ce l'ha. Sono due
+ipotesi, entrambe enunciabili, ed entrambe verificabili con una domanda di
+rimando all'utente.
+
+Il che rafforza §11.5 punto 1 e ne cambia il rango: il muro che compone il residuo
+del turno non e' *uno* dei prossimi passi. E' **l'unico sensore che copre tutti e
+tre gli assi**, e va fatto per primo.

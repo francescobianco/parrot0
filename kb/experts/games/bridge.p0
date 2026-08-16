@@ -9,6 +9,10 @@ game_setup(bridge, "four players form two fixed partnerships and a standard deck
 game_play(bridge, "the auction selects level, strain and declarer; then players follow suit when able and the highest trump or led-suit card wins each trick").
 game_end(bridge, "score the contract from tricks made or penalties, then continue deals according to rubber or duplicate scoring").
 game_tip(bridge, "count high-card points, communicate distribution through legal bids and carding, and plan the whole hand before playing from dummy").
+% gen382q — l'arco che mancava: il dato sulle carte c'era gia' in
+% quantity(deck, cards, 52), ma niente collegava questo gioco al mazzo.
+requires(bridge, deck).
+
 category_surface(bridge, bridge_suit).
 category_member(bridge_suit, clubs).
 category_member(bridge_suit, diamonds).

@@ -9,6 +9,10 @@ game_setup(blackjack, "players place bets and receive two cards; the dealer also
 game_play(blackjack, "choose among hit, stand, double, split, or surrender when allowed; the dealer then follows the table's fixed drawing rule").
 game_end(blackjack, "compare every unbusted player hand with the dealer and settle wins, losses, pushes, and natural blackjacks").
 game_tip(blackjack, "use the table's basic strategy for your total and the dealer upcard rather than guessing from recent cards").
+% gen382q — l'arco che mancava: il dato sulle carte c'era gia' in
+% quantity(deck, cards, 52), ma niente collegava questo gioco al mazzo.
+requires(blackjack, deck).
+
 category_surface(blackjack, blackjack_action).
 category_member(blackjack_action, hit).
 category_member(blackjack_action, stand).

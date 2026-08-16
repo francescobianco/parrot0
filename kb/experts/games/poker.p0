@@ -9,6 +9,10 @@ game_setup(poker, "choose a variant, dealer position, stakes and blind or ante s
 game_play(poker, "betting rounds let players check, bet, call, raise or fold; remaining hands are compared at showdown").
 game_end(poker, "a hand ends when one player remains or the showdown awards the pot").
 game_tip(poker, "play fewer weak starting hands, value position, track pot odds, and treat bluffing as one part of a balanced strategy").
+% gen382q — l'arco che mancava: il dato sulle carte c'era gia' in
+% quantity(deck, cards, 52), ma niente collegava questo gioco al mazzo.
+requires(poker, deck).
+
 category_surface(poker, poker_hand).
 category_member(poker_hand, high_card).
 category_member(poker_hand, one_pair).

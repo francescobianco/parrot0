@@ -62,3 +62,25 @@
 !assert answer_frame("colour of", widget_colour)
 > colour of zorb
 < I don't understand that yet.
+
+[test bridge_gap_between_entities]
+!reset
+# La TERZA specie (§12): il ponte mancante non e' fra superficie e relazione, ma
+# fra l'entita' della DOMANDA e l'entita' del FATTO. La grandezza e' nota e
+# raggiungibile — la si chiede dell'attrezzo e risponde — ma l'attivita' che
+# quell'attrezzo richiede non ci arriva.
+!assert quantity(zorbrack, slots, 12)
+> how many slots in zorbrack
+< A zorbrack has 12 slots.
+> how many slots in quixgame
+< I don't understand that yet.
+# Un fatto — l'arco fra le due entita' — e la grandezza si eredita. La regola che
+# lo permette e' una sola e non parla di giochi: vale per ogni attivita' che
+# richieda un attrezzo di cui si conosca una grandezza.
+!assert requires(quixgame, zorbrack)
+> how many slots in quixgame
+< A quixgame has 12 slots.
+# Ablazione: ritirato l'arco, la conoscenza torna irraggiungibile da quel nome.
+!forget requires(quixgame, zorbrack)
+> how many slots in quixgame
+< I don't understand that yet.
