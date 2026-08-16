@@ -71,6 +71,20 @@ STIMULI = [
     ("livello_conteggio_tecnico",
      "in una partita di scacchi, quanti pezzi ha ogni giocatore escludendo i pedoni",
      "il conteggio nel registro tecnico: 8"),
+
+    # --- IL REGISTRO SULL'ETICHETTA DI UNA RELAZIONE (terzo giro) ---
+    # Stesso fenomeno del pezzo/pedone su un altro asse: «mangiare» e «catturare»
+    # denotano la stessa relazione in due registri, e uno dei due e' marcato come
+    # SCORRETTO nell'uso formale. Le domande separano tre cose diverse:
+    # capire il registro volgare / conoscerne lo statuto / quale usare rispondendo.
+    ("relazione_volgare", "negli scacchi il cavallo puo' mangiare l'alfiere?",
+     "CAPIRE: il registro volgare arriva a destinazione?"),
+    ("relazione_specchio", "il mio pedone ha mangiato la torre, cosa succede ora",
+     "LA DOMANDA CHIAVE: rispecchia il registro dell'utente o lo corregge?"),
+    ("relazione_statuto", "negli scacchi si dice mangiare o catturare",
+     "conosce lo STATUTO dei due termini, o li tratta come sinonimi pari?"),
+    ("relazione_formale", "in notazione formale come si chiama mangiare un pezzo",
+     "col registro esplicitato, sceglie il termine giusto?"),
 ]
 
 

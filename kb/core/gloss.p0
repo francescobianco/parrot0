@@ -30,6 +30,14 @@ tr(kidneys, reni).
 tr(stomach, stomaco).
 tr(skin, pelle).
 
+% gen390: le DUE superfici italiane della stessa relazione arrivano allo stesso
+% concetto. La comprensione accetta ogni registro; e' la realizzazione a
+% scegliere quale usare (label_status/2).
+tr(excluding, escludendo).
+tr(pawns, pedoni).
+tr(pawn, pedone).
+tr(capture, mangiare).
+tr(capture, catturare).
 tr(pieces, pezzi).
 tr(piece, pezzo).
 tr(card, carta).

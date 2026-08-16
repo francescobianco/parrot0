@@ -860,6 +860,41 @@ machinery(consumer_reads).
 % (limite del motore trovato qui, annotato in question-emergence.md). Una
 % relazione sola non ha bisogno di essere meta-chiamata.
 
+% ── IL REGISTRO CAMBIA L'ESTENSIONE, NON SOLO L'ETICHETTA (gen390) ──────────
+%
+% Nel registro tecnico degli scacchi il PEDONE non e' un «pezzo»: i pezzi sono
+% re, donna, torre, alfiere, cavallo. Non e' un errore dell'uso corrente — sono
+% due strati, come *regina* e *donna*. Ma finora il registro cambiava solo le
+% ETICHETTE (`concept_label/4`); qui cambia CHI STA DENTRO la categoria.
+%
+% L'astrazione, detta una volta: un termine non denota un insieme, denota un
+% insieme PER REGISTRO. `part_excluded(Collezione, Registro, Parte)` e' un fatto,
+% quindi un registro nuovo — o una categoria che si restringe altrove — non tocca
+% il motore.
+part_in_register($Coll, $Reg, $Part) :-
+    part_count($Coll, $Part, $Q),
+    naf(part_excluded($Coll, $Reg, $Part)).
+
+part_count_in_register($Coll, $Reg, $Part, $Q) :-
+    part_count($Coll, $Part, $Q),
+    naf(part_excluded($Coll, $Reg, $Part)).
+
+collection_kinds_in($Coll, $Reg, $N) :-
+    findall($Part, part_in_register($Coll, $Reg, $Part), $Ps),
+    count_list($Ps, $N).
+
+collection_per_side_in($Coll, $Reg, $N) :-
+    findall_bag($Q, part_count_in_register($Coll, $Reg, $Part, $Q), $Qs),
+    sum_list($Qs, $N).
+
+machinery(part_in_register).
+machinery(part_count_in_register).
+machinery(collection_kinds_in).
+machinery(collection_per_side_in).
+machinery(part_excluded).
+machinery(register_trigger).
+machinery(label_status).
+
 collection_kinds($Coll, $N) :-
     findall($Part, part_count($Coll, $Part, $Q), $Ps),
     count_list($Ps, $N).

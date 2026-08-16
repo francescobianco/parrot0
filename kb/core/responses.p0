@@ -410,6 +410,11 @@ response_template(spell_unknown_word, it, "Cosi' com'e' si scrive {spelled}, ma 
 % lui — ma non nasconde: chi intendeva un'altra lettura se la trova gia' davanti.
 response_template(count_readings, "{total} in total, {per_side} per side ({parts}), in {kinds} kinds.").
 response_template(count_readings, it, "{total} in tutto, {per_side} per giocatore ({parts}), di {kinds} tipi.").
+% Nel registro ristretto la lettura «tutti» non ha senso — chi esclude i pedoni
+% conta la propria dotazione, non il materiale sulla scacchiera — e la risposta
+% dichiara comunque la chiave, che e' il punto.
+response_template(count_readings_register, "{per_side} per side, in {kinds} kinds ({parts}).").
+response_template(count_readings_register, it, "{per_side} per giocatore, di {kinds} tipi ({parts}).").
 
 response_template(quantity_has_frame, "A {entity} has {count} {unit}.").
 response_template(quantity_has_frame, it, "{entity} ha {count} {unit}.").

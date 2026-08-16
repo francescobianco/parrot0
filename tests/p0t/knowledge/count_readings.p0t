@@ -1,0 +1,78 @@
+# LE LETTURE DI UNA DOMANDA DI CONTEGGIO, E IL REGISTRO (gen389-390)
+#
+# «Quanti pezzi ci sono negli scacchi» non ha una risposta sola: 32 (tutti), 16
+# (per giocatore), 6 (tipi distinti) — e 5 tipi / 8 pezzi nel registro tecnico,
+# dove il PEDONE non e' un pezzo.
+#
+# La forma della risposta non l'abbiamo inventata: viene da `ambiguity_probe.py`,
+# che ha osservato le mosse di un modello forte. Sono cinque, e ci sono tutte:
+#   1. sceglie la lettura piu' probabile
+#   2. ne DICHIARA la chiave ("in tutto", "per giocatore")
+#   3. da' la lettura vicina senza farsela chiedere
+#   4. espone la SCOMPOSIZIONE, che rende il numero verificabile e contiene le
+#      altre letture
+#   5. NON disambigua cio' che non e' ambiguo
+#
+# Le entita' sono quelle vere (scacchi) perche' qui il caso E' il dominio: la
+# distinzione pezzo/pedone e' conoscenza scacchistica, non una forma astratta. La
+# generalita' si prova nell'ultimo blocco, con una collezione inventata.
+
+[test count_readings_declares_its_key]
+!reset
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!reset
+!timeout 10
+# Mosse 1-4 in una riga: numero principale con la chiave, lettura vicina,
+# scomposizione.
+> quanti pezzi ci sono negli scacchi
+< 32 in tutto, 16 per giocatore (1 re, 1 regina, 2 torre, 2 alfiere, 2 cavallo, 8 pedone), di 6 tipi.
+> how many pieces are there in chess
+< 32 in total, 16 per side (1 king, 1 queen, 2 rook, 2 bishop, 2 knight, 8 pawn), in 6 kinds.
+
+[test count_readings_does_not_disambiguate_the_unambiguous]
+!reset
+!timeout 10
+# MOSSA 5, il controllo negativo. «Quanti GIOCATORI» non e' ambigua: rispondere
+# con il conteggio dei PEZZI non sarebbe una disambiguazione inutile, sarebbe la
+# risposta a un'altra domanda. L'unita' della collezione dev'essere quella che il
+# turno nomina.
+> quanti giocatori ci sono a scacchi
+< 2.
+
+[test count_readings_register_changes_the_extension]
+!reset
+!timeout 10
+# Nel registro tecnico il pedone NON e' un pezzo: 5 tipi, 8 per giocatore. Non e'
+# un errore dell'uso corrente — sono due strati, come *regina* e *donna*. E il
+# registro si accende dall'USO, non da un interruttore di sessione.
+> quanti pezzi ha ogni giocatore a scacchi escludendo i pedoni
+< 8 per giocatore, di 5 tipi (1 re, 1 regina, 2 torre, 2 alfiere, 2 cavallo).
+> how many pieces in chess excluding pawns
+< 8 per side, in 5 kinds (1 king, 1 queen, 2 rook, 2 bishop, 2 knight).
+
+[test count_readings_are_derived_not_written]
+!reset
+!timeout 10
+# I tre numeri NON sono scritti a mano: vengono dalla composizione. La prova e'
+# che cambiando la composizione cambiano tutti insieme e restano coerenti —
+# togliendo i pedoni dalla KB restano 5 tipi, 8 per giocatore, 16 in tutto.
+> quanti pezzi ci sono negli scacchi
+< 32 in tutto, 16 per giocatore (1 re, 1 regina, 2 torre, 2 alfiere, 2 cavallo, 8 pedone), di 6 tipi.
+!forget part_count(chess, pawn, 8)
+> quanti pezzi ci sono negli scacchi
+< 16 in tutto, 8 per giocatore (1 re, 1 regina, 2 torre, 2 alfiere, 2 cavallo), di 5 tipi.
+!assert part_count(chess, pawn, 8)
+> quanti pezzi ci sono negli scacchi
+< 32 in tutto, 16 per giocatore (1 re, 1 regina, 2 torre, 2 alfiere, 2 cavallo, 8 pedone), di 6 tipi.
+
+[test count_readings_generalize_to_a_new_collection]
+!reset
+!timeout 10
+# Il test operativo del mantra: una collezione INVENTATA, dichiarata parlando,
+# eredita le tre letture senza una riga di motore ne' una regola in piu'.
+!assert part_count(zorbset, blip, 3)
+!assert part_count(zorbset, blop, 1)
+!assert sides(zorbset, 2)
+!assert collection_unit(zorbset, gizmos)
+> how many gizmos in a zorbset
+< 8 in total, 4 per side (3 blip, 1 blop), in 2 kinds.

@@ -44,6 +44,47 @@ sides(chess, 2).
 % peggio che non disambiguare (la quinta mossa isolata dalla sonda).
 collection_unit(chess, pieces).
 
+% ── gen390: IL REGISTRO SULL'ETICHETTA DI UNA RELAZIONE ─────────────────────
+%
+% «Mangiare» e «catturare» sono la stessa mossa in due registri, e non sono
+% sinonimi pari: il primo e' d'uso corrente e informale, il secondo e' il termine
+% curato. La sonda ha mostrato la regola di un modello forte — capire il primo,
+% rispondere col secondo, senza correggere e senza rispecchiare.
+%
+% Lo statuto sta sull'ETICHETTA e non sul registro, perche' `common` e' l'uso
+% GIUSTO per *regina* e quello marcato per *mangiare*: marcare un registro intero
+% sarebbe falso.
+concept_label(capture, it, common, mangiare).
+concept_label(capture, it, standard, catturare).
+concept_label(capture, en, standard, capture).
+label_status(mangiare, informal).
+
+% Nel registro TECNICO il pedone non e' un pezzo. Non e' un errore dell'uso
+% corrente: sono due strati, come *regina* e *donna*.
+part_excluded(chess, technical, pawn).
+
+% E il registro si accende dall'USO, non da un interruttore: la sonda ha mostrato
+% che «ho vinto un pedone, ho vinto un pezzo?» riceve NO senza che nessuno abbia
+% detto "tecnico" — mentre «il pedone e' un pezzo?» nudo riceve SI'. Il registro
+% e' portato dal predicato in cui il termine compare.
+% I trigger si dichiarano nella forma CANONICA, non nella superficie: e' cio' che
+% il matcher vede, e in italiano le due non coincidono (question-emergence.md
+% §11.3). Ispezionabile con lo strumento MCP `lang.canonical`.
+% Due forme canoniche per lo stesso uso, perche' l'articolo italiano sopravvive
+% alla traduzione: «escludendo i pedoni» -> "excluding the pawns", mentre
+% l'inglese resta "excluding pawns". Si dichiarano entrambe, e `lang.canonical`
+% e' il modo di saperlo invece di indovinarlo.
+register_trigger(technical, "excluding pawn").
+register_trigger(technical, "excluding the pawn").
+register_trigger(technical, "without pawn").
+register_trigger(technical, "without the pawn").
+register_trigger(technical, "material advantage").
+register_trigger(technical, "win a piece").
+
+% Terzo livello di categoria, sotto quello tecnico: i pezzi MINORI.
+category_member(minor_piece, bishop).
+category_member(minor_piece, knight).
+
 chess_piece($Piece) :- category_member(chess_piece, $Piece).
 game_component(chess, $Piece) :- chess_piece($Piece).
 

@@ -3733,6 +3733,43 @@ static int completion_chain_resolve(Brain *b, const char *norm,
  * Sta in present_atom perche' e' il livello di PRESENTAZIONE di qualunque atomo:
  * cosi' vale per ogni risposta — enumerazioni, singoli, liste — e non per una
  * classe di domande. */
+/* ── gen390: SI CAPISCE OGNI REGISTRO, SI RISPONDE IN QUELLO NON MARCATO ─────
+ *
+ * `mangiare` e `catturare` denotano la stessa mossa negli scacchi: il primo e'
+ * d'uso corrente e informale, il secondo e' il termine curato. Non sono sinonimi
+ * pari, e la sonda `tests/ambiguity_probe.py` ha mostrato che cosa fa un modello
+ * forte: accetta «il cavallo puo' MANGIARE l'alfiere» e risponde «puo'
+ * CATTURARE» — senza correggere e senza rispecchiare.
+ *
+ * Lo statuto sta sull'ETICHETTA, non sul registro: `common` e' l'uso giusto per
+ * *regina* e quello marcato per *mangiare*, quindi marcare un intero registro
+ * sarebbe falso. `label_status(Etichetta, informal)` e' un fatto, e una parola
+ * gergale nuova — in qualunque lingua — costa una riga.
+ *
+ * Restituisce 1 se ha scritto un'etichetta realizzabile. Le marcate si saltano,
+ * a meno che la sessione abbia chiesto proprio quel registro: chi dichiara di
+ * volere l'uso corrente lo ottiene. */
+static int label_realizable(Brain *b, char cands[][KB_TERM_LEN], size_t n,
+                            char *out, size_t outsz) {
+    size_t fallback = n;
+    for (size_t i = 0; i < n; i++) {
+        char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", cands[i]);
+        const char *l = kb_dequote(lb);
+        if (fallback == n) fallback = i;
+        const char *sq[2] = { l, NULL };
+        char st[1][KB_TERM_LEN];
+        if (kb_match(b->kb, "label_status", sq, 2, st, 1) > 0) continue;
+        snprintf(out, outsz, "%s", l);
+        return 1;
+    }
+    if (fallback < n) {          /* solo marcate: meglio dirlo cosi' che tacere */
+        char lb[KB_TERM_LEN]; snprintf(lb, sizeof lb, "%s", cands[fallback]);
+        snprintf(out, outsz, "%s", kb_dequote(lb));
+        return 1;
+    }
+    return 0;
+}
+
 static void concept_label_lookup(Brain *b, const char *atom,
                                  char *out, size_t n) {
     out[0] = '\0';
@@ -3747,16 +3784,14 @@ static void concept_label_lookup(Brain *b, const char *atom,
         if (kb_match(b->kb, "preferred_register", rq, 1, rv, 1) > 0)
             snprintf(reg, sizeof reg, "%s", kb_dequote(rv[0]));
     }
-    char hit[1][KB_TERM_LEN];
+    char hit[8][KB_TERM_LEN];
     const char *q[] = { atom, lang, reg, NULL };
-    if (kb_match(b->kb, "concept_label", q, 4, hit, 1) > 0) {
-        snprintf(out, n, "%s", kb_dequote(hit[0]));
-        return;
-    }
+    size_t nh = kb_match(b->kb, "concept_label", q, 4, hit, 8);
+    if (nh > 0 && label_realizable(b, hit, nh, out, n)) return;
     if (strcmp(reg, "common") != 0) {              /* ricaduta sull'uso comune */
         const char *q2[] = { atom, lang, "common", NULL };
-        if (kb_match(b->kb, "concept_label", q2, 4, hit, 1) > 0)
-            snprintf(out, n, "%s", kb_dequote(hit[0]));
+        nh = kb_match(b->kb, "concept_label", q2, 4, hit, 8);
+        if (nh > 0) label_realizable(b, hit, nh, out, n);
     }
 }
 

@@ -3084,59 +3084,100 @@ static int count_readings_answer(Brain *b, const char *canon,
     for (size_t i = 0; i < nw; i++) {
         char *ent = strip_edge_punct(w[i]);
         if (strlen(ent) < 3) continue;
-        /* IL CONTROLLO NEGATIVO, che la sonda ha isolato come quinta mossa: non
-         * si disambigua cio' che non e' ambiguo. Senza questa guardia «quanti
-         * GIOCATORI ci sono a scacchi» riceveva la risposta sui PEZZI — non solo
-         * una disambiguazione inutile, una risposta a un'altra domanda. L'unita'
-         * della collezione e' dichiarata, e dev'essere quella che il turno
-         * nomina. */
-        {
-            char unit[1][KB_TERM_LEN];
-            const char *uq[2] = { ent, NULL };
-            if (kb_match(b->kb, "collection_unit", uq, 2, unit, 1) != 1) continue;
-            char ub[KB_TERM_LEN]; snprintf(ub, sizeof ub, "%s", unit[0]);
-            if (!cue(canon, kb_dequote(ub))) continue;
-        }
-        char kinds[1][KB_TERM_LEN], per[1][KB_TERM_LEN], tot[1][KB_TERM_LEN];
-        const char *q2[2] = { ent, NULL };
-        if (kb_match(b->kb, "collection_kinds",    q2, 2, kinds, 1) != 1) continue;
-        if (kb_match(b->kb, "collection_per_side", q2, 2, per,   1) != 1) continue;
-        if (kb_match(b->kb, "collection_total",    q2, 2, tot,   1) != 1) continue;
 
-        /* la scomposizione, nell'ordine in cui la KB la dichiara */
+        /* IL CONTROLLO NEGATIVO, quinta mossa isolata dalla sonda: non si
+         * disambigua cio' che non e' ambiguo. Senza questa guardia «quanti
+         * GIOCATORI ci sono a scacchi» riceveva il conteggio dei PEZZI — non una
+         * disambiguazione inutile, una risposta a un'altra domanda. L'unita' della
+         * collezione e' dichiarata, e dev'essere quella che il turno nomina. */
+        char unit[1][KB_TERM_LEN];
+        const char *uq[2] = { ent, NULL };
+        if (kb_match(b->kb, "collection_unit", uq, 2, unit, 1) != 1) continue;
+        { char ub[KB_TERM_LEN]; snprintf(ub, sizeof ub, "%s", unit[0]);
+          if (!cue(canon, kb_dequote(ub))) continue; }
+
+        /* gen390: QUALE REGISTRO ha acceso il turno. Non un interruttore di
+         * sessione: la sonda ha mostrato che il registro tecnico si accende
+         * dall'USO — «vincere un pezzo», «vantaggio materiale» — senza che
+         * nessuno lo dichiari, mentre la copula nuda («il pedone e' un pezzo?»)
+         * resta nell'uso corrente. Il registro e' portato dal predicato in cui il
+         * termine compare, e quali usi lo portino e' un fatto. */
+        char reg[KB_TERM_LEN] = "";
+        {
+            char regs[16][KB_TERM_LEN];
+            const char *tq[2] = { NULL, NULL };
+            size_t nr = kb_match(b->kb, "register_trigger", tq, 2, regs, 16);
+            for (size_t k = 0; k < nr && !reg[0]; k++) {
+                char cues[16][KB_TERM_LEN];
+                const char *cq[2] = { regs[k], NULL };
+                size_t nc = kb_match(b->kb, "register_trigger", cq, 2, cues, 16);
+                for (size_t c = 0; c < nc; c++) {
+                    char cb[KB_TERM_LEN]; snprintf(cb, sizeof cb, "%s", cues[c]);
+                    const char *cd = kb_dequote(cb);
+                    if (*cd && cue(canon, cd)) {
+                        snprintf(reg, sizeof reg, "%s", regs[k]);
+                        break;
+                    }
+                }
+            }
+        }
+
+        /* LE TRE LETTURE VENGONO DALLA STESSA ENUMERAZIONE DELLA SCOMPOSIZIONE.
+         *
+         * Prima erano tre `kb_match` su altrettante regole derivate, e in una
+         * sessione avanzata restituivano 0 in modo non deterministico mentre le
+         * stesse regole interrogate da fuori davano i numeri giusti — un difetto
+         * del motore che non ho isolato e che e' annotato in
+         * question-emergence.md, non spiegato. Qui non serve correrci sopra: la
+         * scomposizione va enumerata comunque, e da lei i tre numeri sono una
+         * somma. La CONOSCENZA resta in KB (`part_count/3`, `sides/2`,
+         * `part_excluded/3`); il C somma, e sommare non e' conoscenza. */
         char parts[300]; size_t po = 0; parts[0] = '\0';
-        char names[16][KB_TERM_LEN];
+        long kinds = 0, per_side = 0;
+        char names[24][KB_TERM_LEN];
         const char *pq[3] = { ent, NULL, NULL };
-        size_t np = kb_match(b->kb, "part_count", pq, 3, names, 16);
-        for (size_t k = 0; k < np && po + 2 < sizeof parts; k++) {
+        size_t np = kb_match(b->kb, "part_count", pq, 3, names, 24);
+        if (np == 0) continue;
+        for (size_t k = 0; k < np; k++) {
+            if (reg[0]) {                       /* il registro restringe l'insieme */
+                const char *xq[3] = { ent, reg, names[k] };
+                if (kb_query(b->kb, "part_excluded", xq, 3)) continue;
+            }
             char cnt[1][KB_TERM_LEN];
             const char *cq[3] = { ent, names[k], NULL };
             if (kb_match(b->kb, "part_count", cq, 3, cnt, 1) != 1) continue;
+            kinds++;
+            per_side += atol(cnt[0]);
             char pres[KB_TERM_LEN];
             present_atom(b, names[k], pres, sizeof pres);
-            /* snprintf restituisce la lunghezza che AVREBBE scritto, non quella
-             * scritta: accumularla senza limite fa scavallare `po` oltre il
-             * buffer, e `sizeof parts - po` va in underflow. Il risultato non e'
-             * un troncamento ma una scrittura oltre il buffer, che qui azzerava
-             * le variabili accanto — i conteggi uscivano 0 mentre la KB li dava
-             * giusti. Si tronca e si ferma. */
             int wrote = snprintf(parts + po, sizeof parts - po, "%s%s %s",
                                  po ? ", " : "", cnt[0], pres);
-            if (wrote < 0 || (size_t)wrote >= sizeof parts - po) {
-                po = sizeof parts - 1;
-                break;
-            }
+            if (wrote < 0 || (size_t)wrote >= sizeof parts - po) break;
             po += (size_t)wrote;
         }
+        if (kinds == 0) continue;
 
-        char ename[KB_TERM_LEN];
+        long total = per_side;
+        if (!reg[0]) {                          /* nel registro ristretto si conta
+                                                 * la propria dotazione, non il
+                                                 * materiale sulla scacchiera */
+            char sd[1][KB_TERM_LEN];
+            const char *sq[2] = { ent, NULL };
+            if (kb_match(b->kb, "sides", sq, 2, sd, 1) == 1)
+                total = per_side * atol(sd[0]);
+        }
+
+        char ename[KB_TERM_LEN], st[24], sp[24], sk[24];
         present_atom(b, ent, ename, sizeof ename);
+        snprintf(st, sizeof st, "%ld", total);
+        snprintf(sp, sizeof sp, "%ld", per_side);
+        snprintf(sk, sizeof sk, "%ld", kinds);
         char msg[600];
         const KbResponseSlot s[] = {
-            {"entity", ename}, {"total", tot[0]},
-            {"per_side", per[0]}, {"kinds", kinds[0]}, {"parts", parts} };
-        if (!kb_response_slots(b, "count_readings", s, 5, msg, sizeof msg))
-            return 0;
+            {"entity", ename}, {"total", st},
+            {"per_side", sp}, {"kinds", sk}, {"parts", parts} };
+        const char *key = reg[0] ? "count_readings_register" : "count_readings";
+        if (!kb_response_slots(b, key, s, 5, msg, sizeof msg)) return 0;
         put(msg, out, out_size);
         return 1;
     }

@@ -1371,3 +1371,139 @@ e' un lessema.)
    conoscenza, non di codice.
 4. Il muro-sensore di §12.4 resta davanti a tutto: e' cio' che fa emergere quali
    riparazioni servono davvero, invece di indovinarle.
+
+---
+
+## 14. Il registro e' una dimensione della conoscenza (gen389-390)
+
+*Stimolo di F.: «quanti pezzi ci sono negli scacchi» -> muro. Sonda in
+`tests/ambiguity_probe.py`, trascritti in `tests/sym/ambiguity-*.md`.*
+
+### 14.1 Perche' questa domanda vale come sonda
+
+Sembra elementare e porta DUE ambiguita' sovrapposte:
+
+- **quantizzazione** — 32 (tutti), 16 (per giocatore), 6 (tipi distinti);
+- **registro** — nel linguaggio tecnico scacchistico il PEDONE non e' un
+  «pezzo»; nell'uso corrente lo e'. Nessuno dei due usi e' l'errore dell'altro.
+
+Quindi la risposta giusta non e' un numero: e' una mossa.
+
+### 14.2 Le mosse dell'oracolo, e sono cinque
+
+```
+quanti pezzi ci sono negli scacchi
+  -> 32 pezzi in totale: 16 per giocatore. Ogni giocatore ha: 1 re, 1 donna,
+     2 torri, 2 alfieri, 2 cavalli, 8 pedoni
+quanti giocatori ci sono a scacchi
+  -> 2 giocatori
+```
+
+1. sceglie la lettura piu' probabile — **non chiede**, perche' chiedere scarica
+   sull'utente un lavoro che si puo' fare per lui;
+2. ne **dichiara la chiave** («in totale»): il numero senza la chiave e' una
+   mezza verita';
+3. da' la **lettura vicina** senza farsela chiedere;
+4. espone la **scomposizione**, che rende il numero verificabile e contiene
+   implicitamente le altre letture;
+5. **non disambigua cio' che non e' ambiguo** (il controllo negativo passa).
+
+### 14.3 A che livello vive «pezzo != pedone»
+
+Questa e' la domanda che F. ha posto, e la sonda risponde in modo netto:
+
+| stimolo | oracolo |
+|---|---|
+| «il pedone e' un pezzo?» | **Si'.** |
+| «in notazione tecnica il pedone e' un pezzo?» | **No** — sono re, donna, torri, alfieri, cavalli |
+| **«ho vinto un pedone, ho vinto un pezzo?»** | **No**, un pedone non e' un pezzo in senso stretto |
+| «che differenza c'e' fra pezzo e pedone» | «generico… **a volte pero'** in senso stretto» |
+| «quanti pezzi minori» | 4 (2 alfieri, 2 cavalli) |
+
+La riga decisiva e' la terza. **Nessuno ha detto «tecnico»**, eppure la risposta
+cambia — mentre la copula nuda da' «si'».
+
+> La distinzione non e' una proprieta' del pedone: e' una proprieta' dell'**uso**.
+> Il verbo *vincere* — materiale, scambio — porta con se' il registro tecnico; la
+> copula no. **Il registro e' portato dal predicato in cui il termine compare.**
+
+E i livelli sono almeno tre, annidati: uso corrente (6 tipi) -> tecnico (5) ->
+sottoclasse (*pezzi minori*: alfieri e cavalli). Il modello ci passa attraverso
+senza mai dichiarare di cambiare strato.
+
+### 14.4 Il secondo asse: *mangiare* e *catturare*
+
+Caso aggiunto da F. Stesso fenomeno su un altro asse — non l'ESTENSIONE di una
+categoria ma l'ETICHETTA di una relazione:
+
+```
+il cavallo puo' MANGIARE l'alfiere?      -> «Si'. Il cavallo puo' CATTURARE …»
+il mio pedone ha MANGIATO la torre       -> «La torre viene tolta dalla scacchiera…»
+si dice mangiare o catturare             -> «soprattutto CATTURARE. Mangiare e'
+                                            informale, ma comunemente usato.»
+```
+
+> **Accetta in ingresso ogni registro; rispondi in quello non marcato; dichiara
+> lo statuto solo se te lo chiedono.** E quando l'utente usa il volgarismo, il
+> modello non lo rispecchia *e non lo corregge*: aggira il termine.
+
+Lo statuto sta sull'ETICHETTA e non sul registro: `common` e' l'uso giusto per
+*regina* e quello marcato per *mangiare*, quindi marcare un registro intero
+sarebbe falso.
+
+### 14.5 L'astrazione, detta una volta
+
+> Un termine non denota un insieme: denota **un insieme per registro**. E il
+> registro non e' una preferenza dell'utente — lo dichiara il contesto.
+
+parrot0 ne aveva gia' meta': `concept_label(Concetto, Lingua, Registro, Etichetta)`
+esiste dal gen382b, ed e' la scelta — giusta — che *donna* e *regina* sono due
+strati e non un errore. Mancavano le due meta':
+
+- il registro cambiava le **etichette**, non l'**estensione**;
+- il registro era **globale** (`preferred_register`, un interruttore di sessione)
+  invece che **acceso dall'uso** nel singolo turno.
+
+Ora sono fatti: `part_excluded(Coll, Registro, Parte)` restringe l'insieme,
+`register_trigger(Registro, Uso)` lo accende, `label_status(Etichetta, informal)`
+tiene il termine marcato fuori dalla realizzazione ma dentro la comprensione.
+
+```
+quanti pezzi ci sono negli scacchi        -> 32 in tutto, 16 per giocatore
+                                             (1 re, … 8 pedone), di 6 tipi.
+… escludendo i pedoni                     -> 8 per giocatore, di 5 tipi
+                                             (1 re, 1 regina, 2 torre, 2 alfiere,
+                                              2 cavallo).
+quanti giocatori ci sono a scacchi        -> 2.
+```
+
+### 14.6 Tre difetti del motore trovati per strada
+
+Tutti e tre silenziosi, e vale la pena averli scritti:
+
+1. **`apply/2` non si comporta dentro `findall/3`.** Non isolato; la via giusta
+   era comunque astrarre la relazione invece di meta-chiamarla (mantra #3).
+2. **`findall/3` e' un SET, non un BAG.** Deduplica. Non e' un difetto in se' —
+   contare i MEMBRI distinti di una coorte, l'uso storico, vuole esattamente
+   questo — ma rende sbagliata ogni SOMMA: `1+1+2+2+2+8` diventava `1+2+8 = 11`.
+   Aggiunto `findall_bag/3`: due nomi, due semantiche, nessuna implicita.
+3. **Aperto, non spiegato.** Tre `kb_match` consecutivi su regole derivate, dentro
+   un modulo e in una sessione avanzata, restituivano `0` in modo non
+   deterministico mentre le stesse regole interrogate da fuori davano i numeri
+   giusti. Non l'ho isolato. Il consumer e' stato riscritto per non dipenderne —
+   i numeri vengono dalla stessa enumerazione che serve per la scomposizione —
+   ma **il difetto e' ancora li'**, e chiunque componga piu' query derivate in un
+   modulo puo' incontrarlo. E' il primo da chiudere.
+
+### 14.7 Che cosa resta aperto
+
+- **La realizzazione del termine marcato** e' implementata (`label_status/2`) ma
+  non ha ancora un turno che la eserciti end-to-end: manca la conoscenza delle
+  MOSSE degli scacchi, non il meccanismo.
+- **«Si dice X o Y»** — parrot0 ha lo statuto in KB e potrebbe rispondere quale
+  dei due e' il termine curato. E' un consumer piccolo e generale, non fatto.
+- **Il terzo livello** (`pezzi minori`) e' dichiarato come categoria ma non ha un
+  conteggio suo.
+- **`cavallo` -> «horse»**: il pezzo degli scacchi viene letto come l'animale.
+  E' `concept_label` al contrario — la stessa parola denota due concetti in due
+  domini — e non e' toccato.
