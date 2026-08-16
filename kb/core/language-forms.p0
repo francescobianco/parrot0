@@ -1,0 +1,23 @@
+% LE FORME LINGUISTICHE SONO OGGETTI DELLA KB (gen391).
+%
+% File omogeneo: introduce soltanto viste usate dal motore linguistico, quindi
+% la provenienza va dichiarata una volta per file. La direttiva propaga
+% machinery/1 ai predicati dei fatti e delle teste di regola qui sotto; non
+% servono sette marcatori manuali destinati a divergere quando il file cresce.
+:- file_attribute(machinery).
+
+% concept_label/4 era gia' la sorgente unica per scegliere una forma in uscita.
+% Queste viste la rendono interrogabile anche dalla forma verso il concetto,
+% senza duplicare il lessico. Una preferenza esiste solo quando una forma
+% marcata e una non marcata lessicalizzano lo STESSO concetto nella STESSA
+% lingua; due registri entrambi legittimi non vengono ordinati per invenzione.
+linguistic_form($Form, $Concept, $Language, $Register) :- concept_label($Concept, $Language, $Register, $Form).
+form_mark($Form, $Status) :- label_status($Form, $Status).
+alternative_form($Form, $Alternative, $Language) :- linguistic_form($Form, $Concept, $Language, $Register), linguistic_form($Alternative, $Concept, $Language, $OtherRegister), dif($Form, $Alternative).
+marked_form($Form) :- form_mark($Form, $Status).
+preferred_form($Marked, $Preferred, $Language) :- alternative_form($Marked, $Preferred, $Language), marked_form($Marked), naf(marked_form($Preferred)).
+
+% answer_frame/2 e' oggi un consumer binario. Queste due viste conservano le
+% relazioni piu' ricche sopra e adattano soltanto l'arita' della porta esistente.
+alternative_label($Form, $Alternative) :- alternative_form($Form, $Alternative, $Language).
+preferred_label($Marked, $Preferred) :- preferred_form($Marked, $Preferred, $Language).

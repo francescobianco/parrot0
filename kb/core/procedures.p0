@@ -924,6 +924,12 @@ machinery(count_reading).
 machinery(part_count).
 machinery(sides).
 
+% gen391: viste linguistiche omogenee in un file proprio. Non si puo' mettere
+% `file_attribute(machinery)` su procedures.p0: questo file include meta.p0, che
+% contiene anche conoscenza del mondo. Il file incluso puo' invece dichiarare
+% correttamente la provenienza una volta sola per tutti i suoi predicati.
+:- include(language-forms.p0).
+
 % Internal protocol predicates are declared as machinery so self-description
 % never mistakes a task trace or a renderer registry for world knowledge.
 machinery(reasoning_operator_active).

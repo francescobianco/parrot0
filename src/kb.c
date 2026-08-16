@@ -99,17 +99,21 @@ typedef struct {
  * pass kb_derive_part_of asks is_model_pred() once per fact, and each ask
  * scanned every fact (13k x 15k on the gen380/381 KB, ~2s on one turn).
  *
- * The census is a hash from predicate name to how many facts carry it and how
- * many of those are NON-GROUND (contain a variable), which is exactly what
- * kb_query needs to decide whether a ground lookup can be settled by the hash
- * index alone. It is pure mechanism: it stores no vocabulary and no domain
- * knowledge, only a count of what the KB already holds. */
+ * The census is a hash from predicate name to its fact candidates and rule-head
+ * candidates.  It also counts how many facts are NON-GROUND (contain a
+ * variable), which is exactly what kb_query needs to decide whether a ground
+ * lookup can be settled by the hash index alone. It is pure mechanism: it
+ * stores no vocabulary and no domain knowledge, only the structural clauses
+ * the KB already holds. */
 typedef struct {
     char   pred[KB_TERM_LEN];
     size_t nfacts;      /* stored facts with this predicate                  */
     size_t nnonground;  /* ... of which carry a variable in some argument    */
     size_t *idx;        /* their positions in kb->facts, in insertion order  */
     size_t  idx_cap;
+    size_t nrules;      /* rules whose head has this predicate               */
+    size_t *ridx;       /* their positions in kb->rules, in insertion order  */
+    size_t  ridx_cap;
 } PredStat;
 
 struct KB {
@@ -162,7 +166,10 @@ void kb_destroy(KB *kb) {
     free(kb->neg_index);
     free(kb->rules);
     if (kb->pred_stats)
-        for (size_t i = 0; i < kb->pred_stats_cap; i++) free(kb->pred_stats[i].idx);
+        for (size_t i = 0; i < kb->pred_stats_cap; i++) {
+            free(kb->pred_stats[i].idx);
+            free(kb->pred_stats[i].ridx);
+        }
     free(kb->pred_stats);
     free(kb);
 }
@@ -324,40 +331,57 @@ static int fact_is_nonground(const Fact *f) {
 
 static void pred_stats_drop(KB *kb) {
     if (kb->pred_stats)
-        for (size_t i = 0; i < kb->pred_stats_cap; i++) free(kb->pred_stats[i].idx);
+        for (size_t i = 0; i < kb->pred_stats_cap; i++) {
+            free(kb->pred_stats[i].idx);
+            free(kb->pred_stats[i].ridx);
+        }
     free(kb->pred_stats);
     kb->pred_stats = NULL;
     kb->pred_stats_cap = kb->pred_stats_n = 0;
     kb->pred_stats_dirty = 1;
 }
 
-/* Record one stored fact (at position `fi`) in the census, growing the table
- * when it fills. On allocation failure the census is dropped entirely and every
- * reader falls back to the historical full scan — slower, never wrong. */
-static void pred_stats_note(KB *kb, size_t fi) {
-    if (kb->pred_stats_dirty) return;             /* a rebuild will recount */
+/* Claim a predicate census entry, growing/rehashing the table when needed.
+ * Facts and rule heads share this one structural index: both are candidates for
+ * exactly one goal predicate, and keeping separate hash tables would duplicate
+ * the same key space. */
+static PredStat *pred_stats_claim(KB *kb, const char *pred) {
+    if (kb->pred_stats_dirty) return NULL;        /* a rebuild will recount */
     size_t needed = kb->pred_stats_n + 1;
     if (!kb->pred_stats || needed * 10 >= kb->pred_stats_cap * 7) {
         size_t next = kb->pred_stats_cap ? kb->pred_stats_cap * 2 : 64;
         while (next / 2 < needed) {
-            if (next > SIZE_MAX / 2) { pred_stats_drop(kb); return; }
+            if (next > SIZE_MAX / 2) { pred_stats_drop(kb); return NULL; }
             next *= 2;
         }
         PredStat *fresh = calloc(next, sizeof *fresh);
-        if (!fresh) { pred_stats_drop(kb); return; }
+        if (!fresh) { pred_stats_drop(kb); return NULL; }
         PredStat *old = kb->pred_stats; size_t ocap = kb->pred_stats_cap;
         kb->pred_stats = fresh; kb->pred_stats_cap = next; kb->pred_stats_n = 0;
         for (size_t i = 0; i < ocap; i++) {       /* rehash, bucket and all */
             if (!old[i].pred[0]) continue;
             PredStat *e = pred_stat_slot(kb, old[i].pred, 1);
             if (e) *e = old[i];
-            else free(old[i].idx);
+            else {
+                free(old[i].idx);
+                free(old[i].ridx);
+            }
         }
         free(old);
     }
+    PredStat *e = pred_stat_slot(kb, pred, 1);
+    if (!e) pred_stats_drop(kb);
+    return e;
+}
+
+/* Record one stored fact (at position `fi`) in the census. On allocation
+ * failure the census is dropped and every reader falls back to the historical
+ * full scan — slower, never wrong. */
+static void pred_stats_note(KB *kb, size_t fi) {
+    if (kb->pred_stats_dirty) return;
     const Fact *f = &kb->facts[fi];
-    PredStat *e = pred_stat_slot(kb, f->pred, 1);
-    if (!e) { pred_stats_drop(kb); return; }
+    PredStat *e = pred_stats_claim(kb, f->pred);
+    if (!e) return;
     if (e->nfacts == e->idx_cap) {
         size_t next = e->idx_cap ? e->idx_cap * 2 : 4;
         size_t *grown = realloc(e->idx, next * sizeof *grown);
@@ -366,6 +390,24 @@ static void pred_stats_note(KB *kb, size_t fi) {
     }
     e->idx[e->nfacts++] = fi;
     if (fact_is_nonground(f)) e->nnonground++;
+}
+
+/* Rule-head twin of pred_stats_note(). The stored positions preserve clause
+ * insertion order, so indexing changes candidate discovery cost but not SLD
+ * order, backtracking, or the first solution selected. */
+static void pred_stats_note_rule(KB *kb, size_t ri) {
+    if (kb->pred_stats_dirty) return;
+    const Rule *r = &kb->rules[ri];
+    PredStat *e = pred_stats_claim(kb, r->head.pred);
+    if (!e) return;
+    if (e->nrules == e->ridx_cap) {
+        size_t next = e->ridx_cap ? e->ridx_cap * 2 : 4;
+        size_t *grown = realloc(e->ridx, next * sizeof *grown);
+        if (!grown) { pred_stats_drop(kb); return; }
+        e->ridx = grown;
+        e->ridx_cap = next;
+    }
+    e->ridx[e->nrules++] = ri;
 }
 
 /* Removals compact the fact array, so every stored position can shift. Rather
@@ -379,15 +421,23 @@ static void pred_stats_rebuild(KB *kb) {
         for (size_t i = 0; i < kb->pred_stats_cap; i++) {
             kb->pred_stats[i].pred[0] = '\0';
             kb->pred_stats[i].nfacts = kb->pred_stats[i].nnonground = 0;
+            kb->pred_stats[i].nrules = 0;
             free(kb->pred_stats[i].idx);
             kb->pred_stats[i].idx = NULL;
             kb->pred_stats[i].idx_cap = 0;
+            free(kb->pred_stats[i].ridx);
+            kb->pred_stats[i].ridx = NULL;
+            kb->pred_stats[i].ridx_cap = 0;
         }
     kb->pred_stats_n = 0;
     kb->pred_stats_dirty = 0;
     for (size_t i = 0; i < kb->n; i++) {
         pred_stats_note(kb, i);
         if (kb->pred_stats_dirty) return;         /* gave up: readers scan */
+    }
+    for (size_t i = 0; i < kb->nr; i++) {
+        pred_stats_note_rule(kb, i);
+        if (kb->pred_stats_dirty) return;
     }
 }
 
@@ -417,6 +467,18 @@ static PredBucket pred_bucket(const KB *kb, const char *pred) {
     if (!live) return b;
     b.live = 1;
     if (ps) { b.idx = ps->idx; b.n = ps->nfacts; }
+    return b;
+}
+
+/* The rule-head candidates for `pred`, with the same fallback contract as
+ * pred_bucket(). */
+static PredBucket rule_bucket(const KB *kb, const char *pred) {
+    PredBucket b = { NULL, 0, 0 };
+    int live = 0;
+    const PredStat *ps = pred_stats_get((KB *)kb, pred, &live);
+    if (!live) return b;
+    b.live = 1;
+    if (ps) { b.idx = ps->ridx; b.n = ps->nrules; }
     return b;
 }
 
@@ -563,6 +625,7 @@ size_t kb_retract_origin(KB *kb, int origin_mask) {
         rw++;
     }
     kb->nr = rw;
+    if (rremoved) pred_stats_invalidate(kb);
     return removed + rremoved;
 }
 
@@ -630,6 +693,7 @@ static int kb_add_rule(KB *kb, const Rule *r) {
         kb->rcap = cap;
     }
     kb->rules[kb->nr++] = *r;
+    pred_stats_note_rule(kb, kb->nr - 1);
     return 1;
 }
 
@@ -1560,8 +1624,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         }
     }
 
-    for (size_t r = 0; r < S->kb->nr; r++) {   /* expand rules */
-        const Rule *R = &S->kb->rules[r];
+    PredBucket rbk = rule_bucket(S->kb, g->pred);
+    for (size_t vi = 0; vi < PRED_VISITS(rbk, S->kb); vi++) { /* expand rules */
+        const Rule *R = &S->kb->rules[PRED_AT(rbk, vi)];
         if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
             continue;
 
@@ -1701,9 +1766,16 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
         strcmp(pred,"dif")==0 ||         strcmp(pred,"findall")==0 ||
         strcmp(pred,"findall_bag")==0 || strcmp(pred,"prob")==0 ||
         strcmp(pred,"ranges_over")==0));
-    for (size_t i = 0; i < kb->nr && !has_rule; i++)
-        if (kb->rules[i].head.argc == argc &&
-            strcmp(kb->rules[i].head.pred, pred) == 0) { has_rule = 1; break; }
+    if (!has_rule) {
+        PredBucket rbk = rule_bucket(kb, pred);
+        for (size_t vi = 0; vi < PRED_VISITS(rbk, kb); vi++) {
+            const Rule *r = &kb->rules[PRED_AT(rbk, vi)];
+            if (r->head.argc == argc && strcmp(r->head.pred, pred) == 0) {
+                has_rule = 1;
+                break;
+            }
+        }
+    }
 
     /* gen382 — settle the common lookup from the census, without touching the
      * fact array. Two decisions become O(1) that used to cost a full scan each:
@@ -1793,9 +1865,16 @@ size_t kb_match(const KB *kb, const char *pred, const char *const *args,
             simple = 0;
     }
     if (first_var < 0) simple = 0; /* preserve the boolean-query behaviour */
-    for (size_t i = 0; i < kb->nr && simple; i++)
-        if (kb->rules[i].head.argc == argc &&
-            strcmp(kb->rules[i].head.pred, pred) == 0) simple = 0;
+    if (simple) {
+        PredBucket rbk = rule_bucket(kb, pred);
+        for (size_t vi = 0; vi < PRED_VISITS(rbk, kb); vi++) {
+            const Rule *r = &kb->rules[PRED_AT(rbk, vi)];
+            if (r->head.argc == argc && strcmp(r->head.pred, pred) == 0) {
+                simple = 0;
+                break;
+            }
+        }
+    }
     /* gen382: only this predicate's own facts can disqualify the fast path, and
      * the census names them without walking the KB. */
     PredBucket bk = pred_bucket(kb, pred);
@@ -2018,8 +2097,9 @@ static int prove_seq_frame(KB *kb, const Term *goals, size_t n, size_t idx,
     }
 
     if (depth > KB_MAX_DEPTH) return 0;
-    for (size_t r = 0; r < kb->nr; r++) {           /* expand a rule */
-        const Rule *R = &kb->rules[r];
+    PredBucket rbk = rule_bucket(kb, g->pred);
+    for (size_t vi = 0; vi < PRED_VISITS(rbk, kb); vi++) { /* expand a rule */
+        const Rule *R = &kb->rules[PRED_AT(rbk, vi)];
         if (R->head.argc != g->argc || strcmp(R->head.pred, g->pred) != 0)
             continue;
         int fr = ++(*frame), anon = 0;
@@ -4386,7 +4466,9 @@ int kb_knows_pred(const KB *kb, const char *pred) {
         if (strcmp(kb->facts[i].pred, pred) == 0) return 1;
     for (size_t i = 0; i < kb->nn; i++)
         if (strcmp(kb->neg[i].pred, pred) == 0) return 1;
-    for (size_t i = 0; i < kb->nr; i++)
+    PredBucket rbk = rule_bucket(kb, pred);
+    if (rbk.live && rbk.n > 0) return 1;
+    for (size_t i = 0; i < kb->nr && !rbk.live; i++)
         if (strcmp(kb->rules[i].head.pred, pred) == 0) return 1;
     return 0;
 }

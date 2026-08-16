@@ -90,7 +90,7 @@ nascoste da un troncamento silenzioso.
 Ora il file lo dice **una volta**, in testa:
 
 ```prolog
-file_attribute(machinery).
+:- file_attribute(machinery).
 ```
 
 e ogni predicato che quel file introduce — fatti **e** teste di regola — riceve
@@ -100,9 +100,9 @@ Non è un caso speciale del motore, ed è la differenza che conta: **il caricato
 propaga l'attributo e non sa che cosa "machinery" significhi.**
 
 ```prolog
-file_attribute(sperimentale).
+:- file_attribute(sperimentale).
 zorbness(alpha).
-krantic(X) :- zorbness(X).
+krantic($X) :- zorbness($X).
 ```
 ```
 > is zorbness a sperimentale   → Yes.
@@ -114,6 +114,18 @@ Il dato resta **dichiarativo** — normalissimi fatti, interrogabili, insegnabil
 ritrattabili a runtime — quindi non è la partizione congelata al boot che gen374
 ha provato e scartato: è la stessa conoscenza, **derivata** dalla provenienza
 invece che ricopiata.
+
+Il `:-` è parte del contratto: indica una direttiva del caricatore e non un fatto
+del dominio. La vecchia forma nuda resta leggibile soltanto per compatibilità e
+non va usata nei file nuovi. La propagazione riguarda fatti e teste di regola,
+non predicati citati solo nei corpi. Oggi comprende anche ciò che il file carica
+con `include/1`; per questo, finché la provenienza non sarà isolata per file
+fisico, la direttiva è corretta solo per un file omogeneo che non aggreghi
+contenuti di natura diversa. La registry idempotente progettata separerà i frame
+di provenienza: ogni incluso conserverà allora i propri attributi,
+indipendentemente dal percorso che lo ha raggiunto. Il
+contratto completo, inclusi i limiti e l'esempio di espansione, è in
+[prolog-like-engine.md](prolog-like-engine.md#11-direttive-di-file).
 
 `machinery/1` scritto a mano resta valido per le **eccezioni**, e serve: un file
 misto non si dichiara. `meta.p0` tiene sia la grammatica interrogativa sia

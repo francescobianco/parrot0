@@ -57,7 +57,9 @@ collection_unit(chess, pieces).
 concept_label(capture, it, common, mangiare).
 concept_label(capture, it, standard, catturare).
 concept_label(capture, en, standard, capture).
+concept_label(capture, en, common, eat).
 label_status(mangiare, informal).
+label_status(eat, informal).
 
 % Nel registro TECNICO il pedone non e' un pezzo. Non e' un errore dell'uso
 % corrente: sono due strati, come *regina* e *donna*.

@@ -68,8 +68,271 @@ sono un solo argomento: le virgole interne sono contenuto, non separatori
 > stringa come conoscenza (U4). Tutte le regole in `kb/` e i fixture di test usano
 > `$`; l'hack di quotatura di U1 al bordo MCP ora quota solo `$`/`_`/spazi.
 
-Direttiva di inclusione: `:- include(relative/path.p0).` carica un altro file
-(`src/kb.c:767`).
+### 1.1 Direttive di file
+
+Le direttive iniziano con `:-`: istruiscono il caricatore e **non** diventano
+fatti del dominio.
+
+```prolog
+:- include(relative/path.p0).
+:- file_attribute(machinery).
+```
+
+`include/1` carica il file indicato, risolvendo un percorso relativo dalla
+directory del file che contiene la direttiva.
+
+#### Idempotenza di `include/1`: contratto progettato
+
+> **Stato: NON ANCORA IMPLEMENTATO A LIVELLO DI FILE.** Oggi i fatti identici
+> vengono deduplicati da `kb_assert`, ma una regola letta due volte attraverso
+> due catene di include può ancora essere aggiunta due volte. Questa non è
+> idempotenza dell'include e non va scambiata per tale.
+
+Durante la vita di una singola istanza KB, lo stesso file fisico dovrà essere
+processato al massimo una volta, qualunque sia il numero di percorsi che lo
+raggiungono:
+
+```prolog
+:- include(bundles/games.p0).
+:- include(../kb/bundles/games.p0).  % stesso path canonico: nessun reload
+```
+
+Il loader manterrà una hashmap per istanza, indicizzata dal **percorso canonico
+assoluto** dopo avere risolto directory del chiamante, `.`/`..` e link
+simbolici. La stringa della direttiva non è l'identità: due percorsi che
+risolvono allo stesso file condividono una voce.
+
+La registry dovrà distinguere almeno:
+
+- `loading`: file eager in lettura; un nuovo arco verso la stessa chiave è un
+  ciclo, non un secondo caricamento;
+- `catalogued_lazy`: intestazione registrata, corpo non residente;
+- `materializing`: corpo lazy in caricamento, per fermare riattivazioni
+  ricorsive;
+- `loaded`: contenuto interamente residente; gli include successivi sono no-op;
+- `failed`: apertura o parsing non conclusi; il fallimento resta rumoroso e non
+  diventa un falso "file vuoto". Una nuova istanza può ritentare.
+
+L'idempotenza vale per fatti **e regole**, preserva l'ordine del primo
+caricamento e rende sicuri i grafi a diamante fra profili e bundle. Un ciclo non
+ricorsiona, ma deve essere diagnosticato nominando la catena che lo ha prodotto.
+
+`file_attribute/1` (gen382f, forma direttiva da gen383) dichiara una proprietà
+della provenienza **una volta per tutto il file**. Dopo averlo caricato, per ogni
+predicato introdotto da un fatto o dalla testa di una regola il loader asserisce
+un normale fatto `Attributo(Predicato)`:
+
+```prolog
+:- file_attribute(sperimentale).
+
+zorbness(alpha).
+krantic($X) :- zorbness($X).
+```
+
+equivale, per la parte di metadati, ad avere anche:
+
+```prolog
+sperimentale(zorbness).
+sperimentale(krantic).
+```
+
+Il motore non assegna alcun significato speciale a `sperimentale` o a
+`machinery`: propaga il nome scelto come relazione unaria. I fatti prodotti sono
+quindi conoscenza ordinaria, interrogabile, derivabile e ritrattabile. La
+direttiva stessa non viene aggiunta alla KB.
+
+Contratto e bordi da ricordare:
+
+- contano i predicati dei **fatti** e delle **teste di regola** introdotti dal
+  file; un predicato citato soltanto nel corpo non viene attribuito;
+- la propagazione avviene a caricamento completato, quindi la posizione non
+  cambia il risultato, ma la forma canonica va messa in testa per rendere
+  visibile la natura del file;
+- **comportamento corrente:** gli `include` ricadono nell'intervallo di clausole
+  osservato dal contenitore, quindi il suo attributo si propaga anche ai
+  predicati inclusi. Un aggregatore non deve per ora dichiararsi `machinery` se
+  include conoscenza del mondo;
+- un file omogeneo può usare la direttiva; in un file misto si usano fatti
+  puntuali come `machinery(nome_predicato).` per non contaminare il resto;
+- più direttive sono cumulative (al massimo `KB_MAX_ARGS`, oggi 4);
+- `file_attribute(machinery).` senza `:-` è ancora accettato dal loader per
+  compatibilità con gen382f, ma è una forma deprecata e non va scritta: sembra
+  un fatto sul dominio pur essendo un'istruzione al file.
+
+Questa è una primitiva di **provenienza**, non un'abbreviazione estetica. Va
+preferita alle liste manuali ripetute solo quando l'attributo è vero per l'intero
+file. Il caso d'uso e la relazione con il dump runtime sono approfonditi in
+[session-and-provenance.md](session-and-provenance.md#5-la-provenienza-file_attribute1).
+
+Con la registry idempotente, la semantica obiettivo sarà più rigorosa:
+`file_attribute/1` riguarderà soltanto le clausole **fisicamente dichiarate in
+quel file**. Un incluso aprirà un proprio frame di provenienza e applicherà i
+propri attributi. Altrimenti lo status dello stesso file dipenderebbe dal primo
+percorso che lo include, contraddicendo sia idempotenza sia provenienza.
+
+### 1.2 `lazy_load/1`: specifica della feature di residenza
+
+> **Stato: PROGETTATA, NON ANCORA IMPLEMENTATA.** Le forme di questa sezione non
+> vanno ancora inserite nei `.p0` operativi: il loader corrente non le riconosce.
+
+`lazy_load/1` sarà una direttiva del caricatore, sullo stesso piano sintattico di
+`include/1` e `file_attribute/1`. Se il loader la incontra durante il bootstrap,
+registra il file come provider lazy e **non materializza le clausole successive**.
+Il resto del file entra in memoria soltanto quando i suoi predicati di ingresso
+diventano goal della risoluzione.
+
+Forma minima:
+
+```prolog
+:- lazy_load(chess_context).
+```
+
+Il file diventa residente la prima volta che il solver deve risolvere un goal
+`chess_context(...)`, anche quando quel goal nasce nel corpo di un'altra regola.
+Il trigger è il **simbolo logico del predicato**, mai una parola cercata nel
+prompt. La superficie e il routing che producono quel goal restano conoscenza
+eager nella KB.
+
+#### Espressioni di attivazione: uno, OR e AND
+
+La sintassi usa normali termini composti del dialetto `.p0`:
+
+```prolog
+:- lazy_load(piece).
+:- lazy_load(any(piece, legal_move, opening)).
+:- lazy_load(all(context_games, topic_chess)).
+:- lazy_load(all(context_games, any(topic_chess, legal_move))).
+```
+
+Semantica:
+
+- `lazy_load(P)` è abbreviazione di `lazy_load(any(P))`;
+- `any(P1, ..., Pn)` è OR: basta un predicato presente nella frontiera dei goal;
+- `all(P1, ..., Pn)` è AND: tutti devono essere presenti nella **stessa
+  risoluzione**, anche come sotto-goal di una regola;
+- `any` e `all` possono annidarsi, quindi esprimono formule monotone senza
+  introdurre una seconda sintassi di liste;
+- gli argomenti sono nomi di predicato. La prima versione non distingue le
+  arità: `piece` copre ogni `piece/N`. Un eventuale indicatore `piece/2` sarà
+  un'estensione separata, giustificata solo da una collisione reale;
+- non esiste `not(...)` nell'espressione di attivazione: un contesto caricato non
+  viene scaricato durante la vita della KB e una condizione negativa renderebbe
+  l'attivazione dipendente dall'ordine di ricerca.
+
+Per "presente" si intende un predicato nella frontiera SLD corrente: il goal
+selezionato e i goal ancora da risolvere nel resolvente. Non basta che esista un
+fatto con quel nome, e il loader non accumula incontri casuali fra turni
+indipendenti. Questo rende `all(A,B)` una congiunzione logica osservabile, non
+uno stato temporale nascosto. Se il dialogo deve mantenere un contesto fra
+turni, sarà la KB eager a produrre nuovamente il goal di contesto.
+
+#### Ciclo di caricamento
+
+I provider lazy usano la stessa registry idempotente di `include/1`, con gli
+stati `catalogued_lazy`, `materializing` e `loaded`: non devono esistere due
+registri concorrenti per caricamento eager e lazy.
+
+1. Al boot il loader legge l'intestazione, conserva nella voce canonica percorso,
+   offset del corpo, espressione di attivazione e attributi di file, porta lo
+   stato a `catalogued_lazy`, poi interrompe il caricamento.
+2. Prima di enumerare fatti o regole per un goal, il solver valuta le espressioni
+   lazy contro l'intero resolvente. Tutti i provider soddisfatti vengono aperti:
+   caricarne soltanto uno renderebbe incompleta una query con più provider dello
+   stesso predicato.
+3. Il corpo viene materializzato una sola volta. Lo stato `materializing`
+   interrompe cicli di include o attivazioni ricorsive; solo a caricamento
+   completato passa a `loaded`.
+4. La risoluzione riparte con gli indici aggiornati, così il goal che ha aperto
+   il contesto vede immediatamente le clausole appena caricate.
+
+La direttiva va nell'intestazione, prima della prima clausola del dominio:
+
+```prolog
+:- file_attribute(expert).
+:- lazy_load(any(chess_context, legal_move)).
+
+chess_context(chess).
+legal_move(knight, l_shape).
+```
+
+Le clausole poste prima di `lazy_load/1` restano eager; farlo intenzionalmente è
+ammesso, ma la forma normale lascia nell'intestazione soltanto commenti e
+direttive. Quando il corpo viene materializzato, `file_attribute/1` si applica
+ai predicati fisicamente dichiarati dal provider. Gli `include/1` successivi
+alla barriera vengono seguiti in quel momento attraverso la stessa hashmap: un
+file già residente non viene riletto e un incluso con una propria barriera
+resta a sua volta `catalogued_lazy`.
+
+#### Invarianti e bootstrap
+
+La proprietà principale è l'**equivalenza eager/lazy**: a caricamento avvenuto,
+query, binding, proof e ordine semantico delle soluzioni devono coincidere con
+quelli ottenuti caricando il file interamente al boot. La lazy load cambia
+residenza e costo di avvio, non la logica.
+
+Da questa proprietà seguono vincoli precisi:
+
+- il lessico, i frame e le regole necessari a produrre il predicato-porta non
+  possono stare dietro la stessa barriera: sarebbe un bootstrap impossibile;
+- l'attivazione deve avvenire prima della ricerca della prima soluzione, non
+  soltanto dopo un fallimento, altrimenti un fatto eager potrebbe nascondere
+  ulteriori soluzioni lazy;
+- un errore di apertura o parsing deve essere rumoroso e distinguibile da
+  "goal non dimostrabile"; il sistema non può scambiare un contesto guasto per
+  assenza di conoscenza;
+- reset e nuove istanze ripartono da `unloaded`; dump e introspezione devono
+  distinguere contesti **catalogati** da contesti **residenti**;
+- la direttiva è valida soltanto nei file curati: non è una clausola asseribile
+  dal dialogo e non deve permettere a una sessione di scegliere percorsi;
+- una policy di espulsione dalla RAM non fa parte di questa feature: il
+  caricamento è monotono e avviene al massimo una volta per istanza.
+
+`lazy_load/1` non è un cerotto per un solver che scansiona male la KB. Le query
+warm sul contesto già aperto devono continuare a rispettare lo stesso budget
+della modalità eager. La feature serve a organizzare la KB per contesti e a
+ridurre memoria e boot; indicizzazione e complessità dell'inferenza restano un
+contratto indipendente.
+
+Il ratchet futuro dovrà essere `.p0t` e coprire almeno: trigger semplice, `any`,
+`all`, formula annidata, controllo negativo, sotto-goal derivato, caricamento
+singolo, due provider dello stesso predicato, attributi di file, include lazy,
+errore rumoroso, reset ed equivalenza delle risposte eager/lazy. Nessun
+`!timeout` è ammesso per nascondere il costo warm.
+
+### 1.3 Il filesystem è parte della semantica della KB
+
+Con `file_attribute/1`, include idempotente e `lazy_load/1`, la disposizione su
+disco non è più un aiuto per navigare il repository. Il confine di un `.p0`
+decide contemporaneamente:
+
+- quale provenienza condividono i predicati fisicamente dichiarati;
+- quale porzione di conoscenza può diventare residente come unità;
+- quali dipendenze vengono aperte insieme;
+- quale comportamento un profilo rende disponibile al boot.
+
+Un file deve quindi essere **semanticamente coeso**. Un file enorme che mescola
+contesti indipendenti rende la lazy load troppo grossolana; frammentare una sola
+proof in molti file crea invece una catena di cold load. Porte, lessico e colla
+necessari a scoprire un contesto restano eager; il payload raggiunto da quella
+porta può essere lazy.
+
+Un profilo `.p0` è un **manifesto comportamentale**, non una lista di comodità:
+
+```prolog
+:- include(../bundles/games.p0).
+:- include(../skills/reasoning/analyze.p0).
+```
+
+Senza lazy load, gli include del profilo determinano ciò che diventa residente
+al boot. Con lazy load determinano file eager già residenti e provider lazy
+catalogati: i contesti che quel profilo autorizza a entrare in memoria quando
+la proof li richiede. L'idempotenza permette a bundle e profili di condividere
+dipendenze e formare grafi a diamante senza duplicare conoscenza o alterare
+l'ordine delle regole.
+
+L'architettura del singolo entrypoint, lo stato corrente dei caricamenti
+nominali nel C e la migrazione sono descritti in
+[kb-loading-and-profiles.md](kb-loading-and-profiles.md).
 
 ## 2. Il contratto d'inferenza (cosa garantisce il solver)
 

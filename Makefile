@@ -395,6 +395,7 @@ SOFT_TESTS := \
   tests/p0t/reasoning/relations.p0t \
   tests/p0t/knowledge/facts.p0t \
   tests/p0t/reasoning/investigation_access.p0t \
+  tests/p0t/language/forms_as_objects.p0t \
   tests/p0t/language/taught_lexicon.p0t \
   tests/p0t/meta/kb_layers.p0t \
   tests/p0t/knowledge/class_conflict.p0t
@@ -569,6 +570,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/conversation/social.p0t
 	@./$(BIN) --test tests/p0t/conversation/apology.p0t
 	@./$(BIN) --test tests/p0t/language/lexicon_it.p0t
+	@./$(BIN) --test tests/p0t/language/forms_as_objects.p0t
 # La prova che ogni classe migrata sia INSEGNABILE a runtime. Era solo in
 # soft-test: il file che porta lo standard di prova di ogni migrazione KB-first
 # non veniva eseguito dalla suite (gen382).

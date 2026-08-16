@@ -1,0 +1,76 @@
+# FORME LINGUISTICHE COME OGGETTI DELLA KB — gen391.
+#
+# concept_label/4 resta la sorgente unica. Le viste in language-forms.p0 la
+# rendono interrogabile dalla forma verso concetto, alternative e status; il
+# consumer e' answer_frame/2, gia' generico. Il test forte non e' soltanto la
+# risposta golden: membri, status e superficie vengono aggiunti e tolti a
+# runtime, senza ricostruire il binario.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test marked_form_has_unmarked_alternative]
+!assert concept_label(calibration, en, casual, eyeball)
+!assert concept_label(calibration, en, standard, calibrate)
+!assert label_status(eyeball, informal)
+> what is the preferred term for eyeball?
+< Calibrate.
+> what is the alternative term for eyeball?
+< Calibrate.
+> what is the term status for eyeball?
+< Informal.
+
+[test no_invented_preference_between_unmarked_forms]
+!assert concept_label(sovereign, en, common, queen)
+!assert concept_label(sovereign, en, federation, woman)
+> what is the preferred term for woman?
+<! Queen.
+> what is the alternative term for woman?
+< Queen.
+
+[test status_retract_removes_only_preference]
+!assert concept_label(alignment, en, casual, roughalign)
+!assert concept_label(alignment, en, standard, align)
+!assert label_status(roughalign, informal)
+> what is the preferred term for roughalign?
+< Align.
+!forget label_status(roughalign, informal)
+> what is the preferred term for roughalign?
+<! Align.
+> what is the alternative term for roughalign?
+< Align.
+
+[test answer_surface_grows_and_retracts_at_runtime]
+!assert concept_label(tuning, en, casual, earset)
+!assert concept_label(tuning, en, standard, tune)
+!assert label_status(earset, informal)
+> what is the houseword for earset?
+<! Tune.
+!assert answer_frame(houseword, preferred_label)
+> what is the houseword for earset?
+< Tune.
+!forget answer_frame(houseword, preferred_label)
+> what is the houseword for earset?
+<! Tune.
+
+# Il profilo AGI e' parte del contratto, non un test lento a cui concedere un
+# timeout diverso. Questo caso reale deve attraversare la stessa regola sotto il
+# secondo; se non lo fa, resta rosso e tira un difetto generale del solver.
+[mock agi]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=kb/core/session.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test real_agi_form_with_default_budget]
+> what is the preferred term for eat?
+< Capture.
+> what is the term status for eat?
+< Informal.

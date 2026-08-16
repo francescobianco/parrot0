@@ -1,5 +1,41 @@
 # Knowledge Base TODO
 
+## Fronte attivo: gen391-397, naturalezza KB-first
+
+Il piano operativo e' in
+[`docs/plans/frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md),
+costruito a partire soprattutto dalla parte finale di
+[`docs/plans/question-emergence.md`](docs/plans/question-emergence.md). Le sette
+generazioni consecutive elevano forme linguistiche, denotazione contestuale,
+letture e gap, policy dialogica, scope, registro/answer plan e memoria
+discorsiva. Le clausole future nel piano sono esempi guida, non capacita'
+gia' rivendicate.
+
+La gen391 e' in corso: viste bidirezionali delle forme, status e alternative
+sono nella KB e crescono per assert/retract; le superfici conversazionali sono
+fatti `answer_frame/2`. Il gate AGI e' tornato sotto il secondo senza timeout:
+la correzione riguarda meccanismi generali del solver (candidati per testa di
+regola) e della colla (prima l'evidenza sovrapposta piu' specifica), senza
+lessico nel C. Resta da congelare l'oracolo eager/diamante di include della
+391.6 prima di promuovere la generazione. Il checkpoint corrente passa
+`make test`: 1782 asserzioni, zero fallimenti.
+
+Il filo di caricamento ha un proprio contratto in
+[`docs/kb-loading-and-profiles.md`](docs/kb-loading-and-profiles.md): il profilo
+deve diventare l'**unico entrypoint curato della KB**. Il C alloca e applica il
+protocollo, ma non enumera file core o domini. Il grafo del profilo decide cosa
+e' residente al boot e quali contesti lazy sono catalogati; include idempotente,
+`file_attribute/1` e confini fisici dei file rendono l'organizzazione su disco
+parte della vita semantica della KB. Questo filo e' ancora una specifica: non va
+usato per nascondere costi di inferenza eager.
+
+L'inventario comprende anche il falso lazy loading gia' presente nei consumer:
+`lexeme.p0`, `actions.p0`, `compose.p0` e `algo_steps.p0` vengono aperti da
+moduli C con flag dedicati. Nel target non diventano eccezioni del nuovo boot:
+sono provider raggiunti dal grafo del profilo e attivati dai predicati nella
+frontiera SLD. Il gate finale e' semplice: fuori dal loader nessun modulo deve
+conoscere un path `.p0` o mantenere un flag specifico "loaded".
+
 ## Popular wisdom and proverbs
 
 Add popular wisdom from multiple cultures as atomized, inferable knowledge,

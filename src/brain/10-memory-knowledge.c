@@ -4031,6 +4031,26 @@ static int mod_answer_frame(Brain *b, const char *norm, const char *raw,
     snprintf(tmp, sizeof tmp, "%s", norm);
     char *w[40]; size_t nw = split_words(tmp, w, 40);
 
+    /* Several KB surfaces may overlap in one turn.  Try the most specific
+     * surface first, exactly as format_constraint does below: specificity is
+     * a property of the evidence span, not a hard-coded precedence between
+     * predicates.  Keep a stable order for equal lengths, so the existing
+     * same-cue additive/fallback contract remains unchanged. */
+    for (size_t i = 1; i < nf; i++) {
+        char selected[KB_TERM_LEN], probe[KB_TERM_LEN];
+        snprintf(selected, sizeof selected, "%s", cues[i]);
+        snprintf(probe, sizeof probe, "%s", selected);
+        size_t selected_len = strlen(kb_dequote(probe));
+        size_t j = i;
+        while (j > 0) {
+            snprintf(probe, sizeof probe, "%s", cues[j - 1]);
+            if (strlen(kb_dequote(probe)) >= selected_len) break;
+            memcpy(cues[j], cues[j - 1], sizeof cues[j]);
+            j--;
+        }
+        if (j != i) memcpy(cues[j], selected, sizeof cues[j]);
+    }
+
     for (size_t i = 0; i < nf; i++) {
         char cue_s[KB_TERM_LEN]; snprintf(cue_s, sizeof cue_s, "%s", cues[i]);
         const char *cd = kb_dequote(cue_s);

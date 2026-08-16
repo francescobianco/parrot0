@@ -2182,6 +2182,15 @@ machinery(task_deadline_cue).
 machinery(imperative_opener).
 machinery(policy).
 
+% ── LE PAROLE COME OGGETTI (gen391) ─────────────────────────────────────────
+% Il consumer binario universale espone le viste di procedures.p0. Le forme di
+% domanda sono conoscenza: una nuova superficie costa un answer_frame/2, non un
+% recognizer. L'italiano naturale «si dice X o Y?» resta al giro uso/menzione:
+% qui non si finge di preservare una forma che la canonicalizzazione ha usato.
+answer_frame("preferred term", preferred_label).
+answer_frame("alternative term", alternative_label).
+answer_frame("term status", form_mark).
+
 % ── INSEGNARE UNA RISPOSTA PARLANDO ──────────────────────────────────────────
 % gen382c. Il motore delle risposte curate (mod_qa, qa_cue/qa_reply) esisteva dal
 % gen347, ma si poteva alimentare solo scrivendo nei file: mancava l'ATTO. Queste
