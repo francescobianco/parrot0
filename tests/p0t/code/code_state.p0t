@@ -28,10 +28,8 @@
 < 12.
 
 [test an update without an initial binding is not fabricated]
-!timeout 2
 > i++; what is i
 <! 1.
-!timeout 1
 
 [test a new state-question cue grows and ablates at runtime]
 > z=2; z++; final register z

@@ -72,41 +72,69 @@ Per questo il piano conserva almeno le letture concorrenti
 `located_in_t/2` e `surface_in_language/2`. La naturalita' nasce dalla scelta
 motivata fra letture, non dalla sostituzione anticipata della parola.
 
-### Cerotto temporaneo e stato delle verifiche
+### CHIUSO — la polarita' di un goal costruito a runtime
 
-`tests/p0t/code/code_state.p0t` assegna **solo al caso negativo** «`i++; what is
-i`» un timeout locale di 2 secondi e ripristina subito il default di 1 secondo.
-Sul commit pulito `00af008` lo stesso caso impiega circa 1,46 secondi e fallisce
-alla stessa soglia: non e' una regressione introdotta da gen396. Il timeout e'
-autorizzato come cerotto di handoff, non come soluzione e non modifica il budget
-globale `SOFT_BUDGET=15`.
+Il rosso order-dependent di `make soft-test` e il cerotto di `code_state.p0t`
+erano **lo stesso difetto**, ed era nel motore, non nell'ordine dei file.
 
-Verifica effettiva dell'handoff:
+`parse_term/4` scrive soltanto `pred`, `args` e `argc`. `parse_to_term/2` non
+definiva `neg`, quindi un goal COSTRUITO A RUNTIME — il goal interno di
+`findall/3` e l'argomento di entrambi i `call/1` — ereditava come flag di
+negazione qualunque byte si trovasse nello `Term` automatico del chiamante
+(`Term goal;` e `Term called;`, mai azzerati). Con quel byte diverso da zero il
+solver leggeva il goal come `naf(G)`, lo trovava non-ground e **declinava per
+floundering**: zero soluzioni, restituite come un insieme vuoto pulito.
 
-- compilazione e `git diff --check`: verdi;
-- `code_state.p0t`: 9/9 dentro `make soft-test`, compreso il caso coperto dal
-  timeout locale;
-- `sequential_view.p0t`: 4/4 dentro `make soft-test`;
-- `conditional_plan.p0t`: 28/28 quando eseguito da solo su un demone fresco;
-- `make soft-test`: **rosso e riprodotto due volte**. Tutti i file precedenti
-  passano, poi il primo stimolo di `conditional_plan.p0t` risponde «Non capisco
-  ancora.»; lo stesso file termina 27/28. Non e' uno sforamento segnalato dal
-  test engine e il timeout non va esteso per coprirlo: e' un difetto dipendente
-  dall'ordine o dall'isolamento del reload ancora da localizzare;
-- `parrot0 --help`, precedenza CLI del profilo e diagnostica dell'argomento
-  mancante erano gia' verdi prima dell'ultima esecuzione del gate.
+Percio' il sintomo dipendeva dalla storia del processo, non dalla KB: la spazzatura
+di stack cambiava a seconda di cosa era girato prima. Bisezione: il turno a MURO
+di `facts.p0t` («the quick brown fox») e di `code_state.p0t` bastava a cambiarla,
+e serviva anche un `!reset` vero (il reset intelligente salta i file con la stessa
+config, per questo solo alcuni precedenti rompevano). Traccia decisiva:
+
+```text
+[solve] d=0 step=1 idx=0/1 neg=-66883732 conditional_reading_key(current_turn, $Reading_6)
+```
+
+`conditional_reading_set` riceveva quindi `nil`, `conditional_unique_reading`
+falliva e il piano condizionale collassava sul muro «Non capisco ancora.» — una
+risposta sbagliata travestita da assenza onesta.
+
+Correzione: `parse_to_term` definisce ora `t->neg = 0`. E' il punto unico che
+costruisce un goal, quindi copre findall, entrambi i call/1 e ogni chiamante
+futuro; il loader delle regole faceva gia' `memset` sulla `Rule`, per questo le
+clausole dei file `.p0` non hanno mai mostrato il difetto.
+
+Ricadute gia' verificate:
+
+- il cerotto `!timeout 2` di `code_state.p0t` **e' stato rimosso**: il caso
+  negativo passa ripetutamente col default di 1 secondo, anche eseguito dopo
+  altri file;
+- `sequential_view.p0t` guadagna il ratchet della polarita': `findall` su
+  `apply/2` (il caso §8 rimasto aperto da gen389) e `call/1` costruito a runtime,
+  ciascuno col proprio controllo negativo. Falsificato forzando `t->neg = 1`:
+  il ratchet diventa rosso, quindi puo' fallire;
+- questo e' con ogni probabilita' anche la causa di §8 («`apply/2` non si comporta
+  dentro `findall/3`») e un candidato serio per §1 (i `kb_match` consecutivi a 0).
+  §1 non va dichiarata chiusa senza riprodurla: la sua ipotesi sul puntatore
+  penzolante di `pred_bucket()` resta non falsificata.
+
+Verifica effettiva:
+
+- `make soft-test`: verde in 14-15s sul budget invariato di 15;
+- `make test`: **1930 asserzioni, zero fallimenti**;
+- `git diff --check` verde, nessun flag diagnostico lasciato nel C.
+
+**Attenzione al flusso:** con `conditional_plan.p0t` che ora gira per intero,
+`soft-test` sta a 14-15s contro un budget di 15. Il prossimo giro che aggiunge un
+file deve TOGLIERNE uno (i piu' cari sono `conditional_plan.p0t` ~2,4s e
+`contextual_denotation.p0t` ~2,2s), non alzare `SOFT_BUDGET`.
 
 ### Sequenza precisa di ripartenza
 
-1. Riprodurre prima il rosso order-dependent di `make soft-test`, quindi fare
-   bisezione sui file che precedono `conditional_plan.p0t` usando lo stesso
-   demone. Verificare reset, origin/layer della memoria riflessiva e ogni stato
-   statico del solver. Non correggerlo riordinando la suite o alzando timeout.
-   Se emerge invece un costo, profilare la relazione o il goal responsabile:
-   non alzare `SOFT_BUDGET` e non moltiplicare i timeout locali.
-2. Chiudere il taglio soltanto dopo aver verificato che non siano rimasti flag
-   diagnostici, letterali linguistici nel nuovo C o modifiche estranee; quindi
-   registrare qui test, commit e push.
+1. ~~Riprodurre il rosso order-dependent~~ — **fatto**, vedi sopra: era la
+   polarita' non inizializzata dei goal costruiti a runtime.
+2. ~~Chiudere il taglio verificando flag diagnostici e modifiche estranee~~ —
+   **fatto**; test registrati sopra.
 3. Continuare gen396 sul caso guida codice + domanda. Dal turno universale
    derivare in KB oggetti come `statement`, `state_before`, `effect`,
    `state_after`, `query`, `expected` e `constraint`; riusare l'evaluatore come
@@ -739,6 +767,16 @@ Strumento: un test che ripete N `kb_match` su una regola derivata dentro un
 modulo, con `P0DBG` a stampare il conteggio; e un `assert`/`retract` in mezzo per
 forzare il rebuild.
 
+**Aggiornamento gen396 — candidato serio, non ancora conferma.** La polarita' non
+inizializzata dei goal costruiti a runtime (handoff in testa a questo file) ha
+esattamente questa firma: zero soluzioni, silenzio, dipendenza dalla storia del
+processo e non dalla KB, e il PRIMO uso che fallisce mentre i successivi passano.
+`count_readings_answer` compone `collection_*`, cioe' regole derivate: se una di
+quelle passa per `findall` o `call`, era lo stesso difetto. **Non dichiararlo
+chiuso senza riprodurlo:** l'ipotesi del puntatore penzolante di `pred_bucket()`
+resta in piedi e va falsificata a parte, perche' e' un difetto diverso con lo
+stesso sintomo.
+
 ## 2. L'isolamento fra file nel test-engine
 
 `tests/p0t/meta/knowledge_gap.p0t` passa 14/14 su un motore appena avviato e cade
@@ -810,13 +848,21 @@ altri due usi di `b->response_pick` globale: `30-generation-reading.c:1287` e
 `20-math.c:1890`. Stessa specie di accoppiamento — due famiglie che non si parlano
 si influenzano — e stessa cura.
 
-## 8. `apply/2` non si comporta dentro `findall/3`
+## 8. ✅ `apply/2` non si comporta dentro `findall/3` — ISOLATO a gen396
 
 Osservato a gen389: `findall($P, apply(pred, cons(...)), $L)` raccoglie zero,
 mentre lo stesso `apply` come goal diretto di una clausola funziona. Non isolato.
-La via giusta in quel caso era comunque astrarre la relazione invece di
-meta-chiamarla (mantra #3), ma il limite resta e va scritto o riparato: chi legge
-`kb_fact/2` e `apply/2` in `question-emergence.md` §9.3 non ha modo di saperlo.
+
+**Causa trovata a gen396** (dettaglio nell'handoff in testa a questo file):
+`parse_to_term/2` non definiva `neg`, quindi il goal interno di `findall/3` —
+l'unico costruito a runtime invece che dal loader — prendeva la polarita' dalla
+spazzatura di stack del chiamante. Con quel byte non nullo il goal veniva letto
+come `naf(G)`, era non-ground e floundava: enumerazione vuota, senza errore.
+Spiega perche' lo STESSO `apply` come goal diretto funzionava (quello arriva dal
+loader, che azzera la `Rule`) e perche' il difetto sembrava non deterministico.
+
+Il ratchet e' in `tests/p0t/reasoning/sequential_view.p0t`: `findall` su `apply/2`
+con controllo negativo, piu' il gemello `call/1`.
 
 ---
 

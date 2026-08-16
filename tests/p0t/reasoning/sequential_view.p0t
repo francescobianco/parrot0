@@ -45,3 +45,31 @@
 [test variables in unit clauses are standardized apart on every use]
 > what is the wildcard pair for k
 < Ready.
+
+# A goal BUILT AT RUNTIME — the inner goal of findall/3, the argument of call/1 —
+# carries its own polarity.  When that polarity was left to whatever the parser's
+# storage happened to hold, a positive enumeration could be read as naf(G), find
+# itself non-ground, and flounder: zero solutions, reported as an honest empty
+# set.  The composed findall+apply path is where it showed, so it is what the
+# ratchet asks for.
+!assert crew_member(delta, ann)
+!assert crew_member(delta, bo)
+!assert crew_member(epsilon, cy)
+!clause crew_roster($Team, $List) :- findall($M, apply(crew_member, cons($Team, cons($M, nil))), $List)
+!clause crew_pair($Team, ok) :- crew_roster($Team, cons($A, cons($B, nil)))
+!assert answer_frame("crew pair", crew_pair)
+
+[test a runtime-built findall goal enumerates instead of floundering as naf]
+> what is the crew pair for delta
+< Ok.
+> what is the crew pair for epsilon
+<! Ok.
+
+!clause crew_call($Team, ok) :- call(crew_member($Team, ann))
+!assert answer_frame("crew call", crew_call)
+
+[test a runtime-built call/1 goal is positive]
+> what is the crew call for delta
+< Ok.
+> what is the crew call for epsilon
+<! Ok.

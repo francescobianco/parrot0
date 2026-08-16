@@ -1654,6 +1654,30 @@ Italia/italiano e crescita/ablazione. Restano aperti il piano proposizionale del
 codice, la condivisione strutturata delle proof e tutte le dimensioni di registro
 di 396.1-396.2; gen396 e' quindi avviata, non chiusa.
 
+**Task 396.-1 — il prerequisito del §2.1.5, pagato.** Il primo giro di gen396 ha
+consegnato un `make soft-test` rosso in modo dipendente dall'ordine dei file, che
+il §2.1 vincolo 5 obbligava a chiudere PRIMA di promuovere qualunque livello
+dipendente da composizione di query. Non era ne' costo ne' isolamento del reload:
+`parse_to_term/2` lasciava indefinita la polarita' `neg` del goal, e i tre
+chiamanti che costruiscono un goal a RUNTIME (`findall/3` e i due `call/1`)
+passano uno `Term` automatico mai azzerato. Con quel byte non nullo un'enumerazione
+positiva veniva risolta come `naf(G)`, trovata non-ground e declinata per
+floundering: **zero soluzioni presentate come insieme vuoto legittimo**.
+
+E' esattamente la divergenza silenziosa che il vincolo 5 descrive, e la sua forma
+peggiore: non un fallimento visibile, ma una risposta sbagliata travestita da
+assenza onesta — il piano condizionale collassava sul muro. Dipendeva dalla storia
+del processo (un turno a muro precedente bastava a cambiare lo stack) e non dalla
+KB, per questo sembrava non deterministico. La correzione e' nel punto unico che
+costruisce un goal; il loader delle regole azzerava gia' la `Rule`, quindi le
+clausole dei file `.p0` non erano toccate. Ratchet in
+`reasoning/sequential_view.p0t`: `findall` su `apply/2` e `call/1` costruiti a
+runtime, ciascuno col controllo negativo, falsificati forzando `neg = 1`.
+
+Questo chiude anche l'anomalia gen389 «`apply/2` non si comporta dentro
+`findall/3`» e rende ridiscutibile — non chiusa — l'ipotesi dei `kb_match`
+consecutivi a zero.
+
 ---
 
 ### gen397 — Memoria discorsiva e ratchet frontier

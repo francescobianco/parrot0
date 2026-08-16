@@ -2361,7 +2361,24 @@ static int parse_term(const char *s, char *pred,
     return *argc > 0;
 }
 
+/* gen396: parse_to_term DEFINES the whole goal, `neg` included.
+ *
+ * `parse_term` writes pred/args/argc only, so the polarity of the produced goal
+ * used to come from whatever the caller's storage happened to hold. Three
+ * callers pass an automatic `Term` they never zero — `findall/3` and both
+ * `call/1` paths — so a goal built at runtime inherited a stack byte as its
+ * negation flag. When that byte was non-zero the solver read the goal as
+ * `naf(G)`, found it non-ground, and declined by FLOUNDERING: the enumeration
+ * returned nothing and the caller saw a clean, silent empty set.
+ *
+ * That is the whole shape of the symptom recorded in KB_TODO ("apply/2 does not
+ * behave inside findall/3", "three consecutive kb_match returning 0"): a
+ * derivation that is correct on its own collapses to zero solutions depending on
+ * what ran BEFORE it in the same process — a wrong answer wearing the clothes of
+ * an honest absence. A goal's polarity is part of the goal; it is set here, at
+ * the single point that builds one, and never left to memory. */
 static int parse_to_term(const char *s, Term *t) {
+    t->neg = 0;
     return parse_term(s, t->pred, t->args, &t->argc);
 }
 
