@@ -1,0 +1,49 @@
+# POLITICA DELLE MOSSE DIALOGICHE — avvio gen394.
+#
+# Lo stesso frame deve cambiare mossa per effetto dello stato epistemico e della
+# policy nella KB. Il test non rivendica ancora che ogni turno NL materializzi
+# il frame: prova il kernel dichiarativo che il futuro router dovra' consumare.
+
+[mock core]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=
+!set PARROT0_LANG=en
+!reset
+
+[test a_proof_answers_and_finite_failure_declines]
+!assert frame_act(location_policy_alpha, ask)
+!assert frame_slot(location_policy_alpha, relation, located_in)
+!assert frame_slot(location_policy_alpha, entity, nivora)
+!assert continent_of(nivora, oceania)
+> what is the frame move for location_policy_alpha?
+< Answer.
+!forget continent_of(nivora, oceania)
+> what is the frame move for location_policy_alpha?
+< Decline.
+
+[test policy_changes_the_move_without_changing_the_frame]
+!assert frame_act(location_policy_beta, ask)
+!assert frame_slot(location_policy_beta, relation, located_in)
+!assert frame_slot(location_policy_beta, entity, nivora)
+> what is the frame move for location_policy_beta?
+< Decline.
+!forget move_policy(missing_fact, decline)
+!assert move_policy(missing_fact, clarify)
+> what is the frame move for location_policy_beta?
+< Clarify.
+!forget move_policy(missing_fact, clarify)
+!assert move_policy(missing_fact, decline)
+> what is the frame move for location_policy_beta?
+< Decline.
+
+[test interpretation_policy_is_queryable_and_retractable]
+> what is the dialogue policy for single_dominant_reading?
+< Answer with interpretation key.
+!forget move_policy(single_dominant_reading, answer_with_interpretation_key)
+> what is the dialogue policy for single_dominant_reading?
+<! Answer with interpretation key.
+!assert move_policy(single_dominant_reading, answer_with_interpretation_key)
+> what is the dialogue policy for single_dominant_reading?
+< Answer with interpretation key.

@@ -1,0 +1,49 @@
+# RAGGIUNGIBILITA' GEOGRAFICA — il fatto, la relazione e la superficie devono
+# comporsi. Il caso reale che tira il test e' `continent_of(rwanda, africa)`:
+# il dato era gia' nella KB, ma "dove si trova" non apriva alcuna porta capace
+# di raggiungerlo. Parigi e un paese inventato impediscono un fix sull'istanza.
+
+[mock agi]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test italian_exonym_reaches_existing_geography]
+> dove si trova la ruanda
+< Africa.
+
+[test one_spatial_door_covers_cities_and_countries]
+> where is paris?
+< France.
+> where is rwanda?
+< Africa.
+
+[test a_new_country_inherits_location_without_rebuild]
+!assert continent_of(nivora, oceania)
+> where is nivora?
+< Oceania.
+!forget continent_of(nivora, oceania)
+> where is nivora?
+<! Oceania.
+!assert continent_of(nivora, oceania)
+> where is nivora?
+< Oceania.
+
+[test the_surface_door_is_runtime_knowledge]
+!forget answer_frame("where is", located_in)
+> where is paris?
+<! France.
+!assert answer_frame("where is", located_in)
+> where is paris?
+< France.
+
+[test the_italian_exonym_is_runtime_knowledge]
+!forget tr(rwanda, ruanda)
+> dove si trova la ruanda
+<! Africa.
+!assert tr(rwanda, ruanda)
+> dove si trova la ruanda
+< Africa.

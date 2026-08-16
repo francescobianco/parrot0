@@ -398,6 +398,8 @@ SOFT_TESTS := \
   tests/p0t/language/forms_as_objects.p0t \
   tests/p0t/language/contextual_denotation.p0t \
   tests/p0t/meta/three_axis_gap.p0t \
+  tests/p0t/knowledge/geographic_location.p0t \
+  tests/p0t/conversation/dialogue_moves.p0t \
   tests/p0t/language/taught_lexicon.p0t \
   tests/p0t/meta/kb_layers.p0t \
   tests/p0t/knowledge/class_conflict.p0t
@@ -417,11 +419,14 @@ soft-test: test-engine
 	 echo "soft-test: green in $${el}s (budget $(SOFT_BUDGET)s)"
 
 test: test-engine
+	@./$(BIN) --help >/dev/null
 	@./$(BIN) --test tests/p0t/conversation/basics.p0t
+	@./$(BIN) --test tests/p0t/conversation/dialogue_moves.p0t
 	@./$(BIN) --test tests/p0t/conversation/conversation.p0t
 	@./$(BIN) --test tests/p0t/conversation/greet.p0t
 	@./$(BIN) --test tests/p0t/math/arith.p0t
 	@./$(BIN) --test tests/p0t/knowledge/world.p0t
+	@./$(BIN) --test tests/p0t/knowledge/geographic_location.p0t
 	@./$(BIN) --test tests/p0t/knowledge/facts.p0t
 	@./$(BIN) --test tests/p0t/knowledge/games.p0t
 	@./$(BIN) --test tests/p0t/knowledge/class_conflict.p0t

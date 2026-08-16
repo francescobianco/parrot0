@@ -102,8 +102,10 @@ file che `kb.save` scrive (così `brain_reload` lo ricarica).
 > dei suoi *parenti* — coordinata `(predicato, primo-arg)`, tier
 > coppia-esatta → stesso-predicato → default. **Le regole (`:-`), i negativi e le
 > direttive non si instradano mai**: vanno nel file `default`/`session` (lo spill
-> del non-instradato). L'indice è `<root>/savemap.tsv` (`pred ⇥ token ⇥ file ⇥ riga`),
-> ricostruito a ogni save. Senza `PARROT0_KB_ROOT` è il save legacy a file singolo.
+> del non-instradato). Il router ricostruisce oggi l'indice in memoria a ogni
+> save. `<root>/savemap.tsv` e' soltanto un dump ispettivo mai riletto, deprecato
+> e destinato alla rimozione: non e' una cache ne' una fonte. Senza
+> `PARROT0_KB_ROOT` è il save legacy a file singolo.
 > Codice: `kb_save_routed` (`src/kb.c:2092`). Uso in una mesh di addestramento e
 > insidie correlate: [docs/plans/learning-mesh.md](plans/learning-mesh.md) §3.1.
 

@@ -79,6 +79,14 @@ parrot0: routed 3 clause(s) into the KB tree
 Stessa strada per `--dream --persist`: un sogno è un contributo **committabile**,
 non un giro a vuoto.
 
+Il nome *save-map* indica il meccanismo di collocazione, non il file
+`kb/savemap.tsv`. Quel TSV e' un dump derivato: il motore non lo legge e oggi
+ricostruisce comunque la tabella in memoria a ogni `/save`. La direzione e'
+abolire il dump e far vivere le due chiavi di routing — coppia
+`(predicato, primo_argomento)` e predicato con casa univoca — nella registry di
+provenienza del loader. Se un predicato abita piu' file, la sola chiave per
+predicato non puo' scegliere una casa in base all'ordine di scansione.
+
 ## 5. La provenienza: `file_attribute/1`
 
 Lo stesso principio applicato alla classificazione della conoscenza. La regola

@@ -48,6 +48,10 @@ kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of($Y, $Z).
 kind_of_t($X, $Z) :- kind_of($X, $Y), kind_of_t($Y, $Z).
 larger_than_t($X, $Z) :- larger_than($X, $Y), larger_than($Y, $Z).
 larger_than_t($X, $Z) :- larger_than($X, $Y), larger_than_t($Y, $Z).
+% `continent_of/2` e' una specializzazione di `located_in/2`, non un secondo
+% mondo geografico. Il ponte rende ogni paese localizzabile dalla relazione
+% comune e cresce automaticamente con nuovi fatti continent_of/2.
+located_in($Country, $Continent) :- continent_of($Country, $Continent).
 located_in_t($X, $Z) :- located_in($X, $Y), located_in($Y, $Z).
 located_in_t($X, $Z) :- located_in($X, $Y), located_in_t($Y, $Z).
 part_of_t($X, $Z) :- part_of($X, $Y), part_of($Y, $Z).
@@ -929,6 +933,7 @@ machinery(sides).
 % contiene anche conoscenza del mondo. Il file incluso puo' invece dichiarare
 % correttamente la provenienza una volta sola per tutti i suoi predicati.
 :- include(dialogue-frames.p0).
+:- include(dialogue-policy.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 

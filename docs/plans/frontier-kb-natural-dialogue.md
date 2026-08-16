@@ -1381,6 +1381,15 @@ deve ricevere un goal ground. `frame_residue/2` passa quindi dalle viste positiv
 `frame_has_relation/1` e `frame_has_entity/1`, invece di lasciare una variabile
 esistenziale libera dentro `naf(frame_slot(...))`.
 
+Il prompt reale «dove si trova la ruanda» ha mostrato un secondo confine. Il
+fatto `continent_of(rwanda, africa)` esisteva, ma la forma locativa non apriva la
+relazione spaziale comune e l'esonimo italiano non raggiungeva l'entita'. Il
+taglio KB-first aggiunge `answer_frame("where is", located_in)`, la regola
+`located_in(Country, Continent) :- continent_of(Country, Continent)` e
+`tr(rwanda, ruanda)`. Il ratchet usa anche Parigi e un paese inventato, e abla
+separatamente fatto, porta ed esonimo. Questo chiude il caso di ponte, non il
+producer NL -> frame generale, che resta il gate onesto di gen393.
+
 ---
 
 ### gen394 — La KB sceglie la mossa dialogica
@@ -1426,6 +1435,15 @@ dominio; retract la ripristina.
 
 **Definizione di done.** La stessa classe di evidenza produce la stessa mossa in
 domini diversi; nessuna risposta del modello di riferimento e' memorizzata.
+
+**Stato di attuazione.** Il primo kernel KB-only e' presente in
+`core/dialogue-policy.p0`: `dialogue_state/2` proietta proof e gap,
+`move_policy/2` resta modificabile come conoscenza e `frame_move/2` compone i due
+livelli. Il ratchet `conversation/dialogue_moves.p0t` cambia la stessa domanda
+da `answer` a `decline`, poi da `decline` a `clarify`, usando soltanto
+assert/retract della KB. Issue, obblighi, risoluzione della precedenza e il
+consumer universale prima del first-match restano aperti: questo e' l'avvio di
+gen394, non la sua definizione di done.
 
 ---
 
@@ -1575,8 +1593,9 @@ cambiano il dialogo a runtime; la suite ordinaria resta entro i budget.
 
 ## 16. Stato di avanzamento
 
-Il piano e' partito da **gen391**. Le gen394-397 restano contratti, non
-capacita' rivendicate; gen393 e' il fronte semantico corrente.
+Il piano e' partito da **gen391**. Le gen395-397 restano contratti, non
+capacita' rivendicate; gen394 e' il fronte semantico corrente e possiede soltanto
+il primo kernel, non il router end-to-end.
 
 Stato della gen391:
 
@@ -1653,3 +1672,14 @@ Avvio della gen393:
    incomplete e nel secondo caso non autorizza il gap. Restano da falsificare
    deterministicamente il caso di budget e da modellare ponte, operatore e
    realizzazione.
+
+Avvio della gen394:
+
+1. **stato dialogico derivato:** proof e `missing_fact` diventano classi di
+   evidenza comuni, non decisioni private dei consumer;
+2. **policy residente nella KB:** lo stesso stato puo' cambiare mossa con
+   assert/retract di `move_policy/2`, senza rebuild;
+3. **ratchet runtime presente:** `conversation/dialogue_moves.p0t` prova
+   risposta, declino e chiarimento sulla stessa struttura di frame;
+4. **router aperto:** precedenza, issue, obblighi e consumo universale prima del
+   first-match non sono ancora implementati e bloccano la promozione di gen394.

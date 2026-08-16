@@ -396,9 +396,11 @@ Non serve rete, non serve un broker: il tree su disco *è* il canale.
 - **Che cosa si instrada e cosa no** (`sm_parse`, `kb.c:2114`): **solo fatti ground
   positivi**. **Regole (`:-`), negativi (`not(...)`), direttive e commenti NON si
   instradano mai** → finiscono sempre nello spill.
-- **L'indice `<root>/savemap.tsv`** (4 colonne: `predicato ⇥ token ⇥ file ⇥ riga`) è
-  **ricostruito a ogni save** scandendo il tree (transiente → mai stale) e scritto su
-  disco per ispezione.
+- **L'indice operativo e' in memoria** ed e' ricostruito a ogni save scandendo il
+  tree. `<root>/savemap.tsv` ne e' soltanto un dump ispettivo mai riletto: non e'
+  una cache ed e' deprecato. La registry del loader dovra' sostituire la scansione
+  con la coppia esatta e un indice per predicato valido soltanto se la casa e'
+  univoca.
 - **Opt-in via `PARROT0_KB_ROOT`.** Senza, `brain_save_session` fa il vecchio save a file
   singolo — motivo per cui il primo esperimento (§4) ha *spillato tutto* nel mount invece
   di instradarlo. I test ermetici restano così di proposito.
@@ -410,7 +412,7 @@ Non serve rete, non serve un broker: il tree su disco *è* il canale.
 teach is_a(dog, mammal)     → ha parenti (stesso pred is_a)  → ROUTED in taxonomy.p0 (riga 3)
 teach habitat(dog, house)   → nessun parente                 → SPILL (session)
 teach la REGOLA is_a/2      → è una clausola, mai instradata  → SPILL (session)
-savemap.tsv:  is_a  dog  …/bio/taxonomy.p0  3   ← indice ricostruito
+indice in memoria:  is_a  dog  …/bio/taxonomy.p0  3
 ```
 
 **La visione (steer di F.):** il save-map è la forma corretta della persistenza, e va

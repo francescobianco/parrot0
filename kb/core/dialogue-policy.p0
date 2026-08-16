@@ -1,0 +1,27 @@
+% dialogue-policy.p0 — la decisione dialogica come conoscenza (gen394).
+%
+% Il motore non deve decidere localmente che cosa fare davanti a una proof o a
+% un gap. Qui lo stato epistemico del frame viene trasformato in evidenza e la
+% policy associa quell'evidenza a una mossa. Aggiungere o ritirare una policy
+% cambia la decisione senza cambiare il frame, il dominio o il binario.
+
+:- file_attribute(machinery).
+
+dialogue_state($Frame, proven_answer) :- frame_complete($Frame), frame_has_answer($Frame).
+dialogue_state($Frame, missing_fact) :- frame_gap($Frame, missing_fact).
+
+move_policy(proven_answer, answer).
+move_policy(missing_fact, decline).
+move_policy(single_dominant_reading, answer_with_interpretation_key).
+move_policy(near_compatible_readings, add_nearby_reading).
+move_policy(multiple_lexical_candidates, enumerate_alternatives).
+move_policy(unverified_repair, propose_hypothesis).
+move_policy(blocking_incompatible_readings, clarify).
+move_policy(valid_surface, leave_unchanged).
+move_policy(proven_answer_with_components, show_decomposition).
+
+move_priority(answer_with_interpretation_key, clarify, preferred_when_nonblocking).
+move_priority(propose_hypothesis, silent_repair, always).
+move_priority(decline, unsupported_answer, always).
+
+frame_move($Frame, $Move) :- dialogue_state($Frame, $Evidence), move_policy($Evidence, $Move).

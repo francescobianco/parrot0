@@ -41,6 +41,29 @@ static void chomp(char *s) {
     }
 }
 
+static void print_usage(FILE *out) {
+    fprintf(out,
+            "Usage: parrot0 [OPTIONS]\n"
+            "\n"
+            "Without options, start an interactive conversation.\n"
+            "\n"
+            "Options:\n"
+            "  -h, --help                  Show this help and exit\n"
+            "  --daemon                    Serve the HTTP API\n"
+            "    --host HOST               Bind host (default: 127.0.0.1)\n"
+            "    --port PORT               Bind port (default: 9902)\n"
+            "  --mcp-engine                Serve the Prolog engine over stdio\n"
+            "  --test-engine               Start the .p0t test daemon\n"
+            "    --sock PATH               Use a different test socket\n"
+            "  --test [FILE]               Send a .p0t file (or stdin) to the test daemon\n"
+            "  --test-report               Print the test summary and stop the daemon\n"
+            "  --dream TOPIC               Explore a topic recursively\n"
+            "    --depth=N                 Limit dream traversal depth\n"
+            "    --nodes=N                 Limit dream traversal nodes\n"
+            "    --fetch                   Allow fetching sources while dreaming\n"
+            "    --persist                 Persist facts learned while dreaming\n");
+}
+
 /* Opt-in input capture (off unless PARROT0_TRACE names a file). Appends every
  * received input line so the self-improvement loop can SEE exactly what a
  * benchmark feeds parrot0 — a discovery tool for which reasoning features to
@@ -177,7 +200,11 @@ int main(int argc, char **argv) {
     const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
     const char *send_file = NULL;
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+            print_usage(stdout);
+            return 0;
+        }
+        else if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
         else if (strcmp(argv[i], "--mcp-engine") == 0) mcp_mode = 1;
         else if (strcmp(argv[i], "--test-engine") == 0) test_mode = 1;
         /* `--test FILE` is the name; `--test-send` stays as a compatible alias so
@@ -202,12 +229,8 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--fetch") == 0) dream_fetch = 1;
         else if (strcmp(argv[i], "--persist") == 0) dream_persist = 1;
         else {
-            fprintf(stderr, "parrot0: unknown argument '%s'\n"
-                    "usage: parrot0 [--daemon [--port N] [--host H]] [--mcp-engine]\n"
-                    "               [--test-engine [--sock PATH]]\n"
-                    "               [--test FILE [--sock PATH]] [--test-report [--sock PATH]]\n"
-                    "               [--dream TOPIC [--depth=N] [--nodes=N] [--fetch] [--persist]]\n",
-                    argv[i]);
+            fprintf(stderr, "parrot0: unknown argument '%s'\n\n", argv[i]);
+            print_usage(stderr);
             return 2;
         }
     }

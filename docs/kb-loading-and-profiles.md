@@ -246,6 +246,39 @@ Il dettaglio operativo di `include/1`, `file_attribute/1` e delle espressioni
 `lazy_load(any(...))` / `lazy_load(all(...))` e' nel
 [contratto del motore](prolog-like-engine.md#11-direttive-di-file).
 
+### 6.1 La registry deve assorbire il save-map, non il suo dump
+
+Il routing di `/save` usa oggi una tabella `SmRow[]` ricostruita scandendo tutti
+i `.p0`. Il file `kb/savemap.tsv` viene scritto dopo la scansione soltanto per
+ispezione e non viene mai riletto: non e' una cache, non governa il routing e
+puo' essere abolito senza perdere stato autorevole.
+
+La registry futura deve esporre la provenienza fisica gia' nota al loader con
+due indici distinti:
+
+```text
+(predicato, primo_argomento) -> file canonico
+predicato -> file canonico | ambiguo
+```
+
+La seconda chiave e' valida soltanto quando tutte le clausole fisiche di quel
+predicato hanno una casa univoca. Il fallback attuale sceglie invece l'ultima
+occorrenza incontrata durante la scansione ricorsiva: se lo stesso predicato e'
+distribuito su piu' file, il risultato dipende dall'ordine del filesystem. Una
+hashmap che conservasse questa regola renderebbe piu' veloce un comportamento
+non deterministico.
+
+La migrazione separa quindi due cambiamenti:
+
+1. rimuovere il TSV derivato e il test che ne richiede la materializzazione;
+2. sostituire la scansione a ogni save con gli indici della registry, usando il
+   fallback per predicato solo se univoco e altrimenti lo spill o una futura
+   dichiarazione esplicita di casa.
+
+`file_attribute/1` non dichiara la destinazione di scrittura: descrive i
+predicati fisicamente introdotti dal file. Provenienza, layer e routing possono
+condividere la registry senza fondere i rispettivi significati.
+
 ## 7. Migrazione in sette passi
 
 La migrazione accompagna le gen391-397 senza usare la lazy load per nascondere

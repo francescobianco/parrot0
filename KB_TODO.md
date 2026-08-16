@@ -1,6 +1,6 @@
 # Knowledge Base TODO
 
-## Fronte attivo: gen393, frame e residuo sui tre assi
+## Fronte attivo: gen394, politica delle mosse sopra frame e gap
 
 Il piano operativo e' in
 [`docs/plans/frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md),
@@ -59,6 +59,26 @@ il solo fatto e lo riapre ritraendolo. Restano aperti il falsificatore che
 esaurisca deterministicamente il budget e le diagnosi di ponte, operatore e
 realizzazione.
 
+Una conversazione reale ha poi falsificato la raggiungibilita' del frame:
+`continent_of(rwanda, africa)` era gia' residente, ma «dove si trova la ruanda»
+andava a muro. Non era `missing_fact`: mancavano il ponte semantico
+`continent_of -> located_in`, la superficie `where is -> located_in` e
+l'esonimo `ruanda -> rwanda`. I tre pezzi sono ora conoscenza KB. Il ratchet
+`knowledge/geographic_location.p0t` copre Ruanda, Parigi e un paese inventato;
+assert/retract del fatto, della superficie e della traduzione cambiano la
+risposta senza rebuild. Il producer NL -> frame generale resta aperto: il caso
+passa ancora dal consumer binario esistente e non autorizza a dichiarare gen393
+end-to-end.
+
+La gen394 e' avviata con `kb/core/dialogue-policy.p0`. `dialogue_state/2`
+trasforma proof e `missing_fact` in evidenza; `move_policy/2` sceglie la mossa e
+`frame_move/2` le compone. Il `.p0t` `conversation/dialogue_moves.p0t` prova che
+lo stesso frame passa da `answer` a `decline`, e da `decline` a `clarify`
+cambiando soltanto la policy a runtime. Non e' ancora il router dialogico: issue,
+obblighi, precedenza effettiva e consumo prima del first-match restano aperti.
+`make soft-test` e' verde in 7 secondi sul budget 15; `make test` chiude 1839
+asserzioni, zero fallimenti.
+
 Il filo di caricamento ha un proprio contratto in
 [`docs/kb-loading-and-profiles.md`](docs/kb-loading-and-profiles.md): il profilo
 deve diventare l'**unico entrypoint curato della KB**. Il C alloca e applica il
@@ -74,6 +94,16 @@ moduli C con flag dedicati. Nel target non diventano eccezioni del nuovo boot:
 sono provider raggiunti dal grafo del profilo e attivati dai predicati nella
 frontiera SLD. Il gate finale e' semplice: fuori dal loader nessun modulo deve
 conoscere un path `.p0` o mantenere un flag specifico "loaded".
+
+L'audit del routing di `/save` ha separato il router dal file
+`kb/savemap.tsv`. Il TSV non viene mai letto: `kb_save_routed()` riscansiona i
+`.p0`, costruisce `SmRow[]` in memoria e riscrive il file soltanto per
+ispezione. E' quindi un artefatto derivato ignorato da Git e generato localmente,
+non una cache operativa. La sua rimozione e' proposta nel filo di residenza; il
+router dovra' usare la provenienza fisica della registry con due indici:
+`(predicato, primo_argomento) -> file` e `predicato -> file` soltanto quando la
+casa e' univoca. L'attuale fallback "ultimo file con lo stesso predicato" e'
+dipendente dall'ordine di scansione e non va trasferito tale e quale in hashmap.
 
 ## Popular wisdom and proverbs
 

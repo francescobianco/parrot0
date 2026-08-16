@@ -1042,6 +1042,10 @@ answer_frame(invent, invented_by).
 answer_frame(invented, invented_by).
 answer_frame(inventor, invented_by).
 answer_frame(language, language_of_country).
+% Una domanda locativa apre la relazione spaziale comune. Paesi, citta' e
+% landmark entrano dalla stessa porta attraverso i loro fatti o regole; il
+% consumer non conosce nessuna classe geografica e la superficie resta KB.
+answer_frame("where is", located_in).
 answer_frame(largest, largest_in_category).
 answer_frame(longest_river, longest_river).
 answer_frame(meaning, means).
@@ -2209,6 +2213,8 @@ answer_frame("frame completeness", frame_completeness).
 answer_frame("frame residue", frame_residue).
 answer_frame("frame answer", frame_answer).
 answer_frame("frame gap", frame_gap).
+answer_frame("frame move", frame_move).
+answer_frame("dialogue policy", move_policy).
 answer_frame("candidate reading", candidate_reading).
 answer_frame("selected reading", selected_reading).
 answer_frame("retained reading", retained_reading).
