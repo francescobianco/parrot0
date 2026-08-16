@@ -669,6 +669,13 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/language/fewshot.it.p0t
 	@./$(BIN) --test tests/p0t/intent/pragma_stress.p0t
 	@./$(BIN) --test tests/p0t/meta/proof_trace.p0t
+# gen383: i cinque sintomi della colla linguistica sono ora un CRICCHETTO nella
+# suite, non una banca a parte. `make glue-bench` resta come strumento di
+# scoperta (gira sulla KB completa, ha le righe qualitative); questo file tiene
+# le stesse continuita' in forma ermetica e istantanea. Era esattamente il
+# problema: glue-bench costava ~13s di processi, nessuno lo lanciava, ed e' stato
+# trovato ROSSO da chissa' quando.
+	@./$(BIN) --test tests/p0t/meta/glue.p0t
 	@./$(BIN) --test tests/p0t/meta/bridge_gap.p0t
 # knowledge_gap.p0t e' fuori suite di proposito: passa 14/14 su un motore appena
 # avviato e cade sul primo blocco quando lo precede un altro file. Il difetto e'

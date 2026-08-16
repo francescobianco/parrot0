@@ -1,0 +1,119 @@
+# LA COLLA LINGUISTICA — i cinque sintomi come cricchetto (gen383)
+#
+# `docs/plans/the-linguistic-glue.md` dice che la colla «diventa visibile
+# soprattutto quando manca», ed elenca cinque sintomi della sua assenza. Questo
+# file li tiene fermi. E' la conversione di `tests/gluebench.sh`, che restava
+# fuori da `make test` perche' era una banca a processi separati: girava in ~13s,
+# nessuno lo lanciava, e a gen383 e' stato trovato ROSSO da chissa' quando.
+#
+# `gluebench.sh` resta come banca di SCOPERTA — gira sulla KB completa e ha le
+# righe qualitative che qui non si possono asserire. Questo file e' il cricchetto:
+# stesse continuita', ma ermetiche e istantanee.
+#
+# Ogni caso e' MULTI-TURNO per costruzione: l'ultimo turno non ha senso da solo,
+# e la prova e' se il precedente e' arrivato fin li'. Le entita' sono INVENTATE
+# (F.: nei test nuovi si usano entita' nuove, non l'amputazione della KB), cosi'
+# si misura la CONTINUITA' e non la disponibilita' del contenuto.
+
+# ── S2 — riferimento implicito ──────────────────────────────────────────────
+# «perdita dei riferimenti impliciti»: il turno finale nomina l'entita' con un
+# pronome, o non la nomina affatto.
+[test glue_implicit_reference]
+!reset
+!assert means(zorb, "a small invented device")
+!assert part_of(zorb, quixsys)
+> tell me about zorb
+< zorb is a small invented device.
+# "it" non ha antecedente nel turno: deve prenderlo dal turno prima. Costa piu'
+# di un turno normale perche' la risoluzione e' un FALLBACK: il turno viene
+# prima provato cosi' com'e', e solo se nessuno lo rivendica viene riscritto e
+# ri-dispatchato. E' il prezzo della prudenza — non dirotta mai un turno che
+# gia' funziona (gen216).
+!timeout 5
+> what is it part of
+< Quixsys.
+
+[test glue_implicit_reference_possessive]
+!reset
+> my dog is Rex
+< Got it: your dog is Rex.
+# nessuna ripetizione del sostantivo: solo il possessivo.
+> what is his name
+< Your dog is called Rex.
+
+[test glue_implicit_reference_prodrop_it]
+!reset
+# L'italiano OMETTE il soggetto, quindi qui non c'e' nemmeno un pronome da
+# risolvere: l'antecedente e' la possessione saliente. E' la controparte del
+# caso inglese qui sopra, non una sua traduzione.
+# ⚠ La conferma arriva in INGLESE a una frase italiana. E' un difetto di
+# realizzazione (l'ultimo anello, dato->risposta), asserito qui come
+# comportamento CORRENTE perche' il test misura la COLLA e non la lingua della
+# ricevuta: il giorno in cui si chiude, questa riga lo dira'.
+> il mio cane è Rex
+< Got it: your dog is Rex.
+> come si chiama
+< Your dog is called Rex.
+
+# ── S4 — integrare una correzione ───────────────────────────────────────────
+# «incapacità di integrare correzioni successive»: dopo la smentita, la
+# conclusione di prima deve essere RI-DERIVATA, non solo registrata.
+[test glue_correction_en]
+!reset
+> socrates is a man
+< Learned: man(socrates).
+> is socrates a man
+< Yes.
+> no, socrates is not a man
+< Learned: not man(socrates).
+> is socrates a man
+< No.
+
+[test glue_correction_it]
+!reset
+> socrate è un uomo
+< Learned: man(socrate).
+> socrate è un uomo?
+< Yes.
+> no, socrate non è un uomo
+< Learned: not man(socrate).
+> socrate è un uomo?
+< No.
+
+# ── S3 — la precisazione che continua la richiesta ──────────────────────────
+# «interpretazioni eccessivamente letterali»: "e per 3" non e' rumore, e'
+# la continuazione del calcolo di prima. L'operando sinistro e' implicito.
+[test glue_over_literal_en]
+!reset
+> what is 2 plus 2
+< 4.
+> and times 3
+< 12.
+
+[test glue_over_literal_it]
+!reset
+> quanto fa 2 più 2
+< 4.
+> e per 3
+< 12.
+
+# ── S5 — un solo interlocutore ─────────────────────────────────────────────
+# «sensazione di dialogare con più sistemi indipendenti anziché con un unico
+# interlocutore». E' il sintomo che l'essay mette per ultimo e chiama il piu'
+# grave: memoria e aritmetica devono essere la stessa persona.
+[test glue_one_interlocutor_en]
+!reset
+> remember my favorite number is 7
+< Got it: your favorite number is 7.
+> what is my favorite number plus 3
+< 10.
+
+[test glue_one_interlocutor_it]
+!reset
+# ⚠ "your numero preferito": la CHIAVE resta italiana mentre la cornice e'
+# inglese. La colla regge — il valore arriva all'aritmetica nel turno dopo — ma
+# la ricevuta e' un ibrido. Stesso anello mancante di sopra, asserito com'e'.
+> il mio numero preferito è 7
+< Got it: your numero preferito is 7.
+> quanto fa il mio numero preferito più 3
+< 10.
