@@ -15,6 +15,32 @@ body_system(muscular, "skeletal, smooth and cardiac muscles -- enables movement"
 body_system(immune, "lymph nodes, spleen and white blood cells -- defends against disease").
 body_system(endocrine, "glands and hormones -- regulates metabolism, growth and mood").
 
+body_system(urinary, "kidneys, ureters and bladder -- filters blood and removes waste as urine").
+body_system(integumentary, "skin, hair and nails -- protects the body and regulates temperature").
+
+% gen382s — L'APPARTENENZA ERA SOLO NELLA PROSA.
+%
+% `body_system(circulatory, "heart and blood vessels -- …")` diceva che il cuore
+% appartiene al circolatorio, ma lo diceva dentro una stringa: nessuna relazione,
+% quindi nessuna inferenza e nessuna domanda. "what is the heart part of" andava
+% a muro pur essendo scritto due righe piu' su, in italiano corrente.
+% E' la terza specie di lacuna di ponte (question-emergence.md §12): entrambe le
+% entita' esistono, manca l'arco. Detto qui nella relazione generale che tutti
+% leggono — mantra #3, la stessa lezione di poker_hand_rank -> magnitude.
+part_of(heart, circulatory).
+part_of(blood_vessels, circulatory).
+part_of(lungs, respiratory).
+part_of(brain, nervous).
+part_of(spinal_cord, nervous).
+part_of(stomach, digestive).
+part_of(intestines, digestive).
+part_of(liver, digestive).
+part_of(pancreas, digestive).
+part_of(pancreas, endocrine).
+part_of(kidneys, urinary).
+part_of(skin, integumentary).
+part_of(femur, skeletal).
+
 % --- major organs ---
 organ(heart, "muscular pump circulating blood through the body").
 organ(lungs, "paired organs that exchange oxygen and carbon dioxide").

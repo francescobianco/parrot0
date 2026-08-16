@@ -13,7 +13,12 @@
 # once, so the model halts after "dorme" — a learned EOS, in Italian, through the
 # identical code path. No phrasebook, no duplicated logic.
 
+# gen383: nove e non piu' otto. `sul` e' una preposizione articolata e ora si
+# canonicalizza in DUE token ("on the"), esattamente come `del`->"of the" e
+# `al`->"to the" facevano gia'. Il conteggio delle transizioni segue la forma
+# canonica, quindi cresce di uno: e' l'aritmetica di una traduzione piu' giusta,
+# non una regressione dell'induzione.
 > learn sequence: il gatto dorme . il gatto dorme . il gatto dorme sul letto .
-< Learned 8 transition(s).
+< Learned 9 transition(s).
 > say il
 < the cat sleep

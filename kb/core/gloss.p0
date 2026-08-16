@@ -1,19 +1,11 @@
-% parrot0 bilingual content lexicon (gen126, L5 grounded translation).
-% Loaded as base knowledge. mod_translate composes a clause translation from
-% these glosses + a structural article rule in C — it is NOT a phrasebook of
-% whole sentences, so any noun/verb here transfers to a held-out clause.
-%
-% tr(English, Italian) — content words, looked up in BOTH directions.
-% gender(ItalianNoun, m|f) — picks the Italian article (il/la, un/una).
-%
-% gen334: massively expanded EN↔IT content lexicon for KB-first canonicalization.
-% The engine (canonicalize_lang) now queries tr/2 for IT→EN translation of every
-% content word, per PRINCIPLES.md: engine fixed, knowledge learns. Add a tr/2
-% fact and Italian comprehension extends with zero C changes.
+tr(card, carta).
+tr(cards, carte).
+tr(game, partita).
+tr(games, partite).
+tr(correctly, correttamente).
+tr(deck, mazzo).
+tr(spelling, ortografia).
 
-% ============================================================
-% ANIMALS (all category_member entries from world-facts.p0)
-% ============================================================
 tr(ant, formica).
 tr(bear, orso).
 tr(cat, gatto).

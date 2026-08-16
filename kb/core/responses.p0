@@ -3,11 +3,15 @@
 % invece che una riga per predicato: la forma per-predicato ha gia' perso dodici
 % predicati per strada (gen275, gen325, gen327, gen372, gen382e).
 %
-% `file_attribute/1` e' un costrutto del linguaggio, non un caso speciale del
-% motore: il caricatore propaga l'attributo a ogni predicato che il file
-% introduce e non sa che cosa "machinery" significhi. Domani
-% `file_attribute(sperimentale).` funziona allo stesso modo, con zero C.
-file_attribute(machinery).
+% E' una DIRETTIVA, non un fatto (gen383): il `:-` la marca come istruzione al
+% caricatore, esattamente come `:- include(...)`. Nella forma nuda era
+% indistinguibile da un'affermazione sul mondo, e chi leggeva il file non poteva
+% sapere che quella riga parla del FILE e non del dominio.
+%
+% Il caricatore propaga l'attributo a ogni predicato che il file introduce e non
+% sa che cosa "machinery" significhi. Domani `:- file_attribute(sperimentale).`
+% funziona allo stesso modo, con zero C.
+:- file_attribute(machinery).
 
 % parrot0 RESPONSE TEMPLATES — the agent's own phrasings as KNOWLEDGE, not C literals.
 %

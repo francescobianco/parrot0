@@ -306,6 +306,12 @@ static const McpTool TOOLS[] = {
  "{\"type\":\"object\",\"properties\":{\"relation\":{\"type\":\"string\"},"
  "\"text\":{\"type\":\"string\"},\"candidates\":{\"type\":\"array\","
  "\"items\":{\"type\":\"string\"}}},\"required\":[\"relation\",\"text\"]}"},
+{"lang.canonical", "Show the CANONICAL form of a turn — what the modules "
+ "actually match against, after normalization and language canonicalization. A "
+ "surface cue (answer_frame, intent_cue) must be written in this form, not in "
+ "the user's words.",
+ "{\"type\":\"object\",\"properties\":{\"text\":{\"type\":\"string\"}},"
+ "\"required\":[\"text\"]}"},
 {"gen.respond", "Route a natural-language turn through parrot0's full brain and "
  "return the reply (the same path the chat REPL uses).",
  "{\"type\":\"object\",\"properties\":{\"input\":{\"type\":\"string\"}},"
@@ -389,6 +395,16 @@ static int tool_call(Brain *b, const char *name, const JVal *a,
     KB *kb = brain_kb(b);
     const char *slots[KB_MAX_ARGS];
 
+    if (strcmp(name, "lang.canonical") == 0) {
+        const char *text = jstr(a, "text");
+        if (!text) { snprintf(out, outsz, "{\"error\":\"missing 'text'\"}"); return 0; }
+        char canon[256];
+        brain_canonical(b, text, canon, sizeof canon);
+        char *e = json_escape(canon);
+        snprintf(out, outsz, "{\"canonical\":\"%s\"}", e ? e : "");
+        free(e);
+        return 1;
+    }
     if (strcmp(name, "kb.assert") == 0) {
         const char *pred; const JVal *args;
         if (!need_pred_args(a, &pred, &args, out, outsz)) return 0;

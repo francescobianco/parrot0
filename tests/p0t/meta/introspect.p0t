@@ -51,6 +51,20 @@
 # predicati; sette erano macchineria non dichiarata e ora lo dichiarano nel file
 # che li introduce, uno — incompatible/2, le classi che non possono valere
 # insieme (gen375) — e' conoscenza del mondo per davvero e giustamente conta.
+# ⚠️ SE QUESTO NUMERO CAMBIA, LEGGI QUI PRIMA DI TOCCARE L'ATTESA (gen383).
+# Non e' un conteggio fragile: e' la frontiera fra mondo e macchineria, e si
+# muove per UNA sola ragione. Un file .p0 ha introdotto un predicato nuovo senza
+# dichiarare `:- file_attribute(machinery).` in testa, quindi le sue righe sono
+# entrate nell'autodescrizione come conoscenza del MONDO.
+#
+# Diagnosi in un passo: la riga `what predicates do you know?` qui sotto elenca i
+# nomi. Il predicato di troppo dice da solo quale file ha dimenticato la
+# direttiva — mettila li', non alzare il numero qui.
+#
+# Successo reale (gen383): phrase_canon/2 e function_word/3 hanno fatto salire il
+# conteggio a 65 su 6 predicati. La correzione NON e' stata cambiare 27 in 65: e'
+# stata spostare quelle tabelle in lexicon.p0, che la direttiva ce l'ha gia' —
+# e sono parole di classe chiusa, quindi era anche il loro posto.
 < I know 27 fact(s) across 4 predicate(s). Ask me about a specific topic.
 > how many facts do you know?
 < I know 27 fact(s).

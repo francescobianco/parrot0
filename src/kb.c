@@ -2512,15 +2512,28 @@ int kb_load(KB *kb, const char *path) {
             } else if (clause) {
                 loadbuf_trim(clause, &len);
                 if (len > 0) {
-                    /* Un ATTRIBUTO DI FILE: `file_attribute(X).` in testa vale
-                     * per ogni predicato che il file introduce. Il motore non
-                     * conosce X — non sa cosa sia "machinery" — applica soltanto
-                     * la propagazione; QUALE attributo si propaghi e' conoscenza,
-                     * quindi domani `file_attribute(sperimentale)` funziona con
-                     * zero C. */
-                    if (strncmp(clause, "file_attribute(", 15) == 0 &&
+                    /* Un ATTRIBUTO DI FILE: `:- file_attribute(X).` in testa
+                     * vale per ogni predicato che il file introduce. Il motore
+                     * non conosce X — non sa cosa sia "machinery" — applica
+                     * soltanto la propagazione; QUALE attributo si propaghi e'
+                     * conoscenza, quindi domani `:- file_attribute(sperimentale)`
+                     * funziona con zero C.
+                     *
+                     * gen383 (F.): la forma NUDA `file_attribute(X).` era
+                     * indistinguibile da un fatto sul mondo — chi legge il file
+                     * non poteva sapere che quella riga parla del FILE e non del
+                     * dominio. Ora e' una DIRETTIVA, come `:- include(...)`: il
+                     * `:-` dice "questa riga istruisce il caricatore". La forma
+                     * nuda resta riconosciuta per compatibilita', ma nell'albero
+                     * non ne sopravvive nessuna. */
+                    const char *fa = clause;
+                    if (strncmp(fa, ":-", 2) == 0) {
+                        fa += 2;
+                        while (*fa == ' ' || *fa == '\t') fa++;
+                    }
+                    if (strncmp(fa, "file_attribute(", 15) == 0 &&
                         n_file_attr < KB_MAX_ARGS) {
-                        const char *a = clause + 15;
+                        const char *a = fa + 15;
                         size_t al = strcspn(a, ")");
                         if (al > 0 && al < KB_TERM_LEN) {
                             memcpy(file_attr[n_file_attr], a, al);

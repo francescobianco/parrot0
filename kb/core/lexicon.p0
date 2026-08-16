@@ -3,12 +3,160 @@
 % invece che una riga per predicato: la forma per-predicato ha gia' perso dodici
 % predicati per strada (gen275, gen325, gen327, gen372, gen382e).
 %
-% `file_attribute/1` e' un costrutto del linguaggio, non un caso speciale del
-% motore: il caricatore propaga l'attributo a ogni predicato che il file
-% introduce e non sa che cosa "machinery" significhi. Domani
-% `file_attribute(sperimentale).` funziona allo stesso modo, con zero C.
-file_attribute(machinery).
+% E' una DIRETTIVA, non un fatto (gen383): il `:-` la marca come istruzione al
+% caricatore, esattamente come `:- include(...)`. Nella forma nuda era
+% indistinguibile da un'affermazione sul mondo, e chi leggeva il file non poteva
+% sapere che quella riga parla del FILE e non del dominio.
+%
+% Il caricatore propaga l'attributo a ogni predicato che il file introduce e non
+% sa che cosa "machinery" significhi. Domani `:- file_attribute(sperimentale).`
+% funziona allo stesso modo, con zero C.
+:- file_attribute(machinery).
 
+% ── LOCUZIONI: la canonicalizzazione per UNITA' (gen382s) ────────────────────
+%
+% `tr/2` traduce parola per parola, ed e' giusto per le parole. Per le LOCUZIONI
+% e' distruttivo: "fa parte" diventa "makes leave" (fare->make, partire->leave)
+% e l'espressione sparisce. Misurato, prima di questa tabella:
+%
+%     "di cosa fa parte il cuore"      ->  "of what makes leave the heart"
+%     "quante sono le carte del poker" ->  "how many am le carte of the poker"
+%
+% Nessun modulo poteva riconoscere quegli ibridi, e chi dichiarava una porta
+% `answer_frame` italiana non aveva modo di capire perche' non scattasse. Ora il
+% motore prova le locuzioni PIU' LUNGHE PER PRIME, e ognuna e' un fatto: un
+% idioma nuovo, in qualunque lingua, costa una riga qui e zero C.
+%
+% Le forme canoniche sono INGLESI perche' l'inglese e' la lingua comune del
+% dispatch — non per preferenza, per il fatto che i moduli e i cue sono scritti
+% li'. Ispezionabile con lo strumento MCP `lang.canonical`.
+
+% Nessuna riga `machinery(...)` per predicato: questo file porta gia'
+% `file_attribute(machinery)` in testa, e il caricatore propaga l'attributo a
+% ogni predicato che il file introduce (gen382f). E' anche la ragione per cui
+% queste tabelle stanno QUI e non in gloss.p0: `lexicon.p0` e' per definizione
+% il file delle parole di classe chiusa, che e' esattamente cio' che sono.
+
+% --- PAROLE FUNZIONE (gen383) ---
+% La colonna LINGUA non e' un dettaglio: `i` e' l'articolo plurale italiano ed e'
+% anche il pronome inglese. Senza di essa "i don't know what to say" diventava
+% "the don't know what to say" — misurato. La forma a due argomenti resta per
+% cio' che e' davvero agnostico.
+% Erano un array in C (`canonical_token`), quindi ogni articolo nuovo costava una
+% ricompilazione — e "le", "gli", "i" non c'erano, cosi' "le carte" restava
+% un'isola non tradotta in mezzo alla frase canonica.
+function_word(it, le, "the").
+function_word(it, gli, "the").
+function_word(it, i, "the").
+function_word(it, delle, "of the").
+function_word(it, degli, "of the").
+function_word(it, nel, "in the").
+function_word(it, nella, "in the").
+function_word(it, nei, "in the").
+function_word(it, sul, "on the").
+function_word(it, sulla, "on the").
+% `sono` NON si mappa qui: e' ambiguo ("io sono stanco" = I am / "quante sono" =
+% how many are), e la lettura piu' comune resta la prima persona che tr/2 gia'
+% da'. Sono le LOCUZIONI a scavalcarla dove il contesto lo impone
+% (phrase_canon("quante sono", ...)): e' precisamente la ragione per cui lo
+% strato delle locuzioni sta sopra quello delle parole.
+function_word(it, siamo, "are").
+function_word(it, sei, "are").
+function_word(it, anche, "also").
+% gen383 — `quali`/`quale` sono interrogativi, e senza di loro la forma canonica
+% restava "quali are the ...": una parola italiana in mezzo a una frase inglese,
+% che nessuna porta poteva agganciare se non dichiarandosi nella stessa forma
+% ibrida. Con questi due fatti l'italiano arriva a `answer_frame("which are the",
+% category_enumeration)` — la porta INGLESE, senza un solo fatto in piu'.
+function_word(it, quali, "which").
+function_word(it, tuo, "your").
+function_word(it, tua, "your").
+function_word(it, tuoi, "your").
+function_word(it, tue, "your").
+function_word(it, mio, "my").
+function_word(it, mia, "my").
+function_word(it, miei, "my").
+function_word(it, mie, "my").
+function_word(it, quale, "which").
+function_word(it, nomi, "names").
+function_word(it, nome, "name").
+
+% --- appartenenza e parti ---
+phrase_canon("fa parte", "part of").
+phrase_canon("fanno parte", "part of").
+phrase_canon("far parte", "part of").
+phrase_canon("parte di", "part of").
+
+% --- copule e ausiliari: `sono` da solo diventa "am" (prima persona), che e'
+% sbagliato in ogni domanda impersonale.
+phrase_canon("quali sono", "which are").
+phrase_canon("quale sono", "which are").
+phrase_canon("quante sono", "how many are").
+phrase_canon("quanti sono", "how many are").
+phrase_canon("ci sono", "there are").
+phrase_canon("quante ce ne sono", "how many are there").
+
+% --- interrogativi composti ---
+phrase_canon("mi dici", "tell me").
+phrase_canon("mi puoi dire", "tell me").
+% ⚠️ QUANDO NON aggiungere una locuzione (imparato tre volte a gen383).
+% Lo strato delle locuzioni sta SOPRA quello delle parole, quindi vince: una
+% locuzione superflua non e' neutra, cancella una struttura. Tre casi misurati:
+%
+%   "come finisce"   -> "how does it end"      introduce un PRONOME dal nulla e
+%                                              apre una coreferenza inesistente
+%                                              ("Who or what does 'it' refer to?")
+%   "come si chiama" -> "what is the name of"  fornisce un SOGGETTO che
+%                                              l'italiano omette apposta, e
+%                                              spegne l'anafora a soggetto nullo
+%   "quante sono le" -> "how many are the"     ingloba un articolo e impedisce
+%                                              alle locuzioni piu' corte di
+%                                              combaciare
+%
+% La regola: si dichiara una locuzione SOLO dove la traduzione parola-per-parola
+% e' sbagliata, mai dove e' soltanto goffa. Se il per-parole gia' produce un cue
+% agganciabile, la locuzione toglie e non aggiunge.
+phrase_canon("di cosa", "what").
+phrase_canon("che cosa", "what").
+phrase_canon("come mai", "why").
+phrase_canon("come si scrive", "how do you spell").
+% NOTA (gen383): "come finisce" NON si canonicalizza in "how does it end". Una
+% forma canonica che introduce un PRONOME crea un obbligo di coreferenza dal
+% nulla — misurato: il turno diventava "Who or what does 'it' refer to?". La
+% traduzione parola-per-parola da gia' "finish", che la porta answer_frame
+% aggancia. Una locuzione va aggiunta solo dove quella per parole SBAGLIA.
+phrase_canon("come si gioca", "how do you play").
+phrase_canon("a cosa serve", "what is it for").
+phrase_canon("quanto costa", "how much does it cost").
+
+% --- locuzioni gia' coperte da casi speciali nel C: dichiarate qui perche' la
+% conoscenza vinca sul codice, e la cascata resti come struttura secondaria.
+phrase_canon("di nome", "named").
+phrase_canon("quanto vale", "what is").
+
+% Le parole singole NON sono locuzioni: stanno in tr/2, sotto, dove il motore
+% le cerca gia'. Metterle qui avrebbe funzionato e sarebbe stato il posto
+% sbagliato (mantra #3: stessa relazione sotto un'etichetta diversa).
+
+% parrot0 bilingual content lexicon (gen126, L5 grounded translation).
+% Loaded as base knowledge. mod_translate composes a clause translation from
+% these glosses + a structural article rule in C — it is NOT a phrasebook of
+% whole sentences, so any noun/verb here transfers to a held-out clause.
+%
+% tr(English, Italian) — content words, looked up in BOTH directions.
+% gender(ItalianNoun, m|f) — picks the Italian article (il/la, un/una).
+%
+% gen334: massively expanded EN↔IT content lexicon for KB-first canonicalization.
+% The engine (canonicalize_lang) now queries tr/2 for IT→EN translation of every
+% content word, per PRINCIPLES.md: engine fixed, knowledge learns. Add a tr/2
+% fact and Italian comprehension extends with zero C changes.
+
+% ============================================================
+% ANIMALS (all category_member entries from world-facts.p0)
+% ============================================================
+% gen383 — parole misurate assenti dal lessico durante la messa a punto della
+% canonicalizzazione: senza di loro il turno italiano arrivava ai moduli con
+% isole non tradotte, che nessun cue puo' agganciare.
 % parrot0 lexical knowledge - curated closed-class/function words.
 % Loaded as base knowledge by brain_create before the optional world/session
 % layers, so filters can consult the KB without persisting these facts.

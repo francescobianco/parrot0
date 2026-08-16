@@ -74,16 +74,15 @@
 < King, queen, rook, bishop, knight and pawn.
 > dimmi il nome dei pezzi degli scacchi
 < Re, regina, torre, alfiere, cavallo e pedone.
-# GAP NOTO, asserito come comportamento CORRENTE: `dimmi` e' un intent_starter e
-# viene TOLTO prima del dispatch, quindi con lui sparisce l'unica prova che il
-# turno fosse una richiesta e resta un sintagma nudo ("i pezzi degli scacchi").
-# Non e' una riga mancante: e' l'informazione dell'atto che si perde nello
-# stripping. Il giorno in cui lo starter sopravvivera' al dispatch, questo test
-# lo dira'.
-# (Il muro arriva in italiano perche' la frase e' italiana: il rilevatore di
-# lingua ha fatto il suo lavoro, ed e' il resto che non c'e'.)
+# GAP CHIUSO a gen383, e non da un fatto scritto per lui. Il turno andava a muro
+# perche' `dimmi` spariva nello stripping e restava un sintagma nudo; ma il
+# problema vero era che la forma canonica italiana era un ibrido irriconoscibile
+# ("quali am i ..."), tanto che le porte erano state dichiarate CONTRO l'ibrido.
+# Portata la canonicalizzazione in KB (phrase_canon/2 + function_word/2), il
+# turno diventa "tell me the pieces of the chess" e raggiunge la porta INGLESE
+# gia' esistente. Nessuna superficie italiana in piu': una traduzione corretta.
 > dimmi i pezzi degli scacchi
-< Non capisco ancora.
+< Re, regina, torre, alfiere, cavallo e pedone.
 
 [test the register is a dimension, not an exception]
 # In italiano corrente la regina e' la "regina"; nella notazione della

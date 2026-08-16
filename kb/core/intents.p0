@@ -3,11 +3,15 @@
 % invece che una riga per predicato: la forma per-predicato ha gia' perso dodici
 % predicati per strada (gen275, gen325, gen327, gen372, gen382e).
 %
-% `file_attribute/1` e' un costrutto del linguaggio, non un caso speciale del
-% motore: il caricatore propaga l'attributo a ogni predicato che il file
-% introduce e non sa che cosa "machinery" significhi. Domani
-% `file_attribute(sperimentale).` funziona allo stesso modo, con zero C.
-file_attribute(machinery).
+% E' una DIRETTIVA, non un fatto (gen383): il `:-` la marca come istruzione al
+% caricatore, esattamente come `:- include(...)`. Nella forma nuda era
+% indistinguibile da un'affermazione sul mondo, e chi leggeva il file non poteva
+% sapere che quella riga parla del FILE e non del dominio.
+%
+% Il caricatore propaga l'attributo a ogni predicato che il file introduce e non
+% sa che cosa "machinery" significhi. Domani `:- file_attribute(sperimentale).`
+% funziona allo stesso modo, con zero C.
+:- file_attribute(machinery).
 
 % parrot0 INTENT PHRASES — multi-word recall/command idioms as KNOWLEDGE, not C arrays.
 %
@@ -815,6 +819,16 @@ intent_cue(50_self_research_loop_chain77, "matrix").
 intent_cue(50_self_research_loop_chain77, "matrice").
 intent_cue(50_self_research_loop_chain77, "which combinations").
 intent_cue(50_self_research_loop_chain77, "quali").
+% gen383 — SECONDO caso della stessa specie (il primo era answer_frame("quali am
+% i", …)): il cue italiano era la parola NUDA "quali", scritta contro una forma
+% canonica che non canonicalizzava. Ora `quali` diventa `which`, quindi il cue
+% va dichiarato anche li'. Resta gated da compose_ref||parts_ref, quindi "which
+% are the pieces of chess" non lo sveglia.
+%
+% Il pattern da riconoscere: quando la canonicalizzazione migliora, i cue scritti
+% contro la forma ROTTA muoiono. Non e' una regressione della correzione — e' il
+% debito che la correzione rende visibile. Si ispeziona con `lang.canonical`.
+intent_cue(50_self_research_loop_chain77, "which").
 intent_cue(50_self_research_loop_chain77, "which of your").
 intent_cue(50_self_research_loop_chain85, "self-challenge").
 intent_cue(50_self_research_loop_chain85, "self challenge").
@@ -1099,6 +1113,15 @@ answer_frame("setup for", game_setup).
 % docs/plans/question-emergence.md §11.3: e' una lacuna di meta-conoscenza
 % SULLA meta-conoscenza, e il rimedio strutturale e' rendere osservabile la
 % forma canonica di un turno, non indovinare i cue.
+% gen382s — `part_of` aveva DODICI fatti (arm, book, branch, car, chapter,
+% engine, finger, hand, leaf, page, tree_trunk, wheel) e ZERO porte: nessuna
+% entita' era interrogabile, in nessuna lingua. Trovata come le altre, con
+% unreachable_facet/2. Le superfici italiane sono nella forma CANONICA (§11.3):
+% "di cosa fa parte" perde l'interrogativo e normalizza il verbo.
+answer_frame("part of", part_of).
+answer_frame("fa parte", part_of).
+answer_frame("parte di", part_of).
+
 answer_frame("how does a game", game_end).
 answer_frame("how does the game", game_end).
 answer_frame("finish", game_end).

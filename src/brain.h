@@ -45,6 +45,19 @@ size_t brain_respond(Brain *b, const char *input, char *out, size_t out_size);
 
 /* A short, human-readable name/version of the current brain generation.
  * Bump this whenever the algorithm meaningfully changes. */
+/* gen382s — LA FORMA CANONICA E' ISPEZIONABILE.
+ *
+ * I moduli non vedono cio' che l'utente ha scritto: vedono la superficie
+ * normalizzata e canonicalizzata (verbi lemmatizzati, riempitivi interrogativi
+ * caduti, parole tradotte nella lingua comune). Chi insegna una porta —
+ * `answer_frame(Cue, Pred)` — deve scrivere il cue in QUELLA forma, e finora non
+ * aveva modo di vederla: una porta italiana si dichiarava e non scattava, senza
+ * spiegazione. Vedi docs/plans/question-emergence.md §11.3.
+ *
+ * Scrive la forma canonica di `input` in `out`. Nessuna conoscenza nuova: espone
+ * una trasformazione che il motore gia' esegue a ogni turno. */
+size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size);
+
 const char *brain_version(void);
 
 /* Load a knowledge file into the brain's KB. `as_base` non-zero tags the

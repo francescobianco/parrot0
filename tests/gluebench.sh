@@ -71,10 +71,19 @@ for row in "${CASES[@]}"; do
   dialogue="$rest"                  # read put the remaining |-joined turns here
   reply="$(last_reply "$dialogue")"
 
+  # gen383: il confronto e' INSENSIBILE ALLE MAIUSCOLE. La colla misura se la
+  # continuita' e' passata da un turno all'altro, non come il realizzatore ha
+  # capitalizzato la risposta: "Circulatory." e "circulatory" sono la stessa
+  # continuita', e contarle diverse ha fatto figurare come GAP un caso che
+  # rispondeva correttamente. Una misura che sbaglia in questo verso e' peggio di
+  # nessuna misura: fa inseguire un difetto che non c'e'.
+  lreply="$(printf '%s' "$reply" | tr '[:upper:]' '[:lower:]')"
   verdict=""
   case "$check" in
-    has:*) want="${check#has:}"; case "$reply" in *"$want"*) verdict="HELD";; *) verdict="GAP";; esac ;;
-    no:*)  bad="${check#no:}";   case "$reply" in *"$bad"*)  verdict="GAP";;  *) verdict="HELD";; esac ;;
+    has:*) want="$(printf '%s' "${check#has:}" | tr '[:upper:]' '[:lower:]')"
+           case "$lreply" in *"$want"*) verdict="HELD";; *) verdict="GAP";; esac ;;
+    no:*)  bad="$(printf '%s' "${check#no:}" | tr '[:upper:]' '[:lower:]')"
+           case "$lreply" in *"$bad"*)  verdict="GAP";;  *) verdict="HELD";; esac ;;
     show)  verdict="SHOWN" ;;
   esac
 

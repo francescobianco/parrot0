@@ -237,6 +237,20 @@ static int is_registry_module(const char *name) {
  * itself, and also skipping repair (a sub-goal must not open a clarification). Returns
  * 1 with the claiming module's reply in `out`, else 0. Bounded: one pass, no recursion
  * into compose_plan. */
+/* gen382s: la stessa coppia normalize+canonicalize_lang che ogni turno subisce
+ * prima del dispatch, esposta perche' sia ispezionabile. Vedi brain.h. */
+size_t brain_canonical(Brain *b, const char *input, char *out, size_t out_size) {
+    if (!b || !input || !out || out_size == 0) return 0;
+    char norm[256];
+    normalize(input, norm, sizeof norm);
+    /* La lingua del turno si rileva PRIMA di canonicalizzare, esattamente come in
+     * brain_respond: le parole funzione sono scoped per lingua, quindi ispezionare
+     * senza rilevare mostrerebbe una forma che il turno vero non produce mai. */
+    detect_set_language(b, norm);
+    canonicalize_lang(b, norm, out, out_size);
+    return strlen(out);
+}
+
 static int dispatch_one(Brain *b, const char *clause, char *out, size_t out_size) {
     if (!b || !clause || !*clause || out_size == 0) return 0;
     char norm[256];

@@ -1015,6 +1015,48 @@ static const char *canonical_token(const char *w) {
     return NULL;
 }
 
+/* gen383: la stessa domanda, fatta prima alla CONOSCENZA.
+ *
+ * `lex[]` sopra e' un frasario bilingue nel motore: articoli, preposizioni e
+ * ausiliari italiani scritti a mano. La giustificazione storica — «le parole
+ * funzione sono meccanica, non contenuto» — non regge alla prova operativa del
+ * mantra: aggiungere "le", "gli", "i" richiedeva di ricompilare, e la voce
+ * `fa`->makes e' esattamente cio' che sbriciolava "fa parte" in "makes leave".
+ *
+ * `function_word(Src, Dst)` mette quelle decisioni in KB. La tabella C resta
+ * (keep-secondary-structures) come rete sotto: la conoscenza viene consultata
+ * per prima, quindi cio' che i fatti coprono non la raggiunge, e una parola
+ * funzione nuova — in qualunque lingua — costa una riga di .p0. */
+static const char *canonical_token_kb(Brain *b, const char *w, char *buf,
+                                      size_t bufsz) {
+    if (b && b->kb && w && *w) {
+        char hit[1][KB_TERM_LEN];
+        int got = 0;
+        /* Una parola funzione appartiene a una LINGUA, e ignorarlo costa caro:
+         * `i` e' l'articolo plurale italiano ed e' anche il pronome inglese, e
+         * senza la colonna lingua "i don't know what to say" si canonicalizzava
+         * in "the don't know what to say". La forma a tre argomenti si applica
+         * solo quando la lingua del turno combacia; quella a due resta per cio'
+         * che e' davvero agnostico (contrazioni, punteggiatura). */
+        {
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            const char *q3[3] = { lang, w, NULL };
+            got = kb_match(b->kb, "function_word", q3, 3, hit, 1) == 1;
+        }
+        const char *q[2] = { w, NULL };
+        if (got || kb_match(b->kb, "function_word", q, 2, hit, 1) == 1) {
+            snprintf(buf, bufsz, "%s", hit[0]);
+            size_t l = strlen(buf);
+            if (l >= 2 && buf[0] == '"' && buf[l - 1] == '"') {
+                memmove(buf, buf + 1, l - 2);
+                buf[l - 2] = '\0';
+            }
+            return buf;
+        }
+    }
+    return canonical_token(w);
+}
+
 /* gen334 (kb-first EN↔IT canonicalization): query the tr/2 relation in the KB
  * for IT→EN content-word translation. The tr(English, Italian) fact is stored
  * English-first; we query with the Italian word as second argument to find the
@@ -1039,6 +1081,7 @@ static int kb_tr_it_en(Brain *b, const char *it, char *en, size_t en_sz) {
  * function-word map (canonical_token) stays in C as motor mechanism; content
  * knowledge lives in gloss.p0. Per PRINCIPLES.md and universal-input.md, the
  * engine is fixed — knowledge learns. */
+static char *kb_dequote(char *s);   /* gen382s: defined below; the phrase layer needs it */
 static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_size) {
     if (out_size == 0) return;
     char buf[256];
@@ -1063,6 +1106,75 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             tailbuf[0] = tok[tl - 1]; tok[tl - 1] = '\0'; tl--;
         }
         const char *tail = tailbuf;
+        /* ── gen382s: LE LOCUZIONI SONO CONOSCENZA, NON CASI SPECIALI IN C ──────
+         *
+         * Sotto questo punto vive una cascata di `if` scritti a mano, uno per
+         * ogni idioma italiano incontrato: "di nome", "quanto vale", "di che",
+         * "più X di Y", "nato a". Ogni idioma nuovo costava una generazione e una
+         * riga di motore — cioe' un frasario bilingue dentro il C, il mantra #2
+         * violato nel punto in cui OGNI turno passa.
+         *
+         * E il costo era doppio, perche' invisibile: senza una locuzione, la
+         * canonicalizzazione traduce parola per parola e produce un ibrido che
+         * nessun modulo puo' riconoscere. Misurato:
+         *
+         *     "di cosa fa parte il cuore"  ->  "of what makes leave the heart"
+         *
+         * `fa`->makes, `parte`->leave (da *partire*). L'idioma "fa parte" (= part
+         * of) sbriciolato in due verbi scorrelati. Nessuna porta `answer_frame`
+         * poteva agganciarlo, e chi la dichiarava non aveva modo di capire perche'
+         * (vedi brain_canonical, e question-emergence.md §11.3).
+         *
+         * Qui il motore fa UNA cosa generale e cieca alla lingua: alla posizione
+         * corrente prova le locuzioni note, PIU' LUNGA PER PRIMA, e se una combacia
+         * emette la sua forma canonica e consuma i token. Quale locuzione esista e
+         * in che lingua e' un fatto — `phrase_canon(Frase, Canonica)` — quindi un
+         * idioma nuovo, in qualunque lingua, costa una riga di KB e zero motore.
+         * La cascata sotto resta (keep-secondary-structures): i fatti la
+         * precedono, e cio' che i fatti coprono non la raggiunge piu'. */
+        if (b && b->kb) {
+            char (*ph)[KB_TERM_LEN] = NULL;
+            const char *pq[2] = { NULL, NULL };
+            size_t np = 0;
+            if (kb_match_all(b->kb, "phrase_canon", pq, 2, &ph, &np) && np) {
+                size_t best_words = 0;
+                char best_canon[KB_TERM_LEN] = "";
+                for (size_t k = 0; k < np; k++) {
+                    /* kb_dequote writes into its argument, so the stored term —
+                     * which is also the lookup KEY for the second column — must
+                     * be copied before it is unwrapped. */
+                    char key[KB_TERM_LEN], pat[KB_TERM_LEN];
+                    snprintf(key, sizeof key, "%s", ph[k]);
+                    snprintf(pat, sizeof pat, "%s", ph[k]);
+                    char *pd = kb_dequote(pat);
+                    if (!*pd) continue;
+                    char *pw[8]; size_t npw = split_words(pd, pw, 8);
+                    if (npw == 0 || npw <= best_words || i + npw > nw) continue;
+                    size_t m = 0;
+                    for (; m < npw; m++) {
+                        char cur[KB_TERM_LEN];
+                        snprintf(cur, sizeof cur, "%s", w[i + m]);
+                        char *c = strip_edge_punct(cur);
+                        if (strcmp(c, pw[m]) != 0) break;
+                    }
+                    if (m != npw) continue;
+                    const char *cq[2] = { key, NULL };
+                    char cv[1][KB_TERM_LEN];
+                    if (kb_match(b->kb, "phrase_canon", cq, 2, cv, 1) != 1) continue;
+                    snprintf(best_canon, sizeof best_canon, "%s", kb_dequote(cv[0]));
+                    best_words = npw;
+                }
+                free(ph);
+                if (best_words && *best_canon) {
+                    off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                            i ? " " : "", best_canon, tail);
+                    i += best_words - 1;   /* the loop's ++ consumes the last token */
+                    continue;
+                }
+            } else {
+                free(ph);
+            }
+        }
         /* gen344 (KB-first): a leading interrogative FILLER ("che cos'è ..." =
          * "what is ...") is redundant before another interrogative. WHICH words
          * may act as fillers is knowledge (question_filler/1); the motor drops
@@ -1171,7 +1283,8 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
                 }
             }
         }
-        const char *canon = canonical_token(tok);
+        char cbuf[KB_TERM_LEN];
+        const char *canon = canonical_token_kb(b, tok, cbuf, sizeof cbuf);
         if (canon) {
             off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
                                     lead, canon, tail);
