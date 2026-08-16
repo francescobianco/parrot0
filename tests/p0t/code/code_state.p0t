@@ -28,6 +28,7 @@
 < 12.
 
 [test an update without an initial binding is not fabricated]
+!timeout 0.5
 > i++; what is i
 <! 1.
 

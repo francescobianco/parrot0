@@ -1,5 +1,218 @@
 # Knowledge Base TODO
 
+## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
+
+### Mandato e stato: piano completo, implementazione non iniziata
+
+Il prossimo fronte richiesto e' rendere parrot0 capace di affrontare, dallo
+stesso `gen.respond` universale, problemi aperti di sopravvivenza, astuzia,
+triangolazione, rilettura del contesto e ripianificazione. Il caso che ha aperto
+il lavoro e':
+
+```text
+you> cosa faresti se una mongolfiera sta cadendo per rallentare la caduta
+Non capisco ancora.
+```
+
+In questo giro **non e' stata implementata la capacita'**. E' stato scritto il
+contratto completo in `docs/plans/frontier-kb-natural-dialogue.md` §17 e aggiunto
+K11 alla scala delle rappresentazioni. Ripartire da li', non dalla frase sulla
+mongolfiera. Il target e' un planner situazionale KB-first, non una nuova
+faculty, un answer frame terminale o una collezione di enigmi.
+
+Prima di qualsiasi modifica leggere, nell'ordine:
+
+1. `MANTRA.md` e `PRINCIPLES.md`;
+2. `docs/plans/frontier-kb-natural-dialogue.md` §§5 K11, 9, 10 e 17;
+3. `tests/situational_reasoning_probe.py`;
+4. `tests/sym/situational-reasoning-20260817-013348.md`;
+5. questo handoff e quello gen396 immediatamente sotto.
+
+### Evidenza raccolta correttamente con OpenCode-GO
+
+La nuova sonda segue il protocollo delle sonde del progetto: chiamata diretta a
+`https://opencode.ai/zen/go/v1/chat/completions`, autenticazione
+`OPENCODE_API_KEY`, confronto con parrot0 e trascrizione in `tests/sym/`. Il giro
+guida usa `gpt-5.6-luna`. Non usa `pi` e non entra nel runtime.
+
+Risultato osservato:
+
+- parrot0 mura sulla mongolfiera nuda, su quella vincolata, sul caso senza
+  risorse e sulla scorciatoia dannosa;
+- dopo la correzione aria calda -> gas risponde con un chiarimento generico,
+  senza rileggere il piano;
+- sulla separazione cesto/involucro e sulla triangolazione devia verso una
+  risposta meta sulle proprie faculty;
+- sul bilancio temporale della barca produce una storia fuori tema;
+- sui tre interruttori classifica falsamente il problema come codice;
+- il riferimento, a contrasto, lega azioni ed effetti, conserva/ritira passi
+  dopo correzioni, enumera mondi coerenti, distingue una fonte non verificata,
+  calcola stati intermedi, sceglie un'azione informativa e rifiuta il danno.
+
+Questo **non certifica i fatti** pronunciati dal modello. Procedure di emergenza,
+fisica e policy devono avere fonti indipendenti prima di entrare nella KB. Dalla
+sonda si estraggono soltanto mosse e requisiti rappresentazionali. Il transcript
+non va copiato in `response_template` e non diventa un golden test letterale.
+
+Per rieseguire o restringere la batteria:
+
+```sh
+.venv/bin/python tests/situational_reasoning_probe.py --model gpt-5.6-luna
+.venv/bin/python tests/situational_reasoning_probe.py --model gpt-5.6-luna --only triangolazione
+.venv/bin/python tests/situational_reasoning_probe.py --no-llm
+```
+
+Le sonde esterne restano fuori da `make test`: sono non deterministiche, hanno
+costo/rete e servono a scoprire la mossa. Ogni comportamento promosso deve avere
+un oracle strutturale locale `.p0t`.
+
+### Missione tecnica non negoziabile
+
+Il percorso universale deve produrre e consumare questa catena:
+
+```text
+turno naturale
+  -> frame e letture candidate
+  -> situazione/versioni del mondo
+  -> entita', ruoli, stati, risorse, vincoli, goal, fonti
+  -> azioni applicabili dalla KB
+  -> transizioni, stati intermedi, rischi e residui
+  -> scelta della mossa dialogica
+  -> piano proposizionale K6
+  -> realizzazione
+```
+
+Ogni azione deve essere uno schema KB con precondizioni, effetti, risorse,
+durata, side effect, reversibilita', rischio e provenance dove pertinenti. Una
+correzione crea una nuova vista contestuale, invalida i passi che dipendevano
+dalla premessa cambiata e conserva gli altri. Un dato non provato resta
+assunzione; una risorsa non descritta o derivabile non puo' apparire nel piano.
+
+Il C puo' offrire unificazione, applicazione di delta, aritmetica, ricerca
+bounded, ordinamento, indici, hash, cache, pruning e budget. Non puo' contenere
+lessico naturale, tipi di mongolfiera, oggetti di emergenza, policy etiche,
+risposte a puzzle o rami per dominio. La domanda di review resta: **posso
+insegnare una nuova azione, causalita', affordance, fonte o policy a runtime e
+vederla usata senza rebuild?**
+
+### Sequenza di implementazione da non saltare
+
+1. **Audit di riuso.** Censire frame, piani, contesti, provenance, causalita',
+   procedure, quantita' e operatori gia' presenti. Non creare sinonimi morti di
+   predicati esistenti.
+2. **gen398a — Situation IR.** Dal producer universale materializzare entita',
+   stato, goal, risorse, vincoli e fonti. Prima prova: parafrasi IT/EN convergono;
+   un cue nuovo assert/retract cambia il frame.
+3. **gen398b — Action schema.** Aggiungere applicabilita' generale su
+   precondizioni/risorse/effetti. Il primo taglio deve attraversare input,
+   inferenza, answer plan e risposta minima; schema senza consumer non conta.
+4. **gen398c — Tempo e quantita'.** Applicare transizioni non distruttive,
+   calcolare picchi/soglie e confrontare azioni concorrenti. La barca e' il
+   membro guida, non un ramo nautico.
+5. **gen398d — Mondi e informazione.** Conservare alternative e derivare quale
+   osservazione riduce l'incertezza. Separare prova, assunzione e testimonianza.
+6. **gen398e — Ripianificazione.** Versionare il mondo e tracciare dipendenze dei
+   passi; correzioni locali e cambiamenti strutturali hanno impatto diverso.
+7. **gen398f — Rischio e calibrazione.** Policy KB per agire, chiedere,
+   qualificare, mitigare, declinare e rifiutare piani inammissibili.
+8. **gen398g — Resa e confronto.** Esporre goal, passi, motivi, assunzioni,
+   alternative e residui via K6; rieseguire la sonda frontier solo come scoperta.
+
+Ogni voce e' una generazione verticale TDD. Non iniziare aggiungendo decine di
+fatti di dominio: prima deve esistere un consumer universale minimale e
+falsificabile.
+
+### Primo ratchet consigliato
+
+Il primo `.p0t` non dovrebbe chiedere subito una risposta operativa reale. Usare
+un micro-mondo sintetico sicuro per provare il contratto:
+
+```text
+stato: contenitore alto, valvola chiusa, livello crescente
+goal: livello sotto soglia
+azione KB: aprire valvola
+precondizione: valvola funzionante
+effetto: flusso uscente
+```
+
+Il test deve mostrare:
+
+1. input naturale -> stesso Situation IR in italiano e inglese;
+2. azione esclusa prima che lo schema sia noto;
+3. `!assert` dello schema/ponte che rende l'azione applicabile senza rebuild;
+4. piano derivato con precondizione ed effetto visibili;
+5. `!forget` che ritira precisamente il piano;
+6. negativo vicino con valvola guasta;
+7. trasferimento dello stesso operatore a un secondo dominio privo del lessico
+   `contenitore/valvola`.
+
+Solo dopo questa prova introdurre membri verificati dei domini pallone, barca e
+uscite. Il caso dei tre interruttori passa soltanto se una nuova proprieta'
+osservabile insegnata in KB permette un'analoga azione informativa altrove: la
+risposta memorizzata «acceso/caldo/freddo» non e' generalizzazione.
+
+### Matrice minima di done
+
+- almeno tre domini non correlati per ogni operatore core;
+- positivo, due transfer held-out e negativo vicino;
+- crescita e retrazione runtime di cue, schema, causalita' o policy;
+- correzione che ritira solo i passi dipendenti;
+- caso senza risorsa che non ne inventa una;
+- caso con fonte debole che non diventa certezza;
+- caso dannoso respinto per policy ispezionabile nella KB;
+- stress 10x con fatti/azioni irrilevanti;
+- profilo AGI entro il secondo per turno ordinario;
+- nessun literal del prompt in `src/brain` o nelle regole core;
+- ogni proposizione finale risale a input, KB o proof.
+
+### Performance prevista: indicizzare il branching, non alzare i timeout
+
+Il planner puo' esplodere combinatorialmente. Il piano §17.9 autorizza, come
+meccaniche pure, indici degli action schema per goal/tipo/precondizione, hash
+degli stati ground, memo per `(world_version, goal, policy_version)`, cache delle
+transizioni e dominance pruning provato. Ogni cache deve:
+
+- essere semanticamente equivalente al percorso senza cache;
+- invalidarsi su assert/retract e sulle correzioni pertinenti;
+- conservare provenance e alternative;
+- avere ratchet cold/warm e curva con conoscenza irrilevante;
+- non mascherare un budget esaurito come assenza di soluzione.
+
+Non alzare `!timeout`, `SOFT_BUDGET` o il secondo ordinario per far passare una
+ricerca non indicizzata.
+
+### Lavoro performance gia' chiuso nello stesso worktree
+
+Separatamente dal nuovo fronte, il collo di bottiglia di `mod_answer_frame` e'
+stato risolto nel resolver generale: un body goal diventato ground usa il
+`fact_index` full-tuple e visita ancora le sole unit clause non-ground. Il caso
+canonico AGI e' sceso da circa 0,82-0,97s a circa 0,18s. I ratchet sono in
+`tests/p0t/reasoning/sequential_view.p0t` e
+`tests/p0t/code/code_state.p0t`; la descrizione completa e' nella sezione
+`CHIUSO — mod_answer_frame` piu' sotto. Non spostare l'ottimizzazione nel modulo
+e non introdurre una cache semantica parallela.
+
+Ultima verifica di quel taglio prima di questo handoff: `make test`, 2027 prove
+verdi; `make soft-test` semanticamente verde ma 21s contro budget 15s sotto
+carico ambientale, senza aumento del budget. Rieseguire i gate dopo ogni modifica.
+
+### Trappole da evitare
+
+- `answer_frame("mongolfiera", ...)` con risposta pronta;
+- `strcmp`, `strstr` o cue C per `cadere`, `zavorra`, `prima`, `attraverso`,
+  `libera`, `calda` o altre forme naturali;
+- un predicato generico `related_to` al posto di relazioni causali/strutturali;
+- trattare ogni problema come search numerica, perdendo fonte e scope;
+- inventare oggetti per riempire un piano;
+- confondere il rifiuto di un piano dannoso con una penalita' numerica debole;
+- usare l'oracolo OpenCode come fonte di procedure o come dipendenza runtime;
+- dichiarare gen398 avanzata perche' passa soltanto il prompt guida;
+- aumentare timeout al posto di indicizzare per goal, stato e action schema.
+
+Questo handoff e' il punto di ripartenza prioritario per la nuova missione. Il
+successivo handoff gen396 resta valido per i prerequisiti del producer universale
+e non va interpretato come prova che K11 sia gia' collegato.
+
 ## HANDOFF operativo — 2026-08-16
 
 ### Missione e criteri non negoziabili
@@ -382,11 +595,45 @@ router dovra' usare la provenienza fisica della registry con due indici:
 casa e' univoca. L'attuale fallback "ultimo file con lo stesso predicato" e'
 dipendente dall'ordine di scansione e non va trasferito tale e quale in hashmap.
 
-## ⛔ PRIORITA': `mod_answer_frame` costa 0,74s per turno e su un muro non serve
+## CHIUSO — `mod_answer_frame` costava 0,74s per turno e su un muro non serviva
 
 *Misurato a gen396, 17 agosto 2026. Non e' una micro-ottimizzazione: e' il
 contratto di §10 del piano frontier — un turno ordinario sta sotto il secondo
-anche col profilo AGI — e oggi lo consuma quasi tutto un solo modulo.*
+anche col profilo AGI — e al momento della misura lo consumava quasi tutto un
+solo modulo.*
+
+### Risoluzione — 17 agosto 2026
+
+Il cronometro interno ha falsificato l'ipotesi sull'ordinamento delle cue:
+enumerare le 215 righe costava 0,8-1,3ms e ordinarle 0,6ms. Dei circa 0,86s del
+ciclo, 0,85s erano dentro i lookup delle relazioni derivate. Sul turno canonico
+`what is a flimbo`, per esempio, ogni prova negativa di
+`humanities_summary(Token, ?)` espandeva la regola e poi scandiva tutti i
+`humanities_topic/1`, anche se il sottogoal ormai ground
+`humanities_topic(flimbo)` era una chiave esatta.
+
+La correzione e' nel resolver generale, non in `mod_answer_frame`: quando la
+sostituzione rende ground un goal, `solve_frame` consulta il `fact_index`
+full-tuple gia' mantenuto da assert/retract. Se esistono unit clause non-ground
+continua a visitarle, poi prova normalmente le regole; se il censimento non e'
+disponibile conserva la scansione storica. Non c'e' una cache semantica da
+invalidare e non viene materializzata conoscenza duplicata: l'indice resta una
+vista meccanica della KB viva.
+
+Misura comparabile, profilo AGI con 27k fatti / 1626 regole, tre esecuzioni:
+
+```text
+prima   0,97s / 0,82s / 0,83s
+dopo    0,18s / 0,18s / 0,18s
+```
+
+Il ratchet `sequential_view.p0t` prova nello stesso processo miss -> assert ->
+retract -> assert del fatto indicizzato e conserva il caso delle unit clause
+non-ground. `code_state.p0t` fissa a 0,5s il turno negativo reale: disabilitando
+il fast path fallisce a 0,88s, riattivandolo passa. `make test` chiude 2027 prove,
+zero fallimenti. `make soft-test` ha tutte le asserzioni verdi ma resta a 21s e
+fallisce il budget globale di 15s per il carico ambientale gia' annotato sotto;
+il budget non e' stato alzato.
 
 ### Il fatto
 

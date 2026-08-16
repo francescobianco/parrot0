@@ -1645,17 +1645,64 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return solve(S, goals, ngoals, idx + 1, s, depth);
     }
 
+    /* A goal that became ground through the current substitution has exactly
+     * one possible matching ground fact.  Reuse the full-tuple hash here rather
+     * than walking (and copying a large substitution for) every fact in the
+     * predicate bucket.  This matters especially for selective rule guards:
+     *
+     *   humanities_summary(X, S) :- humanities_topic(X), means(X, S).
+     *
+     * A negative answer_frame probe used to scan every humanities_topic once
+     * per input token even though humanities_topic(flimbo) is an exact miss.
+     * The hash is already maintained by assert/retract, so this remains a view
+     * of the live KB rather than a semantic cache that could go stale.
+     *
+     * Non-ground unit clauses are still visited below: a stored p($X) can
+     * satisfy any ground p(value), and therefore is not represented by the
+     * exact ground key.  If the predicate census is unavailable, retain the
+     * historical full scan as the correctness fallback. */
+    int ground_fact_mode = 0; /* 0 = scan all, 1 = only non-ground, 2 = skip */
+    Term grounded_goal;
+    resolve_goal(g, s, &grounded_goal);
+    if (goal_ground(&grounded_goal)) {
+        int census_live = 0;
+        const PredStat *ps = pred_stats_get((KB *)S->kb, grounded_goal.pred,
+                                            &census_live);
+        if (census_live) {
+            int has_nonground = ps && ps->nnonground > 0;
+            const char *exact_args[KB_MAX_ARGS];
+            for (size_t a = 0; a < grounded_goal.argc; a++)
+                exact_args[a] = grounded_goal.args[a];
+            Fact needle;
+            int exact = fact_make(&needle, grounded_goal.pred, exact_args,
+                                  grounded_goal.argc) &&
+                        kb_find(S->kb, &needle) != NULL;
+            if (exact) {
+                if (solve(S, goals, ngoals, idx + 1, s, depth)) return 1;
+                /* A continuation may contain assert/retract and then fail.
+                 * Side effects persist in this engine, so refresh the census
+                 * before considering alternative unit clauses. */
+                ps = pred_stats_get((KB *)S->kb, grounded_goal.pred,
+                                    &census_live);
+                has_nonground = ps && ps->nnonground > 0;
+            }
+            if (census_live) ground_fact_mode = has_nonground ? 1 : 2;
+        }
+    }
+
     /* gen382: unify_term_fact can only succeed on a fact with this goal's
      * predicate, so the census bucket visits exactly the candidates instead of
      * the whole KB at every resolution step. */
     PredBucket gbk = pred_bucket(S->kb, g->pred);
-    for (size_t vi = 0; vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
+    for (size_t vi = 0; ground_fact_mode != 2 &&
+                        vi < PRED_VISITS(gbk, S->kb); vi++) {  /* match facts */
         const Fact *f = &S->kb->facts[PRED_AT(gbk, vi)];
         Subst *s2 = &scratch->subst;
-        *s2 = *s;
         int nonground = 0;
         for (size_t a = 0; a < f->argc && !nonground; a++)
             nonground = term_contains_var(f->args[a], 0);
+        if (ground_fact_mode == 1 && !nonground) continue;
+        *s2 = *s;
         int matched = 0;
         if (!nonground) {
             matched = unify_term_fact(s2, g, f);

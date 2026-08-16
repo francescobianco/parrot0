@@ -603,6 +603,66 @@ Una regola conta come avanzamento solo se:
 4. un fatto locale rotto danneggia soltanto il proprio dominio;
 5. non contiene lessico o entita' del prompt campionato.
 
+### K11 — Modello situazionale, azioni e transizioni
+
+Fra il frame del turno e il piano proposizionale manca ancora un oggetto: una
+**situazione modificabile**. E' il livello necessario per problemi di
+sopravvivenza, uso astuto delle risorse, triangolazione, rilettura del contesto e
+ripianificazione. Non e' un catalogo di indovinelli e non e' una faculty
+`mongolfiera`: e' una rappresentazione comune in cui domini diversi possono
+fornire oggetti, stati, affordance, vincoli e leggi causali.
+
+Fatti candidati:
+
+```prolog
+situation($Situation, $Context).
+situation_goal($Situation, $Goal).
+situation_entity($Situation, $Entity, $Role).
+state_value($Situation, $Entity, $Property, $Value).
+resource_available($Situation, $Resource, $Amount).
+situation_constraint($Situation, $Constraint).
+hazard($Situation, $Hazard, $Severity).
+
+action_schema($Action, $Domain).
+action_precondition($Action, $Condition).
+action_uses($Action, $Resource, $Amount).
+action_effect($Action, $Effect).
+action_side_effect($Action, $Effect).
+action_duration($Action, $Duration).
+action_reversibility($Action, $Class).
+action_risk($Action, $Risk).
+
+candidate_world($Situation, $World).
+world_assumption($World, $Assumption).
+world_evidence($World, $Evidence, $Source).
+transition($World, $Before, $Action, $After).
+plan_step($Plan, $Index, $Action).
+plan_support($Plan, $Proof).
+plan_unresolved($Plan, $Question).
+```
+
+I nomi sono un lessico di progetto, non uno schema gia' congelato. Prima di
+promuoverli va riusato quanto esiste in `procedures.p0`, nei contesti K4 e nei
+piani K6. Il contratto semantico, invece, e' gia' vincolante:
+
+1. una correzione crea una nuova versione locale del mondo e rende visibile che
+   cosa invalida; non riscrive silenziosamente la storia;
+2. un'azione e' candidabile soltanto se le sue precondizioni sono provate o
+   dichiarate come assunzioni;
+3. una risorsa non menzionata e non derivabile non puo' apparire nel piano;
+4. ogni passo porta effetto, durata, consumo, rischio e provenance quando
+   pertinenti;
+5. la ricerca puo' essere una meccanica C fissa, ma schemi d'azione, causalita',
+   priorita' e policy di rischio vivono nella KB;
+6. l'output del livello e' un piano con proof, alternative e residui, mai testo
+   naturale terminale.
+
+In questo livello «astuzia» significa una composizione verificabile di operatori:
+scoprire un'assunzione nascosta, riclassificare una risorsa, osservare una
+proprieta' laterale, scegliere un'azione informativa, confrontare mondi
+alternativi o cambiare prospettiva. Non significa recuperare una risposta
+memorabile associata alle parole dell'enigma.
+
 ## 6. Un'unica architettura concettuale
 
 I livelli precedenti possono essere letti come quattro piani, non come nove
@@ -814,6 +874,7 @@ path canonico nella hashmap dell'istanza KB.
 | contesti e scope | core meta/procedure | una KB, viste concorrenti |
 | registro e stile | presentation + profili | subordinate alla proof |
 | operatori | `procedures.p0` o reasoning comune | almeno tre domini |
+| situazioni, azioni e transizioni | core planning comune + payload di dominio | schemi e policy in KB; ricerca meccanica nel motore |
 | fatti del mondo | expert/domain file | nessuna frase-risposta |
 | answer plan e micro-frame | presentation/responses | nessun claim nuovo |
 | auto-osservazione e gap | meta/procedures | misura ponti e copertura |
@@ -873,6 +934,11 @@ delle mosse.
 | registro | capire una forma e rispondere in un'altra compatibile |
 | pragmatica | richieste indirette, implicature e presupposizioni |
 | correzione | modificare commitment e ri-derivare |
+| piano situazionale | stato, goal, risorse, azioni, effetti e rischi |
+| sopravvivenza | riduzione del danno senza risorse inventate |
+| triangolazione | mondi coerenti, provenance e informazione discriminante |
+| azione informativa | agire per rendere osservabile una variabile nascosta |
+| bilancio dinamico | durate, flussi, soglie e stati intermedi |
 | multi-goal | soddisfare tutte le richieste coordinate |
 | scope | mondo, ipotesi, citazione e opinione attribuita |
 | conversazione lunga | riferimenti, topic, vincoli e goal a 20/50/100 turni |
@@ -893,6 +959,19 @@ delle mosse.
 - **bridge leverage:** domande rese raggiungibili da un singolo arco;
 - **three-axis gap accuracy:** corretta distinzione fra superficie, dato e
   ponte fra entita';
+- **plan validity:** ogni passo soddisfa le precondizioni nello stato in cui
+  viene eseguito;
+- **causal faithfulness:** gli effetti dichiarati sono sostenuti da una regola
+  causale con provenance;
+- **resource discipline:** nessun oggetto, capacita' o quantita' viene inventato;
+- **replanning consistency:** una correzione ritira solo passi e conclusioni che
+  dipendevano dall'informazione sostituita;
+- **assumption exposure:** le assunzioni che cambiano la decisione sono nominate
+  e separate dalle conseguenze provate;
+- **counterfactual robustness:** il piano cambia nel modo atteso quando si
+  ablano risorsa, affordance o premessa;
+- **safety calibration:** rischio e danno non vengono ottimizzati come semplici
+  costi se la policy KB li rende vincoli;
 - **latency by KB size:** costo dello stesso turno al crescere della KB.
 
 La metrica principale non puo' essere il wall-rate: una risposta fluente ma
@@ -1843,3 +1922,305 @@ Avvio della gen395:
    crescita/ablazione. `make soft-test` resta nel budget invariato (11s/15s),
    `make test` chiude 1894 asserzioni verdi e il loader passa 15/15 prove
    dedicate.
+
+## 17. Nuovo fronte pianificato: ragionamento situazionale causale (gen398+)
+
+Questa sezione pianifica una capacita' futura; **non dichiara implementato nulla**.
+Nasce dal turno reale del 2026-08-17:
+
+```text
+you> cosa faresti se una mongolfiera sta cadendo per rallentare la caduta
+Non capisco ancora.
+```
+
+Il muro non richiede una risposta sulla mongolfiera. Rivela che il universal
+input non sa ancora trasformare una descrizione aperta in uno stato del mondo,
+un obiettivo, un insieme di azioni applicabili e una previsione dei loro effetti.
+Lo stesso vuoto impedisce problemi piu' complessi di sopravvivenza,
+triangolazione, uso non ovvio delle proprieta', revisione del contesto e scelta
+sotto vincoli.
+
+### 17.1 Obiettivo osservabile
+
+Da un normale turno `gen.respond`, senza comando o router di dominio, parrot0
+deve poter:
+
+1. estrarre entita', ruoli, stato, risorse, capacita', pericoli, goal e vincoli;
+2. conservare piu' letture o mondi quando il testo non determina quale valga;
+3. recuperare dalla KB schemi d'azione le cui precondizioni si unificano con lo
+   stato corrente;
+4. simulare effetti, consumi, durate e rischi, componendo un piano multi-step;
+5. verificare invarianti, soglie e conflitti fra azioni concorrenti;
+6. distinguere conclusioni dimostrate, ipotesi, testimonianze deboli e dati
+   mancanti;
+7. scegliere se agire, chiedere, osservare, qualificare, rifiutare una scorciatoia
+   dannosa o dichiarare onestamente che nessun piano e' provato;
+8. rileggere il piano dopo una correzione, nominando che cosa rimane valido e
+   quale dipendenza e' stata spezzata;
+9. trasformare proof e piano nel K6 proposizionale e solo dopo realizzarli nella
+   lingua e nel registro appropriati.
+
+Il test di generalizzazione resta quello del mantra: domani una nuova azione,
+affordance, legge causale, fonte o policy deve diventare usabile con
+assert/retract della KB, senza ricompilare il C.
+
+### 17.2 Sonda OpenCode-GO e lezioni, non risposte da copiare
+
+La batteria di design e' in `tests/situational_reasoning_probe.py`; il trascritto
+del giro guida e' `tests/sym/situational-reasoning-20260817-013348.md`, modello
+`gpt-5.6-luna` via endpoint OpenCode-GO. Come le sonde ambiguity/repair, confronta
+la **mossa** e non promuove il modello esterno a fonte di verita'.
+
+| scenario | parrot0 osservato | mossa del riferimento utile al progetto |
+|---|---|---|
+| mongolfiera nuda/vincolata | muro | propone azioni condizionate e le lega a effetti |
+| risorse esplicitamente assenti | muro | dichiara il limite e non finge di ripristinare la portanza |
+| correzione aria calda -> gas | muro/chiarimento vuoto | conserva passi invarianti e ritira quello causalmente invalido |
+| separazione cesto/involucro | risposta meta fuori tema | rilegge struttura e applicabilita' delle azioni |
+| proposta di espellere una persona | muro | tratta il danno come vincolo e cerca alternative |
+| tre uscite e fonte non verificata | risposta meta fuori tema | enumera due mondi, separa prova e testimonianza, cerca un bit discriminante |
+| barca con flussi e riparazione | storia fuori tema | simula il picco intermedio e dichiara assunzioni |
+| tre interruttori, una visita | falso positivo codice | usa un'azione per produrre due osservabili: luce e calore |
+
+La sonda espone anche i limiti del riferimento. Nel caso nudo assume il tipo piu'
+comune di pallone; nei casi di emergenza puo' nominare procedure o risorse non
+fornite dal testo. Quindi:
+
+- dal modello si estraggono firme come `ripianifica`, `dichiara_assunzione`,
+  `cerca_informazione` e `rifiuta_danno`;
+- fatti fisici, procedure di sicurezza e policy normative richiedono fonti
+  indipendenti prima di entrare nella KB;
+- un transcript non diventa mai `response_template` e non e' un golden test;
+- i ratchet locali misurano rappresentazioni, proof e mosse, non similarita' di
+  stringa con l'oracolo.
+
+Le sonde future devono aggiungere controlli avversariali: premessa impossibile,
+risorsa irrilevante, azione con effetto ritardato, fonte contraddittoria,
+correzione che cambia solo un attributo, piano senza soluzione e caso in cui la
+domanda di chiarimento e' migliore di un piano fragile.
+
+### 17.3 Rappresentazione minima comune
+
+Il producer universale deve materializzare quattro strati collegati da ID e
+provenance:
+
+```text
+FRAME DEL TURNO
+  descrizione + domanda + modalita' + lingua
+        |
+        v
+SITUAZIONE / MONDI CANDIDATI
+  entita' + ruoli + proprieta' + relazioni + risorse + fonti + assunzioni
+        |
+        v
+PIANO CAUSALE
+  goal + azioni applicabili + transizioni + costi/rischi + residui
+        |
+        v
+PIANO DI RISPOSTA
+  conclusione + motivi + condizioni + alternative + avvertenze
+```
+
+Ogni fatto situazionale deve portare almeno:
+
+- contesto/versione del mondo;
+- fonte: testo utente, KB, derivazione, ipotesi o testimonianza;
+- stato epistemico: provato, assunto, contestato, mancante;
+- intervallo temporale o ordine, quando rilevante;
+- entita' e faccetta a cui si applica.
+
+Non basta una lista piatta di triple. `il bruciatore e' guasto` deve poter
+invalidare soltanto azioni che richiedono un bruciatore funzionante; `non e' ad
+aria calda` deve aprire un mondo con un diverso schema del mezzo; `il cesto si e'
+separato` deve spezzare relazioni strutturali da cui dipendeva il controllo.
+
+### 17.4 Espansione KB-first
+
+Prima di creare file nuovi va fatto l'audit dei predicati riusabili. La
+destinazione concettuale prevista e':
+
+| classe | proprietario previsto | contenuto |
+|---|---|---|
+| frame situazionale | core semantico eager | ruoli e slot universali, nessun dominio |
+| stato e transizioni | `kb/core/procedures.p0` o core planning | operatori generali di applicabilita' e successione |
+| policy deliberative | core dialogico/presentation | quando agire, chiedere, qualificare o declinare |
+| action schema | bundle di dominio lazy | precondizioni, effetti, consumi, durate, rischi |
+| causalita' del mondo | expert/domain file | fatti verificati, unita' e provenance |
+| lessico | gloss/grammar/intents | forme NL insegnabili che denotano ruoli e relazioni |
+| realizzazione | responses/presentation | micro-frame per esporre piano, condizioni e residui |
+
+Esempi di regole trasferibili da perseguire, non sintassi definitiva:
+
+```prolog
+applicable($Action, $World) :-
+    action_schema($Action, $Domain),
+    all_preconditions_hold($Action, $World),
+    resources_sufficient($Action, $World).
+
+invalidated_step($Step, $NewWorld) :-
+    plan_step($Plan, $Index, $Action),
+    naf(all_preconditions_hold($Action, $NewWorld)).
+
+needs_clarification($Situation, $Question) :-
+    decision_relevant_unknown($Situation, $Variable),
+    discriminating_question($Variable, $Question).
+
+prefer_information_action($A, $B, $Situation) :-
+    expected_world_reduction($A, $Situation, $More),
+    expected_world_reduction($B, $Situation, $Less),
+    greater_than($More, $Less).
+```
+
+Le quantita' concrete, le parole italiane e inglesi, i tipi di pallone, il
+calore della lampadina e le procedure nautiche non possono apparire nelle
+regole core. Sono membri di relazioni aperte. Ogni nuovo cue naturale richiede
+il suo test di crescita e retrazione.
+
+### 17.5 Meccaniche ammesse nel motore
+
+Il C puo' fornire solo primitive invarianti e parametrizzate:
+
+- enumerazione di azioni e mondi dalla KB;
+- unificazione e verifica delle precondizioni;
+- applicazione non distruttiva di delta di stato;
+- aritmetica di quantita', durate, flussi e soglie;
+- ricerca bounded, ordinamento, dominance pruning e rilevamento di cicli;
+- hashing/indici/cache su predicati, firme ground e dipendenze;
+- budget e produzione di un residuo tipizzato quando la ricerca e' incompleta.
+
+Non puo' decidere che parole come `cadere`, `zavorra`, `buttare`, `prima`,
+`pericoloso`, `libera` o `calda` attivino quelle meccaniche. Non puo' contenere
+una tabella di risposte agli enigmi, una lista di oggetti di emergenza o un ramo
+`if balloon`. La policy che un danno umano e' un vincolo, non un costo ordinario,
+deve essere ispezionabile e sostituibile nella KB senza essere ridotta a un
+numero magico del planner.
+
+### 17.6 Politica per casi incompleti e borderline
+
+Il planner non deve produrre sempre un'azione. La mossa dipende dalla qualita'
+della proof:
+
+| stato | mossa |
+|---|---|
+| piano provato, rischio entro policy | proporre passi e motivi |
+| piano valido solo sotto un'assunzione | proporlo condizionatamente e nominare l'assunzione |
+| due mondi portano a piani incompatibili | chiedere il dato discriminante o offrire rami espliciti |
+| azione informativa sicura riduce i mondi | preferire osservazione/test prima dell'azione irreversibile |
+| nessuna leva disponibile | dichiarare il limite e passare a mitigazione/preparazione |
+| conoscenza causale assente | non inventare; nominare il gap e chiedere/ricercare se autorizzato |
+| scorciatoia viola una policy forte | rifiutarla e cercare piani ammissibili |
+| budget esaurito | risposta incompleta tipizzata, mai certezza simulata |
+
+La domanda di chiarimento e' utile soltanto se la risposta puo' cambiare la
+decisione. Chiedere genericamente «cosa vuoi sapere?» dopo una correzione e' un
+muro cortese, non ragionamento.
+
+### 17.7 Ordine esecutivo gen398+
+
+**gen398a — Situation IR dal universal input.** Un solo producer trasforma
+descrizioni e domande in entita', stato, goal, risorse, vincoli e fonti. Primo
+ratchet: stesso frame per parafrasi IT/EN; cue nuovo assert/retract; nessun
+consumer speciale.
+
+**gen398b — Schemi d'azione e applicabilita'.** Introdurre precondizioni, effetti,
+consumi e azioni inapplicabili. Tre domini minimi: controllo della discesa,
+contenimento di un flusso, uscita da un ambiente. Ablare una precondizione deve
+ritirare il passo senza cambiare il motore.
+
+**gen398c — Transizioni temporali e invarianti.** Comporre due o piu' passi,
+calcolare stati intermedi e verificare soglie. Il caso barca e' membro guida;
+stress con almeno dieci passi/azioni irrilevanti e stesso budget ordinario.
+
+**gen398d — Mondi concorrenti e azioni informative.** Conservare alternative,
+calcolare quale osservazione le distingue e separare proof da fonte debole. I
+tre interruttori non passano se la soluzione e' una risposta terminale: una
+nuova proprieta' osservabile insegnata a runtime deve generare una strategia
+analoga in un dominio diverso.
+
+**gen398e — Correzione e ripianificazione.** Versionare il mondo, tracciare le
+dipendenze dei passi e spiegare valido/invalido dopo una rettifica. Le correzioni
+tipo di pallone e separazione strutturale sono due classi diverse e devono
+restare tali.
+
+**gen398f — Policy di rischio e risposta calibrata.** Fare derivare dalla KB
+ammissibilita', reversibilita', danno, richiesta di chiarimento e declino.
+Provare crescita/retrazione della policy su scenari sintetici non pericolosi;
+non usare il test etico come scusa per hardcodare la frase.
+
+**gen398g — Realizzazione K6 e confronto frontier.** Esporre obiettivo, piano,
+motivo, assunzioni, alternative e residui nella lingua del turno. Rieseguire la
+sonda OpenCode solo per scoprire nuove mosse; promuovere i casi nel `.p0t` con
+oracle strutturali locali.
+
+Ogni sottogenerazione e' un taglio verticale: producer universale, inferenza,
+piano proposizionale, resa minima, test IT/EN, crescita/retrazione e negativo
+vicino. Nessuna sottogenerazione puo' limitarsi ad aggiungere schema morto.
+
+### 17.8 Matrice TDD e controlli di generalizzazione
+
+La batteria locale minima deve incrociare fenomeni e domini:
+
+| fenomeno | guida | transfer 1 | transfer 2 | negativo |
+|---|---|---|---|---|
+| azione causale | pallone/zavorra | porta/chiave | circuito/interruttore | precondizione assente |
+| bilancio temporale | barca/falla | batteria/consumo | serbatoio/flusso | soglia gia' superata |
+| triangolazione | uscite | sensori | diagnosi guasto | fonte sola non verificata |
+| azione informativa | lampadina/calore | contenitore/peso | rete/latenza | osservazione non discriminante |
+| correzione | tipo pallone | unita' di misura | agente/ruolo | dettaglio irrilevante |
+| policy | danno umano | azione irreversibile | rischio alto | alternativa sicura presente |
+
+Per ogni operatore nuovo servono:
+
+1. positivo nel membro guida;
+2. almeno due domini held-out senza lessico condiviso;
+3. negativo vicino che non deve attivarlo;
+4. assert a runtime di un nuovo membro che abilita la condotta;
+5. retract/ablazione che la rimuove;
+6. prova che il C e i file core non contengono il lessico dei prompt;
+7. stress 10x con azioni, fatti o mondi irrilevanti;
+8. stessa inferenza entro il secondo sul profilo AGI.
+
+Gli oracle `.p0t` controllano almeno: frame, lista delle precondizioni, piano
+selezionato, picco/soglia, assunzioni, passi invalidati, fonte della conclusione,
+mossa dialogica e assenza di risorse inventate. Il wording resta subordinato.
+
+### 17.9 Performance: indici e cache senza cambiare la semantica
+
+Il planner amplifica il rischio combinatorio. Prima di alzare qualsiasi budget:
+
+- indice degli action schema per predicato di goal, tipo di entita' e firma delle
+  precondizioni;
+- hash ground per stato e risorse, riusando il percorso esatto del solver;
+- memoizzazione per `(world_version, goal, policy_version)`, invalidata da
+  assert/retract e correzioni pertinenti;
+- cache delle transizioni pure per `(state_signature, action_schema)`;
+- dominance pruning solo quando la KB prova che un piano non e' migliore su
+  nessuna dimensione rilevante;
+- lazy residency dei payload di dominio, lasciando eager catalogo e porte.
+
+La cache non puo' scegliere una lettura, nascondere provenance o far sopravvivere
+un piano a una retrazione. Ogni ottimizzazione richiede equivalenza con cache
+off, invalidazione testata e curva di latenza al crescere di fatti irrilevanti.
+
+### 17.10 Gate di riuscita e non-obiettivi
+
+Il fronte e' riuscito quando:
+
+1. lo stimolo guida non mura e produce un piano causalmente supportato o una
+   richiesta discriminante, senza modulo mongolfiera;
+2. gli stessi operatori risolvono almeno tre domini non correlati;
+3. risorse e azioni nuove diventano utilizzabili e retraibili a runtime;
+4. una correzione ritira precisamente i passi dipendenti e conserva gli altri;
+5. il sistema distingue prova, testimonianza, assunzione e ignoranza;
+6. i casi senza soluzione e quelli dannosi non ricevono piani inventati;
+7. ogni proposizione della risposta risale a testo, KB o derivazione;
+8. la latenza resta nel budget ordinario con il profilo AGI e sotto stress;
+9. la sonda frontier migliora per firme di mossa senza diventare dipendenza di
+   runtime o oracle di verita'.
+
+Non sono obiettivi: coprire tutti gli enigmi noti, fingere competenza operativa
+in emergenze reali, copiare procedure da un LLM, usare ricerca web a runtime per
+saltare la KB, o produrre prosa lunga senza un piano ispezionabile. Il risultato
+desiderato non e' che parrot0 «sembri furbo»: e' che possa mostrare quale stato
+ha costruito, quale informazione gli manca, perche' un'azione e' applicabile e
+come una nuova evidenza cambia la decisione.

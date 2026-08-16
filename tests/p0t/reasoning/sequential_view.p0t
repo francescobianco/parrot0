@@ -46,6 +46,26 @@
 > what is the wildcard pair for k
 < Ready.
 
+# Ground body goals use the KB's exact-fact index.  The index is only a view of
+# the live facts: a miss must become a hit after assert, disappear after retract,
+# and become a hit again without rebuilding the process.
+!assert indexed_gate_value(k, ready)
+!clause indexed_gate_view($Key, $Value) :- indexed_gate($Key), indexed_gate_value($Key, $Value)
+!assert answer_frame("indexed gate", indexed_gate_view)
+
+[test the exact ground index follows assert and retract at runtime]
+> what is the indexed gate for k
+<! Ready.
+!assert indexed_gate(k)
+> what is the indexed gate for k
+< Ready.
+!forget indexed_gate(k)
+> what is the indexed gate for k
+<! Ready.
+!assert indexed_gate(k)
+> what is the indexed gate for k
+< Ready.
+
 # A goal BUILT AT RUNTIME — the inner goal of findall/3, the argument of call/1 —
 # carries its own polarity.  When that polarity was left to whatever the parser's
 # storage happened to hold, a positive enumeration could be read as naf(G), find
