@@ -73,3 +73,27 @@
 < Ok.
 > what is the crew call for epsilon
 <! Ok.
+
+# gen396: running out of ROOM is a search cut short, exactly like running out of
+# steps.  Three guards — the depth ceiling, the resolvent ceiling of a rule
+# expansion, and the one of call/1 — each returned a bare 0, which every caller
+# reads as FINITE FAILURE.  So naf/1, whose only job is to tell those two apart,
+# concluded absences it had never established.  It surfaced in the compositional
+# answer plan, where a six-piece sentence lost a piece per level of nesting
+# because the negative check for a next piece decided there was none.
+#
+# A recursive countdown is the deterministic falsifier the plan asked for: the
+# shallow case is a real finite failure and must still conclude, the deep one is
+# only unexplored and must decline.
+!assert countdown(0)
+!clause countdown($N) :- gt($N, 0), is($M, sub($N, 1)), countdown($M)
+!clause shallow_absence($K, absent) :- naf(countdown(-1))
+!clause deep_absence($K, absent) :- naf(countdown(400))
+!assert answer_frame("shallow absence", shallow_absence)
+!assert answer_frame("deep absence", deep_absence)
+
+[test an exhausted search declines instead of concluding an absence]
+> what is the shallow absence for k
+< Absent.
+> what is the deep absence for k
+<! Absent.

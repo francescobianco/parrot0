@@ -1276,7 +1276,22 @@ static int solve(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         }
         return S->count >= S->max;
     }
-    if (depth > KB_MAX_DEPTH) return 0;
+    /* gen396: the DEPTH ceiling is a cut short, exactly like the work ceiling.
+     *
+     * This returned a bare 0 for as long as the guard has existed, and a bare 0
+     * is read everywhere as FINITE FAILURE. So a derivation that merely ran out
+     * of levels came back as "searched and not there", and `naf/1` — whose whole
+     * job is to tell those two apart — then SUCCEEDED on it. The compositional
+     * answer plan is where it finally became visible: a six-piece sentence lost a
+     * piece per level of nesting and rendered «Yes, » instead of «Yes, total is
+     * 7.», because the negative guard that checks for a next piece concluded
+     * there was none. Same signature as the gen396 polarity defect and the same
+     * worst form — a wrong answer wearing the costume of an honest absence.
+     *
+     * Marking it makes goal_provable() return GOAL_INCOMPLETE, so negation
+     * declines instead of concluding, and kb_inference_report() tells the caller
+     * the search was cut. */
+    if (depth > KB_MAX_DEPTH) { S->budget_hit = 1; return 0; }
     /* gen382: the work ceiling. Once hit, every pending branch unwinds without
      * doing more work, and the caller is told the search was cut short. */
     if (S->budget && S->steps >= S->budget) { S->budget_hit = 1; return 0; }
@@ -1482,7 +1497,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (m < KB_MAX_GOALS) ng[m++] = called;
         for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
             ng[m++] = goals[k];
-        if (m >= KB_MAX_GOALS && idx + 1 < ngoals) return 0;
+        /* gen396: the resolvent ceiling is a cut short, not an absence — see
+         * the depth guard in solve(). */
+        if (m >= KB_MAX_GOALS && idx + 1 < ngoals) { S->budget_hit = 1; return 0; }
         return solve(S, ng, m, 0, s, depth + 1);
     }
 
@@ -1505,7 +1522,9 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         if (m < KB_MAX_GOALS) ng[m++] = called;
         for (size_t k = idx + 1; k < ngoals && m < KB_MAX_GOALS; k++)
             ng[m++] = goals[k];
-        if (m >= KB_MAX_GOALS && idx + 1 < ngoals) return 0;
+        /* gen396: the resolvent ceiling is a cut short, not an absence — see
+         * the depth guard in solve(). */
+        if (m >= KB_MAX_GOALS && idx + 1 < ngoals) { S->budget_hit = 1; return 0; }
         return solve(S, ng, m, 0, s, depth + 1);
     }
 
@@ -1716,8 +1735,14 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
             if (m >= KB_MAX_GOALS) { overflow = 1; break; }
             ng[m++] = goals[k];
         }
+        /* gen396: the resolvent could not hold this rule's body plus the
+         * caller's continuation. Skipping the rule silently is the third face of
+         * the same defect as the depth guard: an unexplored branch presented as
+         * one that was explored and found empty. Mark the search incomplete so
+         * negation declines instead of concluding. */
         if (overflow) {
             if (pushed) S->nanc--;
+            S->budget_hit = 1;
             continue;
         }
         int ok = solve(S, ng, m, 0, s2, depth + 1);

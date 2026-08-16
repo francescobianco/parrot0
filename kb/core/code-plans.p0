@@ -69,3 +69,99 @@ turn_response($Frame, $Text) :- state_query_surface($Frame), state_query_ambiguo
 % gap tipizzato, non un'assenza di stato: nominarlo e' piu' informativo che
 % classificare di nuovo il registro dell'input.
 turn_response($Frame, $Text) :- state_query_surface($Frame), naf(state_query_has_reading($Frame)), current_language($Language), response_template(state_query_gap, $Language, $Text).
+
+% ═══ L'OBBLIGAZIONE DICHIARATA: traccia + aspettativa o vincolo ═══
+%
+% Una domanda apre un'obbligazione e chiede di chiuderla. Una ASPETTATIVA la porta
+% gia' chiusa e chiede di VERIFICARLA: «total=3; total += 4; expected 7» non
+% domanda nulla, afferma qualcosa sullo stato in cui la traccia finisce. E' lo
+% stesso substrato — span tipizzato, stato misurato, giunzione in KB — con un atto
+% diverso, e questo e' il punto: se servisse un secondo percorso, il piano
+% universale non sarebbe universale.
+%
+% Il turno prima rispondeva «That looks like a snippet of code.», cioe' il
+% riconoscimento del registro consumava un'obbligazione ancora aperta — lo stesso
+% difetto che gen393 aveva isolato per la query.
+
+% Quali ruoli di span portano un'obbligazione, e quale confronto affermano. Il
+% verso appartiene al RUOLO, non alla cue: tutte le forme di `expected` affermano
+% un'uguaglianza e tutte quelle di `constraint` una differenza, quindi una cue
+% nuova insegnata a `segment_role/2` eredita subito il proprio confronto. E'
+% anche l'interruttore: ritraendo la riga, il ruolo smette di essere verificato.
+role_obligation_relation(expected, eq).
+role_obligation_relation(constraint, ne).
+
+obligation_span($Frame, $Index, $Role) :- turn_span($Frame, $Index, $Role, $Payload), role_obligation_relation($Role, $Relation).
+
+% Il valore dichiarato. La classe lessicale non e' cablata da nessuna parte: un
+% token e' un VALORE quando l'aritmetica lo accetta, cioe' quando l'operatore che
+% dovra' confrontarlo sa leggerlo. Cosi' «must not be 0» non ha bisogno che «be»
+% sia dichiarata parola funzionale per non essere scambiata per un numero.
+span_number($Quoted, $Number) :- span_atom($Quoted, $Number), eq($Number, $Number).
+obligation_declared($Frame, $Index, $Relation, $Declared) :- obligation_span($Frame, $Index, $Role), role_obligation_relation($Role, $Relation), turn_span_token($Frame, $Index, $Position, $Token), span_number($Token, $Declared).
+
+% Di CHE COSA parla l'obbligazione. Stessa disciplina della domanda: si sceglie
+% per giunzione, mai per posizione. Un nome citato dall'obbligazione e legato
+% dalla traccia e' il soggetto; se l'obbligazione non ne cita nessuno che la
+% traccia leghi, e la traccia lascia un solo legame, quel legame e' il soggetto —
+% non per comodita', ma perche' e' l'unico candidato che esista.
+obligation_named_subject($Frame, $Ident, $Actual) :- obligation_span($Frame, $Index, $Role), turn_span_token($Frame, $Index, $Position, $Token), turn_state_after($Frame, $Token, $Value), span_atom($Token, $Ident), span_atom($Value, $Actual).
+obligation_has_named_subject($Frame) :- obligation_named_subject($Frame, $Ident, $Actual).
+
+state_binding_key($Frame, binding($Ident, $Value)) :- turn_state_after($Frame, $Name, $Value), span_atom($Name, $Ident).
+state_binding_set($Frame, $Bindings) :- findall($Binding, state_binding_key($Frame, $Binding), $Bindings).
+state_sole_binding($Frame, $Ident, $Actual) :- state_binding_set($Frame, cons(binding($Ident, $Quoted), nil)), span_atom($Quoted, $Actual).
+
+obligation_subject($Frame, $Ident, $Actual) :- obligation_named_subject($Frame, $Ident, $Actual).
+obligation_subject($Frame, $Ident, $Actual) :- naf(obligation_has_named_subject($Frame)), state_sole_binding($Frame, $Ident, $Actual).
+
+% Il verdetto e' la CONGIUNZIONE dei confronti, non il primo che si incontra: un
+% turno puo' portare piu' obbligazioni («expected 6 and n must not be 0») e
+% rispondere sulla sola prima sarebbe dichiarare chiuso cio' che non e' stato
+% guardato. Si enumera l'insieme dei confronti violati e lo si legge.
+% Il confronto porta il valore osservato e non il nome del soggetto: l'arita'
+% massima del dialetto e' 4, e troncare qui e' corretto invece che comodo —
+% il soggetto e' una proprieta' del TURNO, la stessa per ogni obbligazione che
+% quel turno dichiara, quindi ripeterlo in ogni confronto sarebbe ridondanza.
+obligation_relation_holds($Actual, $Relation, $Declared) :- apply($Relation, cons($Actual, cons($Declared, nil))).
+obligation_check($Frame, $Actual, $Relation, $Declared) :- obligation_subject($Frame, $Ident, $Actual), obligation_declared($Frame, $Index, $Relation, $Declared).
+obligation_broken_key($Frame, broken($Relation, $Declared)) :- obligation_check($Frame, $Actual, $Relation, $Declared), naf(obligation_relation_holds($Actual, $Relation, $Declared)).
+obligation_broken_set($Frame, $Broken) :- findall($B, obligation_broken_key($Frame, $B), $Broken).
+obligation_has_check($Frame) :- obligation_check($Frame, $Actual, $Relation, $Declared).
+obligation_verdict($Frame, met) :- obligation_has_check($Frame), obligation_broken_set($Frame, nil).
+obligation_verdict($Frame, broken) :- obligation_broken_set($Frame, cons($First, $Tail)).
+
+% Il turno e' candidato quando porta insieme una traccia con stato, un'obbligazione
+% e un valore da confrontare. «do not use recursion» resta percio' fuori: e' un
+% vincolo senza valore, cioe' un altro atto, e questo piano non deve rubarglielo.
+obligation_surface($Frame) :- obligation_span($Frame, $Index, $Role), turn_span_binding($Frame, $TIndex, $Name, $Value), obligation_declared($Frame, $DIndex, $Relation, $Declared).
+turn_plan_candidate($Frame) :- obligation_surface($Frame).
+
+frame_act($Frame, obligation_check) :- obligation_verdict($Frame, $Verdict).
+frame_slot($Frame, verdict, $Verdict) :- obligation_verdict($Frame, $Verdict).
+frame_slot($Frame, binding, $Ident) :- obligation_subject($Frame, $Ident, $Actual).
+frame_slot($Frame, observed, $Actual) :- obligation_subject($Frame, $Ident, $Actual).
+
+% ── Realizzazione: il piano proposizionale, non una frase memorizzata ──
+%
+% Cio' che va detto e' <verdetto, soggetto, valore osservato>: tre proposizioni
+% gia' provate sopra. Viaggiano NELLA CHIAVE del piano, non vengono ri-dedotte da
+% ogni pezzo, e questa non e' un'ottimizzazione: e' il confine. Il renderer riceve
+% le proposizioni gia' chiuse e i connettivi della lingua, quindi non ha accesso a
+% nulla con cui fabbricarne una nuova — cambiare lingua o punteggiatura non puo'
+% cambiare cio' che la risposta afferma. E' la stessa proof a produrre «Yes, total
+% is 7.» e «Si', total vale 7.».
+answer_content(verdict($Verdict, $Ident, $Actual, $Language), 0, verdict, $Piece) :- verdict_particle($Verdict, $Language, $Piece).
+answer_content(verdict($Verdict, $Ident, $Actual, $Language), 1, connective, $Piece) :- list_separator($Language, $Piece).
+answer_content(verdict($Verdict, $Ident, $Actual, $Language), 2, subject, $Ident).
+answer_content(verdict($Verdict, $Ident, $Actual, $Language), 3, connective, $Piece) :- state_copula($Language, $Piece).
+answer_content(verdict($Verdict, $Ident, $Actual, $Language), 4, observed, $Actual).
+answer_content(verdict($Verdict, $Ident, $Actual, $Language), 5, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+turn_response($Frame, $Text) :- obligation_surface($Frame), obligation_verdict($Frame, $Verdict), obligation_subject($Frame, $Ident, $Actual), current_language($Language), answer_text(verdict($Verdict, $Ident, $Actual, $Language), $Text).
+
+% La traccia lega piu' nomi e l'obbligazione non dice di quale parli. Verificarne
+% uno a caso darebbe un verdetto vero per costruzione e falso per il turno: qui la
+% mossa e' dirlo, e la frase e' un fatto.
+turn_response($Frame, $Text) :- obligation_surface($Frame), naf(obligation_has_subject($Frame)), current_language($Language), response_template(obligation_ambiguous, $Language, $Text).
+obligation_has_subject($Frame) :- obligation_subject($Frame, $Ident, $Actual).

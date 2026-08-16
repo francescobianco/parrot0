@@ -1,0 +1,132 @@
+# CODE + DECLARED OBLIGATION ON THE UNIVERSAL ANSWER PLAN — gen396.
+#
+# A question opens an obligation and asks parrot0 to close it.  An EXPECTATION
+# arrives already closed and asks it to be VERIFIED: «total=3; total += 4;
+# expected 7» asserts something about the state the trace ends in.  Same
+# substrate as the query plan — typed span, measured state, join in the KB — with
+# a different act, and that is the whole point: if a second act needed a second
+# path, the universal plan would not be universal.
+#
+# Before this cut every one of these turns answered «That looks like a snippet of
+# code.» — the register classification consuming an obligation that was still
+# open, the defect gen393 had already isolated for the query.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test an expectation is verified against the state the trace ends in]
+> total=3; total += 4; expected 7
+< Yes, total is 7.
+> total=3; total += 4; expected 9
+< No, total is 7.
+> a=1; a += 1; should return 5
+< No, a is 2.
+
+[test the subject is chosen by join, not by position]
+> x=2; x *= 3; expected x 6
+< Yes, x is 6.
+> a=2; b=5; expected b 5
+< Yes, b is 5.
+> a=2; b=5; expected a 5
+< No, a is 2.
+
+# The trace binds two names and the expectation names neither, so every verdict
+# would be true by construction and false for the turn.  Naming the ambiguity is
+# the move; picking a binding in silence would be the wrong one even when the
+# number happens to agree.
+[test an expectation with no subject asks instead of guessing]
+> a=2; b=5; expected 5
+<! Yes,
+<! No,
+<~ more than one name
+
+# The comparison belongs to the ROLE, so a constraint asserts a DIFFERENCE with
+# no second consumer and no second parser.
+[test a constraint is the same plan with the opposite comparison]
+> x=5; x -= 5; must not be 0
+< No, x is 0.
+> x=5; x -= 4; must not be 0
+< Yes, x is 1.
+
+# Two obligations in one turn are a CONJUNCTION.  Answering on the first one
+# reached would declare closed what was never looked at.
+[test several obligations in one turn are all verified]
+> n=2; n*=3; expected 6 and n must not be 0
+< Yes, n is 6.
+> n=2; n*=3; expected 6 and n must not be 6
+< No, n is 6.
+
+# A constraint carrying no value to compare is a different act.  This plan must
+# not steal it: the turn falls through to whoever owns it.
+[test a constraint without a declared value is left to another consumer]
+> x=1; do not use recursion
+<! Yes, x is
+<! No, x is
+
+[test the query plan of the same substrate still answers]
+> total=3; total += 4; what is total in the end
+< 7.
+
+# Runtime growth: the role's comparison is the single switch of the whole
+# verification.  Retracting it turns the obligation back into a bare register
+# observation, without a rebuild.
+[test the comparison of a role grows and ablates at runtime]
+!forget role_obligation_relation(expected, eq)
+> total=3; total += 4; expected 7
+<! Yes, total is 7.
+!assert role_obligation_relation(expected, eq)
+> total=3; total += 4; expected 7
+< Yes, total is 7.
+
+# A cue taught at runtime inherits the comparison of its role: nothing about the
+# new surface has to be taught twice.
+[test a new expectation cue reaches the plan with no rebuild]
+> q=5; q *= 3; final value 15
+<! Yes, q is 15.
+!assert segment_role(expected, "final value")
+> q=5; q *= 3; final value 15
+< Yes, q is 15.
+> q=5; q *= 3; final value 14
+< No, q is 15.
+!forget segment_role(expected, "final value")
+> q=5; q *= 3; final value 15
+<! Yes, q is 15.
+
+# An invented role proves the class rather than the two members: a span role that
+# did not exist at build time becomes verifiable by asserting its cue and its
+# comparison, and nothing else.
+[test a role invented at runtime becomes a verifiable obligation]
+> t=4; t += 1; target 5
+<! Yes, t is 5.
+!assert segment_role(goalpost, "target")
+!assert role_obligation_relation(goalpost, eq)
+> t=4; t += 1; target 5
+< Yes, t is 5.
+> t=4; t += 1; target 9
+< No, t is 5.
+!forget role_obligation_relation(goalpost, eq)
+> t=4; t += 1; target 5
+<! Yes, t is 5.
+!forget segment_role(goalpost, "target")
+
+# The same proof, a different language.  Only the connectives change: the
+# propositional content — verdict, subject, observed value — is the one the
+# English realization carried, so the renderer cannot have added a claim.
+[test the same proof realizes in another language]
+!set PARROT0_LANG=it
+!reset
+> total=3; total += 4; expected 7
+< Si', total vale 7.
+> total=3; total += 4; expected 9
+< No, total vale 7.
+!forget state_copula(it, " vale ")
+!assert state_copula(it, " e' ")
+> total=3; total += 4; expected 7
+< Si', total e' 7.
+!forget state_copula(it, " e' ")
+!assert state_copula(it, " vale ")

@@ -243,6 +243,24 @@ response_template(state_query_ambiguous, en, "Those statements bind more than on
 response_template(state_query_ambiguous, it, "Quegli statement legano piu' di uno dei nomi che hai citato - quale legame vuoi?").
 response_template(state_query_gap, en, "I evaluated those statements, but none of the names in your question is bound by them.").
 response_template(state_query_gap, it, "Ho valutato quegli statement, ma nessuno dei nomi della tua domanda viene legato.").
+response_template(obligation_ambiguous, en, "Those statements bind more than one name, and the expectation does not say which one it is about.").
+response_template(obligation_ambiguous, it, "Quegli statement legano piu' di un nome, e l'aspettativa non dice di quale parli.").
+
+% gen396: i CONNETTIVI della risposta composta (piano proposizionale, §K6).
+%
+% Non sono risposte: sono i pezzi di lingua che tengono insieme proposizioni gia'
+% provate altrove. La distinzione e' l'invariante del renderer — un connettivo non
+% puo' portare un claim, quindi comporre non puo' aggiungere nulla alla proof. Una
+% lingua nuova entra qui come fatto, e la stessa proof si realizza senza che il
+% contenuto proposizionale cambi.
+verdict_particle(met, en, "Yes").
+verdict_particle(met, it, "Si'").
+verdict_particle(broken, en, "No").
+verdict_particle(broken, it, "No").
+list_separator(en, ", ").
+list_separator(it, ", ").
+state_copula(en, " is ").
+state_copula(it, " vale ").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.
 % Honest: they keep the conversation going (acknowledge + open question) and never

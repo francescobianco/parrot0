@@ -1730,7 +1730,7 @@ static int turn_quote(const char *src, size_t start, size_t len,
     return 1;
 }
 
-/* gen396: the identifier-shaped tokens of ONE span, as facts.
+/* gen396: the word-shaped tokens of ONE span, as facts.
  *
  * Word boundaries are byte mechanics, which is why they are here; WHICH token a
  * turn is about is not, which is why nothing here chooses one. The historical
@@ -1738,6 +1738,13 @@ static int turn_quote(const char *src, size_t start, size_t len,
  * the evaluator about that, so «what is total in the end» threw away the name it
  * had just been given. Publishing every candidate lets the KB decide by JOIN —
  * against what the trace actually binds — instead of by position.
+ *
+ * A run is any alphanumeric/underscore sequence, so `7` is published beside
+ * `total`. The first cut only published identifier-shaped runs, which was the C
+ * deciding a LEXICAL CLASS — and a declared obligation («expected 7») needs the
+ * numeral that the filter dropped. Which words are names and which are values is
+ * now a KB question, answered by the only operator that has to tell them apart:
+ * a token an obligation can compare against is one arithmetic accepts.
  *
  * The token is stored QUOTED, like turn_span_surface. That is not cosmetic: a
  * bare atom makes the turn's own words look like KB terms, and the informed wall
@@ -1752,7 +1759,7 @@ static void turn_publish_tokens(Brain *b, const char *surface,
     size_t end = span->start + span->len;
     size_t k = 0;
     for (size_t p = start; p < end && k < TURN_MAX_TOKENS; ) {
-        if (!(isalpha((unsigned char)surface[p]) || surface[p] == '_')) { p++; continue; }
+        if (!(isalnum((unsigned char)surface[p]) || surface[p] == '_')) { p++; continue; }
         size_t t = p;
         while (p < end && (isalnum((unsigned char)surface[p]) || surface[p] == '_')) p++;
         char tok[KB_TERM_LEN];

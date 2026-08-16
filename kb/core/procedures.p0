@@ -160,9 +160,29 @@ append_list(cons($H, $T), $L, cons($H, $R)) :- append_list($T, $L, $R).
 % contenuto: la punteggiatura terminale e' una proprieta' della lingua, non del
 % modulo che ha calcolato il valore. chars/2 e append_list/3 bastano, quindi
 % nessun renderer deve concatenare stringhe in C per aggiungere un punto.
+concat_atoms($A, $B, $AB) :- chars($A, $CA), chars($B, $CB), append_list($CA, $CB, $CAB), chars($AB, $CAB).
 sentence_terminator(en, ".").
 sentence_terminator(it, ".").
-value_sentence($Language, $Value, $Text) :- sentence_terminator($Language, $Mark), chars($Value, $Chars), chars($Mark, $MarkChars), append_list($Chars, $MarkChars, $All), chars($Text, $All).
+value_sentence($Language, $Value, $Text) :- sentence_terminator($Language, $Mark), concat_atoms($Value, $Mark, $Text).
+
+% ── PIANO PROPOSIZIONALE (K6): prima COSA va detto, poi COME dirlo ──
+%
+% Una risposta composta e' una sequenza ordinata di pezzi, e ogni pezzo porta il
+% proprio RUOLO. Il ruolo e' la parte che si puo' interrogare e criticare: dice
+% se quel pezzo e' una proposizione provata o soltanto un connettivo di lingua.
+% Il fold qui sotto non sa nulla dei ruoli — puo' soltanto mettere in fila cio'
+% che qualcun altro ha gia' dimostrato — quindi un renderer non ha modo di
+% introdurre un claim che la proof non contiene: e' la garanzia strutturale che
+% `docs/plans/frontier-kb-natural-dialogue.md` §K6 chiede al posto delle risposte
+% terminali.
+%
+% Le posizioni sono contigue da 0. La coda si chiude sull'ULTIMO pezzo invece che
+% su un atomo vuoto: cosi' la ricorsione non ha bisogno di una costante di lingua
+% per fermarsi.
+answer_has_content($Answer, $Position) :- answer_content($Answer, $Position, $Role, $Text).
+answer_tail($Answer, $Position, $Piece) :- answer_content($Answer, $Position, $Role, $Piece), is($Next, add($Position, 1)), naf(answer_has_content($Answer, $Next)).
+answer_tail($Answer, $Position, $Text) :- answer_content($Answer, $Position, $Role, $Piece), is($Next, add($Position, 1)), answer_has_content($Answer, $Next), answer_tail($Answer, $Next, $Rest), concat_atoms($Piece, $Rest, $Text).
+answer_text($Answer, $Text) :- answer_tail($Answer, 0, $Text).
 
 % ── PROPERTY INHERITANCE (ordine superiore: le proprietà si ereditano lungo la tassonomia) ──
 inherits($X, $P) :- is_a($X, $C), has_prop($C, $P).
@@ -1012,5 +1032,10 @@ machinery(gcd).
 machinery(power).
 machinery(member).
 machinery(append_list).
+machinery(concat_atoms).
 machinery(sentence_terminator).
 machinery(value_sentence).
+machinery(answer_content).
+machinery(answer_has_content).
+machinery(answer_tail).
+machinery(answer_text).
