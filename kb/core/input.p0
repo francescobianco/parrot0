@@ -26,6 +26,10 @@ evidence_weight(fence, 8).
 delim_pair(brace, "{", "}").
 delim_pair(paren, "(", ")").
 delim_pair(bracket, "[", "]").
+% Una citazione singola e' un confine strutturale come parentesi o fence. Il
+% motore bilancia il delimitatore; la KB decide che il registro risultante ha
+% ruolo di menzione. Gli apostrofi interni alle parole non aprono il registro.
+delim_pair(quotation, ', ').
 delim_line_comment(brace, "//").
 delim_block_comment(brace, "/*", "*/").
 
@@ -33,6 +37,7 @@ code_register(c, brace).
 code_register(python, indent).
 code_register(json, brace).
 code_register(json, bracket).
+code_register(quoted, quotation).
 
 % Register hypotheses.  Structural evidence is deliberately shared where the
 % surface is shared: `{}` alone ties C and JSON and is therefore ambiguous;
@@ -97,6 +102,7 @@ register_evidence(traceback, fence(traceback)).
 register_evidence(log, line_prefix("[INFO]")).
 register_evidence(log, line_prefix("[WARN]")).
 register_evidence(log, line_prefix("[ERROR]")).
+register_evidence(quoted, balanced(quotation)).
 register_evidence(prose, default).
 
 % The register and role are independent axes.  A register added at runtime with
@@ -111,6 +117,7 @@ register_role(cc, log).
 register_role(traceback, log).
 register_role(log, log).
 register_role(prose, prose).
+register_role(quoted, mention).
 
 register_label(c, "C").
 register_label(python, "Python").
@@ -153,6 +160,16 @@ segment_role(non_goal, "out of scope").
 segment_role(non_goal, "non-goal").
 segment_role(non_goal, "fuori ambito").
 
+% Uso e menzione non possono attraversare la stessa canonicalizzazione. Le
+% parole introdotte da queste cue sono oggetti del discorso: vanno conservate,
+% non tradotte come se fossero gia' il concetto che nominano.
+segment_role(mention, "si dice").
+segment_role(mention, "do you say").
+segment_role(mention, "the word").
+segment_role(mention, "la parola").
+segment_role(mention, "denotations of").
+canonicalization_exempt(mention).
+
 % Uncued gaps are still classified by knowledge about their position relative
 % to a typed register, rather than by a C constant.
 segment_default(before, instruction).
@@ -174,6 +191,7 @@ faculty_for(non_goal, planner).
 faculty_for(diff, patch_reader).
 faculty_for(log, verdict_builder).
 faculty_for(prose, reasoner).
+faculty_for(mention, reasoner).
 
 % This schema describes parrot0's perception/routing machinery, not world facts.
 machinery(evidence_weight).
@@ -187,4 +205,5 @@ machinery(register_label).
 machinery(segment_role).
 machinery(segment_default).
 machinery(faculty_for).
+machinery(canonicalization_exempt).
 machinery(machinery).

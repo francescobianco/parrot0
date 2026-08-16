@@ -236,46 +236,41 @@ L'ordine esprime dipendenze logiche.
 
 ### K0 — Forme, sensi e menzione
 
-**Stato attuale.** `concept_label(Concept, Lang, Register, Name)` funziona bene
-dal concetto verso l'output. `tr/2` canonizza l'ingresso, ma puo' collassare due
-forme che vanno tenute distinte quando si parla delle parole stesse. Il caso
-aperto `cavallo -> horse` mostra inoltre che una forma puo' denotare concetti
-diversi in domini diversi.
+**Stato attuale (gen392).** `concept_label(Concept, Lang, Register, Name)` resta
+la sorgente unica delle forme. Le viste di gen391 la rendono bidirezionale;
+gen392 separa la denotazione dal dominio e impedisce alla canonicalizzazione di
+collassare uno span che la KB classifica come menzione. La materializzazione di
+un frame per-turno resta invece responsabilita' di gen393.
 
 **Astrazione necessaria.** La forma linguistica deve essere un oggetto della KB,
 distinto dal concetto che denota. Uso e menzione devono essere due ruoli dello
 stesso span, non due parser.
 
-Schema candidato:
+Il dialetto eseguibile ha arita' massima 4: la tupla concettuale a cinque assi
+non va troncata e non giustifica un allargamento del C. Viene normalizzata in
+viste ortogonali con una sola sorgente lessicale:
 
 ```prolog
-form_denotes(Form, Language, Domain, Register, Concept).
-form_status(Form, Language, Domain, Status).
-span_mode(Turn, Span, use).
-span_mode(Turn, Span, mention).
-mentioned_form(Turn, Span, Form).
-used_concept(Turn, Span, Concept).
+linguistic_form(Form, Concept, Language, Register) :- concept_label(Concept, Language, Register, Form).
+concept_in_domain(Concept, Domain) :- domain_category(Domain, Category), category_member(Category, Concept).
+form_denotes(Form, Language, Domain, Concept) :- linguistic_form(Form, Concept, Language, Register), concept_in_domain(Concept, Domain).
+denotation_register(Form, Domain, Concept, Register) :- linguistic_form(Form, Concept, Language, Register), concept_in_domain(Concept, Domain).
+candidate_denotation(Form, Concept) :- form_denotes(Form, Language, Domain, Concept).
 ```
 
-Regole attese:
+Il confine uso/menzione riusa il modello universale dell'input; non nasce un
+secondo vocabolario di span:
 
 ```prolog
-candidate_denotation(Form, Context, Concept) :-
-    context_language(Context, Language),
-    context_domain(Context, Domain),
-    form_denotes(Form, Language, Domain, Register, Concept).
-
-preferred_surface(Concept, Context, Form) :-
-    form_denotes(Form, Language, Domain, Register, Concept),
-    context_language(Context, Language),
-    context_domain(Context, Domain),
-    register_compatible(Context, Register),
-    naf(form_status(Form, Language, Domain, marked)).
+code_register(quoted, quotation).
+register_role(quoted, mention).
+segment_role(mention, "the word").
+canonicalization_exempt(mention).
 ```
 
-I nomi sono provvisori; la proprieta' indispensabile e' la separazione fra
-forma, senso, concetto e contesto. `concept_label/4` deve poter restare come
-vista compatibile, non diventare un secondo vocabolario.
+La proprieta' indispensabile resta la separazione fra forma, senso, concetto e
+contesto. Una nuova cue di menzione deve diventare efficace per assert/retract,
+senza ricompilare; il ratchet gen392 lo prova con una superficie inventata.
 
 **Capacita' sbloccate:** domande sulle parole, sinonimia contestuale,
 terminologia preferita, omonimia, citazioni, correzioni lessicali e
@@ -1111,19 +1106,21 @@ come oracolo:
 
 | gen | task di residenza | evidenza richiesta |
 |---|---|---|
-| 391 | specificare barriera, registry canonica idempotente, stati file, goal trigger ed equivalenza eager; censire boot e caricamenti parziali C | documento Prolog; fixture eager di riferimento; inventario `lexeme/actions/compose/algo_steps`; nessun `.p0` operativo usa ancora la direttiva |
-| 392 | attivare `lazy_load(P)` su un piccolo contesto semantico con una porta eager reale | stessa domanda e stessa proof eager/lazy; primo accesso cold distinto dal warm |
-| 393 | aggiungere `any(...)` e formule annidate | ogni alternativa apre il provider; un predicato estraneo non lo apre |
-| 394 | aggiungere `all(...)` sulla frontiera della stessa risoluzione | A o B isolati non aprono; la congiunzione A+B apre senza memoria temporale nascosta |
-| 395 | collegare scope e topic espliciti ai predicati-porta | cambiare contesto cambia i goal e quindi la residenza, senza cue di dominio in C |
-| 396 | distinguere catalogato/residente, migrare i quattro carichi parziali e misurare boot/cold/warm | il sistema descrive onestamente cosa e' disponibile; i consumer non hanno path o flag di caricamento |
-| 397 | applicare la barriera agli expert voluminosi e confrontare il profilo AGI | equivalenza globale eager/lazy, memoria ridotta e warm inference entro il budget |
+| 391 | specificare barriera, registry canonica idempotente, stati file, goal trigger ed equivalenza eager; censire boot e caricamenti parziali C | documento Prolog; inventario `lexeme/actions/compose/algo_steps`; nessun `.p0` operativo usa ancora la direttiva |
+| 392 | costruire il manifesto core e dichiarare le frontiere dei provider oggi aperti dai consumer, mantenendo tutto eager | lo stesso grafo riproduce la spina corrente; nessuna barriera operativa anticipa la registry |
+| 393 | introdurre un entrypoint di profilo sperimentale e confrontarlo col boot storico | una sola radice curata produce fatti, regole, proof e ordine equivalenti |
+| 394 | rendere `include/1` idempotente per path canonico e isolare la provenienza fisica | diamante e path equivalenti non duplicano fatti o regole; cicli e fallimenti sono espliciti |
+| 395 | rendere conversational e AGI profili completi | il profilo caratterizza tutto il soggetto; i vecchi assi di amputazione entrano in deprecazione |
+| 396 | attivare `lazy_load` semplice, `any(...)`, `all(...)` e formule annidate; migrare i quattro carichi parziali | equivalenza eager/lazy, catalogato distinto da residente, consumer privi di path e flag, misure cold/warm |
+| 397 | applicare la barriera agli expert voluminosi e rimuovere il boot nominale | unico entrypoint globale, memoria ridotta ed equivalenza warm entro il budget ordinario |
 
-Due vincoli impediscono che questo filo diventi una scorciatoia. Primo: la gen391
-non puo' usare la futura barriera per rendere verde il proprio gate AGI; il costo
-del solver va capito sulla KB eager. Secondo: un expert viene convertito soltanto
-quando esiste gia' una porta semantica eager che lo rende raggiungibile. Un file
-lazy che nessun goal puo' aprire e' conoscenza morta, non ottimizzazione.
+Tre vincoli impediscono che questo filo diventi una scorciatoia. Primo: la
+gen391 non puo' usare la futura barriera per rendere verde il proprio gate AGI;
+il costo del solver va capito sulla KB eager. Secondo: la materializzazione lazy
+non precede la registry canonica, altrimenti eager e lazy avrebbero identita' e
+provenienze concorrenti. Terzo: un expert viene convertito soltanto quando
+esiste gia' una porta semantica eager che lo rende raggiungibile. Un file lazy
+che nessun goal puo' aprire e' conoscenza morta, non ottimizzazione.
 
 ---
 
@@ -1228,30 +1225,41 @@ canonicalizzazione.
 
 **Task 392.1 — forma, dominio e concetto.**
 
-Aggiunte guida in un nuovo nucleo semantico o nel proprietario lessicale scelto
-dall'audit:
+Aggiunte guida nel nucleo semantico `denotation.p0`. `concept_label/4` resta
+l'unica sorgente; dominio e registro sono viste normalizzate per rispettare
+l'arita' massima 4 del dialetto senza perdere assi:
 
 ```prolog
-form_denotes(cavallo, it, chess, common, knight).
-form_denotes(cavallo, it, zoology, common, horse).
-form_denotes(knight, en, chess, standard, knight).
-form_denotes(horse, en, zoology, common, horse).
-candidate_denotation($Form, $Domain, $Concept) :- form_denotes($Form, $Language, $Domain, $Register, $Concept).
+domain_category(chess, chess_piece).
+domain_category(zoology, animal).
+concept_label(knight, it, common, cavallo).
+concept_label(horse, it, common, cavallo).
+concept_in_domain($Concept, $Domain) :- domain_category($Domain, $Category), category_member($Category, $Concept).
+form_denotes($Form, $Language, $Domain, $Concept) :- linguistic_form($Form, $Concept, $Language, $Register), concept_in_domain($Concept, $Domain).
+denotation_register($Form, $Domain, $Concept, $Register) :- linguistic_form($Form, $Concept, $Language, $Register), concept_in_domain($Concept, $Domain).
+candidate_denotation($Form, $Concept) :- form_denotes($Form, $Language, $Domain, $Concept).
 ```
 
-`concept_label/4` dovra' essere derivabile o compatibile con questa struttura;
-non si mantengono due fonti di verita'.
+Non si mantengono due fonti di verita': asserire una nuova `concept_label/4` e
+la membership del suo concetto rende subito derivabile la denotazione.
 
 **Task 392.2 — uso e menzione come ruoli di span.**
 
 ```prolog
-span_role(mention, quoted).
-span_role(use, unquoted).
-mentioned_form($Turn, $Span, $Form) :- turn_span($Turn, $Span, mention), span_text($Turn, $Span, $Form).
+delim_pair(quotation, ', ').
+code_register(quoted, quotation).
+register_evidence(quoted, balanced(quotation)).
+register_role(quoted, mention).
+segment_role(mention, "si dice").
+segment_role(mention, "the word").
+canonicalization_exempt(mention).
 ```
 
-`quoted` e `unquoted` qui sono categorie strutturali, non delimitatori cablati.
-Le coppie di delimitatori restano fatti del modello di input.
+`quoted` e' un registro strutturale, non un delimitatore cablato; una cue
+discorsiva e una coppia bilanciata convergono sullo stesso ruolo. Il motore
+applica l'operazione generica dichiarata da `canonicalization_exempt/1`, senza
+conoscere il nome `mention`, la cue o la lingua. `mentioned_form/3` viene
+rimandato a gen393, quando esisteranno identita' di turno e frame materializzati.
 
 **Task 392.3 — terzo asse: entita' verso entita'.**
 
@@ -1286,6 +1294,17 @@ producono inferenze diverse.
 
 **Definizione di done.** Il dominio sceglie senza distruggere l'alternativa,
 la menzione preserva la forma e il terzo asse riusa dati senza duplicarli.
+
+**Stato di attuazione.** 392.1-392.4 sono presenti. Il consumer
+resta il proiettore universale guidato da `answer_frame/2`,
+`answer_projection/2`, `projection_gate/2` e `projection_source/3`; nessun
+dominio e nessuna superficie sono stati aggiunti al C. Il ratchet
+`language/contextual_denotation.p0t` copre le otto condizioni, piu' crescita e
+ablazione del confine di menzione con una cue inventata. `make soft-test` passa
+in 6 secondi sul budget invariato di 15 e `make test` chiude 1800 asserzioni,
+zero fallimenti. L'audit del diff non trova cue, lingue, domini o risposte
+naturali nel C. Resta aperto soltanto il manifesto core eager del filo di
+residenza; non autorizza ad anticipare la registry o `lazy_load/1`.
 
 ---
 
@@ -1527,12 +1546,12 @@ di aprire la generazione successiva.
 nuova forma, un nuovo senso, un nuovo ponte, una nuova policy o un nuovo registro
 cambiano il dialogo a runtime; la suite ordinaria resta entro i budget.
 
-## 16. Stato di avvio
+## 16. Stato di avanzamento
 
-Il piano e' partito da **gen391**. Le sei generazioni successive restano
-contratti, non capacita' rivendicate.
+Il piano e' partito da **gen391**. Le gen393-397 restano contratti, non
+capacita' rivendicate; gen392 e' il fronte semantico corrente.
 
-Stato corrente della gen391:
+Stato della gen391:
 
 1. **391.1-391.4 eseguiti:** le viste sono in `language-forms.p0`, il dominio
    scacchi fornisce il membro guida inglese, le porte restano `answer_frame/2` e
@@ -1546,20 +1565,46 @@ Stato corrente della gen391:
    suite completa chiude 1782 asserzioni senza fallimenti;
 3. **391.6 specificato, oracolo operativo ancora aperto:** la semantica di
    include idempotente, provenienza fisica, registry e lazy load e' documentata,
-   ma nessuna direttiva lazy e' ancora dichiarata come implementata. Prima della
-   gen392 va congelata la fixture eager/diamante che distingua davvero le
-   semantiche concorrenti;
+   ma nessuna direttiva lazy e' ancora dichiarata come implementata. La vecchia
+   formulazione lo rendeva impropriamente un blocco dell'intero filo linguistico:
+   e' invece il gate del filo di **residenza**, da chiudere prima della registry
+   e di qualunque barriera operativa;
 4. **filo dei profili elevato:** il target non e' piu' un profilo aggiunto al
    boot C. Ogni soggetto nasce da un solo entrypoint curato, che e' il suo
    profilo; core, bundle eager e provider lazy sono raggiungibili soltanto dal
    suo grafo di include.
 
-La prima generazione puo' essere promossa soltanto dopo che:
+La parte linguistica di gen391 e' stata promossa nel commit `be3cedf`; il debito
+391.6 resta visibile e non autorizza ad anticipare `lazy_load/1`.
 
-1. le viste sulle forme sono nella KB;
-2. esiste una superficie conversazionale generica;
-3. il `.p0t` prova positivo, negativo, growth e retract;
-4. la stessa inferenza passa col profilo AGI sotto il secondo;
-5. nessun fatto o regola delle gen392-397 e' stato inserito prematuramente;
-6. l'oracolo eager e il diamante di include di 391.6 sono osservabili senza
-   anticipare l'implementazione di `lazy_load/1`.
+Stato corrente della gen392:
+
+1. **392.1 eseguito:** `denotation.p0` deriva concetto e dominio dalla sorgente
+   unica `concept_label/4` e dalle categorie esistenti, con viste di arita' 4;
+2. **392.2 eseguito:** registri citati e cue discorsive convergono sul ruolo di
+   span; `canonicalization_exempt/1` rende il confine estensibile dalla KB;
+3. **392.3 riusato:** la proiezione `quantity/3` lungo il solo arco
+   `requires/2` era gia' la regola generale corretta; non e' stato inventato un
+   secondo ponte ne' un `related_to` opaco;
+4. **392.4 eseguito:** il ratchet `.p0t` prova omonimia per dominio, alternative
+   conservate, citazione, ponte tipato fuori dai giochi, retract e crescita del
+   ruolo di menzione a runtime;
+5. **filo di residenza preparato, non attivato:** gen392 deve produrre il
+   manifesto core eager. La barriera lazy resta soltanto documentata finche'
+   entrypoint e registry non ne rendono la semantica univoca;
+6. **verifica corrente:** `make soft-test` e' verde in 6 secondi sul budget 15;
+   `make test` passa 1800 asserzioni senza fallimenti; il diff C contiene una
+   sola operazione strutturale parametrizzata da `canonicalization_exempt/1`.
+
+La gen392 puo' essere promossa soltanto dopo che:
+
+1. denotazione e registro restano viste di `concept_label/4`, non vocabolari
+   duplicati;
+2. dominio presente seleziona una lettura e dominio assente conserva le
+   alternative;
+3. uso e menzione cambiano per fatti asseribili e retraibili a runtime;
+4. soltanto un arco relazionale provato proietta una faccetta;
+5. `make soft-test` resta nel budget invariato e `make test` e' verde;
+6. il diff non contiene cue, lingue, domini o risposte naturali nel C;
+7. il manifesto core eager del filo di profilo e' almeno definito senza
+   dichiarare implementate idempotenza o lazy load.

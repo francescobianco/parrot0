@@ -1100,6 +1100,27 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
     if (len >= sizeof buf) { snprintf(out, out_size, "%s", norm); return; }
     memcpy(buf, norm, len + 1);
 
+    /* Canonicalization applies to USE, not automatically to MENTION. The
+     * universal input model has already made span roles KB-extensible; reuse
+     * that boundary here and preserve every role declared through
+     * canonicalization_exempt/1. C copies byte spans and knows no cue, word,
+     * language or privileged role name. */
+    unsigned char preserve[sizeof buf];
+    memset(preserve, 0, sizeof preserve);
+    if (b && b->kb) {
+        InputSpan spans[64]; int ambiguous = 0;
+        size_t ns = input_segment(b->kb, norm, spans, 64, &ambiguous);
+        if (!ambiguous) {
+            for (size_t s = 0; s < ns; s++) {
+                const char *rq[] = { spans[s].role };
+                if (!kb_query(b->kb, "canonicalization_exempt", rq, 1)) continue;
+                size_t end = spans[s].start + spans[s].len;
+                if (end > len) end = len;
+                for (size_t p = spans[s].start; p < end; p++) preserve[p] = 1;
+            }
+        }
+    }
+
     char *w[64];
     size_t nw = split_words(buf, w, 64);
     size_t off = 0;
@@ -1117,6 +1138,12 @@ static void canonicalize_lang(Brain *b, const char *norm, char *out, size_t out_
             tailbuf[0] = tok[tl - 1]; tok[tl - 1] = '\0'; tl--;
         }
         const char *tail = tailbuf;
+        size_t token_at = (size_t)(tok - buf);
+        if (token_at < sizeof preserve && preserve[token_at]) {
+            off += (size_t)snprintf(out + off, out_size - off, "%s%s%s",
+                                    i ? " " : "", tok, tail);
+            continue;
+        }
         /* ── gen382s: LE LOCUZIONI SONO CONOSCENZA, NON CASI SPECIALI IN C ──────
          *
          * Sotto questo punto vive una cascata di `if` scritti a mano, uno per

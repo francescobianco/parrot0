@@ -10,6 +10,7 @@ game_play(chess, "players alternate one legal move; pieces move in distinct ways
 game_end(chess, "the game ends by checkmate, resignation, draw agreement, stalemate, repetition, the fifty-move rule, or insufficient mating material").
 game_tip(chess, "develop pieces, contest the center, castle the king, and check the opponent's threats before moving").
 category_surface(chess, chess_piece).
+domain_category(chess, chess_piece).
 category_member(chess_piece, king).
 category_member(chess_piece, queen).
 category_member(chess_piece, rook).

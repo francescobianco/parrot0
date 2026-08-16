@@ -6,6 +6,8 @@
 % TAXONOMY — is_a(Sub, Super). Chained transitively by is_a_t in reasoning.p0,
 % which also bridges class membership (animal($X) :- is_a_t($X, animal)).
 % ============================================================
+domain_category(zoology, animal).
+concept_label(horse, it, common, cavallo).
 is_a(sparrow, bird).
 is_a(eagle, bird).
 is_a(penguin, bird).

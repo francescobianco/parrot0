@@ -1,0 +1,78 @@
+# DENOTAZIONE CONTESTUALE, USO/MENZIONE E PONTI TRA ENTITA' — gen392.
+#
+# Le forme vengono da concept_label/4, il dominio da domain_category/2 e dalle
+# categorie esistenti. Le cue e i ruoli sono fatti: crescita e ablazione devono
+# cambiare il comportamento senza ricostruire il binario.
+
+[mock agi]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_LANG=en
+!reset
+
+[test same_form_retains_contextual_readings]
+> what does the word cavallo denote in chess?
+< Knight.
+> what does the word cavallo denote in zoology?
+< Horse.
+> what are the denotations of cavallo?
+< Horse and knight.
+
+[test denotation_grows_and_retracts_from_kb]
+!assert domain_category(navigation, navigation_concept)
+!assert category_member(navigation_concept, astrolabe)
+!assert concept_label(astrolabe, en, technical, zorv)
+> what does the word zorv denote in navigation?
+< Astrolabe.
+!forget domain_category(navigation, navigation_concept)
+> what does the word zorv denote in navigation?
+<! Astrolabe.
+
+[test mention_preserves_the_surface_form]
+> si dice mangiare o catturare?
+< Catturare.
+!assert concept_label(calibration, it, casual, occhiare)
+!assert concept_label(calibration, it, standard, calibrare)
+!assert label_status(occhiare, informal)
+> si dice occhiare o calibrare?
+<~ Calibrare
+!forget answer_frame("si dice", preferred_label)
+> si dice occhiare o calibrare?
+<! Calibrare.
+!assert answer_frame("si dice", preferred_label)
+> si dice occhiare o calibrare?
+<~ Calibrare
+
+[test mention_boundary_grows_and_retracts_from_kb]
+!assert answer_frame(quiform, preferred_label)
+> quiform mangiare o catturare?
+<! Catturare.
+!assert segment_role(mention, quiform)
+> quiform mangiare o catturare?
+< Catturare.
+!forget segment_role(mention, quiform)
+> quiform mangiare o catturare?
+<! Catturare.
+!assert segment_role(mention, quiform)
+> quiform mangiare o catturare?
+< Catturare.
+
+[test quoted_form_is_not_used_as_a_world_entity]
+> how many legs does 'cavallo' have?
+<! 4 legs
+> how many legs does cavallo have?
+<~ 4 legs
+
+[test entity_bridge_is_typed_and_retractable]
+!assert quantity(sensor_array, channels, 12)
+!assert resembles(observatory, sensor_array)
+> how many channels in observatory?
+<! 12 channels
+!assert requires(observatory, sensor_array)
+> how many channels in observatory?
+<~ 12 channels
+!forget requires(observatory, sensor_array)
+> how many channels in observatory?
+<! 12 channels

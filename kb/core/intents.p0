@@ -2190,6 +2190,17 @@ machinery(policy).
 answer_frame("preferred term", preferred_label).
 answer_frame("alternative term", alternative_label).
 answer_frame("term status", form_mark).
+answer_frame("si dice", preferred_label).
+answer_frame("do you say", preferred_label).
+
+% Denotazione contestuale: il proiettore universale confronta due evidenze — la
+% forma e il dominio — e rende l'identita' concettuale selezionata. Senza dominio
+% la porta binaria conserva ed enumera tutte le letture candidate.
+answer_frame("denote in", contextual_denotation).
+answer_frame("denotations of", candidate_denotation).
+answer_projection(contextual_denotation, denotation_form_evidence).
+projection_gate(contextual_denotation, denotation_domain_evidence).
+projection_source(contextual_denotation, denotation_identity, binary).
 
 % ── INSEGNARE UNA RISPOSTA PARLANDO ──────────────────────────────────────────
 % gen382c. Il motore delle risposte curate (mod_qa, qa_cue/qa_reply) esisteva dal

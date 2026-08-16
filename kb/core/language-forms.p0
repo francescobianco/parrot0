@@ -21,3 +21,10 @@ preferred_form($Marked, $Preferred, $Language) :- alternative_form($Marked, $Pre
 % relazioni piu' ricche sopra e adattano soltanto l'arita' della porta esistente.
 alternative_label($Form, $Alternative) :- alternative_form($Form, $Alternative, $Language).
 preferred_label($Marked, $Preferred) :- preferred_form($Marked, $Preferred, $Language).
+
+% Adattatori del proiettore universale. Il candidato e' il concetto; la forma e
+% il dominio sono evidenze indipendenti, quindi un dominio seleziona una lettura
+% senza cancellare le altre. Nessun nome di dominio vive nel consumer C.
+denotation_form_evidence($Concept, $Form) :- form_denotes($Form, $Language, $Domain, $Concept).
+denotation_domain_evidence($Concept, $Domain) :- form_denotes($Form, $Language, $Domain, $Concept).
+denotation_identity($Concept, $Concept) :- concept_in_domain($Concept, $Domain).

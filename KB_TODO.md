@@ -1,6 +1,6 @@
 # Knowledge Base TODO
 
-## Fronte attivo: gen391-397, naturalezza KB-first
+## Fronte attivo: gen392, denotazione contestuale KB-first
 
 Il piano operativo e' in
 [`docs/plans/frontier-kb-natural-dialogue.md`](docs/plans/frontier-kb-natural-dialogue.md),
@@ -11,14 +11,29 @@ letture e gap, policy dialogica, scope, registro/answer plan e memoria
 discorsiva. Le clausole future nel piano sono esempi guida, non capacita'
 gia' rivendicate.
 
-La gen391 e' in corso: viste bidirezionali delle forme, status e alternative
-sono nella KB e crescono per assert/retract; le superfici conversazionali sono
-fatti `answer_frame/2`. Il gate AGI e' tornato sotto il secondo senza timeout:
-la correzione riguarda meccanismi generali del solver (candidati per testa di
-regola) e della colla (prima l'evidenza sovrapposta piu' specifica), senza
-lessico nel C. Resta da congelare l'oracolo eager/diamante di include della
-391.6 prima di promuovere la generazione. Il checkpoint corrente passa
-`make test`: 1782 asserzioni, zero fallimenti.
+La parte linguistica di gen391 e' promossa nel commit `be3cedf`: viste
+bidirezionali delle forme, status e alternative crescono per assert/retract;
+le superfici conversazionali sono fatti `answer_frame/2`. Il gate AGI e'
+tornato sotto il secondo senza timeout grazie a meccanismi generali del solver
+e della colla, senza lessico nel C. L'oracolo eager/diamante di 391.6 resta un
+debito del filo di residenza, non un motivo per fermare l'evoluzione semantica;
+blocca invece qualunque dichiarazione operativa di `lazy_load/1`.
+
+Il taglio verticale gen392 e' ora presente: `denotation.p0` deriva le letture da
+`concept_label/4`, `domain_category/2` e categorie esistenti; il dominio
+seleziona senza cancellare le alternative. Uso e menzione convergono sui ruoli
+del modello universale dell'input, e `canonicalization_exempt/1` e' il solo
+protocollo nuovo consumato dal C: il motore copia span, mentre cue, ruolo,
+lingua, registro e forme restano fatti. La proiezione fra entita' riusa il solo
+arco tipato `requires/2`; non e' stato aggiunto un `related_to` generico.
+
+Il ratchet `tests/p0t/language/contextual_denotation.p0t` prova omonimia per
+dominio, alternative senza dominio, citazione, ponte fuori dai giochi,
+relazione sbagliata, retract e crescita/ablazione di una cue di menzione
+inventata. `make soft-test` e' verde in 6 secondi sul budget invariato di 15;
+`make test` chiude 1800 asserzioni, zero fallimenti. Prima della promozione resta
+il task di residenza gen392: definire il manifesto core eager senza usarlo come
+falso entrypoint e senza anticipare la registry idempotente.
 
 Il filo di caricamento ha un proprio contratto in
 [`docs/kb-loading-and-profiles.md`](docs/kb-loading-and-profiles.md): il profilo

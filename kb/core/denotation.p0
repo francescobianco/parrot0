@@ -1,0 +1,16 @@
+% DENOTAZIONE CONTESTUALE (gen392).
+%
+% Questo file contiene relazioni semantiche, non metadati del parser: una forma
+% denota un concetto soltanto dove quel concetto appartiene al dominio corrente.
+% concept_label/4 resta l'unica sorgente delle forme; domain_category/2 collega
+% un dominio alle categorie che gia' ne enumerano i concetti.
+
+concept_in_domain($Concept, $Domain) :- domain_category($Domain, $Category), category_member($Category, $Concept).
+
+% Il dialetto ha arita' massima 4. La tupla non viene troncata: si normalizza in
+% due viste ortogonali che condividono linguistic_form/4 come sorgente. La
+% denotazione conserva lingua e dominio; il registro resta interrogabile nella
+% vista parallela senza duplicare alcun fatto lessicale.
+form_denotes($Form, $Language, $Domain, $Concept) :- linguistic_form($Form, $Concept, $Language, $Register), concept_in_domain($Concept, $Domain).
+denotation_register($Form, $Domain, $Concept, $Register) :- linguistic_form($Form, $Concept, $Language, $Register), concept_in_domain($Concept, $Domain).
+candidate_denotation($Form, $Concept) :- form_denotes($Form, $Language, $Domain, $Concept).
