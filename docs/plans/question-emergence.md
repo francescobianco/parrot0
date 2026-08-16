@@ -1250,3 +1250,102 @@ rimando all'utente.
 Il che rafforza §11.5 punto 1 e ne cambia il rango: il muro che compone il residuo
 del turno non e' *uno* dei prossimi passi. E' **l'unico sensore che copre tutti e
 tre gli assi**, e va fatto per primo.
+
+---
+
+## 13. La sonda all'oracolo: copiare la MOSSA, mai il contenuto
+
+*gen382r. Stimolo reale: `come si scrive correttamente pamino` -> `Non capisco
+ancora.` Sonda riusabile in `tests/repair_probe.py`, trascritti in `tests/sym/`.*
+
+### 13.1 Il conteggio, e poi la riga che conta
+
+Otto stimoli sulla CLASSE (parola rotta ambigua, rotta ovvia, gia' corretta,
+senza vicini, inglese, stringa nuda): **parrot0 6 muri su 8, oracolo 0 su 8.**
+
+Ma il conteggio non e' il reperto. Il reperto e' la riga inglese, dove parrot0
+NON mura:
+
+```
+how do you correctly spell recieve
+   parrot0 : r-e-c-i-e-v-e            <- risillaba l'errore, con sicurezza
+   oracolo : The correct spelling is receive …
+```
+
+`mod_spell` rivendica il turno e risponde alla domanda *letterale* («scandisci
+questa stringa») invece che a quella *posta* («qual e' la grafia corretta»). La
+parola `correctly` non ha uno slot che la distingua: un arco, due domande
+diverse, nessun modo di separarle. E' la terza forma di §10.4 — **porta che non
+discrimina** — e produce cio' che il mantra #7 vieta: una risposta sbagliata
+detta con sicurezza, peggiore del muro che le sta accanto in italiano.
+
+### 13.2 L'oracolo ha sbagliato, ed e' la lezione
+
+Su `pamino` l'oracolo ha risposto **«pannino» (con due n), diminutivo di pane**.
+E' falso due volte: la parola e' *panino* con una n, e *pannino* viene da *panno*.
+Mossa giusta, contenuto sbagliato, tono sicuro.
+
+> L'oracolo e' un segnale **comportamentale**, mai un'autorita' sul contenuto.
+> Si copia la mossa; il contenuto parrot0 lo deve poter **verificare**.
+
+Ed e' esattamente qui che il KB-first non insegue l'LLM ma lo supera: una
+riparazione generata per deformazione inversa e **validata contro il lessico**
+non puo' proporre `pannino` se `pannino` non e' un lessema. L'ipotesi e'
+controllata, non generata. Dove l'LLM e' fluente e fallibile, parrot0 puo' essere
+meno fluente e non fallibile — che e' il commercio giusto (`PRINCIPLES.md`).
+
+### 13.3 Le mosse dell'oracolo, come specifica
+
+Distillate dal trascritto, e ognuna e' una specifica, non un frasario:
+
+1. **ipotizza** — genera un vicino plausibile della stringa rotta;
+2. **enumera** quando i vicini sono piu' d'uno, invece di scegliere in silenzio;
+3. **non ripara cio' che non e' rotto** — `pesce` viene solo scandito
+   (controllo negativo superato);
+4. **non inventa quando non ci sono vicini** — su `zqxvbn` elenca possibilita' e
+   si trattiene (controllo negativo superato);
+5. **dichiara l'ipotesi** all'utente invece di applicarla in silenzio.
+
+La (5) e' la piu' importante e la piu' facile da perdere: una riparazione
+silenziosa che sbaglia e' indistinguibile da una comprensione sbagliata.
+
+### 13.4 Il substrato: misurato, e monolingue
+
+Una riparazione-ipotesi ha bisogno di un insieme contro cui validare. parrot0 ce
+l'ha — `kb/core/lexeme.p0`, **35 556 lessemi** — e nel caso inglese e'
+esattamente quello che serve:
+
+```
+receive  presente      recieve  assente
+poker    presente      pocker   assente
+amino    presente
+```
+
+In italiano no. Zero su otto parole comuni del trascritto:
+
+```
+panino  cammino  ambiente  perche  pesce  mazzo  carte  giocatori   -> tutte assenti
+```
+
+> **Il substrato di M e' monolingue.** Non solo le superfici (§11.3): la risorsa
+> stessa contro cui ogni riparazione deve validarsi esiste in una lingua sola.
+
+Il che decide l'ordine, e lo decide in modo non negoziabile: la riparazione e'
+implementabile **oggi in inglese** e **non lo e' in italiano** finche' il lessico
+non cresce. Il che e' la forma giusta del problema, non un ostacolo — il motore
+non cambia, cresce la conoscenza. (E anche l'inglese ha buchi: `environment` non
+e' un lessema.)
+
+### 13.5 La direzione
+
+1. **Uccidere la risposta sbagliata sicura** (§13.1). Non serve lessico nuovo:
+   `recieve` non e' un lessema e `receive` lo e'. Se la domanda chiede la grafia
+   *corretta* e la stringa non e' un lessema, scandirla e' una menzogna.
+2. **La riparazione come ipotesi dichiarata**, non come correttore. Le classi di
+   deformazione sono fatti (§4e: `surface_variation/2`), le operazioni sui
+   caratteri sono meccanica fissa e generale, la validazione e' `lexeme/1`, e
+   l'esito e' *proposto* all'utente — mossa (5) dell'oracolo.
+3. **Il lessico italiano** e' il prerequisito del ramo italiano, ed e' lavoro di
+   conoscenza, non di codice.
+4. Il muro-sensore di §12.4 resta davanti a tutto: e' cio' che fa emergere quali
+   riparazioni servono davvero, invece di indovinarle.
