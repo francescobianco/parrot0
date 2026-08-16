@@ -149,3 +149,36 @@
 !forget active_constraint(brevity)
 > tell me about zorb
 < zorb is a small invented device with a long description that goes on and on; zorb is a second clause that would make the reply longer still.
+
+# ── S5bis — la domanda di seguito con il soggetto eliso ─────────────────────
+# In conversazione reale la seconda domanda su un argomento non lo ripete. E' il
+# sintomo del riferimento implicito nella sua forma piu' dura: qui non c'e'
+# nemmeno un pronome da risolvere, il soggetto e' semplicemente assente.
+[test glue_elliptical_followup]
+!reset
+!assert zorb_size(zorb, large)
+!assert zorb_colour(zorb, blue)
+!assert answer_frame("how big", zorb_size)
+!assert answer_frame("what colour", zorb_colour)
+> how big zorb
+< Large.
+# Il turno seguente non nomina zorb: lo prende dal precedente. Il connettore
+# iniziale e' OBBLIGATORIO — e' la dichiarazione che questa e' una continuazione,
+# non una domanda nuova.
+> and what colour
+< Blue.
+
+[test glue_elliptical_needs_a_connector]
+!reset
+!assert zorb_size(zorb, large)
+!assert zorb_colour(zorb, blue)
+!assert answer_frame("how big", zorb_size)
+!assert answer_frame("what colour", zorb_colour)
+> how big zorb
+< Large.
+# CONTROLLO NEGATIVO: senza connettore non e' una continuazione dichiarata, e il
+# meccanismo non deve indovinare un soggetto che nessuno ha eliso.
+# (Il declino di gen384 nomina "colour": non ha fatti su quella parola. Cio' che
+# il caso misura e' che NON abbia inventato zorb come soggetto.)
+> what colour
+< Hmm, I don't know about colour yet. Want me to learn about it?

@@ -1439,6 +1439,96 @@ static void note_arith_result(Brain *b, const char *out) {
  * an arithmetic tail (operator, then numbers/operators/"by", nothing else — so a normal
  * "and tell me about X" is never hijacked), and (c) some module claims the rewrite.
  * Pre-dispatch, mirroring memref_resolve. */
+/* ── gen387: LA DOMANDA DI SEGUITO CON IL SOGGETTO ELISO ────────────────────
+ *
+ * In conversazione reale la seconda domanda su un argomento non lo ripete:
+ *
+ *     you> quante sono le carte del poker   ->  A poker has 52 cards.
+ *     you> e quanti giocatori               ->  Non capisco ancora.
+ *
+ * Non e' una lacuna di conoscenza — `game_players(poker, …)` c'e' e «how many
+ * players in poker» risponde. Manca la continuita': il soggetto e' rimasto due
+ * turni indietro. E' lo stesso sintomo del pronome implicito, in una forma piu'
+ * dura, perche' qui non c'e' nemmeno un pronome da risolvere.
+ *
+ * Meccanismo gemello di `continue_resolve` (gen222), che fa esattamente questo
+ * per le code aritmetiche: si sbuccia un connettore INIZIALE — obbligatorio,
+ * cosi' scatta solo su una continuazione dichiarata e mai su una domanda nuova —
+ * si verifica che il residuo non nomini gia' un'entita' propria, e si riscrive
+ * il turno con l'entita' saliente in coda. Conservativo come i suoi fratelli:
+ * rivendica solo se un modulo risponde davvero al turno riscritto, quindi non
+ * dirotta mai un turno che gia' funziona. Glue come sostituzione deterministica
+ * su stato reale, mai continuita' plausibile inventata (PRINCIPLES anti-impostore).
+ *
+ * Quali parole siano connettori e' conoscenza (`conjunction/1`), non un elenco. */
+static int topic_continue_resolve(Brain *b, const char *canon,
+                                  char *out, size_t out_size) {
+    if (!b || !b->kb) return 0;
+
+    /* L'ARGOMENTO SALIENTE. `last_entity` lo porta quando a rispondere e' stata
+     * una facolta' che lo registra; ma non tutte lo fanno — «quante sono le
+     * carte del poker» passa da mod_quantity, che risponde di poker e non lo
+     * segna. Il topic non sopravviveva fra facolta', che e' esattamente il
+     * sintomo «piu' sistemi indipendenti invece di un interlocutore».
+     *
+     * Finche' ogni facolta' non registra il proprio argomento, si ricade sul
+     * TURNO PRECEDENTE: si cerca li' l'ultima entita' che la KB conosce. E'
+     * stato reale e ispezionabile, non una continuita' inventata. */
+    char topic[KB_TERM_LEN] = "";
+    if (b->has_last_entity && b->last_entity[0])
+        snprintf(topic, sizeof topic, "%s", b->last_entity);
+    else if (b->has_last_input && b->last_input_canon[0]) {
+        char prev[256]; snprintf(prev, sizeof prev, "%s", b->last_input_canon);
+        char *pw[64]; size_t npw = split_words(prev, pw, 64);
+        for (size_t k = npw; k-- > 0; ) {
+            char d[256];
+            char *tk = strip_edge_punct(pw[k]);
+            if (strlen(tk) < 3 || is_stopword(b, tk)) continue;
+            if (kb_describe_entity(b->kb, tk, d, sizeof d)) {
+                snprintf(topic, sizeof topic, "%s", tk);
+                break;
+            }
+        }
+    }
+    if (!topic[0]) return 0;
+
+    char buf[256]; size_t len = strlen(canon);
+    if (len == 0 || len >= sizeof buf) return 0;
+    memcpy(buf, canon, len + 1);
+    char *w[64]; size_t nw = split_words(buf, w, 64);
+    if (nw < 2) return 0;
+
+    const char *cq[] = { strip_edge_punct(w[0]) };
+    if (!kb_query(b->kb, "conjunction", cq, 1)) return 0;   /* serve un connettore */
+
+    /* Il residuo non deve gia' nominare un'entita': «e parlami del bridge» e'
+     * una domanda su un ALTRO argomento, non la continuazione di questo. */
+    for (size_t k = 1; k < nw; k++) {
+        char d[256];
+        char *tk = strip_edge_punct(w[k]);
+        if (strlen(tk) < 3) continue;
+        if (kb_describe_entity(b->kb, tk, d, sizeof d)) return 0;
+    }
+
+    char residue[256]; size_t off = 0; residue[0] = '\0';
+    for (size_t k = 1; k < nw && off + 1 < sizeof residue; k++)
+        off += (size_t)snprintf(residue + off, sizeof residue - off,
+                                "%s%s", k > 1 ? " " : "", strip_edge_punct(w[k]));
+    if (!residue[0]) return 0;
+
+    char rw[320];
+    snprintf(rw, sizeof rw, "%s %s", residue, topic);
+    for (size_t r = 0; r < registry_len; r++) {
+        if (strcmp(registry[r].name, "repair") == 0) continue;
+        if (registry[r].handle(b, rw, rw, out, out_size)) {
+            snprintf(b->last_reply, sizeof b->last_reply, "%s", out);
+            snprintf(b->last_module, sizeof b->last_module, "%s", registry[r].name);
+            return 1;
+        }
+    }
+    return 0;
+}
+
 static int continue_resolve(Brain *b, const char *canon, char *out, size_t out_size) {
     if (!b || !b->kb) return 0;
     char res[1][KB_TERM_LEN]; const char *q[1] = { NULL };
@@ -1738,6 +1828,10 @@ static size_t brain_respond_dispatch(Brain *b, const char *input, char *out, siz
      * ("and times 3" after "what is 2 plus 2") — prepend the last result, inferred from
      * the KB, and re-dispatch so the arithmetic core finishes it ("what is 4 times 3"
      * -> "12."). Pre-dispatch so the bare fragment cannot fall to not-understood. */
+    if (b && topic_continue_resolve(b, canon, out, out_size)) {
+        note_arith_result(b, out); conv_log(b, input, out);
+        return strlen(out);
+    }
     if (b && continue_resolve(b, canon, out, out_size))
         { note_arith_result(b, out); conv_log(b, input, out); return strlen(out); }
 

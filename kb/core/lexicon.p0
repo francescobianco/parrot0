@@ -68,6 +68,11 @@ function_word(it, anche, "also").
 % che nessuna porta poteva agganciare se non dichiarandosi nella stessa forma
 % ibrida. Con questi due fatti l'italiano arriva a `answer_frame("which are the",
 % category_enumeration)` — la porta INGLESE, senza un solo fatto in piu'.
+% gen387: il connettore italiano non diventava "and", quindi nemmeno il
+% meccanismo di continuazione poteva vederlo. `e` nudo e' la congiunzione;
+% `e'`/`è` (il verbo) porta l'accento e non passa di qui.
+function_word(it, e, "and").
+function_word(it, ed, "and").
 function_word(it, quali, "which").
 function_word(it, tuo, "your").
 function_word(it, tua, "your").

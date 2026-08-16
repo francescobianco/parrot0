@@ -338,6 +338,40 @@ E i casi sono anche nel cricchetto rapido: `tests/p0t/meta/glue.p0t` sale a 28
 assert, con la prova di ablazione — ritirato `active_constraint(brevity)` la
 risposta torna intera, senza ricompilare.
 
+### G2 — ottavo pull fatto (gen387): la domanda di seguito con il soggetto eliso
+
+In conversazione reale la seconda domanda su un argomento non lo ripete:
+
+```
+you> quante sono le carte del poker   ->  A poker has 52 cards.
+you> e quanti giocatori               ->  Non capisco ancora.
+```
+
+Non era una lacuna di conoscenza — `game_players(poker, …)` c'e' e «how many
+players in poker» rispondeva. Mancava la continuita': il soggetto era rimasto due
+turni indietro. E' il riferimento implicito nella sua forma piu' dura, perche'
+qui non c'e' nemmeno un pronome da risolvere.
+
+`topic_continue_resolve` e' il gemello di `continue_resolve` (gen222), che fa la
+stessa cosa per le code aritmetiche: sbuccia un connettore INIZIALE —
+obbligatorio, cosi' scatta solo su una continuazione dichiarata e mai su una
+domanda nuova — verifica che il residuo non nomini gia' un'entita' propria, e
+riscrive il turno con l'argomento saliente in coda. Rivendica solo se un modulo
+risponde davvero al turno riscritto.
+
+**Il difetto sotto il difetto**, che vale piu' del pull: `last_entity` viene
+registrato solo dalle facolta' che si ricordano di farlo. «Quante sono le carte
+del poker» passa da `mod_quantity`, che risponde DI poker e non lo segna —
+quindi il topic non sopravviveva fra facolta'. E' letteralmente il sintomo #5
+dell'essay («piu' sistemi indipendenti invece di un interlocutore») visto da
+dentro. Finche' ogni facolta' non registra il proprio argomento, il meccanismo
+ricade sul turno precedente e vi cerca l'ultima entita' nota. **Il pull giusto,
+per dopo: che sia il dispatch a registrare l'argomento del turno, una volta, per
+tutte le facolta'.**
+
+Controllo negativo nel cricchetto: senza connettore il meccanismo non deve
+indovinare un soggetto che nessuno ha eliso.
+
 ---
 
 ## Punto di ripresa (resume) — prossimi passi ordinati
