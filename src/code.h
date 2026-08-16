@@ -47,6 +47,16 @@ int code_eval(const char *src, const char *want,
  * unsupported statements and arithmetic errors are refused. */
 int code_eval_state(const char *src, const char *want, long *out);
 
+/* gen396: the same trace, read as a STATE rather than as one lookup.  Fills
+ * `names`/`vals` with every top-level binding the trace ends with and returns
+ * how many.  code_eval_state() answers a question the caller already decided to
+ * ask; this reports what the fixed evaluator observed, so the KB — not the C —
+ * can decide which binding a turn is about.  Returns 0 when the trace does not
+ * evaluate, which is the honest difference between "no state" and "state
+ * without that name". */
+size_t code_eval_state_bindings(const char *src, char names[][KB_TERM_LEN],
+                                long *vals, size_t max);
+
 /* gen181: read a source file into `buf` so parrot0 can answer structural
  * questions about a real file, not just an inline snippet. Sandboxed to the
  * working directory: relative paths only, no '..' traversal, no absolute/home

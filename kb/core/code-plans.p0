@@ -1,0 +1,71 @@
+% code-plans.p0 — la seconda istanza del piano universale del turno.
+%
+% conditional-plans.p0 ha mostrato che gli span tipizzati di UN turno compongono
+% una risposta interamente in KB. Qui lo stesso substrato compone traccia di
+% stato + domanda. Non c'e' un secondo parser e non c'e' un router: il turno
+% porta gia' `turn_span/4` (ruolo e tipo), `turn_span_token/4` (i candidati
+% nominati dalla domanda) e `turn_span_binding/4` (lo stato in cui la traccia
+% finisce, misurato dall'valutatore fisso).
+%
+% La decisione che questo file possiede e' UNA: quale legame la domanda sta
+% chiedendo. Non si sceglie per posizione — il consumer storico teneva l'ultimo
+% identificatore della domanda, e «what is total in the end» perdeva cosi' il
+% nome che aveva appena ricevuto. Si sceglie per GIUNZIONE: il legame nominato
+% dalla domanda che la traccia effettivamente produce. Un solo incrocio risponde,
+% piu' incroci restano piu' letture.
+
+:- file_attribute(machinery).
+
+% Quali ruoli di span hanno un modello di stato. E' l'unico interruttore della
+% proiezione: ritraendolo, il C smette di misurare lo stato al turno successivo
+% senza ricompilare. Il ruolo arriva da register_role/2, quindi un registro
+% nuovo entra qui come fatto, non come ramo.
+span_state_model(code, statement_trace).
+
+% Lo stato in cui il turno finisce, e i nomi che la domanda mette in gioco.
+% Restano viste separate: la prima appartiene alla traccia, la seconda all'atto.
+% Entrambe portano SUPERFICI citate, non termini: la memoria di lavoro registra
+% cio' che e' stato detto, e nessun sensore deve poter scambiare le parole del
+% turno per conoscenza gia' posseduta.
+turn_state_after($Frame, $Name, $Value) :- turn_span_binding($Frame, $Index, $Name, $Value).
+turn_query_span($Frame, $Index) :- turn_span($Frame, $Index, query, $Payload).
+turn_query_candidate($Frame, $Name) :- turn_query_span($Frame, $Index), turn_span_token($Frame, $Index, $Position, $Name).
+
+% La lettura e' l'incrocio fra i due insiemi: il nome che la domanda cita E che
+% la traccia lega davvero. Nessuna posizione, nessun ultimo-token.
+state_query_reading($Frame, $Ident, $Value) :- turn_query_candidate($Frame, $Name), turn_state_after($Frame, $Name, $Value), span_atom($Name, $Ident).
+
+% Enumerare una volta e leggere il SET e' anche qui lo stato epistemico: nessun
+% tiebreak, e un fallimento non diventa unicita'.
+state_query_key($Frame, reading($Ident, $Value)) :- state_query_reading($Frame, $Ident, $Value).
+state_query_set($Frame, $Readings) :- findall($Reading, state_query_key($Frame, $Reading), $Readings).
+state_query_has_reading($Frame) :- state_query_set($Frame, cons($Reading, $Tail)).
+state_query_ambiguous($Frame) :- state_query_set($Frame, cons($First, cons($Second, $Tail))).
+state_query_unique($Frame, $Ident, $Value) :- state_query_set($Frame, cons(reading($Ident, $Value), nil)).
+
+% Il turno e' un candidato quando porta insieme una traccia con stato e una
+% domanda. Una sola delle due non basta: riconoscere il registro `code` non
+% chiude un'obbligazione ancora aperta, e una domanda senza traccia appartiene
+% agli altri consumer.
+state_query_surface($Frame) :- turn_query_span($Frame, $QIndex), turn_span_binding($Frame, $TIndex, $Ident, $Value).
+turn_plan_candidate($Frame) :- state_query_surface($Frame).
+
+% Il frame come vista derivata, interrogabile con lo stesso vocabolario del
+% piano condizionale.
+frame_act($Frame, state_query) :- state_query_unique($Frame, $Ident, $Value).
+frame_slot($Frame, binding, $Ident) :- state_query_unique($Frame, $Ident, $Value).
+frame_slot($Frame, value, $Value) :- state_query_unique($Frame, $Ident, $Value).
+
+% Realizzazione: il valore provato piu' il terminatore di frase della lingua.
+% Il renderer non aggiunge proposizioni — porta solo la forma.
+turn_response($Frame, $Text) :- state_query_unique($Frame, $Ident, $Value), current_language($Language), value_sentence($Language, $Value, $Text).
+
+% Due legami nominati sono due letture, e sceglierne una in silenzio sarebbe la
+% mossa sbagliata anche quando il numero e' giusto: la domanda non ha ancora
+% detto quale. Chiedere e' la mossa, e la frase e' un fatto.
+turn_response($Frame, $Text) :- state_query_surface($Frame), state_query_ambiguous($Frame), current_language($Language), response_template(state_query_ambiguous, $Language, $Text).
+
+% La traccia lega dei nomi, ma nessuno di quelli che la domanda ha citato. E' un
+% gap tipizzato, non un'assenza di stato: nominarlo e' piu' informativo che
+% classificare di nuovo il registro dell'input.
+turn_response($Frame, $Text) :- state_query_surface($Frame), naf(state_query_has_reading($Frame)), current_language($Language), response_template(state_query_gap, $Language, $Text).

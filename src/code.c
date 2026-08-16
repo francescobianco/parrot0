@@ -987,6 +987,33 @@ int code_eval_state(const char *src, const char *want, long *out) {
     return ok;
 }
 
+size_t code_eval_state_bindings(const char *src, char names[][KB_TERM_LEN],
+                                long *vals, size_t max) {
+    if (!src || !*src || !names || !vals || max == 0) return 0;
+    size_t slen = strlen(src);
+    char *clean = malloc(slen + 1);
+    if (!clean) return 0;
+    memcpy(clean, src, slen + 1);
+    code_strip(clean);
+
+    EvalCtx e;
+    memset(&e, 0, sizeof e);
+    e.c = clean;
+    e.end = clean + slen;
+    e.src = clean;
+    e.implicit_locals = 1;
+    ev_run_seq(&e);
+    size_t n = 0;
+    if (!e.err)
+        for (size_t i = 0; i < e.nl && n < max; i++) {
+            snprintf(names[n], KB_TERM_LEN, "%s", e.locals[i]);
+            vals[n] = e.locvals[i];
+            n++;
+        }
+    free(clean);
+    return n;
+}
+
 /* gen182: true if `src` defines a function literally named `want`. A focused
  * copy of code_ingest's definition-head detection, without a KB (used by
  * code_locate to test a candidate file). */

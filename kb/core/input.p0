@@ -218,4 +218,7 @@ machinery(canonicalization_exempt).
 machinery(turn_span).
 machinery(turn_span_cue).
 machinery(turn_span_surface).
+machinery(turn_span_token).
+machinery(turn_span_binding).
+machinery(span_state_model).
 machinery(machinery).

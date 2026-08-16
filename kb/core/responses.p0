@@ -239,6 +239,10 @@ response_template(conditional_plan_gap, en, "I can see the conditional plan, but
 response_template(conditional_plan_gap, it, "Vedo il piano condizionale, ma non riesco a verificarne la condizione dalla KB.").
 response_template(conditional_plan_ambiguous, en, "The condition has incompatible readings, so I cannot choose a branch safely.").
 response_template(conditional_plan_ambiguous, it, "La condizione ha letture incompatibili, quindi non posso scegliere un ramo in modo sicuro.").
+response_template(state_query_ambiguous, en, "Those statements bind more than one of the names you mentioned - which binding do you want?").
+response_template(state_query_ambiguous, it, "Quegli statement legano piu' di uno dei nomi che hai citato - quale legame vuoi?").
+response_template(state_query_gap, en, "I evaluated those statements, but none of the names in your question is bound by them.").
+response_template(state_query_gap, it, "Ho valutato quegli statement, ma nessuno dei nomi della tua domanda viene legato.").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.
 % Honest: they keep the conversation going (acknowledge + open question) and never

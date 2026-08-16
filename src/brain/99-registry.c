@@ -1730,6 +1730,75 @@ static int turn_quote(const char *src, size_t start, size_t len,
     return 1;
 }
 
+/* gen396: the identifier-shaped tokens of ONE span, as facts.
+ *
+ * Word boundaries are byte mechanics, which is why they are here; WHICH token a
+ * turn is about is not, which is why nothing here chooses one. The historical
+ * state consumer kept only the last identifier of the question span and asked
+ * the evaluator about that, so «what is total in the end» threw away the name it
+ * had just been given. Publishing every candidate lets the KB decide by JOIN —
+ * against what the trace actually binds — instead of by position.
+ *
+ * The token is stored QUOTED, like turn_span_surface. That is not cosmetic: a
+ * bare atom makes the turn's own words look like KB terms, and the informed wall
+ * — which names the first word it holds no facts about — then finds "facts"
+ * about every word of the sentence it is failing on. Working memory records what
+ * was SAID; only a rule may promote a surface to a term. */
+#define TURN_MAX_TOKENS 24
+static void turn_publish_tokens(Brain *b, const char *surface,
+                                const InputSpan *span, const char *index) {
+    size_t start = span->start + (span->cue_len > span->len ? span->len
+                                                            : span->cue_len);
+    size_t end = span->start + span->len;
+    size_t k = 0;
+    for (size_t p = start; p < end && k < TURN_MAX_TOKENS; ) {
+        if (!(isalpha((unsigned char)surface[p]) || surface[p] == '_')) { p++; continue; }
+        size_t t = p;
+        while (p < end && (isalnum((unsigned char)surface[p]) || surface[p] == '_')) p++;
+        char tok[KB_TERM_LEN];
+        if (!turn_quote(surface, t, p - t, tok, sizeof tok)) continue;
+        char pos[24];
+        snprintf(pos, sizeof pos, "%zu", k++);
+        const char *args[] = { "current_turn", index, pos, tok };
+        kb_assert(b->kb, "turn_span_token", args, 4);
+    }
+}
+
+/* gen396: the state a span ENDS IN, as facts.
+ *
+ * The evaluator is fixed mechanics and stays fixed: it is asked what the trace
+ * leaves bound, never which binding the turn wants. The KB decides that a span
+ * role HAS a state model at all (`span_state_model/2`), so retracting one fact
+ * turns the whole projection off at runtime — the C names no register, no
+ * language and no question. */
+#define TURN_MAX_BINDINGS 16
+static void turn_publish_state(Brain *b, const char *surface,
+                               const InputSpan *span, const char *index) {
+    const char *model[] = { span->role, NULL };
+    char kind[1][KB_TERM_LEN];
+    if (!span->role[0] ||
+        kb_match(b->kb, "span_state_model", model, 2, kind, 1) != 1) return;
+    if (span->len >= 65536) return;
+    char *trace = malloc(span->len + 1);
+    if (!trace) return;
+    memcpy(trace, surface + span->start, span->len);
+    trace[span->len] = '\0';
+
+    char names[TURN_MAX_BINDINGS][KB_TERM_LEN];
+    long vals[TURN_MAX_BINDINGS];
+    size_t nb = code_eval_state_bindings(trace, names, vals, TURN_MAX_BINDINGS);
+    free(trace);
+    for (size_t i = 0; i < nb; i++) {
+        /* Quoted for the same reason the tokens are: a binding NAME observed in
+         * a snippet is surface the turn carried, not a term the KB knows. */
+        char name[KB_TERM_LEN], value[64];
+        snprintf(name, sizeof name, "\"%s\"", names[i]);
+        snprintf(value, sizeof value, "\"%ld\"", vals[i]);
+        const char *args[] = { "current_turn", index, name, value };
+        kb_assert(b->kb, "turn_span_binding", args, 4);
+    }
+}
+
 static int universal_turn_lead(Brain *b, const char *surface,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
@@ -1741,6 +1810,8 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_span");
     kb_retract_pred(b->kb, "turn_span_cue");
     kb_retract_pred(b->kb, "turn_span_surface");
+    kb_retract_pred(b->kb, "turn_span_token");
+    kb_retract_pred(b->kb, "turn_span_binding");
     kb_set_origin(b->kb, KB_REFLECTIVE);
     for (size_t i = 0; i < ns; i++) {
         char index[24], type[KB_TERM_LEN];
@@ -1761,6 +1832,8 @@ static int universal_turn_lead(Brain *b, const char *surface,
         kb_assert(b->kb, "turn_span", span_args, 4);
         kb_assert(b->kb, "turn_span_surface", surface_args, 3);
         kb_assert(b->kb, "turn_span_cue", cue_args, 3);
+        turn_publish_tokens(b, surface, &spans[i], index);
+        turn_publish_state(b, surface, &spans[i], index);
     }
     kb_set_origin(b->kb, KB_SESSION);
 

@@ -1,0 +1,66 @@
+# CODE + QUESTION ON THE UNIVERSAL ANSWER PLAN — gen396.
+#
+# The conditional plan proved that one turn's typed spans compose a response
+# entirely in the KB.  A statement trace followed by a question is the SECOND
+# instance of that substrate, not a second parser: the trace span carries a
+# state, the query span carries an obligation, and the KB joins them.
+#
+# The join is what the ratchet is about.  The historical consumer picked the
+# LAST identifier-shaped token of the question and asked the evaluator about it,
+# so a question that ends on an ordinary word lost a binding it had named.  The
+# plan instead keeps every candidate the question mentions and every binding the
+# trace produced, and lets the two sets meet: the reading is the identifier the
+# trace actually binds.  One reading answers, several stay several.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test the answered binding is the one the trace binds, not the last word]
+> total=3; total += 4; what is total in the end
+< 7.
+> a=2; b=5; a++; what is b
+< 5.
+> int x=4; x *= 3; what is x
+< 12.
+
+[test a question naming no binding of the trace is a typed gap, not a number]
+> total=3; total += 4; what is the outcome
+<! 7.
+<~ none of the names
+
+[test an update without an initial binding is still not fabricated]
+> i++; what is i
+<! 1.
+
+[test two named bindings stay two readings instead of one silent pick]
+> a=2; b=5; what is a and b
+<! 2.
+<! 5.
+<~ which binding
+
+# The ablation uses the ambiguous stimulus on purpose: with the state model off
+# the turn falls back to the historical consumer, which picks the last named
+# identifier and answers 5 — so the difference the ratchet observes is the MOVE,
+# not the number.
+[test the state model of a span role grows and ablates at runtime]
+!forget span_state_model(code, statement_trace)
+> a=2; b=5; what is a and b
+<! which binding
+!assert span_state_model(code, statement_trace)
+> a=2; b=5; what is a and b
+<~ which binding
+
+[test a query cue taught at runtime reaches the same plan]
+> q=5; q *= 3; final register q
+<! 15.
+!assert segment_role(query, "final register")
+> q=5; q *= 3; final register q
+< 15.
+!forget segment_role(query, "final register")
+> q=5; q *= 3; final register q
+<! 15.

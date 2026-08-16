@@ -386,6 +386,10 @@ test-engine: build
 # del demone sono infrastruttura, esattamente come il reload non e' contato dentro
 # il `!timeout` di un turno.
 SOFT_BUDGET := 15
+# gen396: entrato `code/code_state_plan.p0t` (il fronte attivo), uscito
+# `language/contextual_denotation.p0t` — gen392 e' chiusa e resta coperta da
+# `make test`. Lo scambio e' la reazione prescritta qui sopra: si toglie un caso,
+# non si alza il budget.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
   tests/p0t/conversation/basics.p0t \
@@ -397,11 +401,11 @@ SOFT_TESTS := \
   tests/p0t/knowledge/facts.p0t \
   tests/p0t/reasoning/investigation_access.p0t \
   tests/p0t/language/forms_as_objects.p0t \
-  tests/p0t/language/contextual_denotation.p0t \
   tests/p0t/meta/three_axis_gap.p0t \
   tests/p0t/knowledge/geographic_location.p0t \
   tests/p0t/knowledge/faceted_enumeration.p0t \
   tests/p0t/code/code_state.p0t \
+  tests/p0t/code/code_state_plan.p0t \
   tests/p0t/meta/multiclause_cues.p0t \
   tests/p0t/reasoning/conditional_plan.p0t \
   tests/p0t/conversation/dialogue_moves.p0t \
@@ -576,6 +580,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/code/codeintent.p0t
 	@./$(BIN) --test tests/p0t/code/codeloop.p0t
 	@./$(BIN) --test tests/p0t/code/code_state.p0t
+	@./$(BIN) --test tests/p0t/code/code_state_plan.p0t
 	@./$(BIN) --test tests/p0t/code/eval_py.p0t
 	@./$(BIN) --test tests/p0t/code/run_execute.p0t
 	@./$(BIN) --test tests/p0t/repair/repair.p0t

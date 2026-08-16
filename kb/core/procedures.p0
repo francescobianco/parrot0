@@ -153,6 +153,16 @@ is_odd($N) :- eq(mod($N, 2), 1).
 % ── LIST OPERATIONS ──
 member($X, cons($X, $T)).
 member($X, cons($H, $T)) :- member($X, $T).
+append_list(nil, $L, $L).
+append_list(cons($H, $T), $L, cons($H, $R)) :- append_list($T, $L, $R).
+
+% Comporre una forma d'uscita da un valore provato e' realizzazione, non
+% contenuto: la punteggiatura terminale e' una proprieta' della lingua, non del
+% modulo che ha calcolato il valore. chars/2 e append_list/3 bastano, quindi
+% nessun renderer deve concatenare stringhe in C per aggiungere un punto.
+sentence_terminator(en, ".").
+sentence_terminator(it, ".").
+value_sentence($Language, $Value, $Text) :- sentence_terminator($Language, $Mark), chars($Value, $Chars), chars($Mark, $MarkChars), append_list($Chars, $MarkChars, $All), chars($Text, $All).
 
 % ── PROPERTY INHERITANCE (ordine superiore: le proprietà si ereditano lungo la tassonomia) ──
 inherits($X, $P) :- is_a($X, $C), has_prop($C, $P).
@@ -946,6 +956,7 @@ machinery(sides).
 :- include(dialogue-policy.p0).
 :- include(context-scope.p0).
 :- include(conditional-plans.p0).
+:- include(code-plans.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 
@@ -1000,3 +1011,6 @@ machinery(fib).
 machinery(gcd).
 machinery(power).
 machinery(member).
+machinery(append_list).
+machinery(sentence_terminator).
+machinery(value_sentence).
