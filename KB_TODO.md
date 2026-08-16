@@ -345,3 +345,162 @@ e `magnitude_cue` vengono enumerate a ogni turno, e ogni riga aggiunta le allung
 Se e' cosi', il difetto e' strutturale e non del poker: **la KB cresce e un turno
 rallenta**, cioe' esattamente il fallimento che gen382 aveva chiuso per kb_query.
 Strumento: `PARROT0_TE_SLOW=0.5 make test`, e il profilo (-pg) su quel solo turno.
+
+
+---
+
+# gen383-390 — lo strato dialogico: che cosa resta aperto
+
+*Scritto a fine sessione, 16 agosto 2026. Sette generazioni consecutive sullo
+strato dialogico (`docs/plans/the-linguistic-glue.md`) piu' due sull'ambiguita' e
+il registro (`docs/plans/question-emergence.md` §14). `make test` 1769 verdi,
+`glue-bench` 11/11 crisp con zero righe qualitative. Qui c'e' solo cio' che NON e'
+chiuso, in ordine di quanto blocca il resto.*
+
+## 1. ⛔ PRIMO: tre `kb_match` consecutivi che restituiscono 0, e non so perche'
+
+Dentro un modulo, in una sessione avanzata, tre `kb_match` di seguito su regole
+DERIVATE restituivano `0` in modo non deterministico — mentre le stesse regole
+interrogate da fuori (MCP `kb.match`) davano i numeri giusti nello stesso
+processo. Riproduzione osservata: `count_readings_answer` in
+`src/brain/25-wordmath-reasoning.c` con `collection_kinds` / `collection_per_side`
+/ `collection_total`; il primo (o i primi due) tornavano 0 e l'ultimo il valore
+giusto. Invertendo l'ordine, si spostava: falliva sempre il PRIMO.
+
+**Non l'ho isolato.** Il consumer e' stato riscritto per non dipenderne (i numeri
+vengono dall'enumerazione che serve comunque per la scomposizione), quindi il
+sintomo non e' piu' visibile — **ma il difetto e' ancora li'**, e chiunque componga
+piu' query derivate dentro un modulo puo' incontrarlo, in silenzio e con numeri
+sbagliati invece che con un errore.
+
+Ipotesi non verificate, in ordine di sospetto:
+- `pred_bucket()` restituisce `b.idx`, un puntatore DENTRO il censimento;
+  `pred_stats_rebuild()` fa `free(...idx)` su ogni slot. Un rebuild innescato da
+  una chiamata annidata mentre un `PredBucket` esterno e' vivo lascia un puntatore
+  penzolante — indici di fatto casuali, quindi risultati vuoti o sbagliati.
+- oppure `pred_stat_slot(kb, pred, 0)` che non trova la voce e fa apparire il
+  predicato come sconosciuto (`bk.live && bk.n == 0` -> "return 0").
+
+Strumento: un test che ripete N `kb_match` su una regola derivata dentro un
+modulo, con `P0DBG` a stampare il conteggio; e un `assert`/`retract` in mezzo per
+forzare il rebuild.
+
+## 2. L'isolamento fra file nel test-engine
+
+`tests/p0t/meta/knowledge_gap.p0t` passa 14/14 su un motore appena avviato e cade
+sul PRIMO blocco quando nella stessa esecuzione lo precede un altro file — i sette
+blocchi successivi, identici per forma, passano. Nessuna combinazione di `!set`
+(BASE, PROFILE, WORLD_FACTS, LANG) lo rimette a posto, e un secondo `!reset`
+consecutivo viene saltato dalla logica «reset intelligente».
+
+Per questo la riga nel `Makefile` e' commentata. Finche' non e' capito, **ogni
+misura fatta dentro la suite e' sospetta**, non solo questa.
+
+## 3. L'ultimo anello: dato -> risposta
+
+Le CORNICI sono localizzate (`response_template` /3) e i VALORI si rendono con
+`tr/2` (gen388), quindi «quante sono le carte del poker» -> «poker ha 52 carte».
+Ma la PROSA memorizzata resta inglese:
+
+```
+come finisce una partita a poker -> A hand ends when one player remains …
+```
+
+Non e' traducibile senza contenuto italiano: e' un limite onesto, non un bug. La
+strada e' conoscenza (descrizioni italiane), non motore.
+
+## 4. Il vocabolario italiano e' vuoto
+
+`kb/core/lexeme.p0` ha 35 551 voci inglesi e **zero** italiane (misurato: panino,
+cammino, ambiente, perche, pesce, mazzo, carte, giocatori — tutte assenti). Due
+conseguenze gia' in produzione:
+
+- il muro non puo' nominare una parola ignota in italiano (`lexicon_language(en)`
+  lo dichiara, e il declino resta generico li');
+- la riparazione ortografica (gen385) in italiano non ha vicini da proporre —
+  «pamino» propone «amino» e non «panino», perche' *panino* non e' un lessema.
+
+Aggiungere `lexicon_language(it).` il giorno in cui il lessico esiste accende
+entrambi senza toccare il C.
+
+## 5. Il sensore nomina parole che non sono argomenti
+
+Il declino informato (gen384) nomina la prima parola senza fatti, e a volte non e'
+un topic: «is five more than apples?» -> nomina *apples*; «…bigger…» -> *bigger*.
+Onesto, a volte goffo. Il discriminante giusto non e' lessicale ma **posizionale**
+— quale token e' l'argomento del turno — e arriva col residuo tipizzato di
+`question-emergence.md` §11.5.
+
+**Vicolo cieco gia' battuto, non ripeterlo:** stringere il criterio su `lexeme/1`
+e' preciso in inglese, ma rende invisibile *cheese* in «parliamo di formaggio» e
+caricare il lessico al muro triplica la KB e fa sforare i timeout.
+
+## 6. Il registro: quel che manca dopo gen390
+
+- `label_status(mangiare, informal)` e' implementato — la comprensione accetta il
+  termine marcato, la realizzazione lo evita — ma **nessun turno lo esercita
+  end-to-end**: mancano le MOSSE degli scacchi, non il meccanismo.
+- **«Si dice X o Y»**: parrot0 ha lo statuto in KB e potrebbe rispondere quale dei
+  due e' il termine curato («soprattutto catturare; mangiare e' informale ma
+  d'uso corrente»). Consumer piccolo e generale, non fatto.
+- **`pezzi minori`** e' dichiarato come categoria (alfiere, cavallo) ma non ha un
+  conteggio suo: e' il TERZO livello, sotto il tecnico.
+- **`cavallo` -> «horse»**: il pezzo degli scacchi viene letto come l'animale. E'
+  `concept_label` al contrario — la stessa parola denota due concetti in due
+  domini — e non e' toccato. Probabilmente serve un `concept_in_domain/3`.
+
+## 7. Il contatore di rotazione, e altri accoppiamenti
+
+Chiuso a gen388 per `response_template` (una rotazione per famiglia), ma restano
+altri due usi di `b->response_pick` globale: `30-generation-reading.c:1287` e
+`20-math.c:1890`. Stessa specie di accoppiamento — due famiglie che non si parlano
+si influenzano — e stessa cura.
+
+## 8. `apply/2` non si comporta dentro `findall/3`
+
+Osservato a gen389: `findall($P, apply(pred, cons(...)), $L)` raccoglie zero,
+mentre lo stesso `apply` come goal diretto di una clausola funziona. Non isolato.
+La via giusta in quel caso era comunque astrarre la relazione invece di
+meta-chiamarla (mantra #3), ma il limite resta e va scritto o riparato: chi legge
+`kb_fact/2` e `apply/2` in `question-emergence.md` §9.3 non ha modo di saperlo.
+
+---
+
+# Le lezioni di metodo, perche' non si ripetano
+
+Non sono TODO: sono cose che sono costate tempo e che vanno sapute prima.
+
+1. **I cue si dichiarano nella forma CANONICA, non nella superficie.** In
+   inglese le due coincidono per caso, in italiano no. Due cue in albero erano
+   scritti contro la forma CORROTTA — `answer_frame("quali am i", …)` e
+   `intent_cue(…, "quali")` — cioe' la KB compensava un bug del motore, e
+   sistemare il motore li ha uccisi. Non e' una regressione della correzione: e'
+   debito che la correzione rende visibile. **Strumento: `lang.canonical`** (MCP),
+   che esiste da gen383 apposta. Vale la pena passare in rassegna gli altri cue
+   con quello strumento.
+
+2. **Il topic non e' l'antecedente.** Registrare come antecedente ogni entita'
+   nominata ha fatto smettere a parrot0 di chiedere «a chi si riferisce "it"?» —
+   sceglieva in silenzio. Un pronome vuole un REFERENTE introdotto; un topic e'
+   solo cio' di cui si parla. Due campi, due nozioni (`last_topic` vs
+   `last_entity`).
+
+3. **Una locuzione si dichiara SOLO dove il per-parole sbaglia**, mai dove e'
+   soltanto goffo: lo strato delle locuzioni sta sopra quello delle parole e
+   vince, quindi una locuzione superflua non e' neutra, CANCELLA una struttura.
+   Tre casi misurati in `kb/core/lexicon.p0`.
+
+4. **L'oracolo e' segnale comportamentale, mai autorita' sul contenuto.** Fra
+   modelli varia il contenuto (kimi-k2.6 diceva «pannino» per «pamino»; gpt-5.6
+   dice «panino»); resta invariante la MOSSA. Si copia l'invariante — ed e' il
+   punto in cui il KB-first SUPERA l'LLM: un'ipotesi validata contro `lexeme/1`
+   non puo' proporre una parola che non esiste.
+
+5. **Il muro e' il punto in cui il sistema sa di piu'.** Ci arrivava sapendo
+   quale parola non conosceva, e taceva. Peggio: il registratore di lacune
+   esisteva gia' ma era annidato nel ramo ANTI-RIPETIZIONE — il sensore era un
+   effetto collaterale di una correzione di naturalezza.
+
+6. **Una prova deve poter fallire.** Vale anche per le sonde: il controllo
+   negativo («non disambiguare cio' che non e' ambiguo», «non riparare cio' che
+   non e' rotto») ha trovato due difetti veri che i casi positivi non vedevano.
