@@ -333,6 +333,18 @@ gap_source(missing_sibling_attribute, sibling_majority_expected, binary_relation
 gap_policy(sibling_majority_expected, minimum_group_size, 3).
 gap_remedy(missing_sibling_attribute, ask_user).
 
+% gen382p — la seconda sorgente, e costa esattamente cio' che era stato
+% promesso: TRE FATTI. Obbligo e copertura sono relazioni gia' definite in
+% procedures.p0; qui si dichiara solo che quella coppia e' una sorgente, che tipo
+% di lacuna nomina e come si ripara.
+%
+% Il rimedio non e' "vai a imparare": e' "dillo". Una lacuna di ponte si chiude
+% enunciando un fatto che il sistema possiede gia' tutti gli elementi per
+% scrivere — la relazione la conosce, la superficie gliela ha appena data
+% l'utente sbagliando la domanda. Vedi §10.5.
+gap_source(bridge_gap, entity_facet, surface_reachable).
+gap_remedy(bridge_gap, declare_surface).
+
 % Il consumer generico esiste gia': answer_frame interroga una relazione
 % binaria. Queste sono solo le superfici con cui si raggiunge la vista dei gap.
 answer_frame("knowledge gap", knowledge_gap).

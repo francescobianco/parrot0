@@ -1,0 +1,64 @@
+# gen382p — IL GAP DIALOGICO: conoscenza presente che non riesce a uscire.
+#
+# Il rilevatore di §9 cerca conoscenza che MANCA. Questo cerca l'altra cosa, ed e'
+# peggiore: conoscenza che C'E' e non ha una porta da cui uscire. La misura non e'
+# un conteggio, e' un DIFFERENZIALE — la stessa domanda prima e dopo un fatto.
+#
+# Il caso usa entita' nuove, non i giochi: se il test girasse su `poker` proverebbe
+# che abbiamo scritto il poker nel rilevatore. Qui il dominio e' inventato e il C
+# non ne sa niente.
+[test bridge_gap_emerges]
+!reset
+# Una relazione che parla di un'entita', e nessun registro che la nomini.
+!assert widget_colour(zorb, blue)
+> knowledge gap zorb
+< Widget colour.
+# Il tipo e il rimedio sono dichiarati: la lacuna e' azionabile, non una lamentela.
+> gap remedy zorb
+< Declare surface.
+
+[test bridge_gap_closes_by_declaring_a_surface]
+!reset
+!assert widget_colour(zorb, blue)
+> knowledge gap zorb
+< Widget colour.
+# Il rimedio di una lacuna di PONTE e' un fatto, non un'acquisizione: la
+# conoscenza c'era gia'. Dichiarata la porta, la lacuna sparisce...
+!assert answer_frame("colour of", widget_colour)
+> knowledge gap zorb
+< Non capisco ancora.
+# ...e la conoscenza esce, dalla porta appena dichiarata. E' la verifica doppia:
+# strutturale (il gap non c'e' piu') e conversazionale (il turno risponde).
+> colour of zorb
+< Blue.
+# Ablazione: ritirata la porta, la conoscenza torna prigioniera e il gap riemerge.
+!forget answer_frame("colour of", widget_colour)
+> knowledge gap zorb
+< Widget colour.
+
+[test bridge_gap_is_a_multiplier]
+!reset
+# Il falsificatore di §10.8. Un arco deve sbloccare MOLTE domande, non una: se ne
+# sbloccasse una sola, la meta-conoscenza sarebbe solo un'altra forma di
+# contenuto e la tesi sarebbe vuota. Tre entita', UNA porta.
+!assert widget_colour(zorb, blue)
+!assert widget_colour(quix, green)
+!assert widget_colour(vint, red)
+> colour of zorb
+< I don't understand that yet.
+!assert answer_frame("colour of", widget_colour)
+> colour of zorb
+< Blue.
+> colour of quix
+< Green.
+> colour of vint
+< Red.
+
+[test bridge_gap_needs_the_relation_to_exist]
+!reset
+# Il falsificatore opposto: una porta dichiarata su una relazione SENZA fatti non
+# fa emergere niente e non deve inventare. E' l'altra delle tre forme di §10.4
+# (porta senza relazione) e qui deve restare un declino, mai una risposta.
+!assert answer_frame("colour of", widget_colour)
+> colour of zorb
+< I don't understand that yet.

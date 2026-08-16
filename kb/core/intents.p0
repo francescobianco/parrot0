@@ -1087,6 +1087,21 @@ answer_frame("goal of", game_goal).
 answer_frame("objective of", game_goal).
 answer_frame("how many players", game_players).
 answer_frame("setup for", game_setup).
+% gen382p — `game_end` non aveva porta, e la lacuna l'ha trovata parrot0 da se'
+% con `unreachable_facet/2`: quindici giochi sapevano come finiscono e non
+% esisteva modo di chiederlo. Otto superfici scritte a mano, una dimenticata —
+% e nessuna misura di copertura poteva accorgersene, perche' il fatto c'era.
+%
+% Il cue italiano e' "finish" e NON "finisce": la canonicalizzazione normalizza
+% il verbo prima che il frame lo veda, e "come" cade come riempitivo
+% interrogativo. Una porta si dichiara nella forma CANONICA, non nella
+% superficie — in inglese le due coincidono per caso, in italiano no. Vedi
+% docs/plans/question-emergence.md §11.3: e' una lacuna di meta-conoscenza
+% SULLA meta-conoscenza, e il rimedio strutturale e' rendere osservabile la
+% forma canonica di un turno, non indovinare i cue.
+answer_frame("how does a game", game_end).
+answer_frame("how does the game", game_end).
+answer_frame("finish", game_end).
 answer_frame("tip for", game_tip).
 answer_frame("components of", game_component).
 answer_frame("what is", game_summary).

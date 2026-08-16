@@ -804,6 +804,47 @@ gap_record($Type, $Entity, $Facet, $Remedy) :-
     apply($Obligation, cons($Entity, cons($Facet, nil))),
     gap_uncovered($Coverage, $Entity, $Facet).
 
+% ── IL GAP DIALOGICO DI META-CONOSCENZA (gen382p) ───────────────────────────
+%
+% Il rilevatore di §9 cerca conoscenza che MANCA. Questo cerca l'altra cosa, che
+% e' peggiore: conoscenza che C'E' e non riesce a uscire, perche' manca il fatto
+% che collega una forma di domanda alla relazione che la risponde.
+%
+% Zero C: le due primitive riflessive di gen382n bastano. La differenza sta tutta
+% in che cosa si mette come obbligo e come copertura — che e' il punto di §10:
+% gap_source/3 e' cieca a entrambi.
+
+% Le relazioni che parlano di un'entita' come SOGGETTO. Non un elenco: la forma
+% della KB letta com'e'. machinery/1 tiene fuori la macchineria, ed e' un fatto,
+% quindi la frontiera fra mondo e macchineria resta insegnabile.
+entity_facet($Entity, $Facet) :-
+    kb_fact($Facet, cons($Entity, cons($Value, nil))),
+    naf(machinery($Facet)).
+
+% Una faccetta e' RAGGIUNGIBILE se un registro di superficie la nomina. I
+% registri sono elencati qui come clausole perche' ognuno ha una forma diversa;
+% aggiungerne uno costa una clausola di una riga, e nessun C cambia.
+facet_reachable($Facet) :- answer_frame($Cue, $Facet).
+facet_reachable($Facet) :- aggregate_frame($Cue, $Facet, $Ret, $Mode).
+facet_reachable($Facet) :- question_form($Cue, $Facet).
+facet_reachable($Facet) :- consumer_reads($Module, $Facet).
+
+% La copertura, nella forma binaria che gap_source/3 sa applicare. L'entita' non
+% entra: una porta e' della RELAZIONE, non dell'oggetto di cui si parla — ed e'
+% esattamente questo che la rende un moltiplicatore (§10.1).
+surface_reachable($Entity, $Facet) :- facet_reachable($Facet).
+
+% Il gap dialogico, per entita': so qualcosa e non c'e' modo di chiedermelo.
+unreachable_facet($Entity, $Facet) :-
+    entity_facet($Entity, $Facet),
+    naf(facet_reachable($Facet)).
+
+machinery(entity_facet).
+machinery(facet_reachable).
+machinery(surface_reachable).
+machinery(unreachable_facet).
+machinery(consumer_reads).
+
 % Internal protocol predicates are declared as machinery so self-description
 % never mistakes a task trace or a renderer registry for world knowledge.
 machinery(reasoning_operator_active).

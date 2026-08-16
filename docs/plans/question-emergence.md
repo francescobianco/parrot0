@@ -949,3 +949,192 @@ domande.
 
 E' anche la metrica giusta per ordinare i rimedi: il valore di un arco e' la
 dimensione della regione di W che sblocca, non il fatto di esistere.
+
+---
+
+## 11. Il metodo: far uscire la conoscenza presente
+
+*gen382p. §10 ha stabilito che il bersaglio e' il ponte. Questa sezione e' il
+metodo, ed e' implementato: quattro clausole e tre fatti, **zero C**.*
+
+### 11.1 Il metodo, in una riga
+
+> Il rilevatore di §9 cerca conoscenza che MANCA. Questo cerca l'altra cosa, ed e'
+> peggiore: **conoscenza che C'E' e non ha una porta da cui uscire.**
+
+E la forma e' gia' quella di §9, perche' `gap_source(Type, Obligation, Coverage)`
+e' cieca a che cosa siano obbligo e copertura. Cambia solo dove la si punta:
+
+```prolog
+% Le relazioni che parlano di un'entita' come SOGGETTO — la forma della KB
+% letta com'e', nessun elenco. machinery/1 e' la frontiera, ed e' un fatto.
+entity_facet($Entity, $Facet) :-
+    kb_fact($Facet, cons($Entity, cons($Value, nil))),
+    naf(machinery($Facet)).
+
+% Una faccetta e' RAGGIUNGIBILE se un registro di superficie la nomina.
+facet_reachable($Facet) :- answer_frame($Cue, $Facet).
+facet_reachable($Facet) :- aggregate_frame($Cue, $Facet, $Ret, $Mode).
+facet_reachable($Facet) :- question_form($Cue, $Facet).
+facet_reachable($Facet) :- consumer_reads($Module, $Facet).
+
+surface_reachable($Entity, $Facet) :- facet_reachable($Facet).
+```
+
+e la sorgente costa **esattamente cio' che era stato promesso a §5**, tre fatti:
+
+```prolog
+gap_source(bridge_gap, entity_facet, surface_reachable).
+gap_remedy(bridge_gap, declare_surface).
+```
+
+Il rimedio non e' «vai a imparare»: e' **«dillo»**. Una lacuna di ponte si chiude
+enunciando un fatto di cui il sistema possiede gia' tutti gli elementi — la
+relazione la conosce, e la superficie gliel'ha appena data l'utente sbagliando la
+domanda (§10.5).
+
+### 11.2 La misura, e il moltiplicatore
+
+Puntato sul poker, il rilevatore ha risposto subito:
+
+```
+entity_facet(poker, ?)        -> 10 relazioni
+unreachable_facet(poker, ?)   -> [expert_domain, expert_description,
+                                  game_end, category_surface]
+gap_record(?, poker, ?, ?)    -> bridge_gap          (raccolto da solo)
+```
+
+`game_end` e' conoscenza del mondo vera, presente per **tutti e quindici** i
+giochi, e non esisteva modo di chiederla. In `kb/core/intents.p0` erano state
+scritte otto porte a mano — `game_play`, `game_goal`, `game_players`,
+`game_setup`, `game_tip`, `game_component`, `game_summary` — e una era stata
+dimenticata. **Nessuna misura di copertura poteva accorgersene, perche' il fatto
+c'era.** E' esattamente il modo in cui sbagliano gli umani, ed e' quello che il
+rilevatore trova da solo.
+
+Verifica prima, parlando:
+
+```
+how do you play poker      -> Betting rounds let players check, bet, …   (ha la porta)
+how does a game of poker end -> I don't understand that yet.             (non ce l'ha)
+how does a game of chess end -> Hmm, that's a bit beyond me right now.
+```
+
+Poi **un solo fatto**, asserito a runtime, senza ricompilare:
+
+```prolog
+answer_frame("how does a game", game_end).
+```
+
+Risultato su quattordici giochi, tutti prima murati:
+
+```
+chess       -> The game ends by checkmate, resignation, draw agreement, …
+checkers    -> A player wins when the opponent has no pieces or no legal move; …
+go          -> After both players pass, dead stones are resolved and scored.
+backgammon  -> The first player to bear off every checker wins, …
+poker       -> A hand ends when one player remains or the showdown awards the pot.
+blackjack   -> Compare every unbusted player hand with the dealer and settle …
+bridge      -> Score the contract from tricks made or penalties, …
+monopoly    -> The last player not bankrupt wins; …
+scrabble    -> When no tiles remain and a player empties the rack, …
+dominoes    -> A round ends when a player goes out or no player can move, …
+sudoku      -> The puzzle is complete when every cell is filled …
+mahjong     -> Score the winning hand or record an exhaustive draw, …
+tic_tac_toe -> Stop at the first line of three matching marks …
+risk        -> The first player to satisfy the domination, capital, or mission …
+```
+
+> **UN arco -> QUATTORDICI domande.** Il falsificatore dichiarato a §10.8 chiedeva
+> che un fatto di M sbloccasse *molte* domande, non una: se ne sbloccasse una
+> sola, M non moltiplicherebbe e §10 sarebbe una descrizione elegante di niente.
+> Passa con largo margine, e nessuna di quelle risposte e' conoscenza nuova.
+
+E il ciclo si chiude in modo osservabile: dopo il fatto,
+`unreachable_facet(poker, ?)` non contiene piu' `game_end`. **Emersione ->
+rimedio -> verifica**, doppia (strutturale e conversazionale), senza uscire dal
+sistema.
+
+### 11.3 Il reperto piu' interessante: una lacuna di meta-conoscenza SULLA meta-conoscenza
+
+L'italiano non si e' sbloccato. Le stesse domande in italiano restavano al muro
+anche dopo aver dichiarato `answer_frame("come finisce", game_end)`, e il motivo
+non era la conoscenza:
+
+```
+come finisce una partita a poker  ->  "Mmh, non conosco ancora finish. …"
+```
+
+Il verbo era gia' stato normalizzato: la canonicalizzazione porta *finisce* a
+*finish* e lascia cadere *come* come riempitivo interrogativo, **prima** che il
+frame veda il turno. Quindi il cue va scritto nella forma **canonica**, non nella
+superficie — e in inglese le due coincidono per caso, in italiano no.
+
+Conseguenza generale, e va detta con precisione:
+
+> Il punto di estensione KB-first e' **silenziosamente asimmetrico fra lingue**.
+> Insegnare una porta funziona in inglese e fallisce in italiano, per una ragione
+> che chi insegna non ha modo di vedere.
+
+Il rimedio non e' aggiustare l'italiano a mano — quello e' il fix puntuale. E'
+**rendere osservabile la forma canonica di un turno**, cosi' che una porta si
+possa dichiarare contro cio' che il matcher effettivamente vede. E' il gemello
+esatto della richiesta di §10.6: li' era «ogni consumer in C dichiara il proprio
+arco», qui e' «ogni superficie e' ispezionabile nella forma in cui viene
+confrontata». Senza le due, M esiste ma non e' osservabile, e un rilevatore che
+legge un grafo diverso da quello su cui il sistema gira produce rumore.
+
+### 11.4 Perche' questo e' il posto giusto per il muro
+
+Oggi `not_understood()` in `src/brain/99-registry.c` contiene un **frasario
+bilingue in C** (`v_en[]`, `v_it[]`) che duplica
+`response_template(dont_understand, …)` gia' presente in KB — mantra #2 violato
+nel punto esattamente piu' importante del sistema, quello in cui parrot0 ammette
+di aver fallito.
+
+E c'e' di peggio, ed e' un reperto: un registratore di lacune **esiste gia'**
+(`pending_gap` / `pending_gap_question`), ma e' annidato nel ramo anti-ripetizione
+— scatta solo quando la risposta *starebbe per ripetersi*, solo su una parola
+ignota di almeno sei caratteri, e tiene al massimo UNA lacuna per volta. Cioe':
+**il sensore delle lacune e' un effetto collaterale di una correzione di
+naturalezza.** Alla prima occorrenza non registra niente, e su un topic NOTO non
+registra mai.
+
+Il muro e' il punto in cui il sistema sa di piu' e butta via tutto: sa quali
+moduli hanno rinunciato, sa che l'entita' e' nota, sa — perche' il punteggiatore
+di `universal-input` lo calcola — che forma ha la domanda. Misurato:
+
+```
+input.classify(intent_cue, "quante sono le carte del pocker")
+   -> winner: arith_count_request, score 3, because intent_cue(…, keyword(quante))
+```
+
+Il classificatore **capisce** che e' una richiesta di conteggio. Il dispatch non
+lo consulta. E la stessa domanda che invece FUNZIONA — «quanti giocatori servono
+a poker» — viene classificata `ambiguous` dallo stesso punteggiatore, perche'
+risponde per un'altra via (`answer_frame` -> `game_players`). Cioe':
+
+> **Il punteggiatore KB-first di `universal-input` e la catena dei ~70 moduli
+> `mod_*` sono due mondi paralleli e scollegati.** Uno raggiunge un verdetto che
+> nessuno usa; l'altra risponde per confronto di sottostringhe; il muro finale
+> scarta entrambi.
+
+E' questa la ragione strutturale per cui i moduli `mod_*` vanno ripensati sopra
+`universal-input` / `universal-comprehension`: non e' una questione di eleganza.
+Un dispatch a **primo-che-rivendica**, con l'ordine cablato nel C e un ritorno
+0/1 senza motivazione, non puo' produrre il record che serve all'autodiscovery —
+per costruzione non sa dire *chi ha quasi risposto e perche' no*.
+
+### 11.5 Da dove riprendere
+
+1. **Il muro diventa un declino informato e un sensore.** Frasario fuori dal C;
+   prima di murare, comporre il residuo del turno (entita' nota + verdetto del
+   punteggiatore) ed emetterlo come fatto tipizzato. Da li' la conversazione
+   diventa la sorgente di lacune piu' produttiva che abbiamo — la scansione
+   strutturale sulle coorti dava zero (§9.12), il primo turno reale ne da' una.
+2. **Osservabilita' di M** (§11.3 + §10.6): forma canonica ispezionabile, e ogni
+   consumer in C che dichiara `consumer_reads(Module, Relation)` — il predicato
+   e' gia' previsto in `facet_reachable/1`, oggi senza fatti.
+3. **Dispatch per evidenza invece che per ordine.** Solo dopo (1) e (2), perche'
+   senza osservabilita' non si puo' misurare se un dispatch nuovo migliora.
+4. Poi le sorgenti rimaste di §4, con la superficie (§4e) per prima.
