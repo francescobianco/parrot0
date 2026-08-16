@@ -1,0 +1,231 @@
+% foundations.p0 — i concetti FONDAMENTALI di informatica, matematica e scienze.
+%
+% Perche' un file a parte. «cosa e' una variabile» andava a muro con «Non so
+% ancora molto su variabile», mentre `algebra_concept(variable, "a symbol
+% representing an unknown value")` era gia' residente. Non era una lacuna di
+% conoscenza: era il terzo asse di `question-emergence.md` §12 — la superficie
+% italiana non raggiungeva l'entita' che il fatto ce l'aveva — e il muro ha
+% dedotto «non so» da «non ho risposto», che e' proprio l'inferenza che §10.2
+% dichiara illecita.
+%
+% Questi domini sono il caso in cui quell'errore si paga di piu': sono cio' che
+% viene chiesto per primo, e in due lingue. Ogni concetto entra qui completo dei
+% quattro pezzi che lo rendono raggiungibile e dicibile:
+%
+%   wiki_concept/3        la proposizione, in inglese
+%   concept_gloss/3       la stessa proposizione nella lingua di chi chiede
+%   semantic_topic_cue/2  le superfici che la raggiungono, in entrambe le lingue
+%   tr/2 (in gloss.p0)    l'esonimo, quando canonicalizzare aiuta altri consumer
+%
+% Le definizioni sono conoscenza, non risposte a prompt: nominano il nucleo del
+% concetto e non l'esempio con cui e' stato scoperto. Dove un termine ha due sensi
+% (una variabile in programmazione e una in algebra) la riga li nomina entrambi
+% invece di scegliere in silenzio: e' la stessa politica di `denotation.p0`.
+
+% ── INFORMATICA ──
+wiki_concept(variable, computing, "A variable is a named symbol standing for a value: in programming it labels a storage location whose content can change while the program runs, and in mathematics it stands for an unknown or varying quantity").
+wiki_concept(loop, computing, "A loop is a control structure that repeats a block of instructions, either a fixed number of times or until a condition stops holding; without a change that eventually ends it, the repetition never terminates").
+wiki_concept(recursion, computing, "Recursion is defining something in terms of itself: a recursive procedure calls itself on a smaller input and needs a base case that stops the descent, otherwise it never returns").
+wiki_concept(compiler, computing, "A compiler translates a whole program from a source language into another language, usually machine code, before it runs; an interpreter instead executes the source directly, statement by statement").
+wiki_concept(pointer, computing, "A pointer is a value that holds the address of another value in memory, so a program can reach or modify data without copying it; a pointer to no valid address is the classic source of crashes").
+wiki_concept(array, computing, "An array stores a fixed number of elements of the same kind in consecutive positions, so any element can be reached directly by its index rather than by walking the others").
+wiki_concept(stack_structure, computing, "A stack is a collection where the last item added is the first removed; programs use one to remember where to return from nested calls, which is why deep recursion can exhaust it").
+wiki_concept(queue_structure, computing, "A queue is a collection where the first item added is the first removed, the order used whenever requests must be served in the sequence they arrived").
+wiki_concept(data_structure, computing, "A data structure is a way of organizing data so that the operations a program needs most are cheap; choosing one trades the cost of lookup, insertion, deletion and memory against each other").
+wiki_concept(sorting, computing, "Sorting arranges items in order by a key; comparison-based methods cannot beat n log n comparisons in general, so the practical choice depends on the data, the memory available and whether equal items must keep their original order").
+wiki_concept(computational_complexity, computing, "Computational complexity describes how the time or memory a method needs grows with the size of its input, which is what decides whether it stays usable when the input gets large").
+wiki_concept(source_code, computing, "Source code is the text of a program in a language people can read and edit; it is the artifact developers change, while the machine runs a translated or interpreted form of it").
+wiki_concept(programming_language, computing, "A programming language is a formal notation for expressing computations, with a grammar a machine can parse and a semantics that fixes what each construct does").
+wiki_concept(software_bug, computing, "A bug is a defect that makes a program behave differently from what it should; finding one means reproducing it, locating the cause and proving the fix by the same observation that showed the fault").
+wiki_concept(debugging, computing, "Debugging is locating the cause of a defect by narrowing where the actual behaviour first diverges from the expected one, rather than by guessing at changes").
+wiki_concept(compilation_error, computing, "A compile-time error is a fault the translator can see without running the program, such as a syntax or type violation; a run-time error appears only while it executes").
+wiki_concept(bit, computing, "A bit is the smallest unit of information, one of two possible states usually written 0 and 1; eight bits make a byte, the usual unit for addressing memory").
+wiki_concept(processor, computing, "A processor is the component that executes a program's instructions, fetching them in sequence and performing the arithmetic, comparisons and memory transfers they specify").
+wiki_concept(random_access_memory, computing, "Working memory holds the code and data a program is using right now and loses its contents when power is lost, unlike storage, which keeps them").
+wiki_concept(version_control, computing, "Version control records the successive states of a set of files, so any change can be attributed, compared with what came before and undone without losing the later work").
+wiki_concept(object_oriented_programming, computing, "Object-oriented programming organizes a program around objects that keep their own data and expose the operations allowed on it, so the rest of the program depends on the interface rather than the representation").
+
+% ── MATEMATICA ──
+wiki_concept(prime_number, mathematics, "A prime number is a whole number greater than 1 divisible only by 1 and itself; every whole number above 1 factors into primes in exactly one way, which is why they are the building blocks of arithmetic").
+wiki_concept(equation, mathematics, "An equation states that two expressions are equal; solving it means finding the values of its unknowns that make the statement true").
+wiki_concept(fraction, mathematics, "A fraction expresses a quantity as a number of equal parts of a whole, written as a numerator over a denominator").
+wiki_concept(percentage, mathematics, "A percentage expresses a proportion out of one hundred, which makes shares of different totals directly comparable").
+wiki_concept(derivative, mathematics, "The derivative of a function measures how fast its value changes as its input changes, and at a point it equals the slope of the tangent to the graph").
+wiki_concept(integral, mathematics, "An integral accumulates a quantity over an interval and, for a curve above an axis, measures the area beneath it; integration and differentiation are inverse operations").
+wiki_concept(matrix, mathematics, "A matrix is a rectangular array of numbers used to represent a linear transformation or a system of linear equations compactly, so composing transformations becomes multiplying matrices").
+wiki_concept(vector_quantity, mathematics, "A vector is a quantity with both a magnitude and a direction, added tip to tail rather than by adding sizes alone").
+wiki_concept(probability, mathematics, "Probability measures how likely an outcome is on a scale from 0 to 1, where the values of all mutually exclusive outcomes of one trial add to 1").
+wiki_concept(arithmetic_mean, mathematics, "The mean is the sum of a set of values divided by how many there are; it is pulled by extreme values, which is why the median is often reported beside it").
+wiki_concept(standard_deviation, mathematics, "The standard deviation measures how far values typically lie from their mean, so two sets with the same mean can be told apart by how spread out they are").
+wiki_concept(factorial, mathematics, "The factorial of a whole number is the product of all whole numbers from 1 up to it, and counts the orderings of that many distinct items").
+wiki_concept(infinity, mathematics, "Infinity is not a number reached by counting but a way of describing something without bound; sets can be infinite and still differ in size, as the whole numbers and the real numbers do").
+
+% ── SCIENZE ──
+wiki_concept(molecule, chemistry, "A molecule is two or more atoms held together by chemical bonds, and it is the smallest amount of a compound that still has that compound's properties").
+wiki_concept(chemical_reaction, chemistry, "A chemical reaction rearranges atoms into new substances; the atoms are conserved, which is why a balanced equation has the same count of each element on both sides").
+wiki_concept(force_concept, physics, "A force is an interaction that changes a body's motion; a net force produces an acceleration proportional to it and inversely proportional to the body's mass").
+wiki_concept(energy_concept, physics, "Energy is the capacity to do work; it takes many forms and is converted between them, but in an isolated system the total is conserved").
+wiki_concept(velocity, physics, "Velocity is how fast a body's position changes together with the direction of that change, which is why two bodies with the same speed can have different velocities").
+wiki_concept(temperature, physics, "Temperature measures the average energy of the random motion of a substance's particles, and it decides which way heat flows when two bodies touch").
+wiki_concept(cell_biology, biology, "A cell is the smallest unit that is alive on its own, enclosed by a membrane and able to take in energy, respond to its surroundings and reproduce").
+wiki_concept(gene, biology, "A gene is a stretch of DNA that carries the instructions for a product, usually a protein, and the variants of a gene account for inherited differences between individuals").
+wiki_concept(protein, biology, "A protein is a chain of amino acids folded into a shape that determines its job, from catalysing reactions to carrying substances and holding structures together").
+wiki_concept(virus, biology, "A virus is a package of genetic material in a protein coat that cannot reproduce on its own and must enter a living cell and use its machinery to make copies").
+wiki_concept(bacterium, biology, "A bacterium is a single-celled organism without a nucleus; most are harmless or useful, and only some cause disease").
+
+% ── Le superfici che raggiungono i concetti, in entrambe le lingue ──
+% La cue italiana e' dichiarata anche quando `tr/2` canonicalizza il termine: le
+% due strade portano allo stesso topic, e nessuna delle due e' il presupposto
+% dell'altra.
+semantic_topic_cue(variable, keyword(variable)).
+semantic_topic_cue(variable, keyword(variabile)).
+semantic_topic_cue(loop, keyword(loop)).
+semantic_topic_cue(loop, keyword(ciclo)).
+semantic_topic_cue(recursion, keyword(recursion)).
+semantic_topic_cue(recursion, keyword(ricorsione)).
+semantic_topic_cue(compiler, keyword(compiler)).
+semantic_topic_cue(compiler, keyword(compilatore)).
+semantic_topic_cue(pointer, keyword(pointer)).
+semantic_topic_cue(pointer, keyword(puntatore)).
+semantic_topic_cue(array, keyword(array)).
+semantic_topic_cue(stack_structure, keyword(stack)).
+semantic_topic_cue(stack_structure, keyword(pila)).
+semantic_topic_cue(queue_structure, keyword(queue)).
+semantic_topic_cue(queue_structure, keyword(coda)).
+semantic_topic_cue(data_structure, "data structure").
+semantic_topic_cue(data_structure, "struttura dati").
+semantic_topic_cue(sorting, keyword(sorting)).
+semantic_topic_cue(sorting, keyword(ordinamento)).
+semantic_topic_cue(computational_complexity, "computational complexity").
+semantic_topic_cue(computational_complexity, "complessita computazionale").
+semantic_topic_cue(computational_complexity, "complessità computazionale").
+semantic_topic_cue(source_code, "source code").
+semantic_topic_cue(source_code, "codice sorgente").
+semantic_topic_cue(programming_language, "programming language").
+semantic_topic_cue(programming_language, "linguaggio di programmazione").
+semantic_topic_cue(software_bug, "a bug").
+semantic_topic_cue(software_bug, "un bug").
+semantic_topic_cue(debugging, keyword(debugging)).
+semantic_topic_cue(debugging, keyword(debug)).
+semantic_topic_cue(compilation_error, "compile-time error").
+semantic_topic_cue(compilation_error, "errore di compilazione").
+semantic_topic_cue(bit, keyword(bit)).
+semantic_topic_cue(processor, keyword(processor)).
+semantic_topic_cue(processor, keyword(processore)).
+semantic_topic_cue(random_access_memory, "working memory").
+semantic_topic_cue(random_access_memory, "memoria ram").
+semantic_topic_cue(version_control, "version control").
+semantic_topic_cue(version_control, "controllo di versione").
+semantic_topic_cue(object_oriented_programming, "object-oriented programming").
+semantic_topic_cue(object_oriented_programming, "programmazione a oggetti").
+semantic_topic_cue(prime_number, "prime number").
+semantic_topic_cue(prime_number, "numero primo").
+semantic_topic_cue(equation, keyword(equation)).
+semantic_topic_cue(equation, keyword(equazione)).
+semantic_topic_cue(fraction, keyword(fraction)).
+semantic_topic_cue(fraction, keyword(frazione)).
+semantic_topic_cue(percentage, keyword(percentage)).
+semantic_topic_cue(percentage, keyword(percentuale)).
+semantic_topic_cue(derivative, keyword(derivative)).
+semantic_topic_cue(derivative, keyword(derivata)).
+semantic_topic_cue(integral, keyword(integral)).
+semantic_topic_cue(integral, keyword(integrale)).
+semantic_topic_cue(matrix, keyword(matrix)).
+semantic_topic_cue(matrix, keyword(matrice)).
+semantic_topic_cue(vector_quantity, keyword(vector)).
+semantic_topic_cue(vector_quantity, keyword(vettore)).
+semantic_topic_cue(probability, keyword(probability)).
+semantic_topic_cue(probability, keyword(probabilita)).
+semantic_topic_cue(probability, keyword(probabilità)).
+semantic_topic_cue(arithmetic_mean, "arithmetic mean").
+semantic_topic_cue(arithmetic_mean, "media aritmetica").
+semantic_topic_cue(standard_deviation, "standard deviation").
+semantic_topic_cue(standard_deviation, "deviazione standard").
+semantic_topic_cue(factorial, keyword(factorial)).
+semantic_topic_cue(factorial, keyword(fattoriale)).
+semantic_topic_cue(infinity, keyword(infinity)).
+semantic_topic_cue(infinity, keyword(infinito)).
+semantic_topic_cue(molecule, keyword(molecule)).
+semantic_topic_cue(molecule, keyword(molecola)).
+semantic_topic_cue(chemical_reaction, "chemical reaction").
+semantic_topic_cue(chemical_reaction, "reazione chimica").
+semantic_topic_cue(force_concept, keyword(force)).
+semantic_topic_cue(force_concept, keyword(forza)).
+semantic_topic_cue(energy_concept, keyword(energy)).
+semantic_topic_cue(energy_concept, keyword(energia)).
+semantic_topic_cue(velocity, keyword(velocity)).
+semantic_topic_cue(velocity, keyword(velocita)).
+semantic_topic_cue(velocity, keyword(velocità)).
+semantic_topic_cue(temperature, keyword(temperature)).
+semantic_topic_cue(temperature, keyword(temperatura)).
+semantic_topic_cue(cell_biology, keyword(cellula)).
+semantic_topic_cue(gene, keyword(gene)).
+semantic_topic_cue(protein, keyword(protein)).
+semantic_topic_cue(protein, keyword(proteina)).
+semantic_topic_cue(virus, keyword(virus)).
+semantic_topic_cue(bacterium, keyword(bacterium)).
+semantic_topic_cue(bacterium, keyword(batterio)).
+
+% ── La stessa proposizione nella lingua di chi chiede ──
+% Non sono traduzioni prodotte dal motore: sono conoscenza. Dove manca la riga,
+% parrot0 risponde in inglese invece di inventare — limite dichiarato, non bug.
+concept_gloss(variable, it, "Una variabile è un simbolo con un nome che sta per un valore: in programmazione indica una cella di memoria il cui contenuto può cambiare durante l'esecuzione, in matematica sta per una quantità incognita o variabile.").
+concept_gloss(loop, it, "Un ciclo è una struttura di controllo che ripete un blocco di istruzioni, un numero fissato di volte oppure finché una condizione resta vera; senza qualcosa che la faccia smettere, la ripetizione non termina.").
+concept_gloss(recursion, it, "La ricorsione è definire qualcosa in termini di se stesso: una procedura ricorsiva richiama se stessa su un input più piccolo e ha bisogno di un caso base che fermi la discesa, altrimenti non ritorna mai.").
+concept_gloss(compiler, it, "Un compilatore traduce un intero programma da un linguaggio sorgente a un altro, di solito codice macchina, prima che venga eseguito; un interprete invece esegue direttamente il sorgente, istruzione per istruzione.").
+concept_gloss(pointer, it, "Un puntatore è un valore che contiene l'indirizzo di un altro valore in memoria, così un programma può raggiungerlo o modificarlo senza copiarlo; un puntatore a un indirizzo non valido è la causa classica dei crash.").
+concept_gloss(array, it, "Un array contiene un numero fissato di elementi dello stesso tipo in posizioni consecutive, così ogni elemento si raggiunge direttamente tramite il suo indice invece di percorrere gli altri.").
+concept_gloss(stack_structure, it, "Una pila è una collezione in cui l'ultimo elemento inserito è il primo a uscire; i programmi ne usano una per ricordare dove tornare dalle chiamate annidate, ed è per questo che una ricorsione troppo profonda la esaurisce.").
+concept_gloss(queue_structure, it, "Una coda è una collezione in cui il primo elemento inserito è il primo a uscire, l'ordine che serve ogni volta che le richieste vanno servite nella sequenza in cui sono arrivate.").
+concept_gloss(data_structure, it, "Una struttura dati è un modo di organizzare i dati perché le operazioni che il programma usa di più costino poco; sceglierne una significa bilanciare il costo di ricerca, inserimento, cancellazione e memoria.").
+concept_gloss(sorting, it, "Ordinare significa disporre gli elementi secondo una chiave; i metodi basati su confronti non possono scendere sotto n log n confronti in generale, quindi la scelta pratica dipende dai dati, dalla memoria disponibile e dal dover conservare o meno l'ordine originario fra elementi uguali.").
+concept_gloss(computational_complexity, it, "La complessità computazionale descrive come il tempo o la memoria richiesti da un metodo crescono al crescere della dimensione dell'input, ed è ciò che decide se resta utilizzabile quando l'input diventa grande.").
+concept_gloss(source_code, it, "Il codice sorgente è il testo di un programma in un linguaggio leggibile e modificabile dalle persone; è ciò che gli sviluppatori cambiano, mentre la macchina esegue una sua forma tradotta o interpretata.").
+concept_gloss(programming_language, it, "Un linguaggio di programmazione è una notazione formale per esprimere calcoli, con una grammatica che una macchina sa analizzare e una semantica che fissa il significato di ogni costrutto.").
+concept_gloss(software_bug, it, "Un bug è un difetto che fa comportare un programma diversamente da come dovrebbe; trovarlo significa riprodurlo, localizzarne la causa e dimostrare la correzione con la stessa osservazione che aveva mostrato il guasto.").
+concept_gloss(debugging, it, "Il debug è localizzare la causa di un difetto restringendo il punto in cui il comportamento reale si discosta per la prima volta da quello atteso, invece di tentare modifiche a caso.").
+concept_gloss(compilation_error, it, "Un errore di compilazione è un difetto che il traduttore vede senza eseguire il programma, come una violazione di sintassi o di tipo; un errore di esecuzione compare invece soltanto mentre il programma gira.").
+concept_gloss(bit, it, "Un bit è la più piccola unità di informazione, uno di due stati possibili scritti di solito 0 e 1; otto bit formano un byte, l'unità con cui di norma si indirizza la memoria.").
+concept_gloss(processor, it, "Un processore è il componente che esegue le istruzioni di un programma, prelevandole in sequenza ed effettuando le operazioni aritmetiche, i confronti e i trasferimenti di memoria che indicano.").
+concept_gloss(random_access_memory, it, "La memoria di lavoro contiene il codice e i dati che un programma sta usando in questo momento e ne perde il contenuto quando manca l'alimentazione, a differenza della memoria di massa, che li conserva.").
+concept_gloss(version_control, it, "Il controllo di versione registra gli stati successivi di un insieme di file, così ogni modifica può essere attribuita, confrontata con ciò che c'era prima e annullata senza perdere il lavoro successivo.").
+concept_gloss(object_oriented_programming, it, "La programmazione a oggetti organizza un programma attorno a oggetti che custodiscono i propri dati ed espongono le operazioni permesse su di essi, così il resto del programma dipende dall'interfaccia e non dalla rappresentazione.").
+concept_gloss(prime_number, it, "Un numero primo è un numero intero maggiore di 1 divisibile soltanto per 1 e per se stesso; ogni intero maggiore di 1 si scompone in primi in un solo modo, ed è per questo che sono i mattoni dell'aritmetica.").
+concept_gloss(equation, it, "Un'equazione afferma che due espressioni sono uguali; risolverla significa trovare i valori delle sue incognite che rendono vera quell'affermazione.").
+concept_gloss(fraction, it, "Una frazione esprime una quantità come un certo numero di parti uguali di un intero, scritta come numeratore su denominatore.").
+concept_gloss(percentage, it, "Una percentuale esprime una proporzione su cento, il che rende direttamente confrontabili quote calcolate su totali diversi.").
+concept_gloss(derivative, it, "La derivata di una funzione misura quanto rapidamente il suo valore cambia al variare dell'ingresso, e in un punto coincide con la pendenza della tangente al grafico.").
+concept_gloss(integral, it, "Un integrale accumula una quantità su un intervallo e, per una curva sopra un asse, ne misura l'area sottesa; integrazione e derivazione sono operazioni inverse.").
+concept_gloss(matrix, it, "Una matrice è una tabella rettangolare di numeri che rappresenta in modo compatto una trasformazione lineare o un sistema di equazioni lineari, così comporre trasformazioni diventa moltiplicare matrici.").
+concept_gloss(vector_quantity, it, "Un vettore è una quantità dotata di modulo e direzione, che si somma punta-coda e non sommando soltanto le grandezze.").
+concept_gloss(probability, it, "La probabilità misura quanto è verosimile un esito su una scala da 0 a 1, dove i valori di tutti gli esiti mutuamente esclusivi di una prova sommano a 1.").
+concept_gloss(arithmetic_mean, it, "La media è la somma di un insieme di valori divisa per quanti sono; è attirata dai valori estremi, ed è per questo che spesso le si affianca la mediana.").
+concept_gloss(standard_deviation, it, "La deviazione standard misura quanto i valori si discostano tipicamente dalla loro media, così due insiemi con la stessa media si distinguono per quanto sono dispersi.").
+concept_gloss(factorial, it, "Il fattoriale di un numero intero è il prodotto di tutti gli interi da 1 fino a quel numero, e conta gli ordinamenti possibili di altrettanti oggetti distinti.").
+concept_gloss(infinity, it, "L'infinito non è un numero che si raggiunge contando ma un modo di dire che qualcosa è senza limite; gli insiemi possono essere infiniti e avere comunque dimensioni diverse, come i numeri interi e i numeri reali.").
+concept_gloss(molecule, it, "Una molecola è un insieme di due o più atomi tenuti insieme da legami chimici, ed è la più piccola quantità di un composto che ne conserva ancora le proprietà.").
+concept_gloss(chemical_reaction, it, "Una reazione chimica riorganizza gli atomi in sostanze nuove; gli atomi si conservano, ed è per questo che un'equazione bilanciata ha lo stesso numero di atomi di ciascun elemento da entrambe le parti.").
+concept_gloss(force_concept, it, "Una forza è un'interazione che cambia il moto di un corpo; una forza netta produce un'accelerazione proporzionale a essa e inversamente proporzionale alla massa del corpo.").
+concept_gloss(energy_concept, it, "L'energia è la capacità di compiere lavoro; assume molte forme e si converte fra di esse, ma in un sistema isolato il totale si conserva.").
+concept_gloss(velocity, it, "La velocità è la rapidità con cui cambia la posizione di un corpo insieme alla direzione di quel cambiamento, ed è per questo che due corpi con la stessa rapidità possono avere velocità diverse.").
+concept_gloss(temperature, it, "La temperatura misura l'energia media del moto disordinato delle particelle di una sostanza, e decide in che verso fluisce il calore quando due corpi si toccano.").
+concept_gloss(cell_biology, it, "Una cellula è la più piccola unità capace di vivere da sola, racchiusa da una membrana e in grado di ricavare energia, rispondere all'ambiente e riprodursi.").
+concept_gloss(gene, it, "Un gene è un tratto di DNA che porta le istruzioni per un prodotto, di solito una proteina, e le sue varianti spiegano le differenze ereditarie fra individui.").
+concept_gloss(protein, it, "Una proteina è una catena di amminoacidi ripiegata in una forma che ne determina il compito, dal catalizzare reazioni al trasportare sostanze al tenere insieme strutture.").
+concept_gloss(virus, it, "Un virus è un pacchetto di materiale genetico in un rivestimento proteico che non sa riprodursi da solo e deve entrare in una cellula viva e usarne i meccanismi per farne copie.").
+concept_gloss(bacterium, it, "Un batterio è un organismo unicellulare privo di nucleo; la maggior parte sono innocui o utili, e soltanto alcuni causano malattie.").
+
+% ── Le glosse italiane che mancavano ai concetti gia' residenti ──
+% Il fatto inglese c'era e la domanda italiana riceveva una frase inglese: la
+% conoscenza non mancava, mancava la sua realizzazione nella lingua del turno.
+concept_gloss(cryptography, it, "La crittografia usa algoritmi matematici e chiavi per proteggere riservatezza, integrità e autenticità; un sistema sicuro richiede anche protocolli corretti, chiavi imprevedibili e un'implementazione attenta.").
+concept_gloss(encryption, it, "Cifrare trasforma un messaggio in modo che soltanto chi possiede la chiave possa risalire all'originale, mentre chi lo intercetta vede dati privi di struttura utilizzabile.").
+concept_gloss(artificial_intelligence, it, "L'intelligenza artificiale è la progettazione di sistemi informatici che svolgono compiti associati a percezione, linguaggio, previsione o decisione; può migliorare sicurezza e accesso alle competenze, ma introduce rischi di distorsione, sorveglianza e responsabilità poco chiara.").
+concept_gloss(machine_learning, it, "L'apprendimento automatico ricava da esempi le regole di un compito invece di riceverle scritte, quindi la qualità di ciò che impara dipende dai dati con cui è stato addestrato.").
+concept_gloss(internet, it, "Internet è una rete globale di reti interconnesse che si scambiano pacchetti usando protocolli comuni, permettendo a servizi come il web, la posta e la messaggistica di funzionare fra dispositivi diversi.").
+concept_gloss(database, it, "Una base di dati conserva informazioni in modo strutturato perché possano essere interrogate, aggiornate e mantenute coerenti anche quando più utenti vi accedono insieme.").
+concept_gloss(operating_system, it, "Un sistema operativo governa le risorse di una macchina — processore, memoria, dischi e periferiche — e le mette a disposizione dei programmi attraverso interfacce uniformi.").
+concept_gloss(neural_network, it, "Una rete neurale calcola combinando molti elementi semplici organizzati in strati, i cui pesi vengono regolati sugli esempi finché l'uscita si avvicina a quella voluta.").
+concept_gloss(information_entropy, it, "L'entropia dell'informazione misura l'incertezza media di una sorgente: messaggi prevedibili hanno entropia bassa, messaggi imprevedibili entropia alta.").
+concept_gloss(electron, it, "L'elettrone è una particella minuscola di carica negativa che circonda il nucleo di un atomo e trasporta la corrente elettrica.").
+concept_gloss(scientific_method, it, "Il metodo scientifico procede formulando un'ipotesi che possa essere smentita, ricavandone una previsione e sottoponendola a un'osservazione capace di contraddirla.").

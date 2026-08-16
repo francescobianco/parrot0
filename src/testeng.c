@@ -247,6 +247,36 @@ static void te_expect(TeState *t, const char *raw) {
     te_expect_mode(t, raw, TE_EXPECT_EXACT);
 }
 
+/* gen396: split `a, b, "c, d"` respecting quotes.
+ *
+ * The separator scan used to ignore quoting, so a fact whose text carried a
+ * comma — which is most curated prose in this KB — was silently chopped into
+ * extra arguments and then truncated at the arity ceiling. `!assert` stored the
+ * wrong fact and `!forget` retracted nothing, both without a word: a ratchet
+ * that cannot express the fact it is about is worse than a missing one, because
+ * it still reports green. Advances `*end` past the closing paren. */
+static size_t te_split_args(char *q, char argbuf[KB_MAX_ARGS][KB_TERM_LEN],
+                            const char *args[KB_MAX_ARGS], char **end) {
+    size_t argc = 0;
+    while (*q && *q != ')' && argc < KB_MAX_ARGS) {
+        while (*q == ' ' || *q == '\t') q++;
+        size_t a = 0;
+        int quoted = 0;
+        while (*q && a + 1 < KB_TERM_LEN) {
+            if (*q == '"') quoted = !quoted;
+            else if (!quoted && (*q == ',' || *q == ')')) break;
+            argbuf[argc][a++] = *q++;
+        }
+        while (a > 0 && (argbuf[argc][a-1] == ' ' || argbuf[argc][a-1] == '\t')) a--;
+        argbuf[argc][a] = '\0';
+        args[argc] = argbuf[argc];
+        argc++;
+        if (*q == ',') q++;
+    }
+    *end = q;
+    return argc;
+}
+
 /* ── per-stream driver (shared by socket connections and the batch mode) ─────── */
 
 /* Report goes to t->out. Sets t->shutdown on the control line. Returns 2 on a
@@ -358,17 +388,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             char argbuf[KB_MAX_ARGS][KB_TERM_LEN];
             const char *args[KB_MAX_ARGS];
             size_t argc = 0;
-            while (*q && *q != ')' && argc < KB_MAX_ARGS) {
-                while (*q == ' ' || *q == '\t') q++;
-                size_t a = 0;
-                while (*q && *q != ',' && *q != ')' && a + 1 < KB_TERM_LEN)
-                    argbuf[argc][a++] = *q++;
-                while (a > 0 && (argbuf[argc][a-1] == ' ' || argbuf[argc][a-1] == '\t')) a--;
-                argbuf[argc][a] = '\0';
-                args[argc] = argbuf[argc];
-                argc++;
-                if (*q == ',') q++;
-            }
+            argc = te_split_args(q, argbuf, args, &q);
             if (argc == 0) { syntax_err = 1; continue; }
             kb_assert(brain_kb(t->b), pred, args, argc);
             continue;
@@ -406,17 +426,7 @@ static int te_process_stream(TeState *t, FILE *in) {
             char argbuf[KB_MAX_ARGS][KB_TERM_LEN];
             const char *args[KB_MAX_ARGS];
             size_t argc = 0;
-            while (*q && *q != ')' && argc < KB_MAX_ARGS) {
-                while (*q == ' ' || *q == '\t') q++;
-                size_t a = 0;
-                while (*q && *q != ',' && *q != ')' && a + 1 < KB_TERM_LEN)
-                    argbuf[argc][a++] = *q++;
-                while (a > 0 && (argbuf[argc][a-1] == ' ' || argbuf[argc][a-1] == '\t')) a--;
-                argbuf[argc][a] = '\0';
-                args[argc] = argbuf[argc];
-                argc++;
-                if (*q == ',') q++;
-            }
+            argc = te_split_args(q, argbuf, args, &q);
             if (argc == 0) { syntax_err = 1; continue; }
             kb_retract(brain_kb(t->b), pred, args, argc);
             continue;

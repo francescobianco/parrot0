@@ -3997,14 +3997,39 @@ static int answer_projection_resolve(Brain *b, const char *relation,
                 const char *q[] = { topic, NULL };
                 nt = kb_match(b->kb, kb_dequote(sources[i]), q, 2, text, 1);
             } else if (strcmp(kb_dequote(modes[m]), "ternary") == 0) {
-                char metadata[16][KB_TERM_LEN];
-                const char *q[] = { topic, NULL, NULL };
-                size_t nd = kb_match(b->kb, kb_dequote(sources[i]), q, 3,
-                                     metadata, 16);
-                for (size_t d = 0; d < nd && nt == 0; d++) {
-                    const char *tq[] = { topic, metadata[d], NULL };
+                /* gen396: the middle argument of a ternary source is not always
+                 * a metadatum to enumerate — it can be a FACET the session
+                 * already fixes. `concept_gloss(Key, Lang, Sentence)` is the
+                 * case that exposed it: an Italian «cosa e' un algoritmo» was
+                 * answered in English because this loop took whichever gloss row
+                 * came first, and the localized sentence the KB already held was
+                 * unreachable. Which facet binds a source is a KB fact naming a
+                 * unary session relation, so the C knows no language, no register
+                 * and no domain — and a second facet costs zero C tomorrow. */
+                char facet[4][KB_TERM_LEN];
+                const char *pq[] = { relation, sources[i], NULL };
+                size_t np = kb_match(b->kb, "projection_source_facet", pq, 3,
+                                     facet, 4);
+                if (np) {
+                    char bound[1][KB_TERM_LEN];
+                    const char *vq[] = { NULL };
+                    if (kb_match(b->kb, kb_dequote(facet[0]), vq, 1,
+                                 bound, 1) != 1)
+                        continue;          /* the facet is unset: decline, do
+                                            * not fall back to another row */
+                    const char *tq[] = { topic, bound[0], NULL };
                     nt = kb_match(b->kb, kb_dequote(sources[i]), tq, 3,
                                   text, 1);
+                } else {
+                    char metadata[16][KB_TERM_LEN];
+                    const char *q[] = { topic, NULL, NULL };
+                    size_t nd = kb_match(b->kb, kb_dequote(sources[i]), q, 3,
+                                         metadata, 16);
+                    for (size_t d = 0; d < nd && nt == 0; d++) {
+                        const char *tq[] = { topic, metadata[d], NULL };
+                        nt = kb_match(b->kb, kb_dequote(sources[i]), tq, 3,
+                                      text, 1);
+                    }
                 }
             }
             if (nt == 0) continue;

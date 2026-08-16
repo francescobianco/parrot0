@@ -3862,6 +3862,7 @@ answer_frame("miles to km", miles_to_km).
 % gen344: massive KB growth — encyclopedia definitions, structured reasoning,
 % expanded world geography/science/history/vocabulary and contrast facts.
 :- include(facts/encyclopedia.p0).
+:- include(facts/foundations.p0).
 % gen360: reusable semantic atoms for complete open-ended answer plans.
 :- include(facts/analysis.p0).
 :- include(facts/llmscore-arcs.p0).

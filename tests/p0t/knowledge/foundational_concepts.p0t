@@ -1,0 +1,99 @@
+# FOUNDATIONAL CONCEPTS, AND THE LANGUAGE OF THE ANSWER — gen396.
+#
+# «cosa è una variabile» walled with «Non so ancora molto su variabile» while
+# `algebra_concept(variable, "a symbol representing an unknown value")` was
+# already resident.  That is not a knowledge gap: it is the third axis of
+# question-emergence.md §12 — the Italian surface never reached the entity that
+# held the fact — and the wall then inferred "I don't know" from "I didn't
+# answer", the exact inference §10.2 forbids.
+#
+# The second half was a realization gap of the same turn.  «cosa è un algoritmo»
+# answered in English although `concept_gloss(algorithm, it, ...)` was resident:
+# a ternary projection source enumerated its middle argument and took whichever
+# row came first, so the localized sentence the KB already held was unreachable.
+# Which facet binds a source is now a KB fact naming a unary session relation.
+
+[mock live]
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the common contexts answer in the language of the question]
+> cosa è una variabile
+<~ Una variabile
+<~ programmazione
+> cosa è la ricorsione
+<~ caso base
+> cosa è un numero primo
+<~ divisibile soltanto per 1
+> cosa è la crittografia
+<~ chiavi
+> cosa è un batterio
+<~ unicellulare
+
+[test a concept resident only in English is not walled either]
+> cosa è un algoritmo
+<~ sequenza finita
+<! I don't
+<! Non so ancora molto
+
+# Without a localized gloss the honest move is the English proposition, never a
+# translation the engine makes up.
+[test a missing localization falls back instead of inventing one]
+!forget concept_gloss(prime_number, it, "Un numero primo è un numero intero maggiore di 1 divisibile soltanto per 1 e per se stesso; ogni intero maggiore di 1 si scompone in primi in un solo modo, ed è per questo che sono i mattoni dell'aritmetica.")
+> cosa è un numero primo
+<~ A prime number
+<! Un numero primo
+!assert concept_gloss(prime_number, it, "Un numero primo è un numero intero maggiore di 1 divisibile soltanto per 1 e per se stesso; ogni intero maggiore di 1 si scompone in primi in un solo modo, ed è per questo che sono i mattoni dell'aritmetica.")
+> cosa è un numero primo
+<~ Un numero primo
+
+# A concept invented at runtime proves the class rather than the members: three
+# facts and no rebuild make it both reachable and speakable in two languages.
+[test a concept taught at runtime is speakable in the asker's language]
+> cosa è un flimbo
+<! flimbo è un buffer
+!assert wiki_concept(flimbo, computing, "A flimbo is a buffer that discards its oldest entry when full")
+> cosa è un flimbo
+<~ A flimbo is a buffer
+!assert concept_gloss(flimbo, it, "Un flimbo è un buffer che scarta la voce più vecchia quando è pieno.")
+> cosa è un flimbo
+<~ Un flimbo è un buffer
+<! A flimbo is a buffer
+!forget concept_gloss(flimbo, it, "Un flimbo è un buffer che scarta la voce più vecchia quando è pieno.")
+> cosa è un flimbo
+<~ A flimbo is a buffer
+!forget wiki_concept(flimbo, computing, "A flimbo is a buffer that discards its oldest entry when full")
+> cosa è un flimbo
+<! flimbo is a buffer
+
+# The facet is the switch, and an ENGLISH turn is where it is observable: bind it
+# and the only Italian gloss in the KB is correctly declined in favour of the
+# English proposition; retract it and the source falls back to enumerating its
+# middle argument, which leaks the Italian sentence into an English answer.
+[test the facet that binds a source keeps a localization out of the wrong turn]
+!set PARROT0_LANG=en
+!reset
+> tell me about the printing press
+<~ printing press
+<! La
+> what is an algorithm
+<~ finite, well-defined sequence
+<! Un algoritmo
+!forget projection_source_facet(semantic_summary, concept_gloss, current_language)
+> what is an algorithm
+<~ Un algoritmo
+!assert projection_source_facet(semantic_summary, concept_gloss, current_language)
+> what is an algorithm
+<~ finite, well-defined sequence
+
+[test an English turn keeps the English proposition]
+> what is a variable
+<~ A variable is a named symbol
+> what is recursion
+<~ base case
+> what is a prime number
+<~ divisible only by 1 and itself
+> what is an algorithm
+<~ finite, well-defined sequence

@@ -922,6 +922,40 @@ tr(person, persona).
 tr(alive, vivo).
 tr(dead, morto).
 
+% gen396: le superfici italiane dei concetti fondamentali di informatica,
+% matematica e scienze (`facts/foundations.p0`). Ogni riga chiude il terzo asse
+% di `question-emergence.md` §12: l'entita' nominata dalla domanda e quella che
+% possiede il fatto sono la stessa cosa sotto due nomi. Senza queste righe «cosa
+% e' una variabile» rispondeva «Non so ancora molto su variabile» mentre la
+% definizione era gia' residente — cioe' deduceva «non so» da «non ho risposto».
+tr(variable, variabile).
+tr(variables, variabili).
+tr(recursion, ricorsione).
+tr(compiler, compilatore).
+tr(pointer, puntatore).
+tr(array, vettore).
+tr(sorting, ordinamento).
+tr(debugging, debug).
+tr(processor, processore).
+tr(prime, primo).
+tr(equation, equazione).
+tr(fraction, frazione).
+tr(percentage, percentuale).
+tr(derivative, derivata).
+tr(integral, integrale).
+tr(matrix, matrice).
+tr(probability, probabilita).
+tr(probability, probabilità).
+tr(factorial, fattoriale).
+tr(infinity, infinito).
+tr(bacterium, batterio).
+tr(protein, proteina).
+tr(temperature, temperatura).
+tr(velocity, velocita).
+tr(velocity, velocità).
+tr(cryptography, crittografia).
+tr(encryption, cifratura).
+
 % macchineria di traduzione: struttura del motore, non conoscenza del mondo.
 machinery(tr_multi_phrase).
 machinery(translation_phrase_cue).

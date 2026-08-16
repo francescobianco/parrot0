@@ -1232,6 +1232,16 @@ answer_frame("what are the strongest", semantic_summary).
 % topics therefore decline in bounded time instead of querying a recursive
 % projection once per input token.
 answer_projection(semantic_summary, semantic_topic_cue).
+% gen396: la stessa proposizione, nella lingua di chi ha chiesto, e PRIMA della
+% sorgente inglese. `concept_gloss/3` non e' una ternaria qualunque: il suo
+% secondo argomento non e' un metadato da enumerare, e' una faccetta che la
+% sessione ha gia' fissato. `projection_source_facet/3` nomina la relazione
+% unaria che la lega — quindi il motore non conosce nessuna lingua, e domani una
+% faccetta diversa (registro, dominio) costa una riga e zero C. Senza gloss
+% localizzata la sorgente declina e si passa a quella inglese: nessuna
+% traduzione inventata.
+projection_source(semantic_summary, concept_gloss, ternary).
+projection_source_facet(semantic_summary, concept_gloss, current_language).
 projection_source(semantic_summary, wiki_concept, ternary).
 projection_source(semantic_summary, explanation, binary).
 projection_source(semantic_summary, because, binary).

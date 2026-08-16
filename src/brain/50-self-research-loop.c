@@ -832,7 +832,33 @@ static int mod_learn(Brain *b, const char *norm, const char *raw,
     }
     if (st == 2) {
         {
-            const KbResponseSlot slots[] = { {"topic", disp}, {"def", def} };
+            /* gen396: say the definition in the ASKER's language when the KB
+             * holds it there. The acquire path claims a turn about a concept
+             * learned at runtime before the localized definitional path can, so
+             * a `concept_gloss/3` taught alongside the concept stayed
+             * unreachable and the reply carried an English sentence inside an
+             * Italian frame. Same knowledge, chosen realization; with no gloss
+             * the English one stands, which is an honest limit and not a
+             * translation the engine invents. */
+            char lang[8]; current_lang(b, lang, sizeof lang);
+            char localized[1024];
+            const char *body = def;
+            if (strcmp(lang, "en") != 0 &&
+                kb_concept_gloss(b->kb, eff_key, lang, localized, sizeof localized)) {
+                /* A gloss is a whole sentence and the frame supplies its own
+                 * terminator, so one has to go. Which character ends a sentence
+                 * is a property of the language, and the KB already says it. */
+                char mark[1][KB_TERM_LEN];
+                const char *mq[] = { lang, NULL };
+                if (kb_match(b->kb, "sentence_terminator", mq, 2, mark, 1) == 1) {
+                    const char *m = kb_dequote(mark[0]);
+                    size_t ll = strlen(localized), ml = strlen(m);
+                    if (ml && ll >= ml && !strcmp(localized + ll - ml, m))
+                        localized[ll - ml] = '\0';
+                }
+                body = localized;
+            }
+            const KbResponseSlot slots[] = { {"topic", disp}, {"def", body} };
             kb_response_slots(b, "learn_already_know", slots, 2, msg, sizeof msg);
         }
         if (disambig) {
