@@ -680,6 +680,8 @@ typedef struct {
     char category[BE_FIELD];
     char status[16];
     int passed, failed, total;
+    long long started_epoch;
+    long elapsed_ms;
 } BenchRow;
 
 typedef struct {
@@ -729,6 +731,10 @@ static void be_load(BenchLedger *l) {
         snprintf(r->category, sizeof r->category, "%s", v[1]);
         snprintf(r->status, sizeof r->status, "%s", v[2]);
         r->passed = atoi(v[3]); r->failed = atoi(v[4]); r->total = atoi(v[5]);
+        if (n >= 9) {
+            r->started_epoch = atoll(v[7]);
+            r->elapsed_ms = atol(v[8]);
+        }
     }
     fclose(f);
 }
@@ -739,12 +745,13 @@ static void be_write(BenchLedger *l) {
     FILE *f = fopen(tmp, "w");
     if (!f) return;
     fprintf(f, "# Bench-engine progress registry; manual-only, never a TDD or regression gate.\n");
-    fprintf(f, "slot\tcategory\tstatus\tpassed\tfailed\ttotal\tpercent\n");
+    fprintf(f, "slot\tcategory\tstatus\tpassed\tfailed\ttotal\tpercent\tstarted_epoch\telapsed_ms\n");
     for (size_t i = 0; i < l->count; i++) {
         BenchRow *r = &l->rows[i];
         double pct = r->total ? 100.0 * r->passed / r->total : 0.0;
-        fprintf(f, "%s\t%s\t%s\t%d\t%d\t%d\t%.2f\n",
-                r->slot, r->category, r->status, r->passed, r->failed, r->total, pct);
+        fprintf(f, "%s\t%s\t%s\t%d\t%d\t%d\t%.2f\t%lld\t%ld\n",
+                r->slot, r->category, r->status, r->passed, r->failed, r->total, pct,
+                r->started_epoch, r->elapsed_ms);
     }
     fclose(f);
     rename(tmp, l->path);
@@ -756,11 +763,12 @@ static void be_write(BenchLedger *l) {
     FILE *h = fopen(hist, "w");
     if (!h) return;
     fprintf(h, "# Bench-engine skill histogram; partial while a run is in progress.\n");
-    fprintf(h, "category\tpassed\tfailed\ttotal\tpercent\n");
+    fprintf(h, "category\tpassed\tfailed\ttotal\tpercent\tavg_elapsed_ms\n");
     for (size_t i = 0; i < l->count; i++) {
         BenchRow *r = &l->rows[i];
         if (strcmp(r->status, "complete") != 0) continue;
         int p = r->passed, ff = r->failed, total = r->total;
+        long elapsed = r->elapsed_ms; int elapsed_count = 1;
         int seen = 0;
         for (size_t j = 0; j < i; j++)
             if (strcmp(l->rows[j].category, r->category) == 0 &&
@@ -770,9 +778,10 @@ static void be_write(BenchLedger *l) {
             if (strcmp(l->rows[j].category, r->category) == 0 &&
                 strcmp(l->rows[j].status, "complete") == 0) {
                 p += l->rows[j].passed; ff += l->rows[j].failed; total += l->rows[j].total;
+                elapsed += l->rows[j].elapsed_ms; elapsed_count++;
             }
-        fprintf(h, "%s\t%d\t%d\t%d\t%.2f\n", r->category, p, ff, total,
-                total ? 100.0 * p / total : 0.0);
+        fprintf(h, "%s\t%d\t%d\t%d\t%.2f\t%ld\n", r->category, p, ff, total,
+                total ? 100.0 * p / total : 0.0, elapsed / elapsed_count);
     }
     fclose(h);
 }
@@ -822,9 +831,14 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
         char *ob = NULL; size_t ol = 0; FILE *fout = open_memstream(&ob, &ol);
         if (!fin || !fout) { free(payload); if (fin) fclose(fin); if (fout) fclose(fout); close(cfd); continue; }
         if (strcmp(control, "!bench-shutdown") == 0) {
-            int p = 0, ff = 0;
-            for (size_t i = 0; i < ledger.count; i++) if (strcmp(ledger.rows[i].status, "complete") == 0) { p += ledger.rows[i].passed; ff += ledger.rows[i].failed; }
-            fprintf(fout, "BENCH %d %d %d\nEXIT 0\n", p, ff, p + ff);
+            int p = 0, ff = 0; long elapsed = 0;
+            for (size_t i = 0; i < ledger.count; i++) if (strcmp(ledger.rows[i].status, "complete") == 0) {
+                p += ledger.rows[i].passed; ff += ledger.rows[i].failed; elapsed += ledger.rows[i].elapsed_ms;
+                fprintf(fout, "REPORT %s status=%s passed=%d failed=%d elapsed_ms=%ld\n",
+                        ledger.rows[i].slot, ledger.rows[i].status, ledger.rows[i].passed,
+                        ledger.rows[i].failed, ledger.rows[i].elapsed_ms);
+            }
+            fprintf(fout, "BENCH %d %d %d elapsed_ms=%ld\n", p, ff, p + ff, elapsed);
             t.shutdown = 1;
         } else if (strcmp(control, "!bench-health") == 0) {
             p0env_clear(); t.out = fout; t.line_no = 0; t.shutdown = 0;
@@ -839,17 +853,29 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
             const char *slot = control + 12;
             BenchRow *row = be_find(&ledger, slot, 1);
             if (be_complete(&ledger, slot)) {
-                fprintf(fout, "SLOT skipped %s\nCOUNT 0 0\nEXIT 0\n", slot);
+                BenchRow *done = be_find(&ledger, slot, 0);
+                fprintf(fout, "SLOT skipped %s elapsed_ms=%ld\nCOUNT 0 0\nEXIT 0\n",
+                        slot, done ? done->elapsed_ms : 0L);
             } else if (!row) {
                 fprintf(fout, "BENCH ERROR too many slots\nEXIT 2\n");
             } else {
-                snprintf(row->status, sizeof row->status, "running"); row->passed = row->failed = row->total = 0; be_write(&ledger);
+                snprintf(row->status, sizeof row->status, "running");
+                row->passed = row->failed = row->total = 0;
+                row->started_epoch = (long long)time(NULL);
+                row->elapsed_ms = 0;
+                be_write(&ledger);
                 p0env_clear(); t.out = fout; t.line_no = 0; t.shutdown = 0;
                 int pb = t.passed, fb = t.failed;
+                struct timespec started, finished;
+                clock_gettime(CLOCK_MONOTONIC, &started);
                 te_process_stream(&t, fin);
+                clock_gettime(CLOCK_MONOTONIC, &finished);
                 row->passed = t.passed - pb; row->failed = t.failed - fb; row->total = row->passed + row->failed;
+                row->elapsed_ms = (long)((finished.tv_sec - started.tv_sec) * 1000L +
+                    (finished.tv_nsec - started.tv_nsec) / 1000000L);
                 snprintf(row->status, sizeof row->status, "complete"); be_write(&ledger);
-                fprintf(fout, "SLOT complete %s\nCOUNT %d %d\nEXIT 0\n", slot, row->passed, row->failed);
+                fprintf(fout, "SLOT complete %s elapsed_ms=%ld\nCOUNT %d %d\nEXIT 0\n",
+                        slot, row->elapsed_ms, row->passed, row->failed);
             }
         }
         fclose(fout); fclose(fin); if (ob) write_all(cfd, ob, ol); free(ob); free(payload); close(cfd);
@@ -886,7 +912,8 @@ static int be_client_send_payload(const char *sockpath, const char *payload, siz
             if (strncmp(line, "SLOT ", 5) == 0 ||
                 strncmp(line, "COUNT ", 6) == 0 ||
                 strncmp(line, "BENCH ", 6) == 0 ||
-                strncmp(line, "HEALTH ", 7) == 0)
+                strncmp(line, "HEALTH ", 7) == 0 ||
+                strncmp(line, "REPORT ", 7) == 0)
                 puts(line);
             if (strncmp(line, "EXIT ", 5) == 0) exit_code = atoi(line + 5);
             if (!next) break;

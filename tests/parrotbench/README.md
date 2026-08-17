@@ -55,7 +55,7 @@ leggibile mentre il processo e' in corso. Per ripartire da zero si puo'
 rimuovere manualmente `tests/parrotbench/results/progress.tsv`.
 
 Il file `tests/parrotbench/results/histogram.tsv` aggrega per slot
-`passed`, `failed`, `total` e `percent`: e' il dataset per istogrammi delle
+`passed`, `failed`, `total`, `percent` e `avg_elapsed_ms`: e' il dataset per istogrammi delle
 abilita' in cui parrot0 eccelle o e' carente. Il file viene aggiornato dopo ogni
 slot, quindi anche una run interrotta lascia una fotografia parziale esplicita.
 La directory `results/` e' stato locale generato e ignorato da git: il corpus
@@ -71,7 +71,8 @@ BENCH progress 7/32 done tests/parrotbench/slot-007
 
 Il registro può quindi essere consultato mentre il batch e' ancora in corso:
 una riga `running` identifica esattamente lo slot che verrebbe rifatto in caso
-di interruzione.
+di interruzione. Le colonne `started_epoch` e `elapsed_ms` permettono di vedere
+da quanto e' attivo uno slot e quanto e' costato uno slot completato.
 
 Il punteggio usa matching morbido: una risposta passa se contiene il frammento
 atteso dopo normalizzazione di maiuscole, punteggiatura e spazi. Il benchmark
@@ -162,3 +163,8 @@ Il record `running` viene scritto prima dell'elaborazione e il record
 `complete` solo dopo aver verificato tutte le asserzioni dello slot. Il registro
 e l'istogramma sono scritti in modo sostitutivo tramite file temporaneo, così
 restano leggibili mentre il processo e' in corso.
+
+`--bench-report` stampa inoltre una riga `REPORT` per ogni slot completato con
+`passed`, `failed` ed `elapsed_ms`, seguita dal totale complessivo. Gli slot che
+superano sistematicamente gli altri possono così essere ridistribuiti o
+semplificati senza confondere il costo del reasoning con il numero di prompt.
