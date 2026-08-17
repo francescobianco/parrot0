@@ -2451,6 +2451,39 @@ dipendenze dei passi e spiegare valido/invalido dopo una rettifica. Le correzion
 tipo di pallone e separazione strutturale sono due classi diverse e devono
 restare tali.
 
+**Stato di attuazione (primo taglio: l'impegno che si rompe).** Un piano dato e'
+un impegno preso: chi lo ha ricevuto ci conta. Quando il mondo cambia,
+ricalcolarlo in silenzio non e' onesto — la differenza fra un pianificatore e un
+interlocutore e' che il secondo dice CHE COSA e' cambiato.
+
+```text
+la valvola e' bloccata               -> Annotato.
+come faccio ad abbassare il livello  -> Prima sbloccare la valvola,
+                                        poi aprire la valvola.
+la valvola e' guasta                 -> Annotato — cosi' pero' il piano cade:
+                                        non posso piu' raggiungere: aprire la valvola.
+```
+
+Due distinzioni portano tutto il peso, e senza nessuna delle due il livello
+diventerebbe un allarme continuo:
+
+1. **rotto non e' «non piu' applicabile».** Quella e' la condizione ordinaria di
+   ogni piano a piu' passi — bloccare la valvola rende il passo inapplicabile e
+   il piano si allunga da solo, senza annunci. Rotto significa non piu'
+   RAGGIUNGIBILE, ne' adesso ne' attraverso un passo che lo abiliti;
+2. **compiuto non e' rotto.** Aprire la valvola rende `apri_valvola` non piu'
+   applicabile — la sua precondizione era che fosse chiusa — ma non ha spezzato
+   niente: ha fatto esattamente cio' che il piano diceva. Si guarda percio'
+   l'EFFETTO, e se vale gia' non c'e' nulla da annunciare.
+
+Si ricorda l'azione che raggiunge il goal, non la catena: la catena e' derivata
+e si ridurra' da sola, mentre cio' che vale la pena confrontare e' se il traguardo
+sia ancora raggiungibile.
+
+Restano aperti il tracciamento per-passo delle dipendenze — «questo resta valido,
+quest'altro no» — e la distinzione fra le classi di correzione (attributo contro
+struttura) che il piano chiede di non confondere.
+
 **gen398f — Policy di rischio e risposta calibrata.** Fare derivare dalla KB
 ammissibilita', reversibilita', danno, richiesta di chiarimento e declino.
 Provare crescita/retrazione della policy su scenari sintetici non pericolosi;

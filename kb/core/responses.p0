@@ -326,6 +326,10 @@ state_copula(it, " vale ").
 ability_opener(en, "You can ").
 % gen398c: due passi in ordine. I connettivi non portano claim — dicono soltanto
 % che il primo abilita il secondo, che e' cio' che la proof ha dimostrato.
+broken_plan_opener(en, "Noted — but that breaks the plan, I can no longer reach: ").
+broken_plan_opener(it, "Annotato — cosi' pero' il piano cade: non posso piu' raggiungere: ").
+broken_plan_closer(en, ".").
+broken_plan_closer(it, ".").
 first_step_opener(en, "First ").
 first_step_opener(it, "Prima ").
 next_step_connective(en, ", then ").

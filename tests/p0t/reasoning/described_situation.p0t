@@ -62,9 +62,13 @@
 
 # Negativo vicino: la precondizione di CONDIZIONE, non di posizione. Un'azione
 # bloccata resta un'azione conosciuta — sono due residui diversi.
+# gen398e: guastare la valvola non rompe soltanto il passo, rompe un piano gia'
+# DATO — e parrot0 lo dice invece di limitarsi a registrare. Prima di gen398e
+# questa riga si aspettava il riconoscimento nudo: il comportamento e'
+# migliorato, quindi si aggiorna l'asserzione, non la si difende.
 [test a broken part blocks the step without erasing the action]
 > la valvola è guasta
-< Annotato: lo tengo come stato attuale.
+< Annotato — cosi' pero' il piano cade: non posso piu' raggiungere: aprire la valvola.
 > come faccio ad abbassare il livello
 < Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
 > la valvola funziona

@@ -227,6 +227,47 @@ turn_has_three_step($Turn) :- turn_triple_set($Turn, cons($T, $Tail)).
 % consumer: rubarle il turno per dichiarare un gap sarebbe un muro piu' loquace.
 turn_plan_candidate($Turn) :- turn_task($Turn, $Situation, $Property, $Direction).
 
+% ── 4b. RICORDARE IL PIANO, E ACCORGERSI CHE SI E' ROTTO (gen398e) ─────────
+%
+% Un piano dato e' un impegno preso: chi lo ha ricevuto ci conta. Quando il
+% mondo cambia, ricalcolarlo in silenzio non e' onesto — la differenza fra un
+% pianificatore e un interlocutore e' che il secondo dice CHE COSA e' cambiato.
+%
+% Si ricorda l'azione che raggiunge il goal, non la catena intera: la catena e'
+% derivata e si riderivera' da sola, mentre cio' che vale la pena confrontare e'
+% se il traguardo sia ancora raggiungibile. Una preferenza nuova sulla stessa
+% proprieta' SOSTITUISCE la vecchia, con lo stesso pattern a due clausole che il
+% registro usa gia': `retract/1` fallisce se il fatto non c'e', e un effetto che
+% fallisce si porta dietro tutta la congiunzione.
+turn_goal_action($Turn, $Action) :- turn_single_plan($Turn, $Action).
+turn_goal_action($Turn, $Action) :- turn_two_step($Turn, $First, $Action).
+turn_goal_action($Turn, $Action) :- turn_three_step($Turn, $A, $B, $Action).
+
+% La NAF vuole un goal GROUND: `naf(planned_for($P, $Old))` con $Old libero
+% flounders e la clausola non scatta mai — il piano non veniva ricordato e
+% nessuno lo diceva. La vista positiva `has_plan_for/1` chiude il buco, ed e' la
+% stessa disciplina che il gen393 aveva gia' fissato per il residuo del frame.
+has_plan_for($Property) :- planned_for($Property, $Action).
+plan_remember($Property, $Action) :- planned_for($Property, $Old), retract(planned_for, $Property, $Old), assert(planned_for, $Property, $Action).
+plan_remember($Property, $Action) :- naf(has_plan_for($Property)), assert(planned_for, $Property, $Action).
+bookkeeper(plan).
+turn_bookkeeping($Turn, plan) :- turn_task($Turn, $Situation, $Property, $Direction), turn_goal_action($Turn, $Action), plan_remember($Property, $Action).
+
+% Raggiungibile: applicabile adesso, oppure abilitata da un passo che lo e'. Il
+% piano e' ROTTO quando il traguardo non e' piu' raggiungibile in nessuno dei
+% due modi — non quando smette semplicemente di essere applicabile, che e' la
+% condizione ordinaria di ogni piano a piu' passi e non merita un allarme.
+action_reachable($Situation, $Action) :- applicable($Situation, $Action).
+action_reachable($Situation, $Action) :- applicable($Situation, $First), dif($First, $Action), applicable_after($Situation, $First, $Action).
+% Un piano COMPIUTO non e' un piano rotto, ed e' la distinzione che salva il
+% livello dal diventare un allarme continuo: aprire la valvola rende
+% `apri_valvola` non piu' applicabile — la sua precondizione era che fosse
+% chiusa — ma non ha spezzato niente. Ha fatto esattamente cio' che il piano
+% diceva di fare. Si guarda percio' l'EFFETTO: se vale gia', il piano e' andato
+% a buon fine e non c'e' nulla da annunciare.
+plan_achieved($Situation, $Action) :- action_effect($Action, $Effect), context_visible_belief($Situation, $Effect).
+plan_broken($Property, $Action) :- planned_for($Property, $Action), described_situation($Situation), naf(action_reachable($Situation, $Action)), naf(plan_achieved($Situation, $Action)).
+
 % ── 5. REALIZZAZIONE: il piano proposizionale, non una frase memorizzata ────
 %
 % Il renderer riceve un'azione gia' provata applicabile e i connettivi della

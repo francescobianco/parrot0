@@ -128,4 +128,12 @@ turn_bookkeeping($Turn, state) :- state_unique($Turn, $Entity, $Property, $Value
 
 dialogue_state($Turn, new_shared_constraint) :- state_unique($Turn, $Entity, $Property, $Value).
 turn_plan_candidate($Turn) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)).
-turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)), current_language($Language), response_template(state_acknowledged, $Language, $Text).
+% Se la descrizione appena registrata rompe un piano gia' dato, dirlo E' la
+% risposta: un impegno preso non si ritira in silenzio.
+answer_content(broken_plan($Action, $Language), 0, opener, $Piece) :- broken_plan_opener($Language, $Piece).
+answer_content(broken_plan($Action, $Language), 1, action, $Piece) :- linguistic_form($Piece, $Action, $Language, common).
+answer_content(broken_plan($Action, $Language), 2, closer, $Piece) :- broken_plan_closer($Language, $Piece).
+
+turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)), plan_broken($Goal, $Action), current_language($Language), answer_text(broken_plan($Action, $Language), $Text).
+turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)), naf(any_broken_plan), current_language($Language), response_template(state_acknowledged, $Language, $Text).
+any_broken_plan :- plan_broken($Goal, $Action).
