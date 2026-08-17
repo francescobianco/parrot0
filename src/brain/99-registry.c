@@ -1931,6 +1931,23 @@ static int universal_turn_lead(Brain *b, const char *surface,
     }
     kb_set_origin(b->kb, KB_SESSION);
 
+    /* gen394: la CONTABILITA' del turno, e non e' una terza domanda per caso.
+     *
+     * Il motore ne faceva due — «questo turno appartiene a un piano?» e «qual e'
+     * la risposta?» — ed entrambe devono restare pure: una risposta non puo'
+     * dipendere da un effetto avvenuto mentre la si cercava. Ma una
+     * conversazione deve ricordare anche cio' a cui NON ha risposto, e quel
+     * turno esce di qui senza che nessuno gli chieda niente: il frame declina
+     * apposta, per lasciare la parola al percorso storico.
+     *
+     * Questa terza domanda e' il posto dove la KB registra cio' che vuole
+     * ricordare del turno. Il risultato non e' una risposta e viene ignorato: il
+     * C non sa che cosa venga registrato, ne' se qualcosa lo sia. Le issue
+     * aperte del gen394 vivono qui; le unita' discorsive del gen397 vivranno
+     * qui. */
+    const char *bookkeeping[] = { "current_turn" };
+    kb_query(b->kb, "turn_bookkeeping", bookkeeping, 1);
+
     const char *candidate[] = { "current_turn" };
     if (!kb_query(b->kb, "turn_plan_candidate", candidate, 1)) return 0;
 

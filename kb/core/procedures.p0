@@ -1021,6 +1021,7 @@ machinery(sides).
 :- include(stipulation.p0).
 :- include(register.p0).
 :- include(state-description.p0).
+:- include(issues.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 

@@ -4692,6 +4692,34 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
     return n;
 }
 
+/* gen394: le classi che possono valere PER QUESTA entita', non tutte.
+ *
+ * `kb_unary_predicates` raccoglie ogni predicato unario della KB in ordine di
+ * caricamento, e chi la usa deve dargli un tetto. Il tetto e' un difetto di
+ * ordine travestito da limite di memoria: misurato, aggiungere sei regole
+ * qualunque spingeva fuori dal centoventottesimo posto una testa di regola
+ * imparata a runtime, e «describe tariq» perdeva in SILENZIO l'ultima credenza
+ * derivata. Nessun errore, nessun residuo: una risposta piu' corta. Crescere in
+ * conoscenza non puo' accorciare una risposta gia' data.
+ *
+ * La selezione giusta e' piu' stretta e insieme piu' completa: i predicati sotto
+ * cui l'entita' compare gia' come fatto, piu' TUTTE le teste di regola unarie —
+ * che sono le sole che possono derivare qualcosa su di lei. Il numero non
+ * dipende piu' da quanti fatti irrilevanti contenga la KB, e l'ordine di
+ * caricamento smette di decidere che cosa venga detto. */
+size_t kb_unary_predicates_for(const KB *kb, const char *entity,
+                               char out[][KB_TERM_LEN], size_t max) {
+    if (!kb || !entity) return 0;
+    size_t n = 0;
+    for (size_t i = 0; i < kb->n; i++)
+        if (kb->facts[i].argc == 1 && strcmp(kb->facts[i].args[0], entity) == 0)
+            push_unique(out, &n, max, kb->facts[i].pred);
+    for (size_t i = 0; i < kb->nr; i++)
+        if (kb->rules[i].head.argc == 1)
+            push_unique(out, &n, max, kb->rules[i].head.pred);
+    return n;
+}
+
 /* gen382i — questo termine compare DA QUALCHE PARTE nella KB?
  *
  * Serve a garantire che un token scelto per chiudere un ragionamento ipotetico
@@ -4702,6 +4730,11 @@ size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max) {
  * toglieva e basta. */
 int kb_mentions_term(const KB *kb, const char *term) {
     if (!kb || !term || !*term) return 0;
+    /* I fatti stanno in ordine di caricamento, quindi quelli di uno stesso
+     * predicato sono contigui: una memoria di UN elemento basta a non
+     * interrogare il solver una volta per riscontro. Senza, un termine che
+     * compare in molti fatti di contabilita' pagava una risoluzione per
+     * ciascuno. */
     for (size_t i = 0; i < kb->n; i++) {
         const Fact *f = &kb->facts[i];
         if (strcmp(f->pred, term) == 0) return 1;

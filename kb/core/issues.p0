@@ -1,0 +1,75 @@
+% issues.p0 — CIO' CHE RESTA APERTO FRA UN TURNO E L'ALTRO (gen394).
+%
+% parrot0 sapeva gia' fare i due estremi e non sapeva collegarli:
+%
+%   where is zorbia      -> non lo so, vuoi che impari?
+%   zorbia is in europe  -> Learned: located_in(zorbia, europe).
+%   where is zorbia      -> Europe.
+%
+% Tre turni corretti e nessuna traccia che il secondo abbia CHIUSO una domanda
+% lasciata aperta dal primo. E' la differenza fra rispondere e conversare: un
+% interlocutore ricorda cosa gli e' stato chiesto e non ha saputo dire.
+%
+% Il posto dove registrarlo non c'era, ed e' il motivo per cui questo livello e'
+% arrivato dopo: il turno che fallisce esce dal frame senza che nessuno gli
+% chieda niente — declina apposta, per lasciare la parola al percorso storico.
+% `turn_bookkeeping/1` e' la terza domanda che il motore pone a ogni turno, e il
+% suo risultato viene ignorato: registrare non e' rispondere.
+
+:- file_attribute(machinery).
+
+% `open_issue/2` compare soltanto nei corpi — nasce da un assert a runtime — e
+% quindi la direttiva di file non lo raggiunge. Va dichiarato a mano, ed e' una
+% dichiarazione che serve DAVVERO: senza, il muro informato conta questi fatti
+% come conoscenza sul mondo e smette di offrire di imparare la parola su cui
+% l'issue e' stata aperta. La memoria di una lacuna non e' una conoscenza.
+machinery(open_issue).
+
+% ── 1. QUANDO NASCE UN'ISSUE ───────────────────────────────────────────────
+%
+% Il turno nomina una relazione ammessa e una parola di contenuto, e nessuna
+% lettura regge. Non e' «non ho capito»: e' una domanda CAPITA e non
+% soddisfatta, che e' esattamente cio' che vale la pena ricordare. Un turno a cui
+% il frame risponde non lascia nulla di aperto.
+% La condizione e' `naf(relation_mentions(...))`, non «nessuna lettura regge».
+% Le due sono quasi la stessa cosa e costano in modo incomparabile: la seconda
+% chiede l'enumerazione ESAUSTIVA delle letture — findall non ha uscita
+% anticipata — e la contabilita' gira a OGNI turno, anche su quelli a cui il
+% frame risponde. Misurato: 10 secondi su `soft-test`, per riscoprire ogni volta
+% cio' che il turno stava gia' per stabilire. Chiedere invece se la relazione
+% conosca quella parola si ferma al primo riscontro ed e' indicizzato.
+%
+% Il prezzo di questa scelta e' dichiarato: resta fuori il caso «la relazione
+% conosce la parola ma non nel verso chiesto» — Napoli/Campania — che e' un gap
+% di FATTO e non di entita'. Quando la memoizzazione per turno rendera' gratuita
+% la vista esaustiva, la condizione potra' allargarsi senza cambiare nient'altro.
+turn_unanswered($Turn, $Word, $Relation) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Word), naf(relation_mentions($Relation, $Word)).
+turn_bookkeeping($Turn) :- turn_unanswered($Turn, $Word, $Relation), assert(open_issue, $Word, $Relation).
+
+% ── 2. QUANDO SI CHIUDE ────────────────────────────────────────────────────
+%
+% Non si chiude perche' qualcuno la dichiara chiusa: si chiude quando la
+% risposta diventa derivabile. Lo stato e' percio' una VISTA sul mondo corrente e
+% non un flag da mantenere — non puo' divergere da cio' che parrot0 sa, perche'
+% non e' una seconda copia di quel sapere.
+issue_answer($Word, $Value) :- open_issue($Word, $Relation), apply($Relation, cons($Word, cons($Value, nil))).
+issue_answered($Word) :- issue_answer($Word, $Value).
+issue_status($Word, resolved) :- open_issue($Word, $Relation), issue_answered($Word).
+issue_status($Word, open) :- open_issue($Word, $Relation), naf(issue_answered($Word)).
+
+% L'obbligo di risposta e' di parrot0, ed e' derivato: finche' l'issue e' aperta
+% qualcuno deve ancora qualcosa. Tenerlo derivato invece che asserito significa
+% che non puo' sopravvivere alla propria ragione d'essere.
+answer_obligation($Word, parrot0) :- issue_status($Word, open).
+
+% ── 3. INTERROGABILI ───────────────────────────────────────────────────────
+%
+% Il consumer e' il proiettore binario universale: una issue e' una relazione
+% come le altre e si chiede con le stesse parole con cui si chiede qualsiasi
+% cosa. Nessun recognizer nuovo, nessuna superficie privata.
+answer_frame("issue status", issue_status).
+answer_frame_input_arg("issue status", issue_status, 1).
+answer_frame("answer obligation", answer_obligation).
+answer_frame_input_arg("answer obligation", answer_obligation, 1).
+answer_frame("pending answer", issue_answer).
+answer_frame_input_arg("pending answer", issue_answer, 1).

@@ -1,0 +1,75 @@
+# CIO' CHE RESTA APERTO FRA UN TURNO E L'ALTRO — gen394.
+#
+# parrot0 sapeva gia' fare i due estremi e non sapeva collegarli: dichiarava la
+# lacuna, imparava, rispondeva — e nessuna traccia diceva che il secondo turno
+# avesse CHIUSO una domanda lasciata aperta dal primo. E' la differenza fra
+# rispondere e conversare.
+#
+# Il posto dove registrarlo non esisteva: il turno che fallisce esce dal frame
+# senza che nessuno gli chieda niente, perche' il frame declina apposta per
+# lasciare la parola al percorso storico. `turn_bookkeeping/1` e' la terza
+# domanda che il motore pone a ogni turno, e il suo risultato viene ignorato —
+# registrare non e' rispondere.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# Il muro resta quello di prima, ed e' meta' della prova: registrare una lacuna
+# non deve farla sembrare conoscenza. La prima versione di questo livello
+# spegneva l'offerta di imparare, perche' la parola compariva ora in un fatto.
+[test an unanswered question leaves an issue without spoiling the wall]
+> where is zorbia
+<~ don't know about zorbia
+> what is the issue status for zorbia
+< Open.
+> what is the answer obligation for zorbia
+< Parrot0.
+
+# Non si chiude perche' qualcuno la dichiara chiusa: si chiude quando la
+# risposta diventa derivabile. Lo stato e' una vista sul mondo corrente, quindi
+# non puo' divergere da cio' che parrot0 sa.
+[test the issue closes when the answer becomes derivable]
+> zorbia is in europe
+<~ Learned
+> what is the issue status for zorbia
+< Resolved.
+> what is the pending answer for zorbia
+< Europe.
+> what is the answer obligation for zorbia
+<! Parrot0.
+
+# Ritratto il fatto, la domanda torna aperta: e' una vista, non un flag che
+# qualcuno ha girato.
+[test the issue reopens if the knowledge goes away]
+!forget located_in(zorbia, europe)
+> what is the issue status for zorbia
+< Open.
+> what is the answer obligation for zorbia
+< Parrot0.
+
+# Una domanda a cui parrot0 SA rispondere non lascia nulla in sospeso.
+[test an answered question opens no issue]
+> where is milan
+< Lombardy.
+> what is the issue status for milan
+<! Open.
+
+# Due domande senza risposta sono due issue indipendenti: chiudere l'una non
+# chiude l'altra, e la contabilita' non collassa su un solo «qualcosa in
+# sospeso».
+[test two unanswered questions are two independent issues]
+> where is florbix
+<~ don't know about florbix
+> what is the issue status for florbix
+< Open.
+> florbix is in asia
+<~ Learned
+> what is the issue status for florbix
+< Resolved.
+> what is the issue status for zorbia
+< Open.

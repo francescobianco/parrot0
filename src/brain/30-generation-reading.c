@@ -1614,8 +1614,8 @@ static int mod_gen(Brain *b, const char *norm, const char *raw,
      * and grounded in real KB state rather than a canned phrase. */
     if (nw == 2 && strcmp(w[0], "describe") == 0) {
         const char *x = w[1];
-        char preds[128][KB_TERM_LEN];
-        size_t k = kb_unary_predicates(b->kb, preds, 128);
+        char preds[512][KB_TERM_LEN];
+        size_t k = kb_unary_predicates_for(b->kb, x, preds, 512);
         char line[1024];
         size_t off = 0, hits = 0;
         for (size_t i = 0; i < k; i++) {

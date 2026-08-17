@@ -314,6 +314,13 @@ int    kb_rule_body_mentions(const KB *kb, const char *pred);
  * including ones reachable only through rules. Returns the count (capped). */
 size_t kb_unary_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
 
+/* The unary classes that can hold FOR ONE entity: the predicates it already
+ * appears under, plus every unary rule head (the only ones that can derive
+ * something new about it). Independent of how many unrelated facts the KB
+ * holds, so growth cannot silently push a class out of the answer. */
+size_t kb_unary_predicates_for(const KB *kb, const char *entity,
+                               char out[][KB_TERM_LEN], size_t max);
+
 /* Collect all distinct predicate symbols (any arity). gen77 for self-model
  * introspection: "what predicates do you know?". Returns count (capped). */
 size_t kb_predicates(const KB *kb, char out[][KB_TERM_LEN], size_t max);
