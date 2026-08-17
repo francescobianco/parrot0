@@ -14,9 +14,23 @@
 > il progetto.
 
 `parrotbench/corpus/` contiene almeno 10.000 prompt organizzati in categorie e
-slot `.p0t` piccoli. Il formato `.p0t` e' usato come contenitore leggibile per prompt,
-aspettative e categorie; **non viene passato a `--test`** e non viene aggiunto
-alla lista dei test del Makefile.
+slot `.p0t` piccoli, con nomi auto-descrittivi come
+`logic-causality-batch-001.p0t`. Il formato `.p0t` e' processato dal daemon nativo
+`parrot0 --bench-engine`, variante di `--test-engine`: non esiste un runner
+Python alternativo e i file non vengono interpretati da un harness parallelo.
+
+Il bench-engine riusa il parser e i meccanismi di verifica del test-engine:
+
+- sezioni `[test ...]`;
+- turni `>` e aspettative `<`, `<~`, `<!`;
+- multi-turno e multi-linea;
+- `!assert`, `!forget`, `!reset`, `!reload`, `!timeout`;
+- stesso Brain persistente durante il daemon.
+
+Il contratto differente e' statistico: un fallimento viene registrato ma non
+ferma il benchmark, perche' `parrotbench` misura una release e non e' un gate.
+Il corpus **non viene passato a `--test`**, non viene aggiunto alla lista dei
+test del Makefile e non viene eseguito da `make test`.
 
 ## Esecuzione manuale
 
@@ -30,7 +44,8 @@ Il risultato riporta:
 parrotbench: 1234/10000 (12.34%)
 ```
 
-Il runner esegue uno slot alla volta e aggiorna dopo ogni slot
+Il `bench-engine` riceve uno slot alla volta dal client nativo `parrot0 --bench`
+e aggiorna dopo ogni slot
 `tests/parrotbench/results/progress.tsv`. Uno slot marcato `complete` viene
 saltato alla successiva esecuzione; uno slot marcato `running` viene ripetuto,
 cosi' un'interruzione non perde il lavoro gia' completato. Il registro e'
@@ -65,12 +80,52 @@ Per rigenerare il corpus dopo una modifica deliberata al benchmark:
 python3 tests/parrotbench/generate.py
 ```
 
-Per verificare il runner senza lanciare l'intera misura si puo' usare un
-limite esplicito, che non fa parte della normale misurazione di release:
+La rigenerazione e' un'operazione manuale del benchmark e non deve essere
+collegata a build, test o hook automatici. Il generatore e' solo uno strumento
+di manutenzione del corpus; l'esecuzione passa sempre dal `--bench-engine` C.
+
+## Protocollo nativo
+
+Il target avvia:
 
 ```sh
-PARROTBENCH_MAX_SLOTS=1 make parrotbench
+parrot0 --bench-engine --sock obj/bench-engine.sock \
+  --bench-stats tests/parrotbench/results/progress.tsv
 ```
 
-La rigenerazione e' un'operazione manuale del benchmark e non deve essere
-collegata a build, test o hook automatici.
+Poi invia ogni slot con:
+
+```sh
+parrot0 --bench tests/parrotbench/corpus/<area>/<categoria>/<categoria>-batch-001.p0t \
+  --sock obj/bench-engine.sock
+```
+
+`--bench PATH` accetta anche una directory e la percorre ricorsivamente, oppure
+un glob di file `.p0t`:
+
+```sh
+parrot0 --bench tests/parrotbench/corpus --sock obj/bench-engine.sock
+parrot0 --bench 'tests/parrotbench/corpus/logic/*/*.p0t' --sock obj/bench-engine.sock
+```
+
+Ogni file trovato resta uno slot separato nel `bench-engine`; non occorre
+scrivere una riga di shell per ogni categoria o batch.
+
+Al termine chiede il riepilogo e chiude il daemon:
+
+```sh
+parrot0 --bench-report --sock obj/bench-engine.sock
+```
+
+Il client e' un relay socket leggero, come `--test`; il Brain e il caricamento
+della KB esistono solo nel daemon. Il daemon legge il registro all'avvio:
+
+- `complete`: lo slot viene saltato;
+- `running`: lo slot viene ripetuto, quindi un'interruzione non lo considera
+  completato;
+- assente: lo slot viene eseguito e registrato.
+
+Il record `running` viene scritto prima dell'elaborazione e il record
+`complete` solo dopo aver verificato tutte le asserzioni dello slot. Il registro
+e l'istogramma sono scritti in modo sostitutivo tramite file temporaneo, così
+restano leggibili mentre il processo e' in corso.

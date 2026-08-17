@@ -131,9 +131,22 @@ chat-bench: build
 # PARROTBENCH IS NOT A TEST. It is a deliberately large, manual-only discovery
 # measurement requested by the release intent. Never add its .p0t corpus to
 # test/soft-test or any regression gate: doing so makes TDD slow and turns a
-# comparative score into a false pass/fail contract. See tests/parrotbench/README.md.
+# comparative score into a false pass/fail contract. The daemon is the native
+# sibling of --test-engine: it owns one Brain, reuses the .p0t verifier and keeps
+# resumable statistics. See tests/parrotbench/README.md.
 parrotbench: build
-	@python3 ./tests/parrotbench.py
+	@set -eu; \
+	 mkdir -p tests/parrotbench/results obj; \
+	 sock=obj/bench-engine.sock; pid=obj/bench-engine.pid; log=obj/bench-engine.log; \
+	 test -f "$$pid" && kill "$$(cat "$$pid")" 2>/dev/null || true; \
+	 rm -f "$$sock" "$$pid"; \
+	 ./$(BIN) --bench-engine --sock "$$sock" --bench-stats tests/parrotbench/results/progress.tsv >"$$log" 2>&1 & echo $$! >"$$pid"; \
+	 trap 'test -f "$$pid" && kill "$$(cat "$$pid")" 2>/dev/null || true; rm -f "$$pid" "$$sock"' EXIT INT TERM; \
+	 i=0; while [ ! -S "$$sock" ] && [ "$$i" -lt 150 ]; do sleep 0.1; i=$$((i+1)); done; \
+	 if [ ! -S "$$sock" ]; then echo "parrotbench: bench-engine failed; see $$log"; exit 1; fi; \
+	 ./$(BIN) --bench tests/parrotbench/corpus --sock "$$sock"; \
+	 ./$(BIN) --bench-report --sock "$$sock"; \
+	 trap - EXIT INT TERM; rm -f "$$pid" "$$sock"
 
 # gen189: basic-chat discovery harness — coverage over docs/plans/basic-chat.md,
 # the catalogue of elementary prompts parrot0 still walls on. Per-category score

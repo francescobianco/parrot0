@@ -240,7 +240,7 @@
     {
       "id": "parrotbench",
       "target": "parrotbench",
-      "script": "tests/parrotbench.py",
+      "script": "src/testeng.c",
       "area": "conversation",
       "semantics": "discovery",
       "exit_contract": "always-zero",

@@ -58,6 +58,10 @@ static void print_usage(FILE *out) {
             "    --sock PATH               Use a different test socket\n"
             "  --test [FILE]               Send a .p0t file (or stdin) to the test daemon\n"
             "  --test-report               Print the test summary and stop the daemon\n"
+            "  --bench-engine              Start the resumable .p0t benchmark daemon\n"
+            "    --bench-stats PATH         Persistent benchmark progress TSV\n"
+            "  --bench PATH                Send a .p0t file, glob, or directory recursively\n"
+            "  --bench-report              Print benchmark totals and stop the daemon\n"
             "  --dream TOPIC               Explore a topic recursively\n"
             "    --depth=N                 Limit dream traversal depth\n"
             "    --nodes=N                 Limit dream traversal nodes\n"
@@ -193,6 +197,7 @@ int main(int argc, char **argv) {
      * OpenAI-compatible HTTP API directly (replacing scripts/pi_server.py). */
     int daemon_mode = 0, mcp_mode = 0, test_mode = 0, port = 9902;
     int send_mode = 0, report_mode = 0;
+    int bench_mode = 0, bench_send_mode = 0, bench_report_mode = 0;
     /* gen382 — `--dream <topic>`: esplorazione ricorsiva di un topic attraverso
      * la sua prosa, parola per parola. Vedi src/dream.h. */
     const char *dream_topic = NULL;
@@ -200,6 +205,8 @@ int main(int argc, char **argv) {
     const char *host = "127.0.0.1";
     const char *sockpath = TEST_ENGINE_SOCK_DEFAULT;
     const char *send_file = NULL;
+    const char *bench_file = NULL;
+    const char *bench_stats = BENCH_STATS_DEFAULT;
     const char *profile = NULL;
     for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
@@ -209,6 +216,7 @@ int main(int argc, char **argv) {
         else if (strcmp(argv[i], "--daemon") == 0) daemon_mode = 1;
         else if (strcmp(argv[i], "--mcp-engine") == 0) mcp_mode = 1;
         else if (strcmp(argv[i], "--test-engine") == 0) test_mode = 1;
+        else if (strcmp(argv[i], "--bench-engine") == 0) bench_mode = 1;
         /* `--test FILE` is the name; `--test-send` stays as a compatible alias so
          * an older script or note keeps working. */
         else if (strcmp(argv[i], "--test") == 0 ||
@@ -217,6 +225,13 @@ int main(int argc, char **argv) {
             if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) send_file = argv[++i];
         }
         else if (strcmp(argv[i], "--test-report") == 0) report_mode = 1;
+        else if (strcmp(argv[i], "--bench") == 0) {
+            bench_send_mode = 1;
+            if (i + 1 < argc && strncmp(argv[i + 1], "--", 2) != 0) bench_file = argv[++i];
+        }
+        else if (strcmp(argv[i], "--bench-report") == 0) bench_report_mode = 1;
+        else if (strcmp(argv[i], "--bench-stats") == 0 && i + 1 < argc) bench_stats = argv[++i];
+        else if (strncmp(argv[i], "--bench-stats=", 14) == 0) bench_stats = argv[i] + 14;
         else if (strcmp(argv[i], "--profile") == 0) {
             if (i + 1 >= argc || strncmp(argv[i + 1], "--", 2) == 0) {
                 fprintf(stderr, "parrot0: --profile requires a .p0 file\n\n");
@@ -269,13 +284,25 @@ int main(int argc, char **argv) {
         if (in != stdin) fclose(in);
         return rc;
     }
+    if (bench_send_mode) {
+        if (bench_file) return bench_engine_send_path(sockpath, bench_file);
+        return bench_engine_send(sockpath, stdin, "stdin");
+    }
     if (report_mode) return test_engine_send_str(sockpath, "!shutdown\n", NULL);
+    if (bench_report_mode) return bench_engine_send_str(sockpath, "!bench-shutdown\n", NULL);
 
     /* --test-engine is the DAEMON: one brain, listening on the Unix socket. */
     if (test_mode) {
         Brain *brain = setup_brain(NULL);
         if (!brain) { fprintf(stderr, "parrot0: out of memory\n"); return 1; }
         int rc = test_engine_serve(brain, sockpath);
+        brain_destroy(brain);
+        return rc;
+    }
+    if (bench_mode) {
+        Brain *brain = setup_brain(NULL);
+        if (!brain) { fprintf(stderr, "parrot0: out of memory\n"); return 1; }
+        int rc = bench_engine_serve(brain, sockpath, bench_stats);
         brain_destroy(brain);
         return rc;
     }

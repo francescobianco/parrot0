@@ -16,6 +16,8 @@
  *
  * The default socket path when --sock is omitted. */
 #define TEST_ENGINE_SOCK_DEFAULT "obj/test-engine.sock"
+#define BENCH_ENGINE_SOCK_DEFAULT "obj/bench-engine.sock"
+#define BENCH_STATS_DEFAULT "tests/parrotbench/results/progress.tsv"
 
 /* Daemon: listen on `sockpath`, validating each connection's `.p0t` payload
  * against `b`. Returns when a `!shutdown` payload arrives; the exit code is
@@ -31,6 +33,14 @@ int test_engine_send(const char *sockpath, FILE *in, const char *label);
 
 /* Client convenience: send a literal command string (e.g. "!shutdown\n"). */
 int test_engine_send_str(const char *sockpath, const char *payload, const char *label);
+
+/* Same .p0t verifier with persistent per-slot benchmark statistics. */
+int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path);
+int bench_engine_send(const char *sockpath, FILE *in, const char *label);
+int bench_engine_send_str(const char *sockpath, const char *payload, const char *label);
+/* Expand one file, directory (recursive), or shell-style glob and send every
+ * matching .p0t file as an independent resumable slot. */
+int bench_engine_send_path(const char *sockpath, const char *path);
 
 /* Batch fallback: validate a whole `.p0t` stream from `in` against `b` in-process
  * (no socket), printing the report to stdout. Same exit codes as the CLI. */

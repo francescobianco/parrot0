@@ -433,7 +433,7 @@ def main():
                 cases.append((number, category, surface.format(prompt=prompt), expected))
         for start in range(0, len(cases), SLOT_SIZE):
             slot_cases = cases[start : start + SLOT_SIZE]
-            path = CORPUS / category / f"slot-{start // SLOT_SIZE + 1:03d}.p0t"
+            path = CORPUS / category / f"{category.replace('/', '-')}-batch-{start // SLOT_SIZE + 1:03d}.p0t"
             path.parent.mkdir(parents=True, exist_ok=True)
             out = [
                 "# PARROTBENCH SLOT: MANUAL-ONLY DISCOVERY BENCHMARK\n",
