@@ -440,6 +440,12 @@ SOFT_BUDGET := 15
 #   investigation_access, forms_as_objects, three_axis_gap,
 #   faceted_enumeration, code_state, multiclause_cues
 #
+# gen398d: secondo scambio, stessa regola. ESCE `described_situation` (3,1s) —
+# il percorso prosa->stato che esercitava e' ora attraversato per intero da
+# `multi_step_plan` in `make test`, che ci costruisce sopra piani, correzioni e
+# ripianificazione. ENTRA `informative_action` (0,9s), che e' il fronte di
+# adesso: l'azione che riduce l'incertezza invece di cambiare il mondo.
+#
 # La regola resta: si toglie un caso, non si alza il budget.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
@@ -454,7 +460,7 @@ SOFT_TESTS := \
   tests/p0t/reasoning/sequential_view.p0t \
   tests/p0t/meta/turn_frame_producer.p0t \
   tests/p0t/conversation/open_issues.p0t \
-  tests/p0t/reasoning/described_situation.p0t
+  tests/p0t/reasoning/informative_action.p0t
 
 soft-test: test-engine
 	@start=$$(date +%s); \
@@ -534,6 +540,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/generation/register_realization.p0t
 	@./$(BIN) --test tests/p0t/reasoning/described_situation.p0t
 	@./$(BIN) --test tests/p0t/reasoning/multi_step_plan.p0t
+	@./$(BIN) --test tests/p0t/reasoning/informative_action.p0t
 	@./$(BIN) --test tests/p0t/conversation/open_issues.p0t
 	@./$(BIN) --test tests/p0t/conversation/discourse_recall.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem.p0t

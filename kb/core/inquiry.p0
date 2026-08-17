@@ -1,0 +1,68 @@
+% inquiry.p0 — AGIRE PER SAPERE (gen398d, primo taglio).
+%
+% Fino a qui un piano serviva a CAMBIARE il mondo. Questo serve a saperne di
+% piu': quando lo stato non e' determinato, la mossa giusta non e' scegliere a
+% caso fra le alternative — e' fare la cosa che le distingue.
+%
+% Il piano lo chiede per nome (§17.6): «azione informativa sicura riduce i mondi
+% -> preferire osservazione/test prima dell'azione irreversibile». E pone il
+% criterio che rende il livello non barabile: i tre interruttori non passano se
+% la soluzione e' una risposta terminale. Una proprieta' osservabile insegnata a
+% runtime deve generare la stessa strategia in un dominio diverso — ed e' cio'
+% che il ratchet verifica, con due mondi che non condividono una parola.
+%
+% I mondi candidati sono CONTESTI, non una struttura nuova: `holds_in/2` e
+% `context_visible_belief/2` del gen395 li reggono gia', e questo e' il terzo
+% consumatore della stessa reificazione dopo le stipulazioni e le situazioni.
+
+:- file_attribute(machinery).
+
+% ── 1. LA SUPERFICIE: chiedere di SAPERE, non di fare ───────────────────────
+%
+% «Come faccio a sapere» non chiede un cambiamento: chiede di ridurre
+% l'incertezza. E' un atto diverso, e il registro delle cue del turno lo
+% distingue senza che il motore conosca nessuna di queste stringhe.
+inquiry_cue("come faccio a sapere", discriminate).
+inquiry_cue("come faccio a capire", discriminate).
+inquiry_cue("come posso scoprire", discriminate).
+inquiry_cue("how do i find out", discriminate).
+inquiry_cue("how can i tell", discriminate).
+inquiry_cue("how do i know which", discriminate).
+turn_cue_registry(inquiry_cue, 1).
+
+turn_inquiry($Turn) :- turn_cue_form($Turn, inquiry_cue, $Cue).
+
+% ── 2. QUANDO UN'AZIONE INFORMA ────────────────────────────────────────────
+%
+% `observes/2` dice quale proposizione un'azione rende visibile. Da sola non
+% basta: osservare qualcosa che vale in TUTTI i mondi candidati non riduce
+% niente, e proporlo sarebbe far fare fatica per nulla. Un'azione informa quando
+% la proposizione che rivela SEPARA i mondi — vera in uno, non vera in un altro.
+%
+% E' la definizione piu' piccola che sia ancora corretta, e non nomina nessun
+% dominio: non sa che cosa sia una lampadina, un interruttore o una valvola.
+observation_splits($Action, $First, $Second) :- observes($Action, $Proposition), candidate_world($Situation, $First), context_visible_belief($First, $Proposition), candidate_world($Situation, $Second), naf(context_visible_belief($Second, $Proposition)).
+discriminating_action($Action) :- observation_splits($Action, $First, $Second).
+
+% La disciplina dell'insieme, come ovunque: una sola azione informativa e' una
+% risposta, due sono due alternative e sceglierne una in silenzio sarebbe la
+% mossa sbagliata anche quando l'azione e' buona.
+discriminating_key(action($Action)) :- discriminating_action($Action).
+discriminating_set($Actions) :- findall($A, discriminating_key($A), $Actions).
+unique_discriminating($Action) :- discriminating_set(cons(action($Action), nil)).
+several_discriminating :- discriminating_set(cons($First, cons($Second, $Tail))).
+
+% Nessuna azione separa i mondi: e' un residuo onesto e non un fallimento da
+% nascondere. Proporre un'osservazione che non discrimina sarebbe peggio del
+% silenzio, perche' sembrerebbe un progresso.
+no_discriminating :- naf(any_discriminating).
+any_discriminating :- discriminating_action($Action).
+
+% ── 3. LA MOSSA ────────────────────────────────────────────────────────────
+answer_content(observe_step($Action, $Language), 0, opener, $Piece) :- observe_opener($Language, $Piece).
+answer_content(observe_step($Action, $Language), 1, action, $Piece) :- linguistic_form($Piece, $Action, $Language, common).
+answer_content(observe_step($Action, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_inquiry($Turn), any_discriminating.
+turn_response($Turn, $Text) :- turn_inquiry($Turn), unique_discriminating($Action), current_language($Language), answer_text(observe_step($Action, $Language), $Text).
+turn_response($Turn, $Text) :- turn_inquiry($Turn), several_discriminating, current_language($Language), response_template(inquiry_ambiguous, $Language, $Text).

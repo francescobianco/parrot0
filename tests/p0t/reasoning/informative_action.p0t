@@ -1,0 +1,93 @@
+# AGIRE PER SAPERE — gen398d, primo taglio.
+#
+# Fino a qui un piano serviva a CAMBIARE il mondo. Questo serve a saperne di
+# piu': quando lo stato non e' determinato, la mossa giusta non e' scegliere a
+# caso fra le alternative — e' fare la cosa che le distingue.
+#
+# Il criterio che rende il livello non barabile e' nel piano: i tre interruttori
+# non passano se la soluzione e' una risposta memorizzata. Una proprieta'
+# osservabile insegnata a runtime deve generare la stessa strategia in un dominio
+# diverso, e i due mondi di questo file non condividono una parola.
+#
+# I mondi candidati sono CONTESTI: `holds_in/2` del gen395 li regge gia', e
+# questo e' il terzo consumatore della stessa reificazione.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+# Due mondi possibili e nessuna osservazione dichiarata: parrot0 non inventa un
+# modo di guardare. Tacere qui e' corretto — proporre un'osservazione che non
+# esiste sarebbe la forma peggiore di aiuto.
+[test two possible worlds and no way to look]
+!assert context(mondo_a, hypothesis)
+!assert context(mondo_b, hypothesis)
+!assert candidate_world(quesito, mondo_a)
+!assert candidate_world(quesito, mondo_b)
+!assert holds_in(mondo_a, st(leva, feeds, sinistra))
+!assert holds_in(mondo_b, st(leva, feeds, destra))
+!assert concept_label(prova_sinistra, it, common, "tirare la leva sinistra e guardare")
+> come faccio a sapere quale
+<! Puoi scoprirlo
+
+# Insegnata l'osservazione, la strategia compare. Nessuno ha scritto «tira la
+# leva»: la KB sa soltanto che quell'azione rende visibile una proposizione, e
+# che quella proposizione separa i due mondi.
+[test the observation taught at runtime produces the strategy]
+!assert observes(prova_sinistra, st(leva, feeds, sinistra))
+> come faccio a sapere quale
+< Puoi scoprirlo cosi': tirare la leva sinistra e guardare.
+
+# IL NEGATIVO CHE CONTA: un'osservazione vera in ENTRAMBI i mondi non riduce
+# niente, e non viene proposta. Se bastasse «e' un'osservazione» per suggerirla,
+# il livello sarebbe un generatore di fatica inutile.
+[test an observation that does not split the worlds is not offered]
+!assert concept_label(prova_inutile, it, common, "contare i bulloni")
+!assert observes(prova_inutile, st(leva, exists, si))
+!assert holds_in(mondo_a, st(leva, exists, si))
+!assert holds_in(mondo_b, st(leva, exists, si))
+> come faccio a sapere quale
+< Puoi scoprirlo cosi': tirare la leva sinistra e guardare.
+<! contare i bulloni
+
+# Due osservazioni che discriminano sono due alternative: sceglierne una in
+# silenzio sarebbe la mossa sbagliata anche quando l'azione e' buona.
+[test two discriminating observations stay two]
+!assert concept_label(prova_destra, it, common, "tirare la leva destra e guardare")
+!assert observes(prova_destra, st(leva, feeds, destra))
+> come faccio a sapere quale
+< Piu' di un'osservazione le distinguerebbe, e qui non c'e' niente che scelga fra loro.
+!forget observes(prova_destra, st(leva, feeds, destra))
+> come faccio a sapere quale
+< Puoi scoprirlo cosi': tirare la leva sinistra e guardare.
+
+# Tolta l'osservazione, sparisce la strategia: non resta una risposta memorizzata
+# a fare da fondo. E' l'ablazione che distingue una regola da una tabella.
+[test removing the observation removes the strategy]
+!forget observes(prova_sinistra, st(leva, feeds, sinistra))
+> come faccio a sapere quale
+<! Puoi scoprirlo
+
+# TRASFERIMENTO: altro dominio, altra lingua, nessuna parola in comune col
+# primo. Se servisse una regola nuova, questo sarebbe un livello sugli
+# interruttori e non un livello sull'informazione.
+[test the same strategy in an unrelated domain and language]
+!set PARROT0_LANG=en
+!reset
+!assert context(sample_fresh, hypothesis)
+!assert context(sample_spoiled, hypothesis)
+!assert candidate_world(batch, sample_fresh)
+!assert candidate_world(batch, sample_spoiled)
+!assert holds_in(sample_fresh, st(culture, growth, none))
+!assert holds_in(sample_spoiled, st(culture, growth, heavy))
+!assert concept_label(plate_test, en, common, "plate a sample overnight")
+!assert observes(plate_test, st(culture, growth, heavy))
+> how do i find out which
+< You can find out this way: plate a sample overnight.
+!forget observes(plate_test, st(culture, growth, heavy))
+> how do i find out which
+<! You can find out this way

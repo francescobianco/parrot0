@@ -2446,6 +2446,35 @@ tre interruttori non passano se la soluzione e' una risposta terminale: una
 nuova proprieta' osservabile insegnata a runtime deve generare una strategia
 analoga in un dominio diverso.
 
+**Stato di attuazione (primo taglio: l'osservazione che separa).** Fino a qui un
+piano serviva a CAMBIARE il mondo; `kb/core/inquiry.p0` serve a saperne di piu'.
+Quando lo stato non e' determinato, la mossa giusta non e' scegliere a caso fra
+le alternative — e' fare la cosa che le distingue.
+
+```text
+(due mondi possibili, nessuna osservazione dichiarata)
+come faccio a sapere quale   -> (muro: non si inventa un modo di guardare)
+!assert observes(prova_sinistra, st(leva, feeds, sinistra))
+come faccio a sapere quale   -> Puoi scoprirlo cosi': tirare la leva sinistra
+                                e guardare.
+```
+
+La definizione e' la piu' piccola che sia ancora corretta, e non nomina nessun
+dominio: un'azione informa quando la proposizione che rivela SEPARA i mondi —
+vera in uno, non vera in un altro. Osservare qualcosa che vale in tutti i mondi
+candidati non riduce niente, e il ratchet lo prova: un'osservazione vera in
+entrambi non viene proposta. Se bastasse «e' un'osservazione» per suggerirla, il
+livello sarebbe un generatore di fatica inutile.
+
+I mondi candidati sono CONTESTI — `holds_in/2` del gen395 li regge gia', ed e' il
+terzo consumatore della stessa reificazione dopo stipulazioni e situazioni.
+
+Il criterio di non-barabilita' del piano e' soddisfatto: l'osservazione entra e
+esce a runtime, e togliendola non resta una risposta memorizzata a fare da fondo.
+Il trasferimento e' su un dominio in inglese senza una parola in comune col
+primo. Restano aperte la separazione fra prova e fonte debole, e la preferenza
+esplicita per l'azione informativa PRIMA di quella irreversibile.
+
 **gen398e — Correzione e ripianificazione.** Versionare il mondo, tracciare le
 dipendenze dei passi e spiegare valido/invalido dopo una rettifica. Le correzioni
 tipo di pallone e separazione strutturale sono due classi diverse e devono

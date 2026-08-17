@@ -326,6 +326,12 @@ state_copula(it, " vale ").
 ability_opener(en, "You can ").
 % gen398c: due passi in ordine. I connettivi non portano claim — dicono soltanto
 % che il primo abilita il secondo, che e' cio' che la proof ha dimostrato.
+% gen398d: l'azione informativa. L'apertura non porta claim — dice soltanto che
+% cio' che segue riduce l'incertezza, che e' cio' che la proof ha dimostrato.
+observe_opener(en, "You can find out this way: ").
+observe_opener(it, "Puoi scoprirlo cosi': ").
+response_template(inquiry_ambiguous, en, "More than one observation would tell them apart, and nothing here chooses between them.").
+response_template(inquiry_ambiguous, it, "Piu' di un'osservazione le distinguerebbe, e qui non c'e' niente che scelga fra loro.").
 broken_plan_opener(en, "Noted — but that breaks the plan, I can no longer reach: ").
 broken_plan_opener(it, "Annotato — cosi' pero' il piano cade: non posso piu' raggiungere: ").
 broken_plan_closer(en, ".").
