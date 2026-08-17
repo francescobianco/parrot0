@@ -2361,6 +2361,34 @@ ritirare il passo senza cambiare il motore.
 calcolare stati intermedi e verificare soglie. Il caso barca e' membro guida;
 stress con almeno dieci passi/azioni irrilevanti e stesso budget ordinario.
 
+**Stato di attuazione (primo taglio: il PASSO ABILITANTE).** Un pianificatore
+che sa fare un passo solo non fa piani: cerca risposte. Ora l'azione che
+raggiunge il goal puo' non essere applicabile adesso e diventarlo dopo un'altra
+che invece lo e':
+
+```text
+la valvola e' chiusa                 -> Annotato.
+la valvola e' bloccata               -> Annotato.
+come faccio ad abbassare il livello  -> Prima sbloccare la valvola,
+                                        poi aprire la valvola.
+```
+
+La chiave e' `holds_after/3`: applicare un'azione non modifica la situazione, la
+si GUARDA come sarebbe. E' la condizione perche' un piano si possa valutare
+senza eseguirlo, e perche' valutarne uno non renda impossibile valutarne un
+altro — un motore che dovesse asserire per provare non potrebbe mai confrontare
+due alternative. Il delta e' minimo e dichiarato: vale l'effetto, e vale tutto
+cio' che l'effetto non contraddice sullo STESSO ASSE (stessa entita', stessa
+proprieta', valore diverso). Aprire una valvola non dice niente sul livello.
+
+Il ratchet `reasoning/multi_step_plan.p0t` (14 asserzioni) prova anche il
+negativo che conta: tolta l'azione che abilita, non compare un piano piu' corto
+inventato — resta il residuo onesto. Un pianificatore che allunga il passo per
+non tacere e' peggio di uno che tace.
+
+Restano aperti i piani oltre i due passi, gli stati intermedi quantitativi, le
+soglie e il bilancio temporale del caso barca — cioe' il resto di 398c.
+
 **gen398d — Mondi concorrenti e azioni informative.** Conservare alternative,
 calcolare quale osservazione le distingue e separare proof da fonte debole. I
 tre interruttori non passano se la soluzione e' una risposta terminale: una

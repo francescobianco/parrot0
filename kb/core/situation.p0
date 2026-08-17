@@ -133,6 +133,26 @@ action_consequence($Action, $Change) :- action_effect($Action, $Effect), causal_
 action_change($Action, $Property, $Direction) :- action_consequence($Action, $Change), change_prop($Change, $Property, $Direction).
 action_change($Action, $Property, $Direction) :- action_effect($Action, $Change), change_prop($Change, $Property, $Direction).
 
+% ── 3b. LO STATO DOPO UN'AZIONE (gen398c) ──────────────────────────────────
+%
+% Applicare un'azione non modifica la situazione: la si GUARDA come sarebbe. E'
+% la condizione perche' un piano possa essere valutato senza essere eseguito, e
+% perche' valutarne uno non renda impossibile valutarne un altro — un motore che
+% dovesse asserire per provare non potrebbe mai confrontare due alternative.
+%
+% Il delta e' minimo e dichiarato: vale l'effetto dell'azione, e vale tutto cio'
+% che l'effetto non contraddice. La contraddizione e' sullo stesso ASSE — stessa
+% entita', stessa proprieta', valore diverso — e non su un valore qualunque:
+% aprire una valvola non dice niente sul livello del serbatoio.
+same_state_axis(st($Entity, $Property, $Old), st($Entity, $Property, $New)) :- dif($Old, $New).
+action_overrides($Action, $Proposition) :- action_effect($Action, $Effect), same_state_axis($Proposition, $Effect).
+holds_after($Situation, $Action, $Proposition) :- action_effect($Action, $Proposition).
+holds_after($Situation, $Action, $Proposition) :- context_visible_belief($Situation, $Proposition), naf(action_overrides($Action, $Proposition)).
+
+missing_after($Situation, $First, $Second, missing($Proposition)) :- action_precondition($Second, $Proposition), naf(holds_after($Situation, $First, $Proposition)).
+missing_after_set($Situation, $First, $Second, $Missing) :- findall($M, missing_after($Situation, $First, $Second, $M), $Missing).
+applicable_after($Situation, $First, $Second) :- action_schema($Domain, $Second), missing_after_set($Situation, $First, $Second, nil).
+
 % ── 4. IL PIANO: un passo provato, o un residuo tipizzato ───────────────────
 %
 % La ricerca e' goal-diretta: si guardano le azioni il cui cambiamento tocca la
@@ -141,6 +161,16 @@ action_change($Action, $Property, $Direction) :- action_effect($Action, $Change)
 % e' una risposta a un'altra domanda.
 turn_action_candidate($Turn, $Situation, $Action) :- turn_task($Turn, $Situation, $Property, $Direction), action_change($Action, $Property, $Direction).
 turn_plan_step($Turn, $Action) :- turn_action_candidate($Turn, $Situation, $Action), applicable($Situation, $Action).
+
+% Il PASSO ABILITANTE: l'azione che raggiunge il goal non e' applicabile adesso,
+% ma lo diventa dopo un'altra che invece lo e'. E' la differenza fra cercare una
+% risposta e fare un piano — e nasce dalla stessa applicabilita' di prima, letta
+% nello stato che la prima azione produrrebbe.
+turn_enabled_step($Turn, $First, $Second) :- turn_action_candidate($Turn, $Situation, $Second), naf(applicable($Situation, $Second)), applicable($Situation, $First), applicable_after($Situation, $First, $Second), dif($First, $Second).
+turn_enabled_key($Turn, pair($First, $Second)) :- turn_enabled_step($Turn, $First, $Second).
+turn_enabled_set($Turn, $Pairs) :- turn_has_candidate($Turn), findall($P, turn_enabled_key($Turn, $P), $Pairs).
+turn_two_step($Turn, $First, $Second) :- turn_enabled_set($Turn, cons(pair($First, $Second), nil)).
+turn_has_two_step($Turn) :- turn_enabled_set($Turn, cons($Pair, $Tail)).
 
 turn_plan_key($Turn, step($Action)) :- turn_plan_step($Turn, $Action).
 turn_plan_set($Turn, $Steps) :- findall($Step, turn_plan_key($Turn, $Step), $Steps).
@@ -162,7 +192,7 @@ turn_blocked_action($Turn, $Action) :- turn_action_candidate($Turn, $Situation, 
 % del produttore NL. Una condizione va scritta con il predicato che nomina la
 % PROPRIA specie, mai col contratto che tutti condividono.
 situation_residue($Turn, situation_no_action) :- turn_task($Turn, $Situation, $Property, $Direction), naf(turn_has_candidate($Turn)).
-situation_residue($Turn, situation_blocked) :- turn_blocked_action($Turn, $Action), naf(turn_has_plan($Turn)).
+situation_residue($Turn, situation_blocked) :- turn_blocked_action($Turn, $Action), naf(turn_has_plan($Turn)), naf(turn_has_two_step($Turn)).
 
 % Il turno e' candidato solo quando la KB possiede davvero la situazione di cui
 % parla. Una domanda «come faccio a ...» su una proprieta' che nessun mondo noto
@@ -182,7 +212,15 @@ answer_content(situation_step($Action, $Language), 0, opener, $Piece) :- ability
 answer_content(situation_step($Action, $Language), 1, action, $Piece) :- linguistic_form($Piece, $Action, $Language, common).
 answer_content(situation_step($Action, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
 
+answer_content(situation_pair($First, $Second, $Language), 0, opener, $Piece) :- first_step_opener($Language, $Piece).
+answer_content(situation_pair($First, $Second, $Language), 1, first, $Piece) :- linguistic_form($Piece, $First, $Language, common).
+answer_content(situation_pair($First, $Second, $Language), 2, connective, $Piece) :- next_step_connective($Language, $Piece).
+answer_content(situation_pair($First, $Second, $Language), 3, second, $Piece) :- linguistic_form($Piece, $Second, $Language, common).
+answer_content(situation_pair($First, $Second, $Language), 4, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_two_step($Turn, $First, $Second).
 turn_response($Turn, $Text) :- turn_single_plan($Turn, $Action), current_language($Language), answer_text(situation_step($Action, $Language), $Text).
+turn_response($Turn, $Text) :- turn_two_step($Turn, $First, $Second), naf(turn_has_plan($Turn)), current_language($Language), answer_text(situation_pair($First, $Second, $Language), $Text).
 turn_response($Turn, $Text) :- turn_plan_ambiguous($Turn), current_language($Language), response_template(situation_plan_ambiguous, $Language, $Text).
 turn_response($Turn, $Text) :- situation_residue($Turn, $Kind), current_language($Language), response_template($Kind, $Language, $Text).
 

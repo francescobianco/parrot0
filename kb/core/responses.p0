@@ -324,6 +324,12 @@ state_copula(it, " vale ").
 % claim: dice che cio' che segue e' un'azione APPLICABILE, che e' esattamente
 % cio' che la proof ha dimostrato. Una lingua nuova entra qui come fatto.
 ability_opener(en, "You can ").
+% gen398c: due passi in ordine. I connettivi non portano claim — dicono soltanto
+% che il primo abilita il secondo, che e' cio' che la proof ha dimostrato.
+first_step_opener(en, "First ").
+first_step_opener(it, "Prima ").
+next_step_connective(en, ", then ").
+next_step_connective(it, ", poi ").
 ability_opener(it, "Puoi ").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.

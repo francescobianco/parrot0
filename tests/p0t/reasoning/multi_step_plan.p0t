@@ -1,0 +1,116 @@
+# IL PASSO ABILITANTE — gen398c.
+#
+# Un pianificatore che sa fare un passo solo non fa piani: cerca risposte. Qui
+# l'azione che raggiunge il goal NON e' applicabile adesso, e lo diventa dopo
+# un'altra che invece lo e'. La differenza e' tutta in come si guarda lo stato:
+# applicare un'azione non modifica la situazione, la si guarda come SAREBBE —
+# ed e' la condizione perche' un piano si possa valutare senza eseguirlo, e
+# perche' valutarne uno non renda impossibile valutarne un altro.
+#
+# Il delta e' minimo e dichiarato: vale l'effetto, e vale tutto cio' che
+# l'effetto non contraddice sullo stesso asse (stessa entita', stessa proprieta',
+# valore diverso). Aprire una valvola non dice niente sul livello del serbatoio.
+#
+# Nel core non vive un fatto di questo mondo: schemi, precondizioni, effetti,
+# leggi causali e forme entrano tutti parlando o da assert runtime.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world of this test is taught, not built in]
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, it, common, abbassare)
+!assert property_of_value(locked, lock)
+!assert property_of_value(unlocked, lock)
+!assert state_cue(locked, "è bloccata")
+!assert state_cue(unlocked, "è sbloccata")
+!assert action_schema(fluido, apri_valvola)
+!assert action_precondition(apri_valvola, st(valvola, lock, unlocked))
+!assert action_precondition(apri_valvola, st(valvola, position, closed))
+!assert action_effect(apri_valvola, st(valvola, position, open))
+!assert causal_law(st(valvola, position, open), deflusso)
+!assert change_prop(deflusso, level, decrease)
+!assert concept_label(apri_valvola, it, common, "aprire la valvola")
+!assert action_schema(fluido, sblocca)
+!assert action_precondition(sblocca, st(valvola, lock, locked))
+!assert action_effect(sblocca, st(valvola, lock, unlocked))
+!assert concept_label(sblocca, it, common, "sbloccare la valvola")
+> il livello sta salendo
+< Annotato: lo tengo come stato attuale.
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+
+# Un passo solo, perche' la valvola e' gia' sbloccata: il piano non si allunga
+# per abitudine.
+[test one step when one step is enough]
+> la valvola è sbloccata
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# Bloccata, l'azione che serve non e' piu' applicabile — e invece di dire che
+# non si puo', parrot0 trova cio' che la abilita.
+[test the enabling step appears when the goal action is blocked]
+> la valvola è bloccata
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Prima sbloccare la valvola, poi aprire la valvola.
+
+# Tolta l'azione che abilita, non resta un piano piu' corto inventato: resta il
+# residuo onesto. Un pianificatore che allunga il passo per non tacere e' peggio
+# di uno che tace.
+[test no plan is invented when nothing enables the step]
+!forget action_effect(sblocca, st(valvola, lock, unlocked))
+> come faccio ad abbassare il livello
+< Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
+!assert action_effect(sblocca, st(valvola, lock, unlocked))
+> come faccio ad abbassare il livello
+< Prima sbloccare la valvola, poi aprire la valvola.
+
+# L'effetto NON contraddetto sopravvive al primo passo: sbloccare non chiude ne'
+# apre la valvola, quindi la precondizione di posizione vale ancora dopo. Se il
+# delta cancellasse tutto cio' che non riafferma, il secondo passo non sarebbe
+# mai applicabile e il piano non esisterebbe.
+[test the first step preserves what it does not contradict]
+!forget holds_in(described_situation, st(valvola, position, closed))
+> come faccio ad abbassare il livello
+< Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Prima sbloccare la valvola, poi aprire la valvola.
+
+# Trasferimento: secondo dominio, altra lingua, nessuna parola in comune. Gli
+# operatori sono gli stessi — se servisse una regola nuova, sarebbe una
+# soluzione idraulica e non un livello.
+[test the same enabling logic in an unrelated domain and language]
+!set PARROT0_LANG=en
+!reload
+!assert concept_label(charge, en, common, charge)
+!assert concept_label(increase, en, common, raise)
+!assert property_of_value(low, charge)
+!assert property_of_value(shut, hatch)
+!assert property_of_value(opened, hatch)
+!assert state_cue(low, "is low")
+!assert state_cue(shut, "is shut")
+!assert action_schema(power, connect_charger)
+!assert action_precondition(connect_charger, st(hatch, hatch, opened))
+!assert action_effect(connect_charger, st(cell, link, connected))
+!assert causal_law(st(cell, link, connected), refill)
+!assert change_prop(refill, charge, increase)
+!assert concept_label(connect_charger, en, common, "connect the charger")
+!assert action_schema(power, open_hatch)
+!assert action_precondition(open_hatch, st(hatch, hatch, shut))
+!assert action_effect(open_hatch, st(hatch, hatch, opened))
+!assert concept_label(open_hatch, en, common, "open the hatch")
+> the charge is low
+< Noted: I am holding that as the current state.
+> the hatch is shut
+< Noted: I am holding that as the current state.
+> how do i raise the charge
+< First open the hatch, then connect the charger.
