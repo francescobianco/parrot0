@@ -1,0 +1,109 @@
+# LA RIPRESA — gen397, avvio.
+#
+# Il gen394 ha dato a parrot0 la memoria di cio' che non ha saputo dire, ma
+# restava muta: bisognava gia' sapere quale parola nominare per interrogarla.
+# Una conversazione vera fa il contrario — e' parrot0 che deve poter dire che
+# cosa manca.
+#
+# Il dialogo qui sotto e' lungo di proposito e cambia argomento due volte: la
+# prova non e' che parrot0 ricordi l'ultimo turno, ma che ricordi attraverso
+# turni che non c'entrano niente. E' la differenza fra un buffer e una memoria.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# Su una conversazione appena cominciata non c'e' nulla in sospeso, e dirlo e'
+# una risposta: tacere lascerebbe l'interlocutore a chiedersi se la domanda sia
+# stata capita.
+[test an empty conversation owes nothing]
+> what is still open
+< Nothing is pending: I have answered everything you asked.
+> what did we settle
+< Nothing has been settled since: no question of yours has found an answer yet.
+
+[test two unanswered questions become two debts]
+> where is zorbia
+<~ don't know about zorbia
+> where is florbix
+<~ don't know about florbix
+> what is still open
+< I still owe you an answer about zorbia, florbix.
+
+# Dodici turni che non c'entrano niente: aritmetica, saluti, fatti noti, un
+# sillogismo. Se la memoria fosse l'ultimo turno, qui si perderebbe.
+[test the debt survives a long stretch of unrelated turns]
+> what is 2 + 2
+< 4.
+> hello
+<~ Hi
+> where is milan
+< Lombardy.
+> what is 10 * 3
+< 30.
+> what is the capital of france
+< Paris.
+> thanks
+<~ welcome
+> what is 7 - 5
+< 2.
+> where is paris
+< France.
+> what is 6 * 6
+< 36.
+> good morning
+<~ Hi
+> what is 100 / 4
+< 25.
+> where is rome
+<~ Ital
+> what is still open
+< I still owe you an answer about zorbia, florbix.
+
+# La conoscenza che arriva sposta da sola una parola da un elenco all'altro:
+# nessuno tiene a mano le due liste, perche' lo stato e' una vista sul mondo
+# corrente e non un registro da aggiornare.
+[test knowledge arriving moves a word from one list to the other]
+> zorbia is in europe
+<~ Learned
+> what is still open
+< I still owe you an answer about florbix.
+> what did we settle
+< Since you asked, I have learned about zorbia.
+
+# Altri turni estranei, poi si chiude anche il secondo debito. La conversazione
+# torna a non dovere niente — e la simmetria conta: se «niente in sospeso»
+# arrivasse solo all'inizio, sarebbe un default, non una risposta.
+[test the conversation can return to owing nothing]
+> what is 9 + 1
+< 10.
+> where is berlin
+<~ German
+> florbix is in asia
+<~ Learned
+> what is still open
+< Nothing is pending: I have answered everything you asked.
+> what did we settle
+< Since you asked, I have learned about zorbia, florbix.
+
+# Ritratta la conoscenza, il debito ricompare: e' una vista, non un flag che
+# qualcuno ha girato al momento giusto.
+[test a debt reappears if the knowledge goes away]
+!forget located_in(florbix, asia)
+> what is still open
+< I still owe you an answer about florbix.
+
+# La superficie della ripresa e' conoscenza come tutto il resto.
+[test the recall surface grows and retracts at runtime]
+> anything left hanging
+<! I still owe you an answer
+!assert recall_cue("anything left hanging", pending)
+> anything left hanging
+< I still owe you an answer about florbix.
+!forget recall_cue("anything left hanging", pending)
+> anything left hanging
+<! I still owe you an answer

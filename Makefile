@@ -534,6 +534,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/generation/register_realization.p0t
 	@./$(BIN) --test tests/p0t/reasoning/described_situation.p0t
 	@./$(BIN) --test tests/p0t/conversation/open_issues.p0t
+	@./$(BIN) --test tests/p0t/conversation/discourse_recall.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem_multi.p0t
 	@./$(BIN) --test tests/p0t/reasoning/belief.p0t

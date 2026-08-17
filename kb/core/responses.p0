@@ -262,6 +262,18 @@ response_template(situation_plan_ambiguous, it, "Piu' di un'azione lo cambierebb
 % gen396: chiedere un registro e' una mossa, e riconoscerla e' la risposta
 % dovuta — cambiare stile in silenzio lascerebbe l'interlocutore senza modo di
 % sapere che l'ha ottenuto.
+% gen397: la ripresa. Dire che cosa manca, o dire che non manca nulla — il
+% secondo non e' un muro ma un'informazione, e tacere al suo posto lascerebbe
+% l'interlocutore a chiedersi se la domanda sia stata capita.
+recall_opener(pending, en, "I still owe you an answer about ").
+recall_opener(pending, it, "Ti devo ancora una risposta su ").
+recall_opener(settled, en, "Since you asked, I have learned about ").
+recall_opener(settled, it, "Da quando l'hai chiesto ho imparato su ").
+recall_empty(pending, en, "Nothing is pending: I have answered everything you asked.").
+recall_empty(pending, it, "Non c'e' niente in sospeso: ho risposto a tutto quello che hai chiesto.").
+recall_empty(settled, en, "Nothing has been settled since: no question of yours has found an answer yet.").
+recall_empty(settled, it, "Non si e' chiarito niente: nessuna tua domanda ha ancora trovato risposta.").
+
 % gen398a: descrivere non fa una domanda. La mossa dovuta e' riconoscere che lo
 % stato e' stato registrato — dedurne una conseguenza sarebbe rispondere a
 % qualcosa che nessuno ha ancora chiesto.

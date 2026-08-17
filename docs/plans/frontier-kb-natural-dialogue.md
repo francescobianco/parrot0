@@ -1840,6 +1840,38 @@ di aprire la generazione successiva.
 nuova forma, un nuovo senso, un nuovo ponte, una nuova policy o un nuovo registro
 cambiano il dialogo a runtime; la suite ordinaria resta entro i budget.
 
+**Stato di attuazione (gen397, avvio — la RIPRESA).** `kb/core/discourse.p0`.
+Il gen394 aveva dato a parrot0 la memoria di cio' che non ha saputo dire, ma
+restava muta: bisognava gia' sapere quale parola nominare per interrogarla. Ora
+e' parrot0 a dire che cosa manca, e l'elenco si aggiorna da solo perche' e' una
+vista e non una lista tenuta a mano:
+
+```text
+what is still open   -> Nothing is pending: I have answered everything you asked.
+where is zorbia      -> Hmm, I don't know about zorbia yet...
+where is florbix     -> Hmm, I don't know about florbix yet...
+what is still open   -> I still owe you an answer about zorbia, florbix.
+zorbia is in europe  -> Learned: located_in(zorbia, europe).
+what is still open   -> I still owe you an answer about florbix.
+what did we settle   -> Since you asked, I have learned about zorbia.
+```
+
+Il ratchet `conversation/discourse_recall.p0t` (30 asserzioni) fa passare in
+mezzo DODICI turni estranei — aritmetica, saluti, geografia, ringraziamenti —
+perche' la prova non e' che parrot0 ricordi l'ultimo turno: e' che ricordi
+attraverso turni che non c'entrano niente. E' la differenza fra un buffer e una
+memoria.
+
+Il taglio porta anche la piega che mancava al §K6: `list_text/3` realizza un
+elenco di lunghezza VARIABILE con il separatore della lingua come dato, mentre
+`answer_content/4` sapeva comporre solo un numero fisso di pezzi con ruoli noti.
+Come il fold del piano proposizionale, non decide nulla su cosa dire.
+
+Restano da fare le unita' discorsive vere (`discourse_unit/3`, `unit_about/2`),
+la salienza dichiarativa, il topic stack e la sintesi con provenance. Vivranno
+sullo stesso `turn_bookkeeping/1`, che e' il motivo per cui esiste. I dialoghi
+da 50 e 100 turni non sono ancora provati: questo ne prova venticinque.
+
 ## 16. Stato di avanzamento
 
 Il piano e' partito da **gen391**. gen396 e' ora il fronte semantico attivo ma
@@ -1946,8 +1978,24 @@ Avvio della gen394:
    assert/retract di `move_policy/2`, senza rebuild;
 3. **ratchet runtime presente:** `conversation/dialogue_moves.p0t` prova
    risposta, declino e chiarimento sulla stessa struttura di frame;
-4. **router aperto:** precedenza, issue, obblighi e consumo universale prima del
-   first-match non sono ancora implementati e bloccano la promozione di gen394.
+4. **ISSUE E OBBLIGHI PRESENTI (gen394, secondo taglio):** `kb/core/issues.p0`.
+   Il posto dove registrarli non esisteva — il turno che fallisce esce dal frame
+   senza che nessuno gli chieda niente, perche' il frame declina apposta per
+   lasciare la parola al percorso storico. `turn_bookkeeping/1` e' una terza
+   domanda che il motore pone a ogni turno e il cui risultato viene IGNORATO:
+   registrare non e' rispondere, e le altre due domande restano pure.
+
+   Lo stato dell'issue e' una VISTA e non un flag: si chiude quando la risposta
+   diventa derivabile e si riapre se la conoscenza viene ritratta, quindi non
+   puo' divergere da cio' che parrot0 sa. `answer_obligation/2` e' derivato per
+   la stessa ragione — non puo' sopravvivere alla propria ragione d'essere.
+
+   Resta aperta la PRECEDENZA fra mosse (`move_priority/3` e' dato ma nessun
+   consumer lo risolve), e la condizione dell'issue e' oggi
+   `naf(relation_mentions(...))` invece di «nessuna lettura regge»: la seconda
+   chiede l'enumerazione esaustiva e la contabilita' gira a ogni turno. Il caso
+   Napoli/Campania — relazione che conosce la parola ma non nel verso chiesto —
+   resta percio' fuori, ed e' debito dichiarato.
 
 Avvio della gen395:
 

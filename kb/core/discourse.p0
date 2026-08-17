@@ -1,0 +1,66 @@
+% discourse.p0 — LA CONVERSAZIONE COME OGGETTO INTERROGABILE (gen397, avvio).
+%
+% Il gen394 ha dato a parrot0 la memoria di cio' che non ha saputo dire. Restava
+% muta: un'issue aperta si poteva interrogare solo nominando la parola giusta,
+% cioe' bisognava gia' sapere che cosa era rimasto in sospeso. Una conversazione
+% vera fa il contrario — e' parrot0 che deve poter dire che cosa manca.
+%
+% Il piano chiede per gen397 unita' discorsive, salienza e operatori di
+% continuita'. Questo e' il primo taglio: la RIPRESA. Le unita' e la salienza
+% arriveranno sullo stesso aggancio (`turn_bookkeeping/1`), che e' il motivo per
+% cui esiste.
+
+:- file_attribute(machinery).
+
+% ── 1. LA SUPERFICIE DELLA RIPRESA ─────────────────────────────────────────
+%
+% Chiedere «cosa e' rimasto in sospeso» non nomina nessuna entita': e' una
+% domanda sulla CONVERSAZIONE, non sul mondo. Il registro delle cue e' lo stesso
+% che il motore gia' cerca nel turno, quindi non nasce ne' un recognizer ne' una
+% lingua nel C.
+recall_cue("what is still open", pending).
+recall_cue("what is still pending", pending).
+recall_cue("what do you still owe me", pending).
+recall_cue("cosa è rimasto in sospeso", pending).
+recall_cue("cosa non sai ancora", pending).
+recall_cue("what did we settle", settled).
+recall_cue("what have you learned since", settled).
+recall_cue("cosa abbiamo chiarito", settled).
+turn_cue_registry(recall_cue, 1).
+
+turn_recall($Turn, $Kind) :- turn_cue_form($Turn, recall_cue, $Cue), recall_cue($Cue, $Kind).
+
+% ── 2. CHE COSA C'E' DA RIPRENDERE ─────────────────────────────────────────
+%
+% Non una lista tenuta a mano: l'insieme delle issue il cui stato E' quello
+% chiesto, calcolato adesso. Una conoscenza arrivata nel frattempo sposta da sola
+% una parola da un elenco all'altro, e nessuno deve ricordarsi di aggiornare
+% niente — e' la stessa ragione per cui `issue_status/2` e' una vista.
+recall_kind_word(pending, $Word) :- issue_status($Word, open).
+recall_kind_word(settled, $Word) :- issue_status($Word, resolved).
+recall_set($Kind, $Words) :- findall($W, recall_kind_word($Kind, $W), $Words).
+recall_nonempty($Kind, $Words) :- recall_set($Kind, cons($First, $Tail)), recall_set($Kind, $Words).
+
+% ── 3. REALIZZARE UN ELENCO ────────────────────────────────────────────────
+%
+% Il piano proposizionale del §K6 compone un numero FISSO di pezzi: va bene per
+% una frase con ruoli noti, non per un elenco la cui lunghezza dipende da cio'
+% che e' successo. Questa e' la piega mancante — un fold sulla lista, con il
+% separatore della lingua come dato. Non decide nulla su cosa dire: mette in fila
+% cio' che qualcun altro ha gia' provato, esattamente come `answer_tail/3`.
+list_text($Language, cons($Item, nil), $Item).
+list_text($Language, cons($Item, $Tail), $Text) :- list_separator($Language, $Separator), list_text($Language, $Tail, $Rest), concat_atoms($Item, $Separator, $Head), concat_atoms($Head, $Rest, $Text).
+
+answer_content(recall($Kind, $Words, $Language), 0, opener, $Piece) :- recall_opener($Kind, $Language, $Piece).
+answer_content(recall($Kind, $Words, $Language), 1, items, $Piece) :- list_text($Language, $Words, $Piece).
+answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+% ── 4. LA MOSSA ────────────────────────────────────────────────────────────
+%
+% Due esiti disgiunti, ed entrambi sono una risposta: dire che cosa manca, o
+% dire che non manca nulla. Il secondo non e' un muro — e' un'informazione, e
+% tacere al suo posto sarebbe lasciare l'interlocutore a chiedersi se la domanda
+% sia stata capita.
+turn_plan_candidate($Turn) :- turn_recall($Turn, $Kind).
+turn_response($Turn, $Text) :- turn_recall($Turn, $Kind), recall_nonempty($Kind, $Words), current_language($Language), answer_text(recall($Kind, $Words, $Language), $Text).
+turn_response($Turn, $Text) :- turn_recall($Turn, $Kind), recall_set($Kind, nil), current_language($Language), recall_empty($Kind, $Language, $Text).
