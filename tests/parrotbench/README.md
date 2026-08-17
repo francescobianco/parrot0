@@ -54,10 +54,14 @@ cosi' un'interruzione non perde il lavoro gia' completato. Il registro e'
 leggibile mentre il processo e' in corso. Per ripartire da zero si puo'
 rimuovere manualmente `tests/parrotbench/results/progress.tsv`.
 
-Il file `tests/parrotbench/results/histogram.tsv` aggrega per slot
+Il file `tests/parrotbench/results/histogram.tsv` aggrega per categoria,
+attraverso tutti gli slot completati,
 `passed`, `failed`, `total`, `percent` e `avg_elapsed_ms`: e' il dataset per istogrammi delle
 abilita' in cui parrot0 eccelle o e' carente. Il file viene aggiornato dopo ogni
 slot, quindi anche una run interrotta lascia una fotografia parziale esplicita.
+Il file intermedio `categories.tsv` conserva invece la coppia
+`slot/categoria`, così una categoria ripetuta in slot diversi viene sommata senza
+confondere lo slot con una skill.
 La directory `results/` e' stato locale generato e ignorato da git: il corpus
 dei prompt e' condiviso, mentre ogni release mantiene il proprio registro e la
 propria misura.

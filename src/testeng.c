@@ -118,6 +118,9 @@ typedef struct {
     double timeout_sec;      /* per-test budget for a turn (default 1s; 0 = off) */
     int poisoned;            /* the current turn already failed (e.g. on timeout) */
     int passed, failed, line_no, shutdown;
+    char bench_category[TE_NAME];
+    void (*bench_record)(void *ctx, const char *category, int passed);
+    void *bench_record_ctx;
 } TeState;
 
 #define TE_DEFAULT_TIMEOUT 1.0   /* each test's turn budget unless it says otherwise */
@@ -176,6 +179,8 @@ static void te_flush(TeState *t) {
                 t->expect_mode == TE_EXPECT_LACKS ? " (absent)"   : "", t->expect);
         fprintf(t->out, "        got:      %s\n", got);
     }
+    if (t->bench_record)
+        t->bench_record(t->bench_record_ctx, t->bench_category, ok);
     t->expect_len = 0;
     t->expect[0] = '\0';
     t->have_expect = 0;
@@ -309,6 +314,15 @@ static int te_process_stream(TeState *t, FILE *in) {
         while (*p == ' ' || *p == '\t') p++;
 
         if (*p == '\0' || *p == '#') continue;
+
+        if (strncmp(p, "!bench-category", 15) == 0 &&
+            (p[15] == ' ' || p[15] == '\t')) {
+            te_flush(t);
+            const char *category = p + 15;
+            while (*category == ' ' || *category == '\t') category++;
+            snprintf(t->bench_category, sizeof t->bench_category, "%s", category);
+            continue;
+        }
 
         if (*p == '[') {
             te_flush(t);
@@ -685,10 +699,23 @@ typedef struct {
 } BenchRow;
 
 typedef struct {
+    char slot[BE_FIELD];
+    char category[BE_FIELD];
+    int passed, failed, total;
+} BenchCategory;
+
+typedef struct {
     const char *path;
     BenchRow rows[BE_MAX_ROWS];
     size_t count;
+    BenchCategory categories[BE_MAX_ROWS];
+    size_t category_count;
 } BenchLedger;
+
+typedef struct {
+    BenchLedger *ledger;
+    const char *slot;
+} BenchRunContext;
 
 static void be_category(const char *slot, char *out, size_t cap) {
     snprintf(out, cap, "%s", slot ? slot : "unknown");
@@ -716,6 +743,40 @@ static BenchRow *be_find(BenchLedger *l, const char *slot, int create) {
     return r;
 }
 
+static BenchCategory *be_find_category(BenchLedger *l, const char *slot,
+                                        const char *category, int create) {
+    for (size_t i = 0; i < l->category_count; i++)
+        if (strcmp(l->categories[i].slot, slot) == 0 &&
+            strcmp(l->categories[i].category, category) == 0)
+            return &l->categories[i];
+    if (!create || l->category_count >= BE_MAX_ROWS) return NULL;
+    BenchCategory *c = &l->categories[l->category_count++];
+    memset(c, 0, sizeof *c);
+    snprintf(c->slot, sizeof c->slot, "%s", slot);
+    snprintf(c->category, sizeof c->category, "%s", category);
+    return c;
+}
+
+static void be_remove_slot_categories(BenchLedger *l, const char *slot) {
+    size_t write = 0;
+    for (size_t i = 0; i < l->category_count; i++) {
+        if (strcmp(l->categories[i].slot, slot) == 0) continue;
+        if (write != i) l->categories[write] = l->categories[i];
+        write++;
+    }
+    l->category_count = write;
+}
+
+static void be_record_assertion(void *opaque, const char *category, int passed) {
+    BenchRunContext *ctx = opaque;
+    const char *name = category && *category ? category : "uncategorized";
+    BenchCategory *c = be_find_category(ctx->ledger, ctx->slot, name, 1);
+    if (!c) return;
+    if (passed) c->passed++;
+    else c->failed++;
+    c->total++;
+}
+
 static void be_load(BenchLedger *l) {
     FILE *f = fopen(l->path, "r");
     if (!f) return;
@@ -737,6 +798,23 @@ static void be_load(BenchLedger *l) {
         }
     }
     fclose(f);
+    char categories_path[BE_FIELD * 2];
+    snprintf(categories_path, sizeof categories_path, "%s", l->path);
+    char *slash = strrchr(categories_path, '/');
+    if (slash) snprintf(slash + 1, sizeof categories_path - (size_t)(slash + 1 - categories_path), "categories.tsv");
+    FILE *cf = fopen(categories_path, "r");
+    if (!cf) return;
+    while (fgets(line, sizeof line, cf)) {
+        if (line[0] == '#' || strncmp(line, "slot\t", 5) == 0) continue;
+        char *v[5]; size_t n = 0;
+        char *p = strtok(line, "\t\r\n");
+        while (p && n < 5) { v[n++] = p; p = strtok(NULL, "\t\r\n"); }
+        if (n < 5) continue;
+        BenchCategory *c = be_find_category(l, v[0], v[1], 1);
+        if (!c) continue;
+        c->passed = atoi(v[2]); c->failed = atoi(v[3]); c->total = atoi(v[4]);
+    }
+    fclose(cf);
 }
 
 static void be_write(BenchLedger *l) {
@@ -756,6 +834,25 @@ static void be_write(BenchLedger *l) {
     fclose(f);
     rename(tmp, l->path);
 
+    char categories_path[BE_FIELD * 2];
+    snprintf(categories_path, sizeof categories_path, "%s", l->path);
+    char *categories_slash = strrchr(categories_path, '/');
+    if (categories_slash)
+        snprintf(categories_slash + 1,
+                 sizeof categories_path - (size_t)(categories_slash + 1 - categories_path),
+                 "categories.tsv");
+    FILE *cf = fopen(categories_path, "w");
+    if (cf) {
+        fprintf(cf, "# Bench-engine category measurements grouped by slot.\n");
+        fprintf(cf, "slot\tcategory\tpassed\tfailed\ttotal\n");
+        for (size_t i = 0; i < l->category_count; i++) {
+            BenchCategory *c = &l->categories[i];
+            fprintf(cf, "%s\t%s\t%d\t%d\t%d\n", c->slot, c->category,
+                    c->passed, c->failed, c->total);
+        }
+        fclose(cf);
+    }
+
     char hist[BE_FIELD * 2];
     snprintf(hist, sizeof hist, "%s", l->path);
     char *slash = strrchr(hist, '/');
@@ -764,24 +861,24 @@ static void be_write(BenchLedger *l) {
     if (!h) return;
     fprintf(h, "# Bench-engine skill histogram; partial while a run is in progress.\n");
     fprintf(h, "category\tpassed\tfailed\ttotal\tpercent\tavg_elapsed_ms\n");
-    for (size_t i = 0; i < l->count; i++) {
-        BenchRow *r = &l->rows[i];
-        if (strcmp(r->status, "complete") != 0) continue;
-        int p = r->passed, ff = r->failed, total = r->total;
-        long elapsed = r->elapsed_ms; int elapsed_count = 1;
-        int seen = 0;
+    for (size_t i = 0; i < l->category_count; i++) {
+        BenchCategory *c = &l->categories[i];
+        int seen = 0, p = 0, ff = 0, total = 0, slot_count = 0;
+        long category_elapsed = 0;
         for (size_t j = 0; j < i; j++)
-            if (strcmp(l->rows[j].category, r->category) == 0 &&
-                strcmp(l->rows[j].status, "complete") == 0) { seen = 1; break; }
+            if (strcmp(l->categories[j].category, c->category) == 0) { seen = 1; break; }
         if (seen) continue;
-        for (size_t j = i + 1; j < l->count; j++)
-            if (strcmp(l->rows[j].category, r->category) == 0 &&
-                strcmp(l->rows[j].status, "complete") == 0) {
-                p += l->rows[j].passed; ff += l->rows[j].failed; total += l->rows[j].total;
-                elapsed += l->rows[j].elapsed_ms; elapsed_count++;
+        for (size_t j = i; j < l->category_count; j++)
+            if (strcmp(l->categories[j].category, c->category) == 0) {
+                BenchRow *slot = be_find(l, l->categories[j].slot, 0);
+                if (!slot || strcmp(slot->status, "complete") != 0) continue;
+                p += l->categories[j].passed; ff += l->categories[j].failed;
+                total += l->categories[j].total;
+                category_elapsed += slot->elapsed_ms; slot_count++;
             }
-        fprintf(h, "%s\t%d\t%d\t%d\t%.2f\t%ld\n", r->category, p, ff, total,
-                total ? 100.0 * p / total : 0.0, elapsed / elapsed_count);
+        fprintf(h, "%s\t%d\t%d\t%d\t%.2f\t%ld\n", c->category, p, ff, total,
+                total ? 100.0 * p / total : 0.0,
+                slot_count ? category_elapsed / slot_count : 0L);
     }
     fclose(h);
 }
@@ -828,8 +925,10 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
     if (bind(lfd, (struct sockaddr *)&addr, sizeof addr) < 0 || listen(lfd, 8) < 0) {
         perror("bench-engine: bind/listen"); close(lfd); unlink(sockpath); return 1;
     }
-    BenchLedger ledger = { .path = stats_path };
-    be_load(&ledger); be_write(&ledger);
+    BenchLedger *ledger = calloc(1, sizeof *ledger);
+    if (!ledger) { close(lfd); unlink(sockpath); return 1; }
+    ledger->path = stats_path;
+    be_load(ledger); be_write(ledger);
     TeState t; memset(&t, 0, sizeof t); t.b = b; te_mark_clean(&t); t.timeout_sec = TE_DEFAULT_TIMEOUT;
     for (;;) {
         int cfd = accept(lfd, NULL, NULL);
@@ -844,17 +943,18 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
         if (!fin || !fout) { free(payload); if (fin) fclose(fin); if (fout) fclose(fout); close(cfd); continue; }
         if (strcmp(control, "!bench-shutdown") == 0) {
             int p = 0, ff = 0; long elapsed = 0;
-            for (size_t i = 0; i < ledger.count; i++) if (strcmp(ledger.rows[i].status, "complete") == 0) {
-                p += ledger.rows[i].passed; ff += ledger.rows[i].failed; elapsed += ledger.rows[i].elapsed_ms;
+            for (size_t i = 0; i < ledger->count; i++) if (strcmp(ledger->rows[i].status, "complete") == 0) {
+                p += ledger->rows[i].passed; ff += ledger->rows[i].failed; elapsed += ledger->rows[i].elapsed_ms;
                 fprintf(fout, "REPORT %s status=%s passed=%d failed=%d elapsed_ms=%ld\n",
-                        ledger.rows[i].slot, ledger.rows[i].status, ledger.rows[i].passed,
-                        ledger.rows[i].failed, ledger.rows[i].elapsed_ms);
+                        ledger->rows[i].slot, ledger->rows[i].status, ledger->rows[i].passed,
+                        ledger->rows[i].failed, ledger->rows[i].elapsed_ms);
             }
             fprintf(fout, "BENCH %d %d %d percent=%.2f elapsed_ms=%ld\n", p, ff, p + ff,
                     p + ff ? 100.0 * p / (p + ff) : 0.0, elapsed);
             t.shutdown = 1;
         } else if (strcmp(control, "!bench-health") == 0) {
             p0env_clear(); t.out = fout; t.line_no = 0; t.shutdown = 0;
+            t.bench_record = NULL; t.bench_record_ctx = NULL;
             int pb = t.passed, fb = t.failed;
             te_process_stream(&t, fin);
             int passed = t.passed - pb, failed = t.failed - fb;
@@ -864,11 +964,11 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
             fprintf(fout, "BENCH ERROR missing !bench-slot\nEXIT 2\n");
         } else {
             const char *slot = control + 12;
-            BenchRow *row = be_find(&ledger, slot, 1);
-            if (be_complete(&ledger, slot)) {
-                BenchRow *done = be_find(&ledger, slot, 0);
+            BenchRow *row = be_find(ledger, slot, 1);
+            if (be_complete(ledger, slot)) {
+                BenchRow *done = be_find(ledger, slot, 0);
                 int p, ff; long elapsed;
-                be_totals(&ledger, &p, &ff, &elapsed);
+                be_totals(ledger, &p, &ff, &elapsed);
                 (void)elapsed;
                 fprintf(fout, "SLOT skipped %s elapsed_ms=%ld\nCOUNT 0 0\n"
                         "BENCH partial passed=%d failed=%d total=%d percent=%.2f delta_pct=0.00\nEXIT 0\n",
@@ -877,23 +977,29 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
             } else if (!row) {
                 fprintf(fout, "BENCH ERROR too many slots\nEXIT 2\n");
             } else {
+                BenchRunContext runctx = { ledger, slot };
                 snprintf(row->status, sizeof row->status, "running");
                 row->passed = row->failed = row->total = 0;
                 row->started_epoch = (long long)time(NULL);
                 row->elapsed_ms = 0;
-                be_write(&ledger);
+                be_remove_slot_categories(ledger, slot);
+                be_write(ledger);
                 p0env_clear(); t.out = fout; t.line_no = 0; t.shutdown = 0;
+                t.bench_record = be_record_assertion;
+                t.bench_record_ctx = &runctx;
+                t.bench_category[0] = '\0';
                 int pb = t.passed, fb = t.failed;
                 struct timespec started, finished;
                 clock_gettime(CLOCK_MONOTONIC, &started);
                 te_process_stream(&t, fin);
                 clock_gettime(CLOCK_MONOTONIC, &finished);
+                t.bench_record = NULL; t.bench_record_ctx = NULL;
                 row->passed = t.passed - pb; row->failed = t.failed - fb; row->total = row->passed + row->failed;
                 row->elapsed_ms = (long)((finished.tv_sec - started.tv_sec) * 1000L +
                     (finished.tv_nsec - started.tv_nsec) / 1000000L);
-                snprintf(row->status, sizeof row->status, "complete"); be_write(&ledger);
+                snprintf(row->status, sizeof row->status, "complete"); be_write(ledger);
                 int p, ff; long elapsed;
-                be_totals(&ledger, &p, &ff, &elapsed);
+                be_totals(ledger, &p, &ff, &elapsed);
                 (void)elapsed;
                 int before_total = p + ff - row->total;
                 double partial = p + ff ? 100.0 * p / (p + ff) : 0.0;
@@ -910,7 +1016,7 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
         fclose(fout); fclose(fin); if (ob) write_all(cfd, ob, ol); free(ob); free(payload); close(cfd);
         if (t.shutdown) break;
     }
-    close(lfd); unlink(sockpath); return 0;
+    close(lfd); unlink(sockpath); free(ledger); return 0;
 }
 
 static int be_client_send_payload(const char *sockpath, const char *payload, size_t plen,
@@ -1055,6 +1161,33 @@ static int be_append_file(char **data, size_t *len, size_t *capacity, const char
     return 0;
 }
 
+static int be_append_text(char **data, size_t *len, size_t *capacity, const char *text) {
+    size_t n = strlen(text);
+    if (*len + n + 1 > *capacity) {
+        size_t nc = *capacity ? *capacity * 2 : 8192;
+        while (nc < *len + n + 1) nc *= 2;
+        char *grown = realloc(*data, nc);
+        if (!grown) return 2;
+        *data = grown; *capacity = nc;
+    }
+    memcpy(*data + *len, text, n);
+    *len += n;
+    (*data)[*len] = '\0';
+    return 0;
+}
+
+static void be_file_category(const char *slot, const char *file,
+                             char *out, size_t cap) {
+    const char *relative = file;
+    size_t slot_len = strlen(slot);
+    if (strncmp(file, slot, slot_len) == 0 && file[slot_len] == '/')
+        relative = file + slot_len + 1;
+    snprintf(out, cap, "%s", relative);
+    char *last = strrchr(out, '/');
+    if (last) *last = '\0';
+    else snprintf(out, cap, "uncategorized");
+}
+
 static int be_send_slot(const char *sockpath, const char *path) {
     printf("BENCH start %s\n", path);
     fflush(stdout);
@@ -1067,6 +1200,11 @@ static int be_send_slot(const char *sockpath, const char *path) {
     char *data = NULL; size_t len = 0, capacity = 0;
     int rc = 0;
     for (size_t i = 0; i < files.count; i++) {
+        char category[BE_FIELD];
+        char marker[BE_FIELD + 24];
+        be_file_category(path, files.paths[i], category, sizeof category);
+        snprintf(marker, sizeof marker, "!bench-category %s\n", category);
+        if (be_append_text(&data, &len, &capacity, marker) != 0) rc = 2;
         if (be_append_file(&data, &len, &capacity, files.paths[i]) != 0) rc = 2;
         free(files.paths[i]);
     }
