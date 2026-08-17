@@ -1,0 +1,55 @@
+% risk.p0 — IL DANNO E' UN VINCOLO, NON UN COSTO (gen398f).
+%
+% Un pianificatore che tratta il danno come un numero alto prima o poi lo paga:
+% basta che il guadagno sia piu' alto. Il piano lo dice senza ambiguita' —
+% «la policy che un danno umano e' un vincolo, non un costo ordinario, deve
+% essere ispezionabile e sostituibile nella KB senza essere ridotta a un numero
+% magico del planner».
+%
+% Qui l'inammissibilita' non e' una penalita': e' un'esclusione. E resta
+% conoscenza, quindi la si puo' leggere, discutere e cambiare — che e' l'unica
+% forma in cui una regola di condotta e' onesta. Una policy che nessuno puo'
+% ispezionare non e' un principio, e' un comportamento.
+%
+% La distinzione che porta il livello: FISICO e NORMATIVO restano separati.
+% Un'azione vietata resta perfettamente applicabile — le sue precondizioni
+% valgono, i suoi effetti sono quelli — e non viene scelta. Confondere i due
+% piani farebbe dire «non posso» dove la verita' e' «non lo faccio», e sono due
+% affermazioni diverse su di se'.
+
+:- file_attribute(machinery).
+
+% `action_risk/2` esiste dal gen258 e classifica gia' le azioni del dominio
+% codice (read_only, workspace_write, process_execute). Si riusa quella, e non
+% se ne scrive una seconda: la classe di rischio di un'azione e' la stessa
+% relazione, qualunque mondo la porti.
+%
+% `risk_policy/2` e' la disposizione verso una classe. Il core ne dichiara una
+% sola, e non per timidezza: le altre appartengono ai domini, mentre il danno a
+% una persona non e' una preferenza di dominio.
+risk_policy(human_harm, forbidden).
+
+action_forbidden($Action, $Class) :- action_risk($Action, $Class), risk_policy($Class, forbidden).
+action_inadmissible($Action) :- action_forbidden($Action, $Class).
+% La guardia `action_schema/2` non e' ridondante: senza, l'ammissibilita' sarebbe
+% vera per QUALUNQUE termine che non sia vietato — «tariq e' un'azione
+% ammissibile» — e un filtro che accetta tutto non e' un filtro. E' la terza
+% volta che questa specie di difetto si presenta, ed e' sempre la stessa: una
+% vista che dimentica di dire DI CHE COSA parla.
+action_admissible($Action) :- action_schema($Domain, $Action), naf(action_inadmissible($Action)).
+
+% ── IL RIFIUTO, che e' una risposta e non un silenzio ──────────────────────
+%
+% Quando l'unica strada verso il goal e' inammissibile, tacere sarebbe far
+% credere di non aver capito. Si dice che non si fa, e si dice PERCHE': la
+% classe che lo vieta e' nominata, quindi chi ascolta puo' obiettare alla regola
+% invece di indovinare il motivo.
+turn_forbidden_route($Turn, $Action, $Class) :- turn_action_candidate($Turn, $Situation, $Action), applicable($Situation, $Action), action_forbidden($Action, $Class).
+turn_has_forbidden_route($Turn) :- turn_forbidden_route($Turn, $Action, $Class).
+
+answer_content(refusal($Class, $Language), 0, opener, $Piece) :- refusal_opener($Language, $Piece).
+answer_content(refusal($Class, $Language), 1, reason, $Piece) :- risk_label($Class, $Language, $Piece).
+answer_content(refusal($Class, $Language), 2, closer, $Piece) :- refusal_closer($Language, $Piece).
+
+turn_plan_candidate($Turn) :- turn_has_forbidden_route($Turn).
+turn_response($Turn, $Text) :- turn_forbidden_route($Turn, $Action, $Class), naf(turn_has_plan($Turn)), naf(turn_has_two_step($Turn)), current_language($Language), answer_text(refusal($Class, $Language), $Text).

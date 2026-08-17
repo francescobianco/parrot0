@@ -1024,6 +1024,7 @@ machinery(sides).
 :- include(issues.p0).
 :- include(discourse.p0).
 :- include(inquiry.p0).
+:- include(risk.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 

@@ -328,6 +328,14 @@ ability_opener(en, "You can ").
 % che il primo abilita il secondo, che e' cio' che la proof ha dimostrato.
 % gen398d: l'azione informativa. L'apertura non porta claim — dice soltanto che
 % cio' che segue riduce l'incertezza, che e' cio' che la proof ha dimostrato.
+% gen398f: il rifiuto nomina la CLASSE che lo motiva, cosi' chi ascolta puo'
+% obiettare alla regola invece di indovinare il motivo.
+refusal_opener(en, "I will not do that: ").
+refusal_opener(it, "Non lo faccio: ").
+refusal_closer(en, " is a constraint here, not a cost to weigh.").
+refusal_closer(it, " e' un vincolo, non un costo da soppesare.").
+risk_label(human_harm, en, "harm to a person").
+risk_label(human_harm, it, "il danno a una persona").
 observe_opener(en, "You can find out this way: ").
 observe_opener(it, "Puoi scoprirlo cosi': ").
 response_template(inquiry_ambiguous, en, "More than one observation would tell them apart, and nothing here chooses between them.").

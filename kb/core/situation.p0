@@ -177,18 +177,24 @@ applicable_after($Situation, $First, $Second) :- action_schema($Domain, $Second)
 % alza il livello non e' una risposta peggiore alla domanda «come lo abbasso»:
 % e' una risposta a un'altra domanda.
 turn_action_candidate($Turn, $Situation, $Action) :- turn_task($Turn, $Situation, $Property, $Direction), action_change($Action, $Property, $Direction).
-turn_plan_step($Turn, $Action) :- turn_action_candidate($Turn, $Situation, $Action), applicable($Situation, $Action).
+% L'ammissibilita' filtra il PIANO, non l'applicabilita': un'azione vietata resta
+% perfettamente applicabile — le sue precondizioni valgono, i suoi effetti sono
+% quelli — e semplicemente non viene scelta. Tenere separati il piano fisico e
+% quello normativo e' cio' che permette di dire «non lo faccio» invece di «non
+% posso», che sono due affermazioni diverse su di se'.
+turn_plan_step($Turn, $Action) :- turn_action_candidate($Turn, $Situation, $Action), applicable($Situation, $Action), action_admissible($Action).
 
 % Il PASSO ABILITANTE: l'azione che raggiunge il goal non e' applicabile adesso,
 % ma lo diventa dopo un'altra che invece lo e'. E' la differenza fra cercare una
 % risposta e fare un piano — e nasce dalla stessa applicabilita' di prima, letta
 % nello stato che la prima azione produrrebbe.
-turn_enabled_step($Turn, $First, $Second) :- turn_action_candidate($Turn, $Situation, $Second), naf(applicable($Situation, $Second)), applicable($Situation, $First), applicable_after($Situation, $First, $Second), dif($First, $Second).
+turn_enabled_step($Turn, $First, $Second) :- turn_action_candidate($Turn, $Situation, $Second), naf(applicable($Situation, $Second)), applicable($Situation, $First), applicable_after($Situation, $First, $Second), dif($First, $Second), action_admissible($First), action_admissible($Second).
 % Tre passi. La macchina dello STATO non ha profondita': quella e' la GENERAZIONE
 % delle catene, ed e' bounded per scelta dichiarata — cercare senza limite in uno
 % spazio combinatorio non e' piu' ragionare, e il §17.5 autorizza una ricerca
 % limitata proprio per questo. Allungare il limite e' una riga; toglierlo no.
-turn_enabled_three($Turn, $First, $Second, $Third) :- turn_action_candidate($Turn, $Situation, $Third), action_schema($D1, $First), action_schema($D2, $Second), dif($First, $Second), dif($Second, $Third), plan_ok($Situation, cons($Third, cons($Second, cons($First, nil)))).
+turn_enabled_three($Turn, $First, $Second, $Third) :- turn_action_candidate($Turn, $Situation, $Third), action_schema($D1, $First), action_schema($D2, $Second), dif($First, $Second), dif($Second, $Third), plan_ok($Situation, cons($Third, cons($Second, cons($First, nil)))), admissible_chain($First, $Second, $Third).
+admissible_chain($First, $Second, $Third) :- action_admissible($First), action_admissible($Second), action_admissible($Third).
 turn_triple_key($Turn, triple($First, $Second, $Third)) :- turn_enabled_three($Turn, $First, $Second, $Third).
 turn_triple_set($Turn, $Triples) :- turn_has_candidate($Turn), findall($T, turn_triple_key($Turn, $T), $Triples).
 turn_three_step($Turn, $First, $Second, $Third) :- turn_triple_set($Turn, cons(triple($First, $Second, $Third), nil)).
