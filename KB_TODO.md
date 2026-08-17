@@ -2,6 +2,60 @@
 
 ## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
 
+### AGGIORNAMENTO 4 — gen396.1-396.2 (il registro) e la latenza pagata
+
+`kb/core/register.p0` chiude le due task del registro. Il registro non e' piu' un
+interruttore: `register_value(Registro, Dimensione, Valore)` lo colloca in uno
+spazio di dimensioni indipendenti, e la realizzazione sceglie la forma dentro
+`concept_label/4`, che porta gia' sia la lingua sia il registro. Si cambia
+PARLANDO:
+
+```text
+what is the zorb kind of vint  -> Glimmer.
+be technical                   -> Noted: I will keep that register from here on.
+what is the zorb kind of vint  -> Luminescent.
+keep it simple                 -> Shiny.
+```
+
+Stessa proof, tre forme, e il ratchet prova che il contenuto viene dalla proof e
+non dal registro: tolto il fatto, nessuna preferenza lo fa ricomparire in nessuna
+forma. 26 asserzioni in `generation/register_realization.p0t`.
+
+**La regola del gen390 era vera per meta'.** «Accettare una forma marcata non
+obbliga a rispecchiarla» valeva sul percorso del registro, mentre la
+localizzazione ordinaria continuava a emettere `mangiare`. La guardia
+`naf(marked_form(...))` sta ora su OGNI gradino della scala di realizzazione. E
+quando il registro chiesto ha SOLO una forma marcata, parrot0 non la emette e non
+tace: usa la forma compatibile non marcata dello stesso concetto.
+
+**Due trappole del dialetto, entrambe costose:**
+
+1. `retract/1` FALLISCE se il fatto non c'e', e un effetto che fallisce si porta
+   dietro tutta la congiunzione. Sostituire una preferenza richiede percio' due
+   clausole — il caso «c'era» e il caso «non c'era» vanno distinti, non sperati;
+2. `!set PARROT0_LANG` muove la firma di configurazione, quindi il turno
+   SUCCESSIVO ricarica la KB da disco e porta via tutto cio' che il test ha
+   insegnato dopo il `!set`. Il `!reload` esplicito fa avvenire la ricarica prima
+   di insegnare. Un'ora di diagnosi che sembrava un difetto del registro.
+
+**La latenza, pagata e misurata.** Il candidato del frame ri-derivava la risposta
+intera: il motore fa due domande separate — «questo turno appartiene a un piano?»
+e «qual e' la risposta?» — e mettere la derivazione completa in entrambe la
+pagava due volte. Ora il candidato dichiara soltanto che il turno ha una
+relazione ammessa e un'entita' di cui quella relazione sa parlare. Effetto
+misurato: `make soft-test` da **28s a 18s**, cioe' sotto il baseline di 21s da
+cui questa sessione era partita — il bilancio netto della sessione sulla latenza
+e' positivo, non solo recuperato. Resta fuori dal budget di 15s, che e' debito
+preesistente.
+
+Il residuo di performance e' ora localizzato con precisione: **non e' il
+candidato, e' l'enumerazione esaustiva delle letture**. `findall/3` non ha uscita
+anticipata, quindi provare che una lettura e' UNICA costa esplorare tutte le
+clausole della relazione anche quando la prima risposta e' gia' in mano. La
+memoizzazione per turno resta il prossimo lavoro; e un'alternativa piu' economica
+da valutare prima e' dichiarare quali relazioni sono funzionali, perche' per
+quelle l'unicita' non va provata per esaurimento.
+
 ### AGGIORNAMENTO 3 — gen395 ha il suo producer, e quattro difetti trovati strada facendo
 
 `kb/core/stipulation.p0` chiude il gate di gen395: un turno che stipula produce

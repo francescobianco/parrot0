@@ -1,0 +1,108 @@
+% register.p0 — IL REGISTRO COME VETTORE CONTESTUALE (gen396.1-396.2).
+%
+% Fino a qui il registro era un interruttore largo: `preferred_register/1`,
+% `style_temperature/1`, o l'argomento di `concept_label/4` scelto da chi
+% rendeva la frase. Il piano chiede l'opposto — dimensioni INDIPENDENTI che il
+% contesto compone — perche' «formale», «tecnico», «conciso» e «cortese» non
+% sono lo stesso asse, e un profilo che li impacchetta insieme non puo' capire
+% la richiesta di essere tecnico ma breve.
+%
+% Il confine con la verita' e' quello del §K5, e non e' negoziabile: **lo stile
+% e' subordinato alla proof**. Nessun registro puo' rendere assertiva una
+% proposizione non provata, e cambiare registro non puo' cambiare cio' che la
+% risposta afferma — puo' solo cambiare la FORMA con cui lo dice. Il renderer
+% qui sotto sceglie fra forme che `concept_label/4` gia' associa allo STESSO
+% concetto: per costruzione non ha modo di introdurre un claim nuovo.
+
+:- file_attribute(machinery).
+
+% ── 1. LE DIMENSIONI, indipendenti ─────────────────────────────────────────
+%
+% Un registro non e' un nome: e' un punto in uno spazio di dimensioni. Le righe
+% qui sotto dicono dove stanno i registri che la KB gia' usa, e una dimensione
+% nuova entra come fatto — nessun consumer la enumera, nessun motore la conosce.
+register_value(common, technicality, low).
+register_value(standard, technicality, high).
+register_value(fsi, technicality, high).
+register_value(fsi, formality, high).
+register_value(common, formality, low).
+
+% ── 2. LA PREFERENZA DEL CONTESTO ──────────────────────────────────────────
+%
+% `context_preference/3` e' lo stato: quale valore il contesto vuole, per
+% dimensione. E' deliberatamente vuoto nel core — senza una preferenza dichiarata
+% il comportamento resta quello di prima, e questo e' il contratto di
+% compatibilita' che rende il livello additivo invece che invasivo.
+%
+% Un registro e' preferito quando realizza una preferenza dichiarata. Basta una
+% dimensione: chiedere «tecnico» non obbliga a dire anche quanto formale essere.
+register_preferred($Register) :- register_value($Register, $Dimension, $Value), context_preference($Dimension, $Value).
+
+% ── 3. LA FORMA D'USCITA ───────────────────────────────────────────────────
+%
+% Due condizioni, e la seconda e' la regola osservata al gen390: **accettare una
+% forma marcata non obbliga a rispecchiarla**. `mangiare` e' capito e non viene
+% mai emesso; la risposta usa la forma compatibile non marcata, senza mettersi a
+% correggere chi ha parlato. Lo statuto sta sulla FORMA e non sul registro,
+% perche' `common` e' l'uso giusto per *regina* e quello marcato per *mangiare*:
+% marcare un registro intero sarebbe falso.
+%
+% Se il registro preferito non ha una forma non marcata, questa vista non
+% produce nulla e la realizzazione ordinaria prosegue. Tacere e' corretto: una
+% preferenza di stile non e' un'autorizzazione a dire qualcosa d'altro.
+register_output($Concept, $Language, $Form) :- register_preferred($Register), concept_label($Concept, $Language, $Register, $Form), naf(marked_form($Form)).
+register_renders($Concept, $Language) :- register_output($Concept, $Language, $Form).
+
+% Il caso che rende la regola una regola e non una preferenza: il registro
+% chiesto ESISTE per questo concetto, ma la sua forma e' marcata. Rispecchiarla
+% sarebbe rispondere «mangiare» a chi ha detto «mangiare»; tacere sarebbe
+% perdere una risposta che c'e'. Si usa allora la forma compatibile non marcata
+% dello stesso concetto — senza correggere nessuno, e senza cambiare di una
+% virgola cio' che la proof afferma. Senza preferenza dichiarata questa vista
+% non si attiva: il livello resta additivo.
+register_marked($Concept, $Language) :- register_preferred($Register), concept_label($Concept, $Language, $Register, $Form), marked_form($Form), naf(register_renders($Concept, $Language)).
+
+% ── 4. LA PORTA: chiedere un registro e' un turno ──────────────────────────
+%
+% Senza questa sezione il livello sarebbe raggiungibile solo da un `!assert`,
+% cioe' una capacita' che soltanto un test puo' usare. La cue sta in prima
+% posizione perche' il registro delle superfici del turno enumera l'argomento 1;
+% dimensione e valore la seguono, quindi una richiesta nuova — un'altra lingua,
+% un'altra dimensione — e' una riga e nessun consumer cambia.
+register_cue("in modo tecnico", technicality, high).
+register_cue("in termini tecnici", technicality, high).
+register_cue("be technical", technicality, high).
+register_cue("in technical terms", technicality, high).
+register_cue("in modo semplice", technicality, low).
+register_cue("in parole semplici", technicality, low).
+register_cue("in simple terms", technicality, low).
+register_cue("keep it simple", technicality, low).
+turn_cue_registry(register_cue, 1).
+
+% Una preferenza NUOVA sulla stessa dimensione sostituisce la vecchia, invece di
+% affiancarsi: due valori sullo stesso asse renderebbero preferiti due registri
+% opposti insieme, e la scelta tornerebbe a essere l'ordine dei fatti. Il
+% ritratto non puo' stare in una clausola sola perche' `retract/1` FALLISCE se il
+% fatto non c'e', e un effetto che fallisce si porta dietro tutta la
+% congiunzione: i due casi vanno distinti, non sperati.
+dimension_opposite(high, low).
+dimension_opposite(low, high).
+register_commit($Dimension, $Value) :- dimension_opposite($Value, $Other), context_preference($Dimension, $Other), retract(context_preference, $Dimension, $Other), assert(context_preference, $Dimension, $Value).
+register_commit($Dimension, $Value) :- dimension_opposite($Value, $Other), naf(context_preference($Dimension, $Other)), assert(context_preference, $Dimension, $Value).
+
+% Il turno rivendica la risposta solo se chiede SOLTANTO il registro. Una
+% richiesta di stile dentro una domanda vera non deve rubare il turno alla
+% domanda: quel caso e' composizione, ed e' debito dichiarato, non silenzio.
+register_request($Turn, $Dimension, $Value) :- turn_cue_form($Turn, register_cue, $Cue), register_cue($Cue, $Dimension, $Value).
+turn_plan_candidate($Turn) :- register_request($Turn, $Dimension, $Value), naf(turn_has_relation($Turn)).
+turn_response($Turn, $Text) :- register_request($Turn, $Dimension, $Value), naf(turn_has_relation($Turn)), register_commit($Dimension, $Value), current_language($Language), response_template(register_acknowledged, $Language, $Text).
+
+% ── 5. LE POLITICHE, come dati ─────────────────────────────────────────────
+%
+% Restano dichiarate anche dove il consumer non le legge ancora: dicono quale
+% regola il livello sta seguendo, e quale sara' il prossimo consumer da scrivere.
+% Una politica senza consumer e' schema morto se la si CONTA come capacita'; qui
+% e' un contratto visibile, e il piano chiede esattamente di non confondere le
+% due cose.
+realization_policy(marked_input, prefer_unmarked_output).
+realization_policy(explicit_terminology_question, state_form_status).

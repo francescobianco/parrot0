@@ -1,0 +1,157 @@
+# IL REGISTRO COME VETTORE CONTESTUALE — gen396.1-396.2.
+#
+# Il criterio del piano e' netto: la STESSA proof deve potersi realizzare in
+# registri diversi senza che cambi il contenuto proposizionale. Quindi ogni
+# blocco qui sotto interroga una sola volta il mondo — un fatto solo, provato una
+# volta — e cambia soltanto la preferenza del contesto.
+#
+# Il confine con la verita' e' quello del §K5: lo stile e' subordinato alla
+# proof. Il renderer sceglie fra forme che `concept_label/4` associa allo stesso
+# concetto, quindi per costruzione non ha modo di introdurre un claim nuovo —
+# e l'ultimo blocco lo prova togliendo il fatto: spariscono tutte le rese.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+[test one proof, three realizations, one proposition]
+!assert zorb_kind(vint, glimmer)
+!assert answer_frame("zorb kind of", zorb_kind)
+!assert answer_frame_input_arg("zorb kind of", zorb_kind, 1)
+!assert concept_label(glimmer, en, common, shiny)
+!assert concept_label(glimmer, en, standard, luminescent)
+> what is the zorb kind of vint
+< Glimmer.
+!assert context_preference(technicality, high)
+> what is the zorb kind of vint
+< Luminescent.
+!forget context_preference(technicality, high)
+!assert context_preference(technicality, low)
+> what is the zorb kind of vint
+< Shiny.
+
+# La regola osservata al gen390, ora generale: accettare una forma marcata non
+# obbliga a rispecchiarla. Marcata la forma comune, il registro chiesto non ha
+# piu' nulla di dicibile che parrot0 sia disposto a dire — e invece di tacere
+# usa la forma compatibile NON marcata dello stesso concetto. Non corregge
+# nessuno, non rispecchia, e non cambia di una virgola cio' che afferma.
+[test a marked form is never mirrored back]
+!assert label_status(shiny, informal)
+> what is the zorb kind of vint
+<! Shiny.
+< Luminescent.
+!forget label_status(shiny, informal)
+> what is the zorb kind of vint
+< Shiny.
+
+# Una DIMENSIONE nuova entra parlando: non e' nel core, nessun consumer la
+# enumera, e al turno successivo decide la forma.
+[test a dimension that does not exist in the core enters at runtime]
+!forget context_preference(technicality, low)
+!assert register_value(terse, verbosity, low)
+!assert concept_label(glimmer, en, terse, glim)
+!assert context_preference(verbosity, low)
+> what is the zorb kind of vint
+< Glim.
+!forget register_value(terse, verbosity, low)
+> what is the zorb kind of vint
+< Glimmer.
+
+# Le dimensioni sono INDIPENDENTI: due preferenze su assi diversi non si
+# annullano, e una preferenza su un asse che nessun registro realizza non
+# cancella l'altra.
+[test dimensions do not collapse into one another]
+!assert register_value(terse, verbosity, low)
+!assert context_preference(formality, high)
+> what is the zorb kind of vint
+< Glim.
+!forget context_preference(verbosity, low)
+> what is the zorb kind of vint
+< Glimmer.
+!forget context_preference(formality, high)
+
+# Il contenuto viene dalla proof, non dal registro: tolto il fatto, nessuna
+# preferenza puo' farlo ricomparire in nessuna forma.
+[test no register can assert what the proof does not carry]
+!assert context_preference(verbosity, low)
+!forget zorb_kind(vint, glimmer)
+> what is the zorb kind of vint
+<! Glim.
+<! Glimmer.
+<! Shiny.
+!assert zorb_kind(vint, glimmer)
+> what is the zorb kind of vint
+< Glim.
+!forget context_preference(verbosity, low)
+
+# Trasferimento su un membro reale, in un'altra lingua: gli scacchi hanno gia'
+# la coppia marcata/curata dal gen391, e nessuna riga di questo file la nomina.
+# La lingua della resa la decide il TURNO, non una variabile d'ambiente: la
+# superficie italiana e' una riga in piu' nello stesso registro di porte.
+# `!set PARROT0_LANG` muove la firma di configurazione, quindi il turno
+# successivo RICARICA la KB da disco e porta via cio' che e' stato insegnato
+# dopo. Il `!reload` esplicito fa avvenire la ricarica PRIMA di insegnare: e' una
+# proprieta' dell'harness, non del registro, e costa un'ora a chi la incontra
+# senza saperlo.
+[test the same rule transfers to a real domain in another language]
+!set PARROT0_LANG=it
+!reload
+!assert answer_frame("che tipo di zorb ha", zorb_kind)
+!assert answer_frame_input_arg("che tipo di zorb ha", zorb_kind, 1)
+!assert zorb_kind(vint, capture)
+!forget zorb_kind(vint, glimmer)
+!assert context_preference(technicality, high)
+> che tipo di zorb ha vint
+< Catturare.
+!forget context_preference(technicality, high)
+!assert context_preference(technicality, low)
+> che tipo di zorb ha vint
+<! Mangiare.
+!forget context_preference(technicality, low)
+
+# La porta conversazionale: senza di essa il livello sarebbe una capacita' che
+# solo un test puo' usare. Il registro si cambia PARLANDO, e la mossa dovuta e'
+# riconoscerlo — cambiare stile in silenzio lascerebbe l'interlocutore senza
+# modo di sapere che l'ha ottenuto.
+[test the register is set by talking, and replaces the previous value]
+!set PARROT0_LANG=en
+!reload
+!assert zorb_kind(vint, glimmer)
+!assert answer_frame("zorb kind of", zorb_kind)
+!assert answer_frame_input_arg("zorb kind of", zorb_kind, 1)
+!assert concept_label(glimmer, en, common, shiny)
+!assert concept_label(glimmer, en, standard, luminescent)
+> what is the zorb kind of vint
+< Glimmer.
+> be technical
+< Noted: I will keep that register from here on.
+> what is the zorb kind of vint
+< Luminescent.
+> keep it simple
+< Noted: I will keep that register from here on.
+> what is the zorb kind of vint
+< Shiny.
+
+# Una richiesta di stile dentro una domanda vera non deve rubare il turno alla
+# domanda. Oggi la domanda vince e lo stile viene ignorato: e' debito
+# dichiarato — composizione, non silenzio — e questa riga lo tiene fermo.
+[test a style request inside a real question does not steal the turn]
+> what is the zorb kind of vint in simple terms
+<! Noted: I will keep that register
+
+# La superficie che chiede il registro e' conoscenza come ogni altra.
+[test the register surface grows and retracts at runtime]
+> parla difficile
+<! Noted: I will keep that register
+!assert register_cue("parla difficile", technicality, high)
+> parla difficile
+< Noted: I will keep that register from here on.
+> what is the zorb kind of vint
+< Luminescent.
+!forget register_cue("parla difficile", technicality, high)
+> parla difficile
+<! Noted: I will keep that register

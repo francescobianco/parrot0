@@ -169,7 +169,15 @@ dialogue_state($Turn, missing_fact) :- frame_complete($Turn), turn_has_relation(
 turn_move($Turn, $Move) :- dialogue_state($Turn, $Evidence), move_policy($Evidence, $Move).
 turn_answers($Turn) :- turn_move($Turn, answer).
 
-turn_plan_candidate($Turn) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn).
+% Il CANDIDATO non ri-deriva la risposta. Il motore fa due domande separate —
+% «questo turno appartiene a un piano?» e «qual e' la risposta?» — e mettere la
+% derivazione completa in entrambe la pagava due volte: misurato 420 ms su un
+% turno italiano, di cui meta' spesi per scoprire una cosa che la domanda
+% successiva avrebbe scoperto comunque. Qui il candidato dichiara soltanto che il
+% turno HA una relazione ammessa e un'entita' di cui quella relazione sa parlare;
+% se poi nessuna lettura regge, `turn_response/2` non produce nulla e il turno
+% prosegue verso il percorso storico, esattamente come prima.
+turn_plan_candidate($Turn) :- turn_entity($Turn, $Relation, $Entity).
 turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn), naf(turn_has_scope_reading($Turn)), current_language($Language), value_in_language($Language, $Value, $Local), value_statement($Language, $Local, $Text).
 
 % ── 8. DUE SCOPE NELLA STESSA RISPOSTA (gen395) ─────────────────────────────
@@ -197,5 +205,4 @@ answer_content(two_views($World, $Hypothesis, $Language), 2, connective, $Piece)
 answer_content(two_views($World, $Hypothesis, $Language), 3, hypothesis_value, $Hypothesis).
 answer_content(two_views($World, $Hypothesis, $Language), 4, terminator, $Piece) :- sentence_terminator($Language, $Piece).
 
-turn_plan_candidate($Turn) :- turn_scope_reading($Turn, $Context, $Value), turn_answers($Turn).
 turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $W), turn_scope_reading($Turn, $Context, $H), current_language($Language), value_in_language($Language, $W, $World), value_in_language($Language, $H, $Hypothesis), answer_text(two_views($World, $Hypothesis, $Language), $Text).

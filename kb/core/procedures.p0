@@ -182,10 +182,27 @@ value_statement($Language, $Value, $Text) :- sentence_opening($Language, $Value,
 % proof dice `lombardy` e `Lombardia` senza che cambi cio' che afferma. Il verso
 % di `tr/2` e' gia' il contratto — primo argomento canonico, secondo italiano —
 % e una lingua nuova entra come fatto, non come ramo.
+% gen396: prima il REGISTRO, poi la lingua. Se il contesto ha dichiarato una
+% preferenza e il concetto ha una forma non marcata in quel registro, quella
+% forma e' gia' nella lingua giusta — `concept_label/4` porta entrambi gli assi.
+% Senza preferenza dichiarata non cambia nulla: le tre clausole storiche restano
+% e il livello e' additivo.
+% La scala della realizzazione, dalla forma piu' informata alla piu' nuda:
+% il registro preferito; una qualunque forma non marcata della lingua; la
+% traduzione; il termine canonico. La guardia `naf(marked_form(...))` sta su
+% OGNI gradino, non solo sul primo: la regola del gen390 — capire una forma
+% marcata non obbliga a rispecchiarla — sarebbe stata falsa se la
+% localizzazione ordinaria avesse continuato a emettere `mangiare` mentre il
+% registro si rifiutava di farlo. Misurato, ed e' il motivo per cui la scala
+% esiste al posto di una clausola sola.
 translated_term($Value) :- tr($Value, $Local).
-value_in_language(en, $Value, $Value).
-value_in_language(it, $Value, $Local) :- tr($Value, $Local).
-value_in_language(it, $Value, $Value) :- naf(translated_term($Value)).
+lexical_output($Value, $Language, $Form) :- register_output($Value, $Language, $Form).
+lexical_output($Value, $Language, $Form) :- register_marked($Value, $Language), concept_label($Value, $Language, $Register, $Form), naf(marked_form($Form)).
+lexical_renders($Value, $Language) :- lexical_output($Value, $Language, $Form).
+value_in_language($Language, $Value, $Form) :- lexical_output($Value, $Language, $Form).
+value_in_language(en, $Value, $Value) :- naf(lexical_renders($Value, en)).
+value_in_language(it, $Value, $Local) :- naf(lexical_renders($Value, it)), tr($Value, $Local), naf(marked_form($Local)).
+value_in_language(it, $Value, $Value) :- naf(lexical_renders($Value, it)), naf(translated_term($Value)).
 
 % ── PIANO PROPOSIZIONALE (K6): prima COSA va detto, poi COME dirlo ──
 %
@@ -1002,6 +1019,7 @@ machinery(sides).
 :- include(situation.p0).
 :- include(turn-frames.p0).
 :- include(stipulation.p0).
+:- include(register.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 
@@ -1061,6 +1079,14 @@ machinery(concat_atoms).
 machinery(sentence_terminator).
 machinery(sentence_initial).
 machinery(value_in_language).
+machinery(register_value).
+machinery(context_preference).
+machinery(register_preferred).
+machinery(register_output).
+machinery(register_renders).
+machinery(lexical_output).
+machinery(lexical_renders).
+machinery(realization_policy).
 machinery(translated_term).
 machinery(value_sentence).
 machinery(answer_content).

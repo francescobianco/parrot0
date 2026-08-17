@@ -1729,9 +1729,37 @@ obbligazione, piano e proof.
 **Stato di attuazione.** Task 396.0 e il primo taglio di 396.3 sono presenti:
 gli span universali vengono reificati e il piano condizionale e' interamente KB.
 Il ratchet `reasoning/conditional_plan.p0t` copre 28 asserzioni, incluse ellissi,
-Italia/italiano e crescita/ablazione. Restano aperti il piano proposizionale del
-codice, la condivisione strutturata delle proof e tutte le dimensioni di registro
-di 396.1-396.2; gen396 e' quindi avviata, non chiusa.
+Italia/italiano e crescita/ablazione.
+
+**396.1-396.2 eseguiti** in `kb/core/register.p0`. Il registro non e' piu' un
+interruttore largo: `register_value(Registro, Dimensione, Valore)` colloca i
+registri in uno spazio di dimensioni indipendenti, `context_preference/2` e' lo
+stato, e la realizzazione sceglie la forma dentro `concept_label/4` — che porta
+gia' sia la lingua sia il registro. La stessa proof si rende in tre forme senza
+che cambi di una virgola cio' che afferma, e il ratchet lo prova togliendo il
+fatto: nessuna preferenza puo' farlo ricomparire in nessuna forma.
+
+La regola del gen390 e' ora generale e ha una clausola sua: accettare una forma
+marcata non obbliga a rispecchiarla. Se il registro chiesto esiste per quel
+concetto ma la sua forma e' marcata, parrot0 non la emette e non tace — usa la
+forma compatibile non marcata dello stesso concetto, senza correggere nessuno.
+La guardia sta su OGNI gradino della scala di realizzazione, non solo sul primo:
+la prima versione lasciava che la localizzazione ordinaria emettesse comunque
+`mangiare` mentre il registro si rifiutava, cioe' la policy era vera per meta'.
+
+Il livello e' additivo per costruzione: senza una `context_preference` dichiarata
+nessuna vista si attiva e il comportamento resta quello di prima. La porta
+conversazionale esiste (`register_cue/3` + `turn_cue_registry`), quindi il
+registro si cambia parlando e la mossa dovuta e' riconoscerlo; una preferenza
+nuova sulla stessa dimensione SOSTITUISCE la vecchia, perche' due valori sullo
+stesso asse renderebbero preferiti due registri opposti e la scelta tornerebbe a
+essere l'ordine dei fatti.
+
+Restano aperti il piano proposizionale del codice, la condivisione strutturata
+delle proof, le dimensioni oltre technicality/formality (verbosity, directness,
+politeness, hedging) e la COMPOSIZIONE — una richiesta di stile dentro una
+domanda vera oggi non ruba il turno alla domanda, ma nemmeno la modifica. E'
+debito dichiarato e ratchettato, non silenzio. gen396 e' avanzata, non chiusa.
 
 **Task 396.-1 — il prerequisito del §2.1.5, pagato.** Il primo giro di gen396 ha
 consegnato un `make soft-test` rosso in modo dipendente dall'ordine dei file, che
