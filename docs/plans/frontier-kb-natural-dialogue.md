@@ -2556,6 +2556,32 @@ motivo, assunzioni, alternative e residui nella lingua del turno. Rieseguire la
 sonda OpenCode solo per scoprire nuove mosse; promuovere i casi nel `.p0t` con
 oracle strutturali locali.
 
+**Stato di attuazione (primo taglio: le ASSUNZIONI).** Prima della resa serviva
+una distinzione che mancava. La NAF confonde «so che quella proprieta' ha un
+altro valore» e «di quella proprieta' non so niente»: per l'APPLICABILITA' e' lo
+stesso — in entrambi i casi il passo non e' provato — ma per cio' che si DICE non
+lo e' affatto. Nel primo caso il piano e' impossibile, nel secondo e' possibile
+sotto un'assunzione, e chiamarli con lo stesso nome e' la differenza fra un
+rifiuto e una domanda.
+
+```text
+(nulla si sa della condizione)  -> Puoi aprire la valvola, se la valvola funziona.
+la valvola funziona             -> Puoi aprire la valvola.
+la valvola e' guasta            -> Conosco un'azione adatta, ma in quella
+                                   situazione una sua precondizione non vale.
+```
+
+E' la riga del §17.6 «piano valido solo sotto un'assunzione -> proporlo
+condizionatamente e nominare l'assunzione», con l'accento su NOMINARE: senza un
+modo di dire a parole cio' che si assume il piano condizionale non viene
+proposto, perche' chiedere fiducia al buio e' peggio del residuo. Il difetto che
+lo ha reso evidente vale la pena ricordarlo: un'assunzione non nominabile
+sopprimeva il residuo senza produrre una proposta, e quando la frase partiva
+usciva troncata — il fold si ferma sul pezzo che manca.
+
+Restano aperti l'esposizione dei MOTIVI (perche' quel passo e non un altro),
+delle alternative scartate e dei residui, e il confronto frontier vero e proprio.
+
 Ogni sottogenerazione e' un taglio verticale: producer universale, inferenza,
 piano proposizionale, resa minima, test IT/EN, crescita/retrazione e negativo
 vicino. Nessuna sottogenerazione puo' limitarsi ad aggiungere schema morto.

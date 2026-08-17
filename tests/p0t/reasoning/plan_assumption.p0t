@@ -1,0 +1,93 @@
+# FALSO NON E' SCONOSCIUTO — gen398g.
+#
+# La NAF confonde due cose molto diverse: «so che quella proprieta' ha un altro
+# valore» e «di quella proprieta' non so niente». Per l'APPLICABILITA' e' lo
+# stesso — in entrambi i casi il passo non e' provato — ma per cio' che si DICE
+# non lo e' affatto: nel primo caso il piano e' impossibile, nel secondo e'
+# possibile sotto un'assunzione. Chiamarli con lo stesso nome e' la differenza
+# fra un rifiuto e una domanda.
+#
+# Il §17.6 lo chiede per nome: «piano valido solo sotto un'assunzione ->
+# proporlo condizionatamente e nominare l'assunzione». Nominare, non alludere:
+# un piano proposto senza dire sotto che cosa vale chiede fiducia al buio.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=it
+!reset
+
+[test the world of this test is taught, not built in]
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, it, common, abbassare)
+!assert action_schema(fluido, apri_valvola)
+!assert action_precondition(apri_valvola, st(valvola, position, closed))
+!assert action_precondition(apri_valvola, st(valvola, condition, working))
+!assert action_effect(apri_valvola, st(valvola, position, open))
+!assert causal_law(st(valvola, position, open), deflusso)
+!assert change_prop(deflusso, level, decrease)
+!assert concept_label(apri_valvola, it, common, "aprire la valvola")
+!assert proposition_label(st(valvola, condition, working), it, "la valvola funziona")
+> il livello sta salendo
+< Annotato: lo tengo come stato attuale.
+> la valvola è chiusa
+< Annotato: lo tengo come stato attuale.
+
+# Della condizione della valvola non si sa NIENTE: il piano non e' provato, ma
+# non e' nemmeno impossibile. Si propone dicendo sotto che cosa vale.
+[test an unknown precondition becomes a named assumption]
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola, se la valvola funziona.
+
+# Detto che funziona, l'assunzione sparisce: il piano non e' piu' condizionato,
+# e non resta un «se» decorativo a ricordare che una volta lo era.
+[test a proven precondition removes the condition]
+> la valvola funziona
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# Detto che e' guasta, la stessa precondizione diventa CONTRADDETTA e non
+# ignota: qui non c'e' nessuna assunzione da proporre, c'e' un ostacolo. Il
+# livello dice due cose diverse per due situazioni diverse.
+[test a contradicted precondition is not an assumption]
+> la valvola è guasta
+< Annotato — cosi' pero' il piano cade: non posso piu' raggiungere: aprire la valvola.
+> come faccio ad abbassare il livello
+< Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
+<! se la valvola funziona
+
+# Senza un modo di NOMINARE cio' che si assume, il piano condizionale non viene
+# proposto: chiedere fiducia al buio e' peggio del residuo. Rimessa l'etichetta,
+# la proposta torna — e la frase non e' una formula, e' l'etichetta.
+[test an assumption that cannot be named is not proposed]
+!forget holds_in(described_situation, st(valvola, condition, broken))
+!forget holds_in(described_situation, st(valvola, condition, working))
+!forget proposition_label(st(valvola, condition, working), it, "la valvola funziona")
+> come faccio ad abbassare il livello
+<! se la valvola funziona
+!assert proposition_label(st(valvola, condition, working), it, "la valvola funziona")
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola, se la valvola funziona.
+
+# Trasferimento: altro dominio, altra lingua, nessuna parola in comune.
+[test the same distinction in an unrelated domain and language]
+!set PARROT0_LANG=en
+!reset
+!assert concept_label(charge, en, common, charge)
+!assert concept_label(increase, en, common, raise)
+!assert property_of_value(low, charge)
+!assert state_cue(low, "is low")
+!assert action_schema(power, connect_charger)
+!assert action_precondition(connect_charger, st(charger, condition, working))
+!assert action_effect(connect_charger, st(cell, link, connected))
+!assert causal_law(st(cell, link, connected), refill)
+!assert change_prop(refill, charge, increase)
+!assert concept_label(connect_charger, en, common, "connect the charger")
+!assert proposition_label(st(charger, condition, working), en, "the charger works")
+> the charge is low
+< Noted: I am holding that as the current state.
+> how do i raise the charge
+< You can connect the charger, assuming the charger works.

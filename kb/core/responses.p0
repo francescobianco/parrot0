@@ -330,6 +330,10 @@ ability_opener(en, "You can ").
 % cio' che segue riduce l'incertezza, che e' cio' che la proof ha dimostrato.
 % gen398f: il rifiuto nomina la CLASSE che lo motiva, cosi' chi ascolta puo'
 % obiettare alla regola invece di indovinare il motivo.
+% gen398g: l'assunzione va NOMINATA. Un piano proposto senza dire sotto che cosa
+% vale chiede fiducia al buio.
+assumption_connective(en, ", assuming ").
+assumption_connective(it, ", se ").
 refusal_opener(en, "I will not do that: ").
 refusal_opener(it, "Non lo faccio: ").
 refusal_closer(en, " is a constraint here, not a cost to weigh.").
