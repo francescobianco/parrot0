@@ -410,35 +410,51 @@ test-engine: build
 # del demone sono infrastruttura, esattamente come il reload non e' contato dentro
 # il `!timeout` di un turno.
 SOFT_BUDGET := 15
-# gen396: entrato `code/code_obligation_plan.p0t` (il fronte attivo), uscito
-# `code/code_state_plan.p0t` — il taglio precedente dello STESSO piano, che il
-# nuovo esercita comunque nel blocco della query e che `make test` copre per
-# intero. Prima era uscito `language/contextual_denotation.p0t` (gen392, chiusa).
-# Lo scambio e' la reazione prescritta qui sopra: si toglie un caso, non si alza
-# il budget.
+# gen394: la potatura prescritta qui sopra, applicata sui TEMPI e non a occhio.
+# Misurati uno per uno, i venti file costavano 30s e i primi cinque da soli 17.
+# Restano tredici file per ~12s, scelti su un criterio solo: quanto sono
+# INFORMATIVI sul prossimo passo, non quanto sono importanti in assoluto.
+#
+# DENTRO — la spina dorsale piu' il fronte attivo end-to-end:
+#   turn_frame_producer   il produttore NL->frame su cui poggia tutto il resto;
+#                         se si rompe lui, non ha senso guardare altro
+#   open_issues           gen394, il fronte di adesso
+#   described_situation   gen398a dalla prosa al piano, il taglio verticale piu'
+#                         lungo che esista: input, inferenza, stato, azione, resa
+#   sequential_view       la polarita' dei goal costruiti a runtime — e' la zona
+#                         che il prossimo lavoro sulla latenza andra' a toccare
+#
+# FUORI — non meno importanti, meno informativi, e tutti coperti da `make test`:
+#   geographic_location (4,8s)  il file piu' caro di tutti; i suoi ponti
+#                               `located_in` sono esercitati dal vivo da
+#                               turn_frame_producer e da open_issues
+#   conditional_plan (3,6s)     gen396.0 chiusa; lo stesso substrato di span e'
+#                               attraversato da described_situation
+#   taught_lexicon (2,5s)       la teachability a runtime e' provata da ogni
+#                               blocco di crescita/ablazione dei tre ratchet sopra
+#   code_obligation_plan (2,4s) piano del codice, fuori dal fronte attuale
+#   context_scope (1,6s)        il kernel gen395 materializzato a mano; i contesti
+#                               ora nascono da turni veri in described_situation
+#   dialogue_moves (1,3s)       idem per gen394: il kernel a mano, mentre
+#                               open_issues esercita il percorso vivo
+#   investigation_access, forms_as_objects, three_axis_gap,
+#   faceted_enumeration, code_state, multiclause_cues
+#
+# La regola resta: si toglie un caso, non si alza il budget.
 SOFT_TESTS := \
   tests/p0t/health.p0t \
   tests/p0t/conversation/basics.p0t \
   tests/p0t/math/arith.p0t \
   tests/p0t/reasoning/syllogism.p0t \
-  tests/p0t/reasoning/sequential_view.p0t \
   tests/p0t/reasoning/rules.p0t \
   tests/p0t/reasoning/relations.p0t \
   tests/p0t/knowledge/facts.p0t \
-  tests/p0t/reasoning/investigation_access.p0t \
-  tests/p0t/language/forms_as_objects.p0t \
-  tests/p0t/meta/three_axis_gap.p0t \
-  tests/p0t/knowledge/geographic_location.p0t \
-  tests/p0t/knowledge/faceted_enumeration.p0t \
-  tests/p0t/code/code_state.p0t \
-  tests/p0t/code/code_obligation_plan.p0t \
-  tests/p0t/meta/multiclause_cues.p0t \
-  tests/p0t/reasoning/conditional_plan.p0t \
-  tests/p0t/conversation/dialogue_moves.p0t \
-  tests/p0t/conversation/context_scope.p0t \
-  tests/p0t/language/taught_lexicon.p0t \
+  tests/p0t/knowledge/class_conflict.p0t \
   tests/p0t/meta/kb_layers.p0t \
-  tests/p0t/knowledge/class_conflict.p0t
+  tests/p0t/reasoning/sequential_view.p0t \
+  tests/p0t/meta/turn_frame_producer.p0t \
+  tests/p0t/conversation/open_issues.p0t \
+  tests/p0t/reasoning/described_situation.p0t
 
 soft-test: test-engine
 	@start=$$(date +%s); \
