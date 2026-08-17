@@ -1,5 +1,110 @@
 # Knowledge Base TODO
 
+## HANDOFF — dove riprendere dopo la sessione del 17 agosto 2026
+
+**Stato:** albero pulito, `make test` 2230 verdi, `make soft-test` verde in 14s
+sul budget 15 (era fuori budget da settimane). Tutte e sette le generazioni del
+piano `docs/plans/frontier-kb-natural-dialogue.md` hanno ora almeno un taglio
+verticale funzionante; il piano e' intorno al **70%**.
+
+### Che cosa e' cambiato, in una frase
+
+Il pilastro che mancava quattro volte — il producer NL — ora esiste UNA volta:
+`kb/core/turn-frames.p0`. Da li' in poi 394, 395, 396, 397 e 398a hanno smesso
+di reinventarlo e ci si sono appoggiate. Chi riprende deve leggere quel file
+prima di tutti gli altri.
+
+### La catena, dall'alto in basso
+
+```text
+turno naturale
+  -> universal_turn_lead (99-registry.c)   span, token, cue: soltanto meccanica
+  -> turn_bookkeeping/2                    gli EFFETTI del turno (contabili KB)
+  -> turn_plan_candidate/1                 questo turno appartiene a un piano?
+  -> turn_response/2                       la risposta, e nient'altro
+```
+
+Le tre domande sono separate apposta. `turn_response/2` e' **pura**: una
+risposta non puo' dipendere da un effetto accaduto mentre la si cercava. Gli
+impegni — stipulare, descrivere uno stato, cambiare registro, aprire un'issue,
+registrare uno scambio — vivono tutti in `turn_bookkeeping/2`, ed e' cio' che
+permette a un turno di fare DUE cose (registrare e rispondere).
+
+### I file nuovi, e a che cosa servono
+
+| file | cosa |
+|---|---|
+| `core/turn-frames.p0` | il producer NL -> frame universale (gen393) |
+| `core/issues.p0` | cio' che resta aperto fra un turno e l'altro (gen394) |
+| `core/stipulation.p0` | «supponiamo che...» crea un mondo che sopravvive (gen395) |
+| `core/register.p0` | il registro come vettore di dimensioni (gen396) |
+| `core/situation.p0` | stato, azioni, applicabilita', piani (gen398a/c) |
+| `core/state-description.p0` | dalla prosa allo stato (gen398a) |
+| `core/discourse.p0` | ripresa, cio' che e' stato detto, salienza (gen397) |
+
+### DA DOVE RIPARTIRE, in ordine
+
+1. **Il resto di gen398c: da due passi a N.** Oggi il piano trova il passo
+   ABILITANTE (`turn_enabled_step/3`) guardando lo stato come sarebbe
+   (`holds_after/3`, applicazione non distruttiva). Il salto vero e' la
+   ricorsione sullo stato: e' li' che il budget di inferenza si fara' sentire,
+   e va misurato PRIMA di scrivere, non dopo.
+2. **gen398e, ripianificazione.** `supersedes_in/3` e' gia' meta' del lavoro: una
+   correzione crea una vista nuova invece di distruggere. Manca il passo che
+   NOMINA che cosa resta valido e quale dipendenza e' stata spezzata.
+3. **Due descrizioni nello stesso turno.** Debito dichiarato: enumerarle
+   esaustivamente intreccia effetti e ricerca (il solver ribacktracka dentro gli
+   assert e non converge). Si chiude separando gli effetti dalla ricerca.
+4. **La precedenza fra mosse** (`move_priority/3` e' dato, nessuno lo risolve) e
+   il caso Napoli/Campania nelle issue: entrambi bloccati dallo stesso nodo,
+   l'enumerazione esaustiva delle letture.
+
+### TRAPPOLE PAGATE — non ripagarle
+
+Sono tutte della stessa specie: **il silenzio**. Il dialetto e il motore, quando
+un limite viene superato, non lo dicono.
+
+1. **`KB_MAX_BODY` e' 8.** Una regola con nove goal viene scartata dal loader
+   senza una parola, e ogni suo pezzo interrogato da solo continua a funzionare.
+   Se una regola «esiste ma non risolve», contare i goal e' il primo controllo.
+2. **Un termine porta 4 argomenti**, quindi `assert` puo' creare un fatto di
+   arita' 3 e non di piu': il quinto argomento non e' rappresentabile nel corpo
+   di una regola, e il fatto non viene ne' creato ne' segnalato.
+3. **`retract/1` FALLISCE se il fatto non c'e'**, e un effetto che fallisce si
+   porta dietro tutta la congiunzione. Sostituire un valore vuole due clausole —
+   il caso «c'era» e il caso «non c'era» vanno distinti, non sperati.
+4. **`chars/2` + `append_list/3` si rompono oltre ~60 caratteri**: la lista
+   intermedia sfonda `KB_TERM_LEN` e la risposta sparisce con ZERO soluzioni.
+   Per questo `concat_atoms/3` e' diventato un primitivo.
+5. **`findall/3` non ha uscita anticipata**: provare che una lettura e' unica
+   costa esplorare tutte le clausole anche con la risposta gia' in mano. E'
+   l'ultimo residuo di latenza, ed e' il nodo di due voci dell'elenco sopra.
+6. **Gli effetti dentro una ricerca enumerata non convergono.** I contabili si
+   chiedono UNO PER UNO (`bookkeeper/1`): enumerare tutte le soluzioni fa
+   ribacktrackare il solver dentro gli assert. Misurato come un demone morto.
+7. **Un array a tetto fisso riempito in ordine di caricamento e' un difetto di
+   ORDINE.** Trovato due volte in un giorno: sei regole qualunque facevano
+   perdere a `describe` l'ultima credenza derivata, e quattro fatti unari
+   facevano dire allo stress-test «posso arrivarci in un altro modo». Crescere
+   in conoscenza non puo' cambiare cio' che parrot0 dice di sapere.
+8. **Una misura di latenza va presa contro un baseline CONTEMPORANEO.** Ho
+   quasi ritirato due volte un livello corretto perche' `soft-test` sembrava
+   peggiorato: la macchina era carica, e il baseline misurato nello stesso
+   momento era identico.
+9. **`!set PARROT0_LANG` fa ricaricare la KB al turno successivo**, portando via
+   cio' che il test ha insegnato dopo. Il `!reload` esplicito ordina i due eventi.
+
+### DUE REGOLE DI CONDOTTA, imparate sul campo
+
+- **Non rubare una superficie che ha gia' un consumer.** «what did we talk
+  about» appartiene al gen58 e fa una cosa piu' larga e piu' grezza: le due
+  memorie convivono, una conta cio' che e' stato NOMINATO e l'altra cio' che e'
+  stato RISPOSTO. Il test del gen58 e' rimasto verde senza una riga cambiata.
+- **Non perturbare un ratchet per un'ipotesi.** La de-limitazione del dump della
+  conoscenza era igiene, non correttezza, e spostava una soglia che
+  `introspect.p0t` documenta come comportamento corrente. Ritirata.
+
+
 ## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
 
 ### AGGIORNAMENTO 5 — gen398a e' CHIUSA: la situazione arriva dalla prosa

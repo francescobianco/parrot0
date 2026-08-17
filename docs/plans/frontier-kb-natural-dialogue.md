@@ -1918,10 +1918,34 @@ volte.
 
 ## 16. Stato di avanzamento
 
-Il piano e' partito da **gen391**. gen396 e' ora il fronte semantico attivo ma
-possiede soltanto il primo producer end-to-end (il piano condizionale); gen397
-resta un contratto. I producer NL dei contesti gen395 rimangono un debito vivo e
-non vengono dichiarati chiusi dal passaggio di generazione.
+**Aggiornamento del 17 agosto 2026.** Tutte e sette le generazioni hanno ora
+almeno un taglio verticale funzionante, e il piano e' intorno al **70%**. La
+frase che riassume la sessione: il pilastro che mancava quattro volte — il
+producer NL — esiste ora UNA volta sola (`kb/core/turn-frames.p0`), e 394, 395,
+396, 397 e 398a hanno smesso di reinventarlo.
+
+La catena universale, dall'alto in basso:
+
+```text
+turno naturale
+  -> universal_turn_lead    span, token, cue — soltanto meccanica, nel C
+  -> turn_bookkeeping/2     gli EFFETTI del turno, come contabili KB
+  -> turn_plan_candidate/1  questo turno appartiene a un piano?
+  -> turn_response/2        la risposta, e nient'altro
+```
+
+Le tre domande sono separate apposta: `turn_response/2` e' **pura**, perche' una
+risposta non puo' dipendere da un effetto accaduto mentre la si cercava. Gli
+impegni — stipulare, descrivere uno stato, cambiare registro, aprire un'issue,
+registrare uno scambio — vivono tutti nella contabilita', ed e' cio' che permette
+a un turno di fare DUE cose invece di scegliere quale meta' di se stesso essere.
+
+Per lo stato per-generazione, le trappole del dialetto pagate e l'ordine di
+ripresa, l'handoff operativo e' in testa a `KB_TODO.md`.
+
+Il piano e' partito da **gen391**. Il testo che segue e' la fotografia
+precedente, conservata perche' ogni generazione ne annota l'avanzamento nel
+proprio paragrafo:
 
 Stato della gen391:
 
