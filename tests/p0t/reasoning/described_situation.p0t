@@ -114,3 +114,26 @@
 [test an ordinary turn is not mistaken for a description]
 > what is the capital of france
 < Paris.
+
+# gen397: la composizione. Un turno che DESCRIVE e insieme CHIEDE deve fare
+# entrambe le cose — lo stato si registra anche quando a rispondere e' il piano.
+# Finche' l'effetto viveva dentro la risposta, la descrizione si perdeva ogni
+# volta che qualcun altro parlava per primo, e una conversazione che dimentica
+# cio' che le e' stato detto perche' ha risposto a qualcos'altro non compone.
+[test one turn can describe and ask at the same time]
+!set PARROT0_LANG=it
+!reload
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, it, common, abbassare)
+!assert action_schema(fluido, apri_valvola)
+!assert action_precondition(apri_valvola, st(valvola, position, closed))
+!assert action_effect(apri_valvola, st(valvola, position, open))
+!assert causal_law(st(valvola, position, open), deflusso)
+!assert change_prop(deflusso, level, decrease)
+!assert concept_label(apri_valvola, it, common, "aprire la valvola")
+> il livello sta salendo
+< Annotato: lo tengo come stato attuale.
+> come faccio ad abbassare il livello
+< Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.
+> la valvola è chiusa, come faccio ad abbassare il livello
+< Puoi aprire la valvola.

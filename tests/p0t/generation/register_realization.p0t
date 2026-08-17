@@ -136,12 +136,19 @@
 > what is the zorb kind of vint
 < Shiny.
 
-# Una richiesta di stile dentro una domanda vera non deve rubare il turno alla
-# domanda. Oggi la domanda vince e lo stile viene ignorato: e' debito
-# dichiarato — composizione, non silenzio — e questa riga lo tiene fermo.
-[test a style request inside a real question does not steal the turn]
-> what is the zorb kind of vint in simple terms
+# gen397: il debito di composizione dichiarato qui e' PAGATO. Una richiesta di
+# stile dentro una domanda vera non ruba il turno alla domanda — e non viene
+# nemmeno piu' ignorata: l'effetto vive nella contabilita' del turno, quindi si
+# applica anche quando a rispondere e' qualcun altro. Un turno, due cose.
+[test a style request inside a real question applies without stealing the turn]
+> keep it simple
+< Noted: I will keep that register from here on.
+> what is the zorb kind of vint
+< Shiny.
+> what is the zorb kind of vint in technical terms
 <! Noted: I will keep that register
+> what is the zorb kind of vint
+< Luminescent.
 
 # La superficie che chiede il registro e' conoscenza come ogni altra.
 [test the register surface grows and retracts at runtime]

@@ -404,8 +404,16 @@ static int mod_robust(Brain *b, const char *norm, const char *raw,
 
     /* sweep every ground unary fact: remove it, re-derive, restore, record the
      * load-bearing ones. */
-    char preds[64][KB_TERM_LEN];
-    size_t np = kb_unary_predicates(b->kb, preds, 64);
+    /* gen397: il tetto e' un difetto di ORDINE travestito da limite di memoria.
+     * `kb_unary_predicates` riempie l'array in ordine di caricamento, quindi
+     * quattro fatti unari qualunque aggiunti altrove spingono fuori il predicato
+     * che porta davvero la conclusione — e lo stress-test risponde «posso
+     * arrivarci in un altro modo» invece di nominare la premessa. Misurato due
+     * volte in un giorno, qui e in `describe`: crescere in conoscenza non puo'
+     * cambiare cio' che parrot0 dice di sapere. Lo spazio resta finito, ma
+     * ampio abbastanza da non dipendere da quanti fatti irrilevanti esistano. */
+    char preds[512][KB_TERM_LEN];
+    size_t np = kb_unary_predicates(b->kb, preds, 512);
     char crit[16][96];
     size_t ncrit = 0;
 
@@ -554,8 +562,16 @@ static enum epi_state calib_classify(Brain *b, int *hypo_idx) {
  * my mind" lever for a derived or fact-backed conclusion. */
 static size_t calib_load_bearing(Brain *b, char buf[][96], size_t max) {
     size_t n = 0;
-    char preds[64][KB_TERM_LEN];
-    size_t np = kb_unary_predicates(b->kb, preds, 64);
+    /* gen397: il tetto e' un difetto di ORDINE travestito da limite di memoria.
+     * `kb_unary_predicates` riempie l'array in ordine di caricamento, quindi
+     * quattro fatti unari qualunque aggiunti altrove spingono fuori il predicato
+     * che porta davvero la conclusione — e lo stress-test risponde «posso
+     * arrivarci in un altro modo» invece di nominare la premessa. Misurato due
+     * volte in un giorno, qui e in `describe`: crescere in conoscenza non puo'
+     * cambiare cio' che parrot0 dice di sapere. Lo spazio resta finito, ma
+     * ampio abbastanza da non dipendere da quanti fatti irrilevanti esistano. */
+    char preds[512][KB_TERM_LEN];
+    size_t np = kb_unary_predicates(b->kb, preds, 512);
 
     /* gen346 (perf): same rule-reachability pruning as mod_robust — only ablate
      * predicates that can reach the goal, so an unrelated fact is never re-derived

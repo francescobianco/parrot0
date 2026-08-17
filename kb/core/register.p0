@@ -95,7 +95,13 @@ register_commit($Dimension, $Value) :- dimension_opposite($Value, $Other), naf(c
 % domanda: quel caso e' composizione, ed e' debito dichiarato, non silenzio.
 register_request($Turn, $Dimension, $Value) :- turn_cue_form($Turn, register_cue, $Cue), register_cue($Cue, $Dimension, $Value).
 turn_plan_candidate($Turn) :- register_request($Turn, $Dimension, $Value), naf(turn_has_relation($Turn)).
-turn_response($Turn, $Text) :- register_request($Turn, $Dimension, $Value), naf(turn_has_relation($Turn)), register_commit($Dimension, $Value), current_language($Language), response_template(register_acknowledged, $Language, $Text).
+% Il cambio di registro e' un EFFETTO e vive nella contabilita'. Cosi' vale anche
+% quando il turno chiede lo stile DENTRO una domanda vera: la domanda si prende
+% la risposta, la preferenza si applica lo stesso — che era il debito di
+% composizione dichiarato al gen396.
+bookkeeper(register).
+turn_bookkeeping($Turn, register) :- register_request($Turn, $Dimension, $Value), register_commit($Dimension, $Value).
+turn_response($Turn, $Text) :- register_request($Turn, $Dimension, $Value), naf(turn_has_relation($Turn)), current_language($Language), response_template(register_acknowledged, $Language, $Text).
 
 % ── 5. LE POLITICHE, come dati ─────────────────────────────────────────────
 %

@@ -107,6 +107,25 @@ state_settled($Situation, $Entity, $Property, $Value) :- naf(state_superseded($S
 % Descrivere non fa una domanda: la mossa dovuta e' riconoscere. Dedurne una
 % conseguenza sarebbe rispondere a qualcosa che nessuno ha chiesto — e la
 % conseguenza, quando servira', la chiedera' il turno dopo.
+% L'EFFETTO sta nella contabilita', non nella risposta, e non e' una questione di
+% ordine: un turno che descrive uno stato E chiede qualcosa deve registrare lo
+% stato anche quando a rispondere e' il piano situazionale. Finche' il commit
+% viveva dentro `turn_response/2`, la descrizione si perdeva ogni volta che
+% qualcun altro parlava per primo — e una conversazione che dimentica cio' che
+% le e' stato detto perche' ha risposto a qualcos'altro non e' composizione.
+%
+% Si registrano TUTTE le letture, non la sola unica: «la valvola e' chiusa e il
+% livello sale» sono due descrizioni in un turno, e chiederne una sola sarebbe
+% ascoltarne meta'.
+% Si registra la lettura UNICA, non tutte. Enumerarle esaustivamente fa
+% ribacktrackare il solver dentro `state_commit/3`, che asserisce e ritratta: lo
+% stato cambia mentre lo si enumera, e la ricerca non converge — misurato come
+% un demone che muore. Due descrizioni in un turno restano percio' debito
+% dichiarato, e si chiuderanno quando gli effetti saranno separati dalla ricerca
+% invece che intrecciati a essa.
+bookkeeper(state).
+turn_bookkeeping($Turn, state) :- state_unique($Turn, $Entity, $Property, $Value), state_commit($Entity, $Property, $Value).
+
 dialogue_state($Turn, new_shared_constraint) :- state_unique($Turn, $Entity, $Property, $Value).
-turn_plan_candidate($Turn) :- state_unique($Turn, $Entity, $Property, $Value).
-turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), state_commit($Entity, $Property, $Value), current_language($Language), response_template(state_acknowledged, $Language, $Text).
+turn_plan_candidate($Turn) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)).
+turn_response($Turn, $Text) :- state_unique($Turn, $Entity, $Property, $Value), naf(turn_goal_span($Turn)), current_language($Language), response_template(state_acknowledged, $Language, $Text).

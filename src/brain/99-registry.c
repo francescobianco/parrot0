@@ -1942,11 +1942,20 @@ static int universal_turn_lead(Brain *b, const char *surface,
      *
      * Questa terza domanda e' il posto dove la KB registra cio' che vuole
      * ricordare del turno. Il risultato non e' una risposta e viene ignorato: il
-     * C non sa che cosa venga registrato, ne' se qualcosa lo sia. Le issue
-     * aperte del gen394 vivono qui; le unita' discorsive del gen397 vivranno
-     * qui. */
-    const char *bookkeeping[] = { "current_turn" };
-    kb_query(b->kb, "turn_bookkeeping", bookkeeping, 1);
+     * C non sa che cosa venga registrato, ne' se qualcosa lo sia.
+     *
+     * Si ENUMERA invece di chiedere se esista, e la differenza e' tutto il
+     * punto: una domanda di esistenza si ferma al primo contabile che risponde,
+     * quindi il secondo non lavorerebbe mai. Registrare un'issue aperta e
+     * registrare uno stato descritto sono compiti indipendenti dello stesso
+     * turno, e nessuno dei due e' il seguito dell'altro. */
+    char keepers[16][KB_TERM_LEN];
+    const char *any[1] = { NULL };
+    size_t nk = kb_match(b->kb, "bookkeeper", any, 1, keepers, 16);
+    for (size_t i = 0; i < nk; i++) {
+        const char *one[] = { "current_turn", keepers[i] };
+        kb_query(b->kb, "turn_bookkeeping", one, 2);
+    }
 
     const char *candidate[] = { "current_turn" };
     if (!kb_query(b->kb, "turn_plan_candidate", candidate, 1)) return 0;

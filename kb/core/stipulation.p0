@@ -87,4 +87,9 @@ stipulation_release($Context, $Relation, $Subject, $Object) :- retract(holds_in,
 % una conseguenza che nessuno ha ancora chiesto.
 dialogue_state($Turn, new_shared_constraint) :- stipulation_unique($Turn, $Relation, $Subject, $Object).
 turn_plan_candidate($Turn) :- stipulation_unique($Turn, $Relation, $Subject, $Object).
-turn_response($Turn, $Text) :- stipulation_unique($Turn, $Relation, $Subject, $Object), stipulation_commit($Relation, $Subject, $Object), current_language($Language), response_template(stipulation_acknowledged, $Language, $Text).
+% L'impegno e' un EFFETTO e vive nella contabilita': cosi' avviene anche quando
+% a rispondere e' un altro produttore, e `turn_response/2` torna a essere pura —
+% una risposta non puo' dipendere da un effetto accaduto mentre la si cercava.
+bookkeeper(stipulation).
+turn_bookkeeping($Turn, stipulation) :- stipulation_unique($Turn, $Relation, $Subject, $Object), stipulation_commit($Relation, $Subject, $Object).
+turn_response($Turn, $Text) :- stipulation_unique($Turn, $Relation, $Subject, $Object), current_language($Language), response_template(stipulation_acknowledged, $Language, $Text).

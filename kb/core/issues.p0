@@ -44,7 +44,8 @@ machinery(open_issue).
 % di FATTO e non di entita'. Quando la memoizzazione per turno rendera' gratuita
 % la vista esaustiva, la condizione potra' allargarsi senza cambiare nient'altro.
 turn_unanswered($Turn, $Word, $Relation) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Word), naf(relation_mentions($Relation, $Word)).
-turn_bookkeeping($Turn) :- turn_unanswered($Turn, $Word, $Relation), assert(open_issue, $Word, $Relation).
+bookkeeper(issue).
+turn_bookkeeping($Turn, issue) :- turn_unanswered($Turn, $Word, $Relation), assert(open_issue, $Word, $Relation).
 
 % ── 2. QUANDO SI CHIUDE ────────────────────────────────────────────────────
 %
