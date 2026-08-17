@@ -487,6 +487,7 @@ test: test-engine
 	@./$(BIN) --test tests/p0t/reasoning/unify.p0t
 	@./$(BIN) --test tests/p0t/reasoning/whatifnot.p0t
 	@./$(BIN) --test tests/p0t/reasoning/conditional_plan.p0t
+	@./$(BIN) --test tests/p0t/reasoning/situation_plan.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem.p0t
 	@./$(BIN) --test tests/p0t/math/wordproblem_multi.p0t
 	@./$(BIN) --test tests/p0t/reasoning/belief.p0t

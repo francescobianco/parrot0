@@ -2,7 +2,54 @@
 
 ## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
 
-### Mandato e stato: piano completo, implementazione non iniziata
+### AGGIORNAMENTO — passo 1 (audit) e primo taglio di gen398a eseguiti
+
+L'audit di riuso ha cambiato il punto di attacco e va letto prima del resto:
+
+1. **il producer universale esiste gia'.** `universal_turn_lead`
+   (`src/brain/99-registry.c`) gira PRIMA del dispatch, reifica il turno in
+   `turn_span/4`, `turn_span_cue/3`, `turn_span_token/4`, `turn_span_binding/4`,
+   e poi chiede alla KB due sole cose: `turn_plan_candidate/1` e
+   `turn_response/2`. Il livello situazionale e' percio' il TERZO consumer di
+   quel contratto, dopo `conditional-plans.p0` e `code-plans.p0`, e non ha
+   richiesto **una sola riga di C**;
+2. **il renderer K6 esiste gia'**: `answer_content/4` + `answer_text/2` in
+   `procedures.p0`. Il piano si compone senza concatenare stringhe nel C e il
+   fold non ha accesso a nulla con cui fabbricare un claim;
+3. **i contesti gen395 esistono gia'**: lo stato di una situazione e' una
+   credenza visibile di un contesto (`holds_in/2` + `context_visible_belief/2`),
+   non una seconda tabella. Le proposizioni vanno REIFICATE (`state_prop/4`), che
+   e' anche cio' che `proposition_signature/4` gia' presupponeva;
+4. **`action_schema/2` si riusa, `action_needs`/`action_yields` NO**: quel
+   chainer (`src/brain/25-wordmath-reasoning.c`) cammina su ARTEFATTI prodotti,
+   non su precondizioni di STATO. Sono due relazioni diverse, non la stessa sotto
+   un'altra etichetta;
+5. **vincolo dell'harness misurato**: `te_split_args` (`src/testeng.c`) spezza gli
+   argomenti sulla virgola senza contare le parentesi, quindi un fatto con
+   termine composto annidato non e' ne' asseribile ne' ritrattabile da un `.p0t`.
+   E' la ragione tecnica in piu' per reificare invece di annidare: tutto resta
+   piatto, insegnabile e ablabile a runtime.
+
+Fatto: `kb/core/situation.p0` (sole regole, zero fatti di dominio), i template di
+residuo in `responses.p0`, il ratchet `tests/p0t/reasoning/situation_plan.p0t`
+(25 asserzioni, profilo AGI, budget ordinario di un secondo, nessun `!timeout`).
+`make test` chiude 2052 prove verdi. Lo stato completo — cosa e' collegato, cosa
+NON lo e', e il difetto trovato dal ratchet — e' in
+`docs/plans/frontier-kb-natural-dialogue.md` §17.7 sotto gen398a.
+
+**Il prossimo passo e' il gate onesto di gen398a, non gen398b**: oggi il turno
+contribuisce il GOAL, mentre lo STATO deve essere gia' conoscenza. Manca la meta'
+`descrizione` del producer — da prosa a `state_prop/4` + `holds_in/2`. Finche'
+quella meta' non esiste, gen398a resta aperta e la mongolfiera mura, come deve.
+
+**La lezione da non ripetere.** Il primo taglio dichiarava un'azione BLOCCATA in
+una situazione mai dichiarata: in un mondo inesistente nessuna credenza vale,
+quindi ogni precondizione vi risulta «mancante». L'ignoranza si travestiva da
+conoscenza negativa — la specie di divergenza del §2.1 vincolo 5. Ogni regola che
+inferisce da un'ASSENZA deve dichiarare prima l'esistenza del contesto in cui
+quell'assenza avrebbe senso, e il controllo negativo va nel ratchet.
+
+### Mandato e stato: il contratto originale (primo taglio eseguito, vedi sopra)
 
 Il prossimo fronte richiesto e' rendere parrot0 capace di affrontare, dallo
 stesso `gen.respond` universale, problemi aperti di sopravvivenza, astuzia,

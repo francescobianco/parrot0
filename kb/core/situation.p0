@@ -1,0 +1,184 @@
+% situation.p0 — LA SITUAZIONE MODIFICABILE COME OGGETTO DELLA KB (gen398a).
+%
+% Il muro «cosa faresti se una mongolfiera sta cadendo per rallentare la caduta»
+% non chiedeva una risposta sulle mongolfiere. Diceva che fra il frame del turno
+% e il piano di risposta manca un oggetto: uno STATO su cui un'azione possa
+% agire. Questo file introduce quell'oggetto, e nient'altro.
+%
+% Tre confini, tutti verificabili:
+%
+%   1. NESSUN LESSICO DI DOMINIO. Qui non compaiono valvole, palloni, zavorre,
+%      serbatoi o batterie. Compaiono soltanto le RELAZIONI che un dominio
+%      qualunque riempie: stato, precondizione, effetto, legge causale, verso
+%      del cambiamento. Il test operativo del mantra e' che un nuovo mondo entri
+%      domani con assert/retract, e il ratchet lo esercita su due domini che non
+%      condividono una parola.
+%
+%   2. NESSUN NUOVO PERCORSO NEL C. Il turno arriva gia' reificato dall'unico
+%      producer universale (`turn_span/4`, `turn_span_token/4`) e la risposta
+%      esce dall'unico contratto `turn_plan_candidate/1` + `turn_response/2`,
+%      lo stesso che consumano `conditional-plans.p0` e `code-plans.p0`. Se
+%      questo livello avesse avuto bisogno di un router suo, il piano universale
+%      non sarebbe universale.
+%
+%   3. NESSUNA SECONDA TABELLA DI STATO. Lo stato di una situazione e' una
+%      credenza visibile di un CONTESTO gen395: `holds_in/2` piu'
+%      `context_visible_belief/2`. Non e' eleganza — e' cio' che rende possibile
+%      la ripianificazione dopo una correzione senza riscrivere la storia,
+%      perche' correggere resta la mossa che `supersedes_in/3` gia' descrive.
+%
+% Le proposizioni sono REIFICATE: `state_prop(Id, Entita', Proprieta', Valore)`
+% invece del termine composto `state(E, P, V)` dentro `holds_in/2`. Non e' una
+% comodita' sintattica: `context-scope.p0` tratta gia' una proposizione come
+% identita' (`proposition_signature/4`), e l'identita' e' cio' che permette a un
+% fatto di essere insegnato, ritrattato e citato da una precondizione senza che
+% quattro consumer debbano decomporre lo stesso termine.
+
+:- file_attribute(machinery).
+
+% Gli schemi che un DOMINIO riempie compaiono qui solo nei corpi delle regole.
+% Non vanno dichiarati machinery: `action_precondition(open_valve, ...)` e'
+% conoscenza del mondo quanto `quantity(deck, cards, 52)`. Machinery e' il
+% processo che li legge, non il mondo che descrivono.
+
+% ── 1. IL GOAL: che cosa il turno chiede di CAMBIARE ────────────────────────
+%
+% Il ruolo di span e' aperto da cue KB. Una lingua nuova, o una forma nuova
+% della stessa lingua, entra come fatto; ritraendone una il turno smette di
+% aprire una situazione. Il C non conosce nessuna di queste stringhe: le legge
+% dall'evidenza `segment_role/2` come qualunque altro ruolo.
+segment_role(goal, "how do i").
+segment_role(goal, "how can i").
+segment_role(goal, "come faccio a").
+segment_role(goal, "come posso").
+
+% Il VERSO del cambiamento e' un concetto, non una parola. Le sue forme vivono
+% dove vivono tutte le altre — `concept_label/4`, sorgente unica dal gen391 —
+% quindi «lower», «abbassare» e una forma insegnata stasera entrano dalla stessa
+% porta e la vista `linguistic_form/4` le rende leggibili dalla forma al senso.
+change_direction(decrease).
+change_direction(increase).
+
+% Le parole del goal sono quelle che il turno ha DETTO, non termini della KB:
+% arrivano citate e vengono promosse a senso solo da una regola. E' la stessa
+% disciplina di `code-plans.p0` sui nomi legati da una traccia.
+turn_goal_span($Turn) :- turn_span($Turn, $Index, goal, $Payload).
+goal_span_word($Turn, $Word) :- turn_span($Turn, $Index, goal, $Payload), turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word).
+
+% Due giunzioni indipendenti, non due posizioni: una parola vale come verso se
+% denota un verso, e come proprieta' se una situazione nota ha davvero uno stato
+% su quella proprieta'. La seconda condizione e' il filtro che impedisce a
+% «il», «the» o a un concetto qualunque di entrare in un ruolo semantico.
+situation_property($Property) :- state_prop($Proposition, $Entity, $Property, $Value).
+goal_word_direction($Turn, $Direction) :- goal_span_word($Turn, $Word), linguistic_form($Word, $Direction, $Language, $Register), change_direction($Direction).
+goal_word_property($Turn, $Property) :- goal_span_word($Turn, $Word), linguistic_form($Word, $Property, $Language, $Register), situation_property($Property).
+
+% Enumerare una volta e leggere il SET e' anche qui lo stato epistemico. Un
+% turno che nomina due proprieta' o due versi ha DUE letture: sceglierne una in
+% silenzio sarebbe la mossa sbagliata anche quando l'azione e' giusta.
+% La guardia `turn_goal_span/1` viene prima della findall e non e' cosmetica:
+% `turn_plan_candidate/1` viene interrogata a OGNI turno, e montare un
+% sotto-risolutore per scoprire che il turno non ha nemmeno uno span di goal e'
+% lavoro pagato da tutte le conversazioni che non parlano di situazioni.
+goal_reading_key($Turn, goal($Property, $Direction)) :- goal_word_direction($Turn, $Direction), goal_word_property($Turn, $Property).
+goal_reading_set($Turn, $Readings) :- turn_goal_span($Turn), findall($Reading, goal_reading_key($Turn, $Reading), $Readings).
+turn_goal($Turn, $Property, $Direction) :- goal_reading_set($Turn, cons(goal($Property, $Direction), nil)).
+turn_goal_ambiguous($Turn) :- goal_reading_set($Turn, cons($First, cons($Second, $Tail))).
+
+% ── 2. LA SITUAZIONE: lo stato come credenza visibile di un contesto ────────
+%
+% `situation_state/4` non e' una tabella: e' la vista che unisce le credenze
+% locali del contesto e quelle ereditate dal suo parent. Correggere un fatto
+% resta percio' l'operazione gen395, e i fatti degli altri contesti non
+% spariscono per il fatto che questo li corregge.
+situation_state($Situation, $Entity, $Property, $Value) :- context_visible_belief($Situation, $Proposition), state_prop($Proposition, $Entity, $Property, $Value).
+
+% Di quale situazione parla il turno. Non esiste una «situazione corrente»
+% implicita nel motore: e' quella in cui la proprieta' nominata dal goal ha
+% davvero uno stato. Se nessuna la possiede, non c'e' situazione — e questo e'
+% un residuo onesto, non un mondo da inventare.
+turn_task($Turn, $Situation, $Property, $Direction) :- turn_goal($Turn, $Property, $Direction), situation_state($Situation, $Entity, $Property, $Value).
+
+% ── 3. AZIONI: applicabilita' come insieme delle precondizioni non provate ──
+%
+% Una precondizione e' soddisfatta quando la proposizione che nomina e' vera
+% nella situazione. Si legge l'INSIEME di quelle mancanti invece di fermarsi
+% alla prima: un'azione bloccata da due precondizioni non e' bloccata da una, e
+% la differenza conta appena la risposta dovra' dire che cosa manca.
+missing_precondition($Situation, $Action, missing($Proposition)) :- action_precondition($Action, $Proposition), naf(context_visible_belief($Situation, $Proposition)).
+missing_precondition_set($Situation, $Action, $Missing) :- findall($M, missing_precondition($Situation, $Action, $M), $Missing).
+
+% `context($Situation, $Kind)` non e' decorazione. Senza quel gate un mondo che
+% non esiste non ha credenze, quindi OGNI precondizione vi risulta mancante e
+% OGNI azione vi risulta bloccata: l'assenza di conoscenza si travestiva da
+% conoscenza negativa. E' la forma peggiore di divergenza — una risposta
+% sbagliata col costume di un'assenza onesta — e il ratchet la falsifica
+% chiedendo l'azione bloccata di una situazione che non e' mai stata dichiarata.
+applicable($Situation, $Action) :- context($Situation, $Kind), action_schema($Domain, $Action), missing_precondition_set($Situation, $Action, nil).
+blocked_action($Situation, $Action) :- context($Situation, $Kind), action_schema($Domain, $Action), missing_precondition_set($Situation, $Action, cons($First, $Tail)).
+
+% L'EFFETTO e' cio' che l'azione rende vero; la CONSEGUENZA puo' essere mediata
+% da una legge causale del mondo. Restano relazioni distinte perche' hanno
+% ablazioni distinte: ritrarre la legge toglie la conseguenza e lascia intatto
+% l'effetto — il piano cade, l'azione resta descritta. Un dominio che dichiara
+% direttamente un cambiamento come effetto e' letto dalla seconda clausola.
+action_consequence($Action, $Change) :- action_effect($Action, $Effect), causal_law($Effect, $Change).
+action_change($Action, $Property, $Direction) :- action_consequence($Action, $Change), change_prop($Change, $Property, $Direction).
+action_change($Action, $Property, $Direction) :- action_effect($Action, $Change), change_prop($Change, $Property, $Direction).
+
+% ── 4. IL PIANO: un passo provato, o un residuo tipizzato ───────────────────
+%
+% La ricerca e' goal-diretta: si guardano le azioni il cui cambiamento tocca la
+% proprieta' del goal NEL VERSO chiesto, non il catalogo intero. Un'azione che
+% alza il livello non e' una risposta peggiore alla domanda «come lo abbasso»:
+% e' una risposta a un'altra domanda.
+turn_action_candidate($Turn, $Situation, $Action) :- turn_task($Turn, $Situation, $Property, $Direction), action_change($Action, $Property, $Direction).
+turn_plan_step($Turn, $Action) :- turn_action_candidate($Turn, $Situation, $Action), applicable($Situation, $Action).
+
+turn_plan_key($Turn, step($Action)) :- turn_plan_step($Turn, $Action).
+turn_plan_set($Turn, $Steps) :- findall($Step, turn_plan_key($Turn, $Step), $Steps).
+turn_has_plan($Turn) :- turn_plan_set($Turn, cons($Step, $Tail)).
+turn_single_plan($Turn, $Action) :- turn_plan_set($Turn, cons(step($Action), nil)).
+turn_plan_ambiguous($Turn) :- turn_plan_set($Turn, cons($First, cons($Second, $Tail))).
+
+turn_has_candidate($Turn) :- turn_action_candidate($Turn, $Situation, $Action).
+turn_blocked_action($Turn, $Action) :- turn_action_candidate($Turn, $Situation, $Action), blocked_action($Situation, $Action).
+
+% Il residuo dice DOVE nel grafo il turno si e' fermato, che e' l'unica cosa che
+% distingue «non conosco un'azione» da «l'azione che conosco non e' applicabile
+% qui». Le due meritano mosse diverse, e nessuna delle due autorizza un piano.
+situation_residue($Turn, situation_no_action) :- turn_plan_candidate($Turn), naf(turn_has_candidate($Turn)).
+situation_residue($Turn, situation_blocked) :- turn_blocked_action($Turn, $Action), naf(turn_has_plan($Turn)).
+
+% Il turno e' candidato solo quando la KB possiede davvero la situazione di cui
+% parla. Una domanda «come faccio a ...» su una proprieta' che nessun mondo noto
+% possiede non appartiene a questo piano e deve proseguire verso gli altri
+% consumer: rubarle il turno per dichiarare un gap sarebbe un muro piu' loquace.
+turn_plan_candidate($Turn) :- turn_task($Turn, $Situation, $Property, $Direction).
+
+% ── 5. REALIZZAZIONE: il piano proposizionale, non una frase memorizzata ────
+%
+% Il renderer riceve un'azione gia' provata applicabile e i connettivi della
+% lingua. Non ha accesso a nulla con cui fabbricare una proposizione nuova: il
+% fold di `answer_text/2` puo' soltanto mettere in fila pezzi che qualcun altro
+% ha dimostrato. La forma dell'azione e' la sua `concept_label/4`, quindi la
+% stessa proof si realizza in italiano e in inglese senza cambiare cio' che
+% afferma — e senza che questo file contenga una frase di dominio.
+answer_content(situation_step($Action, $Language), 0, opener, $Piece) :- ability_opener($Language, $Piece).
+answer_content(situation_step($Action, $Language), 1, action, $Piece) :- linguistic_form($Piece, $Action, $Language, common).
+answer_content(situation_step($Action, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
+
+turn_response($Turn, $Text) :- turn_single_plan($Turn, $Action), current_language($Language), answer_text(situation_step($Action, $Language), $Text).
+turn_response($Turn, $Text) :- turn_plan_ambiguous($Turn), current_language($Language), response_template(situation_plan_ambiguous, $Language, $Text).
+turn_response($Turn, $Text) :- situation_residue($Turn, $Kind), current_language($Language), response_template($Kind, $Language, $Text).
+
+% ── 6. PORTE: la situazione e' interrogabile come qualunque altra relazione ─
+%
+% Il consumer e' il proiettore binario universale gia' esistente. Il verso e'
+% dichiarato: senza `answer_frame_input_arg/3` la stessa superficie potrebbe
+% legare l'argomento sbagliato e rispondere con una situazione al posto di
+% un'azione — il difetto che gen395 ha isolato su Napoli/Campania.
+answer_frame("applicable action", applicable).
+answer_frame_input_arg("applicable action", applicable, 1).
+answer_frame("blocked action", blocked_action).
+answer_frame_input_arg("blocked action", blocked_action, 1).

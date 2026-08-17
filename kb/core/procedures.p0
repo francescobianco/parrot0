@@ -977,6 +977,7 @@ machinery(sides).
 :- include(context-scope.p0).
 :- include(conditional-plans.p0).
 :- include(code-plans.p0).
+:- include(situation.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 

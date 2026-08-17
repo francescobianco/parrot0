@@ -246,6 +246,16 @@ response_template(state_query_gap, it, "Ho valutato quegli statement, ma nessuno
 response_template(obligation_ambiguous, en, "Those statements bind more than one name, and the expectation does not say which one it is about.").
 response_template(obligation_ambiguous, it, "Quegli statement legano piu' di un nome, e l'aspettativa non dice di quale parli.").
 
+% gen398a: i residui del piano situazionale. Sono tre esiti disgiunti e nessuno
+% dei tre e' un piano: conoscere la situazione non autorizza a inventare
+% un'azione, e conoscere un'azione non autorizza a ignorarne la precondizione.
+response_template(situation_no_action, en, "I can see that situation, but I know no action of mine that changes it that way.").
+response_template(situation_no_action, it, "Vedo quella situazione, ma non conosco un'azione che la cambi in quel verso.").
+response_template(situation_blocked, en, "I know an action for that, but one of its preconditions does not hold in that situation.").
+response_template(situation_blocked, it, "Conosco un'azione adatta, ma in quella situazione una sua precondizione non vale.").
+response_template(situation_plan_ambiguous, en, "More than one action would change it that way, and nothing in the situation chooses between them.").
+response_template(situation_plan_ambiguous, it, "Piu' di un'azione lo cambierebbe in quel verso, e la situazione non sceglie fra loro.").
+
 % gen396: i CONNETTIVI della risposta composta (piano proposizionale, §K6).
 %
 % Non sono risposte: sono i pezzi di lingua che tengono insieme proposizioni gia'
@@ -261,6 +271,12 @@ list_separator(en, ", ").
 list_separator(it, ", ").
 state_copula(en, " is ").
 state_copula(it, " vale ").
+
+% gen398a: l'apertura di un piano situazionale. Non e' una risposta e non porta
+% claim: dice che cio' che segue e' un'azione APPLICABILE, che e' esattamente
+% cio' che la proof ha dimostrato. Una lingua nuova entra qui come fatto.
+ability_opener(en, "You can ").
+ability_opener(it, "Puoi ").
 
 % gen240 (universal-comprehension, social branch): smalltalk continuity moves.
 % Honest: they keep the conversation going (acknowledge + open question) and never

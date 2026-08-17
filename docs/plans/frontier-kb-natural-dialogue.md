@@ -2122,6 +2122,69 @@ descrizioni e domande in entita', stato, goal, risorse, vincoli e fonti. Primo
 ratchet: stesso frame per parafrasi IT/EN; cue nuovo assert/retract; nessun
 consumer speciale.
 
+**Stato di attuazione (gen398a, primo taglio — META' DEL CONTRATTO).** Il
+livello esiste in `kb/core/situation.p0` ed e' interamente KB: **zero righe di
+C**. Non nasce un router: il turno arriva dall'unico producer universale
+(`turn_span/4`, `turn_span_token/4`) e la risposta esce dall'unico contratto
+`turn_plan_candidate/1` + `turn_response/2`, lo stesso di `conditional-plans.p0`
+e `code-plans.p0` — se questo livello avesse preteso un percorso suo, il piano
+universale non sarebbe universale.
+
+Cosa e' collegato:
+
+1. **il goal e' letto dal turno** — il ruolo di span nasce da `segment_role/2`,
+   il verso del cambiamento e la proprieta' sono concetti raggiunti da
+   `linguistic_form/4`, cioe' dalla sorgente unica `concept_label/4` di gen391.
+   «how do i lower the level» e «come faccio ad abbassare il livello» producono
+   lo stesso Situation IR e la stessa azione provata; cambia la realizzazione,
+   non il contenuto proposizionale;
+2. **lo stato e' una credenza di contesto**, non una seconda tabella:
+   `situation_state/4` e' una vista di `context_visible_belief/2` (gen395), e le
+   proposizioni sono reificate (`state_prop/4`) come `proposition_signature/4`
+   gia' presupponeva. La ripianificazione di gen398e eredita quindi il
+   versionamento invece di reinventarlo;
+3. **applicabilita' come insieme**: si legge l'INSIEME delle precondizioni non
+   provate, non la prima. `applicable/2` e `blocked_action/2` sono relazioni
+   interrogabili dalla porta binaria universale, con verso dichiarato;
+4. **effetto e conseguenza restano distinti**: ritrarre `causal_law/2` toglie il
+   piano e lascia l'azione descritta e applicabile. Due relazioni, due ablazioni;
+5. **trasferimento provato**: gli stessi operatori pianificano in un secondo
+   dominio che non condivide una parola col primo. Mondo, azioni, leggi causali
+   e forme entrano tutti da assert runtime — nel core non vive un solo fatto di
+   dominio.
+
+Cosa NON e' collegato, e non va dichiarato chiuso:
+
+1. **la meta' `descrizione` del producer manca.** Il turno contribuisce oggi il
+   GOAL; lo STATO deve essere gia' conoscenza. Trasformare una descrizione in
+   prosa («la valvola e' chiusa e il livello sale») in `state_prop/4` +
+   `holds_in/2` e' il gate onesto che chiude gen398a;
+2. niente piani multi-passo, stati intermedi, risorse quantitative, mondi
+   concorrenti, azioni informative, ripianificazione o policy di rischio: sono
+   398c-398f e restano contratto;
+3. lo stimolo guida della mongolfiera **mura ancora**, come deve: non esiste un
+   dominio pallone e non c'e' motivo di fabbricarne uno per far passare il
+   prompt che ha aperto il fronte;
+4. due azioni applicabili producono per ora un template di ambiguita' invece di
+   enumerare le alternative: e' un debito di realizzazione K6, non di inferenza.
+
+**Il difetto trovato dal ratchet, e la sua forma.** Il primo taglio rispondeva
+che un'azione era BLOCCATA in una situazione mai dichiarata. In un mondo
+inesistente nessuna credenza vale, quindi ogni precondizione vi risulta
+«mancante»: l'assenza di conoscenza si travestiva da conoscenza negativa — la
+stessa specie di divergenza silenziosa del §2.1 vincolo 5, e la sua forma
+peggiore. La correzione e' il gate `context($Situation, $Kind)` dentro
+`applicable/2` e `blocked_action/2`, e il controllo negativo su una situazione
+mai dichiarata e' ora nel ratchet.
+
+**Verifica.** `tests/p0t/reasoning/situation_plan.p0t` chiude 25 asserzioni sul
+budget ordinario di un secondo per turno, profilo AGI, senza `!timeout`.
+`make test` passa 2052 prove, zero fallimenti. `make soft-test` resta
+semanticamente verde e fuori budget per il carico ambientale gia' registrato
+nell'handoff (20-22s contro 15s, misurato a 21s anche disattivando questo
+livello): la guardia `turn_goal_span/1` prima della findall riporta il costo per
+turno dentro il rumore, e il budget non e' stato alzato.
+
 **gen398b — Schemi d'azione e applicabilita'.** Introdurre precondizioni, effetti,
 consumi e azioni inapplicabili. Tre domini minimi: controllo della discesa,
 contenimento di un flusso, uscita da un ambiente. Ablare una precondizione deve

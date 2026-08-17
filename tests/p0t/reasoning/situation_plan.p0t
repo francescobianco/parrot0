@@ -1,0 +1,166 @@
+# PIANO SITUAZIONALE DAL UNIVERSAL INPUT — gen398a, primo taglio verticale.
+#
+# Il ratchet raccomandato dall'handoff: un micro-mondo SINTETICO, non un caso
+# reale di emergenza. Cio' che deve reggere non e' la risposta sulla valvola —
+# e' il contratto. Il turno naturale produce lo stesso Situation IR in italiano e
+# in inglese; l'azione non esiste finche' il suo schema non e' insegnato; una
+# precondizione non provata blocca il passo invece di farlo sparire; ritrarre la
+# legge causale toglie il piano e lascia intatta l'azione; e gli stessi operatori
+# risolvono un secondo dominio che non condivide una sola parola col primo.
+#
+# Nessun fatto di questo file vive nel core: mondo, azioni, leggi causali e forme
+# entrano tutti da assert runtime. E' la prova piu' esigente del mantra — parrot0
+# impara un mondo nuovo parlando, senza ricompilare.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# ── il micro-mondo: contenitore, valvola, livello ───────────────────────────
+# Lo stato e' una credenza del contesto (gen395), non una seconda tabella.
+[test a known situation without a known action names the gap instead of inventing one]
+!assert context(tank_world, hypothesis)
+!assert state_prop(valve_shut, valve, position, closed)
+!assert state_prop(valve_sound, valve, condition, working)
+!assert state_prop(level_high, tank, level, high)
+!assert holds_in(tank_world, valve_shut)
+!assert holds_in(tank_world, valve_sound)
+!assert holds_in(tank_world, level_high)
+!assert concept_label(level, en, common, level)
+!assert concept_label(level, it, common, livello)
+!assert concept_label(decrease, en, common, lower)
+!assert concept_label(decrease, it, common, abbassare)
+> how do i lower the level
+< I can see that situation, but I know no action of mine that changes it that way.
+> come faccio ad abbassare il livello
+< Vedo quella situazione, ma non conosco un'azione che la cambi in quel verso.
+
+[test the action schema taught at runtime turns the same turn into a plan]
+!assert action_schema(fluid_control, open_valve)
+!assert action_precondition(open_valve, valve_sound)
+!assert action_precondition(open_valve, valve_shut)
+!assert state_prop(valve_open_state, valve, position, open)
+!assert action_effect(open_valve, valve_open_state)
+!assert causal_law(valve_open_state, outflow)
+!assert change_prop(outflow, level, decrease)
+!assert concept_label(open_valve, en, common, "open the valve")
+!assert concept_label(open_valve, it, common, "aprire la valvola")
+> how do i lower the level
+< You can open the valve.
+
+# Stesso Situation IR, due lingue: cambia la realizzazione, non l'azione provata.
+[test the italian paraphrase reaches the same situation ir]
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# La precondizione e l'effetto non restano interni al piano: sono interrogabili
+# con la stessa porta binaria universale di ogni altra relazione.
+[test applicability is an inspectable relation of the situation]
+> what is the applicable action for tank_world
+< Open valve.
+> what is the blocked action for tank_world
+<! Open valve.
+
+# Il controllo che ha trovato il difetto: in un mondo mai dichiarato nessuna
+# credenza vale, quindi ogni precondizione vi risulta «mancante». Senza il gate
+# sul contesto l'azione risultava BLOCCATA in una situazione inesistente —
+# ignoranza travestita da conoscenza negativa.
+[test an undeclared situation has neither applicable nor blocked actions]
+> what is the applicable action for nowhere_world
+<! Open valve.
+> what is the blocked action for nowhere_world
+<! Open valve.
+
+# ── negativo vicino 1: il verso ─────────────────────────────────────────────
+# Un'azione che abbassa il livello non e' una risposta peggiore alla domanda su
+# come alzarlo: e' la risposta a un'altra domanda.
+[test the opposite direction does not reuse the action]
+!assert concept_label(increase, en, common, raise)
+> how do i raise the level
+< I can see that situation, but I know no action of mine that changes it that way.
+
+# ── negativo vicino 2: la valvola guasta ────────────────────────────────────
+# La precondizione non provata BLOCCA il passo. Il residuo distingue «non
+# conosco un'azione» da «l'azione che conosco non e' applicabile qui».
+[test an unmet precondition blocks the step and says so]
+!forget holds_in(tank_world, valve_sound)
+> how do i lower the level
+< I know an action for that, but one of its preconditions does not hold in that situation.
+> what is the applicable action for tank_world
+<! Open valve.
+> what is the blocked action for tank_world
+< Open valve.
+!assert holds_in(tank_world, valve_sound)
+> how do i lower the level
+< You can open the valve.
+
+# ── ablazione: la legge causale ─────────────────────────────────────────────
+# Ritrarre la legge toglie la CONSEGUENZA e lascia l'effetto: il piano cade,
+# l'azione resta descritta e applicabile. Sono due ablazioni diverse perche'
+# sono due relazioni diverse.
+[test retracting the causal law removes the plan and not the action]
+!forget causal_law(valve_open_state, outflow)
+> how do i lower the level
+< I can see that situation, but I know no action of mine that changes it that way.
+> what is the applicable action for tank_world
+< Open valve.
+!assert causal_law(valve_open_state, outflow)
+> how do i lower the level
+< You can open the valve.
+
+# ── ablazione: la forma della lingua ────────────────────────────────────────
+# Il verso del cambiamento e' un concetto e le sue forme sono conoscenza. Tolta
+# la forma italiana, l'italiano non raggiunge piu' il goal e l'inglese resta.
+[test the direction form is knowledge and each language answers for itself]
+!forget concept_label(decrease, it, common, abbassare)
+> come faccio ad abbassare il livello
+<! Puoi aprire la valvola.
+> how do i lower the level
+< You can open the valve.
+!assert concept_label(decrease, it, common, abbassare)
+> come faccio ad abbassare il livello
+< Puoi aprire la valvola.
+
+# ── crescita e ablazione della superficie del turno ─────────────────────────
+[test a new goal surface grows and retracts at runtime]
+> what should i do to lower the level
+<! You can open the valve.
+!assert segment_role(goal, "what should i do to")
+> what should i do to lower the level
+< You can open the valve.
+!forget segment_role(goal, "what should i do to")
+> what should i do to lower the level
+<! You can open the valve.
+
+# ── trasferimento: secondo dominio, zero lessico condiviso ──────────────────
+# Nessuna parola di questo mondo compare nel primo: non contenitore, non valvola,
+# non livello. Gli operatori sono gli stessi, e questo e' il punto — se servisse
+# una regola nuova, il taglio sarebbe una soluzione idraulica, non un livello.
+[test the same operators plan in an unrelated domain]
+!assert context(cell_world, hypothesis)
+!assert state_prop(charge_low, cell, charge, low)
+!assert state_prop(charger_sound, charger, condition, working)
+!assert holds_in(cell_world, charge_low)
+!assert holds_in(cell_world, charger_sound)
+!assert concept_label(charge, en, common, charge)
+!assert action_schema(power, connect_charger)
+!assert action_precondition(connect_charger, charger_sound)
+!assert state_prop(charger_linked, charger, link, connected)
+!assert action_effect(connect_charger, charger_linked)
+!assert causal_law(charger_linked, refill)
+!assert change_prop(refill, charge, increase)
+!assert concept_label(connect_charger, en, common, "connect the charger")
+> how do i raise the charge
+< You can connect the charger.
+
+[test the second domain obeys the same precondition discipline]
+!forget holds_in(cell_world, charger_sound)
+> how do i raise the charge
+< I know an action for that, but one of its preconditions does not hold in that situation.
+!assert holds_in(cell_world, charger_sound)
+> how do i raise the charge
+< You can connect the charger.
