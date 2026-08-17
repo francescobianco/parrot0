@@ -269,6 +269,10 @@ recall_opener(pending, en, "I still owe you an answer about ").
 recall_opener(pending, it, "Ti devo ancora una risposta su ").
 recall_opener(settled, en, "Since you asked, I have learned about ").
 recall_opener(settled, it, "Da quando l'hai chiesto ho imparato su ").
+recall_opener(covered, en, "So far we have talked about ").
+recall_opener(covered, it, "Finora abbiamo parlato di ").
+recall_empty(covered, en, "We have not covered anything yet.").
+recall_empty(covered, it, "Non abbiamo ancora toccato niente.").
 recall_empty(pending, en, "Nothing is pending: I have answered everything you asked.").
 recall_empty(pending, it, "Non c'e' niente in sospeso: ho risposto a tutto quello che hai chiesto.").
 recall_empty(settled, en, "Nothing has been settled since: no question of yours has found an answer yet.").

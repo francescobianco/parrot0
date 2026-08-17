@@ -107,3 +107,29 @@
 !forget recall_cue("anything left hanging", pending)
 > anything left hanging
 <! I still owe you an answer
+
+# ── CIO' CHE E' STATO DETTO, distinto da cio' che si sa ────────────────────
+#
+# Un'issue ricorda le domande senza risposta; questo ricorda le risposte date.
+# Non e' la stessa cosa di sapere il fatto: il fatto sta nella KB e puo'
+# cambiare, mentre uno scambio e' ACCADUTO e resta accaduto. Senza questa
+# distinzione una conversazione non puo' riferirsi a se stessa.
+[test the conversation remembers what it answered]
+> what have we covered
+<~ milan
+> what did you tell me about milan
+< Lombardy.
+
+# La prova che le due memorie sono davvero distinte: ritratto il fatto, parrot0
+# non risponde piu' Lombardia — ma ricorda benissimo di averlo detto, e la
+# domanda torna a essere un debito aperto.
+[test what was said survives the fact that made it true]
+> where is zorbia
+< Europe.
+!forget located_in(zorbia, europe)
+> where is zorbia
+<! Europe.
+> what did you tell me about zorbia
+< Europe.
+> what is still open
+<~ zorbia

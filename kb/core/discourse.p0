@@ -55,7 +55,40 @@ answer_content(recall($Kind, $Words, $Language), 0, opener, $Piece) :- recall_op
 answer_content(recall($Kind, $Words, $Language), 1, items, $Piece) :- list_text($Language, $Words, $Piece).
 answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sentence_terminator($Language, $Piece).
 
-% ── 4. LA MOSSA ────────────────────────────────────────────────────────────
+% ── 4. CIO' CHE E' STATO DETTO ─────────────────────────────────────────────
+%
+% Un'issue ricorda le domande senza risposta. Questo ricorda il contrario: le
+% risposte date. Non e' la stessa cosa di sapere il fatto — il fatto sta nella
+% KB e puo' cambiare, mentre uno scambio e' accaduto e resta accaduto. E' la
+% distinzione fra cio' che parrot0 SA e cio' che ha DETTO, e senza di essa una
+% conversazione non puo' riferirsi a se stessa.
+%
+% Vive nella contabilita' perche' e' un effetto del turno, non una sua risposta.
+bookkeeper(exchange).
+turn_bookkeeping($Turn, exchange) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), assert(exchange, $Entity, $Relation, $Value).
+
+told_about($Entity, $Value) :- exchange($Entity, $Relation, $Value).
+covered_entity($Entity) :- exchange($Entity, $Relation, $Value).
+covered_set($Entities) :- findall($E, covered_entity($E), $Entities).
+
+answer_frame("what did you tell me about", told_about).
+answer_frame_input_arg("what did you tell me about", told_about, 1).
+answer_frame("cosa mi hai detto su", told_about).
+answer_frame_input_arg("cosa mi hai detto su", told_about, 1).
+
+% Anche l'elenco di cio' che si e' toccato e' una ripresa, e passa dallo stesso
+% fold: la lunghezza dipende da cio' che e' successo, non da uno schema.
+% «what did we talk about» NON entra qui: quella superficie ha gia' un consumer
+% dal gen58, che elenca le parole di contenuto dei turni recenti. Fa una cosa
+% diversa — piu' larga e piu' grezza — e rubargliela sarebbe amputare una
+% struttura secondaria per far posto a una nuova. Le due memorie convivono:
+% quella conta cio' che e' stato NOMINATO, questa cio' che e' stato RISPOSTO.
+recall_cue("what have we covered", covered).
+recall_cue("what have you answered", covered).
+recall_cue("su cosa mi hai risposto", covered).
+recall_kind_word(covered, $Entity) :- covered_entity($Entity).
+
+% ── 5. LA MOSSA ────────────────────────────────────────────────────────────
 %
 % Due esiti disgiunti, ed entrambi sono una risposta: dire che cosa manca, o
 % dire che non manca nulla. Il secondo non e' un muro — e' un'informazione, e

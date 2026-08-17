@@ -1867,10 +1867,30 @@ elenco di lunghezza VARIABILE con il separatore della lingua come dato, mentre
 `answer_content/4` sapeva comporre solo un numero fisso di pezzi con ruoli noti.
 Come il fold del piano proposizionale, non decide nulla su cosa dire.
 
-Restano da fare le unita' discorsive vere (`discourse_unit/3`, `unit_about/2`),
-la salienza dichiarativa, il topic stack e la sintesi con provenance. Vivranno
-sullo stesso `turn_bookkeeping/1`, che e' il motivo per cui esiste. I dialoghi
-da 50 e 100 turni non sono ancora provati: questo ne prova venticinque.
+**Secondo taglio: cio' che e' stato DETTO.** Un'issue ricorda le domande senza
+risposta; `exchange/3` ricorda le risposte date. Non e' la stessa cosa di sapere
+il fatto — il fatto sta nella KB e puo' cambiare, mentre uno scambio e' accaduto
+e resta accaduto. Senza questa distinzione una conversazione non puo' riferirsi
+a se stessa, ed e' `unit_contains/2` nella forma piu' piccola che serva:
+
+```text
+where is zorbia                        -> Europe.
+!forget located_in(zorbia, europe)
+where is zorbia                        -> (non piu' Europe)
+what did you tell me about zorbia      -> Europe.
+what is still open                     -> ... zorbia ...
+```
+
+La superficie «what did we talk about» NON e' stata presa: ha gia' un consumer
+dal gen58 che elenca le parole di contenuto dei turni recenti. Fa una cosa
+diversa, piu' larga e piu' grezza, e rubargliela sarebbe amputare una struttura
+secondaria per far posto a una nuova. Le due memorie convivono: quella conta
+cio' che e' stato NOMINATO, questa cio' che e' stato RISPOSTO.
+
+Restano da fare `discourse_unit/3` con i suoi confini, `unit_about/2`, la
+salienza dichiarativa, il topic stack e la sintesi con provenance. Vivranno
+sullo stesso `turn_bookkeeping/2`, che e' il motivo per cui esiste. I dialoghi
+da 50 e 100 turni non sono ancora provati: questo ne prova trentasei.
 
 ## 16. Stato di avanzamento
 
