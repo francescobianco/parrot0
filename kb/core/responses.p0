@@ -269,6 +269,14 @@ recall_opener(pending, en, "I still owe you an answer about ").
 recall_opener(pending, it, "Ti devo ancora una risposta su ").
 recall_opener(settled, en, "Since you asked, I have learned about ").
 recall_opener(settled, it, "Da quando l'hai chiesto ho imparato su ").
+recall_opener(topic, en, "We are on ").
+recall_opener(topic, it, "Stiamo parlando di ").
+recall_empty(topic, en, "We are not on anything in particular yet.").
+recall_empty(topic, it, "Non stiamo ancora parlando di niente in particolare.").
+recall_opener(earlier, en, "Before that we were on ").
+recall_opener(earlier, it, "Prima parlavamo di ").
+recall_empty(earlier, en, "There was nothing before that.").
+recall_empty(earlier, it, "Prima non c'era niente.").
 recall_opener(covered, en, "So far we have talked about ").
 recall_opener(covered, it, "Finora abbiamo parlato di ").
 recall_empty(covered, en, "We have not covered anything yet.").

@@ -64,11 +64,49 @@ answer_content(recall($Kind, $Words, $Language), 2, terminator, $Piece) :- sente
 % conversazione non puo' riferirsi a se stessa.
 %
 % Vive nella contabilita' perche' e' un effetto del turno, non una sua risposta.
+% Il turno ha bisogno di un NUMERO, altrimenti la conversazione e' un insieme e
+% non una sequenza: senza ordine non esistono «prima», «poi» e «ancora prima»,
+% cioe' non esiste discorso. L'orologio e' un contabile come gli altri e sta
+% nella KB — il motore non conta i turni per conto suo.
+turn_counter(0).
+bookkeeper(clock).
+turn_bookkeeping($Turn, clock) :- turn_counter($N), is($M, add($N, 1)), retract(turn_counter, $N), assert(turn_counter, $M).
+
 bookkeeper(exchange).
-turn_bookkeeping($Turn, exchange) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), assert(exchange, $Entity, $Relation, $Value).
+% Lo scambio e il suo POSTO nella sequenza sono due fatti, non uno. Non e' una
+% scelta di stile: un termine del dialetto porta al massimo quattro argomenti,
+% quindi un `assert` puo' creare un fatto di arita' tre e non di piu' — il
+% quinto argomento non e' rappresentabile nel corpo di una regola. Separarli e'
+% anche piu' onesto: quando accadde e che cosa fu detto sono due domande.
+turn_bookkeeping($Turn, exchange) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_counter($N), assert(exchange, $Entity, $Relation, $Value), assert(exchange_turn, $N, $Entity).
 
 told_about($Entity, $Value) :- exchange($Entity, $Relation, $Value).
 covered_entity($Entity) :- exchange($Entity, $Relation, $Value).
+
+% ── SALIENZA: di che cosa stiamo parlando ──────────────────────────────────
+%
+% Non un campo «ultimo topic» tenuto da qualcuno: l'entita' il cui scambio piu'
+% recente non ha nulla dopo di se'. E' una vista, quindi una digressione che non
+% risponde a niente — un conto, un saluto — non sposta l'argomento, e non perche'
+% qualcuno l'abbia esclusa: perche' non ha lasciato uno scambio.
+later_exchange($Entity, $Turn) :- exchange_turn($Later, $Entity), gt($Later, $Turn).
+entity_last_turn($Entity, $Turn) :- exchange_turn($Turn, $Entity), naf(later_exchange($Entity, $Turn)).
+any_later_exchange($Turn) :- exchange_turn($Later, $Other), gt($Later, $Turn).
+current_topic($Entity) :- entity_last_turn($Entity, $Turn), naf(any_later_exchange($Turn)).
+
+% «Prima di questo» e' la stessa vista, tolta la cima: il topic stack del piano
+% nella sua profondita' minima, e senza una pila da mantenere.
+non_current_last($Entity, $Turn) :- entity_last_turn($Entity, $Turn), current_topic($Top), dif($Entity, $Top).
+later_non_current($Turn) :- non_current_last($Other, $Later), gt($Later, $Turn).
+previous_topic($Entity) :- non_current_last($Entity, $Turn), naf(later_non_current($Turn)).
+
+recall_cue("what are we on", topic).
+recall_cue("what is the current topic", topic).
+recall_cue("qual è l'argomento", topic).
+recall_kind_word(topic, $Entity) :- current_topic($Entity).
+recall_cue("what were we on before", earlier).
+recall_cue("prima di cosa parlavamo", earlier).
+recall_kind_word(earlier, $Entity) :- previous_topic($Entity).
 covered_set($Entities) :- findall($E, covered_entity($E), $Entities).
 
 answer_frame("what did you tell me about", told_about).

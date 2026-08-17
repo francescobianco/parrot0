@@ -1887,10 +1887,34 @@ diversa, piu' larga e piu' grezza, e rubargliela sarebbe amputare una struttura
 secondaria per far posto a una nuova. Le due memorie convivono: quella conta
 cio' che e' stato NOMINATO, questa cio' che e' stato RISPOSTO.
 
-Restano da fare `discourse_unit/3` con i suoi confini, `unit_about/2`, la
-salienza dichiarativa, il topic stack e la sintesi con provenance. Vivranno
-sullo stesso `turn_bookkeeping/2`, che e' il motivo per cui esiste. I dialoghi
-da 50 e 100 turni non sono ancora provati: questo ne prova trentasei.
+**Terzo taglio: salienza e topic (397.2).** L'argomento non e' un campo tenuto
+da qualcuno: e' l'entita' il cui scambio piu' recente non ha nulla dopo di se'.
+Essendo una vista, una digressione che non risponde a niente — un conto, un
+saluto — non sposta l'argomento, e non perche' qualcuno l'abbia esclusa: perche'
+non ha lasciato uno scambio. «Prima di questo» e' la stessa vista tolta la cima,
+cioe' il topic stack nella sua profondita' minima e senza una pila da mantenere.
+
+```text
+where is milan          -> Lombardy.
+where is paris          -> France.
+what are we on          -> We are on paris.
+what were we on before  -> Before that we were on milan.
+what is 2 + 2           -> 4.
+what are we on          -> We are on paris.
+```
+
+Il turno ha ora un NUMERO (`turn_counter/1`, un contabile come gli altri):
+senza ordine la conversazione e' un insieme e non una sequenza, e «prima»,
+«poi» e «ancora prima» non esistono. Lo scambio e il suo posto nella sequenza
+restano due fatti, perche' un termine del dialetto porta al massimo quattro
+argomenti e un `assert` puo' percio' creare un fatto di arita' tre — il quinto
+argomento non e' rappresentabile nel corpo di una regola. Separarli e' anche
+piu' onesto: quando accadde e che cosa fu detto sono due domande.
+
+Restano `discourse_unit/3` con i suoi confini, `relevant_to/2` e la sintesi con
+provenance. I dialoghi da 50 e 100 turni non sono ancora provati: il ratchet ne
+prova quarantanove asserzioni su una conversazione che cambia argomento tre
+volte.
 
 ## 16. Stato di avanzamento
 

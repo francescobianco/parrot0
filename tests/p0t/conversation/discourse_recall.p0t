@@ -133,3 +133,42 @@
 < Europe.
 > what is still open
 <~ zorbia
+
+# ── SALIENZA: di che cosa stiamo parlando ──────────────────────────────────
+#
+# Non un campo «ultimo topic» tenuto da qualcuno: l'entita' il cui scambio piu'
+# recente non ha nulla dopo di se'. Essendo una vista, una digressione che non
+# risponde a niente — un conto, un saluto — non sposta l'argomento; e non
+# perche' qualcuno l'abbia esclusa, ma perche' non ha lasciato uno scambio.
+[test the topic is derived from what was answered, not from a field]
+!reset
+> what are we on
+< We are not on anything in particular yet.
+> where is milan
+< Lombardy.
+> where is paris
+< France.
+> what are we on
+< We are on paris.
+> what were we on before
+< Before that we were on milan.
+
+[test a digression that answers nothing does not move the topic]
+> what is 2 + 2
+< 4.
+> hello
+<~ Hi
+> what is 15 * 3
+< 45.
+> what are we on
+< We are on paris.
+> what were we on before
+< Before that we were on milan.
+
+[test answering about an old entity brings it back to the top]
+> where is milan
+< Lombardy.
+> what are we on
+< We are on milan.
+> what were we on before
+< Before that we were on paris.
