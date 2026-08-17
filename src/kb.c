@@ -1425,6 +1425,35 @@ static int solve_frame(Solver *S, const Term *goals, size_t ngoals, size_t idx,
         return 0;                              /* both unbound: flounder */
     }
 
+    /* gen393: `upcase_first/2` — the case transform, and only the transform.
+     *
+     * A KB-composed answer could add a language's sentence terminator (that fact
+     * has existed since gen396) but could not open the sentence, so every
+     * realization built from proof came out lowercase while every C module
+     * capitalized on its own. Capitalizing is not knowledge — WHETHER a language
+     * or register opens a sentence in upper case is, and that decision stays in
+     * the KB (`sentence_initial/2`). This primitive knows no language: it
+     * uppercases the first letter it finds, skipping an opening quote so a
+     * quoted surface keeps its delimiters. */
+    if (strcmp(g->pred, "upcase_first") == 0 && g->argc == 2) {
+        char a0[KB_TERM_LEN];
+        deep_resolve(s, g->args[0], a0, sizeof a0, 0);
+        if (is_var(a0)) return 0;              /* input unbound: flounder */
+        char up[KB_TERM_LEN];
+        snprintf(up, sizeof up, "%s", a0);
+        for (size_t i = 0; up[i]; i++) {
+            if (up[i] == '"') continue;
+            if (isalpha((unsigned char)up[i]))
+                up[i] = (char)toupper((unsigned char)up[i]);
+            break;
+        }
+        Subst *s2 = &scratch->subst;
+        *s2 = *s;
+        if (unify(s2, g->args[1], up))
+            return solve(S, goals, ngoals, idx + 1, s2, depth);
+        return 0;
+    }
+
     /* gen335 (teachable-procedures): arithmetic EVALUATION as engine primitives, so a
      * taught clause computes with real numbers — "how to sum / compare / filter" is
      * KNOWLEDGE, not a C consumer. `is($R, expr)` evaluates expr and binds $R; the
@@ -1877,6 +1906,7 @@ int kb_query(KB *kb, const char *pred, const char *const *args, size_t argc) {
      * no rules. Avoid constructing an SLD search that scans every unrelated fact
      * at every evidence query; rule-bearing predicates keep the full solver. */
     int has_rule = (argc == 2 && (strcmp(pred, "chars") == 0 ||   /* solver builtins */
+        strcmp(pred,"upcase_first")==0 ||
         strcmp(pred,"kb_fact")==0 || strcmp(pred,"apply")==0 ||
         strcmp(pred,"is")==0 || strcmp(pred,"lt")==0 || strcmp(pred,"le")==0 ||
         strcmp(pred,"gt")==0 || strcmp(pred,"ge")==0 || strcmp(pred,"eq")==0 ||

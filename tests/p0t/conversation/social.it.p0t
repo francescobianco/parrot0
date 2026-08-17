@@ -15,7 +15,13 @@
 < Hi there!
 > grazie
 < Prego!
+# gen393: questa riga asseriva il MURO come comportamento corrente — era un
+# segnalibro su una lacuna, non un contratto da difendere. La lacuna non era di
+# conoscenza (`social_pattern(wellbeing, come stai)` c'era, e il cue di smalltalk
+# pure): la canonicalizzazione per parole disfaceva la locuzione prima che il
+# modulo la vedesse, ed e' precisamente il caso che `phrase_canon/2` esiste per
+# coprire. Cinque locuzioni in `lexicon.p0`, zero C.
 > come stai?
-< Non capisco ancora.
+< Sto bene, grazie. Come posso aiutarti?
 > buongiorno
 < Ciao!

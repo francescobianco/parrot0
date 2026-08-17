@@ -165,6 +165,18 @@ sentence_terminator(en, ".").
 sentence_terminator(it, ".").
 value_sentence($Language, $Value, $Text) :- sentence_terminator($Language, $Mark), concat_atoms($Value, $Mark, $Text).
 
+% gen393: APRIRE una frase e' la simmetrica di chiuderla, e sta allo stesso
+% livello. Il terminatore era gia' un fatto di lingua; la maiuscola iniziale no,
+% quindi ogni realizzazione composta dalla proof usciva minuscola mentre ogni
+% modulo C capitalizzava per conto suo. `sentence_initial/2` e' il dato — una
+% lingua o un registro che non apre in maiuscolo e' una riga, non un ramo — e il
+% motore offre soltanto la trasformazione, che non conosce lingue.
+sentence_initial(en, upper).
+sentence_initial(it, upper).
+sentence_opening($Language, $Value, $Piece) :- sentence_initial($Language, upper), upcase_first($Value, $Piece).
+sentence_opening($Language, $Value, $Value) :- naf(sentence_initial($Language, upper)).
+value_statement($Language, $Value, $Text) :- sentence_opening($Language, $Value, $Opened), value_sentence($Language, $Opened, $Text).
+
 % ── PIANO PROPOSIZIONALE (K6): prima COSA va detto, poi COME dirlo ──
 %
 % Una risposta composta e' una sequenza ordinata di pezzi, e ogni pezzo porta il
@@ -978,6 +990,7 @@ machinery(sides).
 :- include(conditional-plans.p0).
 :- include(code-plans.p0).
 :- include(situation.p0).
+:- include(turn-frames.p0).
 :- include(denotation.p0).
 :- include(language-forms.p0).
 
@@ -1035,6 +1048,7 @@ machinery(member).
 machinery(append_list).
 machinery(concat_atoms).
 machinery(sentence_terminator).
+machinery(sentence_initial).
 machinery(value_sentence).
 machinery(answer_content).
 machinery(answer_has_content).

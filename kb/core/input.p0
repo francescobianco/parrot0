@@ -220,5 +220,9 @@ machinery(turn_span_cue).
 machinery(turn_span_surface).
 machinery(turn_span_token).
 machinery(turn_span_binding).
+% gen393: quali superfici dichiarate dalla KB il turno contiene. E' percezione,
+% non mondo: senza questa riga il censimento la conterebbe come conoscenza.
+machinery(turn_cue).
+machinery(turn_cue_registry).
 machinery(span_state_model).
 machinery(machinery).

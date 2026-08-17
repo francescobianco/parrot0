@@ -149,6 +149,17 @@ phrase_canon("come si scrive", "how do you spell").
 % traduzione parola-per-parola da gia' "finish", che la porta answer_frame
 % aggancia. Una locuzione va aggiunta solo dove quella per parole SBAGLIA.
 phrase_canon("come si gioca", "how do you play").
+% gen393 — il saluto piu' comune dell'italiano cadeva nel muro. La conoscenza
+% c'era gia' tutta (`social_pattern(wellbeing, come stai)`, il cue di smalltalk):
+% a rompersi era la locuzione, perche' il per-parole non produce nulla di
+% agganciabile — «stai» e «va» da soli non portano il senso di benessere. E'
+% esattamente il caso che questa tabella esiste per coprire: la traduzione a
+% parole non e' goffa, e' sbagliata.
+phrase_canon("come stai", "how are you").
+phrase_canon("come sta", "how are you").
+phrase_canon("come state", "how are you").
+phrase_canon("come va", "how are you").
+phrase_canon("come butta", "how are you").
 phrase_canon("a cosa serve", "what is it for").
 phrase_canon("quanto costa", "how much does it cost").
 

@@ -1,0 +1,104 @@
+# IL PRODUTTORE NL -> FRAME, UNIVERSALE — gen393.
+#
+# Il kernel dei frame esisteva dal primo taglio di gen393, ma nessun turno reale
+# lo alimentava: i `.p0t` materializzavano `frame_act/2` e `frame_slot/3` a mano.
+# Qui il frame nasce dal TURNO, prima del first-match dispatch, e la mossa che ne
+# consegue e' decisa dalla KB.
+#
+# Il testo della risposta non basta a provarlo: il percorso storico risponde la
+# stessa cosa, ed e' giusto che continui a farlo (strutture secondarie). Quello
+# che cambia e' CHI ha risposto, quindi ogni prova qui interroga il modulo — un
+# ratchet sul testo soltanto sarebbe passato anche senza produttore.
+
+[mock live]
+!set PARROT0_BASE=kb/core/base.p0
+!set PARROT0_SESSION=
+!set PARROT0_PROFILE=kb/profiles/agi.p0
+!set PARROT0_WORLD_FACTS=1
+!set PARROT0_LANG=en
+!reset
+
+# Una superficie il cui verso e' dichiarato entra nel frame universale. Il turno
+# non e' curato per il test: e' la stessa domanda geografica di gen393.
+[test an ordinary turn is answered by the universal turn frame]
+> where is milan
+< Lombardy.
+> which part of you answered that?
+< The 'turn_plan' module answered your last question.
+
+# Crescita a runtime: relazione, superficie, verso e fatto entrano parlando.
+# Nessuno dei quattro vive nel core, e il frame li usa al turno successivo.
+[test a relation taught at runtime enters the universal frame]
+> what is the zorb level of vint
+<! Seven.
+!assert zorb_level(vint, seven)
+!assert answer_frame("zorb level of", zorb_level)
+!assert answer_frame_input_arg("zorb level of", zorb_level, 1)
+> what is the zorb level of vint
+< Seven.
+> which part of you answered that?
+< The 'turn_plan' module answered your last question.
+
+# Il VERSO dichiarato e' la porta d'ammissione, ed e' knowledge: ritraendolo la
+# relazione torna al percorso storico. La risposta resta la stessa — il che e'
+# esattamente il punto: cambia il produttore, non la verita'.
+[test the declared direction is the admission gate and it is retractable]
+!forget answer_frame_input_arg("zorb level of", zorb_level, 1)
+> what is the zorb level of vint
+< Seven.
+> which part of you answered that?
+< The 'answerframe' module answered your last question.
+!assert answer_frame_input_arg("zorb level of", zorb_level, 1)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'turn_plan' module answered your last question.
+
+# gen394 dal vivo: non risponde il modulo che arriva primo, risponde la MOSSA
+# che la KB deriva. Ritrarre la policy toglie la risposta al frame universale
+# senza toccare ne' il fatto ne' il frame.
+[test the dialogue policy decides whether the frame answers at all]
+!forget move_policy(proven_answer, answer)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'answerframe' module answered your last question.
+!assert move_policy(proven_answer, answer)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'turn_plan' module answered your last question.
+
+# Due letture sono due letture. Il frame universale non sceglie in silenzio: si
+# ritira e lascia il turno a chi lo serviva prima, che sceglie la prima.
+[test two readings make the universal frame stand back instead of guessing]
+!assert zorb_level(vint, eight)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'answerframe' module answered your last question.
+!forget zorb_level(vint, eight)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'turn_plan' module answered your last question.
+
+# Il registro delle superfici e' conoscenza: senza di esso il turno smette di
+# produrre frame e nessun consumer va toccato.
+[test the cue registry itself is knowledge]
+!forget turn_cue_registry(answer_frame_input_arg, 1)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'answerframe' module answered your last question.
+!assert turn_cue_registry(answer_frame_input_arg, 1)
+> what is the zorb level of vint
+> which part of you answered that?
+< The 'turn_plan' module answered your last question.
+
+# Il confine fra il mondo e la macchina che lo interroga. `answer_frame/2`
+# contiene anche superfici riflessive, e senza la guardia il produttore chiedeva
+# al mondo una relazione di cui e' fatto: la derivazione non terminava. Le
+# domande riflessive restano servite, dal percorso storico.
+[test a reflexive surface does not enter the universal frame]
+!assert frame_act(probe_alpha, ask)
+!assert frame_slot(probe_alpha, relation, located_in)
+!assert frame_slot(probe_alpha, entity, milan)
+> what is the frame move for probe_alpha?
+< Answer.
+> which part of you answered that?
+< The 'answerframe' module answered your last question.

@@ -2,6 +2,58 @@
 
 ## HANDOFF prioritario — ragionamento situazionale dal universal input — 2026-08-17
 
+### AGGIORNAMENTO 2 — il producer NL -> frame di gen393 e' collegato
+
+Era il pezzo che bloccava quattro generazioni con la stessa forma (393 aspetta
+prosa->frame, 395 prosa->contesto, 396 prosa->piano del codice, 398a
+prosa->stato). Ora esiste in `kb/core/turn-frames.p0`, e il turno reale alimenta
+`frame_act/2`, `frame_slot/3`, `frame_source/3` prima del first-match dispatch.
+
+Come funziona, in tre righe: il C pubblica `turn_cue/3` — quali superfici
+DICHIARATE dalla KB il turno contiene — accanto ai `turn_span_token/4` che gia'
+c'erano; la KB giunge cue->relazione, parola->entita' e risponde nel verso
+dichiarato; la mossa la decide `move_policy/2`, non la precedenza fra moduli.
+Il registro e' `turn_cue_registry/2`: nessuna cue, lingua o relazione nel C.
+
+Quattro cose imparate, tutte a caro prezzo, tutte da non ripetere:
+
+1. **una condizione va scritta col predicato che nomina la propria specie.**
+   `situation.p0` usava `turn_plan_candidate/1` — il contratto CONDIVISO dai
+   produttori di piano — dove intendeva «questo turno e' una situazione». Con un
+   secondo produttore in campo, il residuo situazionale rivendicava ogni turno;
+2. **il produttore non deve poter interrogare la macchina di cui e' fatto.**
+   `answer_frame/2` contiene superfici riflessive: senza la guardia
+   `naf(machinery(...))`, `frame_move` -> `dialogue_state` -> gli slot che il
+   producer stesso deriva, e con l'entita' libera la guardia dei cicli non taglia
+   (non taglia mai un goal non ground). La derivazione non terminava;
+3. **una superficie senza VERSO dichiarato costa una ricerca completa.** La
+   direzione inversa di una relazione-regola con estensione grande e' una
+   scansione: 8 secondi misurati su un turno che il percorso storico chiudeva in
+   millisecondi, e pagati su OGNI turno perche' il producer universale gira
+   sempre. L'ammissione al frame e' percio' `answer_frame_input_arg/3`, che e'
+   anche una promozione teachable: dichiarare il verso fa entrare una relazione
+   nel producer a runtime, ritrarlo la restituisce al percorso storico;
+4. **le cue vanno pubblicate CITATE, come i token.** Pubblicate nude, le parole
+   del turno sembrano termini gia' posseduti: il muro informato trovava
+   «capital» dentro il fatto che registrava di averla vista e smetteva di
+   nominarla. La promozione da superficie a termine e' una regola
+   (`turn_cue_form/3`), mai il modo in cui il dato viene scritto.
+
+**Costo misurato, dichiarato e non nascosto:** zero su un turno qualunque (il
+registro nomina fatti nudi, non una vista derivata); ~112 ms su un turno che il
+frame universale risponde davvero, contro un contratto di 1 secondo. La causa
+nota e' la doppia enumerazione (`turn_plan_candidate` e `turn_response`
+rideriscono lo stesso insieme di letture): il rimedio previsto e' la memoizzazione
+per turno che il §17.9 gia' autorizza, e non e' stato fatto qui per non allungare
+il passo. `make test` 2068 verdi; `make soft-test` verde e fuori budget (23s
+contro 15s, da 20-21s di base).
+
+**Bonus, dallo stesso giro:** «come stai» murava. La conoscenza c'era tutta
+(`social_pattern(wellbeing, come stai)`): a rompersi era la locuzione, disfatta
+dalla canonicalizzazione per parole. Cinque `phrase_canon/2` in `lexicon.p0`,
+zero C — e il `.p0t` che asseriva il muro come comportamento corrente e' stato
+aggiornato, non difeso.
+
 ### AGGIORNAMENTO — passo 1 (audit) e primo taglio di gen398a eseguiti
 
 L'audit di riuso ha cambiato il punto di attacco e va letto prima del resto:

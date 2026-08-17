@@ -1889,7 +1889,22 @@ Avvio della gen393:
 3. **producer aperto:** nessun consumer C locale viene ancora promosso a
    produttore universale; il prossimo taglio deve materializzare lo stesso frame
    prima del first-match dispatch;
-4. **primo gap epistemico presente:** `missing_fact` nasce soltanto dalla NAF
+4. **PRODUCER CHIUSO (gen393, secondo taglio):** `kb/core/turn-frames.p0`
+   materializza `frame_act/2`, `frame_slot/3` e `frame_source/3` dal turno
+   reale, prima del first-match dispatch, per ogni superficie ammessa. Il turno
+   arriva gia' spezzato dall'unico producer universale, che ora pubblica due
+   meta' complementari: `turn_span_token/4` (le parole DETTE, citate) e
+   `turn_cue/3` (le superfici DICHIARATE dalla KB che il turno contiene). La
+   sola meccanica nuova nel C cerca stringhe dentro byte ed e' parametrizzata da
+   `turn_cue_registry/2`: nessuna cue, lingua, relazione o dominio nel motore, e
+   un registro nuovo e' un fatto. Il consumo e' quello del gen394: `frame_move`
+   dalla policy, e si risponde soltanto se la mossa e' `answer`. Il ratchet
+   `meta/turn_frame_producer.p0t` (16 asserzioni) interroga sempre il MODULO che
+   ha risposto, perche' il testo da solo sarebbe passato anche senza produttore.
+   Restano aperti: l'ammissione e' oggi la superficie con VERSO dichiarato
+   (vedi sotto), e il declino non e' realizzato — resta fatto interrogabile e il
+   turno prosegue verso il percorso storico;
+5. **primo gap epistemico presente:** `missing_fact` nasce soltanto dalla NAF
    ground su `frame_has_answer/1`; il solver gia' distingue finite failure da
    incomplete e nel secondo caso non autorizza il gap. Restano da falsificare
    deterministicamente il caso di budget e da modellare ponte, operatore e

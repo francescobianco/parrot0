@@ -147,7 +147,14 @@ turn_blocked_action($Turn, $Action) :- turn_action_candidate($Turn, $Situation, 
 % Il residuo dice DOVE nel grafo il turno si e' fermato, che e' l'unica cosa che
 % distingue «non conosco un'azione» da «l'azione che conosco non e' applicabile
 % qui». Le due meritano mosse diverse, e nessuna delle due autorizza un piano.
-situation_residue($Turn, situation_no_action) :- turn_plan_candidate($Turn), naf(turn_has_candidate($Turn)).
+% La condizione e' `turn_task/4`, NON `turn_plan_candidate/1`. Il secondo e' il
+% contratto CONDIVISO dai produttori di piano: usarlo qui significava «un piano
+% qualunque ha riconosciuto il turno», quindi il residuo situazionale
+% rivendicava anche i turni degli altri. Il difetto e' rimasto invisibile finche'
+% questo era l'unico produttore recente; l'ha scoperto il primo turno ordinario
+% del produttore NL. Una condizione va scritta con il predicato che nomina la
+% PROPRIA specie, mai col contratto che tutti condividono.
+situation_residue($Turn, situation_no_action) :- turn_task($Turn, $Situation, $Property, $Direction), naf(turn_has_candidate($Turn)).
 situation_residue($Turn, situation_blocked) :- turn_blocked_action($Turn, $Action), naf(turn_has_plan($Turn)).
 
 % Il turno e' candidato solo quando la KB possiede davvero la situazione di cui

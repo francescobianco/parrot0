@@ -1,0 +1,166 @@
+% turn-frames.p0 — IL PRODUTTORE NL -> FRAME, UNIVERSALE (gen393).
+%
+% Il kernel dei frame esiste dal gen393 (`dialogue-frames.p0`) ma finora nessun
+% turno reale lo alimentava: `frame_act/2` e `frame_slot/3` erano viste di due
+% superfici particolari (il piano condizionale, la query di stato) oppure fatti
+% materializzati a mano dentro un `.p0t`. Questo file chiude quel confine — e'
+% il produttore che mancava, e per costruzione non appartiene a nessuna faculty.
+%
+% Perche' e' il pezzo che sblocca piu' di una generazione: gen393 chiede il
+% frame prima del first-match dispatch; gen394 chiede che la MOSSA sia decisa
+% dalla KB e non dalla precedenza fra moduli C; gen395 e gen398a chiedono
+% producer della stessa forma per contesti e situazioni. Qui il frame nasce una
+% volta e chi lo consuma non deve riconoscere di nuovo la frase.
+%
+% Il turno arriva gia' spezzato dall'unico producer universale, che pubblica due
+% meta' complementari:
+%
+%   turn_span_token/4   le parole che il turno HA DETTO, citate, non promosse
+%   turn_cue/3          quali superfici DICHIARATE DALLA KB il turno contiene
+%
+% La seconda meta' e' nuova. Il C cerca stringhe dentro byte — meccanica — ma
+% QUALI stringhe cercare lo dice `turn_cue_registry/2`, quindi il motore non
+% conosce nessuna cue, lingua, relazione o dominio. Un registro nuovo e' un
+% fatto, non un ramo.
+
+:- file_attribute(machinery).
+
+% ── 0. QUALI SUPERFICI SONO AMMESSE AL FRAME UNIVERSALE ─────────────────────
+%
+% La policy di ammissione e' detta UNA volta e serve due lettori: il motore, per
+% sapere quali stringhe cercare nei byte del turno, e le regole qui sotto, per
+% legare la relazione. Enunciarla due volte sarebbe la premessa di una divergenza
+% — il giorno in cui cambia una sola delle due, il produttore cerca cio' che non
+% userebbe o usa cio' che non ha cercato.
+%
+% Sono ammesse le superfici con VERSO dichiarato e relazione non riflessiva. Il
+% verso, perche' senza di esso il frame dovrebbe provare entrambe le direzioni e
+% l'inversa di una relazione-regola con estensione grande e' una ricerca
+% completa: 8 secondi misurati su un turno che il percorso storico chiudeva in
+% millisecondi, e pagati su OGNI turno perche' il produttore universale gira
+% sempre. Non riflessiva, perche' `answer_frame/2` contiene anche superfici che
+% nominano la macchina dei frame: `frame_move` deriva da `dialogue_state`, che
+% deriva dagli slot che questo file produce, e con l'entita' ancora libera la
+% guardia dei cicli del solver non taglia — non taglia mai un goal non ground.
+%
+% Il confine riflessivo e' gia' conoscenza dichiarata per file
+% (`file_attribute(machinery)`), quindi un file nuovo lo eredita senza liste da
+% aggiornare. E dichiarare un verso e' una PROMOZIONE teachable: asserire
+% `answer_frame_input_arg/3` fa entrare una relazione nel produttore universale a
+% runtime, ritrarlo la restituisce al percorso storico.
+answering_surface($Cue, $Relation) :- answer_frame($Cue, $Relation), answer_frame_input_arg($Cue, $Relation, $Arg), naf(machinery($Relation)).
+% Il registro nomina i FATTI che aprono l'ammissione — i versi dichiarati —
+% invece della vista derivata: il motore li enumera a ogni turno, e enumerare
+% fatti nudi costa una frazione di enumerare una regola. Il C pubblica quindi un
+% pelo piu' di quanto serva (anche una superficie riflessiva con verso
+% dichiarato) e `answering_surface/2` filtra: pubblicare e' vedere, filtrare e'
+% capire. La policy resta enunciata una volta sola, qui sopra.
+turn_cue_registry(answer_frame_input_arg, 1).
+
+% ── 1. LA RELAZIONE: quale faccetta il turno domanda ────────────────────────
+%
+% Nessuna posizione, nessun ordine di modulo: la relazione e' quella che la cue
+% presente nel turno nomina. Una cue puo' nominarne piu' d'una — `answer_frame`
+% e' un registro, non una funzione — e le alternative restano tutte candidate
+% finche' la giunzione col mondo non ne lascia una sola.
+%
+% Le due guardie del §0 hanno gia' ristretto le superfici ammesse, quindi qui la
+% policy non viene ripetuta: si legge. `answering_surface/2` e' la stessa
+% relazione che il registro nomina, percio' il motore non puo' cercare una
+% superficie che le regole non userebbero, ne' viceversa.
+%
+% `turn_cue/3` porta la superficie CITATA, come i token: pubblicarla nuda faceva
+% sembrare le parole del turno termini gia' posseduti, e il muro informato
+% smetteva di nominare la parola che non conosce perche' la trovava dentro il
+% fatto che registrava di averla vista. La promozione da superficie a termine e'
+% una regola, ed e' questa: la forma citata raggiunge le cue che la KB scrive fra
+% virgolette, l'atomo raggiunge quelle scritte nude.
+turn_cue_form($Turn, $Registry, $Cue) :- turn_cue($Turn, $Registry, $Cue).
+turn_cue_form($Turn, $Registry, $Atom) :- turn_cue($Turn, $Registry, $Quoted), span_atom($Quoted, $Atom).
+
+turn_relation($Turn, $Relation, $Cue) :- turn_cue_form($Turn, answer_frame_input_arg, $Cue), answering_surface($Cue, $Relation).
+turn_has_relation($Turn) :- turn_relation($Turn, $Relation, $Cue).
+
+% ── 2. IL VERSO: una relazione binaria non e' automaticamente reversibile ───
+%
+% `answer_frame_input_arg/3` e' il contratto gia' introdotto dal gen395 dopo il
+% caso Napoli/Campania, e qui e' anche il verso in cui si cerca la risposta. Il
+% percorso storico conserva la propria regola di compatibilita' — verso assente,
+% entrambe le direzioni — perche' serve le superfici che questo frame non ammette.
+relation_input_arg($Cue, $Relation, $Arg) :- answer_frame_input_arg($Cue, $Relation, $Arg).
+
+% ── 3. L'ENTITA': la parola del turno di cui la relazione sa parlare ────────
+%
+% Il gate e' deliberatamente piu' largo del verso della domanda: l'entita' e'
+% nominata dalla relazione in UN argomento qualunque, mentre la risposta si
+% cerca solo nel verso dichiarato. Non e' una svista, e' cio' che rende
+% raggiungibili DUE stati epistemici invece di uno:
+%
+%   «capital of france»  francia sta nel verso chiesto      -> risposta
+%   «capital of rome»    la relazione conosce roma, ma       -> frame COMPLETO
+%                        dall'altro lato                        senza risposta,
+%                                                               cioe' missing_fact
+%
+% Il secondo caso e' il sensore del gen393 nella forma che gen395 aveva gia'
+% isolato: senza questo confine sarebbe indistinguibile da «non conosco roma».
+% Le parole funzionali non sono candidate entita'. `stopword/1` e' la stessa
+% classe dichiarativa che il resto del motore gia' consulta: un membro nuovo la
+% cambia, e il filtro non conosce nessuna lingua per conto proprio.
+turn_word($Turn, $Word) :- turn_span_token($Turn, $Index, $Position, $Token), span_atom($Token, $Word), naf(stopword($Word)).
+relation_mentions($Relation, $Entity) :- apply($Relation, cons($Entity, cons($Value, nil))).
+relation_mentions($Relation, $Entity) :- apply($Relation, cons($Value, cons($Entity, nil))).
+turn_entity($Turn, $Relation, $Entity) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_mentions($Relation, $Entity).
+
+% ── 4. IL FRAME: le viste che il kernel gen393 gia' sa leggere ──────────────
+%
+% Non nasce un secondo vocabolario. `frame_act/2`, `frame_slot/3` e
+% `frame_source/3` sono gli stessi predicati che `dialogue-frames.p0` consuma e
+% che i `.p0t` materializzano a mano: da qui in avanti li produce il turno.
+frame_act($Turn, ask) :- turn_has_relation($Turn).
+frame_slot($Turn, relation, $Relation) :- turn_relation($Turn, $Relation, $Cue).
+frame_slot($Turn, entity, $Entity) :- turn_entity($Turn, $Relation, $Entity).
+frame_source($Turn, relation, $Cue) :- turn_relation($Turn, $Relation, $Cue).
+frame_source($Turn, entity, $Entity) :- turn_entity($Turn, $Relation, $Entity).
+
+% ── 5. LA LETTURA: relazione ed entita' legate nella STESSA derivazione ─────
+%
+% Interrogare separatamente lo slot della relazione e quello dell'entita' e poi
+% incrociarli fuori sarebbe un join perso: due slot compatibili non provano che
+% appartengano alla stessa lettura. La proof operativa porta la coppia una volta
+% sola, come il piano condizionale gia' faceva per soggetto e oggetto.
+turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 1), apply($Relation, cons($Entity, cons($Value, nil))).
+turn_reading($Turn, $Relation, $Entity, $Value) :- turn_relation($Turn, $Relation, $Cue), turn_word($Turn, $Entity), relation_input_arg($Cue, $Relation, 2), apply($Relation, cons($Value, cons($Entity, nil))).
+
+turn_reading_key($Turn, reading($Relation, $Entity, $Value)) :- turn_reading($Turn, $Relation, $Entity, $Value).
+turn_reading_set($Turn, $Readings) :- turn_has_relation($Turn), findall($R, turn_reading_key($Turn, $R), $Readings).
+turn_reading_unique($Turn, $Relation, $Entity, $Value) :- turn_reading_set($Turn, cons(reading($Relation, $Entity, $Value), nil)).
+turn_reading_ambiguous($Turn) :- turn_reading_set($Turn, cons($First, cons($Second, $Tail))).
+turn_has_reading($Turn) :- turn_reading_set($Turn, cons($First, $Tail)).
+
+% ── 6. LO STATO EPISTEMICO, per il consumo del gen394 ───────────────────────
+%
+% Il frame prodotto dal turno alimenta ora le stesse classi di evidenza che
+% `dialogue-policy.p0` traduce in mosse. Una lettura sola e' una risposta
+% provata; due letture sono due letture, e sceglierne una in silenzio sarebbe la
+% mossa sbagliata anche quando il valore e' giusto.
+dialogue_state($Turn, proven_answer) :- turn_reading_unique($Turn, $Relation, $Entity, $Value).
+dialogue_state($Turn, blocking_incompatible_readings) :- turn_reading_ambiguous($Turn).
+dialogue_state($Turn, missing_fact) :- frame_complete($Turn), turn_has_relation($Turn), naf(turn_has_reading($Turn)).
+
+% ── 7. LA RISPOSTA: solo quando la POLICY la autorizza ──────────────────────
+%
+% Questo e' il consumo universale che gen394 chiedeva: non risponde il modulo
+% che arriva primo, risponde la mossa che la KB deriva. `turn_move/2` e' la
+% stessa `frame_move/2` del gen394, ristretta al frame di questo turno, e
+% ritrarre `move_policy(proven_answer, answer)` a runtime deve far sparire la
+% risposta senza toccare ne' i fatti ne' il frame.
+%
+% Il declino NON viene realizzato qui. Emettere un testo di rinuncia prima del
+% dispatch storico ruberebbe il turno a ogni consumer che oggi lo serve meglio:
+% la mossa resta un fatto interrogabile e il percorso storico prosegue. E' la
+% regola delle strutture secondarie — si aggiunge una via, non se ne amputa una.
+turn_move($Turn, $Move) :- dialogue_state($Turn, $Evidence), move_policy($Evidence, $Move).
+turn_answers($Turn) :- turn_move($Turn, answer).
+
+turn_plan_candidate($Turn) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn).
+turn_response($Turn, $Text) :- turn_reading_unique($Turn, $Relation, $Entity, $Value), turn_answers($Turn), current_language($Language), value_statement($Language, $Value, $Text).

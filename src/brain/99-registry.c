@@ -1806,6 +1806,91 @@ static void turn_publish_state(Brain *b, const char *surface,
     }
 }
 
+/* gen393: WHICH KB-declared surfaces occur in this turn, as facts.
+ *
+ * The turn's own words are already published (turn_span_token); what was missing
+ * is the other half of a frame — which surface the KB itself declares, and that
+ * the turn contains. Finding a declared string inside a byte range is mechanics,
+ * which is why it is here; WHICH strings are worth looking for is knowledge,
+ * which is why the C reads them from `turn_cue_registry(Relation, Position)` and
+ * knows no cue, language, relation or domain. A new registry is one fact.
+ *
+ * The frame is materialized for EVERY turn, before any first-match dispatch.
+ * That is the gen393 gate: a faculty must be able to consume a frame instead of
+ * recognizing the sentence again, and a frame that only some surfaces produce
+ * would leave the others with a private path.
+ *
+ * The cue is stored QUOTED, for the same reason turn_span_token is. Published
+ * bare, the turn's own words start looking like KB terms: the informed wall —
+ * which names the first word it holds no facts about — found "capital" inside
+ * this very fact and fell back to the generic wall on the sentence it was
+ * failing. Working memory records what was SEEN; only a rule may promote a
+ * surface to a term, and `turn_cue_form/3` is that rule. */
+#define TURN_MAX_CUES 512
+static void turn_publish_cues(Brain *b, const char *surface) {
+    char regs[16][KB_TERM_LEN];
+    const char *rq[2] = { NULL, NULL };
+    size_t nr = kb_match(b->kb, "turn_cue_registry", rq, 2, regs, 16);
+    for (size_t i = 0; i < nr; i++) {
+        char reg[KB_TERM_LEN];
+        snprintf(reg, sizeof reg, "%s", kb_dequote(regs[i]));
+        if (!*reg) continue;
+        char pos[4][KB_TERM_LEN];
+        const char *pq[2] = { regs[i], NULL };
+        if (kb_match(b->kb, "turn_cue_registry", pq, 2, pos, 4) == 0) continue;
+        /* The registry may be a binary or a ternary relation; kb_match_all
+         * collects the first unbound slot either way. Trying both keeps the KB
+         * free to point at whichever relation actually carries the surfaces,
+         * without the arity becoming a second thing to declare. A relation with
+         * ground rows is also markedly cheaper to enumerate than a derived view:
+         * this runs on every turn, so the C reads facts and lets the KB do the
+         * deciding — publishing is seeing, filtering is understanding. */
+        char (*rows)[KB_TERM_LEN] = NULL;
+        size_t nrows = 0;
+        const char *aq[3] = { NULL, NULL, NULL };
+        if (!kb_match_all(b->kb, reg, aq, 2, &rows, &nrows) || nrows == 0) {
+            free(rows); rows = NULL; nrows = 0;
+            if (!kb_match_all(b->kb, reg, aq, 3, &rows, &nrows)) { free(rows); continue; }
+        }
+        char posbuf[KB_TERM_LEN];
+        snprintf(posbuf, sizeof posbuf, "%s", pos[0]);
+        int second = strcmp(kb_dequote(posbuf), "2") == 0;
+        for (size_t k = 0; k < nrows && k < TURN_MAX_CUES; k++) {
+            if (!second) {
+                char probe[KB_TERM_LEN];
+                snprintf(probe, sizeof probe, "%s", rows[k]);
+                const char *needle = kb_dequote(probe);
+                if (!*needle || !cue(surface, needle)) continue;
+                char quoted[KB_TERM_LEN];
+                if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
+                    continue;
+                const char *args[] = { "current_turn", reg, quoted };
+                kb_assert(b->kb, "turn_cue", args, 3);
+                continue;
+            }
+            /* Position 2: the first argument names a class, the second carries
+             * the surface. Enumerating per class keeps the same indexed path. */
+            char (*inner)[KB_TERM_LEN] = NULL;
+            size_t ninner = 0;
+            const char *iq[2] = { rows[k], NULL };
+            if (!kb_match_all(b->kb, reg, iq, 2, &inner, &ninner)) { free(inner); continue; }
+            for (size_t j = 0; j < ninner; j++) {
+                char probe[KB_TERM_LEN];
+                snprintf(probe, sizeof probe, "%s", inner[j]);
+                const char *needle = kb_dequote(probe);
+                if (!*needle || !cue(surface, needle)) continue;
+                char quoted[KB_TERM_LEN];
+                if (!turn_quote(needle, 0, strlen(needle), quoted, sizeof quoted))
+                    continue;
+                const char *args[] = { "current_turn", reg, quoted };
+                kb_assert(b->kb, "turn_cue", args, 3);
+            }
+            free(inner);
+        }
+        free(rows);
+    }
+}
+
 static int universal_turn_lead(Brain *b, const char *surface,
                                char *out, size_t out_size) {
     if (!b || !b->kb || !surface || !*surface) return 0;
@@ -1819,7 +1904,9 @@ static int universal_turn_lead(Brain *b, const char *surface,
     kb_retract_pred(b->kb, "turn_span_surface");
     kb_retract_pred(b->kb, "turn_span_token");
     kb_retract_pred(b->kb, "turn_span_binding");
+    kb_retract_pred(b->kb, "turn_cue");
     kb_set_origin(b->kb, KB_REFLECTIVE);
+    turn_publish_cues(b, surface);
     for (size_t i = 0; i < ns; i++) {
         char index[24], type[KB_TERM_LEN];
         char text[KB_TERM_LEN], payload[KB_TERM_LEN];
