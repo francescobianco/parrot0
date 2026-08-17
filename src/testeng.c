@@ -786,6 +786,18 @@ static void be_write(BenchLedger *l) {
     fclose(h);
 }
 
+static void be_totals(BenchLedger *l, int *passed, int *failed, long *elapsed) {
+    *passed = 0;
+    *failed = 0;
+    *elapsed = 0;
+    for (size_t i = 0; i < l->count; i++) {
+        if (strcmp(l->rows[i].status, "complete") != 0) continue;
+        *passed += l->rows[i].passed;
+        *failed += l->rows[i].failed;
+        *elapsed += l->rows[i].elapsed_ms;
+    }
+}
+
 static int be_read_payload(int fd, char **out, size_t *outlen) {
     char *buf = NULL; size_t cap = 0, len = 0; char rd[4096]; ssize_t k;
     while ((k = read(fd, rd, sizeof rd)) > 0) {
@@ -838,7 +850,8 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
                         ledger.rows[i].slot, ledger.rows[i].status, ledger.rows[i].passed,
                         ledger.rows[i].failed, ledger.rows[i].elapsed_ms);
             }
-            fprintf(fout, "BENCH %d %d %d elapsed_ms=%ld\n", p, ff, p + ff, elapsed);
+            fprintf(fout, "BENCH %d %d %d percent=%.2f elapsed_ms=%ld\n", p, ff, p + ff,
+                    p + ff ? 100.0 * p / (p + ff) : 0.0, elapsed);
             t.shutdown = 1;
         } else if (strcmp(control, "!bench-health") == 0) {
             p0env_clear(); t.out = fout; t.line_no = 0; t.shutdown = 0;
@@ -854,8 +867,13 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
             BenchRow *row = be_find(&ledger, slot, 1);
             if (be_complete(&ledger, slot)) {
                 BenchRow *done = be_find(&ledger, slot, 0);
-                fprintf(fout, "SLOT skipped %s elapsed_ms=%ld\nCOUNT 0 0\nEXIT 0\n",
-                        slot, done ? done->elapsed_ms : 0L);
+                int p, ff; long elapsed;
+                be_totals(&ledger, &p, &ff, &elapsed);
+                (void)elapsed;
+                fprintf(fout, "SLOT skipped %s elapsed_ms=%ld\nCOUNT 0 0\n"
+                        "BENCH partial passed=%d failed=%d total=%d percent=%.2f delta_pct=0.00\nEXIT 0\n",
+                        slot, done ? done->elapsed_ms : 0L, p, ff, p + ff,
+                        p + ff ? 100.0 * p / (p + ff) : 0.0);
             } else if (!row) {
                 fprintf(fout, "BENCH ERROR too many slots\nEXIT 2\n");
             } else {
@@ -874,8 +892,19 @@ int bench_engine_serve(Brain *b, const char *sockpath, const char *stats_path) {
                 row->elapsed_ms = (long)((finished.tv_sec - started.tv_sec) * 1000L +
                     (finished.tv_nsec - started.tv_nsec) / 1000000L);
                 snprintf(row->status, sizeof row->status, "complete"); be_write(&ledger);
-                fprintf(fout, "SLOT complete %s elapsed_ms=%ld\nCOUNT %d %d\nEXIT 0\n",
-                        slot, row->elapsed_ms, row->passed, row->failed);
+                int p, ff; long elapsed;
+                be_totals(&ledger, &p, &ff, &elapsed);
+                (void)elapsed;
+                int before_total = p + ff - row->total;
+                double partial = p + ff ? 100.0 * p / (p + ff) : 0.0;
+                double before = before_total ?
+                    100.0 * (p - row->passed) / before_total : 0.0;
+                double slot_pct = row->total ? 100.0 * row->passed / row->total : 0.0;
+                fprintf(fout, "SLOT complete %s elapsed_ms=%ld\nCOUNT %d %d\n"
+                        "BENCH partial passed=%d failed=%d total=%d percent=%.2f "
+                        "delta_pct=%.2f slot_pct=%.2f\nEXIT 0\n", slot, row->elapsed_ms,
+                        row->passed, row->failed, p, ff, p + ff, partial, partial - before,
+                        slot_pct);
             }
         }
         fclose(fout); fclose(fin); if (ob) write_all(cfd, ob, ol); free(ob); free(payload); close(cfd);

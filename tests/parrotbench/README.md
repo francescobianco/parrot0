@@ -69,6 +69,18 @@ root viene usata, il progresso complessivo:
 BENCH progress 7/32 done tests/parrotbench/slot-007
 ```
 
+Per ogni slot vengono mostrati anche:
+
+```text
+BENCH partial passed=... failed=... total=... percent=... delta_pct=... slot_pct=...
+```
+
+`percent` e' la percentuale assoluta cumulativa, calcolata come
+`passed_cumulativi / assertion_cumulative`: non e' la somma delle percentuali
+degli slot e quindi resta una media continua pesata dal numero reale di
+asserzioni. `slot_pct` misura solo l'ultimo slot, mentre `delta_pct` mostra la
+variazione della percentuale cumulativa rispetto allo slot precedente.
+
 Il registro può quindi essere consultato mentre il batch e' ancora in corso:
 una riga `running` identifica esattamente lo slot che verrebbe rifatto in caso
 di interruzione. Le colonne `started_epoch` e `elapsed_ms` permettono di vedere
