@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 50
+
+[parrotbench_05851_language_definition]
+> Use the relevant evidence and answer: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05852_language_definition]
+> Use the relevant evidence and answer: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05853_language_definition]
+> Do not invent facts. Define democracy in simple terms.
+<~ people
+[parrotbench_05854_language_definition]
+> Do not invent facts. What does ephemeral mean?
+<~ short
+[parrotbench_05855_language_definition]
+> Do not invent facts. Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05856_language_definition]
+> Do not invent facts. What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05857_language_definition]
+> Keep the answer useful and honest: Define democracy in simple terms.
+<~ people
+[parrotbench_05858_language_definition]
+> Keep the answer useful and honest: What does ephemeral mean?
+<~ short
+[parrotbench_05859_language_definition]
+> Keep the answer useful and honest: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05860_language_definition]
+> Keep the answer useful and honest: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05861_language_definition]
+> In italiano, Define democracy in simple terms.
+<~ people
+[parrotbench_05862_language_definition]
+> In italiano, What does ephemeral mean?
+<~ short
+[parrotbench_05863_language_definition]
+> In italiano, Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05864_language_definition]
+> In italiano, What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05865_language_definition]
+> Rispondi brevemente: Define democracy in simple terms.
+<~ people
+[parrotbench_05866_language_definition]
+> Rispondi brevemente: What does ephemeral mean?
+<~ short
+[parrotbench_05867_language_definition]
+> Rispondi brevemente: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05868_language_definition]
+> Rispondi brevemente: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05869_language_definition]
+> Spiegalo in parole semplici: Define democracy in simple terms.
+<~ people
+[parrotbench_05870_language_definition]
+> Spiegalo in parole semplici: What does ephemeral mean?
+<~ short
+[parrotbench_05871_language_definition]
+> Spiegalo in parole semplici: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05872_language_definition]
+> Spiegalo in parole semplici: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05873_language_definition]
+> Prima dimmi cosa manca, poi: Define democracy in simple terms.
+<~ people
+[parrotbench_05874_language_definition]
+> Prima dimmi cosa manca, poi: What does ephemeral mean?
+<~ short
+[parrotbench_05875_language_definition]
+> Prima dimmi cosa manca, poi: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05876_language_definition]
+> Prima dimmi cosa manca, poi: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05877_language_definition]
+> What is the shortest useful answer to this? Define democracy in simple terms.
+<~ people
+[parrotbench_05878_language_definition]
+> What is the shortest useful answer to this? What does ephemeral mean?
+<~ short
+[parrotbench_05879_language_definition]
+> What is the shortest useful answer to this? Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05880_language_definition]
+> What is the shortest useful answer to this? What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05881_language_definition]
+> Challenge your first interpretation: Define democracy in simple terms.
+<~ people
+[parrotbench_05882_language_definition]
+> Challenge your first interpretation: What does ephemeral mean?
+<~ short
+[parrotbench_05883_language_definition]
+> Challenge your first interpretation: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05884_language_definition]
+> Challenge your first interpretation: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05885_language_definition]
+> State uncertainty if needed: Define democracy in simple terms.
+<~ people
+[parrotbench_05886_language_definition]
+> State uncertainty if needed: What does ephemeral mean?
+<~ short
+[parrotbench_05887_language_definition]
+> State uncertainty if needed: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05888_language_definition]
+> State uncertainty if needed: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05889_language_definition]
+> Answer without a generic template: Define democracy in simple terms.
+<~ people
+[parrotbench_05890_language_definition]
+> Answer without a generic template: What does ephemeral mean?
+<~ short
+[parrotbench_05891_language_definition]
+> Answer without a generic template: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05892_language_definition]
+> Answer without a generic template: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05893_language_definition]
+> Give the answer and one reason: Define democracy in simple terms.
+<~ people
+[parrotbench_05894_language_definition]
+> Give the answer and one reason: What does ephemeral mean?
+<~ short
+[parrotbench_05895_language_definition]
+> Give the answer and one reason: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05896_language_definition]
+> Give the answer and one reason: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05897_language_definition]
+> Separate fact from hypothesis: Define democracy in simple terms.
+<~ people
+[parrotbench_05898_language_definition]
+> Separate fact from hypothesis: What does ephemeral mean?
+<~ short
+[parrotbench_05899_language_definition]
+> Separate fact from hypothesis: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05900_language_definition]
+> Separate fact from hypothesis: What is a rule in a knowledge base?
+<~ rule

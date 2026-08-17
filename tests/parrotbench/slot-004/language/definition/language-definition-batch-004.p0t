@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/definition
+# cases: 50
+
+[parrotbench_05951_language_definition]
+> Answer the user's actual goal: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05952_language_definition]
+> Answer the user's actual goal: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05953_language_definition]
+> If the request is underspecified, say what is missing: Define democracy in simple terms.
+<~ people
+[parrotbench_05954_language_definition]
+> If the request is underspecified, say what is missing: What does ephemeral mean?
+<~ short
+[parrotbench_05955_language_definition]
+> If the request is underspecified, say what is missing: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05956_language_definition]
+> If the request is underspecified, say what is missing: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05957_language_definition]
+> Can this be answered from known facts? Define democracy in simple terms.
+<~ people
+[parrotbench_05958_language_definition]
+> Can this be answered from known facts? What does ephemeral mean?
+<~ short
+[parrotbench_05959_language_definition]
+> Can this be answered from known facts? Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05960_language_definition]
+> Can this be answered from known facts? What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05961_language_definition]
+> What would a careful interlocutor say? Define democracy in simple terms.
+<~ people
+[parrotbench_05962_language_definition]
+> What would a careful interlocutor say? What does ephemeral mean?
+<~ short
+[parrotbench_05963_language_definition]
+> What would a careful interlocutor say? Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05964_language_definition]
+> What would a careful interlocutor say? What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05965_language_definition]
+> Give a short answer in English: Define democracy in simple terms.
+<~ people
+[parrotbench_05966_language_definition]
+> Give a short answer in English: What does ephemeral mean?
+<~ short
+[parrotbench_05967_language_definition]
+> Give a short answer in English: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05968_language_definition]
+> Give a short answer in English: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05969_language_definition]
+> Rispondi in italiano quando possibile: Define democracy in simple terms.
+<~ people
+[parrotbench_05970_language_definition]
+> Rispondi in italiano quando possibile: What does ephemeral mean?
+<~ short
+[parrotbench_05971_language_definition]
+> Rispondi in italiano quando possibile: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05972_language_definition]
+> Rispondi in italiano quando possibile: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05973_language_definition]
+> Distinguish a fact, a rule, and a hypothesis: Define democracy in simple terms.
+<~ people
+[parrotbench_05974_language_definition]
+> Distinguish a fact, a rule, and a hypothesis: What does ephemeral mean?
+<~ short
+[parrotbench_05975_language_definition]
+> Distinguish a fact, a rule, and a hypothesis: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05976_language_definition]
+> Distinguish a fact, a rule, and a hypothesis: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05977_language_definition]
+> Name the relevant capability: Define democracy in simple terms.
+<~ people
+[parrotbench_05978_language_definition]
+> Name the relevant capability: What does ephemeral mean?
+<~ short
+[parrotbench_05979_language_definition]
+> Name the relevant capability: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05980_language_definition]
+> Name the relevant capability: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05981_language_definition]
+> Explain the reasoning rather than a slogan: Define democracy in simple terms.
+<~ people
+[parrotbench_05982_language_definition]
+> Explain the reasoning rather than a slogan: What does ephemeral mean?
+<~ short
+[parrotbench_05983_language_definition]
+> Explain the reasoning rather than a slogan: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05984_language_definition]
+> Explain the reasoning rather than a slogan: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05985_language_definition]
+> Use the user's constraint as a real constraint: Define democracy in simple terms.
+<~ people
+[parrotbench_05986_language_definition]
+> Use the user's constraint as a real constraint: What does ephemeral mean?
+<~ short
+[parrotbench_05987_language_definition]
+> Use the user's constraint as a real constraint: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05988_language_definition]
+> Use the user's constraint as a real constraint: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05989_language_definition]
+> Check whether the requested format is satisfied: Define democracy in simple terms.
+<~ people
+[parrotbench_05990_language_definition]
+> Check whether the requested format is satisfied: What does ephemeral mean?
+<~ short
+[parrotbench_05991_language_definition]
+> Check whether the requested format is satisfied: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05992_language_definition]
+> Check whether the requested format is satisfied: What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05993_language_definition]
+> What would make this answer wrong? Define democracy in simple terms.
+<~ people
+[parrotbench_05994_language_definition]
+> What would make this answer wrong? What does ephemeral mean?
+<~ short
+[parrotbench_05995_language_definition]
+> What would make this answer wrong? Explain recursion in one sentence.
+<~ recursion
+[parrotbench_05996_language_definition]
+> What would make this answer wrong? What is a rule in a knowledge base?
+<~ rule
+[parrotbench_05997_language_definition]
+> Give a useful answer without pretending certainty: Define democracy in simple terms.
+<~ people
+[parrotbench_05998_language_definition]
+> Give a useful answer without pretending certainty: What does ephemeral mean?
+<~ short
+[parrotbench_05999_language_definition]
+> Give a useful answer without pretending certainty: Explain recursion in one sentence.
+<~ recursion
+[parrotbench_06000_language_definition]
+> Give a useful answer without pretending certainty: What is a rule in a knowledge base?
+<~ rule

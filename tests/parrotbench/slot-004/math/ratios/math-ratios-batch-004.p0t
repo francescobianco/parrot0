@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/ratios
+# cases: 50
+
+[parrotbench_01351_math_ratios]
+> Answer the user's actual goal: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01352_math_ratios]
+> Answer the user's actual goal: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01353_math_ratios]
+> If the request is underspecified, say what is missing: What is 19 percent of 200?
+<~ 38
+[parrotbench_01354_math_ratios]
+> If the request is underspecified, say what is missing: What is one quarter of 24?
+<~ 6
+[parrotbench_01355_math_ratios]
+> If the request is underspecified, say what is missing: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01356_math_ratios]
+> If the request is underspecified, say what is missing: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01357_math_ratios]
+> Can this be answered from known facts? What is 19 percent of 200?
+<~ 38
+[parrotbench_01358_math_ratios]
+> Can this be answered from known facts? What is one quarter of 24?
+<~ 6
+[parrotbench_01359_math_ratios]
+> Can this be answered from known facts? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01360_math_ratios]
+> Can this be answered from known facts? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01361_math_ratios]
+> What would a careful interlocutor say? What is 19 percent of 200?
+<~ 38
+[parrotbench_01362_math_ratios]
+> What would a careful interlocutor say? What is one quarter of 24?
+<~ 6
+[parrotbench_01363_math_ratios]
+> What would a careful interlocutor say? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01364_math_ratios]
+> What would a careful interlocutor say? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01365_math_ratios]
+> Give a short answer in English: What is 19 percent of 200?
+<~ 38
+[parrotbench_01366_math_ratios]
+> Give a short answer in English: What is one quarter of 24?
+<~ 6
+[parrotbench_01367_math_ratios]
+> Give a short answer in English: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01368_math_ratios]
+> Give a short answer in English: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01369_math_ratios]
+> Rispondi in italiano quando possibile: What is 19 percent of 200?
+<~ 38
+[parrotbench_01370_math_ratios]
+> Rispondi in italiano quando possibile: What is one quarter of 24?
+<~ 6
+[parrotbench_01371_math_ratios]
+> Rispondi in italiano quando possibile: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01372_math_ratios]
+> Rispondi in italiano quando possibile: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01373_math_ratios]
+> Distinguish a fact, a rule, and a hypothesis: What is 19 percent of 200?
+<~ 38
+[parrotbench_01374_math_ratios]
+> Distinguish a fact, a rule, and a hypothesis: What is one quarter of 24?
+<~ 6
+[parrotbench_01375_math_ratios]
+> Distinguish a fact, a rule, and a hypothesis: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01376_math_ratios]
+> Distinguish a fact, a rule, and a hypothesis: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01377_math_ratios]
+> Name the relevant capability: What is 19 percent of 200?
+<~ 38
+[parrotbench_01378_math_ratios]
+> Name the relevant capability: What is one quarter of 24?
+<~ 6
+[parrotbench_01379_math_ratios]
+> Name the relevant capability: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01380_math_ratios]
+> Name the relevant capability: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01381_math_ratios]
+> Explain the reasoning rather than a slogan: What is 19 percent of 200?
+<~ 38
+[parrotbench_01382_math_ratios]
+> Explain the reasoning rather than a slogan: What is one quarter of 24?
+<~ 6
+[parrotbench_01383_math_ratios]
+> Explain the reasoning rather than a slogan: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01384_math_ratios]
+> Explain the reasoning rather than a slogan: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01385_math_ratios]
+> Use the user's constraint as a real constraint: What is 19 percent of 200?
+<~ 38
+[parrotbench_01386_math_ratios]
+> Use the user's constraint as a real constraint: What is one quarter of 24?
+<~ 6
+[parrotbench_01387_math_ratios]
+> Use the user's constraint as a real constraint: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01388_math_ratios]
+> Use the user's constraint as a real constraint: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01389_math_ratios]
+> Check whether the requested format is satisfied: What is 19 percent of 200?
+<~ 38
+[parrotbench_01390_math_ratios]
+> Check whether the requested format is satisfied: What is one quarter of 24?
+<~ 6
+[parrotbench_01391_math_ratios]
+> Check whether the requested format is satisfied: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01392_math_ratios]
+> Check whether the requested format is satisfied: A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01393_math_ratios]
+> What would make this answer wrong? What is 19 percent of 200?
+<~ 38
+[parrotbench_01394_math_ratios]
+> What would make this answer wrong? What is one quarter of 24?
+<~ 6
+[parrotbench_01395_math_ratios]
+> What would make this answer wrong? If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01396_math_ratios]
+> What would make this answer wrong? A price of 80 falls by 25 percent. What is the new price?
+<~ 60
+[parrotbench_01397_math_ratios]
+> Give a useful answer without pretending certainty: What is 19 percent of 200?
+<~ 38
+[parrotbench_01398_math_ratios]
+> Give a useful answer without pretending certainty: What is one quarter of 24?
+<~ 6
+[parrotbench_01399_math_ratios]
+> Give a useful answer without pretending certainty: If 3 of 12 items are red, what fraction is red?
+<~ quarter
+[parrotbench_01400_math_ratios]
+> Give a useful answer without pretending certainty: A price of 80 falls by 25 percent. What is the new price?
+<~ 60

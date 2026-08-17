@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/replanning
+# cases: 50
+
+[parrotbench_07551_planning_replanning]
+> Answer the user's actual goal: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07552_planning_replanning]
+> Answer the user's actual goal: What is a stop rule?
+<~ stop
+[parrotbench_07553_planning_replanning]
+> If the request is underspecified, say what is missing: When should an agent revise a plan?
+<~ change
+[parrotbench_07554_planning_replanning]
+> If the request is underspecified, say what is missing: What observation should trigger replanning?
+<~ failure
+[parrotbench_07555_planning_replanning]
+> If the request is underspecified, say what is missing: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07556_planning_replanning]
+> If the request is underspecified, say what is missing: What is a stop rule?
+<~ stop
+[parrotbench_07557_planning_replanning]
+> Can this be answered from known facts? When should an agent revise a plan?
+<~ change
+[parrotbench_07558_planning_replanning]
+> Can this be answered from known facts? What observation should trigger replanning?
+<~ failure
+[parrotbench_07559_planning_replanning]
+> Can this be answered from known facts? How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07560_planning_replanning]
+> Can this be answered from known facts? What is a stop rule?
+<~ stop
+[parrotbench_07561_planning_replanning]
+> What would a careful interlocutor say? When should an agent revise a plan?
+<~ change
+[parrotbench_07562_planning_replanning]
+> What would a careful interlocutor say? What observation should trigger replanning?
+<~ failure
+[parrotbench_07563_planning_replanning]
+> What would a careful interlocutor say? How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07564_planning_replanning]
+> What would a careful interlocutor say? What is a stop rule?
+<~ stop
+[parrotbench_07565_planning_replanning]
+> Give a short answer in English: When should an agent revise a plan?
+<~ change
+[parrotbench_07566_planning_replanning]
+> Give a short answer in English: What observation should trigger replanning?
+<~ failure
+[parrotbench_07567_planning_replanning]
+> Give a short answer in English: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07568_planning_replanning]
+> Give a short answer in English: What is a stop rule?
+<~ stop
+[parrotbench_07569_planning_replanning]
+> Rispondi in italiano quando possibile: When should an agent revise a plan?
+<~ change
+[parrotbench_07570_planning_replanning]
+> Rispondi in italiano quando possibile: What observation should trigger replanning?
+<~ failure
+[parrotbench_07571_planning_replanning]
+> Rispondi in italiano quando possibile: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07572_planning_replanning]
+> Rispondi in italiano quando possibile: What is a stop rule?
+<~ stop
+[parrotbench_07573_planning_replanning]
+> Distinguish a fact, a rule, and a hypothesis: When should an agent revise a plan?
+<~ change
+[parrotbench_07574_planning_replanning]
+> Distinguish a fact, a rule, and a hypothesis: What observation should trigger replanning?
+<~ failure
+[parrotbench_07575_planning_replanning]
+> Distinguish a fact, a rule, and a hypothesis: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07576_planning_replanning]
+> Distinguish a fact, a rule, and a hypothesis: What is a stop rule?
+<~ stop
+[parrotbench_07577_planning_replanning]
+> Name the relevant capability: When should an agent revise a plan?
+<~ change
+[parrotbench_07578_planning_replanning]
+> Name the relevant capability: What observation should trigger replanning?
+<~ failure
+[parrotbench_07579_planning_replanning]
+> Name the relevant capability: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07580_planning_replanning]
+> Name the relevant capability: What is a stop rule?
+<~ stop
+[parrotbench_07581_planning_replanning]
+> Explain the reasoning rather than a slogan: When should an agent revise a plan?
+<~ change
+[parrotbench_07582_planning_replanning]
+> Explain the reasoning rather than a slogan: What observation should trigger replanning?
+<~ failure
+[parrotbench_07583_planning_replanning]
+> Explain the reasoning rather than a slogan: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07584_planning_replanning]
+> Explain the reasoning rather than a slogan: What is a stop rule?
+<~ stop
+[parrotbench_07585_planning_replanning]
+> Use the user's constraint as a real constraint: When should an agent revise a plan?
+<~ change
+[parrotbench_07586_planning_replanning]
+> Use the user's constraint as a real constraint: What observation should trigger replanning?
+<~ failure
+[parrotbench_07587_planning_replanning]
+> Use the user's constraint as a real constraint: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07588_planning_replanning]
+> Use the user's constraint as a real constraint: What is a stop rule?
+<~ stop
+[parrotbench_07589_planning_replanning]
+> Check whether the requested format is satisfied: When should an agent revise a plan?
+<~ change
+[parrotbench_07590_planning_replanning]
+> Check whether the requested format is satisfied: What observation should trigger replanning?
+<~ failure
+[parrotbench_07591_planning_replanning]
+> Check whether the requested format is satisfied: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07592_planning_replanning]
+> Check whether the requested format is satisfied: What is a stop rule?
+<~ stop
+[parrotbench_07593_planning_replanning]
+> What would make this answer wrong? When should an agent revise a plan?
+<~ change
+[parrotbench_07594_planning_replanning]
+> What would make this answer wrong? What observation should trigger replanning?
+<~ failure
+[parrotbench_07595_planning_replanning]
+> What would make this answer wrong? How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07596_planning_replanning]
+> What would make this answer wrong? What is a stop rule?
+<~ stop
+[parrotbench_07597_planning_replanning]
+> Give a useful answer without pretending certainty: When should an agent revise a plan?
+<~ change
+[parrotbench_07598_planning_replanning]
+> Give a useful answer without pretending certainty: What observation should trigger replanning?
+<~ failure
+[parrotbench_07599_planning_replanning]
+> Give a useful answer without pretending certainty: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07600_planning_replanning]
+> Give a useful answer without pretending certainty: What is a stop rule?
+<~ stop

@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/structured
+# cases: 50
+
+[parrotbench_06601_format_structured]
+> Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06602_format_structured]
+> Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06603_format_structured]
+> Give a two-line answer about rain.
+<~ rain
+[parrotbench_06604_format_structured]
+> Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06605_format_structured]
+> Please answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06606_format_structured]
+> Please answer: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06607_format_structured]
+> Please answer: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06608_format_structured]
+> Please answer: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06609_format_structured]
+> Can you help me with this? Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06610_format_structured]
+> Can you help me with this? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06611_format_structured]
+> Can you help me with this? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06612_format_structured]
+> Can you help me with this? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06613_format_structured]
+> In simple terms, Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06614_format_structured]
+> In simple terms, Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06615_format_structured]
+> In simple terms, Give a two-line answer about rain.
+<~ rain
+[parrotbench_06616_format_structured]
+> In simple terms, Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06617_format_structured]
+> Give a concise answer. Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06618_format_structured]
+> Give a concise answer. Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06619_format_structured]
+> Give a concise answer. Give a two-line answer about rain.
+<~ rain
+[parrotbench_06620_format_structured]
+> Give a concise answer. Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06621_format_structured]
+> I need a careful answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06622_format_structured]
+> I need a careful answer: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06623_format_structured]
+> I need a careful answer: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06624_format_structured]
+> I need a careful answer: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06625_format_structured]
+> Explain your answer briefly: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06626_format_structured]
+> Explain your answer briefly: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06627_format_structured]
+> Explain your answer briefly: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06628_format_structured]
+> Explain your answer briefly: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06629_format_structured]
+> Check this for me: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06630_format_structured]
+> Check this for me: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06631_format_structured]
+> Check this for me: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06632_format_structured]
+> Check this for me: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06633_format_structured]
+> What would you tell a beginner? Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06634_format_structured]
+> What would you tell a beginner? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06635_format_structured]
+> What would you tell a beginner? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06636_format_structured]
+> What would you tell a beginner? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06637_format_structured]
+> What would you tell an expert? Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06638_format_structured]
+> What would you tell an expert? Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06639_format_structured]
+> What would you tell an expert? Give a two-line answer about rain.
+<~ rain
+[parrotbench_06640_format_structured]
+> What would you tell an expert? Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06641_format_structured]
+> Answer cautiously: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06642_format_structured]
+> Answer cautiously: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06643_format_structured]
+> Answer cautiously: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06644_format_structured]
+> Answer cautiously: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06645_format_structured]
+> First identify the goal, then answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06646_format_structured]
+> First identify the goal, then answer: Answer as a numbered list with two items.
+<~ 1
+[parrotbench_06647_format_structured]
+> First identify the goal, then answer: Give a two-line answer about rain.
+<~ rain
+[parrotbench_06648_format_structured]
+> First identify the goal, then answer: Answer in exactly three words: what is water?
+<~ water
+[parrotbench_06649_format_structured]
+> Use the relevant evidence and answer: Answer as JSON with keys name and value.
+<~ name
+[parrotbench_06650_format_structured]
+> Use the relevant evidence and answer: Answer as a numbered list with two items.
+<~ 1

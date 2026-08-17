@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/priorities
+# cases: 50
+
+[parrotbench_07751_planning_priorities]
+> Answer the user's actual goal: What makes a requirement hard?
+<~ constraint
+[parrotbench_07752_planning_priorities]
+> Answer the user's actual goal: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07753_planning_priorities]
+> If the request is underspecified, say what is missing: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07754_planning_priorities]
+> If the request is underspecified, say what is missing: How do you prioritize several goals?
+<~ goal
+[parrotbench_07755_planning_priorities]
+> If the request is underspecified, say what is missing: What makes a requirement hard?
+<~ constraint
+[parrotbench_07756_planning_priorities]
+> If the request is underspecified, say what is missing: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07757_planning_priorities]
+> Can this be answered from known facts? Which should come first: safety or speed?
+<~ safety
+[parrotbench_07758_planning_priorities]
+> Can this be answered from known facts? How do you prioritize several goals?
+<~ goal
+[parrotbench_07759_planning_priorities]
+> Can this be answered from known facts? What makes a requirement hard?
+<~ constraint
+[parrotbench_07760_planning_priorities]
+> Can this be answered from known facts? How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07761_planning_priorities]
+> What would a careful interlocutor say? Which should come first: safety or speed?
+<~ safety
+[parrotbench_07762_planning_priorities]
+> What would a careful interlocutor say? How do you prioritize several goals?
+<~ goal
+[parrotbench_07763_planning_priorities]
+> What would a careful interlocutor say? What makes a requirement hard?
+<~ constraint
+[parrotbench_07764_planning_priorities]
+> What would a careful interlocutor say? How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07765_planning_priorities]
+> Give a short answer in English: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07766_planning_priorities]
+> Give a short answer in English: How do you prioritize several goals?
+<~ goal
+[parrotbench_07767_planning_priorities]
+> Give a short answer in English: What makes a requirement hard?
+<~ constraint
+[parrotbench_07768_planning_priorities]
+> Give a short answer in English: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07769_planning_priorities]
+> Rispondi in italiano quando possibile: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07770_planning_priorities]
+> Rispondi in italiano quando possibile: How do you prioritize several goals?
+<~ goal
+[parrotbench_07771_planning_priorities]
+> Rispondi in italiano quando possibile: What makes a requirement hard?
+<~ constraint
+[parrotbench_07772_planning_priorities]
+> Rispondi in italiano quando possibile: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07773_planning_priorities]
+> Distinguish a fact, a rule, and a hypothesis: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07774_planning_priorities]
+> Distinguish a fact, a rule, and a hypothesis: How do you prioritize several goals?
+<~ goal
+[parrotbench_07775_planning_priorities]
+> Distinguish a fact, a rule, and a hypothesis: What makes a requirement hard?
+<~ constraint
+[parrotbench_07776_planning_priorities]
+> Distinguish a fact, a rule, and a hypothesis: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07777_planning_priorities]
+> Name the relevant capability: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07778_planning_priorities]
+> Name the relevant capability: How do you prioritize several goals?
+<~ goal
+[parrotbench_07779_planning_priorities]
+> Name the relevant capability: What makes a requirement hard?
+<~ constraint
+[parrotbench_07780_planning_priorities]
+> Name the relevant capability: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07781_planning_priorities]
+> Explain the reasoning rather than a slogan: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07782_planning_priorities]
+> Explain the reasoning rather than a slogan: How do you prioritize several goals?
+<~ goal
+[parrotbench_07783_planning_priorities]
+> Explain the reasoning rather than a slogan: What makes a requirement hard?
+<~ constraint
+[parrotbench_07784_planning_priorities]
+> Explain the reasoning rather than a slogan: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07785_planning_priorities]
+> Use the user's constraint as a real constraint: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07786_planning_priorities]
+> Use the user's constraint as a real constraint: How do you prioritize several goals?
+<~ goal
+[parrotbench_07787_planning_priorities]
+> Use the user's constraint as a real constraint: What makes a requirement hard?
+<~ constraint
+[parrotbench_07788_planning_priorities]
+> Use the user's constraint as a real constraint: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07789_planning_priorities]
+> Check whether the requested format is satisfied: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07790_planning_priorities]
+> Check whether the requested format is satisfied: How do you prioritize several goals?
+<~ goal
+[parrotbench_07791_planning_priorities]
+> Check whether the requested format is satisfied: What makes a requirement hard?
+<~ constraint
+[parrotbench_07792_planning_priorities]
+> Check whether the requested format is satisfied: How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07793_planning_priorities]
+> What would make this answer wrong? Which should come first: safety or speed?
+<~ safety
+[parrotbench_07794_planning_priorities]
+> What would make this answer wrong? How do you prioritize several goals?
+<~ goal
+[parrotbench_07795_planning_priorities]
+> What would make this answer wrong? What makes a requirement hard?
+<~ constraint
+[parrotbench_07796_planning_priorities]
+> What would make this answer wrong? How should an agent resolve conflicting goals?
+<~ conflict
+[parrotbench_07797_planning_priorities]
+> Give a useful answer without pretending certainty: Which should come first: safety or speed?
+<~ safety
+[parrotbench_07798_planning_priorities]
+> Give a useful answer without pretending certainty: How do you prioritize several goals?
+<~ goal
+[parrotbench_07799_planning_priorities]
+> Give a useful answer without pretending certainty: What makes a requirement hard?
+<~ constraint
+[parrotbench_07800_planning_priorities]
+> Give a useful answer without pretending certainty: How should an agent resolve conflicting goals?
+<~ conflict

@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 50
+
+[parrotbench_04301_dialogue_identity]
+> Answer as if this were a release review: What is your name?
+<~ parrot0
+[parrotbench_04302_dialogue_identity]
+> Answer as if this were a release review: Who are you?
+<~ parrot0
+[parrotbench_04303_dialogue_identity]
+> Answer as if this were a release review: What kind of system are you?
+<~ AI
+[parrotbench_04304_dialogue_identity]
+> Answer as if this were a release review: What generation are you running?
+<~ gen
+[parrotbench_04305_dialogue_identity]
+> Give the strongest answer supported by the KB: What is your name?
+<~ parrot0
+[parrotbench_04306_dialogue_identity]
+> Give the strongest answer supported by the KB: Who are you?
+<~ parrot0
+[parrotbench_04307_dialogue_identity]
+> Give the strongest answer supported by the KB: What kind of system are you?
+<~ AI
+[parrotbench_04308_dialogue_identity]
+> Give the strongest answer supported by the KB: What generation are you running?
+<~ gen
+[parrotbench_04309_dialogue_identity]
+> Do not confuse a wall with an answer. What is your name?
+<~ parrot0
+[parrotbench_04310_dialogue_identity]
+> Do not confuse a wall with an answer. Who are you?
+<~ parrot0
+[parrotbench_04311_dialogue_identity]
+> Do not confuse a wall with an answer. What kind of system are you?
+<~ AI
+[parrotbench_04312_dialogue_identity]
+> Do not confuse a wall with an answer. What generation are you running?
+<~ gen
+[parrotbench_04313_dialogue_identity]
+> What is the operational interpretation of this? What is your name?
+<~ parrot0
+[parrotbench_04314_dialogue_identity]
+> What is the operational interpretation of this? Who are you?
+<~ parrot0
+[parrotbench_04315_dialogue_identity]
+> What is the operational interpretation of this? What kind of system are you?
+<~ AI
+[parrotbench_04316_dialogue_identity]
+> What is the operational interpretation of this? What generation are you running?
+<~ gen
+[parrotbench_04317_dialogue_identity]
+> Start with the direct answer, then qualify it: What is your name?
+<~ parrot0
+[parrotbench_04318_dialogue_identity]
+> Start with the direct answer, then qualify it: Who are you?
+<~ parrot0
+[parrotbench_04319_dialogue_identity]
+> Start with the direct answer, then qualify it: What kind of system are you?
+<~ AI
+[parrotbench_04320_dialogue_identity]
+> Start with the direct answer, then qualify it: What generation are you running?
+<~ gen
+[parrotbench_04321_dialogue_identity]
+> Identify the entities and relations first: What is your name?
+<~ parrot0
+[parrotbench_04322_dialogue_identity]
+> Identify the entities and relations first: Who are you?
+<~ parrot0
+[parrotbench_04323_dialogue_identity]
+> Identify the entities and relations first: What kind of system are you?
+<~ AI
+[parrotbench_04324_dialogue_identity]
+> Identify the entities and relations first: What generation are you running?
+<~ gen
+[parrotbench_04325_dialogue_identity]
+> Treat this as a new domain and explain your model: What is your name?
+<~ parrot0
+[parrotbench_04326_dialogue_identity]
+> Treat this as a new domain and explain your model: Who are you?
+<~ parrot0
+[parrotbench_04327_dialogue_identity]
+> Treat this as a new domain and explain your model: What kind of system are you?
+<~ AI
+[parrotbench_04328_dialogue_identity]
+> Treat this as a new domain and explain your model: What generation are you running?
+<~ gen
+[parrotbench_04329_dialogue_identity]
+> What would you need to verify before answering? What is your name?
+<~ parrot0
+[parrotbench_04330_dialogue_identity]
+> What would you need to verify before answering? Who are you?
+<~ parrot0
+[parrotbench_04331_dialogue_identity]
+> What would you need to verify before answering? What kind of system are you?
+<~ AI
+[parrotbench_04332_dialogue_identity]
+> What would you need to verify before answering? What generation are you running?
+<~ gen
+[parrotbench_04333_dialogue_identity]
+> Keep alternatives separate while answering: What is your name?
+<~ parrot0
+[parrotbench_04334_dialogue_identity]
+> Keep alternatives separate while answering: Who are you?
+<~ parrot0
+[parrotbench_04335_dialogue_identity]
+> Keep alternatives separate while answering: What kind of system are you?
+<~ AI
+[parrotbench_04336_dialogue_identity]
+> Keep alternatives separate while answering: What generation are you running?
+<~ gen
+[parrotbench_04337_dialogue_identity]
+> State one conclusion and one uncertainty: What is your name?
+<~ parrot0
+[parrotbench_04338_dialogue_identity]
+> State one conclusion and one uncertainty: Who are you?
+<~ parrot0
+[parrotbench_04339_dialogue_identity]
+> State one conclusion and one uncertainty: What kind of system are you?
+<~ AI
+[parrotbench_04340_dialogue_identity]
+> State one conclusion and one uncertainty: What generation are you running?
+<~ gen
+[parrotbench_04341_dialogue_identity]
+> Use a concrete example in your answer: What is your name?
+<~ parrot0
+[parrotbench_04342_dialogue_identity]
+> Use a concrete example in your answer: Who are you?
+<~ parrot0
+[parrotbench_04343_dialogue_identity]
+> Use a concrete example in your answer: What kind of system are you?
+<~ AI
+[parrotbench_04344_dialogue_identity]
+> Use a concrete example in your answer: What generation are you running?
+<~ gen
+[parrotbench_04345_dialogue_identity]
+> Avoid changing the subject: What is your name?
+<~ parrot0
+[parrotbench_04346_dialogue_identity]
+> Avoid changing the subject: Who are you?
+<~ parrot0
+[parrotbench_04347_dialogue_identity]
+> Avoid changing the subject: What kind of system are you?
+<~ AI
+[parrotbench_04348_dialogue_identity]
+> Avoid changing the subject: What generation are you running?
+<~ gen
+[parrotbench_04349_dialogue_identity]
+> Answer the user's actual goal: What is your name?
+<~ parrot0
+[parrotbench_04350_dialogue_identity]
+> Answer the user's actual goal: Who are you?
+<~ parrot0

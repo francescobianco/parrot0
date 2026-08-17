@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/ontology
+# cases: 50
+
+[parrotbench_09001_kb_ontology]
+> What is ontology induction?
+<~ ontology
+[parrotbench_09002_kb_ontology]
+> Can a new domain require a temporary model?
+<~ model
+[parrotbench_09003_kb_ontology]
+> What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09004_kb_ontology]
+> Why separate entities from states?
+<~ state
+[parrotbench_09005_kb_ontology]
+> Please answer: What is ontology induction?
+<~ ontology
+[parrotbench_09006_kb_ontology]
+> Please answer: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09007_kb_ontology]
+> Please answer: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09008_kb_ontology]
+> Please answer: Why separate entities from states?
+<~ state
+[parrotbench_09009_kb_ontology]
+> Can you help me with this? What is ontology induction?
+<~ ontology
+[parrotbench_09010_kb_ontology]
+> Can you help me with this? Can a new domain require a temporary model?
+<~ model
+[parrotbench_09011_kb_ontology]
+> Can you help me with this? What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09012_kb_ontology]
+> Can you help me with this? Why separate entities from states?
+<~ state
+[parrotbench_09013_kb_ontology]
+> In simple terms, What is ontology induction?
+<~ ontology
+[parrotbench_09014_kb_ontology]
+> In simple terms, Can a new domain require a temporary model?
+<~ model
+[parrotbench_09015_kb_ontology]
+> In simple terms, What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09016_kb_ontology]
+> In simple terms, Why separate entities from states?
+<~ state
+[parrotbench_09017_kb_ontology]
+> Give a concise answer. What is ontology induction?
+<~ ontology
+[parrotbench_09018_kb_ontology]
+> Give a concise answer. Can a new domain require a temporary model?
+<~ model
+[parrotbench_09019_kb_ontology]
+> Give a concise answer. What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09020_kb_ontology]
+> Give a concise answer. Why separate entities from states?
+<~ state
+[parrotbench_09021_kb_ontology]
+> I need a careful answer: What is ontology induction?
+<~ ontology
+[parrotbench_09022_kb_ontology]
+> I need a careful answer: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09023_kb_ontology]
+> I need a careful answer: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09024_kb_ontology]
+> I need a careful answer: Why separate entities from states?
+<~ state
+[parrotbench_09025_kb_ontology]
+> Explain your answer briefly: What is ontology induction?
+<~ ontology
+[parrotbench_09026_kb_ontology]
+> Explain your answer briefly: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09027_kb_ontology]
+> Explain your answer briefly: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09028_kb_ontology]
+> Explain your answer briefly: Why separate entities from states?
+<~ state
+[parrotbench_09029_kb_ontology]
+> Check this for me: What is ontology induction?
+<~ ontology
+[parrotbench_09030_kb_ontology]
+> Check this for me: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09031_kb_ontology]
+> Check this for me: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09032_kb_ontology]
+> Check this for me: Why separate entities from states?
+<~ state
+[parrotbench_09033_kb_ontology]
+> What would you tell a beginner? What is ontology induction?
+<~ ontology
+[parrotbench_09034_kb_ontology]
+> What would you tell a beginner? Can a new domain require a temporary model?
+<~ model
+[parrotbench_09035_kb_ontology]
+> What would you tell a beginner? What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09036_kb_ontology]
+> What would you tell a beginner? Why separate entities from states?
+<~ state
+[parrotbench_09037_kb_ontology]
+> What would you tell an expert? What is ontology induction?
+<~ ontology
+[parrotbench_09038_kb_ontology]
+> What would you tell an expert? Can a new domain require a temporary model?
+<~ model
+[parrotbench_09039_kb_ontology]
+> What would you tell an expert? What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09040_kb_ontology]
+> What would you tell an expert? Why separate entities from states?
+<~ state
+[parrotbench_09041_kb_ontology]
+> Answer cautiously: What is ontology induction?
+<~ ontology
+[parrotbench_09042_kb_ontology]
+> Answer cautiously: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09043_kb_ontology]
+> Answer cautiously: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09044_kb_ontology]
+> Answer cautiously: Why separate entities from states?
+<~ state
+[parrotbench_09045_kb_ontology]
+> First identify the goal, then answer: What is ontology induction?
+<~ ontology
+[parrotbench_09046_kb_ontology]
+> First identify the goal, then answer: Can a new domain require a temporary model?
+<~ model
+[parrotbench_09047_kb_ontology]
+> First identify the goal, then answer: What is the difference between a fact and a relation?
+<~ relation
+[parrotbench_09048_kb_ontology]
+> First identify the goal, then answer: Why separate entities from states?
+<~ state
+[parrotbench_09049_kb_ontology]
+> Use the relevant evidence and answer: What is ontology induction?
+<~ ontology
+[parrotbench_09050_kb_ontology]
+> Use the relevant evidence and answer: Can a new domain require a temporary model?
+<~ model

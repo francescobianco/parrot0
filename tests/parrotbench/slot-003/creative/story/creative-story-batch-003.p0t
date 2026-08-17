@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 50
+
+[parrotbench_10101_creative_story]
+> Answer as if this were a release review: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10102_creative_story]
+> Answer as if this were a release review: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10103_creative_story]
+> Answer as if this were a release review: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10104_creative_story]
+> Answer as if this were a release review: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10105_creative_story]
+> Give the strongest answer supported by the KB: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10106_creative_story]
+> Give the strongest answer supported by the KB: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10107_creative_story]
+> Give the strongest answer supported by the KB: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10108_creative_story]
+> Give the strongest answer supported by the KB: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10109_creative_story]
+> Do not confuse a wall with an answer. Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10110_creative_story]
+> Do not confuse a wall with an answer. Continue a story while preserving its characters.
+<~ story
+[parrotbench_10111_creative_story]
+> Do not confuse a wall with an answer. Change a playful story into a tragic one.
+<~ story
+[parrotbench_10112_creative_story]
+> Do not confuse a wall with an answer. Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10113_creative_story]
+> What is the operational interpretation of this? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10114_creative_story]
+> What is the operational interpretation of this? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10115_creative_story]
+> What is the operational interpretation of this? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10116_creative_story]
+> What is the operational interpretation of this? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10117_creative_story]
+> Start with the direct answer, then qualify it: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10118_creative_story]
+> Start with the direct answer, then qualify it: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10119_creative_story]
+> Start with the direct answer, then qualify it: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10120_creative_story]
+> Start with the direct answer, then qualify it: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10121_creative_story]
+> Identify the entities and relations first: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10122_creative_story]
+> Identify the entities and relations first: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10123_creative_story]
+> Identify the entities and relations first: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10124_creative_story]
+> Identify the entities and relations first: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10125_creative_story]
+> Treat this as a new domain and explain your model: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10126_creative_story]
+> Treat this as a new domain and explain your model: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10127_creative_story]
+> Treat this as a new domain and explain your model: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10128_creative_story]
+> Treat this as a new domain and explain your model: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10129_creative_story]
+> What would you need to verify before answering? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10130_creative_story]
+> What would you need to verify before answering? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10131_creative_story]
+> What would you need to verify before answering? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10132_creative_story]
+> What would you need to verify before answering? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10133_creative_story]
+> Keep alternatives separate while answering: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10134_creative_story]
+> Keep alternatives separate while answering: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10135_creative_story]
+> Keep alternatives separate while answering: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10136_creative_story]
+> Keep alternatives separate while answering: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10137_creative_story]
+> State one conclusion and one uncertainty: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10138_creative_story]
+> State one conclusion and one uncertainty: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10139_creative_story]
+> State one conclusion and one uncertainty: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10140_creative_story]
+> State one conclusion and one uncertainty: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10141_creative_story]
+> Use a concrete example in your answer: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10142_creative_story]
+> Use a concrete example in your answer: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10143_creative_story]
+> Use a concrete example in your answer: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10144_creative_story]
+> Use a concrete example in your answer: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10145_creative_story]
+> Avoid changing the subject: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10146_creative_story]
+> Avoid changing the subject: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10147_creative_story]
+> Avoid changing the subject: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10148_creative_story]
+> Avoid changing the subject: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10149_creative_story]
+> Answer the user's actual goal: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10150_creative_story]
+> Answer the user's actual goal: Continue a story while preserving its characters.
+<~ story

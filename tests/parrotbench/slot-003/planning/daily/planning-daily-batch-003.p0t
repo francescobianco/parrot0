@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 50
+
+[parrotbench_07101_planning_daily]
+> Answer as if this were a release review: Give me a plan to make tea.
+<~ plan
+[parrotbench_07102_planning_daily]
+> Answer as if this were a release review: What is the first step in making tea?
+<~ water
+[parrotbench_07103_planning_daily]
+> Answer as if this were a release review: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07104_planning_daily]
+> Answer as if this were a release review: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07105_planning_daily]
+> Give the strongest answer supported by the KB: Give me a plan to make tea.
+<~ plan
+[parrotbench_07106_planning_daily]
+> Give the strongest answer supported by the KB: What is the first step in making tea?
+<~ water
+[parrotbench_07107_planning_daily]
+> Give the strongest answer supported by the KB: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07108_planning_daily]
+> Give the strongest answer supported by the KB: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07109_planning_daily]
+> Do not confuse a wall with an answer. Give me a plan to make tea.
+<~ plan
+[parrotbench_07110_planning_daily]
+> Do not confuse a wall with an answer. What is the first step in making tea?
+<~ water
+[parrotbench_07111_planning_daily]
+> Do not confuse a wall with an answer. Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07112_planning_daily]
+> Do not confuse a wall with an answer. How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07113_planning_daily]
+> What is the operational interpretation of this? Give me a plan to make tea.
+<~ plan
+[parrotbench_07114_planning_daily]
+> What is the operational interpretation of this? What is the first step in making tea?
+<~ water
+[parrotbench_07115_planning_daily]
+> What is the operational interpretation of this? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07116_planning_daily]
+> What is the operational interpretation of this? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07117_planning_daily]
+> Start with the direct answer, then qualify it: Give me a plan to make tea.
+<~ plan
+[parrotbench_07118_planning_daily]
+> Start with the direct answer, then qualify it: What is the first step in making tea?
+<~ water
+[parrotbench_07119_planning_daily]
+> Start with the direct answer, then qualify it: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07120_planning_daily]
+> Start with the direct answer, then qualify it: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07121_planning_daily]
+> Identify the entities and relations first: Give me a plan to make tea.
+<~ plan
+[parrotbench_07122_planning_daily]
+> Identify the entities and relations first: What is the first step in making tea?
+<~ water
+[parrotbench_07123_planning_daily]
+> Identify the entities and relations first: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07124_planning_daily]
+> Identify the entities and relations first: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07125_planning_daily]
+> Treat this as a new domain and explain your model: Give me a plan to make tea.
+<~ plan
+[parrotbench_07126_planning_daily]
+> Treat this as a new domain and explain your model: What is the first step in making tea?
+<~ water
+[parrotbench_07127_planning_daily]
+> Treat this as a new domain and explain your model: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07128_planning_daily]
+> Treat this as a new domain and explain your model: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07129_planning_daily]
+> What would you need to verify before answering? Give me a plan to make tea.
+<~ plan
+[parrotbench_07130_planning_daily]
+> What would you need to verify before answering? What is the first step in making tea?
+<~ water
+[parrotbench_07131_planning_daily]
+> What would you need to verify before answering? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07132_planning_daily]
+> What would you need to verify before answering? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07133_planning_daily]
+> Keep alternatives separate while answering: Give me a plan to make tea.
+<~ plan
+[parrotbench_07134_planning_daily]
+> Keep alternatives separate while answering: What is the first step in making tea?
+<~ water
+[parrotbench_07135_planning_daily]
+> Keep alternatives separate while answering: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07136_planning_daily]
+> Keep alternatives separate while answering: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07137_planning_daily]
+> State one conclusion and one uncertainty: Give me a plan to make tea.
+<~ plan
+[parrotbench_07138_planning_daily]
+> State one conclusion and one uncertainty: What is the first step in making tea?
+<~ water
+[parrotbench_07139_planning_daily]
+> State one conclusion and one uncertainty: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07140_planning_daily]
+> State one conclusion and one uncertainty: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07141_planning_daily]
+> Use a concrete example in your answer: Give me a plan to make tea.
+<~ plan
+[parrotbench_07142_planning_daily]
+> Use a concrete example in your answer: What is the first step in making tea?
+<~ water
+[parrotbench_07143_planning_daily]
+> Use a concrete example in your answer: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07144_planning_daily]
+> Use a concrete example in your answer: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07145_planning_daily]
+> Avoid changing the subject: Give me a plan to make tea.
+<~ plan
+[parrotbench_07146_planning_daily]
+> Avoid changing the subject: What is the first step in making tea?
+<~ water
+[parrotbench_07147_planning_daily]
+> Avoid changing the subject: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07148_planning_daily]
+> Avoid changing the subject: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07149_planning_daily]
+> Answer the user's actual goal: Give me a plan to make tea.
+<~ plan
+[parrotbench_07150_planning_daily]
+> Answer the user's actual goal: What is the first step in making tea?
+<~ water

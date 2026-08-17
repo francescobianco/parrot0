@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/yes-no
+# cases: 50
+
+[parrotbench_06201_format_yes-no]
+> Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06202_format_yes-no]
+> Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06203_format_yes-no]
+> Use only one word: is 2 even?
+<~ yes
+[parrotbench_06204_format_yes-no]
+> Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06205_format_yes-no]
+> Please answer: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06206_format_yes-no]
+> Please answer: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06207_format_yes-no]
+> Please answer: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06208_format_yes-no]
+> Please answer: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06209_format_yes-no]
+> Can you help me with this? Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06210_format_yes-no]
+> Can you help me with this? Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06211_format_yes-no]
+> Can you help me with this? Use only one word: is 2 even?
+<~ yes
+[parrotbench_06212_format_yes-no]
+> Can you help me with this? Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06213_format_yes-no]
+> In simple terms, Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06214_format_yes-no]
+> In simple terms, Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06215_format_yes-no]
+> In simple terms, Use only one word: is 2 even?
+<~ yes
+[parrotbench_06216_format_yes-no]
+> In simple terms, Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06217_format_yes-no]
+> Give a concise answer. Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06218_format_yes-no]
+> Give a concise answer. Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06219_format_yes-no]
+> Give a concise answer. Use only one word: is 2 even?
+<~ yes
+[parrotbench_06220_format_yes-no]
+> Give a concise answer. Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06221_format_yes-no]
+> I need a careful answer: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06222_format_yes-no]
+> I need a careful answer: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06223_format_yes-no]
+> I need a careful answer: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06224_format_yes-no]
+> I need a careful answer: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06225_format_yes-no]
+> Explain your answer briefly: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06226_format_yes-no]
+> Explain your answer briefly: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06227_format_yes-no]
+> Explain your answer briefly: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06228_format_yes-no]
+> Explain your answer briefly: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06229_format_yes-no]
+> Check this for me: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06230_format_yes-no]
+> Check this for me: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06231_format_yes-no]
+> Check this for me: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06232_format_yes-no]
+> Check this for me: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06233_format_yes-no]
+> What would you tell a beginner? Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06234_format_yes-no]
+> What would you tell a beginner? Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06235_format_yes-no]
+> What would you tell a beginner? Use only one word: is 2 even?
+<~ yes
+[parrotbench_06236_format_yes-no]
+> What would you tell a beginner? Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06237_format_yes-no]
+> What would you tell an expert? Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06238_format_yes-no]
+> What would you tell an expert? Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06239_format_yes-no]
+> What would you tell an expert? Use only one word: is 2 even?
+<~ yes
+[parrotbench_06240_format_yes-no]
+> What would you tell an expert? Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06241_format_yes-no]
+> Answer cautiously: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06242_format_yes-no]
+> Answer cautiously: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06243_format_yes-no]
+> Answer cautiously: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06244_format_yes-no]
+> Answer cautiously: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06245_format_yes-no]
+> First identify the goal, then answer: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06246_format_yes-no]
+> First identify the goal, then answer: Answer yes/no: is water wet?
+<~ yes
+[parrotbench_06247_format_yes-no]
+> First identify the goal, then answer: Use only one word: is 2 even?
+<~ yes
+[parrotbench_06248_format_yes-no]
+> First identify the goal, then answer: Respond with no extra explanation: is Mars a planet?
+<~ yes
+[parrotbench_06249_format_yes-no]
+> Use the relevant evidence and answer: Reply only yes or no: is fire cold?
+<~ no
+[parrotbench_06250_format_yes-no]
+> Use the relevant evidence and answer: Answer yes/no: is water wet?
+<~ yes

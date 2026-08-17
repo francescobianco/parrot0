@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/translation
+# cases: 50
+
+[parrotbench_05551_language_translation]
+> Answer the user's actual goal: Translate the dog runs into English.
+<~ dog
+[parrotbench_05552_language_translation]
+> Answer the user's actual goal: Translate acqua into English.
+<~ water
+[parrotbench_05553_language_translation]
+> If the request is underspecified, say what is missing: Translate hello into Italian.
+<~ ciao
+[parrotbench_05554_language_translation]
+> If the request is underspecified, say what is missing: Translate the small house into French.
+<~ maison
+[parrotbench_05555_language_translation]
+> If the request is underspecified, say what is missing: Translate the dog runs into English.
+<~ dog
+[parrotbench_05556_language_translation]
+> If the request is underspecified, say what is missing: Translate acqua into English.
+<~ water
+[parrotbench_05557_language_translation]
+> Can this be answered from known facts? Translate hello into Italian.
+<~ ciao
+[parrotbench_05558_language_translation]
+> Can this be answered from known facts? Translate the small house into French.
+<~ maison
+[parrotbench_05559_language_translation]
+> Can this be answered from known facts? Translate the dog runs into English.
+<~ dog
+[parrotbench_05560_language_translation]
+> Can this be answered from known facts? Translate acqua into English.
+<~ water
+[parrotbench_05561_language_translation]
+> What would a careful interlocutor say? Translate hello into Italian.
+<~ ciao
+[parrotbench_05562_language_translation]
+> What would a careful interlocutor say? Translate the small house into French.
+<~ maison
+[parrotbench_05563_language_translation]
+> What would a careful interlocutor say? Translate the dog runs into English.
+<~ dog
+[parrotbench_05564_language_translation]
+> What would a careful interlocutor say? Translate acqua into English.
+<~ water
+[parrotbench_05565_language_translation]
+> Give a short answer in English: Translate hello into Italian.
+<~ ciao
+[parrotbench_05566_language_translation]
+> Give a short answer in English: Translate the small house into French.
+<~ maison
+[parrotbench_05567_language_translation]
+> Give a short answer in English: Translate the dog runs into English.
+<~ dog
+[parrotbench_05568_language_translation]
+> Give a short answer in English: Translate acqua into English.
+<~ water
+[parrotbench_05569_language_translation]
+> Rispondi in italiano quando possibile: Translate hello into Italian.
+<~ ciao
+[parrotbench_05570_language_translation]
+> Rispondi in italiano quando possibile: Translate the small house into French.
+<~ maison
+[parrotbench_05571_language_translation]
+> Rispondi in italiano quando possibile: Translate the dog runs into English.
+<~ dog
+[parrotbench_05572_language_translation]
+> Rispondi in italiano quando possibile: Translate acqua into English.
+<~ water
+[parrotbench_05573_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate hello into Italian.
+<~ ciao
+[parrotbench_05574_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate the small house into French.
+<~ maison
+[parrotbench_05575_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate the dog runs into English.
+<~ dog
+[parrotbench_05576_language_translation]
+> Distinguish a fact, a rule, and a hypothesis: Translate acqua into English.
+<~ water
+[parrotbench_05577_language_translation]
+> Name the relevant capability: Translate hello into Italian.
+<~ ciao
+[parrotbench_05578_language_translation]
+> Name the relevant capability: Translate the small house into French.
+<~ maison
+[parrotbench_05579_language_translation]
+> Name the relevant capability: Translate the dog runs into English.
+<~ dog
+[parrotbench_05580_language_translation]
+> Name the relevant capability: Translate acqua into English.
+<~ water
+[parrotbench_05581_language_translation]
+> Explain the reasoning rather than a slogan: Translate hello into Italian.
+<~ ciao
+[parrotbench_05582_language_translation]
+> Explain the reasoning rather than a slogan: Translate the small house into French.
+<~ maison
+[parrotbench_05583_language_translation]
+> Explain the reasoning rather than a slogan: Translate the dog runs into English.
+<~ dog
+[parrotbench_05584_language_translation]
+> Explain the reasoning rather than a slogan: Translate acqua into English.
+<~ water
+[parrotbench_05585_language_translation]
+> Use the user's constraint as a real constraint: Translate hello into Italian.
+<~ ciao
+[parrotbench_05586_language_translation]
+> Use the user's constraint as a real constraint: Translate the small house into French.
+<~ maison
+[parrotbench_05587_language_translation]
+> Use the user's constraint as a real constraint: Translate the dog runs into English.
+<~ dog
+[parrotbench_05588_language_translation]
+> Use the user's constraint as a real constraint: Translate acqua into English.
+<~ water
+[parrotbench_05589_language_translation]
+> Check whether the requested format is satisfied: Translate hello into Italian.
+<~ ciao
+[parrotbench_05590_language_translation]
+> Check whether the requested format is satisfied: Translate the small house into French.
+<~ maison
+[parrotbench_05591_language_translation]
+> Check whether the requested format is satisfied: Translate the dog runs into English.
+<~ dog
+[parrotbench_05592_language_translation]
+> Check whether the requested format is satisfied: Translate acqua into English.
+<~ water
+[parrotbench_05593_language_translation]
+> What would make this answer wrong? Translate hello into Italian.
+<~ ciao
+[parrotbench_05594_language_translation]
+> What would make this answer wrong? Translate the small house into French.
+<~ maison
+[parrotbench_05595_language_translation]
+> What would make this answer wrong? Translate the dog runs into English.
+<~ dog
+[parrotbench_05596_language_translation]
+> What would make this answer wrong? Translate acqua into English.
+<~ water
+[parrotbench_05597_language_translation]
+> Give a useful answer without pretending certainty: Translate hello into Italian.
+<~ ciao
+[parrotbench_05598_language_translation]
+> Give a useful answer without pretending certainty: Translate the small house into French.
+<~ maison
+[parrotbench_05599_language_translation]
+> Give a useful answer without pretending certainty: Translate the dog runs into English.
+<~ dog
+[parrotbench_05600_language_translation]
+> Give a useful answer without pretending certainty: Translate acqua into English.
+<~ water

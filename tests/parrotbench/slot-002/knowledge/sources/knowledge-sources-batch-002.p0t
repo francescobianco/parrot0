@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/sources
+# cases: 50
+
+[parrotbench_00651_knowledge_sources]
+> Use the relevant evidence and answer: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00652_knowledge_sources]
+> Use the relevant evidence and answer: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00653_knowledge_sources]
+> Do not invent facts. Why should a claim have a source?
+<~ source
+[parrotbench_00654_knowledge_sources]
+> Do not invent facts. How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00655_knowledge_sources]
+> Do not invent facts. What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00656_knowledge_sources]
+> Do not invent facts. Should you invent an answer without evidence?
+<~ no
+[parrotbench_00657_knowledge_sources]
+> Keep the answer useful and honest: Why should a claim have a source?
+<~ source
+[parrotbench_00658_knowledge_sources]
+> Keep the answer useful and honest: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00659_knowledge_sources]
+> Keep the answer useful and honest: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00660_knowledge_sources]
+> Keep the answer useful and honest: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00661_knowledge_sources]
+> In italiano, Why should a claim have a source?
+<~ source
+[parrotbench_00662_knowledge_sources]
+> In italiano, How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00663_knowledge_sources]
+> In italiano, What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00664_knowledge_sources]
+> In italiano, Should you invent an answer without evidence?
+<~ no
+[parrotbench_00665_knowledge_sources]
+> Rispondi brevemente: Why should a claim have a source?
+<~ source
+[parrotbench_00666_knowledge_sources]
+> Rispondi brevemente: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00667_knowledge_sources]
+> Rispondi brevemente: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00668_knowledge_sources]
+> Rispondi brevemente: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00669_knowledge_sources]
+> Spiegalo in parole semplici: Why should a claim have a source?
+<~ source
+[parrotbench_00670_knowledge_sources]
+> Spiegalo in parole semplici: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00671_knowledge_sources]
+> Spiegalo in parole semplici: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00672_knowledge_sources]
+> Spiegalo in parole semplici: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00673_knowledge_sources]
+> Prima dimmi cosa manca, poi: Why should a claim have a source?
+<~ source
+[parrotbench_00674_knowledge_sources]
+> Prima dimmi cosa manca, poi: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00675_knowledge_sources]
+> Prima dimmi cosa manca, poi: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00676_knowledge_sources]
+> Prima dimmi cosa manca, poi: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00677_knowledge_sources]
+> What is the shortest useful answer to this? Why should a claim have a source?
+<~ source
+[parrotbench_00678_knowledge_sources]
+> What is the shortest useful answer to this? How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00679_knowledge_sources]
+> What is the shortest useful answer to this? What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00680_knowledge_sources]
+> What is the shortest useful answer to this? Should you invent an answer without evidence?
+<~ no
+[parrotbench_00681_knowledge_sources]
+> Challenge your first interpretation: Why should a claim have a source?
+<~ source
+[parrotbench_00682_knowledge_sources]
+> Challenge your first interpretation: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00683_knowledge_sources]
+> Challenge your first interpretation: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00684_knowledge_sources]
+> Challenge your first interpretation: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00685_knowledge_sources]
+> State uncertainty if needed: Why should a claim have a source?
+<~ source
+[parrotbench_00686_knowledge_sources]
+> State uncertainty if needed: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00687_knowledge_sources]
+> State uncertainty if needed: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00688_knowledge_sources]
+> State uncertainty if needed: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00689_knowledge_sources]
+> Answer without a generic template: Why should a claim have a source?
+<~ source
+[parrotbench_00690_knowledge_sources]
+> Answer without a generic template: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00691_knowledge_sources]
+> Answer without a generic template: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00692_knowledge_sources]
+> Answer without a generic template: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00693_knowledge_sources]
+> Give the answer and one reason: Why should a claim have a source?
+<~ source
+[parrotbench_00694_knowledge_sources]
+> Give the answer and one reason: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00695_knowledge_sources]
+> Give the answer and one reason: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00696_knowledge_sources]
+> Give the answer and one reason: Should you invent an answer without evidence?
+<~ no
+[parrotbench_00697_knowledge_sources]
+> Separate fact from hypothesis: Why should a claim have a source?
+<~ source
+[parrotbench_00698_knowledge_sources]
+> Separate fact from hypothesis: How do you distinguish evidence from a guess?
+<~ evidence
+[parrotbench_00699_knowledge_sources]
+> Separate fact from hypothesis: What makes a conclusion cautious?
+<~ uncertain
+[parrotbench_00700_knowledge_sources]
+> Separate fact from hypothesis: Should you invent an answer without evidence?
+<~ no

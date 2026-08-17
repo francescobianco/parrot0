@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/provenance
+# cases: 50
+
+[parrotbench_04101_reasoning_provenance]
+> Answer as if this were a release review: What evidence supports this answer?
+<~ evidence
+[parrotbench_04102_reasoning_provenance]
+> Answer as if this were a release review: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04103_reasoning_provenance]
+> Answer as if this were a release review: What should an explanation expose?
+<~ reason
+[parrotbench_04104_reasoning_provenance]
+> Answer as if this were a release review: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04105_reasoning_provenance]
+> Give the strongest answer supported by the KB: What evidence supports this answer?
+<~ evidence
+[parrotbench_04106_reasoning_provenance]
+> Give the strongest answer supported by the KB: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04107_reasoning_provenance]
+> Give the strongest answer supported by the KB: What should an explanation expose?
+<~ reason
+[parrotbench_04108_reasoning_provenance]
+> Give the strongest answer supported by the KB: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04109_reasoning_provenance]
+> Do not confuse a wall with an answer. What evidence supports this answer?
+<~ evidence
+[parrotbench_04110_reasoning_provenance]
+> Do not confuse a wall with an answer. Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04111_reasoning_provenance]
+> Do not confuse a wall with an answer. What should an explanation expose?
+<~ reason
+[parrotbench_04112_reasoning_provenance]
+> Do not confuse a wall with an answer. How can a learned fact be corrected?
+<~ forget
+[parrotbench_04113_reasoning_provenance]
+> What is the operational interpretation of this? What evidence supports this answer?
+<~ evidence
+[parrotbench_04114_reasoning_provenance]
+> What is the operational interpretation of this? Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04115_reasoning_provenance]
+> What is the operational interpretation of this? What should an explanation expose?
+<~ reason
+[parrotbench_04116_reasoning_provenance]
+> What is the operational interpretation of this? How can a learned fact be corrected?
+<~ forget
+[parrotbench_04117_reasoning_provenance]
+> Start with the direct answer, then qualify it: What evidence supports this answer?
+<~ evidence
+[parrotbench_04118_reasoning_provenance]
+> Start with the direct answer, then qualify it: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04119_reasoning_provenance]
+> Start with the direct answer, then qualify it: What should an explanation expose?
+<~ reason
+[parrotbench_04120_reasoning_provenance]
+> Start with the direct answer, then qualify it: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04121_reasoning_provenance]
+> Identify the entities and relations first: What evidence supports this answer?
+<~ evidence
+[parrotbench_04122_reasoning_provenance]
+> Identify the entities and relations first: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04123_reasoning_provenance]
+> Identify the entities and relations first: What should an explanation expose?
+<~ reason
+[parrotbench_04124_reasoning_provenance]
+> Identify the entities and relations first: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04125_reasoning_provenance]
+> Treat this as a new domain and explain your model: What evidence supports this answer?
+<~ evidence
+[parrotbench_04126_reasoning_provenance]
+> Treat this as a new domain and explain your model: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04127_reasoning_provenance]
+> Treat this as a new domain and explain your model: What should an explanation expose?
+<~ reason
+[parrotbench_04128_reasoning_provenance]
+> Treat this as a new domain and explain your model: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04129_reasoning_provenance]
+> What would you need to verify before answering? What evidence supports this answer?
+<~ evidence
+[parrotbench_04130_reasoning_provenance]
+> What would you need to verify before answering? Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04131_reasoning_provenance]
+> What would you need to verify before answering? What should an explanation expose?
+<~ reason
+[parrotbench_04132_reasoning_provenance]
+> What would you need to verify before answering? How can a learned fact be corrected?
+<~ forget
+[parrotbench_04133_reasoning_provenance]
+> Keep alternatives separate while answering: What evidence supports this answer?
+<~ evidence
+[parrotbench_04134_reasoning_provenance]
+> Keep alternatives separate while answering: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04135_reasoning_provenance]
+> Keep alternatives separate while answering: What should an explanation expose?
+<~ reason
+[parrotbench_04136_reasoning_provenance]
+> Keep alternatives separate while answering: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04137_reasoning_provenance]
+> State one conclusion and one uncertainty: What evidence supports this answer?
+<~ evidence
+[parrotbench_04138_reasoning_provenance]
+> State one conclusion and one uncertainty: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04139_reasoning_provenance]
+> State one conclusion and one uncertainty: What should an explanation expose?
+<~ reason
+[parrotbench_04140_reasoning_provenance]
+> State one conclusion and one uncertainty: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04141_reasoning_provenance]
+> Use a concrete example in your answer: What evidence supports this answer?
+<~ evidence
+[parrotbench_04142_reasoning_provenance]
+> Use a concrete example in your answer: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04143_reasoning_provenance]
+> Use a concrete example in your answer: What should an explanation expose?
+<~ reason
+[parrotbench_04144_reasoning_provenance]
+> Use a concrete example in your answer: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04145_reasoning_provenance]
+> Avoid changing the subject: What evidence supports this answer?
+<~ evidence
+[parrotbench_04146_reasoning_provenance]
+> Avoid changing the subject: Why record which rule produced a conclusion?
+<~ provenance
+[parrotbench_04147_reasoning_provenance]
+> Avoid changing the subject: What should an explanation expose?
+<~ reason
+[parrotbench_04148_reasoning_provenance]
+> Avoid changing the subject: How can a learned fact be corrected?
+<~ forget
+[parrotbench_04149_reasoning_provenance]
+> Answer the user's actual goal: What evidence supports this answer?
+<~ evidence
+[parrotbench_04150_reasoning_provenance]
+> Answer the user's actual goal: Why record which rule produced a conclusion?
+<~ provenance

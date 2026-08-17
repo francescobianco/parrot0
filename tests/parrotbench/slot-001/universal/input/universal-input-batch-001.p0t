@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: universal/input
+# cases: 50
+
+[parrotbench_10801_universal_input]
+> What can a raw stream contain?
+<~ input
+[parrotbench_10802_universal_input]
+> How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10803_universal_input]
+> Why delay domain classification?
+<~ domain
+[parrotbench_10804_universal_input]
+> What comes after segmentation?
+<~ interpret
+[parrotbench_10805_universal_input]
+> Please answer: What can a raw stream contain?
+<~ input
+[parrotbench_10806_universal_input]
+> Please answer: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10807_universal_input]
+> Please answer: Why delay domain classification?
+<~ domain
+[parrotbench_10808_universal_input]
+> Please answer: What comes after segmentation?
+<~ interpret
+[parrotbench_10809_universal_input]
+> Can you help me with this? What can a raw stream contain?
+<~ input
+[parrotbench_10810_universal_input]
+> Can you help me with this? How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10811_universal_input]
+> Can you help me with this? Why delay domain classification?
+<~ domain
+[parrotbench_10812_universal_input]
+> Can you help me with this? What comes after segmentation?
+<~ interpret
+[parrotbench_10813_universal_input]
+> In simple terms, What can a raw stream contain?
+<~ input
+[parrotbench_10814_universal_input]
+> In simple terms, How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10815_universal_input]
+> In simple terms, Why delay domain classification?
+<~ domain
+[parrotbench_10816_universal_input]
+> In simple terms, What comes after segmentation?
+<~ interpret
+[parrotbench_10817_universal_input]
+> Give a concise answer. What can a raw stream contain?
+<~ input
+[parrotbench_10818_universal_input]
+> Give a concise answer. How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10819_universal_input]
+> Give a concise answer. Why delay domain classification?
+<~ domain
+[parrotbench_10820_universal_input]
+> Give a concise answer. What comes after segmentation?
+<~ interpret
+[parrotbench_10821_universal_input]
+> I need a careful answer: What can a raw stream contain?
+<~ input
+[parrotbench_10822_universal_input]
+> I need a careful answer: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10823_universal_input]
+> I need a careful answer: Why delay domain classification?
+<~ domain
+[parrotbench_10824_universal_input]
+> I need a careful answer: What comes after segmentation?
+<~ interpret
+[parrotbench_10825_universal_input]
+> Explain your answer briefly: What can a raw stream contain?
+<~ input
+[parrotbench_10826_universal_input]
+> Explain your answer briefly: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10827_universal_input]
+> Explain your answer briefly: Why delay domain classification?
+<~ domain
+[parrotbench_10828_universal_input]
+> Explain your answer briefly: What comes after segmentation?
+<~ interpret
+[parrotbench_10829_universal_input]
+> Check this for me: What can a raw stream contain?
+<~ input
+[parrotbench_10830_universal_input]
+> Check this for me: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10831_universal_input]
+> Check this for me: Why delay domain classification?
+<~ domain
+[parrotbench_10832_universal_input]
+> Check this for me: What comes after segmentation?
+<~ interpret
+[parrotbench_10833_universal_input]
+> What would you tell a beginner? What can a raw stream contain?
+<~ input
+[parrotbench_10834_universal_input]
+> What would you tell a beginner? How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10835_universal_input]
+> What would you tell a beginner? Why delay domain classification?
+<~ domain
+[parrotbench_10836_universal_input]
+> What would you tell a beginner? What comes after segmentation?
+<~ interpret
+[parrotbench_10837_universal_input]
+> What would you tell an expert? What can a raw stream contain?
+<~ input
+[parrotbench_10838_universal_input]
+> What would you tell an expert? How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10839_universal_input]
+> What would you tell an expert? Why delay domain classification?
+<~ domain
+[parrotbench_10840_universal_input]
+> What would you tell an expert? What comes after segmentation?
+<~ interpret
+[parrotbench_10841_universal_input]
+> Answer cautiously: What can a raw stream contain?
+<~ input
+[parrotbench_10842_universal_input]
+> Answer cautiously: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10843_universal_input]
+> Answer cautiously: Why delay domain classification?
+<~ domain
+[parrotbench_10844_universal_input]
+> Answer cautiously: What comes after segmentation?
+<~ interpret
+[parrotbench_10845_universal_input]
+> First identify the goal, then answer: What can a raw stream contain?
+<~ input
+[parrotbench_10846_universal_input]
+> First identify the goal, then answer: How does universal input differ from a fixed parser?
+<~ structure
+[parrotbench_10847_universal_input]
+> First identify the goal, then answer: Why delay domain classification?
+<~ domain
+[parrotbench_10848_universal_input]
+> First identify the goal, then answer: What comes after segmentation?
+<~ interpret
+[parrotbench_10849_universal_input]
+> Use the relevant evidence and answer: What can a raw stream contain?
+<~ input
+[parrotbench_10850_universal_input]
+> Use the relevant evidence and answer: How does universal input differ from a fixed parser?
+<~ structure

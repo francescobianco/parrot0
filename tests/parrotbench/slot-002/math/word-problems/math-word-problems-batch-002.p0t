@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/word-problems
+# cases: 50
+
+[parrotbench_01851_math_word-problems]
+> Use the relevant evidence and answer: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01852_math_word-problems]
+> Use the relevant evidence and answer: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01853_math_word-problems]
+> Do not invent facts. I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01854_math_word-problems]
+> Do not invent facts. A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01855_math_word-problems]
+> Do not invent facts. I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01856_math_word-problems]
+> Do not invent facts. A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01857_math_word-problems]
+> Keep the answer useful and honest: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01858_math_word-problems]
+> Keep the answer useful and honest: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01859_math_word-problems]
+> Keep the answer useful and honest: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01860_math_word-problems]
+> Keep the answer useful and honest: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01861_math_word-problems]
+> In italiano, I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01862_math_word-problems]
+> In italiano, A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01863_math_word-problems]
+> In italiano, I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01864_math_word-problems]
+> In italiano, A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01865_math_word-problems]
+> Rispondi brevemente: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01866_math_word-problems]
+> Rispondi brevemente: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01867_math_word-problems]
+> Rispondi brevemente: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01868_math_word-problems]
+> Rispondi brevemente: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01869_math_word-problems]
+> Spiegalo in parole semplici: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01870_math_word-problems]
+> Spiegalo in parole semplici: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01871_math_word-problems]
+> Spiegalo in parole semplici: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01872_math_word-problems]
+> Spiegalo in parole semplici: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01873_math_word-problems]
+> Prima dimmi cosa manca, poi: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01874_math_word-problems]
+> Prima dimmi cosa manca, poi: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01875_math_word-problems]
+> Prima dimmi cosa manca, poi: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01876_math_word-problems]
+> Prima dimmi cosa manca, poi: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01877_math_word-problems]
+> What is the shortest useful answer to this? I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01878_math_word-problems]
+> What is the shortest useful answer to this? A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01879_math_word-problems]
+> What is the shortest useful answer to this? I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01880_math_word-problems]
+> What is the shortest useful answer to this? A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01881_math_word-problems]
+> Challenge your first interpretation: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01882_math_word-problems]
+> Challenge your first interpretation: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01883_math_word-problems]
+> Challenge your first interpretation: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01884_math_word-problems]
+> Challenge your first interpretation: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01885_math_word-problems]
+> State uncertainty if needed: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01886_math_word-problems]
+> State uncertainty if needed: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01887_math_word-problems]
+> State uncertainty if needed: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01888_math_word-problems]
+> State uncertainty if needed: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01889_math_word-problems]
+> Answer without a generic template: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01890_math_word-problems]
+> Answer without a generic template: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01891_math_word-problems]
+> Answer without a generic template: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01892_math_word-problems]
+> Answer without a generic template: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01893_math_word-problems]
+> Give the answer and one reason: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01894_math_word-problems]
+> Give the answer and one reason: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01895_math_word-problems]
+> Give the answer and one reason: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01896_math_word-problems]
+> Give the answer and one reason: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12
+[parrotbench_01897_math_word-problems]
+> Separate fact from hypothesis: I have 24 apples and give away a quarter. How many remain?
+<~ 18
+[parrotbench_01898_math_word-problems]
+> Separate fact from hypothesis: A train leaves at 3 and travels for 2 hours. When does it arrive?
+<~ 5
+[parrotbench_01899_math_word-problems]
+> Separate fact from hypothesis: I pay 10 euros from a 25 euro wallet. What remains?
+<~ 15
+[parrotbench_01900_math_word-problems]
+> Separate fact from hypothesis: A task takes 4 minutes and repeats 3 times. How long?
+<~ 12

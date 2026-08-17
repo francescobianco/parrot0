@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 50
+
+[parrotbench_00801_math_addition]
+> What is 17 plus 6?
+<~ 23
+[parrotbench_00802_math_addition]
+> Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00803_math_addition]
+> Add twelve to nine.
+<~ 21
+[parrotbench_00804_math_addition]
+> A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00805_math_addition]
+> Please answer: What is 17 plus 6?
+<~ 23
+[parrotbench_00806_math_addition]
+> Please answer: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00807_math_addition]
+> Please answer: Add twelve to nine.
+<~ 21
+[parrotbench_00808_math_addition]
+> Please answer: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00809_math_addition]
+> Can you help me with this? What is 17 plus 6?
+<~ 23
+[parrotbench_00810_math_addition]
+> Can you help me with this? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00811_math_addition]
+> Can you help me with this? Add twelve to nine.
+<~ 21
+[parrotbench_00812_math_addition]
+> Can you help me with this? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00813_math_addition]
+> In simple terms, What is 17 plus 6?
+<~ 23
+[parrotbench_00814_math_addition]
+> In simple terms, Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00815_math_addition]
+> In simple terms, Add twelve to nine.
+<~ 21
+[parrotbench_00816_math_addition]
+> In simple terms, A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00817_math_addition]
+> Give a concise answer. What is 17 plus 6?
+<~ 23
+[parrotbench_00818_math_addition]
+> Give a concise answer. Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00819_math_addition]
+> Give a concise answer. Add twelve to nine.
+<~ 21
+[parrotbench_00820_math_addition]
+> Give a concise answer. A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00821_math_addition]
+> I need a careful answer: What is 17 plus 6?
+<~ 23
+[parrotbench_00822_math_addition]
+> I need a careful answer: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00823_math_addition]
+> I need a careful answer: Add twelve to nine.
+<~ 21
+[parrotbench_00824_math_addition]
+> I need a careful answer: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00825_math_addition]
+> Explain your answer briefly: What is 17 plus 6?
+<~ 23
+[parrotbench_00826_math_addition]
+> Explain your answer briefly: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00827_math_addition]
+> Explain your answer briefly: Add twelve to nine.
+<~ 21
+[parrotbench_00828_math_addition]
+> Explain your answer briefly: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00829_math_addition]
+> Check this for me: What is 17 plus 6?
+<~ 23
+[parrotbench_00830_math_addition]
+> Check this for me: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00831_math_addition]
+> Check this for me: Add twelve to nine.
+<~ 21
+[parrotbench_00832_math_addition]
+> Check this for me: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00833_math_addition]
+> What would you tell a beginner? What is 17 plus 6?
+<~ 23
+[parrotbench_00834_math_addition]
+> What would you tell a beginner? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00835_math_addition]
+> What would you tell a beginner? Add twelve to nine.
+<~ 21
+[parrotbench_00836_math_addition]
+> What would you tell a beginner? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00837_math_addition]
+> What would you tell an expert? What is 17 plus 6?
+<~ 23
+[parrotbench_00838_math_addition]
+> What would you tell an expert? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00839_math_addition]
+> What would you tell an expert? Add twelve to nine.
+<~ 21
+[parrotbench_00840_math_addition]
+> What would you tell an expert? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00841_math_addition]
+> Answer cautiously: What is 17 plus 6?
+<~ 23
+[parrotbench_00842_math_addition]
+> Answer cautiously: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00843_math_addition]
+> Answer cautiously: Add twelve to nine.
+<~ 21
+[parrotbench_00844_math_addition]
+> Answer cautiously: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00845_math_addition]
+> First identify the goal, then answer: What is 17 plus 6?
+<~ 23
+[parrotbench_00846_math_addition]
+> First identify the goal, then answer: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00847_math_addition]
+> First identify the goal, then answer: Add twelve to nine.
+<~ 21
+[parrotbench_00848_math_addition]
+> First identify the goal, then answer: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00849_math_addition]
+> Use the relevant evidence and answer: What is 17 plus 6?
+<~ 23
+[parrotbench_00850_math_addition]
+> Use the relevant evidence and answer: Calculate the sum of 8 and 15.
+<~ 23

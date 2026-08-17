@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/learning
+# cases: 50
+
+[parrotbench_08801_kb_learning]
+> What does runtime teaching change?
+<~ learn
+[parrotbench_08802_kb_learning]
+> Why should learning be inspectable?
+<~ evidence
+[parrotbench_08803_kb_learning]
+> What is ablation of a learned cue?
+<~ forget
+[parrotbench_08804_kb_learning]
+> What is a learned rule?
+<~ rule
+[parrotbench_08805_kb_learning]
+> Please answer: What does runtime teaching change?
+<~ learn
+[parrotbench_08806_kb_learning]
+> Please answer: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08807_kb_learning]
+> Please answer: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08808_kb_learning]
+> Please answer: What is a learned rule?
+<~ rule
+[parrotbench_08809_kb_learning]
+> Can you help me with this? What does runtime teaching change?
+<~ learn
+[parrotbench_08810_kb_learning]
+> Can you help me with this? Why should learning be inspectable?
+<~ evidence
+[parrotbench_08811_kb_learning]
+> Can you help me with this? What is ablation of a learned cue?
+<~ forget
+[parrotbench_08812_kb_learning]
+> Can you help me with this? What is a learned rule?
+<~ rule
+[parrotbench_08813_kb_learning]
+> In simple terms, What does runtime teaching change?
+<~ learn
+[parrotbench_08814_kb_learning]
+> In simple terms, Why should learning be inspectable?
+<~ evidence
+[parrotbench_08815_kb_learning]
+> In simple terms, What is ablation of a learned cue?
+<~ forget
+[parrotbench_08816_kb_learning]
+> In simple terms, What is a learned rule?
+<~ rule
+[parrotbench_08817_kb_learning]
+> Give a concise answer. What does runtime teaching change?
+<~ learn
+[parrotbench_08818_kb_learning]
+> Give a concise answer. Why should learning be inspectable?
+<~ evidence
+[parrotbench_08819_kb_learning]
+> Give a concise answer. What is ablation of a learned cue?
+<~ forget
+[parrotbench_08820_kb_learning]
+> Give a concise answer. What is a learned rule?
+<~ rule
+[parrotbench_08821_kb_learning]
+> I need a careful answer: What does runtime teaching change?
+<~ learn
+[parrotbench_08822_kb_learning]
+> I need a careful answer: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08823_kb_learning]
+> I need a careful answer: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08824_kb_learning]
+> I need a careful answer: What is a learned rule?
+<~ rule
+[parrotbench_08825_kb_learning]
+> Explain your answer briefly: What does runtime teaching change?
+<~ learn
+[parrotbench_08826_kb_learning]
+> Explain your answer briefly: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08827_kb_learning]
+> Explain your answer briefly: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08828_kb_learning]
+> Explain your answer briefly: What is a learned rule?
+<~ rule
+[parrotbench_08829_kb_learning]
+> Check this for me: What does runtime teaching change?
+<~ learn
+[parrotbench_08830_kb_learning]
+> Check this for me: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08831_kb_learning]
+> Check this for me: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08832_kb_learning]
+> Check this for me: What is a learned rule?
+<~ rule
+[parrotbench_08833_kb_learning]
+> What would you tell a beginner? What does runtime teaching change?
+<~ learn
+[parrotbench_08834_kb_learning]
+> What would you tell a beginner? Why should learning be inspectable?
+<~ evidence
+[parrotbench_08835_kb_learning]
+> What would you tell a beginner? What is ablation of a learned cue?
+<~ forget
+[parrotbench_08836_kb_learning]
+> What would you tell a beginner? What is a learned rule?
+<~ rule
+[parrotbench_08837_kb_learning]
+> What would you tell an expert? What does runtime teaching change?
+<~ learn
+[parrotbench_08838_kb_learning]
+> What would you tell an expert? Why should learning be inspectable?
+<~ evidence
+[parrotbench_08839_kb_learning]
+> What would you tell an expert? What is ablation of a learned cue?
+<~ forget
+[parrotbench_08840_kb_learning]
+> What would you tell an expert? What is a learned rule?
+<~ rule
+[parrotbench_08841_kb_learning]
+> Answer cautiously: What does runtime teaching change?
+<~ learn
+[parrotbench_08842_kb_learning]
+> Answer cautiously: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08843_kb_learning]
+> Answer cautiously: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08844_kb_learning]
+> Answer cautiously: What is a learned rule?
+<~ rule
+[parrotbench_08845_kb_learning]
+> First identify the goal, then answer: What does runtime teaching change?
+<~ learn
+[parrotbench_08846_kb_learning]
+> First identify the goal, then answer: Why should learning be inspectable?
+<~ evidence
+[parrotbench_08847_kb_learning]
+> First identify the goal, then answer: What is ablation of a learned cue?
+<~ forget
+[parrotbench_08848_kb_learning]
+> First identify the goal, then answer: What is a learned rule?
+<~ rule
+[parrotbench_08849_kb_learning]
+> Use the relevant evidence and answer: What does runtime teaching change?
+<~ learn
+[parrotbench_08850_kb_learning]
+> Use the relevant evidence and answer: Why should learning be inspectable?
+<~ evidence

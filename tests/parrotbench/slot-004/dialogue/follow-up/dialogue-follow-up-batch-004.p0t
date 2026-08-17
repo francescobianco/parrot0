@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/follow-up
+# cases: 50
+
+[parrotbench_05151_dialogue_follow-up]
+> Answer the user's actual goal: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05152_dialogue_follow-up]
+> Answer the user's actual goal: What is a dialogue state?
+<~ dialogue
+[parrotbench_05153_dialogue_follow-up]
+> If the request is underspecified, say what is missing: What did I ask you first?
+<~ first
+[parrotbench_05154_dialogue_follow-up]
+> If the request is underspecified, say what is missing: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05155_dialogue_follow-up]
+> If the request is underspecified, say what is missing: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05156_dialogue_follow-up]
+> If the request is underspecified, say what is missing: What is a dialogue state?
+<~ dialogue
+[parrotbench_05157_dialogue_follow-up]
+> Can this be answered from known facts? What did I ask you first?
+<~ first
+[parrotbench_05158_dialogue_follow-up]
+> Can this be answered from known facts? What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05159_dialogue_follow-up]
+> Can this be answered from known facts? Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05160_dialogue_follow-up]
+> Can this be answered from known facts? What is a dialogue state?
+<~ dialogue
+[parrotbench_05161_dialogue_follow-up]
+> What would a careful interlocutor say? What did I ask you first?
+<~ first
+[parrotbench_05162_dialogue_follow-up]
+> What would a careful interlocutor say? What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05163_dialogue_follow-up]
+> What would a careful interlocutor say? Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05164_dialogue_follow-up]
+> What would a careful interlocutor say? What is a dialogue state?
+<~ dialogue
+[parrotbench_05165_dialogue_follow-up]
+> Give a short answer in English: What did I ask you first?
+<~ first
+[parrotbench_05166_dialogue_follow-up]
+> Give a short answer in English: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05167_dialogue_follow-up]
+> Give a short answer in English: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05168_dialogue_follow-up]
+> Give a short answer in English: What is a dialogue state?
+<~ dialogue
+[parrotbench_05169_dialogue_follow-up]
+> Rispondi in italiano quando possibile: What did I ask you first?
+<~ first
+[parrotbench_05170_dialogue_follow-up]
+> Rispondi in italiano quando possibile: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05171_dialogue_follow-up]
+> Rispondi in italiano quando possibile: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05172_dialogue_follow-up]
+> Rispondi in italiano quando possibile: What is a dialogue state?
+<~ dialogue
+[parrotbench_05173_dialogue_follow-up]
+> Distinguish a fact, a rule, and a hypothesis: What did I ask you first?
+<~ first
+[parrotbench_05174_dialogue_follow-up]
+> Distinguish a fact, a rule, and a hypothesis: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05175_dialogue_follow-up]
+> Distinguish a fact, a rule, and a hypothesis: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05176_dialogue_follow-up]
+> Distinguish a fact, a rule, and a hypothesis: What is a dialogue state?
+<~ dialogue
+[parrotbench_05177_dialogue_follow-up]
+> Name the relevant capability: What did I ask you first?
+<~ first
+[parrotbench_05178_dialogue_follow-up]
+> Name the relevant capability: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05179_dialogue_follow-up]
+> Name the relevant capability: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05180_dialogue_follow-up]
+> Name the relevant capability: What is a dialogue state?
+<~ dialogue
+[parrotbench_05181_dialogue_follow-up]
+> Explain the reasoning rather than a slogan: What did I ask you first?
+<~ first
+[parrotbench_05182_dialogue_follow-up]
+> Explain the reasoning rather than a slogan: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05183_dialogue_follow-up]
+> Explain the reasoning rather than a slogan: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05184_dialogue_follow-up]
+> Explain the reasoning rather than a slogan: What is a dialogue state?
+<~ dialogue
+[parrotbench_05185_dialogue_follow-up]
+> Use the user's constraint as a real constraint: What did I ask you first?
+<~ first
+[parrotbench_05186_dialogue_follow-up]
+> Use the user's constraint as a real constraint: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05187_dialogue_follow-up]
+> Use the user's constraint as a real constraint: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05188_dialogue_follow-up]
+> Use the user's constraint as a real constraint: What is a dialogue state?
+<~ dialogue
+[parrotbench_05189_dialogue_follow-up]
+> Check whether the requested format is satisfied: What did I ask you first?
+<~ first
+[parrotbench_05190_dialogue_follow-up]
+> Check whether the requested format is satisfied: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05191_dialogue_follow-up]
+> Check whether the requested format is satisfied: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05192_dialogue_follow-up]
+> Check whether the requested format is satisfied: What is a dialogue state?
+<~ dialogue
+[parrotbench_05193_dialogue_follow-up]
+> What would make this answer wrong? What did I ask you first?
+<~ first
+[parrotbench_05194_dialogue_follow-up]
+> What would make this answer wrong? What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05195_dialogue_follow-up]
+> What would make this answer wrong? Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05196_dialogue_follow-up]
+> What would make this answer wrong? What is a dialogue state?
+<~ dialogue
+[parrotbench_05197_dialogue_follow-up]
+> Give a useful answer without pretending certainty: What did I ask you first?
+<~ first
+[parrotbench_05198_dialogue_follow-up]
+> Give a useful answer without pretending certainty: What does 'that' refer to in a follow-up?
+<~ context
+[parrotbench_05199_dialogue_follow-up]
+> Give a useful answer without pretending certainty: Why should a reply preserve the current goal?
+<~ goal
+[parrotbench_05200_dialogue_follow-up]
+> Give a useful answer without pretending certainty: What is a dialogue state?
+<~ dialogue

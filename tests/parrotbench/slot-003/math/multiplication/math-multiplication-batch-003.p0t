@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/multiplication
+# cases: 50
+
+[parrotbench_01101_math_multiplication]
+> Answer as if this were a release review: What is 9 times 8?
+<~ 72
+[parrotbench_01102_math_multiplication]
+> Answer as if this were a release review: Calculate three groups of seven.
+<~ 21
+[parrotbench_01103_math_multiplication]
+> Answer as if this were a release review: What do five pairs contain?
+<~ 10
+[parrotbench_01104_math_multiplication]
+> Answer as if this were a release review: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01105_math_multiplication]
+> Give the strongest answer supported by the KB: What is 9 times 8?
+<~ 72
+[parrotbench_01106_math_multiplication]
+> Give the strongest answer supported by the KB: Calculate three groups of seven.
+<~ 21
+[parrotbench_01107_math_multiplication]
+> Give the strongest answer supported by the KB: What do five pairs contain?
+<~ 10
+[parrotbench_01108_math_multiplication]
+> Give the strongest answer supported by the KB: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01109_math_multiplication]
+> Do not confuse a wall with an answer. What is 9 times 8?
+<~ 72
+[parrotbench_01110_math_multiplication]
+> Do not confuse a wall with an answer. Calculate three groups of seven.
+<~ 21
+[parrotbench_01111_math_multiplication]
+> Do not confuse a wall with an answer. What do five pairs contain?
+<~ 10
+[parrotbench_01112_math_multiplication]
+> Do not confuse a wall with an answer. A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01113_math_multiplication]
+> What is the operational interpretation of this? What is 9 times 8?
+<~ 72
+[parrotbench_01114_math_multiplication]
+> What is the operational interpretation of this? Calculate three groups of seven.
+<~ 21
+[parrotbench_01115_math_multiplication]
+> What is the operational interpretation of this? What do five pairs contain?
+<~ 10
+[parrotbench_01116_math_multiplication]
+> What is the operational interpretation of this? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01117_math_multiplication]
+> Start with the direct answer, then qualify it: What is 9 times 8?
+<~ 72
+[parrotbench_01118_math_multiplication]
+> Start with the direct answer, then qualify it: Calculate three groups of seven.
+<~ 21
+[parrotbench_01119_math_multiplication]
+> Start with the direct answer, then qualify it: What do five pairs contain?
+<~ 10
+[parrotbench_01120_math_multiplication]
+> Start with the direct answer, then qualify it: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01121_math_multiplication]
+> Identify the entities and relations first: What is 9 times 8?
+<~ 72
+[parrotbench_01122_math_multiplication]
+> Identify the entities and relations first: Calculate three groups of seven.
+<~ 21
+[parrotbench_01123_math_multiplication]
+> Identify the entities and relations first: What do five pairs contain?
+<~ 10
+[parrotbench_01124_math_multiplication]
+> Identify the entities and relations first: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01125_math_multiplication]
+> Treat this as a new domain and explain your model: What is 9 times 8?
+<~ 72
+[parrotbench_01126_math_multiplication]
+> Treat this as a new domain and explain your model: Calculate three groups of seven.
+<~ 21
+[parrotbench_01127_math_multiplication]
+> Treat this as a new domain and explain your model: What do five pairs contain?
+<~ 10
+[parrotbench_01128_math_multiplication]
+> Treat this as a new domain and explain your model: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01129_math_multiplication]
+> What would you need to verify before answering? What is 9 times 8?
+<~ 72
+[parrotbench_01130_math_multiplication]
+> What would you need to verify before answering? Calculate three groups of seven.
+<~ 21
+[parrotbench_01131_math_multiplication]
+> What would you need to verify before answering? What do five pairs contain?
+<~ 10
+[parrotbench_01132_math_multiplication]
+> What would you need to verify before answering? A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01133_math_multiplication]
+> Keep alternatives separate while answering: What is 9 times 8?
+<~ 72
+[parrotbench_01134_math_multiplication]
+> Keep alternatives separate while answering: Calculate three groups of seven.
+<~ 21
+[parrotbench_01135_math_multiplication]
+> Keep alternatives separate while answering: What do five pairs contain?
+<~ 10
+[parrotbench_01136_math_multiplication]
+> Keep alternatives separate while answering: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01137_math_multiplication]
+> State one conclusion and one uncertainty: What is 9 times 8?
+<~ 72
+[parrotbench_01138_math_multiplication]
+> State one conclusion and one uncertainty: Calculate three groups of seven.
+<~ 21
+[parrotbench_01139_math_multiplication]
+> State one conclusion and one uncertainty: What do five pairs contain?
+<~ 10
+[parrotbench_01140_math_multiplication]
+> State one conclusion and one uncertainty: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01141_math_multiplication]
+> Use a concrete example in your answer: What is 9 times 8?
+<~ 72
+[parrotbench_01142_math_multiplication]
+> Use a concrete example in your answer: Calculate three groups of seven.
+<~ 21
+[parrotbench_01143_math_multiplication]
+> Use a concrete example in your answer: What do five pairs contain?
+<~ 10
+[parrotbench_01144_math_multiplication]
+> Use a concrete example in your answer: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01145_math_multiplication]
+> Avoid changing the subject: What is 9 times 8?
+<~ 72
+[parrotbench_01146_math_multiplication]
+> Avoid changing the subject: Calculate three groups of seven.
+<~ 21
+[parrotbench_01147_math_multiplication]
+> Avoid changing the subject: What do five pairs contain?
+<~ 10
+[parrotbench_01148_math_multiplication]
+> Avoid changing the subject: A row has 6 seats and there are 4 rows. How many seats?
+<~ 24
+[parrotbench_01149_math_multiplication]
+> Answer the user's actual goal: What is 9 times 8?
+<~ 72
+[parrotbench_01150_math_multiplication]
+> Answer the user's actual goal: Calculate three groups of seven.
+<~ 21

@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: knowledge/facts
+# cases: 50
+
+[parrotbench_00151_knowledge_facts]
+> Answer the user's actual goal: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00152_knowledge_facts]
+> Answer the user's actual goal: What is water made of chemically?
+<~ H2O
+[parrotbench_00153_knowledge_facts]
+> If the request is underspecified, say what is missing: What is the capital of France?
+<~ Paris
+[parrotbench_00154_knowledge_facts]
+> If the request is underspecified, say what is missing: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00155_knowledge_facts]
+> If the request is underspecified, say what is missing: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00156_knowledge_facts]
+> If the request is underspecified, say what is missing: What is water made of chemically?
+<~ H2O
+[parrotbench_00157_knowledge_facts]
+> Can this be answered from known facts? What is the capital of France?
+<~ Paris
+[parrotbench_00158_knowledge_facts]
+> Can this be answered from known facts? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00159_knowledge_facts]
+> Can this be answered from known facts? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00160_knowledge_facts]
+> Can this be answered from known facts? What is water made of chemically?
+<~ H2O
+[parrotbench_00161_knowledge_facts]
+> What would a careful interlocutor say? What is the capital of France?
+<~ Paris
+[parrotbench_00162_knowledge_facts]
+> What would a careful interlocutor say? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00163_knowledge_facts]
+> What would a careful interlocutor say? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00164_knowledge_facts]
+> What would a careful interlocutor say? What is water made of chemically?
+<~ H2O
+[parrotbench_00165_knowledge_facts]
+> Give a short answer in English: What is the capital of France?
+<~ Paris
+[parrotbench_00166_knowledge_facts]
+> Give a short answer in English: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00167_knowledge_facts]
+> Give a short answer in English: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00168_knowledge_facts]
+> Give a short answer in English: What is water made of chemically?
+<~ H2O
+[parrotbench_00169_knowledge_facts]
+> Rispondi in italiano quando possibile: What is the capital of France?
+<~ Paris
+[parrotbench_00170_knowledge_facts]
+> Rispondi in italiano quando possibile: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00171_knowledge_facts]
+> Rispondi in italiano quando possibile: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00172_knowledge_facts]
+> Rispondi in italiano quando possibile: What is water made of chemically?
+<~ H2O
+[parrotbench_00173_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: What is the capital of France?
+<~ Paris
+[parrotbench_00174_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00175_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00176_knowledge_facts]
+> Distinguish a fact, a rule, and a hypothesis: What is water made of chemically?
+<~ H2O
+[parrotbench_00177_knowledge_facts]
+> Name the relevant capability: What is the capital of France?
+<~ Paris
+[parrotbench_00178_knowledge_facts]
+> Name the relevant capability: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00179_knowledge_facts]
+> Name the relevant capability: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00180_knowledge_facts]
+> Name the relevant capability: What is water made of chemically?
+<~ H2O
+[parrotbench_00181_knowledge_facts]
+> Explain the reasoning rather than a slogan: What is the capital of France?
+<~ Paris
+[parrotbench_00182_knowledge_facts]
+> Explain the reasoning rather than a slogan: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00183_knowledge_facts]
+> Explain the reasoning rather than a slogan: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00184_knowledge_facts]
+> Explain the reasoning rather than a slogan: What is water made of chemically?
+<~ H2O
+[parrotbench_00185_knowledge_facts]
+> Use the user's constraint as a real constraint: What is the capital of France?
+<~ Paris
+[parrotbench_00186_knowledge_facts]
+> Use the user's constraint as a real constraint: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00187_knowledge_facts]
+> Use the user's constraint as a real constraint: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00188_knowledge_facts]
+> Use the user's constraint as a real constraint: What is water made of chemically?
+<~ H2O
+[parrotbench_00189_knowledge_facts]
+> Check whether the requested format is satisfied: What is the capital of France?
+<~ Paris
+[parrotbench_00190_knowledge_facts]
+> Check whether the requested format is satisfied: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00191_knowledge_facts]
+> Check whether the requested format is satisfied: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00192_knowledge_facts]
+> Check whether the requested format is satisfied: What is water made of chemically?
+<~ H2O
+[parrotbench_00193_knowledge_facts]
+> What would make this answer wrong? What is the capital of France?
+<~ Paris
+[parrotbench_00194_knowledge_facts]
+> What would make this answer wrong? Which ocean is the largest?
+<~ Pacific
+[parrotbench_00195_knowledge_facts]
+> What would make this answer wrong? Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00196_knowledge_facts]
+> What would make this answer wrong? What is water made of chemically?
+<~ H2O
+[parrotbench_00197_knowledge_facts]
+> Give a useful answer without pretending certainty: What is the capital of France?
+<~ Paris
+[parrotbench_00198_knowledge_facts]
+> Give a useful answer without pretending certainty: Which ocean is the largest?
+<~ Pacific
+[parrotbench_00199_knowledge_facts]
+> Give a useful answer without pretending certainty: Who wrote Hamlet?
+<~ Shakespeare
+[parrotbench_00200_knowledge_facts]
+> Give a useful answer without pretending certainty: What is water made of chemically?
+<~ H2O

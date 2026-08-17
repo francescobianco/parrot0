@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: language/italian
+# cases: 50
+
+[parrotbench_05351_language_italian]
+> Answer the user's actual goal: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05352_language_italian]
+> Answer the user's actual goal: Qual e il contrario di grande?
+<~ small
+[parrotbench_05353_language_italian]
+> If the request is underspecified, say what is missing: Come ti chiami?
+<~ parrot0
+[parrotbench_05354_language_italian]
+> If the request is underspecified, say what is missing: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05355_language_italian]
+> If the request is underspecified, say what is missing: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05356_language_italian]
+> If the request is underspecified, say what is missing: Qual e il contrario di grande?
+<~ small
+[parrotbench_05357_language_italian]
+> Can this be answered from known facts? Come ti chiami?
+<~ parrot0
+[parrotbench_05358_language_italian]
+> Can this be answered from known facts? Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05359_language_italian]
+> Can this be answered from known facts? Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05360_language_italian]
+> Can this be answered from known facts? Qual e il contrario di grande?
+<~ small
+[parrotbench_05361_language_italian]
+> What would a careful interlocutor say? Come ti chiami?
+<~ parrot0
+[parrotbench_05362_language_italian]
+> What would a careful interlocutor say? Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05363_language_italian]
+> What would a careful interlocutor say? Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05364_language_italian]
+> What would a careful interlocutor say? Qual e il contrario di grande?
+<~ small
+[parrotbench_05365_language_italian]
+> Give a short answer in English: Come ti chiami?
+<~ parrot0
+[parrotbench_05366_language_italian]
+> Give a short answer in English: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05367_language_italian]
+> Give a short answer in English: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05368_language_italian]
+> Give a short answer in English: Qual e il contrario di grande?
+<~ small
+[parrotbench_05369_language_italian]
+> Rispondi in italiano quando possibile: Come ti chiami?
+<~ parrot0
+[parrotbench_05370_language_italian]
+> Rispondi in italiano quando possibile: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05371_language_italian]
+> Rispondi in italiano quando possibile: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05372_language_italian]
+> Rispondi in italiano quando possibile: Qual e il contrario di grande?
+<~ small
+[parrotbench_05373_language_italian]
+> Distinguish a fact, a rule, and a hypothesis: Come ti chiami?
+<~ parrot0
+[parrotbench_05374_language_italian]
+> Distinguish a fact, a rule, and a hypothesis: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05375_language_italian]
+> Distinguish a fact, a rule, and a hypothesis: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05376_language_italian]
+> Distinguish a fact, a rule, and a hypothesis: Qual e il contrario di grande?
+<~ small
+[parrotbench_05377_language_italian]
+> Name the relevant capability: Come ti chiami?
+<~ parrot0
+[parrotbench_05378_language_italian]
+> Name the relevant capability: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05379_language_italian]
+> Name the relevant capability: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05380_language_italian]
+> Name the relevant capability: Qual e il contrario di grande?
+<~ small
+[parrotbench_05381_language_italian]
+> Explain the reasoning rather than a slogan: Come ti chiami?
+<~ parrot0
+[parrotbench_05382_language_italian]
+> Explain the reasoning rather than a slogan: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05383_language_italian]
+> Explain the reasoning rather than a slogan: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05384_language_italian]
+> Explain the reasoning rather than a slogan: Qual e il contrario di grande?
+<~ small
+[parrotbench_05385_language_italian]
+> Use the user's constraint as a real constraint: Come ti chiami?
+<~ parrot0
+[parrotbench_05386_language_italian]
+> Use the user's constraint as a real constraint: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05387_language_italian]
+> Use the user's constraint as a real constraint: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05388_language_italian]
+> Use the user's constraint as a real constraint: Qual e il contrario di grande?
+<~ small
+[parrotbench_05389_language_italian]
+> Check whether the requested format is satisfied: Come ti chiami?
+<~ parrot0
+[parrotbench_05390_language_italian]
+> Check whether the requested format is satisfied: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05391_language_italian]
+> Check whether the requested format is satisfied: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05392_language_italian]
+> Check whether the requested format is satisfied: Qual e il contrario di grande?
+<~ small
+[parrotbench_05393_language_italian]
+> What would make this answer wrong? Come ti chiami?
+<~ parrot0
+[parrotbench_05394_language_italian]
+> What would make this answer wrong? Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05395_language_italian]
+> What would make this answer wrong? Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05396_language_italian]
+> What would make this answer wrong? Qual e il contrario di grande?
+<~ small
+[parrotbench_05397_language_italian]
+> Give a useful answer without pretending certainty: Come ti chiami?
+<~ parrot0
+[parrotbench_05398_language_italian]
+> Give a useful answer without pretending certainty: Quanto fa 15 piu 27?
+<~ 42
+[parrotbench_05399_language_italian]
+> Give a useful answer without pretending certainty: Qual e la capitale del Giappone?
+<~ Tokyo
+[parrotbench_05400_language_italian]
+> Give a useful answer without pretending certainty: Qual e il contrario di grande?
+<~ small

@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/story
+# cases: 50
+
+[parrotbench_10151_creative_story]
+> Answer the user's actual goal: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10152_creative_story]
+> Answer the user's actual goal: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10153_creative_story]
+> If the request is underspecified, say what is missing: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10154_creative_story]
+> If the request is underspecified, say what is missing: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10155_creative_story]
+> If the request is underspecified, say what is missing: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10156_creative_story]
+> If the request is underspecified, say what is missing: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10157_creative_story]
+> Can this be answered from known facts? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10158_creative_story]
+> Can this be answered from known facts? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10159_creative_story]
+> Can this be answered from known facts? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10160_creative_story]
+> Can this be answered from known facts? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10161_creative_story]
+> What would a careful interlocutor say? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10162_creative_story]
+> What would a careful interlocutor say? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10163_creative_story]
+> What would a careful interlocutor say? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10164_creative_story]
+> What would a careful interlocutor say? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10165_creative_story]
+> Give a short answer in English: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10166_creative_story]
+> Give a short answer in English: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10167_creative_story]
+> Give a short answer in English: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10168_creative_story]
+> Give a short answer in English: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10169_creative_story]
+> Rispondi in italiano quando possibile: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10170_creative_story]
+> Rispondi in italiano quando possibile: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10171_creative_story]
+> Rispondi in italiano quando possibile: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10172_creative_story]
+> Rispondi in italiano quando possibile: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10173_creative_story]
+> Distinguish a fact, a rule, and a hypothesis: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10174_creative_story]
+> Distinguish a fact, a rule, and a hypothesis: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10175_creative_story]
+> Distinguish a fact, a rule, and a hypothesis: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10176_creative_story]
+> Distinguish a fact, a rule, and a hypothesis: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10177_creative_story]
+> Name the relevant capability: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10178_creative_story]
+> Name the relevant capability: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10179_creative_story]
+> Name the relevant capability: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10180_creative_story]
+> Name the relevant capability: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10181_creative_story]
+> Explain the reasoning rather than a slogan: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10182_creative_story]
+> Explain the reasoning rather than a slogan: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10183_creative_story]
+> Explain the reasoning rather than a slogan: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10184_creative_story]
+> Explain the reasoning rather than a slogan: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10185_creative_story]
+> Use the user's constraint as a real constraint: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10186_creative_story]
+> Use the user's constraint as a real constraint: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10187_creative_story]
+> Use the user's constraint as a real constraint: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10188_creative_story]
+> Use the user's constraint as a real constraint: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10189_creative_story]
+> Check whether the requested format is satisfied: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10190_creative_story]
+> Check whether the requested format is satisfied: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10191_creative_story]
+> Check whether the requested format is satisfied: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10192_creative_story]
+> Check whether the requested format is satisfied: Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10193_creative_story]
+> What would make this answer wrong? Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10194_creative_story]
+> What would make this answer wrong? Continue a story while preserving its characters.
+<~ story
+[parrotbench_10195_creative_story]
+> What would make this answer wrong? Change a playful story into a tragic one.
+<~ story
+[parrotbench_10196_creative_story]
+> What would make this answer wrong? Describe an original scene in one paragraph.
+<~ scene
+[parrotbench_10197_creative_story]
+> Give a useful answer without pretending certainty: Write a short new story about a machine learning language.
+<~ machine
+[parrotbench_10198_creative_story]
+> Give a useful answer without pretending certainty: Continue a story while preserving its characters.
+<~ story
+[parrotbench_10199_creative_story]
+> Give a useful answer without pretending certainty: Change a playful story into a tragic one.
+<~ story
+[parrotbench_10200_creative_story]
+> Give a useful answer without pretending certainty: Describe an original scene in one paragraph.
+<~ scene

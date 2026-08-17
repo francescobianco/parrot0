@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/replanning
+# cases: 50
+
+[parrotbench_07401_planning_replanning]
+> When should an agent revise a plan?
+<~ change
+[parrotbench_07402_planning_replanning]
+> What observation should trigger replanning?
+<~ failure
+[parrotbench_07403_planning_replanning]
+> How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07404_planning_replanning]
+> What is a stop rule?
+<~ stop
+[parrotbench_07405_planning_replanning]
+> Please answer: When should an agent revise a plan?
+<~ change
+[parrotbench_07406_planning_replanning]
+> Please answer: What observation should trigger replanning?
+<~ failure
+[parrotbench_07407_planning_replanning]
+> Please answer: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07408_planning_replanning]
+> Please answer: What is a stop rule?
+<~ stop
+[parrotbench_07409_planning_replanning]
+> Can you help me with this? When should an agent revise a plan?
+<~ change
+[parrotbench_07410_planning_replanning]
+> Can you help me with this? What observation should trigger replanning?
+<~ failure
+[parrotbench_07411_planning_replanning]
+> Can you help me with this? How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07412_planning_replanning]
+> Can you help me with this? What is a stop rule?
+<~ stop
+[parrotbench_07413_planning_replanning]
+> In simple terms, When should an agent revise a plan?
+<~ change
+[parrotbench_07414_planning_replanning]
+> In simple terms, What observation should trigger replanning?
+<~ failure
+[parrotbench_07415_planning_replanning]
+> In simple terms, How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07416_planning_replanning]
+> In simple terms, What is a stop rule?
+<~ stop
+[parrotbench_07417_planning_replanning]
+> Give a concise answer. When should an agent revise a plan?
+<~ change
+[parrotbench_07418_planning_replanning]
+> Give a concise answer. What observation should trigger replanning?
+<~ failure
+[parrotbench_07419_planning_replanning]
+> Give a concise answer. How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07420_planning_replanning]
+> Give a concise answer. What is a stop rule?
+<~ stop
+[parrotbench_07421_planning_replanning]
+> I need a careful answer: When should an agent revise a plan?
+<~ change
+[parrotbench_07422_planning_replanning]
+> I need a careful answer: What observation should trigger replanning?
+<~ failure
+[parrotbench_07423_planning_replanning]
+> I need a careful answer: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07424_planning_replanning]
+> I need a careful answer: What is a stop rule?
+<~ stop
+[parrotbench_07425_planning_replanning]
+> Explain your answer briefly: When should an agent revise a plan?
+<~ change
+[parrotbench_07426_planning_replanning]
+> Explain your answer briefly: What observation should trigger replanning?
+<~ failure
+[parrotbench_07427_planning_replanning]
+> Explain your answer briefly: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07428_planning_replanning]
+> Explain your answer briefly: What is a stop rule?
+<~ stop
+[parrotbench_07429_planning_replanning]
+> Check this for me: When should an agent revise a plan?
+<~ change
+[parrotbench_07430_planning_replanning]
+> Check this for me: What observation should trigger replanning?
+<~ failure
+[parrotbench_07431_planning_replanning]
+> Check this for me: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07432_planning_replanning]
+> Check this for me: What is a stop rule?
+<~ stop
+[parrotbench_07433_planning_replanning]
+> What would you tell a beginner? When should an agent revise a plan?
+<~ change
+[parrotbench_07434_planning_replanning]
+> What would you tell a beginner? What observation should trigger replanning?
+<~ failure
+[parrotbench_07435_planning_replanning]
+> What would you tell a beginner? How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07436_planning_replanning]
+> What would you tell a beginner? What is a stop rule?
+<~ stop
+[parrotbench_07437_planning_replanning]
+> What would you tell an expert? When should an agent revise a plan?
+<~ change
+[parrotbench_07438_planning_replanning]
+> What would you tell an expert? What observation should trigger replanning?
+<~ failure
+[parrotbench_07439_planning_replanning]
+> What would you tell an expert? How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07440_planning_replanning]
+> What would you tell an expert? What is a stop rule?
+<~ stop
+[parrotbench_07441_planning_replanning]
+> Answer cautiously: When should an agent revise a plan?
+<~ change
+[parrotbench_07442_planning_replanning]
+> Answer cautiously: What observation should trigger replanning?
+<~ failure
+[parrotbench_07443_planning_replanning]
+> Answer cautiously: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07444_planning_replanning]
+> Answer cautiously: What is a stop rule?
+<~ stop
+[parrotbench_07445_planning_replanning]
+> First identify the goal, then answer: When should an agent revise a plan?
+<~ change
+[parrotbench_07446_planning_replanning]
+> First identify the goal, then answer: What observation should trigger replanning?
+<~ failure
+[parrotbench_07447_planning_replanning]
+> First identify the goal, then answer: How do you compare a plan with its baseline?
+<~ baseline
+[parrotbench_07448_planning_replanning]
+> First identify the goal, then answer: What is a stop rule?
+<~ stop
+[parrotbench_07449_planning_replanning]
+> Use the relevant evidence and answer: When should an agent revise a plan?
+<~ change
+[parrotbench_07450_planning_replanning]
+> Use the relevant evidence and answer: What observation should trigger replanning?
+<~ failure

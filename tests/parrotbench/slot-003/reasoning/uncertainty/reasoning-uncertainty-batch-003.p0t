@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: reasoning/uncertainty
+# cases: 50
+
+[parrotbench_03301_reasoning_uncertainty]
+> Answer as if this were a release review: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03302_reasoning_uncertainty]
+> Answer as if this were a release review: What is the difference between not proved and false?
+<~ not
+[parrotbench_03303_reasoning_uncertainty]
+> Answer as if this were a release review: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03304_reasoning_uncertainty]
+> Answer as if this were a release review: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03305_reasoning_uncertainty]
+> Give the strongest answer supported by the KB: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03306_reasoning_uncertainty]
+> Give the strongest answer supported by the KB: What is the difference between not proved and false?
+<~ not
+[parrotbench_03307_reasoning_uncertainty]
+> Give the strongest answer supported by the KB: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03308_reasoning_uncertainty]
+> Give the strongest answer supported by the KB: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03309_reasoning_uncertainty]
+> Do not confuse a wall with an answer. How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03310_reasoning_uncertainty]
+> Do not confuse a wall with an answer. What is the difference between not proved and false?
+<~ not
+[parrotbench_03311_reasoning_uncertainty]
+> Do not confuse a wall with an answer. Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03312_reasoning_uncertainty]
+> Do not confuse a wall with an answer. Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03313_reasoning_uncertainty]
+> What is the operational interpretation of this? How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03314_reasoning_uncertainty]
+> What is the operational interpretation of this? What is the difference between not proved and false?
+<~ not
+[parrotbench_03315_reasoning_uncertainty]
+> What is the operational interpretation of this? Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03316_reasoning_uncertainty]
+> What is the operational interpretation of this? Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03317_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03318_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: What is the difference between not proved and false?
+<~ not
+[parrotbench_03319_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03320_reasoning_uncertainty]
+> Start with the direct answer, then qualify it: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03321_reasoning_uncertainty]
+> Identify the entities and relations first: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03322_reasoning_uncertainty]
+> Identify the entities and relations first: What is the difference between not proved and false?
+<~ not
+[parrotbench_03323_reasoning_uncertainty]
+> Identify the entities and relations first: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03324_reasoning_uncertainty]
+> Identify the entities and relations first: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03325_reasoning_uncertainty]
+> Treat this as a new domain and explain your model: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03326_reasoning_uncertainty]
+> Treat this as a new domain and explain your model: What is the difference between not proved and false?
+<~ not
+[parrotbench_03327_reasoning_uncertainty]
+> Treat this as a new domain and explain your model: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03328_reasoning_uncertainty]
+> Treat this as a new domain and explain your model: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03329_reasoning_uncertainty]
+> What would you need to verify before answering? How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03330_reasoning_uncertainty]
+> What would you need to verify before answering? What is the difference between not proved and false?
+<~ not
+[parrotbench_03331_reasoning_uncertainty]
+> What would you need to verify before answering? Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03332_reasoning_uncertainty]
+> What would you need to verify before answering? Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03333_reasoning_uncertainty]
+> Keep alternatives separate while answering: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03334_reasoning_uncertainty]
+> Keep alternatives separate while answering: What is the difference between not proved and false?
+<~ not
+[parrotbench_03335_reasoning_uncertainty]
+> Keep alternatives separate while answering: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03336_reasoning_uncertainty]
+> Keep alternatives separate while answering: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03337_reasoning_uncertainty]
+> State one conclusion and one uncertainty: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03338_reasoning_uncertainty]
+> State one conclusion and one uncertainty: What is the difference between not proved and false?
+<~ not
+[parrotbench_03339_reasoning_uncertainty]
+> State one conclusion and one uncertainty: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03340_reasoning_uncertainty]
+> State one conclusion and one uncertainty: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03341_reasoning_uncertainty]
+> Use a concrete example in your answer: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03342_reasoning_uncertainty]
+> Use a concrete example in your answer: What is the difference between not proved and false?
+<~ not
+[parrotbench_03343_reasoning_uncertainty]
+> Use a concrete example in your answer: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03344_reasoning_uncertainty]
+> Use a concrete example in your answer: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03345_reasoning_uncertainty]
+> Avoid changing the subject: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03346_reasoning_uncertainty]
+> Avoid changing the subject: What is the difference between not proved and false?
+<~ not
+[parrotbench_03347_reasoning_uncertainty]
+> Avoid changing the subject: Name two things that increase confidence in a claim.
+<~ evidence
+[parrotbench_03348_reasoning_uncertainty]
+> Avoid changing the subject: Should a low-confidence answer sound certain?
+<~ no
+[parrotbench_03349_reasoning_uncertainty]
+> Answer the user's actual goal: How should you answer a claim with weak evidence?
+<~ uncertain
+[parrotbench_03350_reasoning_uncertainty]
+> Answer the user's actual goal: What is the difference between not proved and false?
+<~ not

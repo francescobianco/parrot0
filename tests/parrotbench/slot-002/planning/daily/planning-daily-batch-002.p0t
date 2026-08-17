@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/daily
+# cases: 50
+
+[parrotbench_07051_planning_daily]
+> Use the relevant evidence and answer: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07052_planning_daily]
+> Use the relevant evidence and answer: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07053_planning_daily]
+> Do not invent facts. Give me a plan to make tea.
+<~ plan
+[parrotbench_07054_planning_daily]
+> Do not invent facts. What is the first step in making tea?
+<~ water
+[parrotbench_07055_planning_daily]
+> Do not invent facts. Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07056_planning_daily]
+> Do not invent facts. How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07057_planning_daily]
+> Keep the answer useful and honest: Give me a plan to make tea.
+<~ plan
+[parrotbench_07058_planning_daily]
+> Keep the answer useful and honest: What is the first step in making tea?
+<~ water
+[parrotbench_07059_planning_daily]
+> Keep the answer useful and honest: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07060_planning_daily]
+> Keep the answer useful and honest: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07061_planning_daily]
+> In italiano, Give me a plan to make tea.
+<~ plan
+[parrotbench_07062_planning_daily]
+> In italiano, What is the first step in making tea?
+<~ water
+[parrotbench_07063_planning_daily]
+> In italiano, Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07064_planning_daily]
+> In italiano, How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07065_planning_daily]
+> Rispondi brevemente: Give me a plan to make tea.
+<~ plan
+[parrotbench_07066_planning_daily]
+> Rispondi brevemente: What is the first step in making tea?
+<~ water
+[parrotbench_07067_planning_daily]
+> Rispondi brevemente: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07068_planning_daily]
+> Rispondi brevemente: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07069_planning_daily]
+> Spiegalo in parole semplici: Give me a plan to make tea.
+<~ plan
+[parrotbench_07070_planning_daily]
+> Spiegalo in parole semplici: What is the first step in making tea?
+<~ water
+[parrotbench_07071_planning_daily]
+> Spiegalo in parole semplici: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07072_planning_daily]
+> Spiegalo in parole semplici: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07073_planning_daily]
+> Prima dimmi cosa manca, poi: Give me a plan to make tea.
+<~ plan
+[parrotbench_07074_planning_daily]
+> Prima dimmi cosa manca, poi: What is the first step in making tea?
+<~ water
+[parrotbench_07075_planning_daily]
+> Prima dimmi cosa manca, poi: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07076_planning_daily]
+> Prima dimmi cosa manca, poi: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07077_planning_daily]
+> What is the shortest useful answer to this? Give me a plan to make tea.
+<~ plan
+[parrotbench_07078_planning_daily]
+> What is the shortest useful answer to this? What is the first step in making tea?
+<~ water
+[parrotbench_07079_planning_daily]
+> What is the shortest useful answer to this? Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07080_planning_daily]
+> What is the shortest useful answer to this? How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07081_planning_daily]
+> Challenge your first interpretation: Give me a plan to make tea.
+<~ plan
+[parrotbench_07082_planning_daily]
+> Challenge your first interpretation: What is the first step in making tea?
+<~ water
+[parrotbench_07083_planning_daily]
+> Challenge your first interpretation: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07084_planning_daily]
+> Challenge your first interpretation: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07085_planning_daily]
+> State uncertainty if needed: Give me a plan to make tea.
+<~ plan
+[parrotbench_07086_planning_daily]
+> State uncertainty if needed: What is the first step in making tea?
+<~ water
+[parrotbench_07087_planning_daily]
+> State uncertainty if needed: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07088_planning_daily]
+> State uncertainty if needed: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07089_planning_daily]
+> Answer without a generic template: Give me a plan to make tea.
+<~ plan
+[parrotbench_07090_planning_daily]
+> Answer without a generic template: What is the first step in making tea?
+<~ water
+[parrotbench_07091_planning_daily]
+> Answer without a generic template: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07092_planning_daily]
+> Answer without a generic template: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07093_planning_daily]
+> Give the answer and one reason: Give me a plan to make tea.
+<~ plan
+[parrotbench_07094_planning_daily]
+> Give the answer and one reason: What is the first step in making tea?
+<~ water
+[parrotbench_07095_planning_daily]
+> Give the answer and one reason: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07096_planning_daily]
+> Give the answer and one reason: How should a plan represent prerequisites?
+<~ prerequisite
+[parrotbench_07097_planning_daily]
+> Separate fact from hypothesis: Give me a plan to make tea.
+<~ plan
+[parrotbench_07098_planning_daily]
+> Separate fact from hypothesis: What is the first step in making tea?
+<~ water
+[parrotbench_07099_planning_daily]
+> Separate fact from hypothesis: Plan a short walk with a time constraint.
+<~ step
+[parrotbench_07100_planning_daily]
+> Separate fact from hypothesis: How should a plan represent prerequisites?
+<~ prerequisite

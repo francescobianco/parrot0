@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/names
+# cases: 50
+
+[parrotbench_09951_creative_names]
+> Answer the user's actual goal: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09952_creative_names]
+> Answer the user's actual goal: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09953_creative_names]
+> If the request is underspecified, say what is missing: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09954_creative_names]
+> If the request is underspecified, say what is missing: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09955_creative_names]
+> If the request is underspecified, say what is missing: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09956_creative_names]
+> If the request is underspecified, say what is missing: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09957_creative_names]
+> Can this be answered from known facts? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09958_creative_names]
+> Can this be answered from known facts? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09959_creative_names]
+> Can this be answered from known facts? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09960_creative_names]
+> Can this be answered from known facts? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09961_creative_names]
+> What would a careful interlocutor say? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09962_creative_names]
+> What would a careful interlocutor say? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09963_creative_names]
+> What would a careful interlocutor say? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09964_creative_names]
+> What would a careful interlocutor say? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09965_creative_names]
+> Give a short answer in English: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09966_creative_names]
+> Give a short answer in English: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09967_creative_names]
+> Give a short answer in English: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09968_creative_names]
+> Give a short answer in English: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09969_creative_names]
+> Rispondi in italiano quando possibile: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09970_creative_names]
+> Rispondi in italiano quando possibile: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09971_creative_names]
+> Rispondi in italiano quando possibile: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09972_creative_names]
+> Rispondi in italiano quando possibile: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09973_creative_names]
+> Distinguish a fact, a rule, and a hypothesis: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09974_creative_names]
+> Distinguish a fact, a rule, and a hypothesis: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09975_creative_names]
+> Distinguish a fact, a rule, and a hypothesis: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09976_creative_names]
+> Distinguish a fact, a rule, and a hypothesis: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09977_creative_names]
+> Name the relevant capability: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09978_creative_names]
+> Name the relevant capability: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09979_creative_names]
+> Name the relevant capability: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09980_creative_names]
+> Name the relevant capability: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09981_creative_names]
+> Explain the reasoning rather than a slogan: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09982_creative_names]
+> Explain the reasoning rather than a slogan: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09983_creative_names]
+> Explain the reasoning rather than a slogan: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09984_creative_names]
+> Explain the reasoning rather than a slogan: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09985_creative_names]
+> Use the user's constraint as a real constraint: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09986_creative_names]
+> Use the user's constraint as a real constraint: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09987_creative_names]
+> Use the user's constraint as a real constraint: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09988_creative_names]
+> Use the user's constraint as a real constraint: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09989_creative_names]
+> Check whether the requested format is satisfied: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09990_creative_names]
+> Check whether the requested format is satisfied: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09991_creative_names]
+> Check whether the requested format is satisfied: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09992_creative_names]
+> Check whether the requested format is satisfied: Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09993_creative_names]
+> What would make this answer wrong? Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09994_creative_names]
+> What would make this answer wrong? Give three distinct names for a robot.
+<~ robot
+[parrotbench_09995_creative_names]
+> What would make this answer wrong? Suggest a memorable title for a science story.
+<~ story
+[parrotbench_09996_creative_names]
+> What would make this answer wrong? Create a playful slogan about knowledge.
+<~ knowledge
+[parrotbench_09997_creative_names]
+> Give a useful answer without pretending certainty: Invent a funny name for a parrot database.
+<~ parrot
+[parrotbench_09998_creative_names]
+> Give a useful answer without pretending certainty: Give three distinct names for a robot.
+<~ robot
+[parrotbench_09999_creative_names]
+> Give a useful answer without pretending certainty: Suggest a memorable title for a science story.
+<~ story
+[parrotbench_10000_creative_names]
+> Give a useful answer without pretending certainty: Create a playful slogan about knowledge.
+<~ knowledge

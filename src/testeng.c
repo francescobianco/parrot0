@@ -690,6 +690,12 @@ typedef struct {
 
 static void be_category(const char *slot, char *out, size_t cap) {
     snprintf(out, cap, "%s", slot ? slot : "unknown");
+    const char *base = strrchr(out, '/');
+    base = base ? base + 1 : out;
+    if (strncmp(base, "slot-", 5) == 0 && strlen(base) == 8) {
+        snprintf(out, cap, "%s", base);
+        return;
+    }
     char *p = strrchr(out, '/');
     if (p) *p = '\0';
     char *corpus = strstr(out, "corpus/");
@@ -893,17 +899,34 @@ static int be_is_p0t(const char *path) {
     return n >= 4 && strcmp(path + n - 4, ".p0t") == 0;
 }
 
-static int be_send_path_one(const char *sockpath, const char *path, int *sent) {
+static int be_is_slot_dir(const char *path) {
+    const char *base = strrchr(path, '/');
+    base = base ? base + 1 : path;
+    if (strncmp(base, "slot-", 5) != 0 || strlen(base) != 8) return 0;
+    for (size_t i = 5; i < 8; i++) if (!isdigit((unsigned char)base[i])) return 0;
+    return 1;
+}
+
+typedef struct {
+    char **paths;
+    size_t count, capacity;
+} BenchFiles;
+
+static int be_collect_files(const char *path, BenchFiles *files) {
     struct stat st;
     if (stat(path, &st) != 0) return 2;
     if (S_ISREG(st.st_mode)) {
         if (!be_is_p0t(path)) return 0;
-        FILE *f = fopen(path, "rb");
-        if (!f) return 2;
-        int rc = bench_engine_send(sockpath, f, path);
-        fclose(f);
-        if (rc == 0) (*sent)++;
-        return rc;
+        if (files->count == files->capacity) {
+            size_t nc = files->capacity ? files->capacity * 2 : 32;
+            char **grown = realloc(files->paths, nc * sizeof *grown);
+            if (!grown) return 2;
+            files->paths = grown; files->capacity = nc;
+        }
+        files->paths[files->count] = strdup(path);
+        if (!files->paths[files->count]) return 2;
+        files->count++;
+        return 0;
     }
     if (!S_ISDIR(st.st_mode)) return 0;
 
@@ -920,12 +943,104 @@ static int be_send_path_one(const char *sockpath, const char *path, int *sent) {
         char *child = malloc(n);
         if (!child) { rc = 2; free(entries[i]); break; }
         snprintf(child, n, "%s/%s", path, entries[i]->d_name);
-        if (be_send_path_one(sockpath, child, sent) != 0) rc = 2;
+        if (be_collect_files(child, files) != 0) rc = 2;
         free(child);
         free(entries[i]);
         if (rc != 0) break;
     }
     free(entries);
+    return rc;
+}
+
+static int be_append_file(char **data, size_t *len, size_t *capacity, const char *path) {
+    FILE *f = fopen(path, "rb");
+    if (!f) return 2;
+    char buf[4096]; size_t n;
+    while ((n = fread(buf, 1, sizeof buf, f)) > 0) {
+        if (*len + n + 2 > *capacity) {
+            size_t nc = *capacity ? *capacity * 2 : 8192;
+            while (nc < *len + n + 2) nc *= 2;
+            char *grown = realloc(*data, nc);
+            if (!grown) { fclose(f); return 2; }
+            *data = grown; *capacity = nc;
+        }
+        memcpy(*data + *len, buf, n); *len += n;
+    }
+    fclose(f);
+    if (*len == 0 || (*data)[*len - 1] != '\n') (*data)[(*len)++] = '\n';
+    (*data)[*len] = '\0';
+    return 0;
+}
+
+static int be_send_slot(const char *sockpath, const char *path) {
+    BenchFiles files = {0};
+    if (be_collect_files(path, &files) != 0 || files.count == 0) {
+        for (size_t i = 0; i < files.count; i++) free(files.paths[i]);
+        free(files.paths);
+        return 2;
+    }
+    char *data = NULL; size_t len = 0, capacity = 0;
+    int rc = 0;
+    for (size_t i = 0; i < files.count; i++) {
+        if (be_append_file(&data, &len, &capacity, files.paths[i]) != 0) rc = 2;
+        free(files.paths[i]);
+    }
+    free(files.paths);
+    if (rc == 0) rc = be_client_send_payload(sockpath, data, len, path);
+    free(data);
+    return rc;
+}
+
+static int be_send_path_entry(const char *sockpath, const char *path, int *sent) {
+    struct stat st;
+    if (stat(path, &st) != 0) return 2;
+    if (S_ISREG(st.st_mode)) {
+        if (!be_is_p0t(path)) return 0;
+        FILE *f = fopen(path, "rb");
+        if (!f) return 2;
+        int rc = bench_engine_send(sockpath, f, path);
+        fclose(f);
+        if (rc == 0) (*sent)++;
+        return rc;
+    }
+    if (!S_ISDIR(st.st_mode)) return 0;
+    if (!be_is_slot_dir(path)) return 2;
+    int rc = be_send_slot(sockpath, path);
+    if (rc == 0) (*sent)++;
+    return rc;
+}
+
+static int be_send_root(const char *sockpath, const char *path, int *sent) {
+    struct dirent **entries = NULL;
+    int count = scandir(path, &entries, NULL, alphasort);
+    if (count < 0) return 2;
+    int found = 0, rc = 0;
+    for (int i = 0; i < count; i++) {
+        const char *name = entries[i]->d_name;
+        if (name[0] == '.' || strcmp(name, "results") == 0) { free(entries[i]); continue; }
+        size_t n = strlen(path) + strlen(name) + 2;
+        char *child = malloc(n);
+        if (!child) { rc = 2; free(entries[i]); break; }
+        snprintf(child, n, "%s/%s", path, name);
+        struct stat st;
+        if (stat(child, &st) == 0 && S_ISDIR(st.st_mode)) {
+            if (!be_is_slot_dir(child)) {
+                fprintf(stderr, "bench: invalid root entry '%s' (expected slot-XXX)\n", child);
+                rc = 2;
+            } else {
+                found = 1;
+                if (be_send_slot(sockpath, child) != 0) rc = 2;
+                else (*sent)++;
+            }
+        }
+        free(child); free(entries[i]);
+        if (rc != 0) break;
+    }
+    free(entries);
+    if (!found && rc == 0) {
+        fprintf(stderr, "bench: no test slots found under '%s' (expected slot-XXX directories)\n", path);
+        return 2;
+    }
     return rc;
 }
 
@@ -936,11 +1051,23 @@ int bench_engine_send_path(const char *sockpath, const char *path) {
         glob_t matches;
         int grc = glob(path, 0, NULL, &matches);
         if (grc != 0) { globfree(&matches); return 2; }
-        for (size_t i = 0; i < matches.gl_pathc; i++)
-            if (be_send_path_one(sockpath, matches.gl_pathv[i], &sent) != 0) rc = 2;
+        for (size_t i = 0; i < matches.gl_pathc; i++) {
+            struct stat st;
+            if (stat(matches.gl_pathv[i], &st) == 0 && S_ISDIR(st.st_mode) &&
+                be_is_slot_dir(matches.gl_pathv[i])) {
+                if (be_send_slot(sockpath, matches.gl_pathv[i]) != 0) rc = 2;
+                else sent++;
+            } else if (be_send_path_entry(sockpath, matches.gl_pathv[i], &sent) != 0) rc = 2;
+        }
         globfree(&matches);
     } else {
-        rc = be_send_path_one(sockpath, path, &sent);
+        struct stat st;
+        if (stat(path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            rc = be_is_slot_dir(path) ? be_send_slot(sockpath, path) : be_send_root(sockpath, path, &sent);
+            if (be_is_slot_dir(path) && rc == 0) sent++;
+        } else {
+            rc = be_send_path_entry(sockpath, path, &sent);
+        }
     }
     if (sent == 0 && rc == 0) {
         fprintf(stderr, "bench: no .p0t files matched '%s'\n", path);

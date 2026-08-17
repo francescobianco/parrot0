@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: planning/constraints
+# cases: 50
+
+[parrotbench_07201_planning_constraints]
+> Make a plan without using sugar.
+<~ without
+[parrotbench_07202_planning_constraints]
+> How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07203_planning_constraints]
+> What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07204_planning_constraints]
+> When should a plan ask for clarification?
+<~ goal
+[parrotbench_07205_planning_constraints]
+> Please answer: Make a plan without using sugar.
+<~ without
+[parrotbench_07206_planning_constraints]
+> Please answer: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07207_planning_constraints]
+> Please answer: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07208_planning_constraints]
+> Please answer: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07209_planning_constraints]
+> Can you help me with this? Make a plan without using sugar.
+<~ without
+[parrotbench_07210_planning_constraints]
+> Can you help me with this? How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07211_planning_constraints]
+> Can you help me with this? What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07212_planning_constraints]
+> Can you help me with this? When should a plan ask for clarification?
+<~ goal
+[parrotbench_07213_planning_constraints]
+> In simple terms, Make a plan without using sugar.
+<~ without
+[parrotbench_07214_planning_constraints]
+> In simple terms, How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07215_planning_constraints]
+> In simple terms, What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07216_planning_constraints]
+> In simple terms, When should a plan ask for clarification?
+<~ goal
+[parrotbench_07217_planning_constraints]
+> Give a concise answer. Make a plan without using sugar.
+<~ without
+[parrotbench_07218_planning_constraints]
+> Give a concise answer. How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07219_planning_constraints]
+> Give a concise answer. What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07220_planning_constraints]
+> Give a concise answer. When should a plan ask for clarification?
+<~ goal
+[parrotbench_07221_planning_constraints]
+> I need a careful answer: Make a plan without using sugar.
+<~ without
+[parrotbench_07222_planning_constraints]
+> I need a careful answer: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07223_planning_constraints]
+> I need a careful answer: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07224_planning_constraints]
+> I need a careful answer: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07225_planning_constraints]
+> Explain your answer briefly: Make a plan without using sugar.
+<~ without
+[parrotbench_07226_planning_constraints]
+> Explain your answer briefly: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07227_planning_constraints]
+> Explain your answer briefly: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07228_planning_constraints]
+> Explain your answer briefly: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07229_planning_constraints]
+> Check this for me: Make a plan without using sugar.
+<~ without
+[parrotbench_07230_planning_constraints]
+> Check this for me: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07231_planning_constraints]
+> Check this for me: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07232_planning_constraints]
+> Check this for me: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07233_planning_constraints]
+> What would you tell a beginner? Make a plan without using sugar.
+<~ without
+[parrotbench_07234_planning_constraints]
+> What would you tell a beginner? How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07235_planning_constraints]
+> What would you tell a beginner? What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07236_planning_constraints]
+> What would you tell a beginner? When should a plan ask for clarification?
+<~ goal
+[parrotbench_07237_planning_constraints]
+> What would you tell an expert? Make a plan without using sugar.
+<~ without
+[parrotbench_07238_planning_constraints]
+> What would you tell an expert? How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07239_planning_constraints]
+> What would you tell an expert? What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07240_planning_constraints]
+> What would you tell an expert? When should a plan ask for clarification?
+<~ goal
+[parrotbench_07241_planning_constraints]
+> Answer cautiously: Make a plan without using sugar.
+<~ without
+[parrotbench_07242_planning_constraints]
+> Answer cautiously: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07243_planning_constraints]
+> Answer cautiously: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07244_planning_constraints]
+> Answer cautiously: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07245_planning_constraints]
+> First identify the goal, then answer: Make a plan without using sugar.
+<~ without
+[parrotbench_07246_planning_constraints]
+> First identify the goal, then answer: How should a plan obey a user constraint?
+<~ constraint
+[parrotbench_07247_planning_constraints]
+> First identify the goal, then answer: What happens when a prerequisite is missing?
+<~ missing
+[parrotbench_07248_planning_constraints]
+> First identify the goal, then answer: When should a plan ask for clarification?
+<~ goal
+[parrotbench_07249_planning_constraints]
+> Use the relevant evidence and answer: Make a plan without using sugar.
+<~ without
+[parrotbench_07250_planning_constraints]
+> Use the relevant evidence and answer: How should a plan obey a user constraint?
+<~ constraint

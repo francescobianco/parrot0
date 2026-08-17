@@ -6,11 +6,12 @@ not from one arithmetic template with changing constants.
 """
 
 from pathlib import Path
+import shutil
 
 
 ROOT = Path(__file__).resolve().parent
-CORPUS = ROOT / "corpus"
-SLOT_SIZE = 200
+CORPUS = ROOT
+SLOT_COUNT = 4
 
 
 # Each category has four genuinely different seeds. Surface forms below are
@@ -419,24 +420,34 @@ def write_case(out, number, category, prompt, expected):
 
 
 def main():
-    if CORPUS.exists():
-        for old in CORPUS.rglob("*.p0t"):
-            old.unlink()
+    legacy = ROOT / "corpus"
+    if legacy.exists():
+        shutil.rmtree(legacy)
+    for old_slot in ROOT.glob("slot-*"):
+        if old_slot.is_dir():
+            shutil.rmtree(old_slot)
     number = 0
     total = 0
-    slots = 0
+    files = 0
+    all_cases = {}
     for category, seeds in CATALOG.items():
         cases = []
         for surface in SURFACES:
             for prompt, expected in seeds:
                 number += 1
                 cases.append((number, category, surface.format(prompt=prompt), expected))
-        for start in range(0, len(cases), SLOT_SIZE):
-            slot_cases = cases[start : start + SLOT_SIZE]
-            path = CORPUS / category / f"{category.replace('/', '-')}-batch-{start // SLOT_SIZE + 1:03d}.p0t"
+        all_cases[category] = cases
+
+    for slot_number in range(SLOT_COUNT):
+        for category, cases in all_cases.items():
+            start = slot_number * len(cases) // SLOT_COUNT
+            end = (slot_number + 1) * len(cases) // SLOT_COUNT
+            slot_cases = cases[start:end]
+            path = CORPUS / f"slot-{slot_number + 1:03d}" / category / \
+                f"{category.replace('/', '-')}-batch-{slot_number + 1:03d}.p0t"
             path.parent.mkdir(parents=True, exist_ok=True)
             out = [
-                "# PARROTBENCH SLOT: MANUAL-ONLY DISCOVERY BENCHMARK\n",
+                f"# PARROTBENCH SLOT slot-{slot_number + 1:03d}: MANUAL-ONLY DISCOVERY BENCHMARK\n",
                 "# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.\n",
                 "# Run only through make parrotbench when release intent requests it.\n",
                 f"# category: {category}\n",
@@ -446,8 +457,8 @@ def main():
                 write_case(out, case_number, case_category, prompt, expected)
             path.write_text("".join(out), encoding="utf-8")
             total += len(slot_cases)
-            slots += 1
-    print(f"generated {total} varied parrotbench cases in {slots} slots under {CORPUS}")
+            files += 1
+    print(f"generated {total} varied parrotbench cases in {SLOT_COUNT} slots and {files} files under {CORPUS}")
 
 
 if __name__ == "__main__":

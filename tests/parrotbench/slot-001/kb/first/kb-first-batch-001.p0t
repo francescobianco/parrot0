@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: kb/first
+# cases: 50
+
+[parrotbench_08601_kb_first]
+> Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08602_kb_first]
+> Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08603_kb_first]
+> Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08604_kb_first]
+> What is the KB-first rule?
+<~ KB
+[parrotbench_08605_kb_first]
+> Please answer: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08606_kb_first]
+> Please answer: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08607_kb_first]
+> Please answer: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08608_kb_first]
+> Please answer: What is the KB-first rule?
+<~ KB
+[parrotbench_08609_kb_first]
+> Can you help me with this? Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08610_kb_first]
+> Can you help me with this? Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08611_kb_first]
+> Can you help me with this? Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08612_kb_first]
+> Can you help me with this? What is the KB-first rule?
+<~ KB
+[parrotbench_08613_kb_first]
+> In simple terms, Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08614_kb_first]
+> In simple terms, Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08615_kb_first]
+> In simple terms, Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08616_kb_first]
+> In simple terms, What is the KB-first rule?
+<~ KB
+[parrotbench_08617_kb_first]
+> Give a concise answer. Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08618_kb_first]
+> Give a concise answer. Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08619_kb_first]
+> Give a concise answer. Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08620_kb_first]
+> Give a concise answer. What is the KB-first rule?
+<~ KB
+[parrotbench_08621_kb_first]
+> I need a careful answer: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08622_kb_first]
+> I need a careful answer: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08623_kb_first]
+> I need a careful answer: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08624_kb_first]
+> I need a careful answer: What is the KB-first rule?
+<~ KB
+[parrotbench_08625_kb_first]
+> Explain your answer briefly: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08626_kb_first]
+> Explain your answer briefly: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08627_kb_first]
+> Explain your answer briefly: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08628_kb_first]
+> Explain your answer briefly: What is the KB-first rule?
+<~ KB
+[parrotbench_08629_kb_first]
+> Check this for me: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08630_kb_first]
+> Check this for me: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08631_kb_first]
+> Check this for me: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08632_kb_first]
+> Check this for me: What is the KB-first rule?
+<~ KB
+[parrotbench_08633_kb_first]
+> What would you tell a beginner? Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08634_kb_first]
+> What would you tell a beginner? Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08635_kb_first]
+> What would you tell a beginner? Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08636_kb_first]
+> What would you tell a beginner? What is the KB-first rule?
+<~ KB
+[parrotbench_08637_kb_first]
+> What would you tell an expert? Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08638_kb_first]
+> What would you tell an expert? Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08639_kb_first]
+> What would you tell an expert? Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08640_kb_first]
+> What would you tell an expert? What is the KB-first rule?
+<~ KB
+[parrotbench_08641_kb_first]
+> Answer cautiously: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08642_kb_first]
+> Answer cautiously: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08643_kb_first]
+> Answer cautiously: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08644_kb_first]
+> Answer cautiously: What is the KB-first rule?
+<~ KB
+[parrotbench_08645_kb_first]
+> First identify the goal, then answer: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08646_kb_first]
+> First identify the goal, then answer: Why must the engine not hardcode a phrasebook?
+<~ knowledge
+[parrotbench_08647_kb_first]
+> First identify the goal, then answer: Can a new cue be taught without rebuilding?
+<~ yes
+[parrotbench_08648_kb_first]
+> First identify the goal, then answer: What is the KB-first rule?
+<~ KB
+[parrotbench_08649_kb_first]
+> Use the relevant evidence and answer: Where should a new natural-language cue live?
+<~ KB
+[parrotbench_08650_kb_first]
+> Use the relevant evidence and answer: Why must the engine not hardcode a phrasebook?
+<~ knowledge

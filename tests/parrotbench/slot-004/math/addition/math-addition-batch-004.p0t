@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/addition
+# cases: 50
+
+[parrotbench_00951_math_addition]
+> Answer the user's actual goal: Add twelve to nine.
+<~ 21
+[parrotbench_00952_math_addition]
+> Answer the user's actual goal: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00953_math_addition]
+> If the request is underspecified, say what is missing: What is 17 plus 6?
+<~ 23
+[parrotbench_00954_math_addition]
+> If the request is underspecified, say what is missing: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00955_math_addition]
+> If the request is underspecified, say what is missing: Add twelve to nine.
+<~ 21
+[parrotbench_00956_math_addition]
+> If the request is underspecified, say what is missing: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00957_math_addition]
+> Can this be answered from known facts? What is 17 plus 6?
+<~ 23
+[parrotbench_00958_math_addition]
+> Can this be answered from known facts? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00959_math_addition]
+> Can this be answered from known facts? Add twelve to nine.
+<~ 21
+[parrotbench_00960_math_addition]
+> Can this be answered from known facts? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00961_math_addition]
+> What would a careful interlocutor say? What is 17 plus 6?
+<~ 23
+[parrotbench_00962_math_addition]
+> What would a careful interlocutor say? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00963_math_addition]
+> What would a careful interlocutor say? Add twelve to nine.
+<~ 21
+[parrotbench_00964_math_addition]
+> What would a careful interlocutor say? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00965_math_addition]
+> Give a short answer in English: What is 17 plus 6?
+<~ 23
+[parrotbench_00966_math_addition]
+> Give a short answer in English: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00967_math_addition]
+> Give a short answer in English: Add twelve to nine.
+<~ 21
+[parrotbench_00968_math_addition]
+> Give a short answer in English: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00969_math_addition]
+> Rispondi in italiano quando possibile: What is 17 plus 6?
+<~ 23
+[parrotbench_00970_math_addition]
+> Rispondi in italiano quando possibile: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00971_math_addition]
+> Rispondi in italiano quando possibile: Add twelve to nine.
+<~ 21
+[parrotbench_00972_math_addition]
+> Rispondi in italiano quando possibile: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00973_math_addition]
+> Distinguish a fact, a rule, and a hypothesis: What is 17 plus 6?
+<~ 23
+[parrotbench_00974_math_addition]
+> Distinguish a fact, a rule, and a hypothesis: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00975_math_addition]
+> Distinguish a fact, a rule, and a hypothesis: Add twelve to nine.
+<~ 21
+[parrotbench_00976_math_addition]
+> Distinguish a fact, a rule, and a hypothesis: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00977_math_addition]
+> Name the relevant capability: What is 17 plus 6?
+<~ 23
+[parrotbench_00978_math_addition]
+> Name the relevant capability: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00979_math_addition]
+> Name the relevant capability: Add twelve to nine.
+<~ 21
+[parrotbench_00980_math_addition]
+> Name the relevant capability: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00981_math_addition]
+> Explain the reasoning rather than a slogan: What is 17 plus 6?
+<~ 23
+[parrotbench_00982_math_addition]
+> Explain the reasoning rather than a slogan: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00983_math_addition]
+> Explain the reasoning rather than a slogan: Add twelve to nine.
+<~ 21
+[parrotbench_00984_math_addition]
+> Explain the reasoning rather than a slogan: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00985_math_addition]
+> Use the user's constraint as a real constraint: What is 17 plus 6?
+<~ 23
+[parrotbench_00986_math_addition]
+> Use the user's constraint as a real constraint: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00987_math_addition]
+> Use the user's constraint as a real constraint: Add twelve to nine.
+<~ 21
+[parrotbench_00988_math_addition]
+> Use the user's constraint as a real constraint: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00989_math_addition]
+> Check whether the requested format is satisfied: What is 17 plus 6?
+<~ 23
+[parrotbench_00990_math_addition]
+> Check whether the requested format is satisfied: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00991_math_addition]
+> Check whether the requested format is satisfied: Add twelve to nine.
+<~ 21
+[parrotbench_00992_math_addition]
+> Check whether the requested format is satisfied: A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00993_math_addition]
+> What would make this answer wrong? What is 17 plus 6?
+<~ 23
+[parrotbench_00994_math_addition]
+> What would make this answer wrong? Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00995_math_addition]
+> What would make this answer wrong? Add twelve to nine.
+<~ 21
+[parrotbench_00996_math_addition]
+> What would make this answer wrong? A box has 7 items and receives 5 more. How many?
+<~ 12
+[parrotbench_00997_math_addition]
+> Give a useful answer without pretending certainty: What is 17 plus 6?
+<~ 23
+[parrotbench_00998_math_addition]
+> Give a useful answer without pretending certainty: Calculate the sum of 8 and 15.
+<~ 23
+[parrotbench_00999_math_addition]
+> Give a useful answer without pretending certainty: Add twelve to nine.
+<~ 21
+[parrotbench_01000_math_addition]
+> Give a useful answer without pretending certainty: A box has 7 items and receives 5 more. How many?
+<~ 12

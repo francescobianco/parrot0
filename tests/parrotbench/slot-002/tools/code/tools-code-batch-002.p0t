@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: tools/code
+# cases: 50
+
+[parrotbench_08251_tools_code]
+> Use the relevant evidence and answer: What is a stack trace useful for?
+<~ error
+[parrotbench_08252_tools_code]
+> Use the relevant evidence and answer: Can you explain a small code fragment?
+<~ code
+[parrotbench_08253_tools_code]
+> Do not invent facts. What is a variable in a program?
+<~ variable
+[parrotbench_08254_tools_code]
+> Do not invent facts. Why does a function return early?
+<~ return
+[parrotbench_08255_tools_code]
+> Do not invent facts. What is a stack trace useful for?
+<~ error
+[parrotbench_08256_tools_code]
+> Do not invent facts. Can you explain a small code fragment?
+<~ code
+[parrotbench_08257_tools_code]
+> Keep the answer useful and honest: What is a variable in a program?
+<~ variable
+[parrotbench_08258_tools_code]
+> Keep the answer useful and honest: Why does a function return early?
+<~ return
+[parrotbench_08259_tools_code]
+> Keep the answer useful and honest: What is a stack trace useful for?
+<~ error
+[parrotbench_08260_tools_code]
+> Keep the answer useful and honest: Can you explain a small code fragment?
+<~ code
+[parrotbench_08261_tools_code]
+> In italiano, What is a variable in a program?
+<~ variable
+[parrotbench_08262_tools_code]
+> In italiano, Why does a function return early?
+<~ return
+[parrotbench_08263_tools_code]
+> In italiano, What is a stack trace useful for?
+<~ error
+[parrotbench_08264_tools_code]
+> In italiano, Can you explain a small code fragment?
+<~ code
+[parrotbench_08265_tools_code]
+> Rispondi brevemente: What is a variable in a program?
+<~ variable
+[parrotbench_08266_tools_code]
+> Rispondi brevemente: Why does a function return early?
+<~ return
+[parrotbench_08267_tools_code]
+> Rispondi brevemente: What is a stack trace useful for?
+<~ error
+[parrotbench_08268_tools_code]
+> Rispondi brevemente: Can you explain a small code fragment?
+<~ code
+[parrotbench_08269_tools_code]
+> Spiegalo in parole semplici: What is a variable in a program?
+<~ variable
+[parrotbench_08270_tools_code]
+> Spiegalo in parole semplici: Why does a function return early?
+<~ return
+[parrotbench_08271_tools_code]
+> Spiegalo in parole semplici: What is a stack trace useful for?
+<~ error
+[parrotbench_08272_tools_code]
+> Spiegalo in parole semplici: Can you explain a small code fragment?
+<~ code
+[parrotbench_08273_tools_code]
+> Prima dimmi cosa manca, poi: What is a variable in a program?
+<~ variable
+[parrotbench_08274_tools_code]
+> Prima dimmi cosa manca, poi: Why does a function return early?
+<~ return
+[parrotbench_08275_tools_code]
+> Prima dimmi cosa manca, poi: What is a stack trace useful for?
+<~ error
+[parrotbench_08276_tools_code]
+> Prima dimmi cosa manca, poi: Can you explain a small code fragment?
+<~ code
+[parrotbench_08277_tools_code]
+> What is the shortest useful answer to this? What is a variable in a program?
+<~ variable
+[parrotbench_08278_tools_code]
+> What is the shortest useful answer to this? Why does a function return early?
+<~ return
+[parrotbench_08279_tools_code]
+> What is the shortest useful answer to this? What is a stack trace useful for?
+<~ error
+[parrotbench_08280_tools_code]
+> What is the shortest useful answer to this? Can you explain a small code fragment?
+<~ code
+[parrotbench_08281_tools_code]
+> Challenge your first interpretation: What is a variable in a program?
+<~ variable
+[parrotbench_08282_tools_code]
+> Challenge your first interpretation: Why does a function return early?
+<~ return
+[parrotbench_08283_tools_code]
+> Challenge your first interpretation: What is a stack trace useful for?
+<~ error
+[parrotbench_08284_tools_code]
+> Challenge your first interpretation: Can you explain a small code fragment?
+<~ code
+[parrotbench_08285_tools_code]
+> State uncertainty if needed: What is a variable in a program?
+<~ variable
+[parrotbench_08286_tools_code]
+> State uncertainty if needed: Why does a function return early?
+<~ return
+[parrotbench_08287_tools_code]
+> State uncertainty if needed: What is a stack trace useful for?
+<~ error
+[parrotbench_08288_tools_code]
+> State uncertainty if needed: Can you explain a small code fragment?
+<~ code
+[parrotbench_08289_tools_code]
+> Answer without a generic template: What is a variable in a program?
+<~ variable
+[parrotbench_08290_tools_code]
+> Answer without a generic template: Why does a function return early?
+<~ return
+[parrotbench_08291_tools_code]
+> Answer without a generic template: What is a stack trace useful for?
+<~ error
+[parrotbench_08292_tools_code]
+> Answer without a generic template: Can you explain a small code fragment?
+<~ code
+[parrotbench_08293_tools_code]
+> Give the answer and one reason: What is a variable in a program?
+<~ variable
+[parrotbench_08294_tools_code]
+> Give the answer and one reason: Why does a function return early?
+<~ return
+[parrotbench_08295_tools_code]
+> Give the answer and one reason: What is a stack trace useful for?
+<~ error
+[parrotbench_08296_tools_code]
+> Give the answer and one reason: Can you explain a small code fragment?
+<~ code
+[parrotbench_08297_tools_code]
+> Separate fact from hypothesis: What is a variable in a program?
+<~ variable
+[parrotbench_08298_tools_code]
+> Separate fact from hypothesis: Why does a function return early?
+<~ return
+[parrotbench_08299_tools_code]
+> Separate fact from hypothesis: What is a stack trace useful for?
+<~ error
+[parrotbench_08300_tools_code]
+> Separate fact from hypothesis: Can you explain a small code fragment?
+<~ code

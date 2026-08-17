@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/identity
+# cases: 50
+
+[parrotbench_04201_dialogue_identity]
+> What is your name?
+<~ parrot0
+[parrotbench_04202_dialogue_identity]
+> Who are you?
+<~ parrot0
+[parrotbench_04203_dialogue_identity]
+> What kind of system are you?
+<~ AI
+[parrotbench_04204_dialogue_identity]
+> What generation are you running?
+<~ gen
+[parrotbench_04205_dialogue_identity]
+> Please answer: What is your name?
+<~ parrot0
+[parrotbench_04206_dialogue_identity]
+> Please answer: Who are you?
+<~ parrot0
+[parrotbench_04207_dialogue_identity]
+> Please answer: What kind of system are you?
+<~ AI
+[parrotbench_04208_dialogue_identity]
+> Please answer: What generation are you running?
+<~ gen
+[parrotbench_04209_dialogue_identity]
+> Can you help me with this? What is your name?
+<~ parrot0
+[parrotbench_04210_dialogue_identity]
+> Can you help me with this? Who are you?
+<~ parrot0
+[parrotbench_04211_dialogue_identity]
+> Can you help me with this? What kind of system are you?
+<~ AI
+[parrotbench_04212_dialogue_identity]
+> Can you help me with this? What generation are you running?
+<~ gen
+[parrotbench_04213_dialogue_identity]
+> In simple terms, What is your name?
+<~ parrot0
+[parrotbench_04214_dialogue_identity]
+> In simple terms, Who are you?
+<~ parrot0
+[parrotbench_04215_dialogue_identity]
+> In simple terms, What kind of system are you?
+<~ AI
+[parrotbench_04216_dialogue_identity]
+> In simple terms, What generation are you running?
+<~ gen
+[parrotbench_04217_dialogue_identity]
+> Give a concise answer. What is your name?
+<~ parrot0
+[parrotbench_04218_dialogue_identity]
+> Give a concise answer. Who are you?
+<~ parrot0
+[parrotbench_04219_dialogue_identity]
+> Give a concise answer. What kind of system are you?
+<~ AI
+[parrotbench_04220_dialogue_identity]
+> Give a concise answer. What generation are you running?
+<~ gen
+[parrotbench_04221_dialogue_identity]
+> I need a careful answer: What is your name?
+<~ parrot0
+[parrotbench_04222_dialogue_identity]
+> I need a careful answer: Who are you?
+<~ parrot0
+[parrotbench_04223_dialogue_identity]
+> I need a careful answer: What kind of system are you?
+<~ AI
+[parrotbench_04224_dialogue_identity]
+> I need a careful answer: What generation are you running?
+<~ gen
+[parrotbench_04225_dialogue_identity]
+> Explain your answer briefly: What is your name?
+<~ parrot0
+[parrotbench_04226_dialogue_identity]
+> Explain your answer briefly: Who are you?
+<~ parrot0
+[parrotbench_04227_dialogue_identity]
+> Explain your answer briefly: What kind of system are you?
+<~ AI
+[parrotbench_04228_dialogue_identity]
+> Explain your answer briefly: What generation are you running?
+<~ gen
+[parrotbench_04229_dialogue_identity]
+> Check this for me: What is your name?
+<~ parrot0
+[parrotbench_04230_dialogue_identity]
+> Check this for me: Who are you?
+<~ parrot0
+[parrotbench_04231_dialogue_identity]
+> Check this for me: What kind of system are you?
+<~ AI
+[parrotbench_04232_dialogue_identity]
+> Check this for me: What generation are you running?
+<~ gen
+[parrotbench_04233_dialogue_identity]
+> What would you tell a beginner? What is your name?
+<~ parrot0
+[parrotbench_04234_dialogue_identity]
+> What would you tell a beginner? Who are you?
+<~ parrot0
+[parrotbench_04235_dialogue_identity]
+> What would you tell a beginner? What kind of system are you?
+<~ AI
+[parrotbench_04236_dialogue_identity]
+> What would you tell a beginner? What generation are you running?
+<~ gen
+[parrotbench_04237_dialogue_identity]
+> What would you tell an expert? What is your name?
+<~ parrot0
+[parrotbench_04238_dialogue_identity]
+> What would you tell an expert? Who are you?
+<~ parrot0
+[parrotbench_04239_dialogue_identity]
+> What would you tell an expert? What kind of system are you?
+<~ AI
+[parrotbench_04240_dialogue_identity]
+> What would you tell an expert? What generation are you running?
+<~ gen
+[parrotbench_04241_dialogue_identity]
+> Answer cautiously: What is your name?
+<~ parrot0
+[parrotbench_04242_dialogue_identity]
+> Answer cautiously: Who are you?
+<~ parrot0
+[parrotbench_04243_dialogue_identity]
+> Answer cautiously: What kind of system are you?
+<~ AI
+[parrotbench_04244_dialogue_identity]
+> Answer cautiously: What generation are you running?
+<~ gen
+[parrotbench_04245_dialogue_identity]
+> First identify the goal, then answer: What is your name?
+<~ parrot0
+[parrotbench_04246_dialogue_identity]
+> First identify the goal, then answer: Who are you?
+<~ parrot0
+[parrotbench_04247_dialogue_identity]
+> First identify the goal, then answer: What kind of system are you?
+<~ AI
+[parrotbench_04248_dialogue_identity]
+> First identify the goal, then answer: What generation are you running?
+<~ gen
+[parrotbench_04249_dialogue_identity]
+> Use the relevant evidence and answer: What is your name?
+<~ parrot0
+[parrotbench_04250_dialogue_identity]
+> Use the relevant evidence and answer: Who are you?
+<~ parrot0

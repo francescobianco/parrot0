@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 50
+
+[parrotbench_06901_format_summaries]
+> Answer as if this were a release review: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06902_format_summaries]
+> Answer as if this were a release review: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06903_format_summaries]
+> Answer as if this were a release review: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06904_format_summaries]
+> Answer as if this were a release review: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06905_format_summaries]
+> Give the strongest answer supported by the KB: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06906_format_summaries]
+> Give the strongest answer supported by the KB: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06907_format_summaries]
+> Give the strongest answer supported by the KB: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06908_format_summaries]
+> Give the strongest answer supported by the KB: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06909_format_summaries]
+> Do not confuse a wall with an answer. Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06910_format_summaries]
+> Do not confuse a wall with an answer. Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06911_format_summaries]
+> Do not confuse a wall with an answer. Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06912_format_summaries]
+> Do not confuse a wall with an answer. State the conclusion before the details.
+<~ conclusion
+[parrotbench_06913_format_summaries]
+> What is the operational interpretation of this? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06914_format_summaries]
+> What is the operational interpretation of this? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06915_format_summaries]
+> What is the operational interpretation of this? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06916_format_summaries]
+> What is the operational interpretation of this? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06917_format_summaries]
+> Start with the direct answer, then qualify it: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06918_format_summaries]
+> Start with the direct answer, then qualify it: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06919_format_summaries]
+> Start with the direct answer, then qualify it: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06920_format_summaries]
+> Start with the direct answer, then qualify it: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06921_format_summaries]
+> Identify the entities and relations first: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06922_format_summaries]
+> Identify the entities and relations first: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06923_format_summaries]
+> Identify the entities and relations first: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06924_format_summaries]
+> Identify the entities and relations first: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06925_format_summaries]
+> Treat this as a new domain and explain your model: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06926_format_summaries]
+> Treat this as a new domain and explain your model: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06927_format_summaries]
+> Treat this as a new domain and explain your model: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06928_format_summaries]
+> Treat this as a new domain and explain your model: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06929_format_summaries]
+> What would you need to verify before answering? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06930_format_summaries]
+> What would you need to verify before answering? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06931_format_summaries]
+> What would you need to verify before answering? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06932_format_summaries]
+> What would you need to verify before answering? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06933_format_summaries]
+> Keep alternatives separate while answering: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06934_format_summaries]
+> Keep alternatives separate while answering: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06935_format_summaries]
+> Keep alternatives separate while answering: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06936_format_summaries]
+> Keep alternatives separate while answering: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06937_format_summaries]
+> State one conclusion and one uncertainty: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06938_format_summaries]
+> State one conclusion and one uncertainty: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06939_format_summaries]
+> State one conclusion and one uncertainty: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06940_format_summaries]
+> State one conclusion and one uncertainty: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06941_format_summaries]
+> Use a concrete example in your answer: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06942_format_summaries]
+> Use a concrete example in your answer: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06943_format_summaries]
+> Use a concrete example in your answer: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06944_format_summaries]
+> Use a concrete example in your answer: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06945_format_summaries]
+> Avoid changing the subject: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06946_format_summaries]
+> Avoid changing the subject: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06947_format_summaries]
+> Avoid changing the subject: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06948_format_summaries]
+> Avoid changing the subject: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06949_format_summaries]
+> Answer the user's actual goal: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06950_format_summaries]
+> Answer the user's actual goal: Give a one-sentence summary of democracy.
+<~ democracy

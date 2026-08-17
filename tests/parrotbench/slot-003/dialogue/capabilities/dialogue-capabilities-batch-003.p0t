@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/capabilities
+# cases: 50
+
+[parrotbench_04501_dialogue_capabilities]
+> Answer as if this were a release review: What can you do?
+<~ capability
+[parrotbench_04502_dialogue_capabilities]
+> Answer as if this were a release review: What can you not do reliably?
+<~ cannot
+[parrotbench_04503_dialogue_capabilities]
+> Answer as if this were a release review: Which abilities are still immature?
+<~ immature
+[parrotbench_04504_dialogue_capabilities]
+> Answer as if this were a release review: Do you use a language model at runtime?
+<~ no
+[parrotbench_04505_dialogue_capabilities]
+> Give the strongest answer supported by the KB: What can you do?
+<~ capability
+[parrotbench_04506_dialogue_capabilities]
+> Give the strongest answer supported by the KB: What can you not do reliably?
+<~ cannot
+[parrotbench_04507_dialogue_capabilities]
+> Give the strongest answer supported by the KB: Which abilities are still immature?
+<~ immature
+[parrotbench_04508_dialogue_capabilities]
+> Give the strongest answer supported by the KB: Do you use a language model at runtime?
+<~ no
+[parrotbench_04509_dialogue_capabilities]
+> Do not confuse a wall with an answer. What can you do?
+<~ capability
+[parrotbench_04510_dialogue_capabilities]
+> Do not confuse a wall with an answer. What can you not do reliably?
+<~ cannot
+[parrotbench_04511_dialogue_capabilities]
+> Do not confuse a wall with an answer. Which abilities are still immature?
+<~ immature
+[parrotbench_04512_dialogue_capabilities]
+> Do not confuse a wall with an answer. Do you use a language model at runtime?
+<~ no
+[parrotbench_04513_dialogue_capabilities]
+> What is the operational interpretation of this? What can you do?
+<~ capability
+[parrotbench_04514_dialogue_capabilities]
+> What is the operational interpretation of this? What can you not do reliably?
+<~ cannot
+[parrotbench_04515_dialogue_capabilities]
+> What is the operational interpretation of this? Which abilities are still immature?
+<~ immature
+[parrotbench_04516_dialogue_capabilities]
+> What is the operational interpretation of this? Do you use a language model at runtime?
+<~ no
+[parrotbench_04517_dialogue_capabilities]
+> Start with the direct answer, then qualify it: What can you do?
+<~ capability
+[parrotbench_04518_dialogue_capabilities]
+> Start with the direct answer, then qualify it: What can you not do reliably?
+<~ cannot
+[parrotbench_04519_dialogue_capabilities]
+> Start with the direct answer, then qualify it: Which abilities are still immature?
+<~ immature
+[parrotbench_04520_dialogue_capabilities]
+> Start with the direct answer, then qualify it: Do you use a language model at runtime?
+<~ no
+[parrotbench_04521_dialogue_capabilities]
+> Identify the entities and relations first: What can you do?
+<~ capability
+[parrotbench_04522_dialogue_capabilities]
+> Identify the entities and relations first: What can you not do reliably?
+<~ cannot
+[parrotbench_04523_dialogue_capabilities]
+> Identify the entities and relations first: Which abilities are still immature?
+<~ immature
+[parrotbench_04524_dialogue_capabilities]
+> Identify the entities and relations first: Do you use a language model at runtime?
+<~ no
+[parrotbench_04525_dialogue_capabilities]
+> Treat this as a new domain and explain your model: What can you do?
+<~ capability
+[parrotbench_04526_dialogue_capabilities]
+> Treat this as a new domain and explain your model: What can you not do reliably?
+<~ cannot
+[parrotbench_04527_dialogue_capabilities]
+> Treat this as a new domain and explain your model: Which abilities are still immature?
+<~ immature
+[parrotbench_04528_dialogue_capabilities]
+> Treat this as a new domain and explain your model: Do you use a language model at runtime?
+<~ no
+[parrotbench_04529_dialogue_capabilities]
+> What would you need to verify before answering? What can you do?
+<~ capability
+[parrotbench_04530_dialogue_capabilities]
+> What would you need to verify before answering? What can you not do reliably?
+<~ cannot
+[parrotbench_04531_dialogue_capabilities]
+> What would you need to verify before answering? Which abilities are still immature?
+<~ immature
+[parrotbench_04532_dialogue_capabilities]
+> What would you need to verify before answering? Do you use a language model at runtime?
+<~ no
+[parrotbench_04533_dialogue_capabilities]
+> Keep alternatives separate while answering: What can you do?
+<~ capability
+[parrotbench_04534_dialogue_capabilities]
+> Keep alternatives separate while answering: What can you not do reliably?
+<~ cannot
+[parrotbench_04535_dialogue_capabilities]
+> Keep alternatives separate while answering: Which abilities are still immature?
+<~ immature
+[parrotbench_04536_dialogue_capabilities]
+> Keep alternatives separate while answering: Do you use a language model at runtime?
+<~ no
+[parrotbench_04537_dialogue_capabilities]
+> State one conclusion and one uncertainty: What can you do?
+<~ capability
+[parrotbench_04538_dialogue_capabilities]
+> State one conclusion and one uncertainty: What can you not do reliably?
+<~ cannot
+[parrotbench_04539_dialogue_capabilities]
+> State one conclusion and one uncertainty: Which abilities are still immature?
+<~ immature
+[parrotbench_04540_dialogue_capabilities]
+> State one conclusion and one uncertainty: Do you use a language model at runtime?
+<~ no
+[parrotbench_04541_dialogue_capabilities]
+> Use a concrete example in your answer: What can you do?
+<~ capability
+[parrotbench_04542_dialogue_capabilities]
+> Use a concrete example in your answer: What can you not do reliably?
+<~ cannot
+[parrotbench_04543_dialogue_capabilities]
+> Use a concrete example in your answer: Which abilities are still immature?
+<~ immature
+[parrotbench_04544_dialogue_capabilities]
+> Use a concrete example in your answer: Do you use a language model at runtime?
+<~ no
+[parrotbench_04545_dialogue_capabilities]
+> Avoid changing the subject: What can you do?
+<~ capability
+[parrotbench_04546_dialogue_capabilities]
+> Avoid changing the subject: What can you not do reliably?
+<~ cannot
+[parrotbench_04547_dialogue_capabilities]
+> Avoid changing the subject: Which abilities are still immature?
+<~ immature
+[parrotbench_04548_dialogue_capabilities]
+> Avoid changing the subject: Do you use a language model at runtime?
+<~ no
+[parrotbench_04549_dialogue_capabilities]
+> Answer the user's actual goal: What can you do?
+<~ capability
+[parrotbench_04550_dialogue_capabilities]
+> Answer the user's actual goal: What can you not do reliably?
+<~ cannot

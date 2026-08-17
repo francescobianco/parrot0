@@ -13,8 +13,9 @@
 > indicatore comparativo fra release, non una condizione per dichiarare verde
 > il progetto.
 
-`parrotbench/corpus/` contiene almeno 10.000 prompt organizzati in categorie e
-slot `.p0t` piccoli, con nomi auto-descrittivi come
+La root `tests/parrotbench/` contiene obbligatoriamente directory di slot con
+nomi `slot-XXX`; ogni slot contiene le categorie e piccoli file `.p0t`, con nomi
+auto-descrittivi come
 `logic-causality-batch-001.p0t`. Il formato `.p0t` e' processato dal daemon nativo
 `parrot0 --bench-engine`, variante di `--test-engine`: non esiste un runner
 Python alternativo e i file non vengono interpretati da un harness parallelo.
@@ -52,7 +53,7 @@ cosi' un'interruzione non perde il lavoro gia' completato. Il registro e'
 leggibile mentre il processo e' in corso. Per ripartire da zero si puo'
 rimuovere manualmente `tests/parrotbench/results/progress.tsv`.
 
-Il file `tests/parrotbench/results/histogram.tsv` aggrega per categoria
+Il file `tests/parrotbench/results/histogram.tsv` aggrega per slot
 `passed`, `failed`, `total` e `percent`: e' il dataset per istogrammi delle
 abilita' in cui parrot0 eccelle o e' carente. Il file viene aggiornato dopo ogni
 slot, quindi anche una run interrotta lascia una fotografia parziale esplicita.
@@ -96,20 +97,23 @@ parrot0 --bench-engine --sock obj/bench-engine.sock \
 Poi invia ogni slot con:
 
 ```sh
-parrot0 --bench tests/parrotbench/corpus/<area>/<categoria>/<categoria>-batch-001.p0t \
+parrot0 --bench tests/parrotbench/slot-001/logic/logic-causality-batch-001.p0t \
   --sock obj/bench-engine.sock
 ```
 
 `--bench PATH` accetta anche una directory e la percorre ricorsivamente, oppure
-un glob di file `.p0t`:
+un glob di directory/file `.p0t`:
 
 ```sh
-parrot0 --bench tests/parrotbench/corpus --sock obj/bench-engine.sock
-parrot0 --bench 'tests/parrotbench/corpus/logic/*/*.p0t' --sock obj/bench-engine.sock
+parrot0 --bench tests/parrotbench --sock obj/bench-engine.sock
+parrot0 --bench 'tests/parrotbench/slot-*' --sock obj/bench-engine.sock
 ```
 
-Ogni file trovato resta uno slot separato nel `bench-engine`; non occorre
-scrivere una riga di shell per ogni categoria o batch.
+La forma raccomandata e' la root `tests/parrotbench`: il client verifica che
+esistano directory `slot-XXX`, invia ogni slot come un'unita' e rifiuta una
+root senza slot con `bench: no test slots found`. Un glob di slot invia anch'esso
+un gruppo alla volta. Non occorre scrivere una riga di shell per ogni categoria
+o batch.
 
 Al termine chiede il riepilogo e chiude il daemon:
 
@@ -118,12 +122,18 @@ parrot0 --bench-report --sock obj/bench-engine.sock
 ```
 
 Il client e' un relay socket leggero, come `--test`; il Brain e il caricamento
-della KB esistono solo nel daemon. Il daemon legge il registro all'avvio:
+della KB esistono solo nel daemon. Il daemon legge il registro all'avvio,
+indicizzato per directory slot:
 
 - `complete`: lo slot viene saltato;
 - `running`: lo slot viene ripetuto, quindi un'interruzione non lo considera
   completato;
 - assente: lo slot viene eseguito e registrato.
+
+Se uno slot contiene categorie gia' presenti in un altro slot non c'e' collisione:
+la chiave di ripresa e' il nome completo `slot-XXX`, non il nome della categoria.
+Se l'esecuzione si interrompe durante uno slot, al riavvio viene rifatto l'intero
+slot incompleto, non viene dichiarato completato a meta'.
 
 Il record `running` viene scritto prima dell'elaborazione e il record
 `complete` solo dopo aver verificato tutte le asserzioni dello slot. Il registro

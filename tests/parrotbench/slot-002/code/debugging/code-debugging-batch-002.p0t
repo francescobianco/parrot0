@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: code/debugging
+# cases: 50
+
+[parrotbench_08451_code_debugging]
+> Use the relevant evidence and answer: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08452_code_debugging]
+> Use the relevant evidence and answer: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08453_code_debugging]
+> Do not invent facts. A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08454_code_debugging]
+> Do not invent facts. What is a regression?
+<~ change
+[parrotbench_08455_code_debugging]
+> Do not invent facts. How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08456_code_debugging]
+> Do not invent facts. Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08457_code_debugging]
+> Keep the answer useful and honest: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08458_code_debugging]
+> Keep the answer useful and honest: What is a regression?
+<~ change
+[parrotbench_08459_code_debugging]
+> Keep the answer useful and honest: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08460_code_debugging]
+> Keep the answer useful and honest: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08461_code_debugging]
+> In italiano, A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08462_code_debugging]
+> In italiano, What is a regression?
+<~ change
+[parrotbench_08463_code_debugging]
+> In italiano, How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08464_code_debugging]
+> In italiano, Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08465_code_debugging]
+> Rispondi brevemente: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08466_code_debugging]
+> Rispondi brevemente: What is a regression?
+<~ change
+[parrotbench_08467_code_debugging]
+> Rispondi brevemente: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08468_code_debugging]
+> Rispondi brevemente: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08469_code_debugging]
+> Spiegalo in parole semplici: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08470_code_debugging]
+> Spiegalo in parole semplici: What is a regression?
+<~ change
+[parrotbench_08471_code_debugging]
+> Spiegalo in parole semplici: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08472_code_debugging]
+> Spiegalo in parole semplici: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08473_code_debugging]
+> Prima dimmi cosa manca, poi: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08474_code_debugging]
+> Prima dimmi cosa manca, poi: What is a regression?
+<~ change
+[parrotbench_08475_code_debugging]
+> Prima dimmi cosa manca, poi: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08476_code_debugging]
+> Prima dimmi cosa manca, poi: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08477_code_debugging]
+> What is the shortest useful answer to this? A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08478_code_debugging]
+> What is the shortest useful answer to this? What is a regression?
+<~ change
+[parrotbench_08479_code_debugging]
+> What is the shortest useful answer to this? How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08480_code_debugging]
+> What is the shortest useful answer to this? Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08481_code_debugging]
+> Challenge your first interpretation: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08482_code_debugging]
+> Challenge your first interpretation: What is a regression?
+<~ change
+[parrotbench_08483_code_debugging]
+> Challenge your first interpretation: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08484_code_debugging]
+> Challenge your first interpretation: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08485_code_debugging]
+> State uncertainty if needed: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08486_code_debugging]
+> State uncertainty if needed: What is a regression?
+<~ change
+[parrotbench_08487_code_debugging]
+> State uncertainty if needed: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08488_code_debugging]
+> State uncertainty if needed: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08489_code_debugging]
+> Answer without a generic template: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08490_code_debugging]
+> Answer without a generic template: What is a regression?
+<~ change
+[parrotbench_08491_code_debugging]
+> Answer without a generic template: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08492_code_debugging]
+> Answer without a generic template: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08493_code_debugging]
+> Give the answer and one reason: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08494_code_debugging]
+> Give the answer and one reason: What is a regression?
+<~ change
+[parrotbench_08495_code_debugging]
+> Give the answer and one reason: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08496_code_debugging]
+> Give the answer and one reason: Why keep a minimal reproducer?
+<~ repro
+[parrotbench_08497_code_debugging]
+> Separate fact from hypothesis: A test fails after a change. What should be inspected first?
+<~ failure
+[parrotbench_08498_code_debugging]
+> Separate fact from hypothesis: What is a regression?
+<~ change
+[parrotbench_08499_code_debugging]
+> Separate fact from hypothesis: How should a bug report become a hypothesis?
+<~ hypoth
+[parrotbench_08500_code_debugging]
+> Separate fact from hypothesis: Why keep a minimal reproducer?
+<~ repro

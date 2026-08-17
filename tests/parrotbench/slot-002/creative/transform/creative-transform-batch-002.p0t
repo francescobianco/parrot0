@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-002: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: creative/transform
+# cases: 50
+
+[parrotbench_10251_creative_transform]
+> Use the relevant evidence and answer: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10252_creative_transform]
+> Use the relevant evidence and answer: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10253_creative_transform]
+> Do not invent facts. Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10254_creative_transform]
+> Do not invent facts. Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10255_creative_transform]
+> Do not invent facts. Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10256_creative_transform]
+> Do not invent facts. Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10257_creative_transform]
+> Keep the answer useful and honest: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10258_creative_transform]
+> Keep the answer useful and honest: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10259_creative_transform]
+> Keep the answer useful and honest: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10260_creative_transform]
+> Keep the answer useful and honest: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10261_creative_transform]
+> In italiano, Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10262_creative_transform]
+> In italiano, Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10263_creative_transform]
+> In italiano, Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10264_creative_transform]
+> In italiano, Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10265_creative_transform]
+> Rispondi brevemente: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10266_creative_transform]
+> Rispondi brevemente: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10267_creative_transform]
+> Rispondi brevemente: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10268_creative_transform]
+> Rispondi brevemente: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10269_creative_transform]
+> Spiegalo in parole semplici: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10270_creative_transform]
+> Spiegalo in parole semplici: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10271_creative_transform]
+> Spiegalo in parole semplici: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10272_creative_transform]
+> Spiegalo in parole semplici: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10273_creative_transform]
+> Prima dimmi cosa manca, poi: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10274_creative_transform]
+> Prima dimmi cosa manca, poi: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10275_creative_transform]
+> Prima dimmi cosa manca, poi: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10276_creative_transform]
+> Prima dimmi cosa manca, poi: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10277_creative_transform]
+> What is the shortest useful answer to this? Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10278_creative_transform]
+> What is the shortest useful answer to this? Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10279_creative_transform]
+> What is the shortest useful answer to this? Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10280_creative_transform]
+> What is the shortest useful answer to this? Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10281_creative_transform]
+> Challenge your first interpretation: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10282_creative_transform]
+> Challenge your first interpretation: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10283_creative_transform]
+> Challenge your first interpretation: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10284_creative_transform]
+> Challenge your first interpretation: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10285_creative_transform]
+> State uncertainty if needed: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10286_creative_transform]
+> State uncertainty if needed: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10287_creative_transform]
+> State uncertainty if needed: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10288_creative_transform]
+> State uncertainty if needed: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10289_creative_transform]
+> Answer without a generic template: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10290_creative_transform]
+> Answer without a generic template: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10291_creative_transform]
+> Answer without a generic template: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10292_creative_transform]
+> Answer without a generic template: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10293_creative_transform]
+> Give the answer and one reason: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10294_creative_transform]
+> Give the answer and one reason: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10295_creative_transform]
+> Give the answer and one reason: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10296_creative_transform]
+> Give the answer and one reason: Give three different phrasings of the same idea.
+<~ different
+[parrotbench_10297_creative_transform]
+> Separate fact from hypothesis: Rewrite this sentence in a formal tone.
+<~ formal
+[parrotbench_10298_creative_transform]
+> Separate fact from hypothesis: Turn a factual paragraph into a question.
+<~ question
+[parrotbench_10299_creative_transform]
+> Separate fact from hypothesis: Make this explanation shorter without losing its point.
+<~ short
+[parrotbench_10300_creative_transform]
+> Separate fact from hypothesis: Give three different phrasings of the same idea.
+<~ different

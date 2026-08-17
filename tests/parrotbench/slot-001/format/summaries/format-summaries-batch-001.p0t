@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: format/summaries
+# cases: 50
+
+[parrotbench_06801_format_summaries]
+> Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06802_format_summaries]
+> Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06803_format_summaries]
+> Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06804_format_summaries]
+> State the conclusion before the details.
+<~ conclusion
+[parrotbench_06805_format_summaries]
+> Please answer: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06806_format_summaries]
+> Please answer: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06807_format_summaries]
+> Please answer: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06808_format_summaries]
+> Please answer: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06809_format_summaries]
+> Can you help me with this? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06810_format_summaries]
+> Can you help me with this? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06811_format_summaries]
+> Can you help me with this? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06812_format_summaries]
+> Can you help me with this? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06813_format_summaries]
+> In simple terms, Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06814_format_summaries]
+> In simple terms, Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06815_format_summaries]
+> In simple terms, Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06816_format_summaries]
+> In simple terms, State the conclusion before the details.
+<~ conclusion
+[parrotbench_06817_format_summaries]
+> Give a concise answer. Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06818_format_summaries]
+> Give a concise answer. Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06819_format_summaries]
+> Give a concise answer. Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06820_format_summaries]
+> Give a concise answer. State the conclusion before the details.
+<~ conclusion
+[parrotbench_06821_format_summaries]
+> I need a careful answer: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06822_format_summaries]
+> I need a careful answer: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06823_format_summaries]
+> I need a careful answer: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06824_format_summaries]
+> I need a careful answer: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06825_format_summaries]
+> Explain your answer briefly: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06826_format_summaries]
+> Explain your answer briefly: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06827_format_summaries]
+> Explain your answer briefly: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06828_format_summaries]
+> Explain your answer briefly: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06829_format_summaries]
+> Check this for me: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06830_format_summaries]
+> Check this for me: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06831_format_summaries]
+> Check this for me: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06832_format_summaries]
+> Check this for me: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06833_format_summaries]
+> What would you tell a beginner? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06834_format_summaries]
+> What would you tell a beginner? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06835_format_summaries]
+> What would you tell a beginner? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06836_format_summaries]
+> What would you tell a beginner? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06837_format_summaries]
+> What would you tell an expert? Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06838_format_summaries]
+> What would you tell an expert? Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06839_format_summaries]
+> What would you tell an expert? Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06840_format_summaries]
+> What would you tell an expert? State the conclusion before the details.
+<~ conclusion
+[parrotbench_06841_format_summaries]
+> Answer cautiously: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06842_format_summaries]
+> Answer cautiously: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06843_format_summaries]
+> Answer cautiously: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06844_format_summaries]
+> Answer cautiously: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06845_format_summaries]
+> First identify the goal, then answer: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06846_format_summaries]
+> First identify the goal, then answer: Give a one-sentence summary of democracy.
+<~ democracy
+[parrotbench_06847_format_summaries]
+> First identify the goal, then answer: Summarize the purpose of a KB in five words.
+<~ KB
+[parrotbench_06848_format_summaries]
+> First identify the goal, then answer: State the conclusion before the details.
+<~ conclusion
+[parrotbench_06849_format_summaries]
+> Use the relevant evidence and answer: Summarize evolution in two sentences.
+<~ evolution
+[parrotbench_06850_format_summaries]
+> Use the relevant evidence and answer: Give a one-sentence summary of democracy.
+<~ democracy

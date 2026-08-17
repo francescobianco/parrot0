@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: dialogue/memory
+# cases: 50
+
+[parrotbench_04601_dialogue_memory]
+> Remember that my name is Luca.
+<~ Luca
+[parrotbench_04602_dialogue_memory]
+> Remember that my favorite color is green.
+<~ green
+[parrotbench_04603_dialogue_memory]
+> What should a memory record include?
+<~ fact
+[parrotbench_04604_dialogue_memory]
+> What does forgetting a fact mean?
+<~ forget
+[parrotbench_04605_dialogue_memory]
+> Please answer: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04606_dialogue_memory]
+> Please answer: Remember that my favorite color is green.
+<~ green
+[parrotbench_04607_dialogue_memory]
+> Please answer: What should a memory record include?
+<~ fact
+[parrotbench_04608_dialogue_memory]
+> Please answer: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04609_dialogue_memory]
+> Can you help me with this? Remember that my name is Luca.
+<~ Luca
+[parrotbench_04610_dialogue_memory]
+> Can you help me with this? Remember that my favorite color is green.
+<~ green
+[parrotbench_04611_dialogue_memory]
+> Can you help me with this? What should a memory record include?
+<~ fact
+[parrotbench_04612_dialogue_memory]
+> Can you help me with this? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04613_dialogue_memory]
+> In simple terms, Remember that my name is Luca.
+<~ Luca
+[parrotbench_04614_dialogue_memory]
+> In simple terms, Remember that my favorite color is green.
+<~ green
+[parrotbench_04615_dialogue_memory]
+> In simple terms, What should a memory record include?
+<~ fact
+[parrotbench_04616_dialogue_memory]
+> In simple terms, What does forgetting a fact mean?
+<~ forget
+[parrotbench_04617_dialogue_memory]
+> Give a concise answer. Remember that my name is Luca.
+<~ Luca
+[parrotbench_04618_dialogue_memory]
+> Give a concise answer. Remember that my favorite color is green.
+<~ green
+[parrotbench_04619_dialogue_memory]
+> Give a concise answer. What should a memory record include?
+<~ fact
+[parrotbench_04620_dialogue_memory]
+> Give a concise answer. What does forgetting a fact mean?
+<~ forget
+[parrotbench_04621_dialogue_memory]
+> I need a careful answer: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04622_dialogue_memory]
+> I need a careful answer: Remember that my favorite color is green.
+<~ green
+[parrotbench_04623_dialogue_memory]
+> I need a careful answer: What should a memory record include?
+<~ fact
+[parrotbench_04624_dialogue_memory]
+> I need a careful answer: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04625_dialogue_memory]
+> Explain your answer briefly: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04626_dialogue_memory]
+> Explain your answer briefly: Remember that my favorite color is green.
+<~ green
+[parrotbench_04627_dialogue_memory]
+> Explain your answer briefly: What should a memory record include?
+<~ fact
+[parrotbench_04628_dialogue_memory]
+> Explain your answer briefly: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04629_dialogue_memory]
+> Check this for me: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04630_dialogue_memory]
+> Check this for me: Remember that my favorite color is green.
+<~ green
+[parrotbench_04631_dialogue_memory]
+> Check this for me: What should a memory record include?
+<~ fact
+[parrotbench_04632_dialogue_memory]
+> Check this for me: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04633_dialogue_memory]
+> What would you tell a beginner? Remember that my name is Luca.
+<~ Luca
+[parrotbench_04634_dialogue_memory]
+> What would you tell a beginner? Remember that my favorite color is green.
+<~ green
+[parrotbench_04635_dialogue_memory]
+> What would you tell a beginner? What should a memory record include?
+<~ fact
+[parrotbench_04636_dialogue_memory]
+> What would you tell a beginner? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04637_dialogue_memory]
+> What would you tell an expert? Remember that my name is Luca.
+<~ Luca
+[parrotbench_04638_dialogue_memory]
+> What would you tell an expert? Remember that my favorite color is green.
+<~ green
+[parrotbench_04639_dialogue_memory]
+> What would you tell an expert? What should a memory record include?
+<~ fact
+[parrotbench_04640_dialogue_memory]
+> What would you tell an expert? What does forgetting a fact mean?
+<~ forget
+[parrotbench_04641_dialogue_memory]
+> Answer cautiously: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04642_dialogue_memory]
+> Answer cautiously: Remember that my favorite color is green.
+<~ green
+[parrotbench_04643_dialogue_memory]
+> Answer cautiously: What should a memory record include?
+<~ fact
+[parrotbench_04644_dialogue_memory]
+> Answer cautiously: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04645_dialogue_memory]
+> First identify the goal, then answer: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04646_dialogue_memory]
+> First identify the goal, then answer: Remember that my favorite color is green.
+<~ green
+[parrotbench_04647_dialogue_memory]
+> First identify the goal, then answer: What should a memory record include?
+<~ fact
+[parrotbench_04648_dialogue_memory]
+> First identify the goal, then answer: What does forgetting a fact mean?
+<~ forget
+[parrotbench_04649_dialogue_memory]
+> Use the relevant evidence and answer: Remember that my name is Luca.
+<~ Luca
+[parrotbench_04650_dialogue_memory]
+> Use the relevant evidence and answer: Remember that my favorite color is green.
+<~ green

@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-001: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/entailment
+# cases: 50
+
+[parrotbench_02001_logic_entailment]
+> All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02002_logic_entailment]
+> All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02003_logic_entailment]
+> Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02004_logic_entailment]
+> If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02005_logic_entailment]
+> Please answer: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02006_logic_entailment]
+> Please answer: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02007_logic_entailment]
+> Please answer: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02008_logic_entailment]
+> Please answer: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02009_logic_entailment]
+> Can you help me with this? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02010_logic_entailment]
+> Can you help me with this? All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02011_logic_entailment]
+> Can you help me with this? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02012_logic_entailment]
+> Can you help me with this? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02013_logic_entailment]
+> In simple terms, All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02014_logic_entailment]
+> In simple terms, All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02015_logic_entailment]
+> In simple terms, Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02016_logic_entailment]
+> In simple terms, If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02017_logic_entailment]
+> Give a concise answer. All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02018_logic_entailment]
+> Give a concise answer. All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02019_logic_entailment]
+> Give a concise answer. Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02020_logic_entailment]
+> Give a concise answer. If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02021_logic_entailment]
+> I need a careful answer: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02022_logic_entailment]
+> I need a careful answer: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02023_logic_entailment]
+> I need a careful answer: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02024_logic_entailment]
+> I need a careful answer: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02025_logic_entailment]
+> Explain your answer briefly: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02026_logic_entailment]
+> Explain your answer briefly: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02027_logic_entailment]
+> Explain your answer briefly: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02028_logic_entailment]
+> Explain your answer briefly: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02029_logic_entailment]
+> Check this for me: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02030_logic_entailment]
+> Check this for me: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02031_logic_entailment]
+> Check this for me: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02032_logic_entailment]
+> Check this for me: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02033_logic_entailment]
+> What would you tell a beginner? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02034_logic_entailment]
+> What would you tell a beginner? All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02035_logic_entailment]
+> What would you tell a beginner? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02036_logic_entailment]
+> What would you tell a beginner? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02037_logic_entailment]
+> What would you tell an expert? All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02038_logic_entailment]
+> What would you tell an expert? All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02039_logic_entailment]
+> What would you tell an expert? Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02040_logic_entailment]
+> What would you tell an expert? If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02041_logic_entailment]
+> Answer cautiously: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02042_logic_entailment]
+> Answer cautiously: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02043_logic_entailment]
+> Answer cautiously: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02044_logic_entailment]
+> Answer cautiously: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02045_logic_entailment]
+> First identify the goal, then answer: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02046_logic_entailment]
+> First identify the goal, then answer: All roses are flowers. This is a rose. Is it a flower?
+<~ yes
+[parrotbench_02047_logic_entailment]
+> First identify the goal, then answer: Every cat is an animal. Milo is a cat. What is Milo?
+<~ animal
+[parrotbench_02048_logic_entailment]
+> First identify the goal, then answer: If A precedes B and B precedes C, who comes first?
+<~ A
+[parrotbench_02049_logic_entailment]
+> Use the relevant evidence and answer: All poets are writers. Ada is a poet. Is Ada a writer?
+<~ yes
+[parrotbench_02050_logic_entailment]
+> Use the relevant evidence and answer: All roses are flowers. This is a rose. Is it a flower?
+<~ yes

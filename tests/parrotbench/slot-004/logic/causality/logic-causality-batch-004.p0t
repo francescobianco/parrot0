@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-004: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: logic/causality
+# cases: 50
+
+[parrotbench_02551_logic_causality]
+> Answer the user's actual goal: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02552_logic_causality]
+> Answer the user's actual goal: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02553_logic_causality]
+> If the request is underspecified, say what is missing: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02554_logic_causality]
+> If the request is underspecified, say what is missing: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02555_logic_causality]
+> If the request is underspecified, say what is missing: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02556_logic_causality]
+> If the request is underspecified, say what is missing: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02557_logic_causality]
+> Can this be answered from known facts? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02558_logic_causality]
+> Can this be answered from known facts? The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02559_logic_causality]
+> Can this be answered from known facts? What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02560_logic_causality]
+> Can this be answered from known facts? What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02561_logic_causality]
+> What would a careful interlocutor say? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02562_logic_causality]
+> What would a careful interlocutor say? The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02563_logic_causality]
+> What would a careful interlocutor say? What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02564_logic_causality]
+> What would a careful interlocutor say? What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02565_logic_causality]
+> Give a short answer in English: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02566_logic_causality]
+> Give a short answer in English: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02567_logic_causality]
+> Give a short answer in English: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02568_logic_causality]
+> Give a short answer in English: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02569_logic_causality]
+> Rispondi in italiano quando possibile: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02570_logic_causality]
+> Rispondi in italiano quando possibile: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02571_logic_causality]
+> Rispondi in italiano quando possibile: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02572_logic_causality]
+> Rispondi in italiano quando possibile: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02573_logic_causality]
+> Distinguish a fact, a rule, and a hypothesis: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02574_logic_causality]
+> Distinguish a fact, a rule, and a hypothesis: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02575_logic_causality]
+> Distinguish a fact, a rule, and a hypothesis: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02576_logic_causality]
+> Distinguish a fact, a rule, and a hypothesis: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02577_logic_causality]
+> Name the relevant capability: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02578_logic_causality]
+> Name the relevant capability: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02579_logic_causality]
+> Name the relevant capability: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02580_logic_causality]
+> Name the relevant capability: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02581_logic_causality]
+> Explain the reasoning rather than a slogan: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02582_logic_causality]
+> Explain the reasoning rather than a slogan: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02583_logic_causality]
+> Explain the reasoning rather than a slogan: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02584_logic_causality]
+> Explain the reasoning rather than a slogan: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02585_logic_causality]
+> Use the user's constraint as a real constraint: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02586_logic_causality]
+> Use the user's constraint as a real constraint: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02587_logic_causality]
+> Use the user's constraint as a real constraint: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02588_logic_causality]
+> Use the user's constraint as a real constraint: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02589_logic_causality]
+> Check whether the requested format is satisfied: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02590_logic_causality]
+> Check whether the requested format is satisfied: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02591_logic_causality]
+> Check whether the requested format is satisfied: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02592_logic_causality]
+> Check whether the requested format is satisfied: What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02593_logic_causality]
+> What would make this answer wrong? If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02594_logic_causality]
+> What would make this answer wrong? The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02595_logic_causality]
+> What would make this answer wrong? What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02596_logic_causality]
+> What would make this answer wrong? What connects an initial condition to an observable result?
+<~ mechanism
+[parrotbench_02597_logic_causality]
+> Give a useful answer without pretending certainty: If it rains, the ground gets wet. It is raining. What follows?
+<~ wet
+[parrotbench_02598_logic_causality]
+> Give a useful answer without pretending certainty: The ground is wet. Did it necessarily rain?
+<~ not
+[parrotbench_02599_logic_causality]
+> Give a useful answer without pretending certainty: What is the difference between cause and correlation?
+<~ cause
+[parrotbench_02600_logic_causality]
+> Give a useful answer without pretending certainty: What connects an initial condition to an observable result?
+<~ mechanism

@@ -1,0 +1,156 @@
+# PARROTBENCH SLOT slot-003: MANUAL-ONLY DISCOVERY BENCHMARK
+# DO NOT RUN AS TDD, REGRESSION, GATE, SOFT-TEST, OR AUTOMATIC CHECK.
+# Run only through make parrotbench when release intent requests it.
+# category: math/averages
+# cases: 50
+
+[parrotbench_01501_math_averages]
+> Answer as if this were a release review: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01502_math_averages]
+> Answer as if this were a release review: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01503_math_averages]
+> Answer as if this were a release review: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01504_math_averages]
+> Answer as if this were a release review: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01505_math_averages]
+> Give the strongest answer supported by the KB: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01506_math_averages]
+> Give the strongest answer supported by the KB: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01507_math_averages]
+> Give the strongest answer supported by the KB: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01508_math_averages]
+> Give the strongest answer supported by the KB: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01509_math_averages]
+> Do not confuse a wall with an answer. What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01510_math_averages]
+> Do not confuse a wall with an answer. Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01511_math_averages]
+> Do not confuse a wall with an answer. What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01512_math_averages]
+> Do not confuse a wall with an answer. The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01513_math_averages]
+> What is the operational interpretation of this? What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01514_math_averages]
+> What is the operational interpretation of this? Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01515_math_averages]
+> What is the operational interpretation of this? What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01516_math_averages]
+> What is the operational interpretation of this? The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01517_math_averages]
+> Start with the direct answer, then qualify it: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01518_math_averages]
+> Start with the direct answer, then qualify it: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01519_math_averages]
+> Start with the direct answer, then qualify it: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01520_math_averages]
+> Start with the direct answer, then qualify it: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01521_math_averages]
+> Identify the entities and relations first: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01522_math_averages]
+> Identify the entities and relations first: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01523_math_averages]
+> Identify the entities and relations first: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01524_math_averages]
+> Identify the entities and relations first: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01525_math_averages]
+> Treat this as a new domain and explain your model: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01526_math_averages]
+> Treat this as a new domain and explain your model: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01527_math_averages]
+> Treat this as a new domain and explain your model: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01528_math_averages]
+> Treat this as a new domain and explain your model: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01529_math_averages]
+> What would you need to verify before answering? What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01530_math_averages]
+> What would you need to verify before answering? Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01531_math_averages]
+> What would you need to verify before answering? What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01532_math_averages]
+> What would you need to verify before answering? The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01533_math_averages]
+> Keep alternatives separate while answering: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01534_math_averages]
+> Keep alternatives separate while answering: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01535_math_averages]
+> Keep alternatives separate while answering: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01536_math_averages]
+> Keep alternatives separate while answering: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01537_math_averages]
+> State one conclusion and one uncertainty: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01538_math_averages]
+> State one conclusion and one uncertainty: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01539_math_averages]
+> State one conclusion and one uncertainty: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01540_math_averages]
+> State one conclusion and one uncertainty: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01541_math_averages]
+> Use a concrete example in your answer: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01542_math_averages]
+> Use a concrete example in your answer: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01543_math_averages]
+> Use a concrete example in your answer: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01544_math_averages]
+> Use a concrete example in your answer: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01545_math_averages]
+> Avoid changing the subject: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01546_math_averages]
+> Avoid changing the subject: Find the mean of 10 and 20.
+<~ 15
+[parrotbench_01547_math_averages]
+> Avoid changing the subject: What is the midpoint between 4 and 12?
+<~ 8
+[parrotbench_01548_math_averages]
+> Avoid changing the subject: The scores are 3, 3, and 9. What is their average?
+<~ 5
+[parrotbench_01549_math_averages]
+> Answer the user's actual goal: What is the average of 2, 4, and 6?
+<~ 4
+[parrotbench_01550_math_averages]
+> Answer the user's actual goal: Find the mean of 10 and 20.
+<~ 15
